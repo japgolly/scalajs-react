@@ -6,8 +6,8 @@ import org.scalajs.dom.{document, console}
 object Golly extends JSApp {
   override def main(): Unit = {
     console log "Starting..."
-//    eg1()
-//    eg2()
+    eg1()
+    eg2()
 
     ReactExamples.sample1()
 
@@ -29,7 +29,7 @@ object Golly extends JSApp {
     document.body appendChild makeDom(scalatags.JsDom).render
   }
 
-  def makeDom[Builder, Output](bundle: scalatags.generic.Bundle[Builder, Output]) = {
+  def makeDom[Builder, Output <: FragT, FragT](bundle: scalatags.generic.Bundle[Builder, Output, FragT]) = {
     import bundle._
     import bundle.all._
     import bundle.tags2._
