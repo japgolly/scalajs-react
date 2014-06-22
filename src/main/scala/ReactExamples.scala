@@ -4,15 +4,26 @@ import scala.scalajs.js
 import org.scalajs.dom.{Node, document, console}
 
 object ReactExamples {
-  import scala.scalajs.js
 
-//  object ReactGlobal extends js.GlobalScope {
-//    val react: React = ???
-//  }
-//  import ReactGlobal.{react => React}
+  trait ComponentScope extends js.Object {
+    type P <: js.Object
+    def props: P = ???
+  }
+
+  //  class Test(x: js.Any)// extends js.Object
+
+  type RenderFn[S <: ComponentScope] = js.ThisFunction0[S, js.Object]
+  //  class CreateClassInput[S <: ComponentScope](val render: RenderFn[S]) extends js.Object
+  trait CreateClassInput[S <: ComponentScope] extends js.Object {
+    var render: RenderFn[S] = ???
+  }
+  object CreateClassInput {
+    def apply[S <: ComponentScope](render: RenderFn[S]) =
+      js.Dynamic.literal("render" -> render).asInstanceOf[CreateClassInput[S]]
+  }
 
   trait React extends js.Object {
-    def createClass(c: js.Dynamic): ProxyFn = ???
+    def createClass[S <: ComponentScope](c: CreateClassInput[S]): ProxyFn[S#P] = ???
     def renderComponent(c: ProxyConstructor, n: Node): js.Dynamic = ???
     val DOM: DOM = ???
   }
@@ -23,30 +34,37 @@ object ReactExamples {
 
   trait ProxyConstructor extends js.Object
 
-  trait ProxyFn extends js.Object { //extends js.Function2[js.Object, js.Any, ProxyConstructor] {
+  trait ProxyFn[Props <: js.Object] extends js.Object {
     def apply(): ProxyConstructor = ???
-    def apply(props: js.Object, children: js.Any*): ProxyConstructor = ???
+    def apply(props: Props, children: js.Any*): ProxyConstructor = ???
   }
-
 
   def React = js.Dynamic.global.React.asInstanceOf[React]
 
-  def sample1(): Unit = {
-    console.log("React = ", React)
-    val renderFn: js.ThisFunction0[js.Dynamic, js.Object] =
-      (t: js.Dynamic) => React.DOM.div(null, "Hello, ", t.props.name)
-    val cc = js.Dynamic.literal("render" -> renderFn) //.asInstanceOf[js.Object]
-    console.log("RenderFn = ", renderFn)
-    console.log("CC = ", cc)
-    val HelloMessage = React.createClass(cc)
-    console.log("HelloMessage = ", HelloMessage)
-    val propobj = js.Dynamic.literal("name" -> "John").asInstanceOf[js.Object]
-    console.log("propobj = ", propobj)
-    val pc = HelloMessage(propobj)
-    console.log("PC = ", pc)
-    val tgt = document.getElementById("target")
-    console.log("TGT = ", tgt)
-    React.renderComponent(pc, tgt)
+  // ------------------------------------------------------------------------
+
+  trait HelloScope extends ComponentScope {
+    override type P = HelloProps
+  }
+  //  class HelloProps(val name: String) extends js.Object
+  trait HelloProps extends js.Object {
+    val name: String
+  }
+  object HelloProps {
+    def apply(name: String) =
+      js.Dynamic.literal("name" -> name).asInstanceOf[HelloProps]
   }
 
+
+  def sample1(): Unit = {
+    //    console.log(new Test("hehe"))
+
+    val renderFn: RenderFn[HelloScope] = (t:HelloScope) => React.DOM.div(null, "Hello, ", t.props.name)
+    val cc = CreateClassInput[HelloScope](renderFn)
+    val HelloMessage = React.createClass(cc)
+    val p = HelloProps("Johnhy")
+    val pc = HelloMessage(p)
+    val tgt = document.getElementById("target")
+    React.renderComponent(pc, tgt)
+  }
 }
