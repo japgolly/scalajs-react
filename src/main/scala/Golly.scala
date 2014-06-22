@@ -6,8 +6,11 @@ import org.scalajs.dom.{document, console}
 object Golly extends JSApp {
   override def main(): Unit = {
     console log "Starting..."
-    eg1()
-    eg2()
+//    eg1()
+//    eg2()
+
+    ReactExamples.sample1()
+
     console log "Done!"
   }
 
