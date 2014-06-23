@@ -55,12 +55,32 @@ object ReactExamples {
       js.Dynamic.literal("name" -> name).asInstanceOf[HelloProps]
   }
 
-  def sample1(): Unit = {
-    val renderFn = RenderFnP[HelloProps](p => React.DOM.div(null, "Hello, ", p.name))
+  def sampleRender(renderFn: RenderFn[HelloProps]): Unit = {
     val HelloMessage = React.createClass(CreateClassInput(renderFn))
     val pc = HelloMessage(HelloProps("Johnhy"))
 
     val tgt = document.getElementById("target")
     React.renderComponent(pc, tgt)
+  }
+
+  def sample1(): Unit = {
+    val renderFn = RenderFnP[HelloProps](p => React.DOM.div(null, "Hello, ", p.name))
+    sampleRender(renderFn)
+  }
+
+  // -------------------------
+  def sample2(): Unit = {
+    import scalatags.JsReactDom._
+    import scalatags.JsReactDom.all._
+    import scalatags.JsReactDom.tags2._
+
+    val renderFn = RenderFnP[HelloProps](props =>
+      div(backgroundColor := "#fdd", color := "#c00")(
+        h1("THIS IS AWESOME"),
+        p(textDecoration := "underline")("Hello there, ", props.name)
+      ).render
+    )
+
+    sampleRender(renderFn)
   }
 }

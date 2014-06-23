@@ -2,9 +2,11 @@ scalaJSSettings
 
 name := "Scala.js experiment"
 
-scalaVersion := "2.10.4"
+// scalaVersion := "2.10.4"
 
-// scalaVersion := "2.11.1"
+scalaVersion := "2.11.1"
+
+scalacOptions ++= Seq( "-deprecation", "-unchecked", "-language:_" )
 
 libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0-M7"
 

@@ -9,7 +9,7 @@ object Golly extends JSApp {
     eg1()
     eg2()
 
-    ReactExamples.sample1()
+    ReactExamples.sample2()
 
     console log "Done!"
   }
