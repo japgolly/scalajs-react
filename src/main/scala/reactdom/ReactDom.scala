@@ -1,7 +1,6 @@
 package golly.react.scalatags
 
 import scala.annotation.unchecked.uncheckedVariance
-import scala.scalajs.js
 import scalatags._
 import scalatags.generic._
 
@@ -20,16 +19,14 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   object svgTags extends StringTags with ReactSvgTags
   object svgStyles extends StringTags with SvgStyles
 
-
   trait StringTags extends Util{ self =>
     type ConcreteHtmlTag[T <: ReactOutput] = TypedTag[T]
 
-    protected[this] implicit def stringAttr = new GenericAttr[String]
-    protected[this] implicit def stringStyle = new GenericStyle[String]
+    protected[this] implicit def stringAttr = ReactDom.stringAttr
+    protected[this] implicit def stringStyle = ReactDom.stringStyle
 
-    def makeAbstractTypedTag[T <: ReactOutput](tag: String, void: Boolean): TypedTag[T] = {
+    def makeAbstractTypedTag[T <: ReactOutput](tag: String, void: Boolean): TypedTag[T] =
       TypedTag(tag, Nil, void)
-    }
   }
 
   implicit def byteFrag(v: Byte) = new StringFrag(v.toString)
@@ -39,7 +36,6 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   implicit def floatFrag(v: Float) = new StringFrag(v.toString)
   implicit def doubleFrag(v: Double) = new StringFrag(v.toString)
   implicit def stringFrag(v: String) = new StringFrag(v)
-
 
   object StringFrag extends Companion[StringFrag]
   case class StringFrag(v: String) extends Frag {
@@ -55,9 +51,8 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   }
 
   class GenericAttr[T] extends AttrValue[T]{
-    def apply(t: ReactBuilder, a: Attr, v: T): Unit = {
+    def apply(t: ReactBuilder, a: Attr, v: T): Unit =
       t.addAttr(a.name, v.toString)
-    }
   }
   implicit val stringAttr = new GenericAttr[String]
   implicit val booleanAttr= new GenericAttr[Boolean]
@@ -88,16 +83,13 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
       b.render(tag).asInstanceOf[Output]
     }
 
-    def apply(xs: Modifier*): TypedTag[Output] = {
+    def apply(xs: Modifier*): TypedTag[Output] =
       this.copy(tag=tag, void = void, modifiers = xs :: modifiers)
-    }
 
-    /**
-     * Converts an ScalaTag fragment into an html string
-     */
-    override def toString = (render:js.Any).toString
-
+    /** Converts an ScalaTag fragment into an html string */
+    override def toString = render.toString
   }
+
   type Tag = TypedTag[ReactOutput]
   val Tag = TypedTag
 
