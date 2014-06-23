@@ -3,8 +3,6 @@ package golly
 import scala.scalajs.js
 import org.scalajs.dom.{Node, document, console}
 
-import scala.scalajs.js.ThisFunction
-
 object ReactExamples {
 
   type Props = js.Object
@@ -70,9 +68,8 @@ object ReactExamples {
 
   // -------------------------
   def sample2(): Unit = {
-    import scalatags.JsReactDom._
-    import scalatags.JsReactDom.all._
-    import scalatags.JsReactDom.tags2._
+    import react.scalatags.ReactDom._
+    import all._
 
     val renderFn = RenderFnP[HelloProps](props =>
       div(backgroundColor := "#fdd", color := "#c00")(

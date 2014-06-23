@@ -1,13 +1,13 @@
-package scalatags
-package reactdom
+package golly.react.scalatags
 
-import scalatags.generic.Util
+import scalatags._
+import generic.Util
 
 /**
  * Contains HTML tags which are used less frequently. These are generally
  * imported individually as needed.
  */
-trait Tags2 extends generic.Tags2[ReactBuilder, ReactOutput, ReactFragT]{
+trait ReactTags2 extends generic.Tags2[ReactBuilder, ReactOutput, ReactFragT]{
 
   // Document Metadata
   /**

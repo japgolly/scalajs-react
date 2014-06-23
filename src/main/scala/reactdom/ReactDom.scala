@@ -1,31 +1,23 @@
-package scalatags
+package golly.react.scalatags
 
-import scala.scalajs.js
-import scalatags.reactdom.{RBuilder, ReactBuilder, ReactOutput, ReactFragT}
-import scalatags.generic._
-import scala.collection.SortedMap
-//import acyclic.file
-import collection.mutable
 import scala.annotation.unchecked.uncheckedVariance
+import scala.scalajs.js
+import scalatags._
+import scalatags.generic._
 
-/**
- * A Scalatags module that works with a text back-end, i.e. it creates HTML
- * `String`s.
- */
+object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
 
-object JsReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
-
-  object all extends StringTags with Attrs with Styles with reactdom.Tags with DataConverters
+  object all extends StringTags with Attrs with Styles with ReactTags with DataConverters
   object short extends StringTags with Util with DataConverters with generic.AbstractShort[ReactBuilder, ReactOutput, ReactFragT]{
     object * extends StringTags with Attrs with Styles
   }
 
   object attrs extends StringTags with Attrs
-  object tags extends StringTags with reactdom.Tags
-  object tags2 extends StringTags with reactdom.Tags2
+  object tags extends StringTags with ReactTags
+  object tags2 extends StringTags with ReactTags2
   object styles extends StringTags with Styles
   object styles2 extends StringTags with Styles2
-  object svgTags extends StringTags with reactdom.SvgTags
+  object svgTags extends StringTags with ReactSvgTags
   object svgStyles extends StringTags with SvgStyles
 
 
@@ -59,8 +51,7 @@ object JsReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   object RawFrag extends Companion[RawFrag]
   case class RawFrag(v: String) extends Modifier {
     def render: ReactFragT = v
-    def applyTo(t: RBuilder): Unit = t.appendChild(this.render)
-    //def writeTo(strb: StringBuilder) = strb ++= v
+    def applyTo(t: ReactBuilder): Unit = t.appendChild(this.render)
   }
 
   class GenericAttr[T] extends AttrValue[T]{
@@ -68,8 +59,8 @@ object JsReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
       t.addAttr(a.name, v.toString)
     }
   }
-  implicit val stringAttr = new GenericAttr[String] // TODO val ok? Text is def
-  implicit val booleanAttr= new GenericAttr[Boolean] // TODO val ok? Text is def
+  implicit val stringAttr = new GenericAttr[String]
+  implicit val booleanAttr= new GenericAttr[Boolean]
   implicit def numericAttr[T: Numeric] = new GenericAttr[T]
 
   class GenericStyle[T] extends StyleValue[T]{
@@ -77,8 +68,8 @@ object JsReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
       b.addStyle(s.cssName, v.toString)
     }
   }
-  implicit val stringStyle = new GenericStyle[String] // TODO val ok? Text is def
-  implicit val booleanStyle = new GenericStyle[Boolean] // TODO val ok? Text is def
+  implicit val stringStyle = new GenericStyle[String]
+  implicit val booleanStyle = new GenericStyle[Boolean]
   implicit def numericStyle[T: Numeric] = new GenericStyle[T]
 
   case class TypedTag[+Output <: ReactOutput](tag: String = "",
@@ -92,14 +83,9 @@ object JsReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
     protected[this] type Self = TypedTag[Output @uncheckedVariance]
 
     def render: Output = {
-      val b = new RBuilder()
+      val b = new ReactBuilder()
       build(b)
-      val args = b.props2 :: b.children2.toList
-//      js.Dynamic.global.React.DOM.applyDynamic(tag)(b.props2, b.children2: _*).asInstanceOf[Output]
-//      js.Dynamic.global.console.log("CALLING: ", tag, args)
-      val r = js.Dynamic.global.React.DOM.applyDynamic(tag)(args: _*).asInstanceOf[Output]
-//      js.Dynamic.global.console.log("  result: ", r)
-      r
+      b.render(tag).asInstanceOf[Output]
     }
 
     def apply(xs: Modifier*): TypedTag[Output] = {
@@ -109,13 +95,12 @@ object JsReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
     /**
      * Converts an ScalaTag fragment into an html string
      */
-    override def toString = "" + render
+    override def toString = (render:js.Any).toString
 
   }
   type Tag = TypedTag[ReactOutput]
   val Tag = TypedTag
 
-//  type Frag = ReactFragT
   type Frag = ReactDomFrag
   trait ReactDomFrag extends generic.Frag[ReactBuilder, ReactOutput, ReactFragT]{
     def render: ReactFragT

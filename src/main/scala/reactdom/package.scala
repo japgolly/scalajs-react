@@ -1,11 +1,8 @@
-package scalatags
+package golly.react
 
 import scala.scalajs.js
 
-package object reactdom {
-  type ReactBuilder = RBuilder
+package object scalatags {
   type ReactOutput = js.Object
   type ReactFragT = js.Any
-
-  // ReactBuilder, ReactOutput, ReactFragT
 }
