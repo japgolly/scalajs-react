@@ -2,79 +2,33 @@ package golly
 
 import scala.scalajs.js
 import org.scalajs.dom.{Node, document, console}
+import react._
 
 object ReactExamples {
 
-  type Props = js.Object
+  case class HelloProps(name: String, age: Int)
 
-  trait ComponentScope[P <: Props] extends js.Object {
-    def props: P = ???
-  }
-
-  type RenderFn[P <: Props] = js.ThisFunction0[ComponentScope[P], js.Object]
-  def RenderFn[P <: Props](f: ComponentScope[P] => js.Object): RenderFn[P] = f
-  def RenderFnP[P <: Props](f: P => js.Object): RenderFn[P] = RenderFn(f.compose(_.props))
-
-  trait CreateClassInput[P <: Props] extends js.Object {
-    var render: RenderFn[P] = ???
-  }
-  object CreateClassInput {
-    def apply[P <: Props](render: RenderFn[P]) =
-      js.Dynamic.literal("render" -> render).asInstanceOf[CreateClassInput[P]]
-  }
-
-  trait React extends js.Object {
-    def createClass[P <: Props](c: CreateClassInput[P]): ProxyFn[P] = ???
-    def renderComponent(c: ProxyConstructor, n: Node): js.Dynamic = ???
-    val DOM: DOM = ???
-  }
-
-  trait DOM extends js.Object {
-    def div(props: js.Object, children: js.Any*): js.Object = ???
-  }
-
-  trait ProxyConstructor extends js.Object
-
-  trait ProxyFn[P <: Props] extends js.Object {
-//    def apply(): ProxyConstructor = ???
-    def apply(props: P, children: js.Any*): ProxyConstructor = ???
-  }
-
-  def React = js.Dynamic.global.React.asInstanceOf[React]
-
-  // ------------------------------------------------------------------------
-
-  //  class HelloProps(val name: String) extends js.Object
-  trait HelloProps extends js.Object {
-    val name: String
-  }
-  object HelloProps {
-    def apply(name: String) =
-      js.Dynamic.literal("name" -> name).asInstanceOf[HelloProps]
-  }
-
-  def sampleRender(renderFn: RenderFn[HelloProps]): Unit = {
-    val HelloMessage = React.createClass(CreateClassInput(renderFn))
-    val pc = HelloMessage(HelloProps("Johnhy"))
+  def sampleRender(renderFn: RenderFn[PropWrapper[HelloProps]]): Unit = {
+    val HelloMessage = React.createClass(ComponentSpec(renderFn))
+    val pc = HelloMessage(HelloProps("Johnhy", 100))
 
     val tgt = document.getElementById("target")
     React.renderComponent(pc, tgt)
   }
 
   def sample1(): Unit = {
-    val renderFn = RenderFnP[HelloProps](p => React.DOM.div(null, "Hello, ", p.name))
+    val renderFn = RenderFn.wrapped[HelloProps](p => React.DOM.div(null, "Hello, ", p.name, " of age ", p.age))
     sampleRender(renderFn)
   }
 
-  // -------------------------
   def sample2(): Unit = {
     import react.scalatags.ReactDom._
     import all._
 
-    val renderFn = RenderFnP[HelloProps](props =>
+    val renderFn = RenderFn.wrapped[HelloProps](props =>
       div(backgroundColor := "#fdd", color := "#c00")(
         h1("THIS IS AWESOME"),
-        p(textDecoration := "underline")("Hello there, ", props.name)
+        p(textDecoration := "underline")("Hello there, ", "Hello, ", props.name, " of age ", props.age)
       ).render
     )
 
