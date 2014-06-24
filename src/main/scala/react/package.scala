@@ -2,6 +2,7 @@ package golly
 
 import org.scalajs.dom
 import scala.scalajs.js
+import scala.scalajs.js.annotation.JSName
 
 package object react {
 
@@ -17,9 +18,9 @@ package object react {
      * prototypal classes is that you don't need to call new on them. They are convenience wrappers that construct
      * backing instances (via new) for you.
      */
-    def createClass[C <: Component](specification: ComponentSpec[C]): ComponentConstructor[C] = ???
+    def createClass[P <: Props](specification: ComponentSpec[P]): ComponentConstructor[P] = ???
 
-    def renderComponent(c: ProxyConstructor[_], n: dom.Node): js.Dynamic = ???
+    def renderComponent(c: ProxyConstructor, n: dom.Node): js.Dynamic = ???
 
 //    val DOM: DOM = ???
   }
@@ -33,20 +34,22 @@ package object react {
   /** Type of `this.state` passed to `createClass(_.render)`. */
   type State = js.Object
 
-  trait ComponentSpec[C <: Component] extends js.Object
+  trait ComponentSpec[P <: Props] extends js.Object
 
-  trait ComponentScope[C <: Component] extends js.Object {
-    def props: C#P = ???
-    def state: C#S = ???
-    def setState(s: C#S): Unit = ???
-    def _sc_b: WrapObj[C#Backend] = ???
+  trait ComponentScope[Props <: golly.react.Props, State <: golly.react.State, Backend] extends js.Object {
+    @JSName("props")
+    def _props: Props = ???
+    @JSName("state")
+    def _state: State = ???
+    def setState(s: State): Unit = ???
+    def _backend: WrapObj[Backend] = ???
   }
 
-  trait ComponentConstructor[C <: Component] extends js.Object {
-    def apply(props: C#P, children: js.Any*): ProxyConstructor[C] = ???
+  trait ComponentConstructor[P <: Props] extends js.Object {
+    def apply(props: P, children: js.Any*): ProxyConstructor = ???
   }
 
-  trait ProxyConstructor[C <: Component] extends js.Object
+  trait ProxyConstructor extends js.Object
 
   /** Allows Scala classes to be used in place of `js.Object`. */
   trait WrapObj[A] extends js.Object { val v: A }
@@ -69,9 +72,13 @@ package object react {
     @inline def wrap: WrapObj[A] = WrapObj(a)
   }
 
-  implicit class ComponentScopeExt[C <: Component](val scope: ComponentScope[C]) extends AnyVal {
-    @inline def modState(f: C#S => C#S) = scope.setState(f(scope.state))
-    @inline def backend = scope._sc_b.v
+  implicit class ComponentScopeExt[Props <: golly.react.Props, State <: golly.react.State, Backend](
+    val scope: ComponentScope[Props, State, Backend]) extends AnyVal {
+
+    @inline def props = scope._props
+    @inline def state = scope._state
+    @inline def modState(f: State => State) = scope.setState(f(scope.state))
+    @inline def backend = scope._backend.v
   }
 
 }

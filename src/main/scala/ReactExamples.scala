@@ -47,35 +47,28 @@ object ReactExamples {
       def stop(): Unit = interval foreach window.clearInterval
     }
 
-    class MyComp extends Component {
-      override type Self = MyComp
-      override type P = WrapObj[MyProps]
-      override type S = WrapObj[MyState]
-      override type Backend = MyBackend
-
-      override def spec = specBuilder
-        .render(ctx =>
+    val specBuilder = new ComponentSpecBuilder[WrapObj[MyProps], WrapObj[MyState], MyBackend]
+    def spec = specBuilder
+      .init(new MyBackend,
+        ctx =>
           div(backgroundColor := "#fdd", color := "#c00")(
             h1("THIS IS AWESOME"),
             p(textDecoration := "underline")(ctx.props.title, ". Seconds elapsed: ", ctx.state.secondsElapsed)
           ).render
-        )
-        .getInitialState(ctx => MyState(ctx.props.startTime).wrap)
-        .componentDidMount(ctx => {
-          val tick: js.Function = (_: js.Any) => ctx.modState(_.inc.wrap)
-          console log "Installing timer..."
-          ctx.backend.start(tick)
-        })
-        .componentWillUnmount(_.backend.stop)
-        .build
-
-      override def newBackend = new MyBackend
-    }
+      )
+      .getInitialState(ctx => MyState(ctx.props.startTime).wrap)
+      .componentDidMount(ctx => {
+        val tick: js.Function = (_: js.Any) => ctx.modState(_.inc.wrap)
+        console log "Installing timer..."
+        ctx.backend.start(tick)
+      })
+      .componentWillUnmount(_.backend.stop)
+      .build
 
     def apply(): Unit = {
-      val c = new MyComp
-      React.renderComponent(c.create(MyProps("Great", 0).wrap), document getElementById "target")
-      React.renderComponent(c.create(MyProps("Again", 1000).wrap), document getElementById "target2")
+      val c = React.createClass(spec)
+      React.renderComponent(c(MyProps("Great", 0).wrap), document getElementById "target")
+      React.renderComponent(c(MyProps("Again", 1000).wrap), document getElementById "target2")
     }
   }
 }
