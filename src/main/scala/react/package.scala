@@ -39,6 +39,7 @@ package object react {
     def props: C#P = ???
     def state: C#S = ???
     def setState(s: C#S): Unit = ???
+    def _sc_b: WrapObj[C#Backend] = ???
   }
 
   trait ComponentConstructor[C <: Component] extends js.Object {
@@ -65,6 +66,12 @@ package object react {
   //@inline implicit def autoWrapObj[A <: AnyRef](a: A): WrapObj[A] = WrapObj(a) // causes literals -> js.Any
   @inline implicit def autoUnWrapObj[A](a: WrapObj[A]): A = a.v
   implicit class AnyExtReact[A](val a: A) extends AnyVal {
-    def wrap: WrapObj[A] = WrapObj(a)
+    @inline def wrap: WrapObj[A] = WrapObj(a)
   }
+
+  implicit class ComponentScopeExt[C <: Component](val scope: ComponentScope[C]) extends AnyVal {
+    @inline def modState(f: C#S => C#S) = scope.setState(f(scope.state))
+    @inline def backend = scope._sc_b.v
+  }
+
 }

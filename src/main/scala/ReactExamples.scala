@@ -35,38 +35,47 @@ object ReactExamples {
     import react.scalatags.ReactDom._
     import all._
 
+    case class MyProps(title: String, startTime: Long)
+
     case class MyState(secondsElapsed: Long) {
       def inc = MyState(secondsElapsed + 1)
     }
 
+    class MyBackend {
+      var interval: js.UndefOr[Int] = js.undefined
+      def start(tick: js.Function): Unit = interval = window.setInterval(tick, 1000)
+      def stop(): Unit = interval foreach window.clearInterval
+    }
+
     class MyComp extends Component {
       override type Self = MyComp
-      override type P = UnitObject
+      override type P = WrapObj[MyProps]
       override type S = WrapObj[MyState]
-
-      // TODO Needs a hidden state type, or a backend type in which i can put a var and auto-initialise from scope
-      var interval: js.UndefOr[Int] = js.undefined
+      override type Backend = MyBackend
 
       override def spec = specBuilder
         .render(ctx =>
           div(backgroundColor := "#fdd", color := "#c00")(
             h1("THIS IS AWESOME"),
-            p(textDecoration := "underline")("Seconds elapsed: ", ctx.state.secondsElapsed)
+            p(textDecoration := "underline")(ctx.props.title, ". Seconds elapsed: ", ctx.state.secondsElapsed)
           ).render
         )
-        .initialState(MyState(0).wrap)
-        .componentDidMount(cs => {
-          val tick: js.Function = (_: js.Any) => cs.setState(cs.state.inc.wrap)
+        .getInitialState(ctx => MyState(ctx.props.startTime).wrap)
+        .componentDidMount(ctx => {
+          val tick: js.Function = (_: js.Any) => ctx.modState(_.inc.wrap)
           console log "Installing timer..."
-          interval = window.setInterval(tick, 1000)
+          ctx.backend.start(tick)
         })
-        .componentWillUnmount(_ => interval.foreach(window.clearInterval))
+        .componentWillUnmount(_.backend.stop)
         .build
+
+      override def newBackend = new MyBackend
     }
 
     def apply(): Unit = {
       val c = new MyComp
-      React.renderComponent(c.create(()), document getElementById "target")
+      React.renderComponent(c.create(MyProps("Great", 0).wrap), document getElementById "target")
+      React.renderComponent(c.create(MyProps("Again", 1000).wrap), document getElementById "target2")
     }
   }
 }
