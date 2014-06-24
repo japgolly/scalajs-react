@@ -1,37 +1,68 @@
 package golly
 
 import scala.scalajs.js
-import org.scalajs.dom.{Node, document, console}
+import org.scalajs.dom.{Node, document, console, window}
 import react._
 
 object ReactExamples {
 
-  case class HelloProps(name: String, age: Int)
+//  object Sample1 {
+//
+//    case class HelloProps(name: String, age: Int)
+//
+//    def apply(): Unit = {
+//      import react.scalatags.ReactDom._
+//      import all._
+//
+//      val renderFn = RenderFn.wrapped[HelloProps](props =>
+//        div(backgroundColor := "#fdd", color := "#c00")(
+//          h1("THIS IS AWESOME"),
+//          p(textDecoration := "underline")("Hello there, ", "Hello, ", props.name, " of age ", props.age)
+//        ).render
+//      )
+//
+//      val HelloMessage = React.createClass(ComponentSpec(renderFn))
+//      val pc = HelloMessage(HelloProps("Johnhy", 100))
+//
+//      val tgt = document.getElementById("target")
+//      React.renderComponent(pc, tgt)
+//    }
+//  }
+  
+  // ===================================================================================================================
 
-  def sampleRender(renderFn: RenderFn[PropWrapper[HelloProps]]): Unit = {
-    val HelloMessage = React.createClass(ComponentSpec(renderFn))
-    val pc = HelloMessage(HelloProps("Johnhy", 100))
+  object Sample2 {
 
-    val tgt = document.getElementById("target")
-    React.renderComponent(pc, tgt)
-  }
+    case class MyState(secondsElapsed: Long) {
+      def inc = MyState(secondsElapsed + 1)
+    }
 
-  def sample1(): Unit = {
-    val renderFn = RenderFn.wrapped[HelloProps](p => React.DOM.div(null, "Hello, ", p.name, " of age ", p.age))
-    sampleRender(renderFn)
-  }
+    def apply(): Unit = {
+      import react.scalatags.ReactDom._
+      import all._
 
-  def sample2(): Unit = {
-    import react.scalatags.ReactDom._
-    import all._
+      val renderFn = RenderFn[UnitObject, WrapObj[MyState]](ctx =>
+        div(backgroundColor := "#fdd", color := "#c00")(
+          h1("THIS IS AWESOME"),
+          p(textDecoration := "underline")("Seconds elapsed: ", ctx.state.secondsElapsed)
+        ).render
+      )
 
-    val renderFn = RenderFn.wrapped[HelloProps](props =>
-      div(backgroundColor := "#fdd", color := "#c00")(
-        h1("THIS IS AWESOME"),
-        p(textDecoration := "underline")("Hello there, ", "Hello, ", props.name, " of age ", props.age)
-      ).render
-    )
+      // TODO Needs a hidden state type, or a backend type in which i can put a var and auto-initialise from scope
+      var interval: js.UndefOr[Int] = js.undefined
 
-    sampleRender(renderFn)
+      val spec = ComponentSpecBuilder(renderFn)
+        .initialState(MyState(0).wrap)
+        .componentDidMount(cs => {
+          val tick: js.Function = (_:js.Any) => cs.setState(cs.state.inc.wrap)
+          console log "Installing timer..."
+          interval = window.setInterval(tick, 1000)
+        })
+        .componentWillUnmount(_ => interval.foreach(window.clearInterval))
+        .build
+      val component = React.createClass(spec)
+      val c = component(())
+      React.renderComponent(c, document getElementById "target")
+    }
   }
 }
