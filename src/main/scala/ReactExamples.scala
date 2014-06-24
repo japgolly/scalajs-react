@@ -47,28 +47,26 @@ object ReactExamples {
       def stop(): Unit = interval foreach window.clearInterval
     }
 
-    val specBuilder = new ComponentSpecBuilder[WrapObj[MyProps], WrapObj[MyState], MyBackend]
-    def spec = specBuilder
-      .init(new MyBackend,
-        ctx =>
-          div(backgroundColor := "#fdd", color := "#c00")(
-            h1("THIS IS AWESOME"),
-            p(textDecoration := "underline")(ctx.props.title, ". Seconds elapsed: ", ctx.state.secondsElapsed)
-          ).render
+    val component =
+      new ComponentSpecBuilder[MyProps, MyState, MyBackend](new MyBackend)
+      .render(ctx =>
+        div(backgroundColor := "#fdd", color := "#c00")(
+          h1("THIS IS AWESOME (", ctx.props.title, ")"),
+          p(textDecoration := "underline")("Seconds elapsed: ", ctx.state.secondsElapsed)
+        ).render
       )
-      .getInitialState(ctx => MyState(ctx.props.startTime).wrap)
+      .getInitialState(ctx => MyState(ctx.props.startTime))
       .componentDidMount(ctx => {
-        val tick: js.Function = (_: js.Any) => ctx.modState(_.inc.wrap)
+        val tick: js.Function = (_: js.Any) => ctx.modState(_.inc)
         console log "Installing timer..."
         ctx.backend.start(tick)
       })
       .componentWillUnmount(_.backend.stop)
-      .build
+      .createClass
 
     def apply(): Unit = {
-      val c = React.createClass(spec)
-      React.renderComponent(c(MyProps("Great", 0).wrap), document getElementById "target")
-      React.renderComponent(c(MyProps("Again", 1000).wrap), document getElementById "target2")
+      React.renderComponent(component.create(MyProps("Great", 0)), document getElementById "target")
+      React.renderComponent(component.create(MyProps("Again", 1000)), document getElementById "target2")
     }
   }
 }
