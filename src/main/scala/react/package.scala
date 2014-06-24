@@ -44,6 +44,26 @@ package object react {
 
   trait ProxyConstructor extends js.Object
 
+  /** http://facebook.github.io/react/docs/events.html */
+  trait SyntheticEvent extends js.Object {
+    val bubbles: Boolean = ???
+    val cancelable: Boolean = ???
+    val currentTarget: DOMEventTarget = ???
+    def defaultPrevented: Boolean = ???
+    val eventPhase: Number = ???
+    val isTrusted: Boolean = ???
+//      DOMEvent nativeEvent
+    def preventDefault(): Unit = ???
+    def stopPropagation(): Unit = ???
+    val target: DOMEventTarget = ???
+//      Date timeStamp
+    @JSName("type") val eventType: String = ???
+  }
+
+  trait DOMEventTarget extends dom.Node {
+    val value: String = ???
+  }
+
   /** Allows Scala classes to be used in place of `js.Object`. */
   trait WrapObj[+A] extends js.Object { val v: A }
   def WrapObj[A](v: A) =
@@ -71,6 +91,8 @@ package object react {
     @inline def setState(s: State): Unit = u._setState(WrapObj(s))
     @inline def modState(f: State => State) = u.setState(f(u.state))
     @inline def backend = u._backend.v
+//    @inline def curryB[R](f: Backend => ComponentScope[Props, State, Backend] => R): R = f(u.backend)(u)
+    @inline def backendFn(f: Backend => js.Function): js.Function = f(u.backend)
   }
 
   implicit class ComponentConstructorExt[P](val u: ComponentConstructor[P]) {

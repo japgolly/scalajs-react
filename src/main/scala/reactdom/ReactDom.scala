@@ -1,17 +1,20 @@
 package golly.react.scalatags
 
+import golly.react.ProxyConstructor
+
 import scala.annotation.unchecked.uncheckedVariance
+import scala.scalajs.js
 import scalatags._
 import scalatags.generic._
 
 object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
 
-  object all extends StringTags with Attrs with Styles with ReactTags with DataConverters
+  object all extends StringTags with Attrs with Styles with ReactTags with DataConverters with ExtraAttrs
   object short extends StringTags with Util with DataConverters with generic.AbstractShort[ReactBuilder, ReactOutput, ReactFragT]{
     object * extends StringTags with Attrs with Styles
   }
 
-  object attrs extends StringTags with Attrs
+  object attrs extends StringTags with Attrs with ExtraAttrs
   object tags extends StringTags with ReactTags
   object tags2 extends StringTags with ReactTags2
   object styles extends StringTags with Styles
@@ -50,13 +53,15 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
     def applyTo(t: ReactBuilder): Unit = t.appendChild(this.render)
   }
 
-  class GenericAttr[T] extends AttrValue[T]{
+  class GenericAttr[T](f: T => js.Any) extends AttrValue[T]{
     def apply(t: ReactBuilder, a: Attr, v: T): Unit =
-      t.addAttr(a.name, v.toString)
+      t.addAttr(a.name, f(v))
   }
-  implicit val stringAttr = new GenericAttr[String]
-  implicit val booleanAttr= new GenericAttr[Boolean]
-  implicit def numericAttr[T: Numeric] = new GenericAttr[T]
+  implicit val stringAttr : AttrValue[String]   = new GenericAttr[String](s => s)
+  implicit val booleanAttr  = new GenericAttr[Boolean](b => b)
+  implicit val jsThisFnAttr = new GenericAttr[js.ThisFunction](f => f)
+  implicit val jsFnAttr = new GenericAttr[js.Function](f => f)
+  implicit def numericAttr[T: Numeric] = new GenericAttr[T](_.toString)
 
   class GenericStyle[T] extends StyleValue[T]{
     def apply(b: ReactBuilder, s: Style, v: T): Unit = {
@@ -66,6 +71,10 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   implicit val stringStyle = new GenericStyle[String]
   implicit val booleanStyle = new GenericStyle[Boolean]
   implicit def numericStyle[T: Numeric] = new GenericStyle[T]
+
+  implicit def proxyConstructorFrag(c: ProxyConstructor): ReactDom.Modifier = new ReactDom.Modifier {
+    override def applyTo(t: ReactBuilder): Unit = t.appendChild(c)
+  }
 
   case class TypedTag[+Output <: ReactOutput](tag: String = "",
                                          modifiers: List[Seq[Modifier]],
@@ -97,5 +106,10 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   trait ReactDomFrag extends generic.Frag[ReactBuilder, ReactOutput, ReactFragT]{
     def render: ReactFragT
     def applyTo(b: ReactBuilder): Unit = b.appendChild(this.render)
+  }
+
+  trait ExtraAttrs extends Util {
+    val onChange = "onChange".attr
+    val onSubmit = "onSubmit".attr
   }
 }
