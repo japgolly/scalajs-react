@@ -9,6 +9,72 @@ package object react {
 
   // ===================================================================================================================
 
+  trait Component {
+    self =>
+
+    type Self <: Component {type Self = self.Self}
+    type P <: Props
+    type S <: State
+
+    final type Scope = react.ComponentScope[Self]
+    final type Spec = react.ComponentSpec[Self]
+    final type Constructor = react.ComponentConstructor[Self]
+
+    def spec: Spec
+    protected final def specBuilder = ComponentSpecBuilder.apply[Self]
+
+    def create: Constructor = React.createClass(spec)
+  }
+
+  final case class ComponentSpecBuilder[C <: Component](
+     render: C#Scope => VDom
+     , getInitialState: () => C#S
+     , componentDidMount: C#Scope => Unit
+     , componentWillUnmount: C#Scope => Unit
+     ) {
+    
+    def getInitialState(f: () => C#S): ComponentSpecBuilder[C] =
+      copy(getInitialState = f)
+    
+    def initialState(s: C#S): ComponentSpecBuilder[C] =
+      getInitialState(() => s)
+
+    def componentDidMount(f: C#Scope => Unit): ComponentSpecBuilder[C] =
+      copy(componentDidMount = f)
+    
+    def componentWillUnmount(f: C#Scope => Unit): ComponentSpecBuilder[C] =
+      copy(componentWillUnmount = f)
+    
+    def build =
+      js.Dynamic.literal(
+        "render" -> (render: js.ThisFunction)
+        , "getInitialState" -> (getInitialState: js.Function)
+        , "componentDidMount" -> (componentDidMount: js.ThisFunction)
+        , "componentWillUnmount" -> (componentWillUnmount: js.ThisFunction)
+      ).asInstanceOf[C#Spec]
+  }
+  object ComponentSpecBuilder {
+    def apply[C <: Component] = ComponentSpecBuilderRI.subst[C]
+  }
+  sealed trait ComponentSpecBuilderR[C <: Component] {
+    def render(render: C#Scope => VDom) = new ComponentSpecBuilder[C](render, null, null, null)
+  }
+  private object ComponentSpecBuilderRI extends ComponentSpecBuilderR[Nothing] {
+    @inline def subst[C <: Component] = this.asInstanceOf[ComponentSpecBuilderR[C]]
+  }
+
+  trait ComponentSpec[C <: Component] extends js.Object
+
+  trait ComponentScope[C <: Component] extends js.Object {
+    def props: C#P = ???
+    def state: C#S = ???
+    def setState(s: C#S): Unit = ???
+  }
+
+  trait ComponentConstructor[C <: Component] extends js.Object {
+    def apply(props: C#P, children: js.Any*): ProxyConstructor[C] = ???
+  }
+
   trait React extends js.Object {
 
     /**
@@ -17,9 +83,9 @@ package object react {
      * prototypal classes is that you don't need to call new on them. They are convenience wrappers that construct
      * backing instances (via new) for you.
      */
-    def createClass[P <: Props, S <: State](specification: ComponentSpec[P, S]): AbstractComponent[P, S] = ???
+    def createClass[C <: Component](specification: ComponentSpec[C]): ComponentConstructor[C] = ???
 
-    def renderComponent(c: ProxyConstructor, n: dom.Node): js.Dynamic = ???
+    def renderComponent(c: ProxyConstructor[_], n: dom.Node): js.Dynamic = ???
 
     val DOM: DOM = ???
   }
@@ -33,62 +99,7 @@ package object react {
   /** Type of `this.state` passed to `createClass(_.render)`. */
   type State = js.Object
 
-  /** Type of `this` passed to `createClass(_.render)`. */
-  trait ComponentScope[P <: Props, S <: State] extends js.Object {
-    def props: P = ???
-    def state: S = ???
-    def setState(s: S): Unit = ???
-  }
-
-  /** Type of `createClass(_.render)`. */
-  type RenderFn[P <: Props, S <: State] = js.ThisFunction0[ComponentScope[P, S], VDom]
-  object RenderFn {
-//    def apply[P <: Props](f: ComponentScope[P] => VDom): RenderFn[P]          = f
-//    def p    [P <: Props](f: P => VDom)                : RenderFn[P]          = apply(f.compose(_.props))
-//    def wrapped[P]       (f: P => VDom)                : RenderFn[WrapObj[P]] = apply(f.compose(_.props.v))
-
-    def apply[P <: Props, S <: State](f: ComponentScope[P, S] => VDom): RenderFn[P, S] = f
-//    def p    [P <: Props](f: P => VDom)                : RenderFn[P]          = apply(f.compose(_.props))
-//    def wrapped[P]       (f: P => VDom)                : RenderFn[WrapObj[P]] = apply(f.compose(_.props.v))
-  }
-
-  /** Type of arg passed to `createClass`. */
-  trait ComponentSpec[P <: Props, S <: State] extends js.Object
-
-  case class ComponentSpecBuilder[P <: Props, S <: State](
-    render: RenderFn[P, S]
-    , getInitialState: js.Function0[S]
-    , componentDidMount: js.ThisFunction0[ComponentScope[P, S], Unit]
-    , componentWillUnmount: js.ThisFunction0[ComponentScope[P, S], Unit]
-  ) {
-    def getInitialState(f: js.Function0[S]): ComponentSpecBuilder[P, S] =
-      copy(getInitialState = f)
-    def initialState(s: State): ComponentSpecBuilder[P, S] = {
-      val sf: js.Function = () => s
-      getInitialState(sf.asInstanceOf[js.Function0[S]]) // TODO why?
-    }
-    def componentDidMount(f: ComponentScope[P, S] => Unit): ComponentSpecBuilder[P, S] =
-      copy(componentDidMount = f)
-    def componentWillUnmount(f: ComponentScope[P, S] => Unit): ComponentSpecBuilder[P, S] =
-      copy(componentWillUnmount = f)
-    def build =
-      js.Dynamic.literal(
-        "render" -> render
-        , "getInitialState" -> getInitialState
-        , "componentDidMount" -> componentDidMount
-        , "componentWillUnmount" -> componentWillUnmount
-      ).asInstanceOf[ComponentSpec[P, S]]
-  }
-  object ComponentSpecBuilder {
-    def apply[P <: Props, S <: State](render: RenderFn[P, S]) =
-      new ComponentSpecBuilder(render, null, null, null)
-  }
-
-  /** Return type of `createClass`. */
-  trait AbstractComponent[P <: Props, S <: State] extends js.Object {
-    def apply(props: P, children: js.Any*): ProxyConstructor = ???
-  }
-  trait ProxyConstructor extends js.Object
+  trait ProxyConstructor[C <: Component] extends js.Object
 
   /** Allows Scala classes to be used in place of `js.Object`. */
   trait WrapObj[A] extends js.Object { val v: A }
