@@ -3,7 +3,7 @@ package golly
 import org.scalajs.dom
 import scala.scalajs.js
 
-package object react2 {
+package object react3 {
 
   @inline def React = js.Dynamic.global.React.asInstanceOf[React]
 
@@ -16,43 +16,61 @@ package object react2 {
     type P <: Props
     type S <: State
 
-    final type Scope = react2.ComponentScope[Self]
-    final type Constructor = react2.ComponentConstructor[Self]
-    final type Spec = react2.ComponentSpec[Self]
-    final type Fn0[+R] = js.ThisFunction0[Scope, R]
-    final type RenderFn = Fn0[VDom]
+    final type Scope = react3.ComponentScope[Self]
+    final type Spec = react3.ComponentSpec[Self]
+    final type Constructor = react3.ComponentConstructor[Self]
 
-    def render: RenderFn
-    def getInitialState: js.Function0[S] = null
-    def componentWillMount: Fn0[Unit] = null
-    def componentDidMount: Fn0[Unit] = null
-    def componentWillUnmount: Fn0[Unit] = null
-
-    protected final def const0[R](r: R): js.Function0[R] = {
-      val sf: js.Function = () => r
-      sf.asInstanceOf[js.Function0[R]]
-    }
-    protected final def Fn0[R](f: Scope => R): Fn0[R] = f
-
-    def spec =
-      js.Dynamic.literal(
-        "render" -> render
-        , "getInitialState" -> getInitialState
-        , "componentWillMount" -> componentWillMount
-        , "componentDidMount" -> componentDidMount
-        , "componentWillUnmount" -> componentWillUnmount
-      ).asInstanceOf[Spec]
-
+    def spec: Spec
+    protected final def specBuilder = ComponentSpecBuilder.apply[Self]
 
     def create: Constructor = React.createClass(spec)
   }
 
+  final case class ComponentSpecBuilder[C <: Component](
+     render: C#Scope => VDom
+     , getInitialState: () => C#S
+     , componentDidMount: C#Scope => Unit
+     , componentWillUnmount: C#Scope => Unit
+     ) {
+    
+    def getInitialState(f: () => C#S): ComponentSpecBuilder[C] =
+      copy(getInitialState = f)
+    
+    def initialState(s: C#S): ComponentSpecBuilder[C] =
+      getInitialState(() => s)
+
+    def componentDidMount(f: C#Scope => Unit): ComponentSpecBuilder[C] =
+      copy(componentDidMount = f)
+    
+    def componentWillUnmount(f: C#Scope => Unit): ComponentSpecBuilder[C] =
+      copy(componentWillUnmount = f)
+    
+    def build =
+      js.Dynamic.literal(
+        "render" -> (render: js.ThisFunction)
+        , "getInitialState" -> (getInitialState: js.Function)
+        , "componentDidMount" -> (componentDidMount: js.ThisFunction)
+        , "componentWillUnmount" -> (componentWillUnmount: js.ThisFunction)
+      ).asInstanceOf[C#Spec]
+  }
+  object ComponentSpecBuilder {
+    def apply[C <: Component] = ComponentSpecBuilderRI.subst[C]
+  }
+  sealed trait ComponentSpecBuilderR[C <: Component] {
+    def render(render: C#Scope => VDom) = new ComponentSpecBuilder[C](render, null, null, null)
+  }
+  private object ComponentSpecBuilderRI extends ComponentSpecBuilderR[Nothing] {
+    @inline def subst[C <: Component] = this.asInstanceOf[ComponentSpecBuilderR[C]]
+  }
+
   trait ComponentSpec[C <: Component] extends js.Object
+
   trait ComponentScope[C <: Component] extends js.Object {
     def props: C#P = ???
     def state: C#S = ???
     def setState(s: C#S): Unit = ???
   }
+
   trait ComponentConstructor[C <: Component] extends js.Object {
     def apply(props: C#P, children: js.Any*): ProxyConstructor[C] = ???
   }
