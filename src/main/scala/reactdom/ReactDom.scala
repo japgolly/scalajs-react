@@ -1,6 +1,6 @@
 package golly.react.scalatags
 
-import golly.react.ProxyConstructor
+import golly.react.{Ref, ProxyConstructorU}
 
 import scala.annotation.unchecked.uncheckedVariance
 import scala.scalajs.js
@@ -62,6 +62,7 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   implicit val jsThisFnAttr = new GenericAttr[js.ThisFunction](f => f)
   implicit val jsFnAttr = new GenericAttr[js.Function](f => f)
   implicit def numericAttr[T: Numeric] = new GenericAttr[T](_.toString)
+  implicit def reactRefAttr[T <: Ref[_]] = new GenericAttr[T](_.name)
 
   class GenericStyle[T] extends StyleValue[T]{
     def apply(b: ReactBuilder, s: Style, v: T): Unit = {
@@ -72,7 +73,7 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   implicit val booleanStyle = new GenericStyle[Boolean]
   implicit def numericStyle[T: Numeric] = new GenericStyle[T]
 
-  implicit def proxyConstructorFrag(c: ProxyConstructor): ReactDom.Modifier = new ReactDom.Modifier {
+  implicit def proxyConstructorFrag(c: ProxyConstructorU): ReactDom.Modifier = new ReactDom.Modifier {
     override def applyTo(t: ReactBuilder): Unit = t.appendChild(c)
   }
 
@@ -111,5 +112,6 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   trait ExtraAttrs extends Util {
     val onChange = "onChange".attr
     val onSubmit = "onSubmit".attr
+    val ref = "ref".attr
   }
 }

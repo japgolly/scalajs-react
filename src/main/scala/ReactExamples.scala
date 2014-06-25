@@ -1,6 +1,7 @@
 package golly
 
 import scala.scalajs.js
+import org.scalajs.dom
 import org.scalajs.dom.{document, console, window}
 import react.scalatags.ReactDom._
 import react.scalatags.ReactDom.all._
@@ -70,6 +71,8 @@ object ReactExamples {
 
     case class State(items: List[String], text: String)
 
+    val inputRef = Ref[dom.HTMLInputElement]("i")
+
     val TodoList = ComponentBuilder[List[String], Unit, Unit]
       .render(t =>
         ul(t.props.map(itemText => li(itemText))).render
@@ -81,7 +84,7 @@ object ReactExamples {
           h3("TODO"),
           TodoList.create(t.state.items),
           form(onSubmit := t.backendFn(_.handleSubmit))(
-            input(onChange := t.backendFn(_.onChange), value := t.state.text)(),
+            input(onChange := t.backendFn(_.onChange), value := t.state.text, ref := inputRef)(),
             button("Add #", t.state.items.length + 1)
           )
         ).render
@@ -90,11 +93,12 @@ object ReactExamples {
       .initialState(State(List("Sample todo #1", "Sample todo #2"), "Sample todo #3"))
       .build
 
-    class Backend(t: ComponentScope[Unit, State, Backend]) {
+    class Backend(t: ComponentScopeM[Unit, State, Backend]) {
       val handleSubmit: SyntheticEvent => Unit = e => {
         e.preventDefault()
         val nextItems = t.state.items :+ t.state.text
         t.setState(State(nextItems, ""))
+        inputRef(t).getDOMNode().focus()
       }
 
       val onChange: SyntheticEvent => Unit = e =>

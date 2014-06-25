@@ -3,7 +3,7 @@ package golly
 import org.scalajs.dom
 import org.scalajs.dom.console
 import scala.scalajs.js
-import scala.scalajs.js.annotation.JSName
+import scala.scalajs.js.annotation.{JSBracketAccess, JSName}
 
 package object react {
 
@@ -21,9 +21,7 @@ package object react {
      */
     def createClass[Props](specification: ComponentSpec[Props]): ComponentConstructor[Props] = ???
 
-    def renderComponent(c: ProxyConstructor, n: dom.Node): js.Dynamic = ???
-
-//    val DOM: DOM = ???
+    def renderComponent(c: ProxyConstructorU, n: dom.Node): js.Dynamic = ???
   }
 
   /** Type of HTML rendered in React's virtual DOM. */
@@ -31,18 +29,42 @@ package object react {
 
   trait ComponentSpec[Props] extends js.Object
 
-  trait ComponentScope[Props, State, Backend] extends js.Object {
+  trait ComponentScopeU[Props, State, Backend] extends js.Object {
     @JSName("props") def _props: WrapObj[Props] = ???
     @JSName("state") def _state: WrapObj[State] = ???
     @JSName("setState") def _setState(s: WrapObj[State]): Unit = ???
     def _backend: WrapObj[Backend] = ???
   }
 
-  trait ComponentConstructor[Props] extends js.Object {
-    def apply(props: WrapObj[Props], children: js.Any*): ProxyConstructor = ???
+  trait ComponentScopeM[Props, State, Backend] extends ComponentScopeU[Props, State, Backend] {
+    /**
+     * Can be invoked on any mounted component in order to obtain a reference to its rendered DOM node.
+     */
+    def getDOMNode(): dom.Element
+
+    /**
+     * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has changed without using this.setState().
+     */
+    def forceUpdate(): Unit
+
+    def refs: RefsObject
   }
 
-  trait ProxyConstructor extends js.Object
+  /** Type of `this.refs` */
+  trait RefsObject extends js.Object {
+    @JSBracketAccess
+    def apply[Node <: dom.Element](key: js.String): ProxyConstructorM[Node]
+  }
+
+  trait ComponentConstructor[Props] extends js.Object {
+    def apply(props: WrapObj[Props], children: js.Any*): ProxyConstructorU = ???
+  }
+
+  trait ProxyConstructorU extends js.Object
+
+  trait ProxyConstructorM[Node <: dom.Element] extends ProxyConstructorU {
+    def getDOMNode(): Node
+  }
 
   /** http://facebook.github.io/react/docs/events.html */
   trait SyntheticEvent extends js.Object {
@@ -69,11 +91,12 @@ package object react {
   def WrapObj[A](v: A) =
     js.Dynamic.literal("v" -> v.asInstanceOf[js.Any]).asInstanceOf[WrapObj[A]]
 
-//  trait DOM extends js.Object {
-//    def div(props: js.Object, children: js.Any*): VDom = ???
-//  }
-
   // ===================================================================================================================
+
+  case class Ref[T <: dom.Element](name: String) {
+    @inline final def apply(scope: ComponentScopeM[_, _, _]): ProxyConstructorM[T] = apply(scope.refs)
+    @inline final def apply(refs: RefsObject): ProxyConstructorM[T] = refs[T](name)
+  }
 
   trait UnitObject extends js.Object
   @inline def UnitObject: UnitObject = null
@@ -85,7 +108,7 @@ package object react {
     @inline def wrap: WrapObj[A] = WrapObj(a)
   }
 
-  implicit class ComponentScopeExt[Props, State, Backend](val u: ComponentScope[Props, State, Backend]) extends AnyVal {
+  implicit class ComponentScopeExt[Props, State, Backend](val u: ComponentScopeU[Props, State, Backend]) extends AnyVal {
     @inline def props = u._props.v
     @inline def state = u._state.v
     @inline def setState(s: State): Unit = u._setState(WrapObj(s))
@@ -98,5 +121,4 @@ package object react {
   implicit class ComponentConstructorExt[P](val u: ComponentConstructor[P]) {
     @inline def create(props: P, children: js.Any*) = u(WrapObj(props), children: _*)
   }
-
 }
