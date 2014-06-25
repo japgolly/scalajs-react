@@ -25,6 +25,7 @@ class ComponentBuilder[Props, State, Backend]{
     def componentDidMount(f: ScopeM => Unit): B = copy(componentDidMount = f)
     def componentWillUnmount(f: ScopeM => Unit): B = copy(componentWillUnmount = f)
     def backend(f: ScopeM => Backend): B = copy(backend = f)
+    def displayName(name: String): B = copy(displayName = name)
 
     def buildSpec = {
       @inline def set(o: js.Object, k: String, v: js.Any): Unit = o.asInstanceOf[js.Dynamic].updateDynamic(k)(v) // TODO share
