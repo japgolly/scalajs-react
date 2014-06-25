@@ -94,14 +94,14 @@ object ReactExamples {
       .build
 
     class Backend(t: ComponentScopeM[Unit, State, Backend]) {
-      val handleSubmit: SyntheticEvent => Unit = e => {
+      val handleSubmit: SyntheticEvent[dom.HTMLInputElement] => Unit = e => {
         e.preventDefault()
         val nextItems = t.state.items :+ t.state.text
         t.setState(State(nextItems, ""))
         inputRef(t).getDOMNode().focus()
       }
 
-      val onChange: SyntheticEvent => Unit = e =>
+      val onChange: SyntheticEvent[dom.HTMLInputElement] => Unit = e =>
         t.modState(_.copy(text = e.target.value))
     }
 

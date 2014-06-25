@@ -67,23 +67,19 @@ package object react {
   }
 
   /** http://facebook.github.io/react/docs/events.html */
-  trait SyntheticEvent extends js.Object {
+  trait SyntheticEvent[DOMEventTarget <: dom.Node] extends js.Object {
     val bubbles: Boolean = ???
     val cancelable: Boolean = ???
     val currentTarget: DOMEventTarget = ???
     def defaultPrevented: Boolean = ???
     val eventPhase: Number = ???
     val isTrusted: Boolean = ???
-//      DOMEvent nativeEvent
+    val nativeEvent: dom.Event = ???
     def preventDefault(): Unit = ???
     def stopPropagation(): Unit = ???
     val target: DOMEventTarget = ???
 //      Date timeStamp
     @JSName("type") val eventType: String = ???
-  }
-
-  trait DOMEventTarget extends dom.Node {
-    val value: String = ???
   }
 
   /** Allows Scala classes to be used in place of `js.Object`. */
