@@ -17,3 +17,11 @@ libraryDependencies += "com.scalatags" %%% "scalatags" % "0.3.4"
 // Loads DOM into Rhino which enables sbt run
 ScalaJSKeys.requiresDOM := true
 
+//==============================================================================
+
+workbenchSettings
+
+bootSnippet := "golly.Golly().main();"
+
+refreshBrowsers <<= refreshBrowsers.triggeredBy(ScalaJSKeys.fastOptJS in Compile)
+
