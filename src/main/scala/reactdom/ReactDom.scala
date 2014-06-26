@@ -1,11 +1,11 @@
 package golly.react.scalatags
 
-import golly.react.{Ref, ProxyConstructorU}
-
+import _root_.scalatags._
+import _root_.scalatags.generic._
+import org.scalajs.dom
 import scala.annotation.unchecked.uncheckedVariance
 import scala.scalajs.js
-import scalatags._
-import scalatags.generic._
+import golly.react.{SyntheticEvent, Ref, ProxyConstructorU}
 
 object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
 
@@ -110,8 +110,29 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   }
 
   trait ExtraAttrs extends Util {
-    val onChange = "onChange".attr
-    val onSubmit = "onSubmit".attr
+    val onBlur      = "onBlur"     .attr
+    val onChange    = "onChange"   .attr
+    val onClick     = "onClick"    .attr
+    val onFocus     = "onFocus"    .attr
+    val onKeyDown   = "onKeyDown"  .attr
+    val onKeyPress  = "onKeyPress" .attr
+    val onKeyUp     = "onKeyUp"    .attr
+    val onLoad      = "onLoad"     .attr
+    val onMouseDown = "onMouseDown".attr
+    val onMouseMove = "onMouseMove".attr
+    val onMouseOut  = "onMouseOut" .attr
+    val onMouseOver = "onMouseOver".attr
+    val onMouseUp   = "onMouseUp"  .attr
+    val onSelect    = "onSelect"   .attr
+    val onScroll    = "onScroll"   .attr
+    val onSubmit    = "onSubmit"   .attr
+    val onReset     = "onReset"    .attr
+
     val ref = "ref".attr
+  }
+
+  implicit class ReactAttrExt(val a: Attr) extends AnyVal {
+    def runs(thunk: => Unit) = a := ((() => thunk): js.Function)
+    def ==>[E <: dom.Node, R](eventHandler: SyntheticEvent[E] => R) = a := (eventHandler: js.Function)
   }
 }

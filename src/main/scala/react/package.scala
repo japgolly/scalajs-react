@@ -4,6 +4,7 @@ import org.scalajs.dom
 import org.scalajs.dom.console
 import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSBracketAccess, JSName}
+import scalaz.LensFamily
 
 package object react {
 
@@ -29,26 +30,37 @@ package object react {
 
   trait ComponentSpec[Props] extends js.Object
 
-  trait ComponentScopeU[Props, State, Backend] extends js.Object {
+  trait ComponentScope_PS_U[Props, State] extends js.Object {
     @JSName("props") def _props: WrapObj[Props] = ???
     @JSName("state") def _state: WrapObj[State] = ???
     @JSName("setState") def _setState(s: WrapObj[State]): Unit = ???
+  }
+
+  trait ComponentScope_PS_B[Backend] extends js.Object {
     def _backend: WrapObj[Backend] = ???
   }
 
-  trait ComponentScopeM[Props, State, Backend] extends ComponentScopeU[Props, State, Backend] {
-    /**
-     * Can be invoked on any mounted component in order to obtain a reference to its rendered DOM node.
-     */
+  trait ComponentScope_M extends js.Object {
+    /** Can be invoked on any mounted component in order to obtain a reference to its rendered DOM node. */
     def getDOMNode(): dom.Element
 
     /**
-     * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has changed without using this.setState().
+     * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has
+     * changed without using this.setState().
      */
     def forceUpdate(): Unit
 
     def refs: RefsObject
   }
+
+  /** Type of an unmounted component's `this` scope. */
+  trait ComponentScopeU[Props, State, Backend] extends ComponentScope_PS_U[Props, State] with ComponentScope_PS_B[Backend]
+
+  /** Type of a mounted component's `this` scope. */
+  trait ComponentScopeM[Props, State, Backend] extends ComponentScopeU[Props, State, Backend] with ComponentScope_M
+
+  /** Type of a component's `this` scope as is available to backends. */
+  trait ComponentScopeB[Props, State] extends ComponentScope_PS_U[Props, State] with ComponentScope_M
 
   /** Type of `this.refs` */
   trait RefsObject extends js.Object {
@@ -78,7 +90,7 @@ package object react {
     def preventDefault(): Unit = ???
     def stopPropagation(): Unit = ???
     val target: DOMEventTarget = ???
-//      Date timeStamp
+    // Date timeStamp
     @JSName("type") val eventType: String = ???
   }
 
@@ -90,31 +102,39 @@ package object react {
   // ===================================================================================================================
 
   case class Ref[T <: dom.Element](name: String) {
-    @inline final def apply(scope: ComponentScopeM[_, _, _]): ProxyConstructorM[T] = apply(scope.refs)
+    @inline final def apply(scope: ComponentScope_M): ProxyConstructorM[T] = apply(scope.refs)
     @inline final def apply(refs: RefsObject): ProxyConstructorM[T] = refs[T](name)
   }
 
-  trait UnitObject extends js.Object
-  @inline def UnitObject: UnitObject = null
-  @inline implicit def autoUnitObject(u: Unit): UnitObject = UnitObject
-
   //@inline implicit def autoWrapObj[A <: AnyRef](a: A): WrapObj[A] = WrapObj(a) // causes literals -> js.Any
   @inline implicit def autoUnWrapObj[A](a: WrapObj[A]): A = a.v
-  implicit class AnyExtReact[A](val a: A) extends AnyVal {
+  implicit final class AnyExtReact[A](val a: A) extends AnyVal {
     @inline def wrap: WrapObj[A] = WrapObj(a)
   }
 
-  implicit class ComponentScopeExt[Props, State, Backend](val u: ComponentScopeU[Props, State, Backend]) extends AnyVal {
+  implicit final class ComponentScope_PS_U_Ext[Props, State](val u: ComponentScope_PS_U[Props, State]) extends AnyVal {
     @inline def props = u._props.v
     @inline def state = u._state.v
     @inline def setState(s: State): Unit = u._setState(WrapObj(s))
     @inline def modState(f: State => State) = u.setState(f(u.state))
-    @inline def backend = u._backend.v
-//    @inline def curryB[R](f: Backend => ComponentScope[Props, State, Backend] => R): R = f(u.backend)(u)
-    @inline def backendFn(f: Backend => js.Function): js.Function = f(u.backend)
+    @inline def setL[V](l: LensFamily[State, State, _, V])(v: V) = modState(l.set(_, v))
   }
 
-  implicit class ComponentConstructorExt[P](val u: ComponentConstructor[P]) {
+  implicit final class ComponentScope_PS_B_Ext[Backend](val u: ComponentScope_PS_B[Backend]) extends AnyVal {
+    @inline def backend = u._backend.v
+  }
+
+  implicit final class ComponentConstructorExt[P](val u: ComponentConstructor[P]) extends AnyVal {
     @inline def create(props: P, children: js.Any*) = u(WrapObj(props), children: _*)
+  }
+
+  implicit final class SyntheticEventExt[N <: dom.Node](val u: SyntheticEvent[N]) extends AnyVal {
+    def keyboardEvent = u.nativeEvent.asInstanceOf[dom.KeyboardEvent]
+    def messageEvent  = u.nativeEvent.asInstanceOf[dom.MessageEvent]
+    def mouseEvent    = u.nativeEvent.asInstanceOf[dom.MouseEvent]
+    def mutationEvent = u.nativeEvent.asInstanceOf[dom.MutationEvent]
+    def storageEvent  = u.nativeEvent.asInstanceOf[dom.StorageEvent]
+    def textEvent     = u.nativeEvent.asInstanceOf[dom.TextEvent]
+    def touchEvent    = u.nativeEvent.asInstanceOf[dom.TouchEvent]
   }
 }

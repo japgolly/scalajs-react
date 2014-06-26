@@ -2,60 +2,67 @@ package golly.react
 
 import scala.scalajs.js
 
-class ComponentBuilder[Props, State, Backend]{
+final class ComponentBuilder[Props, State] {
 
-  type ScopeU = ComponentScopeU[Props, State, Backend]
-  type ScopeM = ComponentScopeM[Props, State, Backend]
+  type ScopeB = ComponentScopeB[Props, State]
 
-  def render(render: ScopeU => VDom) =
-    B(render, js.undefined, js.undefined, js.undefined, js.undefined, js.undefined, js.undefined)
+  def backend[Backend](f: ScopeB => Backend) = new B2[Backend](f)
+  def noBackend = new B2[Unit](js.undefined)
+  def render(render: ComponentScopeU[Props, State, Unit] => VDom) = noBackend.render(render)
 
-  case class B(render: ScopeU => VDom
-               , backend: js.UndefOr[ScopeM => Backend]
-               , displayName: js.UndefOr[String]
-               , getInitialState: js.UndefOr[ScopeU => State]
-               , componentWillMount: js.UndefOr[ScopeU => Unit]
-               , componentDidMount: js.UndefOr[ScopeM => Unit]
-               , componentWillUnmount: js.UndefOr[ScopeM => Unit]
-                ) {
+  class B2[Backend](backend: js.UndefOr[ScopeB => Backend]) {
 
-    def getInitialState(f: ScopeU => State): B = copy(getInitialState = f)
-    def initialState(s: State): B = getInitialState(_ => s)
-    def componentWillMount(f: ScopeU => Unit): B = copy(componentWillMount = f)
-    def componentDidMount(f: ScopeM => Unit): B = copy(componentDidMount = f)
-    def componentWillUnmount(f: ScopeM => Unit): B = copy(componentWillUnmount = f)
-    def backend(f: ScopeM => Backend): B = copy(backend = f)
-    def displayName(name: String): B = copy(displayName = name)
+    type ScopeU = ComponentScopeU[Props, State, Backend]
+    type ScopeM = ComponentScopeM[Props, State, Backend]
 
-    def buildSpec = {
-      @inline def set(o: js.Object, k: String, v: js.Any): Unit = o.asInstanceOf[js.Dynamic].updateDynamic(k)(v) // TODO share
-      val spec = js.Dynamic.literal("render" -> (render: js.ThisFunction)).asInstanceOf[js.Object]
+    def render(render: ScopeU => VDom) =
+      B3(render, js.undefined, js.undefined, js.undefined, js.undefined, js.undefined)
 
-      var componentWillMount2 = componentWillMount
-      backend.foreach(f => {
-        set(spec, "_backend", "PENDING...")
-        componentWillMount2 = (t: ScopeU) => {
-          val scopeM = t.asInstanceOf[ScopeM] // It will be mounted when the backend uses it
-          t.asInstanceOf[js.Dynamic].updateDynamic("_backend")(WrapObj(f(scopeM)))
-          componentWillMount.foreach(g => g(t))
-        }
-      })
-      
-      displayName.foreach(set(spec, "displayName", _))
-      getInitialState.foreach(f => {
-        val f2: ScopeU => WrapObj[State] = f.andThen(_.wrap)
-        set(spec, "getInitialState", f2: js.ThisFunction)
-      })
-      componentWillMount2.foreach(f => set(spec, "componentWillMount", f: js.ThisFunction))
-      componentDidMount.foreach(f => set(spec, "componentDidMount", f: js.ThisFunction))
-      componentWillUnmount.foreach(f => set(spec, "componentWillUnmount", f: js.ThisFunction))
-      spec.asInstanceOf[ComponentSpec[Props]]
+    case class B3(__render: ScopeU => VDom
+                 , displayName: js.UndefOr[String]
+                 , getInitialState: js.UndefOr[ScopeU => State]
+                 , componentWillMount: js.UndefOr[ScopeU => Unit]
+                 , componentDidMount: js.UndefOr[ScopeM => Unit]
+                 , componentWillUnmount: js.UndefOr[ScopeM => Unit]
+                  ) {
+
+      def getInitialState(f: ScopeU => State): B3 = copy(getInitialState = f)
+      def initialState(s: State): B3 = getInitialState(_ => s)
+      def componentWillMount(f: ScopeU => Unit): B3 = copy(componentWillMount = f)
+      def componentDidMount(f: ScopeM => Unit): B3 = copy(componentDidMount = f)
+      def componentWillUnmount(f: ScopeM => Unit): B3 = copy(componentWillUnmount = f)
+      def displayName(name: String): B3 = copy(displayName = name)
+
+      def buildSpec = {
+        @inline def set(o: js.Object, k: String, v: js.Any): Unit = o.asInstanceOf[js.Dynamic].updateDynamic(k)(v) // TODO share
+        val spec = js.Dynamic.literal("render" -> (__render: js.ThisFunction)).asInstanceOf[js.Object]
+
+        var componentWillMount2 = componentWillMount
+        backend.foreach(f => {
+          set(spec, "_backend", "PENDING...")
+          componentWillMount2 = (t: ScopeU) => {
+            val scopeB = t.asInstanceOf[ScopeB]
+            t.asInstanceOf[js.Dynamic].updateDynamic("_backend")(WrapObj(f(scopeB)))
+            componentWillMount.foreach(g => g(t))
+          }
+        })
+
+        displayName.foreach(set(spec, "displayName", _))
+        getInitialState.foreach(f => {
+          val f2: ScopeU => WrapObj[State] = f.andThen(_.wrap)
+          set(spec, "getInitialState", f2: js.ThisFunction)
+        })
+        componentWillMount2.foreach(f => set(spec, "componentWillMount", f: js.ThisFunction))
+        componentDidMount.foreach(f => set(spec, "componentDidMount", f: js.ThisFunction))
+        componentWillUnmount.foreach(f => set(spec, "componentWillUnmount", f: js.ThisFunction))
+        spec.asInstanceOf[ComponentSpec[Props]]
+      }
+
+      def build = React.createClass(buildSpec)
     }
-
-    def build = React.createClass(buildSpec)
   }
 }
 
 object ComponentBuilder {
-  def apply[Props, State, Backend] = new ComponentBuilder[Props, State, Backend]
+  def apply[Props, State] = new ComponentBuilder[Props, State]
 }

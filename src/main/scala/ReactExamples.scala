@@ -7,13 +7,16 @@ import react.scalatags.ReactDom._
 import react.scalatags.ReactDom.all._
 import react._
 
+import scala.collection.immutable.SortedSet
+import scalaz.Lens
+
 object ReactExamples {
 
   object Sample1 {
 
     case class HelloProps(name: String, age: Int)
 
-    val component = ComponentBuilder[HelloProps, Unit, Unit]
+    val component = ComponentBuilder[HelloProps, Unit]
       .render(t =>
         div(backgroundColor := "#fdd", color := "#c00")(
           h1("THIS IS COOL."),
@@ -42,14 +45,14 @@ object ReactExamples {
       def stop(): Unit = interval foreach window.clearInterval
     }
 
-    val component = ComponentBuilder[MyProps, MyState, MyBackend]
+    val component = ComponentBuilder[MyProps, MyState]
+      .backend(_ => new MyBackend)
       .render(ctx =>
         div(backgroundColor := "#fdd", color := "#c00")(
           h1("THIS IS AWESOME (", ctx.props.title, ")"),
           p(textDecoration := "underline")("Seconds elapsed: ", ctx.state.secondsElapsed)
         ).render
       )
-      .backend(_ => new MyBackend)
       .getInitialState(ctx => MyState(ctx.props.startTime))
       .componentDidMount(ctx => {
         val tick: js.Function = (_: js.Any) => ctx.modState(_.inc)
@@ -73,27 +76,27 @@ object ReactExamples {
 
     val inputRef = Ref[dom.HTMLInputElement]("i")
 
-    val TodoList = ComponentBuilder[List[String], Unit, Unit]
+    val TodoList = ComponentBuilder[List[String], Unit]
       .render(t =>
         ul(t.props.map(itemText => li(itemText))).render
       ).build
 
-    val TodoApp = ComponentBuilder[Unit, State, Backend]
+    val TodoApp = ComponentBuilder[Unit, State]
+      .backend(new Backend(_))
       .render(t =>
         div(
           h3("TODO"),
           TodoList.create(t.state.items),
-          form(onSubmit := t.backendFn(_.handleSubmit))(
-            input(onChange := t.backendFn(_.onChange), value := t.state.text, ref := inputRef)(),
+          form(onSubmit ==> t.backend.handleSubmit)(
+            input(onChange ==> t.backend.onChange, value := t.state.text, ref := inputRef)(),
             button("Add #", t.state.items.length + 1)
           )
         ).render
       )
-      .backend(t => new Backend(t))
       .initialState(State(List("Sample todo #1", "Sample todo #2"), "Sample todo #3"))
       .build
 
-    class Backend(t: ComponentScopeM[Unit, State, Backend]) {
+    class Backend(t: ComponentScopeB[Unit, State]) {
       val handleSubmit: SyntheticEvent[dom.HTMLInputElement] => Unit = e => {
         e.preventDefault()
         val nextItems = t.state.items :+ t.state.text
@@ -109,5 +112,64 @@ object ReactExamples {
       React.renderComponent(TodoApp.create(()), document getElementById "target")
     }
 
+  }
+
+  // ===================================================================================================================
+
+  def textChangeRecv(f: String => Unit): SyntheticEvent[dom.HTMLInputElement] => Unit = e => f(e.target.value)
+  def textChangeRecvL[State](t: ComponentScopeB[_, State], l: Lens[State, String]) = textChangeRecv(t.setL(l))
+
+  object Sample4 {
+
+    case class State(people: SortedSet[String], text: String)
+    val stateTextL = Lens.lensg[State, String](a => b => a.copy(text = b), _.text)
+
+    class PeopleListBackend(t: ComponentScopeB[Unit, State]) {
+      def delete(name: String): Unit = {
+        val p = t.state.people
+        if (p.contains(name))
+          t.setState(State(p - name, name))
+      }
+
+      val onChange = textChangeRecvL(t, stateTextL)
+
+      val onKP: SyntheticEvent[dom.HTMLInputElement] => Unit =
+        e => if (e.keyboardEvent.keyCode == 13) {
+            e.preventDefault()
+            add()
+          }
+
+      def add(): Unit = t.setState(State(t.state.people + t.state.text, ""))
+    }
+
+    case class PeopleListProps(people: SortedSet[String], deleteFn: String => Unit)
+
+    val PeopleList = ComponentBuilder[PeopleListProps, Unit]
+      .render(t =>
+        if (t.props.people.isEmpty)
+          div(color := "#800")("No people in your list!!").render
+        else
+          ol(t.props.people.toList.map(p =>
+            li(p, button(marginLeft := 1.em, onClick runs t.props.deleteFn(p))("Delete"))
+          )).render
+      )
+      .build
+
+    val PeopleEditor = ComponentBuilder[Unit, State]
+      .backend(new PeopleListBackend(_))
+      .render(t =>
+          div(
+            h3("People List")
+            ,div(PeopleList.create(PeopleListProps(t.state.people, t.backend.delete)))
+            ,h3("Add")
+            ,input(onChange ==> t.backend.onChange, onKeyPress ==> t.backend.onKP, value := t.state.text)()
+            ,button(onClick runs t.backend.add())("+")
+          ).render
+      )
+      .getInitialState(_ => State(SortedSet("First","Second"), "Middle"))
+      .build
+
+    def apply(): Unit =
+      React.renderComponent(PeopleEditor.create(()), document getElementById "target2")
   }
 }

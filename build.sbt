@@ -8,7 +8,7 @@ scalaVersion := "2.11.1"
 
 scalacOptions ++= Seq( "-deprecation", "-unchecked", "-language:_" )
 
-libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0-M7"
+libraryDependencies += "org.scalaz" %%% "scalaz-core" % "7.1.0-M7.js" // Local publish for now
 
 libraryDependencies += "org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6"
 
