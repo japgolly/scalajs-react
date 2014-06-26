@@ -16,7 +16,7 @@ object ReactExamples {
 
     case class HelloProps(name: String, age: Int)
 
-    val component = ComponentBuilder[HelloProps, Unit]
+    val component = ComponentBuilder[HelloProps, Unit]("sample1")
       .render(t =>
         div(backgroundColor := "#fdd", color := "#c00")(
           h1("THIS IS COOL."),
@@ -45,7 +45,7 @@ object ReactExamples {
       def stop(): Unit = interval foreach window.clearInterval
     }
 
-    val component = ComponentBuilder[MyProps, MyState]
+    val component = ComponentBuilder[MyProps, MyState]("sample2")
       .backend(_ => new MyBackend)
       .render(ctx =>
         div(backgroundColor := "#fdd", color := "#c00")(
@@ -76,12 +76,12 @@ object ReactExamples {
 
     val inputRef = Ref[dom.HTMLInputElement]("i")
 
-    val TodoList = ComponentBuilder[List[String], Unit]
+    val TodoList = ComponentBuilder[List[String], Unit]("TodoList")
       .render(t =>
         ul(t.props.map(itemText => li(itemText))).render
       ).build
 
-    val TodoApp = ComponentBuilder[Unit, State]
+    val TodoApp = ComponentBuilder[Unit, State]("TodoApp")
       .backend(new Backend(_))
       .render(t =>
         div(
@@ -144,7 +144,7 @@ object ReactExamples {
 
     case class PeopleListProps(people: SortedSet[String], deleteFn: String => Unit)
 
-    val PeopleList = ComponentBuilder[PeopleListProps, Unit]
+    val PeopleList = ComponentBuilder[PeopleListProps, Unit]("PeopleList")
       .render(t =>
         if (t.props.people.isEmpty)
           div(color := "#800")("No people in your list!!").render
@@ -155,7 +155,7 @@ object ReactExamples {
       )
       .build
 
-    val PeopleEditor = ComponentBuilder[Unit, State]
+    val PeopleEditor = ComponentBuilder[Unit, State]("PeopleEditor")
       .backend(new PeopleListBackend(_))
       .render(t =>
           div(

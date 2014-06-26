@@ -2,7 +2,7 @@ package golly.react
 
 import scala.scalajs.js
 
-final class ComponentBuilder[Props, State] {
+final class ComponentBuilder[Props, State](name: String) {
 
   type ScopeB = ComponentScopeB[Props, State]
 
@@ -16,10 +16,9 @@ final class ComponentBuilder[Props, State] {
     type ScopeM = ComponentScopeM[Props, State, Backend]
 
     def render(render: ScopeU => VDom) =
-      B3(render, js.undefined, js.undefined, js.undefined, js.undefined, js.undefined)
+      B3(render, js.undefined, js.undefined, js.undefined, js.undefined)
 
     case class B3(__render: ScopeU => VDom
-                 , displayName: js.UndefOr[String]
                  , getInitialState: js.UndefOr[ScopeU => State]
                  , componentWillMount: js.UndefOr[ScopeU => Unit]
                  , componentDidMount: js.UndefOr[ScopeM => Unit]
@@ -31,11 +30,13 @@ final class ComponentBuilder[Props, State] {
       def componentWillMount(f: ScopeU => Unit): B3 = copy(componentWillMount = f)
       def componentDidMount(f: ScopeM => Unit): B3 = copy(componentDidMount = f)
       def componentWillUnmount(f: ScopeM => Unit): B3 = copy(componentWillUnmount = f)
-      def displayName(name: String): B3 = copy(displayName = name)
 
       def buildSpec = {
         @inline def set(o: js.Object, k: String, v: js.Any): Unit = o.asInstanceOf[js.Dynamic].updateDynamic(k)(v) // TODO share
-        val spec = js.Dynamic.literal("render" -> (__render: js.ThisFunction)).asInstanceOf[js.Object]
+        val spec = js.Dynamic.literal(
+            "displayName" -> name,
+            "render" -> (__render: js.ThisFunction)
+          ).asInstanceOf[js.Object]
 
         var componentWillMount2 = componentWillMount
         backend.foreach(f => {
@@ -47,7 +48,6 @@ final class ComponentBuilder[Props, State] {
           }
         })
 
-        displayName.foreach(set(spec, "displayName", _))
         getInitialState.foreach(f => {
           val f2: ScopeU => WrapObj[State] = f.andThen(_.wrap)
           set(spec, "getInitialState", f2: js.ThisFunction)
@@ -64,5 +64,5 @@ final class ComponentBuilder[Props, State] {
 }
 
 object ComponentBuilder {
-  def apply[Props, State] = new ComponentBuilder[Props, State]
+  def apply[Props, State](name: String) = new ComponentBuilder[Props, State](name)
 }
