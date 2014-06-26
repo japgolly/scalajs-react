@@ -14,15 +14,18 @@ final class ComponentBuilder[Props, State](name: String) {
 
     type ScopeU = ComponentScopeU[Props, State, Backend]
     type ScopeM = ComponentScopeM[Props, State, Backend]
+    type ScopeWU = ComponentScopeWU[Props, State, Backend]
 
     def render(render: ScopeU => VDom) =
-      B3(render, js.undefined, js.undefined, js.undefined, js.undefined)
+      B3(render, js.undefined, js.undefined, js.undefined, js.undefined, js.undefined, js.undefined)
 
     case class B3(__render: ScopeU => VDom
                  , getInitialState: js.UndefOr[ScopeU => State]
                  , componentWillMount: js.UndefOr[ScopeU => Unit]
                  , componentDidMount: js.UndefOr[ScopeM => Unit]
                  , componentWillUnmount: js.UndefOr[ScopeM => Unit]
+                 , componentWillUpdate: js.UndefOr[(ScopeWU, Props, State) => Unit]
+                 , componentDidUpdate: js.UndefOr[(ScopeM, Props, State) => Unit]
                   ) {
 
       def getInitialState(f: ScopeU => State): B3 = copy(getInitialState = f)
@@ -30,6 +33,8 @@ final class ComponentBuilder[Props, State](name: String) {
       def componentWillMount(f: ScopeU => Unit): B3 = copy(componentWillMount = f)
       def componentDidMount(f: ScopeM => Unit): B3 = copy(componentDidMount = f)
       def componentWillUnmount(f: ScopeM => Unit): B3 = copy(componentWillUnmount = f)
+      def componentWillUpdate(f: (ScopeWU, Props, State) => Unit): B3 = copy(componentWillUpdate = f)
+      def componentDidUpdate(f: (ScopeM, Props, State) => Unit): B3 = copy(componentDidUpdate = f)
 
       def buildSpec = {
         @inline def set(o: js.Object, k: String, v: js.Any): Unit = o.asInstanceOf[js.Dynamic].updateDynamic(k)(v) // TODO share
@@ -47,14 +52,22 @@ final class ComponentBuilder[Props, State](name: String) {
             componentWillMount.foreach(g => g(t))
           }
         })
-
         getInitialState.foreach(f => {
           val f2: ScopeU => WrapObj[State] = f.andThen(_.wrap)
           set(spec, "getInitialState", f2: js.ThisFunction)
         })
         componentWillMount2.foreach(f => set(spec, "componentWillMount", f: js.ThisFunction))
-        componentDidMount.foreach(f => set(spec, "componentDidMount", f: js.ThisFunction))
         componentWillUnmount.foreach(f => set(spec, "componentWillUnmount", f: js.ThisFunction))
+        componentDidMount.foreach(f => set(spec, "componentDidMount", f: js.ThisFunction))
+        componentWillUpdate.foreach { f =>
+          val g = (t: ScopeWU, p: WrapObj[Props], s: WrapObj[State]) => f(t, p.v, s.v)
+          set(spec, "componentWillUpdate", g: js.ThisFunction)
+        }
+        componentDidUpdate.foreach { f =>
+          val g = (t: ScopeM, p: WrapObj[Props], s: WrapObj[State]) => f(t, p.v, s.v)
+          set(spec, "componentDidUpdate", g: js.ThisFunction)
+        }
+
         spec.asInstanceOf[ComponentSpec[Props]]
       }
 

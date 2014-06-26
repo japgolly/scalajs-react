@@ -100,6 +100,10 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
     override def toString = render.toString
   }
 
+  val Nop = new Modifier {
+    override def applyTo(t: ReactBuilder): Unit = ()
+  }
+
   type Tag = TypedTag[ReactOutput]
   val Tag = TypedTag
 
@@ -127,6 +131,7 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
     val onScroll    = "onScroll"   .attr
     val onSubmit    = "onSubmit"   .attr
     val onReset     = "onReset"    .attr
+    val readOnly    = "readOnly"   .attr
 
     val ref = "ref".attr
   }

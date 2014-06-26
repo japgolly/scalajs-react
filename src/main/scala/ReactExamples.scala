@@ -101,7 +101,7 @@ object ReactExamples {
         e.preventDefault()
         val nextItems = t.state.items :+ t.state.text
         t.setState(State(nextItems, ""))
-        inputRef(t).getDOMNode().focus()
+        inputRef(t).tryFocus()
       }
 
       val onChange: SyntheticEvent[dom.HTMLInputElement] => Unit = e =>
@@ -121,14 +121,14 @@ object ReactExamples {
 
   object Sample4 {
 
-    case class State(people: SortedSet[String], text: String)
-    val stateTextL = Lens.lensg[State, String](a => b => a.copy(text = b), _.text)
+    case class State(people: SortedSet[String], text: String, focusPerson: Option[String])
+    val stateTextL = Lens.lensg[State, String](a => b => a.copy(text = b, focusPerson = None), _.text)
 
     class PeopleListBackend(t: ComponentScopeB[Unit, State]) {
       def delete(name: String): Unit = {
         val p = t.state.people
         if (p.contains(name))
-          t.setState(State(p - name, name))
+          t.setState(State(p - name, name, None))
       }
 
       val onChange = textChangeRecvL(t, stateTextL)
@@ -139,34 +139,42 @@ object ReactExamples {
             add()
           }
 
-      def add(): Unit = t.setState(State(t.state.people + t.state.text, ""))
+      def add(): Unit = t.setState(State(t.state.people + t.state.text, "", Some(t.state.text)))
     }
 
-    case class PeopleListProps(people: SortedSet[String], deleteFn: String => Unit)
+    case class PeopleListProps(people: SortedSet[String], latest: Option[String], deleteFn: String => Unit)
 
-    val PeopleList = ComponentBuilder[PeopleListProps, Unit]("PeopleList")
-      .render(t =>
-        if (t.props.people.isEmpty)
-          div(color := "#800")("No people in your list!!").render
-        else
-          ol(t.props.people.toList.map(p =>
-            li(p, button(marginLeft := 1.em, onClick runs t.props.deleteFn(p))("Delete"))
-          )).render
-      )
-      .build
+    val PeopleList = {
+      val focusNext = Ref[dom.HTMLInputElement]("latest")
+
+      ComponentBuilder[PeopleListProps, Unit]("PeopleList")
+        .render(t =>
+          if (t.props.people.isEmpty)
+            div(color := "#800")("No people in your list!!").render
+          else
+            ol(t.props.people.toList.map(p =>
+              li(
+                input(value := p, if (t.props.latest contains p) ref := focusNext else Nop)(),
+                button(marginLeft := 1.em, onClick runs t.props.deleteFn(p))("Delete"))
+            )).render
+          )
+          .componentDidUpdate((t,_,_) => focusNext(t).tryFocus())
+          .componentDidMount(t => focusNext(t).tryFocus())
+          .build
+    }
 
     val PeopleEditor = ComponentBuilder[Unit, State]("PeopleEditor")
       .backend(new PeopleListBackend(_))
       .render(t =>
           div(
             h3("People List")
-            ,div(PeopleList.create(PeopleListProps(t.state.people, t.backend.delete)))
+            ,div(PeopleList.create(PeopleListProps(t.state.people, t.state.focusPerson, t.backend.delete)))
             ,h3("Add")
             ,input(onChange ==> t.backend.onChange, onKeyPress ==> t.backend.onKP, value := t.state.text)()
             ,button(onClick runs t.backend.add())("+")
           ).render
       )
-      .getInitialState(_ => State(SortedSet("First","Second"), "Middle"))
+      .getInitialState(_ => State(SortedSet("First","Second", "x"), "Middle", Some("Second")))
       .build
 
     def apply(): Unit =

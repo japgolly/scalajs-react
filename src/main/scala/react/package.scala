@@ -30,13 +30,16 @@ package object react {
 
   trait ComponentSpec[Props] extends js.Object
 
-  trait ComponentScope_PS_U[Props, State] extends js.Object {
+  trait ComponentScope_PS[Props, State] extends js.Object {
     @JSName("props") def _props: WrapObj[Props] = ???
     @JSName("state") def _state: WrapObj[State] = ???
+  }
+
+  trait ComponentScope_PSS[Props, State] extends ComponentScope_PS[Props, State] {
     @JSName("setState") def _setState(s: WrapObj[State]): Unit = ???
   }
 
-  trait ComponentScope_PS_B[Backend] extends js.Object {
+  trait ComponentScope_B[Backend] extends js.Object {
     def _backend: WrapObj[Backend] = ???
   }
 
@@ -54,18 +57,24 @@ package object react {
   }
 
   /** Type of an unmounted component's `this` scope. */
-  trait ComponentScopeU[Props, State, Backend] extends ComponentScope_PS_U[Props, State] with ComponentScope_PS_B[Backend]
+  trait ComponentScopeU[Props, State, Backend] extends ComponentScope_PSS[Props, State] with ComponentScope_B[Backend]
+
+  /** Type of a component's `this` scope during willUpdate. */
+  trait ComponentScopeWU[Props, State, Backend]
+    extends ComponentScope_PS[Props, State]
+    with ComponentScope_B[Backend]
+    with ComponentScope_M
 
   /** Type of a mounted component's `this` scope. */
   trait ComponentScopeM[Props, State, Backend] extends ComponentScopeU[Props, State, Backend] with ComponentScope_M
 
   /** Type of a component's `this` scope as is available to backends. */
-  trait ComponentScopeB[Props, State] extends ComponentScope_PS_U[Props, State] with ComponentScope_M
+  trait ComponentScopeB[Props, State] extends ComponentScope_PSS[Props, State] with ComponentScope_M
 
   /** Type of `this.refs` */
   trait RefsObject extends js.Object {
     @JSBracketAccess
-    def apply[Node <: dom.Element](key: js.String): ProxyConstructorM[Node]
+    def apply[Node <: dom.Element](key: js.String): js.UndefOr[ProxyConstructorM[Node]]
   }
 
   trait ComponentConstructor[Props] extends js.Object {
@@ -102,8 +111,8 @@ package object react {
   // ===================================================================================================================
 
   case class Ref[T <: dom.Element](name: String) {
-    @inline final def apply(scope: ComponentScope_M): ProxyConstructorM[T] = apply(scope.refs)
-    @inline final def apply(refs: RefsObject): ProxyConstructorM[T] = refs[T](name)
+    @inline final def apply(scope: ComponentScope_M): js.UndefOr[ProxyConstructorM[T]] = apply(scope.refs)
+    @inline final def apply(refs: RefsObject): js.UndefOr[ProxyConstructorM[T]] = refs[T](name)
   }
 
   //@inline implicit def autoWrapObj[A <: AnyRef](a: A): WrapObj[A] = WrapObj(a) // causes literals -> js.Any
@@ -112,15 +121,18 @@ package object react {
     @inline def wrap: WrapObj[A] = WrapObj(a)
   }
 
-  implicit final class ComponentScope_PS_U_Ext[Props, State](val u: ComponentScope_PS_U[Props, State]) extends AnyVal {
+  implicit final class ComponentScope_PS_Ext[Props, State](val u: ComponentScope_PS[Props, State]) extends AnyVal {
     @inline def props = u._props.v
     @inline def state = u._state.v
+  }
+
+  implicit final class ComponentScope_PSS_Ext[Props, State](val u: ComponentScope_PSS[Props, State]) extends AnyVal {
     @inline def setState(s: State): Unit = u._setState(WrapObj(s))
     @inline def modState(f: State => State) = u.setState(f(u.state))
     @inline def setL[V](l: LensFamily[State, State, _, V])(v: V) = modState(l.set(_, v))
   }
 
-  implicit final class ComponentScope_PS_B_Ext[Backend](val u: ComponentScope_PS_B[Backend]) extends AnyVal {
+  implicit final class ComponentScope_B_Ext[Backend](val u: ComponentScope_B[Backend]) extends AnyVal {
     @inline def backend = u._backend.v
   }
 
@@ -136,5 +148,9 @@ package object react {
     def storageEvent  = u.nativeEvent.asInstanceOf[dom.StorageEvent]
     def textEvent     = u.nativeEvent.asInstanceOf[dom.TextEvent]
     def touchEvent    = u.nativeEvent.asInstanceOf[dom.TouchEvent]
+  }
+
+  implicit final class URefExt[T <: dom.HTMLElement](val u: js.UndefOr[ProxyConstructorM[T]]) extends AnyVal {
+    def tryFocus(): Unit = u.foreach(_.getDOMNode().focus())
   }
 }
