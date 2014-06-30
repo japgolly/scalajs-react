@@ -1,22 +1,22 @@
-package golly.react
+package japgolly.scalareactjs
 
 import scala.scalajs.js._
 
-final class ComponentBuilder[Props](name: String) {
+final class ReactComponentB[Props](name: String) {
 
   def getInitialState[State](f: Props => State) = new B2[State](f)
   def initialState[State](s: State) = getInitialState(_ => s)
   def stateless = initialState(())
   def render(render: Props => VDom) = stateless.render((p,_) => render(p))
 
-  class B2[State] private[ComponentBuilder](getInitialState: Props => State) {
+  class B2[State] private[ReactComponentB](getInitialState: Props => State) {
     type ScopeB = ComponentScopeB[Props, State]
 
     def backend[Backend](f: ScopeB => Backend) = new B3[Backend](f)
     def noBackend = new B3[Unit](_ => ())
     def render(render: (Props, State) => VDom) = noBackend.render((p,s,_) => render(p,s))
 
-    class B3[Backend] private[ComponentBuilder](backend: ScopeB => Backend) {
+    class B3[Backend] private[ReactComponentB](backend: ScopeB => Backend) {
       type ScopeU = ComponentScopeU[Props, State, Backend]
       type ScopeM = ComponentScopeM[Props, State, Backend]
       type ScopeWU = ComponentScopeWU[Props, State, Backend]
@@ -25,7 +25,7 @@ final class ComponentBuilder[Props](name: String) {
         B4(s => render(s.props, s.state, s.backend)
           , undefined, undefined, undefined, undefined, undefined)
 
-      case class B4 private[ComponentBuilder](
+      case class B4 private[ReactComponentB](
           __render: ScopeU => VDom
           , componentWillMount: UndefOr[ScopeU => Unit]
           , componentDidMount: UndefOr[ScopeM => Unit]
@@ -49,7 +49,7 @@ final class ComponentBuilder[Props](name: String) {
 
           var componentWillMount2 = componentWillMount
 
-          set(spec, "_backend", -1)
+          set(spec, "_backend", 0)
           componentWillMount2 = (t: ScopeU) => {
             val scopeB = t.asInstanceOf[ScopeB]
             t.asInstanceOf[Dynamic].updateDynamic("_backend")(WrapObj(backend(scopeB)))
@@ -80,6 +80,6 @@ final class ComponentBuilder[Props](name: String) {
   }
 }
 
-object ComponentBuilder {
-  def apply[Props](name: String) = new ComponentBuilder[Props](name)
+object ReactComponentB {
+  def apply[Props](name: String) = new ReactComponentB[Props](name)
 }

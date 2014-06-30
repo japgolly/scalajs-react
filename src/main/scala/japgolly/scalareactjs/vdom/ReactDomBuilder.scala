@@ -1,8 +1,8 @@
-package golly.react.scalatags
+package japgolly.scalareactjs.vdom
 
 import scala.scalajs.js
 
-object ReactBuilder  {
+object ReactDomBuilder  {
 
   val specialCaseAttrs =
     Set("onBlur", "onChange", "onClick", "onFocus", "onKeyDown", "onKeyPress", "onKeyUp", "onLoad", "onMouseDown"
@@ -12,8 +12,8 @@ object ReactBuilder  {
   val attrTranslations = specialCaseAttrs.toList.map(x => x.toLowerCase -> x).toMap
 }
 
-final class ReactBuilder {
-  import ReactBuilder._
+final class ReactDomBuilder {
+  import ReactDomBuilder._
 
   private[this] var props = new js.Object
   private[this] var style = new js.Object

@@ -1,4 +1,4 @@
-package golly.react.scalatags
+package japgolly.scalareactjs.vdom
 
 import scalatags._
 import generic.Util
@@ -7,7 +7,7 @@ import generic.Util
  * Contains Tags which are only used for SVG. These are not imported by
  * default to avoid namespace pollution.
  */
-trait ReactSvgTags extends generic.SvgTags[ReactBuilder, ReactOutput, ReactFragT]{
+trait ReactSvgTags extends generic.SvgTags[ReactDomBuilder, ReactOutput, ReactFragT]{
   /**
    * The altGlyph element allows sophisticated selection of the glyphs used to
    * render its child character data.

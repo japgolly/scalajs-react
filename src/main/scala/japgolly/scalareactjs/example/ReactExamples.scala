@@ -1,22 +1,24 @@
-package golly
-
-import scala.scalajs.js
-import org.scalajs.dom
-import org.scalajs.dom.{document, console, window}
-import react.scalatags.ReactDom._
-import react.scalatags.ReactDom.all._
-import react._
+package japgolly.scalareactjs.example
 
 import scala.collection.immutable.SortedSet
-import scalaz.Lens
+import scala.scalajs.js
+import org.scalajs.dom.{HTMLInputElement, console, document, window}
 
-object ReactExamples {
+import japgolly.scalareactjs._
+import vdom.ReactVDom._
+import all._
+
+object ReactExamples extends js.JSApp {
+
+  override def main(): Unit = {
+    Sample4()
+  }
 
   object Sample1 {
 
     case class HelloProps(name: String, age: Int)
 
-    val component = ComponentBuilder[HelloProps]("sample1")
+    val component = ReactComponentB[HelloProps]("sample1")
       .render(P =>
         div(backgroundColor := "#fdd", color := "#c00")(
           h1("THIS IS COOL."),
@@ -45,7 +47,7 @@ object ReactExamples {
       def stop(): Unit = interval foreach window.clearInterval
     }
 
-    val component = ComponentBuilder[MyProps]("sample2")
+    val component = ReactComponentB[MyProps]("sample2")
       .getInitialState(p => MyState(p.startTime))
       .backend(_ => new MyBackend)
       .render((P,S,_) =>
@@ -74,14 +76,14 @@ object ReactExamples {
 
     case class State(items: List[String], text: String)
 
-    val inputRef = Ref[dom.HTMLInputElement]("i")
+    val inputRef = Ref[HTMLInputElement]("i")
 
-    val TodoList = ComponentBuilder[List[String]]("TodoList")
+    val TodoList = ReactComponentB[List[String]]("TodoList")
       .render(P =>
         ul(P.map(itemText => li(itemText))).render
       ).build
 
-    val TodoApp = ComponentBuilder[Unit]("TodoApp")
+    val TodoApp = ReactComponentB[Unit]("TodoApp")
       .initialState(State(List("Sample todo #1", "Sample todo #2"), "Sample todo #3"))
       .backend(new Backend(_))
       .render((_,S,B) =>
@@ -97,14 +99,14 @@ object ReactExamples {
       .build
 
     class Backend(t: ComponentScopeB[Unit, State]) {
-      val handleSubmit: SyntheticEvent[dom.HTMLInputElement] => Unit = e => {
+      val handleSubmit: SyntheticEvent[HTMLInputElement] => Unit = e => {
         e.preventDefault()
         val nextItems = t.state.items :+ t.state.text
         t.setState(State(nextItems, ""))
         inputRef(t).tryFocus()
       }
 
-      val onChange: SyntheticEvent[dom.HTMLInputElement] => Unit = e =>
+      val onChange: SyntheticEvent[HTMLInputElement] => Unit = e =>
         t.modState(_.copy(text = e.target.value))
     }
 
@@ -116,13 +118,13 @@ object ReactExamples {
 
   // ===================================================================================================================
 
-  def textChangeRecv(f: String => Unit): SyntheticEvent[dom.HTMLInputElement] => Unit = e => f(e.target.value)
-  def textChangeRecvL[State](t: ComponentScopeB[_, State], l: Lens[State, String]) = textChangeRecv(t.setL(l))
+  def textChangeRecv(f: String => Unit): SyntheticEvent[HTMLInputElement] => Unit = e => f(e.target.value)
 
   object Sample4 {
 
-    case class State(people: SortedSet[String], text: String, focusPerson: Option[String])
-    val stateTextL = Lens.lensg[State, String](a => b => a.copy(text = b, focusPerson = None), _.text)
+    case class State(people: SortedSet[String], text: String, focusPerson: Option[String]) {
+      def updateText(t: String) = copy(text = t, focusPerson = None)
+    }
 
     class PeopleListBackend(t: ComponentScopeB[Unit, State]) {
       def delete(name: String): Unit = {
@@ -131,9 +133,9 @@ object ReactExamples {
           t.setState(State(p - name, name, None))
       }
 
-      val onChange = textChangeRecvL(t, stateTextL)
+      val onChange = textChangeRecv(s => t.modState(_ updateText s))
 
-      val onKP: SyntheticEvent[dom.HTMLInputElement] => Unit =
+      val onKP: SyntheticEvent[HTMLInputElement] => Unit =
         e => if (e.keyboardEvent.keyCode == 13) {
             e.preventDefault()
             add()
@@ -145,9 +147,9 @@ object ReactExamples {
     case class PeopleListProps(people: SortedSet[String], latest: Option[String], deleteFn: String => Unit)
 
     val PeopleList = {
-      val focusNext = Ref[dom.HTMLInputElement]("latest")
+      val focusNext = Ref[HTMLInputElement]("latest")
 
-      ComponentBuilder[PeopleListProps]("PeopleList")
+      ReactComponentB[PeopleListProps]("PeopleList")
         .render(P =>
           if (P.people.isEmpty)
             div(color := "#800")("No people in your list!!").render
@@ -163,7 +165,7 @@ object ReactExamples {
           .build
     }
 
-    val PeopleEditor = ComponentBuilder[Unit]("PeopleEditor")
+    val PeopleEditor = ReactComponentB[Unit]("PeopleEditor")
       .getInitialState(_ => State(SortedSet("First","Second", "x"), "Middle", Some("Second")))
       .backend(new PeopleListBackend(_))
       .render((_,S,B) =>

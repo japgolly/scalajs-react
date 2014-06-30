@@ -1,8 +1,8 @@
-package golly.react
+package japgolly.scalareactjs
 
 import scala.scalajs.js
 
-package object scalatags {
+package object vdom {
   type ReactOutput = VDom
   type ReactFragT = js.Any
 }

@@ -1,4 +1,4 @@
-package golly.react.scalatags
+package japgolly.scalareactjs.vdom
 
 import scalatags._
 import generic.Util
@@ -7,7 +7,7 @@ import generic.Util
  * Trait that contains the contents of the `Tags` object, so they can be mixed
  * in to other objects if needed.
  */
-trait ReactTags extends generic.Tags[ReactBuilder, ReactOutput, ReactFragT]{
+trait ReactTags extends generic.Tags[ReactDomBuilder, ReactOutput, ReactFragT]{
 
   // Root Element
   /**

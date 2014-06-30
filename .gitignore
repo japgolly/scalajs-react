@@ -1,9 +1,6 @@
-.project
-.classpath
+.idea
 .idea_modules
 target
+*.log
 *.pid
-*.out
-*.err
-.cache
-.target
+
