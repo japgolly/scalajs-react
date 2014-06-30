@@ -171,4 +171,8 @@ package object react {
   implicit final class URefExt[T <: dom.HTMLElement](val u: js.UndefOr[ProxyConstructorM[T]]) extends AnyVal {
     def tryFocus(): Unit = u.foreach(_.getDOMNode().focus())
   }
+
+  implicit final class ProxyConstructorUExt(val u: ProxyConstructorU) extends AnyVal {
+    def render(n: dom.Node) = React.renderComponent(u, n)
+  }
 }

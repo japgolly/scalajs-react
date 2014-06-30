@@ -77,6 +77,10 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
     override def applyTo(t: ReactBuilder): Unit = t.appendChild(c)
   }
 
+  implicit def proxyConstructorFrags(cs: Seq[ProxyConstructorU]): ReactDom.Modifier = new ReactDom.Modifier {
+    override def applyTo(t: ReactBuilder): Unit = cs.foreach(t.appendChild)
+  }
+
   case class TypedTag[+Output <: ReactOutput](tag: String = "",
                                          modifiers: List[Seq[Modifier]],
                                          void: Boolean = false)
@@ -100,7 +104,7 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
     override def toString = render.toString
   }
 
-  val Nop = new Modifier {
+  val Nop: Modifier = new Modifier {
     override def applyTo(t: ReactBuilder): Unit = ()
   }
 
@@ -121,5 +125,9 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   implicit class ReactAttrExt(val a: Attr) extends AnyVal {
     def runs(thunk: => Unit) = a := ((() => thunk): js.Function)
     def ==>[E <: dom.Node, R](eventHandler: SyntheticEvent[E] => R) = a := (eventHandler: js.Function)
+  }
+
+  implicit class ReactBoolExt(val a: Boolean) extends AnyVal {
+    def &&(m: => Modifier): Modifier = if (a) m else Nop
   }
 }

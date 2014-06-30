@@ -154,7 +154,7 @@ object ReactExamples {
           else
             ol(P.people.toList.map(p =>
               li(
-                input(value := p, if (P.latest contains p) ref := focusNext else Nop)(),
+                input(value := p, (P.latest contains p) && (ref := focusNext))(),
                 button(marginLeft := 1.em, onclick runs P.deleteFn(p))("Delete"))
             )).render
           )
