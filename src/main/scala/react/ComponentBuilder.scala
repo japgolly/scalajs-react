@@ -1,7 +1,6 @@
 package golly.react
 
-import scala.scalajs.js
-import js.UndefOr
+import scala.scalajs.js._
 
 final class ComponentBuilder[Props](name: String) {
 
@@ -24,7 +23,7 @@ final class ComponentBuilder[Props](name: String) {
 
       def render(render: (Props, State, Backend) => VDom) =
         B4(s => render(s.props, s.state, s.backend)
-          , js.undefined, js.undefined, js.undefined, js.undefined, js.undefined)
+          , undefined, undefined, undefined, undefined, undefined)
 
       case class B4 private[ComponentBuilder](
           __render: ScopeU => VDom
@@ -42,34 +41,34 @@ final class ComponentBuilder[Props](name: String) {
         def componentDidUpdate(f: (ScopeM, Props, State) => Unit): B4 = copy(componentDidUpdate = f)
 
         def buildSpec = {
-          @inline def set(o: js.Object, k: String, v: js.Any): Unit = o.asInstanceOf[js.Dynamic].updateDynamic(k)(v) // TODO share
-          val spec = js.Dynamic.literal(
+          @inline def set(o: Object, k: String, v: Any): Unit = o.asInstanceOf[Dynamic].updateDynamic(k)(v) // TODO share
+          val spec = Dynamic.literal(
               "displayName" -> name,
-              "render" -> (__render: js.ThisFunction)
-            ).asInstanceOf[js.Object]
+              "render" -> (__render: ThisFunction)
+            ).asInstanceOf[Object]
 
           var componentWillMount2 = componentWillMount
 
           set(spec, "_backend", -1)
           componentWillMount2 = (t: ScopeU) => {
             val scopeB = t.asInstanceOf[ScopeB]
-            t.asInstanceOf[js.Dynamic].updateDynamic("_backend")(WrapObj(backend(scopeB)))
+            t.asInstanceOf[Dynamic].updateDynamic("_backend")(WrapObj(backend(scopeB)))
             componentWillMount.foreach(g => g(t))
           }
 
           val initStateFn: ScopeU => WrapObj[State] = scope => WrapObj(getInitialState(scope.props))
-          set(spec, "getInitialState", initStateFn: js.ThisFunction)
+          set(spec, "getInitialState", initStateFn: ThisFunction)
 
-          componentWillMount2.foreach(f => set(spec, "componentWillMount", f: js.ThisFunction))
-          componentWillUnmount.foreach(f => set(spec, "componentWillUnmount", f: js.ThisFunction))
-          componentDidMount.foreach(f => set(spec, "componentDidMount", f: js.ThisFunction))
+          componentWillMount2.foreach(f => set(spec, "componentWillMount", f: ThisFunction))
+          componentWillUnmount.foreach(f => set(spec, "componentWillUnmount", f: ThisFunction))
+          componentDidMount.foreach(f => set(spec, "componentDidMount", f: ThisFunction))
           componentWillUpdate.foreach { f =>
             val g = (t: ScopeWU, p: WrapObj[Props], s: WrapObj[State]) => f(t, p.v, s.v)
-            set(spec, "componentWillUpdate", g: js.ThisFunction)
+            set(spec, "componentWillUpdate", g: ThisFunction)
           }
           componentDidUpdate.foreach { f =>
             val g = (t: ScopeM, p: WrapObj[Props], s: WrapObj[State]) => f(t, p.v, s.v)
-            set(spec, "componentDidUpdate", g: js.ThisFunction)
+            set(spec, "componentDidUpdate", g: ThisFunction)
           }
 
           spec.asInstanceOf[ComponentSpec[Props]]
