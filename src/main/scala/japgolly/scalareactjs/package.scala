@@ -23,6 +23,10 @@ package object scalareactjs {
     @inline final def apply(refs: RefsObject): UndefOr[ProxyConstructorM[T]] = refs[T](name)
   }
 
+  class WComponentConstructor[Props](u: ComponentConstructor[Props]) {
+    def apply(props: Props, children: Any*) = u(WrapObj(props), children: _*)
+  }
+
   // ===================================================================================================================
 
   @inline implicit def autoUnWrapObj[A](a: WrapObj[A]): A = a.v
@@ -45,10 +49,6 @@ package object scalareactjs {
 
   implicit final class ComponentScope_B_Ext[Backend](val u: ComponentScope_B[Backend]) extends AnyVal {
     @inline def backend = u._backend.v
-  }
-
-  implicit final class ComponentConstructorExt[P](val u: ComponentConstructor[P]) extends AnyVal {
-    @inline def create(props: P, children: Any*) = u(WrapObj(props), children: _*)
   }
 
   implicit final class SyntheticEventExt[N <: dom.Node](val u: SyntheticEvent[N]) extends AnyVal {

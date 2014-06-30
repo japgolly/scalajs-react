@@ -130,4 +130,6 @@ object ReactVDom extends Bundle[ReactDomBuilder, ReactOutput, ReactFragT] {
   implicit class ReactBoolExt(val a: Boolean) extends AnyVal {
     def &&(m: => Modifier): Modifier = if (a) m else Nop
   }
+
+  implicit def autoRender(t: Tag) = t.render
 }

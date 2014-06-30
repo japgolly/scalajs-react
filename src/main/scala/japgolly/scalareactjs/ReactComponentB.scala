@@ -5,7 +5,7 @@ import scala.scalajs.js._
 final class ReactComponentB[Props](name: String) {
 
   def getInitialState[State](f: Props => State) = new B2[State](f)
-  def initialState[State](s: State) = getInitialState(_ => s)
+  def initialState[State](s: => State) = getInitialState(_ => s)
   def stateless = initialState(())
   def render(render: Props => VDom) = stateless.render((p,_) => render(p))
 
@@ -74,7 +74,7 @@ final class ReactComponentB[Props](name: String) {
           spec.asInstanceOf[ComponentSpec[Props]]
         }
 
-        def build = React.createClass(buildSpec)
+        def create = new WComponentConstructor(React.createClass(buildSpec))
       }
     }
   }
