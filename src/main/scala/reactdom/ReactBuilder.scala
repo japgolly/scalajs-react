@@ -2,7 +2,19 @@ package golly.react.scalatags
 
 import scala.scalajs.js
 
+object ReactBuilder  {
+
+  val specialCaseAttrs =
+    Set("onBlur", "onChange", "onClick", "onFocus", "onKeyDown", "onKeyPress", "onKeyUp", "onLoad", "onMouseDown"
+      , "onMouseMove", "onMouseOut", "onMouseOver", "onMouseUp", "onSelect", "onScroll", "onSubmit", "onReset"
+      , "readOnly")
+
+  val attrTranslations = specialCaseAttrs.toList.map(x => x.toLowerCase -> x).toMap
+}
+
 final class ReactBuilder {
+  import ReactBuilder._
+
   private[this] var props = new js.Object
   private[this] var style = new js.Object
 
@@ -27,8 +39,11 @@ final class ReactBuilder {
     childIndex += 1
   }
 
-  def addAttr(k: String, v: js.Any): Unit = set(props, k, v)
-  def addStyle(k: String, v: String): Unit = set(style, k, v)
+  def addAttr(k: String, v: js.Any): Unit =
+    set(props, attrTranslations.getOrElse(k, k), v)
+
+  def addStyle(k: String, v: String): Unit =
+    set(style, k, v)
 
   @inline private[this] def set(o: js.Object, k: String, v: js.Any): Unit =
     o.asInstanceOf[js.Dynamic].updateDynamic(k)(v)

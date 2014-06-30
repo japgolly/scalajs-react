@@ -114,25 +114,7 @@ object ReactDom extends Bundle[ReactBuilder, ReactOutput, ReactFragT] {
   }
 
   trait ExtraAttrs extends Util {
-    val onBlur      = "onBlur"     .attr
-    val onChange    = "onChange"   .attr
-    val onClick     = "onClick"    .attr
-    val onFocus     = "onFocus"    .attr
-    val onKeyDown   = "onKeyDown"  .attr
-    val onKeyPress  = "onKeyPress" .attr
-    val onKeyUp     = "onKeyUp"    .attr
-    val onLoad      = "onLoad"     .attr
-    val onMouseDown = "onMouseDown".attr
-    val onMouseMove = "onMouseMove".attr
-    val onMouseOut  = "onMouseOut" .attr
-    val onMouseOver = "onMouseOver".attr
-    val onMouseUp   = "onMouseUp"  .attr
-    val onSelect    = "onSelect"   .attr
-    val onScroll    = "onScroll"   .attr
-    val onSubmit    = "onSubmit"   .attr
-    val onReset     = "onReset"    .attr
-    val readOnly    = "readOnly"   .attr
-
+    val onkeypress = "onkeypress".attr
     val ref = "ref".attr
   }
 

@@ -87,8 +87,8 @@ object ReactExamples {
         div(
           h3("TODO"),
           TodoList.create(t.state.items),
-          form(onSubmit ==> t.backend.handleSubmit)(
-            input(onChange ==> t.backend.onChange, value := t.state.text, ref := inputRef)(),
+          form(onsubmit ==> t.backend.handleSubmit)(
+            input(onchange ==> t.backend.onChange, value := t.state.text, ref := inputRef)(),
             button("Add #", t.state.items.length + 1)
           )
         ).render
@@ -155,7 +155,7 @@ object ReactExamples {
             ol(t.props.people.toList.map(p =>
               li(
                 input(value := p, if (t.props.latest contains p) ref := focusNext else Nop)(),
-                button(marginLeft := 1.em, onClick runs t.props.deleteFn(p))("Delete"))
+                button(marginLeft := 1.em, onclick runs t.props.deleteFn(p))("Delete"))
             )).render
           )
           .componentDidUpdate((t,_,_) => focusNext(t).tryFocus())
@@ -170,8 +170,8 @@ object ReactExamples {
             h3("People List")
             ,div(PeopleList.create(PeopleListProps(t.state.people, t.state.focusPerson, t.backend.delete)))
             ,h3("Add")
-            ,input(onChange ==> t.backend.onChange, onKeyPress ==> t.backend.onKP, value := t.state.text)()
-            ,button(onClick runs t.backend.add())("+")
+            ,input(onchange ==> t.backend.onChange, onkeypress ==> t.backend.onKP, value := t.state.text)()
+            ,button(onclick runs t.backend.add())("+")
           ).render
       )
       .getInitialState(_ => State(SortedSet("First","Second", "x"), "Middle", Some("Second")))
