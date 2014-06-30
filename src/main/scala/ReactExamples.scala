@@ -16,7 +16,7 @@ object ReactExamples {
 
     case class HelloProps(name: String, age: Int)
 
-    val component = ComponentBuilder[HelloProps, Unit]("sample1")
+    val component = ComponentBuilder[HelloProps]("sample1")
       .render(t =>
         div(backgroundColor := "#fdd", color := "#c00")(
           h1("THIS IS COOL."),
@@ -45,7 +45,8 @@ object ReactExamples {
       def stop(): Unit = interval foreach window.clearInterval
     }
 
-    val component = ComponentBuilder[MyProps, MyState]("sample2")
+    val component = ComponentBuilder[MyProps]("sample2")
+      .getInitialState(p => MyState(p.startTime))
       .backend(_ => new MyBackend)
       .render(ctx =>
         div(backgroundColor := "#fdd", color := "#c00")(
@@ -53,7 +54,6 @@ object ReactExamples {
           p(textDecoration := "underline")("Seconds elapsed: ", ctx.state.secondsElapsed)
         ).render
       )
-      .getInitialState(ctx => MyState(ctx.props.startTime))
       .componentDidMount(ctx => {
         val tick: js.Function = (_: js.Any) => ctx.modState(_.inc)
         console log "Installing timer..."
@@ -76,12 +76,13 @@ object ReactExamples {
 
     val inputRef = Ref[dom.HTMLInputElement]("i")
 
-    val TodoList = ComponentBuilder[List[String], Unit]("TodoList")
+    val TodoList = ComponentBuilder[List[String]]("TodoList")
       .render(t =>
         ul(t.props.map(itemText => li(itemText))).render
       ).build
 
-    val TodoApp = ComponentBuilder[Unit, State]("TodoApp")
+    val TodoApp = ComponentBuilder[Unit]("TodoApp")
+      .initialState(State(List("Sample todo #1", "Sample todo #2"), "Sample todo #3"))
       .backend(new Backend(_))
       .render(t =>
         div(
@@ -93,7 +94,6 @@ object ReactExamples {
           )
         ).render
       )
-      .initialState(State(List("Sample todo #1", "Sample todo #2"), "Sample todo #3"))
       .build
 
     class Backend(t: ComponentScopeB[Unit, State]) {
@@ -147,7 +147,7 @@ object ReactExamples {
     val PeopleList = {
       val focusNext = Ref[dom.HTMLInputElement]("latest")
 
-      ComponentBuilder[PeopleListProps, Unit]("PeopleList")
+      ComponentBuilder[PeopleListProps]("PeopleList")
         .render(t =>
           if (t.props.people.isEmpty)
             div(color := "#800")("No people in your list!!").render
@@ -163,7 +163,8 @@ object ReactExamples {
           .build
     }
 
-    val PeopleEditor = ComponentBuilder[Unit, State]("PeopleEditor")
+    val PeopleEditor = ComponentBuilder[Unit]("PeopleEditor")
+      .getInitialState(_ => State(SortedSet("First","Second", "x"), "Middle", Some("Second")))
       .backend(new PeopleListBackend(_))
       .render(t =>
           div(
@@ -174,7 +175,6 @@ object ReactExamples {
             ,button(onclick runs t.backend.add())("+")
           ).render
       )
-      .getInitialState(_ => State(SortedSet("First","Second", "x"), "Middle", Some("Second")))
       .build
 
     def apply(): Unit =

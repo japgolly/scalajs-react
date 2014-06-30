@@ -30,12 +30,15 @@ package object react {
 
   trait ComponentSpec[Props] extends js.Object
 
-  trait ComponentScope_PS[Props, State] extends js.Object {
+  trait ComponentScope_P[Props] extends js.Object {
     @JSName("props") def _props: WrapObj[Props] = ???
+  }
+
+  trait ComponentScope_S[State] extends js.Object {
     @JSName("state") def _state: WrapObj[State] = ???
   }
 
-  trait ComponentScope_PSS[Props, State] extends ComponentScope_PS[Props, State] {
+  trait ComponentScope_SS[State] extends ComponentScope_S[State] {
     @JSName("setState") def _setState(s: WrapObj[State]): Unit = ???
   }
 
@@ -57,19 +60,31 @@ package object react {
   }
 
   /** Type of an unmounted component's `this` scope. */
-  trait ComponentScopeU[Props, State, Backend] extends ComponentScope_PSS[Props, State] with ComponentScope_B[Backend]
+  trait ComponentScopeU[Props, State, Backend]
+    extends ComponentScope_P[Props]
+    with ComponentScope_SS[State]
+    with ComponentScope_B[Backend]
+    // prohibits: ComponentScope_M.*
 
-  /** Type of a component's `this` scope during willUpdate. */
+  /** Type of a component's `this` scope during componentWillUpdate. */
   trait ComponentScopeWU[Props, State, Backend]
-    extends ComponentScope_PS[Props, State]
+    extends ComponentScope_P[Props]
+    with ComponentScope_S[State]
     with ComponentScope_B[Backend]
     with ComponentScope_M
+    // prohibits: .setState
 
   /** Type of a mounted component's `this` scope. */
-  trait ComponentScopeM[Props, State, Backend] extends ComponentScopeU[Props, State, Backend] with ComponentScope_M
+  trait ComponentScopeM[Props, State, Backend]
+    extends ComponentScopeU[Props, State, Backend]
+    with ComponentScope_M
 
   /** Type of a component's `this` scope as is available to backends. */
-  trait ComponentScopeB[Props, State] extends ComponentScope_PSS[Props, State] with ComponentScope_M
+  trait ComponentScopeB[Props, State]
+    extends ComponentScope_P[Props]
+    with ComponentScope_SS[State]
+    with ComponentScope_M
+    // prohibits: .backend
 
   /** Type of `this.refs` */
   trait RefsObject extends js.Object {
@@ -121,12 +136,15 @@ package object react {
     @inline def wrap: WrapObj[A] = WrapObj(a)
   }
 
-  implicit final class ComponentScope_PS_Ext[Props, State](val u: ComponentScope_PS[Props, State]) extends AnyVal {
+  implicit final class ComponentScope_P_Ext[Props](val u: ComponentScope_P[Props]) extends AnyVal {
     @inline def props = u._props.v
+  }
+
+  implicit final class ComponentScope_S_Ext[State](val u: ComponentScope_S[State]) extends AnyVal {
     @inline def state = u._state.v
   }
 
-  implicit final class ComponentScope_PSS_Ext[Props, State](val u: ComponentScope_PSS[Props, State]) extends AnyVal {
+  implicit final class ComponentScope_SS_Ext[State](val u: ComponentScope_SS[State]) extends AnyVal {
     @inline def setState(s: State): Unit = u._setState(WrapObj(s))
     @inline def modState(f: State => State) = u.setState(f(u.state))
     @inline def setL[V](l: LensFamily[State, State, _, V])(v: V) = modState(l.set(_, v))
