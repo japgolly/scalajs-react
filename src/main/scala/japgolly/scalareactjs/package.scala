@@ -44,6 +44,7 @@ package object scalareactjs {
 
   implicit final class ComponentScope_SS_Ext[State](val u: ComponentScope_SS[State]) extends AnyVal {
     @inline def setState(s: State): Unit = u._setState(WrapObj(s))
+    @inline def setState(s: State, callback: => Unit): Unit = u._setState(WrapObj(s), (() => callback): Function)
     @inline def modState(f: State => State) = u.setState(f(u.state))
   }
 

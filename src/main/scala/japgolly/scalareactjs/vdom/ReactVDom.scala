@@ -124,6 +124,7 @@ object ReactVDom extends Bundle[ReactDomBuilder, ReactOutput, ReactFragT] {
 
   implicit class ReactAttrExt(val a: Attr) extends AnyVal {
     def runs(thunk: => Unit) = a := ((() => thunk): js.Function)
+    def -->(thunk: => Unit) = a runs thunk
     def ==>[E <: dom.Node, R](eventHandler: SyntheticEvent[E] => R) = a := (eventHandler: js.Function)
   }
 

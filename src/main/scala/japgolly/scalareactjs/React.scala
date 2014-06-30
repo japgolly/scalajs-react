@@ -61,6 +61,7 @@ trait ComponentScope_S[State] extends js.Object {
 
 trait ComponentScope_SS[State] extends ComponentScope_S[State] {
   @JSName("setState") def _setState(s: WrapObj[State]): Unit = ???
+  @JSName("setState") def _setState(s: WrapObj[State], callback: js.Function): Unit = ???
 }
 
 trait ComponentScope_B[Backend] extends js.Object {

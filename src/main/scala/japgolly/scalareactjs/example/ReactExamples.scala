@@ -13,6 +13,7 @@ object ReactExamples extends js.JSApp {
     example1(document getElementById "eg1")
     example2(document getElementById "eg2")
     example3(document getElementById "eg3")
+    example_refs(document getElementById "eg_refs")
   }
 
   // ===================================================================================================================
@@ -80,12 +81,38 @@ object ReactExamples extends js.JSApp {
           h3("TODO"),
           TodoList(S.items),
           form(onsubmit ==> B.handleSubmit)(
-            input(onchange ==> B.onChange, value := S.text)(),
+            input(onchange ==> B.onChange, value := S.text),
             button("Add #", S.items.length + 1)
           )
         )
       ).create
 
     React.renderComponent(TodoApp(()), mountNode)
+  }
+
+  // ===================================================================================================================
+
+  def example_refs(mountNode: Node) = {
+
+    val theInput = Ref[HTMLInputElement]("theInput")
+
+    class Backend(t: ComponentScopeB[Unit, String]) {
+      def handleChange(e: SyntheticEvent[HTMLInputElement]) =
+        t.setState(e.target.value)
+      def clearAndFocusInput() =
+        t.setState("", theInput(t).get.getDOMNode().focus())
+    }
+
+    val App = ReactComponentB[Unit]("App")
+      .initialState("")
+      .backend(new Backend(_))
+      .render((_,S,B) =>
+        div(
+          div(onclick --> B.clearAndFocusInput)("Click to Focus and Reset"),
+          input(ref := theInput, value := S, onchange ==> B.handleChange)
+        )
+      ).create
+
+    React.renderComponent(App(()), mountNode)
   }
 }

@@ -13,6 +13,7 @@
         td,th {border: solid 1px black; padding: 1px 4px; vertical-align:top}
         th {background: #ddd}
         td+td+td {vertical-align:middle}
+        td.full {text-align:center}
         .hljs {background: #fff}
     </style>
   </head>
@@ -21,17 +22,6 @@
     Below is a Scala translation of the examples on
     <a href="http://facebook.github.io/react/">http://facebook.github.io/react/</a>.
 
-    <!--
-    <h2>A Simple Component</h2>
-    <div id="eg1"></div>
-    <hr>
-    <h2>A Stateful Component</h2>
-    <div id="eg2"></div>
-    <hr>
-    <h2>An Application</h2>
-    <div id="eg3"></div>
-    -->
-    
     <table>
         <tr>
             <th>JavaScript</th>
@@ -52,7 +42,7 @@ React.renderComponent(HelloMessage( {name:"John"} ), mountNode);</code></pre>
             </td>
             <td>
                 <pre><code class="scala">val HelloMessage = ReactComponentB[String]("HelloMessage")
-  .render(name => div("Hello ", name))
+  .render(name =&gt; div("Hello ", name))
   .create
 
 React.renderComponent(HelloMessage("John"), mountNode)</code></pre>
@@ -91,14 +81,14 @@ React.renderComponent(Timer(null ), mountNode);</code></pre>
 class Backend {
   var interval: js.UndefOr[Int] = js.undefined
   def tick(scope: ComponentScopeM[_, State, _]): js.Function =
-    () => scope.modState(s => State(s.secondsElapsed + 1))
+    () =&gt; scope.modState(s =&gt; State(s.secondsElapsed + 1))
 }
 
 val Timer = ReactComponentB[Unit]("Timer")
   .initialState(State(0))
-  .backend(_ => new Backend)
-  .render((_,S,_) => div("Seconds elapsed: ", S.secondsElapsed))
-  .componentDidMount(scope =>
+  .backend(_ =&gt; new Backend)
+  .render((_,S,_) =&gt; div("Seconds elapsed: ", S.secondsElapsed))
+  .componentDidMount(scope =&gt;
     scope.backend.interval = window.setInterval(scope.backend.tick(scope), 1000))
   .componentWillUnmount(_.backend.interval foreach window.clearInterval)
   .create
@@ -149,7 +139,7 @@ React.renderComponent(TodoApp(null ), mountNode);</code></pre>
             </td>
             <td>
                 <pre><code class="scala">val TodoList = ReactComponentB[List[String]]("TodoList")
-  .render(P => {
+  .render(P =&gt; {
     def createItem(itemText: String) = li(itemText)
     ul(P map createItem)
   })
@@ -162,19 +152,19 @@ class Backend(t: ComponentScopeB[Unit, State]) {
     t.modState(_.copy(text = e.target.value))
   def handleSubmit(e: SyntheticEvent[HTMLInputElement]) = {
     e.preventDefault()
-    t.modState(s => State(s.items :+ s.text, ""))
+    t.modState(s =&gt; State(s.items :+ s.text, ""))
   }
 }
 
 val TodoApp = ReactComponentB[Unit]("TodoApp")
   .initialState(State(Nil, ""))
   .backend(new Backend(_))
-  .render((_,S,B) =>
+  .render((_,S,B) =&gt;
     div(
       h3("TODO"),
       TodoList(S.items),
-      form(onsubmit ==> B.handleSubmit)(
-        input(onchange ==> B.onChange, value := S.text)(),
+      form(onsubmit ==&gt; B.handleSubmit)(
+        input(onchange ==&gt; B.onChange, value := S.text),
         button("Add #", S.items.length + 1)
       )
     )
@@ -184,6 +174,77 @@ React.renderComponent(TodoApp(()), mountNode)</code></pre>
             </td>
             <td><div id="eg3">Demo</div></td>
         </tr>
+
+        <!-- Example: Refs -->
+        <tr><td class="full" colspan=3>
+            The following example is taken from
+            <a href="http://facebook.github.io/react/docs/more-about-refs.html">http://facebook.github.io/react/docs/more-about-refs.html</a>
+        </td></tr>
+        <tr>
+            <td>
+                <pre><code>var App = React.createClass({
+    getInitialState: function() {
+      return {userInput: ''};
+    },
+    handleChange: function(e) {
+      this.setState({userInput: e.target.value});
+    },
+    clearAndFocusInput: function() {
+      // Clear the input
+      this.setState({userInput: ''}, function() {
+        // This code executes after the component is re-rendered
+        this.refs.theInput.getDOMNode().focus();   // Boom! Focused!
+      });
+    },
+    render: function() {
+      return (
+        &lt;div&gt;
+          &lt;div onClick={this.clearAndFocusInput}&gt;
+            Click to Focus and Reset
+          &lt;/div&gt;
+          &lt;input
+            ref="theInput"
+            value={this.state.userInput}
+            onChange={this.handleChange}
+          /&gt;
+        &lt;/div&gt;
+      );
+    }
+  }); </code></pre>
+            </td>
+            <td>
+                <pre><code class="scala">val theInput = Ref[HTMLInputElement]("theInput")
+
+class Backend(t: ComponentScopeB[Unit, String]) {
+  def handleChange(e: SyntheticEvent[HTMLInputElement]) =
+    t.setState(e.target.value)
+  def clearAndFocusInput() =
+    // Clear the input
+    t.setState("",
+      // This code executes after the component is re-rendered
+      theInput(t).get.getDOMNode().focus() // Boom! Focused!
+    )
+}
+
+val App = ReactComponentB[Unit]("App")
+  .initialState("")
+  .backend(new Backend(_))
+  .render((_,S,B) =&gt;
+    div(
+      div(onclick --&gt; B.clearAndFocusInput)(
+        "Click to Focus and Reset"
+      ),
+      input(
+        ref := theInput,
+        value := S,
+        onchange ==&gt; B.handleChange
+      )
+    )
+  ).create </code></pre>
+            </td>
+            <td><div id="eg_refs">Demo</div></td>
+        </tr>
+
     </table>
 
     <script type="text/javascript">
