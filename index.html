@@ -3,13 +3,188 @@
   <head>
     <meta charset="UTF-8">
     <title>scalala-reactjs</title>
-      <script type="text/javascript" src="react-0.10.0.min.js"></script>
-      <script type="text/javascript" src="target/scala-2.11/scalala-react-js-fastopt.js"></script>
+    <script type="text/javascript" src="react-0.10.0.min.js"></script>
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/styles/default.min.css">
+<script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+    <script type="text/javascript" src="target/scala-2.11/scalala-react-js-fastopt.js"></script>
+    <style>
+        table {border-collapse:collapse; margin-top: 2ex}
+        td,th {border: solid 1px black; padding: 1px 4px; vertical-align:top}
+        th {background: #ddd}
+        td+td+td {vertical-align:middle}
+        .hljs {background: #fff}
+    </style>
   </head>
   <body>
 
-    [<span id="target">in here</span>]
-    [<span id="target2">in here</span>]
+    Below is a Scala translation of the examples on
+    <a href="http://facebook.github.io/react/">http://facebook.github.io/react/</a>.
+
+    <!--
+    <h2>A Simple Component</h2>
+    <div id="eg1"></div>
+    <hr>
+    <h2>A Stateful Component</h2>
+    <div id="eg2"></div>
+    <hr>
+    <h2>An Application</h2>
+    <div id="eg3"></div>
+    -->
+    
+    <table>
+        <tr>
+            <th>JavaScript</th>
+            <th>Scala</th>
+            <th>Demo</th>
+        </tr>
+
+        <!-- Example 1 -->
+        <tr>
+            <td>
+                <pre><code>var HelloMessage = React.createClass({displayName: 'HelloMessage',
+  render: function() {
+    return React.DOM.div(null, "Hello ", this.props.name);
+  }
+});
+
+React.renderComponent(HelloMessage( {name:"John"} ), mountNode);</code></pre>
+            </td>
+            <td>
+                <pre><code class="scala">val HelloMessage = ReactComponentB[String]("HelloMessage")
+  .render(name => div("Hello ", name))
+  .create
+
+React.renderComponent(HelloMessage("John"), mountNode)</code></pre>
+            </td>
+            <td><div id="eg1">Demo</div></td>
+        </tr>
+
+        <!-- Example 2 -->
+        <tr>
+            <td>
+                <pre><code>var Timer = React.createClass({displayName: 'Timer',
+  getInitialState: function() {
+    return {secondsElapsed: 0};
+  },
+  tick: function() {
+    this.setState({secondsElapsed: this.state.secondsElapsed + 1});
+  },
+  componentDidMount: function() {
+    this.interval = setInterval(this.tick, 1000);
+  },
+  componentWillUnmount: function() {
+    clearInterval(this.interval);
+  },
+  render: function() {
+    return (
+      React.DOM.div(null, "Seconds Elapsed: ", this.state.secondsElapsed)
+    );
+  }
+});
+
+React.renderComponent(Timer(null ), mountNode);</code></pre>
+            </td>
+            <td>
+                <pre><code class="scala">case class State(secondsElapsed: Long)
+
+class Backend {
+  var interval: js.UndefOr[Int] = js.undefined
+  def tick(scope: ComponentScopeM[_, State, _]): js.Function =
+    () => scope.modState(s => State(s.secondsElapsed + 1))
+}
+
+val Timer = ReactComponentB[Unit]("Timer")
+  .initialState(State(0))
+  .backend(_ => new Backend)
+  .render((_,S,_) => div("Seconds elapsed: ", S.secondsElapsed))
+  .componentDidMount(scope =>
+    scope.backend.interval = window.setInterval(scope.backend.tick(scope), 1000))
+  .componentWillUnmount(_.backend.interval foreach window.clearInterval)
+  .create
+
+React.renderComponent(Timer(()), mountNode)</code></pre>
+            </td>
+            <td><div id="eg2">Demo</div></td>
+        </tr>
+
+        <!-- Example 3 -->
+        <tr>
+            <td>
+                <pre><code>var TodoList = React.createClass({displayName: 'TodoList',
+  render: function() {
+    var createItem = function(itemText) {
+      return React.DOM.li(null, itemText);
+    };
+    return React.DOM.ul(null, this.props.items.map(createItem));
+  }
+});
+var TodoApp = React.createClass({displayName: 'TodoApp',
+  getInitialState: function() {
+    return {items: [], text: ''};
+  },
+  onChange: function(e) {
+    this.setState({text: e.target.value});
+  },
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var nextItems = this.state.items.concat([this.state.text]);
+    var nextText = '';
+    this.setState({items: nextItems, text: nextText});
+  },
+  render: function() {
+    return (
+      React.DOM.div(null,
+        React.DOM.h3(null, "TODO"),
+        TodoList( {items:this.state.items} ),
+        React.DOM.form( {onSubmit:this.handleSubmit},
+          React.DOM.input( {onChange:this.onChange, value:this.state.text} ),
+          React.DOM.button(null, 'Add #' + (this.state.items.length + 1))
+        )
+      )
+    );
+  }
+});
+React.renderComponent(TodoApp(null ), mountNode);</code></pre>
+            </td>
+            <td>
+                <pre><code class="scala">val TodoList = ReactComponentB[List[String]]("TodoList")
+  .render(P => {
+    def createItem(itemText: String) = li(itemText)
+    ul(P map createItem)
+  })
+  .create
+
+case class State(items: List[String], text: String)
+
+class Backend(t: ComponentScopeB[Unit, State]) {
+  def onChange(e: SyntheticEvent[HTMLInputElement]) =
+    t.modState(_.copy(text = e.target.value))
+  def handleSubmit(e: SyntheticEvent[HTMLInputElement]) = {
+    e.preventDefault()
+    t.modState(s => State(s.items :+ s.text, ""))
+  }
+}
+
+val TodoApp = ReactComponentB[Unit]("TodoApp")
+  .initialState(State(Nil, ""))
+  .backend(new Backend(_))
+  .render((_,S,B) =>
+    div(
+      h3("TODO"),
+      TodoList(S.items),
+      form(onsubmit ==> B.handleSubmit)(
+        input(onchange ==> B.onChange, value := S.text)(),
+        button("Add #", S.items.length + 1)
+      )
+    )
+  ).create
+
+React.renderComponent(TodoApp(()), mountNode)</code></pre>
+            </td>
+            <td><div id="eg3">Demo</div></td>
+        </tr>
+    </table>
 
     <script type="text/javascript">
       japgolly.scalareactjs.example.ReactExamples().main()
