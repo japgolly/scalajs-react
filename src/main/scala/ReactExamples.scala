@@ -17,10 +17,10 @@ object ReactExamples {
     case class HelloProps(name: String, age: Int)
 
     val component = ComponentBuilder[HelloProps]("sample1")
-      .render(t =>
+      .render(P =>
         div(backgroundColor := "#fdd", color := "#c00")(
           h1("THIS IS COOL."),
-          p(textDecoration := "underline")("Hello there, ", "Hello, ", t.props.name, " of age ", t.props.age)
+          p(textDecoration := "underline")("Hello there, ", "Hello, ", P.name, " of age ", P.age)
         ).render
       ).build
 
@@ -48,10 +48,10 @@ object ReactExamples {
     val component = ComponentBuilder[MyProps]("sample2")
       .getInitialState(p => MyState(p.startTime))
       .backend(_ => new MyBackend)
-      .render(ctx =>
+      .render((P,S,_) =>
         div(backgroundColor := "#fdd", color := "#c00")(
-          h1("THIS IS AWESOME (", ctx.props.title, ")"),
-          p(textDecoration := "underline")("Seconds elapsed: ", ctx.state.secondsElapsed)
+          h1("THIS IS AWESOME (", P.title, ")"),
+          p(textDecoration := "underline")("Seconds elapsed: ", S.secondsElapsed)
         ).render
       )
       .componentDidMount(ctx => {
@@ -77,20 +77,20 @@ object ReactExamples {
     val inputRef = Ref[dom.HTMLInputElement]("i")
 
     val TodoList = ComponentBuilder[List[String]]("TodoList")
-      .render(t =>
-        ul(t.props.map(itemText => li(itemText))).render
+      .render(P =>
+        ul(P.map(itemText => li(itemText))).render
       ).build
 
     val TodoApp = ComponentBuilder[Unit]("TodoApp")
       .initialState(State(List("Sample todo #1", "Sample todo #2"), "Sample todo #3"))
       .backend(new Backend(_))
-      .render(t =>
+      .render((_,S,B) =>
         div(
           h3("TODO"),
-          TodoList.create(t.state.items),
-          form(onsubmit ==> t.backend.handleSubmit)(
-            input(onchange ==> t.backend.onChange, value := t.state.text, ref := inputRef)(),
-            button("Add #", t.state.items.length + 1)
+          TodoList.create(S.items),
+          form(onsubmit ==> B.handleSubmit)(
+            input(onchange ==> B.onChange, value := S.text, ref := inputRef)(),
+            button("Add #", S.items.length + 1)
           )
         ).render
       )
@@ -148,14 +148,14 @@ object ReactExamples {
       val focusNext = Ref[dom.HTMLInputElement]("latest")
 
       ComponentBuilder[PeopleListProps]("PeopleList")
-        .render(t =>
-          if (t.props.people.isEmpty)
+        .render(P =>
+          if (P.people.isEmpty)
             div(color := "#800")("No people in your list!!").render
           else
-            ol(t.props.people.toList.map(p =>
+            ol(P.people.toList.map(p =>
               li(
-                input(value := p, if (t.props.latest contains p) ref := focusNext else Nop)(),
-                button(marginLeft := 1.em, onclick runs t.props.deleteFn(p))("Delete"))
+                input(value := p, if (P.latest contains p) ref := focusNext else Nop)(),
+                button(marginLeft := 1.em, onclick runs P.deleteFn(p))("Delete"))
             )).render
           )
           .componentDidUpdate((t,_,_) => focusNext(t).tryFocus())
@@ -166,13 +166,13 @@ object ReactExamples {
     val PeopleEditor = ComponentBuilder[Unit]("PeopleEditor")
       .getInitialState(_ => State(SortedSet("First","Second", "x"), "Middle", Some("Second")))
       .backend(new PeopleListBackend(_))
-      .render(t =>
+      .render((_,S,B) =>
           div(
             h3("People List")
-            ,div(PeopleList.create(PeopleListProps(t.state.people, t.state.focusPerson, t.backend.delete)))
+            ,div(PeopleList.create(PeopleListProps(S.people, S.focusPerson, B.delete)))
             ,h3("Add")
-            ,input(onchange ==> t.backend.onChange, onkeypress ==> t.backend.onKP, value := t.state.text)()
-            ,button(onclick runs t.backend.add())("+")
+            ,input(onchange ==> B.onChange, onkeypress ==> B.onKP, value := S.text)()
+            ,button(onclick runs B.add())("+")
           ).render
       )
       .build

@@ -8,22 +8,23 @@ final class ComponentBuilder[Props](name: String) {
   def getInitialState[State](f: Props => State) = new B2[State](f)
   def initialState[State](s: State) = getInitialState(_ => s)
   def stateless = initialState(())
-  def render(render: ComponentScopeU[Props, Unit, Unit] => VDom) = stateless.render(render)
+  def render(render: Props => VDom) = stateless.render((p,_) => render(p))
 
   class B2[State] private[ComponentBuilder](getInitialState: Props => State) {
     type ScopeB = ComponentScopeB[Props, State]
 
     def backend[Backend](f: ScopeB => Backend) = new B3[Backend](f)
-    def noBackend = new B3[Unit](js.undefined)
-    def render(render: ComponentScopeU[Props, State, Unit] => VDom) = noBackend.render(render)
+    def noBackend = new B3[Unit](_ => ())
+    def render(render: (Props, State) => VDom) = noBackend.render((p,s,_) => render(p,s))
 
-    class B3[Backend] private[ComponentBuilder](backend: UndefOr[ScopeB => Backend]) {
+    class B3[Backend] private[ComponentBuilder](backend: ScopeB => Backend) {
       type ScopeU = ComponentScopeU[Props, State, Backend]
       type ScopeM = ComponentScopeM[Props, State, Backend]
       type ScopeWU = ComponentScopeWU[Props, State, Backend]
 
-      def render(render: ScopeU => VDom) =
-        B4(render, js.undefined, js.undefined, js.undefined, js.undefined, js.undefined)
+      def render(render: (Props, State, Backend) => VDom) =
+        B4(s => render(s.props, s.state, s.backend)
+          , js.undefined, js.undefined, js.undefined, js.undefined, js.undefined)
 
       case class B4 private[ComponentBuilder](
           __render: ScopeU => VDom
@@ -48,14 +49,13 @@ final class ComponentBuilder[Props](name: String) {
             ).asInstanceOf[js.Object]
 
           var componentWillMount2 = componentWillMount
-          backend.foreach(f => {
-            set(spec, "_backend", "PENDING...")
-            componentWillMount2 = (t: ScopeU) => {
-              val scopeB = t.asInstanceOf[ScopeB]
-              t.asInstanceOf[js.Dynamic].updateDynamic("_backend")(WrapObj(f(scopeB)))
-              componentWillMount.foreach(g => g(t))
-            }
-          })
+
+          set(spec, "_backend", -1)
+          componentWillMount2 = (t: ScopeU) => {
+            val scopeB = t.asInstanceOf[ScopeB]
+            t.asInstanceOf[js.Dynamic].updateDynamic("_backend")(WrapObj(backend(scopeB)))
+            componentWillMount.foreach(g => g(t))
+          }
 
           val initStateFn: ScopeU => WrapObj[State] = scope => WrapObj(getInitialState(scope.props))
           set(spec, "getInitialState", initStateFn: js.ThisFunction)
