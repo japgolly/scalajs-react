@@ -8,11 +8,13 @@ scalaVersion := "2.11.1"
 
 scalacOptions ++= Seq( "-deprecation", "-unchecked", "-language:_" )
 
-libraryDependencies += "org.scalaz" %%% "scalaz-core" % "7.1.0-M7.js" // Local publish for now
+resolvers += bintray.Opts.resolver.repo("japgolly", "forks")
+
+libraryDependencies += "japgolly.scalaz" %%% "scalaz-core" % "7.1.0-RC1"
 
 libraryDependencies += "org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6"
 
-libraryDependencies += "com.scalatags" %%% "scalatags" % "0.3.4"
+libraryDependencies += "com.scalatags" %%% "scalatags" % "0.3.5"
 
 // Loads DOM into Rhino which enables sbt run
 ScalaJSKeys.requiresDOM := true
