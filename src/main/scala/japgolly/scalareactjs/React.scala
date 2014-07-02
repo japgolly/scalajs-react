@@ -44,7 +44,7 @@ trait SyntheticEvent[DOMEventTarget <: dom.Node] extends js.Object {
   def preventDefault(): Unit = ???
   def stopPropagation(): Unit = ???
   val target: DOMEventTarget = ???
-  // Date timeStamp
+  val timeStamp: js.Date = ???
   @JSName("type") val eventType: String = ???
 }
 
