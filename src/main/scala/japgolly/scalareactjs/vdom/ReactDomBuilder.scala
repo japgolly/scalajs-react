@@ -17,27 +17,10 @@ final class ReactDomBuilder {
 
   private[this] var props = new js.Object
   private[this] var style = new js.Object
+  private[this] var vdomArgs = js.Array[ReactFragT](props)
 
-  // This is (mostly) copied from scalatags.text.Builder for speed
-  private[this] var children = new Array[ReactFragT](5)
-  private[this] var childIndex = 1
-  private[this] def ensureArrayCapacity(): Unit = {
-    if (childIndex >= children.length) {
-      val newArr = new Array[ReactFragT](children.length * 2)
-      var i = children.length
-      while (i > 0) {
-        i -= 1
-        newArr(i) = children(i)
-      }
-      children = newArr
-    }
-  }
-
-  def appendChild(c: ReactFragT): Unit = {
-    ensureArrayCapacity()
-    children(childIndex) = c
-    childIndex += 1
-  }
+  def appendChild(c: ReactFragT): Unit =
+    vdomArgs.push(c)
 
   def addAttr(k: String, v: js.Any): Unit =
     set(props, attrTranslations.getOrElse(k, k), v)
@@ -52,7 +35,6 @@ final class ReactDomBuilder {
 
   def render(tag: String) = {
     if (hasStyle) set(props, "style", style)
-    children(0) = props
-    js.Dynamic.global.React.DOM.applyDynamic(tag)(children: _*).asInstanceOf[ReactOutput]
+    js.Dynamic.global.React.DOM.applyDynamic(tag)(vdomArgs: _*).asInstanceOf[ReactOutput]
   }
 }
