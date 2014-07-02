@@ -23,52 +23,65 @@ final class ReactComponentB[Props](name: String) {
 
       def render(render: (Props, State, Backend) => VDom) =
         B4(s => render(s.props, s.state, s.backend)
-          , undefined, undefined, undefined, undefined, undefined)
+          , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
 
       case class B4 private[ReactComponentB](
           __render: ScopeU => VDom
+          , getDefaultProps: UndefOr[() => Props]
           , componentWillMount: UndefOr[ScopeU => Unit]
           , componentDidMount: UndefOr[ScopeM => Unit]
           , componentWillUnmount: UndefOr[ScopeM => Unit]
           , componentWillUpdate: UndefOr[(ScopeWU, Props, State) => Unit]
           , componentDidUpdate: UndefOr[(ScopeM, Props, State) => Unit]
+          , componentWillReceiveProps: UndefOr[(ScopeM, Props) => Unit]
+          , shouldComponentUpdate: UndefOr[(ScopeM, Props, State) => Boolean]
           ) {
 
+        def getDefaultProps(f: => Props): B4 = copy(getDefaultProps = () => f)
         def componentWillMount(f: ScopeU => Unit): B4 = copy(componentWillMount = f)
         def componentDidMount(f: ScopeM => Unit): B4 = copy(componentDidMount = f)
         def componentWillUnmount(f: ScopeM => Unit): B4 = copy(componentWillUnmount = f)
         def componentWillUpdate(f: (ScopeWU, Props, State) => Unit): B4 = copy(componentWillUpdate = f)
         def componentDidUpdate(f: (ScopeM, Props, State) => Unit): B4 = copy(componentDidUpdate = f)
+        def componentWillReceiveProps(f: (ScopeM, Props) => Unit): B4 = copy(componentWillReceiveProps = f)
+        def shouldComponentUpdate(f: (ScopeM, Props, State) => Boolean): B4 = copy(shouldComponentUpdate = f)
 
         def buildSpec = {
           @inline def set(o: Object, k: String, v: Any): Unit = o.asInstanceOf[Dynamic].updateDynamic(k)(v) // TODO share
+
           val spec = Dynamic.literal(
               "displayName" -> name,
+              "_backend" -> 0,
               "render" -> (__render: ThisFunction)
             ).asInstanceOf[Object]
 
-          var componentWillMount2 = componentWillMount
+          @inline def setFnPS[T, R](fn: UndefOr[(T, Props, State) => R], name: String): Unit =
+            fn.foreach { f =>
+              val g = (t: T, p: WrapObj[Props], s: WrapObj[State]) => f(t, p.v, s.v)
+              set(spec, name, g: ThisFunction)
+            }
 
-          set(spec, "_backend", 0)
-          componentWillMount2 = (t: ScopeU) => {
+          val componentWillMount2 = (t: ScopeU) => {
             val scopeB = t.asInstanceOf[ScopeB]
             t.asInstanceOf[Dynamic].updateDynamic("_backend")(WrapObj(backend(scopeB)))
             componentWillMount.foreach(g => g(t))
           }
+          set(spec, "componentWillMount", componentWillMount2: ThisFunction)
 
           val initStateFn: ScopeU => WrapObj[State] = scope => WrapObj(getInitialState(scope.props))
           set(spec, "getInitialState", initStateFn: ThisFunction)
 
-          componentWillMount2.foreach(f => set(spec, "componentWillMount", f: ThisFunction))
+          getDefaultProps.foreach(f => set(spec, "getDefaultProps", f: Function))
           componentWillUnmount.foreach(f => set(spec, "componentWillUnmount", f: ThisFunction))
           componentDidMount.foreach(f => set(spec, "componentDidMount", f: ThisFunction))
-          componentWillUpdate.foreach { f =>
-            val g = (t: ScopeWU, p: WrapObj[Props], s: WrapObj[State]) => f(t, p.v, s.v)
-            set(spec, "componentWillUpdate", g: ThisFunction)
-          }
-          componentDidUpdate.foreach { f =>
-            val g = (t: ScopeM, p: WrapObj[Props], s: WrapObj[State]) => f(t, p.v, s.v)
-            set(spec, "componentDidUpdate", g: ThisFunction)
+
+          setFnPS(componentWillUpdate, "componentWillUpdate")
+          setFnPS(componentDidUpdate, "componentDidUpdate")
+          setFnPS(shouldComponentUpdate, "shouldComponentUpdate")
+
+          componentWillReceiveProps.foreach { f =>
+            val g = (t: ScopeM, p: WrapObj[Props]) => f(t, p.v)
+            set(spec, "componentWillReceiveProps", g: ThisFunction)
           }
 
           spec.asInstanceOf[ComponentSpec[Props]]
