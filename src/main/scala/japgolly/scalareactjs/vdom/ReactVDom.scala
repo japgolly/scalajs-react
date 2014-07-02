@@ -7,10 +7,10 @@ import scalatags._
 import scalatags.generic._
 import japgolly.scalareactjs.{SyntheticEvent, ProxyConstructorU, Ref}
 
-object ReactVDom extends Bundle[ReactDomBuilder, ReactOutput, ReactFragT] {
+object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
 
   object all extends StringTags with Attrs with Styles with ReactTags with DataConverters with ExtraAttrs
-  object short extends StringTags with Util with DataConverters with generic.AbstractShort[ReactDomBuilder, ReactOutput, ReactFragT]{
+  object short extends StringTags with Util with DataConverters with generic.AbstractShort[VDomBuilder, ReactOutput, ReactFragT]{
     object * extends StringTags with Attrs with Styles
   }
 
@@ -50,11 +50,11 @@ object ReactVDom extends Bundle[ReactDomBuilder, ReactOutput, ReactFragT] {
   object RawFrag extends Companion[RawFrag]
   case class RawFrag(v: String) extends Modifier {
     def render: ReactFragT = v
-    def applyTo(t: ReactDomBuilder): Unit = t.appendChild(this.render)
+    def applyTo(t: VDomBuilder): Unit = t.appendChild(this.render)
   }
 
   class GenericAttr[T](f: T => js.Any) extends AttrValue[T]{
-    def apply(t: ReactDomBuilder, a: Attr, v: T): Unit =
+    def apply(t: VDomBuilder, a: Attr, v: T): Unit =
       t.addAttr(a.name, f(v))
   }
   implicit val stringAttr : AttrValue[String]   = new GenericAttr[String](s => s)
@@ -65,7 +65,7 @@ object ReactVDom extends Bundle[ReactDomBuilder, ReactOutput, ReactFragT] {
   implicit def reactRefAttr[T <: Ref[_]] = new GenericAttr[T](_.name)
 
   class GenericStyle[T] extends StyleValue[T]{
-    def apply(b: ReactDomBuilder, s: Style, v: T): Unit = {
+    def apply(b: VDomBuilder, s: Style, v: T): Unit = {
       b.addStyle(s.cssName, v.toString)
     }
   }
@@ -74,17 +74,17 @@ object ReactVDom extends Bundle[ReactDomBuilder, ReactOutput, ReactFragT] {
   implicit def numericStyle[T: Numeric] = new GenericStyle[T]
 
   implicit def proxyConstructorFrag(c: ProxyConstructorU): ReactVDom.Modifier = new ReactVDom.Modifier {
-    override def applyTo(t: ReactDomBuilder): Unit = t.appendChild(c)
+    override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
   }
 
   implicit def proxyConstructorFrags(cs: Seq[ProxyConstructorU]): ReactVDom.Modifier = new ReactVDom.Modifier {
-    override def applyTo(t: ReactDomBuilder): Unit = cs.foreach(t.appendChild)
+    override def applyTo(t: VDomBuilder): Unit = cs.foreach(t.appendChild)
   }
 
   case class TypedTag[+Output <: ReactOutput](tag: String = "",
                                          modifiers: List[Seq[Modifier]],
                                          void: Boolean = false)
-    extends generic.TypedTag[ReactDomBuilder, Output, ReactFragT]
+    extends generic.TypedTag[VDomBuilder, Output, ReactFragT]
     with Frag{
     // unchecked because Scala 2.10.4 seems to not like this, even though
     // 2.11.1 works just fine. I trust that 2.11.1 is more correct than 2.10.4
@@ -92,7 +92,7 @@ object ReactVDom extends Bundle[ReactDomBuilder, ReactOutput, ReactFragT] {
     protected[this] type Self = TypedTag[Output @uncheckedVariance]
 
     def render: Output = {
-      val b = new ReactDomBuilder()
+      val b = new VDomBuilder()
       build(b)
       b.render(tag).asInstanceOf[Output]
     }
@@ -105,16 +105,16 @@ object ReactVDom extends Bundle[ReactDomBuilder, ReactOutput, ReactFragT] {
   }
 
   val Nop: Modifier = new Modifier {
-    override def applyTo(t: ReactDomBuilder): Unit = ()
+    override def applyTo(t: VDomBuilder): Unit = ()
   }
 
   type Tag = TypedTag[ReactOutput]
   val Tag = TypedTag
 
   type Frag = ReactDomFrag
-  trait ReactDomFrag extends generic.Frag[ReactDomBuilder, ReactOutput, ReactFragT]{
+  trait ReactDomFrag extends generic.Frag[VDomBuilder, ReactOutput, ReactFragT]{
     def render: ReactFragT
-    def applyTo(b: ReactDomBuilder): Unit = b.appendChild(this.render)
+    def applyTo(b: VDomBuilder): Unit = b.appendChild(this.render)
   }
 
   trait ExtraAttrs extends Util {

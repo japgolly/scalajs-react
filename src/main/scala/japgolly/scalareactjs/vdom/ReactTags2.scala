@@ -7,7 +7,7 @@ import generic.Util
  * Contains HTML tags which are used less frequently. These are generally
  * imported individually as needed.
  */
-trait ReactTags2 extends generic.Tags2[ReactDomBuilder, ReactOutput, ReactFragT]{
+trait ReactTags2 extends generic.Tags2[VDomBuilder, ReactOutput, ReactFragT]{
 
   // Document Metadata
   /**

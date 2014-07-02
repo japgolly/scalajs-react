@@ -7,7 +7,7 @@ import generic.Util
  * Trait that contains the contents of the `Tags` object, so they can be mixed
  * in to other objects if needed.
  */
-trait ReactTags extends generic.Tags[ReactDomBuilder, ReactOutput, ReactFragT]{
+trait ReactTags extends generic.Tags[VDomBuilder, ReactOutput, ReactFragT]{
 
   // Root Element
   /**
