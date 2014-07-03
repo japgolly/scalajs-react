@@ -1,9 +1,9 @@
-package japgolly.scalareactjs.example
+package japgolly.scalajs.react.example
 
 import scala.scalajs.js
 import org.scalajs.dom.{document, window}
 
-import japgolly.scalareactjs._
+import japgolly.scalajs.react._
 import Addons.ReactCssTransitionGroup
 import vdom.ReactVDom._
 import all._

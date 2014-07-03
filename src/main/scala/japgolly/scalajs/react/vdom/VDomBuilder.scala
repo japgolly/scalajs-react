@@ -1,7 +1,7 @@
-package japgolly.scalareactjs.vdom
+package japgolly.scalajs.react.vdom
 
 import scala.scalajs.js
-import japgolly.scalareactjs.React
+import japgolly.scalajs.react.React
 
 private[vdom] object VDomBuilder  {
 

@@ -1,11 +1,11 @@
-package japgolly.scalareactjs.vdom
+package japgolly.scalajs.react.vdom
 
 import org.scalajs.dom
 import scala.annotation.unchecked.uncheckedVariance
 import scala.scalajs.js
 import scalatags._
 import scalatags.generic._
-import japgolly.scalareactjs.{SyntheticEvent, ProxyConstructorU, Ref}
+import japgolly.scalajs.react.{SyntheticEvent, ProxyConstructorU, Ref}
 
 object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
 

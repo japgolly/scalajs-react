@@ -1,4 +1,4 @@
-package japgolly.scalareactjs
+package japgolly.scalajs.react
 
 import org.scalajs.dom
 import scala.scalajs.js

@@ -1,4 +1,4 @@
-package japgolly.scalareactjs.vdom
+package japgolly.scalajs.react.vdom
 
 import scalatags._
 import generic.Util

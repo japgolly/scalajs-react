@@ -10,7 +10,7 @@ Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.j
 Examples
 ========
 
-[Examples are included](https://github.com/japgolly/scalajs-react/tree/master/src/main/scala/japgolly/scalareactjs/example) with this project. If you know Scala and React then that should have you up and running in no time.
+[Examples are included](https://github.com/japgolly/scalajs-react/tree/master/src/main/scala/japgolly/scalajs/react/example) with this project. If you know Scala and React then that should have you up and running in no time.
 
 If you'd like to see side-by-side comparisons of sample code taken from [http://facebook.github.io/react/](http://facebook.github.io/react/), do this:
 

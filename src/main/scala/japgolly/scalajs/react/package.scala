@@ -1,9 +1,9 @@
-package japgolly
+package japgolly.scalajs
 
 import org.scalajs.dom
 import scala.scalajs.js._
 
-package object scalareactjs {
+package object react {
 
   @inline def React = Dynamic.global.React.asInstanceOf[React]
 
