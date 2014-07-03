@@ -15,6 +15,9 @@ trait React extends js.Object {
   def createClass[Props](specification: ComponentSpec[Props]): ComponentConstructor[Props] = ???
 
   def renderComponent(c: ProxyConstructorU, n: dom.Node): js.Dynamic = ???
+
+  def DOM: js.Dynamic
+  def addons: js.Dynamic
 }
 
 /** A React DOM representation of HTML. Could be Scalatags.render output, or a React component. */

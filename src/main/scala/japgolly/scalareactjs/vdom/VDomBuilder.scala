@@ -1,6 +1,7 @@
 package japgolly.scalareactjs.vdom
 
 import scala.scalajs.js
+import japgolly.scalareactjs.React
 
 private[vdom] object VDomBuilder  {
 
@@ -35,6 +36,6 @@ private[vdom] final class VDomBuilder {
 
   def render(tag: String) = {
     if (hasStyle) set(props, "style", style)
-    js.Dynamic.global.React.DOM.applyDynamic(tag)(vdomArgs: _*).asInstanceOf[ReactOutput]
+    React.DOM.applyDynamic(tag)(vdomArgs: _*).asInstanceOf[ReactOutput]
   }
 }
