@@ -133,4 +133,5 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
   }
 
   implicit def autoRender(t: Tag) = t.render
+  implicit def autoRenderS(s: Seq[Tag]) = s.map(_.render)
 }

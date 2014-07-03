@@ -17,7 +17,7 @@ trait React extends js.Object {
   def renderComponent(c: ProxyConstructorU, n: dom.Node): js.Dynamic = ???
 }
 
-/** Type of HTML rendered in React's virtual DOM. */
+/** A React DOM representation of HTML. Could be Scalatags.render output, or a React component. */
 trait VDom extends js.Object
 
 trait ComponentSpec[Props] extends js.Object
@@ -26,7 +26,8 @@ trait ComponentConstructor[Props] extends js.Object {
   def apply(props: WrapObj[Props], children: js.Any*): ProxyConstructorU = ???
 }
 
-trait ProxyConstructorU extends js.Object
+/** An unmounted component. Called ProxyConstructor in React-land. */
+trait ProxyConstructorU extends js.Object with VDom
 
 trait ProxyConstructorM[Node <: dom.Element] extends ProxyConstructorU {
   def getDOMNode(): Node
