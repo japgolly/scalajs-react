@@ -47,18 +47,16 @@ final class ReactComponentB[Props](name: String) {
         def shouldComponentUpdate(f: (ScopeM, Props, State) => Boolean): B4 = copy(shouldComponentUpdate = f)
 
         def buildSpec = {
-          @inline def set(o: Object, k: String, v: Any): Unit = o.asInstanceOf[Dynamic].updateDynamic(k)(v) // TODO share
-
           val spec = Dynamic.literal(
               "displayName" -> name,
               "_backend" -> 0,
               "render" -> (__render: ThisFunction)
-            ).asInstanceOf[Object]
+            )
 
           @inline def setFnPS[T, R](fn: UndefOr[(T, Props, State) => R], name: String): Unit =
             fn.foreach { f =>
               val g = (t: T, p: WrapObj[Props], s: WrapObj[State]) => f(t, p.v, s.v)
-              set(spec, name, g: ThisFunction)
+              spec.updateDynamic(name)(g: ThisFunction)
             }
 
           val componentWillMount2 = (t: ScopeU) => {
@@ -66,14 +64,14 @@ final class ReactComponentB[Props](name: String) {
             t.asInstanceOf[Dynamic].updateDynamic("_backend")(WrapObj(backend(scopeB)))
             componentWillMount.foreach(g => g(t))
           }
-          set(spec, "componentWillMount", componentWillMount2: ThisFunction)
+          spec.updateDynamic("componentWillMount")(componentWillMount2: ThisFunction)
 
           val initStateFn: ScopeU => WrapObj[State] = scope => WrapObj(getInitialState(scope.props))
-          set(spec, "getInitialState", initStateFn: ThisFunction)
+          spec.updateDynamic("getInitialState")(initStateFn: ThisFunction)
 
-          getDefaultProps.foreach(f => set(spec, "getDefaultProps", f: Function))
-          componentWillUnmount.foreach(f => set(spec, "componentWillUnmount", f: ThisFunction))
-          componentDidMount.foreach(f => set(spec, "componentDidMount", f: ThisFunction))
+          getDefaultProps.foreach(f => spec.updateDynamic("getDefaultProps")(f: Function))
+          componentWillUnmount.foreach(f => spec.updateDynamic("componentWillUnmount")(f: ThisFunction))
+          componentDidMount.foreach(f => spec.updateDynamic("componentDidMount")(f: ThisFunction))
 
           setFnPS(componentWillUpdate, "componentWillUpdate")
           setFnPS(componentDidUpdate, "componentDidUpdate")
@@ -81,7 +79,7 @@ final class ReactComponentB[Props](name: String) {
 
           componentWillReceiveProps.foreach { f =>
             val g = (t: ScopeM, p: WrapObj[Props]) => f(t, p.v)
-            set(spec, "componentWillReceiveProps", g: ThisFunction)
+            spec.updateDynamic("componentWillReceiveProps")(g: ThisFunction)
           }
 
           spec.asInstanceOf[ComponentSpec[Props]]
