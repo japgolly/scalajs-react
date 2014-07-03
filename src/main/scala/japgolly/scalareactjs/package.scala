@@ -48,10 +48,6 @@ package object scalareactjs {
     @inline def modState(f: State => State) = u.setState(f(u.state))
   }
 
-  implicit final class ComponentScope_B_Ext[Backend](val u: ComponentScope_B[Backend]) extends AnyVal {
-    @inline def backend = u._backend.v
-  }
-
   implicit final class SyntheticEventExt[N <: dom.Node](val u: SyntheticEvent[N]) extends AnyVal {
     def keyboardEvent = u.nativeEvent.asInstanceOf[dom.KeyboardEvent]
     def messageEvent  = u.nativeEvent.asInstanceOf[dom.MessageEvent]

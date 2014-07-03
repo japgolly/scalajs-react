@@ -66,7 +66,7 @@ trait ComponentScope_SS[State] extends ComponentScope_S[State] {
 }
 
 trait ComponentScope_B[Backend] extends js.Object {
-  def _backend: WrapObj[Backend] = ???
+  def backend: Backend = ???
 }
 
 trait ComponentScope_M extends js.Object {

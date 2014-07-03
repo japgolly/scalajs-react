@@ -49,7 +49,7 @@ final class ReactComponentB[Props](name: String) {
         def buildSpec = {
           val spec = Dynamic.literal(
               "displayName" -> name,
-              "_backend" -> 0,
+              "backend" -> 0,
               "render" -> (__render: ThisFunction)
             )
 
@@ -61,7 +61,7 @@ final class ReactComponentB[Props](name: String) {
 
           val componentWillMount2 = (t: ScopeU) => {
             val scopeB = t.asInstanceOf[ScopeB]
-            t.asInstanceOf[Dynamic].updateDynamic("_backend")(WrapObj(backend(scopeB)))
+            t.asInstanceOf[Dynamic].updateDynamic("backend")(backend(scopeB).asInstanceOf[Any])
             componentWillMount.foreach(g => g(t))
           }
           spec.updateDynamic("componentWillMount")(componentWillMount2: ThisFunction)
