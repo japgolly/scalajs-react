@@ -1,4 +1,4 @@
-name := "scalala-react-js"
+name := "scalajs-react"
 
 version := "0.1.0"
 
