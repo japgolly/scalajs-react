@@ -5,7 +5,7 @@ import scala.annotation.unchecked.uncheckedVariance
 import scala.scalajs.js
 import scalatags._
 import scalatags.generic._
-import japgolly.scalajs.react.{SyntheticEvent, ProxyConstructorU, Ref}
+import japgolly.scalajs.react.{ProxyConstructorUT, SyntheticEvent, ProxyConstructorU, Ref}
 
 object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
 
@@ -76,8 +76,13 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
   implicit def proxyConstructorFrag(c: ProxyConstructorU): ReactVDom.Modifier = new ReactVDom.Modifier {
     override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
   }
-
   implicit def proxyConstructorFrags(cs: Seq[ProxyConstructorU]): ReactVDom.Modifier = new ReactVDom.Modifier {
+    override def applyTo(t: VDomBuilder): Unit = cs.foreach(t.appendChild)
+  }
+  implicit def proxyConstructorTFrag(c: ProxyConstructorUT[_, _, _]): ReactVDom.Modifier = new ReactVDom.Modifier {
+    override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
+  }
+  implicit def proxyConstructorTFrags(cs: Seq[ProxyConstructorUT[_, _, _]]): ReactVDom.Modifier = new ReactVDom.Modifier {
     override def applyTo(t: VDomBuilder): Unit = cs.foreach(t.appendChild)
   }
 

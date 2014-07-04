@@ -7,6 +7,8 @@ package object react {
 
   @inline def React = Dynamic.global.React.asInstanceOf[React]
 
+  type MountedComponent[Props, State, Backend] = ComponentScopeM[Props, State, Backend]
+
   // ===================================================================================================================
 
   // TODO WrapObj was one of the first things I did when starting with ScalaJS. Reconsider.
@@ -23,7 +25,7 @@ package object react {
     @inline final def apply(refs: RefsObject): UndefOr[ProxyConstructorM[T]] = refs[T](name)
   }
 
-  class WComponentConstructor[Props](u: ComponentConstructor[Props]) {
+  class WComponentConstructor[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
     def apply(props: Props, children: Any*) = u(WrapObj(props), children: _*)
   }
 
@@ -32,6 +34,11 @@ package object react {
   @inline implicit def autoUnWrapObj[A](a: WrapObj[A]): A = a.v
   implicit final class AnyExtReact[A](val a: A) extends AnyVal {
     @inline def wrap: WrapObj[A] = WrapObj(a)
+  }
+
+  implicit final class ReactExt(val u: React) extends AnyVal {
+    @inline def renderComponentC[P, S, B](c: ProxyConstructorUT[P, S, B], n: dom.Node)(callback: ComponentScopeM[P, S, B] => Unit) =
+      u.renderComponent(c, n, callback)
   }
 
   implicit final class ComponentScope_P_Ext[Props](val u: ComponentScope_P[Props]) extends AnyVal {
@@ -62,7 +69,7 @@ package object react {
     def tryFocus(): Unit = u.foreach(_.getDOMNode().focus())
   }
 
-  implicit final class ProxyConstructorUExt(val u: ProxyConstructorU) extends AnyVal {
+  implicit final class ProxyConstructorUTExt[Props, State, Backend](val u: ProxyConstructorUT[Props, State, Backend]) extends AnyVal {
     def render(n: dom.Node) = React.renderComponent(u, n)
   }
 }

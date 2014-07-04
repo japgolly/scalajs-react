@@ -82,7 +82,7 @@ final class ReactComponentB[Props](name: String) {
             spec.updateDynamic("componentWillReceiveProps")(g: ThisFunction)
           }
 
-          spec.asInstanceOf[ComponentSpec[Props]]
+          spec.asInstanceOf[ComponentSpec[Props, State, Backend]]
         }
 
         def create = new WComponentConstructor(React.createClass(buildSpec))

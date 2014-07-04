@@ -12,9 +12,12 @@ trait React extends js.Object {
    * prototypal classes is that you don't need to call new on them. They are convenience wrappers that construct
    * backing instances (via new) for you.
    */
-  def createClass[Props](specification: ComponentSpec[Props]): ComponentConstructor[Props] = ???
+  def createClass[P, S, B](spec: ComponentSpec[P, S, B]): ComponentConstructor[P, S, B] = ???
 
   def renderComponent(c: ProxyConstructorU, n: dom.Node): js.Dynamic = ???
+  def renderComponent(c: ProxyConstructorU, n: dom.Node, callback: js.ThisFunction): js.Dynamic = ???
+  def renderComponent[P, S, B](c: ProxyConstructorUT[P, S, B], n: dom.Node): MountedComponent[P, S, B] = ???
+  def renderComponent[P, S, B](c: ProxyConstructorUT[P, S, B], n: dom.Node, callback: js.ThisFunction0[ComponentScopeM[P, S, B], Unit]): MountedComponent[P, S, B] = ???
 
   def DOM: js.Dynamic
   def addons: js.Dynamic
@@ -23,14 +26,20 @@ trait React extends js.Object {
 /** A React DOM representation of HTML. Could be Scalatags.render output, or a React component. */
 trait VDom extends js.Object
 
-trait ComponentSpec[Props] extends js.Object
+trait ComponentSpec[Props, State, Backend] extends js.Object
 
-trait ComponentConstructor[Props] extends js.Object {
-  def apply(props: WrapObj[Props], children: js.Any*): ProxyConstructorU = ???
+trait ComponentConstructor[Props, State, Backend] extends js.Function {
+  def apply(props: WrapObj[Props], children: js.Any*): ProxyConstructorUT[Props, State, Backend] = ???
 }
 
-/** An unmounted component. Called ProxyConstructor in React-land. */
+/**
+ * An unmounted component. Called ProxyConstructor in React-land.
+ * Not guaranteed to have been created by Scala, could be a React addon.
+ */
 trait ProxyConstructorU extends js.Object with VDom
+
+/** An unmounted component with known PSB types. */
+trait ProxyConstructorUT[Props, State, Backend] extends js.Object with VDom
 
 trait ProxyConstructorM[Node <: dom.Element] extends ProxyConstructorU {
   def getDOMNode(): Node
