@@ -21,8 +21,8 @@ package object react {
    * A named reference to an element in a React VDOM.
    */
   case class Ref[T <: dom.Element](name: String) {
-    @inline final def apply(scope: ComponentScope_M): UndefOr[ProxyConstructorM[T]] = apply(scope.refs)
-    @inline final def apply(refs: RefsObject): UndefOr[ProxyConstructorM[T]] = refs[T](name)
+    @inline final def apply(scope: ComponentScope_M): UndefOr[ReactComponentM[T]] = apply(scope.refs)
+    @inline final def apply(refs: RefsObject): UndefOr[ReactComponentM[T]] = refs[T](name)
   }
 
   class WComponentConstructor[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
@@ -37,7 +37,7 @@ package object react {
   }
 
   implicit final class ReactExt(val u: React) extends AnyVal {
-    @inline def renderComponentC[P, S, B](c: ProxyConstructorUT[P, S, B], n: dom.Node)(callback: ComponentScopeM[P, S, B] => Unit) =
+    @inline def renderComponentC[P, S, B](c: ReactComponentU[P, S, B], n: dom.Node)(callback: ComponentScopeM[P, S, B] => Unit) =
       u.renderComponent(c, n, callback)
   }
 
@@ -65,11 +65,11 @@ package object react {
     def touchEvent    = u.nativeEvent.asInstanceOf[dom.TouchEvent]
   }
 
-  implicit final class UndefProxyConstructorMExt[T <: dom.HTMLElement](val u: UndefOr[ProxyConstructorM[T]]) extends AnyVal {
+  implicit final class UndefReactComponentMExt[T <: dom.HTMLElement](val u: UndefOr[ReactComponentM[T]]) extends AnyVal {
     def tryFocus(): Unit = u.foreach(_.getDOMNode().focus())
   }
 
-  implicit final class ProxyConstructorUTExt[Props, State, Backend](val u: ProxyConstructorUT[Props, State, Backend]) extends AnyVal {
+  implicit final class ReactComponentUExt[Props, State, Backend](val u: ReactComponentU[Props, State, Backend]) extends AnyVal {
     def render(n: dom.Node) = React.renderComponent(u, n)
   }
 }

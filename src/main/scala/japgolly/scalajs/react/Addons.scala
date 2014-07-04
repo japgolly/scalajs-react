@@ -22,9 +22,9 @@ object Addons {
       p
     }
 
-    def apply(children: VDom*): ProxyConstructorU = {
+    def apply(children: VDom*): ReactComponentU_ = {
       val f = React.addons.CSSTransitionGroup
-      f(toJs, js.Array(children.toSeq: _*)).asInstanceOf[ProxyConstructorU]
+      f(toJs, js.Array(children.toSeq: _*)).asInstanceOf[ReactComponentU_]
     }
   }
 }

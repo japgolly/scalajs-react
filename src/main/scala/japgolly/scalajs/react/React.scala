@@ -14,10 +14,10 @@ trait React extends js.Object {
    */
   def createClass[P, S, B](spec: ComponentSpec[P, S, B]): ComponentConstructor[P, S, B] = ???
 
-  def renderComponent(c: ProxyConstructorU, n: dom.Node): js.Dynamic = ???
-  def renderComponent(c: ProxyConstructorU, n: dom.Node, callback: js.ThisFunction): js.Dynamic = ???
-  def renderComponent[P, S, B](c: ProxyConstructorUT[P, S, B], n: dom.Node): MountedComponent[P, S, B] = ???
-  def renderComponent[P, S, B](c: ProxyConstructorUT[P, S, B], n: dom.Node, callback: js.ThisFunction0[ComponentScopeM[P, S, B], Unit]): MountedComponent[P, S, B] = ???
+  def renderComponent(c: ReactComponentU_, n: dom.Node): js.Dynamic = ???
+  def renderComponent(c: ReactComponentU_, n: dom.Node, callback: js.ThisFunction): js.Dynamic = ???
+  def renderComponent[P, S, B](c: ReactComponentU[P, S, B], n: dom.Node): MountedComponent[P, S, B] = ???
+  def renderComponent[P, S, B](c: ReactComponentU[P, S, B], n: dom.Node, callback: js.ThisFunction0[ComponentScopeM[P, S, B], Unit]): MountedComponent[P, S, B] = ???
 
   /** Configure React's event system to handle touch events on mobile devices. */
   def initializeTouchEvents(shouldUseTouch: Boolean): Unit = ???
@@ -29,11 +29,11 @@ trait React extends js.Object {
    */
   def unmountComponentAtNode(container: dom.Node): Boolean = ???
 
-  def renderComponentToString(component: ProxyConstructorU): String = ???
-  def renderComponentToString(component: ProxyConstructorUT[_, _, _]): String = ???
+  def renderComponentToString(component: ReactComponentU_): String = ???
+  def renderComponentToString(component: ReactComponentU[_, _, _]): String = ???
 
-  def renderComponentToStaticMarkup(component: ProxyConstructorU): String = ???
-  def renderComponentToStaticMarkup(component: ProxyConstructorUT[_, _, _]): String = ???
+  def renderComponentToStaticMarkup(component: ReactComponentU_): String = ???
+  def renderComponentToStaticMarkup(component: ReactComponentU[_, _, _]): String = ???
 
   def DOM: js.Dynamic = ???
   def addons: js.Dynamic = ???
@@ -45,19 +45,16 @@ trait VDom extends js.Object
 trait ComponentSpec[Props, State, Backend] extends js.Object
 
 trait ComponentConstructor[Props, State, Backend] extends js.Function {
-  def apply(props: WrapObj[Props], children: js.Any*): ProxyConstructorUT[Props, State, Backend] = ???
+  def apply(props: WrapObj[Props], children: js.Any*): ReactComponentU[Props, State, Backend] = ???
 }
 
-/**
- * An unmounted component. Called ProxyConstructor in React-land.
- * Not guaranteed to have been created by Scala, could be a React addon.
- */
-trait ProxyConstructorU extends js.Object with VDom
+/** An unmounted component. Not guaranteed to have been created by Scala, could be a React addon. */
+trait ReactComponentU_ extends js.Object with VDom
 
 /** An unmounted component with known PSB types. */
-trait ProxyConstructorUT[Props, State, Backend] extends js.Object with VDom
+trait ReactComponentU[Props, State, Backend] extends js.Object with VDom
 
-trait ProxyConstructorM[Node <: dom.Element] extends ProxyConstructorU {
+trait ReactComponentM[Node <: dom.Element] extends ReactComponentU_ {
   def getDOMNode(): Node
 }
 
@@ -140,5 +137,5 @@ trait ComponentScopeB[Props, State]
 /** Type of `this.refs` */
 trait RefsObject extends js.Object {
   @JSBracketAccess
-  def apply[Node <: dom.Element](key: js.String): js.UndefOr[ProxyConstructorM[Node]]
+  def apply[Node <: dom.Element](key: js.String): js.UndefOr[ReactComponentM[Node]]
 }
