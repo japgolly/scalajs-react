@@ -53,3 +53,11 @@ val Timer = ReactComponentB[Unit]("Timer")
 
 React.renderComponent(Timer(()), mountNode)
 ```
+
+Alternatives
+============
+
+#### [xored/scala-js-react](https://github.com/xored/scala-js-react)
+Major differences:
+- Object-oriented approach.
+- Uses XML-literals instead of Scalatags. Resembles JSX very closely.
