@@ -19,8 +19,24 @@ trait React extends js.Object {
   def renderComponent[P, S, B](c: ProxyConstructorUT[P, S, B], n: dom.Node): MountedComponent[P, S, B] = ???
   def renderComponent[P, S, B](c: ProxyConstructorUT[P, S, B], n: dom.Node, callback: js.ThisFunction0[ComponentScopeM[P, S, B], Unit]): MountedComponent[P, S, B] = ???
 
-  def DOM: js.Dynamic
-  def addons: js.Dynamic
+  /** Configure React's event system to handle touch events on mobile devices. */
+  def initializeTouchEvents(shouldUseTouch: Boolean): Unit = ???
+
+  /**
+   * Remove a mounted React component from the DOM and clean up its event handlers and state. If no component was
+   * mounted in the container, calling this function does nothing. Returns true if a component was unmounted and false
+   * if there was no component to unmount.
+   */
+  def unmountComponentAtNode(container: dom.Node): Boolean = ???
+
+  def renderComponentToString(component: ProxyConstructorU): String = ???
+  def renderComponentToString(component: ProxyConstructorUT[_, _, _]): String = ???
+
+  def renderComponentToStaticMarkup(component: ProxyConstructorU): String = ???
+  def renderComponentToStaticMarkup(component: ProxyConstructorUT[_, _, _]): String = ???
+
+  def DOM: js.Dynamic = ???
+  def addons: js.Dynamic = ???
 }
 
 /** A React DOM representation of HTML. Could be Scalatags.render output, or a React component. */
