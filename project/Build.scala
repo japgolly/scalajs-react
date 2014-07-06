@@ -26,8 +26,9 @@ object ScalajsReact extends Build {
         ,"com.lihaoyi" %%% "utest" % "0.1.7" % "test"
       )
       ,jsDependencies ++= Seq(
-        "org.webjars" % "react" % "0.10.0" / "react-with-addons.js" % "test"
+        "org.webjars" % "react" % "0.10.0" / "react-with-addons.min.js"
       )
+      ,skip in packageJSDependencies := false
       ,jsEnv in Test := new NodeJSEnv
     )
 
