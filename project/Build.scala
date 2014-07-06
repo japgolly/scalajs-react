@@ -14,18 +14,21 @@ object ScalajsReact extends Build {
     .settings(scalaJSSettings: _*)
     .settings(utest.jsrunner.Plugin.utestJsSettings: _*)
     .settings(
-      name                 := "scalajs-react",
-      homepage             := Some(url("https://github.com/japgolly/scalajs-react")),
-      version              := "0.1.0",
-      scalaVersion         := Scala211,
-      crossScalaVersions   := Seq("2.10.4", Scala211),
-      scalacOptions       ++= Seq("-deprecation", "-unchecked", "-language:_"),
-      libraryDependencies ++= Seq(
-                                "org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6",
-                                "com.scalatags" %%% "scalatags" % "0.3.5",
-                                "com.lihaoyi" %%% "utest" % "0.1.7" % "test"),
-      jsDependencies      ++= Seq(
-                                "org.webjars" % "react" % "0.10.0" / "react-with-addons.js" % "test"),
-      jsEnv in Test := new NodeJSEnv)
+      name := "scalajs-react"
+      ,homepage := Some(url("https://github.com/japgolly/scalajs-react"))
+      ,version := "0.1.0"
+      ,scalaVersion := Scala211
+      ,crossScalaVersions := Seq("2.10.4", Scala211)
+      ,scalacOptions ++= Seq("-deprecation", "-unchecked", "-language:_")
+      ,libraryDependencies ++= Seq(
+        "org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6"
+        ,"com.scalatags" %%% "scalatags" % "0.3.5"
+        ,"com.lihaoyi" %%% "utest" % "0.1.7" % "test"
+      )
+      ,jsDependencies ++= Seq(
+        "org.webjars" % "react" % "0.10.0" / "react-with-addons.js" % "test"
+      )
+      ,jsEnv in Test := new NodeJSEnv
+    )
 
 }
