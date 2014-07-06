@@ -5,8 +5,6 @@ import scala.scalajs.js._
 
 package object react {
 
-  @inline def React = Dynamic.global.React.asInstanceOf[React]
-
   type MountedComponent[Props, State, Backend] = ComponentScopeM[Props, State, Backend]
 
   // ===================================================================================================================
@@ -36,7 +34,7 @@ package object react {
     @inline def wrap: WrapObj[A] = WrapObj(a)
   }
 
-  implicit final class ReactExt(val u: React) extends AnyVal {
+  implicit final class ReactExt(val u: React.type) extends AnyVal {
     @inline def renderComponentC[P, S, B](c: ReactComponentU[P, S, B], n: dom.Node)(callback: ComponentScopeM[P, S, B] => Unit) =
       u.renderComponent(c, n, callback)
   }

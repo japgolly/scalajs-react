@@ -4,7 +4,7 @@ import org.scalajs.dom
 import scala.scalajs.js
 import js.annotation.{JSBracketAccess, JSName}
 
-trait React extends js.Object {
+object React extends js.Object {
 
   /**
    * Create a component given a specification. A component implements a render method which returns one single child.
