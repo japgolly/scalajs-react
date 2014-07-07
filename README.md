@@ -22,7 +22,6 @@ resolvers += bintray.Opts.resolver.repo("japgolly", "scala")
 libraryDependencies += "japgolly.scalajs.react" %%% "scalajs-react" % "0.1.0"
 ```
 
-
 Examples
 ========
 
@@ -69,6 +68,39 @@ val Timer = ReactComponentB[Unit]("Timer")
 
 React.renderComponent(Timer(()), mountNode)
 ```
+
+Extensions
+==========
+
+#### Scalatags
+* `attr ==> (SyntheticEvent[_] => _)` - Wires up an event handler.
+```scala
+    def handleSubmit(e: SyntheticEvent[HTMLInputElement]) = ...
+    val html = form(onsubmit ==> handleSubmit)(...)
+```
+* `attr --> (=> Unit)` - Specify a function as an attribute value.
+```scala
+    def reset() = T.setState("")
+    val html = div(onclick --> reset())("Click to Reset")
+```
+* `boolean && (attr := value)` - Make a condition optional.
+```scala
+    def hasFocus: Boolean = ...
+    val html = div(hasFocus && (cls := "focus"))(...)
+```
+
+#### React
+* Where `this.setState(State)` is applicable, you can also run `modSate(State => State)`.
+* `SyntheticEvent` now has `(keyboard|message|mouse|mutation|storage|text|touch)Event` methods that typecast the underlying native event.
+* Because refs are not guaranteed to exist, the return type is wrapped in `js.UndefOr[_]`. A helper method `tryFocus()` has been added to focus the ref if one is returned.
+```scala
+    val myRef = Ref[HTMLInputElement]("refKey")
+    
+    class Backend(T: BackendScope[_, _]) {
+      def clearAndFocusInput() = T.setState("", myRef(t).tryFocus())
+    }
+```
+
 
 Alternatives
 ============
