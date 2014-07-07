@@ -19,7 +19,7 @@ object ScalajsReact extends Build {
     .settings(
       name := "scalajs-react"
       ,homepage := Some(url("https://github.com/japgolly/scalajs-react"))
-      ,licenses += ("GPL-2.0", url("http://opensource.org/licenses/GPL-2.0"))
+      ,licenses += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0"))
       ,organization := "japgolly.scalajs.react"
       ,BK.repository in BK.bintray := "scala"
       ,publishMavenStyle := true
