@@ -6,16 +6,23 @@ import scala.scalajs.sbtplugin.env.phantomjs.PhantomJSEnv
 import scala.scalajs.sbtplugin.ScalaJSPlugin._
 import scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys._
 
+import bintray.{Keys => BK}
+
 object ScalajsReact extends Build {
 
   val Scala211 = "2.11.1"
 
   val root = Project("scalajs-react", file("."))
     .settings(scalaJSSettings: _*)
+    .settings(bintray.Plugin.bintrayPublishSettings: _*)
     .settings(utest.jsrunner.Plugin.utestJsSettings: _*)
     .settings(
       name := "scalajs-react"
       ,homepage := Some(url("https://github.com/japgolly/scalajs-react"))
+      ,licenses += ("GPL-2.0", url("http://opensource.org/licenses/GPL-2.0"))
+      ,organization := "japgolly.scalajs.react"
+      ,BK.repository in BK.bintray := "scala"
+      ,publishMavenStyle := true
       ,version := "0.1.0"
       ,scalaVersion := Scala211
       ,crossScalaVersions := Seq("2.10.4", Scala211)

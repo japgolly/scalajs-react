@@ -7,6 +7,22 @@ Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.j
 * Rather than using JSX or `React.DOM.xxx` to build a virtual DOM, use `ReactVDom` which is backed by lihaoyi's excellent [Scalatags](https://github.com/lihaoyi/scalatags) library. (See examples.)
 * In addition to props and state, if you look at the React samples you'll see that most components need additional functions and in the case of sample #2, state outside of the designated state object (!). In this Scala version, all of that is heaped into an abstract type called `Backend` which you can supply or omit as necessary.
 
+Setup
+=====
+
+project/plugins.sbt
+```
+addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
+```
+
+build.sbt
+```
+resolvers += bintray.Opts.resolver.repo("japgolly", "scala")
+
+libraryDependencies += "japgolly.scalajs.react" %%% "scalajs-react" % "0.1.0"
+```
+
+
 Examples
 ========
 
