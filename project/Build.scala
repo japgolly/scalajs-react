@@ -23,7 +23,7 @@ object ScalajsReact extends Build {
       ,organization := "japgolly.scalajs.react"
       ,BK.repository in BK.bintray := "scala"
       ,publishMavenStyle := true
-      ,version := "0.1.0"
+      ,version := "0.2.0"
       ,scalaVersion := Scala211
       ,crossScalaVersions := Seq("2.10.4", Scala211)
       ,scalacOptions ++= Seq("-deprecation", "-unchecked", "-language:_")
