@@ -14,7 +14,7 @@ object AnimationExample extends js.JSApp {
 
   def main(): Unit = {
 
-    class Backend(T: ComponentScopeB[Unit, Vector[String]]) {
+    class Backend(T: BackendScope[Unit, Vector[String]]) {
       def handleAdd(): Unit =
         T.modState(_ :+ window.prompt("Enter some text"))
       def handleRemove(i: Int): Unit =

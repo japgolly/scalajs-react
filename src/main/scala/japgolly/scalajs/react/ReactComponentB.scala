@@ -10,7 +10,7 @@ final class ReactComponentB[Props](name: String) {
   def render(render: Props => VDom) = stateless.render((p,_) => render(p))
 
   class B2[State] private[ReactComponentB](getInitialState: Props => State) {
-    type ScopeB = ComponentScopeB[Props, State]
+    type ScopeB = BackendScope[Props, State]
 
     def backend[Backend](f: ScopeB => Backend) = new B3[Backend](f)
     def noBackend = new B3[Unit](_ => ())

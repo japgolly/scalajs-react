@@ -128,7 +128,7 @@ trait ComponentScopeM[Props, State, Backend]
   with ComponentScope_M
 
 /** Type of a component's `this` scope as is available to backends. */
-trait ComponentScopeB[Props, State]
+trait BackendScope[Props, State]
   extends ComponentScope_P[Props]
   with ComponentScope_SS[State]
   with ComponentScope_M

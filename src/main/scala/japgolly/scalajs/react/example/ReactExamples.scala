@@ -64,7 +64,7 @@ object ReactExamples extends js.JSApp {
 
     case class State(items: List[String], text: String)
 
-    class Backend(t: ComponentScopeB[Unit, State]) {
+    class Backend(t: BackendScope[Unit, State]) {
       def onChange(e: SyntheticEvent[HTMLInputElement]) =
         t.modState(_.copy(text = e.target.value))
       def handleSubmit(e: SyntheticEvent[HTMLInputElement]) = {
@@ -96,7 +96,7 @@ object ReactExamples extends js.JSApp {
 
     val theInput = Ref[HTMLInputElement]("theInput")
 
-    class Backend(t: ComponentScopeB[Unit, String]) {
+    class Backend(t: BackendScope[Unit, String]) {
       def handleChange(e: SyntheticEvent[HTMLInputElement]) =
         t.setState(e.target.value)
       def clearAndFocusInput() =
