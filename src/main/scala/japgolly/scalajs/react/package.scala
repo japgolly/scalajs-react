@@ -48,9 +48,15 @@ package object react {
   }
 
   implicit final class ComponentScope_SS_Ext[State](val u: ComponentScope_SS[State]) extends AnyVal {
-    @inline def setState(s: State): Unit = u._setState(WrapObj(s))
-    @inline def setState(s: State, callback: => Unit): Unit = u._setState(WrapObj(s), (() => callback): Function)
-    @inline def modState(f: State => State) = u.setState(f(u.state))
+    @inline def setState(s: State, callback: UndefOr[Function] = undefined): Unit =
+      u._setState(WrapObj(s), callback)
+    @inline def setState(s: State, callback: => Unit): Unit =
+      setState(s, (() => callback): Function)
+
+    @inline def modState(f: State => State, callback: UndefOr[Function] = undefined): Unit =
+      setState(f(u.state), callback)
+    @inline def modState(f: State => State, callback: => Unit): Unit =
+      modState(f, (() => callback): Function)
   }
 
   implicit final class SyntheticEventExt[N <: dom.Node](val u: SyntheticEvent[N]) extends AnyVal {
