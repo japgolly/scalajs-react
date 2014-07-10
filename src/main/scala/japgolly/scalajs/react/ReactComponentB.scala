@@ -21,9 +21,11 @@ final class ReactComponentB[Props](name: String) {
       type ScopeM = ComponentScopeM[Props, State, Backend]
       type ScopeWU = ComponentScopeWU[Props, State, Backend]
 
-      def render(render: (Props, State, Backend) => VDom) =
-        B4(s => render(s.props, s.state, s.backend)
-          , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
+      def render(r: (Props, State, Backend) => VDom): B4 =
+        render(s => r(s.props, s.state, s.backend))
+
+      def render(render: ScopeU => VDom): B4 =
+        B4(render, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
 
       case class B4 private[ReactComponentB](
           __render: ScopeU => VDom
