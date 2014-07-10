@@ -16,7 +16,7 @@ object ScalajsReact extends Build {
     .settings(
       organization := "com.github.japgolly.scalajs-react"
       ,name        := "scalajs-react"
-      ,version     := "0.2.0-SNAPSHOT"
+      ,version     := "0.2.0"
 
       ,homepage := Some(url("https://github.com/japgolly/scalajs-react"))
 

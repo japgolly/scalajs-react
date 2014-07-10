@@ -10,16 +10,16 @@ Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.j
 Setup
 =====
 
-project/plugins.sbt
-```
-addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
-```
-
 build.sbt
+```scala
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "scalajs-react" % "0.2.0"
 ```
-resolvers += bintray.Opts.resolver.repo("japgolly", "scala")
 
-libraryDependencies += "japgolly.scalajs.react" %%% "scalajs-react" % "0.1.0"
+Code:
+```scala
+import japgolly.scalajs.react._
+import vdom.ReactVDom._
+import all._
 ```
 
 Examples
