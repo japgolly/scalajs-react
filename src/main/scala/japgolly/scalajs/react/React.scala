@@ -37,15 +37,27 @@ object React extends js.Object {
 
   def DOM: js.Dynamic = ???
   def addons: js.Dynamic = ???
+
+  def Children: ReactChildren = ???
 }
 
-/** A React DOM representation of HTML. Could be Scalatags.render output, or a React component. */
+/** `React.Children` */
+trait ReactChildren extends js.Object {
+  def map(c: PropsChildren, fn: js.Function1[VDom, js.Any]): js.UndefOr[js.Object] = ???
+  def map(c: PropsChildren, fn: js.Function2[VDom, js.Number, js.Any]): js.UndefOr[js.Object] = ???
+  def forEach(c: PropsChildren, fn: js.Function1[VDom, js.Any]): Unit = ???
+  def forEach(c: PropsChildren, fn: js.Function2[VDom, js.Number, js.Any]): Unit = ???
+  /** WARNING: Throws an exception is exact number of children is not 1. */
+  def only(c: PropsChildren): VDom = ???
+}
+
+/** A React DOM representation of HTML. Could be React.DOM output, or a React component. */
 trait VDom extends js.Object
 
 trait ComponentSpec[Props, State, Backend] extends js.Object
 
 trait ComponentConstructor[Props, State, Backend] extends js.Function {
-  def apply(props: WrapObj[Props], children: js.Any*): ReactComponentU[Props, State, Backend] = ???
+  def apply(props: WrapObj[Props], children: VDom*): ReactComponentU[Props, State, Backend] = ???
 }
 
 /** An unmounted component. Not guaranteed to have been created by Scala, could be a React addon. */
@@ -139,3 +151,6 @@ trait RefsObject extends js.Object {
   @JSBracketAccess
   def apply[Node <: dom.Element](key: js.String): js.UndefOr[ReactComponentM[Node]]
 }
+
+/** Type of `this.props.children` */
+trait PropsChildren extends js.Object

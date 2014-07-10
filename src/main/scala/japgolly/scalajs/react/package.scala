@@ -24,7 +24,9 @@ package object react {
   }
 
   class WComponentConstructor[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
-    def apply(props: Props, children: Any*) = u(WrapObj(props), children: _*)
+    def apply(props: Props, children: VDom*) = u(WrapObj(props), children: _*)
+    /** Workaround for what seems to be a Scala.js bug. */
+    def apply2(props: Props, children: Seq[VDom]) = u(WrapObj(props), children: _*)
   }
 
   // ===================================================================================================================
@@ -41,6 +43,7 @@ package object react {
 
   implicit final class ComponentScope_P_Ext[Props](val u: ComponentScope_P[Props]) extends AnyVal {
     @inline def props = u._props.v
+    @inline def propsChildren = u.asInstanceOf[Dynamic].props.children.asInstanceOf[PropsChildren]
   }
 
   implicit final class ComponentScope_S_Ext[State](val u: ComponentScope_S[State]) extends AnyVal {
@@ -75,5 +78,11 @@ package object react {
 
   implicit final class ReactComponentUExt[Props, State, Backend](val u: ReactComponentU[Props, State, Backend]) extends AnyVal {
     def render(n: dom.Node) = React.renderComponent(u, n)
+  }
+
+  implicit final class PropsChildrenExt(val u: PropsChildren) extends AnyVal {
+    @inline def forEach[U](f: VDom => U): Unit = React.Children.forEach(u, (f:Function).asInstanceOf[Function1[VDom, Any]])
+    @inline def forEach[U](f: (VDom, Int) => U): Unit = React.Children.forEach(u, (f:Function).asInstanceOf[Function2[VDom, Number, Any]])
+    @inline def only: Option[VDom] = try { Some(React.Children.only(u))} catch { case t: Throwable => None}
   }
 }
