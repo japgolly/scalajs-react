@@ -25,13 +25,13 @@ libraryDependencies += "japgolly.scalajs.react" %%% "scalajs-react" % "0.1.0"
 Examples
 ========
 
-[Examples are included](https://github.com/japgolly/scalajs-react/tree/master/src/main/scala/japgolly/scalajs/react/example) with this project. If you know Scala and React then that should have you up and running in no time.
+[Examples are included](https://github.com/japgolly/scalajs-react/tree/master/src/test/scala/japgolly/scalajs/react/example) with this project. If you know Scala and React then that should have you up and running in no time.
 
 If you'd like to see side-by-side comparisons of sample code taken from [http://facebook.github.io/react/](http://facebook.github.io/react/), do this:
 
 1. Checkout or download this repository.
-1. `sbt fastOptJS`
-1. Open `index.html` locally.
+1. `sbt test:fastOptJS`
+1. Open `example-side_by_side.html` locally.
 
 Here are two examples:
 
