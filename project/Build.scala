@@ -20,8 +20,6 @@ object ScalajsReact extends Build {
 
       ,homepage := Some(url("https://github.com/japgolly/scalajs-react"))
 
-      ,licenses += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0"))
-
       ,scalaVersion       := Scala211
       ,crossScalaVersions := Seq("2.10.4", Scala211)
 
@@ -47,6 +45,20 @@ object ScalajsReact extends Build {
         else
           Some("releases"  at nexus + "service/local/staging/deploy/maven2")
       }
+      ,licenses += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0"))
+      ,pomExtra :=
+        <scm>
+          <connection>scm:git:github.com/japgolly/scalajs-react</connection>
+          <developerConnection>scm:git:git@github.com:japgolly/scalajs-react.git</developerConnection>
+          <url>github.com:japgolly/scalajs-react.git</url>
+        </scm>
+        <developers>
+          <developer>
+            <id>japgolly</id>
+            <name>David Barri</name>
+          </developer>
+        </developers>
+
     )
 
 }
