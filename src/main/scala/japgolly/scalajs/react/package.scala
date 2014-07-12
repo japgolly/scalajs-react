@@ -60,8 +60,10 @@ package object react {
     @inline def setState(s: State, callback: => Unit): Unit =
       setState(s, (() => callback): Function)
 
-    @inline def modState(f: State => State, callback: UndefOr[Function] = undefined): Unit =
-      setState(f(u.state), callback)
+    @inline def modState(f: State => State): Unit =
+      setState(f(u.state))
+    // @inline def modState(f: State => State, callback: UndefOr[Function]): Unit = setState(f(u.state), callback)
+    // ↑ causes type inference issues with ↓
     @inline def modState(f: State => State, callback: => Unit): Unit =
       modState(f, (() => callback): Function)
   }
