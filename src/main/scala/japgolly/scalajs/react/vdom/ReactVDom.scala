@@ -127,7 +127,10 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
 
   trait ExtraAttrs extends Util {
     val onkeypress = "onkeypress".attr
-    val ref = "ref".attr
+    val refAttr = "ref".attr
+    val keyAttr = "key".attr
+    @inline final def key = keyAttr
+    @inline final def ref = refAttr
   }
 
   implicit class ReactAttrExt(val a: Attr) extends AnyVal {
