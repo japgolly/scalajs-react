@@ -106,6 +106,10 @@ trait ComponentScope_B[Backend] extends Object {
   def backend: Backend = ???
 }
 
+trait ComponentScope_PS[Props, State] extends Object {
+  @JSName("getInitialState") def _getInitialState(s: WrapObj[Props]): WrapObj[State] = ???
+}
+
 trait ComponentScope_M extends Object {
   /** Can be invoked on any mounted component in order to obtain a reference to its rendered DOM node. */
   def getDOMNode(): dom.Element
@@ -121,14 +125,16 @@ trait ComponentScope_M extends Object {
 
 /** Type of an unmounted component's `this` scope. */
 trait ComponentScopeU[Props, State, Backend]
-  extends ComponentScope_P[Props]
+  extends ComponentScope_PS[Props, State]
+  with ComponentScope_P[Props]
   with ComponentScope_SS[State]
   with ComponentScope_B[Backend]
   // prohibits: ComponentScope_M.*
 
 /** Type of a component's `this` scope during componentWillUpdate. */
 trait ComponentScopeWU[Props, State, Backend]
-  extends ComponentScope_P[Props]
+  extends ComponentScope_PS[Props, State]
+  with ComponentScope_P[Props]
   with ComponentScope_S[State]
   with ComponentScope_B[Backend]
   with ComponentScope_M
@@ -136,12 +142,14 @@ trait ComponentScopeWU[Props, State, Backend]
 
 /** Type of a mounted component's `this` scope. */
 trait ComponentScopeM[Props, State, Backend]
-  extends ComponentScopeU[Props, State, Backend]
+  extends ComponentScope_PS[Props, State]
+  with ComponentScopeU[Props, State, Backend]
   with ComponentScope_M
 
 /** Type of a component's `this` scope as is available to backends. */
 trait BackendScope[Props, State]
-  extends ComponentScope_P[Props]
+  extends ComponentScope_PS[Props, State]
+  with ComponentScope_P[Props]
   with ComponentScope_SS[State]
   with ComponentScope_M
   // prohibits: .backend

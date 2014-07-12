@@ -46,6 +46,10 @@ package object react {
     @inline def propsChildren = u.asInstanceOf[Dynamic].props.children.asInstanceOf[PropsChildren]
   }
 
+  implicit final class ComponentScope_PS_Ext[Props, State](val u: ComponentScope_PS[Props, State]) extends AnyVal {
+    @inline def getInitialState(p: Props): State = u._getInitialState(WrapObj(p)).v
+  }
+
   implicit final class ComponentScope_S_Ext[State](val u: ComponentScope_S[State]) extends AnyVal {
     @inline def state = u._state.v
   }
