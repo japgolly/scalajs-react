@@ -64,9 +64,9 @@ val Timer = ReactComponentB[Unit]("Timer")
   .componentDidMount(scope =>
     scope.backend.interval = window.setInterval(scope.backend.tick(scope), 1000))
   .componentWillUnmount(_.backend.interval foreach window.clearInterval)
-  .create
+  .createU
 
-React.renderComponent(Timer(()), mountNode)
+React.renderComponent(Timer(), mountNode)
 ```
 
 Extensions
@@ -100,6 +100,8 @@ Extensions
       def clearAndFocusInput() = T.setState("", myRef(t).tryFocus())
     }
 ```
+* The component builder has a `propsDefault` method which takes some default properties and exposes constructor methods that 1) don't require any property specification, and 2) take an `Optional[Props]`.
+* The component builder has a `propsAlways` method which provides all component instances with given properties, doesn't allow property specification in the constructor.
 
 
 Alternatives

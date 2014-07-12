@@ -14,7 +14,7 @@ object AnimationExample extends js.JSApp {
 
   def main(): Unit = {
 
-    class Backend(T: BackendScope[Unit, Vector[String]]) {
+    class Backend(T: BackendScope[_, Vector[String]]) {
       def handleAdd(): Unit =
         T.modState(_ :+ window.prompt("Enter some text"))
       def handleRemove(i: Int): Unit =
@@ -33,8 +33,8 @@ object AnimationExample extends js.JSApp {
             }: _*
           )
         )
-      ).create
+      ).createU
 
-    TodoList(()) render document.getElementById("scala")
+    TodoList() render document.getElementById("scala")
   }
 }

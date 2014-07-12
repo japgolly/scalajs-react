@@ -13,7 +13,7 @@ object Test extends TestSuite {
   def collector1[A](f: PropsChildren => A) =
     ReactComponentB[AtomicReference[Option[A]]]("C₁").render((a,c) => { a set Some(f(c)); div ("x") }).create
 
-  def run1[A](c: WComponentConstructor[AtomicReference[Option[A]], _, _], children: VDom*): A = {
+  def run1[A](c: CompCtorP[AtomicReference[Option[A]], _, _], children: VDom*): A = {
     val a = new AtomicReference[Option[A]](None)
     React renderComponentToStaticMarkup c.apply2(a, children)
     a.get().get
@@ -22,7 +22,7 @@ object Test extends TestSuite {
   def collectorN[A](f: (ListBuffer[A], PropsChildren) => Unit) =
     ReactComponentB[ListBuffer[A]]("Cₙ").render((l,c) => { f(l, c); div ("x") }).create
 
-  def runN[A](c: WComponentConstructor[ListBuffer[A], _, _], children: VDom*) = {
+  def runN[A](c: CompCtorP[ListBuffer[A], _, _], children: VDom*) = {
     val l = new ListBuffer[A]
     React renderComponentToStaticMarkup c.apply2(l, children)
     l
@@ -33,9 +33,33 @@ object Test extends TestSuite {
       js.eval("React = module.exports")
 
     'props {
-      val Comp = ReactComponentB[String]("C").render(name => div("Hi ", name)).create
-      val m = React renderComponentToStaticMarkup Comp("Mate")
-      assert(m == "<div>Hi Mate</div>")
+      'unit {
+        val Comp = ReactComponentB[Unit]("U").render((_,c) => h1(c)).createU
+        val m = React renderComponentToStaticMarkup Comp(div("great"))
+        assert(m == "<h1><div>great</div></h1>")
+      }
+
+      'required {
+        val Comp = ReactComponentB[String]("C").render(name => div("Hi ", name)).create
+        val m = React renderComponentToStaticMarkup Comp("Mate")
+        assert(m == "<div>Hi Mate</div>")
+      }
+
+      val O = ReactComponentB[String]("C").render(name => div("Hey ", name)).propsDefault("man").create
+      'optionalNone {
+        val m = React renderComponentToStaticMarkup O()
+        assert(m == "<div>Hey man</div>")
+      }
+      'optionalSome {
+        val m = React renderComponentToStaticMarkup O(Some("dude"))
+        assert(m == "<div>Hey dude</div>")
+      }
+
+      'always {
+        val Comp = ReactComponentB[String]("C").render(name => div("Hi ", name)).propsAlways("there").create
+        val m = React renderComponentToStaticMarkup Comp()
+        assert(m == "<div>Hi there</div>")
+      }
     }
 
     'children {

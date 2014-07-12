@@ -46,9 +46,9 @@ object ReactExamples extends js.JSApp {
       .componentDidMount(scope =>
         scope.backend.interval = window.setInterval(scope.backend.tick(scope), 1000))
       .componentWillUnmount(_.backend.interval foreach window.clearInterval)
-      .create
+      .createU
 
-    React.renderComponent(Timer(()), mountNode)
+    React.renderComponent(Timer(), mountNode)
   }
 
   // ===================================================================================================================
@@ -85,9 +85,9 @@ object ReactExamples extends js.JSApp {
             button("Add #", S.items.length + 1)
           )
         )
-      ).create
+      ).createU
 
-    React.renderComponent(TodoApp(()), mountNode)
+    React.renderComponent(TodoApp(), mountNode)
   }
 
   // ===================================================================================================================
@@ -96,7 +96,7 @@ object ReactExamples extends js.JSApp {
 
     val theInput = Ref[HTMLInputElement]("theInput")
 
-    class Backend(t: BackendScope[Unit, String]) {
+    class Backend(t: BackendScope[_, String]) {
       def handleChange(e: SyntheticEvent[HTMLInputElement]) =
         t.setState(e.target.value)
       def clearAndFocusInput() =
@@ -111,8 +111,8 @@ object ReactExamples extends js.JSApp {
           div(onclick --> B.clearAndFocusInput)("Click to Focus and Reset"),
           input(ref := theInput, value := S, onchange ==> B.handleChange)
         )
-      ).create
+      ).createU
 
-    React.renderComponent(App(()), mountNode)
+    React.renderComponent(App(), mountNode)
   }
 }

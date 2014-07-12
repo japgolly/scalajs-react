@@ -31,11 +31,30 @@ package object react {
     def param[I, T <: dom.Element](f: I => String) = new RefP[I, T](f)
   }
 
-  class WComponentConstructor[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
+  class CompCtorP[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
     def apply(props: Props, children: VDom*) = u(WrapObj(props), children: _*)
     /** Workaround for what seems to be a Scala.js bug. */
     def apply2(props: Props, children: Seq[VDom]) = u(WrapObj(props), children: _*)
   }
+
+  class CompCtorOP[Props, State, Backend](u: ComponentConstructor[Props, State, Backend], d: () => Props) {
+    def apply(props: Option[Props], children: VDom*): ReactComponentU[Props, State, Backend] =
+      u(WrapObj(props getOrElse d()), children: _*)
+
+    def apply(children: VDom*): ReactComponentU[Props, State, Backend] =
+      apply(None, children: _*)
+
+    /** Workaround for what seems to be a Scala.js bug. */
+    def apply2(props: Option[Props], children: Seq[VDom]) = u(WrapObj(props getOrElse d()), children: _*)
+
+  }
+
+  class CompCtorNP[Props, State, Backend](u: ComponentConstructor[Props, State, Backend], d: () => Props) {
+    def apply(children: VDom*) = u(WrapObj(d()), children: _*)
+  }
+//  class CompCtorNP[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
+//    def apply(children: VDom*) = u(null, children: _*)
+//  }
 
   // ===================================================================================================================
 

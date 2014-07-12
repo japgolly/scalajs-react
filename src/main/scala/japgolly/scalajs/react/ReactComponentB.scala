@@ -23,13 +23,21 @@ final class ReactComponentB[Props](name: String) {
       type ScopeM = ComponentScopeM[Props, State, Backend]
       type ScopeWU = ComponentScopeWU[Props, State, Backend]
 
-      def render(r: (Props, State, Backend) => VDom): B4 = render(s => r(s.props, s.state, s.backend))
-      def render(r: (Props, PropsChildren, State, Backend) => VDom): B4 = render(s => r(s.props, s.propsChildren, s.state, s.backend))
-      def render(render: ScopeU => VDom): B4 =
-        B4(render, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
+      type CCP = CompCtorP[Props, State, Backend]
+      type CCOP = CompCtorOP[Props, State, Backend]
+      type CCNP = CompCtorNP[Props, State, Backend]
 
-      case class B4 private[ReactComponentB](
-          __render: ScopeU => VDom
+      def render(r: (Props, State, Backend) => VDom): B4[CCP] =
+        render(s => r(s.props, s.state, s.backend))
+      def render(r: (Props, PropsChildren, State, Backend) => VDom): B4[CCP] =
+        render(s => r(s.props, s.propsChildren, s.state, s.backend))
+      def render(render: ScopeU => VDom) =
+        B4[CCP](render, new CompCtorP(_)
+          , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
+
+      case class B4[C] private[ReactComponentB](
+          __render: ScopeU => VDom,
+          __c: ComponentConstructor[Props, State, Backend] => C
           , getDefaultProps: UndefOr[() => Props]
           , componentWillMount: UndefOr[ScopeU => Unit]
           , componentDidMount: UndefOr[ScopeM => Unit]
@@ -40,14 +48,18 @@ final class ReactComponentB[Props](name: String) {
           , shouldComponentUpdate: UndefOr[(ScopeM, Props, State) => Boolean]
           ) {
 
-        def getDefaultProps(f: => Props): B4 = copy(getDefaultProps = () => f)
-        def componentWillMount(f: ScopeU => Unit): B4 = copy(componentWillMount = f)
-        def componentDidMount(f: ScopeM => Unit): B4 = copy(componentDidMount = f)
-        def componentWillUnmount(f: ScopeM => Unit): B4 = copy(componentWillUnmount = f)
-        def componentWillUpdate(f: (ScopeWU, Props, State) => Unit): B4 = copy(componentWillUpdate = f)
-        def componentDidUpdate(f: (ScopeM, Props, State) => Unit): B4 = copy(componentDidUpdate = f)
-        def componentWillReceiveProps(f: (ScopeM, Props) => Unit): B4 = copy(componentWillReceiveProps = f)
-        def shouldComponentUpdate(f: (ScopeM, Props, State) => Boolean): B4 = copy(shouldComponentUpdate = f)
+        def getDefaultProps(f: => Props): B4[C] = copy(getDefaultProps = () => f)
+        def propsDefault(f: => Props): B4[CCOP] = copy(__c = new CompCtorOP(_, () => f))
+        def propsAlways(f: => Props): B4[CCNP] = copy(__c = new CompCtorNP(_, () => f))
+        // def propsAlways(f: => Props): B4[CCNP] = getDefaultProps(f).copy(__c = new CompCtorNP(_))
+
+        def componentWillMount(f: ScopeU => Unit): B4[C] = copy(componentWillMount = f)
+        def componentDidMount(f: ScopeM => Unit): B4[C] = copy(componentDidMount = f)
+        def componentWillUnmount(f: ScopeM => Unit): B4[C] = copy(componentWillUnmount = f)
+        def componentWillUpdate(f: (ScopeWU, Props, State) => Unit): B4[C] = copy(componentWillUpdate = f)
+        def componentDidUpdate(f: (ScopeM, Props, State) => Unit): B4[C] = copy(componentDidUpdate = f)
+        def componentWillReceiveProps(f: (ScopeM, Props) => Unit): B4[C] = copy(componentWillReceiveProps = f)
+        def shouldComponentUpdate(f: (ScopeM, Props, State) => Boolean): B4[C] = copy(shouldComponentUpdate = f)
 
         def buildSpec = {
           val spec = Dynamic.literal(
@@ -88,7 +100,10 @@ final class ReactComponentB[Props](name: String) {
           spec.asInstanceOf[ComponentSpec[Props, State, Backend]]
         }
 
-        def create = new WComponentConstructor(React.createClass(buildSpec))
+        def create = __c(React.createClass(buildSpec))
+
+        /** When the Props type is Unit, this shortcut returns a constructor that won't ask for a props value. */
+        def createU(implicit ev: Unit =:= Props) = propsAlways(ev(())).create
       }
     }
   }
