@@ -18,9 +18,17 @@ package object react {
   /**
    * A named reference to an element in a React VDOM.
    */
-  case class Ref[T <: dom.Element](name: String) {
+  class Ref[T <: dom.Element](val name: String) {
     @inline final def apply(scope: ComponentScope_M): UndefOr[ReactComponentM[T]] = apply(scope.refs)
     @inline final def apply(refs: RefsObject): UndefOr[ReactComponentM[T]] = refs[T](name)
+  }
+  class RefP[I, T <: dom.Element](f: I => String) {
+    @inline final def apply(i: I) = Ref[T](f(i))
+    @inline final def get[S](s: ComponentScope_S[S] with ComponentScope_M)(implicit ev: S =:= I) = apply(ev(s.state))(s)
+  }
+  object Ref {
+    def apply[T <: dom.Element](name: String) = new Ref[T](name)
+    def param[I, T <: dom.Element](f: I => String) = new RefP[I, T](f)
   }
 
   class WComponentConstructor[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
