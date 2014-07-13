@@ -92,7 +92,7 @@ package object react {
     // @inline def modState(f: State => State, callback: UndefOr[Function]): Unit = setState(f(u.state), callback)
     // ↑ causes type inference issues with ↓
     @inline def modState(f: State => State, callback: => Unit): Unit =
-      modState(f, (() => callback): Function)
+      setState(f(u.state), (() => callback): Function)
   }
 
   implicit final class SyntheticEventExt[N <: dom.Node](val u: SyntheticEvent[N]) extends AnyVal {
