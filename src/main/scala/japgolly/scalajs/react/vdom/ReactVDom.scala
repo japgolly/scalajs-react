@@ -133,16 +133,16 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
     @inline final def ref = refAttr
   }
 
-  implicit class ReactAttrExt(val a: Attr) extends AnyVal {
-    def runs(thunk: => Unit) = a := ((() => thunk): js.Function)
-    def -->(thunk: => Unit) = a runs thunk
-    def ==>[E <: dom.Node, R](eventHandler: SyntheticEvent[E] => R) = a := (eventHandler: js.Function)
+  implicit final class ReactAttrExt(val a: Attr) extends AnyVal {
+    @inline def runs(thunk: => Unit) = a := ((() => thunk): js.Function)
+    @inline def -->(thunk: => Unit) = a runs thunk
+    @inline def ==>[E <: dom.Node, R](eventHandler: SyntheticEvent[E] => R) = a := (eventHandler: js.Function)
   }
 
-  implicit class ReactBoolExt(val a: Boolean) extends AnyVal {
-    def &&(m: => Modifier): Modifier = if (a) m else Nop
+  implicit final class ReactBoolExt(val a: Boolean) extends AnyVal {
+    @inline def &&(m: => Modifier): Modifier = if (a) m else Nop
   }
 
-  implicit def autoRender(t: Tag) = t.render
-  implicit def autoRenderS(s: Seq[Tag]) = s.map(_.render)
+  @inline final implicit def autoRender(t: Tag) = t.render
+  @inline final implicit def autoRenderS(s: Seq[Tag]) = s.map(_.render)
 }
