@@ -102,6 +102,20 @@ Extensions
 ```
 * The component builder has a `propsDefault` method which takes some default properties and exposes constructor methods that 1) don't require any property specification, and 2) take an `Optional[Props]`.
 * The component builder has a `propsAlways` method which provides all component instances with given properties, doesn't allow property specification in the constructor.
+* To keep a collection together when passing children to the vdom, call `.toJsArray`. The only difference I'm aware of is that if the collection is maintained, React will issue warnings if you haven't supplied `key` attributes. Example:
+```scala
+    table(tbody(
+      tr(th("Name"), th("Description"), th("Etcetera")),
+      myListOfItems.sortBy(_.name).map(renderItem).toJsArray
+    ))
+```
+
+
+Gotchas
+=======
+
+* `table(tr(...))` will appear to work fine at first then crash later. React needs `table(tbody(tr(...)))`.
+
 
 
 Alternatives

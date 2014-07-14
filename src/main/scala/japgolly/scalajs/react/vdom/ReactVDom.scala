@@ -77,15 +77,18 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
     override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
   }
   implicit def proxyConstructorFrags(cs: Seq[ReactComponentU_]): ReactVDom.Modifier = new ReactVDom.Modifier {
-    override def applyTo(t: VDomBuilder): Unit = cs.foreach(t.appendChild)
+    override def applyTo(t: VDomBuilder): Unit = t.appendChild(cs.asJsArray)
   }
   implicit def proxyConstructorTFrag(c: ReactComponentU[_, _, _]): ReactVDom.Modifier = new ReactVDom.Modifier {
     override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
   }
   implicit def proxyConstructorTFrags(cs: Seq[ReactComponentU[_, _, _]]): ReactVDom.Modifier = new ReactVDom.Modifier {
-    override def applyTo(t: VDomBuilder): Unit = cs.foreach(t.appendChild)
+    override def applyTo(t: VDomBuilder): Unit = t.appendChild(cs.asJsArray)
   }
   implicit def propsChildrenTFrag(c: PropsChildren): ReactVDom.Modifier = new ReactVDom.Modifier {
+    override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
+  }
+  implicit def arrayAsChildren(c: js.Array[ReactOutput]): ReactVDom.Modifier = new ReactVDom.Modifier {
     override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
   }
 
@@ -141,6 +144,11 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
 
   implicit final class ReactBoolExt(val a: Boolean) extends AnyVal {
     @inline def &&(m: => Modifier): Modifier = if (a) m else Nop
+  }
+
+  implicit final class ArrayChildrenExt[A](val as: Seq[A]) extends AnyVal {
+    @inline def asJsArray = js.Array(as: _*)
+    @inline def toJsArray(implicit ev: A =:= TypedTag[ReactOutput]) = js.Array(as.map(_.render): _*)
   }
 
   @inline final implicit def autoRender(t: Tag) = t.render
