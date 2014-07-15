@@ -114,8 +114,15 @@ Extensions
 ```scala
     div(classSet(
       "message"           -> true,
+      "message-active"    -> true,
       "message-important" -> props.isImportant,
       "message-read"      -> props.isRead
+    ))(props.message)
+
+    // Or for convenience, put all constants in the first arg:
+    div(classSet("message message-active"
+      ,"message-important" -> props.isImportant
+      ,"message-read"      -> props.isRead
     ))(props.message)
 ```
 

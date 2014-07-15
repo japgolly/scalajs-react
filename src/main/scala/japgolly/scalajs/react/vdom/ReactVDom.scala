@@ -160,7 +160,12 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
       }
   }
   val classSwitch = compositeAttr[String](all.cls, (h,t) => (h::t) mkString " ")
-  @inline final def classSet(ps: (String, Boolean)*) = classSwitch(ps.map(p => if (p._2) Some(p._1) else None): _*)
+
+  @inline final def classSet(ps: (String, Boolean)*): Modifier =
+    classSwitch(ps.map(p => if (p._2) Some(p._1) else None): _*)
+
+  @inline final def classSet(a: String, ps: (String, Boolean)*): Modifier =
+    classSet(((a, true) +: ps):_*)
 
   // @inline final def classSetS(ps: (String, Boolean)*) = ps.filter(_._2).map(_._1).mkString(" ")
   // @inline final def classSet(ps: (String, Boolean)*) = all.cls := classSetS(ps: _*)
