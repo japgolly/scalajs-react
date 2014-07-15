@@ -144,12 +144,26 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
 
   implicit final class ReactBoolExt(val a: Boolean) extends AnyVal {
     @inline def &&(m: => Modifier): Modifier = if (a) m else Nop
+    // @inline def :=>[V](v: => V): Option[V] = if (a) Some(v) else None
   }
 
   implicit final class ArrayChildrenExt[A](val as: Seq[A]) extends AnyVal {
     @inline def asJsArray = js.Array(as: _*)
     @inline def toJsArray(implicit ev: A =:= TypedTag[ReactOutput]) = js.Array(as.map(_.render): _*)
   }
+
+  final def compositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier = Nop) = new {
+    def apply(as: Option[A]*)(implicit ev: AttrValue[A]): Modifier =
+      as.toList.filter(_.isDefined).map(_.get) match {
+        case h :: t => k := f(h, t)
+        case Nil => e
+      }
+  }
+  val classSwitch = compositeAttr[String](all.cls, (h,t) => (h::t) mkString " ")
+  @inline final def classSet(ps: (String, Boolean)*) = classSwitch(ps.map(p => if (p._2) Some(p._1) else None): _*)
+
+  // @inline final def classSetS(ps: (String, Boolean)*) = ps.filter(_._2).map(_._1).mkString(" ")
+  // @inline final def classSet(ps: (String, Boolean)*) = all.cls := classSetS(ps: _*)
 
   @inline final implicit def autoRender(t: Tag) = t.render
   @inline final implicit def autoRenderS(s: Seq[Tag]) = s.map(_.render)

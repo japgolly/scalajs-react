@@ -109,6 +109,15 @@ Extensions
       myListOfItems.sortBy(_.name).map(renderItem).toJsArray
     ))
 ```
+* React has a [classSet addon](http://facebook.github.io/react/docs/class-name-manipulation.html)
+  for specifying multiple optional class attributes. The same mechanism is applicable with this library is as follows:
+```scala
+    div(classSet(
+      "message"           -> true,
+      "message-important" -> props.isImportant,
+      "message-read"      -> props.isRead
+    ))(props.message)
+```
 
 
 Gotchas
