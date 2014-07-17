@@ -79,7 +79,14 @@ trait SyntheticEvent[DOMEventTarget <: dom.Node] extends Object {
   val eventPhase: Number = ???
   val isTrusted: Boolean = ???
   val nativeEvent: dom.Event = ???
+  /**
+   * Stops the default action of an element from happening.
+   * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
+   */
   def preventDefault(): Unit = ???
+  /**
+   * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
+   */
   def stopPropagation(): Unit = ???
   val target: DOMEventTarget = ???
   val timeStamp: Date = ???
