@@ -5,36 +5,40 @@ import scala.scalajs.js._
 final class ReactComponentB[Props](name: String) {
 
   def getInitialState[State](f: Props => State) = new B2[State](f)
-  def initialState[State](s: => State) = getInitialState(_ => s)
-  def stateless = initialState(())
-  def render(render: Props => VDom) = stateless.render((p,_) => render(p))
-  def render(render: (Props, PropsChildren) => VDom) = stateless.render((p,c,_) => render(p,c))
+  def initialState[State](s: => State)          = getInitialState(_ => s)
+  def stateless                                 = initialState(())
 
-  class B2[State] private[ReactComponentB](getInitialState: Props => State) {
+  def render(f: Props                  => VDom) = stateless.render((p,_) => f(p))
+  def render(f: (Props, PropsChildren) => VDom) = stateless.render((p,c,_) => f(p,c))
+
+  // -----------------------------------------------------------------------------------------------
+  final class B2[State] private[ReactComponentB](getInitialState: Props => State) {
     type ScopeB = BackendScope[Props, State]
 
     def backend[Backend](f: ScopeB => Backend) = new B3[Backend](f)
-    def noBackend = new B3[Unit](_ => ())
-    def render(render: (Props, State) => VDom) = noBackend.render((p,s,_) => render(p,s))
-    def render(render: (Props, PropsChildren, State) => VDom) = noBackend.render((p,c,s,_) => render(p,c,s))
+    def noBackend                              = new B3[Unit](_ => ())
 
-    class B3[Backend] private[ReactComponentB](backend: ScopeB => Backend) {
-      type ScopeU = ComponentScopeU[Props, State, Backend]
-      type ScopeM = ComponentScopeM[Props, State, Backend]
+    def render(f: (Props, State)                      => VDom) = noBackend.render((p,s,_) => f(p,s))
+    def render(f: (Props, PropsChildren, State)       => VDom) = noBackend.render((p,c,s,_) => f(p,c,s))
+    def render(f: ComponentScopeU[Props, State, Unit] => VDom) = noBackend.render(f)
+
+    // ---------------------------------------------------------------------------------------------
+    final class B3[Backend] private[ReactComponentB](backend: ScopeB => Backend) {
+      type ScopeU  = ComponentScopeU [Props, State, Backend]
+      type ScopeM  = ComponentScopeM [Props, State, Backend]
       type ScopeWU = ComponentScopeWU[Props, State, Backend]
 
-      type CCP = CompCtorP[Props, State, Backend]
+      type CCP  = CompCtorP [Props, State, Backend]
       type CCOP = CompCtorOP[Props, State, Backend]
       type CCNP = CompCtorNP[Props, State, Backend]
 
-      def render(r: (Props, State, Backend) => VDom): B4[CCP] =
-        render(s => r(s.props, s.state, s.backend))
-      def render(r: (Props, PropsChildren, State, Backend) => VDom): B4[CCP] =
-        render(s => r(s.props, s.propsChildren, s.state, s.backend))
-      def render(render: ScopeU => VDom) =
-        B4[CCP](render, new CompCtorP(_)
+      def render(f: (Props, State, Backend)                => VDom): B4[CCP] = render(s => f(s.props, s.state, s.backend))
+      def render(f: (Props, PropsChildren, State, Backend) => VDom): B4[CCP] = render(s => f(s.props, s.propsChildren, s.state, s.backend))
+      def render(f: ScopeU                                 => VDom): B4[CCP] =
+        B4[CCP](f, new CompCtorP(_)
           , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
 
+      // -------------------------------------------------------------------------------------------
       case class B4[C] private[ReactComponentB](
           __render: ScopeU => VDom,
           __c: ComponentConstructor[Props, State, Backend] => C
