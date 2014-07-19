@@ -167,6 +167,12 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
   @inline final def classSet(a: String, ps: (String, Boolean)*): Modifier =
     classSet(((a, true) +: ps):_*)
 
+  @inline final def classSet(ps: Map[String, Boolean]): Modifier =
+    classSet(ps.toSeq: _*)
+
+  @inline final def classSet(a: String, ps: Map[String, Boolean]): Modifier =
+    classSet(a, ps.toSeq: _*)
+
   // @inline final def classSetS(ps: (String, Boolean)*) = ps.filter(_._2).map(_._1).mkString(" ")
   // @inline final def classSet(ps: (String, Boolean)*) = all.cls := classSetS(ps: _*)
 
