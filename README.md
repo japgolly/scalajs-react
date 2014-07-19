@@ -6,6 +6,14 @@ Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.j
 ### Differences from React proper
 * Rather than using JSX or `React.DOM.xxx` to build a virtual DOM, use `ReactVDom` which is backed by lihaoyi's excellent [Scalatags](https://github.com/lihaoyi/scalatags) library. (See examples.)
 * In addition to props and state, if you look at the React samples you'll see that most components need additional functions and in the case of sample #2, state outside of the designated state object (!). In this Scala version, all of that is heaped into an abstract type called `Backend` which you can supply or omit as necessary.
+* If you want to pass some plain text into a React component (as one of its children), then you need to wrap it in `raw()`. (It's a Scalatags thing.)
+* To keep a collection together when generating the dom, call `.toJsArray`. The only difference I'm aware of is that if the collection is maintained, React will issue warnings if you haven't supplied `key` attributes. Example:
+```scala
+    table(tbody(
+      tr(th("Name"), th("Description"), th("Etcetera")),
+      myListOfItems.sortBy(_.name).map(renderItem).toJsArray
+    ))
+```
 
 Setup
 =====
@@ -102,13 +110,6 @@ Extensions
 ```
 * The component builder has a `propsDefault` method which takes some default properties and exposes constructor methods that 1) don't require any property specification, and 2) take an `Optional[Props]`.
 * The component builder has a `propsAlways` method which provides all component instances with given properties, doesn't allow property specification in the constructor.
-* To keep a collection together when passing children to the vdom, call `.toJsArray`. The only difference I'm aware of is that if the collection is maintained, React will issue warnings if you haven't supplied `key` attributes. Example:
-```scala
-    table(tbody(
-      tr(th("Name"), th("Description"), th("Etcetera")),
-      myListOfItems.sortBy(_.name).map(renderItem).toJsArray
-    ))
-```
 * React has a [classSet addon](http://facebook.github.io/react/docs/class-name-manipulation.html)
   for specifying multiple optional class attributes. The same mechanism is applicable with this library is as follows:
 ```scala
