@@ -32,7 +32,7 @@ object ScalajsReact extends Build {
       )
 
       ,jsDependencies ++= Seq(
-        "org.webjars" % "react" % "0.10.0" / "react-with-addons.min.js"
+        "org.webjars" % "react" % "0.11.0" / "react-with-addons.min.js"
       )
       ,skip in packageJSDependencies := false
 
