@@ -1,64 +1,52 @@
 package japgolly.scalajs.react
 
-import java.util.concurrent.atomic.AtomicReference
-import scala.collection.mutable.ListBuffer
-import scala.scalajs.js
-import js.Dynamic.{global => $}
 import vdom.ReactVDom._
 import all._
 import utest._
+import TestUtil._
 
 object Test extends TestSuite {
 
-  def collector1[A](f: PropsChildren => A) =
-    ReactComponentB[AtomicReference[Option[A]]]("C₁").render((a,c) => { a set Some(f(c)); div ("x") }).create
-
-  def run1[A](c: CompCtorP[AtomicReference[Option[A]], _, _], children: VDom*): A = {
-    val a = new AtomicReference[Option[A]](None)
-    React renderComponentToStaticMarkup c.apply2(a, children)
-    a.get().get
-  }
-
-  def collectorN[A](f: (ListBuffer[A], PropsChildren) => Unit) =
-    ReactComponentB[ListBuffer[A]]("Cₙ").render((l,c) => { f(l, c); div ("x") }).create
-
-  def runN[A](c: CompCtorP[ListBuffer[A], _, _], children: VDom*) = {
-    val l = new ListBuffer[A]
-    React renderComponentToStaticMarkup c.apply2(l, children)
-    l
-  }
-
   val tests = TestSuite {
-    if (js.isUndefined($.React) && !js.isUndefined($.module))
-      js.eval("React = module.exports")
+    loadReact()
 
     'props {
       'unit {
-        val Comp = ReactComponentB[Unit]("U").render((_,c) => h1(c)).createU
-        val m = React renderComponentToStaticMarkup Comp(div("great"))
-        assert(m == "<h1><div>great</div></h1>")
+        val r = ReactComponentB[Unit]("U").render((_,c) => h1(c)).createU
+        r(div("great")) shouldRender "<h1><div>great</div></h1>"
       }
 
       'required {
-        val Comp = ReactComponentB[String]("C").render(name => div("Hi ", name)).create
-        val m = React renderComponentToStaticMarkup Comp("Mate")
-        assert(m == "<div>Hi Mate</div>")
+        val r = ReactComponentB[String]("C").render(name => div("Hi ", name)).create
+        r("Mate") shouldRender "<div>Hi Mate</div>"
       }
 
       val O = ReactComponentB[String]("C").render(name => div("Hey ", name)).propsDefault("man").create
       'optionalNone {
-        val m = React renderComponentToStaticMarkup O()
-        assert(m == "<div>Hey man</div>")
+        O() shouldRender "<div>Hey man</div>"
       }
       'optionalSome {
-        val m = React renderComponentToStaticMarkup O(Some("dude"))
-        assert(m == "<div>Hey dude</div>")
+        O(Some("dude")) shouldRender "<div>Hey dude</div>"
       }
 
       'always {
-        val Comp = ReactComponentB[String]("C").render(name => div("Hi ", name)).propsAlways("there").create
-        val m = React renderComponentToStaticMarkup Comp()
-        assert(m == "<div>Hi there</div>")
+        val r = ReactComponentB[String]("C").render(name => div("Hi ", name)).propsAlways("there").create
+        r() shouldRender "<div>Hi there</div>"
+      }
+    }
+
+    'classSet {
+      'allConditional {
+        val r = ReactComponentB[(Boolean,Boolean)]("C").render(p => div(classSet("p1" -> p._1, "p2" -> p._2))("x")).create
+        r((false, false)) shouldRender """<div>x</div>"""
+        r((true,  false)) shouldRender """<div class="p1">x</div>"""
+        r((false, true))  shouldRender """<div class="p2">x</div>"""
+        r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
+      }
+      'hasMandatory {
+        val r = ReactComponentB[Boolean]("C").render(p => div(classSet("mmm", "ccc" -> p))("x")).create
+        r(false) shouldRender """<div class="mmm">x</div>"""
+        r(true)  shouldRender """<div class="mmm ccc">x</div>"""
       }
     }
 
@@ -67,25 +55,10 @@ object Test extends TestSuite {
       val B = ReactComponentB[Unit]("B").render((_,c) => span(c)).create
 
       'render {
-        'none {
-          val m = React renderComponentToStaticMarkup A(())
-          assert(m == "<div></div>")
-        }
-
-        'one {
-          val m = React renderComponentToStaticMarkup A((), h1("yay"))
-          assert(m == "<div><h1>yay</h1></div>")
-        }
-
-        'two {
-          val m = React renderComponentToStaticMarkup A((), h1("yay"), h3("good"))
-          assert(m == "<div><h1>yay</h1><h3>good</h3></div>")
-        }
-
-        'nested {
-          val m = React renderComponentToStaticMarkup A((), B((), h1("nice")))
-          assert(m == "<div><span><h1>nice</h1></span></div>")
-        }
+        'none { A(()) shouldRender "<div></div>" }
+        'one { A((), h1("yay")) shouldRender "<div><h1>yay</h1></div>" }
+        'two { A((), h1("yay"), h3("good")) shouldRender "<div><h1>yay</h1><h3>good</h3></div>" }
+        'nested { A((), B((), h1("nice"))) shouldRender "<div><span><h1>nice</h1></span></div>" }
       }
 
       'forEach {
