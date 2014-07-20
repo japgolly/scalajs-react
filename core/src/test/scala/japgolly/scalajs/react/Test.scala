@@ -7,6 +7,10 @@ import TestUtil._
 
 object Test extends TestSuite {
 
+  lazy val CA = ReactComponentB[Unit]("CA").render((_,c) => div(c)).createU
+  lazy val CB = ReactComponentB[Unit]("CB").render((_,c) => span(c)).createU
+  lazy val H1 = ReactComponentB[String]("H").render(p => h1(p)).create
+
   val tests = TestSuite {
     loadReact()
 
@@ -35,6 +39,20 @@ object Test extends TestSuite {
       }
     }
 
+    'vdomGen {
+      'listOfScalatags {
+        val X = ReactComponentB[List[String]]("X").render(P => {
+          def createItem(itemText: String) = li(itemText)
+          ul(P map createItem)
+        }).create
+        X(List("123","abc")) shouldRender "<ul><li>123</li><li>abc</li></ul>"
+      }
+      'listOfReactComponents {
+        val X = ReactComponentB[List[String]]("X").render(P => ul(P.map(i => H1(i)))).create
+        X(List("123","abc")) shouldRender "<ul><h1>123</h1><h1>abc</h1></ul>"
+      }
+    }
+
     'classSet {
       'allConditional {
         val r = ReactComponentB[(Boolean,Boolean)]("C").render(p => div(classSet("p1" -> p._1, "p2" -> p._2))("x")).create
@@ -51,14 +69,21 @@ object Test extends TestSuite {
     }
 
     'children {
-      val A = ReactComponentB[Unit]("A").render((_,c) => div(c)).create
-      val B = ReactComponentB[Unit]("B").render((_,c) => span(c)).create
 
-      'render {
-        'none { A(()) shouldRender "<div></div>" }
-        'one { A((), h1("yay")) shouldRender "<div><h1>yay</h1></div>" }
-        'two { A((), h1("yay"), h3("good")) shouldRender "<div><h1>yay</h1><h3>good</h3></div>" }
-        'nested { A((), B((), h1("nice"))) shouldRender "<div><span><h1>nice</h1></span></div>" }
+      'argsToComponents {
+        'listOfScalatags {
+          CA(List(h1("nice"), h2("good"))) shouldRender "<div><h1>nice</h1><h2>good</h2></div>" }
+
+        'listOfReactComponents {
+          CA(List(CB(h1("nice")), CB(h2("good")))) shouldRender
+            "<div><span><h1>nice</h1></span><span><h2>good</h2></span></div>" }
+      }
+
+      'rendersGivenChildren {
+        'none { CA() shouldRender "<div></div>" }
+        'one { CA(h1("yay")) shouldRender "<div><h1>yay</h1></div>" }
+        'two { CA(h1("yay"), h3("good")) shouldRender "<div><h1>yay</h1><h3>good</h3></div>" }
+        'nested { CA(CB(h1("nice"))) shouldRender "<div><span><h1>nice</h1></span></div>" }
       }
 
       'forEach {

@@ -73,24 +73,28 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
   implicit val booleanStyle = new GenericStyle[Boolean]
   implicit def numericStyle[T: Numeric] = new GenericStyle[T]
 
-  implicit def proxyConstructorFrag(c: ReactComponentU_): ReactVDom.Modifier = new ReactVDom.Modifier {
+  implicit def modifierFromRCU_(c: ReactComponentU_): Modifier = new Modifier {
     override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
   }
-  implicit def proxyConstructorFrags(cs: Seq[ReactComponentU_]): ReactVDom.Modifier = new ReactVDom.Modifier {
+  implicit def modifierFromRCU(c: ReactComponentU[_, _, _]): Modifier = new Modifier {
+    override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
+  }
+  implicit def modifierFromPropsChildren(c: PropsChildren): Modifier = new Modifier {
+    override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
+  }
+  implicit def modifierFromSeqRCU(cs: Seq[ReactComponentU[_,_,_]]): Modifier = new Modifier {
     override def applyTo(t: VDomBuilder): Unit = t.appendChild(cs.asJsArray)
   }
-  implicit def proxyConstructorTFrag(c: ReactComponentU[_, _, _]): ReactVDom.Modifier = new ReactVDom.Modifier {
-    override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
-  }
-  implicit def proxyConstructorTFrags(cs: Seq[ReactComponentU[_, _, _]]): ReactVDom.Modifier = new ReactVDom.Modifier {
+  implicit def modifierFromSeqRCU_(cs: Seq[ReactComponentU_]): Modifier = new Modifier {
     override def applyTo(t: VDomBuilder): Unit = t.appendChild(cs.asJsArray)
   }
-  implicit def propsChildrenTFrag(c: PropsChildren): ReactVDom.Modifier = new ReactVDom.Modifier {
+  implicit def modifierFromArrVdom[T <% VDom](c: js.Array[T]): Modifier = new Modifier {
     override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
   }
-  implicit def arrayAsChildren(c: js.Array[ReactOutput]): ReactVDom.Modifier = new ReactVDom.Modifier {
-    override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
-  }
+
+  implicit def vdomFromArrVdom[T <% VDom](cs: js.Array[T]): VDom = cs.asInstanceOf[VDom]
+  implicit def vdomFromSeqVdom[T <% VDom](cs: Seq[T])     : VDom = cs.asJsArray
+  implicit def vdomFromSeqTag            (cs: Seq[Tag])   : VDom = cs.toJsArray
 
   case class TypedTag[+Output <: ReactOutput](tag: String = "",
                                          modifiers: List[Seq[Modifier]],
@@ -139,7 +143,7 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
   implicit final class ReactAttrExt(val a: Attr) extends AnyVal {
     @inline def runs(thunk: => Unit) = a := ((() => thunk): js.Function)
     @inline def -->(thunk: => Unit) = a runs thunk
-    @inline def ==>[E <: dom.Node, R](eventHandler: SyntheticEvent[E] => R) = a := (eventHandler: js.Function)
+    @inline def ==>[N <: dom.Node](eventHandler: SyntheticEvent[N] => Unit) = a := (eventHandler: js.Function)
   }
 
   implicit final class ReactBoolExt(val a: Boolean) extends AnyVal {
@@ -149,7 +153,7 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
 
   implicit final class ArrayChildrenExt[A](val as: Seq[A]) extends AnyVal {
     @inline def asJsArray = js.Array(as: _*)
-    @inline def toJsArray(implicit ev: A =:= TypedTag[ReactOutput]) = js.Array(as.map(_.render): _*)
+    @inline def toJsArray(implicit ev: A =:= Tag) = js.Array(as.map(_.render): _*)
   }
 
   final def compositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier = Nop) = new {
