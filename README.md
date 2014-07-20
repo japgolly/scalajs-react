@@ -33,13 +33,13 @@ import all._
 Examples
 ========
 
-[Examples are included](https://github.com/japgolly/scalajs-react/tree/master/src/test/scala/japgolly/scalajs/react/example) with this project. If you know Scala and React then that should have you up and running in no time.
+[Examples are included](https://github.com/japgolly/scalajs-react/tree/master/example/src/main/scala/japgolly/scalajs/react/example) with this project. If you know Scala and React then that should have you up and running in no time.
 
 If you'd like to see side-by-side comparisons of sample code taken from [http://facebook.github.io/react/](http://facebook.github.io/react/), do this:
 
 1. Checkout or download this repository.
-1. `sbt test:fastOptJS`
-1. Open `example-side_by_side.html` locally.
+1. `sbt fastOptJS`
+1. Open `example/side_by_side.html` locally.
 
 Here are two examples:
 
@@ -103,7 +103,7 @@ Extensions
 * Because refs are not guaranteed to exist, the return type is wrapped in `js.UndefOr[_]`. A helper method `tryFocus()` has been added to focus the ref if one is returned.
 ```scala
     val myRef = Ref[HTMLInputElement]("refKey")
-    
+
     class Backend(T: BackendScope[_, _]) {
       def clearAndFocusInput() = T.setState("", myRef(t).tryFocus())
     }
