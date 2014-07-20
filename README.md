@@ -14,6 +14,12 @@ Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.j
       myListOfItems.sortBy(_.name).map(renderItem).toJsArray
     ))
 ```
+* To specify a `key` when creating a React component, instead of merging it into the props, call `.withKey()` before providing the props and children.
+```scala
+    val Example = ReactComponentB[String]("Eg").render(i => h1(i)).create
+    Example.withKey("key1")("The Prop")
+```
+
 
 Setup
 =====

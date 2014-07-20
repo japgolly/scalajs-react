@@ -97,7 +97,7 @@ trait SyntheticEvent[DOMEventTarget <: dom.Node] extends Object {
 // Scope
 
 trait ComponentScope_P[Props] extends Object {
-  @JSName("props") def _props: WrapObj[Props] = ???
+  @JSName("props") def _props: WrapObj[Props] with PropsMixedIn = ???
 }
 
 trait ComponentScope_S[State] extends Object {
@@ -165,6 +165,12 @@ trait BackendScope[Props, State]
 trait RefsObject extends Object {
   @JSBracketAccess
   def apply[Node <: dom.Element](key: String): UndefOr[ReactComponentM[Node]]
+}
+
+/** Additional methods that React mixes into `this.props` */
+trait PropsMixedIn extends Object {
+  def key: UndefOr[String] = ???
+  def children: PropsChildren = ???
 }
 
 /** Type of `this.props.children` */

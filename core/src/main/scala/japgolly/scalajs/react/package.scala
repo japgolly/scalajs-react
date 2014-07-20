@@ -31,26 +31,47 @@ package object react {
     def param[I, T <: dom.Element](f: I => String) = new RefP[I, T](f)
   }
 
-  class CompCtorP[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
-    def apply(props: Props, children: VDom*) = u(WrapObj(props), children: _*)
-    /** Workaround for what seems to be a Scala.js bug. */
-    def apply2(props: Props, children: Seq[VDom]) = u(WrapObj(props), children: _*)
+  // ===================================================================================================================
+
+  private[this] def mkProps[P](props: P, key: Option[Any]): WrapObj[P] = {
+    val j = WrapObj(props)
+    key.foreach(k => j.asInstanceOf[Dynamic].updateDynamic("key")(k))
+    j
   }
 
-  class CompCtorOP[Props, State, Backend](u: ComponentConstructor[Props, State, Backend], d: () => Props) {
-    def apply(props: Option[Props], children: VDom*): ReactComponentU[Props, State, Backend] =
-      u(WrapObj(props getOrElse d()), children: _*)
+  /**
+   * Component constructor. Properties required.
+   */
+  class CompCtorP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[Any]) {
+    def apply(props: P, children: VDom*)      = u(mkProps(props, key), children: _*)
+    def apply2(props: P, children: Seq[VDom]) = u(mkProps(props, key), children: _*)
+    /** ↑ Workaround for what seems to be a Scala.js bug. ↑ */
 
-    def apply(children: VDom*): ReactComponentU[Props, State, Backend] =
+    def withKey(key: Any) = new CompCtorP(u, Some(key))
+  }
+
+  /**
+   * Component constructor. Properties optional.
+   */
+  class CompCtorOP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[Any], d: () => P) {
+    def apply(props: Option[P], children: VDom*): ReactComponentU[P, S, B] =
+      u(mkProps(props getOrElse d(), key), children: _*)
+
+    def apply(children: VDom*): ReactComponentU[P, S, B] =
       apply(None, children: _*)
 
     /** Workaround for what seems to be a Scala.js bug. */
-    def apply2(props: Option[Props], children: Seq[VDom]) = u(WrapObj(props getOrElse d()), children: _*)
+    def apply2(props: Option[P], children: Seq[VDom]) = u(mkProps(props getOrElse d(), key), children: _*)
 
+    def withKey(key: Any) = new CompCtorOP(u, Some(key), d)
   }
 
-  class CompCtorNP[Props, State, Backend](u: ComponentConstructor[Props, State, Backend], d: () => Props) {
-    def apply(children: VDom*) = u(WrapObj(d()), children: _*)
+  /**
+   * Component constructor. Properties not required.
+   */
+  class CompCtorNP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[Any], d: () => P) {
+    def apply(children: VDom*) = u(mkProps(d(), key), children: _*)
+    def withKey(key: Any) = new CompCtorNP(u, Some(key), d)
   }
 //  class CompCtorNP[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
 //    def apply(children: VDom*) = u(null, children: _*)
@@ -70,7 +91,8 @@ package object react {
 
   implicit final class ComponentScope_P_Ext[Props](val u: ComponentScope_P[Props]) extends AnyVal {
     @inline def props = u._props.v
-    @inline def propsChildren = u.asInstanceOf[Dynamic].props.children.asInstanceOf[PropsChildren]
+    @inline def propsKey = u._props.key
+    @inline def propsChildren = u._props.children
   }
 
   implicit final class ComponentScope_PS_Ext[Props, State](val u: ComponentScope_PS[Props, State]) extends AnyVal {

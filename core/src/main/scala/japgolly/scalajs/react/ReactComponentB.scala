@@ -35,7 +35,7 @@ final class ReactComponentB[Props](name: String) {
       def render(f: (Props, State, Backend)                => VDom): B4[CCP] = render(s => f(s.props, s.state, s.backend))
       def render(f: (Props, PropsChildren, State, Backend) => VDom): B4[CCP] = render(s => f(s.props, s.propsChildren, s.state, s.backend))
       def render(f: ScopeU                                 => VDom): B4[CCP] =
-        B4[CCP](f, new CompCtorP(_)
+        B4[CCP](f, new CompCtorP(_, None)
           , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
 
       // -------------------------------------------------------------------------------------------
@@ -53,8 +53,8 @@ final class ReactComponentB[Props](name: String) {
           ) {
 
         def getDefaultProps(f: => Props): B4[C] = copy(getDefaultProps = () => f)
-        def propsDefault(f: => Props): B4[CCOP] = copy(__c = new CompCtorOP(_, () => f))
-        def propsAlways(f: => Props): B4[CCNP] = copy(__c = new CompCtorNP(_, () => f))
+        def propsDefault(f: => Props): B4[CCOP] = copy(__c = new CompCtorOP(_, None, () => f))
+        def propsAlways(f: => Props): B4[CCNP] = copy(__c = new CompCtorNP(_, None, () => f))
         // def propsAlways(f: => Props): B4[CCNP] = getDefaultProps(f).copy(__c = new CompCtorNP(_))
 
         def componentWillMount(f: ScopeU => Unit): B4[C] = copy(componentWillMount = f)

@@ -23,22 +23,36 @@ object TestUtil {
     def shouldRender(expected: String) = assertRender(c, expected)
   }
 
-  def collector1[A](f: PropsChildren => A) =
-    ReactComponentB[AtomicReference[Option[A]]]("C₁").render((a,c) => { a set Some(f(c)); div ("x") }).create
+  def collector1[A](f: ComponentScopeU[_, _, _] => A) =
+    ReactComponentB[AtomicReference[Option[A]]]("C₁").stateless
+      .render(T => { T.props set Some(f(T)); div ("x") }).create
 
-  def run1[A](c: CompCtorP[AtomicReference[Option[A]], _, _], children: VDom*): A = {
+  def collector1C[A](f: PropsChildren => A) =
+    collector1[A](t => f(t.propsChildren))
+
+  def run1[A](C: CompCtorP[AtomicReference[Option[A]], _, _])(f: AtomicReference[Option[A]] => ReactComponentU[AtomicReference[Option[A]], _, _]): A = {
     val a = new AtomicReference[Option[A]](None)
-    React renderComponentToStaticMarkup c.apply2(a, children)
+    React renderComponentToStaticMarkup f(a)
     a.get().get
   }
 
-  def collectorN[A](f: (ListBuffer[A], PropsChildren) => Unit) =
-    ReactComponentB[ListBuffer[A]]("Cₙ").render((l,c) => { f(l, c); div ("x") }).create
+  def run1C[A](c: CompCtorP[AtomicReference[Option[A]], _, _], children: VDom*): A =
+    run1(c)(a => c.apply2(a, children))
 
-  def runN[A](c: CompCtorP[ListBuffer[A], _, _], children: VDom*) = {
+  def collectorN[A](f: (ListBuffer[A], ComponentScopeU[_, _, _]) => Unit) =
+    ReactComponentB[ListBuffer[A]]("Cₙ").stateless
+      .render(T => { f(T.props, T); div ("x") }).create
+
+  def collectorNC[A](f: (ListBuffer[A], PropsChildren) => Unit) =
+    collectorN[A]((l,t) => f(l, t.propsChildren))
+
+  def runN[A](C: CompCtorP[ListBuffer[A], _, _])(f: ListBuffer[A] => ReactComponentU[ListBuffer[A], _, _]): List[A] = {
     val l = new ListBuffer[A]
-    React renderComponentToStaticMarkup c.apply2(l, children)
-    l
+    React renderComponentToStaticMarkup f(l)
+    l.result()
   }
+
+  def runNC[A](c: CompCtorP[ListBuffer[A], _, _], children: VDom*) =
+    runN(c)(l => c.apply2(l, children))
 
 }

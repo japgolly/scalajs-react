@@ -39,6 +39,14 @@ object Test extends TestSuite {
       }
     }
 
+    'keys {
+      'specifiableThruCtor {
+        val A = collector1(_.propsKey)
+        val r = run1(A)(A.withKey("great")(_))
+        assert(r.get == "great")
+      }
+    }
+
     'vdomGen {
       'listOfScalatags {
         val X = ReactComponentB[List[String]]("X").render(P => {
@@ -87,31 +95,31 @@ object Test extends TestSuite {
       }
 
       'forEach {
-        val C1 = collectorN[VDom]((l, c) => c.forEach(l append _))
-        val C2 = collectorN[(VDom, Int)]((l, c) => c.forEach((a, b) => l.append((a, b))))
+        val C1 = collectorNC[VDom]((l, c) => c.forEach(l append _))
+        val C2 = collectorNC[(VDom, Int)]((l, c) => c.forEach((a, b) => l.append((a, b))))
 
         'withoutIndex {
-          val x = runN(C1, h1("yay"), h3("good"))
+          val x = runNC(C1, h1("yay"), h3("good"))
           assert(x.size == 2)
         }
 
         'withIndex {
-          val x = runN(C2, h1("yay"), h3("good"))
+          val x = runNC(C2, h1("yay"), h3("good"))
           assert(x.size == 2)
           assert(x.toList.map(_._2) == List(0,1))
         }
       }
 
       'only {
-        val A = collector1[Option[VDom]](_.only)
+        val A = collector1C[Option[VDom]](_.only)
 
         'one {
-          val r = run1(A, div("Voyager (AU) is an awesome band"))
+          val r = run1C(A, div("Voyager (AU) is an awesome band"))
           assert(r.isDefined)
         }
 
         'two {
-          val r = run1(A, div("The Pensive Disarray"), div("is such a good song"))
+          val r = run1C(A, div("The Pensive Disarray"), div("is such a good song"))
           assert(r == None)
         }
       }
