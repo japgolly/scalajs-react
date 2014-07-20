@@ -133,6 +133,7 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
   }
 
   trait ExtraAttrs extends Util {
+    val className = "className".attr
     val onkeypress = "onkeypress".attr
     val refAttr = "ref".attr
     val keyAttr = "key".attr
