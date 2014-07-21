@@ -1,0 +1,11 @@
+#!/bin/bash
+cd "$(dirname "$0")" || exit 1
+
+s0=scalaz-7.0
+s1=scalaz-7.1
+
+f=src/main/scala/japgolly/scalajs/react/ScalazReact.scala
+echo "$f"
+perl -pe 's!(?<=[^A-Z]M\[)_!+_!' < $s1/$f > $s0/$f
+sed -i "/^object/a\  // Don't edit this directly. Run $(basename "$0")" $s0/$f
+

@@ -66,10 +66,12 @@ object ScalajsReact extends Build {
       jsDependencies += "org.webjars" % "react" % "0.11.0" % scope / "react-with-addons.min.js",
       skip in packageJSDependencies := false)
 
+  // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, example)
+    .aggregate(core, example, scalaz70, scalaz71)
     .configure(preventPublication)
 
+  // ==============================================================================================
   lazy val core = project
     .configure(commonSettings, publicationSettings, utestSettings)
     .settings(
@@ -78,8 +80,21 @@ object ScalajsReact extends Build {
         "org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6",
         "com.scalatags" %%% "scalatags" % "0.3.5"))
 
+  // ==============================================================================================
+  def scalazModule(name: String, version: String) =
+    Project(name.replaceAll("[^a-zA-Z0-9]+", ""), file(name))
+      .configure(commonSettings, publicationSettings)
+      .dependsOn(core)
+      .settings(
+        Keys.name := s"ext-$name",
+        libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
+
+  lazy val scalaz70 = scalazModule("scalaz-7.0", "7.0.6")
+  lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.0-RC1")
+
+  // ==============================================================================================
   lazy val example = project
-    .dependsOn(core)
+    .dependsOn(core, scalaz71)
     .configure(commonSettings, useReact())
     .configure(preventPublication)
 
