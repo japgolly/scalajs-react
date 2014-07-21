@@ -53,36 +53,36 @@ package object react {
   /**
    * Component constructor. Properties required.
    */
-  class CompCtorP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[JAny]) {
-    def apply(props: P, children: VDom*)      = u(mkProps(props, key), children: _*)
-    def apply2(props: P, children: Seq[VDom]) = u(mkProps(props, key), children: _*)
+  class CompCtorP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny]) {
+    def apply(props: P, children: VDom*)      = jsCtor(mkProps(props, key), children: _*)
+    def apply2(props: P, children: Seq[VDom]) = jsCtor(mkProps(props, key), children: _*)
     /** ↑ Workaround for what seems to be a Scala.js bug. ↑ */
 
-    def withKey(key: JAny) = new CompCtorP(u, Some(key))
+    def withKey(key: JAny) = new CompCtorP(jsCtor, Some(key))
   }
 
   /**
    * Component constructor. Properties optional.
    */
-  class CompCtorOP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) {
+  class CompCtorOP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) {
     def apply(props: Option[P], children: VDom*): ReactComponentU[P, S, B] =
-      u(mkProps(props getOrElse d(), key), children: _*)
+      jsCtor(mkProps(props getOrElse d(), key), children: _*)
 
     def apply(children: VDom*): ReactComponentU[P, S, B] =
       apply(None, children: _*)
 
     /** Workaround for what seems to be a Scala.js bug. */
-    def apply2(props: Option[P], children: Seq[VDom]) = u(mkProps(props getOrElse d(), key), children: _*)
+    def apply2(props: Option[P], children: Seq[VDom]) = jsCtor(mkProps(props getOrElse d(), key), children: _*)
 
-    def withKey(key: JAny) = new CompCtorOP(u, Some(key), d)
+    def withKey(key: JAny) = new CompCtorOP(jsCtor, Some(key), d)
   }
 
   /**
    * Component constructor. Properties not required.
    */
-  class CompCtorNP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) {
-    def apply(children: VDom*) = u(mkProps(d(), key), children: _*)
-    def withKey(key: JAny) = new CompCtorNP(u, Some(key), d)
+  class CompCtorNP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) {
+    def apply(children: VDom*) = jsCtor(mkProps(d(), key), children: _*)
+    def withKey(key: JAny) = new CompCtorNP(jsCtor, Some(key), d)
   }
 //  class CompCtorNP[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
 //    def apply(children: VDom*) = u(null, children: _*)
