@@ -1,7 +1,8 @@
 package japgolly.scalajs
 
 import org.scalajs.dom
-import scala.scalajs.js._
+import scala.scalajs.js
+import js.{Dynamic, UndefOr, undefined, Object, Number, Any => JAny, Function => JFn}
 
 package object react {
 
@@ -13,14 +14,14 @@ package object react {
   /** Allows Scala classes to be used in place of `Object`. */
   trait WrapObj[+A] extends Object { val v: A }
   def WrapObj[A](v: A) =
-    Dynamic.literal("v" -> v.asInstanceOf[Any]).asInstanceOf[WrapObj[A]]
+    Dynamic.literal("v" -> v.asInstanceOf[JAny]).asInstanceOf[WrapObj[A]]
 
   /**
    * A named reference to an element in a React VDOM.
    */
   class Ref[T <: dom.Element](val name: String) {
     @inline final def apply(scope: ComponentScope_M): UndefOr[ReactComponentM[T]] = apply(scope.refs)
-    @inline final def apply(refs: RefsObject): UndefOr[ReactComponentM[T]] = refs[T](name)
+    @inline final def apply(refs: RefsObject)       : UndefOr[ReactComponentM[T]] = refs[T](name)
   }
   class RefP[I, T <: dom.Element](f: I => String) {
     @inline final def apply(i: I) = Ref[T](f(i))
@@ -33,7 +34,7 @@ package object react {
 
   // ===================================================================================================================
 
-  private[this] def mkProps[P](props: P, key: Option[Any]): WrapObj[P] = {
+  private[this] def mkProps[P](props: P, key: Option[JAny]): WrapObj[P] = {
     val j = WrapObj(props)
     key.foreach(k => j.asInstanceOf[Dynamic].updateDynamic("key")(k))
     j
@@ -42,18 +43,18 @@ package object react {
   /**
    * Component constructor. Properties required.
    */
-  class CompCtorP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[Any]) {
+  class CompCtorP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[JAny]) {
     def apply(props: P, children: VDom*)      = u(mkProps(props, key), children: _*)
     def apply2(props: P, children: Seq[VDom]) = u(mkProps(props, key), children: _*)
     /** ↑ Workaround for what seems to be a Scala.js bug. ↑ */
 
-    def withKey(key: Any) = new CompCtorP(u, Some(key))
+    def withKey(key: JAny) = new CompCtorP(u, Some(key))
   }
 
   /**
    * Component constructor. Properties optional.
    */
-  class CompCtorOP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[Any], d: () => P) {
+  class CompCtorOP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) {
     def apply(props: Option[P], children: VDom*): ReactComponentU[P, S, B] =
       u(mkProps(props getOrElse d(), key), children: _*)
 
@@ -63,15 +64,15 @@ package object react {
     /** Workaround for what seems to be a Scala.js bug. */
     def apply2(props: Option[P], children: Seq[VDom]) = u(mkProps(props getOrElse d(), key), children: _*)
 
-    def withKey(key: Any) = new CompCtorOP(u, Some(key), d)
+    def withKey(key: JAny) = new CompCtorOP(u, Some(key), d)
   }
 
   /**
    * Component constructor. Properties not required.
    */
-  class CompCtorNP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[Any], d: () => P) {
+  class CompCtorNP[P, S, B](u: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) {
     def apply(children: VDom*) = u(mkProps(d(), key), children: _*)
-    def withKey(key: Any) = new CompCtorNP(u, Some(key), d)
+    def withKey(key: JAny) = new CompCtorNP(u, Some(key), d)
   }
 //  class CompCtorNP[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
 //    def apply(children: VDom*) = u(null, children: _*)
@@ -104,17 +105,17 @@ package object react {
   }
 
   implicit final class ComponentScope_SS_Ext[State](val u: ComponentScope_SS[State]) extends AnyVal {
-    @inline def setState(s: State, callback: UndefOr[Function] = undefined): Unit =
+    @inline def setState(s: State, callback: UndefOr[JFn] = undefined): Unit =
       u._setState(WrapObj(s), callback)
     @inline def setState(s: State, callback: => Unit): Unit =
-      setState(s, (() => callback): Function)
+      setState(s, (() => callback): JFn)
 
     @inline def modState(f: State => State): Unit =
       setState(f(u.state))
-    // @inline def modState(f: State => State, callback: UndefOr[Function]): Unit = setState(f(u.state), callback)
+    // @inline def modState(f: State => State, callback: UndefOr[JFn]): Unit = setState(f(u.state), callback)
     // ↑ causes type inference issues with ↓
     @inline def modState(f: State => State, callback: => Unit): Unit =
-      setState(f(u.state), (() => callback): Function)
+      setState(f(u.state), (() => callback): JFn)
   }
 
   implicit final class SyntheticEventExt[N <: dom.Node](val u: SyntheticEvent[N]) extends AnyVal {
@@ -136,8 +137,13 @@ package object react {
   }
 
   implicit final class PropsChildrenExt(val u: PropsChildren) extends AnyVal {
-    @inline def forEach[U](f: VDom => U): Unit = React.Children.forEach(u, (f:Function).asInstanceOf[Function1[VDom, Any]])
-    @inline def forEach[U](f: (VDom, Int) => U): Unit = React.Children.forEach(u, (f:Function).asInstanceOf[Function2[VDom, Number, Any]])
-    @inline def only: Option[VDom] = try { Some(React.Children.only(u))} catch { case t: Throwable => None}
+    @inline def forEach[U](f: VDom => U): Unit =
+      React.Children.forEach(u, (f:JFn).asInstanceOf[js.Function1[VDom, JAny]])
+
+    @inline def forEach[U](f: (VDom, Int) => U): Unit =
+      React.Children.forEach(u, (f:JFn).asInstanceOf[js.Function2[VDom, Number, JAny]])
+
+    @inline def only: Option[VDom] =
+      try { Some(React.Children.only(u))} catch { case t: Throwable => None}
   }
 }

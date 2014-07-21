@@ -1,8 +1,9 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
-import scala.scalajs.js._
-import annotation.{JSBracketAccess, JSName}
+import scala.scalajs.js
+import js.{Dynamic, UndefOr, ThisFunction, ThisFunction0, Object, Number, Any => JAny, Function => JFn}
+import js.annotation.{JSBracketAccess, JSName}
 
 object React extends Object {
 
@@ -43,10 +44,10 @@ object React extends Object {
 
 /** `React.Children` */
 trait ReactChildren extends Object {
-  def map(c: PropsChildren, fn: Function1[VDom, Any]): UndefOr[Object] = ???
-  def map(c: PropsChildren, fn: Function2[VDom, Number, Any]): UndefOr[Object] = ???
-  def forEach(c: PropsChildren, fn: Function1[VDom, Any]): Unit = ???
-  def forEach(c: PropsChildren, fn: Function2[VDom, Number, Any]): Unit = ???
+  def map(c: PropsChildren, fn: js.Function1[VDom, JAny]): UndefOr[Object] = ???
+  def map(c: PropsChildren, fn: js.Function2[VDom, Number, JAny]): UndefOr[Object] = ???
+  def forEach(c: PropsChildren, fn: js.Function1[VDom, JAny]): Unit = ???
+  def forEach(c: PropsChildren, fn: js.Function2[VDom, Number, JAny]): Unit = ???
   /** WARNING: Throws an exception is exact number of children is not 1. */
   def only(c: PropsChildren): VDom = ???
 }
@@ -56,7 +57,7 @@ trait VDom extends Object
 
 trait ComponentSpec[Props, State, Backend] extends Object
 
-trait ComponentConstructor[Props, State, Backend] extends Function {
+trait ComponentConstructor[Props, State, Backend] extends JFn {
   def apply(props: WrapObj[Props], children: VDom*): ReactComponentU[Props, State, Backend] = ???
 }
 
@@ -89,7 +90,7 @@ trait SyntheticEvent[DOMEventTarget <: dom.Node] extends Object {
    */
   def stopPropagation(): Unit = ???
   val target: DOMEventTarget = ???
-  val timeStamp: Date = ???
+  val timeStamp: js.Date = ???
   @JSName("type") val eventType: String = ???
 }
 
@@ -106,7 +107,7 @@ trait ComponentScope_S[State] extends Object {
 
 trait ComponentScope_SS[State] extends ComponentScope_S[State] {
   @JSName("setState") def _setState(s: WrapObj[State]): Unit = ???
-  @JSName("setState") def _setState(s: WrapObj[State], callback: UndefOr[Function]): Unit = ???
+  @JSName("setState") def _setState(s: WrapObj[State], callback: UndefOr[JFn]): Unit = ???
 }
 
 trait ComponentScope_B[Backend] extends Object {
