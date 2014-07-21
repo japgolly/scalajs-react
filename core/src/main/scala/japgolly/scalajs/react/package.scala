@@ -6,7 +6,17 @@ import js.{Dynamic, UndefOr, undefined, Object, Number, Any => JAny, Function =>
 
 package object react {
 
-  type MountedComponent[Props, State, Backend] = ComponentScopeM[Props, State, Backend]
+  final type MountedComponent[Props, State, Backend] = ComponentScopeM[Props, State, Backend]
+
+  final type AnchorEvent   = SyntheticEvent[dom.HTMLAnchorElement]
+  final type ButtonEvent   = SyntheticEvent[dom.HTMLButtonElement]
+  final type FormEvent     = SyntheticEvent[dom.HTMLFormElement]
+  final type ImageEvent    = SyntheticEvent[dom.HTMLImageElement]
+  final type InputEvent    = SyntheticEvent[dom.HTMLInputElement]
+  final type LabelEvent    = SyntheticEvent[dom.HTMLLabelElement]
+  final type OptionEvent   = SyntheticEvent[dom.HTMLOptionElement]
+  final type SelectEvent   = SyntheticEvent[dom.HTMLSelectElement]
+  final type TextAreaEvent = SyntheticEvent[dom.HTMLTextAreaElement]
 
   // ===================================================================================================================
 
