@@ -51,6 +51,15 @@ object ScalazReact {
 
     def runStateIOC[M[+_]](m: StateT[M, S, Unit])(implicit M: ExecUnsafe[M]): IO[Unit] => IO[Unit] =
       runStateIO(m, _)
+
+    def runStateIOF[I, M[+_]](f: I => StateT[M, S, Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
+      i => runStateIO(f(i))
+
+    def runStateIOF[I, M[+_]](f: I => StateT[M, S, Unit], callback: I => IO[Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
+      i => runStateIO(f(i), callback(i))
+
+    def runStateIOF[I, M[+_]](f: I => StateT[M, S, Unit], callback: IO[Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
+      i => runStateIO(f(i), callback)
   }
 
   implicit final class SzRExt_C_M(val u: ComponentScope_M) extends AnyVal {
