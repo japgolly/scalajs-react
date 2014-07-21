@@ -118,13 +118,13 @@ package object react {
   }
 
   implicit final class SyntheticEventExt[N <: dom.Node](val u: SyntheticEvent[N]) extends AnyVal {
-    def keyboardEvent = u.nativeEvent.asInstanceOf[dom.KeyboardEvent]
-    def messageEvent  = u.nativeEvent.asInstanceOf[dom.MessageEvent]
-    def mouseEvent    = u.nativeEvent.asInstanceOf[dom.MouseEvent]
-    def mutationEvent = u.nativeEvent.asInstanceOf[dom.MutationEvent]
-    def storageEvent  = u.nativeEvent.asInstanceOf[dom.StorageEvent]
-    def textEvent     = u.nativeEvent.asInstanceOf[dom.TextEvent]
-    def touchEvent    = u.nativeEvent.asInstanceOf[dom.TouchEvent]
+    def keyboardEvent = u.nativeEvent.asInstanceOf[UndefOr[dom.KeyboardEvent]]
+    def messageEvent  = u.nativeEvent.asInstanceOf[UndefOr[dom.MessageEvent]]
+    def mouseEvent    = u.nativeEvent.asInstanceOf[UndefOr[dom.MouseEvent]]
+    def mutationEvent = u.nativeEvent.asInstanceOf[UndefOr[dom.MutationEvent]]
+    def storageEvent  = u.nativeEvent.asInstanceOf[UndefOr[dom.StorageEvent]]
+    def textEvent     = u.nativeEvent.asInstanceOf[UndefOr[dom.TextEvent]]
+    def touchEvent    = u.nativeEvent.asInstanceOf[UndefOr[dom.TouchEvent]]
   }
 
   implicit final class UndefReactComponentMExt[T <: dom.HTMLElement](val u: UndefOr[ReactComponentM[T]]) extends AnyVal {
