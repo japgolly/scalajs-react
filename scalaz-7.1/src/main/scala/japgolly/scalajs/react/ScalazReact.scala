@@ -30,6 +30,9 @@ object ScalazReact {
 
   implicit final class SzRExt_C_SS[S](val u: ComponentScope_SS[S]) extends AnyVal {
 
+    def stateIO: IO[S] =
+      IO(u.state)
+
     def setStateIO(s: S): IO[Unit] =
       IO(u.setState(s))
 
