@@ -129,6 +129,7 @@ package object react {
   }
 
   implicit final class SyntheticEventExt[N <: dom.Node](val u: SyntheticEvent[N]) extends AnyVal {
+    def dragEvent     = u.nativeEvent.asInstanceOf[UndefOr[dom.DragEvent]]
     def keyboardEvent = u.nativeEvent.asInstanceOf[UndefOr[dom.KeyboardEvent]]
     def messageEvent  = u.nativeEvent.asInstanceOf[UndefOr[dom.MessageEvent]]
     def mouseEvent    = u.nativeEvent.asInstanceOf[UndefOr[dom.MouseEvent]]
