@@ -139,6 +139,9 @@ package object react {
     def touchEvent    = u.nativeEvent.asInstanceOf[UndefOr[dom.TouchEvent]]
   }
 
+  val preventDefaultF  = (_: SyntheticEvent[dom.Node]).preventDefault()
+  val stopPropagationF = (_: SyntheticEvent[dom.Node]).stopPropagation()
+
   implicit final class UndefReactComponentMExt[T <: dom.HTMLElement](val u: UndefOr[ReactComponentM[T]]) extends AnyVal {
     def tryFocus(): Unit = u.foreach(_.getDOMNode().focus())
   }

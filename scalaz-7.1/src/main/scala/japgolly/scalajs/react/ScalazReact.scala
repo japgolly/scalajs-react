@@ -80,4 +80,6 @@ object ScalazReact {
     def stopPropagationIO = IO(e.stopPropagation())
   }
 
+  val preventDefaultIO  = (_: SyntheticEvent[dom.Node]).preventDefaultIO
+  val stopPropagationIO = (_: SyntheticEvent[dom.Node]).stopPropagationIO
 }
