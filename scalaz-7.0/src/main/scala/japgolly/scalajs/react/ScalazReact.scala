@@ -12,6 +12,7 @@ object ScalazReact {
 
   sealed trait ExecUnsafe[M[+_]] {
     def execUnsafe[A](m: M[A]): A
+    final def execUnsafeFn[A, B](m: A => M[B]): A => B = a => execUnsafe(m(a))
   }
   implicit object ExecUnsafeId extends ExecUnsafe[Id] {
     override def execUnsafe[A](m: Id[A]): A = m
@@ -46,22 +47,25 @@ object ScalazReact {
     def modStateIO(f: S => S, callback: IO[Unit]): IO[Unit] =
       IO(u.modState(f, callback.unsafePerformIO()))
 
+    def modStateIOM[M[+_]](f: S => M[S])(implicit M: ExecUnsafe[M]): IO[Unit] =
+      modStateIO(M.execUnsafeFn(f))
+
+    def modStateIOM[M[+_]](f: S => M[S], callback: IO[Unit])(implicit M: ExecUnsafe[M]): IO[Unit] =
+      modStateIO(M.execUnsafeFn(f), callback)
+
     def runStateIO[M[+_]](m: StateT[M, S, Unit])(implicit M: ExecUnsafe[M]): IO[Unit] =
-      modStateIO(s => M.execUnsafe(m(s))._1)
+      modStateIO(M.execUnsafeFn(m.apply) andThen (_._1))
 
     def runStateIO[M[+_]](m: StateT[M, S, Unit], callback: IO[Unit])(implicit M: ExecUnsafe[M]): IO[Unit] =
-      modStateIO(s => M.execUnsafe(m(s))._1, callback)
+      modStateIO(M.execUnsafeFn(m.apply) andThen (_._1), callback)
 
-    def runStateIOC[M[+_]](m: StateT[M, S, Unit])(implicit M: ExecUnsafe[M]): IO[Unit] => IO[Unit] =
-      runStateIO(m, _)
-
-    def runStateIOF[I, M[+_]](f: I => StateT[M, S, Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
+    def _runStateIO[I, M[+_]](f: I => StateT[M, S, Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
       i => runStateIO(f(i))
 
-    def runStateIOF[I, M[+_]](f: I => StateT[M, S, Unit], callback: I => IO[Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
+    def _runStateIO[I, M[+_]](f: I => StateT[M, S, Unit], callback: I => IO[Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
       i => runStateIO(f(i), callback(i))
 
-    def runStateIOF[I, M[+_]](f: I => StateT[M, S, Unit], callback: IO[Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
+    def _runStateIO[I, M[+_]](f: I => StateT[M, S, Unit], callback: IO[Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
       i => runStateIO(f(i), callback)
   }
 
