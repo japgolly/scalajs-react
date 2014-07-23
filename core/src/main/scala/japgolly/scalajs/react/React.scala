@@ -72,7 +72,7 @@ trait ReactComponentM[Node <: dom.Element] extends ReactComponentU_ {
 }
 
 /** http://facebook.github.io/react/docs/events.html */
-trait SyntheticEvent[DOMEventTarget <: dom.Node] extends Object {
+trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends Object {
   val bubbles: Boolean = ???
   val cancelable: Boolean = ???
   val currentTarget: DOMEventTarget = ???
