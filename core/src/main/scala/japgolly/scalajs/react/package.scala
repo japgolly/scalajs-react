@@ -177,10 +177,16 @@ package object react {
 
     @inline def modState(f: A => A, cb: OpCallback = undefined)(implicit C: CC): Unit = {
       val a = state
-      val b = f(state)
-      if (a != b) // TODO should NOT being doing this
+      val b = f(a)
+      if (a != b) // TODO Not like this. Not like this...
         setState(b, cb)
     }
+
+    @inline def modStateO(f: A => Option[A], cb: OpCallback = undefined)(implicit C: CC): Unit =
+      f(state).fold(())(setState(_, cb))
+
+    @inline def modStateU(f: A => UndefOr[A], cb: OpCallback = undefined)(implicit C: CC): Unit =
+      f(state).fold(())(setState(_, cb))
 
     @inline def focusStateId(implicit C: CC) = new ComponentStateFocus[A](
       () => c.state,
