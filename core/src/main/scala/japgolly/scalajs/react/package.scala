@@ -150,22 +150,19 @@ package object react {
   // ===================================================================================================================
   // Component state access
 
+  type OpCallback = UndefOr[() => Unit]
+
   trait CompStateAccess[C[_]] {
     def state[A](f: C[A]): A
-    def setState[A](f: C[A], a: A): Unit
-    def setState[A](f: C[A], a: A, callback: () => Unit): Unit
-    // TODO merge setState methods
+    def setState[A](f: C[A], a: A, cb: OpCallback): Unit
   }
 
   implicit object CompStateAccess_SS extends CompStateAccess[ComponentScope_SS] {
     override def state[A](u: ComponentScope_SS[A]): A =
       u._state.v
 
-    override def setState[A](u: ComponentScope_SS[A], a: A): Unit =
-      u._setState(WrapObj(a))
-
-    override def setState[A](u: ComponentScope_SS[A], a: A, callback: () => Unit): Unit =
-      u._setState(WrapObj(a), callback: JFn)
+    override def setState[A](u: ComponentScope_SS[A], a: A, cb: OpCallback = undefined): Unit =
+      u._setState(WrapObj(a), cb.map[JFn](f => f))
   }
 
   // CompStateAccess[C] should really be a class param but then we lose the AnyVal
@@ -175,38 +172,28 @@ package object react {
     @inline def state(implicit C: CC): A =
       C.state(c)
 
-    @inline def setState(a: A)(implicit C: CC): Unit =
-      C.setState(c, a)
+    @inline def setState(a: A, cb: OpCallback = undefined)(implicit C: CC): Unit =
+      C.setState(c, a, cb)
 
-    @inline def setState(a: A, callback: () => Unit)(implicit C: CC): Unit =
-      C.setState(c, a, callback)
-
-    @inline def modState(f: A => A)(implicit C: CC): Unit =
-      setState(f(state))
-
-    @inline def modState(f: A => A, callback: () => Unit)(implicit C: CC): Unit =
-      setState(f(state), callback)
+    @inline def modState(f: A => A, cb: OpCallback = undefined)(implicit C: CC): Unit =
+      setState(f(state), cb)
 
     @inline def focusStateId(implicit C: CC) = new ComponentStateFocus[A](
       () => c.state,
-      (a: A) => c.setState(a),
-      (a: A, callback: () => Unit) => c.setState(a, callback))
+      (a: A, cb: OpCallback) => c.setState(a, cb))
 
     @inline def focusState[B](f: A => B)(g: (A, B) => A)(implicit C: CC) = new ComponentStateFocus[B](
       () => f(c.state),
-      (b: B) => c.setState(g(c.state, b)),
-      (b: B, callback: () => Unit) => c.setState(g(c.state, b), callback))
+      (b: B, cb: OpCallback) => c.setState(g(c.state, b), cb))
   }
 
   final class ComponentStateFocus[B] private[react](
     private[react] val _g: () => B,
-    private[react] val _s: B => Unit,
-    private[react] val _sc: (B, ()=>Unit) => Unit)
+    private[react] val _s: (B, OpCallback) => Unit)
 
   implicit object ComponentStateFocusAccess extends CompStateAccess[ComponentStateFocus] {
-    override def state[A](u: ComponentStateFocus[A])                               : A    = u._g()
-    override def setState[A](u: ComponentStateFocus[A], a: A)                      : Unit = u._s(a)
-    override def setState[A](u: ComponentStateFocus[A], a: A, callback: () => Unit): Unit = u._sc(a, callback)
+    override def state[A](u: ComponentStateFocus[A]): A = u._g()
+    override def setState[A](u: ComponentStateFocus[A], a: A, cb: OpCallback = undefined): Unit = u._s(a, cb)
   }
 
   @inline final implicit def autoFocusEntireState[S](s: ComponentScope_SS[S]): ComponentStateFocus[S] = s.focusStateId

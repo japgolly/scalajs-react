@@ -3,6 +3,7 @@ package japgolly.scalajs.react
 import org.scalajs.dom
 import vdom.ReactVDom._
 
+import scala.scalajs.js.{UndefOr, undefined}
 import scalaz._
 import Scalaz.Id
 import scalaz.effect.IO
@@ -30,36 +31,32 @@ object ScalazReact {
       a.==>[E](eventHandler(_).unsafePerformIO())
   }
 
+  type OpCallbackIO = UndefOr[IO[Unit]]
+  implicit def OpCallbackFromIO(cb: OpCallbackIO): OpCallback = cb.map(f => () => f.unsafePerformIO())
+
   // CompStateAccess[C] should really be a class param but then we lose the AnyVal
+  // Not using default arguments here cos they prevent `doStuff >>= T.setStateIO`
   implicit final class SzRExt_CompStateAccessOps[C[_], S](val u: C[S]) extends AnyVal {
     type CC = CompStateAccess[C]
 
     def stateIO(implicit C: CC): IO[S] =
       IO(u.state)
 
-    def setStateIO(s: S)(implicit C: CC): IO[Unit] =
-      IO(u.setState(s))
+    def setStateIO(s: S)(implicit C: CC): IO[Unit] = setStateIO(s, undefined)
+    def setStateIO(s: S, cb: OpCallbackIO)(implicit C: CC): IO[Unit] =
+      IO(u.setState(s, cb))
 
-    def setStateIO(s: S, callback: IO[Unit])(implicit C: CC): IO[Unit] =
-      IO(u.setState(s, () => callback.unsafePerformIO()))
+    def modStateIO(f: S => S)(implicit C: CC): IO[Unit] = modStateIO(f, undefined)
+    def modStateIO(f: S => S, cb: OpCallbackIO)(implicit C: CC): IO[Unit] =
+      IO(u.modState(f, cb))
 
-    def modStateIO(f: S => S)(implicit C: CC): IO[Unit] =
-      IO(u.modState(f))
+    def modStateIOM[M[+_]](f: S => M[S])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] = modStateIOM(f, undefined)
+    def modStateIOM[M[+_]](f: S => M[S], cb: OpCallbackIO)(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
+      modStateIO(M.execUnsafeFn(f), cb)
 
-    def modStateIO(f: S => S, callback: IO[Unit])(implicit C: CC): IO[Unit] =
-      IO(u.modState(f, () => callback.unsafePerformIO()))
-
-    def modStateIOM[M[+_]](f: S => M[S])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
-      modStateIO(M.execUnsafeFn(f))
-
-    def modStateIOM[M[+_]](f: S => M[S], callback: IO[Unit])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
-      modStateIO(M.execUnsafeFn(f), callback)
-
-    def runStateIO[M[+_]](m: StateT[M, S, Unit])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
-      modStateIO(M.execUnsafeFn(m.apply) andThen (_._1))
-
-    def runStateIO[M[+_]](m: StateT[M, S, Unit], callback: IO[Unit])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
-      modStateIO(M.execUnsafeFn(m.apply) andThen (_._1), callback)
+    def runStateIO[M[+_]](m: StateT[M, S, Unit])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] = runStateIO(m, undefined)
+    def runStateIO[M[+_]](m: StateT[M, S, Unit], cb: OpCallbackIO)(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
+      modStateIO(M.execUnsafeFn(m.apply) andThen (_._1), cb)
 
     def _runStateIO[I, M[+_]](f: I => StateT[M, S, Unit])(implicit C: CC, M: ExecUnsafe[M]): I => IO[Unit] =
       i => runStateIO(f(i))
