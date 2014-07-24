@@ -139,6 +139,13 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
     val keyAttr = "key".attr
     @inline final def key = keyAttr
     @inline final def ref = refAttr
+    val draggable   = "draggable".attr
+    val onDragStart = "onDragStart".attr
+    val onDragEnd   = "onDragEnd".attr
+    val onDragEnter = "onDragEnter".attr
+    val onDragOver  = "onDragOver".attr
+    val onDragLeave = "onDragLeave".attr
+    val onDrop      = "onDrop".attr
   }
 
   implicit final class ReactAttrExt(val a: Attr) extends AnyVal {
