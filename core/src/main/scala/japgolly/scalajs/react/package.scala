@@ -114,20 +114,6 @@ package object react {
     @inline def state = u._state.v
   }
 
-  implicit final class ComponentScope_SS_Ext[State](val u: ComponentScope_SS[State]) extends AnyVal {
-    @inline def setState(s: State, callback: UndefOr[JFn] = undefined): Unit =
-      u._setState(WrapObj(s), callback)
-    @inline def setState(s: State, callback: => Unit): Unit =
-      setState(s, (() => callback): JFn)
-
-    @inline def modState(f: State => State): Unit =
-      setState(f(u.state))
-    // @inline def modState(f: State => State, callback: UndefOr[JFn]): Unit = setState(f(u.state), callback)
-    // ↑ causes type inference issues with ↓
-    @inline def modState(f: State => State, callback: => Unit): Unit =
-      setState(f(u.state), (() => callback): JFn)
-  }
-
   implicit final class SyntheticEventExt[N <: dom.Node](val u: SyntheticEvent[N]) extends AnyVal {
     def dragEvent     = u.nativeEvent.asInstanceOf[UndefOr[dom.DragEvent]]
     def keyboardEvent = u.nativeEvent.asInstanceOf[UndefOr[dom.KeyboardEvent]]
@@ -160,4 +146,74 @@ package object react {
     @inline def only: Option[VDom] =
       try { Some(React.Children.only(u))} catch { case t: Throwable => None}
   }
+
+  // ===================================================================================================================
+  // Component state access
+
+  trait CompStateAccess[C[_]] {
+    def state[A](f: C[A]): A
+    def setState[A](f: C[A], a: A): Unit
+    def setState[A](f: C[A], a: A, callback: () => Unit): Unit
+    // TODO merge setState methods
+  }
+
+  implicit object CompStateAccess_SS extends CompStateAccess[ComponentScope_SS] {
+    override def state[A](u: ComponentScope_SS[A]): A =
+      u._state.v
+
+    override def setState[A](u: ComponentScope_SS[A], a: A): Unit =
+      u._setState(WrapObj(a))
+
+    override def setState[A](u: ComponentScope_SS[A], a: A, callback: () => Unit): Unit =
+      u._setState(WrapObj(a), callback: JFn)
+  }
+
+  // CompStateAccess[C] should really be a class param but then we lose the AnyVal
+  implicit final class CompStateAccessOps[C[_], A](val c: C[A]) extends AnyVal {
+    type CC = CompStateAccess[C]
+    
+    @inline def state(implicit C: CC): A =
+      C.state(c)
+
+    @inline def setState(a: A)(implicit C: CC): Unit =
+      C.setState(c, a)
+
+    @inline def setState(a: A, callback: () => Unit)(implicit C: CC): Unit =
+      C.setState(c, a, callback)
+
+    @inline def modState(f: A => A)(implicit C: CC): Unit =
+      setState(f(state))
+
+    @inline def modState(f: A => A, callback: () => Unit)(implicit C: CC): Unit =
+      setState(f(state), callback)
+
+    @inline def focusStateId(implicit C: CC) = new ComponentStateFocus[A](
+      () => c.state,
+      (a: A) => c.setState(a),
+      (a: A, callback: () => Unit) => c.setState(a, callback))
+
+    @inline def focusState[B](f: A => B)(g: (A, B) => A)(implicit C: CC) = new ComponentStateFocus[B](
+      () => f(c.state),
+      (b: B) => c.setState(g(c.state, b)),
+      (b: B, callback: () => Unit) => c.setState(g(c.state, b), callback))
+  }
+
+  final class ComponentStateFocus[B] private[react](
+    private[react] val _g: () => B,
+    private[react] val _s: B => Unit,
+    private[react] val _sc: (B, ()=>Unit) => Unit)
+
+  implicit object ComponentStateFocusAccess extends CompStateAccess[ComponentStateFocus] {
+    override def state[A](u: ComponentStateFocus[A])                               : A    = u._g()
+    override def setState[A](u: ComponentStateFocus[A], a: A)                      : Unit = u._s(a)
+    override def setState[A](u: ComponentStateFocus[A], a: A, callback: () => Unit): Unit = u._sc(a, callback)
+  }
+
+  @inline final implicit def autoFocusEntireState[S](s: ComponentScope_SS[S]): ComponentStateFocus[S] = s.focusStateId
+  @inline final implicit def autoFocusEntireState[P,S](b: BackendScope[P,S]): ComponentStateFocus[S] = b.focusStateId
+  @inline final implicit def autoFocusEntireState[P,S,B](b: ComponentScopeU[P,S,B]): ComponentStateFocus[S] = b.focusStateId
+
+  // If Scala were a horse it'd die of thirst as you held its head under water.
+  @inline final implicit def scalaHandHolding1[P,S](b: BackendScope[P,S]): CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
+  @inline final implicit def scalaHandHolding2[P,S,B](b: ComponentScopeU[P,S,B]): CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
 }

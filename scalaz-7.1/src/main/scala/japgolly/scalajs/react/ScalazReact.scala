@@ -29,44 +29,50 @@ object ScalazReact {
       a.==>[E](eventHandler(_).unsafePerformIO())
   }
 
-  implicit final class SzRExt_C_SS[S](val u: ComponentScope_SS[S]) extends AnyVal {
+  // CompStateAccess[C] should really be a class param but then we lose the AnyVal
+  implicit final class SzRExt_CompStateAccessOps[C[_], S](val u: C[S]) extends AnyVal {
+    type CC = CompStateAccess[C]
 
-    def stateIO: IO[S] =
+    def stateIO(implicit C: CC): IO[S] =
       IO(u.state)
 
-    def setStateIO(s: S): IO[Unit] =
+    def setStateIO(s: S)(implicit C: CC): IO[Unit] =
       IO(u.setState(s))
 
-    def setStateIO(s: S, callback: IO[Unit]): IO[Unit] =
-      IO(u.setState(s, callback.unsafePerformIO()))
+    def setStateIO(s: S, callback: IO[Unit])(implicit C: CC): IO[Unit] =
+      IO(u.setState(s, () => callback.unsafePerformIO()))
 
-    def modStateIO(f: S => S): IO[Unit] =
+    def modStateIO(f: S => S)(implicit C: CC): IO[Unit] =
       IO(u.modState(f))
 
-    def modStateIO(f: S => S, callback: IO[Unit]): IO[Unit] =
-      IO(u.modState(f, callback.unsafePerformIO()))
+    def modStateIO(f: S => S, callback: IO[Unit])(implicit C: CC): IO[Unit] =
+      IO(u.modState(f, () => callback.unsafePerformIO()))
 
-    def modStateIOM[M[_]](f: S => M[S])(implicit M: ExecUnsafe[M]): IO[Unit] =
+    def modStateIOM[M[_]](f: S => M[S])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
       modStateIO(M.execUnsafeFn(f))
 
-    def modStateIOM[M[_]](f: S => M[S], callback: IO[Unit])(implicit M: ExecUnsafe[M]): IO[Unit] =
+    def modStateIOM[M[_]](f: S => M[S], callback: IO[Unit])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
       modStateIO(M.execUnsafeFn(f), callback)
 
-    def runStateIO[M[_]](m: StateT[M, S, Unit])(implicit M: ExecUnsafe[M]): IO[Unit] =
+    def runStateIO[M[_]](m: StateT[M, S, Unit])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
       modStateIO(M.execUnsafeFn(m.apply) andThen (_._1))
 
-    def runStateIO[M[_]](m: StateT[M, S, Unit], callback: IO[Unit])(implicit M: ExecUnsafe[M]): IO[Unit] =
+    def runStateIO[M[_]](m: StateT[M, S, Unit], callback: IO[Unit])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
       modStateIO(M.execUnsafeFn(m.apply) andThen (_._1), callback)
 
-    def _runStateIO[I, M[_]](f: I => StateT[M, S, Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
+    def _runStateIO[I, M[_]](f: I => StateT[M, S, Unit])(implicit C: CC, M: ExecUnsafe[M]): I => IO[Unit] =
       i => runStateIO(f(i))
 
-    def _runStateIO[I, M[_]](f: I => StateT[M, S, Unit], callback: I => IO[Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
+    def _runStateIO[I, M[_]](f: I => StateT[M, S, Unit], callback: I => IO[Unit])(implicit C: CC, M: ExecUnsafe[M]): I => IO[Unit] =
       i => runStateIO(f(i), callback(i))
 
-    def _runStateIO[I, M[_]](f: I => StateT[M, S, Unit], callback: IO[Unit])(implicit M: ExecUnsafe[M]): I => IO[Unit] =
+    def _runStateIO[I, M[_]](f: I => StateT[M, S, Unit], callback: IO[Unit])(implicit C: CC, M: ExecUnsafe[M]): I => IO[Unit] =
       i => runStateIO(f(i), callback)
   }
+
+  // Seriously, Scala, get your shit together.
+  @inline final implicit def moarScalaHandHolding[P,S](b: BackendScope[P,S]): SzRExt_CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
+  @inline final implicit def moarScalaHandHolding[P,S,B](b: ComponentScopeU[P,S,B]): SzRExt_CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
 
   implicit final class SzRExt_C_M(val u: ComponentScope_M) extends AnyVal {
     def forceUpdateIO = IO(u.forceUpdate())

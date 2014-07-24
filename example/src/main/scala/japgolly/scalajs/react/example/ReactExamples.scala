@@ -100,7 +100,7 @@ object ReactExamples extends js.JSApp {
       def handleChange(e: SyntheticEvent[HTMLInputElement]) =
         t.setState(e.target.value)
       def clearAndFocusInput() =
-        t.setState("", theInput(t).get.getDOMNode().focus())
+        t.setState("", () => theInput(t).tryFocus())
     }
 
     val App = ReactComponentB[Unit]("App")

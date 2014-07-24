@@ -104,14 +104,14 @@ Extensions
 ```
 
 #### React
-* Where `this.setState(State)` is applicable, you can also run `modSate(State => State)`.
+* Where `this.setState(State)` is applicable, you can also run `modState(State => State)`.
 * `SyntheticEvent` now has `(keyboard|message|mouse|mutation|storage|text|touch)Event` methods that typecast the underlying native event.
 * Because refs are not guaranteed to exist, the return type is wrapped in `js.UndefOr[_]`. A helper method `tryFocus()` has been added to focus the ref if one is returned.
 ```scala
     val myRef = Ref[HTMLInputElement]("refKey")
 
     class Backend(T: BackendScope[_, _]) {
-      def clearAndFocusInput() = T.setState("", myRef(t).tryFocus())
+      def clearAndFocusInput() = T.setState("", () => myRef(t).tryFocus())
     }
 ```
 * The component builder has a `propsDefault` method which takes some default properties and exposes constructor methods that 1) don't require any property specification, and 2) take an `Optional[Props]`.
@@ -131,6 +131,14 @@ Extensions
       ,"message-important" -> props.isImportant
       ,"message-read"      -> props.isRead
     ))(props.message)
+```
+* Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `focusState()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
+```scala
+    def incrementCounter(s: ComponentStateFocus[Int]) = s.modState(_ + 1)
+
+    // Then later in a render() method
+    val f = T.focusState(_.counter)((a,b) => a.copy(counter = b))
+    button(onclick --> incrementCounter(f))("+")
 ```
 
 
