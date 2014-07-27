@@ -142,6 +142,16 @@ Extensions
 ```
 
 
+MOAR FP / Scalaz
+================
+
+Included is a Scalaz module that facilitates a more functional and pure approach to React integration.
+
+See [ScalazExamples](https://github.com/japgolly/scalajs-react/tree/master/example/src/main/scala/japgolly/scalajs/react/example/ScalazExamples.scala) for a small taste.
+
+Otherwise take a look at the [ScalazReact module](https://github.com/japgolly/scalajs-react/tree/master/scalaz-7.1/src/main/scala/japgolly/scalajs/react/ScalazReact.scala) for the source.
+
+
 Gotchas
 =======
 

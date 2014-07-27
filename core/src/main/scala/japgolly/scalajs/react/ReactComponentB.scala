@@ -18,9 +18,10 @@ final class ReactComponentB[Props](name: String) {
     def backend[Backend](f: ScopeB => Backend) = new B3[Backend](f)
     def noBackend                              = new B3[Unit](_ => ())
 
-    def render(f: (Props, State)                      => VDom) = noBackend.render((p,s,_) => f(p,s))
-    def render(f: (Props, PropsChildren, State)       => VDom) = noBackend.render((p,c,s,_) => f(p,c,s))
-    def render(f: ComponentScopeU[Props, State, Unit] => VDom) = noBackend.render(f)
+    def render(f: (Props, State)                                       => VDom) = noBackend.render((p,s,_) => f(p,s))
+    def render(f: (Props, PropsChildren, State)                        => VDom) = noBackend.render((p,c,s,_) => f(p,c,s))
+    def render(f: ComponentScopeU[Props, State, Unit]                  => VDom) = noBackend.render(f)
+    def renderS(f: (ComponentScopeU[Props, State, Unit], Props, State) => VDom) = noBackend.renderS(f)
 
     // ---------------------------------------------------------------------------------------------
     final class B3[Backend] private[ReactComponentB](backend: ScopeB => Backend) {
@@ -32,6 +33,7 @@ final class ReactComponentB[Props](name: String) {
       type CCOP = CompCtorOP[Props, State, Backend]
       type CCNP = CompCtorNP[Props, State, Backend]
 
+      def renderS(f: (ScopeU, Props, State)                => VDom): B4[CCP] = render(T => f(T, T.props, T.state))
       def render(f: (Props, State, Backend)                => VDom): B4[CCP] = render(s => f(s.props, s.state, s.backend))
       def render(f: (Props, PropsChildren, State, Backend) => VDom): B4[CCP] = render(s => f(s.props, s.propsChildren, s.state, s.backend))
       def render(f: ScopeU                                 => VDom): B4[CCP] =
