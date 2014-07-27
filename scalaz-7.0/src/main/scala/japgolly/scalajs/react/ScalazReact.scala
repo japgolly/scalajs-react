@@ -99,12 +99,15 @@ object ScalazReact {
     @inline final def FixT[M[+_], S] = new FixT[M,S]
     final class FixT[M[+_], S] {
       @inline final def ret[A](a: A)     (implicit M: Applicative[M])                  = ReactS.retT[M,S,A](a)
-      @inline final def retM[A](ma: M[A])(implicit F: Functor[M])                      = ReactS.retM[M,S,A](ma)
+      @inline final def retM[A](ma: M[A])(implicit M: Functor[M])                      = ReactS.retM[M,S,A](ma)
       @inline final def get              (implicit M: Applicative[M])                  = ReactS.getT[M,S]
       @inline final def set(s: S)        (implicit M: Applicative[M])                  = ReactS.setT[M,S](s)
       @inline final def mod(f: S => M[S])(implicit M: Bind[M])                         = ReactS.modT[M,S](f)
       @inline final def callback[A](c: OpCallbackIO)(a: A)(implicit M: Applicative[M]) = ReactS.callbackT[M,S,A](c)(a)
     }
+
+    @inline final def lift[M[+_], S, A](t: StateT[M, S, A])(implicit M: Bind[M]): ReactST[M, S, A] =
+      StateT[M, StateAndCallbacks[S], A](sc => M.map(t(sc.s))(sa => (StateAndCallbacks(sa._1, sc.cb), sa._2) ))
   }
 
   implicit final class SzRExt_ReactSTOps[M[+_], S, A](val f: ReactST[M,S,A]) extends AnyVal {
@@ -134,6 +137,12 @@ object ScalazReact {
     
     def _runState[I, M[+_], A](f: I => ReactST[M, S, A], cb: I => OpCallbackIO)(implicit C: CC, M: M ~> IO, N: Monad[M]): I => IO[A] =
       i => runState(f(i) addCallback cb(i))
+
+    def runStateS[M[+_], A](st: StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Bind[M]): IO[A] =
+      runState(ReactS lift st)
+
+    def _runStateS[I, M[+_], A](f: I => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Bind[M]): I => IO[A] =
+      i => runStateS(f(i))
   }
 
   // Seriously, Scala, get your shit together.
