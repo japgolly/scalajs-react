@@ -93,6 +93,12 @@ object ScalazReact {
       @inline final def set(s: S)                          = ReactS.set(s)
       @inline final def mod(f: S => S)                     = ReactS.mod(f)
       @inline final def callback[A](c: OpCallbackIO)(a: A) = ReactS.callback[S,A](c)(a)
+      @inline final def retT[M[_]: Applicative, A](a: A)                       = ReactS.retT[M,S,A](a)
+      @inline final def retM[M[_]: Functor, A](ma: M[A])                       = ReactS.retM[M,S,A](ma)
+      @inline final def getT[M[_]: Applicative]                                = ReactS.getT[M,S]
+      @inline final def setT[M[_]: Applicative](s: S)                          = ReactS.setT[M,S](s)
+      @inline final def modT[M[_]: Bind](f: S => M[S])                         = ReactS.modT[M,S](f)
+      @inline final def callbackT[M[_]: Applicative, A](c: OpCallbackIO)(a: A) = ReactS.callbackT[M,S,A](c)(a)
     }
 
     @inline final def FixT[M[_], S] = new FixT[M,S]
