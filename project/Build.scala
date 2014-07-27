@@ -90,7 +90,7 @@ object ScalajsReact extends Build {
         libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
 
   lazy val scalaz70 = scalazModule("scalaz-7.0", "7.0.6")
-  lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.0-RC1")
+  lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.0-RC2")
 
   // ==============================================================================================
   lazy val example = project
