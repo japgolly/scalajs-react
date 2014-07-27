@@ -146,7 +146,8 @@ Gotchas
 =======
 
 * `table(tr(...))` will appear to work fine at first then crash later. React needs `table(tbody(tr(...)))`.
-
+* React doesn't apply invocations of `this.setState` until the end of `render` or the current callback. Calling `.state` after `.setState` will return the original value, ie. `val s1 = x.state; x.setState(s2); x.state == s1 // not s2`.
+  If you want to compose state modifications (and you're using Scalaz), take a look at the `ScalazReact` module, specifically `ReactS` and `runState`.
 
 
 Alternatives

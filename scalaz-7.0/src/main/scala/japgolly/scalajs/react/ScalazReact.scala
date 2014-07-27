@@ -11,15 +11,9 @@ import scalaz.effect.IO
 object ScalazReact {
   // Don't edit this directly. Run sync-scala70
 
-  sealed trait ExecUnsafe[M[+_]] {
-    def execUnsafe[A](m: M[A]): A
-    final def execUnsafeFn[A, B](m: A => M[B]): A => B = a => execUnsafe(m(a))
-  }
-  implicit object ExecUnsafeId extends ExecUnsafe[Id] {
-    override def execUnsafe[A](m: Id[A]): A = m
-  }
-  implicit object ExecUnsafeIO extends ExecUnsafe[IO] {
-    override def execUnsafe[A](m: IO[A]): A = m.unsafePerformIO()
+  implicit val IoToIo: IO ~> IO = NaturalTransformation.refl[IO]
+  implicit object IdToIo extends (Id ~> IO) {
+    override def apply[A](a: Id[A]): IO[A] = IO(a)
   }
 
   implicit final class SzRExt_Attr(val a: Attr) extends AnyVal {
@@ -30,47 +24,6 @@ object ScalazReact {
     def ~~>[E <: dom.Node](eventHandler: SyntheticEvent[E] => IO[Unit]) =
       a.==>[E](eventHandler(_).unsafePerformIO())
   }
-
-  type OpCallbackIO = UndefOr[IO[Unit]]
-  implicit def OpCallbackFromIO(cb: OpCallbackIO): OpCallback = cb.map(f => () => f.unsafePerformIO())
-
-  // CompStateAccess[C] should really be a class param but then we lose the AnyVal
-  // Not using default arguments here cos they prevent `doStuff >>= T.setStateIO`
-  implicit final class SzRExt_CompStateAccessOps[C[_], S](val u: C[S]) extends AnyVal {
-    type CC = CompStateAccess[C]
-
-    def stateIO(implicit C: CC): IO[S] =
-      IO(u.state)
-
-    def setStateIO(s: S)(implicit C: CC): IO[Unit] = setStateIO(s, undefined)
-    def setStateIO(s: S, cb: OpCallbackIO)(implicit C: CC): IO[Unit] =
-      IO(u.setState(s, cb))
-
-    def modStateIO(f: S => S)(implicit C: CC): IO[Unit] = modStateIO(f, undefined)
-    def modStateIO(f: S => S, cb: OpCallbackIO)(implicit C: CC): IO[Unit] =
-      IO(u.modState(f, cb))
-
-    def modStateIOM[M[+_]](f: S => M[S])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] = modStateIOM(f, undefined)
-    def modStateIOM[M[+_]](f: S => M[S], cb: OpCallbackIO)(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
-      modStateIO(M.execUnsafeFn(f), cb)
-
-    def runStateIO[M[+_]](m: StateT[M, S, Unit])(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] = runStateIO(m, undefined)
-    def runStateIO[M[+_]](m: StateT[M, S, Unit], cb: OpCallbackIO)(implicit C: CC, M: ExecUnsafe[M]): IO[Unit] =
-      modStateIO(M.execUnsafeFn(m.apply) andThen (_._1), cb)
-
-    def _runStateIO[I, M[+_]](f: I => StateT[M, S, Unit])(implicit C: CC, M: ExecUnsafe[M]): I => IO[Unit] =
-      i => runStateIO(f(i))
-
-    def _runStateIO[I, M[+_]](f: I => StateT[M, S, Unit], callback: I => IO[Unit])(implicit C: CC, M: ExecUnsafe[M]): I => IO[Unit] =
-      i => runStateIO(f(i), callback(i))
-
-    def _runStateIO[I, M[+_]](f: I => StateT[M, S, Unit], callback: IO[Unit])(implicit C: CC, M: ExecUnsafe[M]): I => IO[Unit] =
-      i => runStateIO(f(i), callback)
-  }
-
-  // Seriously, Scala, get your shit together.
-  @inline final implicit def moarScalaHandHolding[P,S](b: BackendScope[P,S]): SzRExt_CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
-  @inline final implicit def moarScalaHandHolding[P,S,B](b: ComponentScopeU[P,S,B]): SzRExt_CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
 
   implicit final class SzRExt_C_M(val u: ComponentScope_M) extends AnyVal {
     def forceUpdateIO = IO(u.forceUpdate())
@@ -90,4 +43,100 @@ object ScalazReact {
 
   val preventDefaultIO  = (_: SyntheticEvent[dom.Node]).preventDefaultIO
   val stopPropagationIO = (_: SyntheticEvent[dom.Node]).stopPropagationIO
+
+  // ===================================================================================================================
+  // State manipulation
+
+  final type OpCallbackIO = UndefOr[IO[Unit]]
+  implicit def OpCallbackFromIO(cb: OpCallbackIO): OpCallback = cb.map(f => () => f.unsafePerformIO())
+
+  final case class StateAndCallbacks[S](s: S, cb: OpCallbackIO) {
+    def addCallback(cb2: OpCallbackIO) = StateAndCallbacks(s, appendCallbacks(cb, cb2))
+  }
+  
+  private def appendCallbacks(a: OpCallbackIO, b: OpCallbackIO): OpCallbackIO =
+    a.fold(b)(aa => b.fold(aa)(bb => aa.flatMap(_ => bb)))
+
+  final type ReactS[S, A] = ReactST[Id, S, A]
+  final type ReactST[M[+_], S, A] = StateT[M, StateAndCallbacks[S], A]
+
+  object ReactS {
+    @inline final def ret[S, A](a: A): ReactS[S, A] = retT[Id, S, A](a)
+
+    @inline final def get[S]: ReactS[S, S] = State.gets[StateAndCallbacks[S], S](_.s)
+
+    @inline final def set[S](s: S): ReactS[S, Unit] = mod((_: S) => s)
+
+    @inline final def mod[S](f: S => S): ReactS[S, Unit] = modT[Id, S](f)
+
+    @inline final def callback[S, A](c: OpCallbackIO)(a: A): ReactS[S, A] =
+      State[StateAndCallbacks[S], A](s => (s addCallback c, a))
+
+    @inline final def retT[M[+_], S, A](a: A)(implicit M: Applicative[M]): ReactST[M, S, A] =
+      StateT[M, StateAndCallbacks[S], A](s => M.point((s, a)))
+
+    @inline final def retM[M[+_], S, A](ma: M[A])(implicit F: Functor[M]): ReactST[M, S, A] =
+      StateT[M, StateAndCallbacks[S], A](sc => F.map(ma)((sc, _)))
+
+    @inline final def getT[M[+_]: Applicative, S]: ReactST[M, S, S] = get.lift[M]
+
+    @inline final def setT[M[+_]: Applicative, S](s: S): ReactST[M, S, Unit] = set(s).lift[M]
+
+    @inline final def modT[M[+_], S](f: S => M[S])(implicit M: Bind[M]): ReactST[M, S, Unit] =
+      StateT[M, StateAndCallbacks[S], Unit](sc => M.map(f(sc.s))(s2 => (StateAndCallbacks(s2, sc.cb), ())))
+
+    @inline final def callbackT[M[+_]: Applicative, S, A](c: OpCallbackIO)(a: A): ReactST[M, S, A] = callback(c)(a).lift[M]
+
+    @inline final def Fix[S] = new Fix[S]
+    final class Fix[S] {
+      @inline final def ret[A](a: A)                       = ReactS.ret[S,A](a)
+      @inline final def get                                = ReactS.get[S]
+      @inline final def set(s: S)                          = ReactS.set(s)
+      @inline final def mod(f: S => S)                     = ReactS.mod(f)
+      @inline final def callback[A](c: OpCallbackIO)(a: A) = ReactS.callback[S,A](c)(a)
+    }
+
+    @inline final def FixT[M[+_], S] = new FixT[M,S]
+    final class FixT[M[+_], S] {
+      @inline final def ret[A](a: A)     (implicit M: Applicative[M])                  = ReactS.retT[M,S,A](a)
+      @inline final def retM[A](ma: M[A])(implicit F: Functor[M])                      = ReactS.retM[M,S,A](ma)
+      @inline final def get              (implicit M: Applicative[M])                  = ReactS.getT[M,S]
+      @inline final def set(s: S)        (implicit M: Applicative[M])                  = ReactS.setT[M,S](s)
+      @inline final def mod(f: S => M[S])(implicit M: Bind[M])                         = ReactS.modT[M,S](f)
+      @inline final def callback[A](c: OpCallbackIO)(a: A)(implicit M: Applicative[M]) = ReactS.callbackT[M,S,A](c)(a)
+    }
+  }
+
+  implicit final class SzRExt_ReactSTOps[M[+_], S, A](val f: ReactST[M,S,A]) extends AnyVal {
+    def addCallback(c: OpCallbackIO)(implicit M: Monad[M]): ReactST[M,S,A] =
+      f flatMap ReactS.callbackT(c)
+
+    // This shouldn't be needed; it's already in BindSyntax.
+    def >>[B](t: ReactST[M,S,B])(implicit M: Bind[M]): ReactST[M,S,B] =
+      f.flatMap(_ => t)
+  }
+
+  implicit final class SzRExt_CompStateAccessOps[C[_], S](val u: C[S]) extends AnyVal {
+    type CC = CompStateAccess[C]
+
+    def runState[M[+_], A](st: ReactST[M, S, A])(implicit C: CC, M: M ~> IO): IO[A] = {
+      val s1 = StateAndCallbacks(C state u, undefined)
+      M(st run s1).flatMap {
+        case (s2, a) => IO {
+          C.setState(u, s2.s, s2.cb)
+          a
+        }
+      }
+    }
+
+    def _runState[I, M[+_], A](f: I => ReactST[M, S, A])(implicit C: CC, M: M ~> IO): I => IO[A] =
+      i => runState(f(i))
+    
+    def _runState[I, M[+_], A](f: I => ReactST[M, S, A], cb: I => OpCallbackIO)(implicit C: CC, M: M ~> IO, N: Monad[M]): I => IO[A] =
+      i => runState(f(i) addCallback cb(i))
+  }
+
+  // Seriously, Scala, get your shit together.
+  @inline final implicit def moarScalaHandHolding[P,S](b: BackendScope[P,S]): SzRExt_CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
+  @inline final implicit def moarScalaHandHolding[P,S,B](b: ComponentScopeU[P,S,B]): SzRExt_CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
 }
