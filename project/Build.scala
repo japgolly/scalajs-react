@@ -63,7 +63,7 @@ object ScalajsReact extends Build {
 
   def useReact(scope: String = "compile"): PE =
     _.settings(
-      jsDependencies += "org.webjars" % "react" % "0.11.0" % scope / "react-with-addons.min.js",
+      jsDependencies += "org.webjars" % "react" % "0.11.1" % scope / "react-with-addons.min.js",
       skip in packageJSDependencies := false)
 
   // ==============================================================================================
