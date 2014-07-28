@@ -127,15 +127,15 @@ object ScalazReact {
   implicit final class SzRExt_CompStateAccessOps[C[_], S](val u: C[S]) extends AnyVal {
     type CC = CompStateAccess[C]
 
-    def runState[M[_], A](st: ReactST[M, S, A])(implicit C: CC, M: M ~> IO): IO[A] = {
-      val s1 = StateAndCallbacks(C state u, undefined)
-      M(st run s1).flatMap {
-        case (s2, a) => IO {
-          C.setState(u, s2.s, s2.cb)
-          a
+    def runState[M[_], A](st: ReactST[M, S, A])(implicit C: CC, M: M ~> IO): IO[A] =
+      IO(StateAndCallbacks(C state u, undefined)).flatMap(s1 =>
+        M(st run s1).flatMap { case (s2, a) =>
+          IO {
+            C.setState(u, s2.s, s2.cb)
+            a
+          }
         }
-      }
-    }
+      )
 
     def _runState[I, M[_], A](f: I => ReactST[M, S, A])(implicit C: CC, M: M ~> IO): I => IO[A] =
       i => runState(f(i))
