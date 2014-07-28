@@ -10,7 +10,7 @@ import scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys._
 
 object ScalajsReact extends Build {
 
-  val Scala211 = "2.11.1"
+  val Scala211 = "2.11.2"
 
   type PE = Project => Project
 
@@ -18,7 +18,7 @@ object ScalajsReact extends Build {
     _.settings(scalaJSSettings: _*)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.2.1-SNAPSHOT",
+        version            := "0.3.0-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
