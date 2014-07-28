@@ -175,12 +175,8 @@ package object react {
     @inline def setState(a: A, cb: OpCallback = undefined)(implicit C: CC): Unit =
       C.setState(c, a, cb)
 
-    @inline def modState(f: A => A, cb: OpCallback = undefined)(implicit C: CC): Unit = {
-      val a = state
-      val b = f(a)
-      if (a != b) // TODO Not like this. Not like this...
-        setState(b, cb)
-    }
+    @inline def modState(f: A => A, cb: OpCallback = undefined)(implicit C: CC): Unit =
+      setState(f(state), cb)
 
     @inline def modStateO(f: A => Option[A], cb: OpCallback = undefined)(implicit C: CC): Unit =
       f(state).fold(())(setState(_, cb))
