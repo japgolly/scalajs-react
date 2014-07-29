@@ -61,6 +61,8 @@ object ScalazReact {
   final type ReactST[M[+_], S, A] = StateT[M, StateAndCallbacks[S], A]
 
   object ReactS {
+    @inline final def apply[S, A](f: S => (S, A)): ReactS[S, A] = applyT[Id, S, A](f)
+
     @inline final def ret[S, A](a: A): ReactS[S, A] = retT[Id, S, A](a)
 
     @inline final def get[S]: ReactS[S, S] = gets(identity[S])
@@ -74,6 +76,9 @@ object ScalazReact {
 
     @inline final def callback[S, A](c: OpCallbackIO)(a: A): ReactS[S, A] =
       State[StateAndCallbacks[S], A](s => (s addCallback c, a))
+
+    @inline final def applyT[M[+_], S, A](f: S => M[(S, A)])(implicit F: Functor[M]): ReactST[M, S, A] =
+      StateT[M, StateAndCallbacks[S], A](sc => F.map(f(sc.s))(x => (sc.copy(s = x._1),x._2) ))
 
     @inline final def retT[M[+_], S, A](a: A)(implicit M: Applicative[M]): ReactST[M, S, A] =
       StateT[M, StateAndCallbacks[S], A](s => M.point((s, a)))
@@ -94,12 +99,14 @@ object ScalazReact {
 
     @inline final def Fix[S] = new Fix[S]
     final class Fix[S] {
+      @inline final def apply[A](f: S => (S, A))           = ReactS(f)
       @inline final def ret[A](a: A)                       = ReactS.ret[S,A](a)
       @inline final def get                                = ReactS.get[S]
       @inline final def gets[A](f: S => A)                 = ReactS.gets(f)
       @inline final def set(s: S)                          = ReactS.set(s)
       @inline final def mod(f: S => S)                     = ReactS.mod(f)
       @inline final def callback[A](c: OpCallbackIO)(a: A) = ReactS.callback[S,A](c)(a)
+      @inline final def applyT[M[+_]: Functor, A](f: S => M[(S, A)])            = ReactS.applyT(f)
       @inline final def retT[M[+_]: Applicative, A](a: A)                       = ReactS.retT[M,S,A](a)
       @inline final def retM[M[+_]: Functor, A](ma: M[A])                       = ReactS.retM[M,S,A](ma)
       @inline final def getT[M[+_]: Applicative]                                = ReactS.getT[M,S]
@@ -111,12 +118,13 @@ object ScalazReact {
 
     @inline final def FixT[M[+_], S] = new FixT[M,S]
     final class FixT[M[+_], S] {
-      @inline final def ret[A](a: A)         (implicit M: Applicative[M])              = ReactS.retT[M,S,A](a)
-      @inline final def retM[A](ma: M[A])    (implicit M: Functor[M])                  = ReactS.retM[M,S,A](ma)
-      @inline final def get                  (implicit M: Applicative[M])              = ReactS.getT[M,S]
-      @inline final def gets[A](f: S => M[A])(implicit M: Functor[M])                  = ReactS.getsT(f)
-      @inline final def set(s: S)            (implicit M: Applicative[M])              = ReactS.setT[M,S](s)
-      @inline final def mod(f: S => M[S])    (implicit M: Functor[M])                  = ReactS.modT[M,S](f)
+      @inline final def apply[A](f: S => M[(S, A)])       (implicit M: Functor[M])     = ReactS.applyT(f)
+      @inline final def ret[A](a: A)                      (implicit M: Applicative[M]) = ReactS.retT[M,S,A](a)
+      @inline final def retM[A](ma: M[A])                 (implicit M: Functor[M])     = ReactS.retM[M,S,A](ma)
+      @inline final def get                               (implicit M: Applicative[M]) = ReactS.getT[M,S]
+      @inline final def gets[A](f: S => M[A])             (implicit M: Functor[M])     = ReactS.getsT(f)
+      @inline final def set(s: S)                         (implicit M: Applicative[M]) = ReactS.setT[M,S](s)
+      @inline final def mod(f: S => M[S])                 (implicit M: Functor[M])     = ReactS.modT[M,S](f)
       @inline final def callback[A](c: OpCallbackIO)(a: A)(implicit M: Applicative[M]) = ReactS.callbackT[M,S,A](c)(a)
     }
 
