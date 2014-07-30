@@ -132,6 +132,9 @@ object ScalazReact {
 
     @inline final def lift[M[+_], S, A](t: StateT[M, S, A])(implicit M: Functor[M]): ReactST[M, S, A] =
       StateT[M, StateAndCallbacks[S], A](sc => M.map(t(sc.s))(sa => (sc withState sa._1, sa._2) ))
+
+    @inline final def unlift[M[+_], S, A](t: ReactST[M, S, A])(implicit M: Functor[M]): StateT[M, S, A] =
+      StateT[M, S, A](s => M.map(t(StateAndCallbacks(s)))(sa => (sa._1.s, sa._2) ))
   }
 
   implicit final class SzRExt_ReactSTOps[M[+_], S, A](val f: ReactST[M,S,A]) extends AnyVal {
