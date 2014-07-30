@@ -33,7 +33,7 @@ Code:
 ```scala
 import japgolly.scalajs.react._
 import vdom.ReactVDom._
-import all._
+import vdom.ReactVDom.all._ // Scalatags (div, h1, textarea, etc.)
 ```
 
 Examples
@@ -47,41 +47,16 @@ If you'd like to see side-by-side comparisons of sample code taken from [http://
 1. `sbt fastOptJS`
 1. Open `example/side_by_side.html` locally.
 
-Here are two examples:
 
-### Hello World
-This is the first demo on the [React](http://facebook.github.io/react/) homepage.
-```scala
-val HelloMessage = ReactComponentB[String]("HelloMessage")
-  .render(name => div("Hello ", name))
-  .create
+MOAR FP / Scalaz
+================
 
-React.renderComponent(HelloMessage("John"), mountNode)
-```
+Included is a Scalaz module that facilitates a more functional and pure approach to React integration.
 
-### Live Incrementing Counter
-This is the second demo on the [React](http://facebook.github.io/react/) homepage.
-In this example a dedicated `State` class is created so as to closer match the React sample. This can actually be omitted with a `Long` being the state type.
-```scala
-case class State(secondsElapsed: Long)
+See [ScalazExamples](https://github.com/japgolly/scalajs-react/tree/master/example/src/main/scala/japgolly/scalajs/react/example/ScalazExamples.scala) for a small taste.
 
-class Backend {
-  var interval: js.UndefOr[Int] = js.undefined
-  def tick(scope: ComponentScopeM[_, State, _]): js.Function =
-    () => scope.modState(s => State(s.secondsElapsed + 1))
-}
+Take a look at the [ScalazReact module](https://github.com/japgolly/scalajs-react/tree/master/scalaz-7.1/src/main/scala/japgolly/scalajs/react/ScalazReact.scala) for the source.
 
-val Timer = ReactComponentB[Unit]("Timer")
-  .initialState(State(0))
-  .backend(_ => new Backend)
-  .render((_,S,_) => div("Seconds elapsed: ", S.secondsElapsed))
-  .componentDidMount(scope =>
-    scope.backend.interval = window.setInterval(scope.backend.tick(scope), 1000))
-  .componentWillUnmount(_.backend.interval foreach window.clearInterval)
-  .createU
-
-React.renderComponent(Timer(), mountNode)
-```
 
 Extensions
 ==========
@@ -102,6 +77,7 @@ Extensions
     def hasFocus: Boolean = ...
     val html = div(hasFocus && (cls := "focus"))(...)
 ```
+* [Extra attributes](https://github.com/japgolly/scalajs-react/blob/master/core/src/main/scala/japgolly/scalajs/react/vdom/ReactVDom.scala#L135-150) not yet found in Scalatags proper.
 
 #### React
 * Where `this.setState(State)` is applicable, you can also run `modState(State => State)`.
@@ -140,16 +116,6 @@ Extensions
     val f = T.focusState(_.counter)((a,b) => a.copy(counter = b))
     button(onclick --> incrementCounter(f))("+")
 ```
-
-
-MOAR FP / Scalaz
-================
-
-Included is a Scalaz module that facilitates a more functional and pure approach to React integration.
-
-See [ScalazExamples](https://github.com/japgolly/scalajs-react/tree/master/example/src/main/scala/japgolly/scalajs/react/example/ScalazExamples.scala) for a small taste.
-
-Otherwise take a look at the [ScalazReact module](https://github.com/japgolly/scalajs-react/tree/master/scalaz-7.1/src/main/scala/japgolly/scalajs/react/ScalazReact.scala) for the source.
 
 
 Gotchas
