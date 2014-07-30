@@ -152,7 +152,7 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
   implicit final class ReactAttrExt(val a: Attr) extends AnyVal {
     @inline def runs(thunk: => Unit) = a := ((() => thunk): js.Function)
     @inline def -->(thunk: => Unit) = a runs thunk
-    @inline def ==>[N <: dom.Node](eventHandler: SyntheticEvent[N] => Unit) = a := (eventHandler: js.Function)
+    @inline def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Unit) = a := (eventHandler: js.Function)
   }
 
   implicit final class ReactBoolExt(val a: Boolean) extends AnyVal {

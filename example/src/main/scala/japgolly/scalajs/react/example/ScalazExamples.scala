@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.example
 
-import org.scalajs.dom.Node
+import org.scalajs.dom.{HTMLInputElement, Node}
 import scalaz.effect.IO
 
 import japgolly.scalajs.react._
@@ -27,10 +27,10 @@ object ScalazExamples {
     val ST = ReactS.Fix[State]                           // Let's use a helper so that we don't have to specify the
                                                          //   state type everywhere.
 
-    def acceptChange(e: InputEvent) =
+    def acceptChange(e: SyntheticEvent[HTMLInputElement]) =
       ST.mod(_.copy(text = e.target.value))              // A pure state modification. State value is provided later.
 
-    def handleSubmit(e: InputEvent) = (
+    def handleSubmit(e: SyntheticEvent[HTMLInputElement]) = (
       ST.retM(e.preventDefaultIO)                        // Lift an IO effect into a shape that allows composition
                                                          //   with state modification.
       >>                                                 // Use >> to compose. It's flatMap (>>=) that ignores input.

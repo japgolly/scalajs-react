@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import org.scalajs.dom
 import vdom.ReactVDom._
 import all._
 import utest._
@@ -13,6 +14,11 @@ object Test extends TestSuite {
 
   val tests = TestSuite {
     loadReact()
+
+    'compilation {
+      def eh: SyntheticDragEvent[dom.Node] => Unit = ???
+      def attr(t: Tag) = t(onclick ==> eh)
+    }
 
     'props {
       'unit {

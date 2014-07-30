@@ -8,16 +8,30 @@ package object react {
 
   final type MountedComponent[Props, State, Backend] = ComponentScopeM[Props, State, Backend]
 
-  final type AnchorEvent   = SyntheticEvent[dom.HTMLAnchorElement]
-  final type ButtonEvent   = SyntheticEvent[dom.HTMLButtonElement]
-  final type FormEvent     = SyntheticEvent[dom.HTMLFormElement]
-  final type ImageEvent    = SyntheticEvent[dom.HTMLImageElement]
-  final type InputEvent    = SyntheticEvent[dom.HTMLInputElement]
-  final type LabelEvent    = SyntheticEvent[dom.HTMLLabelElement]
-  final type OptionEvent   = SyntheticEvent[dom.HTMLOptionElement]
-  final type SelectEvent   = SyntheticEvent[dom.HTMLSelectElement]
-  final type TextAreaEvent = SyntheticEvent[dom.HTMLTextAreaElement]
+  type ReactEvent            = SyntheticEvent[dom.Node]
+  type ReactClipboardEvent   = SyntheticClipboardEvent[dom.Node]
+  type ReactCompositionEvent = SyntheticCompositionEvent[dom.Node]
+  type ReactDragEvent        = SyntheticDragEvent[dom.Node]
+  type ReactFocusEvent       = SyntheticFocusEvent[dom.Node]
+  //type ReactInputEvent       = SyntheticInputEvent[dom.Node]
+  type ReactKeyboardEvent    = SyntheticKeyboardEvent[dom.Node]
+  type ReactMouseEvent       = SyntheticMouseEvent[dom.Node]
+  type ReactTouchEvent       = SyntheticTouchEvent[dom.Node]
+  type ReactUIEvent          = SyntheticUIEvent[dom.Node]
+  type ReactWheelEvent       = SyntheticWheelEvent[dom.Node]
 
+  type ReactEventH            = SyntheticEvent[dom.HTMLElement]
+  type ReactClipboardEventH   = SyntheticClipboardEvent[dom.HTMLElement]
+  type ReactCompositionEventH = SyntheticCompositionEvent[dom.HTMLElement]
+  type ReactDragEventH        = SyntheticDragEvent[dom.HTMLElement]
+  type ReactFocusEventH       = SyntheticFocusEvent[dom.HTMLElement]
+  //type ReactInputEventH       = SyntheticInputEvent[dom.HTMLElement]
+  type ReactKeyboardEventH    = SyntheticKeyboardEvent[dom.HTMLElement]
+  type ReactMouseEventH       = SyntheticMouseEvent[dom.HTMLElement]
+  type ReactTouchEventH       = SyntheticTouchEvent[dom.HTMLElement]
+  type ReactUIEventH          = SyntheticUIEvent[dom.HTMLElement]
+  type ReactWheelEventH       = SyntheticWheelEvent[dom.HTMLElement]
+  
   // ===================================================================================================================
 
   // TODO WrapObj was one of the first things I did when starting with ScalaJS. Reconsider.
@@ -112,17 +126,6 @@ package object react {
 
   implicit final class ComponentScope_S_Ext[State](val u: ComponentScope_S[State]) extends AnyVal {
     @inline def state = u._state.v
-  }
-
-  implicit final class SyntheticEventExt[N <: dom.Node](val u: SyntheticEvent[N]) extends AnyVal {
-    def dragEvent     = u.nativeEvent.asInstanceOf[UndefOr[dom.DragEvent]]
-    def keyboardEvent = u.nativeEvent.asInstanceOf[UndefOr[dom.KeyboardEvent]]
-    def messageEvent  = u.nativeEvent.asInstanceOf[UndefOr[dom.MessageEvent]]
-    def mouseEvent    = u.nativeEvent.asInstanceOf[UndefOr[dom.MouseEvent]]
-    def mutationEvent = u.nativeEvent.asInstanceOf[UndefOr[dom.MutationEvent]]
-    def storageEvent  = u.nativeEvent.asInstanceOf[UndefOr[dom.StorageEvent]]
-    def textEvent     = u.nativeEvent.asInstanceOf[UndefOr[dom.TextEvent]]
-    def touchEvent    = u.nativeEvent.asInstanceOf[UndefOr[dom.TouchEvent]]
   }
 
   val preventDefaultF  = (_: SyntheticEvent[dom.Node]).preventDefault()

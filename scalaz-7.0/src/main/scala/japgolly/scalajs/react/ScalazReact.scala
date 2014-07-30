@@ -21,8 +21,8 @@ object ScalazReact {
     def ~~>(io: IO[Unit]) =
       a --> io.unsafePerformIO()
 
-    def ~~>[E <: dom.Node](eventHandler: SyntheticEvent[E] => IO[Unit]) =
-      a.==>[E](eventHandler(_).unsafePerformIO())
+    def ~~>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => IO[Unit]) =
+      a.==>[N, E](eventHandler(_).unsafePerformIO())
   }
 
   implicit final class SzRExt_C_M(val u: ComponentScope_M) extends AnyVal {
