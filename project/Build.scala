@@ -58,7 +58,7 @@ object ScalajsReact extends Build {
     _.settings(utest.jsrunner.Plugin.utestJsSettings: _*)
       .configure(useReact("test"))
       .settings(
-        libraryDependencies += "com.lihaoyi" %%% "utest" % "0.1.7" % "test",
+        libraryDependencies += "com.lihaoyi" %%% "utest" % "0.1.8" % "test",
         jsEnv in Test := new NodeJSEnv)
 
   def useReact(scope: String = "compile"): PE =
