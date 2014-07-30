@@ -146,6 +146,7 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
     val onDragOver  = "onDragOver".attr
     val onDragLeave = "onDragLeave".attr
     val onDrop      = "onDrop".attr
+    val onBeforeInput = "onBeforeInput".attr
   }
 
   implicit final class ReactAttrExt(val a: Attr) extends AnyVal {

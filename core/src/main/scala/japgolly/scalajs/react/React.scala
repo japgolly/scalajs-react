@@ -50,6 +50,7 @@ trait ReactChildren extends Object {
   def forEach(c: PropsChildren, fn: js.Function2[VDom, Number, JAny]): Unit = ???
   /** WARNING: Throws an exception is exact number of children is not 1. */
   def only(c: PropsChildren): VDom = ???
+  def count(c: PropsChildren): Number = ???
 }
 
 /** A React DOM representation of HTML. Could be React.DOM output, or a React component. */
