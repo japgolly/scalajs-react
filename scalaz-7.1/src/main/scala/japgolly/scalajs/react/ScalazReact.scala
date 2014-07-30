@@ -49,11 +49,13 @@ object ScalazReact {
   final type OpCallbackIO = UndefOr[IO[Unit]]
   implicit def OpCallbackFromIO(cb: OpCallbackIO): OpCallback = cb.map(f => () => f.unsafePerformIO())
 
-  final case class StateAndCallbacks[S](s: S, cb: OpCallbackIO) {
-    def addCallback(cb2: OpCallbackIO) = StateAndCallbacks(s, appendCallbacks(cb, cb2))
+  @inline final def StateAndCallbacks[S](s: S, cb: OpCallbackIO = undefined) = new StateAndCallbacks[S](s, cb)
+  final class StateAndCallbacks[S](val s: S, val cb: OpCallbackIO) {
+    @inline def withState(s2: S) = new StateAndCallbacks(s2, cb)
+    @inline def addCallback(cb2: OpCallbackIO) = new StateAndCallbacks(s, appendCallbacks(cb, cb2))
   }
   
-  private def appendCallbacks(a: OpCallbackIO, b: OpCallbackIO): OpCallbackIO =
+  @inline final private def appendCallbacks(a: OpCallbackIO, b: OpCallbackIO): OpCallbackIO =
     a.fold(b)(aa => b.fold(aa)(bb => aa.flatMap(_ => bb)))
 
   final type ReactS[S, A] = ReactST[Id, S, A]
@@ -77,7 +79,7 @@ object ScalazReact {
       State[StateAndCallbacks[S], A](s => (s addCallback c, a))
 
     @inline final def applyT[M[_], S, A](f: S => M[(S, A)])(implicit F: Functor[M]): ReactST[M, S, A] =
-      StateT[M, StateAndCallbacks[S], A](sc => F.map(f(sc.s))(x => (sc.copy(s = x._1),x._2) ))
+      StateT[M, StateAndCallbacks[S], A](sc => F.map(f(sc.s))(x => (sc withState x._1, x._2) ))
 
     @inline final def retT[M[_], S, A](a: A)(implicit M: Applicative[M]): ReactST[M, S, A] =
       StateT[M, StateAndCallbacks[S], A](s => M.point((s, a)))
@@ -92,7 +94,7 @@ object ScalazReact {
     @inline final def setT[M[_]: Applicative, S](s: S): ReactST[M, S, Unit] = set(s).lift[M]
 
     @inline final def modT[M[_], S](f: S => M[S])(implicit M: Functor[M]): ReactST[M, S, Unit] =
-      StateT[M, StateAndCallbacks[S], Unit](sc => M.map(f(sc.s))(s2 => (StateAndCallbacks(s2, sc.cb), ())))
+      StateT[M, StateAndCallbacks[S], Unit](sc => M.map(f(sc.s))(s2 => (sc withState s2,()) ))
 
     @inline final def callbackT[M[_]: Applicative, S, A](c: OpCallbackIO)(a: A): ReactST[M, S, A] = callback(c)(a).lift[M]
 
@@ -128,7 +130,7 @@ object ScalazReact {
     }
 
     @inline final def lift[M[_], S, A](t: StateT[M, S, A])(implicit M: Functor[M]): ReactST[M, S, A] =
-      StateT[M, StateAndCallbacks[S], A](sc => M.map(t(sc.s))(sa => (StateAndCallbacks(sa._1, sc.cb), sa._2) ))
+      StateT[M, StateAndCallbacks[S], A](sc => M.map(t(sc.s))(sa => (sc withState sa._1, sa._2) ))
   }
 
   implicit final class SzRExt_ReactSTOps[M[_], S, A](val f: ReactST[M,S,A]) extends AnyVal {
@@ -144,7 +146,7 @@ object ScalazReact {
     type CC = CompStateAccess[C]
 
     def runState[M[_], A](st: ReactST[M, S, A])(implicit C: CC, M: M ~> IO): IO[A] =
-      IO(StateAndCallbacks(C state u, undefined)).flatMap(s1 =>
+      IO(StateAndCallbacks(C state u)).flatMap(s1 =>
         M(st run s1).flatMap { case (s2, a) =>
           IO {
             C.setState(u, s2.s, s2.cb)
