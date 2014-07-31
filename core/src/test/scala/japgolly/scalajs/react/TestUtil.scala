@@ -37,7 +37,7 @@ object TestUtil {
   }
 
   def run1C[A](c: CompCtorP[AtomicReference[Option[A]], _, _], children: VDom*): A =
-    run1(c)(a => c.apply2(a, children))
+    run1(c)(a => c(a, children: _*))
 
   def collectorN[A](f: (ListBuffer[A], ComponentScopeU[_, _, _]) => Unit) =
     ReactComponentB[ListBuffer[A]]("Cₙ").stateless
@@ -53,6 +53,6 @@ object TestUtil {
   }
 
   def runNC[A](c: CompCtorP[ListBuffer[A], _, _], children: VDom*) =
-    runN(c)(l => c.apply2(l, children))
+    runN(c)(l => c(l, children: _*))
 
 }

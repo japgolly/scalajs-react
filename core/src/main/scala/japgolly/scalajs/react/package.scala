@@ -69,8 +69,6 @@ package object react {
    */
   class CompCtorP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny]) {
     def apply(props: P, children: VDom*)      = jsCtor(mkProps(props, key), children: _*)
-    def apply2(props: P, children: Seq[VDom]) = jsCtor(mkProps(props, key), children: _*)
-    /** ↑ Workaround for what seems to be a Scala.js bug. ↑ */
 
     def withKey(key: JAny) = new CompCtorP(jsCtor, Some(key))
   }
@@ -84,9 +82,6 @@ package object react {
 
     def apply(children: VDom*): ReactComponentU[P, S, B] =
       apply(None, children: _*)
-
-    /** Workaround for what seems to be a Scala.js bug. */
-    def apply2(props: Option[P], children: Seq[VDom]) = jsCtor(mkProps(props getOrElse d(), key), children: _*)
 
     def withKey(key: JAny) = new CompCtorOP(jsCtor, Some(key), d)
   }
