@@ -56,7 +56,10 @@ trait VDom extends Object
 
 trait ComponentSpec[Props, State, Backend] extends Object
 
-trait ComponentConstructor[Props, State, Backend] extends JFn {
+trait ComponentConstructor_ extends JFn {
+}
+
+trait ComponentConstructor[Props, State, Backend] extends ComponentConstructor_ {
   def apply(props: WrapObj[Props], children: VDom*): ReactComponentU[Props, State, Backend] = ???
 }
 

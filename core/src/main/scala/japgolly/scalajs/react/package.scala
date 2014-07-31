@@ -56,25 +56,27 @@ package object react {
 
   // ===================================================================================================================
 
+  @inline final implicit def autoCompCtor_(c: CompCtor[_, _, _]): ComponentConstructor_ = c.jsCtor
+
   private[this] def mkProps[P](props: P, key: Option[JAny]): WrapObj[P] = {
     val j = WrapObj(props)
     key.foreach(k => j.asInstanceOf[Dynamic].updateDynamic("key")(k))
     j
   }
 
-  /**
-   * Component constructor. Properties required.
-   */
-  class CompCtorP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny]) {
-    def apply(props: P, children: VDom*)      = jsCtor(mkProps(props, key), children: _*)
+  /** Component constructor. */
+  trait CompCtor[P, S, B] {
+    val jsCtor: ComponentConstructor[P, S, B]
+  }
 
+  /** Component constructor. Properties required. */
+  class CompCtorP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny]) extends CompCtor[P, S, B] {
+    def apply(props: P, children: VDom*) = jsCtor(mkProps(props, key), children: _*)
     def withKey(key: JAny) = new CompCtorP(jsCtor, Some(key))
   }
 
-  /**
-   * Component constructor. Properties optional.
-   */
-  class CompCtorOP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) {
+  /** Component constructor. Properties optional. */
+  class CompCtorOP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) extends CompCtor[P, S, B] {
     def apply(props: Option[P], children: VDom*): ReactComponentU[P, S, B] =
       jsCtor(mkProps(props getOrElse d(), key), children: _*)
 
@@ -84,10 +86,8 @@ package object react {
     def withKey(key: JAny) = new CompCtorOP(jsCtor, Some(key), d)
   }
 
-  /**
-   * Component constructor. Properties not required.
-   */
-  class CompCtorNP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) {
+  /** Component constructor. Properties not required. */
+  class CompCtorNP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) extends CompCtor[P, S, B] {
     def apply(children: VDom*) = jsCtor(mkProps(d(), key), children: _*)
     def withKey(key: JAny) = new CompCtorNP(jsCtor, Some(key), d)
   }
