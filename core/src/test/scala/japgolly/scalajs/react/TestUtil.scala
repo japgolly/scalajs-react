@@ -2,17 +2,11 @@ package japgolly.scalajs.react
 
 import java.util.concurrent.atomic.AtomicReference
 import scala.collection.mutable.ListBuffer
-import scala.scalajs.js
-import js.Dynamic.{global => $}
 import vdom.ReactVDom._
 import all._
 import utest._
 
 object TestUtil {
-
-  def loadReact(): Unit =
-    if (js.isUndefined($.React) && !js.isUndefined($.module))
-      js.eval("React = module.exports")
 
   def assertRender(comp: ReactComponentU[_, _, _], expected: String): Unit = {
     val rendered: String = React.renderComponentToStaticMarkup(comp)

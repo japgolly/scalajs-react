@@ -13,7 +13,6 @@ object Test extends TestSuite {
   lazy val H1 = ReactComponentB[String]("H").render(p => h1(p)).create
 
   val tests = TestSuite {
-    loadReact()
 
     'compilation {
       def eh: SyntheticDragEvent[dom.Node] => Unit = ???
