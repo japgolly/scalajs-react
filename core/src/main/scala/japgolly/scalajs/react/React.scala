@@ -17,8 +17,8 @@ object React extends Object {
 
   def renderComponent(c: ReactComponentU_, n: dom.Node): Dynamic = ???
   def renderComponent(c: ReactComponentU_, n: dom.Node, callback: ThisFunction): Dynamic = ???
-  def renderComponent[P, S, B](c: ReactComponentU[P, S, B], n: dom.Node): MountedComponent[P, S, B] = ???
-  def renderComponent[P, S, B](c: ReactComponentU[P, S, B], n: dom.Node, callback: ThisFunction0[ComponentScopeM[P, S, B], Unit]): MountedComponent[P, S, B] = ???
+  def renderComponent[P, S, B](c: ReactComponentU[P, S, B], n: dom.Node): ComponentScopeM[P, S, B] = ???
+  def renderComponent[P, S, B](c: ReactComponentU[P, S, B], n: dom.Node, callback: ThisFunction0[ComponentScopeM[P, S, B], Unit]): ComponentScopeM[P, S, B] = ???
 
   /** Configure React's event system to handle touch events on mobile devices. */
   def initializeTouchEvents(shouldUseTouch: Boolean): Unit = ???
@@ -31,10 +31,8 @@ object React extends Object {
   def unmountComponentAtNode(container: dom.Node): Boolean = ???
 
   def renderComponentToString(component: ReactComponentU_): String = ???
-  def renderComponentToString(component: ReactComponentU[_, _, _]): String = ???
 
   def renderComponentToStaticMarkup(component: ReactComponentU_): String = ???
-  def renderComponentToStaticMarkup(component: ReactComponentU[_, _, _]): String = ???
 
   def DOM: Dynamic = ???
   def addons: Dynamic = ???
@@ -66,7 +64,7 @@ trait ComponentConstructor[Props, State, Backend] extends JFn {
 trait ReactComponentU_ extends Object with VDom
 
 /** An unmounted component with known PSB types. */
-trait ReactComponentU[Props, State, Backend] extends Object with VDom
+trait ReactComponentU[Props, State, Backend] extends ReactComponentU_
 
 trait ReactComponentM[Node <: dom.Element] extends ReactComponentU_ {
   def getDOMNode(): Node

@@ -6,8 +6,6 @@ import js.{Dynamic, UndefOr, undefined, Object, Number, Any => JAny, Function =>
 
 package object react {
 
-  final type MountedComponent[Props, State, Backend] = ComponentScopeM[Props, State, Backend]
-
   type ReactEvent            = SyntheticEvent[dom.Node]
   type ReactClipboardEvent   = SyntheticClipboardEvent[dom.Node]
   type ReactCompositionEvent = SyntheticCompositionEvent[dom.Node]

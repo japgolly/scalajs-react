@@ -76,14 +76,8 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
   implicit def modifierFromRCU_(c: ReactComponentU_): Modifier = new Modifier {
     override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
   }
-  implicit def modifierFromRCU(c: ReactComponentU[_, _, _]): Modifier = new Modifier {
-    override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
-  }
   implicit def modifierFromPropsChildren(c: PropsChildren): Modifier = new Modifier {
     override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
-  }
-  implicit def modifierFromSeqRCU(cs: Seq[ReactComponentU[_,_,_]]): Modifier = new Modifier {
-    override def applyTo(t: VDomBuilder): Unit = t.appendChild(cs.asJsArray)
   }
   implicit def modifierFromSeqRCU_(cs: Seq[ReactComponentU_]): Modifier = new Modifier {
     override def applyTo(t: VDomBuilder): Unit = t.appendChild(cs.asJsArray)
