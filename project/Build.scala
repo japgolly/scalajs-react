@@ -68,17 +68,22 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, example, scalaz70, scalaz71)
+    .aggregate(core, test, example, scalaz70, scalaz71)
     .configure(preventPublication)
 
   // ==============================================================================================
   lazy val core = project
-    .configure(commonSettings, publicationSettings, utestSettings)
+    .configure(commonSettings, publicationSettings)
     .settings(
-      name := "scalajs-react",
+      name := "core",
       libraryDependencies ++= Seq(
         "org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6",
         "com.scalatags" %%% "scalatags" % "0.3.5"))
+
+  lazy val test = project
+    .configure(commonSettings, publicationSettings, utestSettings)
+    .dependsOn(core)
+    .settings(name := "test")
 
   // ==============================================================================================
   def scalazModule(name: String, version: String) =
