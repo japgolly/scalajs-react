@@ -6,7 +6,7 @@ import all._
 import utest._
 import TestUtil._
 
-object Test extends TestSuite {
+object CoreTest extends TestSuite {
 
   lazy val CA = ReactComponentB[Unit]("CA").render((_,c) => div(c)).createU
   lazy val CB = ReactComponentB[Unit]("CB").render((_,c) => span(c)).createU
