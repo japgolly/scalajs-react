@@ -59,7 +59,18 @@ object ScalajsReact extends Build {
       .configure(useReact("test"))
       .settings(
         libraryDependencies += "com.lihaoyi" %%% "utest" % "0.1.8" % "test",
-        jsEnv in Test := new NodeJSEnv)
+        requiresDOM := true,
+        jsEnv in Test := customPhantomJSEnv)
+
+  def customPhantomJSEnv: PhantomJSEnv = {
+    import scala.scalajs.sbtplugin.env.ExternalJSEnv.RunJSArgs
+    import scala.scalajs.tools.io._
+    new PhantomJSEnv {
+      override protected def initFiles(args: RunJSArgs): Seq[VirtualJSFile] = Seq(
+        new MemVirtualJSFile("bindPolyfill.js").withContent(Polyfills.functionBind3)
+      )
+    }
+  }
 
   def useReact(scope: String = "compile"): PE =
     _.settings(
