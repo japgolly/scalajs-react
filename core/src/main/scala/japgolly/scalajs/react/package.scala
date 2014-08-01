@@ -38,6 +38,10 @@ package object react {
   def WrapObj[A](v: A) =
     Dynamic.literal("v" -> v.asInstanceOf[JAny]).asInstanceOf[WrapObj[A]]
 
+  sealed trait ComponentOrNode extends Object
+  @inline final implicit def autoComponentOrNodeN(n: dom.Node): ComponentOrNode = n.asInstanceOf[ComponentOrNode]
+  @inline final implicit def autoComponentOrNodeC(c: ReactComponentU_): ComponentOrNode = c.asInstanceOf[ComponentOrNode]
+
   /**
    * A named reference to an element in a React VDOM.
    */
@@ -124,12 +128,16 @@ package object react {
   val preventDefaultF  = (_: SyntheticEvent[dom.Node]).preventDefault()
   val stopPropagationF = (_: SyntheticEvent[dom.Node]).stopPropagation()
 
+  implicit final class ReactComponentUExt[Props, State, Backend](val u: ReactComponentU[Props, State, Backend]) extends AnyVal {
+    def render(n: dom.Node) = React.renderComponent(u, n)
+  }
+
   implicit final class UndefReactComponentMExt[T <: dom.HTMLElement](val u: UndefOr[ReactComponentM[T]]) extends AnyVal {
     def tryFocus(): Unit = u.foreach(_.getDOMNode().focus())
   }
 
-  implicit final class ReactComponentUExt[Props, State, Backend](val u: ReactComponentU[Props, State, Backend]) extends AnyVal {
-    def render(n: dom.Node) = React.renderComponent(u, n)
+  implicit final class ReactComponentMExt[T <: dom.Element](val u: ReactComponentM[T]) extends AnyVal {
+    def domType[N <: dom.Element]: ReactComponentM[N] = u.asInstanceOf[ReactComponentM[N]]
   }
 
   implicit final class PropsChildrenExt(val u: PropsChildren) extends AnyVal {
