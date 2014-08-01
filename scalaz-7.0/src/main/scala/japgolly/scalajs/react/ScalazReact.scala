@@ -55,7 +55,7 @@ object ScalazReact {
     @inline def withState(s2: S) = new StateAndCallbacks(s2, cb)
     @inline def addCallback(cb2: OpCallbackIO) = new StateAndCallbacks(s, appendCallbacks(cb, cb2))
   }
-  
+
   @inline final private def appendCallbacks(a: OpCallbackIO, b: OpCallbackIO): OpCallbackIO =
     a.fold(b)(aa => b.fold(aa)(bb => aa.flatMap(_ => bb)))
 
@@ -149,19 +149,19 @@ object ScalazReact {
   implicit final class SzRExt_CompStateAccessOps[C[_], S](val u: C[S]) extends AnyVal {
     type CC = CompStateAccess[C]
 
-    def runState[M[+_], A](st: ReactST[M, S, A])(implicit C: CC, M: M ~> IO): IO[A] =
+    @inline private def run[M[+_], A, B](st: ReactST[M, S, A], f: (S, S, A, => IO[Unit]) => IO[B])(implicit C: CC, M: M ~> IO): IO[B] =
       IO(StateAndCallbacks(C state u)).flatMap(s1 =>
         M(st run s1).flatMap { case (s2, a) =>
-          IO {
-            C.setState(u, s2.s, s2.cb)
-            a
-          }
+          f(s1.s, s2.s, a, IO(C.setState(u, s2.s, s2.cb)))
         }
       )
 
+    def runState[M[+_], A](st: ReactST[M, S, A])(implicit C: CC, M: M ~> IO): IO[A] =
+      run[M, A, A](st, (s1,s2,a,io) => io.map(_ => a))
+
     def _runState[I, M[+_], A](f: I => ReactST[M, S, A])(implicit C: CC, M: M ~> IO): I => IO[A] =
       i => runState(f(i))
-    
+
     def _runState[I, M[+_], A](f: I => ReactST[M, S, A], cb: I => OpCallbackIO)(implicit C: CC, M: M ~> IO, N: Monad[M]): I => IO[A] =
       i => runState(f(i) addCallback cb(i))
 
@@ -170,6 +170,29 @@ object ScalazReact {
 
     def _runStateS[I, M[+_], A](f: I => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M]): I => IO[A] =
       i => runStateS(f(i))
+
+    def runStateF[M[+_], A](st: ReactST[M, S, A])(implicit C: CC, M: M ~> IO, F: ChangeFilter[S]): IO[A] =
+      run[M, A, A](st, (s1,s2,a,io) => if (F.allowChange(s1,s2)) io.map(_ => a) else IO(a))
+
+    def _runStateF[I, M[+_], A](f: I => ReactST[M, S, A])(implicit C: CC, M: M ~> IO, F: ChangeFilter[S]): I => IO[A] =
+      i => runStateF(f(i))
+
+    def _runStateF[I, M[+_], A](f: I => ReactST[M, S, A], cb: I => OpCallbackIO)(implicit C: CC, M: M ~> IO, N: Monad[M], F: ChangeFilter[S]): I => IO[A] =
+      i => runStateF(f(i) addCallback cb(i))
+
+    def runStateFS[M[+_], A](st: StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M], F: ChangeFilter[S]): IO[A] =
+      runStateF(ReactS lift st)
+
+    def _runStateFS[I, M[+_], A](f: I => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M], F: ChangeFilter[S]): I => IO[A] =
+      i => runStateFS(f(i))
+  }
+
+  case class ChangeFilter[S](allowChange: (S, S) => Boolean)
+  object ChangeFilter {
+    def refl[S] = apply[S](_ != _)
+    def reflOn[S, T](f: S => T) = apply[S](f(_) != f(_))
+    def equal[S: Equal] = apply[S]((a,b) => !implicitly[Equal[S]].equal(a,b))
+    def equalOn[S, T: Equal](f: S => T) = apply[S]((a,b) => !implicitly[Equal[T]].equal(f(a),f(b)))
   }
 
   // Seriously, Scala, get your shit together.
