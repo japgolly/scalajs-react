@@ -12,10 +12,11 @@ object TestTest extends TestSuite {
   lazy val B = ReactComponentB[Unit]("B").render(_ => p(cls := "BB", "hehehe")).createU
   lazy val rab = ReactTestUtils.renderIntoDocument(A(B()))
 
+  val inputRef = Ref[HTMLInputElement]("r")
   lazy val IC = ReactComponentB[Unit]("IC").initialState(true).renderS((t,_,s) => {
     val ch = (e: ReactEvent) => t.modState(x => !x)
     label(
-      input(`type` := "checkbox", checked := s, onclick ==> ch),
+      input(`type` := "checkbox", checked := s, onclick ==> ch, ref := inputRef),
       span(s"s = $s")
     )
   }).createU
@@ -44,10 +45,10 @@ object TestTest extends TestSuite {
     'Simulate {
       'click {
         val c = ReactTestUtils.renderIntoDocument(IC())
-        val i = ReactTestUtils.findRenderedDOMComponentWithTag(c, "input")
+        val i = inputRef(c).get
         val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
         val a = s.getDOMNode().innerHTML
-        ReactTestUtils.Simulate.click(i)
+        ReactTestUtils.Simulate.click(i.getDOMNode())
         val b = s.getDOMNode().innerHTML
         assert(a != b)
       }

@@ -69,8 +69,10 @@ trait ReactComponentU_ extends Object with VDom
 /** An unmounted component with known PSB types. */
 trait ReactComponentU[Props, State, Backend] extends ReactComponentU_
 
+// TODO ComponentScope should extend this actually
 trait ReactComponentM[Node <: dom.Element] extends ReactComponentU_ {
   def getDOMNode(): Node
+  def refs: RefsObject
 }
 
 // =====================================================================================================================

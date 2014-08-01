@@ -46,8 +46,9 @@ package object react {
    * A named reference to an element in a React VDOM.
    */
   class Ref[T <: dom.Element](val name: String) {
-    @inline final def apply(scope: ComponentScope_M): UndefOr[ReactComponentM[T]] = apply(scope.refs)
-    @inline final def apply(refs: RefsObject)       : UndefOr[ReactComponentM[T]] = refs[T](name)
+    @inline final def apply(c: ReactComponentM[_]): UndefOr[ReactComponentM[T]] = apply(c.refs)
+    @inline final def apply(s: ComponentScope_M)  : UndefOr[ReactComponentM[T]] = apply(s.refs)
+    @inline final def apply(r: RefsObject)        : UndefOr[ReactComponentM[T]] = r[T](name)
   }
   class RefP[I, T <: dom.Element](f: I => String) {
     @inline final def apply(i: I) = Ref[T](f(i))
