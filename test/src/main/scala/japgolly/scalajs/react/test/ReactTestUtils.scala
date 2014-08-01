@@ -1,10 +1,12 @@
 package japgolly.scalajs.react.test
 
 import scala.scalajs.js.{Function1 => JFn1, Object, Array, UndefOr, undefined, Dynamic, Number}
+import scala.scalajs.js.annotation.JSName
 import japgolly.scalajs.react._
 
 /** http://facebook.github.io/react/docs/test-utils.html */
-trait ReactTestUtils extends Object {
+@JSName("React.addons.TestUtils")
+object ReactTestUtils extends Object {
 
   def Simulate: Simulate = ???
 

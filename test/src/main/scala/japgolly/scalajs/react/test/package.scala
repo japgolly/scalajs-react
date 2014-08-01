@@ -4,7 +4,6 @@ import org.scalajs.dom.HTMLElement
 import scala.scalajs.js.Object
 
 package object test {
-  @inline final def ReactTestUtils = React.addons.TestUtils.asInstanceOf[ReactTestUtils]
 
   final type ComponentClass = ComponentConstructor_
   final type ComponentM = ReactComponentM[HTMLElement]
