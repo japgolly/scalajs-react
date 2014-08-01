@@ -48,13 +48,13 @@ object TestTest extends TestSuite {
         val i = inputRef(c).get
         val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
         val a = s.getDOMNode().innerHTML
-        ReactTestUtils.Simulate.click(i.getDOMNode())
+        ReactTestUtils.Simulate.click(i)
         val b = s.getDOMNode().innerHTML
         assert(a != b)
       }
       'change {
         val c = ReactTestUtils.renderIntoDocument(IT()).domType[HTMLInputElement]
-        ChangeEventData("hehe").simulate(c.getDOMNode())
+        ChangeEventData("hehe").simulate(c)
         val t = c.getDOMNode().value
         assert(t == "HEHE")
       }
