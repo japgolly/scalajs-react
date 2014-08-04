@@ -69,6 +69,7 @@ This is achieved primarily via state and IO monads. Joyously, this approach make
 
 State modifications and `setState` callbacks are created via `ReactS`, which is conceptually `WriterT[M, List[Callback], StateT[M, S, A]]` but caters to Scala's hopeless inability to infer types. They are applied via `runState` or `runStateS` for vanilla `StateT` monads (ie. without callbacks). Callbacks take the form of `IO[Unit]` and are hooked into HTML via `~~>`, e.g. `button(onclick ~~> T.runState(blah), "Click Me!")`.
 
+Also included are `runStateF` methods which use a `ChangeFilter` typeclass to compare before and after states at the end of a state monad application, and optionally opt-out of a call to `setState` on a component.
 
 See [ScalazExamples](https://github.com/japgolly/scalajs-react/tree/master/example/src/main/scala/japgolly/scalajs/react/example/ScalazExamples.scala) for a taste.
 Take a look at the [ScalazReact module](https://github.com/japgolly/scalajs-react/tree/master/scalaz-7.1/src/main/scala/japgolly/scalajs/react/ScalazReact.scala) for the source.
@@ -97,7 +98,7 @@ Extensions
 
 #### React
 * Where `this.setState(State)` is applicable, you can also run `modState(State => State)`.
-* `SyntheticEvent` now has `(keyboard|message|mouse|mutation|storage|text|touch)Event` methods that typecast the underlying native event.
+* `SyntheticEvent`s have aliases that don't require you to provide the dom type. So instead of `SyntheticKeyboardEvent[xxx]` type alias `ReactKeyboardEvent` can be used.
 * Because refs are not guaranteed to exist, the return type is wrapped in `js.UndefOr[_]`. A helper method `tryFocus()` has been added to focus the ref if one is returned.
 ```scala
     val myRef = Ref[HTMLInputElement]("refKey")
