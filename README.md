@@ -27,8 +27,8 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.4.0"
 libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.4.0" % "test"
 
 // Scalaz support
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scala70" % "0.4.0" // or
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scala71" % "0.4.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz70" % "0.4.0" // or
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % "0.4.0"
 ```
 
 Code:

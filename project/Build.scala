@@ -97,13 +97,15 @@ object ScalajsReact extends Build {
     .settings(name := "test")
 
   // ==============================================================================================
-  def scalazModule(name: String, version: String) =
-    Project(name.replaceAll("[^a-zA-Z0-9]+", ""), file(name))
+  def scalazModule(name: String, version: String) = {
+    val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")
+    Project(shortName, file(name))
       .configure(commonSettings, publicationSettings)
       .dependsOn(core)
       .settings(
-        Keys.name := s"ext-$name",
+        Keys.name := s"ext-$shortName",
         libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
+  }
 
   lazy val scalaz70 = scalazModule("scalaz-7.0", "7.0.6")
   lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.0")
