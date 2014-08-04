@@ -9,6 +9,7 @@ Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.j
 - [Examples](#examples)
 - [Differences from React proper](#differences-from-react-proper)
 - [MOAR FP! / Scalaz](#moar-fp--scalaz)
+- [Testing](#testing)
 - [Extensions](#extensions)
 - [Gotchas](#gotchas)
 - [Alternatives](#alternatives)
@@ -17,16 +18,28 @@ Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.j
 Setup
 =====
 
-build.sbt
+SBT
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "scalajs-react" % "0.2.0"
+// Minimal usage
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.4.0"
+
+// Test support including ReactTestUtils
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.4.0" % "test"
+
+// Scalaz support
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scala70" % "0.4.0" // or
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scala71" % "0.4.0"
 ```
 
 Code:
 ```scala
-import japgolly.scalajs.react._
-import vdom.ReactVDom._
-import vdom.ReactVDom.all._ // Scalatags (div, h1, textarea, etc.)
+// Typical usage
+import japgolly.scalajs.react._ // React
+import vdom.ReactVDom._         // Scalatags → React virtual DOM
+import vdom.ReactVDom.all._     // Scalatags html & css (div, h1, textarea, etc.)
+
+// Scalaz support
+import japgolly.scalajs.react.ScalazReact._
 ```
 
 Examples
@@ -74,6 +87,34 @@ Also included are `runStateF` methods which use a `ChangeFilter` typeclass to co
 See [ScalazExamples](https://github.com/japgolly/scalajs-react/tree/master/example/src/main/scala/japgolly/scalajs/react/example/ScalazExamples.scala) for a taste.
 Take a look at the [ScalazReact module](https://github.com/japgolly/scalajs-react/tree/master/scalaz-7.1/src/main/scala/japgolly/scalajs/react/ScalazReact.scala) for the source.
 
+
+Testing
+=======
+[React.addons.TestUtils](http://facebook.github.io/react/docs/test-utils.html) is wrapped in Scala and available as `ReactTestUtils` in the test module (see [Setup](#setup)). Usage is unchanged from JS.
+
+To make event simulation easier, certain event types have dedicated, strongly-typed case classes to wrap event data. For example, JS like
+```js
+React.addons.TestUtils.Simulate.change(t, {target: {value: "Hi"}})
+```
+becomes
+```scala
+ReactTestUtils.Simulate.change(t, ChangeEventData(value = "Hi"))
+
+// Or alternatively,
+ChangeEventData("Hi") simulate t
+```
+
+Also included is [DebugJs](https://github.com/japgolly/scalajs-react/blob/master/test/src/main/scala/japgolly/scalajs/react/test/DebugJs.scala), a dumping ground for functionality useful when testing JS. `inspectObject` is tremendously useful.
+
+#### SBT
+In order to test React and use `ReactTestUtils` you will need to make a few changes to SBT.
+* Add
+```scala
+jsDependencies += "org.webjars" % "react" % "0.11.1" % "test" / "react-with-addons.js" commonJSName "React"
+```
+* Add: `requiresDOM := true`
+* Install PhantomJS.
+* Use `jsEnv in Test` to override ScalaJS's PhantomJS `bind` polyfill; copy from [this project](https://github.com/japgolly/scalajs-react/tree/master/project). _(This is being tracked in [ScalaJS #898](https://github.com/scala-js/scala-js/issues/898))_
 
 Extensions
 ==========
