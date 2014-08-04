@@ -80,7 +80,7 @@ object ScalajsReact extends Build {
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .aggregate(core, test, example, scalaz70, scalaz71)
-    .configure(preventPublication)
+    .configure(commonSettings, preventPublication)
 
   // ==============================================================================================
   lazy val core = project
@@ -111,7 +111,6 @@ object ScalajsReact extends Build {
   // ==============================================================================================
   lazy val example = project
     .dependsOn(core, scalaz71)
-    .configure(commonSettings, useReact())
-    .configure(preventPublication)
+    .configure(commonSettings, useReact(), preventPublication)
 
 }
