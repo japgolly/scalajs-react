@@ -11,7 +11,7 @@ import ScalazReact._
 object ScalazExamples {
 
   /**
-   * This is the same as ReactExamples.example3, just modified for more serious FP/Scalaz.
+   * This is the same as ReactExamples.example3, modified to demonstrate a more functional programming style.
    */
   def example3(mountNode: Node) = {
 
@@ -28,7 +28,7 @@ object ScalazExamples {
                                                          //   state type everywhere.
 
     def acceptChange(e: SyntheticEvent[HTMLInputElement]) =
-      ST.mod(_.copy(text = e.target.value))              // A pure state modification. State value is provided later.
+      ST.mod(_.copy(text = e.target.value))              // A pure state modification. State value is provided when run.
 
     def handleSubmit(e: SyntheticEvent[HTMLInputElement]) = (
       ST.retM(e.preventDefaultIO)                        // Lift an IO effect into a shape that allows composition
@@ -46,7 +46,7 @@ object ScalazExamples {
           form(onsubmit ~~> T._runState(handleSubmit))(  // In Scalaz mode, only use ~~> for callbacks.
             input(                                       //   ==> and --> are unsafe.
               onchange ~~> T._runState(acceptChange),    // runState runs a state monad and applies the result.
-              value := S.text),                          // _runState takes an input first (in this case, InputEvent).
+              value := S.text),                          // _runState takes a function to a state monad.
             button("Add #", S.items.length + 1)
           )
         )
