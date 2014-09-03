@@ -16,7 +16,7 @@ object CoreTest extends TestSuite {
 
     'compilation {
       def eh: SyntheticDragEvent[dom.Node] => Unit = ???
-      def attr(t: Tag) = t(onclick ==> eh)
+      def attr(t: vdom.ReactVDom.all.Tag) = t(onclick ==> eh)
     }
 
     'props {

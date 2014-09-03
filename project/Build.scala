@@ -89,7 +89,7 @@ object ScalajsReact extends Build {
       name := "core",
       libraryDependencies ++= Seq(
         "org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6",
-        "com.scalatags" %%% "scalatags" % "0.3.5"))
+        "com.scalatags" %%% "scalatags" % "0.4.0"))
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings)
