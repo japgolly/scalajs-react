@@ -174,7 +174,7 @@ trait ReactTags extends generic.Tags[VDomBuilder, ReactOutput, ReactFragT]{
    *
    *  MDN
    */
-  val dt = "dl".tag[ReactOutput]
+  val dt = "dt".tag[ReactOutput]
   /**
    * Represents the definition of the terms immediately listed before it.
    *
