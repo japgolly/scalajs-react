@@ -7,44 +7,54 @@ import scalatags._
 import scalatags.generic._
 import japgolly.scalajs.react._
 
-object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
-  object all extends StringTags
-             with Attrs
-             with Styles
-             with ReactTags
-             with DataConverters
-             with Aggregate
-             with ExtraAttrs
+object ReactVDom
+    extends Bundle[VDomBuilder, ReactOutput, ReactFragT]
+    with Aliases[VDomBuilder, ReactOutput, ReactFragT] {
 
-  object short extends StringTags
-               with Util
-               with DataConverters
-               with generic.AbstractShort[VDomBuilder, ReactOutput, ReactFragT]
-               with Aggregate {
-    object * extends StringTags with Attrs with Styles
-  }
+  object attrs extends ReactVDom.Cap with Attrs with ExtraAttrs
+  object tags extends ReactVDom.Cap with ReactTags
+  object tags2 extends ReactVDom.Cap with ReactTags2
+  object styles extends ReactVDom.Cap with Styles
+  object styles2 extends ReactVDom.Cap with Styles2
+  object svgTags extends ReactVDom.Cap with ReactSvgTags
+  object svgStyles extends ReactVDom.Cap with SvgStyles
 
-  object attrs extends StringTags with Attrs with ExtraAttrs
-  object tags extends StringTags with ReactTags
-  object tags2 extends StringTags with ReactTags2
-  object styles extends StringTags with Styles
-  object styles2 extends StringTags with Styles2
-  object svgTags extends StringTags with ReactSvgTags
-  object svgStyles extends StringTags with SvgStyles
   object implicits extends Aggregate
 
-  trait Aggregate extends generic.Aggregate[VDomBuilder, ReactOutput, ReactFragT] {
-    def genericAttr[T] = new GenericAttr[T](a => a.toString)
-    def genericStyle[T] = new GenericStyle[T]
+  object all
+      extends Cap
+      with Attrs
+      with Styles
+      with ReactTags
+      with DataConverters
+      with Aggregate
+      with ExtraAttrs
 
-    implicit def stringFrag(v: String) = new ReactVDom.StringFrag(v)
+  object short
+      extends Cap
+      with Util
+      with DataConverters
+      with AbstractShort
+      with Aggregate
+      with ExtraAttrs {
+    object * extends Cap with Attrs with Styles
+  }
 
-    val RawFrag = ReactVDom.RawFrag
-    val StringFrag = ReactVDom.StringFrag
-    type StringFrag = ReactVDom.StringFrag
-    type RawFrag = ReactVDom.RawFrag
+  override type Tag = ReactVDom.TypedTag[ReactOutput]
 
-    def raw(s: String) = new RawFrag(s)
+  sealed trait Aggregate extends generic.Aggregate[VDomBuilder, ReactOutput, ReactFragT] {
+    override def genericAttr[T] = new GenericAttr[T](a => a.toString)
+    override def genericStyle[T] = new GenericStyle[T]
+
+    override implicit def stringFrag(v: String) = new ReactVDom.StringFrag(v)
+
+    override val RawFrag = ReactVDom.RawFrag
+    override val StringFrag = ReactVDom.StringFrag
+    override type StringFrag = ReactVDom.StringFrag
+    override type RawFrag = ReactVDom.RawFrag
+    override def raw(s: String) = RawFrag(s)
+
+    override type Tag = ReactVDom.Tag
 
     implicit val jsThisFnAttr = new GenericAttr[js.ThisFunction](f => f)
     implicit val jsFnAttr = new GenericAttr[js.Function](f => f)
@@ -68,10 +78,10 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
 
     implicit def vdomFromArrVdom[T <% VDom](cs: js.Array[T]): VDom = cs.asInstanceOf[VDom]
     implicit def vdomFromSeqVdom[T <% VDom](cs: Seq[T])     : VDom = cs.asJsArray
-    implicit def vdomFromSeqTag            (cs: Seq[TypedTag[ReactOutput]])   : VDom = cs.toJsArray
+    implicit def vdomFromSeqTag            (cs: Seq[Tag])   : VDom = cs.toJsArray
 
-    @inline final implicit def autoRender(t: TypedTag[ReactOutput]) = t.render
-    @inline final implicit def autoRenderS(s: Seq[TypedTag[ReactOutput]]) = s.map(_.render)
+    @inline final implicit def autoRender(t: Tag) = t.render
+    @inline final implicit def autoRenderS(s: Seq[Tag]) = s.map(_.render)
 
     final def compositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier = Nop) = new {
       def apply(as: Option[A]*)(implicit ev: AttrValue[A]): Modifier =
@@ -96,7 +106,7 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
       classSet(a, ps.toSeq: _*)
   }
 
-  trait StringTags extends Util { self =>
+  trait Cap extends Util { self =>
     type ConcreteHtmlTag[T <: ReactOutput] = TypedTag[T]
 
     protected[this] implicit val stringAttrX: AttrValue[String] = new GenericAttr[String](s => s)
@@ -120,33 +130,32 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
   import implicits._
 
   object StringFrag extends Companion[StringFrag]
-  case class StringFrag(v: String) extends ReactDomFrag {
+  final case class StringFrag(v: String) extends ReactDomFrag {
     def render: ReactFragT = v
   }
 
-  def raw(s: String) = new RawFrag(s)
-
   object RawFrag extends Companion[RawFrag]
-  case class RawFrag(v: String) extends Modifier {
+  final case class RawFrag(v: String) extends Modifier {
     def render: ReactFragT = v
     def applyTo(t: VDomBuilder): Unit = t.appendChild(this.render)
   }
 
-  class GenericAttr[T](f: T => js.Any) extends AttrValue[T]{
+  final class GenericAttr[T](f: T => js.Any) extends AttrValue[T]{
     def apply(t: VDomBuilder, a: Attr, v: T): Unit =
       t.addAttr(a.name, f(v))
   }
 
-  class GenericStyle[T] extends StyleValue[T]{
+  final class GenericStyle[T] extends StyleValue[T]{
     def apply(b: VDomBuilder, s: Style, v: T): Unit = {
       b.addStyle(s.cssName, v.toString)
     }
   }
 
-  case class TypedTag[+Output <: ReactOutput](tag: String = "",
-                                              modifiers: List[Seq[Modifier]],
-                                              void: Boolean = false)
-                     extends generic.TypedTag[VDomBuilder, Output, ReactFragT] with ReactDomFrag {
+  final case class TypedTag[+Output <: ReactOutput](tag: String = "",
+                                                    modifiers: List[Seq[Modifier]],
+                                                    void: Boolean = false)
+                     extends generic.TypedTag[VDomBuilder, Output, ReactFragT]
+                     with ReactDomFrag {
     // unchecked because Scala 2.10.4 seems to not like this, even though
     // 2.11.1 works just fine. I trust that 2.11.1 is more correct than 2.10.4
     // and so just force this.
@@ -159,7 +168,7 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
     }
 
     def apply(xs: Modifier*): TypedTag[Output] =
-      this.copy(tag=tag, void = void, modifiers = xs :: modifiers)
+      this.copy(tag = tag, void = void, modifiers = xs :: modifiers)
 
     /** Converts an ScalaTag fragment into an html string */
     override def toString = render.toString
@@ -169,7 +178,7 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
     override def applyTo(t: VDomBuilder): Unit = ()
   }
 
-  trait ReactDomFrag extends generic.Frag[VDomBuilder, ReactFragT]{
+  sealed trait ReactDomFrag extends generic.Frag[VDomBuilder, ReactFragT]{
     def render: ReactFragT
     def applyTo(b: VDomBuilder): Unit = b.appendChild(this.render)
   }
@@ -180,13 +189,13 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
     val keyAttr = "key".attr
     @inline final def key = keyAttr
     @inline final def ref = refAttr
-    val draggable   = "draggable".attr
-    val onDragStart = "onDragStart".attr
-    val onDragEnd   = "onDragEnd".attr
-    val onDragEnter = "onDragEnter".attr
-    val onDragOver  = "onDragOver".attr
-    val onDragLeave = "onDragLeave".attr
-    val onDrop      = "onDrop".attr
+    val draggable     = "draggable".attr
+    val onDragStart   = "onDragStart".attr
+    val onDragEnd     = "onDragEnd".attr
+    val onDragEnter   = "onDragEnter".attr
+    val onDragOver    = "onDragOver".attr
+    val onDragLeave   = "onDragLeave".attr
+    val onDrop        = "onDrop".attr
     val onBeforeInput = "onBeforeInput".attr
   }
 

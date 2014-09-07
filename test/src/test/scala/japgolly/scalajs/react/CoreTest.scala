@@ -2,7 +2,7 @@ package japgolly.scalajs.react
 
 import org.scalajs.dom
 import vdom.ReactVDom._
-import all._
+import all.{Tag => _, _}
 import utest._
 import TestUtil._
 
@@ -14,9 +14,15 @@ object CoreTest extends TestSuite {
 
   val tests = TestSuite {
 
-    'compilation {
+    'scalatags {
+      def test(subj: VDom, exp: String): Unit =
+        ReactComponentB[Unit]("tmp").render((_,_) => subj).createU.apply() shouldRender exp
+
       def eh: SyntheticDragEvent[dom.Node] => Unit = ???
-      def attr(t: vdom.ReactVDom.all.Tag) = t(onclick ==> eh)
+      def attr(t: Tag) = t(onclick ==> eh)
+      def numericRendering = test(div(123), "<div>123</div>")
+      // def rawRendering = test(raw("<div>hehe</div>"), "<div>hehe</div>")
+      def seqRendering = test(Seq(span(1), span(2)), "<span>1</span><span>2</span>")
     }
 
     'props {
