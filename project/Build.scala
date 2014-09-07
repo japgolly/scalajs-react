@@ -36,7 +36,7 @@ object ScalajsReact extends Build {
     _.settings(
       publishTo := {
         val nexus = "https://oss.sonatype.org/"
-        if (version.value.trim endsWith "SNAPSHOT")
+        if (isSnapshot.value)
           Some("snapshots" at nexus + "content/repositories/snapshots")
         else
           Some("releases"  at nexus + "service/local/staging/deploy/maven2")
@@ -53,6 +53,16 @@ object ScalajsReact extends Build {
             <name>David Barri</name>
           </developer>
         </developers>)
+    .configure(sourceMapsToGithub)
+
+  def sourceMapsToGithub: PE =
+    p => p.settings(
+      scalacOptions ++= (if (isSnapshot.value) Seq.empty else Seq({
+        val a = p.base.toURI.toString.replaceFirst("[^/]+/?$", "")
+        val g = "https://raw.githubusercontent.com/japgolly/scalajs-react"
+        s"-P:scalajs:mapSourceURI:$a->$g/v${version.value}/"
+      }))
+    )
 
   def utestSettings: PE =
     _.settings(utest.jsrunner.Plugin.utestJsSettings: _*)
