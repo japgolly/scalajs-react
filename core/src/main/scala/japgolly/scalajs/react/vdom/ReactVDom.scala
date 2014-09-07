@@ -99,8 +99,8 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
   trait StringTags extends Util { self =>
     type ConcreteHtmlTag[T <: ReactOutput] = TypedTag[T]
 
-    protected[this] implicit def stringAttrX = new GenericAttr[String](s => s)
-    protected[this] implicit def stringStyleX = new GenericStyle[String]
+    protected[this] implicit val stringAttrX: AttrValue[String] = new GenericAttr[String](s => s)
+    protected[this] implicit val stringStyleX: StyleValue[String] = new GenericStyle[String]
 
     def makeAbstractTypedTag[T <: ReactOutput](tag: String, void: Boolean): TypedTag[T] =
       TypedTag(tag, Nil, void)
