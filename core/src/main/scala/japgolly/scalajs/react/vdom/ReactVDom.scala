@@ -48,10 +48,7 @@ object ReactVDom extends Bundle[VDomBuilder, ReactOutput, ReactFragT] {
 
     implicit val jsThisFnAttr = new GenericAttr[js.ThisFunction](f => f)
     implicit val jsFnAttr = new GenericAttr[js.Function](f => f)
-    implicit def numericAttr[T: Numeric] = new GenericAttr[T](_.toString)
     implicit def reactRefAttr[T <: Ref[_]] = new GenericAttr[T](_.name)
-
-    implicit def numericStyle[T: Numeric] = new GenericStyle[T]
 
     implicit def modifierFromRCU_(c: ReactComponentU_): Modifier = new Modifier {
       override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
