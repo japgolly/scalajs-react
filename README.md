@@ -23,7 +23,12 @@ SBT
 // Minimal usage
 libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.4.0"
 
+// React itself
+//   (react-with-addons.js can be react.js, react.min.js, react-with-addons.min.js)
+jsDependencies += "org.webjars" % "react" % "0.11.1" / "react-with-addons.js" commonJSName "React"
+
 // Test support including ReactTestUtils
+//   (requires react-with-addons.js instead of just react.js)
 libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.4.0" % "test"
 
 // Scalaz support
