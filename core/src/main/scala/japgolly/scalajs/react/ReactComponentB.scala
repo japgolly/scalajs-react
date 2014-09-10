@@ -53,19 +53,33 @@ final class ReactComponentB[Props](name: String) {
           , componentWillReceiveProps: UndefOr[(ScopeM, Props) => Unit]
           , shouldComponentUpdate: UndefOr[(ScopeM, Props, State) => Boolean]
           ) {
+        private def composeUndef[PT, RT](f1: UndefOr[PT => RT], f2: PT => RT) = { (param: PT) =>
+          f1.foreach(_(param))
+          f2(param)
+        }
+
+        private def composeUndef[PT1, PT2, RT](f1: UndefOr[(PT1, PT2) => RT], f2: (PT1, PT2) => RT) = { (p1: PT1, p2: PT2) =>
+          f1.foreach(_(p1, p2))
+          f2(p1, p2)
+        }
+
+        private def composeUndef[PT1, PT2, PT3, RT](f1: UndefOr[(PT1, PT2, PT3) => RT], f2: (PT1, PT2, PT3) => RT) = { (p1: PT1, p2: PT2, p3: PT3) =>
+          f1.foreach(_(p1, p2, p3))
+          f2(p1, p2, p3)
+        }
 
         def getDefaultProps(f: => Props): B4[C] = copy(getDefaultProps = () => f)
         def propsDefault(f: => Props): B4[CCOP] = copy(__c = new CompCtorOP(_, None, () => f))
         def propsAlways(f: => Props): B4[CCNP] = copy(__c = new CompCtorNP(_, None, () => f))
         // def propsAlways(f: => Props): B4[CCNP] = getDefaultProps(f).copy(__c = new CompCtorNP(_))
 
-        def componentWillMount(f: ScopeU => Unit): B4[C] = copy(componentWillMount = f)
-        def componentDidMount(f: ScopeM => Unit): B4[C] = copy(componentDidMount = f)
-        def componentWillUnmount(f: ScopeM => Unit): B4[C] = copy(componentWillUnmount = f)
-        def componentWillUpdate(f: (ScopeWU, Props, State) => Unit): B4[C] = copy(componentWillUpdate = f)
-        def componentDidUpdate(f: (ScopeM, Props, State) => Unit): B4[C] = copy(componentDidUpdate = f)
-        def componentWillReceiveProps(f: (ScopeM, Props) => Unit): B4[C] = copy(componentWillReceiveProps = f)
-        def shouldComponentUpdate(f: (ScopeM, Props, State) => Boolean): B4[C] = copy(shouldComponentUpdate = f)
+        def componentWillMount(f: ScopeU => Unit): B4[C] = copy(componentWillMount = composeUndef(componentWillMount, f))
+        def componentDidMount(f: ScopeM => Unit): B4[C] = copy(componentDidMount = composeUndef(componentDidMount, f))
+        def componentWillUnmount(f: ScopeM => Unit): B4[C] = copy(componentWillUnmount = composeUndef(componentWillUnmount, f))
+        def componentWillUpdate(f: (ScopeWU, Props, State) => Unit): B4[C] = copy(componentWillUpdate = composeUndef(componentWillUpdate, f))
+        def componentDidUpdate(f: (ScopeM, Props, State) => Unit): B4[C] = copy(componentDidUpdate = composeUndef(componentDidUpdate, f))
+        def componentWillReceiveProps(f: (ScopeM, Props) => Unit): B4[C] = copy(componentWillReceiveProps = composeUndef(componentWillReceiveProps, f))
+        def shouldComponentUpdate(f: (ScopeM, Props, State) => Boolean): B4[C] = copy(shouldComponentUpdate = composeUndef(shouldComponentUpdate, f))
 
         def buildSpec = {
           val spec = Dynamic.literal(
