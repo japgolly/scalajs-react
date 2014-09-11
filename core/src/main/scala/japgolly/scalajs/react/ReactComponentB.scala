@@ -53,20 +53,7 @@ final class ReactComponentB[Props](name: String) {
           , componentWillReceiveProps: UndefOr[(ScopeM, Props) => Unit]
           , shouldComponentUpdate: UndefOr[(ScopeM, Props, State) => Boolean]
           ) {
-        private def composeUndef[PT, RT](f1: UndefOr[PT => RT], f2: PT => RT) = { (param: PT) =>
-          f1.foreach(_(param))
-          f2(param)
-        }
-
-        private def composeUndef[PT1, PT2, RT](f1: UndefOr[(PT1, PT2) => RT], f2: (PT1, PT2) => RT) = { (p1: PT1, p2: PT2) =>
-          f1.foreach(_(p1, p2))
-          f2(p1, p2)
-        }
-
-        private def composeUndef[PT1, PT2, PT3, RT](f1: UndefOr[(PT1, PT2, PT3) => RT], f2: (PT1, PT2, PT3) => RT) = { (p1: PT1, p2: PT2, p3: PT3) =>
-          f1.foreach(_(p1, p2, p3))
-          f2(p1, p2, p3)
-        }
+        import ReactComponentB.composeUndef
 
         def getDefaultProps(f: => Props): B4[C] = copy(getDefaultProps = () => f)
         def propsDefault(f: => Props): B4[CCOP] = copy(__c = new CompCtorOP(_, None, () => f))
@@ -131,4 +118,19 @@ final class ReactComponentB[Props](name: String) {
 
 object ReactComponentB {
   def apply[Props](name: String) = new ReactComponentB[Props](name)
+
+  private def composeUndef[A, R](f1: UndefOr[A => R], g: A => R) = f1.fold(g) { f => (a: A) =>
+    f(a)
+    g(a)
+  }
+
+  private def composeUndef[A, B, R](f1: UndefOr[(A, B) => R], g: (A, B) => R) = f1.fold(g) { f => (a: A, b: B) =>
+    f(a, b)
+    g(a, b)
+  }
+
+  private def composeUndef[A, B, C, R](f1: UndefOr[(A, B, C) => R], g: (A, B, C) => R) = f1.fold(g) { f => (a: A, b: B, c: C) =>
+    f1.foreach(_(a, b, c))
+    g(a, b, c)
+  }
 }
