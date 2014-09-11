@@ -47,6 +47,9 @@ import vdom.ReactVDom.all._     // Scalatags html & css (div, h1, textarea, etc.
 import japgolly.scalajs.react.ScalazReact._
 ```
 
+You will also need to add [Scala.js](http://www.scala-js.org) to your project.
+Version 0.5.3 or later is required.
+
 Examples
 ========
 
