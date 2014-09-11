@@ -130,7 +130,7 @@ object ReactComponentB {
   }
 
   private def composeUndef[A, B, C, R](f1: UndefOr[(A, B, C) => R], g: (A, B, C) => R) = f1.fold(g) { f => (a: A, b: B, c: C) =>
-    f1.foreach(_(a, b, c))
+    f(a, b, c)
     g(a, b, c)
   }
 }
