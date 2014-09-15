@@ -44,29 +44,29 @@ final class ReactComponentB[Props](name: String) {
       case class B4[C] private[ReactComponentB](
           __render: ScopeU => VDom,
           __c: ComponentConstructor[Props, State, Backend] => C
-          , getDefaultProps: UndefOr[() => Props]
-          , componentWillMount: UndefOr[ScopeU => Unit]
-          , componentDidMount: UndefOr[ScopeM => Unit]
-          , componentWillUnmount: UndefOr[ScopeM => Unit]
-          , componentWillUpdate: UndefOr[(ScopeWU, Props, State) => Unit]
-          , componentDidUpdate: UndefOr[(ScopeM, Props, State) => Unit]
-          , componentWillReceiveProps: UndefOr[(ScopeM, Props) => Unit]
-          , shouldComponentUpdate: UndefOr[(ScopeM, Props, State) => Boolean]
+          , getDefaultProps           : UndefOr[() => Props]
+          , componentWillMount        : UndefOr[ScopeU                  => Unit]
+          , componentDidMount         : UndefOr[ScopeM                  => Unit]
+          , componentWillUnmount      : UndefOr[ScopeM                  => Unit]
+          , componentWillUpdate       : UndefOr[(ScopeWU, Props, State) => Unit]
+          , componentDidUpdate        : UndefOr[(ScopeM, Props, State)  => Unit]
+          , componentWillReceiveProps : UndefOr[(ScopeM, Props)         => Unit]
+          , shouldComponentUpdate     : UndefOr[(ScopeM, Props, State)  => Boolean]
           ) {
-        import ReactComponentB.composeUndef
+        import ReactComponentB.Internal._
 
-        def getDefaultProps(f: => Props): B4[C] = copy(getDefaultProps = () => f)
-        def propsDefault(f: => Props): B4[CCOP] = copy(__c = new CompCtorOP(_, None, () => f))
-        def propsAlways(f: => Props): B4[CCNP] = copy(__c = new CompCtorNP(_, None, () => f))
+        def getDefaultProps(f: => Props): B4[C]    = copy(getDefaultProps = () => f)
+        def propsDefault   (f: => Props): B4[CCOP] = copy(__c = new CompCtorOP(_, None, () => f))
+        def propsAlways    (f: => Props): B4[CCNP] = copy(__c = new CompCtorNP(_, None, () => f))
         // def propsAlways(f: => Props): B4[CCNP] = getDefaultProps(f).copy(__c = new CompCtorNP(_))
 
-        def componentWillMount(f: ScopeU => Unit): B4[C] = copy(componentWillMount = composeUndef(componentWillMount, f))
-        def componentDidMount(f: ScopeM => Unit): B4[C] = copy(componentDidMount = composeUndef(componentDidMount, f))
-        def componentWillUnmount(f: ScopeM => Unit): B4[C] = copy(componentWillUnmount = composeUndef(componentWillUnmount, f))
-        def componentWillUpdate(f: (ScopeWU, Props, State) => Unit): B4[C] = copy(componentWillUpdate = composeUndef(componentWillUpdate, f))
-        def componentDidUpdate(f: (ScopeM, Props, State) => Unit): B4[C] = copy(componentDidUpdate = composeUndef(componentDidUpdate, f))
-        def componentWillReceiveProps(f: (ScopeM, Props) => Unit): B4[C] = copy(componentWillReceiveProps = composeUndef(componentWillReceiveProps, f))
-        def shouldComponentUpdate(f: (ScopeM, Props, State) => Boolean): B4[C] = copy(shouldComponentUpdate = composeUndef(shouldComponentUpdate, f))
+        def componentWillMount       (f: ScopeU                  => Unit   ): B4[C] = copy(componentWillMount        = fcUnit(componentWillMount       , f))
+        def componentDidMount        (f: ScopeM                  => Unit   ): B4[C] = copy(componentDidMount         = fcUnit(componentDidMount        , f))
+        def componentWillUnmount     (f: ScopeM                  => Unit   ): B4[C] = copy(componentWillUnmount      = fcUnit(componentWillUnmount     , f))
+        def componentWillUpdate      (f: (ScopeWU, Props, State) => Unit   ): B4[C] = copy(componentWillUpdate       = fcUnit(componentWillUpdate      , f))
+        def componentDidUpdate       (f: (ScopeM, Props, State)  => Unit   ): B4[C] = copy(componentDidUpdate        = fcUnit(componentDidUpdate       , f))
+        def componentWillReceiveProps(f: (ScopeM, Props)         => Unit   ): B4[C] = copy(componentWillReceiveProps = fcUnit(componentWillReceiveProps, f))
+        def shouldComponentUpdate    (f: (ScopeM, Props, State)  => Boolean): B4[C] = copy(shouldComponentUpdate     = fcEither(shouldComponentUpdate  , f))
 
         def buildSpec = {
           val spec = Dynamic.literal(
@@ -119,18 +119,24 @@ final class ReactComponentB[Props](name: String) {
 object ReactComponentB {
   def apply[Props](name: String) = new ReactComponentB[Props](name)
 
-  private def composeUndef[A, R](f1: UndefOr[A => R], g: A => R) = f1.fold(g) { f => (a: A) =>
-    f(a)
-    g(a)
-  }
+  private object Internal {
+    final class FnResults[R](aa: => R, bb: => R) {
+      lazy val a = aa
+      lazy val b = bb
+    }
 
-  private def composeUndef[A, B, R](f1: UndefOr[(A, B) => R], g: (A, B) => R) = f1.fold(g) { f => (a: A, b: B) =>
-    f(a, b)
-    g(a, b)
-  }
+    final class FnComposer[R](m: FnResults[R] => R) {
+      def apply[A](uf: UndefOr[A => R], g: A => R) =
+        uf.fold(g)(f => a => m(new FnResults(f(a), g(a))))
 
-  private def composeUndef[A, B, C, R](f1: UndefOr[(A, B, C) => R], g: (A, B, C) => R) = f1.fold(g) { f => (a: A, b: B, c: C) =>
-    f(a, b, c)
-    g(a, b, c)
+      def apply[A, B](uf: UndefOr[(A, B) => R], g: (A, B) => R) =
+        uf.fold(g)(f => (a,b) => m(new FnResults(f(a,b), g(a,b))))
+
+      def apply[A, B, C](uf: UndefOr[(A, B, C) => R], g: (A, B, C) => R) =
+        uf.fold(g)(f => (a,b,c) => m(new FnResults(f(a,b,c), g(a,b,c))))
+    }
+
+    val fcUnit = new FnComposer[Unit](r => {r.a; r.b})
+    val fcEither = new FnComposer[Boolean](r => r.a || r.b)
   }
 }
