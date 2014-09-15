@@ -23,7 +23,8 @@ object ScalajsReact extends Build {
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
         crossScalaVersions := Seq("2.10.4", Scala211),
-        scalacOptions     ++= Seq("-deprecation", "-unchecked", "-language:_"))
+        scalacOptions     ++= Seq("-deprecation", "-unchecked", "-language:_"),
+        updateOptions      := updateOptions.value.withConsolidatedResolution(true))
 
   def preventPublication: PE =
     _.settings(
