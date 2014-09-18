@@ -185,6 +185,7 @@ object ReactVDom
 
   trait ExtraAttrs extends Util {
     val className = "className".attr
+    val htmlFor = "htmlFor".attr
     val refAttr = "ref".attr
     val keyAttr = "key".attr
     @inline final def key = keyAttr

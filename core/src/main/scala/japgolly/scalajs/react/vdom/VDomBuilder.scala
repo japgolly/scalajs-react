@@ -5,12 +5,16 @@ import japgolly.scalajs.react.React
 
 private[vdom] object VDomBuilder  {
 
-  val specialCaseAttrs =
+  def specialCaseAttrs =
     Set("onBlur", "onChange", "onClick", "onFocus", "onKeyDown", "onKeyPress", "onKeyUp", "onLoad", "onMouseDown"
       , "onMouseMove", "onMouseOut", "onMouseOver", "onMouseUp", "onSelect", "onScroll", "onSubmit", "onReset"
       , "readOnly")
 
-  val attrTranslations = specialCaseAttrs.toList.map(x => x.toLowerCase -> x).toMap + ("class" -> "className")
+  def specialNameAttrs =
+    Map("class" -> "className", "for" -> "htmlFor")
+
+  val attrTranslations =
+    specialCaseAttrs.toList.map(x => x.toLowerCase -> x).toMap ++ specialNameAttrs
 }
 
 private[vdom] final class VDomBuilder {
