@@ -10,7 +10,9 @@ private[vdom] object VDomBuilder  {
       , "onMouseMove", "onMouseOut", "onMouseOver", "onMouseUp", "onSelect", "onScroll", "onSubmit", "onReset"
       , "readOnly")
 
-  val attrTranslations = specialCaseAttrs.toList.map(x => x.toLowerCase -> x).toMap + ("class" -> "className")
+  val renamedAttrs = Map("class" -> "className", "for" -> "htmlFor")
+
+  val attrTranslations = specialCaseAttrs.toList.map(x => x.toLowerCase -> x).toMap ++ renamedAttrs
 }
 
 private[vdom] final class VDomBuilder {
