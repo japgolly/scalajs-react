@@ -119,7 +119,7 @@ object ScalajsReact extends Build {
   }
 
   lazy val scalaz70 = scalazModule("scalaz-7.0", "7.0.6")
-  lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.0-2")
+  lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.0-3")
 
   // ==============================================================================================
   lazy val example = project
