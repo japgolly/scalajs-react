@@ -76,6 +76,11 @@ package object react {
   /** Component constructor. */
   trait CompCtor[P, S, B] {
     val jsCtor: ComponentConstructor[P, S, B]
+    final type ScopeU = ComponentScopeU[P, S, B]
+    final type ScopeM = ComponentScopeM[P, S, B]
+    final type ScopeWU = ComponentScopeWU[P, S, B]
+    final type StateFocus = ComponentStateFocus[S]
+    final type BackendScope = react.BackendScope[P, S]
   }
 
   /** Component constructor. Properties required. */
