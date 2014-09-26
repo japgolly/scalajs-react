@@ -83,7 +83,7 @@ object ReactVDom
     @inline final implicit def autoRender(t: Tag) = t.render
     @inline final implicit def autoRenderS(s: Seq[Tag]) = s.map(_.render)
 
-    final def compositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier = Nop) = new {
+    final def compositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier = EmptyTag) = new {
       def apply(as: Option[A]*)(implicit ev: AttrValue[A]): Modifier =
         as.toList.filter(_.isDefined).map(_.get) match {
           case h :: t => k := f(h, t)
@@ -174,7 +174,10 @@ object ReactVDom
     override def toString = render.toString
   }
 
-  val Nop: Modifier = new Modifier {
+  @deprecated("Use `EmptyTag` instead. `Nop` will be removed in 0.6.", "0.4.2")
+  def Nop = EmptyTag
+
+  val EmptyTag: Modifier = new Modifier {
     override def applyTo(t: VDomBuilder): Unit = ()
   }
 
@@ -207,7 +210,7 @@ object ReactVDom
   }
 
   implicit final class ReactBoolExt(val a: Boolean) extends AnyVal {
-    @inline def &&(m: => Modifier): Modifier = if (a) m else Nop
+    @inline def &&(m: => Modifier): Modifier = if (a) m else EmptyTag
     // @inline def :=>[V](v: => V): Option[V] = if (a) Some(v) else None
   }
 
