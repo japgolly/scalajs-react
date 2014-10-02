@@ -45,6 +45,9 @@ import vdom.ReactVDom.all._     // Scalatags html & css (div, h1, textarea, etc.
 
 // Scalaz support
 import japgolly.scalajs.react.ScalazReact._
+
+// Consolidated uber import
+import japgolly.scalajs.react._, vdom.ReactVDom._, all._, ScalazReact._
 ```
 
 You will also need to add [Scala.js](http://www.scala-js.org) to your project.
