@@ -45,7 +45,7 @@ object CoreTest extends TestSuite {
       }
 
       'always {
-        val r = ReactComponentB[String]("C").render(name => div("Hi ", name)).propsAlways("there").create
+        val r = ReactComponentB[String]("C").render(name => div("Hi ", name)).propsConst("there").create
         r() shouldRender "<div>Hi there</div>"
       }
     }

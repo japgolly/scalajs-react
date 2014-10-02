@@ -84,24 +84,24 @@ package object react {
       j
     }
 
-    final class NeedProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny]) extends ReactComponentC[P, S, B] {
+    final class ReqProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny]) extends ReactComponentC[P, S, B] {
       def apply(props: P, children: VDom*) = jsCtor(mkProps(props, key), children: _*)
-      def withKey(key: JAny) = new NeedProps(jsCtor, Some(key))
+      def withKey(key: JAny) = new ReqProps(jsCtor, Some(key))
     }
 
-    final class OptionalProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) extends ReactComponentC[P, S, B] {
+    final class DefaultProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], default: () => P) extends ReactComponentC[P, S, B] {
       def apply(props: Option[P], children: VDom*): ReactComponentU[P, S, B] =
-        jsCtor(mkProps(props getOrElse d(), key), children: _*)
+        jsCtor(mkProps(props getOrElse default(), key), children: _*)
 
       def apply(children: VDom*): ReactComponentU[P, S, B] =
         apply(None, children: _*)
 
-      def withKey(key: JAny) = new OptionalProps(jsCtor, Some(key), d)
+      def withKey(key: JAny) = new DefaultProps(jsCtor, Some(key), default)
     }
 
-    final class NoProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) extends ReactComponentC[P, S, B] {
-      def apply(children: VDom*) = jsCtor(mkProps(d(), key), children: _*)
-      def withKey(key: JAny) = new NoProps(jsCtor, Some(key), d)
+    final class ConstProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], props: () => P) extends ReactComponentC[P, S, B] {
+      def apply(children: VDom*) = jsCtor(mkProps(props(), key), children: _*)
+      def withKey(key: JAny) = new ConstProps(jsCtor, Some(key), props)
     }
   }
 

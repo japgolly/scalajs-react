@@ -11,9 +11,10 @@ object ReactComponentB {
 
     @deprecated("getInitialState() has been renamed to initialStateP() and will be removed in 0.6.0.", "0.5.0")
     def getInitialState[State](f: Props => State) = initialStateP(f)
-    def initialStateP[State](f: Props => State)   = new PS[Props, State](name, f)
-    def initialState[State](s: => State)          = initialStateP(_ => s)
-    def stateless                                 = initialState(())
+
+    def initialStateP[State](f: Props => State) = new PS[Props, State](name, f)
+    def initialState[State](s: => State)        = initialStateP(_ => s)
+    def stateless                               = initialState(())
 
     def render(f: Props                  => VDom) = stateless.render((p,_) => f(p))
     def render(f: (Props, PropsChildren) => VDom) = stateless.render((p,c,_) => f(p,c))
@@ -23,14 +24,11 @@ object ReactComponentB {
   final class PS[Props, State] private[ReactComponentB](name: String, initF: Props => State) {
 
     def backend[Backend](f: BackendScope[Props, State] => Backend) = new PSB[Props, State, Backend](name, initF, f)
-    def noBackend                              = backend(_ => ())
+    def noBackend                                                  = backend(_ => ())
 
     def render(f: (Props, State)                                       => VDom) = noBackend.render((p,s,_) => f(p,s))
     def render(f: (Props, PropsChildren, State)                        => VDom) = noBackend.render((p,c,s,_) => f(p,c,s))
     def render(f: ComponentScopeU[Props, State, Unit]                  => VDom) = noBackend.render(f)
-
-
-    // TODO what? no.
     def renderS(f: (ComponentScopeU[Props, State, Unit], Props, State) => VDom) = noBackend.renderS(f)
   }
 
@@ -47,7 +45,6 @@ object ReactComponentB {
     def render(f: (P, PropsChildren, S, B) => VDom): ReactComponentB[P, S, B] =
       render(s => f(s.props, s.propsChildren, s.state, s.backend))
 
-    // TODO what? no.
     def renderS(f: (ComponentScopeU[P, S, B], P, S) => VDom): ReactComponentB[P, S, B] =
       render(T => f(T, T.props, T.state))
   }
@@ -62,7 +59,6 @@ object ReactComponentB {
     componentDidUpdate        : UndefOr[(ComponentScopeM[P, S, B], P, S)  => Unit],
     componentWillReceiveProps : UndefOr[(ComponentScopeM[P, S, B], P)     => Unit],
     shouldComponentUpdate     : UndefOr[(ComponentScopeM[P, S, B], P, S)  => Boolean])
-
 }
 
 import ReactComponentB.LifeCycle
@@ -100,20 +96,23 @@ final class ReactComponentB[P, S, B](name: String,
   def shouldComponentUpdate(f: (ComponentScopeM[P, S, B], P, S) => Boolean): ReactComponentB[P, S, B] =
     lc.copy(shouldComponentUpdate = fcEither(lc.shouldComponentUpdate, f))
 
-  def propsRequired         = new End(new ReactComponentC.NeedProps(_, None))
-  def propsDefault(p: => P) = new End(new ReactComponentC.OptionalProps(_, None, () => p))
-  def propsAlways(p: => P)  = new End(new ReactComponentC.NoProps(_, None, () => p))
+  def propsRequired         = new Builder(new ReactComponentC.ReqProps(_, None))
+  def propsDefault(p: => P) = new Builder(new ReactComponentC.DefaultProps(_, None, () => p))
+  def propsConst(p: => P)   = new Builder(new ReactComponentC.ConstProps(_, None, () => p))
+
+  @deprecated("propsAlways() has been renamed to propsConst() and will be removed in 0.6.0.", "0.5.0")
+  def propsAlways(p: => P)  = propsConst(p)
 
   // Convenience methods
 
   @inline def buildSpec = propsRequired.buildSpec
   @inline def create    = propsRequired.create
 
-  @inline def propsUnit(implicit ev: Unit =:= P) = propsAlways(ev(()))
+  @inline def propsUnit(implicit ev: Unit =:= P) = propsConst(ev(()))
   @inline def createU(implicit ev: Unit =:= P)   = propsUnit.create
 
   // ===================================================================================================================
-  final class End[C] private[ReactComponentB](cc: ComponentConstructor[P, S, B] => C) {
+  final class Builder[C] private[ReactComponentB](cc: ComponentConstructor[P, S, B] => C) {
 
     def buildSpec: ComponentSpec[P, S, B] = {
       val spec = Dynamic.literal(
@@ -154,7 +153,6 @@ final class ReactComponentB[P, S, B](name: String,
       spec.asInstanceOf[ComponentSpec[P, S, B]]
     }
 
-    // TODO fix this return type
-    def create = cc(React createClass buildSpec)
+    def create: C = cc(React.createClass(buildSpec))
   }
 }
