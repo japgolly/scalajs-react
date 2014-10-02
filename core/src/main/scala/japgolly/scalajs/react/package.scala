@@ -49,7 +49,7 @@ package object react {
   /**
    * A named reference to an element in a React VDOM.
    */
-  class Ref[T <: dom.Element](val name: String) {
+  class Ref[+T <: dom.Element](val name: String) {
     @inline final def apply(c: ReactComponentM[_]): UndefOr[ReactComponentM[T]] = apply(c.refs)
     @inline final def apply(s: ComponentScope_M)  : UndefOr[ReactComponentM[T]] = apply(s.refs)
     @inline final def apply(r: RefsObject)        : UndefOr[ReactComponentM[T]] = r[T](name)
@@ -68,13 +68,8 @@ package object react {
   @inline final implicit def autoJsCtor(c: ReactComponentC[_, _, _]): ComponentConstructor_ = c.jsCtor
 
   /** Component constructor. */
-  trait ReactComponentC[P, S, B] {
+  trait ReactComponentC[P, S, +B] {
     val jsCtor: ComponentConstructor[P, S, B]
-    final type ScopeU = ComponentScopeU[P, S, B]
-    final type ScopeM = ComponentScopeM[P, S, B]
-    final type ScopeWU = ComponentScopeWU[P, S, B]
-    final type StateFocus = ComponentStateFocus[S]
-    final type BackendScope = react.BackendScope[P, S]
   }
 
   object ReactComponentC {
@@ -84,12 +79,12 @@ package object react {
       j
     }
 
-    final class ReqProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny]) extends ReactComponentC[P, S, B] {
+    final class ReqProps[P, S, +B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny]) extends ReactComponentC[P, S, B] {
       def apply(props: P, children: VDom*) = jsCtor(mkProps(props, key), children: _*)
       def withKey(key: JAny) = new ReqProps(jsCtor, Some(key))
     }
 
-    final class DefaultProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], default: () => P) extends ReactComponentC[P, S, B] {
+    final class DefaultProps[P, S, +B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], default: () => P) extends ReactComponentC[P, S, B] {
       def apply(props: Option[P], children: VDom*): ReactComponentU[P, S, B] =
         jsCtor(mkProps(props getOrElse default(), key), children: _*)
 
@@ -99,7 +94,7 @@ package object react {
       def withKey(key: JAny) = new DefaultProps(jsCtor, Some(key), default)
     }
 
-    final class ConstProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], props: () => P) extends ReactComponentC[P, S, B] {
+    final class ConstProps[P, S, +B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], props: () => P) extends ReactComponentC[P, S, B] {
       def apply(children: VDom*) = jsCtor(mkProps(props(), key), children: _*)
       def withKey(key: JAny) = new ConstProps(jsCtor, Some(key), props)
     }

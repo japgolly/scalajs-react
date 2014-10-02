@@ -54,12 +54,12 @@ trait ReactChildren extends Object {
 /** A React DOM representation of HTML. Could be React.DOM output, or a React component. */
 trait VDom extends Object
 
-trait ComponentSpec[Props, State, Backend] extends Object
+trait ComponentSpec[Props, State, +Backend] extends Object
 
 trait ComponentConstructor_ extends JFn {
 }
 
-trait ComponentConstructor[Props, State, Backend] extends ComponentConstructor_ {
+trait ComponentConstructor[Props, State, +Backend] extends ComponentConstructor_ {
   def apply(props: WrapObj[Props], children: VDom*): ReactComponentU[Props, State, Backend] = ???
 }
 
@@ -67,10 +67,10 @@ trait ComponentConstructor[Props, State, Backend] extends ComponentConstructor_ 
 trait ReactComponentU_ extends Object with VDom
 
 /** An unmounted component with known PSB types. */
-trait ReactComponentU[Props, State, Backend] extends ReactComponentU_
+trait ReactComponentU[Props, State, +Backend] extends ReactComponentU_
 
 // TODO ComponentScope should extend this actually
-trait ReactComponentM[Node <: dom.Element] extends ReactComponentU_ {
+trait ReactComponentM[+Node <: dom.Element] extends ReactComponentU_ {
   def getDOMNode(): Node
   def refs: RefsObject
 }
@@ -240,11 +240,11 @@ trait SyntheticWheelEvent[+DOMEventTarget <: dom.Node] extends SyntheticMouseEve
 // =====================================================================================================================
 // Scope
 
-trait ComponentScope_P[Props] extends Object {
+trait ComponentScope_P[+Props] extends Object {
   @JSName("props") def _props: WrapObj[Props] with PropsMixedIn = ???
 }
 
-trait ComponentScope_S[State] extends Object {
+trait ComponentScope_S[+State] extends Object {
   @JSName("state") def _state: WrapObj[State] = ???
 }
 
@@ -253,11 +253,11 @@ trait ComponentScope_SS[State] extends ComponentScope_S[State] {
   @JSName("setState") def _setState(s: WrapObj[State], callback: UndefOr[JFn]): Unit = ???
 }
 
-trait ComponentScope_B[Backend] extends Object {
+trait ComponentScope_B[+Backend] extends Object {
   def backend: Backend = ???
 }
 
-trait ComponentScope_PS[Props, State] extends Object {
+trait ComponentScope_PS[-Props, +State] extends Object {
   @JSName("getInitialState") def _getInitialState(s: WrapObj[Props]): WrapObj[State] = ???
 }
 
@@ -275,7 +275,7 @@ trait ComponentScope_M extends Object {
 }
 
 /** Type of an unmounted component's `this` scope. */
-trait ComponentScopeU[Props, State, Backend]
+trait ComponentScopeU[Props, State, +Backend]
   extends ComponentScope_PS[Props, State]
   with ComponentScope_P[Props]
   with ComponentScope_SS[State]
@@ -283,7 +283,7 @@ trait ComponentScopeU[Props, State, Backend]
   // prohibits: ComponentScope_M.*
 
 /** Type of a component's `this` scope during componentWillUpdate. */
-trait ComponentScopeWU[Props, State, Backend]
+trait ComponentScopeWU[Props, +State, +Backend]
   extends ComponentScope_PS[Props, State]
   with ComponentScope_P[Props]
   with ComponentScope_S[State]
@@ -292,7 +292,7 @@ trait ComponentScopeWU[Props, State, Backend]
   // prohibits: .setState
 
 /** Type of a mounted component's `this` scope. */
-trait ComponentScopeM[Props, State, Backend]
+trait ComponentScopeM[Props, State, +Backend]
   extends ComponentScope_PS[Props, State]
   with ComponentScopeU[Props, State, Backend]
   with ComponentScope_M
