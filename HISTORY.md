@@ -1,6 +1,15 @@
 History
 =======
 
+### 0.5.0
+
+* Type changes.
+  * `ReactComponentB` innards reworked. Use `ReactComponentB[P,S,B]` in place of `ReactComponentB[P]#B2[S]#B3[B]#B4[C]`.
+  * `CompCtor`   → `ReactComponentC`
+  * `CompCtorP`  → `ReactComponentC.ReqProps`
+  * `CompCtorOP` → `ReactComponentC.DefaultProps`
+  * `CompCtorNP` → `ReactComponentC.ConstProps`
+
 ### 0.4.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.0...v0.4.1))
 
 * Upgrade to scalatags 0.4.0.
