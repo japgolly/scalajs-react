@@ -48,7 +48,7 @@ import japgolly.scalajs.react.ScalazReact._
 ```
 
 You will also need to add [Scala.js](http://www.scala-js.org) to your project.
-Version 0.5.3 or later is required.
+Version 0.5.4 or later is required.
 
 Examples
 ========
@@ -122,7 +122,6 @@ jsDependencies += "org.webjars" % "react" % "0.11.1" % "test" / "react-with-addo
 ```
 * Add: `requiresDOM := true`
 * Install PhantomJS.
-* Use `jsEnv in Test` to override ScalaJS's PhantomJS `bind` polyfill; copy from [this project](https://github.com/japgolly/scalajs-react/tree/master/project). _(This is being tracked in [ScalaJS #898](https://github.com/scala-js/scala-js/issues/898))_
 
 Extensions
 ==========
