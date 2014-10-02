@@ -6,7 +6,7 @@ import Internal._
 object ReactComponentB {
   def apply[Props](name: String) = new P[Props](name)
 
-  // -----------------------------------------------------------------------------------------------
+  // ===================================================================================================================
   final class P[Props] private[ReactComponentB](name: String) {
 
     @deprecated("getInitialState() has been renamed to initialStateP() and will be removed in 0.6.0.", "0.5.0")
@@ -19,7 +19,7 @@ object ReactComponentB {
     def render(f: (Props, PropsChildren) => VDom) = stateless.render((p,c,_) => f(p,c))
   }
 
-  // -----------------------------------------------------------------------------------------------
+  // ===================================================================================================================
   final class PS[Props, State] private[ReactComponentB](name: String, initF: Props => State) {
 
     def backend[Backend](f: BackendScope[Props, State] => Backend) = new PSB[Props, State, Backend](name, initF, f)
@@ -34,7 +34,7 @@ object ReactComponentB {
     def renderS(f: (ComponentScopeU[Props, State, Unit], Props, State) => VDom) = noBackend.renderS(f)
   }
 
-  // -----------------------------------------------------------------------------------------------
+  // ===================================================================================================================
   final class PSB[P, S, B] private[ReactComponentB](name: String, initF: P => S, backF: BackendScope[P, S] => B) {
 
     def render(f: ComponentScopeU[P, S, B] => VDom): ReactComponentB[P, S, B] =
@@ -52,8 +52,7 @@ object ReactComponentB {
       render(T => f(T, T.props, T.state))
   }
 
-  // -----------------------------------------------------------------------------------------------
-
+  // ===================================================================================================================
   private[react] case class LifeCycle[P,S,B](
     getDefaultProps           : UndefOr[()                                => P],
     componentWillMount        : UndefOr[ComponentScopeU[P, S, B]          => Unit],
@@ -64,7 +63,6 @@ object ReactComponentB {
     componentWillReceiveProps : UndefOr[(ComponentScopeM[P, S, B], P)     => Unit],
     shouldComponentUpdate     : UndefOr[(ComponentScopeM[P, S, B], P, S)  => Boolean])
 
-  // -----------------------------------------------------------------------------------------------
 }
 
 import ReactComponentB.LifeCycle
@@ -102,11 +100,19 @@ final class ReactComponentB[P, S, B](name: String,
   def shouldComponentUpdate(f: (ComponentScopeM[P, S, B], P, S) => Boolean): ReactComponentB[P, S, B] =
     lc.copy(shouldComponentUpdate = fcEither(lc.shouldComponentUpdate, f))
 
-  def propsRequired         = new End(new CompCtorP(_, None))
-  def propsDefault(p: => P) = new End(new CompCtorOP(_, None, () => p))
-  def propsAlways(p: => P)  = new End(new CompCtorNP(_, None, () => p))
+  def propsRequired         = new End(new ReactComponentC.NeedProps(_, None))
+  def propsDefault(p: => P) = new End(new ReactComponentC.OptionalProps(_, None, () => p))
+  def propsAlways(p: => P)  = new End(new ReactComponentC.NoProps(_, None, () => p))
 
-  // -----------------------------------------------------------------------------------------------
+  // Convenience methods
+
+  @inline def buildSpec = propsRequired.buildSpec
+  @inline def create    = propsRequired.create
+
+  @inline def propsUnit(implicit ev: Unit =:= P) = propsAlways(ev(()))
+  @inline def createU(implicit ev: Unit =:= P)   = propsUnit.create
+
+  // ===================================================================================================================
   final class End[C] private[ReactComponentB](cc: ComponentConstructor[P, S, B] => C) {
 
     def buildSpec: ComponentSpec[P, S, B] = {
@@ -150,15 +156,5 @@ final class ReactComponentB[P, S, B](name: String,
 
     // TODO fix this return type
     def create = cc(React createClass buildSpec)
-
-    /** When the Props type is Unit, this shortcut returns a constructor that won't ask for a props value. */
-    def createU(implicit ev: Unit =:= P) =
-      propsAlways(ev(())).create
   }
-
-  // -----------------------------------------------------------------------------------------------
-
-  @inline def buildSpec                        = propsRequired.buildSpec
-  @inline def create                           = propsRequired.create
-  @inline def createU(implicit ev: Unit =:= P) = propsRequired.createU(ev)
 }

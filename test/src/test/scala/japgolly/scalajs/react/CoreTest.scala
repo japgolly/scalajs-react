@@ -139,7 +139,7 @@ object CoreTest extends TestSuite {
     'stateFocus {
       // def inc(s: ComponentStateFocus[Int]) = s.modState(_ * 3)
       case class SI(s: String, i: Int)
-      val C = ReactComponentB[SI]("C").getInitialState(p => p).render(T => {
+      val C = ReactComponentB[SI]("C").initialStateP(p => p).render(T => {
         val f = T.focusState(_.i)((a,b) => a.copy(i = b))
         // inc(f)
         div(T.state.s + "/" + (f.state*3))

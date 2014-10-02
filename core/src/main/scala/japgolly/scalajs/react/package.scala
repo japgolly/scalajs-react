@@ -65,16 +65,10 @@ package object react {
 
   // ===================================================================================================================
 
-  @inline final implicit def autoCompCtor_(c: CompCtor[_, _, _]): ComponentConstructor_ = c.jsCtor
-
-  private[this] def mkProps[P](props: P, key: Option[JAny]): WrapObj[P] = {
-    val j = WrapObj(props)
-    key.foreach(k => j.asInstanceOf[Dynamic].updateDynamic("key")(k))
-    j
-  }
+  @inline final implicit def autoJsCtor(c: ReactComponentC[_, _, _]): ComponentConstructor_ = c.jsCtor
 
   /** Component constructor. */
-  trait CompCtor[P, S, B] {
+  trait ReactComponentC[P, S, B] {
     val jsCtor: ComponentConstructor[P, S, B]
     final type ScopeU = ComponentScopeU[P, S, B]
     final type ScopeM = ComponentScopeM[P, S, B]
@@ -83,31 +77,33 @@ package object react {
     final type BackendScope = react.BackendScope[P, S]
   }
 
-  /** Component constructor. Properties required. */
-  class CompCtorP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny]) extends CompCtor[P, S, B] {
-    def apply(props: P, children: VDom*) = jsCtor(mkProps(props, key), children: _*)
-    def withKey(key: JAny) = new CompCtorP(jsCtor, Some(key))
+  object ReactComponentC {
+    private[this] def mkProps[P](props: P, key: Option[JAny]): WrapObj[P] = {
+      val j = WrapObj(props)
+      key.foreach(k => j.asInstanceOf[Dynamic].updateDynamic("key")(k))
+      j
+    }
+
+    final class NeedProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny]) extends ReactComponentC[P, S, B] {
+      def apply(props: P, children: VDom*) = jsCtor(mkProps(props, key), children: _*)
+      def withKey(key: JAny) = new NeedProps(jsCtor, Some(key))
+    }
+
+    final class OptionalProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) extends ReactComponentC[P, S, B] {
+      def apply(props: Option[P], children: VDom*): ReactComponentU[P, S, B] =
+        jsCtor(mkProps(props getOrElse d(), key), children: _*)
+
+      def apply(children: VDom*): ReactComponentU[P, S, B] =
+        apply(None, children: _*)
+
+      def withKey(key: JAny) = new OptionalProps(jsCtor, Some(key), d)
+    }
+
+    final class NoProps[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) extends ReactComponentC[P, S, B] {
+      def apply(children: VDom*) = jsCtor(mkProps(d(), key), children: _*)
+      def withKey(key: JAny) = new NoProps(jsCtor, Some(key), d)
+    }
   }
-
-  /** Component constructor. Properties optional. */
-  class CompCtorOP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) extends CompCtor[P, S, B] {
-    def apply(props: Option[P], children: VDom*): ReactComponentU[P, S, B] =
-      jsCtor(mkProps(props getOrElse d(), key), children: _*)
-
-    def apply(children: VDom*): ReactComponentU[P, S, B] =
-      apply(None, children: _*)
-
-    def withKey(key: JAny) = new CompCtorOP(jsCtor, Some(key), d)
-  }
-
-  /** Component constructor. Properties not required. */
-  class CompCtorNP[P, S, B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], d: () => P) extends CompCtor[P, S, B] {
-    def apply(children: VDom*) = jsCtor(mkProps(d(), key), children: _*)
-    def withKey(key: JAny) = new CompCtorNP(jsCtor, Some(key), d)
-  }
-//  class CompCtorNP[Props, State, Backend](u: ComponentConstructor[Props, State, Backend]) {
-//    def apply(children: VDom*) = u(null, children: _*)
-//  }
 
   // ===================================================================================================================
 
