@@ -5,6 +5,7 @@ import vdom.ReactVDom._
 import all.{Tag => _, _}
 import utest._
 import TestUtil._
+import test.ReactTestUtils
 
 object CoreTest extends TestSuite {
 
@@ -47,6 +48,16 @@ object CoreTest extends TestSuite {
       'always {
         val r = ReactComponentB[String]("C").render(name => div("Hi ", name)).propsConst("there").create
         r() shouldRender "<div>Hi there</div>"
+      }
+    }
+
+    'builder {
+      'configure {
+        var called = 0
+        val f = (_: ReactComponentB[Unit,Unit,Unit]).componentWillMount(_ => called += 1)
+        val c = ReactComponentB[Unit]("X").render(_ => div("")).configure(f, f).createU
+        ReactTestUtils.renderIntoDocument(c())
+        assert(called == 2)
       }
     }
 

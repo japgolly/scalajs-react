@@ -69,6 +69,9 @@ final class ReactComponentB[P, S, B](name: String,
                                      rendF: ComponentScopeU[P, S, B] => VDom,
                                      lc: LifeCycle[P, S, B]) {
 
+  def configure(fs: (ReactComponentB[P, S, B] => ReactComponentB[P, S, B])*): ReactComponentB[P, S, B] =
+    fs.foldLeft(this)((a,f) => f(a))
+
   @inline private implicit def lcmod(a: LifeCycle[P, S, B]): ReactComponentB[P, S, B] =
     new ReactComponentB(name, initF, backF, rendF, a)
 
