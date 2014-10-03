@@ -9,12 +9,11 @@ object ReactComponentB {
   // ===================================================================================================================
   final class P[Props] private[ReactComponentB](name: String) {
 
-    @deprecated("getInitialState() has been renamed to initialStateP() and will be removed in 0.6.0.", "0.5.0")
+    // getInitialState is how it's named in React
     def getInitialState[State](f: Props => State) = initialStateP(f)
-
-    def initialStateP[State](f: Props => State) = new PS[Props, State](name, f)
-    def initialState[State](s: => State)        = initialStateP(_ => s)
-    def stateless                               = initialState(())
+    def initialStateP[State](f: Props => State)   = new PS(name, f)
+    def initialState[State](s: => State)          = initialStateP(_ => s)
+    def stateless                                 = initialState(())
 
     def render(f: Props                  => VDom) = stateless.render((p,_) => f(p))
     def render(f: (Props, PropsChildren) => VDom) = stateless.render((p,c,_) => f(p,c))
@@ -23,7 +22,7 @@ object ReactComponentB {
   // ===================================================================================================================
   final class PS[Props, State] private[ReactComponentB](name: String, initF: Props => State) {
 
-    def backend[Backend](f: BackendScope[Props, State] => Backend) = new PSB[Props, State, Backend](name, initF, f)
+    def backend[Backend](f: BackendScope[Props, State] => Backend) = new PSB(name, initF, f)
     def noBackend                                                  = backend(_ => ())
 
     def render(f: (Props, State)                                       => VDom) = noBackend.render((p,s,_) => f(p,s))
