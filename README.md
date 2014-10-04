@@ -115,6 +115,20 @@ ReactTestUtils.Simulate.change(t, ChangeEventData(value = "Hi"))
 ChangeEventData("Hi") simulate t
 ```
 
+Simulations can also be created and composed without a target, using `Simulation`. Example:
+```scala
+val a = Simulation.focus
+val b = Simulation.change(ChangeEventData(value = "hi"))
+val c = Simulation.blur
+val s = a andThen b andThen c
+
+// Or shorter
+val s = Simulation.focus >> ChangeEventData("hi").simulation >> Simulation.blur
+
+// Then run it later
+s run component
+```
+
 Also included is [DebugJs](https://github.com/japgolly/scalajs-react/blob/master/test/src/main/scala/japgolly/scalajs/react/test/DebugJs.scala), a dumping ground for functionality useful when testing JS. `inspectObject` is tremendously useful.
 
 #### SBT
