@@ -105,13 +105,15 @@ Testing
 
 To make event simulation easier, certain event types have dedicated, strongly-typed case classes to wrap event data. For example, JS like
 ```js
+// JavaScript
 React.addons.TestUtils.Simulate.change(t, {target: {value: "Hi"}})
 ```
 becomes
 ```scala
+// Scala
 ReactTestUtils.Simulate.change(t, ChangeEventData(value = "Hi"))
 
-// Or alternatively,
+// Or shorter
 ChangeEventData("Hi") simulate t
 ```
 
@@ -129,13 +131,14 @@ val s = Simulation.focus >> ChangeEventData("hi").simulation >> Simulation.blur
 s run component
 ```
 
-Also included is [DebugJs](https://github.com/japgolly/scalajs-react/blob/master/test/src/main/scala/japgolly/scalajs/react/test/DebugJs.scala), a dumping ground for functionality useful when testing JS. `inspectObject` is tremendously useful.
+Also included is [DebugJs](https://github.com/japgolly/scalajs-react/blob/master/test/src/main/scala/japgolly/scalajs/react/test/DebugJs.scala), a dumping ground for functionality useful when testing JS. `inspectObject` can be tremendously useful.
 
 #### SBT
 In order to test React and use `ReactTestUtils` you will need to make a few changes to SBT.
 * Add
 ```scala
-jsDependencies += "org.webjars" % "react" % "0.11.1" % "test" / "react-with-addons.js" commonJSName "React"
+jsDependencies += "org.webjars" % "react" % "0.11.1" % "test"
+                  / "react-with-addons.js" commonJSName "React"
 ```
 * Add: `requiresDOM := true`
 * Install PhantomJS.
@@ -159,7 +162,7 @@ Extensions
     def hasFocus: Boolean = ...
     val html = div(hasFocus && (cls := "focus"))(...)
 ```
-* [Extra attributes](https://github.com/japgolly/scalajs-react/blob/master/core/src/main/scala/japgolly/scalajs/react/vdom/ReactVDom.scala#L135-150) not yet found in Scalatags proper.
+* [Extra attributes](https://github.com/japgolly/scalajs-react/blob/master/core/src/main/scala/japgolly/scalajs/react/vdom/ReactVDom.scala#L190-203) not yet found in Scalatags proper.
 
 #### React
 * Where `this.setState(State)` is applicable, you can also run `modState(State => State)`.
