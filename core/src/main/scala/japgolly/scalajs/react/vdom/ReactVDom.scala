@@ -83,13 +83,8 @@ object ReactVDom
     @inline final implicit def autoRender(t: Tag) = t.render
     @inline final implicit def autoRenderS(s: Seq[Tag]) = s.map(_.render)
 
-    final def compositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier = EmptyTag) = new {
-      def apply(as: Option[A]*)(implicit ev: AttrValue[A]): Modifier =
-        as.toList.filter(_.isDefined).map(_.get) match {
-          case h :: t => k := f(h, t)
-          case Nil => e
-        }
-    }
+    final def compositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier = EmptyTag) =
+      new CompositeAttr(k, f, e)
 
     val classSwitch = compositeAttr[String](all.cls, (h,t) => (h::t) mkString " ")
 
@@ -104,6 +99,14 @@ object ReactVDom
 
     @inline final def classSet(a: String, ps: Map[String, Boolean]): Modifier =
       classSet(a, ps.toSeq: _*)
+  }
+
+  final class CompositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier) {
+    def apply(as: Option[A]*)(implicit ev: AttrValue[A]): Modifier =
+      as.toList.filter(_.isDefined).map(_.get) match {
+        case h :: t => k := f(h, t)
+        case Nil => e
+      }
   }
 
   trait Cap extends Util { self =>
