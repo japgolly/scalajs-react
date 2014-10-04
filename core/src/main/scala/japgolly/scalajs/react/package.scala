@@ -6,6 +6,8 @@ import js.{Dynamic, UndefOr, undefined, Object, Number, Any => JAny, Function =>
 
 package object react {
 
+  type TopNode = dom.HTMLElement
+
   type ReactEvent            = SyntheticEvent[dom.Node]
   type ReactClipboardEvent   = SyntheticClipboardEvent[dom.Node]
   type ReactCompositionEvent = SyntheticCompositionEvent[dom.Node]
@@ -43,24 +45,24 @@ package object react {
     n.asInstanceOf[ComponentOrNode]
   @inline final implicit def autoComponentOrNodeU(c: ReactComponentU_): ComponentOrNode =
     c.asInstanceOf[ComponentOrNode]
-  @inline final implicit def autoComponentOrNodeM[N <: dom.Element](c: ReactComponentM[N]): ComponentOrNode =
+  @inline final implicit def autoComponentOrNodeM[N <: TopNode](c: ReactComponentM[N]): ComponentOrNode =
     c.getDOMNode()
 
   /**
    * A named reference to an element in a React VDOM.
    */
-  class Ref[+T <: dom.Element](val name: String) {
+  class Ref[+T <: TopNode](val name: String) {
     @inline final def apply(c: ReactComponentM[_]): UndefOr[ReactComponentM[T]] = apply(c.refs)
     @inline final def apply(s: ComponentScope_M)  : UndefOr[ReactComponentM[T]] = apply(s.refs)
     @inline final def apply(r: RefsObject)        : UndefOr[ReactComponentM[T]] = r[T](name)
   }
-  class RefP[I, T <: dom.Element](f: I => String) {
+  class RefP[I, T <: TopNode](f: I => String) {
     @inline final def apply(i: I) = Ref[T](f(i))
     @inline final def get[S](s: ComponentScope_S[S] with ComponentScope_M)(implicit ev: S =:= I) = apply(ev(s.state))(s)
   }
   object Ref {
-    def apply[T <: dom.Element](name: String) = new Ref[T](name)
-    def param[I, T <: dom.Element](f: I => String) = new RefP[I, T](f)
+    def apply[T <: TopNode](name: String) = new Ref[T](name)
+    def param[I, T <: TopNode](f: I => String) = new RefP[I, T](f)
   }
 
   // ===================================================================================================================
@@ -133,12 +135,12 @@ package object react {
     def render(n: dom.Node) = React.renderComponent(u, n)
   }
 
-  implicit final class UndefReactComponentMExt[T <: dom.HTMLElement](val u: UndefOr[ReactComponentM[T]]) extends AnyVal {
+  implicit final class UndefReactComponentMExt[T <: TopNode](val u: UndefOr[ReactComponentM[T]]) extends AnyVal {
     def tryFocus(): Unit = u.foreach(_.getDOMNode().focus())
   }
 
-  implicit final class ReactComponentMExt[T <: dom.Element](val u: ReactComponentM[T]) extends AnyVal {
-    def domType[N <: dom.Element]: ReactComponentM[N] = u.asInstanceOf[ReactComponentM[N]]
+  implicit final class ReactComponentMExt[T <: TopNode](val u: ReactComponentM[T]) extends AnyVal {
+    def domType[N <: TopNode]: ReactComponentM[N] = u.asInstanceOf[ReactComponentM[N]]
   }
 
   implicit final class PropsChildrenExt(val u: PropsChildren) extends AnyVal {

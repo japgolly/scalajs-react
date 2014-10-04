@@ -1,12 +1,11 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom.HTMLElement
 import scala.scalajs.js.Object
 
 package object test {
 
   final type ComponentClass = ComponentConstructor_
-  final type ComponentM = ReactComponentM[HTMLElement]
+  final type ComponentM = ReactComponentM[TopNode]
 
   @inline final implicit def RTUSChangeEventData  (d: ChangeEventData  ): Object = d.toJs
   @inline final implicit def RTUSKeyboardEventData(d: KeyboardEventData): Object = d.toJs

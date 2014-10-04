@@ -70,7 +70,7 @@ trait ReactComponentU_ extends Object with VDom
 trait ReactComponentU[Props, State, +Backend] extends ReactComponentU_
 
 // TODO ComponentScope should extend this actually
-trait ReactComponentM[+Node <: dom.Element] extends ReactComponentU_ {
+trait ReactComponentM[+Node <: TopNode] extends ReactComponentU_ {
   def getDOMNode(): Node
   def refs: RefsObject
 }
@@ -308,7 +308,7 @@ trait BackendScope[Props, State]
 /** Type of `this.refs` */
 trait RefsObject extends Object {
   @JSBracketAccess
-  def apply[Node <: dom.Element](key: String): UndefOr[ReactComponentM[Node]]
+  def apply[Node <: TopNode](key: String): UndefOr[ReactComponentM[Node]]
 }
 
 /** Additional methods that React mixes into `this.props` */
