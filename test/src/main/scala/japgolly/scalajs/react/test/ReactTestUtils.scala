@@ -129,6 +129,7 @@ case class ChangeEventData(value: UndefOr[String] = undefined) {
     o
   }
   def simulate(t: ComponentOrNode) = ReactTestUtils.Simulate.change(t, this)
+  def simulation = Simulation.change(this)
 }
 
 case class KeyboardEventData(key:      UndefOr[String]  = undefined,
@@ -156,6 +157,9 @@ case class KeyboardEventData(key:      UndefOr[String]  = undefined,
   def simulateKeyDown (t: ComponentOrNode) = ReactTestUtils.Simulate.keyDown (t, this)
   def simulateKeyPress(t: ComponentOrNode) = ReactTestUtils.Simulate.keyPress(t, this)
   def simulateKeyUp   (t: ComponentOrNode) = ReactTestUtils.Simulate.keyUp   (t, this)
+  def simulationKeyDown  = Simulation.keyDown(this)
+  def simulationKeyPress = Simulation.keyPress(this)
+  def simulationKeyUp    = Simulation.keyUp(this)
 }
 
 case class MouseEventData(screenX:  UndefOr[Number]  = undefined,
@@ -195,4 +199,19 @@ case class MouseEventData(screenX:  UndefOr[Number]  = undefined,
   def simulateMouseOver (t: ComponentOrNode) = ReactTestUtils.Simulate.mouseOver (t, this)
   def simulateMouseUp   (t: ComponentOrNode) = ReactTestUtils.Simulate.mouseUp   (t, this)
   def simulateWheel     (t: ComponentOrNode) = ReactTestUtils.Simulate.wheel     (t, this)
+  def simulationDrag       = Simulation.drag      (this)
+  def simulationDragEnd    = Simulation.dragEnd   (this)
+  def simulationDragEnter  = Simulation.dragEnter (this)
+  def simulationDragExit   = Simulation.dragExit  (this)
+  def simulationDragLeave  = Simulation.dragLeave (this)
+  def simulationDragOver   = Simulation.dragOver  (this)
+  def simulationDragStart  = Simulation.dragStart (this)
+  def simulationMouseDown  = Simulation.mouseDown (this)
+  def simulationMouseEnter = Simulation.mouseEnter(this)
+  def simulationMouseLeave = Simulation.mouseLeave(this)
+  def simulationMouseMove  = Simulation.mouseMove (this)
+  def simulationMouseOut   = Simulation.mouseOut  (this)
+  def simulationMouseOver  = Simulation.mouseOver (this)
+  def simulationMouseUp    = Simulation.mouseUp   (this)
+  def simulationWheel      = Simulation.wheel     (this)
 }
