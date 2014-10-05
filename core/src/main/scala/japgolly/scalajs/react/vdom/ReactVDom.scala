@@ -177,7 +177,7 @@ object ReactVDom
     override def toString = render.toString
   }
 
-  @deprecated("Use `EmptyTag` instead. `Nop` will be removed in 0.6.", "0.4.2")
+  @deprecated("Nop has been renamed to EmptyTag and will be removed in 0.7.0.", "0.5.0")
   def Nop = EmptyTag
 
   val EmptyTag: Modifier = new Modifier {
