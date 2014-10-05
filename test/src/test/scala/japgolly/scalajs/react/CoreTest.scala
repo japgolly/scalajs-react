@@ -1,9 +1,9 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom
-import vdom.ReactVDom._
-import all.{Tag => _, _}
 import utest._
+import org.scalajs.dom
+import org.scalajs.dom.HTMLInputElement
+import vdom.ReactVDom._, all.{Tag => _, _}
 import TestUtil._
 import test.ReactTestUtils
 
@@ -12,6 +12,12 @@ object CoreTest extends TestSuite {
   lazy val CA = ReactComponentB[Unit]("CA").render((_,c) => div(c)).buildU
   lazy val CB = ReactComponentB[Unit]("CB").render((_,c) => span(c)).buildU
   lazy val H1 = ReactComponentB[String]("H").render(p => h1(p)).build
+
+  lazy val SI = ReactComponentB[Unit]("SI")
+    .initialState(123)
+    .render(T => input(value := T.state.toString))
+    .domType[HTMLInputElement]
+    .buildU
 
   val tests = TestSuite {
 
@@ -157,10 +163,15 @@ object CoreTest extends TestSuite {
       C(SI("Me",7)) shouldRender "<div>Me/21</div>"
     }
 
-    'instanceState {
-      val C = ReactComponentB[Unit]("C").initialState(123).render(T => p()).buildU
-      val c = ReactTestUtils.renderIntoDocument(C())
+    'mountedStateAccess {
+      val c = ReactTestUtils.renderIntoDocument(SI())
       assert(c.state == 123)
+    }
+
+    'builtWithDomType {
+      val c = ReactTestUtils.renderIntoDocument(SI())
+      val v = c.getDOMNode().value // Look, it knows its DOM node type
+      assert(v == "123")
     }
   }
 }

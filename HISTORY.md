@@ -5,6 +5,7 @@ History
 
 * Just as umounted Scala and JS components are denoted by `ReactComponentU` and `ReactComponentU_` respectively,
   mounted Scala and JS components are now denoted by `ReactComponentM` and `ReactComponentM_`.
+* `ReactComponentB` accepts an optional DOM node type, which is propagated to `ReactComponentU` and `ReactComponentM`.
 * Type changes.
   * `ReactComponentB` innards reworked. Use `ReactComponentB[P,S,B]` in place of `ReactComponentB[P]#B2[S]#B3[B]#B4[C]`.
   * `CompCtor`   → `ReactComponentC`

@@ -6,6 +6,10 @@ import Internal._
 object ReactComponentB {
   def apply[Props](name: String) = new P[Props](name)
 
+  implicit def defaultDomType[P,S,B](c: ReactComponentB[P,S,B]) = c.domType[TopNode]
+  implicit def defaultProps[P,S,B,N <: TopNode](c: ReactComponentB[P,S,B]#AnchorN[N]) = c.propsRequired
+  implicit def defaultDomTypeAndProps[P,S,B](c: ReactComponentB[P,S,B]) = defaultProps(defaultDomType(c))
+
   // ===================================================================================================================
   final class P[Props] private[ReactComponentB](name: String) {
 
@@ -98,22 +102,23 @@ final class ReactComponentB[P, S, B](name: String,
   def shouldComponentUpdate(f: (ComponentScopeM[P, S, B], P, S) => Boolean): ReactComponentB[P, S, B] =
     lc.copy(shouldComponentUpdate = fcEither(lc.shouldComponentUpdate, f))
 
-  def propsRequired         = new Builder(new ReactComponentC.ReqProps(_, None))
-  def propsDefault(p: => P) = new Builder(new ReactComponentC.DefaultProps(_, None, () => p))
-  def propsConst(p: => P)   = new Builder(new ReactComponentC.ConstProps(_, None, () => p))
-
-  // Convenience methods
-
-  @inline def buildSpec = propsRequired.buildSpec
-  @inline def build     = propsRequired.build
-
-  @inline def propsUnit(implicit ev: Unit =:= P) = propsConst(ev(()))
-  @inline def buildU(implicit ev: Unit =:= P)    = propsUnit.build
-
   // ===================================================================================================================
-  final class Builder[C] private[ReactComponentB](cc: ComponentConstructor[P, S, B] => C) {
+  def domType[N2 <: TopNode] = new AnchorN[N2]
 
-    def buildSpec: ComponentSpec[P, S, B] = {
+  final class AnchorN[N <: TopNode] private[ReactComponentB] {
+    @inline private def builder[C](cc: ComponentConstructor[P,S,B,N] => C) = new Builder(cc)
+
+    def propsRequired         = builder(new ReactComponentC.ReqProps[P,S,B,N](_, None))
+    def propsDefault(p: => P) = builder(new ReactComponentC.DefaultProps[P,S,B,N](_, None, () => p))
+    def propsConst(p: => P)   = builder(new ReactComponentC.ConstProps[P,S,B,N](_, None, () => p))
+
+    def propsUnit(implicit ev: Unit =:= P) = propsConst(ev(()))
+    def buildU   (implicit ev: Unit =:= P) = propsUnit.build
+  }
+
+  final class Builder[C, N <: TopNode] private[ReactComponentB](cc: ComponentConstructor[P,S,B,N] => C) {
+
+    def buildSpec: ComponentSpec[P, S, B, N] = {
       val spec = Dynamic.literal(
         "displayName" -> name,
         "backend" -> 0,
@@ -149,19 +154,20 @@ final class ReactComponentB[P, S, B](name: String,
         spec.updateDynamic("componentWillReceiveProps")(g: ThisFunction)
       }
 
-      spec.asInstanceOf[ComponentSpec[P, S, B]]
+      spec.asInstanceOf[ComponentSpec[P, S, B, N]]
     }
 
-    def build: C = cc(React.createClass(buildSpec))
+    def build: C =
+      cc(React.createClass(buildSpec))
 
     @deprecated("As the B in ReactComponentB is for Builder, create() has been renamed to build() and will be removed in 0.7.0.", "0.5.0")
     def create = build
   }
 
   @deprecated("ReactComponentB.propsAlways() has been renamed to propsConst() and will be removed in 0.7.0.", "0.5.0")
-  def propsAlways(p: => P)  = propsConst(p)
+  def propsAlways(p: => P)  = this.propsConst(p)
   @deprecated("As the B in ReactComponentB is for Builder, create() has been renamed to build() and will be removed in 0.7.0.", "0.5.0")
-  def create = build
+  def create = this.build
   @deprecated("As the B in ReactComponentB is for Builder, createU() has been renamed to buildU() and will be removed in 0.7.0.", "0.5.0")
-  def createU(implicit ev: Unit =:= P) = buildU
+  def createU(implicit ev: Unit =:= P) = this.buildU
 }

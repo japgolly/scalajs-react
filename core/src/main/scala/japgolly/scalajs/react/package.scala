@@ -68,11 +68,11 @@ package object react {
 
   // ===================================================================================================================
 
-  @inline final implicit def autoJsCtor(c: ReactComponentC[_, _, _]): ComponentConstructor_ = c.jsCtor
+  @inline final implicit def autoJsCtor[P,S,B,N <: TopNode](c: ReactComponentC[P,S,B,N]): ComponentConstructor_ = c.jsCtor
 
   /** Component constructor. */
-  trait ReactComponentC[P, S, +B] {
-    val jsCtor: ComponentConstructor[P, S, B]
+  trait ReactComponentC[P, S, +B, +N <: TopNode] {
+    val jsCtor: ComponentConstructor[P,S,B,N]
   }
 
   object ReactComponentC {
@@ -82,22 +82,22 @@ package object react {
       j
     }
 
-    final class ReqProps[P, S, +B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny]) extends ReactComponentC[P, S, B] {
+    final class ReqProps[P, S, +B, +N <: TopNode](val jsCtor: ComponentConstructor[P,S,B,N], key: Option[JAny]) extends ReactComponentC[P,S,B,N] {
       def apply(props: P, children: VDom*) = jsCtor(mkProps(props, key), children: _*)
       def withKey(key: JAny) = new ReqProps(jsCtor, Some(key))
     }
 
-    final class DefaultProps[P, S, +B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], default: () => P) extends ReactComponentC[P, S, B] {
-      def apply(props: Option[P], children: VDom*): ReactComponentU[P, S, B] =
+    final class DefaultProps[P, S, +B, +N <: TopNode](val jsCtor: ComponentConstructor[P,S,B,N], key: Option[JAny], default: () => P) extends ReactComponentC[P,S,B,N] {
+      def apply(props: Option[P], children: VDom*): ReactComponentU[P,S,B,N] =
         jsCtor(mkProps(props getOrElse default(), key), children: _*)
 
-      def apply(children: VDom*): ReactComponentU[P, S, B] =
+      def apply(children: VDom*): ReactComponentU[P,S,B,N] =
         apply(None, children: _*)
 
       def withKey(key: JAny) = new DefaultProps(jsCtor, Some(key), default)
     }
 
-    final class ConstProps[P, S, +B](val jsCtor: ComponentConstructor[P, S, B], key: Option[JAny], props: () => P) extends ReactComponentC[P, S, B] {
+    final class ConstProps[P, S, +B, +N <: TopNode](val jsCtor: ComponentConstructor[P,S,B,N], key: Option[JAny], props: () => P) extends ReactComponentC[P,S,B,N] {
       def apply(children: VDom*) = jsCtor(mkProps(props(), key), children: _*)
       def withKey(key: JAny) = new ConstProps(jsCtor, Some(key), props)
     }
@@ -111,7 +111,7 @@ package object react {
   }
 
   implicit final class ReactExt(val u: React.type) extends AnyVal {
-    @inline def renderComponentC[P, S, B](c: ReactComponentU[P, S, B], n: dom.Node)(callback: ComponentScopeM[P, S, B] => Unit) =
+    @inline def renderComponentC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeMN[P,S,B,N] => Unit) =
       u.renderComponent(c, n, callback)
   }
 
@@ -132,7 +132,7 @@ package object react {
   val preventDefaultF  = (_: SyntheticEvent[dom.Node]).preventDefault()
   val stopPropagationF = (_: SyntheticEvent[dom.Node]).stopPropagation()
 
-  implicit final class ReactComponentUExt[Props, State, Backend](val u: ReactComponentU[Props, State, Backend]) extends AnyVal {
+  implicit final class ReactComponentUExt[P,S,B,N <: TopNode](val u: ReactComponentU[P,S,B,N]) extends AnyVal {
     def render(n: dom.Node) = React.renderComponent(u, n)
   }
 
@@ -141,10 +141,7 @@ package object react {
   }
 
   implicit final class ReactComponentM_Ext[N <: TopNode](val u: ReactComponentM_[N]) extends AnyVal {
-    def domType[N2 <: TopNode]: ReactComponentM_[N2] = u.asInstanceOf[ReactComponentM_[N2]]
-  }
-  implicit final class ReactComponentMExt[P,S,B,N <: TopNode](val u: ReactComponentM[P,S,B,N]) extends AnyVal {
-    def domType[N2 <: TopNode]: ReactComponentM[P,S,B,N2] = u.asInstanceOf[ReactComponentM[P,S,B,N2]]
+    def domType[N2 <: TopNode] = u.asInstanceOf[ReactComponentM_[N2]]
   }
 
   implicit final class PropsChildrenExt(val u: PropsChildren) extends AnyVal {

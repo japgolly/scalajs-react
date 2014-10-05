@@ -8,12 +8,12 @@ import utest._
 
 object TestUtil {
 
-  def assertRender(comp: ReactComponentU[_, _, _], expected: String): Unit = {
+  def assertRender(comp: ReactComponentU_, expected: String): Unit = {
     val rendered: String = React.renderComponentToStaticMarkup(comp)
     assert(rendered == expected)
   }
 
-  implicit class ReactComponentUAS(val c: ReactComponentU[_, _, _]) extends AnyVal {
+  implicit class ReactComponentUAS(val c: ReactComponentU_) extends AnyVal {
     def shouldRender(expected: String) = assertRender(c, expected)
   }
 
@@ -24,13 +24,14 @@ object TestUtil {
   def collector1C[A](f: PropsChildren => A) =
     collector1[A](t => f(t.propsChildren))
 
-  def run1[A](C: ReactComponentC.ReqProps[AtomicReference[Option[A]], _, _])(f: AtomicReference[Option[A]] => ReactComponentU[AtomicReference[Option[A]], _, _]): A = {
+  def run1[A](C: ReactComponentC.ReqProps[AtomicReference[Option[A]], _, _, _])
+             (f: AtomicReference[Option[A]] => ReactComponentU[AtomicReference[Option[A]], _, _, _]): A = {
     val a = new AtomicReference[Option[A]](None)
     React renderComponentToStaticMarkup f(a)
     a.get().get
   }
 
-  def run1C[A](c: ReactComponentC.ReqProps[AtomicReference[Option[A]], _, _], children: VDom*): A =
+  def run1C[A](c: ReactComponentC.ReqProps[AtomicReference[Option[A]], _, _, _], children: VDom*): A =
     run1(c)(a => c(a, children: _*))
 
   def collectorN[A](f: (ListBuffer[A], ComponentScopeU[_, _, _]) => Unit) =
@@ -40,13 +41,14 @@ object TestUtil {
   def collectorNC[A](f: (ListBuffer[A], PropsChildren) => Unit) =
     collectorN[A]((l,t) => f(l, t.propsChildren))
 
-  def runN[A](C: ReactComponentC.ReqProps[ListBuffer[A], _, _])(f: ListBuffer[A] => ReactComponentU[ListBuffer[A], _, _]): List[A] = {
+  def runN[A](C: ReactComponentC.ReqProps[ListBuffer[A], _, _, _])
+             (f: ListBuffer[A] => ReactComponentU[ListBuffer[A], _, _, _]): List[A] = {
     val l = new ListBuffer[A]
     React renderComponentToStaticMarkup f(l)
     l.result()
   }
 
-  def runNC[A](c: ReactComponentC.ReqProps[ListBuffer[A], _, _], children: VDom*) =
+  def runNC[A](c: ReactComponentC.ReqProps[ListBuffer[A], _, _, _], children: VDom*) =
     runN(c)(l => c(l, children: _*))
 
 }

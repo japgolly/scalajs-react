@@ -13,7 +13,7 @@ object React extends Object {
    * prototypal classes is that you don't need to call new on them. They are convenience wrappers that construct
    * backing instances (via new) for you.
    */
-  def createClass[P, S, B](spec: ComponentSpec[P, S, B]): ComponentConstructor[P, S, B] = ???
+  def createClass[P,S,B,N <: TopNode](spec: ComponentSpec[P,S,B,N]): ComponentConstructor[P,S,B,N] = ???
 
   def renderComponent(c: ReactComponentU_, n: dom.Node)
     : ReactComponentM_[TopNode] = ???
@@ -21,11 +21,11 @@ object React extends Object {
   def renderComponent(c: ReactComponentU_, n: dom.Node, callback: ThisFunction)
     : ReactComponentM_[TopNode] = ???
 
-  def renderComponent[P,S,B](c: ReactComponentU[P,S,B], n: dom.Node)
-    : ReactComponentM[P,S,B,TopNode] = ???
+  def renderComponent[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)
+    : ReactComponentM[P,S,B,N] = ???
 
-  def renderComponent[P,S,B](c: ReactComponentU[P,S,B], n: dom.Node, callback: ThisFunction0[ReactComponentM[P,S,B,TopNode], Unit])
-    : ReactComponentM[P,S,B,TopNode] = ???
+  def renderComponent[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node, callback: ThisFunction0[ReactComponentM[P,S,B,N], Unit])
+    : ReactComponentM[P,S,B,N] = ???
 
   /** Configure React's event system to handle touch events on mobile devices. */
   def initializeTouchEvents(shouldUseTouch: Boolean): Unit = ???
@@ -61,12 +61,12 @@ trait ReactChildren extends Object {
 /** A React DOM representation of HTML. Could be React.DOM output, or a React component. */
 trait VDom extends Object
 
-trait ComponentSpec[Props, State, +Backend] extends Object
+trait ComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Object
 
 trait ComponentConstructor_ extends JFn
 
-trait ComponentConstructor[Props, State, +Backend] extends ComponentConstructor_ {
-  def apply(props: WrapObj[Props], children: VDom*): ReactComponentU[Props, State, Backend] = ???
+trait ComponentConstructor[Props, State, +Backend, +Node <: TopNode] extends ComponentConstructor_ {
+  def apply(props: WrapObj[Props], children: VDom*): ReactComponentU[Props, State, Backend, Node] = ???
 }
 
 /** An unmounted component. Not guaranteed to have been created by Scala, could be a React addon. */
@@ -80,7 +80,7 @@ trait ReactComponentM_[+Node <: TopNode]
   with ComponentScope_M[Node]
 
 /** An unmounted Scala component. */
-trait ReactComponentU[Props, State, +Backend] extends ReactComponentU_
+trait ReactComponentU[Props, State, +Backend, +Node <: TopNode] extends ReactComponentU_
 
 /** A mounted Scala component. */
 trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]

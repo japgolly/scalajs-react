@@ -12,7 +12,7 @@ object ReactTestUtils extends Object {
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
   def renderIntoDocument(c: ReactComponentU_): ComponentM = ???
-  def renderIntoDocument[P,S,B](c: ReactComponentU[P,S,B]): ReactComponentM[P,S,B,TopNode] = ???
+  def renderIntoDocument[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N]): ReactComponentM[P,S,B,N] = ???
 
   /**
    * Pass a mocked component module to this method to augment it with useful methods that allow it to be used as a dummy
