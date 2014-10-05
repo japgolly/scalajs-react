@@ -99,7 +99,6 @@ object CoreTest extends TestSuite {
     }
 
     'children {
-
       'argsToComponents {
         'listOfScalatags {
           CA(List(h1("nice"), h2("good"))) shouldRender "<div><h1>nice</h1><h2>good</h2></div>" }
@@ -156,6 +155,12 @@ object CoreTest extends TestSuite {
         div(T.state.s + "/" + (f.state*3))
       }).build
       C(SI("Me",7)) shouldRender "<div>Me/21</div>"
+    }
+
+    'instanceState {
+      val C = ReactComponentB[Unit]("C").initialState(123).render(T => p()).buildU
+      val c = ReactTestUtils.renderIntoDocument(C())
+      assert(c.state == 123)
     }
   }
 }

@@ -24,7 +24,7 @@ object ScalazReact {
       a.==>[N, E](eventHandler(_).unsafePerformIO())
   }
 
-  implicit final class SzRExt_C_M(val u: ComponentScope_M) extends AnyVal {
+  implicit final class SzRExt_C_M(val u: ComponentScope_M[_]) extends AnyVal {
     def forceUpdateIO = IO(u.forceUpdate())
   }
 

@@ -15,10 +15,17 @@ object React extends Object {
    */
   def createClass[P, S, B](spec: ComponentSpec[P, S, B]): ComponentConstructor[P, S, B] = ???
 
-  def renderComponent(c: ReactComponentU_, n: dom.Node): Dynamic = ???
-  def renderComponent(c: ReactComponentU_, n: dom.Node, callback: ThisFunction): Dynamic = ???
-  def renderComponent[P, S, B](c: ReactComponentU[P, S, B], n: dom.Node): ComponentScopeM[P, S, B] = ???
-  def renderComponent[P, S, B](c: ReactComponentU[P, S, B], n: dom.Node, callback: ThisFunction0[ComponentScopeM[P, S, B], Unit]): ComponentScopeM[P, S, B] = ???
+  def renderComponent(c: ReactComponentU_, n: dom.Node)
+    : ReactComponentM_[TopNode] = ???
+
+  def renderComponent(c: ReactComponentU_, n: dom.Node, callback: ThisFunction)
+    : ReactComponentM_[TopNode] = ???
+
+  def renderComponent[P,S,B](c: ReactComponentU[P,S,B], n: dom.Node)
+    : ReactComponentM[P,S,B,TopNode] = ???
+
+  def renderComponent[P,S,B](c: ReactComponentU[P,S,B], n: dom.Node, callback: ThisFunction0[ReactComponentM[P,S,B,TopNode], Unit])
+    : ReactComponentM[P,S,B,TopNode] = ???
 
   /** Configure React's event system to handle touch events on mobile devices. */
   def initializeTouchEvents(shouldUseTouch: Boolean): Unit = ???
@@ -56,24 +63,29 @@ trait VDom extends Object
 
 trait ComponentSpec[Props, State, +Backend] extends Object
 
-trait ComponentConstructor_ extends JFn {
-}
+trait ComponentConstructor_ extends JFn
 
 trait ComponentConstructor[Props, State, +Backend] extends ComponentConstructor_ {
   def apply(props: WrapObj[Props], children: VDom*): ReactComponentU[Props, State, Backend] = ???
 }
 
 /** An unmounted component. Not guaranteed to have been created by Scala, could be a React addon. */
-trait ReactComponentU_ extends Object with VDom
+trait ReactComponentU_ extends Object with VDom {
+  def dynamic = this.asInstanceOf[Dynamic]
+}
 
-/** An unmounted component with known PSB types. */
+/** A mounted component. Not guaranteed to have been created by Scala, could be a React addon. */
+trait ReactComponentM_[+Node <: TopNode]
+  extends ReactComponentU_
+  with ComponentScope_M[Node]
+
+/** An unmounted Scala component. */
 trait ReactComponentU[Props, State, +Backend] extends ReactComponentU_
 
-// TODO ComponentScope should extend this actually
-trait ReactComponentM[+Node <: TopNode] extends ReactComponentU_ {
-  def getDOMNode(): Node
-  def refs: RefsObject
-}
+/** A mounted Scala component. */
+trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]
+  extends ReactComponentM_[Node]
+  with ComponentScopeMN[Props, State, Backend, Node]
 
 // =====================================================================================================================
 // Scope
@@ -99,17 +111,18 @@ trait ComponentScope_PS[-Props, +State] extends Object {
   @JSName("getInitialState") def _getInitialState(s: WrapObj[Props]): WrapObj[State] = ???
 }
 
-trait ComponentScope_M extends Object {
+trait ComponentScope_M[+Node <: TopNode] extends Object {
+
   /** Can be invoked on any mounted component in order to obtain a reference to its rendered DOM node. */
-  def getDOMNode(): dom.Element
+  def getDOMNode(): Node
+
+  def refs: RefsObject
 
   /**
    * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has
    * changed without using this.setState().
    */
   def forceUpdate(): Unit
-
-  def refs: RefsObject
 }
 
 /** Type of an unmounted component's `this` scope. */
@@ -126,27 +139,28 @@ trait ComponentScopeWU[Props, +State, +Backend]
   with ComponentScope_P[Props]
   with ComponentScope_S[State]
   with ComponentScope_B[Backend]
-  with ComponentScope_M
+  with ComponentScope_M[TopNode]
   // prohibits: .setState
 
 /** Type of a mounted component's `this` scope. */
-trait ComponentScopeM[Props, State, +Backend]
+trait ComponentScopeM[Props, State, +Backend] extends ComponentScopeMN[Props, State, Backend, TopNode]
+trait ComponentScopeMN[Props, State, +Backend, +Node <: TopNode]
   extends ComponentScope_PS[Props, State]
   with ComponentScopeU[Props, State, Backend]
-  with ComponentScope_M
+  with ComponentScope_M[Node]
 
 /** Type of a component's `this` scope as is available to backends. */
 trait BackendScope[Props, State]
   extends ComponentScope_PS[Props, State]
   with ComponentScope_P[Props]
   with ComponentScope_SS[State]
-  with ComponentScope_M
+  with ComponentScope_M[TopNode]
   // prohibits: .backend
 
 /** Type of `this.refs` */
 trait RefsObject extends Object {
   @JSBracketAccess
-  def apply[Node <: TopNode](key: String): UndefOr[ReactComponentM[Node]]
+  def apply[Node <: TopNode](key: String): UndefOr[ReactComponentM_[Node]]
 }
 
 /** Additional methods that React mixes into `this.props` */

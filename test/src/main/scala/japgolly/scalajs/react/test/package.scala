@@ -5,7 +5,7 @@ import scala.scalajs.js.Object
 package object test {
 
   final type ComponentClass = ComponentConstructor_
-  final type ComponentM = ReactComponentM[TopNode]
+  final type ComponentM = ReactComponentM_[TopNode]
 
   @inline final implicit def RTUSChangeEventData  (d: ChangeEventData  ): Object = d.toJs
   @inline final implicit def RTUSKeyboardEventData(d: KeyboardEventData): Object = d.toJs
