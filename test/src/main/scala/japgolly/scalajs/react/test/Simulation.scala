@@ -14,6 +14,9 @@ case class Simulation(run: ComponentOrNode => Unit) {
 
   @inline final def >>     (f: Simulation) = this andThen f
   @inline final def compose(f: Simulation) = f andThen this
+
+  final def runN(cs: ComponentOrNode*): Unit =
+    cs foreach run
 }
 
 object Simulation {
