@@ -111,6 +111,9 @@ object Simulation {
 
   // Helpers for common scenarios
 
-  def changeAndBlur(newValue: String) =
-    ChangeEventData(value = newValue).simulation >> blur
+  def focusSimBlur(s: Simulation) =
+    focus >> s >> blur
+
+  def focusChangeBlur(newValue: String) =
+    focusSimBlur(ChangeEventData(value = newValue).simulation)
 }

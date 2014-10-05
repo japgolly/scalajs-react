@@ -127,6 +127,9 @@ val s = a andThen b andThen c
 // Or shorter
 val s = Simulation.focus >> ChangeEventData("hi").simulation >> Simulation.blur
 
+// Or even shorter again, using a convenience method
+val s = Simulation.focusChangeBlur("hi")
+
 // Then run it later
 s run component
 ```

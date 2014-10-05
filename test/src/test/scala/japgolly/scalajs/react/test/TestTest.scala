@@ -58,6 +58,17 @@ object TestTest extends TestSuite {
         val t = c.getDOMNode().value
         assert(t == "HEHE")
       }
+      'focusChangeBlur {
+        var events = Vector.empty[String]
+        val C = ReactComponentB[Unit]("C").render(T => {
+          def e(s: String): Unit = events :+= s
+          input(ref := inputRef, onfocus --> e("focus"), onchange --> e("change"), onblur --> e("blur"))
+        }).createU
+        val i = inputRef(ReactTestUtils.renderIntoDocument(C())).get
+        Simulation.focusChangeBlur("good") run i
+        assert(events == Vector("focus", "change", "blur"))
+        assert(i.getDOMNode().value == "good")
+      }
     }
   }
 }
