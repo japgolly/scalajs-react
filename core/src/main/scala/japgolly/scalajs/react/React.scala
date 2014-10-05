@@ -76,6 +76,89 @@ trait ReactComponentM[+Node <: TopNode] extends ReactComponentU_ {
 }
 
 // =====================================================================================================================
+// Scope
+
+trait ComponentScope_P[+Props] extends Object {
+  @JSName("props") def _props: WrapObj[Props] with PropsMixedIn = ???
+}
+
+trait ComponentScope_S[+State] extends Object {
+  @JSName("state") def _state: WrapObj[State] = ???
+}
+
+trait ComponentScope_SS[State] extends ComponentScope_S[State] {
+  @JSName("setState") def _setState(s: WrapObj[State]): Unit = ???
+  @JSName("setState") def _setState(s: WrapObj[State], callback: UndefOr[JFn]): Unit = ???
+}
+
+trait ComponentScope_B[+Backend] extends Object {
+  def backend: Backend = ???
+}
+
+trait ComponentScope_PS[-Props, +State] extends Object {
+  @JSName("getInitialState") def _getInitialState(s: WrapObj[Props]): WrapObj[State] = ???
+}
+
+trait ComponentScope_M extends Object {
+  /** Can be invoked on any mounted component in order to obtain a reference to its rendered DOM node. */
+  def getDOMNode(): dom.Element
+
+  /**
+   * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has
+   * changed without using this.setState().
+   */
+  def forceUpdate(): Unit
+
+  def refs: RefsObject
+}
+
+/** Type of an unmounted component's `this` scope. */
+trait ComponentScopeU[Props, State, +Backend]
+  extends ComponentScope_PS[Props, State]
+  with ComponentScope_P[Props]
+  with ComponentScope_SS[State]
+  with ComponentScope_B[Backend]
+  // prohibits: ComponentScope_M.*
+
+/** Type of a component's `this` scope during componentWillUpdate. */
+trait ComponentScopeWU[Props, +State, +Backend]
+  extends ComponentScope_PS[Props, State]
+  with ComponentScope_P[Props]
+  with ComponentScope_S[State]
+  with ComponentScope_B[Backend]
+  with ComponentScope_M
+  // prohibits: .setState
+
+/** Type of a mounted component's `this` scope. */
+trait ComponentScopeM[Props, State, +Backend]
+  extends ComponentScope_PS[Props, State]
+  with ComponentScopeU[Props, State, Backend]
+  with ComponentScope_M
+
+/** Type of a component's `this` scope as is available to backends. */
+trait BackendScope[Props, State]
+  extends ComponentScope_PS[Props, State]
+  with ComponentScope_P[Props]
+  with ComponentScope_SS[State]
+  with ComponentScope_M
+  // prohibits: .backend
+
+/** Type of `this.refs` */
+trait RefsObject extends Object {
+  @JSBracketAccess
+  def apply[Node <: TopNode](key: String): UndefOr[ReactComponentM[Node]]
+}
+
+/** Additional methods that React mixes into `this.props` */
+trait PropsMixedIn extends Object {
+  def key: UndefOr[String] = ???
+  def children: PropsChildren = ???
+}
+
+/** Type of `this.props.children` */
+trait PropsChildren extends Object
+
+// =====================================================================================================================
 // Events
 
 /** http://facebook.github.io/react/docs/events.html */
@@ -236,86 +319,3 @@ trait SyntheticWheelEvent[+DOMEventTarget <: dom.Node] extends SyntheticMouseEve
    */
   val deltaMode: Number = ???
 }
-
-// =====================================================================================================================
-// Scope
-
-trait ComponentScope_P[+Props] extends Object {
-  @JSName("props") def _props: WrapObj[Props] with PropsMixedIn = ???
-}
-
-trait ComponentScope_S[+State] extends Object {
-  @JSName("state") def _state: WrapObj[State] = ???
-}
-
-trait ComponentScope_SS[State] extends ComponentScope_S[State] {
-  @JSName("setState") def _setState(s: WrapObj[State]): Unit = ???
-  @JSName("setState") def _setState(s: WrapObj[State], callback: UndefOr[JFn]): Unit = ???
-}
-
-trait ComponentScope_B[+Backend] extends Object {
-  def backend: Backend = ???
-}
-
-trait ComponentScope_PS[-Props, +State] extends Object {
-  @JSName("getInitialState") def _getInitialState(s: WrapObj[Props]): WrapObj[State] = ???
-}
-
-trait ComponentScope_M extends Object {
-  /** Can be invoked on any mounted component in order to obtain a reference to its rendered DOM node. */
-  def getDOMNode(): dom.Element
-
-  /**
-   * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has
-   * changed without using this.setState().
-   */
-  def forceUpdate(): Unit
-
-  def refs: RefsObject
-}
-
-/** Type of an unmounted component's `this` scope. */
-trait ComponentScopeU[Props, State, +Backend]
-  extends ComponentScope_PS[Props, State]
-  with ComponentScope_P[Props]
-  with ComponentScope_SS[State]
-  with ComponentScope_B[Backend]
-  // prohibits: ComponentScope_M.*
-
-/** Type of a component's `this` scope during componentWillUpdate. */
-trait ComponentScopeWU[Props, +State, +Backend]
-  extends ComponentScope_PS[Props, State]
-  with ComponentScope_P[Props]
-  with ComponentScope_S[State]
-  with ComponentScope_B[Backend]
-  with ComponentScope_M
-  // prohibits: .setState
-
-/** Type of a mounted component's `this` scope. */
-trait ComponentScopeM[Props, State, +Backend]
-  extends ComponentScope_PS[Props, State]
-  with ComponentScopeU[Props, State, Backend]
-  with ComponentScope_M
-
-/** Type of a component's `this` scope as is available to backends. */
-trait BackendScope[Props, State]
-  extends ComponentScope_PS[Props, State]
-  with ComponentScope_P[Props]
-  with ComponentScope_SS[State]
-  with ComponentScope_M
-  // prohibits: .backend
-
-/** Type of `this.refs` */
-trait RefsObject extends Object {
-  @JSBracketAccess
-  def apply[Node <: TopNode](key: String): UndefOr[ReactComponentM[Node]]
-}
-
-/** Additional methods that React mixes into `this.props` */
-trait PropsMixedIn extends Object {
-  def key: UndefOr[String] = ???
-  def children: PropsChildren = ???
-}
-
-/** Type of `this.props.children` */
-trait PropsChildren extends Object
