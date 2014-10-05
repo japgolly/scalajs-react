@@ -22,7 +22,7 @@ object ReactExamples extends js.JSApp {
 
     val HelloMessage = ReactComponentB[String]("HelloMessage")
       .render(name => div("Hello ", name))
-      .create
+      .build
 
     React.renderComponent(HelloMessage("John"), mountNode)
   }
@@ -46,7 +46,7 @@ object ReactExamples extends js.JSApp {
       .componentDidMount(scope =>
         scope.backend.interval = window.setInterval(scope.backend.tick(scope), 1000))
       .componentWillUnmount(_.backend.interval foreach window.clearInterval)
-      .createU
+      .buildU
 
     React.renderComponent(Timer(), mountNode)
   }
@@ -60,7 +60,7 @@ object ReactExamples extends js.JSApp {
         def createItem(itemText: String) = li(itemText)
         ul(P map createItem)
       })
-      .create
+      .build
 
     case class State(items: List[String], text: String)
 
@@ -85,7 +85,7 @@ object ReactExamples extends js.JSApp {
             button("Add #", S.items.length + 1)
           )
         )
-      ).createU
+      ).buildU
 
     React.renderComponent(TodoApp(), mountNode)
   }
@@ -111,7 +111,7 @@ object ReactExamples extends js.JSApp {
           div(onclick --> B.clearAndFocusInput)("Click to Focus and Reset"),
           input(ref := theInput, value := S, onchange ==> B.handleChange)
         )
-      ).createU
+      ).buildU
 
     React.renderComponent(App(), mountNode)
   }

@@ -9,15 +9,15 @@ import test.ReactTestUtils
 
 object CoreTest extends TestSuite {
 
-  lazy val CA = ReactComponentB[Unit]("CA").render((_,c) => div(c)).createU
-  lazy val CB = ReactComponentB[Unit]("CB").render((_,c) => span(c)).createU
-  lazy val H1 = ReactComponentB[String]("H").render(p => h1(p)).create
+  lazy val CA = ReactComponentB[Unit]("CA").render((_,c) => div(c)).buildU
+  lazy val CB = ReactComponentB[Unit]("CB").render((_,c) => span(c)).buildU
+  lazy val H1 = ReactComponentB[String]("H").render(p => h1(p)).build
 
   val tests = TestSuite {
 
     'scalatags {
       def test(subj: VDom, exp: String): Unit =
-        ReactComponentB[Unit]("tmp").render((_,_) => subj).createU.apply() shouldRender exp
+        ReactComponentB[Unit]("tmp").render((_,_) => subj).buildU.apply() shouldRender exp
 
       def eh: SyntheticDragEvent[dom.Node] => Unit = ???
       def attr(t: Tag) = t(onclick ==> eh)
@@ -28,16 +28,16 @@ object CoreTest extends TestSuite {
 
     'props {
       'unit {
-        val r = ReactComponentB[Unit]("U").render((_,c) => h1(c)).createU
+        val r = ReactComponentB[Unit]("U").render((_,c) => h1(c)).buildU
         r(div("great")) shouldRender "<h1><div>great</div></h1>"
       }
 
       'required {
-        val r = ReactComponentB[String]("C").render(name => div("Hi ", name)).create
+        val r = ReactComponentB[String]("C").render(name => div("Hi ", name)).build
         r("Mate") shouldRender "<div>Hi Mate</div>"
       }
 
-      val O = ReactComponentB[String]("C").render(name => div("Hey ", name)).propsDefault("man").create
+      val O = ReactComponentB[String]("C").render(name => div("Hey ", name)).propsDefault("man").build
       'optionalNone {
         O() shouldRender "<div>Hey man</div>"
       }
@@ -46,7 +46,7 @@ object CoreTest extends TestSuite {
       }
 
       'always {
-        val r = ReactComponentB[String]("C").render(name => div("Hi ", name)).propsConst("there").create
+        val r = ReactComponentB[String]("C").render(name => div("Hi ", name)).propsConst("there").build
         r() shouldRender "<div>Hi there</div>"
       }
     }
@@ -55,7 +55,7 @@ object CoreTest extends TestSuite {
       'configure {
         var called = 0
         val f = (_: ReactComponentB[Unit,Unit,Unit]).componentWillMount(_ => called += 1)
-        val c = ReactComponentB[Unit]("X").render(_ => div("")).configure(f, f).createU
+        val c = ReactComponentB[Unit]("X").render(_ => div("")).configure(f, f).buildU
         ReactTestUtils.renderIntoDocument(c())
         assert(called == 2)
       }
@@ -74,25 +74,25 @@ object CoreTest extends TestSuite {
         val X = ReactComponentB[List[String]]("X").render(P => {
           def createItem(itemText: String) = li(itemText)
           ul(P map createItem)
-        }).create
+        }).build
         X(List("123","abc")) shouldRender "<ul><li>123</li><li>abc</li></ul>"
       }
       'listOfReactComponents {
-        val X = ReactComponentB[List[String]]("X").render(P => ul(P.map(i => H1(i)))).create
+        val X = ReactComponentB[List[String]]("X").render(P => ul(P.map(i => H1(i)))).build
         X(List("123","abc")) shouldRender "<ul><h1>123</h1><h1>abc</h1></ul>"
       }
     }
 
     'classSet {
       'allConditional {
-        val r = ReactComponentB[(Boolean,Boolean)]("C").render(p => div(classSet("p1" -> p._1, "p2" -> p._2))("x")).create
+        val r = ReactComponentB[(Boolean,Boolean)]("C").render(p => div(classSet("p1" -> p._1, "p2" -> p._2))("x")).build
         r((false, false)) shouldRender """<div>x</div>"""
         r((true,  false)) shouldRender """<div class="p1">x</div>"""
         r((false, true))  shouldRender """<div class="p2">x</div>"""
         r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
       }
       'hasMandatory {
-        val r = ReactComponentB[Boolean]("C").render(p => div(classSet("mmm", "ccc" -> p))("x")).create
+        val r = ReactComponentB[Boolean]("C").render(p => div(classSet("mmm", "ccc" -> p))("x")).build
         r(false) shouldRender """<div class="mmm">x</div>"""
         r(true)  shouldRender """<div class="mmm ccc">x</div>"""
       }
@@ -154,7 +154,7 @@ object CoreTest extends TestSuite {
         val f = T.focusState(_.i)((a,b) => a.copy(i = b))
         // inc(f)
         div(T.state.s + "/" + (f.state*3))
-      }).create
+      }).build
       C(SI("Me",7)) shouldRender "<div>Me/21</div>"
     }
   }

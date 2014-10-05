@@ -9,6 +9,10 @@ History
   * `CompCtorP`  → `ReactComponentC.ReqProps`
   * `CompCtorOP` → `ReactComponentC.DefaultProps`
   * `CompCtorNP` → `ReactComponentC.ConstProps`
+* Renamed methods:
+  * `ReactComponentB.create` → `build`
+  * `ReactComponentB.createU` → `buildU`
+  * `ReactComponentB.propsAlways` → `propsConst`
 * Added `Simulation` for composition and abstraction of `ReactTestUtils.Simulate` procedures.
 
 ### 0.4.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.0...v0.4.1))

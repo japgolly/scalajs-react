@@ -80,7 +80,7 @@ Differences from React proper
 ```
 * To specify a `key` when creating a React component, instead of merging it into the props, call `.withKey()` before providing the props and children.
 ```scala
-    val Example = ReactComponentB[String]("Eg").render(i => h1(i)).create
+    val Example = ReactComponentB[String]("Eg").render(i => h1(i)).build
     Example.withKey("key1")("The Prop")
 ```
 

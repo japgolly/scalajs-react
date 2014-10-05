@@ -19,7 +19,7 @@ object TestUtil {
 
   def collector1[A](f: ComponentScopeU[_, _, _] => A) =
     ReactComponentB[AtomicReference[Option[A]]]("C₁").stateless
-      .render(T => { T.props set Some(f(T)); div ("x") }).create
+      .render(T => { T.props set Some(f(T)); div ("x") }).build
 
   def collector1C[A](f: PropsChildren => A) =
     collector1[A](t => f(t.propsChildren))
@@ -35,7 +35,7 @@ object TestUtil {
 
   def collectorN[A](f: (ListBuffer[A], ComponentScopeU[_, _, _]) => Unit) =
     ReactComponentB[ListBuffer[A]]("Cₙ").stateless
-      .render(T => { f(T.props, T); div ("x") }).create
+      .render(T => { f(T.props, T); div ("x") }).build
 
   def collectorNC[A](f: (ListBuffer[A], PropsChildren) => Unit) =
     collectorN[A]((l,t) => f(l, t.propsChildren))

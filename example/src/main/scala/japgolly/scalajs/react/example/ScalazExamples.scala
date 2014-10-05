@@ -20,7 +20,7 @@ object ScalazExamples {
         def createItem(itemText: String) = li(itemText)
         ul(P map createItem)
       })
-      .create
+      .build
 
     case class State(items: List[String], text: String)
 
@@ -50,7 +50,7 @@ object ScalazExamples {
             button("Add #", S.items.length + 1)
           )
         )
-      ).createU
+      ).buildU
 
     React.renderComponent(TodoApp(), mountNode)
   }

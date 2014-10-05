@@ -102,16 +102,13 @@ final class ReactComponentB[P, S, B](name: String,
   def propsDefault(p: => P) = new Builder(new ReactComponentC.DefaultProps(_, None, () => p))
   def propsConst(p: => P)   = new Builder(new ReactComponentC.ConstProps(_, None, () => p))
 
-  @deprecated("propsAlways() has been renamed to propsConst() and will be removed in 0.6.0.", "0.5.0")
-  def propsAlways(p: => P)  = propsConst(p)
-
   // Convenience methods
 
   @inline def buildSpec = propsRequired.buildSpec
-  @inline def create    = propsRequired.create
+  @inline def build     = propsRequired.build
 
   @inline def propsUnit(implicit ev: Unit =:= P) = propsConst(ev(()))
-  @inline def createU(implicit ev: Unit =:= P)   = propsUnit.create
+  @inline def buildU(implicit ev: Unit =:= P)    = propsUnit.build
 
   // ===================================================================================================================
   final class Builder[C] private[ReactComponentB](cc: ComponentConstructor[P, S, B] => C) {
@@ -155,6 +152,16 @@ final class ReactComponentB[P, S, B](name: String,
       spec.asInstanceOf[ComponentSpec[P, S, B]]
     }
 
-    def create: C = cc(React.createClass(buildSpec))
+    def build: C = cc(React.createClass(buildSpec))
+
+    @deprecated("As the B in ReactComponentB is for Builder, create() has been renamed to build() and will be removed in 0.7.0.", "0.5.0")
+    def create = build
   }
+
+  @deprecated("ReactComponentB.propsAlways() has been renamed to propsConst() and will be removed in 0.7.0.", "0.5.0")
+  def propsAlways(p: => P)  = propsConst(p)
+  @deprecated("As the B in ReactComponentB is for Builder, create() has been renamed to build() and will be removed in 0.7.0.", "0.5.0")
+  def create = build
+  @deprecated("As the B in ReactComponentB is for Builder, createU() has been renamed to buildU() and will be removed in 0.7.0.", "0.5.0")
+  def createU(implicit ev: Unit =:= P) = buildU
 }

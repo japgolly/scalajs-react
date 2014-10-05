@@ -33,7 +33,7 @@ object AnimationExample extends js.JSApp {
             }: _*
           )
         )
-      ).createU
+      ).buildU
 
     TodoList() render document.getElementById("scala")
   }

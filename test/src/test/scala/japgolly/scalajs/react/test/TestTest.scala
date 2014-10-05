@@ -8,8 +8,8 @@ import vdom.ReactVDom.all._
 
 object TestTest extends TestSuite {
 
-  lazy val A = ReactComponentB[Unit]("A").render((_,c) => p(cls := "AA", c)).createU
-  lazy val B = ReactComponentB[Unit]("B").render(_ => p(cls := "BB", "hehehe")).createU
+  lazy val A = ReactComponentB[Unit]("A").render((_,c) => p(cls := "AA", c)).buildU
+  lazy val B = ReactComponentB[Unit]("B").render(_ => p(cls := "BB", "hehehe")).buildU
   lazy val rab = ReactTestUtils.renderIntoDocument(A(B()))
 
   val inputRef = Ref[HTMLInputElement]("r")
@@ -19,12 +19,12 @@ object TestTest extends TestSuite {
       input(`type` := "checkbox", checked := s, onclick ==> ch, ref := inputRef),
       span(s"s = $s")
     )
-  }).createU
+  }).buildU
 
   lazy val IT = ReactComponentB[Unit]("IT").initialState("NIL").renderS((t,_,s) => {
     val ch = (e: SyntheticEvent[HTMLInputElement]) => t.setState(e.target.value.toUpperCase)
     input(`type` := "text", value := s, onchange ==> ch)
-  }).createU
+  }).buildU
 
   val tests = TestSuite {
     'isTextComponent {
@@ -63,7 +63,7 @@ object TestTest extends TestSuite {
         val C = ReactComponentB[Unit]("C").render(T => {
           def e(s: String): Unit = events :+= s
           input(ref := inputRef, onfocus --> e("focus"), onchange --> e("change"), onblur --> e("blur"))
-        }).createU
+        }).buildU
         val i = inputRef(ReactTestUtils.renderIntoDocument(C())).get
         Simulation.focusChangeBlur("good") run i
         assert(events == Vector("focus", "change", "blur"))
