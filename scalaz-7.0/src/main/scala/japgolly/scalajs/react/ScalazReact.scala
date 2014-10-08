@@ -198,4 +198,15 @@ object ScalazReact {
   // Seriously, Scala, get your shit together.
   @inline final implicit def moarScalaHandHolding[P,S](b: BackendScope[P,S]): SzRExt_CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
   @inline final implicit def moarScalaHandHolding[P,S,B](b: ComponentScopeU[P,S,B]): SzRExt_CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
+
+  // ===================================================================================================================
+  // Experiment supplement
+
+  import experiment._
+
+  implicit class ListenableObjExt(val a: Listenable.type) extends AnyVal {
+
+    def installS[P, S, B <: OnUnmount, A](f: P => Listenable[A], g: A => ReactS[S, Unit]) =
+      Listenable.install[P, S, B, A](f, t => a => t.runState(g(a)).unsafePerformIO())
+  }
 }

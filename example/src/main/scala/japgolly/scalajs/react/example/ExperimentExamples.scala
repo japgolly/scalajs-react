@@ -2,7 +2,7 @@ package japgolly.scalajs.react.example
 
 import scala.scalajs.js
 import org.scalajs.dom.window
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.ReactVDom._, all._, ScalazReact._
 import japgolly.scalajs.react.experiment._
 
 object ExperimentExamples {
@@ -33,6 +33,8 @@ object ExperimentExamples {
       .buildU
   }
 
+  // ===================================================================================================================
+
   /**
    * This is the typical React timer example, modified to use SetInterval.
    * Also removed State in favour of just using Long directly.
@@ -48,5 +50,24 @@ object ExperimentExamples {
       .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1000))
       .configure(SetInterval.install)
       .buildU
+  }
+  
+  // ===================================================================================================================
+
+  /**
+   * This is an example of using Listenable to receive external events that affect a component's state.
+   */
+  object ListenableExample {
+
+    class Backend extends OnUnmount                     // Required it can unregister listener on unmount.
+
+    def recv(i: Int) = ReactS.mod[Int](_ + i)           // External event handler.
+                                                        // When an int is received, add to component state.
+    val C = ReactComponentB[Listenable[Int]]("C")
+      .initialState(0)
+      .backend(_ => new Backend)
+      .render((_,s,_) => div("Total: ", s))
+      .configure(Listenable.installS(identity, recv))   // Listen to events when mounted.
+      .build
   }
 }
