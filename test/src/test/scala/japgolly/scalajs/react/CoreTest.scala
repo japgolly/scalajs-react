@@ -26,10 +26,11 @@ object CoreTest extends TestSuite {
         ReactComponentB[Unit]("tmp").render((_,_) => subj).buildU.apply() shouldRender exp
 
       def eh: SyntheticDragEvent[dom.Node] => Unit = ???
-      def attr(t: Tag) = t(onclick ==> eh)
-      def numericRendering = test(div(123), "<div>123</div>")
-      // def rawRendering = test(raw("<div>hehe</div>"), "<div>hehe</div>")
-      def seqRendering = test(Seq(span(1), span(2)), "<span>1</span><span>2</span>")
+      def attr(t: Tag) = t(onclick ==> eh) // compilation test
+
+      'numericRendering - test(div(123), "<div>123</div>")
+      'rawRendering - test(div(raw("<div>hehe</div>")), """<div>&lt;div&gt;hehe&lt;/div&gt;</div>""")
+      'seqRendering - test(div(Seq(span(1), span(2))), "<div><span>1</span><span>2</span></div>")
     }
 
     'props {
