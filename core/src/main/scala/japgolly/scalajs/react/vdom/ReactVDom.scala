@@ -57,13 +57,13 @@ object ReactVDom
     override type Tag = ReactVDom.Tag
 
     private def genericJsAttr[T <% js.Any]: GenericAttr[T] = new GenericAttr[T](a => a)
-    override implicit val booleanAttr = genericJsAttr[Boolean]
-    override implicit val byteAttr    = genericJsAttr[Byte]
-    override implicit val shortAttr   = genericJsAttr[Short]
-    override implicit val intAttr     = genericJsAttr[Int]
-    override implicit val longAttr    = genericJsAttr[Long]
-    override implicit val floatAttr   = genericJsAttr[Float]
-    override implicit val doubleAttr  = genericJsAttr[Double]
+    override implicit val booleanAttr: GenericAttr[Boolean] = genericJsAttr[Boolean]
+    override implicit val byteAttr   : GenericAttr[Byte]    = genericJsAttr[Byte]
+    override implicit val shortAttr  : GenericAttr[Short]   = genericJsAttr[Short]
+    override implicit val intAttr    : GenericAttr[Int]     = genericJsAttr[Int]
+    override implicit val longAttr   : GenericAttr[Long]    = genericJsAttr[Long]
+    override implicit val floatAttr  : GenericAttr[Float]   = genericJsAttr[Float]
+    override implicit val doubleAttr : GenericAttr[Double]  = genericJsAttr[Double]
 
     implicit val jsThisFnAttr = new GenericAttr[js.ThisFunction](f => f)
     implicit val jsFnAttr = new GenericAttr[js.Function](f => f)
