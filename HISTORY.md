@@ -19,6 +19,8 @@ History
   * `ReactComponentB.propsAlways` → `propsConst`
   * `Nop` → `EmptyTag`
 * Added `Simulation` for composition and abstraction of `ReactTestUtils.Simulate` procedures.
+* Bugfix for tag attributes with primitive values.
+  Eg. `input(tpe := "checkbox", checked := false)` works now.
 
 ### 0.4.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.0...v0.4.1))
 

@@ -31,6 +31,10 @@ object CoreTest extends TestSuite {
       'numericRendering - test(div(123), "<div>123</div>")
       'rawRendering - test(div(raw("<div>hehe</div>")), """<div>&lt;div&gt;hehe&lt;/div&gt;</div>""")
       'seqRendering - test(div(Seq(span(1), span(2))), "<div><span>1</span><span>2</span></div>")
+
+      def checkbox(check: Boolean) = input(`type` := "checkbox", checked := check)
+      'checkboxT - test(checkbox(true), """<input type="checkbox" checked>""")
+      'checkboxF - test(checkbox(false), """<input type="checkbox">""")
     }
 
     'props {
