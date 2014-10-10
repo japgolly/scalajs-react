@@ -17,6 +17,7 @@ object ReactExamples extends js.JSApp {
   }
 
   // ===================================================================================================================
+  // Scala version of "A Simple Component" on http://facebook.github.io/react/
 
   def example1(mountNode: Node) = {
 
@@ -28,6 +29,7 @@ object ReactExamples extends js.JSApp {
   }
 
   // ===================================================================================================================
+  // Scala version of "A Stateful Component" on http://facebook.github.io/react/
 
   def example2(mountNode: Node) = {
 
@@ -52,6 +54,7 @@ object ReactExamples extends js.JSApp {
   }
 
   // ===================================================================================================================
+  // Scala version of "An Application" on http://facebook.github.io/react/
 
   def example3(mountNode: Node) = {
 
@@ -91,6 +94,7 @@ object ReactExamples extends js.JSApp {
   }
 
   // ===================================================================================================================
+  // Scala version of example on http://facebook.github.io/react/docs/more-about-refs.html
 
   def example_refs(mountNode: Node) = {
 
