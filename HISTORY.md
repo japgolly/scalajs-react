@@ -22,7 +22,7 @@ History
 * Bugfix for tag attributes with primitive values.
   Eg. `input(tpe := "checkbox", checked := false)` works now.
 * Added `ScalazReact.ReactS.liftR` of type `(S ⇒ ReactST[M,S,A]) ⇒ ReactST[M,S,A]`.
-* `ScalazReact`'s `runState` functions are now lazy in the state monad arg.
+* `ScalazReact`'s `~~>` and `runState` functions are now lazy.
 
 ### 0.4.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.0...v0.4.1))
 

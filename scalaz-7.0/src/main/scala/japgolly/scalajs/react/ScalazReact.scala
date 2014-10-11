@@ -18,7 +18,7 @@ object ScalazReact {
 
   implicit final class SzRExt_Attr(val a: Attr) extends AnyVal {
 
-    def ~~>(io: IO[Unit]) =
+    def ~~>(io: => IO[Unit]) =
       a --> io.unsafePerformIO()
 
     def ~~>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => IO[Unit]) =
