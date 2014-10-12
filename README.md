@@ -15,9 +15,8 @@ Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.j
 - [Alternatives](#alternatives)
 
 ##### Docs
-- [TYPES.md](https://github.com/japgolly/scalajs-react/edit/master/TYPES.md) - Overview of types.
-- [HISTORY.md](https://github.com/japgolly/scalajs-react/edit/master/HISTORY.md) - Release notes and change log.
-
+- [TYPES.md](https://github.com/japgolly/scalajs-react/blob/master/TYPES.md) - Overview of types.
+- [HISTORY.md](https://github.com/japgolly/scalajs-react/blob/master/HISTORY.md) - Release notes and change log.
 
 
 Setup
