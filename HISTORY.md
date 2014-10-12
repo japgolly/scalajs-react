@@ -3,6 +3,7 @@ History
 
 ### 0.5.0
 
+* Documented [most types](https://github.com/japgolly/scalajs-react/blob/master/TYPES.md).
 * Just as umounted Scala and JS components are denoted by `ReactComponentU` and `ReactComponentU_` respectively,
   mounted Scala and JS components are now denoted by `ReactComponentM` and `ReactComponentM_`.
 * `ReactComponentB` accepts an optional DOM node type, which is propagated to `ReactComponentU` and `ReactComponentM`.

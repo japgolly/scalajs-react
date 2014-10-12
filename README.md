@@ -14,6 +14,11 @@ Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.j
 - [Gotchas](#gotchas)
 - [Alternatives](#alternatives)
 
+##### Docs
+- [TYPES.md](https://github.com/japgolly/scalajs-react/edit/master/TYPES.md) - Overview of types.
+- [HISTORY.md](https://github.com/japgolly/scalajs-react/edit/master/HISTORY.md) - Release notes and change log.
+
+
 
 Setup
 =====
