@@ -13,7 +13,7 @@ object React extends Object {
    * prototypal classes is that you don't need to call new on them. They are convenience wrappers that construct
    * backing instances (via new) for you.
    */
-  def createClass[P,S,B,N <: TopNode](spec: ComponentSpec[P,S,B,N]): ComponentConstructor[P,S,B,N] = ???
+  def createClass[P,S,B,N <: TopNode](spec: ComponentSpec[P,S,B,N]): ReactComponentCU[P,S,B,N] = ???
 
   def renderComponent(c: ReactComponentU_, n: dom.Node)
     : ReactComponentM_[TopNode] = ???
@@ -63,9 +63,11 @@ trait VDom extends Object
 
 trait ComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Object
 
-trait ComponentConstructor_ extends JFn
+/** A JS function that creates a React component instance. */
+trait ReactComponentC_ extends JFn
 
-trait ComponentConstructor[Props, State, +Backend, +Node <: TopNode] extends ComponentConstructor_ {
+/** The underlying function that creates a Scala-based React component instance. */
+trait ReactComponentCU[Props, State, +Backend, +Node <: TopNode] extends ReactComponentC_ {
   def apply(props: WrapObj[Props], children: VDom*): ReactComponentU[Props, State, Backend, Node] = ???
 }
 

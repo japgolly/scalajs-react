@@ -68,11 +68,11 @@ package object react {
 
   // ===================================================================================================================
 
-  @inline final implicit def autoJsCtor[P,S,B,N <: TopNode](c: ReactComponentC[P,S,B,N]): ComponentConstructor_ = c.jsCtor
+  @inline final implicit def autoJsCtor[P,S,B,N <: TopNode](c: ReactComponentC[P,S,B,N]): ReactComponentC_ = c.jsCtor
 
   /** Component constructor. */
-  trait ReactComponentC[P, S, +B, +N <: TopNode] {
-    val jsCtor: ComponentConstructor[P,S,B,N]
+  sealed trait ReactComponentC[P, S, +B, +N <: TopNode] {
+    val jsCtor: ReactComponentCU[P,S,B,N]
   }
 
   object ReactComponentC {
@@ -82,12 +82,12 @@ package object react {
       j
     }
 
-    final class ReqProps[P, S, +B, +N <: TopNode](val jsCtor: ComponentConstructor[P,S,B,N], key: Option[JAny]) extends ReactComponentC[P,S,B,N] {
+    final class ReqProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny]) extends ReactComponentC[P,S,B,N] {
       def apply(props: P, children: VDom*) = jsCtor(mkProps(props, key), children: _*)
       def withKey(key: JAny) = new ReqProps(jsCtor, Some(key))
     }
 
-    final class DefaultProps[P, S, +B, +N <: TopNode](val jsCtor: ComponentConstructor[P,S,B,N], key: Option[JAny], default: () => P) extends ReactComponentC[P,S,B,N] {
+    final class DefaultProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny], default: () => P) extends ReactComponentC[P,S,B,N] {
       def apply(props: Option[P], children: VDom*): ReactComponentU[P,S,B,N] =
         jsCtor(mkProps(props getOrElse default(), key), children: _*)
 
@@ -97,7 +97,7 @@ package object react {
       def withKey(key: JAny) = new DefaultProps(jsCtor, Some(key), default)
     }
 
-    final class ConstProps[P, S, +B, +N <: TopNode](val jsCtor: ComponentConstructor[P,S,B,N], key: Option[JAny], props: () => P) extends ReactComponentC[P,S,B,N] {
+    final class ConstProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny], props: () => P) extends ReactComponentC[P,S,B,N] {
       def apply(children: VDom*) = jsCtor(mkProps(props(), key), children: _*)
       def withKey(key: JAny) = new ConstProps(jsCtor, Some(key), props)
     }

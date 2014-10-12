@@ -106,7 +106,7 @@ final class ReactComponentB[P, S, B](name: String,
   def domType[N2 <: TopNode] = new AnchorN[N2]
 
   final class AnchorN[N <: TopNode] private[ReactComponentB] {
-    @inline private def builder[C](cc: ComponentConstructor[P,S,B,N] => C) = new Builder(cc)
+    @inline private def builder[C](cc: ReactComponentCU[P,S,B,N] => C) = new Builder(cc)
 
     def propsRequired         = builder(new ReactComponentC.ReqProps[P,S,B,N](_, None))
     def propsDefault(p: => P) = builder(new ReactComponentC.DefaultProps[P,S,B,N](_, None, () => p))
@@ -116,7 +116,7 @@ final class ReactComponentB[P, S, B](name: String,
     def buildU   (implicit ev: Unit =:= P) = propsUnit.build
   }
 
-  final class Builder[C, N <: TopNode] private[ReactComponentB](cc: ComponentConstructor[P,S,B,N] => C) {
+  final class Builder[C, N <: TopNode] private[ReactComponentB](cc: ReactComponentCU[P,S,B,N] => C) {
 
     def buildSpec: ComponentSpec[P, S, B, N] = {
       val spec = Dynamic.literal(

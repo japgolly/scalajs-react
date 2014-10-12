@@ -13,6 +13,8 @@ History
   * `CompCtorOP` → `ReactComponentC.DefaultProps`
   * `CompCtorNP` → `ReactComponentC.ConstProps`
   * `ReactComponentM` → `ReactComponentM_`
+  * `ComponentConstructor_` → `ReactComponentC_`
+  * `ComponentConstructor` → `ReactComponentCU`
 * Renamed and deprecated the old:
   * `ReactComponentB.create` → `build`
   * `ReactComponentB.createU` → `buildU`
