@@ -17,7 +17,7 @@ object ReactVDom
   object styles extends ReactVDom.Cap with Styles
   object styles2 extends ReactVDom.Cap with Styles2
   object svgTags extends ReactVDom.Cap with ReactSvgTags
-  object svgStyles extends ReactVDom.Cap with SvgStyles
+  object svgAttrs extends ReactVDom.Cap with SvgAttrs
 
   object implicits extends Aggregate
 
@@ -124,8 +124,8 @@ object ReactVDom
     protected[this] implicit val stringAttrX: AttrValue[String] = new GenericAttr[String](s => s)
     protected[this] implicit val stringStyleX: StyleValue[String] = new GenericStyle[String]
 
-    def makeAbstractTypedTag[T <: ReactOutput](tag: String, void: Boolean): TypedTag[T] =
-      TypedTag(tag, Nil, void)
+    def makeAbstractTypedTag[T <: ReactOutput](tag: String, void: Boolean, namespaceConfig: Namespace): TypedTag[T] =
+      TypedTag(tag, Nil, void, namespaceConfig)
 
     implicit class SeqFrag[A <% Frag](xs: Seq[A]) extends Frag{
       def applyTo(t: VDomBuilder): Unit = xs.foreach(_.applyTo(t))
@@ -165,7 +165,8 @@ object ReactVDom
 
   final case class TypedTag[+Output <: ReactOutput](tag: String = "",
                                                     modifiers: List[Seq[Modifier]],
-                                                    void: Boolean = false)
+                                                    void: Boolean = false,
+                                                    namespace: Namespace)
                      extends generic.TypedTag[VDomBuilder, Output, ReactFragT]
                      with ReactDomFrag {
     // unchecked because Scala 2.10.4 seems to not like this, even though
