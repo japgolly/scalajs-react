@@ -157,8 +157,15 @@ In order to test React and use `ReactTestUtils` you will need to make a few chan
 ```scala
 jsDependencies += "org.webjars" % "react" % "0.11.1" % "test"
                   / "react-with-addons.js" commonJSName "React"
+
+requiresDOM := true
+
+test      in Test := (test      in(Test, fastOptStage)).value
+
+testOnly  in Test := (testOnly  in(Test, fastOptStage)).evaluated
+
+testQuick in Test := (testQuick in(Test, fastOptStage)).evaluated
 ```
-* Add: `requiresDOM := true`
 * Install PhantomJS.
 
 Extensions
