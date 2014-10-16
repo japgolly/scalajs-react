@@ -1,7 +1,9 @@
 scalajs-react [![Build Status](https://travis-ci.org/japgolly/scalajs-react.svg?branch=master)](https://travis-ci.org/japgolly/scalajs-react)
 =============
 
-Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.js](http://www.scala-js.org/) and endeavours to make it as type-safe and Scala-compatible as possible.
+Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.js](http://www.scala-js.org/) and endeavours to make it as type-safe and Scala-friendly as possible.
+
+In addition to wrapping React, this provides extra opt-in functionality to support (separately) easier testing, and pure FP.
 
 #### Contents
 
