@@ -138,6 +138,15 @@ val s = Simulation.focusChangeBlur("hi")
 s run component
 ```
 
+
+DOM lookup is much easier than using `ReactTestUtils` directly by instead using `Sel`.
+`Sel` allows you to use a jQuery/CSS-like selector to lookup a DOM element or subset.
+Example:
+```scala
+val dom = Sel(".inner a.active.new") find myComponent
+```
+
+
 Also included is [DebugJs](https://github.com/japgolly/scalajs-react/blob/master/test/src/main/scala/japgolly/scalajs/react/test/DebugJs.scala), a dumping ground for functionality useful when testing JS. `inspectObject` can be tremendously useful.
 
 #### SBT

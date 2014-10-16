@@ -27,6 +27,8 @@ History
 * Added `ScalazReact.ReactS.liftR` of type `(S ⇒ ReactST[M,S,A]) ⇒ ReactST[M,S,A]`.
 * `ScalazReact`'s `~~>` and `runState` functions are now lazy.
 * Upgrade [Scalatags](https://github.com/lihaoyi/scalatags) to 0.4.2.
+* Added `Sel` to easily lookup DOM in your tests.
+  Eg. `Sel("div.inner a.active.blue span") find c`
 
 ### 0.4.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.0...v0.4.1))
 
