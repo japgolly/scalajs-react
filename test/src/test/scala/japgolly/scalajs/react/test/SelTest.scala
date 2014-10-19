@@ -48,6 +48,8 @@ object SelTest extends TestSuite {
       test1("div.mastodon.t3", "High road")
     }
 
+    "*.cls" - test1("*.t5", "Chimes at midnight")
+
     'decent {
       test1("h1 span", "Monuments")
       test1("p span", "The Amanuensis")
