@@ -9,21 +9,20 @@ object ExperimentExamples {
 
   /**
    * This is the typical React timer example, modified to use OnUnmount.
+   * (Also removed State in favour of just using Long directly.)
    */
   object OnUnmountExample {
 
-    case class State(secondsElapsed: Long)
-
     class Backend extends OnUnmount {                               // Extends OnUnmount
                                                                     // Removed `var interval`
-      def tick(scope: ComponentScopeM[_, State, _]): js.Function =
-        () => scope.modState(s => State(s.secondsElapsed + 1))
+      def tick(scope: ComponentScopeM[_, Long, _]): js.Function =
+        () => scope.modState(_ + 1)
     }
 
     val Timer = ReactComponentB[Unit]("Timer")
-      .initialState(State(0))
+      .initialState(0L)
       .backend(_ => new Backend)
-      .render((_,S,_) => div("Seconds elapsed: ", S.secondsElapsed))
+      .render((_,s,_) => div("Seconds elapsed: ", s))
       .componentDidMount(scope => {
         val i = window.setInterval(scope.backend.tick(scope), 1000)
         scope.backend onUnmount window.clearInterval(i)             // Use onUnmount here
@@ -37,14 +36,14 @@ object ExperimentExamples {
 
   /**
    * This is the typical React timer example, modified to use SetInterval.
-   * Also removed State in favour of just using Long directly.
+   * (Also removed State in favour of just using Long directly.)
    */
   object SetIntervalExample {
 
     class Backend extends SetInterval
 
     val Timer = ReactComponentB[Unit]("Timer")
-      .initialState(0)
+      .initialState(0L)
       .backend(_ => new Backend)
       .render((_,s,_) => div("Seconds elapsed: ", s))
       .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1000))
