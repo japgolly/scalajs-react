@@ -7,7 +7,7 @@ import ReactTestUtils._
  * Path to a subset of DOM.
  * Much easier and more powerful than what you find in ReactTestUtils.
  * 
- * Example: Sel("div.inner a.active.blue span") find c
+ * Example: Sel("div.inner a.active.blue span") findIn c
  */
 sealed abstract class Sel {
   import Sel._
@@ -23,17 +23,17 @@ sealed abstract class Sel {
 
   final def >>(s: Sel): Sel = Descent(this, s)
 
-  final def findAll(i: ComponentM): Array[ComponentM] = this match {
+  final def findAllIn(i: ComponentM): Array[ComponentM] = this match {
     case Tag(n)        => scryRenderedDOMComponentsWithTag(i, n)
     case Cls(n)        => scryRenderedDOMComponentsWithClass(i, n)
-    case And(h, t)     => (h.findAll(i) /: t)((q, s) => q intersect s.findAll(i))
-    case Descent(p, c) => val r = p findAll i; r flatMap c.findAll filterNot (r contains _)
+    case And(h, t)     => (h.findAllIn(i) /: t)((q, s) => q intersect s.findAllIn(i))
+    case Descent(p, c) => val r = p findAllIn i; r flatMap c.findAllIn filterNot (r contains _)
     case E             => Array(i)
     case ∅             => Array()
   }
 
-  final def findE(i: ComponentM): Either[String, ComponentM] = {
-    val a = findAll(i)
+  final def findInE(i: ComponentM): Either[String, ComponentM] = {
+    val a = findAllIn(i)
     a.length match {
       case 1 => Right(a(0))
       case 0 => Left(s"DOM not found for [$this]")
@@ -41,11 +41,11 @@ sealed abstract class Sel {
     }
   }
 
-  final def findO(i: ComponentM): Option[ComponentM] =
-    findE(i).right.toOption
+  final def findInO(i: ComponentM): Option[ComponentM] =
+    findInE(i).right.toOption
 
-  final def find(i: ComponentM): ComponentM =
-    findE(i).fold(sys.error, identity)
+  final def findIn(i: ComponentM): ComponentM =
+    findInE(i).fold(sys.error, identity)
 }
 
 object Sel {

@@ -145,7 +145,7 @@ DOM lookup is much easier than using `ReactTestUtils` directly by instead using 
 `Sel` allows you to use a jQuery/CSS-like selector to lookup a DOM element or subset.
 Full examples can be [seen here](https://github.com/japgolly/scalajs-react/blob/master/test/src/test/scala/japgolly/scalajs/react/test/SelTest.scala); this is a sample:
 ```scala
-val dom = Sel(".inner a.active.new") find myComponent
+val dom = Sel(".inner a.active.new") findIn myComponent
 ```
 
 

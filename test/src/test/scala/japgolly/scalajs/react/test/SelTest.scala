@@ -20,12 +20,12 @@ object SelTest extends TestSuite {
     val c = ReactTestUtils renderIntoDocument C()
 
     def test1(s: String, e: String) = {
-      val a = Sel(s).find(c).getDOMNode().innerHTML
+      val a = Sel(s).findIn(c).getDOMNode().innerHTML
       assert(a == e)
     }
 
     def testF(errFrag: String) = (s: String) => {
-      val a: Either[String, String] = Sel(s).findE(c).right.map(_.getDOMNode().innerHTML)
+      val a: Either[String, String] = Sel(s).findInE(c).right.map(_.getDOMNode().innerHTML)
       if (a.isRight) println(Sel(s))
       assert(a.isLeft, a.toString contains errFrag)
     }
