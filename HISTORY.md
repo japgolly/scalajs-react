@@ -6,12 +6,10 @@ History
 ##### New features
 * Added `Simulation` for composition and abstraction of `ReactTestUtils.Simulate` procedures.
 * Added `Sel` for easy DOM lookup in tests. Eg. `Sel(".inner a.active.new") findIn myComponent`.
-* Experimental Scala-based component mixins. Three mixins are included:
+* Experimental Scala-based component mixins. Three mixins are included.  [See examples](https://github.com/japgolly/scalajs-react/blob/master/example/src/main/scala/japgolly/scalajs/react/example/ExperimentExamples.scala).
   * `OnUnmount` - Automatically run stuff when the component unmounts.
   * `SetInterval` - Same as JS `window.setInterval` but automatically calls `clearInterval` on unmount.
   * `Listenable` - A component is able to receive external data. Automatically registers to receive data on mount, and unregisters to stop on unmount.
-  
-  See [ExperimentExamples](https://github.com/japgolly/scalajs-react/blob/master/example/src/main/scala/japgolly/scalajs/react/example/ExperimentExamples.scala) for a sample.
 * Added `ScalazReact.ReactS.liftR` of type `(S ⇒ ReactST[M,S,A]) ⇒ ReactST[M,S,A]`.
 * New method `ReactComponentB.domType` now allows you to specify the type returned by `.getDOMNode()` on your component.
 
