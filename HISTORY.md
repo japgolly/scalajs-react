@@ -1,12 +1,31 @@
 History
 =======
 
-### 0.5.0
+### 0.5.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.1...v0.5.0))
 
-* Documented [most types](https://github.com/japgolly/scalajs-react/blob/master/TYPES.md).
+##### New features
+* Added `Simulation` for composition and abstraction of `ReactTestUtils.Simulate` procedures.
+* Added `Sel` for easy DOM lookup in tests. Eg. `Sel(".inner a.active.new") findIn myComponent`.
+* Experimental Scala-based component mixins. Three mixins are included:
+  * `OnUnmount` - Automatically run stuff when the component unmounts.
+  * `SetInterval` - Same as JS `window.setInterval` but automatically calls `clearInterval` on unmount.
+  * `Listenable` - A component is able to receive external data. Automatically registers to receive data on mount, and unregisters to stop on unmount.
+  
+  See [ExperimentExamples](https://github.com/japgolly/scalajs-react/blob/master/example/src/main/scala/japgolly/scalajs/react/example/ExperimentExamples.scala) for a sample.
+* Added `ScalazReact.ReactS.liftR` of type `(S ⇒ ReactST[M,S,A]) ⇒ ReactST[M,S,A]`.
+* New method `ReactComponentB.domType` now allows you to specify the type returned by `.getDOMNode()` on your component.
+
+##### Fixes & improvements
+* Bugfix for tag attributes with primitive values.
+  Eg. `input(tpe := "checkbox", checked := false)` works now.
+* `ScalazReact`'s `~~>` and `runState` functions are now lazy.
+* Upgrade [Scalatags](https://github.com/lihaoyi/scalatags) to 0.4.2. Fixes sourcemap warnings.
+
+##### API changes
+Most people will be unaffected by this. Numerous changes were made to internal types making them more consistent _(see [TYPES.md](https://github.com/japgolly/scalajs-react/blob/master/TYPES.md))_.
+* `ReactComponentB` accepts an optional DOM node type, which is propagated to `ReactComponentU` and `ReactComponentM`.
 * Just as umounted Scala and JS components are denoted by `ReactComponentU` and `ReactComponentU_` respectively,
   mounted Scala and JS components are now denoted by `ReactComponentM` and `ReactComponentM_`.
-* `ReactComponentB` accepts an optional DOM node type, which is propagated to `ReactComponentU` and `ReactComponentM`.
 * Type changes.
   * `ReactComponentB` innards reworked. Use `ReactComponentB[P,S,B]` in place of `ReactComponentB[P]#B2[S]#B3[B]#B4[C]`.
   * `CompCtor`   → `ReactComponentC`
@@ -16,18 +35,13 @@ History
   * `ReactComponentM` → `ReactComponentM_`
   * `ComponentConstructor_` → `ReactComponentC_`
   * `ComponentConstructor` → `ReactComponentCU`
-* Renamed and deprecated the old:
+
+##### Deprecated
+* The following have been renamed, the old names deprecated:
   * `ReactComponentB.create` → `build`
   * `ReactComponentB.createU` → `buildU`
   * `ReactComponentB.propsAlways` → `propsConst`
   * `Nop` → `EmptyTag`
-* Added `Simulation` for composition and abstraction of `ReactTestUtils.Simulate` procedures.
-* Bugfix for tag attributes with primitive values.
-  Eg. `input(tpe := "checkbox", checked := false)` works now.
-* Added `ScalazReact.ReactS.liftR` of type `(S ⇒ ReactST[M,S,A]) ⇒ ReactST[M,S,A]`.
-* `ScalazReact`'s `~~>` and `runState` functions are now lazy.
-* Upgrade [Scalatags](https://github.com/lihaoyi/scalatags) to 0.4.2.
-* Added `Sel` to easily lookup DOM in your tests. [Examples](https://github.com/japgolly/scalajs-react/blob/master/test/src/test/scala/japgolly/scalajs/react/test/SelTest.scala).
 
 ### 0.4.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.0...v0.4.1))
 
