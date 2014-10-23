@@ -66,7 +66,7 @@ object ReactComponentB {
 
 import ReactComponentB.LifeCycle
 
-final class ReactComponentB[P, S, B](name: String,
+final class ReactComponentB[P, S, B](val name: String,
                                      initF: P => S,
                                      backF: BackendScope[P, S] => B,
                                      rendF: ComponentScopeU[P, S, B] => VDom,

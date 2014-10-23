@@ -6,6 +6,7 @@ History
 * Fixed Scalatags rejecting `VDom`.
 * Added `ScalazReact.ReactS.setM`.
 * Added `Listenable.install{IO,F}`, added `M[_]` to `Listenable.installS`.
+* Added `LogLifecycle` which when applied to a component, logs during each lifecycle callback.
 
 ### 0.5.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.1...v0.5.0))
 
