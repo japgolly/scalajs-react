@@ -35,6 +35,25 @@ object CoreTest extends TestSuite {
       def checkbox(check: Boolean) = input(`type` := "checkbox", checked := check)
       'checkboxT - test(checkbox(true), """<input type="checkbox" checked>""")
       'checkboxF - test(checkbox(false), """<input type="checkbox">""")
+
+      'listOfScalatags {
+        val X = ReactComponentB[List[String]]("X").render(P => {
+          def createItem(itemText: String) = li(itemText)
+          ul(P map createItem)
+        }).build
+        X(List("123","abc")) shouldRender "<ul><li>123</li><li>abc</li></ul>"
+      }
+
+      'listOfReactComponents {
+        val X = ReactComponentB[List[String]]("X").render(P => ul(P.map(i => H1(i)))).build
+        X(List("123","abc")) shouldRender "<ul><h1>123</h1><h1>abc</h1></ul>"
+      }
+
+      'vdom {
+        val v: VDom = H1("cool")
+        val X = ReactComponentB[Unit]("X").render(_ => div(v)).buildU
+        X() shouldRender "<div><h1>cool</h1></div>"
+      }
     }
 
     'props {
@@ -77,20 +96,6 @@ object CoreTest extends TestSuite {
         val A = collector1(_.propsKey)
         val r = run1(A)(A.withKey("great")(_))
         assert(r.get == "great")
-      }
-    }
-
-    'vdomGen {
-      'listOfScalatags {
-        val X = ReactComponentB[List[String]]("X").render(P => {
-          def createItem(itemText: String) = li(itemText)
-          ul(P map createItem)
-        }).build
-        X(List("123","abc")) shouldRender "<ul><li>123</li><li>abc</li></ul>"
-      }
-      'listOfReactComponents {
-        val X = ReactComponentB[List[String]]("X").render(P => ul(P.map(i => H1(i)))).build
-        X(List("123","abc")) shouldRender "<ul><h1>123</h1><h1>abc</h1></ul>"
       }
     }
 
