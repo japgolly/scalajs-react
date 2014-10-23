@@ -92,6 +92,8 @@ object ScalazReact {
     @inline final def getsT[M[+_], S, A](f: S => M[A])(implicit F: Functor[M]): ReactST[M, S, A] =
       StateT[M, StateAndCallbacks[S], A](sc => F.map(f(sc.s))((sc, _)))
 
+    @inline final def setM[M[+_]: Functor, S](ms: M[S]): ReactST[M, S, Unit] = modT((_: S) => ms)
+
     @inline final def setT[M[+_]: Applicative, S](s: S): ReactST[M, S, Unit] = set(s).lift[M]
 
     @inline final def modT[M[+_], S](f: S => M[S])(implicit M: Functor[M]): ReactST[M, S, Unit] =
@@ -121,6 +123,7 @@ object ScalazReact {
       @inline final def retM[M[+_]: Functor, A](ma: M[A])                       = ReactS.retM[M,S,A](ma)
       @inline final def getT[M[+_]: Applicative]                                = ReactS.getT[M,S]
       @inline final def getsT[M[+_]: Applicative, A](f: S => M[A])              = ReactS.getsT(f)
+      @inline final def setM[M[+_]: Functor](ms: M[S])                          = ReactS.setM[M,S](ms)
       @inline final def setT[M[+_]: Applicative](s: S)                          = ReactS.setT[M,S](s)
       @inline final def modT[M[+_]: Functor](f: S => M[S])                      = ReactS.modT[M,S](f)
       @inline final def callbackT[M[+_]: Applicative, A](c: OpCallbackIO)(a: A) = ReactS.callbackT[M,S,A](c)(a)
@@ -137,6 +140,7 @@ object ScalazReact {
       @inline final def get                               (implicit M: Applicative[M]) = ReactS.getT[M,S]
       @inline final def gets[A](f: S => M[A])             (implicit M: Functor[M])     = ReactS.getsT(f)
       @inline final def set(s: S)                         (implicit M: Applicative[M]) = ReactS.setT[M,S](s)
+      @inline final def setM(ms: M[S])                    (implicit M: Functor[M])     = ReactS.setM[M,S](ms)
       @inline final def mod(f: S => M[S])                 (implicit M: Functor[M])     = ReactS.modT[M,S](f)
       @inline final def callback[A](c: OpCallbackIO)(a: A)(implicit M: Applicative[M]) = ReactS.callbackT[M,S,A](c)(a)
       @inline final def liftR [A](f: S => ReactST[M, S, A])(implicit A: Applicative[M], B: Bind[M]) = ReactS.liftR(f)
