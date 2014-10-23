@@ -3,8 +3,9 @@ History
 
 ### 0.5.1 (unreleased)
 
-* Added `ScalazReact.ReactS.setM`
 * Fixed Scalatags rejecting `VDom`.
+* Added `ScalazReact.ReactS.setM`.
+* Added `Listenable.install{IO,F}`, added `M[_]` to `Listenable.installS`.
 
 ### 0.5.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.1...v0.5.0))
 
