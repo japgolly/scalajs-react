@@ -80,10 +80,18 @@ object ScalajsReact extends Build {
       jsDependencies += "org.webjars" % "react" % "0.11.1" % scope / "react-with-addons.js" commonJSName "React",
       skip in packageJSDependencies := false)
 
+  def addCommandAliases(m: (String, String)*) = {
+    val s = m.map(p => addCommandAlias(p._1, p._2)).reduce(_ ++ _)
+    (_: Project).settings(s: _*)
+  }
+
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .aggregate(core, test, example, scalaz70, scalaz71)
-    .configure(commonSettings, preventPublication)
+    .configure(commonSettings, preventPublication, addCommandAliases(
+      "t"  -> "test/fastOptStage::test",
+      "tt" -> "+test/fastOptStage::test",
+      "T"  -> ";+clean ;+test:compile ;tt"))
 
   // ==============================================================================================
   lazy val core = project
