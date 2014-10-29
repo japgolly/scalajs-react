@@ -1,7 +1,7 @@
 History
 =======
 
-### 0.5.1 (unreleased)
+### 0.5.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.0...v0.5.1))
 
 * Fixed Scalatags rejecting `VDom`.
 * Added `ScalazReact.ReactS.setM`.
