@@ -1,13 +1,16 @@
 History
 =======
 
+### 0.5.2 (unreleased)
+
+* Support the `dangerouslySetInnerHTML` attribute.
+
 ### 0.5.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.0...v0.5.1))
 
 * Fixed Scalatags rejecting `VDom`.
 * Added `ScalazReact.ReactS.setM`.
 * Added `Listenable.install{IO,F}`, added `M[_]` to `Listenable.installS`.
 * Added `LogLifecycle` which when applied to a component, logs during each lifecycle callback.
-* Support the `dangerouslySetInnerHTML` attribute.
 
 ### 0.5.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.1...v0.5.0))
 
