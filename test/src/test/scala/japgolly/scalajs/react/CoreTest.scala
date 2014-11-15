@@ -54,6 +54,11 @@ object CoreTest extends TestSuite {
         val X = ReactComponentB[Unit]("X").render(_ => div(v)).buildU
         X() shouldRender "<div><h1>cool</h1></div>"
       }
+
+      'dangerouslySetInnerHtml {
+        val X = ReactComponentB[Unit]("X").render(_ => div(dangerouslySetInnerHtml("<span>"))).buildU
+        X() shouldRender "<div><span></div>"
+      }
     }
 
     'props {

@@ -67,6 +67,7 @@ object ReactVDom
 
     implicit val jsThisFnAttr = new GenericAttr[js.ThisFunction](f => f)
     implicit val jsFnAttr = new GenericAttr[js.Function](f => f)
+    implicit val jsObjAttr = new GenericAttr[js.Object](f => f)
     implicit def reactRefAttr[T <: Ref[_]] = new GenericAttr[T](_.name)
 
     implicit def modifierFromVDom(c: VDom): Modifier = new Modifier {
@@ -214,6 +215,12 @@ object ReactVDom
     val onDragLeave   = "onDragLeave".attr
     val onDrop        = "onDrop".attr
     val onBeforeInput = "onBeforeInput".attr
+
+    val dangerouslySetInnerHtmlAttr = "dangerouslySetInnerHTML".attr
+    def dangerouslySetInnerHtml(html: String): Modifier = {
+      val o: js.Object = js.Dynamic.literal("__html" -> html)
+      dangerouslySetInnerHtmlAttr := o
+    }
   }
 
   implicit final class ReactAttrExt(val a: Attr) extends AnyVal {
