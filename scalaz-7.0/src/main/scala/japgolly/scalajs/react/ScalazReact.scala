@@ -149,6 +149,11 @@ object ScalazReact {
     }
   }
 
+  implicit final class SzRExt_StateTOps[M[+_], S, A](val s: StateT[M, S, A]) extends AnyVal {
+    @inline def liftR(implicit M: Functor[M]): ReactST[M, S, A] =
+      ReactS lift s
+  }
+
   implicit final class SzRExt_ReactSTOps[M[+_], S, A](val f: ReactST[M,S,A]) extends AnyVal {
     def addCallback(c: OpCallbackIO)(implicit M: Monad[M]): ReactST[M,S,A] =
       f flatMap ReactS.callbackT(c)
@@ -177,11 +182,13 @@ object ScalazReact {
     def _runState[I, M[+_], A](f: I => ReactST[M, S, A], cb: I => OpCallbackIO)(implicit C: CC, M: M ~> IO, N: Monad[M]): I => IO[A] =
       i => runState(f(i) addCallback cb(i))
 
+    @deprecated("Instead of runStateS(s) use runState(s.liftR). runStateS will be removed in 0.7.0.", "0.5.2")
     def runStateS[M[+_], A](st: => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M]): IO[A] =
-      runState(ReactS lift st)
+      runState(st.liftR)
 
+    @deprecated("Instead of _runStateS(i ⇒ s | f), use _runState(i ⇒ s.liftR | f(_).liftR). _runStateS will be removed in 0.7.0.", "0.5.2")
     def _runStateS[I, M[+_], A](f: I => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M]): I => IO[A] =
-      i => runStateS(f(i))
+      _runState(f(_).liftR)
 
     def runStateF[M[+_], A](st: => ReactST[M, S, A])(implicit C: CC, M: M ~> IO, F: ChangeFilter[S]): IO[A] =
       run[M, A, A](st, (s1,s2,a,io) => if (F.allowChange(s1,s2)) io.map(_ => a) else IO(a))
@@ -192,11 +199,13 @@ object ScalazReact {
     def _runStateF[I, M[+_], A](f: I => ReactST[M, S, A], cb: I => OpCallbackIO)(implicit C: CC, M: M ~> IO, N: Monad[M], F: ChangeFilter[S]): I => IO[A] =
       i => runStateF(f(i) addCallback cb(i))
 
+    @deprecated("Instead of runStateFS(s) use runStateF(s.liftR). runStateFS will be removed in 0.7.0.", "0.5.2")
     def runStateFS[M[+_], A](st: => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M], F: ChangeFilter[S]): IO[A] =
-      runStateF(ReactS lift st)
+      runStateF(st.liftR)
 
+    @deprecated("Instead of _runStateFS(i ⇒ s | f), use _runStateF(i ⇒ s.liftR | f(_).liftR). _runStateFS will be removed in 0.7.0.", "0.5.2")
     def _runStateFS[I, M[+_], A](f: I => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M], F: ChangeFilter[S]): I => IO[A] =
-      i => runStateFS(f(i))
+      _runStateF(f(_).liftR)
   }
 
   case class ChangeFilter[S](allowChange: (S, S) => Boolean)
