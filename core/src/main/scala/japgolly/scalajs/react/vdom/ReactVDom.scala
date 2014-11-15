@@ -201,6 +201,8 @@ object ReactVDom
   }
 
   trait ExtraAttrs extends Util {
+    val colspan = "colSpan".attr
+    val rowspan = "rowSpan".attr
     val className = "className".attr
     val htmlFor = "htmlFor".attr
     val refAttr = "ref".attr

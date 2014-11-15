@@ -8,7 +8,7 @@ private[vdom] object VDomBuilder  {
   def specialCaseAttrs =
     Set("onBlur", "onChange", "onClick", "onFocus", "onKeyDown", "onKeyPress", "onKeyUp", "onLoad", "onMouseDown"
       , "onMouseMove", "onMouseOut", "onMouseOver", "onMouseUp", "onSelect", "onScroll", "onSubmit", "onReset"
-      , "readOnly")
+      , "readOnly", "colSpan", "rowSpan")
 
   def specialNameAttrs =
     Map("class" -> "className", "for" -> "htmlFor")
