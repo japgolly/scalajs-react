@@ -245,7 +245,235 @@ val App = ReactComponentB[Unit]("App")
             <td><div id="eg_refs">Demo</div></td>
         </tr>
 
+        <!-- Example: ProductTable -->
+        <tr><td class="full" colspan=3>
+            The following example is taken from
+            <a href="http://facebook.github.io/react/docs/thinking-in-react.html">http://facebook.github.io/react/docs/thinking-in-react.html</a>
+        </td></tr>
+        <tr>
+            <td>
+                <pre><code>
+
+    var ProductCategoryRow = React.createClass({
+    render: function() {
+    return (&lt;tr&gt;&lt;th colSpan=&quot;2&quot;&gt;{this.props.category}&lt;/th&gt;&lt;/tr&gt;);
+    }
+    });
+
+    var ProductRow = React.createClass({
+    render: function() {
+    var name = this.props.product.stocked ?
+    this.props.product.name :
+    &lt;span style={{color: 'red'}}&gt;
+    {this.props.product.name}
+    &lt;/span&gt;;
+    return (
+    &lt;tr&gt;
+    &lt;td&gt;{name}&lt;/td&gt;
+    &lt;td&gt;{this.props.product.price}&lt;/td&gt;
+    &lt;/tr&gt;
+    );
+    }
+    });
+
+    var ProductTable = React.createClass({
+    render: function() {
+    console.log(this.props);
+    var rows = [];
+    var lastCategory = null;
+    this.props.products.forEach(function(product) {
+    if (product.name.indexOf(this.props.filterText) === -1 || (!product.stocked &amp;&amp; this.props.inStockOnly)) {
+    return;
+    }
+    if (product.category !== lastCategory) {
+    rows.push(&lt;ProductCategoryRow category={product.category} key={product.category} /&gt;);
+    }
+    rows.push(&lt;ProductRow product={product} key={product.name} /&gt;);
+    lastCategory = product.category;
+    }.bind(this));
+    return (
+    &lt;table&gt;
+    &lt;thead&gt;
+    &lt;tr&gt;
+    &lt;th&gt;Name&lt;/th&gt;
+    &lt;th&gt;Price&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;{rows}&lt;/tbody&gt;
+    &lt;/table&gt;
+    );
+    }
+    });
+
+    var SearchBar = React.createClass({
+    handleChange: function() {
+    this.props.onUserInput(
+    this.refs.filterTextInput.getDOMNode().value,
+    this.refs.inStockOnlyInput.getDOMNode().checked
+    );
+    },
+    render: function() {
+    return (
+    &lt;form&gt;
+    &lt;input
+    type=&quot;text&quot;
+    placeholder=&quot;Search...&quot;
+    value={this.props.filterText}
+    ref=&quot;filterTextInput&quot;
+    onChange={this.handleChange}
+    /&gt;
+    &lt;p&gt;
+    &lt;input
+    type=&quot;checkbox&quot;
+    value={this.props.inStockOnly}
+    ref=&quot;inStockOnlyInput&quot;
+    onChange={this.handleChange}
+    /&gt;
+    Only show products in stock
+    &lt;/p&gt;
+    &lt;/form&gt;
+    );
+    }
+    });
+
+    var FilterableProductTable = React.createClass({
+    getInitialState: function() {
+    return {
+    filterText: '',
+    inStockOnly: false
+    };
+    },
+
+    handleUserInput: function(filterText, inStockOnly) {
+    this.setState({
+    filterText: filterText,
+    inStockOnly: inStockOnly
+    });
+    },
+
+    render: function() {
+    return (
+    &lt;div&gt;
+    &lt;SearchBar
+    filterText={this.state.filterText}
+    inStockOnly={this.state.inStockOnly}
+    onUserInput={this.handleUserInput}
+    /&gt;
+    &lt;ProductTable
+    products={this.props.products}
+    filterText={this.state.filterText}
+    inStockOnly={this.state.inStockOnly}
+    /&gt;
+    &lt;/div&gt;
+    );
+    }
+    });
+
+
+    var PRODUCTS = [
+    {category: 'Sporting Goods', price: '$49.99', stocked: true, name: 'Football'},
+    {category: 'Sporting Goods', price: '$9.99', stocked: true, name: 'Baseball'},
+    {category: 'Sporting Goods', price: '$29.99', stocked: false, name: 'Basketball'},
+    {category: 'Electronics', price: '$99.99', stocked: true, name: 'iPod Touch'},
+    {category: 'Electronics', price: '$399.99', stocked: false, name: 'iPhone 5'},
+    {category: 'Electronics', price: '$199.99', stocked: true, name: 'Nexus 7'}
+    ];
+
+    React.renderComponent(&lt;FilterableProductTable products={PRODUCTS} /&gt;, document.body); </code></pre>
+</td>
+            <td>
+                <pre><code class="scala">
+    case class Product(name: String, price: Double, category: String, stocked: Boolean)
+
+    case class State(filterText: String, isStocked: Boolean)
+
+    class Backend(t: BackendScope[_,State])  {
+
+    def onTextChange(e : SyntheticEvent[HTMLInputElement]) =
+    t.modState(_.copy(filterText = e.target.value))
+    def onCheckBox( e : SyntheticEvent[HTMLInputElement]) = {
+    t.modState(s =&gt; State(s.filterText,!s.isStocked))
+    }
+
+    }
+
+    val ProductCategoryRow = ReactComponentB[String](&quot;ProductCateoryRow&quot;)
+    .render(cateory =&gt; tr(
+    th(cateory)
+    )).build
+
+    val ProductRow = ReactComponentB[Product](&quot;ProductRow&quot;)
+    .render(p =&gt; {
+    def name = if (p.stocked) span(p.name) else span(color := &quot;red&quot;, p.name)
+    tr(
+    td(name),
+    td(p.price)
+    )
+    }
+    )
+    .build
+
+    val ProductTable = ReactComponentB[(List[Product],State)](&quot;ProductTable&quot;)
+    .render(P =&gt; {
+    val products = P._1
+    val state = P._2
+    val rows = products.filter(p =&gt; if(state.isStocked) (p.name.indexOf(state.filterText) != -1 &amp;&amp; p.stocked ) else p.name.indexOf(state.filterText) != -1)
+    .groupBy(p =&gt; p.category).toList.
+    flatMap(t =&gt; List(ProductCategoryRow.withKey(t._1)(t._1)) ++ t._2.map(p =&gt; ProductRow.withKey(p.name)(p)))
+    table(
+    thead(
+    tr(
+    th(&quot;Name&quot;),
+    th(&quot;Price&quot;)
+    )
+    ),
+    tbody(
+    rows
+    )
+    )
+    }).build
+
+    val SearchBar = ReactComponentB[(State,Backend)](&quot;SearchBar&quot;)
+    .render(P =&gt; {
+    val S = P._1
+    val B = P._2
+    form()(
+    input(placeholder := &quot;Search Bar ...&quot;, value := S.filterText, onchange ==&gt; B.onTextChange),
+    p(
+    input(`type` := &quot;checkbox&quot;, onclick ==&gt; B.onCheckBox),
+    &quot;Only show products in stock &quot;
+    )
+    )
+    }
+    ).build
+
+
+    val FilterableProductTable = ReactComponentB[List[Product]](&quot;FilterableProductTable&quot;)
+    .initialState(State(&quot;ball&quot;, false))
+    .backend(new Backend(_))
+    .render((P,S,B) =&gt; {
+    div(
+    SearchBar((S,B)),
+    ProductTable((P,S))
+    )
+    }).build
+
+    val products = List(Product(&quot;FootBall&quot;, 49.99, &quot;Sporting Goods&quot;, true),
+    Product(&quot;Baseball&quot;, 9.99, &quot;Sporting Goods&quot;, true),
+    Product(&quot;basketball&quot;, 29.99, &quot;Sporting Goods&quot;, false),
+    Product(&quot;ipod touch&quot;, 99.99, &quot;Electronics&quot;, true),
+    Product(&quot;iphone 5&quot;, 499.99, &quot;Electronics&quot;, true),
+    Product(&quot;Nexus 7&quot;, 199.99, &quot;Electronics&quot;, true)
+    )
+
+
+    React.renderComponent(FilterableProductTable(products),mountNode)</code></pre>
+</td>
+            <td><div id="eg_productTable">Demo</div></td>
+        </tr>
+      <!--  Example producttable end-->
     </table>
+
 
     <script type="text/javascript">
       japgolly.scalajs.react.example.ReactExamples().main()
