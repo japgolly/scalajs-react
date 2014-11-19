@@ -35,13 +35,12 @@ cEcho "no comment specified to deploy, using default : $comment" yellow
 fi
 
 #get directories
-fileName="deployment.json"
 
-cssPath="css"
+cssPath="example/css"
 
-jsPath="js"
+jsPath="example/js"
 
-imagesPath="images"
+imagesPath="example/images"
 
 
 # validating directories
