@@ -65,7 +65,7 @@ git show-branch gh-pages
 
 if [ $? != 0 ]; then
 git checkout --orphan gh-pages # create pages branch
-git rm -rf ../.
+git rm -rf .
 
 else
 git checkout gh-pages
