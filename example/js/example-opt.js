@@ -4755,98 +4755,95 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Backend.pro
   this.t$1 = t;
   return this
 });
-ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Backend.prototype.onFavClick__T__Z__V = (function(id, favorite) {
-  ScalaJS.m.Ljapgolly_scalajs_react_package();
-  var b = this.t$1;
-  var $$this = b;
-  var C = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccess$undSS();
-  var jsx$2 = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State(C.state__O__O($$this)).pictures$1;
-  var jsx$1 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(id$2) {
-    return (function(p$2) {
-      var p = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(p$2);
-      if (ScalaJS.anyRefEqEq(p.id$1, id$2)) {
-        var x$10 = p.id$1;
-        var x$11 = p.url$1;
-        var x$12 = p.src$1;
-        var x$13 = p.title$1;
-        return new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture().init___T__T__T__T__Z(x$10, x$11, x$12, x$13, false)
-      } else {
-        return p
-      }
-    })
-  })(id));
-  var this$3 = ScalaJS.m.sci_List();
-  var newPics = ScalaJS.as.sci_List(jsx$2.map__F1__scg_CanBuildFrom__O(jsx$1, this$3.ReusableCBFInstance$2));
-  ScalaJS.m.Ljapgolly_scalajs_react_package();
-  var b$1 = this.t$1;
-  var $$this$1 = b$1;
-  var C$1 = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccess$undSS();
-  var this$6 = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State(C$1.state__O__O($$this$1)).favourites$1;
-  var b$2 = (ScalaJS.m.sci_List(), new ScalaJS.c.scm_ListBuffer().init___());
-  var these = this$6;
-  while ((!these.isEmpty__Z())) {
-    var x$2 = these.head__O();
-    var p$1 = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(x$2);
-    if ((!ScalaJS.anyRefEqEq(p$1.id$1, id))) {
-      b$2.$$plus$eq__O__scm_ListBuffer(x$2)
-    };
-    these = ScalaJS.as.sci_List(these.tail__O())
-  };
-  var newFavs = b$2.toList__sci_List();
-  ScalaJS.m.Ljapgolly_scalajs_react_package();
-  var b$3 = this.t$1;
-  var qual$1 = b$3;
-  var x$15 = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccessOps().modState$default$2$extension__O__sjs_js_UndefOr(qual$1);
-  var C$2 = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccess$undSS();
-  var x$2$2 = C$2.state__O__O(qual$1);
-  ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State(x$2$2);
-  var a = new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State().init___sci_List__sci_List(newPics, newFavs);
-  C$2.setState__O__O__sjs_js_UndefOr__V(qual$1, a, x$15)
-});
 ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Backend.prototype.onPicClick__T__Z__V = (function(id, favorite) {
   if (favorite) {
-    this.onFavClick__T__Z__V(id, favorite)
-  } else {
-    var newPic = new ScalaJS.c.sr_ObjectRef().init___O(null);
     ScalaJS.m.Ljapgolly_scalajs_react_package();
     var b = this.t$1;
     var $$this = b;
     var C = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccess$undSS();
     var jsx$2 = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State(C.state__O__O($$this)).pictures$1;
-    var jsx$1 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(id$1, newPic$1) {
+    var jsx$1 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(id$1) {
       return (function(p$2) {
         var p = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(p$2);
         if (ScalaJS.anyRefEqEq(p.id$1, id$1)) {
-          var x$17 = p.id$1;
-          var x$18 = p.url$1;
-          var x$19 = p.src$1;
-          var x$20 = p.title$1;
-          newPic$1.elem$1 = new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture().init___T__T__T__T__Z(x$17, x$18, x$19, x$20, true);
-          return ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(newPic$1.elem$1)
+          var x$10 = p.id$1;
+          var x$11 = p.url$1;
+          var x$12 = p.src$1;
+          var x$13 = p.title$1;
+          return new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture().init___T__T__T__T__Z(x$10, x$11, x$12, x$13, false)
         } else {
           return p
         }
       })
-    })(id, newPic));
-    var this$4 = ScalaJS.m.sci_List();
-    var newPics = ScalaJS.as.sci_List(jsx$2.map__F1__scg_CanBuildFrom__O(jsx$1, this$4.ReusableCBFInstance$2));
+    })(id));
+    var this$3 = ScalaJS.m.sci_List();
+    var newPics = ScalaJS.as.sci_List(jsx$2.map__F1__scg_CanBuildFrom__O(jsx$1, this$3.ReusableCBFInstance$2));
     ScalaJS.m.Ljapgolly_scalajs_react_package();
     var b$1 = this.t$1;
     var $$this$1 = b$1;
     var C$1 = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccess$undSS();
-    var jsx$4 = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State(C$1.state__O__O($$this$1)).favourites$1;
-    var jsx$3 = newPic.elem$1;
-    var this$7 = ScalaJS.m.sci_List();
-    var newFavs = ScalaJS.as.sci_List(jsx$4.$$plus$colon__O__scg_CanBuildFrom__O(ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(jsx$3), this$7.ReusableCBFInstance$2));
+    var this$6 = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State(C$1.state__O__O($$this$1)).favourites$1;
+    var b$2 = (ScalaJS.m.sci_List(), new ScalaJS.c.scm_ListBuffer().init___());
+    var these = this$6;
+    while ((!these.isEmpty__Z())) {
+      var x$2 = these.head__O();
+      var p$1 = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(x$2);
+      if ((!ScalaJS.anyRefEqEq(p$1.id$1, id))) {
+        b$2.$$plus$eq__O__scm_ListBuffer(x$2)
+      };
+      these = ScalaJS.as.sci_List(these.tail__O())
+    };
+    var newFavs = b$2.toList__sci_List();
     ScalaJS.m.Ljapgolly_scalajs_react_package();
-    var b$2 = this.t$1;
-    var qual$2 = b$2;
-    var x$22 = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccessOps().modState$default$2$extension__O__sjs_js_UndefOr(qual$2);
+    var b$3 = this.t$1;
+    var qual$1 = b$3;
+    var x$15 = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccessOps().modState$default$2$extension__O__sjs_js_UndefOr(qual$1);
     var C$2 = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccess$undSS();
-    var x$1$2 = C$2.state__O__O(qual$2);
+    var x$1$2 = C$2.state__O__O(qual$1);
     ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State(x$1$2);
     var a = new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State().init___sci_List__sci_List(newPics, newFavs);
-    C$2.setState__O__O__sjs_js_UndefOr__V(qual$2, a, x$22)
+    C$2.setState__O__O__sjs_js_UndefOr__V(qual$1, a, x$15)
+  } else {
+    var newPic = new ScalaJS.c.sr_ObjectRef().init___O(null);
+    ScalaJS.m.Ljapgolly_scalajs_react_package();
+    var b$4 = this.t$1;
+    var $$this$2 = b$4;
+    var C$3 = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccess$undSS();
+    var jsx$4 = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State(C$3.state__O__O($$this$2)).pictures$1;
+    var jsx$3 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(id$1$1, newPic$1) {
+      return (function(p$2$1) {
+        var p$3 = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(p$2$1);
+        if (ScalaJS.anyRefEqEq(p$3.id$1, id$1$1)) {
+          var x$17 = p$3.id$1;
+          var x$18 = p$3.url$1;
+          var x$19 = p$3.src$1;
+          var x$20 = p$3.title$1;
+          newPic$1.elem$1 = new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture().init___T__T__T__T__Z(x$17, x$18, x$19, x$20, true);
+          return ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(newPic$1.elem$1)
+        } else {
+          return p$3
+        }
+      })
+    })(id, newPic));
+    var this$13 = ScalaJS.m.sci_List();
+    var newPics$2 = ScalaJS.as.sci_List(jsx$4.map__F1__scg_CanBuildFrom__O(jsx$3, this$13.ReusableCBFInstance$2));
+    ScalaJS.m.Ljapgolly_scalajs_react_package();
+    var b$5 = this.t$1;
+    var $$this$3 = b$5;
+    var C$4 = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccess$undSS();
+    var jsx$6 = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State(C$4.state__O__O($$this$3)).favourites$1;
+    var jsx$5 = newPic.elem$1;
+    var this$16 = ScalaJS.m.sci_List();
+    var newFavs$2 = ScalaJS.as.sci_List(jsx$6.$$plus$colon__O__scg_CanBuildFrom__O(ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(jsx$5), this$16.ReusableCBFInstance$2));
+    ScalaJS.m.Ljapgolly_scalajs_react_package();
+    var b$6 = this.t$1;
+    var qual$2 = b$6;
+    var x$22 = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccessOps().modState$default$2$extension__O__sjs_js_UndefOr(qual$2);
+    var C$5 = ScalaJS.m.Ljapgolly_scalajs_react_package$CompStateAccess$undSS();
+    var x$2$2 = C$5.state__O__O(qual$2);
+    ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State(x$2$2);
+    var a$1 = new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$State().init___sci_List__sci_List(newPics$2, newFavs$2);
+    C$5.setState__O__O__sjs_js_UndefOr__V(qual$2, a$1, x$22)
   }
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Backend = (function(obj) {
@@ -18468,7 +18465,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$11
     return (function(id$2$1, favorite$2$1) {
       var id$1 = ScalaJS.as.T(id$2$1);
       var favorite$1 = ScalaJS.uZ(favorite$2$1);
-      B$1$1.onFavClick__T__Z__V(id$1, favorite$1)
+      B$1$1.onPicClick__T__Z__V(id$1, favorite$1)
     })
   })(B))), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
   var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$5).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$4.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$3, jsx$2, jsx$1, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$4, c$1)]), 1)));
@@ -18639,9 +18636,9 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$6.
     var jsx$6 = new ScalaJS.c.Lscalatags_generic_AttrPair().init___Lscalatags_generic_Attr__O__Lscalatags_generic_AttrValue(this$2, "picture", ev$1)
   };
   var $$this = (ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom(), ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().onclick$1);
-  var thunk = new ScalaJS.c.sjsr_AnonFunction0().init___sjs_js_Function0((function(p$1, b$2$1) {
+  var thunk = new ScalaJS.c.sjsr_AnonFunction0().init___sjs_js_Function0((function(p$1, b$1) {
     return (function() {
-      return (b$2$1.apply__O__O__O(p$1.id$1, p$1.favorite$1), (void 0))
+      return (b$1.apply__O__O__O(p$1.id$1, p$1.favorite$1), (void 0))
     })
   })(p$2, b$2));
   ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom();
@@ -18724,10 +18721,10 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$7.
     var jsx$1 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().span$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Loading Pics.."))]), 1)))
   } else {
     var this$4 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
-    var jsx$2 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(b$1) {
+    var jsx$2 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(b$2$1) {
       return (function(p$2) {
         var p = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(p$2);
-        return ScalaJS.m.Ljapgolly_scalajs_react_example_examples_PictureAppExample().picture$1.withKey__sjs_js_Any__Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(p.id$1).apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(p, b$1), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)))
+        return ScalaJS.m.Ljapgolly_scalajs_react_example_examples_PictureAppExample().picture$1.withKey__sjs_js_Any__Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(p.id$1).apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(p, b$2$1), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)))
       })
     })(b$2));
     var this$3 = ScalaJS.m.sci_List();

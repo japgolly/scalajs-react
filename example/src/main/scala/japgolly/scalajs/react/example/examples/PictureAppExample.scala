@@ -213,7 +213,9 @@ object PictureAppExample {
 
     def onPicClick(id: String, favorite: Boolean) = {
       if (favorite) {
-        onFavClick(id, favorite)
+        val newPics = t.state.pictures.map(p => if (p.id == id) p.copy(favorite = false) else p)
+        val newFavs = t.state.favourites.filter(p => p.id != id)
+        t.modState(_ => State(newPics, newFavs))
       } else {
         var newPic: Picture = null
         val newPics = t.state.pictures.map(p => if (p.id == id) {
@@ -222,15 +224,7 @@ object PictureAppExample {
         val newFavs = t.state.favourites.+:(newPic)
         t.modState(_ => State(newPics, newFavs))
       }
-
     }
-
-    def onFavClick(id: String, favorite: Boolean) = {
-      val newPics = t.state.pictures.map(p => if (p.id == id) p.copy(favorite = false) else p)
-      val newFavs = t.state.favourites.filter(p => p.id != id)
-      t.modState(_ => State(newPics, newFavs))
-    }
-
   }
 
   val picture = ReactComponentB[(Picture, Function2[String, Boolean, Unit])]("picture")
@@ -270,25 +264,25 @@ object PictureAppExample {
     .initialState(State(Nil, Nil))
     .backend(new Backend(_))
     .render((_, S, B) => {
-    div(
-      h1("Popular Instragram pics"),
-      pictureList((S.pictures, B.onPicClick)),
-      h1("Your favorites"),
-      favoriteList((S.favourites, B.onFavClick))
-    )
-  })
+        div(
+          h1("Popular Instragram pics"),
+          pictureList((S.pictures, B.onPicClick)),
+          h1("Your favorites"),
+          favoriteList((S.favourites, B.onPicClick))
+        )
+      })
     .componentDidMount(scope => {
     // make ajax call here to get pics from instagram
-    import scalajs.js.Dynamic.{global => g}
-    val url = "https://api.instagram.com/v1/media/popular?client_id=642176ece1e7445e99244cec26f4de1f&callback=?"
-    g.jsonp(url, (result: js.Dynamic) => {
-      if (result != js.undefined && result.data != js.undefined) {
-        val data = result.data.asInstanceOf[js.Array[js.Dynamic]]
-        val pics = data.toList.map(item => Picture(item.id.toString, item.link.toString, item.images.low_resolution.url.toString, if (item.caption != null) item.caption.text.toString else ""))
-        scope.modState(_ => State(pics, Nil))
-      }
-    })
-  })
+        import scalajs.js.Dynamic.{global => g}
+        val url = "https://api.instagram.com/v1/media/popular?client_id=642176ece1e7445e99244cec26f4de1f&callback=?"
+        g.jsonp(url, (result: js.Dynamic) => {
+          if (result != js.undefined && result.data != js.undefined) {
+            val data = result.data.asInstanceOf[js.Array[js.Dynamic]]
+            val pics = data.toList.map(item => Picture(item.id.toString, item.link.toString, item.images.low_resolution.url.toString, if (item.caption != null) item.caption.text.toString else ""))
+            scope.modState(_ => State(pics, Nil))
+          }
+        })
+      })
     .buildU
 
 }
