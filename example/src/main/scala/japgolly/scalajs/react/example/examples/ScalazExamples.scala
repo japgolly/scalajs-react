@@ -1,12 +1,12 @@
-package japgolly.scalajs.react.example
+package japgolly.scalajs.react.example.examples
 
-import org.scalajs.dom.{HTMLInputElement, Node}
-import scalaz.effect.IO
-
+import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react._
-import vdom.ReactVDom._
-import all._
-import ScalazReact._
+import japgolly.scalajs.react.vdom.ReactVDom._
+import japgolly.scalajs.react.vdom.ReactVDom.all._
+import org.scalajs.dom.{HTMLInputElement, Node}
+
+import scalaz.effect.IO
 
 object ScalazExamples {
 
