@@ -36,11 +36,11 @@ fi
 
 #get directories
 
-cssPath="example/css"
+cssPath="css"
 
-jsPath="example/js"
+jsPath="js"
 
-imagesPath="example/images"
+imagesPath="images"
 
 
 # validating directories
@@ -65,7 +65,7 @@ git show-branch gh-pages
 
 if [ $? != 0 ]; then
 git checkout --orphan gh-pages # create pages branch
-git rm -rf .
+git rm -rf ../.
 
 else
 git checkout gh-pages
@@ -86,8 +86,8 @@ if [ $isImagesPath ]; then
   git checkout master -- "$imagesPath"
 fi
 
-git checkout master -- example/index.html
-#git checkout master -- README.md
+git checkout master -- index.html
+git checkout master -- ../README.md
 
 
 cEcho " pushing changes to gh-pages" yellow
