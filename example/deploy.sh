@@ -86,7 +86,7 @@ if [ $isImagesPath ]; then
   git checkout master -- "$imagesPath"
 fi
 
-git checkout master -- index.html
+git checkout master -- example/index.html
 #git checkout master -- README.md
 
 
