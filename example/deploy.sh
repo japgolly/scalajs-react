@@ -39,8 +39,6 @@ fileName="deployment.json"
 
 cssPath="css"
 
-htmlPath=($(jq -r '.html' $fileName))
-
 jsPath="js"
 
 imagesPath="images"
@@ -77,20 +75,20 @@ fi
 cEcho "In gh-pages branch , copying deployment files from master" yellow
 
 if [ $isCssPath ]; then
-  git checkout master -- "example/$cssPath"
+  git checkout master -- "$cssPath"
 fi
 
 
 if [ $isJsPath ]; then
-  git checkout master -- "example/$jsPath/*.js"
+  git checkout master -- "$jsPath/*.js"
 fi
 
 if [ $isImagesPath ]; then
-  git checkout master -- "example/$imagesPath"
+  git checkout master -- "$imagesPath"
 fi
 
-git checkout master -- example/index.html
-git checkout master -- README.md
+git checkout master -- index.html
+#git checkout master -- README.md
 
 
 cEcho " pushing changes to gh-pages" yellow
