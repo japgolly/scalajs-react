@@ -265,7 +265,7 @@ object PictureAppExample {
     .backend(new Backend(_))
     .render((_, S, B) => {
         div(
-          h1("Popular Instragram pics"),
+          h1("Popular Instagram Pics"),
           pictureList((S.pictures, B.onPicClick)),
           h1("Your favorites"),
           favoriteList((S.favourites, B.onPicClick))
