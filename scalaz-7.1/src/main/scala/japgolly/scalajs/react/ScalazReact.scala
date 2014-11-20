@@ -181,7 +181,8 @@ object ScalazReact {
     def >>[B](t: ReactST[M,S,B])(implicit M: Bind[M]): ReactST[M,S,B] =
       s.flatMap(_ => t)
 
-    def zoom[T](f: T => S, g: (T, S) => T)(implicit M: Functor[M]): ReactST[M, T, A] =
+    /** zoom2 because StateT.zoom already exists. 2 because it takes two fns. */
+    def zoom2[T](f: T => S, g: (T, S) => T)(implicit M: Functor[M]): ReactST[M, T, A] =
       ReactS.zoom(s, f, g)
 
     def zoomU[T](implicit M: Functor[M], ev: S === Unit): ReactST[M, T, A] =
