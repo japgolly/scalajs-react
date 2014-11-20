@@ -1,12 +1,12 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
-import vdom.ReactVDom._
-
+import japgolly.scalajs.react.vdom.ReactVDom._
 import scala.scalajs.js.{UndefOr, undefined}
 import scalaz._
-import Scalaz.Id
 import scalaz.effect.IO
+import Scalaz.Id
+import Leibniz.===
 
 object ScalazReact {
 
@@ -108,6 +108,15 @@ object ScalazReact {
     def unlift[M[_], S, A](t: ReactST[M, S, A])(implicit M: Functor[M]): StateT[M, S, A] =
       StateT[M, S, A](s => M.map(t(StateAndCallbacks(s)))(sa => (sa._1.s, sa._2) ))
 
+    def zoom[M[_], S, T, A](r: ReactST[M, S, A], f: T => S, g: (T, S) => T)(implicit M: Functor[M]): ReactST[M, T, A] =
+      StateT[M, StateAndCallbacks[T], A](tc => {
+        val m = r(StateAndCallbacks(f(tc.s), tc.cb))
+        M.map(m){ case (sc, a) => (StateAndCallbacks(g(tc.s, sc.s), sc.cb), a) }
+      })
+
+    def zoomU[M[_], S, A](r: ReactST[M, Unit, A])(implicit M: Functor[M]): ReactST[M, S, A] =
+      zoom[M, Unit, S, A](r, _ => (), (s, _) => s)
+
     @inline def Fix[S] = new Fix[S]
     final class Fix[S] {
       @inline def apply[A](f: S => (S, A))           = ReactS(f)
@@ -129,6 +138,8 @@ object ScalazReact {
       @inline def liftR [M[_]: Applicative : Bind, A](f: S => ReactST[M, S, A]) = ReactS.liftR(f)
       @inline def lift  [M[_]: Functor, A]           (t: StateT[M, S, A])       = ReactS.lift(t)
       @inline def unlift[M[_]: Functor, A]           (t: ReactST[M, S, A])      = ReactS.unlift(t)
+      @inline def zoom [T, A](r: ReactS[T, A])(f: S => T, g: (S, T) => S): ReactS[S, A] = ReactS.zoom(r, f, g)
+      @inline def zoomU[A]   (r: ReactS[Unit, A])                        : ReactS[S, A] = ReactS.zoomU(r)
     }
 
     @inline def FixT[M[_], S] = new FixT[M,S]
@@ -145,6 +156,8 @@ object ScalazReact {
       @inline def liftR [A](f: S => ReactST[M, S, A])(implicit A: Applicative[M], B: Bind[M]) = ReactS.liftR(f)
       @inline def lift  [A](t: StateT[M, S, A])      (implicit M: Functor[M])                 = ReactS.lift(t)
       @inline def unlift[A](t: ReactST[M, S, A])     (implicit M: Functor[M])                 = ReactS.unlift(t)
+      @inline def zoom [T, A](r: ReactST[M, T, A])(f: S => T, g: (S, T) => S)(implicit M: Functor[M]): ReactST[M, S, A] = ReactS.zoom(r, f, g)
+      @inline def zoomU[A]   (r: ReactST[M, Unit, A])                        (implicit M: Functor[M]): ReactST[M, S, A] = ReactS.zoomU(r)
     }
   }
 
@@ -153,13 +166,19 @@ object ScalazReact {
       ReactS lift s
   }
 
-  implicit final class SzRExt_ReactSTOps[M[_], S, A](val f: ReactST[M,S,A]) extends AnyVal {
+  implicit final class SzRExt_ReactSTOps[M[_], S, A](val s: ReactST[M,S,A]) extends AnyVal {
     def addCallback(c: OpCallbackIO)(implicit M: Monad[M]): ReactST[M,S,A] =
-      f flatMap ReactS.callbackT(c)
+      s flatMap ReactS.callbackT(c)
 
     // This shouldn't be needed; it's already in BindSyntax.
     def >>[B](t: ReactST[M,S,B])(implicit M: Bind[M]): ReactST[M,S,B] =
-      f.flatMap(_ => t)
+      s.flatMap(_ => t)
+
+    def zoom[T](f: T => S, g: (T, S) => T)(implicit M: Functor[M]): ReactST[M, T, A] =
+      ReactS.zoom(s, f, g)
+
+    def zoomU[T](implicit M: Functor[M], ev: S === Unit): ReactST[M, T, A] =
+      ReactS.zoomU[M, T, A](ev.subst[({type λ[σ] = ReactST[M, σ, A]})#λ](s))
   }
 
   implicit final class SzRExt_CompStateAccessOps[C[_], S](val u: C[S]) extends AnyVal {

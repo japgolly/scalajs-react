@@ -6,6 +6,7 @@ History
 * Support the `dangerouslySetInnerHTML` attribute.
 * Added `StateT` extension `liftR` to `ReactST` and deprecated `runState` methods handling `StateT` directly.
 * Added `colspan` and `rowspan` attributes.
+* Added `ReactS.zoom` and `ReactS.zoomU`.
 
 ### 0.5.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.0...v0.5.1))
 
