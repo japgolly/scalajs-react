@@ -150,15 +150,18 @@ object ScalazReact {
     @inline def FixT[M[_], S] = new FixT[M, S]
     final class FixT[M[_], S] {
       @inline def apply    [A]  (f: S => M[(S, A)])       (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.applyT(f)
+      @inline def applyS   [A]  (f: S => (S, A))          (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS(f).lift[M]
       @inline def ret      [A]  (a: A)                    (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.retT(a)
       @inline def retM     [A]  (ma: M[A])                (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.retM(ma)
       @inline def get                                     (implicit M: Applicative[M]): ReactST[M,S,S]    = ReactS.getT
       @inline def gets     [A]  (f: S => M[A])            (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.getsT(f)
+      @inline def getsS    [A]  (f: S => A)               (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.gets(f).lift[M]
       @inline def set           (s: S)                    (implicit M: Applicative[M]): ReactST[M,S,Unit] = ReactS.setT(s)
       @inline def setM          (ms: M[S])                (implicit M: Functor[M])    : ReactST[M,S,Unit] = ReactS.setM(ms)
       @inline def mod           (f: S => M[S])            (implicit M: Functor[M])    : ReactST[M,S,Unit] = ReactS.modT(f)
-      @inline def callbackM[A]  (c: OpCallbackIO, a: M[A])(implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.callbackM(c, a)
-      @inline def callback [A]  (c: OpCallbackIO, a: A)   (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.callbackT(c, a)
+      @inline def modS          (f: S => S)               (implicit M: Applicative[M]): ReactST[M,S,Unit] = ReactS.mod(f).lift[M]
+      @inline def callback [A]  (c: OpCallbackIO, a: M[A])(implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.callbackM(c, a)
+      @inline def callbackS[A]  (c: OpCallbackIO, a: A)   (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.callbackT(c, a)
       @inline def liftR    [A]  (f: S => ReactST[M, S, A])(implicit M: Monad[M])      : ReactST[M,S,A]    = ReactS.liftR(f)
       @inline def lift     [A]  (t: StateT[M, S, A])      (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.lift(t)
       @inline def unlift   [A]  (t: ReactST[M, S, A])     (implicit M: Functor[M])    : StateT [M,S,A]    = ReactS.unlift(t)
