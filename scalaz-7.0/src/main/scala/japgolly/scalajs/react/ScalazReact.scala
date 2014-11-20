@@ -76,8 +76,7 @@ object ScalazReact {
 
     @inline def mod[S](f: S => S): ReactS[S, Unit] = modT[Id, S](f)
 
-    def callback[S, A](c: OpCallbackIO, a: A): ReactS[S, A] =
-      State[StateAndCallbacks[S], A](s => (s addCallback c, a))
+    @inline def callback[S, A](c: OpCallbackIO, a: A): ReactS[S, A] = callbackM[Id, S, A](c, a)
 
     def applyT[M[+_], S, A](f: S => M[(S, A)])(implicit F: Functor[M]): ReactST[M, S, A] =
       StateT[M, StateAndCallbacks[S], A](sc => F.map(f(sc.s))(x => (sc withState x._1, x._2) ))
@@ -98,6 +97,9 @@ object ScalazReact {
 
     def modT[M[+_], S](f: S => M[S])(implicit M: Functor[M]): ReactST[M, S, Unit] =
       StateT[M, StateAndCallbacks[S], Unit](sc => M.map(f(sc.s))(s2 => (sc withState s2,()) ))
+
+    def callbackM[M[+_], S, A](c: OpCallbackIO, ma: M[A])(implicit M: Functor[M]): ReactST[M, S, A] =
+      StateT[M, StateAndCallbacks[S], A](s => M.map(ma)(a => (s addCallback c, a)))
 
     @inline def callbackT[M[+_]: Applicative, S, A](c: OpCallbackIO, a: A): ReactST[M, S, A] = callback(c, a).lift[M]
 
@@ -135,6 +137,7 @@ object ScalazReact {
       @inline def setM[M[+_]: Functor](ms: M[S])                          = ReactS.setM[M,S](ms)
       @inline def setT[M[+_]: Applicative](s: S)                          = ReactS.setT[M,S](s)
       @inline def modT[M[+_]: Functor](f: S => M[S])                      = ReactS.modT[M,S](f)
+      @inline def callbackM[M[+_]: Functor, A](c: OpCallbackIO, ma: M[A]) = ReactS.callbackM[M,S,A](c, ma)
       @inline def callbackT[M[+_]: Applicative, A](c: OpCallbackIO, a: A) = ReactS.callbackT[M,S,A](c, a)
       @inline def liftR [M[+_]: Applicative : Bind, A](f: S => ReactST[M, S, A]) = ReactS.liftR(f)
       @inline def lift  [M[+_]: Functor, A]           (t: StateT[M, S, A])       = ReactS.lift(t)
@@ -154,6 +157,7 @@ object ScalazReact {
       @inline def setM(ms: M[S])                    (implicit M: Functor[M])     = ReactS.setM[M,S](ms)
       @inline def mod(f: S => M[S])                 (implicit M: Functor[M])     = ReactS.modT[M,S](f)
       @inline def callback[A](c: OpCallbackIO, a: A)(implicit M: Applicative[M]) = ReactS.callbackT[M,S,A](c, a)
+      @inline def callbackM[A](c: OpCallbackIO, ma: M[A])(implicit M: Functor[M]) = ReactS.callbackM[M,S,A](c, ma)
       @inline def liftR [A](f: S => ReactST[M, S, A])(implicit A: Applicative[M], B: Bind[M]) = ReactS.liftR(f)
       @inline def lift  [A](t: StateT[M, S, A])      (implicit M: Functor[M])                 = ReactS.lift(t)
       @inline def unlift[A](t: ReactST[M, S, A])     (implicit M: Functor[M])                 = ReactS.unlift(t)
