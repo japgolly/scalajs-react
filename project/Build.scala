@@ -10,7 +10,7 @@ import scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys._
 
 object ScalajsReact extends Build {
 
-  val Scala211 = "2.11.2"
+  val Scala211 = "2.11.4"
 
   type PE = Project => Project
 

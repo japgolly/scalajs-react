@@ -9,6 +9,7 @@ History
 * Added `ReactS.zoom` and `ReactS.zoomU`.
 * Params for `ReactS.callback{,T}` no longer curried. ← Breaks backwards compatibility. Sorry. Are there more than 3 instances of this in the wild anyway?
 * Added `ReactS.callbackM`.
+* Bump Scala 2.11.2 to 2.11.4.
 
 ### 0.5.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.0...v0.5.1))
 
