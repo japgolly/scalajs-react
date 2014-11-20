@@ -11,6 +11,7 @@ History
 * Added `ReactS.callbackM`.
 * Bump Scala 2.11.2 to 2.11.4.
 * Added `ReactS.FixT.{apply,gets,mod}S`.
+* Added `ReactEventI` aliases for the very common case that the underlying node is an `input`.
 
 ### 0.5.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.0...v0.5.1))
 

@@ -69,9 +69,9 @@ object ReactExamples extends js.JSApp {
     case class State(items: List[String], text: String)
 
     class Backend(t: BackendScope[Unit, State]) {
-      def onChange(e: SyntheticEvent[HTMLInputElement]) =
+      def onChange(e: ReactEventI) =
         t.modState(_.copy(text = e.target.value))
-      def handleSubmit(e: SyntheticEvent[HTMLInputElement]) = {
+      def handleSubmit(e: ReactEventI) = {
         e.preventDefault()
         t.modState(s => State(s.items :+ s.text, ""))
       }
@@ -102,7 +102,7 @@ object ReactExamples extends js.JSApp {
     val theInput = Ref[HTMLInputElement]("theInput")
 
     class Backend(t: BackendScope[_, String]) {
-      def handleChange(e: SyntheticEvent[HTMLInputElement]) =
+      def handleChange(e: ReactEventI) =
         t.setState(e.target.value)
       def clearAndFocusInput() =
         t.setState("", () => theInput(t).tryFocus())
@@ -130,7 +130,7 @@ object ReactExamples extends js.JSApp {
     case class State(filterText: String, inStockOnly: Boolean)
 
     class Backend(t: BackendScope[_, State])  {
-      def onTextChange(e: SyntheticEvent[HTMLInputElement]) =
+      def onTextChange(e: ReactEventI) =
         t.modState(_.copy(filterText = e.target.value))
       def onCheckBox(e: ReactEvent) =
         t.modState(s => s.copy(inStockOnly = !s.inStockOnly))
