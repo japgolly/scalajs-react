@@ -32,20 +32,29 @@ The synthetic event types you read about in the [React docs](http://facebook.git
 are typed as shown below.
 
 As type safety is a goal, synthetic events also type the event target,
-but if you don't know or care about the event target type, simply use `ReactEvent` or `ReactEventH` instead.
+but if you don't know or care about the event target type, simply use `ReactEvent` instead.
 
-| React Event Type | Alias for any `Node` | Aliases `Node` to `+HTMLElement` |
+| React Event Type | Alias for any `Node` |
 | ---- | ---- | ---- |
-| `SyntheticEvent[Node]` | `ReactEvent` | `ReactEventH` |
-| `SyntheticClipboardEvent[Node]` | `ReactClipboardEvent` | `ReactClipboardEventH` |
-| `SyntheticCompositionEvent[Node]` | `ReactCompositionEvent` | `ReactCompositionEventH` |
-| `SyntheticDragEvent[Node]` | `ReactDragEvent` | `ReactDragEventH` |
-| `SyntheticFocusEvent[Node]` | `ReactFocusEvent` | `ReactFocusEventH` |
-| `SyntheticKeyboardEvent[Node]` | `ReactKeyboardEvent` | `ReactKeyboardEventH` |
-| `SyntheticMouseEvent[Node]` | `ReactMouseEvent` | `ReactMouseEventH` |
-| `SyntheticTouchEvent[Node]` | `ReactTouchEvent` | `ReactTouchEventH` |
-| `SyntheticUIEvent[Node]` | `ReactUIEvent` | `ReactUIEventH` |
-| `SyntheticWheelEvent[Node]` | `ReactWheelEvent` | `ReactWheelEventH` |
+| `SyntheticEvent[Node]` | `ReactEvent` |
+| `SyntheticClipboardEvent[Node]` | `ReactClipboardEvent` |
+| `SyntheticCompositionEvent[Node]` | `ReactCompositionEvent` |
+| `SyntheticDragEvent[Node]` | `ReactDragEvent` |
+| `SyntheticFocusEvent[Node]` | `ReactFocusEvent` |
+| `SyntheticKeyboardEvent[Node]` | `ReactKeyboardEvent` |
+| `SyntheticMouseEvent[Node]` | `ReactMouseEvent` |
+| `SyntheticTouchEvent[Node]` | `ReactTouchEvent` |
+| `SyntheticUIEvent[Node]` | `ReactUIEvent` |
+| `SyntheticWheelEvent[Node]` | `ReactWheelEvent` |
+
+One of the suffixes below can be added to any the ReactEvents above, to provide an alias with a more specific node type.
+
+| Suffix | Node |
+| ------ | ---- |
+| `H` | `HTMLElement` |
+| `I` | `HTMLInputElement` |
+
+For example, `ReactDragEventI` is a `ReactDragEvent` over a `HTMLInputElement` (an `<input>`), the same as writing `SyntheticDragEvent[HTMLInputElement]`.
 
 # Other
 
