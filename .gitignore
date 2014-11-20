@@ -3,4 +3,11 @@
 target
 *.log
 *.pid
+~*
+.~*
+*.bak
+*.tmp
+.*.swp
+.*.swo
+.*.swn
 
