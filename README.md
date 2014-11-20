@@ -97,7 +97,7 @@ MOAR FP / Scalaz
 Included is a Scalaz module that facilitates a more functional and pure approach to React integration.
 This is achieved primarily via state and IO monads. Joyously, this approach makes obsolete the need for a "backend".
 
-State modifications and `setState` callbacks are created via `ReactS`, which is conceptually `WriterT[M, List[Callback], StateT[M, S, A]]` but caters to Scala's hopeless inability to infer types. They are applied via `runState` or `runStateS` for vanilla `StateT` monads (ie. without callbacks). Callbacks take the form of `IO[Unit]` and are hooked into HTML via `~~>`, e.g. `button(onclick ~~> T.runState(blah), "Click Me!")`.
+State modifications and `setState` callbacks are created via `ReactS`, which is conceptually `WriterT[M, List[Callback], StateT[M, S, A]]`. `ReactS` monads are applied via `runState`. Vanilla `StateT` monads (ie. without callbacks) can be lifted into `ReactS` via `.liftR`. Callbacks take the form of `IO[Unit]` and are hooked into HTML via `~~>`, e.g. `button(onclick ~~> T.runState(blah), "Click Me!")`.
 
 Also included are `runStateF` methods which use a `ChangeFilter` typeclass to compare before and after states at the end of a state monad application, and optionally opt-out of a call to `setState` on a component.
 
