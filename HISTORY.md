@@ -3,15 +3,23 @@ History
 
 ### 0.5.2 (unreleased)
 
-* Support the `dangerouslySetInnerHTML` attribute.
-* Added `StateT` extension `liftR` to `ReactST` and deprecated `runState` methods handling `StateT` directly.
-* Added `colspan` and `rowspan` attributes.
-* Added `ReactS.zoom` and `ReactS.zoomU`.
-* Params for `ReactS.callback{,T}` no longer curried. ← Breaks backwards compatibility. Sorry. Are there more than 3 instances of this in the wild anyway?
-* Added `ReactS.callbackM`.
-* Bump Scala 2.11.2 to 2.11.4.
-* Added `ReactS.FixT.{apply,gets,mod}S`.
+* Added tag attributes:
+  * `dangerouslySetInnerHTML`
+  * `colspan`
+  * `rowspan`
+* Added to `ReactS`, `Fix` and `FixT`:
+  * `callbackM`
+  * `zoom`
+  * `zoomU`
+* Added `ReactS.FixT`:
+  * `applyS`
+  * `getsS`
+  * `modS`
+* Added `StateT` extension `liftR` to `ReactST`
 * Added `ReactEventI` aliases for the very common case that the underlying node is an `input`.
+* Bump Scala 2.11.2 to 2.11.4.
+* Deprecated `runState` methods handling `StateT` directly. Use `liftR` first.
+* Params for `ReactS.callback{,T}` no longer curried. **This breaks backwards compatibility.**
 
 ### 0.5.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.0...v0.5.1))
 
