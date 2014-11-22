@@ -3,8 +3,9 @@ History
 
 ### 0.5.2 (unreleased)
 
+* Added `ReactEventI` aliases for the very common case that the underlying node is an `<input>`.
 * Added tag attributes:
-  * `dangerouslySetInnerHTML`
+  * `dangerouslySetInnerHTML`. Usage example: `div(dangerouslySetInnerHtml("<span>"))`.
   * `colspan`
   * `rowspan`
 * Added to `ReactS`, `Fix` and `FixT`:
@@ -16,10 +17,9 @@ History
   * `getsS`
   * `modS`
 * Added `StateT` extension `liftR` to `ReactST`
-* Added `ReactEventI` aliases for the very common case that the underlying node is an `input`.
-* Bump Scala 2.11.2 to 2.11.4.
 * Deprecated `runState` methods handling `StateT` directly. Use `liftR` first.
 * Params for `ReactS.callback{,T}` no longer curried. **This breaks backwards compatibility.**
+* Bump Scala 2.11.2 to 2.11.4.
 
 ### 0.5.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.0...v0.5.1))
 
