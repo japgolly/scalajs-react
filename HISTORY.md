@@ -18,7 +18,6 @@ History
   * `modS`
 * Added `StateT` extension `liftR` to `ReactST`
 * Deprecated `runState` methods handling `StateT` directly. Use `liftR` first.
-* Params for `ReactS.callback{,T}` no longer curried. **This breaks backwards compatibility.**
 * Bump Scala 2.11.2 to 2.11.4.
 
 ### 0.5.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.0...v0.5.1))
