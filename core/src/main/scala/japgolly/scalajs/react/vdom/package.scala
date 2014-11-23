@@ -1,8 +1,9 @@
 package japgolly.scalajs.react
 
-import scala.scalajs.js
-
 package object vdom {
-  type ReactOutput = VDom
-  type ReactFragT = js.Any
+
+  @deprecated("React 0.12 has introduced ReactElement which is what ReactOutput was created to represent. Replace ReactOutput with ReactElement.", "0.6.0")
+  type ReactOutput = ReactElement
+
+  type ReactFragT = ReactNode
 }

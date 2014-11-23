@@ -9,7 +9,7 @@ import utest._
 object TestUtil {
 
   def assertRender(comp: ReactComponentU_, expected: String): Unit = {
-    val rendered: String = React.renderComponentToStaticMarkup(comp)
+    val rendered: String = React.renderToStaticMarkup(comp)
     assert(rendered == expected)
   }
 
@@ -27,11 +27,11 @@ object TestUtil {
   def run1[A](C: ReactComponentC.ReqProps[AtomicReference[Option[A]], _, _, _])
              (f: AtomicReference[Option[A]] => ReactComponentU[AtomicReference[Option[A]], _, _, _]): A = {
     val a = new AtomicReference[Option[A]](None)
-    React renderComponentToStaticMarkup f(a)
+    React renderToStaticMarkup f(a)
     a.get().get
   }
 
-  def run1C[A](c: ReactComponentC.ReqProps[AtomicReference[Option[A]], _, _, _], children: VDom*): A =
+  def run1C[A](c: ReactComponentC.ReqProps[AtomicReference[Option[A]], _, _, _], children: ReactNode*): A =
     run1(c)(a => c(a, children: _*))
 
   def collectorN[A](f: (ListBuffer[A], ComponentScopeU[_, _, _]) => Unit) =
@@ -44,11 +44,19 @@ object TestUtil {
   def runN[A](C: ReactComponentC.ReqProps[ListBuffer[A], _, _, _])
              (f: ListBuffer[A] => ReactComponentU[ListBuffer[A], _, _, _]): List[A] = {
     val l = new ListBuffer[A]
-    React renderComponentToStaticMarkup f(l)
+    React renderToStaticMarkup f(l)
     l.result()
   }
 
-  def runNC[A](c: ReactComponentC.ReqProps[ListBuffer[A], _, _, _], children: VDom*) =
+  def runNC[A](c: ReactComponentC.ReqProps[ListBuffer[A], _, _, _], children: ReactNode*) =
     runN(c)(l => c(l, children: _*))
 
+  implicit class AnyTestExt[A](val v: A) extends AnyVal {
+
+    // nice output in assertion macro
+    def mustEqual(e: A): Unit = {
+      val a = v
+      assert(a == e)
+    }
+  }
 }

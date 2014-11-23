@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import scala.scalajs.js
-import japgolly.scalajs.react.React
+import japgolly.scalajs.react.{ReactElement, ReactNode, React}
 
 private[vdom] object VDomBuilder  {
 
@@ -20,12 +20,12 @@ private[vdom] object VDomBuilder  {
 private[vdom] final class VDomBuilder {
   import VDomBuilder._
 
-  private[this] var props = new js.Object
-  private[this] var style = new js.Object
-  private[this] var vdomArgs = js.Array[ReactFragT](props)
+  private[this] var props    = new js.Object
+  private[this] var style    = new js.Object
+  private[this] var children = new js.Array[ReactFragT]()
 
   def appendChild(c: ReactFragT): Unit =
-    vdomArgs.push(c)
+    children.push(c)
 
   def addAttr(k: String, v: js.Any): Unit =
     set(props, attrTranslations.getOrElse(k, k), v)
@@ -38,8 +38,8 @@ private[vdom] final class VDomBuilder {
 
   @inline private[this] def hasStyle = js.Object.keys(style).length != 0
 
-  def render(tag: String) = {
+  def render(tag: String): ReactElement = {
     if (hasStyle) set(props, "style", style)
-    React.DOM.applyDynamic(tag)(vdomArgs: _*).asInstanceOf[ReactOutput]
+    React.createElement(tag, props, children: _*)
   }
 }

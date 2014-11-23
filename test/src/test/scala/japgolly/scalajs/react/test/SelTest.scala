@@ -2,6 +2,7 @@ package japgolly.scalajs.react.test
 
 import utest._
 import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import TestUtil._
 
 object SelTest extends TestSuite {
 
@@ -16,22 +17,20 @@ object SelTest extends TestSuite {
     )
   ).buildU
 
+  lazy val c = ReactTestUtils renderIntoDocument C()
+
+  def test1(s: String, e: String): Unit =
+    Sel(s).findIn(c).getDOMNode().innerHTML mustEqual e
+
+  def testF(errFrag: String) = (s: String) => {
+    val a: Either[String, String] = Sel(s).findInE(c).right.map(_.getDOMNode().innerHTML)
+    if (a.isRight) println(Sel(s))
+    assert(a.isLeft, a.toString contains errFrag)
+  }
+  def testNonUnique = testF("Too many")
+  def testNotFound = testF("not found")
+
   val tests = TestSuite {
-    val c = ReactTestUtils renderIntoDocument C()
-
-    def test1(s: String, e: String) = {
-      val a = Sel(s).findIn(c).getDOMNode().innerHTML
-      assert(a == e)
-    }
-
-    def testF(errFrag: String) = (s: String) => {
-      val a: Either[String, String] = Sel(s).findInE(c).right.map(_.getDOMNode().innerHTML)
-      if (a.isRight) println(Sel(s))
-      assert(a.isLeft, a.toString contains errFrag)
-    }
-    def testNonUnique = testF("Too many")
-    def testNotFound = testF("not found")
-
     'tag - test1("h3", "Quasimodo")
 
     'cls - test1(".t5", "Chimes at midnight")

@@ -77,7 +77,7 @@ object ScalajsReact extends Build {
 
   def useReact(scope: String = "compile"): PE =
     _.settings(
-      jsDependencies += "org.webjars" % "react" % "0.11.1" % scope / "react-with-addons.js" commonJSName "React",
+      jsDependencies += "org.webjars" % "react" % "0.12.0" % scope / "react-with-addons.js" commonJSName "React",
       skip in packageJSDependencies := false)
 
   def addCommandAliases(m: (String, String)*) = {

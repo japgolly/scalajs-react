@@ -39,14 +39,14 @@
   }
 });
 
-React.renderComponent(HelloMessage( {name:"John"} ), mountNode);</code></pre>
+React.render(HelloMessage( {name:"John"} ), mountNode);</code></pre>
             </td>
             <td>
                 <pre><code class="scala">val HelloMessage = ReactComponentB[String]("HelloMessage")
   .render(name =&gt; div("Hello ", name))
   .create
 
-React.renderComponent(HelloMessage("John"), mountNode)</code></pre>
+React.render(HelloMessage("John"), mountNode)</code></pre>
             </td>
             <td><div id="eg1">Demo</div></td>
         </tr>
@@ -74,7 +74,7 @@ React.renderComponent(HelloMessage("John"), mountNode)</code></pre>
   }
 });
 
-React.renderComponent(Timer(null ), mountNode);</code></pre>
+React.render(Timer(null ), mountNode);</code></pre>
             </td>
             <td>
                 <pre><code class="scala">case class State(secondsElapsed: Long)
@@ -94,7 +94,7 @@ val Timer = ReactComponentB[Unit]("Timer")
   .componentWillUnmount(_.backend.interval foreach window.clearInterval)
   .create
 
-React.renderComponent(Timer(()), mountNode)</code></pre>
+React.render(Timer(()), mountNode)</code></pre>
             </td>
             <td><div id="eg2">Demo</div></td>
         </tr>
@@ -136,7 +136,7 @@ var TodoApp = React.createClass({displayName: 'TodoApp',
     );
   }
 });
-React.renderComponent(TodoApp(null ), mountNode);</code></pre>
+React.render(TodoApp(null ), mountNode);</code></pre>
             </td>
             <td>
                 <pre><code class="scala">val TodoList = ReactComponentB[List[String]]("TodoList")
@@ -171,7 +171,7 @@ val TodoApp = ReactComponentB[Unit]("TodoApp")
     )
   ).create
 
-React.renderComponent(TodoApp(()), mountNode)</code></pre>
+React.render(TodoApp(()), mountNode)</code></pre>
             </td>
             <td><div id="eg3">Demo</div></td>
         </tr>
@@ -379,7 +379,7 @@ var PRODUCTS = [
   {category: 'Electronics', price: '$199.99', stocked: true, name: 'Nexus 7'}
 ];
 
-React.renderComponent(&lt;FilterableProductTable products={PRODUCTS} /&gt;, document.body);
+React.render(&lt;FilterableProductTable products={PRODUCTS} /&gt;, document.body);
 </code></pre>
 </td>
             <td>
@@ -458,7 +458,7 @@ val FilterableProductTable = ReactComponentB[List[Product]]("FilterableProductTa
     Product("iphone 5", 499.99, "Electronics", true),
     Product("Nexus 7", 199.99, "Electronics", true))
 
-React.renderComponent(FilterableProductTable(products), mountNode)
+React.render(FilterableProductTable(products), mountNode)
 </code></pre>
 </td>
             <td><div id="eg_productTable">Demo</div></td>

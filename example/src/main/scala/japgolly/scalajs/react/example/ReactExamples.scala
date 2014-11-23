@@ -26,7 +26,7 @@ object ReactExamples extends js.JSApp {
       .render(name => div("Hello ", name))
       .build
 
-    React.renderComponent(HelloMessage("John"), mountNode)
+    React.render(HelloMessage("John"), mountNode)
   }
 
   // ===================================================================================================================
@@ -51,7 +51,7 @@ object ReactExamples extends js.JSApp {
       .componentWillUnmount(_.backend.interval foreach window.clearInterval)
       .buildU
 
-    React.renderComponent(Timer(), mountNode)
+    React.render(Timer(), mountNode)
   }
 
   // ===================================================================================================================
@@ -91,7 +91,7 @@ object ReactExamples extends js.JSApp {
         )
       ).buildU
 
-    React.renderComponent(TodoApp(), mountNode)
+    React.render(TodoApp(), mountNode)
   }
 
   // ===================================================================================================================
@@ -118,7 +118,7 @@ object ReactExamples extends js.JSApp {
         )
       ).buildU
 
-    React.renderComponent(App(), mountNode)
+    React.render(App(), mountNode)
   }
   // ===================================================================================================================
   // Scala version of example on http://facebook.github.io/react/docs/thinking-in-react.html
@@ -199,6 +199,6 @@ object ReactExamples extends js.JSApp {
         Product("iphone 5", 499.99, "Electronics", true),
         Product("Nexus 7", 199.99, "Electronics", true))
 
-    React.renderComponent(FilterableProductTable(products), mountNode)
+    React.render(FilterableProductTable(products), mountNode)
   }
 }

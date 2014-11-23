@@ -52,6 +52,6 @@ object ScalazExamples {
         )
       ).buildU
 
-    React.renderComponent(TodoApp(), mountNode)
+    React.render(TodoApp(), mountNode)
   }
 }

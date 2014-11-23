@@ -19,8 +19,8 @@ object ReactComponentB {
     def initialState[State](s: => State)          = initialStateP(_ => s)
     def stateless                                 = initialState(())
 
-    def render(f: Props                  => VDom) = stateless.render((p,_) => f(p))
-    def render(f: (Props, PropsChildren) => VDom) = stateless.render((p,c,_) => f(p,c))
+    def render(f: Props                  => ReactElement) = stateless.render((p,_) => f(p))
+    def render(f: (Props, PropsChildren) => ReactElement) = stateless.render((p,c,_) => f(p,c))
   }
 
   // ===================================================================================================================
@@ -29,26 +29,26 @@ object ReactComponentB {
     def backend[Backend](f: BackendScope[Props, State] => Backend) = new PSB(name, initF, f)
     def noBackend                                                  = backend(_ => ())
 
-    def render(f: (Props, State)                                       => VDom) = noBackend.render((p,s,_) => f(p,s))
-    def render(f: (Props, PropsChildren, State)                        => VDom) = noBackend.render((p,c,s,_) => f(p,c,s))
-    def render(f: ComponentScopeU[Props, State, Unit]                  => VDom) = noBackend.render(f)
-    def renderS(f: (ComponentScopeU[Props, State, Unit], Props, State) => VDom) = noBackend.renderS(f)
+    def render(f: (Props, State)                                       => ReactElement) = noBackend.render((p,s,_) => f(p,s))
+    def render(f: (Props, PropsChildren, State)                        => ReactElement) = noBackend.render((p,c,s,_) => f(p,c,s))
+    def render(f: ComponentScopeU[Props, State, Unit]                  => ReactElement) = noBackend.render(f)
+    def renderS(f: (ComponentScopeU[Props, State, Unit], Props, State) => ReactElement) = noBackend.renderS(f)
   }
 
   // ===================================================================================================================
   final class PSB[P, S, B] private[ReactComponentB](name: String, initF: P => S, backF: BackendScope[P, S] => B) {
 
-    def render(f: ComponentScopeU[P, S, B] => VDom): ReactComponentB[P, S, B] =
+    def render(f: ComponentScopeU[P, S, B] => ReactElement): ReactComponentB[P, S, B] =
       new ReactComponentB(name, initF, backF, f,
         LifeCycle(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined))
 
-    def render(f: (P, S, B) => VDom): ReactComponentB[P, S, B] =
+    def render(f: (P, S, B) => ReactElement): ReactComponentB[P, S, B] =
       render(s => f(s.props, s.state, s.backend))
 
-    def render(f: (P, PropsChildren, S, B) => VDom): ReactComponentB[P, S, B] =
+    def render(f: (P, PropsChildren, S, B) => ReactElement): ReactComponentB[P, S, B] =
       render(s => f(s.props, s.propsChildren, s.state, s.backend))
 
-    def renderS(f: (ComponentScopeU[P, S, B], P, S) => VDom): ReactComponentB[P, S, B] =
+    def renderS(f: (ComponentScopeU[P, S, B], P, S) => ReactElement): ReactComponentB[P, S, B] =
       render(T => f(T, T.props, T.state))
   }
 
@@ -69,7 +69,7 @@ import ReactComponentB.LifeCycle
 final class ReactComponentB[P, S, B](val name: String,
                                      initF: P => S,
                                      backF: BackendScope[P, S] => B,
-                                     rendF: ComponentScopeU[P, S, B] => VDom,
+                                     rendF: ComponentScopeU[P, S, B] => ReactElement,
                                      lc: LifeCycle[P, S, B]) {
 
   def configure(fs: (ReactComponentB[P, S, B] => ReactComponentB[P, S, B])*): ReactComponentB[P, S, B] =
@@ -118,7 +118,7 @@ final class ReactComponentB[P, S, B](val name: String,
 
   final class Builder[C, N <: TopNode] private[ReactComponentB](cc: ReactComponentCU[P,S,B,N] => C) {
 
-    def buildSpec: ComponentSpec[P, S, B, N] = {
+    def buildSpec: ReactComponentSpec[P, S, B, N] = {
       val spec = Dynamic.literal(
         "displayName" -> name,
         "backend" -> 0,
@@ -154,11 +154,11 @@ final class ReactComponentB[P, S, B](val name: String,
         spec.updateDynamic("componentWillReceiveProps")(g: ThisFunction)
       }
 
-      spec.asInstanceOf[ComponentSpec[P, S, B, N]]
+      spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]
     }
 
     def build: C =
-      cc(React.createClass(buildSpec))
+      cc(React.createFactory(React.createClass(buildSpec)))
 
     @deprecated("As the B in ReactComponentB is for Builder, create() has been renamed to build() and will be removed in 0.7.0.", "0.5.0")
     def create = build

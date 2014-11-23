@@ -13,22 +13,17 @@ object React extends Object {
    * prototypal classes is that you don't need to call new on them. They are convenience wrappers that construct
    * backing instances (via new) for you.
    */
-  def createClass[P,S,B,N <: TopNode](spec: ComponentSpec[P,S,B,N]): ReactComponentCU[P,S,B,N] = ???
+  def createClass[P,S,B,N <: TopNode](spec: ReactComponentSpec[P,S,B,N]): ReactComponentType[P,S,B,N] = ???
 
-  def renderComponent(c: ReactComponentU_, n: dom.Node)
-    : ReactComponentM_[TopNode] = ???
+  def createFactory[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = ???
 
-  def renderComponent(c: ReactComponentU_, n: dom.Node, callback: ThisFunction)
-    : ReactComponentM_[TopNode] = ???
+  def createElement[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = ???
+  def createElement(tag: String, props: Object, children: ReactNode*): ReactDOMElement = ???
 
-  def renderComponent[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)
-    : ReactComponentM[P,S,B,N] = ???
-
-  def renderComponent[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node, callback: ThisFunction0[ReactComponentM[P,S,B,N], Unit])
-    : ReactComponentM[P,S,B,N] = ???
-
-  /** Configure React's event system to handle touch events on mobile devices. */
-  def initializeTouchEvents(shouldUseTouch: Boolean): Unit = ???
+  def render(e: ReactElement, n: dom.Node): ReactComponentM_[TopNode] = ???
+  def render(e: ReactElement, n: dom.Node, callback: ThisFunction): ReactComponentM_[TopNode] = ???
+  def render[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node): ReactComponentM[P,S,B,N] = ???
+  def render[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node, callback: ThisFunction0[ReactComponentM[P,S,B,N], Unit]): ReactComponentM[P,S,B,N] = ???
 
   /**
    * Remove a mounted React component from the DOM and clean up its event handlers and state. If no component was
@@ -37,57 +32,133 @@ object React extends Object {
    */
   def unmountComponentAtNode(container: dom.Node): Boolean = ???
 
-  def renderComponentToString(component: ReactComponentU_): String = ???
+  /**
+   * Render a ReactElement to its initial HTML. This should only be used on the server. React will return an HTML
+   * string. You can use this method to generate HTML on the server and send the markup down on the initial request for
+   * faster page loads and to allow search engines to crawl your pages for SEO purposes.
+   *
+   * If you call React.render() on a node that already has this server-rendered markup, React will preserve it and only
+   * attach event handlers, allowing you to have a very performant first-load experience.
+   */
+  def renderToString(e: ReactElement): String = ???
 
-  def renderComponentToStaticMarkup(component: ReactComponentU_): String = ???
+  /**
+   * Similar to renderToString, except this doesn't create extra DOM attributes such as data-react-id, that React uses
+   * internally. This is useful if you want to use React as a simple static page generator, as stripping away the extra
+   * attributes can save lots of bytes.
+   */
+  def renderToStaticMarkup(e: ReactElement): String = ???
 
+  /** Verifies the object is a ReactElement. */
+  def isValidElement(o: JAny): Boolean = ???
+
+  /** Configure React's event system to handle touch events on mobile devices. */
+  def initializeTouchEvents(shouldUseTouch: Boolean): Unit = ???
+
+  /**
+   * React.DOM provides convenience wrappers around React.createElement for DOM components. These should only be used
+   * when not using JSX. For example, React.DOM.div(null, 'Hello World!')
+   */
   def DOM: Dynamic = ???
+
   def addons: Dynamic = ???
 
+  /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   def Children: ReactChildren = ???
+
+  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
+  def renderComponent(c: ReactComponentU_, n: dom.Node): ReactComponentM_[TopNode] = ???
+
+  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
+  def renderComponent(c: ReactComponentU_, n: dom.Node, callback: ThisFunction): ReactComponentM_[TopNode] = ???
+
+  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
+  def renderComponent[P, S, B, N <: TopNode](c: ReactComponentU[P, S, B, N], n: dom.Node): ReactComponentM[P, S, B, N] = ???
+
+  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
+  def renderComponent[P, S, B, N <: TopNode](c: ReactComponentU[P, S, B, N], n: dom.Node, callback: ThisFunction0[ReactComponentM[P, S, B, N], Unit]): ReactComponentM[P, S, B, N] = ???
+
+  @deprecated("React.renderComponentToString will be deprecated in a future version. Use React.renderToString instead.", "React 0.12.0")
+  def renderComponentToString(component: ReactComponentU_): String = ???
+
+  @deprecated("React.renderComponentToStaticMarkup will be deprecated in a future version. Use React.renderToStaticMarkup instead.", "React 0.12.0")
+  def renderComponentToStaticMarkup(component: ReactComponentU_): String = ???
 }
 
 /** `React.Children` */
 trait ReactChildren extends Object {
-  def map(c: PropsChildren, fn: js.Function1[VDom, JAny]): UndefOr[Object] = ???
-  def map(c: PropsChildren, fn: js.Function2[VDom, Number, JAny]): UndefOr[Object] = ???
-  def forEach(c: PropsChildren, fn: js.Function1[VDom, JAny]): Unit = ???
-  def forEach(c: PropsChildren, fn: js.Function2[VDom, Number, JAny]): Unit = ???
-  /** WARNING: Throws an exception is exact number of children is not 1. */
-  def only(c: PropsChildren): VDom = ???
+  /** Invoke fn on every immediate child contained within children with this set to context. If children is a nested object or array it will be traversed: fn will never be passed the container objects. If children is null or undefined returns null or undefined rather than an empty object. */
+  def map(c: PropsChildren, fn: js.Function1[ReactNode, JAny]): UndefOr[Object] = ???
+  /** Invoke fn on every immediate child contained within children with this set to context. If children is a nested object or array it will be traversed: fn will never be passed the container objects. If children is null or undefined returns null or undefined rather than an empty object. */
+  def map(c: PropsChildren, fn: js.Function2[ReactNode, Number, JAny]): UndefOr[Object] = ???
+
+  /** Like React.Children.map() but does not return an object. */
+  def forEach(c: PropsChildren, fn: js.Function1[ReactNode, JAny]): Unit = ???
+  /** Like React.Children.map() but does not return an object. */
+  def forEach(c: PropsChildren, fn: js.Function2[ReactNode, Number, JAny]): Unit = ???
+
+  /** Return the only child in children. Throws otherwise. */
+  def only(c: PropsChildren): ReactNode = ???
+
+  /** Return the total number of components in children, equal to the number of times that a callback passed to map or forEach would be invoked. */
   def count(c: PropsChildren): Number = ???
 }
 
-/** A React DOM representation of HTML. Could be React.DOM output, or a React component. */
-trait VDom extends Object
+trait ReactComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Object
 
-trait ComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Object
+/** The meat in React's createClass-createFactory sandwich. */
+trait ReactComponentType[Props, State, +Backend, +Node <: TopNode] extends Object
+
+/**
+ * http://facebook.github.io/react/docs/glossary.html indicates children can be a super type of ReactElement.
+ * Array and null are acceptable, thus this can be 0-n elements.
+ */
+trait ReactNode extends Object
+
+/** ReactElement = ReactComponentElement | ReactDOMElement  */
+trait ReactElement extends Object with ReactNode {
+  def key: UndefOr[String] = ???
+  def ref: UndefOr[String] = ???
+}
+
+/** A React virtual DOM element, such as 'div', 'table', etc. */
+trait ReactDOMElement extends ReactElement {
+  def `type`: String = ???
+  def typ   : String = `type`
+  def props : Object = ???
+}
+
+/** An instance of a React component. Prefer using the subtype ReactComponentU instead. */
+trait ReactComponentElement[Props]
+  extends ReactElement
+     with ComponentScope_P[Props]
 
 /** A JS function that creates a React component instance. */
 trait ReactComponentC_ extends JFn
 
 /** The underlying function that creates a Scala-based React component instance. */
 trait ReactComponentCU[Props, State, +Backend, +Node <: TopNode] extends ReactComponentC_ {
-  def apply(props: WrapObj[Props], children: VDom*): ReactComponentU[Props, State, Backend, Node] = ???
+  def apply(props: WrapObj[Props], children: ReactNode*): ReactComponentU[Props, State, Backend, Node] = ???
 }
 
 /** An unmounted component. Not guaranteed to have been created by Scala, could be a React addon. */
-trait ReactComponentU_ extends Object with VDom {
+trait ReactComponentU_ extends ReactElement {
   def dynamic = this.asInstanceOf[Dynamic]
 }
 
 /** A mounted component. Not guaranteed to have been created by Scala, could be a React addon. */
 trait ReactComponentM_[+Node <: TopNode]
   extends ReactComponentU_
-  with ComponentScope_M[Node]
+     with ComponentScope_M[Node]
 
 /** An unmounted Scala component. */
-trait ReactComponentU[Props, State, +Backend, +Node <: TopNode] extends ReactComponentU_
+trait ReactComponentU[Props, State, +Backend, +Node <: TopNode]
+  extends ReactComponentU_
 
 /** A mounted Scala component. */
 trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]
   extends ReactComponentM_[Node]
-  with ComponentScopeMN[Props, State, Backend, Node]
+     with ComponentScopeMN[Props, State, Backend, Node]
 
 // =====================================================================================================================
 // Scope
@@ -130,33 +201,33 @@ trait ComponentScope_M[+Node <: TopNode] extends Object {
 /** Type of an unmounted component's `this` scope. */
 trait ComponentScopeU[Props, State, +Backend]
   extends ComponentScope_PS[Props, State]
-  with ComponentScope_P[Props]
-  with ComponentScope_SS[State]
-  with ComponentScope_B[Backend]
+     with ComponentScope_P[Props]
+     with ComponentScope_SS[State]
+     with ComponentScope_B[Backend]
   // prohibits: ComponentScope_M.*
 
 /** Type of a component's `this` scope during componentWillUpdate. */
 trait ComponentScopeWU[Props, +State, +Backend]
   extends ComponentScope_PS[Props, State]
-  with ComponentScope_P[Props]
-  with ComponentScope_S[State]
-  with ComponentScope_B[Backend]
-  with ComponentScope_M[TopNode]
+     with ComponentScope_P[Props]
+     with ComponentScope_S[State]
+     with ComponentScope_B[Backend]
+     with ComponentScope_M[TopNode]
   // prohibits: .setState
 
 /** Type of a mounted component's `this` scope. */
 trait ComponentScopeM[Props, State, +Backend] extends ComponentScopeMN[Props, State, Backend, TopNode]
 trait ComponentScopeMN[Props, State, +Backend, +Node <: TopNode]
   extends ComponentScope_PS[Props, State]
-  with ComponentScopeU[Props, State, Backend]
-  with ComponentScope_M[Node]
+     with ComponentScopeU[Props, State, Backend]
+     with ComponentScope_M[Node]
 
 /** Type of a component's `this` scope as is available to backends. */
 trait BackendScope[Props, State]
   extends ComponentScope_PS[Props, State]
-  with ComponentScope_P[Props]
-  with ComponentScope_SS[State]
-  with ComponentScope_M[TopNode]
+     with ComponentScope_P[Props]
+     with ComponentScope_SS[State]
+     with ComponentScope_M[TopNode]
   // prohibits: .backend
 
 /** Type of `this.refs` */
@@ -167,7 +238,6 @@ trait RefsObject extends Object {
 
 /** Additional methods that React mixes into `this.props` */
 trait PropsMixedIn extends Object {
-  def key: UndefOr[String] = ???
   def children: PropsChildren = ???
 }
 
