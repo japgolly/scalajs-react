@@ -81,7 +81,7 @@ package object react {
     def param[I, T <: TopNode](f: I => String) = new RefP[I, T](f)
   }
 
-  implicit final class ScalaColl_Ext[A](val as: TraversableOnce[A]) extends AnyVal {
+  implicit final class ReactExt_ScalaColl[A](val as: TraversableOnce[A]) extends AnyVal {
     @inline def toJsArray: js.Array[A] =
       js.Array(as.toSeq: _*)
     @inline def toReactNodeArray(implicit ev: A => ReactNode): js.Array[ReactNode] = {
@@ -91,7 +91,7 @@ package object react {
     }
   }
 
-  implicit final class JsArray_Ext[A](val as: js.Array[A]) extends AnyVal {
+  implicit final class ReactExt_JsArray[A](val as: js.Array[A]) extends AnyVal {
     @inline def toReactNodeArray(implicit ev: A => ReactNode): js.Array[ReactNode] =
       as.map(ev: js.Function1[A, ReactNode])
   }
@@ -144,11 +144,11 @@ package object react {
   // ===================================================================================================================
 
   @inline implicit def autoUnWrapObj[A](a: WrapObj[A]): A = a.v
-  implicit final class AnyExtReact[A](val a: A) extends AnyVal {
+  implicit final class ReactExt_Any[A](val a: A) extends AnyVal {
     @inline def wrap: WrapObj[A] = WrapObj(a)
   }
 
-  implicit final class ReactExt(val u: React.type) extends AnyVal {
+  implicit final class ReactExt_ReactObj(val u: React.type) extends AnyVal {
     @deprecated("React.renderComponentC will be deprecated in a future version. Use React.renderC instead.", "0.6.0")
     @inline def renderComponentC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeMN[P,S,B,N] => Unit) =
       u.render(c, n, callback)
@@ -156,35 +156,35 @@ package object react {
       u.render(c, n, callback)
   }
 
-  implicit final class ComponentScope_P_Ext[Props](val u: ComponentScope_P[Props]) extends AnyVal {
+  implicit final class ReactExt_ComponentScope_P[Props](val u: ComponentScope_P[Props]) extends AnyVal {
     @inline def props = u._props.v
     @inline def propsChildren = u._props.children
   }
 
-  implicit final class ComponentScope_PS_Ext[Props, State](val u: ComponentScope_PS[Props, State]) extends AnyVal {
+  implicit final class ReactExt_ComponentScope_PS[Props, State](val u: ComponentScope_PS[Props, State]) extends AnyVal {
     @inline def getInitialState(p: Props): State = u._getInitialState(WrapObj(p)).v
   }
 
-  implicit final class ComponentScope_S_Ext[State](val u: ComponentScope_S[State]) extends AnyVal {
+  implicit final class ReactExt_ComponentScope_S[State](val u: ComponentScope_S[State]) extends AnyVal {
     @inline def state = u._state.v
   }
 
   val preventDefaultF  = (_: SyntheticEvent[dom.Node]).preventDefault()
   val stopPropagationF = (_: SyntheticEvent[dom.Node]).stopPropagation()
 
-  implicit final class ReactComponentUExt[P,S,B,N <: TopNode](val u: ReactComponentU[P,S,B,N]) extends AnyVal {
+  implicit final class ReactExt_ReactComponentU[P,S,B,N <: TopNode](val u: ReactComponentU[P,S,B,N]) extends AnyVal {
     def render(n: dom.Node) = React.render(u, n)
   }
 
-  implicit final class UndefReactComponentM_Ext[N <: TopNode](val u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
+  implicit final class ReactExt_UndefReactComponentM[N <: TopNode](val u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
     def tryFocus(): Unit = u.foreach(_.getDOMNode().focus())
   }
 
-  implicit final class ReactComponentM_Ext[N <: TopNode](val u: ReactComponentM_[N]) extends AnyVal {
+  implicit final class ReactExt_ReactComponentM[N <: TopNode](val u: ReactComponentM_[N]) extends AnyVal {
     def domType[N2 <: TopNode] = u.asInstanceOf[ReactComponentM_[N2]]
   }
 
-  implicit final class PropsChildrenExt(val u: PropsChildren) extends AnyVal {
+  implicit final class ReactExt_PropsChildren(val u: PropsChildren) extends AnyVal {
     @inline def forEach[U](f: ReactNode => U): Unit =
       React.Children.forEach(u, (f:JFn).asInstanceOf[js.Function1[ReactNode, JAny]])
 

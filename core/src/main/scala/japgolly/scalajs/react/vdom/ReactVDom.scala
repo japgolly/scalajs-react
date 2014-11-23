@@ -112,7 +112,7 @@ object ReactVDom
     def makeAbstractTypedTag[T <: ReactElement](tag: String, void: Boolean, namespaceConfig: Namespace): TypedTag[T] =
       TypedTag(tag, Nil, void, namespaceConfig)
 
-    implicit class SeqFrag[A <% Frag](xs: Seq[A]) extends Frag{
+    /*override*/ implicit final class SeqFrag[A <% Frag](xs: Seq[A]) extends Frag{
       def applyTo(t: VDomBuilder): Unit = xs.foreach(_.applyTo(t))
       def render: ReactElement = {
         val b = new VDomBuilder()
@@ -209,13 +209,13 @@ object ReactVDom
     }
   }
 
-  implicit final class ReactAttrExt(val a: Attr) extends AnyVal {
+  implicit final class ReactVExt_Attr(val a: Attr) extends AnyVal {
     @inline def runs(thunk: => Unit) = a := ((() => thunk): js.Function)
     @inline def -->(thunk: => Unit) = a runs thunk
     @inline def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Unit) = a := (eventHandler: js.Function)
   }
 
-  implicit final class ReactBoolExt(val a: Boolean) extends AnyVal {
+  implicit final class ReactVExt_Boolean(val a: Boolean) extends AnyVal {
     @inline def &&(m: => Modifier): Modifier = if (a) m else EmptyTag
     // @inline def :=>[V](v: => V): Option[V] = if (a) Some(v) else None
   }

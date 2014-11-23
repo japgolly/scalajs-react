@@ -254,7 +254,7 @@ object ScalazReact {
 
   import experiment._
 
-  implicit class ListenableObjExt(val a: Listenable.type) extends AnyVal {
+  implicit final class SzRExt_Listenable(val a: Listenable.type) extends AnyVal {
 
     def installIO[P, S, B <: OnUnmount, A](f: P => Listenable[A], g: (ComponentScopeM[P, S, B], A) => IO[Unit]) =
       Listenable.install[P, S, B, A](f, t => a => g(t, a).unsafePerformIO())
