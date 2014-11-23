@@ -17,6 +17,8 @@ In addition to React API changes...
 * `.toJsArray: Seq[A] → JArray[ReactElement]` is no longer needed.
 * Renamed `ComponentSpec` to `ReactComponentSpec`. *(Internal. Extremely unlikely anyone using it directly.)*
 * Changed signatures of `ReactS.callback` and brethren from `(c)(a)` to `(a,c)`.
+* Workaround for Scala's type inference failing with `StateT.liftR` on functions.
+  Instead of `f(_).liftR`, `f.liftR` is now available and is confirmed to work in `_runState`.
 
 Here are a few commands to ease migration.
 ```
