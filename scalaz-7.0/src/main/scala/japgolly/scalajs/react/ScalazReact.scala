@@ -179,6 +179,11 @@ object ScalazReact {
       ReactS lift s
   }
 
+  implicit final class SzRExt__StateTOps[I, M[+_], S, A](val f: I => StateT[M, S, A]) extends AnyVal {
+    @inline def liftR(implicit M: Functor[M]): I => ReactST[M, S, A] =
+      f(_).liftR
+  }
+
   implicit final class SzRExt_ReactSTOps[M[+_], S, A](val s: ReactST[M,S,A]) extends AnyVal {
     def addCallback(c: OpCallbackIO)(implicit M: Monad[M]): ReactST[M,S,A] =
       s.flatMap(ReactS.callbackT(c))
@@ -218,7 +223,7 @@ object ScalazReact {
     def runStateS[M[+_], A](st: => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M]): IO[A] =
       runState(st.liftR)
 
-    @deprecated("Instead of _runStateS(i ⇒ s | f), use _runState(i ⇒ s.liftR | f(_).liftR). _runStateS will be removed in 0.7.0.", "0.5.2")
+    @deprecated("Instead of _runStateS(f), use _runState(f.liftR). _runStateS will be removed in 0.7.0.", "0.5.2")
     def _runStateS[I, M[+_], A](f: I => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M]): I => IO[A] =
       _runState(f(_).liftR)
 
@@ -235,7 +240,7 @@ object ScalazReact {
     def runStateFS[M[+_], A](st: => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M], F: ChangeFilter[S]): IO[A] =
       runStateF(st.liftR)
 
-    @deprecated("Instead of _runStateFS(i ⇒ s | f), use _runStateF(i ⇒ s.liftR | f(_).liftR). _runStateFS will be removed in 0.7.0.", "0.5.2")
+    @deprecated("Instead of _runStateFS(f), use _runStateF(f.liftR). _runStateFS will be removed in 0.7.0.", "0.5.2")
     def _runStateFS[I, M[+_], A](f: I => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M], F: ChangeFilter[S]): I => IO[A] =
       _runStateF(f(_).liftR)
   }

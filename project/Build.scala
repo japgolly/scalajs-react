@@ -105,8 +105,10 @@ object ScalajsReact extends Build {
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings)
-    .dependsOn(core)
-    .settings(name := "test")
+    .dependsOn(core, scalaz71)
+    .settings(
+      name := "test",
+      scalacOptions += "-language:reflectiveCalls")
 
   // ==============================================================================================
   def scalazModule(name: String, version: String) = {
