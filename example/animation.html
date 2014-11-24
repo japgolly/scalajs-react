@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>scalajs-react</title>
+    <script type="text/javascript" src="target/scala-2.11/example-jsdeps.js"></script>
+    <script type="text/javascript" src="target/scala-2.11/example-fastopt.js"></script>
+    <style>
+        .example-enter {
+          opacity: 0.01;
+          transition: opacity .5s ease-in;
+        }
+
+        .example-enter.example-enter-active {
+          opacity: 1;
+        }
+        .example-leave {
+          opacity: 1;
+          transition: opacity .5s ease-in;
+        }
+
+        .example-leave.example-leave-active {
+          opacity: 0.01;
+        }
+    </style>
+  </head>
+  <body>
+
+    <h3>JSX</h3>
+    <div id="jsx">jsx ver</div>
+
+    <h3>Scala</h3>
+    <div id="scala">scala ver</div>
+
+    <script type="text/javascript">
+var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+
+var TodoList = React.createClass({displayName: 'TodoList',
+  getInitialState: function() {
+    return {items: ['hello', 'world', 'click', 'me']};
+  },
+  handleAdd: function() {
+    var newItems =
+      this.state.items.concat([prompt('Enter some text')]);
+    this.setState({items: newItems});
+  },
+  handleRemove: function(i) {
+    var newItems = this.state.items;
+    newItems.splice(i, 1);
+    this.setState({items: newItems});
+  },
+  render: function() {
+    var items = this.state.items.map(function(item, i) {
+      return (
+        React.DOM.div( {key:item, onClick:this.handleRemove.bind(this, i)}, 
+          item
+        )
+      );
+    }.bind(this));
+    return (
+      React.DOM.div(null, 
+        React.DOM.button( {onClick:this.handleAdd}, "Add Item"),
+        ReactCSSTransitionGroup( {transitionName:"example"}, 
+          items
+        )
+      )
+    );
+  }
+});
+
+React.render(TodoList(null), document.getElementById("jsx"));
+
+      japgolly.scalajs.react.example.AnimationExample().main()
+    </script>
+  </body>
+</html>

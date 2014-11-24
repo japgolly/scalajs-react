@@ -8,30 +8,45 @@ package object react {
 
   type TopNode = dom.HTMLElement
 
-  type ReactEvent            = SyntheticEvent[dom.Node]
-  type ReactClipboardEvent   = SyntheticClipboardEvent[dom.Node]
+  type ReactEvent            = SyntheticEvent           [dom.Node]
+  type ReactClipboardEvent   = SyntheticClipboardEvent  [dom.Node]
   type ReactCompositionEvent = SyntheticCompositionEvent[dom.Node]
-  type ReactDragEvent        = SyntheticDragEvent[dom.Node]
-  type ReactFocusEvent       = SyntheticFocusEvent[dom.Node]
-  //type ReactInputEvent       = SyntheticInputEvent[dom.Node]
-  type ReactKeyboardEvent    = SyntheticKeyboardEvent[dom.Node]
-  type ReactMouseEvent       = SyntheticMouseEvent[dom.Node]
-  type ReactTouchEvent       = SyntheticTouchEvent[dom.Node]
-  type ReactUIEvent          = SyntheticUIEvent[dom.Node]
-  type ReactWheelEvent       = SyntheticWheelEvent[dom.Node]
+  type ReactDragEvent        = SyntheticDragEvent       [dom.Node]
+  type ReactFocusEvent       = SyntheticFocusEvent      [dom.Node]
+  //type ReactInputEvent     = SyntheticInputEvent      [dom.Node]
+  type ReactKeyboardEvent    = SyntheticKeyboardEvent   [dom.Node]
+  type ReactMouseEvent       = SyntheticMouseEvent      [dom.Node]
+  type ReactTouchEvent       = SyntheticTouchEvent      [dom.Node]
+  type ReactUIEvent          = SyntheticUIEvent         [dom.Node]
+  type ReactWheelEvent       = SyntheticWheelEvent      [dom.Node]
 
-  type ReactEventH            = SyntheticEvent[dom.HTMLElement]
-  type ReactClipboardEventH   = SyntheticClipboardEvent[dom.HTMLElement]
+  type ReactEventH            = SyntheticEvent           [dom.HTMLElement]
+  type ReactClipboardEventH   = SyntheticClipboardEvent  [dom.HTMLElement]
   type ReactCompositionEventH = SyntheticCompositionEvent[dom.HTMLElement]
-  type ReactDragEventH        = SyntheticDragEvent[dom.HTMLElement]
-  type ReactFocusEventH       = SyntheticFocusEvent[dom.HTMLElement]
-  //type ReactInputEventH       = SyntheticInputEvent[dom.HTMLElement]
-  type ReactKeyboardEventH    = SyntheticKeyboardEvent[dom.HTMLElement]
-  type ReactMouseEventH       = SyntheticMouseEvent[dom.HTMLElement]
-  type ReactTouchEventH       = SyntheticTouchEvent[dom.HTMLElement]
-  type ReactUIEventH          = SyntheticUIEvent[dom.HTMLElement]
-  type ReactWheelEventH       = SyntheticWheelEvent[dom.HTMLElement]
-  
+  type ReactDragEventH        = SyntheticDragEvent       [dom.HTMLElement]
+  type ReactFocusEventH       = SyntheticFocusEvent      [dom.HTMLElement]
+  //type ReactInputEventH     = SyntheticInputEvent      [dom.HTMLElement]
+  type ReactKeyboardEventH    = SyntheticKeyboardEvent   [dom.HTMLElement]
+  type ReactMouseEventH       = SyntheticMouseEvent      [dom.HTMLElement]
+  type ReactTouchEventH       = SyntheticTouchEvent      [dom.HTMLElement]
+  type ReactUIEventH          = SyntheticUIEvent         [dom.HTMLElement]
+  type ReactWheelEventH       = SyntheticWheelEvent      [dom.HTMLElement]
+
+  type ReactEventI            = SyntheticEvent           [dom.HTMLInputElement]
+  type ReactClipboardEventI   = SyntheticClipboardEvent  [dom.HTMLInputElement]
+  type ReactCompositionEventI = SyntheticCompositionEvent[dom.HTMLInputElement]
+  type ReactDragEventI        = SyntheticDragEvent       [dom.HTMLInputElement]
+  type ReactFocusEventI       = SyntheticFocusEvent      [dom.HTMLInputElement]
+  //type ReactInputEventI     = SyntheticInputEvent      [dom.HTMLInputElement]
+  type ReactKeyboardEventI    = SyntheticKeyboardEvent   [dom.HTMLInputElement]
+  type ReactMouseEventI       = SyntheticMouseEvent      [dom.HTMLInputElement]
+  type ReactTouchEventI       = SyntheticTouchEvent      [dom.HTMLInputElement]
+  type ReactUIEventI          = SyntheticUIEvent         [dom.HTMLInputElement]
+  type ReactWheelEventI       = SyntheticWheelEvent      [dom.HTMLInputElement]
+
+  @deprecated("React 0.12 has introduced ReactElement which is what VDom was created to represent. Replace VDom with ReactElement.", "0.6.0")
+  type VDom = ReactElement
+
   // ===================================================================================================================
 
   // TODO WrapObj was one of the first things I did when starting with ScalaJS. Reconsider.
@@ -66,6 +81,29 @@ package object react {
     def param[I, T <: TopNode](f: I => String) = new RefP[I, T](f)
   }
 
+  implicit final class ReactExt_ScalaColl[A](val as: TraversableOnce[A]) extends AnyVal {
+    @inline def toJsArray: js.Array[A] =
+      js.Array(as.toSeq: _*)
+    @inline def toReactNodeArray(implicit ev: A => ReactNode): js.Array[ReactNode] = {
+      val r = new js.Array[ReactNode]()
+      as.foreach(a => r.push(ev(a)))
+      r
+    }
+  }
+
+  implicit final class ReactExt_JsArray[A](val as: js.Array[A]) extends AnyVal {
+    @inline def toReactNodeArray(implicit ev: A => ReactNode): js.Array[ReactNode] =
+      as.map(ev: js.Function1[A, ReactNode])
+  }
+
+  // Scalatags causes this to fail ↓
+  //@inline implicit def reactNodeInhabitableN               (v: js.Number)          : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableS                 (v: js.String)          : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableAn                (v: js.Array[ReactNode]): ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableAt[T <% ReactNode](v: js.Array[T])        : ReactNode = v.toReactNodeArray
+  @inline implicit def reactNodeInhabitableC[T <% ReactNode] (v: TraversableOnce[T]) : ReactNode = v.toReactNodeArray
+  @inline implicit def reactNodeInhabitablePC                (v: PropsChildren)      : ReactNode = v.asInstanceOf[ReactNode]
+
   // ===================================================================================================================
 
   @inline final implicit def autoJsCtor[P,S,B,N <: TopNode](c: ReactComponentC[P,S,B,N]): ReactComponentC_ = c.jsCtor
@@ -83,22 +121,22 @@ package object react {
     }
 
     final class ReqProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny]) extends ReactComponentC[P,S,B,N] {
-      def apply(props: P, children: VDom*) = jsCtor(mkProps(props, key), children: _*)
+      def apply(props: P, children: ReactNode*) = jsCtor(mkProps(props, key), children: _*)
       def withKey(key: JAny) = new ReqProps(jsCtor, Some(key))
     }
 
     final class DefaultProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny], default: () => P) extends ReactComponentC[P,S,B,N] {
-      def apply(props: Option[P], children: VDom*): ReactComponentU[P,S,B,N] =
+      def apply(props: Option[P], children: ReactNode*): ReactComponentU[P,S,B,N] =
         jsCtor(mkProps(props getOrElse default(), key), children: _*)
 
-      def apply(children: VDom*): ReactComponentU[P,S,B,N] =
+      def apply(children: ReactNode*): ReactComponentU[P,S,B,N] =
         apply(None, children: _*)
 
       def withKey(key: JAny) = new DefaultProps(jsCtor, Some(key), default)
     }
 
     final class ConstProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny], props: () => P) extends ReactComponentC[P,S,B,N] {
-      def apply(children: VDom*) = jsCtor(mkProps(props(), key), children: _*)
+      def apply(children: ReactNode*) = jsCtor(mkProps(props(), key), children: _*)
       def withKey(key: JAny) = new ConstProps(jsCtor, Some(key), props)
     }
   }
@@ -106,52 +144,54 @@ package object react {
   // ===================================================================================================================
 
   @inline implicit def autoUnWrapObj[A](a: WrapObj[A]): A = a.v
-  implicit final class AnyExtReact[A](val a: A) extends AnyVal {
+  implicit final class ReactExt_Any[A](val a: A) extends AnyVal {
     @inline def wrap: WrapObj[A] = WrapObj(a)
   }
 
-  implicit final class ReactExt(val u: React.type) extends AnyVal {
+  implicit final class ReactExt_ReactObj(val u: React.type) extends AnyVal {
+    @deprecated("React.renderComponentC will be deprecated in a future version. Use React.renderC instead.", "0.6.0")
     @inline def renderComponentC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeMN[P,S,B,N] => Unit) =
-      u.renderComponent(c, n, callback)
+      u.render(c, n, callback)
+    @inline def renderC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeMN[P,S,B,N] => Unit) =
+      u.render(c, n, callback)
   }
 
-  implicit final class ComponentScope_P_Ext[Props](val u: ComponentScope_P[Props]) extends AnyVal {
+  implicit final class ReactExt_ComponentScope_P[Props](val u: ComponentScope_P[Props]) extends AnyVal {
     @inline def props = u._props.v
-    @inline def propsKey = u._props.key
     @inline def propsChildren = u._props.children
   }
 
-  implicit final class ComponentScope_PS_Ext[Props, State](val u: ComponentScope_PS[Props, State]) extends AnyVal {
+  implicit final class ReactExt_ComponentScope_PS[Props, State](val u: ComponentScope_PS[Props, State]) extends AnyVal {
     @inline def getInitialState(p: Props): State = u._getInitialState(WrapObj(p)).v
   }
 
-  implicit final class ComponentScope_S_Ext[State](val u: ComponentScope_S[State]) extends AnyVal {
+  implicit final class ReactExt_ComponentScope_S[State](val u: ComponentScope_S[State]) extends AnyVal {
     @inline def state = u._state.v
   }
 
   val preventDefaultF  = (_: SyntheticEvent[dom.Node]).preventDefault()
   val stopPropagationF = (_: SyntheticEvent[dom.Node]).stopPropagation()
 
-  implicit final class ReactComponentUExt[P,S,B,N <: TopNode](val u: ReactComponentU[P,S,B,N]) extends AnyVal {
-    def render(n: dom.Node) = React.renderComponent(u, n)
+  implicit final class ReactExt_ReactComponentU[P,S,B,N <: TopNode](val u: ReactComponentU[P,S,B,N]) extends AnyVal {
+    def render(n: dom.Node) = React.render(u, n)
   }
 
-  implicit final class UndefReactComponentM_Ext[N <: TopNode](val u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
+  implicit final class ReactExt_UndefReactComponentM[N <: TopNode](val u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
     def tryFocus(): Unit = u.foreach(_.getDOMNode().focus())
   }
 
-  implicit final class ReactComponentM_Ext[N <: TopNode](val u: ReactComponentM_[N]) extends AnyVal {
+  implicit final class ReactExt_ReactComponentM[N <: TopNode](val u: ReactComponentM_[N]) extends AnyVal {
     def domType[N2 <: TopNode] = u.asInstanceOf[ReactComponentM_[N2]]
   }
 
-  implicit final class PropsChildrenExt(val u: PropsChildren) extends AnyVal {
-    @inline def forEach[U](f: VDom => U): Unit =
-      React.Children.forEach(u, (f:JFn).asInstanceOf[js.Function1[VDom, JAny]])
+  implicit final class ReactExt_PropsChildren(val u: PropsChildren) extends AnyVal {
+    @inline def forEach[U](f: ReactNode => U): Unit =
+      React.Children.forEach(u, (f:JFn).asInstanceOf[js.Function1[ReactNode, JAny]])
 
-    @inline def forEach[U](f: (VDom, Int) => U): Unit =
-      React.Children.forEach(u, (f:JFn).asInstanceOf[js.Function2[VDom, Number, JAny]])
+    @inline def forEach[U](f: (ReactNode, Int) => U): Unit =
+      React.Children.forEach(u, (f:JFn).asInstanceOf[js.Function2[ReactNode, Number, JAny]])
 
-    @inline def only: Option[VDom] =
+    @inline def only: Option[ReactNode] =
       try { Some(React.Children.only(u))} catch { case t: Throwable => None}
   }
 

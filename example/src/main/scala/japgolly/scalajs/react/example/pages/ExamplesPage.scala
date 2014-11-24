@@ -15,7 +15,7 @@ import japgolly.scalajs.react.example.examples.TodoExample.Backend
 import japgolly.scalajs.react.example.examples.TodoExample.State
 import japgolly.scalajs.react.example.examples.TodoExample._
 import japgolly.scalajs.react.example.examples._
-import japgolly.scalajs.react.vdom.ReactVDom.ReactAttrExt
+import japgolly.scalajs.react.vdom.ReactVDom.ReactVExt_Attr
 import japgolly.scalajs.react.vdom.ReactVDom.all._
 import japgolly.scalajs.react.{BackendScope, ReactComponentB}
 

@@ -5,6 +5,7 @@ import utest._
 import japgolly.scalajs.react._
 import vdom.ReactVDom._
 import vdom.ReactVDom.all._
+import TestUtil._
 
 object TestTest extends TestSuite {
 
@@ -56,18 +57,23 @@ object TestTest extends TestSuite {
         val c = ReactTestUtils.renderIntoDocument(IT()).domType[HTMLInputElement]
         ChangeEventData("hehe").simulate(c)
         val t = c.getDOMNode().value
-        assert(t == "HEHE")
+        t mustEqual "HEHE"
       }
       'focusChangeBlur {
         var events = Vector.empty[String]
-        val C = ReactComponentB[Unit]("C").render(T => {
+        val C = ReactComponentB[Unit]("C").initialState("ey").render(T => {
           def e(s: String): Unit = events :+= s
-          input(ref := inputRef, onfocus --> e("focus"), onchange --> e("change"), onblur --> e("blur"))
+          def chg: ReactEventI => Unit = ev => {
+            e("change")
+            T.setState(ev.target.value)
+          }
+          input(value := T.state, ref := inputRef, onfocus --> e("focus"), onchange ==> chg, onblur --> e("blur"))
         }).buildU
-        val i = inputRef(ReactTestUtils.renderIntoDocument(C())).get
+        val c = ReactTestUtils.renderIntoDocument(C())
+        val i = inputRef(c).get
         Simulation.focusChangeBlur("good") run i
-        assert(events == Vector("focus", "change", "blur"))
-        assert(i.getDOMNode().value == "good")
+        events mustEqual Vector("focus", "change", "blur")
+        i.getDOMNode().value mustEqual "good"
       }
     }
   }

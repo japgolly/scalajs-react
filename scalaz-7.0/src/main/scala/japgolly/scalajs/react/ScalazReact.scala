@@ -1,12 +1,12 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
-import vdom.ReactVDom._
-
+import japgolly.scalajs.react.vdom.ReactVDom._
 import scala.scalajs.js.{UndefOr, undefined}
 import scalaz._
-import Scalaz.Id
 import scalaz.effect.IO
+import Scalaz.Id
+import Leibniz.===
 
 object ScalazReact {
   // Don't edit this directly. Run sync-scala70
@@ -76,8 +76,7 @@ object ScalazReact {
 
     @inline def mod[S](f: S => S): ReactS[S, Unit] = modT[Id, S](f)
 
-    def callback[S, A](c: OpCallbackIO)(a: A): ReactS[S, A] =
-      State[StateAndCallbacks[S], A](s => (s addCallback c, a))
+    @inline def callback[S, A](a: A, c: OpCallbackIO): ReactS[S, A] = callbackM[Id, S, A](a, c)
 
     def applyT[M[+_], S, A](f: S => M[(S, A)])(implicit F: Functor[M]): ReactST[M, S, A] =
       StateT[M, StateAndCallbacks[S], A](sc => F.map(f(sc.s))(x => (sc withState x._1, x._2) ))
@@ -99,9 +98,12 @@ object ScalazReact {
     def modT[M[+_], S](f: S => M[S])(implicit M: Functor[M]): ReactST[M, S, Unit] =
       StateT[M, StateAndCallbacks[S], Unit](sc => M.map(f(sc.s))(s2 => (sc withState s2,()) ))
 
-    @inline def callbackT[M[+_]: Applicative, S, A](c: OpCallbackIO)(a: A): ReactST[M, S, A] = callback(c)(a).lift[M]
+    def callbackM[M[+_], S, A](ma: M[A], c: OpCallbackIO)(implicit M: Functor[M]): ReactST[M, S, A] =
+      StateT[M, StateAndCallbacks[S], A](s => M.map(ma)(a => (s addCallback c, a)))
 
-    @inline def liftR[M[+_] : Applicative : Bind, S, A](f: S => ReactST[M, S, A]): ReactST[M, S, A] = getT[M, S] flatMap f
+    @inline def callbackT[M[+_]: Applicative, S, A](a: A, c: OpCallbackIO): ReactST[M, S, A] = callback(a, c).lift[M]
+
+    @inline def liftR[M[+_]: Monad, S, A](f: S => ReactST[M, S, A]): ReactST[M, S, A] = getT[M, S] flatMap f
 
     def lift[M[+_], S, A](t: StateT[M, S, A])(implicit M: Functor[M]): ReactST[M, S, A] =
       StateT[M, StateAndCallbacks[S], A](sc => M.map(t(sc.s))(sa => (sc withState sa._1, sa._2) ))
@@ -109,43 +111,64 @@ object ScalazReact {
     def unlift[M[+_], S, A](t: ReactST[M, S, A])(implicit M: Functor[M]): StateT[M, S, A] =
       StateT[M, S, A](s => M.map(t(StateAndCallbacks(s)))(sa => (sa._1.s, sa._2) ))
 
+    def zoom[M[+_], S, T, A](r: ReactST[M, S, A], f: T => S, g: (T, S) => T)(implicit M: Functor[M]): ReactST[M, T, A] =
+      StateT[M, StateAndCallbacks[T], A](tc => {
+        val m = r(StateAndCallbacks(f(tc.s), tc.cb))
+        M.map(m){ case (sc, a) => (StateAndCallbacks(g(tc.s, sc.s), sc.cb), a) }
+      })
+
+    def zoomU[M[+_], S, A](r: ReactST[M, Unit, A])(implicit M: Functor[M]): ReactST[M, S, A] =
+      zoom[M, Unit, S, A](r, _ => (), (s, _) => s)
+
     @inline def Fix[S] = new Fix[S]
     final class Fix[S] {
-      @inline def apply[A](f: S => (S, A))           = ReactS(f)
-      @inline def ret[A](a: A)                       = ReactS.ret[S,A](a)
-      @inline def get                                = ReactS.get[S]
-      @inline def gets[A](f: S => A)                 = ReactS.gets(f)
-      @inline def set(s: S)                          = ReactS.set(s)
-      @inline def mod(f: S => S)                     = ReactS.mod(f)
-      @inline def callback[A](c: OpCallbackIO)(a: A) = ReactS.callback[S,A](c)(a)
-      @inline def applyT[M[+_]: Functor, A](f: S => M[(S, A)])            = ReactS.applyT(f)
-      @inline def retT[M[+_]: Applicative, A](a: A)                       = ReactS.retT[M,S,A](a)
-      @inline def retM[M[+_]: Functor, A](ma: M[A])                       = ReactS.retM[M,S,A](ma)
-      @inline def getT[M[+_]: Applicative]                                = ReactS.getT[M,S]
-      @inline def getsT[M[+_]: Applicative, A](f: S => M[A])              = ReactS.getsT(f)
-      @inline def setM[M[+_]: Functor](ms: M[S])                          = ReactS.setM[M,S](ms)
-      @inline def setT[M[+_]: Applicative](s: S)                          = ReactS.setT[M,S](s)
-      @inline def modT[M[+_]: Functor](f: S => M[S])                      = ReactS.modT[M,S](f)
-      @inline def callbackT[M[+_]: Applicative, A](c: OpCallbackIO)(a: A) = ReactS.callbackT[M,S,A](c)(a)
-      @inline def liftR [M[+_]: Applicative : Bind, A](f: S => ReactST[M, S, A]) = ReactS.liftR(f)
-      @inline def lift  [M[+_]: Functor, A]           (t: StateT[M, S, A])       = ReactS.lift(t)
-      @inline def unlift[M[+_]: Functor, A]           (t: ReactST[M, S, A])      = ReactS.unlift(t)
+      @inline def apply    [A]     (f: S => (S, A))           : ReactS[S,A]    = ReactS(f)
+      @inline def ret      [A]     (a: A)                     : ReactS[S,A]    = ReactS.ret(a)
+      @inline def get                                         : ReactS[S,S]    = ReactS.get
+      @inline def gets     [A]     (f: S => A)                : ReactS[S,A]    = ReactS.gets(f)
+      @inline def set              (s: S)                     : ReactS[S,Unit] = ReactS.set(s)
+      @inline def mod              (f: S => S)                : ReactS[S,Unit] = ReactS.mod(f)
+      @inline def callback [A]     (a: A, c: OpCallbackIO)    : ReactS[S,A]    = ReactS.callback(a, c)
+      @inline def zoomU    [A]     (r: ReactS[Unit, A])       : ReactS[S,A]    = ReactS.zoomU(r)
+      @inline def zoom     [T,A]   (r: ReactS[T, A])
+                                   (f: S => T, g: (S, T) => S): ReactS[S,A]    = ReactS.zoom(r, f, g)
+
+      @inline def applyT   [M[+_],A](f: S => M[(S, A)])       (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.applyT(f)
+      @inline def retT     [M[+_],A](a: A)                    (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.retT(a)
+      @inline def retM     [M[+_],A](ma: M[A])                (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.retM(ma)
+      @inline def getT     [M[+_]]                            (implicit M: Applicative[M]): ReactST[M,S,S]    = ReactS.getT
+      @inline def getsT    [M[+_],A](f: S => M[A])            (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.getsT(f)
+      @inline def setT     [M[+_]]  (s: S)                    (implicit M: Applicative[M]): ReactST[M,S,Unit] = ReactS.setT(s)
+      @inline def setM     [M[+_]]  (ms: M[S])                (implicit M: Functor[M])    : ReactST[M,S,Unit] = ReactS.setM(ms)
+      @inline def modT     [M[+_]]  (f: S => M[S])            (implicit M: Functor[M])    : ReactST[M,S,Unit] = ReactS.modT(f)
+      @inline def callbackT[M[+_],A](a: A, c: OpCallbackIO)   (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.callbackT(a, c)
+      @inline def callbackM[M[+_],A](a: M[A], c: OpCallbackIO)(implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.callbackM(a, c)
+      @inline def liftR    [M[+_],A](f: S => ReactST[M, S, A])(implicit M: Monad[M])      : ReactST[M,S,A]    = ReactS.liftR(f)
+      @inline def lift     [M[+_],A](t: StateT[M, S, A])      (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.lift(t)
+      @inline def unlift   [M[+_],A](t: ReactST[M, S, A])     (implicit M: Functor[M])    : StateT [M,S,A]    = ReactS.unlift(t)
     }
 
-    @inline def FixT[M[+_], S] = new FixT[M,S]
+    @inline def FixT[M[+_], S] = new FixT[M, S]
     final class FixT[M[+_], S] {
-      @inline def apply[A](f: S => M[(S, A)])       (implicit M: Functor[M])     = ReactS.applyT(f)
-      @inline def ret[A](a: A)                      (implicit M: Applicative[M]) = ReactS.retT[M,S,A](a)
-      @inline def retM[A](ma: M[A])                 (implicit M: Functor[M])     = ReactS.retM[M,S,A](ma)
-      @inline def get                               (implicit M: Applicative[M]) = ReactS.getT[M,S]
-      @inline def gets[A](f: S => M[A])             (implicit M: Functor[M])     = ReactS.getsT(f)
-      @inline def set(s: S)                         (implicit M: Applicative[M]) = ReactS.setT[M,S](s)
-      @inline def setM(ms: M[S])                    (implicit M: Functor[M])     = ReactS.setM[M,S](ms)
-      @inline def mod(f: S => M[S])                 (implicit M: Functor[M])     = ReactS.modT[M,S](f)
-      @inline def callback[A](c: OpCallbackIO)(a: A)(implicit M: Applicative[M]) = ReactS.callbackT[M,S,A](c)(a)
-      @inline def liftR [A](f: S => ReactST[M, S, A])(implicit A: Applicative[M], B: Bind[M]) = ReactS.liftR(f)
-      @inline def lift  [A](t: StateT[M, S, A])      (implicit M: Functor[M])                 = ReactS.lift(t)
-      @inline def unlift[A](t: ReactST[M, S, A])     (implicit M: Functor[M])                 = ReactS.unlift(t)
+      @inline def apply    [A]  (f: S => M[(S, A)])       (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.applyT(f)
+      @inline def applyS   [A]  (f: S => (S, A))          (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS(f).lift[M]
+      @inline def ret      [A]  (a: A)                    (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.retT(a)
+      @inline def retM     [A]  (ma: M[A])                (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.retM(ma)
+      @inline def get                                     (implicit M: Applicative[M]): ReactST[M,S,S]    = ReactS.getT
+      @inline def gets     [A]  (f: S => M[A])            (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.getsT(f)
+      @inline def getsS    [A]  (f: S => A)               (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.gets(f).lift[M]
+      @inline def set           (s: S)                    (implicit M: Applicative[M]): ReactST[M,S,Unit] = ReactS.setT(s)
+      @inline def setM          (ms: M[S])                (implicit M: Functor[M])    : ReactST[M,S,Unit] = ReactS.setM(ms)
+      @inline def mod           (f: S => M[S])            (implicit M: Functor[M])    : ReactST[M,S,Unit] = ReactS.modT(f)
+      @inline def modS          (f: S => S)               (implicit M: Applicative[M]): ReactST[M,S,Unit] = ReactS.mod(f).lift[M]
+      @inline def callback [A]  (a: M[A], c: OpCallbackIO)(implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.callbackM(a, c)
+      @inline def callbackS[A]  (a: A, c: OpCallbackIO)   (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.callbackT(a, c)
+      @inline def liftR    [A]  (f: S => ReactST[M, S, A])(implicit M: Monad[M])      : ReactST[M,S,A]    = ReactS.liftR(f)
+      @inline def lift     [A]  (t: StateT[M, S, A])      (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.lift(t)
+      @inline def unlift   [A]  (t: ReactST[M, S, A])     (implicit M: Functor[M])    : StateT [M,S,A]    = ReactS.unlift(t)
+      @inline def zoom     [T,A](r: ReactST[M, T, A])
+                                (f: S => T, g: (S,T) => S)(implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.zoom(r, f, g)
+      @inline def zoomU    [A]  (r: ReactST[M, Unit, A])  (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.zoomU(r)
     }
   }
 
@@ -154,13 +177,25 @@ object ScalazReact {
       ReactS lift s
   }
 
-  implicit final class SzRExt_ReactSTOps[M[+_], S, A](val f: ReactST[M,S,A]) extends AnyVal {
+  implicit final class SzRExt__StateTOps[I, M[+_], S, A](val f: I => StateT[M, S, A]) extends AnyVal {
+    @inline def liftR(implicit M: Functor[M]): I => ReactST[M, S, A] =
+      f(_).liftR
+  }
+
+  implicit final class SzRExt_ReactSTOps[M[+_], S, A](val s: ReactST[M,S,A]) extends AnyVal {
     def addCallback(c: OpCallbackIO)(implicit M: Monad[M]): ReactST[M,S,A] =
-      f flatMap ReactS.callbackT(c)
+      s.flatMap(ReactS.callbackT(_, c))
 
     // This shouldn't be needed; it's already in BindSyntax.
     def >>[B](t: ReactST[M,S,B])(implicit M: Bind[M]): ReactST[M,S,B] =
-      f.flatMap(_ => t)
+      s.flatMap(_ => t)
+
+    /** zoom2 because StateT.zoom already exists. 2 because it takes two fns. */
+    def zoom2[T](f: T => S, g: (T, S) => T)(implicit M: Functor[M]): ReactST[M, T, A] =
+      ReactS.zoom(s, f, g)
+
+    def zoomU[T](implicit M: Functor[M], ev: S === Unit): ReactST[M, T, A] =
+      ReactS.zoomU[M, T, A](ev.subst[({type λ[σ] = ReactST[M, σ, A]})#λ](s))
   }
 
   implicit final class SzRExt_CompStateAccessOps[C[_], S](val u: C[S]) extends AnyVal {
@@ -186,7 +221,7 @@ object ScalazReact {
     def runStateS[M[+_], A](st: => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M]): IO[A] =
       runState(st.liftR)
 
-    @deprecated("Instead of _runStateS(i ⇒ s | f), use _runState(i ⇒ s.liftR | f(_).liftR). _runStateS will be removed in 0.7.0.", "0.5.2")
+    @deprecated("Instead of _runStateS(f), use _runState(f.liftR). _runStateS will be removed in 0.7.0.", "0.5.2")
     def _runStateS[I, M[+_], A](f: I => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M]): I => IO[A] =
       _runState(f(_).liftR)
 
@@ -203,7 +238,7 @@ object ScalazReact {
     def runStateFS[M[+_], A](st: => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M], F: ChangeFilter[S]): IO[A] =
       runStateF(st.liftR)
 
-    @deprecated("Instead of _runStateFS(i ⇒ s | f), use _runStateF(i ⇒ s.liftR | f(_).liftR). _runStateFS will be removed in 0.7.0.", "0.5.2")
+    @deprecated("Instead of _runStateFS(f), use _runStateF(f.liftR). _runStateFS will be removed in 0.7.0.", "0.5.2")
     def _runStateFS[I, M[+_], A](f: I => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M], F: ChangeFilter[S]): I => IO[A] =
       _runStateF(f(_).liftR)
   }
@@ -225,7 +260,7 @@ object ScalazReact {
 
   import experiment._
 
-  implicit class ListenableObjExt(val a: Listenable.type) extends AnyVal {
+  implicit final class SzRExt_Listenable(val a: Listenable.type) extends AnyVal {
 
     def installIO[P, S, B <: OnUnmount, A](f: P => Listenable[A], g: (ComponentScopeM[P, S, B], A) => IO[Unit]) =
       Listenable.install[P, S, B, A](f, t => a => g(t, a).unsafePerformIO())

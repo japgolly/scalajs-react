@@ -1,11 +1,51 @@
 History
 =======
 
-### 0.5.2 (unreleased)
+### 0.6.0 (unreleased)
 
-* Support the `dangerouslySetInnerHTML` attribute.
-* Added `StateT` extension `liftR` to `ReactST` and deprecated `runState` methods handling `StateT` directly.
-* Added `colspan` and `rowspan` attributes.
+This release brings scalajs-react in line with React 0.12.
+**React version 0.12.0 or later is now required.**
+
+Changes in React 0.12 can be read here:
+*  https://github.com/facebook/react/releases/tag/v0.12.0
+*  http://facebook.github.io/react/blog/2014/10/28/react-v0.12.html
+*  http://facebook.github.io/react/docs/glossary.html
+
+In addition to React API changes...
+* Deprecated `ReactOutput` and `VDom` in favour of `ReactElement` or in rare cases, `ReactNode`. (*[glossary](http://facebook.github.io/react/docs/glossary.html)*)
+* `.asJsArray: Seq[A] → JArray[A]` renamed to `toJsArray`
+* `.toJsArray: Seq[A] → JArray[ReactElement]` is no longer needed.
+* Renamed `ComponentSpec` to `ReactComponentSpec`. *(Internal. Extremely unlikely anyone using it directly.)*
+* Changed signatures of `ReactS.callback` and brethren from `(c)(a)` to `(a,c)`.
+* Workaround for Scala's type inference failing with `StateT.liftR` on functions.
+  Instead of `f(_).liftR`, `f.liftR` is now available and is confirmed to work in `_runState`.
+
+Here are a few commands to ease migration.
+```
+find -name '*.scala' -exec perl -pi -e 's/(?<!\w)(vdom\.)?ReactOutput(?!\w)/ReactElement/g' {} +
+find -name '*.scala' -exec perl -pi -e 's/(?<!\w)VDom(?!\w)/ReactElement/g' {} +
+find -name '*.scala' -exec perl -pi -e 's/(?<!\w)asJsArray(?!\w)/toJsArray/g' {} + // careful...
+find -name '*.scala' -exec perl -pi -e 's/(?<=[ .]render)Component//g' {} +
+```
+
+### 0.5.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.1...v0.5.2))
+
+* Added `ReactEventI` aliases for the very common case that the underlying node is an `<input>`.
+* Added tag attributes:
+  * `dangerouslySetInnerHTML`. Usage example: `div(dangerouslySetInnerHtml("<span>"))`.
+  * `colspan`
+  * `rowspan`
+* Added to `ReactS`, `Fix` and `FixT`:
+  * `callbackM`
+  * `zoom`
+  * `zoomU`
+* Added `ReactS.FixT`:
+  * `applyS`
+  * `getsS`
+  * `modS`
+* Added `StateT` extension `liftR` to `ReactST`
+* Deprecated `runState` methods handling `StateT` directly. Use `liftR` first.
+* Bump Scala 2.11.2 to 2.11.4.
 
 ### 0.5.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.0...v0.5.1))
 

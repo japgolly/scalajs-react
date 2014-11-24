@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.example.examples
 
-import japgolly.scalajs.react.vdom.ReactVDom.ReactAttrExt
+import japgolly.scalajs.react.vdom.ReactVDom.ReactVExt_Attr
 import japgolly.scalajs.react.{SyntheticEvent, BackendScope, ReactComponentB}
 import japgolly.scalajs.react.vdom.ReactVDom.all._
 import org.scalajs.dom.HTMLInputElement

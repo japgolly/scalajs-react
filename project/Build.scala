@@ -10,7 +10,7 @@ import scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys._
 
 object ScalajsReact extends Build {
 
-  val Scala211 = "2.11.2"
+  val Scala211 = "2.11.4"
 
   type PE = Project => Project
 
@@ -18,7 +18,7 @@ object ScalajsReact extends Build {
     _.settings(scalaJSSettings: _*)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.5.2-SNAPSHOT",
+        version            := "0.6.0-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
@@ -77,7 +77,7 @@ object ScalajsReact extends Build {
 
   def useReact(scope: String = "compile"): PE =
     _.settings(
-      jsDependencies += "org.webjars" % "react" % "0.11.1" % scope / "react-with-addons.js" commonJSName "React",
+      jsDependencies += "org.webjars" % "react" % "0.12.1" % scope / "react-with-addons.js" commonJSName "React",
       skip in packageJSDependencies := false)
 
 
@@ -101,9 +101,10 @@ object ScalajsReact extends Build {
   lazy val root = Project("root", file("."))
     .aggregate(core, test, example, scalaz70, scalaz71)
     .configure(commonSettings, preventPublication, addCommandAliases(
-      "t"  -> "test/fastOptStage::test",
-      "tt" -> "+test/fastOptStage::test",
-      "T"  -> ";+clean ;+test:compile ;tt"))
+      "t"  -> "; test:compile ; test/fastOptStage::test",
+      "tt" -> ";+test:compile ;+test/fastOptStage::test",
+      "T"  -> "; clean ;t",
+      "TT" -> ";+clean ;tt"))
 
   // ==============================================================================================
   lazy val core = project
@@ -116,8 +117,10 @@ object ScalajsReact extends Build {
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings)
-    .dependsOn(core)
-    .settings(name := "test")
+    .dependsOn(core, scalaz71)
+    .settings(
+      name := "test",
+      scalacOptions += "-language:reflectiveCalls")
 
   // ==============================================================================================
   def scalazModule(name: String, version: String) = {

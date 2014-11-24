@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>scalajs-react</title>
+    <script type="text/javascript" src="target/scala-2.11/example-jsdeps.js"></script>
+    <script type="text/javascript" src="target/scala-2.11/example-fastopt.js"></script>
+    <style>
+        xection+section {
+            border-top: solid 1px black;
+            margin-top: 2ex;
+        }
+        section {
+            margin: 3ex 1ex;
+            border: solid 1px #111;
+            background: #f9f9f9;
+            padding: 1ex;
+        }
+        section h3 {margin-top:0; color: #227}
+    </style>
+</head>
+<body>
+
+<section><h3>Eg #1</h3><div id="eg1"></div></section>
+<section><h3>Eg #2</h3><div id="eg2"></div></section>
+<section><h3>Eg #3</h3><div id="eg3"></div></section>
+<section><h3>Eg: Refs</h3><div id="eg_refs"></div></section>
+<section><h3>Eg: Product Table</h3><div id="eg_productTable"></div></section>
+
+<script type="text/javascript">
+    japgolly.scalajs.react.example.ReactExamples().main()
+</script>
+</body>
+</html>

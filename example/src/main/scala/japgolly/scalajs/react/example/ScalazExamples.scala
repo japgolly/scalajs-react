@@ -1,13 +1,5 @@
-package japgolly.scalajs.react.example.examples
+package japgolly.scalajs.react.example
 
-import japgolly.scalajs.react.React
-import japgolly.scalajs.react.ReactComponentB
-import japgolly.scalajs.react.ScalazReact
-import japgolly.scalajs.react.ScalazReact.ReactS
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom
-import japgolly.scalajs.react.vdom.ReactVDom.all
-import japgolly.scalajs.react.vdom.ReactVDom.all._
 import org.scalajs.dom.Node
 import scalaz.effect.IO
 

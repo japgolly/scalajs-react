@@ -22,9 +22,9 @@ object Addons {
       p
     }
 
-    def apply(children: VDom*): ReactComponentU_ = {
+    def apply(children: ReactNode*): ReactComponentU_ = {
       val f = React.addons.CSSTransitionGroup
-      f(toJs, js.Array(children: _*)).asInstanceOf[ReactComponentU_]
+      f(toJs, children.toJsArray).asInstanceOf[ReactComponentU_]
     }
   }
 }
