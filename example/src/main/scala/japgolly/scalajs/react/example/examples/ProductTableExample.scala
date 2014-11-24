@@ -145,7 +145,7 @@ object ProductTableExample {
                          |    case class State(filterText: String, inStockOnly: Boolean)
                          |
                          |    class Backend(t: BackendScope[_, State])  {
-                         |      def onTextChange(e: SyntheticEvent[HTMLInputElement]) =
+                         |      def onTextChange(e: ReactEventI) =
                          |        t.modState(_.copy(filterText = e.target.value))
                          |      def onCheckBox(e: ReactEvent) =
                          |        t.modState(s => s.copy(inStockOnly = !s.inStockOnly))
@@ -223,7 +223,7 @@ object ProductTableExample {
   case class State(filterText: String, inStockOnly: Boolean)
 
   class Backend(t: BackendScope[_, State]) {
-    def onTextChange(e: SyntheticEvent[HTMLInputElement]) =
+    def onTextChange(e: ReactEventI) =
       t.modState(_.copy(filterText = e.target.value))
 
     def onCheckBox(e: ReactEvent) =

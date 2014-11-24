@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.example.examples
 
 import japgolly.scalajs.react.vdom.ReactVDom.ReactVExt_Attr
-import japgolly.scalajs.react.{SyntheticEvent, BackendScope, ReactComponentB}
+import japgolly.scalajs.react.{ReactEventI, SyntheticEvent, BackendScope, ReactComponentB}
 import japgolly.scalajs.react.vdom.ReactVDom.all._
 import org.scalajs.dom.HTMLInputElement
 
@@ -59,9 +59,9 @@ object TodoExample {
                         |  case class State(items: List[String], text: String)
                         |
                         |  class Backend(t: BackendScope[Unit, State]) {
-                        |    def onChange(e: SyntheticEvent[HTMLInputElement]) =
+                        |    def onChange(e: ReactEventI) =
                         |      t.modState(_.copy(text = e.target.value))
-                        |    def handleSubmit(e: SyntheticEvent[HTMLInputElement]) = {
+                        |    def handleSubmit(e: ReactEventI) = {
                         |      e.preventDefault()
                         |      t.modState(s => State(s.items :+ s.text, ""))
                         |    }
@@ -94,9 +94,9 @@ object TodoExample {
   case class State(items: List[String], text: String)
 
   class Backend(t: BackendScope[Unit, State]) {
-    def onChange(e: SyntheticEvent[HTMLInputElement]) =
+    def onChange(e: ReactEventI) =
       t.modState(_.copy(text = e.target.value))
-    def handleSubmit(e: SyntheticEvent[HTMLInputElement]) = {
+    def handleSubmit(e: ReactEventI) = {
       e.preventDefault()
       t.modState(s => State(s.items :+ s.text, ""))
     }

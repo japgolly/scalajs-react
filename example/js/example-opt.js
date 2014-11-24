@@ -849,7 +849,9 @@ ScalaJS.i.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$class__genericJsAttr_
 });
 ScalaJS.i.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$class__genericAttr__Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_vdom_ReactVDom$GenericAttr = (function($$this) {
   return new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$GenericAttr().init___F1(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(a$2) {
-    return ScalaJS.objectToString(a$2)
+    ScalaJS.m.Ljapgolly_scalajs_react_package();
+    var v = ScalaJS.objectToString(a$2);
+    return v
   })))
 });
 ScalaJS.i.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$class__$init$__Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__V = (function($$this) {
@@ -912,12 +914,15 @@ ScalaJS.i.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$class__$init$__Ljapgo
 ScalaJS.i.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$class__reactRefAttr__Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_vdom_ReactVDom$GenericAttr = (function($$this) {
   return new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$GenericAttr().init___F1(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(x$1$2) {
     var x$1 = ScalaJS.as.Ljapgolly_scalajs_react_package$Ref(x$1$2);
-    return x$1.name$1
+    ScalaJS.m.Ljapgolly_scalajs_react_package();
+    var v = x$1.name$1;
+    return v
   })))
 });
 ScalaJS.i.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$class__$init$__Ljapgolly_scalajs_react_vdom_ReactVDom$Cap__V = (function($$this) {
   $$this.stringAttrX$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$GenericAttr().init___F1(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(s$2) {
     var s = ScalaJS.as.T(s$2);
+    ScalaJS.m.Ljapgolly_scalajs_react_package();
     return s
   })));
   $$this.stringStyleX$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$GenericStyle().init___()
@@ -3199,13 +3204,15 @@ ScalaJS.c.Ljapgolly_scalajs_react_Addons$ReactCssTransitionGroup.prototype.toStr
 ScalaJS.c.Ljapgolly_scalajs_react_Addons$ReactCssTransitionGroup.prototype.apply__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU$und = (function(children) {
   var f = ScalaJS.g["React"]["addons"]["CSSTransitionGroup"];
   var jsx$1 = this.toJs__sjs_js_Object();
-  var this$1 = ScalaJS.m.sjsr_package();
+  ScalaJS.m.Ljapgolly_scalajs_react_package();
+  var this$3 = ScalaJS.m.sjsr_package();
+  var col = children.toSeq__sc_Seq();
   var result = new ScalaJS.g["Array"]();
-  children.foreach__F1__V(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(this$2, result$1) {
+  col.foreach__F1__V(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(this$2$1, result$1) {
     return (function(x$2) {
       return ScalaJS.uI(result$1["push"](x$2))
     })
-  })(this$1, result)));
+  })(this$3, result)));
   return f(jsx$1, result)
 });
 ScalaJS.c.Ljapgolly_scalajs_react_Addons$ReactCssTransitionGroup.prototype.canEqual__O__Z = (function(x$1) {
@@ -3224,24 +3231,26 @@ ScalaJS.c.Ljapgolly_scalajs_react_Addons$ReactCssTransitionGroup.prototype.hashC
 });
 ScalaJS.c.Ljapgolly_scalajs_react_Addons$ReactCssTransitionGroup.prototype.toJs__sjs_js_Object = (function() {
   var obj = {};
-  var y = this.name$1;
+  ScalaJS.m.Ljapgolly_scalajs_react_package();
+  var v = this.name$1;
+  var y = v;
   var tup_$_$$und1$f = "transitionName";
   var tup_$_$$und2$f = y;
   obj[tup_$_$$und1$f] = tup_$_$$und2$f;
   var $$this = this.enter$1;
   if ((!($$this === (void 0)))) {
-    var v = ScalaJS.uZ($$this);
-    obj["transitionEnter"] = v
+    var v$1 = ScalaJS.uZ($$this);
+    obj["transitionEnter"] = v$1
   };
   var $$this$1 = this.leave$1;
   if ((!($$this$1 === (void 0)))) {
-    var v$1 = ScalaJS.uZ($$this$1);
-    obj["transitionLeave"] = v$1
+    var v$2 = ScalaJS.uZ($$this$1);
+    obj["transitionLeave"] = v$2
   };
   var $$this$2 = this.component$1;
   if ((!($$this$2 === (void 0)))) {
-    var v$2 = ScalaJS.as.T($$this$2);
-    obj["component"] = ScalaJS.g["React"]["DOM"][v$2]
+    var v$3 = ScalaJS.as.T($$this$2);
+    obj["component"] = ScalaJS.g["React"]["DOM"][v$3]
   };
   return obj
 });
@@ -3735,12 +3744,11 @@ ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$Builder.prototype.init___Ljapg
   };
   return this
 });
-ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$Builder.prototype.build__O = (function() {
-  return this.cc$1.apply__O__O(ScalaJS.g["React"]["createClass"](this.buildSpec__Ljapgolly_scalajs_react_ComponentSpec()))
-});
-ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$Builder.prototype.buildSpec__Ljapgolly_scalajs_react_ComponentSpec = (function() {
+ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$Builder.prototype.buildSpec__Ljapgolly_scalajs_react_ReactComponentSpec = (function() {
   var obj = {};
-  var y = this.$$outer$1.name$1;
+  ScalaJS.m.Ljapgolly_scalajs_react_package();
+  var v = this.$$outer$1.name$1;
+  var y = v;
   var tup_$_$$und1$f = "displayName";
   var tup_$_$$und2$f = y;
   obj[tup_$_$$und1$f] = tup_$_$$und2$f;
@@ -3872,6 +3880,9 @@ ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$Builder.prototype.buildSpec__L
     })(g$3)
   };
   return obj
+});
+ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$Builder.prototype.build__O = (function() {
+  return this.cc$1.apply__O__O(ScalaJS.g["React"]["createFactory"](ScalaJS.g["React"]["createClass"](this.buildSpec__Ljapgolly_scalajs_react_ReactComponentSpec())))
 });
 ScalaJS.is.Ljapgolly_scalajs_react_ReactComponentB$Builder = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_ReactComponentB$Builder)))
@@ -4191,16 +4202,16 @@ ScalaJS.d.Ljapgolly_scalajs_react_ReactComponentB$PSB = new ScalaJS.ClassTypeDat
   O: 1
 });
 ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$PSB.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_ReactComponentB$PSB;
-ScalaJS.isArrayOf.Ljapgolly_scalajs_react_VDom = (function(obj, depth) {
-  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Ljapgolly_scalajs_react_VDom)))
+ScalaJS.isArrayOf.Ljapgolly_scalajs_react_ReactNode = (function(obj, depth) {
+  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Ljapgolly_scalajs_react_ReactNode)))
 });
-ScalaJS.asArrayOf.Ljapgolly_scalajs_react_VDom = (function(obj, depth) {
-  return ((ScalaJS.isArrayOf.Ljapgolly_scalajs_react_VDom(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Ljapgolly.scalajs.react.VDom;", depth))
+ScalaJS.asArrayOf.Ljapgolly_scalajs_react_ReactNode = (function(obj, depth) {
+  return ((ScalaJS.isArrayOf.Ljapgolly_scalajs_react_ReactNode(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Ljapgolly.scalajs.react.ReactNode;", depth))
 });
-ScalaJS.d.Ljapgolly_scalajs_react_VDom = new ScalaJS.ClassTypeData({
-  Ljapgolly_scalajs_react_VDom: 0
-}, false, "japgolly.scalajs.react.VDom", (void 0), {
-  Ljapgolly_scalajs_react_VDom: 1
+ScalaJS.d.Ljapgolly_scalajs_react_ReactNode = new ScalaJS.ClassTypeData({
+  Ljapgolly_scalajs_react_ReactNode: 0
+}, false, "japgolly.scalajs.react.ReactNode", (void 0), {
+  Ljapgolly_scalajs_react_ReactNode: 1
 });
 /** @constructor */
 ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$ = (function() {
@@ -4224,7 +4235,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$.prototype.init___ = (functio
     ScalaJS.as.T(x$3$2);
     ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
     var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().div$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().h1$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("scalajs-react"))]), 1))), ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().p$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Lifts Facebook's React library into Scala.js and endeavours to make it as type-safe and Scala-friendly as possible.\n\nIn addition to wrapping React, this provides extra opt-in functionality to support (separately) easier testing, and pure FP."))]), 1)))]), 1)));
-    return t.render__Ljapgolly_scalajs_react_VDom()
+    return t.render__Ljapgolly_scalajs_react_ReactElement()
   })))).build__O());
   this.container$1 = ScalaJS.as.Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(ScalaJS.m.Ljapgolly_scalajs_react_ReactComponentB().defaultDomTypeAndProps__Ljapgolly_scalajs_react_ReactComponentB__Ljapgolly_scalajs_react_ReactComponentB$Builder(new ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$P().init___T("appMenu").render__F1__Ljapgolly_scalajs_react_ReactComponentB(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(P$2) {
     var P = ScalaJS.as.T(P$2);
@@ -4242,8 +4253,9 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$.prototype.init___ = (functio
       var jsx$2 = ScalaJS.m.Ljapgolly_scalajs_react_example_pages_ExamplesPage().component$1;
       ScalaJS.m.sci_List();
       var xs = ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.T.getArrayOf(), ["HelloReact", "Timer", "Todo", "UsingRefs", "ProductTable", "Animation", "AjaxPictureApp"]), 1));
-      var c = jsx$2.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.i.sc_TraversableOnce$class__toList__sc_TraversableOnce__sci_List(xs), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$9, c)
+      var c = jsx$2.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.i.sc_TraversableOnce$class__toList__sc_TraversableOnce__sci_List(xs), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+      var evidence$2 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$9, c, evidence$2)
     } else if (ScalaJS.anyRefEqEq("Documentation", P)) {
       var jsx$1 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().h3$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("// TODO "))]), 1)))
     } else {
@@ -4251,7 +4263,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$.prototype.init___ = (functio
       throw new ScalaJS.c.s_MatchError().init___O(P)
     };
     var t$1 = jsx$4.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$1]), 1)));
-    return t$1.render__Ljapgolly_scalajs_react_VDom()
+    return t$1.render__Ljapgolly_scalajs_react_ReactElement()
   })))).build__O());
   this.app$1 = ScalaJS.as.Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(ScalaJS.m.Ljapgolly_scalajs_react_ReactComponentB().defaultDomTypeAndProps__Ljapgolly_scalajs_react_ReactComponentB__Ljapgolly_scalajs_react_ReactComponentB$Builder(new ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$P().init___T("app").initialState__F0__Ljapgolly_scalajs_react_ReactComponentB$PS(new ScalaJS.c.sjsr_AnonFunction0().init___sjs_js_Function0((function() {
     return new ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$State().init___I(0)
@@ -4266,13 +4278,15 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$.prototype.init___ = (functio
     var jsx$16 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().div$1;
     var jsx$15 = ScalaJS.m.s_Predef();
     var this$13 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
-    var c$1 = ScalaJS.m.Ljapgolly_scalajs_react_example_ReactApp().navMenu$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(P$1, B), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-    var jsx$14 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$13, c$1);
+    var c$1 = ScalaJS.m.Ljapgolly_scalajs_react_example_ReactApp().navMenu$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(P$1, B), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+    var evidence$2$1 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+    var jsx$14 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$13, c$1, evidence$2$1);
     var this$14 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
     var jsx$13 = ScalaJS.m.Ljapgolly_scalajs_react_example_ReactApp().container$1;
     var n = S.index$1;
-    var c$2 = jsx$13.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.i.sc_LinearSeqOptimized$class__apply__sc_LinearSeqOptimized__I__O(P$1, n), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-    var jsx$12 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$14, c$2);
+    var c$2 = jsx$13.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.i.sc_LinearSeqOptimized$class__apply__sc_LinearSeqOptimized__I__O(P$1, n), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+    var evidence$2$2 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+    var jsx$12 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$14, c$2, evidence$2$2);
     var jsx$11 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().footer$1;
     var jsx$10 = ScalaJS.m.s_Predef();
     var jsx$9 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().hr$1;
@@ -4281,7 +4295,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$.prototype.init___ = (functio
     var this$15 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().class$1;
     var ev$1 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().stringAttr$1;
     var t$2 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$16).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$15.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$14, jsx$12, ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$11).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$10.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$9, ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$8).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$7.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Lscalatags_generic_AttrPair().init___Lscalatags_generic_Attr__O__Lscalatags_generic_AttrValue(this$15, "text-center", ev$1)]), 1))).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Powered By Scala JS React"))]), 1)))]), 1)))]), 1)));
-    return t$2.render__Ljapgolly_scalajs_react_VDom()
+    return t$2.render__Ljapgolly_scalajs_react_ReactElement()
   })))).build__O());
   return this
 });
@@ -4294,9 +4308,9 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$.prototype.$$js$exported$meth
   return (this.main__V(), (void 0))
 });
 ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$.prototype.component__sci_List__Ljapgolly_scalajs_react_ReactComponentM = (function(data) {
-  var jsx$1 = ScalaJS.m.Ljapgolly_scalajs_react_package$ReactComponentUExt();
+  var jsx$1 = ScalaJS.m.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU();
   ScalaJS.m.Ljapgolly_scalajs_react_package();
-  var u = this.app$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(data, ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
+  var u = this.app$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(data, ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
   return jsx$1.render$extension__Ljapgolly_scalajs_react_ReactComponentU__Lorg_scalajs_dom_Node__Ljapgolly_scalajs_react_ReactComponentM(u, ScalaJS.g["document"]["body"])
 });
 ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$.prototype["main"] = (function() {
@@ -4648,7 +4662,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_HelloMessageExample$.prototyp
     var name = ScalaJS.as.T(name$2);
     ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
     var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().h1$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Hello ")), (ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T(name))]), 1)));
-    return t.render__Ljapgolly_scalajs_react_VDom()
+    return t.render__Ljapgolly_scalajs_react_ReactElement()
   })))).build__O());
   return this
 });
@@ -5086,7 +5100,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$.prototyp
   ScalaJS.n.Ljapgolly_scalajs_react_example_examples_ProductTableExample = this;
   var this$2 = new ScalaJS.c.sci_StringOps().init___T("\n                       |var ProductCategoryRow = React.createClass({\n                       |    render: function() {\n                       |        return (<tr><th colSpan=\"2\">{this.props.category}</th></tr>);\n                       |    }\n                       |});\n                       |\n                       |var ProductRow = React.createClass({\n                       |    render: function() {\n                       |        var name = this.props.product.stocked ?\n                       |            this.props.product.name :\n                       |            <span style={{color: 'red'}}>\n                       |                {this.props.product.name}\n                       |            </span>;\n                       |        return (\n                       |            <tr>\n                       |                <td>{name}</td>\n                       |                <td>{this.props.product.price}</td>\n                       |            </tr>\n                       |        );\n                       |    }\n                       |});\n                       |\n                       |var ProductTable = React.createClass({\n                       |    render: function() {\n                       |        console.log(this.props);\n                       |        var rows = [];\n                       |        var lastCategory = null;\n                       |        this.props.products.forEach(function(product) {\n                       |            if (product.name.indexOf(this.props.filterText) === -1 || (!product.stocked && this.props.inStockOnly)) {\n                       |                return;\n                       |            }\n                       |            if (product.category !== lastCategory) {\n                       |                rows.push(<ProductCategoryRow category={product.category} key={product.category} />);\n                       |            }\n                       |            rows.push(<ProductRow product={product} key={product.name} />);\n                       |            lastCategory = product.category;\n                       |        }.bind(this));\n                       |        return (\n                       |            <table>\n                       |                <thead>\n                       |                    <tr>\n                       |                        <th>Name</th>\n                       |                        <th>Price</th>\n                       |                    </tr>\n                       |                </thead>\n                       |                <tbody>{rows}</tbody>\n                       |            </table>\n                       |        );\n                       |    }\n                       |});\n                       |\n                       |var SearchBar = React.createClass({\n                       |    handleChange: function() {\n                       |        this.props.onUserInput(\n                       |            this.refs.filterTextInput.getDOMNode().value,\n                       |            this.refs.inStockOnlyInput.getDOMNode().checked\n                       |        );\n                       |    },\n                       |    render: function() {\n                       |        return (\n                       |            <form>\n                       |                <input\n                       |                    type=\"text\"\n                       |                    placeholder=\"Search...\"\n                       |                    value={this.props.filterText}\n                       |                    ref=\"filterTextInput\"\n                       |                    onChange={this.handleChange}\n                       |                />\n                       |                <p>\n                       |                    <input\n                       |                        type=\"checkbox\"\n                       |                        value={this.props.inStockOnly}\n                       |                        ref=\"inStockOnlyInput\"\n                       |                        onChange={this.handleChange}\n                       |                    />\n                       |                    Only show products in stock\n                       |                </p>\n                       |            </form>\n                       |        );\n                       |    }\n                       |});\n                       |\n                       |var FilterableProductTable = React.createClass({\n                       |    getInitialState: function() {\n                       |        return {\n                       |            filterText: '',\n                       |            inStockOnly: false\n                       |        };\n                       |    },\n                       |\n                       |    handleUserInput: function(filterText, inStockOnly) {\n                       |        this.setState({\n                       |            filterText: filterText,\n                       |            inStockOnly: inStockOnly\n                       |        });\n                       |    },\n                       |\n                       |    render: function() {\n                       |        return (\n                       |            <div>\n                       |                <SearchBar\n                       |                    filterText={this.state.filterText}\n                       |                    inStockOnly={this.state.inStockOnly}\n                       |                    onUserInput={this.handleUserInput}\n                       |                />\n                       |                <ProductTable\n                       |                    products={this.props.products}\n                       |                    filterText={this.state.filterText}\n                       |                    inStockOnly={this.state.inStockOnly}\n                       |                />\n                       |            </div>\n                       |        );\n                       |    }\n                       |});\n                       |\n                       |\n                       |var PRODUCTS = [\n                       |  {category: 'Sporting Goods', price: '$49.99', stocked: true, name: 'Football'},\n                       |  {category: 'Sporting Goods', price: '$9.99', stocked: true, name: 'Baseball'},\n                       |  {category: 'Sporting Goods', price: '$29.99', stocked: false, name: 'Basketball'},\n                       |  {category: 'Electronics', price: '$99.99', stocked: true, name: 'iPod Touch'},\n                       |  {category: 'Electronics', price: '$399.99', stocked: false, name: 'iPhone 5'},\n                       |  {category: 'Electronics', price: '$199.99', stocked: true, name: 'Nexus 7'}\n                       |];\n                       |\n                       |React.renderComponent(<FilterableProductTable products={PRODUCTS} />, document.body);");
   this.tableJsxCode$1 = ScalaJS.i.sci_StringLike$class__stripMargin__sci_StringLike__C__T(this$2, 124);
-  var this$4 = new ScalaJS.c.sci_StringOps().init___T("\n                         |case class Product(name: String, price: Double, category: String, stocked: Boolean)\n                         |\n                         |    case class State(filterText: String, inStockOnly: Boolean)\n                         |\n                         |    class Backend(t: BackendScope[_, State])  {\n                         |      def onTextChange(e: SyntheticEvent[HTMLInputElement]) =\n                         |        t.modState(_.copy(filterText = e.target.value))\n                         |      def onCheckBox(e: ReactEvent) =\n                         |        t.modState(s => s.copy(inStockOnly = !s.inStockOnly))\n                         |    }\n                         |\n                         |    val ProductCategoryRow = ReactComponentB[String](\"ProductCategoryRow\")\n                         |      .render(category => tr(th(colspan := 2, category)))\n                         |      .build\n                         |\n                         |    val ProductRow = ReactComponentB[Product](\"ProductRow\")\n                         |      .render(p =>\n                         |        tr(\n                         |          td(span(!p.stocked && (color := \"red\"), p.name)),\n                         |          td(p.price))\n                         |      )\n                         |      .build\n                         |\n                         |    def productFilter(s: State)(p: Product): Boolean =\n                         |      p.name.contains(s.filterText) &&\n                         |      (!s.inStockOnly || p.stocked)\n                         |\n                         |    val ProductTable = ReactComponentB[(List[Product], State)](\"ProductTable\")\n                         |      .render(P => {\n                         |        val (products, state) = P\n                         |        val rows = products.filter(productFilter(state))\n                         |                   .groupBy(_.category).toList\n                         |                   .flatMap{ case (cat, ps) =>\n                         |                      ProductCategoryRow.withKey(cat)(cat) :: ps.map(p => ProductRow.withKey(p.name)(p))\n                         |                    }\n                         |        table(\n                         |          thead(\n                         |            tr(\n                         |              th(\"Name\"),\n                         |              th(\"Price\"))),\n                         |          tbody(\n                         |            rows))\n                         |      })\n                         |      .build\n                         |\n                         |    val SearchBar = ReactComponentB[(State, Backend)](\"SearchBar\")\n                         |      .render(P => {\n                         |        val (s, b) = P\n                         |        form()(\n                         |          input(placeholder := \"Search Bar ...\", value := s.filterText, onchange ==> b.onTextChange),\n                         |          p(\n                         |            input(tpe := \"checkbox\", onclick ==> b.onCheckBox), \"Only show products in stock\"))\n                         |      })\n                         |      .build\n                         |\n                         |\n                         |    val FilterableProductTable = ReactComponentB[List[Product]](\"FilterableProductTable\")\n                         |      .initialState(State(\"\", false))\n                         |      .backend(new Backend(_))\n                         |      .render((P, S, B) =>\n                         |        div(\n                         |          SearchBar((S,B)),\n                         |          ProductTable((P,S)))\n                         |      )\n                         |      .build\n                         |\n                         |      val products = List(\n                         |        Product(\"FootBall\", 49.99, \"Sporting Goods\", true),\n                         |        Product(\"Baseball\", 9.99, \"Sporting Goods\", true),\n                         |        Product(\"basketball\", 29.99, \"Sporting Goods\", false),\n                         |        Product(\"ipod touch\", 99.99, \"Electronics\", true),\n                         |        Product(\"iphone 5\", 499.99, \"Electronics\", true),\n                         |        Product(\"Nexus 7\", 199.99, \"Electronics\", true))\n                         |\n                         |    React.renderComponent(FilterableProductTable(products), mountNode)\n                         | ");
+  var this$4 = new ScalaJS.c.sci_StringOps().init___T("\n                         |case class Product(name: String, price: Double, category: String, stocked: Boolean)\n                         |\n                         |    case class State(filterText: String, inStockOnly: Boolean)\n                         |\n                         |    class Backend(t: BackendScope[_, State])  {\n                         |      def onTextChange(e: ReactEventI) =\n                         |        t.modState(_.copy(filterText = e.target.value))\n                         |      def onCheckBox(e: ReactEvent) =\n                         |        t.modState(s => s.copy(inStockOnly = !s.inStockOnly))\n                         |    }\n                         |\n                         |    val ProductCategoryRow = ReactComponentB[String](\"ProductCategoryRow\")\n                         |      .render(category => tr(th(colspan := 2, category)))\n                         |      .build\n                         |\n                         |    val ProductRow = ReactComponentB[Product](\"ProductRow\")\n                         |      .render(p =>\n                         |        tr(\n                         |          td(span(!p.stocked && (color := \"red\"), p.name)),\n                         |          td(p.price))\n                         |      )\n                         |      .build\n                         |\n                         |    def productFilter(s: State)(p: Product): Boolean =\n                         |      p.name.contains(s.filterText) &&\n                         |      (!s.inStockOnly || p.stocked)\n                         |\n                         |    val ProductTable = ReactComponentB[(List[Product], State)](\"ProductTable\")\n                         |      .render(P => {\n                         |        val (products, state) = P\n                         |        val rows = products.filter(productFilter(state))\n                         |                   .groupBy(_.category).toList\n                         |                   .flatMap{ case (cat, ps) =>\n                         |                      ProductCategoryRow.withKey(cat)(cat) :: ps.map(p => ProductRow.withKey(p.name)(p))\n                         |                    }\n                         |        table(\n                         |          thead(\n                         |            tr(\n                         |              th(\"Name\"),\n                         |              th(\"Price\"))),\n                         |          tbody(\n                         |            rows))\n                         |      })\n                         |      .build\n                         |\n                         |    val SearchBar = ReactComponentB[(State, Backend)](\"SearchBar\")\n                         |      .render(P => {\n                         |        val (s, b) = P\n                         |        form()(\n                         |          input(placeholder := \"Search Bar ...\", value := s.filterText, onchange ==> b.onTextChange),\n                         |          p(\n                         |            input(tpe := \"checkbox\", onclick ==> b.onCheckBox), \"Only show products in stock\"))\n                         |      })\n                         |      .build\n                         |\n                         |\n                         |    val FilterableProductTable = ReactComponentB[List[Product]](\"FilterableProductTable\")\n                         |      .initialState(State(\"\", false))\n                         |      .backend(new Backend(_))\n                         |      .render((P, S, B) =>\n                         |        div(\n                         |          SearchBar((S,B)),\n                         |          ProductTable((P,S)))\n                         |      )\n                         |      .build\n                         |\n                         |      val products = List(\n                         |        Product(\"FootBall\", 49.99, \"Sporting Goods\", true),\n                         |        Product(\"Baseball\", 9.99, \"Sporting Goods\", true),\n                         |        Product(\"basketball\", 29.99, \"Sporting Goods\", false),\n                         |        Product(\"ipod touch\", 99.99, \"Electronics\", true),\n                         |        Product(\"iphone 5\", 499.99, \"Electronics\", true),\n                         |        Product(\"Nexus 7\", 199.99, \"Electronics\", true))\n                         |\n                         |    React.renderComponent(FilterableProductTable(products), mountNode)\n                         | ");
   this.tableScalaCode$1 = ScalaJS.i.sci_StringLike$class__stripMargin__sci_StringLike__C__T(this$4, 124);
   this.ProductCategoryRow$1 = ScalaJS.as.Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(ScalaJS.m.Ljapgolly_scalajs_react_ReactComponentB().defaultDomTypeAndProps__Ljapgolly_scalajs_react_ReactComponentB__Ljapgolly_scalajs_react_ReactComponentB$Builder(new ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$P().init___T("ProductCategoryRow").render__F1__Ljapgolly_scalajs_react_ReactComponentB(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(category$2) {
     var category = ScalaJS.as.T(category$2);
@@ -5098,7 +5112,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$.prototyp
     var this$6 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().colspan$1;
     var ev = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().intAttr$1;
     var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$4).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$2).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$1.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Lscalatags_generic_AttrPair().init___Lscalatags_generic_Attr__O__Lscalatags_generic_AttrValue(this$6, 2, ev), (ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T(category))]), 1)))]), 1)));
-    return t.render__Ljapgolly_scalajs_react_VDom()
+    return t.render__Ljapgolly_scalajs_react_ReactElement()
   })))).build__O());
   this.ProductRow$1 = ScalaJS.as.Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(ScalaJS.m.Ljapgolly_scalajs_react_ReactComponentB().defaultDomTypeAndProps__Ljapgolly_scalajs_react_ReactComponentB__Ljapgolly_scalajs_react_ReactComponentB$Builder(new ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$P().init___T("ProductRow").render__F1__Ljapgolly_scalajs_react_ReactComponentB(new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$4().init___())).build__O());
   this.ProductTable$1 = ScalaJS.as.Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(ScalaJS.m.Ljapgolly_scalajs_react_ReactComponentB().defaultDomTypeAndProps__Ljapgolly_scalajs_react_ReactComponentB__Ljapgolly_scalajs_react_ReactComponentB$Builder(new ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$P().init___T("ProductTable").render__F1__Ljapgolly_scalajs_react_ReactComponentB(new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$5().init___())).build__O());
@@ -5116,12 +5130,14 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$.prototyp
     var jsx$7 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().div$1;
     var jsx$6 = ScalaJS.m.s_Predef();
     var this$13 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
-    var c = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().SearchBar$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(S, B), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-    var jsx$5 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$13, c);
+    var c = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().SearchBar$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(S, B), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+    var evidence$2 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+    var jsx$5 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$13, c, evidence$2);
     var this$14 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
-    var c$1 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().ProductTable$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(P, S), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-    var t$1 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$7).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$6.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$5, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$14, c$1)]), 1)));
-    return t$1.render__Ljapgolly_scalajs_react_VDom()
+    var c$1 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().ProductTable$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(P, S), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+    var evidence$2$1 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+    var t$1 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$7).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$6.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$5, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$14, c$1, evidence$2$1)]), 1)));
+    return t$1.render__Ljapgolly_scalajs_react_ReactElement()
   })))).build__O());
   ScalaJS.m.sci_List();
   var xs = ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_example_examples_ProductTableExample$Product.getArrayOf(), [new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$Product().init___T__D__T__Z("FootBall", 49.99, "Sporting Goods", true), new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$Product().init___T__D__T__Z("Baseball", 9.99, "Sporting Goods", true), new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$Product().init___T__D__T__Z("basketball", 29.99, "Sporting Goods", false), new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$Product().init___T__D__T__Z("ipod touch", 99.99, "Electronics", true), new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$Product().init___T__D__T__Z("iphone 5", 499.99, "Electronics", true), new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$Product().init___T__D__T__Z("Nexus 7", 199.99, "Electronics", true)]));
@@ -5429,7 +5445,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_RefsExample$.prototype.init__
   ScalaJS.n.Ljapgolly_scalajs_react_example_examples_RefsExample = this;
   var this$2 = new ScalaJS.c.sci_StringOps().init___T("\n                      |var App = React.createClass({\n                      |    getInitialState: function() {\n                      |      return {userInput: ''};\n                      |    },\n                      |    handleChange: function(e) {\n                      |      this.setState({userInput: e.target.value});\n                      |    },\n                      |    clearAndFocusInput: function() {\n                      |      this.setState({userInput: ''}); // Clear the input\n                      |      // We wish to focus the <input /> now!\n                      |    },\n                      |    render: function() {\n                      |      return (\n                      |        <div>\n                      |          <div onClick={this.clearAndFocusInput}>\n                      |            Click to Focus and Reset\n                      |          </div>\n                      |          <input\n                      |            value={this.state.userInput}\n                      |            onChange={this.handleChange}\n                      |          />\n                      |        </div>\n                      |      );\n                      |    }\n                      |  });");
   this.refsJsxCode$1 = ScalaJS.i.sci_StringLike$class__stripMargin__sci_StringLike__C__T(this$2, 124);
-  var this$4 = new ScalaJS.c.sci_StringOps().init___T("\n                        |   val theInput = Ref[HTMLInputElement](\"theInput\")\n                        |\n                        |    class Backend(t: BackendScope[_, String]) {\n                        |      def handleChange(e: SyntheticEvent[HTMLInputElement]) =\n                        |        t.setState(e.target.value)\n                        |      def clearAndFocusInput() =\n                        |        t.setState(\"\", () => theInput(t).tryFocus())\n                        |    }\n                        |\n                        |    val App = ReactComponentB[Unit](\"App\")\n                        |      .initialState(\"\")\n                        |      .backend(new Backend(_))\n                        |      .render((_,S,B) =>\n                        |        div(\n                        |          div(onclick --> B.clearAndFocusInput)(\"Click to Focus and Reset\"),\n                        |          input(ref := theInput, value := S, onchange ==> B.handleChange)\n                        |        )\n                        |      ).buildU\n                        |\n                        |    React.renderComponent(App(), mountNode)");
+  var this$4 = new ScalaJS.c.sci_StringOps().init___T("\n                        |   val theInput = Ref[HTMLInputElement](\"theInput\")\n                        |\n                        |    class Backend(t: BackendScope[_, String]) {\n                        |      def handleChange(e: ReactEventI) =\n                        |        t.setState(e.target.value)\n                        |      def clearAndFocusInput() =\n                        |        t.setState(\"\", () => theInput(t).tryFocus())\n                        |    }\n                        |\n                        |    val App = ReactComponentB[Unit](\"App\")\n                        |      .initialState(\"\")\n                        |      .backend(new Backend(_))\n                        |      .render((_,S,B) =>\n                        |        div(\n                        |          div(onclick --> B.clearAndFocusInput)(\"Click to Focus and Reset\"),\n                        |          input(ref := theInput, value := S, onchange ==> B.handleChange)\n                        |        )\n                        |      ).buildU\n                        |\n                        |    React.renderComponent(App(), mountNode)");
   this.refsScalaCode$1 = ScalaJS.i.sci_StringLike$class__stripMargin__sci_StringLike__C__T(this$4, 124);
   this.theInput$1 = new ScalaJS.c.Ljapgolly_scalajs_react_package$Ref().init___T("theInput");
   var c = new ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$P().init___T("App").initialState__F0__Ljapgolly_scalajs_react_ReactComponentB$PS(new ScalaJS.c.sjsr_AnonFunction0().init___sjs_js_Function0((function() {
@@ -5489,7 +5505,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_RefsExample$Backend.prototype
   var $$this = b;
   var cb = ScalaJS.m.sjs_js_UndefOr().any2undefOrA__O__sjs_js_UndefOr(new ScalaJS.c.sjsr_AnonFunction0().init___sjs_js_Function0((function(arg$outer) {
     return (function() {
-      var jsx$1 = ScalaJS.m.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt();
+      var jsx$1 = ScalaJS.m.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM();
       ScalaJS.m.Ljapgolly_scalajs_react_package();
       var this$2 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_RefsExample().theInput$1;
       var s = arg$outer.japgolly$scalajs$react$example$examples$RefsExample$Backend$$t$f;
@@ -5589,7 +5605,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_SideBySide$.prototype.init___
     var this$10 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().class$1;
     var ev$3 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().stringAttr$1;
     var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$18).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$17.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$7, jsx$6, ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$5).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$4.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$3, ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$2).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$1.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Lscalatags_generic_AttrPair().init___Lscalatags_generic_Attr__O__Lscalatags_generic_AttrValue(this$10, "row text-center", ev$3)]), 1))).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [component$2]), 1)))]), 1)))]), 1)));
-    return t.render__Ljapgolly_scalajs_react_VDom()
+    return t.render__Ljapgolly_scalajs_react_ReactElement()
   }))).componentDidMount__F1__Ljapgolly_scalajs_react_ReactComponentB(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(x$2$2) {
     return (ScalaJS.m.Ljapgolly_scalajs_react_example_examples_SideBySide().applySyntaxHighlight__V(), (void 0))
   }))).componentDidUpdate__F3__Ljapgolly_scalajs_react_ReactComponentB(new ScalaJS.c.sjsr_AnonFunction3().init___sjs_js_Function3((function(x$3$2, x$4$2, x$5$2) {
@@ -5598,7 +5614,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_SideBySide$.prototype.init___
   return this
 });
 ScalaJS.c.Ljapgolly_scalajs_react_example_examples_SideBySide$.prototype.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU = (function(jsxCode, scalaCode, demo) {
-  return this.sideBySideComponent$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T3().init___O__O__O(jsxCode, scalaCode, demo), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)))
+  return this.sideBySideComponent$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T3().init___O__O__O(jsxCode, scalaCode, demo), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)))
 });
 ScalaJS.c.Ljapgolly_scalajs_react_example_examples_SideBySide$.prototype.applySyntaxHighlight__V = (function() {
   var nodes = ScalaJS.g["document"]["querySelectorAll"]("pre code");
@@ -5690,7 +5706,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_SingleSide$.prototype.init___
     var this$5 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().class$1;
     var ev$2 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().stringAttr$1;
     var t = jsx$7.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$6.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$3, ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$2).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$1.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Lscalatags_generic_AttrPair().init___Lscalatags_generic_Attr__O__Lscalatags_generic_AttrValue(this$5, "col-md-6", ev$2)]), 1))).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [component$2]), 1)))]), 1)));
-    return t.render__Ljapgolly_scalajs_react_VDom()
+    return t.render__Ljapgolly_scalajs_react_ReactElement()
   }))).componentDidMount__F1__Ljapgolly_scalajs_react_ReactComponentB(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(x$2$2) {
     return (ScalaJS.m.Ljapgolly_scalajs_react_example_examples_SideBySide().applySyntaxHighlight__V(), (void 0))
   }))).componentDidUpdate__F3__Ljapgolly_scalajs_react_ReactComponentB(new ScalaJS.c.sjsr_AnonFunction3().init___sjs_js_Function3((function(x$3$2, x$4$2, x$5$2) {
@@ -5699,7 +5715,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_SingleSide$.prototype.init___
   return this
 });
 ScalaJS.c.Ljapgolly_scalajs_react_example_examples_SingleSide$.prototype.component__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU = (function(scalaCode, demo) {
-  return this.singleSideComponent$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(scalaCode, demo), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)))
+  return this.singleSideComponent$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(scalaCode, demo), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)))
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_SingleSide$ = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_SingleSide$)))
@@ -5763,7 +5779,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_TimerExample$.prototype.init_
     var this$8 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
     var v = S.secondsElapsed$1;
     var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$2.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$1, ScalaJS.i.Lscalatags_generic_Aggregate$class__longFrag__Lscalatags_generic_Aggregate__J__Lscalatags_generic_Frag(this$8, v)]), 1)));
-    return t.render__Ljapgolly_scalajs_react_VDom()
+    return t.render__Ljapgolly_scalajs_react_ReactElement()
   }))).componentDidMount__F1__Ljapgolly_scalajs_react_ReactComponentB(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(scope$2) {
     var scope = scope$2;
     ScalaJS.as.Ljapgolly_scalajs_react_example_examples_TimerExample$Backend(scope["backend"]).interval$1 = ScalaJS.m.sjs_js_UndefOr().any2undefOrA__O__sjs_js_UndefOr(ScalaJS.uI(ScalaJS.g["window"]["setInterval"](ScalaJS.as.Ljapgolly_scalajs_react_example_examples_TimerExample$Backend(scope["backend"]).tick__Ljapgolly_scalajs_react_ComponentScopeM__sjs_js_Function(scope), 1000)))
@@ -5942,7 +5958,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_TodoExample$.prototype.init__
   ScalaJS.n.Ljapgolly_scalajs_react_example_examples_TodoExample = this;
   var this$2 = new ScalaJS.c.sci_StringOps().init___T("\n                      |var TodoList = React.createClass({displayName: 'TodoList',\n                      |  render: function() {\n                      |    var createItem = function(itemText) {\n                      |      return React.DOM.li(null, itemText);\n                      |    };\n                      |    return React.DOM.ul(null, this.props.items.map(createItem));\n                      |  }\n                      |});\n                      |var TodoApp = React.createClass({displayName: 'TodoApp',\n                      |  getInitialState: function() {\n                      |    return {items: [], text: ''};\n                      |  },\n                      |  onChange: function(e) {\n                      |    this.setState({text: e.target.value});\n                      |  },\n                      |  handleSubmit: function(e) {\n                      |    e.preventDefault();\n                      |    var nextItems = this.state.items.concat([this.state.text]);\n                      |    var nextText = '';\n                      |    this.setState({items: nextItems, text: nextText});\n                      |  },\n                      |  render: function() {\n                      |    return (\n                      |      React.DOM.div(null,\n                      |        React.DOM.h3(null, \"TODO\"),\n                      |        TodoList( {items:this.state.items} ),\n                      |        React.DOM.form( {onSubmit:this.handleSubmit},\n                      |          React.DOM.input( {onChange:this.onChange, value:this.state.text} ),\n                      |          React.DOM.button(null, 'Add #' + (this.state.items.length + 1))\n                      |        )\n                      |      )\n                      |    );\n                      |  }\n                      |});\n                      |React.renderComponent(TodoApp(null ), mountNode);");
   this.todoJsxCode$1 = ScalaJS.i.sci_StringLike$class__stripMargin__sci_StringLike__C__T(this$2, 124);
-  var this$4 = new ScalaJS.c.sci_StringOps().init___T("\n                        | val TodoList = ReactComponentB[List[String]](\"TodoList\")\n                        |    .render(P => {\n                        |    def createItem(itemText: String) = li(itemText)\n                        |    ul(P map createItem)\n                        |  })\n                        |    .build\n                        |\n                        |  case class State(items: List[String], text: String)\n                        |\n                        |  class Backend(t: BackendScope[Unit, State]) {\n                        |    def onChange(e: SyntheticEvent[HTMLInputElement]) =\n                        |      t.modState(_.copy(text = e.target.value))\n                        |    def handleSubmit(e: SyntheticEvent[HTMLInputElement]) = {\n                        |      e.preventDefault()\n                        |      t.modState(s => State(s.items :+ s.text, \"\"))\n                        |    }\n                        |  }\n                        |\n                        |  val TodoApp = ReactComponentB[Unit](\"TodoApp\")\n                        |    .initialState(State(Nil, \"\"))\n                        |    .backend(new Backend(_))\n                        |    .render((_,S,B) =>\n                        |    div(\n                        |      h3(\"TODO\"),\n                        |      TodoList(S.items),\n                        |      form(onsubmit ==>  B.handleSubmit)(\n                        |        input(onchange ==> B.onChange, value := S.text),\n                        |        button(\"Add #\", S.items.length + 1)\n                        |      )\n                        |    )\n                        |    ).buildU\n                        |   React.renderComponent(App(), mountNode)\n                        |    ");
+  var this$4 = new ScalaJS.c.sci_StringOps().init___T("\n                        | val TodoList = ReactComponentB[List[String]](\"TodoList\")\n                        |    .render(P => {\n                        |    def createItem(itemText: String) = li(itemText)\n                        |    ul(P map createItem)\n                        |  })\n                        |    .build\n                        |\n                        |  case class State(items: List[String], text: String)\n                        |\n                        |  class Backend(t: BackendScope[Unit, State]) {\n                        |    def onChange(e: ReactEventI) =\n                        |      t.modState(_.copy(text = e.target.value))\n                        |    def handleSubmit(e: ReactEventI) = {\n                        |      e.preventDefault()\n                        |      t.modState(s => State(s.items :+ s.text, \"\"))\n                        |    }\n                        |  }\n                        |\n                        |  val TodoApp = ReactComponentB[Unit](\"TodoApp\")\n                        |    .initialState(State(Nil, \"\"))\n                        |    .backend(new Backend(_))\n                        |    .render((_,S,B) =>\n                        |    div(\n                        |      h3(\"TODO\"),\n                        |      TodoList(S.items),\n                        |      form(onsubmit ==>  B.handleSubmit)(\n                        |        input(onchange ==> B.onChange, value := S.text),\n                        |        button(\"Add #\", S.items.length + 1)\n                        |      )\n                        |    )\n                        |    ).buildU\n                        |   React.renderComponent(App(), mountNode)\n                        |    ");
   this.todoScalaCode$1 = ScalaJS.i.sci_StringLike$class__stripMargin__sci_StringLike__C__T(this$4, 124);
   this.TodoList$1 = ScalaJS.as.Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(ScalaJS.m.Ljapgolly_scalajs_react_ReactComponentB().defaultDomTypeAndProps__Ljapgolly_scalajs_react_ReactComponentB__Ljapgolly_scalajs_react_ReactComponentB$Builder(new ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$P().init___T("TodoList").render__F1__Ljapgolly_scalajs_react_ReactComponentB(new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_TodoExample$$anonfun$1().init___())).build__O());
   var c = new ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$P().init___T("TodoApp").initialState__F0__Ljapgolly_scalajs_react_ReactComponentB$PS(new ScalaJS.c.sjsr_AnonFunction0().init___sjs_js_Function0((function() {
@@ -6152,7 +6168,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_pages_ExamplesPage$.prototype.init___ 
     var name = ScalaJS.as.T(name$2);
     ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
     var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().h1$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T(name))]), 1)));
-    return t.render__Ljapgolly_scalajs_react_VDom()
+    return t.render__Ljapgolly_scalajs_react_ReactElement()
   })))).build__O());
   this.exampleBody$1 = ScalaJS.as.Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(ScalaJS.m.Ljapgolly_scalajs_react_ReactComponentB().defaultDomTypeAndProps__Ljapgolly_scalajs_react_ReactComponentB__Ljapgolly_scalajs_react_ReactComponentB$Builder(new ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$P().init___T("examplesBody").render__F1__Ljapgolly_scalajs_react_ReactComponentB(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(name$2$1) {
     var name$1 = ScalaJS.as.T(name$2$1);
@@ -6169,9 +6185,11 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_pages_ExamplesPage$.prototype.init___ 
       var jsx$3 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_HelloMessageExample().helloJsXCode$1;
       var jsx$2 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_HelloMessageExample().helloScalaCode$1;
       var this$7 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
-      var c = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_HelloMessageExample().helloComponent$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU("React", ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-      var c$1 = jsx$4.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$3, jsx$2, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$7, c));
-      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$8, c$1)
+      var c = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_HelloMessageExample().helloComponent$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU("React", ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+      var evidence$2 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var c$1 = jsx$4.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$3, jsx$2, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$7, c, evidence$2));
+      var evidence$2$1 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$8, c$1, evidence$2$1)
     } else if (ScalaJS.anyRefEqEq("Timer", name$1)) {
       var this$10 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
       var jsx$7 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_SideBySide();
@@ -6179,8 +6197,10 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_pages_ExamplesPage$.prototype.init___ 
       var jsx$5 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_TimerExample().timerScalaCode$1;
       var this$9 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
       var c$2 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_TimerExample().Timer$1.apply__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.m.sci_Nil());
-      var c$3 = jsx$7.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$6, jsx$5, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$9, c$2));
-      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$10, c$3)
+      var evidence$2$2 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var c$3 = jsx$7.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$6, jsx$5, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$9, c$2, evidence$2$2));
+      var evidence$2$3 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$10, c$3, evidence$2$3)
     } else if (ScalaJS.anyRefEqEq("Todo", name$1)) {
       var this$12 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
       var jsx$10 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_SideBySide();
@@ -6188,8 +6208,10 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_pages_ExamplesPage$.prototype.init___ 
       var jsx$8 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_TodoExample().todoScalaCode$1;
       var this$11 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
       var c$4 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_TodoExample().TodoApp$1.apply__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.m.sci_Nil());
-      var c$5 = jsx$10.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$9, jsx$8, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$11, c$4));
-      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$12, c$5)
+      var evidence$2$4 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var c$5 = jsx$10.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$9, jsx$8, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$11, c$4, evidence$2$4));
+      var evidence$2$5 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$12, c$5, evidence$2$5)
     } else if (ScalaJS.anyRefEqEq("UsingRefs", name$1)) {
       var this$14 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
       var jsx$13 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_SideBySide();
@@ -6197,25 +6219,31 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_pages_ExamplesPage$.prototype.init___ 
       var jsx$11 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_RefsExample().refsScalaCode$1;
       var this$13 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
       var c$6 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_RefsExample().App$1.apply__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.m.sci_Nil());
-      var c$7 = jsx$13.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$12, jsx$11, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$13, c$6));
-      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$14, c$7)
+      var evidence$2$6 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var c$7 = jsx$13.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$12, jsx$11, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$13, c$6, evidence$2$6));
+      var evidence$2$7 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$14, c$7, evidence$2$7)
     } else if (ScalaJS.anyRefEqEq("ProductTable", name$1)) {
       var this$16 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
       var jsx$16 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_SideBySide();
       var jsx$15 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().tableJsxCode$1;
       var jsx$14 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().tableScalaCode$1;
       var this$15 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
-      var c$8 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().FilterableProductTable$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().products$1, ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-      var c$9 = jsx$16.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$15, jsx$14, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$15, c$8));
-      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$16, c$9)
+      var c$8 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().FilterableProductTable$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().products$1, ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+      var evidence$2$8 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var c$9 = jsx$16.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$15, jsx$14, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$15, c$8, evidence$2$8));
+      var evidence$2$9 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$16, c$9, evidence$2$9)
     } else if (ScalaJS.anyRefEqEq("Animation", name$1)) {
       var this$18 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
       var jsx$18 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_SingleSide();
       var jsx$17 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_AnimationExample().animationScalaCode$1;
       var this$17 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
       var c$10 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_AnimationExample().AnimatedTodoList$1.apply__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.m.sci_Nil());
-      var c$11 = jsx$18.component__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$17, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$17, c$10));
-      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$18, c$11)
+      var evidence$2$10 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var c$11 = jsx$18.component__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$17, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$17, c$10, evidence$2$10));
+      var evidence$2$11 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$18, c$11, evidence$2$11)
     } else if (ScalaJS.anyRefEqEq("AjaxPictureApp", name$1)) {
       var this$20 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
       var jsx$21 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_SideBySide();
@@ -6223,13 +6251,15 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_pages_ExamplesPage$.prototype.init___ 
       var jsx$19 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_PictureAppExample().pictureScalaCode$1;
       var this$19 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
       var c$12 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_PictureAppExample().PictureApp$1.apply__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.m.sci_Nil());
-      var c$13 = jsx$21.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$20, jsx$19, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$19, c$12));
-      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$20, c$13)
+      var evidence$2$12 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var c$13 = jsx$21.component__T__T__Lscalatags_generic_Modifier__Ljapgolly_scalajs_react_ReactComponentU(jsx$20, jsx$19, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$19, c$12, evidence$2$12));
+      var evidence$2$13 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$20, c$13, evidence$2$13)
     } else {
       var jsx$1 = (ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("//TODO"))
     };
     var t$1 = jsx$23.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$22.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$1]), 1)));
-    return t$1.render__Ljapgolly_scalajs_react_VDom()
+    return t$1.render__Ljapgolly_scalajs_react_ReactElement()
   })))).build__O());
   this.component$1 = ScalaJS.as.Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(ScalaJS.m.Ljapgolly_scalajs_react_ReactComponentB().defaultDomTypeAndProps__Ljapgolly_scalajs_react_ReactComponentB__Ljapgolly_scalajs_react_ReactComponentB$Builder(new ScalaJS.c.Ljapgolly_scalajs_react_ReactComponentB$P().init___T("examplesPage").initialState__F0__Ljapgolly_scalajs_react_ReactComponentB$PS(new ScalaJS.c.sjsr_AnonFunction0().init___sjs_js_Function0((function() {
     return new ScalaJS.c.Ljapgolly_scalajs_react_example_pages_ExamplesPage$State().init___I(0)
@@ -6248,14 +6278,16 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_pages_ExamplesPage$.prototype.init___ 
     var jsx$29 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$31).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$30.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Lscalatags_generic_AttrPair().init___Lscalatags_generic_Attr__O__Lscalatags_generic_AttrValue(this$24, "row", ev$1)]), 1)));
     var jsx$28 = ScalaJS.m.s_Predef();
     var this$25 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
-    var c$14 = ScalaJS.m.Ljapgolly_scalajs_react_example_pages_ExamplesPage().examplesMenu$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T3().init___O__O__O(P, B, S), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-    var jsx$27 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$25, c$14);
+    var c$14 = ScalaJS.m.Ljapgolly_scalajs_react_example_pages_ExamplesPage().examplesMenu$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T3().init___O__O__O(P, B, S), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+    var evidence$2$14 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+    var jsx$27 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$25, c$14, evidence$2$14);
     var this$26 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
     var jsx$26 = ScalaJS.m.Ljapgolly_scalajs_react_example_pages_ExamplesPage().exampleBody$1;
     var n = S.index$1;
-    var c$15 = jsx$26.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.i.sc_LinearSeqOptimized$class__apply__sc_LinearSeqOptimized__I__O(P, n), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-    var t$2 = jsx$29.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$28.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$27, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$26, c$15)]), 1)));
-    return t$2.render__Ljapgolly_scalajs_react_VDom()
+    var c$15 = jsx$26.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(ScalaJS.i.sc_LinearSeqOptimized$class__apply__sc_LinearSeqOptimized__I__O(P, n), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+    var evidence$2$15 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+    var t$2 = jsx$29.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$28.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$27, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$26, c$15, evidence$2$15)]), 1)));
+    return t$2.render__Ljapgolly_scalajs_react_ReactElement()
   })))).build__O());
   return this
 });
@@ -6791,44 +6823,87 @@ ScalaJS.d.Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps = new ScalaJS
 });
 ScalaJS.c.Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps;
 /** @constructor */
-ScalaJS.c.Ljapgolly_scalajs_react_package$ReactComponentUExt$ = (function() {
+ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$ = (function() {
   ScalaJS.c.O.call(this)
 });
-ScalaJS.c.Ljapgolly_scalajs_react_package$ReactComponentUExt$.prototype = new ScalaJS.h.O();
-ScalaJS.c.Ljapgolly_scalajs_react_package$ReactComponentUExt$.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_package$ReactComponentUExt$;
+ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$.prototype = new ScalaJS.h.O();
+ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$;
 /** @constructor */
-ScalaJS.h.Ljapgolly_scalajs_react_package$ReactComponentUExt$ = (function() {
+ScalaJS.h.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$ = (function() {
   /*<skip>*/
 });
-ScalaJS.h.Ljapgolly_scalajs_react_package$ReactComponentUExt$.prototype = ScalaJS.c.Ljapgolly_scalajs_react_package$ReactComponentUExt$.prototype;
-ScalaJS.c.Ljapgolly_scalajs_react_package$ReactComponentUExt$.prototype.render$extension__Ljapgolly_scalajs_react_ReactComponentU__Lorg_scalajs_dom_Node__Ljapgolly_scalajs_react_ReactComponentM = (function($$this, n) {
-  return ScalaJS.g["React"]["renderComponent"]($$this, n)
+ScalaJS.h.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$.prototype = ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$.prototype;
+ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$.prototype.render$extension__Ljapgolly_scalajs_react_ReactComponentU__Lorg_scalajs_dom_Node__Ljapgolly_scalajs_react_ReactComponentM = (function($$this, n) {
+  return ScalaJS.g["React"]["render"]($$this, n)
 });
-ScalaJS.is.Ljapgolly_scalajs_react_package$ReactComponentUExt$ = (function(obj) {
-  return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_package$ReactComponentUExt$)))
+ScalaJS.is.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$ = (function(obj) {
+  return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$)))
 });
-ScalaJS.as.Ljapgolly_scalajs_react_package$ReactComponentUExt$ = (function(obj) {
-  return ((ScalaJS.is.Ljapgolly_scalajs_react_package$ReactComponentUExt$(obj) || (obj === null)) ? obj : ScalaJS.throwClassCastException(obj, "japgolly.scalajs.react.package$ReactComponentUExt$"))
+ScalaJS.as.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$ = (function(obj) {
+  return ((ScalaJS.is.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$(obj) || (obj === null)) ? obj : ScalaJS.throwClassCastException(obj, "japgolly.scalajs.react.package$ReactExt_ReactComponentU$"))
 });
-ScalaJS.isArrayOf.Ljapgolly_scalajs_react_package$ReactComponentUExt$ = (function(obj, depth) {
-  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Ljapgolly_scalajs_react_package$ReactComponentUExt$)))
+ScalaJS.isArrayOf.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$ = (function(obj, depth) {
+  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$)))
 });
-ScalaJS.asArrayOf.Ljapgolly_scalajs_react_package$ReactComponentUExt$ = (function(obj, depth) {
-  return ((ScalaJS.isArrayOf.Ljapgolly_scalajs_react_package$ReactComponentUExt$(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Ljapgolly.scalajs.react.package$ReactComponentUExt$;", depth))
+ScalaJS.asArrayOf.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$ = (function(obj, depth) {
+  return ((ScalaJS.isArrayOf.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Ljapgolly.scalajs.react.package$ReactExt_ReactComponentU$;", depth))
 });
-ScalaJS.d.Ljapgolly_scalajs_react_package$ReactComponentUExt$ = new ScalaJS.ClassTypeData({
-  Ljapgolly_scalajs_react_package$ReactComponentUExt$: 0
-}, false, "japgolly.scalajs.react.package$ReactComponentUExt$", ScalaJS.d.O, {
-  Ljapgolly_scalajs_react_package$ReactComponentUExt$: 1,
+ScalaJS.d.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$ = new ScalaJS.ClassTypeData({
+  Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$: 0
+}, false, "japgolly.scalajs.react.package$ReactExt_ReactComponentU$", ScalaJS.d.O, {
+  Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$: 1,
   O: 1
 });
-ScalaJS.c.Ljapgolly_scalajs_react_package$ReactComponentUExt$.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_package$ReactComponentUExt$;
-ScalaJS.n.Ljapgolly_scalajs_react_package$ReactComponentUExt = (void 0);
-ScalaJS.m.Ljapgolly_scalajs_react_package$ReactComponentUExt = (function() {
-  if ((!ScalaJS.n.Ljapgolly_scalajs_react_package$ReactComponentUExt)) {
-    ScalaJS.n.Ljapgolly_scalajs_react_package$ReactComponentUExt = new ScalaJS.c.Ljapgolly_scalajs_react_package$ReactComponentUExt$().init___()
+ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$;
+ScalaJS.n.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU = (void 0);
+ScalaJS.m.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU = (function() {
+  if ((!ScalaJS.n.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU)) {
+    ScalaJS.n.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU = new ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU$().init___()
   };
-  return ScalaJS.n.Ljapgolly_scalajs_react_package$ReactComponentUExt
+  return ScalaJS.n.Ljapgolly_scalajs_react_package$ReactExt$undReactComponentU
+});
+/** @constructor */
+ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$ = (function() {
+  ScalaJS.c.O.call(this)
+});
+ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$.prototype = new ScalaJS.h.O();
+ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$;
+/** @constructor */
+ScalaJS.h.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$ = (function() {
+  /*<skip>*/
+});
+ScalaJS.h.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$.prototype = ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$.prototype;
+ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$.prototype.tryFocus$extension__sjs_js_UndefOr__V = (function($$this) {
+  if ((!($$this === (void 0)))) {
+    var x$3 = $$this;
+    x$3["getDOMNode"]()["focus"]()
+  }
+});
+ScalaJS.is.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$ = (function(obj) {
+  return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$)))
+});
+ScalaJS.as.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$ = (function(obj) {
+  return ((ScalaJS.is.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$(obj) || (obj === null)) ? obj : ScalaJS.throwClassCastException(obj, "japgolly.scalajs.react.package$ReactExt_UndefReactComponentM$"))
+});
+ScalaJS.isArrayOf.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$ = (function(obj, depth) {
+  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$)))
+});
+ScalaJS.asArrayOf.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$ = (function(obj, depth) {
+  return ((ScalaJS.isArrayOf.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Ljapgolly.scalajs.react.package$ReactExt_UndefReactComponentM$;", depth))
+});
+ScalaJS.d.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$ = new ScalaJS.ClassTypeData({
+  Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$: 0
+}, false, "japgolly.scalajs.react.package$ReactExt_UndefReactComponentM$", ScalaJS.d.O, {
+  Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$: 1,
+  O: 1
+});
+ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$;
+ScalaJS.n.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM = (void 0);
+ScalaJS.m.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM = (function() {
+  if ((!ScalaJS.n.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM)) {
+    ScalaJS.n.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM = new ScalaJS.c.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM$().init___()
+  };
+  return ScalaJS.n.Ljapgolly_scalajs_react_package$ReactExt$undUndefReactComponentM
 });
 /** @constructor */
 ScalaJS.c.Ljapgolly_scalajs_react_package$Ref = (function() {
@@ -6866,49 +6941,6 @@ ScalaJS.d.Ljapgolly_scalajs_react_package$Ref = new ScalaJS.ClassTypeData({
 });
 ScalaJS.c.Ljapgolly_scalajs_react_package$Ref.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_package$Ref;
 /** @constructor */
-ScalaJS.c.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$ = (function() {
-  ScalaJS.c.O.call(this)
-});
-ScalaJS.c.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$.prototype = new ScalaJS.h.O();
-ScalaJS.c.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$;
-/** @constructor */
-ScalaJS.h.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$ = (function() {
-  /*<skip>*/
-});
-ScalaJS.h.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$.prototype = ScalaJS.c.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$.prototype;
-ScalaJS.c.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$.prototype.tryFocus$extension__sjs_js_UndefOr__V = (function($$this) {
-  if ((!($$this === (void 0)))) {
-    var x$3 = $$this;
-    x$3["getDOMNode"]()["focus"]()
-  }
-});
-ScalaJS.is.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$ = (function(obj) {
-  return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$)))
-});
-ScalaJS.as.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$ = (function(obj) {
-  return ((ScalaJS.is.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$(obj) || (obj === null)) ? obj : ScalaJS.throwClassCastException(obj, "japgolly.scalajs.react.package$UndefReactComponentM_Ext$"))
-});
-ScalaJS.isArrayOf.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$ = (function(obj, depth) {
-  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$)))
-});
-ScalaJS.asArrayOf.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$ = (function(obj, depth) {
-  return ((ScalaJS.isArrayOf.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Ljapgolly.scalajs.react.package$UndefReactComponentM_Ext$;", depth))
-});
-ScalaJS.d.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$ = new ScalaJS.ClassTypeData({
-  Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$: 0
-}, false, "japgolly.scalajs.react.package$UndefReactComponentM_Ext$", ScalaJS.d.O, {
-  Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$: 1,
-  O: 1
-});
-ScalaJS.c.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$;
-ScalaJS.n.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt = (void 0);
-ScalaJS.m.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt = (function() {
-  if ((!ScalaJS.n.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt)) {
-    ScalaJS.n.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt = new ScalaJS.c.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt$().init___()
-  };
-  return ScalaJS.n.Ljapgolly_scalajs_react_package$UndefReactComponentM$undExt
-});
-/** @constructor */
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$ = (function() {
   ScalaJS.c.O.call(this);
   this.EmptyTag$1 = null
@@ -6922,7 +6954,7 @@ ScalaJS.h.Ljapgolly_scalajs_react_vdom_ReactVDom$ = (function() {
 ScalaJS.h.Ljapgolly_scalajs_react_vdom_ReactVDom$.prototype = ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$.prototype;
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$.prototype.init___ = (function() {
   ScalaJS.n.Ljapgolly_scalajs_react_vdom_ReactVDom = this;
-  this.EmptyTag$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5().init___();
+  this.EmptyTag$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2().init___();
   return this
 });
 ScalaJS.is.Ljapgolly_scalajs_react_vdom_ReactVDom$ = (function(obj) {
@@ -6954,43 +6986,44 @@ ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom = (function() {
   return ScalaJS.n.Ljapgolly_scalajs_react_vdom_ReactVDom
 });
 /** @constructor */
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5 = (function() {
+ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2 = (function() {
   ScalaJS.c.O.call(this)
 });
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5.prototype = new ScalaJS.h.O();
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5;
+ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2.prototype = new ScalaJS.h.O();
+ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2;
 /** @constructor */
-ScalaJS.h.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5 = (function() {
+ScalaJS.h.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2 = (function() {
   /*<skip>*/
 });
-ScalaJS.h.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5.prototype = ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5.prototype;
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5.prototype.applyTo__O__V = (function(t) {
+ScalaJS.h.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2.prototype = ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2.prototype;
+ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2.prototype.applyTo__O__V = (function(t) {
   ScalaJS.as.Ljapgolly_scalajs_react_vdom_VDomBuilder(t)
 });
-ScalaJS.is.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5 = (function(obj) {
-  return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5)))
+ScalaJS.is.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2 = (function(obj) {
+  return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2)))
 });
-ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5 = (function(obj) {
-  return ((ScalaJS.is.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5(obj) || (obj === null)) ? obj : ScalaJS.throwClassCastException(obj, "japgolly.scalajs.react.vdom.ReactVDom$$anon$5"))
+ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2 = (function(obj) {
+  return ((ScalaJS.is.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2(obj) || (obj === null)) ? obj : ScalaJS.throwClassCastException(obj, "japgolly.scalajs.react.vdom.ReactVDom$$anon$2"))
 });
-ScalaJS.isArrayOf.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5 = (function(obj, depth) {
-  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5)))
+ScalaJS.isArrayOf.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2 = (function(obj, depth) {
+  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2)))
 });
-ScalaJS.asArrayOf.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5 = (function(obj, depth) {
-  return ((ScalaJS.isArrayOf.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Ljapgolly.scalajs.react.vdom.ReactVDom$$anon$5;", depth))
+ScalaJS.asArrayOf.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2 = (function(obj, depth) {
+  return ((ScalaJS.isArrayOf.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Ljapgolly.scalajs.react.vdom.ReactVDom$$anon$2;", depth))
 });
-ScalaJS.d.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5 = new ScalaJS.ClassTypeData({
-  Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5: 0
-}, false, "japgolly.scalajs.react.vdom.ReactVDom$$anon$5", ScalaJS.d.O, {
-  Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5: 1,
+ScalaJS.d.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2 = new ScalaJS.ClassTypeData({
+  Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2: 0
+}, false, "japgolly.scalajs.react.vdom.ReactVDom$$anon$2", ScalaJS.d.O, {
+  Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2: 1,
   Lscalatags_generic_Modifier: 1,
   O: 1
 });
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$5;
+ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_vdom_ReactVDom$$anon$2;
 /** @constructor */
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1 = (function() {
   ScalaJS.c.O.call(this);
-  this.c$1$1 = null
+  this.c$1$1 = null;
+  this.evidence$2$1$1 = null
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1.prototype = new ScalaJS.h.O();
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1;
@@ -7000,10 +7033,11 @@ ScalaJS.h.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1 = (function()
 });
 ScalaJS.h.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1.prototype = ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1.prototype;
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1.prototype.applyTo__Ljapgolly_scalajs_react_vdom_VDomBuilder__V = (function(t) {
-  t.appendChild__sjs_js_Any__V(this.c$1$1)
+  t.appendChild__Ljapgolly_scalajs_react_ReactNode__V(this.evidence$2$1$1.apply__O__O(this.c$1$1))
 });
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1.prototype.init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom = (function($$outer, c$1) {
+ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1.prototype.init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1 = (function($$outer, c$1, evidence$2$1) {
   this.c$1$1 = c$1;
+  this.evidence$2$1$1 = evidence$2$1;
   return this
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1.prototype.applyTo__O__V = (function(t) {
@@ -7030,61 +7064,10 @@ ScalaJS.d.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1 = new ScalaJS
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1;
 /** @constructor */
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3 = (function() {
-  ScalaJS.c.O.call(this);
-  this.cs$1$1 = null
-});
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3.prototype = new ScalaJS.h.O();
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3;
-/** @constructor */
-ScalaJS.h.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3 = (function() {
-  /*<skip>*/
-});
-ScalaJS.h.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3.prototype = ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3.prototype;
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3.prototype.applyTo__Ljapgolly_scalajs_react_vdom_VDomBuilder__V = (function(t) {
-  var $$this = (ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom(), this.cs$1$1);
-  var this$3 = ScalaJS.m.sjsr_package();
-  var result = new ScalaJS.g["Array"]();
-  $$this.foreach__F1__V(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(this$2$1, result$1) {
-    return (function(x$2) {
-      return ScalaJS.uI(result$1["push"](x$2))
-    })
-  })(this$3, result)));
-  t.appendChild__sjs_js_Any__V(result)
-});
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3.prototype.init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__sc_Seq = (function($$outer, cs$1) {
-  this.cs$1$1 = cs$1;
-  return this
-});
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3.prototype.applyTo__O__V = (function(t) {
-  this.applyTo__Ljapgolly_scalajs_react_vdom_VDomBuilder__V(ScalaJS.as.Ljapgolly_scalajs_react_vdom_VDomBuilder(t))
-});
-ScalaJS.is.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3 = (function(obj) {
-  return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3)))
-});
-ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3 = (function(obj) {
-  return ((ScalaJS.is.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3(obj) || (obj === null)) ? obj : ScalaJS.throwClassCastException(obj, "japgolly.scalajs.react.vdom.ReactVDom$Aggregate$$anon$3"))
-});
-ScalaJS.isArrayOf.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3 = (function(obj, depth) {
-  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3)))
-});
-ScalaJS.asArrayOf.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3 = (function(obj, depth) {
-  return ((ScalaJS.isArrayOf.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Ljapgolly.scalajs.react.vdom.ReactVDom$Aggregate$$anon$3;", depth))
-});
-ScalaJS.d.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3 = new ScalaJS.ClassTypeData({
-  Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3: 0
-}, false, "japgolly.scalajs.react.vdom.ReactVDom$Aggregate$$anon$3", ScalaJS.d.O, {
-  Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3: 1,
-  Lscalatags_generic_Modifier: 1,
-  O: 1
-});
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3;
-/** @constructor */
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag = (function() {
   ScalaJS.c.O.call(this);
   this.xs$1 = null;
-  this.japgolly$scalajs$react$vdom$ReactVDom$Cap$SeqFrag$$evidence$5$f = null;
-  this.$$outer$f = null
+  this.japgolly$scalajs$react$vdom$ReactVDom$Cap$SeqFrag$$evidence$3$f = null
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag.prototype = new ScalaJS.h.O();
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag;
@@ -7096,18 +7079,13 @@ ScalaJS.h.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag.prototype = ScalaJS
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag.prototype.applyTo__Ljapgolly_scalajs_react_vdom_VDomBuilder__V = (function(t) {
   this.xs$1.foreach__F1__V(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(arg$outer, t$1) {
     return (function(x$7$2) {
-      return (ScalaJS.as.Lscalatags_generic_Modifier(arg$outer.japgolly$scalajs$react$vdom$ReactVDom$Cap$SeqFrag$$evidence$5$f.apply__O__O(x$7$2)).applyTo__O__V(t$1), (void 0))
+      return (ScalaJS.as.Lscalatags_generic_Modifier(arg$outer.japgolly$scalajs$react$vdom$ReactVDom$Cap$SeqFrag$$evidence$3$f.apply__O__O(x$7$2)).applyTo__O__V(t$1), (void 0))
     })
   })(this, t)))
 });
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag.prototype.init___Ljapgolly_scalajs_react_vdom_ReactVDom$Cap__sc_Seq__F1 = (function($$outer, xs, evidence$5) {
+ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag.prototype.init___Ljapgolly_scalajs_react_vdom_ReactVDom$Cap__sc_Seq__F1 = (function($$outer, xs, evidence$3) {
   this.xs$1 = xs;
-  this.japgolly$scalajs$react$vdom$ReactVDom$Cap$SeqFrag$$evidence$5$f = evidence$5;
-  if (($$outer === null)) {
-    throw ScalaJS.unwrapJavaScriptException(null)
-  } else {
-    this.$$outer$f = $$outer
-  };
+  this.japgolly$scalajs$react$vdom$ReactVDom$Cap$SeqFrag$$evidence$3$f = evidence$3;
   return this
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag.prototype.applyTo__O__V = (function(t) {
@@ -7294,12 +7272,11 @@ ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$RawFrag.prototype.productElemen
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$RawFrag.prototype.toString__T = (function() {
   return ScalaJS.m.sr_ScalaRunTime().$$undtoString__s_Product__T(this)
 });
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$RawFrag.prototype.render__sjs_js_Any = (function() {
-  return this.v$1
-});
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$RawFrag.prototype.applyTo__O__V = (function(t) {
   var t$1 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_VDomBuilder(t);
-  t$1.appendChild__sjs_js_Any__V(this.render__sjs_js_Any())
+  ScalaJS.m.Ljapgolly_scalajs_react_package();
+  var v = this.v$1;
+  t$1.appendChild__Ljapgolly_scalajs_react_ReactNode__V(v)
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$RawFrag.prototype.init___T = (function(v) {
   this.v$1 = v;
@@ -7430,12 +7407,11 @@ ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag.prototype.productEle
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag.prototype.toString__T = (function() {
   return ScalaJS.m.sr_ScalaRunTime().$$undtoString__s_Product__T(this)
 });
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag.prototype.render__sjs_js_Any = (function() {
-  return this.v$1
-});
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag.prototype.applyTo__O__V = (function(t) {
   var b = ScalaJS.as.Ljapgolly_scalajs_react_vdom_VDomBuilder(t);
-  b.appendChild__sjs_js_Any__V(this.render__sjs_js_Any())
+  ScalaJS.m.Ljapgolly_scalajs_react_package();
+  var v = this.v$1;
+  b.appendChild__Ljapgolly_scalajs_react_ReactNode__V(v)
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag.prototype.init___T = (function(v) {
   this.v$1 = v;
@@ -7584,19 +7560,24 @@ ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag.prototype.productEleme
   }
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag.prototype.toString__T = (function() {
-  return ScalaJS.objectToString(this.render__Ljapgolly_scalajs_react_VDom())
+  return ScalaJS.objectToString(this.render__Ljapgolly_scalajs_react_ReactElement())
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag.prototype.applyTo__O__V = (function(t) {
   var b = ScalaJS.as.Ljapgolly_scalajs_react_vdom_VDomBuilder(t);
-  b.appendChild__sjs_js_Any__V(this.render__Ljapgolly_scalajs_react_VDom())
+  b.appendChild__Ljapgolly_scalajs_react_ReactNode__V(this.render__Ljapgolly_scalajs_react_ReactElement())
+});
+ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag.prototype.render__Ljapgolly_scalajs_react_ReactElement = (function() {
+  var b = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder().init___();
+  ScalaJS.i.Lscalatags_generic_TypedTag$class__build__Lscalatags_generic_TypedTag__O__V(this, b);
+  return b.render__T__Ljapgolly_scalajs_react_ReactElement(this.tag$1)
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag.prototype.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag = (function(xs) {
-  var x$10 = this.tag$1;
-  var x$11 = this.void$1;
+  var x$9 = this.tag$1;
+  var x$10 = this.void$1;
   var this$1 = this.modifiers$1;
-  var x$12 = new ScalaJS.c.sci_$colon$colon().init___O__sci_List(xs, this$1);
-  var x$13 = this.namespace$1;
-  return new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag().init___T__sci_List__Z__Lscalatags_generic_Namespace(x$10, x$12, x$11, x$13)
+  var x$11 = new ScalaJS.c.sci_$colon$colon().init___O__sci_List(xs, this$1);
+  var x$12 = this.namespace$1;
+  return new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag().init___T__sci_List__Z__Lscalatags_generic_Namespace(x$9, x$11, x$10, x$12)
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag.prototype.init___T__sci_List__Z__Lscalatags_generic_Namespace = (function(tag, modifiers, void$2, namespace) {
   this.tag$1 = tag;
@@ -7604,11 +7585,6 @@ ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag.prototype.init___T__sc
   this.void$1 = void$2;
   this.namespace$1 = namespace;
   return this
-});
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag.prototype.render__Ljapgolly_scalajs_react_VDom = (function() {
-  var b = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder().init___();
-  ScalaJS.i.Lscalatags_generic_TypedTag$class__build__Lscalatags_generic_TypedTag__O__V(this, b);
-  return b.render__T__Ljapgolly_scalajs_react_VDom(this.tag$1)
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag.prototype.hashCode__I = (function() {
   var acc = -889275714;
@@ -8260,7 +8236,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder = (function() {
   ScalaJS.c.O.call(this);
   this.props$1 = null;
   this.japgolly$scalajs$react$vdom$VDomBuilder$$style$f = null;
-  this.vdomArgs$1 = null
+  this.children$1 = null
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder.prototype = new ScalaJS.h.O();
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder;
@@ -8272,8 +8248,29 @@ ScalaJS.h.Ljapgolly_scalajs_react_vdom_VDomBuilder.prototype = ScalaJS.c.Ljapgol
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder.prototype.init___ = (function() {
   this.props$1 = {};
   this.japgolly$scalajs$react$vdom$VDomBuilder$$style$f = {};
-  this.vdomArgs$1 = [this.props$1];
+  this.children$1 = new ScalaJS.g["Array"]();
   return this
+});
+ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder.prototype.render__T__Ljapgolly_scalajs_react_ReactElement = (function(tag) {
+  if ((ScalaJS.uI(ScalaJS.g["Object"]["keys"](this.japgolly$scalajs$react$vdom$VDomBuilder$$style$f)["length"]) !== 0)) {
+    var o = this.props$1;
+    var v = this.japgolly$scalajs$react$vdom$VDomBuilder$$style$f;
+    o["style"] = v
+  };
+  var jsx$3 = ScalaJS.g["React"];
+  var jsx$2 = this.props$1;
+  var array = this.children$1;
+  var col = new ScalaJS.c.sjs_js_WrappedArray().init___sjs_js_Array(array);
+  var result = new ScalaJS.g["Array"]();
+  var i = 0;
+  var len = col.length__I();
+  while ((i < len)) {
+    var x$2 = col.apply__I__O(i);
+    ScalaJS.uI(result["push"](x$2));
+    i = ((i + 1) | 0)
+  };
+  var jsx$1 = [tag, jsx$2]["concat"](result);
+  return ScalaJS.applyMethodWithVarargs(jsx$3, "createElement", jsx$1)
 });
 ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder.prototype.addAttr__T__sjs_js_Any__V = (function(k, v) {
   var o = this.props$1;
@@ -8291,28 +8288,8 @@ ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder.prototype.addStyle__T__T__V =
   var v$1 = v;
   o[k] = v$1
 });
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder.prototype.render__T__Ljapgolly_scalajs_react_VDom = (function(tag) {
-  if ((ScalaJS.uI(ScalaJS.g["Object"]["keys"](this.japgolly$scalajs$react$vdom$VDomBuilder$$style$f)["length"]) !== 0)) {
-    var o = this.props$1;
-    var v = this.japgolly$scalajs$react$vdom$VDomBuilder$$style$f;
-    o["style"] = v
-  };
-  var jsx$2 = ScalaJS.g["React"]["DOM"];
-  var array = this.vdomArgs$1;
-  var col = new ScalaJS.c.sjs_js_WrappedArray().init___sjs_js_Array(array);
-  var result = new ScalaJS.g["Array"]();
-  var i = 0;
-  var len = col.length__I();
-  while ((i < len)) {
-    var x$2 = col.apply__I__O(i);
-    ScalaJS.uI(result["push"](x$2));
-    i = ((i + 1) | 0)
-  };
-  var jsx$1 = []["concat"](result);
-  return ScalaJS.applyMethodWithVarargs(jsx$2, tag, jsx$1)
-});
-ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder.prototype.appendChild__sjs_js_Any__V = (function(c) {
-  ScalaJS.uI(this.vdomArgs$1["push"](c))
+ScalaJS.c.Ljapgolly_scalajs_react_vdom_VDomBuilder.prototype.appendChild__Ljapgolly_scalajs_react_ReactNode__V = (function(c) {
+  ScalaJS.uI(this.children$1["push"](c))
 });
 ScalaJS.is.Ljapgolly_scalajs_react_vdom_VDomBuilder = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_vdom_VDomBuilder)))
@@ -8540,17 +8517,20 @@ ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq.prototype.thisCollection__sc_Seq =
 ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq.prototype.addString__scm_StringBuilder__T__T__T__scm_StringBuilder = (function(b, start, sep, end) {
   return ScalaJS.i.sc_TraversableOnce$class__addString__sc_TraversableOnce__scm_StringBuilder__T__T__T__scm_StringBuilder(this, b, start, sep, end)
 });
+ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq.prototype.toSeq__sc_Seq = (function() {
+  return ScalaJS.i.sc_SeqLike$class__thisCollection__sc_SeqLike__sc_Seq(this)
+});
 ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq.prototype.$$div$colon__O__F2__O = (function(z, op) {
   return ScalaJS.i.sc_TraversableOnce$class__foldLeft__sc_TraversableOnce__O__F2__O(this, z, op)
 });
 ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq.prototype.repr__O = (function() {
   return this
 });
-ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq.prototype.copyToArray__O__I__I__V = (function(xs, start, len) {
-  ScalaJS.i.sc_IterableLike$class__copyToArray__sc_IterableLike__O__I__I__V(this, xs, start, len)
-});
 ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq.prototype.hashCode__I = (function() {
   return ScalaJS.m.s_util_hashing_MurmurHash3().seqHash__sc_Seq__I(this)
+});
+ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq.prototype.copyToArray__O__I__I__V = (function(xs, start, len) {
+  ScalaJS.i.sc_IterableLike$class__copyToArray__sc_IterableLike__O__I__I__V(this, xs, start, len)
 });
 ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq.prototype.isTraversableAgain__Z = (function() {
   return true
@@ -8626,6 +8606,9 @@ ScalaJS.h.Lorg_scalajs_dom_extensions_EasySeq$$anon$1 = (function() {
   /*<skip>*/
 });
 ScalaJS.h.Lorg_scalajs_dom_extensions_EasySeq$$anon$1.prototype = ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq$$anon$1.prototype;
+ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq$$anon$1.prototype.seq__sc_TraversableOnce = (function() {
+  return this
+});
 ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq$$anon$1.prototype.copyToArray__O__I__V = (function(xs, start) {
   ScalaJS.i.sc_TraversableOnce$class__copyToArray__sc_TraversableOnce__O__I__V(this, xs, start)
 });
@@ -8633,9 +8616,6 @@ ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq$$anon$1.prototype.next__O = (funct
   var res = this.$$outer$1.org$scalajs$dom$extensions$EasySeq$$jsApply$f.apply__O__O(this.index$1);
   this.index$1 = ((this.index$1 + 1) | 0);
   return res
-});
-ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq$$anon$1.prototype.seq__sc_TraversableOnce = (function() {
-  return this
 });
 ScalaJS.c.Lorg_scalajs_dom_extensions_EasySeq$$anon$1.prototype.init___Lorg_scalajs_dom_extensions_EasySeq = (function($$outer) {
   if (($$outer === null)) {
@@ -9317,6 +9297,57 @@ ScalaJS.d.Lscalatags_generic_Util$ExtendedString = new ScalaJS.ClassTypeData({
   O: 1
 });
 ScalaJS.c.Lscalatags_generic_Util$ExtendedString.prototype.$classData = ScalaJS.d.Lscalatags_generic_Util$ExtendedString;
+/** @constructor */
+ScalaJS.c.Lscalatags_generic_Util$SeqNode = (function() {
+  ScalaJS.c.O.call(this);
+  this.xs$1 = null;
+  this.scalatags$generic$Util$SeqNode$$evidence$1$f = null;
+  this.$$outer$f = null
+});
+ScalaJS.c.Lscalatags_generic_Util$SeqNode.prototype = new ScalaJS.h.O();
+ScalaJS.c.Lscalatags_generic_Util$SeqNode.prototype.constructor = ScalaJS.c.Lscalatags_generic_Util$SeqNode;
+/** @constructor */
+ScalaJS.h.Lscalatags_generic_Util$SeqNode = (function() {
+  /*<skip>*/
+});
+ScalaJS.h.Lscalatags_generic_Util$SeqNode.prototype = ScalaJS.c.Lscalatags_generic_Util$SeqNode.prototype;
+ScalaJS.c.Lscalatags_generic_Util$SeqNode.prototype.init___Lscalatags_generic_Util__sc_Seq__F1 = (function($$outer, xs, evidence$1) {
+  this.xs$1 = xs;
+  this.scalatags$generic$Util$SeqNode$$evidence$1$f = evidence$1;
+  if (($$outer === null)) {
+    throw ScalaJS.unwrapJavaScriptException(null)
+  } else {
+    this.$$outer$f = $$outer
+  };
+  return this
+});
+ScalaJS.c.Lscalatags_generic_Util$SeqNode.prototype.applyTo__O__V = (function(t) {
+  this.xs$1.foreach__F1__V(new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(arg$outer, t$1) {
+    return (function(x$1$2) {
+      return (ScalaJS.as.Lscalatags_generic_Modifier(arg$outer.scalatags$generic$Util$SeqNode$$evidence$1$f.apply__O__O(x$1$2)).applyTo__O__V(t$1), (void 0))
+    })
+  })(this, t)))
+});
+ScalaJS.is.Lscalatags_generic_Util$SeqNode = (function(obj) {
+  return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Lscalatags_generic_Util$SeqNode)))
+});
+ScalaJS.as.Lscalatags_generic_Util$SeqNode = (function(obj) {
+  return ((ScalaJS.is.Lscalatags_generic_Util$SeqNode(obj) || (obj === null)) ? obj : ScalaJS.throwClassCastException(obj, "scalatags.generic.Util$SeqNode"))
+});
+ScalaJS.isArrayOf.Lscalatags_generic_Util$SeqNode = (function(obj, depth) {
+  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Lscalatags_generic_Util$SeqNode)))
+});
+ScalaJS.asArrayOf.Lscalatags_generic_Util$SeqNode = (function(obj, depth) {
+  return ((ScalaJS.isArrayOf.Lscalatags_generic_Util$SeqNode(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Lscalatags.generic.Util$SeqNode;", depth))
+});
+ScalaJS.d.Lscalatags_generic_Util$SeqNode = new ScalaJS.ClassTypeData({
+  Lscalatags_generic_Util$SeqNode: 0
+}, false, "scalatags.generic.Util$SeqNode", ScalaJS.d.O, {
+  Lscalatags_generic_Util$SeqNode: 1,
+  Lscalatags_generic_Modifier: 1,
+  O: 1
+});
+ScalaJS.c.Lscalatags_generic_Util$SeqNode.prototype.$classData = ScalaJS.d.Lscalatags_generic_Util$SeqNode;
 ScalaJS.is.T = (function(obj) {
   return (typeof(obj) === "string")
 });
@@ -15021,12 +15052,12 @@ ScalaJS.h.sci_StringOps = (function() {
   /*<skip>*/
 });
 ScalaJS.h.sci_StringOps.prototype = ScalaJS.c.sci_StringOps.prototype;
+ScalaJS.c.sci_StringOps.prototype.copyToArray__O__I__V = (function(xs, start) {
+  ScalaJS.i.sc_TraversableOnce$class__copyToArray__sc_TraversableOnce__O__I__V(this, xs, start)
+});
 ScalaJS.c.sci_StringOps.prototype.seq__sc_TraversableOnce = (function() {
   var $$this = this.repr$1;
   return new ScalaJS.c.sci_WrappedString().init___T($$this)
-});
-ScalaJS.c.sci_StringOps.prototype.copyToArray__O__I__V = (function(xs, start) {
-  ScalaJS.i.sc_TraversableOnce$class__copyToArray__sc_TraversableOnce__O__I__V(this, xs, start)
 });
 ScalaJS.c.sci_StringOps.prototype.apply__I__O = (function(idx) {
   return ScalaJS.bC(ScalaJS.m.sci_StringOps().apply$extension__T__I__C(this.repr$1, idx))
@@ -15044,11 +15075,11 @@ ScalaJS.c.sci_StringOps.prototype.thisCollection__sc_Traversable = (function() {
   var $$this = this.repr$1;
   return new ScalaJS.c.sci_WrappedString().init___T($$this)
 });
-ScalaJS.c.sci_StringOps.prototype.equals__O__Z = (function(x$1) {
-  return ScalaJS.m.sci_StringOps().equals$extension__T__O__Z(this.repr$1, x$1)
-});
 ScalaJS.c.sci_StringOps.prototype.to__scg_CanBuildFrom__O = (function(cbf) {
   return ScalaJS.i.sc_TraversableLike$class__to__sc_TraversableLike__scg_CanBuildFrom__O(this, cbf)
+});
+ScalaJS.c.sci_StringOps.prototype.equals__O__Z = (function(x$1) {
+  return ScalaJS.m.sci_StringOps().equals$extension__T__O__Z(this.repr$1, x$1)
 });
 ScalaJS.c.sci_StringOps.prototype.apply__I__C = (function(index) {
   return ScalaJS.m.sci_StringOps().apply$extension__T__I__C(this.repr$1, index)
@@ -15072,11 +15103,11 @@ ScalaJS.c.sci_StringOps.prototype.foreach__F1__V = (function(f) {
 ScalaJS.c.sci_StringOps.prototype.reverse__O = (function() {
   return ScalaJS.i.sc_IndexedSeqOptimized$class__reverse__sc_IndexedSeqOptimized__O(this)
 });
-ScalaJS.c.sci_StringOps.prototype.toBuffer__scm_Buffer = (function() {
-  return ScalaJS.i.sc_IndexedSeqLike$class__toBuffer__sc_IndexedSeqLike__scm_Buffer(this)
-});
 ScalaJS.c.sci_StringOps.prototype.size__I = (function() {
   return ScalaJS.m.sci_StringOps().length$extension__T__I(this.repr$1)
+});
+ScalaJS.c.sci_StringOps.prototype.toBuffer__scm_Buffer = (function() {
+  return ScalaJS.i.sc_IndexedSeqLike$class__toBuffer__sc_IndexedSeqLike__scm_Buffer(this)
 });
 ScalaJS.c.sci_StringOps.prototype.iterator__sc_Iterator = (function() {
   return new ScalaJS.c.sc_IndexedSeqLike$Elements().init___sc_IndexedSeqLike__I__I(this, 0, ScalaJS.m.sci_StringOps().length$extension__T__I(this.repr$1))
@@ -15131,14 +15162,14 @@ ScalaJS.c.sci_StringOps.prototype.$$div$colon__O__F2__O = (function(z, op) {
     }
   }
 });
-ScalaJS.c.sci_StringOps.prototype.hashCode__I = (function() {
-  return ScalaJS.m.sci_StringOps().hashCode$extension__T__I(this.repr$1)
-});
 ScalaJS.c.sci_StringOps.prototype.copyToArray__O__I__I__V = (function(xs, start, len) {
   ScalaJS.i.sc_IndexedSeqOptimized$class__copyToArray__sc_IndexedSeqOptimized__O__I__I__V(this, xs, start, len)
 });
 ScalaJS.c.sci_StringOps.prototype.isTraversableAgain__Z = (function() {
   return true
+});
+ScalaJS.c.sci_StringOps.prototype.hashCode__I = (function() {
+  return ScalaJS.m.sci_StringOps().hashCode$extension__T__I(this.repr$1)
 });
 ScalaJS.c.sci_StringOps.prototype.init___T = (function(repr) {
   this.repr$1 = repr;
@@ -18189,9 +18220,9 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$$anonfun$2.prototype.apply__O
   })(this, b$2));
   var this$4 = ScalaJS.m.sci_List();
   var xs = ScalaJS.as.sc_Seq(ScalaJS.as.sci_List(jsx$2).map__F1__scg_CanBuildFrom__O(jsx$1, this$4.ReusableCBFInstance$2));
-  var evidence$5 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
-  var t = jsx$8.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$7.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$4.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Cap__sc_Seq__F1(this$5, xs, evidence$5)]), 1)))]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  var evidence$3 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+  var t = jsx$8.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$7.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$4.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Cap__sc_Seq__F1(this$5, xs, evidence$3)]), 1)))]), 1)));
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.c.Ljapgolly_scalajs_react_example_ReactApp$$anonfun$2.prototype.japgolly$scalajs$react$example$ReactApp$$anonfun$$element$1__T__I__Ljapgolly_scalajs_react_example_ReactApp$Backend__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag = (function(name, index, b$1) {
   var jsx$3 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().li$1;
@@ -18278,15 +18309,16 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_AnimationExample$$anonfun$5.p
   var jsx$2 = new ScalaJS.c.Ljapgolly_scalajs_react_Addons$ReactCssTransitionGroup().init___T__sjs_js_UndefOr__sjs_js_UndefOr__sjs_js_UndefOr("example", x$9, x$10, x$8);
   ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
   var bf = (ScalaJS.m.sci_Vector(), ScalaJS.m.sc_IndexedSeq().ReusableCBF$6);
-  var s = ScalaJS.as.sc_Seq(ScalaJS.as.sc_TraversableLike(ScalaJS.i.sc_IterableLike$class__zipWithIndex__sc_IterableLike__scg_CanBuildFrom__O(S, bf)).map__F1__scg_CanBuildFrom__O(new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_AnimationExample$$anonfun$5$$anonfun$apply$5().init___Ljapgolly_scalajs_react_example_examples_AnimationExample$$anonfun$5__Ljapgolly_scalajs_react_example_examples_AnimationExample$Backend(this, B), (ScalaJS.m.sci_Vector(), ScalaJS.m.sc_IndexedSeq().ReusableCBF$6)));
+  var t = ScalaJS.as.sc_Seq(ScalaJS.as.sc_TraversableLike(ScalaJS.i.sc_IterableLike$class__zipWithIndex__sc_IterableLike__scg_CanBuildFrom__O(S, bf)).map__F1__scg_CanBuildFrom__O(new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_AnimationExample$$anonfun$5$$anonfun$apply$5().init___Ljapgolly_scalajs_react_example_examples_AnimationExample$$anonfun$5__Ljapgolly_scalajs_react_example_examples_AnimationExample$Backend(this, B), (ScalaJS.m.sci_Vector(), ScalaJS.m.sc_IndexedSeq().ReusableCBF$6)));
   var jsx$1 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(x$2$2) {
     var x$2 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(x$2$2);
-    return x$2.render__Ljapgolly_scalajs_react_VDom()
+    return x$2.render__Ljapgolly_scalajs_react_ReactElement()
   }));
   var this$8 = ScalaJS.m.sc_Seq();
-  var c = jsx$2.apply__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU$und(ScalaJS.as.sc_Seq(s.map__F1__scg_CanBuildFrom__O(jsx$1, this$8.ReusableCBFInstance$2)));
-  var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$7).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$6.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$3, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$9, c)]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  var c = jsx$2.apply__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU$und(ScalaJS.as.sc_Seq(t.map__F1__scg_CanBuildFrom__O(jsx$1, this$8.ReusableCBFInstance$2)));
+  var evidence$2 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+  var t$1 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$7).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$6.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$3, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$9, c, evidence$2)]), 1)));
+  return t$1.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_AnimationExample$$anonfun$5 = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_AnimationExample$$anonfun$5)))
@@ -18449,7 +18481,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$11
   ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
   var jsx$5 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().div$1;
   var jsx$4 = ScalaJS.m.s_Predef();
-  var jsx$3 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().h1$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Popular Instragram pics"))]), 1)));
+  var jsx$3 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().h1$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Popular Instagram Pics"))]), 1)));
   var this$2 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
   var c = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_PictureAppExample().pictureList$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(S.pictures$1, new ScalaJS.c.sjsr_AnonFunction2().init___sjs_js_Function2((function(B$1) {
     return (function(id$2, favorite$2) {
@@ -18457,8 +18489,9 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$11
       var favorite = ScalaJS.uZ(favorite$2);
       B$1.onPicClick__T__Z__V(id, favorite)
     })
-  })(B))), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-  var jsx$2 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$2, c);
+  })(B))), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+  var evidence$2 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+  var jsx$2 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$2, c, evidence$2);
   var jsx$1 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().h1$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Your favorites"))]), 1)));
   var this$4 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
   var c$1 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_PictureAppExample().favoriteList$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(S.favourites$1, new ScalaJS.c.sjsr_AnonFunction2().init___sjs_js_Function2((function(B$1$1) {
@@ -18467,9 +18500,10 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$11
       var favorite$1 = ScalaJS.uZ(favorite$2$1);
       B$1$1.onPicClick__T__Z__V(id$1, favorite$1)
     })
-  })(B))), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-  var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$5).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$4.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$3, jsx$2, jsx$1, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$4, c$1)]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  })(B))), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+  var evidence$2$1 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+  var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$5).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$4.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$3, jsx$2, jsx$1, new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$4, c$1, evidence$2$1)]), 1)));
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$11 = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$11)))
@@ -18511,7 +18545,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12
     return (function(arg1) {
       return f.apply__O__O(arg1)
     })
-  })(new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6().init___Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12__Ljapgolly_scalajs_react_ComponentScopeM(this, scope)))
+  })(new ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8().init___Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12__Ljapgolly_scalajs_react_ComponentScopeM(this, scope)))
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12 = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12)))
@@ -18537,18 +18571,18 @@ ScalaJS.d.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12
 });
 ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12;
 /** @constructor */
-ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6 = (function() {
+ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8 = (function() {
   ScalaJS.c.sr_AbstractFunction1.call(this);
   this.scope$1$2 = null
 });
-ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6.prototype = new ScalaJS.h.sr_AbstractFunction1();
-ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6;
+ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8.prototype = new ScalaJS.h.sr_AbstractFunction1();
+ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8.prototype.constructor = ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8;
 /** @constructor */
-ScalaJS.h.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6 = (function() {
+ScalaJS.h.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8 = (function() {
   /*<skip>*/
 });
-ScalaJS.h.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6.prototype = ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6.prototype;
-ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6.prototype.apply__O__O = (function(v1) {
+ScalaJS.h.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8.prototype = ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8.prototype;
+ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8.prototype.apply__O__O = (function(v1) {
   var result = v1;
   if (((result !== (void 0)) && (result["data"] !== (void 0)))) {
     var data = result["data"];
@@ -18571,33 +18605,33 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12
     C.setState__O__O__sjs_js_UndefOr__V(qual$3, a, x$24)
   }
 });
-ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6.prototype.init___Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12__Ljapgolly_scalajs_react_ComponentScopeM = (function($$outer, scope$1) {
+ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8.prototype.init___Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12__Ljapgolly_scalajs_react_ComponentScopeM = (function($$outer, scope$1) {
   this.scope$1$2 = scope$1;
   return this
 });
-ScalaJS.is.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6 = (function(obj) {
-  return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6)))
+ScalaJS.is.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8 = (function(obj) {
+  return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8)))
 });
-ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6 = (function(obj) {
-  return ((ScalaJS.is.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6(obj) || (obj === null)) ? obj : ScalaJS.throwClassCastException(obj, "japgolly.scalajs.react.example.examples.PictureAppExample$$anonfun$12$$anonfun$apply$6"))
+ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8 = (function(obj) {
+  return ((ScalaJS.is.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8(obj) || (obj === null)) ? obj : ScalaJS.throwClassCastException(obj, "japgolly.scalajs.react.example.examples.PictureAppExample$$anonfun$12$$anonfun$apply$8"))
 });
-ScalaJS.isArrayOf.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6 = (function(obj, depth) {
-  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6)))
+ScalaJS.isArrayOf.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8 = (function(obj, depth) {
+  return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8)))
 });
-ScalaJS.asArrayOf.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6 = (function(obj, depth) {
-  return ((ScalaJS.isArrayOf.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Ljapgolly.scalajs.react.example.examples.PictureAppExample$$anonfun$12$$anonfun$apply$6;", depth))
+ScalaJS.asArrayOf.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8 = (function(obj, depth) {
+  return ((ScalaJS.isArrayOf.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8(obj, depth) || (obj === null)) ? obj : ScalaJS.throwArrayCastException(obj, "Ljapgolly.scalajs.react.example.examples.PictureAppExample$$anonfun$12$$anonfun$apply$8;", depth))
 });
-ScalaJS.d.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6 = new ScalaJS.ClassTypeData({
-  Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6: 0
-}, false, "japgolly.scalajs.react.example.examples.PictureAppExample$$anonfun$12$$anonfun$apply$6", ScalaJS.d.sr_AbstractFunction1, {
-  Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6: 1,
+ScalaJS.d.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8 = new ScalaJS.ClassTypeData({
+  Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8: 0
+}, false, "japgolly.scalajs.react.example.examples.PictureAppExample$$anonfun$12$$anonfun$apply$8", ScalaJS.d.sr_AbstractFunction1, {
+  Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8: 1,
   s_Serializable: 1,
   Ljava_io_Serializable: 1,
   sr_AbstractFunction1: 1,
   F1: 1,
   O: 1
 });
-ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$6;
+ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8.prototype.$classData = ScalaJS.d.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$12$$anonfun$apply$8;
 /** @constructor */
 ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$6 = (function() {
   ScalaJS.c.sr_AbstractFunction1.call(this)
@@ -18636,9 +18670,9 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$6.
     var jsx$6 = new ScalaJS.c.Lscalatags_generic_AttrPair().init___Lscalatags_generic_Attr__O__Lscalatags_generic_AttrValue(this$2, "picture", ev$1)
   };
   var $$this = (ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom(), ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().onclick$1);
-  var thunk = new ScalaJS.c.sjsr_AnonFunction0().init___sjs_js_Function0((function(p$1, b$1) {
+  var thunk = new ScalaJS.c.sjsr_AnonFunction0().init___sjs_js_Function0((function(p$1, b$2$1) {
     return (function() {
-      return (b$1.apply__O__O__O(p$1.id$1, p$1.favorite$1), (void 0))
+      return (b$2$1.apply__O__O__O(p$1.id$1, p$1.favorite$1), (void 0))
     })
   })(p$2, b$2));
   ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom();
@@ -18660,7 +18694,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$6.
   var v$2 = p$2.title$1;
   var ev$4 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().stringAttr$1;
   var t = jsx$5.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$4.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$2.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$1, new ScalaJS.c.Lscalatags_generic_AttrPair().init___Lscalatags_generic_Attr__O__Lscalatags_generic_AttrValue(this$7, v$2, ev$4)]), 1)))]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$6 = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$6)))
@@ -18720,19 +18754,25 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$7.
   if (list$2.isEmpty__Z()) {
     var jsx$1 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().span$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Loading Pics.."))]), 1)))
   } else {
-    var this$4 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
-    var jsx$2 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(b$2$1) {
+    var this$5 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
+    var jsx$2 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(b$1) {
       return (function(p$2) {
         var p = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(p$2);
-        return ScalaJS.m.Ljapgolly_scalajs_react_example_examples_PictureAppExample().picture$1.withKey__sjs_js_Any__Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(p.id$1).apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(p, b$2$1), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)))
+        return ScalaJS.m.Ljapgolly_scalajs_react_example_examples_PictureAppExample().picture$1.withKey__sjs_js_Any__Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(p.id$1).apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(p, b$1), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)))
       })
     })(b$2));
     var this$3 = ScalaJS.m.sci_List();
-    var cs = ScalaJS.as.sc_Seq(list$2.map__F1__scg_CanBuildFrom__O(jsx$2, this$3.ReusableCBFInstance$2));
-    var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__sc_Seq(this$4, cs)
+    var xs = ScalaJS.as.sc_Seq(list$2.map__F1__scg_CanBuildFrom__O(jsx$2, this$3.ReusableCBFInstance$2));
+    var evidence$1 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(c$2) {
+      var c = c$2;
+      var this$4 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
+      var evidence$2 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      return new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$4, c, evidence$2)
+    }));
+    var jsx$1 = new ScalaJS.c.Lscalatags_generic_Util$SeqNode().init___Lscalatags_generic_Util__sc_Seq__F1(this$5, xs, evidence$1)
   };
   var t = jsx$4.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$1]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$7 = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$7)))
@@ -18792,19 +18832,25 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$8.
   if (list$2.isEmpty__Z()) {
     var jsx$1 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().span$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Click an image to mark as  favorite"))]), 1)))
   } else {
-    var this$4 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
+    var this$5 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
     var jsx$2 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(b$3) {
       return (function(p$2) {
         var p = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_PictureAppExample$Picture(p$2);
-        return ScalaJS.m.Ljapgolly_scalajs_react_example_examples_PictureAppExample().picture$1.withKey__sjs_js_Any__Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(p.id$1).apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(p, b$3), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)))
+        return ScalaJS.m.Ljapgolly_scalajs_react_example_examples_PictureAppExample().picture$1.withKey__sjs_js_Any__Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(p.id$1).apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(new ScalaJS.c.T2().init___O__O(p, b$3), ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)))
       })
     })(b$2));
     var this$3 = ScalaJS.m.sci_List();
-    var cs = ScalaJS.as.sc_Seq(list$2.map__F1__scg_CanBuildFrom__O(jsx$2, this$3.ReusableCBFInstance$2));
-    var jsx$1 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__sc_Seq(this$4, cs)
+    var xs = ScalaJS.as.sc_Seq(list$2.map__F1__scg_CanBuildFrom__O(jsx$2, this$3.ReusableCBFInstance$2));
+    var evidence$1 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(c$2) {
+      var c = c$2;
+      var this$4 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
+      var evidence$2 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+      return new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$4, c, evidence$2)
+    }));
+    var jsx$1 = new ScalaJS.c.Lscalatags_generic_Util$SeqNode().init___Lscalatags_generic_Util__sc_Seq__F1(this$5, xs, evidence$1)
   };
   var t = jsx$4.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$1]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$8 = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_PictureAppExample$$anonfun$8)))
@@ -18865,7 +18911,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$
   var this$5 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
   var v$1 = p.price$1;
   var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$10).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$9.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$3, ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$2).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$1.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [ScalaJS.i.Lscalatags_generic_Aggregate$class__doubleFrag__Lscalatags_generic_Aggregate__D__Lscalatags_generic_Frag(this$5, v$1)]), 1)))]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$4 = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$4)))
@@ -18945,9 +18991,15 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$
   var jsx$5 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().thead$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().tr$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().th$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Name"))]), 1))), ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().th$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Price"))]), 1)))]), 1)))]), 1)));
   var jsx$4 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().tbody$1;
   var jsx$3 = ScalaJS.m.s_Predef();
-  var this$8 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
-  var t = jsx$7.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$6.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$5, ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$4).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$3().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__sc_Seq(this$8, rows)]), 1)))]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  var this$9 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
+  var evidence$1 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(c$2) {
+    var c = c$2;
+    var this$8 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
+    var evidence$2 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+    return new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$8, c, evidence$2)
+  }));
+  var t = jsx$7.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$6.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$5, ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$4).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Lscalatags_generic_Util$SeqNode().init___Lscalatags_generic_Util__sc_Seq__F1(this$9, rows, evidence$1)]), 1)))]), 1)));
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$5 = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$5)))
@@ -18988,14 +19040,17 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$
   if ((x0$1 !== null)) {
     var cat = ScalaJS.as.T(x0$1.$$und1$f);
     var ps = ScalaJS.as.sci_List(x0$1.$$und2$f);
-    var x$4 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().ProductCategoryRow$1.withKey__sjs_js_Any__Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(cat).apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(cat, ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
+    var x$4 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().ProductCategoryRow$1.withKey__sjs_js_Any__Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps((ScalaJS.m.Ljapgolly_scalajs_react_package(), cat)).apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(cat, ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
     var jsx$1 = new ScalaJS.c.sjsr_AnonFunction1().init___sjs_js_Function1((function(p$2) {
       var p = ScalaJS.as.Ljapgolly_scalajs_react_example_examples_ProductTableExample$Product(p$2);
-      return ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().ProductRow$1.withKey__sjs_js_Any__Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(p.name$1).apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(p, ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)))
+      var jsx$2 = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_ProductTableExample().ProductRow$1;
+      ScalaJS.m.Ljapgolly_scalajs_react_package();
+      var v = p.name$1;
+      return jsx$2.withKey__sjs_js_Any__Ljapgolly_scalajs_react_package$ReactComponentC$ReqProps(v).apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(p, ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)))
     }));
-    var this$1 = ScalaJS.m.sci_List();
-    var this$2 = ScalaJS.as.sci_List(ps.map__F1__scg_CanBuildFrom__O(jsx$1, this$1.ReusableCBFInstance$2));
-    return new ScalaJS.c.sci_$colon$colon().init___O__sci_List(x$4, this$2)
+    var this$3 = ScalaJS.m.sci_List();
+    var this$4 = ScalaJS.as.sci_List(ps.map__F1__scg_CanBuildFrom__O(jsx$1, this$3.ReusableCBFInstance$2));
+    return new ScalaJS.c.sci_$colon$colon().init___O__sci_List(x$4, this$4)
   } else {
     throw new ScalaJS.c.s_MatchError().init___O(x0$1)
   }
@@ -19109,7 +19164,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$
   })(eventHandler$1);
   var ev$7 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$implicits().jsFnAttr$1;
   var t = jsx$15.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$14.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$8, jsx$5.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$4.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$2.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$1, new ScalaJS.c.Lscalatags_generic_AttrPair().init___Lscalatags_generic_Attr__O__Lscalatags_generic_AttrValue($$this$1, v$2, ev$7)]), 1))), (ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("Only show products in stock"))]), 1)))]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$9 = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_ProductTableExample$$anonfun$9)))
@@ -19193,7 +19248,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_RefsExample$$anonfun$3.protot
   })(eventHandler);
   var ev$3 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$implicits().jsFnAttr$1;
   var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$9).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$8.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$5, ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$4).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$2, jsx$1, new ScalaJS.c.Lscalatags_generic_AttrPair().init___Lscalatags_generic_Attr__O__Lscalatags_generic_AttrValue($$this$1, v$2, ev$3)]), 1)))]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_RefsExample$$anonfun$3 = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_RefsExample$$anonfun$3)))
@@ -19286,9 +19341,9 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_TodoExample$$anonfun$1.protot
   })(this));
   var this$1 = ScalaJS.m.sci_List();
   var xs = ScalaJS.as.sc_Seq(P.map__F1__scg_CanBuildFrom__O(jsx$1, this$1.ReusableCBFInstance$2));
-  var evidence$5 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
-  var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$2.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Cap__sc_Seq__F1(this$2, xs, evidence$5)]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  var evidence$3 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+  var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$2.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Cap__sc_Seq__F1(this$2, xs, evidence$3)]), 1)));
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.c.Ljapgolly_scalajs_react_example_examples_TodoExample$$anonfun$1.prototype.japgolly$scalajs$react$example$examples$TodoExample$$anonfun$$createItem$1__T__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag = (function(itemText) {
   return ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().li$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T(itemText))]), 1)))
@@ -19336,8 +19391,9 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_TodoExample$$anonfun$6.protot
   var jsx$14 = ScalaJS.m.s_Predef();
   var jsx$13 = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().h3$1).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [(ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all(), new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$StringFrag().init___T("TODO"))]), 1)));
   var this$2 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all();
-  var c = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_TodoExample().TodoList$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(S.items$1, ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_VDom.getArrayOf(), []), 1)));
-  var jsx$12 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__Ljapgolly_scalajs_react_VDom(this$2, c);
+  var c = ScalaJS.m.Ljapgolly_scalajs_react_example_examples_TodoExample().TodoList$1.apply__O__sc_Seq__Ljapgolly_scalajs_react_ReactComponentU(S.items$1, ScalaJS.m.s_Predef().wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Ljapgolly_scalajs_react_ReactNode.getArrayOf(), []), 1)));
+  var evidence$2 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+  var jsx$12 = new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate$$anon$1().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Aggregate__O__F1(this$2, c, evidence$2);
   var jsx$11 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().form$1;
   var jsx$10 = ScalaJS.m.s_Predef();
   var $$this = (ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom(), ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().onsubmit$1);
@@ -19383,7 +19439,7 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_examples_TodoExample$$anonfun$6.protot
   var this$9 = S.items$1;
   var v$3 = ((ScalaJS.i.sc_LinearSeqOptimized$class__length__sc_LinearSeqOptimized__I(this$9) + 1) | 0);
   var t = ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$15).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$14.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$13, jsx$12, jsx$9.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$8.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$4, ScalaJS.as.Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3).apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$2.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$1, ScalaJS.i.Lscalatags_generic_Aggregate$class__intFrag__Lscalatags_generic_Aggregate__I__Lscalatags_generic_Frag(this$10, v$3)]), 1)))]), 1)))]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.is.Ljapgolly_scalajs_react_example_examples_TodoExample$$anonfun$6 = (function(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.Ljapgolly_scalajs_react_example_examples_TodoExample$$anonfun$6)))
@@ -19468,9 +19524,9 @@ ScalaJS.c.Ljapgolly_scalajs_react_example_pages_ExamplesPage$$anonfun$2.prototyp
   })(this, b$2, s$2));
   var this$4 = ScalaJS.m.sci_List();
   var xs = ScalaJS.as.sc_Seq(ScalaJS.as.sci_List(jsx$2).map__F1__scg_CanBuildFrom__O(jsx$1, this$4.ReusableCBFInstance$2));
-  var evidence$5 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
-  var t = jsx$8.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$7.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$4.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Cap__sc_Seq__F1(this$5, xs, evidence$5)]), 1)))]), 1)));
-  return t.render__Ljapgolly_scalajs_react_VDom()
+  var evidence$3 = ScalaJS.m.s_Predef().singleton$und$less$colon$less$2;
+  var t = jsx$8.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$7.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [jsx$4.apply__sc_Seq__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag(jsx$3.wrapRefArray__AO__scm_WrappedArray(ScalaJS.asArrayOf.O(ScalaJS.makeNativeArrayWrapper(ScalaJS.d.Lscalatags_generic_Modifier.getArrayOf(), [new ScalaJS.c.Ljapgolly_scalajs_react_vdom_ReactVDom$Cap$SeqFrag().init___Ljapgolly_scalajs_react_vdom_ReactVDom$Cap__sc_Seq__F1(this$5, xs, evidence$3)]), 1)))]), 1)));
+  return t.render__Ljapgolly_scalajs_react_ReactElement()
 });
 ScalaJS.c.Ljapgolly_scalajs_react_example_pages_ExamplesPage$$anonfun$2.prototype.japgolly$scalajs$react$example$pages$ExamplesPage$$anonfun$$element$1__T__I__Ljapgolly_scalajs_react_example_pages_ExamplesPage$Backend__Ljapgolly_scalajs_react_example_pages_ExamplesPage$State__Ljapgolly_scalajs_react_vdom_ReactVDom$TypedTag = (function(name, index, b$1, s$1) {
   var jsx$3 = ScalaJS.m.Ljapgolly_scalajs_react_vdom_ReactVDom$all().li$1;
@@ -24388,6 +24444,9 @@ ScalaJS.c.sc_AbstractSeq.prototype.size__I = (function() {
 ScalaJS.c.sc_AbstractSeq.prototype.thisCollection__sc_Seq = (function() {
   return ScalaJS.i.sc_SeqLike$class__thisCollection__sc_SeqLike__sc_Seq(this)
 });
+ScalaJS.c.sc_AbstractSeq.prototype.toSeq__sc_Seq = (function() {
+  return this.thisCollection__sc_Seq()
+});
 ScalaJS.c.sc_AbstractSeq.prototype.hashCode__I = (function() {
   return ScalaJS.m.s_util_hashing_MurmurHash3().seqHash__sc_Seq__I(this.seq__sc_Seq())
 });
@@ -26071,6 +26130,9 @@ ScalaJS.c.sci_List.prototype.toStream__sci_Stream = (function() {
 ScalaJS.c.sci_List.prototype.thisCollection__sc_Seq = (function() {
   return ScalaJS.i.sc_LinearSeqLike$class__thisCollection__sc_LinearSeqLike__sc_LinearSeq(this)
 });
+ScalaJS.c.sci_List.prototype.toSeq__sc_Seq = (function() {
+  return this
+});
 ScalaJS.c.sci_List.prototype.hashCode__I = (function() {
   return ScalaJS.m.s_util_hashing_MurmurHash3().seqHash__sc_Seq__I(this)
 });
@@ -26486,6 +26548,9 @@ ScalaJS.c.sci_Range.prototype.description__p4__T = (function() {
 });
 ScalaJS.c.sci_Range.prototype.thisCollection__sc_Seq = (function() {
   return ScalaJS.i.sc_IndexedSeqLike$class__thisCollection__sc_IndexedSeqLike__sc_IndexedSeq(this)
+});
+ScalaJS.c.sci_Range.prototype.toSeq__sc_Seq = (function() {
+  return this
 });
 ScalaJS.c.sci_Range.prototype.take__I__sci_Range = (function(n) {
   if (((n <= 0) || this.isEmpty$4)) {
@@ -27218,11 +27283,11 @@ ScalaJS.c.sci_Stream.prototype.loop$3__p4__T__sci_Stream__scm_StringBuilder__T__
     return (void 0)
   }
 });
-ScalaJS.c.sci_Stream.prototype.companion__scg_GenericCompanion = (function() {
-  return ScalaJS.m.sci_Stream()
-});
 ScalaJS.c.sci_Stream.prototype.toString__T = (function() {
   return ScalaJS.i.sc_TraversableOnce$class__mkString__sc_TraversableOnce__T__T__T__T(this, ("Stream" + "("), ", ", ")")
+});
+ScalaJS.c.sci_Stream.prototype.companion__scg_GenericCompanion = (function() {
+  return ScalaJS.m.sci_Stream()
 });
 ScalaJS.c.sci_Stream.prototype.foreach__F1__V = (function(f) {
   var _$this = this;
@@ -27289,6 +27354,9 @@ ScalaJS.c.sci_Stream.prototype.drop__I__sci_Stream = (function(n) {
 });
 ScalaJS.c.sci_Stream.prototype.addString__scm_StringBuilder__T__T__T__scm_StringBuilder = (function(b, start, sep, end) {
   return (b.append__T__scm_StringBuilder(start), this.loop$3__p4__T__sci_Stream__scm_StringBuilder__T__T__V("", this, b, sep, end), b)
+});
+ScalaJS.c.sci_Stream.prototype.toSeq__sc_Seq = (function() {
+  return this
 });
 ScalaJS.c.sci_Stream.prototype.force__sci_Stream = (function() {
   var these = this;
@@ -27635,6 +27703,9 @@ ScalaJS.c.sci_Vector.prototype.display5__AO = (function() {
 ScalaJS.c.sci_Vector.prototype.thisCollection__sc_Seq = (function() {
   return ScalaJS.i.sc_IndexedSeqLike$class__thisCollection__sc_IndexedSeqLike__sc_IndexedSeq(this)
 });
+ScalaJS.c.sci_Vector.prototype.toSeq__sc_Seq = (function() {
+  return this
+});
 ScalaJS.c.sci_Vector.prototype.iterator__sci_VectorIterator = (function() {
   var s = new ScalaJS.c.sci_VectorIterator().init___I__I(this.startIndex$4, this.endIndex$4);
   this.initIterator__sci_VectorIterator__V(s);
@@ -27798,6 +27869,9 @@ ScalaJS.c.sci_WrappedString.prototype.length__I = (function() {
   return ScalaJS.i.sjsr_RuntimeString$class__length__sjsr_RuntimeString__I(this.self$4)
 });
 ScalaJS.c.sci_WrappedString.prototype.thisCollection__sc_Seq = (function() {
+  return this
+});
+ScalaJS.c.sci_WrappedString.prototype.toSeq__sc_Seq = (function() {
   return this
 });
 ScalaJS.c.sci_WrappedString.prototype.copyToArray__O__I__I__V = (function(xs, start, len) {
@@ -33282,12 +33356,12 @@ ScalaJS.c.scm_ListBuffer.prototype.lengthCompare__I__I = (function(len) {
   var this$1 = this.scala$collection$mutable$ListBuffer$$start$6;
   return ScalaJS.i.sc_LinearSeqOptimized$class__lengthCompare__sc_LinearSeqOptimized__I__I(this$1, len)
 });
+ScalaJS.c.scm_ListBuffer.prototype.apply__O__O = (function(v1) {
+  return this.apply__I__O(ScalaJS.uI(v1))
+});
 ScalaJS.c.scm_ListBuffer.prototype.sameElements__sc_GenIterable__Z = (function(that) {
   var this$1 = this.scala$collection$mutable$ListBuffer$$start$6;
   return ScalaJS.i.sc_LinearSeqOptimized$class__sameElements__sc_LinearSeqOptimized__sc_GenIterable__Z(this$1, that)
-});
-ScalaJS.c.scm_ListBuffer.prototype.apply__O__O = (function(v1) {
-  return this.apply__I__O(ScalaJS.uI(v1))
 });
 ScalaJS.c.scm_ListBuffer.prototype.isEmpty__Z = (function() {
   return this.scala$collection$mutable$ListBuffer$$start$6.isEmpty__Z()
@@ -33372,6 +33446,10 @@ ScalaJS.c.scm_ListBuffer.prototype.$$plus$eq__O__scm_ListBuffer = (function(x) {
   };
   this.len$6 = ((this.len$6 + 1) | 0);
   return this
+});
+ScalaJS.c.scm_ListBuffer.prototype.toSeq__sc_Seq = (function() {
+  var this$1 = this.scala$collection$mutable$ListBuffer$$start$6;
+  return this$1
 });
 ScalaJS.c.scm_ListBuffer.prototype.$$div$colon__O__F2__O = (function(z, op) {
   var this$1 = this.scala$collection$mutable$ListBuffer$$start$6;

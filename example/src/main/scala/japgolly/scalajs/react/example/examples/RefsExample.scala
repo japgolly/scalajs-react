@@ -2,7 +2,7 @@ package japgolly.scalajs.react.example.examples
 
 import japgolly.scalajs.react.vdom.ReactVDom.ReactVExt_Attr
 import japgolly.scalajs.react.vdom.ReactVDom.all._
-import japgolly.scalajs.react.{ReactComponentB, SyntheticEvent, BackendScope, Ref}
+import japgolly.scalajs.react._
 import org.scalajs.dom.HTMLInputElement
 
 /**
@@ -43,7 +43,7 @@ object RefsExample {
                         |   val theInput = Ref[HTMLInputElement]("theInput")
                         |
                         |    class Backend(t: BackendScope[_, String]) {
-                        |      def handleChange(e: SyntheticEvent[HTMLInputElement]) =
+                        |      def handleChange(e: ReactEventI) =
                         |        t.setState(e.target.value)
                         |      def clearAndFocusInput() =
                         |        t.setState("", () => theInput(t).tryFocus())
@@ -67,7 +67,7 @@ object RefsExample {
   val theInput = Ref[HTMLInputElement]("theInput")
 
   class Backend(t: BackendScope[_, String]) {
-    def handleChange(e: SyntheticEvent[HTMLInputElement]) =
+    def handleChange(e: ReactEventI) =
       t.setState(e.target.value)
     def clearAndFocusInput() =
       t.setState("", () => theInput(t).tryFocus())
