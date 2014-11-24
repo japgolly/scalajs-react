@@ -32,7 +32,7 @@ object TimerExample {
                        |  }
                        |});
                        |
-                       |React.renderComponent(Timer(null ), mountNode);</code></pre>
+                       |React.render(Timer(null ), mountNode);</code></pre>
                        |            """.stripMargin
 
   val timerScalaCode = """

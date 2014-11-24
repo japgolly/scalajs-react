@@ -114,7 +114,7 @@ object PictureAppExample {
                          |    }
                          |});
                          |
-                         |React.renderComponent(
+                         |React.render(
                          |    <PictureList apiKey="642176ece1e7445e99244cec26f4de1f" />,
                          |    document.body
                          |);

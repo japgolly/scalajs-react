@@ -59,7 +59,7 @@ object RefsExample {
                         |        )
                         |      ).buildU
                         |
-                        |    React.renderComponent(App(), mountNode)""".stripMargin
+                        |    React.render(App(), mountNode)""".stripMargin
 
 
 

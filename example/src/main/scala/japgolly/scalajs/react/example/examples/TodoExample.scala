@@ -45,7 +45,7 @@ object TodoExample {
                       |    );
                       |  }
                       |});
-                      |React.renderComponent(TodoApp(null ), mountNode);""".stripMargin
+                      |React.render(TodoApp(null ), mountNode);""".stripMargin
 
 
   val todoScalaCode = """
@@ -80,7 +80,7 @@ object TodoExample {
                         |      )
                         |    )
                         |    ).buildU
-                        |   React.renderComponent(App(), mountNode)
+                        |   React.render(App(), mountNode)
                         |    """.stripMargin
 
 

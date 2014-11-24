@@ -136,7 +136,7 @@ object ProductTableExample {
                        |  {category: 'Electronics', price: '$199.99', stocked: true, name: 'Nexus 7'}
                        |];
                        |
-                       |React.renderComponent(<FilterableProductTable products={PRODUCTS} />, document.body);""".stripMargin
+                       |React.render(<FilterableProductTable products={PRODUCTS} />, document.body);""".stripMargin
 
 
   val tableScalaCode = """
@@ -214,7 +214,7 @@ object ProductTableExample {
                          |        Product("iphone 5", 499.99, "Electronics", true),
                          |        Product("Nexus 7", 199.99, "Electronics", true))
                          |
-                         |    React.renderComponent(FilterableProductTable(products), mountNode)
+                         |    React.render(FilterableProductTable(products), mountNode)
                          | """.stripMargin
 
 

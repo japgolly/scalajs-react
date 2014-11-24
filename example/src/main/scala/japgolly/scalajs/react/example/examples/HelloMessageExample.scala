@@ -13,7 +13,7 @@ object HelloMessageExample {
                       |val HelloMessage = ReactComponentB[String]("HelloMessage")
                       |   .render(name => div("Hello ", name)).build
                       |
-                      |React.renderComponent(HelloMessage("John"), mountNode)""".stripMargin
+                      |React.render(HelloMessage("John"), mountNode)""".stripMargin
 
   val helloJsXCode =
     """
@@ -23,7 +23,7 @@ object HelloMessageExample {
       |  }
       |});
       |
-      |React.renderComponent(HelloMessage( {name:"John"} ), mountNode);
+      |React.render(HelloMessage( {name:"John"} ), mountNode);
     """.stripMargin
 
   val helloComponent = ReactComponentB[String]("HelloMessage")
