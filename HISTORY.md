@@ -17,8 +17,6 @@ In addition to React API changes...
 * `.toJsArray: Seq[A] → JArray[ReactElement]` is no longer needed.
 * Renamed `ComponentSpec` to `ReactComponentSpec`. *(Internal. Extremely unlikely anyone using it directly.)*
 * Changed signatures of `ReactS.callback` and brethren from `(c)(a)` to `(a,c)`.
-* Workaround for Scala's type inference failing with `StateT.liftR` on functions.
-  Instead of `f(_).liftR`, `f.liftR` is now available and is confirmed to work in `_runState`.
 * Renamed `ReactS` methods for consistency and added a few missing ones.
 
 Here are a few commands to ease migration.
@@ -28,6 +26,12 @@ find -name '*.scala' -exec perl -pi -e 's/(?<!\w)VDom(?!\w)/ReactElement/g' {} +
 find -name '*.scala' -exec perl -pi -e 's/(?<!\w)asJsArray(?!\w)/toJsArray/g' {} + // careful...
 find -name '*.scala' -exec perl -pi -e 's/(?<=[ .]render)Component//g' {} +
 ```
+
+### 0.5.3 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.2...v0.5.3))
+
+* Deprecated and renamed `StateT.liftR` in favour of `liftS`.
+* Workaround for Scala's type inference failing with `StateT.liftS` on functions.
+  Instead of `f(_).liftS`, `f.liftS` is now available and is confirmed to work in `_runState`.
 
 ### 0.5.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.1...v0.5.2))
 
