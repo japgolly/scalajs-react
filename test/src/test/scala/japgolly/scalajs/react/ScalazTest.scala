@@ -25,7 +25,7 @@ object ScalazTest extends TestSuite {
   val c = null.asInstanceOf[ComponentScopeM[Unit, S, Unit]]
 
   val tests = TestSuite {
-    "runState(StateT.liftR)"      - test[StateT[M,S,A]     ](s => c.runState(s.liftR) ).expect[IO[A]]
-    "_runState((I→StateT).liftR)" - test[B => StateT[M,S,A]](s => c._runState(s.liftR)).expect[B => IO[A]]
+    "runState(s.liftS)"   - test[StateT[M,S,A]     ](s => c.runState(s.liftS)  ).expect[IO[A]]
+    "_runState(f._liftS)" - test[B => StateT[M,S,A]](s => c._runState(s._liftS)).expect[B => IO[A]]
   }
 }
