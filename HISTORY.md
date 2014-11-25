@@ -4,7 +4,7 @@ History
 ### 0.5.3 (unreleased)
 
 * Workaround for Scala's type inference failing with `StateT.liftS` on functions.
-  Instead of `f(_).liftS`, `f._liftS` is now available and is confirmed to work in `_runState`.
+  Instead of `f(_).liftS`, `f.liftS` is now available and is confirmed to work in `_runState`.
 
 ### 0.5.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.1...v0.5.2))
 
