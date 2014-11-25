@@ -19,6 +19,7 @@ In addition to React API changes...
 * Changed signatures of `ReactS.callback` and brethren from `(c)(a)` to `(a,c)`.
 * Workaround for Scala's type inference failing with `StateT.liftR` on functions.
   Instead of `f(_).liftR`, `f.liftR` is now available and is confirmed to work in `_runState`.
+* Renamed `ReactS` methods for consistency and added a few missing ones.
 
 Here are a few commands to ease migration.
 ```
