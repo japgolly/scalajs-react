@@ -1,6 +1,9 @@
 History
 =======
 
+### 0.5.3 (unreleased)
+
+
 ### 0.5.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.1...v0.5.2))
 
 * Added `ReactEventI` aliases for the very common case that the underlying node is an `<input>`.

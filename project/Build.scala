@@ -18,7 +18,7 @@ object ScalajsReact extends Build {
     _.settings(scalaJSSettings: _*)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.5.2",
+        version            := "0.5.3-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
