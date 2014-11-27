@@ -139,13 +139,16 @@ object ScalazReact {
       @inline def zoomU    [A]     (r: ReactS[Unit, A])       : ReactS[S,A]    = ReactS.zoomU(r)
 
       @inline def applyM   [M[_],A](f: S => M[(S, A)])       (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.applyM(f)
+      @inline def applyT   [M[_],A](f: S => (S, A))          (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.applyT(f)
       @inline def callbackM[M[_],A](a: M[A], c: OpCallbackIO)(implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.callbackM(a, c)
       @inline def callbackT[M[_],A](a: A, c: OpCallbackIO)   (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.callbackT(a, c)
       @inline def getT     [M[_]]                            (implicit M: Applicative[M]): ReactST[M,S,S]    = ReactS.getT
-      @inline def getsM    [M[_],A](f: S => M[A])            (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.getsM(f)
+      @inline def getsM    [M[_],A](f: S => M[A])            (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.getsM(f)
+      @inline def getsT    [M[_],A](f: S => A)               (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.getsT(f)
       @inline def liftR    [M[_],A](f: S => ReactST[M, S, A])(implicit M: Monad[M])      : ReactST[M,S,A]    = ReactS.liftR(f)
       @inline def liftS    [M[_],A](t: StateT[M, S, A])      (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.liftS(t)
       @inline def modM     [M[_]]  (f: S => M[S])            (implicit M: Functor[M])    : ReactST[M,S,Unit] = ReactS.modM(f)
+      @inline def modT     [M[_]]  (f: S => S)               (implicit M: Applicative[M]): ReactST[M,S,Unit] = ReactS.modT(f)
       @inline def retM     [M[_],A](ma: M[A])                (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.retM(ma)
       @inline def retT     [M[_],A](a: A)                    (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.retT(a)
       @inline def setM     [M[_]]  (ms: M[S])                (implicit M: Functor[M])    : ReactST[M,S,Unit] = ReactS.setM(ms)
