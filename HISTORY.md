@@ -1,6 +1,10 @@
 History
 =======
 
+### 0.5.4 (unreleased)
+
+* Added `nop` and `_nop` to `ReactS.Fix{,T}`.
+
 ### 0.5.3 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.2...v0.5.3))
 
 * Deprecated and renamed `StateT.liftR` in favour of `liftS`.
