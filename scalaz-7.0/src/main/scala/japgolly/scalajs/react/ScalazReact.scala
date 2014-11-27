@@ -190,6 +190,11 @@ object ScalazReact {
     @inline def liftS(implicit M: Functor[M]): I => ReactST[M, S, A] = f(_).liftS
   }
 
+  implicit final class SzRExt_ReactSOps[S, A](val s: ReactS[S,A]) extends AnyVal {
+    // Very common case. Very sick of seeing it highlighted red everywhere in Intellij.
+    def liftIO: ReactST[IO, S, A] = s.lift[IO]
+  }
+
   implicit final class SzRExt_ReactSTOps[M[+_], S, A](val s: ReactST[M,S,A]) extends AnyVal {
     def addCallback(c: OpCallbackIO)(implicit M: Monad[M]): ReactST[M,S,A] =
       s.flatMap(ReactS.callbackT(c))
