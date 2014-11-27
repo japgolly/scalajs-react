@@ -19,6 +19,7 @@ In addition to React API changes...
 * Changed signatures of `ReactS.callback` and brethren from `(c)(a)` to `(a,c)`.
 * Renamed `ReactS` methods for consistency and added a few missing ones.
 * Added `nop` and `_nop` to `ReactS.Fix{,T}`.
+* Made `ReactS.>>` lazy.
 
 Here are a few commands to ease migration.
 ```
