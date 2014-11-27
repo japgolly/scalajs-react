@@ -18,8 +18,6 @@ In addition to React API changes...
 * Renamed `ComponentSpec` to `ReactComponentSpec`. *(Internal. Extremely unlikely anyone using it directly.)*
 * Changed signatures of `ReactS.callback` and brethren from `(c)(a)` to `(a,c)`.
 * Renamed `ReactS` methods for consistency and added a few missing ones.
-* Added `nop` and `_nop` to `ReactS.Fix{,T}`.
-* Made `ReactS.>>` lazy.
 
 Here are a few commands to ease migration.
 ```
@@ -28,6 +26,13 @@ find -name '*.scala' -exec perl -pi -e 's/(?<!\w)VDom(?!\w)/ReactElement/g' {} +
 find -name '*.scala' -exec perl -pi -e 's/(?<!\w)asJsArray(?!\w)/toJsArray/g' {} + // careful...
 find -name '*.scala' -exec perl -pi -e 's/(?<=[ .]render)Component//g' {} +
 ```
+
+### 0.5.4 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.3...v0.5.4))
+
+* Added `nop` and `_nop` to `ReactS.Fix{,T}`.
+* Added `T[A]` to `ReactS.Fix{,T}`.
+* Added `ReactS.liftIO` (workaround for Intellij).
+* Made `ReactS.>>` lazy.
 
 ### 0.5.3 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.2...v0.5.3))
 

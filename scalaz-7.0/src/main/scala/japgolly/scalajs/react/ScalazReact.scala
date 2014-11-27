@@ -123,6 +123,8 @@ object ScalazReact {
      */
     @inline def Fix[S] = new Fix[S]
     final class Fix[S] {
+      type T[A] = ReactS[S, A]
+
       @inline def nop :        ReactS[S,Unit] = ret(())
       @inline def _nop: Any => ReactS[S,Unit] = _ => nop
 
@@ -157,6 +159,8 @@ object ScalazReact {
      */
     @inline def FixT[M[+_], S] = new FixT[M, S]
     final class FixT[M[+_], S] {
+      type T[A] = ReactST[M, S, A]
+
       @inline def nop (implicit M: Applicative[M]):        ReactST[M,S,Unit] = retW(())
       @inline def _nop(implicit M: Applicative[M]): Any => ReactST[M,S,Unit] = _ => nop
 
@@ -190,6 +194,11 @@ object ScalazReact {
 
   implicit final class SzRExt__StateTOps[I, M[+_], S, A](val f: I => StateT[M, S, A]) extends AnyVal {
     @inline def liftS(implicit M: Functor[M]): I => ReactST[M, S, A] = f(_).liftS
+  }
+
+  implicit final class SzRExt_ReactSOps[S, A](val s: ReactS[S,A]) extends AnyVal {
+    // Very common case. Very sick of seeing it highlighted red everywhere in Intellij.
+    def liftIO: ReactST[IO, S, A] = s.lift[IO]
   }
 
   implicit final class SzRExt_ReactSTOps[M[+_], S, A](val s: ReactST[M,S,A]) extends AnyVal {
