@@ -20,6 +20,11 @@ In addition to wrapping React, this provides extra opt-in functionality to suppo
 - [TYPES.md](https://github.com/japgolly/scalajs-react/blob/master/TYPES.md) - Overview of types.
 - [HISTORY.md](https://github.com/japgolly/scalajs-react/blob/master/HISTORY.md) - Release notes and change log.
 
+##### Requirements:
+* React 0.12
+* Scala 2.11
+* Scala.JS 0.5.4+
+
 
 Setup
 =====
