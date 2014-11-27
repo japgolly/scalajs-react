@@ -18,6 +18,7 @@ In addition to React API changes...
 * Renamed `ComponentSpec` to `ReactComponentSpec`. *(Internal. Extremely unlikely anyone using it directly.)*
 * Changed signatures of `ReactS.callback` and brethren from `(c)(a)` to `(a,c)`.
 * Renamed `ReactS` methods for consistency and added a few missing ones.
+* Added `nop` and `_nop` to `ReactS.Fix{,T}`.
 
 Here are a few commands to ease migration.
 ```

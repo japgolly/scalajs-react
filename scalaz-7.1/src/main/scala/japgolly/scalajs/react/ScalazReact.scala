@@ -122,6 +122,9 @@ object ScalazReact {
      */
     @inline def Fix[S] = new Fix[S]
     final class Fix[S] {
+      @inline def nop :        ReactS[S,Unit] = ret(())
+      @inline def _nop: Any => ReactS[S,Unit] = _ => nop
+
       @inline def apply    [A]     (f: S => (S, A))           : ReactS[S,A]    = ReactS(f)
       @inline def callback [A]     (a: A, c: OpCallbackIO)    : ReactS[S,A]    = ReactS.callback(a, c)
       @inline def get                                         : ReactS[S,S]    = ReactS.get
@@ -153,6 +156,9 @@ object ScalazReact {
      */
     @inline def FixT[M[_], S] = new FixT[M, S]
     final class FixT[M[_], S] {
+      @inline def nop (implicit M: Applicative[M]):        ReactST[M,S,Unit] = retW(())
+      @inline def _nop(implicit M: Applicative[M]): Any => ReactST[M,S,Unit] = _ => nop
+
       @inline def apply    [A]  (f: S => M[(S, A)])       (implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.applyM(f)
       @inline def applyW   [A]  (f: S => (S, A))          (implicit M: Applicative[M]): ReactST[M,S,A]    = ReactS.applyT(f)
       @inline def callback [A]  (a: M[A], c: OpCallbackIO)(implicit M: Functor[M])    : ReactST[M,S,A]    = ReactS.callbackM(a, c)
