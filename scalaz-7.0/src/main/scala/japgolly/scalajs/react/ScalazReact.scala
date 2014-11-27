@@ -195,7 +195,7 @@ object ScalazReact {
       s.flatMap(ReactS.callbackT(c))
 
     // This shouldn't be needed; it's already in BindSyntax.
-    def >>[B](t: ReactST[M,S,B])(implicit M: Bind[M]): ReactST[M,S,B] =
+    def >>[B](t: => ReactST[M,S,B])(implicit M: Bind[M]): ReactST[M,S,B] =
       s.flatMap(_ => t)
 
     /** zoom2 because StateT.zoom already exists. 2 because it takes two fns. */
