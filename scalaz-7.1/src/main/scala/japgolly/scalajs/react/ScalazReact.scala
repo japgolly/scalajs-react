@@ -121,6 +121,8 @@ object ScalazReact {
 
     @inline def Fix[S] = new Fix[S]
     final class Fix[S] {
+      type T[A] = ReactS[S, A]
+
       @inline def nop :        ReactS[S,Unit] = ret(())
       @inline def _nop: Any => ReactS[S,Unit] = _ => nop
 
@@ -152,6 +154,8 @@ object ScalazReact {
 
     @inline def FixT[M[_], S] = new FixT[M, S]
     final class FixT[M[_], S] {
+      type T[A] = ReactST[M, S, A]
+
       @inline def nop (implicit M: Applicative[M]):        ReactST[M,S,Unit] = ret(())
       @inline def _nop(implicit M: Applicative[M]): Any => ReactST[M,S,Unit] = _ => nop
 

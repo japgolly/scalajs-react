@@ -4,6 +4,7 @@ History
 ### 0.5.4 (unreleased)
 
 * Added `nop` and `_nop` to `ReactS.Fix{,T}`.
+* Added `T[A]` to `ReactS.Fix{,T}`.
 * Added `ReactS.liftIO` (workaround for Intellij).
 * Made `ReactS.>>` lazy.
 
