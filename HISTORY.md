@@ -6,6 +6,10 @@ History
 This release brings scalajs-react in line with React 0.12.
 **React version 0.12.0 or later is now required.**
 
+**Scala 2.10 is no longer supported.**
+If this affects you please come to https://github.com/japgolly/scalajs-react/issues/39 to discuss,
+or continue to using the 0.5.x series.
+
 Changes in React 0.12 can be read here:
 *  https://github.com/facebook/react/releases/tag/v0.12.0
 *  http://facebook.github.io/react/blog/2014/10/28/react-v0.12.html
