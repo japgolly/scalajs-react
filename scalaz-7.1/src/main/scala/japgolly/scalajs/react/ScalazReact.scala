@@ -35,7 +35,7 @@ object ScalazReact {
      */
     def preventDefaultIO = IO(e.preventDefault())
     /**
-     * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being execUnsafeuted.
+     * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
      */
     def stopPropagationIO = IO(e.stopPropagation())
   }
