@@ -6,7 +6,7 @@ import ReactTestUtils.Simulate
 /**
  * Allows composition and abstraction of `ReactTestUtils.Simulate` procedures.
  */
-case class Simulation(run: ComponentOrNode => Unit) {
+case class Simulation(run: ReactOrDomNode => Unit) {
 
   def andThen(f: Simulation) =
     Simulation(n => { run(n); f.run(n) })
@@ -14,7 +14,7 @@ case class Simulation(run: ComponentOrNode => Unit) {
   @inline final def >>     (f: Simulation) = this andThen f
   @inline final def compose(f: Simulation) = f andThen this
 
-  final def runN(cs: ComponentOrNode*): Unit =
+  final def runN(cs: ReactOrDomNode*): Unit =
     cs foreach run
 }
 

@@ -77,49 +77,49 @@ object ReactTestUtils extends Object {
 }
 
 trait Simulate extends Object {
-  def beforeInput      (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def blur             (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def change           (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def click            (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def compositionEnd   (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def compositionStart (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def compositionUpdate(t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def contextMenu      (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def copy             (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def cut              (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def doubleClick      (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def drag             (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def dragEnd          (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def dragEnter        (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def dragExit         (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def dragLeave        (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def dragOver         (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def dragStart        (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def drop             (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def error            (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def focus            (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def input            (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def keyDown          (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def keyPress         (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def keyUp            (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def load             (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def mouseDown        (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def mouseEnter       (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def mouseLeave       (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def mouseMove        (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def mouseOut         (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def mouseOver        (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def mouseUp          (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def paste            (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def reset            (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def scroll           (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def select           (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def submit           (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def touchCancel      (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def touchEnd         (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def touchMove        (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def touchStart       (t: ComponentOrNode, eventData: Object = ???): Unit = ???
-  def wheel            (t: ComponentOrNode, eventData: Object = ???): Unit = ???
+  def beforeInput      (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def blur             (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def change           (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def click            (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def compositionEnd   (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def compositionStart (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def compositionUpdate(t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def contextMenu      (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def copy             (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def cut              (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def doubleClick      (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def drag             (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def dragEnd          (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def dragEnter        (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def dragExit         (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def dragLeave        (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def dragOver         (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def dragStart        (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def drop             (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def error            (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def focus            (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def input            (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def keyDown          (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def keyPress         (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def keyUp            (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def load             (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def mouseDown        (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def mouseEnter       (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def mouseLeave       (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def mouseMove        (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def mouseOut         (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def mouseOver        (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def mouseUp          (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def paste            (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def reset            (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def scroll           (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def select           (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def submit           (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def touchCancel      (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def touchEnd         (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def touchMove        (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def touchStart       (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
+  def wheel            (t: ReactOrDomNode, eventData: Object = ???): Unit = ???
 }
 
 case class ChangeEventData(value: UndefOr[String] = undefined) {
@@ -129,7 +129,7 @@ case class ChangeEventData(value: UndefOr[String] = undefined) {
     val o = Dynamic.literal("target" -> t)
     o
   }
-  def simulate(t: ComponentOrNode) = ReactTestUtils.Simulate.change(t, this)
+  def simulate(t: ReactOrDomNode) = ReactTestUtils.Simulate.change(t, this)
   def simulation = Simulation.change(this)
 }
 
@@ -155,9 +155,9 @@ case class KeyboardEventData(key:      UndefOr[String]  = undefined,
     keyCode .foreach(v => o.updateDynamic("keyCode" )(v))
     o
   }
-  def simulateKeyDown (t: ComponentOrNode) = ReactTestUtils.Simulate.keyDown (t, this)
-  def simulateKeyPress(t: ComponentOrNode) = ReactTestUtils.Simulate.keyPress(t, this)
-  def simulateKeyUp   (t: ComponentOrNode) = ReactTestUtils.Simulate.keyUp   (t, this)
+  def simulateKeyDown (t: ReactOrDomNode) = ReactTestUtils.Simulate.keyDown (t, this)
+  def simulateKeyPress(t: ReactOrDomNode) = ReactTestUtils.Simulate.keyPress(t, this)
+  def simulateKeyUp   (t: ReactOrDomNode) = ReactTestUtils.Simulate.keyUp   (t, this)
   def simulationKeyDown  = Simulation.keyDown(this)
   def simulationKeyPress = Simulation.keyPress(this)
   def simulationKeyUp    = Simulation.keyUp(this)
@@ -185,21 +185,21 @@ case class MouseEventData(screenX:  UndefOr[Number]  = undefined,
     buttons .foreach(v => o.updateDynamic("buttons" )(v))
     o
   }
-  def simulateDrag      (t: ComponentOrNode) = ReactTestUtils.Simulate.drag      (t, this)
-  def simulateDragEnd   (t: ComponentOrNode) = ReactTestUtils.Simulate.dragEnd   (t, this)
-  def simulateDragEnter (t: ComponentOrNode) = ReactTestUtils.Simulate.dragEnter (t, this)
-  def simulateDragExit  (t: ComponentOrNode) = ReactTestUtils.Simulate.dragExit  (t, this)
-  def simulateDragLeave (t: ComponentOrNode) = ReactTestUtils.Simulate.dragLeave (t, this)
-  def simulateDragOver  (t: ComponentOrNode) = ReactTestUtils.Simulate.dragOver  (t, this)
-  def simulateDragStart (t: ComponentOrNode) = ReactTestUtils.Simulate.dragStart (t, this)
-  def simulateMouseDown (t: ComponentOrNode) = ReactTestUtils.Simulate.mouseDown (t, this)
-  def simulateMouseEnter(t: ComponentOrNode) = ReactTestUtils.Simulate.mouseEnter(t, this)
-  def simulateMouseLeave(t: ComponentOrNode) = ReactTestUtils.Simulate.mouseLeave(t, this)
-  def simulateMouseMove (t: ComponentOrNode) = ReactTestUtils.Simulate.mouseMove (t, this)
-  def simulateMouseOut  (t: ComponentOrNode) = ReactTestUtils.Simulate.mouseOut  (t, this)
-  def simulateMouseOver (t: ComponentOrNode) = ReactTestUtils.Simulate.mouseOver (t, this)
-  def simulateMouseUp   (t: ComponentOrNode) = ReactTestUtils.Simulate.mouseUp   (t, this)
-  def simulateWheel     (t: ComponentOrNode) = ReactTestUtils.Simulate.wheel     (t, this)
+  def simulateDrag      (t: ReactOrDomNode) = ReactTestUtils.Simulate.drag      (t, this)
+  def simulateDragEnd   (t: ReactOrDomNode) = ReactTestUtils.Simulate.dragEnd   (t, this)
+  def simulateDragEnter (t: ReactOrDomNode) = ReactTestUtils.Simulate.dragEnter (t, this)
+  def simulateDragExit  (t: ReactOrDomNode) = ReactTestUtils.Simulate.dragExit  (t, this)
+  def simulateDragLeave (t: ReactOrDomNode) = ReactTestUtils.Simulate.dragLeave (t, this)
+  def simulateDragOver  (t: ReactOrDomNode) = ReactTestUtils.Simulate.dragOver  (t, this)
+  def simulateDragStart (t: ReactOrDomNode) = ReactTestUtils.Simulate.dragStart (t, this)
+  def simulateMouseDown (t: ReactOrDomNode) = ReactTestUtils.Simulate.mouseDown (t, this)
+  def simulateMouseEnter(t: ReactOrDomNode) = ReactTestUtils.Simulate.mouseEnter(t, this)
+  def simulateMouseLeave(t: ReactOrDomNode) = ReactTestUtils.Simulate.mouseLeave(t, this)
+  def simulateMouseMove (t: ReactOrDomNode) = ReactTestUtils.Simulate.mouseMove (t, this)
+  def simulateMouseOut  (t: ReactOrDomNode) = ReactTestUtils.Simulate.mouseOut  (t, this)
+  def simulateMouseOver (t: ReactOrDomNode) = ReactTestUtils.Simulate.mouseOver (t, this)
+  def simulateMouseUp   (t: ReactOrDomNode) = ReactTestUtils.Simulate.mouseUp   (t, this)
+  def simulateWheel     (t: ReactOrDomNode) = ReactTestUtils.Simulate.wheel     (t, this)
   def simulationDrag       = Simulation.drag      (this)
   def simulationDragEnd    = Simulation.dragEnd   (this)
   def simulationDragEnter  = Simulation.dragEnter (this)

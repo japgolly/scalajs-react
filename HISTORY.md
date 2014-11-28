@@ -3,7 +3,7 @@ History
 
 ### 0.6.1 (unreleased)
 
-* `ComponentOrNode` moved to test module.
+* `ComponentOrNode` moved to test module. Renamed to `ReactOrDomNode`.
 
 ### 0.6.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.4...v0.6.0))
 
