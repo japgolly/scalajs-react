@@ -1,6 +1,10 @@
 History
 =======
 
+### 0.6.1 (unreleased)
+
+* `ComponentOrNode` moved to test module.
+
 ### 0.6.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.4...v0.6.0))
 
 This release brings scalajs-react in line with React 0.12.

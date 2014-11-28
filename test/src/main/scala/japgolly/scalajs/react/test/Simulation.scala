@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.test
 
 import scala.scalajs.js.Object
-import japgolly.scalajs.react.ComponentOrNode
 import ReactTestUtils.Simulate
 
 /**

@@ -55,14 +55,6 @@ package object react {
   def WrapObj[A](v: A) =
     Dynamic.literal("v" -> v.asInstanceOf[JAny]).asInstanceOf[WrapObj[A]]
 
-  sealed trait ComponentOrNode extends Object
-  @inline final implicit def autoComponentOrNodeN(n: dom.Node): ComponentOrNode =
-    n.asInstanceOf[ComponentOrNode]
-  @inline final implicit def autoComponentOrNodeU(c: ReactComponentU_): ComponentOrNode =
-    c.asInstanceOf[ComponentOrNode]
-  @inline final implicit def autoComponentOrNodeM[N <: TopNode](c: ReactComponentM_[N]): ComponentOrNode =
-    c.getDOMNode()
-
   /**
    * A named reference to an element in a React VDOM.
    */
