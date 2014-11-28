@@ -1,25 +1,22 @@
-History
-=======
-
-### 0.6.1 (unreleased)
+## 0.6.1 (unreleased)
 
 * `ComponentOrNode` moved to test module. Renamed to `ReactOrDomNode`.
 
-### 0.6.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.4...v0.6.0))
+# 0.6.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.4...v0.6.0))
 
 This release brings scalajs-react in line with React 0.12.
 **React version 0.12.0 or later is now required.**
 
-**Scala 2.10 is no longer supported.**
-If this affects you please come to https://github.com/japgolly/scalajs-react/issues/39 to discuss,
-or continue to using the 0.5.x series.
-
-Changes in React 0.12 can be read here:
+Read about React 0.12 changes here:
 *  https://github.com/facebook/react/releases/tag/v0.12.0
 *  http://facebook.github.io/react/blog/2014/10/28/react-v0.12.html
 *  http://facebook.github.io/react/docs/glossary.html
 
-In addition to React API changes...
+##### Scala 2.10 is no longer supported.
+If this affects you please come to [issue #39](https://github.com/japgolly/scalajs-react/issues/39) to discuss,
+or continue to using the 0.5.x series.
+
+##### Other changes in this release:
 * Deprecated `ReactOutput` and `VDom` in favour of `ReactElement` or in rare cases, `ReactNode`. (*[glossary](http://facebook.github.io/react/docs/glossary.html)*)
 * `.asJsArray: Seq[A] → JArray[A]` renamed to `toJsArray`
 * `.toJsArray: Seq[A] → JArray[ReactElement]` is no longer needed.
@@ -35,20 +32,20 @@ find -name '*.scala' -exec perl -pi -e 's/(?<!\w)asJsArray(?!\w)/toJsArray/g' {}
 find -name '*.scala' -exec perl -pi -e 's/(?<=[ .]render)Component//g' {} +
 ```
 
-### 0.5.4 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.3...v0.5.4))
+## 0.5.4 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.3...v0.5.4))
 
 * Added `nop` and `_nop` to `ReactS.Fix{,T}`.
 * Added `T[A]` to `ReactS.Fix{,T}`.
 * Added `ReactS.liftIO` (workaround for Intellij).
 * Made `ReactS.>>` lazy.
 
-### 0.5.3 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.2...v0.5.3))
+## 0.5.3 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.2...v0.5.3))
 
 * Deprecated and renamed `StateT.liftR` in favour of `liftS`.
 * Workaround for Scala's type inference failing with `StateT.liftS` on functions.
   Instead of `f(_).liftS`, `f.liftS` is now available and is confirmed to work in `_runState`.
 
-### 0.5.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.1...v0.5.2))
+## 0.5.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.1...v0.5.2))
 
 * Added `ReactEventI` aliases for the very common case that the underlying node is an `<input>`.
 * Added tag attributes:
@@ -67,14 +64,14 @@ find -name '*.scala' -exec perl -pi -e 's/(?<=[ .]render)Component//g' {} +
 * Deprecated `runState` methods handling `StateT` directly. Use `liftR` first.
 * Bump Scala 2.11.2 to 2.11.4.
 
-### 0.5.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.0...v0.5.1))
+## 0.5.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.0...v0.5.1))
 
 * Fixed Scalatags rejecting `VDom`.
 * Added `ScalazReact.ReactS.setM`.
 * Added `Listenable.install{IO,F}`, added `M[_]` to `Listenable.installS`.
 * Added `LogLifecycle` which when applied to a component, logs during each lifecycle callback.
 
-### 0.5.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.1...v0.5.0))
+# 0.5.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.1...v0.5.0))
 
 ##### New features
 * Added `Simulation` for composition and abstraction of `ReactTestUtils.Simulate` procedures.
@@ -114,17 +111,17 @@ Most people will be unaffected by this. Numerous changes were made to internal t
   * `ReactComponentB.propsAlways` → `propsConst`
   * `Nop` → `EmptyTag`
 
-### 0.4.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.0...v0.4.1))
+## 0.4.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.0...v0.4.1))
 
 * Upgrade to scalatags 0.4.0.
 * Component builder supports multiple callbacks.
 * JS source maps point to Github.
 
-### 0.4.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.2.0...v0.4.0))
+# 0.4.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.2.0...v0.4.0))
 * Major overhaul.
 * Modules for Scalaz and testing.
 
-### 0.2.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.1.0...v0.2.0))
+## 0.2.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.1.0...v0.2.0))
 
-### 0.1.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/55a19e7...v0.1.0))
+## 0.1.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/55a19e7...v0.1.0))
 
