@@ -1,7 +1,7 @@
 History
 =======
 
-### 0.6.0 (unreleased)
+### 0.6.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.4...v0.6.0))
 
 This release brings scalajs-react in line with React 0.12.
 **React version 0.12.0 or later is now required.**
