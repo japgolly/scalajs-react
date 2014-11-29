@@ -1,9 +1,13 @@
-package japgolly.scalajs.react.example
+package japgolly.scalajs.react.example.examples
+
+import japgolly.scalajs.react.ScalazReact._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.experiment._
+import japgolly.scalajs.react.vdom.ReactVDom._
+import japgolly.scalajs.react.vdom.ReactVDom.all._
+import org.scalajs.dom.window
 
 import scala.scalajs.js
-import org.scalajs.dom.window
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._, ScalazReact._
-import japgolly.scalajs.react.experiment._
 
 object ExperimentExamples {
 
