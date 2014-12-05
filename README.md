@@ -66,13 +66,15 @@ You will also need to add [Scala.js](http://www.scala-js.org) to your project.
 Examples
 ========
 
-[Examples are included](https://github.com/japgolly/scalajs-react/tree/master/example/src/main/scala/japgolly/scalajs/react/example) with this project. If you know Scala and React then that should have you up and running in no time.
+A number of [examples are demonstrated online here](http://japgolly.github.io/scalajs-react/).
 
-If you'd like to see side-by-side comparisons of sample code taken from [http://facebook.github.io/react/](http://facebook.github.io/react/), do this:
+You'll find that nearly all of the [demos in the React doc](http://facebook.github.io/react/) are on display beside their Scala counterparts. If you know Scala and React, you should be up and running in no time.
+
+The source code for the above [lives here](https://github.com/japgolly/scalajs-react/tree/master/gh-pages/src/main/scala/ghpages/examples). To build and play around with locally:
 
 1. Checkout or download this repository.
-1. `sbt fastOptJS`
-1. Open `example/side_by_side.html` locally.
+1. `sbt gh-pages/fastOptJS`
+1. Open `gh-pages/index.html` locally.
 
 
 Differences from React proper
