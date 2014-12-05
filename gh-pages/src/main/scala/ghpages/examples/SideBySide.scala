@@ -1,60 +1,41 @@
-package japgolly.scalajs.react.example.examples
+package ghpages.examples
 
-import japgolly.scalajs.react.ReactComponentB
-import japgolly.scalajs.react.vdom.ReactVDom.all._
-import org.scalajs.dom
-import org.scalajs.dom.Node
+import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import org.scalajs.dom.document
 import org.scalajs.dom.extensions.PimpedNodeList
 
-
-/**
-  * Created by chandrasekharkode on 11/17/14.
-  */
 object SideBySide {
 
+  case class Content(jsSource: String, scalaSource: String, el: ReactElement)
 
-   val sideBySideComponent = ReactComponentB[(String, String, Modifier)]("sideBySideExample")
-     .render(P => {
-         val (jsCode, scalaCode, component) = P
-         div(
-           div(`class` := "row")(
-             div(`class` := "col-md-6")(
-               h3("JSX Code"),
-               pre(code(jsCode))
-             ),
-             div(`class` := "col-md-6")(
-               h3("Scala Code"),
-               pre(code(scalaCode))
+  val sideBySideComponent = ReactComponentB[Content]("sideBySideExample")
+    .render(p =>
+      div(
+        div(`class` := "row",
+          div(`class` := "col-md-6",
+            h3("JSX Code"),
+            pre(code(p.jsSource))),
+          div(`class` := "col-md-6",
+            h3("Scala Code"),
+            pre(code(p.scalaSource)))),
+        hr,
+        div(
+          h3("Demo:"),
+          div(`class` := "row text-center", p.el)))
+    )
+    .configure(installSyntaxHighlighting)
+    .build
 
-             )
-           ),
-           hr,
-           div(
-             h3("Demo:"),
-             div(`class` := "row text-center")(
-               component
-             )
-           )
-         )
+  def apply(c: Content) = sideBySideComponent(c)
 
-       })
-     .componentDidMount(_ => {
-         applySyntaxHighlight()
-       })
-     .componentDidUpdate((_,_,_)  => {
-         applySyntaxHighlight()
-    })
-     .build
-
-   def component(jsxCode: String, scalaCode: String, demo: Modifier) = {
-
-     sideBySideComponent((jsxCode, scalaCode, demo))
-   }
+  def installSyntaxHighlighting[P, S, B] =
+    (_: ReactComponentB[P, S, B])
+      .componentDidMount(_ => applySyntaxHighlight())
+      .componentDidUpdate((_,_,_)  => applySyntaxHighlight())
 
   def applySyntaxHighlight() = {
     import scala.scalajs.js.Dynamic.{global => g}
-    val nodeList = dom.document.querySelectorAll("pre code").toArray
+    val nodeList = document.querySelectorAll("pre code").toArray
     nodeList.foreach( n => g.hljs.highlightBlock(n))
   }
-
- }
+}

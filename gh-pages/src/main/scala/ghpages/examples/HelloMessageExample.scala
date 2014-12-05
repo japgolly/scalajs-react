@@ -3,32 +3,31 @@ package ghpages.examples
 import japgolly.scalajs.react.ReactComponentB
 import japgolly.scalajs.react.vdom.ReactVDom.all._
 
-
-/**
- * Created by chandrasekharkode on 11/17/14.
- */
+/** Scala version of "A Simple Component" on http://facebook.github.io/react/ */
 object HelloMessageExample {
 
-  val source = """
-                 |val Component = ReactComponentB[String]("Hello Example")
-                 |   .render(name => div("Hello ", name))
-                 |   .build
-                 |
-                 |React.render(HelloMessage("John"), mountNode)""".stripMargin
+  def content = SideBySide.Content(jsSource, source, HelloMessage("John"))
 
-  val helloJsXCode =
+  val jsSource =
     """
       |var HelloMessage = React.createClass({displayName: 'HelloMessage',
       |  render: function() {
-      |    return React.DOM.div(null, "Hello ", this.props.name);
+      |    return React.createElement("div", null, "Hello ", this.props.name);
       |  }
       |});
       |
-      |React.render(HelloMessage( {name:"John"} ), mountNode);
+      |React.render(React.createElement(HelloMessage, {name: "John"}), mountNode);
     """.stripMargin
 
-  val Component = ReactComponentB[String]("Hello Example")
-    .render(name => h1("Hello ", name))
-    .build
+  val source =
+    """
+      |val HelloMessage = ReactComponentB[String]("HelloMessage")
+      |   .render(name => div("Hello ", name))
+      |   .build
+      |
+      |React.render(HelloMessage("John"), mountNode)""".stripMargin
 
+  val HelloMessage = ReactComponentB[String]("HelloMessage")
+    .render(name => div("Hello ", name))
+    .build
 }

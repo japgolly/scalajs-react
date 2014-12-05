@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.example.pages
+package ghpages.pages
 
 import japgolly.scalajs.react.vdom.ReactVDom.all._
 

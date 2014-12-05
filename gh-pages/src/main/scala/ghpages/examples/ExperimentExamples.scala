@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.example.examples
+package ghpages.examples
 
 import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react._

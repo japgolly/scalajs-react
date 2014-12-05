@@ -1,36 +1,21 @@
-package japgolly.scalajs.react.example.examples
+package ghpages.examples
 
-import japgolly.scalajs.react.ReactComponentB
-import japgolly.scalajs.react.vdom.ReactVDom.Modifier
-import japgolly.scalajs.react.vdom.ReactVDom.all._
+import japgolly.scalajs.react._, vdom.ReactVDom._, all._
 
-
-/**
-  * Created by chandrasekharkode on 11/17/14.
-  */
 object SingleSide {
 
-   val singleSideComponent = ReactComponentB[(String, Modifier)]("singleSideComponent")
-     .render(P => {
-         val (scalaCode, component) = P
-         div(`class` := "row")(
-           div(`class` := "col-md-6")(
-             pre(code(scalaCode))
-           ),
-           div(`class` := "col-md-6")(
-             component
-           )
-         )
-       })
-     .componentDidMount(_ => {
-         SideBySide.applySyntaxHighlight()
-     })
-     .componentDidUpdate((_,_,_)  => {
-     SideBySide.applySyntaxHighlight()
-      })
-     .build
+  case class Content(scalaSource: String, el: ReactElement)
 
-   def component(scalaCode: String, demo: Modifier) = {
-     singleSideComponent((scalaCode, demo))
-   }
- }
+  val singleSideComponent = ReactComponentB[Content]("singleSideComponent")
+    .render(p =>
+        div(`class` := "row",
+          div(`class` := "col-md-6",
+            pre(code(p.scalaSource))),
+          div(`class` := "col-md-6",
+            p.el))
+    )
+    .configure(SideBySide.installSyntaxHighlighting)
+    .build
+
+  def apply(c: Content) = singleSideComponent(c)
+}

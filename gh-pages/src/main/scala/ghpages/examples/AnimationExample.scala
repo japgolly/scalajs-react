@@ -1,43 +1,75 @@
-package japgolly.scalajs.react.example.examples
+package ghpages.examples
 
-import org.scalajs.dom.{document, window}
-
-import japgolly.scalajs.react._
+import org.scalajs.dom.window
+import japgolly.scalajs.react._, vdom.ReactVDom._, all._
 import Addons.ReactCssTransitionGroup
-import vdom.ReactVDom._
-import all._
 
-/**
- * Created by chandrasekharkode on 11/18/14.
- */
+/** http://facebook.github.io/react/docs/animation.html */
 object AnimationExample {
 
-  val animationScalaCode = """
-                             |  class Backend(T: BackendScope[_, Vector[String]]) {
-                             |    def handleAdd(): Unit =
-                             |      T.modState(_ :+ window.prompt("Enter some text"))
-                             |    def handleRemove(i: Int): Unit =
-                             |      T.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
-                             |  }
-                             |
-                             |  val TodoList = ReactComponentB[Unit]("TodoList")
-                             |    .initialState(Vector("hello", "world", "click", "me"))
-                             |    .backend(new Backend(_))
-                             |    .render((_,S,B) =>
-                             |    div(
-                             |      button(onclick -->  B.handleAdd())("Add Item"),
-                             |      ReactCssTransitionGroup("example", component = "h1")(
-                             |        S.zipWithIndex.map{case (s,i) =>
-                             |          div(key := s, onclick --> B.handleRemove(i))(s)
-                             |        }: _*
-                             |      )
-                             |    )
-                             |    ).buildU
-                             |
-                             |  TodoList() render document.getElementById("scala")
-                             |""".stripMargin
+  def content = SideBySide.Content(jsSource, source, TodoList())
 
+  val jsSource =
+    """
+      |var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+      |
+      |var TodoList = React.createClass({
+      |  getInitialState: function() {
+      |    return {items: ['hello', 'world', 'click', 'me']};
+      |  },
+      |  handleAdd: function() {
+      |    var newItems =
+      |      this.state.items.concat([prompt('Enter some text')]);
+      |    this.setState({items: newItems});
+      |  },
+      |  handleRemove: function(i) {
+      |    var newItems = this.state.items;
+      |    newItems.splice(i, 1);
+      |    this.setState({items: newItems});
+      |  },
+      |  render: function() {
+      |    var items = this.state.items.map(function(item, i) {
+      |      return (
+      |        <div key={item} onClick={this.handleRemove.bind(this, i)}>
+      |          {item}
+      |        </div>
+      |      );
+      |    }.bind(this));
+      |    return (
+      |      <div>
+      |        <button onClick={this.handleAdd}>Add Item</button>
+      |        <ReactCSSTransitionGroup transitionName="example">
+      |          {items}
+      |        </ReactCSSTransitionGroup>
+      |      </div>
+      |    );
+      |  }
+      |});
+    """.stripMargin
 
+  val source =
+    """
+      |class Backend(T: BackendScope[_, Vector[String]]) {
+      |  def handleAdd(): Unit =
+      |    T.modState(_ :+ window.prompt("Enter some text"))
+      |  def handleRemove(i: Int): Unit =
+      |    T.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
+      |}
+      |
+      |val TodoList = ReactComponentB[Unit]("TodoList")
+      |  .initialState(Vector("hello", "world", "click", "me"))
+      |  .backend(new Backend(_))
+      |  .render((_,S,B) =>
+      |    div(
+      |      button(onclick --> B.handleAdd())("Add Item"),
+      |      ReactCssTransitionGroup("example", component = "h1")(
+      |        S.zipWithIndex.map{case (s,i) =>
+      |          div(key := s, onclick --> B.handleRemove(i))(s)
+      |        }: _*
+      |      )
+      |    )
+      |  ).buildU
+      | """.stripMargin
 
   class Backend(T: BackendScope[_, Vector[String]]) {
     def handleAdd(): Unit =
@@ -46,18 +78,17 @@ object AnimationExample {
       T.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
   }
 
-  val AnimatedTodoList = ReactComponentB[Unit]("TodoList")
+  val TodoList = ReactComponentB[Unit]("TodoList")
     .initialState(Vector("hello", "world", "click", "me"))
     .backend(new Backend(_))
     .render((_,S,B) =>
-    div(
-      button(onclick -->  B.handleAdd())("Add Item"),
-      ReactCssTransitionGroup("example", component = "h1")(
-        S.zipWithIndex.map{case (s,i) =>
-          div(key := s, onclick --> B.handleRemove(i))(s)
-        }: _*
+      div(
+        button(onclick --> B.handleAdd())("Add Item"),
+        ReactCssTransitionGroup("example", component = "h1")(
+          S.zipWithIndex.map{case (s,i) =>
+            div(key := s, onclick --> B.handleRemove(i))(s)
+          }: _*
+        )
       )
-    )
     ).buildU
-
 }

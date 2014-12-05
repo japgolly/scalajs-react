@@ -1,12 +1,8 @@
 package ghpages
 
+import japgolly.scalajs.react._, vdom.ReactVDom._, all._, ScalazReact._
 import org.scalajs.dom.Node
 import scalaz.effect.IO
-
-import japgolly.scalajs.react._
-import vdom.ReactVDom._
-import all._
-import ScalazReact._
 
 object ScalazExamples {
 
