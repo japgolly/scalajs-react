@@ -80,6 +80,18 @@ object ScalajsReact extends Build {
       jsDependencies += "org.webjars" % "react" % "0.12.1" % scope / "react-with-addons.js" commonJSName "React",
       skip in packageJSDependencies := false)
 
+
+  def createLauncher(scope: String = "compile"): PE =
+    _.settings(persistLauncher := true,
+      persistLauncher in Test := false,
+      crossTarget in (Compile, fullOptJS) := file("example/js"),
+      crossTarget in (Compile, fastOptJS) := file("example/js"),
+      crossTarget in (Compile, packageJSDependencies) := file("example/js"),
+      crossTarget in (Compile, packageLauncher) := file("example/js"),
+      artifactPath in (Compile, fastOptJS) := ((crossTarget in (Compile, fastOptJS)).value /
+        ((moduleName in fastOptJS).value + "-opt.js"))
+    )
+
   def addCommandAliases(m: (String, String)*) = {
     val s = m.map(p => addCommandAlias(p._1, p._2)).reduce(_ ++ _)
     (_: Project).settings(s: _*)
@@ -127,6 +139,6 @@ object ScalajsReact extends Build {
   // ==============================================================================================
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, scalaz71)
-    .configure(commonSettings, useReact(), preventPublication)
+    .configure(commonSettings, useReact(),createLauncher() ,preventPublication)
 
 }
