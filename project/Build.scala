@@ -87,7 +87,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, test, example, scalaz70, scalaz71)
+    .aggregate(core, test, scalaz70, scalaz71, ghpages)
     .configure(commonSettings, preventPublication, addCommandAliases(
       "t"  -> "; test:compile ; test/fastOptStage::test",
       "tt" -> ";+test:compile ;+test/fastOptStage::test",
@@ -125,7 +125,7 @@ object ScalajsReact extends Build {
   lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.0-4")
 
   // ==============================================================================================
-  lazy val example = project
+  lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, scalaz71)
     .configure(commonSettings, useReact(), preventPublication)
 

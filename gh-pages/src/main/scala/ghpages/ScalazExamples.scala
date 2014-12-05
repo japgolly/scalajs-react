@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.example
+package ghpages
 
 import org.scalajs.dom.Node
 import scalaz.effect.IO

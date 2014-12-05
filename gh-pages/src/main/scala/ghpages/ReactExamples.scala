@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.example
+package ghpages
 
 import scala.scalajs.js
 import org.scalajs.dom.{HTMLInputElement, console, document, window, Node}
