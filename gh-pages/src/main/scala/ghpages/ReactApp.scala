@@ -32,7 +32,7 @@ object ReactApp extends JSApp {
       div(`class` := "container",
         P match {
           case "Home" => HomePage.content
-          case "Examples" => ExamplesPage.component(List("Hello World", "Timer", "Todo", "ProductTable", "Using Refs", "Animation", "AjaxPictureApp"))
+          case "Examples" => ExamplesPage.component()
           case "Documentation" =>
             p("Please see the ",
               a(href := "https://github.com/japgolly/scalajs-react", "project page"),

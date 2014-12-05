@@ -3,59 +3,57 @@ package ghpages.pages
 import japgolly.scalajs.react._, vdom.ReactVDom._, all._
 import ghpages.examples._
 
+sealed abstract class Example(val title: String, val el: () => ReactElement)
+object Example {
+  import ghpages.examples.util._
+  implicit private def auto1(v: SideBySide.Content): () => ReactElement = () => v()
+
+  case object Hello        extends Example("Hello World",    HelloMessageExample.content)
+  case object Timer        extends Example("Timer",          TimerExample.content)
+  case object Todo         extends Example("Todo List",      TodoExample.content)
+  case object Refs         extends Example("Using Refs",     RefsExample.content)
+  case object ProductTable extends Example("Product Table",  ProductTableExample.content)
+  case object Animation    extends Example("Animation",      AnimationExample.content)
+  case object PictureApp   extends Example("AjaxPictureApp", PictureAppExample.content)
+
+  val values = Vector[Example](Hello, Timer, Todo, Refs, ProductTable, Animation, PictureApp)
+}
+
 object ExamplesPage {
 
-  case class State(index: Int)
+  case class State(current: Example)
 
   class Backend(t: BackendScope[_, State]) {
-    def onMenuClick(newIndex: Int) = t.modState(_.copy(index = newIndex))
+    def onMenuClick(tgt: Example) = t.setState(State(tgt))
   }
 
-  val examplesMenu = ReactComponentB[(List[String], Backend,State)]("examplesMenu")
+  val examplesMenu = ReactComponentB[(Backend, Example)]("examplesMenu")
     .render(P => {
-      val (data, b , s) = P
-      def element(name: String, index: Int) =
+      val (b, current) = P
+      def element(e: Example) = {
+        // val active = e == current // scala.js bug??
+        val active = e.toString == current.toString // workaround for ↖
         li(
-          if (index == s.index) cls := "list-group-item active" else cls := "list-group-item",
-          onclick --> b.onMenuClick(index),
-          name)
+          classSet1("list-group-item", "active" -> active),
+          onclick --> b.onMenuClick(e),
+          e.title)
+      }
       div(`class` := "col-md-2",
         ul(`class` := "list-group",
-          data.zipWithIndex.map { case (name, index) => element(name, index) }))
-  }).build
+          Example.values.map(element)))
+    }).build
 
+  val exampleBody = ReactComponentB[Example]("examplesBody")
+    .render(eg =>
+      div(`class` := "col-md-10", eg.el()))
+    .build
 
-  val exampleBody = ReactComponentB[String]("examplesBody")
-    .render(name => {
-    div(`class` := "col-md-10")(
-      name match {
-
-        case "Hello World" => HelloMessageExample.content()
-
-        case "Timer" => TimerExample.content()
-
-        case "Todo" => TodoExample.content()
-
-        case "Using Refs" => RefsExample.content()
-
-        case "ProductTable" => ProductTableExample.content()
-
-        case "Animation" => AnimationExample.content()
-
-        case "AjaxPictureApp" => PictureAppExample.content()
-
-        case _ => "// TODO"
-      }
-    )
-  }).build
-
-
-  val component = ReactComponentB[List[String]]("examplesPage")
-    .initialState(State(0))
+  val component = ReactComponentB[Unit]("examplesPage")
+    .initialState(State(Example.Hello))
     .backend(new Backend(_))
-    .render((P, S, B) =>
+    .render((_, s, b) =>
       div(`class` := "row",
-        examplesMenu((P, B, S)),
-        exampleBody(P(S.index)))
-    ).build
+        examplesMenu((b, s.current)),
+        exampleBody(s.current))
+    ).buildU
 }
