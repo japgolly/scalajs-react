@@ -17,6 +17,4 @@ object HomePage {
      ),
      p("In addition to wrapping React, this provides extra opt-in functionality to support (separately) easier testing, and pure FP.")
    )
-
-
- }
+}

@@ -2,6 +2,7 @@ package ghpages.examples
 
 import japgolly.scalajs.react.ReactComponentB
 import japgolly.scalajs.react.vdom.ReactVDom.all._
+import ghpages.examples.util.SideBySide
 
 /** Scala version of "A Simple Component" on http://facebook.github.io/react/ */
 object HelloMessageExample {

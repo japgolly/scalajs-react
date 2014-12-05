@@ -1,6 +1,7 @@
 package ghpages.examples
 
 import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import ghpages.examples.util.SideBySide
 
 /** Scala version of "An Application" on http://facebook.github.io/react/ */
 object TodoExample {

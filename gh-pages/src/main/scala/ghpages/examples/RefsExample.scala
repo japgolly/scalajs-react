@@ -2,6 +2,7 @@ package ghpages.examples
 
 import japgolly.scalajs.react._, vdom.ReactVDom._, all._
 import org.scalajs.dom.HTMLInputElement
+import ghpages.examples.util.SideBySide
 
 /** Scala version of example on http://facebook.github.io/react/docs/more-about-refs.html */
 object RefsExample {

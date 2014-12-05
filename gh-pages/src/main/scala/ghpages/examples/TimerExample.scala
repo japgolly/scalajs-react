@@ -3,6 +3,7 @@ package ghpages.examples
 import japgolly.scalajs.react._, vdom.ReactVDom._, all._
 import org.scalajs.dom.window
 import scala.scalajs.js
+import ghpages.examples.util.SideBySide
 
 /** Scala version of "A Stateful Component" on http://facebook.github.io/react/ */
 object TimerExample {

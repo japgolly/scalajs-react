@@ -2,6 +2,7 @@ package ghpages.examples
 
 import japgolly.scalajs.react._, vdom.ReactVDom._, all._
 import scala.scalajs.js
+import ghpages.examples.util.SideBySide
 
 /**
  * Created by chandrasekharkode on 11/18/14.

@@ -30,22 +30,21 @@ object ExamplesPage {
     div(`class` := "col-md-10")(
       name match {
 
-        case "HelloReact" => SideBySide(HelloMessageExample.content)
+        case "HelloReact" => HelloMessageExample.content()
 
-        case "Timer" => SideBySide(TimerExample.content)
+        case "Timer" => TimerExample.content()
 
-        case "Todo" => SideBySide(TodoExample.content)
+        case "Todo" => TodoExample.content()
 
-        case "UsingRefs" => SideBySide(RefsExample.content)
+        case "UsingRefs" => RefsExample.content()
 
-        case "ProductTable" => SideBySide(ProductTableExample.content)
+        case "ProductTable" => ProductTableExample.content()
 
-        case "Animation" => SideBySide(AnimationExample.content)
+        case "Animation" => AnimationExample.content()
 
-        case "AjaxPictureApp" => SideBySide(PictureAppExample.content)
+        case "AjaxPictureApp" => PictureAppExample.content()
 
-        case _ => "//TODO"
-
+        case _ => "// TODO"
       }
     )
   }).build

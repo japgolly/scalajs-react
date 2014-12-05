@@ -1,10 +1,12 @@
-package ghpages.examples
+package ghpages.examples.util
 
 import japgolly.scalajs.react._, vdom.ReactVDom._, all._
 
 object SingleSide {
 
-  case class Content(scalaSource: String, el: ReactElement)
+  case class Content(scalaSource: String, el: ReactElement) {
+    def apply() = singleSideComponent(this)
+  }
 
   val singleSideComponent = ReactComponentB[Content]("singleSideComponent")
     .render(p =>
@@ -16,6 +18,4 @@ object SingleSide {
     )
     .configure(SideBySide.installSyntaxHighlighting)
     .build
-
-  def apply(c: Content) = singleSideComponent(c)
 }

@@ -1,7 +1,8 @@
 package ghpages.examples
 
-import org.scalajs.dom.window
 import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import org.scalajs.dom.window
+import ghpages.examples.util.SideBySide
 import Addons.ReactCssTransitionGroup
 
 /** http://facebook.github.io/react/docs/animation.html */

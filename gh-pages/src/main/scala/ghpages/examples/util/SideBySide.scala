@@ -1,4 +1,4 @@
-package ghpages.examples
+package ghpages.examples.util
 
 import japgolly.scalajs.react._, vdom.ReactVDom._, all._
 import org.scalajs.dom.document
@@ -6,7 +6,9 @@ import org.scalajs.dom.extensions.PimpedNodeList
 
 object SideBySide {
 
-  case class Content(jsSource: String, scalaSource: String, el: ReactElement)
+  case class Content(jsSource: String, scalaSource: String, el: ReactElement) {
+    def apply() = sideBySideComponent(this)
+  }
 
   val sideBySideComponent = ReactComponentB[Content]("sideBySideExample")
     .render(p =>
@@ -25,8 +27,6 @@ object SideBySide {
     )
     .configure(installSyntaxHighlighting)
     .build
-
-  def apply(c: Content) = sideBySideComponent(c)
 
   def installSyntaxHighlighting[P, S, B] =
     (_: ReactComponentB[P, S, B])
