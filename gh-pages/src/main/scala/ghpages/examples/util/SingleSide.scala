@@ -1,6 +1,6 @@
 package ghpages.examples.util
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.ReactVDom._, all._, tags2._
 
 object SingleSide {
 
@@ -10,11 +10,14 @@ object SingleSide {
 
   val singleSideComponent = ReactComponentB[Content]("singleSideComponent")
     .render(p =>
+      div(
         div(`class` := "row",
-          div(`class` := "col-md-6",
-            pre(code(p.scalaSource.trim))),
-          div(`class` := "col-md-6",
-            p.el))
+          div(`class` := "col-md-10",
+            pre(code(p.scalaSource.trim)))),
+        hr,
+        section(cls := "demo",
+          h3("Demo"),
+          div(cls := "demo", p.el)))
     )
     .configure(SideBySide.installSyntaxHighlighting)
     .build

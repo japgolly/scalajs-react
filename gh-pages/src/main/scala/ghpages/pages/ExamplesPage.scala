@@ -7,16 +7,18 @@ sealed abstract class Example(val title: String, val el: () => ReactElement)
 object Example {
   import ghpages.examples.util._
   implicit private def auto1(v: SideBySide.Content): () => ReactElement = () => v()
+  implicit private def auto2(v: SingleSide.Content): () => ReactElement = () => v()
 
-  case object Hello        extends Example("Hello World",    HelloMessageExample.content)
-  case object Timer        extends Example("Timer",          TimerExample.content)
-  case object Todo         extends Example("Todo List",      TodoExample.content)
-  case object Refs         extends Example("Using Refs",     RefsExample.content)
-  case object ProductTable extends Example("Product Table",  ProductTableExample.content)
-  case object Animation    extends Example("Animation",      AnimationExample.content)
-  case object PictureApp   extends Example("AjaxPictureApp", PictureAppExample.content)
+  case object Hello        extends Example("Hello World",        HelloMessageExample.content)
+  case object Timer        extends Example("Timer",              TimerExample.content)
+  case object Todo         extends Example("Todo List",          TodoExample.content)
+  case object Refs         extends Example("Using Refs",         RefsExample.content)
+  case object ProductTable extends Example("Product Table",      ProductTableExample.content)
+  case object Animation    extends Example("Animation",          AnimationExample.content)
+  case object PictureApp   extends Example("AjaxPictureApp",     PictureAppExample.content)
+  case object Scalaz       extends Example("Todo List (Scalaz)", ScalazExample.content)
 
-  val values = Vector[Example](Hello, Timer, Todo, Refs, ProductTable, Animation, PictureApp)
+  val values = Vector[Example](Hello, Timer, Todo, Scalaz, Refs, ProductTable, Animation, PictureApp)
 }
 
 object ExamplesPage {
