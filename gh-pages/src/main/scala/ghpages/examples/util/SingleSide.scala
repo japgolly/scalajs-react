@@ -12,7 +12,7 @@ object SingleSide {
     .render(p =>
         div(`class` := "row",
           div(`class` := "col-md-6",
-            pre(code(p.scalaSource))),
+            pre(code(p.scalaSource.trim))),
           div(`class` := "col-md-6",
             p.el))
     )

@@ -23,6 +23,8 @@ object HomePage {
       p("In addition to wrapping React, this provides extra opt-in functionality to support (separately) easier testing, and pure FP.")
     ),
     p(marginTop := "3em", fontStyle := "italic",
-      "Big thanks to ",a(href := "https://github.com/chandu0101", "chandu0101")," for creating these pages.")
+      "Big thanks to ",
+      a(href := "https://twitter.com/chandu0101", "@chandu0101"),
+      " for creating these pages.")
    )
 }

@@ -85,14 +85,14 @@ object ReactVDom
     @inline final def classSet(ps: (String, Boolean)*): Modifier =
       classSwitch(ps.map(p => if (p._2) Some(p._1) else None): _*)
 
-    @inline final def classSet(a: String, ps: (String, Boolean)*): Modifier =
+    @inline final def classSet1(a: String, ps: (String, Boolean)*): Modifier =
       classSet(((a, true) +: ps):_*)
 
-    @inline final def classSet(ps: Map[String, Boolean]): Modifier =
+    @inline final def classSetM(ps: Map[String, Boolean]): Modifier =
       classSet(ps.toSeq: _*)
 
-    @inline final def classSet(a: String, ps: Map[String, Boolean]): Modifier =
-      classSet(a, ps.toSeq: _*)
+    @inline final def classSet1M(a: String, ps: Map[String, Boolean]): Modifier =
+      classSet1(a, ps.toSeq: _*)
   }
 
   final class CompositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier) {
