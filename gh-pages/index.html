@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="res/bootstrap.css">
+    <link rel="stylesheet" href="res/app.css">
+    <link rel="stylesheet" href="res/default.css">
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/react/0.12.1/react-with-addons.min.js"></script>
+    <script type="text/javascript" src="res/highlight.pack.js"></script>
+</head>
+<body>
+
+<script>
+    function jsonp(url, callback) {
+        var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+        window[callbackName] = function(data) {
+            delete window[callbackName];
+//            document.body.removeChild(script);
+            callback(data);
+        };
+
+        var script = document.createElement('script');
+        script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
+        document.body.appendChild(script);
+    }
+</script>
+
+<script type="text/javascript" src="target/scala-2.11/gh-pages-fastopt.js"></script>
+
+<script type="text/javascript">
+  ((typeof global === "object" && global &&
+         global["Object"] === Object) ? global : this)["ghpages"]["ReactApp"]().main();
+</script>
+</body>
+</html>
