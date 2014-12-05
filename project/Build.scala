@@ -81,16 +81,11 @@ object ScalajsReact extends Build {
       skip in packageJSDependencies := false)
 
 
-  def createLauncher(scope: String = "compile"): PE =
-    _.settings(persistLauncher := true,
-      persistLauncher in Test := false,
-      crossTarget in (Compile, fullOptJS) := file("example/js"),
-      crossTarget in (Compile, fastOptJS) := file("example/js"),
-      crossTarget in (Compile, packageJSDependencies) := file("example/js"),
-      crossTarget in (Compile, packageLauncher) := file("example/js"),
-      artifactPath in (Compile, fastOptJS) := ((crossTarget in (Compile, fastOptJS)).value /
-        ((moduleName in fastOptJS).value + "-opt.js"))
-    )
+  def ghpagesExportJs: PE =
+    _.settings(
+      emitSourceMaps := false,
+      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
+
 
   def addCommandAliases(m: (String, String)*) = {
     val s = m.map(p => addCommandAlias(p._1, p._2)).reduce(_ ++ _)
@@ -139,6 +134,6 @@ object ScalajsReact extends Build {
   // ==============================================================================================
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, scalaz71)
-    .configure(commonSettings, useReact(),createLauncher() ,preventPublication)
+    .configure(commonSettings, useReact(), ghpagesExportJs, preventPublication)
 
 }
