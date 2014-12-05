@@ -1,6 +1,6 @@
 package ghpages.examples.util
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.ReactVDom._, all._, tags2._
 import org.scalajs.dom.document
 import org.scalajs.dom.extensions.PimpedNodeList
 
@@ -15,15 +15,15 @@ object SideBySide {
       div(
         div(`class` := "row",
           div(`class` := "col-md-6",
-            h3("JSX Code"),
+            h3("JS source"),
             pre(code(p.jsSource))),
           div(`class` := "col-md-6",
-            h3("Scala Code"),
+            h3("Scala source"),
             pre(code(p.scalaSource)))),
         hr,
-        div(
-          h3("Demo:"),
-          div(`class` := "row text-center", p.el)))
+        section(cls := "demo",
+          h3("Demo"),
+          div(cls := "demo", p.el)))
     )
     .configure(installSyntaxHighlighting)
     .build

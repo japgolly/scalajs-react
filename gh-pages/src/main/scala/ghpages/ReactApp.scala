@@ -27,20 +27,16 @@ object ReactApp extends JSApp {
           data.zipWithIndex.map { case (name, index) => element(name, index)}))
     }).build
 
-  val content = ReactComponentB[String]("homePage")
-    .render(_ =>
-      div(
-        h1("scalajs-react"),
-        p("Lifts Facebook's React library into Scala.js and endeavours to make it as type-safe and Scala-friendly as possible.\n\nIn addition to wrapping React, this provides extra opt-in functionality to support (separately) easier testing, and pure FP."))
-    ).build
-
   val container = ReactComponentB[String]("appMenu")
     .render(P => {
       div(`class` := "container",
         P match {
           case "Home" => HomePage.content
-          case "Examples" => ExamplesPage.component(List("HelloReact", "Timer", "Todo","UsingRefs" , "ProductTable" , "Animation" ,"AjaxPictureApp"))
-          case "Documentation" => h3("// TODO ")
+          case "Examples" => ExamplesPage.component(List("Hello World", "Timer", "Todo", "ProductTable", "Using Refs", "Animation", "AjaxPictureApp"))
+          case "Documentation" =>
+            p("Please see the ",
+              a(href := "https://github.com/japgolly/scalajs-react", "project page"),
+              ".")
         }
       )
     }).build
@@ -51,10 +47,9 @@ object ReactApp extends JSApp {
     .render((P, S, B) =>
       div(
         navMenu((P, B)),
-        container(P(S.index)),
-        footer(
-         hr,
-         span(`class` := "text-center")("Powered by scalajs-react")))
+        container(P(S.index))
+        // footer(hr, span(`class` := "text-center")("Powered by scalajs-react"))
+      )
     ).build
 
   def component(data: List[String]) =

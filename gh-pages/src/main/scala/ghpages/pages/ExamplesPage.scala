@@ -30,13 +30,13 @@ object ExamplesPage {
     div(`class` := "col-md-10")(
       name match {
 
-        case "HelloReact" => HelloMessageExample.content()
+        case "Hello World" => HelloMessageExample.content()
 
         case "Timer" => TimerExample.content()
 
         case "Todo" => TodoExample.content()
 
-        case "UsingRefs" => RefsExample.content()
+        case "Using Refs" => RefsExample.content()
 
         case "ProductTable" => ProductTableExample.content()
 

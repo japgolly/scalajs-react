@@ -75,5 +75,7 @@ div.picture.favorite:after{
     font-size: 13px;
 }
 
-
+section.demo {
+  padding-bottom: 4em;
+}
 
