@@ -155,12 +155,16 @@ case class KeyboardEventData(key:      UndefOr[String]  = undefined,
     keyCode .foreach(v => o.updateDynamic("keyCode" )(v))
     o
   }
-  def simulateKeyDown (t: ReactOrDomNode) = ReactTestUtils.Simulate.keyDown (t, this)
-  def simulateKeyPress(t: ReactOrDomNode) = ReactTestUtils.Simulate.keyPress(t, this)
-  def simulateKeyUp   (t: ReactOrDomNode) = ReactTestUtils.Simulate.keyUp   (t, this)
-  def simulationKeyDown  = Simulation.keyDown(this)
-  def simulationKeyPress = Simulation.keyPress(this)
-  def simulationKeyUp    = Simulation.keyUp(this)
+  def simulateKeyDown       (t: ReactOrDomNode): Unit = ReactTestUtils.Simulate.keyDown (t, this)
+  def simulateKeyPress      (t: ReactOrDomNode): Unit = ReactTestUtils.Simulate.keyPress(t, this)
+  def simulateKeyUp         (t: ReactOrDomNode): Unit = ReactTestUtils.Simulate.keyUp   (t, this)
+  def simulateKeyDownUp     (t: ReactOrDomNode): Unit = {simulateKeyDown(t); simulateKeyUp(t)}
+  def simulateKeyDownPressUp(t: ReactOrDomNode): Unit = {simulateKeyDown(t); simulateKeyPress(t); simulateKeyUp(t)}
+  def simulationKeyDown        = Simulation.keyDown(this)
+  def simulationKeyPress       = Simulation.keyPress(this)
+  def simulationKeyUp          = Simulation.keyUp(this)
+  def simulationKeyDownUp      = simulationKeyDown >> simulationKeyUp
+  def simulationKeyDownPressUp = simulationKeyDown >> simulationKeyPress >> simulationKeyUp
 }
 
 case class MouseEventData(screenX:  UndefOr[Number]  = undefined,
