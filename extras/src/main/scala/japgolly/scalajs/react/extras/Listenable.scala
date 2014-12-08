@@ -6,9 +6,17 @@ import japgolly.scalajs.react.{ReactComponentB, ComponentScopeM}
 import japgolly.scalajs.react.ScalazReact._
 
 /**
- * NOTE: This may be renamed / relocated / removed in future.
+ * External entities can register with this to listen (receive) data of type A.
+ *
+ * Install in `ReactComponentB` via `.configure(Listenable.install...)`.
  */
-trait Listenable [A] {
+trait Listenable[A] {
+  /**
+   * Register a listener.
+   *
+   * @param f The listener. A procedure that receives data of type A.
+   * @return A procedure to unregister the given listener.
+   */
   def register(f: A => Unit): () => Unit
 }
 
@@ -27,18 +35,4 @@ object Listenable {
   def installF[P, S, B <: OnUnmount, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> IO, F: ChangeFilter[S]) =
     installIO[P, S, B, A](f, (t, a) => t.runStateF(g(a)))
 
-}
-
-trait Broadcaster[A] extends Listenable[A] {
-  private var _listeners = List.empty[A => Unit]
-
-  protected final def listeners = _listeners
-
-  override def register(f: A => Unit) = {
-    _listeners ::= f
-    () => _listeners = _listeners.filterNot(_ == f)
-  }
-
-  protected def broadcast(a: A): Unit =
-    listeners foreach (_(a))
 }

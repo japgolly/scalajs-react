@@ -4,7 +4,9 @@ import scala.scalajs.js
 import org.scalajs.dom.window
 
 /**
- * NOTE: This may be renamed / relocated / removed in future.
+ * Alternative to `window.setInterval` that automatically unregisters installed callbacks when its component unmounts.
+ *
+ * Install in `ReactComponentB` via `.configure(SetInterval.install)`.
  */
 trait SetInterval extends OnUnmount {
   final def setInterval(f: => Unit, timeout: js.Number): Unit = {

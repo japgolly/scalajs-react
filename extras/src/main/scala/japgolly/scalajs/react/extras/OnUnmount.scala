@@ -3,7 +3,9 @@ package japgolly.scalajs.react.extras
 import japgolly.scalajs.react.ReactComponentB
 
 /**
- * NOTE: This may be renamed / relocated / removed in future.
+ * Accrues procedures to be run automatically when its component unmounts.
+ *
+ * Install in `ReactComponentB` via `.configure(OnUnmount.install)`.
  */
 trait OnUnmount {
   private var unmountProcs: List[() => Unit] = Nil
@@ -18,4 +20,9 @@ trait OnUnmount {
 object OnUnmount {
   def install[P, S, B <: OnUnmount] =
     (_: ReactComponentB[P, S, B]).componentWillUnmount(_.backend.runUnmount())
+
+  /**
+   * Convenience class for the frequent case that a component needs a backend with `OnUnmount` and nothing else.
+   */
+  final class Backend extends OnUnmount
 }

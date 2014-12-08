@@ -4,6 +4,11 @@ import japgolly.scalajs.react.ReactComponentB
 import org.scalajs.dom.console
 import scala.scalajs.js
 
+/**
+ * Installing this will cause logging to occur at React component lifecycle stages.
+ *
+ * Install in `ReactComponentB` via `.configure(LogLifecycle.short)` or `.configure(LogLifecycle.verbose)`.
+ */
 object LogLifecycle {
   @inline private[this] def fmt(m: String, a: Any) =
     Seq[js.Any](s"\n  $m: $a")
