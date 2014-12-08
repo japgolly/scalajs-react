@@ -159,15 +159,5 @@ final class ReactComponentB[P, S, B](val name: String,
 
     def build: C =
       cc(React.createFactory(React.createClass(buildSpec)))
-
-    @deprecated("As the B in ReactComponentB is for Builder, create() has been renamed to build() and will be removed in 0.7.0.", "0.5.0")
-    def create = build
   }
-
-  @deprecated("ReactComponentB.propsAlways() has been renamed to propsConst() and will be removed in 0.7.0.", "0.5.0")
-  def propsAlways(p: => P)  = this.propsConst(p)
-  @deprecated("As the B in ReactComponentB is for Builder, create() has been renamed to build() and will be removed in 0.7.0.", "0.5.0")
-  def create = this.build
-  @deprecated("As the B in ReactComponentB is for Builder, createU() has been renamed to buildU() and will be removed in 0.7.0.", "0.5.0")
-  def createU(implicit ev: Unit =:= P) = this.buildU
 }

@@ -190,8 +190,6 @@ object ScalazReact {
   }
 
   implicit final class SzRExt_StateTOps[M[_], S, A](val s: StateT[M, S, A]) extends AnyVal {
-    @deprecated("Instead of StateT.liftR use StateT.liftS. StateT.liftR will be removed in 0.7.0.", "0.5.3")
-    @inline def liftR(implicit M: Functor[M]): ReactST[M, S, A] = s.liftS
     @inline def liftS(implicit M: Functor[M]): ReactST[M, S, A] = ReactS.liftS(s)
   }
 
@@ -239,14 +237,6 @@ object ScalazReact {
     def _runState[I, M[_], A](f: I => ReactST[M, S, A], cb: I => OpCallbackIO)(implicit C: CC, M: M ~> IO, N: Monad[M]): I => IO[A] =
       i => runState(f(i) addCallback cb(i))
 
-    @deprecated("Instead of runStateS(s) use runState(s.liftS). runStateS will be removed in 0.7.0.", "0.5.2")
-    def runStateS[M[_], A](st: => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M]): IO[A] =
-      runState(st.liftS)
-
-    @deprecated("Instead of _runStateS(f), use _runState(f.liftS). _runStateS will be removed in 0.7.0.", "0.5.2")
-    def _runStateS[I, M[_], A](f: I => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M]): I => IO[A] =
-      _runState(f.liftS)
-
     def runStateF[M[_], A](st: => ReactST[M, S, A])(implicit C: CC, M: M ~> IO, F: ChangeFilter[S]): IO[A] =
       run[M, A, A](st, (s1,s2,a,io) => if (F.allowChange(s1,s2)) io.map(_ => a) else IO(a))
 
@@ -255,14 +245,6 @@ object ScalazReact {
 
     def _runStateF[I, M[_], A](f: I => ReactST[M, S, A], cb: I => OpCallbackIO)(implicit C: CC, M: M ~> IO, N: Monad[M], F: ChangeFilter[S]): I => IO[A] =
       i => runStateF(f(i) addCallback cb(i))
-
-    @deprecated("Instead of runStateFS(s) use runStateF(s.liftS). runStateFS will be removed in 0.7.0.", "0.5.2")
-    def runStateFS[M[_], A](st: => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M], F: ChangeFilter[S]): IO[A] =
-      runStateF(st.liftS)
-
-    @deprecated("Instead of _runStateFS(f), use _runStateF(f.liftS). _runStateFS will be removed in 0.7.0.", "0.5.2")
-    def _runStateFS[I, M[_], A](f: I => StateT[M, S, A])(implicit C: CC, M: M ~> IO, N: Functor[M], F: ChangeFilter[S]): I => IO[A] =
-      _runStateF(f.liftS)
   }
 
   case class ChangeFilter[S](allowChange: (S, S) => Boolean)
