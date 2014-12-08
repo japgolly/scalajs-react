@@ -1,3 +1,6 @@
+## 0.7.0 (unreleased)
+
+
 ## 0.6.1 (unreleased)
 
 * `ComponentOrNode` moved to test module. Renamed to `ReactOrDomNode`.
