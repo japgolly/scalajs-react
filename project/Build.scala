@@ -72,8 +72,8 @@ object ScalajsReact extends Build {
       .configure(useReact("test"))
       .settings(
         libraryDependencies += "com.lihaoyi" %%% "utest" % "0.2.3" % "test",
-        requiresDOM := true,
-        jsEnv in Test := new PhantomJSEnv)
+        requiresDOM := true)
+        // jsEnv in Test := new PhantomJSEnv)
 
   def useReact(scope: String = "compile"): PE =
     _.settings(
