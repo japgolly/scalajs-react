@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.test.ReactTestUtils
 import utest._
 import scalaz.{~>, StateT, Monad}
 import scalaz.effect.IO
@@ -25,7 +26,16 @@ object ScalazTest extends TestSuite {
   val c = null.asInstanceOf[ComponentScopeM[Unit, S, Unit]]
 
   val tests = TestSuite {
-    "runState(s.liftS)"  - test[StateT[M,S,A]     ](s => c.runState(s.liftS) ).expect[IO[A]]
-    "_runState(f.liftS)" - test[B => StateT[M,S,A]](s => c._runState(s.liftS)).expect[B => IO[A]]
+    'inference {
+      "runState(s.liftS)"  - test[StateT[M,S,A]     ](s => c.runState(s.liftS) ).expect[IO[A]]
+      "_runState(f.liftS)" - test[B => StateT[M,S,A]](s => c._runState(s.liftS)).expect[B => IO[A]]
+    }
+    'runState {
+      val c = ReactTestUtils.renderIntoDocument(CoreTest.SI())
+      assert(c.state == 123)
+      val f = (_:Int) * 2
+      c.runState(ReactS.mod(f)).unsafePerformIO()
+      assert(c.state == 246)
+    }
   }
 }
