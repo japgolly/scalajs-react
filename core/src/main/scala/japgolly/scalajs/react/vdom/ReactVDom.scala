@@ -42,7 +42,21 @@ object ReactVDom
 
   override type Tag = ReactVDom.TypedTag[ReactElement]
 
-  sealed trait Aggregate extends generic.Aggregate[VDomBuilder, ReactElement, ReactFragT] {
+  trait CustomFunctions {
+    implicit final val ___jsThisFnAttr              = new GenericAttr[js.ThisFunction](f => f)
+    implicit final val ___jsFnAttr                  = new GenericAttr[js.Function](f => f)
+    implicit final val ___jsObjAttr                 = new GenericAttr[js.Object](f => f)
+    implicit final def ___reactRefAttr[T <: Ref[_]] = new GenericAttr[T](_.name)
+
+    implicit final def ___reactNodeAsDomChild[T <% ReactNode](c: T): Modifier = new Modifier {
+      override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
+    }
+
+    implicit final def ___autoRender(t: Tag)      : ReactElement      = t.render
+    implicit final def ___autoRenderS(t: Seq[Tag]): Seq[ReactElement] = t.map(_.render)
+  }
+
+  sealed trait Aggregate extends generic.Aggregate[VDomBuilder, ReactElement, ReactFragT] with CustomFunctions {
     override def genericAttr[T] = new GenericAttr[T](a => a.toString)
     override def genericStyle[T] = new GenericStyle[T]
 
@@ -64,43 +78,6 @@ object ReactVDom
     override implicit val longAttr   : GenericAttr[Long]    = genericJsAttr[Long]
     override implicit val floatAttr  : GenericAttr[Float]   = genericJsAttr[Float]
     override implicit val doubleAttr : GenericAttr[Double]  = genericJsAttr[Double]
-
-    implicit val jsThisFnAttr = new GenericAttr[js.ThisFunction](f => f)
-    implicit val jsFnAttr = new GenericAttr[js.Function](f => f)
-    implicit val jsObjAttr = new GenericAttr[js.Object](f => f)
-    implicit def reactRefAttr[T <: Ref[_]] = new GenericAttr[T](_.name)
-
-    implicit def reactNodeAsDomChild[T <% ReactNode](c: T): Modifier = new Modifier {
-      override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
-    }
-
-    @inline implicit def autoRender(t: Tag)      : ReactElement      = t.render
-    @inline implicit def autoRenderS(t: Seq[Tag]): Seq[ReactElement] = t.map(_.render)
-
-    final def compositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier = EmptyTag) =
-      new CompositeAttr(k, f, e)
-
-    val classSwitch = compositeAttr[String](all.cls, (h,t) => (h::t) mkString " ")
-
-    @inline final def classSet(ps: (String, Boolean)*): Modifier =
-      classSwitch(ps.map(p => if (p._2) Some(p._1) else None): _*)
-
-    @inline final def classSet1(a: String, ps: (String, Boolean)*): Modifier =
-      classSet(((a, true) +: ps):_*)
-
-    @inline final def classSetM(ps: Map[String, Boolean]): Modifier =
-      classSet(ps.toSeq: _*)
-
-    @inline final def classSet1M(a: String, ps: Map[String, Boolean]): Modifier =
-      classSet1(a, ps.toSeq: _*)
-  }
-
-  final class CompositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier) {
-    def apply(as: Option[A]*)(implicit ev: AttrValue[A]): Modifier =
-      as.toList.filter(_.isDefined).map(_.get) match {
-        case h :: t => k := f(h, t)
-        case Nil => e
-      }
   }
 
   trait Cap extends Util { self =>
@@ -204,6 +181,31 @@ object ReactVDom
       val o: js.Object = js.Dynamic.literal("__html" -> html)
       dangerouslySetInnerHtmlAttr := o
     }
+
+    final def compositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier = EmptyTag) =
+      new CompositeAttr(k, f, e)
+
+    final val classSwitch = compositeAttr[String](all.cls, (h,t) => (h::t) mkString " ")
+
+    final def classSet(ps: (String, Boolean)*): Modifier =
+      classSwitch(ps.map(p => if (p._2) Some(p._1) else None): _*)(stringAttrX)
+
+    final def classSet1(a: String, ps: (String, Boolean)*): Modifier =
+      classSet(((a, true) +: ps):_*)
+
+    final def classSetM(ps: Map[String, Boolean]): Modifier =
+      classSet(ps.toSeq: _*)
+
+    final def classSet1M(a: String, ps: Map[String, Boolean]): Modifier =
+      classSet1(a, ps.toSeq: _*)
+  }
+
+  final class CompositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier) {
+    def apply(as: Option[A]*)(implicit ev: AttrValue[A]): Modifier =
+      as.toList.filter(_.isDefined).map(_.get) match {
+        case h :: t => k := f(h, t)
+        case Nil => e
+      }
   }
 
   implicit final class ReactVExt_Attr(val a: Attr) extends AnyVal {
