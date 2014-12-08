@@ -1,6 +1,7 @@
 ## 0.7.0 (unreleased)
 
 * Removed deprecated methods marked for removal in 0.7.0.
+* Moved `.experiment` into a new module "extras".
 
 ## 0.6.1 (unreleased)
 

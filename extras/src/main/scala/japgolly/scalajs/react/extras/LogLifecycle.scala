@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.experiment
+package japgolly.scalajs.react.extras
 
 import japgolly.scalajs.react.ReactComponentB
 import org.scalajs.dom.console

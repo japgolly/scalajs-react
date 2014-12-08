@@ -3,9 +3,9 @@ package ghpages
 import scala.scalajs.js
 import org.scalajs.dom.window
 import japgolly.scalajs.react._, vdom.ReactVDom._, all._, ScalazReact._
-import japgolly.scalajs.react.experiment._
+import japgolly.scalajs.react.extras._
 
-object ExperimentExamples {
+object ExtrasExamples {
 
   /**
    * This is the typical React timer example, modified to use OnUnmount.
