@@ -80,13 +80,6 @@ object ScalajsReact extends Build {
       jsDependencies += "org.webjars" % "react" % "0.12.1" % scope / "react-with-addons.js" commonJSName "React",
       skip in packageJSDependencies := false)
 
-
-  def ghpagesExportJs: PE =
-    _.settings(
-      emitSourceMaps := false,
-      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
-
-
   def addCommandAliases(m: (String, String)*) = {
     val s = m.map(p => addCommandAlias(p._1, p._2)).reduce(_ ++ _)
     (_: Project).settings(s: _*)
@@ -134,6 +127,9 @@ object ScalajsReact extends Build {
   // ==============================================================================================
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, scalaz71)
-    .configure(commonSettings, useReact(), ghpagesExportJs, preventPublication)
+    .configure(commonSettings, useReact(), preventPublication)
+    .settings(
+      emitSourceMaps := false,
+      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
 
 }
