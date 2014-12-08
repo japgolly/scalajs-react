@@ -218,7 +218,7 @@ Extensions
     ))(props.message)
 
     // Or for convenience, put all constants in the first arg:
-    div(classSet("message message-active"
+    div(classSet1("message message-active"
       ,"message-important" -> props.isImportant
       ,"message-read"      -> props.isRead
     ))(props.message)
