@@ -1,12 +1,15 @@
 ## 0.6.1 (unreleased)
 
-* `ComponentOrNode` moved to test module. Renamed to `ReactOrDomNode`.
+##### Core module
 * Changed overloaded `classSet` methods into `classSet{,1}{,M}`.
+* Styles now given to React in camel case. No more warnings.
+
+##### Test module
+* `ComponentOrNode` moved to test module and renamed to `ReactOrDomNode`.
+* `ReactTestUtils` now accept plain old `ReactElement`s.
+* Added `Sel.findFirstIn`.
 * Added `simulateKeyDownUp` and `simulateKeyDownPressUp` to `KeyboardEventData` in the test module.
 * In rare circumstances, `Simulation.run` targets can go out of date. Targets are now stored by-name.
-* Added `Sel.findFirstIn`.
-* `ReactTestUtils` now accept plain old `ReactElement`s.
-* Styles now given to React in camel case. No more warnings.
 
 # 0.6.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.4...v0.6.0))
 
