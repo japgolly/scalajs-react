@@ -3,6 +3,7 @@
 * `ComponentOrNode` moved to test module. Renamed to `ReactOrDomNode`.
 * Changed overloaded `classSet` methods into `classSet{,1}{,M}`.
 * Added `simulateKeyDownUp` and `simulateKeyDownPressUp` to `KeyboardEventData` in the test module.
+* In rare circumstances, `Simulation.run` targets can go out of date. Targets are now stored by-name.
 
 # 0.6.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.4...v0.6.0))
 

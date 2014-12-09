@@ -6,19 +6,25 @@ import ReactTestUtils.Simulate
 /**
  * Allows composition and abstraction of `ReactTestUtils.Simulate` procedures.
  */
-case class Simulation(run: ReactOrDomNode => Unit) {
+class Simulation(_run: (() => ReactOrDomNode) => Unit) {
+
+  def run(n: => ReactOrDomNode): Unit =
+    _run(() => n)
 
   def andThen(f: Simulation) =
-    Simulation(n => { run(n); f.run(n) })
+    new Simulation(n => { _run(n); f.run(n()) })
 
   @inline final def >>     (f: Simulation) = this andThen f
   @inline final def compose(f: Simulation) = f andThen this
 
   final def runN(cs: ReactOrDomNode*): Unit =
-    cs foreach run
+    cs foreach (run(_))
 }
 
 object Simulation {
+
+  def apply(run: (=> ReactOrDomNode) => Unit): Simulation =
+    new Simulation(n => run(n()))
 
   // Don't use default arguments - they force parentheses on to caller.
   // Eg. Simulation.blur >> Simulation.focus becomes Simulation.blur() >> Simulation.focus(). Yuk.

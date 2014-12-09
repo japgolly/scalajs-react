@@ -75,6 +75,16 @@ object TestTest extends TestSuite {
         events mustEqual Vector("focus", "change", "blur")
         i.getDOMNode().value mustEqual "good"
       }
+      'targetByName {
+        val c = ReactTestUtils.renderIntoDocument(IC())
+        var count = 0
+        def tgt = {
+          count += 1
+          Sel("input").findIn(c)
+        }
+        Simulation.focusChangeBlur("-") run tgt
+        assert(count == 3)
+      }
     }
   }
 }
