@@ -8,12 +8,12 @@ import utest._
 
 object TestUtil {
 
-  def assertRender(comp: ReactComponentU_, expected: String): Unit = {
+  def assertRender(comp: ReactElement, expected: String): Unit = {
     val rendered: String = React.renderToStaticMarkup(comp)
     assert(rendered == expected)
   }
 
-  implicit class ReactComponentUAS(val c: ReactComponentU_) extends AnyVal {
+  implicit class ReactComponentUAS(val c: ReactElement) extends AnyVal {
     def shouldRender(expected: String) = assertRender(c, expected)
   }
 
@@ -59,4 +59,7 @@ object TestUtil {
       assert(a == e)
     }
   }
+
+  def removeReactDataAttr(s: String): String =
+    s.replaceAll("""\s+data-react\S+?".*?"""", "")
 }

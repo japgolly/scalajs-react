@@ -11,7 +11,7 @@ object ReactTestUtils extends Object {
   def Simulate: Simulate = ???
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
-  def renderIntoDocument(c: ReactComponentU_): ComponentM = ???
+  def renderIntoDocument(c: ReactElement): ComponentM = ???
   def renderIntoDocument[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N]): ReactComponentM[P,S,B,N] = ???
 
   /**
@@ -22,19 +22,19 @@ object ReactTestUtils extends Object {
   def mockComponent(c: ComponentClass, tagName: String = ???): Object = ???
 
   /** Returns true if instance is an instance of a React componentClass. */
-  def isComponentOfType(instance: ReactComponentU_, c: ComponentClass): Boolean = ???
+  def isComponentOfType(instance: ReactElement, c: ComponentClass): Boolean = ???
 
   /** Returns true if instance is a DOM component (such as a &lt;div&gt; or &lt;span&gt;). */
-  def isDOMComponent(instance: ReactComponentU_): Boolean = ???
+  def isDOMComponent(instance: ReactElement): Boolean = ???
 
   /** Returns true if instance is a composite component (created with React.createClass()) */
-  def isCompositeComponent(instance: ReactComponentU_): Boolean = ???
+  def isCompositeComponent(instance: ReactElement): Boolean = ???
 
   /** The combination of isComponentOfType() and isCompositeComponent(). */
-  def isCompositeComponentWithType(instance: ReactComponentU_, c: ComponentClass): Boolean = ???
+  def isCompositeComponentWithType(instance: ReactElement, c: ComponentClass): Boolean = ???
 
   /** Returns true if instance is a plain text component. */
-  def isTextComponent(instance: ReactComponentU_): Boolean = ???
+  def isTextComponent(instance: ReactElement): Boolean = ???
 
   /**
    * Traverse all components in tree and accumulate all components where test(component) is true.

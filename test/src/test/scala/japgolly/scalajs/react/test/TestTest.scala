@@ -43,6 +43,22 @@ object TestTest extends TestSuite {
       assert(n.className == "BB")
     }
 
+    'renderIntoDocument {
+      def test(c: ComponentM, exp: String): Unit = {
+        val h = removeReactDataAttr(c.getDOMNode().outerHTML)
+        h mustEqual exp
+      }
+      'plainElement {
+        val re: ReactElement = div("Good")
+        val c = ReactTestUtils.renderIntoDocument(re)
+        test(c, """<div>Good</div>""")
+      }
+      'component {
+        val c: ReactComponentM[Unit, Unit, Unit, TopNode] = ReactTestUtils.renderIntoDocument(B())
+        test(c, """<p class="BB">hehehe</p>""")
+      }
+    }
+
     'Simulate {
       'click {
         val c = ReactTestUtils.renderIntoDocument(IC())

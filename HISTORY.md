@@ -5,6 +5,7 @@
 * Added `simulateKeyDownUp` and `simulateKeyDownPressUp` to `KeyboardEventData` in the test module.
 * In rare circumstances, `Simulation.run` targets can go out of date. Targets are now stored by-name.
 * Added `Sel.findFirstIn`.
+* `ReactTestUtils` now accept plain old `ReactElement`s.
 
 # 0.6.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.4...v0.6.0))
 
