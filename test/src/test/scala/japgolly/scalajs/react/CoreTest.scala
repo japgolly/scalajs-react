@@ -47,10 +47,13 @@ object CoreTest extends TestSuite {
 
       'dangerouslySetInnerHtml - test(div(dangerouslySetInnerHtml("<span>")), "<div><span></div>")
 
-      'combination {
-        test(div(cls := "hi", "Str: ", 123, JArray(H1("a"), H1("b")), p(cls := "pp")("!")),
+      'combination - test(
+        div(cls := "hi", "Str: ", 123, JArray(H1("a"), H1("b")), p(cls := "pp")("!")),
         """<div class="hi">Str: 123<h1>a</h1><h1>b</h1><p class="pp">!</p></div>""")
-      }
+
+      'styles - test(
+        div(backgroundColor := "red", marginTop := "10px", "!"),
+        """<div style="background-color:red;margin-top:10px;">!</div>""")
     }
 
     'props {
