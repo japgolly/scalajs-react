@@ -184,5 +184,31 @@ object CoreTest extends TestSuite {
       val v = c.getDOMNode().value // Look, it knows its DOM node type
       assert(v == "123")
     }
+
+    'shouldSupportRefsOnOwnedComponenets {
+      val innerWName = "IamInnerW"
+      val outerWName = "IamOuterW"
+      class WB(t:BackendScope[String,_]) { def getName = t.props}
+      val W  = ReactComponentB[String]("wrapper").stateless.backend(new WB(_)).render((P,C,_,B) => div(C)).build
+      val C = ReactComponentB[Unit]("wrappercontainer")
+        .render(P => {
+          val inner = W(innerWName ,ref := "inner")
+           W(outerWName,inner,ref := "outer")
+         })
+        .componentDidMount(scope => {
+           assert(scope.refs("inner").get.getName == innerWName)
+           assert(scope.refs("outer").get.getName == outerWName)
+        }).buildU
+
+      ReactTestUtils.renderIntoDocument(C())
+    }
+
+    'shouldNotHaveRefsOnUnmountedComponents {
+      val C = ReactComponentB[Unit]("child").render((P,C) => div() ).buildU
+      val P = ReactComponentB[Unit]("parent")
+        .render(P => C(div( ref := "test")))
+        .componentDidMount(scope => assert(scope.refs("test").get == null))
+    }
+
   }
 }
