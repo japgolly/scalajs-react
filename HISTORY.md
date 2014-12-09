@@ -1,3 +1,6 @@
+## 0.6.2 (unreleased)
+
+
 ## 0.6.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.6.0...v0.6.1))
 
 ##### Core module
