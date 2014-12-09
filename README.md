@@ -32,7 +32,7 @@ Setup
 SBT
 ```scala
 // Minimal usage
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.6.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.6.1"
 
 // React itself
 //   (react-with-addons.js can be react.js, react.min.js, react-with-addons.min.js)
@@ -40,11 +40,11 @@ jsDependencies += "org.webjars" % "react" % "0.12.1" / "react-with-addons.js" co
 
 // Test support including ReactTestUtils
 //   (requires react-with-addons.js instead of just react.js)
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.6.0" % "test"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.6.1" % "test"
 
 // Scalaz support
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz70" % "0.6.0" // or
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % "0.6.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz70" % "0.6.1" // or
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % "0.6.1"
 ```
 
 Code:

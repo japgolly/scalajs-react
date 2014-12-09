@@ -1,4 +1,4 @@
-## 0.6.1 (unreleased)
+## 0.6.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.6.0...v0.6.1))
 
 ##### Core module
 * Changed overloaded `classSet` methods into `classSet{,1}{,M}`.
