@@ -11,7 +11,7 @@ object ReactVDom
     extends Bundle[VDomBuilder, ReactElement, ReactFragT]
     with Aliases[VDomBuilder, ReactElement, ReactFragT] {
 
-  object attrs extends ReactVDom.Cap with Attrs with ExtraAttrs
+  object attrs extends ReactVDom.Cap with Attrs with ExtraAttrs2
   object tags extends ReactVDom.Cap with ReactTags
   object tags2 extends ReactVDom.Cap with ReactTags2
   object styles extends ReactVDom.Cap with Styles
@@ -28,7 +28,7 @@ object ReactVDom
       with ReactTags
       with DataConverters
       with Aggregate
-      with ExtraAttrs
+      with ExtraAttrs2
 
   object short
       extends Cap
@@ -36,7 +36,7 @@ object ReactVDom
       with DataConverters
       with AbstractShort
       with Aggregate
-      with ExtraAttrs {
+      with ExtraAttrs2 {
     object * extends Cap with Attrs with Styles
   }
 
@@ -163,10 +163,8 @@ object ReactVDom
     val rowspan = "rowSpan".attr
     val className = "className".attr
     val htmlFor = "htmlFor".attr
-    val refAttr = "ref".attr
-    val keyAttr = "key".attr
-    @inline final def key = keyAttr
-    @inline final def ref = refAttr
+    val ref = "ref".attr
+    val key = "key".attr
     val draggable     = "draggable".attr
     val onDragStart   = "onDragStart".attr
     val onDragEnd     = "onDragEnd".attr
@@ -198,6 +196,11 @@ object ReactVDom
 
     final def classSet1M(a: String, ps: Map[String, Boolean]): Modifier =
       classSet1(a, ps.toSeq: _*)
+  }
+
+  trait ExtraAttrs2 extends ExtraAttrs {
+    final def keyAttr = key
+    final def refAttr = ref
   }
 
   final class CompositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => Modifier) {
