@@ -43,6 +43,22 @@ object TestTest extends TestSuite {
       assert(n.className == "BB")
     }
 
+    'renderIntoDocument {
+      def test(c: ComponentM, exp: String): Unit = {
+        val h = removeReactDataAttr(c.getDOMNode().outerHTML)
+        h mustEqual exp
+      }
+      'plainElement {
+        val re: ReactElement = div("Good")
+        val c = ReactTestUtils.renderIntoDocument(re)
+        test(c, """<div>Good</div>""")
+      }
+      'component {
+        val c: ReactComponentM[Unit, Unit, Unit, TopNode] = ReactTestUtils.renderIntoDocument(B())
+        test(c, """<p class="BB">hehehe</p>""")
+      }
+    }
+
     'Simulate {
       'click {
         val c = ReactTestUtils.renderIntoDocument(IC())
@@ -74,6 +90,16 @@ object TestTest extends TestSuite {
         Simulation.focusChangeBlur("good") run i
         events mustEqual Vector("focus", "change", "blur")
         i.getDOMNode().value mustEqual "good"
+      }
+      'targetByName {
+        val c = ReactTestUtils.renderIntoDocument(IC())
+        var count = 0
+        def tgt = {
+          count += 1
+          Sel("input").findIn(c)
+        }
+        Simulation.focusChangeBlur("-") run tgt
+        assert(count == 3)
       }
     }
   }

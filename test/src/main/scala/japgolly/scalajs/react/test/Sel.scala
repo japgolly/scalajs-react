@@ -32,6 +32,14 @@ sealed abstract class Sel {
     case ∅             => Array()
   }
 
+  final def findFirstIn(i: ComponentM): ComponentM = {
+    val a = findAllIn(i)
+    if (a.isEmpty)
+      sys.error(s"DOM not found for [$this]")
+    else
+      a.head
+  }
+
   final def findInE(i: ComponentM): Either[String, ComponentM] = {
     val a = findAllIn(i)
     a.length match {
@@ -78,7 +86,6 @@ object Sel {
   def apply(css: String): Sel = {
     def lvl(s: String): Sel =
       (id /: s.split("(?=\\.)").filter(_.nonEmpty))((q,a) => q & elem(a))
-      // .filter here ↗ due to https://github.com/scala-js/scala-js/issues/1171
     def elem(s: String): Sel =
       if (s.isEmpty) ∅
       else if (s == "*") id

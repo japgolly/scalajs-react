@@ -4,11 +4,21 @@
 * Moved `.experiment` into a new module "extras".
 * `vdom.prefix_<^`
 
-## 0.6.1 (unreleased)
+## 0.6.2 (unreleased)
 
-* `ComponentOrNode` moved to test module. Renamed to `ReactOrDomNode`.
+
+## 0.6.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.6.0...v0.6.1))
+
+##### Core module
 * Changed overloaded `classSet` methods into `classSet{,1}{,M}`.
+* Styles now given to React in camel case. No more warnings.
+
+##### Test module
+* `ComponentOrNode` moved to test module and renamed to `ReactOrDomNode`.
+* `ReactTestUtils` now accept plain old `ReactElement`s.
+* Added `Sel.findFirstIn`.
 * Added `simulateKeyDownUp` and `simulateKeyDownPressUp` to `KeyboardEventData` in the test module.
+* In rare circumstances, `Simulation.run` targets can go out of date. Targets are now stored by-name.
 
 # 0.6.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.5.4...v0.6.0))
 
