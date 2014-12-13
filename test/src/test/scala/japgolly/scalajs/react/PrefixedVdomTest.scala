@@ -7,7 +7,7 @@ import utest._
 import scala.scalajs.js
 import scala.scalajs.js.{Array => JArray}
 
-object AltScalatagsTest extends TestSuite {
+object PrefixedVdomTest extends TestSuite {
 
   lazy val CA = ReactComponentB[Unit]("CA").render((_,c) => <.div(c)).buildU
   lazy val CB = ReactComponentB[Unit]("CB").render((_,c) => <.span(c)).buildU
@@ -40,14 +40,57 @@ object AltScalatagsTest extends TestSuite {
       'list2jAry - test(<.div(List(H1("a"), H1("b")).toJsArray), "<div><h1>a</h1><h1>b</h1></div>")
       'jAryTag   - test(<.div(JArray(<.span(1), <.span(2))),     "<div><span>1</span><span>2</span></div>")
       'jAryComp  - test(<.div(JArray(H1("a"), H1("b"))),         "<div><h1>a</h1><h1>b</h1></div>")
-      'checkboxT - test(checkbox(true),                          """<input type="checkbox" checked>""")
-      'checkboxF - test(checkbox(false),                         """<input type="checkbox">""")
+      'checkboxT - test(checkbox(true),                        """<input type="checkbox" checked>""")
+      'checkboxF - test(checkbox(false),                       """<input type="checkbox">""")
 
       'dangerouslySetInnerHtml - test(<.div(^.dangerouslySetInnerHtml("<span>")), "<div><span></div>")
 
-      'combination {
-        test(<.div(^.cls := "hi", "Str: ", 123, JArray(H1("a"), H1("b")), <.p(^.cls := "pp")("!")),
+      'combination - test(
+        <.div(^.cls := "hi", "Str: ", 123, JArray(H1("a"), H1("b")), <.p(^.cls := "pp")("!")),
         """<div class="hi">Str: 123<h1>a</h1><h1>b</h1><p class="pp">!</p></div>""")
+
+      'styles - test(
+        <.div(^.backgroundColor := "red", ^.marginTop := "10px", "!"),
+        """<div style="background-color:red;margin-top:10px;">!</div>""")
+
+      'noImplicitUnit - compileError("""val x: TagMod = ()""")
+
+      "?=" - test(
+        <.span(
+          true ?= (^.color := "red"), false ?= (^.color := "black"),
+          true ?= (^.cls := "great"), false ?= (^.cls := "saywhat"),
+          "ok"),
+        """<span class="great" style="color:red;">ok</span>""")
+
+      // Copied from Scalatags
+      'copied {
+
+        'attributeChaining - test(
+          <.div(^.`class` := "thing lol", ^.id := "cow"),
+          """<div class="thing lol" id="cow"></div>""")
+
+        'mixingAttributesStylesAndChildren - test(
+          <.div(^.id := "cow", ^.float.left, <.p("i am a cow")),
+          """<div id="cow" style="float:left;"><p>i am a cow</p></div>""")
+
+        //class/style after attr appends, but attr after class/style overwrites
+        //        'classStyleAttrOverwriting - test(
+        //          div(cls := "my-class", style := "background-color: red;", float.left, p("i am a cow")),
+        //          """<div class="my-class" style="background-color:red;float:left;"><p>i am a cow</p></div>""")
+
+        'intSeq - test(
+          <.div(<.h1("Hello"), for (i <- 0 until 5) yield i),
+          """<div><h1>Hello</h1>01234</div>""")
+
+        'stringArray - {
+          val strArr = Array("hello")
+          test(<.div(Some("lol"), Some(1), None: Option[String], <.h1("Hello"), Array(1, 2, 3), strArr, EmptyTag),
+            """<div>lol1<h1>Hello</h1>123hello</div>""")
+        }
+
+        'applyChaining - test(
+          <.a(^.tabIndex := 1, ^.cls := "lol")(^.href := "boo", ^.alt := "g"),
+          """<a tabindex="1" class="lol" href="boo" alt="g"></a>""")
       }
     }
 
