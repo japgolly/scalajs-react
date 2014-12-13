@@ -97,8 +97,8 @@ class Router[P](val base: BaseUrl, val root: Root[P], val paths: Seq[Path[P]]) e
   }
 
   import vdom.prefix_<^._
-  def setonclick(r: Route[P]) = ^.onclick ~~> setEH(r)
-  def link(r: Route[P]) = <.a(^.href := mkurl(r), setonclick(r))
+  def setOnClick(r: Route[P]) = ^.onClick ~~> setEH(r)
+  def link(r: Route[P]) = <.a(^.href := mkurl(r), setOnClick(r))
 }
 
 sealed trait RouteCmd[+P, A]

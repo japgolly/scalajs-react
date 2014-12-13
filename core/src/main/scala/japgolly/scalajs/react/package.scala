@@ -88,12 +88,11 @@ package object react {
       as.map(ev: js.Function1[A, ReactNode])
   }
 
-  // Scalatags causes this to fail ↓
-  //@inline implicit def reactNodeInhabitableN               (v: js.Number)          : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableN [T <% js.Number](v: T)                  : ReactNode = (v: js.Number).asInstanceOf[ReactNode]
   @inline implicit def reactNodeInhabitableS                 (v: js.String)          : ReactNode = v.asInstanceOf[ReactNode]
   @inline implicit def reactNodeInhabitableAn                (v: js.Array[ReactNode]): ReactNode = v.asInstanceOf[ReactNode]
   @inline implicit def reactNodeInhabitableAt[T <% ReactNode](v: js.Array[T])        : ReactNode = v.toReactNodeArray
-  @inline implicit def reactNodeInhabitableC[T <% ReactNode] (v: TraversableOnce[T]) : ReactNode = v.toReactNodeArray
+  @inline implicit def reactNodeInhabitableC [T <% ReactNode](v: TraversableOnce[T]) : ReactNode = v.toReactNodeArray
   @inline implicit def reactNodeInhabitablePC                (v: PropsChildren)      : ReactNode = v.asInstanceOf[ReactNode]
 
   // ===================================================================================================================

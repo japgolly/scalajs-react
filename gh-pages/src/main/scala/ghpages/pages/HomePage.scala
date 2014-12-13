@@ -1,6 +1,6 @@
 package ghpages.pages
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._, tags2._
+import japgolly.scalajs.react._, vdom.all._
 
 /**
   * Created by chandrasekharkode on 11/16/14.

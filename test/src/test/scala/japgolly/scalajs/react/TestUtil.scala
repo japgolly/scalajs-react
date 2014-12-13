@@ -2,8 +2,7 @@ package japgolly.scalajs.react
 
 import java.util.concurrent.atomic.AtomicReference
 import scala.collection.mutable.ListBuffer
-import vdom.ReactVDom._
-import all._
+import vdom.all._
 import utest._
 
 object TestUtil {

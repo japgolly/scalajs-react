@@ -2,7 +2,7 @@ package ghpages
 
 import scala.scalajs.js
 import org.scalajs.dom.window
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._, ScalazReact._
+import japgolly.scalajs.react._, vdom.all._, ScalazReact._
 import japgolly.scalajs.react.extras._
 
 object ExtrasExamples {

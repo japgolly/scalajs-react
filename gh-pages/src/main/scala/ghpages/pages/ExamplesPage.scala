@@ -1,6 +1,6 @@
 package ghpages.pages
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.all._
 import ghpages.examples._
 
 sealed abstract class Example(val title: String, val el: () => ReactElement)
@@ -37,7 +37,7 @@ object ExamplesPage {
         val active = e.toString == current.toString // workaround for ↖
         li(
           classSet1("list-group-item", "active" -> active),
-          onclick --> b.onMenuClick(e),
+          onClick --> b.onMenuClick(e),
           e.title)
       }
       div(`class` := "col-md-2",

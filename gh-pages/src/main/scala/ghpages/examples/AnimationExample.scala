@@ -1,6 +1,6 @@
 package ghpages.examples
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.all._
 import org.scalajs.dom.window
 import ghpages.examples.util.SideBySide
 import Addons.ReactCssTransitionGroup
@@ -62,10 +62,10 @@ object AnimationExample {
       |  .backend(new Backend(_))
       |  .render((_,S,B) =>
       |    div(
-      |      button(onclick --> B.handleAdd())("Add Item"),
+      |      button(onClick --> B.handleAdd())("Add Item"),
       |      ReactCssTransitionGroup("example", component = "h1")(
       |        S.zipWithIndex.map{case (s,i) =>
-      |          div(key := s, onclick --> B.handleRemove(i))(s)
+      |          div(key := s, onClick --> B.handleRemove(i))(s)
       |        }: _*
       |      )
       |    )
@@ -84,10 +84,10 @@ object AnimationExample {
     .backend(new Backend(_))
     .render((_,S,B) =>
       div(
-        button(onclick --> B.handleAdd())("Add Item"),
+        button(onClick --> B.handleAdd())("Add Item"),
         ReactCssTransitionGroup("example", component = "h1")(
           S.zipWithIndex.map{case (s,i) =>
-            div(key := s, onclick --> B.handleRemove(i))(s)
+            div(key := s, onClick --> B.handleRemove(i))(s)
           }: _*
         )
       )

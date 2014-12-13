@@ -3,8 +3,7 @@ package japgolly.scalajs.react.test
 import org.scalajs.dom.HTMLInputElement
 import utest._
 import japgolly.scalajs.react._
-import vdom.ReactVDom._
-import vdom.ReactVDom.all._
+import vdom.all._
 import TestUtil._
 
 object TestTest extends TestSuite {
@@ -17,14 +16,14 @@ object TestTest extends TestSuite {
   lazy val IC = ReactComponentB[Unit]("IC").initialState(true).renderS((t,_,s) => {
     val ch = (e: ReactEvent) => t.modState(x => !x)
     label(
-      input(`type` := "checkbox", checked := s, onclick ==> ch, ref := inputRef),
+      input(`type` := "checkbox", checked := s, onClick ==> ch, ref := inputRef),
       span(s"s = $s")
     )
   }).buildU
 
   lazy val IT = ReactComponentB[Unit]("IT").initialState("NIL").renderS((t,_,s) => {
     val ch = (e: SyntheticEvent[HTMLInputElement]) => t.setState(e.target.value.toUpperCase)
-    input(`type` := "text", value := s, onchange ==> ch)
+    input(`type` := "text", value := s, onChange ==> ch)
   }).buildU
 
   val tests = TestSuite {
@@ -83,7 +82,7 @@ object TestTest extends TestSuite {
             e("change")
             T.setState(ev.target.value)
           }
-          input(value := T.state, ref := inputRef, onfocus --> e("focus"), onchange ==> chg, onblur --> e("blur"))
+          input(value := T.state, ref := inputRef, onFocus --> e("focus"), onChange ==> chg, onBlur --> e("blur"))
         }).buildU
         val c = ReactTestUtils.renderIntoDocument(C())
         val i = inputRef(c).get

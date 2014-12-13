@@ -1,6 +1,6 @@
 package ghpages
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.all._
 import org.scalajs.dom
 import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
@@ -20,7 +20,7 @@ object ReactApp extends JSApp {
       def element(name: String, index: Int) =
         li(
           `class` := "navbar-brand",
-          onclick --> b.onMenuClick(index),
+          onClick --> b.onMenuClick(index),
           name)
       div(`class` := "navbar navbar-default",
         ul(`class` := "navbar-header",

@@ -1,7 +1,7 @@
 package ghpages.examples
 
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._, ScalazReact._
+import japgolly.scalajs.react._, vdom.all._, ScalazReact._
 
 /** This is the same as TodoExample, modified to demonstrate a more functional programming style. */
 object ScalazExample {
@@ -38,9 +38,9 @@ object ScalazExample {
       |    div(
       |      h3("TODO"),
       |      TodoList(S.items),
-      |      form(onsubmit ~~> T._runState(handleSubmit))( // In Scalaz mode, only use ~~> for callbacks.
+      |      form(onSubmit ~~> T._runState(handleSubmit))( // In Scalaz mode, only use ~~> for callbacks.
       |        input(                                      //   ==> and --> are unsafe.
-      |          onchange ~~> T._runState(acceptChange),   // runState runs a state monad and applies the result.
+      |          onChange ~~> T._runState(acceptChange),   // runState runs a state monad and applies the result.
       |          value := S.text),                         // _runState takes a function to a state monad.
       |        button("Add #", S.items.length + 1)
       |      )
@@ -76,9 +76,9 @@ object ScalazExample {
       div(
         h3("TODO"),
         TodoList(S.items),
-        form(onsubmit ~~> T._runState(handleSubmit))( // In Scalaz mode, only use ~~> for callbacks.
+        form(onSubmit ~~> T._runState(handleSubmit))( // In Scalaz mode, only use ~~> for callbacks.
           input(                                      //   ==> and --> are unsafe.
-            onchange ~~> T._runState(acceptChange),   // runState runs a state monad and applies the result.
+            onChange ~~> T._runState(acceptChange),   // runState runs a state monad and applies the result.
             value := S.text),                         // _runState takes a function to a state monad.
           button("Add #", S.items.length + 1)
         )

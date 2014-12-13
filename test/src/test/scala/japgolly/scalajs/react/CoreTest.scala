@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import utest._
 import org.scalajs.dom
 import org.scalajs.dom.HTMLInputElement
-import vdom.ReactVDom._, all.{Tag => _, _}
+import vdom.all._
 import TestUtil._
 import test.{DebugJs, ReactTestUtils}
 import scala.scalajs.js, js.{Array => JArray}
@@ -35,7 +35,6 @@ object CoreTest extends TestSuite {
       'string    - test(div("yo"),                             "<div>yo</div>")
       'reactNode - test(div(reactNode),                        "<div><h1>cool</h1></div>")
       'comp      - test(div(H1("a")),                          "<div><h1>a</h1></div>")
-      'raw       - test(div(raw("<div>hehe</div>")),           """<div>&lt;div&gt;hehe&lt;/div&gt;</div>""")
       'seqTag    - test(div(Seq (span(1), span(2))),           "<div><span>1</span><span>2</span></div>")
       'listTag   - test(div(List(span(1), span(2))),           "<div><span>1</span><span>2</span></div>")
       'listComp  - test(div(List(H1("a"), H1("b"))),           "<div><h1>a</h1><h1>b</h1></div>")
@@ -54,6 +53,46 @@ object CoreTest extends TestSuite {
       'styles - test(
         div(backgroundColor := "red", marginTop := "10px", "!"),
         """<div style="background-color:red;margin-top:10px;">!</div>""")
+
+      'noImplicitUnit - compileError("""val x: TagMod = ()""")
+
+      "?=" - test(
+        span(
+          true ?= (color := "red"), false ?= (color := "black"),
+          true ?= (cls := "great"), false ?= (cls := "saywhat"),
+          "ok"),
+        """<span class="great" style="color:red;">ok</span>""")
+
+      // Copied from Scalatags
+      'copied {
+
+        'attributeChaining - test(
+          div(`class` := "thing lol", id := "cow"),
+          """<div class="thing lol" id="cow"></div>""")
+
+        'mixingAttributesStylesAndChildren - test(
+          div(id := "cow", float.left, p("i am a cow")),
+          """<div id="cow" style="float:left;"><p>i am a cow</p></div>""")
+
+        //class/style after attr appends, but attr after class/style overwrites
+//        'classStyleAttrOverwriting - test(
+//          div(cls := "my-class", style := "background-color: red;", float.left, p("i am a cow")),
+//          """<div class="my-class" style="background-color:red;float:left;"><p>i am a cow</p></div>""")
+
+        'intSeq - test(
+          div(h1("Hello"), for (i <- 0 until 5) yield i),
+          """<div><h1>Hello</h1>01234</div>""")
+
+        'stringArray - {
+          val strArr = Array("hello")
+          test(div(Some("lol"), Some(1), None: Option[String], h1("Hello"), Array(1, 2, 3), strArr, EmptyTag),
+            """<div>lol1<h1>Hello</h1>123hello</div>""")
+        }
+
+        'applyChaining - test(
+          a(tabIndex := 1, cls := "lol")(href := "boo", alt := "g"),
+          """<a tabindex="1" class="lol" href="boo" alt="g"></a>""")
+      }
     }
 
     'props {

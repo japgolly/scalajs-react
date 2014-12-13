@@ -1,6 +1,6 @@
 package ghpages.examples
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.all._
 import ghpages.examples.util.SideBySide
 
 /** Scala version of "An Application" on http://facebook.github.io/react/ */
@@ -76,8 +76,8 @@ object TodoExample {
       |    div(
       |      h3("TODO"),
       |      TodoList(S.items),
-      |      form(onsubmit ==> B.handleSubmit)(
-      |        input(onchange ==> B.onChange, value := S.text),
+      |      form(onSubmit ==> B.handleSubmit)(
+      |        input(onChange ==> B.onChange, value := S.text),
       |        button("Add #", S.items.length + 1)
       |      )
       |    )
@@ -112,8 +112,8 @@ object TodoExample {
       div(
         h3("TODO"),
         TodoList(S.items),
-        form(onsubmit ==> B.handleSubmit)(
-          input(onchange ==> B.onChange, value := S.text),
+        form(onSubmit ==> B.handleSubmit)(
+          input(onChange ==> B.onChange, value := S.text),
           button("Add #", S.items.length + 1)
         )
       )

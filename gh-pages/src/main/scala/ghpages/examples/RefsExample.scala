@@ -1,6 +1,6 @@
 package ghpages.examples
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.all._
 import org.scalajs.dom.HTMLInputElement
 import ghpages.examples.util.SideBySide
 
@@ -59,8 +59,8 @@ object RefsExample {
       |  .backend(new Backend(_))
       |  .render((_,S,B) =>
       |    div(
-      |      div(onclick --> B.clearAndFocusInput)("Click to Focus and Reset"),
-      |      input(ref := theInput, value := S, onchange ==> B.handleChange)
+      |      div(onClick --> B.clearAndFocusInput)("Click to Focus and Reset"),
+      |      input(ref := theInput, value := S, onChange ==> B.handleChange)
       |    )
       |  ).buildU
       |
@@ -81,8 +81,8 @@ object RefsExample {
     .backend(new Backend(_))
     .render((_,S,B) =>
       div(
-        div(onclick --> B.clearAndFocusInput)("Click to Focus and Reset"),
-        input(ref := theInput, value := S, onchange ==> B.handleChange)
+        div(onClick --> B.clearAndFocusInput)("Click to Focus and Reset"),
+        input(ref := theInput, value := S, onChange ==> B.handleChange)
       )
     ).buildU
 }

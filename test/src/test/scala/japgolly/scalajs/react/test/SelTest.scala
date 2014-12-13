@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.test
 
 import utest._
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.all._
 import TestUtil._
 
 object SelTest extends TestSuite {

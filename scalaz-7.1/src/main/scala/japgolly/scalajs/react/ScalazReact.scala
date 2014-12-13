@@ -1,7 +1,8 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
-import japgolly.scalajs.react.vdom.ReactVDom._
+import japgolly.scalajs.react.vdom.Attr
+import japgolly.scalajs.react.vdom.Implicits._
 import scala.scalajs.js.{UndefOr, undefined}
 import scalaz._
 import scalaz.effect.IO

@@ -34,7 +34,6 @@ object AltScalatagsTest extends TestSuite {
       'string    - test(<.div("yo"),                             "<div>yo</div>")
       'reactNode - test(<.div(reactNode),                        "<div><h1>cool</h1></div>")
       'comp      - test(<.div(H1("a")),                          "<div><h1>a</h1></div>")
-//      'raw     - test(<.div(raw("<div>hehe</div>")),           """<div>&lt;div&gt;hehe&lt;/div&gt;</div>""")
       'seqTag    - test(<.div(Seq (<.span(1), <.span(2))),       "<div><span>1</span><span>2</span></div>")
       'listTag   - test(<.div(List(<.span(1), <.span(2))),       "<div><span>1</span><span>2</span></div>")
       'listComp  - test(<.div(List(H1("a"), H1("b"))),           "<div><h1>a</h1><h1>b</h1></div>")

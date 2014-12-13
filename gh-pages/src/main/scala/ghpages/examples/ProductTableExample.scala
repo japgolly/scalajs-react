@@ -1,6 +1,6 @@
 package ghpages.examples
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.all._
 import ghpages.examples.util.SideBySide
 
 /** Scala version of example on http://facebook.github.io/react/docs/thinking-in-react.html */
@@ -152,7 +152,7 @@ object ProductTableExample {
       |}
       |
       |val ProductCategoryRow = ReactComponentB[String]("ProductCategoryRow")
-      |  .render(category => tr(th(colspan := 2, category)))
+      |  .render(category => tr(th(colSpan := 2, category)))
       |  .build
       |
       |val ProductRow = ReactComponentB[Product]("ProductRow")
@@ -189,9 +189,9 @@ object ProductTableExample {
       |  .render(P => {
       |    val (s, b) = P
       |    form()(
-      |      input(placeholder := "Search Bar ...", value := s.filterText, onchange ==> b.onTextChange),
+      |      input(placeholder := "Search Bar ...", value := s.filterText, onChange ==> b.onTextChange),
       |      p(
-      |        input(tpe := "checkbox", onclick ==> b.onCheckBox), "Only show products in stock"))
+      |        input(tpe := "checkbox", onClick ==> b.onCheckBox), "Only show products in stock"))
       |  })
       |  .build
       |
@@ -228,13 +228,13 @@ object ProductTableExample {
   }
 
   val ProductCategoryRow = ReactComponentB[String]("ProductCategoryRow")
-    .render(category => tr(th(colspan := 2, category)))
+    .render(category => tr(th(colSpan := 2, category)))
     .build
 
   val ProductRow = ReactComponentB[Product]("ProductRow")
     .render(p =>
       tr(
-        td(span(!p.stocked && (color := "red"), p.name)),
+        td(span(!p.stocked ?= color.red, p.name)),
         td(p.price))
     )
     .build
@@ -265,9 +265,9 @@ object ProductTableExample {
     .render(P => {
       val (s, b) = P
       form()(
-        input(placeholder := "Search Bar ...", value := s.filterText, onchange ==> b.onTextChange),
+        input(placeholder := "Search Bar ...", value := s.filterText, onChange ==> b.onTextChange),
         p(
-          input(tpe := "checkbox", onclick ==> b.onCheckBox), "Only show products in stock"))
+          input(tpe := "checkbox", onClick ==> b.onCheckBox), "Only show products in stock"))
     })
     .build
 

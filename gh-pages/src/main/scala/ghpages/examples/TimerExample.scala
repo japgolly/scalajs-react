@@ -1,6 +1,6 @@
 package ghpages.examples
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.all._
 import org.scalajs.dom.window
 import scala.scalajs.js
 import ghpages.examples.util.SideBySide

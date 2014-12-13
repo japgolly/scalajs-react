@@ -1,13 +1,12 @@
 package japgolly.scalajs.react
 
 import scala.scalajs.js
-import vdom.ReactVDom.all._
 
 object Addons {
 
   object ReactCssTransitionGroup {
     /** Items in the CSSTransitionGroup need this attribute for animation to work properly. */
-    val key = "key".attr
+    @inline final def key = vdom.Attrs.key
   }
 
   case class ReactCssTransitionGroup(name: String,

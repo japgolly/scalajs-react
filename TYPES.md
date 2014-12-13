@@ -10,17 +10,17 @@ A`ReactNode` which is anything usable a child of a `ReactElement`. This can be a
 *More detail: http://facebook.github.io/react/docs/glossary.html*
 
 #### Scalatags
-[Scalatags](https://github.com/lihaoyi/scalatags) is used for DOM-building type-safety. A DOM element is first constructed via Scalatags, then converted automatically to a `ReactElement`.
+A custom version [Scalatags](https://github.com/lihaoyi/scalatags) is used for DOM-building type-safety. A DOM element is first constructed via Scalatags, then converted automatically to a `ReactElement`.
 
 There are two types to note:
-* `ReactVDom.Tag` - A DOM still being constructed, a soon-to-be `ReactElement`. Additional properties, styles and children can be specified via `tag.apply(Modifier): Tag`.
-* `ReactVDom.Modifier` - 0, 1, or *n* properties, styles or children than can be applied to a `Tag`.
+* `...react.vdom.ReactTag` - A DOM still being constructed, a soon-to-be `ReactElement`. Additional properties, styles and children can be specified via `.apply(TagMod): ReactTag`.
+* `...react.vdom.TagMod` - 0, 1, or *n* properties, styles or children that can be applied to a `ReactTag`.
 
 Example:
 ```scala
-val tag1   : Tag          = input(cls := "name")
-val mod    : Modifier     = value := "Bob"
-val tag2   : Tag          = tag1(mod, readonly := true)
+val tag1   : ReactTag     = input(className := "name")
+val mod    : TagMod       = value := "Bob"
+val tag2   : ReactTag     = tag1(mod, readOnly := true)
 val element: ReactElement = tag2
 // equivalent to <input class="name" value="Bob" readonly=true />
 ```
