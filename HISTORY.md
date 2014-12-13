@@ -15,15 +15,15 @@ Why? What does that mean?
 * Therefore, improved performance, smaller JS output.
 * No more console warnings from React about styles.
 * Attributes now match what you do in React JS. (eg. `onClick` instead of `onclick`)
-* Fixed bug where numbers weren't convertible to ReactNode.
-* Removed `()` to `Tag` implicit conversion. It seems like a good idea but is unsafe and can cause certain issues
-  (esp with type inference) to be silently ignored. Use `EmptyTag` instead.
+* Fixed bug where numbers weren't convertible to `ReactNode`.
+* Removed Scalatags' `()` to `Tag` implicit conversion. It seems like a good idea but can cause certain issues
+  (esp with type inference) to be silently ignored, and is unsafe. Use `EmptyTag` instead.
 * As an unintended consequence, `bool && (attr := value)` changed to `bool ?= (attr := value)`.
 * `Tag` is now `ReactTag`. `Modifier` is now `TagMod`.
 * No more arbitrary subsets of tags and attributes, ie. no more additional importing of `tags2._` etc.
 * There are now well-organised modules for imports. This...
   1. Fixes bug with conflicting types for `Tag` being imported.
-  2. Gives you the ability to opt-out of very messy namespace pollution.
+  2. Gives you the ability to opt-out of messy namespace pollution.
   3. Gives you control to import types, implicits, tags, attrs, styles, separately.
   4. Gives you control to build your own modules.
 
@@ -58,6 +58,11 @@ Just change your two `vdom` imports to this one:
 import japgolly.scalajs.react.vdom.all._
 ```
 
+##### Migration script
+To ease migration, here is a script that perform 98% of the required changes for you.
+Remember to check into source control before running and verify the changes after running.
+
+https://gist.github.com/japgolly/c68482dbadb0077f550c
 
 ## 0.6.2 (unreleased)
 
