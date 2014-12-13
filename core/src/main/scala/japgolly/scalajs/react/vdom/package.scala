@@ -5,6 +5,10 @@ package japgolly.scalajs.react
  */
 package object vdom {
 
+  val EmptyTag: TagMod = new TagMod {
+    def applyTo(t: Builder) = ()
+  }
+
   trait Tags extends HtmlTags with Extra.Tags
   trait JustTags extends Tags { final def svg = SvgTags }
   object Tags extends JustTags

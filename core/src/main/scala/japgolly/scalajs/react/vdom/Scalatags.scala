@@ -249,10 +249,6 @@ private[vdom] object Scalatags {
   }
 }
 
-object EmptyTag extends TagMod {
-  def applyTo(t: Builder) = ()
-}
-
 
 /**
  * Utility methods related to validating and escaping XML; used internally but
