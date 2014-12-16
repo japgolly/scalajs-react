@@ -1,19 +1,23 @@
 package japgolly.scalajs.react.extras.router
 
+import scalaz.{-\/, \/-, \/}
 import japgolly.scalajs.react.{ReactElement, ReactComponentC, TopNode}
 
 /**
  * DSL for specifying a set of routing rules.
  */
 trait Page {
-  final type P        = this.type
-  final type Renderer = japgolly.scalajs.react.extras.router.Renderer[P]
-  final type Router   = japgolly.scalajs.react.extras.router.Router[P]
-  final type Loc      = Location[P]
+  final type P              = this.type
+  final type Renderer       = japgolly.scalajs.react.extras.router.Renderer[P]
+  final type Router         = japgolly.scalajs.react.extras.router.Router[P]
+  final type Loc            = Location[P]
+  final type RedirectTarget = Redirect.Target[P]
 
   @inline final protected implicit def componentP_renderer[S,B,T<:TopNode](c: ReactComponentC.ReqProps[Router, S, B, T]): Renderer = c(_)
   @inline final protected implicit def componentU_renderer[P,S,B,T<:TopNode](c: ReactComponentC.ConstProps[P, S, B, T]): Renderer = _ => c()
   @inline final protected implicit def element_renderer[A <% ReactElement](a: A): Renderer = _ => a
+  @inline final protected implicit def loc_redirectable(a: Loc): RedirectTarget = \/-(a)
+  @inline final protected implicit def path_redirectable(p: Path): RedirectTarget = -\/(p)
 
   private[this] def parser: Path => RouteAction[P] =
     p => parseS(p) orElse parseD(p) getOrElse notFound(p)
@@ -61,11 +65,14 @@ trait Page {
     staticRoute(p, Location[P](p, render))
   }
 
-  final protected def redirection(from: String, to: Loc, method: Redirect.Method): Redirect[P] =
+  final protected def redirection(from: String, to: RedirectTarget, method: Redirect.Method): Redirect[P] =
     staticRoute(Path(from), Redirect(to, method))
 
   // ===================================================================================================================
   //  Dynamic Routes
+
+  /** Evidence that a dynamic route was registered. */
+  sealed trait Registered
 
   /**
    * Parse a dynamic path. Example: `"person/123"`
@@ -76,9 +83,6 @@ trait Page {
     new DynB[T](pf.lift.compose[Path](_.value))
 
   final protected class DynB[T](parse: Path => Option[T]) {
-
-    /** Evidence that a route was registered. */
-    sealed trait Registered
 
     private def register(f: (Path, T) => RouteAction[P]): Registered = {
       val r: DynRoute = path => parse(path).map(t => f(path, t))
@@ -98,7 +102,7 @@ trait Page {
     def location(f: T => Renderer): Registered =
       register((p, t) => Location(p, f(t)))
 
-    def redirection(f: T => (Loc, Redirect.Method)): Registered =
+    def redirection(f: T => (RedirectTarget, Redirect.Method)): Registered =
       register((_, t) => {
         val (l, m) = f(t)
         Redirect(l, m)
@@ -116,7 +120,7 @@ trait Page {
     t => DynamicLocation(Path(path(t)))
 
   // ===================================================================================================================
-  // Convenience
+  // Convenience & Utility
 
   final def routingEngine(base: BaseUrl): Router =
     new Router(base, parser)
@@ -124,6 +128,14 @@ trait Page {
   final def router(base: BaseUrl): Router.Component[P] =
     Router.component(routingEngine(base))
 
-  /** `case numberMatch(num) => num.toLong` */
-  protected final lazy val numberMatch = "^(\\d+)$".r
+  /** `case matchNumber(num) => num.toLong` */
+  protected final lazy val matchNumber = "^(\\d+)$".r
+
+  /**
+   * Registers a handle that uses a replace-state redirect to remove trailing slashes from unmatched route urls.
+   */
+  def removeTrailingSlashes(): Registered = {
+    val regex = "^(.*?)/+$".r
+    parse { case regex(p) => p }.redirection(p => (Path(p), Redirect.Replace))
+  }
 }

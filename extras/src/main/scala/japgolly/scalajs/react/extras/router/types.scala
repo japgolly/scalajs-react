@@ -2,7 +2,7 @@ package japgolly.scalajs.react.extras.router
 
 import org.scalajs.dom
 import scalaz.std.string.stringInstance
-import scalaz.Equal
+import scalaz.{\/, Equal}
 
 /**
  * The prefix of all routes in a set.
@@ -46,8 +46,10 @@ object Location {
   implicit def equivalence[P]: Equal[Location[P]] = Equal.equalBy(_.path.value)
 }
 
-final case class Redirect[P] private[router] (to: Location[P], method: Redirect.Method) extends RouteAction[P]
+final case class Redirect[P] private[router] (to: Redirect.Target[P], method: Redirect.Method) extends RouteAction[P]
 object Redirect {
+  type Target[P] = Path \/ Location[P]
+
   sealed trait Method
   /** The current URL will not be recorded in history. User can't hit ''Back'' button to reach it. */
   case object Replace extends Method

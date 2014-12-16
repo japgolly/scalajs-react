@@ -70,10 +70,15 @@ final class Router[P](val baseUrl: BaseUrl,
     PushState[P](url) >> prog(syncToUrl(url))
   }
 
+  def redirectCmd(p: Path, m: Redirect.Method): Cmd[Unit] = m match {
+    case Redirect.Push    => PushState   [P](p.abs)
+    case Redirect.Replace => ReplaceState[P](p.abs)
+  }
+
   val resolve: RouteAction[P] => Prog[Loc] \/ Loc = {
-    case l@ Location(_,_)               => \/-(l)
-    case Redirect(to, Redirect.Push)    => -\/( PushState   [P](to.path.abs) >> ReturnLoc(to) )
-    case Redirect(to, Redirect.Replace) => -\/( ReplaceState[P](to.path.abs) >> ReturnLoc(to) )
+    case l@ Location(_,_)       => \/-(l)
+    case Redirect(\/-(loc),  m) => -\/( redirectCmd(loc.path, m) >> ReturnLoc(loc))
+    case Redirect(-\/(path), m) => -\/( redirectCmd(path, m) >> prog(syncToUrl(path.abs)))
   }
 
   def prog(e: Prog[Loc] \/ Loc): Prog[Loc] =

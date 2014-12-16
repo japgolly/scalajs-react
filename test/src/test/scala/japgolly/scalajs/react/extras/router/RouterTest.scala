@@ -35,16 +35,18 @@ object RouterTest extends TestSuite {
 
     private val personPathMatch = "^/person/(.+)$".r
     parse { case personPathMatch(p) => p }.thenMatch {
-      case numberMatch(idStr) => render(PersonComponent(PersonId(idStr.toLong)))
+      case matchNumber(idStr) => render(PersonComponent(PersonId(idStr.toLong)))
       case _                  => redirect(root, Redirect.Push) // non-numeric id
     }
     val person = dynLink[PersonId](id => s"/person/${id.value}")
 
-    // ********
-    // Fallback
-    // ********
+    // *********
+    // Fallbacks
+    // *********
 
     override val notFound = redirect(root, Redirect.Replace)
+
+    removeTrailingSlashes()
   }
 
   def addBackButton[P](root: => Location[P], inner: => Renderer[P]): Renderer[P] = router => {
@@ -153,39 +155,39 @@ object RouterTest extends TestSuite {
       val r = MyPage.routingEngine(base)
 
       'urlParsing {
-        'root { r.parseUrl(base.abs) mustEqual Some(Path("")) }
-        //'tslash { r.parseUrl(base / "" abs) mustEqual Some(Path("")) }
-        'path { r.parseUrl(base / "hehe" abs) mustEqual Some(Path("/hehe")) }
+        'root   { r.parseUrl(base.abs)          mustEqual Some(Path("")) }
+        'tslash { r.parseUrl(base / "" abs)     mustEqual Some(Path("/")) }
+        'path   { r.parseUrl(base / "hehe" abs) mustEqual Some(Path("/hehe")) }
       }
 
       'syncToUrl {
-        'match_root { r.syncToUrl(base.abs) mustEqual \/-(MyPage.root) }
-        'match_path { r.syncToUrl(base / "hello" abs) mustEqual \/-(MyPage.hello) }
-        'notFound_redirect {
-          val s = SimHistory(base / "what" abs)
+        def runh[P](r: Router[P], start: AbsUrl) = {
+          val s = SimHistory(start)
           val a = s.rune(r.syncToUrl(s.startUrl))
-          s.history mustEqual List(MyPage.root.path.abs)
           s.broadcasts mustEqual Vector.empty // this is sync(), not set()
-          a mustEqual MyPage.root
+          (s, a)
         }
+
+        def testh[P](r: Router[P], start: AbsUrl)(expectPrevHistory: AbsUrl => List[AbsUrl], expectLoc: Location[P]): Unit = {
+          val (s, a) = runh(r, start)
+          s.history.mustEqual(expectLoc.path.abs :: expectPrevHistory(start))
+          a mustEqual expectLoc
+        }
+
+        'match_root - r.syncToUrl(base.abs)          .mustEqual(\/-(MyPage.root))
+        'match_path - r.syncToUrl(base / "hello" abs).mustEqual(\/-(MyPage.hello))
+        'notFound_redirect - testh(r, base / "what" abs)(_ => Nil, MyPage.root)
         'notFound_render {
           val abs = base / "what" abs
           val r2 = MyOtherPage.routingEngine(base)
-          val s = SimHistory(abs)
-          val a = s.rune(r2.syncToUrl(s.startUrl))
+          val (s, a) = runh(r2, abs)
           s.history mustEqual List(abs)
-          s.broadcasts mustEqual Vector.empty
           a.path.value mustEqual "/what"
           React.renderToStaticMarkup(a render r2) mustEqual "<h1>404!!</h1>"
         }
-        'badbase {
-          val google = AbsUrl("https://www.google.com")
-          val s = SimHistory(google)
-          val a = s.rune(r.syncToUrl(s.startUrl))
-          s.history mustEqual List(MyPage.root.path.abs, google)
-          s.broadcasts mustEqual Vector.empty // this is sync(), not set()
-          a mustEqual MyPage.root
-        }
+        'badbase - testh(r, AbsUrl("https://www.google.com"))(List(_), MyPage.root)
+        'tslash_root - testh(r, base / "" abs)      (_ => Nil, MyPage.root)
+        'tslash_path - testh(r, base / "hello/" abs)(_ => Nil, MyPage.hello)
       }
 
       'linksScoped {
