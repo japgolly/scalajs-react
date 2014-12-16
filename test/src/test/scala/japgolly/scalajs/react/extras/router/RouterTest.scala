@@ -18,7 +18,8 @@ object RouterTest extends TestSuite {
 
     val root       = register(rootLocation(RootComponent))
     val hello: Loc = register(location("/hello", HelloComponent))
-    val oldHello   = register(redirection("/hey", hello, Redirect.Replace))
+
+    register(redirection("/hey", hello, Redirect.Replace))
 
     // **************
     // Dynamic Routes
@@ -40,9 +41,11 @@ object RouterTest extends TestSuite {
     })
     val person = dynLink[PersonId](id => s"/person/${id.value}")
 
-    // *********
-    // Fallbacks
-    // *********
+    // *******
+    // General
+    // *******
+
+    register(removeTrailingSlashes)
 
     override protected val notFound = redirect(root, Redirect.Replace)
 
@@ -53,8 +56,11 @@ object RouterTest extends TestSuite {
         <.div(
           <.div(i.router.link(root)("Back", ^.cls := "back")),
           i.element)
+  }
 
-    register(removeTrailingSlashes)
+  object MyOtherPage extends Page {
+    override val notFound = render(<.h1("404!!"))
+    val thebuns = register(location(".buns", <.h1("The Buns!")))
   }
 
   val RootComponent = ReactComponentB[MyPage.Router]("Root")
@@ -79,11 +85,6 @@ object RouterTest extends TestSuite {
   val PersonComponent = ReactComponentB[PersonId]("Person by ID")
     .render(p => <.h3(s"Person #${p.value} Details..."))
     .build
-
-  object MyOtherPage extends Page {
-    override val notFound = render(<.h1("404!!"))
-    val thebuns = location(".buns", <.h1("The Buns!"))
-  }
 
   // -------------------------------------------------------------------------------------------------------------------
 
