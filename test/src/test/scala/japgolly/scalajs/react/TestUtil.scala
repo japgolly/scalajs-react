@@ -62,9 +62,12 @@ object TestUtil {
   def removeReactDataAttr(s: String): String =
     s.replaceAll("""\s+data-react\S+?".*?"""", "")
 
-  def assertContains(in: String, subj: String, expect: Boolean): Unit =
-    if (in.contains(subj) != expect) {
-      println(s"\nHTML: $in\nSubj: $subj\nExpect: $expect\n")
+  def assertContains(value: String, search: String, expect: Boolean = true): Unit =
+    if (value.contains(search) != expect) {
+      println(s"\nValue: $value\nSearch: $search\nExpect: $expect\n")
       assert(false)
     }
+
+  def assertTypeMismatch(e: CompileError): Unit =
+    assertContains(e.msg, "type mismatch")
 }

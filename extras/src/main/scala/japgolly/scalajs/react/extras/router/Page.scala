@@ -25,7 +25,8 @@ trait Page {
   private[this] var dynRoutes = Vector.empty[DynRoute]
   private[this] val parseD: DynRoute = p => dynRoutes.foldLeft(None: Option[RouteAction[P]])(_ orElse _(p))
 
-  // DynAction
+  // ===================================================================================================================
+  // Actions
 
   final type DynAction = Path => RouteAction[P]
 
@@ -40,6 +41,7 @@ trait Page {
   final protected def redirect(to: Loc, method: Redirect.Method): DynAction =
     _ => Redirect(to, method)
 
+  // ===================================================================================================================
   //  Static Routes
 
   final private def staticRoute[A <: RouteAction[P]](path: Path, action: A): A =
@@ -62,6 +64,7 @@ trait Page {
   final protected def redirection(from: String, to: Loc, method: Redirect.Method): Redirect[P] =
     staticRoute(Path(from), Redirect(to, method))
 
+  // ===================================================================================================================
   //  Dynamic Routes
 
   /**
@@ -112,6 +115,7 @@ trait Page {
   final protected def dynLink[T](path: T => String): T => DynamicLocation[P] =
     t => DynamicLocation(Path(path(t)))
 
+  // ===================================================================================================================
   // Convenience
 
   final def routingEngine(base: BaseUrl): Router =
@@ -120,5 +124,6 @@ trait Page {
   final def router(base: BaseUrl): Router.Component[P] =
     Router.component(routingEngine(base))
 
-//  @inline final def renderer(r: Renderer): Renderer = r
+  /** `case numberMatch(num) => num.toLong` */
+  protected final lazy val numberMatch = "^(\\d+)$".r
 }

@@ -3,47 +3,46 @@ package japgolly.scalajs.react.extras.router
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import japgolly.scalajs.react.test._
 import org.scalajs.dom._
-import scalaz.effect.IO
 import scalaz._
-import scalaz.syntax.equal._
+import scalaz.effect.IO
 import utest._
 import TestUtil._
 
 object RouterTest extends TestSuite {
 
-  /* TODO
-
-  private val showR2 = "^id/([^/]+)$".r
-  private val number = "^(\\d+)$".r
-
-  parse{ case showR2(idStr) => idStr }.thenMatch {
-    case number(s) => val id = s.toLong; render(_ => RE)
-    case _         => redirect(root, Redirect.Push)
-  }
-  val show = dynLink[Long](id => s"show/$id")
-
-
-  val wow1 = location("wow1", router => router.link(ExamplePage1.blah).render)
-//  val wow2 = location("wow2", router => router.link(ExamplePage2.blah).render)
-}
-
-object ExamplePage2 extends Page {
-  override val notFound = render(_ => RE)
-  val blah = location("blah", _ => RE)
-}
-   */
-
-  // -------------------------------------------------------------------------------------------------------------------
-
   object MyPage extends Page {
+
+    // *************
+    // Static Routes
+    // *************
 
     val root       = rootLocation(RootComponent)
     val hello: Loc = location("/hello", addBackButton(root, HelloComponent))
     val oldHello   = redirection("/hey", hello, Redirect.Replace)
 
+    // **************
+    // Dynamic Routes
+    // **************
+
+    // This example matches /name/<anything>
+
     private val namePathMatch = "^/name/(.+)$".r
     parse { case namePathMatch(n) => n }.location(n => addBackButton(root, NameComponent(n)))
     val name = dynLink[String](n => s"/name/$n")
+
+    // This example matches /person/<number>
+    //     and redirects on /person/<not-a-number>
+
+    private val personPathMatch = "^/person/(.+)$".r
+    parse { case personPathMatch(p) => p }.thenMatch {
+      case numberMatch(idStr) => render(PersonComponent(PersonId(idStr.toLong)))
+      case _                  => redirect(root, Redirect.Push) // non-numeric id
+    }
+    val person = dynLink[PersonId](id => s"/person/${id.value}")
+
+    // ********
+    // Fallback
+    // ********
 
     override val notFound = redirect(root, Redirect.Replace)
   }
@@ -71,6 +70,16 @@ object ExamplePage2 extends Page {
   val NameComponent = ReactComponentB[String]("Name")
     .render(name => <.h3(s"I believe your name is '$name'."))
     .build
+
+  case class PersonId(value: Long)
+  val PersonComponent = ReactComponentB[PersonId]("Person by ID")
+    .render(p => <.h3(s"Person #${p.value} Details..."))
+    .build
+
+  object MyOtherPage extends Page {
+    override val notFound = render(<.h1("404!!"))
+    val thebuns = location(".buns", <.h1("The Buns!"))
+  }
 
   // -------------------------------------------------------------------------------------------------------------------
 
@@ -148,15 +157,26 @@ object ExamplePage2 extends Page {
         //'tslash { r.parseUrl(base / "" abs) mustEqual Some(Path("")) }
         'path { r.parseUrl(base / "hehe" abs) mustEqual Some(Path("/hehe")) }
       }
+
       'syncToUrl {
         'match_root { r.syncToUrl(base.abs) mustEqual \/-(MyPage.root) }
         'match_path { r.syncToUrl(base / "hello" abs) mustEqual \/-(MyPage.hello) }
-        'notFound {
+        'notFound_redirect {
           val s = SimHistory(base / "what" abs)
           val a = s.rune(r.syncToUrl(s.startUrl))
           s.history mustEqual List(MyPage.root.path.abs)
           s.broadcasts mustEqual Vector.empty // this is sync(), not set()
           a mustEqual MyPage.root
+        }
+        'notFound_render {
+          val abs = base / "what" abs
+          val r2 = MyOtherPage.routingEngine(base)
+          val s = SimHistory(abs)
+          val a = s.rune(r2.syncToUrl(s.startUrl))
+          s.history mustEqual List(abs)
+          s.broadcasts mustEqual Vector.empty
+          a.path.value mustEqual "/what"
+          React.renderToStaticMarkup(a render r2) mustEqual "<h1>404!!</h1>"
         }
         'badbase {
           val google = AbsUrl("https://www.google.com")
@@ -166,6 +186,11 @@ object ExamplePage2 extends Page {
           s.broadcasts mustEqual Vector.empty // this is sync(), not set()
           a mustEqual MyPage.root
         }
+      }
+
+      'linksScoped {
+        r.link(MyPage.root)
+        assertTypeMismatch(compileError("r.link(MyOtherPage.thebuns)"))
       }
     }
   }

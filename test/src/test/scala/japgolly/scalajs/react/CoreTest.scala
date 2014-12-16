@@ -54,7 +54,7 @@ object CoreTest extends TestSuite {
         div(backgroundColor := "red", marginTop := "10px", "!"),
         """<div style="background-color:red;margin-top:10px;">!</div>""")
 
-      'noImplicitUnit - compileError("""val x: TagMod = ()""")
+      'noImplicitUnit - assertTypeMismatch(compileError("""val x: TagMod = ()"""))
 
       "?=" - test(
         span(
