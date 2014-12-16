@@ -32,7 +32,7 @@ object Listenable {
   def installS[P, S, B <: OnUnmount, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> IO) =
     installIO[P, S, B, A](f, (t, a) => t.runState(g(a)))
 
-  def installF[P, S, B <: OnUnmount, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> IO, F: ChangeFilter[S]) =
+  def installSF[P, S, B <: OnUnmount, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> IO, F: ChangeFilter[S]) =
     installIO[P, S, B, A](f, (t, a) => t.runStateF(g(a)))
 
 }

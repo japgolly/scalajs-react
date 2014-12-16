@@ -6,22 +6,21 @@ import scalaz.Free
 
 package object router {
 
-  @inline implicit def routeChangeFilter[P] =
-    ChangeFilter.refl[Route[P]]
-
   type Renderer[P] = Router[P] => ReactElement
 
+  implicit def routeChangeFilter[P] = ChangeFilter.equal[Location[P]]
+
+  /** Free monad & free functor over route commands. */
   type RouteProg[P, A] = Free.FreeC[({type λ[α] = RouteCmd[P, α]})#λ, A]
 
-  implicit def autoLiftRouteProg[P, A](c: RouteCmd[P, A]): RouteProg[P, A] =
+  implicit def reactAutoLiftRouteProg[P, A](c: RouteCmd[P, A]): RouteProg[P, A] =
     Free.liftFC[({type λ[α] = RouteCmd[P, α]})#λ, A](c)
 
-  implicit class RouteProgExt[P, A](val c: RouteProg[P, A]) extends AnyVal {
-    def >>[B](d: RouteProg[P, B]): RouteProg[P, B] = c flatMap (_ => d)
+  implicit final class ReactRouteProgExt[P, A](val _r: RouteProg[P, A]) extends AnyVal {
+    def >>[B](d: RouteProg[P, B]): RouteProg[P, B] = _r flatMap (_ => d)
   }
 
-  implicit class RouteCmdExt[P, A](val c: RouteCmd[P, A]) extends AnyVal {
-    def >>[B](d: RouteProg[P, B]): RouteProg[P, B] = (c: RouteProg[P, A]) >> d
+  implicit final class ReactRouteCmdExt[P, A](val _r: RouteCmd[P, A]) extends AnyVal {
+    def >>[B](d: RouteProg[P, B]): RouteProg[P, B] = new ReactRouteProgExt(_r) >> d
   }
-
 }

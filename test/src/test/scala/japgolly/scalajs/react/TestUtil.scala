@@ -61,4 +61,10 @@ object TestUtil {
 
   def removeReactDataAttr(s: String): String =
     s.replaceAll("""\s+data-react\S+?".*?"""", "")
+
+  def assertContains(in: String, subj: String, expect: Boolean): Unit =
+    if (in.contains(subj) != expect) {
+      println(s"\nHTML: $in\nSubj: $subj\nExpect: $expect\n")
+      assert(false)
+    }
 }
