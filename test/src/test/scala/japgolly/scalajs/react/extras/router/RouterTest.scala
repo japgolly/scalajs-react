@@ -17,7 +17,7 @@ object RouterTest extends TestSuite {
     // *************
 
     val root       = register(rootLocation(RootComponent))
-    val hello: Loc = register(location("/hello", addBackButton(root, HelloComponent)))
+    val hello: Loc = register(location("/hello", HelloComponent))
     val oldHello   = register(redirection("/hey", hello, Redirect.Replace))
 
     // **************
@@ -27,7 +27,7 @@ object RouterTest extends TestSuite {
     // This example matches /name/<anything>
 
     private val namePathMatch = "^/name/(.+)$".r
-    register(parser { case namePathMatch(n) => n }.location(n => addBackButton(root, NameComponent(n))))
+    register(parser { case namePathMatch(n) => n }.location(n => NameComponent(n)))
     val name = dynLink[String](n => s"/name/$n")
 
     // This example matches /person/<number>
@@ -44,15 +44,17 @@ object RouterTest extends TestSuite {
     // Fallbacks
     // *********
 
-    override val notFound = redirect(root, Redirect.Replace)
+    override protected val notFound = redirect(root, Redirect.Replace)
+
+    override protected def interceptRender(i: InterceptionR): ReactElement =
+      if (i.loc == root)
+        i.element
+      else
+        <.div(
+          <.div(i.router.link(root)("Back", ^.cls := "back")),
+          i.element)
 
     register(removeTrailingSlashes)
-  }
-
-  def addBackButton[P](root: => Location[P], inner: => Renderer[P]): Renderer[P] = router => {
-    <.div(
-      <.div(router.link(root)("Back", ^.cls := "back")),
-      inner(router))
   }
 
   val RootComponent = ReactComponentB[MyPage.Router]("Root")

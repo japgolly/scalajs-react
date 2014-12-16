@@ -30,6 +30,18 @@ trait Page {
   private[this] val parseD: DRouteFn = p => dynRoutes.foldLeft(None: Option[RouteAction[P]])(_ orElse _(p))
 
   // ===================================================================================================================
+  // Interception
+
+  protected case class InterceptionR(loc: Loc, router: Router, element: ReactElement)
+
+  protected def interceptRender(i: InterceptionR): ReactElement = i.element
+
+  private def mkloc(path: Path, render: Renderer): Loc = {
+    lazy val l: Loc = Location(path, r => interceptRender(InterceptionR(l, r, render(r))))
+    l
+  }
+
+  // ===================================================================================================================
   // Actions
 
   final type DynAction = Path => RouteAction[P]
@@ -40,7 +52,7 @@ trait Page {
   protected val notFound: DynAction
 
   final protected def render(render: Renderer): DynAction =
-    path => Location[P](path, render)
+    path => mkloc(path, render)
 
   final protected def redirect(to: Loc, method: Redirect.Method): DynAction =
     _ => Redirect(to, method)
@@ -67,7 +79,7 @@ trait Page {
 
   final protected def location(path: String, render: Renderer): StaticRoute[Loc] = {
     val p = Path(path)
-    StaticRoute(p, Location[P](p, render))
+    StaticRoute(p, mkloc(p, render))
   }
 
   final protected def redirection(from: String, to: RedirectTarget, method: Redirect.Method): StaticRoute[Redirect[P]] =
@@ -103,7 +115,7 @@ trait Page {
      * use `this.dynLink()`.
      */
     def location(f: T => Renderer): DynamicRoute =
-      dynamicRoute((p, t) => Location(p, f(t)))
+      dynamicRoute((p, t) => mkloc(p, f(t)))
 
     def redirection(f: T => (RedirectTarget, Redirect.Method)): DynamicRoute =
       dynamicRoute((_, t) => {
