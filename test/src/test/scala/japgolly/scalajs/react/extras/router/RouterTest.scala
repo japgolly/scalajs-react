@@ -16,9 +16,9 @@ object RouterTest extends TestSuite {
     // Static Routes
     // *************
 
-    val root       = rootLocation(RootComponent)
-    val hello: Loc = location("/hello", addBackButton(root, HelloComponent))
-    val oldHello   = redirection("/hey", hello, Redirect.Replace)
+    val root       = register(rootLocation(RootComponent))
+    val hello: Loc = register(location("/hello", addBackButton(root, HelloComponent)))
+    val oldHello   = register(redirection("/hey", hello, Redirect.Replace))
 
     // **************
     // Dynamic Routes
@@ -27,17 +27,17 @@ object RouterTest extends TestSuite {
     // This example matches /name/<anything>
 
     private val namePathMatch = "^/name/(.+)$".r
-    parse { case namePathMatch(n) => n }.location(n => addBackButton(root, NameComponent(n)))
+    register(parser { case namePathMatch(n) => n }.location(n => addBackButton(root, NameComponent(n))))
     val name = dynLink[String](n => s"/name/$n")
 
     // This example matches /person/<number>
     //     and redirects on /person/<not-a-number>
 
     private val personPathMatch = "^/person/(.+)$".r
-    parse { case personPathMatch(p) => p }.thenMatch {
-      case matchNumber(idStr) => render(PersonComponent(PersonId(idStr.toLong)))
-      case _                  => redirect(root, Redirect.Push) // non-numeric id
-    }
+    register(parser { case personPathMatch(p) => p }.thenMatch {
+      case matchNumber(idStr)     => render(PersonComponent(PersonId(idStr.toLong)))
+      case _ /* non-numeric id */ => redirect(root, Redirect.Push)
+    })
     val person = dynLink[PersonId](id => s"/person/${id.value}")
 
     // *********
@@ -46,7 +46,7 @@ object RouterTest extends TestSuite {
 
     override val notFound = redirect(root, Redirect.Replace)
 
-    removeTrailingSlashes()
+    register(removeTrailingSlashes)
   }
 
   def addBackButton[P](root: => Location[P], inner: => Renderer[P]): Renderer[P] = router => {
