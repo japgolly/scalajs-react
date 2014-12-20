@@ -1,5 +1,9 @@
 ## 0.6.2 (unreleased)
 
+* Refs can now be applied to components from the outside, prior to mounting. [(#44)](https://github.com/japgolly/scalajs-react/issues/44)
+* Refs can now refer to components and keep their types intact.
+* Scala-based ReactComponent constructors now have `.set(key = ?, ref = ?)` with `.withKey(k)` being an alias for `.set(key = k)`.
+* Instances (not objects) of `Ref` renamed to `RefSimple`, `RefP` renamed to `RefParam`. Creating refs is unchanged, so `val r = Ref("hehe")` still works.
 
 ## 0.6.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.6.0...v0.6.1))
 

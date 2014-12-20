@@ -185,30 +185,49 @@ object CoreTest extends TestSuite {
       assert(v == "123")
     }
 
-    'shouldSupportRefsOnOwnedComponenets {
-      val innerWName = "IamInnerW"
-      val outerWName = "IamOuterW"
-      class WB(t:BackendScope[String,_]) { def getName = t.props}
-      val W  = ReactComponentB[String]("wrapper").stateless.backend(new WB(_)).render((P,C,_,B) => div(C)).build
-      val C = ReactComponentB[Unit]("wrappercontainer")
-        .render(P => {
-          val inner = W(innerWName ,ref := "inner")
-           W(outerWName,inner,ref := "outer")
-         })
-        .componentDidMount(scope => {
-           assert(scope.refs("inner").get.getName == innerWName)
-           assert(scope.refs("outer").get.getName == outerWName)
-        }).buildU
+    'refs {
+      class WB(t: BackendScope[String,_]) { def getName = t.props }
+      val W = ReactComponentB[String]("").stateless.backend(new WB(_)).render((_,c,_,_) => div(c)).build
 
-      ReactTestUtils.renderIntoDocument(C())
+      // 'simple - simple refs are tested in TestTest
+
+      'parameterised {
+        val r = Ref.param[Int, TopNode](i => s"ref-$i")
+        val C = ReactComponentB[Unit]("").render(_ => div(p(ref := r(1), "One"), p(ref := r(2), "Two"))).buildU
+        val c = ReactTestUtils.renderIntoDocument(C())
+        r(1)(c).get.getDOMNode().innerHTML mustEqual "One"
+        r(2)(c).get.getDOMNode().innerHTML mustEqual "Two"
+        assert(r(3)(c).isEmpty)
+      }
+
+      'onOwnedComponenets {
+        val innerRef = Ref.to(W, "inner")
+        val outerRef = Ref.to(W, "outer")
+        val innerWName = "My name is IN"
+        val outerWName = "My name is OUT"
+        var tested = false
+        val C = ReactComponentB[Unit]("")
+          .render(P => {
+            val inner = W.set(ref = innerRef)(innerWName)
+            val outer = W.set(ref = outerRef)(outerWName, inner)
+            div(outer)
+           })
+          .componentDidMount(scope => {
+            innerRef(scope).get.backend.getName mustEqual innerWName
+            outerRef(scope).get.backend.getName mustEqual outerWName
+            tested = true
+          })
+          .buildU
+        ReactTestUtils.renderIntoDocument(C())
+        assert(tested) // just in case
+      }
+
+      'shouldNotHaveRefsOnUnmountedComponents {
+        val C = ReactComponentB[Unit]("child").render((P,C) => div()).buildU
+        val P = ReactComponentB[Unit]("parent")
+          .render(P => C(div(ref := "test"))) // div here discarded by C.render
+          .componentDidMount(scope => assert(scope.refs("test").get == null))
+      }
     }
-
-    'shouldNotHaveRefsOnUnmountedComponents {
-      val C = ReactComponentB[Unit]("child").render((P,C) => div() ).buildU
-      val P = ReactComponentB[Unit]("parent")
-        .render(P => C(div( ref := "test")))
-        .componentDidMount(scope => assert(scope.refs("test").get == null))
-    }
-
   }
 }

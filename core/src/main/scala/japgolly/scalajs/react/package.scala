@@ -47,6 +47,15 @@ package object react {
   @deprecated("React 0.12 has introduced ReactElement which is what VDom was created to represent. Replace VDom with ReactElement.", "0.6.0")
   type VDom = ReactElement
 
+  /**
+   * These exist for type inference.
+   * If P,S,B,N types are needed and there's another object that has them, this is used to bridge for type inference.
+   */
+  trait ReactComponentTypeAux[P, S, +B, +N <: TopNode]
+  trait ReactComponentTypeAuxJ[P, S, +B, +N <: TopNode] extends js.Object
+  implicit def reactComponentTypeAuxJ[P, S, B, N <: TopNode](a: ReactComponentTypeAuxJ[P,S,B,N]): ReactComponentTypeAux[P,S,B,N] =
+    a.asInstanceOf[ReactComponentTypeAux[P,S,B,N]]
+
   // ===================================================================================================================
 
   // TODO WrapObj was one of the first things I did when starting with ScalaJS. Reconsider.
@@ -58,19 +67,42 @@ package object react {
   /**
    * A named reference to an element in a React VDOM.
    */
-  class Ref[+T <: TopNode](val name: String) {
-    @inline final def apply(c: ReactComponentM_[_]) : UndefOr[ReactComponentM_[T]] = apply(c.refs)
-    @inline final def apply(s: ComponentScope_M[_]): UndefOr[ReactComponentM_[T]] = apply(s.refs)
-    @inline final def apply(r: RefsObject)         : UndefOr[ReactComponentM_[T]] = r[T](name)
+  abstract class Ref(final val name: String) {
+    type R
+    protected def resolve(r: RefsObject): UndefOr[R]
+    @inline final def apply(c: ReactComponentM_[_]): UndefOr[R] = apply(c.refs)
+    @inline final def apply(s: ComponentScope_M[_]): UndefOr[R] = apply(s.refs)
+    @inline final def apply(r: RefsObject)         : UndefOr[R] = resolve(r)
   }
-  class RefP[I, T <: TopNode](f: I => String) {
-    @inline final def apply(i: I) = Ref[T](f(i))
+
+  final class RefSimple[N <: TopNode](_name: String) extends Ref(_name) {
+    override type R = ReactComponentM_[N]
+    protected override def resolve(r: RefsObject) = r[N](name)
+  }
+
+  final class RefComp[P, S, B, N <: TopNode](_name: String) extends Ref(_name) {
+    override type R = ReactComponentM[P, S, B, N]
+    protected override def resolve(r: RefsObject) = r[N](name).asInstanceOf[UndefOr[ReactComponentM[P, S, B, N]]]
+  }
+
+  final class RefParam[I, RefType <: Ref](f: I => RefType) {
+    @inline final def apply(i: I): RefType = f(i)
     @inline final def get[S](s: ComponentScope_S[S] with ComponentScope_M[_])(implicit ev: S =:= I) =
       apply(ev(s.state))(s)
   }
+
   object Ref {
-    def apply[T <: TopNode](name: String)      = new Ref[T](name)
-    def param[I, T <: TopNode](f: I => String) = new RefP[I, T](f)
+    implicit def refAsARefParam(r: Ref): UndefOr[String] = r.name
+
+    def apply[N <: TopNode](name: String): RefSimple[N] =
+      new RefSimple[N](name)
+
+    def param[I, N <: TopNode](f: I => String): RefParam[I, RefSimple[N]] =
+      new RefParam(i => Ref[N](f(i)))
+
+    /** A reference to a Scala component. */
+    def to[P, S, B, N <: TopNode](types: ReactComponentTypeAux[P, S, B, N], name: String): RefComp[P, S, B, N] =
+      new RefComp[P, S, B, N](name)
   }
 
   implicit final class ReactExt_ScalaColl[A](val as: TraversableOnce[A]) extends AnyVal {
@@ -101,35 +133,71 @@ package object react {
   @inline final implicit def autoJsCtor[P,S,B,N <: TopNode](c: ReactComponentC[P,S,B,N]): ReactComponentC_ = c.jsCtor
 
   /** Component constructor. */
-  sealed trait ReactComponentC[P, S, +B, +N <: TopNode] {
+  sealed trait ReactComponentC[P, S, +B, +N <: TopNode] extends ReactComponentTypeAux[P, S, B, N] {
     val jsCtor: ReactComponentCU[P,S,B,N]
   }
 
   object ReactComponentC {
-    private[this] def mkProps[P](props: P, key: Option[JAny]): WrapObj[P] = {
-      val j = WrapObj(props)
-      key.foreach(k => j.asInstanceOf[Dynamic].updateDynamic("key")(k))
-      j
+
+    sealed abstract class BaseCtor[P, S, +B, +N <: TopNode] extends ReactComponentC[P, S, B, N] {
+
+      // "Your scientists were so preoccupied with whether or not they could that they didn't stop to think if they should."
+      type This[+B, +N <: TopNode] <: BaseCtor[P, S, B, N]
+
+      val jsCtor: ReactComponentCU[P, S, B, N]
+
+      protected val key: UndefOr[JAny]
+      protected val ref: UndefOr[String]
+      def set(key: UndefOr[JAny] = this.key, ref: UndefOr[String] = this.ref): This[B, N]
+
+      final def withKey(k: JAny)  : This[B,N] = set(key = k)
+      final def withRef(r: String): This[B,N] = set(ref = r)
+
+      protected def mkProps(props: P): WrapObj[P] = {
+        val j = WrapObj(props)
+        key.foreach(k => j.asInstanceOf[Dynamic].updateDynamic("key")(k))
+        ref.foreach(r => j.asInstanceOf[Dynamic].updateDynamic("ref")(r))
+        j
+      }
     }
 
-    final class ReqProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny]) extends ReactComponentC[P,S,B,N] {
-      def apply(props: P, children: ReactNode*) = jsCtor(mkProps(props, key), children: _*)
-      def withKey(key: JAny) = new ReqProps(jsCtor, Some(key))
+    final class ReqProps[P, S, +B, +N <: TopNode](override val jsCtor: ReactComponentCU[P, S, B, N],
+                                                  override protected val key: UndefOr[JAny],
+                                                  override protected val ref: UndefOr[String]) extends BaseCtor[P, S, B, N] {
+      override type This[+B, +N <: TopNode] = ReqProps[P, S, B, N]
+      def set(key: UndefOr[JAny] = this.key, ref: UndefOr[String] = this.ref): This[B, N] =
+        new ReqProps(jsCtor, key, ref)
+
+      def apply(props: P, children: ReactNode*) = jsCtor(mkProps(props), children: _*)
+
+      def withProps       (p: => P) = new ConstProps  (jsCtor, key, ref, () => p)
+      def withDefaultProps(p: => P) = new DefaultProps(jsCtor, key, ref, () => p)
     }
 
-    final class DefaultProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny], default: () => P) extends ReactComponentC[P,S,B,N] {
+    final class DefaultProps[P, S, +B, +N <: TopNode](override val jsCtor: ReactComponentCU[P, S, B, N],
+                                                      override protected val key: UndefOr[JAny],
+                                                      override protected val ref: UndefOr[String],
+                                                      default: () => P) extends BaseCtor[P, S, B, N] {
+      override type This[+B, +N <: TopNode] = DefaultProps[P, S, B, N]
+      def set(key: UndefOr[JAny] = this.key, ref: UndefOr[String] = this.ref): This[B, N] =
+        new DefaultProps(jsCtor, key, ref, default)
+
       def apply(props: Option[P], children: ReactNode*): ReactComponentU[P,S,B,N] =
-        jsCtor(mkProps(props getOrElse default(), key), children: _*)
+        jsCtor(mkProps(props getOrElse default()), children: _*)
 
       def apply(children: ReactNode*): ReactComponentU[P,S,B,N] =
         apply(None, children: _*)
-
-      def withKey(key: JAny) = new DefaultProps(jsCtor, Some(key), default)
     }
 
-    final class ConstProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny], props: () => P) extends ReactComponentC[P,S,B,N] {
-      def apply(children: ReactNode*) = jsCtor(mkProps(props(), key), children: _*)
-      def withKey(key: JAny) = new ConstProps(jsCtor, Some(key), props)
+    final class ConstProps[P, S, +B, +N <: TopNode](override val jsCtor: ReactComponentCU[P, S, B, N],
+                                                    override protected val key: UndefOr[JAny],
+                                                    override protected val ref: UndefOr[String],
+                                                    props: () => P) extends BaseCtor[P, S, B, N] {
+      override type This[+B, +N <: TopNode] = ConstProps[P, S, B, N]
+      def set(key: UndefOr[JAny] = this.key, ref: UndefOr[String] = this.ref): This[B, N] =
+        new ConstProps(jsCtor, key, ref, props)
+
+      def apply(children: ReactNode*) = jsCtor(mkProps(props()), children: _*)
     }
   }
 

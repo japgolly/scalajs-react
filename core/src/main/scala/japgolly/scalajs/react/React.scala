@@ -104,10 +104,10 @@ trait ReactChildren extends Object {
   def count(c: PropsChildren): Number = ???
 }
 
-trait ReactComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Object
+trait ReactComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
 /** The meat in React's createClass-createFactory sandwich. */
-trait ReactComponentType[Props, State, +Backend, +Node <: TopNode] extends Object
+trait ReactComponentType[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
 /**
  * http://facebook.github.io/react/docs/glossary.html indicates children can be a super type of ReactElement.
@@ -137,7 +137,7 @@ trait ReactComponentElement[Props]
 trait ReactComponentC_ extends JFn
 
 /** The underlying function that creates a Scala-based React component instance. */
-trait ReactComponentCU[Props, State, +Backend, +Node <: TopNode] extends ReactComponentC_ {
+trait ReactComponentCU[Props, State, +Backend, +Node <: TopNode] extends ReactComponentC_ with ReactComponentTypeAuxJ[Props, State, Backend, Node] {
   def apply(props: WrapObj[Props], children: ReactNode*): ReactComponentU[Props, State, Backend, Node] = ???
 }
 
@@ -154,11 +154,13 @@ trait ReactComponentM_[+Node <: TopNode]
 /** An unmounted Scala component. */
 trait ReactComponentU[Props, State, +Backend, +Node <: TopNode]
   extends ReactComponentU_
+     with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
 /** A mounted Scala component. */
 trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]
   extends ReactComponentM_[Node]
      with ComponentScopeMN[Props, State, Backend, Node]
+     with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
 // =====================================================================================================================
 // Scope
@@ -221,6 +223,7 @@ trait ComponentScopeMN[Props, State, +Backend, +Node <: TopNode]
   extends ComponentScope_PS[Props, State]
      with ComponentScopeU[Props, State, Backend]
      with ComponentScope_M[Node]
+     with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
 /** Type of a component's `this` scope as is available to backends. */
 trait BackendScope[Props, State]

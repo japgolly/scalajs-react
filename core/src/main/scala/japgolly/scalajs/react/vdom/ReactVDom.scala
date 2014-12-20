@@ -68,7 +68,7 @@ object ReactVDom
     implicit val jsThisFnAttr = new GenericAttr[js.ThisFunction](f => f)
     implicit val jsFnAttr = new GenericAttr[js.Function](f => f)
     implicit val jsObjAttr = new GenericAttr[js.Object](f => f)
-    implicit def reactRefAttr[T <: Ref[_]] = new GenericAttr[T](_.name)
+    implicit def reactRefAttr[T <: Ref] = new GenericAttr[T](_.name)
 
     implicit def reactNodeAsDomChild[T <% ReactNode](c: T): Modifier = new Modifier {
       override def applyTo(t: VDomBuilder): Unit = t.appendChild(c)
