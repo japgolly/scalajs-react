@@ -177,6 +177,7 @@ Extensions
 ==========
 
 #### Scalatags
+* Case of attributes and styles matches React. So unlike vanilla-Scalatags' `onclick` attribute, use `onClick`.
 * `attr ==> (SyntheticEvent[_] => _)` - Wires up an event handler.
 ```scala
     def handleSubmit(e: SyntheticEvent[HTMLInputElement]) = ...
@@ -187,12 +188,17 @@ Extensions
     def reset() = T.setState("")
     val html = div(onclick --> reset())("Click to Reset")
 ```
-* `boolean && (attr := value)` - Make a condition optional.
+* `boolean ?= (attr := value)` - Make a condition optional.
 ```scala
     def hasFocus: Boolean = ...
-    val html = div(hasFocus && (cls := "focus"))(...)
+    val html = div(hasFocus ?= (cls := "focus"))(...)
 ```
-* [Extra attributes](https://github.com/japgolly/scalajs-react/blob/master/core/src/main/scala/japgolly/scalajs/react/vdom/ReactVDom.scala#L190-203) not yet found in Scalatags proper.
+* Attributes, styles, and tags can be wrapped in `Option` or `js.UndefOr` to make them optional.
+```scala
+    val person: js.UndefOr[Person] = ???
+    val name: Option[String] = ???
+    val html = handler.div(key := person.map(_.id), value := name)
+```
 
 #### React
 * Where `this.setState(State)` is applicable, you can also run `modState(State => State)`.
