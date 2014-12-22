@@ -1,7 +1,6 @@
 package japgolly.scalajs.react
 
 import utest._
-import org.scalajs.dom
 import org.scalajs.dom.HTMLInputElement
 import vdom.all._
 import TestUtil._
@@ -95,6 +94,21 @@ object CoreTest extends TestSuite {
       }
     }
 
+    'classSet {
+      'allConditional {
+        val r = ReactComponentB[(Boolean,Boolean)]("C").render(p => div(classSet("p1" -> p._1, "p2" -> p._2))("x")).build
+        r((false, false)) shouldRender """<div>x</div>"""
+        r((true,  false)) shouldRender """<div class="p1">x</div>"""
+        r((false, true))  shouldRender """<div class="p2">x</div>"""
+        r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
+      }
+      'hasMandatory {
+        val r = ReactComponentB[Boolean]("C").render(p => div(classSet1("mmm", "ccc" -> p))("x")).build
+        r(false) shouldRender """<div class="mmm">x</div>"""
+        r(true)  shouldRender """<div class="mmm ccc">x</div>"""
+      }
+    }
+
     'props {
       'unit {
         val r = ReactComponentB[Unit]("U").render((_,c) => h1(c)).buildU
@@ -136,21 +150,6 @@ object CoreTest extends TestSuite {
         val xx = CA.withKey(k1)()
         val k2 = xx.key
         k2 mustEqual k1
-      }
-    }
-
-    'classSet {
-      'allConditional {
-        val r = ReactComponentB[(Boolean,Boolean)]("C").render(p => div(classSet("p1" -> p._1, "p2" -> p._2))("x")).build
-        r((false, false)) shouldRender """<div>x</div>"""
-        r((true,  false)) shouldRender """<div class="p1">x</div>"""
-        r((false, true))  shouldRender """<div class="p2">x</div>"""
-        r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
-      }
-      'hasMandatory {
-        val r = ReactComponentB[Boolean]("C").render(p => div(classSet1("mmm", "ccc" -> p))("x")).build
-        r(false) shouldRender """<div class="mmm">x</div>"""
-        r(true)  shouldRender """<div class="mmm ccc">x</div>"""
       }
     }
 
