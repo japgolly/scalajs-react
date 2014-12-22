@@ -61,8 +61,9 @@ abstract class Implicits extends LowPri {
   @inline implicit final def _react_nodeJsUndef[A <% TagMod](xs: js.UndefOr[A]): TagMod = new SeqNode(xs.toList)
 
   // Scalatags misc
-  @inline implicit final def _react_styleOrdering: Ordering[Style] = Scalatags.styleOrdering
-  @inline implicit final def _react_attrOrdering : Ordering[Attr]  = Scalatags.attrOrdering
+  @inline implicit final def _react_styleOrdering                  : Ordering[Style] = Scalatags.styleOrdering
+  @inline implicit final def _react_attrOrdering                   : Ordering[Attr]  = Scalatags.attrOrdering
+  @inline implicit final def _react_cssNumber    [T: Numeric](t: T): CssNumber       = new CssNumber(t)
 
   // Rendering
   @inline implicit final def _react_autoRender (t: ReactTag)     : ReactElement      = t.render

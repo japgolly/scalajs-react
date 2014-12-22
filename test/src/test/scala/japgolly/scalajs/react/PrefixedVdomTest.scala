@@ -90,6 +90,13 @@ object PrefixedVdomTest extends TestSuite {
 
       'noImplicitUnit - assertTypeMismatch(compileError("""val x: TagMod = ()"""))
 
+      'numericStyleUnits {
+        'px  - test(<.div(^.marginTop := 2.px),  """<div style="margin-top:2px;"></div>""")
+        'ex  - test(<.div(^.marginTop := 2.ex),  """<div style="margin-top:2ex;"></div>""")
+        'em  - test(<.div(^.marginTop := 2.em),  """<div style="margin-top:2em;"></div>""")
+        'str - assertContains(compileError("""<.div(^.marginTop := "hehe".em)""").msg, "not a member of String")
+      }
+
       "?=" - test(
         <.span(
           true ?= (^.color := "red"), false ?= (^.color := "black"),
