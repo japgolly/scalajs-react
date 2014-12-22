@@ -197,7 +197,11 @@ Extensions
 ```scala
     val person: js.UndefOr[Person] = ???
     val name: Option[String] = ???
-    val html = handler.div(key := person.map(_.id), value := name)
+    val html = div(key := person.map(_.id), value := name)
+```
+* `EmptyTag` - A virtual DOM building block representing nothing.
+```scala
+  div(if (allowEdit) editButton else EmptyTag)
 ```
 
 #### React
