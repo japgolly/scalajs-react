@@ -3,6 +3,7 @@ package japgolly.scalajs.react
 import java.util.concurrent.atomic.AtomicReference
 import scala.collection.mutable.ListBuffer
 import scala.scalajs.js
+import scalaz.Maybe
 import vdom.all._
 import utest._
 
@@ -64,6 +65,9 @@ object TestUtil {
 
     def jsdef: js.UndefOr[A] = v
     def undef: js.UndefOr[A] = js.undefined
+
+    def just    : Maybe[A] = Maybe.just(v)
+    def maybeNot: Maybe[A] = Maybe.empty
   }
 
   def none[A]: Option[A] = None

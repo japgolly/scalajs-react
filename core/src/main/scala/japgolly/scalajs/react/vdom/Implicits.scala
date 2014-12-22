@@ -55,10 +55,10 @@ abstract class Implicits extends LowPri {
   @inline implicit final def _react_fragReactNode[T <% ReactNode](v: T): Frag = new ReactNodeFrag(v)
 
   // TagMod
-  @inline implicit final def _react_nodeSeq    [A <% TagMod](xs: Seq[A])       : TagMod = new SeqNode(xs)
-  @inline implicit final def _react_nodeArray  [A <% TagMod](xs: Array[A])     : TagMod = new SeqNode[A](xs.toSeq)
-  @inline implicit final def _react_nodeOption [A <% TagMod](xs: Option[A])    : TagMod = new SeqNode(xs.toSeq)
-  @inline implicit final def _react_nodeJsUndef[A <% TagMod](xs: js.UndefOr[A]): TagMod = new SeqNode(xs.toList)
+  @inline implicit final def _react_nodeSeq    [A <% TagMod](xs: Seq[A])      : TagMod = new SeqNode(xs)
+  @inline implicit final def _react_nodeArray  [A <% TagMod](xs: Array[A])    : TagMod = new SeqNode[A](xs.toSeq)
+  @inline implicit final def _react_nodeOption [A <% TagMod](o: Option[A])    : TagMod = o.fold(EmptyTag)(a => a)
+  @inline implicit final def _react_nodeJsUndef[A <% TagMod](o: js.UndefOr[A]): TagMod = o.fold(EmptyTag)(a => a)
 
   // Scalatags misc
   @inline implicit final def _react_styleOrdering                  : Ordering[Style] = Scalatags.styleOrdering

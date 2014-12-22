@@ -9,7 +9,16 @@ import scalaz.effect.IO
 import Scalaz.Id
 import Leibniz.===
 
-object ScalazReact {
+package vdom {
+  import Scalatags._
+  
+  abstract class ScalazImplicits {
+
+
+  }
+}
+
+object ScalazReact extends vdom.ScalazImplicits {
   // Don't edit this directly. Run sync-scala70
 
   implicit val IoToIo: IO ~> IO = NaturalTransformation.refl[IO]

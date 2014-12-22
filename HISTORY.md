@@ -16,7 +16,7 @@ Why? What does that mean?
 * No more console warnings from React about styles.
 * Attributes now match what you do in React JS. (eg. `onClick` instead of `onclick`)
 * Fixed bug where numbers weren't convertible to `ReactNode`.
-* Attributes, styles, tags, modifiers support being wrapped in `Option` or `js.UndefOr`.
+* Attributes, styles, tags, modifiers support being wrapped in `Option`, `js.UndefOr`, or 'scalaz.Maybe'.
 * Removed Scalatags' `()` to `Tag` implicit conversion. It seems like a good idea but can cause certain issues
   (esp with type inference) to be silently ignored, and is unsafe. Use `EmptyTag` instead.
 * As an unintended consequence, `bool && (attr := value)` changed to `bool ?= (attr := value)`.

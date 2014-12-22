@@ -1,11 +1,11 @@
 package japgolly.scalajs.react
 
 import utest._
+import scala.scalajs.js, js.{Array => JArray}
 import org.scalajs.dom.HTMLInputElement
 import vdom.all._
 import TestUtil._
 import test.{DebugJs, ReactTestUtils}
-import scala.scalajs.js, js.{Array => JArray}
 
 object CoreTest extends TestSuite {
 
@@ -77,6 +77,21 @@ object CoreTest extends TestSuite {
           'element_undef - test(div(relement.undef),       """<div></div>""")
           'comp_def      - test(div(H1("yoo").jsdef),      """<div><h1>yoo</h1></div>""")
           'comp_undef    - test(div(H1("yoo").undef),      """<div></div>""")
+        }
+        'maybe {
+          import ScalazReact._
+          'attr_just     - test(div(cls := "hi".just),        """<div class="hi"></div>""")
+          'attr_empty    - test(div(cls := "h1".maybeNot),    """<div></div>""")
+          'style_just    - test(div(color := "red".just),     """<div style="color:red;"></div>""")
+          'style_empty   - test(div(color := "red".maybeNot), """<div></div>""")
+          'tagmod_just   - test(div(tagmod.just),             """<div class="ho"></div>""")
+          'tagmod_empty  - test(div(tagmod.maybeNot),         """<div></div>""")
+          'tag_just      - test(div(reacttag.just),           """<div><span></span></div>""")
+          'tag_empty     - test(div(reacttag.maybeNot),       """<div></div>""")
+          'element_just  - test(div(relement.just),           """<div><span></span></div>""")
+          'element_empty - test(div(relement.maybeNot),       """<div></div>""")
+          'comp_just     - test(div(H1("yoo").just),          """<div><h1>yoo</h1></div>""")
+          'comp_empty    - test(div(H1("yoo").maybeNot),      """<div></div>""")
         }
       }
 
