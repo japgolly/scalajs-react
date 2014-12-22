@@ -17,8 +17,8 @@ In addition to wrapping React, this provides extra opt-in functionality to suppo
 - [Alternatives](#alternatives)
 
 ##### Docs
-- [TYPES.md](https://github.com/japgolly/scalajs-react/blob/master/TYPES.md) - Overview of types.
-- [HISTORY.md](https://github.com/japgolly/scalajs-react/blob/master/HISTORY.md) - Release notes and change log.
+- [TYPES.md](https://github.com/japgolly/scalajs-react/blob/master/doc/TYPES.md) - Overview of types.
+- [Release notes and changelogs](https://github.com/japgolly/scalajs-react/tree/master/doc).
 
 ##### Requirements:
 * React 0.12
