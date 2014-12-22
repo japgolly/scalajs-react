@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import java.util.concurrent.atomic.AtomicReference
 import scala.collection.mutable.ListBuffer
+import scala.scalajs.js
 import vdom.all._
 import utest._
 
@@ -57,7 +58,15 @@ object TestUtil {
       val a = v
       assert(a == e)
     }
+
+    def some: Option[A] = Some(v)
+    def none: Option[A] = None
+
+    def jsdef: js.UndefOr[A] = v
+    def undef: js.UndefOr[A] = js.undefined
   }
+
+  def none[A]: Option[A] = None
 
   def removeReactDataAttr(s: String): String =
     s.replaceAll("""\s+data-react\S+?".*?"""", "")

@@ -113,7 +113,7 @@ private[vdom] object Scalatags {
     "No AttrValue defined for type ${T}; scalatags does not know how to use ${T} as an attribute"
   )
   trait AttrValue[T]{
-    def apply(t: Builder, a: Attr, v: T)
+    def apply(t: Builder, a: Attr, v: T): Unit
   }
 
   /**
@@ -134,7 +134,7 @@ private[vdom] object Scalatags {
     "No StyleValue defined for type ${T}; scalatags does not know how to use ${T} as an style"
   )
   trait StyleValue[T]{
-    def apply(t: Builder, s: Style, v: T)
+    def apply(t: Builder, s: Style, v: T): Unit
   }
 
   /**
@@ -168,6 +168,14 @@ private[vdom] object Scalatags {
 
   implicit object attrOrdering extends Ordering[Attr]{
     override def compare(x: Attr, y: Attr): Int = x.name compareTo y.name
+  }
+
+  final class OptionalAttrValue[O[_], T](tc: AttrValue[T], run: (O[T], T => Unit) => Unit) extends AttrValue[O[T]] {
+    override def apply(b: Builder, a: Attr, v: O[T]) = run(v, tc(b, a, _))
+  }
+
+  final class OptionalStyleValue[O[_], T](tc: StyleValue[T], run: (O[T], T => Unit) => Unit) extends StyleValue[O[T]] {
+    override def apply(b: Builder, a: Style, v: O[T]) = run(v, tc(b, a, _))
   }
 
   @inline def makeAbstractReactTag(tag: String, void: Boolean, namespaceConfig: Namespace): ReactTag =

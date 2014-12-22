@@ -26,7 +26,14 @@ abstract class Implicits extends LowPri {
           implicit final val _react_attrJsFn     : AttrValue[js.Function]     = GenericAttr[js.Function]
           implicit final val _react_attrJsObj    : AttrValue[js.Object]       = GenericAttr[js.Object]
 
-  implicit final def _react_attrRef[T <: Ref[_]]: AttrValue[T] = new GenericAttr[T](_.name)
+  @inline implicit final def _react_attrRef[T <: Ref[_]]: AttrValue[T] =
+    new GenericAttr[T](_.name)
+
+  @inline implicit final def _react_attrOption[A](implicit tc: AttrValue[A]): AttrValue[Option[A]] =
+    new OptionalAttrValue[Option, A](tc, _ foreach _)
+
+  @inline implicit final def _react_attrJsUndef[A](implicit tc: AttrValue[A]): AttrValue[js.UndefOr[A]] =
+    new OptionalAttrValue[js.UndefOr, A](tc, _ foreach _)
 
   // Styles
   @inline implicit final def _react_styleString : StyleValue[String]  = stringStyleX
@@ -38,13 +45,20 @@ abstract class Implicits extends LowPri {
           implicit final val _react_styleFloat  : StyleValue[Float]   = GenericStyle.stringValue
           implicit final val _react_styleDouble : StyleValue[Double]  = GenericStyle.stringValue
 
+  @inline implicit final def _react_styleOption[A](implicit tc: StyleValue[A]): StyleValue[Option[A]] =
+    new OptionalStyleValue[Option, A](tc, _ foreach _)
+
+  @inline implicit final def _react_styleJsUndef[A](implicit tc: StyleValue[A]): StyleValue[js.UndefOr[A]] =
+    new OptionalStyleValue[js.UndefOr, A](tc, _ foreach _)
+
   // Frag
   @inline implicit final def _react_fragReactNode[T <% ReactNode](v: T): Frag = new ReactNodeFrag(v)
 
   // TagMod
-  @inline implicit final def _react_nodeSeq   [A <% TagMod](xs: Seq[A])   : TagMod = new SeqNode(xs)
-  @inline implicit final def _react_nodeOption[A <% TagMod](xs: Option[A]): TagMod = new SeqNode(xs.toSeq)
-  @inline implicit final def _react_nodeArray [A <% TagMod](xs: Array[A]) : TagMod = new SeqNode[A](xs.toSeq)
+  @inline implicit final def _react_nodeSeq    [A <% TagMod](xs: Seq[A])       : TagMod = new SeqNode(xs)
+  @inline implicit final def _react_nodeArray  [A <% TagMod](xs: Array[A])     : TagMod = new SeqNode[A](xs.toSeq)
+  @inline implicit final def _react_nodeOption [A <% TagMod](xs: Option[A])    : TagMod = new SeqNode(xs.toSeq)
+  @inline implicit final def _react_nodeJsUndef[A <% TagMod](xs: js.UndefOr[A]): TagMod = new SeqNode(xs.toList)
 
   // Scalatags misc
   @inline implicit final def _react_styleOrdering: Ordering[Style] = Scalatags.styleOrdering
