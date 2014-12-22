@@ -21,6 +21,7 @@ Why? What does that mean?
   (esp with type inference) to be silently ignored, and is unsafe. Use `EmptyTag` instead.
 * As an unintended consequence, `bool && (attr := value)` changed to `bool ?= (attr := value)`.
 * `Tag` is now `ReactTag`. `Modifier` is now `TagMod`.
+* `TagMod` is now composable.
 * No more arbitrary subsets of tags and attributes, ie. no more additional importing of `tags2._` etc.
 * There are now well-organised modules for imports. This...
   1. Fixes bug with conflicting types for `Tag` being imported.

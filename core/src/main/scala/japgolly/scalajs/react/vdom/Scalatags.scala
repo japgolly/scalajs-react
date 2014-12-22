@@ -18,6 +18,13 @@ trait TagMod {
    * rendering is complete the effect of adding this modifier can be seen.
    */
   def applyTo(t: Builder): Unit
+
+  final def +(that: TagMod): TagMod = this compose that
+
+  final def compose(that: TagMod): TagMod = this match {
+    case TagModComposition(ms) => TagModComposition(that :: ms)
+    case _                     => TagModComposition(this :: that :: Nil)
+  }
 }
 
 final case class ReactTag private[vdom](tag: String,
@@ -81,6 +88,10 @@ case class Style(jsName: String, cssName: String) {
 }
 
 private[vdom] object Scalatags {
+
+  case class TagModComposition(ms: List[TagMod]) extends TagMod {
+    override def applyTo(t: Builder): Unit = ms.foreach(_ applyTo t)
+  }
 
   /**
    * Marker sub-type of [[TagMod]] which signifies that that type can be

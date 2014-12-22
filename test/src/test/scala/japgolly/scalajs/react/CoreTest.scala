@@ -80,6 +80,13 @@ object CoreTest extends TestSuite {
         }
       }
 
+      'tagmodComposition {
+        val a: TagMod = cls := "hehe"
+        val b: TagMod = h3("Good")
+        val c = a compose b
+        test(div(c), """<div class="hehe"><h3>Good</h3></div>""")
+      }
+
       'combination - test(
         div(cls := "hi", "Str: ", 123, JArray(H1("a"), H1("b")), p(cls := "pp")("!")),
         """<div class="hi">Str: 123<h1>a</h1><h1>b</h1><p class="pp">!</p></div>""")
