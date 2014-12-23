@@ -3,11 +3,17 @@ package japgolly.scalajs.react.extras.router
 import org.scalajs.dom
 import scalaz.std.string.stringInstance
 import scalaz.{\/, Equal}
+import japgolly.scalajs.react.extras.assertWarn
 
 /**
  * The prefix of all routes in a set.
+ *
+ * The router expects this to be a full URL.
+ * Examples: `BaseUrl("http://www.blah.com/hello")`,  `BaseUrl.fromWindow / "hello"`.
  */
 final case class BaseUrl(value: String) {
+  assertWarn(value contains "://", s"$this doesn't seem to be a valid URL. It's missing '://'. Consider using BaseUrl.fromWindow.")
+
   def +(p: String): BaseUrl = BaseUrl(value + p)
   def /(p: String): BaseUrl = BaseUrl(value + "/" + p)
   def /(p: Path)  : AbsUrl  = AbsUrl(value + p.value)
@@ -27,7 +33,9 @@ final case class Path(value: String) {
 /**
  * An absolute URL.
  */
-final case class AbsUrl(value: String)
+final case class AbsUrl(value: String) {
+  assertWarn(value contains "://", s"$this doesn't seem to be a valid URL. It's missing '://'. Consider using AbsUrl.fromWindow.")
+}
 object AbsUrl {
   def fromWindow: AbsUrl = AbsUrl(dom.window.location.href)
 }
