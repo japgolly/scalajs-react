@@ -1,7 +1,7 @@
 ## 0.7.0 (unreleased)
 
 * Removed deprecated methods marked for removal in 0.7.0.
-* Moved `.experiment` into a new module "extras".
+* Moved `.experiment` into a new module "extra".
 * More supported React tags and attributes.
 
 ##### Scalatags / `.vdom` major changes

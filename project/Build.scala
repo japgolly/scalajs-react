@@ -87,7 +87,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, test, scalaz70, scalaz71, extras, ghpages)
+    .aggregate(core, test, scalaz70, scalaz71, extra, ghpages)
     .configure(commonSettings, preventPublication, addCommandAliases(
       "t"  -> "; test:compile ; test/fastOptStage::test",
       "tt" -> ";+test:compile ;+test/fastOptStage::test",
@@ -104,7 +104,7 @@ object ScalajsReact extends Build {
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings)
-    .dependsOn(core, scalaz71, extras)
+    .dependsOn(core, scalaz71, extra)
     .settings(
       name := "test",
       scalacOptions += "-language:reflectiveCalls")
@@ -124,15 +124,15 @@ object ScalajsReact extends Build {
   lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.0-4")
 
   // ==============================================================================================
-  lazy val extras = project
+  lazy val extra = project
     .configure(commonSettings, publicationSettings)
     .dependsOn(core, scalaz71)
     .settings(
-      name := "extras")
+      name := "extra")
 
   // ==============================================================================================
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
-    .dependsOn(core, scalaz71, extras)
+    .dependsOn(core, scalaz71, extra)
     .configure(commonSettings, useReact(), preventPublication)
     .settings(
       emitSourceMaps := false,

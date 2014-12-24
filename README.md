@@ -5,7 +5,7 @@ Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.j
 
 In addition to wrapping React, this provides extra opt-in functionality to support (separately) easier testing, and pure FP.
 
-Additional features not available in React JS itself, are available in the [`extras` module](https://github.com/japgolly/scalajs-react/tree/master/extras).
+Additional features not available in React JS itself, are available in the [`extra` module](https://github.com/japgolly/scalajs-react/tree/master/extra).
 
 #### Contents
 
@@ -17,7 +17,7 @@ Additional features not available in React JS itself, are available in the [`ext
 - [Extensions](#extensions)
 - [Gotchas](#gotchas)
 - [Alternatives](#alternatives)
-- [Extra Features](https://github.com/japgolly/scalajs-react/tree/master/extras) **NEW!**
+- [Extra Features](https://github.com/japgolly/scalajs-react/tree/master/extra) **NEW!**
 
 ##### Docs
 - [TYPES.md](https://github.com/japgolly/scalajs-react/blob/master/doc/TYPES.md) - Overview of types.
@@ -245,7 +245,7 @@ Extensions
     button(onclick --> incrementCounter(f))("+")
 ```
 
-Additional features are available in the [`extras` module](https://github.com/japgolly/scalajs-react/tree/master/extras).
+Additional features are available in the [`extra` module](https://github.com/japgolly/scalajs-react/tree/master/extra).
 
 Gotchas
 =======
