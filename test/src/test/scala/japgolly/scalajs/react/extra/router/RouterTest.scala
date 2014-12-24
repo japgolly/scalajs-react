@@ -10,7 +10,7 @@ import TestUtil._
 
 object RouterTest extends TestSuite {
 
-  object MyPage extends Page {
+  object MyPage extends RoutingRules {
 
     // *************
     // Static Routes
@@ -58,7 +58,7 @@ object RouterTest extends TestSuite {
           i.element)
   }
 
-  object MyOtherPage extends Page {
+  object MyOtherPage extends RoutingRules {
     override val notFound = render(<.h1("404!!"))
     val thebuns = register(location(".buns", <.h1("The Buns!")))
   }

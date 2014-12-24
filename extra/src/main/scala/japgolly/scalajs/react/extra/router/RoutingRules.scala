@@ -6,7 +6,7 @@ import japgolly.scalajs.react.{ReactElement, ReactComponentC, TopNode}
 /**
  * DSL for specifying a set of routing rules.
  */
-trait Page {
+trait RoutingRules {
   final type P              = this.type
   final type Renderer       = japgolly.scalajs.react.extra.router.Renderer[P]
   final type Router         = japgolly.scalajs.react.extra.router.Router[P]
