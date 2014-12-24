@@ -34,7 +34,7 @@ Setup
 
 Firstly, you'll need to add [Scala.js](http://www.scala-js.org) to your project.
 
-SBT
+Next, add scalajs-react to SBT:
 ```scala
 // Minimal usage
 libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.6.1"
@@ -64,19 +64,19 @@ import japgolly.scalajs.react._
 // There are two flavours. In both examples we will build:
 //   <a class="google" href="https://www.google.com"><span>GOOGLE!</span></a>
 
-  // 1) Using prefixes < for tags, ^ for attributes.
-  import japgolly.scalajs.react.vdom.prefix_<^._
-  val vdom = <.a(
-               ^.className := "google",
-               ^.href      := "https://www.google.com",
-               <.span("GOOGLE!"))
+// Method 1 (recommended): Using prefixes < for tags, ^ for attributes.
+import japgolly.scalajs.react.vdom.prefix_<^._
+val vdom = <.a(
+             ^.className := "google",
+             ^.href      := "https://www.google.com",
+             <.span("GOOGLE!"))
 
-  // 2) Importing everything without prefix into namespace.
-  import japgolly.scalajs.react.vdom.all._
-  val vdom = a(
-               className := "google",
-               href      := "https://www.google.com",
-               span("GOOGLE!"))
+// Method 2: Importing everything without prefix into namespace.
+import japgolly.scalajs.react.vdom.all._
+val vdom = a(
+             className := "google",
+             href      := "https://www.google.com",
+             span("GOOGLE!"))
 
 // Scalaz support
 import japgolly.scalajs.react.ScalazReact._
