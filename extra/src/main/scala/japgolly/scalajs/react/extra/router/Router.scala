@@ -13,17 +13,25 @@ object Router {
 
   type Component[P] = ReactComponentC.ConstProps[Unit, Location[P], Any, TopNode]
 
-  def component[P](router: Router[P]): Component[P] =
+  def componentUnbuilt[P](router: Router[P]) =
     ReactComponentB[Unit]("Router")
       .initialState(router.syncToWindowUrl.unsafePerformIO())
       .backend(_ => new OnUnmount.Backend)
       .render((_, route, _) => route.render(router))
       .componentWillMount(_ => router.init.unsafePerformIO())
       .configure(Listenable.installSF(_ => router, (_: Unit) => router.syncToWindowUrlS))
-      .buildU
+
+  def component[P](router: Router[P]): Component[P] =
+    componentUnbuilt(router).buildU
 }
 
-
+/**
+ * Performs all routing logic.
+ *
+ * @param baseUrl The prefix of all routes in a set.
+ * @param pathAction Determines the appropriate response to a route path.
+ * @tparam P Routing rules context. Prevents different routing rule sets being mixed up.
+ */
 final class Router[P](val baseUrl: BaseUrl,
                       val pathAction: Path => RouteAction[P]) extends Broadcaster[Unit] {
 
