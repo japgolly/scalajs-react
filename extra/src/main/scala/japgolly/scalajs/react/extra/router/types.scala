@@ -9,25 +9,26 @@ import japgolly.scalajs.react.extra.assertWarn
  * The prefix of all routes in a set.
  *
  * The router expects this to be a full URL.
- * Examples: `BaseUrl("http://www.blah.com/hello")`,  `BaseUrl.fromWindow / "hello"`.
+ * Examples: `BaseUrl("http://www.blah.com/hello")`,  `BaseUrl.fromWindowOrigin / "hello"`.
  */
 final case class BaseUrl(value: String) {
-  assertWarn(value contains "://", s"$this doesn't seem to be a valid URL. It's missing '://'. Consider using BaseUrl.fromWindow.")
+  assertWarn(value contains "://", s"$this doesn't seem to be a valid URL. It's missing '://'. Consider using BaseUrl.fromWindowOrigin.")
 
-  def +(p: String): BaseUrl = BaseUrl(value + p)
-  def /(p: String): BaseUrl = BaseUrl(value + "/" + p)
-  def /(p: Path)  : AbsUrl  = AbsUrl(value + p.value)
-  def abs         : AbsUrl  = AbsUrl(value)
+  def +(p: String)            : BaseUrl = BaseUrl(value + p)
+  def /(p: String)            : BaseUrl = BaseUrl(value + "/" + p)
+  def map(f: String => String): BaseUrl = BaseUrl(f(value))
+  def apply(p: Path)          : AbsUrl  = AbsUrl(value + p.value)
+  def abs                     : AbsUrl  = AbsUrl(value)
 }
 object BaseUrl {
-  def fromWindow = BaseUrl(dom.window.location.origin)
+  def fromWindowOrigin = BaseUrl(dom.window.location.origin)
 }
 
 /**
  * The portion of the url after the [[japgolly.scalajs.react.extra.router.BaseUrl]].
  */
 final case class Path(value: String) {
-  def abs(implicit base: BaseUrl): AbsUrl = base / this
+  def abs(implicit base: BaseUrl): AbsUrl = base apply this
 }
 
 /**
