@@ -23,6 +23,14 @@ object Router {
 
   def component[P](router: Router[P]): Component[P] =
     componentUnbuilt(router).buildU
+
+  type Logger = String => IO[Unit]
+
+  def consoleLogger: Logger =
+    s => IO(console.log(s"[Router] $s"))
+
+  val nopLogger: Logger =
+    Function const IO(())
 }
 
 /**
@@ -33,7 +41,8 @@ object Router {
  * @tparam P Routing rules context. Prevents different routing rule sets being mixed up.
  */
 final class Router[P](val baseUrl: BaseUrl,
-                      val pathAction: Path => RouteAction[P]) extends Broadcaster[Unit] {
+                      val pathAction: Path => RouteAction[P],
+                      logger: Router.Logger) extends Broadcaster[Unit] {
 
   type Cmd[A]  = RouteCmd[P, A]
   type Prog[A] = RouteProg[P, A]
@@ -41,12 +50,15 @@ final class Router[P](val baseUrl: BaseUrl,
 
   @inline protected implicit def impbaseurl: BaseUrl = baseUrl
 
+  @inline protected def log(msg: => String) = Log(() => msg)
+
   val init: IO[Unit] = {
     var need = true
     IO(
       if (need) {
         window.onpopstate = (_: PopStateEvent) => broadcast(())
         need = false
+        logger(s"Installed onpopstate event handler.").unsafePerformIO()
       }
     )
   }
@@ -67,15 +79,20 @@ final class Router[P](val baseUrl: BaseUrl,
     }
 
   def syncToWindowUrl: IO[Loc] =
-    IO(AbsUrl.fromWindow)
-      .flatMap(url => syncToUrl(url).fold(interpret(_), IO(_)))
+    IO(AbsUrl.fromWindow).flatMap(url =>
+      logger(s"Syncing to [${url.value}].") >>
+        syncToUrl(url).fold(
+          p => interpret(p),
+          l => IO(l) << logger(s"Location found for path [${l.path.value}]."))
+    )
 
   def syncToWindowUrlS: ReactST[IO, Loc, Unit] =
     ReactS.setM(syncToWindowUrl)
 
-  def wrongBase(url: AbsUrl): Prog[Loc] = {
+  def wrongBase(wrongUrl: AbsUrl): Prog[Loc] = {
     val url = AbsUrl(baseUrl.value)
-    PushState[P](url) >> prog(syncToUrl(url))
+    log(s"Wrong base: [${wrongUrl.value}] is outside of [${baseUrl.value}].") >>
+      PushState[P](url) >> prog(syncToUrl(url))
   }
 
   def redirectCmd(p: Path, m: Redirect.Method): Cmd[Unit] = m match {
@@ -96,10 +113,11 @@ final class Router[P](val baseUrl: BaseUrl,
     @inline private def hs = js.Dynamic.literal()
     @inline private def ht = ""
     override def apply[A](m: Cmd[A]): IO[A] = m match {
-      case PushState(url)     => IO(window.history.pushState   (hs, ht, url.value))
-      case ReplaceState(url)  => IO(window.history.replaceState(hs, ht, url.value))
-      case BroadcastLocChange => IO(broadcast(()))
+      case PushState(url)     => IO(window.history.pushState   (hs, ht, url.value)) << logger(s"PushState: [${url.value}]")
+      case ReplaceState(url)  => IO(window.history.replaceState(hs, ht, url.value)) << logger(s"ReplaceState: [${url.value}]")
+      case BroadcastLocChange => IO(broadcast(())) << logger("Broadcasting location change.")
       case ReturnLoc(loc)     => IO(loc)
+      case Log(msg)           => logger(msg())
     }
   }
 
@@ -107,7 +125,8 @@ final class Router[P](val baseUrl: BaseUrl,
     Free.runFC[Cmd, IO, A](r)(interpretCmd)
 
   def set(p: ApprovedPath[P]): Prog[Unit] =
-    PushState(p.path.abs) >> BroadcastLocChange
+    log(s"Set route to path [${p.path.value}].") >>
+      PushState[P](p.path.abs) >> BroadcastLocChange
 
   def setIO(p: ApprovedPath[P]): IO[Unit] =
     interpret(set(p))

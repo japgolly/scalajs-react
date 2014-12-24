@@ -21,4 +21,6 @@ object RouteCmd {
   case object BroadcastLocChange extends RouteCmd[Nothing, Unit]
 
   case class ReturnLoc[P](loc: Location[P]) extends RouteCmd[P, Location[P]]
+
+  case class Log(msg: () => String) extends RouteCmd[Nothing, Unit]
 }

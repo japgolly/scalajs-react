@@ -137,11 +137,13 @@ trait RoutingRules {
   // ===================================================================================================================
   // Convenience & Utility
 
-  final def routingEngine(base: BaseUrl): Router =
-    new Router(base, totalParser)
+  import Router.{Logger, nopLogger}
 
-  final def router(base: BaseUrl): Router.Component[P] =
-    Router.component(routingEngine(base))
+  final def routingEngine(base: BaseUrl, logger: Logger = nopLogger): Router =
+    new Router(base, totalParser, logger)
+
+  final def router(base: BaseUrl, logger: Logger = nopLogger): Router.Component[P] =
+    Router.component(routingEngine(base, logger))
 
   /** `case matchNumber(num) => num.toLong` */
   final protected lazy val matchNumber = "^(\\d+)$".r

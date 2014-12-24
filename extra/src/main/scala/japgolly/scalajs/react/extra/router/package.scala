@@ -3,6 +3,8 @@ package japgolly.scalajs.react.extra
 import japgolly.scalajs.react.ReactElement
 import japgolly.scalajs.react.ScalazReact.ChangeFilter
 import scalaz.Free
+import scalaz.effect.IO
+import scalaz.syntax.bind.ToBindOps
 
 package object router {
 
@@ -22,5 +24,9 @@ package object router {
 
   implicit final class ReactRouteCmdExt[P, A](val _r: RouteCmd[P, A]) extends AnyVal {
     def >>[B](d: RouteProg[P, B]): RouteProg[P, B] = new ReactRouteProgExt(_r) >> d
+  }
+
+  implicit final class ReactRouteIOExt[A](val _io: IO[A]) extends AnyVal {
+    @inline def <<(prepend: IO[Unit]): IO[A] = prepend >> _io
   }
 }

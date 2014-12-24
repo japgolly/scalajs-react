@@ -103,6 +103,7 @@ object RouterTest extends TestSuite {
           case ReplaceState(url)  => IO{history = url :: history.tail}
           case BroadcastLocChange => IO{broadcasts :+= history}
           case ReturnLoc(loc)     => IO(loc)
+          case Log(msg)           => IO(println(msg()))
         }
       }
 
@@ -120,7 +121,7 @@ object RouterTest extends TestSuite {
 
     'sim {
       val base = BaseUrl("file:///routerDemo")
-      val Component = MyPage.router(base)
+      val Component = MyPage.router(base, Router.consoleLogger)
       val c = ReactTestUtils.renderIntoDocument(Component())
       def html = c.getDOMNode().outerHTML
 
@@ -155,7 +156,7 @@ object RouterTest extends TestSuite {
 
     'pure {
       implicit val base = BaseUrl("http://www.yaya.com/blah")
-      val r = MyPage.routingEngine(base)
+      val r = MyPage.routingEngine(base, Router.consoleLogger)
 
       'urlParsing {
         'root   { r.parseUrl(base.abs)          mustEqual Some(Path("")) }
