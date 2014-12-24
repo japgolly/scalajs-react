@@ -1,5 +1,6 @@
 ## 0.7.0 (unreleased)
 
+* Added a router! See the `extra` module.
 * Removed deprecated methods marked for removal in 0.7.0.
 * Moved `.experiment` into a new module "extra".
 * More supported React tags and attributes.
