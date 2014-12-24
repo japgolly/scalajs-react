@@ -3,7 +3,7 @@ scalajs-react Extras
 
 A collection of functionality that provides benefit when using scalajs-react.
 
-- [Router](#router)
+- [Router](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER.md)
 - Component Mixins:
   - [Broadcaster and Listenable](#broadcaster-and-listenable)
   - [LogLifecycle](#loglifecycle)
@@ -92,10 +92,6 @@ val eg = ReactComponentB[Unit]("Example")
   .configure(OnUnmount.install)
   .buildU
 ```
-
-Router
-======
-
 
 SetInterval
 ===========
