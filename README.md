@@ -46,8 +46,11 @@ jsDependencies += "org.webjars" % "react" % "0.12.1" / "react-with-addons.js" co
 libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.6.1" % "test"
 
 // Scalaz support
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz70" % "0.6.1" // or
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % "0.6.1"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % "0.6.1" // or
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz70" % "0.6.1"
+
+// Extra features
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.6.1"
 ```
 
 Code:
