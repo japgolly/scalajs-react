@@ -32,6 +32,8 @@ Additional features not available in React JS itself, are available in the [`ext
 Setup
 =====
 
+Firstly, you'll need to add [Scala.js](http://www.scala-js.org) to your project.
+
 SBT
 ```scala
 // Minimal usage
@@ -55,19 +57,30 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.6.1"
 
 Code:
 ```scala
-// Typical usage
-import japgolly.scalajs.react._ // React
-import vdom.ReactVDom._         // Scalatags → React virtual DOM
-import vdom.ReactVDom.all._     // Scalatags html & css (div, h1, textarea, etc.)
+// The basics
+import japgolly.scalajs.react._
+
+// Virtual DOM building
+// There are two flavours. In both examples we will build:
+//   <a class="google" href="https://www.google.com"><span>GOOGLE!</span></a>
+
+  // 1) Using prefixes < for tags, ^ for attributes.
+  import japgolly.scalajs.react.vdom.prefix_<^._
+  val vdom = <.a(
+               ^.className := "google",
+               ^.href      := "https://www.google.com",
+               <.span("GOOGLE!"))
+
+  // 2) Importing everything without prefix into namespace.
+  import japgolly.scalajs.react.vdom.all._
+  val vdom = a(
+               className := "google",
+               href      := "https://www.google.com",
+               span("GOOGLE!"))
 
 // Scalaz support
 import japgolly.scalajs.react.ScalazReact._
-
-// Consolidated uber import
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._, ScalazReact._
 ```
-
-You will also need to add [Scala.js](http://www.scala-js.org) to your project.
 
 Examples
 ========
@@ -86,7 +99,7 @@ The source code for the above [lives here](https://github.com/japgolly/scalajs-r
 Differences from React proper
 =============================
 
-* Rather than using JSX or `React.DOM.xxx` to build a virtual DOM, use `ReactVDom` which is backed by lihaoyi's excellent [Scalatags](https://github.com/lihaoyi/scalatags) library. (See examples.)
+* Rather than using JSX or `React.DOM.xxx` to build a virtual DOM, a specialised copy of [Scalatags](https://github.com/lihaoyi/scalatags) is used. (See examples.)
 * In addition to props and state, if you look at the React samples you'll see that most components need additional functions and in the case of sample #2, state outside of the designated state object (!). In this Scala version, all of that is heaped into an abstract type called `Backend` which you can supply or omit as necessary.
 * To keep a collection together when generating the dom, call `.toJsArray`. The only difference I'm aware of is that if the collection is maintained, React will issue warnings if you haven't supplied `key` attributes. Example:
 ```scala
@@ -95,10 +108,10 @@ Differences from React proper
       myListOfItems.sortBy(_.name).map(renderItem).toJsArray
     ))
 ```
-* To specify a `key` when creating a React component, instead of merging it into the props, call `.withKey()` before providing the props and children.
+* To specify a `key` when creating a React component, instead of merging it into the props, call `.set(key = ...)` before providing the props and children.
 ```scala
     val Example = ReactComponentB[String]("Eg").render(i => h1(i)).build
-    Example.withKey("key1")("The Prop")
+    Example.set(key = "key1")("The Prop")
 ```
 
 
