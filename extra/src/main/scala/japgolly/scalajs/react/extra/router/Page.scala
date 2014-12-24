@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extras.router
+package japgolly.scalajs.react.extra.router
 
 import scalaz.{-\/, \/-, \/}
 import japgolly.scalajs.react.{ReactElement, ReactComponentC, TopNode}
@@ -8,8 +8,8 @@ import japgolly.scalajs.react.{ReactElement, ReactComponentC, TopNode}
  */
 trait Page {
   final type P              = this.type
-  final type Renderer       = japgolly.scalajs.react.extras.router.Renderer[P]
-  final type Router         = japgolly.scalajs.react.extras.router.Router[P]
+  final type Renderer       = japgolly.scalajs.react.extra.router.Renderer[P]
+  final type Router         = japgolly.scalajs.react.extra.router.Router[P]
   final type Loc            = Location[P]
   final type RedirectTarget = Redirect.Target[P]
 
@@ -125,7 +125,7 @@ trait Page {
   }
 
   /**
-   * Generates paths for a dynamic route, which can then be passed to [[japgolly.scalajs.react.extras.router.Router]]
+   * Generates paths for a dynamic route, which can then be passed to [[japgolly.scalajs.react.extra.router.Router]]
    * to be turned into clickable links.
    *
    * @param path Example: `"person/123"`

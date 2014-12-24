@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extras
+package japgolly.scalajs.react.extra
 
 import scalaz.~>
 import scalaz.effect.IO

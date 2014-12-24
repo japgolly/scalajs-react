@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import scala.annotation.elidable
 import org.scalajs.dom
 
-package object extras {
+package object extra {
 
   @elidable(elidable.ASSERTION)
   def assertWarn(test: => Boolean, msg: => String): Unit =

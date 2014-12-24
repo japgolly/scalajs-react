@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extras.router
+package japgolly.scalajs.react.extra.router
 
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import japgolly.scalajs.react.test._

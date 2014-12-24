@@ -3,7 +3,7 @@ package ghpages
 import scala.scalajs.js
 import org.scalajs.dom.window
 import japgolly.scalajs.react._, vdom.all._, ScalazReact._
-import japgolly.scalajs.react.extras._
+import japgolly.scalajs.react.extra._
 
 object ExtrasExamples {
 

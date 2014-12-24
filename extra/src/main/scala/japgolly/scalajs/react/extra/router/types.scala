@@ -1,9 +1,9 @@
-package japgolly.scalajs.react.extras.router
+package japgolly.scalajs.react.extra.router
 
 import org.scalajs.dom
 import scalaz.std.string.stringInstance
 import scalaz.{\/, Equal}
-import japgolly.scalajs.react.extras.assertWarn
+import japgolly.scalajs.react.extra.assertWarn
 
 /**
  * The prefix of all routes in a set.
@@ -24,7 +24,7 @@ object BaseUrl {
 }
 
 /**
- * The portion of the url after the [[japgolly.scalajs.react.extras.router.BaseUrl]].
+ * The portion of the url after the [[japgolly.scalajs.react.extra.router.BaseUrl]].
  */
 final case class Path(value: String) {
   def abs(implicit base: BaseUrl): AbsUrl = base / this

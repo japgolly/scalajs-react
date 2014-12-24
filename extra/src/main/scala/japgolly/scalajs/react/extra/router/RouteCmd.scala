@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extras.router
+package japgolly.scalajs.react.extra.router
 
 sealed trait RouteCmd[+P, A]
 

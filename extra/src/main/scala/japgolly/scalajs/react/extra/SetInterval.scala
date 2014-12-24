@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extras
+package japgolly.scalajs.react.extra
 
 import scala.scalajs.js
 import org.scalajs.dom.window

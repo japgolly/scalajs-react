@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extras
+package japgolly.scalajs.react.extra
 
 /**
  * Implementation of `Listener`.

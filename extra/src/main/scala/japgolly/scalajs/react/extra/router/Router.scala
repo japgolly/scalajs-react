@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extras.router
+package japgolly.scalajs.react.extra.router
 
 import org.scalajs.dom._
 import scala.scalajs.js
@@ -6,7 +6,7 @@ import scalaz.{\/-, -\/, \/, ~>, Free}
 import scalaz.effect.IO
 import scalaz.syntax.bind.ToBindOps
 import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
-import japgolly.scalajs.react.extras._
+import japgolly.scalajs.react.extra._
 import RouteCmd._
 
 object Router {
