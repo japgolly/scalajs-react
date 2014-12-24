@@ -16,10 +16,10 @@ Why? What does that mean?
 * No more console warnings from React about styles.
 * Attributes now match what you do in React JS. (eg. `onClick` instead of `onclick`)
 * Fixed bug where numbers weren't convertible to `ReactNode`.
-* Attributes, styles, tags, modifiers support being wrapped in `Option`, `js.UndefOr`, or 'scalaz.Maybe'.
+* Attributes, styles, tags, modifiers support being wrapped in `Option`, `js.UndefOr`, or `scalaz.Maybe`.
 * Removed Scalatags' `()` to `Tag` implicit conversion. It seems like a good idea but can cause certain issues
   (esp with type inference) to be silently ignored, and is unsafe. Use `EmptyTag` instead.
-* As an unintended consequence, `bool && (attr := value)` changed to `bool ?= (attr := value)`.
+* An unintended consequence, `bool && (attr := value)` changed to `bool ?= (attr := value)`.
 * `Tag` is now `ReactTag`. `Modifier` is now `TagMod`.
 * `TagMod` is now composable.
 * No more arbitrary subsets of tags and attributes, ie. no more additional importing of `tags2._` etc.
