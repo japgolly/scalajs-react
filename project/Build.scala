@@ -90,7 +90,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, test, scalaz70, scalaz71, extra, ghpages)
+    .aggregate(core, test, scalaz70, scalaz71, monocle, extra, ghpages)
     .configure(commonSettings, preventPublication, addCommandAliases(
       "t"  -> "; test:compile ; test/fastOptStage::test",
       "tt" -> ";+test:compile ;+test/fastOptStage::test",
