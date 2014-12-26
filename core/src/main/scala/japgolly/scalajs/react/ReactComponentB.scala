@@ -108,9 +108,9 @@ final class ReactComponentB[P, S, B](val name: String,
   final class AnchorN[N <: TopNode] private[ReactComponentB] {
     @inline private def builder[C](cc: ReactComponentCU[P,S,B,N] => C) = new Builder(cc)
 
-    def propsRequired         = builder(new ReactComponentC.ReqProps[P,S,B,N](_, None))
-    def propsDefault(p: => P) = builder(new ReactComponentC.DefaultProps[P,S,B,N](_, None, () => p))
-    def propsConst(p: => P)   = builder(new ReactComponentC.ConstProps[P,S,B,N](_, None, () => p))
+    def propsRequired         = builder(new ReactComponentC.ReqProps    [P,S,B,N](_, undefined, undefined))
+    def propsDefault(p: => P) = builder(new ReactComponentC.DefaultProps[P,S,B,N](_, undefined, undefined, () => p))
+    def propsConst  (p: => P) = builder(new ReactComponentC.ConstProps  [P,S,B,N](_, undefined, undefined, () => p))
 
     def propsUnit(implicit ev: Unit =:= P) = propsConst(ev(()))
     def buildU   (implicit ev: Unit =:= P) = propsUnit.build

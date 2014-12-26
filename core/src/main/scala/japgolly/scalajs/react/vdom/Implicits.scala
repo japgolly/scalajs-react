@@ -26,8 +26,8 @@ abstract class Implicits extends LowPri {
           implicit final val _react_attrJsFn     : AttrValue[js.Function]     = GenericAttr[js.Function]
           implicit final val _react_attrJsObj    : AttrValue[js.Object]       = GenericAttr[js.Object]
 
-  @inline implicit final def _react_attrRef[T <: Ref[_]]: AttrValue[T] =
-    new GenericAttr[T](_.name)
+  @inline implicit final def _react_attrRef[R <: Ref]: AttrValue[R] =
+    new GenericAttr[R](_.name)
 
   @inline implicit final def _react_attrOption[A](implicit tc: AttrValue[A]): AttrValue[Option[A]] =
     new OptionalAttrValue[Option, A](tc, _ foreach _)

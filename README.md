@@ -226,14 +226,6 @@ Extensions
 #### React
 * Where `this.setState(State)` is applicable, you can also run `modState(State => State)`.
 * `SyntheticEvent`s have aliases that don't require you to provide the dom type. So instead of `SyntheticKeyboardEvent[xxx]` type alias `ReactKeyboardEvent` can be used.
-* Because refs are not guaranteed to exist, the return type is wrapped in `js.UndefOr[_]`. A helper method `tryFocus()` has been added to focus the ref if one is returned.
-```scala
-    val myRef = Ref[HTMLInputElement]("refKey")
-
-    class Backend(T: BackendScope[_, _]) {
-      def clearAndFocusInput() = T.setState("", () => myRef(t).tryFocus())
-    }
-```
 * The component builder has a `propsDefault` method which takes some default properties and exposes constructor methods that 1) don't require any property specification, and 2) take an `Optional[Props]`.
 * The component builder has a `propsAlways` method which provides all component instances with given properties, doesn't allow property specification in the constructor.
 * React has a [classSet addon](http://facebook.github.io/react/docs/class-name-manipulation.html)
@@ -259,6 +251,20 @@ Extensions
     // Then later in a render() method
     val f = T.focusState(_.counter)((a,b) => a.copy(counter = b))
     button(onclick --> incrementCounter(f))("+")
+```
+
+##### Refs
+Rather than specify references using strings, the `Ref` object can provide some more safety.
+* `Ref(name)` will create a reference to both apply to and retrieve a plain DOM node.
+* `Ref.to(component, name)` will create a reference to a component so that on retrieval its types are preserved.
+* `Ref.param(param => name)` can be used for references to items in a set, with the key being a data entity's ID.
+* Because refs are not guaranteed to exist, the return type is wrapped in `js.UndefOr[_]`. A helper method `tryFocus()` has been added to focus the ref if one is returned.
+```scala
+    val myRef = Ref[HTMLInputElement]("refKey")
+
+    class Backend(T: BackendScope[_, _]) {
+      def clearAndFocusInput() = T.setState("", () => myRef(t).tryFocus())
+    }
 ```
 
 Additional features are available in the [`extra` module](https://github.com/japgolly/scalajs-react/tree/master/extra).
