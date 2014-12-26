@@ -298,9 +298,9 @@ package object react {
       () => _c.state,
       (a: S, cb: OpCallback) => _c.setState(a, cb))
 
-    @inline def focusState[B](f: S => B)(g: (S, B) => S)(implicit C: CC) = new ComponentStateFocus[B](
+    @inline def focusState[T](f: S => T)(g: (S, T) => S)(implicit C: CC) = new ComponentStateFocus[T](
       () => f(_c.state),
-      (b: B, cb: OpCallback) => _c.setState(g(_c.state, b), cb))
+      (b: T, cb: OpCallback) => _c.setState(g(_c.state, b), cb))
   }
 
   final class ComponentStateFocus[B] private[react](

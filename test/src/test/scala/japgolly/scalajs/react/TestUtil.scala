@@ -83,4 +83,27 @@ object TestUtil {
 
   def assertTypeMismatch(e: CompileError): Unit =
     assertContains(e.msg, "type mismatch")
+
+  // ===================================================================================================================
+  object Inference {
+    import scalaz.{Monad, ~>}
+    import scalaz.effect.IO
+
+    def test[A] = new {
+      def apply[B](f: A => B) = new {
+        def expect[C](implicit ev: B =:= C): Unit = ()
+      }
+    }
+
+    trait M[A]
+    trait S
+    trait T
+    trait A
+    trait B
+    val c = null.asInstanceOf[ComponentScopeM[Unit, S, Unit]]
+    type U = Unit
+    type N = TopNode
+
+    implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> IO)]
+  }
 }

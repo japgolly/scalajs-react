@@ -51,6 +51,9 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.6.1" 
 libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % "0.6.1" // or
 libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz70" % "0.6.1"
 
+// Monocle support
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "0.6.1"
+
 // Extra features
 libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.6.1"
 ```
@@ -127,6 +130,9 @@ Also included are `runStateF` methods which use a `ChangeFilter` typeclass to co
 
 See [ScalazExamples](https://github.com/japgolly/scalajs-react/tree/master/example/src/main/scala/japgolly/scalajs/react/example/ScalazExamples.scala) for a taste.
 Take a look at the [ScalazReact module](https://github.com/japgolly/scalajs-react/tree/master/scalaz-7.1/src/main/scala/japgolly/scalajs/react/ScalazReact.scala) for the source.
+
+#### Monocle
+A module with a extensions for [Monocle](https://github.com/julien-truffaut/Monocle) also exists under `ext-monocle`.
 
 
 Testing

@@ -85,6 +85,9 @@ object ScalajsReact extends Build {
     (_: Project).settings(s: _*)
   }
 
+  def extModuleName(shortName: String): PE =
+    _.settings(name := s"ext-$shortName")
+
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .aggregate(core, test, scalaz70, scalaz71, extra, ghpages)
@@ -104,7 +107,7 @@ object ScalajsReact extends Build {
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings)
-    .dependsOn(core, scalaz71, extra)
+    .dependsOn(core, scalaz71, extra, monocle)
     .settings(
       name := "test",
       scalacOptions += "-language:reflectiveCalls")
@@ -113,15 +116,21 @@ object ScalajsReact extends Build {
   def scalazModule(name: String, version: String) = {
     val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")
     Project(shortName, file(name))
-      .configure(commonSettings, publicationSettings)
+      .configure(commonSettings, publicationSettings, extModuleName(shortName))
       .dependsOn(core)
       .settings(
-        Keys.name := s"ext-$shortName",
         libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
   }
 
   lazy val scalaz70 = scalazModule("scalaz-7.0", "7.0.6")
   lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.0-4")
+
+  // ==============================================================================================
+  lazy val monocle = project
+    .configure(commonSettings, publicationSettings, extModuleName("monocle"))
+    .dependsOn(core, scalaz71)
+    .settings(
+      libraryDependencies += "com.github.japgolly.fork.monocle" %%% "monocle-core" % "1.0.1")
 
   // ==============================================================================================
   lazy val extra = project
@@ -132,7 +141,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
-    .dependsOn(core, scalaz71, extra)
+    .dependsOn(core, scalaz71, extra, monocle)
     .configure(commonSettings, useReact(), preventPublication)
     .settings(
       emitSourceMaps := false,

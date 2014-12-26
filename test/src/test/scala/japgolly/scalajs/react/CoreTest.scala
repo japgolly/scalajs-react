@@ -331,5 +331,15 @@ object CoreTest extends TestSuite {
           .componentDidMount(scope => assert(scope.refs("test").get == null))
       }
     }
+
+    'inference {
+      import TestUtil.Inference._
+      def st_get: S => T = null
+      def st_set: (S, T) => S = null
+
+      "BackendScope ops"    - test[BackendScope[Unit, S]      ](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
+      "ComponentScopeM ops" - test[ComponentScopeM[U, S, U]   ](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
+      "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
+    }
   }
 }
