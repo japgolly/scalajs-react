@@ -1,9 +1,14 @@
-## 0.7.0 (unreleased)
+# 0.7.0 (unreleased)
 
-* Added a router! See the `extra` module.
-* Removed deprecated methods marked for removal in 0.7.0.
-* Moved `.experiment` into a new module "extra".
+To ease migration, here is a script that perform 98% of the required changes for you:
+https://gist.github.com/japgolly/c68482dbadb0077f550c
+
+
+#### Changes
+* Added a router! _(See the `extra` module)_.
+* Moved `.experiment` into a new module called `extra`.
 * More supported React tags and attributes.
+* Removed deprecated methods marked for removal in 0.7.0.
 
 ##### Refs
 * Refs can now be applied to components from the outside, prior to mounting. ([#44](https://github.com/japgolly/scalajs-react/issues/44))
@@ -66,9 +71,3 @@ Just change your two `vdom` imports to this one:
 ```scala
 import japgolly.scalajs.react.vdom.all._
 ```
-
-##### Migration script
-To ease migration, here is a script that perform 98% of the required changes for you.
-Remember to check into source control before running and verify the changes after running.
-
-https://gist.github.com/japgolly/c68482dbadb0077f550c
