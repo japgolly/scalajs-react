@@ -286,9 +286,11 @@ package object react {
     @inline def modState(f: S => S, cb: OpCallback = undefined)(implicit C: CC): Unit =
       setState(f(state), cb)
 
+    @deprecated("modStateO will be removed in v0.8.x", "v0.7.0")
     @inline def modStateO(f: S => Option[S], cb: OpCallback = undefined)(implicit C: CC): Unit =
       f(state).fold(())(setState(_, cb))
 
+    @deprecated("modStateU will be removed in v0.8.x", "v0.7.0")
     @inline def modStateU(f: S => UndefOr[S], cb: OpCallback = undefined)(implicit C: CC): Unit =
       f(state).fold(())(setState(_, cb))
 

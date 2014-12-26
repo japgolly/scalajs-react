@@ -10,6 +10,7 @@ https://gist.github.com/japgolly/c68482dbadb0077f550c
 * More supported React tags and attributes.
 * More ScalazReact extensions: `{state,setState,modState,modStateF}IO`.
 * Removed deprecated methods marked for removal in 0.7.0.
+* Deprecated `modStateO` and `modStateU`.
 
 ##### Refs
 * Refs can now be applied to components from the outside, prior to mounting. ([#44](https://github.com/japgolly/scalajs-react/issues/44))
