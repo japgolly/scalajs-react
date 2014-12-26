@@ -16,14 +16,14 @@ object Extra {
       }
   }
 
-  final class AttrExt(val a: Attr) extends AnyVal {
-    @inline def runs(thunk: => Unit) = a := ((() => thunk): js.Function)
+  final class AttrExt(val _a: Attr) extends AnyVal {
+    @inline def runs(thunk: => Unit) = _a := ((() => thunk): js.Function)
     @inline def -->(thunk: => Unit) = runs(thunk)
-    @inline def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Unit) = a := (eventHandler: js.Function)
+    @inline def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Unit) = _a := (eventHandler: js.Function)
   }
 
-  final class BooleanExt(val a: Boolean) extends AnyVal {
-    @inline def ?=(m: => TagMod): TagMod = if (a) m else EmptyTag
+  final class BooleanExt(val _b: Boolean) extends AnyVal {
+    @inline def ?=(m: => TagMod): TagMod = if (_b) m else EmptyTag
   }
 
   trait Tags {

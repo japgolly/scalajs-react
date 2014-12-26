@@ -11,7 +11,7 @@ import Leibniz.===
 
 package vdom {
   import Scalatags._
-  
+
   abstract class ScalazImplicits {
 
 
@@ -26,29 +26,29 @@ object ScalazReact extends vdom.ScalazImplicits {
     override def apply[A](a: Id[A]): IO[A] = IO(a)
   }
 
-  implicit final class SzRExt_Attr(val a: Attr) extends AnyVal {
+  @inline implicit final class SzRExt_Attr(val _a: Attr) extends AnyVal {
 
     def ~~>(io: => IO[Unit]) =
-      a --> io.unsafePerformIO()
+      _a --> io.unsafePerformIO()
 
     def ~~>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => IO[Unit]) =
-      a.==>[N, E](eventHandler(_).unsafePerformIO())
+      _a.==>[N, E](eventHandler(_).unsafePerformIO())
   }
 
-  implicit final class SzRExt_C_M(val u: ComponentScope_M[_]) extends AnyVal {
-    def forceUpdateIO = IO(u.forceUpdate())
+  @inline implicit final class SzRExt_C_M(val _c: ComponentScope_M[_]) extends AnyVal {
+    def forceUpdateIO = IO(_c.forceUpdate())
   }
 
-  implicit final class SzRExt_SEvent[N <: dom.Node](val e: SyntheticEvent[N]) extends AnyVal {
+  @inline implicit final class SzRExt_SEvent[N <: dom.Node](val _e: SyntheticEvent[N]) extends AnyVal {
     /**
      * Stops the default action of an element from happening.
      * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
      */
-    def preventDefaultIO = IO(e.preventDefault())
+    def preventDefaultIO = IO(_e.preventDefault())
     /**
      * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
      */
-    def stopPropagationIO = IO(e.stopPropagation())
+    def stopPropagationIO = IO(_e.stopPropagation())
   }
 
   val preventDefaultIO  = (_: SyntheticEvent[dom.Node]).preventDefaultIO
@@ -200,42 +200,42 @@ object ScalazReact extends vdom.ScalazImplicits {
     }
   }
 
-  implicit final class SzRExt_StateTOps[M[+_], S, A](val s: StateT[M, S, A]) extends AnyVal {
-    @inline def liftS(implicit M: Functor[M]): ReactST[M, S, A] = ReactS.liftS(s)
+  @inline implicit final class SzRExt_StateTOps[M[+_], S, A](val _s: StateT[M, S, A]) extends AnyVal {
+    @inline def liftS(implicit M: Functor[M]): ReactST[M, S, A] = ReactS.liftS(_s)
   }
 
-  implicit final class SzRExt__StateTOps[I, M[+_], S, A](val f: I => StateT[M, S, A]) extends AnyVal {
-    @inline def liftS(implicit M: Functor[M]): I => ReactST[M, S, A] = f(_).liftS
+  @inline implicit final class SzRExt__StateTOps[I, M[+_], S, A](val _f: I => StateT[M, S, A]) extends AnyVal {
+    @inline def liftS(implicit M: Functor[M]): I => ReactST[M, S, A] = _f(_).liftS
   }
 
-  implicit final class SzRExt_ReactSOps[S, A](val s: ReactS[S,A]) extends AnyVal {
+  @inline implicit final class SzRExt_ReactSOps[S, A](val _r: ReactS[S,A]) extends AnyVal {
     // Very common case. Very sick of seeing it highlighted red everywhere in Intellij.
-    def liftIO: ReactST[IO, S, A] = s.lift[IO]
+    def liftIO: ReactST[IO, S, A] = _r.lift[IO]
   }
 
-  implicit final class SzRExt_ReactSTOps[M[+_], S, A](val s: ReactST[M,S,A]) extends AnyVal {
+  @inline implicit final class SzRExt_ReactSTOps[M[+_], S, A](val _r: ReactST[M,S,A]) extends AnyVal {
     def addCallback(c: OpCallbackIO)(implicit M: Monad[M]): ReactST[M,S,A] =
-      s.flatMap(ReactS.callbackT(_, c))
+      _r.flatMap(ReactS.callbackT(_, c))
 
     // This shouldn't be needed; it's already in BindSyntax.
     def >>[B](t: => ReactST[M,S,B])(implicit M: Bind[M]): ReactST[M,S,B] =
-      s.flatMap(_ => t)
+      _r.flatMap(_ => t)
 
     /** zoom2 because StateT.zoom already exists. 2 because it takes two fns. */
     def zoom2[T](f: T => S, g: (T, S) => T)(implicit M: Functor[M]): ReactST[M, T, A] =
-      ReactS.zoom(s, f, g)
+      ReactS.zoom(_r, f, g)
 
     def zoomU[T](implicit M: Functor[M], ev: S === Unit): ReactST[M, T, A] =
-      ReactS.zoomU[M, T, A](ev.subst[({type λ[σ] = ReactST[M, σ, A]})#λ](s))
+      ReactS.zoomU[M, T, A](ev.subst[({type λ[σ] = ReactST[M, σ, A]})#λ](_r))
   }
 
-  implicit final class SzRExt_CompStateAccessOps[C[_], S](val u: C[S]) extends AnyVal {
+  @inline implicit final class SzRExt_CompStateAccessOps[C[_], S](val _c: C[S]) extends AnyVal {
     type CC = CompStateAccess[C]
 
     private def run[M[+_], A, B](st: => ReactST[M, S, A], f: (S, S, A, => IO[Unit]) => IO[B])(implicit C: CC, M: M ~> IO): IO[B] =
-      IO(StateAndCallbacks(C state u)).flatMap(s1 =>
+      IO(StateAndCallbacks(C state _c)).flatMap(s1 =>
         M(st run s1).flatMap { case (s2, a) =>
-          f(s1.state, s2.state, a, IO(C.setState(u, s2.state, s2.cb)))
+          f(s1.state, s2.state, a, IO(C.setState(_c, s2.state, s2.cb)))
         }
       )
 
