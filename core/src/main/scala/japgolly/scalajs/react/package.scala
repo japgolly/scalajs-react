@@ -260,42 +260,43 @@ package object react {
   type OpCallback = UndefOr[() => Unit]
 
   trait CompStateAccess[C[_]] {
-    def state[A](f: C[A]): A
-    def setState[A](f: C[A], a: A, cb: OpCallback): Unit
+    def state[S](c: C[S]): S
+    def setState[S](f: C[S], s: S, cb: OpCallback): Unit
   }
 
   implicit object CompStateAccess_SS extends CompStateAccess[ComponentScope_SS] {
-    override def state[A](u: ComponentScope_SS[A]): A =
-      u._state.v
+    override def state[S](c: ComponentScope_SS[S]): S =
+      c._state.v
 
-    override def setState[A](u: ComponentScope_SS[A], a: A, cb: OpCallback = undefined): Unit =
-      u._setState(WrapObj(a), cb.map[JFn](f => f))
+    override def setState[S](c: ComponentScope_SS[S], s: S, cb: OpCallback = undefined): Unit =
+      c._setState(WrapObj(s), cb.map[JFn](f => f))
   }
 
-  // CompStateAccess[C] should really be a class param but then we lose the AnyVal
-  @inline implicit final class CompStateAccessOps[C[_], A](val _c: C[A]) extends AnyVal {
+  @inline implicit final def toCompStateAccessOps[C[_]: CompStateAccess, S](c: C[S]) = new CompStateAccessOps(c)
+  final class CompStateAccessOps[C[_], S](val _c: C[S]) extends AnyVal {
+    // CompStateAccess[C] should really be a class param but then we lose the AnyVal
     type CC = CompStateAccess[C]
     
-    @inline def state(implicit C: CC): A =
+    @inline def state(implicit C: CC): S =
       C.state(_c)
 
-    @inline def setState(a: A, cb: OpCallback = undefined)(implicit C: CC): Unit =
-      C.setState(_c, a, cb)
+    @inline def setState(s: S, cb: OpCallback = undefined)(implicit C: CC): Unit =
+      C.setState(_c, s, cb)
 
-    @inline def modState(f: A => A, cb: OpCallback = undefined)(implicit C: CC): Unit =
+    @inline def modState(f: S => S, cb: OpCallback = undefined)(implicit C: CC): Unit =
       setState(f(state), cb)
 
-    @inline def modStateO(f: A => Option[A], cb: OpCallback = undefined)(implicit C: CC): Unit =
+    @inline def modStateO(f: S => Option[S], cb: OpCallback = undefined)(implicit C: CC): Unit =
       f(state).fold(())(setState(_, cb))
 
-    @inline def modStateU(f: A => UndefOr[A], cb: OpCallback = undefined)(implicit C: CC): Unit =
+    @inline def modStateU(f: S => UndefOr[S], cb: OpCallback = undefined)(implicit C: CC): Unit =
       f(state).fold(())(setState(_, cb))
 
-    @inline def focusStateId(implicit C: CC) = new ComponentStateFocus[A](
+    @inline def focusStateId(implicit C: CC) = new ComponentStateFocus[S](
       () => _c.state,
-      (a: A, cb: OpCallback) => _c.setState(a, cb))
+      (a: S, cb: OpCallback) => _c.setState(a, cb))
 
-    @inline def focusState[B](f: A => B)(g: (A, B) => A)(implicit C: CC) = new ComponentStateFocus[B](
+    @inline def focusState[B](f: S => B)(g: (S, B) => S)(implicit C: CC) = new ComponentStateFocus[B](
       () => f(_c.state),
       (b: B, cb: OpCallback) => _c.setState(g(_c.state, b), cb))
   }
@@ -305,8 +306,8 @@ package object react {
     private[react] val _s: (B, OpCallback) => Unit)
 
   implicit object ComponentStateFocusAccess extends CompStateAccess[ComponentStateFocus] {
-    override def state[A](u: ComponentStateFocus[A]): A = u._g()
-    override def setState[A](u: ComponentStateFocus[A], a: A, cb: OpCallback = undefined): Unit = u._s(a, cb)
+    override def state[S](c: ComponentStateFocus[S]): S = c._g()
+    override def setState[S](c: ComponentStateFocus[S], a: S, cb: OpCallback = undefined): Unit = c._s(a, cb)
   }
 
   @inline final implicit def autoFocusEntireState[S](s: ComponentScope_SS[S]): ComponentStateFocus[S] = s.focusStateId
