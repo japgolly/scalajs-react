@@ -233,7 +233,9 @@ object ScalazReact extends vdom.ScalazImplicits {
       ReactS.zoomU[M, T, A](ev.subst[({type λ[σ] = ReactST[M, σ, A]})#λ](_r))
   }
 
-  @inline implicit final class SzRExt_CompStateAccessOps[C[_], S](val _c: C[S]) extends AnyVal {
+  @inline implicit final def toSzRExtCompStateAccessOps[C[_]: CompStateAccess, S](c: C[S]) = new SzRExt_CompStateAccessOps(c)
+  final class SzRExt_CompStateAccessOps[C[_], S](val _c: C[S]) extends AnyVal {
+    // CompStateAccess[C] should really be a class param but then we lose the AnyVal
     type CC = CompStateAccess[C]
 
     private def run[M[_], A, B](st: => ReactST[M, S, A], f: (S, S, A, => IO[Unit]) => IO[B])(implicit C: CC, M: M ~> IO): IO[B] =
@@ -253,16 +255,32 @@ object ScalazReact extends vdom.ScalazImplicits {
       i => runState(f(i) addCallback cb(i))
 
     def runStateF[M[_], A](st: => ReactST[M, S, A])(implicit C: CC, M: M ~> IO, F: ChangeFilter[S]): IO[A] =
-      run[M, A, A](st, (s1,s2,a,io) => if (F.allowChange(s1,s2)) io.map(_ => a) else IO(a))
+      run[M, A, A](st, (s1,s2,a,io) => F(s1, s2, IO(a), _ => io.map(_ => a)))
 
     def _runStateF[I, M[_], A](f: I => ReactST[M, S, A])(implicit C: CC, M: M ~> IO, F: ChangeFilter[S]): I => IO[A] =
       i => runStateF(f(i))
 
     def _runStateF[I, M[_], A](f: I => ReactST[M, S, A], cb: I => OpCallbackIO)(implicit C: CC, M: M ~> IO, N: Monad[M], F: ChangeFilter[S]): I => IO[A] =
       i => runStateF(f(i) addCallback cb(i))
+
+    @inline def stateIO(implicit C: CC): IO[S] =
+      IO(C state _c)
+
+    @inline def setStateIO(s: S, cb: OpCallbackIO = undefined)(implicit C: CC): IO[Unit] =
+      IO(C.setState(_c, s, cb))
+
+    @inline def modStateIO(f: S => S, cb: OpCallbackIO = undefined)(implicit C: CC): IO[Unit] =
+      IO(_c.modState(f, cb))
+
+    def modStateIOF(f: S => S, cb: OpCallbackIO = undefined)(implicit C: CC, F: ChangeFilter[S]): IO[Unit] =
+      stateIO.flatMap(s1 =>
+        F(s1, f(s1), IO(()), setStateIO(_, cb)))
   }
 
-  case class ChangeFilter[S](allowChange: (S, S) => Boolean)
+  final case class ChangeFilter[S](allowChange: (S, S) => Boolean) {
+    def apply[A](s1: S, s2: S, orElse: => A, change: S => A): A =
+      if (allowChange(s1, s2)) change(s2) else orElse
+  }
   object ChangeFilter {
     def refl[S] = apply[S](_ != _)
     def reflOn[S, T](f: S => T) = apply[S](f(_) != f(_))

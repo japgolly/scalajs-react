@@ -8,6 +8,7 @@ https://gist.github.com/japgolly/c68482dbadb0077f550c
 * Added a router! _(See the `extra` module)_.
 * Moved `.experiment` into a new module called `extra`.
 * More supported React tags and attributes.
+* More ScalazReact extensions: `{state,setState,modState,modStateF}IO`.
 * Removed deprecated methods marked for removal in 0.7.0.
 
 ##### Refs
