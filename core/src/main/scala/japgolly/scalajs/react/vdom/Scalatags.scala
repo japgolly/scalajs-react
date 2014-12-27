@@ -181,12 +181,12 @@ private[vdom] object Scalatags {
     override def compare(x: Attr, y: Attr): Int = x.name compareTo y.name
   }
 
-  final class OptionalAttrValue[O[_], T](tc: AttrValue[T], run: (O[T], T => Unit) => Unit) extends AttrValue[O[T]] {
-    override def apply(b: Builder, a: Attr, v: O[T]) = run(v, tc(b, a, _))
+  final class OptionalAttrValue[T[_], A](ot: Optional[T], v: AttrValue[A]) extends AttrValue[T[A]] {
+    override def apply(b: Builder, s: Attr, t: T[A]) = ot.foreach(t)(v(b, s, _))
   }
 
-  final class OptionalStyleValue[O[_], T](tc: StyleValue[T], run: (O[T], T => Unit) => Unit) extends StyleValue[O[T]] {
-    override def apply(b: Builder, a: Style, v: O[T]) = run(v, tc(b, a, _))
+  final class OptionalStyleValue[T[_], A](ot: Optional[T], v: StyleValue[A]) extends StyleValue[T[A]] {
+    override def apply(b: Builder, s: Style, t: T[A]) = ot.foreach(t)(v(b, s, _))
   }
 
   @inline def makeAbstractReactTag(tag: String, void: Boolean, namespaceConfig: Namespace): ReactTag =

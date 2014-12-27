@@ -9,21 +9,12 @@ import scalaz.effect.IO
 import Scalaz.Id
 import Leibniz.===
 
-package vdom {
-  import Scalatags._
+object ScalazReact {
 
-  abstract class ScalazImplicits {
-    @inline implicit final def _react_attrMaybe[A](implicit tc: AttrValue[A]): AttrValue[Maybe[A]] =
-      new OptionalAttrValue[Maybe, A](tc, _.cata(_, ()))
-
-    @inline implicit final def _react_styleMaybe[A](implicit tc: StyleValue[A]): StyleValue[Maybe[A]] =
-      new OptionalStyleValue[Maybe, A](tc, _.cata(_, ()))
-
-    @inline implicit final def _react_nodeMaybe[A <% TagMod](m: Maybe[A]): TagMod = m.cata(a => a, EmptyTag)
+  implicit object OptionalMaybe extends vdom.Optional[Maybe] {
+    @inline final override def foreach[A](m: Maybe[A])(f: (A) => Unit): Unit = m.cata(f, ())
+    @inline final override def fold[A, B](t: Maybe[A], f: A => B, b: => B): B = t.cata(f, b)
   }
-}
-
-object ScalazReact extends vdom.ScalazImplicits {
 
   implicit val IoToIo: IO ~> IO = NaturalTransformation.refl[IO]
   implicit object IdToIo extends (Id ~> IO) {

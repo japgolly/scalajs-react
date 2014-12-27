@@ -148,7 +148,7 @@ object CoreTest extends TestSuite {
 
         'stringArray - {
           val strArr = Array("hello")
-          test(div(Some("lol"), Some(1), None: Option[String], h1("Hello"), Array(1, 2, 3), strArr, EmptyTag),
+          test(div("lol".some, 1.some, None: Option[String], h1("Hello"), Array(1, 2, 3), strArr, EmptyTag),
             """<div>lol1<h1>Hello</h1>123hello</div>""")
         }
 

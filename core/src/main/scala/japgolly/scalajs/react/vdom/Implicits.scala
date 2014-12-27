@@ -6,8 +6,11 @@ import Scalatags._
 
 abstract class LowPri {
   @inline implicit final def _react_fragSeq   [A <% Frag](xs: Seq[A])   : Frag = SeqFrag(xs)
-  @inline implicit final def _react_fragOption[A <% Frag](xs: Option[A]): Frag = SeqFrag(xs.toSeq)
   @inline implicit final def _react_fragArray [A <% Frag](xs: Array[A]) : Frag = SeqFrag[A](xs.toSeq)
+
+//  @inline implicit final def _react_fragOption[A <% Frag](xs: Option[A]): Frag = SeqFrag(xs.toSeq)
+//  @inline implicit final def _react_fragOptional[T[_], A](t: T[A])(implicit o: Optional[T], f: A => Frag): Frag =
+//    o.fold(t, f, ???)
 }
 
 // If you're wondering why abstract class instead of trait, https://issues.scala-lang.org/browse/SI-4767
@@ -29,11 +32,8 @@ abstract class Implicits extends LowPri {
   @inline implicit final def _react_attrRef[R <: Ref]: AttrValue[R] =
     new GenericAttr[R](_.name)
 
-  @inline implicit final def _react_attrOption[A](implicit tc: AttrValue[A]): AttrValue[Option[A]] =
-    new OptionalAttrValue[Option, A](tc, _ foreach _)
-
-  @inline implicit final def _react_attrJsUndef[A](implicit tc: AttrValue[A]): AttrValue[js.UndefOr[A]] =
-    new OptionalAttrValue[js.UndefOr, A](tc, _ foreach _)
+  @inline implicit final def _react_attrOptional[T[_], A](implicit t: Optional[T], a: AttrValue[A]): AttrValue[T[A]] =
+    new OptionalAttrValue[T, A](t, a)
 
   // Styles
   @inline implicit final def _react_styleString : StyleValue[String]  = stringStyleX
@@ -45,20 +45,17 @@ abstract class Implicits extends LowPri {
           implicit final val _react_styleFloat  : StyleValue[Float]   = GenericStyle.stringValue
           implicit final val _react_styleDouble : StyleValue[Double]  = GenericStyle.stringValue
 
-  @inline implicit final def _react_styleOption[A](implicit tc: StyleValue[A]): StyleValue[Option[A]] =
-    new OptionalStyleValue[Option, A](tc, _ foreach _)
-
-  @inline implicit final def _react_styleJsUndef[A](implicit tc: StyleValue[A]): StyleValue[js.UndefOr[A]] =
-    new OptionalStyleValue[js.UndefOr, A](tc, _ foreach _)
+  @inline implicit final def _react_styleOptional[T[_], A](implicit t: Optional[T], a: StyleValue[A]): StyleValue[T[A]] =
+    new OptionalStyleValue[T, A](t, a)
 
   // Frag
   @inline implicit final def _react_fragReactNode[T <% ReactNode](v: T): Frag = new ReactNodeFrag(v)
 
   // TagMod
-  @inline implicit final def _react_nodeSeq    [A <% TagMod](xs: Seq[A])      : TagMod = new SeqNode(xs)
-  @inline implicit final def _react_nodeArray  [A <% TagMod](xs: Array[A])    : TagMod = new SeqNode[A](xs.toSeq)
-  @inline implicit final def _react_nodeOption [A <% TagMod](o: Option[A])    : TagMod = o.fold(EmptyTag)(a => a)
-  @inline implicit final def _react_nodeJsUndef[A <% TagMod](o: js.UndefOr[A]): TagMod = o.fold(EmptyTag)(a => a)
+  @inline implicit final def _react_nodeSeq  [A <% TagMod](xs: Seq[A])      : TagMod = new SeqNode(xs)
+  @inline implicit final def _react_nodeArray[A <% TagMod](xs: Array[A])    : TagMod = new SeqNode[A](xs.toSeq)
+  @inline implicit final def _react_nodeOptional[T[_], A](t: T[A])(implicit o: Optional[T], f: A => TagMod): TagMod =
+    o.fold(t, f, EmptyTag)
 
   // Scalatags misc
   @inline implicit final def _react_styleOrdering                  : Ordering[Style] = Scalatags.styleOrdering
