@@ -10,6 +10,7 @@ https://gist.github.com/japgolly/c68482dbadb0077f550c
 * Added a `ext-monocle` module with a few extensions for [Monocle](https://github.com/julien-truffaut/Monocle).
 * More supported React tags and attributes.
 * More ScalazReact extensions: `{state,setState,modState,modStateF}IO`.
+* New Scalaz operator `~~>?` which is `~~>` but for optional callbacks.
 * Removed deprecated methods marked for removal in 0.7.0.
 * Deprecated `modStateO` and `modStateU`.
 

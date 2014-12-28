@@ -1,17 +1,17 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
-import japgolly.scalajs.react.vdom.Attr
+import japgolly.scalajs.react.vdom.{TagMod, Attr, Optional, EmptyTag}
 import japgolly.scalajs.react.vdom.Implicits._
 import scala.scalajs.js.{UndefOr, undefined}
-import scalaz._
+import scalaz.{Optional => _, _}
 import scalaz.effect.IO
 import Scalaz.Id
 import Leibniz.===
 
 object ScalazReact {
 
-  implicit object OptionalMaybe extends vdom.Optional[Maybe] {
+  implicit object OptionalMaybe extends Optional[Maybe] {
     @inline final override def foreach[A](m: Maybe[A])(f: (A) => Unit): Unit = m.cata(f, ())
     @inline final override def fold[A, B](t: Maybe[A], f: A => B, b: => B): B = t.cata(f, b)
   }
@@ -23,11 +23,18 @@ object ScalazReact {
 
   @inline implicit final class SzRExt_Attr(val _a: Attr) extends AnyVal {
 
-    def ~~>(io: => IO[Unit]) =
+    @inline final def ~~>(io: => IO[Unit]): TagMod =
       _a --> io.unsafePerformIO()
 
-    def ~~>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => IO[Unit]) =
+    @inline final def ~~>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => IO[Unit]): TagMod =
       _a.==>[N, E](eventHandler(_).unsafePerformIO())
+
+    @inline final def ~~>?[T[_]](t: => T[IO[Unit]])(implicit o: Optional[T]): TagMod =
+      _a --> o.foreach(t)(_.unsafePerformIO()) // This implementation keeps the argument lazy
+      //o.fold[IO[Unit], TagMod](t, ~~>(_), EmptyTag)
+
+    @inline final def ~~>?[T[_], N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => T[IO[Unit]])(implicit o: Optional[T]): TagMod =
+      _a.==>[N, E](e => o.foreach(eventHandler(e))(_.unsafePerformIO()))
   }
 
   @inline implicit final class SzRExt_C_M(val _c: ComponentScope_M[_]) extends AnyVal {
