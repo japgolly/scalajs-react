@@ -11,7 +11,7 @@ perl -pe '
   s/{Optional => _, _}/_/;
   ' < $s1/$f > $s0/$f
 sed -i "
-  /OptionalMaybe/,/^ *} *$/d;
+  /Optional\[Maybe/,/^ *} *$/d;
   /^object/a\  // Don't edit this directly. Run $(basename "$0")
 " $s0/$f
 

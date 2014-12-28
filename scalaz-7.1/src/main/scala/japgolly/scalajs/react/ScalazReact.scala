@@ -11,7 +11,7 @@ import Leibniz.===
 
 object ScalazReact {
 
-  implicit object OptionalMaybe extends Optional[Maybe] {
+  implicit val maybeInstance: Optional[Maybe] = new Optional[Maybe] {
     @inline final override def foreach[A](m: Maybe[A])(f: (A) => Unit): Unit = m.cata(f, ())
     @inline final override def fold[A, B](t: Maybe[A], f: A => B, b: => B): B = t.cata(f, b)
   }
