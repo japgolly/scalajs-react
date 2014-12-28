@@ -1,5 +1,7 @@
 package japgolly.scalajs.react.extra.router
 
+import org.scalajs.dom
+import scalaz.effect.IO
 import scalaz.{-\/, \/-, \/}
 import japgolly.scalajs.react.{ReactElement, ReactComponentC, TopNode}
 
@@ -29,17 +31,29 @@ trait RoutingRules {
   private[this] var dynRoutes = Vector.empty[DRouteFn]
   private[this] val parseD: DRouteFn = p => dynRoutes.foldLeft(None: Option[RouteAction[P]])(_ orElse _(p))
 
+  private[this] var onRouteChangeAction: Loc => IO[Unit] =
+    Function const IO(dom.window.scrollTo(0, 0))
+
   // ===================================================================================================================
   // Interception
 
   protected case class InterceptionR(loc: Loc, router: Router, element: ReactElement)
 
+  /** Customise all renderable routes. */
   protected def interceptRender(i: InterceptionR): ReactElement = i.element
 
   private def mkloc(path: Path, render: Renderer): Loc = {
     lazy val l: Loc = Location(path, r => interceptRender(InterceptionR(l, r, render(r))))
     l
   }
+
+  /** Perform an action when a new route is activated. */
+  protected def onRouteChange(a: Loc => Unit): Unit =
+    onRouteChangeIO(l => IO(a(l)))
+
+  /** Perform an action when a new route is activated. */
+  protected def onRouteChangeIO(a: Loc => IO[Unit]): Unit =
+    onRouteChangeAction = a
 
   // ===================================================================================================================
   // Actions
@@ -140,7 +154,7 @@ trait RoutingRules {
   import Router.{Logger, nopLogger}
 
   final def routingEngine(base: BaseUrl, logger: Logger = nopLogger): Router =
-    new Router(base, totalParser, logger)
+    new Router(base, totalParser, onRouteChangeAction, logger)
 
   final def router(base: BaseUrl, logger: Logger = nopLogger): Router.Component[P] =
     Router.component(routingEngine(base, logger))

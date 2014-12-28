@@ -41,7 +41,8 @@ object Router {
  * @tparam P Routing rules context. Prevents different routing rule sets being mixed up.
  */
 final class Router[P](val baseUrl: BaseUrl,
-                      val pathAction: Path => RouteAction[P],
+                      pathAction: Path => RouteAction[P],
+                      onSync: Location[P] => IO[Unit],
                       logger: Router.Logger) extends Broadcaster[Unit] {
 
   type Cmd[A]  = RouteCmd[P, A]
@@ -87,7 +88,7 @@ final class Router[P](val baseUrl: BaseUrl,
     )
 
   def syncToWindowUrlS: ReactST[IO, Loc, Unit] =
-    ReactS.setM(syncToWindowUrl)
+    ReactS.setM(syncToWindowUrl) addCallbackS onSync
 
   def wrongBase(wrongUrl: AbsUrl): Prog[Loc] = {
     val url = AbsUrl(baseUrl.value)

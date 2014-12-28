@@ -111,7 +111,7 @@ val RootComponent = ReactComponentB[MyPage.Router]("Root")
 Note that the `Router` type is prefixed as `ReactComponentB[MyPage.Router]` and not `ReactComponentB[Router]`.
 Routers are not interchangable between routing rule sets.
 
-#### Renmdering your Router
+#### Rendering your Router
 
 Before a `Router` can be created it needs to the base URL, which is the prefix portion of the URL that is the same for all your pages routes.
 
@@ -176,7 +176,7 @@ override protected def interceptRender(i: InterceptionR): ReactElement =
       i.element)
 ```
 
-### URL rewriting
+#### URL rewriting
 
 `RoutingRules` comes with a built-in (although inactive) URL rewriting rule called `removeTrailingSlashes`.
 It can be installed via `register()` and is a good example of how to create dynamic matching rules.
@@ -188,3 +188,12 @@ def removeTrailingSlashes: DynamicRoute = {
   parser { case regex(p) => p }.redirection(p => (Path(p), Redirect.Replace))
 }
 ```
+
+#### Callback: `onRouteChange`
+By default, when a new route is activated the window is scrolled to the top.
+This behaviour can be removed or customised by providing a callback in your routing rules called `onRouteChange`.
+
+```scala
+onRouteChange { loc =>
+  ...
+}
