@@ -279,12 +279,21 @@ object ScalazReact {
     @inline def setStateIO(s: S, cb: OpCallbackIO = undefined)(implicit C: CC): IO[Unit] =
       IO(C.setState(_c, s, cb))
 
+    @inline def _setStateIO[I](f: I => S, cb: OpCallbackIO = undefined)(implicit C: CC): I => IO[Unit] =
+      i => setStateIO(f(i), cb)
+
     @inline def modStateIO(f: S => S, cb: OpCallbackIO = undefined)(implicit C: CC): IO[Unit] =
       IO(_c.modState(f, cb))
 
     def modStateIOF(f: S => S, cb: OpCallbackIO = undefined)(implicit C: CC, F: ChangeFilter[S]): IO[Unit] =
       stateIO.flatMap(s1 =>
         F(s1, f(s1), IO(()), setStateIO(_, cb)))
+
+    @inline def _modStateIO[I](f: I => S => S, cb: OpCallbackIO = undefined)(implicit C: CC): I => IO[Unit] =
+      i => modStateIO(f(i), cb)
+
+    @inline def _modStateIOF[I](f: I => S => S, cb: OpCallbackIO = undefined)(implicit C: CC, F: ChangeFilter[S]): I => IO[Unit] =
+      i => modStateIOF(f(i), cb)
   }
 
   final case class ChangeFilter[S](allowChange: (S, S) => Boolean) {
