@@ -3,9 +3,8 @@
 To ease migration, here is a script that perform 98% of the required changes for you:
 https://gist.github.com/japgolly/c68482dbadb0077f550c
 
+#### Changes:
 
-#### Changes
-* Added a router! _(See the `extra` module)_.
 * Moved `.experiment` into a new module called `extra`.
 * Added a `ext-monocle` module with a few extensions for [Monocle](https://github.com/julien-truffaut/Monocle).
 * More supported React tags and attributes.
@@ -19,15 +18,20 @@ https://gist.github.com/japgolly/c68482dbadb0077f550c
   * `_modStateIOF`
   * Attr operator `~~>?` which is `~~>` but for optional callbacks.
 * Removed deprecated methods marked for removal in 0.7.0.
-* Deprecated `modStateO` and `modStateU`.
+* Deprecated `modStateO`, `modStateU`, `attr runs callback`.
 
-##### Refs
+#### Router
+New in this release is a router, type-safe and written entirely in Scala.js, for Single-Page Applications.
+
+See [extra/ROUTER.md](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER.md) for details.
+
+#### Refs
 * Refs can now be applied to components from the outside, prior to mounting. ([#44](https://github.com/japgolly/scalajs-react/issues/44))
 * Refs can now refer to components and keep their types intact.
 * Scala-based ReactComponent constructors now have `.set(key = ?, ref = ?)` with `.withKey(k)` being an alias for `.set(key = k)`.
 * Instances (not objects) of `Ref` renamed to `RefSimple`, `RefP` renamed to `RefParam`. Creating refs is unchanged, so `val r = Ref("hehe")` still works.
 
-##### Scalatags / `.vdom` major changes
+#### Scalatags / `.vdom` major changes
 Scalatags has been removed as a dependency.
 It is instead now embedded directly and highly customised for React.
 
@@ -67,6 +71,13 @@ def eg(key: String, name: String) =
 it is now recommended that you use prefixes to access tags and attributes.
 This means that you don't run into confusing error messages and IDE refactoring issues when using names like
 `id`, `a`, `key` for your variables.
+
+The default prefixes (recommended) is available via `vdom.prefix_<^._` and it provides two prefixes.
+
+1. `<` for tags. _(Example: `<.div`)_
+2. `^` for attributes and styles. _(Example: `^.onClick`)_
+
+The above example becomes:
 ```scala
 import japgolly.scalajs.react.vdom.prefix_<^._
 
@@ -77,8 +88,7 @@ def eg(key: String, name: String) =
     "Hello ", name)
 ```
 
-If you prefer having all tags and attributes in scope without a prefix, then you can still do that.
-Just change your two `vdom` imports to this one:
+If you prefer having all tags and attributes in scope without a prefix, then you can still do that by using this import:
 ```scala
 import japgolly.scalajs.react.vdom.all._
 ```
