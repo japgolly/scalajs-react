@@ -1,4 +1,4 @@
-# 0.7.0 (unreleased)
+# 0.7.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.6.1...v0.7.0))
 
 To ease migration, here is a script that perform 98% of the required changes for you:
 https://gist.github.com/japgolly/c68482dbadb0077f550c
