@@ -83,6 +83,9 @@ val vdom = a(
 
 // Scalaz support
 import japgolly.scalajs.react.ScalazReact._
+
+// Monocle support
+import japgolly.scalajs.react.MonocleReact._
 ```
 
 Examples
