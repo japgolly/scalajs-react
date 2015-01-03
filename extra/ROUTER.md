@@ -113,9 +113,9 @@ Routers are not interchangable between routing rule sets.
 
 #### Rendering your Router
 
-Before a `Router` can be created it needs to the base URL, which is the prefix portion of the URL that is the same for all your pages routes.
+Before a `Router` can be created it needs to know the base URL, which is the prefix portion of the URL that is the same for all your pages routes.
 
-It needn't be absolute at compile-time, but it needs to be absolute at runtime. `BaseUrl.fromWindowOrigin` will give you the protocol, domain and port at runtime, after which you should append a path if necessary. Example: `BaseUrl.fromWindowOrigin / "my_page"`
+It needn't be absolute at compile-time, but it needs to be absolute at runtime. `BaseUrl.fromWindowOrigin` will give you the protocol, domain and port at runtime, after which you should append a path if necessary. Example: `BaseUrl.fromWindowOrigin / "my_page"` instead of using `BaseUrl("http://blah.com/my_page")` or `BaseUrl("http://127.0.0.1:8080/my_page")` directly.
 
 Once you have a your `BaseUrl`, call `<RoutingRules>.router(baseUrl)` to get a standard React component of your router.
 
@@ -181,6 +181,11 @@ override protected def interceptRender(i: InterceptionR): ReactElement =
 `RoutingRules` comes with a built-in (although inactive) URL rewriting rule called `removeTrailingSlashes`.
 It can be installed via `register()` and is a good example of how to create dynamic matching rules.
 
+To use it:
+```scala
+register(removeTrailingSlashes)
+```
+
 Its implementation is simple:
 ```scala
 def removeTrailingSlashes: DynamicRoute = {
@@ -191,9 +196,10 @@ def removeTrailingSlashes: DynamicRoute = {
 
 #### Callback: `onRouteChange`
 By default, when a new route is activated the window is scrolled to the top.
-This behaviour can be removed or customised by providing a callback in your routing rules called `onRouteChange`.
+This behaviour can be removed or customised by calling `onRouteChange` in your routing rules and providing it a `Loc => Unit`.
 
 ```scala
 onRouteChange { loc =>
+  println(s"Route has changed to: $loc")
   ...
 }
