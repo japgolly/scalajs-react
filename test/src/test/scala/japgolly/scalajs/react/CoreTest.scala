@@ -156,6 +156,10 @@ object CoreTest extends TestSuite {
           a(tabIndex := 1, cls := "lol")(href := "boo", alt := "g"),
           """<a tabindex="1" class="lol" href="boo" alt="g"></a>""")
       }
+
+      'customAttr  - test(div("accept".reactAttr := "yay"), """<div accept="yay"></div>""")
+      'customStyle - test(div("face".reactStyle := "yay"),  """<div style="face:yay;"></div>""")
+      'customTag   - test(("ass".reactTag)("Snicker"),      """<ass>Snicker</ass>""")
     }
 
     'classSet {

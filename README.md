@@ -231,6 +231,15 @@ Extensions
 ```scala
   div(if (allowEdit) editButton else EmptyTag)
 ```
+* Custom tags, attributes and styles.
+```scala
+  val a = "customAttr" .reactAttr
+  val s = "customStyle".reactStyle
+  val t = "customTag"  .reactTag
+
+  // <customTag customAttr="hello" style="customStyle:123;">bye</customTag>
+  t(a := "hello", s := "123", "bye")
+```
 
 #### React
 * Where `this.setState(State)` is applicable, you can also run `modState(State => State)`.

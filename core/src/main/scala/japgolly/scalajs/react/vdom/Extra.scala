@@ -27,6 +27,12 @@ object Extra {
     @inline def ?=(m: => TagMod): TagMod = if (_b) m else EmptyTag
   }
 
+  final class StringExt(val _s: String) extends AnyVal {
+    @inline def reactAttr : Attr     = Attr(_s)
+    @inline def reactStyle: Style    = Style(_s, _s)
+    @inline def reactTag  : ReactTag = makeAbstractReactTag(_s, Scalatags.NamespaceHtml.implicitNamespace)
+  }
+
   trait Tags {
     import NamespaceHtml._
     final val big      = "big".tag[dom.HTMLHtmlElement]

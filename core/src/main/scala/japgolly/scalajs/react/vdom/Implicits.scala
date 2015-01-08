@@ -69,6 +69,7 @@ abstract class Implicits extends LowPri {
   // Extensions
   @inline implicit final def _react_ext_attr(a: Attr)    = new Extra.AttrExt(a)
   @inline implicit final def _react_ext_bool(a: Boolean) = new Extra.BooleanExt(a)
+  @inline implicit final def _react_ext_str (a: String)  = new Extra.StringExt(a)
 }
 
 object Implicits extends Implicits
