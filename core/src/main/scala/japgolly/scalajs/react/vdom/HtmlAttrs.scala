@@ -270,20 +270,20 @@ trait HtmlAttrs {
    *
    */
   final val xmlns = "xmlns".attr
-  /**
-   * This attribute is a space-separated list of the classes of the element.
-   * Classes allows CSS and Javascript to select and access specific elements
-   * via the class selectors or functions like the DOM method
-   * document.getElementsByClassName. You can use cls as an alias for this
-   * attribute so you don't have to backtick-escape this attribute.
-   *
-   * MDN
-   */
-  final val `class` = "className".attr
-  /**
-   * Shorthand for the `class` attribute
-   */
-  final val cls = `class`
+//  /**
+//   * This attribute is a space-separated list of the classes of the element.
+//   * Classes allows CSS and Javascript to select and access specific elements
+//   * via the class selectors or functions like the DOM method
+//   * document.getElementsByClassName. You can use cls as an alias for this
+//   * attribute so you don't have to backtick-escape this attribute.
+//   *
+//   * MDN
+//   */
+//  final val `class` = "className".attr
+//  /**
+//   * Shorthand for the `class` attribute
+//   */
+//  final val cls = `class`
   /**
    * This attribute participates in defining the language of the element, the
    * language that non-editable elements are written in or the language that

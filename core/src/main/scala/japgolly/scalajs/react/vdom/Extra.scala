@@ -41,9 +41,12 @@ object Extra {
   }
 
   trait Attrs {
+    final val className     = ClassNameAttr
+    final val cls           = className
+    final val `class`       = className
+
     final val colSpan       = "colSpan".attr
     final val rowSpan       = "rowSpan".attr
-    final val className     = "className".attr // same as cls and `class`
     final val htmlFor       = "htmlFor".attr   // same as `for`
     final val ref           = "ref".attr
     final val key           = "key".attr
@@ -126,19 +129,22 @@ object Extra {
     final def compositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => TagMod = EmptyTag) =
       new CompositeAttr(k, f, e)
 
-    final val classSwitch = compositeAttr[String](className, (h,t) => (h::t) mkString " ")
-
     final def classSet(ps: (String, Boolean)*): TagMod =
-      classSwitch(ps.map(p => if (p._2) Some(p._1) else None): _*)(stringAttrX)
+      classSetImpl(EmptyTag, ps)
 
     final def classSet1(a: String, ps: (String, Boolean)*): TagMod =
-      classSet(((a, true) +: ps):_*)
+      classSetImpl(cls_=(a), ps)
 
     final def classSetM(ps: Map[String, Boolean]): TagMod =
-      classSet(ps.toSeq: _*)
+      classSetImpl(EmptyTag, ps.toSeq)
 
     final def classSet1M(a: String, ps: Map[String, Boolean]): TagMod =
-      classSet1(a, ps.toSeq: _*)
+      classSetImpl(cls_=(a), ps.toSeq)
   }
 
+  @inline private[vdom] def cls_=(v:  String): TagMod =
+    ClassNameAttr.:=(v)(stringAttrX)
+
+  private[vdom] def classSetImpl(z: TagMod, ps: Seq[(String, Boolean)]): TagMod =
+    ps.foldLeft(z)((q, p) => if (p._2) q + cls_=(p._1) else q)
 }

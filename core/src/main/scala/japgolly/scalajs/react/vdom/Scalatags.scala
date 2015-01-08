@@ -79,6 +79,13 @@ final case class Attr(name: String) {
   def :=[T](v: T)(implicit ev: AttrValue[T]): TagMod = AttrPair(this, v, ev)
 }
 
+object ClassNameAttr {
+  def :=[T](t: T)(implicit av: AttrValue[T]): TagMod = new TagMod {
+    override def applyTo(b: Builder): Unit =
+      av.apply(t, b.addClassName)
+  }
+}
+
 /**
  * Wraps up a CSS style in a value.
  */
@@ -110,10 +117,9 @@ private[vdom] object Scalatags {
   /**
    * An [[Attr]], it's associated value, and an [[AttrValue]] of the correct type
    */
-  case class AttrPair[T](a: Attr, v: T, ev: AttrValue[T]) extends TagMod {
-    override def applyTo(t: Builder): Unit = {
-      ev.apply(t, a, v)
-    }
+  case class AttrPair[T](a: Attr, t: T, av: AttrValue[T]) extends TagMod {
+    override def applyTo(b: Builder): Unit =
+      av.apply(t, b.addAttr(a.name, _))
   }
   /**
    * Used to specify how to handle a particular type [[T]] when it is used as
@@ -124,7 +130,7 @@ private[vdom] object Scalatags {
     "No AttrValue defined for type ${T}; scalatags does not know how to use ${T} as an attribute"
   )
   trait AttrValue[T]{
-    def apply(t: Builder, a: Attr, v: T): Unit
+    def apply(v: T, b: js.Any => Unit): Unit
   }
 
   /**
@@ -182,7 +188,7 @@ private[vdom] object Scalatags {
   }
 
   final class OptionalAttrValue[T[_], A](ot: Optional[T], v: AttrValue[A]) extends AttrValue[T[A]] {
-    override def apply(b: Builder, s: Attr, t: T[A]) = ot.foreach(t)(v(b, s, _))
+    override def apply(ta: T[A], b: js.Any => Unit): Unit = ot.foreach(ta)(v(_, b))
   }
 
   final class OptionalStyleValue[T[_], A](ot: Optional[T], v: StyleValue[A]) extends StyleValue[T[A]] {
@@ -211,8 +217,7 @@ private[vdom] object Scalatags {
   }
 
   final class GenericAttr[T](f: T => js.Any) extends AttrValue[T] {
-    def apply(t: Builder, a: Attr, v: T): Unit =
-      t.addAttr(a.name, f(v))
+    def apply(v: T, b: js.Any => Unit): Unit = b(f(v))
   }
   object GenericAttr {
     @inline def apply[T <% js.Any] = new GenericAttr[T](a => a)

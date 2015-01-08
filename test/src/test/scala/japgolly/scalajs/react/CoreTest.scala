@@ -131,7 +131,7 @@ object CoreTest extends TestSuite {
 
         'attributeChaining - test(
           div(`class` := "thing lol", id := "cow"),
-          """<div class="thing lol" id="cow"></div>""")
+          """<div id="cow" class="thing lol"></div>""")
 
         'mixingAttributesStylesAndChildren - test(
           div(id := "cow", float.left, p("i am a cow")),
@@ -154,7 +154,7 @@ object CoreTest extends TestSuite {
 
         'applyChaining - test(
           a(tabIndex := 1, cls := "lol")(href := "boo", alt := "g"),
-          """<a tabindex="1" class="lol" href="boo" alt="g"></a>""")
+          """<a tabindex="1" href="boo" alt="g" class="lol"></a>""")
       }
 
       'customAttr  - test(div("accept".reactAttr := "yay"), """<div accept="yay"></div>""")
@@ -168,12 +168,18 @@ object CoreTest extends TestSuite {
         r((false, false)) shouldRender """<div>x</div>"""
         r((true,  false)) shouldRender """<div class="p1">x</div>"""
         r((false, true))  shouldRender """<div class="p2">x</div>"""
-        r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
+        r((true,  true))  shouldRender """<div class="p2 p1">x</div>"""
       }
       'hasMandatory {
         val r = ReactComponentB[Boolean]("C").render(p => div(classSet1("mmm", "ccc" -> p))("x")).build
         r(false) shouldRender """<div class="mmm">x</div>"""
         r(true)  shouldRender """<div class="mmm ccc">x</div>"""
+      }
+      'appends {
+        val r = ReactComponentB[Boolean]("C").render(p =>
+          div(cls := "neat", classSet1("mmm", "ccc" -> p), cls := "slowclap", "x")).build
+        r(false) shouldRender """<div class="neat mmm slowclap">x</div>"""
+        r(true)  shouldRender """<div class="neat mmm ccc slowclap">x</div>"""
       }
     }
 
