@@ -1,6 +1,8 @@
 scalajs-react
 =============
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/japgolly/scalajs-react?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.js](http://www.scala-js.org/) and endeavours to make it as type-safe and Scala-friendly as possible.
 
 In addition to wrapping React, this provides extra opt-in functionality to support (separately) easier testing, and pure FP.
