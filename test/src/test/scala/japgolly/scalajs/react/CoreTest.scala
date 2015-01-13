@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.Addons.ReactCloneWithProps
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
 import org.scalajs.dom.HTMLInputElement
@@ -350,6 +351,34 @@ object CoreTest extends TestSuite {
       "BackendScope ops"    - test[BackendScope[Unit, S]      ](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
       "ComponentScopeM ops" - test[ComponentScopeM[U, S, U]   ](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
       "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
+    }
+
+    'shouldCorrectlyDetermineIfaComponentisMounted {
+      val C = ReactComponentB[Unit]("IsMountedTestComp")
+          .render(P => div())
+          .componentWillMount(scope => assert(!scope.isMounted()))
+          .componentDidMount(scope => assert(scope.isMounted()))
+          .buildU
+      val instance =  ReactTestUtils.renderIntoDocument(C())
+      assert(instance.isMounted())
+    }
+
+    'cloneWithProps {
+      'shouldCloneaDOMComponentWithNewProps {
+        val Parent = ReactComponentB[Unit]("Parent")
+          .render((P,C) => {
+            div(cls := "parent")(
+              ReactCloneWithProps(React.Children.only(C),Map("className" -> "xyz"))
+            )
+          })
+          .buildU
+        val GrandParent = ReactComponentB[Unit]("GrandParent")
+          .render(P => Parent(div(cls := "child")))
+          .buildU
+        val instance = ReactTestUtils.renderIntoDocument(GrandParent())
+        val n = ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz").getDOMNode()
+        assert(n.className == "xyz child")
+      }
     }
   }
 }
