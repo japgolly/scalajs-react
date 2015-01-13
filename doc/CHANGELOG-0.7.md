@@ -2,6 +2,7 @@
 
 * Added `isMounted` to component scopes.
 * Added `Addons.ReactCloneWithProps`.
+* Dropped Scalaz 7.0 support. (Scalaz 7.1 still supported.)
 
 
 # 0.7.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.7.0...v0.7.1))

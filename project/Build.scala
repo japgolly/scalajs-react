@@ -90,7 +90,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, test, scalaz70, scalaz71, monocle, extra, ghpages)
+    .aggregate(core, test, scalaz71, monocle, extra, ghpages)
     .configure(commonSettings, preventPublication, addCommandAliases(
       "t"  -> "; test:compile ; test/fastOptStage::test",
       "tt" -> ";+test:compile ;+test/fastOptStage::test",
@@ -122,7 +122,6 @@ object ScalajsReact extends Build {
         libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
   }
 
-  lazy val scalaz70 = scalazModule("scalaz-7.0", "7.0.6")
   lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.0-4")
 
   // ==============================================================================================
