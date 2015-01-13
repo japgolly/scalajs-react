@@ -351,5 +351,15 @@ object CoreTest extends TestSuite {
       "ComponentScopeM ops" - test[ComponentScopeM[U, S, U]   ](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
       "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
     }
+
+    'shouldCorrectlyDetermineIfaComponentisMounted {
+      val C = ReactComponentB[Unit]("IsMountedTestComp")
+          .render(P => div())
+          .componentWillMount(scope => assert(!scope._isMounted()))
+          .componentDidMount(scope => assert(scope._isMounted()))
+          .buildU
+      val instance =  ReactTestUtils.renderIntoDocument(C())
+      assert(instance._isMounted)
+    }
   }
 }
