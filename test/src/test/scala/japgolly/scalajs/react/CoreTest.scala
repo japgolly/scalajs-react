@@ -355,11 +355,11 @@ object CoreTest extends TestSuite {
     'shouldCorrectlyDetermineIfaComponentisMounted {
       val C = ReactComponentB[Unit]("IsMountedTestComp")
           .render(P => div())
-          .componentWillMount(scope => assert(!scope._isMounted()))
-          .componentDidMount(scope => assert(scope._isMounted()))
+          .componentWillMount(scope => assert(!scope.isMounted()))
+          .componentDidMount(scope => assert(scope.isMounted()))
           .buildU
       val instance =  ReactTestUtils.renderIntoDocument(C())
-      assert(instance._isMounted)
+      assert(instance.isMounted())
     }
   }
 }

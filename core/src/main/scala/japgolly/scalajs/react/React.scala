@@ -176,7 +176,7 @@ trait ComponentScope_S[+State] extends Object {
 trait ComponentScope_SS[State] extends ComponentScope_S[State] {
   @JSName("setState") def _setState(s: WrapObj[State]): Unit = ???
   @JSName("setState") def _setState(s: WrapObj[State], callback: UndefOr[JFn]): Unit = ???
-  @JSName("isMounted") def _isMounted() : Boolean = ???
+  @JSName("isMounted") def isMounted() : Boolean = ???
 }
 
 trait ComponentScope_B[+Backend] extends Object {
