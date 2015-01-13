@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.Addons.ReactCloneWithProps
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
 import org.scalajs.dom.HTMLInputElement
@@ -360,6 +361,24 @@ object CoreTest extends TestSuite {
           .buildU
       val instance =  ReactTestUtils.renderIntoDocument(C())
       assert(instance.isMounted())
+    }
+
+    'cloneWithProps {
+      'shouldCloneaDOMComponentWithNewProps {
+        val Parent = ReactComponentB[Unit]("Parent")
+          .render((P,C) => {
+            div(cls := "parent")(
+              ReactCloneWithProps(React.Children.only(C),Map("className" -> "xyz"))
+            )
+          })
+          .buildU
+        val GrandParent = ReactComponentB[Unit]("GrandParent")
+          .render(P => Parent(div(cls := "child")))
+          .buildU
+        val instance = ReactTestUtils.renderIntoDocument(GrandParent())
+        val n = ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz").getDOMNode()
+        assert(n.className == "xyz child")
+      }
     }
   }
 }
