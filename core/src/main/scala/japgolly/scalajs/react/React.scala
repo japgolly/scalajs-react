@@ -176,7 +176,6 @@ trait ComponentScope_S[+State] extends Object {
 trait ComponentScope_SS[State] extends ComponentScope_S[State] {
   @JSName("setState") def _setState(s: WrapObj[State]): Unit = ???
   @JSName("setState") def _setState(s: WrapObj[State], callback: UndefOr[JFn]): Unit = ???
-  def isMounted(): Boolean = ???
 }
 
 trait ComponentScope_B[+Backend] extends Object {
@@ -206,8 +205,10 @@ trait ComponentScopeU[Props, State, +Backend]
   extends ComponentScope_PS[Props, State]
      with ComponentScope_P[Props]
      with ComponentScope_SS[State]
-     with ComponentScope_B[Backend]
+     with ComponentScope_B[Backend] {
   // prohibits: ComponentScope_M.*
+  def isMounted(): Boolean = ???
+}
 
 /** Type of a component's `this` scope during componentWillUpdate. */
 trait ComponentScopeWU[Props, +State, +Backend]
