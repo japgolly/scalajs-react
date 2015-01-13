@@ -1,3 +1,9 @@
+# 0.7.2
+
+* Added `isMounted` to component scopes.
+* Added `Addons.ReactCloneWithProps`.
+
+
 # 0.7.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.7.0...v0.7.1))
 
 * Support custom tags, attributes and styles via `"string".react{Attr,Style,Tag}`.
