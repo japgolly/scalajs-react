@@ -1,7 +1,6 @@
 package ghpages
 
 import scala.scalajs.js
-import org.scalajs.dom.window
 import japgolly.scalajs.react._, vdom.all._, ScalazReact._
 import japgolly.scalajs.react.extra._
 
@@ -13,20 +12,22 @@ object ExtrasExamples {
    */
   object OnUnmountExample {
 
-    class Backend extends OnUnmount {                               // Extends OnUnmount
+    class Backend($: BackendScope[_, Long]) extends OnUnmount {     // Extends OnUnmount
                                                                     // Removed `var interval`
-      def tick(scope: ComponentScopeM[_, Long, _]): js.Function =
-        () => scope.modState(_ + 1)
+      def tick() = $.modState(_ + 1)
+
+      def start() = {
+        val i = js.timers.setInterval(1000)(tick())
+        onUnmount(js.timers.clearInterval(i))                       // Use onUnmount here
+      }
     }
+
 
     val Timer = ReactComponentB[Unit]("Timer")
       .initialState(0L)
-      .backend(_ => new Backend)
+      .backend(new Backend(_))
       .render((_,s,_) => div("Seconds elapsed: ", s))
-      .componentDidMount(scope => {
-        val i = window.setInterval(scope.backend.tick(scope), 1000)
-        scope.backend onUnmount window.clearInterval(i)             // Use onUnmount here
-      })
+      .componentDidMount(_.backend.start())
                                                                     // Removed componentWillUnmount() call
       .configure(OnUnmount.install)                                 // Register OnUnmount functionality
       .buildU

@@ -2,7 +2,7 @@ package japgolly.scalajs
 
 import org.scalajs.dom
 import scala.scalajs.js
-import js.{Dynamic, UndefOr, undefined, Object, Number, Any => JAny, Function => JFn}
+import js.{Dynamic, UndefOr, undefined, Object, Any => JAny, Function => JFn}
 
 package object react {
 
@@ -60,7 +60,7 @@ package object react {
 
   // TODO WrapObj was one of the first things I did when starting with ScalaJS. Reconsider.
   /** Allows Scala classes to be used in place of `Object`. */
-  trait WrapObj[+A] extends Object { val v: A }
+  trait WrapObj[+A] extends Object { val v: A = js.native }
   def WrapObj[A](v: A) =
     Dynamic.literal("v" -> v.asInstanceOf[JAny]).asInstanceOf[WrapObj[A]]
 
@@ -120,8 +120,13 @@ package object react {
       _as.map(ev: js.Function1[A, ReactNode])
   }
 
-  @inline implicit def reactNodeInhabitableN [T <% js.Number](v: T)                  : ReactNode = (v: js.Number).asInstanceOf[ReactNode]
-  @inline implicit def reactNodeInhabitableS                 (v: js.String)          : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableL                 (v: Long)               : ReactNode = v.toString.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableI                 (v: Int)                : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableSh                (v: Short)              : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableB                 (v: Byte)               : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableD                 (v: Double)             : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableF                 (v: Float)              : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableS                 (v: String)             : ReactNode = v.asInstanceOf[ReactNode]
   @inline implicit def reactNodeInhabitableAn                (v: js.Array[ReactNode]): ReactNode = v.asInstanceOf[ReactNode]
   @inline implicit def reactNodeInhabitableAt[T <% ReactNode](v: js.Array[T])        : ReactNode = v.toReactNodeArray
   @inline implicit def reactNodeInhabitableC [T <% ReactNode](v: TraversableOnce[T]) : ReactNode = v.toReactNodeArray
@@ -235,12 +240,20 @@ package object react {
     def render(n: dom.Node) = React.render(_c, n)
   }
 
+  @inline implicit final class ReactExt_ReactDOMElement(val _v: ReactDOMElement) extends AnyVal {
+    @inline def typ = _v.`type`
+  }
+
+  @inline implicit final class ReactExt_ReactComponentU_(val _v: ReactComponentU_) extends AnyVal {
+    @inline def dynamic = this.asInstanceOf[Dynamic]
+  }
+
   @inline implicit final class ReactExt_UndefReactComponentM[N <: TopNode](val _u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
     def tryFocus(): Unit = _u.foreach(_.getDOMNode().focus())
   }
 
   @inline implicit final class ReactExt_ReactComponentM[N <: TopNode](val _c: ReactComponentM_[N]) extends AnyVal {
-    def domType[N2 <: TopNode] = _c.asInstanceOf[ReactComponentM_[N2]]
+    @inline def domType[N2 <: TopNode] = _c.asInstanceOf[ReactComponentM_[N2]]
   }
 
   @inline implicit final class ReactExt_PropsChildren(val _c: PropsChildren) extends AnyVal {
@@ -248,7 +261,7 @@ package object react {
       React.Children.forEach(_c, (f:JFn).asInstanceOf[js.Function1[ReactNode, JAny]])
 
     @inline def forEach[U](f: (ReactNode, Int) => U): Unit =
-      React.Children.forEach(_c, (f:JFn).asInstanceOf[js.Function2[ReactNode, Number, JAny]])
+      React.Children.forEach(_c, (f:JFn).asInstanceOf[js.Function2[ReactNode, Int, JAny]])
 
     @inline def only: Option[ReactNode] =
       try { Some(React.Children.only(_c))} catch { case t: Throwable => None}

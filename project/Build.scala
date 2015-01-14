@@ -3,19 +3,18 @@ import Keys._
 
 import com.typesafe.sbt.pgp.PgpKeys._
 
-import scala.scalajs.sbtplugin.env.nodejs.NodeJSEnv
-import scala.scalajs.sbtplugin.env.phantomjs.PhantomJSEnv
-import scala.scalajs.sbtplugin.ScalaJSPlugin._
-import scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys._
+import org.scalajs.sbtplugin.ScalaJSPlugin
+import ScalaJSPlugin._
+import ScalaJSPlugin.autoImport._
 
 object ScalajsReact extends Build {
 
-  val Scala211 = "2.11.4"
+  val Scala211 = "2.11.5"
 
   type PE = Project => Project
 
   def commonSettings: PE =
-    _.settings(scalaJSSettings: _*)
+    _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
         version            := "0.7.2-SNAPSHOT",
@@ -71,9 +70,9 @@ object ScalajsReact extends Build {
     _.settings(utest.jsrunner.Plugin.utestJsSettings: _*)
       .configure(useReact("test"))
       .settings(
-        libraryDependencies += "com.lihaoyi" %%% "utest" % "0.2.3" % "test",
+        scalaJSStage in Test := FastOptStage,
         requiresDOM := true,
-        jsEnv in Test := new PhantomJSEnv)
+        jsEnv in Test := PhantomJSEnv().value)
 
   def useReact(scope: String = "compile"): PE =
     _.settings(
@@ -92,8 +91,8 @@ object ScalajsReact extends Build {
   lazy val root = Project("root", file("."))
     .aggregate(core, test, scalaz71, monocle, extra, ghpages)
     .configure(commonSettings, preventPublication, addCommandAliases(
-      "t"  -> "; test:compile ; test/fastOptStage::test",
-      "tt" -> ";+test:compile ;+test/fastOptStage::test",
+      "t"  -> "; test:compile ; test/test",
+      "tt" -> ";+test:compile ;+test/test",
       "T"  -> "; clean ;t",
       "TT" -> ";+clean ;tt"))
 
@@ -103,7 +102,7 @@ object ScalajsReact extends Build {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        "org.scala-lang.modules.scalajs" %%% "scalajs-dom" % "0.6"))
+        "org.scala-js" %%% "scalajs-dom" % "0.7.0"))
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings)

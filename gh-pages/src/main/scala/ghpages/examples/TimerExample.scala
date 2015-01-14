@@ -1,7 +1,6 @@
 package ghpages.examples
 
 import japgolly.scalajs.react._, vdom.all._
-import org.scalajs.dom.window
 import scala.scalajs.js
 import ghpages.examples.util.SideBySide
 
@@ -37,31 +36,47 @@ object TimerExample {
 
   val source =
     """
+      |case class State(secondsElapsed: Long)
+      |
+      |class Backend($: BackendScope[_, State]) {
+      |  var interval: js.UndefOr[js.timers.SetIntervalHandle] =
+      |    js.undefined
+      |
+      |  def tick() =
+      |    $.modState(s => State(s.secondsElapsed + 1))
+      |
+      |  def start() =
+      |    interval = js.timers.setInterval(1000)(tick())
+      |}
+      |
       |val Timer = ReactComponentB[Unit]("Timer")
-      | .initialState(State(0))
-      | .backend(_ => new Backend)
-      | .render((_, s, _) => div("Seconds elapsed: ", s.secondsElapsed))
-      | .componentDidMount(scope =>
-      |   scope.backend.interval = window.setInterval(scope.backend.tick(scope), 1000))
-      | .componentWillUnmount(_.backend.interval foreach window.clearInterval)
-      | .buildU
+      |  .initialState(State(0))
+      |  .backend(new Backend(_))
+      |  .render((_, s, _) => div("Seconds elapsed: ", s.secondsElapsed))
+      |  .componentDidMount(_.backend.start())
+      |  .componentWillUnmount(_.backend.interval foreach js.timers.clearInterval)
+      |  .buildU
       |""".stripMargin
 
 
   case class State(secondsElapsed: Long)
 
-  class Backend {
-    var interval: js.UndefOr[Int] = js.undefined
-    def tick(scope: ComponentScopeM[_, State, _]): js.Function =
-      () => scope.modState(s => State(s.secondsElapsed + 1))
+  class Backend($: BackendScope[_, State]) {
+    var interval: js.UndefOr[js.timers.SetIntervalHandle] =
+      js.undefined
+
+    def tick() =
+      $.modState(s => State(s.secondsElapsed + 1))
+
+    def start() =
+      interval = js.timers.setInterval(1000)(tick())
   }
 
   val Timer = ReactComponentB[Unit]("Timer")
     .initialState(State(0))
-    .backend(_ => new Backend)
+    .backend(new Backend(_))
     .render((_, s, _) => div("Seconds elapsed: ", s.secondsElapsed))
-    .componentDidMount(scope =>
-      scope.backend.interval = window.setInterval(scope.backend.tick(scope), 1000))
-    .componentWillUnmount(_.backend.interval foreach window.clearInterval)
+    .componentDidMount(_.backend.start())
+    .componentWillUnmount(_.backend.interval foreach js.timers.clearInterval)
     .buildU
 }

@@ -10,7 +10,7 @@ abstract class LowPri {
 
 //  @inline implicit final def _react_fragOption[A <% Frag](xs: Option[A]): Frag = SeqFrag(xs.toSeq)
 //  @inline implicit final def _react_fragOptional[T[_], A](t: T[A])(implicit o: Optional[T], f: A => Frag): Frag =
-//    o.fold(t, f, ???)
+//    o.fold(t, f, js.native)
 }
 
 // If you're wondering why abstract class instead of trait, https://issues.scala-lang.org/browse/SI-4767

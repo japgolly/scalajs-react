@@ -31,10 +31,11 @@ object PrefixedVdomTest extends TestSuite {
       def reactNode: ReactNode = H1("cool")
       def checkbox(check: Boolean) = <.input(^.`type` := "checkbox", ^.checked := check)
 
-      'int       - test(<.div(123),                              "<div>123</div>")
+      'short     - test(<.div(45: Short),                        "<div>45</div>")
+      'byte      - test(<.div(50: Byte),                         "<div>50</div>")
+      'int       - test(<.div(666),                              "<div>666</div>")
       'long      - test(<.div(123L),                             "<div>123</div>")
       'double    - test(<.div(12.3),                             "<div>12.3</div>")
-      'jsNumber  - test(<.div(123: js.Number),                   "<div>123</div>")
       'string    - test(<.div("yo"),                             "<div>yo</div>")
       'reactNode - test(<.div(reactNode),                        "<div><h1>cool</h1></div>")
       'comp      - test(<.div(H1("a")),                          "<div><h1>a</h1></div>")
