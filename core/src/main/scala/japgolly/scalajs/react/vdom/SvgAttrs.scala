@@ -522,7 +522,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fillOpacity = "fill-opacity".attr
+  final val fillOpacity = "fillOpacity".attr
 
 
   /**
@@ -578,7 +578,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fontFamily = "font-family".attr
+  final val fontFamily = "fontFamily".attr
 
 
   /**
@@ -586,7 +586,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fontSize = "font-size".attr
+  final val fontSize = "fontSize".attr
 
 
   /**
@@ -798,7 +798,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val markerEnd = "marker-end".attr
+  final val markerEnd = "markerEnd".attr
 
 
   /**
@@ -806,7 +806,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val markerMid = "marker-mid".attr
+  final val markerMid = "markerMid".attr
 
 
   /**
@@ -814,7 +814,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val markerStart = "marker-start".attr
+  final val markerStart = "markerStart".attr
 
 
   /**
@@ -1168,6 +1168,13 @@ trait SvgAttrs {
   final val specularExponent = "specularExponent".attr
 
 
+  /**
+   *
+   *
+   * MDN
+   */
+  final val spreadMethod = "spreadMethod".attr
+
 
   /**
    *
@@ -1192,7 +1199,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val stopColor = "stop-color".attr
+  final val stopColor = "stopColor".attr
 
 
 
@@ -1201,7 +1208,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val stopOpacity = "stop-opacity".attr
+  final val stopOpacity = "stopOpacity".attr
 
 
 
@@ -1218,7 +1225,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val strokeDasharray= "stroke-dasharray".attr
+  final val strokeDasharray= "strokeDasharray".attr
 
 
   /**
@@ -1234,7 +1241,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val strokeLinecap = "stroke-linecap".attr
+  final val strokeLinecap = "strokeLinecap".attr
 
 
   /**
@@ -1258,7 +1265,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val strokeOpacity = "stroke-opacity".attr
+  final val strokeOpacity = "strokeOpacity".attr
 
 
   /**
@@ -1266,7 +1273,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val strokeWidth = "stroke-width".attr
+  final val strokeWidth = "strokeWidth".attr
 
 
   /**
@@ -1307,7 +1314,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val textAnchor = "text-anchor".attr
+  final val textAnchor = "textAnchor".attr
 
 
   /**
