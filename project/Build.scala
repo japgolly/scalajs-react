@@ -67,14 +67,15 @@ object ScalajsReact extends Build {
     )
 
   def utestSettings: PE =
-    _.settings(utest.jsrunner.Plugin.utestJsSettings: _*)
-      .configure(useReact("test"))
+    _.configure(useReactJs("test"))
       .settings(
+        libraryDependencies  += "com.lihaoyi" %%% "utest" % "0.3.0",
+        testFrameworks       += new TestFramework("utest.runner.Framework"),
         scalaJSStage in Test := FastOptStage,
-        requiresDOM := true,
-        jsEnv in Test := PhantomJSEnv().value)
+        requiresDOM          := true,
+        jsEnv in Test        := PhantomJSEnv().value)
 
-  def useReact(scope: String = "compile"): PE =
+  def useReactJs(scope: String = "compile"): PE =
     _.settings(
       jsDependencies += "org.webjars" % "react" % "0.12.1" % scope / "react-with-addons.js" commonJSName "React",
       skip in packageJSDependencies := false)
@@ -140,7 +141,7 @@ object ScalajsReact extends Build {
   // ==============================================================================================
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, scalaz71, extra, monocle)
-    .configure(commonSettings, useReact(), preventPublication)
+    .configure(commonSettings, useReactJs(), preventPublication)
     .settings(
       emitSourceMaps := false,
       artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
