@@ -1,3 +1,6 @@
+# 0.7.3
+
+
 # 0.7.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.7.1...v0.7.2))
 
 * Added `isMounted` to component scopes.
