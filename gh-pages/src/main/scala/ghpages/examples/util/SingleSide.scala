@@ -1,6 +1,6 @@
 package ghpages.examples.util
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._, tags2._
+import japgolly.scalajs.react._, vdom.all._
 
 object SingleSide {
 

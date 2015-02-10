@@ -1,6 +1,6 @@
 package ghpages.examples
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
 
 /** Scala version of example on http://facebook.github.io/react/docs/thinking-in-react.html */
@@ -144,22 +144,22 @@ object ProductTableExample {
       |
       |case class State(filterText: String, inStockOnly: Boolean)
       |
-      |class Backend(t: BackendScope[_, State])  {
+      |class Backend($: BackendScope[_, State])  {
       |  def onTextChange(e: ReactEventI) =
-      |    t.modState(_.copy(filterText = e.target.value))
+      |    $.modState(_.copy(filterText = e.target.value))
       |  def onCheckBox(e: ReactEvent) =
-      |    t.modState(s => s.copy(inStockOnly = !s.inStockOnly))
+      |    $.modState(s => s.copy(inStockOnly = !s.inStockOnly))
       |}
       |
       |val ProductCategoryRow = ReactComponentB[String]("ProductCategoryRow")
-      |  .render(category => tr(th(colspan := 2, category)))
+      |  .render(category => <.tr(<.th(^.colSpan := 2, category)))
       |  .build
       |
       |val ProductRow = ReactComponentB[Product]("ProductRow")
-      |  .render(p =>
-      |    tr(
-      |      td(span(!p.stocked && (color := "red"), p.name)),
-      |      td(p.price))
+      |  .render(P =>
+      |    <.tr(
+      |      <.td(<.span(!P.stocked ?= ^.color.red, P.name)),
+      |      <.td(P.price))
       |  )
       |  .build
       |
@@ -175,12 +175,12 @@ object ProductTableExample {
       |               .flatMap{ case (cat, ps) =>
       |                  ProductCategoryRow.withKey(cat)(cat) :: ps.map(p => ProductRow.withKey(p.name)(p))
       |                }
-      |    table(
-      |      thead(
-      |        tr(
-      |          th("Name"),
-      |          th("Price"))),
-      |      tbody(
+      |    <.table(
+      |      <.thead(
+      |        <.tr(
+      |          <.th("Name"),
+      |          <.th("Price"))),
+      |      <.tbody(
       |        rows))
       |  })
       |  .build
@@ -188,19 +188,24 @@ object ProductTableExample {
       |val SearchBar = ReactComponentB[(State, Backend)]("SearchBar")
       |  .render(P => {
       |    val (s, b) = P
-      |    form()(
-      |      input(placeholder := "Search Bar ...", value := s.filterText, onchange ==> b.onTextChange),
-      |      p(
-      |        input(tpe := "checkbox", onclick ==> b.onCheckBox), "Only show products in stock"))
+      |    <.form(
+      |      <.input(
+      |        ^.placeholder := "Search Bar ...",
+      |        ^.value       := s.filterText,
+      |        ^.onChange   ==> b.onTextChange),
+      |      <.p(
+      |        <.input(
+      |          ^.tpe     := "checkbox",
+      |          ^.onClick ==> b.onCheckBox,
+      |          "Only show products in stock")))
       |  })
       |  .build
-      |
       |
       |val FilterableProductTable = ReactComponentB[List[Product]]("FilterableProductTable")
       |  .initialState(State("", false))
       |  .backend(new Backend(_))
       |  .render((P, S, B) =>
-      |    div(
+      |    <.div(
       |      SearchBar((S,B)),
       |      ProductTable((P,S)))
       |  ).build
@@ -220,22 +225,22 @@ object ProductTableExample {
 
   case class State(filterText: String, inStockOnly: Boolean)
 
-  class Backend(t: BackendScope[_, State])  {
+  class Backend($: BackendScope[_, State])  {
     def onTextChange(e: ReactEventI) =
-      t.modState(_.copy(filterText = e.target.value))
+      $.modState(_.copy(filterText = e.target.value))
     def onCheckBox(e: ReactEvent) =
-      t.modState(s => s.copy(inStockOnly = !s.inStockOnly))
+      $.modState(s => s.copy(inStockOnly = !s.inStockOnly))
   }
 
   val ProductCategoryRow = ReactComponentB[String]("ProductCategoryRow")
-    .render(category => tr(th(colspan := 2, category)))
+    .render(category => <.tr(<.th(^.colSpan := 2, category)))
     .build
 
   val ProductRow = ReactComponentB[Product]("ProductRow")
-    .render(p =>
-      tr(
-        td(span(!p.stocked && (color := "red"), p.name)),
-        td(p.price))
+    .render(P =>
+      <.tr(
+        <.td(<.span(!P.stocked ?= ^.color.red, P.name)),
+        <.td(P.price))
     )
     .build
 
@@ -251,12 +256,12 @@ object ProductTableExample {
                  .flatMap{ case (cat, ps) =>
                     ProductCategoryRow.withKey(cat)(cat) :: ps.map(p => ProductRow.withKey(p.name)(p))
                   }
-      table(
-        thead(
-          tr(
-            th("Name"),
-            th("Price"))),
-        tbody(
+      <.table(
+        <.thead(
+          <.tr(
+            <.th("Name"),
+            <.th("Price"))),
+        <.tbody(
           rows))
     })
     .build
@@ -264,19 +269,24 @@ object ProductTableExample {
   val SearchBar = ReactComponentB[(State, Backend)]("SearchBar")
     .render(P => {
       val (s, b) = P
-      form()(
-        input(placeholder := "Search Bar ...", value := s.filterText, onchange ==> b.onTextChange),
-        p(
-          input(tpe := "checkbox", onclick ==> b.onCheckBox), "Only show products in stock"))
+      <.form(
+        <.input(
+          ^.placeholder := "Search Bar ...",
+          ^.value       := s.filterText,
+          ^.onChange   ==> b.onTextChange),
+        <.p(
+          <.input(
+            ^.tpe     := "checkbox",
+            ^.onClick ==> b.onCheckBox,
+            "Only show products in stock")))
     })
     .build
-
 
   val FilterableProductTable = ReactComponentB[List[Product]]("FilterableProductTable")
     .initialState(State("", false))
     .backend(new Backend(_))
     .render((P, S, B) =>
-      div(
+      <.div(
         SearchBar((S,B)),
         ProductTable((P,S)))
     ).build

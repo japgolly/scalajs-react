@@ -1,7 +1,7 @@
 package ghpages.examples
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
-import org.scalajs.dom.HTMLInputElement
+import japgolly.scalajs.react._, vdom.prefix_<^._
+import org.scalajs.dom.raw.HTMLInputElement
 import ghpages.examples.util.SideBySide
 
 /** Scala version of example on http://facebook.github.io/react/docs/more-about-refs.html */
@@ -47,20 +47,20 @@ object RefsExample {
     """
       |val theInput = Ref[HTMLInputElement]("theInput")
       |
-      |class Backend(t: BackendScope[_, String]) {
+      |class Backend($: BackendScope[_, String]) {
       |  def handleChange(e: ReactEventI) =
-      |    t.setState(e.target.value)
+      |    $.setState(e.target.value)
       |  def clearAndFocusInput() =
-      |    t.setState("", () => theInput(t).tryFocus())
+      |    $.setState("", () => theInput(t).tryFocus())
       |}
       |
       |val App = ReactComponentB[Unit]("App")
       |  .initialState("")
       |  .backend(new Backend(_))
       |  .render((_,S,B) =>
-      |    div(
-      |      div(onclick --> B.clearAndFocusInput)("Click to Focus and Reset"),
-      |      input(ref := theInput, value := S, onchange ==> B.handleChange)
+      |    <.div(
+      |      <.div(^.onClick --> B.clearAndFocusInput)("Click to Focus and Reset"),
+      |      <.input(^.ref := theInput, ^.value := S, ^.onChange ==> B.handleChange)
       |    )
       |  ).buildU
       |
@@ -69,20 +69,20 @@ object RefsExample {
 
   val theInput = Ref[HTMLInputElement]("theInput")
 
-  class Backend(t: BackendScope[_, String]) {
+  class Backend($: BackendScope[_, String]) {
     def handleChange(e: ReactEventI) =
-      t.setState(e.target.value)
+      $.setState(e.target.value)
     def clearAndFocusInput() =
-      t.setState("", () => theInput(t).tryFocus())
+      $.setState("", () => theInput($).tryFocus())
   }
 
   val App = ReactComponentB[Unit]("App")
     .initialState("")
     .backend(new Backend(_))
     .render((_,S,B) =>
-      div(
-        div(onclick --> B.clearAndFocusInput)("Click to Focus and Reset"),
-        input(ref := theInput, value := S, onchange ==> B.handleChange)
+      <.div(
+        <.div(^.onClick --> B.clearAndFocusInput)("Click to Focus and Reset"),
+        <.input(^.ref := theInput, ^.value := S, ^.onChange ==> B.handleChange)
       )
     ).buildU
 }

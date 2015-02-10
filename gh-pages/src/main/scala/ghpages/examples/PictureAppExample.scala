@@ -1,6 +1,6 @@
 package ghpages.examples
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.all._
 import scala.scalajs.js
 import ghpages.examples.util.SideBySide
 
@@ -150,7 +150,7 @@ object PictureAppExample {
       |val picture = ReactComponentB[(Picture, PicClick)]("picture")
       |  .render(P => {
       |    val (p, b) = P
-      |    div(if (p.favorite) cls := "picture favorite" else cls := "picture", onclick --> b(p.id, p.favorite))(
+      |    div(if (p.favorite) cls := "picture favorite" else cls := "picture", onClick --> b(p.id, p.favorite))(
       |      img(src := p.src, title := p.title)
       |    )
       |  })
@@ -234,7 +234,7 @@ object PictureAppExample {
   val picture = ReactComponentB[(Picture, PicClick)]("picture")
     .render(P => {
       val (p, b) = P
-      div(if (p.favorite) cls := "picture favorite" else cls := "picture", onclick --> b(p.id, p.favorite))(
+      div(if (p.favorite) cls := "picture favorite" else cls := "picture", onClick --> b(p.id, p.favorite))(
         img(src := p.src, title := p.title)
       )
     })

@@ -1,12 +1,12 @@
 package japgolly.scalajs
 
-import org.scalajs.dom
+import org.scalajs.dom, dom.html
 import scala.scalajs.js
-import js.{Dynamic, UndefOr, undefined, Object, Number, Any => JAny, Function => JFn}
+import js.{Dynamic, UndefOr, undefined, Object, Any => JAny, Function => JFn}
 
 package object react {
 
-  type TopNode = dom.HTMLElement
+  type TopNode = html.Element
 
   type ReactEvent            = SyntheticEvent           [dom.Node]
   type ReactClipboardEvent   = SyntheticClipboardEvent  [dom.Node]
@@ -20,80 +20,116 @@ package object react {
   type ReactUIEvent          = SyntheticUIEvent         [dom.Node]
   type ReactWheelEvent       = SyntheticWheelEvent      [dom.Node]
 
-  type ReactEventH            = SyntheticEvent           [dom.HTMLElement]
-  type ReactClipboardEventH   = SyntheticClipboardEvent  [dom.HTMLElement]
-  type ReactCompositionEventH = SyntheticCompositionEvent[dom.HTMLElement]
-  type ReactDragEventH        = SyntheticDragEvent       [dom.HTMLElement]
-  type ReactFocusEventH       = SyntheticFocusEvent      [dom.HTMLElement]
-  //type ReactInputEventH     = SyntheticInputEvent      [dom.HTMLElement]
-  type ReactKeyboardEventH    = SyntheticKeyboardEvent   [dom.HTMLElement]
-  type ReactMouseEventH       = SyntheticMouseEvent      [dom.HTMLElement]
-  type ReactTouchEventH       = SyntheticTouchEvent      [dom.HTMLElement]
-  type ReactUIEventH          = SyntheticUIEvent         [dom.HTMLElement]
-  type ReactWheelEventH       = SyntheticWheelEvent      [dom.HTMLElement]
+  type ReactEventH            = SyntheticEvent           [html.Element]
+  type ReactClipboardEventH   = SyntheticClipboardEvent  [html.Element]
+  type ReactCompositionEventH = SyntheticCompositionEvent[html.Element]
+  type ReactDragEventH        = SyntheticDragEvent       [html.Element]
+  type ReactFocusEventH       = SyntheticFocusEvent      [html.Element]
+  //type ReactInputEventH     = SyntheticInputEvent      [html.Element]
+  type ReactKeyboardEventH    = SyntheticKeyboardEvent   [html.Element]
+  type ReactMouseEventH       = SyntheticMouseEvent      [html.Element]
+  type ReactTouchEventH       = SyntheticTouchEvent      [html.Element]
+  type ReactUIEventH          = SyntheticUIEvent         [html.Element]
+  type ReactWheelEventH       = SyntheticWheelEvent      [html.Element]
 
-  type ReactEventI            = SyntheticEvent           [dom.HTMLInputElement]
-  type ReactClipboardEventI   = SyntheticClipboardEvent  [dom.HTMLInputElement]
-  type ReactCompositionEventI = SyntheticCompositionEvent[dom.HTMLInputElement]
-  type ReactDragEventI        = SyntheticDragEvent       [dom.HTMLInputElement]
-  type ReactFocusEventI       = SyntheticFocusEvent      [dom.HTMLInputElement]
-  //type ReactInputEventI     = SyntheticInputEvent      [dom.HTMLInputElement]
-  type ReactKeyboardEventI    = SyntheticKeyboardEvent   [dom.HTMLInputElement]
-  type ReactMouseEventI       = SyntheticMouseEvent      [dom.HTMLInputElement]
-  type ReactTouchEventI       = SyntheticTouchEvent      [dom.HTMLInputElement]
-  type ReactUIEventI          = SyntheticUIEvent         [dom.HTMLInputElement]
-  type ReactWheelEventI       = SyntheticWheelEvent      [dom.HTMLInputElement]
+  type ReactEventI            = SyntheticEvent           [html.Input]
+  type ReactClipboardEventI   = SyntheticClipboardEvent  [html.Input]
+  type ReactCompositionEventI = SyntheticCompositionEvent[html.Input]
+  type ReactDragEventI        = SyntheticDragEvent       [html.Input]
+  type ReactFocusEventI       = SyntheticFocusEvent      [html.Input]
+  //type ReactInputEventI     = SyntheticInputEvent      [html.Input]
+  type ReactKeyboardEventI    = SyntheticKeyboardEvent   [html.Input]
+  type ReactMouseEventI       = SyntheticMouseEvent      [html.Input]
+  type ReactTouchEventI       = SyntheticTouchEvent      [html.Input]
+  type ReactUIEventI          = SyntheticUIEvent         [html.Input]
+  type ReactWheelEventI       = SyntheticWheelEvent      [html.Input]
 
   @deprecated("React 0.12 has introduced ReactElement which is what VDom was created to represent. Replace VDom with ReactElement.", "0.6.0")
   type VDom = ReactElement
+
+  /**
+   * These exist for type inference.
+   * If P,S,B,N types are needed and there's another object that has them, this is used to bridge for type inference.
+   */
+  trait ReactComponentTypeAux[P, S, +B, +N <: TopNode]
+  trait ReactComponentTypeAuxJ[P, S, +B, +N <: TopNode] extends js.Object
+  implicit def reactComponentTypeAuxJ[P, S, B, N <: TopNode](a: ReactComponentTypeAuxJ[P,S,B,N]): ReactComponentTypeAux[P,S,B,N] =
+    a.asInstanceOf[ReactComponentTypeAux[P,S,B,N]]
 
   // ===================================================================================================================
 
   // TODO WrapObj was one of the first things I did when starting with ScalaJS. Reconsider.
   /** Allows Scala classes to be used in place of `Object`. */
-  trait WrapObj[+A] extends Object { val v: A }
+  trait WrapObj[+A] extends Object { val v: A = js.native }
   def WrapObj[A](v: A) =
     Dynamic.literal("v" -> v.asInstanceOf[JAny]).asInstanceOf[WrapObj[A]]
 
   /**
    * A named reference to an element in a React VDOM.
    */
-  class Ref[+T <: TopNode](val name: String) {
-    @inline final def apply(c: ReactComponentM_[_]) : UndefOr[ReactComponentM_[T]] = apply(c.refs)
-    @inline final def apply(s: ComponentScope_M[_]): UndefOr[ReactComponentM_[T]] = apply(s.refs)
-    @inline final def apply(r: RefsObject)         : UndefOr[ReactComponentM_[T]] = r[T](name)
+  abstract class Ref(final val name: String) {
+    type R
+    protected def resolve(r: RefsObject): UndefOr[R]
+    @inline final def apply(c: ReactComponentM_[_]): UndefOr[R] = apply(c.refs)
+    @inline final def apply(s: ComponentScope_M[_]): UndefOr[R] = apply(s.refs)
+    @inline final def apply(r: RefsObject)         : UndefOr[R] = resolve(r)
   }
-  class RefP[I, T <: TopNode](f: I => String) {
-    @inline final def apply(i: I) = Ref[T](f(i))
+
+  final class RefSimple[N <: TopNode](_name: String) extends Ref(_name) {
+    override type R = ReactComponentM_[N]
+    protected override def resolve(r: RefsObject) = r[N](name)
+  }
+
+  final class RefComp[P, S, B, N <: TopNode](_name: String) extends Ref(_name) {
+    override type R = ReactComponentM[P, S, B, N]
+    protected override def resolve(r: RefsObject) = r[N](name).asInstanceOf[UndefOr[ReactComponentM[P, S, B, N]]]
+  }
+
+  final class RefParam[I, RefType <: Ref](f: I => RefType) {
+    @inline final def apply(i: I): RefType = f(i)
     @inline final def get[S](s: ComponentScope_S[S] with ComponentScope_M[_])(implicit ev: S =:= I) =
       apply(ev(s.state))(s)
   }
+
   object Ref {
-    def apply[T <: TopNode](name: String)      = new Ref[T](name)
-    def param[I, T <: TopNode](f: I => String) = new RefP[I, T](f)
+    implicit def refAsARefParam(r: Ref): UndefOr[String] = r.name
+
+    def apply[N <: TopNode](name: String): RefSimple[N] =
+      new RefSimple[N](name)
+
+    def param[I, N <: TopNode](f: I => String): RefParam[I, RefSimple[N]] =
+      new RefParam(i => Ref[N](f(i)))
+
+    /** A reference to a Scala component. */
+    def to[P, S, B, N <: TopNode](types: ReactComponentTypeAux[P, S, B, N], name: String): RefComp[P, S, B, N] =
+      new RefComp[P, S, B, N](name)
   }
 
-  implicit final class ReactExt_ScalaColl[A](val as: TraversableOnce[A]) extends AnyVal {
+  @inline implicit final class ReactExt_ScalaColl[A](val _as: TraversableOnce[A]) extends AnyVal {
     @inline def toJsArray: js.Array[A] =
-      js.Array(as.toSeq: _*)
+      js.Array(_as.toSeq: _*)
     @inline def toReactNodeArray(implicit ev: A => ReactNode): js.Array[ReactNode] = {
       val r = new js.Array[ReactNode]()
-      as.foreach(a => r.push(ev(a)))
+      _as.foreach(a => r.push(ev(a)))
       r
     }
   }
 
-  implicit final class ReactExt_JsArray[A](val as: js.Array[A]) extends AnyVal {
+  @inline implicit final class ReactExt_JsArray[A](val _as: js.Array[A]) extends AnyVal {
     @inline def toReactNodeArray(implicit ev: A => ReactNode): js.Array[ReactNode] =
-      as.map(ev: js.Function1[A, ReactNode])
+      _as.map(ev: js.Function1[A, ReactNode])
   }
 
-  // Scalatags causes this to fail ↓
-  //@inline implicit def reactNodeInhabitableN               (v: js.Number)          : ReactNode = v.asInstanceOf[ReactNode]
-  @inline implicit def reactNodeInhabitableS                 (v: js.String)          : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableL                 (v: Long)               : ReactNode = v.toString.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableI                 (v: Int)                : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableSh                (v: Short)              : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableB                 (v: Byte)               : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableD                 (v: Double)             : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableF                 (v: Float)              : ReactNode = v.asInstanceOf[ReactNode]
+  @inline implicit def reactNodeInhabitableS                 (v: String)             : ReactNode = v.asInstanceOf[ReactNode]
   @inline implicit def reactNodeInhabitableAn                (v: js.Array[ReactNode]): ReactNode = v.asInstanceOf[ReactNode]
   @inline implicit def reactNodeInhabitableAt[T <% ReactNode](v: js.Array[T])        : ReactNode = v.toReactNodeArray
-  @inline implicit def reactNodeInhabitableC[T <% ReactNode] (v: TraversableOnce[T]) : ReactNode = v.toReactNodeArray
+  @inline implicit def reactNodeInhabitableC [T <% ReactNode](v: TraversableOnce[T]) : ReactNode = v.toReactNodeArray
   @inline implicit def reactNodeInhabitablePC                (v: PropsChildren)      : ReactNode = v.asInstanceOf[ReactNode]
 
   // ===================================================================================================================
@@ -101,90 +137,134 @@ package object react {
   @inline final implicit def autoJsCtor[P,S,B,N <: TopNode](c: ReactComponentC[P,S,B,N]): ReactComponentC_ = c.jsCtor
 
   /** Component constructor. */
-  sealed trait ReactComponentC[P, S, +B, +N <: TopNode] {
+  sealed trait ReactComponentC[P, S, +B, +N <: TopNode] extends ReactComponentTypeAux[P, S, B, N] {
     val jsCtor: ReactComponentCU[P,S,B,N]
   }
 
   object ReactComponentC {
-    private[this] def mkProps[P](props: P, key: Option[JAny]): WrapObj[P] = {
-      val j = WrapObj(props)
-      key.foreach(k => j.asInstanceOf[Dynamic].updateDynamic("key")(k))
-      j
+
+    sealed abstract class BaseCtor[P, S, +B, +N <: TopNode] extends ReactComponentC[P, S, B, N] {
+
+      // "Your scientists were so preoccupied with whether or not they could that they didn't stop to think if they should."
+      type This[+B, +N <: TopNode] <: BaseCtor[P, S, B, N]
+
+      val jsCtor: ReactComponentCU[P, S, B, N]
+
+      protected val key: UndefOr[JAny]
+      protected val ref: UndefOr[String]
+      def set(key: UndefOr[JAny] = this.key, ref: UndefOr[String] = this.ref): This[B, N]
+
+      final def withKey(k: JAny)  : This[B,N] = set(key = k)
+      final def withRef(r: String): This[B,N] = set(ref = r)
+
+      protected def mkProps(props: P): WrapObj[P] = {
+        val j = WrapObj(props)
+        key.foreach(k => j.asInstanceOf[Dynamic].updateDynamic("key")(k))
+        ref.foreach(r => j.asInstanceOf[Dynamic].updateDynamic("ref")(r))
+        j
+      }
     }
 
-    final class ReqProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny]) extends ReactComponentC[P,S,B,N] {
-      def apply(props: P, children: ReactNode*) = jsCtor(mkProps(props, key), children: _*)
-      def withKey(key: JAny) = new ReqProps(jsCtor, Some(key))
+    final class ReqProps[P, S, +B, +N <: TopNode](override val jsCtor: ReactComponentCU[P, S, B, N],
+                                                  override protected val key: UndefOr[JAny],
+                                                  override protected val ref: UndefOr[String]) extends BaseCtor[P, S, B, N] {
+      override type This[+B, +N <: TopNode] = ReqProps[P, S, B, N]
+      def set(key: UndefOr[JAny] = this.key, ref: UndefOr[String] = this.ref): This[B, N] =
+        new ReqProps(jsCtor, key, ref)
+
+      def apply(props: P, children: ReactNode*) = jsCtor(mkProps(props), children: _*)
+
+      def withProps       (p: => P) = new ConstProps  (jsCtor, key, ref, () => p)
+      def withDefaultProps(p: => P) = new DefaultProps(jsCtor, key, ref, () => p)
     }
 
-    final class DefaultProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny], default: () => P) extends ReactComponentC[P,S,B,N] {
+    final class DefaultProps[P, S, +B, +N <: TopNode](override val jsCtor: ReactComponentCU[P, S, B, N],
+                                                      override protected val key: UndefOr[JAny],
+                                                      override protected val ref: UndefOr[String],
+                                                      default: () => P) extends BaseCtor[P, S, B, N] {
+      override type This[+B, +N <: TopNode] = DefaultProps[P, S, B, N]
+      def set(key: UndefOr[JAny] = this.key, ref: UndefOr[String] = this.ref): This[B, N] =
+        new DefaultProps(jsCtor, key, ref, default)
+
       def apply(props: Option[P], children: ReactNode*): ReactComponentU[P,S,B,N] =
-        jsCtor(mkProps(props getOrElse default(), key), children: _*)
+        jsCtor(mkProps(props getOrElse default()), children: _*)
 
       def apply(children: ReactNode*): ReactComponentU[P,S,B,N] =
         apply(None, children: _*)
-
-      def withKey(key: JAny) = new DefaultProps(jsCtor, Some(key), default)
     }
 
-    final class ConstProps[P, S, +B, +N <: TopNode](val jsCtor: ReactComponentCU[P,S,B,N], key: Option[JAny], props: () => P) extends ReactComponentC[P,S,B,N] {
-      def apply(children: ReactNode*) = jsCtor(mkProps(props(), key), children: _*)
-      def withKey(key: JAny) = new ConstProps(jsCtor, Some(key), props)
+    final class ConstProps[P, S, +B, +N <: TopNode](override val jsCtor: ReactComponentCU[P, S, B, N],
+                                                    override protected val key: UndefOr[JAny],
+                                                    override protected val ref: UndefOr[String],
+                                                    props: () => P) extends BaseCtor[P, S, B, N] {
+      override type This[+B, +N <: TopNode] = ConstProps[P, S, B, N]
+      def set(key: UndefOr[JAny] = this.key, ref: UndefOr[String] = this.ref): This[B, N] =
+        new ConstProps(jsCtor, key, ref, props)
+
+      def apply(children: ReactNode*) = jsCtor(mkProps(props()), children: _*)
     }
   }
 
   // ===================================================================================================================
 
   @inline implicit def autoUnWrapObj[A](a: WrapObj[A]): A = a.v
-  implicit final class ReactExt_Any[A](val a: A) extends AnyVal {
-    @inline def wrap: WrapObj[A] = WrapObj(a)
+  @inline implicit final class ReactExt_Any[A](val _a: A) extends AnyVal {
+    @inline def wrap: WrapObj[A] = WrapObj(_a)
   }
 
-  implicit final class ReactExt_ReactObj(val u: React.type) extends AnyVal {
+  @inline implicit final class ReactExt_ReactObj(val _r: React.type) extends AnyVal {
     @deprecated("React.renderComponentC will be deprecated in a future version. Use React.renderC instead.", "0.6.0")
     @inline def renderComponentC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeMN[P,S,B,N] => Unit) =
-      u.render(c, n, callback)
+      _r.render(c, n, callback)
     @inline def renderC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeMN[P,S,B,N] => Unit) =
-      u.render(c, n, callback)
+      _r.render(c, n, callback)
   }
 
-  implicit final class ReactExt_ComponentScope_P[Props](val u: ComponentScope_P[Props]) extends AnyVal {
-    @inline def props = u._props.v
-    @inline def propsChildren = u._props.children
+  @inline implicit final class ReactExt_ComponentScope_P[Props](val _c: ComponentScope_P[Props]) extends AnyVal {
+    @inline def props = _c._props.v
+    @inline def propsChildren = _c._props.children
   }
 
-  implicit final class ReactExt_ComponentScope_PS[Props, State](val u: ComponentScope_PS[Props, State]) extends AnyVal {
-    @inline def getInitialState(p: Props): State = u._getInitialState(WrapObj(p)).v
+  @inline implicit final class ReactExt_ComponentScope_PS[Props, State](val _c: ComponentScope_PS[Props, State]) extends AnyVal {
+    @inline def getInitialState(p: Props): State = _c._getInitialState(WrapObj(p)).v
   }
 
-  implicit final class ReactExt_ComponentScope_S[State](val u: ComponentScope_S[State]) extends AnyVal {
-    @inline def state = u._state.v
+  @inline implicit final class ReactExt_ComponentScope_S[State](val _c: ComponentScope_S[State]) extends AnyVal {
+    @inline def state = _c._state.v
   }
 
   val preventDefaultF  = (_: SyntheticEvent[dom.Node]).preventDefault()
   val stopPropagationF = (_: SyntheticEvent[dom.Node]).stopPropagation()
 
-  implicit final class ReactExt_ReactComponentU[P,S,B,N <: TopNode](val u: ReactComponentU[P,S,B,N]) extends AnyVal {
-    def render(n: dom.Node) = React.render(u, n)
+  @inline implicit final class ReactExt_ReactComponentU[P,S,B,N <: TopNode](val _c: ReactComponentU[P,S,B,N]) extends AnyVal {
+    def render(n: dom.Node) = React.render(_c, n)
   }
 
-  implicit final class ReactExt_UndefReactComponentM[N <: TopNode](val u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
-    def tryFocus(): Unit = u.foreach(_.getDOMNode().focus())
+  @inline implicit final class ReactExt_ReactDOMElement(val _v: ReactDOMElement) extends AnyVal {
+    @inline def typ = _v.`type`
   }
 
-  implicit final class ReactExt_ReactComponentM[N <: TopNode](val u: ReactComponentM_[N]) extends AnyVal {
-    def domType[N2 <: TopNode] = u.asInstanceOf[ReactComponentM_[N2]]
+  @inline implicit final class ReactExt_ReactComponentU_(val _v: ReactComponentU_) extends AnyVal {
+    @inline def dynamic = this.asInstanceOf[Dynamic]
   }
 
-  implicit final class ReactExt_PropsChildren(val u: PropsChildren) extends AnyVal {
+  @inline implicit final class ReactExt_UndefReactComponentM[N <: TopNode](val _u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
+    def tryFocus(): Unit = _u.foreach(_.getDOMNode().focus())
+  }
+
+  @inline implicit final class ReactExt_ReactComponentM[N <: TopNode](val _c: ReactComponentM_[N]) extends AnyVal {
+    @inline def domType[N2 <: TopNode] = _c.asInstanceOf[ReactComponentM_[N2]]
+  }
+
+  @inline implicit final class ReactExt_PropsChildren(val _c: PropsChildren) extends AnyVal {
     @inline def forEach[U](f: ReactNode => U): Unit =
-      React.Children.forEach(u, (f:JFn).asInstanceOf[js.Function1[ReactNode, JAny]])
+      React.Children.forEach(_c, (f:JFn).asInstanceOf[js.Function1[ReactNode, JAny]])
 
     @inline def forEach[U](f: (ReactNode, Int) => U): Unit =
-      React.Children.forEach(u, (f:JFn).asInstanceOf[js.Function2[ReactNode, Number, JAny]])
+      React.Children.forEach(_c, (f:JFn).asInstanceOf[js.Function2[ReactNode, Int, JAny]])
 
     @inline def only: Option[ReactNode] =
-      try { Some(React.Children.only(u))} catch { case t: Throwable => None}
+      try { Some(React.Children.only(_c))} catch { case t: Throwable => None}
   }
 
   // ===================================================================================================================
@@ -193,44 +273,47 @@ package object react {
   type OpCallback = UndefOr[() => Unit]
 
   trait CompStateAccess[C[_]] {
-    def state[A](f: C[A]): A
-    def setState[A](f: C[A], a: A, cb: OpCallback): Unit
+    def state[S](c: C[S]): S
+    def setState[S](f: C[S], s: S, cb: OpCallback): Unit
   }
 
   implicit object CompStateAccess_SS extends CompStateAccess[ComponentScope_SS] {
-    override def state[A](u: ComponentScope_SS[A]): A =
-      u._state.v
+    override def state[S](c: ComponentScope_SS[S]): S =
+      c._state.v
 
-    override def setState[A](u: ComponentScope_SS[A], a: A, cb: OpCallback = undefined): Unit =
-      u._setState(WrapObj(a), cb.map[JFn](f => f))
+    override def setState[S](c: ComponentScope_SS[S], s: S, cb: OpCallback = undefined): Unit =
+      c._setState(WrapObj(s), cb.map[JFn](f => f))
   }
 
-  // CompStateAccess[C] should really be a class param but then we lose the AnyVal
-  implicit final class CompStateAccessOps[C[_], A](val c: C[A]) extends AnyVal {
+  @inline implicit final def toCompStateAccessOps[C[_]: CompStateAccess, S](c: C[S]) = new CompStateAccessOps(c)
+  final class CompStateAccessOps[C[_], S](val _c: C[S]) extends AnyVal {
+    // CompStateAccess[C] should really be a class param but then we lose the AnyVal
     type CC = CompStateAccess[C]
     
-    @inline def state(implicit C: CC): A =
-      C.state(c)
+    @inline def state(implicit C: CC): S =
+      C.state(_c)
 
-    @inline def setState(a: A, cb: OpCallback = undefined)(implicit C: CC): Unit =
-      C.setState(c, a, cb)
+    @inline def setState(s: S, cb: OpCallback = undefined)(implicit C: CC): Unit =
+      C.setState(_c, s, cb)
 
-    @inline def modState(f: A => A, cb: OpCallback = undefined)(implicit C: CC): Unit =
+    @inline def modState(f: S => S, cb: OpCallback = undefined)(implicit C: CC): Unit =
       setState(f(state), cb)
 
-    @inline def modStateO(f: A => Option[A], cb: OpCallback = undefined)(implicit C: CC): Unit =
+    @deprecated("modStateO will be removed in v0.8.x", "v0.7.0")
+    @inline def modStateO(f: S => Option[S], cb: OpCallback = undefined)(implicit C: CC): Unit =
       f(state).fold(())(setState(_, cb))
 
-    @inline def modStateU(f: A => UndefOr[A], cb: OpCallback = undefined)(implicit C: CC): Unit =
+    @deprecated("modStateU will be removed in v0.8.x", "v0.7.0")
+    @inline def modStateU(f: S => UndefOr[S], cb: OpCallback = undefined)(implicit C: CC): Unit =
       f(state).fold(())(setState(_, cb))
 
-    @inline def focusStateId(implicit C: CC) = new ComponentStateFocus[A](
-      () => c.state,
-      (a: A, cb: OpCallback) => c.setState(a, cb))
+    @inline def focusStateId(implicit C: CC) = new ComponentStateFocus[S](
+      () => _c.state,
+      (a: S, cb: OpCallback) => _c.setState(a, cb))
 
-    @inline def focusState[B](f: A => B)(g: (A, B) => A)(implicit C: CC) = new ComponentStateFocus[B](
-      () => f(c.state),
-      (b: B, cb: OpCallback) => c.setState(g(c.state, b), cb))
+    @inline def focusState[T](f: S => T)(g: (S, T) => S)(implicit C: CC) = new ComponentStateFocus[T](
+      () => f(_c.state),
+      (b: T, cb: OpCallback) => _c.setState(g(_c.state, b), cb))
   }
 
   final class ComponentStateFocus[B] private[react](
@@ -238,8 +321,8 @@ package object react {
     private[react] val _s: (B, OpCallback) => Unit)
 
   implicit object ComponentStateFocusAccess extends CompStateAccess[ComponentStateFocus] {
-    override def state[A](u: ComponentStateFocus[A]): A = u._g()
-    override def setState[A](u: ComponentStateFocus[A], a: A, cb: OpCallback = undefined): Unit = u._s(a, cb)
+    override def state[S](c: ComponentStateFocus[S]): S = c._g()
+    override def setState[S](c: ComponentStateFocus[S], a: S, cb: OpCallback = undefined): Unit = c._s(a, cb)
   }
 
   @inline final implicit def autoFocusEntireState[S](s: ComponentScope_SS[S]): ComponentStateFocus[S] = s.focusStateId

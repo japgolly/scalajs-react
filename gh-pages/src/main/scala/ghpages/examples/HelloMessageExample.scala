@@ -1,7 +1,7 @@
 package ghpages.examples
 
 import japgolly.scalajs.react.ReactComponentB
-import japgolly.scalajs.react.vdom.ReactVDom.all._
+import japgolly.scalajs.react.vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
 
 /** Scala version of "A Simple Component" on http://facebook.github.io/react/ */
@@ -23,12 +23,12 @@ object HelloMessageExample {
   val source =
     """
       |val HelloMessage = ReactComponentB[String]("HelloMessage")
-      |   .render(name => div("Hello ", name))
+      |   .render(name => <.div("Hello ", name))
       |   .build
       |
       |React.render(HelloMessage("John"), mountNode)""".stripMargin
 
   val HelloMessage = ReactComponentB[String]("HelloMessage")
-    .render(name => div("Hello ", name))
+    .render(name => <.div("Hello ", name))
     .build
 }

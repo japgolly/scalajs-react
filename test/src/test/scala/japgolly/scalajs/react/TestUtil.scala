@@ -2,18 +2,19 @@ package japgolly.scalajs.react
 
 import java.util.concurrent.atomic.AtomicReference
 import scala.collection.mutable.ListBuffer
-import vdom.ReactVDom._
-import all._
+import scala.scalajs.js
+import scalaz.Maybe
+import vdom.all._
 import utest._
 
 object TestUtil {
 
-  def assertRender(comp: ReactComponentU_, expected: String): Unit = {
+  def assertRender(comp: ReactElement, expected: String): Unit = {
     val rendered: String = React.renderToStaticMarkup(comp)
     assert(rendered == expected)
   }
 
-  implicit class ReactComponentUAS(val c: ReactComponentU_) extends AnyVal {
+  implicit class ReactComponentUAS(val c: ReactElement) extends AnyVal {
     def shouldRender(expected: String) = assertRender(c, expected)
   }
 
@@ -58,5 +59,51 @@ object TestUtil {
       val a = v
       assert(a == e)
     }
+
+    def some: Option[A] = Some(v)
+    def none: Option[A] = None
+
+    def jsdef: js.UndefOr[A] = v
+    def undef: js.UndefOr[A] = js.undefined
+
+    def just    : Maybe[A] = Maybe.just(v)
+    def maybeNot: Maybe[A] = Maybe.empty
+  }
+
+  def none[A]: Option[A] = None
+
+  def removeReactDataAttr(s: String): String =
+    s.replaceAll("""\s+data-react\S+?".*?"""", "")
+
+  def assertContains(value: String, search: String, expect: Boolean = true): Unit =
+    if (value.contains(search) != expect) {
+      println(s"\nValue: $value\nSearch: $search\nExpect: $expect\n")
+      assert(false)
+    }
+
+  def assertTypeMismatch(e: CompileError): Unit =
+    assertContains(e.msg, "type mismatch")
+
+  // ===================================================================================================================
+  object Inference {
+    import scalaz.{Monad, ~>}
+    import scalaz.effect.IO
+
+    def test[A] = new {
+      def apply[B](f: A => B) = new {
+        def expect[C](implicit ev: B =:= C): Unit = ()
+      }
+    }
+
+    trait M[A]
+    trait S
+    trait T
+    trait A
+    trait B
+    val c = null.asInstanceOf[ComponentScopeM[Unit, S, Unit]]
+    type U = Unit
+    type N = TopNode
+
+    implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> IO)]
   }
 }

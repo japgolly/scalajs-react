@@ -1,6 +1,6 @@
 package ghpages.examples
 
-import japgolly.scalajs.react._, vdom.ReactVDom._, all._
+import japgolly.scalajs.react._, vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
 
 /** Scala version of "An Application" on http://facebook.github.io/react/ */
@@ -52,20 +52,20 @@ object TodoExample {
   val source =
     """
       |val TodoList = ReactComponentB[List[String]]("TodoList")
-      |  .render(P => {
-      |    def createItem(itemText: String) = li(itemText)
-      |    ul(P map createItem)
+      |  .render(props => {
+      |    def createItem(itemText: String) = <.li(itemText)
+      |    <.ul(props map createItem)
       |  })
       |  .build
       |
       |case class State(items: List[String], text: String)
       |
-      |class Backend(t: BackendScope[Unit, State]) {
+      |class Backend($: BackendScope[Unit, State]) {
       |  def onChange(e: ReactEventI) =
-      |    t.modState(_.copy(text = e.target.value))
+      |    $.modState(_.copy(text = e.target.value))
       |  def handleSubmit(e: ReactEventI) = {
       |    e.preventDefault()
-      |    t.modState(s => State(s.items :+ s.text, ""))
+      |    $.modState(s => State(s.items :+ s.text, ""))
       |  }
       |}
       |
@@ -73,12 +73,12 @@ object TodoExample {
       |  .initialState(State(Nil, ""))
       |  .backend(new Backend(_))
       |  .render((_,S,B) =>
-      |    div(
-      |      h3("TODO"),
+      |    <.div(
+      |      <.h3("TODO"),
       |      TodoList(S.items),
-      |      form(onsubmit ==> B.handleSubmit)(
-      |        input(onchange ==> B.onChange, value := S.text),
-      |        button("Add #", S.items.length + 1)
+      |      <.form(^.onSubmit ==> B.handleSubmit,
+      |        <.input(^.onChange ==> B.onChange, ^.value := S.text),
+      |        <.button("Add #", S.items.length + 1)
       |      )
       |    )
       |  ).buildU
@@ -88,20 +88,20 @@ object TodoExample {
 
 
   val TodoList = ReactComponentB[List[String]]("TodoList")
-    .render(P => {
-      def createItem(itemText: String) = li(itemText)
-      ul(P map createItem)
+    .render(props => {
+      def createItem(itemText: String) = <.li(itemText)
+      <.ul(props map createItem)
     })
     .build
 
   case class State(items: List[String], text: String)
 
-  class Backend(t: BackendScope[Unit, State]) {
+  class Backend($: BackendScope[Unit, State]) {
     def onChange(e: ReactEventI) =
-      t.modState(_.copy(text = e.target.value))
+      $.modState(_.copy(text = e.target.value))
     def handleSubmit(e: ReactEventI) = {
       e.preventDefault()
-      t.modState(s => State(s.items :+ s.text, ""))
+      $.modState(s => State(s.items :+ s.text, ""))
     }
   }
 
@@ -109,12 +109,12 @@ object TodoExample {
     .initialState(State(Nil, ""))
     .backend(new Backend(_))
     .render((_,S,B) =>
-      div(
-        h3("TODO"),
+      <.div(
+        <.h3("TODO"),
         TodoList(S.items),
-        form(onsubmit ==> B.handleSubmit)(
-          input(onchange ==> B.onChange, value := S.text),
-          button("Add #", S.items.length + 1)
+        <.form(^.onSubmit ==> B.handleSubmit,
+          <.input(^.onChange ==> B.onChange, ^.value := S.text),
+          <.button("Add #", S.items.length + 1)
         )
       )
     ).buildU

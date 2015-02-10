@@ -1,10 +1,9 @@
 package japgolly.scalajs.react.test
 
-import org.scalajs.dom.HTMLInputElement
+import org.scalajs.dom.raw.HTMLInputElement
 import utest._
 import japgolly.scalajs.react._
-import vdom.ReactVDom._
-import vdom.ReactVDom.all._
+import vdom.all._
 import TestUtil._
 
 object TestTest extends TestSuite {
@@ -17,14 +16,14 @@ object TestTest extends TestSuite {
   lazy val IC = ReactComponentB[Unit]("IC").initialState(true).renderS((t,_,s) => {
     val ch = (e: ReactEvent) => t.modState(x => !x)
     label(
-      input(`type` := "checkbox", checked := s, onclick ==> ch, ref := inputRef),
+      input(`type` := "checkbox", checked := s, onClick ==> ch, ref := inputRef),
       span(s"s = $s")
     )
   }).buildU
 
   lazy val IT = ReactComponentB[Unit]("IT").initialState("NIL").renderS((t,_,s) => {
     val ch = (e: SyntheticEvent[HTMLInputElement]) => t.setState(e.target.value.toUpperCase)
-    input(`type` := "text", value := s, onchange ==> ch)
+    input(`type` := "text", value := s, onChange ==> ch)
   }).buildU
 
   val tests = TestSuite {
@@ -41,6 +40,22 @@ object TestTest extends TestSuite {
     'findRenderedComponentWithType {
       val n = ReactTestUtils.findRenderedComponentWithType(rab, B).getDOMNode()
       assert(n.className == "BB")
+    }
+
+    'renderIntoDocument {
+      def test(c: ComponentM, exp: String): Unit = {
+        val h = removeReactDataAttr(c.getDOMNode().outerHTML)
+        h mustEqual exp
+      }
+      'plainElement {
+        val re: ReactElement = div("Good")
+        val c = ReactTestUtils.renderIntoDocument(re)
+        test(c, """<div>Good</div>""")
+      }
+      'component {
+        val c: ReactComponentM[Unit, Unit, Unit, TopNode] = ReactTestUtils.renderIntoDocument(B())
+        test(c, """<p class="BB">hehehe</p>""")
+      }
     }
 
     'Simulate {
@@ -67,13 +82,23 @@ object TestTest extends TestSuite {
             e("change")
             T.setState(ev.target.value)
           }
-          input(value := T.state, ref := inputRef, onfocus --> e("focus"), onchange ==> chg, onblur --> e("blur"))
+          input(value := T.state, ref := inputRef, onFocus --> e("focus"), onChange ==> chg, onBlur --> e("blur"))
         }).buildU
         val c = ReactTestUtils.renderIntoDocument(C())
         val i = inputRef(c).get
         Simulation.focusChangeBlur("good") run i
         events mustEqual Vector("focus", "change", "blur")
         i.getDOMNode().value mustEqual "good"
+      }
+      'targetByName {
+        val c = ReactTestUtils.renderIntoDocument(IC())
+        var count = 0
+        def tgt = {
+          count += 1
+          Sel("input").findIn(c)
+        }
+        Simulation.focusChangeBlur("-") run tgt
+        assert(count == 3)
       }
     }
   }

@@ -1,13 +1,12 @@
 package japgolly.scalajs.react
 
 import scala.scalajs.js
-import vdom.ReactVDom.all._
 
 object Addons {
 
   object ReactCssTransitionGroup {
     /** Items in the CSSTransitionGroup need this attribute for animation to work properly. */
-    val key = "key".attr
+    @inline final def key = vdom.Attrs.key
   }
 
   case class ReactCssTransitionGroup(name: String,
@@ -27,4 +26,21 @@ object Addons {
       f(toJs, children.toJsArray).asInstanceOf[ReactComponentU_]
     }
   }
+
+  object ReactCloneWithProps {
+
+    def mapToJS(props: Map[String, js.Any]): js.Object = {
+      val obj = js.Dynamic.literal()
+      props.foreach { case (key, value) =>
+        obj.updateDynamic(key)(value)
+      }
+      obj
+    }
+
+    def apply(child: ReactNode, newProps: Map[String, js.Any]) = {
+      val f = React.addons.cloneWithProps
+      f(child, mapToJS(newProps)).asInstanceOf[ReactComponentU_]
+    }
+  }
+
 }
