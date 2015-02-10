@@ -17,7 +17,7 @@ object ScalajsReact extends Build {
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.8.0",
+        version            := "0.8.1-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
