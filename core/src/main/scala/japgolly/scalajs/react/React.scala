@@ -162,6 +162,11 @@ trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]
 // =====================================================================================================================
 // Scope
 
+/** Methods always available. */
+trait ComponentScope_A extends Object {
+  def isMounted(): Boolean = js.native
+}
+
 trait ComponentScope_P[+Props] extends Object {
   @JSName("props") def _props: WrapObj[Props] with PropsMixedIn = js.native
 }
@@ -199,17 +204,18 @@ trait ComponentScope_M[+Node <: TopNode] extends Object {
 
 /** Type of an unmounted component's `this` scope. */
 trait ComponentScopeU[Props, State, +Backend]
-  extends ComponentScope_PS[Props, State]
+  extends ComponentScope_A
+     with ComponentScope_PS[Props, State]
      with ComponentScope_P[Props]
      with ComponentScope_SS[State]
      with ComponentScope_B[Backend] {
   // prohibits: ComponentScope_M.*
-  def isMounted(): Boolean = js.native
 }
 
 /** Type of a component's `this` scope during componentWillUpdate. */
 trait ComponentScopeWU[Props, +State, +Backend]
-  extends ComponentScope_PS[Props, State]
+  extends ComponentScope_A
+     with ComponentScope_PS[Props, State]
      with ComponentScope_P[Props]
      with ComponentScope_S[State]
      with ComponentScope_B[Backend]
@@ -219,14 +225,15 @@ trait ComponentScopeWU[Props, +State, +Backend]
 /** Type of a mounted component's `this` scope. */
 trait ComponentScopeM[Props, State, +Backend] extends ComponentScopeMN[Props, State, Backend, TopNode]
 trait ComponentScopeMN[Props, State, +Backend, +Node <: TopNode]
-  extends ComponentScope_PS[Props, State]
-     with ComponentScopeU[Props, State, Backend]
-     with ComponentScope_M[Node]
+  extends ComponentScopeU[Props, State, Backend]
      with ReactComponentTypeAuxJ[Props, State, Backend, Node]
+     with ComponentScope_PS[Props, State]
+     with ComponentScope_M[Node]
 
 /** Type of a component's `this` scope as is available to backends. */
 trait BackendScope[Props, State]
-  extends ComponentScope_PS[Props, State]
+  extends ComponentScope_A
+     with ComponentScope_PS[Props, State]
      with ComponentScope_P[Props]
      with ComponentScope_SS[State]
      with ComponentScope_M[TopNode]
