@@ -3,6 +3,7 @@
 * Fixed React warnings about certain styles.
 * Added `spreadMethod` attribute.
 * `.isMounted()` now accessible from all component scope views.
+* Upgrade [scalajs-dom](https://github.com/scala-js/scala-js-dom) from 0.7.0 to 0.8.0.
 
 # 0.7.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.7.1...v0.7.2))
 

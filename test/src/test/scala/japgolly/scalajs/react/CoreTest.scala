@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.Addons.ReactCloneWithProps
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
-import org.scalajs.dom.HTMLInputElement
+import org.scalajs.dom.raw.HTMLInputElement
 import vdom.all._
 import TestUtil._
 import test.{DebugJs, ReactTestUtils}

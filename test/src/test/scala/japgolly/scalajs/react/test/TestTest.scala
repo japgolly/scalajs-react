@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.test
 
-import org.scalajs.dom.HTMLInputElement
+import org.scalajs.dom.raw.HTMLInputElement
 import utest._
 import japgolly.scalajs.react._
 import vdom.all._

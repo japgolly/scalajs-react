@@ -35,9 +35,9 @@ object Extra {
 
   trait Tags {
     import NamespaceHtml._
-    final val big      = "big".tag[dom.HTMLHtmlElement]
-    final val dialog   = "dialog".tag[dom.HTMLHtmlElement]
-    final val menuitem = "menuitem".tag[dom.HTMLHtmlElement]
+    final val big      = "big".tag[dom.html.Element]
+    final val dialog   = "dialog".tag[dom.html.Element]
+    final val menuitem = "menuitem".tag[dom.html.Element]
   }
 
   trait Attrs {

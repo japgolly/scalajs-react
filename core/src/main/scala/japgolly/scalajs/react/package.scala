@@ -1,12 +1,12 @@
 package japgolly.scalajs
 
-import org.scalajs.dom
+import org.scalajs.dom, dom.html
 import scala.scalajs.js
 import js.{Dynamic, UndefOr, undefined, Object, Any => JAny, Function => JFn}
 
 package object react {
 
-  type TopNode = dom.HTMLElement
+  type TopNode = html.Element
 
   type ReactEvent            = SyntheticEvent           [dom.Node]
   type ReactClipboardEvent   = SyntheticClipboardEvent  [dom.Node]
@@ -20,29 +20,29 @@ package object react {
   type ReactUIEvent          = SyntheticUIEvent         [dom.Node]
   type ReactWheelEvent       = SyntheticWheelEvent      [dom.Node]
 
-  type ReactEventH            = SyntheticEvent           [dom.HTMLElement]
-  type ReactClipboardEventH   = SyntheticClipboardEvent  [dom.HTMLElement]
-  type ReactCompositionEventH = SyntheticCompositionEvent[dom.HTMLElement]
-  type ReactDragEventH        = SyntheticDragEvent       [dom.HTMLElement]
-  type ReactFocusEventH       = SyntheticFocusEvent      [dom.HTMLElement]
-  //type ReactInputEventH     = SyntheticInputEvent      [dom.HTMLElement]
-  type ReactKeyboardEventH    = SyntheticKeyboardEvent   [dom.HTMLElement]
-  type ReactMouseEventH       = SyntheticMouseEvent      [dom.HTMLElement]
-  type ReactTouchEventH       = SyntheticTouchEvent      [dom.HTMLElement]
-  type ReactUIEventH          = SyntheticUIEvent         [dom.HTMLElement]
-  type ReactWheelEventH       = SyntheticWheelEvent      [dom.HTMLElement]
+  type ReactEventH            = SyntheticEvent           [html.Element]
+  type ReactClipboardEventH   = SyntheticClipboardEvent  [html.Element]
+  type ReactCompositionEventH = SyntheticCompositionEvent[html.Element]
+  type ReactDragEventH        = SyntheticDragEvent       [html.Element]
+  type ReactFocusEventH       = SyntheticFocusEvent      [html.Element]
+  //type ReactInputEventH     = SyntheticInputEvent      [html.Element]
+  type ReactKeyboardEventH    = SyntheticKeyboardEvent   [html.Element]
+  type ReactMouseEventH       = SyntheticMouseEvent      [html.Element]
+  type ReactTouchEventH       = SyntheticTouchEvent      [html.Element]
+  type ReactUIEventH          = SyntheticUIEvent         [html.Element]
+  type ReactWheelEventH       = SyntheticWheelEvent      [html.Element]
 
-  type ReactEventI            = SyntheticEvent           [dom.HTMLInputElement]
-  type ReactClipboardEventI   = SyntheticClipboardEvent  [dom.HTMLInputElement]
-  type ReactCompositionEventI = SyntheticCompositionEvent[dom.HTMLInputElement]
-  type ReactDragEventI        = SyntheticDragEvent       [dom.HTMLInputElement]
-  type ReactFocusEventI       = SyntheticFocusEvent      [dom.HTMLInputElement]
-  //type ReactInputEventI     = SyntheticInputEvent      [dom.HTMLInputElement]
-  type ReactKeyboardEventI    = SyntheticKeyboardEvent   [dom.HTMLInputElement]
-  type ReactMouseEventI       = SyntheticMouseEvent      [dom.HTMLInputElement]
-  type ReactTouchEventI       = SyntheticTouchEvent      [dom.HTMLInputElement]
-  type ReactUIEventI          = SyntheticUIEvent         [dom.HTMLInputElement]
-  type ReactWheelEventI       = SyntheticWheelEvent      [dom.HTMLInputElement]
+  type ReactEventI            = SyntheticEvent           [html.Input]
+  type ReactClipboardEventI   = SyntheticClipboardEvent  [html.Input]
+  type ReactCompositionEventI = SyntheticCompositionEvent[html.Input]
+  type ReactDragEventI        = SyntheticDragEvent       [html.Input]
+  type ReactFocusEventI       = SyntheticFocusEvent      [html.Input]
+  //type ReactInputEventI     = SyntheticInputEvent      [html.Input]
+  type ReactKeyboardEventI    = SyntheticKeyboardEvent   [html.Input]
+  type ReactMouseEventI       = SyntheticMouseEvent      [html.Input]
+  type ReactTouchEventI       = SyntheticTouchEvent      [html.Input]
+  type ReactUIEventI          = SyntheticUIEvent         [html.Input]
+  type ReactWheelEventI       = SyntheticWheelEvent      [html.Input]
 
   @deprecated("React 0.12 has introduced ReactElement which is what VDom was created to represent. Replace VDom with ReactElement.", "0.6.0")
   type VDom = ReactElement
