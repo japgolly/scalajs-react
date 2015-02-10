@@ -1,4 +1,4 @@
-# 0.8.0
+# 0.8.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.7.2...v0.8.0))
 
 ##### Breaking
 * Upgrade [scalajs-dom](https://github.com/scala-js/scala-js-dom) from 0.7.0 to 0.8.0.
