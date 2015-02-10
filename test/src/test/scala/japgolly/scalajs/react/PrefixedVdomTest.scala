@@ -47,6 +47,7 @@ object PrefixedVdomTest extends TestSuite {
       'jAryComp  - test(<.div(JArray(H1("a"), H1("b"))),         "<div><h1>a</h1><h1>b</h1></div>")
       'checkboxT - test(checkbox(true),                        """<input type="checkbox" checked>""")
       'checkboxF - test(checkbox(false),                       """<input type="checkbox">""")
+      'aria      - test(<.div(^.aria.label := "ow", "a"),      """<div aria-label="ow">a</div>""")
 
       'dangerouslySetInnerHtml - test(<.div(^.dangerouslySetInnerHtml("<span>")), "<div><span></div>")
 
