@@ -44,9 +44,6 @@ package object react {
   type ReactUIEventI          = SyntheticUIEvent         [html.Input]
   type ReactWheelEventI       = SyntheticWheelEvent      [html.Input]
 
-  @deprecated("React 0.12 has introduced ReactElement which is what VDom was created to represent. Replace VDom with ReactElement.", "0.6.0")
-  type VDom = ReactElement
-
   /**
    * These exist for type inference.
    * If P,S,B,N types are needed and there's another object that has them, this is used to bridge for type inference.
@@ -213,9 +210,6 @@ package object react {
   }
 
   @inline implicit final class ReactExt_ReactObj(val _r: React.type) extends AnyVal {
-    @deprecated("React.renderComponentC will be deprecated in a future version. Use React.renderC instead.", "0.6.0")
-    @inline def renderComponentC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeMN[P,S,B,N] => Unit) =
-      _r.render(c, n, callback)
     @inline def renderC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeMN[P,S,B,N] => Unit) =
       _r.render(c, n, callback)
   }
@@ -298,14 +292,6 @@ package object react {
 
     @inline def modState(f: S => S, cb: OpCallback = undefined)(implicit C: CC): Unit =
       setState(f(state), cb)
-
-    @deprecated("modStateO will be removed in v0.8.x", "v0.7.0")
-    @inline def modStateO(f: S => Option[S], cb: OpCallback = undefined)(implicit C: CC): Unit =
-      f(state).fold(())(setState(_, cb))
-
-    @deprecated("modStateU will be removed in v0.8.x", "v0.7.0")
-    @inline def modStateU(f: S => UndefOr[S], cb: OpCallback = undefined)(implicit C: CC): Unit =
-      f(state).fold(())(setState(_, cb))
 
     @inline def focusStateId(implicit C: CC) = new ComponentStateFocus[S](
       () => _c.state,

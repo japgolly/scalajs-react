@@ -17,8 +17,6 @@ object Extra {
   }
 
   final class AttrExt(val _a: Attr) extends AnyVal {
-    @deprecated("[attr runs callback] will be removed in 0.8.0. Use [attr --> callback].", "v0.7.0")
-    @inline def runs(callback: => Unit) = -->(callback)
     @inline def -->(callback: => Unit) = _a := ((() => callback): js.Function)
     @inline def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Unit) = _a := (eventHandler: js.Function)
   }
