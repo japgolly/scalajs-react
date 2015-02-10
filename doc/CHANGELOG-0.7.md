@@ -1,5 +1,8 @@
 # 0.7.3
 
+* Fixed React warnings about certain styles.
+* Added `spreadMethod` attribute.
+
 
 # 0.7.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.7.1...v0.7.2))
 
