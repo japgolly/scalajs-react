@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
 /**
- * Scalatags version = 90f796e6f9f1ee79b5961f4199bd1e56ae8e318d
+ * Scalatags version = cdf3d4797236a7d31dc413c1c8ba45466ea4a1c6
  */
 package object vdom {
 
