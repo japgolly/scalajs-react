@@ -1,6 +1,6 @@
 package ghpages.examples
 
-import japgolly.scalajs.react._, vdom.all._
+import japgolly.scalajs.react._, vdom.prefix_<^._
 import org.scalajs.dom.window
 import ghpages.examples.util.SideBySide
 import Addons.ReactCssTransitionGroup
@@ -50,44 +50,44 @@ object AnimationExample {
 
   val source =
     """
-      |class Backend(T: BackendScope[_, Vector[String]]) {
+      |class Backend($: BackendScope[_, Vector[String]]) {
       |  def handleAdd(): Unit =
-      |    T.modState(_ :+ window.prompt("Enter some text"))
+      |    $.modState(_ :+ window.prompt("Enter some text"))
       |  def handleRemove(i: Int): Unit =
-      |    T.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
+      |    $.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
       |}
       |
       |val TodoList = ReactComponentB[Unit]("TodoList")
       |  .initialState(Vector("hello", "world", "click", "me"))
       |  .backend(new Backend(_))
       |  .render((_,S,B) =>
-      |    div(
-      |      button(onClick --> B.handleAdd())("Add Item"),
+      |    <.div(
+      |      <.button(^.onClick --> B.handleAdd())("Add Item"),
       |      ReactCssTransitionGroup("example", component = "h1")(
       |        S.zipWithIndex.map{case (s,i) =>
-      |          div(key := s, onClick --> B.handleRemove(i))(s)
+      |          <.div(^.key := s, ^.onClick --> B.handleRemove(i))(s)
       |        }: _*
       |      )
       |    )
       |  ).buildU
       | """.stripMargin
 
-  class Backend(T: BackendScope[_, Vector[String]]) {
+  class Backend($: BackendScope[_, Vector[String]]) {
     def handleAdd(): Unit =
-      T.modState(_ :+ window.prompt("Enter some text"))
+      $.modState(_ :+ window.prompt("Enter some text"))
     def handleRemove(i: Int): Unit =
-      T.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
+      $.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
   }
 
   val TodoList = ReactComponentB[Unit]("TodoList")
     .initialState(Vector("hello", "world", "click", "me"))
     .backend(new Backend(_))
     .render((_,S,B) =>
-      div(
-        button(onClick --> B.handleAdd())("Add Item"),
+      <.div(
+        <.button(^.onClick --> B.handleAdd())("Add Item"),
         ReactCssTransitionGroup("example", component = "h1")(
           S.zipWithIndex.map{case (s,i) =>
-            div(key := s, onClick --> B.handleRemove(i))(s)
+            <.div(^.key := s, ^.onClick --> B.handleRemove(i))(s)
           }: _*
         )
       )

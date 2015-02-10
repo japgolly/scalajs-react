@@ -1,6 +1,6 @@
 package ghpages.examples
 
-import japgolly.scalajs.react._, vdom.all._
+import japgolly.scalajs.react._, vdom.prefix_<^._
 import scala.scalajs.js
 import ghpages.examples.util.SideBySide
 
@@ -52,7 +52,7 @@ object TimerExample {
       |val Timer = ReactComponentB[Unit]("Timer")
       |  .initialState(State(0))
       |  .backend(new Backend(_))
-      |  .render((_, s, _) => div("Seconds elapsed: ", s.secondsElapsed))
+      |  .render($ => <.div("Seconds elapsed: ", $.state.secondsElapsed))
       |  .componentDidMount(_.backend.start())
       |  .componentWillUnmount(_.backend.interval foreach js.timers.clearInterval)
       |  .buildU
@@ -75,7 +75,7 @@ object TimerExample {
   val Timer = ReactComponentB[Unit]("Timer")
     .initialState(State(0))
     .backend(new Backend(_))
-    .render((_, s, _) => div("Seconds elapsed: ", s.secondsElapsed))
+    .render($ => <.div("Seconds elapsed: ", $.state.secondsElapsed))
     .componentDidMount(_.backend.start())
     .componentWillUnmount(_.backend.interval foreach js.timers.clearInterval)
     .buildU
