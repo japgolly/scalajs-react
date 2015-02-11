@@ -1,3 +1,20 @@
+# 0.8.1
+
+##### Scalatags
+
+* Added new Styles
+    * `flex`
+    * `flexBasis`
+    * `flexGrow`
+    * `flexShrink`
+    * `flexWrap`
+    * `alignItems`
+    * `justifyContent`
+    * `flexDirection`
+    * `vectorEffect`
+
+* Fixed `borderRightStyle` and `lineHeight` typo
+
 # 0.8.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.7.2...v0.8.0))
 
 ##### Breaking

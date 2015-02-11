@@ -409,7 +409,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderStyle = new Style("borderStyle", "borderStyle")
+  final val borderStyle = new BorderStyle("borderStyle", "borderStyle")
 
   /**
    * The border-top-style CSS property sets the line style of the top border of a box.
@@ -425,7 +425,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderRightStyle = new BorderStyle("bocrderRightStyle", "bocrderRightStyle")
+  final val borderRightStyle = new BorderStyle("borderRightStyle", "borderRightStyle")
 
   /**
    * The border-right-width CSS property sets the width of the right border of
@@ -1512,7 +1512,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val lineHeight = new NormalOpenStyle[String]("lineHeight", "lineheight")
+  final val lineHeight = new NormalOpenStyle[String]("lineHeight", "lineHeight")
 
   /**
    * The left CSS property specifies part of the position of positioned elements.
@@ -2979,6 +2979,217 @@ trait HtmlStyles {
    */
   final val transform = new Style("transform", "transform")
 
+
+  /**
+   * The flex CSS property is a shorthand property specifying the ability of a flex item to alter its dimensions to
+   * fill available space. Flex items can be stretched to use available space proportional to their flex grow factor
+   * or their flex shrink factor to prevent overflow.
+   *
+   * MDN
+   */
+  final val flex = new Style("flex", "flex")
+
+  /**
+   * The CSS flex-basis property specifies the flex basis which is the initial main size of a flex item.
+   * The property determines the size of the content-box unless specified otherwise using box-sizing.
+   *
+   * MDN
+   */
+  final val flexBasis = new Style("flexBasis", "flexBasis")
+
+  /**
+   * The CSS flex-grow property specifies the flex grow factor of a flex item.
+   *
+   * MDN
+   */
+  final val flexGrow = new Style("flexGrow", "flexGrow")
+
+  /**
+   * The CSS flex-shrink property specifies the flex shrink factor of a flex item.
+   *
+   * MDN
+   */
+  final val flexShrink = new Style("flexShrink", "flexShrink")
+
+  /**
+   * The CSS flex-wrap property specifies whether the children are forced into a single line or if the items can be
+   * flowed on multiple lines.
+   *
+   * MDN
+   */
+  object flexWrap extends Style("flexWrap", "flexWrap") {
+
+    /**
+     * The flex items are laid out in a single line which may cause the flex container to overflow. The cross-start
+     * is either equivalent to start or before depending flex-direction value.
+     *
+     * MDN
+     */
+    final val nowrap = this := "nowrap"
+
+    /**
+     * The flex items break into multiple lines. The cross-start is either equivalent to start or before depending
+     * flex-direction value and the cross-end is the opposite of the specified cross-start.
+     *
+     * MDN
+     */
+    final val wrap = this := "wrap"
+
+    /**
+     * Behaves the same as wrap but cross-start and cross-end are permuted.
+     *
+     * MDN
+     */
+    final val wrapReverse = this := "wrapReverse"
+
+  }
+
+  /**
+   * The CSS align-items property aligns flex items of the current flex line the same way as justify-content
+   * but in the perpendicular direction.
+   *
+   * MDN
+   */
+  object alignItems extends Style("alignItems", "alignItems") {
+
+    /**
+     * The cross-start margin edge of the flex item is flushed with the cross-start edge of the line.
+     *
+     * MDN
+     */
+    final val flexStart = this := "flex-start"
+
+    /**
+     * The cross-end margin edge of the flex item is flushed with the cross-end edge of the line.
+     *
+     * MDN
+     */
+    final val flexEnd = this := "flex-end"
+
+    /**
+     * The flex item's margin box is centered within the line on the cross-axis. If the cross-size of the item
+     * is larger than the flex container, it will overflow equally in both directions.
+     *
+     * MDN
+     */
+    final val center = this := "center"
+
+    /**
+     * All flex items are aligned such that their baselines align. The item with the largest distance between its
+     * cross-start margin edge and its baseline is flushed with the cross-start edge of the line.
+     *
+     * MDN
+     */
+    final val baseline = this := "baseline"
+
+    /**
+     * Flex items are stretched such as the cross-size of the item's margin box is the same as the line while
+     * respecting width and height constraints.
+     *
+     * MDN
+     */
+    final val stretch = this := "stretch"
+
+  }
+
+
+  /**
+   * The CSS justify-content property defines how a browser distributes available space between and around elements
+   * when aligning flex items in the main-axis of the current line. The alignment is done after the lengths and auto
+   * margins are applied, meaning that, if there is at least one flexible element, with flex-grow different than 0, it
+   * will have no effect as there won't be any available space.
+   *
+   * MDN
+   */
+  object justifyContent extends Style("justifyContent", "justifyContent") {
+
+    /**
+     * The flex items are packed starting from the main-start. Margins of the first flex item is flushed with the
+     * main-start edge of the line and each following flex item is flushed with the preceding.
+     *
+     * MDN
+     */
+    final val flexStart = this := "flex-start"
+
+    /**
+     * The flex items are packed starting from the main-end. The margin edge of the last flex item is flushed with the
+     * main-end edge of the line and each preceding flex item is flushed with the following.
+     *
+     * MDN
+     */
+    final val flexEnd = this := "flex-end"
+
+    /**
+     * The flex items are packed toward the center of the line. The flex items are flushed with each other and aligned
+     * in the center of the line. Space between the main-start edge of the line and first item and between main-end
+     * and the last item of the line is the same.
+     *
+     * MDN
+     */
+    final val center = this := "center"
+
+    /**
+     * Flex items are evenly distributed along the line. The spacing is done such as the space between two adjacent
+     * items is the same. Main-start edge and main-end edge are flushed with respectively first and last flex item edges.
+     *
+     * MDN
+     */
+    final val spaceBetween = this := "space-between"
+
+    /**
+     * Flex items are evenly distributed so that the space between two adjacent items is the same. The empty space
+     * before the first and after the last items equals half of the space between two adjacent items.
+     *
+     * MDN
+     */
+    final val spaceAround = this := "space-around"
+
+  }
+
+  /**
+   * The CSS flex-direction property specifies how flex items are placed in the flex container defining the main
+   * axis and the direction (normal or reversed).
+   *
+   * Note that the value row and row-reverse are affected by the directionality of the flex container.
+   * If its dir attribute is ltr, row represents the horizontal axis oriented from the left to the right, and
+   * row-reverse from the right to the left; if the dir attribute is rtl, row represents the axis oriented from the
+   * right to the left, and row-reverse from the left to the right.
+   *
+   * MDN
+   */
+  object flexDirection extends Style("flexDirection", "flexDirection") {
+
+    /**
+     * The flex container's main-axis is the same as the block-axis.
+     * The main-start and main-end points are the same as the before and after points of the writing-mode.
+     *
+     * MDN
+     */
+    final val column = this := "column"
+
+    /**
+     * Behaves the same as column but the main-start and main-end are permuted.
+     *
+     * MDN
+     */
+    final val columnReverse = this := "column-reverse"
+
+    /**
+     * The flex container's main-axis is defined to be the same as the text direction.
+     * The main-start and main-end points are the same as the content direction.
+     *
+     * MDN
+     */
+    final val row = this := "row"
+
+    /**
+     * Behaves the same as row but the main-start and main-end points are permuted.
+     *
+     * MDN
+     */
+    final val rowReverse = this := "row-reverse"
+
+  }
 
   /**
    * The transform-origin CSS property lets you modify the origin for
