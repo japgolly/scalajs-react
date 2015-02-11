@@ -4,23 +4,23 @@ import Scalatags._
 
 object HtmlStylesMisc {
   /**
-   * A Style that takes any value of type T as a parameter and has an auto value
+   * A Style that has an auto value
    */
-  final class AutoStyle[T](jsName: String, cssName: String) extends Style(jsName, cssName) {
+  final class AutoStyle(jsName: String, cssName: String) extends Style(jsName, cssName) {
     final val auto = this := "auto"
   }
 
   /**
-   * A Style that takes any value of type T as a parameter and has an none value
+   * A Style that has an none value
    */
-  final class NoneOpenStyle[T](jsName: String, cssName: String) extends Style(jsName, cssName) {
+  final class NoneOpenStyle(jsName: String, cssName: String) extends Style(jsName, cssName) {
     final val none = this := "none"
   }
 
   /**
-   * A Style that takes any value of type T as a parameter and has an normal value
+   * A Style that has an normal value
    */
-  final class NormalOpenStyle[T](jsName: String, cssName: String) extends Style(jsName, cssName) {
+  final class NormalOpenStyle(jsName: String, cssName: String) extends Style(jsName, cssName) {
     final val normal = this := "normal"
   }
 
@@ -1425,7 +1425,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val height = new AutoStyle[String]("height", "height")
+  final val height = new AutoStyle("height", "height")
 
 
   /**
@@ -1497,7 +1497,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val right = new AutoStyle[String]("right", "right")
+  final val right = new AutoStyle("right", "right")
 
 
 
@@ -1512,7 +1512,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val lineHeight = new NormalOpenStyle[String]("lineHeight", "lineHeight")
+  final val lineHeight = new NormalOpenStyle("lineHeight", "lineHeight")
 
   /**
    * The left CSS property specifies part of the position of positioned elements.
@@ -1523,7 +1523,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val left = new AutoStyle[String]("left", "left")
+  final val left = new AutoStyle("left", "left")
 
 
 
@@ -1996,7 +1996,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val marginBottom = new AutoStyle[String]("marginBottom", "marginBottom")
+  final val marginBottom = new AutoStyle("marginBottom", "marginBottom")
 
   /**
    * The margin-right CSS property of an element sets the margin space required
@@ -2065,7 +2065,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val top = new AutoStyle[String]("top", "top")
+  final val top = new AutoStyle("top", "top")
 
 
   /**
@@ -2076,7 +2076,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val width = new AutoStyle[String]("width", "width")
+  final val width = new AutoStyle("width", "width")
 
   /**
    * The bottom CSS property participates in specifying the position of
@@ -2095,7 +2095,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val bottom = new AutoStyle[String]("bottom", "bottom")
+  final val bottom = new AutoStyle("bottom", "bottom")
 
   /**
    * The letter-spacing CSS property specifies spacing behavior between text
@@ -2103,7 +2103,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val letterSpacing = new NormalOpenStyle[String]("letterSpacing", "letterSpacing")
+  final val letterSpacing = new NormalOpenStyle("letterSpacing", "letterSpacing")
 
 
   /**
@@ -2115,7 +2115,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val maxHeight = new NoneOpenStyle[String]("maxHeight", "maxHeight")
+  final val maxHeight = new NoneOpenStyle("maxHeight", "maxHeight")
 
   /**
    * The min-width CSS property is used to set the minimum width of a given
@@ -2440,7 +2440,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val textShadow = new NoneOpenStyle[String]("textShadow", "textShadow")
+  final val textShadow = new NoneOpenStyle("textShadow", "textShadow")
 
   object visibility extends Style("visibility", "visibility") {
     /**
@@ -2519,7 +2519,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val wordSpacing = new NormalOpenStyle[String]("wordSpacing", "wordSpacing")
+  final val wordSpacing = new NormalOpenStyle("wordSpacing", "wordSpacing")
   /**
    * The z-index CSS property specifies the z-order of an element and its
    * descendants. When elements overlap, z-order determines which one covers the
@@ -2528,7 +2528,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val zIndex = new AutoStyle[Int]("zIndex", "zIndex")
+  final val zIndex = new AutoStyle("zIndex", "zIndex")
 
 
   // ==== [japgolly] Here begins Scalatags' Styles2 ====
@@ -2685,7 +2685,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val columnCount = new AutoStyle[Int]("columnCount", "columnCount")
+  final val columnCount = new AutoStyle("columnCount", "columnCount")
 
   /**
    * The column-fill CSS property controls how contents are partitioned into
@@ -2717,7 +2717,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val columnGap = new NormalOpenStyle[String]("columnGap", "columnGap")
+  final val columnGap = new NormalOpenStyle("columnGap", "columnGap")
 
   /**
    * In multi-column layouts, the column-rule CSS property specifies a straight
@@ -2766,7 +2766,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val columnWidth = new AutoStyle[String]("columnWidth", "columnWidth")
+  final val columnWidth = new AutoStyle("columnWidth", "columnWidth")
 
   /**
    * The column-rule-color CSS property lets you set the color of the rule drawn
@@ -2888,7 +2888,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val perspective = new NoneOpenStyle[String]("perspective", "perspective")
+  final val perspective = new NoneOpenStyle("perspective", "perspective")
 
   /**
    * The perspective-origin CSS property determines the position the viewer is
