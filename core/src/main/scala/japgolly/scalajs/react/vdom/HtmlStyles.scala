@@ -7,27 +7,27 @@ object HtmlStylesMisc {
    * A Style that takes any value of type T as a parameter and has an auto value
    */
   final class AutoStyle[T](jsName: String, cssName: String) extends Style(jsName, cssName) {
-    final val auto = this := "auto"
+    @inline final def auto = this := "auto"
   }
 
   /**
    * A Style that takes any value of type T as a parameter and has an none value
    */
   final class NoneOpenStyle[T](jsName: String, cssName: String) extends Style(jsName, cssName) {
-    final val none = this := "none"
+    @inline final def none = this := "none"
   }
 
   /**
    * A Style that takes any value of type T as a parameter and has an normal value
    */
   final class NormalOpenStyle[T](jsName: String, cssName: String) extends Style(jsName, cssName) {
-    final val normal = this := "normal"
+    @inline final def normal = this := "normal"
   }
 
   final class MultiImageStyle(jsName: String, cssName: String) extends Style(jsName, cssName)
 
   sealed class CurrentColor(jsName: String, cssName: String) extends Style(jsName, cssName) {
-    final val currentColor = this -> "currentColor"
+    @inline final def currentColor = this -> "currentColor"
   }
 
   sealed class OutlineStyle(jsName: String, cssName: String) extends Style(jsName, cssName) {
@@ -38,7 +38,7 @@ object HtmlStylesMisc {
      *
      * MDN
      */
-    final val dotted = this := "dotted"
+    @inline final def dotted = this := "dotted"
     /**
      * Displays a series of short square-ended dashes or line segments. The exact
      * size and Length of the segments are not defined by the specification and
@@ -46,33 +46,33 @@ object HtmlStylesMisc {
      *
      * MDN
      */
-    final val dashed = this := "dashed"
+    @inline final def dashed = this := "dashed"
     /**
      * Displays a single, straight, solid line.
      *
      * MDN
      */
-    final val solid = this := "solid"
+    @inline final def solid = this := "solid"
     /**
      * Displays two straight lines that add up to the pixel amount defined as
      * border-width or border-right-width.
      *
      * MDN
      */
-    final val double = this := "double"
+    @inline final def double = this := "double"
     /**
      * Displays a border leading to a carved effect. It is the opposite of ridge.
      *
      * MDN
      */
-    final val groove = this := "groove"
+    @inline final def groove = this := "groove"
     /**
      * Displays a border with a 3D effect, like if it is coming out of the page.
      * It is the opposite of groove.
      *
      * MDN
      */
-    final val ridge = this := "ridge"
+    @inline final def ridge = this := "ridge"
     /**
      * Displays a border that makes the box appear embedded. It is the opposite
      * of outset. When applied to a table cell with border-collapse set to
@@ -80,7 +80,7 @@ object HtmlStylesMisc {
      *
      * MDN
      */
-    final val inset = this := "inset"
+    @inline final def inset = this := "inset"
     /**
      * Displays a border that makes the box appear in 3D, embossed. It is the
      * opposite of inset. When applied to a table cell with border-collapse set
@@ -88,7 +88,7 @@ object HtmlStylesMisc {
      *
      * MDN
      */
-    final val outset = this := "outset"
+    @inline final def outset = this := "outset"
   }
 
   final class BorderStyle(jsName: String, cssName: String) extends OutlineStyle(jsName, cssName) {
@@ -102,7 +102,7 @@ object HtmlStylesMisc {
      *
      * MDN
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
     /**
      * Like for the none keyword, displays no border. In that case, except if a
      * background image is set, the calculated values of border-right-width will
@@ -112,7 +112,7 @@ object HtmlStylesMisc {
      *
      * MDN
      */
-    final val hidden = this := "hidden"
+    @inline final def hidden = this := "hidden"
 
   }
 
@@ -123,13 +123,13 @@ object HtmlStylesMisc {
      *
      * MDN
      */
-    final val visible = this := "visible"
+    @inline final def visible = this := "visible"
     /**
      * The content is clipped and no scrollbars are provided.
      *
      * MDN
      */
-    final val hidden = this := "hidden"
+    @inline final def hidden = this := "hidden"
     /**
      * The content is clipped and desktop browsers use scrollbars, whether or
      * not any content is clipped. This avoids any problem with scrollbars
@@ -138,14 +138,14 @@ object HtmlStylesMisc {
      *
      * MDN
      */
-    final val scroll = this := "scroll"
+    @inline final def scroll = this := "scroll"
     /**
      * Depends on the user agent. Desktop browsers like Firefox provide
      * scrollbars if content overflows.
      *
      * MDN
      */
-    final val auto = this := "auto"
+    @inline final def auto = this := "auto"
   }
 
   final class PageBreak(jsName: String, cssName: String) extends Style(jsName, cssName) {
@@ -154,33 +154,33 @@ object HtmlStylesMisc {
      *
      * MDN
      */
-    final val auto = this := "auto"
+    @inline final def auto = this := "auto"
     /**
      * Always force page breaks.
      *
      * MDN
      */
-    final val always = this := "always"
+    @inline final def always = this := "always"
     /**
      * Avoid page breaks.
      *
      * MDN
      */
-    final val avoid = this := "avoid"
+    @inline final def avoid = this := "avoid"
     /**
      * Force page breaks so that the next page is formatted
      * as a left page.
      *
      * MDN
      */
-    final val left = this := "left"
+    @inline final def left = this := "left"
     /**
      * Force page breaks so that the next page is formatted
      * as a right page.
      *
      * MDN
      */
-    final val right = this := "right"
+    @inline final def right = this := "right"
   }
 
 
@@ -193,14 +193,14 @@ object HtmlStylesMisc {
      *
      * MDN
      */
-    final val auto = this := "auto"
+    @inline final def auto = this := "auto"
 
   }
 
   final class BorderWidth(jsName: String, cssName: String) extends Style(jsName, cssName) {
-    final val thin = this := "thin"
-    final val medium = this := "medium"
-    final val thick = this := "thick"
+    @inline final def thin = this := "thin"
+    @inline final def medium = this := "medium"
+    @inline final def thick = this := "thick"
   }
 
   final class MultiTimeStyle(jsName: String, cssName: String) extends Style(jsName, cssName)
@@ -223,14 +223,14 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val scroll = this := "scroll"
+    @inline final def scroll = this := "scroll"
     /**
      * This keyword means that the background image will not scroll with its
      * containing element, instead remaining stationary within the viewport.
      *
      * MDN
      */
-    final val fixed = this := "fixed"
+    @inline final def fixed = this := "fixed"
     /**
      * This keyword means that the background image will not scroll with its
      * containing element, but will scroll when the element's content scrolls:
@@ -238,7 +238,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val local = this := "local"
+    @inline final def local = this := "local"
   }
 
 
@@ -301,20 +301,20 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val `border-box` = this := "border-box"
+    @inline final def `border-box` = this := "border-box"
     /**
      * No background is drawn below the border (background extends to the
      * outside edge of the padding).
      *
      * MDN
      */
-    final val `padding-box` = this := "border-box"
+    @inline final def `padding-box` = this := "border-box"
     /**
      * The background is painted within (clipped to) the content box.
      *
      * MDN
      */
-    final val `content-box` = this := "content-box"
+    @inline final def `content-box` = this := "content-box"
   }
 
   /**
@@ -334,20 +334,20 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val `border-box` = this := "border-box"
+    @inline final def `border-box` = this := "border-box"
     /**
      * No background is drawn below the border (background extends to the
      * outside edge of the padding).
      *
      * MDN
      */
-    final val `padding-box` = this := "padding-box"
+    @inline final def `padding-box` = this := "padding-box"
     /**
      * The background is painted within (clipped to) the content box.
      *
      * MDN
      */
-    final val `content-box` = this := "content-box"
+    @inline final def `content-box` = this := "content-box"
   }
   /**
    * The background-size CSS property specifies the size of the background
@@ -363,7 +363,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val auto = this := "auto"
+    @inline final def auto = this := "auto"
     /**
      * This keyword specifies that the background image should be scaled to be
      * as small as possible while ensuring both its dimensions are greater than
@@ -372,7 +372,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val cover = this := "cover"
+    @inline final def cover = this := "cover"
     /**
      * This keyword specifies that the background image should be scaled to be
      * as large as possible while ensuring both its dimensions are less than or
@@ -380,7 +380,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val contain = this := "contain"
+    @inline final def contain = this := "contain"
   }
   /**
    * The CSS background-image property sets one or several background images for
@@ -521,14 +521,14 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val separate = this := "separate"
+    @inline final def separate = this := "separate"
     /**
      * Is a keyword requesting the use of the collapsed-border table rendering
      * model.
      *
      * MDN
      */
-    final val collapse = this := "collapse"
+    @inline final def collapse = this := "collapse"
   }
   /**
    * The border-left CSS property is a shorthand that sets the values of
@@ -660,7 +660,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val `content-box` = this := "content-box"
+    @inline final def `content-box` = this := "content-box"
     /**
      * The width and height properties include the padding and border, but not
      * the margin. This is the box model used by Internet Explorer when the
@@ -668,7 +668,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val `border-box` = this := "border-box"
+    @inline final def `border-box` = this := "border-box"
   }
 
   /**
@@ -680,22 +680,22 @@ trait HtmlStyles {
    * MDN
    */
   object color extends CurrentColor("color", "color"){
-    final val black = this := "black"
-    final val silver = this := "silver"
-    final val gray = this := "gray"
-    final val white = this := "white"
-    final val maroon = this := "maroon"
-    final val red = this := "red"
-    final val purple = this := "purple"
-    final val fuschia = this := "fuschia"
-    final val green = this := "green"
-    final val lime = this := "lime"
-    final val olive = this := "olive"
-    final val yellow = this := "yellow"
-    final val navy = this := "navy"
-    final val blue = this := "blue"
-    final val teal = this := "teal"
-    final val aqua = this := "aqua"
+    @inline final def black = this := "black"
+    @inline final def silver = this := "silver"
+    @inline final def gray = this := "gray"
+    @inline final def white = this := "white"
+    @inline final def maroon = this := "maroon"
+    @inline final def red = this := "red"
+    @inline final def purple = this := "purple"
+    @inline final def fuschia = this := "fuschia"
+    @inline final def green = this := "green"
+    @inline final def lime = this := "lime"
+    @inline final def olive = this := "olive"
+    @inline final def yellow = this := "yellow"
+    @inline final def navy = this := "navy"
+    @inline final def blue = this := "blue"
+    @inline final def teal = this := "teal"
+    @inline final def aqua = this := "aqua"
   }
 
 
@@ -728,202 +728,202 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val auto = this := "auto"
+    @inline final def auto = this := "auto"
     /**
      * Default cursor, typically an arrow.
      *
      * MDN
      */
-    final val default = this := "default"
+    @inline final def default = this := "default"
     /**
      * No cursor is rendered.
      *
      * MDN
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
     /**
      * A context menu is available under the cursor.
      *
      * MDN
      */
-    final val `context-menu` = this := "context-menu"
+    @inline final def `context-menu` = this := "context-menu"
     /**
      * Indicating help is available.
      *
      * MDN
      */
-    final val help = this := "help"
+    @inline final def help = this := "help"
     /**
      * E.g. used when hovering over links, typically a hand.
      *
      * MDN
      */
-    final val pointer = this := "pointer"
+    @inline final def pointer = this := "pointer"
     /**
      * The program is busy in the background but the user can still interact
      * with the interface (unlike for wait).
      *
      * MDN
      */
-    final val progress = this := "progress"
+    @inline final def progress = this := "progress"
     /**
      * The program is busy (sometimes an hourglass or a watch).
      *
      * MDN
      */
-    final val cssWait = this := "wait"
+    @inline final def cssWait = this := "wait"
     /**
      * Indicating that cells can be selected.
      *
      * MDN
      */
-    final val cell = this := "cell"
+    @inline final def cell = this := "cell"
     /**
      * Cross cursor, often used to indicate selection in a bitmap.
      *
      * MDN
      */
-    final val crosshair = this := "crosshair"
+    @inline final def crosshair = this := "crosshair"
     /**
      * Indicating text can be selected, typically an I-beam.
      *
      * MDN
      */
-    final val text = this := "text"
+    @inline final def text = this := "text"
     /**
      * Indicating that vertical text can be selected, typically a sideways I-beam
      *
      * MDN
      */
-    final val `vertical-text` = this := "vertical-text"
+    @inline final def `vertical-text` = this := "vertical-text"
     /**
      * Indicating an alias or shortcut is to be created.
      *
      * MDN
      */
-    final val alias = this := "alias"
+    @inline final def alias = this := "alias"
     /**
      * Indicating that something can be copied
      *
      * MDN
      */
-    final val copy = this := "copy"
+    @inline final def copy = this := "copy"
     /**
      * The hoevered object may be moved.
      *
      * MDN
      */
-    final val move = this := "move"
+    @inline final def move = this := "move"
     /**
      * Cursor showing that a drop is not allowed at the current location.
      *
      * MDN
      */
-    final val `no-drop` = this := "no-drop"
+    @inline final def `no-drop` = this := "no-drop"
     /**
      * Cursor showing that something cannot be done.
      *
      * MDN
      */
-    final val `not-allowed` = this := "not-allowed"
+    @inline final def `not-allowed` = this := "not-allowed"
     /**
      * Cursor showing that something can be scrolled in any direction (panned).
      *
      * MDN
      */
-    final val `all-scroll` = this := "all-scroll"
+    @inline final def `all-scroll` = this := "all-scroll"
     /**
      * The item/column can be resized horizontally. Often rendered as arrows
      * pointing left and right with a vertical separating.
      *
      * MDN
      */
-    final val `col-resize` = this := "col-resize"
+    @inline final def `col-resize` = this := "col-resize"
     /**
      * The item/row can be resized vertically. Often rendered as arrows pointing
      * up and down with a horizontal bar separating them.
      *
      * MDN
      */
-    final val `row-resize` = this := "row-resize"
+    @inline final def `row-resize` = this := "row-resize"
     /**
      * The top edge is to be moved.
      *
      * MDN
      */
-    final val `n-resize` = this := "n-resize"
+    @inline final def `n-resize` = this := "n-resize"
     /**
      * The right edge is to be moved.
      *
      * MDN
      */
-    final val `e-resize` = this := "e-resize"
+    @inline final def `e-resize` = this := "e-resize"
     /**
      * The bottom edge is to be moved.
      *
      * MDN
      */
-    final val `s-resize` = this := "s-resize"
+    @inline final def `s-resize` = this := "s-resize"
     /**
      * The left edge is to be moved.
      *
      * MDN
      */
-    final val `w-resize` = this := "w-resize"
+    @inline final def `w-resize` = this := "w-resize"
     /**
      * The top-right corner is to be moved.
      *
      * MDN
      */
-    final val `ne-resize` = this := "ne-resize"
+    @inline final def `ne-resize` = this := "ne-resize"
     /**
      * The top-left corner is to be moved.
      *
      * MDN
      */
-    final val `nw-resize` = this := "nw-resize"
+    @inline final def `nw-resize` = this := "nw-resize"
     /**
      * The bottom-right corner is to be moved.
      *
      * MDN
      */
-    final val `se-resize` = this := "se-resize"
+    @inline final def `se-resize` = this := "se-resize"
     /**
      * The bottom-left corner is to be moved.
      *
      * MDN
      */
-    final val `sw-resize` = this := "sw-resize"
+    @inline final def `sw-resize` = this := "sw-resize"
 
-    final val `ew-resize` = this := "ew-resize"
-    final val `ns-resize` = this := "ns-resize"
-    final val `nesw-resize` = this := "nesw-resize"
-    final val `nwse-resize` = this := "nwse-resize"
+    @inline final def `ew-resize` = this := "ew-resize"
+    @inline final def `ns-resize` = this := "ns-resize"
+    @inline final def `nesw-resize` = this := "nesw-resize"
+    @inline final def `nwse-resize` = this := "nwse-resize"
 
     /**
      * Indicates that something can be zoomed (magnified) in.
      *
      * MDN
      */
-    final val `zoom-in` = this := "zoom-in"
+    @inline final def `zoom-in` = this := "zoom-in"
     /**
      * Indicates that something can be zoomed (magnified) out.
      *
      * MDN
      */
-    final val `zoom-out` = this := "zoom-out"
+    @inline final def `zoom-out` = this := "zoom-out"
     /**
      * Indicates that something can be grabbed (dragged to be moved).
      *
      * MDN
      */
-    final val grab = this := "grab"
+    @inline final def grab = this := "grab"
     /**
      * Indicates that something can be grabbed (dragged to be moved).
      *
      * MDN
      */
-    final val grabbing = this := "grabbing"
+    @inline final def grabbing = this := "grabbing"
   }
 
 
@@ -942,20 +942,20 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val left = this := "left"
+    @inline final def left = this := "left"
     /**
      * Is a keyword indicating that the element must float on the right side of
      * its containing block.
      *
      * MDN
      */
-    final val right = this := "right"
+    @inline final def right = this := "right"
     /**
      * Is a keyword indicating that the element must not float
      *
      * MDN
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
   }
 
 
@@ -987,13 +987,13 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val ltr = this := "ltr"
+    @inline final def ltr = this := "ltr"
     /**
      * Text and other elements go from right to left
      *
      * MDN
      */
-    final val rtl = this := "rtl"
+    @inline final def rtl = this := "rtl"
   }
 
   /**
@@ -1020,33 +1020,33 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
     /**
      * The element generates one or more inline element boxes.
      *
      * MDN
      */
-    final val inline = this := "inline"
+    @inline final def inline = this := "inline"
     /**
      * The element generates a block element box.
      *
      * MDN
      */
-    final val block = this := "block"
+    @inline final def block = this := "block"
     /**
      * The element generates a block box for the content and a separate
      * list-item inline box.
      *
      * MDN
      */
-    final val `list-item` = this := "list-item"
+    @inline final def `list-item` = this := "list-item"
     /**
      * The element generates a block element box that will be flowed with
      * surrounding content as if it were a single inline box.
      *
      * MDN
      */
-    final val `inline-block` = this := "inline-block"
+    @inline final def `inline-block` = this := "inline-block"
     /**
      * The inline-table value does not have a direct mapping in HTML. It behaves
      * like a table HTML element, but as an inline box, rather than a
@@ -1054,75 +1054,75 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val `inline-table` = this := "inline-table"
+    @inline final def `inline-table` = this := "inline-table"
     /**
      * Behaves like the table HTML element. It defines a block-level box.
      *
      * MDN
      */
-    final val table = this := "table"
+    @inline final def table = this := "table"
     /**
      * Behaves like the caption HTML element.
      *
      * MDN
      */
-    final val `table-caption` = this := "table-caption"
+    @inline final def `table-caption` = this := "table-caption"
     /**
      * Behaves like the td HTML element
      *
      * MDN
      */
-    final val `table-cell` = this := "table-cell"
+    @inline final def `table-cell` = this := "table-cell"
     /**
      * These elements behave like the corresponding col HTML elements.
      *
      * MDN
      */
-    final val `table-column` = this := "table-column"
+    @inline final def `table-column` = this := "table-column"
     /**
      * These elements behave like the corresponding colgroup HTML elements.
      *
      * MDN
      */
-    final val `table-column-group` = this := "table-column-group"
+    @inline final def `table-column-group` = this := "table-column-group"
     /**
      * These elements behave like the corresponding tfoot HTML elements
      *
      * MDN
      */
-    final val `table-footer-group` = this := "table-footer-group"
+    @inline final def `table-footer-group` = this := "table-footer-group"
     /**
      * These elements behave like the corresponding thead HTML elements
      *
      * MDN
      */
-    final val `table-header-group` = this := "table-header-group"
+    @inline final def `table-header-group` = this := "table-header-group"
     /**
      * Behaves like the tr HTML element
      *
      * MDN
      */
-    final val `table-row` = this := "table-row"
+    @inline final def `table-row` = this := "table-row"
     /**
      * These elements behave like the corresponding tbody HTML elements
      *
      * MDN
      */
-    final val `table-row-group` = this := "table-row-group"
+    @inline final def `table-row-group` = this := "table-row-group"
     /**
      * The element behaves like a block element and lays out its content according
      * to the flexbox model.
      *
      * MDN
      */
-    final val flex = this := "flex"
+    @inline final def flex = this := "flex"
     /**
      * The element behaves like an inline element and lays out its content
      * according to the flexbox model.
      *
      * MDN
      */
-    final val `inline-flex` = this := "inline-flex"
+    @inline final def `inline-flex` = this := "inline-flex"
   }
 
 
@@ -1147,7 +1147,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val auto = this := "auto"
+    @inline final def auto = this := "auto"
     /**
      * The element is never the target of mouse events; however, mouse events
      * may target its descendant elements if those descendants have pointer-events
@@ -1157,7 +1157,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * visibility property is set to visible and when the mouse cursor is over
@@ -1168,7 +1168,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val visiblePainted = this := "visiblePainted"
+    @inline final def visiblePainted = this := "visiblePainted"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * visibility property is set to visible and when the mouse cursor is over
@@ -1177,7 +1177,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val visibleFill = this := "visibleFill"
+    @inline final def visibleFill = this := "visibleFill"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * visibility property is set to visible and when the mouse cursor is over
@@ -1186,7 +1186,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val visibleStroke = this := "visibleStroke"
+    @inline final def visibleStroke = this := "visibleStroke"
     /**
      * SVG only. The element can be the target of a mouse event when the
      * visibility property is set to visible and the mouse cursor is over either
@@ -1195,7 +1195,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val visible = this := "visible"
+    @inline final def visible = this := "visible"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * mouse cursor is over the interior (i.e., 'fill') of the element and the
@@ -1206,7 +1206,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val painted = this := "painted"
+    @inline final def painted = this := "painted"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * pointer is over the interior (i.e., fill) of the element. The values of
@@ -1214,7 +1214,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val fill = this := "fill"
+    @inline final def fill = this := "fill"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * pointer is over the perimeter (i.e., stroke) of the element. The values
@@ -1222,7 +1222,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val stroke = this := "stroke"
+    @inline final def stroke = this := "stroke"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * pointer is over the interior (i.e., fill) or the perimeter (i.e., stroke)
@@ -1231,7 +1231,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val all = this := "all"
+    @inline final def all = this := "all"
   }
 
 
@@ -1261,14 +1261,14 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val outside = this := "outside"
+    @inline final def outside = this := "outside"
     /**
      * The marker box is the first inline box in the principal block box, after
      * which the element's content flows.
      *
      * MDN
      */
-    final val inside = this := "inside"
+    @inline final def inside = this := "inside"
   }
 
   object wordWrap extends Style("wordWrap", "wordWrap") {
@@ -1277,14 +1277,14 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val normal = this := "normal"
+    @inline final def normal = this := "normal"
     /**
      * Indicates that normally unbreakable words may be broken at arbitrary
      * points if there are no otherwise acceptable break points in the line.
      *
      * MDN
      */
-    final val `break-word` = this := "break-word"
+    @inline final def `break-word` = this := "break-word"
   }
 
 
@@ -1333,41 +1333,41 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val baseline = this := "baseline"
+    @inline final def baseline = this := "baseline"
     /**
      * Aligns the baseline of the element with the subscript-baseline of its
      * parent.
      *
      * MDN
      */
-    final val sub = this := "sub"
+    @inline final def sub = this := "sub"
     /**
      * Aligns the baseline of the element with the superscript-baseline of its
      * parent.
      *
      * MDN
      */
-    final val `super` = this := "super"
+    @inline final def `super` = this := "super"
     /**
      * Aligns the top of the element with the top of the parent element's font.
      *
      * MDN
      */
-    final val `text-top` = this := "text-top"
+    @inline final def `text-top` = this := "text-top"
     /**
      * Aligns the bottom of the element with the bottom of the parent element's
      * font.
      *
      * MDN
      */
-    final val `text-bottom` = this := "text-bottom"
+    @inline final def `text-bottom` = this := "text-bottom"
     /**
      * Aligns the middle of the element with the middle of lowercase letters in
      * the parent.
      *
      * MDN
      */
-    final val middle = this := "middle"
+    @inline final def middle = this := "middle"
   }
 
 
@@ -1386,7 +1386,7 @@ trait HtmlStyles {
    * MDN
    */
   object mask extends Style("mask", "mask") {
-    final val none = this := "none"
+    @inline final def none = this := "none"
 
     def uri(s: String) = this := s"uri($s)"
   }
@@ -1406,13 +1406,13 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val show = this := "show"
+    @inline final def show = this := "show"
     /**
      * Is a keyword indicating that no border or backgrounds should be drawn.
      *
      * MDN
      */
-    final val hide = this := "hide"
+    @inline final def hide = this := "hide"
   }
 
 
@@ -1544,109 +1544,109 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
     /**
      * A filled circle (default value)
      *
      * MDN
      */
-    final val disc = this := "disc"
+    @inline final def disc = this := "disc"
     /**
      * A hollow circle
      *
      * MDN
      */
-    final val circle = this := "circle"
+    @inline final def circle = this := "circle"
     /**
      * A filled square
      *
      * MDN
      */
-    final val square = this := "square"
+    @inline final def square = this := "square"
     /**
      * Decimal numbers begining with 1
      *
      * MDN
      */
-    final val decimal = this := "decimal"
+    @inline final def decimal = this := "decimal"
     /**
      * Han decimal numbers
      *
      * MDN
      */
-    final val `cjk-decimal` = this := "cjk-decimal"
+    @inline final def `cjk-decimal` = this := "cjk-decimal"
     /**
      * Decimal numbers padded by initial zeros
      *
      * MDN
      */
-    final val `decimal-leading-zero` = this := "decimal-leading-zero"
+    @inline final def `decimal-leading-zero` = this := "decimal-leading-zero"
     /**
      * Lowercase roman numerals
      *
      * MDN
      */
-    final val `lower-roman` = this := "lower-roman"
+    @inline final def `lower-roman` = this := "lower-roman"
     /**
      * Uppercase roman numerals
      *
      * MDN
      */
-    final val `upper-roman` = this := "upper-roman"
+    @inline final def `upper-roman` = this := "upper-roman"
     /**
      * Lowercase classical greek
      *
      * MDN
      */
-    final val `lower-greek` = this := "lower-greek"
+    @inline final def `lower-greek` = this := "lower-greek"
     /**
      * Lowercase ASCII letters
      *
      * MDN
      */
-    final val `lower-alpha` = this := "lower-alpha"
+    @inline final def `lower-alpha` = this := "lower-alpha"
     /**
      * Lowercase ASCII letters
      *
      * MDN
      */
-    final val `lower-latin` = this := "lower-latin"
+    @inline final def `lower-latin` = this := "lower-latin"
     /**
      * Uppercase ASCII letters
      *
      * MDN
      */
-    final val `upper-alpha` = this := "upper-alpha"
+    @inline final def `upper-alpha` = this := "upper-alpha"
     /**
      * Uppercase ASCII letters
      *
      * MDN
      */
-    final val `upper-latin` = this := "upper-latin"
+    @inline final def `upper-latin` = this := "upper-latin"
     /**
      * Traditional Armenian numbering
      *
      * MDN
      */
-    final val armenian = this := "armenian"
+    @inline final def armenian = this := "armenian"
     /**
      * Traditional Georgian numbering
      *
      * MDN
      */
-    final val georgian = this := "georgian"
+    @inline final def georgian = this := "georgian"
     /**
      * Traditional Hebrew numbering
      *
      * MDN
      */
-    final val hebrew = this := "hebrew"
+    @inline final def hebrew = this := "hebrew"
     /**
      * Japanese Hiragana
      *
      * MDN
      */
-    final val hiragana = this := "hiragana"
+    @inline final def hiragana = this := "hiragana"
     /**
      * Japanese Hiragana
      *
@@ -1654,13 +1654,13 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val `hiragana-iroha` = this := "hiragana-iroha"
+    @inline final def `hiragana-iroha` = this := "hiragana-iroha"
     /**
      * Japanese Katakana
      *
      * MDN
      */
-    final val katakana = this := "katakana"
+    @inline final def katakana = this := "katakana"
     /**
      * Japanese Katakana
      *
@@ -1668,7 +1668,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val `katakana-iroha` = this := "katakana-iroha"
+    @inline final def `katakana-iroha` = this := "katakana-iroha"
   }
 
 
@@ -1702,13 +1702,13 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val top = this := "top"
+    @inline final def top = this := "top"
     /**
      * The caption box will be below the table.
      *
      * MDN
      */
-    final val bottom = this := "bottom"
+    @inline final def bottom = this := "bottom"
   }
 
   /**
@@ -1738,7 +1738,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val static = this := "static"
+    @inline final def static = this := "static"
     /**
      * This keyword lays out all elements as though the element were not
      * positioned, and then adjust the element's position, without changing
@@ -1749,7 +1749,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val relative = this := "relative"
+    @inline final def relative = this := "relative"
     /**
      * Do not leave space for the element. Instead, position it at a specified
      * position relative to its closest positioned ancestor or to the containing
@@ -1758,7 +1758,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val absolute = this := "absolute"
+    @inline final def absolute = this := "absolute"
     /**
      * Do not leave space for the element. Instead, position it at a specified
      * position relative to the screen's viewport and doesn't move when scrolled.
@@ -1766,7 +1766,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val fixed = this := "fixed"
+    @inline final def fixed = this := "fixed"
   }
 
 
@@ -1777,7 +1777,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
 
     def ~(pairs: (String, String)*) = {
       this := pairs.flatMap(x => Seq(x._1, x._2)).map('"' + _ + '"').mkString(" ")
@@ -1793,7 +1793,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val auto = this := "auto"
+    @inline final def auto = this := "auto"
     /**
      * Table and column widths are set by the widths of table and col elements
      * or by the width of the first row of cells. Cells in subsequent rows do
@@ -1801,7 +1801,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val fixed = this := "fixed"
+    @inline final def fixed = this := "fixed"
   }
 
 
@@ -1814,27 +1814,27 @@ trait HtmlStyles {
    * MDN
    */
   object fontSize extends Style("fontSize", "fontSize") {
-    final val `xx-small` = this := "xx-small"
-    final val `x-small` = this := "x-small"
-    final val small = this := "small"
-    final val medium = this := "medium"
-    final val large = this := "large"
-    final val `x-large` = this := "x-large"
-    final val `xx-large` = this := "xx-large"
+    @inline final def `xx-small` = this := "xx-small"
+    @inline final def `x-small` = this := "x-small"
+    @inline final def small = this := "small"
+    @inline final def medium = this := "medium"
+    @inline final def large = this := "large"
+    @inline final def `x-large` = this := "x-large"
+    @inline final def `xx-large` = this := "xx-large"
     /**
      * Larger than the parent element's font size, by roughly the ratio used to
      * separate the absolute size keywords above.
      *
      * MDN
      */
-    final val larger = this := "larger"
+    @inline final def larger = this := "larger"
     /**
      * Smaller than the parent element's font size, by roughly the ratio used to
      * separate the absolute size keywords above.
      *
      * MDN
      */
-    final val smaller = this := "smaller"
+    @inline final def smaller = this := "smaller"
   }
 
 
@@ -1887,27 +1887,27 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val normal = this := "normal"
+    @inline final def normal = this := "normal"
     /**
      * Bold font weight. Same as 700.
      *
      * MDN
      */
-    final val bold = this := "bold"
+    @inline final def bold = this := "bold"
     /**
      * One font weight lighter than the parent element (among the available
      * weights of the font).
      *
      * MDN
      */
-    final val lighter = this := "lighter"
+    @inline final def lighter = this := "lighter"
     /**
      * One font weight darker than the parent element (among the available
      * weights of the font)
      *
      * MDN
      */
-    final val bolder = this := "bolder"
+    @inline final def bolder = this := "bolder"
 
   }
 
@@ -1940,19 +1940,19 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val normal = this := "normal"
+    @inline final def normal = this := "normal"
     /**
      * Selects a font that is labeled italic, if that is not available, one labeled oblique
      *
      * MDN
      */
-    final val italic = this := "italic"
+    @inline final def italic = this := "italic"
     /**
      * Selects a font that is labeled oblique
      *
      * MDN
      */
-    final val oblique = this := "oblique"
+    @inline final def oblique = this := "oblique"
   }
 
   /**
@@ -1969,25 +1969,25 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
     /**
      * The element is moved down to clear past left floats.
      *
      * MDN
      */
-    final val left = this := "left"
+    @inline final def left = this := "left"
     /**
      * The element is moved down to clear past right floats.
      *
      * MDN
      */
-    final val right = this := "right"
+    @inline final def right = this := "right"
     /**
      * The element is moved down to clear past both left and right floats.
      *
      * MDN
      */
-    final val both = this := "both"
+    @inline final def both = this := "both"
   }
 
   /**
@@ -2043,7 +2043,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val auto = this := "auto"
+    @inline final def auto = this := "auto"
 
   }
 
@@ -2175,19 +2175,19 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val thin = this := "thin"
+    @inline final def thin = this := "thin"
     /**
      * Typically 3px in desktop browsers like Firefox.
      *
      * MDN
      */
-    final val medium = this := "medium"
+    @inline final def medium = this := "medium"
     /**
      * Typically 5px in desktop browsers like Firefox.
      *
      * MDN
      */
-    final val thick = this := "thick"
+    @inline final def thick = this := "thick"
   }
 
   /**
@@ -2206,7 +2206,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val invert = this := "invert"
+    @inline final def invert = this := "invert"
   }
 
 
@@ -2234,39 +2234,39 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val start = this := "start"
+    @inline final def start = this := "start"
     /**
      * The same as right if direction is left-to-right and left if direction is
      * right-to-left.
      *
      * MDN
      */
-    final val end = this := "end"
+    @inline final def end = this := "end"
     /**
      * The inline contents are aligned to the left edge of the line box.
      *
      * MDN
      */
-    final val left = this := "left"
+    @inline final def left = this := "left"
     /**
      * The inline contents are aligned to the right edge of the line box.
      *
      * MDN
      */
-    final val right = this := "right"
+    @inline final def right = this := "right"
     /**
      * The inline contents are centered within the line box.
      *
      * MDN
      */
-    final val center = this := "center"
+    @inline final def center = this := "center"
     /**
      * The text is justified. Text should line up their left and right edges to
      * the left and right content edges of the paragraph.
      *
      * MDN
      */
-    final val justify = this := "justify"
+    @inline final def justify = this := "justify"
   }
   /**
    * The text-align CSS property describes how inline content like text is
@@ -2288,25 +2288,25 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
     /**
      * Each line of text is underlined.
      *
      * MDN
      */
-    final val underline = this := "underline"
+    @inline final def underline = this := "underline"
     /**
      * Each line of text has a line above it.
      *
      * MDN
      */
-    final val overline = this := "overline"
+    @inline final def overline = this := "overline"
     /**
      * Each line of text has a line through the middle.
      *
      * MDN
      */
-    final val `line-through` = this := "line-through"
+    @inline final def `line-through` = this := "line-through"
   }
 
   /**
@@ -2336,7 +2336,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val clip = this := "clip"
+    @inline final def clip = this := "clip"
     /**
      * This keyword value indicates to display an ellipsis ('…', U+2026 HORIZONTAL
      * ELLIPSIS) to represent clipped text. The ellipsis is displayed inside the
@@ -2345,7 +2345,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val ellipsis = this := "ellipsis"
+    @inline final def ellipsis = this := "ellipsis"
   }
   /**
    * The CSS text-underline-position property specifies the position of the
@@ -2363,7 +2363,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val auto = this := "auto"
+    @inline final def auto = this := "auto"
     /**
      * This keyword forces the line to be set below the alphabetic baseline, at
      * a position where it won't cross any descender. This is useful to prevent
@@ -2372,7 +2372,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val under = this := "under"
+    @inline final def under = this := "under"
     /**
      * In vertical writing-modes, this keyword forces the line to be placed on
      * the left of the characters. In horizontal writing-modes, it is a synonym
@@ -2380,7 +2380,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val left = this := "left"
+    @inline final def left = this := "left"
     /**
      * In vertical writing-modes, this keyword forces the line to be placed on
      * the right of the characters. In horizontal writing-modes, it is a synonym
@@ -2388,9 +2388,9 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val right = this := "right"
-    final val `under left` = this := "under left"
-    final val `under right` = this := "under right"
+    @inline final def right = this := "right"
+    @inline final def `under left` = this := "under left"
+    @inline final def `under right` = this := "under right"
   }
   /**
    * The text-transform CSS property specifies how to capitalize an element's
@@ -2406,25 +2406,25 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val capitalize = this := "capitalize"
+    @inline final def capitalize = this := "capitalize"
     /**
      * Forces all characters to be converted to uppercase.
      *
      * MDN
      */
-    final val uppercase = this := "uppercase"
+    @inline final def uppercase = this := "uppercase"
     /**
      * Forces all characters to be converted to lowercase.
      *
      * MDN
      */
-    final val lowercase = this := "lowercase"
+    @inline final def lowercase = this := "lowercase"
     /**
      * Prevents the case of all characters from being changed
      *
      * MDN
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
   }
 
 
@@ -2448,7 +2448,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val visible = this := "visible"
+    @inline final def visible = this := "visible"
     /**
      * The box is invisible (fully transparent, nothing is drawn), but still
      * affects layout.  Descendants of the element will be visible if they have
@@ -2456,7 +2456,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val hidden = this := "hidden"
+    @inline final def hidden = this := "hidden"
     /**
      * For table rows, columns, column groups, and row groups the row(s) or
      * column(s) are hidden and the space they would have occupied is (as if
@@ -2464,7 +2464,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val collapse = this := "collapse"
+    @inline final def collapse = this := "collapse"
   }
 
 
@@ -2483,35 +2483,35 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val normal = this := "normal"
+    @inline final def normal = this := "normal"
     /**
      * Collapses whitespace as for normal, but suppresses line breaks (text
      * wrapping) within text.
      *
      * MDN
      */
-    final val nowrap = this := "nowrap"
+    @inline final def nowrap = this := "nowrap"
     /**
      * Sequences of whitespace are preserved, lines are only broken at newline
      * characters in the source and at br elements.
      *
      * MDN
      */
-    final val pre = this := "pre"
+    @inline final def pre = this := "pre"
     /**
      * Sequences of whitespace are preserved. Lines are broken at newline
      * characters, at br, and as necessary to fill line boxes.
      *
      * MDN
      */
-    final val `pre-wrap` = this := "pre-wrap"
+    @inline final def `pre-wrap` = this := "pre-wrap"
     /**
      * Sequences of whitespace are collapsed. Lines are broken at newline
      * characters, at br, and as necessary to fill line boxes.
      *
      * MDN
      */
-    final val `pre-line` = this := "pre-line"
+    @inline final def `pre-line` = this := "pre-line"
   }
   /**
    * The word-spacing CSS property specifies spacing behavior between tags and
@@ -2659,13 +2659,13 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val visible = this := "visible"
+    @inline final def visible = this := "visible"
     /**
      * The back face is not visible.
      *
      * MDN
      */
-    final val hidden = this := "hidden"
+    @inline final def hidden = this := "hidden"
   }
 
 
@@ -2701,14 +2701,14 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val auto = this := "auto"
+    @inline final def auto = this := "auto"
 
     /**
      * Is a keyword indicating that content is equally divided between columns.
      *
      * MDN
      */
-    final val balance = this := "balance"
+    @inline final def balance = this := "balance"
   }
 
   /**
@@ -2742,7 +2742,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
     /**
      * The element spans across all columns. Content in the normal flow that
      * appears before the element is automatically balanced across all columns
@@ -2751,7 +2751,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val all = this := "all"
+    @inline final def all = this := "all"
   }
 
 
@@ -2783,9 +2783,9 @@ trait HtmlStyles {
    * MDN
    */
   object columnRuleWidth extends Style("columnRuleWidth", "columnRuleWidth") {
-    final val thin = this := "thin"
-    final val medium = this := "medium"
-    final val thick = this := "thick"
+    @inline final def thin = this := "thin"
+    @inline final def medium = this := "medium"
+    @inline final def thick = this := "thick"
   }
 
   /**
@@ -2796,7 +2796,7 @@ trait HtmlStyles {
    */
   object columnRuleStyle
     extends OutlineStyle("columnRuleStyle", "columnRuleStyle"){
-    final val hidden = this := "hidden"
+    @inline final def hidden = this := "hidden"
   }
 
 
@@ -3025,7 +3025,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val nowrap = this := "nowrap"
+    @inline final def nowrap = this := "nowrap"
 
     /**
      * The flex items break into multiple lines. The cross-start is either equivalent to start or before depending
@@ -3033,14 +3033,14 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val wrap = this := "wrap"
+    @inline final def wrap = this := "wrap"
 
     /**
      * Behaves the same as wrap but cross-start and cross-end are permuted.
      *
      * MDN
      */
-    final val wrapReverse = this := "wrapReverse"
+    @inline final def wrapReverse = this := "wrapReverse"
 
   }
 
@@ -3057,14 +3057,14 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val flexStart = this := "flex-start"
+    @inline final def flexStart = this := "flex-start"
 
     /**
      * The cross-end margin edge of the flex item is flushed with the cross-end edge of the line.
      *
      * MDN
      */
-    final val flexEnd = this := "flex-end"
+    @inline final def flexEnd = this := "flex-end"
 
     /**
      * The flex item's margin box is centered within the line on the cross-axis. If the cross-size of the item
@@ -3072,7 +3072,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val center = this := "center"
+    @inline final def center = this := "center"
 
     /**
      * All flex items are aligned such that their baselines align. The item with the largest distance between its
@@ -3080,7 +3080,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val baseline = this := "baseline"
+    @inline final def baseline = this := "baseline"
 
     /**
      * Flex items are stretched such as the cross-size of the item's margin box is the same as the line while
@@ -3088,7 +3088,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val stretch = this := "stretch"
+    @inline final def stretch = this := "stretch"
 
   }
 
@@ -3109,7 +3109,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val flexStart = this := "flex-start"
+    @inline final def flexStart = this := "flex-start"
 
     /**
      * The flex items are packed starting from the main-end. The margin edge of the last flex item is flushed with the
@@ -3117,7 +3117,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val flexEnd = this := "flex-end"
+    @inline final def flexEnd = this := "flex-end"
 
     /**
      * The flex items are packed toward the center of the line. The flex items are flushed with each other and aligned
@@ -3126,7 +3126,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val center = this := "center"
+    @inline final def center = this := "center"
 
     /**
      * Flex items are evenly distributed along the line. The spacing is done such as the space between two adjacent
@@ -3134,7 +3134,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val spaceBetween = this := "space-between"
+    @inline final def spaceBetween = this := "space-between"
 
     /**
      * Flex items are evenly distributed so that the space between two adjacent items is the same. The empty space
@@ -3142,7 +3142,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val spaceAround = this := "space-around"
+    @inline final def spaceAround = this := "space-around"
 
   }
 
@@ -3165,14 +3165,14 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val column = this := "column"
+    @inline final def column = this := "column"
 
     /**
      * Behaves the same as column but the main-start and main-end are permuted.
      *
      * MDN
      */
-    final val columnReverse = this := "column-reverse"
+    @inline final def columnReverse = this := "column-reverse"
 
     /**
      * The flex container's main-axis is defined to be the same as the text direction.
@@ -3180,14 +3180,14 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val row = this := "row"
+    @inline final def row = this := "row"
 
     /**
      * Behaves the same as row but the main-start and main-end points are permuted.
      *
      * MDN
      */
-    final val rowReverse = this := "row-reverse"
+    @inline final def rowReverse = this := "row-reverse"
 
   }
 
@@ -3216,14 +3216,14 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val `preserve-3d` = this := "preserve-3d"
+    @inline final def `preserve-3d` = this := "preserve-3d"
     /**
      * Indicates that the children of the element are lying in the plane of the
      * element itself.
      *
      * MDN
      */
-    final val flat = this := "flat"
+    @inline final def flat = this := "flat"
   }
 
   /**
@@ -3244,7 +3244,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val normal = this := "normal"
+    @inline final def normal = this := "normal"
     /**
      * If the element is inline, this value opens an additional level of
      * embedding with respect to the bidirectional algorithm. The direction of
@@ -3252,7 +3252,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val embed = this := "embed"
+    @inline final def embed = this := "embed"
     /**
      * For inline elements this creates an override. For block container elements
      * this creates an override for inline-level descendants not within another
@@ -3262,7 +3262,7 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val `bidi-override` = this := "bidi-override"
+    @inline final def `bidi-override` = this := "bidi-override"
   }
 
 
@@ -3279,20 +3279,20 @@ trait HtmlStyles {
      *
      * MDN
      */
-    final val normal = this := "normal"
+    @inline final def normal = this := "normal"
     /**
      * Word breaks may be inserted between any character for non-CJK
      * (Chinese/Japanese/Korean) text.
      *
      * MDN
      */
-    final val `break-all` = this := "break-all"
+    @inline final def `break-all` = this := "break-all"
     /**
      * Don't allow word breaks for CJK text.  Non-CJK text behavior is same
      * as normal.
      *
      * MDN
      */
-    final val `keep-all` = this := "keep-all"
+    @inline final def `keep-all` = this := "keep-all"
   }
 }

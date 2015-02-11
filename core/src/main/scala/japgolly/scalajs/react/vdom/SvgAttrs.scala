@@ -1387,7 +1387,7 @@ trait SvgAttrs {
      * w3.org
      *
      */
-    final val none = this := "none"
+    @inline final def none = this := "none"
 
     /**
      *
@@ -1405,7 +1405,7 @@ trait SvgAttrs {
      *  w3.org
      *
      **/
-    final val nonScalingStroke = this := "non-scaling-stroke"
+    @inline final def nonScalingStroke = this := "non-scaling-stroke"
 
   }
 
