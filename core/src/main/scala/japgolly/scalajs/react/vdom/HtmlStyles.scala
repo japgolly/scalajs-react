@@ -409,7 +409,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderStyle = new Style("borderStyle", "borderStyle")
+  final val borderStyle = new BorderStyle("borderStyle", "borderStyle")
 
   /**
    * The border-top-style CSS property sets the line style of the top border of a box.
@@ -425,7 +425,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderRightStyle = new BorderStyle("bocrderRightStyle", "bocrderRightStyle")
+  final val borderRightStyle = new BorderStyle("borderRightStyle", "borderRightStyle")
 
   /**
    * The border-right-width CSS property sets the width of the right border of
@@ -1512,7 +1512,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val lineHeight = new NormalOpenStyle[String]("lineHeight", "lineheight")
+  final val lineHeight = new NormalOpenStyle[String]("lineHeight", "lineHeight")
 
   /**
    * The left CSS property specifies part of the position of positioned elements.
