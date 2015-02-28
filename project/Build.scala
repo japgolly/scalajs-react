@@ -17,7 +17,7 @@ object ScalajsReact extends Build {
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.8.0-SNAPSHOT",
+        version            := "0.8.1-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
@@ -88,6 +88,9 @@ object ScalajsReact extends Build {
   def extModuleName(shortName: String): PE =
     _.settings(name := s"ext-$shortName")
 
+  def macroParadisePlugin =
+    compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
+
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .aggregate(core, test, scalaz71, monocle, extra, ghpages)
@@ -128,21 +131,24 @@ object ScalajsReact extends Build {
   lazy val monocle = project
     .configure(commonSettings, publicationSettings, extModuleName("monocle"))
     .dependsOn(core, scalaz71)
-    .settings(
-      libraryDependencies += "com.github.japgolly.fork.monocle" %%% "monocle-core" % "1.0.1")
+    .settings(libraryDependencies += monocleLib("core"))
+
+  def monocleLib(name: String) =
+    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.0.1"
 
   // ==============================================================================================
   lazy val extra = project
     .configure(commonSettings, publicationSettings)
-    .dependsOn(core, scalaz71)
-    .settings(
-      name := "extra")
+    .dependsOn(core, scalaz71, monocle)
+    .settings(name := "extra")
 
   // ==============================================================================================
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, scalaz71, extra, monocle)
     .configure(commonSettings, useReactJs(), preventPublication)
     .settings(
+      libraryDependencies += monocleLib("macro"),
+      addCompilerPlugin(macroParadisePlugin),
       emitSourceMaps := false,
       artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
 }

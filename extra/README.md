@@ -6,6 +6,7 @@ A collection of functionality that provides benefit when using scalajs-react.
 - [Router](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER.md)
 - Component Mixins:
   - [Broadcaster and Listenable](#broadcaster-and-listenable)
+  - [ExternalVar](#externalvar)
   - [LogLifecycle](#loglifecycle)
   - [OnUnmount](#onunmount)
   - [SetInterval](#setinterval)
@@ -36,6 +37,14 @@ object HelloBroadcaster extends Broadcaster[String] {
 * `Listenable`: When component unmounts, it unregisters itself as a listener.
 * `Broadcaster`: Manages listener registration and unregistration.
 * `Broadcaster`: Provides a `protected def broadcast(a: A): Unit` for easy message broadcasting.
+
+
+ExternalVar
+===========
+Provides a component with safe R/W access to an external variable.
+
+A live demo with accompanying code is available on
+[http://japgolly.github.io/scalajs-react](http://japgolly.github.io/scalajs-react/).
 
 
 LogLifecycle
