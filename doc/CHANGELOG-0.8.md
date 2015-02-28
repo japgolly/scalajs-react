@@ -1,6 +1,7 @@
 # 0.8.1
 
 * Added `ReactComponentB.static` to quickly create components with unchanging content.
+* Added `ExternalVar` to `extra` module. ([Live demo](http://japgolly.github.io/scalajs-react/))
 
 ##### Scalatags
 
