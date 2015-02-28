@@ -17,7 +17,7 @@ object ExternalVarExample {
       |val Main = ReactComponentB[Unit]("ExternalVar example")
       |  .initialState(Name("John", "Wick"))
       |  .render { $ =>
-      |    val name = $.state
+      |    val name        = $.state
       |    val firstNameEV = ExternalVar.state($.focusStateL(Name.firstName))
       |    val surnameEV   = ExternalVar.state($.focusStateL(Name.surname))
       |    <.div(
@@ -29,11 +29,11 @@ object ExternalVarExample {
       |
       |val NameChanger = ReactComponentB[ExternalVar[String]]("Name changer")
       |  .render { evar =>
-      |    def onChange = (event: ReactEventI) => evar.set(event.target.value)
+      |    def updateName = (event: ReactEventI) => evar.set(event.target.value)
       |    <.input(
       |      ^.`type`    := "text",
       |      ^.value     := evar.value,
-      |      ^.onChange ~~> onChange)
+      |      ^.onChange ~~> updateName)
       |  }
       |  .build""".stripMargin
 
@@ -44,7 +44,7 @@ object ExternalVarExample {
   val Main = ReactComponentB[Unit]("ExternalVar example")
     .initialState(Name("John", "Wick"))
     .render { $ =>
-      val name = $.state
+      val name        = $.state
       val firstNameEV = ExternalVar.state($.focusStateL(Name.firstName))
       val surnameEV   = ExternalVar.state($.focusStateL(Name.surname))
       <.div(
@@ -56,11 +56,11 @@ object ExternalVarExample {
 
   val NameChanger = ReactComponentB[ExternalVar[String]]("Name changer")
     .render { evar =>
-      def onChange = (event: ReactEventI) => evar.set(event.target.value)
+      def updateName = (event: ReactEventI) => evar.set(event.target.value)
       <.input(
         ^.`type`    := "text",
         ^.value     := evar.value,
-        ^.onChange ~~> onChange)
+        ^.onChange ~~> updateName)
     }
     .build
 }
