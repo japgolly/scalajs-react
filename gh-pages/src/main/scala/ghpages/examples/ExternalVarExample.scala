@@ -25,7 +25,7 @@ object ExternalVarExample {
       |      <.label("Surname:",    NameChanger(surnameEV  )),
       |      <.p(s"My name is ${name.surname}, ${name.firstName} ${name.surname}."))
       |  }
-      |  .build
+      |  .buildU
       |
       |val NameChanger = ReactComponentB[ExternalVar[String]]("Name changer")
       |  .render { evar =>
