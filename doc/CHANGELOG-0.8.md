@@ -1,22 +1,19 @@
 # 0.8.1
 
-* Added `ReactComponentB.static` to quickly create components with unchanging content.
 * Added `ExternalVar` to `extra` module. ([Live demo](http://japgolly.github.io/scalajs-react/))
-
-##### Scalatags
-
-* Added new Styles
+* Added `ReactComponentB.static` to quickly create components with unchanging content.
+* Added new styles:
+    * `alignItems`
     * `flex`
     * `flexBasis`
+    * `flexDirection`
     * `flexGrow`
     * `flexShrink`
     * `flexWrap`
-    * `alignItems`
     * `justifyContent`
-    * `flexDirection`
     * `vectorEffect`
+* Fixed typos in `borderRightStyle` and `lineHeight`.
 
-* Fixed `borderRightStyle` and `lineHeight` typo
 
 # 0.8.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.7.2...v0.8.0))
 
