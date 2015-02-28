@@ -1,5 +1,7 @@
 # 0.8.1
 
+* Added `ReactComponentB.static` to quickly create components with unchanging content.
+
 ##### Scalatags
 
 * Added new Styles

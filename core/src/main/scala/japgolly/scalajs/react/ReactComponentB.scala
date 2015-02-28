@@ -4,7 +4,24 @@ import scala.scalajs.js.{Any => JAny, _}
 import Internal._
 
 object ReactComponentB {
-  def apply[Props](name: String) = new P[Props](name)
+
+  // ===================================================================================================================
+  // Convenience
+
+  /**
+   * Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing.
+   */
+  def static(name: String, content: ReactElement) =
+    ReactComponentB[Unit](name)
+      .stateless
+      .noBackend
+      .render(_ => content)
+      .shouldComponentUpdate((_, _, _) => false)
+
+  // ===================================================================================================================
+  // Builder
+
+  @inline def apply[Props](name: String) = new P[Props](name)
 
   implicit def defaultDomType[P,S,B](c: ReactComponentB[P,S,B]) = c.domType[TopNode]
   implicit def defaultProps[P,S,B,N <: TopNode](c: ReactComponentB[P,S,B]#AnchorN[N]) = c.propsRequired
