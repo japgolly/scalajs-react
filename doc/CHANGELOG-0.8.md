@@ -13,6 +13,7 @@
     * `justifyContent`
     * `vectorEffect`
 * Fixed typos in `borderRightStyle` and `lineHeight`.
+* Fixed warnings in `ReactCssTransitionGroup`. ([#86](https://github.com/japgolly/scalajs-react/issues/86))
 
 
 # 0.8.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.7.2...v0.8.0))
