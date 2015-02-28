@@ -1,4 +1,4 @@
-# 0.8.1
+# 0.8.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.0...v0.8.1))
 
 * Added `ExternalVar` to `extra` module. ([Live demo](http://japgolly.github.io/scalajs-react/))
 * Added `ReactComponentB.static` to quickly create components with unchanging content.
