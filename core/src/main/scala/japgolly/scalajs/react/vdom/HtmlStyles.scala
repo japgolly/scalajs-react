@@ -3010,6 +3010,117 @@ trait HtmlStyles {
    * MDN
    */
   final val flexShrink = new Style("flexShrink", "flexShrink")
+ 
+  /** 
+   * The CSS align-content property aligns a flex container's lines within the flex container when there is extra
+   * space on the cross-axis. This property has no effect on single line flexible boxes.
+   * 
+   * MDN
+   */
+  object alignContent extends Style("alignContent", "alignContent") {
+    
+    /** 
+     * Lines are packed starting from the cross-start. Cross-start edge of the first line and cross-start edge of
+     * the flex container are flushed together. Each following line is flush with the preceding.
+     * 
+     * MDN
+     */
+    @inline final def flexStart = this := "flex-start" 
+
+    /** 
+     * Lines are packed starting from the cross-end. Cross-end of the last line and cross-end of the flex container
+     * are flushed together. Each preceding line is flushed with the following line.
+     * 
+     * MDN
+     */
+    @inline final def flexEnd = this := "flex-end" 
+
+    /** 
+     * Lines are packed toward the center of the flex container. The lines are flushed with each other and aligned
+     * in the center of the flex container. Space between the cross-start edge of the flex container and first line
+     * and between cross-end of the flex container and the last line is the same.
+     * 
+     * MDN
+     */
+    @inline final def center = this := "center" 
+
+    /** 
+     * Lines are evenly distributed in the flex container. The spacing is done such as the space between two
+     * adjacent items is the same. Cross-start edge and cross-end edge of the flex container are flushed with
+     * respectively first and last line edges.
+     * 
+     * MDN
+     */
+    @inline final def spaceBeteween = this := "space-between" 
+
+    /** 
+     * Lines are evenly distributed so that the space between two adjacent lines is the same. The empty space before
+     * the first and after the last lines equals half of the space between two adjacent lines.
+     * 
+     * MDN
+     */
+    @inline final def spaceAround = this := "space-around" 
+    
+    /** 
+     * Lines stretch to use the remaining space. The free-space is split equally between all the lines.   
+     * 
+     * MDN
+     */
+    @inline final def stretch = this := "stretch" 
+  }
+ 
+  /**
+   * The align-self CSS property aligns flex items of the current flex line overriding the align-items value. If any
+   * of the flex item's cross-axis margin is set to auto, then align-self is ignored.
+   * 
+   * MDN 
+   */
+  object alignSelf extends Style("alignSelf", "alignSelf") {
+    /** 
+     * Computes to parent's align-items value or stretch if the element has no parent.
+     * 
+     * MDN
+     */
+    @inline final def auto = this := "auto" 
+    
+    /** 
+     * The cross-start margin edge of the flex item is flushed with the cross-start edge of the line.
+     * 
+     * MDN
+     */
+    @inline final def flexStart = this := "flex-start" 
+
+    /** 
+     * The cross-end margin edge of the flex item is flushed with the cross-end edge of the line.
+     * 
+     * MDN
+     */
+    @inline final def flexEnd = this := "flex-end" 
+
+    /** 
+     * The flex item's margin box is centered within the line on the cross-axis. If the cross-size of the item is
+     * larger than the flex container, it will overflow equally in both directions.
+     * 
+     * MDN
+     */
+    @inline final def center = this := "center" 
+
+    /** 
+     * All flex items are aligned such that their baselines align. The item with the largest distance between its
+     * cross-start margin edge and its baseline is flushed with the cross-start edge of the line.
+     * 
+     * MDN
+     */
+    @inline final def baseline = this := "baseline" 
+    
+    /** 
+     * Flex items are stretched such as the cross-size of the item's margin box is the same as the line while
+     * respecting width and height constraints.
+     * 
+     * MDN
+     */
+    @inline final def stretch = this := "stretch" 
+  }
 
   /**
    * The CSS flex-wrap property specifies whether the children are forced into a single line or if the items can be

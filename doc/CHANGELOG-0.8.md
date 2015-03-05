@@ -1,3 +1,9 @@
+# 0.8.3 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.2...v0.8.3))
+
+* Added new styles:
+    * `alignSelf`
+    * `alignContent`
+
 # 0.8.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.1...v0.8.2))
 
 * Upgrade to Scala.JS 0.6.1.
