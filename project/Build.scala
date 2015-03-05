@@ -125,7 +125,7 @@ object ScalajsReact extends Build {
         libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
   }
 
-  lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.0-4")
+  lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.1-2")
 
   // ==============================================================================================
   lazy val monocle = project
@@ -134,7 +134,7 @@ object ScalajsReact extends Build {
     .settings(libraryDependencies += monocleLib("core"))
 
   def monocleLib(name: String) =
-    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.0.1"
+    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.0.1-2"
 
   // ==============================================================================================
   lazy val extra = project
