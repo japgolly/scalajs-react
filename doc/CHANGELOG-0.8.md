@@ -2,6 +2,8 @@
 
 * Upgrade to Scala.JS 0.6.1.
 * Upgrade dependencies to versions built with Scala.JS 0.6.1.
+* Hide internal methods.
+
 
 # 0.8.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.0...v0.8.1))
 
