@@ -132,7 +132,7 @@ State modifications and `setState` callbacks are created via `ReactS`, which is 
 
 Also included are `runStateF` methods which use a `ChangeFilter` typeclass to compare before and after states at the end of a state monad application, and optionally opt-out of a call to `setState` on a component.
 
-See [ScalazExamples](https://github.com/japgolly/scalajs-react/tree/master/example/src/main/scala/japgolly/scalajs/react/example/ScalazExamples.scala) for a taste.
+See [ScalazExamples](https://github.com/japgolly/scalajs-react/blob/master/gh-pages/src/main/scala/ghpages/examples/ScalazExample.scala) for a taste.
 Take a look at the [ScalazReact module](https://github.com/japgolly/scalajs-react/tree/master/scalaz-7.1/src/main/scala/japgolly/scalajs/react/ScalazReact.scala) for the source.
 
 #### Monocle
