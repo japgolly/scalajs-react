@@ -2,7 +2,9 @@ package ghpages.examples
 
 import japgolly.scalajs.react._, vdom.all._
 import scala.scalajs.js
+import org.scalajs.jquery._
 import ghpages.examples.util.SideBySide
+
 
 /**
  * Created by chandrasekharkode on 11/18/14.
@@ -195,7 +197,7 @@ object PictureAppExample {
       |  // make ajax call here to get pics from instagram
       |      import scalajs.js.Dynamic.{global => g}
       |      val url = "https://api.instagram.com/v1/media/popular?client_id=642176ece1e7445e99244cec26f4de1f&callback=?"
-      |      g.jsonp(url, (result: js.Dynamic) => {
+      |      jQuery.jsonp(url, (result: js.Dynamic) => {
       |        if (result != js.undefined && result.data != js.undefined) {
       |          val data = result.data.asInstanceOf[js.Array[js.Dynamic]]
       |          val pics = data.toList.map(item => Picture(item.id.toString, item.link.toString, item.images.low_resolution.url.toString, if (item.caption != null) item.caption.text.toString else ""))
@@ -279,7 +281,7 @@ object PictureAppExample {
     // make ajax call here to get pics from instagram
         import scalajs.js.Dynamic.{global => g}
         val url = "https://api.instagram.com/v1/media/popular?client_id=642176ece1e7445e99244cec26f4de1f&callback=?"
-        g.jsonp(url, (result: js.Dynamic) => {
+        jQuery.jsonp(url, (result: js.Dynamic) => {
           if (result != js.undefined && result.data != js.undefined) {
             val data = result.data.asInstanceOf[js.Array[js.Dynamic]]
             val pics = data.toList.map(item => Picture(item.id.toString, item.link.toString, item.images.low_resolution.url.toString, if (item.caption != null) item.caption.text.toString else ""))
