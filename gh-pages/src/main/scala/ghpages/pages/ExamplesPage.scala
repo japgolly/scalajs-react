@@ -17,9 +17,10 @@ object Example {
   case object Animation    extends Example("Animation",          AnimationExample.content)
   case object PictureApp   extends Example("AjaxPictureApp",     PictureAppExample.content)
   case object Scalaz       extends Example("Todo List (Scalaz)", ScalazExample.content)
+  case object Touch        extends Example("Touch events",       TouchExample.content)
   case object ExternalVar  extends Example("ExternalVar",        ExternalVarExample.content)
 
-  val values = Vector[Example](Hello, Timer, Todo, Scalaz, Refs, ExternalVar, ProductTable, Animation, PictureApp)
+  val values = Vector[Example](Hello, Timer, Todo, Scalaz, Touch, Refs, ExternalVar, ProductTable, Animation, PictureApp)
 }
 
 object ExamplesPage {
