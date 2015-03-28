@@ -25,6 +25,7 @@ object ScalajsReact extends Build {
         scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
                                 "-language:postfixOps", "-language:implicitConversions",
                                 "-language:higherKinds", "-language:existentials"),
+        scalacOptions     ++= Seq("-Xmax-classfile-name", "100"),
         updateOptions      := updateOptions.value.withCachedResolution(true))
 
   def preventPublication: PE =
