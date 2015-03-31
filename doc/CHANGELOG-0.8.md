@@ -1,5 +1,11 @@
 # 0.8.3 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.2...v0.8.3))
 
+* Added Touch event attributes:
+    * `onTouchCancel`
+    * `onTouchEnd`
+    * `onTouchMove`
+    * `onTouchStart`
+* Added example for Touch events. ([Live demo](http://japgolly.github.io/scalajs-react/))
 * Added new styles:
     * `alignSelf`
     * `alignContent`

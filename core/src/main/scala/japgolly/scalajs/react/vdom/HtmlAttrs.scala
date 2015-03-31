@@ -190,6 +190,34 @@ trait HtmlAttrs {
    */
   final val onMouseUp = "onMouseUp".attr
   /**
+   * Event indicating that the touch point has been canceled or disrupted.
+   *
+   * For example, when popup menu is shown.
+   *
+   * @see [[japgolly.scalajs.react.ReactTouchEvent]]
+   */
+  final val onTouchCancel = "onTouchCancel".attr
+  /**
+   * Event indicating that the touch point does not exist any more.
+   *
+   * For example, whn you release your finger.
+   *
+   * @see [[japgolly.scalajs.react.ReactTouchEvent]]
+   */
+  final val onTouchEnd = "onTouchEnd".attr
+  /**
+   * Event indicating that the touch point has moved along the plane.
+   *
+   * @see [[japgolly.scalajs.react.ReactTouchEvent]]
+   */
+  final val onTouchMove = "onTouchMove".attr
+  /**
+   * Event indicating that the user has touched the plane.
+   *
+   * @see [[japgolly.scalajs.react.ReactTouchEvent]]
+   */
+  final val onTouchStart = "onTouchStart".attr
+  /**
    * The select event only fires when text inside a text input or textarea is
    * selected. The event is fired after the text has been selected.
    *
