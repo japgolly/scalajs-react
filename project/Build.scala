@@ -9,7 +9,7 @@ import ScalaJSPlugin.autoImport._
 
 object ScalajsReact extends Build {
 
-  val Scala211 = "2.11.5"
+  val Scala211 = "2.11.6"
 
   type PE = Project => Project
 

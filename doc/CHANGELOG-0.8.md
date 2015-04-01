@@ -10,6 +10,7 @@
     * `alignSelf`
     * `alignContent`
 * Changed SetInterval to accept `FiniteDuration` instead of `Double` to avoid unit errors.
+* Upgrade Scala to 2.11.6.
 
 # 0.8.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.1...v0.8.2))
 
