@@ -12,10 +12,11 @@
 * Changed SetInterval to accept `FiniteDuration` instead of `Double` to avoid unit errors.
 * Upgrade Scala to 2.11.6.
 * Upgrade Monocle to 1.1.0.
+* Upgrade Scala.JS to 0.6.2.
 
 # 0.8.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.1...v0.8.2))
 
-* Upgrade to Scala.JS 0.6.1.
+* Upgrade Scala.JS to 0.6.1.
 * Upgrade dependencies to versions built with Scala.JS 0.6.1.
 * Hide internal methods.
 
