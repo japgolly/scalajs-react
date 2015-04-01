@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.extra
 
+import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
 
 /**
@@ -8,8 +9,8 @@ import scala.scalajs.js
  * Install in `ReactComponentB` via `.configure(SetInterval.install)`.
  */
 trait SetInterval extends OnUnmount {
-  final def setInterval(f: => Unit, timeout: Double): Unit = {
-    val i = js.timers.setInterval(timeout)(f)
+  final def setInterval(f: => Unit, timeout: FiniteDuration): Unit = {
+    val i = js.timers.setInterval(timeout.toMillis)(f)
     onUnmount(js.timers.clearInterval(i))
   }
 }

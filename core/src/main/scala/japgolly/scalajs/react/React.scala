@@ -168,16 +168,16 @@ trait ComponentScope_A extends Object {
 }
 
 trait ComponentScope_P[+Props] extends Object {
-  @JSName("props") def _props: WrapObj[Props] with PropsMixedIn = js.native
+  @JSName("props") private[react] def _props: WrapObj[Props] with PropsMixedIn = js.native
 }
 
 trait ComponentScope_S[+State] extends Object {
-  @JSName("state") def _state: WrapObj[State] = js.native
+  @JSName("state") private[react] def _state: WrapObj[State] = js.native
 }
 
 trait ComponentScope_SS[State] extends ComponentScope_S[State] {
-  @JSName("setState") def _setState(s: WrapObj[State]): Unit = js.native
-  @JSName("setState") def _setState(s: WrapObj[State], callback: UndefOr[JFn]): Unit = js.native
+  @JSName("setState") private[react] def _setState(s: WrapObj[State]): Unit = js.native
+  @JSName("setState") private[react] def _setState(s: WrapObj[State], callback: UndefOr[JFn]): Unit = js.native
 }
 
 trait ComponentScope_B[+Backend] extends Object {
@@ -185,7 +185,7 @@ trait ComponentScope_B[+Backend] extends Object {
 }
 
 trait ComponentScope_PS[-Props, +State] extends Object {
-  @JSName("getInitialState") def _getInitialState(s: WrapObj[Props]): WrapObj[State] = js.native
+  @JSName("getInitialState") private[react] def _getInitialState(s: WrapObj[Props]): WrapObj[State] = js.native
 }
 
 trait ComponentScope_M[+Node <: TopNode] extends Object {

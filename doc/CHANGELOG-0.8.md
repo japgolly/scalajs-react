@@ -1,22 +1,43 @@
-# 0.8.1
+# 0.8.3 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.2...v0.8.3))
 
-* Added `ReactComponentB.static` to quickly create components with unchanging content.
+* Added Touch event attributes:
+    * `onTouchCancel`
+    * `onTouchEnd`
+    * `onTouchMove`
+    * `onTouchStart`
+* Added example for Touch events. ([Live demo](http://japgolly.github.io/scalajs-react/))
+* Added new styles:
+    * `alignSelf`
+    * `alignContent`
+* Changed SetInterval to accept `FiniteDuration` instead of `Double` to avoid unit errors.
+* Upgrade Scala to 2.11.6.
+* Upgrade Monocle to 1.1.0.
+* Upgrade Scala.JS to 0.6.2.
+
+# 0.8.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.1...v0.8.2))
+
+* Upgrade Scala.JS to 0.6.1.
+* Upgrade dependencies to versions built with Scala.JS 0.6.1.
+* Hide internal methods.
+
+
+# 0.8.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.0...v0.8.1))
+
 * Added `ExternalVar` to `extra` module. ([Live demo](http://japgolly.github.io/scalajs-react/))
-
-##### Scalatags
-
-* Added new Styles
+* Added `ReactComponentB.static` to quickly create components with unchanging content.
+* Added new styles:
+    * `alignItems`
     * `flex`
     * `flexBasis`
+    * `flexDirection`
     * `flexGrow`
     * `flexShrink`
     * `flexWrap`
-    * `alignItems`
     * `justifyContent`
-    * `flexDirection`
     * `vectorEffect`
+* Fixed typos in `borderRightStyle` and `lineHeight`.
+* Fixed warnings in `ReactCssTransitionGroup`. ([#86](https://github.com/japgolly/scalajs-react/issues/86))
 
-* Fixed `borderRightStyle` and `lineHeight` typo
 
 # 0.8.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.7.2...v0.8.0))
 

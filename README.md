@@ -39,24 +39,24 @@ Firstly, you'll need to add [Scala.js](http://www.scala-js.org) to your project.
 Next, add scalajs-react to SBT:
 ```scala
 // Minimal usage
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.8.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.8.3"
 
 // React itself
 //   (react-with-addons.js can be react.js, react.min.js, react-with-addons.min.js)
-jsDependencies += "org.webjars" % "react" % "0.12.1" / "react-with-addons.js" commonJSName "React"
+jsDependencies += "org.webjars" % "react" % "0.13.1" / "react-with-addons.js" commonJSName "React"
 
 // Test support including ReactTestUtils
 //   (requires react-with-addons.js instead of just react.js)
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.8.0" % "test"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.8.3" % "test"
 
 // Scalaz support
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % "0.8.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % "0.8.3"
 
 // Monocle support
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "0.8.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "0.8.3"
 
-// Extra features
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.8.0"
+// Extra features (includes Scalaz and Monocle support)
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.8.3"
 ```
 
 Code:
@@ -132,7 +132,7 @@ State modifications and `setState` callbacks are created via `ReactS`, which is 
 
 Also included are `runStateF` methods which use a `ChangeFilter` typeclass to compare before and after states at the end of a state monad application, and optionally opt-out of a call to `setState` on a component.
 
-See [ScalazExamples](https://github.com/japgolly/scalajs-react/tree/master/example/src/main/scala/japgolly/scalajs/react/example/ScalazExamples.scala) for a taste.
+See [ScalazExamples](https://github.com/japgolly/scalajs-react/blob/master/gh-pages/src/main/scala/ghpages/examples/ScalazExample.scala) for a taste.
 Take a look at the [ScalazReact module](https://github.com/japgolly/scalajs-react/tree/master/scalaz-7.1/src/main/scala/japgolly/scalajs/react/ScalazReact.scala) for the source.
 
 #### Monocle

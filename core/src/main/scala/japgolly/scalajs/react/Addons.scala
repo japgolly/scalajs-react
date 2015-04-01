@@ -15,9 +15,9 @@ object Addons {
                                      component: js.UndefOr[String] = js.undefined) {
     def toJs: js.Object = {
       val p = js.Dynamic.literal("transitionName" -> name)
-      enter.foreach(v => p.updateDynamic("transitionEnter")(v))
-      leave.foreach(v => p.updateDynamic("transitionLeave")(v))
-      component.foreach(v => p.updateDynamic("component")(React.DOM.selectDynamic(v)))
+      enter    .foreach(v => p.updateDynamic("transitionEnter")(v))
+      leave    .foreach(v => p.updateDynamic("transitionLeave")(v))
+      component.foreach(v => p.updateDynamic("component")(v))
       p
     }
 

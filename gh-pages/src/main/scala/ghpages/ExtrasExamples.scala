@@ -1,5 +1,6 @@
 package ghpages
 
+import scala.concurrent.duration._
 import scala.scalajs.js
 import japgolly.scalajs.react._, vdom.all._, ScalazReact._
 import japgolly.scalajs.react.extra._
@@ -17,7 +18,7 @@ object ExtrasExamples {
       def tick() = $.modState(_ + 1)
 
       def start() = {
-        val i = js.timers.setInterval(1000)(tick())
+        val i = js.timers.setInterval(1.second)(tick())
         onUnmount(js.timers.clearInterval(i))                       // Use onUnmount here
       }
     }
@@ -47,7 +48,7 @@ object ExtrasExamples {
       .initialState(0L)
       .backend(_ => new Backend)
       .render((_,s,_) => div("Seconds elapsed: ", s))
-      .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1000))
+      .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1.second))
       .configure(SetInterval.install)
       .buildU
   }

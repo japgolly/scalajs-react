@@ -114,7 +114,7 @@ val Timer = ReactComponentB[Unit]("Timer")
   .initialState(0L)
   .backend(_ => new MyBackend)
   .render((_,s,_) => div("Seconds elapsed: ", s))
-  .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1000))
+  .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1.second))
   .configure(SetInterval.install)
   .buildU
 ```
