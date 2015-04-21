@@ -35,6 +35,9 @@ abstract class Implicits extends LowPri {
   @inline implicit final def _react_attrOptional[T[_], A](implicit t: Optional[T], a: AttrValue[A]): AttrValue[T[A]] =
     new OptionalAttrValue[T, A](t, a)
 
+  @inline implicit final def _react_attrArray[A <% js.Any]: AttrValue[js.Array[A]] =
+    new ArrayAttr[A]
+
   // Styles
   @inline implicit final def _react_styleString : StyleValue[String]  = stringStyleX
           implicit final val _react_styleBoolean: StyleValue[Boolean] = GenericStyle.stringValue
