@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.Addons.ReactCloneWithProps
+import japgolly.scalajs.react.Addons.{ReactCssTransitionGroupM, ReactCssTransitionGroup, ReactCloneWithProps}
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
 import org.scalajs.dom.raw.HTMLInputElement
@@ -381,6 +381,26 @@ object CoreTest extends TestSuite {
         val n = ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz").getDOMNode()
         assert(n.className == "xyz child")
       }
+    }
+    'refToThirdPartyComponents {
+      class RB(t:BackendScope[_,_]) {
+        def test = {
+          val transitionRef = Ref.toJS[ReactCssTransitionGroupM]("addon")(t)
+          assert(transitionRef.isDefined)
+        }
+      }
+      val C = ReactComponentB[Unit]("C")
+        .stateless
+        .backend(new RB(_))
+        .render((P,S,B) => {
+          div(
+            ReactCssTransitionGroup(name = "testname",ref = "addon")()
+          )
+        })
+        .componentDidMount(scope => scope.backend.test)
+        .buildU
+      ReactTestUtils.renderIntoDocument(C())
+
     }
   }
 }

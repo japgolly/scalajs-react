@@ -12,12 +12,14 @@ object Addons {
   case class ReactCssTransitionGroup(name: String,
                                      enter: js.UndefOr[Boolean] = js.undefined,
                                      leave: js.UndefOr[Boolean] = js.undefined,
-                                     component: js.UndefOr[String] = js.undefined) {
+                                     component: js.UndefOr[String] = js.undefined,
+                                     ref: js.UndefOr[String] = js.undefined ) {
     def toJs: js.Object = {
       val p = js.Dynamic.literal("transitionName" -> name)
       enter    .foreach(v => p.updateDynamic("transitionEnter")(v))
       leave    .foreach(v => p.updateDynamic("transitionLeave")(v))
       component.foreach(v => p.updateDynamic("component")(v))
+      ref.foreach(v => p.updateDynamic("ref")(v))
       p
     }
 
@@ -25,6 +27,11 @@ object Addons {
       val f = React.addons.CSSTransitionGroup
       f(toJs, children.toJsArray).asInstanceOf[ReactComponentU_]
     }
+  }
+
+  // mounted ReactCssTransitionGroup
+  trait ReactCssTransitionGroupM extends js.Object {
+
   }
 
   object ReactCloneWithProps {
