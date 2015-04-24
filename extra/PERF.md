@@ -61,7 +61,60 @@ The following component will only re-render when one of the following change:
 ReusableFn
 ==========
 
-TODO
+In effective usage of React, callbacks are passed around as component properties.
+Due to the ease of function creation in Scala it is often the case that functions are created inline and thus
+provide no means of determining whether a component can safely skip its update.
+
+`ReusableFn` exists as a solution. It is a wrapper around a function that allows it to be both reused, curried in a way that allows reuse.
+
+##### Usage
+
+1. Just wrap `ReusableFn` around your function.
+2. Store the `ReusableFn` as a `val` somewhere outside of your `render` function, usually in the body of your backend class.
+3. Replace the callback (say `A => B`) in components' props, to take a `ReusableFn[A, B]` or the shorthand `A ~=> B`.
+4. Treat the `ReusableFn` as you would a normal function, save for one difference: application is curried (or Schönfinkel'ed), and each curried argument must be `Reusable`.
+
+##### Example
+
+In this example `personEditor` will only rerender if `props.name` changes, or the curried `PersonId` in its `props.update` function changes (which it won't - observable from the code).
+
+```scala
+type PersonId = Long
+type PersonData = String
+
+val topComponent = ReactComponentB[Map[PersonId, PersonData]]("Demo")
+  .getInitialState(identity)
+  .backend(new Backend(_))
+  .render(_.backend.render)
+  .build
+
+class Backend($: BackendScope[_, Map[PersonId, PersonData]]) {
+
+  val updateUser = ReusableFn((id: PersonId, data: PersonData) =>
+    $.modStateIO(_.updated(id, data)))
+
+  def render =
+    <.div(
+      $.state.map { case (id, name) =>
+        personEditor.withKey(id)(PersonEditorProps(name, updateUser(id)))
+      }.toJsArray
+    )
+}
+
+case class PersonEditorProps(name: String, update: String ~=> IO[Unit])
+
+implicit val propsReuse = Reusable.caseclass2(PersonEditorProps.unapply)
+
+val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
+  .stateless
+  .render((p, _) =>
+    <.input(
+      ^.`type` := "text",
+      ^.value := p.name,
+      ^.onChange ~~> ((e: ReactEventI) => p.update(e.target.value))))
+  .configure(Reusable.shouldComponentUpdate)
+  .build
+```
 
 ReusableVar
 ===========
