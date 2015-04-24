@@ -119,7 +119,39 @@ val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
 ReusableVar
 ===========
 
-TODO
+Just as there is `ExternalVar` that provides a component with safe R/W access to an external variable,
+there is also `ReusableVar`.
+
+##### Example
+```scala
+@Lenses case class State(name: String, desc: String)
+
+val topComponent = ReactComponentB[State]("Demo")
+  .getInitialState(identity)
+  .backend(new Backend(_))
+  .render(_.backend.render)
+  .build
+
+class Backend($: BackendScope[State, State]) {
+  val setName = ReusableVar.state($ focusStateL State.name)
+  val setDesc = ReusableVar.state($ focusStateL State.desc)
+
+  def render =
+    <.div(
+      stringEditor(setName),
+      stringEditor(setDesc))
+}
+
+val stringEditor = ReactComponentB[ReusableVar[String]]("StringEditor")
+  .stateless
+  .render((p, _) =>
+    <.input(
+      ^.`type` := "text",
+      ^.value := p.value,
+      ^.onChange ~~> ((e: ReactEventI) => p.set(e.target.value))))
+  .configure(Reusable.shouldComponentUpdate)
+  .build
+```
 
 Px
 ==
