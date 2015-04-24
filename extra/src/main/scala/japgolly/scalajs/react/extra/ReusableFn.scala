@@ -18,13 +18,13 @@ import japgolly.scalajs.react.ScalazReact._
 trait ReusableFn[A, B] extends AbstractFunction1[A, B] {
   def reusable: PartialFunction[ReusableFn[A, B], Boolean]
 
-//  import scalaz.Leibniz._
-//
-//  def extvar(value: A)(implicit r: Reusable[A], ev: B === IO[Unit]): ReusableExternalVar[A] =
-//    ReusableExternalVar(value, ev.subst[({type λ[a] = ReusableFn[A, a]})#λ](this))(r)
-//
-//  def extvarR(value: A, r: Reusable[A])(implicit ev: B === IO[Unit]): ReusableExternalVar[A] =
-//    extvar(value)(r, ev)
+  import scalaz.Leibniz._
+
+  def asVar(value: A)(implicit r: Reusable[A], ev: B === IO[Unit]): ReusableVar[A] =
+    new ReusableVar(value, ev.subst[({type λ[X] = A ~=> X})#λ](this))(r)
+
+  def asVarR(value: A, r: Reusable[A])(implicit ev: B === IO[Unit]): ReusableVar[A] =
+    asVar(value)(r, ev)
 }
 
 object ReusableFn {
