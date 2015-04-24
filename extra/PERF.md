@@ -124,6 +124,52 @@ val rows: Px[Rows] =
 Reusable
 ========
 
+`Reusable` is a typeclass that tests whether one instance can be used in place of another.
+It is used mostly to compare properties and state of a component to avoid unnecessary updates.
+
+If you imagine a class with 8 fields, equality would compare all 8 fields where as this would typically just compare
+the ID field, the update-date, or the revision number.
+You might think of this as a very quick version of equality.
+
+##### Usage
+When building your component, pass in `Reusable.shouldComponentUpdate` to your `ReactComponentB.configure`.
+
+It will not compile until it knows how to compare the reusability of your props and state.
+Out-of-the-box, it knows how to compare Scala primatives, `String`s, `Option`, `Either`, Scala tuples, `js.UndefOr`,
+and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it how. Use one of the following methods:
+
+* `Reusable.byRef[A]` uses reference equality (ie. `a eq b`)
+* `Reusable.by_==[A]` uses universal equality (ie. `a == b`)
+* `Reusable.byEqual[A]` uses a Scalaz `Equal` typeclass
+* `Reusable.caseclassₙ` for case classes of your own.
+* `Reusable.by(A => B)` to use a subset (`B`) of the subject data (`A`).
+
+##### Example
+The following component will only re-render when one of the following change:
+* `props.name`
+* `props.age`
+* `props.pic.id`
+
+```scala
+  case class Picture(id: Long, url: String, title: String)
+  case class Props(name: String, age: Option[Int], pic: Picture)
+
+  implicit val picReuse   = Reusable.by((_: Picture).id)       // ← only check id
+  implicit val propsReuse = Reusable.caseclass3(Props.unapply) // ← check all fields
+
+  val component = ReactComponentB[Props]("Demo")
+    .stateless
+    .render((p, _) =>
+      <.div(
+        <.p("Name: ", p.name),
+        <.p("Age: ", p.age.fold("Unknown")(_.toString)),
+        <.img(^.src := p.pic.url, ^.title := p.pic.title))
+    )
+    .configure(Reusable.shouldComponentUpdate)                 // ← hook into lifecycle
+    .build
+```
+
+
 ReusableFn
 ==========
 
