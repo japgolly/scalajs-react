@@ -25,11 +25,9 @@ You can consider this "Performance eXtension". If this were Java it'd be named
 `Px` comes in two flavours: reusable and not.
 If it's "reusable" then when its underlying value changes, it will compare the new value to the previous one and discard the change if it can.
 
-**TODO make reusable the default?**
-
 Create a non-derivative `Px` using one of these:
 
-1. `Px(…)` & `Px.reusableVar(…)` - A variable in the traditional sense.
+1. `Px(…)` & `Px.NoReuse(…)` - A variable in the traditional sense.
  
   Doesn't change until you explicitly call `set()`.
 
@@ -38,7 +36,7 @@ Create a non-derivative `Px` using one of these:
   num.set(666)
   ```
 
-2. `Px.thunkM(…)` & `Px.reusableThunkM(…)` - The value of a zero-param function.
+2. `Px.thunkM(…)` & `Px.NoReuse.thunkM(…)` - The value of a zero-param function.
 
   The `M` in `ThunkM` denotes "Manual refresh", meaning that the value will not update until you explicitly call `refresh()`.
 
@@ -46,8 +44,8 @@ Create a non-derivative `Px` using one of these:
   case class State(name: String, age: Int)
 
   class ComponentBackend($: BackendScope[User, State]) {
-    val user     = Px.reusableThunkM($.props)
-    val stateAge = Px.reusableThunkM($.state.age)
+    val user     = Px.thunkM($.props)
+    val stateAge = Px.thunkM($.state.age)
     
     def render: ReactElement = {
       // Every render cycle, refresh Pxs. Unnecessary changes will be discarded.
@@ -62,7 +60,7 @@ Create a non-derivative `Px` using one of these:
   }
   ```
 
-3. `Px.thunkA(…)` & `Px.reusableThunkA(…)` - The value of a zero-param function.
+3. `Px.thunkA(…)` & `Px.NoReuse.thunkA(…)` - The value of a zero-param function.
 
   The `A` in `ThunkA` denotes "Auto refresh", meaning that the function will be called every time the value is requested, and the value updated if necessary.
 
@@ -74,8 +72,8 @@ Derivative `Px`s are created by:
 
 Example:
 ```scala
-val project     : Px[Project]      = Px.reusableThunkM($.props)
-val viewSettings: Px[ViewSettings] = Px.reusableThunkM($.state.viewSettings)
+val project     : Px[Project]      = Px.thunkM($.props)
+val viewSettings: Px[ViewSettings] = Px.thunkM($.state.viewSettings)
 
 // Using .map
 val columns   : Px[Columns]    = viewSettings.map(_.columns)

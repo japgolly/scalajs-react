@@ -10,13 +10,13 @@ object PxTest extends TestSuite {
 
   override def tests = TestSuite {
 
-    val xa = Px.reusableVar("a")
+    val xa = Px("a")
 
     var vb = "b"
-    val xb = Px.reusableThunkA(vb)
+    val xb = Px.thunkA(vb)
 
     var vc = "c"
-    val xc = Px.reusableThunkM(vc)
+    val xc = Px.thunkM(vc)
 
     var rab   = 0
     var rbc   = 0
