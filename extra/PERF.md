@@ -21,7 +21,7 @@ pull-based meaning that in the chain A→B→C, an update to A doesn't affect C 
 You can consider this "Performance eXtension". If this were Java it'd be named
 `AutoRefreshOnRequestDependentCachedVariable`.*
 
-##### Usage
+##### Initial instances
 `Px` comes in two flavours: reusable and not.
 If it's "reusable" then when its underlying value changes, it will compare the new value to the previous one and discard the change if it can.
 
@@ -64,6 +64,30 @@ Create a non-derivative `Px` using one of these:
 
   The `A` in `ThunkA` denotes "Auto refresh", meaning that the function will be called every time the value is requested, and the value updated if necessary.
 
+  ```scala
+  // Suppose this is updated by some process that periodically pings the server
+  object InternalGlobalState {
+    var usersOnline = 0
+  }
+
+  class ComponentBackend($: BackendScope[Props, _]) {
+    val usersOnline = Px.thunkA(InternalGlobalState.usersOnline)
+
+    // Only updated when the InternalGlobalState changes
+    val coolGraphOfUsersOnline: Px[ReactElement] =
+      for (u <- usersOnline) yield
+        <.div(
+          <.h3("Users online: ", u),
+          coolgraph(u))
+
+    def render: ReactElement =
+      <.div(
+        "Hello ", $.props.username,
+        coolGraphOfUsersOnline.value())
+  }
+  ```
+
+##### Derivative instances
 Derivative `Px`s are created by:
 * calling `.map`
 * calling `.flatMap`
