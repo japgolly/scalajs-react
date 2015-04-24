@@ -29,7 +29,7 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusable.byRef[A]` uses reference equality (ie. `a eq b`)
 * `Reusable.by_==[A]` uses universal equality (ie. `a == b`)
 * `Reusable.byEqual[A]` uses a Scalaz `Equal` typeclass
-* `Reusable.caseclassₙ` for case classes of your own.
+* <code>Reusable.caseclass<sub>n</sub></code> for case classes of your own.
 * `Reusable.by(A => B)` to use a subset (`B`) of the subject data (`A`).
 
 ##### Example
@@ -236,7 +236,7 @@ Derivative `Px`s are created by:
 * calling `.map`
 * calling `.flatMap`
 * using in a for comprehension
-* using `Px.applyₙ`
+* using <code>Px.apply<sub>n</sub></code>
 
 Example:
 ```scala
@@ -247,7 +247,7 @@ val viewSettings: Px[ViewSettings] = Px.thunkM($.state.viewSettings)
 val columns   : Px[Columns]    = viewSettings.map(_.columns)
 val textSearch: Px[TextSearch] = project map TextSearch.apply
 
-// Using Px.applyₙ
+// Using Px.applyn
 val widgets: Px[Widgets] = Px.apply2(project, textSearch)(Widgets.apply)
 
 // For comprehension
