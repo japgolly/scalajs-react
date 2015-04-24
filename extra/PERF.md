@@ -65,7 +65,7 @@ In effective usage of React, callbacks are passed around as component properties
 Due to the ease of function creation in Scala it is often the case that functions are created inline and thus
 provide no means of determining whether a component can safely skip its update.
 
-`ReusableFn` exists as a solution. It is a wrapper around a function that allows it to be both reused, curried in a way that allows reuse.
+`ReusableFn` exists as a solution. It is a wrapper around a function that allows it to be both reused, and curried in a way that allows reuse.
 
 ##### Usage
 
@@ -90,18 +90,18 @@ val topComponent = ReactComponentB[Map[PersonId, PersonData]]("Demo")
 
 class Backend($: BackendScope[_, Map[PersonId, PersonData]]) {
 
-  val updateUser = ReusableFn((id: PersonId, data: PersonData) =>
+  val updateUser = ReusableFn((id: PersonId, data: PersonData) =>         // ← Create a 2-arg fn
     $.modStateIO(_.updated(id, data)))
 
   def render =
     <.div(
       $.state.map { case (id, name) =>
-        personEditor.withKey(id)(PersonEditorProps(name, updateUser(id)))
+        personEditor.withKey(id)(PersonEditorProps(name, updateUser(id))) // ← Apply 1 arg
       }.toJsArray
     )
 }
 
-case class PersonEditorProps(name: String, update: String ~=> IO[Unit])
+case class PersonEditorProps(name: String, update: String ~=> IO[Unit])   // ← Notice the ~=>
 
 implicit val propsReuse = Reusable.caseclass2(PersonEditorProps.unapply)
 
@@ -111,8 +111,8 @@ val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
     <.input(
       ^.`type` := "text",
       ^.value := p.name,
-      ^.onChange ~~> ((e: ReactEventI) => p.update(e.target.value))))
-  .configure(Reusable.shouldComponentUpdate)
+      ^.onChange ~~> ((e: ReactEventI) => p.update(e.target.value))))    // ← Use as normal
+  .configure(Reusable.shouldComponentUpdate)                             // ← shouldComponentUpdate like magic
   .build
 ```
 
