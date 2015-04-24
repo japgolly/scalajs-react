@@ -160,6 +160,7 @@ Px
 It's basically a performance-focused, lightweight implementation of pull-based
 [FRP](http://en.wikipedia.org/wiki/Functional_reactive_programming);
 pull-based meaning that in the chain A→B→C, an update to A doesn't affect C until the value of C is requested.
+Values are only compared when they are set or modified. When data is retrieved, only the revision number (an integer) is compared to determine if an update is required.
 
 *What does Px mean? I don't know, I just needed a name and I liked the way @lihaoyi's Rx type name looked in code.
 You can consider this "Performance eXtension". If this were Java it'd be named
@@ -167,7 +168,7 @@ You can consider this "Performance eXtension". If this were Java it'd be named
 
 ##### Initial instances
 `Px` comes in two flavours: reusable and not.
-If it's "reusable" then when its underlying value changes, it will compare the new value to the previous one and discard the change if it can.
+If it's "reusable" then when its underlying value `A` changes, it will compare the new `A` value to the previous `A` (using `Reusable[A]`) and discard the change if it can. If it's not reusable, all changes to the underlying value (including duplicates) are accepted.
 
 Create a non-derivative `Px` using one of these:
 
