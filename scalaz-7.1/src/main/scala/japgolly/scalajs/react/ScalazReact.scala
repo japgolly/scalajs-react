@@ -13,7 +13,8 @@ object ScalazReact {
 
   implicit val maybeInstance: Optional[Maybe] = new Optional[Maybe] {
     @inline final override def foreach[A](m: Maybe[A])(f: (A) => Unit): Unit = m.cata(f, ())
-    @inline final override def fold[A, B](t: Maybe[A], f: A => B, b: => B): B = t.cata(f, b)
+    @inline final override def fold[A, B](t: Maybe[A], b: => B)(f: A => B): B = t.cata(f, b)
+    @inline final override def isEmpty[A](t: Maybe[A]): Boolean = t.isEmpty
   }
 
   implicit val IoToIo: IO ~> IO = NaturalTransformation.refl[IO]

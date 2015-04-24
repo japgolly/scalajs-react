@@ -1,11 +1,13 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react._, ScalazReact._
 import monocle.Lens
 import scalaz.effect.IO
+import japgolly.scalajs.react._, ScalazReact._
 
 /**
  * Provides a component with safe R/W access to an external variable.
+ *
+ * Use [[ReusableVar]] for a [[Reusable]] version of this.
  */
 final class ExternalVar[A](val value: A, val set: A => IO[Unit]) {
 
