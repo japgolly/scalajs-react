@@ -1,10 +1,117 @@
-package japgolly.scalajs.react.extra
+package japgolly.scalajs.react
+package extra
 
+import scalaz.effect.IO
 import utest._
+import vdom.prefix_<^._
+import test._
+import ScalazReact._
 
 object ReusabilityTest extends TestSuite {
 
+  object SampleComponent1 {
+    case class Picture(id: Long, url: String, title: String)
+    case class Props(name: String, age: Option[Int], pic: Picture)
+
+    implicit val picReuse   = Reusable.by((_: Picture).id)
+    implicit val propsReuse = Reusable.caseclass3(Props.unapply)
+
+    var renderCount = 0
+
+    val component = ReactComponentB[Props]("Demo")
+      .getInitialState(identity)
+      .render { (_, *) =>
+        renderCount += 1
+        <.div(
+          <.p("Name: ", *.name),
+          <.p("Age: ", *.age.fold("Unknown")(_.toString)),
+          <.img(^.src := *.pic.url, ^.title := *.pic.title))
+      }
+      .configure(Reusable.shouldComponentUpdate)
+      .build
+  }
+
+  object SampleComponent2 {
+    var outerRenderCount = 0
+    var innerRenderCount = 0
+    type M = Map[Int, String]
+
+    val outerComponent = ReactComponentB[M]("Demo")
+      .getInitialState(identity)
+      .backend(new Backend(_))
+      .render(_.backend.render)
+      .build
+
+    class Backend($: BackendScope[_, M]) {
+      val updateUser = ReusableFn((id: Int, data: String) =>
+        $.modStateIO(_.updated(id, data)))
+      def render = {
+        outerRenderCount += 1
+        <.div(
+          $.state.map { case (id, name) =>
+            innerComponent.withKey(id)(InnerProps(name, updateUser(id)))
+          }.toJsArray)
+      }
+    }
+
+    case class InnerProps(name: String, update: String ~=> IO[Unit])
+    implicit val propsReuse = Reusable.caseclass2(InnerProps.unapply)
+
+    val innerComponent = ReactComponentB[InnerProps]("PersonEditor")
+      .stateless
+      .render { (p, _) =>
+        innerRenderCount += 1
+        <.input(
+          ^.`type` := "text",
+          ^.value := p.name,
+          ^.onChange ~~> ((e: ReactEventI) => p.update(e.target.value)))
+      }
+      .configure(Reusable.shouldComponentUpdate)
+      .build
+  }
+
   val tests = TestSuite {
+
+    'shouldComponentUpdate {
+      'reusableState {
+        import SampleComponent1._
+
+        val pic1a = Picture(1, "asdf", "qer")
+        val pic1b = Picture(1, "eqwrg", "seafr")
+        val pic2  = Picture(2, "asdf", "qer")
+
+        val c = ReactTestUtils renderIntoDocument component(Props("n", None, pic1a))
+        def test(expectDelta: Int, s: Props): Unit = {
+          val a = renderCount
+          c setState s
+          assert(renderCount == a + expectDelta)
+        }
+        val (update,ignore) = (1,0)
+
+        test(ignore, Props("n", None, pic1a))
+        test(update, Props("!", None, pic1a))
+        test(ignore, Props("!", None, pic1a))
+        test(ignore, Props("!", None, pic1b))
+        test(update, Props("!", None, pic2))
+        test(ignore, Props("!", None, pic2))
+        test(update, Props("!", Some(3), pic2))
+        test(update, Props("!", Some(4), pic2))
+        test(ignore, Props("!", Some(4), pic2))
+        test(update, Props("!", Some(5), pic2))
+      }
+
+      'reusableProps {
+        import SampleComponent2._
+        val data1: M = Map(1 -> "One", 2 -> "Two", 3 -> "Three")
+        val data2: M = Map(1 -> "One", 2 -> "Two", 3 -> "33333")
+        val c = ReactTestUtils renderIntoDocument outerComponent(data1)
+        assert(outerRenderCount == 1, innerRenderCount == 3)
+        c.forceUpdate()
+        assert(outerRenderCount == 2, innerRenderCount == 3)
+        c setState data2
+        assert(outerRenderCount == 3, innerRenderCount == 4)
+      }
+    }
 
     'option {
       def test(vs: Option[Boolean]*) =
