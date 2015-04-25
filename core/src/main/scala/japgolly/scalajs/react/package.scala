@@ -88,7 +88,7 @@ package object react {
       apply(ev(s.state))(s)
   }
 
-  final class RefJSComp[M<: js.Object](_name: String) extends Ref(_name) {
+  final class RefJSComp[M <: js.Object](_name: String) extends Ref(_name) {
     override type R = M
     protected override def resolve(r: RefsObject) = r[TopNode](name).asInstanceOf[UndefOr[M]]
   }
@@ -106,8 +106,8 @@ package object react {
     def to[P, S, B, N <: TopNode](types: ReactComponentTypeAux[P, S, B, N], name: String): RefComp[P, S, B, N] =
       new RefComp[P, S, B, N](name)
 
-    /** ref to third party components(example : pure js components) */
-    def toJS[M <: js.Object](name : String) = new RefJSComp[M](name)
+    /** A reference to a pure JS component that has its own facade type. */
+    def toJS[M <: js.Object](name: String) = new RefJSComp[M](name)
   }
 
   @inline implicit final class ReactExt_ScalaColl[A](val _as: TraversableOnce[A]) extends AnyVal {

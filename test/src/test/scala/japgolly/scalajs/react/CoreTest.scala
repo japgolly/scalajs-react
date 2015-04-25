@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.Addons.{ReactCssTransitionGroupM, ReactCssTransitionGroup, ReactCloneWithProps}
+import japgolly.scalajs.react.Addons.{ReactCssTransitionGroup, ReactCloneWithProps}
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
 import org.scalajs.dom.raw.HTMLInputElement
@@ -23,6 +23,8 @@ object CoreTest extends TestSuite {
   val tagmod  : TagMod       = cls := "ho"
   val reacttag: ReactTag     = span()
   val relement: ReactElement = span()
+
+  trait ReactCssTransitionGroupM extends js.Object
 
   val tests = TestSuite {
 
@@ -382,6 +384,7 @@ object CoreTest extends TestSuite {
         assert(n.className == "xyz child")
       }
     }
+
     'refToThirdPartyComponents {
       class RB(t:BackendScope[_,_]) {
         def test = {

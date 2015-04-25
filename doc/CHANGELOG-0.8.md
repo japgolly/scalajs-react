@@ -1,3 +1,8 @@
+# 0.8.4 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.3...v0.8.4))
+
+* Added `Ref.toJS` for a reference to a pure JS component that has its own facade type.
+* Added a `ref` param to `ReactCssTransitionGroup`.
+
 # 0.8.3 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.2...v0.8.3))
 
 * Added Touch event attributes:
