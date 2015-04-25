@@ -1,6 +1,7 @@
 package japgolly.scalajs.react
 
 import scala.scalajs.js
+import js.annotation.JSName
 
 object Addons {
 
@@ -43,4 +44,49 @@ object Addons {
     }
   }
 
+  /**
+   * React Performance Tools
+   *
+   * http://facebook.github.io/react/docs/perf.html
+   */
+  @JSName("React.addons.Perf")
+  object Perf extends js.Object {
+    type Measurements = js.Array[Measurement]
+
+    sealed trait Measurement extends js.Object {
+      val totalTime: Double = js.native
+    }
+
+    sealed trait Report extends js.Object
+
+    def start(): Unit = js.native
+
+    def stop(): Unit = js.native
+
+    def getLastMeasurements(): Measurements = js.native
+
+    /**
+     * Prints the overall time taken.
+     */
+    def printInclusive(measurements: Measurements = js.native): Report = js.native
+
+    /**
+     * "Exclusive" times don't include the times taken to mount the components:
+     * processing props, getInitialState, call componentWillMount and componentDidMount, etc.
+     */
+    def printExclusive(measurements: Measurements = js.native): Report = js.native
+
+    /**
+     * <strong>The most useful part of the profiler.</strong>
+     *
+     * "Wasted" time is spent on components that didn't actually render anything,
+     * e.g. the render stayed the same, so the DOM wasn't touched.
+     */
+    def printWasted(measurements: Measurements = js.native): Report = js.native
+
+    /**
+     * Prints the underlying DOM manipulations, e.g. "set innerHTML" and "remove".
+     */
+    def printDOM(measurements: Measurements = js.native): Report = js.native
+  }
 }
