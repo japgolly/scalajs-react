@@ -225,6 +225,7 @@ package object react {
   @inline implicit final class ReactExt_ComponentScope_P[Props](val _c: ComponentScope_P[Props]) extends AnyVal {
     @inline def props = _c._props.v
     @inline def propsChildren = _c._props.children
+    @inline def propsDynamic = _c._props.asInstanceOf[js.Dynamic]
   }
 
   @inline implicit final class ReactExt_ComponentScope_PS[Props, State](val _c: ComponentScope_PS[Props, State]) extends AnyVal {
