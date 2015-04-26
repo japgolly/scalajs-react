@@ -1,5 +1,7 @@
 # 0.9.0
 
+* In `ReactComponentB`, `domType` is now specified before lifecycle callbacks
+  so that a DOM cast isn't required within the callback bodies.
 * Performance Management
   * Detail with examples here: [PERF.md](https://github.com/japgolly/scalajs-react/blob/master/extra/PERF.md)
   * New API: `Addons.Perf` over http://facebook.github.io/react/docs/perf.html.

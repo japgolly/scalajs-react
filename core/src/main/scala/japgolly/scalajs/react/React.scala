@@ -156,7 +156,7 @@ trait ReactComponentU[Props, State, +Backend, +Node <: TopNode]
 /** A mounted Scala component. */
 trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]
   extends ReactComponentM_[Node]
-     with ComponentScopeMN[Props, State, Backend, Node]
+     with ComponentScopeM[Props, State, Backend, Node]
      with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
 // =====================================================================================================================
@@ -213,18 +213,17 @@ trait ComponentScopeU[Props, State, +Backend]
 }
 
 /** Type of a component's `this` scope during componentWillUpdate. */
-trait ComponentScopeWU[Props, +State, +Backend]
+trait ComponentScopeWU[Props, +State, +Backend, +Node <: TopNode]
   extends ComponentScope_A
      with ComponentScope_PS[Props, State]
      with ComponentScope_P[Props]
      with ComponentScope_S[State]
      with ComponentScope_B[Backend]
-     with ComponentScope_M[TopNode]
+     with ComponentScope_M[Node]
   // prohibits: .setState
 
 /** Type of a mounted component's `this` scope. */
-trait ComponentScopeM[Props, State, +Backend] extends ComponentScopeMN[Props, State, Backend, TopNode]
-trait ComponentScopeMN[Props, State, +Backend, +Node <: TopNode]
+trait ComponentScopeM[Props, State, +Backend, +Node <: TopNode]
   extends ComponentScopeU[Props, State, Backend]
      with ReactComponentTypeAuxJ[Props, State, Backend, Node]
      with ComponentScope_PS[Props, State]

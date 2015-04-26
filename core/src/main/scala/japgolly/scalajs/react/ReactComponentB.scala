@@ -6,26 +6,13 @@ import Internal._
 object ReactComponentB {
 
   // ===================================================================================================================
-  // Convenience
-
-  /**
-   * Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing.
-   */
-  def static(name: String, content: ReactElement) =
-    ReactComponentB[Unit](name)
-      .stateless
-      .noBackend
-      .render(_ => content)
-      .shouldComponentUpdate((_, _, _) => false)
-
-  // ===================================================================================================================
   // Builder
 
   @inline def apply[Props](name: String) = new P[Props](name)
 
-  implicit def defaultDomType[P,S,B](c: ReactComponentB[P,S,B]) = c.domType[TopNode]
-  implicit def defaultProps[P,S,B,N <: TopNode](c: ReactComponentB[P,S,B]#AnchorN[N]) = c.propsRequired
-  implicit def defaultDomTypeAndProps[P,S,B](c: ReactComponentB[P,S,B]) = defaultProps(defaultDomType(c))
+  implicit def defaultDomType[P,S,B](c: PSBN[P,S,B]) = c.domType[TopNode]
+  implicit def defaultProps[P,S,B,N <: TopNode](c: ReactComponentB[P,S,B,N]) = c.propsRequired
+  implicit def defaultDomTypeAndProps[P,S,B](c: PSBN[P,S,B]) = defaultProps(defaultDomType(c))
 
   // ===================================================================================================================
   final class P[Props] private[ReactComponentB](name: String) {
@@ -55,85 +42,89 @@ object ReactComponentB {
   // ===================================================================================================================
   final class PSB[P, S, B] private[ReactComponentB](name: String, initF: P => S, backF: BackendScope[P, S] => B) {
 
-    def render(f: ComponentScopeU[P, S, B] => ReactElement): ReactComponentB[P, S, B] =
-      new ReactComponentB(name, initF, backF, f,
-        LifeCycle(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined))
+    def render(f: ComponentScopeU[P, S, B] => ReactElement): PSBN[P, S, B] =
+      new PSBN(name, initF, backF, f)
 
-    def render(f: (P, S, B) => ReactElement): ReactComponentB[P, S, B] =
+    def render(f: (P, S, B) => ReactElement): PSBN[P, S, B] =
       render(s => f(s.props, s.state, s.backend))
 
-    def render(f: (P, PropsChildren, S, B) => ReactElement): ReactComponentB[P, S, B] =
+    def render(f: (P, PropsChildren, S, B) => ReactElement): PSBN[P, S, B] =
       render(s => f(s.props, s.propsChildren, s.state, s.backend))
 
-    def renderS(f: (ComponentScopeU[P, S, B], P, S) => ReactElement): ReactComponentB[P, S, B] =
+    def renderS(f: (ComponentScopeU[P, S, B], P, S) => ReactElement): PSBN[P, S, B] =
       render(T => f(T, T.props, T.state))
   }
 
   // ===================================================================================================================
-  private[react] case class LifeCycle[P,S,B](
-    getDefaultProps           : UndefOr[()                                => P],
-    componentWillMount        : UndefOr[ComponentScopeU[P, S, B]          => Unit],
-    componentDidMount         : UndefOr[ComponentScopeM[P, S, B]          => Unit],
-    componentWillUnmount      : UndefOr[ComponentScopeM[P, S, B]          => Unit],
-    componentWillUpdate       : UndefOr[(ComponentScopeWU[P, S, B], P, S) => Unit],
-    componentDidUpdate        : UndefOr[(ComponentScopeM[P, S, B], P, S)  => Unit],
-    componentWillReceiveProps : UndefOr[(ComponentScopeM[P, S, B], P)     => Unit],
-    shouldComponentUpdate     : UndefOr[(ComponentScopeM[P, S, B], P, S)  => Boolean])
+  final class PSBN[P, S, B] private[ReactComponentB](name: String, initF: P => S, backF: BackendScope[P, S] => B, rendF: ComponentScopeU[P, S, B] => ReactElement) {
+    def domType[N <: TopNode]: ReactComponentB[P, S, B, N] =
+      new ReactComponentB(name, initF, backF, rendF, emptyLifeCycle)
+  }
+
+  // ===================================================================================================================
+  private[react] case class LifeCycle[P,S,B,N <: TopNode](
+    getDefaultProps          : UndefOr[()                                   => P],
+    componentWillMount       : UndefOr[ComponentScopeU[P, S, B]             => Unit],
+    componentDidMount        : UndefOr[ComponentScopeM[P, S, B, N]          => Unit],
+    componentWillUnmount     : UndefOr[ComponentScopeM[P, S, B, N]          => Unit],
+    componentWillUpdate      : UndefOr[(ComponentScopeWU[P, S, B, N], P, S) => Unit],
+    componentDidUpdate       : UndefOr[(ComponentScopeM[P, S, B, N], P, S)  => Unit],
+    componentWillReceiveProps: UndefOr[(ComponentScopeM[P, S, B, N], P)     => Unit],
+    shouldComponentUpdate    : UndefOr[(ComponentScopeM[P, S, B, N], P, S)  => Boolean])
+
+  private[react] def emptyLifeCycle[P,S,B,N <: TopNode] =
+    LifeCycle[P,S,B,N](undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
 }
 
 import ReactComponentB.LifeCycle
 
-final class ReactComponentB[P, S, B](val name: String,
-                                     initF: P => S,
-                                     backF: BackendScope[P, S] => B,
-                                     rendF: ComponentScopeU[P, S, B] => ReactElement,
-                                     lc: LifeCycle[P, S, B]) {
+final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
+                                                initF: P => S,
+                                                backF: BackendScope[P, S] => B,
+                                                rendF: ComponentScopeU[P, S, B] => ReactElement,
+                                                lc: LifeCycle[P, S, B, N]) {
 
-  def configure(fs: (ReactComponentB[P, S, B] => ReactComponentB[P, S, B])*): ReactComponentB[P, S, B] =
+  def configure(fs: (ReactComponentB[P, S, B, N] => ReactComponentB[P, S, B, N])*): ReactComponentB[P, S, B, N] =
     fs.foldLeft(this)((a,f) => f(a))
 
-  @inline private implicit def lcmod(a: LifeCycle[P, S, B]): ReactComponentB[P, S, B] =
+  @inline private implicit def lcmod(a: LifeCycle[P, S, B, N]): ReactComponentB[P, S, B, N] =
     new ReactComponentB(name, initF, backF, rendF, a)
 
-  def getDefaultProps(p: => P): ReactComponentB[P, S, B] =
+  def getDefaultProps(p: => P): ReactComponentB[P, S, B, N] =
     lc.copy(getDefaultProps = () => p)
 
-  def componentWillMount(f: ComponentScopeU[P, S, B] => Unit): ReactComponentB[P, S, B] =
+  def componentWillMount(f: ComponentScopeU[P, S, B] => Unit): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillMount = fcUnit(lc.componentWillMount, f))
 
-  def componentDidMount(f: ComponentScopeM[P, S, B] => Unit): ReactComponentB[P, S, B] =
+  def componentDidMount(f: ComponentScopeM[P, S, B, N] => Unit): ReactComponentB[P, S, B, N] =
     lc.copy(componentDidMount = fcUnit(lc.componentDidMount, f))
 
-  def componentWillUnmount(f: ComponentScopeM[P, S, B] => Unit): ReactComponentB[P, S, B] =
+  def componentWillUnmount(f: ComponentScopeM[P, S, B, N] => Unit): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillUnmount = fcUnit(lc.componentWillUnmount, f))
 
-  def componentWillUpdate(f: (ComponentScopeWU[P, S, B], P, S) => Unit): ReactComponentB[P, S, B] =
+  def componentWillUpdate(f: (ComponentScopeWU[P, S, B, N], P, S) => Unit): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillUpdate = fcUnit(lc.componentWillUpdate, f))
 
-  def componentDidUpdate(f: (ComponentScopeM[P, S, B], P, S) => Unit): ReactComponentB[P, S, B] =
+  def componentDidUpdate(f: (ComponentScopeM[P, S, B, N], P, S) => Unit): ReactComponentB[P, S, B, N] =
     lc.copy(componentDidUpdate = fcUnit(lc.componentDidUpdate, f))
 
-  def componentWillReceiveProps(f: (ComponentScopeM[P, S, B], P) => Unit): ReactComponentB[P, S, B] =
+  def componentWillReceiveProps(f: (ComponentScopeM[P, S, B, N], P) => Unit): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillReceiveProps = fcUnit(lc.componentWillReceiveProps, f))
 
-  def shouldComponentUpdate(f: (ComponentScopeM[P, S, B], P, S) => Boolean): ReactComponentB[P, S, B] =
+  def shouldComponentUpdate(f: (ComponentScopeM[P, S, B, N], P, S) => Boolean): ReactComponentB[P, S, B, N] =
     lc.copy(shouldComponentUpdate = fcEither(lc.shouldComponentUpdate, f))
 
   // ===================================================================================================================
-  def domType[N2 <: TopNode] = new AnchorN[N2]
+  @inline private def builder[C](cc: ReactComponentCU[P,S,B,N] => C) = new Builder(cc)
 
-  final class AnchorN[N <: TopNode] private[ReactComponentB] {
-    @inline private def builder[C](cc: ReactComponentCU[P,S,B,N] => C) = new Builder(cc)
+  def propsRequired         = builder(new ReactComponentC.ReqProps    [P,S,B,N](_, undefined, undefined))
+  def propsDefault(p: => P) = builder(new ReactComponentC.DefaultProps[P,S,B,N](_, undefined, undefined, () => p))
+  def propsConst  (p: => P) = builder(new ReactComponentC.ConstProps  [P,S,B,N](_, undefined, undefined, () => p))
 
-    def propsRequired         = builder(new ReactComponentC.ReqProps    [P,S,B,N](_, undefined, undefined))
-    def propsDefault(p: => P) = builder(new ReactComponentC.DefaultProps[P,S,B,N](_, undefined, undefined, () => p))
-    def propsConst  (p: => P) = builder(new ReactComponentC.ConstProps  [P,S,B,N](_, undefined, undefined, () => p))
+  def propsUnit(implicit ev: Unit =:= P) = propsConst(ev(()))
+  def buildU   (implicit ev: Unit =:= P) = propsUnit.build
 
-    def propsUnit(implicit ev: Unit =:= P) = propsConst(ev(()))
-    def buildU   (implicit ev: Unit =:= P) = propsUnit.build
-  }
-
-  final class Builder[C, N <: TopNode] private[ReactComponentB](cc: ReactComponentCU[P,S,B,N] => C) {
+  final class Builder[C] private[ReactComponentB](cc: ReactComponentCU[P,S,B,N] => C) {
 
     def buildSpec: ReactComponentSpec[P, S, B, N] = {
       val spec = Dynamic.literal(
@@ -167,7 +158,7 @@ final class ReactComponentB[P, S, B](val name: String,
       setFnPS(lc.shouldComponentUpdate, "shouldComponentUpdate")
 
       lc.componentWillReceiveProps.foreach { f =>
-        val g = (t: ComponentScopeM[P, S, B], p: WrapObj[P]) => f(t, p.v)
+        val g = (t: ComponentScopeM[P, S, B, N], p: WrapObj[P]) => f(t, p.v)
         spec.updateDynamic("componentWillReceiveProps")(g: ThisFunction)
       }
 
@@ -177,4 +168,17 @@ final class ReactComponentB[P, S, B](val name: String,
     def build: C =
       cc(React.createFactory(React.createClass(buildSpec)))
   }
+
+  // ===================================================================================================================
+  // Convenience
+
+  /**
+   * Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing.
+   */
+  def static(name: String, content: ReactElement) =
+    ReactComponentB[Unit](name)
+      .stateless
+      .noBackend
+      .render(_ => content)
+      .shouldComponentUpdate((_, _, _) => false)
 }

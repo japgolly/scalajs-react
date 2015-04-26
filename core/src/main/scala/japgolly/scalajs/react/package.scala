@@ -210,7 +210,7 @@ package object react {
   }
 
   @inline implicit final class ReactExt_ReactObj(val _r: React.type) extends AnyVal {
-    @inline def renderC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeMN[P,S,B,N] => Unit) =
+    @inline def renderC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeM[P,S,B,N] => Unit) =
       _r.render(c, n, callback)
   }
 

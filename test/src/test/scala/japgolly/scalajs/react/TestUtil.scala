@@ -100,9 +100,9 @@ object TestUtil {
     trait T
     trait A
     trait B
-    val c = null.asInstanceOf[ComponentScopeM[Unit, S, Unit]]
     type U = Unit
     type N = TopNode
+    val c = null.asInstanceOf[ComponentScopeM[Unit, S, Unit, N]]
 
     implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> IO)]
   }

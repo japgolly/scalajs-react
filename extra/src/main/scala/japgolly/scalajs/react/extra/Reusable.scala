@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.extra
 
 import scalaz._
+import japgolly.scalajs.react.{ReactComponentB, TopNode}
 import japgolly.scalajs.react.vdom.Optional
-import japgolly.scalajs.react.ReactComponentB
 
 /**
  * Tests whether one instance can be used in place of another.
@@ -223,20 +223,20 @@ object Reusable {
 
   // -------------------------------------------------------------------------------------------------------------------
 
-  def shouldComponentUpdate[P: Reusable, S: Reusable, B] =
-    (_: ReactComponentB[P, S, B]).shouldComponentUpdate(($, p, s) =>
+  def shouldComponentUpdate[P: Reusable, S: Reusable, N <: TopNode, B] =
+    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p, s) =>
       ($.props ~/~ p) || ($.state ~/~ s))
 
-  def shouldComponentUpdateDebug[P: Reusable, S: Reusable, B](f: (P, P, Boolean, S, S, Boolean) => Unit) =
-    (_: ReactComponentB[P, S, B]).shouldComponentUpdate(($, p, s) => {
+  def shouldComponentUpdateDebug[P: Reusable, S: Reusable, B, N <: TopNode](f: (P, P, Boolean, S, S, Boolean) => Unit) =
+    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p, s) => {
       val up = $.props ~/~ p
       val us = $.state ~/~ s
       f($.props, p, up, $.state, s, us)
       up || us
     })
 
-  def shouldComponentUpdateDebugLog[P: Reusable, S: Reusable, B](name: String) =
-    shouldComponentUpdateDebug[P, S, B] { (p1, p2, p, s1, s2, s) =>
+  def shouldComponentUpdateDebugLog[P: Reusable, S: Reusable, B, N <: TopNode](name: String) =
+    shouldComponentUpdateDebug[P, S, B, N] { (p1, p2, p, s1, s2, s) =>
       println(s"$name.shouldComponentUpdate = ${p || s}\n  Props: $p. [$p1] ⇒ [$p2]\n  State: $s. [$s1] ⇒ [$s2]")
     }
 }

@@ -2,6 +2,7 @@ package japgolly.scalajs.react.extra
 
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
+import japgolly.scalajs.react.TopNode
 
 /**
  * Alternative to `window.setInterval` that automatically unregisters installed callbacks when its component unmounts.
@@ -16,5 +17,5 @@ trait SetInterval extends OnUnmount {
 }
 
 object SetInterval {
-  def install[P, S, B <: SetInterval] = OnUnmount.install[P, S, B]
+  def install[P, S, B <: SetInterval, N <: TopNode] = OnUnmount.install[P, S, B, N]
 }

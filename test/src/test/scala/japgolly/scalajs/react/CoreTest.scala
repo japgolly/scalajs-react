@@ -18,6 +18,9 @@ object CoreTest extends TestSuite {
     .initialState(123)
     .render(T => input(value := T.state.toString))
     .domType[HTMLInputElement]
+    .componentDidMount($ => {
+      val s: String = $.getDOMNode().value // Look, it knows its DOM node type
+    })
     .buildU
 
   val tagmod  : TagMod       = cls := "ho"
@@ -214,7 +217,7 @@ object CoreTest extends TestSuite {
     'builder {
       'configure {
         var called = 0
-        val f = (_: ReactComponentB[Unit,Unit,Unit]).componentWillMount(_ => called += 1)
+        val f = (_: ReactComponentB[Unit,Unit,Unit,TopNode]).componentWillMount(_ => called += 1)
         val c = ReactComponentB[Unit]("X").render(_ => div("")).configure(f, f).buildU
         ReactTestUtils.renderIntoDocument(c())
         assert(called == 2)
@@ -351,7 +354,7 @@ object CoreTest extends TestSuite {
       def st_set: (S, T) => S = null
 
       "BackendScope ops"    - test[BackendScope[Unit, S]      ](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
-      "ComponentScopeM ops" - test[ComponentScopeM[U, S, U]   ](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
+      "ComponentScopeM ops" - test[ComponentScopeM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
       "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
     }
 
