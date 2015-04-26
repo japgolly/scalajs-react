@@ -43,7 +43,7 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.8.3"
 
 // React itself
 //   (react-with-addons.js can be react.js, react.min.js, react-with-addons.min.js)
-jsDependencies += "org.webjars" % "react" % "0.13.1" / "react-with-addons.js" commonJSName "React"
+jsDependencies += "org.webjars" % "react" % "0.12.1" / "react-with-addons.js" commonJSName "React"
 
 // Test support including ReactTestUtils
 //   (requires react-with-addons.js instead of just react.js)
