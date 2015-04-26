@@ -147,9 +147,6 @@ object Px {
 
   // ===================================================================================================================
 
-  implicit def reusability[A]: Reusable[Px[A]] =
-    Reusable.fn((x, y) => (x eq y) && (x.rev ~=~ y.rev))
-
   /** Import this to avoid the need to call `.value()` on your `Px`s. */
   object AutoValue {
     @inline implicit def autoPxValue[A](x: Px[A]): A = x.value()
