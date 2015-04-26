@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import scalaz._
-import japgolly.scalajs.react.{ReactComponentB, TopNode}
+import japgolly.scalajs.react.{ReactComponentB, TopNode, ReactElement}
 import japgolly.scalajs.react.vdom.Optional
 
 /**
@@ -221,7 +221,7 @@ object Reusable {
   def caseclass22[A:Reusable, B:Reusable, C:Reusable, D:Reusable, E:Reusable, F:Reusable, G:Reusable, H:Reusable, I:Reusable, J:Reusable, K:Reusable, L:Reusable, M:Reusable, N:Reusable, O:Reusable, P:Reusable, Q:Reusable, R:Reusable, S:Reusable, T:Reusable, U:Reusable, V:Reusable, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V)]): Reusable[Z] =
     Reusable[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V)].contramap(z(_).get)
 
-  // -------------------------------------------------------------------------------------------------------------------
+  // ===================================================================================================================
 
   def shouldComponentUpdate[P: Reusable, S: Reusable, N <: TopNode, B] =
     (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p, s) =>
@@ -239,4 +239,14 @@ object Reusable {
     shouldComponentUpdateDebug[P, S, B, N] { (p1, p2, p, s1, s2, s) =>
       println(s"$name.shouldComponentUpdate = ${p || s}\n  Props: $p. [$p1] ⇒ [$p2]\n  State: $s. [$s1] ⇒ [$s2]")
     }
+
+  // ===================================================================================================================
+  // Convenience
+
+  def component[P: Reusable](name: String, render: P => ReactElement) =
+    ReactComponentB[P](name)
+      .stateless
+      .noBackend
+      .render($ => render($.props))
+      .configure(shouldComponentUpdate)
 }

@@ -9,3 +9,5 @@
   * `ReusableFn` for callbacks that can be passed around and work with `shouldComponentUpdate`.
   * `ReusableVar` as a version of `ExternalVar` that works with `shouldComponentUpdate`.
   * `Px` for caching.
+* Convenience  method `Reusable.component` turns a `P => ReactElement` into a
+  stateless component with `shouldComponentUpdate` configured.
