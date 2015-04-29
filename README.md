@@ -39,7 +39,7 @@ Firstly, you'll need to add [Scala.js](http://www.scala-js.org) to your project.
 Next, add scalajs-react to SBT:
 ```scala
 // Minimal usage
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.8.3"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.8.4"
 
 // React itself
 //   (react-with-addons.js can be react.js, react.min.js, react-with-addons.min.js)
@@ -47,16 +47,16 @@ jsDependencies += "org.webjars" % "react" % "0.12.1" / "react-with-addons.js" co
 
 // Test support including ReactTestUtils
 //   (requires react-with-addons.js instead of just react.js)
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.8.3" % "test"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.8.4" % "test"
 
 // Scalaz support
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % "0.8.3"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % "0.8.4"
 
 // Monocle support
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "0.8.3"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "0.8.4"
 
 // Extra features (includes Scalaz and Monocle support)
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.8.3"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.8.4"
 ```
 
 Code:
