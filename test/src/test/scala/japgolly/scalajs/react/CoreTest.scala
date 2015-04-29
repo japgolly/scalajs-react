@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.Addons.{ReactCssTransitionGroup, ReactCloneWithProps}
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
-import org.scalajs.dom.raw.HTMLInputElement
+import org.scalajs.dom.raw.{HTMLOptionElement, HTMLSelectElement, HTMLInputElement}
 import vdom.all._
 import TestUtil._
 import test.{DebugJs, ReactTestUtils}
@@ -300,6 +300,25 @@ object CoreTest extends TestSuite {
       val c = ReactTestUtils.renderIntoDocument(SI())
       val v = c.getDOMNode().value // Look, it knows its DOM node type
       assert(v == "123")
+    }
+
+    'selectWithMultipleValues {
+      val s = ReactComponentB[Unit]("s")
+        .render(T =>
+          select(multiple := true, value := js.Array("a", "c"))(
+            option(value := "a")("a"),
+            option(value := "b")("b"),
+            option(value := "c")("c")
+          )
+        )
+        .domType[HTMLSelectElement]
+        .buildU
+
+      val c = ReactTestUtils.renderIntoDocument(s())
+      val sel = c.getDOMNode()
+      val options = sel.options.asInstanceOf[js.Array[HTMLOptionElement]] // https://github.com/scala-js/scala-js-dom/pull/107
+      val selectedOptions = options filter (_.selected) map (_.value)
+      assert(selectedOptions.toSet == Set("a", "c"))
     }
 
     'refs {
