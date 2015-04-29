@@ -223,6 +223,10 @@ private[vdom] object Scalatags {
     @inline def apply[T <% js.Any] = new GenericAttr[T](a => a)
   }
 
+  final class ArrayAttr[T <% js.Any] extends AttrValue[js.Array[T]] {
+    def apply(v: js.Array[T], b: js.Any => Unit): Unit = b(v.map(a => a: js.Any))
+  }
+
   final class GenericStyle[T](f: T => String) extends StyleValue[T] {
     def apply(b: Builder, s: Style, v: T): Unit = {
       b.addStyle(s.cssName, f(v))

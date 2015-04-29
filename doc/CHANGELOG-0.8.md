@@ -1,3 +1,11 @@
+# 0.8.4 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.3...v0.8.4))
+
+* Added `Ref.toJS` for a reference to a pure JS component that has its own facade type.
+* Added a `ref` param to `ReactCssTransitionGroup`.
+* Added `.propsDynamic` as a convenience for `.props` cast to `js.Dynamic`.
+* Tag attributes can be arrays. Allows for multiple-selection in `<select>`.
+* Upgrade Monocle to 1.1.1.
+
 # 0.8.3 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.2...v0.8.3))
 
 * Added Touch event attributes:
@@ -10,8 +18,8 @@
     * `alignSelf`
     * `alignContent`
 * Changed SetInterval to accept `FiniteDuration` instead of `Double` to avoid unit errors.
-* Upgrade Scala to 2.11.6.
 * Upgrade Monocle to 1.1.0.
+* Upgrade Scala to 2.11.6.
 * Upgrade Scala.JS to 0.6.2.
 
 # 0.8.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.1...v0.8.2))

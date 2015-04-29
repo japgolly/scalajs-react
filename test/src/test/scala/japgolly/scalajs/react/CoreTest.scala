@@ -1,9 +1,9 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.Addons.ReactCloneWithProps
+import japgolly.scalajs.react.Addons.{ReactCssTransitionGroup, ReactCloneWithProps}
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
-import org.scalajs.dom.raw.HTMLInputElement
+import org.scalajs.dom.raw.{HTMLOptionElement, HTMLSelectElement, HTMLInputElement}
 import vdom.all._
 import TestUtil._
 import test.{DebugJs, ReactTestUtils}
@@ -23,6 +23,8 @@ object CoreTest extends TestSuite {
   val tagmod  : TagMod       = cls := "ho"
   val reacttag: ReactTag     = span()
   val relement: ReactElement = span()
+
+  trait ReactCssTransitionGroupM extends js.Object
 
   val tests = TestSuite {
 
@@ -300,6 +302,25 @@ object CoreTest extends TestSuite {
       assert(v == "123")
     }
 
+    'selectWithMultipleValues {
+      val s = ReactComponentB[Unit]("s")
+        .render(T =>
+          select(multiple := true, value := js.Array("a", "c"))(
+            option(value := "a")("a"),
+            option(value := "b")("b"),
+            option(value := "c")("c")
+          )
+        )
+        .domType[HTMLSelectElement]
+        .buildU
+
+      val c = ReactTestUtils.renderIntoDocument(s())
+      val sel = c.getDOMNode()
+      val options = sel.options.asInstanceOf[js.Array[HTMLOptionElement]] // https://github.com/scala-js/scala-js-dom/pull/107
+      val selectedOptions = options filter (_.selected) map (_.value)
+      assert(selectedOptions.toSet == Set("a", "c"))
+    }
+
     'refs {
       class WB(t: BackendScope[String,_]) { def getName = t.props }
       val W = ReactComponentB[String]("").stateless.backend(new WB(_)).render((_,c,_,_) => div(c)).build
@@ -381,6 +402,27 @@ object CoreTest extends TestSuite {
         val n = ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz").getDOMNode()
         assert(n.className == "xyz child")
       }
+    }
+
+    'refToThirdPartyComponents {
+      class RB(t:BackendScope[_,_]) {
+        def test = {
+          val transitionRef = Ref.toJS[ReactCssTransitionGroupM]("addon")(t)
+          assert(transitionRef.isDefined)
+        }
+      }
+      val C = ReactComponentB[Unit]("C")
+        .stateless
+        .backend(new RB(_))
+        .render((P,S,B) => {
+          div(
+            ReactCssTransitionGroup(name = "testname",ref = "addon")()
+          )
+        })
+        .componentDidMount(scope => scope.backend.test)
+        .buildU
+      ReactTestUtils.renderIntoDocument(C())
+
     }
   }
 }

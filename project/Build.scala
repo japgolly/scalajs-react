@@ -17,7 +17,7 @@ object ScalajsReact extends Build {
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.8.3",
+        version            := "0.8.4",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
@@ -134,7 +134,7 @@ object ScalajsReact extends Build {
     .settings(libraryDependencies += monocleLib("core"))
 
   def monocleLib(name: String) =
-    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.1.0"
+    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.1.1"
 
   // ==============================================================================================
   lazy val extra = project
