@@ -162,11 +162,13 @@ It's basically a performance-focused, lightweight implementation of pull-based
 pull-based meaning that in the chain A→B→C, an update to A doesn't affect C until the value of C is requested.
 Values are only compared when they are set or modified. When data is retrieved, only the revision number (an integer) is compared to determine if an update is required.
 
+**NOTE:** `Px` is not `Reusable`. Details below.
+
 *What does Px mean? I don't know, I just needed a name and I liked the way @lihaoyi's Rx type name looked in code.
 You can consider this "Performance eXtension". If this were Java it'd be named
 `AutoRefreshOnRequestDependentCachedVariable`.*
 
-##### Initial instances
+#### Initial instances
 `Px` comes in two flavours: reusable and not.
 If it's "reusable" then when its underlying value `A` changes, it will compare the new `A` value to the previous `A` (using `Reusable[A]`) and discard the change if it can. If it's not reusable, all changes to the underlying value (including duplicates) are accepted.
 
@@ -232,7 +234,7 @@ Create a non-derivative `Px` using one of these:
   }
   ```
 
-##### Derivative instances
+#### Derivative instances
 Derivative `Px`s are created by:
 * calling `.map`
 * calling `.flatMap`
@@ -264,4 +266,47 @@ val rows: Px[Rows] =
 // textSearch.value() will only change when project.refresh() is called and the project changes.
 // widgets.value()    will only change when either project or textSearch changes.
 // rows.value()       will only change when viewSettings, project or textSearch changes.
+```
+
+#### `Px` is not `Reusable`
+
+For  `Reusable` to work it needs to compare two immutable values; `Px` is mutable.
+
+If you have `(a: Px[T], b: Px[T])` you might assume that if they are the same by reference equality `(a eq b)` and the revisions line up then they are `Reusable`. No.
+A `Px` is useless unless you call `.value()` and it's these values you would need to compare in `shouldComponentUpdate`.
+Comparing `a.value()` and `b.value()` will not work because `.value()` always returns the latest value;
+you would need to know which value in its history was seen by your component.
+
+In short, do not use `Px` in a component's props or state. Instead of `Px[A]`, just use the `A`.
+
+```scala
+// BAD!
+case class Component2Props(count: Px[Int])
+class Component1Backend {
+  val px: Px[Int] = ...
+  def render: ReactElement =
+    Component2(Component2Props(px))
+}
+
+// Good
+case class Component2Props(count: Int)
+class Component1Backend {
+  val px: Px[Int] = ...
+  def render: ReactElement =
+    Component2(Component2Props(px.value()))
+}
+```
+
+There's also a convenience import in `Px.AutoValue` that avoids the need to call `.value()` on your `Px`s, if you're into that kind of thing.
+
+```scala
+// Also good
+import Px.AutoValue._
+
+case class Component2Props(count: Int)
+class Component1Backend {
+  val px: Px[Int] = ...
+  def render: ReactElement =
+    Component2(Component2Props(px))  // .value() called implicitly
+}
 ```
