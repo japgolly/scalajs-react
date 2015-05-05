@@ -145,6 +145,18 @@ object Px {
     }
   }
 
+  final class Const[A](a: A) extends Px[A] {
+    override def rev     = 0
+    override def peek    = a
+    override def value() = a
+  }
+
+  final class LazyConst[A](a: => A) extends Px[A] {
+    override def      rev     = 0
+    override lazy val peek    = a
+    override def      value() = peek
+  }
+
   // ===================================================================================================================
 
   /** Import this to avoid the need to call `.value()` on your `Px`s. */
@@ -157,6 +169,9 @@ object Px {
     xs.foreach(_.refresh())
 
   // ===================================================================================================================
+
+  @inline def const    [A](a: A)   : Px[A] = new Const(a)
+  @inline def lazyConst[A](a: => A): Px[A] = new LazyConst(a)
 
   def apply [A](a: A)   (implicit r: Reusable[A]) = new Var(a, r.test)
   def thunkM[A](f: => A)(implicit r: Reusable[A]) = new ThunkM(() => f, r.test)
