@@ -5,9 +5,9 @@ import scalaz.effect.IO
 import japgolly.scalajs.react._, ScalazReact._
 
 /**
- * [[Reusable]] version of [[ExternalVar]].
+ * Reusable version of [[ExternalVar]].
  */
-final class ReusableVar[A](val value: A, val set: A ~=> IO[Unit])(implicit val reuse: Reusable[A]) {
+final class ReusableVar[A](val value: A, val set: A ~=> IO[Unit])(implicit val reusability: Reusability[A]) {
 
   def mod(f: A => A): IO[Unit] =
     set(f(value))
@@ -20,12 +20,12 @@ final class ReusableVar[A](val value: A, val set: A ~=> IO[Unit])(implicit val r
 }
 
 object ReusableVar {
-  @inline def apply[A: Reusable](value: A)(set: A ~=> IO[Unit]): ReusableVar[A] =
+  @inline def apply[A: Reusability](value: A)(set: A ~=> IO[Unit]): ReusableVar[A] =
     new ReusableVar(value, set)
 
-  @inline def state[S: Reusable]($: ComponentStateFocus[S]): ReusableVar[S] =
+  @inline def state[S: Reusability]($: ComponentStateFocus[S]): ReusableVar[S] =
     new ReusableVar($.state, ReusableFn((s: S) => $.setStateIO(s)))
 
-  implicit def reusability[A]: Reusable[ReusableVar[A]] =
-    Reusable.fn((a, b) => (a.set ~=~ b.set) && a.reuse.test(a.value, b.value))
+  implicit def reusability[A]: Reusability[ReusableVar[A]] =
+    Reusability.fn((a, b) => (a.set ~=~ b.set) && a.reusability.test(a.value, b.value))
 }

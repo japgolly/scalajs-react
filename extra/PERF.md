@@ -9,10 +9,10 @@ These utilities help you avoid work in two ways.
 1. By making components' `shouldComponentUpdate` fns both easy to create, and accurate (safe). If it compiles, the logic in `shouldComponentUpdate` will be what you expect.
 2. By allowing you to cache your own arbitrary data, and build on it in a way such that derivative data is also cached effeciently.
 
-Reusable
-========
+Reusability
+===========
 
-`Reusable` is a typeclass that tests whether one instance can be used in place of another.
+`Reusability` is a typeclass that tests whether one instance can be used in place of another.
 It is used mostly to compare properties and state of a component to avoid unnecessary updates.
 
 If you imagine a class with 8 fields, equality would compare all 8 fields where as this would typically just compare
@@ -20,17 +20,17 @@ the ID field, the update-date, or the revision number.
 You might think of this as a very quick version of equality.
 
 ##### Usage
-When building your component, pass in `Reusable.shouldComponentUpdate` to your `ReactComponentB.configure`.
+When building your component, pass in `Reusability.shouldComponentUpdate` to your `ReactComponentB.configure`.
 
 It will not compile until it knows how to compare the reusability of your props and state.
 Out-of-the-box, it knows how to compare Scala primatives, `String`s, `Option`, `Either`, Scala tuples, `js.UndefOr`,
 and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it how. Use one of the following methods:
 
-* `Reusable.byRef[A]` uses reference equality (ie. `a eq b`)
-* `Reusable.by_==[A]` uses universal equality (ie. `a == b`)
-* `Reusable.byEqual[A]` uses a Scalaz `Equal` typeclass
-* <code>Reusable.caseclass<sub>n</sub></code> for case classes of your own.
-* `Reusable.by(A => B)` to use a subset (`B`) of the subject data (`A`).
+* `Reusability.byRef[A]` uses reference equality (ie. `a eq b`)
+* `Reusability.by_==[A]` uses universal equality (ie. `a == b`)
+* `Reusability.byEqual[A]` uses a Scalaz `Equal` typeclass
+* <code>Reusability.caseclass<sub>n</sub></code> for case classes of your own.
+* `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
 
 ##### Example
 The following component will only re-render when one of the following change:
@@ -42,8 +42,8 @@ The following component will only re-render when one of the following change:
   case class Picture(id: Long, url: String, title: String)
   case class Props(name: String, age: Option[Int], pic: Picture)
 
-  implicit val picReuse   = Reusable.by((_: Picture).id)       // ← only check id
-  implicit val propsReuse = Reusable.caseclass3(Props.unapply) // ← check all fields
+  implicit val picReuse   = Reusability.by((_: Picture).id)       // ← only check id
+  implicit val propsReuse = Reusability.caseclass3(Props.unapply) // ← check all fields
 
   val component = ReactComponentB[Props]("Demo")
     .stateless
@@ -53,7 +53,7 @@ The following component will only re-render when one of the following change:
         <.p("Age: ", p.age.fold("Unknown")(_.toString)),
         <.img(^.src := p.pic.url, ^.title := p.pic.title))
     )
-    .configure(Reusable.shouldComponentUpdate)                 // ← hook into lifecycle
+    .configure(Reusability.shouldComponentUpdate)                 // ← hook into lifecycle
     .build
 ```
 
@@ -72,7 +72,7 @@ provide no means of determining whether a component can safely skip its update.
 1. Just wrap `ReusableFn` around your function.
 2. Store the `ReusableFn` as a `val` somewhere outside of your `render` function, usually in the body of your backend class.
 3. Replace the callback (say `A => B`) in components' props, to take a `ReusableFn[A, B]` or the shorthand `A ~=> B`.
-4. Treat the `ReusableFn` as you would a normal function, save for one difference: application is curried (or Schönfinkel'ed), and each curried argument must be `Reusable`.
+4. Treat the `ReusableFn` as you would a normal function, save for one difference: application is curried (or Schönfinkel'ed), and each curried argument must have `Reusability`.
 
 ##### Example
 
@@ -103,7 +103,7 @@ class Backend($: BackendScope[_, Map[PersonId, PersonData]]) {
 
 case class PersonEditorProps(name: String, update: String ~=> IO[Unit])   // ← Notice the ~=>
 
-implicit val propsReuse = Reusable.caseclass2(PersonEditorProps.unapply)
+implicit val propsReuse = Reusability.caseclass2(PersonEditorProps.unapply)
 
 val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
   .stateless
@@ -112,7 +112,7 @@ val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
       ^.`type` := "text",
       ^.value := p.name,
       ^.onChange ~~> ((e: ReactEventI) => p.update(e.target.value))))    // ← Use as normal
-  .configure(Reusable.shouldComponentUpdate)                             // ← shouldComponentUpdate like magic
+  .configure(Reusability.shouldComponentUpdate)                          // ← shouldComponentUpdate like magic
   .build
 ```
 
@@ -149,7 +149,7 @@ val stringEditor = ReactComponentB[ReusableVar[String]]("StringEditor")
       ^.`type` := "text",
       ^.value := p.value,
       ^.onChange ~~> ((e: ReactEventI) => p.set(e.target.value))))
-  .configure(Reusable.shouldComponentUpdate)
+  .configure(Reusability.shouldComponentUpdate)
   .build
 ```
 
@@ -162,20 +162,21 @@ It's basically a performance-focused, lightweight implementation of pull-based
 pull-based meaning that in the chain A→B→C, an update to A doesn't affect C until the value of C is requested.
 Values are only compared when they are set or modified. When data is retrieved, only the revision number (an integer) is compared to determine if an update is required.
 
-**NOTE:** `Px` is not `Reusable`. Details below.
+**NOTE:** `Px` does not have `Reusability`. Details below.
 
 *What does Px mean? I don't know, I just needed a name and I liked the way @lihaoyi's Rx type name looked in code.
 You can consider this "Performance eXtension". If this were Java it'd be named
 `AutoRefreshOnRequestDependentCachedVariable`.*
 
 #### Initial instances
-`Px` comes in two flavours: reusable and not.
-If it's "reusable" then when its underlying value `A` changes, it will compare the new `A` value to the previous `A` (using `Reusable[A]`) and discard the change if it can. If it's not reusable, all changes to the underlying value (including duplicates) are accepted.
+`Px` comes in two flavours: those with reusable values, and those without.
+If its values are reusable then when its underlying value `A` changes, it will compare the new `A` value to the previous `A` (using `Reusability[A]`) and discard the change if it can.
+If its values are reusable, all changes to the underlying value (including duplicates) are accepted.
 
 Create a non-derivative `Px` using one of these:
 
 1. `Px(…)` & `Px.NoReuse(…)` - A variable in the traditional sense.
- 
+
   Doesn't change until you explicitly call `set()`.
 
   ```scala
@@ -193,7 +194,7 @@ Create a non-derivative `Px` using one of these:
   class ComponentBackend($: BackendScope[User, State]) {
     val user     = Px.thunkM($.props)
     val stateAge = Px.thunkM($.state.age)
-    
+
     def render: ReactElement = {
       // Every render cycle, refresh Pxs. Unnecessary changes will be discarded.
       Px.refresh(user, stateAge)
@@ -273,11 +274,11 @@ val rows: Px[Rows] =
 // rows.value()       will only change when viewSettings, project or textSearch changes.
 ```
 
-#### `Px` is not `Reusable`
+#### `Px` doesn't have `Reusability`
 
-For  `Reusable` to work it needs to compare two immutable values; `Px` is mutable.
+For `Reusability` to work it needs to compare two immutable values; `Px` is mutable.
 
-If you have `(a: Px[T], b: Px[T])` you might assume that if they are the same by reference equality `(a eq b)` and the revisions line up then they are `Reusable`. No.
+If you have `(a: Px[T], b: Px[T])` you might assume that if they are the same by reference equality `(a eq b)` and the revisions line up then they have `Reusability`. No.
 A `Px` is useless unless you call `.value()` and it's these values you would need to compare in `shouldComponentUpdate`.
 Comparing `a.value()` and `b.value()` will not work because `.value()` always returns the latest value;
 you would need to know which value in its history was seen by your component.

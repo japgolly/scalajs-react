@@ -173,9 +173,9 @@ object Px {
   @inline def const    [A](a: A)   : Px[A] = new Const(a)
   @inline def lazyConst[A](a: => A): Px[A] = new LazyConst(a)
 
-  def apply [A](a: A)   (implicit r: Reusable[A]) = new Var(a, r.test)
-  def thunkM[A](f: => A)(implicit r: Reusable[A]) = new ThunkM(() => f, r.test)
-  def thunkA[A](f: => A)(implicit r: Reusable[A]) = new ThunkA(() => f, r.test)
+  def apply [A](a: A)   (implicit r: Reusability[A]) = new Var(a, r.test)
+  def thunkM[A](f: => A)(implicit r: Reusability[A]) = new ThunkM(() => f, r.test)
+  def thunkA[A](f: => A)(implicit r: Reusability[A]) = new ThunkA(() => f, r.test)
 
   object NoReuse {
     private val noReuse: (Any, Any) => Boolean = (_, _) => false

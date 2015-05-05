@@ -18,19 +18,19 @@ for (i <- (2 to 22)) {
   val as = (0 until i) map a
   val Ac = As mkString ","
 
-  def AR = As.map(X => s"$X:Reusable") mkString ", "
+  def AR = As.map(X => s"$X:Reusability") mkString ", "
   // def fs = As.map(X => s"${X.toLowerCase}←$X") mkString ";"
 
   def tupleImpl = (1 to i).map(j => s"(x._$j ~=~ y._$j)") mkString " && "
 
   rt :+= s"""
-           |  implicit def tuple$i[$AR]: Reusable[($Ac)] =
+           |  implicit def tuple$i[$AR]: Reusability[($Ac)] =
            |    fn((x,y) ⇒ $tupleImpl)
          """.stripMargin
 
   ra :+= s"""
-           |  def caseclass$i[$AR, Z](z: Z ⇒ Option[($Ac)]): Reusable[Z] =
-           |    Reusable[($Ac)].contramap(z(_).get)
+           |  def caseclass$i[$AR, Z](z: Z ⇒ Option[($Ac)]): Reusability[Z] =
+           |    Reusability[($Ac)].contramap(z(_).get)
          """.stripMargin
 
 

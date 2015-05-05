@@ -13,8 +13,8 @@ object ReusabilityTest extends TestSuite {
     case class Picture(id: Long, url: String, title: String)
     case class Props(name: String, age: Option[Int], pic: Picture)
 
-    implicit val picReuse   = Reusable.by((_: Picture).id)
-    implicit val propsReuse = Reusable.caseclass3(Props.unapply)
+    implicit val picReuse   = Reusability.by((_: Picture).id)
+    implicit val propsReuse = Reusability.caseclass3(Props.unapply)
 
     var renderCount = 0
 
@@ -27,7 +27,7 @@ object ReusabilityTest extends TestSuite {
           <.p("Age: ", *.age.fold("Unknown")(_.toString)),
           <.img(^.src := *.pic.url, ^.title := *.pic.title))
       }
-      .configure(Reusable.shouldComponentUpdate)
+      .configure(Reusability.shouldComponentUpdate)
       .build
   }
 
@@ -55,7 +55,7 @@ object ReusabilityTest extends TestSuite {
     }
 
     case class InnerProps(name: String, update: String ~=> IO[Unit])
-    implicit val propsReuse = Reusable.caseclass2(InnerProps.unapply)
+    implicit val propsReuse = Reusability.caseclass2(InnerProps.unapply)
 
     val innerComponent = ReactComponentB[InnerProps]("PersonEditor")
       .stateless
@@ -66,7 +66,7 @@ object ReusabilityTest extends TestSuite {
           ^.value := p.name,
           ^.onChange ~~> ((e: ReactEventI) => p.update(e.target.value)))
       }
-      .configure(Reusable.shouldComponentUpdate)
+      .configure(Reusability.shouldComponentUpdate)
       .build
   }
 
