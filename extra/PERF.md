@@ -234,6 +234,11 @@ Create a non-derivative `Px` using one of these:
   }
   ```
 
+4. `Px.const(A)` & `Px.lazyConst(=> A)` - A constant value.
+
+  These `Px`s do not have the ability to change.
+
+
 #### Derivative instances
 Derivative `Px`s are created by:
 * calling `.map`
