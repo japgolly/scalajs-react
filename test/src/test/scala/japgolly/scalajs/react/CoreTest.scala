@@ -174,7 +174,7 @@ object CoreTest extends TestSuite {
         r((false, false)) shouldRender """<div>x</div>"""
         r((true,  false)) shouldRender """<div class="p1">x</div>"""
         r((false, true))  shouldRender """<div class="p2">x</div>"""
-        r((true,  true))  shouldRender """<div class="p2 p1">x</div>"""
+        r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
       }
       'hasMandatory {
         val r = ReactComponentB[Boolean]("C").render(p => div(classSet1("mmm", "ccc" -> p))("x")).build

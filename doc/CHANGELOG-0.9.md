@@ -13,3 +13,4 @@
 * Convenience  method `Reusable.component` turns a `P => ReactElement` into a
   stateless component with `shouldComponentUpdate` configured.
 * `RoutingRules` args that specify what to render are now lazy and reevaluate on request.
+* In `TagMod` composition, constituents are applied in the order they're composed in.
