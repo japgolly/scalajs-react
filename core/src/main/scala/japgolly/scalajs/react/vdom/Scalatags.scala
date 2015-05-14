@@ -22,6 +22,8 @@ trait TagMod {
   final def +(that: TagMod): TagMod = this compose that
 
   final def compose(that: TagMod): TagMod = this match {
+    case l if EmptyTag eq l    => that
+    case _ if EmptyTag eq that => this
     case TagModComposition(ms) => TagModComposition(ms :+ that)
     case _                     => TagModComposition(Vector.empty[TagMod] :+ this :+ that)
   }
