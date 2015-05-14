@@ -116,6 +116,26 @@ val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
   .build
 ```
 
+
+ReusableVal
+===========
+
+Usually reusability is determined by type (ie. via an implicit `Reusability[A]` available for an `A`).
+Instead, a `ReusableVal` promises that whoever provides the value will also explicitly specify the value's reusability.
+
+##### Usage
+
+```scala
+// Create and specify the Reusability
+val i: ReusableVal[Int] =
+  ReusableVal(1027)(Reusability.fn((a,b) => a + 99 < b))
+
+// For convenience, there's ReusableVal.byRef
+val e: ReusableVal[ReactElement] =
+  ReusableVal.byRef(<.span("Hello"))
+```
+
+
 ReusableVar
 ===========
 
@@ -152,6 +172,7 @@ val stringEditor = ReactComponentB[ReusableVar[String]]("StringEditor")
   .configure(Reusability.shouldComponentUpdate)
   .build
 ```
+
 
 Px
 ==

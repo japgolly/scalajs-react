@@ -7,6 +7,7 @@
   * New API: `Addons.Perf` over http://facebook.github.io/react/docs/perf.html.
   * `Reusable` for fast & safe `shouldComponentUpdate` impl.
   * `ReusableFn` for callbacks that can be passed around and work with `shouldComponentUpdate`.
+  * `ReusableVal` for specifying a value and its explicit reusability.
   * `ReusableVar` as a version of `ExternalVar` that works with `shouldComponentUpdate`.
   * `Px` for caching.
 * Convenience  method `Reusable.component` turns a `P => ReactElement` into a
