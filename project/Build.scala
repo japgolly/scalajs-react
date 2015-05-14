@@ -149,6 +149,7 @@ object ScalajsReact extends Build {
     .settings(
       libraryDependencies += monocleLib("macro"),
       addCompilerPlugin(macroParadisePlugin),
+      sbt.Keys.test in Test := (),
       emitSourceMaps := false,
       artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
 }
