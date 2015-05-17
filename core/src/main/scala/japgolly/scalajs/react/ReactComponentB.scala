@@ -15,6 +15,19 @@ object ReactComponentB {
   implicit def defaultDomTypeAndProps[P,S,B](c: PSBN[P,S,B]) = defaultProps(defaultDomType(c))
 
   // ===================================================================================================================
+  // Convenience
+
+  /**
+   * Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing.
+   */
+  def static(name: String, content: ReactElement) =
+    ReactComponentB[Unit](name)
+      .stateless
+      .noBackend
+      .render(_ => content)
+      .shouldComponentUpdate((_, _, _) => false)
+
+  // ===================================================================================================================
   final class P[Props] private[ReactComponentB](name: String) {
 
     // getInitialState is how it's named in React
@@ -168,17 +181,4 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
     def build: C =
       cc(React.createFactory(React.createClass(buildSpec)))
   }
-
-  // ===================================================================================================================
-  // Convenience
-
-  /**
-   * Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing.
-   */
-  def static(name: String, content: ReactElement) =
-    ReactComponentB[Unit](name)
-      .stateless
-      .noBackend
-      .render(_ => content)
-      .shouldComponentUpdate((_, _, _) => false)
 }
