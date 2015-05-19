@@ -19,7 +19,7 @@ If you imagine a class with 8 fields, equality would compare all 8 fields where 
 the ID field, the update-date, or the revision number.
 You might think of this as a very quick version of equality.
 
-##### Usage
+#### Usage
 When building your component, pass in `Reusability.shouldComponentUpdate` to your `ReactComponentB.configure`.
 
 It will not compile until it knows how to compare the reusability of your props and state.
@@ -32,7 +32,7 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * <code>Reusability.caseclass<sub>n</sub></code> for case classes of your own.
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
 
-##### Example
+#### Example
 The following component will only re-render when one of the following change:
 * `props.name`
 * `props.age`
@@ -67,14 +67,14 @@ provide no means of determining whether a component can safely skip its update.
 
 `ReusableFn` exists as a solution. It is a wrapper around a function that allows it to be both reused, and curried in a way that allows reuse.
 
-##### Usage
+#### Usage
 
 1. Just wrap `ReusableFn` around your function.
 2. Store the `ReusableFn` as a `val` somewhere outside of your `render` function, usually in the body of your backend class.
 3. Replace the callback (say `A => B`) in components' props, to take a `ReusableFn[A, B]` or the shorthand `A ~=> B`.
 4. Treat the `ReusableFn` as you would a normal function, save for one difference: application is curried (or Schönfinkel'ed), and each curried argument must have `Reusability`.
 
-##### Example
+#### Example
 
 In this example `personEditor` will only rerender if `props.name` changes, or the curried `PersonId` in its `props.update` function changes (which it won't - observable from the code).
 
@@ -91,7 +91,7 @@ val topComponent = ReactComponentB[Map[PersonId, PersonData]]("Demo")
 class Backend($: BackendScope[_, Map[PersonId, PersonData]]) {
 
   val updateUser = ReusableFn((id: PersonId, data: PersonData) =>         // ← Create a 2-arg fn
-    $.modStateIO(_.updated(id, data)))
+    $.modStateIO(map => map.updated(id, data)))
 
   def render =
     <.div(
@@ -116,6 +116,61 @@ val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
   .build
 ```
 
+#### Tricks
+
+To cater for some common use cases, there are few convenience methods that are useful to know.
+For these examples imagine `$` to be your component's scope instance, eg. `BackendScope[_,S]`, `ComponentScopeM[_,S,_,_]` or similar.
+
+1. `ReusableFn($).{set,mod}State{,IO}`.
+
+    You'll find that if you try `ReusableFn($.method)` Scala will fail to infer the correct types.
+    Use `ReusableFn($).method` instead to get the types that you expect.
+
+    Example: instead of `ReusableFn($.setState)` use `ReusableFn($).setState` and you will correctly get a `S ~=> Unit`.
+ 
+2. `ReusableFn.endo____`.
+
+    Anytime the input to your `ReusableFn` is an endofunction (`A => A`), additional methods starting with `endo` become available.
+    
+    Specifically, `ReusableFn($).modState` returns a `(S => S) ~=> Unit` which you will often want to transform.
+    These examples would be available on an `(S => S) ~=> U`:
+
+    * `endoCall (S => (A => S)): A ~=> U` - Call a 1-arg function on `S`.
+    * `endoCall2(S => ((A, B) => S)): A ~=> B ~=> U` - Call a 2-arg function on `S`.
+    * `endoCall3(...): A ~=> B ~=> C ~=> U` - Call a 3-arg function on `S`.
+    * `endoZoom((S, A) => S): A ~=> U` - Modify a subset of `S`.
+    * `endoZoomL(Lens[S, A]): A ~=> U` - Modify a subset of `S` using a `Lens`.
+    * `contramap[A](A => (S => S)): A ~=> U` - Not exclusive to endos, but similarly useful in a different shape.
+  
+  ```scala
+  class Backend($: BackendScope[_, Map[Int, String]]) {
+
+    // Manual long-hand
+    val long: Int ~=> (String ~=> IO[Unit]) =
+      ReusableFn((id: Int, data: String) => $.modStateIO(map => map.updated(id, data)))
+
+    // Shorter using helpers described above
+    val short: Int ~=> (String ~=> IO[Unit]) =
+      ReusableFn($).modStateIO.endoCall2(_.updated)
+  ```
+
+3. `ReusableFn($ focusStateL lens)`
+
+  Lenses provide an abstraction over read-and-write field access.
+  Using Monocle, you can annotate your case classes with `@Lenses` to gain automatic lenses.
+  `$ focusStateL lens` will then narrow the scope of its state to the field targeted by the given lens.
+  This can then be used with `ReusableFn` as follows:
+  
+  ```scala
+  @Lenses
+  case class Person(name: String, age: Int)
+
+  class Backend($: BackendScope[_, Person]) {
+    
+    val nameSetter: String ~=> Unit =
+      ReusableFn($ focusStateL Person.name).setState
+  ```
+
 
 ReusableVal
 ===========
@@ -123,7 +178,7 @@ ReusableVal
 Usually reusability is determined by type (ie. via an implicit `Reusability[A]` available for an `A`).
 Instead, a `ReusableVal` promises that whoever provides the value will also explicitly specify the value's reusability.
 
-##### Usage
+#### Usage
 
 ```scala
 // Create and specify the Reusability
@@ -142,7 +197,7 @@ ReusableVar
 Just as there is `ExternalVar` that provides a component with safe R/W access to an external variable,
 there is also `ReusableVar`.
 
-##### Example
+#### Example
 ```scala
 @Lenses case class State(name: String, desc: String)
 
