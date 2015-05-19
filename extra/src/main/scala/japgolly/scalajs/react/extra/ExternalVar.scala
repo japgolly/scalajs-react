@@ -26,6 +26,6 @@ object ExternalVar {
   @inline def apply[A](value: A)(set: A => IO[Unit]): ExternalVar[A] =
     new ExternalVar(value, set)
 
-  @inline def state[S]($: ComponentStateFocus[S]): ExternalVar[S] =
+  @inline def state[S]($: CompStateFocus[S]): ExternalVar[S] =
     new ExternalVar($.state, $.setStateIO(_))
 }

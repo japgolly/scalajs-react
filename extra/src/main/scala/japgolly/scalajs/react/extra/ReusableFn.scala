@@ -47,11 +47,11 @@ object ReusableFn {
   @inline def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, E: Reusability, Y, Z](f: (A, B, C, D, E, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))) =
     new Fn6(f)
 
-  def modState[C[_]: CompStateAccess, S, A]($: C[S])(f: (S, A) => S): A ~=> Unit =
-    ReusableFn(a => $.modState(s => f(s, a)))
-
-  def modStateIO[C[_]: CompStateAccess, S, A]($: C[S])(f: (S, A) => S): A ~=> IO[Unit] =
-    ReusableFn(a => $.modStateIO(s => f(s, a)))
+//  def modState[C, S, A]($: C)(f: (S, A) => S)(implicit a: CompStateAccess.Aux[C, S]): A ~=> Unit =
+//    ReusableFn(a => $.modState(s => f(s, a)))
+//
+//  def modStateIO[C, S, A]($: C)(f: (S, A) => S)(implicit a: CompStateAccess.Aux[C, S]): A ~=> IO[Unit] =
+//    ReusableFn(a => $.modStateIO(s => f(s, a)))
 
   implicit def reusability[A, B]: Reusability[ReusableFn[A, B]] =
     Reusability.fn((x, y) => (x eq y) || x.reusable.applyOrElse(y, (_: ReusableFn[A, B]) => false))

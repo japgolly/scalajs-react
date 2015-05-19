@@ -23,7 +23,7 @@ object ReusableVar {
   @inline def apply[A: Reusability](value: A)(set: A ~=> IO[Unit]): ReusableVar[A] =
     new ReusableVar(value, set)
 
-  @inline def state[S: Reusability]($: ComponentStateFocus[S]): ReusableVar[S] =
+  @inline def state[S: Reusability]($: CompStateFocus[S]): ReusableVar[S] =
     new ReusableVar($.state, ReusableFn((s: S) => $.setStateIO(s)))
 
   implicit def reusability[A]: Reusability[ReusableVar[A]] =

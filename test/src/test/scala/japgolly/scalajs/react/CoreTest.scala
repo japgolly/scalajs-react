@@ -282,7 +282,7 @@ object CoreTest extends TestSuite {
     }
 
     'stateFocus {
-      // def inc(s: ComponentStateFocus[Int]) = s.modState(_ * 3)
+      // def inc(s: CompStateFocus[Int]) = s.modState(_ * 3)
       case class SI(s: String, i: Int)
       val C = ReactComponentB[SI]("C").initialStateP(p => p).render(T => {
         val f = T.focusState(_.i)((a,b) => a.copy(i = b))
@@ -353,9 +353,9 @@ object CoreTest extends TestSuite {
       def st_get: S => T = null
       def st_set: (S, T) => S = null
 
-      "BackendScope ops"    - test[BackendScope[Unit, S]      ](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
-      "ComponentScopeM ops" - test[ComponentScopeM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
-      "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
+      "BackendScope ops"    - test[BackendScope[Unit, S]      ](_.focusState[T](st_get)(st_set)).expect[CompStateFocus[T]]
+      "ComponentScopeM ops" - test[ComponentScopeM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[CompStateFocus[T]]
+      "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[CompStateFocus[T]]
     }
 
     'shouldCorrectlyDetermineIfaComponentisMounted {

@@ -244,10 +244,12 @@ object ScalazReact {
       ReactS.zoomU[M, T, A](ev.subst[({type λ[σ] = ReactST[M, σ, A]})#λ](_r))
   }
 
-  @inline implicit final def toSzRExtCompStateAccessOps[C[_]: CompStateAccess, S](c: C[S]) = new SzRExt_CompStateAccessOps(c)
-  final class SzRExt_CompStateAccessOps[C[_], S](val _c: C[S]) extends AnyVal {
-    // CompStateAccess[C] should really be a class param but then we lose the AnyVal
-    type CC = CompStateAccess[C]
+  @inline implicit def toSzRExtCompStateAccessOps[C, S](c: C)(implicit a: CompStateAccess[C, S]) =
+    new SzRExt_CompStateAccessOps[C, S](c)
+
+  final class SzRExt_CompStateAccessOps[C, S](val _c: C) extends AnyVal {
+    // This should really be a class param but then we lose the AnyVal
+    type CC = CompStateAccess[C, S]
 
     private def run[M[_], A, B](st: => ReactST[M, S, A], f: (S, S, A, => IO[Unit]) => IO[B])(implicit C: CC, M: M ~> IO): IO[B] =
       IO(StateAndCallbacks(C state _c)).flatMap(s1 =>
@@ -307,8 +309,4 @@ object ScalazReact {
     def equal[S: Equal] = apply[S]((a,b) => !implicitly[Equal[S]].equal(a,b))
     def equalOn[S, T: Equal](f: S => T) = apply[S]((a,b) => !implicitly[Equal[T]].equal(f(a),f(b)))
   }
-
-  // Seriously, Scala, get your shit together.
-  @inline final implicit def moarScalaHandHolding[P,S](b: BackendScope[P,S]): SzRExt_CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
-  @inline final implicit def moarScalaHandHolding[P,S,B](b: ComponentScopeU[P,S,B]): SzRExt_CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
 }
