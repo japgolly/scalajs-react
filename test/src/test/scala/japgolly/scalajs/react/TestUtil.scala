@@ -104,6 +104,8 @@ object TestUtil {
     type N = TopNode
     val c = null.asInstanceOf[ComponentScopeM[Unit, S, Unit, N]]
 
+    def st_s(s: S, t: T): S = ???
+
     implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> IO)]
   }
 }

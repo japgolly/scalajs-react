@@ -167,6 +167,23 @@ object ReusabilityTest extends TestSuite {
         test3(f, g)
         assert(f(1)(2)(3) == 6)
       }
+
+      'overComponent {
+        import TestUtil.Inference._
+        test[BackendScope[A, S]         ]($ => ReusableFn($).modState  ).expect[(S => S) ~=> Unit]
+        test[ReactComponentM[A, S, B, N]]($ => ReusableFn($).modStateIO).expect[(S => S) ~=> IO[Unit]]
+        test[CompStateFocus[S]          ]($ => ReusableFn($).setStateIO).expect[S ~=> IO[Unit]]
+      }
+
+      'endoOps {
+        import TestUtil.Inference._
+        case class Counter(count: Int) {
+          def add(i: Int): Counter = copy(count = count + i)
+        }
+        test[BackendScope[A, S]          ]($ => ReusableFn($).modStateIO.endoZoom(st_s)      ).expect[T ~=> IO[Unit]]
+        test[BackendScope[A, Counter]    ]($ => ReusableFn($).modState  .endoCall(_.add)     ).expect[Int ~=> Unit]
+        test[BackendScope[A, Map[Int, S]]]($ => ReusableFn($).modState  .endoCall2(_.updated)).expect[Int ~=> (S ~=> Unit)]
+      }
     }
 
   }

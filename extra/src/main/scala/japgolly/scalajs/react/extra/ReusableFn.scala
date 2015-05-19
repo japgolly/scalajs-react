@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.extra
 
+import monocle.Lens
 import scala.runtime.AbstractFunction1
 import scalaz.effect.IO
 import japgolly.scalajs.react._
@@ -25,9 +26,40 @@ sealed abstract class ReusableFn[A, B] extends AbstractFunction1[A, B] {
 
   def asVarR(value: A, r: Reusability[A])(implicit ev: B === IO[Unit]): ReusableVar[A] =
     asVar(value)(r, ev)
+
+  def dimap[C, D](f: (A => B) => C => D): C ~=> D =
+    ReusableFn(f(this))
+
+  def map[C](f: B => C): A ~=> C =
+    dimap(f.compose)
+
+  def contramap[C](f: C => A): C ~=> B =
+    dimap(f.andThen)
 }
 
 object ReusableFn {
+
+  @inline implicit final class EndoOps[E, B](val s: (E => E) ~=> B) extends AnyVal {
+    def endoCall[I](f: E => I => E): I ~=> B =
+      s.dimap(g => i => g(f(_)(i)))
+
+    def endoZoom[I](f: (E, I) => E): I ~=> B =
+      s.dimap(g => i => g(f(_, i)))
+
+    def endoZoomL[I](l: Lens[E, I]): I ~=> B =
+      s contramap l.set
+
+    def endoCall2[I: Reusability, J](f: E => (I, J) => E): I ~=> (J ~=> B) =
+      ReusableFn((i: I, j: J) => s(f(_)(i, j)))
+
+    def endoCall3[I: Reusability, J: Reusability, K](f: E => (I, J, K) => E): I ~=> (J ~=> (K ~=> B)) =
+      ReusableFn((i: I, j: J, k: K) => s(f(_)(i, j, k)))
+  }
+
+  // ===================================================================================================================
+
+  @inline def apply[C, S]($: C)(implicit c: CompStateAccess[C, S]) =
+    new CompOps[C, S]($)
 
   @inline def apply[Y, Z](f: Y => Z): Y ~=> Z =
     new Fn1(f)
@@ -47,11 +79,24 @@ object ReusableFn {
   @inline def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, E: Reusability, Y, Z](f: (A, B, C, D, E, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))) =
     new Fn6(f)
 
-//  def modState[C, S, A]($: C)(f: (S, A) => S)(implicit a: CompStateAccess.Aux[C, S]): A ~=> Unit =
-//    ReusableFn(a => $.modState(s => f(s, a)))
-//
-//  def modStateIO[C, S, A]($: C)(f: (S, A) => S)(implicit a: CompStateAccess.Aux[C, S]): A ~=> IO[Unit] =
-//    ReusableFn(a => $.modStateIO(s => f(s, a)))
+  final class CompOps[C, S](val $: C) extends AnyVal {
+    // This should really be a class param but then we lose the AnyVal
+    type CC = CompStateAccess[C, S]
+
+    // These look useless but avoid Scala type-inference issues
+
+    def modState(implicit C: CC): (S => S) ~=> Unit =
+      ReusableFn($.modState(_))
+
+    def modStateIO(implicit C: CC): (S => S) ~=> IO[Unit] =
+      ReusableFn($.modStateIO(_))
+
+    def setState(implicit C: CC): S ~=> Unit =
+      ReusableFn($.setState(_))
+
+    def setStateIO(implicit C: CC): S ~=> IO[Unit] =
+      ReusableFn($.setStateIO(_))
+  }
 
   implicit def reusability[A, B]: Reusability[ReusableFn[A, B]] =
     Reusability.fn((x, y) => (x eq y) || x.reusable.applyOrElse(y, (_: ReusableFn[A, B]) => false))
