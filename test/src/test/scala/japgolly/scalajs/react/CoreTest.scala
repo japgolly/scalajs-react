@@ -400,7 +400,7 @@ object CoreTest extends TestSuite {
           .buildU
         val instance = ReactTestUtils.renderIntoDocument(GrandParent())
         val n = ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz").getDOMNode()
-        assert(n.className == "xyz child")
+        assert(n.asInstanceOf[js.Dynamic].className == "xyz child")
       }
     }
 

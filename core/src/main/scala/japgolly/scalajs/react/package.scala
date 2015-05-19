@@ -6,7 +6,7 @@ import js.{Dynamic, UndefOr, undefined, Object, Any => JAny, Function => JFn}
 
 package object react {
 
-  type TopNode = html.Element
+  type TopNode = dom.Element
 
   type ReactEvent            = SyntheticEvent           [dom.Node]
   type ReactClipboardEvent   = SyntheticClipboardEvent  [dom.Node]
@@ -252,7 +252,10 @@ package object react {
   }
 
   @inline implicit final class ReactExt_UndefReactComponentM[N <: TopNode](val _u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
-    def tryFocus(): Unit = _u.foreach(_.getDOMNode().focus())
+    def tryFocus(): Unit = _u.foreach(_.getDOMNode() match {
+      case e: html.Element => e.focus()
+      case _ =>
+    })
   }
 
   @inline implicit final class ReactExt_ReactComponentM[N <: TopNode](val _c: ReactComponentM_[N]) extends AnyVal {
