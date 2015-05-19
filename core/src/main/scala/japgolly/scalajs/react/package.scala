@@ -328,6 +328,7 @@ package object react {
         () => _c.state,
         (a: S, cb: OpCallback) => _c.setState(a, cb))
 
+      /** Zoom-in on a subset of the state. */
       def focusState[T](f: S => T)(g: (S, T) => S)(implicit C: CC) = new CompStateFocus[T](
         () => f(_c.state),
         (b: T, cb: OpCallback) => _c.setState(g(_c.state, b), cb))
@@ -342,10 +343,6 @@ package object react {
   final class CompStateFocus[S] private[react](
     val get: () => S,
     val set: (S, OpCallback) => Unit) {
-
-    /** Zoom-in on a subset of the state. */
-    def zoom[T](f: S => T)(g: (S, T) => S): CompStateFocus[T] =
-      CompStateFocus[T](() => f(get()))((t, cb) => set(g(get(), t), cb))
   }
 
   object CompStateFocus {
