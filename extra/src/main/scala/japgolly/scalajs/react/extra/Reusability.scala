@@ -223,7 +223,7 @@ object Reusability {
 
   // ===================================================================================================================
 
-  def shouldComponentUpdate[P: Reusability, S: Reusability, N <: TopNode, B] =
+  def shouldComponentUpdate[P: Reusability, S: Reusability, B, N <: TopNode] =
     (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p, s) =>
       ($.props ~/~ p) || ($.state ~/~ s))
 
