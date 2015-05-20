@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.Addons.{ReactCssTransitionGroup, ReactCloneWithProps}
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
-import org.scalajs.dom.raw.{HTMLOptionElement, HTMLSelectElement, HTMLInputElement}
+import org.scalajs.dom.raw.{HTMLElement, HTMLOptionElement, HTMLSelectElement, HTMLInputElement}
 import vdom.all._
 import TestUtil._
 import test.{DebugJs, ReactTestUtils}
@@ -400,7 +400,7 @@ object CoreTest extends TestSuite {
           .buildU
         val instance = ReactTestUtils.renderIntoDocument(GrandParent())
         val n = ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz").getDOMNode()
-        assert(n.asInstanceOf[js.Dynamic].className == "xyz child")
+        assert(n.matchesBy[HTMLElement](_.className == "xyz child"))
       }
     }
 
