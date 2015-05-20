@@ -1,10 +1,11 @@
 package japgolly.scalajs.react.test
 
-import org.scalajs.dom.raw.HTMLInputElement
+import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
 import utest._
 import japgolly.scalajs.react._
 import vdom.all._
 import TestUtil._
+import scala.scalajs.js
 
 object TestTest extends TestSuite {
 
@@ -34,12 +35,12 @@ object TestTest extends TestSuite {
 
     'findRenderedDOMComponentWithClass {
       val n = ReactTestUtils.findRenderedDOMComponentWithClass(rab, "BB").getDOMNode()
-      assert(n.className == "BB")
+      assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
     'findRenderedComponentWithType {
       val n = ReactTestUtils.findRenderedComponentWithType(rab, B).getDOMNode()
-      assert(n.className == "BB")
+      assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
     'renderIntoDocument {
