@@ -88,6 +88,11 @@ package object react {
       apply(ev(s.state))(s)
   }
 
+  final class RefJSComp[M <: js.Object](_name: String) extends Ref(_name) {
+    override type R = M
+    protected override def resolve(r: RefsObject) = r[TopNode](name).asInstanceOf[UndefOr[M]]
+  }
+
   object Ref {
     implicit def refAsARefParam(r: Ref): UndefOr[String] = r.name
 
@@ -100,6 +105,9 @@ package object react {
     /** A reference to a Scala component. */
     def to[P, S, B, N <: TopNode](types: ReactComponentTypeAux[P, S, B, N], name: String): RefComp[P, S, B, N] =
       new RefComp[P, S, B, N](name)
+
+    /** A reference to a pure JS component that has its own facade type. */
+    def toJS[M <: js.Object](name: String) = new RefJSComp[M](name)
   }
 
   @inline implicit final class ReactExt_ScalaColl[A](val _as: TraversableOnce[A]) extends AnyVal {
@@ -217,6 +225,7 @@ package object react {
   @inline implicit final class ReactExt_ComponentScope_P[Props](val _c: ComponentScope_P[Props]) extends AnyVal {
     @inline def props = _c._props.v
     @inline def propsChildren = _c._props.children
+    @inline def propsDynamic = _c._props.asInstanceOf[js.Dynamic]
   }
 
   @inline implicit final class ReactExt_ComponentScope_PS[Props, State](val _c: ComponentScope_PS[Props, State]) extends AnyVal {

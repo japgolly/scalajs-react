@@ -138,7 +138,7 @@ object ScalajsReact extends Build {
     .settings(libraryDependencies += monocleLib("core"))
 
   def monocleLib(name: String) =
-    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.1.0"
+    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.1.1"
 
   // ==============================================================================================
   lazy val extra = project
