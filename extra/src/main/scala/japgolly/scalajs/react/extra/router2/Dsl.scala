@@ -3,7 +3,7 @@ package japgolly.scalajs.react.extra.router2
 import java.util.regex.{Pattern, Matcher}
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
-import scalaz.{\/-, -\/}
+import scalaz.{Equal, \/-, -\/}
 import japgolly.scalajs.react.ReactElement
 import RouterConfig.Parsed
 
@@ -92,6 +92,9 @@ object StaticDsl {
                   val build: A => String) extends RouteCommon[A, RouteB] {
     import RouteB.Composition
 
+    override def toString =
+      s"RouteB($regex)"
+
     def ~[B](next: RouteB[B])(implicit c: Composition[A, B]): RouteB[c.C] =
       c(this, next)
 
@@ -104,8 +107,41 @@ object StaticDsl {
     def xmap[B](b: A => B)(a: B => A): RouteB[B] =
       new RouteB(regex, matchGroups, parse(_) map b, build compose a)
 
+    def option: RouteB[Option[A]] =
+      new RouteB[Option[A]](s"($regex)?", matchGroups + 1,
+        g => Some(if (g(0) eq null) None else parse(i => g(i + 1))),
+        _.fold("")(build))
+
     final def route: Route[A] =
       new Route(Pattern.compile("^" + regex + "$"), m => parse(i => m.group(i + 1)), a => Path(build(a)))
+  }
+
+  class RouteBO[A](val r: RouteB[Option[A]]) extends AnyVal {
+
+    /**
+     * Specify a default value when parsing.
+     *
+     * Note: Unlike [[withDefault()]] path generation will still explicitly include the default value.
+     *
+     * Eg. If the path is like "/file[.format]" and the default is JSON, "/file" will be read as "/file.json", but
+     * when generating a path with JSON this will generate "/file.json" instead of "/file".
+     */
+    def parseDefault(default: => A): RouteB[A] =
+      r.xmap(_ getOrElse default)(Some(_))
+
+    /**
+     * Specify a default value.
+     *
+     * Note: Unlike [[parseDefault()]] this will affect path generation too.
+     *
+     * Eg. If the path is like "/file[.format]" and the default is JSON, "/file" will be read as "/file.json", and
+     * when generating a path with JSON this will generate "/file" instead of "/file.json".
+     */
+    def withDefault(default: => A): RouteB[A] =
+      withDefaultE(default)(Equal.equalA)
+
+    def withDefaultE(default: => A)(implicit e: Equal[A]): RouteB[A] =
+      r.xmap(_ getOrElse default)(a => if (e.equal(default, a)) None else Some(a))
   }
 
   abstract class RouteCommon[A, R[_]] {
@@ -149,6 +185,8 @@ object StaticDsl {
   final class Route[A](pattern: Pattern,
                        parseFn: Matcher => Option[A],
                        buildFn: A => Path) extends RouteCommon[A, Route] {
+    override def toString =
+      s"Route($pattern)"
 
     def parseThen(f: Option[A] => Option[A]): Route[A] =
       new Route(pattern, f compose parseFn, buildFn)
@@ -297,6 +335,8 @@ final class RouterConfigDsl[Page_] {
   val int  = new RouteB[Int] ("(-?\\d+)", 1, g => Some(g(0).toInt),  _.toString)
   val long = new RouteB[Long]("(-?\\d+)", 1, g => Some(g(0).toLong), _.toString)
   def string(regex: String) = new RouteB[String](s"($regex)", 1, g => Some(g(0)), identity)
+
+  implicit def _ops_for_routeb_option[A](r: RouteB[Option[A]]) = new RouteBO(r)
 
   implicit def _auto_routeB_from_str(l: String) = RouteB.literal(l)
   implicit def _auto_routeB_from_path(p: Path) = RouteB.literal(p.value)

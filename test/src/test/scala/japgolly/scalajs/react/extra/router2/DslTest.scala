@@ -59,13 +59,16 @@ object DslTest extends TestSuite {
       import StaticDsl.Route
       import noPageDsl._
 
-      def test[A: Equal](r: Route[A])(toStr: A => String, good: A*)(bad: String*): Unit = {
-        for (b <- bad)
-          assertEq(s"Parse $b", r parse Path(b), None)
-        for (g <- good) {
-          val s = Path(toStr(g))
-          assertEq(s"Parse $s", r parse s, Some(g))
-          assertEq(s"Path for $g", r pathFor g, s)
+      def test[A: Equal](r: Route[A])(toStr: A => String, good: A*)(bad: String*): Unit =
+        testM(r)(good.map(a => (toStr(a), a)): _*)(bad: _*)
+
+      def testM[A: Equal](r: Route[A])(good: (String, A)*)(bad: String*): Unit = {
+        for (p <- bad)
+          assertEq(s"Parse bad Path($p) with $r", r parse Path(p), None)
+        for ((s, a) <- good) {
+          val p = Path(s)
+          assertEq(s"Parse good $p with $r", r parse p, Some(a))
+          assertEq(s"Path for ($a) with $r", r pathFor a, p)
         }
       }
 
@@ -132,6 +135,42 @@ object DslTest extends TestSuite {
       'xmap -
         test((int / string("[a-z]+")).caseclass2(IntStr)(IntStr.unapply))(v => v.i + "/" + v.s,
           IntStr(0, "yay"), IntStr(100, "cool"))("0/", "/yay", "yar")
+
+      'option {
+        'basic -
+          testM(int.option)("" -> None, "3" -> Some(3))("asd")
+
+        'combo {
+          testM("yar:" ~ int.option)("yar:" -> None, "yar:22" -> Some(22))("", "3")
+          testM(("yar:" ~ int).option)("" -> None, "yar:7" -> Some(7))("yar:", "3")
+          testM("a" / int.option / "b" / int.option / "c")(
+            "a//b//c"   -> (None, None),
+            "a/3/b//c"  -> (Some(3), None),
+            "a//b/3/c"  -> (None, Some(3)),
+            "a/6/b/1/c" -> (Some(6), Some(1)))("")
+          testM("a" ~ ("/x" / int).option ~ ("/y" / int).option)(
+          "a"         -> (None, None),
+          "a/x/3"     -> (Some(3), None),
+          "a/y/3"     -> (None, Some(3)),
+          "a/x/7/y/1" -> (Some(7), Some(1)))("")
+        }
+
+        'parseDefault - {
+          val r: Route[String] = "data" ~ ("." ~ string("[a-z0-9]+")).option.parseDefault("xz")
+          testM(r)("data.zip" -> "zip")("data.")
+          assertEq(r parse Path("data.xz"), Some("xz"))
+          assertEq(r parse Path("data"),    Some("xz"))
+          assertEq(r pathFor "xz", Path("data.xz"))
+        }
+
+        'withDefault {
+          val r: Route[String] = "data" ~ ("." ~ string("[a-z0-9]+")).option.withDefault("xz")
+          testM(r)("data.zip" -> "zip")("data.")
+          assertEq(r parse Path("data.xz"), Some("xz"))
+          assertEq(r parse Path("data"),    Some("xz"))
+          assertEq(r pathFor "xz", Path("data"))
+        }
+      }
     }
 
     'rules {
