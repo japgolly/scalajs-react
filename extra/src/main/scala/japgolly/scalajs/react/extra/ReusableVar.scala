@@ -24,8 +24,8 @@ object ReusableVar {
     new ReusableVar(value, set)
 
   @inline def state[S: Reusability]($: CompStateFocus[S]): ReusableVar[S] =
-    new ReusableVar($.state, ReusableFn((s: S) => $.setStateIO(s)))
+    new ReusableVar($.state, ReusableFn($).setStateIO)
 
   implicit def reusability[A]: Reusability[ReusableVar[A]] =
-    Reusability.fn((a, b) => (a.set ~=~ b.set) && a.reusability.test(a.value, b.value))
+    Reusability.fn((a, b) => (a.set ~=~ b.set) && b.reusability.test(a.value, b.value))
 }
