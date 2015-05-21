@@ -17,3 +17,4 @@
 * In `TagMod` composition, avoid allocations composing `EmptyTag`.
 * Renamed `ComponentStateFocus` to `CompStateFocus`.
 * Changed `CompStateAccess` shape and internals for improved type-inference and usage.
+* `TopNode` constraint relaxed from `HTMLElement` to `Element` as React components can render SVG too.
