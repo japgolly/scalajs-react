@@ -279,7 +279,7 @@ Rather than specify references using strings, the `Ref` object can provide some 
 * `Ref.param(param => name)` can be used for references to items in a set, with the key being a data entity's ID.
 * Because refs are not guaranteed to exist, the return type is wrapped in `js.UndefOr[_]`. A helper method `tryFocus()` has been added to focus the ref if one is returned.
 ```scala
-    val myRef = Ref[HTMLInputElement]("refKey")
+    val myRef = Ref[html.Input]("refKey")
 
     class Backend(T: BackendScope[_, _]) {
       def clearAndFocusInput() = T.setState("", () => myRef(t).tryFocus())
