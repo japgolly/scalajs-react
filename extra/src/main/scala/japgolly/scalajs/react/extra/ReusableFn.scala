@@ -58,6 +58,12 @@ object ReusableFn {
 
   // ===================================================================================================================
 
+  /**
+   * The function itself is reevaluated each time it is used.
+   */
+  def byName[A, B](f: => (A => B)): A ~=> B =
+    ReusableFn[A, B](a => f(a))
+
   @inline def apply[C, S]($: C)(implicit c: CompStateAccess[C, S]) =
     new CompOps[C, S]($)
 

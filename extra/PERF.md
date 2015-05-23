@@ -116,6 +116,40 @@ val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
   .build
 ```
 
+#### WARNING!
+
+**DO NOT** feed the ReusableFn(...) constructor a function directly *derived* from a component's props or state.
+Access to props/state on the right-hand side of the function args is ok but if the function itself is a result of the
+props/state, the function will forever be based on data that can go stale.
+
+Example:
+```scala
+@Lenses case class Person(name: String, age: Int)
+case class Props(person: ReusableVar[Person], other: Other)
+
+// THIS IS BAD!!
+ReusableFn($.props.person setL Props.name)
+
+// It is equivalent to:
+val g: String => IO[Unit]  = $.props.person setL Person.name   // ← $.props is evaluated once here
+val f: String ~=> IO[Unit] = ReusableFn(g)                     // ← …and never again.
+```
+
+Alternatives:
+
+1. Use `ReusableFn.byName`:
+
+   ```scala
+   ReusableFn.byName($.props.person setL Person.name)
+   ```
+
+2. Create a function with `$` on the right-hand side:
+
+   ```scala
+   ReusableFn(str => $.props.person.setL(Person.name)(str))
+   ```
+
+
 #### Tricks
 
 To cater for some common use cases, there are few convenience methods that are useful to know.

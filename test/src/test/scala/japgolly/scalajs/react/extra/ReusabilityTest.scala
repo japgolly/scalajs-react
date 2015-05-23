@@ -184,6 +184,14 @@ object ReusabilityTest extends TestSuite {
         test[BackendScope[A, Counter]    ]($ => ReusableFn($).modState  .endoCall(_.add)     ).expect[Int ~=> Unit]
         test[BackendScope[A, Map[Int, S]]]($ => ReusableFn($).modState  .endoCall2(_.updated)).expect[Int ~=> (S ~=> Unit)]
       }
+
+      'byName {
+        var state = 10
+        val fn = ReusableFn.byName((_: Int) + state)
+        assert(fn(2) == 12)
+        state = 20
+        assert(fn(2) == 22)
+      }
     }
 
   }
