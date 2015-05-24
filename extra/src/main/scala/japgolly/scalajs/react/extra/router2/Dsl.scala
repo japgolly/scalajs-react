@@ -314,12 +314,16 @@ object StaticDsl {
   }
 }
 
+// =====================================================================================================================
+// =====================================================================================================================
+
+
 /**
  * DSL for creating [[RouterConfig]].
  *
  * Instead creating an instance of this yourself, use [[RouterConfig.build]].
  */
-final class RouterConfigDsl[Page_] {
+final class RouterConfigDsl[Page_](implicit pageEq: Equal[Page_] = Equal.equalA[Page_]) {
   import StaticDsl.{Rule => _, Rules => _, _}
 
   type Page     = Page_
@@ -398,10 +402,7 @@ final class RouterConfigDsl[Page_] {
   // Only really aids rewriteRuleR but safe anyway
   implicit def _auto_pattern_from_regex(r: Regex): Pattern = r.pattern
 
-  def staticRoute(r: Route[Unit], page: Page): StaticRouteB[Page, Rule] =
-    staticRouteE(r, page)(Equal.equalA)
-
-  def staticRouteE(r: Route[Unit], page: Page)(implicit e: Equal[Page]): StaticRouteB[Page, Rule] = {
+  def staticRoute(r: Route[Unit], page: Page)(implicit e: Equal[Page] = pageEq): StaticRouteB[Page, Rule] = {
     val dyn = dynamicRoute(r const page){ case p if e.equal(page, p) => p }
     new StaticRouteB(a => dyn ~> a)
   }

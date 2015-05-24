@@ -52,8 +52,12 @@ object Router2Test extends TestSuite {
       }
       .build
 
+    var innerPageEq: Equal[MyPage2] = null
+
     val config = RouterConfig.build[MyPage2] { dsl =>
       import dsl._
+
+      innerPageEq = implicitly[Equal[MyPage2]]
 
       val privatePages = (emptyRule
         | dynamicRouteCT("user" / int.caseclass1(UserProfilePage)(UserProfilePage.unapply)) ~> dynRender(userProfilePage(_))
@@ -144,5 +148,8 @@ object Router2Test extends TestSuite {
       val es = config.detectErrorsE(E(E1), E(E2))
       assertEq(es, Vector.empty)
     }
+
+    'pageEquality -
+      assert(innerPageEq eq pageEq)
   }
 }
