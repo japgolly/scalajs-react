@@ -24,7 +24,7 @@ object ReactApp extends JSApp {
     def exampleRoutes: Rule =
       Example.values.map(exampleRoute).reduce(_ | _)
 
-    (trimSlashes
+    (removeTrailingSlashes
     | staticRoute(root,   Home) ~> render(HomePage.component())
     | staticRoute("#doc", Doco) ~> render(DocoPage.component())
     | exampleRoutes
@@ -32,6 +32,7 @@ object ReactApp extends JSApp {
       .notFound(redirectToPage(Home)(Redirect.Replace))
       .renderWith(layout)
       .verify(Home, Examples(Example.Hello), Examples(Example.Todo), Doco)
+      .logToConsole
   }
 
   def layout(c: RouterCtl[Page], r: Resolution[Page]) =
