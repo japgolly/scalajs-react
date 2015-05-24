@@ -45,7 +45,7 @@ object DslTest extends TestSuite {
     def compU: ReactComponentU[Unit, Unit, Unit, TopNode] =
       compCConst()
 
-    case class CompX(title: String, page: Page, router: RouterCtl[Page])
+    case class CompX(title: String, page: PageSet, router: RouterCtl[PageSet])
     val compX = ReactComponentB[CompX]("X").render(p => <.div()).build
   }
 

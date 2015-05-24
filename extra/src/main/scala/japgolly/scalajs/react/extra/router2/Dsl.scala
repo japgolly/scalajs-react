@@ -323,10 +323,9 @@ object StaticDsl {
  *
  * Instead creating an instance of this yourself, use [[RouterConfig.build]].
  */
-final class RouterConfigDsl[Page_](implicit pageEq: Equal[Page_] = Equal.equalA[Page_]) {
+final class RouterConfigDsl[Page](pageEq: Equal[Page] = Equal.equalA[Page]) {
   import StaticDsl.{Rule => _, Rules => _, _}
 
-  type Page     = Page_
   type Action   = japgolly.scalajs.react.extra.router2.Action[Page]
   type Renderer = japgolly.scalajs.react.extra.router2.Renderer[Page]
   type Redirect = japgolly.scalajs.react.extra.router2.Redirect[Page]
