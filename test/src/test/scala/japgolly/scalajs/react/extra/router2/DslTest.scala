@@ -183,6 +183,7 @@ object DslTest extends TestSuite {
         staticRoute("abc", Obj1) ~> render (compCConst())
         staticRoute("abc", Obj1) ~> render (compU)
         staticRoute("abc", Obj1) ~> renderR(compCReqRouter(_))
+
         staticRoute("abc", Obj1) ~> redirectToPage(Obj2)
         staticRoute("abc", Obj1) ~> redirectToPath(Path.root)
         staticRoute("abc", Obj1) ~> redirectToPath("hehe")
@@ -190,18 +191,21 @@ object DslTest extends TestSuite {
       }
 
       'dynamicRoute {
-        dynamicRoute(routeCCi) ~> render  (reactTag)
-        dynamicRoute(routeCCi) ~> render  (reactElement)
-        dynamicRoute(routeCCi) ~> render  (compCConst())
-        dynamicRoute(routeCCi) ~> render  (compU)
-        dynamicRoute(routeCCi) ~> renderR (compCReqRouter(_))
-        dynamicRoute(routeCCi) ~> renderP (compCReqPage(_))
-        dynamicRoute(routeCCi) ~> renderP (compCReqPageSub(_))
-        dynamicRoute(routeCCi) ~> renderPR((p, r) => compX(CompX("ah", p, r)))
-        dynamicRoute(routeCCi) ~> redirectToPage(Obj2)
-        dynamicRoute(routeCCi) ~> redirectToPath(Path.root)
-        dynamicRoute(routeCCi) ~> redirectToPath("hehe")
-        compileError("""dynamicRoute(routeCCl) ~> renderP (compCReqPageSub(_))""") // CCl ⊄ PageSubSet
+        dynamicRouteCT(routeCCi) ~> render (reactTag)
+        dynamicRouteCT(routeCCi) ~> render (reactElement)
+        dynamicRouteCT(routeCCi) ~> render (compCConst())
+        dynamicRouteCT(routeCCi) ~> render (compU)
+        dynamicRouteCT(routeCCi) ~> renderR(compCReqRouter(_))
+
+        dynamicRouteCT(routeCCi) ~> dynRender (compCReqPage(_))
+        dynamicRouteCT(routeCCi) ~> dynRender (compCReqPageSub(_))
+        dynamicRouteCT(routeCCi) ~> dynRenderR((p, r) => compX(CompX("ah", p, r)))
+
+        dynamicRouteCT(routeCCi) ~> redirectToPage(Obj2)
+        dynamicRouteCT(routeCCi) ~> redirectToPath(Path.root)
+        dynamicRouteCT(routeCCi) ~> redirectToPath("hehe")
+
+        compileError("""dynamicRoute(routeCCl) ~> dynRender(compCReqPageSub(_))""") // CCl ⊄ PageSubSet
         ()
       }
 

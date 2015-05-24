@@ -41,11 +41,11 @@ object RouterTest extends TestSuite {
     val config = RouterConfig.build[MyPage] { dsl =>
       import dsl._
       (removeTrailingSlashes
-      | staticRoute(root,     Root)                                               ~> renderR(RootComponent(_))
-      | staticRoute("/hello", Hello)                                              ~> render (HelloComponent())
-      | staticRedirect("/hey")                                                    ~> redirectToPage(Hello)(Redirect.Replace)
-      | dynamicRoute("/name" / string("[a-z]+").caseclass1(Greet)(Greet.unapply)) ~> renderP(g => NameComponent(g.name))
-      | dynamicRoute("/person" / long.caseclass1(Person)(Person.unapply))         ~> renderP(PersonComponent(_))
+      | staticRoute(root,     Root)                                                 ~> renderR(RootComponent(_))
+      | staticRoute("/hello", Hello)                                                ~> render (HelloComponent())
+      | staticRedirect("/hey")                                                      ~> redirectToPage(Hello)(Redirect.Replace)
+      | dynamicRouteCT("/name" / string("[a-z]+").caseclass1(Greet)(Greet.unapply)) ~> dynRender(g => NameComponent(g.name))
+      | dynamicRouteCT("/person" / long.caseclass1(Person)(Person.unapply))         ~> dynRender(PersonComponent(_))
       )
         .notFound(redirectToPage(Root)(Redirect.Replace))
         .renderWith((ctl, res) =>

@@ -19,6 +19,12 @@ object Router2Test extends TestSuite {
     case class UserProfilePage(id: Int) extends MyPage2
     case object SomethingElse           extends MyPage2
 
+    case class E(n: En) extends MyPage2
+    sealed trait En
+    case object E1 extends En
+    case object E2 extends En
+    def renderE(e: E) = <.div()
+
     implicit val pageEq: Equal[MyPage2] = Equal.equalA
 
     var isUserLoggedIn: Boolean = false
@@ -50,14 +56,20 @@ object Router2Test extends TestSuite {
       import dsl._
 
       val privatePages = (emptyRule
-        | dynamicRoute("user" / int.caseclass1(UserProfilePage)(UserProfilePage.unapply)) ~> renderP(userProfilePage(_))
+        | dynamicRouteCT("user" / int.caseclass1(UserProfilePage)(UserProfilePage.unapply)) ~> dynRender(userProfilePage(_))
         | staticRoute("private-1", PrivatePage1) ~> render(<.h1("Private #1"))
         | staticRoute("private-2", PrivatePage2) ~> render(<.h1("Private #2: ", secret))
         )
         .addCondition(isUserLoggedIn)(page => redirectToPage(PublicHome)(Redirect.Push))
 
+      val ePages = (emptyRule
+        | staticRoute("e/1", E(E1)) ~> render(renderE(E(E1)))
+        | staticRoute("e/2", E(E2)) ~> render(renderE(E(E2)))
+        )
+
       (removeTrailingSlashes
         | staticRoute(root, PublicHome) ~> render(<.h1("HOME"))
+        | ePages
         | privatePages
         )
         .notFound(redirectToPage(if (isUserLoggedIn) PublicHome else PrivatePage1)(Redirect.Replace))
@@ -77,6 +89,7 @@ object Router2Test extends TestSuite {
   override val tests = TestSuite {
     import MyPage2._
     val (router, lgc) = Router.componentAndLogic(base, config) // .logToConsole
+    val ctl = lgc.ctl
 
     val sim = SimHistory(base.abs)
     val r = ReactTestUtils.renderIntoDocument(router())
@@ -92,12 +105,12 @@ object Router2Test extends TestSuite {
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", true) // logged in
 
-      lgc.ctl.setIO(PrivatePage1).unsafePerformIO()
+      ctl.setIO(PrivatePage1).unsafePerformIO()
       assertContains(html, ">Home</a>") // link cos not on current page
       assertContains(html, "Private #1")
 
       isUserLoggedIn = false
-      lgc.ctl.refreshIO.unsafePerformIO()
+      ctl.refreshIO.unsafePerformIO()
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", false) // not logged in
     }
@@ -111,7 +124,7 @@ object Router2Test extends TestSuite {
 
     'lazyRender {
       isUserLoggedIn = true
-      lgc.ctl.setIO(PrivatePage2).unsafePerformIO()
+      ctl.setIO(PrivatePage2).unsafePerformIO()
       assertContains(html, secret)
       secret = "oranges"
       r.forceUpdate()
@@ -123,6 +136,13 @@ object Router2Test extends TestSuite {
       assertEq(es, Vector.empty)
       es = config.detectErrorsE(SomethingElse)
       assert(es.nonEmpty)
+    }
+
+    'routesPerNestedPageType {
+      assertEq("E1", ctl.pathFor(E(E1)).value, "e/1")
+      assertEq("E2", ctl.pathFor(E(E2)).value, "e/2")
+      val es = config.detectErrorsE(E(E1), E(E2))
+      assertEq(es, Vector.empty)
     }
   }
 }

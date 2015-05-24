@@ -301,7 +301,7 @@ object StaticDsl {
     def ~>(g: P => Action[Page]): O = f(g)
   }
 
-  class StaticRouteB[Page, P <: Page, O](val f: (=> Action[Page]) => O) extends AnyVal {
+  class StaticRouteB[Page, O](val f: (=> Action[Page]) => O) extends AnyVal {
     def ~>(a: => Action[Page]): O = f(a)
   }
 
@@ -353,10 +353,10 @@ final class RouterConfigDsl[Page_] {
   def renderR[A <% ReactElement](g: RouterCtl[Page] => A): Renderer =
     Renderer(g(_))
 
-  def renderP[P <: Page, A <% ReactElement](g: P => A): P => Renderer =
+  def dynRender[P <: Page, A <% ReactElement](g: P => A): P => Renderer =
     p => Renderer(_ => g(p))
 
-  def renderPR[P <: Page, A <% ReactElement](g: (P, RouterCtl[Page]) => A): P => Renderer =
+  def dynRenderR[P <: Page, A <% ReactElement](g: (P, RouterCtl[Page]) => A): P => Renderer =
     p => Renderer(r => g(p, r))
 
   def redirectToPage(page: Page)(implicit method: Redirect.Method): RedirectToPage[Page] =
@@ -398,16 +398,25 @@ final class RouterConfigDsl[Page_] {
   // Only really aids rewriteRuleR but safe anyway
   implicit def _auto_pattern_from_regex(r: Regex): Pattern = r.pattern
 
-  def staticRoute[P <: Page: ClassTag](r: Route[Unit], page: P): StaticRouteB[Page, P, Rule] =
-    new StaticRouteB(a => dynamicRoute[P](r const page) ~> a)
+  def staticRoute(r: Route[Unit], page: Page): StaticRouteB[Page, Rule] =
+    staticRouteE(r, page)(Equal.equalA)
 
-  def dynamicRoute[P <: Page: ClassTag](r: Route[P]): DynamicRouteB[Page, P, Rule] = {
-    def onPage[A](f: P => A): Page => Option[A] = {
-      case p: P => Some(f(p))
-      case _    => None
-    }
+  def staticRouteE(r: Route[Unit], page: Page)(implicit e: Equal[Page]): StaticRouteB[Page, Rule] = {
+    val dyn = dynamicRoute(r const page){ case p if e.equal(page, p) => p }
+    new StaticRouteB(a => dyn ~> a)
+  }
+
+  def dynamicRoute[P <: Page](r: Route[P])(pf: PartialFunction[Page, P]): DynamicRouteB[Page, P, Rule] =
+    dynamicRouteF(r)(pf.lift)
+
+  def dynamicRouteF[P <: Page](r: Route[P])(op: Page => Option[P]): DynamicRouteB[Page, P, Rule] = {
+    def onPage[A](f: P => A): Page => Option[A] =
+      op(_) map f
     new DynamicRouteB(a => Rule(r.parse, onPage(r.pathFor), onPage(a)))
   }
+
+  def dynamicRouteCT[P <: Page](r: Route[P])(implicit ct: ClassTag[P]): DynamicRouteB[Page, P, Rule] =
+    dynamicRouteF(r)(ct.unapply)
 
   def staticRedirect(r: Route[Unit]): StaticRedirectB[Page, Rule] =
     new StaticRedirectB(a => rewritePath(r.parse(_) map (_ => a)))
