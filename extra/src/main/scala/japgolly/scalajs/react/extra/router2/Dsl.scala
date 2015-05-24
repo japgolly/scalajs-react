@@ -432,4 +432,18 @@ final class RouterConfigDsl[Page_] {
    */
   def removeTrailingSlashes: Rule =
     rewritePathR("^(.*?)/+$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+
+  /**
+   * A rule that uses a replace-state redirect to remove leading slashes from route URLs.
+   */
+  def removeLeadingSlashes: Rule =
+    rewritePathR("^/+(.*)$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+
+  /**
+   * A rule that uses a replace-state redirect to remove leading and trailing slashes from route URLs.
+   */
+  def trimSlashes: Rule = (
+    rewritePathR("^/*(.*?)/+$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+    | removeLeadingSlashes
+  )
 }
