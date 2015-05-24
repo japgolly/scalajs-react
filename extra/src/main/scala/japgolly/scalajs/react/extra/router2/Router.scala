@@ -155,10 +155,11 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
 
   val ctlByPath: RouterCtl[Path] =
     new RouterCtl[Path] {
-      override def byPath            = this
-      override def refreshIO         = interpret(BroadcastSync)
-      override def setIO(path: Path) = interpret(setPath(path))
-      override def link(path: Path)  = <.a(^.href := path.abs.value, setOnClick(path))
+      override def baseUrl             = impbaseurl
+      override def byPath              = this
+      override def refreshIO           = interpret(BroadcastSync)
+      override def pathFor(path: Path) = path
+      override def setIO(path: Path)   = interpret(setPath(path))
     }
 
   val ctl: RouterCtl[Page] =
@@ -171,10 +172,14 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
  * @tparam A A data type that indicates a route that can be navigated to.
  */
 abstract class RouterCtl[A] {
+  def baseUrl: BaseUrl
   def byPath: RouterCtl[Path]
   def refreshIO: IO[Unit]
+  def pathFor(target: A): Path
   def setIO(target: A): IO[Unit]
-  def link(target: A): ReactTag
+
+  final def urlFor(target: A): AbsUrl =
+    pathFor(target).abs(baseUrl)
 
   final def setEH(target: A): ReactEvent => IO[Unit] =
     e => preventDefaultIO(e) >> stopPropagationIO(e) >> setIO(target)
@@ -182,13 +187,17 @@ abstract class RouterCtl[A] {
   final def setOnClick(target: A): TagMod =
     ^.onClick ~~> setEH(target)
 
+  final def link(target: A): ReactTag =
+    <.a(^.href := urlFor(target).value, setOnClick(target))
+
   final def contramap[B](f: B => A): RouterCtl[B] =
     new RouterCtlM(this, f)
 }
 
 class RouterCtlM[A, B](u: RouterCtl[A], f: B => A) extends RouterCtl[B] {
-  override def byPath      = u.byPath
-  override def refreshIO   = u.refreshIO
-  override def setIO(b: B) = u.setIO(f(b))
-  override def link(b: B)  = u.link(f(b))
+  override def baseUrl       = u.baseUrl
+  override def byPath        = u.byPath
+  override def refreshIO     = u.refreshIO
+  override def pathFor(b: B) = u pathFor f(b)
+  override def setIO(b: B)   = u setIO f(b)
 }
