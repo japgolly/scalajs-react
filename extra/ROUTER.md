@@ -1,4 +1,10 @@
+*Time and use have identified flaws in this design. Consequentially, [Router v2](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER2.md) exists and is recommended.*
+
+Router (v1)
+===========
+
 Included is a router (in the orbit of Single-Page Applications) that is written entirely in Scala.
+
 
 Features
 ========
