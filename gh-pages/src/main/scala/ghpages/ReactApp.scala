@@ -56,9 +56,17 @@ object ReactApp extends JSApp {
           nav("Documentation", Doco)))
     }.build
 
-  val router = Router(BaseUrl.fromWindowOrigin, routerConfig)
+  val baseUrl =
+    if (dom.window.location.hostname == "localhost")
+      BaseUrl.fromWindowOrigin_/
+    else
+      BaseUrl("http://japgolly.github.io/scalajs-react/")
+
+  def router = Router(baseUrl, routerConfig)
 
   @JSExport
-  override def main(): Unit =
+  override def main(): Unit = {
+    dom.console.info("Router logging is enabled. Enjoy!")
     router() render dom.document.body
+  }
 }
