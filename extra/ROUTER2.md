@@ -204,9 +204,74 @@ Syntax:
 | `dynamicRouteCT` | `[P <: Page](Route[P])` | A dynamic route using a page subtype: `P`.<br>The `CT` suffix here denotes that this method uses a compiler-provded `ClassTag` to identify the page subtype `P`. This is equivalent to `{case p: P => p}`.<br>Note that if this is used, the entire space of `P` is associated with a route - do not add another route over `P`. |
 | `dynamicRedirect` | `[A](Route[A])` | A dynamic route not associated with a page. Any `A` extracted by the route may then be used to determine the action. |
 
-Examples
+Example: `item/<id>`
 ```scala
+case class ItemPage(id: Int) extends MyPage
+
+val itemPage = ReactComponentB[ItemPage]("Item page")
+  .render(p => <.div(s"Info for item #${p.id}"))
+  .build
+
+dynamicRouteCT("item" / int.caseclass1(ItemPage)(ItemPage.unapply))
+  ~> dynRender(itemPage(_))
 ```
+
+### Putting it all together
+
+To create a `RouterConfig` the syntax is `( <rule1> | ... | <ruleN> ).notFound( <action> )`.
+
+Rules are composed via `|`. There is an `emptyRule` is needed that does nothing.
+
+The `.notFound()` method declares how unmatched routes will be handled.
+It takes an `Action` as described above, the same kind that is used in the rules.
+You will generally redirect to the root, or render a 404-like page.
+
+Once `.notFound()` is called you will have a `RouterConfig`.
+Rules can no longer be added, but different (optional) configuration becomes available.
+
+Example:
+```scala
+val routerConfig = RouterConfig.build[Page] { dsl =>
+  import dsl._
+
+  (emptyRule
+  | staticRoute(root,     Home)  ~> render(HomePage.component())
+  | staticRoute("#hello", Hello) ~> render(<.div("TODO"))
+  | staticRedirect("#hey")       ~> redirectToPage(Hello)(Redirect.Replace)
+  ) .notFound(redirectToPage(Home)(Redirect.Replace))
+}
+```
+
+DSL
+* rewritePath
+* rewritePathR
+* removeTrailingSlashes
+* removeLeadingSlashes
+* trimSlashes
+
+Rule
+* `addCondition`
+* `fallback`
+
+Additional configuration
+* `logToConsole`
+* `renderWith`
+* `setPostRender`
+* `onPostRender`
+* `verify`
+* `detectErrors`
 
 `RouterCtl`
 ===========
+
+baseUrl: BaseUrl
+byPath: RouterCtl[Path]
+refreshIO: IO[Unit]
+pathFor(A): Path
+setIO(A): IO[Unit]
+urlFor(A): AbsUrl
+setEH(A): ReactEvent => IO[Unit]
+setOnClick(A): TagMod
+link(A): ReactTag
+contramap[B](B => A): RouterCtl[B]
+narrow[B <: A]: RouterCtl[B]
