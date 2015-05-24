@@ -7,7 +7,7 @@ import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
 import japgolly.scalajs.react.extra.router2._
 import pages._
 
-object ReactApp extends JSApp {
+object GhPages extends JSApp {
 
   sealed trait Page
   case object Home                 extends Page
@@ -24,7 +24,7 @@ object ReactApp extends JSApp {
     def exampleRoutes: Rule =
       Example.values.map(exampleRoute).reduce(_ | _)
 
-    (removeTrailingSlashes
+    (trimSlashes
     | staticRoute(root,   Home) ~> render(HomePage.component())
     | staticRoute("#doc", Doco) ~> render(DocoPage.component())
     | exampleRoutes
