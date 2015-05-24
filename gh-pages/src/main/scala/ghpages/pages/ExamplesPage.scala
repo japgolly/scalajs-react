@@ -1,63 +1,72 @@
 package ghpages.pages
 
-import japgolly.scalajs.react._, vdom.all._
+import scalaz.Equal
+import scalaz.syntax.equal._
+import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react.extra.router2.RouterCtl
 import ghpages.examples._
 
-sealed abstract class Example(val title: String, val el: () => ReactElement)
+sealed abstract class Example(val title: String,
+                              val routerPath: String,
+                              val render: () => ReactElement)
+
 object Example {
   import ghpages.examples.util._
   implicit private def auto1(v: SideBySide.Content): () => ReactElement = () => v()
   implicit private def auto2(v: SingleSide.Content): () => ReactElement = () => v()
 
-  case object Hello        extends Example("Hello World",        HelloMessageExample.content)
-  case object Timer        extends Example("Timer",              TimerExample.content)
-  case object Todo         extends Example("Todo List",          TodoExample.content)
-  case object Refs         extends Example("Using Refs",         RefsExample.content)
-  case object ProductTable extends Example("Product Table",      ProductTableExample.content)
-  case object Animation    extends Example("Animation",          AnimationExample.content)
-  case object PictureApp   extends Example("AjaxPictureApp",     PictureAppExample.content)
-  case object Scalaz       extends Example("Todo List (Scalaz)", ScalazExample.content)
-  case object Touch        extends Example("Touch events",       TouchExample.content)
-  case object ExternalVar  extends Example("ExternalVar",        ExternalVarExample.content)
+  case object Hello        extends Example("Hello World",        "hello",            HelloMessageExample.content)
+  case object Timer        extends Example("Timer",              "timer",            TimerExample       .content)
+  case object Todo         extends Example("Todo List",          "todo",             TodoExample        .content)
+  case object TodoScalaz   extends Example("Todo List (Scalaz)", "todo-scalaz",      ScalazExample      .content)
+  case object Refs         extends Example("Using Refs",         "refs",             RefsExample        .content)
+  case object ProductTable extends Example("Product Table",      "product-table",    ProductTableExample.content)
+  case object Animation    extends Example("Animation",          "animation",        AnimationExample   .content)
+  case object PictureApp   extends Example("AjaxPictureApp",     "ajax-picture-app", PictureAppExample  .content)
+  case object Touch        extends Example("Touch events",       "touch-events",     TouchExample       .content)
+  case object ExternalVar  extends Example("ExternalVar",        "external-var",     ExternalVarExample .content)
 
-  val values = Vector[Example](Hello, Timer, Todo, Scalaz, Touch, Refs, ExternalVar, ProductTable, Animation, PictureApp)
+  implicit val equality: Equal[Example] =
+    Equal.equalA
+
+  val values = Vector[Example](
+    Hello, Timer, Todo, TodoScalaz, Touch, Refs, ExternalVar, ProductTable, Animation, PictureApp)
+
+  def default: Example =
+    values.head
 }
+
+// =====================================================================================================================
 
 object ExamplesPage {
 
-  case class State(current: Example)
+  case class Props(current: Example, router: RouterCtl[Example])
 
-  class Backend(t: BackendScope[_, State]) {
-    def onMenuClick(tgt: Example) = t.setState(State(tgt))
-  }
-
-  val examplesMenu = ReactComponentB[(Backend, Example)]("examplesMenu")
-    .render(P => {
-      val (b, current) = P
-      def element(e: Example) = {
-        // val active = e == current // scala.js bug??
-        val active = e.toString == current.toString // workaround for ↖
-        li(
-          classSet1("list-group-item", "active" -> active),
-          onClick --> b.onMenuClick(e),
+  val menu = ReactComponentB[Props]("Example menu")
+    .render { p =>
+      def menuItem(e: Example) = {
+        val active = e === p.current
+        <.li(
+          ^.classSet1("list-group-item", "active" -> active),
+          (!active) ?= (p.router setOnClick e),
           e.title)
       }
-      div(`class` := "col-md-2",
-        ul(`class` := "list-group",
-          Example.values.map(element)))
-    }).build
+      <.div(^.cls := "col-md-2",
+        <.ul(^.cls := "list-group",
+          Example.values map menuItem))
+    }.build
 
-  val exampleBody = ReactComponentB[Example]("examplesBody")
+  val body = ReactComponentB[Example]("Example body")
     .render(eg =>
-      div(`class` := "col-md-10", eg.el()))
+      <.div(
+        ^.cls := "col-md-10",
+        eg.render()))
     .build
 
-  val component = ReactComponentB[Unit]("examplesPage")
-    .initialState(State(Example.Hello))
-    .backend(new Backend(_))
-    .render((_, s, b) =>
-      div(`class` := "row",
-        examplesMenu((b, s.current)),
-        exampleBody(s.current))
-    ).buildU
+  val component = ReactComponentB[Props]("Examples")
+    .render(p =>
+      <.div(^.cls := "row",
+        menu(p),
+        body(p.current))
+    ).build
 }

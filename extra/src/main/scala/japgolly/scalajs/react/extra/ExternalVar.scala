@@ -1,11 +1,13 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react._, ScalazReact._
 import monocle.Lens
 import scalaz.effect.IO
+import japgolly.scalajs.react._, ScalazReact._
 
 /**
  * Provides a component with safe R/W access to an external variable.
+ *
+ * Use [[ReusableVar]] for a reusable version of this.
  */
 final class ExternalVar[A](val value: A, val set: A => IO[Unit]) {
 
@@ -24,6 +26,6 @@ object ExternalVar {
   @inline def apply[A](value: A)(set: A => IO[Unit]): ExternalVar[A] =
     new ExternalVar(value, set)
 
-  @inline def state[S]($: ComponentStateFocus[S]): ExternalVar[S] =
+  @inline def state[S]($: CompStateFocus[S]): ExternalVar[S] =
     new ExternalVar($.state, $.setStateIO(_))
 }

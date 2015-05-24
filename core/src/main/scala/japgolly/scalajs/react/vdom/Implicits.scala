@@ -58,7 +58,7 @@ abstract class Implicits extends LowPri {
   @inline implicit final def _react_nodeSeq  [A <% TagMod](xs: Seq[A])      : TagMod = new SeqNode(xs)
   @inline implicit final def _react_nodeArray[A <% TagMod](xs: Array[A])    : TagMod = new SeqNode[A](xs.toSeq)
   @inline implicit final def _react_nodeOptional[T[_], A](t: T[A])(implicit o: Optional[T], f: A => TagMod): TagMod =
-    o.fold(t, f, EmptyTag)
+    o.fold(t, EmptyTag)(f)
 
   // Scalatags misc
   @inline implicit final def _react_styleOrdering                  : Ordering[Style] = Scalatags.styleOrdering

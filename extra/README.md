@@ -4,9 +4,12 @@ scalajs-react Extras
 A collection of functionality that provides benefit when using scalajs-react.
 
 - [Router](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER.md)
+- [Performance Management](https://github.com/japgolly/scalajs-react/blob/master/extra/PERF.md)
+
+On this page:
+- [ExternalVar](#externalvar)
 - Component Mixins:
   - [Broadcaster and Listenable](#broadcaster-and-listenable)
-  - [ExternalVar](#externalvar)
   - [LogLifecycle](#loglifecycle)
   - [OnUnmount](#onunmount)
   - [SetInterval](#setinterval)

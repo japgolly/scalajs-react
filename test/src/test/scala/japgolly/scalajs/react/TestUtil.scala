@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import java.util.concurrent.atomic.AtomicReference
 import scala.collection.mutable.ListBuffer
+import scala.reflect.ClassTag
 import scala.scalajs.js
 import scalaz.Maybe
 import vdom.all._
@@ -68,6 +69,11 @@ object TestUtil {
 
     def just    : Maybe[A] = Maybe.just(v)
     def maybeNot: Maybe[A] = Maybe.empty
+
+    def matchesBy[B <: A : ClassTag](f: B => Boolean) = v match {
+      case b: B => f(b)
+      case _ => false
+    }
   }
 
   def none[A]: Option[A] = None
@@ -100,9 +106,11 @@ object TestUtil {
     trait T
     trait A
     trait B
-    val c = null.asInstanceOf[ComponentScopeM[Unit, S, Unit]]
     type U = Unit
     type N = TopNode
+    val c = null.asInstanceOf[ComponentScopeM[Unit, S, Unit, N]]
+
+    def st_s(s: S, t: T): S = ???
 
     implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> IO)]
   }

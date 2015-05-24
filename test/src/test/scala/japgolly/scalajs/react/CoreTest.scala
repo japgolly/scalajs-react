@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.Addons.{ReactCssTransitionGroup, ReactCloneWithProps}
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
-import org.scalajs.dom.raw.{HTMLOptionElement, HTMLSelectElement, HTMLInputElement}
+import org.scalajs.dom.raw._
 import vdom.all._
 import TestUtil._
 import test.{DebugJs, ReactTestUtils}
@@ -18,6 +18,9 @@ object CoreTest extends TestSuite {
     .initialState(123)
     .render(T => input(value := T.state.toString))
     .domType[HTMLInputElement]
+    .componentDidMount($ => {
+      val s: String = $.getDOMNode().value // Look, it knows its DOM node type
+    })
     .buildU
 
   val tagmod  : TagMod       = cls := "ho"
@@ -173,7 +176,7 @@ object CoreTest extends TestSuite {
         r((false, false)) shouldRender """<div>x</div>"""
         r((true,  false)) shouldRender """<div class="p1">x</div>"""
         r((false, true))  shouldRender """<div class="p2">x</div>"""
-        r((true,  true))  shouldRender """<div class="p2 p1">x</div>"""
+        r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
       }
       'hasMandatory {
         val r = ReactComponentB[Boolean]("C").render(p => div(classSet1("mmm", "ccc" -> p))("x")).build
@@ -216,7 +219,7 @@ object CoreTest extends TestSuite {
     'builder {
       'configure {
         var called = 0
-        val f = (_: ReactComponentB[Unit,Unit,Unit]).componentWillMount(_ => called += 1)
+        val f = (_: ReactComponentB[Unit,Unit,Unit,TopNode]).componentWillMount(_ => called += 1)
         val c = ReactComponentB[Unit]("X").render(_ => div("")).configure(f, f).buildU
         ReactTestUtils.renderIntoDocument(c())
         assert(called == 2)
@@ -281,7 +284,7 @@ object CoreTest extends TestSuite {
     }
 
     'stateFocus {
-      // def inc(s: ComponentStateFocus[Int]) = s.modState(_ * 3)
+      // def inc(s: CompStateFocus[Int]) = s.modState(_ * 3)
       case class SI(s: String, i: Int)
       val C = ReactComponentB[SI]("C").initialStateP(p => p).render(T => {
         val f = T.focusState(_.i)((a,b) => a.copy(i = b))
@@ -371,9 +374,9 @@ object CoreTest extends TestSuite {
       def st_get: S => T = null
       def st_set: (S, T) => S = null
 
-      "BackendScope ops"    - test[BackendScope[Unit, S]      ](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
-      "ComponentScopeM ops" - test[ComponentScopeM[U, S, U]   ](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
-      "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[ComponentStateFocus[T]]
+      "BackendScope ops"    - test[BackendScope[Unit, S]      ](_.focusState[T](st_get)(st_set)).expect[CompStateFocus[T]]
+      "ComponentScopeM ops" - test[ComponentScopeM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[CompStateFocus[T]]
+      "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_.focusState[T](st_get)(st_set)).expect[CompStateFocus[T]]
     }
 
     'shouldCorrectlyDetermineIfaComponentisMounted {
@@ -400,7 +403,7 @@ object CoreTest extends TestSuite {
           .buildU
         val instance = ReactTestUtils.renderIntoDocument(GrandParent())
         val n = ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz").getDOMNode()
-        assert(n.className == "xyz child")
+        assert(n.matchesBy[HTMLElement](_.className == "xyz child"))
       }
     }
 
@@ -424,5 +427,14 @@ object CoreTest extends TestSuite {
       ReactTestUtils.renderIntoDocument(C())
 
     }
+
+    'domTypeBeforeCallbacks {
+      ReactComponentB[Unit]("").stateless
+        .render((_, _) => canvas())
+        .domType[HTMLCanvasElement]
+        .componentDidMount(_.getDOMNode().getContext("2d"))
+        .buildU
+    }
+
   }
 }

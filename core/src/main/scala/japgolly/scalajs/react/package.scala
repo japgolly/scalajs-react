@@ -6,7 +6,7 @@ import js.{Dynamic, UndefOr, undefined, Object, Any => JAny, Function => JFn}
 
 package object react {
 
-  type TopNode = html.Element
+  type TopNode = dom.Element
 
   type ReactEvent            = SyntheticEvent           [dom.Node]
   type ReactClipboardEvent   = SyntheticClipboardEvent  [dom.Node]
@@ -218,7 +218,7 @@ package object react {
   }
 
   @inline implicit final class ReactExt_ReactObj(val _r: React.type) extends AnyVal {
-    @inline def renderC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeMN[P,S,B,N] => Unit) =
+    @inline def renderC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeM[P,S,B,N] => Unit) =
       _r.render(c, n, callback)
   }
 
@@ -252,7 +252,10 @@ package object react {
   }
 
   @inline implicit final class ReactExt_UndefReactComponentM[N <: TopNode](val _u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
-    def tryFocus(): Unit = _u.foreach(_.getDOMNode().focus())
+    def tryFocus(): Unit = _u.foreach(_.getDOMNode() match {
+      case e: html.Element => e.focus()
+      case _ =>
+    })
   }
 
   @inline implicit final class ReactExt_ReactComponentM[N <: TopNode](val _c: ReactComponentM_[N]) extends AnyVal {
@@ -275,56 +278,90 @@ package object react {
 
   type OpCallback = UndefOr[() => Unit]
 
-  trait CompStateAccess[C[_]] {
-    def state[S](c: C[S]): S
-    def setState[S](f: C[S], s: S, cb: OpCallback): Unit
+  /**
+   * Generic read & write access to a component's state, (whatever the type of state might be).
+   */
+  abstract class CompStateAccess[-C, S] {
+    def state(c: C): S
+    def setState(c: C, s: S, cb: OpCallback): Unit
   }
 
-  implicit object CompStateAccess_SS extends CompStateAccess[ComponentScope_SS] {
-    override def state[S](c: ComponentScope_SS[S]): S =
-      c._state.v
+  @inline implicit def toCompStateAccessOps[C, S](c: C)(implicit a: CompStateAccess[C, S]) =
+    new CompStateAccess.Ops[C, S](c)
 
-    override def setState[S](c: ComponentScope_SS[S], s: S, cb: OpCallback = undefined): Unit =
-      c._setState(WrapObj(s), cb.map[JFn](f => f))
+  object CompStateAccess {
+
+    /**
+     * This is a hack to avoid creating new instances for each type of state.
+     */
+    abstract class HK[K[_]] extends CompStateAccess[K[Any], Any] {
+      final type S = Any
+      final type C = K[S]
+      @inline final def force[S]: CompStateAccess[K[S], S] =
+        this.asInstanceOf[CompStateAccess[K[S], S]]
+    }
+
+    object Focus extends HK[CompStateFocus] {
+      override def state(c: C)                          = c.get()
+      override def setState(c: C, s: S, cb: OpCallback) = c.set(s, cb)
+    }
+
+    object SS extends HK[ComponentScope_SS] {
+      override def state(c: C)                          = c._state.v
+      override def setState(c: C, s: S, cb: OpCallback) = c._setState(WrapObj(s), cb.map[JFn](f => f))
+    }
+
+    @inline implicit def focus[S]: CompStateAccess[CompStateFocus[S], S] =
+      Focus.force
+
+    @inline implicit def cm[P, S, B, N <: TopNode]: CompStateAccess[ComponentScopeM[P, S, B, N], S] =
+      CompStateAccess.SS.force[S]
+
+    @inline implicit def cu[P, S, B]: CompStateAccess[ComponentScopeU[P, S, B], S] =
+      CompStateAccess.SS.force[S]
+
+    @inline implicit def bs[P, S]: CompStateAccess[BackendScope[P, S], S] =
+      CompStateAccess.SS.force[S]
+
+    final class Ops[C, S](val _c: C) extends AnyVal {
+      // This should really be a class param but then we lose the AnyVal
+      type CC = CompStateAccess[C, S]
+
+      @inline def state(implicit C: CC): S =
+        C.state(_c)
+
+      @inline def setState(s: S, cb: OpCallback = undefined)(implicit C: CC): Unit =
+        C.setState(_c, s, cb)
+
+      @inline def modState(f: S => S, cb: OpCallback = undefined)(implicit C: CC): Unit =
+        setState(f(state), cb)
+
+      def focusStateId(implicit C: CC) = new CompStateFocus[S](
+        () => _c.state,
+        (a: S, cb: OpCallback) => _c.setState(a, cb))
+
+      /** Zoom-in on a subset of the state. */
+      def focusState[T](f: S => T)(g: (S, T) => S)(implicit C: CC) = new CompStateFocus[T](
+        () => f(_c.state),
+        (b: T, cb: OpCallback) => _c.setState(g(_c.state, b), cb))
+    }
   }
 
-  @inline implicit final def toCompStateAccessOps[C[_]: CompStateAccess, S](c: C[S]) = new CompStateAccessOps(c)
-  final class CompStateAccessOps[C[_], S](val _c: C[S]) extends AnyVal {
-    // CompStateAccess[C] should really be a class param but then we lose the AnyVal
-    type CC = CompStateAccess[C]
-    
-    @inline def state(implicit C: CC): S =
-      C.state(_c)
-
-    @inline def setState(s: S, cb: OpCallback = undefined)(implicit C: CC): Unit =
-      C.setState(_c, s, cb)
-
-    @inline def modState(f: S => S, cb: OpCallback = undefined)(implicit C: CC): Unit =
-      setState(f(state), cb)
-
-    @inline def focusStateId(implicit C: CC) = new ComponentStateFocus[S](
-      () => _c.state,
-      (a: S, cb: OpCallback) => _c.setState(a, cb))
-
-    @inline def focusState[T](f: S => T)(g: (S, T) => S)(implicit C: CC) = new ComponentStateFocus[T](
-      () => f(_c.state),
-      (b: T, cb: OpCallback) => _c.setState(g(_c.state, b), cb))
+  /**
+   * Read & write access to a specific subset of a specific component's state.
+   *
+   * @tparam S The type of state.
+   */
+  final class CompStateFocus[S] private[react](
+    val get: () => S,
+    val set: (S, OpCallback) => Unit) {
   }
 
-  final class ComponentStateFocus[B] private[react](
-    private[react] val _g: () => B,
-    private[react] val _s: (B, OpCallback) => Unit)
-
-  implicit object ComponentStateFocusAccess extends CompStateAccess[ComponentStateFocus] {
-    override def state[S](c: ComponentStateFocus[S]): S = c._g()
-    override def setState[S](c: ComponentStateFocus[S], a: S, cb: OpCallback = undefined): Unit = c._s(a, cb)
+  object CompStateFocus {
+    @inline def apply[S](get: () => S)(set: (S, OpCallback) => Unit): CompStateFocus[S] =
+      new CompStateFocus(get, set)
   }
 
-  @inline final implicit def autoFocusEntireState[S](s: ComponentScope_SS[S]): ComponentStateFocus[S] = s.focusStateId
-  @inline final implicit def autoFocusEntireState[P,S](b: BackendScope[P,S]): ComponentStateFocus[S] = b.focusStateId
-  @inline final implicit def autoFocusEntireState[P,S,B](b: ComponentScopeU[P,S,B]): ComponentStateFocus[S] = b.focusStateId
-
-  // If Scala were a horse it'd die of thirst as you held its head under water.
-  @inline final implicit def scalaHandHolding1[P,S](b: BackendScope[P,S]): CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
-  @inline final implicit def scalaHandHolding2[P,S,B](b: ComponentScopeU[P,S,B]): CompStateAccessOps[ComponentScope_SS, S] = (b: ComponentScope_SS[S])
+  @inline implicit def autoFocusEntireState[C, S](c: C)(implicit a: CompStateAccess[C, S]): CompStateFocus[S] =
+    c.focusStateId
 }

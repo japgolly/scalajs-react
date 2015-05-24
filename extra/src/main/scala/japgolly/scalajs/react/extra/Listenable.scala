@@ -2,7 +2,7 @@ package japgolly.scalajs.react.extra
 
 import scalaz.~>
 import scalaz.effect.IO
-import japgolly.scalajs.react.{ReactComponentB, ComponentScopeM}
+import japgolly.scalajs.react.{TopNode, ReactComponentB, ComponentScopeM}
 import japgolly.scalajs.react.ScalazReact._
 
 /**
@@ -22,17 +22,17 @@ trait Listenable[A] {
 
 object Listenable {
 
-  def install[P, S, B <: OnUnmount, A](f: P => Listenable[A], g: ComponentScopeM[P, S, B] => A => Unit) =
-    OnUnmount.install compose ((_: ReactComponentB[P, S, B])
+  def install[P, S, B <: OnUnmount, N <: TopNode, A](f: P => Listenable[A], g: ComponentScopeM[P, S, B, N] => A => Unit) =
+    OnUnmount.install compose ((_: ReactComponentB[P, S, B, N])
       .componentDidMount(s => s.backend onUnmountF f(s.props).register(g(s))))
 
-  def installIO[P, S, B <: OnUnmount, A](f: P => Listenable[A], g: (ComponentScopeM[P, S, B], A) => IO[Unit]) =
-    install[P, S, B, A](f, t => a => g(t, a).unsafePerformIO())
+  def installIO[P, S, B <: OnUnmount, N <: TopNode, A](f: P => Listenable[A], g: (ComponentScopeM[P, S, B, N], A) => IO[Unit]) =
+    install[P, S, B, N, A](f, t => a => g(t, a).unsafePerformIO())
 
-  def installS[P, S, B <: OnUnmount, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> IO) =
-    installIO[P, S, B, A](f, (t, a) => t.runState(g(a)))
+  def installS[P, S, B <: OnUnmount, N <: TopNode, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> IO) =
+    installIO[P, S, B, N, A](f, (t, a) => t.runState(g(a)))
 
-  def installSF[P, S, B <: OnUnmount, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> IO, F: ChangeFilter[S]) =
-    installIO[P, S, B, A](f, (t, a) => t.runStateF(g(a)))
+  def installSF[P, S, B <: OnUnmount, N <: TopNode, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> IO, F: ChangeFilter[S]) =
+    installIO[P, S, B, N, A](f, (t, a) => t.runStateF(g(a)))
 
 }

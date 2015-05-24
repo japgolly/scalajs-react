@@ -15,11 +15,11 @@ trait RoutingRules {
   final type Loc            = Location[P]
   final type RedirectTarget = Redirect.Target[P]
 
-  @inline final protected implicit def componentP_renderer[S,B,T<:TopNode](c: ReactComponentC.ReqProps[Router, S, B, T]): Renderer = c(_)
-  @inline final protected implicit def componentU_renderer[P,S,B,T<:TopNode](c: ReactComponentC.ConstProps[P, S, B, T]): Renderer = _ => c()
-  @inline final protected implicit def element_renderer[A <% ReactElement](a: A): Renderer = _ => a
-  @inline final protected implicit def loc_redirectable(a: Loc): RedirectTarget = \/-(a)
-  @inline final protected implicit def path_redirectable(p: Path): RedirectTarget = -\/(p)
+  @inline final protected implicit def componentP_renderer[S,B,T<:TopNode](c: => ReactComponentC.ReqProps[Router, S, B, T]): Renderer = c(_)
+  @inline final protected implicit def componentU_renderer[P,S,B,T<:TopNode](c: => ReactComponentC.ConstProps[P, S, B, T]): Renderer = _ => c()
+  @inline final protected implicit def element_renderer[A <% ReactElement](a: => A): Renderer = _ => a
+  @inline final protected implicit def loc_redirectable(a: => Loc): RedirectTarget = \/-(a)
+  @inline final protected implicit def path_redirectable(p: => Path): RedirectTarget = -\/(p)
 
   private[this] def totalParser: Path => RouteAction[P] =
     p => parseS(p) orElse parseD(p) getOrElse notFound(p)

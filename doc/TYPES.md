@@ -49,8 +49,7 @@ Namely...
 | Type | Desc |
 | ---- | ---- |
 | `ComponentScopeU[P, S, +B]` | An unmounted component's `this` scope. |
-| `ComponentScopeWU[P, S, +B]` | A component's `this` scope during `componentWillUpdate`. |
-| `ComponentScopeM[P, S, +B]` | A mounted component's `this` scope. |
+| `ComponentScopeWU[P, S, +B, +N]` | A component's `this` scope during `componentWillUpdate`. |
 | `BackendScope[P, S]` | A component's `this` scope as is available to backends. |
 
 # Events

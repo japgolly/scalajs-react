@@ -22,8 +22,10 @@ trait TagMod {
   final def +(that: TagMod): TagMod = this compose that
 
   final def compose(that: TagMod): TagMod = this match {
-    case TagModComposition(ms) => TagModComposition(that :: ms)
-    case _                     => TagModComposition(this :: that :: Nil)
+    case l if EmptyTag eq l    => that
+    case _ if EmptyTag eq that => this
+    case TagModComposition(ms) => TagModComposition(ms :+ that)
+    case _                     => TagModComposition(Vector.empty[TagMod] :+ this :+ that)
   }
 }
 
@@ -96,7 +98,7 @@ case class Style(jsName: String, cssName: String) {
 
 private[vdom] object Scalatags {
 
-  case class TagModComposition(ms: List[TagMod]) extends TagMod {
+  case class TagModComposition(ms: Vector[TagMod]) extends TagMod {
     override def applyTo(t: Builder): Unit = ms.foreach(_ applyTo t)
   }
 

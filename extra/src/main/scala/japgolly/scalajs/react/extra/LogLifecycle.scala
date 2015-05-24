@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.ReactComponentB
 import org.scalajs.dom.console
 import scala.scalajs.js
+import japgolly.scalajs.react.{ReactComponentB, TopNode}
 
 /**
  * Installing this will cause logging to occur at React component lifecycle stages.
@@ -31,7 +31,7 @@ object LogLifecycle {
   private[this] def logps(m: String) = (c: js.Any, p: Any, s: Any) =>
     logc(m, c, fmt("Props", p) ++ fmt("State", s): _*)
 
-  def short[P, S, B] = (rc: ReactComponentB[P, S, B]) => {
+  def short[P, S, B, N <: TopNode] = (rc: ReactComponentB[P, S, B, N]) => {
     val h = header(rc.name)
     rc.componentWillMount       (_       => log(h("componentWillMount")))
       .componentDidMount        (_       => log(h("componentDidMount")))
@@ -41,7 +41,7 @@ object LogLifecycle {
       .componentWillReceiveProps((_,_)   => log(h("componentWillReceiveProps")))
   }
 
-  def verbose[P, S, B] = (rc: ReactComponentB[P, S, B]) => {
+  def verbose[P, S, B, N <: TopNode] = (rc: ReactComponentB[P, S, B, N]) => {
     val h = header(rc.name)
     rc.componentWillMount       (log1 (h("componentWillMount")))
       .componentDidMount        (log1 (h("componentDidMount")))

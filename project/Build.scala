@@ -13,11 +13,13 @@ object ScalajsReact extends Build {
 
   type PE = Project => Project
 
+  val clearScreenTask = TaskKey[Unit]("clear", "Clears the screen.")
+
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.8.4",
+        version            := "0.9.0-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
@@ -25,7 +27,9 @@ object ScalajsReact extends Build {
         scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
                                 "-language:postfixOps", "-language:implicitConversions",
                                 "-language:higherKinds", "-language:existentials"),
-        updateOptions      := updateOptions.value.withCachedResolution(true))
+        //scalacOptions    += "-Xlog-implicits",
+        updateOptions      := updateOptions.value.withCachedResolution(true),
+        clearScreenTask    := { println("\033[2J\033[;H") })
 
   def preventPublication: PE =
     _.settings(
@@ -95,8 +99,8 @@ object ScalajsReact extends Build {
   lazy val root = Project("root", file("."))
     .aggregate(core, test, scalaz71, monocle, extra, ghpages)
     .configure(commonSettings, preventPublication, addCommandAliases(
-      "t"  -> "; test:compile ; test/test",
-      "tt" -> ";+test:compile ;+test/test",
+      "t"  -> ";clear;  test:compile ; test/test",
+      "tt" -> ";clear; +test:compile ;+test/test",
       "T"  -> "; clean ;t",
       "TT" -> ";+clean ;tt"))
 
@@ -149,6 +153,7 @@ object ScalajsReact extends Build {
     .settings(
       libraryDependencies += monocleLib("macro"),
       addCompilerPlugin(macroParadisePlugin),
+      sbt.Keys.test in Test := (),
       emitSourceMaps := false,
       artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
 }
