@@ -317,11 +317,23 @@ object StaticDsl {
 // =====================================================================================================================
 // =====================================================================================================================
 
+object RouterConfigDsl {
+  def apply[Page](implicit pageEq: Equal[Page] = Equal.equalA[Page]) =
+    new BuildInterface(pageEq)
+
+  class BuildInterface[Page](pageEq: Equal[Page]) {
+    def use[A](f: RouterConfigDsl[Page] => A): A =
+      f(new RouterConfigDsl(pageEq))
+
+    def buildConfig(f: RouterConfigDsl[Page] => RouterConfig[Page]): RouterConfig[Page] =
+      use(f)
+  }
+}
 
 /**
  * DSL for creating [[RouterConfig]].
  *
- * Instead creating an instance of this yourself, use [[RouterConfig.build]].
+ * Instead creating an instance of this yourself, use [[RouterConfigDsl.apply]].
  */
 final class RouterConfigDsl[Page](pageEq: Equal[Page] = Equal.equalA[Page]) {
   import StaticDsl.{Rule => _, Rules => _, _}

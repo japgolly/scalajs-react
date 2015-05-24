@@ -38,7 +38,7 @@ object RouterTest extends TestSuite {
       .render(p => <.h3(s"Person #${p.id} Details..."))
       .build
 
-    val config = RouterConfig.build[MyPage] { dsl =>
+    val config = RouterConfigDsl[MyPage].buildConfig { dsl =>
       import dsl._
       (removeTrailingSlashes
       | staticRoute(root,     Root)                                                 ~> renderR(RootComponent(_))

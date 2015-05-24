@@ -54,7 +54,7 @@ object Router2Test extends TestSuite {
 
     var innerPageEq: Equal[MyPage2] = null
 
-    val config = RouterConfig.build[MyPage2] { dsl =>
+    val config = RouterConfigDsl[MyPage2].buildConfig { dsl =>
       import dsl._
 
       innerPageEq = implicitly[Equal[MyPage2]]

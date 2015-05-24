@@ -15,7 +15,7 @@ object GhPages extends JSApp {
   case class Examples(eg: Example) extends Page
   case object Doco                 extends Page
 
-  val routerConfig = RouterConfig.build[Page] { dsl =>
+  val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
     import dsl._
 
     def exampleRoute(e: Example): Rule =
