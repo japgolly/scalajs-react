@@ -22,9 +22,11 @@ final case class BaseUrl(value: String) {
   def map(f: String => String): BaseUrl = BaseUrl(f(value))
   def apply(p: Path)          : AbsUrl  = AbsUrl(value + p.value)
   def abs                     : AbsUrl  = AbsUrl(value)
+  def endWith_/               : BaseUrl = BaseUrl(value.replaceFirst("/*$", "/"))
 }
 object BaseUrl {
   def fromWindowOrigin = BaseUrl(dom.window.location.origin)
+  def fromWindowOrigin_/ = fromWindowOrigin.endWith_/
 }
 
 /**
