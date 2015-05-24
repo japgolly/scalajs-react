@@ -14,22 +14,27 @@ object Router {
     componentUnbuilt(baseUrl, cfg).buildU
 
   def componentUnbuilt[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]) =
-    componentUnbuiltC(baseUrl, cfg, new RouterCtl(baseUrl, cfg))
+    componentUnbuiltC(baseUrl, cfg, new RouterLogic(baseUrl, cfg))
 
-  def componentUnbuiltC[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page], ctl: RouterCtl[Page]) =
+  def componentUnbuiltC[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page], lgc: RouterLogic[Page]) =
     ReactComponentB[Unit]("Router")
-      .initialState(                      ctl.syncToWindowUrl.unsafePerformIO())
+      .initialState(                      lgc.syncToWindowUrl.unsafePerformIO())
       .backend           (_            => new OnUnmount.Backend)
-      .render            ((_, s, _)    => ctl.render(s))
-      .componentWillMount(_            => ctl.init.unsafePerformIO())
+      .render            ((_, s, _)    => lgc.render(s))
+      .componentWillMount(_            => lgc.init.unsafePerformIO())
       .componentDidMount ($            => cfg.postRenderFn(None, $.state.page).unsafePerformIO())
       .componentDidUpdate(($, _, prev) => cfg.postRenderFn(Some(prev.page), $.state.page).unsafePerformIO())
-      .configure(Listenable.installS(_ => ctl, (_: Unit) => ctl.syncToWindowUrlS))
+      .configure(Listenable.installS(_ => lgc, (_: Unit) => lgc.syncToWindowUrlS))
+
+  def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
+    val l = new RouterLogic(baseUrl, cfg)
+    val r = componentUnbuiltC(baseUrl, cfg, l).buildU
+    (r, l)
+  }
 
   def componentAndCtl[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterCtl[Page]) = {
-    val ctl = new RouterCtl(baseUrl, cfg)
-    val r = componentUnbuiltC(baseUrl, cfg, ctl).buildU
-    (r, ctl)
+    val (r, l) = componentAndLogic(baseUrl, cfg)
+    (r, l.ctl)
   }
 }
 
@@ -39,7 +44,8 @@ object Router {
  * @param baseUrl The prefix of all routes in a set.
  * @tparam Page Routing rules context. Prevents different routing rule sets being mixed up.
  */
-final class RouterCtl[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) extends Broadcaster[Unit] {
+final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) extends Broadcaster[Unit] {
+
   type Action     = router2.Action[Page]
   type Renderer   = router2.Renderer[Page]
   type Redirect   = router2.Redirect[Page]
@@ -105,7 +111,7 @@ final class RouterCtl[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) exten
   }
 
   def resolve(page: Page, action: Action): RouteProg[Resolution] =
-    prog(resolveAction(action).map(r => Resolution(page, () => r(this))))
+    prog(resolveAction(action).map(r => Resolution(page, () => r(ctl))))
 
   def resolveAction(a: Action): RouteProg[Resolution] \/ Renderer = a match {
     case r: Renderer => \/-(r)
@@ -141,30 +147,48 @@ final class RouterCtl[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) exten
     Free.runFC[RouteCmd, IO, A](r)(interpretCmd)
 
   def render(r: Resolution): ReactElement =
-    cfg.renderFn(this, r)
+    cfg.renderFn(ctl, r)
 
   def setPath(path: Path): RouteProg[Unit] =
     log(s"Set route to path [${path.value}].") >>
       PushState(path.abs) >> BroadcastSync
 
-  def setPathIO(path: Path): IO[Unit] =
-    interpret(setPath(path))
+  val ctlByPath: RouterCtl[Path] =
+    new RouterCtl[Path] {
+      override def byPath            = this
+      override def refreshIO         = interpret(BroadcastSync)
+      override def setIO(path: Path) = interpret(setPath(path))
+      override def link(path: Path)  = <.a(^.href := path.abs.value, setOnClick(path))
+    }
 
-  def setPathEH(path: Path): ReactEvent => IO[Unit] =
-    e => preventDefaultIO(e) >> stopPropagationIO(e) >> setPathIO(path)
+  val ctl: RouterCtl[Page] =
+    ctlByPath contramap cfg.path
+}
 
-  def setPathOnClick(path: Path): TagMod =
-    ^.onClick ~~> setPathEH(path)
+/**
+ * Router controller. A client API to the router.
+ *
+ * @tparam A A data type that indicates a route that can be navigated to.
+ */
+abstract class RouterCtl[A] {
+  def byPath: RouterCtl[Path]
+  def refreshIO: IO[Unit]
+  def setIO(target: A): IO[Unit]
+  def link(target: A): ReactTag
 
-  def linkToPath(path: Path): ReactTag =
-    <.a(^.href := path.abs.value, setPathOnClick(path))
+  final def setEH(target: A): ReactEvent => IO[Unit] =
+    e => preventDefaultIO(e) >> stopPropagationIO(e) >> setIO(target)
 
-  def set       (page: Page): RouteProg[Unit]        = setPath       (cfg path page)
-  def setIO     (page: Page): IO[Unit]               = setPathIO     (cfg path page)
-  def setEH     (page: Page): ReactEvent => IO[Unit] = setPathEH     (cfg path page)
-  def setOnClick(page: Page): TagMod                 = setPathOnClick(cfg path page)
-  def link      (page: Page): ReactTag               = linkToPath    (cfg path page)
+  final def setOnClick(target: A): TagMod =
+    ^.onClick ~~> setEH(target)
 
-  def refreshIO: IO[Unit] =
-    interpret(BroadcastSync)
+  final def contramap[B](f: B => A): RouterCtl[B] =
+    new RouterCtlM(this, f)
+}
+
+class RouterCtlM[A, B](u: RouterCtl[A], f: B => A) extends RouterCtl[B] {
+  override def byPath      = u.byPath
+  override def refreshIO   = u.refreshIO
+  override def setIO(b: B) = u.setIO(f(b))
+  override def link(b: B)  = u.link(f(b))
 }

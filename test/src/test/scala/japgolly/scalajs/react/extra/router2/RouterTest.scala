@@ -107,7 +107,7 @@ object RouterTest extends TestSuite {
 
     'pure {
       implicit val base = BaseUrl("http://www.yaya.com/blah")
-      val r = new RouterCtl(base, MyPage.config.logToConsole)
+      val r = new RouterLogic(base, MyPage.config.logToConsole)
 
       'urlParsing {
         'root   { r.parseUrl(base.abs)          mustEqual Some(Path("")) }
@@ -116,14 +116,14 @@ object RouterTest extends TestSuite {
       }
 
       'syncToUrl {
-        def runh[P](r: RouterCtl[P], start: AbsUrl) = {
+        def runh[P](r: RouterLogic[P], start: AbsUrl) = {
           val s = SimHistory(start)
           val a = s.run(r.syncToUrl(s.startUrl))
           s.broadcasts mustEqual Vector.empty // this is sync(), not set()
           (s, a)
         }
 
-        def testh[P](r: RouterCtl[P], start: AbsUrl)(expectPrevHistory: AbsUrl => List[AbsUrl], expectPage: P, expectPath: String): Unit = {
+        def testh[P](r: RouterLogic[P], start: AbsUrl)(expectPrevHistory: AbsUrl => List[AbsUrl], expectPage: P, expectPath: String): Unit = {
           val (s, res) = runh(r, start)
           s.history.mustEqual(Path(expectPath).abs :: expectPrevHistory(start))
           res.page mustEqual expectPage

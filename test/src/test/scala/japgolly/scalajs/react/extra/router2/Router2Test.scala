@@ -76,7 +76,7 @@ object Router2Test extends TestSuite {
 
   override val tests = TestSuite {
     import MyPage2._
-    val (router, ctl) = Router.componentAndCtl(base, config) // .logToConsole
+    val (router, lgc) = Router.componentAndLogic(base, config) // .logToConsole
 
     val sim = SimHistory(base.abs)
     val r = ReactTestUtils.renderIntoDocument(router())
@@ -92,18 +92,18 @@ object Router2Test extends TestSuite {
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", true) // logged in
 
-      ctl.setIO(PrivatePage1).unsafePerformIO()
+      lgc.ctl.setIO(PrivatePage1).unsafePerformIO()
       assertContains(html, ">Home</a>") // link cos not on current page
       assertContains(html, "Private #1")
 
       isUserLoggedIn = false
-      ctl.refreshIO.unsafePerformIO()
+      lgc.ctl.refreshIO.unsafePerformIO()
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", false) // not logged in
     }
 
     'notFoundLazyRedirect {
-      def r = sim.run(ctl syncToPath Path("what"))
+      def r = sim.run(lgc syncToPath Path("what"))
       assertEq(r.page,  PublicHome)
       isUserLoggedIn = true
       assertEq(r.page,  PrivatePage1)
@@ -111,7 +111,7 @@ object Router2Test extends TestSuite {
 
     'lazyRender {
       isUserLoggedIn = true
-      ctl.setIO(PrivatePage2).unsafePerformIO()
+      lgc.ctl.setIO(PrivatePage2).unsafePerformIO()
       assertContains(html, secret)
       secret = "oranges"
       r.forceUpdate()
