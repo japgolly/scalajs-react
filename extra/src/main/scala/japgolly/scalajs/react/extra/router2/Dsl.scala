@@ -222,9 +222,9 @@ object StaticDsl {
    * @param action Attempt to determine the action when a route resolves to some page.
    * @tparam Page  The type of legal pages.
    */
-  case class Rule[Page](parse : Path => Option[Parsed[Page]],
-                        path  : Page => Option[Path],
-                        action: Page => Option[Action[Page]]) {
+  final case class Rule[Page](parse : Path => Option[Parsed[Page]],
+                              path  : Page => Option[Path],
+                              action: Page => Option[Action[Page]]) {
 
     /**
      * Compose rules.
@@ -284,9 +284,9 @@ object StaticDsl {
   /**
    * Exhaustive routing rules. For all `Page`s there are `Path`s and `Action`s.
    */
-  case class Rules[Page](parse : Path => Option[Parsed[Page]],
-                         path  : Page => Path,
-                         action: Page => Action[Page]) {
+  final case class Rules[Page](parse : Path => Option[Parsed[Page]],
+                               path  : Page => Path,
+                               action: Page => Action[Page]) {
 
     /**
      * Specify a catch-all response to unmatched/invalid routes.
@@ -297,19 +297,19 @@ object StaticDsl {
 
   // ===================================================================================================================
 
-  class DynamicRouteB[Page, P <: Page, O](val f: (P => Action[Page]) => O) extends AnyVal {
+  final class DynamicRouteB[Page, P <: Page, O](val f: (P => Action[Page]) => O) extends AnyVal {
     def ~>(g: P => Action[Page]): O = f(g)
   }
 
-  class StaticRouteB[Page, O](val f: (=> Action[Page]) => O) extends AnyVal {
+  final class StaticRouteB[Page, O](val f: (=> Action[Page]) => O) extends AnyVal {
     def ~>(a: => Action[Page]): O = f(a)
   }
 
-  class StaticRedirectB[Page, O](val f: (=> Redirect[Page]) => O) extends AnyVal {
+  final class StaticRedirectB[Page, O](val f: (=> Redirect[Page]) => O) extends AnyVal {
     def ~>(a: => Redirect[Page]): O = f(a)
   }
 
-  class DynamicRedirectB[Page, A, O](val f: (A => Redirect[Page]) => O) extends AnyVal {
+  final class DynamicRedirectB[Page, A, O](val f: (A => Redirect[Page]) => O) extends AnyVal {
     def ~>(a: A => Redirect[Page]): O = f(a)
   }
 }
