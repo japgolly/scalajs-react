@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.Addons.{ReactCssTransitionGroup, ReactCloneWithProps}
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
-import org.scalajs.dom.raw.{HTMLElement, HTMLOptionElement, HTMLSelectElement, HTMLInputElement}
+import org.scalajs.dom.raw._
 import vdom.all._
 import TestUtil._
 import test.{DebugJs, ReactTestUtils}
@@ -427,5 +427,14 @@ object CoreTest extends TestSuite {
       ReactTestUtils.renderIntoDocument(C())
 
     }
+
+    'domTypeBeforeCallbacks {
+      ReactComponentB[Unit]("").stateless
+        .render((_, _) => canvas())
+        .domType[HTMLCanvasElement]
+        .componentDidMount(_.getDOMNode().getContext("2d"))
+        .buildU
+    }
+
   }
 }
