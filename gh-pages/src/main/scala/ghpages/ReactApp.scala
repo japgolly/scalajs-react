@@ -32,7 +32,6 @@ object ReactApp extends JSApp {
       .notFound(redirectToPage(Home)(Redirect.Replace))
       .renderWith(layout)
       .verify(Home, Examples(Example.Hello), Examples(Example.Todo), Doco)
-      .logToConsole
   }
 
   def layout(c: RouterCtl[Page], r: Resolution[Page]) =
@@ -62,11 +61,10 @@ object ReactApp extends JSApp {
     else
       BaseUrl("http://japgolly.github.io/scalajs-react/")
 
-  def router = Router(baseUrl, routerConfig)
-
   @JSExport
   override def main(): Unit = {
     dom.console.info("Router logging is enabled. Enjoy!")
+    val router = Router(baseUrl, routerConfig.logToConsole)
     router() render dom.document.body
   }
 }
