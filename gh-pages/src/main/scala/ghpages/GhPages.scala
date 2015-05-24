@@ -4,6 +4,7 @@ import org.scalajs.dom
 import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
 import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
+import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router2._
 import pages._
 
@@ -53,7 +54,9 @@ object GhPages extends JSApp {
           nav("Home",          Home),
           nav("Examples",      Examples(Example.default)),
           nav("Documentation", Doco)))
-    }.build
+    }
+    .configure(Reusability.shouldComponentUpdate)
+    .build
 
   val baseUrl =
     if (dom.window.location.hostname == "localhost")

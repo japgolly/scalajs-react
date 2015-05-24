@@ -191,13 +191,21 @@ abstract class RouterCtl[A] {
     <.a(^.href := urlFor(target).value, setOnClick(target))
 
   final def contramap[B](f: B => A): RouterCtl[B] =
-    new RouterCtlM(this, f)
+    new RouterCtl.Contramap(this, f)
+
+  final def narrow[B <: A]: RouterCtl[B] =
+    contramap(b => b)
 }
 
-class RouterCtlM[A, B](u: RouterCtl[A], f: B => A) extends RouterCtl[B] {
-  override def baseUrl       = u.baseUrl
-  override def byPath        = u.byPath
-  override def refreshIO     = u.refreshIO
-  override def pathFor(b: B) = u pathFor f(b)
-  override def setIO(b: B)   = u setIO f(b)
+object RouterCtl {
+  implicit def reusability[A]: Reusability[RouterCtl[A]] =
+    Reusability.byRef
+
+  class Contramap[A, B](u: RouterCtl[A], f: B => A) extends RouterCtl[B] {
+    override def baseUrl       = u.baseUrl
+    override def byPath        = u.byPath
+    override def refreshIO     = u.refreshIO
+    override def pathFor(b: B) = u pathFor f(b)
+    override def setIO(b: B)   = u setIO f(b)
+  }
 }
