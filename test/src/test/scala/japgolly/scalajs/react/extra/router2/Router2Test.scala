@@ -49,7 +49,7 @@ object Router2Test extends TestSuite {
     val config = RouterConfig.build[MyPage2] { dsl =>
       import dsl._
 
-      val privatePages = (rulesB
+      val privatePages = (emptyRule
         | dynamicRoute("user" / int.caseclass1(UserProfilePage)(UserProfilePage.unapply)) ~> renderP(userProfilePage(_))
         | staticRoute("private-1", PrivatePage1) ~> render(<.h1("Private #1"))
         | staticRoute("private-2", PrivatePage2) ~> render(<.h1("Private #2: ", secret))

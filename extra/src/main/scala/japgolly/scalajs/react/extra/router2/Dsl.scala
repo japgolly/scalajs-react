@@ -374,7 +374,7 @@ final class RouterConfigDsl[Page_] {
   type Rule = StaticDsl.Rule[Page]
   type Rules = StaticDsl.Rules[Page]
   def Rule = StaticDsl.Rule
-  def rulesB: Rule = Rule(_ => None, _ => None, _ => None)
+  def emptyRule: Rule = Rule(_ => None, _ => None, _ => None)
 
   implicit def _auto_parsed_from_redirect(r: Redirect): Parsed = -\/(r)
   implicit def _auto_parsed_from_page    (p: Page)    : Parsed = \/-(p)
