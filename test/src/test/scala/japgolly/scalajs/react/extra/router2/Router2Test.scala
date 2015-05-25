@@ -150,12 +150,12 @@ object Router2Test extends TestSuite {
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", true) // logged in
 
-      ctl.setIO(PrivatePage1).unsafePerformIO()
+      ctl.set(PrivatePage1).unsafePerformIO()
       assertContains(html, ">Home</a>") // link cos not on current page
       assertContains(html, "Private #1")
 
       isUserLoggedIn = false
-      ctl.refreshIO.unsafePerformIO()
+      ctl.refresh.unsafePerformIO()
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", false) // not logged in
     }
@@ -169,7 +169,7 @@ object Router2Test extends TestSuite {
 
     'lazyRender {
       isUserLoggedIn = true
-      ctl.setIO(PrivatePage2).unsafePerformIO()
+      ctl.set(PrivatePage2).unsafePerformIO()
       assertContains(html, secret)
       secret = "oranges"
       r.forceUpdate()
@@ -222,7 +222,7 @@ object Router2Test extends TestSuite {
         assertEq(ctl.pathFor(NestedModule(ModuleRoot)).value, "module")
         assertEq(ctl.pathFor(NestedModule(Module1)).value, "module/one")
         assertEq(ctl.pathFor(NestedModule(Module2(666))).value, "module/two/666")
-        ctl.setIO(NestedModule(ModuleRoot)).unsafePerformIO()
+        ctl.set(NestedModule(ModuleRoot)).unsafePerformIO()
         assertContains(html, "/module/one\"")
         assertContains(html, "/module/two/7\"")
       }
