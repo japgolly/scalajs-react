@@ -1,21 +1,3 @@
-DSL
-* rewritePath
-* rewritePathR
-* removeTrailingSlashes
-* removeLeadingSlashes
-* trimSlashes
-
-Rule
-* `addCondition`
-
-Additional configuration
-* `logToConsole`
-* `renderWith`
-* `setPostRender`
-* `onPostRender`
-
-
-
 Router (v2)
 ===========
 
@@ -23,7 +5,31 @@ Included is a router (in the orbit of Single-Page Applications) that is written 
 
 The package is `japgolly.scalajs.react.extra.router2`.
 
-#### v2? Why & what's new?
+## Contents
+
+- [What's New?](#whats-new)
+- [Features](#features)
+- [Caution](#caution)
+- [Creating & Using a Router](#creating--using-a-router)
+- [Creating a `RouterConfig`](#creating-a-routerconfig)
+  - [Actions](#actions)
+  - [`Route[X]`](#routex)
+  - [Static Routes](#static-routes)
+  - [Dynamic Routes](#dynamic-routes)
+  - [Putting it all together](#putting-it-all-together)
+  - [A spot of unsafeness](#a-spot-of-unsafeness)
+- [`RouterCtl`](#routerctl)
+- Beyond the Basics
+  - URL rewriting rules
+  - Conditional routes
+  - Layout/Template
+  - PostRender callback
+  - [Nested Routes (Modules)](#nested-routes-modules)
+- [Examples](#examples)
+
+
+What's New?
+===========
 
 The design of [the v1 Router](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER.md)
 made certain features very hard to accommodate:
@@ -34,10 +40,15 @@ made certain features very hard to accommodate:
 [#94](https://github.com/japgolly/scalajs-react/issues/94),
 [#69](https://github.com/japgolly/scalajs-react/issues/69).
 
-In contrast, the v2 Router has a different design.
-Notably it uses a user-provided data representation of your pages to identify routes.
-This means that you both read the current route, specify target routes using your own, precise types.
-Additionally it also handles state and has a better API such that many usages recommended against previously, are now impossible.
+In contrast, the v2 Router has a different design that:
+
+* Uses a user-provided data representation of your pages to identify routes and their parameters.
+* Similarly the Router can now provide the current page with precision, faciliating dynamic menus and breadcrumbs even in the presence of complex, dynamic routes.
+* Routes can be stateful and conditional.
+* Routes can be nested and modularised.
+* Routes can be manipulated in bulk.
+* Has a better API such that usage previously recommended against, is now impossible. Noteworthy is that `Router` is now just a `ReactComponent`, and `RouterCtl` is a client API.
+
 
 Features
 ========
@@ -61,6 +72,7 @@ Features
 * Callback for route changes.
 * Routing logic is easily unit-testable.
 
+
 Caution
 =======
 
@@ -68,6 +80,8 @@ Caution
   There's no point having `www.blah.com/foo` have routes like `/bar` if when the server receives a request for `www.blah.com/foo/bar` it doesn't know to use the same endpoint as `www.blah.com/foo`.
   If you don't have that control, begin with a `#` instead, like `#foo`.
 * If you use Internet Explorer v0.1 ~ v9, the HTML5 API won't be available. But that's ok, there's no need to code like our homo heidelbergensis ancestors, just download and use a polyfill.
+* These is a small but significant guarantee that this design sacrifices to buy important features. See *[A spot of unsafeness](#a-spot-of-unsafeness)*.
+
 
 Creating & Using a Router
 =========================
@@ -112,11 +126,6 @@ val routerConfig = RouterConfig.build[MyPages] { dsl =>
   //   .notFound( <action> )
 }
 ```
-
-Routing Rules
--------------
-
-To create a route, specify the route and associate an action with it.
 
 ### Actions
 
