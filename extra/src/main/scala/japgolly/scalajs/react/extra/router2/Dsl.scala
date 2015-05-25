@@ -525,16 +525,19 @@ final class RouterConfigDsl[Page](pageEq: Equal[Page] = Equal.equalA[Page]) {
     dynamicRouteF(r)(ct.unapply)
 
   def staticRedirect(r: Route[Unit]): StaticRedirectB[Page, Rule] =
-    new StaticRedirectB(a => rewritePath(r.parse(_) map (_ => a)))
+    new StaticRedirectB(a => rewritePathF(r.parse(_) map (_ => a)))
 
   def dynamicRedirect[A](r: Route[A]): DynamicRedirectB[Page, A, Rule] =
-    new DynamicRedirectB(f => rewritePath(r.parse(_) map f))
+    new DynamicRedirectB(f => rewritePathF(r.parse(_) map f))
 
-  def rewritePath(f: Path => Option[Redirect]): Rule =
+  def rewritePath(pf: PartialFunction[Path, Redirect]): Rule =
+    rewritePathF(pf.lift)
+
+  def rewritePathF(f: Path => Option[Redirect]): Rule =
     Rule parseOnly f
 
   def rewritePathR(r: Pattern, f: Matcher => Option[Redirect]): Rule =
-    rewritePath { p =>
+    rewritePathF { p =>
       val m = r.matcher(p.value)
       if (m.matches) f(m) else None
     }
