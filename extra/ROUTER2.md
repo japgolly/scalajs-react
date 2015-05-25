@@ -7,18 +7,12 @@ DSL
 
 Rule
 * `addCondition`
-* `fallback`
 
 Additional configuration
 * `logToConsole`
 * `renderWith`
 * `setPostRender`
 * `onPostRender`
-* `verify`
-* `detectErrors`
-
-
-Unsafety. Can either forget to add a route for a page, OR can have routes out-of-sync. 
 
 
 
@@ -48,20 +42,24 @@ Additionally it also handles state and has a better API such that many usages re
 Features
 ========
 * Type-safety.
-  * Routes (sitemap) correspond to your own arbitrary type hierarchy.
-  * Links to routes are guaranteed to be valid.
+  * Use your own types to uniquely identify routes and their parameters.
+  * Link URLs are guaranteed to be valid.
   * Routes for different pages or routing rule sets cannot be used in the wrong context.
 * Rules
   * Routes to views.
   * Redirection routes.
   * Dynamic routes. (eg. `/person/123`)
+  * Default values in dynamic routes.
   * URL re-writing / translation rules. (eg. can remove trailing slashes from URL.)
   * Choose to redirect or render custom view when route is invalid / not found.
-* Route views can be intercepted and modified. (eg. to add page headers, footers, a nav breadcrumb.)
+  * Routes can be nested.
+  * Conditions can be applied to an entire route set.
+* Route views can be wrapped in a layout. (eg. to add page headers, footers, a nav breadcrumb.)
 * URL and view are always kept in sync.
 * Routes are bookmarkable.
 * Uses HTML5 History API.
-* Routing logic is deterministic and unit-testable.
+* Callback for route changes.
+* Routing logic is easily unit-testable.
 
 Caution
 =======
@@ -272,6 +270,54 @@ val routerConfig = RouterConfig.build[Page] { dsl =>
 }
 ```
 (The use of `emptyRule` is just for nice formatting.)
+
+
+### A spot of unsafeness
+
+A tradeoff in safety has been made to purchase many new features in the redesigned v2 Router.
+Namely, it's possible to accidently forget to add a route for a page type.
+
+Consider this example:
+```scala
+sealed trait MyPages
+case object Page1                     extends MyPages
+case class  Page2(value: Option[Int]) extends MyPages
+case object Page3                     extends MyPages
+
+val config = RouterConfigDsl[MyPages].buildConfig { dsl =>
+  import dsl._
+  ( emptyRule
+  | staticRoute("page1", Page1) ~> render(???)
+  | dynamicRouteCT("page2" ~ ("/" ~ int).option.caseclass1(Page2)(Page2.unapply)) ~> render(???)
+  // oops! We forgot Page3!!
+  ).notFound(???)
+}
+```
+
+To mitigate this, `RouterConfig` comes with a `verify(page1, ... pageN)` method that will confirm that each specified page:
+
+1. Has an associated route.
+2. Is itself returned when parsing its associated route.
+3. Has an associated action.
+
+If any errors are detected they are displayed both on screen and in the console.
+There is also a `detectErrors` method which is more appropriate for unit-testing.
+
+Amending the above example, we get:
+```scala
+val config = RouterConfigDsl[MyPages].buildConfig { dsl =>
+  import dsl._
+  ( emptyRule
+  | staticRoute("page1", Page1) ~> render(???)
+  | dynamicRouteCT("page2" ~ ("/" ~ int).option.caseclass1(Page2)(Page2.unapply)) ~> render(???)
+  // oops! We forgot Page3!!
+  ).notFound(???)
+    .verify(Page1, Page2(None), Page2(Some(123)), Page3)  // ← Ensure pages are configured and valid
+}
+```
+
+You can also call `.fallback` on your rules immediately before calling `.notFound()`.
+This will give you control over what happens when a page isn't configured (if you want to do something other than crashing.)
 
 
 `RouterCtl`
