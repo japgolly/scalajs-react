@@ -58,6 +58,38 @@ object ScalazReact {
   val stopPropagationIO = (_: SyntheticEvent[dom.Node]).stopPropagationIO
 
   // ===================================================================================================================
+  // Component builder ext
+
+  implicit class SzRExt_RCB_P[Props](val _b: ReactComponentB.P[Props]) extends AnyVal {
+    def getInitialStateIO[State](f: Props => IO[State]) = _b.initialStateP(f(_).unsafePerformIO())
+    def initialStatePIO[State](f: Props => IO[State])   = _b.initialStateP(f(_).unsafePerformIO())
+    def initialStateIO[State](s: IO[State])             = _b.initialStateP(_ => s.unsafePerformIO())
+  }
+
+  implicit class SzRExt_RCB[P, S, B, N <: TopNode](val _b: ReactComponentB[P, S, B, N]) extends AnyVal {
+    def componentWillMountIO(f: ComponentScopeU[P, S, B] => IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentWillMount(f(_).unsafePerformIO())
+
+    def componentDidMountIO(f: ComponentScopeM[P, S, B, N] => IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentDidMount(f(_).unsafePerformIO())
+
+    def componentWillUnmountIO(f: ComponentScopeM[P, S, B, N] => IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentWillUnmount(f(_).unsafePerformIO())
+
+    def componentWillUpdateIO(f: (ComponentScopeWU[P, S, B, N], P, S) => IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentWillUpdate(f(_, _, _).unsafePerformIO())
+
+    def componentDidUpdateIO(f: (ComponentScopeM[P, S, B, N], P, S) => IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentDidUpdate(f(_, _, _).unsafePerformIO())
+
+    def componentWillReceivePropsIO(f: (ComponentScopeM[P, S, B, N], P) => IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentWillReceiveProps(f(_, _).unsafePerformIO())
+  }
+
+  implicit def SzRExt__RCB[A, P, S, B, N <: TopNode](a: A)(implicit b: A => ReactComponentB[P, S, B, N]) =
+    new SzRExt_RCB(b(a))
+
+  // ===================================================================================================================
   // State manipulation
 
   final type OpCallbackIO = UndefOr[IO[Unit]]

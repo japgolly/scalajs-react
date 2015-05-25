@@ -15,10 +15,10 @@ object Router {
 
   def componentUnbuilt[P](router: Router[P]) =
     ReactComponentB[Unit]("Router")
-      .initialState(router.syncToWindowUrl.unsafePerformIO())
+      .initialStateIO(router.syncToWindowUrl)
       .backend(_ => new OnUnmount.Backend)
       .render((_, route, _) => route.render(router))
-      .componentWillMount(_ => router.init.unsafePerformIO())
+      .componentWillMountIO(_ => router.init)
       .configure(Listenable.installSF(_ => router, (_: Unit) => router.syncToWindowUrlS))
 
   def component[P](router: Router[P]): Component[P] =

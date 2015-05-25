@@ -18,12 +18,12 @@ object Router {
 
   def componentUnbuiltC[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page], lgc: RouterLogic[Page]) =
     ReactComponentB[Unit]("Router")
-      .initialState(                      lgc.syncToWindowUrl.unsafePerformIO())
-      .backend           (_            => new OnUnmount.Backend)
-      .render            ((_, s, _)    => lgc.render(s))
-      .componentWillMount(_            => lgc.init.unsafePerformIO())
-      .componentDidMount ($            => cfg.postRenderFn(None, $.state.page).unsafePerformIO())
-      .componentDidUpdate(($, _, prev) => cfg.postRenderFn(Some(prev.page), $.state.page).unsafePerformIO())
+      .initialStateIO      (                lgc.syncToWindowUrl)
+      .backend             (_            => new OnUnmount.Backend)
+      .render              ((_, s, _)    => lgc.render(s))
+      .componentWillMountIO(_            => lgc.init)
+      .componentDidMountIO ($            => cfg.postRenderFn(None, $.state.page))
+      .componentDidUpdateIO(($, _, prev) => cfg.postRenderFn(Some(prev.page), $.state.page))
       .configure(Listenable.installS(_ => lgc, (_: Unit) => lgc.syncToWindowUrlS))
 
   def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
