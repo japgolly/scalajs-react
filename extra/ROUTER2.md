@@ -80,7 +80,7 @@ Caution
 * If you want routes starting with slashes, you will need to configure your server appropriately.
   There's no point having `www.blah.com/foo` have routes like `/bar` if when the server receives a request for `www.blah.com/foo/bar` it doesn't know to use the same endpoint as `www.blah.com/foo`.
   If you don't have that control, begin with a `#` instead, like `#foo`.
-* If you use Internet Explorer v0.1 ~ v9, the HTML5 API won't be available. But that's ok, there's no need to code like our homo heidelbergensis ancestors, just download and use a polyfill.
+* If you use Internet Explorer v0.1 ~ v9, the HTML5 API won't be available. But that's ok, there's no need to code like our homo-heidelbergensis ancestors, just download and use a polyfill.
 * These is a small but significant guarantee that this design sacrifices to buy important features. See *[A spot of unsafeness](#a-spot-of-unsafeness)*.
 
 
@@ -177,21 +177,21 @@ and is automatically converted to a finalised `Route` when used.
   * `a / b` adds `a` to `b` with a literal `/` in between.
     <br>Example: `"abc" / "def"` is the same as `"abc/def"`.
   * The types of each route (except `Unit`) are added together into a tuple.
-    <br>Example: `"category" / int / "item" / int` is a `RouteB[(Int, Int)]`.
-    <br>Example: `"category" / int / "item" / int ~ "." ~ long` is a `RouteB[(Int, Int, Long)]`.<br>
+    <br>Example: `"grp" / int / "item" / int` is a `RouteB[(Int, Int)]`.
+    <br>Example: `"grp" / int / "item" / int ~ "." ~ long` is a `RouteB[(Int, Int, Long)]`.
 
 * Combinators on any `RouteB[A]`
   * `.filter(A => Boolean)` causes the route to ignore parsed values which don't satisfy the given filter.
   * `.option` makes this subject portion of the route optional and turns a `RouteB[A]` into a `RouteB[Option[A]]`. Forms an isomorphism between `None` and an empty path.
   * `.xmap[B](A => B)(B => A)` allows you to map the route type from an `A` to a `B`.
-  * <code>.caseclass<sub>n</sub>(C)(C.unapply)</code> maps the route type to a case class *n*, where *n* is the class arity.<br>
+  * <code>.caseclass<sub>n</sub>(C)(C.unapply)</code> maps the route type to a case class with arity *n*.
 
 * Combinators on `RouteB[Option[A]]`
   * `.withDefault(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `==` to compare `A`s to the given default.
-  * `.withDefaultE(A)(Equal[A])` - Specify a default value. Returns a `RouteB[A]`. Uses `scalaz.Equal` to compare `A`s to the given default.
-  * `.parseDefault(A)` - Specify a default value when parsing. (Path generation ignores this default.) Returns a `RouteB[A]`.<br>
+  * `.withDefaultE(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `scalaz.Equal` to compare `A`s to the given default.
+  * `.parseDefault(A)` - Specify a default value when parsing. (Path generation ignores this default.) Returns a `RouteB[A]`.
 
-* Combinators on any `RouteB[Unit]`
+* Combinators on `RouteB[Unit]`
   * `.const(A)` changes a `RouteB[Unit]` into a `RouteB[A]` by assigning a constant value (not used in route parsing or generation).
 
 Examples:
@@ -217,8 +217,12 @@ val r: Route[String] = "get" ~ ("." ~ string("[a-z]+")).option.withDefault("json
 
 ### Static routes
 
-Route syntax: `staticRoute(Route[Unit], Page) ~> <action>`
-<br>Redirect syntax: `staticRedirect(Route[Unit]) ~> <redirect>`
+Syntax:
+
+1. `staticRoute(Route[Unit], Page) ~> <action>`
+2. `staticRedirect(Route[Unit]) ~> <redirect>`
+
+`Route[Unit]`, `<action>`, and `<redirect>` are all described above.
 
 Examples:
 ```scala
@@ -241,9 +245,9 @@ Syntax:
 | `dynamicRoute` | `[P <: Page](Route[P])(PartialFunction[Page, P])` | A dynamic route using a page subtype: `P`.<br>A partial function must be provided to extract a possible `P` from any given `Page`. |
 | `dynamicRouteF` | `[P <: Page](Route[P])(Page => Option[P])` | A dynamic route using a page subtype: `P`.<br>A total function must be provided to extract an `Option[P]` from any `Page`. |
 | `dynamicRouteCT` | `[P <: Page](Route[P])` | A dynamic route using a page subtype: `P`.<br>The `CT` suffix here denotes that this method uses a compiler-provded `ClassTag` to identify the page subtype `P`. This is equivalent to `{case p: P => p}`.<br>Note that if this is used, the entire space of `P` is associated with a route - do not add another route over `P`. |
-| `dynamicRedirect` | `[A](Route[A])` | A dynamic route not associated with a page. Any `A` extracted by the route may then be used to determine the action. |
+| `dynamicRedirect` | `[A](Route[A])` | A dynamic path not associated with a page. Any `A` extracted by the route may then be used to determine the redirect target. |
 
-Example: `item/<id>`
+Example: This creates a route in the format of `item/<id>`.
 ```scala
 case class ItemPage(id: Int) extends MyPage
 
@@ -257,10 +261,10 @@ dynamicRouteCT("item" / int.caseclass1(ItemPage)(ItemPage.unapply))
 
 ### Putting it all together
 
-To create a `RouterConfig` the syntax is `( <rule1> | ... | <ruleN> ).notFound( <action> )`.
+To create a `RouterConfig` the syntax is `(<rule1> | ... | <ruleN>).notFound(<action>)`.
 
-**Rules are composed** via `|`.
-If two rules contain any overlap (eg. can respond to the same URL), the left-hand side of `|` has precedence and wins.
+**Rule composition** is acheived via `|`.
+If two rules overlap (eg. can respond to the same URL), the left-hand side of `|` has precedence and wins.
 
 **The `.notFound()` method** declares how unmatched routes will be handled.
 It takes an `Action` as described above, the same kind that is used in the rules.
@@ -271,7 +275,7 @@ Rules can no longer be added, but different (optional) configuration becomes ava
 
 **Example:**
 ```scala
-val routerConfig = RouterConfig.build[Page] { dsl =>
+val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
   import dsl._
 
   (emptyRule
@@ -288,7 +292,7 @@ If you'd like to see what's happening, you can call `.logToConsole` on your conf
 ### A spot of unsafeness
 
 A tradeoff in safety has been made to purchase many new features in the redesigned v2 Router.
-Namely, it's possible to accidently forget to add a route for a page type.
+Namely, it's possible to accidently forget a route for a page type.
 
 Consider this example:
 ```scala
@@ -323,7 +327,7 @@ val config = RouterConfigDsl[MyPages].buildConfig { dsl =>
   ( emptyRule
   | staticRoute("page1", Page1) ~> render(???)
   | dynamicRouteCT("page2" ~ ("/" ~ int).option.caseclass1(Page2)(Page2.unapply)) ~> render(???)
-  // oops! We forgot Page3!!
+  // oops! We still forgot Page3 but it will be detected at run- or test- time
   ).notFound(???)
     .verify(Page1, Page2(None), Page2(Some(123)), Page3)  // ← Ensure pages are configured and valid
 }
@@ -336,8 +340,15 @@ This will give you control over what happens when a page isn't configured (if yo
 `RouterCtl`
 ===========
 
-RouterCtl is a client API to control the router.
-Pass it in to components that need it via props.
+RouterCtl is a client API to the router.
+It allows you to control the current page, create links, determine page URLs, etc.
+
+To use it, pass it in to components that need it via their props.
+
+As `RouterCtl[P]` has a page-type context (the `P`!), 
+if a component only wants/needs to control a router with a certain subset of pages,
+the component can accept a `RouterCtl[PageSubset]` instead of a `RouterCtl[AllPages]`.
+A conversion to the former is just a `.contramap` or `.narrow` call away for the parent.
 
 Here a subset of useful methods. Use IDE auto-complete or check the source for the full list.
 
@@ -388,7 +399,7 @@ A few rules are included out-of-the-box for you to use:
 ### Conditional routes
 
 When you have a `Rule`, you can call `addCondition` on it to evaluate a condition every time it is used.
-When the condition is met (`true`), the route is usable; when unmet, a fallback behaviour can be actioned or it can continue as if the rule didn't exist.
+When the condition is met, the route is usable; when unmet, a fallback behaviour can be actioned or the router can continue processing other rules as if the conditional one didn't exist.
 
 ```scala
 /**
@@ -411,7 +422,7 @@ val privatePages = (emptyRule
   | staticRoute("private-1", PrivatePage1) ~> render(???)
   | staticRoute("private-2", PrivatePage2) ~> render(???)
   )
-  .addCondition(grantPrivateAccess)(_ => redirectToPage(Login)(Redirect.Push))
+  .addCondition(grantPrivateAccess)(_ => redirectToPage(AccessDenied)(Redirect.Push))
 ```
 
 ### Rendering with a layout
@@ -440,7 +451,9 @@ Out-of-the-box, the default action is to scroll the window to the top.
 You can *add* your own actions by calling `.onPostRender` on your `RouterConfig` instance.
 You can *set* the entire callback (i.e. override instead of add) using `.setPostRender`.
 
-Both `.onPostRender` and  `.setPostRender` take a single fn: `(Option[Page], Page) => IO[Unit]`.
+Both `.onPostRender` and  `.setPostRender` take a single arg: `(Option[Page], Page) => IO[Unit]`.
+The function is provided the previously-rendered page (or `None` when a router renders its first page),
+and the current page.
 
 Example:
 ```scala
@@ -472,16 +485,16 @@ Routes can be created and used as modules. This is how:
 ##### The Module
 
 1. Use `RouterConfigDsl[InnerPage].buildRule` to create a (composite) rule instead of a full `RouterConfig`. The content will be your normal routing rules up until, and excluding, the `notFound()` call.
-2. Have components that need a `RouterCtl` use a `RouterCtl[InnerPage]` as normal - this will continue to work as expected when nested.
+2. Have components that need a `RouterCtl` use a `RouterCtl[InnerPage]` as normal - this will continue to work correctly regardless of whether `InnerPage` is nested or not.
 
 ##### Nesting
 All of this happens in the method in which you build your `RouterConfig[OuterPage]`.
 
-1. Call one of the `pmap` methods (prism-map) on the `InnerPage` rule in order to bridge the inner & outer page types.
-2. Use `prefixPath` or `prefixPath_/` on the nested routes to mount them with a prefix.
+1. Call one of the `pmap` methods ([prism](https://github.com/julien-truffaut/Monocle/blob/master/core/src/main/scala/monocle/Prism.scala)-map) on the `InnerPage` rule in order to bridge the inner & outer page types.
+2. Use `prefixPath` or `prefixPath_/` on the nested routes to mount them with a prefix. (Actually you can use `modPath` if a prefix isn't enough.)
 3. Append the result to your routes as per usual.
 
-Example
+Example:
 ```scala
 sealed trait Module
 object Module {
@@ -508,11 +521,20 @@ object Outer {
     (emptyRule
     | staticRoute(root, Root)      ~> render(???)
     | staticRoute("#login", Login) ~> render(???)
-    | Module.routes.prefixPath_/("#module").pmap[Outer](Nest){ case Nest(m) => m }
+    | Module.routes.prefixPath_/("#module").pmap[Outer](Nest){ case Nest(m) => m } // Much nest. Wow.
     ).notFound(???)
   }
 }
 ```
+
+If we imagine `BaseUrl` to be `http://www.example.com/` then the sitemap for `Outer` in this example is:
+
+| URL | Page |
+|------|------|
+| `http://www.example.com/` | `Root` |
+| `http://www.example.com/#login` | `Login` |
+| `http://www.example.com/#module` | `Nest(ModuleRoot)` |
+| `http://www.example.com/#module/detail` | `Nest(ModuleDetail)` |
 
 Examples
 ========
@@ -520,8 +542,8 @@ Examples
 The github pages for this project online at http://japgolly.github.io/scalajs-react/
 uses this router and demonstrates a number of features.
 
-1. The source is here: [GhPages.scala](https://github.com/japgolly/scalajs-react/blob/master/gh-pages/src/main/scala/ghpages/GhPages.scala)
-2. Router logging is enabled so you can read what it does in the console.
+1. The source begins here: [GhPages.scala](https://github.com/japgolly/scalajs-react/blob/master/gh-pages/src/main/scala/ghpages/GhPages.scala)
+2. Router logging is enabled so you can read what the router does in the console.
 
 There are also unit tests available in the
 [japgolly.scalajs.react.extra.router2](https://github.com/japgolly/scalajs-react/tree/master/test/src/test/scala/japgolly/scalajs/react/extra/router)
