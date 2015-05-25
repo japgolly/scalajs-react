@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import scala.scalajs.js.{Any => JAny, _}
+import scala.scalajs.js.{Any => JAny, Array => JArray, _}
 import Internal._
 
 object ReactComponentB {
@@ -71,7 +71,7 @@ object ReactComponentB {
   // ===================================================================================================================
   final class PSBN[P, S, B] private[ReactComponentB](name: String, initF: P => S, backF: BackendScope[P, S] => B, rendF: ComponentScopeU[P, S, B] => ReactElement) {
     def domType[N <: TopNode]: ReactComponentB[P, S, B, N] =
-      new ReactComponentB(name, initF, backF, rendF, emptyLifeCycle)
+      new ReactComponentB(name, initF, backF, rendF, emptyLifeCycle, Vector.empty)
   }
 
   // ===================================================================================================================
@@ -92,16 +92,17 @@ object ReactComponentB {
 import ReactComponentB.LifeCycle
 
 final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
-                                                initF: P => S,
-                                                backF: BackendScope[P, S] => B,
-                                                rendF: ComponentScopeU[P, S, B] => ReactElement,
-                                                lc: LifeCycle[P, S, B, N]) {
+                                                initF   : P => S,
+                                                backF   : BackendScope[P, S] => B,
+                                                rendF   : ComponentScopeU[P, S, B] => ReactElement,
+                                                lc      : LifeCycle[P, S, B, N],
+                                                jsMixins: Vector[JAny]) {
 
   def configure(fs: (ReactComponentB[P, S, B, N] => ReactComponentB[P, S, B, N])*): ReactComponentB[P, S, B, N] =
     fs.foldLeft(this)((a,f) => f(a))
 
   @inline private implicit def lcmod(a: LifeCycle[P, S, B, N]): ReactComponentB[P, S, B, N] =
-    new ReactComponentB(name, initF, backF, rendF, a)
+    new ReactComponentB(name, initF, backF, rendF, a, jsMixins)
 
   def getDefaultProps(p: => P): ReactComponentB[P, S, B, N] =
     lc.copy(getDefaultProps = () => p)
@@ -126,6 +127,15 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
 
   def shouldComponentUpdate(f: (ComponentScopeM[P, S, B, N], P, S) => Boolean): ReactComponentB[P, S, B, N] =
     lc.copy(shouldComponentUpdate = fcEither(lc.shouldComponentUpdate, f))
+
+  /**
+   * Install a pure-JS React mixin.
+   *
+   * Beware: There will be mixins that won't work correctly as they make assumptions that don't hold for Scala.
+   * If a mixin expects to inspect your props or state, forget about it; Scala-land owns that data.
+   */
+  def mixinJS(mixins: JAny*): ReactComponentB[P, S, B, N] =
+    new ReactComponentB(name, initF, backF, rendF, lc, jsMixins ++ mixins)
 
   // ===================================================================================================================
   @inline private def builder[C](cc: ReactComponentCU[P,S,B,N] => C) = new Builder(cc)
@@ -173,6 +183,11 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
       lc.componentWillReceiveProps.foreach { f =>
         val g = (t: ComponentScopeM[P, S, B, N], p: WrapObj[P]) => f(t, p.v)
         spec.updateDynamic("componentWillReceiveProps")(g: ThisFunction)
+      }
+
+      if (jsMixins.nonEmpty) {
+        val mixins = JArray(jsMixins: _*)
+        spec.updateDynamic("mixins")(mixins)
       }
 
       spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]
