@@ -18,12 +18,8 @@ object GhPages extends JSApp {
   val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
     import dsl._
 
-    def exampleRoute(e: Example): Rule =
-      staticRoute("#example" / e.routerPath, Examples(e)) ~>
-        renderR(r => ExamplesPage.component(ExamplesPage.Props(e, r contramap Examples)))
-
     def exampleRoutes: Rule =
-      Example.values.map(exampleRoute).reduce(_ | _)
+      Example.routes.prefixPath_/("#examples").pmap[Page](Examples) { case Examples(e) => e }
 
     (trimSlashes
     | staticRoute(root,   Home) ~> render(HomePage.component())
@@ -40,7 +36,7 @@ object GhPages extends JSApp {
       navMenu(c),
       <.div(^.cls := "container", r.render()))
 
-  lazy val navMenu = ReactComponentB[RouterCtl[Page]]("Menu")
+  val navMenu = ReactComponentB[RouterCtl[Page]]("Menu")
     .render { ctl =>
       def nav(name: String, target: Page) =
         <.li(
