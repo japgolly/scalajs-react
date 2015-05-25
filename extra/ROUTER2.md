@@ -1,12 +1,10 @@
-
-
-
 Router (v2)
 ===========
 
 Included is a router (in the orbit of Single-Page Applications) that is written entirely in Scala.
 
 The package is `japgolly.scalajs.react.extra.router2`.
+In the next major release (v0.10) we'll probably do an 'ole switcheroonie making this the default router, and deprecating the v1 router.
 
 ## Contents
 
@@ -23,10 +21,10 @@ The package is `japgolly.scalajs.react.extra.router2`.
   - [A spot of unsafeness](#a-spot-of-unsafeness)
 - [`RouterCtl`](#routerctl)
 - Beyond the Basics
-  - URL rewriting rules
-  - Conditional routes
-  - Rendering with a layout
-  - Post-render callback
+  - [URL rewriting rules](#url-rewriting-rules)
+  - [Conditional routes](#conditional-routes)
+  - [Rendering with a layout](#rendering-with-a-layout)
+  - [Post-render callback](#post-render-callback)
   - [Nested routes (modules)](#nested-routes-modules)
 - [Examples](#examples)
 
@@ -46,11 +44,11 @@ made certain features very hard to accommodate:
 In contrast, the v2 Router has a different design that:
 
 * Uses a user-provided data representation of your pages to identify routes and their parameters.
-* Similarly the Router can now provide the current page with precision, faciliating dynamic menus and breadcrumbs even in the presence of complex, dynamic routes.
+* Similarly the Router can now indicate the current page with precision, faciliating dynamic menus and breadcrumbs even in the presence of complex, dynamic routes.
 * Routes can be stateful and conditional.
 * Routes can be nested and modularised.
 * Routes can be manipulated in bulk.
-* Has a better API such that usage previously recommended against, is now impossible. Noteworthy is that `Router` is now just a `ReactComponent`, and `RouterCtl` is a client API.
+* Has a better API such that usage previously recommended against, is now impossible. Noteworthy is that `Router` is now just a `ReactComponent`, and `RouterCtl` is the client API.
 
 
 Features
@@ -94,7 +92,7 @@ You need two things to create a router.
 1. A `RouterConfig`, describing your routes and other rules. *(Detail below.)*
 2. A `BaseUrl`, describing the URL prefix that is the same for all your routes.
 
-  It needn't be absolute at compile-time, but it needs to be absolute at runtime. `BaseUrl.fromWindowOrigin` will give you the protocol, domain and port at runtime, after which you should append a path if necessary. Example: `BaseUrl.fromWindowOrigin / "my_page"` instead of using `BaseUrl("http://blah.com/my_page")` or `BaseUrl("http://127.0.0.1:8080/my_page")` directly.
+  The `BaseUrl` needn't be absolute at compile-time, but it needs to be absolute at runtime. `BaseUrl.fromWindowOrigin` will give you the protocol, domain and port at runtime, after which you should append a path if necessary. Example: `BaseUrl.fromWindowOrigin / "my_page"` instead of using `BaseUrl("http://blah.com/my_page")` or `BaseUrl("http://127.0.0.1:8080/my_page")` directly.
 
 Once you have these, pass them to `Router(baseUrl, config)` to receive a `ReactComponent` for your router.
 Rendering the router is the same as any other React component; just create an instance and call `render()`.
@@ -119,9 +117,9 @@ case object Products                  extends MyPages
 case class ProductInfo(id: ProductId) extends MyPages
 ```
 
-Next, you'll want to call `RouterConfig.build` and use the provided DSL.
+Next, you'll want to call `RouterConfigDsl.buildConfig` and use the provided DSL.
 ```scala
-val routerConfig = RouterConfig.build[MyPages] { dsl =>
+val routerConfig = RouterConfigDsl[MyPages].buildConfig { dsl =>
   import dsl._
   
   // TODO Add routing rules here
@@ -130,6 +128,8 @@ val routerConfig = RouterConfig.build[MyPages] { dsl =>
 }
 ```
 
+Details of rule & config constituents follow.
+
 ### Actions
 
 Each route can be associated with an action. The following actions are available:
@@ -137,9 +137,9 @@ Each route can be associated with an action. The following actions are available
 | DSL | Args | Description |
 |-----|------|-------------|
 | `render` | `ReactElement` | Render something. |
-| `renderR` | `RouterCtl => ReactElement` | Render something using a `RouterCtl` *(described below)*. |
+| `renderR` | `RouterCtl => ReactElement` | Render something using a [`RouterCtl`](#routerctl). |
 | `dynRender` | `Page => ReactElement` | Render something using the current page.<br>* *Dynamic routes only.* |
-| `dynRenderR` | `(Page, RouterCtl) => ReactElement` | Render something using  the current page, and a `RouterCtl` *(described below)*.<br>* *Dynamic routes only.* |
+| `dynRenderR` | `(Page, RouterCtl) => ReactElement` | Render something using  the current page, and a [`RouterCtl`](#routerctl).<br>* *Dynamic routes only.* |
 | `redirectToPage` | `(Page)`<br>`(implicit Redirect.Method)` | Redirect to a page. |
 | `redirectToPath` | `(Path | String)`<br>`(implicit Redirect.Method)` | Redirect to a path (a URL suffix proceding the `BaseUrl`). |
 
@@ -163,7 +163,7 @@ and is automatically converted to a finalised `Route` when used.
 
 * `RouteB[Unit]`
   * Implicit conversion from `String`, like `"user/edit"`.
-  * Implicit conversion from `Path`, like `root` which is an alias for `Path.root`.<br><br>
+  * Implicit conversion from `Path`, like `root` which is an alias for `Path.root`.
 
 * `RouteB[Int]` - Use DSL `int`.
 
@@ -178,18 +178,18 @@ and is automatically converted to a finalised `Route` when used.
     <br>Example: `"abc" / "def"` is the same as `"abc/def"`.
   * The types of each route (except `Unit`) are added together into a tuple.
     <br>Example: `"category" / int / "item" / int` is a `RouteB[(Int, Int)]`.
-    <br>Example: `"category" / int / "item" / int ~ "." ~ long` is a `RouteB[(Int, Int, Long)]`.<br><br>
+    <br>Example: `"category" / int / "item" / int ~ "." ~ long` is a `RouteB[(Int, Int, Long)]`.<br>
 
 * Combinators on any `RouteB[A]`
   * `.filter(A => Boolean)` causes the route to ignore parsed values which don't satisfy the given filter.
   * `.option` makes this subject portion of the route optional and turns a `RouteB[A]` into a `RouteB[Option[A]]`. Forms an isomorphism between `None` and an empty path.
   * `.xmap[B](A => B)(B => A)` allows you to map the route type from an `A` to a `B`.
-  * <code>.caseclass<sub>n</sub>(C)(C.unapply)</code> maps the route type to a case class *n*, where *n* is the class arity.<br><br>
+  * <code>.caseclass<sub>n</sub>(C)(C.unapply)</code> maps the route type to a case class *n*, where *n* is the class arity.<br>
 
 * Combinators on `RouteB[Option[A]]`
   * `.withDefault(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `==` to compare `A`s to the given default.
   * `.withDefaultE(A)(Equal[A])` - Specify a default value. Returns a `RouteB[A]`. Uses `scalaz.Equal` to compare `A`s to the given default.
-  * `.parseDefault(A)` - Specify a default value when parsing. (Path generation ignores this default.) Returns a `RouteB[A]`.<br><br>
+  * `.parseDefault(A)` - Specify a default value when parsing. (Path generation ignores this default.) Returns a `RouteB[A]`.<br>
 
 * Combinators on any `RouteB[Unit]`
   * `.const(A)` changes a `RouteB[Unit]` into a `RouteB[A]` by assigning a constant value (not used in route parsing or generation).
