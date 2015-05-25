@@ -542,9 +542,9 @@ Examples
 The github pages for this project online at http://japgolly.github.io/scalajs-react/
 uses this router and demonstrates a number of features.
 
-1. The source begins here: [GhPages.scala](https://github.com/japgolly/scalajs-react/blob/master/gh-pages/src/main/scala/ghpages/GhPages.scala)
+1. The source begins here: [GhPages.scala](https://github.com/japgolly/scalajs-react/blob/0.9/gh-pages/src/main/scala/ghpages/GhPages.scala)
 2. Router logging is enabled so you can read what the router does in the console.
 
 There are also unit tests available in the
-[japgolly.scalajs.react.extra.router2](https://github.com/japgolly/scalajs-react/tree/master/test/src/test/scala/japgolly/scalajs/react/extra/router)
+[japgolly.scalajs.react.extra.router2](https://github.com/japgolly/scalajs-react/tree/0.9/test/src/test/scala/japgolly/scalajs/react/extra/router2)
 package.
