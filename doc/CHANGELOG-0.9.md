@@ -18,3 +18,4 @@
 * Renamed `ComponentStateFocus` to `CompStateFocus`.
 * Changed `CompStateAccess` shape and internals for improved type-inference and usage.
 * `TopNode` constraint relaxed from `HTMLElement` to `Element` as React components can render SVG too.
+* Added safe `ReactComponentB` methods for side-effecting life-cycle methods.

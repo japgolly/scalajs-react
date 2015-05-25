@@ -45,7 +45,7 @@ object DslTest extends TestSuite {
     def compU: ReactComponentU[Unit, Unit, Unit, TopNode] =
       compCConst()
 
-    case class CompX(title: String, page: Page, router: RouterCtl[Page])
+    case class CompX(title: String, page: PageSet, router: RouterCtl[PageSet])
     val compX = ReactComponentB[CompX]("X").render(p => <.div()).build
   }
 
@@ -115,18 +115,29 @@ object DslTest extends TestSuite {
       'T3 -
         test[(Int, Int, Int)](int / int / int)(t => t._1 + "/" + t._2 + "/" + t._3, ints3: _*)("3/3", "3/a/3", "a/3/3", "4/4/a")
 
-      'T456 {
+      'T45678 {
         val s1 = string("[ab]")
         val s2 = string("[cd]")
         val s3 = string("[ef]")
         val s4 = string("[gh]")
         val s5 = string("[ij]")
         val s6 = string("[kl]")
+        val s7 = string("[mn]")
+        val s8 = string("[op]")
         def s(s: String) = s.toCharArray.toVector.map(_.toString)
-        val data = for {a <- s("ab"); b <- s("cd"); c <- s("ef"); d <- s("gh"); e <- s("ij"); f <- s("kl")} yield (a,b,c,d,e,f)
-        // ok = acegik
-        test(s1~s2~s3~s4~s5~s6)({case (a,b,c,d,e,f) => s"$a$b$c$d$e$f"}, data: _*)("ccegik", "caegik", "a/c/e/g/i/k")
-        test(s1/s2/s3/s4/s5/s6)({case (a,b,c,d,e,f) => s"$a/$b/$c/$d/$e/$f"}, data: _*)("c/c/e/g/i/k", "c/a/e/g/i/k", "acegik")
+        val data = for {
+            a <- s("ab")
+            b <- s("cd")
+            c <- s("ef")
+            d <- s("gh")
+            e <- s("ij")
+            f <- s("kl")
+            g <- s("mn")
+            h <- s("op")
+          } yield (a, b, c, d, e, f, g, h)
+        // ok = acegikmo
+        test(s1~s2~s3~s4~s5~s6~s7~s8)({case (a,b,c,d,e,f,g,h) => s"$a$b$c$d$e$f$g$h"}, data: _*)("ccegikmo", "caegikmo", "a/c/e/g/i/k/m/o")
+        test(s1/s2/s3/s4/s5/s6/s7/s8)({case (a,b,c,d,e,f,g,h) => s"$a/$b/$c/$d/$e/$f/$g/$h"}, data: _*)("c/c/e/g/i/k/m/o", "c/a/e/g/i/k/m/o", "acegikmo")
       }
 
       'filter -

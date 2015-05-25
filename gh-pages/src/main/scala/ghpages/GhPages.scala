@@ -4,6 +4,7 @@ import org.scalajs.dom
 import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
 import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
+import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router2._
 import pages._
 
@@ -14,15 +15,11 @@ object GhPages extends JSApp {
   case class Examples(eg: Example) extends Page
   case object Doco                 extends Page
 
-  val routerConfig = RouterConfig.build[Page] { dsl =>
+  val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
     import dsl._
 
-    def exampleRoute(e: Example): Rule =
-      staticRoute("#example" / e.routerPath, Examples(e)) ~>
-        renderR(r => ExamplesPage.component(ExamplesPage.Props(e, r contramap Examples)))
-
     def exampleRoutes: Rule =
-      Example.values.map(exampleRoute).reduce(_ | _)
+      Example.routes.prefixPath_/("#examples").pmap[Page](Examples) { case Examples(e) => e }
 
     (trimSlashes
     | staticRoute(root,   Home) ~> render(HomePage.component())
@@ -39,7 +36,7 @@ object GhPages extends JSApp {
       navMenu(c),
       <.div(^.cls := "container", r.render()))
 
-  lazy val navMenu = ReactComponentB[RouterCtl[Page]]("Menu")
+  val navMenu = ReactComponentB[RouterCtl[Page]]("Menu")
     .render { ctl =>
       def nav(name: String, target: Page) =
         <.li(
@@ -53,7 +50,9 @@ object GhPages extends JSApp {
           nav("Home",          Home),
           nav("Examples",      Examples(Example.default)),
           nav("Documentation", Doco)))
-    }.build
+    }
+    .configure(Reusability.shouldComponentUpdate)
+    .build
 
   val baseUrl =
     if (dom.window.location.hostname == "localhost")

@@ -3,7 +3,7 @@ package ghpages.pages
 import scalaz.Equal
 import scalaz.syntax.equal._
 import japgolly.scalajs.react._, vdom.prefix_<^._
-import japgolly.scalajs.react.extra.router2.RouterCtl
+import japgolly.scalajs.react.extra.router2.{RouterConfigDsl, RouterCtl}
 import ghpages.examples._
 
 sealed abstract class Example(val title: String,
@@ -34,6 +34,14 @@ object Example {
 
   def default: Example =
     values.head
+
+  def routes = RouterConfigDsl[Example].buildRule { dsl =>
+    import dsl._
+    import ExamplesPage._
+    values.map(e =>
+      staticRoute(e.routerPath, e) ~> renderR(r => component(Props(e, r)))
+    ).reduce(_ | _)
+  }
 }
 
 // =====================================================================================================================

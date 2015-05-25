@@ -125,9 +125,6 @@ object RouterConfig {
   val nopLogger: Logger =
     Function const IO(())
 
-  def build[Page](f: RouterConfigDsl[Page] => RouterConfig[Page]): RouterConfig[Page] =
-    f(new RouterConfigDsl)
-
   def defaultLogger: Logger =
     nopLogger
 

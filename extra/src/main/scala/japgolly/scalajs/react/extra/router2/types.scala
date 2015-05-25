@@ -8,32 +8,64 @@ import japgolly.scalajs.react.extra.assertWarn
 // =====================================================================================================================
 // URLs
 
+abstract class PathLike[Self <: PathLike[Self]] {
+  this: Self =>
+  protected def make(s: String): Self
+  protected def str(s: Self): String
+
+  final def map(f: String => String): Self    = make(f(str(this)))
+  final def +(p: String)            : Self    = map(_ + p)
+  final def +(p: Self)              : Self    = this + str(p)
+  final def /(p: String)            : Self    = endWith_/ + p
+  final def /(p: Self)              : Self    = this / str(p)
+  final def endWith_/               : Self    = map(_.replaceFirst("/*$", "/"))
+  final def rtrim_/                 : Self    = map(_.replaceFirst("/+$", ""))
+  final def isEmpty                 : Boolean = str(this).isEmpty
+  final def nonEmpty                : Boolean = str(this).nonEmpty
+}
+
 /**
  * The prefix of all routes on a page.
  *
  * The router expects this to be a full URL.
  * Examples: `BaseUrl("http://www.blah.com/hello")`,  `BaseUrl.fromWindowOrigin / "hello"`.
  */
-final case class BaseUrl(value: String) {
+final case class BaseUrl(value: String) extends PathLike[BaseUrl] {
   assertWarn(value contains "://", s"$this doesn't seem to be a valid URL. It's missing '://'. Consider using BaseUrl.fromWindowOrigin.")
 
-  def +(p: String)            : BaseUrl = BaseUrl(value + p)
-  def /(p: String)            : BaseUrl = BaseUrl(value + "/" + p)
-  def map(f: String => String): BaseUrl = BaseUrl(f(value))
-  def apply(p: Path)          : AbsUrl  = AbsUrl(value + p.value)
-  def abs                     : AbsUrl  = AbsUrl(value)
-  def endWith_/               : BaseUrl = BaseUrl(value.replaceFirst("/*$", "/"))
+  override protected def make(s: String) = BaseUrl(s)
+  override protected def str(s: BaseUrl) = s.value
+
+  def apply(p: Path): AbsUrl = AbsUrl(value + p.value)
+  def abs           : AbsUrl = AbsUrl(value)
 }
+
 object BaseUrl {
-  def fromWindowOrigin = BaseUrl(dom.window.location.origin)
+  implicit def equality: Equal[BaseUrl] = Equal.equalA
+
+  def fromWindowOrigin   = BaseUrl(dom.window.location.origin)
   def fromWindowOrigin_/ = fromWindowOrigin.endWith_/
 }
 
 /**
- * The portion of the url after the [[japgolly.scalajs.react.extra.router.BaseUrl]].
+ * The portion of the URL after the [[BaseUrl]].
  */
-final case class Path(value: String) {
+final case class Path(value: String) extends PathLike[Path] {
+  override protected def make(s: String) = Path(s)
+  override protected def str(s: Path) = s.value
+
   def abs(implicit base: BaseUrl): AbsUrl = base apply this
+
+  /**
+   * Attempts to remove an exact prefix and return a non-empty suffix.
+   */
+  def removePrefix(prefix: String): Option[Path] = {
+    val l = prefix.length
+    if (value.length > l && value.startsWith(prefix))
+      Some(Path(value substring l))
+    else
+      None
+  }
 }
 object Path {
   implicit val equality: Equal[Path] = Equal.equalA
@@ -43,11 +75,14 @@ object Path {
 /**
  * An absolute URL.
  */
-final case class AbsUrl(value: String) {
+final case class AbsUrl(value: String) extends PathLike[AbsUrl] {
   assertWarn(value contains "://", s"$this doesn't seem to be a valid URL. It's missing '://'. Consider using AbsUrl.fromWindow.")
+  override protected def make(s: String) = AbsUrl(s)
+  override protected def str(s: AbsUrl) = s.value
 }
 object AbsUrl {
-  def fromWindow: AbsUrl = AbsUrl(dom.window.location.href)
+  implicit def equality: Equal[AbsUrl] = Equal.equalA
+  def fromWindow = AbsUrl(dom.window.location.href)
 }
 
 // =====================================================================================================================
@@ -55,13 +90,20 @@ object AbsUrl {
 
 // If we don't extend Product with Serializable here, a method that returns both a Renderer[P] and a Redirect[P] will
 // be type-inferred to "Product with Serializable with Action[P]" which breaks the Renderable & Actionable implicits.
-sealed trait Action[P] extends Product with Serializable
+sealed trait Action[P] extends Product with Serializable {
+  def map[A](f: P => A): Action[A]
+}
 
 final case class Renderer[P](f: RouterCtl[P] => ReactElement) extends Action[P] {
   @inline def apply(ctl: RouterCtl[P]) = f(ctl)
+
+  override def map[A](g: P => A): Renderer[A] =
+    Renderer(r => f(r contramap g))
 }
 
-sealed trait Redirect[P] extends Action[P]
+sealed trait Redirect[P] extends Action[P] {
+  override def map[A](f: P => A): Redirect[A]
+}
 
 object Redirect {
   sealed trait Method
@@ -73,9 +115,15 @@ object Redirect {
   case object Push extends Method
 }
 
-final case class RedirectToPage[P](page: P, method: Redirect.Method) extends Redirect[P]
+final case class RedirectToPage[P](page: P, method: Redirect.Method) extends Redirect[P] {
+  override def map[A](f: P => A): RedirectToPage[A] =
+    RedirectToPage(f(page), method)
+}
 
-final case class RedirectToPath[P](path: Path, method: Redirect.Method) extends Redirect[P]
+final case class RedirectToPath[P](path: Path, method: Redirect.Method) extends Redirect[P] {
+  override def map[A](f: P => A): RedirectToPath[A] =
+    RedirectToPath(path, method)
+}
 
 // =====================================================================================================================
 // Other

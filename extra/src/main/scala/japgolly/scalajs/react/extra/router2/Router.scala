@@ -4,8 +4,7 @@ import org.scalajs.dom
 import scala.scalajs.js
 import scalaz.{\/-, -\/, \/, ~>, Free}
 import scalaz.effect.IO
-import scalaz.syntax.bind.ToBindOps
-import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
+import japgolly.scalajs.react._, ScalazReact._
 import japgolly.scalajs.react.extra._
 
 object Router {
@@ -18,12 +17,12 @@ object Router {
 
   def componentUnbuiltC[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page], lgc: RouterLogic[Page]) =
     ReactComponentB[Unit]("Router")
-      .initialState(                      lgc.syncToWindowUrl.unsafePerformIO())
-      .backend           (_            => new OnUnmount.Backend)
-      .render            ((_, s, _)    => lgc.render(s))
-      .componentWillMount(_            => lgc.init.unsafePerformIO())
-      .componentDidMount ($            => cfg.postRenderFn(None, $.state.page).unsafePerformIO())
-      .componentDidUpdate(($, _, prev) => cfg.postRenderFn(Some(prev.page), $.state.page).unsafePerformIO())
+      .initialStateIO      (                lgc.syncToWindowUrl)
+      .backend             (_            => new OnUnmount.Backend)
+      .render              ((_, s, _)    => lgc.render(s))
+      .componentWillMountIO(_            => lgc.init)
+      .componentDidMountIO ($            => cfg.postRenderFn(None, $.state.page))
+      .componentDidUpdateIO(($, _, prev) => cfg.postRenderFn(Some(prev.page), $.state.page))
       .configure(Listenable.installS(_ => lgc, (_: Unit) => lgc.syncToWindowUrlS))
 
   def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
@@ -157,47 +156,11 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     new RouterCtl[Path] {
       override def baseUrl             = impbaseurl
       override def byPath              = this
-      override def refreshIO           = interpret(BroadcastSync)
+      override def refresh             = interpret(BroadcastSync)
       override def pathFor(path: Path) = path
-      override def setIO(path: Path)   = interpret(setPath(path))
+      override def set(path: Path)     = interpret(setPath(path))
     }
 
   val ctl: RouterCtl[Page] =
     ctlByPath contramap cfg.path
-}
-
-/**
- * Router controller. A client API to the router.
- *
- * @tparam A A data type that indicates a route that can be navigated to.
- */
-abstract class RouterCtl[A] {
-  def baseUrl: BaseUrl
-  def byPath: RouterCtl[Path]
-  def refreshIO: IO[Unit]
-  def pathFor(target: A): Path
-  def setIO(target: A): IO[Unit]
-
-  final def urlFor(target: A): AbsUrl =
-    pathFor(target).abs(baseUrl)
-
-  final def setEH(target: A): ReactEvent => IO[Unit] =
-    e => preventDefaultIO(e) >> stopPropagationIO(e) >> setIO(target)
-
-  final def setOnClick(target: A): TagMod =
-    ^.onClick ~~> setEH(target)
-
-  final def link(target: A): ReactTag =
-    <.a(^.href := urlFor(target).value, setOnClick(target))
-
-  final def contramap[B](f: B => A): RouterCtl[B] =
-    new RouterCtlM(this, f)
-}
-
-class RouterCtlM[A, B](u: RouterCtl[A], f: B => A) extends RouterCtl[B] {
-  override def baseUrl       = u.baseUrl
-  override def byPath        = u.byPath
-  override def refreshIO     = u.refreshIO
-  override def pathFor(b: B) = u pathFor f(b)
-  override def setIO(b: B)   = u setIO f(b)
 }

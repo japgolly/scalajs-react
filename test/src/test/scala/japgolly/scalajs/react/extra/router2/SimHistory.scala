@@ -8,6 +8,23 @@ case class SimHistory(startUrl: AbsUrl) {
   var history = List(startUrl)
   var broadcasts = Vector.empty[List[AbsUrl]]
 
+  def reset(): Unit =
+    reset(startUrl)
+
+  def reset(url: AbsUrl): Unit = {
+    history = List(url)
+    broadcasts = Vector.empty
+  }
+
+  override def toString =
+    s"""
+       |SimHistory($startUrl)
+       | - history: (${history.length})
+       |${history.map("     " + _) mkString "\n"}
+       | - broadcasts: (${broadcasts.length})
+       |${broadcasts.map("     " + _) mkString "\n"}
+     """.stripMargin
+
   def run[P, B](prog: RouteProg[B]): B = {
     import RouteCmd._
     type Cmd[A]  = RouteCmd[A]
