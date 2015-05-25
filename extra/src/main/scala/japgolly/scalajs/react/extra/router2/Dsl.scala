@@ -4,7 +4,7 @@ import java.util.regex.{Pattern, Matcher}
 import monocle.{Lens, Prism, Iso}
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
-import scalaz.{Equal, \/-, -\/}
+import scalaz.{Equal, \/-, -\/, Monoid}
 import scalaz.Isomorphism.<=>
 import scalaz.syntax.equal._
 import japgolly.scalajs.react.ReactElement
@@ -53,6 +53,8 @@ object StaticDsl {
       implicit def ***[A, B] = Composition[A, B, (A, B)](_._1, _._2, (_, _))
     }
     trait Composition_PriLow extends Composition_PriLowest {
+      implicit def T8[A, B, C, D, E, F, G, H] = Composition[(A, B, C, D, E, F, G), H, (A, B, C, D, E, F, G, H)](r => (r._1, r._2, r._3, r._4, r._5, r._6, r._7), _._8, (l, r) => (l._1, l._2, l._3, l._4, l._5, l._6, l._7, r))
+      implicit def T7[A, B, C, D, E, F, G] = Composition[(A, B, C, D, E, F), G, (A, B, C, D, E, F, G)](r => (r._1, r._2, r._3, r._4, r._5, r._6), _._7, (l, r) => (l._1, l._2, l._3, l._4, l._5, l._6, r))
       implicit def T6[A, B, C, D, E, F] = Composition[(A, B, C, D, E), F, (A, B, C, D, E, F)](r => (r._1, r._2, r._3, r._4, r._5), _._6, (l, r) => (l._1, l._2, l._3, l._4, l._5, r))
       implicit def T5[A, B, C, D, E] = Composition[(A, B, C, D), E, (A, B, C, D, E)](r => (r._1, r._2, r._3, r._4), _._5, (l, r) => (l._1, l._2, l._3, l._4, r))
       implicit def T4[A, B, C, D] = Composition[(A, B, C), D, (A, B, C, D)](r => (r._1, r._2, r._3), _._4, (l, r) => (l._1, l._2, l._3, r))
@@ -186,6 +188,12 @@ object StaticDsl {
 
     final def caseclass6[AA, B, C, D, E, F, Z](apply: (AA, B, C, D, E, F) => Z)(unapply: Z => Option[(AA, B, C, D, E, F)])(implicit ev: A =:= (AA, B, C, D, E, F), ev2: (AA, B, C, D, E, F) =:= A): R[Z] =
       xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
+
+    final def caseclass7[AA, B, C, D, E, F, G, Z](apply: (AA, B, C, D, E, F, G) => Z)(unapply: Z => Option[(AA, B, C, D, E, F, G)])(implicit ev: A =:= (AA, B, C, D, E, F, G), ev2: (AA, B, C, D, E, F, G) =:= A): R[Z] =
+      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
+
+    final def caseclass8[AA, B, C, D, E, F, G, H, Z](apply: (AA, B, C, D, E, F, G, H) => Z)(unapply: Z => Option[(AA, B, C, D, E, F, G, H)])(implicit ev: A =:= (AA, B, C, D, E, F, G, H), ev2: (AA, B, C, D, E, F, G, H) =:= A): R[Z] =
+      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
   }
 
   /**
@@ -220,6 +228,15 @@ object StaticDsl {
   object Rule {
     def parseOnly[Page](parse: Path => Option[Parsed[Page]]) =
       new Rule[Page](parse, _ => None, _ => None)
+
+    def empty[P]: Rule[P] =
+      Rule(_ => None, _ => None, _ => None)
+
+    implicit def monoid[P]: Monoid[Rule[P]] =
+      new Monoid[Rule[P]] {
+        override def zero = empty
+        override def append(a: Rule[P], b: => Rule[P]) = a | b
+      }
   }
 
   /**
@@ -466,7 +483,7 @@ final class RouterConfigDsl[Page](pageEq: Equal[Page] = Equal.equalA[Page]) {
   type Rule = StaticDsl.Rule[Page]
   type Rules = StaticDsl.Rules[Page]
   def Rule = StaticDsl.Rule
-  def emptyRule: Rule = Rule(_ => None, _ => None, _ => None)
+  def emptyRule: Rule = Rule.empty
 
   implicit def _auto_parsed_from_redirect(r: Redirect): Parsed = -\/(r)
   implicit def _auto_parsed_from_page    (p: Page)    : Parsed = \/-(p)
@@ -542,6 +559,5 @@ final class RouterConfigDsl[Page](pageEq: Equal[Page] = Equal.equalA[Page]) {
    */
   def trimSlashes: Rule = (
     rewritePathR("^/*(.*?)/+$".r, m => redirectToPath(m group 1)(Redirect.Replace))
-    | removeLeadingSlashes
-  )
+    | removeLeadingSlashes)
 }
