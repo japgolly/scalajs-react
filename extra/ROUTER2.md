@@ -1,3 +1,27 @@
+DSL
+* rewritePath
+* rewritePathR
+* removeTrailingSlashes
+* removeLeadingSlashes
+* trimSlashes
+
+Rule
+* `addCondition`
+* `fallback`
+
+Additional configuration
+* `logToConsole`
+* `renderWith`
+* `setPostRender`
+* `onPostRender`
+* `verify`
+* `detectErrors`
+
+
+Unsafety. Can either forget to add a route for a page, OR can have routes out-of-sync. 
+
+
+
 Router (v2)
 ===========
 
@@ -126,12 +150,17 @@ To construct a `Route`, the DSL provides a route-builder `RouteB` which composes
 and is automatically converted to a finalised `Route` when used.
 
 ##### RouteB creation
+
 * `RouteB[Unit]`
-  * Implicit conversion from `String`, like `"user/edit"`, or `root` which is an alias for `""`.
-  * Implicit conversion from `Path`, like `root`, which is an alias for `Path.root`.
+  * Implicit conversion from `String`, like `"user/edit"`.
+  * Implicit conversion from `Path`, like `root` which is an alias for `Path.root`.<br><br>
+
 * `RouteB[Int]` - Use DSL `int`.
+
 * `RouteB[Long]` - Use DSL `long`.
+
 * `RouteB[String]` - Use DSL `string(regex)`, like `string("[a-z0-9]{1,20}")`
+
 * Composition
   * `a ~ b` concatenates `a` to `b`.
     <br>Example: `"abc" ~ "def"` is the same as `"abcdef"`.
@@ -139,16 +168,19 @@ and is automatically converted to a finalised `Route` when used.
     <br>Example: `"abc" / "def"` is the same as `"abc/def"`.
   * The types of each route (except `Unit`) are added together into a tuple.
     <br>Example: `"category" / int / "item" / int` is a `RouteB[(Int, Int)]`.
-    <br>Example: `"category" / int / "item" / int ~ "." ~ long` is a `RouteB[(Int, Int, Long)]`.
+    <br>Example: `"category" / int / "item" / int ~ "." ~ long` is a `RouteB[(Int, Int, Long)]`.<br><br>
+
 * Combinators on any `RouteB[A]`
   * `.filter(A => Boolean)` causes the route to ignore parsed values which don't satisfy the given filter.
   * `.option` makes this subject portion of the route optional and turns a `RouteB[A]` into a `RouteB[Option[A]]`. Forms an isomorphism between `None` and an empty path.
   * `.xmap[B](A => B)(B => A)` allows you to map the route type from an `A` to a `B`.
-  * <code>.caseclass<sub>n</sub>(C)(C.unapply)</code> maps the route type to a case class *n*, where *n* is the class arity.
+  * <code>.caseclass<sub>n</sub>(C)(C.unapply)</code> maps the route type to a case class *n*, where *n* is the class arity.<br><br>
+
 * Combinators on `RouteB[Option[A]]`
   * `.withDefault(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `==` to compare `A`s to the given default.
   * `.withDefaultE(A)(Equal[A])` - Specify a default value. Returns a `RouteB[A]`. Uses `scalaz.Equal` to compare `A`s to the given default.
-  * `.parseDefault(A)` - Specify a default value when parsing. (Path generation ignores this default.) Returns a `RouteB[A]`.
+  * `.parseDefault(A)` - Specify a default value when parsing. (Path generation ignores this default.) Returns a `RouteB[A]`.<br><br>
+
 * Combinators on any `RouteB[Unit]`
   * `.const(A)` changes a `RouteB[Unit]` into a `RouteB[A]` by assigning a constant value (not used in route parsing or generation).
 
@@ -176,10 +208,7 @@ val r: Route[String] = "get" ~ ("." ~ string("[a-z]+")).option.withDefault("json
 ### Static Routes
 
 Route syntax: `staticRoute(Route[Unit], Page) ~> <action>`
-
-Redirect syntax: `staticRedirect(Route[Unit]) ~> <redirect>`
-
-A `Route[Unit]` can be just a string like `"user/edit"`, or `root` which is an alias for `""`.
+<br>Redirect syntax: `staticRedirect(Route[Unit]) ~> <redirect>`
 
 Examples:
 ```scala
@@ -220,16 +249,17 @@ dynamicRouteCT("item" / int.caseclass1(ItemPage)(ItemPage.unapply))
 
 To create a `RouterConfig` the syntax is `( <rule1> | ... | <ruleN> ).notFound( <action> )`.
 
-Rules are composed via `|`. There is an `emptyRule` is needed that does nothing.
+**Rules are composed** via `|`.
+If two rules contain any overlap (eg. can respond to the same URL), the left-hand side of `|` has precedence and wins.
 
-The `.notFound()` method declares how unmatched routes will be handled.
+**The `.notFound()` method** declares how unmatched routes will be handled.
 It takes an `Action` as described above, the same kind that is used in the rules.
 You will generally redirect to the root, or render a 404-like page.
 
 Once `.notFound()` is called you will have a `RouterConfig`.
 Rules can no longer be added, but different (optional) configuration becomes available.
 
-Example:
+**Example:**
 ```scala
 val routerConfig = RouterConfig.build[Page] { dsl =>
   import dsl._
@@ -241,37 +271,96 @@ val routerConfig = RouterConfig.build[Page] { dsl =>
   ) .notFound(redirectToPage(Home)(Redirect.Replace))
 }
 ```
+(The use of `emptyRule` is just for nice formatting.)
 
-DSL
-* rewritePath
-* rewritePathR
-* removeTrailingSlashes
-* removeLeadingSlashes
-* trimSlashes
-
-Rule
-* `addCondition`
-* `fallback`
-
-Additional configuration
-* `logToConsole`
-* `renderWith`
-* `setPostRender`
-* `onPostRender`
-* `verify`
-* `detectErrors`
 
 `RouterCtl`
 ===========
 
-baseUrl: BaseUrl
-byPath: RouterCtl[Path]
-refreshIO: IO[Unit]
-pathFor(A): Path
-setIO(A): IO[Unit]
-urlFor(A): AbsUrl
-setEH(A): ReactEvent => IO[Unit]
-setOnClick(A): TagMod
-link(A): ReactTag
-contramap[B](B => A): RouterCtl[B]
-narrow[B <: A]: RouterCtl[B]
+RouterCtl is a client API to control the router.
+Pass it in to components that need it via props.
+
+Here a subset of useful methods. Use IDE auto-complete or check the source for the full list.
+
+* `link(Page): ReactTag` - Create a link to a page.
+
+  ```scala
+  ctl.link(Specials)("Today's Specials", ^.color := "red")
+  ```
+
+* `set___` - Programmatically navigate to route when invoked.
+  * `set(Page): IO[Unit]` - Return a procedure that will navigate to route.
+  * `setEH(Page): ReactEvent => IO[Unit]` - Consume an event and set the route.
+  * `setOnClick(Page): TagMod` - Set the route when the subject is clicked.<br>Shorthand for `^.onClick ~~> ctl.setEH(page)`.
+
+* `refresh: IO[Unit]` - Refresh the current route when invoked.
+
+  ```scala
+  ^.button("Refresh", ^.onClick ~~> ctl.refresh)
+  ```
+
+* `urlFor(Page): AbsUrl` - Get the absolute URL of a given page.
+
+
+Nested Routes (Modules)
+=======================
+
+Routes can be created and used as modules. This is how:
+
+##### The Module
+
+1. Use `RouterConfigDsl[InnerPage].buildRule` to create a (composite) rule instead of a full `RouterConfig`. The content will be your normal routing rules up until, and excluding, the `notFound()` call.
+2. Have components that need a `RouterCtl` use a `RouterCtl[InnerPage]` as normal - this will continue to work as expected when nested.
+
+##### Nesting
+All of this happens in the method in which you build your `RouterConfig[OuterPage]`.
+
+1. Call one of the `pmap` methods (prism-map) on the `InnerPage` rule in order to bridge the inner & outer page types.
+2. Use `prefixPath` or `prefixPath_/` on the nested routes to mount them with a prefix.
+3. Append the result to your routes as per usual.
+
+Example
+```scala
+sealed trait Module
+object Module {
+  case object ModuleRoot   extends Module
+  case object ModuleDetail extends Module
+
+  val routes = RouterConfigDsl[Module].buildRule { dsl =>
+    import dsl._
+    (emptyRule
+    | staticRoute(root, ModuleRoot)       ~> render(???)
+    | staticRoute("detail", ModuleDetail) ~> render(???)
+    )
+  }
+}
+
+sealed trait Outer
+object Outer {
+  case object Root           extends Outer
+  case object Login          extends Outer
+  case class Nest(m: Module) extends Outer
+
+  val config = RouterConfigDsl[Outer].buildConfig { dsl =>
+    import dsl._
+    (emptyRule
+    | staticRoute(root, Root)      ~> render(???)
+    | staticRoute("#login", Login) ~> render(???)
+    | Module.routes.prefixPath_/("#module").pmap[Outer](Nest){ case Nest(m) => m }
+    ).notFound(???)
+  }
+}
+```
+
+Examples
+========
+
+The github pages for this project online at http://japgolly.github.io/scalajs-react/
+uses this router and demonstrates a number of features.
+
+1. The source is here: [GhPages.scala](https://github.com/japgolly/scalajs-react/blob/master/gh-pages/src/main/scala/ghpages/GhPages.scala)
+2. Router logging is enabled so you can read what it does in the console.
+
+There are also unit tests available in the
+[japgolly.scalajs.react.extra.router2](https://github.com/japgolly/scalajs-react/tree/master/test/src/test/scala/japgolly/scalajs/react/extra/router)
+package.
