@@ -1,9 +1,12 @@
 package japgolly.scalajs.react.extra.router2
 
 import java.util.regex.{Pattern, Matcher}
+import monocle.{Lens, Prism, Iso}
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
 import scalaz.{Equal, \/-, -\/}
+import scalaz.Isomorphism.<=>
+import scalaz.syntax.equal._
 import japgolly.scalajs.react.ReactElement
 import RouterConfig.Parsed
 
@@ -148,6 +151,12 @@ object StaticDsl {
     def xmap[B](b: A => B)(a: B => A): R[B]
     def parseThen(f: Option[A] => Option[A]): R[A]
 
+    final def xmapL[B](l: Iso[A, B]): R[B] =
+      xmap(l.get)(l.reverseGet)
+
+    final def xmapI[B](i: A <=> B): R[B] =
+      xmap(i.to)(i.from)
+
     final def filter(f: A => Boolean): R[A] =
       parseThen(_ filter f)
 
@@ -234,6 +243,71 @@ object StaticDsl {
         parse  || that.parse,
         path   || that.path,
         action || that.action)
+
+    def xmap[A](f: Page => A)(g: A => Page): Rule[A] =
+      new Rule[A](
+        p => parse(p).map(_.bimap(_ map f, f)),
+        path compose g,
+        a => action(g(a)).map(_ map f))
+
+    def xmapL[A](l: Iso[Page, A]): Rule[A] =
+      xmap(l.get)(l.reverseGet)
+
+    def xmapI[A](i: Page <=> A): Rule[A] =
+      xmap(i.to)(i.from)
+
+    def pmap[W](f: Page => W)(pf: PartialFunction[W, Page]): Rule[W] =
+      pmapF(f)(pf.lift)
+
+    def pmapCT[W](f: Page => W)(implicit ct: ClassTag[Page]): Rule[W] =
+      pmapF(f)(ct.unapply)
+
+    def pmapL[W](l: Prism[W, Page]): Rule[W] =
+      pmapF(l.reverseGet)(l.getOption)
+
+    def pmapF[W](f: Page => W)(g: W => Option[Page]): Rule[W] =
+      new Rule[W](
+        parse(_) map (_.bimap(_ map f, f)),
+        g(_) flatMap path,
+        g(_) flatMap action map (_ map f))
+
+    def widen[W >: Page](pf: PartialFunction[W, Page]): Rule[W] =
+      widenF(pf.lift)
+
+    def widenCT[W >: Page](implicit ct: ClassTag[Page]): Rule[W] =
+      widenF(ct.unapply)
+
+    def widenF[W >: Page](f: W => Option[Page]): Rule[W] =
+      pmapF[W](p => p)(f)
+
+    /**
+     * Modify the path(es) generated and parsed by this rule.
+     */
+    def modPath(add: Path => Path, remove: Path => Option[Path]): Rule[Page] =
+      new Rule(
+        remove(_) flatMap parse,
+        path(_) map add,
+        action)
+
+    /**
+     * Add a prefix to the path(es) generated and parsed by this rule.
+     */
+    def prefixPath(prefix: String): Rule[Page] =
+      modPath(
+        p => Path(prefix + p.value),
+        _ removePrefix prefix)
+
+    /**
+     * Add a prefix to the path(es) generated and parsed by this rule.
+     *
+     * Unlike [[prefixPath()]] when the suffix is non-empty, a slash is added between prefix and suffix.
+     */
+    def prefixPath_/(prefix: String): Rule[Page] = {
+      val pre = Path(prefix)
+      modPath(
+        p => if (p.isEmpty) pre else pre / p,
+        p => if (p.value == prefix) Some(Path.root) else p.removePrefix(prefix + "/"))
+    }
 
     /**
      * Prevent this rule from functioning unless some condition holds.
@@ -326,6 +400,9 @@ object RouterConfigDsl {
       f(new RouterConfigDsl(pageEq))
 
     def buildConfig(f: RouterConfigDsl[Page] => RouterConfig[Page]): RouterConfig[Page] =
+      use(f)
+
+    def buildRule(f: RouterConfigDsl[Page] => StaticDsl.Rule[Page]): StaticDsl.Rule[Page] =
       use(f)
   }
 }
