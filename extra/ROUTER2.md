@@ -1,3 +1,6 @@
+
+
+
 Router (v2)
 ===========
 
@@ -14,17 +17,17 @@ The package is `japgolly.scalajs.react.extra.router2`.
 - [Creating a `RouterConfig`](#creating-a-routerconfig)
   - [Actions](#actions)
   - [`Route[X]`](#routex)
-  - [Static Routes](#static-routes)
-  - [Dynamic Routes](#dynamic-routes)
+  - [Static routes](#static-routes)
+  - [Dynamic routes](#dynamic-routes)
   - [Putting it all together](#putting-it-all-together)
   - [A spot of unsafeness](#a-spot-of-unsafeness)
 - [`RouterCtl`](#routerctl)
 - Beyond the Basics
   - URL rewriting rules
   - Conditional routes
-  - Layout/Template
-  - PostRender callback
-  - [Nested Routes (Modules)](#nested-routes-modules)
+  - Rendering with a layout
+  - Post-render callback
+  - [Nested routes (modules)](#nested-routes-modules)
 - [Examples](#examples)
 
 
@@ -156,7 +159,7 @@ It represents a path that requires an `X` to generate, and provides an `X` when 
 To construct a `Route`, the DSL provides a route-builder `RouteB` which composes nicely
 and is automatically converted to a finalised `Route` when used.
 
-##### RouteB creation
+##### `RouteB` creation and usage
 
 * `RouteB[Unit]`
   * Implicit conversion from `String`, like `"user/edit"`.
@@ -212,7 +215,7 @@ val r: Route[Product] = ("cat" / int / "item" / int).caseclass2(Product)(Product
 val r: Route[String] = "get" ~ ("." ~ string("[a-z]+")).option.withDefault("json")
 ```
 
-### Static Routes
+### Static routes
 
 Route syntax: `staticRoute(Route[Unit], Page) ~> <action>`
 <br>Redirect syntax: `staticRedirect(Route[Unit]) ~> <redirect>`
@@ -226,7 +229,7 @@ staticRoute("#hello", Hello) ~> render(HelloComponent())
 staticRedirect("#hey") ~> redirectToPage(Hello)(Redirect.Replace)
 ```
 
-### Dynamic Routes
+### Dynamic routes
 
 Syntax:
 
@@ -280,6 +283,7 @@ val routerConfig = RouterConfig.build[Page] { dsl =>
 ```
 (The use of `emptyRule` is just for nice formatting.)
 
+If you'd like to see what's happening, you can call `.logToConsole` on your config and to have the routing engine log what it does to the JS console. Add it anytime between `.notFound()` and its use in creating a `Router`.
 
 ### A spot of unsafeness
 
@@ -357,8 +361,111 @@ Here a subset of useful methods. Use IDE auto-complete or check the source for t
 * `urlFor(Page): AbsUrl` - Get the absolute URL of a given page.
 
 
-Nested Routes (Modules)
-=======================
+Beyond the Basics
+=================
+
+### URL rewriting rules
+
+The following can create rules that simply rewrite (i.e. live redirect) URLs.
+They can be composed with other rules via `|` as usual.
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `rewritePath` | `PartialFunction[Path, Redirect]` | Run a `Path` through a partial function that results in a redirect. |
+| `rewritePathF` | `Path => Option[Redirect]` | Run a `Path` through a total function that optionally results in a redirect. |
+| `rewritePathR` | `Pattern, Matcher => Option[Redirect]` | Match a `Path` against regex and if it matches, use the match result to optionally redirect. |
+
+Example: This would remove leading dots.
+```scala
+rewritePathR("^\\.+(.*)$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+```
+
+A few rules are included out-of-the-box for you to use:
+* `removeTrailingSlashes` - uses a replace-state redirect to remove trailing slashes from route URLs.
+* `removeLeadingSlashes` - uses a replace-state redirect to remove leading slashes from route URLs.
+* `trimSlashes` - uses a replace-state redirect to remove leading and trailing slashes from route URLs.
+
+### Conditional routes
+
+When you have a `Rule`, you can call `addCondition` on it to evaluate a condition every time it is used.
+When the condition is met (`true`), the route is usable; when unmet, a fallback behaviour can be actioned or it can continue as if the rule didn't exist.
+
+```scala
+/**
+ * Prevent this rule from functioning unless some condition holds.
+ * When the condition doesn't hold, an alternative action may be performed.
+ *
+ * @param condUnmet Response when rule matches but condition doesn't hold.
+ *                  If response is `None` it will be as if this rule doesn't exist and will likely end
+ *                  in the route-not-found fallback behaviour.
+ */
+def addCondition(cond: => Boolean)(condUnmet: Page => Option[Action[Page]]): Rule[Page]
+```
+
+Example:
+```scala
+def grantPrivateAccess: Boolean =
+  ???
+
+val privatePages = (emptyRule
+  | staticRoute("private-1", PrivatePage1) ~> render(???)
+  | staticRoute("private-2", PrivatePage2) ~> render(???)
+  )
+  .addCondition(grantPrivateAccess)(_ => redirectToPage(Login)(Redirect.Push))
+```
+
+### Rendering with a layout
+
+Once you have a `RouterConfig`, you can call `.renderWith` on it to supply your own render function that will be invokved each time a route is rendered. It takes a function in the shape: `(RouterCtl[Page], Resolution[Page]) => ReactElement` where a `Resolution` is:
+
+```scala
+/**
+ * Result of the router resolving a URL and reaching a conclusion about what to render.
+ *
+ * @param page Data representation (or command) of what will be drawn.
+ * @param render The render function provided by the rules and logic in [[RouterConfig]].
+ */
+final case class Resolution[P](page: P, render: () => ReactElement)
+```
+
+Thus using the given `RouterCtl` and `Resolution` you can wrap the page in a layout, link to other pages, highlight the current page, etc.
+
+See *[Examples](#examples)* for a live demonstration.
+
+### Post-render callback
+
+Each time a route is rendered, the "post-render" callback is invoked.
+Out-of-the-box, the default action is to scroll the window to the top.
+
+You can *add* your own actions by calling `.onPostRender` on your `RouterConfig` instance.
+You can *set* the entire callback (i.e. override instead of add) using `.setPostRender`.
+
+Both `.onPostRender` and  `.setPostRender` take a single fn: `(Option[Page], Page) => IO[Unit]`.
+
+Example:
+```scala
+import scalaz.effect.IO
+
+val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
+  import dsl._
+  ( staticRoute(root,     Home)  ~> render(???)
+  | staticRoute("#about", About) ~> render(???)
+  )
+    .notFound(???)
+    .onPostRender((prev, cur) =>                         // ← available after .notFound()
+      IO(println(s"Page changing from $prev to $cur."))) // ← our callback
+}
+```
+
+*Hey? Why wrap in `IO()`?*
+
+It gives you a guarantee by me and the Scala compiler that whatever you put inside,
+will only be executed in a callback. Underlying code won't accidently call it now when *installing* the callback,
+and then do nothing when the callback actually executes.
+It's not an esoteric concern - those kind of mistakes do happen in real-world code.
+
+
+### Nested routes (modules)
 
 Routes can be created and used as modules. This is how:
 
