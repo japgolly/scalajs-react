@@ -9,6 +9,9 @@ import japgolly.scalajs.react._, ScalazReact._
  */
 final class ReusableVar[A](val value: A, val set: A ~=> IO[Unit])(implicit val reusability: Reusability[A]) {
 
+  override def toString =
+    s"ReusableVar($value, $set)"
+
   def mod(f: A => A): IO[Unit] =
     set(f(value))
 

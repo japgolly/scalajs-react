@@ -2,6 +2,7 @@ package japgolly.scalajs.react.extra
 
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
+import scalaz.effect.IO
 import japgolly.scalajs.react.TopNode
 
 /**
@@ -14,6 +15,9 @@ trait SetInterval extends OnUnmount {
     val i = js.timers.setInterval(timeout.toMillis)(f)
     onUnmount(js.timers.clearInterval(i))
   }
+
+  final def setIntervalIO(f: IO[Unit], timeout: FiniteDuration): IO[Unit] =
+    IO(setInterval(f.unsafePerformIO(), timeout))
 }
 
 object SetInterval {

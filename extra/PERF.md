@@ -57,6 +57,26 @@ The following component will only re-render when one of the following change:
     .build
 ```
 
+#### Monitoring
+
+There exist two mixins, out-of-the-box, to help you monitor reusability. Use them instead of `shouldComponentUpdate`.
+
+1. `shouldComponentUpdateWithOverlay` - An overlay on the screen showing how many updates were prevented and how many required.
+   Clicking on the overlay will print detail to the console.
+2. `shouldComponentUpdateAndLog` - Logs each callback evaluation to the console.
+
+Usage:
+```scala
+// No monitoring
+.configure(Reusability.shouldComponentUpdate)
+
+// Display stats on screen, clickable for detail
+.configure(Reusability.shouldComponentUpdateWithOverlay)
+
+// Log to console
+.configure(Reusability.shouldComponentUpdateAndLog("MyComponent"))
+```
+
 
 ReusableFn
 ==========

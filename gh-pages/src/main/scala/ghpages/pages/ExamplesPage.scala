@@ -3,6 +3,7 @@ package ghpages.pages
 import scalaz.Equal
 import scalaz.syntax.equal._
 import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router2.{RouterConfigDsl, RouterCtl}
 import ghpages.examples._
 
@@ -25,12 +26,13 @@ object Example {
   case object PictureApp   extends Example("AjaxPictureApp",     "ajax-picture-app", PictureAppExample  .content)
   case object Touch        extends Example("Touch events",       "touch-events",     TouchExample       .content)
   case object ExternalVar  extends Example("ExternalVar",        "external-var",     ExternalVarExample .content)
+  case object Reuse        extends Example("Reusability",        "reusability",      ReuseExample       .content)
 
-  implicit val equality: Equal[Example] =
-    Equal.equalA
+  implicit val equality   : Equal[Example]       = Equal.equalA
+  implicit val reusability: Reusability[Example] = Reusability.byEqual
 
   val values = Vector[Example](
-    Hello, Timer, Todo, TodoScalaz, Touch, Refs, ExternalVar, ProductTable, Animation, PictureApp)
+    Hello, Timer, Todo, TodoScalaz, Touch, Refs, ExternalVar, Reuse, ProductTable, Animation, PictureApp)
 
   def default: Example =
     values.head
@@ -50,19 +52,23 @@ object ExamplesPage {
 
   case class Props(current: Example, router: RouterCtl[Example])
 
+  implicit val propsReuse = Reusability.caseclass2(Props.unapply)
+
   val menu = ReactComponentB[Props]("Example menu")
     .render { p =>
       def menuItem(e: Example) = {
         val active = e === p.current
         <.li(
           ^.classSet1("list-group-item", "active" -> active),
-          (!active) ?= (p.router setOnClick e),
+          p.router setOnClick e,
           e.title)
       }
       <.div(^.cls := "col-md-2",
         <.ul(^.cls := "list-group",
           Example.values map menuItem))
-    }.build
+    }
+    .configure(Reusability.shouldComponentUpdate)
+    .build
 
   val body = ReactComponentB[Example]("Example body")
     .render(eg =>

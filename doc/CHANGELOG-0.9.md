@@ -19,3 +19,8 @@
 * Changed `CompStateAccess` shape and internals for improved type-inference and usage.
 * `TopNode` constraint relaxed from `HTMLElement` to `Element` as React components can render SVG too.
 * Added safe `ReactComponentB` methods for side-effecting life-cycle methods.
+* Components can now mixin pure-JS React mixins. That doesn't mean the mixins will work as expected, however.
+  There will be mixins that won't work correctly as they make assumptions that don't hold for Scala.
+  If a mixin expects to inspect your props or state, forget about it; Scala-land owns that data.
+* Add `ReactComponentB.reRender` for Scala mixins to customise the output.
+* setIntervalIO
