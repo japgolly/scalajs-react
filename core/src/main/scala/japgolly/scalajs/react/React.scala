@@ -110,7 +110,7 @@ trait ReactComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Objec
 trait ReactComponentType[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
 /**
- * http://facebook.github.io/react/docs/glossary.html indicates children can be a super type of ReactElement.
+ * https://facebook.github.io/react/docs/glossary.html indicates children can be a super type of ReactElement.
  * Array and null are acceptable, thus this can be 0-n elements.
  */
 trait ReactNode extends Object
@@ -255,7 +255,7 @@ trait PropsChildren extends Object
 // =====================================================================================================================
 // Events
 
-/** http://facebook.github.io/react/docs/events.html */
+/** https://facebook.github.io/react/docs/events.html */
 trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends Object {
   val bubbles         : Boolean        = js.native
   val cancelable      : Boolean        = js.native

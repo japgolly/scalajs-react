@@ -3,7 +3,7 @@ package ghpages.examples
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
 
-/** Scala version of example on http://facebook.github.io/react/docs/thinking-in-react.html */
+/** Scala version of example on https://facebook.github.io/react/docs/thinking-in-react.html */
 object ProductTableExample {
 
   def content = SideBySide.Content(jsSource, source, FilterableProductTable(products))

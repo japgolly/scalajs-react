@@ -13,7 +13,7 @@
     * `onTouchEnd`
     * `onTouchMove`
     * `onTouchStart`
-* Added example for Touch events. ([Live demo](http://japgolly.github.io/scalajs-react/))
+* Added example for Touch events. ([Live demo](https://japgolly.github.io/scalajs-react/#examples/touch-events))
 * Added new styles:
     * `alignSelf`
     * `alignContent`
@@ -31,7 +31,7 @@
 
 # 0.8.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.0...v0.8.1))
 
-* Added `ExternalVar` to `extra` module. ([Live demo](http://japgolly.github.io/scalajs-react/))
+* Added `ExternalVar` to `extra` module. ([Live demo](https://japgolly.github.io/scalajs-react/#examples/external-var))
 * Added `ReactComponentB.static` to quickly create components with unchanging content.
 * Added new styles:
     * `alignItems`

@@ -539,7 +539,7 @@ If we imagine `BaseUrl` to be `http://www.example.com/` then the sitemap for `Ou
 Examples
 ========
 
-The github pages for this project online at http://japgolly.github.io/scalajs-react/
+The github pages for this project online at https://japgolly.github.io/scalajs-react/
 uses this router and demonstrates a number of features.
 
 1. The source begins here: [GhPages.scala](https://github.com/japgolly/scalajs-react/blob/0.9/gh-pages/src/main/scala/ghpages/GhPages.scala)

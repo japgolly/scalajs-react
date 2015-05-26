@@ -5,7 +5,7 @@ import org.scalajs.dom.window
 import ghpages.examples.util.SideBySide
 import Addons.ReactCssTransitionGroup
 
-/** http://facebook.github.io/react/docs/animation.html */
+/** https://facebook.github.io/react/docs/animation.html */
 object AnimationExample {
 
   def content = SideBySide.Content(jsSource, source, TodoList())

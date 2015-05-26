@@ -4,7 +4,7 @@ import japgolly.scalajs.react.ReactComponentB
 import japgolly.scalajs.react.vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
 
-/** Scala version of "A Simple Component" on http://facebook.github.io/react/ */
+/** Scala version of "A Simple Component" on https://facebook.github.io/react/ */
 object HelloMessageExample {
 
   def content = SideBySide.Content(jsSource, source, HelloMessage("John"))

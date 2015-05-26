@@ -19,7 +19,7 @@ object HomePage {
         ^.fontSize  := "115%",
         ^.color     := "#444",
         <.p("Lifts Facebook's ",
-          <.a(^.href := "http://facebook.github.io/react", "React"),
+          <.a(^.href := "https://facebook.github.io/react", "React"),
           " library into ",
           <.a(^.href := "http://www.scala-js.org", "Scala.js"),
           " and endeavours to make it as type-safe and Scala-friendly as possible."),

@@ -49,7 +49,7 @@ object Addons {
   /**
    * React Performance Tools
    *
-   * http://facebook.github.io/react/docs/perf.html
+   * https://facebook.github.io/react/docs/perf.html
    */
   @JSName("React.addons.Perf")
   object Perf extends js.Object {

@@ -4,7 +4,7 @@ import japgolly.scalajs.react._, vdom.prefix_<^._
 import org.scalajs.dom.raw.HTMLInputElement
 import ghpages.examples.util.SideBySide
 
-/** Scala version of example on http://facebook.github.io/react/docs/more-about-refs.html */
+/** Scala version of example on https://facebook.github.io/react/docs/more-about-refs.html */
 object RefsExample {
 
   def content = SideBySide.Content(jsSource, source, App())

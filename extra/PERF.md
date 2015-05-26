@@ -31,7 +31,7 @@ These utilities help you avoid work in two ways.
 
 `React.addons.Perf`
 ===================
-React addons come with performance tools. See http://facebook.github.io/react/docs/perf.html.
+React addons come with performance tools. See https://facebook.github.io/react/docs/perf.html.
 
 A Scala facade is now available via `japgolly.scalajs.react.Addons.Perf`.
 
@@ -92,7 +92,7 @@ The following component will only re-render when one of the following change:
 
 There exist two mixins, out-of-the-box, to help you monitor reusability. Use them instead of `shouldComponentUpdate`.
 
-1. `shouldComponentUpdateWithOverlay` - Adds an overlay beside each mounted instance of the component, showing how many updates were prevented and how many were rendered. You can hover over it for some detail, and click it to print more to the JS console. [Live demo](http://japgolly.github.io/scalajs-react/#examples/reusability).
+1. `shouldComponentUpdateWithOverlay` - Adds an overlay beside each mounted instance of the component, showing how many updates were prevented and how many were rendered. You can hover over it for some detail, and click it to print more to the JS console. [Live demo](https://japgolly.github.io/scalajs-react/#examples/reusability).
 2. `shouldComponentUpdateAndLog` - Logs each callback evaluation to the console.
 
 Usage:

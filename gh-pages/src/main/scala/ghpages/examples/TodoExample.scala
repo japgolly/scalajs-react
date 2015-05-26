@@ -3,7 +3,7 @@ package ghpages.examples
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
 
-/** Scala version of "An Application" on http://facebook.github.io/react/ */
+/** Scala version of "An Application" on https://facebook.github.io/react/ */
 object TodoExample {
 
   def content = SideBySide.Content(jsSource, source, TodoApp())
