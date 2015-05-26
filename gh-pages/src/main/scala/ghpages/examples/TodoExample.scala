@@ -3,10 +3,13 @@ package ghpages.examples
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
 
-/** Scala version of "An Application" on https://facebook.github.io/react/ */
 object TodoExample {
 
-  def content = SideBySide.Content(jsSource, source, TodoApp())
+  def title = "Todo List"
+
+  def content = SideBySide.Content(jsSource, source, main())
+
+  lazy val main = addIntro(TodoApp, _(scalaPortOf("An Application")))
 
   val jsSource =
     """

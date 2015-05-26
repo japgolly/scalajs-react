@@ -3,10 +3,12 @@ package ghpages.examples
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
 
-/** Scala version of example on https://facebook.github.io/react/docs/thinking-in-react.html */
 object ProductTableExample {
 
-  def content = SideBySide.Content(jsSource, source, FilterableProductTable(products))
+  def content = SideBySide.Content(jsSource, source, main())
+
+  lazy val main = addIntro(FilterableProductTable withProps products,
+    _(scalaPortOfPage("docs/thinking-in-react.html")))
 
   val jsSource =
     """

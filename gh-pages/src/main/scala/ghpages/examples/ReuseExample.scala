@@ -7,7 +7,15 @@ import japgolly.scalajs.react.extra._
 
 object ReuseExample {
 
-  def content = SingleSide.Content(source, app())
+  def content = SingleSide.Content(source, main())
+
+  lazy val main = addIntro(topLevelComponent, _(
+    ^.marginBottom := "2.4em",
+    "The colourful overlays here are provided by ",
+    <.code("Reusability.shouldComponentUpdateWithOverlay"),
+    " and demonstrate how many updates are prevented vs rendered in each component.",
+    <.br,
+    "Hover for more info. Click one to print detail to the JS console."))
 
   val source =
     """
@@ -182,16 +190,4 @@ object ReuseExample {
         showSum.withKey("sum")(s.sum))
     }
   }
-
-  val app = ReactComponentB[Unit]("")
-    .render(_ =>
-      <.div(
-        <.p(^.maxWidth := "84%", ^.paddingBottom := "2em",
-          "The colourful overlays here are provided by ",
-          <.code("Reusability.shouldComponentUpdateWithOverlay"),
-          " and demonstrate how many updates are prevented vs rendered in each component.",
-          <.br, "Hover for more info. Click one to print detail to the JS console."),
-        topLevelComponent.withKey("top")())
-    )
-    .buildU
 }

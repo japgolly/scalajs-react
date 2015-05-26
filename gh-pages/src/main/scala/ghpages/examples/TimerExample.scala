@@ -4,10 +4,11 @@ import japgolly.scalajs.react._, vdom.prefix_<^._
 import scala.scalajs.js
 import ghpages.examples.util.SideBySide
 
-/** Scala version of "A Stateful Component" on https://facebook.github.io/react/ */
 object TimerExample {
 
-  def content = SideBySide.Content(jsSource, source, Timer())
+  def content = SideBySide.Content(jsSource, source, main())
+
+  lazy val main = addIntro(Timer, _(scalaPortOf("A Stateful Component")))
 
   val jsSource =
     """
