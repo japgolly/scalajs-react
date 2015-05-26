@@ -22,3 +22,4 @@
 * Components can now mixin pure-JS React mixins. That doesn't mean the mixins will work as expected, however.
   There will be mixins that won't work correctly as they make assumptions that don't hold for Scala.
   If a mixin expects to inspect your props or state, forget about it; Scala-land owns that data.
+* Add `ReactComponentB.reRender` for Scala mixins to customise the output.

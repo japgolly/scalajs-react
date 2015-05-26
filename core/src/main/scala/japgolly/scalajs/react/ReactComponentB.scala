@@ -98,11 +98,19 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
                                                 lc      : LifeCycle[P, S, B, N],
                                                 jsMixins: Vector[JAny]) {
 
-  def configure(fs: (ReactComponentB[P, S, B, N] => ReactComponentB[P, S, B, N])*): ReactComponentB[P, S, B, N] =
-    fs.foldLeft(this)((a,f) => f(a))
+  @inline private def copy(name    : String                                   = name    ,
+                           initF   : P => S                                   = initF   ,
+                           backF   : BackendScope[P, S] => B                  = backF   ,
+                           rendF   : ComponentScopeU[P, S, B] => ReactElement = rendF   ,
+                           lc      : LifeCycle[P, S, B, N]                    = lc      ,
+                           jsMixins: Vector[JAny]                             = jsMixins): ReactComponentB[P, S, B, N] =
+    new ReactComponentB(name, initF, backF, rendF, lc, jsMixins)
 
   @inline private implicit def lcmod(a: LifeCycle[P, S, B, N]): ReactComponentB[P, S, B, N] =
-    new ReactComponentB(name, initF, backF, rendF, a, jsMixins)
+    copy(lc = a)
+
+  def configure(fs: (ReactComponentB[P, S, B, N] => ReactComponentB[P, S, B, N])*): ReactComponentB[P, S, B, N] =
+    fs.foldLeft(this)((a,f) => f(a))
 
   def getDefaultProps(p: => P): ReactComponentB[P, S, B, N] =
     lc.copy(getDefaultProps = () => p)
@@ -135,7 +143,13 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
    * If a mixin expects to inspect your props or state, forget about it; Scala-land owns that data.
    */
   def mixinJS(mixins: JAny*): ReactComponentB[P, S, B, N] =
-    new ReactComponentB(name, initF, backF, rendF, lc, jsMixins ++ mixins)
+    copy(jsMixins = jsMixins ++ mixins)
+
+  /**
+   * Modify the render function.
+   */
+  def reRender(f: (ComponentScopeU[P, S, B] => ReactElement) => ComponentScopeU[P, S, B] => ReactElement): ReactComponentB[P, S, B, N] =
+    copy(rendF = f(rendF))
 
   // ===================================================================================================================
   @inline private def builder[C](cc: ReactComponentCU[P,S,B,N] => C) = new Builder(cc)
