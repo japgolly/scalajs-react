@@ -13,8 +13,12 @@ These utilities help you avoid work in two ways.
 
 - [`React.addons.Perf`](#reactaddonsperf)
 - [`Reusability`](#reusability)
+  - [Usage](#usage)
+  - [Example](#example)
   - [Monitoring](#monitoring)
 - [`ReusableFn`](#reusablefn)
+  - [Usage](#usage-1)
+  - [Example](#example-1)
   - [Warning](#warning)
   - [Tricks](#tricks)
 - [`ReusableVal`](#reusableval)
