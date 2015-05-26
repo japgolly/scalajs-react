@@ -61,8 +61,7 @@ The following component will only re-render when one of the following change:
 
 There exist two mixins, out-of-the-box, to help you monitor reusability. Use them instead of `shouldComponentUpdate`.
 
-1. `shouldComponentUpdateWithOverlay` - An overlay on the screen showing how many updates were prevented and how many required.
-   Clicking on the overlay will print detail to the console.
+1. `shouldComponentUpdateWithOverlay` - Adds an overlay beside each mounted instance of the component, showing how many updates were prevented and how many were rendered. You can hover over it for some detail, and click it to print more to the JS console. [Live demo](http://japgolly.github.io/scalajs-react/#examples/reusability).
 2. `shouldComponentUpdateAndLog` - Logs each callback evaluation to the console.
 
 Usage:
