@@ -245,14 +245,4 @@ object Reusability {
 
   def shouldComponentUpdateWithOverlay[P: Reusability, S: Reusability, B, N <: TopNode] =
     ReusabilityOverlay.install[P, S, B, N](new ReusabilityOverlay)
-
-  // ===================================================================================================================
-  // Convenience
-
-  def component[P: Reusability](name: String, render: P => ReactElement) =
-    ReactComponentB[P](name)
-      .stateless
-      .noBackend
-      .render($ => render($.props))
-      .configure(shouldComponentUpdate)
 }

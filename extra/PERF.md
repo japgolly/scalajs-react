@@ -9,15 +9,45 @@ These utilities help you avoid work in two ways.
 1. By making components' `shouldComponentUpdate` fns both easy to create, and accurate (safe). If it compiles, the logic in `shouldComponentUpdate` will be what you expect.
 2. By allowing you to cache your own arbitrary data, and build on it in a way such that derivative data is also cached effeciently.
 
-Reusability
-===========
+#### Contents
+
+- [`React.addons.Perf`](#reactaddonsperf)
+- [`Reusability`](#reusability)
+  - [Usage](#usage)
+  - [Example](#example)
+  - [Monitoring](#monitoring)
+- [`ReusableFn`](#reusablefn)
+  - [Usage](#usage-1)
+  - [Example](#example-1)
+  - [Warning](#warning)
+  - [Tricks](#tricks)
+- [`ReusableVal`](#reusableval)
+- [`ReusableVar`](#reusablevar)
+- [`Px`](#px)
+  - [Initial instances](#initial-instances)
+  - [Derivative instances](#derivative-instances)
+  - [`Px` doesn't have `Reusability`](#px-doesnt-have-reusability)
+
+
+`React.addons.Perf`
+===================
+React addons come with performance tools. See http://facebook.github.io/react/docs/perf.html.
+
+A Scala facade is now available via `japgolly.scalajs.react.Addons.Perf`.
+
+
+`Reusability`
+=============
 
 `Reusability` is a typeclass that tests whether one instance can be used in place of another.
-It is used mostly to compare properties and state of a component to avoid unnecessary updates.
+It's used to compare properties and state of a component to avoid unnecessary updates.
 
-If you imagine a class with 8 fields, equality would compare all 8 fields where as this would typically just compare
-the ID field, the update-date, or the revision number.
-You might think of this as a very quick version of equality.
+Imagine a class with 8 fields - typical equality like `==` would compare all 8 fields (and if
+you're not using `scalaz.Equal` you've no way of knowing whether all those 8 fields have correct
+`equals` methods defined).
+When deciding whether a component needs updating, full equality comparison can be overkill (and slow) -
+in many cases it is sufficient to check only the ID field, the update-date, or the revision number.
+`Reusability` is designed for you to do just that.
 
 #### Usage
 When building your component, pass in `Reusability.shouldComponentUpdate` to your `ReactComponentB.configure`.
@@ -31,6 +61,7 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.byEqual[A]` uses a Scalaz `Equal` typeclass
 * <code>Reusability.caseclass<sub>n</sub></code> for case classes of your own.
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
+* `Reusability.fn((A, B) => Boolean)` to hand-write custom logic.
 
 #### Example
 The following component will only re-render when one of the following change:
@@ -61,8 +92,7 @@ The following component will only re-render when one of the following change:
 
 There exist two mixins, out-of-the-box, to help you monitor reusability. Use them instead of `shouldComponentUpdate`.
 
-1. `shouldComponentUpdateWithOverlay` - An overlay on the screen showing how many updates were prevented and how many required.
-   Clicking on the overlay will print detail to the console.
+1. `shouldComponentUpdateWithOverlay` - Adds an overlay beside each mounted instance of the component, showing how many updates were prevented and how many were rendered. You can hover over it for some detail, and click it to print more to the JS console. [Live demo](http://japgolly.github.io/scalajs-react/#examples/reusability).
 2. `shouldComponentUpdateAndLog` - Logs each callback evaluation to the console.
 
 Usage:
@@ -78,8 +108,8 @@ Usage:
 ```
 
 
-ReusableFn
-==========
+`ReusableFn`
+============
 
 In effective usage of React, callbacks are passed around as component properties.
 Due to the ease of function creation in Scala it is often the case that functions are created inline and thus
@@ -226,8 +256,8 @@ For these examples imagine `$` to be your component's scope instance, eg. `Backe
   ```
 
 
-ReusableVal
-===========
+`ReusableVal`
+=============
 
 Usually reusability is determined by type (ie. via an implicit `Reusability[A]` available for an `A`).
 Instead, a `ReusableVal` promises that whoever provides the value will also explicitly specify the value's reusability.
@@ -245,8 +275,8 @@ val e: ReusableVal[ReactElement] =
 ```
 
 
-ReusableVar
-===========
+`ReusableVar`
+=============
 
 Just as there is `ExternalVar` that provides a component with safe R/W access to an external variable,
 there is also `ReusableVar`.
@@ -283,8 +313,8 @@ val stringEditor = ReactComponentB[ReusableVar[String]]("StringEditor")
 ```
 
 
-Px
-==
+`Px`
+====
 
 `Px` is a mechanism for caching data with dependencies.
 It's basically a performance-focused, lightweight implementation of pull-based
