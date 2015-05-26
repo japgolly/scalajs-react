@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.extra
 
 import scalaz._
-import japgolly.scalajs.react.{ReactComponentB, TopNode, ReactElement}
+import scalaz.effect.IO
+import japgolly.scalajs.react.{ComponentScopeM, ReactComponentB, TopNode, ReactElement}
 import japgolly.scalajs.react.vdom.Optional
 
 /**
@@ -227,18 +228,23 @@ object Reusability {
     (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p, s) =>
       ($.props ~/~ p) || ($.state ~/~ s))
 
-  def shouldComponentUpdateDebug[P: Reusability, S: Reusability, B, N <: TopNode](f: (P, P, Boolean, S, S, Boolean) => Unit) =
+  def shouldComponentUpdateAnd[P: Reusability, S: Reusability, B, N <: TopNode](f: (ComponentScopeM[P, S, B, N], P, Boolean, S, Boolean) => IO[Unit]) =
     (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p, s) => {
       val up = $.props ~/~ p
       val us = $.state ~/~ s
-      f($.props, p, up, $.state, s, us)
+      f($, p, up, s, us).unsafePerformIO()
       up || us
     })
 
-  def shouldComponentUpdateDebugLog[P: Reusability, S: Reusability, B, N <: TopNode](name: String) =
-    shouldComponentUpdateDebug[P, S, B, N] { (p1, p2, p, s1, s2, s) =>
+  def shouldComponentUpdateAndLog[P: Reusability, S: Reusability, B, N <: TopNode](name: String) =
+    shouldComponentUpdateAnd[P, S, B, N](($, p1, p, s1, s) => IO {
+      val p2 = $.props
+      val s2 = $.state
       println(s"$name.shouldComponentUpdate = ${p || s}\n  Props: $p. [$p1] ⇒ [$p2]\n  State: $s. [$s1] ⇒ [$s2]")
-    }
+    })
+
+  def shouldComponentUpdateWithOverlay[P: Reusability, S: Reusability, B, N <: TopNode] =
+    ReusabilityOverlay.install[P, S, B, N](new ReusabilityOverlay)
 
   // ===================================================================================================================
   // Convenience
