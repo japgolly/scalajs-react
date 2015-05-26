@@ -16,23 +16,26 @@ object Example {
   implicit private def auto1(v: SideBySide.Content): () => ReactElement = () => v()
   implicit private def auto2(v: SingleSide.Content): () => ReactElement = () => v()
 
-  case object Hello        extends Example("Hello World",        "hello",            HelloMessageExample.content)
-  case object Timer        extends Example("Timer",              "timer",            TimerExample       .content)
-  case object Todo         extends Example("Todo List",          "todo",             TodoExample        .content)
-  case object TodoScalaz   extends Example("Todo List (Scalaz)", "todo-scalaz",      ScalazExample      .content)
-  case object Refs         extends Example("Using Refs",         "refs",             RefsExample        .content)
-  case object ProductTable extends Example("Product Table",      "product-table",    ProductTableExample.content)
-  case object Animation    extends Example("Animation",          "animation",        AnimationExample   .content)
-  case object PictureApp   extends Example("AjaxPictureApp",     "ajax-picture-app", PictureAppExample  .content)
-  case object Touch        extends Example("Touch events",       "touch-events",     TouchExample       .content)
-  case object ExternalVar  extends Example("ExternalVar",        "external-var",     ExternalVarExample .content)
-  case object Reuse        extends Example("Reusability",        "reusability",      ReuseExample       .content)
+  case object Hello        extends Example("Hello World",        "hello",            HelloMessageExample .content)
+  case object Timer        extends Example("Timer",              "timer",            TimerExample        .content)
+  case object Todo         extends Example("Todo List",          "todo",             TodoExample         .content)
+  case object TodoScalaz   extends Example("Todo List (Scalaz)", "todo-scalaz",      ScalazExample       .content)
+  case object Refs         extends Example("Using Refs",         "refs",             RefsExample         .content)
+  case object ProductTable extends Example("Product Table",      "product-table",    ProductTableExample .content)
+  case object Animation    extends Example("Animation",          "animation",        AnimationExample    .content)
+  case object PictureApp   extends Example("AjaxPictureApp",     "ajax-picture-app", PictureAppExample   .content)
+  case object Touch        extends Example("Touch events",       "touch-events",     TouchExample        .content)
+  case object ExternalVar  extends Example("ExternalVar",        "external-var",     ExternalVarExample  .content)
+  case object Reuse        extends Example("Reusability",        "reusability",      ReuseExample        .content)
+  case object EventListen  extends Example("EventListener",      "event-listener",   EventListenerExample.content)
 
   implicit val equality   : Equal[Example]       = Equal.equalA
   implicit val reusability: Reusability[Example] = Reusability.byEqual
 
   val values = Vector[Example](
-    Hello, Timer, Todo, TodoScalaz, Touch, Refs, ExternalVar, Reuse, ProductTable, Animation, PictureApp)
+    Hello, Timer, Todo, TodoScalaz, Touch, Refs,
+    EventListen, ExternalVar, Reuse,
+    ProductTable, Animation, PictureApp)
 
   def default: Example =
     values.head

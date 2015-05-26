@@ -9,18 +9,20 @@
 * Renamed `ComponentStateFocus` to `CompStateFocus`.
 
 ##### Non-Breaking
+* During `TagMod` composition, avoid allocations composing `EmptyTag`.
+* The v1 Router's `RoutingRules` args that specify what to render, are now lazy and reevaluate on request.
+
+##### New
+* Added [EventListener](http://japgolly.github.io/scalajs-react/#examples/event-listener).
 * `ReactComponentB` now has `.mixinJS` method; components can now mixin pure-JS React mixins.
   <br>Note: That doesn't mean the mixins will work as expected, however.
   There will be mixins that won't work correctly as they make assumptions that don't hold for Scala.
   If a mixin expects to inspect your props or state, forget about it; Scala-land owns that data.
 * `ReactComponentB` now has a `.reRender` method for Scala mixins to customise a component's output.
-* During `TagMod` composition, avoid allocations composing `EmptyTag`.
-* The v1 Router's `RoutingRules` args that specify what to render, are now lazy and reevaluate on request.
-
-##### Scalaz
-* `ReactComponentB` now supports `IO`-aware lifecycle callbacks.
-  <br>Example: `.componentWillUpdateIO` instead of `.componentWillUpdate`.
-* `SetInterval` leanred `setIntervalIO`.
+* Scalaz
+  * `ReactComponentB` now supports `IO`-aware lifecycle callbacks.
+    <br>Example: `.componentWillUpdateIO` instead of `.componentWillUpdate`.
+  * `SetInterval` leanred `setIntervalIO`.
 
 ## Performance Management
 A number of new tools and utilities have been introduced for you to manage the performance of your React app.
