@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import org.scalajs.dom
+import scala.concurrent.duration._
 import scalajs.js
 import scalaz.effect.IO
 import scalaz.syntax.bind.ToBindOps
@@ -51,10 +52,12 @@ object ReusabilityOverlay {
       val logResult =
         if (p || s) {
           def fmt(update: Boolean, name: String, a: Any, b: Any) =
-            if (update)
-              s"$name update:\n  [$a] ⇒\n  [$b]."
-            else
+            if (!update)
               ""
+            else if (a.toString.length < 50)
+              s"$name update: [$a] ⇒ [$b]."
+            else
+              s"$name update:\n  [$a] ⇒\n  [$b]."
           val sep = if (p && s) "\n" else ""
           val reason = fmt(p, "Prop", p1, $.props) + sep + fmt(s, "State", s1, $.state)
           overlay logBad reason
@@ -63,13 +66,13 @@ object ReusabilityOverlay {
           overlay.logGood
       logResult >> overlay.update($)
     } andThen (_
-      .componentDidMountIO { $ => val o = get($); o.create >> o.update($) }
+      .componentDidMountIO { $ => val o = get($); o.create >> o.update($) >> o.updatePositionEvery($, 500.millis) }
       .componentWillUnmountIO(get(_).remove)
     )
   }
 }
 
-class ReusabilityOverlay(howManyReasonsToShowOnClick: Int = 10) {
+class ReusabilityOverlay(howManyReasonsToShowOnClick: Int = 10) extends SetInterval {
   protected var good = 0
   protected var bad = Vector("Initial mount.")
   protected def badCount = bad.size
@@ -106,21 +109,29 @@ class ReusabilityOverlay(howManyReasonsToShowOnClick: Int = 10) {
       document.body.removeChild(o.outer)
       overlay = None
     }
+    runUnmount()
   }
 
   def withOverlay(f: Overlay => Unit): IO[Unit] =
     IO(overlay foreach f)
 
-  def update($: Comp) = withOverlay { o =>
-    // Update position
+  def updatePosition($: Comp) = withOverlay { o =>
     val rect = $.getDOMNode().getBoundingClientRect()
-    o.outer.style.top  = (window.pageYOffset + rect.top) + "px"
+    o.outer.style.top = (window.pageYOffset + rect.top) + "px"
     o.outer.style.left = rect.left + "px"
+  }
 
-    // Update content
+  def updateContent($: Comp) = withOverlay { o =>
     o.good.innerHTML = good.toString
     o.bad.innerHTML = badCount.toString
+    o.outer.setAttribute("title", "Last update reason:\n" + bad.lastOption.getOrElse("None"))
   }
+
+  def update($: Comp) =
+    updatePosition($) >> updateContent($)
+
+  def updatePositionEvery($: Comp, interval: FiniteDuration) =
+    setIntervalIO(updatePosition($), interval)
 
   val onClick = IO[Unit] {
     if (bad.nonEmpty) {

@@ -26,12 +26,13 @@ object Example {
   case object PictureApp   extends Example("AjaxPictureApp",     "ajax-picture-app", PictureAppExample  .content)
   case object Touch        extends Example("Touch events",       "touch-events",     TouchExample       .content)
   case object ExternalVar  extends Example("ExternalVar",        "external-var",     ExternalVarExample .content)
+  case object Reuse        extends Example("Reusability",        "reusability",      ReuseExample       .content)
 
   implicit val equality   : Equal[Example]       = Equal.equalA
   implicit val reusability: Reusability[Example] = Reusability.byEqual
 
   val values = Vector[Example](
-    Hello, Timer, Todo, TodoScalaz, Touch, Refs, ExternalVar, ProductTable, Animation, PictureApp)
+    Hello, Timer, Todo, TodoScalaz, Touch, Refs, ExternalVar, Reuse, ProductTable, Animation, PictureApp)
 
   def default: Example =
     values.head

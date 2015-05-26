@@ -13,17 +13,17 @@ object SideBySide {
   val sideBySideComponent = ReactComponentB[Content]("sideBySideExample")
     .render(p =>
       div(
+        section(cls := "demo",
+          div(cls := "demo", p.el)),
+        hr,
         div(`class` := "row",
           div(`class` := "col-md-6",
             h3("JS source"),
             pre(code(p.jsSource.trim))),
           div(`class` := "col-md-6",
             h3("Scala source"),
-            pre(code(p.scalaSource.trim)))),
-        hr,
-        section(cls := "demo",
-          h3("Demo"),
-          div(cls := "demo", p.el)))
+            pre(code(p.scalaSource.trim))))
+      )
     )
     .configure(installSyntaxHighlighting)
     .build

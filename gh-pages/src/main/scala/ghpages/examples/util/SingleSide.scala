@@ -11,13 +11,14 @@ object SingleSide {
   val singleSideComponent = ReactComponentB[Content]("singleSideComponent")
     .render(p =>
       div(
+        section(cls := "demo",
+          div(cls := "demo", p.el)),
+        hr,
+        h3("Source"),
         div(`class` := "row",
           div(`class` := "col-md-10",
-            pre(code(p.scalaSource.trim)))),
-        hr,
-        section(cls := "demo",
-          h3("Demo"),
-          div(cls := "demo", p.el)))
+            pre(code(p.scalaSource.trim))))
+      )
     )
     .configure(SideBySide.installSyntaxHighlighting)
     .build
