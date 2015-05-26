@@ -67,6 +67,9 @@ object ScalazReact {
   }
 
   implicit class SzRExt_RCB[P, S, B, N <: TopNode](val _b: ReactComponentB[P, S, B, N]) extends AnyVal {
+
+    // A => IO
+
     def componentWillMountIO(f: ComponentScopeU[P, S, B] => IO[Unit]): ReactComponentB[P, S, B, N] =
       _b.componentWillMount(f(_).unsafePerformIO())
 
@@ -84,6 +87,26 @@ object ScalazReact {
 
     def componentWillReceivePropsIO(f: (ComponentScopeM[P, S, B, N], P) => IO[Unit]): ReactComponentB[P, S, B, N] =
       _b.componentWillReceiveProps(f(_, _).unsafePerformIO())
+
+    // Just IO
+
+    def componentWillMountIO(io: IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentWillMount(_ => io.unsafePerformIO())
+
+    def componentDidMountIO(io: IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentDidMount(_ => io.unsafePerformIO())
+
+    def componentWillUnmountIO(io: IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentWillUnmount(_ => io.unsafePerformIO())
+
+    def componentWillUpdateIO(io: IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentWillUpdate((_, _, _) => io.unsafePerformIO())
+
+    def componentDidUpdateIO(io: IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentDidUpdate((_, _, _) => io.unsafePerformIO())
+
+    def componentWillReceivePropsIO(io: IO[Unit]): ReactComponentB[P, S, B, N] =
+      _b.componentWillReceiveProps((_, _) => io.unsafePerformIO())
   }
 
   implicit def SzRExt__RCB[A, P, S, B, N <: TopNode](a: A)(implicit b: A => ReactComponentB[P, S, B, N]) =

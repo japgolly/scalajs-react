@@ -17,12 +17,12 @@ object Router {
 
   def componentUnbuiltC[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page], lgc: RouterLogic[Page]) =
     ReactComponentB[Unit]("Router")
-      .initialStateIO      (                lgc.syncToWindowUrl)
-      .backend             (_            => new OnUnmount.Backend)
-      .render              ((_, s, _)    => lgc.render(s))
-      .componentWillMountIO(_            => lgc.init)
-      .componentDidMountIO ($            => cfg.postRenderFn(None, $.state.page))
-      .componentDidUpdateIO(($, _, prev) => cfg.postRenderFn(Some(prev.page), $.state.page))
+      .initialStateIO      (           lgc.syncToWindowUrl)
+      .backend             (_       => new OnUnmount.Backend)
+      .render              ((_,s,_) => lgc.render(s))
+      .componentWillMountIO(           lgc.init)
+      .componentDidMountIO ($       => cfg.postRenderFn(None, $.state.page))
+      .componentDidUpdateIO(($,_,p) => cfg.postRenderFn(Some(p.page), $.state.page))
       .configure(Listenable.installS(_ => lgc, (_: Unit) => lgc.syncToWindowUrlS))
 
   def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
@@ -69,7 +69,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     )
   }
 
-  def syncToWindowUrl: IO[Resolution] =
+  val syncToWindowUrl: IO[Resolution] =
    for {
      url <- IO(AbsUrl.fromWindow)
      _   <- logger(s"Syncing to [${url.value}].")
@@ -77,7 +77,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
      _   <- logger(s"Resolved to page: [${res.page}].")
    } yield res
 
-  def syncToWindowUrlS: ReactST[IO, Resolution, Unit] =
+  val syncToWindowUrlS: ReactST[IO, Resolution, Unit] =
     ReactS.setM(syncToWindowUrl) //addCallbackS onSync
 
   def syncToUrl(url: AbsUrl): RouteProg[Resolution] =
