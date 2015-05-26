@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import org.scalajs.dom
+import scalajs.js
 import scalaz.effect.IO
 import scalaz.syntax.bind.ToBindOps
 import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
@@ -31,8 +32,22 @@ object ReusabilityOverlay {
 
   type Comp = ComponentScope_M[TopNode]
 
-  def install[P: Reusability, S: Reusability, B, N <: TopNode](overlay: ReusabilityOverlay) =
+  private val key = "reusabilityOverlay"
+
+  def install[P: Reusability, S: Reusability, B, N <: TopNode](newOverlay: => ReusabilityOverlay) = {
+
+    // Store the overlay stats on each instance
+    def get(c: Comp): ReusabilityOverlay = {
+      def $ = c.asInstanceOf[js.Dynamic]
+      $.selectDynamic(key).asInstanceOf[js.UndefOr[WrapObj[ReusabilityOverlay]]].fold {
+        val o = newOverlay
+        $.updateDynamic(key)(WrapObj(o))
+        o
+      }(_.v)
+    }
+
     Reusability.shouldComponentUpdateAnd[P, S, B, N] { ($, p1, p, s1, s) =>
+      val overlay = get($)
       val logResult =
         if (p || s) {
           def fmt(update: Boolean, name: String, a: Any, b: Any) =
@@ -48,14 +63,15 @@ object ReusabilityOverlay {
           overlay.logGood
       logResult >> overlay.update($)
     } andThen (_
-      .componentDidMountIO($ => overlay.create >> overlay.update($))
-      .componentWillUnmountIO(overlay.remove)
+      .componentDidMountIO { $ => val o = get($); o.create >> o.update($) }
+      .componentWillUnmountIO(get(_).remove)
     )
+  }
 }
 
 class ReusabilityOverlay(howManyReasonsToShowOnClick: Int = 10) {
   protected var good = 0
-  protected var bad = Vector.empty[String]
+  protected var bad = Vector("Initial mount.")
   protected def badCount = bad.size
   protected var overlay: Option[Overlay] = None
 
