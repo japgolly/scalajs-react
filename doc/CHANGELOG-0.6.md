@@ -18,15 +18,15 @@ This release brings scalajs-react in line with React 0.12.
 
 Read about React 0.12 changes here:
 *  https://github.com/facebook/react/releases/tag/v0.12.0
-*  http://facebook.github.io/react/blog/2014/10/28/react-v0.12.html
-*  http://facebook.github.io/react/docs/glossary.html
+*  https://facebook.github.io/react/blog/2014/10/28/react-v0.12.html
+*  https://facebook.github.io/react/docs/glossary.html
 
 ##### Scala 2.10 is no longer supported.
 If this affects you please come to [issue #39](https://github.com/japgolly/scalajs-react/issues/39) to discuss,
 or continue to using the 0.5.x series.
 
 ##### Other changes in this release:
-* Deprecated `ReactOutput` and `VDom` in favour of `ReactElement` or in rare cases, `ReactNode`. (*[glossary](http://facebook.github.io/react/docs/glossary.html)*)
+* Deprecated `ReactOutput` and `VDom` in favour of `ReactElement` or in rare cases, `ReactNode`. (*[glossary](https://facebook.github.io/react/docs/glossary.html)*)
 * `.asJsArray: Seq[A] → JArray[A]` renamed to `toJsArray`
 * `.toJsArray: Seq[A] → JArray[ReactElement]` is no longer needed.
 * Renamed `ComponentSpec` to `ReactComponentSpec`. *(Internal. Extremely unlikely anyone using it directly.)*

@@ -3,7 +3,7 @@ scalajs-react
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/japgolly/scalajs-react?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Lifts Facebook's [React](http://facebook.github.io/react/) library into [Scala.js](http://www.scala-js.org/) and endeavours to make it as type-safe and Scala-friendly as possible.
+Lifts Facebook's [React](https://facebook.github.io/react/) library into [Scala.js](http://www.scala-js.org/) and endeavours to make it as type-safe and Scala-friendly as possible.
 
 In addition to wrapping React, this provides extra opt-in functionality to support (separately) easier testing, and pure FP.
 
@@ -92,9 +92,9 @@ import japgolly.scalajs.react.MonocleReact._
 Examples
 ========
 
-A number of [examples are demonstrated online here](http://japgolly.github.io/scalajs-react/).
+A number of [examples are demonstrated online here](https://japgolly.github.io/scalajs-react/).
 
-You'll find that nearly all of the [demos in the React doc](http://facebook.github.io/react/) are on display beside their Scala counterparts. If you know Scala and React, you should be up and running in no time.
+You'll find that nearly all of the [demos in the React doc](https://facebook.github.io/react/) are on display beside their Scala counterparts. If you know Scala and React, you should be up and running in no time.
 
 The source code for the above [lives here](https://github.com/japgolly/scalajs-react/tree/master/gh-pages/src/main/scala/ghpages/examples). To build and play around with locally:
 
@@ -141,7 +141,7 @@ A module with a extensions for [Monocle](https://github.com/julien-truffaut/Mono
 
 Testing
 =======
-[React.addons.TestUtils](http://facebook.github.io/react/docs/test-utils.html) is wrapped in Scala and available as `ReactTestUtils` in the test module (see [Setup](#setup)). Usage is unchanged from JS.
+[React.addons.TestUtils](https://facebook.github.io/react/docs/test-utils.html) is wrapped in Scala and available as `ReactTestUtils` in the test module (see [Setup](#setup)). Usage is unchanged from JS.
 
 To make event simulation easier, certain event types have dedicated, strongly-typed case classes to wrap event data. For example, JS like
 ```js
@@ -247,7 +247,7 @@ Extensions
 * `SyntheticEvent`s have aliases that don't require you to provide the dom type. So instead of `SyntheticKeyboardEvent[xxx]` type alias `ReactKeyboardEvent` can be used.
 * The component builder has a `propsDefault` method which takes some default properties and exposes constructor methods that 1) don't require any property specification, and 2) take an `Optional[Props]`.
 * The component builder has a `propsAlways` method which provides all component instances with given properties, doesn't allow property specification in the constructor.
-* React has a [classSet addon](http://facebook.github.io/react/docs/class-name-manipulation.html)
+* React has a [classSet addon](https://facebook.github.io/react/docs/class-name-manipulation.html)
   for specifying multiple optional class attributes. The same mechanism is applicable with this library is as follows:
 ```scala
     div(classSet(

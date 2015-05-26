@@ -4,10 +4,11 @@ import japgolly.scalajs.react._, vdom.prefix_<^._
 import org.scalajs.dom.raw.HTMLInputElement
 import ghpages.examples.util.SideBySide
 
-/** Scala version of example on http://facebook.github.io/react/docs/more-about-refs.html */
 object RefsExample {
 
-  def content = SideBySide.Content(jsSource, source, App())
+  def content = SideBySide.Content(jsSource, source, main())
+
+  lazy val main = addIntro(App, _(scalaPortOfPage("docs/more-about-refs.html")))
 
   val jsSource =
     """

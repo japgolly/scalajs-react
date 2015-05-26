@@ -13,7 +13,7 @@
 * The v1 Router's `RoutingRules` args that specify what to render, are now lazy and reevaluate on request.
 
 ##### New
-* Added `EventListener`. ([live demo](http://japgolly.github.io/scalajs-react/#examples/event-listener))
+* Added `EventListener`. ([live demo](https://japgolly.github.io/scalajs-react/#examples/event-listener))
 * `ReactComponentB` now has `.mixinJS` method; components can now mixin pure-JS React mixins.
   <br>Note: That doesn't mean the mixins will work as expected, however.
   There will be mixins that won't work correctly as they make assumptions that don't hold for Scala.
@@ -29,7 +29,7 @@ A number of new tools and utilities have been introduced for you to manage the p
 
 Detail with examples are here: [extra/PERF.md](https://github.com/japgolly/scalajs-react/blob/master/extra/PERF.md).
 
-* Scala facade for `React.addons.Perf`. See http://facebook.github.io/react/docs/perf.html.
+* Scala facade for `React.addons.Perf`. See https://facebook.github.io/react/docs/perf.html.
 * `Reusability` for fast, easy & safe `shouldComponentUpdate` management.
 * `ReusableFn` for stable callbacks that don't sabatage `shouldComponentUpdate` or go stale.
 * `ReusableVal` for specifying a value and its explicit reusability. For special/individual cases.

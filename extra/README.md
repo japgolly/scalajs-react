@@ -47,7 +47,7 @@ ExternalVar
 Provides a component with safe R/W access to an external variable.
 
 A live demo with accompanying code is available on
-[http://japgolly.github.io/scalajs-react](http://japgolly.github.io/scalajs-react/).
+[https://japgolly.github.io/scalajs-react](https://japgolly.github.io/scalajs-react/).
 
 
 LogLifecycle

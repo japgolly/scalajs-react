@@ -7,7 +7,7 @@ A `ReactElement` is a `ReactDOMElement` or a React component.
 
 A`ReactNode` which is anything usable a child of a `ReactElement`. This can be another `ReactElement`, an array of `ReactElement`s, or plain text or number.
 
-*More detail: http://facebook.github.io/react/docs/glossary.html*
+*More detail: https://facebook.github.io/react/docs/glossary.html*
 
 #### Scalatags
 A custom version [Scalatags](https://github.com/lihaoyi/scalatags) is used for DOM-building type-safety. A DOM element is first constructed via Scalatags, then converted automatically to a `ReactElement`.
@@ -54,7 +54,7 @@ Namely...
 
 # Events
 
-The synthetic event types you read about in the [React docs](http://facebook.github.io/react/docs/events.html)
+The synthetic event types you read about in the [React docs](https://facebook.github.io/react/docs/events.html)
 are typed as shown below.
 
 As type safety is a goal, synthetic events also type the event target,
@@ -87,5 +87,5 @@ For example, `ReactDragEventI` is a `ReactDragEvent` over a `HTMLInputElement` (
 | Type | Desc |
 | ---- | ---- |
 | `ComponentStateFocus[T]` | Rather than give functions full access to a components state, you can narrow the state down to a subset and pass that around via this type. |
-| `Ref[+N]` | A named reference to an element in a React VDOM. (See [React: More About Refs](http://facebook.github.io/react/docs/more-about-refs.html).) |
+| `Ref[+N]` | A named reference to an element in a React VDOM. (See [React: More About Refs](https://facebook.github.io/react/docs/more-about-refs.html).) |
 | `RefP[I, +N]` | As above but references multiple, related DOM elements and requires a parameter `I` (usually an ID) to disambiguate. |

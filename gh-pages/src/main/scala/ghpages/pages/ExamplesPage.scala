@@ -18,9 +18,9 @@ object Example {
 
   case object Hello        extends Example("Hello World",        "hello",            HelloMessageExample .content)
   case object Timer        extends Example("Timer",              "timer",            TimerExample        .content)
-  case object Todo         extends Example("Todo List",          "todo",             TodoExample         .content)
-  case object TodoScalaz   extends Example("Todo List (Scalaz)", "todo-scalaz",      ScalazExample       .content)
-  case object Refs         extends Example("Using Refs",         "refs",             RefsExample         .content)
+  case object Todo         extends Example(TodoExample.title,    "todo",             TodoExample         .content)
+  case object StateMonad   extends Example("State monads",       "state-monad",      StateMonadExample   .content)
+  case object Refs         extends Example("Refs",               "refs",             RefsExample         .content)
   case object ProductTable extends Example("Product Table",      "product-table",    ProductTableExample .content)
   case object Animation    extends Example("Animation",          "animation",        AnimationExample    .content)
   case object PictureApp   extends Example("AjaxPictureApp",     "ajax-picture-app", PictureAppExample   .content)
@@ -33,9 +33,9 @@ object Example {
   implicit val reusability: Reusability[Example] = Reusability.byEqual
 
   val values = Vector[Example](
-    Hello, Timer, Todo, TodoScalaz, Touch, Refs,
-    EventListen, ExternalVar, Reuse,
-    ProductTable, Animation, PictureApp)
+    Hello, Timer, Todo, Refs, ProductTable, Animation, // Ported ReactJS examples
+    EventListen, ExternalVar, Reuse, StateMonad,       // Scala only examples
+    Touch, PictureApp)                                 // General usage
 
   def default: Example =
     values.head

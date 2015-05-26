@@ -4,10 +4,11 @@ import japgolly.scalajs.react.ReactComponentB
 import japgolly.scalajs.react.vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
 
-/** Scala version of "A Simple Component" on http://facebook.github.io/react/ */
 object HelloMessageExample {
 
-  def content = SideBySide.Content(jsSource, source, HelloMessage("John"))
+  def content = SideBySide.Content(jsSource, source, main())
+
+  lazy val main = addIntro(HelloMessage withProps "John", _(scalaPortOf("A Simple Component")))
 
   val jsSource =
     """
