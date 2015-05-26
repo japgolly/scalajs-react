@@ -39,10 +39,17 @@ abstract class RouterCtl[A] {
 }
 
 object RouterCtl {
-  implicit def reusability[A]: Reusability[RouterCtl[A]] =
-    Reusability.byRef
+  private lazy val reuse: Reusability[RouterCtl[Any]] =
+    Reusability.fn[RouterCtl[Any]]{
+      case (a, b) if a eq b => true // First because most common case and fastest
+      case (Contramap(ac, af), Contramap(bc, bf)) => (af eq bf) && reuse.test(ac, bc)
+      case _ => false
+    }
 
-  class Contramap[A, B](u: RouterCtl[A], f: B => A) extends RouterCtl[B] {
+  implicit def reusability[A]: Reusability[RouterCtl[A]] =
+    reuse.asInstanceOf[Reusability[RouterCtl[A]]]
+
+  case class Contramap[A, B](u: RouterCtl[A], f: B => A) extends RouterCtl[B] {
     override def baseUrl       = u.baseUrl
     override def byPath        = u.byPath
     override def refresh       = u.refresh
