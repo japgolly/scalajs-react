@@ -65,6 +65,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
      _   <- logger(s"Syncing to [${url.value}].")
      res <- interpret(syncToUrl(url))
      _   <- logger(s"Resolved to page: [${res.page}].")
+     _   <- logger("")
    } yield res
 
   val syncToWindowUrlS: ReactST[IO, Resolution, Unit] =
