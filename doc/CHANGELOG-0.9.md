@@ -5,12 +5,9 @@
   This means that `getDOMNode()` will have the right type in lifecycle callback bodies.
 * Relaxed `TopNode`, which is a greatest-upper-bound on component DOM node types, from `HTMLElement` to `Element` as React components can render SVG too.
 * During `TagMod` composition, constituents are applied in the order they're composed in.
-* Changed `CompStateAccess` shape and internals for improved type-inference and usage. (If you don't use the directly, you won't be affected.)
 * Renamed `ComponentStateFocus` to `CompStateFocus`.
-
-##### Non-Breaking
-* During `TagMod` composition, avoid allocations composing `EmptyTag`.
-* The v1 Router's `RoutingRules` args that specify what to render, are now lazy and reevaluate on request.
+* Changed `CompStateAccess` shape and internals for improved type-inference and usage [[35ec0b22](https://github.com/japgolly/scalajs-react/commit/35ec0b22dc8790d4966895d84d2ac7accb457a6b)].
+  <br>If you don't use this directly, you won't be affected.
 
 ##### New
 * Added `EventListener`. ([live demo](https://japgolly.github.io/scalajs-react/#examples/event-listener))
@@ -22,7 +19,7 @@
 * More Scalaz `IO` support:
   * `ReactComponentB` now supports `IO`-aware lifecycle callbacks.
     <br>Example: `.componentWillUpdateIO` instead of `.componentWillUpdate`.
-  * `SetInterval` leanred `setIntervalIO`.
+  * `SetInterval` learned `setIntervalIO`.
 
 ## Performance Management
 A number of new tools and utilities have been introduced for you to manage the performance of your React app.

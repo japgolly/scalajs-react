@@ -20,10 +20,11 @@ object Router {
       .initialStateIO      (           lgc.syncToWindowUrl)
       .backend             (_       => new OnUnmount.Backend)
       .render              ((_,s,_) => lgc.render(s))
-      .componentWillMountIO(           lgc.init)
       .componentDidMountIO ($       => cfg.postRenderFn(None, $.state.page))
       .componentDidUpdateIO(($,_,p) => cfg.postRenderFn(Some(p.page), $.state.page))
-      .configure(Listenable.installS(_ => lgc, (_: Unit) => lgc.syncToWindowUrlS))
+      .configure(
+        EventListener.installIO("popstate", _ => lgc.ctl.refresh, _ => dom.window),
+        Listenable.installS(_ => lgc, (_: Unit) => lgc.syncToWindowUrlS))
 
   def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
     val l = new RouterLogic(baseUrl, cfg)
@@ -57,17 +58,6 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
   @inline protected implicit def impbaseurl: BaseUrl = baseUrl
 
   @inline protected def log(msg: => String) = Log(() => msg)
-
-  val init: IO[Unit] = {
-    var initPending = true
-    IO(
-      if (initPending) {
-        window.onpopstate = (_: dom.PopStateEvent) => broadcast(())
-        initPending = false
-        logger(s"Installed onpopstate event handler.").unsafePerformIO()
-      }
-    )
-  }
 
   val syncToWindowUrl: IO[Resolution] =
    for {
@@ -156,7 +146,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     new RouterCtl[Path] {
       override def baseUrl             = impbaseurl
       override def byPath              = this
-      override def refresh             = interpret(BroadcastSync)
+      override val refresh             = interpret(BroadcastSync)
       override def pathFor(path: Path) = path
       override def set(path: Path)     = interpret(setPath(path))
     }
