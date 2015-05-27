@@ -6,6 +6,7 @@ import scala.reflect.ClassTag
 import scala.util.matching.Regex
 import scalaz.{Equal, \/-, -\/, Monoid}
 import scalaz.Isomorphism.<=>
+import scalaz.effect.IO
 import scalaz.syntax.equal._
 import japgolly.scalajs.react.ReactElement
 import RouterConfig.Parsed
@@ -337,6 +338,9 @@ object StaticDsl {
     def addCondition(cond: => Boolean)(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
       new Rule[Page](parse, path,
         (if (cond) action else condUnmet)(_))
+
+    def addConditionIO(cond: IO[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
+      addCondition(cond.unsafePerformIO())(condUnmet)
 
     /**
      * Specify behaviour when a `Page` doesn't have an associated `Path` or `Action`.

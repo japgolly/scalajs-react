@@ -411,6 +411,8 @@ When the condition is met, the route is usable; when unmet, a fallback behaviour
  *                  in the route-not-found fallback behaviour.
  */
 def addCondition(cond: => Boolean)(condUnmet: Page => Option[Action[Page]]): Rule[Page]
+
+def addConditionIO(cond: IO[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page]
 ```
 
 Example:

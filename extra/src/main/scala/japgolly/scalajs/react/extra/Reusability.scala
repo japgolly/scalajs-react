@@ -244,5 +244,5 @@ object Reusability {
     })
 
   def shouldComponentUpdateWithOverlay[P: Reusability, S: Reusability, B, N <: TopNode] =
-    ReusabilityOverlay.install[P, S, B, N](new ReusabilityOverlay)
+    ReusabilityOverlay.install[P, S, B, N](DefaultReusabilityOverlay.defaults)
 }

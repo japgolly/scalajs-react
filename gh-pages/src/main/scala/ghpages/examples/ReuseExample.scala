@@ -21,7 +21,7 @@ object ReuseExample {
     """
       |// Reusable stateless components
       |
-      |val showSum = ReactComponentB[Int]("Show sum")
+      |val showSum = ReactComponentB[Long]("Show sum")
       |  .render(sum =>
       |    <.h1(
       |      "The sum of all inputs is", <.br, sum))
@@ -33,7 +33,7 @@ object ReuseExample {
       |
       |val inputControl = ReactComponentB[InputControl]("InputControl")
       |  .render(p =>
-      |    <.div(^.paddingLeft := "5ex",
+      |    <.div(^.paddingLeft := "4ex",
       |      <.button("-1", ^.onClick ~~> p.change(-1)),
       |      <.span(^.padding := "0 1ex", p.current),
       |      <.button("+1", ^.onClick ~~> p.change(1)))
@@ -43,15 +43,16 @@ object ReuseExample {
       |
       |val numberRegex = "^-?\\d+$".r
       |
-      |val InputEditor = ReactComponentB[ReusableVar[Int]]("Input editor")
+      |val InputEditor = ReactComponentB[ReusableVar[Long]]("Input editor")
       |  .render { v =>
-      |    def update = (ev: ReactEventI) => numberRegex.findFirstIn(ev.target.value).map(v set _.toInt)
+      |    def update = (ev: ReactEventI) => numberRegex.findFirstIn(ev.target.value).map(v set _.toLong)
       |    <.input(
-      |      ^.textAlign := "center",
-      |      ^.width     := "14ex",
-      |      ^.`type`    := "text",
-      |      ^.value     := v.value.toString,
-      |      ^.onChange ~~>? update)
+      |      ^.textAlign   := "center",
+      |      ^.marginRight := "1ex",
+      |      ^.width       := "12ex",
+      |      ^.`type`      := "text",
+      |      ^.value       := v.value.toString,
+      |      ^.onChange  ~~>? update)
       |  }
       |  .configure(Reusability.shouldComponentUpdateWithOverlay)
       |  .build
@@ -60,20 +61,20 @@ object ReuseExample {
       |// Top-level stateful component
       |
       |val topLevelComponent = ReactComponentB[Unit]("Reusability example")
-      |  .initialState(State(Vector(40, 2)))
+      |  .initialState(State(Vector(30, 0, 2, 0, 10)))
       |  .backend(new Backend(_))
       |  .render(_.backend.render)
       |  .buildU
       |
-      |case class State(inputs: Vector[Int]) {
+      |case class State(inputs: Vector[Long]) {
       |  def changeNumberOfInputs(delta: Int) = State(
       |    if (delta >= 0)
-      |      inputs ++ Vector.fill(delta)(0)
+      |      inputs ++ Vector.fill(delta)(inputs.size % 2: Long)
       |    else
       |      inputs dropRight (-delta).min(inputs.length - 1)
       |  )
       |
-      |  def setInput(index: Int, value: Int): State =
+      |  def setInput(index: Int, value: Long): State =
       |    if (index >= 0 && index < inputs.length)
       |      State(inputs.updated(index, value))
       |    else
@@ -108,7 +109,7 @@ object ReuseExample {
   // ---------------------------------------------------------------------------------------------------------
   // Reusable stateless components
 
-  val showSum = ReactComponentB[Int]("Show sum")
+  val showSum = ReactComponentB[Long]("Show sum")
     .render(sum =>
       <.h1(
         "The sum of all inputs is", <.br, sum))
@@ -120,7 +121,7 @@ object ReuseExample {
 
   val inputControl = ReactComponentB[InputControl]("InputControl")
     .render(p =>
-      <.div(^.paddingLeft := "5ex",
+      <.div(^.paddingLeft := "4ex",
         <.button("-1", ^.onClick ~~> p.change(-1)),
         <.span(^.padding := "0 1ex", p.current),
         <.button("+1", ^.onClick ~~> p.change(1)))
@@ -130,15 +131,16 @@ object ReuseExample {
 
   val numberRegex = "^-?\\d+$".r
 
-  val InputEditor = ReactComponentB[ReusableVar[Int]]("Input editor")
+  val InputEditor = ReactComponentB[ReusableVar[Long]]("Input editor")
     .render { v =>
-      def update = (ev: ReactEventI) => numberRegex.findFirstIn(ev.target.value).map(v set _.toInt)
+      def update = (ev: ReactEventI) => numberRegex.findFirstIn(ev.target.value).map(v set _.toLong)
       <.input(
-        ^.textAlign := "center",
-        ^.width     := "14ex",
-        ^.`type`    := "text",
-        ^.value     := v.value.toString,
-        ^.onChange ~~>? update)
+        ^.textAlign   := "center",
+        ^.marginRight := "1ex",
+        ^.width       := "12ex",
+        ^.`type`      := "text",
+        ^.value       := v.value.toString,
+        ^.onChange  ~~>? update)
     }
     .configure(Reusability.shouldComponentUpdateWithOverlay)
     .build
@@ -147,20 +149,20 @@ object ReuseExample {
   // Top-level stateful component
 
   val topLevelComponent = ReactComponentB[Unit]("Reusability example")
-    .initialState(State(Vector(40, 2)))
+    .initialState(State(Vector(30, 0, 2, 0, 10)))
     .backend(new Backend(_))
     .render(_.backend.render)
     .buildU
 
-  case class State(inputs: Vector[Int]) {
+  case class State(inputs: Vector[Long]) {
     def changeNumberOfInputs(delta: Int) = State(
       if (delta >= 0)
-        inputs ++ Vector.fill(delta)(0)
+        inputs ++ Vector.fill(delta)(inputs.size % 2: Long)
       else
         inputs dropRight (-delta).min(inputs.length - 1)
     )
 
-    def setInput(index: Int, value: Int): State =
+    def setInput(index: Int, value: Long): State =
       if (index >= 0 && index < inputs.length)
         State(inputs.updated(index, value))
       else
