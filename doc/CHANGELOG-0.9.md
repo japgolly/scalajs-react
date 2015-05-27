@@ -8,9 +8,6 @@
 * Changed `CompStateAccess` shape and internals for improved type-inference and usage. (If you don't use the directly, you won't be affected.)
 * Renamed `ComponentStateFocus` to `CompStateFocus`.
 
-##### Non-Breaking
-* During `TagMod` composition, avoid allocations composing `EmptyTag`.
-
 ##### New
 * Added `EventListener`. ([live demo](https://japgolly.github.io/scalajs-react/#examples/event-listener))
 * `ReactComponentB` now has `.mixinJS` method; components can now mixin pure-JS React mixins.
