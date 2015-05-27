@@ -142,7 +142,7 @@ object DefaultReusabilityOverlay {
       _.boxSizing = "border-box",
       s => {
         s.transition = "outline 0s"
-        s.outline = "2px solid rgba(200,20,10,1)"
+        s.outline = outlineCss
       },
       s => {
         s.outline = "1px solid rgba(0,0,0,0)"
