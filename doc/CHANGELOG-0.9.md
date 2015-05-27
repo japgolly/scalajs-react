@@ -10,7 +10,6 @@
 
 ##### Non-Breaking
 * During `TagMod` composition, avoid allocations composing `EmptyTag`.
-* The v1 Router's `RoutingRules` args that specify what to render, are now lazy and reevaluate on request.
 
 ##### New
 * Added `EventListener`. ([live demo](https://japgolly.github.io/scalajs-react/#examples/event-listener))
