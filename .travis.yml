@@ -1,0 +1,26 @@
+language: scala
+
+scala:
+  - 2.11.6
+
+#jdk:
+#  - openjdk7
+
+cache:
+  directories:
+    - $HOME/.sbt
+    - $HOME/.ivy2/cache
+
+# Tricks to avoid unnecessary cache updates
+script:
+- sbt ++$TRAVIS_SCALA_VERSION test
+- find $HOME/.sbt -name "*.lock" -exec rm {} +
+- find $HOME/.ivy2 -name "ivydata-*.properties" -exec rm {} +
+
+# Use PhantomJS 2
+# https://mediocre.com/forum/topics/phantomjs-2-and-travis-ci-we-beat-our-heads-against-a-wall-so-you-dont-have-to
+install:
+  - mkdir travis-phantomjs
+  - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -O "$PWD"/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
+  - tar -xvf "$PWD"/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -C "$PWD"/travis-phantomjs
+  - export PATH="$PWD/travis-phantomjs:$PATH"

@@ -77,7 +77,7 @@ object ScalajsReact extends Build {
         testFrameworks       += new TestFramework("utest.runner.Framework"),
         scalaJSStage in Test := FastOptStage,
         requiresDOM          := true,
-        jsEnv in Test        := PhantomJSEnv().value)
+        jsEnv in Test        := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
 
   def useReactJs(scope: String = "compile"): PE =
     _.settings(

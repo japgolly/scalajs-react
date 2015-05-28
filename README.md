@@ -28,7 +28,7 @@ Additional features not available in React JS itself, are available in the [`ext
 ##### Requirements:
 * React 0.12
 * Scala 2.11
-* Scala.JS 0.6.0+
+* Scala.JS 0.6.3+
 
 
 Setup
