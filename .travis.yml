@@ -3,8 +3,8 @@ language: scala
 scala:
   - 2.11.6
 
-#jdk:
-#  - openjdk7
+jdk:
+- oraclejdk8
 
 cache:
   directories:
@@ -13,7 +13,7 @@ cache:
 
 # Tricks to avoid unnecessary cache updates
 script:
-- sbt ++$TRAVIS_SCALA_VERSION test
+- sbt ++$TRAVIS_SCALA_VERSION test 'set scalaJSStage in Global := FullOptStage' 'set scalaJSStage in Test in ScalajsReact.test := FullOptStage' test
 - find $HOME/.sbt -name "*.lock" -exec rm {} +
 - find $HOME/.ivy2 -name "ivydata-*.properties" -exec rm {} +
 
