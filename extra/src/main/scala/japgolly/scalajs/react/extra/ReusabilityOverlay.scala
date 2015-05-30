@@ -31,7 +31,7 @@ object ReusabilityOverlay {
       }(_.v)
     }
 
-    Reusability.shouldComponentUpdateAnd[P, S, B, N] { ($, p1, p, s1, s) =>
+    Reusability.shouldComponentUpdateAnd[P, S, B, N] { ($, p2, p, s2, s) =>
       val overlay = get($)
       if (p || s) {
         def fmt(update: Boolean, name: String, a: Any, b: Any) =
@@ -42,7 +42,7 @@ object ReusabilityOverlay {
           else
             s"$name update:\n  [$a] ⇒\n  [$b]."
         val sep = if (p && s) "\n" else ""
-        val reason = fmt(p, "Prop", p1, $.props) + sep + fmt(s, "State", s1, $.state)
+        val reason = fmt(p, "Prop", $.props, p2) + sep + fmt(s, "State", $.state, s2)
         overlay logBad reason
       }
       else
@@ -142,7 +142,7 @@ object DefaultReusabilityOverlay {
       _.boxSizing = "border-box",
       s => {
         s.transition = "outline 0s"
-        s.outline = "2px solid rgba(200,20,10,1)"
+        s.outline = outlineCss
       },
       s => {
         s.outline = "1px solid rgba(0,0,0,0)"

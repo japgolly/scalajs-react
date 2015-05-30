@@ -77,7 +77,7 @@ object ScalajsReact extends Build {
         testFrameworks       += new TestFramework("utest.runner.Framework"),
         scalaJSStage in Test := FastOptStage,
         requiresDOM          := true,
-        jsEnv in Test        := PhantomJSEnv().value)
+        jsEnv in Test        := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
 
   def useReactJs(scope: String = "compile"): PE =
     _.settings(
@@ -129,7 +129,7 @@ object ScalajsReact extends Build {
         libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
   }
 
-  lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.1-2")
+  lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.2")
 
   // ==============================================================================================
   lazy val monocle = project

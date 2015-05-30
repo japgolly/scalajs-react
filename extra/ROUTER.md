@@ -1,4 +1,4 @@
-*Time and use have identified flaws in this design. Consequentially, [Router v2](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER2.md) exists and is recommended.*
+*Time and use have identified flaws in this design. Consequentially, [Router v2](ROUTER2.md) exists and is recommended.*
 
 Router (v1)
 ===========

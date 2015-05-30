@@ -32,7 +32,7 @@ In the next major release (v0.10) we'll probably do an 'ole switcheroonie making
 What's New?
 ===========
 
-The design of [the v1 Router](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER.md)
+The design of [the v1 Router](ROUTER.md)
 made certain features very hard to accommodate:
 [#96](https://github.com/japgolly/scalajs-react/issues/96),
 [#103](https://github.com/japgolly/scalajs-react/issues/103),
@@ -121,7 +121,7 @@ Next, you'll want to call `RouterConfigDsl.buildConfig` and use the provided DSL
 ```scala
 val routerConfig = RouterConfigDsl[MyPages].buildConfig { dsl =>
   import dsl._
-  
+
   // TODO Add routing rules here
   // ( <rule1> | <rule2> | ... | <ruleN> )
   //   .notFound( <action> )
@@ -345,7 +345,7 @@ It allows you to control the current page, create links, determine page URLs, et
 
 To use it, pass it in to components that need it via their props.
 
-As `RouterCtl[P]` has a page-type context (the `P`!), 
+As `RouterCtl[P]` has a page-type context (the `P`!),
 if a component only wants/needs to control a router with a certain subset of pages,
 the component can accept a `RouterCtl[PageSubset]` instead of a `RouterCtl[AllPages]`.
 A conversion to the former is just a `.contramap` or `.narrow` call away for the parent.
@@ -544,9 +544,9 @@ Examples
 The github pages for this project online at https://japgolly.github.io/scalajs-react/
 uses this router and demonstrates a number of features.
 
-1. The source begins here: [GhPages.scala](https://github.com/japgolly/scalajs-react/blob/0.9/gh-pages/src/main/scala/ghpages/GhPages.scala)
+1. The source begins here: [GhPages.scala](../gh-pages/src/main/scala/ghpages/GhPages.scala)
 2. Router logging is enabled so you can read what the router does in the console.
 
 There are also unit tests available in the
-[japgolly.scalajs.react.extra.router2](https://github.com/japgolly/scalajs-react/tree/0.9/test/src/test/scala/japgolly/scalajs/react/extra/router2)
+[japgolly.scalajs.react.extra.router2](../test/src/test/scala/japgolly/scalajs/react/extra/router2)
 package.

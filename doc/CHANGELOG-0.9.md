@@ -9,6 +9,10 @@
 * Changed `CompStateAccess` shape and internals for improved type-inference and usage [[35ec0b22](https://github.com/japgolly/scalajs-react/commit/35ec0b22dc8790d4966895d84d2ac7accb457a6b)].
   <br>If you don't use this directly, you won't be affected.
 
+##### Changes
+* Upgrade Scalaz from 7.1.1 to 7.1.2.
+* Tiny performance improvement composing `EmptyTag`.
+
 ##### New
 * Added `EventListener`. ([live demo](https://japgolly.github.io/scalajs-react/#examples/event-listener))
 * `ReactComponentB` now has `.mixinJS` method; components can now mixin pure-JS React mixins.

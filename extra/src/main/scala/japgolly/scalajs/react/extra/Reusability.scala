@@ -229,17 +229,17 @@ object Reusability {
       ($.props ~/~ p) || ($.state ~/~ s))
 
   def shouldComponentUpdateAnd[P: Reusability, S: Reusability, B, N <: TopNode](f: (ComponentScopeM[P, S, B, N], P, Boolean, S, Boolean) => IO[Unit]) =
-    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p, s) => {
-      val up = $.props ~/~ p
-      val us = $.state ~/~ s
-      f($, p, up, s, us).unsafePerformIO()
+    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p2, s2) => {
+      val up = $.props ~/~ p2
+      val us = $.state ~/~ s2
+      f($, p2, up, s2, us).unsafePerformIO()
       up || us
     })
 
   def shouldComponentUpdateAndLog[P: Reusability, S: Reusability, B, N <: TopNode](name: String) =
-    shouldComponentUpdateAnd[P, S, B, N](($, p1, p, s1, s) => IO {
-      val p2 = $.props
-      val s2 = $.state
+    shouldComponentUpdateAnd[P, S, B, N](($, p2, p, s2, s) => IO {
+      val p1 = $.props
+      val s1 = $.state
       println(s"$name.shouldComponentUpdate = ${p || s}\n  Props: $p. [$p1] ⇒ [$p2]\n  State: $s. [$s1] ⇒ [$s2]")
     })
 
