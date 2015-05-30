@@ -1,10 +1,10 @@
-# 0.9.0
+# 0.9.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.8...v0.9.0))
 
 ##### Breaking
 * On `ReactComponentB`, you now specify `domType` *before* lifecycle callbacks.
   This means that `getDOMNode()` will have the right type in lifecycle callback bodies.
-* Relaxed `TopNode`, which is a greatest-upper-bound on component DOM node types, from `HTMLElement` to `Element` as React components can render SVG too.
-* During `TagMod` composition, constituents are applied in the order they're composed in.
+* Relaxed `TopNode`, (the greatest-upper-bound on component DOM node types), from `HTMLElement` to `Element` as React components can render SVG too.
+* `TagMod` composition is now associative: constituents are applied in the order they're composed in.
 * Renamed `ComponentStateFocus` to `CompStateFocus`.
 * Changed `CompStateAccess` shape and internals for improved type-inference and usage [[35ec0b22](https://github.com/japgolly/scalajs-react/commit/35ec0b22dc8790d4966895d84d2ac7accb457a6b)].
   <br>If you don't use this directly, you won't be affected.
@@ -16,9 +16,9 @@
 ##### New
 * Added `EventListener`. ([live demo](https://japgolly.github.io/scalajs-react/#examples/event-listener))
 * `ReactComponentB` now has `.mixinJS` method; components can now mixin pure-JS React mixins.
-  <br>Note: That doesn't mean the mixins will work as expected, however.
-  There will be mixins that won't work correctly as they make assumptions that don't hold for Scala.
-  If a mixin expects to inspect your props or state, forget about it; Scala-land owns that data.
+  <br>*Note: This doesn't mean JS mixins will work as expected, however.
+  Some won't work correctly as they make assumptions that don't hold for Scala.
+  If a mixin expects to inspect your props or state, forget about it; all your data is belong to Scala.*
 * `ReactComponentB` now has a `.reRender` method for Scala mixins to customise a component's output.
 * More Scalaz `IO` support:
   * `ReactComponentB` now supports `IO`-aware lifecycle callbacks.
@@ -33,10 +33,10 @@ Detail with examples are here: [extra/PERF.md](../extra/PERF.md).
 * Scala facade for `React.addons.Perf`. See https://facebook.github.io/react/docs/perf.html.
 * `Reusability` for fast, easy & safe `shouldComponentUpdate` management.
 * `ReusableFn` for stable callbacks that don't sabatage `shouldComponentUpdate` or go stale.
-* `ReusableVal` for specifying a value and its explicit reusability. For special/individual cases.
+* `ReusableVal` for specifying a value and its explicit reusability (in special/individual cases).
 * `ReusableVar` for safe R/W access to a variable, that works with `shouldComponentUpdate`.
   <br>(Basically, `ExternalVar` + `Reusability`.)
-* `Px` for fast, dependant caching.
+* `Px` for fast & effecient caching of graphs (data with dependencies).
 
 ## Router v2
 
@@ -51,7 +51,7 @@ made certain features very hard to accommodate:
 [#94](https://github.com/japgolly/scalajs-react/issues/94),
 [#69](https://github.com/japgolly/scalajs-react/issues/69).
 
-In contrast, the v2 Router has a different design that:
+In contrast, [the v2 Router](../extra/ROUTER2.md) has a different design that:
 
 * Uses a user-provided data representation of your pages to identify routes and their parameters.
 * Similarly the Router can now indicate the current page with precision, faciliating dynamic menus and breadcrumbs even in the presence of complex, dynamic routes.
