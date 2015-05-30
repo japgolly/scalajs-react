@@ -1,15 +1,20 @@
-scalajs-react Extras
-====================
+`extra` Utility Module
+======================
 
-A collection of functionality that provides benefit when using scalajs-react.
+```scala
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.8.4"
+```
 
-- [Router](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER.md)
-- [Performance Management](https://github.com/japgolly/scalajs-react/blob/master/extra/PERF.md)
+**Big Stuff**
+- [Router v1](ROUTER.md)
+- [Router v2](ROUTER2.md) *(New in v0.9!)*
+- [Performance Management](PERF.md)
 
-On this page:
+**Small Stuff**
 - [ExternalVar](#externalvar)
 - Component Mixins:
   - [Broadcaster and Listenable](#broadcaster-and-listenable)
+  - [EventListener](#eventlistener)
   - [LogLifecycle](#loglifecycle)
   - [OnUnmount](#onunmount)
   - [SetInterval](#setinterval)
@@ -41,13 +46,24 @@ object HelloBroadcaster extends Broadcaster[String] {
 * `Broadcaster`: Manages listener registration and unregistration.
 * `Broadcaster`: Provides a `protected def broadcast(a: A): Unit` for easy message broadcasting.
 
+EventListener
+=============
+* Installs event listeners when component is mounted.
+* Uninstalls event listeners when component is unmounted.
+* By default, listens to the component node's events. Can specify other event targets (eg. `window`, `document`)
+
+A live demo with accompanying code is available here:
+
+https://japgolly.github.io/scalajs-react/#examples/event-listener
+
 
 ExternalVar
 ===========
 Provides a component with safe R/W access to an external variable.
 
-A live demo with accompanying code is available on
-[https://japgolly.github.io/scalajs-react](https://japgolly.github.io/scalajs-react/).
+A live demo with accompanying code is available here:
+
+https://japgolly.github.io/scalajs-react/#examples/external-var
 
 
 LogLifecycle

@@ -32,7 +32,7 @@ In the next major release (v0.10) we'll probably do an 'ole switcheroonie making
 What's New?
 ===========
 
-The design of [the v1 Router](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER.md)
+The design of [the v1 Router](ROUTER.md)
 made certain features very hard to accommodate:
 [#96](https://github.com/japgolly/scalajs-react/issues/96),
 [#103](https://github.com/japgolly/scalajs-react/issues/103),
@@ -544,9 +544,9 @@ Examples
 The github pages for this project online at https://japgolly.github.io/scalajs-react/
 uses this router and demonstrates a number of features.
 
-1. The source begins here: [GhPages.scala](https://github.com/japgolly/scalajs-react/blob/0.9/gh-pages/src/main/scala/ghpages/GhPages.scala)
+1. The source begins here: [GhPages.scala](../gh-pages/src/main/scala/ghpages/GhPages.scala)
 2. Router logging is enabled so you can read what the router does in the console.
 
 There are also unit tests available in the
-[japgolly.scalajs.react.extra.router2](https://github.com/japgolly/scalajs-react/tree/0.9/test/src/test/scala/japgolly/scalajs/react/extra/router2)
+[japgolly.scalajs.react.extra.router2](../test/src/test/scala/japgolly/scalajs/react/extra/router2)
 package.
