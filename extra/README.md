@@ -88,13 +88,13 @@ val component = ReactComponentB[...]
   Constructor {props: Object, _owner: Constructor, _lifeCycleState: "MOUNTED", _pendingCallbacks: null, _currentElement: ReactElement…}
 
 [DragAndDrop Demo] componentWillUpdate
-  Constructor {props: Object, _owner: Constructor, _lifeCycleState: "MOUNTED", _pendingCallbacks: null, _currentElement: ReactElement…} 
-  Props: List(Item(10,Ten), Item(20,Two Zero), Item(30,Firty), Item(40,Thorty), Item(50,Fipty)) 
+  Constructor {props: Object, _owner: Constructor, _lifeCycleState: "MOUNTED", _pendingCallbacks: null, _currentElement: ReactElement…}
+  Props: List(Item(10,Ten), Item(20,Two Zero), Item(30,Firty), Item(40,Thorty), Item(50,Fipty))
   State: ParentState(List(Item(10,Ten), Item(20,Two Zero), Item(30,Firty), Item(40,Thorty), Item(50,Fipty)),Started(Item(50,Fipty)),0)
 
 [DragAndDrop Demo] componentDidUpdate
-  Constructor {props: Object, _owner: Constructor, _lifeCycleState: "MOUNTED", _pendingCallbacks: null, _currentElement: ReactElement…} 
-  Props: List(Item(10,Ten), Item(20,Two Zero), Item(30,Firty), Item(40,Thorty), Item(50,Fipty)) 
+  Constructor {props: Object, _owner: Constructor, _lifeCycleState: "MOUNTED", _pendingCallbacks: null, _currentElement: ReactElement…}
+  Props: List(Item(10,Ten), Item(20,Two Zero), Item(30,Firty), Item(40,Thorty), Item(50,Fipty))
   State: ParentState(List(Item(10,Ten), Item(20,Two Zero), Item(30,Firty), Item(40,Thorty), Item(50,Fipty)),Inactive,0)
 ```
 

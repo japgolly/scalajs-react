@@ -121,7 +121,7 @@ Next, you'll want to call `RouterConfigDsl.buildConfig` and use the provided DSL
 ```scala
 val routerConfig = RouterConfigDsl[MyPages].buildConfig { dsl =>
   import dsl._
-  
+
   // TODO Add routing rules here
   // ( <rule1> | <rule2> | ... | <ruleN> )
   //   .notFound( <action> )
@@ -345,7 +345,7 @@ It allows you to control the current page, create links, determine page URLs, et
 
 To use it, pass it in to components that need it via their props.
 
-As `RouterCtl[P]` has a page-type context (the `P`!), 
+As `RouterCtl[P]` has a page-type context (the `P`!),
 if a component only wants/needs to control a router with a certain subset of pages,
 the component can accept a `RouterCtl[PageSubset]` instead of a `RouterCtl[AllPages]`.
 A conversion to the former is just a `.contramap` or `.narrow` call away for the parent.

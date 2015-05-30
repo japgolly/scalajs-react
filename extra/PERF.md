@@ -211,11 +211,11 @@ For these examples imagine `$` to be your component's scope instance, eg. `Backe
     Use `ReusableFn($).method` instead to get the types that you expect.
 
     Example: instead of `ReusableFn($.setState)` use `ReusableFn($).setState` and you will correctly get a `S ~=> Unit`.
- 
+
 2. `ReusableFn.endo____`.
 
     Anytime the input to your `ReusableFn` is an endofunction (`A => A`), additional methods starting with `endo` become available.
-    
+
     Specifically, `ReusableFn($).modState` returns a `(S => S) ~=> Unit` which you will often want to transform.
     These examples would be available on an `(S => S) ~=> U`:
 
@@ -225,7 +225,7 @@ For these examples imagine `$` to be your component's scope instance, eg. `Backe
     * `endoZoom((S, A) => S): A ~=> U` - Modify a subset of `S`.
     * `endoZoomL(Lens[S, A]): A ~=> U` - Modify a subset of `S` using a `Lens`.
     * `contramap[A](A => (S => S)): A ~=> U` - Not exclusive to endos, but similarly useful in a different shape.
-  
+
   ```scala
   class Backend($: BackendScope[_, Map[Int, String]]) {
 
@@ -244,13 +244,13 @@ For these examples imagine `$` to be your component's scope instance, eg. `Backe
   Using Monocle, you can annotate your case classes with `@Lenses` to gain automatic lenses.
   `$ focusStateL lens` will then narrow the scope of its state to the field targeted by the given lens.
   This can then be used with `ReusableFn` as follows:
-  
+
   ```scala
   @Lenses
   case class Person(name: String, age: Int)
 
   class Backend($: BackendScope[_, Person]) {
-    
+
     val nameSetter: String ~=> Unit =
       ReusableFn($ focusStateL Person.name).setState
   ```

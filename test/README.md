@@ -18,15 +18,15 @@ Setup
     ```scala
     // scalajs-react test module
     libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.8.4" % "test"
-    
+
     // React JS itself.
     // NOTE: Requires react-with-addons.js instead of just react.js
     jsDependencies +=
       "org.webjars" % "react" % "0.12.2" % "test" / "react-with-addons.js" commonJSName "React"
-    
+
     // Indicate that unit tests will access the DOM
     requiresDOM := true
-    
+
     // Compile tests to JS using fast-optimisation
     scalaJSStage in Test := FastOptStage
     ```
@@ -124,7 +124,7 @@ Output (truncated):
   [ 17/137] NOTATION_NODE                             : number   = 12
   [ 18/137] PROCESSING_INSTRUCTION_NODE               : number   = 7
   [ 19/137] TEXT_NODE                                 : number   = 3
-  [ 20/137] accessKey                                 : string   = 
+  [ 20/137] accessKey                                 : string   =
   [ 21/137] addEventListener                          : function = function addEventListener() {
   [ 22/137] appendChild                               : function = function appendChild() {
   [ 23/137] attributes                                : object   = [object NamedNodeMap]
@@ -133,8 +133,8 @@ Output (truncated):
   [ 26/137] childElementCount                         : number   = 0
   [ 27/137] childNodes                                : object   = [object NodeList]
   [ 28/137] children                                  : object   = [object HTMLCollection]
-  [ 29/137] classList                                 : object   = 
-  [ 30/137] className                                 : string   = 
+  [ 29/137] classList                                 : object   =
+  [ 30/137] className                                 : string   =
   [ 31/137] click                                     : function = function click() {
   [ 32/137] clientHeight                              : number   = 0
   [ 33/137] clientLeft                                : number   = 0
@@ -145,7 +145,7 @@ Output (truncated):
   [ 38/137] contains                                  : function = function contains() {
   [ 39/137] contentEditable                           : string   = inherit
   [ 40/137] dataset                                   : object   = [object DOMStringMap]
-  [ 41/137] dir                                       : string   = 
+  [ 41/137] dir                                       : string   =
   [ 42/137] dispatchEvent                             : function = function dispatchEvent() {
   [ 43/137] draggable                                 : boolean  = false
   [ 44/137] firstChild                                : object   = null
@@ -167,6 +167,6 @@ Output (truncated):
   [ 60/137] hasChildNodes                             : function = function hasChildNodes() {
   [ 61/137] height                                    : number   = 150
   [ 62/137] hidden                                    : boolean  = false
-  [ 63/137] id                                        : string   = 
+  [ 63/137] id                                        : string   =
 ...
 ```

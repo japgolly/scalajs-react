@@ -23,7 +23,7 @@ Setup
   ```scala
   // core = essentials only. No bells or whistles.
   libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.8.4"
-  
+
   // React.JS itself
   // Note the JS filename. Can also be react.js, react.min.js, or react-with-addons.min.js.
   jsDependencies +=
@@ -51,7 +51,7 @@ There are two built-in ways of creating virtual-DOM.
     <.li("Item 1"),
     <.li("Item 2"))
   ```
- 
+
 2. **Global** - You can import all DOM tags and attributes into the global namespace. Beware that doing so means that you will run into confusing error messages and IDE refactoring issues when you use names like `id`, `a`, `key` for your variables and parameters.
 
   ```scala
@@ -76,7 +76,7 @@ There are two ways of wiring up events to vdom.
   def onTextChange(e: ReactEventI): Unit = {
     println("Value received = " + e.target.value)
   }
-  
+
   ^.input(
     ^.`type`    := "text",
     ^.value     := currentValue,
@@ -89,7 +89,7 @@ There are two ways of wiring up events to vdom.
   def onButtonPressed: Unit = {
     println("The button was pressed!")
   }
-  
+
   ^.button(
     ^.onClick --> onButtonPressed,
     "Press me!")
@@ -101,7 +101,7 @@ There are two ways of wiring up events to vdom.
 
   ```scala
   def hasFocus: Boolean = ???
-  
+
   <.div(
     hasFocus ?= (^.color := "green"),
     "I'm green when focused.")
@@ -111,7 +111,7 @@ There are two ways of wiring up events to vdom.
 
   ```scala
   val loggedInUser: Option[User] = ???
-  
+
   ^.div(
     <.h3("Welcome"),
     loggedInUser.map(user =>
@@ -173,7 +173,7 @@ Example:
 val Hello = ReactComponentB[String]("Hello <name>")
   .render(name => <.div("Hello ", name))
   .build
-  
+
 // Usage
 <.div(
   Hello("John"),
@@ -228,7 +228,7 @@ React Extensions
   val f = $.focusState(_.counter)((a,b) => a.copy(counter = b))
   button(onclick --> incrementCounter(f), "+")
   ```
-  
+
   *(Using the Monocle extensions greatly improve this approach.)*
 
 Differences from React proper
