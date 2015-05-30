@@ -28,7 +28,7 @@
 ## Performance Management
 A number of new tools and utilities have been introduced for you to manage the performance of your React app.
 
-Detail with examples are here: [extra/PERF.md](https://github.com/japgolly/scalajs-react/blob/master/extra/PERF.md).
+Detail with examples are here: [extra/PERF.md](../extra/PERF.md).
 
 * Scala facade for `React.addons.Perf`. See https://facebook.github.io/react/docs/perf.html.
 * `Reusability` for fast, easy & safe `shouldComponentUpdate` management.
@@ -42,7 +42,7 @@ Detail with examples are here: [extra/PERF.md](https://github.com/japgolly/scala
 
 This release comes with a new and improved router.
 
-The design of [the v1 Router](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER.md)
+The design of [the v1 Router](../extra/ROUTER.md)
 made certain features very hard to accommodate:
 [#96](https://github.com/japgolly/scalajs-react/issues/96),
 [#103](https://github.com/japgolly/scalajs-react/issues/103),
@@ -60,4 +60,4 @@ In contrast, the v2 Router has a different design that:
 * Routes can be manipulated in bulk.
 * Has a better API such that usage previously recommended against, is now impossible. Noteworthy is that `Router` is now just a `ReactComponent`, and `RouterCtl` is the client API.
 
-Detail with examples are here: [extra/ROUTER2.md](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER2.md).
+Detail with examples are here: [extra/ROUTER2.md](../extra/ROUTER2.md).
