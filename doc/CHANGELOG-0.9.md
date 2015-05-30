@@ -1,4 +1,4 @@
-# 0.9.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.4.8...v0.9.0))
+# 0.9.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.4...v0.9.0))
 
 ##### Breaking
 * On `ReactComponentB`, you now specify `domType` *before* lifecycle callbacks.
