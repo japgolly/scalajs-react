@@ -19,7 +19,7 @@ Includes a router, testing utils, performance utils, more.
 - [Functional Programming with React](doc/FP.md).
 - [`extra`: Utilities not found in React.JS](extra/README.md).
 - [Testing](test/README.md).
-- [Changelogs](doc/) - [latest](doc/CHANGELOG-0.9.md).
+- [Changelogs](doc/) — [Latest](doc/CHANGELOG-0.9.md).
 
 ##### Requirements:
 * React 0.12
