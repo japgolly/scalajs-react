@@ -119,7 +119,10 @@ trait HtmlAttrs {
    *
    * MDN
    */
-  final val onDblClick = "onDblClick".attr
+  final val onDblClick = "onDoubleClick".attr
+
+  /** React alias for [[onDblClick]] */
+  final def onDoubleClick = onDblClick
   /**
    * The focus event is raised when the user sets focus on the given element.
    *
