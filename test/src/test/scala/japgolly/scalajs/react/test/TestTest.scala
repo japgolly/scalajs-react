@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.test
 
+import japgolly.scalajs.react.vdom.Attr
 import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
 import utest._
 import japgolly.scalajs.react._
 import vdom.all._
 import TestUtil._
-import scala.scalajs.js
 
 object TestTest extends TestSuite {
 
@@ -69,6 +69,65 @@ object TestTest extends TestSuite {
         val b = s.getDOMNode().innerHTML
         assert(a != b)
       }
+
+      'eventTypes {
+        val eventTypes = Seq[(Attr, ReactOrDomNode ⇒ Unit)](
+          (onBlur,        n ⇒ ReactTestUtils.Simulate.blur(n)),
+          (onChange,      n ⇒ ReactTestUtils.Simulate.change(n)),
+          (onClick,       n ⇒ ReactTestUtils.Simulate.click(n)),
+          (onDblClick,    n ⇒ ReactTestUtils.Simulate.doubleClick(n)),
+          (onDragEnd,     n ⇒ ReactTestUtils.Simulate.dragEnd(n)),
+          (onDragEnter,   n ⇒ ReactTestUtils.Simulate.dragEnter(n)),
+          (onDragLeave,   n ⇒ ReactTestUtils.Simulate.dragLeave(n)),
+          (onDragOver,    n ⇒ ReactTestUtils.Simulate.dragOver(n)),
+          (onDragStart,   n ⇒ ReactTestUtils.Simulate.dragStart(n)),
+          (onDrop,        n ⇒ ReactTestUtils.Simulate.drop(n)),
+          (onFocus,       n ⇒ ReactTestUtils.Simulate.focus(n)),
+          (onKeyDown,     n ⇒ ReactTestUtils.Simulate.keyDown(n)),
+          (onKeyPress,    n ⇒ ReactTestUtils.Simulate.keyPress(n)),
+          (onKeyUp,       n ⇒ ReactTestUtils.Simulate.keyUp(n)),
+          (onLoad,        n ⇒ ReactTestUtils.Simulate.load(n)),
+          (onMouseDown,   n ⇒ ReactTestUtils.Simulate.mouseDown(n)),
+          (onMouseMove,   n ⇒ ReactTestUtils.Simulate.mouseMove(n)),
+          (onMouseOut,    n ⇒ ReactTestUtils.Simulate.mouseOut(n)),
+          (onMouseOver,   n ⇒ ReactTestUtils.Simulate.mouseOver(n)),
+          (onMouseUp,     n ⇒ ReactTestUtils.Simulate.mouseUp(n)),
+          (onReset,       n ⇒ ReactTestUtils.Simulate.reset(n)),
+          (onScroll,      n ⇒ ReactTestUtils.Simulate.scroll(n)),
+          (onSubmit,      n ⇒ ReactTestUtils.Simulate.submit(n)),
+          (onTouchCancel, n ⇒ ReactTestUtils.Simulate.touchCancel(n)),
+          (onTouchEnd,    n ⇒ ReactTestUtils.Simulate.touchEnd(n)),
+          (onTouchMove,   n ⇒ ReactTestUtils.Simulate.touchMove(n)),
+          (onTouchStart,  n ⇒ ReactTestUtils.Simulate.touchStart(n))
+        )
+
+        val results = eventTypes map {
+          case (eventType, simF) ⇒
+            val IDC = ReactComponentB[Unit]("IC").initialState(true).render($ => {
+              val ch = (e: ReactEvent) => $.modState(x => !x)
+              label(
+                input(`type` := "text", value := $.state, eventType ==> ch, ref := inputRef),
+                span(s"s = ${$.state}")
+              )
+            }).buildU
+
+            val c = ReactTestUtils.renderIntoDocument(IDC())
+            val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
+
+            val a = s.getDOMNode().innerHTML
+            simF(inputRef(c).get)
+            val b = s.getDOMNode().innerHTML
+
+            (eventType, a != b)
+        }
+
+        val failed = results collect {
+          case (attr, false) ⇒ attr.name
+        }
+
+        assert(failed == Seq.empty)
+      }
+
       'change {
         val c = ReactTestUtils.renderIntoDocument(IT()).domType[HTMLInputElement]
         ChangeEventData("hehe").simulate(c)
