@@ -96,12 +96,14 @@ http://chandu0101.github.io/reactjs-scalajs/
  
  4) JS component props textview : 
     Place your js comp props with ``,`` separated
+    
     ```js
          numberOfLines: React.PropTypes.number.isRequired,
          onPress: React.PropTypes.func,
          suppressHighlighting: React.PropTypes.bool,
          testID: React.PropTypes.string,
      ```
+     
   Now click on Generate Button :)
   
   
