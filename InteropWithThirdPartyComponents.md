@@ -2,7 +2,7 @@
 
 If you want to use a reactjs component in your scalajs-react project then you must define a wrapper for js component.
   
-## Example :  
+## Example   
  Let say we have a JS component , Name : AwesomeJSComp , props ..
  ```js
    propTypes: {
@@ -77,7 +77,7 @@ If you want to use a reactjs component in your scalajs-react project then you mu
    
   ``` 
   
-## Wrapper Generator :
+## Wrapper Generator 
 
  Manual wrapper creation is easy  but its a tedius task! 
  
@@ -97,12 +97,12 @@ http://chandu0101.github.io/reactjs-scalajs/
  4) JS component props textview : 
     Place your js comp props with ``,`` separated
     
-    ```js
+  ```js
          numberOfLines: React.PropTypes.number.isRequired,
          onPress: React.PropTypes.func,
          suppressHighlighting: React.PropTypes.bool,
          testID: React.PropTypes.string,
-     ```
+  ```
      
   Now click on Generate Button :)
   
@@ -159,7 +159,7 @@ http://chandu0101.github.io/reactjs-scalajs/
       
  ```
  
- ##Real World Examples :
+##Real World Examples 
  
  https://github.com/japgolly/scalajs-react/blob/master/core/src/main/scala/japgolly/scalajs/react/Addons.scala
  
