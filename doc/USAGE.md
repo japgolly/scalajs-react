@@ -9,6 +9,7 @@ It is expected that you know how React itself works.
 - [Setup](#setup)
 - [Creating Virtual-DOM](#creating-virtual-dom)
 - [Creating Components](#creating-components)
+- [Using Components](#using-components)
 - [React Extensions](#react-extensions)
 - [Differences from React proper](#differences-from-react-proper)
 - [Gotchas](#gotchas)
@@ -169,15 +170,15 @@ You must create an instance of it to use it in vdom.
 
 Example:
 ```scala
-// Creation
-val Hello = ReactComponentB[String]("Hello <name>")
-  .render(name => <.div("Hello ", name))
-  .build
+val NoArgs =
+  ReactComponentB[Unit]("No args")
+    .render(_ => <.div("Hello!"))
+    .buildU
 
-// Usage
-<.div(
-  Hello("John"),
-  Hello("Jane"))
+val Hello =
+  ReactComponentB[String]("Hello <name>")
+    .render(name => <.div("Hello ", name))
+    .build
 ```
 
 #### Backends
@@ -186,16 +187,73 @@ In addition to props and state, if you look at the React samples you'll see that
 
 See the [online timer demo](http://japgolly.github.io/scalajs-react/#examples/timer) for an example.
 
+
+Using Components
+================
+
+Once you've created a Scala React component, it mostly acts like a typical Scala case class.
+To use it, you create an instance.
+To create an instance, you call the constructor.
+
+```scala
+val NoArgs =
+  ReactComponentB[Unit]("No args")
+    .render(_ => <.div("Hello!"))
+    .buildU
+
+val Hello =
+  ReactComponentB[String]("Hello <name>")
+    .render(name => <.div("Hello ", name))
+    .build
+
+// Usage
+<.div(
+  NoArgs(),
+  Hello("John"),
+  Hello("Jane"))
+```
+
+Component classes provides other methods:
+
+| Method | Desc |
+|--------|------|
+| `withKey(js.Any)` | Apply a (React) key to the component you're about to instantiate. |
+| `withRef(String | Ref)` | Attach a (React) reference to the component you're about to instantiate. |
+| `set(key = ?, ref = ?)` | Alternate means of setting one or both of the above. |
+| `jsCtor` | The React component (constructor) in pure JS (i.e. without the Scala wrapping). |
+| `withProps(=> Props)` | Using the given props fn, return a no-args component. |
+| `withDefaultProps(=> Props)` | Using the given props fn, return a component which optionally accepts props in its constructor but also allows instantiation without specifying. |
+
+Examples:
+
+```scala
+val Hello2 = Hello.withDefaultProps("Anonymous")
+
+<.div(
+  NoArgs.withKey("noargs-1")(),
+  NoArgs.withKey("noargs-2")(),
+  Hello2(),
+  Hello2("Bob"))
+```
+
+#### Rendering
+
+To render a component, it's the same as React. Use `React.render` and specify a target in the DOM.
+
+```scala
+import org.scalajs.dom.document
+
+React.render(NoArgs(), document.body)
+```
+
 React Extensions
 ================
 
 * Where `this.setState(State)` is applicable, you can also run `modState(State => State)`.
 
-* `SyntheticEvent`s have aliases that don't require you to provide the dom type. So instead of `SyntheticKeyboardEvent[xxx]` type alias `ReactKeyboardEvent` can be used.
-
-* The component builder has a `propsDefault` method which takes some default properties and exposes constructor methods that 1) don't require any property specification, and 2) take an `Optional[Props]`.
-
-* The component builder has a `propsAlways` method which provides all component instances with given properties, doesn't allow property specification in the constructor.
+* `SyntheticEvent`s have numerous aliases that reduce verbosity.
+  For example, in place of `SyntheticKeyboardEvent[HTMLInputElement]` you can use `ReactKeyboardEventI`.
+  See [TYPES.md](types.md) for details.
 
 * React has a [classSet addon](https://facebook.github.io/react/docs/class-name-manipulation.html)
   for specifying multiple optional class attributes. The same mechanism is applicable with this library is as follows:
@@ -229,7 +287,7 @@ React Extensions
   button(onclick --> incrementCounter(f), "+")
   ```
 
-  *(Using the Monocle extensions greatly improve this approach.)*
+  *(Using the [Monocle extensions](FP.md) greatly improve this approach.)*
 
 Differences from React proper
 =============================
@@ -245,12 +303,8 @@ Differences from React proper
     myListOfItems.sortBy(_.name).map(renderItem).toJsArray
   ```
 
-* To specify a `key` when creating a React component, instead of merging it into the props, call `.set(key = ...)` or `withKey(...)` before providing the props and children.
-
-  ```scala
-  val Example = ReactComponentB[String]("Eg").render(i => h1(i)).build
-  Example.withKey("key1")("The Prop")
-  ```
+* To specify a `key` when creating a React component, instead of merging it into the props,
+  apply it to the component class as described in [Using Components](#using-components).
 
 ### Refs
 Rather than specify references using strings, the `Ref` object can provide some more safety.
@@ -277,5 +331,17 @@ Gotchas
 
 * `table(tr(...))` will appear to work fine at first then crash later. React needs `table(tbody(tr(...)))`.
 
-* React doesn't apply invocations of `this.setState` until the end of `render` or the current callback. Calling `.state` after `.setState` will return the original value, ie. `val s1 = x.state; x.setState(s2); x.state == s1 // not s2`.
-  If you want to compose state modifications (and you're using Scalaz), take a look at the `ScalazReact` module, specifically `ReactS` and `runState`.
+* React's `setState` is asynchronous; it doesn't apply invocations of `this.setState` until the end of `render` or the current callback. Calling `.state` after `.setState` will return the initial, original value, i.e.
+
+  ```scala
+  val s1 = $.state
+  val s2 = "new state"
+  $.setState(s2)
+  $.state == s2 // returns false
+  $.state == s1 // returns true
+  ```
+
+  If this is a problem you have 2 choices.
+  
+  1. Refactor your logic so that you only call `setState`/`modState` once.
+  2. Use Scalaz state monads as demonstrated in the online [state monad example](https://japgolly.github.io/scalajs-react/#examples/state-monad).
