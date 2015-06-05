@@ -34,10 +34,9 @@ object EventListener {
       OnUnmount.install[P,S,B,N] andThen (_.componentDidMount { $ =>
         val et = target($)
         val fe = listener($)
-        val f1: js.Function1[E, Unit] = (e: E) => fe(e)
-        val f2 = f1.asInstanceOf[js.Function1[Event, Unit]] // TODO Workaround for scala-js-dom 0.8.0
-        et.addEventListener(eventType, f1, useCapture)
-        $.backend.onUnmount(et.removeEventListener(eventType, f2, useCapture))
+        val f: js.Function1[E, Unit] = (e: E) => fe(e)
+        et.addEventListener(eventType, f, useCapture)
+        $.backend.onUnmount(et.removeEventListener(eventType, f, useCapture))
       })
 
     /** See [[install()]]. */
