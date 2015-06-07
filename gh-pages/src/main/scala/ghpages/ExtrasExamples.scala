@@ -68,7 +68,7 @@ object ExtrasExamples {
       .initialState(0)
       .backend(_ => new Backend)
       .render((_,s,_) => div("Total: ", s))
-      .configure(Listenable.installS(identity, recv))   // Listen to events when mounted.
+      .listenToFromProps(identity).ignoringProps.handleEventS(recv) // Listen to events when mounted.
       .build
   }
 }

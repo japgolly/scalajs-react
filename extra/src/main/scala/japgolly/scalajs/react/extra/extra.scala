@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import scala.annotation.elidable
 import org.scalajs.dom
 
-package object extra {
+package object extra extends ListenableBuilderSyntax {
 
   @elidable(elidable.ASSERTION)
   def assertWarn(test: => Boolean, msg: => String): Unit =
@@ -16,5 +16,4 @@ package object extra {
     def ~=~(a: A)(implicit r: Reusability[A]): Boolean = r.test(self, a)
     def ~/~(a: A)(implicit r: Reusability[A]): Boolean = !r.test(self, a)
   }
-
 }
