@@ -53,7 +53,7 @@ If you want to use a reactjs component in your scalajs-react project then you mu
     }
     
     def apply(children : ReactNode*) = {
-     val f = js.Dynamic.Global.AwesomeJSComp // access real js component
+     val f = React.asInstanceOf[js.Dynamic].createFactory(js.Dynamic.Global.AwesomeJSComp) // access real js component , make sure you wrap with createFactory (this is needed from 0.13 onwards)
      f(toJS, children.toJsArray).asInstanceOf[ReactComponentU_]
     }
     
