@@ -171,6 +171,8 @@ and is automatically converted to a finalised `Route` when used.
 
 * `RouteB[String]` - Use DSL `string(regex)`, like `string("[a-z0-9]{1,20}")`
 
+* `RouteB[UUID]` - Use DSL `uuid`.
+
 * Composition
   * `a ~ b` concatenates `a` to `b`.
     <br>Example: `"abc" ~ "def"` is the same as `"abcdef"`.
@@ -213,6 +215,10 @@ val r: Route[Product] = ("cat" / int / "item" / int).caseclass2(Product)(Product
 // "get"     <=> "json"
 // "get.zip" <=> "zip"
 val r: Route[String] = "get" ~ ("." ~ string("[a-z]+")).option.withDefault("json")
+
+// "category/widgets/item/12345678-1234-1234-1234-123456789012" <=> Item("widgets", 12345678-1234-1234-1234-123456789012
+case class Item(category: String, itemId: java.util.UUID)
+val r: Route[Item] = ("category" / string("[a-z]+") / item / uuid).caseclass2(Item)(Item.unapply)
 ```
 
 ### Static routes

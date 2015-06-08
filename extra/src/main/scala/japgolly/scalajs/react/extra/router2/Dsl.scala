@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.extra.router2
 
+import java.util.UUID
 import java.util.regex.{Pattern, Matcher}
 import monocle.{Lens, Prism, Iso}
 import scala.reflect.ClassTag
@@ -444,9 +445,12 @@ final class RouterConfigDsl[Page](pageEq: Equal[Page] = Equal.equalA[Page]) {
   // -------------------------------------------------------------------------------------------------------------------
   // Route DSL
 
+  private val uuidRegex = "([A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12})"
+
   def root = Path.root
   val int  = new RouteB[Int] ("(-?\\d+)", 1, g => Some(g(0).toInt),  _.toString)
   val long = new RouteB[Long]("(-?\\d+)", 1, g => Some(g(0).toLong), _.toString)
+  val uuid = new RouteB[UUID](uuidRegex,  1, g ⇒ Some(UUID fromString g(0)), _.toString)
   def string(regex: String) = new RouteB[String](s"($regex)", 1, g => Some(g(0)), identity)
 
   implicit def _ops_for_routeb_option[A](r: RouteB[Option[A]]) = new RouteBO(r)

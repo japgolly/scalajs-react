@@ -1,5 +1,7 @@
 package japgolly.scalajs.react.extra.router2
 
+import java.util.UUID
+
 import scalaz.Equal
 import org.scalajs.dom
 import japgolly.scalajs.react._
@@ -15,6 +17,7 @@ object Router2Test extends TestSuite {
   case object ModuleRoot extends Module
   case object Module1 extends Module
   case class Module2(i: Int) extends Module
+  case class Module3(u: UUID) extends Module
 
   object Module {
     val routes = RouterConfigDsl[Module].buildRule { dsl =>
@@ -23,12 +26,14 @@ object Router2Test extends TestSuite {
       def moduleRoot(ctl: RouterCtl[Module]) =
         <.div(
           ctl.link(Module1)("Module One"),
-          ctl.link(Module2(7))("Module 2.7"))
+          ctl.link(Module2(7))("Module 2.7"),
+          ctl.link(Module3(UUID fromString "12345678-1234-1234-1234-123456789012"))("Module 3.12345678-1234-1234-1234-123456789012"))
 
       (emptyRule
         | staticRoute(root, ModuleRoot) ~> renderR(moduleRoot)
         | staticRoute("one", Module1) ~> render(<.h3("Module #1"))
         | dynamicRouteCT("two" / int.caseclass1(Module2)(Module2.unapply)) ~> dynRender(m => <.h3(s"Module #2 @ ${m.i}"))
+        | dynamicRouteCT("three" / uuid.caseclass1(Module3)(Module3.unapply)) ~> dynRender(m => <.h3(s"Module #3 @ ${m.u}"))
         )
     }
   }
@@ -217,6 +222,11 @@ object Router2Test extends TestSuite {
         val r = syncNoRedirect("module/two/123")
         assertEq(r.page,  NestedModule(Module2(123)))
         assertContains(htmlFor(r), "Module #2 @ 123")
+      }
+      'nestedDynamicPathUuid {
+        val r = syncNoRedirect("module/three/12345678-1234-1234-1234-123456789012")
+        assertEq(r.page,  NestedModule(Module3(UUID fromString "12345678-1234-1234-1234-123456789012")))
+        assertContains(htmlFor(r), "Module #3 @ 12345678-1234-1234-1234-123456789012")
       }
       'routerLinks {
         assertEq(ctl.pathFor(NestedModule(ModuleRoot)).value, "module")
