@@ -76,7 +76,7 @@ object ReactComponentB {
 
   // ===================================================================================================================
   private[react] case class LifeCycle[P,S,B,N <: TopNode](
-    hackSpec                 : UndefOr[ReactComponentSpec[P, S, B, N]       => Unit],
+    configureSpec            : UndefOr[ReactComponentSpec[P, S, B, N]       => Unit],
     getDefaultProps          : UndefOr[()                                   => P],
     componentWillMount       : UndefOr[ComponentScopeU[P, S, B]             => Unit],
     componentDidMount        : UndefOr[ComponentScopeM[P, S, B, N]          => Unit],
@@ -110,8 +110,8 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
   @inline private implicit def lcmod(a: LifeCycle[P, S, B, N]): ReactComponentB[P, S, B, N] =
     copy(lc = a)
 
-  def unsafeSpec(modify: ReactComponentSpec[P, S, B, N] => Unit): ReactComponentB[P, S, B, N] =
-       lc.copy(hackSpec = modify)
+  def configureSpec(modify: ReactComponentSpec[P, S, B, N] => Unit): ReactComponentB[P, S, B, N] =
+       lc.copy(configureSpec = modify)
 
   def configure(fs: (ReactComponentB[P, S, B, N] => ReactComponentB[P, S, B, N])*): ReactComponentB[P, S, B, N] =
     fs.foldLeft(this)((a,f) => f(a))
@@ -193,7 +193,6 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
       lc.getDefaultProps.foreach(f => spec.updateDynamic("getDefaultProps")(f: Function))
       lc.componentWillUnmount.foreach(f => spec.updateDynamic("componentWillUnmount")(f: ThisFunction))
       lc.componentDidMount.foreach(f => spec.updateDynamic("componentDidMount")(f: ThisFunction))
-      lc.hackSpec.foreach(_(spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]))
       setFnPS(lc.componentWillUpdate, "componentWillUpdate")
       setFnPS(lc.componentDidUpdate, "componentDidUpdate")
       setFnPS(lc.shouldComponentUpdate, "shouldComponentUpdate")
@@ -208,6 +207,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
         spec.updateDynamic("mixins")(mixins)
       }
 
+      lc.configureSpec.foreach(_(spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]))
       spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]
     }
 
