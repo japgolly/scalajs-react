@@ -71,7 +71,7 @@ object ReactComponentB {
   // ===================================================================================================================
   final class PSBN[P, S, B] private[ReactComponentB](name: String, initF: P => S, backF: BackendScope[P, S] => B, rendF: ComponentScopeU[P, S, B] => ReactElement) {
     def domType[N <: TopNode]: ReactComponentB[P, S, B, N] =
-      new ReactComponentB(name, initF, backF, rendF, emptyLifeCycle, Vector.empty)
+      new ReactComponentB(name, initF, backF, rendF, emptyLifeCycle, Vector.empty, None)
   }
 
   // ===================================================================================================================
@@ -96,15 +96,17 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
                                                 backF   : BackendScope[P, S] => B,
                                                 rendF   : ComponentScopeU[P, S, B] => ReactElement,
                                                 lc      : LifeCycle[P, S, B, N],
-                                                jsMixins: Vector[JAny]) {
+                                                jsMixins: Vector[JAny],
+                                                context : Option[ReactContext_.Context[P]]) {
 
   @inline private def copy(name    : String                                   = name    ,
                            initF   : P => S                                   = initF   ,
                            backF   : BackendScope[P, S] => B                  = backF   ,
                            rendF   : ComponentScopeU[P, S, B] => ReactElement = rendF   ,
                            lc      : LifeCycle[P, S, B, N]                    = lc      ,
-                           jsMixins: Vector[JAny]                             = jsMixins): ReactComponentB[P, S, B, N] =
-    new ReactComponentB(name, initF, backF, rendF, lc, jsMixins)
+                           jsMixins: Vector[JAny]                             = jsMixins,
+                           context : Option[ReactContext_.Context[P]]         = context): ReactComponentB[P, S, B, N] =
+    new ReactComponentB(name, initF, backF, rendF, lc, jsMixins, context)
 
   @inline private implicit def lcmod(a: LifeCycle[P, S, B, N]): ReactComponentB[P, S, B, N] =
     copy(lc = a)
@@ -145,6 +147,12 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
   def mixinJS(mixins: JAny*): ReactComponentB[P, S, B, N] =
     copy(jsMixins = jsMixins ++ mixins)
 
+  def defineContext(c: ReactContext_.Base): ReactComponentB[P, S, B, N] =
+    copy(context = Some(Left(c)))
+
+  def deriveContext(c: ReactContext_.Derived[P]): ReactComponentB[P, S, B, N] =
+    copy(context = Some(Right(c)))
+
   /**
    * Modify the render function.
    */
@@ -175,6 +183,11 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
           val g = (t: T, p: WrapObj[P], s: WrapObj[S]) => f(t, p.v, s.v)
           spec.updateDynamic(name)(g: ThisFunction)
         }
+
+      context.foreach(_ match {
+        case Right(c) => ReactContext_.applyToSpec(spec, c)
+        case Left(c) => ReactContext_.applyToSpec(spec, c)
+      })
 
       val componentWillMount2 = (t: ComponentScopeU[P, S, B]) => {
         val scopeB = t.asInstanceOf[BackendScope[P, S]]

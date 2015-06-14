@@ -273,6 +273,11 @@ package object react {
       try { Some(React.Children.only(_c))} catch { case t: Throwable => None}
   }
 
+  @inline implicit final class ReactExt_ComponentScope_C(val _c: ComponentScope_C) {
+    @inline def context_ : Option[Object] =
+      _c._context.toOption
+  }
+
   // ===================================================================================================================
   // Component state access
 
