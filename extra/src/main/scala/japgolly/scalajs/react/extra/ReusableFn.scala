@@ -85,6 +85,9 @@ object ReusableFn {
   @inline def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, E: Reusability, Y, Z](f: (A, B, C, D, E, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))) =
     new Fn6(f)
 
+  def renderComponent[P, S](c: ReactComponentC.ReqProps[P, S, Any, TopNode]): P ~=> ReactElement =
+    ReusableFn(c(_: P))
+
   final class CompOps[C, S](val $: C) extends AnyVal {
     // This should really be a class param but then we lose the AnyVal
     type CC = CompStateAccess[C, S]

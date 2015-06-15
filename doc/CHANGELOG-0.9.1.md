@@ -6,3 +6,4 @@
 * Add `uuid` to the Router2 route buiding DSL.
 * New `ReactEventTA` aliases for TextArea events.
 * Add nice `.toString` methods to `Px` classes.
+* Add `ReusableFn.renderComponent` which recreates a `Props ~=> ReactElement`.

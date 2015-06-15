@@ -192,6 +192,13 @@ object ReusabilityTest extends TestSuite {
         state = 20
         assert(fn(2) == 22)
       }
+
+      'renderComponent {
+        import SampleComponent1._
+        val f = ReusableFn.renderComponent(component)
+        val g: Props => ReactElement = f
+        ()
+      }
     }
 
   }
