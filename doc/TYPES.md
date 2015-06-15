@@ -79,6 +79,7 @@ One of the suffixes below can be added to any the ReactEvents above, to provide 
 | ------ | ---- |
 | `H` | `HTMLElement` |
 | `I` | `HTMLInputElement` |
+| `TA` | `HTMLTextAreaElement` |
 
 For example, `ReactDragEventI` is a `ReactDragEvent` over a `HTMLInputElement` (an `<input>`), the same as writing `SyntheticDragEvent[HTMLInputElement]`.
 

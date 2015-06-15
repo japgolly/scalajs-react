@@ -44,6 +44,18 @@ package object react {
   type ReactUIEventI          = SyntheticUIEvent         [html.Input]
   type ReactWheelEventI       = SyntheticWheelEvent      [html.Input]
 
+  type ReactEventTA            = SyntheticEvent           [html.TextArea]
+  type ReactClipboardEventTA   = SyntheticClipboardEvent  [html.TextArea]
+  type ReactCompositionEventTA = SyntheticCompositionEvent[html.TextArea]
+  type ReactDragEventTA        = SyntheticDragEvent       [html.TextArea]
+  type ReactFocusEventTA       = SyntheticFocusEvent      [html.TextArea]
+  //type ReactInputEventTA     = SyntheticInputEvent      [html.TextArea]
+  type ReactKeyboardEventTA    = SyntheticKeyboardEvent   [html.TextArea]
+  type ReactMouseEventTA       = SyntheticMouseEvent      [html.TextArea]
+  type ReactTouchEventTA       = SyntheticTouchEvent      [html.TextArea]
+  type ReactUIEventTA          = SyntheticUIEvent         [html.TextArea]
+  type ReactWheelEventTA       = SyntheticWheelEvent      [html.TextArea]
+
   /**
    * These exist for type inference.
    * If P,S,B,N types are needed and there's another object that has them, this is used to bridge for type inference.
