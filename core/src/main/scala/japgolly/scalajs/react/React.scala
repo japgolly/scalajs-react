@@ -220,6 +220,7 @@ trait ComponentScopeU[Props, State, +Backend]
 /** Type of an unmounted component's `this` as is available to `getChildContext()`. */
 trait ComponentScopeCU[Props]
   extends ComponentScope_C
+  with ComponentScope_P[Props]
 
 /** Type of a component's `this` scope during componentWillUpdate. */
 trait ComponentScopeWU[Props, +State, +Backend, +Node <: TopNode]
@@ -437,7 +438,7 @@ object ReactContext_ {
                         childContextTypes: js.Dictionary[JFn],
                         getChildContext  : ComponentScopeCU[P] => js.Object)
 
-  type Context[P] = Either[ReactContext_.Base, ReactContext_.Derived[P]]
+  type Context[P] = Either[Base, Derived[P]]
 
   private[react] def applyToSpec(spec: Dynamic, context: Base): Unit = {
     context match {

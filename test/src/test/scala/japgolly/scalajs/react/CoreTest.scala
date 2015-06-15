@@ -444,9 +444,9 @@ object CoreTest extends TestSuite {
         get(React.asInstanceOf[js.Dynamic].PropTypes).asInstanceOf[JFn]
 
       trait ContextOps[T] {
-        def get($: ComponentScope_C): Option[T] =
+        def get($: ComponentScope_C): js.UndefOr[T] =
           $.context_.map(_.asInstanceOf[WrapObj[T]].v)
-        def mod($: ComponentScope_C, f: T => T): Option[WrapObj[T]] =
+        def mod($: ComponentScope_C, f: T => T): js.UndefOr[WrapObj[T]] =
           get($).map(f(_).wrap)
       }
 
@@ -469,7 +469,7 @@ object CoreTest extends TestSuite {
           .defineContext(PC(PropTypes, () => Context(1).wrap))
           .buildU
 
-        Parent() shouldRender "<p>Some(Context(1))</p>"
+        Parent() shouldRender "<p>Context(1)</p>"
       }
 
       'updatedInGrandChild {
@@ -490,7 +490,28 @@ object CoreTest extends TestSuite {
            .defineContext(PC(PropTypes, () => Context(1).wrap))
            .buildU
 
-         Parent() shouldRender "<p>Some(Context(2))</p>"
+         Parent() shouldRender "<p>Context(2)</p>"
+      }
+
+      'derivedFromProps {
+
+        val GrandChild = ReactComponentB[Unit]("GrandChild")
+          .stateless
+          .render($ => p(C.get($).toString))
+          .defineContext(CC(PropTypes))
+          .buildU
+
+        val Child = ReactComponentB[Context]("Child")
+          .render(P => GrandChild())
+          .deriveContext(DC(PropTypes, PropTypes, $ => C.mod($, c => c.copy(n = c.n+$.props.n)).get)) // combine
+          .build
+
+        val Parent = ReactComponentB[Unit]("Parent")
+          .render(_ => Child(Context(1)))
+          .defineContext(PC(PropTypes, () => Context(1).wrap))
+          .buildU
+
+        Parent() shouldRender "<p>Context(2)</p>"
       }
 
     }

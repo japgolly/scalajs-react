@@ -71,7 +71,7 @@ object ReactComponentB {
   // ===================================================================================================================
   final class PSBN[P, S, B] private[ReactComponentB](name: String, initF: P => S, backF: BackendScope[P, S] => B, rendF: ComponentScopeU[P, S, B] => ReactElement) {
     def domType[N <: TopNode]: ReactComponentB[P, S, B, N] =
-      new ReactComponentB(name, initF, backF, rendF, emptyLifeCycle, Vector.empty, None)
+      new ReactComponentB(name, initF, backF, rendF, emptyLifeCycle, Vector.empty, undefined)
   }
 
   // ===================================================================================================================
@@ -97,7 +97,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
                                                 rendF   : ComponentScopeU[P, S, B] => ReactElement,
                                                 lc      : LifeCycle[P, S, B, N],
                                                 jsMixins: Vector[JAny],
-                                                context : Option[ReactContext_.Context[P]]) {
+                                                context : UndefOr[ReactContext_.Context[P]]) {
 
   @inline private def copy(name    : String                                   = name    ,
                            initF   : P => S                                   = initF   ,
@@ -105,7 +105,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
                            rendF   : ComponentScopeU[P, S, B] => ReactElement = rendF   ,
                            lc      : LifeCycle[P, S, B, N]                    = lc      ,
                            jsMixins: Vector[JAny]                             = jsMixins,
-                           context : Option[ReactContext_.Context[P]]         = context): ReactComponentB[P, S, B, N] =
+                           context : UndefOr[ReactContext_.Context[P]]        = context): ReactComponentB[P, S, B, N] =
     new ReactComponentB(name, initF, backF, rendF, lc, jsMixins, context)
 
   @inline private implicit def lcmod(a: LifeCycle[P, S, B, N]): ReactComponentB[P, S, B, N] =
@@ -148,10 +148,10 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
     copy(jsMixins = jsMixins ++ mixins)
 
   def defineContext(c: ReactContext_.Base): ReactComponentB[P, S, B, N] =
-    copy(context = Some(Left(c)))
+    copy(context = Left(c))
 
   def deriveContext(c: ReactContext_.Derived[P]): ReactComponentB[P, S, B, N] =
-    copy(context = Some(Right(c)))
+    copy(context = Right(c))
 
   /**
    * Modify the render function.
