@@ -4,57 +4,9 @@ import org.scalajs.dom, dom.html
 import scala.scalajs.js
 import js.{Dynamic, UndefOr, undefined, Object, Any => JAny, Function => JFn}
 
-package object react {
+package object react extends ReactEventAliases {
 
   type TopNode = dom.Element
-
-  type ReactEvent            = SyntheticEvent           [dom.Node]
-  type ReactClipboardEvent   = SyntheticClipboardEvent  [dom.Node]
-  type ReactCompositionEvent = SyntheticCompositionEvent[dom.Node]
-  type ReactDragEvent        = SyntheticDragEvent       [dom.Node]
-  type ReactFocusEvent       = SyntheticFocusEvent      [dom.Node]
-  //type ReactInputEvent     = SyntheticInputEvent      [dom.Node]
-  type ReactKeyboardEvent    = SyntheticKeyboardEvent   [dom.Node]
-  type ReactMouseEvent       = SyntheticMouseEvent      [dom.Node]
-  type ReactTouchEvent       = SyntheticTouchEvent      [dom.Node]
-  type ReactUIEvent          = SyntheticUIEvent         [dom.Node]
-  type ReactWheelEvent       = SyntheticWheelEvent      [dom.Node]
-
-  type ReactEventH            = SyntheticEvent           [html.Element]
-  type ReactClipboardEventH   = SyntheticClipboardEvent  [html.Element]
-  type ReactCompositionEventH = SyntheticCompositionEvent[html.Element]
-  type ReactDragEventH        = SyntheticDragEvent       [html.Element]
-  type ReactFocusEventH       = SyntheticFocusEvent      [html.Element]
-  //type ReactInputEventH     = SyntheticInputEvent      [html.Element]
-  type ReactKeyboardEventH    = SyntheticKeyboardEvent   [html.Element]
-  type ReactMouseEventH       = SyntheticMouseEvent      [html.Element]
-  type ReactTouchEventH       = SyntheticTouchEvent      [html.Element]
-  type ReactUIEventH          = SyntheticUIEvent         [html.Element]
-  type ReactWheelEventH       = SyntheticWheelEvent      [html.Element]
-
-  type ReactEventI            = SyntheticEvent           [html.Input]
-  type ReactClipboardEventI   = SyntheticClipboardEvent  [html.Input]
-  type ReactCompositionEventI = SyntheticCompositionEvent[html.Input]
-  type ReactDragEventI        = SyntheticDragEvent       [html.Input]
-  type ReactFocusEventI       = SyntheticFocusEvent      [html.Input]
-  //type ReactInputEventI     = SyntheticInputEvent      [html.Input]
-  type ReactKeyboardEventI    = SyntheticKeyboardEvent   [html.Input]
-  type ReactMouseEventI       = SyntheticMouseEvent      [html.Input]
-  type ReactTouchEventI       = SyntheticTouchEvent      [html.Input]
-  type ReactUIEventI          = SyntheticUIEvent         [html.Input]
-  type ReactWheelEventI       = SyntheticWheelEvent      [html.Input]
-
-  type ReactEventTA            = SyntheticEvent           [html.TextArea]
-  type ReactClipboardEventTA   = SyntheticClipboardEvent  [html.TextArea]
-  type ReactCompositionEventTA = SyntheticCompositionEvent[html.TextArea]
-  type ReactDragEventTA        = SyntheticDragEvent       [html.TextArea]
-  type ReactFocusEventTA       = SyntheticFocusEvent      [html.TextArea]
-  //type ReactInputEventTA     = SyntheticInputEvent      [html.TextArea]
-  type ReactKeyboardEventTA    = SyntheticKeyboardEvent   [html.TextArea]
-  type ReactMouseEventTA       = SyntheticMouseEvent      [html.TextArea]
-  type ReactTouchEventTA       = SyntheticTouchEvent      [html.TextArea]
-  type ReactUIEventTA          = SyntheticUIEvent         [html.TextArea]
-  type ReactWheelEventTA       = SyntheticWheelEvent      [html.TextArea]
 
   /**
    * These exist for type inference.
