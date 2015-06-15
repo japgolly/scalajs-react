@@ -22,9 +22,10 @@ object Router {
       .render              ((_,s,_) => lgc.render(s))
       .componentDidMountIO ($       => cfg.postRenderFn(None, $.state.page))
       .componentDidUpdateIO(($,_,p) => cfg.postRenderFn(Some(p.page), $.state.page))
+      .listenTo(lgc).ignoringInput.handleEventS(lgc.syncToWindowUrlS)
       .configure(
-        EventListener.installIO("popstate", _ => lgc.ctl.refresh, _ => dom.window),
-        Listenable.installS(_ => lgc, (_: Unit) => lgc.syncToWindowUrlS))
+        EventListener.installIO("popstate", _ => lgc.ctl.refresh, _ => dom.window)
+      )
 
   def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
     val l = new RouterLogic(baseUrl, cfg)

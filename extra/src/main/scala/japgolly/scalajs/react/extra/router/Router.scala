@@ -19,7 +19,7 @@ object Router {
       .backend             (_ => new OnUnmount.Backend)
       .render              ((_, route, _) => route.render(router))
       .componentWillMountIO(router.init)
-      .configure(Listenable.installSF(_ => router, (_: Unit) => router.syncToWindowUrlS))
+      .listenTo(router).ignoringInput.handleEventSF(router.syncToWindowUrlS)
 
   def component[P](router: Router[P]): Component[P] =
     componentUnbuilt(router).buildU

@@ -1,5 +1,7 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.ReactComponentC.ReqProps
+
 import scala.scalajs.js.{Any => JAny, Array => JArray, _}
 import Internal._
 
@@ -10,9 +12,14 @@ object ReactComponentB {
 
   @inline def apply[Props](name: String) = new P[Props](name)
 
-  implicit def defaultDomType[P,S,B](c: PSBN[P,S,B]) = c.domType[TopNode]
-  implicit def defaultProps[P,S,B,N <: TopNode](c: ReactComponentB[P,S,B,N]) = c.propsRequired
-  implicit def defaultDomTypeAndProps[P,S,B](c: PSBN[P,S,B]) = defaultProps(defaultDomType(c))
+  implicit def defaultDomType[P,S,B](c: PSBN[P,S,B]): ReactComponentB[P, S, B, TopNode] =
+    c.domType[TopNode]
+
+  implicit def defaultProps[P,S,B,N <: TopNode](c: ReactComponentB[P,S,B,N]): c.Builder[ReqProps[P, S, B, N]] =
+    c.propsRequired
+
+  implicit def defaultDomTypeAndProps[P,S,B](c: PSBN[P,S,B]): ReactComponentB[P, S, B, TopNode]#Builder[ReqProps[P, S, B, TopNode]] =
+    defaultProps(defaultDomType(c))
 
   // ===================================================================================================================
   // Convenience

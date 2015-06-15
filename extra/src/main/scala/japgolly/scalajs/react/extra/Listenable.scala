@@ -20,7 +20,7 @@ trait Listenable[A] {
   def register(f: A => Unit): () => Unit
 }
 
-object Listenable {
+@deprecated("Use import japgolly.scalajs.react.extra._; component.listenTo() instead", "2015-06-07") object Listenable {
 
   def install[P, S, B <: OnUnmount, N <: TopNode, A](f: P => Listenable[A], g: ComponentScopeM[P, S, B, N] => A => Unit) =
     OnUnmount.install compose ((_: ReactComponentB[P, S, B, N])
@@ -34,5 +34,4 @@ object Listenable {
 
   def installSF[P, S, B <: OnUnmount, N <: TopNode, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> IO, F: ChangeFilter[S]) =
     installIO[P, S, B, N, A](f, (t, a) => t.runStateF(g(a)))
-
 }
