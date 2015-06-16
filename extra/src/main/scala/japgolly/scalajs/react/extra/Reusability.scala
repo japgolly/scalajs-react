@@ -52,6 +52,13 @@ object Reusability {
   def by[A, B](f: A => B)(implicit r: Reusability[B]): Reusability[A] =
     r contramap f
 
+  def internal[A, B](f: A => B)(r: A => Reusability[B]): Reusability[A] =
+    fn((a1, a2) => {
+      val b1 = f(a1)
+      val b2 = f(a2)
+      r(a1).test(b1, b2) && r(a2).test(b1, b2)
+    })
+
   // -------------------------------------------------------------------------------------------------------------------
   // Instances
 
