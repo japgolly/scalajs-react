@@ -436,5 +436,84 @@ object CoreTest extends TestSuite {
         .buildU
     }
 
+    'contexts {
+      import js.{Function => JFn}
+      import ReactContext_.{Parent => PC, Child => CC, Derived => DC}
+
+      def propType(get: js.Dynamic => js.Dynamic): JFn =
+        get(React.asInstanceOf[js.Dynamic].PropTypes).asInstanceOf[JFn]
+
+      trait ContextOps[T] {
+        def get($: ComponentScope_C): js.UndefOr[T] =
+          $.context_.map(_.asInstanceOf[WrapObj[T]].v)
+        def mod($: ComponentScope_C, f: T => T): js.UndefOr[WrapObj[T]] =
+          get($).map(f(_).wrap)
+      }
+
+      case class Context(n: Int)
+
+      object C extends ContextOps[Context]
+
+      val PropTypes = js.Dictionary("v" -> propType(_.any))
+
+      'preservedInChild {
+
+        val Child = ReactComponentB[Unit]("Child")
+          .stateless
+          .render($ => p(C.get($).toString))
+          .defineContext(CC(PropTypes))
+          .buildU
+
+        val Parent = ReactComponentB[Unit]("Parent")
+          .render(_ => Child())
+          .defineContext(PC(PropTypes, () => Context(1).wrap))
+          .buildU
+
+        Parent() shouldRender "<p>Context(1)</p>"
+      }
+
+      'updatedInGrandChild {
+
+         val GrandChild = ReactComponentB[Unit]("GrandChild")
+           .stateless
+           .render($ => p(C.get($).toString))
+           .defineContext(CC(PropTypes))
+           .buildU
+
+         val Child = ReactComponentB[Unit]("Child")
+           .render(P => GrandChild())
+           .deriveContext(DC(PropTypes, PropTypes, $ => C.mod($, c => c.copy(n = c.n+1)).get)) // increment
+           .buildU
+
+         val Parent = ReactComponentB[Unit]("Parent")
+           .render(_ => Child())
+           .defineContext(PC(PropTypes, () => Context(1).wrap))
+           .buildU
+
+         Parent() shouldRender "<p>Context(2)</p>"
+      }
+
+      'derivedFromProps {
+
+        val GrandChild = ReactComponentB[Unit]("GrandChild")
+          .stateless
+          .render($ => p(C.get($).toString))
+          .defineContext(CC(PropTypes))
+          .buildU
+
+        val Child = ReactComponentB[Context]("Child")
+          .render(P => GrandChild())
+          .deriveContext(DC(PropTypes, PropTypes, $ => C.mod($, c => c.copy(n = c.n+$.props.n)).get)) // combine
+          .build
+
+        val Parent = ReactComponentB[Unit]("Parent")
+          .render(_ => Child(Context(1)))
+          .defineContext(PC(PropTypes, () => Context(1).wrap))
+          .buildU
+
+        Parent() shouldRender "<p>Context(2)</p>"
+      }
+
+    }
   }
 }

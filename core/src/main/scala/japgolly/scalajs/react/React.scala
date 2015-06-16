@@ -167,6 +167,10 @@ trait ComponentScope_A extends Object {
   def isMounted(): Boolean = js.native
 }
 
+trait ComponentScope_C extends Object {
+  @JSName("context") private[react] def _context: UndefOr[Object] = js.native
+}
+
 trait ComponentScope_P[+Props] extends Object {
   @JSName("props") private[react] def _props: WrapObj[Props] with PropsMixedIn = js.native
 }
@@ -205,6 +209,7 @@ trait ComponentScope_M[+Node <: TopNode] extends Object {
 /** Type of an unmounted component's `this` scope. */
 trait ComponentScopeU[Props, State, +Backend]
   extends ComponentScope_A
+     with ComponentScope_C
      with ComponentScope_PS[Props, State]
      with ComponentScope_P[Props]
      with ComponentScope_SS[State]
@@ -212,9 +217,15 @@ trait ComponentScopeU[Props, State, +Backend]
   // prohibits: ComponentScope_M.*
 }
 
+/** Type of an unmounted component's `this` as is available to `getChildContext()`. */
+trait ComponentScopeCU[Props]
+  extends ComponentScope_C
+  with ComponentScope_P[Props]
+
 /** Type of a component's `this` scope during componentWillUpdate. */
 trait ComponentScopeWU[Props, +State, +Backend, +Node <: TopNode]
   extends ComponentScope_A
+     with ComponentScope_C
      with ComponentScope_PS[Props, State]
      with ComponentScope_P[Props]
      with ComponentScope_S[State]
@@ -232,6 +243,7 @@ trait ComponentScopeM[Props, State, +Backend, +Node <: TopNode]
 /** Type of a component's `this` scope as is available to backends. */
 trait BackendScope[Props, State]
   extends ComponentScope_A
+     with ComponentScope_C
      with ComponentScope_PS[Props, State]
      with ComponentScope_P[Props]
      with ComponentScope_SS[State]
@@ -412,4 +424,37 @@ trait SyntheticWheelEvent[+DOMEventTarget <: dom.Node] extends SyntheticMouseEve
    * ~40 pixels, for DOM_DELTA_SCREEN (2) it is 87.5% of viewport size.
    */
   val deltaMode: Double = js.native
+}
+
+object ReactContext_ {
+
+  abstract class Base
+
+  case class Parent(childContextTypes: js.Dictionary[JFn], getChildContext: () => js.Object) extends Base
+
+  case class Child(contextTypes: js.Dictionary[JFn]) extends Base
+
+  case class Derived[P](contextTypes     : js.Dictionary[JFn],
+                        childContextTypes: js.Dictionary[JFn],
+                        getChildContext  : ComponentScopeCU[P] => js.Object)
+
+  type Context[P] = Either[Base, Derived[P]]
+
+  private[react] def applyToSpec(spec: Dynamic, context: Base): Unit = {
+    context match {
+      case c: Child =>
+        spec.contextTypes      = c.contextTypes.asInstanceOf[js.Object]
+      case c: Parent =>
+        spec.childContextTypes = c.childContextTypes.asInstanceOf[js.Object]
+        spec.getChildContext   = (c.getChildContext: JFn)
+      case _ =>
+    }
+  }
+
+  private[react] def applyToSpec[P](spec: Dynamic, context: Derived[P]): Unit = {
+    spec.contextTypes      = context.contextTypes.asInstanceOf[js.Object]
+    spec.childContextTypes = context.childContextTypes.asInstanceOf[js.Object]
+    spec.getChildContext   = (context.getChildContext: ThisFunction)
+  }
+
 }
