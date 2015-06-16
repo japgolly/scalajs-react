@@ -7,4 +7,6 @@
 * New `ReactEventTA` aliases for TextArea events.
 * Add nice `.toString` methods to `Px` classes.
 * Add `ReusableFn.renderComponent` which recreates a `Props ~=> ReactElement`.
+* Add `ReusableVal.renderComponent` which recreates a `ReusableVal[(Props, ReactElement)]`.
+* Add `ReusableVal.function` which takes an `A => B` and a reusable `A` to create a `ReusableVal[(A, B)]`.
 * Add `ReactComponentB.configureSpec` - useful for JS interop.
