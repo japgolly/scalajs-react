@@ -170,6 +170,9 @@ and is automatically converted to a finalised `Route` when used.
 * `RouteB[Long]` - Use DSL `long`.
 
 * `RouteB[String]` - Use DSL `string(regex)`, like `string("[a-z0-9]{1,20}")`
+  * Best to use a whitelist of characters, eg. `[a-zA-Z0-9]+`.
+  * Do not capture groups; use `[a-z]+` instead of `([a-z]+)`.
+  * If you need to group, use non-capturing groups like `(?:bye|hello)` instead of `(bye|hello)`.
 
 * `RouteB[UUID]` - Use DSL `uuid`.
 

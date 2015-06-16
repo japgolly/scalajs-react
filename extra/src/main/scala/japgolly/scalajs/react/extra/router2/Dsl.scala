@@ -119,8 +119,14 @@ object StaticDsl {
         g => Some(if (g(0) eq null) None else parse(i => g(i + 1))),
         _.fold("")(build))
 
-    final def route: Route[A] =
-      new Route(Pattern.compile("^" + regex + "$"), m => parse(i => m.group(i + 1)), a => Path(build(a)))
+    final def route: Route[A] = {
+      val p = Pattern.compile("^" + regex + "$")
+      // https://github.com/scala-js/scala-js/issues/1727
+      // val g = p.matcher("").groupCount
+      // if (g != matchGroups)
+      //   sys.error(s"Error in regex: /${p.pattern}/. Expected $matchGroups match groups but detected $g.")
+      new Route(p, m => parse(i => m.group(i + 1)), a => Path(build(a)))
+    }
   }
 
   class RouteBO[A](val r: RouteB[Option[A]]) extends AnyVal {
@@ -445,12 +451,20 @@ final class RouterConfigDsl[Page](pageEq: Equal[Page] = Equal.equalA[Page]) {
   // -------------------------------------------------------------------------------------------------------------------
   // Route DSL
 
-  private val uuidRegex = "([A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12})"
+  private def uuidRegex = "([A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12})"
 
   def root = Path.root
-  val int  = new RouteB[Int] ("(-?\\d+)", 1, g => Some(g(0).toInt),  _.toString)
-  val long = new RouteB[Long]("(-?\\d+)", 1, g => Some(g(0).toLong), _.toString)
-  val uuid = new RouteB[UUID](uuidRegex,  1, g ⇒ Some(UUID fromString g(0)), _.toString)
+  val int  = new RouteB[Int] ("(-?\\d+)", 1, g => Some(g(0).toInt),           _.toString)
+  val long = new RouteB[Long]("(-?\\d+)", 1, g => Some(g(0).toLong),          _.toString)
+  val uuid = new RouteB[UUID](uuidRegex,  1, g => Some(UUID fromString g(0)), _.toString)
+
+  /**
+   * Matches a string.
+   *
+   * Best to use a whitelist of characters, eg. "[a-zA-Z0-9]+".
+   * Do not capture groups; use "[a-z]+" instead of "([a-z]+)".
+   * If you need to group, use non-capturing groups like "(?:bye|hello)" instead of "(bye|hello)".
+   */
   def string(regex: String) = new RouteB[String](s"($regex)", 1, g => Some(g(0)), identity)
 
   implicit def _ops_for_routeb_option[A](r: RouteB[Option[A]]) = new RouteBO(r)
