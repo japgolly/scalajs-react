@@ -207,8 +207,9 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
         spec.updateDynamic("mixins")(mixins)
       }
 
-      lc.configureSpec.foreach(_(spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]))
-      spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]
+      val spec2 = spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]
+      lc.configureSpec.foreach(_(spec2))
+      spec2
     }
 
     def build: C =
