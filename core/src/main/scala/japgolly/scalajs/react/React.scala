@@ -164,7 +164,7 @@ trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]
 
 /** Methods always available. */
 trait ComponentScope_A extends Object {
-  def isMounted(): Boolean = js.native
+  def isMounted(): UndefOr[Boolean] = js.native
 }
 
 trait ComponentScope_P[+Props] extends Object {
