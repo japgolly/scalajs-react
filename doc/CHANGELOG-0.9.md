@@ -9,7 +9,7 @@
   * nice `.toString` methods to `Px` classes.
   * `ReusableFn.renderComponent` which recreates a `Props ~=> ReactElement`.
   * `ReactComponentB.configureSpec` - useful for JS interop.
-  * `ReusableVal2[A, S]` which is a lazy value `A` whose reusability is determined by a source value `S`.
+  * [`ReusableVal2`](../extra/PERF.md#reusableval2): A lazy value whose reusability is determined by another value.
 * Upgrade:
   * [scala-js-dom](https://github.com/scala-js/scala-js-dom) to 0.8.1.
   * Scalaz to 7.1.3.
