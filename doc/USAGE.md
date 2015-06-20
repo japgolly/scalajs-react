@@ -292,6 +292,10 @@ React Extensions
 Differences from React proper
 =============================
 
+* In React JS you access a component's children via `this.props.children`.
+  In Scala, instances of `ComponentScope{U,M,WU}` and `BackendScope` provide a `.propsChildren` method.
+  There is also a `.propsDynamic` method as a shortcut to access the children as a `js.Dynamic`.
+
 * To keep a collection together when generating the dom, call `.toJsArray`. The only difference I'm aware of is that if the collection is maintained, React will issue warnings if you haven't supplied `key` attributes. Example:
 
   ```scala
