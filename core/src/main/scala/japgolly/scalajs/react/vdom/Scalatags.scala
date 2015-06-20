@@ -96,6 +96,30 @@ case class Style(jsName: String, cssName: String) {
   def :=[T](v: T)(implicit ev: StyleValue[T]): TagMod = StylePair(this, v, ev)
 }
 
+/**
+ * Used to specify how to handle a particular type [[T]] when it is used as
+ * the value of a [[Attr]]. Only types with a specified [[AttrValue]] may
+ * be used.
+ */
+@implicitNotFound(
+  "No AttrValue defined for type ${T}; scalatags does not know how to use ${T} as an attribute"
+)
+trait AttrValue[T]{
+  def apply(v: T, b: js.Any => Unit): Unit
+}
+
+/**
+ * Used to specify how to handle a particular type [[T]] when it is used as
+ * the value of a [[Style]]. Only types with a specified [[StyleValue]] may
+ * be used.
+ */
+@implicitNotFound(
+  "No StyleValue defined for type ${T}; scalatags does not know how to use ${T} as an style"
+)
+trait StyleValue[T]{
+  def apply(t: Builder, s: Style, v: T): Unit
+}
+
 private[vdom] object Scalatags {
 
   case class TagModComposition(ms: Vector[TagMod]) extends TagMod {
@@ -123,17 +147,6 @@ private[vdom] object Scalatags {
     override def applyTo(b: Builder): Unit =
       av.apply(t, b.addAttr(a.name, _))
   }
-  /**
-   * Used to specify how to handle a particular type [[T]] when it is used as
-   * the value of a [[Attr]]. Only types with a specified [[AttrValue]] may
-   * be used.
-   */
-  @implicitNotFound(
-    "No AttrValue defined for type ${T}; scalatags does not know how to use ${T} as an attribute"
-  )
-  trait AttrValue[T]{
-    def apply(v: T, b: js.Any => Unit): Unit
-  }
 
   /**
    * A [[Style]], it's associated value, and a [[StyleValue]] of the correct type
@@ -142,18 +155,6 @@ private[vdom] object Scalatags {
     override def applyTo(t: Builder): Unit = {
       ev.apply(t, s, v)
     }
-  }
-
-  /**
-   * Used to specify how to handle a particular type [[T]] when it is used as
-   * the value of a [[Style]]. Only types with a specified [[StyleValue]] may
-   * be used.
-   */
-  @implicitNotFound(
-    "No StyleValue defined for type ${T}; scalatags does not know how to use ${T} as an style"
-  )
-  trait StyleValue[T]{
-    def apply(t: Builder, s: Style, v: T): Unit
   }
 
   /**

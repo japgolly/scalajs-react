@@ -9,3 +9,4 @@
 * Add `ReusableFn.renderComponent` which recreates a `Props ~=> ReactElement`.
 * Add `ReactComponentB.configureSpec` - useful for JS interop.
 * Add `ReusableVal2[A, S]` which is a lazy value `A` whose reusability is determined by a source value `S`.
+* Make Scalatags' `AttrValue` and `StyleValue` public. Package is `japgolly.scalajs.react.vdom`.
