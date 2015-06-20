@@ -11,15 +11,24 @@ Provides (opt-in) support for pure functional programming, using [Scalaz](https:
 Comes utility modules [`extra`](extra/) and [`test`](test/), helpful for React in Scala(.js), rather than React in JS.
 Includes a router, testing utils, performance utils, more.
 
-#### Index
+##### Index
 
-- [Setup & Usage](doc/USAGE.md).
+- [Usage (+ Setup)](doc/USAGE.md).
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/).
-- [Summary of Types](doc/TYPES.md).
-- [Functional Programming with React](doc/FP.md).
-- [`extra`: Utilities not found in React.JS](extra/README.md).
+- [Type Summary](doc/TYPES.md).
+- [Functional Programming](doc/FP.md).
+- [Scala-only Utilities](extra/README.md).
 - [Testing](test/README.md).
 - [Changelogs](doc/) — [Latest](doc/CHANGELOG-0.9.md).
+
+
+##### Additional Resources
+
+* Templates & Tutorials
+  * [chandu0101 / scalajs-react-template](https://github.com/chandu0101/scalajs-react-template)
+  * [ochrons / scalajs-spa-tutorial](https://github.com/ochrons/scalajs-spa-tutorial)
+  * [TodoMvc example for scalajs-react](https://github.com/tastejs/todomvc/pull/1323)
+
 
 ##### Requirements:
 * React 0.12 *(0.13 probably works too, 0.14 will be fully supported when released)*
