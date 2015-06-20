@@ -1,3 +1,20 @@
+# 0.9.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.9.0...v0.9.1))
+
+* Fixed `onDblClick` so that it uses `onDoubleClick` as React expects, and
+  added a `onDoubleClick` alias.
+* Make Scalatags' `AttrValue` and `StyleValue` public. Package is `japgolly.scalajs.react.vdom`.
+* Add:
+  * `uuid` to the Router2 route building DSL.
+  * `ReactEventTA` aliases for TextArea events.
+  * nice `.toString` methods to `Px` classes.
+  * `ReusableFn.renderComponent` which recreates a `Props ~=> ReactElement`.
+  * `ReactComponentB.configureSpec` - useful for JS interop.
+  * `ReusableVal2[A, S]` which is a lazy value `A` whose reusability is determined by a source value `S`.
+* Upgrade:
+  * [scala-js-dom](https://github.com/scala-js/scala-js-dom) to 0.8.1.
+  * Scalaz to 7.1.3.
+
+
 # 0.9.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.8.4...v0.9.0))
 
 ##### Breaking
