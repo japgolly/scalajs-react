@@ -349,3 +349,30 @@ Gotchas
   
   1. Refactor your logic so that you only call `setState`/`modState` once.
   2. Use Scalaz state monads as demonstrated in the online [state monad example](https://japgolly.github.io/scalajs-react/#examples/state-monad).
+
+* Type-inference when creating vdom can break if you call a function whose return type is also infered.
+
+  Example: `Option.getOrElse`.
+  
+  If you have an `Option[A]`, the return type of `getOrElse` is not always `A`.
+  This is because the `A` in `Option` is covariant, and so instead of `getOrElse(default: => A): A`
+  *(which would avoid this vdom type-inference problem)*, it's actually `getOrElse[B >: A](default: => B): B`.
+  
+  This confuses Scala:
+  ```scala
+  def problem(name: Option[String]) =
+    <.div(^.title := name.getOrElse("No Name"))
+  ```
+  
+  Workarounds:
+  ```scala
+  // Workaround #1: Move the call outside.
+  def workaround1(nameOption: Option[String]) = {
+    val name = nameOption getOrElse "No Name"
+    <.div(^.title := name)
+  }
+
+  // Workaround #2: Specify the type manually.
+  def workaround2(name: Option[String]) =
+    <.div(^.title := name.getOrElse[String]("No Name"))
+  ```
