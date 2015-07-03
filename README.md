@@ -22,12 +22,18 @@ Includes a router, testing utils, performance utils, more.
 - [Changelogs](doc/) — [Latest](doc/CHANGELOG-0.9.md).
 
 
-##### Additional Resources
+##### External Resources
 
 * Templates & Tutorials
   * [chandu0101 / scalajs-react-template](https://github.com/chandu0101/scalajs-react-template)
   * [ochrons / scalajs-spa-tutorial](https://github.com/ochrons/scalajs-spa-tutorial)
-  * [TodoMvc example for scalajs-react](https://github.com/tastejs/todomvc/pull/1323)
+  * [elacin / scalajs-todos](https://github.com/elacin/scalajs-todos)
+  * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
+
+* [Interop With Third-Party Components - chandu0101](https://github.com/chandu0101/scalajs-react-components/blob/master/doc/InteropWithThirdParty.md)
+
+* Component Libraries
+  * [chandu0101 / scalajs-react-components](https://github.com/chandu0101/scalajs-react-components)
 
 
 ##### Requirements:
