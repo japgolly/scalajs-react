@@ -74,6 +74,7 @@ object ScalajsReact extends Build {
     _.configure(useReactJs("test"))
       .settings(
         libraryDependencies  += "com.lihaoyi" %%% "utest" % "0.3.0",
+        jsDependencies += (ProvidedJS / "sampleReactComponent.js" dependsOn "react-with-addons.js") % Test, // dependency for JS Component Type Test.
         testFrameworks       += new TestFramework("utest.runner.Framework"),
         scalaJSStage in Test := FastOptStage,
         requiresDOM          := true,
