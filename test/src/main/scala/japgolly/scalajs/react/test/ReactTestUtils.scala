@@ -5,8 +5,7 @@ import scala.scalajs.js.annotation.JSName
 import japgolly.scalajs.react._
 
 /** https://facebook.github.io/react/docs/test-utils.html */
-@JSName("React.addons.TestUtils")
-object ReactTestUtils extends Object {
+trait ReactTestUtils extends Object {
 
   def Simulate: Simulate = native
 
@@ -75,6 +74,9 @@ object ReactTestUtils extends Object {
    */
   def findRenderedComponentWithType(tree: ComponentM, c: ComponentClass): ComponentM = native
 }
+
+@JSName("React.addons.TestUtils")
+object ReactTestUtils extends ReactTestUtils
 
 trait Simulate extends Object {
   def beforeInput      (t: ReactOrDomNode, eventData: Object = native): Unit = native
