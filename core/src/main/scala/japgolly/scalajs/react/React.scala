@@ -5,7 +5,7 @@ import scala.scalajs.js
 import js.{Dynamic, UndefOr, ThisFunction, ThisFunction0, Object, Any => JAny, Function => JFn}
 import js.annotation.{JSBracketAccess, JSName}
 
-object React extends Object {
+trait React extends Object {
 
   /**
    * Create a component given a specification. A component implements a render method which returns one single child.
@@ -84,6 +84,8 @@ object React extends Object {
   @deprecated("React.renderComponentToStaticMarkup will be deprecated in a future version. Use React.renderToStaticMarkup instead.", "React 0.12.0")
   def renderComponentToStaticMarkup(component: ReactComponentU_): String = js.native
 }
+
+object React extends React
 
 /** `React.Children` */
 trait ReactChildren extends Object {
