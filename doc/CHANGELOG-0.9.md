@@ -1,3 +1,13 @@
+# 0.9.2
+
+* Added `Reusability.caseClass[A]` macro and deprecated `Reusability.caseclassN(A.unapply)`.
+  Also comes with `caseClassDebug[A]` if you want to see the code it generates.
+
+```
+find . -name '*.scala' -exec perl -pi -e 's/Reusability.caseclass\d+\s*\(\s*(\S+)\s*\.\s*unapply\s*\)/Reusability.caseClass[$1]/' {} +
+```
+
+
 # 0.9.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.9.0...v0.9.1))
 
 * Fixed `onDblClick` so that it uses `onDoubleClick` as React expects, and
