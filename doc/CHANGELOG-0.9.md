@@ -8,6 +8,9 @@
   args in `UndefOr` with `undefined` as the default. This crashes PhantomJS.
   All args have default values now.
 * Add `onError` attribute for use with `<img>`.
+* Add `ReactComponent.initialStateC` which provides access to the component (albeit without the `Backend` type set).
+  Useful for self-managing state, a minimalistic example of which you can read in
+  [SelfManagedStateTest.scala](../test/src/test/scala/japgolly/scalajs/react/SelfManagedStateTest.scala).
 
 ```
 // Reusability.caseClass

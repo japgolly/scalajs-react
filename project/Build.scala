@@ -124,7 +124,9 @@ object ScalajsReact extends Build {
     .dependsOn(core, scalaz71, extra, monocle)
     .settings(
       name := "test",
-      scalacOptions += "-language:reflectiveCalls")
+      libraryDependencies += monocleLib("macro") % "test",
+      addCompilerPlugin(macroParadisePlugin),
+      scalacOptions in Test += "-language:reflectiveCalls")
 
   // ==============================================================================================
   def scalazModule(name: String, version: String) = {
