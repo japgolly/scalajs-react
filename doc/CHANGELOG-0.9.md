@@ -2,9 +2,15 @@
 
 * Added `Reusability.caseClass[A]` macro and deprecated `Reusability.caseclassN(A.unapply)`.
   Also comes with `caseClassDebug[A]` if you want to see the code it generates.
+* In the Router2 route-building DSL, added `caseClass[A]` and deprecated `caseclassN(A)(A.unapply)`.
+  Also comes with `caseClassDebug[A]` if you want to see the code it generates.
 
 ```
+// Reusability.caseClass
 find . -name '*.scala' -exec perl -pi -e 's/Reusability.caseclass\d+\s*\(\s*(\S+)\s*\.\s*unapply\s*\)/Reusability.caseClass[$1]/' {} +
+
+// DSL route.caseClass
+find . -name '*.scala' -exec perl -pi -e 's/\.caseclass\d+\s*\(\s*(\S+)\s*\)\s*\([^)]+\.\s*unapply\s*\)/.caseClass[$1]/' {} +
 ```
 
 

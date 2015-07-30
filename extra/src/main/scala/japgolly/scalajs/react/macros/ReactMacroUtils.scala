@@ -48,4 +48,27 @@ object ReactMacroUtils {
     val A = paramType(a)
     (a, A)
   }
+
+  /**
+   * Create code for a function that will call .apply() on a given type's type companion object.
+   */
+  def tcApplyFn(c: Context)(t: c.universe.Type): c.universe.Select = {
+    import c.universe._
+    val sym = t.typeSymbol
+    val tc  = sym.companion
+    val pre = t match {
+      case TypeRef(p, _, _) => p
+      case x                => fail(c, s"Don't know how to extract `pre` from ${showRaw(x)}")
+    }
+
+    pre match {
+      // Path dependent, eg. `t.Literal`
+      case SingleType(NoPrefix, path) =>
+        Select(Ident(path), tc.asTerm.name)
+
+      // Assume type companion .apply exists
+      case _ =>
+        Select(Ident(tc), TermName("apply"))
+    }
+  }
 }
