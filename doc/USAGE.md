@@ -71,14 +71,14 @@ There are two built-in ways of creating virtual-DOM.
 There are two ways of wiring up events to vdom.
 
 1. **`attr ==> handler`** where `handler` is in the shape of `ReactEvent => Unit`, an event handler.
-  Event types are described in [TYPES.md](types.md).
+  Event types are described in [TYPES.md](TYPES.md).
 
   ```scala
   def onTextChange(e: ReactEventI): Unit = {
     println("Value received = " + e.target.value)
   }
 
-  ^.input(
+  <.input(
     ^.`type`    := "text",
     ^.value     := currentValue,
     ^.onChange ==> onTextChange)
@@ -91,7 +91,7 @@ There are two ways of wiring up events to vdom.
     println("The button was pressed!")
   }
 
-  ^.button(
+  <.button(
     ^.onClick --> onButtonPressed,
     "Press me!")
   ```
