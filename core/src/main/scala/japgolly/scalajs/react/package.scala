@@ -122,7 +122,7 @@ package object react {
     def toJS[M <: js.Object](name: String) = new RefJSComp[M](name)
   }
 
-  @inline implicit final class ReactExt_ScalaColl[A](val _as: TraversableOnce[A]) extends AnyVal {
+  @inline implicit final class ReactExt_ScalaColl[A](private val _as: TraversableOnce[A]) extends AnyVal {
     @inline def toJsArray: js.Array[A] =
       js.Array(_as.toSeq: _*)
     @inline def toReactNodeArray(implicit ev: A => ReactNode): js.Array[ReactNode] = {
@@ -132,7 +132,7 @@ package object react {
     }
   }
 
-  @inline implicit final class ReactExt_JsArray[A](val _as: js.Array[A]) extends AnyVal {
+  @inline implicit final class ReactExt_JsArray[A](private val _as: js.Array[A]) extends AnyVal {
     @inline def toReactNodeArray(implicit ev: A => ReactNode): js.Array[ReactNode] =
       _as.map(ev: js.Function1[A, ReactNode])
   }
@@ -225,56 +225,56 @@ package object react {
   // ===================================================================================================================
 
   @inline implicit def autoUnWrapObj[A](a: WrapObj[A]): A = a.v
-  @inline implicit final class ReactExt_Any[A](val _a: A) extends AnyVal {
+  @inline implicit final class ReactExt_Any[A](private val _a: A) extends AnyVal {
     @inline def wrap: WrapObj[A] = WrapObj(_a)
   }
 
-  @inline implicit final class ReactExt_ReactObj(val _r: React.type) extends AnyVal {
+  @inline implicit final class ReactExt_ReactObj(private val _r: React.type) extends AnyVal {
     @inline def renderC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeM[P,S,B,N] => Unit) =
       _r.render(c, n, callback)
   }
 
-  @inline implicit final class ReactExt_ComponentScope_P[Props](val _c: ComponentScope_P[Props]) extends AnyVal {
+  @inline implicit final class ReactExt_ComponentScope_P[Props](private val _c: ComponentScope_P[Props]) extends AnyVal {
     @inline def props = _c._props.v
     @inline def propsChildren = _c._props.children
     @inline def propsDynamic = _c._props.asInstanceOf[js.Dynamic]
   }
 
-  @inline implicit final class ReactExt_ComponentScope_PS[Props, State](val _c: ComponentScope_PS[Props, State]) extends AnyVal {
+  @inline implicit final class ReactExt_ComponentScope_PS[Props, State](private val _c: ComponentScope_PS[Props, State]) extends AnyVal {
     @inline def getInitialState(p: Props): State = _c._getInitialState(WrapObj(p)).v
   }
 
-  @inline implicit final class ReactExt_ComponentScope_S[State](val _c: ComponentScope_S[State]) extends AnyVal {
+  @inline implicit final class ReactExt_ComponentScope_S[State](private val _c: ComponentScope_S[State]) extends AnyVal {
     @inline def state = _c._state.v
   }
 
   val preventDefaultF  = (_: SyntheticEvent[dom.Node]).preventDefault()
   val stopPropagationF = (_: SyntheticEvent[dom.Node]).stopPropagation()
 
-  @inline implicit final class ReactExt_ReactComponentU[P,S,B,N <: TopNode](val _c: ReactComponentU[P,S,B,N]) extends AnyVal {
+  @inline implicit final class ReactExt_ReactComponentU[P,S,B,N <: TopNode](private val _c: ReactComponentU[P,S,B,N]) extends AnyVal {
     def render(n: dom.Node) = React.render(_c, n)
   }
 
-  @inline implicit final class ReactExt_ReactDOMElement(val _v: ReactDOMElement) extends AnyVal {
+  @inline implicit final class ReactExt_ReactDOMElement(private val _v: ReactDOMElement) extends AnyVal {
     @inline def typ = _v.`type`
   }
 
-  @inline implicit final class ReactExt_ReactComponentU_(val _v: ReactComponentU_) extends AnyVal {
+  @inline implicit final class ReactExt_ReactComponentU_(private val _v: ReactComponentU_) extends AnyVal {
     @inline def dynamic = this.asInstanceOf[Dynamic]
   }
 
-  @inline implicit final class ReactExt_UndefReactComponentM[N <: TopNode](val _u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
+  @inline implicit final class ReactExt_UndefReactComponentM[N <: TopNode](private val _u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
     def tryFocus(): Unit = _u.foreach(_.getDOMNode() match {
       case e: html.Element => e.focus()
       case _ =>
     })
   }
 
-  @inline implicit final class ReactExt_ReactComponentM[N <: TopNode](val _c: ReactComponentM_[N]) extends AnyVal {
+  @inline implicit final class ReactExt_ReactComponentM[N <: TopNode](private val _c: ReactComponentM_[N]) extends AnyVal {
     @inline def domType[N2 <: TopNode] = _c.asInstanceOf[ReactComponentM_[N2]]
   }
 
-  @inline implicit final class ReactExt_PropsChildren(val _c: PropsChildren) extends AnyVal {
+  @inline implicit final class ReactExt_PropsChildren(private val _c: PropsChildren) extends AnyVal {
     @inline def forEach[U](f: ReactNode => U): Unit =
       React.Children.forEach(_c, (f:JFn).asInstanceOf[js.Function1[ReactNode, JAny]])
 
@@ -335,7 +335,7 @@ package object react {
     @inline implicit def bs[P, S]: CompStateAccess[BackendScope[P, S], S] =
       CompStateAccess.SS.force[S]
 
-    final class Ops[C, S](val _c: C) extends AnyVal {
+    final class Ops[C, S](private val _c: C) extends AnyVal {
       // This should really be a class param but then we lose the AnyVal
       type CC = CompStateAccess[C, S]
 

@@ -1,3 +1,26 @@
+# 0.9.2
+
+* Added `Reusability.caseClass[A]` macro and deprecated `Reusability.caseclassN(A.unapply)`.
+  Also comes with `caseClassDebug[A]` if you want to see the code it generates.
+* In the Router2 route-building DSL, added `caseClass[A]` and deprecated `caseclassN(A)(A.unapply)`.
+  Also comes with `caseClassDebug[A]` if you want to see the code it generates.
+* Test simulation data objects `{Change,Keyboard,Mouse}EventData` no longer wrap
+  args in `UndefOr` with `undefined` as the default. This crashes PhantomJS.
+  All args have default values now.
+* Add `onError` attribute for use with `<img>`.
+* Add `ReactComponent.initialStateC` which provides access to the component (albeit without the `Backend` type set).
+  Useful for self-managing state, a minimalistic example of which you can read in
+  [SelfManagedStateTest.scala](../test/src/test/scala/japgolly/scalajs/react/SelfManagedStateTest.scala).
+
+```
+// Reusability.caseClass
+find . -name '*.scala' -exec perl -pi -e 's/Reusability.caseclass\d+\s*\(\s*(\S+)\s*\.\s*unapply\s*\)/Reusability.caseClass[$1]/' {} +
+
+// DSL route.caseClass
+find . -name '*.scala' -exec perl -pi -e 's/\.caseclass\d+\s*\(\s*(\S+)\s*\)\s*\([^)]+\.\s*unapply\s*\)/.caseClass[$1]/' {} +
+```
+
+
 # 0.9.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.9.0...v0.9.1))
 
 * Fixed `onDblClick` so that it uses `onDoubleClick` as React expects, and

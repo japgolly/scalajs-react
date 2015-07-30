@@ -14,7 +14,7 @@ object ReusabilityTest extends TestSuite {
     case class Props(name: String, age: Option[Int], pic: Picture)
 
     implicit val picReuse   = Reusability.by((_: Picture).id)
-    implicit val propsReuse = Reusability.caseclass3(Props.unapply)
+    implicit val propsReuse = Reusability.caseClass[Props]
 
     var renderCount = 0
 
@@ -55,7 +55,7 @@ object ReusabilityTest extends TestSuite {
     }
 
     case class InnerProps(name: String, update: String ~=> IO[Unit])
-    implicit val propsReuse = Reusability.caseclass2(InnerProps.unapply)
+    implicit val propsReuse = Reusability.caseClass[InnerProps]
 
     val innerComponent = ReactComponentB[InnerProps]("PersonEditor")
       .stateless
@@ -70,7 +70,52 @@ object ReusabilityTest extends TestSuite {
       .build
   }
 
+  case class CC0()
+  case class CC1(i: Int)
+  case class CC2(i: Int, n: String)
+
+  case class CCT0[A]()
+  case class CCT1[A](i: A)
+  case class CCT2[A](i: Int, n: A)
+
   val tests = TestSuite {
+
+    'caseClassMacro {
+      def test[A](a: A, b: A, expect: Boolean)(implicit r: Reusability[A]) =
+        assert(r.test(a, b) == expect)
+
+      'cc0 {
+        implicit val r = Reusability.caseClass[CC0]
+        test(CC0(), CC0(), true)
+      }
+      'cc1 {
+        implicit val r = Reusability.caseClass[CC1]
+        test(CC1(2), CC1(2), true)
+        test(CC1(2), CC1(3), false)
+      }
+      'cc2 {
+        implicit val r = Reusability.caseClass[CC2]
+        test(CC2(3,"a"), CC2(3,"a"), true)
+        test(CC2(3,"a"), CC2(3,"b"), false)
+        test(CC2(3,"a"), CC2(4,"a"), false)
+      }
+
+      'cct0 {
+        implicit val r = Reusability.caseClass[CCT0[Int]]
+        test(CCT0[Int](), CCT0[Int](), true)
+      }
+      'cct1 {
+        implicit val r = Reusability.caseClass[CCT1[Int]]
+        test(CCT1(2), CCT1(2), true)
+        test(CCT1(2), CCT1(3), false)
+      }
+      'cct2 {
+        implicit val r = Reusability.caseClass[CCT2[String]]
+        test(CCT2(3,"a"), CCT2(3,"a"), true)
+        test(CCT2(3,"a"), CCT2(3,"b"), false)
+        test(CCT2(3,"a"), CCT2(4,"a"), false)
+      }
+    }
 
     'shouldComponentUpdate {
       'reusableState {

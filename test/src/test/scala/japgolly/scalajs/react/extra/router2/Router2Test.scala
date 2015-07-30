@@ -32,8 +32,8 @@ object Router2Test extends TestSuite {
       (emptyRule
         | staticRoute(root, ModuleRoot) ~> renderR(moduleRoot)
         | staticRoute("one", Module1) ~> render(<.h3("Module #1"))
-        | dynamicRouteCT("two" / int.caseclass1(Module2)(Module2.unapply)) ~> dynRender(m => <.h3(s"Module #2 @ ${m.i}"))
-        | dynamicRouteCT("three" / uuid.caseclass1(Module3)(Module3.unapply)) ~> dynRender(m => <.h3(s"Module #3 @ ${m.u}"))
+        | dynamicRouteCT("two" / int.caseClass[Module2]) ~> dynRender(m => <.h3(s"Module #2 @ ${m.i}"))
+        | dynamicRouteCT("three" / uuid.caseClass[Module3]) ~> dynRender(m => <.h3(s"Module #3 @ ${m.u}"))
         )
     }
   }
@@ -88,7 +88,7 @@ object Router2Test extends TestSuite {
       innerPageEq = implicitly[Equal[MyPage2]]
 
       val privatePages = (emptyRule
-        | dynamicRouteCT("user" / int.caseclass1(UserProfilePage)(UserProfilePage.unapply)) ~> dynRender(userProfilePage(_))
+        | dynamicRouteCT("user" / int.caseClass[UserProfilePage]) ~> dynRender(userProfilePage(_))
         | staticRoute("private-1", PrivatePage1) ~> render(<.h1("Private #1"))
         | staticRoute("private-2", PrivatePage2) ~> render(<.h1("Private #2: ", secret))
         )

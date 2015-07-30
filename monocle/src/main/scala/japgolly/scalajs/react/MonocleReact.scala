@@ -10,7 +10,7 @@ object MonocleReact {
   @inline implicit def toMonRExtCompStateAccessOps[C, S](c: C)(implicit a: CompStateAccess[C, S]) =
     new MonRExt_CompStateAccessOps[C, S](c)
 
-  final class MonRExt_CompStateAccessOps[C, S](val _c: C) extends AnyVal {
+  final class MonRExt_CompStateAccessOps[C, S](private val _c: C) extends AnyVal {
     // This should really be a class param but then we lose the AnyVal
     type CC = CompStateAccess[C, S]
 
@@ -22,7 +22,7 @@ object MonocleReact {
       _c._modStateIO(L set l)
   }
 
-  @inline implicit final class MonRExt_ReactSTOps[M[_], S, A](val _r: ReactST[M, S, A]) extends AnyVal {
+  @inline implicit final class MonRExt_ReactSTOps[M[_], S, A](private val _r: ReactST[M, S, A]) extends AnyVal {
 
     @inline def zoomL[T](l: Lens[T, S])(implicit M: Functor[M]): ReactST[M, T, A] =
       ReactS.zoom[M, S, T, A](_r, l.get, (a, b) => l.set(b)(a))

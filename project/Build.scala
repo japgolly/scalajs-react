@@ -19,7 +19,7 @@ object ScalajsReact extends Build {
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.9.1",
+        version            := "0.9.2-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
@@ -92,6 +92,13 @@ object ScalajsReact extends Build {
   def extModuleName(shortName: String): PE =
     _.settings(name := s"ext-$shortName")
 
+  def definesMacros: Project => Project =
+    _.settings(
+      scalacOptions += "-language:experimental.macros",
+      libraryDependencies ++= Seq(
+        "org.scala-lang" % "scala-reflect" % Scala211,
+        "org.scala-lang" % "scala-compiler" % Scala211 % "provided"))
+
   def macroParadisePlugin =
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
 
@@ -117,7 +124,9 @@ object ScalajsReact extends Build {
     .dependsOn(core, scalaz71, extra, monocle)
     .settings(
       name := "test",
-      scalacOptions += "-language:reflectiveCalls")
+      libraryDependencies += monocleLib("macro") % "test",
+      addCompilerPlugin(macroParadisePlugin),
+      scalacOptions in Test += "-language:reflectiveCalls")
 
   // ==============================================================================================
   def scalazModule(name: String, version: String) = {
@@ -142,7 +151,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val extra = project
-    .configure(commonSettings, publicationSettings)
+    .configure(commonSettings, publicationSettings, definesMacros)
     .dependsOn(core, scalaz71, monocle)
     .settings(name := "extra")
 
