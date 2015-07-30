@@ -16,16 +16,16 @@ object Extra {
       }
   }
 
-  final class AttrExt(val _a: Attr) extends AnyVal {
+  final class AttrExt(private val _a: Attr) extends AnyVal {
     @inline def -->(callback: => Unit) = _a := ((() => callback): js.Function)
     @inline def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Unit) = _a := (eventHandler: js.Function)
   }
 
-  final class BooleanExt(val _b: Boolean) extends AnyVal {
+  final class BooleanExt(private val _b: Boolean) extends AnyVal {
     @inline def ?=(m: => TagMod): TagMod = if (_b) m else EmptyTag
   }
 
-  final class StringExt(val _s: String) extends AnyVal {
+  final class StringExt(private val _s: String) extends AnyVal {
     @inline def reactAttr : Attr     = Attr(_s)
     @inline def reactStyle: Style    = Style(_s, _s)
     @inline def reactTag  : ReactTag = makeAbstractReactTag(_s, Scalatags.NamespaceHtml.implicitNamespace)

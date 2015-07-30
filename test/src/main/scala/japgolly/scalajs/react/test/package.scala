@@ -23,7 +23,7 @@ package object test {
   @inline final implicit def autoUnboxRefsInTests[T <: TopNode](r: UndefOr[ReactComponentM_[T]]) = r.get
   @inline final implicit def autoUnboxRefsInTestsC[T <: TopNode](r: UndefOr[ReactComponentM_[T]]): ReactOrDomNode = r.get
 
-//  implicit final class RTUSimulateExt(val u: Simulate) extends AnyVal {
+//  implicit final class RTUSimulateExt(private val u: Simulate) extends AnyVal {
 //    def change(t: ReactOrDomNode, newValue: String) = u.change(t, ChangeEventData(value = newValue))
 //  }
 }

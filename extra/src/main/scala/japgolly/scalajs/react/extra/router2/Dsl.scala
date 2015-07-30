@@ -142,7 +142,7 @@ object StaticDsl {
     }
   }
 
-  class RouteBO[A](val r: RouteB[Option[A]]) extends AnyVal {
+  class RouteBO[A](private val r: RouteB[Option[A]]) extends AnyVal {
 
     /**
      * Specify a default value when parsing.
@@ -432,19 +432,19 @@ object StaticDsl {
 
   // ===================================================================================================================
 
-  final class DynamicRouteB[Page, P <: Page, O](val f: (P => Action[Page]) => O) extends AnyVal {
+  final class DynamicRouteB[Page, P <: Page, O](private val f: (P => Action[Page]) => O) extends AnyVal {
     def ~>(g: P => Action[Page]): O = f(g)
   }
 
-  final class StaticRouteB[Page, O](val f: (=> Action[Page]) => O) extends AnyVal {
+  final class StaticRouteB[Page, O](private val f: (=> Action[Page]) => O) extends AnyVal {
     def ~>(a: => Action[Page]): O = f(a)
   }
 
-  final class StaticRedirectB[Page, O](val f: (=> Redirect[Page]) => O) extends AnyVal {
+  final class StaticRedirectB[Page, O](private val f: (=> Redirect[Page]) => O) extends AnyVal {
     def ~>(a: => Redirect[Page]): O = f(a)
   }
 
-  final class DynamicRedirectB[Page, A, O](val f: (A => Redirect[Page]) => O) extends AnyVal {
+  final class DynamicRedirectB[Page, A, O](private val f: (A => Redirect[Page]) => O) extends AnyVal {
     def ~>(a: A => Redirect[Page]): O = f(a)
   }
 }
