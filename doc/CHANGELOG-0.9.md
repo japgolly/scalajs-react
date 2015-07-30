@@ -7,6 +7,7 @@
 * Test simulation data objects `{Change,Keyboard,Mouse}EventData` no longer wrap
   args in `UndefOr` with `undefined` as the default. This crashes PhantomJS.
   All args have default values now.
+* Add `onError` attribute for use with `<img>`.
 
 ```
 // Reusability.caseClass
