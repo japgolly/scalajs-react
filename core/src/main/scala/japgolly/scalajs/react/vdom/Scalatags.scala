@@ -239,7 +239,7 @@ private[vdom] object Scalatags {
     @inline def stringValue[T]: GenericStyle[T] = new GenericStyle[T](_.toString)
   }
 
-  implicit class STStringExt(val s: String) extends AnyVal {
+  implicit class STStringExt(private val s: String) extends AnyVal {
     /**
      * Converts the string to a [[ReactTag]]
      */

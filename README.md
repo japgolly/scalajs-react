@@ -17,7 +17,10 @@ Includes a router, testing utils, performance utils, more.
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/).
 - [Type Summary](doc/TYPES.md).
 - [Functional Programming](doc/FP.md).
-- [Scala-only Utilities](extra/README.md).
+- Scala-only Utilities.
+  - [Router](extra/ROUTER2.md).
+  - [Performance Management](extra/PERF.md).
+  - [Smaller stuff](extra/README.md).
 - [Testing](test/README.md).
 - [Changelogs](doc/) — [Latest](doc/CHANGELOG-0.9.md).
 

@@ -60,7 +60,7 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.byRef[A]` uses reference equality (ie. `a eq b`)
 * `Reusability.by_==[A]` uses universal equality (ie. `a == b`)
 * `Reusability.byEqual[A]` uses a Scalaz `Equal` typeclass
-* <code>Reusability.caseclass<sub>n</sub></code> for case classes of your own.
+* `Reusability.caseClass[A]` for case classes of your own.
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
 * `Reusability.fn((A, B) => Boolean)` to hand-write custom logic.
 
@@ -74,8 +74,8 @@ The following component will only re-render when one of the following change:
   case class Picture(id: Long, url: String, title: String)
   case class Props(name: String, age: Option[Int], pic: Picture)
 
-  implicit val picReuse   = Reusability.by((_: Picture).id)       // ← only check id
-  implicit val propsReuse = Reusability.caseclass3(Props.unapply) // ← check all fields
+  implicit val picReuse   = Reusability.by((_: Picture).id)  // ← only check id
+  implicit val propsReuse = Reusability.caseClass[Props]     // ← check all fields
 
   val component = ReactComponentB[Props]("Demo")
     .stateless
@@ -154,7 +154,7 @@ class Backend($: BackendScope[_, Map[PersonId, PersonData]]) {
 
 case class PersonEditorProps(name: String, update: String ~=> IO[Unit])   // ← Notice the ~=>
 
-implicit val propsReuse = Reusability.caseclass2(PersonEditorProps.unapply)
+implicit val propsReuse = Reusability.caseClass[PersonEditorProps]
 
 val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
   .stateless

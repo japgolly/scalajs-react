@@ -12,7 +12,7 @@ package object extra {
 
   type ~=>[A, B] = ReusableFn[A, B]
 
-  @inline implicit class ReactExtrasAnyExt[A](val self: A) extends AnyVal {
+  @inline implicit class ReactExtrasAnyExt[A](private val self: A) extends AnyVal {
     def ~=~(a: A)(implicit r: Reusability[A]): Boolean = r.test(self, a)
     def ~/~(a: A)(implicit r: Reusability[A]): Boolean = !r.test(self, a)
   }

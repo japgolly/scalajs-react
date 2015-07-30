@@ -31,17 +31,22 @@ object ReactComponentB {
   final class P[Props] private[ReactComponentB](name: String) {
 
     // getInitialState is how it's named in React
-    def getInitialState[State](f: Props => State) = initialStateP(f)
-    def initialStateP[State](f: Props => State)   = new PS(name, f)
-    def initialState[State](s: => State)          = initialStateP(_ => s)
-    def stateless                                 = initialState(())
+    @inline def getInitialState[State](f: Props => State) = initialStateP(f)
+
+    def initialStateC[State](f: ComponentScopeU[Props, State, Any] => State) = new PS[Props, State](name, f)
+    def initialStateP[State](f: Props => State)                              = initialStateC[State]($ => f($.props))
+    def initialState [State](s: => State)                                    = initialStateC[State](_ => s)
+
+    def stateless = initialState(())
 
     def render(f: Props                  => ReactElement) = stateless.render((p,_) => f(p))
     def render(f: (Props, PropsChildren) => ReactElement) = stateless.render((p,c,_) => f(p,c))
   }
 
+  type InitStateFn[P, S] = ComponentScopeU[P, S, Any] => S
+
   // ===================================================================================================================
-  final class PS[Props, State] private[ReactComponentB](name: String, initF: Props => State) {
+  final class PS[Props, State] private[ReactComponentB](name: String, initF: InitStateFn[Props, State]) {
 
     def backend[Backend](f: BackendScope[Props, State] => Backend) = new PSB(name, initF, f)
     def noBackend                                                  = backend(_ => ())
@@ -53,7 +58,7 @@ object ReactComponentB {
   }
 
   // ===================================================================================================================
-  final class PSB[P, S, B] private[ReactComponentB](name: String, initF: P => S, backF: BackendScope[P, S] => B) {
+  final class PSB[P, S, B] private[ReactComponentB](name: String, initF: InitStateFn[P, S], backF: BackendScope[P, S] => B) {
 
     def render(f: ComponentScopeU[P, S, B] => ReactElement): PSBN[P, S, B] =
       new PSBN(name, initF, backF, f)
@@ -69,7 +74,7 @@ object ReactComponentB {
   }
 
   // ===================================================================================================================
-  final class PSBN[P, S, B] private[ReactComponentB](name: String, initF: P => S, backF: BackendScope[P, S] => B, rendF: ComponentScopeU[P, S, B] => ReactElement) {
+  final class PSBN[P, S, B] private[ReactComponentB](name: String, initF: InitStateFn[P, S], backF: BackendScope[P, S] => B, rendF: ComponentScopeU[P, S, B] => ReactElement) {
     def domType[N <: TopNode]: ReactComponentB[P, S, B, N] =
       new ReactComponentB(name, initF, backF, rendF, emptyLifeCycle, Vector.empty)
   }
@@ -90,17 +95,17 @@ object ReactComponentB {
     LifeCycle[P,S,B,N](undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
 }
 
-import ReactComponentB.LifeCycle
+import ReactComponentB.{InitStateFn, LifeCycle}
 
 final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
-                                                initF   : P => S,
+                                                initF   : InitStateFn[P, S],
                                                 backF   : BackendScope[P, S] => B,
                                                 rendF   : ComponentScopeU[P, S, B] => ReactElement,
                                                 lc      : LifeCycle[P, S, B, N],
                                                 jsMixins: Vector[JAny]) {
 
   @inline private def copy(name    : String                                   = name    ,
-                           initF   : P => S                                   = initF   ,
+                           initF   : InitStateFn[P, S]                        = initF   ,
                            backF   : BackendScope[P, S] => B                  = backF   ,
                            rendF   : ComponentScopeU[P, S, B] => ReactElement = rendF   ,
                            lc      : LifeCycle[P, S, B, N]                    = lc      ,
@@ -187,7 +192,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
       }
       spec.updateDynamic("componentWillMount")(componentWillMount2: ThisFunction)
 
-      val initStateFn: ComponentScopeU[P, S, B] => WrapObj[S] = scope => WrapObj(initF(scope.props))
+      val initStateFn: ComponentScopeU[P, S, B] => WrapObj[S] = $ => WrapObj(initF($))
       spec.updateDynamic("getInitialState")(initStateFn: ThisFunction)
 
       lc.getDefaultProps.foreach(f => spec.updateDynamic("getDefaultProps")(f: Function))

@@ -24,9 +24,9 @@ object DslTest extends TestSuite {
     val dsl = new RouterConfigDsl[PageSet]
 
     import dsl._
-    val routeCCi = "cci" / int.caseclass1(CCi)(CCi.unapply)
-    val routeCCl = "ccl" / long.caseclass1(CCl)(CCl.unapply)
-    val routeCCu = "ccu" / uuid.caseclass1(CCu)(CCu.unapply)
+    val routeCCi = "cci" / int.caseClass[CCi]
+    val routeCCl = "ccl" / long.caseClass[CCl]
+    val routeCCu = "ccu" / uuid.caseClass[CCu]
 
     def reactTag: ReactTag =
       <.span("tag!")
@@ -57,6 +57,9 @@ object DslTest extends TestSuite {
   case class IntStr(i: Int, s: String)
   implicit val intStrEq = Equal.equalA[IntStr]
   implicit val uuidEq = Equal.equalA[UUID]
+
+  case class CC0()
+  implicit val cc0Eq = Equal.equalA[CC0]
 
   override def tests = TestSuite {
 
@@ -159,8 +162,11 @@ object DslTest extends TestSuite {
         testS(int.filter(_ > 99))(100, 666, 1000)("99", "0", "-100")
 
       'xmap -
-        test((int / string("[a-z]+")).caseclass2(IntStr)(IntStr.unapply))(v => v.i + "/" + v.s,
+        test((int / string("[a-z]+")).caseClass[IntStr])(v => v.i + "/" + v.s,
           IntStr(0, "yay"), IntStr(100, "cool"))("0/", "/yay", "yar")
+
+      'caseClass0 -
+        test("hello".caseClass[CC0])(_ => "hello", CC0())()
 
       'option {
         'basic -

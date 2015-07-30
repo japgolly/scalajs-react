@@ -13,7 +13,7 @@ object EventListener {
   def defaultTarget[P, S, B, N <: TopNode]: ComponentScopeM[P,S,B,N] => EventTarget =
     _.getDOMNode()
 
-  final class OfEventType[E <: Event](val _unused: Boolean) extends AnyVal {
+  final class OfEventType[E <: Event](private val _unused: Boolean) extends AnyVal {
 
     /**
      * Install an event listener when a component is mounted.

@@ -29,7 +29,7 @@ object ReuseExample {
       |  .build
       |
       |case class InputControl(current: Int, change: Int ~=> IO[Unit])
-      |implicit val inputControlReuse = Reusability.caseclass2(InputControl.unapply)
+      |implicit val inputControlReuse = Reusability.caseClass[InputControl]
       |
       |val inputControl = ReactComponentB[InputControl]("InputControl")
       |  .render(p =>
@@ -117,7 +117,7 @@ object ReuseExample {
     .build
 
   case class InputControl(current: Int, change: Int ~=> IO[Unit])
-  implicit val inputControlReuse = Reusability.caseclass2(InputControl.unapply)
+  implicit val inputControlReuse = Reusability.caseClass[InputControl]
 
   val inputControl = ReactComponentB[InputControl]("InputControl")
     .render(p =>

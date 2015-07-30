@@ -22,7 +22,7 @@ object ScalazReact {
     override def apply[A](a: Id[A]): IO[A] = IO(a)
   }
 
-  @inline implicit final class SzRExt_Attr(val _a: Attr) extends AnyVal {
+  @inline implicit final class SzRExt_Attr(private val _a: Attr) extends AnyVal {
 
     @inline final def ~~>(io: => IO[Unit]): TagMod =
       _a --> io.unsafePerformIO()
@@ -38,11 +38,11 @@ object ScalazReact {
       _a.==>[N, E](e => o.foreach(eventHandler(e))(_.unsafePerformIO()))
   }
 
-  @inline implicit final class SzRExt_C_M(val _c: ComponentScope_M[_]) extends AnyVal {
+  @inline implicit final class SzRExt_C_M(private val _c: ComponentScope_M[_]) extends AnyVal {
     def forceUpdateIO = IO(_c.forceUpdate())
   }
 
-  @inline implicit final class SzRExt_SEvent[N <: dom.Node](val _e: SyntheticEvent[N]) extends AnyVal {
+  @inline implicit final class SzRExt_SEvent[N <: dom.Node](private val _e: SyntheticEvent[N]) extends AnyVal {
     /**
      * Stops the default action of an element from happening.
      * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
@@ -60,13 +60,13 @@ object ScalazReact {
   // ===================================================================================================================
   // Component builder ext
 
-  implicit class SzRExt_RCB_P[Props](val _b: ReactComponentB.P[Props]) extends AnyVal {
+  implicit class SzRExt_RCB_P[Props](private val _b: ReactComponentB.P[Props]) extends AnyVal {
     def getInitialStateIO[State](f: Props => IO[State]) = _b.initialStateP(f(_).unsafePerformIO())
     def initialStatePIO[State](f: Props => IO[State])   = _b.initialStateP(f(_).unsafePerformIO())
     def initialStateIO[State](s: IO[State])             = _b.initialStateP(_ => s.unsafePerformIO())
   }
 
-  implicit class SzRExt_RCB[P, S, B, N <: TopNode](val _b: ReactComponentB[P, S, B, N]) extends AnyVal {
+  implicit class SzRExt_RCB[P, S, B, N <: TopNode](private val _b: ReactComponentB[P, S, B, N]) extends AnyVal {
 
     // A => IO
 
@@ -267,20 +267,20 @@ object ScalazReact {
     }
   }
 
-  @inline implicit final class SzRExt_StateTOps[M[_], S, A](val _s: StateT[M, S, A]) extends AnyVal {
+  @inline implicit final class SzRExt_StateTOps[M[_], S, A](private val _s: StateT[M, S, A]) extends AnyVal {
     @inline def liftS(implicit M: Functor[M]): ReactST[M, S, A] = ReactS.liftS(_s)
   }
 
-  @inline implicit final class SzRExt__StateTOps[I, M[_], S, A](val _f: I => StateT[M, S, A]) extends AnyVal {
+  @inline implicit final class SzRExt__StateTOps[I, M[_], S, A](private val _f: I => StateT[M, S, A]) extends AnyVal {
     @inline def liftS(implicit M: Functor[M]): I => ReactST[M, S, A] = _f(_).liftS
   }
 
-  @inline implicit final class SzRExt_ReactSOps[S, A](val _r: ReactS[S,A]) extends AnyVal {
+  @inline implicit final class SzRExt_ReactSOps[S, A](private val _r: ReactS[S,A]) extends AnyVal {
     // Very common case. Very sick of seeing it highlighted red everywhere in Intellij.
     def liftIO: ReactST[IO, S, A] = _r.lift[IO]
   }
 
-  @inline implicit final class SzRExt_ReactSTOps[M[_], S, A](val _r: ReactST[M,S,A]) extends AnyVal {
+  @inline implicit final class SzRExt_ReactSTOps[M[_], S, A](private val _r: ReactST[M,S,A]) extends AnyVal {
     def addCallback(c: OpCallbackIO)(implicit M: Monad[M]): ReactST[M,S,A] =
       _r.flatMap(ReactS.callbackT(_, c))
 
@@ -302,7 +302,7 @@ object ScalazReact {
   @inline implicit def toSzRExtCompStateAccessOps[C, S](c: C)(implicit a: CompStateAccess[C, S]) =
     new SzRExt_CompStateAccessOps[C, S](c)
 
-  final class SzRExt_CompStateAccessOps[C, S](val _c: C) extends AnyVal {
+  final class SzRExt_CompStateAccessOps[C, S](private val _c: C) extends AnyVal {
     // This should really be a class param but then we lose the AnyVal
     type CC = CompStateAccess[C, S]
 
