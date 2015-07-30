@@ -330,6 +330,140 @@ Rather than specify references using strings, the `Ref` object can provide some 
   }
   ```
 
+Using JS Component with `scalajs-react`.
+===============================
+
+Before showing the usage, let's create a simple example with only `JavaScript`, then, convert it into `scalajs-react` example that uses facade.
+
+Below is `sampleReactComponent.js`.
+```
+var SampleReactComponent = React.createClass({
+  getInitialState: function() {
+    return {num:0,num2:0};
+  },
+  render: function() {
+    return React.createElement("div", null, this.props.propOne);
+  },
+  getNum:function() {
+    return this.state.num;
+  },
+  setNum:function(n) {
+    this.setState({num:n});
+  }
+});
+```
+
+Below is `main.jsx`.
+```
+var factory = React.createFactory(SampleReactComponent);
+React.render(factory({propOne:"123"}), document.body);
+```
+
+At first, you should copy JS Component library file that you want to use into `scala.js` resource directory.
+
+Then, you need a `sbt` configuration like below. You may want to see [here](http://www.scala-js.org/doc/sbt/depending.html).
+
+    jsDependencies += (ProvidedJS / "sampleReactComponent.js" dependsOn "react-with-addons.js")
+
+In above code, you should write `react.js` filename correctly according to your own case.
+
+Next, you should declare some facades for your JS Components. You may want to see [here](http://www.scala-js.org/doc/calling-javascript.html), too.
+
+```
+trait SampleReactComponentProperty extends js.Object {
+  val propOne: js.UndefOr[String] = js.native
+}
+
+trait SampleReactComponentState extends js.Object {
+  val num: js.UndefOr[Int] = js.native
+  val num2: js.UndefOr[Int] = js.native
+}
+
+@JSName("SampleReactComponent")
+object SampleReactComponent extends JsComponentType[SampleReactComponentProperty, SampleReactComponentState, HTMLElement]
+
+trait SampleReactComponentM extends JsComponentM[SampleReactComponentProperty, SampleReactComponentState, HTMLElement] {
+  def getNum(): Int = js.native
+
+  def setNum(n: Int): Unit = js.native
+}
+```
+
+And, below are util functions. Since you can't use `case class` as property or state type parameter, you may need something like below, or it would be better if there are something useful scala macro.
+```
+object SampleReactComponentProperty {
+  def apply(ref: js.UndefOr[String] = js.undefined, propOne: js.UndefOr[String] = js.undefined): SampleReactComponentProperty = {
+    val p = js.Dynamic.literal()
+
+    ref.foreach(p.updateDynamic("ref")(_))
+    propOne.foreach(p.updateDynamic("propOne")(_))
+
+    p.asInstanceOf[SampleReactComponentProperty]
+  }
+}
+
+object SampleReactComponentState {
+  def apply(prevState: SampleReactComponentState)(
+    num: js.UndefOr[Int] = js.undefined,
+    num2: js.UndefOr[Int] = js.undefined): SampleReactComponentState = {
+    val p = js.Dynamic.literal()
+
+    num.orElse(prevState.num).foreach(p.updateDynamic("num")(_))
+    num2.orElse(prevState.num2).foreach(p.updateDynamic("num2")(_))
+
+    p.asInstanceOf[SampleReactComponentState]
+  }
+}
+```
+Let's translate above `main.jsx` to `scalajs-react`.
+```
+val ref = Ref.toJS[SampleReactComponentM]("ref123")
+
+val component = ReactComponentB[Unit]("S").stateless.backend(new XxxBackend(_)).render { scope =>
+  val factory = React.createFactory(SampleReactComponent)
+  factory(SampleReactComponentProperty(ref = ref, propOne = "123"))
+}.buildU
+
+React.render(component(), dom.document.body)
+```
+
+Then, you can use the JS Component with your facade like below.
+
+```
+class XxxBackend(scope: BackendScope[Unit, Unit]) {
+  def modifyOne(i: Int): Unit = {
+    ref(scope).foreach(_.setNum(i))
+  }
+
+  def modifyTwo(i: Int): Unit = {
+    ref(scope).foreach(c => c.setState(SampleReactComponentState(c.state)(num2 = i)))
+  }
+  ...
+}
+```
+The usage is not different from normal `scalajs-react` component usage.
+
+
+By the way, you should not modify any state like below.
+```
+trait SampleReactComponentState extends js.Object {
+  var num: js.UndefOr[Int] = js.native
+  ...
+}
+
+mountedComponent.foreach(_.state.var = 1)
+```
+
+Instead, you should do it like below
+```
+trait SampleReactComponentState extends js.Object {
+  val num: js.UndefOr[Int] = js.native
+  ...
+}
+
+mountedComponent.foreach(c => c.setState(SampleReactComponentState(c.state)(num2 = 1)))
+```
+
 Gotchas
 =======
 
