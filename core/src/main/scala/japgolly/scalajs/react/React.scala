@@ -17,7 +17,7 @@ trait React extends Object {
   def createClass[P,S,B,N <: TopNode](spec: ReactComponentSpec[P,S,B,N]): ReactComponentType[P,S,B,N] = js.native
 
   def createFactory[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
-  def createFactory[P,N <: TopNode](t: JSComponentType[P,N]): JSComponentCU[P,N] = js.native
+  def createFactory[P <: js.Any, S <: js.Any, N <: TopNode](t: JsComponentType[P, S, N]): JsComponentCU[P, S, N] = js.native
 
   def createElement[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
   def createElement(tag: String, props: Object, children: ReactNode*): ReactDOMElement = js.native
@@ -111,7 +111,7 @@ trait ReactComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Objec
 /** The meat in React's createClass-createFactory sandwich. */
 trait ReactComponentType[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
-trait JSComponentType[Props, +Node <: TopNode] extends Object
+trait JsComponentType[Props <: js.Any, State <: js.Any, +Node <: TopNode] extends Object
 
 /**
  * https://facebook.github.io/react/docs/glossary.html indicates children can be a super type of ReactElement.
@@ -144,8 +144,8 @@ trait ReactComponentCU[Props, State, +Backend, +Node <: TopNode] extends ReactCo
   def apply(props: WrapObj[Props], children: ReactNode*): ReactComponentU[Props, State, Backend, Node] = js.native
 }
 
-trait JSComponentCU[Props, +Node <: TopNode] extends ReactComponentC_ with JSComponentType[Props, Node] {
-  def apply(props: Props, children: ReactNode*): JSComponentU[Props, Node] = js.native
+trait JsComponentCU[Props <: js.Any, State <: js.Any, +Node <: TopNode] extends ReactComponentC_ with JsComponentType[Props, State, Node] {
+  def apply(props: Props, children: ReactNode*): JsComponentU[Props, State, Node] = js.native
 }
 
 /** An unmounted component. Not guaranteed to have been created by Scala, could be a React addon. */
@@ -156,10 +156,12 @@ trait ReactComponentM_[+Node <: TopNode]
   extends ReactComponentU_
      with ComponentScope_M[Node]
 
-trait JSComponentM[Props, +Node <: TopNode]
-  extends JSComponentU[Props, Node]
+trait JsComponentM[Props <: js.Any, State <: js.Any, +Node <: TopNode]
+  extends JsComponentU[Props, State, Node]
      with ComponentScope_M[Node] with ReactComponentM_[Node] {
-  def props : Props = js.native
+  def props: Props = js.native
+  def state: State = js.native
+  def setState(state: State): Unit = js.native
 }
 
 /** An unmounted Scala component. */
@@ -167,9 +169,9 @@ trait ReactComponentU[Props, State, +Backend, +Node <: TopNode]
   extends ReactComponentU_
      with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
-trait JSComponentU[Props, +Node <: TopNode]
+trait JsComponentU[Props <: js.Any, State <: js.Any, +Node <: TopNode]
   extends ReactComponentU_
-     with JSComponentType[Props, Node]
+     with JsComponentType[Props, State, Node]
 
 /** A mounted Scala component. */
 trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]
