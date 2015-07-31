@@ -18,8 +18,8 @@ object ExternalVarExample {
       |  .initialState(Name("John", "Wick"))
       |  .render { $ =>
       |    val name        = $.state
-      |    val firstNameEV = ExternalVar.state($.focusStateL(Name.firstName))
-      |    val surnameEV   = ExternalVar.state($.focusStateL(Name.surname))
+      |    val firstNameEV = ExternalVar.state($.zoomL(Name.firstName))
+      |    val surnameEV   = ExternalVar.state($.zoomL(Name.surname))
       |    <.div(
       |      <.label("First name:", NameChanger(firstNameEV)),
       |      <.label("Surname:",    NameChanger(surnameEV  )),
@@ -45,8 +45,8 @@ object ExternalVarExample {
     .initialState(Name("John", "Wick"))
     .render { $ =>
       val name        = $.state
-      val firstNameEV = ExternalVar.state($.focusStateL(Name.firstName))
-      val surnameEV   = ExternalVar.state($.focusStateL(Name.surname))
+      val firstNameEV = ExternalVar.state($.zoomL(Name.firstName))
+      val surnameEV   = ExternalVar.state($.zoomL(Name.surname))
       <.div(
         <.label("First name:", NameChanger(firstNameEV)),
         <.label("Surname:",    NameChanger(surnameEV  )),

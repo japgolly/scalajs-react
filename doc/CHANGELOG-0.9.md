@@ -14,6 +14,7 @@
 * Facades `React` and `ReactTestUtils` are now also traits.
 * Add `ExternalVar.zoomL`.
 * Add to `ReusableVar`: `.zoomL`, `.extZoomL`, `.toExternalVar`.
+* Deprecated and renamed `focusStateL` to `zoomL` for consistency.
 
 ```
 // Reusability.caseClass
@@ -21,6 +22,9 @@ find . -name '*.scala' -exec perl -pi -e 's/Reusability.caseclass\d+\s*\(\s*(\S+
 
 // DSL route.caseClass
 find . -name '*.scala' -exec perl -pi -e 's/\.caseclass\d+\s*\(\s*(\S+)\s*\)\s*\([^)]+\.\s*unapply\s*\)/.caseClass[$1]/' {} +
+
+// focusStateL
+find . -name '*.scala' -exec perl -pi -e 's/focusStateL/zoomL/g' {} +
 ```
 
 

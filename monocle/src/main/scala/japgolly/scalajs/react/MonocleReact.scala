@@ -14,7 +14,10 @@ object MonocleReact {
     // This should really be a class param but then we lose the AnyVal
     type CC = CompStateAccess[C, S]
 
-    @inline def focusStateL[T](l: Lens[S, T])(implicit C: CC) = new CompStateFocus[T](
+    @deprecated("focusStateL has been renamed to zoomL for consistency. focusStateL will be removed in 0.10.0", "0.9.2")
+    def focusStateL[T](l: Lens[S, T])(implicit C: CC) = zoomL(l)
+
+    def zoomL[T](l: Lens[S, T])(implicit C: CC) = new CompStateFocus[T](
       () => l get _c.state,
       (t: T, cb: OpCallback) => _c.modState(l set t, cb))
 
