@@ -12,6 +12,7 @@
   Useful for self-managing state, a minimalistic example of which you can read in
   [SelfManagedStateTest.scala](../test/src/test/scala/japgolly/scalajs/react/SelfManagedStateTest.scala).
 * Facades `React` and `ReactTestUtils` are now also traits.
+* Add `ExternalVar.zoomL`.
 
 ```
 // Reusability.caseClass
