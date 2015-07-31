@@ -13,6 +13,7 @@
   [SelfManagedStateTest.scala](../test/src/test/scala/japgolly/scalajs/react/SelfManagedStateTest.scala).
 * Facades `React` and `ReactTestUtils` are now also traits.
 * Add `ExternalVar.zoomL`.
+* Add to `ReusableVar`: `.zoomL`, `.extZoomL`, `.toExternalVar`.
 
 ```
 // Reusability.caseClass
