@@ -13,7 +13,10 @@
   [SelfManagedStateTest.scala](../test/src/test/scala/japgolly/scalajs/react/SelfManagedStateTest.scala).
 * Facades `React` and `ReactTestUtils` are now also traits.
 * Add to `ReusableVar.toExternalVar`.
-* Deprecated and renamed `focusStateL` to `zoomL` for consistency.
+* On `ComponentScope`s, deprecated and renamed:
+  * `focusState` to `zoom`.
+  * `focusStateL` to `zoomL`.
+  * `focusStateId` to `lift`.
 
 ```
 // Reusability.caseClass
@@ -22,8 +25,9 @@ find . -name '*.scala' -exec perl -pi -e 's/Reusability.caseclass\d+\s*\(\s*(\S+
 // DSL route.caseClass
 find . -name '*.scala' -exec perl -pi -e 's/\.caseclass\d+\s*\(\s*(\S+)\s*\)\s*\([^)]+\.\s*unapply\s*\)/.caseClass[$1]/' {} +
 
-// focusStateL
-find . -name '*.scala' -exec perl -pi -e 's/focusStateL/zoomL/g' {} +
+// focusState
+find . -name '*.scala' -exec perl -pi -e 's/focusStateId/lift/g' {} +
+find . -name '*.scala' -exec perl -pi -e 's/focusState/zoom/g' {} +
 ```
 
 

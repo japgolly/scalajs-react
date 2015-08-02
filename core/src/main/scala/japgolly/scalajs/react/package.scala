@@ -348,14 +348,20 @@ package object react {
       @inline def modState(f: S => S, cb: OpCallback = undefined)(implicit C: CC): Unit =
         setState(f(state), cb)
 
-      def focusStateId(implicit C: CC) = new CompStateFocus[S](
+      def lift(implicit C: CC) = new CompStateFocus[S](
         () => _c.state,
         (a: S, cb: OpCallback) => _c.setState(a, cb))
 
       /** Zoom-in on a subset of the state. */
-      def focusState[T](f: S => T)(g: (S, T) => S)(implicit C: CC) = new CompStateFocus[T](
+      def zoom[T](f: S => T)(g: (S, T) => S)(implicit C: CC) = new CompStateFocus[T](
         () => f(_c.state),
         (b: T, cb: OpCallback) => _c.setState(g(_c.state, b), cb))
+
+      @deprecated("focusStateId has been renamed to lift. focusStateId will be removed in 0.10.0", "0.9.2")
+      def focusStateId(implicit C: CC) = lift
+
+      @deprecated("focusState has been renamed to zoom for consistency. focusState will be removed in 0.10.0", "0.9.2")
+      def focusState[T](f: S => T)(g: (S, T) => S)(implicit C: CC) = zoom(f)(g)
     }
   }
 
@@ -375,5 +381,5 @@ package object react {
   }
 
   @inline implicit def autoFocusEntireState[C, S](c: C)(implicit a: CompStateAccess[C, S]): CompStateFocus[S] =
-    c.focusStateId
+    c.lift
 }
