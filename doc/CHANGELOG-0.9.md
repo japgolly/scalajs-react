@@ -12,8 +12,7 @@
   Useful for self-managing state, a minimalistic example of which you can read in
   [SelfManagedStateTest.scala](../test/src/test/scala/japgolly/scalajs/react/SelfManagedStateTest.scala).
 * Facades `React` and `ReactTestUtils` are now also traits.
-* Add `ExternalVar.zoomL`.
-* Add to `ReusableVar`: `.zoomL`, `.extZoomL`, `.toExternalVar`.
+* Add to `ReusableVar.toExternalVar`.
 * Deprecated and renamed `focusStateL` to `zoomL` for consistency.
 
 ```
