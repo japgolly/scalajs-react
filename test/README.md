@@ -85,7 +85,7 @@ Full examples can be [seen here](src/test/scala/japgolly/scalajs/react/test/SelT
 val dom = Sel(".inner a.active.new") findIn myComponent
 ```
 
-Note: The syntax is quite limited. It supports tags, classes and ids.
+Note: The syntax is quite limited. It supports tags and classes. It does **not** support Ids.
 jQuery or Sizzle will do a better job. I don't think I thought of that when I wrote `Sel` :)
 
 `DebugJs`
