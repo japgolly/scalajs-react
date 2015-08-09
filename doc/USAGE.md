@@ -12,6 +12,7 @@ It is expected that you know how React itself works.
 - [Using Components](#using-components)
 - [React Extensions](#react-extensions)
 - [Differences from React proper](#differences-from-react-proper)
+- [Using JS Components](#using-js-components)
 - [Gotchas](#gotchas)
 
 Setup
@@ -330,13 +331,13 @@ Rather than specify references using strings, the `Ref` object can provide some 
   }
   ```
 
-Using JS Component with `scalajs-react`.
-===============================
+Using JS Components
+===================
 
-Before showing the usage, let's create a simple example with only `JavaScript`, then, convert it into `scalajs-react` example that uses facade.
+First, let's create a simple example with only JavaScript, then convert it into scalajs-react example that uses Scala facades.
 
 Below is `sampleReactComponent.js`.
-```
+```js
 var SampleReactComponent = React.createClass({
   getInitialState: function() {
     return {num:0,num2:0};
@@ -354,22 +355,23 @@ var SampleReactComponent = React.createClass({
 ```
 
 Below is `main.jsx`.
-```
+```js
 var factory = React.createFactory(SampleReactComponent);
 React.render(factory({propOne:"123"}), document.body);
 ```
 
-At first, you should copy JS Component library file that you want to use into `scala.js` resource directory.
+First, copy JS Component library file that you want to use into Scala.JS resource directory.
 
-Then, you need a `sbt` configuration like below. You may want to see [here](http://www.scala-js.org/doc/sbt/depending.html).
-
-    jsDependencies += (ProvidedJS / "sampleReactComponent.js" dependsOn "react-with-addons.js")
-
-In above code, you should write `react.js` filename correctly according to your own case.
-
-Next, you should declare some facades for your JS Components. You may want to see [here](http://www.scala-js.org/doc/calling-javascript.html), too.
-
+Next, you need an SBT configuration like below.
+You may want to see [here](http://www.scala-js.org/doc/sbt/depending.html).
+(Feel free to change the `react-with-addons.js` filename according to your own case.)
+```scala
+jsDependencies += (ProvidedJS / "sampleReactComponent.js" dependsOn "react-with-addons.js")
 ```
+
+Next, declare some Scala facades for your JS Components. You may want to see [here](http://www.scala-js.org/doc/calling-javascript.html) too.
+
+```scala
 trait SampleReactComponentProperty extends js.Object {
   val propOne: js.UndefOr[String] = js.native
 }
@@ -380,17 +382,18 @@ trait SampleReactComponentState extends js.Object {
 }
 
 @JSName("SampleReactComponent")
-object SampleReactComponent extends JsComponentType[SampleReactComponentProperty, SampleReactComponentState, HTMLElement]
+object SampleReactComponent
+  extends JsComponentType[SampleReactComponentProperty, SampleReactComponentState, HTMLElement]
 
-trait SampleReactComponentM extends JsComponentM[SampleReactComponentProperty, SampleReactComponentState, HTMLElement] {
+trait SampleReactComponentM
+    extends JsComponentM[SampleReactComponentProperty, SampleReactComponentState, HTMLElement] {
   def getNum(): Int = js.native
-
   def setNum(n: Int): Unit = js.native
 }
 ```
 
-And, below are util functions. Since you can't use `case class` as property or state type parameter, you may need something like below, or it would be better if there are something useful scala macro.
-```
+As with all Scala.JS facades, you will need some boilerplate code to act as a bridge between the JS and easier-to-use Scala. Below is an example of such boilerplate utility code:
+```scala
 object SampleReactComponentProperty {
   def apply(ref: js.UndefOr[String] = js.undefined, propOne: js.UndefOr[String] = js.undefined): SampleReactComponentProperty = {
     val p = js.Dynamic.literal()
@@ -415,21 +418,11 @@ object SampleReactComponentState {
   }
 }
 ```
-Let's translate above `main.jsx` to `scalajs-react`.
-```
-val ref = Ref.toJS[SampleReactComponentM]("ref123")
 
-val component = ReactComponentB[Unit]("S").stateless.backend(new XxxBackend(_)).render { scope =>
-  val factory = React.createFactory(SampleReactComponent)
-  factory(SampleReactComponentProperty(ref = ref, propOne = "123"))
-}.buildU
+Bow let's use the previously-mentioned `main.jsx` in scalajs-react.
+In this example we'll wrap it in a Scala component with a Scala-based backend.
 
-React.render(component(), dom.document.body)
-```
-
-Then, you can use the JS Component with your facade like below.
-
-```
+```scala
 class XxxBackend(scope: BackendScope[Unit, Unit]) {
   def modifyOne(i: Int): Unit = {
     ref(scope).foreach(_.setNum(i))
@@ -440,28 +433,38 @@ class XxxBackend(scope: BackendScope[Unit, Unit]) {
   }
   ...
 }
-```
-The usage is not different from normal `scalajs-react` component usage.
 
+val ref = Ref.toJS[SampleReactComponentM]("ref123")
 
-By the way, you should not modify any state like below.
+val component = ReactComponentB[Unit]("S").stateless.backend(new XxxBackend(_)).render { scope =>
+  val factory = React.createFactory(SampleReactComponent)
+  factory(SampleReactComponentProperty(ref = ref, propOne = "123"))
+}.buildU
+
+React.render(component(), dom.document.body)
 ```
+
+From this point on, the usage is the same as with normal scalajs-react components.
+
+**NOTE**: When creating a JS component's state facade, do use `var`s, or at least do not modify them directly if you do.
+
+For example, don't do this:
+```scala
 trait SampleReactComponentState extends js.Object {
-  var num: js.UndefOr[Int] = js.native
-  ...
+  var num: js.UndefOr[Int] = js.native     // using var
 }
 
-mountedComponent.foreach(_.state.var = 1)
+mountedComponent.foreach(_.state.var = 1)  // BAD: don't modify directly
 ```
 
-Instead, you should do it like below
-```
+Instead, ensure you call `setState`. Example:
+```scala
 trait SampleReactComponentState extends js.Object {
-  val num: js.UndefOr[Int] = js.native
-  ...
+  val num: js.UndefOr[Int] = js.native   // using val, not var
 }
 
-mountedComponent.foreach(c => c.setState(SampleReactComponentState(c.state)(num2 = 1)))
+mountedComponent.foreach(c =>            // GOOD: call setState
+  c.setState(SampleReactComponentState(c.state)(num2 = 1)))
 ```
 
 Gotchas
