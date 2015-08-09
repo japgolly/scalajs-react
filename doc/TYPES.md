@@ -57,7 +57,7 @@ For using JS React Components, you can use follow facade interfaces.
 |Type|Desc|
 | ---- | ---- |
 | `JsComponentType[P, S, +N]`| A JS component class. |
-| `JsComponentCU[P, S, +N]`| A JS component factory. |
+| `JsComponentC[P, S, +N]`| A JS component factory. |
 | `JsComponentU[P, S, +N]`| A unmounted JS component.|
 | `JsComponentM[P, S, +N]`| A mounted JS component.|
 

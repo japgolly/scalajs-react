@@ -17,7 +17,7 @@ trait React extends Object {
   def createClass[P,S,B,N <: TopNode](spec: ReactComponentSpec[P,S,B,N]): ReactComponentType[P,S,B,N] = js.native
 
   def createFactory[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
-  def createFactory[P <: js.Any, S <: js.Any, N <: TopNode](t: JsComponentType[P, S, N]): JsComponentCU[P, S, N] = js.native
+  def createFactory[P <: js.Any, S <: js.Any, N <: TopNode](t: JsComponentType[P, S, N]): JsComponentC[P, S, N] = js.native
 
   def createElement[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
   def createElement(tag: String, props: Object, children: ReactNode*): ReactDOMElement = js.native
@@ -144,7 +144,7 @@ trait ReactComponentCU[Props, State, +Backend, +Node <: TopNode] extends ReactCo
   def apply(props: WrapObj[Props], children: ReactNode*): ReactComponentU[Props, State, Backend, Node] = js.native
 }
 
-trait JsComponentCU[Props <: js.Any, State <: js.Any, +Node <: TopNode] extends ReactComponentC_ with JsComponentType[Props, State, Node] {
+trait JsComponentC[Props <: js.Any, State <: js.Any, +Node <: TopNode] extends ReactComponentC_ with JsComponentType[Props, State, Node] {
   def apply(props: Props, children: ReactNode*): JsComponentU[Props, State, Node] = js.native
 }
 
