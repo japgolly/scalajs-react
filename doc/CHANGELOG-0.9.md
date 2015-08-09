@@ -1,4 +1,4 @@
-# 0.9.2
+### 0.9.2 (unreleased)
 
 * Added `Reusability.caseClass[A]` macro and deprecated `Reusability.caseclassN(A.unapply)`.
   Also comes with `caseClassDebug[A]` if you want to see the code it generates.
