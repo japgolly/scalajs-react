@@ -334,6 +334,8 @@ Rather than specify references using strings, the `Ref` object can provide some 
 Using JS Components
 ===================
 
+*Added in v0.9.2. Kindly contributed by [@imcharsi](https://github.com/imcharsi) - Thank you!*
+
 First, let's create a simple example with only JavaScript, then convert it into scalajs-react example that uses Scala facades.
 
 Below is `sampleReactComponent.js`.

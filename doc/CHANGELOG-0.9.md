@@ -4,6 +4,8 @@
   Also comes with `caseClassDebug[A]` if you want to see the code it generates.
 * In the Router2 route-building DSL, added `caseClass[A]` and deprecated `caseclassN(A)(A.unapply)`.
   Also comes with `caseClassDebug[A]` if you want to see the code it generates.
+* Add support for JS components.
+  See [USAGE.md](USAGE.md#using-js-components) for details.
 * Test simulation data objects `{Change,Keyboard,Mouse}EventData` no longer wrap
   args in `UndefOr` with `undefined` as the default. This crashes PhantomJS.
   All args have default values now.
