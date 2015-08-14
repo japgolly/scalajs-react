@@ -61,6 +61,7 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.by_==[A]` uses universal equality (ie. `a == b`)
 * `Reusability.byEqual[A]` uses a Scalaz `Equal` typeclass
 * `Reusability.caseClass[A]` for case classes of your own.
+* `Reusability.caseClassDebug[A]` as above, but shows you the code that the macro generates.
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
 * `Reusability.fn((A, B) => Boolean)` to hand-write custom logic.
 

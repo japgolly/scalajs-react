@@ -189,7 +189,8 @@ and is automatically converted to a finalised `Route` when used.
   * `.filter(A => Boolean)` causes the route to ignore parsed values which don't satisfy the given filter.
   * `.option` makes this subject portion of the route optional and turns a `RouteB[A]` into a `RouteB[Option[A]]`. Forms an isomorphism between `None` and an empty path.
   * `.xmap[B](A => B)(B => A)` allows you to map the route type from an `A` to a `B`.
-  * `.caseClass[A]` maps the route type to a case class.
+  * `.caseClass[A]` maps the route type(s) to a case class.
+  * `.caseClassDebug[A]` as above, but shows you the code that the macro generates.
 
 * Combinators on `RouteB[Option[A]]`
   * `.withDefault(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `==` to compare `A`s to the given default.
