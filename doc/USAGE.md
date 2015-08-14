@@ -24,7 +24,7 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.9.0"
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.9.2"
 
   // React.JS itself
   // Note the JS filename. Can also be react.js, react.min.js, or react-with-addons.min.js.

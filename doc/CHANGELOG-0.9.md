@@ -1,4 +1,4 @@
-### 0.9.2 (unreleased)
+# 0.9.2 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.9.1...v0.9.2))
 
 ##### New
 * Support for JS components.
