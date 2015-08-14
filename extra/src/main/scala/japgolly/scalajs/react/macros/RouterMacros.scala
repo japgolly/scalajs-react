@@ -2,27 +2,25 @@ package japgolly.scalajs.react.macros
 
 import scala.reflect.macros.blackbox.Context
 import japgolly.scalajs.react.extra.router2.StaticDsl.{Route, RouteB}
-import ReactMacroUtils._
 
-object RouterMacros {
+class RouterMacros (val c: Context) extends ReactMacroUtils {
+  import c.universe._
 
-  def quietCaseClass[T: c.WeakTypeTag](c: Context): c.Expr[Route[T]] = implCaseClass[Route, T](c, false)
-  def debugCaseClass[T: c.WeakTypeTag](c: Context): c.Expr[Route[T]] = implCaseClass[Route, T](c, true)
+  def quietCaseClass[T: c.WeakTypeTag]: c.Expr[Route[T]] = implCaseClass[Route, T](false)
+  def debugCaseClass[T: c.WeakTypeTag]: c.Expr[Route[T]] = implCaseClass[Route, T](true)
 
-  def quietCaseClassB[T: c.WeakTypeTag](c: Context): c.Expr[RouteB[T]] = implCaseClass[RouteB, T](c, false)
-  def debugCaseClassB[T: c.WeakTypeTag](c: Context): c.Expr[RouteB[T]] = implCaseClass[RouteB, T](c, true)
+  def quietCaseClassB[T: c.WeakTypeTag]: c.Expr[RouteB[T]] = implCaseClass[RouteB, T](false)
+  def debugCaseClassB[T: c.WeakTypeTag]: c.Expr[RouteB[T]] = implCaseClass[RouteB, T](true)
 
-  private def implCaseClass[R[_], T: c.WeakTypeTag](c: Context, debug: Boolean): c.Expr[R[T]] = {
-    import c.universe._
-
-    val T       = concreteWeakTypeOf[T](c)
-    val params  = primaryConstructorParams(c)
-    val applyFn = tcApplyFn(c)(T)
+  private def implCaseClass[R[_], T: c.WeakTypeTag](debug: Boolean): c.Expr[R[T]] = {
+    val T       = concreteWeakTypeOf[T]
+    val params  = primaryConstructorParams(T)
+    val applyFn = tcApplyFn(T)
 
     def replaceMethod(newMethod: String) =
       c.macroApplication match {
         case TypeApply(Select(r, _), _) => Select(r, TermName(newMethod))
-        case x => fail(c, s"Don't know how to parse macroApplication: ${showRaw(x)}")
+        case x => fail(s"Don't know how to parse macroApplication: ${showRaw(x)}")
       }
 
     def xmap  = replaceMethod("xmap")
@@ -34,7 +32,7 @@ object RouterMacros {
           q"$const[$T]($applyFn())"
 
         case param :: Nil =>
-          val (n, t) = nameAndType(c)(param)
+          val (n, t) = nameAndType(T, param)
           q"$xmap[$T]($applyFn)(_.$n)"
 
         case _ =>
@@ -43,7 +41,7 @@ object RouterMacros {
           var index     = 0
           for (p <- params) {
             index += 1
-            val (n, t) = nameAndType[T](c)(p)
+            val (n, t) = nameAndType(T, p)
             val tn = TermName("_" + index)
             fromTuple :+= q"t.$tn"
             toTuple   :+= q"c.$n"

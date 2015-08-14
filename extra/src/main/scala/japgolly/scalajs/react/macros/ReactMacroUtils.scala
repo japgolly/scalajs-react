@@ -2,42 +2,41 @@ package japgolly.scalajs.react.macros
 
 import scala.reflect.macros.blackbox.Context
 
-object ReactMacroUtils {
+abstract class ReactMacroUtils {
+  val c: Context
+  import c.universe._
 
-  def fail(c: Context, msg: String): Nothing =
+  final def fail(msg: String): Nothing =
     c.abort(c.enclosingPosition, msg)
 
-  def concreteWeakTypeOf[T: c.WeakTypeTag](c: Context): c.universe.Type = {
-    val t = c.universe.weakTypeOf[T]
-    ensureConcrete(c)(t)
+  final def warn(msg: String): Unit =
+    c.warning(c.enclosingPosition, msg)
+
+  final def concreteWeakTypeOf[T: c.WeakTypeTag]: Type = {
+    val t = weakTypeOf[T]
+    ensureConcrete(t)
     t
   }
 
-  def ensureConcrete(c: Context)(t: c.universe.Type): Unit = {
+  final def ensureConcrete(t: Type): Unit = {
     val sym = t.typeSymbol.asClass
     if (sym.isAbstract)
-      fail(c, s"ensureConcrete: [${sym.name}] is abstract which is not allowed.")
+      fail(s"ensureConcrete: [${sym.name}] is abstract which is not allowed.")
     if (sym.isTrait)
-      fail(c, s"ensureConcrete: [${sym.name}] is a trait which is not allowed.")
+      fail(s"ensureConcrete: [${sym.name}] is a trait which is not allowed.")
     if (sym.isSynthetic)
-      fail(c, s"ensureConcrete: [${sym.name}] is synthetic which is not allowed.")
+      fail(s"ensureConcrete: [${sym.name}] is synthetic which is not allowed.")
   }
 
-  def primaryConstructorParams[T: c.WeakTypeTag](c: Context): List[c.universe.Symbol] = {
-    import c.universe._
-    val T = weakTypeOf[T]
-    T.decls
+  final def primaryConstructorParams(t: Type): List[Symbol] =
+    t.decls
       .collectFirst { case m: MethodSymbol if m.isPrimaryConstructor => m }
-      .getOrElse(fail(c, "Unable to discern primary constructor."))
+      .getOrElse(fail("Unable to discern primary constructor."))
       .paramLists
       .headOption
-      .getOrElse(fail(c, "Primary constructor missing paramList."))
-  }
+      .getOrElse(fail("Primary constructor missing paramList."))
 
-  def nameAndType[T: c.WeakTypeTag](c: Context)(s: c.universe.Symbol): (c.universe.TermName, c.universe.Type) = {
-    import c.universe._
-    val T = weakTypeOf[T]
-
+  final def nameAndType(T: Type, s: Symbol): (TermName, Type) = {
     def paramType(name: TermName): Type =
       T.decl(name).typeSignatureIn(T) match {
         case NullaryMethodType(t) => t
@@ -52,13 +51,14 @@ object ReactMacroUtils {
   /**
    * Create code for a function that will call .apply() on a given type's type companion object.
    */
-  def tcApplyFn(c: Context)(t: c.universe.Type): c.universe.Select = {
-    import c.universe._
+  final def tcApplyFn(t: Type): Select = {
     val sym = t.typeSymbol
     val tc  = sym.companion
+    if (tc == NoSymbol)
+      fail(s"Companion object not found for $sym")
     val pre = t match {
       case TypeRef(p, _, _) => p
-      case x                => fail(c, s"Don't know how to extract `pre` from ${showRaw(x)}")
+      case x                => fail(s"Don't know how to extract `pre` from ${showRaw(x)}")
     }
 
     pre match {

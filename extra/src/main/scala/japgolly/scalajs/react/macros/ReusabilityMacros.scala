@@ -2,18 +2,16 @@ package japgolly.scalajs.react.macros
 
 import scala.reflect.macros.blackbox.Context
 import japgolly.scalajs.react.extra.Reusability
-import ReactMacroUtils._
 
-object ReusabilityMacros {
+class ReusabilityMacros(val c: Context) extends ReactMacroUtils {
+  import c.universe._
 
-  def quietCaseClass[T: c.WeakTypeTag](c: Context): c.Expr[Reusability[T]] = implCaseClass[T](c, false)
-  def debugCaseClass[T: c.WeakTypeTag](c: Context): c.Expr[Reusability[T]] = implCaseClass[T](c, true)
+  def quietCaseClass[T: c.WeakTypeTag]: c.Expr[Reusability[T]] = implCaseClass[T](false)
+  def debugCaseClass[T: c.WeakTypeTag]: c.Expr[Reusability[T]] = implCaseClass[T](true)
 
-  def implCaseClass[T: c.WeakTypeTag](c: Context, debug: Boolean): c.Expr[Reusability[T]] = {
-    import c.universe._
-
-    val T      = concreteWeakTypeOf[T](c)
-    val params = primaryConstructorParams(c)
+  def implCaseClass[T: c.WeakTypeTag](debug: Boolean): c.Expr[Reusability[T]] = {
+    val T      = concreteWeakTypeOf[T]
+    val params = primaryConstructorParams(T)
 
     val Reusability  =  q"_root_.japgolly.scalajs.react.extra.Reusability"
     val ReusabilityT = tq"_root_.japgolly.scalajs.react.extra.Reusability"
@@ -24,7 +22,7 @@ object ReusabilityMacros {
           q"$Reusability.const[$T](true)"
 
         case param :: Nil =>
-          val (n, t) = nameAndType(c)(param)
+          val (n, t) = nameAndType(T, param)
           q"$Reusability.by[$T,$t](_.$n)"
 
         case _ =>
@@ -32,7 +30,7 @@ object ReusabilityMacros {
           var tests = Vector.empty[Tree]
 
           for (p <- params) {
-            val (n, t) = nameAndType[T](c)(p)
+            val (n, t) = nameAndType(T, p)
             val fp = TermName(c.freshName())
             insts :+= q"val $fp = implicitly[$ReusabilityT[$t]]"
             tests :+= q"$fp.test(a.$n, b.$n)"
