@@ -71,4 +71,13 @@ abstract class ReactMacroUtils {
         Select(Ident(tc), TermName("apply"))
     }
   }
+
+  final def tryInferImplicit(t: Type): Option[Tree] =
+    c.inferImplicitValue(t, silent = true) match {
+      case EmptyTree => None
+      case i         => Some(i)
+    }
+
+  final def needInferImplicit(t: Type): Tree =
+    tryInferImplicit(t) getOrElse sys.error(s"Implicit not found: $t")
 }

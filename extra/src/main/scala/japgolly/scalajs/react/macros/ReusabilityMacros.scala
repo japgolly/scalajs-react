@@ -14,7 +14,6 @@ class ReusabilityMacros(val c: Context) extends ReactMacroUtils {
     val params = primaryConstructorParams(T)
 
     val Reusability  =  q"_root_.japgolly.scalajs.react.extra.Reusability"
-    val ReusabilityT = tq"_root_.japgolly.scalajs.react.extra.Reusability"
 
     val impl =
       params match {
@@ -29,10 +28,11 @@ class ReusabilityMacros(val c: Context) extends ReactMacroUtils {
           var insts = Vector.empty[ValDef]
           var tests = Vector.empty[Tree]
 
+          val reusability = c.typeOf[japgolly.scalajs.react.extra.Reusability[_]]
           for (p <- params) {
             val (n, t) = nameAndType(T, p)
             val fp = TermName(c.freshName())
-            insts :+= q"val $fp = implicitly[$ReusabilityT[$t]]"
+            insts :+= q"val $fp = ${needInferImplicit(appliedType(reusability, t))}"
             tests :+= q"$fp.test(a.$n, b.$n)"
           }
 
