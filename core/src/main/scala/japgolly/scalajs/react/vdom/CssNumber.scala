@@ -4,7 +4,7 @@ package japgolly.scalajs.react.vdom
  * Extends numbers to provide a bunch of useful methods, allowing you to write
  * CSS-lengths in a nice syntax without resorting to strings.
  */
-final class CssNumber private[vdom] (val _n: Any) extends AnyVal {
+final class CssNumber private[vdom] (private val _n: Any) extends AnyVal {
 
   @inline private def addSuffix(suffix: String): String =
     _n.toString + suffix

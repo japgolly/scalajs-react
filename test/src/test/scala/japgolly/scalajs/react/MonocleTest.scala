@@ -16,9 +16,9 @@ object MonocleTest extends TestSuite {
       val lensST: Lens[S, T] = null
       val lensTS: Lens[T, S] = null
 
-      "BackendScope ops"    - test[BackendScope[Unit, S]      ](_ focusStateL lensST).expect[CompStateFocus[T]]
-      "ComponentScopeM ops" - test[ComponentScopeM[U, S, U, N]](_ focusStateL lensST).expect[CompStateFocus[T]]
-      "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_ focusStateL lensST).expect[CompStateFocus[T]]
+      "BackendScope ops"    - test[BackendScope[Unit, S]      ](_ zoomL lensST      ).expect[CompStateFocus[T]]
+      "ComponentScopeM ops" - test[ComponentScopeM[U, S, U, N]](_ zoomL lensST      ).expect[CompStateFocus[T]]
+      "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_ zoomL lensST      ).expect[CompStateFocus[T]]
       "ReactS.zoomL"        - test[ReactST[M, S, A]           ](_ zoomL lensTS      ).expect[ReactST[M, T, A]]
       "c._setStateL"        - test[BackendScope[Unit, S]      ](_ _setStateL lensST ).expect[T => IO[Unit]]
     }

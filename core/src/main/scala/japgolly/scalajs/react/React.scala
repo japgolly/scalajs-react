@@ -5,7 +5,8 @@ import scala.scalajs.js
 import js.{Dynamic, UndefOr, ThisFunction, ThisFunction0, Object, Any => JAny, Function => JFn}
 import js.annotation.{JSBracketAccess, JSName}
 
-object React extends Object {
+object React extends React
+trait React extends Object {
 
   /**
    * Create a component given a specification. A component implements a render method which returns one single child.
@@ -16,6 +17,7 @@ object React extends Object {
   def createClass[P,S,B,N <: TopNode](spec: ReactComponentSpec[P,S,B,N]): ReactComponentType[P,S,B,N] = js.native
 
   def createFactory[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
+  def createFactory[P <: js.Any, S <: js.Any, N <: TopNode](t: JsComponentType[P, S, N]): JsComponentC[P, S, N] = js.native
 
   def createElement[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
   def createElement(tag: String, props: Object, children: ReactNode*): ReactDOMElement = js.native
@@ -104,10 +106,14 @@ trait ReactChildren extends Object {
   def count(c: PropsChildren): Int = js.native
 }
 
+// =====================================================================================================================
+
 trait ReactComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
 /** The meat in React's createClass-createFactory sandwich. */
 trait ReactComponentType[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
+
+trait JsComponentType[Props <: js.Any, State <: js.Any, +Node <: TopNode] extends Object
 
 /**
  * https://facebook.github.io/react/docs/glossary.html indicates children can be a super type of ReactElement.
@@ -140,6 +146,10 @@ trait ReactComponentCU[Props, State, +Backend, +Node <: TopNode] extends ReactCo
   def apply(props: WrapObj[Props], children: ReactNode*): ReactComponentU[Props, State, Backend, Node] = js.native
 }
 
+trait JsComponentC[Props <: js.Any, State <: js.Any, +Node <: TopNode] extends ReactComponentC_ with JsComponentType[Props, State, Node] {
+  def apply(props: Props, children: ReactNode*): JsComponentU[Props, State, Node] = js.native
+}
+
 /** An unmounted component. Not guaranteed to have been created by Scala, could be a React addon. */
 trait ReactComponentU_ extends ReactElement
 
@@ -148,10 +158,22 @@ trait ReactComponentM_[+Node <: TopNode]
   extends ReactComponentU_
      with ComponentScope_M[Node]
 
+trait JsComponentM[Props <: js.Any, State <: js.Any, +Node <: TopNode]
+  extends JsComponentU[Props, State, Node]
+     with ComponentScope_M[Node] with ReactComponentM_[Node] {
+  def props: Props = js.native
+  def state: State = js.native
+  def setState(state: State): Unit = js.native
+}
+
 /** An unmounted Scala component. */
 trait ReactComponentU[Props, State, +Backend, +Node <: TopNode]
   extends ReactComponentU_
      with ReactComponentTypeAuxJ[Props, State, Backend, Node]
+
+trait JsComponentU[Props <: js.Any, State <: js.Any, +Node <: TopNode]
+  extends ReactComponentU_
+     with JsComponentType[Props, State, Node]
 
 /** A mounted Scala component. */
 trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]
@@ -252,164 +274,3 @@ trait PropsMixedIn extends Object {
 /** Type of `this.props.children` */
 trait PropsChildren extends Object
 
-// =====================================================================================================================
-// Events
-
-/** https://facebook.github.io/react/docs/events.html */
-trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends Object {
-  val bubbles         : Boolean        = js.native
-  val cancelable      : Boolean        = js.native
-  val currentTarget   : DOMEventTarget = js.native
-  def defaultPrevented: Boolean        = js.native
-  val eventPhase      : Double         = js.native
-  val isTrusted       : Boolean        = js.native
-  val nativeEvent     : dom.Event      = js.native
-  val target          : DOMEventTarget = js.native
-  val timeStamp       : js.Date        = js.native
-  /**
-   * Stops the default action of an element from happening.
-   * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
-   */
-  def preventDefault(): Unit = js.native
-  /**
-   * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
-   */
-  def stopPropagation(): Unit = js.native
-  @JSName("type") val eventType: String = js.native
-}
-
-/** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticUIEvent.js */
-trait SyntheticUIEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEventTarget] {
-  override val nativeEvent: dom.UIEvent = js.native
-  /**
-   * The view attribute identifies the AbstractView from which the event was generated.
-   * The un-initialized value of this attribute must be null.
-   */
-  def view(event: dom.Event): Object = js.native
-  /**
-   * Specifies some detail information about the Event, depending on the type of event.
-   * The un-initialized value of this attribute must be 0.
-   */
-  def detail(event: dom.Event): Double = js.native
-}
-
-/** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticClipboardEvent.js */
-trait SyntheticClipboardEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEventTarget] {
-  /**
-   * The clipboardData attribute is an instance of the DataTransfer interface which lets a script read and manipulate
-   * values on the system clipboard during user-initiated copy, cut and paste operations. The associated drag data store
-   * is a live but filtered view of the system clipboard, exposing data types the implementation knows the script can
-   * safely access.
-   *
-   * The clipboardData object's items and files properties enable processing of multi-part or non-textual data from the
-   * clipboard.
-   *
-   * http://www.w3.org/TR/clipboard-apis/#widl-ClipboardEvent-clipboardData
-   */
-  def clipboardData(event: dom.Event): dom.DataTransfer = js.native
-}
-
-/** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticCompositionEvent.js */
-trait SyntheticCompositionEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEventTarget] {
-  override val nativeEvent: dom.CompositionEvent = js.native
-  /**
-   * Holds the value of the characters generated by an input method.
-   * This may be a single Unicode character or a non-empty sequence of Unicode characters [Unicode].
-   * Characters should be normalized as defined by the Unicode normalization form NFC, defined in [UAX #15].
-   * This attribute may be null or contain the empty string.
-   *
-   * http://www.w3.org/TR/DOM-Level-3-Events/#events-compositionevents
-   */
-  val data: String = js.native
-}
-
-/** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticDragEvent.js */
-trait SyntheticDragEvent[+DOMEventTarget <: dom.Node] extends SyntheticMouseEvent[DOMEventTarget] {
-  override val nativeEvent: dom.DragEvent = js.native
-  val dataTransfer: dom.DataTransfer = js.native
-}
-
-/** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticFocusEvent.js */
-trait SyntheticFocusEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[DOMEventTarget] {
-  override val nativeEvent: dom.FocusEvent = js.native
-  val relatedTarget: dom.EventTarget = js.native
-}
-
-// DISABLED. input.onchange generates SyntheticEvent not SyntheticInputEvent
-///** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticInputEvent.js */
-//trait SyntheticInputEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEventTarget] {
-//  /**
-//   * Holds the value of the characters generated by an input method.
-//   * This may be a single Unicode character or a non-empty sequence of Unicode characters [Unicode].
-//   * Characters should be normalized as defined by the Unicode normalization form NFC, defined in [UAX #15].
-//   * This attribute may be null or contain the empty string.
-//   *
-//   * http://www.w3.org/TR/2013/WD-DOM-Level-3-Events-20131105/#events-inputevents
-//   */
-//  val data: String = js.native
-//}
-
-/** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticKeyboardEvent.js */
-trait SyntheticKeyboardEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[DOMEventTarget] {
-  override val nativeEvent: dom.KeyboardEvent = js.native
-  /** See org.scalajs.dom.extensions.KeyValue */
-  val key      : String  = js.native
-  val location : Double  = js.native
-  val altKey   : Boolean = js.native
-  val ctrlKey  : Boolean = js.native
-  val metaKey  : Boolean = js.native
-  val shiftKey : Boolean = js.native
-  val repeat   : Boolean = js.native
-  val locale   : String  = js.native
-  def getModifierState(keyArg: String): Boolean = js.native
-  //  charCode: function(event) {
-  //  keyCode: function(event) {
-  //  which: function(event) {
-}
-
-/** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticMouseEvent.js */
-trait SyntheticMouseEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[DOMEventTarget] {
-  override val nativeEvent: dom.MouseEvent = js.native
-  val screenX  : Double  = js.native
-  val screenY  : Double  = js.native
-  val clientX  : Double  = js.native
-  val clientY  : Double  = js.native
-  val buttons  : Int     = js.native
-  val altKey   : Boolean = js.native
-  val ctrlKey  : Boolean = js.native
-  val metaKey  : Boolean = js.native
-  val shiftKey : Boolean = js.native
-  def getModifierState(keyArg: String)  : Boolean         = js.native
-  def relatedTarget   (event: dom.Event): dom.EventTarget = js.native
-  def button          (event: dom.Event): Double          = js.native
-  def pageX           (event: dom.Event): Double          = js.native
-  def pageY           (event: dom.Event): Double          = js.native
-}
-
-/** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticTouchEvent.js */
-trait SyntheticTouchEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[DOMEventTarget] {
-  override val nativeEvent: dom.TouchEvent = js.native
-  val altKey        : Boolean       = js.native
-  val ctrlKey       : Boolean       = js.native
-  val metaKey       : Boolean       = js.native
-  val shiftKey      : Boolean       = js.native
-  val touches       : dom.TouchList = js.native
-  val targetTouches : dom.TouchList = js.native
-  val changedTouches: dom.TouchList = js.native
-  def getModifierState(keyArg: String): Boolean = js.native
-}
-
-/** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticWheelEvent.js */
-trait SyntheticWheelEvent[+DOMEventTarget <: dom.Node] extends SyntheticMouseEvent[DOMEventTarget] {
-  override val nativeEvent: dom.WheelEvent = js.native
-  def deltaX(event: dom.Event): Double = js.native
-  def deltaY(event: dom.Event): Double = js.native
-  val deltaZ: Double = js.native
-  /**
-   * Browsers without "deltaMode" is reporting in raw wheel delta where one
-   * notch on the scroll is always +/- 120, roughly equivalent to pixels.
-   * A good approximation of DOM_DELTA_LINE (1) is 5% of viewport size or
-   * ~40 pixels, for DOM_DELTA_SCREEN (2) it is 87.5% of viewport size.
-   */
-  val deltaMode: Double = js.native
-}

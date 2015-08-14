@@ -1,5 +1,7 @@
 package japgolly.scalajs.react.extra
 
+import japgolly.scalajs.react._
+
 /**
  * A value explicitly being marked as reusable.
  *
@@ -23,8 +25,11 @@ object ReusableVal {
   def byRef[A <: AnyRef](value: A): ReusableVal[A] =
     new ReusableVal(value, Reusability.byRef)
 
+  def renderComponent[P](c: ReactComponentC.ReqProps[P, _, _, TopNode])(p: P): ReusableVal[ReactElement] =
+    byRef(c(p))
+
   implicit def reusability[A]: Reusability[ReusableVal[A]] =
-    Reusability.fn((a, b) => a.reusability.test(a, b) && b.reusability.test(a, b))
+    Reusability.internal((_: ReusableVal[A]).value)(_.reusability)
 
   @inline implicit def autoValue[A](r: ReusableVal[A]): A =
     r.value

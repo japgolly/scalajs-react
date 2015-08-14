@@ -55,7 +55,7 @@ object ExamplesPage {
 
   case class Props(current: Example, router: RouterCtl[Example])
 
-  implicit val propsReuse = Reusability.caseclass2(Props.unapply)
+  implicit val propsReuse = Reusability.caseClass[Props]
 
   val menu = ReactComponentB[Props]("Example menu")
     .render { p =>

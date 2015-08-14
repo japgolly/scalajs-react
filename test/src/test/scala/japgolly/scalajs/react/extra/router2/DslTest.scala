@@ -1,5 +1,7 @@
 package japgolly.scalajs.react.extra.router2
 
+import java.util.UUID
+
 import scalaz.Equal
 import utest._
 import japgolly.scalajs.react._
@@ -17,12 +19,14 @@ object DslTest extends TestSuite {
     case object Obj2 extends PageSet
     case class CCi(i: Int) extends PageSubSet
     case class CCl(l: Long) extends PageSet
+    case class CCu(u: UUID) extends PageSet
 
     val dsl = new RouterConfigDsl[PageSet]
 
     import dsl._
-    val routeCCi = "cci" / int.caseclass1(CCi)(CCi.unapply)
-    val routeCCl = "ccl" / long.caseclass1(CCl)(CCl.unapply)
+    val routeCCi = "cci" / int.caseClass[CCi]
+    val routeCCl = "ccl" / long.caseClass[CCl]
+    val routeCCu = "ccu" / uuid.caseClass[CCu]
 
     def reactTag: ReactTag =
       <.span("tag!")
@@ -52,6 +56,10 @@ object DslTest extends TestSuite {
 
   case class IntStr(i: Int, s: String)
   implicit val intStrEq = Equal.equalA[IntStr]
+  implicit val uuidEq = Equal.equalA[UUID]
+
+  case class CC0()
+  implicit val cc0Eq = Equal.equalA[CC0]
 
   override def tests = TestSuite {
 
@@ -82,6 +90,9 @@ object DslTest extends TestSuite {
       val ints  = List[Int](3, 0, 123123, -3)
       def ints2 = for {a <- ints; b <- ints} yield (a,b)
       def ints3 = for {a <- ints; b <- ints; c <- ints} yield (a,b,c)
+      def uuids = List[UUID](UUID fromString "12345678-1234-1234-1234-123456789012",
+                             UUID fromString "87654321-4321-4321-4321-210987654321",
+                             UUID fromString "abcdef12-abcd-ef12-12ab-abcdef123456")
 
       'root -
         testU(root)("")("/", " ", "ah")
@@ -97,6 +108,13 @@ object DslTest extends TestSuite {
 
       'string -
         testS(string("[0-9a-fA-F]+"))("7", "321", "0BeeF")("", "g", "beam", "-9")
+
+      'uuid -
+        testS(uuid)(uuids: _*)("12345678-1234-1234-1234-12345678901", "x12345678-1234-1234-1234-123456789012",
+                               "12345678-1234-1234-1234-123456789012/", "/12345678-1234-1234-1234-123456789012",
+                               "g2345678-1234-1234-1234-123456789012", "G2345678-1234-1234-1234-123456789012",
+                               "12345678-g234-1234-1234-123456789012", "12345678-G234-1234-1234-123456789012",
+                               "12345678-1234-1234-1234-g23456789012", "12345678-1234-1234-1234-G23456789012")
 
       '_to_ -
         testU("a" / "b")("a/b")("", "ab", "a//b", "/a/b", "a/b/")
@@ -144,8 +162,11 @@ object DslTest extends TestSuite {
         testS(int.filter(_ > 99))(100, 666, 1000)("99", "0", "-100")
 
       'xmap -
-        test((int / string("[a-z]+")).caseclass2(IntStr)(IntStr.unapply))(v => v.i + "/" + v.s,
+        test((int / string("[a-z]+")).caseClass[IntStr])(v => v.i + "/" + v.s,
           IntStr(0, "yay"), IntStr(100, "cool"))("0/", "/yay", "yar")
+
+      'caseClass0 -
+        test("hello".caseClass[CC0])(_ => "hello", CC0())()
 
       'option {
         'basic -
@@ -215,6 +236,8 @@ object DslTest extends TestSuite {
         dynamicRouteCT(routeCCi) ~> redirectToPage(Obj2)
         dynamicRouteCT(routeCCi) ~> redirectToPath(Path.root)
         dynamicRouteCT(routeCCi) ~> redirectToPath("hehe")
+
+        dynamicRouteCT(routeCCu) ~> dynRender(compCReqPage(_))
 
         compileError("""dynamicRoute(routeCCl) ~> dynRender(compCReqPageSub(_))""") // CCl ⊄ PageSubSet
         ()

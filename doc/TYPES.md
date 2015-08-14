@@ -52,6 +52,17 @@ Namely...
 | `ComponentScopeWU[P, S, +B, +N]` | A component's `this` scope during `componentWillUpdate`. |
 | `BackendScope[P, S]` | A component's `this` scope as is available to backends. |
 
+For using JS React Components, you can use follow facade interfaces.
+
+|Type|Desc|
+| ---- | ---- |
+| `JsComponentType[P, S, +N]`| A JS component class. |
+| `JsComponentC[P, S, +N]`| A JS component factory. |
+| `JsComponentU[P, S, +N]`| A unmounted JS component.|
+| `JsComponentM[P, S, +N]`| A mounted JS component.|
+
+The characters, `P`, `S` and `N`'s means are same to above. Note that there are no `B`.
+
 # Events
 
 The synthetic event types you read about in the [React docs](https://facebook.github.io/react/docs/events.html)
@@ -61,7 +72,7 @@ As type safety is a goal, synthetic events also type the event target,
 but if you don't know or care about the event target type, simply use `ReactEvent` instead.
 
 | React Event Type | Alias for any `Node` |
-| ---- | ---- | ---- |
+| ---- | ---- |
 | `SyntheticEvent[Node]` | `ReactEvent` |
 | `SyntheticClipboardEvent[Node]` | `ReactClipboardEvent` |
 | `SyntheticCompositionEvent[Node]` | `ReactCompositionEvent` |
@@ -79,6 +90,7 @@ One of the suffixes below can be added to any the ReactEvents above, to provide 
 | ------ | ---- |
 | `H` | `HTMLElement` |
 | `I` | `HTMLInputElement` |
+| `TA` | `HTMLTextAreaElement` |
 
 For example, `ReactDragEventI` is a `ReactDragEvent` over a `HTMLInputElement` (an `<input>`), the same as writing `SyntheticDragEvent[HTMLInputElement]`.
 

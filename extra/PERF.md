@@ -22,6 +22,7 @@ These utilities help you avoid work in two ways.
   - [Warning](#warning)
   - [Tricks](#tricks)
 - [`ReusableVal`](#reusableval)
+- [`ReusableVal2`](#reusableval2)
 - [`ReusableVar`](#reusablevar)
 - [`Px`](#px)
   - [Initial instances](#initial-instances)
@@ -59,7 +60,8 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.byRef[A]` uses reference equality (ie. `a eq b`)
 * `Reusability.by_==[A]` uses universal equality (ie. `a == b`)
 * `Reusability.byEqual[A]` uses a Scalaz `Equal` typeclass
-* <code>Reusability.caseclass<sub>n</sub></code> for case classes of your own.
+* `Reusability.caseClass[A]` for case classes of your own.
+* `Reusability.caseClassDebug[A]` as above, but shows you the code that the macro generates.
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
 * `Reusability.fn((A, B) => Boolean)` to hand-write custom logic.
 
@@ -73,8 +75,8 @@ The following component will only re-render when one of the following change:
   case class Picture(id: Long, url: String, title: String)
   case class Props(name: String, age: Option[Int], pic: Picture)
 
-  implicit val picReuse   = Reusability.by((_: Picture).id)       // ← only check id
-  implicit val propsReuse = Reusability.caseclass3(Props.unapply) // ← check all fields
+  implicit val picReuse   = Reusability.by((_: Picture).id)  // ← only check id
+  implicit val propsReuse = Reusability.caseClass[Props]     // ← check all fields
 
   val component = ReactComponentB[Props]("Demo")
     .stateless
@@ -153,7 +155,7 @@ class Backend($: BackendScope[_, Map[PersonId, PersonData]]) {
 
 case class PersonEditorProps(name: String, update: String ~=> IO[Unit])   // ← Notice the ~=>
 
-implicit val propsReuse = Reusability.caseclass2(PersonEditorProps.unapply)
+implicit val propsReuse = Reusability.caseClass[PersonEditorProps]
 
 val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
   .stateless
@@ -272,6 +274,35 @@ val i: ReusableVal[Int] =
 // For convenience, there's ReusableVal.byRef
 val e: ReusableVal[ReactElement] =
   ReusableVal.byRef(<.span("Hello"))
+```
+
+
+`ReusableVal2`
+==============
+
+A `ReusableVal2[A, S]` is a (lazy) value `A`, and a value `S` which is the reusability `S`ource.
+
+In other words, `A` is reusable as long as `S` is reusable.
+
+##### Example
+
+In this example, we create a reusable `ReactElement` (VDOM) which is
+reusable as long as its input (`age: Int`) is the same between render passes.
+
+```scala
+def renderAge(age: Int): ReactElement =
+  <.div(
+    <.h1("Your age is: ", age),
+    <.hr,
+    <.p("How exciting!"))
+
+// Create a Reusable ReactElement
+def ageDom(age: Int): ReusableVal2[ReactElement, Int] =
+  ReusableVal2(renderAge(age), age)
+
+// Create a Reusable ReactElement (using shorthand)
+def ageDom(age: Int): ReusableVal2[ReactElement, Int] =
+  ReusableVal2.function(age)(renderAge)
 ```
 
 

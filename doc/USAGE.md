@@ -9,8 +9,10 @@ It is expected that you know how React itself works.
 - [Setup](#setup)
 - [Creating Virtual-DOM](#creating-virtual-dom)
 - [Creating Components](#creating-components)
+- [Using Components](#using-components)
 - [React Extensions](#react-extensions)
 - [Differences from React proper](#differences-from-react-proper)
+- [Using JS Components](#using-js-components)
 - [Gotchas](#gotchas)
 
 Setup
@@ -22,7 +24,7 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.8.4"
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.9.2"
 
   // React.JS itself
   // Note the JS filename. Can also be react.js, react.min.js, or react-with-addons.min.js.
@@ -70,14 +72,14 @@ There are two built-in ways of creating virtual-DOM.
 There are two ways of wiring up events to vdom.
 
 1. **`attr ==> handler`** where `handler` is in the shape of `ReactEvent => Unit`, an event handler.
-  Event types are described in [TYPES.md](types.md).
+  Event types are described in [TYPES.md](TYPES.md).
 
   ```scala
   def onTextChange(e: ReactEventI): Unit = {
     println("Value received = " + e.target.value)
   }
 
-  ^.input(
+  <.input(
     ^.`type`    := "text",
     ^.value     := currentValue,
     ^.onChange ==> onTextChange)
@@ -90,7 +92,7 @@ There are two ways of wiring up events to vdom.
     println("The button was pressed!")
   }
 
-  ^.button(
+  <.button(
     ^.onClick --> onButtonPressed,
     "Press me!")
   ```
@@ -169,15 +171,15 @@ You must create an instance of it to use it in vdom.
 
 Example:
 ```scala
-// Creation
-val Hello = ReactComponentB[String]("Hello <name>")
-  .render(name => <.div("Hello ", name))
-  .build
+val NoArgs =
+  ReactComponentB[Unit]("No args")
+    .render(_ => <.div("Hello!"))
+    .buildU
 
-// Usage
-<.div(
-  Hello("John"),
-  Hello("Jane"))
+val Hello =
+  ReactComponentB[String]("Hello <name>")
+    .render(name => <.div("Hello ", name))
+    .build
 ```
 
 #### Backends
@@ -186,16 +188,73 @@ In addition to props and state, if you look at the React samples you'll see that
 
 See the [online timer demo](http://japgolly.github.io/scalajs-react/#examples/timer) for an example.
 
+
+Using Components
+================
+
+Once you've created a Scala React component, it mostly acts like a typical Scala case class.
+To use it, you create an instance.
+To create an instance, you call the constructor.
+
+```scala
+val NoArgs =
+  ReactComponentB[Unit]("No args")
+    .render(_ => <.div("Hello!"))
+    .buildU
+
+val Hello =
+  ReactComponentB[String]("Hello <name>")
+    .render(name => <.div("Hello ", name))
+    .build
+
+// Usage
+<.div(
+  NoArgs(),
+  Hello("John"),
+  Hello("Jane"))
+```
+
+Component classes provides other methods:
+
+| Method | Desc |
+|--------|------|
+| `withKey(js.Any)` | Apply a (React) key to the component you're about to instantiate. |
+| `withRef(String | Ref)` | Attach a (React) reference to the component you're about to instantiate. |
+| `set(key = ?, ref = ?)` | Alternate means of setting one or both of the above. |
+| `jsCtor` | The React component (constructor) in pure JS (i.e. without the Scala wrapping). |
+| `withProps(=> Props)` | Using the given props fn, return a no-args component. |
+| `withDefaultProps(=> Props)` | Using the given props fn, return a component which optionally accepts props in its constructor but also allows instantiation without specifying. |
+
+Examples:
+
+```scala
+val Hello2 = Hello.withDefaultProps("Anonymous")
+
+<.div(
+  NoArgs.withKey("noargs-1")(),
+  NoArgs.withKey("noargs-2")(),
+  Hello2(),
+  Hello2("Bob"))
+```
+
+#### Rendering
+
+To render a component, it's the same as React. Use `React.render` and specify a target in the DOM.
+
+```scala
+import org.scalajs.dom.document
+
+React.render(NoArgs(), document.body)
+```
+
 React Extensions
 ================
 
 * Where `this.setState(State)` is applicable, you can also run `modState(State => State)`.
 
-* `SyntheticEvent`s have aliases that don't require you to provide the dom type. So instead of `SyntheticKeyboardEvent[xxx]` type alias `ReactKeyboardEvent` can be used.
-
-* The component builder has a `propsDefault` method which takes some default properties and exposes constructor methods that 1) don't require any property specification, and 2) take an `Optional[Props]`.
-
-* The component builder has a `propsAlways` method which provides all component instances with given properties, doesn't allow property specification in the constructor.
+* `SyntheticEvent`s have numerous aliases that reduce verbosity.
+  For example, in place of `SyntheticKeyboardEvent[HTMLInputElement]` you can use `ReactKeyboardEventI`.
+  See [TYPES.md](types.md) for details.
 
 * React has a [classSet addon](https://facebook.github.io/react/docs/class-name-manipulation.html)
   for specifying multiple optional class attributes. The same mechanism is applicable with this library is as follows:
@@ -229,10 +288,14 @@ React Extensions
   button(onclick --> incrementCounter(f), "+")
   ```
 
-  *(Using the Monocle extensions greatly improve this approach.)*
+  *(Using the [Monocle extensions](FP.md) greatly improve this approach.)*
 
 Differences from React proper
 =============================
+
+* In React JS you access a component's children via `this.props.children`.
+  In Scala, instances of `ComponentScope{U,M,WU}` and `BackendScope` provide a `.propsChildren` method.
+  There is also a `.propsDynamic` method as a shortcut to access the children as a `js.Dynamic`.
 
 * To keep a collection together when generating the dom, call `.toJsArray`. The only difference I'm aware of is that if the collection is maintained, React will issue warnings if you haven't supplied `key` attributes. Example:
 
@@ -245,12 +308,8 @@ Differences from React proper
     myListOfItems.sortBy(_.name).map(renderItem).toJsArray
   ```
 
-* To specify a `key` when creating a React component, instead of merging it into the props, call `.set(key = ...)` or `withKey(...)` before providing the props and children.
-
-  ```scala
-  val Example = ReactComponentB[String]("Eg").render(i => h1(i)).build
-  Example.withKey("key1")("The Prop")
-  ```
+* To specify a `key` when creating a React component, instead of merging it into the props,
+  apply it to the component class as described in [Using Components](#using-components).
 
 ### Refs
 Rather than specify references using strings, the `Ref` object can provide some more safety.
@@ -272,10 +331,187 @@ Rather than specify references using strings, the `Ref` object can provide some 
   }
   ```
 
+Using JS Components
+===================
+
+*Added in v0.9.2. Kindly contributed by [@imcharsi](https://github.com/imcharsi) - Thank you!*
+
+First, let's create a simple example with only JavaScript, then convert it into scalajs-react example that uses Scala facades.
+
+Below is `sampleReactComponent.js`.
+```js
+var SampleReactComponent = React.createClass({
+  getInitialState: function() {
+    return {num:0,num2:0};
+  },
+  render: function() {
+    return React.createElement("div", null, this.props.propOne);
+  },
+  getNum:function() {
+    return this.state.num;
+  },
+  setNum:function(n) {
+    this.setState({num:n});
+  }
+});
+```
+
+Below is `main.jsx`.
+```js
+var factory = React.createFactory(SampleReactComponent);
+React.render(factory({propOne:"123"}), document.body);
+```
+
+First, copy JS Component library file that you want to use into Scala.JS resource directory.
+
+Next, you need an SBT configuration like below.
+You may want to see [here](http://www.scala-js.org/doc/sbt/depending.html).
+(Feel free to change the `react-with-addons.js` filename according to your own case.)
+```scala
+jsDependencies += (ProvidedJS / "sampleReactComponent.js" dependsOn "react-with-addons.js")
+```
+
+Next, declare some Scala facades for your JS Components. You may want to see [here](http://www.scala-js.org/doc/calling-javascript.html) too.
+
+```scala
+trait SampleReactComponentProperty extends js.Object {
+  val propOne: js.UndefOr[String] = js.native
+}
+
+trait SampleReactComponentState extends js.Object {
+  val num: js.UndefOr[Int] = js.native
+  val num2: js.UndefOr[Int] = js.native
+}
+
+@JSName("SampleReactComponent")
+object SampleReactComponent
+  extends JsComponentType[SampleReactComponentProperty, SampleReactComponentState, HTMLElement]
+
+trait SampleReactComponentM
+    extends JsComponentM[SampleReactComponentProperty, SampleReactComponentState, HTMLElement] {
+  def getNum(): Int = js.native
+  def setNum(n: Int): Unit = js.native
+}
+```
+
+As with all Scala.JS facades, you will need some boilerplate code to act as a bridge between the JS and easier-to-use Scala. Below is an example of such boilerplate utility code:
+```scala
+object SampleReactComponentProperty {
+  def apply(ref: js.UndefOr[String] = js.undefined, propOne: js.UndefOr[String] = js.undefined): SampleReactComponentProperty = {
+    val p = js.Dynamic.literal()
+
+    ref.foreach(p.updateDynamic("ref")(_))
+    propOne.foreach(p.updateDynamic("propOne")(_))
+
+    p.asInstanceOf[SampleReactComponentProperty]
+  }
+}
+
+object SampleReactComponentState {
+  def apply(prevState: SampleReactComponentState)(
+    num: js.UndefOr[Int] = js.undefined,
+    num2: js.UndefOr[Int] = js.undefined): SampleReactComponentState = {
+    val p = js.Dynamic.literal()
+
+    num.orElse(prevState.num).foreach(p.updateDynamic("num")(_))
+    num2.orElse(prevState.num2).foreach(p.updateDynamic("num2")(_))
+
+    p.asInstanceOf[SampleReactComponentState]
+  }
+}
+```
+
+Bow let's use the previously-mentioned `main.jsx` in scalajs-react.
+In this example we'll wrap it in a Scala component with a Scala-based backend.
+
+```scala
+class XxxBackend(scope: BackendScope[Unit, Unit]) {
+  def modifyOne(i: Int): Unit = {
+    ref(scope).foreach(_.setNum(i))
+  }
+
+  def modifyTwo(i: Int): Unit = {
+    ref(scope).foreach(c => c.setState(SampleReactComponentState(c.state)(num2 = i)))
+  }
+  ...
+}
+
+val ref = Ref.toJS[SampleReactComponentM]("ref123")
+
+val component = ReactComponentB[Unit]("S").stateless.backend(new XxxBackend(_)).render { scope =>
+  val factory = React.createFactory(SampleReactComponent)
+  factory(SampleReactComponentProperty(ref = ref, propOne = "123"))
+}.buildU
+
+React.render(component(), dom.document.body)
+```
+
+From this point on, the usage is the same as with normal scalajs-react components.
+
+**NOTE**: When creating a JS component's state facade, do use `var`s, or at least do not modify them directly if you do.
+
+For example, don't do this:
+```scala
+trait SampleReactComponentState extends js.Object {
+  var num: js.UndefOr[Int] = js.native     // using var
+}
+
+mountedComponent.foreach(_.state.var = 1)  // BAD: don't modify directly
+```
+
+Instead, ensure you call `setState`. Example:
+```scala
+trait SampleReactComponentState extends js.Object {
+  val num: js.UndefOr[Int] = js.native   // using val, not var
+}
+
+mountedComponent.foreach(c =>            // GOOD: call setState
+  c.setState(SampleReactComponentState(c.state)(num2 = 1)))
+```
+
 Gotchas
 =======
 
 * `table(tr(...))` will appear to work fine at first then crash later. React needs `table(tbody(tr(...)))`.
 
-* React doesn't apply invocations of `this.setState` until the end of `render` or the current callback. Calling `.state` after `.setState` will return the original value, ie. `val s1 = x.state; x.setState(s2); x.state == s1 // not s2`.
-  If you want to compose state modifications (and you're using Scalaz), take a look at the `ScalazReact` module, specifically `ReactS` and `runState`.
+* React's `setState` is asynchronous; it doesn't apply invocations of `this.setState` until the end of `render` or the current callback. Calling `.state` after `.setState` will return the initial, original value, i.e.
+
+  ```scala
+  val s1 = $.state
+  val s2 = "new state"
+  $.setState(s2)
+  $.state == s2 // returns false
+  $.state == s1 // returns true
+  ```
+
+  If this is a problem you have 2 choices.
+  
+  1. Refactor your logic so that you only call `setState`/`modState` once.
+  2. Use Scalaz state monads as demonstrated in the online [state monad example](https://japgolly.github.io/scalajs-react/#examples/state-monad).
+
+* Type-inference when creating vdom can break if you call a function whose return type is also infered.
+
+  Example: `Option.getOrElse`.
+  
+  If you have an `Option[A]`, the return type of `getOrElse` is not always `A`.
+  This is because the `A` in `Option` is covariant, and so instead of `getOrElse(default: => A): A`
+  *(which would avoid this vdom type-inference problem)*, it's actually `getOrElse[B >: A](default: => B): B`.
+  
+  This confuses Scala:
+  ```scala
+  def problem(name: Option[String]) =
+    <.div(^.title := name.getOrElse("No Name"))
+  ```
+  
+  Workarounds:
+  ```scala
+  // Workaround #1: Move the call outside.
+  def workaround1(nameOption: Option[String]) = {
+    val name = nameOption getOrElse "No Name"
+    <.div(^.title := name)
+  }
+
+  // Workaround #2: Specify the type manually.
+  def workaround2(name: Option[String]) =
+    <.div(^.title := name.getOrElse[String]("No Name"))
+  ```

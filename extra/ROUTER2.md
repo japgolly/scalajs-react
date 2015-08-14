@@ -170,6 +170,11 @@ and is automatically converted to a finalised `Route` when used.
 * `RouteB[Long]` - Use DSL `long`.
 
 * `RouteB[String]` - Use DSL `string(regex)`, like `string("[a-z0-9]{1,20}")`
+  * Best to use a whitelist of characters, eg. `[a-zA-Z0-9]+`.
+  * Do not capture groups; use `[a-z]+` instead of `([a-z]+)`.
+  * If you need to group, use non-capturing groups like `(?:bye|hello)` instead of `(bye|hello)`.
+
+* `RouteB[UUID]` - Use DSL `uuid`.
 
 * Composition
   * `a ~ b` concatenates `a` to `b`.
@@ -184,7 +189,8 @@ and is automatically converted to a finalised `Route` when used.
   * `.filter(A => Boolean)` causes the route to ignore parsed values which don't satisfy the given filter.
   * `.option` makes this subject portion of the route optional and turns a `RouteB[A]` into a `RouteB[Option[A]]`. Forms an isomorphism between `None` and an empty path.
   * `.xmap[B](A => B)(B => A)` allows you to map the route type from an `A` to a `B`.
-  * <code>.caseclass<sub>n</sub>(C)(C.unapply)</code> maps the route type to a case class with arity *n*.
+  * `.caseClass[A]` maps the route type(s) to a case class.
+  * `.caseClassDebug[A]` as above, but shows you the code that the macro generates.
 
 * Combinators on `RouteB[Option[A]]`
   * `.withDefault(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `==` to compare `A`s to the given default.
@@ -208,11 +214,15 @@ val r: Route[(String, Int)] = "category" / string("[a-z0-9]{1,20}") / "item" / i
 
 // "cat/3/item/17" <=> Product(3, 17)
 case class Product(category: Int, item: Int)
-val r: Route[Product] = ("cat" / int / "item" / int).caseclass2(Product)(Product.unapply)
+val r: Route[Product] = ("cat" / int / "item" / int).caseClass[Product]
 
 // "get"     <=> "json"
 // "get.zip" <=> "zip"
 val r: Route[String] = "get" ~ ("." ~ string("[a-z]+")).option.withDefault("json")
+
+// "category/widgets/item/12345678-1234-1234-1234-123456789012" <=> Item("widgets", 12345678-1234-1234-1234-123456789012
+case class Item(category: String, itemId: java.util.UUID)
+val r: Route[Item] = ("category" / string("[a-z]+") / item / uuid).caseClass[Item]
 ```
 
 ### Static routes
@@ -255,7 +265,7 @@ val itemPage = ReactComponentB[ItemPage]("Item page")
   .render(p => <.div(s"Info for item #${p.id}"))
   .build
 
-dynamicRouteCT("item" / int.caseclass1(ItemPage)(ItemPage.unapply))
+dynamicRouteCT("item" / int.caseClass[ItemPage])
   ~> dynRender(itemPage(_))
 ```
 
@@ -305,7 +315,7 @@ val config = RouterConfigDsl[MyPages].buildConfig { dsl =>
   import dsl._
   ( emptyRule
   | staticRoute("page1", Page1) ~> render(???)
-  | dynamicRouteCT("page2" ~ ("/" ~ int).option.caseclass1(Page2)(Page2.unapply)) ~> render(???)
+  | dynamicRouteCT("page2" ~ ("/" ~ int).option.caseClass[Page2]) ~> render(???)
   // oops! We forgot Page3!!
   ).notFound(???)
 }
@@ -326,7 +336,7 @@ val config = RouterConfigDsl[MyPages].buildConfig { dsl =>
   import dsl._
   ( emptyRule
   | staticRoute("page1", Page1) ~> render(???)
-  | dynamicRouteCT("page2" ~ ("/" ~ int).option.caseclass1(Page2)(Page2.unapply)) ~> render(???)
+  | dynamicRouteCT("page2" ~ ("/" ~ int).option.caseClass[Page2]) ~> render(???)
   // oops! We still forgot Page3 but it will be detected at run- or test- time
   ).notFound(???)
     .verify(Page1, Page2(None), Page2(Some(123)), Page3)  // ← Ensure pages are configured and valid

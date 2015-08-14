@@ -19,7 +19,7 @@ object ScalajsReact extends Build {
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.9.0-SNAPSHOT",
+        version            := "0.9.3-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
@@ -74,6 +74,7 @@ object ScalajsReact extends Build {
     _.configure(useReactJs("test"))
       .settings(
         libraryDependencies  += "com.lihaoyi" %%% "utest" % "0.3.0",
+        jsDependencies += (ProvidedJS / "sampleReactComponent.js" dependsOn "react-with-addons.js") % Test, // dependency for JS Component Type Test.
         testFrameworks       += new TestFramework("utest.runner.Framework"),
         scalaJSStage in Test := FastOptStage,
         requiresDOM          := true,
@@ -91,6 +92,13 @@ object ScalajsReact extends Build {
 
   def extModuleName(shortName: String): PE =
     _.settings(name := s"ext-$shortName")
+
+  def definesMacros: Project => Project =
+    _.settings(
+      scalacOptions += "-language:experimental.macros",
+      libraryDependencies ++= Seq(
+        "org.scala-lang" % "scala-reflect" % Scala211,
+        "org.scala-lang" % "scala-compiler" % Scala211 % "provided"))
 
   def macroParadisePlugin =
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
@@ -110,14 +118,16 @@ object ScalajsReact extends Build {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % "0.8.0"))
+        "org.scala-js" %%% "scalajs-dom" % "0.8.1"))
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings)
     .dependsOn(core, scalaz71, extra, monocle)
     .settings(
       name := "test",
-      scalacOptions += "-language:reflectiveCalls")
+      libraryDependencies += monocleLib("macro") % "test",
+      addCompilerPlugin(macroParadisePlugin),
+      scalacOptions in Test += "-language:reflectiveCalls")
 
   // ==============================================================================================
   def scalazModule(name: String, version: String) = {
@@ -129,7 +139,7 @@ object ScalajsReact extends Build {
         libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
   }
 
-  lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.2")
+  lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.3")
 
   // ==============================================================================================
   lazy val monocle = project
@@ -142,7 +152,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val extra = project
-    .configure(commonSettings, publicationSettings)
+    .configure(commonSettings, publicationSettings, definesMacros)
     .dependsOn(core, scalaz71, monocle)
     .settings(name := "extra")
 

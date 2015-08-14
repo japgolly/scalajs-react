@@ -17,7 +17,7 @@ Setup
 
     ```scala
     // scalajs-react test module
-    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.8.4" % "test"
+    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.9.2" % "test"
 
     // React JS itself.
     // NOTE: Requires react-with-addons.js instead of just react.js
@@ -85,7 +85,7 @@ Full examples can be [seen here](src/test/scala/japgolly/scalajs/react/test/SelT
 val dom = Sel(".inner a.active.new") findIn myComponent
 ```
 
-Note: The syntax is quite limited. It supports tags, classes and ids.
+Note: The syntax is quite limited. It supports tags and classes. It does **not** support Ids.
 jQuery or Sizzle will do a better job. I don't think I thought of that when I wrote `Sel` :)
 
 `DebugJs`

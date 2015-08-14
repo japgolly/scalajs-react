@@ -6,7 +6,8 @@ import japgolly.scalajs.react._
 
 /** https://facebook.github.io/react/docs/test-utils.html */
 @JSName("React.addons.TestUtils")
-object ReactTestUtils extends Object {
+object ReactTestUtils extends ReactTestUtils
+trait ReactTestUtils extends Object {
 
   def Simulate: Simulate = native
 
@@ -122,10 +123,14 @@ trait Simulate extends Object {
   def wheel            (t: ReactOrDomNode, eventData: Object = native): Unit = native
 }
 
-case class ChangeEventData(value: UndefOr[String] = undefined) {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NOTE: Do not use UndefOr for arguments below; undefined causes Phantom-bloody-JS to crash.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+case class ChangeEventData(value: String = "") {
   def toJs: Object = {
     val t = Dynamic.literal()
-    value.foreach(v => t.updateDynamic("value")(v))
+    t.updateDynamic("value")(value)
     val o = Dynamic.literal("target" -> t)
     o
   }
@@ -133,26 +138,26 @@ case class ChangeEventData(value: UndefOr[String] = undefined) {
   def simulation = Simulation.change(this)
 }
 
-case class KeyboardEventData(key:      UndefOr[String]  = undefined,
-                             location: UndefOr[Double]  = undefined,
-                             altKey:   UndefOr[Boolean] = undefined,
-                             ctrlKey:  UndefOr[Boolean] = undefined,
-                             metaKey:  UndefOr[Boolean] = undefined,
-                             shiftKey: UndefOr[Boolean] = undefined,
-                             repeat:   UndefOr[Boolean] = undefined,
-                             locale:   UndefOr[String]  = undefined,
-                             keyCode:  UndefOr[Int]     = undefined) {
+case class KeyboardEventData(key:      String  = "",
+                             location: Double  = 0,
+                             altKey:   Boolean = false,
+                             ctrlKey:  Boolean = false,
+                             metaKey:  Boolean = false,
+                             shiftKey: Boolean = false,
+                             repeat:   Boolean = false,
+                             locale:   String  = "",
+                             keyCode:  Int     = 0) {
   def toJs: Object = {
     val o = Dynamic.literal()
-    key     .foreach(v => o.updateDynamic("key"     )(v))
-    location.foreach(v => o.updateDynamic("location")(v))
-    altKey  .foreach(v => o.updateDynamic("altKey"  )(v))
-    ctrlKey .foreach(v => o.updateDynamic("ctrlKey" )(v))
-    metaKey .foreach(v => o.updateDynamic("metaKey" )(v))
-    shiftKey.foreach(v => o.updateDynamic("shiftKey")(v))
-    repeat  .foreach(v => o.updateDynamic("repeat"  )(v))
-    locale  .foreach(v => o.updateDynamic("locale"  )(v))
-    keyCode .foreach(v => o.updateDynamic("keyCode" )(v))
+    o.updateDynamic("key"     )(key     )
+    o.updateDynamic("location")(location)
+    o.updateDynamic("altKey"  )(altKey  )
+    o.updateDynamic("ctrlKey" )(ctrlKey )
+    o.updateDynamic("metaKey" )(metaKey )
+    o.updateDynamic("shiftKey")(shiftKey)
+    o.updateDynamic("repeat"  )(repeat  )
+    o.updateDynamic("locale"  )(locale  )
+    o.updateDynamic("keyCode" )(keyCode )
     o
   }
   def simulateKeyDown       (t: ReactOrDomNode): Unit = ReactTestUtils.Simulate.keyDown (t, this)
@@ -167,26 +172,26 @@ case class KeyboardEventData(key:      UndefOr[String]  = undefined,
   def simulationKeyDownPressUp = simulationKeyDown >> simulationKeyPress >> simulationKeyUp
 }
 
-case class MouseEventData(screenX:  UndefOr[Double]  = undefined,
-                          screenY:  UndefOr[Double]  = undefined,
-                          clientX:  UndefOr[Double]  = undefined,
-                          clientY:  UndefOr[Double]  = undefined,
-                          altKey:   UndefOr[Boolean] = undefined,
-                          ctrlKey:  UndefOr[Boolean] = undefined,
-                          metaKey:  UndefOr[Boolean] = undefined,
-                          shiftKey: UndefOr[Boolean] = undefined,
-                          buttons:  UndefOr[Int]     = undefined) {
+case class MouseEventData(screenX:  Double  = 0,
+                          screenY:  Double  = 0,
+                          clientX:  Double  = 0,
+                          clientY:  Double  = 0,
+                          altKey:   Boolean = false,
+                          ctrlKey:  Boolean = false,
+                          metaKey:  Boolean = false,
+                          shiftKey: Boolean = false,
+                          buttons:  Int     = 0) {
   def toJs: Object = {
     val o = Dynamic.literal()
-    screenX .foreach(v => o.updateDynamic("screenX" )(v))
-    screenY .foreach(v => o.updateDynamic("screenY" )(v))
-    clientX .foreach(v => o.updateDynamic("clientX" )(v))
-    clientY .foreach(v => o.updateDynamic("clientY" )(v))
-    altKey  .foreach(v => o.updateDynamic("altKey"  )(v))
-    ctrlKey .foreach(v => o.updateDynamic("ctrlKey" )(v))
-    metaKey .foreach(v => o.updateDynamic("metaKey" )(v))
-    shiftKey.foreach(v => o.updateDynamic("shiftKey")(v))
-    buttons .foreach(v => o.updateDynamic("buttons" )(v))
+    o.updateDynamic("screenX" )(screenX )
+    o.updateDynamic("screenY" )(screenY )
+    o.updateDynamic("clientX" )(clientX )
+    o.updateDynamic("clientY" )(clientY )
+    o.updateDynamic("altKey"  )(altKey  )
+    o.updateDynamic("ctrlKey" )(ctrlKey )
+    o.updateDynamic("metaKey" )(metaKey )
+    o.updateDynamic("shiftKey")(shiftKey)
+    o.updateDynamic("buttons" )(buttons )
     o
   }
   def simulateDrag      (t: ReactOrDomNode) = ReactTestUtils.Simulate.drag      (t, this)

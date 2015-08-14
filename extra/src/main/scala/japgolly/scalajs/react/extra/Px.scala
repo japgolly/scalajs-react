@@ -63,6 +63,8 @@ object Px {
    * Doesn't change until you explicitly call `set()`.
    */
   final class Var[A](initialValue: A, protected val ignoreChange: (A, A) => Boolean) extends Root[A] {
+    override def toString = s"Px.Var(rev: $rev, value: $peek)"
+
     override protected var _value = initialValue
 
     override def value() = _value
@@ -78,6 +80,8 @@ object Px {
    * `refresh()`.
    */
   final class ThunkM[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A] {
+    override def toString = s"Px.ThunkM(rev: $rev, value: $peek)"
+
     override protected var _value = next()
 
     override def value() = _value
@@ -93,6 +97,8 @@ object Px {
    * requested, and the value updated if necessary.
    */
   final class ThunkA[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A] {
+    override def toString = s"Px.ThunkA(rev: $rev, value: $peek)"
+
     override protected var _value = next()
 
     override def value() = {
@@ -105,6 +111,8 @@ object Px {
    * A value `B` dependent on the value of some `Px[A]`.
    */
   final class Map[A, B](xa: Px[A], f: A => B) extends Px[B] {
+    override def toString = s"Px.Map(rev: $rev, value: $peek)"
+
     private var _value = f(xa.value())
     private var _revA  = xa.rev
 
@@ -130,6 +138,8 @@ object Px {
    * A `Px[B]` dependent on the value of some `Px[A]`.
    */
   final class FlatMap[A, B](xa: Px[A], f: A => Px[B]) extends Px[B] {
+    override def toString = s"Px.FlatMap(rev: $rev, value: $peek)"
+
     private var _value = f(xa.value())
     private var _revA  = xa.rev
 
@@ -146,6 +156,8 @@ object Px {
   }
 
   final class Const[A](a: A) extends Px[A] {
+    override def toString = s"Px.Const($a)"
+
     override def rev     = 0
     override def peek    = a
     override def value() = a

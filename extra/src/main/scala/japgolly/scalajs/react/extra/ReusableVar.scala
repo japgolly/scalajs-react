@@ -20,6 +20,18 @@ final class ReusableVar[A](val value: A, val set: A ~=> IO[Unit])(implicit val r
 
   def modL[B](l: Lens[A, B])(f: B => B): IO[Unit] =
     set(l.modify(f)(value))
+
+  // Zoom is dangerously deceptive here as it appears to work but will often override the non-zoomed subset of A's state.
+  // Use the zoom methods on ComponentScopes directly for a reliable function.
+  //
+  // def zoomL[B: Reusability](l: Lens[A, B]): ReusableVar[B] =
+  //   ReusableVar(l get value)(set.dimap(s => b => s(l.set(b)(value))))
+  //
+  // def extZoomL[B](l: Lens[A, B]): ExternalVar[B] =
+  //   ExternalVar(l get value)(b => set(l.set(b)(value)))
+
+  def toExternalVar: ExternalVar[A] =
+    ExternalVar(value)(set)
 }
 
 object ReusableVar {

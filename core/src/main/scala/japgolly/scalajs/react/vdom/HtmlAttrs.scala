@@ -119,7 +119,18 @@ trait HtmlAttrs {
    *
    * MDN
    */
-  final val onDblClick = "onDblClick".attr
+  final val onDblClick = "onDoubleClick".attr
+
+  /** React alias for [[onDblClick]] */
+  final def onDoubleClick = onDblClick
+  /**
+   * Type: script code
+   *
+   * This event is sent to an image element when an error occurs loading the image.
+   *
+   * https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/image#a-onerror
+   */
+  final val onError = "onError".attr
   /**
    * The focus event is raised when the user sets focus on the given element.
    *

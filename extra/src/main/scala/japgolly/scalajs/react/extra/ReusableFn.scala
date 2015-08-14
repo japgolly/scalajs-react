@@ -39,7 +39,7 @@ sealed abstract class ReusableFn[A, B] extends AbstractFunction1[A, B] {
 
 object ReusableFn {
 
-  @inline implicit final class EndoOps[E, B](val s: (E => E) ~=> B) extends AnyVal {
+  @inline implicit final class EndoOps[E, B](private val s: (E => E) ~=> B) extends AnyVal {
     def endoCall[I](f: E => I => E): I ~=> B =
       s.dimap(g => i => g(f(_)(i)))
 
@@ -85,7 +85,10 @@ object ReusableFn {
   @inline def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, E: Reusability, Y, Z](f: (A, B, C, D, E, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))) =
     new Fn6(f)
 
-  final class CompOps[C, S](val $: C) extends AnyVal {
+  def renderComponent[P](c: ReactComponentC.ReqProps[P, _, _, TopNode]): P ~=> ReactElement =
+    ReusableFn(c(_: P))
+
+  final class CompOps[C, S](private val $: C) extends AnyVal {
     // This should really be a class param but then we lose the AnyVal
     type CC = CompStateAccess[C, S]
 
