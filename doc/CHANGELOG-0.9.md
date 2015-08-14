@@ -1,35 +1,40 @@
 ### 0.9.2 (unreleased)
 
-* Added `Reusability.caseClass[A]` macro and deprecated `Reusability.caseclassN(A.unapply)`.
-  Also comes with `caseClassDebug[A]` if you want to see the code it generates.
-* In the Router2 route-building DSL, added `caseClass[A]` and deprecated `caseclassN(A)(A.unapply)`.
-  Also comes with `caseClassDebug[A]` if you want to see the code it generates.
-* Add support for JS components.
+##### New
+* Support for JS components.
   See [USAGE.md](USAGE.md#using-js-components) for details.
-* Test simulation data objects `{Change,Keyboard,Mouse}EventData` no longer wrap
-  args in `UndefOr` with `undefined` as the default. This crashes PhantomJS.
-  All args have default values now.
-* Add `onError` attribute for use with `<img>`.
 * Add `ReactComponentB.initialStateC` which provides access to the component (albeit without the `Backend` type set).
-  Useful for self-managing state, a minimalistic example of which you can read in
-  [SelfManagedStateTest.scala](../test/src/test/scala/japgolly/scalajs/react/SelfManagedStateTest.scala).
+  <br>*An interesting application is self-managing state, a minimalistic example of which you can read in
+  [SelfManagedStateTest.scala](../test/src/test/scala/japgolly/scalajs/react/SelfManagedStateTest.scala). Note that self-managed state cannot be initialised with `val`s in a `Backend`, a significant limitation.*
+* Add `onError` attribute for use with `<img>`.
+* Add `ReusableVar.toExternalVar`.
+
+##### Changed
+* Added `Reusability.caseClass[A]` macro and deprecated `Reusability.caseclassN(A.unapply)`.
+  <br>Also comes with `caseClassDebug[A]` which shows you the code it generates.
+* In the Router2 route-building DSL, added `caseClass[A]` and deprecated `caseclassN(A)(A.unapply)`.
+  <br>Also comes with `caseClassDebug[A]` which shows you the code it generates.
 * Facades `React` and `ReactTestUtils` are now also traits.
-* Add to `ReusableVar.toExternalVar`.
 * On `ComponentScope`s, deprecated and renamed:
   * `focusState` to `zoom`.
   * `focusStateL` to `zoomL`.
   * `focusStateId` to `lift`.
+* Test simulation data objects `{Change,Keyboard,Mouse}EventData` no longer wrap
+  args in `UndefOr` with `undefined` as the default, because it crashes PhantomJS.
+  All args have default values now.
 
-```
-// Reusability.caseClass
-find . -name '*.scala' -exec perl -pi -e 's/Reusability.caseclass\d+\s*\(\s*(\S+)\s*\.\s*unapply\s*\)/Reusability.caseClass[$1]/' {} +
+<br>
+Migration commands: (run them in order)
+```sh
+# Reusability.caseClass
+find . -name '*.scala' -type f -exec perl -pi -e 's/Reusability\.caseclass\d+\s*\(\s*(\S+)\s*\.\s*unapply\s*\)/Reusability.caseClass[$1]/' {} +
 
-// DSL route.caseClass
-find . -name '*.scala' -exec perl -pi -e 's/\.caseclass\d+\s*\(\s*(\S+)\s*\)\s*\([^)]+\.\s*unapply\s*\)/.caseClass[$1]/' {} +
+# DSL route.caseClass
+find . -name '*.scala' -type f -exec perl -pi -e 's/\.caseclass\d+\s*\(\s*(\S+)\s*\)\s*\([^)]+\.\s*unapply\s*\)/.caseClass[$1]/' {} +
 
-// focusState
-find . -name '*.scala' -exec perl -pi -e 's/focusStateId/lift/g' {} +
-find . -name '*.scala' -exec perl -pi -e 's/focusState/zoom/g' {} +
+# focusState
+find . -name '*.scala' -type f -exec perl -pi -e 's/focusStateId/lift/g' {} +
+find . -name '*.scala' -type f -exec perl -pi -e 's/focusState/zoom/g' {} +
 ```
 
 
