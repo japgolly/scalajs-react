@@ -37,6 +37,7 @@ Includes a router, testing utils, performance utils, more.
 
 * Component Libraries
   * [chandu0101 / scalajs-react-components](https://github.com/chandu0101/scalajs-react-components)
+  * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
 
 
 ##### Requirements:
