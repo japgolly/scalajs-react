@@ -6,6 +6,7 @@ scala:
 jdk:
 - oraclejdk8
 
+sudo: false
 cache:
   directories:
     - $HOME/.sbt
