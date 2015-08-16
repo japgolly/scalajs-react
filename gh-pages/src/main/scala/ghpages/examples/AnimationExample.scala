@@ -1,5 +1,6 @@
 package ghpages.examples
 
+import ghpages.GhPagesMacros
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import org.scalajs.dom.window
 import ghpages.examples.util.SideBySide
@@ -49,29 +50,9 @@ object AnimationExample {
       |});
     """.stripMargin
 
-  val source =
-    """
-      |class Backend($: BackendScope[_, Vector[String]]) {
-      |  def handleAdd(): Unit =
-      |    $.modState(_ :+ window.prompt("Enter some text"))
-      |  def handleRemove(i: Int): Unit =
-      |    $.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
-      |}
-      |
-      |val TodoList = ReactComponentB[Unit]("TodoList")
-      |  .initialState(Vector("hello", "world", "click", "me"))
-      |  .backend(new Backend(_))
-      |  .render((_,S,B) =>
-      |    <.div(
-      |      <.button(^.onClick --> B.handleAdd())("Add Item"),
-      |      ReactCssTransitionGroup("example", component = "h1")(
-      |        S.zipWithIndex.map{case (s,i) =>
-      |          <.div(^.key := s, ^.onClick --> B.handleRemove(i))(s)
-      |        }: _*
-      |      )
-      |    )
-      |  ).buildU
-      | """.stripMargin
+  val source = GhPagesMacros.exampleSource
+
+  // EXAMPLE:START
 
   class Backend($: BackendScope[_, Vector[String]]) {
     def handleAdd(): Unit =
@@ -93,4 +74,6 @@ object AnimationExample {
         )
       )
     ).buildU
+
+  // EXAMPLE:END
 }

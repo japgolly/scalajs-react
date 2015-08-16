@@ -112,7 +112,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, test, scalaz71, monocle, extra, ghpages)
+    .aggregate(core, test, scalaz71, monocle, extra, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "C"  -> "root/clean",
       "t"  -> ";clear;  test:compile ; test/test",
@@ -165,8 +165,11 @@ object ScalajsReact extends Build {
     .settings(name := "extra")
 
   // ==============================================================================================
+  lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
+    .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
+
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
-    .dependsOn(core, scalaz71, extra, monocle)
+    .dependsOn(core, scalaz71, extra, monocle, ghpagesMacros)
     .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
     .settings(
       libraryDependencies += monocleLib("macro"),

@@ -1,5 +1,6 @@
 package ghpages.examples
 
+import ghpages.GhPagesMacros
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import scala.scalajs.js
 import ghpages.examples.util.SideBySide
@@ -35,30 +36,9 @@ object TimerExample {
       |React.render(React.createElement(Timer, null), mountNode);
       |""".stripMargin
 
-  val source =
-    """
-      |case class State(secondsElapsed: Long)
-      |
-      |class Backend($: BackendScope[_, State]) {
-      |  var interval: js.UndefOr[js.timers.SetIntervalHandle] =
-      |    js.undefined
-      |
-      |  def tick() =
-      |    $.modState(s => State(s.secondsElapsed + 1))
-      |
-      |  def start() =
-      |    interval = js.timers.setInterval(1000)(tick())
-      |}
-      |
-      |val Timer = ReactComponentB[Unit]("Timer")
-      |  .initialState(State(0))
-      |  .backend(new Backend(_))
-      |  .render($ => <.div("Seconds elapsed: ", $.state.secondsElapsed))
-      |  .componentDidMount(_.backend.start())
-      |  .componentWillUnmount(_.backend.interval foreach js.timers.clearInterval)
-      |  .buildU
-      |""".stripMargin
+  val source = GhPagesMacros.exampleSource
 
+  // EXAMPLE:START
 
   case class State(secondsElapsed: Long)
 
@@ -80,4 +60,6 @@ object TimerExample {
     .componentDidMount(_.backend.start())
     .componentWillUnmount(_.backend.interval foreach js.timers.clearInterval)
     .buildU
+
+  // EXAMPLE:END
 }

@@ -1,5 +1,6 @@
 package ghpages.examples
 
+import ghpages.GhPagesMacros
 import japgolly.scalajs.react.ReactComponentB
 import japgolly.scalajs.react.vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
@@ -22,14 +23,16 @@ object HelloMessageExample {
     """.stripMargin
 
   val source =
-    """
-      |val HelloMessage = ReactComponentB[String]("HelloMessage")
-      |   .render(name => <.div("Hello ", name))
-      |   .build
+    s"""
+      |${GhPagesMacros.exampleSource}
       |
       |React.render(HelloMessage("John"), mountNode)""".stripMargin
+
+  // EXAMPLE:START
 
   val HelloMessage = ReactComponentB[String]("HelloMessage")
     .render(name => <.div("Hello ", name))
     .build
+
+  // EXAMPLE:END
 }
