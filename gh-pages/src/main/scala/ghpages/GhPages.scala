@@ -5,7 +5,7 @@ import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
 import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
 import japgolly.scalajs.react.extra._
-import japgolly.scalajs.react.extra.router2._
+import japgolly.scalajs.react.extra.router._
 import pages._
 
 object GhPages extends JSApp {

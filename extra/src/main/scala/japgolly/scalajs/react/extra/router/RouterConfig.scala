@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extra.router2
+package japgolly.scalajs.react.extra.router
 
 import org.scalajs.dom
 import scala.annotation.elidable

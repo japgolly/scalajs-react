@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.macros
 
 import scala.reflect.macros.blackbox.Context
-import japgolly.scalajs.react.extra.router2.StaticDsl.{Route, RouteB}
+import japgolly.scalajs.react.extra.router.StaticDsl.{Route, RouteB}
 
 class RouterMacros (val c: Context) extends ReactMacroUtils {
   import c.universe._

@@ -1,14 +1,12 @@
-Router (v2)
-===========
+Router
+======
 
 Included is a router (in the orbit of Single-Page Applications) that is written entirely in Scala.
 
-The package is `japgolly.scalajs.react.extra.router2`.
-In the next major release (v0.10) we'll probably do an 'ole switcheroonie making this the default router, and deprecating the v1 router.
+The package is `japgolly.scalajs.react.extra.router`.
 
 ## Contents
 
-- [What's New?](#whats-new)
 - [Features](#features)
 - [Caution](#caution)
 - [Creating & Using a Router](#creating--using-a-router)
@@ -29,28 +27,6 @@ In the next major release (v0.10) we'll probably do an 'ole switcheroonie making
 - [Examples](#examples)
 
 
-What's New?
-===========
-
-The design of [the v1 Router](ROUTER.md)
-made certain features very hard to accommodate:
-[#96](https://github.com/japgolly/scalajs-react/issues/96),
-[#103](https://github.com/japgolly/scalajs-react/issues/103),
-[#107](https://github.com/japgolly/scalajs-react/issues/107),
-[#100](https://github.com/japgolly/scalajs-react/issues/100),
-[#94](https://github.com/japgolly/scalajs-react/issues/94),
-[#69](https://github.com/japgolly/scalajs-react/issues/69).
-
-In contrast, the v2 Router has a different design that:
-
-* Uses a user-provided data representation of your pages to identify routes and their parameters.
-* Similarly the Router can now indicate the current page with precision, faciliating dynamic menus and breadcrumbs even in the presence of complex, dynamic routes.
-* Routes can be stateful and conditional.
-* Routes can be nested and modularised.
-* Routes can be manipulated in bulk.
-* Has a better API such that usage previously recommended against, is now impossible. Noteworthy is that `Router` is now just a `ReactComponent`, and `RouterCtl` is the client API.
-
-
 Features
 ========
 * Type-safety.
@@ -64,8 +40,9 @@ Features
   * Default values in dynamic routes.
   * URL re-writing / translation rules. (eg. can remove trailing slashes from URL.)
   * Choose to redirect or render custom view when route is invalid / not found.
-  * Routes can be nested.
+  * Routes can be nested and modularised.
   * Conditions can be applied to an entire route set.
+* Router can indicate the current page with precision, faciliating dynamic menus and breadcrumbs even in the presence of complex, dynamic routes.
 * Route views can be wrapped in a layout. (eg. to add page headers, footers, a nav breadcrumb.)
 * URL and view are always kept in sync.
 * Routes are bookmarkable.
@@ -558,5 +535,5 @@ uses this router and demonstrates a number of features.
 2. Router logging is enabled so you can read what the router does in the console.
 
 There are also unit tests available in the
-[japgolly.scalajs.react.extra.router2](../test/src/test/scala/japgolly/scalajs/react/extra/router2)
+[japgolly.scalajs.react.extra.router](../test/src/test/scala/japgolly/scalajs/react/extra/router)
 package.

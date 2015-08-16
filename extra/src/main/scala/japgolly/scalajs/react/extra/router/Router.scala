@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extra.router2
+package japgolly.scalajs.react.extra.router
 
 import org.scalajs.dom
 import scala.scalajs.js
@@ -46,10 +46,10 @@ object Router {
  */
 final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) extends Broadcaster[Unit] {
 
-  type Action     = router2.Action[Page]
-  type Renderer   = router2.Renderer[Page]
-  type Redirect   = router2.Redirect[Page]
-  type Resolution = router2.Resolution[Page]
+  type Action     = router.Action[Page]
+  type Renderer   = router.Renderer[Page]
+  type Redirect   = router.Redirect[Page]
+  type Resolution = router.Resolution[Page]
 
   import RouteCmd._
   import dom.window

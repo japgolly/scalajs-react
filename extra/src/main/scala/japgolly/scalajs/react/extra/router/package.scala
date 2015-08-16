@@ -5,7 +5,7 @@ import scalaz.Free
 import scalaz.effect.IO
 import scalaz.syntax.bind.ToBindOps
 
-package object router2 {
+package object router {
 
   type Router [P] = ReactComponentC.ConstProps[Unit, Resolution[P], Any, TopNode]
   type RouterU[P] = ReactComponentU           [Unit, Resolution[P], Any, TopNode]
@@ -29,7 +29,7 @@ package object router2 {
     @inline def <<(prepend: IO[Unit]): IO[A] = prepend >> _io
   }
 
-  private[router2] implicit class OptionFnExt[A, B](private val f: A => Option[B]) extends AnyVal {
+  private[router] implicit class OptionFnExt[A, B](private val f: A => Option[B]) extends AnyVal {
     def ||(g: A => Option[B]): A => Option[B] = a => f(a) orElse g(a)
     def | (g: A => B)        : A => B         = a => f(a) getOrElse g(a)
   }

@@ -18,7 +18,7 @@ Includes a router, testing utils, performance utils, more.
 - [Type Summary](doc/TYPES.md).
 - [Functional Programming](doc/FP.md).
 - Scala-only Utilities.
-  - [Router](extra/ROUTER2.md).
+  - [Router](extra/ROUTER.md).
   - [Performance Management](extra/PERF.md).
   - [Smaller stuff](extra/README.md).
 - [Testing](test/README.md).

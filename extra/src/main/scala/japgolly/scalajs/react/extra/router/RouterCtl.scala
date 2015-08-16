@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extra.router2
+package japgolly.scalajs.react.extra.router
 
 import scalaz.effect.IO
 import scalaz.syntax.bind.ToBindOps

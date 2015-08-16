@@ -4,7 +4,7 @@ import scalaz.Equal
 import scalaz.syntax.equal._
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import japgolly.scalajs.react.extra._
-import japgolly.scalajs.react.extra.router2.{RouterConfigDsl, RouterCtl}
+import japgolly.scalajs.react.extra.router.{RouterConfigDsl, RouterCtl}
 import ghpages.examples._
 
 sealed abstract class Example(val title: String,

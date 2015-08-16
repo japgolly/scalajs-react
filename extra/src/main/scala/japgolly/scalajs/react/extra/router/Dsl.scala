@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extra.router2
+package japgolly.scalajs.react.extra.router
 
 import java.util.UUID
 import java.util.regex.{Pattern, Matcher}
@@ -476,9 +476,9 @@ object RouterConfigDsl {
 final class RouterConfigDsl[Page](pageEq: Equal[Page] = Equal.equalA[Page]) {
   import StaticDsl.{Rule => _, Rules => _, _}
 
-  type Action   = japgolly.scalajs.react.extra.router2.Action[Page]
-  type Renderer = japgolly.scalajs.react.extra.router2.Renderer[Page]
-  type Redirect = japgolly.scalajs.react.extra.router2.Redirect[Page]
+  type Action   = japgolly.scalajs.react.extra.router.Action[Page]
+  type Renderer = japgolly.scalajs.react.extra.router.Renderer[Page]
+  type Redirect = japgolly.scalajs.react.extra.router.Redirect[Page]
   type Parsed   = RouterConfig.Parsed[Page]
 
   // -------------------------------------------------------------------------------------------------------------------
