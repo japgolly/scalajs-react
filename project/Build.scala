@@ -33,6 +33,7 @@ object ScalajsReact extends Build {
 
   def preventPublication: PE =
     _.settings(
+      publishTo := Some(Resolver.file("Unused transient repository", target.value / "fakepublish")),
       publishArtifact := false,
       publishLocalSigned := (),       // doesn't work
       publishSigned := (),            // doesn't work
@@ -73,7 +74,7 @@ object ScalajsReact extends Build {
   def utestSettings: PE =
     _.configure(useReactJs("test"))
       .settings(
-        libraryDependencies  += "com.lihaoyi" %%% "utest" % "0.3.0",
+        libraryDependencies  += "com.lihaoyi" %%% "utest" % "0.3.1",
         jsDependencies += (ProvidedJS / "sampleReactComponent.js" dependsOn "react-with-addons.js") % Test, // dependency for JS Component Type Test.
         testFrameworks       += new TestFramework("utest.runner.Framework"),
         scalaJSStage in Test := FastOptStage,
@@ -103,10 +104,17 @@ object ScalajsReact extends Build {
   def macroParadisePlugin =
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
 
+  def hasNoTests: Project => Project =
+    _.settings(
+      sbt.Keys.test in Test := (),
+      testOnly      in Test := (),
+      testQuick     in Test := ())
+
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .aggregate(core, test, scalaz71, monocle, extra, ghpages)
-    .configure(commonSettings, preventPublication, addCommandAliases(
+    .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
+      "C"  -> "root/clean",
       "t"  -> ";clear;  test:compile ; test/test",
       "tt" -> ";clear; +test:compile ;+test/test",
       "T"  -> "; clean ;t",
@@ -114,7 +122,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val core = project
-    .configure(commonSettings, publicationSettings)
+    .configure(commonSettings, publicationSettings, hasNoTests)
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
@@ -133,7 +141,7 @@ object ScalajsReact extends Build {
   def scalazModule(name: String, version: String) = {
     val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")
     Project(shortName, file(name))
-      .configure(commonSettings, publicationSettings, extModuleName(shortName))
+      .configure(commonSettings, publicationSettings, extModuleName(shortName), hasNoTests)
       .dependsOn(core)
       .settings(
         libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
@@ -143,7 +151,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val monocle = project
-    .configure(commonSettings, publicationSettings, extModuleName("monocle"))
+    .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
     .dependsOn(core, scalaz71)
     .settings(libraryDependencies += monocleLib("core"))
 
@@ -152,18 +160,17 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val extra = project
-    .configure(commonSettings, publicationSettings, definesMacros)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .dependsOn(core, scalaz71, monocle)
     .settings(name := "extra")
 
   // ==============================================================================================
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, scalaz71, extra, monocle)
-    .configure(commonSettings, useReactJs(), preventPublication)
+    .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
     .settings(
       libraryDependencies += monocleLib("macro"),
       addCompilerPlugin(macroParadisePlugin),
-      sbt.Keys.test in Test := (),
       emitSourceMaps := false,
       artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
 }
