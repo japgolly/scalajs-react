@@ -11,7 +11,7 @@ trait Broadcaster[A] extends Listenable[A] {
 
   override def register(f: A => Unit) = {
     _listeners ::= f
-    () => _listeners = _listeners.filterNot(_ == f)
+    () => _listeners = _listeners.filter(_ ne f)
   }
 
   protected def broadcast(a: A): Unit =

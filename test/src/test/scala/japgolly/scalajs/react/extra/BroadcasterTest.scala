@@ -21,11 +21,36 @@ object BroadcasterTest extends TestSuite {
 
   override def tests = TestSuite {
     val b = new B
-    val c = ReactTestUtils.renderIntoDocument(C(b))
-    assert(c.state == Vector())
-    b.broadcast(2)
-    assert(c.state == Vector(2))
-    b.broadcast(7)
-    assert(c.state == Vector(2, 7))
+
+    'component {
+      val c = ReactTestUtils.renderIntoDocument(C(b))
+      assert(c.state == Vector())
+      b.broadcast(2)
+      assert(c.state == Vector(2))
+      b.broadcast(7)
+      assert(c.state == Vector(2, 7))
+    }
+
+    'unregister {
+      var i1 = 0
+      var i2 = 0
+      val u1 = b.register(i1 += _)
+      val u2 = b.register(i2 += _)
+
+      b.broadcast(3)
+      assert(i1 == 3, i2 == 3)
+
+      u1()
+      b.broadcast(4)
+      assert(i1 == 3, i2 == 7)
+
+      u1() // Subsequent calls do nada
+      b.broadcast(2)
+      assert(i1 == 3, i2 == 9)
+
+      u2()
+      b.broadcast(10)
+      assert(i1 == 3, i2 == 9)
+    }
   }
 }
