@@ -191,38 +191,6 @@ object StaticDsl {
 
     final def const[B](b: B)(implicit ev: A =:= Unit, ev2: Unit =:= A): R[B] =
       xmap(_ => b)(_ => ())
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass1[Z](apply: A => Z)(unapply: Z => Option[A]): R[Z] =
-      xmap(apply)(unapply(_).get)
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass2[AA, B, Z](apply: (AA, B) => Z)(unapply: Z => Option[(AA, B)])(implicit ev: A =:= (AA, B), ev2: (AA, B) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass3[AA, B, C, Z](apply: (AA, B, C) => Z)(unapply: Z => Option[(AA, B, C)])(implicit ev: A =:= (AA, B, C), ev2: (AA, B, C) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass4[AA, B, C, D, Z](apply: (AA, B, C, D) => Z)(unapply: Z => Option[(AA, B, C, D)])(implicit ev: A =:= (AA, B, C, D), ev2: (AA, B, C, D) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass5[AA, B, C, D, E, Z](apply: (AA, B, C, D, E) => Z)(unapply: Z => Option[(AA, B, C, D, E)])(implicit ev: A =:= (AA, B, C, D, E), ev2: (AA, B, C, D, E) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass6[AA, B, C, D, E, F, Z](apply: (AA, B, C, D, E, F) => Z)(unapply: Z => Option[(AA, B, C, D, E, F)])(implicit ev: A =:= (AA, B, C, D, E, F), ev2: (AA, B, C, D, E, F) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass7[AA, B, C, D, E, F, G, Z](apply: (AA, B, C, D, E, F, G) => Z)(unapply: Z => Option[(AA, B, C, D, E, F, G)])(implicit ev: A =:= (AA, B, C, D, E, F, G), ev2: (AA, B, C, D, E, F, G) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass8[AA, B, C, D, E, F, G, H, Z](apply: (AA, B, C, D, E, F, G, H) => Z)(unapply: Z => Option[(AA, B, C, D, E, F, G, H)])(implicit ev: A =:= (AA, B, C, D, E, F, G, H), ev2: (AA, B, C, D, E, F, G, H) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
   }
 
   /**
