@@ -93,7 +93,6 @@ object TestUtil {
   // ===================================================================================================================
   object Inference {
     import scalaz.{Monad, ~>}
-    import scalaz.effect.IO
 
     def test[A] = new {
       def apply[B](f: A => B) = new {
@@ -112,6 +111,6 @@ object TestUtil {
 
     def st_s(s: S, t: T): S = ???
 
-    implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> IO)]
+    implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
   }
 }

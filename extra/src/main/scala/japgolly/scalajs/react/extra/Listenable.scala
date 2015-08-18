@@ -1,8 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import scalaz.~>
-import scalaz.effect.IO
-import japgolly.scalajs.react.{TopNode, ReactComponentB, ComponentScopeM}
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.ScalazReact._
 
 /**
@@ -17,22 +16,26 @@ trait Listenable[A] {
    * @param f The listener. A procedure that receives data of type A.
    * @return A procedure to unregister the given listener.
    */
-  def register(f: A => Unit): () => Unit
+  def register(f: A => Callback): CallbackTo[Callback]
 }
 
 object Listenable {
 
-  def install[P, S, B <: OnUnmount, N <: TopNode, A](f: P => Listenable[A], g: ComponentScopeM[P, S, B, N] => A => Unit) =
-    OnUnmount.install compose ((_: ReactComponentB[P, S, B, N])
-      .componentDidMount(s => s.backend onUnmountF f(s.props).register(g(s))))
+  def install[P, S, B <: OnUnmount, N <: TopNode, A](f: P => Listenable[A], g: ComponentScopeM[P, S, B, N] => A => Callback) =
+    OnUnmount.install[P, S, B, N] andThen (_.componentDidMount($ =>
+      f($.props).register(g($)) >>= $.backend.onUnmount))
 
-  def installIO[P, S, B <: OnUnmount, N <: TopNode, A](f: P => Listenable[A], g: (ComponentScopeM[P, S, B, N], A) => IO[Unit]) =
-    install[P, S, B, N, A](f, t => a => g(t, a).unsafePerformIO())
+  def installU[P, S, B <: OnUnmount, N <: TopNode](f: P => Listenable[Unit], g: ComponentScopeM[P, S, B, N] => Callback) =
+    install[P, S, B, N, Unit](f, $ => _ => g($))
 
-  def installS[P, S, B <: OnUnmount, N <: TopNode, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> IO) =
-    installIO[P, S, B, N, A](f, (t, a) => t.runState(g(a)))
+  // TODO Remove Scalaz from extra, move these ↓ to scalaz module
 
-  def installSF[P, S, B <: OnUnmount, N <: TopNode, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> IO, F: ChangeFilter[S]) =
-    installIO[P, S, B, N, A](f, (t, a) => t.runStateF(g(a)))
+//  def installIO[P, S, B <: OnUnmount, N <: TopNode, A](f: P => Listenable[A], g: (ComponentScopeM[P, S, B, N], A) => IO[Unit]) =
+//    install[P, S, B, N, A](f, t => a => g(t, a).unsafePerformIO())
 
+  def installS[P, S, B <: OnUnmount, N <: TopNode, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> CallbackTo) =
+    install[P, S, B, N, A](f, $ => a => $.runState(g(a)))
+
+  def installSF[P, S, B <: OnUnmount, N <: TopNode, M[_], A](f: P => Listenable[A], g: A => ReactST[M, S, Unit])(implicit M: M ~> CallbackTo, F: ChangeFilter[S]) =
+    install[P, S, B, N, A](f, $ => a => $.runStateF(g(a)))
 }

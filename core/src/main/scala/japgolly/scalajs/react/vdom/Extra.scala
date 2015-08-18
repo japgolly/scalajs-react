@@ -17,8 +17,18 @@ object Extra {
   }
 
   final class AttrExt(private val _a: Attr) extends AnyVal {
-    @inline def -->(callback: => Unit) = _a := ((() => callback): js.Function)
-    @inline def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Unit) = _a := (eventHandler: js.Function)
+
+    def -->(callback: => Callback): TagMod =
+      _a := ((() => callback.runNow()): js.Function)
+
+    def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Callback): TagMod =
+      _a := ((eventHandler(_: E).runNow()): js.Function)
+
+    def -->?[O[_]](callback: => O[Callback])(implicit o: Optional[O]): TagMod =
+      _a --> Callback(o.foreach(callback)(_.runNow()))
+
+    def ==>?[O[_], N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => O[Callback])(implicit o: Optional[O]): TagMod =
+      _a.==>[N, E](e => Callback(o.foreach(eventHandler(e))(_.runNow())))
   }
 
   final class BooleanExt(private val _b: Boolean) extends AnyVal {

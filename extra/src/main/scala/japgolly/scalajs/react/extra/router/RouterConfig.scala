@@ -4,17 +4,15 @@ import org.scalajs.dom
 import scala.annotation.elidable
 import scala.util.{Failure, Success, Try}
 import scalaz.{Equal, -\/, \/-, \/}
-import scalaz.effect.IO
-import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.equal.ToEqualOps
-import japgolly.scalajs.react.ReactElement
+import japgolly.scalajs.react.{Callback, ReactElement}
 import RouterConfig.{Logger, Parsed}
 
 case class RouterConfig[Page](parse       : Path => Parsed[Page],
                               path        : Page => Path,
                               action      : Page => Action[Page],
                               renderFn    : (RouterCtl[Page], Resolution[Page]) => ReactElement,
-                              postRenderFn: (Option[Page], Page) => IO[Unit],
+                              postRenderFn: (Option[Page], Page) => Callback,
                               logger      : Logger) {
 
   def logWith(l: Logger): RouterConfig[Page] =
@@ -34,7 +32,7 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
    *
    * @param f Given the previous page and the current page that just rendered, return a callback.
    */
-  def setPostRender(f: (Option[Page], Page) => IO[Unit]): RouterConfig[Page] =
+  def setPostRender(f: (Option[Page], Page) => Callback): RouterConfig[Page] =
     copy(postRenderFn = f)
 
   /**
@@ -42,7 +40,7 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
    *
    * @param f Given the previous page and the current page that just rendered, return a callback.
    */
-  def onPostRender(f: (Option[Page], Page) => IO[Unit]): RouterConfig[Page] =
+  def onPostRender(f: (Option[Page], Page) => Callback): RouterConfig[Page] =
     setPostRender((a, b) => this.postRenderFn(a, b) >> f(a, b))
 
   /**
@@ -117,13 +115,13 @@ object RouterConfig {
   /** Either a redirect or a value representing the page to render. */
   type Parsed[Page] = Redirect[Page] \/ Page
 
-  type Logger = (=> String) => IO[Unit]
+  type Logger = (=> String) => Callback
 
   def consoleLogger: Logger =
-    s => IO(dom.console.log(s"[Router] $s"))
+    s => Callback(dom.console.log(s"[Router] $s"))
 
   val nopLogger: Logger =
-    Function const IO(())
+    Function const Callback.empty
 
   def defaultLogger: Logger =
     nopLogger
@@ -131,9 +129,9 @@ object RouterConfig {
   def defaultRenderFn[Page]: (RouterCtl[Page], Resolution[Page]) => ReactElement =
     (_, r) => r.render()
 
-  def defaultPostRenderFn[Page]: (Option[Page], Page) => IO[Unit] = {
-    val io = IO(dom.window.scrollTo(0, 0))
-    (_, _) => io
+  def defaultPostRenderFn[Page]: (Option[Page], Page) => Callback = {
+    val cb = Callback(dom.window.scrollTo(0, 0))
+    (_, _) => cb
   }
 
   def withDefaults[Page](parse : Path => Parsed[Page],

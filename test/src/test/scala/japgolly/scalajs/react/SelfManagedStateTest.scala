@@ -1,7 +1,6 @@
 package japgolly.scalajs.react
 
 import monocle.macros.Lenses
-import scalaz.effect.IO
 import utest._
 import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._, MonocleReact._
 import japgolly.scalajs.react.extra._
@@ -18,18 +17,18 @@ object SelfManagedStateTest extends TestSuite {
     @inline def render: ReactElement = renderFn()
   }
 
-  type SetState        = State => IO[Unit]
-  type SetStateFor[-A] = StateFor[A] => IO[Unit]
+  type SetState        = State => Callback
+  type SetStateFor[-A] = StateFor[A] => Callback
 
   def selfManaged[S, A](initial   : A,
                         convInput : S => A,
                         setSelf   : SetStateFor[A],
-                        renderEdit: (A, S => IO[Unit]) => ReactElement): StateFor[A] = {
+                        renderEdit: (A, S => Callback) => ReactElement): StateFor[A] = {
 
     def state(a: A): StateFor[A] =
       StateFor(a, () => renderEdit(a, recvEdit))
 
-    def recvEdit: S => IO[Unit] =
+    def recvEdit: S => Callback =
       s => setSelf(editState(convInput(s)))
 
     def editState(a: A): StateFor[A] =
@@ -47,7 +46,7 @@ object SelfManagedStateTest extends TestSuite {
     <.input(
       ^.`type`    := "text",
       ^.value     := evar.value,
-      ^.onChange ~~> updateName)
+      ^.onChange ==> updateName)
   }
     .build
 

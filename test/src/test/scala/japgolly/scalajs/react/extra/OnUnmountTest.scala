@@ -9,8 +9,8 @@ object OnUnmountTest extends TestSuite {
 
   var i = 0
 
-  def dec_i() = i -= 1
-  def inc_i() = i += 1
+  val dec_i = Callback(i -= 1)
+  val inc_i = Callback(i += 1)
 
   val C = ReactComponentB[Unit]("")
     .stateless
@@ -18,7 +18,7 @@ object OnUnmountTest extends TestSuite {
     .render(_ => <.div)
     .configure(OnUnmount.install)
     .componentDidMount(_.backend onUnmount dec_i)
-    .componentDidMount(_ => inc_i)
+    .componentDidMountCB(inc_i)
     .buildU
 
   val Outer = ReactComponentB[Unit]("")
@@ -29,7 +29,7 @@ object OnUnmountTest extends TestSuite {
   override def tests = TestSuite {
     val c = ReactTestUtils.renderIntoDocument(Outer())
     assert(i == 1)
-    c.setState(false)
+    c.setState(false).runNow()
     assert(i == 0)
   }
 }

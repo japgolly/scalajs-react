@@ -1,13 +1,11 @@
 package japgolly.scalajs.react
 
-import scala.scalajs.js.{Function => JFn, undefined}
-
 /**
  * Generic read & write access to a component's state, (whatever the type of state might be).
  */
 abstract class CompStateAccess[-C, S] {
   def state(c: C): S
-  def setState(c: C, s: S, cb: OpCallback): Unit
+  def setState(c: C, s: S, cb: Callback): Callback
 }
 
 object CompStateAccess {
@@ -23,13 +21,13 @@ object CompStateAccess {
   }
 
   object Focus extends HK[CompStateFocus] {
-    override def state(c: C)                          = c.get()
-    override def setState(c: C, s: S, cb: OpCallback) = c.set(s, cb)
+    override def state(c: C)                        = c.get()
+    override def setState(c: C, s: S, cb: Callback) = c.set(s, cb)
   }
 
   object SS extends HK[ComponentScope_SS] {
-    override def state(c: C)                          = c._state.v
-    override def setState(c: C, s: S, cb: OpCallback) = c._setState(WrapObj(s), cb.map[JFn](f => f))
+    override def state(c: C)                        = c._state.v
+    override def setState(c: C, s: S, cb: Callback) = Callback(c._setState(WrapObj(s), cb.toJsCallback))
   }
 
   @inline implicit def focus[S]: CompStateAccess[CompStateFocus[S], S] =
@@ -51,20 +49,39 @@ object CompStateAccess {
     @inline def state(implicit C: CC): S =
       C.state(_c)
 
-    @inline def setState(s: S, cb: OpCallback = undefined)(implicit C: CC): Unit =
+    /**
+     * Creates a callback that always returns the latest state when run.
+     */
+    def stateCB(implicit C: CC): CallbackTo[S] =
+      CallbackTo(state)
+
+    def setState(s: S, cb: Callback = Callback.empty)(implicit C: CC): Callback =
       C.setState(_c, s, cb)
 
-    @inline def modState(f: S => S, cb: OpCallback = undefined)(implicit C: CC): Unit =
-      setState(f(state), cb)
+    def setStateCB(s: CallbackTo[S], cb: Callback = Callback.empty)(implicit C: CC): Callback =
+      s >>= (setState(_, cb))
+
+    def _setState[I](f: I => S, cb: Callback = Callback.empty)(implicit C: CC): I => Callback =
+      i => C.setState(_c, f(i), cb)
+
+    def modState(f: S => S, cb: Callback = Callback.empty)(implicit C: CC): Callback =
+      stateCB >>= (s => setState(f(s), cb))
+      //Callback lazily setState(f(state), cb)
+
+    def modStateCB(f: S => CallbackTo[S], cb: Callback = Callback.empty)(implicit C: CC): Callback =
+      stateCB >>= (s => setStateCB(f(s), cb))
+
+    def _modState[I](f: I => S => S, cb: Callback = Callback.empty)(implicit C: CC): I => Callback =
+      i => modState(f(i), cb)
 
     def lift(implicit C: CC) = new CompStateFocus[S](
       () => _c.state,
-      (a: S, cb: OpCallback) => _c.setState(a, cb))
+      (a: S, cb: Callback) => _c.setState(a, cb))
 
     /** Zoom-in on a subset of the state. */
     def zoom[T](f: S => T)(g: (S, T) => S)(implicit C: CC) = new CompStateFocus[T](
       () => f(_c.state),
-      (b: T, cb: OpCallback) => _c.setState(g(_c.state, b), cb))
+      (b: T, cb: Callback) => _c.setState(g(_c.state, b), cb))
   }
 }
 
@@ -74,9 +91,9 @@ object CompStateAccess {
  * @tparam S The type of state.
  */
 final class CompStateFocus[S] private[react](val get: () => S,
-                                             val set: (S, OpCallback) => Unit)
+                                             val set: (S, Callback) => Callback)
 
 object CompStateFocus {
-  @inline def apply[S](get: () => S)(set: (S, OpCallback) => Unit): CompStateFocus[S] =
+  @inline def apply[S](get: () => S)(set: (S, Callback) => Callback): CompStateFocus[S] =
     new CompStateFocus(get, set)
 }

@@ -2,7 +2,6 @@ package japgolly.scalajs.react
 
 import monocle._
 import scalaz.Functor
-import scalaz.effect.IO
 import ScalazReact._
 
 object MonocleReact {
@@ -16,14 +15,13 @@ object MonocleReact {
 
     def zoomL[T](l: Lens[S, T])(implicit C: CC) = new CompStateFocus[T](
       () => l get _c.state,
-      (t: T, cb: OpCallback) => _c.modState(l set t, cb))
+      (t: T, cb: Callback) => _c.modState(l set t, cb))
 
-    @inline def _setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(implicit C: CC, L: SetterMonocle[L]): B => IO[Unit] =
-      _c._modStateIO(L set l)
+    @inline def _setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(implicit C: CC, L: SetterMonocle[L]): B => Callback =
+      _c._modState(L set l)
   }
 
   @inline implicit final class MonRExt_ReactSTOps[M[_], S, A](private val _r: ReactST[M, S, A]) extends AnyVal {
-
     @inline def zoomL[T](l: Lens[T, S])(implicit M: Functor[M]): ReactST[M, T, A] =
       ReactS.zoom[M, S, T, A](_r, l.get, (a, b) => l.set(b)(a))
   }

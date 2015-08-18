@@ -23,6 +23,7 @@ object TouchExample {
 
   // Recommended to test with real Touch screens or with Chrome "Emulate touch screen"
 
+
   /** Keeping history of events **/
   case class State(log: List[String] = List()) {
     def withEntry(name: String) = copy(log = name :: log)
@@ -32,14 +33,10 @@ object TouchExample {
 
   /** Saving touch event details to state */
   class Backend(val $: BackendScope[Unit, State]) {
-    def debugEvent(e: ReactTouchEvent): Unit = preventDefault(e) { state =>
-      state withEntry s"${e.nativeEvent.`type`}: ${formatTouches(e.changedTouches)}" limit 10
-    }
-
-    private def preventDefault(e: ReactTouchEvent)(transformer: State => State): Unit = {
-      e.preventDefault()
-      $.modState(transformer)
-    }
+    def debugEvent(e: ReactTouchEvent): Callback =
+      preventDefault(e) >> $.modState { state =>
+        state withEntry s"${e.nativeEvent.`type`}: ${formatTouches(e.changedTouches)}" limit 10
+      }
 
     private def formatTouches(touches: dom.TouchList) =
       toSeq(touches).map(formatCoordinates).mkString(" | ")

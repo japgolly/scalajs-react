@@ -221,7 +221,7 @@ trait ComponentScope_M[+Node <: TopNode] extends Object {
    * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has
    * changed without using this.setState().
    */
-  def forceUpdate(): Unit = js.native
+  @JSName("forceUpdate") private[react] def _forceUpdate(): Unit = js.native
 }
 
 /** Type of an unmounted component's `this` scope. */

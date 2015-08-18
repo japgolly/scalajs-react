@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.{Simulation, ReactTestUtils}
 import japgolly.scalajs.react.vdom.prefix_<^._
 import org.scalajs.dom.raw.HTMLElement
@@ -14,12 +15,13 @@ object JsComponentTest extends TestSuite {
   val p1 = Ref[HTMLElement]("p1")
   val p2 = Ref[HTMLElement]("p2")
 
+  // TODO Callback: review ↓
   class XxxBackend(scope: BackendScope[Unit, Unit]) {
-    def modifyOne(i: Int): Unit = {
+    def modifyOne(i: Int) = Callback {
       ref(scope).foreach(_.setNum(i))
     }
 
-    def modifyTwo(i: Int): Unit = {
+    def modifyTwo(i: Int) = Callback {
       ref(scope).foreach(c => c.setState(SampleReactComponentState(c.state)(num2 = i)))
     }
   }
@@ -32,8 +34,8 @@ object JsComponentTest extends TestSuite {
         render(scope =>
         <.div(
           React.createFactory(SampleReactComponent)(SampleReactComponentProperty(ref = ref, propOne = "123")),
-          <.p(^.ref := p1, ^.onClick ==> ((_: ReactEvent) => scope.backend.modifyOne(10))),
-          <.p(^.ref := p2, ^.onClick ==> ((_: ReactEvent) => scope.backend.modifyTwo(20)))
+          <.p(^.ref := p1, ^.onClick --> scope.backend.modifyOne(10)),
+          <.p(^.ref := p2, ^.onClick --> scope.backend.modifyTwo(20))
         )).buildU
       val renderedComponent = ReactTestUtils.renderIntoDocument(component())
       val mountedComponent = ref(renderedComponent)

@@ -92,7 +92,7 @@ object Router2Test extends TestSuite {
         | staticRoute("private-1", PrivatePage1) ~> render(<.h1("Private #1"))
         | staticRoute("private-2", PrivatePage2) ~> render(<.h1("Private #2: ", secret))
         )
-        .addCondition(isUserLoggedIn)(page => redirectToPage(PublicHome)(Redirect.Push))
+        .addCondition(CallbackTo(isUserLoggedIn))(page => redirectToPage(PublicHome)(Redirect.Push))
 
       val ePages = (emptyRule
         | staticRoute("e/1", E(E1)) ~> render(renderE(E(E1)))
@@ -151,16 +151,16 @@ object Router2Test extends TestSuite {
       assertContains(html, "Private page", false) // not logged in
 
       isUserLoggedIn = true
-      r.forceUpdate()
+      r.forceUpdate.runNow()
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", true) // logged in
 
-      ctl.set(PrivatePage1).unsafePerformIO()
+      ctl.set(PrivatePage1).runNow()
       assertContains(html, ">Home</a>") // link cos not on current page
       assertContains(html, "Private #1")
 
       isUserLoggedIn = false
-      ctl.refresh.unsafePerformIO()
+      ctl.refresh.runNow()
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", false) // not logged in
     }
@@ -174,10 +174,10 @@ object Router2Test extends TestSuite {
 
     'lazyRender {
       isUserLoggedIn = true
-      ctl.set(PrivatePage2).unsafePerformIO()
+      ctl.set(PrivatePage2).runNow()
       assertContains(html, secret)
       secret = "oranges"
-      r.forceUpdate()
+      r.forceUpdate.runNow()
       assertContains(html, secret)
     }
 
@@ -232,7 +232,7 @@ object Router2Test extends TestSuite {
         assertEq(ctl.pathFor(NestedModule(ModuleRoot)).value, "module")
         assertEq(ctl.pathFor(NestedModule(Module1)).value, "module/one")
         assertEq(ctl.pathFor(NestedModule(Module2(666))).value, "module/two/666")
-        ctl.set(NestedModule(ModuleRoot)).unsafePerformIO()
+        ctl.set(NestedModule(ModuleRoot)).runNow()
         assertContains(html, "/module/one\"")
         assertContains(html, "/module/two/7\"")
       }

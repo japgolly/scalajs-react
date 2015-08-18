@@ -2,9 +2,7 @@ package japgolly.scalajs.react.extra
 
 import monocle.Lens
 import scala.runtime.AbstractFunction1
-import scalaz.effect.IO
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.ScalazReact._
 
 /**
  * A function that facilitates stability and reuse.
@@ -21,10 +19,10 @@ sealed abstract class ReusableFn[A, B] extends AbstractFunction1[A, B] {
 
   import scalaz.Leibniz._
 
-  def asVar(value: A)(implicit r: Reusability[A], ev: B === IO[Unit]): ReusableVar[A] =
+  def asVar(value: A)(implicit r: Reusability[A], ev: B === Callback): ReusableVar[A] =
     new ReusableVar(value, ev.subst[({type λ[X] = A ~=> X})#λ](this))(r)
 
-  def asVarR(value: A, r: Reusability[A])(implicit ev: B === IO[Unit]): ReusableVar[A] =
+  def asVarR(value: A, r: Reusability[A])(implicit ev: B === Callback): ReusableVar[A] =
     asVar(value)(r, ev)
 
   def dimap[C, D](f: (A => B) => C => D): C ~=> D =
@@ -94,17 +92,11 @@ object ReusableFn {
 
     // These look useless but avoid Scala type-inference issues
 
-    def modState(implicit C: CC): (S => S) ~=> Unit =
+    def modState(implicit C: CC): (S => S) ~=> Callback =
       ReusableFn($.modState(_))
 
-    def modStateIO(implicit C: CC): (S => S) ~=> IO[Unit] =
-      ReusableFn($.modStateIO(_))
-
-    def setState(implicit C: CC): S ~=> Unit =
+    def setState(implicit C: CC): S ~=> Callback =
       ReusableFn($.setState(_))
-
-    def setStateIO(implicit C: CC): S ~=> IO[Unit] =
-      ReusableFn($.setStateIO(_))
   }
 
   implicit def reusability[A, B]: Reusability[ReusableFn[A, B]] =

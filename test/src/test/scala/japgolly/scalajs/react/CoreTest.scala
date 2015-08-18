@@ -18,7 +18,7 @@ object CoreTest extends TestSuite {
     .initialState(123)
     .render(T => input(value := T.state.toString))
     .domType[HTMLInputElement]
-    .componentDidMount($ => {
+    .componentDidMount($ => Callback {
       val s: String = $.getDOMNode().value // Look, it knows its DOM node type
     })
     .buildU
@@ -219,7 +219,7 @@ object CoreTest extends TestSuite {
     'builder {
       'configure {
         var called = 0
-        val f = (_: ReactComponentB[Unit,Unit,Unit,TopNode]).componentWillMount(_ => called += 1)
+        val f = (_: ReactComponentB[Unit,Unit,Unit,TopNode]).componentWillMount(_ => Callback(called += 1))
         val c = ReactComponentB[Unit]("X").render(_ => div("")).configure(f, f).buildU
         ReactTestUtils.renderIntoDocument(c())
         assert(called == 2)
@@ -351,7 +351,7 @@ object CoreTest extends TestSuite {
             val outer = W.set(ref = outerRef)(outerWName, inner)
             div(outer)
            })
-          .componentDidMount(scope => {
+          .componentDidMount(scope => Callback {
             innerRef(scope).get.backend.getName mustEqual innerWName
             outerRef(scope).get.backend.getName mustEqual outerWName
             tested = true
@@ -365,7 +365,7 @@ object CoreTest extends TestSuite {
         val C = ReactComponentB[Unit]("child").render((P,C) => div()).buildU
         val P = ReactComponentB[Unit]("parent")
           .render(P => C(div(ref := "test"))) // div here discarded by C.render
-          .componentDidMount(scope => assert(scope.refs("test").get == null))
+          .componentDidMount(scope => Callback(assert(scope.refs("test").get == null)))
       }
     }
 
@@ -382,8 +382,8 @@ object CoreTest extends TestSuite {
     'shouldCorrectlyDetermineIfaComponentisMounted {
       val C = ReactComponentB[Unit]("IsMountedTestComp")
           .render(P => div())
-          .componentWillMount(scope => assert(!scope.isMounted()))
-          .componentDidMount(scope => assert(scope.isMounted()))
+          .componentWillMount(scope => Callback(assert(!scope.isMounted())))
+          .componentDidMount(scope => Callback(assert(scope.isMounted())))
           .buildU
       val instance =  ReactTestUtils.renderIntoDocument(C())
       assert(instance.isMounted())
@@ -409,7 +409,7 @@ object CoreTest extends TestSuite {
 
     'refToThirdPartyComponents {
       class RB(t:BackendScope[_,_]) {
-        def test = {
+        def test = Callback {
           val transitionRef = Ref.toJS[ReactCssTransitionGroupM]("addon")(t)
           assert(transitionRef.isDefined)
         }
@@ -432,7 +432,7 @@ object CoreTest extends TestSuite {
       ReactComponentB[Unit]("").stateless
         .render((_, _) => canvas())
         .domType[HTMLCanvasElement]
-        .componentDidMount(_.getDOMNode().getContext("2d"))
+        .componentDidMount($ => Callback($.getDOMNode().getContext("2d")))
         .buildU
     }
 

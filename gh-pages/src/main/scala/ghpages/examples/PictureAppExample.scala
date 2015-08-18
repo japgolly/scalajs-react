@@ -130,7 +130,7 @@ object PictureAppExample {
 
   case class State(pictures: List[Picture], favourites: List[Picture])
 
-  type PicClick = (String, Boolean) => Unit
+  type PicClick = (String, Boolean) => Callback
 
   class Backend(t: BackendScope[Unit, State]) {
 
@@ -194,7 +194,7 @@ object PictureAppExample {
           favoriteList((S.favourites, B.onPicClick))
         )
       })
-    .componentDidMount(scope => {
+    .componentDidMount(scope => Callback {
     // make ajax call here to get pics from instagram
         import scalajs.js.Dynamic.{global => g}
         val url = "https://api.instagram.com/v1/media/popular?client_id=642176ece1e7445e99244cec26f4de1f&callback=?"
@@ -202,7 +202,7 @@ object PictureAppExample {
           if (result != js.undefined && result.data != js.undefined) {
             val data = result.data.asInstanceOf[js.Array[js.Dynamic]]
             val pics = data.toList.map(item => Picture(item.id.toString, item.link.toString, item.images.low_resolution.url.toString, if (item.caption != null) item.caption.text.toString else ""))
-            scope.modState(_ => State(pics, Nil))
+            scope.modState(_ => State(pics, Nil)).runNow()
           }
         })
       })

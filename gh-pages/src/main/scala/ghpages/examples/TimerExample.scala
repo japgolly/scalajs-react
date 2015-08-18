@@ -42,23 +42,29 @@ object TimerExample {
 
   case class State(secondsElapsed: Long)
 
-  class Backend($: BackendScope[_, State]) {
+  class Backend($: BackendScope[Unit, State]) {
     var interval: js.UndefOr[js.timers.SetIntervalHandle] =
       js.undefined
 
-    def tick() =
+    def tick =
       $.modState(s => State(s.secondsElapsed + 1))
 
-    def start() =
-      interval = js.timers.setInterval(1000)(tick())
+    def start = Callback {
+      interval = js.timers.setInterval(1000)(tick.runNow())
+    }
+
+    def clear = Callback {
+      interval foreach js.timers.clearInterval
+      interval = js.undefined
+    }
   }
 
   val Timer = ReactComponentB[Unit]("Timer")
     .initialState(State(0))
     .backend(new Backend(_))
     .render($ => <.div("Seconds elapsed: ", $.state.secondsElapsed))
-    .componentDidMount(_.backend.start())
-    .componentWillUnmount(_.backend.interval foreach js.timers.clearInterval)
+    .componentDidMount(_.backend.start)
+    .componentWillUnmount(_.backend.clear)
     .buildU
 
   // EXAMPLE:END

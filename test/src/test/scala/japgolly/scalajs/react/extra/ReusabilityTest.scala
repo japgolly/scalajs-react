@@ -44,7 +44,7 @@ object ReusabilityTest extends TestSuite {
 
     class Backend($: BackendScope[_, M]) {
       val updateUser = ReusableFn((id: Int, data: String) =>
-        $.modStateIO(_.updated(id, data)))
+        $.modState(_.updated(id, data)))
       def render = {
         outerRenderCount += 1
         <.div(
@@ -54,7 +54,7 @@ object ReusabilityTest extends TestSuite {
       }
     }
 
-    case class InnerProps(name: String, update: String ~=> IO[Unit])
+    case class InnerProps(name: String, update: String ~=> Callback)
     implicit val propsReuse = Reusability.caseClass[InnerProps]
 
     val innerComponent = ReactComponentB[InnerProps]("PersonEditor")
@@ -64,7 +64,7 @@ object ReusabilityTest extends TestSuite {
         <.input(
           ^.`type` := "text",
           ^.value := p.name,
-          ^.onChange ~~> ((e: ReactEventI) => p.update(e.target.value)))
+          ^.onChange ==> ((e: ReactEventI) => p.update(e.target.value)))
       }
       .configure(Reusability.shouldComponentUpdate)
       .build
@@ -128,7 +128,7 @@ object ReusabilityTest extends TestSuite {
         val c = ReactTestUtils renderIntoDocument component(Props("n", None, pic1a))
         def test(expectDelta: Int, s: Props): Unit = {
           val a = renderCount
-          c setState s
+          c.setState(s).runNow()
           assert(renderCount == a + expectDelta)
         }
         val (update,ignore) = (1,0)
@@ -151,9 +151,9 @@ object ReusabilityTest extends TestSuite {
         val data2: M = Map(1 -> "One", 2 -> "Two", 3 -> "33333")
         val c = ReactTestUtils renderIntoDocument outerComponent(data1)
         assert(outerRenderCount == 1, innerRenderCount == 3)
-        c.forceUpdate()
+        c.forceUpdate.runNow()
         assert(outerRenderCount == 2, innerRenderCount == 3)
-        c setState data2
+        c.setState(data2).runNow()
         assert(outerRenderCount == 3, innerRenderCount == 4)
       }
     }
@@ -215,9 +215,9 @@ object ReusabilityTest extends TestSuite {
 
       'overComponent {
         import TestUtil.Inference._
-        test[BackendScope[A, S]         ]($ => ReusableFn($).modState  ).expect[(S => S) ~=> Unit]
-        test[ReactComponentM[A, S, B, N]]($ => ReusableFn($).modStateIO).expect[(S => S) ~=> IO[Unit]]
-        test[CompStateFocus[S]          ]($ => ReusableFn($).setStateIO).expect[S ~=> IO[Unit]]
+        test[BackendScope[A, S]         ]($ => ReusableFn($).modState).expect[(S => S) ~=> Callback]
+        test[ReactComponentM[A, S, B, N]]($ => ReusableFn($).modState).expect[(S => S) ~=> Callback]
+        test[CompStateFocus[S]          ]($ => ReusableFn($).setState).expect[S ~=> Callback]
       }
 
       'endoOps {
@@ -225,9 +225,9 @@ object ReusabilityTest extends TestSuite {
         case class Counter(count: Int) {
           def add(i: Int): Counter = copy(count = count + i)
         }
-        test[BackendScope[A, S]          ]($ => ReusableFn($).modStateIO.endoZoom(st_s)      ).expect[T ~=> IO[Unit]]
-        test[BackendScope[A, Counter]    ]($ => ReusableFn($).modState  .endoCall(_.add)     ).expect[Int ~=> Unit]
-        test[BackendScope[A, Map[Int, S]]]($ => ReusableFn($).modState  .endoCall2(_.updated)).expect[Int ~=> (S ~=> Unit)]
+        test[BackendScope[A, S]          ]($ => ReusableFn($).modState.endoZoom(st_s)      ).expect[T ~=> Callback]
+        test[BackendScope[A, Counter]    ]($ => ReusableFn($).modState.endoCall(_.add)     ).expect[Int ~=> Callback]
+        test[BackendScope[A, Map[Int, S]]]($ => ReusableFn($).modState.endoCall2(_.updated)).expect[Int ~=> (S ~=> Callback)]
       }
 
       'byName {

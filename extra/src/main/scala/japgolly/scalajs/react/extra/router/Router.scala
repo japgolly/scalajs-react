@@ -3,9 +3,9 @@ package japgolly.scalajs.react.extra.router
 import org.scalajs.dom
 import scala.scalajs.js
 import scalaz.{\/-, -\/, \/, ~>, Free}
-import scalaz.effect.IO
-import japgolly.scalajs.react._, ScalazReact._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
+import ScalazReact.callbackScalazMonad
 
 object Router {
 
@@ -17,14 +17,14 @@ object Router {
 
   def componentUnbuiltC[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page], lgc: RouterLogic[Page]) =
     ReactComponentB[Unit]("Router")
-      .initialStateIO      (           lgc.syncToWindowUrl)
-      .backend             (_       => new OnUnmount.Backend)
-      .render              ((_,s,_) => lgc.render(s))
-      .componentDidMountIO ($       => cfg.postRenderFn(None, $.state.page))
-      .componentDidUpdateIO(($,_,p) => cfg.postRenderFn(Some(p.page), $.state.page))
+      .initialStateCB    (           lgc.syncToWindowUrl)
+      .backend           (_       => new OnUnmount.Backend)
+      .render            ((_,s,_) => lgc.render(s))
+      .componentDidMount ($       => cfg.postRenderFn(None, $.state.page))
+      .componentDidUpdate(($,_,p) => cfg.postRenderFn(Some(p.page), $.state.page))
       .configure(
-        EventListener.installIO("popstate", _ => lgc.ctl.refresh, _ => dom.window),
-        Listenable.installS(_ => lgc, (_: Unit) => lgc.syncToWindowUrlS))
+        EventListener.install("popstate", _ => lgc.ctl.refresh, _ => dom.window),
+        Listenable.installU(_ => lgc, $ => $ setStateCB lgc.syncToWindowUrl))
 
   def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
     val l = new RouterLogic(baseUrl, cfg)
@@ -59,17 +59,17 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
 
   @inline protected def log(msg: => String) = Log(() => msg)
 
-  val syncToWindowUrl: IO[Resolution] =
+  val syncToWindowUrl: CallbackTo[Resolution] =
    for {
-     url <- IO(AbsUrl.fromWindow)
+     url <- CallbackTo(AbsUrl.fromWindow)
      _   <- logger(s"Syncing to [${url.value}].")
      res <- interpret(syncToUrl(url))
      _   <- logger(s"Resolved to page: [${res.page}].")
      _   <- logger("")
    } yield res
 
-  val syncToWindowUrlS: ReactST[IO, Resolution, Unit] =
-    ReactS.setM(syncToWindowUrl) //addCallbackS onSync
+//  val syncToWindowUrlS: ReactST[IO, Resolution, Unit] =
+//    ReactS.setM(syncToWindowUrl) //addCallbackS onSync
 
   def syncToUrl(url: AbsUrl): RouteProg[Resolution] =
     parseUrl(url) match {
@@ -120,21 +120,21 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
   private def prog[A](e: RouteProg[A] \/ A): RouteProg[A] =
     e.fold(identity, Return(_))
 
-  val interpretCmd: RouteCmd ~> IO = new (RouteCmd ~> IO) {
+  val interpretCmd: RouteCmd ~> CallbackTo = new (RouteCmd ~> CallbackTo) {
     @inline private def hs = js.Dynamic.literal()
     @inline private def ht = ""
     @inline private def h = window.history
-    override def apply[A](m: RouteCmd[A]): IO[A] = m match {
-      case PushState(url)    => IO(h.pushState   (hs, ht, url.value)) << logger(s"PushState: [${url.value}]")
-      case ReplaceState(url) => IO(h.replaceState(hs, ht, url.value)) << logger(s"ReplaceState: [${url.value}]")
-      case BroadcastSync     => IO(broadcast(()))                     << logger("Broadcasting sync request.")
-      case Return(a)         => IO(a)
+    override def apply[A](m: RouteCmd[A]): CallbackTo[A] = m match {
+      case PushState(url)    => CallbackTo(h.pushState   (hs, ht, url.value)) << logger(s"PushState: [${url.value}]")
+      case ReplaceState(url) => CallbackTo(h.replaceState(hs, ht, url.value)) << logger(s"ReplaceState: [${url.value}]")
+      case BroadcastSync     => broadcast(())                                 << logger("Broadcasting sync request.")
+      case Return(a)         => CallbackTo.pure(a)
       case Log(msg)          => logger(msg())
     }
   }
 
-  def interpret[A](r: RouteProg[A]): IO[A] =
-    Free.runFC[RouteCmd, IO, A](r)(interpretCmd)
+  def interpret[A](r: RouteProg[A]): CallbackTo[A] =
+    Free.runFC[RouteCmd, CallbackTo, A](r)(interpretCmd)
 
   def render(r: Resolution): ReactElement =
     cfg.renderFn(ctl, r)

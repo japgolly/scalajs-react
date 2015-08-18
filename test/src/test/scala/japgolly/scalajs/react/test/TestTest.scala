@@ -137,11 +137,9 @@ object TestTest extends TestSuite {
       'focusChangeBlur {
         var events = Vector.empty[String]
         val C = ReactComponentB[Unit]("C").initialState("ey").render(T => {
-          def e(s: String): Unit = events :+= s
-          def chg: ReactEventI => Unit = ev => {
-            e("change")
-            T.setState(ev.target.value)
-          }
+          def e(s: String) = Callback(events :+= s)
+          def chg(ev: ReactEventI) =
+            e("change") >> T.setState(ev.target.value)
           input(value := T.state, ref := inputRef, onFocus --> e("focus"), onChange ==> chg, onBlur --> e("blur"))
         }).buildU
         val c = ReactTestUtils.renderIntoDocument(C())

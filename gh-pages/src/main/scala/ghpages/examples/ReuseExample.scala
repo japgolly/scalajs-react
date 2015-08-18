@@ -2,8 +2,7 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import scalaz.effect.IO
-import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
+import japgolly.scalajs.react._, vdom.prefix_<^._
 import japgolly.scalajs.react.extra._
 
 object ReuseExample {
@@ -30,15 +29,15 @@ object ReuseExample {
     .configure(Reusability.shouldComponentUpdateWithOverlay)
     .build
 
-  case class InputControl(current: Int, change: Int ~=> IO[Unit])
+  case class InputControl(current: Int, change: Int ~=> Callback)
   implicit val inputControlReuse = Reusability.caseClass[InputControl]
 
   val inputControl = ReactComponentB[InputControl]("InputControl")
     .render(p =>
       <.div(^.paddingLeft := "4ex",
-        <.button("-1", ^.onClick ~~> p.change(-1)),
+        <.button("-1", ^.onClick --> p.change(-1)),
         <.span(^.padding := "0 1ex", p.current),
-        <.button("+1", ^.onClick ~~> p.change(1)))
+        <.button("+1", ^.onClick --> p.change(1)))
     )
     .configure(Reusability.shouldComponentUpdateWithOverlay)
     .build
@@ -54,7 +53,7 @@ object ReuseExample {
         ^.width       := "12ex",
         ^.`type`      := "text",
         ^.value       := v.value.toString,
-        ^.onChange  ~~>? update)
+        ^.onChange  ==>? update)
     }
     .configure(Reusability.shouldComponentUpdateWithOverlay)
     .build
@@ -86,8 +85,8 @@ object ReuseExample {
   }
 
   class Backend($: BackendScope[Unit, State]) {
-    val changeFn   = ReusableFn($).modStateIO.endoCall(_.changeNumberOfInputs)
-    val setInputFn = ReusableFn($).modStateIO.endoCall2(_.setInput)
+    val changeFn   = ReusableFn($).modState.endoCall(_.changeNumberOfInputs)
+    val setInputFn = ReusableFn($).modState.endoCall2(_.setInput)
 
     def render = {
       val s = $.state

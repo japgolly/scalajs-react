@@ -3,7 +3,6 @@ package japgolly.scalajs.react.extra
 import org.scalajs.dom.raw.EventTarget
 import org.scalajs.dom.Event
 import scala.scalajs.js
-import scalaz.effect.IO
 import japgolly.scalajs.react._
 
 object EventListener {
@@ -28,46 +27,27 @@ object EventListener {
      *                   capture.
      */
     def install[P, S, B <: OnUnmount, N <: TopNode](eventType : String,
-                                                    listener  : ComponentScopeM[P,S,B,N] => E => Unit,
+                                                    listener  : ComponentScopeM[P,S,B,N] => E => Callback,
                                                     target    : ComponentScopeM[P,S,B,N] => EventTarget = defaultTarget[P,S,B,N],
                                                     useCapture: Boolean = false) =
       OnUnmount.install[P,S,B,N] andThen (_.componentDidMount { $ =>
         val et = target($)
         val fe = listener($)
-        val f: js.Function1[E, Unit] = (e: E) => fe(e)
-        et.addEventListener(eventType, f, useCapture)
-        $.backend.onUnmount(et.removeEventListener(eventType, f, useCapture))
+        val f: js.Function1[E, Unit] = (e: E) => fe(e).runNow()
+        val add = Callback(et.addEventListener(eventType, f, useCapture))
+        val del = Callback(et.removeEventListener(eventType, f, useCapture))
+        add >> $.backend.onUnmount(del)
       })
 
-    /** See [[install()]]. */
-    def installIO[P, S, B <: OnUnmount, N <: TopNode](eventType : String,
-                                                      listener  : ComponentScopeM[P,S,B,N] => E => IO[Unit],
-                                                      target    : ComponentScopeM[P,S,B,N] => EventTarget = defaultTarget[P,S,B,N],
-                                                      useCapture: Boolean = false) =
-      install[P,S,B,N](
-        eventType,
-        $ => { val f = listener($); e => f(e).unsafePerformIO() },
-        target, useCapture)
-  }
+  } //end class
 
   /** See [[OfEventType.install()]]. */
   def install[P, S, B <: OnUnmount, N <: TopNode](eventType : String,
-                                                  listener  : ComponentScopeM[P,S,B,N] => () => Unit,
+                                                  listener  : ComponentScopeM[P,S,B,N] => Callback,
                                                   target    : ComponentScopeM[P,S,B,N] => EventTarget = defaultTarget[P,S,B,N],
                                                   useCapture: Boolean = false) =
     EventListener[Event].install[P,S,B,N](
       eventType,
-      $ => { val f = listener($); _ => f() },
+      $ => { val cb = listener($); _ => cb },
       target, useCapture)
-
-  /** See [[OfEventType.install()]]. */
-  def installIO[P, S, B <: OnUnmount, N <: TopNode](eventType : String,
-                                                    listener  : ComponentScopeM[P,S,B,N] => IO[Unit],
-                                                    target    : ComponentScopeM[P,S,B,N] => EventTarget = defaultTarget[P,S,B,N],
-                                                    useCapture: Boolean = false) =
-    EventListener[Event].installIO[P,S,B,N](
-      eventType,
-      Function const listener(_),
-      target, useCapture)
-
 }

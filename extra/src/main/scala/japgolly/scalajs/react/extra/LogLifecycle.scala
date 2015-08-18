@@ -2,7 +2,7 @@ package japgolly.scalajs.react.extra
 
 import org.scalajs.dom.console
 import scala.scalajs.js
-import japgolly.scalajs.react.{ReactComponentB, TopNode}
+import japgolly.scalajs.react.{ReactComponentB, TopNode, Callback}
 
 /**
  * Installing this will cause logging to occur at React component lifecycle stages.
@@ -17,7 +17,7 @@ object LogLifecycle {
     Seq[js.Any](s"\n  $m: $a")
 
   private[this] def log(m: js.Any, ps: js.Any*) =
-    console.log(m, ps: _*)
+    Callback(console.log(m, ps: _*))
 
   private[this] def logc(m: js.Any, c: js.Any, ps: js.Any*) =
     log(m + "\n ", c +: ps: _*)
@@ -33,12 +33,12 @@ object LogLifecycle {
 
   def short[P, S, B, N <: TopNode] = (rc: ReactComponentB[P, S, B, N]) => {
     val h = header(rc.name)
-    rc.componentWillMount       (_       => log(h("componentWillMount")))
-      .componentDidMount        (_       => log(h("componentDidMount")))
-      .componentWillUnmount     (_       => log(h("componentWillUnmount")))
-      .componentWillUpdate      ((_,_,_) => log(h("componentWillUpdate")))
-      .componentDidUpdate       ((_,_,_) => log(h("componentDidUpdate")))
-      .componentWillReceiveProps((_,_)   => log(h("componentWillReceiveProps")))
+    rc.componentWillMountCB       (log(h("componentWillMount")))
+      .componentDidMountCB        (log(h("componentDidMount")))
+      .componentWillUnmountCB     (log(h("componentWillUnmount")))
+      .componentWillUpdateCB      (log(h("componentWillUpdate")))
+      .componentDidUpdateCB       (log(h("componentDidUpdate")))
+      .componentWillReceivePropsCB(log(h("componentWillReceiveProps")))
   }
 
   def verbose[P, S, B, N <: TopNode] = (rc: ReactComponentB[P, S, B, N]) => {

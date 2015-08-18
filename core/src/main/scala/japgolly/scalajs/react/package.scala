@@ -8,6 +8,8 @@ package object react extends ReactEventAliases {
 
   type TopNode = dom.Element
 
+  type Callback = CallbackTo[Unit]
+
   /**
    * These exist for type inference.
    * If P,S,B,N types are needed and there's another object that has them, this is used to bridge for type inference.
@@ -82,11 +84,28 @@ package object react extends ReactEventAliases {
     @inline def state = _c._state.v
   }
 
-  val preventDefaultF  = (_: SyntheticEvent[dom.Node]).preventDefault()
-  val stopPropagationF = (_: SyntheticEvent[dom.Node]).stopPropagation()
+  @inline implicit final class ReactExt_ReactEventExt(private val e: ReactEvent) extends AnyVal {
+    @inline def preventDefaultCB = Callback(e.preventDefault())
+    @inline def stopPropagationCB = Callback(e.stopPropagation())
+  }
+  def preventDefault (e: ReactEvent): Callback = e.preventDefaultCB
+  def stopPropagation(e: ReactEvent): Callback = e.stopPropagationCB
+
+  @inline implicit final class ReactExt_domEventExt(private val e: dom.Event) extends AnyVal {
+    @inline def preventDefaultCB = Callback(e.preventDefault())
+    @inline def stopPropagationCB = Callback(e.stopPropagation())
+  }
 
   @inline implicit final class ReactExt_ReactComponentU[P,S,B,N <: TopNode](private val _c: ReactComponentU[P,S,B,N]) extends AnyVal {
     def render(n: dom.Node) = React.render(_c, n)
+  }
+
+  @inline implicit final class ReactExt_ComponentScope_M[N <: TopNode](private val _c: ComponentScope_M[N]) extends AnyVal {
+    /**
+     * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has
+     * changed without using this.setState().
+     */
+    def forceUpdate: Callback = Callback(_c._forceUpdate())
   }
 
   @inline implicit final class ReactExt_ReactDOMElement(private val _v: ReactDOMElement) extends AnyVal {
@@ -98,10 +117,11 @@ package object react extends ReactEventAliases {
   }
 
   @inline implicit final class ReactExt_UndefReactComponentM[N <: TopNode](private val _u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
-    def tryFocus(): Unit = _u.foreach(_.getDOMNode() match {
-      case e: html.Element => e.focus()
-      case _ =>
-    })
+    def tryFocus: Callback = Callback(
+      _u.foreach(_.getDOMNode() match {
+        case e: html.Element => e.focus()
+        case _               => ()
+      }))
   }
 
   @inline implicit final class ReactExt_ReactComponentM[N <: TopNode](private val _c: ReactComponentM_[N]) extends AnyVal {
@@ -120,8 +140,6 @@ package object react extends ReactEventAliases {
   }
 
   // ===================================================================================================================
-
-  type OpCallback = UndefOr[() => Unit]
 
   @inline implicit def toCompStateAccessOps[C, S](c: C)(implicit a: CompStateAccess[C, S]) =
     new CompStateAccess.Ops[C, S](c)

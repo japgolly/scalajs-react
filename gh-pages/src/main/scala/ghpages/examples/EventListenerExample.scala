@@ -3,7 +3,6 @@ package ghpages.examples
 import ghpages.GhPagesMacros
 import org.scalajs.dom, dom.MouseEvent
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.vdom.prefix_<^._
@@ -30,17 +29,17 @@ object EventListenerExample {
     .configure(
 
       // Listen to mouseenter events within the component
-      EventListener[MouseEvent].installIO("mouseenter", _.backend.logMouseEnter),
+      EventListener[MouseEvent].install("mouseenter", _.backend.logMouseEnter),
 
       // Listen to click events
-      EventListener.installIO("click", _.backend.logLocalClick),
-      EventListener.installIO("click", _.backend.logWindowClick, _ => dom.window)
+      EventListener.install("click", _.backend.logLocalClick),
+      EventListener.install("click", _.backend.logWindowClick, _ => dom.window)
 
     )
     .buildU
 
   class Backend($: BackendScope[Unit, String]) extends OnUnmount {
-    def logEvent(desc: String)       = $.modStateIO(_ + "\n" + desc)
+    def logEvent(desc: String)       = $.modState(_ + "\n" + desc)
     def logMouseEnter(e: MouseEvent) = logEvent(s"Mouse enter @ ${e.pageX},${e.pageY}")
     val logWindowClick               = logEvent("Window clicked.")
     val logLocalClick                = logEvent("Component clicked.")

@@ -31,11 +31,11 @@ object StateMonadExample {
     ST.mod(_.copy(text = e.target.value))                 // A pure state modification. State value is provided when run.
 
   def handleSubmit(e: ReactEventI) = (
-    ST.retM(e.preventDefaultIO)                           // Lift an IO effect into a shape that allows composition
+    ST.retM(e.preventDefaultCB)                           // Lift a Callback effect into a shape that allows composition
                                                           //   with state modification.
     >>                                                    // Use >> to compose. It's flatMap (>>=) that ignores input.
-    ST.mod(s => State(s.items :+ s.text, "")).liftIO      // Here we lift a pure state modification into a shape that
-  )                                                       //   allows composition with IO effects.
+    ST.mod(s => State(s.items :+ s.text, "")).liftCB      // Here we lift a pure state modification into a shape that
+  )                                                       //   allows composition with Callback effects.
 
   val TodoApp = ReactComponentB[Unit]("TodoApp")
     .initialState(State(Nil, ""))
@@ -43,10 +43,10 @@ object StateMonadExample {
       <.div(
         <.h3("TODO"),
         TodoList(S.items),
-        <.form(^.onSubmit ~~> $._runState(handleSubmit),  // In Scalaz mode, only use ~~> for callbacks.
-          <.input(                                        //   ==> and --> are unsafe.
-            ^.onChange ~~> $._runState(acceptChange),     // runState runs a state monad and applies the result.
-            ^.value := S.text),                           // _runState takes a function to a state monad.
+        <.form(^.onSubmit ==> $._runState(handleSubmit),  // runState runs a state monad and applies the result.
+          <.input(                                        // _runState is similar but takes a function-to-a-state-monad.
+            ^.onChange ==> $._runState(acceptChange),     // In these cases, the function will be fed the JS event.
+            ^.value := S.text),
           <.button("Add #", S.items.length + 1)))
     ).buildU
 

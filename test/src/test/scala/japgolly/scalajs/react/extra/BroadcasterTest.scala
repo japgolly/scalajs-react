@@ -8,7 +8,7 @@ import utest._
 object BroadcasterTest extends TestSuite {
 
   class B extends Broadcaster[Int] {
-    override def broadcast(a: Int): Unit =
+    override def broadcast(a: Int): Callback =
       super.broadcast(a)
   }
 
@@ -25,31 +25,31 @@ object BroadcasterTest extends TestSuite {
     'component {
       val c = ReactTestUtils.renderIntoDocument(C(b))
       assert(c.state == Vector())
-      b.broadcast(2)
+      b.broadcast(2).runNow()
       assert(c.state == Vector(2))
-      b.broadcast(7)
+      b.broadcast(7).runNow()
       assert(c.state == Vector(2, 7))
     }
 
     'unregister {
       var i1 = 0
       var i2 = 0
-      val u1 = b.register(i1 += _)
-      val u2 = b.register(i2 += _)
+      val u1 = b.register(j => Callback(i1 += j)).runNow()
+      val u2 = b.register(j => Callback(i2 += j)).runNow()
 
-      b.broadcast(3)
+      b.broadcast(3).runNow()
       assert(i1 == 3, i2 == 3)
 
-      u1()
-      b.broadcast(4)
+      u1.runNow()
+      b.broadcast(4).runNow()
       assert(i1 == 3, i2 == 7)
 
-      u1() // Subsequent calls do nada
-      b.broadcast(2)
+      u1.runNow() // Subsequent calls do nada
+      b.broadcast(2).runNow()
       assert(i1 == 3, i2 == 9)
 
-      u2()
-      b.broadcast(10)
+      u2.runNow()
+      b.broadcast(10).runNow()
       assert(i1 == 3, i2 == 9)
     }
   }

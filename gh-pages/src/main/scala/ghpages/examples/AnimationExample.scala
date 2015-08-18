@@ -54,22 +54,22 @@ object AnimationExample {
 
   // EXAMPLE:START
 
-  class Backend($: BackendScope[_, Vector[String]]) {
-    def handleAdd(): Unit =
+  class Backend($: BackendScope[Unit, Vector[String]]) {
+    def handleAdd =
       $.modState(_ :+ window.prompt("Enter some text"))
-    def handleRemove(i: Int): Unit =
+    def handleRemove(i: Int) =
       $.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
   }
 
   val TodoList = ReactComponentB[Unit]("TodoList")
     .initialState(Vector("hello", "world", "click", "me"))
     .backend(new Backend(_))
-    .render((_,S,B) =>
+    .render((_,s,b) =>
       <.div(
-        <.button(^.onClick --> B.handleAdd())("Add Item"),
+        <.button(^.onClick --> b.handleAdd)("Add Item"),
         ReactCssTransitionGroup("example", component = "h1")(
-          S.zipWithIndex.map{case (s,i) =>
-            <.div(^.key := s, ^.onClick --> B.handleRemove(i))(s)
+          s.zipWithIndex.map{case (s,i) =>
+            <.div(^.key := s, ^.onClick --> b.handleRemove(i))(s)
           }: _*
         )
       )

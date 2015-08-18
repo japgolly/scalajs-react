@@ -7,10 +7,9 @@ import scala.reflect.ClassTag
 import scala.util.matching.Regex
 import scalaz.{Equal, \/-, -\/, Monoid}
 import scalaz.Isomorphism.<=>
-import scalaz.effect.IO
 import scalaz.syntax.equal._
 import japgolly.scalajs.react.macros.RouterMacros
-import japgolly.scalajs.react.ReactElement
+import japgolly.scalajs.react.{CallbackTo, ReactElement}
 import RouterConfig.Parsed
 
 /**
@@ -343,12 +342,9 @@ object StaticDsl {
      *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
      *                  route-not-found fallback behaviour.
      */
-    def addCondition(cond: => Boolean)(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
+    def addCondition(cond: CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
       new Rule[Page](parse, path,
-        (if (cond) action else condUnmet)(_))
-
-    def addConditionIO(cond: IO[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
-      addCondition(cond.unsafePerformIO())(condUnmet)
+        (if (cond.runNow()) action else condUnmet)(_))
 
     /**
      * Specify behaviour when a `Page` doesn't have an associated `Path` or `Action`.

@@ -2,7 +2,7 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._, MonocleReact._
+import japgolly.scalajs.react._, vdom.prefix_<^._, MonocleReact._
 import japgolly.scalajs.react.extra.ExternalVar
 import monocle.macros._
 
@@ -36,7 +36,7 @@ object ExternalVarExample {
       <.input(
         ^.`type`    := "text",
         ^.value     := evar.value,
-        ^.onChange ~~> updateName)
+        ^.onChange ==> updateName)
     }
     .build
 

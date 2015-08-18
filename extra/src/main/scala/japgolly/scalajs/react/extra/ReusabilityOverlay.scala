@@ -3,8 +3,6 @@ package japgolly.scalajs.react.extra
 import org.scalajs.dom
 import scala.concurrent.duration._
 import scalajs.js
-import scalaz.effect.IO
-import scalaz.syntax.bind.ToBindOps
 import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
 import dom.{document, window}
 import dom.html.Element
@@ -48,17 +46,17 @@ object ReusabilityOverlay {
       else
         overlay.logGood
     } andThen (_
-      .componentDidMountIO(get(_).mount)
-      .componentWillUnmountIO(get(_).unmount)
+      .componentDidMount(get(_).onMount)
+      .componentWillUnmount(get(_).onUnmount)
     )
   }
 }
 
 trait ReusabilityOverlay {
-  def mount  : IO[Unit]
-  def unmount: IO[Unit]
-  val logGood: IO[Unit]
-  def logBad(reason: String): IO[Unit]
+  def onMount  : Callback
+  def onUnmount: Callback
+  val logGood  : Callback
+  def logBad(reason: String): Callback
 }
 
 // =====================================================================================================================
@@ -77,8 +75,8 @@ object DefaultReusabilityOverlay {
                      reasonsToShowOnClick: Int,
                      updatePositionEvery : FiniteDuration,
                      dynamicStyle        : (Int, Int, Nodes) => Unit,
-                     mountHighlighter    : Comp => IO[Unit],
-                     updateHighlighter   : Comp => IO[Unit])
+                     mountHighlighter    : Comp => Callback,
+                     updateHighlighter   : Comp => Callback)
 
   @inline implicit def autoLiftHtml(n: Node) = n.asInstanceOf[Element]
 
@@ -125,8 +123,8 @@ object DefaultReusabilityOverlay {
 
   def highlighter(before: CSSStyleDeclaration => Unit,
                   frame1: CSSStyleDeclaration => Unit,
-                  frame2: CSSStyleDeclaration => Unit): Comp => IO[Unit] =
-    $ => IO[Unit] {
+                  frame2: CSSStyleDeclaration => Unit): Comp => Callback =
+    $ => Callback {
       val n = $.getDOMNode()
       before(n.style)
       window.requestAnimationFrame{(_: Double) =>
@@ -165,7 +163,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
   protected def badCount = bad.size
   protected var overlay: Option[Nodes] = None
 
-  val onClick = IO[Unit] {
+  val onClick = Callback {
     if (bad.nonEmpty) {
       var i = options.reasonsToShowOnClick min badCount
       println(s"Last $i reasons to update:")
@@ -179,7 +177,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
       printf("%d/%d (%.0f%%) updates prevented.\n", good, sum, good.toDouble / sum * 100)
   }
 
-  val create = IO[Unit] {
+  val create = Callback {
 
     // Create
     val tmp = document.createElement("div")
@@ -189,7 +187,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     document.body.replaceChild(outer, tmp)
 
     // Customise
-    outer.addEventListener("click", (_: dom.Event) => onClick.unsafePerformIO())
+    outer.addEventListener("click", onClick.toJsFunction1)
 
     // Store
     val good = options.template good outer
@@ -197,8 +195,8 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     overlay = Some(Nodes(outer, good, bad))
   }
 
-  def withNodes(f: Nodes => Unit): IO[Unit] =
-    IO(overlay foreach f)
+  def withNodes(f: Nodes => Unit): Callback =
+    Callback(overlay foreach f)
 
   val updatePosition = withNodes { n =>
     val rect = $.getDOMNode().getBoundingClientRect()
@@ -221,19 +219,19 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     options.updateHighlighter($)
 
   override val logGood =
-    IO(good += 1) >> update
+    Callback(good += 1) >> update
 
   override def logBad(reason: String) =
-    IO(bad :+= reason) >> update >> highlightUpdate
+    Callback(bad :+= reason) >> update >> highlightUpdate
 
-  override val mount =
-    create >> update >> options.mountHighlighter($) >> setIntervalIO(updatePosition, options.updatePositionEvery)
+  override val onMount =
+    create >> update >> options.mountHighlighter($) >> setInterval(updatePosition, options.updatePositionEvery)
 
-  override val unmount = IO[Unit] {
-    runUnmount()
-    overlay.foreach { o =>
-      document.body.removeChild(o.outer)
-      overlay = None
-    }
-  }
+  override val onUnmount =
+    super.unmount.thenRun(
+      overlay.foreach { o =>
+        document.body.removeChild(o.outer)
+        overlay = None
+      }
+    )
 }

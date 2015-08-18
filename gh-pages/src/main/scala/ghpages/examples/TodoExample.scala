@@ -73,10 +73,9 @@ object TodoExample {
   class Backend($: BackendScope[Unit, State]) {
     def onChange(e: ReactEventI) =
       $.modState(_.copy(text = e.target.value))
-    def handleSubmit(e: ReactEventI) = {
-      e.preventDefault()
+    def handleSubmit(e: ReactEventI) =
+      e.preventDefaultCB >>
       $.modState(s => State(s.items :+ s.text, ""))
-    }
   }
 
   val TodoApp = ReactComponentB[Unit]("TodoApp")

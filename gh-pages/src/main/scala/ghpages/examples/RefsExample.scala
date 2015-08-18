@@ -55,7 +55,7 @@ object RefsExample {
     def handleChange(e: ReactEventI) =
       $.setState(e.target.value)
     def clearAndFocusInput() =
-      $.setState("", () => theInput($).tryFocus())
+      $.setState("", theInput($).tryFocus)
   }
 
   val App = ReactComponentB[Unit]("App")

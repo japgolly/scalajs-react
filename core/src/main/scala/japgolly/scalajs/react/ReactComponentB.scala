@@ -25,25 +25,31 @@ object ReactComponentB {
       .stateless
       .noBackend
       .render(_ => content)
-      .shouldComponentUpdate((_, _, _) => false)
+      .shouldComponentUpdateConstCB(alwaysFalse)
+
+  private val alwaysFalse = CallbackTo.pure(false)
 
   // ===================================================================================================================
   final class P[Props] private[ReactComponentB](name: String) {
 
-    // getInitialState is how it's named in React
-    @inline def getInitialState[State](f: Props => State) = initialStateP(f)
+  // getInitialState is how it's named in React
+  @inline def getInitialState[State](f: Props => State) = initialStateP(f)
 
-    def initialStateC[State](f: ComponentScopeU[Props, State, Any] => State) = new PS[Props, State](name, f)
-    def initialStateP[State](f: Props => State)                              = initialStateC[State]($ => f($.props))
-    def initialState [State](s: => State)                                    = initialStateC[State](_ => s)
+    def initialState [State](s:                                    => State) = initialStateCB[State](CallbackTo(s))
+    def initialStateP[State](f: Props                              => State) = initialStateCBP[State](p => CallbackTo(f(p)))
+    def initialStateC[State](f: ComponentScopeU[Props, State, Any] => State) = initialStateCBC[State]($ => CallbackTo(f($)))
 
-    def stateless = initialState(())
+    def initialStateCB [State](s:                                       CallbackTo[State]) = initialStateCBC[State](_ => s)
+    def initialStateCBP[State](f: Props                              => CallbackTo[State]) = initialStateCBC[State]($ => f($.props))
+    def initialStateCBC[State](f: ComponentScopeU[Props, State, Any] => CallbackTo[State]) = new PS[Props, State](name, f)
+
+    def stateless = initialStateCB(Callback.empty)
 
     def render(f: Props                  => ReactElement) = stateless.render((p,_) => f(p))
     def render(f: (Props, PropsChildren) => ReactElement) = stateless.render((p,c,_) => f(p,c))
   }
 
-  type InitStateFn[P, S] = ComponentScopeU[P, S, Any] => S
+  type InitStateFn[P, S] = ComponentScopeU[P, S, Any] => CallbackTo[S]
 
   // ===================================================================================================================
   final class PS[Props, State] private[ReactComponentB](name: String, initF: InitStateFn[Props, State]) {
@@ -81,15 +87,15 @@ object ReactComponentB {
 
   // ===================================================================================================================
   private[react] case class LifeCycle[P,S,B,N <: TopNode](
-    configureSpec            : UndefOr[ReactComponentSpec[P, S, B, N]       => Unit],
-    getDefaultProps          : UndefOr[()                                   => P],
-    componentWillMount       : UndefOr[ComponentScopeU[P, S, B]             => Unit],
-    componentDidMount        : UndefOr[ComponentScopeM[P, S, B, N]          => Unit],
-    componentWillUnmount     : UndefOr[ComponentScopeM[P, S, B, N]          => Unit],
-    componentWillUpdate      : UndefOr[(ComponentScopeWU[P, S, B, N], P, S) => Unit],
-    componentDidUpdate       : UndefOr[(ComponentScopeM[P, S, B, N], P, S)  => Unit],
-    componentWillReceiveProps: UndefOr[(ComponentScopeM[P, S, B, N], P)     => Unit],
-    shouldComponentUpdate    : UndefOr[(ComponentScopeM[P, S, B, N], P, S)  => Boolean])
+    configureSpec            : UndefOr[ReactComponentSpec[P, S, B, N]       => Callback],
+    getDefaultProps          : UndefOr[                                        CallbackTo[P]],
+    componentWillMount       : UndefOr[ComponentScopeU[P, S, B]             => Callback],
+    componentDidMount        : UndefOr[ComponentScopeM[P, S, B, N]          => Callback],
+    componentWillUnmount     : UndefOr[ComponentScopeM[P, S, B, N]          => Callback],
+    componentWillUpdate      : UndefOr[(ComponentScopeWU[P, S, B, N], P, S) => Callback],
+    componentDidUpdate       : UndefOr[(ComponentScopeM[P, S, B, N], P, S)  => Callback],
+    componentWillReceiveProps: UndefOr[(ComponentScopeM[P, S, B, N], P)     => Callback],
+    shouldComponentUpdate    : UndefOr[(ComponentScopeM[P, S, B, N], P, S)  => CallbackTo[Boolean]])
 
   private[react] def emptyLifeCycle[P,S,B,N <: TopNode] =
     LifeCycle[P,S,B,N](undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
@@ -115,35 +121,68 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
   @inline private implicit def lcmod(a: LifeCycle[P, S, B, N]): ReactComponentB[P, S, B, N] =
     copy(lc = a)
 
-  def configureSpec(modify: ReactComponentSpec[P, S, B, N] => Unit): ReactComponentB[P, S, B, N] =
+  def configureSpec(modify: ReactComponentSpec[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =
        lc.copy(configureSpec = modify)
 
   def configure(fs: (ReactComponentB[P, S, B, N] => ReactComponentB[P, S, B, N])*): ReactComponentB[P, S, B, N] =
     fs.foldLeft(this)((a,f) => f(a))
 
-  def getDefaultProps(p: => P): ReactComponentB[P, S, B, N] =
-    lc.copy(getDefaultProps = () => p)
 
-  def componentWillMount(f: ComponentScopeU[P, S, B] => Unit): ReactComponentB[P, S, B, N] =
+  def getDefaultProps(p: => P): ReactComponentB[P, S, B, N] =
+    getDefaultPropsCB(CallbackTo(p))
+
+  def getDefaultPropsCB(p: CallbackTo[P]): ReactComponentB[P, S, B, N] =
+    lc.copy(getDefaultProps = p)
+
+
+  def componentWillMount(f: ComponentScopeU[P, S, B] => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillMount = fcUnit(lc.componentWillMount, f))
 
-  def componentDidMount(f: ComponentScopeM[P, S, B, N] => Unit): ReactComponentB[P, S, B, N] =
+  def componentDidMount(f: ComponentScopeM[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentDidMount = fcUnit(lc.componentDidMount, f))
 
-  def componentWillUnmount(f: ComponentScopeM[P, S, B, N] => Unit): ReactComponentB[P, S, B, N] =
+  def componentWillUnmount(f: ComponentScopeM[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillUnmount = fcUnit(lc.componentWillUnmount, f))
 
-  def componentWillUpdate(f: (ComponentScopeWU[P, S, B, N], P, S) => Unit): ReactComponentB[P, S, B, N] =
+  def componentWillUpdate(f: (ComponentScopeWU[P, S, B, N], P, S) => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillUpdate = fcUnit(lc.componentWillUpdate, f))
 
-  def componentDidUpdate(f: (ComponentScopeM[P, S, B, N], P, S) => Unit): ReactComponentB[P, S, B, N] =
+  def componentDidUpdate(f: (ComponentScopeM[P, S, B, N], P, S) => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentDidUpdate = fcUnit(lc.componentDidUpdate, f))
 
-  def componentWillReceiveProps(f: (ComponentScopeM[P, S, B, N], P) => Unit): ReactComponentB[P, S, B, N] =
+  def componentWillReceiveProps(f: (ComponentScopeM[P, S, B, N], P) => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillReceiveProps = fcUnit(lc.componentWillReceiveProps, f))
 
+  def componentWillMountCB(cb: Callback): ReactComponentB[P, S, B, N] =
+      componentWillMount(_ => cb)
+
+  def componentDidMountCB(cb: Callback): ReactComponentB[P, S, B, N] =
+      componentDidMount(_ => cb)
+
+  def componentWillUnmountCB(cb: Callback): ReactComponentB[P, S, B, N] =
+      componentWillUnmount(_ => cb)
+
+  def componentWillUpdateCB(cb: Callback): ReactComponentB[P, S, B, N] =
+      componentWillUpdate((_, _, _) => cb)
+
+  def componentDidUpdateCB(cb: Callback): ReactComponentB[P, S, B, N] =
+      componentDidUpdate((_, _, _) => cb)
+
+  def componentWillReceivePropsCB(cb: Callback): ReactComponentB[P, S, B, N] =
+      componentWillReceiveProps((_, _) => cb)
+
+
   def shouldComponentUpdate(f: (ComponentScopeM[P, S, B, N], P, S) => Boolean): ReactComponentB[P, S, B, N] =
+    shouldComponentUpdateCB(($, p, s) => CallbackTo(f($, p, s)))
+
+  def shouldComponentUpdateCB(f: (ComponentScopeM[P, S, B, N], P, S) => CallbackTo[Boolean]): ReactComponentB[P, S, B, N] =
     lc.copy(shouldComponentUpdate = fcEither(lc.shouldComponentUpdate, f))
+
+  def shouldComponentUpdateConst(f: => Boolean): ReactComponentB[P, S, B, N] =
+    shouldComponentUpdateConstCB(CallbackTo(f))
+
+  def shouldComponentUpdateConstCB(f: CallbackTo[Boolean]): ReactComponentB[P, S, B, N] =
+    shouldComponentUpdateCB((_, _, _) => f)
 
   /**
    * Install a pure-JS React mixin.
@@ -179,31 +218,37 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
         "render" -> (rendF: ThisFunction)
       )
 
-      @inline def setFnPS[T, R](fn: UndefOr[(T, P, S) => R], name: String): Unit =
+      @inline def setFnPS[T, R](fn: UndefOr[(T, P, S) => CallbackTo[R]], name: String): Unit =
         fn.foreach { f =>
-          val g = (t: T, p: WrapObj[P], s: WrapObj[S]) => f(t, p.v, s.v)
+          val g = (t: T, p: WrapObj[P], s: WrapObj[S]) => f(t, p.v, s.v).runNow()
+          spec.updateDynamic(name)(g: ThisFunction)
+        }
+
+      @inline def setThisFn1[A](fn: UndefOr[A => Callback], name: String): Unit =
+        fn.foreach { f =>
+          val g = (a: A) => f(a).runNow()
           spec.updateDynamic(name)(g: ThisFunction)
         }
 
       val componentWillMount2 = (t: ComponentScopeU[P, S, B]) => {
         val scopeB = t.asInstanceOf[BackendScope[P, S]]
         t.asInstanceOf[Dynamic].updateDynamic("backend")(backF(scopeB).asInstanceOf[JAny])
-        lc.componentWillMount.foreach(g => g(t))
+        lc.componentWillMount.foreach(g => g(t).runNow())
       }
       spec.updateDynamic("componentWillMount")(componentWillMount2: ThisFunction)
 
-      val initStateFn: ComponentScopeU[P, S, B] => WrapObj[S] = $ => WrapObj(initF($))
+      val initStateFn: ComponentScopeU[P, S, B] => WrapObj[S] = $ => WrapObj(initF($).runNow())
       spec.updateDynamic("getInitialState")(initStateFn: ThisFunction)
 
-      lc.getDefaultProps.foreach(f => spec.updateDynamic("getDefaultProps")(f: Function))
-      lc.componentWillUnmount.foreach(f => spec.updateDynamic("componentWillUnmount")(f: ThisFunction))
-      lc.componentDidMount.foreach(f => spec.updateDynamic("componentDidMount")(f: ThisFunction))
-      setFnPS(lc.componentWillUpdate, "componentWillUpdate")
-      setFnPS(lc.componentDidUpdate, "componentDidUpdate")
-      setFnPS(lc.shouldComponentUpdate, "shouldComponentUpdate")
+      lc.getDefaultProps.flatMap(_.toJsCallback).foreach(f => spec.updateDynamic("getDefaultProps")(f))
+      setThisFn1(lc.componentWillUnmount,  "componentWillUnmount")
+      setThisFn1(lc.componentDidMount,     "componentDidMount")
+      setFnPS   (lc.componentWillUpdate,   "componentWillUpdate")
+      setFnPS   (lc.componentDidUpdate,    "componentDidUpdate")
+      setFnPS   (lc.shouldComponentUpdate, "shouldComponentUpdate")
 
       lc.componentWillReceiveProps.foreach { f =>
-        val g = (t: ComponentScopeM[P, S, B, N], p: WrapObj[P]) => f(t, p.v)
+        val g = (t: ComponentScopeM[P, S, B, N], p: WrapObj[P]) => f(t, p.v).runNow()
         spec.updateDynamic("componentWillReceiveProps")(g: ThisFunction)
       }
 
@@ -213,7 +258,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
       }
 
       val spec2 = spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]
-      lc.configureSpec.foreach(_(spec2))
+      lc.configureSpec.foreach(_(spec2).runNow())
       spec2
     }
 

@@ -13,14 +13,16 @@ object ExtrasExamples {
    */
   object OnUnmountExample {
 
-    class Backend($: BackendScope[_, Long]) extends OnUnmount {     // Extends OnUnmount
-                                                                    // Removed `var interval`
-      def tick() = $.modState(_ + 1)
+    class Backend($: BackendScope[Unit, Long]) extends OnUnmount {     // Extends OnUnmount
+                                                                       // Removed `var interval`
+      def tick = $.modState(_ + 1)
 
-      def start() = {
-        val i = js.timers.setInterval(1.second)(tick())
-        onUnmount(js.timers.clearInterval(i))                       // Use onUnmount here
-      }
+      def start: Callback =
+        for {
+          i <- CallbackTo(js.timers.setInterval(1.second)(tick.runNow()))
+          c  = Callback(js.timers.clearInterval(i))
+          _ <- onUnmount(c)                                            // Use onUnmount here
+        } yield ()
     }
 
 
@@ -28,7 +30,7 @@ object ExtrasExamples {
       .initialState(0L)
       .backend(new Backend(_))
       .render((_,s,_) => div("Seconds elapsed: ", s))
-      .componentDidMount(_.backend.start())
+      .componentDidMount(_.backend.start)
                                                                     // Removed componentWillUnmount() call
       .configure(OnUnmount.install)                                 // Register OnUnmount functionality
       .buildU

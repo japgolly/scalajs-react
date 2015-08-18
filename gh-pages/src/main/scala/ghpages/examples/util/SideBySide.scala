@@ -33,7 +33,7 @@ object SideBySide {
       .componentDidMount(_ => applySyntaxHighlight())
       .componentDidUpdate((_,_,_)  => applySyntaxHighlight())
 
-  def applySyntaxHighlight() = {
+  def applySyntaxHighlight() = Callback {
     import scala.scalajs.js.Dynamic.{global => g}
     val nodeList = document.querySelectorAll("pre code").toArray
     nodeList.foreach( n => g.hljs.highlightBlock(n))
