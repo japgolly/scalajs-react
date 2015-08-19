@@ -3,7 +3,7 @@ package japgolly.scalajs.react.extra
 import org.scalajs.dom
 import scala.concurrent.duration._
 import scalajs.js
-import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
+import japgolly.scalajs.react._, vdom.prefix_<^._
 import dom.{document, window}
 import dom.html.Element
 import dom.raw.{CSSStyleDeclaration, Node}

@@ -1,6 +1,20 @@
 package japgolly.scalajs.react.extra.router
 
-sealed trait RouteCmd[A]
+import RouteCmd._
+
+sealed abstract class RouteCmd[A] {
+
+  final def >>[B](next: RouteCmd[B]): RouteCmd[B] = {
+    val init = this match {
+      case Sequence(x, y) => x :+ y
+      case _              => Vector.empty :+ this
+    }
+    Sequence(init, next)
+  }
+
+  @inline final def <<[B](prev: RouteCmd[B]): RouteCmd[A] =
+    prev >> this
+}
 
 object RouteCmd {
 
@@ -26,4 +40,6 @@ object RouteCmd {
   case class Return[A](a: A) extends RouteCmd[A]
 
   case class Log(msg: () => String) extends RouteCmd[Unit]
+
+  case class Sequence[A](init: Vector[RouteCmd[_]], last: RouteCmd[A]) extends RouteCmd[A]
 }

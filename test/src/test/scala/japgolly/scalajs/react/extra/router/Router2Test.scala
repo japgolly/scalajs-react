@@ -1,13 +1,13 @@
 package japgolly.scalajs.react.extra.router
 
 import java.util.UUID
-
 import scalaz.Equal
 import org.scalajs.dom
+import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.prefix_<^._
-import utest._
+import ScalazReact._
 import TestUtil._
 import TestUtil2._
 
@@ -182,16 +182,16 @@ object Router2Test extends TestSuite {
     }
 
     'detectErrors {
-      var es = config.detectErrorsE(PublicHome, PrivatePage1, PrivatePage2, UserProfilePage(1))
+      var es = config.detectErrors(PublicHome, PrivatePage1, PrivatePage2, UserProfilePage(1))
       assertEq(es, Vector.empty)
-      es = config.detectErrorsE(SomethingElse)
+      es = config.detectErrors(SomethingElse)
       assert(es.nonEmpty)
     }
 
     'routesPerNestedPageType {
       assertEq("E1", ctl.pathFor(E(E1)).value, "e/1")
       assertEq("E2", ctl.pathFor(E(E2)).value, "e/2")
-      val es = config.detectErrorsE(E(E1), E(E2))
+      val es = config.detectErrors(E(E1), E(E2))
       assertEq(es, Vector.empty)
     }
 

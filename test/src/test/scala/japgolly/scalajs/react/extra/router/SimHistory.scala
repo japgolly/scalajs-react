@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.extra.router
 
-import scalaz._
-import scalaz.effect.IO
+import japgolly.scalajs.react._
 
 case class SimHistory(startUrl: AbsUrl) {
 
@@ -25,20 +24,18 @@ case class SimHistory(startUrl: AbsUrl) {
        |${broadcasts.map("     " + _) mkString "\n"}
      """.stripMargin
 
-  def run[P, B](prog: RouteProg[B]): B = {
+  def interpret[B](cmd: RouteCmd[B]): CallbackTo[B] = {
     import RouteCmd._
-    type Cmd[A]  = RouteCmd[A]
-
-    val interpretCmd: Cmd ~> IO = new (Cmd ~> IO) {
-      override def apply[A](m: Cmd[A]): IO[A] = m match {
-        case PushState(url)    => IO{history = url :: history}
-        case ReplaceState(url) => IO{history = url :: history.tail}
-        case BroadcastSync     => IO{broadcasts :+= history}
-        case Return(a)         => IO(a)
-        case Log(msg)          => IO(println(msg()))
-      }
+    cmd match {
+      case PushState(url)    => Callback{history = url :: history}
+      case ReplaceState(url) => Callback{history = url :: history.tail}
+      case BroadcastSync     => Callback{broadcasts :+= history}
+      case Return(a)         => CallbackTo.pure(a)
+      case Log(msg)          => Callback(println(msg()))
+      case Sequence(a, b)    => a.foldLeft[CallbackTo[_]](Callback.empty)(_ >> interpret(_)) >> interpret(b)
     }
-
-    Free.runFC[Cmd, IO, B](prog)(interpretCmd).unsafePerformIO()
   }
+
+  def run[P, B](cmd: RouteCmd[B]): B =
+    interpret(cmd).runNow()
 }

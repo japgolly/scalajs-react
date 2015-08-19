@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.extra.router
 
 import org.scalajs.dom
-import scalaz.Equal
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.assertWarn
 
@@ -41,8 +40,6 @@ final case class BaseUrl(value: String) extends PathLike[BaseUrl] {
 }
 
 object BaseUrl {
-  implicit def equality: Equal[BaseUrl] = Equal.equalA
-
   def fromWindowOrigin   = BaseUrl(dom.window.location.origin)
   def fromWindowOrigin_/ = fromWindowOrigin.endWith_/
 }
@@ -68,7 +65,6 @@ final case class Path(value: String) extends PathLike[Path] {
   }
 }
 object Path {
-  implicit val equality: Equal[Path] = Equal.equalA
   def root = Path("")
 }
 
@@ -81,7 +77,6 @@ final case class AbsUrl(value: String) extends PathLike[AbsUrl] {
   override protected def str(s: AbsUrl) = s.value
 }
 object AbsUrl {
-  implicit def equality: Equal[AbsUrl] = Equal.equalA
   def fromWindow = AbsUrl(dom.window.location.href)
 }
 

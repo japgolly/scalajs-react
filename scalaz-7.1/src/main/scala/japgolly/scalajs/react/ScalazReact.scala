@@ -3,7 +3,10 @@ package japgolly.scalajs.react
 import scalaz.{Optional => _, _}
 import scalaz.effect.IO
 
-object ScalazReact extends ScalazReactState with ScalazReactInstances {
+object ScalazReact
+  extends ScalazReactExtra
+     with ScalazReactState
+     with ScalazReactInstances {
 
   final class SzRExt_CallbackOps[A](private val _c: () => A) extends AnyVal {
     @inline private def c = CallbackTo lift _c

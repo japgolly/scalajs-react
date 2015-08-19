@@ -1,7 +1,5 @@
 package ghpages.pages
 
-import scalaz.Equal
-import scalaz.syntax.equal._
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router.{RouterConfigDsl, RouterCtl}
@@ -29,8 +27,7 @@ object Example {
   case object Reuse        extends Example("Reusability",        "reusability",      ReuseExample        .content)
   case object EventListen  extends Example("EventListener",      "event-listener",   EventListenerExample.content)
 
-  implicit val equality   : Equal[Example]       = Equal.equalA
-  implicit val reusability: Reusability[Example] = Reusability.byEqual
+  implicit val reusability: Reusability[Example] = Reusability.by_==
 
   val values = Vector[Example](
     Hello, Timer, Todo, Refs, ProductTable, Animation, // Ported ReactJS examples
@@ -60,7 +57,7 @@ object ExamplesPage {
   val menu = ReactComponentB[Props]("Example menu")
     .render { p =>
       def menuItem(e: Example) = {
-        val active = e === p.current
+        val active = e == p.current
         <.li(
           ^.classSet1("list-group-item", "active" -> active),
           p.router setOnClick e,

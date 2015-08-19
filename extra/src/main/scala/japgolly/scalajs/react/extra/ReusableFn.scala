@@ -1,6 +1,5 @@
 package japgolly.scalajs.react.extra
 
-import monocle.Lens
 import scala.runtime.AbstractFunction1
 import japgolly.scalajs.react._
 
@@ -17,12 +16,10 @@ import japgolly.scalajs.react._
 sealed abstract class ReusableFn[A, B] extends AbstractFunction1[A, B] {
   private[extra] def reusable: PartialFunction[ReusableFn[A, B], Boolean]
 
-  import scalaz.Leibniz._
+  def asVar(value: A)(implicit r: Reusability[A], ev: ReusableFn[A, B] =:= ReusableFn[A, Callback]): ReusableVar[A] =
+    new ReusableVar(value, ev(this))(r)
 
-  def asVar(value: A)(implicit r: Reusability[A], ev: B === Callback): ReusableVar[A] =
-    new ReusableVar(value, ev.subst[({type λ[X] = A ~=> X})#λ](this))(r)
-
-  def asVarR(value: A, r: Reusability[A])(implicit ev: B === Callback): ReusableVar[A] =
+  def asVarR(value: A, r: Reusability[A])(implicit ev: ReusableFn[A, B] =:= ReusableFn[A, Callback]): ReusableVar[A] =
     asVar(value)(r, ev)
 
   def dimap[C, D](f: (A => B) => C => D): C ~=> D =
@@ -43,9 +40,6 @@ object ReusableFn {
 
     def endoZoom[I](f: (E, I) => E): I ~=> B =
       s.dimap(g => i => g(f(_, i)))
-
-    def endoZoomL[I](l: Lens[E, I]): I ~=> B =
-      s contramap l.set
 
     def endoCall2[I: Reusability, J](f: E => (I, J) => E): I ~=> (J ~=> B) =
       ReusableFn((i: I, j: J) => s(f(_)(i, j)))

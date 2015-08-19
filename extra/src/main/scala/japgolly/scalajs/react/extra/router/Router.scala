@@ -2,10 +2,8 @@ package japgolly.scalajs.react.extra.router
 
 import org.scalajs.dom
 import scala.scalajs.js
-import scalaz.{\/-, -\/, \/, ~>, Free}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
-import ScalazReact.callbackScalazMonad
 
 object Router {
 
@@ -71,13 +69,13 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
 //  val syncToWindowUrlS: ReactST[IO, Resolution, Unit] =
 //    ReactS.setM(syncToWindowUrl) //addCallbackS onSync
 
-  def syncToUrl(url: AbsUrl): RouteProg[Resolution] =
+  def syncToUrl(url: AbsUrl): RouteCmd[Resolution] =
     parseUrl(url) match {
       case Some(path) => syncToPath(path)
       case None       => wrongBase(url)
     }
 
-  def wrongBase(wrongUrl: AbsUrl): RouteProg[Resolution] = {
+  def wrongBase(wrongUrl: AbsUrl): RouteCmd[Resolution] = {
     val root = Path.root
     log(s"Wrong base: [${wrongUrl.value}] is outside of [${root.abs}].") >>
       redirectToPath(root, Redirect.Push)
@@ -89,10 +87,10 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     else
       None
 
-  def syncToPath(path: Path): RouteProg[Resolution] =
+  def syncToPath(path: Path): RouteCmd[Resolution] =
     cfg.parse(path) match {
-      case \/-(page) => resolve(page, cfg action page)
-      case -\/(r)    => redirect(r)
+      case Right(page) => resolve(page, cfg action page)
+      case Left(r)     => redirect(r)
     }
 
   def redirectCmd(p: Path, m: Redirect.Method): RouteCmd[Unit] = m match {
@@ -100,46 +98,44 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     case Redirect.Replace => ReplaceState(p.abs)
   }
 
-  def resolve(page: Page, action: Action): RouteProg[Resolution] =
-    prog(resolveAction(action).map(r => Resolution(page, () => r(ctl))))
+  def resolve(page: Page, action: Action): RouteCmd[Resolution] =
+    cmdOrPure(resolveAction(action).map(r => Resolution(page, () => r(ctl))))
 
-  def resolveAction(a: Action): RouteProg[Resolution] \/ Renderer = a match {
-    case r: Renderer => \/-(r)
-    case r: Redirect => -\/(redirect(r))
+  def resolveAction(a: Action): Either[RouteCmd[Resolution], Renderer] = a match {
+    case r: Renderer => Right(r)
+    case r: Redirect => Left(redirect(r))
   }
 
-  def redirect(r: Redirect): RouteProg[Resolution] = r match {
+  def redirect(r: Redirect): RouteCmd[Resolution] = r match {
     case RedirectToPage(page, m) => redirectToPath(cfg path page, m)
     case RedirectToPath(path, m) => redirectToPath(path, m)
   }
 
-  def redirectToPath(path: Path, method: Redirect.Method): RouteProg[Resolution] =
+  def redirectToPath(path: Path, method: Redirect.Method): RouteCmd[Resolution] =
     //log(s"Redirecting to [${path.value}], method=$method.") >>
     redirectCmd(path, method) >> syncToUrl(path.abs)
 
-  private def prog[A](e: RouteProg[A] \/ A): RouteProg[A] =
+  private def cmdOrPure[A](e: Either[RouteCmd[A], A]): RouteCmd[A] =
     e.fold(identity, Return(_))
 
-  val interpretCmd: RouteCmd ~> CallbackTo = new (RouteCmd ~> CallbackTo) {
-    @inline private def hs = js.Dynamic.literal()
-    @inline private def ht = ""
-    @inline private def h = window.history
-    override def apply[A](m: RouteCmd[A]): CallbackTo[A] = m match {
+  def interpret[A](r: RouteCmd[A]): CallbackTo[A] = {
+    @inline def hs = js.Dynamic.literal()
+    @inline def ht = ""
+    @inline def h = window.history
+    r match {
       case PushState(url)    => CallbackTo(h.pushState   (hs, ht, url.value)) << logger(s"PushState: [${url.value}]")
       case ReplaceState(url) => CallbackTo(h.replaceState(hs, ht, url.value)) << logger(s"ReplaceState: [${url.value}]")
       case BroadcastSync     => broadcast(())                                 << logger("Broadcasting sync request.")
       case Return(a)         => CallbackTo.pure(a)
       case Log(msg)          => logger(msg())
+      case Sequence(a, b)    => a.foldLeft[CallbackTo[_]](Callback.empty)(_ >> interpret(_)) >> interpret(b)
     }
   }
-
-  def interpret[A](r: RouteProg[A]): CallbackTo[A] =
-    Free.runFC[RouteCmd, CallbackTo, A](r)(interpretCmd)
 
   def render(r: Resolution): ReactElement =
     cfg.renderFn(ctl, r)
 
-  def setPath(path: Path): RouteProg[Unit] =
+  def setPath(path: Path): RouteCmd[Unit] =
     log(s"Set route to path [${path.value}].") >>
       PushState(path.abs) >> BroadcastSync
 

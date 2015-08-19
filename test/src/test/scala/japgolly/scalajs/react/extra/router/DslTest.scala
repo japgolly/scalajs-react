@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.extra.router
 
 import java.util.UUID
-
 import scalaz.Equal
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.prefix_<^._
+import ScalazReact._
 import TestUtil2._
 
 object DslTest extends TestSuite {
