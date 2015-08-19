@@ -27,7 +27,8 @@
 
   * When creating HTML, `-->` and `==>` only accept `Callback`s.
   * `setState()`, `modState()` etc now return `Callback`s.
-  * Core now has  `_setState()`, `_modState()`.
+  * Useful methods now moved into core `-->?`, `==>?` which work with optional callbacks.
+  * Useful methods now moved into core `_setState()` and `_modState()`.
   * Component lifecycle methods (like `componentWillMount`) now accept `Callback`.
   * `Router` no longer uses Scalaz `IO`.
   * Mixins in `extra` no longer have duplicate methods for Scalaz `IO`.
