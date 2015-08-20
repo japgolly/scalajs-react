@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import org.scalajs.dom.console
 import scala.annotation.implicitNotFound
 import scala.scalajs.js
 import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
@@ -34,6 +35,18 @@ object Callback {
   /** A callback that does nothing. */
   val empty: Callback =
     CallbackTo.pure(())
+
+  def log(message: js.Any, optionalParams: js.Any*): Callback =
+    Callback(console.log(message, optionalParams: _*))
+
+  def info(message: js.Any, optionalParams: js.Any*): Callback =
+    Callback(console.info(message, optionalParams: _*))
+
+  def warn(message: js.Any, optionalParams: js.Any*): Callback =
+    Callback(console.warn(message, optionalParams: _*))
+
+  def assert(test: Boolean, message: String, optionalParams: js.Any*): Callback =
+    Callback(console.assert(test, message, optionalParams: _*))
 }
 
 object CallbackTo {
