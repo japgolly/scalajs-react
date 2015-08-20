@@ -162,6 +162,25 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def finallyRun(runFinally: => Unit): CallbackTo[A] =
     CallbackTo(try f() finally runFinally)
 
+  /**
+   * When the callback result becomes available, perform a given side-effect with it.
+   */
+  def tap(t: A => Any): CallbackTo[A] =
+    CallbackTo {
+      val a = f()
+      t(a)
+      a
+    }
+
+  /**
+   * Alias for `tap`.
+   */
+  @inline def <|(t: A => Any): CallbackTo[A] =
+    tap(t)
+
+  def flatTap[B](t: A => CallbackTo[B]): CallbackTo[A] =
+    tap(t(_).runNow())
+
   @inline def toScalaFunction: () => A =
     f
 
