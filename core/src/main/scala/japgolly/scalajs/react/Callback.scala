@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import scala.annotation.implicitNotFound
 import scala.scalajs.js
 import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
 
@@ -9,14 +10,26 @@ import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
  * @see CallbackTo
  */
 object Callback {
-  @inline def apply(f: => Unit): Callback =
-    CallbackTo(f)
+  @implicitNotFound("You're wrapping a ${A} in a Callback which will discard without running it. Instead use CallbackTo(…).flatten or Callback{,To}.lazily(…).")
+  final class ResultGuard[A] private[Callback]()
+  object ResultGuard {
+    final class Proof[A] private[Callback]()
+    object Proof {
+      implicit def preventCallback1[A]: Proof[CallbackTo[A]] = ???
+      implicit def preventCallback2[A]: Proof[CallbackTo[A]] = ???
+      @inline implicit def allowAnythingElse[A]: Proof[A] = null.asInstanceOf[Proof[A]]
+    }
+    @inline implicit def apply[A: Proof]: ResultGuard[A] = null.asInstanceOf[ResultGuard[A]]
+  }
+
+  @inline def apply[U: ResultGuard](f: => U): Callback =
+    CallbackTo(f: Unit)
 
   @inline def lift(f: () => Unit): Callback =
     CallbackTo lift f
 
   @inline def lazily(f: => Callback): Callback =
-    Callback(f.runNow())
+    CallbackTo(f.runNow())
 
   /** A callback that does nothing. */
   val empty: Callback =
@@ -29,6 +42,9 @@ object CallbackTo {
 
   @inline def lift[A](f: () => A): CallbackTo[A] =
     new CallbackTo(f)
+
+  @inline def lazily[A](f: => CallbackTo[A]): CallbackTo[A] =
+    CallbackTo(f.runNow())
 
   @inline def pure[A](a: A): CallbackTo[A] =
     new CallbackTo(() => a)
