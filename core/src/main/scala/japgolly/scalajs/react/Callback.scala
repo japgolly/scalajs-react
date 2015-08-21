@@ -18,9 +18,9 @@ object Callback {
     object Proof {
       implicit def preventCallback1[A]: Proof[CallbackTo[A]] = ???
       implicit def preventCallback2[A]: Proof[CallbackTo[A]] = ???
-      @inline implicit def allowAnythingElse[A]: Proof[A] = null.asInstanceOf[Proof[A]]
+      @inline implicit def allowAnythingElse[A]: Proof[A] = null
     }
-    @inline implicit def apply[A: Proof]: ResultGuard[A] = null.asInstanceOf[ResultGuard[A]]
+    @inline implicit def apply[A: Proof]: ResultGuard[A] = null
   }
 
   @inline def apply[U: ResultGuard](f: => U): Callback =
@@ -28,6 +28,10 @@ object Callback {
 
   @inline def lift(f: () => Unit): Callback =
     CallbackTo lift f
+
+  /** A callback that does nothing. */
+  val empty: Callback =
+    CallbackTo.pure(())
 
   /**
    * Callback that isn't created until the first time it is used, after which it is reused.
@@ -43,25 +47,33 @@ object Callback {
   @inline def byName(f: => Callback): Callback =
     CallbackTo(f.runNow())
 
-  /** A callback that does nothing. */
-  val empty: Callback =
-    CallbackTo.pure(())
-
   /**
    * Convenience for returning `Callback.empty` if a condition isn't satisfied.
    */
   def ifTrue(pred: Boolean, c: => Callback): Callback =
     if (pred) c else Callback.empty
 
+  /**
+   * Convenience for calling `dom.console.log`.
+   */
   def log(message: js.Any, optionalParams: js.Any*): Callback =
     Callback(console.log(message, optionalParams: _*))
 
+  /**
+   * Convenience for calling `dom.console.info`.
+   */
   def info(message: js.Any, optionalParams: js.Any*): Callback =
     Callback(console.info(message, optionalParams: _*))
 
+  /**
+   * Convenience for calling `dom.console.warn`.
+   */
   def warn(message: js.Any, optionalParams: js.Any*): Callback =
     Callback(console.warn(message, optionalParams: _*))
 
+  /**
+   * Convenience for calling `dom.console.assert`.
+   */
   def assert(test: Boolean, message: String, optionalParams: js.Any*): Callback =
     Callback(console.assert(test, message, optionalParams: _*))
 
@@ -91,12 +103,17 @@ object Callback {
     byName(warn("TODO" + reason.fold("")(": " + _())))
 }
 
+// =====================================================================================================================
+
 object CallbackTo {
   @inline def apply[A](f: => A): CallbackTo[A] =
     new CallbackTo(() => f)
 
   @inline def lift[A](f: () => A): CallbackTo[A] =
     new CallbackTo(f)
+
+  @inline def pure[A](a: A): CallbackTo[A] =
+    new CallbackTo(() => a)
 
   /**
    * Callback that isn't created until the first time it is used, after which it is reused.
@@ -111,9 +128,6 @@ object CallbackTo {
    */
   @inline def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     CallbackTo(f.runNow())
-
-  @inline def pure[A](a: A): CallbackTo[A] =
-    new CallbackTo(() => a)
 
   /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.
@@ -138,6 +152,8 @@ object CallbackTo {
     Callback.todoImpl(Some(() => reason)) >> CallbackTo(result)
 }
 
+// =====================================================================================================================
+
 /**
  * A function to be executed later, usually by scalajs-react in response to some kind of event.
  *
@@ -152,6 +168,7 @@ object CallbackTo {
  * @since 0.10.0
  */
 final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) extends AnyVal {
+  type This = CallbackTo[A]
 
   /**
    * Executes this callback, on the current thread, right now, blocking until complete.
@@ -277,9 +294,12 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     else
       b
 
-  type TypeEv[T] = CallbackTo[A] =:= CallbackTo[T]
+  // -------------------------------------------------------------------------------------------------------------------
+  // Boolean fns
 
-  private def bool2(b: CallbackTo[Boolean])(op: (() => Boolean, () => Boolean) => Boolean)(implicit ev: TypeEv[Boolean]): CallbackTo[Boolean] = {
+  type ThisIsBool = This =:= CallbackB
+
+  private def bool2(b: CallbackB)(op: (() => Boolean, () => Boolean) => Boolean)(implicit ev: ThisIsBool): CallbackB = {
     val x = ev(this).f
     val y = b.f
     CallbackTo(op(x, y))
@@ -288,44 +308,44 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   /**
    * Creates a new callback that returns `true` when both this and the given callback return `true`.
    */
-  def &&(b: CallbackTo[Boolean])(implicit ev: TypeEv[Boolean]): CallbackTo[Boolean] =
+  def &&(b: CallbackB)(implicit ev: ThisIsBool): CallbackB =
     bool2(b)(_() && _())
 
   /**
    * Creates a new callback that returns `true` when either this or the given callback return `true`.
    */
-  def ||(b: CallbackTo[Boolean])(implicit ev: TypeEv[Boolean]): CallbackTo[Boolean] =
+  def ||(b: CallbackB)(implicit ev: ThisIsBool): CallbackB =
     bool2(b)(_() || _())
 
   /**
    * Negates the callback result (so long as its boolean).
    */
-  def !(implicit ev: A =:= Boolean): CallbackTo[Boolean] =
-    map(!_)
+  def !(implicit ev: ThisIsBool): CallbackB =
+    ev(this).map(!_)
 
   /**
    * Sequence the given callback to be run when the result of this is `true`.
    * The result is discarded.
    */
-  def whenTrueRun[B](c: CallbackTo[B])(implicit ev: A =:= Boolean): Callback =
-    map(a => if (a) c.runNow())
+  def whenTrueRun[B](c: CallbackTo[B])(implicit ev: ThisIsBool): Callback =
+    ev(this).map(a => if (a) c.runNow())
 
   /**
    * Alias for `whenTrueRun`.
    */
-  @inline def ?>>[B](c: CallbackTo[B])(implicit ev: A =:= Boolean): Callback =
+  @inline def ?>>[B](c: CallbackTo[B])(implicit ev: ThisIsBool): Callback =
     whenTrueRun(c)
 
   /**
    * Sequence the given callback to be run when the result of this is `true`.
    * Collects the result and wraps it in `Option`.
    */
-  def whenTrue[B](c: CallbackTo[B])(implicit ev: A =:= Boolean): CallbackTo[Option[B]] =
-    map(a => if (a) Some(c.runNow()) else None)
+  def whenTrue[B](c: CallbackTo[B])(implicit ev: ThisIsBool): CallbackTo[Option[B]] =
+    ev(this).map(a => if (a) Some(c.runNow()) else None)
 
   /**
    * Alias for `whenTrue`.
    */
-  @inline def ?>>?[B](c: CallbackTo[B])(implicit ev: A =:= Boolean): CallbackTo[Option[B]] =
+  @inline def ?>>?[B](c: CallbackTo[B])(implicit ev: ThisIsBool): CallbackTo[Option[B]] =
     whenTrue(c)
 }

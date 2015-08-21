@@ -8,7 +8,8 @@ package object react extends ReactEventAliases {
 
   type TopNode = dom.Element
 
-  type Callback = CallbackTo[Unit]
+  type Callback  = CallbackTo[Unit]
+  type CallbackB = CallbackTo[Boolean]
 
   /**
    * These exist for type inference.
