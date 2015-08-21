@@ -227,4 +227,30 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    */
   def !(implicit ev: A =:= Boolean): CallbackTo[Boolean] =
     map(!_)
+
+  /**
+   * Sequence the given callback to be run when the result of this is `true`.
+   * The result is discarded.
+   */
+  def whenTrueRun[B](c: CallbackTo[B])(implicit ev: A =:= Boolean): Callback =
+    map(a => if (a) c.runNow())
+
+  /**
+   * Alias for `whenTrueRun`.
+   */
+  @inline def ?>>[B](c: CallbackTo[B])(implicit ev: A =:= Boolean): Callback =
+    whenTrueRun(c)
+
+  /**
+   * Sequence the given callback to be run when the result of this is `true`.
+   * Collects the result and wraps it in `Option`.
+   */
+  def whenTrue[B](c: CallbackTo[B])(implicit ev: A =:= Boolean): CallbackTo[Option[B]] =
+    map(a => if (a) Some(c.runNow()) else None)
+
+  /**
+   * Alias for `whenTrue`.
+   */
+  @inline def ?>>?[B](c: CallbackTo[B])(implicit ev: A =:= Boolean): CallbackTo[Option[B]] =
+    whenTrue(c)
 }
