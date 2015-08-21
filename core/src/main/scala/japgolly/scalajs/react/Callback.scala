@@ -64,6 +64,31 @@ object Callback {
 
   def assert(test: Boolean, message: String, optionalParams: js.Any*): Callback =
     Callback(console.assert(test, message, optionalParams: _*))
+
+  /**
+   * Serves as a temporary placeholder for a callback until you supply a real implementation.
+   *
+   * Unlike `???` this doesn't crash, it just prints a warning to the console.
+   *
+   * Also it's not really deprecated, that's just so you get a compiler warning to remind you.
+   */
+  @deprecated("", "")
+  def TODO: Callback =
+    todoImpl(None)
+
+  /**
+   * Serves as a temporary placeholder for a callback until you supply a real implementation.
+   *
+   * Unlike `???` this doesn't crash, it just prints a warning to the console.
+   *
+   * Also it's not really deprecated, that's just so you get a compiler warning to remind you.
+   */
+  @deprecated("", "")
+  def TODO(reason: => String): Callback =
+    todoImpl(Some(() => reason))
+
+  private[react] def todoImpl(reason: Option[() => String]): Callback =
+    byName(warn("TODO" + reason.fold("")(": " + _())))
 }
 
 object CallbackTo {
@@ -89,6 +114,28 @@ object CallbackTo {
 
   @inline def pure[A](a: A): CallbackTo[A] =
     new CallbackTo(() => a)
+
+  /**
+   * Serves as a temporary placeholder for a callback until you supply a real implementation.
+   *
+   * Unlike `???` this doesn't crash, it just prints a warning to the console.
+   *
+   * Also it's not really deprecated, that's just so you get a compiler warning to remind you.
+   */
+  @deprecated("", "")
+  def TODO[A](result: => A): CallbackTo[A] =
+    Callback.todoImpl(None) >> CallbackTo(result)
+
+  /**
+   * Serves as a temporary placeholder for a callback until you supply a real implementation.
+   *
+   * Unlike `???` this doesn't crash, it just prints a warning to the console.
+   *
+   * Also it's not really deprecated, that's just so you get a compiler warning to remind you.
+   */
+  @deprecated("", "")
+  def TODO[A](result: => A, reason: => String): CallbackTo[A] =
+    Callback.todoImpl(Some(() => reason)) >> CallbackTo(result)
 }
 
 /**
