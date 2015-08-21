@@ -65,32 +65,38 @@
   Example #2<br>
   ```scala
   // Before
+  import org.scalajs.dom
   def clickHandler: Unit = {
-    println("Updating state.")
+    dom.console.log("Updating state.")
     $.modState(_ + 1)
   }
+  
+  // Firstly, there are console helpers on Callback such that
+  Callback(dom.console.log("Updating state."))
+  // can be simplified to
+  Callback.log("Updating state.")
 
   // Callbacks can compose in many different ways.
   // The following examples all do the same thing in the same order.
 
   // Method #1: >>
   def clickHandler: Callback =
-    Callback(println("Updating state.")) >>
+    Callback.log("Updating state.") >>
     $.modState(_ + 1)
 
-  // Method #2: precedeWith
+  // Method #2: <<
+  def clickHandler: Callback =
+    $.modState(_ + 1) << Callback.log("Updating state.")
+
+  // Method #3: precedeWith
   def clickHandler: Callback =
     $.modState(_ + 1).precedeWith {
-      println("Updating state.")
+      dom.console.log("Updating state.")
     }
 
-  // After, Method #3: <<
-  def clickHandler: Callback =
-    $.modState(_ + 1) << Callback(println("Updating state."))
-
-  // After, Method #4: runNow()
+  // Method #4: runNow()
   def clickHandler = Callback {
-    println("Updating state.")
+    dom.console.log("Updating state.")
     $.modState(_ + 1).runNow()
   }
   ```
@@ -102,6 +108,9 @@
     e.preventDefault()
     $.modState(s => State(s.items :+ s.text, ""))
   }
+  
+  // React and DOM events gain methods that wrap .preventDefault() & .stopPropagation() in Callback
+  // .preventDefaultCB and .stopPropagationCB
 
   // After
   def handleSubmit(e: ReactEventI) =
