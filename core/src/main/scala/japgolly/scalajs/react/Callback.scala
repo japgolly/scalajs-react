@@ -36,6 +36,12 @@ object Callback {
   val empty: Callback =
     CallbackTo.pure(())
 
+  /**
+   * Convenience for returning `Callback.empty` if a condition isn't satisfied.
+   */
+  def ifTrue(pred: Boolean, c: => Callback): Callback =
+    if (pred) c else Callback.empty
+
   def log(message: js.Any, optionalParams: js.Any*): Callback =
     Callback(console.log(message, optionalParams: _*))
 
