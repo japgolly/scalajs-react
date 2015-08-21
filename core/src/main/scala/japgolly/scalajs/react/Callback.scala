@@ -29,7 +29,18 @@ object Callback {
   @inline def lift(f: () => Unit): Callback =
     CallbackTo lift f
 
-  @inline def lazily(f: => Callback): Callback =
+  /**
+   * Callback that isn't created until the first time it is used, after which it is reused.
+   */
+  def lazily(f: => Callback): Callback = {
+    lazy val g = f
+    byName(g)
+  }
+
+  /**
+   * Callback that is recreated each time it is used.
+   */
+  @inline def byName(f: => Callback): Callback =
     CallbackTo(f.runNow())
 
   /** A callback that does nothing. */
@@ -62,7 +73,18 @@ object CallbackTo {
   @inline def lift[A](f: () => A): CallbackTo[A] =
     new CallbackTo(f)
 
-  @inline def lazily[A](f: => CallbackTo[A]): CallbackTo[A] =
+  /**
+   * Callback that isn't created until the first time it is used, after which it is reused.
+   */
+  def lazily[A](f: => CallbackTo[A]): CallbackTo[A] = {
+    lazy val g = f
+    byName(g)
+  }
+
+  /**
+   * Callback that is recreated each time it is used.
+   */
+  @inline def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     CallbackTo(f.runNow())
 
   @inline def pure[A](a: A): CallbackTo[A] =
