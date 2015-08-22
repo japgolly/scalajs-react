@@ -16,19 +16,24 @@ object Extra {
       }
   }
 
-  final class AttrExt(private val _a: Attr) extends AnyVal {
+  final class AttrExt(private val attr: Attr) extends AnyVal {
+
+    // Below we only accept Callback and not CallbackTo[_].
+    // This provides devs more power in that types can be used to distinguish DOM-ready callbacks and intermediary
+    // callbacks that explicitly return a value designed to be processed.
+    // Any CallbackTo[_] can trivially be turned into a Callback by calling .void().
 
     def -->(callback: => Callback): TagMod =
-      _a := ((() => callback.runNow()): js.Function)
+      attr := ((() => callback.runNow()): js.Function)
 
     def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Callback): TagMod =
-      _a := ((eventHandler(_: E).runNow()): js.Function)
+      attr := ((eventHandler(_: E).runNow()): js.Function)
 
     def -->?[O[_]](callback: => O[Callback])(implicit o: Optional[O]): TagMod =
-      _a --> Callback(o.foreach(callback)(_.runNow()))
+      attr --> Callback(o.foreach(callback)(_.runNow()))
 
     def ==>?[O[_], N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => O[Callback])(implicit o: Optional[O]): TagMod =
-      _a.==>[N, E](e => Callback(o.foreach(eventHandler(e))(_.runNow())))
+      attr.==>[N, E](e => Callback(o.foreach(eventHandler(e))(_.runNow())))
   }
 
   final class BooleanExt(private val _b: Boolean) extends AnyVal {
