@@ -171,25 +171,25 @@ object ReusabilityTest extends TestSuite {
       type F3[A] = Int ~=> F2[A]
 
       def test1[A](f: F1[A], g: F1[A]): Unit = {
-        f ~=~ f
-        f ~/~ g
+        assert(f ~=~ f)
+        assert(f ~/~ g)
       }
 
       def test2[A](f: F2[A], g: F2[A]): Unit = {
         test1(f, g)
-        f(1) ~=~ f(1)
-        f(1) ~/~ f(2)
-        f(1) ~/~ g(1)
+        assert(f(1) ~=~ f(1))
+        assert(f(1) ~/~ f(2))
+        assert(f(1) ~/~ g(1))
       }
 
       def test3[A](f: F3[A], g: F3[A]): Unit = {
         test2(f, g)
-        f(1)(2) ~=~ f(1)(2)
-        f(1)(2) ~/~ f(1)(3)
-        f(1)(2) ~/~ f(2)(2)
-        f(1)(2) ~/~ f(2)(1)
-        f(2)(1) ~=~ f(2)(1)
-        f(1)(2) ~/~ g(1)(2)
+        assert(f(1)(2) ~=~ f(1)(2))
+        assert(f(1)(2) ~/~ f(1)(3))
+        assert(f(1)(2) ~/~ f(2)(2))
+        assert(f(1)(2) ~/~ f(2)(1))
+        assert(f(2)(1) ~=~ f(2)(1))
+        assert(f(1)(2) ~/~ g(1)(2))
       }
 
       'fn1 {
@@ -243,6 +243,16 @@ object ReusabilityTest extends TestSuite {
         val f = ReusableFn.renderComponent(component)
         val g: Props => ReactElement = f
         ()
+      }
+
+      'fnA {
+        val f = ReusableFn((a: Int) => a + a)
+        val g = ReusableFn((a: Int) => a * a)
+        val f3 = f.fnA(3)
+        assert(f3 ~=~ f.fnA(3))
+        assert(f3 ~/~ f.fnA(2))
+        assert(f3 ~/~ g.fnA(3))
+        assert(f3() == 6)
       }
     }
 

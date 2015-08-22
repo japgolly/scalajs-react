@@ -30,6 +30,9 @@ sealed abstract class ReusableFn[A, B] extends AbstractFunction1[A, B] {
 
   def contramap[C](f: C => A): C ~=> B =
     dimap(f.andThen)
+
+  def fnA(a: A)(implicit ra: Reusability[A]): ReusableFnA[A, B] =
+    new ReusableFnA(a, this)
 }
 
 object ReusableFn {
@@ -168,4 +171,22 @@ object ReusableFn {
     override def apply(y: Y): Z = f(a, b, c, d, e, y)
     override private[extra] def reusable = { case x: Cur5[A, B, C, D, E, Y, Z] => (f eq x.f) && (a ~=~ x.a) && (b ~=~ x.b) && (c ~=~ x.c) && (d ~=~ x.d) && (e ~=~ x.e) }
   }
+}
+
+// ===================================================================================================================
+
+/**
+ * A [[ReusableFn]] from `A` to `B`, paired with a value of `A`.
+ *
+ * Ideally this would be `ReusableFn0[B]` without needing the `A` (a reusable version of `() => B`)
+ * but the overhead to reliably create such a construct is annoyingly high and not worth it.
+ */
+final class ReusableFnA[A, B] private[extra](val a: A, val fn: A ~=> B) {
+  def apply(): B =
+    fn(a)
+}
+
+object ReusableFnA {
+  implicit def reusability[A: Reusability, B]: Reusability[ReusableFnA[A, B]] =
+    Reusability.fn((x, y) => (x.a ~=~ y.a) && (x.fn ~=~ y.fn))
 }
