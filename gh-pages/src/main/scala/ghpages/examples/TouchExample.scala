@@ -23,7 +23,6 @@ object TouchExample {
 
   // Recommended to test with real Touch screens or with Chrome "Emulate touch screen"
 
-
   /** Keeping history of events **/
   case class State(log: List[String] = List()) {
     def withEntry(name: String) = copy(log = name :: log)
@@ -52,20 +51,21 @@ object TouchExample {
   val TouchExampleApp = ReactComponentB[Unit]("TouchExample")
     .initialState(new State)
     .backend(new Backend(_))
-    .render { (P, S, B) =>
+    .renderS { ($, s) =>
+      val debugEvent = $.backend.debugEvent _
       <.div(
         <.div(
           "Area to test touch events",
           ^.width := 200,                   // Basic style
           ^.height := 200,
           ^.border := "1px solid blue",
-          ^.onTouchStart  ==> B.debugEvent, // Forwarding touch events
-          ^.onTouchMove   ==> B.debugEvent,
-          ^.onTouchEnd    ==> B.debugEvent,
-          ^.onTouchCancel ==> B.debugEvent
+          ^.onTouchStart  ==> debugEvent,   // Forwarding touch events
+          ^.onTouchMove   ==> debugEvent,
+          ^.onTouchEnd    ==> debugEvent,
+          ^.onTouchCancel ==> debugEvent
         ),
         <.ul(                               // Rendering history of events
-          S.log.map(
+          s.log.map(
             <.li(_))))
     }.buildU
 

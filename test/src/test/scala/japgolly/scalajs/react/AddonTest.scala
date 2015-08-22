@@ -9,14 +9,13 @@ object AddonTest extends TestSuite {
 
   val componentA = ReactComponentB[Int]("A")
     .getInitialState(identity)
-    .render((_, _, i) => <.div(
+    .render_S(i => <.div(
       (0 to i).map(j => componentB(s"$j² = ${j*j}"))
     ))
     .build
 
   val componentB = ReactComponentB[String]("B")
-    .stateless
-    .render((s, _) => <.div("Input is ", s))
+    .render_P(str => <.div("Input is ", str))
     .build
 
   override def tests = TestSuite {

@@ -31,7 +31,7 @@ object HelloMessageExample {
   // EXAMPLE:START
 
   val HelloMessage = ReactComponentB[String]("HelloMessage")
-    .render(name => <.div("Hello ", name))
+    .render($ => <.div("Hello ", $.props))
     .build
 
   // EXAMPLE:END

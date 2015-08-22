@@ -17,7 +17,7 @@ object Router {
     ReactComponentB[Unit]("Router")
       .initialStateCB    (           lgc.syncToWindowUrl)
       .backend           (_       => new OnUnmount.Backend)
-      .render            ((_,s,_) => lgc.render(s))
+      .render_S          (           lgc.render)
       .componentDidMount ($       => cfg.postRenderFn(None, $.state.page))
       .componentDidUpdate(($,_,p) => cfg.postRenderFn(Some(p.page), $.state.page))
       .configure(

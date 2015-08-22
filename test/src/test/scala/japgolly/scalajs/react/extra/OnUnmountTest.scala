@@ -23,7 +23,7 @@ object OnUnmountTest extends TestSuite {
 
   val Outer = ReactComponentB[Unit]("")
     .initialState(true)
-    .render((_, s) => if (s) C() else <.div)
+    .render_S(s => if (s) C() else <.div)
     .buildU
 
   override def tests = TestSuite {

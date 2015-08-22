@@ -62,7 +62,7 @@ object TodoExample {
   // EXAMPLE:START
 
   val TodoList = ReactComponentB[List[String]]("TodoList")
-    .render(props => {
+    .render_P(props => {
       def createItem(itemText: String) = <.li(itemText)
       <.ul(props map createItem)
     })
@@ -73,24 +73,27 @@ object TodoExample {
   class Backend($: BackendScope[Unit, State]) {
     def onChange(e: ReactEventI) =
       $.modState(_.copy(text = e.target.value))
+
     def handleSubmit(e: ReactEventI) =
       e.preventDefaultCB >>
       $.modState(s => State(s.items :+ s.text, ""))
+
+    def render =
+      <.div(
+        <.h3("TODO"),
+        TodoList($.state.items),
+        <.form(^.onSubmit ==> handleSubmit,
+          <.input(^.onChange ==> onChange, ^.value := $.state.text),
+          <.button("Add #", $.state.items.length + 1)
+        )
+      )
   }
 
   val TodoApp = ReactComponentB[Unit]("TodoApp")
     .initialState(State(Nil, ""))
     .backend(new Backend(_))
-    .render((_,S,B) =>
-      <.div(
-        <.h3("TODO"),
-        TodoList(S.items),
-        <.form(^.onSubmit ==> B.handleSubmit,
-          <.input(^.onChange ==> B.onChange, ^.value := S.text),
-          <.button("Add #", S.items.length + 1)
-        )
-      )
-    ).buildU
+    .render(_.backend.render)
+    .buildU
 
   // EXAMPLE:END
 }

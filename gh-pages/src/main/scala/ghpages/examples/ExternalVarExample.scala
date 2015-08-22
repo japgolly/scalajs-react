@@ -31,7 +31,7 @@ object ExternalVarExample {
     .buildU
 
   val NameChanger = ReactComponentB[ExternalVar[String]]("Name changer")
-    .render { evar =>
+    .render_P { evar =>
       def updateName = (event: ReactEventI) => evar.set(event.target.value)
       <.input(
         ^.`type`    := "text",

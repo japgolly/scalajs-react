@@ -5,14 +5,27 @@ import Internal._
 
 object ReactComponentB {
 
-  // ===================================================================================================================
-  // Builder
-
   @inline def apply[Props](name: String) = new P[Props](name)
 
-  implicit def defaultDomType[P,S,B](c: PSBN[P,S,B]) = c.domType[TopNode]
-  implicit def defaultProps[P,S,B,N <: TopNode](c: ReactComponentB[P,S,B,N]) = c.propsRequired
-  implicit def defaultDomTypeAndProps[P,S,B](c: PSBN[P,S,B]) = defaultProps(defaultDomType(c))
+  // ======
+  // Stages
+  // ======
+  //
+  // 1 = P
+  // 2 = PS
+  // 3 = PSB
+  //     .render() mandatory
+  // 4 = PSBR
+  // 5 = ReactComponentB
+  // 6 = ReactComponentB#Builder
+
+  implicit def defaultStateless    [p](x: P[p])                                           = x.stateless
+  implicit def defaultNoBackend    [p,s,X <% PS[p, s]](x: X)                              = x.noBackend
+  implicit def defaultTopNode      [p,s,b](x: PSBR[p, s, b])                              = x.domType[TopNode]
+  implicit def defaultPropsRequired[P,S,B,N<:TopNode,X <% ReactComponentB[P,S,B,N]](x: X) = x.propsRequired
+
+  type InitStateFn[P, S] = ComponentScopeU[P, S, Any] => CallbackTo[S]
+  type RenderFn[P, S, -B] = ComponentScopeU[P, S, B] => ReactElement
 
   // ===================================================================================================================
   // Convenience
@@ -22,8 +35,6 @@ object ReactComponentB {
    */
   def static(name: String, content: ReactElement) =
     ReactComponentB[Unit](name)
-      .stateless
-      .noBackend
       .render(_ => content)
       .shouldComponentUpdateConstCB(alwaysFalse)
 
@@ -44,43 +55,53 @@ object ReactComponentB {
     def initialStateCBC[State](f: ComponentScopeU[Props, State, Any] => CallbackTo[State]) = new PS[Props, State](name, f)
 
     def stateless = initialStateCB(Callback.empty)
-
-    def render(f: Props                  => ReactElement) = stateless.render((p,_) => f(p))
-    def render(f: (Props, PropsChildren) => ReactElement) = stateless.render((p,c,_) => f(p,c))
   }
 
-  type InitStateFn[P, S] = ComponentScopeU[P, S, Any] => CallbackTo[S]
-
   // ===================================================================================================================
-  final class PS[Props, State] private[ReactComponentB](name: String, initF: InitStateFn[Props, State]) {
-
-    def backend[Backend](f: BackendScope[Props, State] => Backend) = new PSB(name, initF, f)
-    def noBackend                                                  = backend(_ => ())
-
-    def render(f: (Props, State)                                       => ReactElement) = noBackend.render((p,s,_) => f(p,s))
-    def render(f: (Props, PropsChildren, State)                        => ReactElement) = noBackend.render((p,c,s,_) => f(p,c,s))
-    def render(f: ComponentScopeU[Props, State, Unit]                  => ReactElement) = noBackend.render(f)
-    def renderS(f: (ComponentScopeU[Props, State, Unit], Props, State) => ReactElement) = noBackend.renderS(f)
+  final class PS[P, S] private[ReactComponentB](name: String, initF: InitStateFn[P, S]) {
+    def backend[B](f: BackendScope[P, S] => B) = new PSB(name, initF, f)
+    def noBackend                              = backend(_ => ())
   }
 
   // ===================================================================================================================
   final class PSB[P, S, B] private[ReactComponentB](name: String, initF: InitStateFn[P, S], backF: BackendScope[P, S] => B) {
 
-    def render(f: ComponentScopeU[P, S, B] => ReactElement): PSBN[P, S, B] =
-      new PSBN(name, initF, backF, f)
+    def render(f: ComponentScopeU[P, S, B] => ReactElement): PSBR[P, S, B] =
+      new PSBR(name, initF, backF, f)
 
-    def render(f: (P, S, B) => ReactElement): PSBN[P, S, B] =
-      render(s => f(s.props, s.state, s.backend))
+    def renderPCS(f: (ComponentScopeU[P, S, B], P, PropsChildren, S) => ReactElement): PSBR[P, S, B] =
+      render($ => f($, $.props, $.propsChildren, $.state))
 
-    def render(f: (P, PropsChildren, S, B) => ReactElement): PSBN[P, S, B] =
-      render(s => f(s.props, s.propsChildren, s.state, s.backend))
+    def renderPC(f: (ComponentScopeU[P, S, B], P, PropsChildren) => ReactElement): PSBR[P, S, B] =
+      render($ => f($, $.props, $.propsChildren))
 
-    def renderS(f: (ComponentScopeU[P, S, B], P, S) => ReactElement): PSBN[P, S, B] =
-      render(T => f(T, T.props, T.state))
+    def renderPS(f: (ComponentScopeU[P, S, B], P, S) => ReactElement): PSBR[P, S, B] =
+      render($ => f($, $.props, $.state))
+
+    def renderP(f: (ComponentScopeU[P, S, B], P) => ReactElement): PSBR[P, S, B] =
+      render($ => f($, $.props))
+
+    def renderCS(f: (ComponentScopeU[P, S, B], PropsChildren, S) => ReactElement): PSBR[P, S, B] =
+      render($ => f($, $.propsChildren, $.state))
+
+    def renderC(f: (ComponentScopeU[P, S, B], PropsChildren) => ReactElement): PSBR[P, S, B] =
+      render($ => f($, $.propsChildren))
+
+    def renderS(f: (ComponentScopeU[P, S, B], S) => ReactElement): PSBR[P, S, B] =
+      render($ => f($, $.state))
+
+    def render_P(f: P => ReactElement): PSBR[P, S, B] =
+      render($ => f($.props))
+
+    def render_C(f: PropsChildren => ReactElement): PSBR[P, S, B] =
+      render($ => f($.propsChildren))
+
+    def render_S(f: S => ReactElement): PSBR[P, S, B] =
+      render($ => f($.state))
   }
 
   // ===================================================================================================================
-  final class PSBN[P, S, B] private[ReactComponentB](name: String, initF: InitStateFn[P, S], backF: BackendScope[P, S] => B, rendF: ComponentScopeU[P, S, B] => ReactElement) {
+  final class PSBR[P, S, B] private[ReactComponentB](name: String, initF: InitStateFn[P, S], backF: BackendScope[P, S] => B, rendF: RenderFn[P, S, B]) {
     def domType[N <: TopNode]: ReactComponentB[P, S, B, N] =
       new ReactComponentB(name, initF, backF, rendF, emptyLifeCycle, Vector.empty)
   }
@@ -95,7 +116,7 @@ object ReactComponentB {
     componentWillUpdate      : UndefOr[(ComponentScopeWU[P, S, B, N], P, S) => Callback],
     componentDidUpdate       : UndefOr[(ComponentScopeM[P, S, B, N], P, S)  => Callback],
     componentWillReceiveProps: UndefOr[(ComponentScopeM[P, S, B, N], P)     => Callback],
-    shouldComponentUpdate    : UndefOr[(ComponentScopeM[P, S, B, N], P, S)  => CallbackTo[Boolean]])
+    shouldComponentUpdate    : UndefOr[(ComponentScopeM[P, S, B, N], P, S)  => CallbackB])
 
   private[react] def emptyLifeCycle[P,S,B,N <: TopNode] =
     LifeCycle[P,S,B,N](undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
@@ -175,13 +196,13 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
   def shouldComponentUpdate(f: (ComponentScopeM[P, S, B, N], P, S) => Boolean): ReactComponentB[P, S, B, N] =
     shouldComponentUpdateCB(($, p, s) => CallbackTo(f($, p, s)))
 
-  def shouldComponentUpdateCB(f: (ComponentScopeM[P, S, B, N], P, S) => CallbackTo[Boolean]): ReactComponentB[P, S, B, N] =
+  def shouldComponentUpdateCB(f: (ComponentScopeM[P, S, B, N], P, S) => CallbackB): ReactComponentB[P, S, B, N] =
     lc.copy(shouldComponentUpdate = fcEither(lc.shouldComponentUpdate, f))
 
   def shouldComponentUpdateConst(f: => Boolean): ReactComponentB[P, S, B, N] =
     shouldComponentUpdateConstCB(CallbackTo(f))
 
-  def shouldComponentUpdateConstCB(f: CallbackTo[Boolean]): ReactComponentB[P, S, B, N] =
+  def shouldComponentUpdateConstCB(f: CallbackB): ReactComponentB[P, S, B, N] =
     shouldComponentUpdateCB((_, _, _) => f)
 
   /**

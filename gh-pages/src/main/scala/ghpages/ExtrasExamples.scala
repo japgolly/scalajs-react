@@ -29,7 +29,7 @@ object ExtrasExamples {
     val Timer = ReactComponentB[Unit]("Timer")
       .initialState(0L)
       .backend(new Backend(_))
-      .render((_,s,_) => div("Seconds elapsed: ", s))
+      .render_S(s => div("Seconds elapsed: ", s))
       .componentDidMount(_.backend.start)
                                                                     // Removed componentWillUnmount() call
       .configure(OnUnmount.install)                                 // Register OnUnmount functionality
@@ -49,7 +49,7 @@ object ExtrasExamples {
     val Timer = ReactComponentB[Unit]("Timer")
       .initialState(0L)
       .backend(_ => new Backend)
-      .render((_,s,_) => div("Seconds elapsed: ", s))
+      .render_S(s => div("Seconds elapsed: ", s))
       .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1.second))
       .configure(SetInterval.install)
       .buildU
@@ -69,7 +69,7 @@ object ExtrasExamples {
     val C = ReactComponentB[Listenable[Int]]("C")
       .initialState(0)
       .backend(_ => new Backend)
-      .render((_,s,_) => div("Total: ", s))
+      .render_S(s => div("Total: ", s))
       .configure(Listenable.installS(identity, recv))   // Listen to events when mounted.
       .build
   }

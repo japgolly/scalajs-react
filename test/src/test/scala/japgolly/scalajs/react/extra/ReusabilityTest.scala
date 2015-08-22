@@ -20,7 +20,7 @@ object ReusabilityTest extends TestSuite {
 
     val component = ReactComponentB[Props]("Demo")
       .getInitialState(identity)
-      .render { (_, *) =>
+      .renderS { (_, *) =>
         renderCount += 1
         <.div(
           <.p("Name: ", *.name),
@@ -58,8 +58,7 @@ object ReusabilityTest extends TestSuite {
     implicit val propsReuse = Reusability.caseClass[InnerProps]
 
     val innerComponent = ReactComponentB[InnerProps]("PersonEditor")
-      .stateless
-      .render { (p, _) =>
+      .renderP { (_, p) =>
         innerRenderCount += 1
         <.input(
           ^.`type` := "text",

@@ -37,7 +37,7 @@ object GhPages extends JSApp {
       <.div(^.cls := "container", r.render()))
 
   val navMenu = ReactComponentB[RouterCtl[Page]]("Menu")
-    .render { ctl =>
+    .render_P { ctl =>
       def nav(name: String, target: Page) =
         <.li(
           ^.cls := "navbar-brand active",

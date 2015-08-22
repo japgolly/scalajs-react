@@ -12,7 +12,7 @@ object EventListenerTest extends TestSuite {
   val C = ReactComponentB[Unit]("")
     .initialState(0)
     .backend(_ => new OnUnmount.Backend)
-    .render((_, state, _) => <.div(s"Hit $state times"))
+    .renderS((_, state) => <.div(s"Hit $state times"))
     .configure(EventListener.install("hello", _.modState(_ + 1)))
     .buildU
 

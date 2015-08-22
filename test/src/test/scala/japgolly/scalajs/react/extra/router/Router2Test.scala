@@ -60,12 +60,12 @@ object Router2Test extends TestSuite {
 
     val userProfilePage =
       ReactComponentB[UserProfilePage]("User profile")
-        .render(p => <.div(s"Hello user #${p.id}"))
+        .render_P(p => <.div(s"Hello user #${p.id}"))
         .build
 
     case class NavProps(curPage: MyPage2, ctl: RouterCtl[MyPage2])
     val nav = ReactComponentB[NavProps]("NavBar")
-      .render { i =>
+      .render_P { i =>
         def item(p: MyPage2, name: String) =
           if (p == i.curPage)
             <.span(name)

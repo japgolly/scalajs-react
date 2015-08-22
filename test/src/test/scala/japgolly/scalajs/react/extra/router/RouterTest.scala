@@ -18,7 +18,7 @@ object RouterTest extends TestSuite {
     case class Person(id: Long) extends MyPage
 
     val RootComponent = ReactComponentB[RouterCtl[MyPage]]("Root")
-      .render(r =>
+      .render_P(r =>
         <.div(
           <.h2("Router Demonstration"),
           <.p("This is the root page. Click on a link below to view routes within this page."),
@@ -31,11 +31,11 @@ object RouterTest extends TestSuite {
       ReactComponentB.static("Hello", <.h3("Hello there!")).buildU
 
     val NameComponent = ReactComponentB[String]("Name")
-      .render(name => <.h3(s"I believe your name is '$name'."))
+      .render_P(name => <.h3(s"I believe your name is '$name'."))
       .build
 
     val PersonComponent = ReactComponentB[Person]("Person by ID")
-      .render(p => <.h3(s"Person #${p.id} Details..."))
+      .render_P(p => <.h3(s"Person #${p.id} Details..."))
       .build
 
     val config = RouterConfigDsl[MyPage].buildConfig { dsl =>

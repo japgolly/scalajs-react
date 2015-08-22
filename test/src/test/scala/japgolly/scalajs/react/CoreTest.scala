@@ -10,9 +10,9 @@ import test.{DebugJs, ReactTestUtils}
 
 object CoreTest extends TestSuite {
 
-  lazy val CA = ReactComponentB[Unit]("CA").render((_,c) => div(c)).buildU
-  lazy val CB = ReactComponentB[Unit]("CB").render((_,c) => span(c)).buildU
-  lazy val H1 = ReactComponentB[String]("H").render(p => h1(p)).build
+  lazy val CA = ReactComponentB[Unit]("CA").render_C(c => div(c)).buildU
+  lazy val CB = ReactComponentB[Unit]("CB").render_C(c => span(c)).buildU
+  lazy val H1 = ReactComponentB[String]("H").render_P(p => h1(p)).build
 
   lazy val SI = ReactComponentB[Unit]("SI")
     .initialState(123)
@@ -33,7 +33,7 @@ object CoreTest extends TestSuite {
 
     'scalatags {
       def test(subj: ReactElement, exp: String): Unit =
-        ReactComponentB[Unit]("tmp").render((_,_) => subj).buildU.apply() shouldRender exp
+        ReactComponentB[Unit]("tmp").render(_ => subj).buildU.apply() shouldRender exp
       def reactNode: ReactNode = H1("cool")
       def checkbox(check: Boolean) = input(`type` := "checkbox", checked := check)
 
@@ -172,19 +172,19 @@ object CoreTest extends TestSuite {
 
     'classSet {
       'allConditional {
-        val r = ReactComponentB[(Boolean,Boolean)]("C").render(p => div(classSet("p1" -> p._1, "p2" -> p._2))("x")).build
+        val r = ReactComponentB[(Boolean,Boolean)]("C").render_P(p => div(classSet("p1" -> p._1, "p2" -> p._2))("x")).build
         r((false, false)) shouldRender """<div>x</div>"""
         r((true,  false)) shouldRender """<div class="p1">x</div>"""
         r((false, true))  shouldRender """<div class="p2">x</div>"""
         r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
       }
       'hasMandatory {
-        val r = ReactComponentB[Boolean]("C").render(p => div(classSet1("mmm", "ccc" -> p))("x")).build
+        val r = ReactComponentB[Boolean]("C").render_P(p => div(classSet1("mmm", "ccc" -> p))("x")).build
         r(false) shouldRender """<div class="mmm">x</div>"""
         r(true)  shouldRender """<div class="mmm ccc">x</div>"""
       }
       'appends {
-        val r = ReactComponentB[Boolean]("C").render(p =>
+        val r = ReactComponentB[Boolean]("C").render_P(p =>
           div(cls := "neat", classSet1("mmm", "ccc" -> p), cls := "slowclap", "x")).build
         r(false) shouldRender """<div class="neat mmm slowclap">x</div>"""
         r(true)  shouldRender """<div class="neat mmm ccc slowclap">x</div>"""
@@ -193,16 +193,16 @@ object CoreTest extends TestSuite {
 
     'props {
       'unit {
-        val r = ReactComponentB[Unit]("U").render((_,c) => h1(c)).buildU
+        val r = ReactComponentB[Unit]("U").render_C(c => h1(c)).buildU
         r(div("great")) shouldRender "<h1><div>great</div></h1>"
       }
 
       'required {
-        val r = ReactComponentB[String]("C").render(name => div("Hi ", name)).build
+        val r = ReactComponentB[String]("C").render_P(name => div("Hi ", name)).build
         r("Mate") shouldRender "<div>Hi Mate</div>"
       }
 
-      val O = ReactComponentB[String]("C").render(name => div("Hey ", name)).propsDefault("man").build
+      val O = ReactComponentB[String]("C").render_P(name => div("Hey ", name)).propsDefault("man").build
       'optionalNone {
         O() shouldRender "<div>Hey man</div>"
       }
@@ -211,7 +211,7 @@ object CoreTest extends TestSuite {
       }
 
       'always {
-        val r = ReactComponentB[String]("C").render(name => div("Hi ", name)).propsConst("there").build
+        val r = ReactComponentB[String]("C").render_P(name => div("Hi ", name)).propsConst("there").build
         r() shouldRender "<div>Hi there</div>"
       }
     }
@@ -326,7 +326,7 @@ object CoreTest extends TestSuite {
 
     'refs {
       class WB(t: BackendScope[String,_]) { def getName = t.props }
-      val W = ReactComponentB[String]("").stateless.backend(new WB(_)).render((_,c,_,_) => div(c)).build
+      val W = ReactComponentB[String]("").stateless.backend(new WB(_)).render_C(c => div(c)).build
 
       // 'simple - simple refs are tested in TestTest
 
@@ -362,7 +362,7 @@ object CoreTest extends TestSuite {
       }
 
       'shouldNotHaveRefsOnUnmountedComponents {
-        val C = ReactComponentB[Unit]("child").render((P,C) => div()).buildU
+        val C = ReactComponentB[Unit]("child").render(_ => div()).buildU
         val P = ReactComponentB[Unit]("parent")
           .render(P => C(div(ref := "test"))) // div here discarded by C.render
           .componentDidMount(scope => Callback(assert(scope.refs("test").get == null)))
@@ -392,9 +392,9 @@ object CoreTest extends TestSuite {
     'cloneWithProps {
       'shouldCloneaDOMComponentWithNewProps {
         val Parent = ReactComponentB[Unit]("Parent")
-          .render((P,C) => {
+          .render_C(c => {
             div(cls := "parent")(
-              ReactCloneWithProps(React.Children.only(C),Map("className" -> "xyz"))
+              ReactCloneWithProps(React.Children.only(c),Map("className" -> "xyz"))
             )
           })
           .buildU
@@ -417,11 +417,11 @@ object CoreTest extends TestSuite {
       val C = ReactComponentB[Unit]("C")
         .stateless
         .backend(new RB(_))
-        .render((P,S,B) => {
+        .render(_ =>
           div(
             ReactCssTransitionGroup(name = "testname",ref = "addon")()
           )
-        })
+        )
         .componentDidMount(scope => scope.backend.test)
         .buildU
       ReactTestUtils.renderIntoDocument(C())
@@ -430,7 +430,7 @@ object CoreTest extends TestSuite {
 
     'domTypeBeforeCallbacks {
       ReactComponentB[Unit]("").stateless
-        .render((_, _) => canvas())
+        .render(_ => canvas())
         .domType[HTMLCanvasElement]
         .componentDidMount($ => Callback($.getDOMNode().getContext("2d")))
         .buildU

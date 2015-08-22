@@ -34,9 +34,9 @@ object RefsExample {
       |          Click to Focus and Reset
       |        </div>
       |        <input
-      |          ref="theInput"
-      |          value={this.state.userInput}
-      |          onChange={this.handleChange}
+      |          ref      = "theInput"
+      |          value    = {this.state.userInput}
+      |          onChange = {this.handleChange}
       |        />
       |      </div>
       |    );
@@ -61,10 +61,15 @@ object RefsExample {
   val App = ReactComponentB[Unit]("App")
     .initialState("")
     .backend(new Backend(_))
-    .render((_,S,B) =>
+    .render($ =>
       <.div(
-        <.div(^.onClick --> B.clearAndFocusInput)("Click to Focus and Reset"),
-        <.input(^.ref := theInput, ^.value := S, ^.onChange ==> B.handleChange)
+        <.div(
+          ^.onClick --> $.backend.clearAndFocusInput,
+          "Click to Focus and Reset"),
+        <.input(
+          ^.ref       := theInput,
+          ^.value     := $.state,
+          ^.onChange ==> $.backend.handleChange)
       )
     ).buildU
 

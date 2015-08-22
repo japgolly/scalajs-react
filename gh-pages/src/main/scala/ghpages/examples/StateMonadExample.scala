@@ -18,7 +18,7 @@ object StateMonadExample {
   // EXAMPLE:START
 
   val TodoList = ReactComponentB[List[String]]("TodoList")
-    .render(items =>
+    .render_P(items =>
       <.ul(items map (<.li(_))))
     .build
 
@@ -39,15 +39,15 @@ object StateMonadExample {
 
   val TodoApp = ReactComponentB[Unit]("TodoApp")
     .initialState(State(Nil, ""))
-    .renderS(($,_,S) =>                                   // Using renderS instead of render to get $ (`this` in JS).
+    .renderS(($, s) =>
       <.div(
         <.h3("TODO"),
-        TodoList(S.items),
+        TodoList(s.items),
         <.form(^.onSubmit ==> $._runState(handleSubmit),  // runState runs a state monad and applies the result.
           <.input(                                        // _runState is similar but takes a function-to-a-state-monad.
             ^.onChange ==> $._runState(acceptChange),     // In these cases, the function will be fed the JS event.
-            ^.value := S.text),
-          <.button("Add #", S.items.length + 1)))
+            ^.value := s.text),
+          <.button("Add #", s.items.length + 1)))
     ).buildU
 
   // EXAMPLE:END

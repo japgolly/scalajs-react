@@ -55,7 +55,7 @@ object ExamplesPage {
   implicit val propsReuse = Reusability.caseClass[Props]
 
   val menu = ReactComponentB[Props]("Example menu")
-    .render { p =>
+    .render_P { p =>
       def menuItem(e: Example) = {
         val active = e == p.current
         <.li(
@@ -71,14 +71,14 @@ object ExamplesPage {
     .build
 
   val body = ReactComponentB[Example]("Example body")
-    .render(eg =>
+    .render_P(eg =>
       <.div(
         ^.cls := "col-md-10",
         eg.render()))
     .build
 
   val component = ReactComponentB[Props]("Examples")
-    .render(p =>
+    .render_P(p =>
       <.div(^.cls := "row",
         menu(p),
         body(p.current))

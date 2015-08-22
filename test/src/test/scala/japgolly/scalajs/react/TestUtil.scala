@@ -101,12 +101,13 @@ object TestUtil {
     }
 
     trait M[A]
+    trait P
     trait S
     trait T
     trait A
     trait B
     type U = Unit
-    type N = TopNode
+    abstract class N extends TopNode
     val c = null.asInstanceOf[ComponentScopeM[Unit, S, Unit, N]]
 
     def st_s(s: S, t: T): S = ???

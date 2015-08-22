@@ -11,7 +11,7 @@ object SideBySide {
   }
 
   val sideBySideComponent = ReactComponentB[Content]("sideBySideExample")
-    .render(p =>
+    .render_P(p =>
       div(
         section(cls := "demo",
           div(cls := "demo", p.el)),

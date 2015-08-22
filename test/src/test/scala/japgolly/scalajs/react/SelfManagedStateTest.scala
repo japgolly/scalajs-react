@@ -41,7 +41,7 @@ object SelfManagedStateTest extends TestSuite {
 
   // Copied from ExternalVarExample
   val NameChanger = ReactComponentB[ExternalVar[String]]("Name changer")
-    .render { evar =>
+    .render_P { evar =>
     def updateName = (event: ReactEventI) => evar.set(event.target.value)
     <.input(
       ^.`type`    := "text",
@@ -66,7 +66,7 @@ object SelfManagedStateTest extends TestSuite {
 
   val TopLevel = ReactComponentB[Unit]("TopLevel")
     .initialStateC[TopLevelState](initTopLevelState(_, "John", "Wick"))
-    .render { (_, s) =>
+    .render_S { s =>
       <.div(
         <.label("First name:", s.firstName.render),
         <.label("Surname:",    s.lastName.render),

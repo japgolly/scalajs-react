@@ -9,21 +9,21 @@ import TestUtil._
 
 object TestTest extends TestSuite {
 
-  lazy val A = ReactComponentB[Unit]("A").render((_,c) => p(cls := "AA", c)).buildU
+  lazy val A = ReactComponentB[Unit]("A").render_C(c => p(cls := "AA", c)).buildU
   lazy val B = ReactComponentB[Unit]("B").render(_ => p(cls := "BB", "hehehe")).buildU
   lazy val rab = ReactTestUtils.renderIntoDocument(A(B()))
 
   val inputRef = Ref[HTMLInputElement]("r")
-  lazy val IC = ReactComponentB[Unit]("IC").initialState(true).renderS((t,_,s) => {
-    val ch = (e: ReactEvent) => t.modState(x => !x)
+  lazy val IC = ReactComponentB[Unit]("IC").initialState(true).renderS(($,s) => {
+    val ch = (e: ReactEvent) => $.modState(x => !x)
     label(
       input(`type` := "checkbox", checked := s, onClick ==> ch, ref := inputRef),
       span(s"s = $s")
     )
   }).buildU
 
-  lazy val IT = ReactComponentB[Unit]("IT").initialState("NIL").renderS((t,_,s) => {
-    val ch = (e: SyntheticEvent[HTMLInputElement]) => t.setState(e.target.value.toUpperCase)
+  lazy val IT = ReactComponentB[Unit]("IT").initialState("NIL").renderS(($,s) => {
+    val ch = (e: SyntheticEvent[HTMLInputElement]) => $.setState(e.target.value.toUpperCase)
     input(`type` := "text", value := s, onChange ==> ch)
   }).buildU
 

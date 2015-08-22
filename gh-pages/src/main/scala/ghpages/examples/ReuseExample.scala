@@ -23,7 +23,7 @@ object ReuseExample {
   // Reusable stateless components
 
   val showSum = ReactComponentB[Long]("Show sum")
-    .render(sum =>
+    .render_P(sum =>
       <.h1(
         "The sum of all inputs is", <.br, sum))
     .configure(Reusability.shouldComponentUpdateWithOverlay)
@@ -33,7 +33,7 @@ object ReuseExample {
   implicit val inputControlReuse = Reusability.caseClass[InputControl]
 
   val inputControl = ReactComponentB[InputControl]("InputControl")
-    .render(p =>
+    .render_P(p =>
       <.div(^.paddingLeft := "4ex",
         <.button("-1", ^.onClick --> p.change(-1)),
         <.span(^.padding := "0 1ex", p.current),
@@ -45,7 +45,7 @@ object ReuseExample {
   val numberRegex = "^-?\\d+$".r
 
   val InputEditor = ReactComponentB[ReusableVar[Long]]("Input editor")
-    .render { v =>
+    .render_P { v =>
       def update = (ev: ReactEventI) => numberRegex.findFirstIn(ev.target.value).map(v set _.toLong)
       <.input(
         ^.textAlign   := "center",

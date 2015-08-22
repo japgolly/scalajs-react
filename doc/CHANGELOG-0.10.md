@@ -127,6 +127,15 @@
   now require you to import `ScalazReact._` and/or `MonocleReact._`.
   After doing so, the methods will appear to be available as if nothing has changed.
 
+* No more overloaded `render` methods on `ReactComponentB`.
+
+  Now, the `render` methods are all defined in one place, and have been renamed to represent their type signatures.
+
+  Who remembers what mish-mash existed before, in this new world you ask for the types you want by adding suffixes to
+  the render function name. Conversely, it's now always obvious what's happening by looking at the function name.
+
+  **TODO: Add table or examples**
+
 * Smaller stuff:
 
   * `A ~=> B`, given an `A`, can now produce a `ReusableFnA[A, B]` which is effectively a reusable version of
