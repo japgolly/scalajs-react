@@ -127,14 +127,21 @@
   now require you to import `ScalazReact._` and/or `MonocleReact._`.
   After doing so, the methods will appear to be available as if nothing has changed.
 
-* No more overloaded `render` methods on `ReactComponentB`.
+* Revise method names in `ReactComponentB`
 
-  Now, the `render` methods are all defined in one place, and have been renamed to represent their type signatures.
+  Firstly, there are no more overloaded `render` methods, nor are they in different locations.
+  They're now all defined in one place, and have been renamed to represent their type signatures.
 
   Who remembers what mish-mash existed before, in this new world you ask for the types you want by adding suffixes to
   the render function name. Conversely, it's now always obvious what's happening by looking at the function name.
 
   **TODO: Add table or examples**
+
+  Similarly the `initialState` methods have been revised both
+  1. To be consistent with the pattern used in `render` methods
+  2. To optionally accept `Callback`s.
+
+  Unlike the `render` methods, this migration can be automated (see below).
 
 * Smaller stuff:
 
@@ -154,4 +161,8 @@ find . -name '*.scala' -type f -exec perl -pi -e 's/(?<=tryFocus)\(\)//g' {} +
 find . -name '*.scala' -type f -exec perl -pi -e 's/(?<=(set|mod)State)IO//g' {} +
 find . -name '*.scala' -type f -exec perl -pi -e 's/FixT\[IO *, */FixCB[/' {} +
 find . -name '*.scala' -type f -exec perl -pi -e 's/ReactST\[IO *,/ReactST[CallbackTo,/' {} +
+
+# initialState (do in order)
+find . -name '*.scala' -type f -exec perl -pi -e 's/getInitialState|initialStateP/initialState_P/g' {} +
+find . -name '*.scala' -type f -exec perl -pi -e 's/initialStateC/getInitialState/g' {} +
 ```

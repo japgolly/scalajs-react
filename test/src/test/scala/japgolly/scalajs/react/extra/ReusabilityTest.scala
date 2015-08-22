@@ -19,7 +19,7 @@ object ReusabilityTest extends TestSuite {
     var renderCount = 0
 
     val component = ReactComponentB[Props]("Demo")
-      .getInitialState(identity)
+      .initialState_P(identity)
       .renderS { (_, *) =>
         renderCount += 1
         <.div(
@@ -37,7 +37,7 @@ object ReusabilityTest extends TestSuite {
     type M = Map[Int, String]
 
     val outerComponent = ReactComponentB[M]("Demo")
-      .getInitialState(identity)
+      .initialState_P(identity)
       .backend(new Backend(_))
       .render(_.backend.render)
       .build

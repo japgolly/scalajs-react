@@ -65,7 +65,7 @@ object SelfManagedStateTest extends TestSuite {
       selfManagedTextEditor(lastName,  $ _setStateL TopLevelState.lastName))
 
   val TopLevel = ReactComponentB[Unit]("TopLevel")
-    .initialStateC[TopLevelState](initTopLevelState(_, "John", "Wick"))
+    .getInitialState[TopLevelState](initTopLevelState(_, "John", "Wick"))
     .render_S { s =>
       <.div(
         <.label("First name:", s.firstName.render),

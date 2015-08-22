@@ -8,7 +8,7 @@ import Addons._
 object AddonTest extends TestSuite {
 
   val componentA = ReactComponentB[Int]("A")
-    .getInitialState(identity)
+    .initialState_P(identity)
     .render_S(i => <.div(
       (0 to i).map(j => componentB(s"$j² = ${j*j}"))
     ))

@@ -43,16 +43,15 @@ object ReactComponentB {
   // ===================================================================================================================
   final class P[Props] private[ReactComponentB](name: String) {
 
-  // getInitialState is how it's named in React
-  @inline def getInitialState[State](f: Props => State) = initialStateP(f)
+    // getInitialState is how it's named in React
+    def getInitialState  [State](f: ComponentScopeU[Props, State, Any] => State)             = getInitialStateCB[State]($ => CallbackTo(f($)))
+    def getInitialStateCB[State](f: ComponentScopeU[Props, State, Any] => CallbackTo[State]) = new PS[Props, State](name, f)
 
-    def initialState [State](s:                                    => State) = initialStateCB[State](CallbackTo(s))
-    def initialStateP[State](f: Props                              => State) = initialStateCBP[State](p => CallbackTo(f(p)))
-    def initialStateC[State](f: ComponentScopeU[Props, State, Any] => State) = initialStateCBC[State]($ => CallbackTo(f($)))
-
-    def initialStateCB [State](s:                                       CallbackTo[State]) = initialStateCBC[State](_ => s)
-    def initialStateCBP[State](f: Props                              => CallbackTo[State]) = initialStateCBC[State]($ => f($.props))
-    def initialStateCBC[State](f: ComponentScopeU[Props, State, Any] => CallbackTo[State]) = new PS[Props, State](name, f)
+    // More convenient methods that don't need the full ComponentScopeU
+    def initialState    [State](s: => State                  ) = initialStateCB(CallbackTo(s))
+    def initialStateCB  [State](s: CallbackTo[State]         ) = getInitialStateCB[State](_ => s)
+    def initialState_P  [State](f: Props => State            ) = getInitialStateCB[State]($ => CallbackTo(f($.props)))
+    def initialStateCB_P[State](f: Props => CallbackTo[State]) = getInitialStateCB[State]($ => f($.props))
 
     def stateless = initialStateCB(Callback.empty)
   }
