@@ -127,6 +127,11 @@
   now require you to import `ScalazReact._` and/or `MonocleReact._`.
   After doing so, the methods will appear to be available as if nothing has changed.
 
+* Smaller stuff:
+
+  * `A ~=> B`, given an `A`, can now produce a `ReusableFnA[A, B]` which is effectively a reusable version of
+    `(A, () => B)`.
+
 <br>
 Migration commands:
 ```sh
