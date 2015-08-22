@@ -42,12 +42,12 @@ object CompStateAccess {
   @inline implicit def bs[P, S]: CompStateAccess[BackendScope[P, S], S] =
     CompStateAccess.SS.force[S]
 
-  final class Ops[C, S](private val _c: C) extends AnyVal {
+  final class Ops[C, S](private val c: C) extends AnyVal {
     // This should really be a class param but then we lose the AnyVal
     type CC = CompStateAccess[C, S]
 
     @inline def state(implicit C: CC): S =
-      C.state(_c)
+      C.state(c)
 
     /**
      * Creates a callback that always returns the latest state when run.
@@ -56,13 +56,13 @@ object CompStateAccess {
       CallbackTo(state)
 
     def setState(s: S, cb: Callback = Callback.empty)(implicit C: CC): Callback =
-      C.setState(_c, s, cb)
+      C.setState(c, s, cb)
 
     def setStateCB(s: CallbackTo[S], cb: Callback = Callback.empty)(implicit C: CC): Callback =
       s >>= (setState(_, cb))
 
     def _setState[I](f: I => S, cb: Callback = Callback.empty)(implicit C: CC): I => Callback =
-      i => C.setState(_c, f(i), cb)
+      i => C.setState(c, f(i), cb)
 
     def modState(f: S => S, cb: Callback = Callback.empty)(implicit C: CC): Callback =
       stateCB >>= (s => setState(f(s), cb))
@@ -75,13 +75,13 @@ object CompStateAccess {
       i => modState(f(i), cb)
 
     def lift(implicit C: CC) = new CompStateFocus[S](
-      () => _c.state,
-      (a: S, cb: Callback) => _c.setState(a, cb))
+      () => c.state,
+      (a: S, cb: Callback) => c.setState(a, cb))
 
     /** Zoom-in on a subset of the state. */
     def zoom[T](f: S => T)(g: (S, T) => S)(implicit C: CC) = new CompStateFocus[T](
-      () => f(_c.state),
-      (b: T, cb: Callback) => _c.setState(g(_c.state, b), cb))
+      () => f(c.state),
+      (b: T, cb: Callback) => c.setState(g(c.state, b), cb))
   }
 }
 

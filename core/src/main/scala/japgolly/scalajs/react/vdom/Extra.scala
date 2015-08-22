@@ -36,14 +36,14 @@ object Extra {
       attr.==>[N, E](e => Callback(o.foreach(eventHandler(e))(_.runNow())))
   }
 
-  final class BooleanExt(private val _b: Boolean) extends AnyVal {
-    @inline def ?=(m: => TagMod): TagMod = if (_b) m else EmptyTag
+  final class BooleanExt(private val b: Boolean) extends AnyVal {
+    @inline def ?=(m: => TagMod): TagMod = if (b) m else EmptyTag
   }
 
-  final class StringExt(private val _s: String) extends AnyVal {
-    @inline def reactAttr : Attr     = Attr(_s)
-    @inline def reactStyle: Style    = Style(_s, _s)
-    @inline def reactTag  : ReactTag = makeAbstractReactTag(_s, Scalatags.NamespaceHtml.implicitNamespace)
+  final class StringExt(private val s: String) extends AnyVal {
+    @inline def reactAttr : Attr     = Attr(s)
+    @inline def reactStyle: Style    = Style(s, s)
+    @inline def reactTag  : ReactTag = makeAbstractReactTag(s, Scalatags.NamespaceHtml.implicitNamespace)
   }
 
   trait Tags {

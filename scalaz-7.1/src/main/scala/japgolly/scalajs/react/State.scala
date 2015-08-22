@@ -48,38 +48,38 @@ private[react] object ScalazReactState {
       i => modStateF(f(i), cb)
   }
 
-  final class SzRExt_StateTOps[M[_], S, A](private val _s: StateT[M, S, A]) extends AnyVal {
-    @inline def liftS(implicit M: Functor[M]): ReactST[M, S, A] = ReactS.liftS(_s)
+  final class SzRExt_StateTOps[M[_], S, A](private val s: StateT[M, S, A]) extends AnyVal {
+    @inline def liftS(implicit M: Functor[M]): ReactST[M, S, A] = ReactS.liftS(s)
   }
 
-  final class SzRExt__StateTOps[I, M[_], S, A](private val _f: I => StateT[M, S, A]) extends AnyVal {
+  final class SzRExt__StateTOps[I, M[_], S, A](private val f: I => StateT[M, S, A]) extends AnyVal {
     @inline def liftS(implicit M: Functor[M]): I => ReactST[M, S, A] =
-      i => new SzRExt_StateTOps(_f(i)).liftS
+      i => new SzRExt_StateTOps(f(i)).liftS
   }
 
-  final class SzRExt_ReactSOps[S, A](private val _r: ReactS[S,A]) extends AnyVal {
+  final class SzRExt_ReactSOps[S, A](private val s: ReactS[S,A]) extends AnyVal {
     // Very common case. Very sick of seeing it highlighted red everywhere in Intellij.
-    @inline def liftIO: ReactST[IO, S, A] = _r.lift[IO]
-    @inline def liftCB: ReactST[CallbackTo, S, A] = _r.lift[CallbackTo]
+    @inline def liftIO: ReactST[IO, S, A] = s.lift[IO]
+    @inline def liftCB: ReactST[CallbackTo, S, A] = s.lift[CallbackTo]
   }
 
-  final class SzRExt_ReactSTOps[M[_], S, A](private val _r: ReactST[M,S,A]) extends AnyVal {
+  final class SzRExt_ReactSTOps[M[_], S, A](private val s: ReactST[M,S,A]) extends AnyVal {
     def addCallback(c: Callback)(implicit M: Monad[M]): ReactST[M,S,A] =
-      _r.flatMap(ReactS.callbackT(_, c))
+      s.flatMap(ReactS.callbackT(_, c))
 
     def addCallbackS(c: S => Callback)(implicit M: Monad[M]): ReactST[M,S,A] =
-      _r.flatMap(ReactS.callbacksT(_, c))
+      s.flatMap(ReactS.callbacksT(_, c))
 
     // This shouldn't be needed; it's already in BindSyntax.
     def >>[B](t: => ReactST[M,S,B])(implicit M: Bind[M]): ReactST[M,S,B] =
-      _r.flatMap(_ => t)
+      s.flatMap(_ => t)
 
     /** zoom2 because StateT.zoom already exists. 2 because it takes two fns. */
     def zoom2[T](f: T => S, g: (T, S) => T)(implicit M: Functor[M]): ReactST[M, T, A] =
-      ReactS.zoom(_r, f, g)
+      ReactS.zoom(s, f, g)
 
     def zoomU[T](implicit M: Functor[M], ev: S === Unit): ReactST[M, T, A] =
-      ReactS.zoomU[M, T, A](ev.subst[({type λ[σ] = ReactST[M, σ, A]})#λ](_r))
+      ReactS.zoomU[M, T, A](ev.subst[({type λ[σ] = ReactST[M, σ, A]})#λ](s))
   }
 }
 
