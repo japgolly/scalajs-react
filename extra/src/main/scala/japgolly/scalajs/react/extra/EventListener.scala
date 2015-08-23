@@ -4,12 +4,13 @@ import org.scalajs.dom.raw.EventTarget
 import org.scalajs.dom.Event
 import scala.scalajs.js
 import japgolly.scalajs.react._
+import ComponentScope.DuringCallbackM
 
 object EventListener {
 
   def apply[E <: Event] = new OfEventType[E](true)
 
-  def defaultTarget[P, S, B, N <: TopNode]: ComponentScopeM[P,S,B,N] => EventTarget =
+  def defaultTarget[P, S, B, N <: TopNode]: DuringCallbackM[P,S,B,N] => EventTarget =
     _.getDOMNode()
 
   final class OfEventType[E <: Event](private val _unused: Boolean) extends AnyVal {
@@ -27,8 +28,8 @@ object EventListener {
      *                   capture.
      */
     def install[P, S, B <: OnUnmount, N <: TopNode](eventType : String,
-                                                    listener  : ComponentScopeM[P,S,B,N] => E => Callback,
-                                                    target    : ComponentScopeM[P,S,B,N] => EventTarget = defaultTarget[P,S,B,N],
+                                                    listener  : DuringCallbackM[P,S,B,N] => E => Callback,
+                                                    target    : DuringCallbackM[P,S,B,N] => EventTarget = defaultTarget[P,S,B,N],
                                                     useCapture: Boolean = false) =
       OnUnmount.install[P,S,B,N] andThen (_.componentDidMount { $ =>
         val et = target($)
@@ -43,8 +44,8 @@ object EventListener {
 
   /** See [[OfEventType.install()]]. */
   def install[P, S, B <: OnUnmount, N <: TopNode](eventType : String,
-                                                  listener  : ComponentScopeM[P,S,B,N] => Callback,
-                                                  target    : ComponentScopeM[P,S,B,N] => EventTarget = defaultTarget[P,S,B,N],
+                                                  listener  : DuringCallbackM[P,S,B,N] => Callback,
+                                                  target    : DuringCallbackM[P,S,B,N] => EventTarget = defaultTarget[P,S,B,N],
                                                   useCapture: Boolean = false) =
     EventListener[Event].install[P,S,B,N](
       eventType,

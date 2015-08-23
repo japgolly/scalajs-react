@@ -7,6 +7,7 @@ import scala.scalajs.js
 import scalaz.Maybe
 import vdom.all._
 import utest._
+import ComponentScope._
 
 object TestUtil {
 
@@ -19,7 +20,7 @@ object TestUtil {
     def shouldRender(expected: String) = assertRender(c, expected)
   }
 
-  def collector1[A](f: ComponentScopeU[_, _, _] => A) =
+  def collector1[A](f: DuringCallbackU[_, _, _] => A) =
     ReactComponentB[AtomicReference[Option[A]]]("C₁").stateless
       .render(T => { T.props set Some(f(T)); div ("x") }).build
 
@@ -36,7 +37,7 @@ object TestUtil {
   def run1C[A](c: ReactComponentC.ReqProps[AtomicReference[Option[A]], _, _, _], children: ReactNode*): A =
     run1(c)(a => c(a, children: _*))
 
-  def collectorN[A](f: (ListBuffer[A], ComponentScopeU[_, _, _]) => Unit) =
+  def collectorN[A](f: (ListBuffer[A], DuringCallbackU[_, _, _]) => Unit) =
     ReactComponentB[ListBuffer[A]]("Cₙ").stateless
       .render(T => { f(T.props, T); div ("x") }).build
 
@@ -108,7 +109,7 @@ object TestUtil {
     trait B
     type U = Unit
     abstract class N extends TopNode
-    val c = null.asInstanceOf[ComponentScopeM[Unit, S, Unit, N]]
+    val c = null.asInstanceOf[ReactComponentM[Unit, S, Unit, N]]
 
     def st_s(s: S, t: T): S = ???
 

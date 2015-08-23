@@ -66,18 +66,28 @@ package object react extends ReactEventAliases {
     @inline def wrap: WrapObj[A] = WrapObj(a)
   }
 
-  @inline implicit final class ReactExt_ComponentScope_P[Props](private val c: ComponentScope_P[Props]) extends AnyVal {
-    @inline def props = c._props.v
+  import ComponentScope._
+
+  @inline implicit final class ReactExt_HasProps[P](private val c: HasProps[P]) extends AnyVal {
+    @inline def props         = c._props.v
     @inline def propsChildren = c._props.children
-    @inline def propsDynamic = c._props.asInstanceOf[js.Dynamic]
+    @inline def propsDynamic  = c._props.asInstanceOf[js.Dynamic]
   }
 
-  @inline implicit final class ReactExt_ComponentScope_PS[Props, State](private val c: ComponentScope_PS[Props, State]) extends AnyVal {
-    @inline def getInitialState(p: Props): State = c._getInitialState(WrapObj(p)).v
+  @inline implicit final class ReactExt_CanGetInitialState[P, S](private val c: CanGetInitialState[P, S]) extends AnyVal {
+    @inline def getInitialState(p: P): S = c._getInitialState(WrapObj(p)).v
   }
 
-  @inline implicit final class ReactExt_ComponentScope_S[State](private val c: ComponentScope_S[State]) extends AnyVal {
-    @inline def state = c._state.v
+  @inline implicit final class ReactExt_HasState[S](private val c: HasState[S]) extends AnyVal {
+    @inline def state: S = c._state.v
+  }
+
+  @inline implicit final class ReactExt_IsMounted[N <: TopNode](private val c: IsMounted[N]) extends AnyVal {
+    /**
+     * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has
+     * changed without using this.setState().
+     */
+    def forceUpdate: Callback = Callback(c._forceUpdate())
   }
 
   @inline implicit final class ReactExt_ReactEventExt(private val e: ReactEvent) extends AnyVal {
@@ -95,16 +105,8 @@ package object react extends ReactEventAliases {
   @inline implicit final class ReactExt_ReactComponentU[P,S,B,N <: TopNode](private val c: ReactComponentU[P,S,B,N]) extends AnyVal {
     @inline def render(container: dom.Node): ReactComponentM[P,S,B,N] =
       React.render(c, container)
-    @inline def render(container: dom.Node, callback: ComponentScopeM[P,S,B,N] => Callback): ReactComponentM[P,S,B,N] =
+    @inline def render(container: dom.Node, callback: ReactComponentM[P,S,B,N] => Callback): ReactComponentM[P,S,B,N] =
       React.render[P,S,B,N](c, container, callback.andThen(_.runNow()))
-  }
-
-  @inline implicit final class ReactExt_ComponentScope_M[N <: TopNode](private val c: ComponentScope_M[N]) extends AnyVal {
-    /**
-     * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has
-     * changed without using this.setState().
-     */
-    def forceUpdate: Callback = Callback(c._forceUpdate())
   }
 
   @inline implicit final class ReactExt_ReactDOMElement(private val e: ReactDOMElement) extends AnyVal {

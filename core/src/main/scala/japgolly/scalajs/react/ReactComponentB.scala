@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import scala.scalajs.js.{Any => JAny, Array => JArray, _}
 import Internal._
+import ComponentScope._
 
 object ReactComponentB {
 
@@ -24,8 +25,8 @@ object ReactComponentB {
   implicit def defaultTopNode      [p,s,b](x: PSBR[p, s, b])                              = x.domType[TopNode]
   implicit def defaultPropsRequired[P,S,B,N<:TopNode,X <% ReactComponentB[P,S,B,N]](x: X) = x.propsRequired
 
-  type InitStateFn[P, S] = ComponentScopeU[P, S, Any] => CallbackTo[S]
-  type RenderFn[P, S, -B] = ComponentScopeU[P, S, B] => ReactElement
+  type InitStateFn[P, S] = DuringCallbackU[P, S, Any] => CallbackTo[S]
+  type RenderFn[P, S, -B] = DuringCallbackU[P, S, B] => ReactElement
 
   // ===================================================================================================================
   // Convenience
@@ -44,10 +45,10 @@ object ReactComponentB {
   final class P[Props] private[ReactComponentB](name: String) {
 
     // getInitialState is how it's named in React
-    def getInitialState  [State](f: ComponentScopeU[Props, State, Any] => State)             = getInitialStateCB[State]($ => CallbackTo(f($)))
-    def getInitialStateCB[State](f: ComponentScopeU[Props, State, Any] => CallbackTo[State]) = new PS[Props, State](name, f)
+    def getInitialState  [State](f: DuringCallbackU[Props, State, Any] => State)             = getInitialStateCB[State]($ => CallbackTo(f($)))
+    def getInitialStateCB[State](f: DuringCallbackU[Props, State, Any] => CallbackTo[State]) = new PS[Props, State](name, f)
 
-    // More convenient methods that don't need the full ComponentScopeU
+    // More convenient methods that don't need the full ComponentScope
     def initialState    [State](s: => State                  ) = initialStateCB(CallbackTo(s))
     def initialStateCB  [State](s: CallbackTo[State]         ) = getInitialStateCB[State](_ => s)
     def initialState_P  [State](f: Props => State            ) = getInitialStateCB[State]($ => CallbackTo(f($.props)))
@@ -65,28 +66,28 @@ object ReactComponentB {
   // ===================================================================================================================
   final class PSB[P, S, B] private[ReactComponentB](name: String, initF: InitStateFn[P, S], backF: BackendScope[P, S] => B) {
 
-    def render(f: ComponentScopeU[P, S, B] => ReactElement): PSBR[P, S, B] =
+    def render(f: DuringCallbackU[P, S, B] => ReactElement): PSBR[P, S, B] =
       new PSBR(name, initF, backF, f)
 
-    def renderPCS(f: (ComponentScopeU[P, S, B], P, PropsChildren, S) => ReactElement): PSBR[P, S, B] =
+    def renderPCS(f: (DuringCallbackU[P, S, B], P, PropsChildren, S) => ReactElement): PSBR[P, S, B] =
       render($ => f($, $.props, $.propsChildren, $.state))
 
-    def renderPC(f: (ComponentScopeU[P, S, B], P, PropsChildren) => ReactElement): PSBR[P, S, B] =
+    def renderPC(f: (DuringCallbackU[P, S, B], P, PropsChildren) => ReactElement): PSBR[P, S, B] =
       render($ => f($, $.props, $.propsChildren))
 
-    def renderPS(f: (ComponentScopeU[P, S, B], P, S) => ReactElement): PSBR[P, S, B] =
+    def renderPS(f: (DuringCallbackU[P, S, B], P, S) => ReactElement): PSBR[P, S, B] =
       render($ => f($, $.props, $.state))
 
-    def renderP(f: (ComponentScopeU[P, S, B], P) => ReactElement): PSBR[P, S, B] =
+    def renderP(f: (DuringCallbackU[P, S, B], P) => ReactElement): PSBR[P, S, B] =
       render($ => f($, $.props))
 
-    def renderCS(f: (ComponentScopeU[P, S, B], PropsChildren, S) => ReactElement): PSBR[P, S, B] =
+    def renderCS(f: (DuringCallbackU[P, S, B], PropsChildren, S) => ReactElement): PSBR[P, S, B] =
       render($ => f($, $.propsChildren, $.state))
 
-    def renderC(f: (ComponentScopeU[P, S, B], PropsChildren) => ReactElement): PSBR[P, S, B] =
+    def renderC(f: (DuringCallbackU[P, S, B], PropsChildren) => ReactElement): PSBR[P, S, B] =
       render($ => f($, $.propsChildren))
 
-    def renderS(f: (ComponentScopeU[P, S, B], S) => ReactElement): PSBR[P, S, B] =
+    def renderS(f: (DuringCallbackU[P, S, B], S) => ReactElement): PSBR[P, S, B] =
       render($ => f($, $.state))
 
     def render_P(f: P => ReactElement): PSBR[P, S, B] =
@@ -109,33 +110,33 @@ object ReactComponentB {
   private[react] case class LifeCycle[P,S,B,N <: TopNode](
     configureSpec            : UndefOr[ReactComponentSpec[P, S, B, N]       => Callback],
     getDefaultProps          : UndefOr[                                        CallbackTo[P]],
-    componentWillMount       : UndefOr[ComponentScopeU[P, S, B]             => Callback],
-    componentDidMount        : UndefOr[ComponentScopeM[P, S, B, N]          => Callback],
-    componentWillUnmount     : UndefOr[ComponentScopeM[P, S, B, N]          => Callback],
-    componentWillUpdate      : UndefOr[(ComponentScopeWU[P, S, B, N], P, S) => Callback],
-    componentDidUpdate       : UndefOr[(ComponentScopeM[P, S, B, N], P, S)  => Callback],
-    componentWillReceiveProps: UndefOr[(ComponentScopeM[P, S, B, N], P)     => Callback],
-    shouldComponentUpdate    : UndefOr[(ComponentScopeM[P, S, B, N], P, S)  => CallbackB])
+    componentWillMount       : UndefOr[DuringCallbackU[P, S, B]             => Callback],
+    componentDidMount        : UndefOr[DuringCallbackM[P, S, B, N]          => Callback],
+    componentWillUnmount     : UndefOr[DuringCallbackM[P, S, B, N]          => Callback],
+    componentWillUpdate      : UndefOr[(WillUpdate[P, S, B, N], P, S)       => Callback],
+    componentDidUpdate       : UndefOr[(DuringCallbackM[P, S, B, N], P, S)  => Callback],
+    componentWillReceiveProps: UndefOr[(DuringCallbackM[P, S, B, N], P)     => Callback],
+    shouldComponentUpdate    : UndefOr[(DuringCallbackM[P, S, B, N], P, S)  => CallbackB])
 
   private[react] def emptyLifeCycle[P,S,B,N <: TopNode] =
     LifeCycle[P,S,B,N](undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
 }
 
-import ReactComponentB.{InitStateFn, LifeCycle}
+import ReactComponentB.{InitStateFn, RenderFn, LifeCycle}
 
 final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
                                                 initF   : InitStateFn[P, S],
                                                 backF   : BackendScope[P, S] => B,
-                                                rendF   : ComponentScopeU[P, S, B] => ReactElement,
+                                                rendF   : RenderFn[P, S, B],
                                                 lc      : LifeCycle[P, S, B, N],
                                                 jsMixins: Vector[JAny]) {
 
-  @inline private def copy(name    : String                                   = name    ,
-                           initF   : InitStateFn[P, S]                        = initF   ,
-                           backF   : BackendScope[P, S] => B                  = backF   ,
-                           rendF   : ComponentScopeU[P, S, B] => ReactElement = rendF   ,
-                           lc      : LifeCycle[P, S, B, N]                    = lc      ,
-                           jsMixins: Vector[JAny]                             = jsMixins): ReactComponentB[P, S, B, N] =
+  @inline private def copy(name    : String                  = name,
+                           initF   : InitStateFn[P, S]       = initF,
+                           backF   : BackendScope[P, S] => B = backF,
+                           rendF   : RenderFn[P, S, B]       = rendF,
+                           lc      : LifeCycle[P, S, B, N]   = lc,
+                           jsMixins: Vector[JAny]            = jsMixins): ReactComponentB[P, S, B, N] =
     new ReactComponentB(name, initF, backF, rendF, lc, jsMixins)
 
   @inline private implicit def lcmod(a: LifeCycle[P, S, B, N]): ReactComponentB[P, S, B, N] =
@@ -155,22 +156,22 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
     lc.copy(getDefaultProps = p)
 
 
-  def componentWillMount(f: ComponentScopeU[P, S, B] => Callback): ReactComponentB[P, S, B, N] =
+  def componentWillMount(f: DuringCallbackU[P, S, B] => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillMount = fcUnit(lc.componentWillMount, f))
 
-  def componentDidMount(f: ComponentScopeM[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =
+  def componentDidMount(f: DuringCallbackM[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentDidMount = fcUnit(lc.componentDidMount, f))
 
-  def componentWillUnmount(f: ComponentScopeM[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =
+  def componentWillUnmount(f: DuringCallbackM[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillUnmount = fcUnit(lc.componentWillUnmount, f))
 
-  def componentWillUpdate(f: (ComponentScopeWU[P, S, B, N], P, S) => Callback): ReactComponentB[P, S, B, N] =
+  def componentWillUpdate(f: (WillUpdate[P, S, B, N], P, S) => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillUpdate = fcUnit(lc.componentWillUpdate, f))
 
-  def componentDidUpdate(f: (ComponentScopeM[P, S, B, N], P, S) => Callback): ReactComponentB[P, S, B, N] =
+  def componentDidUpdate(f: (DuringCallbackM[P, S, B, N], P, S) => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentDidUpdate = fcUnit(lc.componentDidUpdate, f))
 
-  def componentWillReceiveProps(f: (ComponentScopeM[P, S, B, N], P) => Callback): ReactComponentB[P, S, B, N] =
+  def componentWillReceiveProps(f: (DuringCallbackM[P, S, B, N], P) => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillReceiveProps = fcUnit(lc.componentWillReceiveProps, f))
 
   def componentWillMountCB(cb: Callback): ReactComponentB[P, S, B, N] =
@@ -192,10 +193,10 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
       componentWillReceiveProps((_, _) => cb)
 
 
-  def shouldComponentUpdate(f: (ComponentScopeM[P, S, B, N], P, S) => Boolean): ReactComponentB[P, S, B, N] =
+  def shouldComponentUpdate(f: (DuringCallbackM[P, S, B, N], P, S) => Boolean): ReactComponentB[P, S, B, N] =
     shouldComponentUpdateCB(($, p, s) => CallbackTo(f($, p, s)))
 
-  def shouldComponentUpdateCB(f: (ComponentScopeM[P, S, B, N], P, S) => CallbackB): ReactComponentB[P, S, B, N] =
+  def shouldComponentUpdateCB(f: (DuringCallbackM[P, S, B, N], P, S) => CallbackB): ReactComponentB[P, S, B, N] =
     lc.copy(shouldComponentUpdate = fcEither(lc.shouldComponentUpdate, f))
 
   def shouldComponentUpdateConst(f: => Boolean): ReactComponentB[P, S, B, N] =
@@ -216,7 +217,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
   /**
    * Modify the render function.
    */
-  def reRender(f: (ComponentScopeU[P, S, B] => ReactElement) => ComponentScopeU[P, S, B] => ReactElement): ReactComponentB[P, S, B, N] =
+  def reRender(f: RenderFn[P, S, B] => RenderFn[P, S, B]): ReactComponentB[P, S, B, N] =
     copy(rendF = f(rendF))
 
   // ===================================================================================================================
@@ -250,14 +251,14 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
           spec.updateDynamic(name)(g: ThisFunction)
         }
 
-      val componentWillMount2 = (t: ComponentScopeU[P, S, B]) => {
+      val componentWillMount2 = (t: DuringCallbackU[P, S, B]) => {
         val scopeB = t.asInstanceOf[BackendScope[P, S]]
         t.asInstanceOf[Dynamic].updateDynamic("backend")(backF(scopeB).asInstanceOf[JAny])
         lc.componentWillMount.foreach(g => g(t).runNow())
       }
       spec.updateDynamic("componentWillMount")(componentWillMount2: ThisFunction)
 
-      val initStateFn: ComponentScopeU[P, S, B] => WrapObj[S] = $ => WrapObj(initF($).runNow())
+      val initStateFn: DuringCallbackU[P, S, B] => WrapObj[S] = $ => WrapObj(initF($).runNow())
       spec.updateDynamic("getInitialState")(initStateFn: ThisFunction)
 
       lc.getDefaultProps.flatMap(_.toJsCallback).foreach(f => spec.updateDynamic("getDefaultProps")(f))
@@ -268,7 +269,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
       setFnPS   (lc.shouldComponentUpdate, "shouldComponentUpdate")
 
       lc.componentWillReceiveProps.foreach { f =>
-        val g = (t: ComponentScopeM[P, S, B, N], p: WrapObj[P]) => f(t, p.v).runNow()
+        val g = (t: DuringCallbackM[P, S, B, N], p: WrapObj[P]) => f(t, p.v).runNow()
         spec.updateDynamic("componentWillReceiveProps")(g: ThisFunction)
       }
 

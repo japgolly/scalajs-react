@@ -7,6 +7,7 @@ import org.scalajs.dom.raw._
 import vdom.all._
 import TestUtil._
 import test.{DebugJs, ReactTestUtils}
+import ComponentScope._
 
 object CoreTest extends TestSuite {
 
@@ -375,11 +376,11 @@ object CoreTest extends TestSuite {
       def st_set: (S, T) => S = null
 
       "BackendScope ops"    - test[BackendScope[Unit, S]      ](_.zoom[T](st_get)(st_set)).expect[CompStateFocus[T]]
-      "ComponentScopeM ops" - test[ComponentScopeM[U, S, U, N]](_.zoom[T](st_get)(st_set)).expect[CompStateFocus[T]]
+      "DuringCallbackM ops" - test[DuringCallbackM[U, S, U, N]](_.zoom[T](st_get)(st_set)).expect[CompStateFocus[T]]
       "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_.zoom[T](st_get)(st_set)).expect[CompStateFocus[T]]
     }
 
-    'shouldCorrectlyDetermineIfaComponentisMounted {
+    'shouldCorrectlyDetermineIfComponentIsMounted {
       val C = ReactComponentB[Unit]("IsMountedTestComp")
           .render(P => div())
           .componentWillMount(scope => Callback(assert(!scope.isMounted())))
@@ -390,7 +391,7 @@ object CoreTest extends TestSuite {
     }
 
     'cloneWithProps {
-      'shouldCloneaDOMComponentWithNewProps {
+      'shouldCloneDomComponentWithNewProps {
         val Parent = ReactComponentB[Unit]("Parent")
           .render_C(c => {
             div(cls := "parent")(

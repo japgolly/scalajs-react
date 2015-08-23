@@ -48,8 +48,9 @@ Namely...
 
 | Type | Desc |
 | ---- | ---- |
-| `ComponentScopeU[P, S, +B]` | An unmounted component's `this` scope. |
-| `ComponentScopeWU[P, S, +B, +N]` | A component's `this` scope during `componentWillUpdate`. |
+| `ComponentScope.DuringCallbackU[P, S, +B]` | An unmounted component's `this` scope. |
+| `ComponentScope.DuringCallbackM[P, S, +B]` | A mounted component's `this` scope. |
+| `ComponentScope.WillUpdate[P, S, +B, +N]` | A component's `this` scope during `componentWillUpdate`. |
 | `BackendScope[P, S]` | A component's `this` scope as is available to backends. |
 
 For using JS React Components, you can use follow facade interfaces.

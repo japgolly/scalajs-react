@@ -5,6 +5,7 @@ import utest._
 import scalaz.StateT
 import scalaz.effect.IO
 import ScalazReact._
+import ComponentScope.DuringCallbackM
 
 /**
  * Scala's type inference can be pretty weak sometimes.
@@ -22,7 +23,7 @@ object ScalazTest extends TestSuite {
       "runState(s.liftS)"   - test[StateT[M,S,A]              ](s => c.runState(s.liftS) ).expect[CallbackTo[A]]
       "_runState(f.liftS)"  - test[B => StateT[M,S,A]         ](s => c._runState(s.liftS)).expect[B => CallbackTo[A]]
       "BackendScope ops"    - test[BackendScope[Unit, S]      ](_ runState reactSIO      ).expect[CallbackTo[Int]]
-      "ComponentScopeM ops" - test[ComponentScopeM[U, S, U, N]](_ runState reactSIO      ).expect[CallbackTo[Int]]
+      "DuringCallbackM ops" - test[DuringCallbackM[U, S, U, N]](_ runState reactSIO      ).expect[CallbackTo[Int]]
       "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_ runState reactSIO      ).expect[CallbackTo[Int]]
     }
 

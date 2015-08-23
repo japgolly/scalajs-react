@@ -3,6 +3,7 @@ package japgolly.scalajs.react.extra
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.Optional
 import japgolly.scalajs.react.macros.ReusabilityMacros
+import ComponentScope.DuringCallbackM
 
 /**
  * Tests whether one instance can be used in place of another.
@@ -165,7 +166,7 @@ object Reusability {
     (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p, s) =>
       ($.props ~/~ p) || ($.state ~/~ s))
 
-  def shouldComponentUpdateAnd[P: Reusability, S: Reusability, B, N <: TopNode](f: (ComponentScopeM[P, S, B, N], P, Boolean, S, Boolean) => Callback) =
+  def shouldComponentUpdateAnd[P: Reusability, S: Reusability, B, N <: TopNode](f: (DuringCallbackM[P, S, B, N], P, Boolean, S, Boolean) => Callback) =
     (_: ReactComponentB[P, S, B, N]).shouldComponentUpdateCB(($, p2, s2) => CallbackTo {
       val up = $.props ~/~ p2
       val us = $.state ~/~ s2

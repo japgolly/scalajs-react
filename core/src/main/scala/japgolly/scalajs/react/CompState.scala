@@ -1,5 +1,7 @@
 package japgolly.scalajs.react
 
+import ComponentScope._
+
 /**
  * Generic read & write access to a component's state, (whatever the type of state might be).
  */
@@ -25,7 +27,7 @@ object CompStateAccess {
     override def setState(c: C, s: S, cb: Callback) = c.set(s, cb)
   }
 
-  object SS extends HK[ComponentScope_SS] {
+  object SS extends HK[CanSetState] {
     override def state(c: C)                        = c._state.v
     override def setState(c: C, s: S, cb: Callback) = Callback(c._setState(WrapObj(s), cb.toJsCallback))
   }
@@ -33,10 +35,7 @@ object CompStateAccess {
   @inline implicit def focus[S]: CompStateAccess[CompStateFocus[S], S] =
     Focus.force
 
-  @inline implicit def cm[P, S, B, N <: TopNode]: CompStateAccess[ComponentScopeM[P, S, B, N], S] =
-    CompStateAccess.SS.force[S]
-
-  @inline implicit def cu[P, S, B]: CompStateAccess[ComponentScopeU[P, S, B], S] =
+  @inline implicit def cu[P, S, B]: CompStateAccess[AnyUnmounted[P, S, B], S] =
     CompStateAccess.SS.force[S]
 
   @inline implicit def bs[P, S]: CompStateAccess[BackendScope[P, S], S] =
