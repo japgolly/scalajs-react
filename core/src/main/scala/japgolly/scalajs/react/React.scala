@@ -22,10 +22,42 @@ trait React extends Object {
   def createElement[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
   def createElement(tag: String, props: Object, children: ReactNode*): ReactDOMElement = js.native
 
-  def render(e: ReactElement, n: dom.Node): ReactComponentM_[TopNode] = js.native
-  def render(e: ReactElement, n: dom.Node, callback: ThisFunction): ReactComponentM_[TopNode] = js.native
-  def render[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node): ReactComponentM[P,S,B,N] = js.native
-  def render[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node, callback: ThisFunction0[ReactComponentM[P,S,B,N], Unit]): ReactComponentM[P,S,B,N] = js.native
+  /**
+   * Render a ReactElement into the DOM in the supplied `container` and return a reference to the component.
+   *
+   * If the ReactElement was previously rendered into `container`, this will perform an update on it and only mutate the
+   * DOM as necessary to reflect the latest React component.
+   *
+   * If the optional callback is provided, it will be executed after the component is rendered or updated.
+   */
+  def render(element: ReactElement, container: dom.Node): ReactComponentM_[TopNode] = js.native
+  /**
+   * Render a ReactElement into the DOM in the supplied `container` and return a reference to the component.
+   *
+   * If the ReactElement was previously rendered into `container`, this will perform an update on it and only mutate the
+   * DOM as necessary to reflect the latest React component.
+   *
+   * If the optional callback is provided, it will be executed after the component is rendered or updated.
+   */
+  def render(element: ReactElement, container: dom.Node, callback: ThisFunction): ReactComponentM_[TopNode] = js.native
+  /**
+   * Render a Scala-based React component into the DOM in the supplied `container` and return a reference to the component.
+   *
+   * If the ReactElement was previously rendered into `container`, this will perform an update on it and only mutate the
+   * DOM as necessary to reflect the latest React component.
+   *
+   * If the optional callback is provided, it will be executed after the component is rendered or updated.
+   */
+  def render[P,S,B,N <: TopNode](component: ReactComponentU[P,S,B,N], container: dom.Node): ReactComponentM[P,S,B,N] = js.native
+  /**
+   * Render a Scala-based React component into the DOM in the supplied `container` and return a reference to the component.
+   *
+   * If the ReactElement was previously rendered into `container`, this will perform an update on it and only mutate the
+   * DOM as necessary to reflect the latest React component.
+   *
+   * If the optional callback is provided, it will be executed after the component is rendered or updated.
+   */
+  def render[P,S,B,N <: TopNode](component: ReactComponentU[P,S,B,N], container: dom.Node, callback: ThisFunction0[ReactComponentM[P,S,B,N], Unit]): ReactComponentM[P,S,B,N] = js.native
 
   /**
    * Remove a mounted React component from the DOM and clean up its event handlers and state. If no component was
