@@ -66,11 +66,6 @@ package object react extends ReactEventAliases {
     @inline def wrap: WrapObj[A] = WrapObj(a)
   }
 
-  @inline implicit final class ReactExt_ReactObj(private val r: React.type) extends AnyVal {
-    @inline def renderC[P, S, B, N <: TopNode](c: ReactComponentU[P,S,B,N], n: dom.Node)(callback: ComponentScopeM[P,S,B,N] => Unit) =
-      r.render(c, n, callback)
-  }
-
   @inline implicit final class ReactExt_ComponentScope_P[Props](private val c: ComponentScope_P[Props]) extends AnyVal {
     @inline def props = c._props.v
     @inline def propsChildren = c._props.children
@@ -98,7 +93,10 @@ package object react extends ReactEventAliases {
   }
 
   @inline implicit final class ReactExt_ReactComponentU[P,S,B,N <: TopNode](private val c: ReactComponentU[P,S,B,N]) extends AnyVal {
-    def render(n: dom.Node) = React.render(c, n)
+    @inline def render(container: dom.Node): ReactComponentM[P,S,B,N] =
+      React.render(c, container)
+    @inline def render(container: dom.Node, callback: ComponentScopeM[P,S,B,N] => Callback): ReactComponentM[P,S,B,N] =
+      React.render[P,S,B,N](c, container, callback.andThen(_.runNow()))
   }
 
   @inline implicit final class ReactExt_ComponentScope_M[N <: TopNode](private val c: ComponentScope_M[N]) extends AnyVal {
