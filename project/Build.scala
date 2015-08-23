@@ -122,7 +122,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val core = project
-    .configure(commonSettings, publicationSettings, hasNoTests)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
