@@ -289,16 +289,13 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     (_: Any) => f()
 
   def toJsCallback: UndefOr[JFn0[A]] =
-    unlessEmpty(toJsFunction)
+    if (isEmpty_?) undefined else toJsFunction
 
   def isEmpty_? : Boolean =
     f eq Callback.empty.f
 
-  def unlessEmpty[B](b: => B): UndefOr[B] =
-    if (isEmpty_?)
-      undefined
-    else
-      b
+  def flatMapUnlessEmpty(g: Callback => Callback)(implicit ev: This =:= Callback): Callback =
+    if (isEmpty_?) this else g(this)
 
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean fns
