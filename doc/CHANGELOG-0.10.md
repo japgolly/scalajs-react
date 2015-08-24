@@ -157,6 +157,7 @@
 
   * Add `Reusability.||`
   * Add `Reusability.&&`
+  * Add `Reusability.byRefOr_==`.
   * Add `Reusability.byRefOrEqual` (Scalaz module only).
 
 <br>

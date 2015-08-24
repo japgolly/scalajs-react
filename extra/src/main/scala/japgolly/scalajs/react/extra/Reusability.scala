@@ -51,6 +51,10 @@ object Reusability {
   def by_==[A]: Reusability[A] =
     new Reusability((a, b) => a == b)
 
+  /** Compare by reference and if different, compare using universal equality (Scala's == operator). */
+  def byRefOr_==[A <: AnyRef]: Reusability[A] =
+    byRef[A] || by_==[A]
+
   def by[A, B](f: A => B)(implicit r: Reusability[B]): Reusability[A] =
     r contramap f
 

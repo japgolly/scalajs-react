@@ -57,13 +57,15 @@ It will not compile until it knows how to compare the reusability of your props 
 Out-of-the-box, it knows how to compare Scala primatives, `String`s, `Option`, `Either`, Scala tuples, `js.UndefOr`,
 and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it how. Use one of the following methods:
 
-* `Reusability.byRef[A]` uses reference equality (ie. `a eq b`)
-* `Reusability.by_==[A]` uses universal equality (ie. `a == b`)
-* `Reusability.byEqual[A]` uses a Scalaz `Equal` typeclass
+* `Reusability.byRef[A]` uses reference equality (ie. `a eq b`).
+* `Reusability.by_==[A]` uses universal equality (ie. `a == b`).
+* `Reusability.byRef_==[A]` uses reference equality and if different, tries universal equality.
 * `Reusability.caseClass[A]` for case classes of your own.
 * `Reusability.caseClassDebug[A]` as above, but shows you the code that the macro generates.
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
 * `Reusability.fn((A, B) => Boolean)` to hand-write custom logic.
+* `Reusability.byEqual[A]` uses a Scalaz `Equal` typeclass.
+* `Reusability.byRefOrEqual[A]` uses reference equality and if different, tries using a Scalaz `Equal` typeclass.
 
 #### Example
 The following component will only re-render when one of the following change:
