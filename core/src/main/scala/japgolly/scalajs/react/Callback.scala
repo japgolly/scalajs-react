@@ -218,6 +218,14 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     new CallbackTo(() => {f(); runNext.f()})
 
   /**
+   * Alias for `>>`.
+   *
+   * Where `>>` is often associated with Monads, `*>` is often associated with Applicatives.
+   */
+  @inline def *>[B](runNext: CallbackTo[B]): CallbackTo[B] =
+    >>(runNext)
+
+  /**
    * Sequence a callback to run before this, discarding any value produced by it.
    */
   @inline def <<[B](runBefore: CallbackTo[B]): CallbackTo[A] =
@@ -264,11 +272,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    * When the callback result becomes available, perform a given side-effect with it.
    */
   def tap(t: A => Any): CallbackTo[A] =
-    CallbackTo {
-      val a = f()
-      t(a)
-      a
-    }
+    flatTap(a => CallbackTo(t(a)))
 
   /**
    * Alias for `tap`.
@@ -277,7 +281,16 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     tap(t)
 
   def flatTap[B](t: A => CallbackTo[B]): CallbackTo[A] =
-    tap(t(_).runNow())
+    for {
+      a <- this
+      _ <- t(a)
+    } yield a
+
+  /**
+   * Sequence actions, discarding the value of the second argument.
+   */
+  def <*[B](next: CallbackTo[B]): CallbackTo[A] =
+    flatTap(_ => next)
 
   @inline def toScalaFunction: () => A =
     f
@@ -296,6 +309,16 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
 
   def flatMapUnlessEmpty(g: Callback => Callback)(implicit ev: This =:= Callback): Callback =
     if (isEmpty_?) this else g(this)
+
+  /**
+   * Log to the console before this callback starts, and after it completes.
+   *
+   * Does not change the result.
+   */
+  def logAround(message: js.Any, optionalParams: js.Any*): CallbackTo[A] = {
+    def log(prefix: String) = Callback.log(prefix + message.toString, optionalParams: _*)
+    log("Starting: ") *> this <* log("Finished: ")
+  }
 
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean fns
