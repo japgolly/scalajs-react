@@ -153,6 +153,8 @@
     to `ComponentScope.DuringCallbackM` if it's being access during a component's lifecycle callback, or just plain
     `ReactComponentM` otherwise.
 
+  * Small improvements to `ReusabilityOverlay`.
+
 <br>
 Migration commands:
 ```sh

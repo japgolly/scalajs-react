@@ -4,7 +4,7 @@ import org.scalajs.dom
 import scala.concurrent.duration._
 import scalajs.js
 import japgolly.scalajs.react._, vdom.prefix_<^._
-import dom.{document, window}
+import dom.{console, document, window}
 import dom.html.Element
 import dom.raw.{CSSStyleDeclaration, Node}
 import ReusabilityOverlay.Comp
@@ -32,13 +32,21 @@ object ReusabilityOverlay {
     Reusability.shouldComponentUpdateAnd[P, S, B, N] { ($, p2, p, s2, s) =>
       val overlay = get($)
       if (p || s) {
-        def fmt(update: Boolean, name: String, a: Any, b: Any) =
+        def fmt(update: Boolean, name: String, va: Any, vb: Any) =
           if (!update)
             ""
-          else if (a.toString.length < 50)
-            s"$name update: [$a] ⇒ [$b]."
-          else
-            s"$name update:\n  [$a] ⇒\n  [$b]."
+          else {
+            var a = va.toString
+            var b = vb.toString
+            if (a.contains(' ') || b.contains(' ')) {
+              a = "【" + a + "】"
+              b = "【" + b + "】"
+            }
+            if (a.contains('\n') || a.length > 50 || b.length > 50)
+              s"$name update:\n  BEFORE: $a\n   AFTER: $b"
+            else
+              s"$name update: $a ⇒ $b"
+          }
         val sep = if (p && s) "\n" else ""
         val reason = fmt(p, "Prop", $.props, p2) + sep + fmt(s, "State", $.state, s2)
         overlay logBad reason
@@ -166,15 +174,15 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
   val onClick = Callback {
     if (bad.nonEmpty) {
       var i = options.reasonsToShowOnClick min badCount
-      println(s"Last $i reasons to update:")
+      console.info(s"Last $i reasons to update:")
       for (r <- bad.takeRight(i)) {
-        println(s"#$i: $r")
+        console.info(s"#-$i: $r")
         i -= 1
       }
     }
     val sum = good + badCount
     if (sum != 0)
-      printf("%d/%d (%.0f%%) updates prevented.\n", good, sum, good.toDouble / sum * 100)
+      console info "%d/%d (%.0f%%) updates prevented.".format(good, sum, good.toDouble / sum * 100)
   }
 
   val create = Callback {
