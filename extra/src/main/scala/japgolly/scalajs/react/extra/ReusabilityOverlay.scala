@@ -76,8 +76,8 @@ object DefaultReusabilityOverlay {
     reasonsToShowOnClick = 10,
     updatePositionEvery  = 500 millis,
     dynamicStyle         = (_,_,_) => (),
-    mountHighlighter     = defaultHighlighter,
-    updateHighlighter    = defaultHighlighter)
+    mountHighlighter     = defaultMountHighlighter,
+    updateHighlighter    = defaultUpdateHighlighter)
 
   case class Options(template            : Template,
                      reasonsToShowOnClick: Int,
@@ -151,11 +151,13 @@ object DefaultReusabilityOverlay {
         s.outline = outlineCss
       },
       s => {
-        s.outline = "1px solid rgba(0,0,0,0)"
-        s.transition = "outline 550ms linear"
+        s.outline = "1px solid rgba(255,255,255,0)"
+        s.transition = "outline 800ms ease-out"
       })
 
-  val defaultHighlighter = outlineHighlighter("2px solid rgba(200,20,10,1)")
+  val defaultMountHighlighter = outlineHighlighter("2px solid #1e90ff")
+
+  val defaultUpdateHighlighter = outlineHighlighter("2px solid rgba(200,20,10,1)")
 
   case class Nodes(outer: Element, good: Element, bad: Element)
 
