@@ -82,7 +82,7 @@ package object react extends ReactEventAliases {
     @inline def state: S = c._state.v
   }
 
-  @inline implicit final class ReactExt_IsMounted[N <: TopNode](private val c: IsMounted[N]) extends AnyVal {
+  @inline implicit final class ReactExt_IsMounted[N <: TopNode](private val c: Mounted[N]) extends AnyVal {
     /**
      * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has
      * changed without using this.setState().

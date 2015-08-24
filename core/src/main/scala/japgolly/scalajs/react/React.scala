@@ -147,7 +147,7 @@ trait ReactChildren extends Object {
 object ComponentScope {
 
   /** Methods always available. */
-  trait All extends Object {
+  trait AlwaysAvailable extends Object {
     def isMounted(): Boolean = js.native
   }
 
@@ -172,7 +172,8 @@ object ComponentScope {
     @JSName("getInitialState") private[react] def _getInitialState(s: WrapObj[Props]): WrapObj[State] = js.native
   }
 
-  trait IsMounted[+Node <: TopNode] extends Object {
+  /** Functions available to components when they're mounted. */
+  trait Mounted[+Node <: TopNode] extends Object {
     def refs: RefsObject = js.native
 
     /** Can be invoked on any mounted component in order to obtain a reference to its rendered DOM node. */
@@ -189,7 +190,7 @@ object ComponentScope {
   trait OutsideCallback extends Object
 
   trait AnyUnmounted[Props, State, +Backend]
-    extends All
+    extends AlwaysAvailable
        with HasProps[Props]
        with CanSetState[State]
        with CanGetInitialState[Props, State]
@@ -198,7 +199,7 @@ object ComponentScope {
 
   trait AnyMounted[Props, State, +Backend, +Node <: TopNode]
     extends AnyUnmounted[Props, State, Backend]
-       with IsMounted[Node]
+       with Mounted[Node]
        with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
   /** Type of an unmounted component's `this` scope, as available within lifecycle methods. */
@@ -214,12 +215,12 @@ object ComponentScope {
   /** Type of a component's `this` scope during componentWillUpdate. */
   trait WillUpdate[Props, +State, +Backend, +Node <: TopNode]
     extends DuringCallback
-       with All
+       with AlwaysAvailable
        with HasProps[Props]
        with HasState[State]
        with HasBackend[Backend]
        with CanGetInitialState[Props, State]
-       with IsMounted[Node]
+       with Mounted[Node]
        // prohibits: .setState
 }
 
@@ -228,11 +229,11 @@ import ComponentScope._
 /** Type of a component's `this` scope as is available to backends. */
 trait BackendScope[Props, State]
   extends ComponentScope.OutsideCallback
-     with All
+     with AlwaysAvailable
      with HasProps[Props]
      with CanSetState[State]
      with CanGetInitialState[Props, State]
-     with IsMounted[TopNode]
+     with Mounted[TopNode]
      // prohibits: .backend
 
 // =====================================================================================================================
@@ -283,7 +284,7 @@ trait ReactComponentU_ extends ReactElement
 /** A mounted component. Not guaranteed to have been created by Scala, could be a React addon. */
 trait ReactComponentM_[+Node <: TopNode]
   extends ReactComponentU_
-     with IsMounted[Node]
+     with Mounted[Node]
 
 /** The underlying function that creates a Scala-based React component instance. */
 trait ReactComponentCU[Props, State, +Backend, +Node <: TopNode]
@@ -324,7 +325,7 @@ trait JsComponentU[Props <: js.Any, State <: js.Any, +Node <: TopNode]
 
 trait JsComponentM[Props <: js.Any, State <: js.Any, +Node <: TopNode]
   extends JsComponentU[Props, State, Node]
-  with IsMounted[Node] with ReactComponentM_[Node] {
+  with Mounted[Node] with ReactComponentM_[Node] {
   def props: Props = js.native
   def state: State = js.native
   def setState(state: State): Unit = js.native

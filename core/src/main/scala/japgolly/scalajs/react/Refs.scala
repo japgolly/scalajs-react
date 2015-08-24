@@ -29,7 +29,7 @@ abstract class Ref(final val name: String) {
   type R
   protected def resolve(r: RefsObject): UndefOr[R]
   @inline final def apply(c: ReactComponentM_[_]): UndefOr[R] = apply(c.refs)
-  @inline final def apply(s: IsMounted[_]       ): UndefOr[R] = apply(s.refs)
+  @inline final def apply(s: Mounted[_]         ): UndefOr[R] = apply(s.refs)
   @inline final def apply(r: RefsObject         ): UndefOr[R] = resolve(r)
 }
 
@@ -48,7 +48,7 @@ final class RefComp[P, S, B, N <: TopNode](_name: String) extends Ref(_name) {
 
 final class RefParam[I, RefType <: Ref](f: I => RefType) {
   @inline def apply(i: I): RefType = f(i)
-  @inline def get[S](s: HasState[S] with IsMounted[_])(implicit ev: S =:= I) =
+  @inline def get[S](s: HasState[S] with Mounted[_])(implicit ev: S =:= I) =
     apply(ev(s.state))(s)
 }
 
