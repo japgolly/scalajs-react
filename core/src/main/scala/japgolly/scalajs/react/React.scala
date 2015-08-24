@@ -186,9 +186,6 @@ object ComponentScope {
     @JSName("forceUpdate") private[react] def _forceUpdate(): Unit = js.native
   }
 
-  trait DuringCallback extends Object
-  trait OutsideCallback extends Object
-
   trait AnyUnmounted[Props, State, +Backend]
     extends AlwaysAvailable
        with HasProps[Props]
@@ -204,18 +201,15 @@ object ComponentScope {
 
   /** Type of an unmounted component's `this` scope, as available within lifecycle methods. */
   trait DuringCallbackU[Props, State, +Backend]
-    extends DuringCallback
-       with AnyUnmounted[Props, State, Backend]
+    extends AnyUnmounted[Props, State, Backend]
 
   /** Type of a mounted component's `this` scope, as available within lifecycle methods. */
   trait DuringCallbackM[Props, State, +Backend, +Node <: TopNode]
-    extends DuringCallback
-       with AnyMounted[Props, State, Backend, Node]
+    extends AnyMounted[Props, State, Backend, Node]
 
   /** Type of a component's `this` scope during componentWillUpdate. */
   trait WillUpdate[Props, +State, +Backend, +Node <: TopNode]
-    extends DuringCallback
-       with AlwaysAvailable
+    extends AlwaysAvailable
        with HasProps[Props]
        with HasState[State]
        with HasBackend[Backend]
@@ -228,8 +222,7 @@ import ComponentScope._
 
 /** Type of a component's `this` scope as is available to backends. */
 trait BackendScope[Props, State]
-  extends ComponentScope.OutsideCallback
-     with AlwaysAvailable
+  extends AlwaysAvailable
      with HasProps[Props]
      with CanSetState[State]
      with CanGetInitialState[Props, State]
@@ -297,7 +290,6 @@ trait ReactComponentCU[Props, State, +Backend, +Node <: TopNode]
 trait ReactComponentU[Props, State, +Backend, +Node <: TopNode]
   extends ReactComponentU_
      with AnyUnmounted[Props, State, Backend]
-     with OutsideCallback
      with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
 /** A mounted Scala component. */
