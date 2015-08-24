@@ -183,6 +183,12 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def map[B](g: A => B): CallbackTo[B] =
     new CallbackTo(() => g(f()))
 
+  /**
+   * Alias for `map`.
+   */
+  @inline def |>[B](g: A => B): CallbackTo[B] =
+    map(g)
+
   def flatMap[B](g: A => CallbackTo[B]): CallbackTo[B] =
     new CallbackTo(() => g(f()).f())
 
