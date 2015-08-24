@@ -69,6 +69,7 @@ package object react extends ReactEventAliases {
   import ComponentScope._
 
   @inline implicit final class ReactExt_HasProps[P](private val c: HasProps[P]) extends AnyVal {
+    @inline def propsCB       = CallbackTo(c._props.v) // TODO temporary pending #169
     @inline def props         = c._props.v
     @inline def propsChildren = c._props.children
     @inline def propsDynamic  = c._props.asInstanceOf[js.Dynamic]
