@@ -317,7 +317,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    */
   def logAround(message: js.Any, optionalParams: js.Any*): CallbackTo[A] = {
     def log(prefix: String) = Callback.log(prefix + message.toString, optionalParams: _*)
-    log("Starting: ") *> this <* log("Finished: ")
+    log("→  Starting: ") *> this <* log(" ← Finished: ")
   }
 
   // -------------------------------------------------------------------------------------------------------------------
