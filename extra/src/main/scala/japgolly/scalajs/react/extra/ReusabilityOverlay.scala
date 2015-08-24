@@ -199,9 +199,21 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     Callback(overlay foreach f)
 
   val updatePosition = withNodes { n =>
-    val rect = $.getDOMNode().getBoundingClientRect()
-    n.outer.style.top = (window.pageYOffset + rect.top) + "px"
-    n.outer.style.left = rect.left + "px"
+    val d = $.getDOMNode()
+    val ds = d.getBoundingClientRect()
+    val ns = n.outer.getBoundingClientRect()
+
+    var y = window.pageYOffset + ds.top
+    var x = ds.left
+
+    if (d.tagName == "TABLE") {
+      y -= ns.height
+      x -= ns.width
+    } else if (d.tagName == "TR")
+      x -= ns.width
+
+    n.outer.style.top  = y.toString + "px"
+    n.outer.style.left = x.toString + "px"
   }
 
   val updateContent = withNodes { n =>
@@ -213,7 +225,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
   }
 
   val update =
-    updatePosition >> updateContent
+    updateContent >> updatePosition
 
   val highlightUpdate =
     options.updateHighlighter($)
