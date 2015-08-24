@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import scala.concurrent.duration.FiniteDuration
-import scala.scalajs.js
+import scala.scalajs.js.timers.RawTimers
 import japgolly.scalajs.react.{CallbackTo, Callback, TopNode}
 
 /**
@@ -12,8 +12,8 @@ import japgolly.scalajs.react.{CallbackTo, Callback, TopNode}
 trait SetInterval extends OnUnmount {
   final def setInterval(f: Callback, timeout: FiniteDuration): Callback =
     CallbackTo {
-      val i = js.timers.setInterval(timeout.toMillis)(f.runNow())
-      Callback(js.timers.clearInterval(i))
+      val i = RawTimers.setInterval(f.toJsFunction, timeout.toMillis.toDouble)
+      Callback(RawTimers clearInterval i)
     } flatMap onUnmount
 }
 

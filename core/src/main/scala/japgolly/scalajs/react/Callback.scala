@@ -2,8 +2,11 @@ package japgolly.scalajs.react
 
 import org.scalajs.dom.console
 import scala.annotation.implicitNotFound
+import scala.concurrent.{Future, Promise}
+import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
 import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
+import js.timers.RawTimers
 
 /**
  * A callback with no return value. Equivalent to `() => Unit`.
@@ -319,6 +322,32 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     def log(prefix: String) = Callback.log(prefix + message.toString, optionalParams: _*)
     log("→  Starting: ") *> this <* log(" ← Finished: ")
   }
+
+  /**
+   * Run asynchronously.
+   */
+  def async: CallbackTo[Future[A]] =
+    delayMs(4)
+
+  /**
+   * Run asynchronously after a delay of a given duration.
+   */
+  def delay(startIn: FiniteDuration): CallbackTo[Future[A]] =
+    delayMs(startIn.toMillis.toDouble)
+
+  /**
+   * Run asynchronously after a `startInMilliseconds` ms delay.
+   */
+  def delayMs(startInMilliseconds: Double): CallbackTo[Future[A]] =
+    CallbackTo {
+      val p = Promise[A]()
+      val cb = this.attempt.map[Unit] {
+        case Right(a) => p.success(a)
+        case Left(e)  => p.failure(e)
+      }
+      RawTimers.setTimeout(cb.toJsFunction, startInMilliseconds)
+      p.future
+    }
 
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean fns
