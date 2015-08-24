@@ -26,6 +26,12 @@ final class Reusability[A](val test: (A, A) => Boolean) extends AnyVal {
 
   def testNot: (A, A) => Boolean =
     !test(_, _)
+
+  def ||[B <: A](tryNext: Reusability[B]): Reusability[B] =
+    Reusability.fn[B]((x, y) => test(x, y) || tryNext.test(x, y))
+
+  def &&[B <: A](tryNext: Reusability[B]): Reusability[B] =
+    Reusability.fn[B]((x, y) => test(x, y) && tryNext.test(x, y))
 }
 
 object Reusability {

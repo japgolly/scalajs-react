@@ -155,6 +155,9 @@
 
   * Small improvements to `ReusabilityOverlay`.
 
+  * Add `Reusability.||`
+  * Add `Reusability.&&`
+
 <br>
 Migration commands:
 ```sh
