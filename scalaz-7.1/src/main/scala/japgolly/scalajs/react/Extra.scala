@@ -46,11 +46,10 @@ trait ScalazReactExtra {
   @inline implicit def ScalazListenable$Ops(a: Listenable.type) = new ScalazListenable$Ops(a)
 
   implicit def reusabilityDisjunction[A: Reusability, B: Reusability]: Reusability[A \/ B] =
-    Reusability.fn {
-      case (-\/(a), -\/(b)) => a ~=~ b
-      case (\/-(a), \/-(b)) => a ~=~ b
-      case _ => false
-    }
+    Reusability.fn((x, y) =>
+      x.fold[Boolean](
+        a => y.fold(a ~=~ _, _ => false),
+        b => y.fold(_ => false, b ~=~ _)))
 
   implicit def reusabilityThese[A: Reusability, B: Reusability]: Reusability[A \&/ B] = {
     import \&/._
