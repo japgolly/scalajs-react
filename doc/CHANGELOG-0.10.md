@@ -229,6 +229,11 @@
   2. To optionally accept `Callback`s.
 
   Unlike the `render` methods, this migration can be automated (see below).
+  
+* Upgrade to React 0.13
+
+  * Components' `modState` can now be called multiple times in the same render pass without clobbering changes.
+  * `ReactTestUtils.isTextComponent` is just gone now.
 
 * Smaller stuff:
 

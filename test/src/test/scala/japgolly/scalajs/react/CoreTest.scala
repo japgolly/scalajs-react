@@ -1,12 +1,13 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.Addons.{ReactCssTransitionGroup, ReactCloneWithProps}
+import monocle.macros.Lenses
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
 import org.scalajs.dom.raw._
 import vdom.all._
 import TestUtil._
-import test.{DebugJs, ReactTestUtils}
+import japgolly.scalajs.react.test.{Simulation, DebugJs, ReactTestUtils}
 import CompScope._
 import CompState._
 
@@ -30,6 +31,12 @@ object CoreTest extends TestSuite {
   val relement: ReactElement = span()
 
   trait ReactCssTransitionGroupM extends js.Object
+
+  @Lenses
+  case class StrInt(str: String, int: Int)
+
+  @Lenses
+  case class StrIntWrap(strInt: StrInt)
 
   val tests = TestSuite {
 
@@ -288,10 +295,10 @@ object CoreTest extends TestSuite {
     'stateFocus {
       // def inc(s: CompStateFocus[Int]) = s.modState(_ * 3)
       case class SI(s: String, i: Int)
-      val C = ReactComponentB[SI]("C").initialState_P(p => p).render(T => {
-        val f = T.zoom(_.i)((a,b) => a.copy(i = b))
+      val C = ReactComponentB[SI]("C").initialState_P(p => p).render($ => {
+        val f = $.zoom(_.i)((a,b) => a.copy(i = b))
         // inc(f)
-        div(T.state.s + "/" + (f.state*3))
+        div($.state.s + "/" + (f.state*3))
       }).build
       C(SI("Me",7)) shouldRender "<div>Me/21</div>"
     }
@@ -456,5 +463,77 @@ object CoreTest extends TestSuite {
         .buildU
     }
 
+    'multiModState {
+      'simple {
+        val C = ReactComponentB[Unit]("multiModState")
+          .initialState(3)
+          .render { $ =>
+            val add7 = $.modState(_ + 7)
+            val add1 = $.modState(_ + 1)
+            button(onClick --> (add1 >> add7))
+          }
+          .buildU
+        val c = ReactTestUtils.renderIntoDocument(C())
+        c.state mustEqual 3
+        Simulation.click run c
+        c.state mustEqual 11
+      }
+      'zoom {
+        val C = ReactComponentB[Unit]("multiModState")
+          .initialState(StrInt("yay", 3))
+          .render { $ =>
+            val $$ = $.zoom(_.int)((a,b) => a.copy(int = b))
+            val add7 = $$.modState(_ + 7)
+            val add1 = $$.modState(_ + 1)
+            button(onClick --> (add1 >> add7))
+          }
+          .buildU
+        val c = ReactTestUtils.renderIntoDocument(C())
+        c.state mustEqual StrInt("yay", 3)
+        Simulation.click run c
+        c.state mustEqual StrInt("yay", 11)
+        c.setState(StrInt("oh", 100)).runNow()
+        Simulation.click run c
+        c.state mustEqual StrInt("oh", 108)
+      }
+      'zoomL {
+        import MonocleReact._ // TODO Move
+        val C = ReactComponentB[Unit]("multiModState")
+          .initialState(StrInt("yay", 3))
+          .render { $ =>
+            val $$ = $ zoomL StrInt.int
+            val add7 = $$.modState(_ + 7)
+            val add1 = $$.modState(_ + 1)
+            button(onClick --> (add1 >> add7))
+          }
+          .buildU
+        val c = ReactTestUtils.renderIntoDocument(C())
+        c.state mustEqual StrInt("yay", 3)
+        Simulation.click run c
+        c.state mustEqual StrInt("yay", 11)
+        c.setState(StrInt("oh", 100)).runNow()
+        Simulation.click run c
+        c.state mustEqual StrInt("oh", 108)
+      }
+      'zoomL2 {
+        import MonocleReact._ // TODO Move
+        val C = ReactComponentB[Unit]("multiModState")
+          .initialState(StrIntWrap(StrInt("yay", 3)))
+          .render { $ =>
+            val $$ = $ zoomL StrIntWrap.strInt zoomL StrInt.int
+            val add7 = $$.modState(_ + 7)
+            val add1 = $$.modState(_ + 1)
+            button(onClick --> (add1 >> add7))
+          }
+          .buildU
+        val c = ReactTestUtils.renderIntoDocument(C())
+        c.state mustEqual StrIntWrap(StrInt("yay", 3))
+        Simulation.click run c
+        c.state mustEqual StrIntWrap(StrInt("yay", 11))
+        c.setState(StrIntWrap(StrInt("oh", 100))).runNow()
+        Simulation.click run c
+        c.state mustEqual StrIntWrap(StrInt("oh", 108))
+      }
+    }
   }
 }

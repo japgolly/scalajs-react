@@ -162,6 +162,7 @@ object CompScope {
   trait CanSetState[State] extends HasState[State] {
     @JSName("setState") private[react] def _setState(s: WrapObj[State]): Unit = js.native
     @JSName("setState") private[react] def _setState(s: WrapObj[State], callback: UndefOr[JFn]): Unit = js.native
+    @JSName("setState") private[react] def _modState(s: js.Function1[WrapObj[State], WrapObj[State]], callback: UndefOr[JFn]): Unit = js.native
   }
 
   trait HasBackend[+Backend] extends Object {

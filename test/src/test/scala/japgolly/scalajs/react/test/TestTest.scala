@@ -28,10 +28,6 @@ object TestTest extends TestSuite {
   }).buildU
 
   val tests = TestSuite {
-    'isTextComponent {
-      val r = ReactTestUtils.isTextComponent(A())
-      assert(!r)
-    }
 
     'findRenderedDOMComponentWithClass {
       val n = ReactTestUtils.findRenderedDOMComponentWithClass(rab, "BB").getDOMNode()
