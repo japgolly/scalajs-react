@@ -157,6 +157,7 @@
 
   * Add `Reusability.||`
   * Add `Reusability.&&`
+  * Add `Reusability.byRefOrEqual` (Scalaz module only).
 
 <br>
 Migration commands:

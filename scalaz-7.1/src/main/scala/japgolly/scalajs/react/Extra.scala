@@ -8,9 +8,13 @@ import router.StaticDsl.Rule
 private[react] object ScalazReactExtra {
 
   final class ScalazReusability$Ops(private val ε: Reusability.type) extends AnyVal {
-    /** Compare using Scalaz equality typeclass. */
+    /** Compare using Scalaz equality. */
     def byEqual[A](implicit e: Equal[A]): Reusability[A] =
       new Reusability(e.equal)
+
+    /** Compare by reference and if different, compare using Scalaz equality. */
+    def byRefOrEqual[A <: AnyRef : Equal]: Reusability[A] =
+      Reusability.byRef[A] || byEqual[A]
   }
 
   final class ScalazListenable$Ops(private val ε: Listenable.type) extends AnyVal {
