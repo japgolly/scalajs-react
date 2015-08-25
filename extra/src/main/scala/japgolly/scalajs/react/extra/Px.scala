@@ -40,20 +40,42 @@ sealed abstract class Px[A] {
 }
 
 object Px {
-  sealed abstract class Root[A] extends Px[A] {
+  private class LazyVar[A](initArg: () => A) {
+    private var init = initArg // Don't prevent GC of initArg or waste mem propagating the ref
+    private var value: A = _
+
+    def get(): A = {
+      if (init ne null)
+        set(init())
+      value
+    }
+
+    def set(a: A): Unit = {
+      value = a
+      init = null
+    }
+  }
+
+  sealed abstract class Root[A](__initValue: () => A) extends Px[A] {
     protected val ignoreChange: (A, A) => Boolean
 
+    private val __value = new LazyVar(__initValue)
+
+    protected final def _updateValue(a: A): Unit =
+      __value set a
+
+    protected final def _value(): A =
+      __value.get()
+
     protected var _rev = 0
-    protected var _value: A
 
-    override final def rev = _rev
-
-    override final def peek = _value
+    override final def rev  = _rev
+    override final def peek = _value()
 
     protected def setMaybe(a: A): Unit =
-      if (!ignoreChange(_value, a)) {
+      if (!ignoreChange(_value(), a)) {
         _rev += 1
-        _value = a
+        _updateValue(a)
       }
   }
 
@@ -62,12 +84,10 @@ object Px {
    *
    * Doesn't change until you explicitly call `set()`.
    */
-  final class Var[A](initialValue: A, protected val ignoreChange: (A, A) => Boolean) extends Root[A] {
+  final class Var[A](initialValue: A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](() => initialValue) {
     override def toString = s"Px.Var(rev: $rev, value: $peek)"
 
-    override protected var _value = initialValue
-
-    override def value() = _value
+    override def value() = _value()
 
     def set(a: A): Unit =
       setMaybe(a)
@@ -79,12 +99,10 @@ object Px {
    * The `M` in `ThunkM` denotes "Manual refresh", meaning that the value will not update until you explicitly call
    * `refresh()`.
    */
-  final class ThunkM[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A] {
+  final class ThunkM[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](next) {
     override def toString = s"Px.ThunkM(rev: $rev, value: $peek)"
 
-    override protected var _value = next()
-
-    override def value() = _value
+    override def value() = _value()
 
     def refresh(): Unit =
       setMaybe(next())
@@ -96,28 +114,47 @@ object Px {
    * The `A` in `ThunkA` denotes "Auto refresh", meaning that the function will be called every time the value is
    * requested, and the value updated if necessary.
    */
-  final class ThunkA[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A] {
+  final class ThunkA[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](next) {
     override def toString = s"Px.ThunkA(rev: $rev, value: $peek)"
-
-    override protected var _value = next()
 
     override def value() = {
       setMaybe(next())
-      _value
+      _value()
     }
   }
 
-  /**
+  sealed abstract class DerivativePx[A, B, C](xa: Px[A], derive: A => B) extends Px[C] {
+    protected type ValRev = (B, Int)
+
+    private val __value = new LazyVar[ValRev](() => {
+      val b = derive(xa.value())
+      (b, xa.rev)
+    })
+
+    private final def __updateValue(b: B): ValRev = {
+      val vr = (b, xa.rev)
+      __value set vr
+      vr
+    }
+
+    protected final def _init(): ValRev = __value.get()
+    protected final def _value(): B     = _init()._1
+    protected final def _revA(): Int    = _init()._2
+
+    protected final def _updateValueIfChanged(): Unit =
+      xa.valueSince(_revA()).foreach { a =>
+        __updateValue(derive(a))
+      }
+  }
+
+    /**
    * A value `B` dependent on the value of some `Px[A]`.
    */
-  final class Map[A, B](xa: Px[A], f: A => B) extends Px[B] {
+  final class Map[A, B](xa: Px[A], f: A => B) extends DerivativePx[A, B, B](xa, f) {
     override def toString = s"Px.Map(rev: $rev, value: $peek)"
 
-    private var _value = f(xa.value())
-    private var _revA  = xa.rev
-
-    override def rev  = _revA
-    override def peek = _value
+    override def rev  = _revA()
+    override def peek = _value()
 
     override def map[C](g: B => C): Px[C] =
       new Map(xa, g compose f)
@@ -126,32 +163,26 @@ object Px {
       new Px.FlatMap(xa, g compose f)
 
     override def value(): B = {
-      xa.valueSince(_revA).foreach { a =>
-        _value = f(a)
-        _revA = xa.rev
-      }
-      _value
+      _updateValueIfChanged()
+      _value()
     }
   }
 
   /**
    * A `Px[B]` dependent on the value of some `Px[A]`.
    */
-  final class FlatMap[A, B](xa: Px[A], f: A => Px[B]) extends Px[B] {
+  final class FlatMap[A, B](xa: Px[A], f: A => Px[B]) extends DerivativePx[A, Px[B], B](xa, f) {
     override def toString = s"Px.FlatMap(rev: $rev, value: $peek)"
 
-    private var _value = f(xa.value())
-    private var _revA  = xa.rev
-
-    override def rev  = _revA + _value.rev
-    override def peek = _value.peek
+    override def peek = _value().peek
+    override def rev  = {
+      val vr = _init()
+      vr._1.rev + vr._2
+    }
 
     override def value(): B = {
-      xa.valueSince(_revA).foreach { a =>
-        _value = f(a)
-        _revA = xa.rev
-      }
-      _value.value()
+      _updateValueIfChanged()
+      _value().value()
     }
   }
 

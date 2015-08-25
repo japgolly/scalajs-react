@@ -160,6 +160,9 @@
   * Add `Reusability.byRefOr_==`.
   * Add `Reusability.byRefOrEqual` (Scalaz module only).
 
+  * `Px` initialisation is now lazy.
+    This yields a performance improvement using `Px` `val`s in a backend, and in staple `map` & `flatMap`.
+
 <br>
 Migration commands:
 ```sh
