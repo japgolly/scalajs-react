@@ -30,10 +30,10 @@ sealed abstract class Px[A] {
       None
   }
 
-  def map[B](f: A => B): Px[B] =
+  def map[B](f: A => B): Px.Derivative[B] =
     new Px.Map(this, f)
 
-  def flatMap[B](f: A => Px[B]): Px[B] =
+  def flatMap[B](f: A => Px[B]): Px.Derivative[B] =
     new Px.FlatMap(this, f)
 
   // override def toString = value().toString
@@ -123,7 +123,16 @@ object Px {
     }
   }
 
-  sealed abstract class DerivativePx[A, B, C](xa: Px[A], derive: A => B) extends Px[C] {
+  sealed abstract class Derivative[A] extends Px[A] {
+    /**
+     * In addition to updating when the underlying `Px` changes, this will also check its own result and halt updates
+     * if reusable.
+     */
+    final def reuse(implicit ev: Reusability[A]): Px[A] =
+      Px.thunkA(value())(ev)
+  }
+
+  sealed abstract class DerivativeBase[A, B, C](xa: Px[A], derive: A => B) extends Derivative[C] {
     protected type ValRev = (B, Int)
 
     private val __value = new LazyVar[ValRev](() => {
@@ -147,19 +156,19 @@ object Px {
       }
   }
 
-    /**
+  /**
    * A value `B` dependent on the value of some `Px[A]`.
    */
-  final class Map[A, B](xa: Px[A], f: A => B) extends DerivativePx[A, B, B](xa, f) {
+  final class Map[A, B](xa: Px[A], f: A => B) extends DerivativeBase[A, B, B](xa, f) {
     override def toString = s"Px.Map(rev: $rev, value: $peek)"
 
     override def rev  = _revA()
     override def peek = _value()
 
-    override def map[C](g: B => C): Px[C] =
+    override def map[C](g: B => C) =
       new Map(xa, g compose f)
 
-    override def flatMap[C](g: B => Px[C]): Px[C] =
+    override def flatMap[C](g: B => Px[C]) =
       new Px.FlatMap(xa, g compose f)
 
     override def value(): B = {
@@ -171,7 +180,7 @@ object Px {
   /**
    * A `Px[B]` dependent on the value of some `Px[A]`.
    */
-  final class FlatMap[A, B](xa: Px[A], f: A => Px[B]) extends DerivativePx[A, Px[B], B](xa, f) {
+  final class FlatMap[A, B](xa: Px[A], f: A => Px[B]) extends DerivativeBase[A, Px[B], B](xa, f) {
     override def toString = s"Px.FlatMap(rev: $rev, value: $peek)"
 
     override def peek = _value().peek

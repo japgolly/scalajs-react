@@ -162,6 +162,8 @@
 
   * `Px` initialisation is now lazy.
     This yields a performance improvement using `Px` `val`s in a backend, and in staple `map` & `flatMap`.
+  * Derivative `Px` instances (i.e. those created by `map` or `flatMap`) have a new method: `.reuse` which applies
+    filtering to derived results.
 
 <br>
 Migration commands:

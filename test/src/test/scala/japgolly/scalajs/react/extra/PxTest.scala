@@ -117,5 +117,23 @@ object PxTest extends TestSuite {
       px3.set(7); test(12, 2, 2)
       px3.set(0); test(5, 3, 3)
     }
+
+    'mapReuse {
+      val even = TraceFn((_: Int) & 254)
+      val add5 = addFn(5)
+      val px4 = Px(4)
+      val px = px4.map(even.fn).reuse map add5.fn
+      def test(res: Int, called0: Int, called5: Int): Unit = {
+        val v1 = px.value()
+        assertEq((v1, even.count(), add5.count()), (res, called0, called5))
+        val v2 = px.value()
+        assertEq((v2, even.count(), add5.count()), (res, called0, called5))
+      }
+      test(9, 1, 1)
+      px4.set(2); test(7, 2, 2)
+      px4.set(3); test(7, 3, 2)
+      px4.set(3); test(7, 3, 2)
+      px4.set(5); test(9, 4, 3)
+    }
   }
 }
