@@ -49,7 +49,7 @@ class RouterMacros (val c: Context) extends ReactMacroUtils {
           q"$xmap[$T](t => $applyFn(..$fromTuple))(c => (..$toTuple))"
       }
 
-    if (debug) println("\n" + impl + "\n")
+    if (debug) println("\n" + showCode(impl) + "\n")
     c.Expr[R[T]](impl)
   }
 }

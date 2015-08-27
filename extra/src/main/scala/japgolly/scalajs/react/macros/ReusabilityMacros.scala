@@ -44,7 +44,7 @@ class ReusabilityMacros(val c: Context) extends ReactMacroUtils {
           } """
       }
 
-    if (debug) println("\n" + impl + "\n")
+    if (debug) println("\n" + showCode(impl) + "\n")
     c.Expr[Reusability[T]](impl)
   }
 }
