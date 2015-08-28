@@ -46,12 +46,15 @@ object Callback {
 
   /**
    * Callback that is recreated each time it is used.
+   *
+   * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
    */
   @inline def byName(f: => Callback): Callback =
     CallbackTo(f.runNow())
 
   /**
-   * Convenience for returning `Callback.empty` if a condition isn't satisfied.
+   * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
+   * satisfied.
    */
   def ifTrue(pred: Boolean, c: => Callback): Callback =
     if (pred) c else Callback.empty
@@ -85,9 +88,9 @@ object Callback {
    *
    * Unlike `???` this doesn't crash, it just prints a warning to the console.
    *
-   * Also it's not really deprecated, that's just so you get a compiler warning to remind you.
+   * Also it's not really deprecated; that's just so you get a compiler warning as a reminder.
    */
-  @deprecated("", "")
+  @deprecated("", "not really deprecated")
   def TODO: Callback =
     todoImpl(None)
 
@@ -96,9 +99,9 @@ object Callback {
    *
    * Unlike `???` this doesn't crash, it just prints a warning to the console.
    *
-   * Also it's not really deprecated, that's just so you get a compiler warning to remind you.
+   * Also it's not really deprecated; that's just so you get a compiler warning as a reminder.
    */
-  @deprecated("", "")
+  @deprecated("", "not really deprecated")
   def TODO(reason: => String): Callback =
     todoImpl(Some(() => reason))
 
@@ -128,6 +131,8 @@ object CallbackTo {
 
   /**
    * Callback that is recreated each time it is used.
+   *
+   * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
    */
   @inline def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     CallbackTo(f.runNow())
@@ -137,9 +142,9 @@ object CallbackTo {
    *
    * Unlike `???` this doesn't crash, it just prints a warning to the console.
    *
-   * Also it's not really deprecated, that's just so you get a compiler warning to remind you.
+   * Also it's not really deprecated; that's just so you get a compiler warning as a reminder.
    */
-  @deprecated("", "")
+  @deprecated("", "not really deprecated")
   def TODO[A](result: => A): CallbackTo[A] =
     Callback.todoImpl(None) >> CallbackTo(result)
 
@@ -148,9 +153,9 @@ object CallbackTo {
    *
    * Unlike `???` this doesn't crash, it just prints a warning to the console.
    *
-   * Also it's not really deprecated, that's just so you get a compiler warning to remind you.
+   * Also it's not really deprecated; that's just so you get a compiler warning as a reminder.
    */
-  @deprecated("", "")
+  @deprecated("", "not really deprecated")
   def TODO[A](result: => A, reason: => String): CallbackTo[A] =
     Callback.todoImpl(Some(() => reason)) >> CallbackTo(result)
 }
@@ -195,9 +200,6 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def flatMap[B](g: A => CallbackTo[B]): CallbackTo[B] =
     new CallbackTo(() => g(f()).f())
 
-  def flatten[B](implicit ev: A =:= CallbackTo[B]): CallbackTo[B] =
-    flatMap(ev)
-
   /**
    * Alias for `flatMap`.
    */
@@ -211,6 +213,9 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    */
   @inline def =<<:[B](g: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(g)
+
+  def flatten[B](implicit ev: A =:= CallbackTo[B]): CallbackTo[B] =
+    flatMap(ev)
 
   /**
    * Sequence a callback to run after this, discarding any value produced by this.
@@ -240,8 +245,8 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def void: Callback =
     map(_ => ())
 
-  def conditionally(cond: => Boolean): CallbackTo[UndefOr[A]] =
-    CallbackTo(if (cond) f() else undefined)
+  def conditionally(cond: => Boolean): CallbackTo[Option[A]] =
+    CallbackTo(if (cond) Some(f()) else None)
 
   /**
    * Wraps this callback in a try-catch and returns either the result or the exception if one occurs.
@@ -295,23 +300,25 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def <*[B](next: CallbackTo[B]): CallbackTo[A] =
     flatTap(_ => next)
 
-  @inline def toScalaFunction: () => A =
+  @inline def toScalaFn: () => A =
     f
 
-  def toJsFunction: JFn0[A] =
+  def toJsFn: JFn0[A] =
     f
 
-  def toJsFunction1: JFn1[Any, A] =
+  def toJsFn1: JFn1[Any, A] =
     (_: Any) => f()
 
   def toJsCallback: UndefOr[JFn0[A]] =
-    if (isEmpty_?) undefined else toJsFunction
+    if (isEmpty_?) undefined else toJsFn
 
   def isEmpty_? : Boolean =
     f eq Callback.empty.f
 
-  def flatMapUnlessEmpty(g: Callback => Callback)(implicit ev: This =:= Callback): Callback =
-    if (isEmpty_?) this else g(this)
+  def flatMapUnlessEmpty(g: Callback => Callback)(implicit ev: This =:= Callback): Callback = {
+    val c = ev(this)
+    if (isEmpty_?) c else g(c)
+  }
 
   /**
    * Log to the console before this callback starts, and after it completes.
@@ -327,7 +334,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    * Run asynchronously.
    */
   def async: CallbackTo[Future[A]] =
-    delayMs(4)
+    delayMs(4) // 4ms is minimum allowed by setTimeout spec
 
   /**
    * Run asynchronously after a delay of a given duration.
@@ -345,12 +352,12 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
         case Right(a) => p.success(a)
         case Left(e)  => p.failure(e)
       }
-      RawTimers.setTimeout(cb.toJsFunction, startInMilliseconds)
+      RawTimers.setTimeout(cb.toJsFn, startInMilliseconds)
       p.future
     }
 
   // -------------------------------------------------------------------------------------------------------------------
-  // Boolean fns
+  // Boolean ops
 
   type ThisIsBool = This =:= CallbackB
 
@@ -380,10 +387,11 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
 
   /**
    * Sequence the given callback to be run when the result of this is `true`.
+   *
    * The result is discarded.
    */
   def whenTrueRun[B](c: CallbackTo[B])(implicit ev: ThisIsBool): Callback =
-    ev(this).map(a => if (a) c.runNow())
+    ev(this).map(a => if (a) c.f())
 
   /**
    * Alias for `whenTrueRun`.
@@ -393,10 +401,11 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
 
   /**
    * Sequence the given callback to be run when the result of this is `true`.
-   * Collects the result and wraps it in `Option`.
+   *
+   * Returns the result wrapped in `Option`.
    */
   def whenTrue[B](c: CallbackTo[B])(implicit ev: ThisIsBool): CallbackTo[Option[B]] =
-    ev(this).map(a => if (a) Some(c.runNow()) else None)
+    ev(this).map(a => if (a) Some(c.f()) else None)
 
   /**
    * Alias for `whenTrue`.

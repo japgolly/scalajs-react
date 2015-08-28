@@ -10,9 +10,10 @@ import japgolly.scalajs.react.{CallbackTo, Callback, TopNode}
  * Install in `ReactComponentB` via `.configure(SetInterval.install)`.
  */
 trait SetInterval extends OnUnmount {
+
   final def setInterval(f: Callback, timeout: FiniteDuration): Callback =
     CallbackTo {
-      val i = RawTimers.setInterval(f.toJsFunction, timeout.toMillis.toDouble)
+      val i = RawTimers.setInterval(f.toJsFn, timeout.toMillis.toDouble)
       Callback(RawTimers clearInterval i)
     } flatMap onUnmount
 }

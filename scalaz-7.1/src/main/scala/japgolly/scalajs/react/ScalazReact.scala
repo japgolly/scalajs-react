@@ -20,7 +20,7 @@ object ScalazReact
   }
 
   @inline implicit def SzRExt_CallbackOps[A](c: CallbackTo[A]) =
-    new SzRExt_CallbackOps(c.toScalaFunction)
+    new SzRExt_CallbackOps(c.toScalaFn)
 
   implicit final class SzRExt_CallbackConvertableOps[M[_], A](private val m: M[A]) extends AnyVal {
     def toCallback(implicit t: M ~> CallbackTo): CallbackTo[A] =
