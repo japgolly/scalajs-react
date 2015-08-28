@@ -155,6 +155,7 @@
 
   * Small improvements to `ReusabilityOverlay`.
 
+  * Add `SetInterval.setIntervalMs`.
   * Add `Reusability.||`
   * Add `Reusability.&&`
   * Add `Reusability.byRefOr_==`.
