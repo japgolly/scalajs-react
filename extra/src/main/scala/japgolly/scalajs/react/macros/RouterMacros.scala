@@ -13,7 +13,7 @@ class RouterMacros (val c: Context) extends ReactMacroUtils {
   def debugCaseClassB[T: c.WeakTypeTag]: c.Expr[RouteB[T]] = implCaseClass[RouteB, T](true)
 
   private def implCaseClass[R[_], T: c.WeakTypeTag](debug: Boolean): c.Expr[R[T]] = {
-    val T       = concreteWeakTypeOf[T]
+    val T       = caseClassType[T]
     val params  = primaryConstructorParams(T)
     val applyFn = tcApplyFn(T)
 

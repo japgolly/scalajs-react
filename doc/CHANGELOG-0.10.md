@@ -155,6 +155,8 @@
 
   * Small improvements to `ReusabilityOverlay`.
 
+  * Case class macros now enforce that inputs are indeed case classes.
+
   * Add `SetInterval.setIntervalMs`.
   * Add `Reusability.||`
   * Add `Reusability.&&`

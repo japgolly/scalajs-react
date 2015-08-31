@@ -10,7 +10,7 @@ class ReusabilityMacros(val c: Context) extends ReactMacroUtils {
   def debugCaseClass[T: c.WeakTypeTag]: c.Expr[Reusability[T]] = implCaseClass[T](true)
 
   def implCaseClass[T: c.WeakTypeTag](debug: Boolean): c.Expr[Reusability[T]] = {
-    val T      = concreteWeakTypeOf[T]
+    val T      = caseClassType[T]
     val params = primaryConstructorParams(T)
 
     val Reusability  =  q"_root_.japgolly.scalajs.react.extra.Reusability"

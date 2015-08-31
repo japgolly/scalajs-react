@@ -21,11 +21,23 @@ abstract class ReactMacroUtils {
   final def ensureConcrete(t: Type): Unit = {
     val sym = t.typeSymbol.asClass
     if (sym.isAbstract)
-      fail(s"ensureConcrete: [${sym.name}] is abstract which is not allowed.")
+      fail(s"${sym.name} is abstract which is not allowed.")
     if (sym.isTrait)
-      fail(s"ensureConcrete: [${sym.name}] is a trait which is not allowed.")
+      fail(s"${sym.name} is a trait which is not allowed.")
     if (sym.isSynthetic)
-      fail(s"ensureConcrete: [${sym.name}] is synthetic which is not allowed.")
+      fail(s"${sym.name} is synthetic which is not allowed.")
+  }
+
+  final def caseClassType[T: c.WeakTypeTag]: Type = {
+    val t = concreteWeakTypeOf[T]
+    ensureCaseClass(t)
+    t
+  }
+
+  final def ensureCaseClass(t: Type): Unit = {
+    val sym = t.typeSymbol.asClass
+    if (!sym.isCaseClass)
+      fail(s"${sym.name} is not a case class.")
   }
 
   final def primaryConstructorParams(t: Type): List[Symbol] =
