@@ -29,6 +29,11 @@ trait TagMod {
   }
 }
 
+object TagMod {
+  @inline def apply(ms: TagMod*): TagMod =
+    TagModComposition(ms.toVector)
+}
+
 final case class ReactTag private[vdom](tag: String,
                                         modifiers: List[Seq[TagMod]],
                                         namespace: Namespace) extends DomFrag {
