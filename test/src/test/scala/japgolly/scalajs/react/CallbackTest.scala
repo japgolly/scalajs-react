@@ -22,7 +22,7 @@ object CallbackTest extends TestSuite {
   override def tests = TestSuite {
     'guard {
       def assertCompiles[A](f: => A): Unit = ()
-      def assertFails(f: CompileError): Unit = assume(f.msg contains "which will discard without running it")
+      def assertFails(f: CompileError): Unit = assert(f.msg contains "which will discard without running it")
       def cb = Callback.empty
       def cbI = CallbackTo(3)
 

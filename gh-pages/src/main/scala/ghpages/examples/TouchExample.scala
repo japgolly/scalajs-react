@@ -45,14 +45,8 @@ object TouchExample {
 
     private def formatCoordinates(touch: dom.Touch) =
       s"${touch.screenX}x${touch.screenY}: ${touch.radiusX}x${touch.radiusY}"
-  }
 
-  /** Rendering touch area and history of events */
-  val TouchExampleApp = ReactComponentB[Unit]("TouchExample")
-    .initialState(new State)
-    .backend(new Backend(_))
-    .renderS { ($, s) =>
-      val debugEvent = $.backend.debugEvent _
+    def render(s: State) =
       <.div(
         <.div(
           "Area to test touch events",
@@ -67,7 +61,13 @@ object TouchExample {
         <.ul(                               // Rendering history of events
           s.log.map(
             <.li(_))))
-    }.buildU
+  }
+
+  /** Rendering touch area and history of events */
+  val TouchExampleApp = ReactComponentB[Unit]("TouchExample")
+    .initialState(new State)
+    .renderBackend[Backend]
+    .buildU
 
   // EXAMPLE:END
 }

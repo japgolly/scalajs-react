@@ -63,8 +63,7 @@ object ReuseExample {
 
   val topLevelComponent = ReactComponentB[Unit]("Reusability example")
     .initialState(State(Vector(30, 0, 2, 0, 10)))
-    .backend(new Backend(_))
-    .render(_.backend.render)
+    .renderBackend[Backend]
     .buildU
 
   case class State(inputs: Vector[Long]) {
@@ -88,9 +87,7 @@ object ReuseExample {
     val changeFn   = ReusableFn($).modState.endoCall(_.changeNumberOfInputs)
     val setInputFn = ReusableFn($).modState.endoCall2(_.setInput)
 
-    def render = {
-      val s = $.state
-
+    def render(s: State) = {
       def inputEditor(index: Int) = {
         val value = s.inputs(index)
         val rvar = ReusableVar(value)(setInputFn(index))

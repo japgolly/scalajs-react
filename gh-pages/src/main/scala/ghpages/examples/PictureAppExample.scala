@@ -150,14 +150,12 @@ object PictureAppExample {
       }
     }
 
-    def render = {
-      val s = $.state
+    def render(s: State) =
       div(
         h1("Popular Instagram Pics"),
         pictureList((s.pictures, onPicClick)),
         h1("Your favorites"),
         favoriteList((s.favourites, onPicClick)))
-    }
   }
 
   val picture = ReactComponentB[(Picture, PicClick)]("picture")
@@ -192,22 +190,21 @@ object PictureAppExample {
 
   val PictureApp = ReactComponentB[Unit]("PictureApp")
     .initialState(State(Nil, Nil))
-    .backend(new Backend(_))
-    .render(_.backend.render)
+    .renderBackend[Backend]
     .componentDidMount(scope => Callback {
-    // make ajax call here to get pics from instagram
-        import scalajs.js.Dynamic.{global => g}
-        def isDefined(g: js.Dynamic): Boolean =
-          g.asInstanceOf[js.UndefOr[AnyRef]].isDefined
-        val url = "https://api.instagram.com/v1/media/popular?client_id=642176ece1e7445e99244cec26f4de1f&callback=?"
-        g.jsonp(url, (result: js.Dynamic) => {
-          if (isDefined(result) && isDefined(result.data)) {
-            val data = result.data.asInstanceOf[js.Array[js.Dynamic]]
-            val pics = data.toList.map(item => Picture(item.id.toString, item.link.toString, item.images.low_resolution.url.toString, if (item.caption != null) item.caption.text.toString else ""))
-            scope.modState(_ => State(pics, Nil)).runNow()
-          }
-        })
+      // make ajax call here to get pics from instagram
+      import scalajs.js.Dynamic.{global => g}
+      def isDefined(g: js.Dynamic): Boolean =
+        g.asInstanceOf[js.UndefOr[AnyRef]].isDefined
+      val url = "https://api.instagram.com/v1/media/popular?client_id=642176ece1e7445e99244cec26f4de1f&callback=?"
+      g.jsonp(url, (result: js.Dynamic) => {
+        if (isDefined(result) && isDefined(result.data)) {
+          val data = result.data.asInstanceOf[js.Array[js.Dynamic]]
+          val pics = data.toList.map(item => Picture(item.id.toString, item.link.toString, item.images.low_resolution.url.toString, if (item.caption != null) item.caption.text.toString else ""))
+          scope.modState(_ => State(pics, Nil)).runNow()
+        }
       })
+    })
     .buildU
 
   // EXAMPLE:END

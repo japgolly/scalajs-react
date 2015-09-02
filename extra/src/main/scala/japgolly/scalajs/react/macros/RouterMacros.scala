@@ -17,14 +17,8 @@ class RouterMacros (val c: Context) extends ReactMacroUtils {
     val params  = primaryConstructorParams(T)
     val applyFn = tcApplyFn(T)
 
-    def replaceMethod(newMethod: String) =
-      c.macroApplication match {
-        case TypeApply(Select(r, _), _) => Select(r, TermName(newMethod))
-        case x => fail(s"Don't know how to parse macroApplication: ${showRaw(x)}")
-      }
-
-    def xmap  = replaceMethod("xmap")
-    def const = replaceMethod("const")
+    def xmap  = replaceMacroMethod("xmap")
+    def const = replaceMacroMethod("const")
 
     val impl =
       params match {

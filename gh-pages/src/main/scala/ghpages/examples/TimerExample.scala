@@ -17,15 +17,19 @@ object TimerExample {
       |  getInitialState: function() {
       |    return {secondsElapsed: 0};
       |  },
+      |
       |  tick: function() {
       |    this.setState({secondsElapsed: this.state.secondsElapsed + 1});
       |  },
+      |
       |  componentDidMount: function() {
       |    this.interval = setInterval(this.tick, 1000);
       |  },
+      |
       |  componentWillUnmount: function() {
       |    clearInterval(this.interval);
       |  },
+      |
       |  render: function() {
       |    return (
       |      React.createElement("div", null, "Seconds Elapsed: ", this.state.secondsElapsed)
@@ -57,12 +61,14 @@ object TimerExample {
       interval foreach js.timers.clearInterval
       interval = js.undefined
     }
+
+    def render(s: State) =
+      <.div("Seconds elapsed: ", s.secondsElapsed)
   }
 
   val Timer = ReactComponentB[Unit]("Timer")
     .initialState(State(0))
-    .backend(new Backend(_))
-    .render($ => <.div("Seconds elapsed: ", $.state.secondsElapsed))
+    .renderBackend[Backend]
     .componentDidMount(_.backend.start)
     .componentWillUnmount(_.backend.clear)
     .buildU

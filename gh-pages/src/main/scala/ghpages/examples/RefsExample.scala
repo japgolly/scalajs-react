@@ -17,9 +17,11 @@ object RefsExample {
       |  getInitialState: function() {
       |    return {userInput: ''};
       |  },
+      |
       |  handleChange: function(e) {
       |    this.setState({userInput: e.target.value});
       |  },
+      |
       |  clearAndFocusInput: function() {
       |    // Clear the input
       |    this.setState({userInput: ''}, function() {
@@ -27,6 +29,7 @@ object RefsExample {
       |      this.refs.theInput.getDOMNode().focus();   // Boom! Focused!
       |    });
       |  },
+      |
       |  render: function() {
       |    return (
       |      <div>
@@ -51,27 +54,28 @@ object RefsExample {
 
   val theInput = Ref[HTMLInputElement]("theInput")
 
-  class Backend($: BackendScope[_, String]) {
+  class Backend($: BackendScope[Unit, String]) {
     def handleChange(e: ReactEventI) =
       $.setState(e.target.value)
+
     def clearAndFocusInput() =
       $.setState("", theInput($).tryFocus)
+
+    def render(state: String) =
+      <.div(
+        <.div(
+          ^.onClick --> clearAndFocusInput,
+          "Click to Focus and Reset"),
+        <.input(
+          ^.ref       := theInput,
+          ^.value     := state,
+          ^.onChange ==> handleChange))
   }
 
   val App = ReactComponentB[Unit]("App")
     .initialState("")
-    .backend(new Backend(_))
-    .render($ =>
-      <.div(
-        <.div(
-          ^.onClick --> $.backend.clearAndFocusInput,
-          "Click to Focus and Reset"),
-        <.input(
-          ^.ref       := theInput,
-          ^.value     := $.state,
-          ^.onChange ==> $.backend.handleChange)
-      )
-    ).buildU
+    .renderBackend[Backend]
+    .buildU
 
   // EXAMPLE:END
 }

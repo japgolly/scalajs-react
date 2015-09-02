@@ -17,15 +17,7 @@ object EventListenerExample {
 
   val Main = ReactComponentB[Unit]("EventListener Example")
     .initialState("Local mouseenter events + local/global click events will appear here.")
-    .backend(new Backend(_))
-    .render($ =>
-      <.pre(
-        ^.border  := "solid 1px black",
-        ^.width   := "90ex",
-        ^.height  := "20em",
-        ^.padding := "2px 6px",
-        $.state)
-    )
+    .renderBackend[Backend]
     .configure(
 
       // Listen to mouseenter events within the component
@@ -34,7 +26,6 @@ object EventListenerExample {
       // Listen to click events
       EventListener.install("click", _.backend.logLocalClick),
       EventListener.install("click", _.backend.logWindowClick, _ => dom.window)
-
     )
     .buildU
 
@@ -43,6 +34,14 @@ object EventListenerExample {
     def logMouseEnter(e: MouseEvent) = logEvent(s"Mouse enter @ ${e.pageX},${e.pageY}")
     val logWindowClick               = logEvent("Window clicked.")
     val logLocalClick                = logEvent("Component clicked.")
+
+    def render(state: String) =
+      <.pre(
+        ^.border  := "solid 1px black",
+        ^.width   := "90ex",
+        ^.height  := "20em",
+        ^.padding := "2px 6px",
+        state)
   }
 
   // EXAMPLE:END

@@ -1,5 +1,58 @@
 # 0.10.0 (unreleased)
 
+* `ReactComponentB` learned `.renderBackend`.
+
+  `.renderBackend` is a fast way for the extremely common case of having a backend class with a render method.
+  It will locate the `render` method, determine what the arguments need (props/state/propsChildren) by examining the
+  types or the arg names when the types are ambiguous, and create the appropriate function at compile-time.
+  If can also automate the creation of the backend, see below.
+
+  Before:
+  ```scala
+  type State = Vector[String]
+
+  class Backend($: BackendScope[Unit, State]) {
+    def render = {
+      val s = $.state
+      <.div(
+        <.div(s.length, " items found:"),
+        <.ol(s.map(i => <.li(i))))
+    }
+  }
+
+  val Example = ReactComponentB[Unit]("Example")
+    .initialState(Vector("hello", "world"))
+    .backend(new Backend(_))
+    .render(_.backend.render)
+    .buildU
+  ```
+
+  After:
+  ```scala
+  type State = Vector[String]
+
+  class Backend($: BackendScope[Unit, Vector[String]]) {
+    def render(s: State) =   // ← Accept props, state and/or propsChildren as argument
+      <.div(
+        <.div(s.length, " items found:"),
+        <.ol(s.map(i => <.li(i))))
+  }
+
+  val Example = ReactComponentB[Unit]("Example")
+    .initialState(Vector("hello", "world"))
+    .renderBackend[Backend]  // ← Use Backend class and backend.render
+    .buildU
+  ```
+  
+  You can also create a backend yourself and still use `.renderBackend`:
+  ```scala
+  val Example = ReactComponentB[Unit]("Example")
+    .initialState(Vector("hello", "world"))
+    .backend(new Backend(_)) // ← Fine! Do it yourself!
+    .renderBackend           // ← Use backend.render
+    .buildU
+  ```
+
 * Replaced Router v1 with v2.
 
   `extra.router` has been removed; `extra.router2` has been renamed to take its place.

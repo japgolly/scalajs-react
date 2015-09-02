@@ -77,8 +77,7 @@ object AnimationExample {
 
   val TodoList = ReactComponentB[Unit]("TodoList")
     .initialState(Vector("hello", "world", "click", "me"))
-    .backend(new Backend(_))
-    .render(_.backend.render)
+    .renderBackend[Backend]
     .buildU
 
   // EXAMPLE:END

@@ -3,6 +3,7 @@ package japgolly.scalajs.react
 import scala.scalajs.js.{Any => JAny, Array => JArray, _}
 import Internal._
 import ComponentScope._
+import macros.CompBuilderMacros
 
 object ReactComponentB {
 
@@ -59,8 +60,22 @@ object ReactComponentB {
 
   // ===================================================================================================================
   final class PS[P, S] private[ReactComponentB](name: String, initF: InitStateFn[P, S]) {
-    def backend[B](f: BackendScope[P, S] => B) = new PSB(name, initF, f)
-    def noBackend                              = backend(_ => ())
+    def noBackend: PSB[P, S, Unit] =
+      backend(_ => ())
+
+    def backend[B](f: BackendScope[P, S] => B): PSB[P, S, B] =
+      new PSB(name, initF, f)
+
+    /**
+     * Shortcut for:
+     *
+     * {{{
+     *   .backend[B](new B(_))
+     *   .renderBackend
+     * }}}
+     */
+    def renderBackend[B]: PSBR[P, S, B] =
+      macro CompBuilderMacros.backendAndRender[P, S, B]
   }
 
   // ===================================================================================================================
@@ -98,6 +113,13 @@ object ReactComponentB {
 
     def render_S(f: S => ReactElement): PSBR[P, S, B] =
       render($ => f($.state))
+
+    /**
+     * Use a method named `render` in the backend, automatically populating its arguments with props, state,
+     * propsChildren where needed.
+     */
+    def renderBackend: PSBR[P, S, B] =
+      macro CompBuilderMacros.renderBackend[P, S, B]
   }
 
   // ===================================================================================================================
@@ -287,3 +309,4 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
       cc(React.createFactory(React.createClass(buildSpec)))
   }
 }
+

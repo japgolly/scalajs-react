@@ -78,21 +78,20 @@ object TodoExample {
       e.preventDefaultCB >>
       $.modState(s => State(s.items :+ s.text, ""))
 
-    def render =
+    def render(state: State) =
       <.div(
         <.h3("TODO"),
-        TodoList($.state.items),
+        TodoList(state.items),
         <.form(^.onSubmit ==> handleSubmit,
-          <.input(^.onChange ==> onChange, ^.value := $.state.text),
-          <.button("Add #", $.state.items.length + 1)
+          <.input(^.onChange ==> onChange, ^.value := state.text),
+          <.button("Add #", state.items.length + 1)
         )
       )
   }
 
   val TodoApp = ReactComponentB[Unit]("TodoApp")
     .initialState(State(Nil, ""))
-    .backend(new Backend(_))
-    .render(_.backend.render)
+    .renderBackend[Backend]
     .buildU
 
   // EXAMPLE:END
