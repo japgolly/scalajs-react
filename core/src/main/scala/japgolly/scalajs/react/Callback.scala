@@ -331,6 +331,26 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   }
 
   /**
+   * Logs the result of this callback as it completes.
+   */
+  def logResult(msg: A => String): CallbackTo[A] =
+    flatTap(a => Callback.log(msg(a)))
+
+  /**
+   * Logs the result of this callback as it completes.
+   *
+   * @param name Prefix to appear the log output.
+   */
+  def logResult(name: String): CallbackTo[A] =
+    logResult(a => s"$name: $a")
+
+  /**
+   * Logs the result of this callback as it completes.
+   */
+  def logResult: CallbackTo[A] =
+    logResult(_.toString)
+
+  /**
    * Run asynchronously.
    */
   def async: CallbackTo[Future[A]] =
