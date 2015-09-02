@@ -315,10 +315,10 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def isEmpty_? : Boolean =
     f eq Callback.empty.f
 
-  def flatMapUnlessEmpty(g: Callback => Callback)(implicit ev: This =:= Callback): Callback = {
-    val c = ev(this)
-    if (isEmpty_?) c else g(c)
-  }
+//  def flatMapUnlessEmpty(g: Callback => Callback)(implicit ev: This =:= Callback): Callback = {
+//    val c = ev(this)
+//    if (isEmpty_?) c else g(c)
+//  }
 
   /**
    * Log to the console before this callback starts, and after it completes.
@@ -411,31 +411,31 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def !(implicit ev: ThisIsBool): CallbackB =
     ev(this).map(!_)
 
-  /**
-   * Sequence the given callback to be run when the result of this is `true`.
-   *
-   * The result is discarded.
-   */
-  def whenTrueRun[B](c: CallbackTo[B])(implicit ev: ThisIsBool): Callback =
-    ev(this).map(a => if (a) c.f())
-
-  /**
-   * Alias for `whenTrueRun`.
-   */
-  @inline def ?>>[B](c: CallbackTo[B])(implicit ev: ThisIsBool): Callback =
-    whenTrueRun(c)
-
-  /**
-   * Sequence the given callback to be run when the result of this is `true`.
-   *
-   * Returns the result wrapped in `Option`.
-   */
-  def whenTrue[B](c: CallbackTo[B])(implicit ev: ThisIsBool): CallbackTo[Option[B]] =
-    ev(this).map(a => if (a) Some(c.f()) else None)
-
-  /**
-   * Alias for `whenTrue`.
-   */
-  @inline def ?>>?[B](c: CallbackTo[B])(implicit ev: ThisIsBool): CallbackTo[Option[B]] =
-    whenTrue(c)
+//  /**
+//   * Sequence the given callback to be run when the result of this is `true`.
+//   *
+//   * The result is discarded.
+//   */
+//  def whenTrueRun[B](c: CallbackTo[B])(implicit ev: ThisIsBool): Callback =
+//    ev(this).map(a => if (a) c.f())
+//
+//  /**
+//   * Alias for `whenTrueRun`.
+//   */
+//  @inline def ?>>[B](c: CallbackTo[B])(implicit ev: ThisIsBool): Callback =
+//    whenTrueRun(c)
+//
+//  /**
+//   * Sequence the given callback to be run when the result of this is `true`.
+//   *
+//   * Returns the result wrapped in `Option`.
+//   */
+//  def whenTrue[B](c: CallbackTo[B])(implicit ev: ThisIsBool): CallbackTo[Option[B]] =
+//    ev(this).map(a => if (a) Some(c.f()) else None)
+//
+//  /**
+//   * Alias for `whenTrue`.
+//   */
+//  @inline def ?>>?[B](c: CallbackTo[B])(implicit ev: ThisIsBool): CallbackTo[Option[B]] =
+//    whenTrue(c)
 }
