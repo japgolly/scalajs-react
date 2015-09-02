@@ -29,10 +29,10 @@ object Extra {
     def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Callback): TagMod =
       attr := ((eventHandler(_: E).runNow()): js.Function)
 
-    def -->?[O[_]](callback: => O[Callback])(implicit o: Optional[O]): TagMod =
+    def -->?[O[_]](callback: => O[Callback])(implicit o: OptionLike[O]): TagMod =
       attr --> Callback(o.foreach(callback)(_.runNow()))
 
-    def ==>?[O[_], N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => O[Callback])(implicit o: Optional[O]): TagMod =
+    def ==>?[O[_], N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => O[Callback])(implicit o: OptionLike[O]): TagMod =
       attr.==>[N, E](e => Callback(o.foreach(eventHandler(e))(_.runNow())))
   }
 

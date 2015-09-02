@@ -1,6 +1,5 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.vdom.Optional
 import scalaz.{Optional => _, _}
 import scalaz.Isomorphism.<~>
 import scalaz.effect.IO
@@ -18,10 +17,13 @@ trait ScalazReactInstances {
         fa map f
     }
 
-  implicit val maybeInstance: Optional[Maybe] = new Optional[Maybe] {
-    @inline final override def foreach[A](m: Maybe[A])(f: A => Unit): Unit = m.cata(f, ())
-    @inline final override def fold[A, B](t: Maybe[A], b: => B)(f: A => B): B = t.cata(f, b)
-    @inline final override def isEmpty[A](t: Maybe[A]): Boolean = t.isEmpty
+  implicit val maybeInstance: OptionLike[Maybe] = new OptionLike[Maybe] {
+    type O[A] = Maybe[A]
+    def map     [A, B](o: O[A])(f: A => B)         : O[B]      = o map f
+    def fold    [A, B](o: O[A], b: => B)(f: A => B): B         = o.cata(f, b)
+    def foreach [A]   (o: O[A])(f: A => Unit)      : Unit      = o.cata(f, ())
+    def isEmpty [A]   (o: O[A])                    : Boolean   = o.isEmpty
+    def toOption[A]   (o: O[A])                    : Option[A] = o.toOption
   }
 
   implicit val callbackToItself: (CallbackTo ~> CallbackTo) =

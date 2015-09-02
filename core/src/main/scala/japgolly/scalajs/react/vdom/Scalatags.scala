@@ -3,7 +3,7 @@ package japgolly.scalajs.react.vdom
 import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound}
 import scala.scalajs.js
-import japgolly.scalajs.react.{ReactElement, ReactNode}
+import japgolly.scalajs.react.{ReactElement, ReactNode, OptionLike}
 import Scalatags._
 
 /**
@@ -195,11 +195,11 @@ private[vdom] object Scalatags {
     override def compare(x: Attr, y: Attr): Int = x.name compareTo y.name
   }
 
-  final class OptionalAttrValue[T[_], A](ot: Optional[T], v: AttrValue[A]) extends AttrValue[T[A]] {
+  final class OptionalAttrValue[T[_], A](ot: OptionLike[T], v: AttrValue[A]) extends AttrValue[T[A]] {
     override def apply(ta: T[A], b: js.Any => Unit): Unit = ot.foreach(ta)(v(_, b))
   }
 
-  final class OptionalStyleValue[T[_], A](ot: Optional[T], v: StyleValue[A]) extends StyleValue[T[A]] {
+  final class OptionalStyleValue[T[_], A](ot: OptionLike[T], v: StyleValue[A]) extends StyleValue[T[A]] {
     override def apply(b: Builder, s: Style, t: T[A]) = ot.foreach(t)(v(b, s, _))
   }
 

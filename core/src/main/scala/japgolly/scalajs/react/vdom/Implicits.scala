@@ -9,7 +9,7 @@ abstract class LowPri {
   @inline implicit final def _react_fragArray [A <% Frag](xs: Array[A]) : Frag = SeqFrag[A](xs.toSeq)
 
 //  @inline implicit final def _react_fragOption[A <% Frag](xs: Option[A]): Frag = SeqFrag(xs.toSeq)
-//  @inline implicit final def _react_fragOptional[T[_], A](t: T[A])(implicit o: Optional[T], f: A => Frag): Frag =
+//  @inline implicit final def _react_fragOptionLike[T[_], A](t: T[A])(implicit o: OptionLike[T], f: A => Frag): Frag =
 //    o.fold(t, f, js.native)
 }
 
@@ -32,7 +32,7 @@ abstract class Implicits extends LowPri {
   @inline implicit final def _react_attrRef[R <: Ref]: AttrValue[R] =
     new GenericAttr[R](_.name)
 
-  @inline implicit final def _react_attrOptional[T[_], A](implicit t: Optional[T], a: AttrValue[A]): AttrValue[T[A]] =
+  @inline implicit final def _react_attrOptionLike[T[_], A](implicit t: OptionLike[T], a: AttrValue[A]): AttrValue[T[A]] =
     new OptionalAttrValue[T, A](t, a)
 
   @inline implicit final def _react_attrArray[A <% js.Any]: AttrValue[js.Array[A]] =
@@ -48,8 +48,8 @@ abstract class Implicits extends LowPri {
           implicit final val _react_styleFloat  : StyleValue[Float]   = GenericStyle.stringValue
           implicit final val _react_styleDouble : StyleValue[Double]  = GenericStyle.stringValue
 
-  @inline implicit final def _react_styleOptional[T[_], A](implicit t: Optional[T], a: StyleValue[A]): StyleValue[T[A]] =
-    new OptionalStyleValue[T, A](t, a)
+  @inline implicit final def _react_styleOptionLike[O[_], A](implicit O: OptionLike[O], a: StyleValue[A]): StyleValue[O[A]] =
+    new OptionalStyleValue[O, A](O, a)
 
   // Frag
   @inline implicit final def _react_fragReactNode[T <% ReactNode](v: T): Frag = new ReactNodeFrag(v)
@@ -57,8 +57,8 @@ abstract class Implicits extends LowPri {
   // TagMod
   @inline implicit final def _react_nodeSeq  [A <% TagMod](xs: Seq[A])      : TagMod = new SeqNode(xs)
   @inline implicit final def _react_nodeArray[A <% TagMod](xs: Array[A])    : TagMod = new SeqNode[A](xs.toSeq)
-  @inline implicit final def _react_nodeOptional[T[_], A](t: T[A])(implicit o: Optional[T], f: A => TagMod): TagMod =
-    o.fold(t, EmptyTag)(f)
+  @inline implicit final def _react_nodeOptionLike[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => TagMod): TagMod =
+    O.fold(o, EmptyTag)(f)
 
   // Scalatags misc
   @inline implicit final def _react_styleOrdering                  : Ordering[Style] = Scalatags.styleOrdering

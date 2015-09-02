@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.Optional
 import japgolly.scalajs.react.macros.ReusabilityMacros
 import ComponentScope.DuringCallbackM
 
@@ -93,7 +92,7 @@ object Reusability {
 //@inline implicit def reusableFloat  : Reusability[Float  ] = by_==
 //@inline implicit def reusableDouble : Reusability[Double ] = by_==
 
-  implicit def optional[O[_], A](implicit o: Optional[O], r: Reusability[A]): Reusability[O[A]] =
+  implicit def optionLike[O[_], A](implicit o: OptionLike[O], r: Reusability[A]): Reusability[O[A]] =
     fn((x, y) =>
       o.fold(x, o isEmpty y)(xa =>
         o.fold(y, false)(ya =>
