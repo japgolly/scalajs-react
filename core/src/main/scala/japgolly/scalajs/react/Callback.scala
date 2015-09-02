@@ -376,6 +376,12 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
       p.future
     }
 
+  def asCBO[B](implicit ev: This =:= CallbackTo[Option[B]]): CallbackOption[B] =
+    CallbackOption(ev(this))
+
+  def toCBO: CallbackOption[A] =
+    CallbackOption liftCallback this
+
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean ops
 
