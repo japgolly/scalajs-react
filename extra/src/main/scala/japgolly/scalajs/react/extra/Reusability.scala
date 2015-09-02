@@ -42,6 +42,12 @@ object Reusability {
   def const[A](r: Boolean): Reusability[A] =
     new Reusability((_, _) => r)
 
+  def always[A]: Reusability[A] =
+    const(true)
+
+  def never[A]: Reusability[A] =
+    const(false)
+
   /** Compare by reference. Reuse if both values are the same instance. */
   def byRef[A <: AnyRef]: Reusability[A] =
     new Reusability((a, b) => a eq b)
@@ -81,7 +87,7 @@ object Reusability {
   // -------------------------------------------------------------------------------------------------------------------
   // Instances
 
-  @inline implicit def reusableUnit   : Reusability[Unit   ] = const(true)
+  @inline implicit def reusableUnit   : Reusability[Unit   ] = always
   @inline implicit def reusableBoolean: Reusability[Boolean] = by_==
   @inline implicit def reusableByte   : Reusability[Byte   ] = by_==
   @inline implicit def reusableChar   : Reusability[Char   ] = by_==

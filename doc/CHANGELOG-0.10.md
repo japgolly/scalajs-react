@@ -158,10 +158,15 @@
   * Case class macros now enforce that inputs are indeed case classes.
 
   * Add `SetInterval.setIntervalMs`.
-  * Add `Reusability.||`
-  * Add `Reusability.&&`
-  * Add `Reusability.byRefOr_==`.
-  * Add `Reusability.byRefOrEqual` (Scalaz module only).
+
+  * New `Reusability` instance methods:
+    * `||`
+    * `&&`
+  * New `Reusability` object methods:
+    * `always`
+    * `never`
+    * `byRefOr_==`.
+    * `byRefOrEqual` (Scalaz module only).
 
   * `Px` initialisation is now lazy.
     This yields a performance improvement using `Px` `val`s in a backend, and in staple `map` & `flatMap`.

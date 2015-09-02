@@ -66,6 +66,7 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.fn((A, B) => Boolean)` to hand-write custom logic.
 * `Reusability.byEqual[A]` uses a Scalaz `Equal` typeclass.
 * `Reusability.byRefOrEqual[A]` uses reference equality and if different, tries using a Scalaz `Equal` typeclass.
+* `Reusability.{always,never,const(bool)}` are available too.
 
 #### Example
 The following component will only re-render when one of the following change:
