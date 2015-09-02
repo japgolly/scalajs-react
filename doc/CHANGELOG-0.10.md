@@ -167,6 +167,12 @@
     * `never`
     * `byRefOr_==`.
     * `byRefOrEqual` (Scalaz module only).
+    * `byIterator`
+    * `asIndexedSeq`
+  * New `Reusability` implicits for:
+    * `Set[A]`
+    * `List[A]`
+    * `Vector[A]`
 
   * `Px` initialisation is now lazy.
     This yields a performance improvement using `Px` `val`s in a backend, and in staple `map` & `flatMap`.

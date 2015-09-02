@@ -57,15 +57,17 @@ It will not compile until it knows how to compare the reusability of your props 
 Out-of-the-box, it knows how to compare Scala primatives, `String`s, `Option`, `Either`, Scala tuples, `js.UndefOr`,
 and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it how. Use one of the following methods:
 
-* `Reusability.byRef[A]` uses reference equality (ie. `a eq b`).
-* `Reusability.by_==[A]` uses universal equality (ie. `a == b`).
-* `Reusability.byRef_==[A]` uses reference equality and if different, tries universal equality.
-* `Reusability.caseClass[A]` for case classes of your own.
-* `Reusability.caseClassDebug[A]` as above, but shows you the code that the macro generates.
+* `Reusability.byRef` uses reference equality (ie. `a eq b`).
+* `Reusability.by_==` uses universal equality (ie. `a == b`).
+* `Reusability.byRef_==` uses reference equality and if different, tries universal equality.
+* `Reusability.caseClass` for case classes of your own.
+* `Reusability.caseClassDebug` as above, but shows you the code that the macro generates.
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
 * `Reusability.fn((A, B) => Boolean)` to hand-write custom logic.
-* `Reusability.byEqual[A]` uses a Scalaz `Equal` typeclass.
-* `Reusability.byRefOrEqual[A]` uses reference equality and if different, tries using a Scalaz `Equal` typeclass.
+* `Reusability.byEqual` uses a Scalaz `Equal` typeclass.
+* `Reusability.byRefOrEqual` uses reference equality and if different, tries using a Scalaz `Equal` typeclass.
+* `Reusability.byIterator` uses an `Iterable`'s iterator to check each element in order.
+* `Reusability.asIndexedSeq` uses `.length` and `.apply(index)` to check each element in order.
 * `Reusability.{always,never,const(bool)}` are available too.
 
 #### Example

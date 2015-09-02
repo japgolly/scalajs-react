@@ -6,6 +6,7 @@ import utest._
 import vdom.prefix_<^._
 import test._
 import ScalazReact._
+import TestUtil2._
 
 object ReusabilityTest extends TestSuite {
 
@@ -76,6 +77,16 @@ object ReusabilityTest extends TestSuite {
   case class CCT0[A]()
   case class CCT1[A](i: A)
   case class CCT2[A](i: Int, n: A)
+
+  val collectionData = {
+    val a = Vector(3,1,2,3,2,1)
+    (for (l <- 0 to a.length) yield a.combinations(l).toSet).reduce(_ ++ _)
+  }
+  def testCollection[F[_]](f: Vector[Int] => F[Int])(implicit r: Reusability[F[Int]]): Unit = {
+    val d = collectionData.map(f)
+    for {a <- d; b <- d}
+      assertEq(r.test(a, b), a == b)
+  }
 
   val tests = TestSuite {
 
@@ -163,6 +174,10 @@ object ReusabilityTest extends TestSuite {
           assert((a ~=~ b) == (a == b))
       test(None, Some(true), Some(false))
     }
+
+    'vector - testCollection(_.toVector)
+    'list   - testCollection(_.toList)
+    'set    - testCollection(_.toSet)
 
     'fns {
       type F1[A] = Int ~=> A
