@@ -61,6 +61,9 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def get: CallbackTo[Option[A]] =
     CallbackTo lift cbfn
 
+  def getOrElse(default: => A): CallbackTo[A] =
+    get.map(_ getOrElse default)
+
   def toCallback(implicit ev: A =:= Unit): Callback =
     get.void
 
@@ -76,33 +79,80 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def map[B](f: A => B): CallbackOption[B] =
     CallbackOption(get.map(_ map f))
 
+  /**
+   * Alias for `map`.
+   */
+  @inline def |>[B](f: A => B): CallbackOption[B] =
+    map(f)
+
   def flatMapOption[B](f: A => Option[B]): CallbackOption[B] =
     CallbackOption(get.map(_ flatMap f))
 
   def flatMap[B](f: A => CallbackOption[B]): CallbackOption[B] =
     CallbackOption(get flatMap {
       case Some(a) => f(a).get
-      case None    => CallbackTo(None)
+      case None    => CallbackTo pure None
     })
+
+  /**
+   * Alias for `flatMap`.
+   */
+  @inline def >>=[B](f: A => CallbackOption[B]): CallbackOption[B] =
+    flatMap(f)
 
   def filter(condition: A => Boolean): CallbackOption[A] =
     CallbackOption(get.map(_ filter condition))
 
+  /**
+   * Sequence a callback to run after this, discarding any value produced by this.
+   */
   def >>[B](next: CallbackOption[B]): CallbackOption[B] =
     flatMap(_ => next)
 
+  /**
+   * Sequence a callback to run before this, discarding any value produced by it.
+   */
   def <<[B](prev: CallbackOption[B]): CallbackOption[A] =
     prev >> this
 
+  /**
+   * Alias for `>>`.
+   *
+   * Where `>>` is often associated with Monads, `*>` is often associated with Applicatives.
+   */
   @inline def *>[B](next: CallbackOption[B]): CallbackOption[B] =
     this >> next
 
+  /**
+   * Sequence actions, discarding the value of the second argument.
+   */
   def <*[B](next: CallbackOption[B]): CallbackOption[A] =
     for {
       a <- this
       _ <- next
     } yield a
 
+  /**
+   * Discard the value produced by this callback.
+   */
   def void: CallbackOption[Unit] =
     map(_ => ())
+
+  def orElse(tryNext: CallbackOption[A]): CallbackOption[A] =
+    CallbackOption(get flatMap {
+      case a@ Some(_) => CallbackTo pure a
+      case None       => tryNext.get
+    })
+
+  /**
+   * Alias for `orElse`.
+   */
+  @inline def |(tryNext: CallbackOption[A]): CallbackOption[A] =
+    orElse(tryNext)
+
+  def &&[B](b: CallbackOption[B]): CallbackOption[Unit] =
+    this >> b.void
+
+  def ||[B](b: CallbackOption[B]): CallbackOption[Unit] =
+    void | b.void
 }
