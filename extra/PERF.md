@@ -67,7 +67,7 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.byEqual` uses a Scalaz `Equal` typeclass.
 * `Reusability.byRefOrEqual` uses reference equality and if different, tries using a Scalaz `Equal` typeclass.
 * `Reusability.byIterator` uses an `Iterable`'s iterator to check each element in order.
-* `Reusability.asIndexedSeq` uses `.length` and `.apply(index)` to check each element in order.
+* `Reusability.indexedSeq` uses `.length` and `.apply(index)` to check each element in order.
 * `Reusability.{always,never,const(bool)}` are available too.
 
 #### Example

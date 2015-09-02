@@ -168,11 +168,12 @@
     * `byRefOr_==`.
     * `byRefOrEqual` (Scalaz module only).
     * `byIterator`
-    * `asIndexedSeq`
+    * `indexedSeq`
   * New `Reusability` implicits for:
     * `Set[A]`
     * `List[A]`
     * `Vector[A]`
+  * Renamed `Reusability.reusableXxx` methods to just `Reusability.xxx` for consistency.
 
   * `Px` initialisation is now lazy.
     This yields a performance improvement using `Px` `val`s in a backend, and in staple `map` & `flatMap`.
