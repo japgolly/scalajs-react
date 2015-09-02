@@ -20,6 +20,9 @@ object CallbackOption {
   def liftOption[A](oa: => Option[A]): CallbackOption[A] =
     CallbackOption(CallbackTo(oa))
 
+  def liftOptionLike[O[_], A](oa: => O[A])(implicit O: OptionLike[O]): CallbackOption[A] =
+    CallbackOption(CallbackTo(O toOption oa))
+
   def liftCallback[A](cb: CallbackTo[A]): CallbackOption[A] =
     CallbackOption(cb map Some.apply)
 
@@ -29,14 +32,23 @@ object CallbackOption {
   def unless(condition: => Boolean): CallbackOption[Unit] =
     require(!condition)
 
-  implicit def toCallback(s: CallbackOption[Unit]): Callback =
-    s.toCallback
+  def matchPF[A, B](a: => A)(pf: PartialFunction[A, B]): CallbackOption[B] =
+    liftOption(pf lift a)
+
+  implicit def toCallback(co: CallbackOption[Unit]): Callback =
+    co.toCallback
+
+  implicit def fromCallback(c: Callback): CallbackOption[Unit] =
+    c.toCBO
 }
 
 // =====================================================================================================================
 
 /**
  * Callback that can short-circuit along the way when conditions you specify, aren't met.
+ *
+ * Especially useful for event handlers such as key handlers, drag-and-drop handlers, etc, where you
+ * check a condition, perform an effect, check another condition, perform another effect, etc.
  *
  * This is meant to be lightweight, and be immediately useful without the typical pain of imports, implicit conversions
  * and extension methods then normally accompany monad transforms in Scala.
