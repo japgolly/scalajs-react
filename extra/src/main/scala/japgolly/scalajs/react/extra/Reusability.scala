@@ -64,7 +64,7 @@ object Reusability {
   def by[A, B](f: A => B)(implicit r: Reusability[B]): Reusability[A] =
     r contramap f
 
-  def byIterator[I[X] <: Iterable[X], A](implicit r: Reusability[A]): Reusability[I[A]] =
+  def byIterator[I[X] <: Iterable[X], A: Reusability]: Reusability[I[A]] =
     fn { (x, y) =>
       val i = x.iterator
       val j = y.iterator
@@ -83,9 +83,9 @@ object Reusability {
       go
     }
 
-  def asIndexedSeq[S[X] <: IndexedSeq[X], A](implicit r: Reusability[A]): Reusability[S[A]] =
+  def asIndexedSeq[S[X] <: IndexedSeq[X], A: Reusability]: Reusability[S[A]] =
     fn((x, y) =>
-      (x.length == y.length) && x.indices.forall(i => r.test(x(i), y(i))))
+      (x.length == y.length) && x.indices.forall(i => x(i) ~=~ y(i)))
 
   def internal[A, B](f: A => B)(r: A => Reusability[B]): Reusability[A] =
     fn((a1, a2) => {
@@ -134,13 +134,13 @@ object Reusability {
         a => y.fold(a ~=~ _, _ => false),
         b => y.fold(_ => false, b ~=~ _)))
 
-  implicit def reusabilityList[A](implicit r: Reusability[A]): Reusability[List[A]] =
+  implicit def reusabilityList[A: Reusability]: Reusability[List[A]] =
     byRef[List[A]] || byIterator[List, A]
 
-  implicit def reusabilityVector[A](implicit r: Reusability[A]): Reusability[Vector[A]] =
+  implicit def reusabilityVector[A: Reusability]: Reusability[Vector[A]] =
     byRef[Vector[A]] || asIndexedSeq[Vector, A]
 
-  implicit def reusabilitySet[A](implicit r: Reusability[A]): Reusability[Set[A]] =
+  implicit def reusabilitySet[A]: Reusability[Set[A]] =
     byRefOr_== // universal equality must hold for Sets
 
   // Prohibited:
