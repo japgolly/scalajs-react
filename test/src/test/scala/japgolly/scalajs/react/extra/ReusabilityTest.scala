@@ -157,6 +157,53 @@ object ReusabilityTest extends TestSuite {
         assert(outerRenderCount == 3, innerRenderCount == 4)
       }
     }
+    
+    'uuid {
+      import java.util.UUID
+      val value = UUID.randomUUID.toString
+
+      assert(UUID.fromString(value) ~=~ UUID.fromString(value))
+      assert(!(UUID.fromString(value) ~=~ UUID.randomUUID))
+    }
+
+    'jsDate {
+      import scala.scalajs.js.Date
+      val now = System.currentTimeMillis
+      val date1 = new Date(now)
+      val date2 = new Date(now)
+
+      assert(date1 ~=~ date2)
+      assert(!(date1 ~=~ new Date(now + 1)))
+    }
+    
+    'javaDate {
+      import java.util.Date
+      val now = System.currentTimeMillis
+      val date1 = new Date(now)
+      val date2 = new Date(now)
+
+      assert(date1 ~=~ date2)
+      assert(!(date1 ~=~ new Date(now + 1)))
+    }
+
+    'doubleWithTolerance {
+      implicit val r = Reusability.double(0.2)
+      assert(1.2.toDouble ~=~ 1.0.toDouble)
+      assert(0.8.toDouble ~=~ 1.0.toDouble)
+      
+      assert(!(0.7.toDouble ~=~ 1.0.toDouble))
+      assert(!(1.3.toDouble ~=~ 1.0.toDouble))
+    }
+    
+    'floatWithTolerance {
+      implicit val r = Reusability.float(0.2f)
+      assert(0.9f ~=~ 1.0f)
+      assert(1.0f ~=~ 1.0f)
+      assert(1.1f ~=~ 1.0f)
+      
+      assert(!(0.7f ~=~ 1.0f))
+      assert(!(1.3f ~=~ 1.0f))
+    }
 
     'option {
       def test(vs: Option[Boolean]*) =

@@ -1,5 +1,8 @@
 package japgolly.scalajs.react.extra
 
+import java.util.{Date, UUID}
+import scala.scalajs.js.{ Date => JsDate }
+
 import scalaz._
 import scalaz.effect.IO
 import japgolly.scalajs.react.{ComponentScopeM, ReactComponentB, TopNode, ReactElement}
@@ -73,20 +76,30 @@ object Reusability {
    */
   def caseClassDebug[A]: Reusability[A] =
     macro ReusabilityMacros.debugCaseClass[A]
+  
+  def double(tolerance: Double): Reusability[Double] = fn((x, y) => 
+    (x - y).abs <= tolerance)
+  
+  def float(tolerance: Float): Reusability[Float] = fn((x, y) => 
+    (x - y).abs <= tolerance)
 
   // -------------------------------------------------------------------------------------------------------------------
   // Instances
 
-  @inline implicit def reusableUnit   : Reusability[Unit   ] = const(true)
-  @inline implicit def reusableBoolean: Reusability[Boolean] = by_==
-  @inline implicit def reusableByte   : Reusability[Byte   ] = by_==
-  @inline implicit def reusableChar   : Reusability[Char   ] = by_==
-  @inline implicit def reusableShort  : Reusability[Short  ] = by_==
-  @inline implicit def reusableInt    : Reusability[Int    ] = by_==
-  @inline implicit def reusableLong   : Reusability[Long   ] = by_==
-  @inline implicit def reusableString : Reusability[String ] = by_==
-//@inline implicit def reusableFloat  : Reusability[Float  ] = by_==
-//@inline implicit def reusableDouble : Reusability[Double ] = by_==
+  @inline implicit def reusableUnit       : Reusability[Unit   ] = const(true)
+  @inline implicit def reusableBoolean    : Reusability[Boolean] = by_==
+  @inline implicit def reusableByte       : Reusability[Byte   ] = by_==
+  @inline implicit def reusableChar       : Reusability[Char   ] = by_==
+  @inline implicit def reusableShort      : Reusability[Short  ] = by_==
+  @inline implicit def reusableInt        : Reusability[Int    ] = by_==
+  @inline implicit def reusableLong       : Reusability[Long   ] = by_==
+  @inline implicit def reusableString     : Reusability[String ] = by_==
+  @inline implicit def reusableJavaDate   : Reusability[Date   ] = by_==
+  @inline implicit def reusableUUID       : Reusability[UUID   ] = by_==
+  
+  implicit def reusableJsDate     : Reusability[JsDate ] = fn((x, y) => 
+    x.getTime == y.getTime
+  )
 
   implicit def optional[O[_], A](implicit o: Optional[O], r: Reusability[A]): Reusability[O[A]] =
     fn((x, y) =>
