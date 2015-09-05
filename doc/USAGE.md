@@ -125,7 +125,7 @@ There are two ways of wiring up events to vdom.
 * `EmptyTag` - A virtual DOM building block representing nothing.
 
   ```scala
-  ^.div(if (allowEdit) editButton else EmptyTag)
+  <.div(if (allowEdit) editButton else EmptyTag)
   ```
 
 #### Custom markup elements
