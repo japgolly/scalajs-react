@@ -114,7 +114,7 @@ There are two ways of wiring up events to vdom.
   ```scala
   val loggedInUser: Option[User] = ???
 
-  ^.div(
+  <.div(
     <.h3("Welcome"),
     loggedInUser.map(user =>
       <.a(
