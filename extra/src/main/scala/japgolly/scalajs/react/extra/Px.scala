@@ -1,5 +1,7 @@
 package japgolly.scalajs.react.extra
 
+import japgolly.scalajs.react.macros.PxMacros
+
 /**
  * A mechanism for caching data with dependencies.
  *
@@ -35,6 +37,15 @@ sealed abstract class Px[A] {
 
   def flatMap[B](f: A => Px[B]): Px.Derivative[B] =
     new Px.FlatMap(this, f)
+
+  /**
+   * If this Px contains a function, it can be extracted and the Px dropped from the signature. Every time the function
+   * is invoked it will use the latest value of this `Px`, even if you don't explicitly hold a reference to it anymore.
+   *
+   * Example. From a `Px[Int => String]`, an `Int => String` can be extracted.
+   */
+  def extract: A =
+    macro PxMacros.extract[A]
 
   // override def toString = value().toString
 }

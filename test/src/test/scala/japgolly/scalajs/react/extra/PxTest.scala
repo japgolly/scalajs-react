@@ -135,5 +135,35 @@ object PxTest extends TestSuite {
       px4.set(3); test(7, 3, 2)
       px4.set(5); test(9, 4, 3)
     }
+
+    'extract {
+      'bad {
+        val px: Px[Int] = Px(3)
+        assert(compileError("px.extract").msg contains "with functions, not Int")
+      }
+      'fn0 {
+        var i = () => 30
+        val fn = Px.NoReuse.thunkA(i).extract
+        assertEq(fn(), 30)
+        i = () => 4
+        assertEq(fn(), 4)
+      }
+      'fn1 {
+        var i = 30
+        val px = Px.thunkA(i).map(a => (b: Int) => a - b)
+        val fn = px.extract
+        assertEq(fn(7), 23)
+        i = 20
+        assertEq(fn(7), 13)
+      }
+      'fn2 {
+        var i = 30
+        val fn = Px.thunkA(i).map(a => (b: Int, c: Int) => a - b - c).extract
+        assertEq(fn(7, 3), 20)
+        i = 20
+        assertEq(fn(3, 7), 10)
+      }
+
+    }
   }
 }
