@@ -2,6 +2,8 @@ package japgolly.scalajs.react.extra
 
 import utest._
 
+import scala.runtime.AbstractFunction1
+
 object PxTest extends TestSuite {
 
   def assertEq[A](actual: A, expect: A): Unit =
@@ -29,6 +31,8 @@ object PxTest extends TestSuite {
 
   def addFn(n: Int): TraceFn[Int, Int] =
     TraceFn(_ + n)
+
+  type AddCC = Int => Int
 
   override def tests = TestSuite {
     'big {
@@ -163,7 +167,11 @@ object PxTest extends TestSuite {
         i = 20
         assertEq(fn(3, 7), 10)
       }
-
+      'dealias {
+        val add: AddCC = _ + 8
+        val fn = Px.NoReuse.thunkA(add).extract
+        assertEq(fn(3), 11)
+      }
     }
   }
 }

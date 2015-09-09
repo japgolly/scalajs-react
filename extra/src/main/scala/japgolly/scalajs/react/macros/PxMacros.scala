@@ -8,7 +8,7 @@ class PxMacros(val c: Context) extends ReactMacroUtils {
   def extract[T: c.WeakTypeTag]: c.Expr[T] = {
     val T = weakTypeOf[T]
 
-    val impl = T match {
+    val impl = T.dealias match {
       case TypeRef(_, sym, _) if sym.fullName startsWith "scala.Function" =>
         val argCount = sym.fullName.drop(14).toInt
         val names    = (0 until argCount).map(i => TermName(('a' + i).toChar.toString))
