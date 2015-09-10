@@ -237,11 +237,16 @@
     * `byRefOrEqual` (Scalaz module only).
     * `byIterator`
     * `indexedSeq`
+    * `double`
+    * `float`
   * New `Reusability` implicits for:
+    * `java.util.Date`
+    * `java.util.UUID`
+    * `scalajs.js.Date`
     * `Set[A]`
     * `List[A]`
     * `Vector[A]`
-  * Renamed `Reusability.reusableXxx` methods to just `Reusability.xxx` for consistency.
+  * Renamed `Reusability.reusableXxx` methods to `Reusability.xxx` for consistency.
 
   * `Px` initialisation is now lazy.
     This yields a performance improvement using `Px` `val`s in a backend, and in staple `map` & `flatMap`.
