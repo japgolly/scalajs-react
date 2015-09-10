@@ -235,6 +235,7 @@
   * Components' `modState` can now be called multiple times in the same render pass without clobbering changes.
   * `ReactTestUtils.isTextComponent` is just gone now.
 
+  * Removed methods deprecated in React 0.12.
 * Smaller stuff:
 
   * `A ~=> B`, given an `A`, can now produce a `ReusableFnA[A, B]` which is effectively a reusable version of

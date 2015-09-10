@@ -99,24 +99,6 @@ trait React extends Object {
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   def Children: ReactChildren = js.native
-
-  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
-  def renderComponent(c: ReactComponentU_, n: dom.Node): ReactComponentM_[TopNode] = js.native
-
-  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
-  def renderComponent(c: ReactComponentU_, n: dom.Node, callback: ThisFunction): ReactComponentM_[TopNode] = js.native
-
-  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
-  def renderComponent[P, S, B, N <: TopNode](c: ReactComponentU[P, S, B, N], n: dom.Node): ReactComponentM[P, S, B, N] = js.native
-
-  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
-  def renderComponent[P, S, B, N <: TopNode](c: ReactComponentU[P, S, B, N], n: dom.Node, callback: ThisFunction0[ReactComponentM[P, S, B, N], Unit]): ReactComponentM[P, S, B, N] = js.native
-
-  @deprecated("React.renderComponentToString will be deprecated in a future version. Use React.renderToString instead.", "React 0.12.0")
-  def renderComponentToString(component: ReactComponentU_): String = js.native
-
-  @deprecated("React.renderComponentToStaticMarkup will be deprecated in a future version. Use React.renderToStaticMarkup instead.", "React 0.12.0")
-  def renderComponentToStaticMarkup(component: ReactComponentU_): String = js.native
 }
 
 /** `React.Children` */
