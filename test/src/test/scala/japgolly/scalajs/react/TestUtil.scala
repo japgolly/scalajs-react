@@ -110,6 +110,7 @@ object TestUtil {
     type U = Unit
     abstract class N extends TopNode
     val c = null.asInstanceOf[ReactComponentM[Unit, S, Unit, N]]
+    val bs = null.asInstanceOf[BackendScope[P, S]]
 
     def st_s(s: S, t: T): S = ???
 

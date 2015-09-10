@@ -171,6 +171,21 @@
     $.modState(s => State(s.items :+ s.text, ""))
   ```
 
+* Component/Backend scopes' access is now as follows:
+
+  | Method | `BackendScope` | During Callback | External Access |
+  | --- | --- | --- | --- |
+  | `.props` | `CallbackTo[P]` | `P` | `P` |
+  | `.state` | `CallbackTo[S]` | `S` | `S` |
+  | `.setState` | `Callback` | `Callback` | `Unit` |
+  | `.modState` | `Callback` | `Callback` | `Unit` |
+  | `.forceUpdate` | `Callback` | `Callback` | `Unit` |
+  
+  This closes an important source of bugs in backends with props/state being used in such a way that they go stale at
+  runtime. Very easy to make but hard to spot.
+  
+  As part of this change, if you were using `CompStateFocus` before, it is now `StateAccessCB` or `StateAccessDirect`.
+
 * The `extra` module no longer depends on Scalaz or Monocle.
 
   `extra` only depends on `core` now.
@@ -233,6 +248,8 @@
   * Derivative `Px` instances (i.e. those created by `map` or `flatMap`) have a new method: `.reuse` which applies
     filtering to derived results.
   * Added `Px#extract`.
+  * Added `Px.cbM` and `Px.cbA` for callbacks.
+  * Added `Px.bs` for use with `BackendScope`.
     
   * `react.vdom.Optional` is now `react.OptionLike`.
 

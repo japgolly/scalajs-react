@@ -64,11 +64,11 @@ object AnimationExample {
     def handleRemove(i: Int) =
       $.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
 
-    def render =
+    def render(state: Vector[String]) =
       <.div(
         <.button(^.onClick --> handleAdd, "Add Item"),
         ReactCssTransitionGroup("example", component = "h1")(
-          $.state.zipWithIndex.map { case (s, i) =>
+          state.zipWithIndex.map { case (s, i) =>
             <.div(^.key := s, ^.onClick --> handleRemove(i), s)
           }: _*
         )

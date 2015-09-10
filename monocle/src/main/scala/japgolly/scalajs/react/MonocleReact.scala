@@ -3,26 +3,30 @@ package japgolly.scalajs.react
 import monocle._
 import scalaz.Functor
 import ScalazReact._
+import CompState._
+import ComponentScope._
 
 object MonocleReact extends MonocleReactExtra {
 
-  @inline implicit def MonocleReactCompStateAccessOps[C, S](c: C)(implicit a: CompStateAccess[C, S]) =
-    new MonocleReactCompStateAccessOps[C, S](c)
+  @inline implicit def MonocleReactCompStateOpsDD[$, S]($: $)(implicit ops: $ => ReadDirectWriteDirectOps[S]) =
+    new MonocleReactCompStateOps[ReadDirectWriteDirectOps[S], S, Unit](ops($))
 
-  final class MonocleReactCompStateAccessOps[C, S](private val c: C) extends AnyVal {
-    // This should really be a class param but then we lose the AnyVal
-    type CC = CompStateAccess[C, S]
+  @inline implicit def MonocleReactCompStateOpsDC[$, S]($: $)(implicit ops: $ => ReadDirectWriteCallbackOps[S]) =
+    new MonocleReactCompStateOps[ReadDirectWriteCallbackOps[S], S, Callback](ops($))
 
-    def zoomL[T](l: Lens[S, T])(implicit C: CC) = new CompStateFocus[T](
-      () => l get c.state,
-      (t: T, cb: Callback) => c.modState(l set t, cb))
+  @inline implicit def MonocleReactCompStateOpsCC[$, S]($: $)(implicit ops: $ => ReadCallbackWriteCallbackOps[S]) =
+    new MonocleReactCompStateOps[ReadCallbackWriteCallbackOps[S], S, Callback](ops($))
 
-    @inline def _setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(implicit C: CC, L: SetterMonocle[L]): B => Callback =
-      c._modState(L set l)
+  final class MonocleReactCompStateOps[Ops <: WriteOpAux[S, W], S, W](private val $: Ops) extends AnyVal {
+    def zoomL[T](l: Lens[S, T]): Ops#This[T] =
+      $.zoom(l.get)((s, t) => l.set(t)(s))
+
+    def _setStateL[L[_, _, _, _], B](l: L[S, S, _, B], cb: Callback = Callback.empty)(implicit L: SetterMonocle[L]): B => W =
+      b => $.modState(L.set(l)(b), cb)
   }
 
   @inline implicit final class MonocleReactReactSTOps[M[_], S, A](private val s: ReactST[M, S, A]) extends AnyVal {
-    @inline def zoomL[T](l: Lens[T, S])(implicit M: Functor[M]): ReactST[M, T, A] =
+    def zoomL[T](l: Lens[T, S])(implicit M: Functor[M]): ReactST[M, T, A] =
       ReactS.zoom[M, S, T, A](s, l.get, (a, b) => l.set(b)(a))
   }
 }

@@ -49,7 +49,7 @@ final class RefComp[P, S, B, N <: TopNode](_name: String) extends Ref(_name) {
 final class RefParam[I, RefType <: Ref](f: I => RefType) {
   @inline def apply(i: I): RefType = f(i)
   @inline def get[S](s: HasState[S] with Mounted[_])(implicit ev: S =:= I) =
-    apply(ev(s.state))(s)
+    apply(ev(s._state.v))(s) // TODO _state
 }
 
 

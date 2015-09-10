@@ -29,7 +29,7 @@ object OnUnmountTest extends TestSuite {
   override def tests = TestSuite {
     val c = ReactTestUtils.renderIntoDocument(Outer())
     assert(i == 1)
-    c.setState(false).runNow()
+    c.setState(false)
     assert(i == 0)
   }
 }

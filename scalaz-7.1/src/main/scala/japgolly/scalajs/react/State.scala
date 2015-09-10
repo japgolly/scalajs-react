@@ -4,47 +4,46 @@ import scalaz.{Optional => _, _}
 import scalaz.effect.IO
 import Scalaz.Id
 import Leibniz.===
+import CompState._
 
 private[react] object ScalazReactState {
   import ScalazReact._
 
-  class SzRExt_CompStateAccessOps[C, S](private val $: C) extends AnyVal {
-    // This should really be a class param but then we lose the AnyVal
-    type CC = CompStateAccess[C, S]
+  final class ScalazReactStateOps[S, W[_]](private val $: ReadCallbackWriteCallbackOps[S], W: CallbackTo ~> W) {
+    @inline private implicit def autoToW[A](cb: CallbackTo[A]): W[A] = W(cb)
 
-    private def run[M[_], A, B](st: => ReactST[M, S, A], f: (S, S, A, => Callback) => CallbackTo[B])(implicit C: CC, M: M ~> CallbackTo): CallbackTo[B] =
-      CallbackTo(StateAndCallbacks(C state $))  >>= (s1 =>
+    private def run[M[_], A, B](st: => ReactST[M, S, A], f: (S, S, A, => Callback) => CallbackTo[B])(implicit M: M ~> CallbackTo): CallbackTo[B] =
+      $.state |> (StateAndCallbacks(_)) >>= (s1 =>
         M(st run s1) >>= { x2 =>
           val s2 = x2._1
           val a  = x2._2
-          f(s1.state, s2.state, a, C.setState($, s2.state, s2.cb))
+          f(s1.state, s2.state, a, $.setState(s2.state, s2.cb))
         }
       )
 
-    def runState[M[_], A](st: => ReactST[M, S, A])(implicit C: CC, M: M ~> CallbackTo): CallbackTo[A] =
+    def runState[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo): W[A] =
       run[M, A, A](st, (s1,s2,a,cb) => cb.map(_ => a))
 
-    def _runState[I, M[_], A](f: I => ReactST[M, S, A])(implicit C: CC, M: M ~> CallbackTo): I => CallbackTo[A] =
+    def _runState[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo): I => W[A] =
       i => runState(f(i))
 
-    def _runState[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit C: CC, M: M ~> CallbackTo, N: Monad[M]): I => CallbackTo[A] =
+    def _runState[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M]): I => W[A] =
       i => runState(f(i) addCallback cb(i))
 
-    def runStateF[M[_], A](st: => ReactST[M, S, A])(implicit C: CC, M: M ~> CallbackTo, F: ChangeFilter[S]): CallbackTo[A] =
+    def runStateF[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, F: ChangeFilter[S]): W[A] =
       run[M, A, A](st, (s1,s2,a,cb) => F(s1, s2, CallbackTo pure a, _ => cb.map(_ => a)))
 
-    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A])(implicit C: CC, M: M ~> CallbackTo, F: ChangeFilter[S]): I => CallbackTo[A] =
+    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, F: ChangeFilter[S]): I => W[A] =
       i => runStateF(f(i))
 
-    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit C: CC, M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => CallbackTo[A] =
+    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => W[A] =
       i => runStateF(f(i) addCallback cb(i))
 
-    def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit C: CC, F: ChangeFilter[S]): Callback = {
-      val s1 = C.state($)
-      F(s1, f(s1), Callback.empty, C.setState($, _, cb))
-    }
+    def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): W[Unit] =
+      $.state >>= (s1 =>
+        F(s1, f(s1), Callback.empty, $.setState(_, cb)))
 
-    @inline def _modStateF[I](f: I => S => S, cb: Callback = Callback.empty)(implicit C: CC, F: ChangeFilter[S]): I => Callback =
+    @inline def _modStateF[I](f: I => S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): I => W[Unit] =
       i => modStateF(f(i), cb)
   }
 
@@ -87,8 +86,11 @@ private[react] object ScalazReactState {
 
 trait ScalazReactState {
 
-  @inline implicit def toSzRExtCompStateAccessOps[C, S](c: C)(implicit a: CompStateAccess[C, S]) =
-    new ScalazReactState.SzRExt_CompStateAccessOps[C, S](c)
+  @inline implicit def ScalazReactStateOpsCB[$, S]($: $)(implicit ops: $ => CompState.WriteCallbackOps[S]) =
+    new ScalazReactState.ScalazReactStateOps[S, CallbackTo](ops($).accessCB, ScalazReact.callbackToItself)
+
+  @inline implicit def ScalazReactStateOpsDirect[$, S]($: $)(implicit ops: $ => StateAccessDirect[S]) =
+    new ScalazReactState.ScalazReactStateOps[S, Id](ops($).accessCB, ScalazReact.scalazIdToCallbackIso.to)
 
   @inline def StateAndCallbacks[S](s: S, cb: Callback = Callback.empty) =
     new StateAndCallbacks[S](s, cb)

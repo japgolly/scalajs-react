@@ -24,6 +24,7 @@ object ExternalVar {
   @inline def apply[A](value: A)(set: A => Callback): ExternalVar[A] =
     new ExternalVar(value, set)
 
-  @inline def state[S]($: CompStateFocus[S]): ExternalVar[S] =
-    new ExternalVar($.state, $.setState(_))
+  def state[S]($: CompState.ReadDirectWriteCallbackOps[S]): ExternalVar[S] = {
+    new ExternalVar($.state, $ setState _)
+  }
 }

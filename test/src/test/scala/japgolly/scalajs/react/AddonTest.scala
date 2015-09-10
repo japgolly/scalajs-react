@@ -22,8 +22,8 @@ object AddonTest extends TestSuite {
     'perf {
       val c = ReactTestUtils renderIntoDocument componentA(10)
       Perf.start()
-      c.setState(20).runNow()
-      c.setState(5).runNow()
+      c.setState(20)
+      c.setState(5)
       Perf.stop()
       val m = Perf.getLastMeasurements()
       assert(m.length == 2)

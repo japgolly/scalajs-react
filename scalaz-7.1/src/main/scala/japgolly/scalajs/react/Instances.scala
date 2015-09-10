@@ -29,9 +29,6 @@ trait ScalazReactInstances {
   implicit val callbackToItself: (CallbackTo ~> CallbackTo) =
     new (CallbackTo ~> CallbackTo) { override def apply[A](a: CallbackTo[A]) = a }
 
-  implicit val scalazIdToCallback: (Id ~> CallbackTo) =
-    new (Id ~> CallbackTo) { override def apply[A](a: Id[A]) = CallbackTo pure a }
-
   implicit val scalazIoToCallback: (IO ~> CallbackTo) =
     new (IO ~> CallbackTo) { override def apply[A](a: IO[A]) = CallbackTo(a.unsafePerformIO()) }
 
@@ -42,4 +39,13 @@ trait ScalazReactInstances {
         new (CallbackTo ~> IO) { override def apply[A](a: CallbackTo[A]): IO[A] = IO(a.runNow()) }
     }
 
+  implicit val scalazIdToCallback: (Id ~> CallbackTo) =
+    new (Id ~> CallbackTo) { override def apply[A](a: Id[A]) = CallbackTo pure a }
+
+  val scalazIdToCallbackIso: (CallbackTo <~> Id) =
+    new (CallbackTo <~> Id) {
+      override val from = scalazIdToCallback
+      override val to: CallbackTo ~> Id =
+        new (CallbackTo ~> Id) { override def apply[A](a: CallbackTo[A]): Id[A] = a.runNow() }
+    }
 }

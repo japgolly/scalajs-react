@@ -20,18 +20,18 @@ object ScalazTest extends TestSuite {
 
       val reactSIO: ReactST[IO, S, Int] = ReactS retM IO(3)
 
-      "runState(s.liftS)"   - test[StateT[M,S,A]              ](s => c.runState(s.liftS) ).expect[CallbackTo[A]]
-      "_runState(f.liftS)"  - test[B => StateT[M,S,A]         ](s => c._runState(s.liftS)).expect[B => CallbackTo[A]]
-      "BackendScope ops"    - test[BackendScope[Unit, S]      ](_ runState reactSIO      ).expect[CallbackTo[Int]]
-      "DuringCallbackM ops" - test[DuringCallbackM[U, S, U, N]](_ runState reactSIO      ).expect[CallbackTo[Int]]
-      "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_ runState reactSIO      ).expect[CallbackTo[Int]]
+      "runState(s.liftS)"   - test[StateT[M,S,A]              ](s => bs.runState(s.liftS) ).expect[CallbackTo[A]]
+      "_runState(f.liftS)"  - test[B => StateT[M,S,A]         ](s => bs._runState(s.liftS)).expect[B => CallbackTo[A]]
+      "BackendScope ops"    - test[BackendScope[Unit, S]      ](_ runState reactSIO       ).expect[CallbackTo[Int]]
+      "DuringCallbackM ops" - test[DuringCallbackM[U, S, U, N]](_ runState reactSIO       ).expect[CallbackTo[Int]]
+      "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_ runState reactSIO       ).expect[Int]
     }
 
     'runState {
       val c = ReactTestUtils.renderIntoDocument(CoreTest.SI())
       assert(c.state == 123)
       val f = (_:Int) * 2
-      c.runState(ReactS.mod(f)).runNow()
+      c.runState(ReactS.mod(f))
       assert(c.state == 246)
     }
   }

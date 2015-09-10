@@ -134,21 +134,21 @@ object PictureAppExample {
 
   class Backend($: BackendScope[Unit, State]) {
 
-    def onPicClick(id: String, favorite: Boolean) = {
-      val s = $.state
-      if (favorite) {
-        val newPics = s.pictures.map(p => if (p.id == id) p.copy(favorite = false) else p)
-        val newFavs = s.favourites.filter(p => p.id != id)
-        $.modState(_ => State(newPics, newFavs))
-      } else {
-        var newPic: Picture = null
-        val newPics = s.pictures.map(p => if (p.id == id) {
-          newPic = p.copy(favorite = true); newPic
-        } else p)
-        val newFavs = s.favourites.+:(newPic)
-        $.modState(_ => State(newPics, newFavs))
+    def onPicClick(id: String, favorite: Boolean) =
+      $.state flatMap { s =>
+        if (favorite) {
+          val newPics = s.pictures.map(p => if (p.id == id) p.copy(favorite = false) else p)
+          val newFavs = s.favourites.filter(p => p.id != id)
+          $.modState(_ => State(newPics, newFavs))
+        } else {
+          var newPic: Picture = null
+          val newPics = s.pictures.map(p => if (p.id == id) {
+            newPic = p.copy(favorite = true); newPic
+          } else p)
+          val newFavs = s.favourites.+:(newPic)
+          $.modState(_ => State(newPics, newFavs))
+        }
       }
-    }
 
     def render(s: State) =
       div(

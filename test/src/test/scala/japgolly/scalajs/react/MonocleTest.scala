@@ -5,7 +5,8 @@ import utest._
 import React._
 import ScalazReact._
 import MonocleReact._
-import ComponentScope.DuringCallbackM
+import ComponentScope._
+import CompState._
 
 object MonocleTest extends TestSuite {
 
@@ -16,11 +17,21 @@ object MonocleTest extends TestSuite {
       val lensST: Lens[S, T] = null
       val lensTS: Lens[T, S] = null
 
-      "BackendScope ops"    - test[BackendScope[Unit, S]      ](_ zoomL lensST      ).expect[CompStateFocus[T]]
-      "DuringCallbackM ops" - test[DuringCallbackM[U, S, U, N]](_ zoomL lensST      ).expect[CompStateFocus[T]]
-      "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_ zoomL lensST      ).expect[CompStateFocus[T]]
-      "ReactS.zoomL"        - test[ReactST[M, S, A]           ](_ zoomL lensTS      ).expect[ReactST[M, T, A]]
-      "c._setStateL"        - test[BackendScope[Unit, S]      ](_ _setStateL lensST ).expect[T => Callback]
+      'zoomL {
+        'DuringCallbackU - test[DuringCallbackU[P, S, U]   ](_ zoomL lensST).expect[ReadDirectWriteCallbackOps[T]]
+        'DuringCallbackM - test[DuringCallbackM[P, S, U, N]](_ zoomL lensST).expect[ReadDirectWriteCallbackOps[T]]
+        'BackendScope    - test[BackendScope   [P, S]      ](_ zoomL lensST).expect[ReadCallbackWriteCallbackOps[T]]
+        'ReactComponentM - test[ReactComponentM[P, S, U, N]](_ zoomL lensST).expect[ReadDirectWriteDirectOps[T]]
+        'ReactS          - test[ReactST[M, S, A]           ](_ zoomL lensTS).expect[ReactST[M, T, A]]
+      }
+
+      '_setStateL {
+        'DuringCallbackU - test[DuringCallbackU[P, S, U]   ](_ _setStateL lensST).expect[T => Callback]
+        'DuringCallbackM - test[DuringCallbackM[P, S, U, N]](_ _setStateL lensST).expect[T => Callback]
+        'BackendScope    - test[BackendScope   [P, S]      ](_ _setStateL lensST).expect[T => Callback]
+        'ReactComponentM - test[ReactComponentM[P, S, U, N]](_ _setStateL lensST).expect[T => Unit]
+      }
+
     }
   }
 }

@@ -30,7 +30,7 @@ object ReusableVar {
   @inline def apply[A: Reusability](value: A)(set: A ~=> Callback): ReusableVar[A] =
     new ReusableVar(value, set)
 
-  @inline def state[S: Reusability]($: CompStateFocus[S]): ReusableVar[S] =
+  def state[S: Reusability]($: CompState.ReadDirectWriteCallbackOps[S]): ReusableVar[S] =
     new ReusableVar($.state, ReusableFn($).setState)
 
   implicit def reusability[A]: Reusability[ReusableVar[A]] =

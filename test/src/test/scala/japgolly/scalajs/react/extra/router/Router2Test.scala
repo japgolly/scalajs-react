@@ -151,7 +151,7 @@ object Router2Test extends TestSuite {
       assertContains(html, "Private page", false) // not logged in
 
       isUserLoggedIn = true
-      r.forceUpdate.runNow()
+      r.forceUpdate()
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", true) // logged in
 
@@ -177,7 +177,7 @@ object Router2Test extends TestSuite {
       ctl.set(PrivatePage2).runNow()
       assertContains(html, secret)
       secret = "oranges"
-      r.forceUpdate.runNow()
+      r.forceUpdate()
       assertContains(html, secret)
     }
 

@@ -59,8 +59,8 @@ object ReusableFn {
   def byName[A, B](f: => (A => B)): A ~=> B =
     ReusableFn[A, B](a => f(a))
 
-  @inline def apply[C, S]($: C)(implicit c: CompStateAccess[C, S]) =
-    new CompOps[C, S]($)
+  @inline def apply[S]($: CompState.WriteCallbackOps[S]) =
+    new CompOps($)
 
   @inline def apply[Y, Z](f: Y => Z): Y ~=> Z =
     new Fn1(f)
@@ -83,17 +83,14 @@ object ReusableFn {
   def renderComponent[P](c: ReactComponentC.ReqProps[P, _, _, TopNode]): P ~=> ReactElement =
     ReusableFn(c(_: P))
 
-  final class CompOps[C, S](private val $: C) extends AnyVal {
-    // This should really be a class param but then we lose the AnyVal
-    type CC = CompStateAccess[C, S]
-
+  final class CompOps[S](private val $: CompState.WriteCallbackOps[S]) extends AnyVal {
     // These look useless but avoid Scala type-inference issues
 
-    def modState(implicit C: CC): (S => S) ~=> Callback =
-      ReusableFn($.modState(_))
+    def modState: (S => S) ~=> Callback =
+      ReusableFn($ modState _)
 
-    def setState(implicit C: CC): S ~=> Callback =
-      ReusableFn($.setState(_))
+    def setState: S ~=> Callback =
+      ReusableFn($ setState _)
   }
 
   implicit def reusability[A, B]: Reusability[ReusableFn[A, B]] =

@@ -8,6 +8,7 @@ import vdom.all._
 import TestUtil._
 import test.{DebugJs, ReactTestUtils}
 import ComponentScope._
+import CompState._
 
 object CoreTest extends TestSuite {
 
@@ -326,7 +327,7 @@ object CoreTest extends TestSuite {
     }
 
     'refs {
-      class WB(t: BackendScope[String,_]) { def getName = t.props }
+      class WB(t: BackendScope[String,_]) { def getName = t.props.runNow() }
       val W = ReactComponentB[String]("").stateless.backend(new WB(_)).render_C(c => div(c)).build
 
       // 'simple - simple refs are tested in TestTest
@@ -375,9 +376,27 @@ object CoreTest extends TestSuite {
       def st_get: S => T = null
       def st_set: (S, T) => S = null
 
-      "BackendScope ops"    - test[BackendScope[Unit, S]      ](_.zoom[T](st_get)(st_set)).expect[CompStateFocus[T]]
-      "DuringCallbackM ops" - test[DuringCallbackM[U, S, U, N]](_.zoom[T](st_get)(st_set)).expect[CompStateFocus[T]]
-      "ReactComponentM ops" - test[ReactComponentM[U, S, U, N]](_.zoom[T](st_get)(st_set)).expect[CompStateFocus[T]]
+      "DuringCallbackU ops" - test[DuringCallbackU[P, S, U]   ](_.zoom(st_get)(st_set)).expect[ReadDirectWriteCallbackOps[T]]
+      "DuringCallbackM ops" - test[DuringCallbackM[P, S, U, N]](_.zoom(st_get)(st_set)).expect[ReadDirectWriteCallbackOps[T]]
+      "BackendScope    ops" - test[BackendScope   [P, S]      ](_.zoom(st_get)(st_set)).expect[ReadCallbackWriteCallbackOps[T]]
+      "ReactComponentM ops" - test[ReactComponentM[P, S, U, N]](_.zoom(st_get)(st_set)).expect[ReadDirectWriteDirectOps[T]]
+
+      "DuringCallbackU props" - test[DuringCallbackU[P, S, U]   ](_.props).expect[P]
+      "DuringCallbackM props" - test[DuringCallbackM[P, S, U, N]](_.props).expect[P]
+      "WillUpdate      props" - test[WillUpdate     [P, S, U, N]](_.props).expect[P]
+      "BackendScope    props" - test[BackendScope   [P, S]      ](_.props).expect[CallbackTo[P]]
+      "ReactComponentM props" - test[ReactComponentM[P, S, U, N]](_.props).expect[P]
+
+      "DuringCallbackU state" - test[DuringCallbackU[P, S, U]   ](_.state).expect[S]
+      "DuringCallbackM state" - test[DuringCallbackM[P, S, U, N]](_.state).expect[S]
+      "WillUpdate      state" - test[WillUpdate     [P, S, U, N]](_.state).expect[S]
+      "BackendScope    state" - test[BackendScope   [P, S]      ](_.state).expect[CallbackTo[S]]
+      "ReactComponentM state" - test[ReactComponentM[P, S, U, N]](_.state).expect[S]
+
+      "DuringCallbackU state" - test[DuringCallbackU[P, S, U]   ](_.zoom(st_get)(st_set).state).expect[T]
+      "DuringCallbackM state" - test[DuringCallbackM[P, S, U, N]](_.zoom(st_get)(st_set).state).expect[T]
+      "BackendScope    state" - test[BackendScope   [P, S]      ](_.zoom(st_get)(st_set).state).expect[CallbackTo[T]]
+      "ReactComponentM state" - test[ReactComponentM[P, S, U, N]](_.zoom(st_get)(st_set).state).expect[T]
     }
 
     'shouldCorrectlyDetermineIfComponentIsMounted {

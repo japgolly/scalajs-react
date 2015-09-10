@@ -186,6 +186,11 @@ object ComponentScope {
     @JSName("forceUpdate") private[react] def _forceUpdate(): Unit = js.native
   }
 
+  trait ReadDirect    extends Object
+  trait ReadCallback  extends Object
+  trait WriteDirect   extends Object
+  trait WriteCallback extends Object
+
   trait AnyUnmounted[Props, State, +Backend]
     extends AlwaysAvailable
        with HasProps[Props]
@@ -199,13 +204,19 @@ object ComponentScope {
        with Mounted[Node]
        with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
+  trait AnyDuringCallback
+    extends ReadDirect
+       with WriteCallback
+
   /** Type of an unmounted component's `this` scope, as available within lifecycle methods. */
   trait DuringCallbackU[Props, State, +Backend]
     extends AnyUnmounted[Props, State, Backend]
+       with AnyDuringCallback
 
   /** Type of a mounted component's `this` scope, as available within lifecycle methods. */
   trait DuringCallbackM[Props, State, +Backend, +Node <: TopNode]
     extends AnyMounted[Props, State, Backend, Node]
+       with AnyDuringCallback
 
   /** Type of a component's `this` scope during componentWillUpdate. */
   trait WillUpdate[Props, +State, +Backend, +Node <: TopNode]
@@ -215,6 +226,7 @@ object ComponentScope {
        with HasBackend[Backend]
        with CanGetInitialState[Props, State]
        with Mounted[Node]
+       with AnyDuringCallback
        // prohibits: .setState
 }
 
@@ -227,6 +239,8 @@ trait BackendScope[Props, State]
      with CanSetState[State]
      with CanGetInitialState[Props, State]
      with Mounted[TopNode]
+     with ReadCallback // ReadDirect BackendScope causes subtle and very annoying bugs #169
+     with WriteCallback
      // prohibits: .backend
 
 // =====================================================================================================================
@@ -291,6 +305,8 @@ trait ReactComponentU[Props, State, +Backend, +Node <: TopNode]
   extends ReactComponentU_
      with AnyUnmounted[Props, State, Backend]
      with ReactComponentTypeAuxJ[Props, State, Backend, Node]
+     with ReadDirect
+     with WriteDirect
 
 /** A mounted Scala component. */
 trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]
@@ -322,4 +338,3 @@ trait JsComponentM[Props <: js.Any, State <: js.Any, +Node <: TopNode]
   def state: State = js.native
   def setState(state: State): Unit = js.native
 }
-
