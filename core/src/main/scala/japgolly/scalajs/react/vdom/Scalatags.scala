@@ -86,11 +86,12 @@ final case class Attr(name: String) {
   def :=[T](v: T)(implicit ev: AttrValue[T]): TagMod = AttrPair(this, v, ev)
 }
 
+case class ClassNameAttr[T](t: T, av: AttrValue[T]) extends TagMod {
+  override def applyTo(b: Builder): Unit =
+    av.apply(t, b.addClassName)
+}
 object ClassNameAttr {
-  def :=[T](t: T)(implicit av: AttrValue[T]): TagMod = new TagMod {
-    override def applyTo(b: Builder): Unit =
-      av.apply(t, b.addClassName)
-  }
+  def :=[T](t: T)(implicit av: AttrValue[T]): ClassNameAttr[T] = ClassNameAttr(t, av)
 }
 
 /**

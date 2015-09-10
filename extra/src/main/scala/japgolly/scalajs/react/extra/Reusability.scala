@@ -2,6 +2,9 @@ package japgolly.scalajs.react.extra
 
 import scala.annotation.tailrec
 import japgolly.scalajs.react._
+import java.util.{Date, UUID}
+import scala.scalajs.js.{ Date => JsDate }
+
 import japgolly.scalajs.react.macros.ReusabilityMacros
 import ComponentScope.DuringCallbackM
 
@@ -107,6 +110,12 @@ object Reusability {
    */
   def caseClassDebug[A]: Reusability[A] =
     macro ReusabilityMacros.debugCaseClass[A]
+  
+  def double(tolerance: Double): Reusability[Double] = fn((x, y) => 
+    (x - y).abs <= tolerance)
+  
+  def float(tolerance: Float): Reusability[Float] = fn((x, y) => 
+    (x - y).abs <= tolerance)
 
   // -------------------------------------------------------------------------------------------------------------------
   // Instances
@@ -115,6 +124,12 @@ object Reusability {
   // ===========
   // Array  - it's mutable. Reusability & mutability are incompatible.
   // Stream - it's lazy. Reusability & non-strictness are incompatible.
+  @inline implicit def reusableJavaDate   : Reusability[Date   ] = by_==
+  @inline implicit def reusableUUID       : Reusability[UUID   ] = by_==
+  
+  implicit def reusableJsDate     : Reusability[JsDate ] = fn((x, y) => 
+    x.getTime == y.getTime
+  )
 
   @inline implicit def unit   : Reusability[Unit   ] = always
   @inline implicit def boolean: Reusability[Boolean] = by_==
