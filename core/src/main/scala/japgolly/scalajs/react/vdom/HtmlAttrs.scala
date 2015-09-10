@@ -679,4 +679,50 @@ trait HtmlAttrs {
      */
     final val valuetext = "aria-valuetext".attr
   }
+
+  /**
+   * For use in &lt;style&gt; tags.
+   *
+   * If this attribute is present, then the style applies only to its parent element.
+   * If absent, the style applies to the whole document.
+   */
+  final val scoped = "scoped".attr
+
+  /**
+   * For use in &lt;meter&gt; tags.
+   *
+   * @see https://css-tricks.com/html5-meter-element/
+   */
+  final val high = "high".attr
+
+  /**
+   * For use in &lt;meter&gt; tags.
+   *
+   * @see https://css-tricks.com/html5-meter-element/
+   */
+  final val low = "low".attr
+
+  /**
+   * For use in &lt;meter&gt; tags.
+   *
+   * @see https://css-tricks.com/html5-meter-element/
+   */
+  final val optimum = "optimum".attr
+
+  /**
+   * For use in &lt;meter&gt; tags.
+   *
+   * @see https://css-tricks.com/html5-meter-element/
+   */
+  final val min = "min".attr
+
+  /**
+   * For use in &lt;meter&gt; tags.
+   *
+   * @see https://css-tricks.com/html5-meter-element/
+   */
+  final val max = "max".attr
+
+  /** IE-specific property to prevent user selection */
+  final val unselectable = "unselectable".attr
 }

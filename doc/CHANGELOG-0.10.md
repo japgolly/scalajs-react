@@ -236,6 +236,7 @@
   * `ReactTestUtils.isTextComponent` is just gone now.
 
   * Removed methods deprecated in React 0.12.
+  * New HTML attributes: `scoped`, `high`, `low`, `optimum`, `min`, `max`, `unselectable`.
 * Smaller stuff:
 
   * `A ~=> B`, given an `A`, can now produce a `ReusableFnA[A, B]` which is effectively a reusable version of
