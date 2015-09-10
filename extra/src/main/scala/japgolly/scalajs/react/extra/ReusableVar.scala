@@ -14,7 +14,7 @@ final class ReusableVar[A](val value: A, val set: A ~=> Callback)(implicit val r
     set(f(value))
 
   // Zoom is dangerously deceptive here as it appears to work but will often override the non-zoomed subset of A's state.
-  // Use the zoom methods on ComponentScopes directly for a reliable function.
+  // Use the zoom methods on CompScopes directly for a reliable function.
   //
   // def zoomL[B: Reusability](l: Lens[A, B]): ReusableVar[B] =
   //   ReusableVar(l get value)(set.dimap(s => b => s(l.set(b)(value))))

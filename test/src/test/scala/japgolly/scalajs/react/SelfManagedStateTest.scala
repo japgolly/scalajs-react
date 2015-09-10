@@ -6,7 +6,7 @@ import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._, MonocleReact._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.test._
 import TestUtil2._
-import ComponentScope.DuringCallbackU
+import CompScope.DuringCallbackU
 
 object SelfManagedStateTest extends TestSuite {
 

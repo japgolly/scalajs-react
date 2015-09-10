@@ -6,7 +6,7 @@ import vdom.prefix_<^._
 import test._
 import ScalazReact._
 import TestUtil2._
-import ComponentScope._
+import CompScope._
 import CompState._
 
 object ReusabilityTest extends TestSuite {

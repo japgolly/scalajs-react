@@ -5,7 +5,7 @@ import java.util.{Date, UUID}
 import scala.scalajs.js.{Date => JsDate}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.macros.ReusabilityMacros
-import ComponentScope.DuringCallbackM
+import CompScope.DuringCallbackM
 
 /**
  * Tests whether one instance can be used in place of another.

@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import ComponentScope.DuringCallbackM
+import CompScope.DuringCallbackM
 
 /**
  * External entities can register with this to listen (receive) data of type A.

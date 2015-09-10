@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import ComponentScope._
+import CompScope._
 
 object CompState {
 

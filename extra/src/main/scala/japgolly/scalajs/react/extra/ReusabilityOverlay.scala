@@ -13,7 +13,7 @@ import ReusabilityOverlay.Comp
  * Heavily inspired by https://github.com/redsunsoft/react-render-visualizer
  */
 object ReusabilityOverlay {
-  type Comp = ComponentScope.Mounted[TopNode]
+  type Comp = CompScope.Mounted[TopNode]
 
   private val key = "reusabilityOverlay"
 

@@ -5,7 +5,7 @@ import utest._
 import scalaz.StateT
 import scalaz.effect.IO
 import ScalazReact._
-import ComponentScope.DuringCallbackM
+import CompScope.DuringCallbackM
 
 /**
  * Scala's type inference can be pretty weak sometimes.

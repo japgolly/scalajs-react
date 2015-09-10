@@ -4,7 +4,7 @@ import org.scalajs.dom.raw.EventTarget
 import org.scalajs.dom.Event
 import scala.scalajs.js
 import japgolly.scalajs.react._
-import ComponentScope.DuringCallbackM
+import CompScope.DuringCallbackM
 
 object EventListener {
 

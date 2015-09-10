@@ -69,7 +69,7 @@ package object react extends ReactEventAliases {
     @inline def wrap: WrapObj[A] = WrapObj(a)
   }
 
-  import ComponentScope._
+  import CompScope._
 
   @inline implicit final class ReactExt_CanGetInitialState[P, S](private val c: CanGetInitialState[P, S]) extends AnyVal {
     def getInitialState(p: P): S = c._getInitialState(WrapObj(p)).v

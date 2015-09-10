@@ -7,7 +7,7 @@ import org.scalajs.dom.raw._
 import vdom.all._
 import TestUtil._
 import test.{DebugJs, ReactTestUtils}
-import ComponentScope._
+import CompScope._
 import CompState._
 
 object CoreTest extends TestSuite {

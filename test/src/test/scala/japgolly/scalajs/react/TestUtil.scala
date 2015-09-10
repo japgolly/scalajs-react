@@ -7,7 +7,7 @@ import scala.scalajs.js
 import scalaz.Maybe
 import vdom.all._
 import utest._
-import ComponentScope._
+import CompScope._
 
 object TestUtil {
 

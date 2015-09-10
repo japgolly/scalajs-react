@@ -144,7 +144,7 @@ trait ReactChildren extends Object {
  * Here we break React's `this` into tiny little bits, then stitch them together to use type-safety to enforce the
  * rules documented in the React API.
  */
-object ComponentScope {
+object CompScope {
 
   /** Methods always available. */
   trait AlwaysAvailable extends Object {
@@ -230,7 +230,7 @@ object ComponentScope {
        // prohibits: .setState
 }
 
-import ComponentScope._
+import CompScope._
 
 /** Type of a component's `this` scope as is available to backends. */
 trait BackendScope[Props, State]

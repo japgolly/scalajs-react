@@ -4,7 +4,7 @@ import monocle._
 import scalaz.Functor
 import ScalazReact._
 import CompState._
-import ComponentScope._
+import CompScope._
 
 object MonocleReact extends MonocleReactExtra {
 

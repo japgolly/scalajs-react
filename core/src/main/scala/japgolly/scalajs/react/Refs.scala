@@ -2,7 +2,7 @@ package japgolly.scalajs.react
 
 import scala.scalajs.js
 import scala.scalajs.js.UndefOr
-import ComponentScope._
+import CompScope._
 
 object Ref {
   @inline implicit def refAsARefParam(r: Ref): UndefOr[String] = r.name

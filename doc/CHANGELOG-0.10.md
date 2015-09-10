@@ -216,9 +216,11 @@
   * `A ~=> B`, given an `A`, can now produce a `ReusableFnA[A, B]` which is effectively a reusable version of
     `(A, () => B)`.
 
+  * Rename `ComponentScope` to `CompScope`.
+
   * Refactored the `ComponentScope` fragment traits to have meaningful names and be out of the way.
     This shouldn't affect you but if you directly declared a `ComponentScopeM` somewhere, you'll need to change it
-    to `ComponentScope.DuringCallbackM` if it's being access during a component's lifecycle callback, or just plain
+    to `CompScope.DuringCallbackM` if it's being access during a component's lifecycle callback, or just plain
     `ReactComponentM` otherwise.
 
   * Small improvements to `ReusabilityOverlay`.

@@ -2,7 +2,7 @@ package japgolly.scalajs.react
 
 import scala.scalajs.js.{Any => JAny, Array => JArray, _}
 import Internal._
-import ComponentScope._
+import CompScope._
 import macros.CompBuilderMacros
 
 object ReactComponentB {
@@ -49,7 +49,7 @@ object ReactComponentB {
     def getInitialState  [State](f: DuringCallbackU[Props, State, Any] => State)             = getInitialStateCB[State]($ => CallbackTo(f($)))
     def getInitialStateCB[State](f: DuringCallbackU[Props, State, Any] => CallbackTo[State]) = new PS[Props, State](name, f)
 
-    // More convenient methods that don't need the full ComponentScope
+    // More convenient methods that don't need the full CompScope
     def initialState    [State](s: => State                  ) = initialStateCB(CallbackTo(s))
     def initialStateCB  [State](s: CallbackTo[State]         ) = getInitialStateCB[State](_ => s)
     def initialState_P  [State](f: Props => State            ) = getInitialStateCB[State]($ => CallbackTo(f($.props)))

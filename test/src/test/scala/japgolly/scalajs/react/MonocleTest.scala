@@ -5,7 +5,7 @@ import utest._
 import React._
 import ScalazReact._
 import MonocleReact._
-import ComponentScope._
+import CompScope._
 import CompState._
 
 object MonocleTest extends TestSuite {
