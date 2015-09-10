@@ -266,6 +266,9 @@ Migration commands:
 # extra.{router2 ⇒ router}
 find . -name '*.scala' -type f -exec perl -pi -e 's/(?<=extra\.router)2//g' {} +
 
+# CompScope
+find . -name '*.scala' -type f -exec perl -pi -e 's/ComponentScope/CompScope//g' {} +
+
 # Unfortunately the migration to Callback is mostly manual.
 # Here are some commands I used to help but they'll only get you halfway there.
 find . -name '*.scala' -type f -exec perl -pi -e 's/(?<=forceUpdate)\(\)//g' {} +
