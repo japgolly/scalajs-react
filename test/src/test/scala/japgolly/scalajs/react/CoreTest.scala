@@ -492,7 +492,7 @@ object CoreTest extends TestSuite {
         c.state mustEqual StrInt("yay", 3)
         Simulation.click run c
         c.state mustEqual StrInt("yay", 11)
-        c.setState(StrInt("oh", 100)).runNow()
+        c.setState(StrInt("oh", 100))
         Simulation.click run c
         c.state mustEqual StrInt("oh", 108)
       }
@@ -511,7 +511,7 @@ object CoreTest extends TestSuite {
         c.state mustEqual StrInt("yay", 3)
         Simulation.click run c
         c.state mustEqual StrInt("yay", 11)
-        c.setState(StrInt("oh", 100)).runNow()
+        c.setState(StrInt("oh", 100))
         Simulation.click run c
         c.state mustEqual StrInt("oh", 108)
       }
@@ -530,7 +530,7 @@ object CoreTest extends TestSuite {
         c.state mustEqual StrIntWrap(StrInt("yay", 3))
         Simulation.click run c
         c.state mustEqual StrIntWrap(StrInt("yay", 11))
-        c.setState(StrIntWrap(StrInt("oh", 100))).runNow()
+        c.setState(StrIntWrap(StrInt("oh", 100)))
         Simulation.click run c
         c.state mustEqual StrIntWrap(StrInt("oh", 108))
       }
