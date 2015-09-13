@@ -48,7 +48,7 @@ There are two built-in ways of creating virtual-DOM.
 
   <.ol(
     ^.id     := "my-list",
-    ^.lang   := "en"
+    ^.lang   := "en",
     ^.margin := "8px",
     <.li("Item 1"),
     <.li("Item 2"))
@@ -61,7 +61,7 @@ There are two built-in ways of creating virtual-DOM.
 
   ol(
     id     := "my-list",
-    lang   := "en"
+    lang   := "en",
     margin := "8px",
     li("Item 1"),
     li("Item 2"))
