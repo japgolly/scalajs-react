@@ -90,6 +90,14 @@ trait React extends Object {
   def initializeTouchEvents(shouldUseTouch: Boolean): Unit = js.native
 
   /**
+   * Clone and return a new `ReactElement` using `element` as the starting point.
+   * The resulting element will have the original element's props with the new props merged in shallowly.
+   * New children will replace existing children. Unlike `React.addons.cloneWithProps`, `key` and `ref` from the
+   * original element will be preserved. There is no special behavior for merging any props (unlike `cloneWithProps`).
+   */
+  def cloneElement(element: ReactElement, props: Object, children: ReactNode*): ReactElement = js.native
+
+  /**
    * React.DOM provides convenience wrappers around React.createElement for DOM components. These should only be used
    * when not using JSX. For example, React.DOM.div(null, 'Hello World!')
    */
