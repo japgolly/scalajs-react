@@ -165,7 +165,7 @@ object DefaultReusabilityOverlay {
     new DefaultReusabilityOverlay(_, options)
 }
 
-class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Options) extends ReusabilityOverlay with SetInterval {
+class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Options) extends ReusabilityOverlay with TimerSupport {
   import DefaultReusabilityOverlay.{Nodes, autoLiftHtml}
 
   protected var good = 0

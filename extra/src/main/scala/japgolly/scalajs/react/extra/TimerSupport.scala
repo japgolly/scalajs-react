@@ -7,9 +7,9 @@ import japgolly.scalajs.react.{CallbackTo, Callback, TopNode}
 /**
  * Alternative to `window.setInterval` that automatically unregisters installed callbacks when its component unmounts.
  *
- * Install in `ReactComponentB` via `.configure(SetInterval.install)`.
+ * Install in `ReactComponentB` via `.configure(TimerSupport.install)`.
  */
-trait SetInterval extends OnUnmount {
+trait TimerSupport extends OnUnmount {
 
   final def setInterval(f: Callback, timeout: FiniteDuration): Callback =
     setIntervalMs(f, timeout.toMillis.toDouble)
@@ -21,7 +21,7 @@ trait SetInterval extends OnUnmount {
     } flatMap onUnmount
 }
 
-object SetInterval {
-  def install[P, S, B <: SetInterval, N <: TopNode] =
+object TimerSupport {
+  def install[P, S, B <: TimerSupport , N <: TopNode] =
     OnUnmount.install[P, S, B, N]
 }

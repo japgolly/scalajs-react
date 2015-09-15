@@ -39,19 +39,19 @@ object ExtrasExamples {
   // ===================================================================================================================
 
   /**
-   * This is the typical React timer example, modified to use SetInterval.
+   * This is the typical React timer example, modified to use TimerSupport.
    * (Also removed State in favour of just using Long directly.)
    */
   object SetIntervalExample {
 
-    class Backend extends SetInterval
+    class Backend extends TimerSupport 
 
     val Timer = ReactComponentB[Unit]("Timer")
       .initialState(0L)
       .backend(_ => new Backend)
       .render_S(s => div("Seconds elapsed: ", s))
       .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1.second))
-      .configure(SetInterval.install)
+      .configure(TimerSupport.install)
       .buildU
   }
   
