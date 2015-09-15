@@ -260,6 +260,8 @@
     
   * `react.vdom.Optional` is now `react.OptionLike`.
 
+  * Added `MockRouterCtl` to the `test` module.
+
 <br>
 Migration commands:
 ```sh
