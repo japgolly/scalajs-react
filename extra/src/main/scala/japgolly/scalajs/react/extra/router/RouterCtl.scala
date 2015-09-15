@@ -20,7 +20,7 @@ abstract class RouterCtl[A] {
     pathFor(target).abs(baseUrl)
 
   final def setEH(target: A): ReactEvent => Callback =
-    e => e.preventDefaultCB >> e.stopPropagationCB >> set(target)
+    _.preventDefaultCB >> set(target)
 
   final def setOnClick(target: A): TagMod =
     ^.onClick ==> setEH(target)
