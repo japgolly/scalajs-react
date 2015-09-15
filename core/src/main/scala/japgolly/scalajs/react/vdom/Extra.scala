@@ -1,10 +1,22 @@
 package japgolly.scalajs.react.vdom
 
 import org.scalajs.dom
+import scala.annotation.implicitNotFound
 import scala.scalajs.js
 import japgolly.scalajs.react._
 import Scalatags._
 import Implicits._
+
+@implicitNotFound("You are passing a CallbackTo[${A}] to a DOM event handler which is most likely a mistake."
+  + "\n  If the result is irrelevant, add `.void`."
+  + "\n  If the result is necessary, please raise an issue and use `vdom.DomCallbackResult.force` in the meantime.")
+sealed trait DomCallbackResult[A]
+object DomCallbackResult {
+  def force[A] = null.asInstanceOf[DomCallbackResult[A]]
+  @inline implicit def unit = force[Unit]
+  @inline implicit def boolean = force[Boolean]
+  @inline implicit def undefOrBoolean = force[js.UndefOr[Boolean]]
+}
 
 object Extra {
 
@@ -17,23 +29,18 @@ object Extra {
   }
 
   final class AttrExt(private val attr: Attr) extends AnyVal {
-
-    // Below we only accept Callback and not CallbackTo[_].
-    // This provides devs more power in that types can be used to distinguish DOM-ready callbacks and intermediary
-    // callbacks that explicitly return a value designed to be processed.
-    // Any CallbackTo[_] can trivially be turned into a Callback by calling .void().
-
-    def -->(callback: => Callback): TagMod =
+    def -->[A: DomCallbackResult](callback: => CallbackTo[A]): TagMod =
+      // not using callback.toJsFn or similar because we don't want to force evaluate of callback
       attr := ((() => callback.runNow()): js.Function)
 
-    def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Callback): TagMod =
-      attr := ((eventHandler(_: E).runNow()): js.Function)
+    def ==>[A: DomCallbackResult, N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => CallbackTo[A]): TagMod =
+      attr := (((e: E) => eventHandler(e).runNow()): js.Function)
 
     def -->?[O[_]](callback: => O[Callback])(implicit o: OptionLike[O]): TagMod =
       attr --> Callback(o.foreach(callback)(_.runNow()))
 
     def ==>?[O[_], N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => O[Callback])(implicit o: OptionLike[O]): TagMod =
-      attr.==>[N, E](e => Callback(o.foreach(eventHandler(e))(_.runNow())))
+      attr.==>[Unit, N, E](e => Callback(o.foreach(eventHandler(e))(_.runNow())))
   }
 
   final class BooleanExt(private val b: Boolean) extends AnyVal {
