@@ -1,5 +1,11 @@
 # 0.10.0 (unreleased)
 
+* `SetInterval` was renamed `TimerSupport` and learned:
+    * `setTimeout` 
+    * `setGuaranteedInterval`
+    
+`setGuarenteedInterval` provides for interval-like behavior but guarantees a minimum interval between the end of the previous callback and the start of the next callback. Regular `setInterval` usage invokes the callback at every interval using wall clock time, irrespective of how long the callback takes to complete.
+
 * `ReactComponentB` learned `.renderBackend`.
 
   `.renderBackend` is a fast way for the extremely common case of having a backend class with a render method.
