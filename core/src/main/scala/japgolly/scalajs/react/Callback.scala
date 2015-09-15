@@ -270,11 +270,11 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     this << Callback(runFirst)
 
   /**
-   * Wraps this callback in a try-finally block such that given code runs after the callback completes, be it in error
-   * or success.
+   * Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+   * current callback completes, be it in error or success.
    */
-  def finallyRun(runFinally: => Unit): CallbackTo[A] =
-    CallbackTo(try f() finally runFinally)
+  def finallyRun[B](runFinally: CallbackTo[B]): CallbackTo[A] =
+    CallbackTo(try f() finally runFinally.runNow())
 
   /**
    * When the callback result becomes available, perform a given side-effect with it.
