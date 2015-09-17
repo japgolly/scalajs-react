@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.extra
 
 import scala.concurrent.duration.FiniteDuration
-import scala.scalajs.js.timers.RawTimers
+import scala.scalajs.js.{UndefOr, undefined}
+import scala.scalajs.js.timers.{RawTimers, SetTimeoutHandle}
 import japgolly.scalajs.react.{CallbackTo, Callback, TopNode}
 
 /**
@@ -23,8 +24,10 @@ trait TimerSupport extends OnUnmount {
   /** Invokes the callback `f` once after a minimum of `timeout` elapses. */
   final def setTimeoutMs(f: Callback, timeoutInMilliseconds: Double): Callback = {
     CallbackTo {
-      val i = RawTimers.setTimeout(f.toJsFn, timeoutInMilliseconds)
-      Callback(RawTimers clearTimeout i)
+      var handle: UndefOr[SetTimeoutHandle] = undefined
+      val proc = f << Callback(handle = undefined)
+      handle = RawTimers.setTimeout(proc.toJsFn, timeoutInMilliseconds)
+      Callback(handle foreach RawTimers.clearTimeout)
     } flatMap onUnmount
   }
 
