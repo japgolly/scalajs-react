@@ -448,7 +448,7 @@ React.render(component(), dom.document.body)
 
 From this point on, the usage is the same as with normal scalajs-react components.
 
-**NOTE**: When creating a JS component's state facade, do use `var`s, or at least do not modify them directly if you do.
+**NOTE**: When creating a JS component's state facade, do not use `var`s, or at least do not modify them directly if you do.
 
 For example, don't do this:
 ```scala
