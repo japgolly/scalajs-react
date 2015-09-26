@@ -21,6 +21,7 @@ package object vdom {
   abstract class Base extends Implicits {
     final type ReactTag = japgolly.scalajs.react.vdom.ReactTag
     final type TagMod   = japgolly.scalajs.react.vdom.TagMod
+    @inline final def TagMod   = japgolly.scalajs.react.vdom.TagMod
     @inline final def EmptyTag = japgolly.scalajs.react.vdom.EmptyTag
   }
 
