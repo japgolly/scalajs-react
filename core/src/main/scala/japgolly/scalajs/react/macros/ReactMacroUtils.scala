@@ -91,7 +91,7 @@ abstract class ReactMacroUtils {
     }
 
   final def needInferImplicit(t: Type): Tree =
-    tryInferImplicit(t) getOrElse sys.error(s"Implicit not found: $t")
+    tryInferImplicit(t) getOrElse fail(s"Implicit not found: $t")
 
   final def replaceMacroMethod(newMethod: String) =
     c.macroApplication match {
