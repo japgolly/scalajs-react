@@ -1,5 +1,16 @@
 # 0.10.0 (unreleased)
 
+* Component lifecycle callbacks that receive more input than just the component itself, are now provided as case classes
+  with the additional inputs named. So instead of `(Component[P,S], P, S) => Callback` and it being unclear whether
+  the additional `P` is next-props or prev-props, you now get an object that will have either a `.nextProps` or
+  `.prevProps` depending on with it is according to the React docs.
+
+  This affects the following lifecycle callbacks:
+    * `ComponentWillUpdate`
+    * `ComponentDidUpdate`
+    * `ShouldComponentUpdate`
+    * `ComponentWillReceiveProps`
+
 * `SetInterval` was renamed `TimerSupport` and learned:
     * `setTimeout` 
     * `setGuaranteedInterval`

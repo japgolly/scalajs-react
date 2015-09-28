@@ -5,6 +5,17 @@ import Internal._
 import CompScope._
 import macros.CompBuilderMacros
 
+abstract class LifecycleInput[P, S, +$ <: HasProps[P] with HasState[S]] {
+  val $: $
+  @inline final def component: $ = $
+  @inline final def currentProps: P = $._props.v
+  @inline final def currentState: S = $._state.v
+}
+case class ComponentWillUpdate      [P, S, +B, +N <: TopNode]($: WillUpdate[P, S, B, N],      nextProps: P, nextState: S) extends LifecycleInput[P, S, WillUpdate[P, S, B, N]]
+case class ComponentDidUpdate       [P, S, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], prevProps: P, prevState: S) extends LifecycleInput[P, S, DuringCallbackM[P, S, B, N]]
+case class ShouldComponentUpdate    [P, S, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], nextProps: P, nextState: S) extends LifecycleInput[P, S, DuringCallbackM[P, S, B, N]]
+case class ComponentWillReceiveProps[P, S, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], nextProps: P) extends LifecycleInput[P, S, DuringCallbackM[P, S, B, N]]
+
 object ReactComponentB {
 
   @inline def apply[Props](name: String) = new P[Props](name)
@@ -38,7 +49,7 @@ object ReactComponentB {
   def static(name: String, content: ReactElement) =
     ReactComponentB[Unit](name)
       .render(_ => content)
-      .shouldComponentUpdateConstCB(alwaysFalse)
+      .shouldComponentUpdateCB(_ => alwaysFalse)
 
   private val alwaysFalse = CallbackTo.pure(false)
 
@@ -130,15 +141,15 @@ object ReactComponentB {
 
   // ===================================================================================================================
   private[react] case class LifeCycle[P,S,B,N <: TopNode](
-    configureSpec            : UndefOr[ReactComponentSpec[P, S, B, N]       => Callback],
-    getDefaultProps          : UndefOr[                                        CallbackTo[P]],
-    componentWillMount       : UndefOr[DuringCallbackU[P, S, B]             => Callback],
-    componentDidMount        : UndefOr[DuringCallbackM[P, S, B, N]          => Callback],
-    componentWillUnmount     : UndefOr[DuringCallbackM[P, S, B, N]          => Callback],
-    componentWillUpdate      : UndefOr[(WillUpdate[P, S, B, N], P, S)       => Callback],
-    componentDidUpdate       : UndefOr[(DuringCallbackM[P, S, B, N], P, S)  => Callback],
-    componentWillReceiveProps: UndefOr[(DuringCallbackM[P, S, B, N], P)     => Callback],
-    shouldComponentUpdate    : UndefOr[(DuringCallbackM[P, S, B, N], P, S)  => CallbackB])
+    configureSpec            : UndefOr[ReactComponentSpec       [P, S, B, N] => Callback],
+    getDefaultProps          : UndefOr[                                         CallbackTo[P]],
+    componentWillMount       : UndefOr[DuringCallbackU          [P, S, B]    => Callback],
+    componentDidMount        : UndefOr[DuringCallbackM          [P, S, B, N] => Callback],
+    componentWillUnmount     : UndefOr[DuringCallbackM          [P, S, B, N] => Callback],
+    componentWillUpdate      : UndefOr[ComponentWillUpdate      [P, S, B, N] => Callback],
+    componentDidUpdate       : UndefOr[ComponentDidUpdate       [P, S, B, N] => Callback],
+    componentWillReceiveProps: UndefOr[ComponentWillReceiveProps[P, S, B, N] => Callback],
+    shouldComponentUpdate    : UndefOr[ShouldComponentUpdate    [P, S, B, N] => CallbackB])
 
   private[react] def emptyLifeCycle[P,S,B,N <: TopNode] =
     LifeCycle[P,S,B,N](undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
@@ -215,7 +226,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
    * Note: You *cannot* use `this.setState()` in this method. If you need to update state in response to a prop change,
    * use `componentWillReceiveProps` instead.
    */
-  def componentWillUpdate(f: (WillUpdate[P, S, B, N], P, S) => Callback): ReactComponentB[P, S, B, N] =
+  def componentWillUpdate(f: ComponentWillUpdate[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillUpdate = fcUnit(lc.componentWillUpdate, f))
 
   /**
@@ -224,7 +235,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
    *
    * Use this as an opportunity to operate on the DOM when the component has been updated.
    */
-  def componentDidUpdate(f: (DuringCallbackM[P, S, B, N], P, S) => Callback): ReactComponentB[P, S, B, N] =
+  def componentDidUpdate(f: ComponentDidUpdate[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentDidUpdate = fcUnit(lc.componentDidUpdate, f))
 
   /**
@@ -238,7 +249,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
    * change, but the opposite is not true. If you need to perform operations in response to a state change, use
    * `componentWillUpdate`.
    */
-  def componentWillReceiveProps(f: (DuringCallbackM[P, S, B, N], P) => Callback): ReactComponentB[P, S, B, N] =
+  def componentWillReceiveProps(f: ComponentWillReceiveProps[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =
     lc.copy(componentWillReceiveProps = fcUnit(lc.componentWillReceiveProps, f))
 
   /**
@@ -259,11 +270,8 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
    * If performance is a bottleneck, especially with dozens or hundreds of components, use `shouldComponentUpdate` to
    * speed up your app.
    */
-  def shouldComponentUpdate(f: (DuringCallbackM[P, S, B, N], P, S) => Boolean): ReactComponentB[P, S, B, N] =
-    shouldComponentUpdateCB(($, p, s) => CallbackTo(f($, p, s)))
-
-  def shouldComponentUpdateConst(f: => Boolean): ReactComponentB[P, S, B, N] =
-    shouldComponentUpdateConstCB(CallbackTo(f))
+  def shouldComponentUpdate(f: ShouldComponentUpdate[P, S, B, N] => Boolean): ReactComponentB[P, S, B, N] =
+    shouldComponentUpdateCB(f andThen CallbackTo.pure)
 
   def componentWillMountCB(cb: Callback): ReactComponentB[P, S, B, N] =
     componentWillMount(_ => cb)
@@ -275,19 +283,16 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
     componentWillUnmount(_ => cb)
 
   def componentWillUpdateCB(cb: Callback): ReactComponentB[P, S, B, N] =
-    componentWillUpdate((_, _, _) => cb)
+    componentWillUpdate(_ => cb)
 
   def componentDidUpdateCB(cb: Callback): ReactComponentB[P, S, B, N] =
-    componentDidUpdate((_, _, _) => cb)
+    componentDidUpdate(_ => cb)
 
   def componentWillReceivePropsCB(cb: Callback): ReactComponentB[P, S, B, N] =
-    componentWillReceiveProps((_, _) => cb)
+    componentWillReceiveProps(_ => cb)
 
-  def shouldComponentUpdateCB(f: (DuringCallbackM[P, S, B, N], P, S) => CallbackB): ReactComponentB[P, S, B, N] =
+  def shouldComponentUpdateCB(f: ShouldComponentUpdate[P, S, B, N] => CallbackB): ReactComponentB[P, S, B, N] =
     lc.copy(shouldComponentUpdate = fcEither(lc.shouldComponentUpdate, f))
-
-  def shouldComponentUpdateConstCB(f: CallbackB): ReactComponentB[P, S, B, N] =
-    shouldComponentUpdateCB((_, _, _) => f)
 
   /**
    * Install a pure-JS React mixin.
@@ -323,9 +328,10 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
         "render" -> (rendF: ThisFunction)
       )
 
-      @inline def setFnPS[T, R](fn: UndefOr[(T, P, S) => CallbackTo[R]], name: String): Unit =
+      @inline def setFnPS[$, A, R](a: ($, P, S) => A)(fn: UndefOr[A => CallbackTo[R]], name: String): Unit =
         fn.foreach { f =>
-          val g = (t: T, p: WrapObj[P], s: WrapObj[S]) => f(t, p.v, s.v).runNow()
+          val g = ($: $, p: WrapObj[P], s: WrapObj[S]) =>
+            f(a($, p.v, s.v)).runNow()
           spec.updateDynamic(name)(g: ThisFunction)
         }
 
@@ -348,14 +354,10 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
       lc.getDefaultProps.flatMap(_.toJsCallback).foreach(f => spec.updateDynamic("getDefaultProps")(f))
       setThisFn1(lc.componentWillUnmount,  "componentWillUnmount")
       setThisFn1(lc.componentDidMount,     "componentDidMount")
-      setFnPS   (lc.componentWillUpdate,   "componentWillUpdate")
-      setFnPS   (lc.componentDidUpdate,    "componentDidUpdate")
-      setFnPS   (lc.shouldComponentUpdate, "shouldComponentUpdate")
 
-      lc.componentWillReceiveProps.foreach { f =>
-        val g = (t: DuringCallbackM[P, S, B, N], p: WrapObj[P]) => f(t, p.v).runNow()
-        spec.updateDynamic("componentWillReceiveProps")(g: ThisFunction)
-      }
+      setFnPS   (ComponentWillUpdate  .apply[P, S, B, N])(lc.componentWillUpdate,   "componentWillUpdate")
+      setFnPS   (ComponentDidUpdate   .apply[P, S, B, N])(lc.componentDidUpdate,    "componentDidUpdate")
+      setFnPS   (ShouldComponentUpdate.apply[P, S, B, N])(lc.shouldComponentUpdate, "shouldComponentUpdate")
 
       if (jsMixins.nonEmpty) {
         val mixins = JArray(jsMixins: _*)

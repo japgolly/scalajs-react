@@ -230,24 +230,32 @@ object Reusability {
   // ===================================================================================================================
 
   def shouldComponentUpdate[P: Reusability, S: Reusability, B, N <: TopNode] =
-    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p, s) =>
-      ($.props ~/~ p) || ($.state ~/~ s))
+    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(i =>
+      (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
 
-  def shouldComponentUpdateAnd[P: Reusability, S: Reusability, B, N <: TopNode](f: (DuringCallbackM[P, S, B, N], P, Boolean, S, Boolean) => Callback) =
-    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdateCB(($, p2, s2) => CallbackTo {
-      val up = $.props ~/~ p2
-      val us = $.state ~/~ s2
-      f($, p2, up, s2, us).runNow()
-      up || us
+  def shouldComponentUpdateAnd[P: Reusability, S: Reusability, B, N <: TopNode](f: ShouldComponentUpdateResult[P, S, B, N] => Callback) =
+    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdateCB(i => {
+      val r = ShouldComponentUpdateResult(i.$, i.nextProps, i.nextState)
+      f(r).map(_ => r.update)
     })
 
   def shouldComponentUpdateAndLog[P: Reusability, S: Reusability, B, N <: TopNode](name: String) =
-    shouldComponentUpdateAnd[P, S, B, N](($, p2, p, s2, s) => Callback {
-      val p1 = $.props
-      val s1 = $.state
-      println(s"$name.shouldComponentUpdate = ${p || s}\n  Props: $p. [$p1] ⇒ [$p2]\n  State: $s. [$s1] ⇒ [$s2]")
-    })
+    shouldComponentUpdateAnd[P, S, B, N](_ log name)
 
   def shouldComponentUpdateWithOverlay[P: Reusability, S: Reusability, B, N <: TopNode] =
     ReusabilityOverlay.install[P, S, B, N](DefaultReusabilityOverlay.defaults)
+}
+
+case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], nextProps: P, nextState: S) {
+  val updateProps: Boolean = $.props ~/~ nextProps
+  val updateState: Boolean = $.state ~/~ nextState
+  val update     : Boolean = updateProps || updateState
+
+  def log(name: String): Callback =
+    Callback.log(
+      s"""
+         |s"$name.shouldComponentUpdate = $update
+         |  Props: $updateProps. [${$.props}] ⇒ [$nextProps]
+         |  State: $updateState. [${$.state}] ⇒ [$nextState]
+       """.stripMargin)
 }

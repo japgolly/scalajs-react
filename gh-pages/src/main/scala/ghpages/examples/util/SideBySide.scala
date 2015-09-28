@@ -30,12 +30,12 @@ object SideBySide {
 
   def installSyntaxHighlighting[P, S, B, N <: TopNode] =
     (_: ReactComponentB[P, S, B, N])
-      .componentDidMount(_ => applySyntaxHighlight())
-      .componentDidUpdate((_,_,_)  => applySyntaxHighlight())
+      .componentDidMountCB(applySyntaxHighlight)
+      .componentDidUpdateCB(applySyntaxHighlight)
 
-  def applySyntaxHighlight() = Callback {
+  def applySyntaxHighlight = Callback {
     import scala.scalajs.js.Dynamic.{global => g}
     val nodeList = document.querySelectorAll("pre code").toArray
-    nodeList.foreach( n => g.hljs.highlightBlock(n))
+    nodeList.foreach(g.hljs highlightBlock _)
   }
 }
