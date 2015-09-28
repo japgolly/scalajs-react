@@ -301,4 +301,7 @@ find . -name '*.scala' -type f -exec perl -pi -e 's/ReactST\[IO *,/ReactST[Callb
 # initialState (do in order)
 find . -name '*.scala' -type f -exec perl -pi -e 's/getInitialState|initialStateP/initialState_P/g' {} +
 find . -name '*.scala' -type f -exec perl -pi -e 's/initialStateC/getInitialState/g' {} +
+
+# TimerSupport
+find . -name '*.scala' -exec perl -pi -e 's/(?<!\w)SetInterval(?!\w)/TimerSupport/g' {} +
 ```
