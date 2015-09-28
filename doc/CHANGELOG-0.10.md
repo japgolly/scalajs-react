@@ -4,7 +4,9 @@
     * `setTimeout` 
     * `setGuaranteedInterval`
     
-`setGuarenteedInterval` provides for interval-like behavior but guarantees a minimum interval between the end of the previous callback and the start of the next callback. Regular `setInterval` usage invokes the callback at every interval using wall clock time, irrespective of how long the callback takes to complete.
+   `setGuaranteedInterval` provides for interval-like behavior but guarantees a minimum interval between the end of the
+   previous callback and the start of the next callback. Regular `setInterval` usage invokes the callback at every
+   interval using wall clock time, irrespective of how long the callback takes to complete.
 
 * `ReactComponentB` learned `.renderBackend`.
 
