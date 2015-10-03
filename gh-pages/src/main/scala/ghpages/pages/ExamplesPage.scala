@@ -14,25 +14,26 @@ object Example {
   implicit private def auto1(v: SideBySide.Content): () => ReactElement = () => v()
   implicit private def auto2(v: SingleSide.Content): () => ReactElement = () => v()
 
-  case object Hello        extends Example("Hello World",        "hello",            HelloMessageExample .content)
-  case object Timer        extends Example("Timer",              "timer",            TimerExample        .content)
-  case object Todo         extends Example(TodoExample.title,    "todo",             TodoExample         .content)
-  case object StateMonad   extends Example("State monads",       "state-monad",      StateMonadExample   .content)
-  case object Refs         extends Example("Refs",               "refs",             RefsExample         .content)
-  case object ProductTable extends Example("Product Table",      "product-table",    ProductTableExample .content)
-  case object Animation    extends Example("Animation",          "animation",        AnimationExample    .content)
-  case object PictureApp   extends Example("AjaxPictureApp",     "ajax-picture-app", PictureAppExample   .content)
-  case object Touch        extends Example("Touch events",       "touch-events",     TouchExample        .content)
-  case object ExternalVar  extends Example("ExternalVar",        "external-var",     ExternalVarExample  .content)
-  case object Reuse        extends Example("Reusability",        "reusability",      ReuseExample        .content)
-  case object EventListen  extends Example("EventListener",      "event-listener",   EventListenerExample.content)
+  case object Hello        extends Example("Hello World",        "hello",            HelloMessageExample  .content)
+  case object Timer        extends Example("Timer",              "timer",            TimerExample         .content)
+  case object Todo         extends Example(TodoExample.title,    "todo",             TodoExample          .content)
+  case object StateMonad   extends Example("State monads",       "state-monad",      StateMonadExample    .content)
+  case object Refs         extends Example("Refs",               "refs",             RefsExample          .content)
+  case object ProductTable extends Example("Product Table",      "product-table",    ProductTableExample  .content)
+  case object Animation    extends Example("Animation",          "animation",        AnimationExample     .content)
+  case object PictureApp   extends Example("AjaxPictureApp",     "ajax-picture-app", PictureAppExample    .content)
+  case object Touch        extends Example("Touch events",       "touch-events",     TouchExample         .content)
+  case object ExternalVar  extends Example("ExternalVar",        "external-var",     ExternalVarExample   .content)
+  case object Reuse        extends Example("Reusability",        "reusability",      ReuseExample         .content)
+  case object EventListen  extends Example("EventListener",      "event-listener",   EventListenerExample .content)
+  case object CallbackOpt  extends Example("CallbackOption",     "callback-option",  CallbackOptionExample.content)
 
   implicit val reusability: Reusability[Example] = Reusability.by_==
 
   val values = Vector[Example](
-    Hello, Timer, Todo, Refs, ProductTable, Animation, // Ported ReactJS examples
-    EventListen, ExternalVar, Reuse, StateMonad,       // Scala only examples
-    Touch, PictureApp)                                 // General usage
+    Hello, Timer, Todo, Refs, ProductTable, Animation,        // Ported ReactJS examples
+    EventListen, CallbackOpt, ExternalVar, Reuse, StateMonad, // Scala only examples
+    Touch, PictureApp)                                        // General usage
 
   def default: Example =
     values.head
