@@ -40,6 +40,40 @@ object CallbackOption {
 
   implicit def fromCallback(c: Callback): CallbackOption[Unit] =
     c.toCBO
+
+  def keyCodeSwitch[A](e       : ReactKeyboardEvent,
+                       altKey  : Boolean = false,
+                       ctrlKey : Boolean = false,
+                       metaKey : Boolean = false,
+                       shiftKey: Boolean = false)
+                      (switch  : PartialFunction[Int, CallbackTo[A]]): CallbackOption[A] =
+    keyEventSwitch(e, e.nativeEvent.keyCode, altKey, ctrlKey, metaKey, shiftKey)(switch)
+
+  def keyEventSwitch[A, B](e       : ReactKeyboardEvent,
+                           a       : A,
+                           altKey  : Boolean = false,
+                           ctrlKey : Boolean = false,
+                           metaKey : Boolean = false,
+                           shiftKey: Boolean = false)
+                          (switch  : PartialFunction[A, CallbackTo[B]]): CallbackOption[B] =
+    for {
+      _  <- require(ReactKeyboardEvent.checkKeyMods(e, altKey, ctrlKey, metaKey, shiftKey))
+      cb <- matchPF(a)(switch)
+      b  <- cb.toCBO
+    } yield b
+
+  /**
+   * Wraps a `CallbackOption[A]` so that:
+   *
+   * 1) It only executes if `e.defaultPrevented` is `false`.
+   * 2) It sets `e.preventDefault` on successful completion.
+   */
+  def asEventDefault[A](e: ReactEvent, co: CallbackOption[A]): CallbackOption[A] =
+    for {
+      _ <- unless(e.defaultPrevented)
+      a <- co
+      _ <- e.preventDefaultCB.toCBO
+    } yield a
 }
 
 // =====================================================================================================================
