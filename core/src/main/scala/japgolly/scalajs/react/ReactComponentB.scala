@@ -335,6 +335,13 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
           spec.updateDynamic(name)(g: ThisFunction)
         }
 
+      @inline def setFnP[$, A, R](a: ($, P) => A)(fn: UndefOr[A => CallbackTo[R]], name: String): Unit =
+        fn.foreach { f =>
+          val g = ($: $, p: WrapObj[P], s: WrapObj[S]) =>
+            f(a($, p.v)).runNow()
+          spec.updateDynamic(name)(g: ThisFunction)
+        }
+
       @inline def setThisFn1[A](fn: UndefOr[A => Callback], name: String): Unit =
         fn.foreach { f =>
           val g = (a: A) => f(a).runNow()
@@ -358,6 +365,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
       setFnPS   (ComponentWillUpdate  .apply[P, S, B, N])(lc.componentWillUpdate,   "componentWillUpdate")
       setFnPS   (ComponentDidUpdate   .apply[P, S, B, N])(lc.componentDidUpdate,    "componentDidUpdate")
       setFnPS   (ShouldComponentUpdate.apply[P, S, B, N])(lc.shouldComponentUpdate, "shouldComponentUpdate")
+      setFnP    (ComponentWillReceiveProps.apply[P, S, B, N])(lc.componentWillReceiveProps, "componentWillReceiveProps")
 
       if (jsMixins.nonEmpty) {
         val mixins = JArray(jsMixins: _*)
