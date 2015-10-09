@@ -34,9 +34,6 @@ trait ReactTestUtils extends Object {
   /** The combination of [[isComponentOfType()]] and [[isCompositeComponent()]]. */
   def isCompositeComponentWithType(instance: ReactElement, c: ComponentClass): Boolean = native
 
-  /** Returns true if instance is a plain text component. */
-  def isTextComponent(instance: ReactElement): Boolean = native
-
   /**
    * Traverse all components in tree and accumulate all components where test(component) is true.
    * This is not that useful on its own, but it's used as a primitive for other test utils.

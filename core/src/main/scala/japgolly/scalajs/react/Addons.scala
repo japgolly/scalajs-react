@@ -8,6 +8,10 @@ object Addons {
   object ReactCssTransitionGroup {
     /** Items in the CSSTransitionGroup need this attribute for animation to work properly. */
     @inline final def key = vdom.Attrs.key
+
+    private val factory =
+      React.createFactory(
+        React.addons.CSSTransitionGroup.asInstanceOf[JsComponentType[js.Any, js.Any, TopNode]])
   }
 
   case class ReactCssTransitionGroup(name     : String,
@@ -24,10 +28,8 @@ object Addons {
       p
     }
 
-    def apply(children: ReactNode*): ReactComponentU_ = {
-      val f = React.addons.CSSTransitionGroup
-      f(toJs, children.toJsArray).asInstanceOf[ReactComponentU_]
-    }
+    def apply(children: ReactNode*): ReactComponentU_ =
+      ReactCssTransitionGroup.factory(toJs, children.toJsArray).asInstanceOf[ReactComponentU_]
   }
 
   object ReactCloneWithProps {

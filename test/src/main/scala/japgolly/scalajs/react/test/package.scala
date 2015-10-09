@@ -5,7 +5,10 @@ import scala.scalajs.js.{Object, UndefOr}
 
 package object test {
 
-  final type ComponentClass = ReactComponentC_
+  sealed trait ComponentClass extends Object
+  @inline final implicit def autoComponentClassFromScalaComponent(c: ReactComponentC[_, _, Any, TopNode]): ComponentClass =
+    c.reactClass.asInstanceOf[ComponentClass]
+
   final type ComponentM = ReactComponentM_[TopNode]
 
   sealed trait ReactOrDomNode extends Object

@@ -7,7 +7,7 @@ import scala.scalajs.js.{Any => JAny, Dynamic, UndefOr}
  */
 sealed trait ReactComponentC[P, S, +B, +N <: TopNode] extends ReactComponentTypeAux[P, S, B, N] {
   val jsCtor: ReactComponentCU[P,S,B,N]
-  val reactClass: ReactComponentType[P,S,B,N]
+  val reactClass: ReactClass[P,S,B,N]
 }
 
 object ReactComponentC {
@@ -37,7 +37,7 @@ object ReactComponentC {
    * Constructor that requires props to be provided.
    */
   final class ReqProps[P, S, +B, +N <: TopNode](override val jsCtor: ReactComponentCU[P, S, B, N],
-                                                override val reactClass: ReactComponentType[P, S, B, N],
+                                                override val reactClass: ReactClass[P, S, B, N],
                                                 override protected val key: UndefOr[JAny],
                                                 override protected val ref: UndefOr[String]) extends BaseCtor[P, S, B, N] {
     override type This[+B, +N <: TopNode] = ReqProps[P, S, B, N]
@@ -60,7 +60,7 @@ object ReactComponentC {
    * Constructor in which props can be provided or omitted.
    */
   final class DefaultProps[P, S, +B, +N <: TopNode](override val jsCtor: ReactComponentCU[P, S, B, N],
-                                                    override val reactClass: ReactComponentType[P, S, B, N],
+                                                    override val reactClass: ReactClass[P, S, B, N],
                                                     override protected val key: UndefOr[JAny],
                                                     override protected val ref: UndefOr[String],
                                                     default: () => P) extends BaseCtor[P, S, B, N] {
@@ -79,7 +79,7 @@ object ReactComponentC {
    * Constructor that doesn't require props to be provided.
    */
   final class ConstProps[P, S, +B, +N <: TopNode](override val jsCtor: ReactComponentCU[P, S, B, N],
-                                                  override val reactClass: ReactComponentType[P, S, B, N],
+                                                  override val reactClass: ReactClass[P, S, B, N],
                                                   override protected val key: UndefOr[JAny],
                                                   override protected val ref: UndefOr[String],
                                                   props: () => P) extends BaseCtor[P, S, B, N] {

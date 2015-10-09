@@ -229,6 +229,16 @@
   2. To optionally accept `Callback`s.
 
   Unlike the `render` methods, this migration can be automated (see below).
+  
+* Upgrade to React 0.13
+  * Components' `modState` can now be called multiple times in the same render pass without clobbering changes.
+  * `ReactTestUtils.isTextComponent` is just gone now.
+  * Removed methods deprecated in React 0.12.
+  * New HTML attributes: `scoped`, `high`, `low`, `optimum`, `min`, `max`, `unselectable`.
+  * New to `React`.
+    * `findDOMNode(component): Node`.
+  * The `ref` attribute now accepts a callback for you to store the ref yourself.
+    `^.input(^.ref[HTMLInputElement](r => myInput = r.getDOMNode()))`
 
 * Smaller stuff:
 

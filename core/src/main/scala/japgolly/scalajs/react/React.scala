@@ -14,12 +14,28 @@ trait React extends Object {
    * prototypal classes is that you don't need to call new on them. They are convenience wrappers that construct
    * backing instances (via new) for you.
    */
-  def createClass[P,S,B,N <: TopNode](spec: ReactComponentSpec[P,S,B,N]): ReactComponentType[P,S,B,N] = js.native
+  def createClass[P,S,B,N <: TopNode](spec: ReactComponentSpec[P,S,B,N]): ReactClass[P,S,B,N] = js.native
 
-  def createFactory[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
+  /**
+   * Return a function that produces ReactElements of a given type. Like `React.createElement`, the type argument can be
+   * either an html tag name string (eg. 'div', 'span', etc), or a [[ReactClass]].
+   */
+  def createFactory[P,S,B,N <: TopNode](t: ReactClass[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
+  /**
+   * Return a function that produces ReactElements of a given type. Like `React.createElement`, the type argument can be
+   * either an html tag name string (eg. 'div', 'span', etc), or a [[ReactClass]].
+   */
   def createFactory[P <: js.Any, S <: js.Any, N <: TopNode](t: JsComponentType[P, S, N]): JsComponentC[P, S, N] = js.native
 
-  def createElement[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
+  /**
+   * Create and return a new `ReactElement` of the given type. The type argument can be either an html tag name string
+   * (eg. 'div', 'span', etc), or a [[ReactClass]] (created via [[React.createClass]]).
+   */
+  def createElement[P,S,B,N <: TopNode](t: ReactClass[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
+  /**
+   * Create and return a new `ReactElement` of the given type. The type argument can be either an html tag name string
+   * (eg. 'div', 'span', etc), or a [[ReactClass]] (created via [[React.createClass]]).
+   */
   def createElement(tag: String, props: Object, children: ReactNode*): ReactDOMElement = js.native
 
   /**
@@ -90,6 +106,33 @@ trait React extends Object {
   def initializeTouchEvents(shouldUseTouch: Boolean): Unit = js.native
 
   /**
+   * Clone and return a new `ReactElement` using `element` as the starting point.
+   * The resulting element will have the original element's props with the new props merged in shallowly.
+   * New children will replace existing children. Unlike `React.addons.cloneWithProps`, `key` and `ref` from the
+   * original element will be preserved. There is no special behavior for merging any props (unlike `cloneWithProps`).
+   */
+  def cloneElement(element: ReactElement, props: Object, children: ReactNode*): ReactElement = js.native
+
+  /**
+   * If this component has been mounted into the DOM, this returns the corresponding native browser DOM element. This
+   * method is useful for reading values out of the DOM, such as form field values and performing DOM measurements.
+   * **In most cases, you can attach a ref to the DOM node and avoid using `findDOMNode` at all.** When `render` returns
+   * `null` or `false`, `findDOMNode` returns `null`.
+   *
+   * == Note:
+   *
+   * `findDOMNode()` is an escape hatch used to access the underlying DOM node. In most cases, use of this escape hatch
+   * is discouraged because it pierces the component abstraction.
+   *
+   * `findDOMNode()` only works on mounted components (that is, components that have been placed in the DOM). If you try
+   * to call this on a component that has not been mounted yet (like calling `findDOMNode()` in `render()` on a
+   * component that has yet to be created) an exception will be thrown.
+   *
+   * `findDOMNode()` cannot be used on stateless components.
+   */
+  def findDOMNode[N <: TopNode](component: CompScope.Mounted[N]): N = js.native
+
+  /**
    * React.DOM provides convenience wrappers around React.createElement for DOM components. These should only be used
    * when not using JSX. For example, React.DOM.div(null, 'Hello World!')
    */
@@ -99,24 +142,6 @@ trait React extends Object {
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   def Children: ReactChildren = js.native
-
-  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
-  def renderComponent(c: ReactComponentU_, n: dom.Node): ReactComponentM_[TopNode] = js.native
-
-  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
-  def renderComponent(c: ReactComponentU_, n: dom.Node, callback: ThisFunction): ReactComponentM_[TopNode] = js.native
-
-  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
-  def renderComponent[P, S, B, N <: TopNode](c: ReactComponentU[P, S, B, N], n: dom.Node): ReactComponentM[P, S, B, N] = js.native
-
-  @deprecated("React.renderComponent will be deprecated in a future version. Use React.render instead.", "React 0.12.0")
-  def renderComponent[P, S, B, N <: TopNode](c: ReactComponentU[P, S, B, N], n: dom.Node, callback: ThisFunction0[ReactComponentM[P, S, B, N], Unit]): ReactComponentM[P, S, B, N] = js.native
-
-  @deprecated("React.renderComponentToString will be deprecated in a future version. Use React.renderToString instead.", "React 0.12.0")
-  def renderComponentToString(component: ReactComponentU_): String = js.native
-
-  @deprecated("React.renderComponentToStaticMarkup will be deprecated in a future version. Use React.renderToStaticMarkup instead.", "React 0.12.0")
-  def renderComponentToStaticMarkup(component: ReactComponentU_): String = js.native
 }
 
 /** `React.Children` */
@@ -162,6 +187,7 @@ object CompScope {
   trait CanSetState[State] extends HasState[State] {
     @JSName("setState") private[react] def _setState(s: WrapObj[State]): Unit = js.native
     @JSName("setState") private[react] def _setState(s: WrapObj[State], callback: UndefOr[JFn]): Unit = js.native
+    @JSName("setState") private[react] def _modState(s: js.Function1[WrapObj[State], WrapObj[State]], callback: UndefOr[JFn]): Unit = js.native
   }
 
   trait HasBackend[+Backend] extends Object {
@@ -316,8 +342,10 @@ trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]
 
 trait ReactComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
-/** The meat in React's createClass-createFactory sandwich. */
-trait ReactComponentType[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
+/**
+ * A component created via [[React.createClass]].
+ */
+trait ReactClass[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
 // =====================================================================================================================
 

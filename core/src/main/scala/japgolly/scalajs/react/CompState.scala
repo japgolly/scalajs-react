@@ -22,7 +22,7 @@ object CompState {
   class RootAccessor[S] extends Accessor[CanSetState[S], S] {
     override def state   ($: $)                          = $._state.v
     override def setState($: $)(s: S, cb: Callback)      = $._setState(WrapObj(s), cb.toJsCallback)
-    override def modState($: $)(f: S => S, cb: Callback) = $._setState(WrapObj(f(state($))), cb.toJsCallback)
+    override def modState($: $)(f: S => S, cb: Callback) = $._modState((s: WrapObj[S]) => WrapObj(f(s.v)), cb.toJsCallback)
     def zoom[T](f: S => T)(g: (S, T) => S): Accessor[$, T] =
       new ZoomAccessor[S, T](this, f, g)
   }
