@@ -114,6 +114,25 @@ trait React extends Object {
   def cloneElement(element: ReactElement, props: Object, children: ReactNode*): ReactElement = js.native
 
   /**
+   * If this component has been mounted into the DOM, this returns the corresponding native browser DOM element. This
+   * method is useful for reading values out of the DOM, such as form field values and performing DOM measurements.
+   * **In most cases, you can attach a ref to the DOM node and avoid using `findDOMNode` at all.** When `render` returns
+   * `null` or `false`, `findDOMNode` returns `null`.
+   *
+   * == Note:
+   *
+   * `findDOMNode()` is an escape hatch used to access the underlying DOM node. In most cases, use of this escape hatch
+   * is discouraged because it pierces the component abstraction.
+   *
+   * `findDOMNode()` only works on mounted components (that is, components that have been placed in the DOM). If you try
+   * to call this on a component that has not been mounted yet (like calling `findDOMNode()` in `render()` on a
+   * component that has yet to be created) an exception will be thrown.
+   *
+   * `findDOMNode()` cannot be used on stateless components.
+   */
+  def findDOMNode[N <: TopNode](component: CompScope.Mounted[N]): N = js.native
+
+  /**
    * React.DOM provides convenience wrappers around React.createElement for DOM components. These should only be used
    * when not using JSX. For example, React.DOM.div(null, 'Hello World!')
    */

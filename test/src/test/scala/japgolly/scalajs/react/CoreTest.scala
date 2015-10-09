@@ -449,6 +449,12 @@ object CoreTest extends TestSuite {
       }
     }
 
+    'findDOMNode {
+      val m = ReactTestUtils renderIntoDocument H1("good")
+      val n = React.findDOMNode(m)
+      removeReactDataAttr(n.outerHTML) mustEqual "<h1>good</h1>"
+    }
+
     'domTypeBeforeCallbacks {
       ReactComponentB[Unit]("").stateless
         .render(_ => canvas())

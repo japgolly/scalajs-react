@@ -231,12 +231,13 @@
   Unlike the `render` methods, this migration can be automated (see below).
   
 * Upgrade to React 0.13
-
   * Components' `modState` can now be called multiple times in the same render pass without clobbering changes.
   * `ReactTestUtils.isTextComponent` is just gone now.
-
   * Removed methods deprecated in React 0.12.
   * New HTML attributes: `scoped`, `high`, `low`, `optimum`, `min`, `max`, `unselectable`.
+  * New to `React`.
+    * `findDOMNode(component): Node`.
+
 * Smaller stuff:
 
   * `A ~=> B`, given an `A`, can now produce a `ReusableFnA[A, B]` which is effectively a reusable version of
