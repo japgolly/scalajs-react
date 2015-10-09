@@ -376,6 +376,21 @@ object CoreTest extends TestSuite {
           .render(P => C(div(ref := "test"))) // div here discarded by C.render
           .componentDidMount(scope => Callback(assert(scope.refs("test").get == null)))
       }
+
+      'refToThirdPartyComponents {
+        class RB($: BackendScope[_, _]) {
+          def test = Callback {
+            val transitionRef = Ref.toJS[ReactCssTransitionGroupM]("addon")($)
+            assert(transitionRef.isDefined)
+          }
+        }
+        val C = ReactComponentB[Unit]("C")
+          .backend(new RB(_))
+          .render(_ => div(ReactCssTransitionGroup(name = "testname", ref = "addon")()))
+          .componentDidMount(_.backend.test)
+          .buildU
+        ReactTestUtils.renderIntoDocument(C())
+      }
     }
 
     'inference {
@@ -432,27 +447,6 @@ object CoreTest extends TestSuite {
         val n = ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz").getDOMNode()
         assert(n.matchesBy[HTMLElement](_.className == "xyz child"))
       }
-    }
-
-    'refToThirdPartyComponents {
-      class RB(t:BackendScope[_,_]) {
-        def test = Callback {
-          val transitionRef = Ref.toJS[ReactCssTransitionGroupM]("addon")(t)
-          assert(transitionRef.isDefined)
-        }
-      }
-      val C = ReactComponentB[Unit]("C")
-        .stateless
-        .backend(new RB(_))
-        .render(_ =>
-          div(
-            ReactCssTransitionGroup(name = "testname",ref = "addon")()
-          )
-        )
-        .componentDidMount(scope => scope.backend.test)
-        .buildU
-      ReactTestUtils.renderIntoDocument(C())
-
     }
 
     'domTypeBeforeCallbacks {
