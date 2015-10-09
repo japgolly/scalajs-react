@@ -310,16 +310,22 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
     copy(rendF = f(rendF))
 
   // ===================================================================================================================
-  @inline private def builder[C](cc: ReactComponentCU[P,S,B,N] => C) = new Builder(cc)
+  import ReactComponentC.{ConstProps, ReqProps, UnitPropProof}
 
-  def propsRequired         = builder(new ReactComponentC.ReqProps    [P,S,B,N](_, undefined, undefined))
-  def propsDefault(p: => P) = builder(new ReactComponentC.DefaultProps[P,S,B,N](_, undefined, undefined, () => p))
-  def propsConst  (p: => P) = builder(new ReactComponentC.ConstProps  [P,S,B,N](_, undefined, undefined, () => p))
+  type BuildFn[Output] = ReqProps[P,S,B,N] => Output
 
-  def propsUnit(implicit ev: Unit =:= P) = propsConst(ev(()))
-  def buildU   (implicit ev: Unit =:= P) = propsUnit.build
+  @inline private def builder[Output](buildFn: BuildFn[Output]) = new Builder(buildFn)
 
-  final class Builder[C] private[ReactComponentB](cc: ReactComponentCU[P,S,B,N] => C) {
+  def propsRequired         = builder(identity)
+  def propsDefault(p: => P) = builder(_ withDefaultProps p)
+  def propsConst  (p: => P) = builder(_ withProps p)
+
+  def propsUnit(implicit ev: UnitPropProof[P]) = builder(_.noProps)
+
+  def buildU(implicit ev: UnitPropProof[P]): ConstProps[P, S, B, N] =
+    propsUnit.build
+
+  final class Builder[Output] private[ReactComponentB](buildFn: BuildFn[Output]) {
 
     def buildSpec: ReactComponentSpec[P, S, B, N] = {
       val spec = Dynamic.literal(
@@ -377,8 +383,12 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
       spec2
     }
 
-    def build: C =
-      cc(React.createFactory(React.createClass(buildSpec)))
+    def build: Output = {
+      val c = React.createClass(buildSpec)
+      val f = React.createFactory(c)
+      val r = new ReqProps(f, c, undefined, undefined)
+      buildFn(r)
+    }
   }
 }
 
