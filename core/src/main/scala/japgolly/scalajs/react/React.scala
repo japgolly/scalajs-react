@@ -14,12 +14,28 @@ trait React extends Object {
    * prototypal classes is that you don't need to call new on them. They are convenience wrappers that construct
    * backing instances (via new) for you.
    */
-  def createClass[P,S,B,N <: TopNode](spec: ReactComponentSpec[P,S,B,N]): ReactComponentType[P,S,B,N] = js.native
+  def createClass[P,S,B,N <: TopNode](spec: ReactComponentSpec[P,S,B,N]): ReactClass[P,S,B,N] = js.native
 
-  def createFactory[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
+  /**
+   * Return a function that produces ReactElements of a given type. Like `React.createElement`, the type argument can be
+   * either an html tag name string (eg. 'div', 'span', etc), or a [[ReactClass]].
+   */
+  def createFactory[P,S,B,N <: TopNode](t: ReactClass[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
+  /**
+   * Return a function that produces ReactElements of a given type. Like `React.createElement`, the type argument can be
+   * either an html tag name string (eg. 'div', 'span', etc), or a [[ReactClass]].
+   */
   def createFactory[P <: js.Any, S <: js.Any, N <: TopNode](t: JsComponentType[P, S, N]): JsComponentC[P, S, N] = js.native
 
-  def createElement[P,S,B,N <: TopNode](t: ReactComponentType[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
+  /**
+   * Create and return a new `ReactElement` of the given type. The type argument can be either an html tag name string
+   * (eg. 'div', 'span', etc), or a [[ReactClass]] (created via [[React.createClass]]).
+   */
+  def createElement[P,S,B,N <: TopNode](t: ReactClass[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
+  /**
+   * Create and return a new `ReactElement` of the given type. The type argument can be either an html tag name string
+   * (eg. 'div', 'span', etc), or a [[ReactClass]] (created via [[React.createClass]]).
+   */
   def createElement(tag: String, props: Object, children: ReactNode*): ReactDOMElement = js.native
 
   /**
@@ -307,8 +323,10 @@ trait ReactComponentM[Props, State, +Backend, +Node <: TopNode]
 
 trait ReactComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
-/** The meat in React's createClass-createFactory sandwich. */
-trait ReactComponentType[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
+/**
+ * A component created via [[React.createClass]].
+ */
+trait ReactClass[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
 
 // =====================================================================================================================
 
