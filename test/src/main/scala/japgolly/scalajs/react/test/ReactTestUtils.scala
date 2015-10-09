@@ -31,7 +31,7 @@ trait ReactTestUtils extends Object {
   /** Returns true if instance is a composite component (created with React.createClass()) */
   def isCompositeComponent(instance: ReactElement): Boolean = native
 
-  /** The combination of isComponentOfType() and isCompositeComponent(). */
+  /** The combination of [[isComponentOfType()]] and [[isCompositeComponent()]]. */
   def isCompositeComponentWithType(instance: ReactElement, c: ComponentClass): Boolean = native
 
   /** Returns true if instance is a plain text component. */
@@ -50,7 +50,7 @@ trait ReactTestUtils extends Object {
   def scryRenderedDOMComponentsWithClass(tree: ComponentM, className: String): Array[ComponentM] = native
 
   /**
-   * Like scryRenderedDOMComponentsWithClass() but expects there to be one result, and returns that one result, or
+   * Like [[scryRenderedDOMComponentsWithClass()]] but expects there to be one result, and returns that one result, or
    * throws exception if there is any other number of matches besides one.
    */
   def findRenderedDOMComponentWithClass(tree: ComponentM, className: String): ComponentM = native
@@ -62,7 +62,7 @@ trait ReactTestUtils extends Object {
   def scryRenderedDOMComponentsWithTag(tree: ComponentM, tagName: String): Array[ComponentM] = native
 
   /**
-   * Like scryRenderedDOMComponentsWithTag() but expects there to be one result, and returns that one result, or
+   * Like [[scryRenderedDOMComponentsWithTag()]] but expects there to be one result, and returns that one result, or
    * throws exception if there is any other number of matches besides one.
    */
   def findRenderedDOMComponentWithTag(tree: ComponentM, tagName: String): ComponentM = native
@@ -71,7 +71,7 @@ trait ReactTestUtils extends Object {
   def scryRenderedComponentsWithType(tree: ComponentM, c: ComponentClass): Array[ComponentM] = native
 
   /**
-   * Same as scryRenderedComponentsWithType() but expects there to be one result and returns that one result, or throws
+   * Same as [[scryRenderedComponentsWithType()]] but expects there to be one result and returns that one result, or throws
    * exception if there is any other number of matches besides one.
    */
   def findRenderedComponentWithType(tree: ComponentM, c: ComponentClass): ComponentM = native
