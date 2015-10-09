@@ -3,7 +3,7 @@ package japgolly.scalajs.react.vdom
 import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound}
 import scala.scalajs.js
-import japgolly.scalajs.react.{ReactElement, ReactNode, OptionLike}
+import japgolly.scalajs.react._
 import Scalatags._
 
 /**
@@ -92,6 +92,17 @@ case class ClassNameAttr[T](t: T, av: AttrValue[T]) extends TagMod {
 }
 object ClassNameAttr {
   def :=[T](t: T)(implicit av: AttrValue[T]): ClassNameAttr[T] = ClassNameAttr(t, av)
+}
+
+object RefAttr {
+  private val ref = "ref".attr
+
+  def :=[T](v: T)(implicit ev: AttrValue[T]): TagMod =
+    AttrPair(ref, v, ev)
+
+  import Implicits._react_attrJsFn
+  def apply[N <: TopNode](f: ReactComponentM_[N] => Unit): TagMod =
+    :=((f: js.Function1[ReactComponentM_[N], Unit]): js.Function)
 }
 
 /**

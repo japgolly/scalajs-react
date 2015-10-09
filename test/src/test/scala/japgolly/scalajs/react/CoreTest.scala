@@ -366,7 +366,7 @@ object CoreTest extends TestSuite {
             tested = true
           })
           .buildU
-        ReactTestUtils.renderIntoDocument(C())
+        ReactTestUtils renderIntoDocument C()
         assert(tested) // just in case
       }
 
@@ -389,7 +389,18 @@ object CoreTest extends TestSuite {
           .render(_ => div(ReactCssTransitionGroup(name = "testname", ref = "addon")()))
           .componentDidMount(_.backend.test)
           .buildU
-        ReactTestUtils.renderIntoDocument(C())
+        ReactTestUtils renderIntoDocument C()
+      }
+
+      // Added in React 0.13
+      'passCallback {
+        var i: js.UndefOr[HTMLInputElement] = js.undefined
+        val C = ReactComponentB[Unit]("C")
+          .render(_ => div(input(value := "yay", ref[HTMLInputElement](r => i = r.getDOMNode()))))
+          .buildU
+        ReactTestUtils renderIntoDocument C()
+        assert(i.isDefined)
+        assert(i.get.value == "yay")
       }
     }
 

@@ -68,7 +68,7 @@ object Extra {
     final val colSpan       = "colSpan".attr
     final val rowSpan       = "rowSpan".attr
     final val htmlFor       = "htmlFor".attr   // same as `for`
-    final val ref           = "ref".attr
+    final val ref           = RefAttr
     final val key           = "key".attr
     final val draggable     = "draggable".attr
     final val onDragStart   = "onDragStart".attr

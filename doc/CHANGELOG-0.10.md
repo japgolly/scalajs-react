@@ -237,6 +237,8 @@
   * New HTML attributes: `scoped`, `high`, `low`, `optimum`, `min`, `max`, `unselectable`.
   * New to `React`.
     * `findDOMNode(component): Node`.
+  * The `ref` attribute now accepts a callback for you to store the ref yourself.
+    `^.input(^.ref[HTMLInputElement](r => myInput = r.getDOMNode()))`
 
 * Smaller stuff:
 
