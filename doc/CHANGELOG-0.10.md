@@ -243,6 +243,8 @@
 * Upgrade to React 0.14
   * `React` singleton split into `React`, `ReactDOM`, `ReactDOMServer`.
   * References to plain DOM elements (`div`,`input`,etc.) now return the nodes directly without a need to call `getDOMNode()`.
+  * New HTML attributes: `capture`, `challenge`, `inputMode`, `is`, `keyParams`, `keyType`, `minLength`, `summary`, `wrap`, `autoSave`, `results`, `security`, `onAbort`, `onCanPlay`, `onCanPlayThrough`, `onDurationChange`, `onEmptied`, `onEncrypted`, `onEnded`, `onError`, `onLoadedData`, `onLoadedMetadata`, `onLoadStart`, `onPause`, `onPlay`, `onPlaying`, `onProgress`, `onRateChange`, `onSeeked`, `onSeeking`, `onStalled`, `onSuspend`, `onTimeUpdate`, `onVolumeChange`, `onWaiting`.
+  * New SVG attributes: `xlinkActuate`, `xlinkArcrole`, `xlinkHref`, `xlinkRole`, `xlinkShow`, `xlinkTitle`, `xlinkType`, `xmlBase`, `xmlLang`, `xmlSpace`.
 
 * Smaller stuff:
 

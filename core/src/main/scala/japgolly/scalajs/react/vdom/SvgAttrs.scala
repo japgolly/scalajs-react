@@ -1481,38 +1481,6 @@ trait SvgAttrs {
   final val xChannelSelector = "xChannelSelector".attr
 
 
-  /*
-   *
-   *
-   * MDN
-   */
-  final val xLinkHref= "xlink:href".attr
-
-
-  /*
-   *
-   *
-   * MDN
-   */
-  final val xLink = "xlink:role".attr
-
-
-  /*
-   *
-   *
-   * MDN
-   */
-  final val xLinkTitle = "xlink:title".attr
-
-
-  /*
-   *
-   *
-   * MDN
-   */
-  final val xmlSpace = "xml:space".attr
-
-
   /**
    *
    *
@@ -1559,4 +1527,15 @@ trait SvgAttrs {
    * MDN
    */
   final val z = "z".attr
+
+  final val xlinkActuate = "xlinkActuate".attr
+  final val xlinkArcrole = "xlinkArcrole".attr
+  final val xlinkHref = "xlinkHref   ".attr
+  final val xlinkRole = "xlinkRole   ".attr
+  final val xlinkShow = "xlinkShow   ".attr
+  final val xlinkTitle = "xlinkTitle  ".attr
+  final val xlinkType = "xlinkType   ".attr
+  final val xmlBase = "xmlBase     ".attr
+  final val xmlLang = "xmlLang     ".attr
+  final val xmlSpace = "xmlSpace".attr
 }
