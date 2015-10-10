@@ -1,6 +1,5 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.Addons.{ReactCssTransitionGroup, ReactCloneWithProps}
 import monocle.macros.Lenses
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
@@ -367,24 +366,6 @@ object CoreTest extends TestSuite {
           .buildU
       val instance =  ReactTestUtils.renderIntoDocument(C())
       assert(instance.isMounted())
-    }
-
-    'cloneWithProps {
-      'shouldCloneDomComponentWithNewProps {
-        val Parent = ReactComponentB[Unit]("Parent")
-          .render_C(c => {
-            div(cls := "parent")(
-              ReactCloneWithProps(React.Children.only(c),Map("className" -> "xyz"))
-            )
-          })
-          .buildU
-        val GrandParent = ReactComponentB[Unit]("GrandParent")
-          .render(P => Parent(div(cls := "child")))
-          .buildU
-        val instance = ReactTestUtils.renderIntoDocument(GrandParent())
-        val n = ReactDOM findDOMNode ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz")
-        assert(n.matchesBy[HTMLElement](_.className == "xyz child"))
-      }
     }
 
     'findDOMNode {
