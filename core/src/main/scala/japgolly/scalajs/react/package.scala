@@ -101,6 +101,11 @@ package object react extends ReactEventAliases {
     @inline def stateCB: CallbackTo[S] = CallbackTo(state)
   }
 
+  @inline implicit final class ReactExt_Mounted[N <: TopNode](private val c: Mounted[N]) extends AnyVal {
+    // See comments in [[Mounted]].
+    @inline def getDOMNode(): N = ReactDOM.findDOMNode(c)
+  }
+
   @inline implicit final class ReactExt_MountedD[N <: TopNode](private val c: Mounted[N] with WriteDirect) extends AnyVal {
     /**
      * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has

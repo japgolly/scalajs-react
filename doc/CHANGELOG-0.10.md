@@ -238,13 +238,17 @@
   * New to `React`.
     * `findDOMNode(component): Node`.
   * The `ref` attribute now accepts a callback for you to store the ref yourself.
-    `^.input(^.ref[HTMLInputElement](r => myInput = r.getDOMNode()))`
+    `^.input(^.ref[HTMLInputElement](myInput = _))`
 
 * Upgrade to React 0.14
-  * `React` singleton split into `React`, `ReactDOM`, `ReactDOMServer`.
+  * `React` singleton split into `React`, `ReactDOM`, `ReactDOMServer`. (Currently all in the `core` module for now; will split later.)
   * References to plain DOM elements (`div`,`input`,etc.) now return the nodes directly without a need to call `getDOMNode()`.
   * New HTML attributes: `capture`, `challenge`, `inputMode`, `is`, `keyParams`, `keyType`, `minLength`, `summary`, `wrap`, `autoSave`, `results`, `security`, `onAbort`, `onCanPlay`, `onCanPlayThrough`, `onDurationChange`, `onEmptied`, `onEncrypted`, `onEnded`, `onError`, `onLoadedData`, `onLoadedMetadata`, `onLoadStart`, `onPause`, `onPlay`, `onPlaying`, `onProgress`, `onRateChange`, `onSeeked`, `onSeeking`, `onStalled`, `onSuspend`, `onTimeUpdate`, `onVolumeChange`, `onWaiting`.
   * New SVG attributes: `xlinkActuate`, `xlinkArcrole`, `xlinkHref`, `xlinkRole`, `xlinkShow`, `xlinkTitle`, `xlinkType`, `xmlBase`, `xmlLang`, `xmlSpace`.
+  * React deprecated `α.getDOMNode()` in favour of `ReactDOM.findDOMNode(α)`, likely because `findDOMNode` won't make
+    sense in React Native, etc. However in Scala we have the ability to *conditionally* add the `getDOMNode()` method
+    onto components. This means we can keep the convenient `getDOMNode()` and in future mirror the conditions that
+    React applies (eg. `getDOMNode()` works with the `react-dom` module only).
 
 * Smaller stuff:
 

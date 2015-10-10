@@ -67,8 +67,8 @@ object ProductTableExample {
       |var SearchBar = React.createClass({
       |    handleChange: function() {
       |        this.props.onUserInput(
-      |            this.refs.filterTextInput.getDOMNode().value,
-      |            this.refs.inStockOnlyInput.getDOMNode().checked
+      |            this.refs.filterTextInput.value,
+      |            this.refs.inStockOnlyInput.checked
       |        );
       |    },
       |    render: function() {
