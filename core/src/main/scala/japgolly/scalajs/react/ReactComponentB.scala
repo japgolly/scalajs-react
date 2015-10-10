@@ -39,8 +39,9 @@ object ReactComponentB {
   implicit def _defaultBuildStep_topNode      [p,s,b](x: PSBR[p, s, b])                              = x.domType[TopNode]
   implicit def _defaultBuildStep_propsRequired[P,S,B,N<:TopNode,X <% ReactComponentB[P,S,B,N]](x: X) = x.propsRequired
 
-  type InitStateFn[P, S] = DuringCallbackU[P, S, Any] => CallbackTo[S]
-  type RenderFn[P, S, -B] = DuringCallbackU[P, S, B] => ReactElement
+  type InitStateFn  [P, S]     = DuringCallbackU[P, S, Any] => CallbackTo[S]
+  type InitBackendFn[P, S, +B] = Option[BackendScope[P, S] => B]
+  type RenderFn     [P, S, -B] = DuringCallbackU[P, S, B] => ReactElement
 
   // ===================================================================================================================
   // Convenience
@@ -79,12 +80,12 @@ object ReactComponentB {
   }
 
   // ===================================================================================================================
-  final class PS[P, S] private[ReactComponentB](name: String, initF: InitStateFn[P, S]) {
+  final class PS[P, S] private[ReactComponentB](name: String, isf: InitStateFn[P, S]) {
     def noBackend: PSB[P, S, Unit] =
-      backend(_ => ())
+      new PSB(name, isf, None)
 
-    def backend[B](f: BackendScope[P, S] => B): PSB[P, S, B] =
-      new PSB(name, initF, f)
+    def backend[B](initBackend: BackendScope[P, S] => B): PSB[P, S, B] =
+      new PSB(name, isf, Some(initBackend))
 
     /**
      * Shortcut for:
@@ -99,10 +100,10 @@ object ReactComponentB {
   }
 
   // ===================================================================================================================
-  final class PSB[P, S, B] private[ReactComponentB](name: String, initF: InitStateFn[P, S], backF: BackendScope[P, S] => B) {
+  final class PSB[P, S, B] private[ReactComponentB](name: String, isf: InitStateFn[P, S], ibf: InitBackendFn[P, S, B]) {
 
     def render(f: DuringCallbackU[P, S, B] => ReactElement): PSBR[P, S, B] =
-      new PSBR(name, initF, backF, f)
+      new PSBR(name, isf, ibf, f)
 
     def renderPCS(f: (DuringCallbackU[P, S, B], P, PropsChildren, S) => ReactElement): PSBR[P, S, B] =
       render($ => f($, $.props, $.propsChildren, $.state))
@@ -143,9 +144,9 @@ object ReactComponentB {
   }
 
   // ===================================================================================================================
-  final class PSBR[P, S, B] private[ReactComponentB](name: String, initF: InitStateFn[P, S], backF: BackendScope[P, S] => B, rendF: RenderFn[P, S, B]) {
+  final class PSBR[P, S, B] private[ReactComponentB](name: String, isf: InitStateFn[P, S], ibf: InitBackendFn[P, S, B], rf: RenderFn[P, S, B]) {
     def domType[N <: TopNode]: ReactComponentB[P, S, B, N] =
-      new ReactComponentB(name, initF, backF, rendF, emptyLifeCycle, Vector.empty)
+      new ReactComponentB(name, isf, ibf, rf, emptyLifeCycle, Vector.empty)
   }
 
   // ===================================================================================================================
@@ -164,22 +165,22 @@ object ReactComponentB {
     LifeCycle[P,S,B,N](undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
 }
 
-import ReactComponentB.{InitStateFn, RenderFn, LifeCycle}
+import ReactComponentB.{InitStateFn, InitBackendFn, RenderFn, LifeCycle}
 
 final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
-                                                initF   : InitStateFn[P, S],
-                                                backF   : BackendScope[P, S] => B,
-                                                rendF   : RenderFn[P, S, B],
+                                                isf     : InitStateFn[P, S],
+                                                ibf     : InitBackendFn[P, S, B],
+                                                rf      : RenderFn[P, S, B],
                                                 lc      : LifeCycle[P, S, B, N],
                                                 jsMixins: Vector[JAny]) {
 
   @inline private def copy(name    : String                  = name,
-                           initF   : InitStateFn[P, S]       = initF,
-                           backF   : BackendScope[P, S] => B = backF,
-                           rendF   : RenderFn[P, S, B]       = rendF,
+                           isf     : InitStateFn[P, S]       = isf,
+                           ibf     : InitBackendFn[P, S, B]  = ibf,
+                           rf      : RenderFn[P, S, B]       = rf,
                            lc      : LifeCycle[P, S, B, N]   = lc,
                            jsMixins: Vector[JAny]            = jsMixins): ReactComponentB[P, S, B, N] =
-    new ReactComponentB(name, initF, backF, rendF, lc, jsMixins)
+    new ReactComponentB(name, isf, ibf, rf, lc, jsMixins)
 
   @inline private implicit def lcmod(a: LifeCycle[P, S, B, N]): ReactComponentB[P, S, B, N] =
     copy(lc = a)
@@ -316,7 +317,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
    * Modify the render function.
    */
   def reRender(f: RenderFn[P, S, B] => RenderFn[P, S, B]): ReactComponentB[P, S, B, N] =
-    copy(rendF = f(rendF))
+    copy(rf = f(rf))
 
   // ===================================================================================================================
   import ReactComponentC.{ConstProps, ReqProps, UnitPropProof}
@@ -337,11 +338,16 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
   final class Builder[Output] private[ReactComponentB](buildFn: BuildFn[Output]) {
 
     def buildSpec: ReactComponentSpec[P, S, B, N] = {
+
       val spec = Dictionary.empty[JAny]
 
-      spec("displayName") = name
-      spec("backend") = 0
-      spec("render") = rendF: ThisFunction
+      for (n <- Option(name))
+        spec("displayName") = n
+
+      if (ibf.isDefined)
+        spec("backend") = null
+
+      spec("render") = rf: ThisFunction
 
       @inline def setFnPS[$, A, R](a: ($, P, S) => A)(fn: UndefOr[A => CallbackTo[R]], name: String): Unit =
         fn.foreach { f =>
@@ -363,15 +369,22 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
           spec(name) = g: ThisFunction
         }
 
-      val componentWillMountFn = (t: DuringCallbackU[P, S, B]) => {
-        val scopeB = t.asInstanceOf[BackendScope[P, S]]
-        t.asInstanceOf[Dynamic].updateDynamic("backend")(backF(scopeB).asInstanceOf[JAny])
-        lc.componentWillMount.foreach(g => g(t).runNow())
-      }
-      spec("componentWillMount") = componentWillMountFn: ThisFunction
+      var componentWillMountFn: Option[DuringCallbackU[P, S, B] => Unit] = None
+      def onWillMountFn(f: DuringCallbackU[P, S, B] => Unit): Unit =
+        componentWillMountFn = Some(componentWillMountFn.fold(f)(g => $ => {g($); f($)}))
+      for (initBackend <- ibf)
+        onWillMountFn { $ =>
+          val bs = $.asInstanceOf[BackendScope[P, S]]
+          val backend = initBackend(bs)
+          $.asInstanceOf[Dynamic].updateDynamic("backend")(backend.asInstanceOf[JAny])
+        }
+      for (f <- lc.componentWillMount)
+        onWillMountFn(f(_).runNow())
+      for (f <- componentWillMountFn)
+        spec("componentWillMount") = f: ThisFunction
 
       val initStateFn: DuringCallbackU[P, S, B] => WrapObj[S] =
-        $ => WrapObj(initF($).runNow())
+        $ => WrapObj(isf($).runNow())
       spec("getInitialState") = initStateFn: ThisFunction
 
       lc.getDefaultProps.flatMap(_.toJsCallback).foreach(spec("getDefaultProps") = _)
