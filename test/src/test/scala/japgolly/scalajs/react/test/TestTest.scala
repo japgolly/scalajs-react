@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.test
 
+import sizzle.Sizzle
 import japgolly.scalajs.react.vdom.Attr
 import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
 import utest._
@@ -149,7 +150,7 @@ object TestTest extends TestSuite {
         var count = 0
         def tgt = {
           count += 1
-          Sel("input").findIn(c)
+          Sizzle("input", ReactDOM findDOMNode c).sole
         }
         Simulation.focusChangeBlur("-") run tgt
         assert(count == 3)

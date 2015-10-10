@@ -297,6 +297,10 @@
 
   * Added `MockRouterCtl` to the `test` module.
 
+  * Deleted `test.Sel`. Use [Sizzle](http://sizzlejs.com/) or [jQuery](https://jquery.com/).
+    For reference, the scalajs-react unit tests were changed to use `Sizzle`. Search the repo for `sizzle` and see how
+    little code is required and how is it is.
+
 <br>
 Migration commands:
 ```sh
