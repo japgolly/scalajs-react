@@ -47,8 +47,12 @@ object ReactComponentB {
    * Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing.
    */
   def static(name: String, content: ReactElement) =
+    staticN[TopNode](name, content)
+
+  def staticN[N <: TopNode](name: String, content: ReactElement) =
     ReactComponentB[Unit](name)
       .render(_ => content)
+      .domType[N]
       .shouldComponentUpdateCB(_ => alwaysFalse)
 
   private val alwaysFalse = CallbackTo.pure(false)

@@ -5,7 +5,8 @@ import scala.scalajs.js.UndefOr
 import CompScope._
 
 object Ref {
-  @inline implicit def refAsARefParam(r: Ref): UndefOr[String] = r.name
+  @inline implicit def autoRefAsRefParam(r: Ref): String = r.name
+  @inline implicit def autoRefAsRefParamU(r: Ref): UndefOr[String] = r.name
 
   def apply[N <: TopNode](name: String): RefSimple[N] =
     new RefSimple[N](name)
