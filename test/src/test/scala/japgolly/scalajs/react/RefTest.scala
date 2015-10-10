@@ -30,7 +30,7 @@ object RefTest extends TestSuite {
       val ref = "omg"
       val c = ReactComponentB[Unit]("").render(_ => <.div(Static.withRef(ref)())).buildU
       val m = ReactTestUtils renderIntoDocument c()
-      val e = m.refs("omg").get.getDOMNode().asInstanceOf[HTMLElement]
+      val e = ReactDOM.findDOMNode(m.refs("omg").get).asInstanceOf[HTMLElement]
       removeReactDataAttr(e.outerHTML) mustEqual StaticHtml
     }
 
@@ -38,7 +38,7 @@ object RefTest extends TestSuite {
       val ref = Ref.to(Static, "rushyyz")
       val c = ReactComponentB[Unit]("").render(_ => <.div(Static.withRef(ref)())).buildU
       val m = ReactTestUtils renderIntoDocument c()
-      val e = ref(m).get.getDOMNode()
+      val e = ReactDOM findDOMNode ref(m).get
       removeReactDataAttr(e.outerHTML) mustEqual StaticHtml
     }
 

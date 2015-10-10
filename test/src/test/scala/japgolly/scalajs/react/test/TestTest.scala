@@ -30,18 +30,18 @@ object TestTest extends TestSuite {
   val tests = TestSuite {
 
     'findRenderedDOMComponentWithClass {
-      val n = ReactTestUtils.findRenderedDOMComponentWithClass(rab, "BB").getDOMNode()
+      val n = ReactDOM findDOMNode ReactTestUtils.findRenderedDOMComponentWithClass(rab, "BB")
       assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
     'findRenderedComponentWithType {
-      val n = ReactTestUtils.findRenderedComponentWithType(rab, B).getDOMNode()
+      val n = ReactDOM findDOMNode ReactTestUtils.findRenderedComponentWithType(rab, B)
       assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
     'renderIntoDocument {
       def test(c: ComponentM, exp: String): Unit = {
-        val h = removeReactDataAttr(c.getDOMNode().outerHTML)
+        val h = removeReactDataAttr(ReactDOM.findDOMNode(c).outerHTML)
         h mustEqual exp
       }
       'plainElement {
@@ -60,9 +60,9 @@ object TestTest extends TestSuite {
         val c = ReactTestUtils.renderIntoDocument(IC())
         val i = inputRef(c).get
         val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
-        val a = s.getDOMNode().innerHTML
+        val a = ReactDOM.findDOMNode(s).innerHTML
         ReactTestUtils.Simulate.click(i)
-        val b = s.getDOMNode().innerHTML
+        val b = ReactDOM.findDOMNode(s).innerHTML
         assert(a != b)
       }
 
@@ -110,9 +110,9 @@ object TestTest extends TestSuite {
             val c = ReactTestUtils.renderIntoDocument(IDC())
             val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
 
-            val a = s.getDOMNode().innerHTML
+            val a = ReactDOM.findDOMNode(s).innerHTML
             simF(inputRef(c).get)
-            val b = s.getDOMNode().innerHTML
+            val b = ReactDOM.findDOMNode(s).innerHTML
 
             (eventType, a != b)
         }
@@ -127,7 +127,7 @@ object TestTest extends TestSuite {
       'change {
         val c = ReactTestUtils.renderIntoDocument(IT()).domType[HTMLInputElement]
         ChangeEventData("hehe").simulate(c)
-        val t = c.getDOMNode().value
+        val t = ReactDOM.findDOMNode(c).value
         t mustEqual "HEHE"
       }
       'focusChangeBlur {

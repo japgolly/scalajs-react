@@ -74,7 +74,7 @@ object RouterTest extends TestSuite {
       val base = BaseUrl("file:///routerDemo")
       val router = Router(base, MyPage.config.logToConsole)
       val c = ReactTestUtils.renderIntoDocument(router())
-      def html = c.getDOMNode().outerHTML
+      def html = ReactDOM findDOMNode c outerHTML
 
       def testView(routeSuffix: String, p: MyPage): Unit = {
         window.location.href mustEqual base.+(routeSuffix).value
@@ -101,7 +101,7 @@ object RouterTest extends TestSuite {
         clickBack();    assertRoot()
 
       } finally {
-        ReactDOM.unmountComponentAtNode(c.getDOMNode())
+        ReactDOM.unmountComponentAtNode(ReactDOM findDOMNode c)
       }
     }
 

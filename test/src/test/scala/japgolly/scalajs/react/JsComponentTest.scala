@@ -39,8 +39,8 @@ object JsComponentTest extends TestSuite {
         )).buildU
       val renderedComponent = ReactTestUtils.renderIntoDocument(component())
       val mountedComponent = ref(renderedComponent)
-      assert(mountedComponent.map(_.getDOMNode()).map(_.tagName).map(_.toLowerCase).toOption == Some("div"))
-      assert(mountedComponent.map(_.getDOMNode()).map(_.outerHTML).filter(_.contains("123")).isDefined)
+      assert(mountedComponent.map(ReactDOM.findDOMNode(_).tagName.toLowerCase).toOption == Some("div"))
+      assert(mountedComponent.map(ReactDOM findDOMNode _ outerHTML).filter(_ contains "123").isDefined)
       assert(mountedComponent.map(_.props).flatMap(_.propOne).toOption == Some("123"))
       assert(mountedComponent.map(_.getNum()).toOption == Some(0))
       assert(mountedComponent.map(_.state.num).toOption == Some(0))

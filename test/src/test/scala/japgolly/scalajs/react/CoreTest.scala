@@ -22,7 +22,7 @@ object CoreTest extends TestSuite {
     .render(T => input(value := T.state.toString))
     .domType[HTMLInputElement]
     .componentDidMount($ => Callback {
-      val s: String = $.getDOMNode().value // Look, it knows its DOM node type
+      val s: String = ReactDOM.findDOMNode($).value // Look, it knows its DOM node type
     })
     .buildU
 
@@ -308,7 +308,7 @@ object CoreTest extends TestSuite {
 
     'builtWithDomType {
       val c = ReactTestUtils.renderIntoDocument(SI())
-      val v = c.getDOMNode().value // Look, it knows its DOM node type
+      val v = ReactDOM.findDOMNode(c).value // Look, it knows its DOM node type
       assert(v == "123")
     }
 
@@ -325,7 +325,7 @@ object CoreTest extends TestSuite {
         .buildU
 
       val c = ReactTestUtils.renderIntoDocument(s())
-      val sel = c.getDOMNode()
+      val sel = ReactDOM.findDOMNode(c)
       val options = sel.options.asInstanceOf[js.Array[HTMLOptionElement]] // https://github.com/scala-js/scala-js-dom/pull/107
       val selectedOptions = options filter (_.selected) map (_.value)
       assert(selectedOptions.toSet == Set("a", "c"))
@@ -382,7 +382,7 @@ object CoreTest extends TestSuite {
           .render(P => Parent(div(cls := "child")))
           .buildU
         val instance = ReactTestUtils.renderIntoDocument(GrandParent())
-        val n = ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz").getDOMNode()
+        val n = ReactDOM findDOMNode ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz")
         assert(n.matchesBy[HTMLElement](_.className == "xyz child"))
       }
     }
@@ -397,7 +397,7 @@ object CoreTest extends TestSuite {
       ReactComponentB[Unit]("").stateless
         .render(_ => canvas())
         .domType[HTMLCanvasElement]
-        .componentDidMount($ => Callback($.getDOMNode().getContext("2d")))
+        .componentDidMount($ => Callback(ReactDOM.findDOMNode($).getContext("2d")))
         .buildU
     }
 

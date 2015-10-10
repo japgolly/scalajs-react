@@ -134,7 +134,7 @@ object DefaultReusabilityOverlay {
                   frame1: CSSStyleDeclaration => Unit,
                   frame2: CSSStyleDeclaration => Unit): Comp => Callback =
     $ => Callback {
-      val n = $.getDOMNode()
+      val n = ReactDOM findDOMNode $
       before(n.style)
       window.requestAnimationFrame{(_: Double) =>
         frame1(n.style)
@@ -210,7 +210,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     Callback(overlay foreach f)
 
   val updatePosition = withNodes { n =>
-    val d = $.getDOMNode()
+    val d = ReactDOM findDOMNode $
     val ds = d.getBoundingClientRect()
     val ns = n.outer.getBoundingClientRect()
 

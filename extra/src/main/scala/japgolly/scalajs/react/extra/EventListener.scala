@@ -11,7 +11,7 @@ object EventListener {
   def apply[E <: Event] = new OfEventType[E](true)
 
   def defaultTarget[P, S, B, N <: TopNode]: DuringCallbackM[P,S,B,N] => EventTarget =
-    _.getDOMNode()
+    ReactDOM.findDOMNode(_)
 
   final class OfEventType[E <: Event](private val _unused: Boolean) extends AnyVal {
 
