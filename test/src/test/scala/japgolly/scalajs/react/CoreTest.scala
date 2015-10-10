@@ -60,8 +60,8 @@ object CoreTest extends TestSuite {
       'list2jAry - test(div(List(H1("a"), H1("b")).toJsArray), "<div><h1>a</h1><h1>b</h1></div>")
       'jAryTag   - test(div(JArray(span(1), span(2))),         "<div><span>1</span><span>2</span></div>")
       'jAryComp  - test(div(JArray(H1("a"), H1("b"))),         "<div><h1>a</h1><h1>b</h1></div>")
-      'checkboxT - test(checkbox(true),                      """<input type="checkbox" checked>""")
-      'checkboxF - test(checkbox(false),                     """<input type="checkbox">""")
+      'checkboxT - test(checkbox(true),                      """<input type="checkbox" checked=""/>""") // checked="" is new as of React 0.14 but it works
+      'checkboxF - test(checkbox(false),                     """<input type="checkbox"/>""")
       'aria      - test(div(aria.label := "ow", "a"),        """<div aria-label="ow">a</div>""")
 
       'dangerouslySetInnerHtml - test(div(dangerouslySetInnerHtml("<span>")), "<div><span></div>")
