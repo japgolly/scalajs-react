@@ -42,6 +42,7 @@ object CompScope {
     def refs: RefsObject = js.native
 
     /** Can be invoked on any mounted component in order to obtain a reference to its rendered DOM node. */
+    @deprecated("As of React 0.14, you must use ReactDOM.findDOMNode instead.", "0.10.0")
     def getDOMNode(): Node = js.native
 
     /**
