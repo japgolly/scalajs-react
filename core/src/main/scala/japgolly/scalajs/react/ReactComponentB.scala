@@ -16,8 +16,10 @@ case class ComponentDidUpdate       [P, S, +B, +N <: TopNode]($: DuringCallbackM
 case class ShouldComponentUpdate    [P, S, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], nextProps: P, nextState: S) extends LifecycleInput[P, S, DuringCallbackM[P, S, B, N]]
 case class ComponentWillReceiveProps[P, S, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], nextProps: P) extends LifecycleInput[P, S, DuringCallbackM[P, S, B, N]]
 
+/**
+ * React Component Builder.
+ */
 object ReactComponentB {
-
   @inline def apply[Props](name: String) = new P[Props](name)
 
   // ======
@@ -32,10 +34,10 @@ object ReactComponentB {
   // 5 = ReactComponentB
   // 6 = ReactComponentB#Builder
 
-  implicit def defaultStateless    [p](x: P[p])                                           = x.stateless
-  implicit def defaultNoBackend    [p,s,X <% PS[p, s]](x: X)                              = x.noBackend
-  implicit def defaultTopNode      [p,s,b](x: PSBR[p, s, b])                              = x.domType[TopNode]
-  implicit def defaultPropsRequired[P,S,B,N<:TopNode,X <% ReactComponentB[P,S,B,N]](x: X) = x.propsRequired
+  implicit def _defaultBuildStep_stateless    [p](x: P[p])                                           = x.stateless
+  implicit def _defaultBuildStep_noBackend    [p,s,X <% PS[p, s]](x: X)                              = x.noBackend
+  implicit def _defaultBuildStep_topNode      [p,s,b](x: PSBR[p, s, b])                              = x.domType[TopNode]
+  implicit def _defaultBuildStep_propsRequired[P,S,B,N<:TopNode,X <% ReactComponentB[P,S,B,N]](x: X) = x.propsRequired
 
   type InitStateFn[P, S] = DuringCallbackU[P, S, Any] => CallbackTo[S]
   type RenderFn[P, S, -B] = DuringCallbackU[P, S, B] => ReactElement
@@ -49,6 +51,9 @@ object ReactComponentB {
   def static(name: String, content: ReactElement) =
     staticN[TopNode](name, content)
 
+  /**
+   * Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing.
+   */
   def staticN[N <: TopNode](name: String, content: ReactElement) =
     ReactComponentB[Unit](name)
       .render(_ => content)
@@ -332,55 +337,54 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
   final class Builder[Output] private[ReactComponentB](buildFn: BuildFn[Output]) {
 
     def buildSpec: ReactComponentSpec[P, S, B, N] = {
-      val spec = Dynamic.literal(
-        "displayName" -> name,
-        "backend" -> 0,
-        "render" -> (rendF: ThisFunction)
-      )
+      val spec = Dictionary.empty[JAny]
+
+      spec("displayName") = name
+      spec("backend") = 0
+      spec("render") = rendF: ThisFunction
 
       @inline def setFnPS[$, A, R](a: ($, P, S) => A)(fn: UndefOr[A => CallbackTo[R]], name: String): Unit =
         fn.foreach { f =>
           val g = ($: $, p: WrapObj[P], s: WrapObj[S]) =>
             f(a($, p.v, s.v)).runNow()
-          spec.updateDynamic(name)(g: ThisFunction)
+          spec(name) = g: ThisFunction
         }
 
       @inline def setFnP[$, A, R](a: ($, P) => A)(fn: UndefOr[A => CallbackTo[R]], name: String): Unit =
         fn.foreach { f =>
           val g = ($: $, p: WrapObj[P], s: WrapObj[S]) =>
             f(a($, p.v)).runNow()
-          spec.updateDynamic(name)(g: ThisFunction)
+          spec(name) = g: ThisFunction
         }
 
       @inline def setThisFn1[A](fn: UndefOr[A => Callback], name: String): Unit =
         fn.foreach { f =>
           val g = (a: A) => f(a).runNow()
-          spec.updateDynamic(name)(g: ThisFunction)
+          spec(name) = g: ThisFunction
         }
 
-      val componentWillMount2 = (t: DuringCallbackU[P, S, B]) => {
+      val componentWillMountFn = (t: DuringCallbackU[P, S, B]) => {
         val scopeB = t.asInstanceOf[BackendScope[P, S]]
         t.asInstanceOf[Dynamic].updateDynamic("backend")(backF(scopeB).asInstanceOf[JAny])
         lc.componentWillMount.foreach(g => g(t).runNow())
       }
-      spec.updateDynamic("componentWillMount")(componentWillMount2: ThisFunction)
+      spec("componentWillMount") = componentWillMountFn: ThisFunction
 
-      val initStateFn: DuringCallbackU[P, S, B] => WrapObj[S] = $ => WrapObj(initF($).runNow())
-      spec.updateDynamic("getInitialState")(initStateFn: ThisFunction)
+      val initStateFn: DuringCallbackU[P, S, B] => WrapObj[S] =
+        $ => WrapObj(initF($).runNow())
+      spec("getInitialState") = initStateFn: ThisFunction
 
-      lc.getDefaultProps.flatMap(_.toJsCallback).foreach(f => spec.updateDynamic("getDefaultProps")(f))
-      setThisFn1(lc.componentWillUnmount,  "componentWillUnmount")
-      setThisFn1(lc.componentDidMount,     "componentDidMount")
+      lc.getDefaultProps.flatMap(_.toJsCallback).foreach(spec("getDefaultProps") = _)
 
-      setFnPS   (ComponentWillUpdate  .apply[P, S, B, N])(lc.componentWillUpdate,   "componentWillUpdate")
-      setFnPS   (ComponentDidUpdate   .apply[P, S, B, N])(lc.componentDidUpdate,    "componentDidUpdate")
-      setFnPS   (ShouldComponentUpdate.apply[P, S, B, N])(lc.shouldComponentUpdate, "shouldComponentUpdate")
+      setThisFn1(                                             lc.componentWillUnmount     , "componentWillUnmount")
+      setThisFn1(                                             lc.componentDidMount        , "componentDidMount")
+      setFnPS   (ComponentWillUpdate      .apply[P, S, B, N])(lc.componentWillUpdate      , "componentWillUpdate")
+      setFnPS   (ComponentDidUpdate       .apply[P, S, B, N])(lc.componentDidUpdate       , "componentDidUpdate")
+      setFnPS   (ShouldComponentUpdate    .apply[P, S, B, N])(lc.shouldComponentUpdate    , "shouldComponentUpdate")
       setFnP    (ComponentWillReceiveProps.apply[P, S, B, N])(lc.componentWillReceiveProps, "componentWillReceiveProps")
 
-      if (jsMixins.nonEmpty) {
-        val mixins = JArray(jsMixins: _*)
-        spec.updateDynamic("mixins")(mixins)
-      }
+      if (jsMixins.nonEmpty)
+        spec("mixins") = JArray(jsMixins: _*)
 
       val spec2 = spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]
       lc.configureSpec.foreach(_(spec2).runNow())
@@ -395,4 +399,3 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
     }
   }
 }
-
