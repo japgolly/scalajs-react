@@ -101,7 +101,7 @@ object RouterTest extends TestSuite {
         clickBack();    assertRoot()
 
       } finally {
-        React.unmountComponentAtNode(c.getDOMNode())
+        ReactDOM.unmountComponentAtNode(c.getDOMNode())
       }
     }
 

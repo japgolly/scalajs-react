@@ -138,7 +138,7 @@ object ProductTableExample {
       |  {category: 'Electronics', price: '$199.99', stocked: true, name: 'Nexus 7'}
       |];
       |
-      |React.render(<FilterableProductTable products={PRODUCTS} />, document.body);
+      |ReactDOM.render(<FilterableProductTable products={PRODUCTS} />, document.body);
       | """.stripMargin
 
   val source = GhPagesMacros.exampleSource

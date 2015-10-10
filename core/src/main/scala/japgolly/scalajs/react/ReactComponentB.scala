@@ -199,7 +199,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
 
   /**
    * Invoked once, only on the client (not on the server), immediately after the initial rendering occurs. At this point
-   * in the lifecycle, the component has a DOM representation which you can access via `React.findDOMNode(this)`.
+   * in the lifecycle, the component has a DOM representation which you can access via `ReactDOM.findDOMNode(this)`.
    * The `componentDidMount()` method of child components is invoked before that of parent components.
    *
    * If you want to integrate with other JavaScript frameworks, set timers using `setTimeout` or `setInterval``, or send

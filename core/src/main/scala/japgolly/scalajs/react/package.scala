@@ -124,9 +124,9 @@ package object react extends ReactEventAliases {
 
   @inline implicit final class ReactExt_ReactComponentU[P,S,B,N <: TopNode](private val c: ReactComponentU[P,S,B,N]) extends AnyVal {
     @inline def render(container: dom.Node): ReactComponentM[P,S,B,N] =
-      React.render(c, container)
+      ReactDOM.render(c, container)
     @inline def render(container: dom.Node, callback: ReactComponentM[P,S,B,N] => Callback): ReactComponentM[P,S,B,N] =
-      React.render[P,S,B,N](c, container, callback.andThen(_.runNow()))
+      ReactDOM.render[P,S,B,N](c, container, callback.andThen(_.runNow()))
   }
 
   @inline implicit final class ReactExt_UndefReactComponentM[N <: TopNode](private val u: UndefOr[ReactComponentM_[N]]) extends AnyVal {

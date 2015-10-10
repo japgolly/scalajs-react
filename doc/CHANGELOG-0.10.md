@@ -240,6 +240,9 @@
   * The `ref` attribute now accepts a callback for you to store the ref yourself.
     `^.input(^.ref[HTMLInputElement](r => myInput = r.getDOMNode()))`
 
+* Upgrade to React 0.14
+  * `React` singleton split into `React`, `ReactDOM`, `ReactDOMServer`.
+
 * Smaller stuff:
 
   * `A ~=> B`, given an `A`, can now produce a `ReusableFnA[A, B]` which is effectively a reusable version of
@@ -314,4 +317,8 @@ find . -name '*.scala' -type f -exec perl -pi -e 's/initialStateC/getInitialStat
 
 # TimerSupport
 find . -name '*.scala' -exec perl -pi -e 's/(?<!\w)SetInterval(?!\w)/TimerSupport/g' {} +
+
+# React 0.14
+find . -name '*.scala' -exec perl -pi -e 's/(?<=React)([ .]+(?:render|unmountComponentAtNode|findDOMNode))(?!\w)/DOM$1/g' {} +
+find . -name '*.scala' -exec perl -pi -e 's/(?<=React)([ .]+renderTo(?:String|StaticMarkup))(?!\w)/DOMServer$1/g' {} +
 ```

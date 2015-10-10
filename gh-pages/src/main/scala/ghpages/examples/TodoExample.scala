@@ -49,14 +49,14 @@ object TodoExample {
       |  }
       |});
       |
-      |React.render(React.createElement(TodoApp, null), mountNode);
+      |ReactDOM.render(React.createElement(TodoApp, null), mountNode);
       |""".stripMargin
 
   val source =
     s"""
       |${GhPagesMacros.exampleSource}
       |
-      |React.render(TodoApp(), mountNode)
+      |ReactDOM.render(TodoApp(), mountNode)
       |""".stripMargin
 
   // EXAMPLE:START

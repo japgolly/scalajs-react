@@ -462,7 +462,7 @@ object CoreTest extends TestSuite {
 
     'findDOMNode {
       val m = ReactTestUtils renderIntoDocument H1("good")
-      val n = React.findDOMNode(m)
+      val n = ReactDOM.findDOMNode(m)
       removeReactDataAttr(n.outerHTML) mustEqual "<h1>good</h1>"
     }
 

@@ -193,7 +193,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     // Create
     val tmp = document.createElement("div")
     document.body.appendChild(tmp)
-    React.render(options.template.template, tmp)
+    ReactDOM.render(options.template.template, tmp)
     val outer = tmp.firstChild
     document.body.replaceChild(outer, tmp)
 

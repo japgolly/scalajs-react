@@ -37,7 +37,7 @@ object TimerExample {
       |  }
       |});
       |
-      |React.render(React.createElement(Timer, null), mountNode);
+      |ReactDOM.render(React.createElement(Timer, null), mountNode);
       |""".stripMargin
 
   val source = GhPagesMacros.exampleSource
