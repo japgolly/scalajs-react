@@ -26,7 +26,7 @@ object RefsExample {
       |    // Clear the input
       |    this.setState({userInput: ''}, function() {
       |      // This code executes after the component is re-rendered
-      |      this.refs.theInput.getDOMNode().focus();   // Boom! Focused!
+      |      this.refs.theInput.focus();   // Boom! Focused!
       |    });
       |  },
       |

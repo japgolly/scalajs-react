@@ -242,6 +242,7 @@
 
 * Upgrade to React 0.14
   * `React` singleton split into `React`, `ReactDOM`, `ReactDOMServer`.
+  * References to plain DOM elements (`div`,`input`,etc.) now return the nodes directly without a need to call `getDOMNode()`.
 
 * Smaller stuff:
 

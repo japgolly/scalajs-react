@@ -101,8 +101,8 @@ object RefAttr {
     AttrPair(ref, v, ev)
 
   import Implicits._react_attrJsFn
-  def apply[N <: TopNode](f: ReactComponentM_[N] => Unit): TagMod =
-    :=((f: js.Function1[ReactComponentM_[N], Unit]): js.Function)
+  def apply[N <: TopNode](f: N => Unit): TagMod =
+    :=((f: js.Function1[N, Unit]): js.Function)
 }
 
 /**

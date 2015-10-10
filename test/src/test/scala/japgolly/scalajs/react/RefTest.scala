@@ -23,7 +23,7 @@ object RefTest extends TestSuite {
         .render(_ => <.div(<.input(^.value := "cool", ^.ref := inputRef)))
         .buildU
       val m = ReactTestUtils renderIntoDocument c()
-      inputRef(m).get.getDOMNode().value mustEqual "cool"
+      inputRef(m).get.value mustEqual "cool"
     }
 
     'toScalaComponentByString {
@@ -46,8 +46,8 @@ object RefTest extends TestSuite {
       val r = Ref.param[Int, TopNode](i => s"ref-$i")
       val C = ReactComponentB[Unit]("").render(_ => <.div(<.p(^.ref := r(1), "One"), <.p(^.ref := r(2), "Two"))).buildU
       val c = ReactTestUtils.renderIntoDocument(C())
-      r(1)(c).get.getDOMNode().innerHTML mustEqual "One"
-      r(2)(c).get.getDOMNode().innerHTML mustEqual "Two"
+      r(1)(c).get.innerHTML mustEqual "One"
+      r(2)(c).get.innerHTML mustEqual "Two"
       assert(r(3)(c).isEmpty)
     }
 
@@ -102,7 +102,7 @@ object RefTest extends TestSuite {
     'passCallback {
       var i: js.UndefOr[HTMLInputElement] = js.undefined
       val PC = ReactComponentB[Unit]("PC")
-        .render(_ => <.div(<.input(^.value := "yay", ^.ref[HTMLInputElement](r => i = r.getDOMNode()))))
+        .render(_ => <.div(<.input(^.value := "yay", ^.ref[HTMLInputElement](i = _))))
         .buildU
       ReactTestUtils renderIntoDocument PC()
       assert(i.isDefined)

@@ -142,7 +142,7 @@ object TestTest extends TestSuite {
         val i = inputRef(c).get
         Simulation.focusChangeBlur("good") run i
         events mustEqual Vector("focus", "change", "blur")
-        i.getDOMNode().value mustEqual "good"
+        i.value mustEqual "good"
       }
       'targetByName {
         val c = ReactTestUtils.renderIntoDocument(IC())

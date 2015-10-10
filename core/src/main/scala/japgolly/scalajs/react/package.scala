@@ -129,12 +129,12 @@ package object react extends ReactEventAliases {
       ReactDOM.render[P,S,B,N](c, container, callback.andThen(_.runNow()))
   }
 
-  @inline implicit final class ReactExt_UndefReactComponentM[N <: TopNode](private val u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
+  @inline implicit final class ReactExt_TopNodeU[N <: TopNode](private val u: UndefOr[N]) extends AnyVal {
     def tryFocus: Callback = Callback(
-      u.foreach(_.getDOMNode() match {
+      u foreach {
         case e: html.Element => e.focus()
         case _               => ()
-      }))
+      })
   }
 
   @inline implicit final class ReactExt_ReactComponentM[N <: TopNode](private val c: ReactComponentM_[N]) extends AnyVal {
