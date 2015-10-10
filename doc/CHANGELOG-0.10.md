@@ -320,5 +320,4 @@ find . -name '*.scala' -exec perl -pi -e 's/(?<!\w)SetInterval(?!\w)/TimerSuppor
 
 # React 0.14
 find . -name '*.scala' -exec perl -pi -e 's/(?<=React)([ .]+(?:render|unmountComponentAtNode|findDOMNode))(?!\w)/DOM$1/g' {} +
-find . -name '*.scala' -exec perl -pi -e 's/(?<=React)([ .]+renderTo(?:String|StaticMarkup))(?!\w)/DOMServer$1/g' {} +
 ```

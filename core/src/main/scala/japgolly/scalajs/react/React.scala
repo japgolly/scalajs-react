@@ -77,11 +77,20 @@ trait React extends Object {
   @deprecated("As of React 0.14, you must use ReactDOM.findDOMNode instead.", "0.10.0")
   def findDOMNode[N <: TopNode](component: CompScope.Mounted[N]): N = js.native
 
+  // ===================================================================================================================
+  // Tmp: How the hell do we get ReactDOMServer working within Scala.JS?
+  /*
+  find . -name '*.scala' -exec perl -pi -e 's/(?<=React)([ .]+renderTo(?:String|StaticMarkup))(?!\w)/DOMServer$1/g' {} +
+
   @deprecated("As of React 0.14, you must use ReactDOMServer.renderToString instead.", "0.10.0")
   def renderToString(e: ReactElement): String = js.native
 
   @deprecated("As of React 0.14, you must use ReactDOMServer.renderToStaticMarkup instead.", "0.10.0")
   def renderToStaticMarkup(e: ReactElement): String = js.native
+  */
+  def renderToString(e: ReactElement): String = js.native
+  def renderToStaticMarkup(e: ReactElement): String = js.native
+  // ===================================================================================================================
 }
 
 /** `React.Children` */
