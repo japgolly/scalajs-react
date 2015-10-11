@@ -6,7 +6,7 @@ import scala.scalajs.js.{Object, UndefOr}
 package object test {
 
   sealed trait ComponentClass extends Object
-  @inline final implicit def autoComponentClassFromScalaComponent(c: ReactComponentC[_, _, Any, TopNode]): ComponentClass =
+  @inline final implicit def autoComponentClassFromScalaComponent(c: ReactComponentC[_, _, _, _]): ComponentClass =
     c.reactClass.asInstanceOf[ComponentClass]
 
   final type ComponentM = ReactComponentM_[TopNode]

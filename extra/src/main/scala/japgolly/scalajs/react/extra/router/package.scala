@@ -4,9 +4,9 @@ import japgolly.scalajs.react._
 
 package object router {
 
-  type Router [P] = ReactComponentC.ConstProps[Unit, Resolution[P], Any, TopNode]
-  type RouterU[P] = ReactComponentU           [Unit, Resolution[P], Any, TopNode]
-  type RouterM[P] = ReactComponentM           [Unit, Resolution[P], Any, TopNode]
+  type Router [P] = ReactComponentC.ConstProps[Unit, Resolution[P], OnUnmount.Backend, TopNode]
+  type RouterU[P] = ReactComponentU           [Unit, Resolution[P], OnUnmount.Backend, TopNode]
+  type RouterM[P] = ReactComponentM           [Unit, Resolution[P], OnUnmount.Backend, TopNode]
 
   private[router] implicit class OptionFnExt[A, B](private val f: A => Option[B]) extends AnyVal {
     def ||(g: A => Option[B]): A => Option[B] = a => f(a) orElse g(a)

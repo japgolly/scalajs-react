@@ -23,6 +23,9 @@ package object react extends ReactEventAliases {
   implicit def reactComponentTypeAuxJ[P, S, B, N <: TopNode](a: ReactComponentTypeAuxJ[P,S,B,N]): ReactComponentTypeAux[P,S,B,N] =
     a.asInstanceOf[ReactComponentTypeAux[P,S,B,N]]
 
+  @inline final implicit def autoScalaCompToJsCompC[P, S, B, N <: TopNode](c: ReactComponentC[P, S, B, N]): ReactComponentC_ =
+    c.factory
+
   // ===================================================================================================================
 
   // TODO WrapObj was one of the first things I did when starting with ScalaJS. Reconsider.
@@ -57,10 +60,6 @@ package object react extends ReactEventAliases {
   @inline implicit def reactNodeInhabitableAt[T <% ReactNode](v: js.Array[T])        : ReactNode = v.toReactNodeArray
   @inline implicit def reactNodeInhabitableC [T <% ReactNode](v: TraversableOnce[T]) : ReactNode = v.toReactNodeArray
   @inline implicit def reactNodeInhabitablePC                (v: PropsChildren)      : ReactNode = v.asInstanceOf[ReactNode]
-
-  // ===================================================================================================================
-
-  @inline final implicit def autoJsCtor[P,S,B,N <: TopNode](c: ReactComponentC[P,S,B,N]): ReactComponentC_ = c.jsCtor
 
   // ===================================================================================================================
 
