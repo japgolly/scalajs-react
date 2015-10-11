@@ -190,6 +190,9 @@
     $.modState(s => State(s.items :+ s.text, ""))
   ```
 
+* Add `CallbackOption` which is a callback & option monad stack.
+  See `CallbackOptionExample` in gh-pages.
+
 * Component/Backend scopes' access is now as follows:
 
   | Method | `BackendScope` | During Callback | External Access |
