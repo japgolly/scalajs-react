@@ -87,7 +87,7 @@ object DefaultReusabilityOverlay {
                      mountHighlighter    : Comp => Callback,
                      updateHighlighter   : Comp => Callback)
 
-  @inline implicit def autoLiftHtml(n: Node) = n.asInstanceOf[Element]
+  @inline private[DefaultReusabilityOverlay] implicit def autoLiftHtml(n: Node): Element = n.domAsHtml
 
   trait Template {
     def template: ReactElement

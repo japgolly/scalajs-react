@@ -461,5 +461,16 @@ object CoreTest extends TestSuite {
         c.state mustEqual StrIntWrap(StrInt("oh", 108))
       }
     }
+
+    'domExt {
+      import TestUtil.Inference._
+      'domCast   - test[Node](_.domCast[HTMLInputElement]).expect[HTMLInputElement]
+      'domAsHtml - test[Node](_.domAsHtml).expect[HTMLElement]
+      'domToHtml {
+        import org.scalajs.dom._
+        val input = document.createElement("input")
+        input.domToHtml mustEqual Some(input.asInstanceOf[HTMLElement])
+      }
+    }
   }
 }

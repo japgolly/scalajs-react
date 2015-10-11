@@ -134,12 +134,26 @@ package object react extends ReactEventAliases {
       ReactDOM.render[P,S,B,N](c, container, callback.andThen(_.runNow()))
   }
 
-  @inline implicit final class ReactExt_TopNodeU[N <: TopNode](private val u: UndefOr[N]) extends AnyVal {
-    def tryFocus: Callback = Callback(
-      u foreach {
-        case e: html.Element => e.focus()
-        case _               => ()
-      })
+  /**
+   * Extensions to plain old DOM.
+   */
+  @inline implicit final class ReactExt_DomNode(private val n: dom.raw.Node) extends AnyVal {
+
+    @inline def domCast[N <: dom.raw.Node]: N =
+      n.asInstanceOf[N]
+
+    @inline def domAsHtml: html.Element =
+      domCast
+
+    @inline def domToHtml: Option[html.Element] = n match {
+      case e: html.Element => Some(e)
+      case _ => None
+    }
+  }
+
+  implicit final class ReactExt_DomNodeO[O[_], N <: dom.raw.Node](o: O[N])(implicit O: OptionLike[O]) {
+    def tryFocus: Callback =
+      Callback(O.toOption(o).flatMap(_.domToHtml).foreach(_.focus()))
   }
 
   @inline implicit final class ReactExt_ReactComponentM[N <: TopNode](private val c: ReactComponentM_[N]) extends AnyVal {

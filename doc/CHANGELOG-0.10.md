@@ -304,6 +304,11 @@
   * Deleted `test.Sel`. Use [Sizzle](http://sizzlejs.com/) or [jQuery](https://jquery.com/).
     For reference, the scalajs-react unit tests were changed to use `Sizzle`. Search the repo for `sizzle` and see how
     little code is required and how is it is.
+    
+  * Add extension helper methods to DOM nodes and elements:
+    * `.domCast[N]` - Same as `asInstanceOf[N]` except with the guarantee that it will only cast DOM to DOM.
+    * `.domAsHtml` - Casts to a `HTMLElement`.
+    * `.domToHtml` - Checks if the DOM is a `HTMLElement` before casting. Returns an `Option[HTMLElement]`.
 
 <br>
 Migration commands:
