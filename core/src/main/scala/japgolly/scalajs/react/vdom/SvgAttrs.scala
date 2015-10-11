@@ -1530,12 +1530,12 @@ trait SvgAttrs {
 
   final val xlinkActuate = "xlinkActuate".attr
   final val xlinkArcrole = "xlinkArcrole".attr
-  final val xlinkHref = "xlinkHref   ".attr
-  final val xlinkRole = "xlinkRole   ".attr
-  final val xlinkShow = "xlinkShow   ".attr
-  final val xlinkTitle = "xlinkTitle  ".attr
-  final val xlinkType = "xlinkType   ".attr
-  final val xmlBase = "xmlBase     ".attr
-  final val xmlLang = "xmlLang     ".attr
+  final val xlinkHref = "xlinkHref".attr
+  final val xlinkRole = "xlinkRole".attr
+  final val xlinkShow = "xlinkShow".attr
+  final val xlinkTitle = "xlinkTitle".attr
+  final val xlinkType = "xlinkType".attr
+  final val xmlBase = "xmlBase".attr
+  final val xmlLang = "xmlLang".attr
   final val xmlSpace = "xmlSpace".attr
 }
