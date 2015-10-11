@@ -174,6 +174,20 @@ trait HtmlAttrs {
    */
   final val onMouseDown = "onMouseDown".attr
   /**
+   * The mouseenter event is fired when a pointing device (usually a mouse)
+   * is moved over the element that has the listener attached.
+   *
+   * MDN
+   */
+  final val onMouseEnter = "onMouseEnter".attr
+  /**
+   * The mouseleave event is fired when a pointing device (usually a mouse)
+   * is moved off the element that has the listener attached.
+   *
+   * MDN
+   */
+  final val onMouseLeave = "onMouseLeave".attr
+  /**
    * The mousemove event is raised when the user moves the mouse.
    *
    * MDN

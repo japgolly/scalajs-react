@@ -71,13 +71,25 @@ object Extra {
     final val ref           = RefAttr
     final val key           = "key".attr
     final val draggable     = "draggable".attr
-    final val onDragStart   = "onDragStart".attr
-    final val onDragEnd     = "onDragEnd".attr
-    final val onDragEnter   = "onDragEnter".attr
-    final val onDragOver    = "onDragOver".attr
-    final val onDragLeave   = "onDragLeave".attr
-    final val onDrop        = "onDrop".attr
-    final val onBeforeInput = "onBeforeInput".attr
+
+    final val onBeforeInput       = "onBeforeInput".attr
+    final val onCompositionEnd    = "onCompositionEnd".attr
+    final val onCompositionStart  = "onCompositionStart".attr
+    final val onCompositionUpdate = "onCompositionUpdate".attr
+    final val onContextMenu       = "onContextMenu".attr
+    final val onCopy              = "onCopy".attr
+    final val onCut               = "onCut".attr
+    final val onDrag              = "onDrag".attr
+    final val onDragStart         = "onDragStart".attr
+    final val onDragEnd           = "onDragEnd".attr
+    final val onDragEnter         = "onDragEnter".attr
+    final val onDragOver          = "onDragOver".attr
+    final val onDragLeave         = "onDragLeave".attr
+    final val onDragExit          = "onDragExit".attr
+    final val onDrop              = "onDrop".attr
+    final val onInput             = "onInput".attr
+    final val onPaste             = "onPaste".attr
+    final val onWheel             = "onWheel".attr
 
     final val acceptCharset     = "acceptCharset".attr
     final val accessKey         = "accessKey".attr
