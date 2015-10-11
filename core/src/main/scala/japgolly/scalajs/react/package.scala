@@ -2,7 +2,7 @@ package japgolly.scalajs
 
 import org.scalajs.dom, dom.html
 import scala.scalajs.js
-import js.{Dynamic, UndefOr, Object, Any => JAny, Function => JFn}
+import js.{Dynamic, Object, Any => JAny, Function => JFn}
 
 package object react extends ReactEventAliases {
 

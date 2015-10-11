@@ -37,6 +37,9 @@ trait React extends Object {
    */
   def createElement(tag: String, props: Object, children: ReactNode*): ReactDOMElement = js.native
 
+  def createElement(fc: FunctionalComponent[Nothing], props: Object, children: ReactNode*): ReactDOMElement = js.native
+  def createElement(fc: FunctionalComponent.WithChildren[Nothing], props: Object, children: ReactNode*): ReactDOMElement = js.native
+
   /** Verifies the object is a ReactElement. */
   def isValidElement(o: JAny): Boolean = js.native
 

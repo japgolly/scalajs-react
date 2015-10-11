@@ -249,6 +249,7 @@
     sense in React Native, etc. However in Scala we have the ability to *conditionally* add the `getDOMNode()` method
     onto components. This means we can keep the convenient `getDOMNode()` and in future mirror the conditions that
     React applies (eg. `getDOMNode()` works with the `react-dom` module only).
+  * Add `FunctionalComponent`, a new type of component which is a thinly-wrapped, pure `P => ReactElement`.
 
 * Smaller stuff:
 
