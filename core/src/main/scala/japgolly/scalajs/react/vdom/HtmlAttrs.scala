@@ -725,4 +725,68 @@ trait HtmlAttrs {
 
   /** IE-specific property to prevent user selection */
   final val unselectable = "unselectable".attr
+
+  /**
+   * The capture attribute allows authors to declaratively request use of a media capture mechanism, such as a camera or
+   * microphone, from within a file upload control, for capturing media on the spot.
+   */
+  final val capture = "capture".attr
+
+  /** &lt;keygen&gt;: A challenge string that is submitted along with the public key. */
+  final val challenge = "challenge".attr
+
+  /**
+   * The inputmode attribute tells the browser on devices with dynamic keyboards which keyboard to display. The
+   * inputmode attribute applies to the text, search and password input types as well as &lt;textarea&gt;.
+   */
+  final val inputMode = "inputMode".attr
+
+  final val is = "is".attr
+
+  /** For use in &lt;keygen&gt; */
+  final val keyParams = "keyParams".attr
+
+  /** &lt;keygen&gt;: Specifies the type of key generated. */
+  final val keyType = "keyType".attr
+
+  final val minLength = "minLength".attr
+
+  /**
+   * The value is actually just `summary`. This is named `summaryAttr` in Scala to avoid a conflict with the
+   * &lt;summary&gt; tag in [[all]].
+   */
+  final val summaryAttr = "summary".attr
+
+  /** &lt;textarea&gt;: Indicates whether the text should be wrapped. */
+  final val wrap = "wrap".attr
+
+  final val autoSave = "autoSave".attr
+
+  final val results = "results".attr
+
+  final val security = "security".attr
+
+  final val onAbort = "onAbort".attr
+  final val onCanPlay = "onCanPlay".attr
+  final val onCanPlayThrough = "onCanPlayThrough".attr
+  final val onDurationChange = "onDurationChange".attr
+  final val onEmptied = "onEmptied".attr
+  final val onEncrypted = "onEncrypted".attr
+  final val onEnded = "onEnded".attr
+  final val onLoadedData = "onLoadedData".attr
+  final val onLoadedMetadata = "onLoadedMetadata".attr
+  final val onLoadStart = "onLoadStart".attr
+  final val onPause = "onPause".attr
+  final val onPlay = "onPlay".attr
+  final val onPlaying = "onPlaying".attr
+  final val onProgress = "onProgress".attr
+  final val onRateChange = "onRateChange".attr
+  final val onSeeked = "onSeeked".attr
+  final val onSeeking = "onSeeking".attr
+  final val onStalled = "onStalled".attr
+  final val onSuspend = "onSuspend".attr
+  final val onTimeUpdate = "onTimeUpdate".attr
+  final val onVolumeChange = "onVolumeChange".attr
+  final val onWaiting = "onWaiting".attr
+
 }

@@ -1,6 +1,5 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.Addons.{ReactCssTransitionGroup, ReactCloneWithProps}
 import monocle.macros.Lenses
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
@@ -22,15 +21,13 @@ object CoreTest extends TestSuite {
     .render(T => input(value := T.state.toString))
     .domType[HTMLInputElement]
     .componentDidMount($ => Callback {
-      val s: String = $.getDOMNode().value // Look, it knows its DOM node type
+      val s: String = ReactDOM.findDOMNode($).value // Look, it knows its DOM node type
     })
     .buildU
 
   val tagmod  : TagMod       = cls := "ho"
   val reacttag: ReactTag     = span()
   val relement: ReactElement = span()
-
-  trait ReactCssTransitionGroupM extends js.Object
 
   @Lenses
   case class StrInt(str: String, int: Int)
@@ -60,8 +57,8 @@ object CoreTest extends TestSuite {
       'list2jAry - test(div(List(H1("a"), H1("b")).toJsArray), "<div><h1>a</h1><h1>b</h1></div>")
       'jAryTag   - test(div(JArray(span(1), span(2))),         "<div><span>1</span><span>2</span></div>")
       'jAryComp  - test(div(JArray(H1("a"), H1("b"))),         "<div><h1>a</h1><h1>b</h1></div>")
-      'checkboxT - test(checkbox(true),                      """<input type="checkbox" checked>""")
-      'checkboxF - test(checkbox(false),                     """<input type="checkbox">""")
+      'checkboxT - test(checkbox(true),                      """<input type="checkbox" checked=""/>""") // checked="" is new as of React 0.14 but it works
+      'checkboxF - test(checkbox(false),                     """<input type="checkbox"/>""")
       'aria      - test(div(aria.label := "ow", "a"),        """<div aria-label="ow">a</div>""")
 
       'dangerouslySetInnerHtml - test(div(dangerouslySetInnerHtml("<span>")), "<div><span></div>")
@@ -310,7 +307,7 @@ object CoreTest extends TestSuite {
 
     'builtWithDomType {
       val c = ReactTestUtils.renderIntoDocument(SI())
-      val v = c.getDOMNode().value // Look, it knows its DOM node type
+      val v = ReactDOM.findDOMNode(c).value // Look, it knows its DOM node type
       assert(v == "123")
     }
 
@@ -327,81 +324,10 @@ object CoreTest extends TestSuite {
         .buildU
 
       val c = ReactTestUtils.renderIntoDocument(s())
-      val sel = c.getDOMNode()
+      val sel = ReactDOM.findDOMNode(c)
       val options = sel.options.asInstanceOf[js.Array[HTMLOptionElement]] // https://github.com/scala-js/scala-js-dom/pull/107
       val selectedOptions = options filter (_.selected) map (_.value)
       assert(selectedOptions.toSet == Set("a", "c"))
-    }
-
-    'refs {
-      class WB(t: BackendScope[String,_]) { def getName = t.props.runNow() }
-      val W = ReactComponentB[String]("").stateless.backend(new WB(_)).render_C(c => div(c)).build
-
-      // 'simple - simple refs are tested in TestTest
-
-      'parameterised {
-        val r = Ref.param[Int, TopNode](i => s"ref-$i")
-        val C = ReactComponentB[Unit]("").render(_ => div(p(ref := r(1), "One"), p(ref := r(2), "Two"))).buildU
-        val c = ReactTestUtils.renderIntoDocument(C())
-        r(1)(c).get.getDOMNode().innerHTML mustEqual "One"
-        r(2)(c).get.getDOMNode().innerHTML mustEqual "Two"
-        assert(r(3)(c).isEmpty)
-      }
-
-      'onOwnedComponenets {
-        val innerRef = Ref.to(W, "inner")
-        val outerRef = Ref.to(W, "outer")
-        val innerWName = "My name is IN"
-        val outerWName = "My name is OUT"
-        var tested = false
-        val C = ReactComponentB[Unit]("")
-          .render(P => {
-            val inner = W.set(ref = innerRef)(innerWName)
-            val outer = W.set(ref = outerRef)(outerWName, inner)
-            div(outer)
-           })
-          .componentDidMount(scope => Callback {
-            innerRef(scope).get.backend.getName mustEqual innerWName
-            outerRef(scope).get.backend.getName mustEqual outerWName
-            tested = true
-          })
-          .buildU
-        ReactTestUtils renderIntoDocument C()
-        assert(tested) // just in case
-      }
-
-      'shouldNotHaveRefsOnUnmountedComponents {
-        val C = ReactComponentB[Unit]("child").render(_ => div()).buildU
-        val P = ReactComponentB[Unit]("parent")
-          .render(P => C(div(ref := "test"))) // div here discarded by C.render
-          .componentDidMount(scope => Callback(assert(scope.refs("test").get == null)))
-      }
-
-      'refToThirdPartyComponents {
-        class RB($: BackendScope[_, _]) {
-          def test = Callback {
-            val transitionRef = Ref.toJS[ReactCssTransitionGroupM]("addon")($)
-            assert(transitionRef.isDefined)
-          }
-        }
-        val C = ReactComponentB[Unit]("C")
-          .backend(new RB(_))
-          .render(_ => div(ReactCssTransitionGroup(name = "testname", ref = "addon")()))
-          .componentDidMount(_.backend.test)
-          .buildU
-        ReactTestUtils renderIntoDocument C()
-      }
-
-      // Added in React 0.13
-      'passCallback {
-        var i: js.UndefOr[HTMLInputElement] = js.undefined
-        val C = ReactComponentB[Unit]("C")
-          .render(_ => div(input(value := "yay", ref[HTMLInputElement](r => i = r.getDOMNode()))))
-          .buildU
-        ReactTestUtils renderIntoDocument C()
-        assert(i.isDefined)
-        assert(i.get.value == "yay")
-      }
     }
 
     'inference {
@@ -442,27 +368,16 @@ object CoreTest extends TestSuite {
       assert(instance.isMounted())
     }
 
-    'cloneWithProps {
-      'shouldCloneDomComponentWithNewProps {
-        val Parent = ReactComponentB[Unit]("Parent")
-          .render_C(c => {
-            div(cls := "parent")(
-              ReactCloneWithProps(React.Children.only(c),Map("className" -> "xyz"))
-            )
-          })
-          .buildU
-        val GrandParent = ReactComponentB[Unit]("GrandParent")
-          .render(P => Parent(div(cls := "child")))
-          .buildU
-        val instance = ReactTestUtils.renderIntoDocument(GrandParent())
-        val n = ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz").getDOMNode()
-        assert(n.matchesBy[HTMLElement](_.className == "xyz child"))
-      }
-    }
-
     'findDOMNode {
       val m = ReactTestUtils renderIntoDocument H1("good")
-      val n = React.findDOMNode(m)
+      val n = ReactDOM.findDOMNode(m)
+      removeReactDataAttr(n.outerHTML) mustEqual "<h1>good</h1>"
+    }
+
+    // Changed to an extension method that calls ReactDOM.findDOMNode
+    'getDOMNode {
+      val m = ReactTestUtils renderIntoDocument H1("good")
+      val n = m.getDOMNode()
       removeReactDataAttr(n.outerHTML) mustEqual "<h1>good</h1>"
     }
 
@@ -470,7 +385,7 @@ object CoreTest extends TestSuite {
       ReactComponentB[Unit]("").stateless
         .render(_ => canvas())
         .domType[HTMLCanvasElement]
-        .componentDidMount($ => Callback($.getDOMNode().getContext("2d")))
+        .componentDidMount($ => Callback(ReactDOM.findDOMNode($).getContext("2d")))
         .buildU
     }
 

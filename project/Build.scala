@@ -19,7 +19,7 @@ object ScalajsReact extends Build {
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.10.0-SNAPSHOT",
+        version            := "0.10.0-RC1-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
@@ -83,7 +83,11 @@ object ScalajsReact extends Build {
 
   def useReactJs(scope: String = "compile"): PE =
     _.settings(
-      jsDependencies += "org.webjars" % "react" % "0.13.3" % scope / "react-with-addons.js" commonJSName "React",
+      jsDependencies += "org.webjars.npm" % "react"     % "0.14.0" % scope / "react-with-addons.js" commonJSName "React",
+      jsDependencies += "org.webjars.npm" % "react-dom" % "0.14.0" % scope / "react-dom.js"         commonJSName "ReactDOM",
+      // jsDependencies += "org.webjars.bower" % "react" % "0.14.0" % scope / "react-with-addons.js" commonJSName "React",
+      // jsDependencies += "org.webjars.bower" % "react" % "0.14.0" % scope / "react-dom.js"         commonJSName "ReactDOM",
+      jsDependencies += "org.webjars" % "sizzle" % "2.1.1" % scope / "sizzle.min.js" commonJSName "Sizzle",
       skip in packageJSDependencies := false)
 
   def addCommandAliases(m: (String, String)*) = {

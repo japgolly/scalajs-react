@@ -101,6 +101,11 @@ package object react extends ReactEventAliases {
     @inline def stateCB: CallbackTo[S] = CallbackTo(state)
   }
 
+  @inline implicit final class ReactExt_Mounted[N <: TopNode](private val c: Mounted[N]) extends AnyVal {
+    // See comments in [[Mounted]].
+    @inline def getDOMNode(): N = ReactDOM.findDOMNode(c)
+  }
+
   @inline implicit final class ReactExt_MountedD[N <: TopNode](private val c: Mounted[N] with WriteDirect) extends AnyVal {
     /**
      * Can be invoked on any mounted component when you know that some deeper aspect of the component's state has
@@ -124,17 +129,17 @@ package object react extends ReactEventAliases {
 
   @inline implicit final class ReactExt_ReactComponentU[P,S,B,N <: TopNode](private val c: ReactComponentU[P,S,B,N]) extends AnyVal {
     @inline def render(container: dom.Node): ReactComponentM[P,S,B,N] =
-      React.render(c, container)
+      ReactDOM.render(c, container)
     @inline def render(container: dom.Node, callback: ReactComponentM[P,S,B,N] => Callback): ReactComponentM[P,S,B,N] =
-      React.render[P,S,B,N](c, container, callback.andThen(_.runNow()))
+      ReactDOM.render[P,S,B,N](c, container, callback.andThen(_.runNow()))
   }
 
-  @inline implicit final class ReactExt_UndefReactComponentM[N <: TopNode](private val u: UndefOr[ReactComponentM_[N]]) extends AnyVal {
+  @inline implicit final class ReactExt_TopNodeU[N <: TopNode](private val u: UndefOr[N]) extends AnyVal {
     def tryFocus: Callback = Callback(
-      u.foreach(_.getDOMNode() match {
+      u foreach {
         case e: html.Element => e.focus()
         case _               => ()
-      }))
+      })
   }
 
   @inline implicit final class ReactExt_ReactComponentM[N <: TopNode](private val c: ReactComponentM_[N]) extends AnyVal {

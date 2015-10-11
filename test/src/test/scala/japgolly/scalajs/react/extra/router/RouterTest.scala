@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.extra.router
 
+import sizzle.Sizzle
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import japgolly.scalajs.react.test._
 import org.scalajs.dom._
@@ -74,7 +75,8 @@ object RouterTest extends TestSuite {
       val base = BaseUrl("file:///routerDemo")
       val router = Router(base, MyPage.config.logToConsole)
       val c = ReactTestUtils.renderIntoDocument(router())
-      def html = c.getDOMNode().outerHTML
+      def node = ReactDOM findDOMNode c
+      def html = node.outerHTML
 
       def testView(routeSuffix: String, p: MyPage): Unit = {
         window.location.href mustEqual base.+(routeSuffix).value
@@ -88,7 +90,7 @@ object RouterTest extends TestSuite {
       def assertRouteHello()   = testView("/hello",    Hello)
       def assertRouteNameBob() = testView("/name/bob", Greet("bob"))
 
-      def click(css: String): Unit = Simulation.click run Sel(css).findIn(c)
+      def click(css: String): Unit = Simulation.click run Sizzle(css, node).sole
       def clickBack()    = click("a.back")
       def clickHello()   = click("a.hello")
       def clickNameBob() = click("a.n1")
@@ -99,9 +101,8 @@ object RouterTest extends TestSuite {
         clickBack();    assertRoot()
         clickNameBob(); assertRouteNameBob()
         clickBack();    assertRoot()
-
       } finally {
-        React.unmountComponentAtNode(c.getDOMNode())
+        ReactDOM unmountComponentAtNode node
       }
     }
 

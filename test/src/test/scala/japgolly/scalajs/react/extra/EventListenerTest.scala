@@ -22,7 +22,7 @@ object EventListenerTest extends TestSuite {
     def dispatch(name: String) = {
       val e = new Event
       e.initEvent(name, true, true)
-      c.getDOMNode() dispatchEvent e
+      ReactDOM findDOMNode c dispatchEvent e
     }
 
     c.state mustEqual 0

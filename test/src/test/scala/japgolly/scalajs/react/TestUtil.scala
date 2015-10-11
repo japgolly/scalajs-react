@@ -91,6 +91,14 @@ object TestUtil {
   def assertTypeMismatch(e: CompileError): Unit =
     assertContains(e.msg, "type mismatch")
 
+  implicit class JsArrayTestExt[A](private val a: js.Array[A]) extends AnyVal {
+    def sole(): A =
+      a.length match {
+        case 1 => a(0)
+        case n => TestUtil2.fail(s"Expected an array with one element, found $n: ${a.mkString("[",",","]")}")
+    }
+  }
+
   // ===================================================================================================================
   object Inference {
     import scalaz.{Monad, ~>}

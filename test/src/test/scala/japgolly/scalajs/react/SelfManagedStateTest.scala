@@ -77,7 +77,7 @@ object SelfManagedStateTest extends TestSuite {
 
   override def tests = TestSuite {
     val c  = ReactTestUtils.renderIntoDocument(TopLevel())
-    def p  = ReactTestUtils.findRenderedDOMComponentWithTag(c, "p").getDOMNode().innerHTML
+    def p  = ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(c, "p")).innerHTML
     def is = ReactTestUtils.scryRenderedDOMComponentsWithTag(c, "input")
     def i1 = is(0)
 

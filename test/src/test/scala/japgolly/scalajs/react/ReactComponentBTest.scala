@@ -41,7 +41,7 @@ object ReactComponentBTest extends TestSuite {
       'subtypes             - assertRender(Subtypes.C(Vector(1,8)), "<div>9</div>")
       'paramNamesFull       - assertRender(ParamNamesFull.C(7), "<div>4</div>")
       'paramNamesShort      - assertRender(ParamNamesShort.C(7), "<div>4</div>")
-      'usePropsChildren     - assertRender(UsePropsChildren.C(<.br), "<div><br></div>")
+      'usePropsChildren     - assertRender(UsePropsChildren.C(<.br), "<div><br/></div>")
       'ambiguousType        - assertContains(compileError("AmbiguousType.x.renderBackend").msg, "what: Int")
     }
   }

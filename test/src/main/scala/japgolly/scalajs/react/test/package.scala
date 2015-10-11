@@ -12,12 +12,12 @@ package object test {
   final type ComponentM = ReactComponentM_[TopNode]
 
   sealed trait ReactOrDomNode extends Object
-  @inline final implicit def autoReactOrDomNodeN(n: dom.Node): ReactOrDomNode =
+  @inline final implicit def autoReactOrDomNodeN(n: TopNode): ReactOrDomNode =
     n.asInstanceOf[ReactOrDomNode]
   @inline final implicit def autoReactOrDomNodeU(c: ReactElement): ReactOrDomNode =
     c.asInstanceOf[ReactOrDomNode]
   @inline final implicit def autoReactOrDomNodeM[N <: TopNode](c: ReactComponentM_[N]): ReactOrDomNode =
-    c.getDOMNode()
+    autoReactOrDomNodeN(ReactDOM findDOMNode c)
 
   @inline final implicit def RTUSChangeEventData  (d: ChangeEventData  ): Object = d.toJs
   @inline final implicit def RTUSKeyboardEventData(d: KeyboardEventData): Object = d.toJs

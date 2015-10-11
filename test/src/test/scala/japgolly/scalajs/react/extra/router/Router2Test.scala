@@ -129,7 +129,7 @@ object Router2Test extends TestSuite {
 
     val sim = SimHistory(base.abs)
     val r = ReactTestUtils.renderIntoDocument(router())
-    def html = r.getDOMNode().outerHTML
+    def html = ReactDOM.findDOMNode(r).outerHTML
     isUserLoggedIn = false
 
     def syncNoRedirect(path: Path) = {

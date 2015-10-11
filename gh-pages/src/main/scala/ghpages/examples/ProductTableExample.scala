@@ -67,8 +67,8 @@ object ProductTableExample {
       |var SearchBar = React.createClass({
       |    handleChange: function() {
       |        this.props.onUserInput(
-      |            this.refs.filterTextInput.getDOMNode().value,
-      |            this.refs.inStockOnlyInput.getDOMNode().checked
+      |            this.refs.filterTextInput.value,
+      |            this.refs.inStockOnlyInput.checked
       |        );
       |    },
       |    render: function() {
@@ -138,7 +138,7 @@ object ProductTableExample {
       |  {category: 'Electronics', price: '$199.99', stocked: true, name: 'Nexus 7'}
       |];
       |
-      |React.render(<FilterableProductTable products={PRODUCTS} />, document.body);
+      |ReactDOM.render(<FilterableProductTable products={PRODUCTS} />, document.body);
       | """.stripMargin
 
   val source = GhPagesMacros.exampleSource
