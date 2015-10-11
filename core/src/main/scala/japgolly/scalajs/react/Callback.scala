@@ -217,6 +217,9 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def flatten[B](implicit ev: A =:= CallbackTo[B]): CallbackTo[B] =
     flatMap(ev)
 
+  def flatMap2[X, Y, Z](f: (X, Y) => CallbackTo[Z])(implicit ev: A =:= (X, Y)): CallbackTo[Z] =
+    flatMap(f tupled _)
+
   /**
    * Sequence a callback to run after this, discarding any value produced by this.
    */
