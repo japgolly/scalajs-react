@@ -250,6 +250,7 @@
     onto components. This means we can keep the convenient `getDOMNode()` and in future mirror the conditions that
     React applies (eg. `getDOMNode()` works with the `react-dom` module only).
   * Add `FunctionalComponent`, a new type of component which is a thinly-wrapped, pure `P => ReactElement`.
+  * `React.initializeTouchEvents` is no longer necessary and has been removed completely. Touch events now work automatically.
 
 * Smaller stuff:
 
