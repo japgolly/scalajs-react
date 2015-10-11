@@ -166,6 +166,12 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
       _ <- next
     } yield a
 
+  def zip[B](cb: CallbackOption[B]): CallbackOption[(A, B)] =
+    for {
+      a <- this
+      b <- cb
+    } yield (a, b)
+
   /**
    * Discard the value produced by this callback.
    */
