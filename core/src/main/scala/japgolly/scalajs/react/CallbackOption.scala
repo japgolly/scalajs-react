@@ -137,6 +137,9 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def filter(condition: A => Boolean): CallbackOption[A] =
     CallbackOption(get.map(_ filter condition))
 
+  def withFilter(condition: A => Boolean): CallbackOption[A] =
+    filter(condition)
+
   /**
    * Sequence a callback to run after this, discarding any value produced by this.
    */
