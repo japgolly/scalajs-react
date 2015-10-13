@@ -91,8 +91,8 @@ trait React extends Object {
   @deprecated("As of React 0.14, you must use ReactDOMServer.renderToStaticMarkup instead.", "0.10.0")
   def renderToStaticMarkup(e: ReactElement): String = js.native
   */
-  def renderToString(e: ReactElement): String = js.native
-  def renderToStaticMarkup(e: ReactElement): String = js.native
+//  def renderToString(e: ReactElement): String = js.native
+//  def renderToStaticMarkup(e: ReactElement): String = js.native
   // ===================================================================================================================
 }
 

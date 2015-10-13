@@ -14,6 +14,13 @@ package object react extends ReactEventAliases {
   type StateAccessDirect[S] = CompState.ReadDirectWriteDirectOps[S]
   type StateAccessCB    [S] = CompState.ReadCallbackWriteCallbackOps[S]
 
+  implicit class temptemptemptemptemp(val r: React.type) extends AnyVal {
+//    @deprecated("As of React 0.14, you must use ReactDOMServer.renderToString instead.", "0.10.0")
+    def renderToString(e: ReactElement): String = ReactDOMServer.renderToString(e)
+//    @deprecated("As of React 0.14, you must use ReactDOMServer.renderToStaticMarkup instead.", "0.10.0")
+    def renderToStaticMarkup(e: ReactElement): String = ReactDOMServer.renderToStaticMarkup(e)
+  }
+
   /**
    * These exist for type inference.
    * If P,S,B,N types are needed and there's another object that has them, this is used to bridge for type inference.
