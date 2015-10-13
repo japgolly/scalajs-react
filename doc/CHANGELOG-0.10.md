@@ -284,7 +284,62 @@ They're now all defined in one place, and have been renamed to represent their t
 Who remembers what mish-mash existed before, in this new world you ask for the types you want by adding suffixes to
 the render function name. Conversely, it's now always obvious what's happening by looking at the function name.
 
-**TODO: Add table or examples**
+
+All `render*` functions take as their sole argument a function that returns a ReactElement (a ReactElement
+is a ReactComponent or DOM element).
+
+The `render` function takes a function which has as its first argument a CompState, 
+which is broadly analogous to javascript's `this`, and which scalajs-react conventionally designates with `$`. 
+
+|Method|Argument|Example|
+| --- | --- | --- | --- |
+|render|Function taking CompState (which is analogous to javascript `this`)|`.render { $ => <.div() }`|
+
+Additional `render*` convenience functions *without an underscore* specify (and unwrap) additional arguments, 
+which scalajs-react conventionally designates as P for props, C for propsChildren, and S for State 
+(see table below). The uppercase is not an accident: all of these are the types of generic arguments 
+explicitly or implicitly given to ReactComponentB.
+
+These additional `render*` functions are convenience functions, as all of these additional arguments can be 
+found as members of the CompState argument.
+
+E.g.:
+
+    .render { $ =>
+        val P = $.props
+        val C = $.propsChildren
+        val S = $.state
+        
+        <.div()
+     }
+      
+is equivalent to:
+
+    .renderPCS { ($, P, C, S)  =>
+        <.div()
+     }
+     
+|Method|Argument|Example|
+| --- | --- | --- | --- |
+|renderPCS|Function taking CompState, props, children, state|`.renderPCS { ($, P, C, S)  => <.div() }`|
+|renderPC|Function taking CompState, props, children|`.renderPC { ($, P, C)  => <.div() }`|
+|renderPS|Function taking CompState, props, state|`.renderPS { ($, P, S)  => <.div() }`|
+|renderP|Function taking CompState, props|`.renderP { ($, P)  => <.div() }`|
+|renderCS|Function taking CompState, children, state|`.renderCS { ($, C, S)  => <.div() }`|
+|renderC|Function taking CompState, children|`.renderC { ($, C)  => <.div() }`|
+|renderS|Function taking CompState, state|`.renderS { ($, S)  => <.div() }`|
+
+`render*` function overloads *with* an underscore take a function which takes has only that single part of the 
+CompState called out in the function name. The CompState itself is not passed to the function passed.
+ 
+|Method|Argument|Example|
+| --- | --- | --- | --- |
+|render_P|Function taking only props|`.render_P { P => <.div() }`|
+|render_C|Function taking only children|`.render_C { C  => <.div() }`|
+|render_S|Function taking only state|`.render_S { S  => <.div() }`|
+
+
+
 
 Similarly the `initialState` methods have been revised both
 1. To be consistent with the pattern used in `render` methods
