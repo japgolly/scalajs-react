@@ -130,7 +130,7 @@ object ScalajsReact extends Build {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % "0.8.1"))
+        "org.scala-js" %%% "scalajs-dom" % "0.8.2"))
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)

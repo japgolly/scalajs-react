@@ -357,13 +357,15 @@ Unlike the `render` methods, this migration can be automated (see below).
 * Deleted `test.Sel`. Use [Sizzle](http://sizzlejs.com/) or [jQuery](https://jquery.com/).
   For reference, the scalajs-react unit tests were changed to use `Sizzle`. Search the repo for `sizzle` and see how
   little code is required and how is it is.
-  
+
 * `A ~=> B`, given an `A`, can now produce a `ReusableFnA[A, B]` which is effectively a reusable version of
   `(A, () => B)`.
-  
+
 * Case class macros now enforce that inputs are indeed case classes.
 
 * Small improvements to `ReusabilityOverlay`.
+
+* Upgrade scala-js-dom 0.8.{1 ⇒ 2}.
 
 ---
 
