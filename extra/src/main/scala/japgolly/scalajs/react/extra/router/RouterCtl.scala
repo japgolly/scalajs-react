@@ -2,7 +2,9 @@ package japgolly.scalajs.react.extra.router
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.Reusability
+import japgolly.scalajs.react.vdom.ReactTagOf
 import japgolly.scalajs.react.vdom.prefix_<^._
+import org.scalajs.dom.html
 
 /**
  * Router controller. A client API to the router.
@@ -25,7 +27,7 @@ abstract class RouterCtl[A] {
   final def setOnClick(target: A): TagMod =
     ^.onClick ==> setEH(target)
 
-  final def link(target: A): ReactTag =
+  final def link(target: A): ReactTagOf[html.Anchor] =
     <.a(^.href := urlFor(target).value, setOnClick(target))
 
   final def contramap[B](f: B => A): RouterCtl[B] =
