@@ -33,7 +33,8 @@ trait React extends Object {
    * Create and return a new `ReactElement` of the given type. The type argument can be either an html tag name string
    * (eg. 'div', 'span', etc), or a [[ReactClass]] (created via [[React.createClass]]).
    */
-  def createElement[P,S,B,N <: TopNode](t: ReactClass[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
+  def createElement[P,S,B,N <: TopNode](t: ReactClass[P,S,B,N], props: WrapObj[P], children: ReactNode*): ReactElement = js.native
+
   /**
    * Create and return a new `ReactElement` of the given type. The type argument can be either an html tag name string
    * (eg. 'div', 'span', etc), or a [[ReactClass]] (created via [[React.createClass]]).
