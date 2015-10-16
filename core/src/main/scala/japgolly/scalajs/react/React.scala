@@ -18,11 +18,6 @@ trait React extends Object {
    */
   def createClass[P,S,B,N <: TopNode](spec: ReactComponentSpec[P,S,B,N]): ReactClass[P,S,B,N] = js.native
   /**
-   * Interesting for Relay Support
-   */
-  def createFactory(tpe: js.Any): ReactComponentFactory[Any,Any] = js.native
-
-  /**
    * Return a function that produces ReactElements of a given type. Like `React.createElement`, the type argument can be
    * either an html tag name string (eg. 'div', 'span', etc), or a [[ReactClass]].
    */
@@ -35,18 +30,13 @@ trait React extends Object {
   /**
    * Interesting for Relay Support
    */
-  def createElement[P, S, C <: ReactComponent[P,S]](t: ReactClass[P,S,_,_], props: js.Any, children: ReactNode *): ReactElement = js.native
+  def createElement[P <: js.Object, S, C <: ReactComponent[P,S,N],N <: TopNode](t: ReactClass[P,S,_,N], props: P, children: ReactNode *): ReactComponentCU[P,S,Unit,N] = js.native
 
   /**
    * Create and return a new `ReactElement` of the given type. The type argument can be either an html tag name string
    * (eg. 'div', 'span', etc), or a [[ReactClass]] (created via [[React.createClass]]).
    */
   def createElement[P,S,B,N <: TopNode](t: ReactClass[P,S,B,N], props: WrapObj[P], children: ReactNode*): ReactElement = js.native
-
-  /**
-   * todo for relay
-   */
-  def createElement[P <: js.Object,S,N <: TopNode](t: ReactClass[P,S,Unit,N], props: P, children: ReactNode*): ReactElement = js.native
 
   /**
    * Create and return a new `ReactElement` of the given type. The type argument can be either an html tag name string
