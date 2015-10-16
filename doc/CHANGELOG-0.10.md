@@ -367,6 +367,12 @@ Unlike the `render` methods, this migration can be automated (see below).
 
 * Upgrade scala-js-dom 0.8.{1 ⇒ 2}.
 
+* Added `ReactTagOf` to provide more specific types for scalatags. `ReactTag` is the kept the same as before for compatibility or if you don't need it.  
+```scala
+val specific: ReactTagOf[html.Div] = div()
+val general: ReactTag = specific
+```
+
 ---
 
 ### Migration commands
