@@ -27,13 +27,14 @@ object Example {
   case object Reuse        extends Example("Reusability",        "reusability",      ReuseExample         .content)
   case object EventListen  extends Example("EventListener",      "event-listener",   EventListenerExample .content)
   case object CallbackOpt  extends Example("CallbackOption",     "callback-option",  CallbackOptionExample.content)
+  case object ES6Classes   extends Example("ES6Classes",         "es6classes",       ES6ClassesExample.content)
 
   implicit val reusability: Reusability[Example] = Reusability.by_==
 
   val values = Vector[Example](
     Hello, Timer, Todo, Refs, ProductTable, Animation,        // Ported ReactJS examples
     EventListen, CallbackOpt, ExternalVar, Reuse, StateMonad, // Scala only examples
-    Touch, PictureApp)                                        // General usage
+    Touch, PictureApp, ES6Classes)                            // General usage
 
   def default: Example =
     values.head

@@ -19,6 +19,7 @@ package object react extends ReactEventAliases {
    * If P,S,B,N types are needed and there's another object that has them, this is used to bridge for type inference.
    */
   trait ReactComponentTypeAux[P, S, +B, +N <: TopNode]
+  @js.native
   trait ReactComponentTypeAuxJ[P, S, +B, +N <: TopNode] extends js.Object
   implicit def reactComponentTypeAuxJ[P, S, B, N <: TopNode](a: ReactComponentTypeAuxJ[P,S,B,N]): ReactComponentTypeAux[P,S,B,N] =
     a.asInstanceOf[ReactComponentTypeAux[P,S,B,N]]
@@ -30,6 +31,7 @@ package object react extends ReactEventAliases {
 
   // TODO WrapObj was one of the first things I did when starting with ScalaJS. Reconsider.
   /** Allows Scala classes to be used in place of `Object`. */
+  @js.native
   trait WrapObj[+A] extends Object { val v: A = js.native }
   def WrapObj[A](v: A) =
     Dynamic.literal("v" -> v.asInstanceOf[JAny]).asInstanceOf[WrapObj[A]]
