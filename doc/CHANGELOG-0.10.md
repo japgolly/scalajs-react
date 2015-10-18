@@ -81,6 +81,7 @@ It is now what is passed to React and DOM event-handlers to represent a procedur
 * `.async`/`.delay(n)` to run asynchronously and return a `Future`.
 * `.logResult` to print the callback result before returning it.
 * `.logDuration` to measure and log how long the callback takes.
+* `Callback.TODO` provides both compile-time and runtime warnings that a callback isn't implemented yet.
 
 A quick summary of the changes for all users:
 * When creating HTML, `-->` and `==>` only accept `Callback`s.
