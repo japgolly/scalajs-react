@@ -15,6 +15,9 @@ Living in the `core` module with no FP dependencies,
 many ops normally provided via typeclasses (eg. `<*`, `>>=`, etc.) are built-in directly.
 The Scalaz module contains typeclass instances for it.
 
+There's also `CallbackOption` which is a callback & option monad stack.
+Check out the online [`CallbackOption` example](https://japgolly.github.io/scalajs-react/#examples/callback-option).
+
 Scalaz
 ======
 
