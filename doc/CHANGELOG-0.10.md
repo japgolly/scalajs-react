@@ -303,18 +303,18 @@ the render function name. Conversely, it's now always obvious what's happening b
 All `render*` functions take as their sole argument a function that returns a `ReactElement` (which is a `ReactComponent` or DOM element).
 
 The `render` function takes a function which has as its first argument a `CompScope`,
-which is broadly analogous to javascript's `this`, and which scalajs-react conventionally designates with `$`. 
+which is broadly analogous to javascript's `this`, and which scalajs-react conventionally designates with `$`.
 
 |Method|Argument|Example|
 | --- | --- | --- | --- |
 |`render`|Function taking `CompScope`<br>(Component scope: analogous to javascript `this`)|`.render { $ => <.div() }`|
 
-Additional `render*` convenience functions *without an underscore* specify (and unwrap) additional arguments, 
-which scalajs-react conventionally designates as `P` for `props`, `C` for `propsChildren`, and `S` for `state` 
-(see table below). The uppercase is not an accident: all of these are the types of generic arguments 
+Additional `render*` convenience functions *without an underscore* specify (and unwrap) additional arguments,
+which scalajs-react conventionally designates as `P` for `props`, `C` for `propsChildren`, and `S` for `state`
+(see table below). The uppercase is not an accident: all of these are the types of generic arguments
 explicitly or implicitly given to `ReactComponentB`.
 
-These additional `render*` functions are convenience functions, as all of these additional arguments can be 
+These additional `render*` functions are convenience functions, as all of these additional arguments can be
 found as members of the `CompScope` argument.
 
 E.g.:
@@ -323,16 +323,16 @@ E.g.:
         val p = $.props
         val c = $.propsChildren
         val s = $.state
-        
+
         <.div()
      }
-      
+
 is equivalent to:
 
     .renderPCS { ($, p, c, s)  =>
         <.div()
      }
-     
+
 |Method|Argument|Example|
 | --- | --- | --- | --- |
 |`renderPCS`|Fn taking `CompScope`, props, children, state|`.renderPCS(($, p, c, s) => <.div())`|
@@ -343,9 +343,9 @@ is equivalent to:
 |`renderC`  |Fn taking `CompScope`, children|`.renderC(($, c) => <.div())`|
 |`renderS`  |Fn taking `CompScope`, state|`.renderS(($, s) => <.div())`|
 
-`render*` function overloads *with* an underscore take a function which takes has only that single part of the 
+`render*` function overloads *with* an underscore take a function which takes has only that single part of the
 `CompScope` called out in the function name. The `CompScope` itself is not passed to the function passed.
- 
+
 |Method|Argument|Example|
 | --- | --- | --- | --- |
 |`render_P` | Fn taking only props.    |`.render_P(p => <.div())`|
@@ -432,15 +432,30 @@ Unlike the `render` methods, this migration can be automated (see below).
 
 * Small improvements to `ReusabilityOverlay`.
 
-* Upgrade [scala-js-dom](https://github.com/scala-js/scala-js-dom) 0.8.{1 ⇒ 2}.
+* Upgrade [scala-js-dom](https://github.com/scala-js/scala-js-dom) from 0.8.1 to 0.8.2.
 
 * Added `ReactTagOf` to provide more specific types for virtual DOM (ScalaTags).
-  `ReactTag` is the kept the same as before for compatibility or if you don't need it.  
+
+  `ReactTag` is the kept the same as before for compatibility or if you don't need it.
 
   ```scala
   val specific: ReactTagOf[html.Anchor] = <.a(^.href := "https://google.com", "Google")
   val general: ReactTag = specific
   ```
+
+* React components now have the following type members:
+
+  ```scala
+  type Props     = P
+  type State     = S
+  type Backend   = B
+  type DomType   = N
+  type Mounted   = ReactComponentM[P, S, B, N]
+  type Unmounted = ReactComponentU[P, S, B, N]
+  ```
+
+  These are in the constructors (`ReactComponentC`) which are equivalent to Scala objects.
+  Component instances (`ReactComponentU`, `ReactComponentM`), equivalent to Scala classes, do not have these types.
 
 ---
 

@@ -22,7 +22,7 @@ Includes a router, testing utils, performance utils, more.
   - [Performance Management](extra/PERF.md).
   - [Smaller stuff](extra/README.md).
 - [Testing](test/README.md).
-- [Changelogs](doc/) — [Latest](doc/CHANGELOG-0.9.md).
+- [Changelogs](doc/) — [Latest](doc/CHANGELOG-0.10.md).
 
 
 ##### External Resources
@@ -41,6 +41,6 @@ Includes a router, testing utils, performance utils, more.
 
 
 ##### Requirements:
-* React 0.12 *(0.13 probably works too, 0.14 will be fully supported when released)*
+* React 0.14
 * Scala 2.11
 * Scala.JS 0.6.4+
