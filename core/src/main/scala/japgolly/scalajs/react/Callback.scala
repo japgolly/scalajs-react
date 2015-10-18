@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import org.scalajs.dom.console
 import scala.annotation.implicitNotFound
 import scala.concurrent.{Future, Promise}
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
 import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
 import js.timers.RawTimers
@@ -249,10 +249,18 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     } yield (a, b)
 
   /**
+   * Discard the callback's return value, return a given value instead.
+   *
+   * `ret`, short for `return`.
+   */
+  def ret[B](b: B): CallbackTo[B] =
+    map(_ => b)
+
+  /**
    * Discard the value produced by this callback.
    */
   def void: Callback =
-    map(_ => ())
+    ret(())
 
   def conditionally(cond: => Boolean): CallbackTo[Option[A]] =
     CallbackTo(if (cond) Some(f()) else None)
@@ -384,6 +392,41 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
       RawTimers.setTimeout(cb.toJsFn, startInMilliseconds)
       p.future
     }
+
+  /**
+   * Record the duration of this callback's execution.
+   */
+  def withDuration[B](f: (A, FiniteDuration) => CallbackTo[B]): CallbackTo[B] = {
+    @inline def nowMS: Long = System.currentTimeMillis()
+    CallbackTo {
+      val s = nowMS
+      val a = runNow()
+      val e = nowMS
+      val d = FiniteDuration(e - s, MILLISECONDS)
+      f(a, d).runNow()
+    }
+  }
+
+  /**
+   * Log the duration of this callback's execution.
+   */
+  def logDuration(fmt: FiniteDuration => String): CallbackTo[A] =
+    withDuration((a, d) =>
+      Callback.log(fmt(d)) ret a)
+
+  /**
+   * Log the duration of this callback's execution.
+   *
+   * @param name Prefix to appear the log output.
+   */
+  def logDuration(name: String): CallbackTo[A] =
+    logDuration(d => s"$name completed in $d.")
+
+  /**
+   * Log the duration of this callback's execution.
+   */
+  def logDuration: CallbackTo[A] =
+    logDuration("Callback")
 
   def asCBO[B](implicit ev: This =:= CallbackTo[Option[B]]): CallbackOption[B] =
     CallbackOption(ev(this))
