@@ -1,10 +1,22 @@
 package japgolly.scalajs.react.vdom
 
 import org.scalajs.dom
+import scala.annotation.implicitNotFound
 import scala.scalajs.js
 import japgolly.scalajs.react._
 import Scalatags._
 import Implicits._
+
+@implicitNotFound("You are passing a CallbackTo[${A}] to a DOM event handler which is most likely a mistake."
+  + "\n  If the result is irrelevant, add `.void`."
+  + "\n  If the result is necessary, please raise an issue and use `vdom.DomCallbackResult.force` in the meantime.")
+sealed trait DomCallbackResult[A]
+object DomCallbackResult {
+  def force[A] = null.asInstanceOf[DomCallbackResult[A]]
+  @inline implicit def unit = force[Unit]
+  @inline implicit def boolean = force[Boolean]
+  @inline implicit def undefOrBoolean = force[js.UndefOr[Boolean]]
+}
 
 object Extra {
 
@@ -16,19 +28,29 @@ object Extra {
       }
   }
 
-  final class AttrExt(private val _a: Attr) extends AnyVal {
-    @inline def -->(callback: => Unit) = _a := ((() => callback): js.Function)
-    @inline def ==>[N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => Unit) = _a := (eventHandler: js.Function)
+  final class AttrExt(private val attr: Attr) extends AnyVal {
+    def -->[A: DomCallbackResult](callback: => CallbackTo[A]): TagMod =
+      // not using callback.toJsFn or similar because we don't want to force evaluate of callback
+      attr := ((() => callback.runNow()): js.Function)
+
+    def ==>[A: DomCallbackResult, N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => CallbackTo[A]): TagMod =
+      attr := (((e: E) => eventHandler(e).runNow()): js.Function)
+
+    def -->?[O[_]](callback: => O[Callback])(implicit o: OptionLike[O]): TagMod =
+      attr --> Callback(o.foreach(callback)(_.runNow()))
+
+    def ==>?[O[_], N <: dom.Node, E <: SyntheticEvent[N]](eventHandler: E => O[Callback])(implicit o: OptionLike[O]): TagMod =
+      attr.==>[Unit, N, E](e => Callback(o.foreach(eventHandler(e))(_.runNow())))
   }
 
-  final class BooleanExt(private val _b: Boolean) extends AnyVal {
-    @inline def ?=(m: => TagMod): TagMod = if (_b) m else EmptyTag
+  final class BooleanExt(private val b: Boolean) extends AnyVal {
+    @inline def ?=(m: => TagMod): TagMod = if (b) m else EmptyTag
   }
 
-  final class StringExt(private val _s: String) extends AnyVal {
-    @inline def reactAttr : Attr     = Attr(_s)
-    @inline def reactStyle: Style    = Style(_s, _s)
-    @inline def reactTag  : ReactTag = makeAbstractReactTag(_s, Scalatags.NamespaceHtml.implicitNamespace)
+  final class StringExt(private val s: String) extends AnyVal {
+    @inline def reactAttr : Attr     = Attr(s)
+    @inline def reactStyle: Style    = Style(s, s)
+    @inline def reactTag[N <: TopNode]: ReactTagOf[N] = makeAbstractReactTag(s, Scalatags.NamespaceHtml.implicitNamespace)
   }
 
   trait Tags {
@@ -46,16 +68,28 @@ object Extra {
     final val colSpan       = "colSpan".attr
     final val rowSpan       = "rowSpan".attr
     final val htmlFor       = "htmlFor".attr   // same as `for`
-    final val ref           = "ref".attr
+    final val ref           = RefAttr
     final val key           = "key".attr
     final val draggable     = "draggable".attr
-    final val onDragStart   = "onDragStart".attr
-    final val onDragEnd     = "onDragEnd".attr
-    final val onDragEnter   = "onDragEnter".attr
-    final val onDragOver    = "onDragOver".attr
-    final val onDragLeave   = "onDragLeave".attr
-    final val onDrop        = "onDrop".attr
-    final val onBeforeInput = "onBeforeInput".attr
+
+    final val onBeforeInput       = "onBeforeInput".attr
+    final val onCompositionEnd    = "onCompositionEnd".attr
+    final val onCompositionStart  = "onCompositionStart".attr
+    final val onCompositionUpdate = "onCompositionUpdate".attr
+    final val onContextMenu       = "onContextMenu".attr
+    final val onCopy              = "onCopy".attr
+    final val onCut               = "onCut".attr
+    final val onDrag              = "onDrag".attr
+    final val onDragStart         = "onDragStart".attr
+    final val onDragEnd           = "onDragEnd".attr
+    final val onDragEnter         = "onDragEnter".attr
+    final val onDragOver          = "onDragOver".attr
+    final val onDragLeave         = "onDragLeave".attr
+    final val onDragExit          = "onDragExit".attr
+    final val onDrop              = "onDrop".attr
+    final val onInput             = "onInput".attr
+    final val onPaste             = "onPaste".attr
+    final val onWheel             = "onWheel".attr
 
     final val acceptCharset     = "acceptCharset".attr
     final val accessKey         = "accessKey".attr

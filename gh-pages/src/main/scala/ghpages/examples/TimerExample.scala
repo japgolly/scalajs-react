@@ -1,5 +1,6 @@
 package ghpages.examples
 
+import ghpages.GhPagesMacros
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import scala.scalajs.js
 import ghpages.examples.util.SideBySide
@@ -16,15 +17,19 @@ object TimerExample {
       |  getInitialState: function() {
       |    return {secondsElapsed: 0};
       |  },
+      |
       |  tick: function() {
       |    this.setState({secondsElapsed: this.state.secondsElapsed + 1});
       |  },
+      |
       |  componentDidMount: function() {
       |    this.interval = setInterval(this.tick, 1000);
       |  },
+      |
       |  componentWillUnmount: function() {
       |    clearInterval(this.interval);
       |  },
+      |
       |  render: function() {
       |    return (
       |      React.createElement("div", null, "Seconds Elapsed: ", this.state.secondsElapsed)
@@ -32,52 +37,41 @@ object TimerExample {
       |  }
       |});
       |
-      |React.render(React.createElement(Timer, null), mountNode);
+      |ReactDOM.render(React.createElement(Timer, null), mountNode);
       |""".stripMargin
 
-  val source =
-    """
-      |case class State(secondsElapsed: Long)
-      |
-      |class Backend($: BackendScope[_, State]) {
-      |  var interval: js.UndefOr[js.timers.SetIntervalHandle] =
-      |    js.undefined
-      |
-      |  def tick() =
-      |    $.modState(s => State(s.secondsElapsed + 1))
-      |
-      |  def start() =
-      |    interval = js.timers.setInterval(1000)(tick())
-      |}
-      |
-      |val Timer = ReactComponentB[Unit]("Timer")
-      |  .initialState(State(0))
-      |  .backend(new Backend(_))
-      |  .render($ => <.div("Seconds elapsed: ", $.state.secondsElapsed))
-      |  .componentDidMount(_.backend.start())
-      |  .componentWillUnmount(_.backend.interval foreach js.timers.clearInterval)
-      |  .buildU
-      |""".stripMargin
+  val source = GhPagesMacros.exampleSource
 
+  // EXAMPLE:START
 
   case class State(secondsElapsed: Long)
 
-  class Backend($: BackendScope[_, State]) {
+  class Backend($: BackendScope[Unit, State]) {
     var interval: js.UndefOr[js.timers.SetIntervalHandle] =
       js.undefined
 
-    def tick() =
+    def tick =
       $.modState(s => State(s.secondsElapsed + 1))
 
-    def start() =
-      interval = js.timers.setInterval(1000)(tick())
+    def start = Callback {
+      interval = js.timers.setInterval(1000)(tick.runNow())
+    }
+
+    def clear = Callback {
+      interval foreach js.timers.clearInterval
+      interval = js.undefined
+    }
+
+    def render(s: State) =
+      <.div("Seconds elapsed: ", s.secondsElapsed)
   }
 
   val Timer = ReactComponentB[Unit]("Timer")
     .initialState(State(0))
-    .backend(new Backend(_))
-    .render($ => <.div("Seconds elapsed: ", $.state.secondsElapsed))
-    .componentDidMount(_.backend.start())
-    .componentWillUnmount(_.backend.interval foreach js.timers.clearInterval)
+    .renderBackend[Backend]
+    .componentDidMount(_.backend.start)
+    .componentWillUnmount(_.backend.clear)
     .buildU
+
+  // EXAMPLE:END
 }

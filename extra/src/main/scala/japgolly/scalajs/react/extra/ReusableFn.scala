@@ -1,10 +1,7 @@
 package japgolly.scalajs.react.extra
 
-import monocle.Lens
 import scala.runtime.AbstractFunction1
-import scalaz.effect.IO
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.ScalazReact._
 
 /**
  * A function that facilitates stability and reuse.
@@ -19,12 +16,10 @@ import japgolly.scalajs.react.ScalazReact._
 sealed abstract class ReusableFn[A, B] extends AbstractFunction1[A, B] {
   private[extra] def reusable: PartialFunction[ReusableFn[A, B], Boolean]
 
-  import scalaz.Leibniz._
+  def asVar(value: A)(implicit r: Reusability[A], ev: ReusableFn[A, B] =:= ReusableFn[A, Callback]): ReusableVar[A] =
+    new ReusableVar(value, ev(this))(r)
 
-  def asVar(value: A)(implicit r: Reusability[A], ev: B === IO[Unit]): ReusableVar[A] =
-    new ReusableVar(value, ev.subst[({type λ[X] = A ~=> X})#λ](this))(r)
-
-  def asVarR(value: A, r: Reusability[A])(implicit ev: B === IO[Unit]): ReusableVar[A] =
+  def asVarR(value: A, r: Reusability[A])(implicit ev: ReusableFn[A, B] =:= ReusableFn[A, Callback]): ReusableVar[A] =
     asVar(value)(r, ev)
 
   def dimap[C, D](f: (A => B) => C => D): C ~=> D =
@@ -35,6 +30,9 @@ sealed abstract class ReusableFn[A, B] extends AbstractFunction1[A, B] {
 
   def contramap[C](f: C => A): C ~=> B =
     dimap(f.andThen)
+
+  def fnA(a: A)(implicit ra: Reusability[A]): ReusableFnA[A, B] =
+    new ReusableFnA(a, this)
 }
 
 object ReusableFn {
@@ -45,9 +43,6 @@ object ReusableFn {
 
     def endoZoom[I](f: (E, I) => E): I ~=> B =
       s.dimap(g => i => g(f(_, i)))
-
-    def endoZoomL[I](l: Lens[E, I]): I ~=> B =
-      s contramap l.set
 
     def endoCall2[I: Reusability, J](f: E => (I, J) => E): I ~=> (J ~=> B) =
       ReusableFn((i: I, j: J) => s(f(_)(i, j)))
@@ -64,8 +59,8 @@ object ReusableFn {
   def byName[A, B](f: => (A => B)): A ~=> B =
     ReusableFn[A, B](a => f(a))
 
-  @inline def apply[C, S]($: C)(implicit c: CompStateAccess[C, S]) =
-    new CompOps[C, S]($)
+  @inline def apply[S]($: CompState.WriteCallbackOps[S]) =
+    new CompOps($)
 
   @inline def apply[Y, Z](f: Y => Z): Y ~=> Z =
     new Fn1(f)
@@ -88,23 +83,14 @@ object ReusableFn {
   def renderComponent[P](c: ReactComponentC.ReqProps[P, _, _, TopNode]): P ~=> ReactElement =
     ReusableFn(c(_: P))
 
-  final class CompOps[C, S](private val $: C) extends AnyVal {
-    // This should really be a class param but then we lose the AnyVal
-    type CC = CompStateAccess[C, S]
-
+  final class CompOps[S](private val $: CompState.WriteCallbackOps[S]) extends AnyVal {
     // These look useless but avoid Scala type-inference issues
 
-    def modState(implicit C: CC): (S => S) ~=> Unit =
-      ReusableFn($.modState(_))
+    def modState: (S => S) ~=> Callback =
+      ReusableFn($ modState _)
 
-    def modStateIO(implicit C: CC): (S => S) ~=> IO[Unit] =
-      ReusableFn($.modStateIO(_))
-
-    def setState(implicit C: CC): S ~=> Unit =
-      ReusableFn($.setState(_))
-
-    def setStateIO(implicit C: CC): S ~=> IO[Unit] =
-      ReusableFn($.setStateIO(_))
+    def setState: S ~=> Callback =
+      ReusableFn($ setState _)
   }
 
   implicit def reusability[A, B]: Reusability[ReusableFn[A, B]] =
@@ -182,4 +168,22 @@ object ReusableFn {
     override def apply(y: Y): Z = f(a, b, c, d, e, y)
     override private[extra] def reusable = { case x: Cur5[A, B, C, D, E, Y, Z] => (f eq x.f) && (a ~=~ x.a) && (b ~=~ x.b) && (c ~=~ x.c) && (d ~=~ x.d) && (e ~=~ x.e) }
   }
+}
+
+// ===================================================================================================================
+
+/**
+ * A [[ReusableFn]] from `A` to `B`, paired with a value of `A`.
+ *
+ * Ideally this would be `ReusableFn0[B]` without needing the `A` (a reusable version of `() => B`)
+ * but the overhead to reliably create such a construct is annoyingly high and not worth it.
+ */
+final class ReusableFnA[A, B] private[extra](val a: A, val fn: A ~=> B) {
+  def apply(): B =
+    fn(a)
+}
+
+object ReusableFnA {
+  implicit def reusability[A: Reusability, B]: Reusability[ReusableFnA[A, B]] =
+    Reusability.fn((x, y) => (x.a ~=~ y.a) && (x.fn ~=~ y.fn))
 }

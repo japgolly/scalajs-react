@@ -8,26 +8,36 @@ object Addons {
   object ReactCssTransitionGroup {
     /** Items in the CSSTransitionGroup need this attribute for animation to work properly. */
     @inline final def key = vdom.Attrs.key
+
+    private val factory =
+      React.createFactory(
+        React.addons.CSSTransitionGroup.asInstanceOf[JsComponentType[js.Any, js.Any, TopNode]])
   }
 
-  case class ReactCssTransitionGroup(name     : String,
-                                     enter    : js.UndefOr[Boolean] = js.undefined,
-                                     leave    : js.UndefOr[Boolean] = js.undefined,
-                                     component: js.UndefOr[String]  = js.undefined,
-                                     ref      : js.UndefOr[String]  = js.undefined) {
+  case class ReactCssTransitionGroup(name         : String,
+                                     appear       : js.UndefOr[Boolean] = js.undefined,
+                                     appearTimeout: js.UndefOr[Int]     = js.undefined,
+                                     enter        : js.UndefOr[Boolean] = js.undefined,
+                                     enterTimeout : js.UndefOr[Int]     = js.undefined,
+                                     leave        : js.UndefOr[Boolean] = js.undefined,
+                                     leaveTimeout : js.UndefOr[Int]     = js.undefined,
+                                     component    : js.UndefOr[String]  = js.undefined,
+                                     ref          : js.UndefOr[String]  = js.undefined) {
     def toJs: js.Object = {
       val p = js.Dynamic.literal("transitionName" -> name)
-      enter    .foreach(p.updateDynamic("transitionEnter")(_))
-      leave    .foreach(p.updateDynamic("transitionLeave")(_))
-      component.foreach(p.updateDynamic("component"      )(_))
-      ref      .foreach(p.updateDynamic("ref"            )(_))
+      appear       .foreach(p.updateDynamic("transitionAppear")(_))
+      appearTimeout.foreach(p.updateDynamic("transitionAppearTimeout")(_))
+      enter        .foreach(p.updateDynamic("transitionEnter")(_))
+      enterTimeout .foreach(p.updateDynamic("transitionEnterTimeout")(_))
+      leave        .foreach(p.updateDynamic("transitionLeave")(_))
+      leaveTimeout .foreach(p.updateDynamic("transitionLeaveTimeout")(_))
+      component    .foreach(p.updateDynamic("component"      )(_))
+      ref          .foreach(p.updateDynamic("ref"            )(_))
       p
     }
 
-    def apply(children: ReactNode*): ReactComponentU_ = {
-      val f = React.addons.CSSTransitionGroup
-      f(toJs, children.toJsArray).asInstanceOf[ReactComponentU_]
-    }
+    def apply(children: ReactNode*): ReactComponentU_ =
+      ReactCssTransitionGroup.factory(toJs, children.toJsArray).asInstanceOf[ReactComponentU_]
   }
 
   object ReactCloneWithProps {
@@ -40,6 +50,11 @@ object Addons {
       obj
     }
 
+    /**
+     * `cloneWithProps` is now deprecated. Use `React.cloneElement` instead (unlike `cloneWithProps`, `cloneElement`
+     * does not merge `className` or `style` automatically; you can merge them manually if needed).
+     */
+    @deprecated("As of React 0.14, you must use React.cloneElement instead.", "0.10.0")
     def apply(child: ReactNode, newProps: Map[String, js.Any]) = {
       val f = React.addons.cloneWithProps
       f(child, mapToJS(newProps)).asInstanceOf[ReactComponentU_]

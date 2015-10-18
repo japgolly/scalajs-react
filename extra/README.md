@@ -2,12 +2,11 @@
 ======================
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.9.2"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.10.0"
 ```
 
 **Big Stuff**
-- [Router v1](ROUTER.md)
-- [Router v2](ROUTER2.md) *(New in v0.9!)*
+- [Router](ROUTER.md)
 - [Performance Management](PERF.md)
 
 **Small Stuff**

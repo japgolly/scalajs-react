@@ -1,5 +1,6 @@
 package ghpages.examples
 
+import ghpages.GhPagesMacros
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import org.scalajs.dom.raw.HTMLInputElement
 import ghpages.examples.util.SideBySide
@@ -16,16 +17,19 @@ object RefsExample {
       |  getInitialState: function() {
       |    return {userInput: ''};
       |  },
+      |
       |  handleChange: function(e) {
       |    this.setState({userInput: e.target.value});
       |  },
+      |
       |  clearAndFocusInput: function() {
       |    // Clear the input
       |    this.setState({userInput: ''}, function() {
       |      // This code executes after the component is re-rendered
-      |      this.refs.theInput.getDOMNode().focus();   // Boom! Focused!
+      |      this.refs.theInput.focus();   // Boom! Focused!
       |    });
       |  },
+      |
       |  render: function() {
       |    return (
       |      <div>
@@ -33,9 +37,9 @@ object RefsExample {
       |          Click to Focus and Reset
       |        </div>
       |        <input
-      |          ref="theInput"
-      |          value={this.state.userInput}
-      |          onChange={this.handleChange}
+      |          ref      = "theInput"
+      |          value    = {this.state.userInput}
+      |          onChange = {this.handleChange}
       |        />
       |      </div>
       |    );
@@ -44,46 +48,34 @@ object RefsExample {
       |""".stripMargin
 
 
-  val source =
-    """
-      |val theInput = Ref[HTMLInputElement]("theInput")
-      |
-      |class Backend($: BackendScope[_, String]) {
-      |  def handleChange(e: ReactEventI) =
-      |    $.setState(e.target.value)
-      |  def clearAndFocusInput() =
-      |    $.setState("", () => theInput($).tryFocus())
-      |}
-      |
-      |val App = ReactComponentB[Unit]("App")
-      |  .initialState("")
-      |  .backend(new Backend(_))
-      |  .render((_,S,B) =>
-      |    <.div(
-      |      <.div(^.onClick --> B.clearAndFocusInput)("Click to Focus and Reset"),
-      |      <.input(^.ref := theInput, ^.value := S, ^.onChange ==> B.handleChange)
-      |    )
-      |  ).buildU
-      |
-      |React.render(App(), mountNode)
-      |""".stripMargin
+  val source = GhPagesMacros.exampleSource
+
+  // EXAMPLE:START
 
   val theInput = Ref[HTMLInputElement]("theInput")
 
-  class Backend($: BackendScope[_, String]) {
+  class Backend($: BackendScope[Unit, String]) {
     def handleChange(e: ReactEventI) =
       $.setState(e.target.value)
+
     def clearAndFocusInput() =
-      $.setState("", () => theInput($).tryFocus())
+      $.setState("", theInput($).tryFocus)
+
+    def render(state: String) =
+      <.div(
+        <.div(
+          ^.onClick --> clearAndFocusInput,
+          "Click to Focus and Reset"),
+        <.input(
+          ^.ref       := theInput,
+          ^.value     := state,
+          ^.onChange ==> handleChange))
   }
 
   val App = ReactComponentB[Unit]("App")
     .initialState("")
-    .backend(new Backend(_))
-    .render((_,S,B) =>
-      <.div(
-        <.div(^.onClick --> B.clearAndFocusInput)("Click to Focus and Reset"),
-        <.input(^.ref := theInput, ^.value := S, ^.onChange ==> B.handleChange)
-      )
-    ).buildU
+    .renderBackend[Backend]
+    .buildU
+
+  // EXAMPLE:END
 }

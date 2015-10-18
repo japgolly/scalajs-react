@@ -48,8 +48,9 @@ Namely...
 
 | Type | Desc |
 | ---- | ---- |
-| `ComponentScopeU[P, S, +B]` | An unmounted component's `this` scope. |
-| `ComponentScopeWU[P, S, +B, +N]` | A component's `this` scope during `componentWillUpdate`. |
+| `CompScope.DuringCallbackU[P, S, +B]` | An unmounted component's `this` scope. |
+| `CompScope.DuringCallbackM[P, S, +B]` | A mounted component's `this` scope. |
+| `CompScope.WillUpdate[P, S, +B, +N]` | A component's `this` scope during `componentWillUpdate`. |
 | `BackendScope[P, S]` | A component's `this` scope as is available to backends. |
 
 For using JS React Components, you can use follow facade interfaces.
@@ -94,10 +95,23 @@ One of the suffixes below can be added to any the ReactEvents above, to provide 
 
 For example, `ReactDragEventI` is a `ReactDragEvent` over a `HTMLInputElement` (an `<input>`), the same as writing `SyntheticDragEvent[HTMLInputElement]`.
 
+### Component-scope access
+
+To prevent issues such as
+backends' props/state being used in such a way that they go stale at runtime (a suprisingly easy mistake to make),
+component/backend scope access is as follows:
+
+| Method | `BackendScope` | During Callback | External Access |
+| --- | --- | --- | --- |
+| `.props` | `CallbackTo[P]` | `P` | `P` |
+| `.state` | `CallbackTo[S]` | `S` | `S` |
+| `.setState` | `Callback` | `Callback` | `Unit` |
+| `.modState` | `Callback` | `Callback` | `Unit` |
+| `.forceUpdate` | `Callback` | `Callback` | `Unit` |
+
 # Other
 
 | Type | Desc |
 | ---- | ---- |
-| `ComponentStateFocus[T]` | Rather than give functions full access to a components state, you can narrow the state down to a subset and pass that around via this type. |
 | `Ref[+N]` | A named reference to an element in a React VDOM. (See [React: More About Refs](https://facebook.github.io/react/docs/more-about-refs.html).) |
 | `RefP[I, +N]` | As above but references multiple, related DOM elements and requires a parameter `I` (usually an ID) to disambiguate. |

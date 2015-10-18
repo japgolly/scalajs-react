@@ -1,5 +1,6 @@
 package ghpages.examples
 
+import ghpages.GhPagesMacros
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
 
@@ -48,50 +49,20 @@ object TodoExample {
       |  }
       |});
       |
-      |React.render(React.createElement(TodoApp, null), mountNode);
+      |ReactDOM.render(React.createElement(TodoApp, null), mountNode);
       |""".stripMargin
-
 
   val source =
-    """
-      |val TodoList = ReactComponentB[List[String]]("TodoList")
-      |  .render(props => {
-      |    def createItem(itemText: String) = <.li(itemText)
-      |    <.ul(props map createItem)
-      |  })
-      |  .build
+    s"""
+      |${GhPagesMacros.exampleSource}
       |
-      |case class State(items: List[String], text: String)
-      |
-      |class Backend($: BackendScope[Unit, State]) {
-      |  def onChange(e: ReactEventI) =
-      |    $.modState(_.copy(text = e.target.value))
-      |  def handleSubmit(e: ReactEventI) = {
-      |    e.preventDefault()
-      |    $.modState(s => State(s.items :+ s.text, ""))
-      |  }
-      |}
-      |
-      |val TodoApp = ReactComponentB[Unit]("TodoApp")
-      |  .initialState(State(Nil, ""))
-      |  .backend(new Backend(_))
-      |  .render((_,S,B) =>
-      |    <.div(
-      |      <.h3("TODO"),
-      |      TodoList(S.items),
-      |      <.form(^.onSubmit ==> B.handleSubmit,
-      |        <.input(^.onChange ==> B.onChange, ^.value := S.text),
-      |        <.button("Add #", S.items.length + 1)
-      |      )
-      |    )
-      |  ).buildU
-      |
-      |React.render(TodoApp(), mountNode)
+      |ReactDOM.render(TodoApp(), mountNode)
       |""".stripMargin
 
+  // EXAMPLE:START
 
   val TodoList = ReactComponentB[List[String]]("TodoList")
-    .render(props => {
+    .render_P(props => {
       def createItem(itemText: String) = <.li(itemText)
       <.ul(props map createItem)
     })
@@ -102,23 +73,26 @@ object TodoExample {
   class Backend($: BackendScope[Unit, State]) {
     def onChange(e: ReactEventI) =
       $.modState(_.copy(text = e.target.value))
-    def handleSubmit(e: ReactEventI) = {
-      e.preventDefault()
+
+    def handleSubmit(e: ReactEventI) =
+      e.preventDefaultCB >>
       $.modState(s => State(s.items :+ s.text, ""))
-    }
+
+    def render(state: State) =
+      <.div(
+        <.h3("TODO"),
+        TodoList(state.items),
+        <.form(^.onSubmit ==> handleSubmit,
+          <.input(^.onChange ==> onChange, ^.value := state.text),
+          <.button("Add #", state.items.length + 1)
+        )
+      )
   }
 
   val TodoApp = ReactComponentB[Unit]("TodoApp")
     .initialState(State(Nil, ""))
-    .backend(new Backend(_))
-    .render((_,S,B) =>
-      <.div(
-        <.h3("TODO"),
-        TodoList(S.items),
-        <.form(^.onSubmit ==> B.handleSubmit,
-          <.input(^.onChange ==> B.onChange, ^.value := S.text),
-          <.button("Add #", S.items.length + 1)
-        )
-      )
-    ).buildU
+    .renderBackend[Backend]
+    .buildU
+
+  // EXAMPLE:END
 }

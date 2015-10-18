@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.{Simulation, ReactTestUtils}
 import japgolly.scalajs.react.vdom.prefix_<^._
 import org.scalajs.dom.raw.HTMLElement
@@ -14,12 +15,13 @@ object JsComponentTest extends TestSuite {
   val p1 = Ref[HTMLElement]("p1")
   val p2 = Ref[HTMLElement]("p2")
 
+  // TODO Callback: review ↓
   class XxxBackend(scope: BackendScope[Unit, Unit]) {
-    def modifyOne(i: Int): Unit = {
+    def modifyOne(i: Int) = Callback {
       ref(scope).foreach(_.setNum(i))
     }
 
-    def modifyTwo(i: Int): Unit = {
+    def modifyTwo(i: Int) = Callback {
       ref(scope).foreach(c => c.setState(SampleReactComponentState(c.state)(num2 = i)))
     }
   }
@@ -32,13 +34,13 @@ object JsComponentTest extends TestSuite {
         render(scope =>
         <.div(
           React.createFactory(SampleReactComponent)(SampleReactComponentProperty(ref = ref, propOne = "123")),
-          <.p(^.ref := p1, ^.onClick ==> ((_: ReactEvent) => scope.backend.modifyOne(10))),
-          <.p(^.ref := p2, ^.onClick ==> ((_: ReactEvent) => scope.backend.modifyTwo(20)))
+          <.p(^.ref := p1, ^.onClick --> scope.backend.modifyOne(10)),
+          <.p(^.ref := p2, ^.onClick --> scope.backend.modifyTwo(20))
         )).buildU
       val renderedComponent = ReactTestUtils.renderIntoDocument(component())
       val mountedComponent = ref(renderedComponent)
-      assert(mountedComponent.map(_.getDOMNode()).map(_.tagName).map(_.toLowerCase).toOption == Some("div"))
-      assert(mountedComponent.map(_.getDOMNode()).map(_.outerHTML).filter(_.contains("123")).isDefined)
+      assert(mountedComponent.map(ReactDOM.findDOMNode(_).tagName.toLowerCase).toOption == Some("div"))
+      assert(mountedComponent.map(ReactDOM findDOMNode _ outerHTML).filter(_ contains "123").isDefined)
       assert(mountedComponent.map(_.props).flatMap(_.propOne).toOption == Some("123"))
       assert(mountedComponent.map(_.getNum()).toOption == Some(0))
       assert(mountedComponent.map(_.state.num).toOption == Some(0))
@@ -55,11 +57,11 @@ object JsComponentTest extends TestSuite {
       assert(mountedComponent.map(_.getNum()).toOption == Some(3))
       assert(mountedComponent.map(_.state.num).toOption == Some(3))
       assert(mountedComponent.map(_.state.num2).toOption == Some(2))
-      Simulation(ReactTestUtils.Simulate.click(_)).run(p1(renderedComponent))
+      Simulation(ReactTestUtils.Simulate.click(_)).run(p1(renderedComponent).get)
       assert(mountedComponent.map(_.getNum()).toOption == Some(10))
       assert(mountedComponent.map(_.state.num).toOption == Some(10))
       assert(mountedComponent.map(_.state.num2).toOption == Some(2))
-      Simulation(ReactTestUtils.Simulate.click(_)).run(p2(renderedComponent))
+      Simulation(ReactTestUtils.Simulate.click(_)).run(p2(renderedComponent).get)
       assert(mountedComponent.map(_.getNum()).toOption == Some(10))
       assert(mountedComponent.map(_.state.num).toOption == Some(10))
       assert(mountedComponent.map(_.state.num2).toOption == Some(20))

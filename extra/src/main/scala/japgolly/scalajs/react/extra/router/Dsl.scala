@@ -1,16 +1,11 @@
-package japgolly.scalajs.react.extra.router2
+package japgolly.scalajs.react.extra.router
 
 import java.util.UUID
 import java.util.regex.{Pattern, Matcher}
-import monocle.{Lens, Prism, Iso}
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
-import scalaz.{Equal, \/-, -\/, Monoid}
-import scalaz.Isomorphism.<=>
-import scalaz.effect.IO
-import scalaz.syntax.equal._
 import japgolly.scalajs.react.macros.RouterMacros
-import japgolly.scalajs.react.ReactElement
+import japgolly.scalajs.react.{CallbackTo, ReactElement}
 import RouterConfig.Parsed
 
 /**
@@ -162,23 +157,17 @@ object StaticDsl {
      *
      * Eg. If the path is like "/file[.format]" and the default is JSON, "/file" will be read as "/file.json", and
      * when generating a path with JSON this will generate "/file" instead of "/file.json".
+     *
+     * Make sure the type has a useful `.equals()` implementation.
+     * Example: `default == default` should be `true`.
      */
     def withDefault(default: => A): RouteB[A] =
-      withDefaultE(default)(Equal.equalA)
-
-    def withDefaultE(default: => A)(implicit e: Equal[A]): RouteB[A] =
-      r.xmap(_ getOrElse default)(a => if (e.equal(default, a)) None else Some(a))
+      r.xmap(_ getOrElse default)(a => if (default == a) None else Some(a))
   }
 
   abstract class RouteCommon[A, R[_]] {
     def xmap[B](b: A => B)(a: B => A): R[B]
     def parseThen(f: Option[A] => Option[A]): R[A]
-
-    final def xmapL[B](l: Iso[A, B]): R[B] =
-      xmap(l.get)(l.reverseGet)
-
-    final def xmapI[B](i: A <=> B): R[B] =
-      xmap(i.to)(i.from)
 
     final def filter(f: A => Boolean): R[A] =
       parseThen(_ filter f)
@@ -191,38 +180,6 @@ object StaticDsl {
 
     final def const[B](b: B)(implicit ev: A =:= Unit, ev2: Unit =:= A): R[B] =
       xmap(_ => b)(_ => ())
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass1[Z](apply: A => Z)(unapply: Z => Option[A]): R[Z] =
-      xmap(apply)(unapply(_).get)
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass2[AA, B, Z](apply: (AA, B) => Z)(unapply: Z => Option[(AA, B)])(implicit ev: A =:= (AA, B), ev2: (AA, B) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass3[AA, B, C, Z](apply: (AA, B, C) => Z)(unapply: Z => Option[(AA, B, C)])(implicit ev: A =:= (AA, B, C), ev2: (AA, B, C) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass4[AA, B, C, D, Z](apply: (AA, B, C, D) => Z)(unapply: Z => Option[(AA, B, C, D)])(implicit ev: A =:= (AA, B, C, D), ev2: (AA, B, C, D) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass5[AA, B, C, D, E, Z](apply: (AA, B, C, D, E) => Z)(unapply: Z => Option[(AA, B, C, D, E)])(implicit ev: A =:= (AA, B, C, D, E), ev2: (AA, B, C, D, E) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass6[AA, B, C, D, E, F, Z](apply: (AA, B, C, D, E, F) => Z)(unapply: Z => Option[(AA, B, C, D, E, F)])(implicit ev: A =:= (AA, B, C, D, E, F), ev2: (AA, B, C, D, E, F) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass7[AA, B, C, D, E, F, G, Z](apply: (AA, B, C, D, E, F, G) => Z)(unapply: Z => Option[(AA, B, C, D, E, F, G)])(implicit ev: A =:= (AA, B, C, D, E, F, G), ev2: (AA, B, C, D, E, F, G) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
-
-    @deprecated("Use .caseClass[A] instead. This will be removed in 0.10.0.", "0.9.2")
-    final def caseclass8[AA, B, C, D, E, F, G, H, Z](apply: (AA, B, C, D, E, F, G, H) => Z)(unapply: Z => Option[(AA, B, C, D, E, F, G, H)])(implicit ev: A =:= (AA, B, C, D, E, F, G, H), ev2: (AA, B, C, D, E, F, G, H) =:= A): R[Z] =
-      xmap(apply.tupled compose ev)(z => ev2(unapply(z).get))
   }
 
   /**
@@ -272,12 +229,6 @@ object StaticDsl {
 
     def empty[P]: Rule[P] =
       Rule(_ => None, _ => None, _ => None)
-
-    implicit def monoid[P]: Monoid[Rule[P]] =
-      new Monoid[Rule[P]] {
-        override def zero = empty
-        override def append(a: Rule[P], b: => Rule[P]) = a | b
-      }
   }
 
   /**
@@ -308,20 +259,11 @@ object StaticDsl {
         path compose g,
         a => action(g(a)).map(_ map f))
 
-    def xmapL[A](l: Iso[Page, A]): Rule[A] =
-      xmap(l.get)(l.reverseGet)
-
-    def xmapI[A](i: Page <=> A): Rule[A] =
-      xmap(i.to)(i.from)
-
     def pmap[W](f: Page => W)(pf: PartialFunction[W, Page]): Rule[W] =
       pmapF(f)(pf.lift)
 
     def pmapCT[W](f: Page => W)(implicit ct: ClassTag[Page]): Rule[W] =
       pmapF(f)(ct.unapply)
-
-    def pmapL[W](l: Prism[W, Page]): Rule[W] =
-      pmapF(l.reverseGet)(l.getOption)
 
     def pmapF[W](f: Page => W)(g: W => Option[Page]): Rule[W] =
       new Rule[W](
@@ -375,12 +317,9 @@ object StaticDsl {
      *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
      *                  route-not-found fallback behaviour.
      */
-    def addCondition(cond: => Boolean)(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
+    def addCondition(cond: CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
       new Rule[Page](parse, path,
-        (if (cond) action else condUnmet)(_))
-
-    def addConditionIO(cond: IO[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
-      addCondition(cond.unsafePerformIO())(condUnmet)
+        (if (cond.runNow()) action else condUnmet)(_))
 
     /**
      * Specify behaviour when a `Page` doesn't have an associated `Path` or `Action`.
@@ -453,12 +392,12 @@ object StaticDsl {
 // =====================================================================================================================
 
 object RouterConfigDsl {
-  def apply[Page](implicit pageEq: Equal[Page] = Equal.equalA[Page]) =
-    new BuildInterface(pageEq)
+  def apply[Page] =
+    new BuildInterface[Page]
 
-  class BuildInterface[Page](pageEq: Equal[Page]) {
+  class BuildInterface[Page] {
     def use[A](f: RouterConfigDsl[Page] => A): A =
-      f(new RouterConfigDsl(pageEq))
+      f(new RouterConfigDsl)
 
     def buildConfig(f: RouterConfigDsl[Page] => RouterConfig[Page]): RouterConfig[Page] =
       use(f)
@@ -473,12 +412,12 @@ object RouterConfigDsl {
  *
  * Instead creating an instance of this yourself, use [[RouterConfigDsl.apply]].
  */
-final class RouterConfigDsl[Page](pageEq: Equal[Page] = Equal.equalA[Page]) {
+final class RouterConfigDsl[Page] {
   import StaticDsl.{Rule => _, Rules => _, _}
 
-  type Action   = japgolly.scalajs.react.extra.router2.Action[Page]
-  type Renderer = japgolly.scalajs.react.extra.router2.Renderer[Page]
-  type Redirect = japgolly.scalajs.react.extra.router2.Redirect[Page]
+  type Action   = japgolly.scalajs.react.extra.router.Action[Page]
+  type Renderer = japgolly.scalajs.react.extra.router.Renderer[Page]
+  type Redirect = japgolly.scalajs.react.extra.router.Redirect[Page]
   type Parsed   = RouterConfig.Parsed[Page]
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -540,8 +479,8 @@ final class RouterConfigDsl[Page](pageEq: Equal[Page] = Equal.equalA[Page]) {
   def Rule = StaticDsl.Rule
   def emptyRule: Rule = Rule.empty
 
-  implicit def _auto_parsed_from_redirect(r: Redirect): Parsed = -\/(r)
-  implicit def _auto_parsed_from_page    (p: Page)    : Parsed = \/-(p)
+  implicit def _auto_parsed_from_redirect(r: Redirect): Parsed = Left(r)
+  implicit def _auto_parsed_from_page    (p: Page)    : Parsed = Right(p)
 
   implicit def _auto_parsedO_from_parsed [A <% Parsed](p: A)        : Option[Parsed] = Some(p)
   implicit def _auto_parsedO_from_parsedO[A <% Parsed](o: Option[A]): Option[Parsed] = o.map(a => a)
@@ -562,8 +501,11 @@ final class RouterConfigDsl[Page](pageEq: Equal[Page] = Equal.equalA[Page]) {
   // Only really aids rewriteRuleR but safe anyway
   implicit def _auto_pattern_from_regex(r: Regex): Pattern = r.pattern
 
-  def staticRoute(r: Route[Unit], page: Page)(implicit e: Equal[Page] = pageEq): StaticRouteB[Page, Rule] = {
-    val dyn = dynamicRoute(r const page){ case p if e.equal(page, p) => p }
+  /**
+   * Note: Requires that `Page#equals()` be sensible.
+   */
+  def staticRoute(r: Route[Unit], page: Page): StaticRouteB[Page, Rule] = {
+    val dyn = dynamicRoute(r const page){ case p if page == p => p }
     new StaticRouteB(a => dyn ~> a)
   }
 

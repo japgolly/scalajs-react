@@ -9,9 +9,9 @@ import japgolly.scalajs.react.vdom.prefix_<^._
 
 object PrefixedVdomTest extends TestSuite {
 
-  lazy val CA = ReactComponentB[Unit]("CA").render((_,c) => <.div(c)).buildU
-  lazy val CB = ReactComponentB[Unit]("CB").render((_,c) => <.span(c)).buildU
-  lazy val H1 = ReactComponentB[String]("H").render(p => <.h1(p)).build
+  lazy val CA = ReactComponentB[Unit]("CA").render_C(c => <.div(c)).buildU
+  lazy val CB = ReactComponentB[Unit]("CB").render_C(c => <.span(c)).buildU
+  lazy val H1 = ReactComponentB[String]("H").render_P(p => <.h1(p)).build
 
   lazy val SI = ReactComponentB[Unit]("SI")
     .initialState(123)
@@ -27,7 +27,7 @@ object PrefixedVdomTest extends TestSuite {
 
     'altScalatags {
       def test(subj: ReactElement, exp: String): Unit =
-        ReactComponentB[Unit]("tmp").render((_,_) => subj).buildU.apply() shouldRender exp
+        ReactComponentB[Unit]("tmp").render(_ => subj).buildU.apply() shouldRender exp
       def reactNode: ReactNode = H1("cool")
       def checkbox(check: Boolean) = <.input(^.`type` := "checkbox", ^.checked := check)
 
@@ -45,8 +45,8 @@ object PrefixedVdomTest extends TestSuite {
       'list2jAry - test(<.div(List(H1("a"), H1("b")).toJsArray), "<div><h1>a</h1><h1>b</h1></div>")
       'jAryTag   - test(<.div(JArray(<.span(1), <.span(2))),     "<div><span>1</span><span>2</span></div>")
       'jAryComp  - test(<.div(JArray(H1("a"), H1("b"))),         "<div><h1>a</h1><h1>b</h1></div>")
-      'checkboxT - test(checkbox(true),                        """<input type="checkbox" checked>""")
-      'checkboxF - test(checkbox(false),                       """<input type="checkbox">""")
+      'checkboxT - test(checkbox(true),                        """<input type="checkbox" checked=""/>""") // checked="" is new as of React 0.14 but it works
+      'checkboxF - test(checkbox(false),                       """<input type="checkbox"/>""")
       'aria      - test(<.div(^.aria.label := "ow", "a"),      """<div aria-label="ow">a</div>""")
 
       'dangerouslySetInnerHtml - test(<.div(^.dangerouslySetInnerHtml("<span>")), "<div><span></div>")
@@ -162,19 +162,19 @@ object PrefixedVdomTest extends TestSuite {
 
     'classSet {
       'allConditional {
-        val r = ReactComponentB[(Boolean,Boolean)]("C").render(p => <.div(^.classSet("p1" -> p._1, "p2" -> p._2))("x")).build
+        val r = ReactComponentB[(Boolean,Boolean)]("C").render_P(p => <.div(^.classSet("p1" -> p._1, "p2" -> p._2))("x")).build
         r((false, false)) shouldRender """<div>x</div>"""
         r((true,  false)) shouldRender """<div class="p1">x</div>"""
         r((false, true))  shouldRender """<div class="p2">x</div>"""
         r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
       }
       'hasMandatory {
-        val r = ReactComponentB[Boolean]("C").render(p => <.div(^.classSet1("mmm", "ccc" -> p))("x")).build
+        val r = ReactComponentB[Boolean]("C").render_P(p => <.div(^.classSet1("mmm", "ccc" -> p))("x")).build
         r(false) shouldRender """<div class="mmm">x</div>"""
         r(true)  shouldRender """<div class="mmm ccc">x</div>"""
       }
       'appends {
-        val r = ReactComponentB[Boolean]("C").render(p =>
+        val r = ReactComponentB[Boolean]("C").render_P(p =>
           <.div(^.cls := "neat", ^.classSet1("mmm", "ccc" -> p), ^.cls := "slowclap", "x")).build
         r(false) shouldRender """<div class="neat mmm slowclap">x</div>"""
         r(true)  shouldRender """<div class="neat mmm ccc slowclap">x</div>"""

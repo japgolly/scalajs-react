@@ -1,11 +1,11 @@
-package japgolly.scalajs.react.extra.router2
+package japgolly.scalajs.react.extra.router
 
 import java.util.UUID
-
 import scalaz.Equal
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.prefix_<^._
+import ScalazReact._
 import TestUtil2._
 
 object DslTest extends TestSuite {
@@ -38,19 +38,19 @@ object DslTest extends TestSuite {
       ReactComponentB.static("", <.span("static component")).buildU
 
     val compCReqRouter: ReactComponentC.ReqProps[RouterCtl[PageSet], Unit, Unit, TopNode] =
-      ReactComponentB[RouterCtl[PageSet]]("").render(r => r.link(Obj1)).build
+      ReactComponentB[RouterCtl[PageSet]]("").render_P(r => r.link(Obj1)).build
 
     val compCReqPage: ReactComponentC.ReqProps[PageSet, Unit, Unit, TopNode] =
-      ReactComponentB[PageSet]("").render(p => <.div(s"Page = $p")).build
+      ReactComponentB[PageSet]("").render_P(p => <.div(s"Page = $p")).build
 
     val compCReqPageSub: ReactComponentC.ReqProps[PageSubSet, Unit, Unit, TopNode] =
-      ReactComponentB[PageSubSet]("").render(p => <.div(s"Page = $p")).build
+      ReactComponentB[PageSubSet]("").render_P(p => <.div(s"Page = $p")).build
 
     def compU: ReactComponentU[Unit, Unit, Unit, TopNode] =
       compCConst()
 
     case class CompX(title: String, page: PageSet, router: RouterCtl[PageSet])
-    val compX = ReactComponentB[CompX]("X").render(p => <.div()).build
+    val compX = ReactComponentB[CompX]("X").render_P(p => <.div()).build
   }
 
 

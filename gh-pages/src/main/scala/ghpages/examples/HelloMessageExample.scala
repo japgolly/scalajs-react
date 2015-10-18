@@ -1,5 +1,6 @@
 package ghpages.examples
 
+import ghpages.GhPagesMacros
 import japgolly.scalajs.react.ReactComponentB
 import japgolly.scalajs.react.vdom.prefix_<^._
 import ghpages.examples.util.SideBySide
@@ -18,18 +19,20 @@ object HelloMessageExample {
       |  }
       |});
       |
-      |React.render(React.createElement(HelloMessage, {name: "John"}), mountNode);
+      |ReactDOM.render(React.createElement(HelloMessage, {name: "John"}), mountNode);
     """.stripMargin
 
   val source =
-    """
-      |val HelloMessage = ReactComponentB[String]("HelloMessage")
-      |   .render(name => <.div("Hello ", name))
-      |   .build
+    s"""
+      |${GhPagesMacros.exampleSource}
       |
-      |React.render(HelloMessage("John"), mountNode)""".stripMargin
+      |ReactDOM.render(HelloMessage("John"), mountNode)""".stripMargin
+
+  // EXAMPLE:START
 
   val HelloMessage = ReactComponentB[String]("HelloMessage")
-    .render(name => <.div("Hello ", name))
+    .render($ => <.div("Hello ", $.props))
     .build
+
+  // EXAMPLE:END
 }

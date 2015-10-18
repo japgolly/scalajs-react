@@ -1,5 +1,6 @@
 package ghpages.examples
 
+import ghpages.GhPagesMacros
 import japgolly.scalajs.react._, vdom.prefix_<^._
 import org.scalajs.dom.window
 import ghpages.examples.util.SideBySide
@@ -19,16 +20,19 @@ object AnimationExample {
       |  getInitialState: function() {
       |    return {items: ['hello', 'world', 'click', 'me']};
       |  },
+      |
       |  handleAdd: function() {
       |    var newItems =
       |      this.state.items.concat([prompt('Enter some text')]);
       |    this.setState({items: newItems});
       |  },
+      |
       |  handleRemove: function(i) {
       |    var newItems = this.state.items;
       |    newItems.splice(i, 1);
       |    this.setState({items: newItems});
       |  },
+      |
       |  render: function() {
       |    var items = this.state.items.map(function(item, i) {
       |      return (
@@ -49,48 +53,32 @@ object AnimationExample {
       |});
     """.stripMargin
 
-  val source =
-    """
-      |class Backend($: BackendScope[_, Vector[String]]) {
-      |  def handleAdd(): Unit =
-      |    $.modState(_ :+ window.prompt("Enter some text"))
-      |  def handleRemove(i: Int): Unit =
-      |    $.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
-      |}
-      |
-      |val TodoList = ReactComponentB[Unit]("TodoList")
-      |  .initialState(Vector("hello", "world", "click", "me"))
-      |  .backend(new Backend(_))
-      |  .render((_,S,B) =>
-      |    <.div(
-      |      <.button(^.onClick --> B.handleAdd())("Add Item"),
-      |      ReactCssTransitionGroup("example", component = "h1")(
-      |        S.zipWithIndex.map{case (s,i) =>
-      |          <.div(^.key := s, ^.onClick --> B.handleRemove(i))(s)
-      |        }: _*
-      |      )
-      |    )
-      |  ).buildU
-      | """.stripMargin
+  val source = GhPagesMacros.exampleSource
 
-  class Backend($: BackendScope[_, Vector[String]]) {
-    def handleAdd(): Unit =
+  // EXAMPLE:START
+
+  class Backend($: BackendScope[Unit, Vector[String]]) {
+    def handleAdd =
       $.modState(_ :+ window.prompt("Enter some text"))
-    def handleRemove(i: Int): Unit =
+
+    def handleRemove(i: Int) =
       $.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
+
+    def render(state: Vector[String]) =
+      <.div(
+        <.button(^.onClick --> handleAdd, "Add Item"),
+        ReactCssTransitionGroup("example", component = "h1")(
+          state.zipWithIndex.map { case (s, i) =>
+            <.div(^.key := s, ^.onClick --> handleRemove(i), s)
+          }: _*
+        )
+      )
   }
 
   val TodoList = ReactComponentB[Unit]("TodoList")
     .initialState(Vector("hello", "world", "click", "me"))
-    .backend(new Backend(_))
-    .render((_,S,B) =>
-      <.div(
-        <.button(^.onClick --> B.handleAdd())("Add Item"),
-        ReactCssTransitionGroup("example", component = "h1")(
-          S.zipWithIndex.map{case (s,i) =>
-            <.div(^.key := s, ^.onClick --> B.handleRemove(i))(s)
-          }: _*
-        )
-      )
-    ).buildU
+    .renderBackend[Backend]
+    .buildU
+
+  // EXAMPLE:END
 }
