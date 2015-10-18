@@ -2,33 +2,32 @@ package japgolly.scalajs.react
 
 import monocle._
 import scalaz.Functor
-import scalaz.effect.IO
 import ScalazReact._
+import CompState._
+import CompScope._
 
-object MonocleReact {
+object MonocleReact extends MonocleReactExtra {
 
-  @inline implicit def toMonRExtCompStateAccessOps[C, S](c: C)(implicit a: CompStateAccess[C, S]) =
-    new MonRExt_CompStateAccessOps[C, S](c)
+  @inline implicit def MonocleReactCompStateOpsDD[$, S]($: $)(implicit ops: $ => ReadDirectWriteDirectOps[S]) =
+    new MonocleReactCompStateOps[ReadDirectWriteDirectOps[S], S, Unit](ops($))
 
-  final class MonRExt_CompStateAccessOps[C, S](private val _c: C) extends AnyVal {
-    // This should really be a class param but then we lose the AnyVal
-    type CC = CompStateAccess[C, S]
+  @inline implicit def MonocleReactCompStateOpsDC[$, S]($: $)(implicit ops: $ => ReadDirectWriteCallbackOps[S]) =
+    new MonocleReactCompStateOps[ReadDirectWriteCallbackOps[S], S, Callback](ops($))
 
-    @deprecated("focusStateL has been renamed to zoomL for consistency. focusStateL will be removed in 0.10.0", "0.9.2")
-    def focusStateL[T](l: Lens[S, T])(implicit C: CC) = zoomL(l)
+  @inline implicit def MonocleReactCompStateOpsCC[$, S]($: $)(implicit ops: $ => ReadCallbackWriteCallbackOps[S]) =
+    new MonocleReactCompStateOps[ReadCallbackWriteCallbackOps[S], S, Callback](ops($))
 
-    def zoomL[T](l: Lens[S, T])(implicit C: CC) = new CompStateFocus[T](
-      () => l get _c.state,
-      (t: T, cb: OpCallback) => _c.modState(l set t, cb))
+  final class MonocleReactCompStateOps[Ops <: WriteOpAux[S, W], S, W](private val $: Ops) extends AnyVal {
+    def zoomL[T](l: Lens[S, T]): Ops#This[T] =
+      $.zoom(l.get)((s, t) => l.set(t)(s))
 
-    @inline def _setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(implicit C: CC, L: SetterMonocle[L]): B => IO[Unit] =
-      _c._modStateIO(L set l)
+    def _setStateL[L[_, _, _, _], B](l: L[S, S, _, B], cb: Callback = Callback.empty)(implicit L: SetterMonocle[L]): B => W =
+      b => $.modState(L.set(l)(b), cb)
   }
 
-  @inline implicit final class MonRExt_ReactSTOps[M[_], S, A](private val _r: ReactST[M, S, A]) extends AnyVal {
-
-    @inline def zoomL[T](l: Lens[T, S])(implicit M: Functor[M]): ReactST[M, T, A] =
-      ReactS.zoom[M, S, T, A](_r, l.get, (a, b) => l.set(b)(a))
+  @inline implicit final class MonocleReactReactSTOps[M[_], S, A](private val s: ReactST[M, S, A]) extends AnyVal {
+    def zoomL[T](l: Lens[T, S])(implicit M: Functor[M]): ReactST[M, T, A] =
+      ReactS.zoom[M, S, T, A](s, l.get, (a, b) => l.set(b)(a))
   }
 }
 

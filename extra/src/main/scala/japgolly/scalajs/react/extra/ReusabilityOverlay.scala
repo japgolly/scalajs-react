@@ -3,10 +3,8 @@ package japgolly.scalajs.react.extra
 import org.scalajs.dom
 import scala.concurrent.duration._
 import scalajs.js
-import scalaz.effect.IO
-import scalaz.syntax.bind.ToBindOps
-import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
-import dom.{document, window}
+import japgolly.scalajs.react._, vdom.prefix_<^._
+import dom.{console, document, window}
 import dom.html.Element
 import dom.raw.{CSSStyleDeclaration, Node}
 import ReusabilityOverlay.Comp
@@ -15,7 +13,7 @@ import ReusabilityOverlay.Comp
  * Heavily inspired by https://github.com/redsunsoft/react-render-visualizer
  */
 object ReusabilityOverlay {
-  type Comp = ComponentScope_M[TopNode]
+  type Comp = CompScope.Mounted[TopNode]
 
   private val key = "reusabilityOverlay"
 
@@ -31,34 +29,43 @@ object ReusabilityOverlay {
       }(_.v)
     }
 
-    Reusability.shouldComponentUpdateAnd[P, S, B, N] { ($, p2, p, s2, s) =>
-      val overlay = get($)
-      if (p || s) {
-        def fmt(update: Boolean, name: String, a: Any, b: Any) =
+    Reusability.shouldComponentUpdateAnd[P, S, B, N] { r =>
+      val overlay = get(r.$)
+      if (r.update) {
+        def fmt(update: Boolean, name: String, va: Any, vb: Any) =
           if (!update)
             ""
-          else if (a.toString.length < 50)
-            s"$name update: [$a] ⇒ [$b]."
-          else
-            s"$name update:\n  [$a] ⇒\n  [$b]."
-        val sep = if (p && s) "\n" else ""
-        val reason = fmt(p, "Prop", $.props, p2) + sep + fmt(s, "State", $.state, s2)
+          else {
+            var a = va.toString
+            var b = vb.toString
+            if (a.contains(' ') || b.contains(' ')) {
+              a = "【" + a + "】"
+              b = "【" + b + "】"
+            }
+            if (a.contains('\n') || a.length > 50 || b.length > 50)
+              s"$name update:\n  BEFORE: $a\n   AFTER: $b"
+            else
+              s"$name update: $a ⇒ $b"
+          }
+        val sep = if (r.updateProps && r.updateState) "\n" else ""
+        val reason = fmt(r.updateProps, "Props", r.$.props, r.nextProps) + sep +
+                     fmt(r.updateState, "State", r.$.state, r.nextState)
         overlay logBad reason
       }
       else
         overlay.logGood
     } andThen (_
-      .componentDidMountIO(get(_).mount)
-      .componentWillUnmountIO(get(_).unmount)
+      .componentDidMount(get(_).onMount)
+      .componentWillUnmount(get(_).onUnmount)
     )
   }
 }
 
 trait ReusabilityOverlay {
-  def mount  : IO[Unit]
-  def unmount: IO[Unit]
-  val logGood: IO[Unit]
-  def logBad(reason: String): IO[Unit]
+  def onMount  : Callback
+  def onUnmount: Callback
+  val logGood  : Callback
+  def logBad(reason: String): Callback
 }
 
 // =====================================================================================================================
@@ -70,17 +77,17 @@ object DefaultReusabilityOverlay {
     reasonsToShowOnClick = 10,
     updatePositionEvery  = 500 millis,
     dynamicStyle         = (_,_,_) => (),
-    mountHighlighter     = defaultHighlighter,
-    updateHighlighter    = defaultHighlighter)
+    mountHighlighter     = defaultMountHighlighter,
+    updateHighlighter    = defaultUpdateHighlighter)
 
   case class Options(template            : Template,
                      reasonsToShowOnClick: Int,
                      updatePositionEvery : FiniteDuration,
                      dynamicStyle        : (Int, Int, Nodes) => Unit,
-                     mountHighlighter    : Comp => IO[Unit],
-                     updateHighlighter   : Comp => IO[Unit])
+                     mountHighlighter    : Comp => Callback,
+                     updateHighlighter   : Comp => Callback)
 
-  @inline implicit def autoLiftHtml(n: Node) = n.asInstanceOf[Element]
+  @inline private[DefaultReusabilityOverlay] implicit def autoLiftHtml(n: Node): Element = n.domAsHtml
 
   trait Template {
     def template: ReactElement
@@ -125,9 +132,9 @@ object DefaultReusabilityOverlay {
 
   def highlighter(before: CSSStyleDeclaration => Unit,
                   frame1: CSSStyleDeclaration => Unit,
-                  frame2: CSSStyleDeclaration => Unit): Comp => IO[Unit] =
-    $ => IO[Unit] {
-      val n = $.getDOMNode()
+                  frame2: CSSStyleDeclaration => Unit): Comp => Callback =
+    $ => Callback {
+      val n = ReactDOM findDOMNode $
       before(n.style)
       window.requestAnimationFrame{(_: Double) =>
         frame1(n.style)
@@ -145,11 +152,13 @@ object DefaultReusabilityOverlay {
         s.outline = outlineCss
       },
       s => {
-        s.outline = "1px solid rgba(0,0,0,0)"
-        s.transition = "outline 550ms linear"
+        s.outline = "1px solid rgba(255,255,255,0)"
+        s.transition = "outline 800ms ease-out"
       })
 
-  val defaultHighlighter = outlineHighlighter("2px solid rgba(200,20,10,1)")
+  val defaultMountHighlighter = outlineHighlighter("2px solid #1e90ff")
+
+  val defaultUpdateHighlighter = outlineHighlighter("2px solid rgba(200,20,10,1)")
 
   case class Nodes(outer: Element, good: Element, bad: Element)
 
@@ -157,7 +166,7 @@ object DefaultReusabilityOverlay {
     new DefaultReusabilityOverlay(_, options)
 }
 
-class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Options) extends ReusabilityOverlay with SetInterval {
+class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Options) extends ReusabilityOverlay with TimerSupport {
   import DefaultReusabilityOverlay.{Nodes, autoLiftHtml}
 
   protected var good = 0
@@ -165,31 +174,31 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
   protected def badCount = bad.size
   protected var overlay: Option[Nodes] = None
 
-  val onClick = IO[Unit] {
+  val onClick = Callback {
     if (bad.nonEmpty) {
       var i = options.reasonsToShowOnClick min badCount
-      println(s"Last $i reasons to update:")
+      console.info(s"Last $i reasons to update:")
       for (r <- bad.takeRight(i)) {
-        println(s"#$i: $r")
+        console.info(s"#-$i: $r")
         i -= 1
       }
     }
     val sum = good + badCount
     if (sum != 0)
-      printf("%d/%d (%.0f%%) updates prevented.\n", good, sum, good.toDouble / sum * 100)
+      console info "%d/%d (%.0f%%) updates prevented.".format(good, sum, good.toDouble / sum * 100)
   }
 
-  val create = IO[Unit] {
+  val create = Callback {
 
     // Create
     val tmp = document.createElement("div")
     document.body.appendChild(tmp)
-    React.render(options.template.template, tmp)
+    ReactDOM.render(options.template.template, tmp)
     val outer = tmp.firstChild
     document.body.replaceChild(outer, tmp)
 
     // Customise
-    outer.addEventListener("click", (_: dom.Event) => onClick.unsafePerformIO())
+    outer.addEventListener("click", onClick.toJsFn1)
 
     // Store
     val good = options.template good outer
@@ -197,13 +206,25 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     overlay = Some(Nodes(outer, good, bad))
   }
 
-  def withNodes(f: Nodes => Unit): IO[Unit] =
-    IO(overlay foreach f)
+  def withNodes(f: Nodes => Unit): Callback =
+    Callback(overlay foreach f)
 
   val updatePosition = withNodes { n =>
-    val rect = $.getDOMNode().getBoundingClientRect()
-    n.outer.style.top = (window.pageYOffset + rect.top) + "px"
-    n.outer.style.left = rect.left + "px"
+    val d = ReactDOM findDOMNode $
+    val ds = d.getBoundingClientRect()
+    val ns = n.outer.getBoundingClientRect()
+
+    var y = window.pageYOffset + ds.top
+    var x = ds.left
+
+    if (d.tagName == "TABLE") {
+      y -= ns.height
+      x -= ns.width
+    } else if (d.tagName == "TR")
+      x -= ns.width
+
+    n.outer.style.top  = y.toString + "px"
+    n.outer.style.left = x.toString + "px"
   }
 
   val updateContent = withNodes { n =>
@@ -215,25 +236,25 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
   }
 
   val update =
-    updatePosition >> updateContent
+    updateContent >> updatePosition
 
   val highlightUpdate =
     options.updateHighlighter($)
 
   override val logGood =
-    IO(good += 1) >> update
+    Callback(good += 1) >> update
 
   override def logBad(reason: String) =
-    IO(bad :+= reason) >> update >> highlightUpdate
+    Callback(bad :+= reason) >> update >> highlightUpdate
 
-  override val mount =
-    create >> update >> options.mountHighlighter($) >> setIntervalIO(updatePosition, options.updatePositionEvery)
+  override val onMount =
+    create >> update >> options.mountHighlighter($) >> setInterval(updatePosition, options.updatePositionEvery)
 
-  override val unmount = IO[Unit] {
-    runUnmount()
-    overlay.foreach { o =>
-      document.body.removeChild(o.outer)
-      overlay = None
-    }
-  }
+  override val onUnmount =
+    super.unmount.thenRun(
+      overlay.foreach { o =>
+        document.body.removeChild(o.outer)
+        overlay = None
+      }
+    )
 }

@@ -12,8 +12,8 @@ object EventListenerTest extends TestSuite {
   val C = ReactComponentB[Unit]("")
     .initialState(0)
     .backend(_ => new OnUnmount.Backend)
-    .render((_, state, _) => <.div(s"Hit $state times"))
-    .configure(EventListener.install("hello", $ => () => $.modState(_ + 1)))
+    .renderS((_, state) => <.div(s"Hit $state times"))
+    .configure(EventListener.install("hello", _.modState(_ + 1)))
     .buildU
 
   override def tests = TestSuite {
@@ -22,7 +22,7 @@ object EventListenerTest extends TestSuite {
     def dispatch(name: String) = {
       val e = new Event
       e.initEvent(name, true, true)
-      c.getDOMNode() dispatchEvent e
+      ReactDOM findDOMNode c dispatchEvent e
     }
 
     c.state mustEqual 0

@@ -1,67 +1,84 @@
 package japgolly.scalajs.react.extra.router
 
-import org.scalajs.dom._
+import org.scalajs.dom
 import scala.scalajs.js
-import scalaz.{\/-, -\/, \/, ~>, Free}
-import scalaz.effect.IO
-import scalaz.syntax.bind.ToBindOps
-import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
-import RouteCmd._
 
 object Router {
 
-  type Component[P] = ReactComponentC.ConstProps[Unit, Location[P], Any, TopNode]
+  def apply[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): Router[Page] =
+    componentUnbuilt(baseUrl, cfg).buildU
 
-  def componentUnbuilt[P](router: Router[P]) =
+  def componentUnbuilt[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]) =
+    componentUnbuiltC(baseUrl, cfg, new RouterLogic(baseUrl, cfg))
+
+  def componentUnbuiltC[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page], lgc: RouterLogic[Page]) =
     ReactComponentB[Unit]("Router")
-      .initialStateIO      (router.syncToWindowUrl)
-      .backend             (_ => new OnUnmount.Backend)
-      .render              ((_, route, _) => route.render(router))
-      .componentWillMountIO(router.init)
-      .configure(Listenable.installSF(_ => router, (_: Unit) => router.syncToWindowUrlS))
+      .initialStateCB    (     lgc.syncToWindowUrl)
+      .backend           (_ => new OnUnmount.Backend)
+      .render_S          (     lgc.render)
+      .componentDidMount ($ => cfg.postRenderFn(None, $.state.page))
+      .componentDidUpdate(i => cfg.postRenderFn(Some(i.prevState.page), i.currentState.page))
+      .configure(
+        EventListener.install("popstate", _ => lgc.ctl.refresh, _ => dom.window),
+        Listenable.installU(_ => lgc, $ => $ setStateCB lgc.syncToWindowUrl))
 
-  def component[P](router: Router[P]): Component[P] =
-    componentUnbuilt(router).buildU
+  def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
+    val l = new RouterLogic(baseUrl, cfg)
+    val r = componentUnbuiltC(baseUrl, cfg, l).buildU
+    (r, l)
+  }
 
-  type Logger = String => IO[Unit]
-
-  def consoleLogger: Logger =
-    s => IO(console.log(s"[Router] $s"))
-
-  val nopLogger: Logger =
-    Function const IO(())
+  def componentAndCtl[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterCtl[Page]) = {
+    val (r, l) = componentAndLogic(baseUrl, cfg)
+    (r, l.ctl)
+  }
 }
 
 /**
  * Performs all routing logic.
  *
  * @param baseUrl The prefix of all routes in a set.
- * @param pathAction Determines the appropriate response to a route path.
- * @tparam P Routing rules context. Prevents different routing rule sets being mixed up.
+ * @tparam Page Routing rules context. Prevents different routing rule sets being mixed up.
  */
-final class Router[P](val baseUrl: BaseUrl,
-                      pathAction: Path => RouteAction[P],
-                      onSync: Location[P] => IO[Unit],
-                      logger: Router.Logger) extends Broadcaster[Unit] {
+final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) extends Broadcaster[Unit] {
 
-  type Cmd[A]  = RouteCmd[P, A]
-  type Prog[A] = RouteProg[P, A]
-  type Loc     = Location[P]
+  type Action     = router.Action[Page]
+  type Renderer   = router.Renderer[Page]
+  type Redirect   = router.Redirect[Page]
+  type Resolution = router.Resolution[Page]
+
+  import RouteCmd._
+  import dom.window
+  import cfg.logger
 
   @inline protected implicit def impbaseurl: BaseUrl = baseUrl
 
   @inline protected def log(msg: => String) = Log(() => msg)
 
-  val init: IO[Unit] = {
-    var need = true
-    IO(
-      if (need) {
-        window.onpopstate = (_: PopStateEvent) => broadcast(())
-        need = false
-        logger(s"Installed onpopstate event handler.").unsafePerformIO()
-      }
-    )
+  val syncToWindowUrl: CallbackTo[Resolution] =
+   for {
+     url <- CallbackTo(AbsUrl.fromWindow)
+     _   <- logger(s"Syncing to [${url.value}].")
+     res <- interpret(syncToUrl(url))
+     _   <- logger(s"Resolved to page: [${res.page}].")
+     _   <- logger("")
+   } yield res
+
+//  val syncToWindowUrlS: ReactST[IO, Resolution, Unit] =
+//    ReactS.setM(syncToWindowUrl) //addCallbackS onSync
+
+  def syncToUrl(url: AbsUrl): RouteCmd[Resolution] =
+    parseUrl(url) match {
+      case Some(path) => syncToPath(path)
+      case None       => wrongBase(url)
+    }
+
+  def wrongBase(wrongUrl: AbsUrl): RouteCmd[Resolution] = {
+    val root = Path.root
+    log(s"Wrong base: [${wrongUrl.value}] is outside of [${root.abs}].") >>
+      redirectToPath(root, Redirect.Push)
   }
 
   def parseUrl(url: AbsUrl): Option[Path] =
@@ -70,74 +87,67 @@ final class Router[P](val baseUrl: BaseUrl,
     else
       None
 
-  /**
-   * @return How to synchronise the Router to a given url. Either a valid route, or a command that needs to be run.
-   */
-  def syncToUrl(url: AbsUrl): Prog[Loc] \/ Loc =
-    parseUrl(url) match {
-      case Some(path) => resolve(pathAction(path))
-      case None       => -\/(wrongBase(url))
+  def syncToPath(path: Path): RouteCmd[Resolution] =
+    cfg.parse(path) match {
+      case Right(page) => resolve(page, cfg action page)
+      case Left(r)     => redirect(r)
     }
 
-  def syncToWindowUrl: IO[Loc] =
-    IO(AbsUrl.fromWindow).flatMap(url =>
-      logger(s"Syncing to [${url.value}].") >>
-        syncToUrl(url).fold(
-          p => interpret(p),
-          l => IO(l) << logger(s"Location found for path [${l.path.value}]."))
-    )
-
-  def syncToWindowUrlS: ReactST[IO, Loc, Unit] =
-    ReactS.setM(syncToWindowUrl) addCallbackS onSync
-
-  def wrongBase(wrongUrl: AbsUrl): Prog[Loc] = {
-    val url = AbsUrl(baseUrl.value)
-    log(s"Wrong base: [${wrongUrl.value}] is outside of [${baseUrl.value}].") >>
-      PushState[P](url) >> prog(syncToUrl(url))
+  def redirectCmd(p: Path, m: Redirect.Method): RouteCmd[Unit] = m match {
+    case Redirect.Push    => PushState   (p.abs)
+    case Redirect.Replace => ReplaceState(p.abs)
   }
 
-  def redirectCmd(p: Path, m: Redirect.Method): Cmd[Unit] = m match {
-    case Redirect.Push    => PushState   [P](p.abs)
-    case Redirect.Replace => ReplaceState[P](p.abs)
+  def resolve(page: Page, action: Action): RouteCmd[Resolution] =
+    cmdOrPure(resolveAction(action).map(r => Resolution(page, () => r(ctl))))
+
+  def resolveAction(a: Action): Either[RouteCmd[Resolution], Renderer] = a match {
+    case r: Renderer => Right(r)
+    case r: Redirect => Left(redirect(r))
   }
 
-  val resolve: RouteAction[P] => Prog[Loc] \/ Loc = {
-    case l@ Location(_,_)       => \/-(l)
-    case Redirect(\/-(loc),  m) => -\/( redirectCmd(loc.path, m) >> ReturnLoc(loc))
-    case Redirect(-\/(path), m) => -\/( redirectCmd(path, m) >> prog(syncToUrl(path.abs)))
+  def redirect(r: Redirect): RouteCmd[Resolution] = r match {
+    case RedirectToPage(page, m) => redirectToPath(cfg path page, m)
+    case RedirectToPath(path, m) => redirectToPath(path, m)
   }
 
-  def prog(e: Prog[Loc] \/ Loc): Prog[Loc] =
-    e.fold(identity, ReturnLoc(_))
+  def redirectToPath(path: Path, method: Redirect.Method): RouteCmd[Resolution] =
+    //log(s"Redirecting to [${path.value}], method=$method.") >>
+    redirectCmd(path, method) >> syncToUrl(path.abs)
 
-  val interpretCmd: Cmd ~> IO = new (Cmd ~> IO) {
-    @inline private def hs = js.Dynamic.literal()
-    @inline private def ht = ""
-    override def apply[A](m: Cmd[A]): IO[A] = m match {
-      case PushState(url)     => IO(window.history.pushState   (hs, ht, url.value)) << logger(s"PushState: [${url.value}]")
-      case ReplaceState(url)  => IO(window.history.replaceState(hs, ht, url.value)) << logger(s"ReplaceState: [${url.value}]")
-      case BroadcastLocChange => IO(broadcast(())) << logger("Broadcasting location change.")
-      case ReturnLoc(loc)     => IO(loc)
-      case Log(msg)           => logger(msg())
+  private def cmdOrPure[A](e: Either[RouteCmd[A], A]): RouteCmd[A] =
+    e.fold(identity, Return(_))
+
+  def interpret[A](r: RouteCmd[A]): CallbackTo[A] = {
+    @inline def hs = js.Dynamic.literal()
+    @inline def ht = ""
+    @inline def h = window.history
+    r match {
+      case PushState(url)    => CallbackTo(h.pushState   (hs, ht, url.value)) << logger(s"PushState: [${url.value}]")
+      case ReplaceState(url) => CallbackTo(h.replaceState(hs, ht, url.value)) << logger(s"ReplaceState: [${url.value}]")
+      case BroadcastSync     => broadcast(())                                 << logger("Broadcasting sync request.")
+      case Return(a)         => CallbackTo.pure(a)
+      case Log(msg)          => logger(msg())
+      case Sequence(a, b)    => a.foldLeft[CallbackTo[_]](Callback.empty)(_ >> interpret(_)) >> interpret(b)
     }
   }
 
-  def interpret[A](r: Prog[A]): IO[A] =
-    Free.runFC[Cmd, IO, A](r)(interpretCmd)
+  def render(r: Resolution): ReactElement =
+    cfg.renderFn(ctl, r)
 
-  def set(p: ApprovedPath[P]): Prog[Unit] =
-    log(s"Set route to path [${p.path.value}].") >>
-      PushState[P](p.path.abs) >> BroadcastLocChange
+  def setPath(path: Path): RouteCmd[Unit] =
+    log(s"Set route to path [${path.value}].") >>
+      PushState(path.abs) >> BroadcastSync
 
-  def setIO(p: ApprovedPath[P]): IO[Unit] =
-    interpret(set(p))
+  val ctlByPath: RouterCtl[Path] =
+    new RouterCtl[Path] {
+      override def baseUrl             = impbaseurl
+      override def byPath              = this
+      override val refresh             = interpret(BroadcastSync)
+      override def pathFor(path: Path) = path
+      override def set(path: Path)     = interpret(setPath(path))
+    }
 
-  def setEH(p: ApprovedPath[P]): ReactEvent => IO[Unit] =
-    e => preventDefaultIO(e) >> stopPropagationIO(e) >> setIO(p)
-
-  def setOnClick(p: ApprovedPath[P]): TagMod =
-    ^.onClick ~~> setEH(p)
-
-  def link(p: ApprovedPath[P]): ReactTag =
-    <.a(^.href := p.path.abs.value, setOnClick(p))
+  val ctl: RouterCtl[Page] =
+    ctlByPath contramap cfg.path
 }

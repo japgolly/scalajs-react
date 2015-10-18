@@ -1,11 +1,10 @@
-package japgolly.scalajs.react.extra.router2
+package japgolly.scalajs.react.extra.router
 
-import scalaz.effect.IO
-import scalaz.syntax.bind.ToBindOps
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react.extra.Reusability
+import japgolly.scalajs.react.vdom.ReactTagOf
 import japgolly.scalajs.react.vdom.prefix_<^._
+import org.scalajs.dom.html
 
 /**
  * Router controller. A client API to the router.
@@ -15,20 +14,20 @@ import japgolly.scalajs.react.vdom.prefix_<^._
 abstract class RouterCtl[A] {
   def baseUrl: BaseUrl
   def byPath: RouterCtl[Path]
-  def refresh: IO[Unit]
+  def refresh: Callback
   def pathFor(target: A): Path
-  def set(target: A): IO[Unit]
+  def set(target: A): Callback
 
   final def urlFor(target: A): AbsUrl =
     pathFor(target).abs(baseUrl)
 
-  final def setEH(target: A): ReactEvent => IO[Unit] =
-    e => preventDefaultIO(e) >> stopPropagationIO(e) >> set(target)
+  final def setEH(target: A): ReactEvent => Callback =
+    _.preventDefaultCB >> set(target)
 
   final def setOnClick(target: A): TagMod =
-    ^.onClick ~~> setEH(target)
+    ^.onClick ==> setEH(target)
 
-  final def link(target: A): ReactTag =
+  final def link(target: A): ReactTagOf[html.Anchor] =
     <.a(^.href := urlFor(target).value, setOnClick(target))
 
   final def contramap[B](f: B => A): RouterCtl[B] =

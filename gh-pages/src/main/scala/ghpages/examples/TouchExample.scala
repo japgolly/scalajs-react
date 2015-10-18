@@ -32,14 +32,10 @@ object TouchExample {
 
   /** Saving touch event details to state */
   class Backend(val $: BackendScope[Unit, State]) {
-    def debugEvent(e: ReactTouchEvent): Unit = preventDefault(e) { state =>
-      state withEntry s"${e.nativeEvent.`type`}: ${formatTouches(e.changedTouches)}" limit 10
-    }
-
-    private def preventDefault(e: ReactTouchEvent)(transformer: State => State): Unit = {
-      e.preventDefault()
-      $.modState(transformer)
-    }
+    def debugEvent(e: ReactTouchEvent): Callback =
+      preventDefault(e) >> $.modState { state =>
+        state withEntry s"${e.nativeEvent.`type`}: ${formatTouches(e.changedTouches)}" limit 10
+      }
 
     private def formatTouches(touches: dom.TouchList) =
       toSeq(touches).map(formatCoordinates).mkString(" | ")
@@ -49,28 +45,29 @@ object TouchExample {
 
     private def formatCoordinates(touch: dom.Touch) =
       s"${touch.screenX}x${touch.screenY}: ${touch.radiusX}x${touch.radiusY}"
-  }
 
-  /** Rendering touch area and history of events */
-  val TouchExampleApp = ReactComponentB[Unit]("TouchExample")
-    .initialState(new State)
-    .backend(new Backend(_))
-    .render { (P, S, B) =>
+    def render(s: State) =
       <.div(
         <.div(
           "Area to test touch events",
           ^.width := 200,                   // Basic style
           ^.height := 200,
           ^.border := "1px solid blue",
-          ^.onTouchStart  ==> B.debugEvent, // Forwarding touch events
-          ^.onTouchMove   ==> B.debugEvent,
-          ^.onTouchEnd    ==> B.debugEvent,
-          ^.onTouchCancel ==> B.debugEvent
+          ^.onTouchStart  ==> debugEvent,   // Forwarding touch events
+          ^.onTouchMove   ==> debugEvent,
+          ^.onTouchEnd    ==> debugEvent,
+          ^.onTouchCancel ==> debugEvent
         ),
         <.ul(                               // Rendering history of events
-          S.log.map(
+          s.log.map(
             <.li(_))))
-    }.buildU
+  }
+
+  /** Rendering touch area and history of events */
+  val TouchExampleApp = ReactComponentB[Unit]("TouchExample")
+    .initialState(new State)
+    .renderBackend[Backend]
+    .buildU
 
   // EXAMPLE:END
 }

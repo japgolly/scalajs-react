@@ -1,13 +1,13 @@
-package japgolly.scalajs.react.extra.router2
+package japgolly.scalajs.react.extra.router
 
 import java.util.UUID
-
 import scalaz.Equal
 import org.scalajs.dom
+import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.prefix_<^._
-import utest._
+import ScalazReact._
 import TestUtil._
 import TestUtil2._
 
@@ -60,12 +60,12 @@ object Router2Test extends TestSuite {
 
     val userProfilePage =
       ReactComponentB[UserProfilePage]("User profile")
-        .render(p => <.div(s"Hello user #${p.id}"))
+        .render_P(p => <.div(s"Hello user #${p.id}"))
         .build
 
     case class NavProps(curPage: MyPage2, ctl: RouterCtl[MyPage2])
     val nav = ReactComponentB[NavProps]("NavBar")
-      .render { i =>
+      .render_P { i =>
         def item(p: MyPage2, name: String) =
           if (p == i.curPage)
             <.span(name)
@@ -92,7 +92,7 @@ object Router2Test extends TestSuite {
         | staticRoute("private-1", PrivatePage1) ~> render(<.h1("Private #1"))
         | staticRoute("private-2", PrivatePage2) ~> render(<.h1("Private #2: ", secret))
         )
-        .addCondition(isUserLoggedIn)(page => redirectToPage(PublicHome)(Redirect.Push))
+        .addCondition(CallbackTo(isUserLoggedIn))(page => redirectToPage(PublicHome)(Redirect.Push))
 
       val ePages = (emptyRule
         | staticRoute("e/1", E(E1)) ~> render(renderE(E(E1)))
@@ -129,7 +129,7 @@ object Router2Test extends TestSuite {
 
     val sim = SimHistory(base.abs)
     val r = ReactTestUtils.renderIntoDocument(router())
-    def html = r.getDOMNode().outerHTML
+    def html = ReactDOM.findDOMNode(r).outerHTML
     isUserLoggedIn = false
 
     def syncNoRedirect(path: Path) = {
@@ -155,12 +155,12 @@ object Router2Test extends TestSuite {
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", true) // logged in
 
-      ctl.set(PrivatePage1).unsafePerformIO()
+      ctl.set(PrivatePage1).runNow()
       assertContains(html, ">Home</a>") // link cos not on current page
       assertContains(html, "Private #1")
 
       isUserLoggedIn = false
-      ctl.refresh.unsafePerformIO()
+      ctl.refresh.runNow()
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", false) // not logged in
     }
@@ -174,7 +174,7 @@ object Router2Test extends TestSuite {
 
     'lazyRender {
       isUserLoggedIn = true
-      ctl.set(PrivatePage2).unsafePerformIO()
+      ctl.set(PrivatePage2).runNow()
       assertContains(html, secret)
       secret = "oranges"
       r.forceUpdate()
@@ -182,16 +182,16 @@ object Router2Test extends TestSuite {
     }
 
     'detectErrors {
-      var es = config.detectErrorsE(PublicHome, PrivatePage1, PrivatePage2, UserProfilePage(1))
+      var es = config.detectErrors(PublicHome, PrivatePage1, PrivatePage2, UserProfilePage(1))
       assertEq(es, Vector.empty)
-      es = config.detectErrorsE(SomethingElse)
+      es = config.detectErrors(SomethingElse)
       assert(es.nonEmpty)
     }
 
     'routesPerNestedPageType {
       assertEq("E1", ctl.pathFor(E(E1)).value, "e/1")
       assertEq("E2", ctl.pathFor(E(E2)).value, "e/2")
-      val es = config.detectErrorsE(E(E1), E(E2))
+      val es = config.detectErrors(E(E1), E(E2))
       assertEq(es, Vector.empty)
     }
 
@@ -232,7 +232,7 @@ object Router2Test extends TestSuite {
         assertEq(ctl.pathFor(NestedModule(ModuleRoot)).value, "module")
         assertEq(ctl.pathFor(NestedModule(Module1)).value, "module/one")
         assertEq(ctl.pathFor(NestedModule(Module2(666))).value, "module/two/666")
-        ctl.set(NestedModule(ModuleRoot)).unsafePerformIO()
+        ctl.set(NestedModule(ModuleRoot)).runNow()
         assertContains(html, "/module/one\"")
         assertContains(html, "/module/two/7\"")
       }

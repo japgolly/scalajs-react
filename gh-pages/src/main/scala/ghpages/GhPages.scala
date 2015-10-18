@@ -5,7 +5,7 @@ import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
 import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
 import japgolly.scalajs.react.extra._
-import japgolly.scalajs.react.extra.router2._
+import japgolly.scalajs.react.extra.router._
 import pages._
 
 object GhPages extends JSApp {
@@ -37,7 +37,7 @@ object GhPages extends JSApp {
       <.div(^.cls := "container", r.render()))
 
   val navMenu = ReactComponentB[RouterCtl[Page]]("Menu")
-    .render { ctl =>
+    .render_P { ctl =>
       def nav(name: String, target: Page) =
         <.li(
           ^.cls := "navbar-brand active",

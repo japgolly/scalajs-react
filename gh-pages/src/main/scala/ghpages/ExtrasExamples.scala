@@ -13,22 +13,24 @@ object ExtrasExamples {
    */
   object OnUnmountExample {
 
-    class Backend($: BackendScope[_, Long]) extends OnUnmount {     // Extends OnUnmount
-                                                                    // Removed `var interval`
-      def tick() = $.modState(_ + 1)
+    class Backend($: BackendScope[Unit, Long]) extends OnUnmount {     // Extends OnUnmount
+                                                                       // Removed `var interval`
+      def tick = $.modState(_ + 1)
 
-      def start() = {
-        val i = js.timers.setInterval(1.second)(tick())
-        onUnmount(js.timers.clearInterval(i))                       // Use onUnmount here
-      }
+      def start: Callback =
+        for {
+          i <- CallbackTo(js.timers.setInterval(1.second)(tick.runNow()))
+          c  = Callback(js.timers.clearInterval(i))
+          _ <- onUnmount(c)                                            // Use onUnmount here
+        } yield ()
     }
 
 
     val Timer = ReactComponentB[Unit]("Timer")
       .initialState(0L)
       .backend(new Backend(_))
-      .render((_,s,_) => div("Seconds elapsed: ", s))
-      .componentDidMount(_.backend.start())
+      .render_S(s => div("Seconds elapsed: ", s))
+      .componentDidMount(_.backend.start)
                                                                     // Removed componentWillUnmount() call
       .configure(OnUnmount.install)                                 // Register OnUnmount functionality
       .buildU
@@ -37,19 +39,19 @@ object ExtrasExamples {
   // ===================================================================================================================
 
   /**
-   * This is the typical React timer example, modified to use SetInterval.
+   * This is the typical React timer example, modified to use TimerSupport.
    * (Also removed State in favour of just using Long directly.)
    */
   object SetIntervalExample {
 
-    class Backend extends SetInterval
+    class Backend extends TimerSupport 
 
     val Timer = ReactComponentB[Unit]("Timer")
       .initialState(0L)
       .backend(_ => new Backend)
-      .render((_,s,_) => div("Seconds elapsed: ", s))
+      .render_S(s => div("Seconds elapsed: ", s))
       .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1.second))
-      .configure(SetInterval.install)
+      .configure(TimerSupport.install)
       .buildU
   }
   
@@ -67,7 +69,7 @@ object ExtrasExamples {
     val C = ReactComponentB[Listenable[Int]]("C")
       .initialState(0)
       .backend(_ => new Backend)
-      .render((_,s,_) => div("Total: ", s))
+      .render_S(s => div("Total: ", s))
       .configure(Listenable.installS(identity, recv))   // Listen to events when mounted.
       .build
   }

@@ -18,11 +18,11 @@ Includes a router, testing utils, performance utils, more.
 - [Type Summary](doc/TYPES.md).
 - [Functional Programming](doc/FP.md).
 - Scala-only Utilities.
-  - [Router](extra/ROUTER2.md).
+  - [Router](extra/ROUTER.md).
   - [Performance Management](extra/PERF.md).
   - [Smaller stuff](extra/README.md).
 - [Testing](test/README.md).
-- [Changelogs](doc/) — [Latest](doc/CHANGELOG-0.9.md).
+- [Changelogs](doc/) — [Latest](doc/CHANGELOG-0.10.md).
 
 
 ##### External Resources
@@ -30,7 +30,7 @@ Includes a router, testing utils, performance utils, more.
 * Templates & Tutorials
   * [chandu0101 / scalajs-react-template](https://github.com/chandu0101/scalajs-react-template)
   * [ochrons / scalajs-spa-tutorial](https://github.com/ochrons/scalajs-spa-tutorial)
-  * [elacin / scalajs-todos](https://github.com/elacin/scalajs-todos)
+  * [TodoMVC example](http://todomvc.com/examples/scalajs-react)
   * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
 
 * [Interop With Third-Party Components - chandu0101](https://github.com/chandu0101/scalajs-react-components/blob/master/doc/InteropWithThirdParty.md)
@@ -41,6 +41,6 @@ Includes a router, testing utils, performance utils, more.
 
 
 ##### Requirements:
-* React 0.12 *(0.13 probably works too, 0.14 will be fully supported when released)*
+* React 0.14
 * Scala 2.11
-* Scala.JS 0.6.3+
+* Scala.JS 0.6.4+

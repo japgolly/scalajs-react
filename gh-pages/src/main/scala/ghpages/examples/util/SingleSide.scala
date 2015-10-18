@@ -9,7 +9,7 @@ object SingleSide {
   }
 
   val singleSideComponent = ReactComponentB[Content]("singleSideComponent")
-    .render(p =>
+    .render_P(p =>
       div(
         section(cls := "demo",
           div(cls := "demo", p.el)),

@@ -2,7 +2,7 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._, MonocleReact._
+import japgolly.scalajs.react._, vdom.prefix_<^._, MonocleReact._
 import japgolly.scalajs.react.extra.ExternalVar
 import monocle.macros._
 
@@ -31,12 +31,12 @@ object ExternalVarExample {
     .buildU
 
   val NameChanger = ReactComponentB[ExternalVar[String]]("Name changer")
-    .render { evar =>
+    .render_P { evar =>
       def updateName = (event: ReactEventI) => evar.set(event.target.value)
       <.input(
         ^.`type`    := "text",
         ^.value     := evar.value,
-        ^.onChange ~~> updateName)
+        ^.onChange ==> updateName)
     }
     .build
 

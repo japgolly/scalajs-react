@@ -1,20 +1,16 @@
-package japgolly.scalajs.react.extra.router2
+package japgolly.scalajs.react.extra.router
 
 import org.scalajs.dom
 import scala.annotation.elidable
 import scala.util.{Failure, Success, Try}
-import scalaz.{Equal, -\/, \/-, \/}
-import scalaz.effect.IO
-import scalaz.syntax.bind.ToBindOps
-import scalaz.syntax.equal.ToEqualOps
-import japgolly.scalajs.react.ReactElement
+import japgolly.scalajs.react.{Callback, ReactElement}
 import RouterConfig.{Logger, Parsed}
 
 case class RouterConfig[Page](parse       : Path => Parsed[Page],
                               path        : Page => Path,
                               action      : Page => Action[Page],
                               renderFn    : (RouterCtl[Page], Resolution[Page]) => ReactElement,
-                              postRenderFn: (Option[Page], Page) => IO[Unit],
+                              postRenderFn: (Option[Page], Page) => Callback,
                               logger      : Logger) {
 
   def logWith(l: Logger): RouterConfig[Page] =
@@ -34,7 +30,7 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
    *
    * @param f Given the previous page and the current page that just rendered, return a callback.
    */
-  def setPostRender(f: (Option[Page], Page) => IO[Unit]): RouterConfig[Page] =
+  def setPostRender(f: (Option[Page], Page) => Callback): RouterConfig[Page] =
     copy(postRenderFn = f)
 
   /**
@@ -42,24 +38,20 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
    *
    * @param f Given the previous page and the current page that just rendered, return a callback.
    */
-  def onPostRender(f: (Option[Page], Page) => IO[Unit]): RouterConfig[Page] =
+  def onPostRender(f: (Option[Page], Page) => Callback): RouterConfig[Page] =
     setPostRender((a, b) => this.postRenderFn(a, b) >> f(a, b))
 
   /**
    * Verify that the page arguments provided, don't encounter any route config errors.
+   *
+   * Note: Requires that `Page#equals()` be sensible.
    */
   def verify(page1: Page, pages: Page*): RouterConfig[Page] =
-    verifyE(page1, pages: _*)(Equal.equalA)
-
-  /**
-   * Verify that the page arguments provided, don't encounter any route config errors.
-   */
-  def verifyE(page1: Page, pages: Page*)(implicit eq: Equal[Page]): RouterConfig[Page] =
-    Option(_verifyE(page1, pages: _*)) getOrElse this
+    Option(_verify(page1, pages: _*)) getOrElse this
 
   @elidable(elidable.ASSERTION)
-  private def _verifyE(page1: Page, pages: Page*)(implicit eq: Equal[Page]): RouterConfig[Page] = {
-    val errors = detectErrorsE(page1 +: pages: _*)
+  private def _verify(page1: Page, pages: Page*): RouterConfig[Page] = {
+    val errors = detectErrors(page1 +: pages: _*)
     if (errors.isEmpty)
       this
     else {
@@ -69,24 +61,20 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
       dom.console.error(msg)
       val el: ReactElement =
         <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
-      RouterConfig.withDefaults(_ => \/-(page1), _ => Path.root, _ => Renderer(_ => el))
+      RouterConfig.withDefaults(_ => Right(page1), _ => Path.root, _ => Renderer(_ => el))
     }
   }
 
   /**
    * Check specified pages for possible route config errors.
+   *
+   * Note: Requires that `Page#equals()` be sensible.
    */
   def detectErrors(pages: Page*): Vector[String] =
-    detectErrorsE(pages: _*)(Equal.equalA)
-
-  /**
-   * Check specified pages for possible route config errors.
-   */
-  def detectErrorsE(pages: Page*)(implicit eq: Equal[Page]): Vector[String] =
     Option(_detectErrors(pages: _*)) getOrElse Vector.empty
 
   @elidable(elidable.ASSERTION)
-  private def _detectErrors(pages: Page*)(implicit eq: Equal[Page]): Vector[String] = {
+  private def _detectErrors(pages: Page*): Vector[String] = {
     var errors = Vector.empty[String]
     for (p <- pages) {
       def error(msg: String): Unit = errors :+= s"Page [$p]: $msg"
@@ -96,8 +84,8 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
         case Failure(f) => error(s"Path missing. ${f.getMessage}")
         case Success(path) =>
           parse(path) match {
-            case -\/(r) => error(s"Parsing its path [${path.value}] leads to a redirect. Cannot verify that this is intended and not a 404.")
-            case \/-(q) => if (q ≠ p) error(s"Parsing its path [${path.value}] leads to a different page: $q")
+            case Left(r) => error(s"Parsing its path [${path.value}] leads to a redirect. Cannot verify that this is intended and not a 404.")
+            case Right(q) => if (q != p) error(s"Parsing its path [${path.value}] leads to a different page: $q")
           }
       }
 
@@ -115,15 +103,15 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
 
 object RouterConfig {
   /** Either a redirect or a value representing the page to render. */
-  type Parsed[Page] = Redirect[Page] \/ Page
+  type Parsed[Page] = Either[Redirect[Page], Page]
 
-  type Logger = (=> String) => IO[Unit]
+  type Logger = (=> String) => Callback
 
   def consoleLogger: Logger =
-    s => IO(dom.console.log(s"[Router] $s"))
+    s => Callback(dom.console.log(s"[Router] $s"))
 
   val nopLogger: Logger =
-    Function const IO(())
+    Function const Callback.empty
 
   def defaultLogger: Logger =
     nopLogger
@@ -131,9 +119,9 @@ object RouterConfig {
   def defaultRenderFn[Page]: (RouterCtl[Page], Resolution[Page]) => ReactElement =
     (_, r) => r.render()
 
-  def defaultPostRenderFn[Page]: (Option[Page], Page) => IO[Unit] = {
-    val io = IO(dom.window.scrollTo(0, 0))
-    (_, _) => io
+  def defaultPostRenderFn[Page]: (Option[Page], Page) => Callback = {
+    val cb = Callback(dom.window.scrollTo(0, 0))
+    (_, _) => cb
   }
 
   def withDefaults[Page](parse : Path => Parsed[Page],

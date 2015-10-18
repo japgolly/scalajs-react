@@ -1,13 +1,11 @@
 package japgolly.scalajs.react.extra
 
+import scala.annotation.tailrec
 import java.util.{Date, UUID}
-import scala.scalajs.js.{ Date => JsDate }
-
-import scalaz._
-import scalaz.effect.IO
-import japgolly.scalajs.react.{ComponentScopeM, ReactComponentB, TopNode, ReactElement}
-import japgolly.scalajs.react.vdom.Optional
+import scala.scalajs.js.{Date => JsDate}
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.macros.ReusabilityMacros
+import CompScope.DuringCallbackM
 
 /**
  * Tests whether one instance can be used in place of another.
@@ -30,6 +28,12 @@ final class Reusability[A](val test: (A, A) => Boolean) extends AnyVal {
 
   def testNot: (A, A) => Boolean =
     !test(_, _)
+
+  def ||[B <: A](tryNext: Reusability[B]): Reusability[B] =
+    Reusability.fn[B]((x, y) => test(x, y) || tryNext.test(x, y))
+
+  def &&[B <: A](tryNext: Reusability[B]): Reusability[B] =
+    Reusability.fn[B]((x, y) => test(x, y) && tryNext.test(x, y))
 }
 
 object Reusability {
@@ -41,6 +45,12 @@ object Reusability {
   def const[A](r: Boolean): Reusability[A] =
     new Reusability((_, _) => r)
 
+  def always[A]: Reusability[A] =
+    const(true)
+
+  def never[A]: Reusability[A] =
+    const(false)
+
   /** Compare by reference. Reuse if both values are the same instance. */
   def byRef[A <: AnyRef]: Reusability[A] =
     new Reusability((a, b) => a eq b)
@@ -49,12 +59,35 @@ object Reusability {
   def by_==[A]: Reusability[A] =
     new Reusability((a, b) => a == b)
 
-  /** Compare using Scalaz equality typeclass. */
-  def byEqual[A](implicit e: Equal[A]): Reusability[A] =
-    new Reusability(e.equal)
+  /** Compare by reference and if different, compare using universal equality (Scala's == operator). */
+  def byRefOr_==[A <: AnyRef]: Reusability[A] =
+    byRef[A] || by_==[A]
 
   def by[A, B](f: A => B)(implicit r: Reusability[B]): Reusability[A] =
     r contramap f
+
+  def byIterator[I[X] <: Iterable[X], A: Reusability]: Reusability[I[A]] =
+    fn { (x, y) =>
+      val i = x.iterator
+      val j = y.iterator
+      @tailrec
+      def go: Boolean = {
+        val hasNext = i.hasNext
+        if (hasNext != j.hasNext)
+          false
+        else if (!hasNext)
+          true
+        else if (i.next() ~/~ j.next())
+          false
+        else
+          go
+      }
+      go
+    }
+
+  def indexedSeq[S[X] <: IndexedSeq[X], A: Reusability]: Reusability[S[A]] =
+    fn((x, y) =>
+      (x.length == y.length) && x.indices.forall(i => x(i) ~=~ y(i)))
 
   def internal[A, B](f: A => B)(r: A => Reusability[B]): Reusability[A] =
     fn((a1, a2) => {
@@ -76,58 +109,58 @@ object Reusability {
    */
   def caseClassDebug[A]: Reusability[A] =
     macro ReusabilityMacros.debugCaseClass[A]
-  
-  def double(tolerance: Double): Reusability[Double] = fn((x, y) => 
-    (x - y).abs <= tolerance)
-  
-  def float(tolerance: Float): Reusability[Float] = fn((x, y) => 
-    (x - y).abs <= tolerance)
+
+  def double(tolerance: Double): Reusability[Double] =
+    fn((x, y) => (x - y).abs <= tolerance)
+
+  def float(tolerance: Float): Reusability[Float] =
+    fn((x, y) => (x - y).abs <= tolerance)
 
   // -------------------------------------------------------------------------------------------------------------------
-  // Instances
+  // Implicit Instances
 
-  @inline implicit def reusableUnit       : Reusability[Unit   ] = const(true)
-  @inline implicit def reusableBoolean    : Reusability[Boolean] = by_==
-  @inline implicit def reusableByte       : Reusability[Byte   ] = by_==
-  @inline implicit def reusableChar       : Reusability[Char   ] = by_==
-  @inline implicit def reusableShort      : Reusability[Short  ] = by_==
-  @inline implicit def reusableInt        : Reusability[Int    ] = by_==
-  @inline implicit def reusableLong       : Reusability[Long   ] = by_==
-  @inline implicit def reusableString     : Reusability[String ] = by_==
-  @inline implicit def reusableJavaDate   : Reusability[Date   ] = by_==
-  @inline implicit def reusableUUID       : Reusability[UUID   ] = by_==
-  
-  implicit def reusableJsDate     : Reusability[JsDate ] = fn((x, y) => 
-    x.getTime == y.getTime
-  )
+  // Prohibited:
+  // ===========
+  // Array  - it's mutable. Reusability & mutability are incompatible.
+  // Stream - it's lazy. Reusability & non-strictness are incompatible.
 
-  implicit def optional[O[_], A](implicit o: Optional[O], r: Reusability[A]): Reusability[O[A]] =
+  @inline implicit def unit   : Reusability[Unit   ] = always
+  @inline implicit def boolean: Reusability[Boolean] = by_==
+  @inline implicit def byte   : Reusability[Byte   ] = by_==
+  @inline implicit def char   : Reusability[Char   ] = by_==
+  @inline implicit def short  : Reusability[Short  ] = by_==
+  @inline implicit def int    : Reusability[Int    ] = by_==
+  @inline implicit def long   : Reusability[Long   ] = by_==
+  @inline implicit def string : Reusability[String ] = by_==
+  @inline implicit def date   : Reusability[Date   ] = by_==
+  @inline implicit def uuid   : Reusability[UUID   ] = by_==
+
+  implicit def jsDate: Reusability[JsDate] =
+    fn((x, y) => x.getTime == y.getTime)
+
+  @inline implicit def option[A: Reusability]: Reusability[Option[A]] =
+    optionLike
+
+  implicit def optionLike[O[_], A](implicit o: OptionLike[O], r: Reusability[A]): Reusability[O[A]] =
     fn((x, y) =>
       o.fold(x, o isEmpty y)(xa =>
         o.fold(y, false)(ya =>
           xa ~=~ ya)))
 
-  implicit def either[A: Reusability, B: Reusability]: Reusability[Either[A, B]] = fn {
-    case (Left(a),  Left(b))  => a ~=~ b
-    case (Right(a), Right(b)) => a ~=~ b
-    case _ => false
-  }
+  implicit def either[A: Reusability, B: Reusability]: Reusability[Either[A, B]] =
+    fn((x, y) =>
+      x.fold[Boolean](
+        a => y.fold(a ~=~ _, _ => false),
+        b => y.fold(_ => false, b ~=~ _)))
 
-  implicit def disjunction[A: Reusability, B: Reusability]: Reusability[A \/ B] = fn {
-    case (-\/(a), -\/(b)) => a ~=~ b
-    case (\/-(a), \/-(b)) => a ~=~ b
-    case _ => false
-  }
+  implicit def list[A: Reusability]: Reusability[List[A]] =
+    byRef[List[A]] || byIterator[List, A]
 
-  implicit def these[A: Reusability, B: Reusability]: Reusability[A \&/ B] = {
-    import \&/._
-    fn {
-      case (Both(a, b), Both(c, d)) => (a ~=~ c) && (b ~=~ d)
-      case (This(a),    This(b))    => a ~=~ b
-      case (That(a),    That(b))    => a ~=~ b
-      case _ => false
-    }
-  }
+  implicit def vector[A: Reusability]: Reusability[Vector[A]] =
+    byRef[Vector[A]] || indexedSeq[Vector, A]
+
+  implicit def set[A]: Reusability[Set[A]] =
+    byRefOr_== // universal equality must hold for Sets
 
   // Generated by bin/gen-reusable
 
@@ -194,111 +227,35 @@ object Reusability {
   implicit def tuple22[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, M:Reusability, N:Reusability, O:Reusability, P:Reusability, Q:Reusability, R:Reusability, S:Reusability, T:Reusability, U:Reusability, V:Reusability]: Reusability[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V)] =
     fn((x,y) ⇒ (x._1 ~=~ y._1) && (x._2 ~=~ y._2) && (x._3 ~=~ y._3) && (x._4 ~=~ y._4) && (x._5 ~=~ y._5) && (x._6 ~=~ y._6) && (x._7 ~=~ y._7) && (x._8 ~=~ y._8) && (x._9 ~=~ y._9) && (x._10 ~=~ y._10) && (x._11 ~=~ y._11) && (x._12 ~=~ y._12) && (x._13 ~=~ y._13) && (x._14 ~=~ y._14) && (x._15 ~=~ y._15) && (x._16 ~=~ y._16) && (x._17 ~=~ y._17) && (x._18 ~=~ y._18) && (x._19 ~=~ y._19) && (x._20 ~=~ y._20) && (x._21 ~=~ y._21) && (x._22 ~=~ y._22))
 
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass2[A:Reusability, B:Reusability, Z](z: Z ⇒ Option[(A,B)]): Reusability[Z] =
-    Reusability[(A,B)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass3[A:Reusability, B:Reusability, C:Reusability, Z](z: Z ⇒ Option[(A,B,C)]): Reusability[Z] =
-    Reusability[(A,B,C)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass4[A:Reusability, B:Reusability, C:Reusability, D:Reusability, Z](z: Z ⇒ Option[(A,B,C,D)]): Reusability[Z] =
-    Reusability[(A,B,C,D)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass5[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass6[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass7[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass8[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass9[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass10[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass11[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass12[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K,L)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass13[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, M:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L,M)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K,L,M)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass14[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, M:Reusability, N:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L,M,N)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K,L,M,N)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass15[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, M:Reusability, N:Reusability, O:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass16[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, M:Reusability, N:Reusability, O:Reusability, P:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass17[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, M:Reusability, N:Reusability, O:Reusability, P:Reusability, Q:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass18[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, M:Reusability, N:Reusability, O:Reusability, P:Reusability, Q:Reusability, R:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass19[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, M:Reusability, N:Reusability, O:Reusability, P:Reusability, Q:Reusability, R:Reusability, S:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass20[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, M:Reusability, N:Reusability, O:Reusability, P:Reusability, Q:Reusability, R:Reusability, S:Reusability, T:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass21[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, M:Reusability, N:Reusability, O:Reusability, P:Reusability, Q:Reusability, R:Reusability, S:Reusability, T:Reusability, U:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U)].contramap(z(_).get)
-
-  @deprecated("Use Reusability.caseClass instead. This will be removed in 0.10.0.", "0.9.2")
-  def caseclass22[A:Reusability, B:Reusability, C:Reusability, D:Reusability, E:Reusability, F:Reusability, G:Reusability, H:Reusability, I:Reusability, J:Reusability, K:Reusability, L:Reusability, M:Reusability, N:Reusability, O:Reusability, P:Reusability, Q:Reusability, R:Reusability, S:Reusability, T:Reusability, U:Reusability, V:Reusability, Z](z: Z ⇒ Option[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V)]): Reusability[Z] =
-    Reusability[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V)].contramap(z(_).get)
-
   // ===================================================================================================================
 
   def shouldComponentUpdate[P: Reusability, S: Reusability, B, N <: TopNode] =
-    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p, s) =>
-      ($.props ~/~ p) || ($.state ~/~ s))
+    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(i =>
+      (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
 
-  def shouldComponentUpdateAnd[P: Reusability, S: Reusability, B, N <: TopNode](f: (ComponentScopeM[P, S, B, N], P, Boolean, S, Boolean) => IO[Unit]) =
-    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdate(($, p2, s2) => {
-      val up = $.props ~/~ p2
-      val us = $.state ~/~ s2
-      f($, p2, up, s2, us).unsafePerformIO()
-      up || us
+  def shouldComponentUpdateAnd[P: Reusability, S: Reusability, B, N <: TopNode](f: ShouldComponentUpdateResult[P, S, B, N] => Callback) =
+    (_: ReactComponentB[P, S, B, N]).shouldComponentUpdateCB(i => {
+      val r = ShouldComponentUpdateResult(i.$, i.nextProps, i.nextState)
+      f(r).map(_ => r.update)
     })
 
   def shouldComponentUpdateAndLog[P: Reusability, S: Reusability, B, N <: TopNode](name: String) =
-    shouldComponentUpdateAnd[P, S, B, N](($, p2, p, s2, s) => IO {
-      val p1 = $.props
-      val s1 = $.state
-      println(s"$name.shouldComponentUpdate = ${p || s}\n  Props: $p. [$p1] ⇒ [$p2]\n  State: $s. [$s1] ⇒ [$s2]")
-    })
+    shouldComponentUpdateAnd[P, S, B, N](_ log name)
 
   def shouldComponentUpdateWithOverlay[P: Reusability, S: Reusability, B, N <: TopNode] =
     ReusabilityOverlay.install[P, S, B, N](DefaultReusabilityOverlay.defaults)
+}
+
+case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], nextProps: P, nextState: S) {
+  val updateProps: Boolean = $.props ~/~ nextProps
+  val updateState: Boolean = $.state ~/~ nextState
+  val update     : Boolean = updateProps || updateState
+
+  def log(name: String): Callback =
+    Callback.log(
+      s"""
+         |s"$name.shouldComponentUpdate = $update
+         |  Props: $updateProps. [${$.props}] ⇒ [$nextProps]
+         |  State: $updateState. [${$.state}] ⇒ [$nextState]
+       """.stripMargin)
 }

@@ -9,7 +9,7 @@ import ScalaJSPlugin.autoImport._
 
 object ScalajsReact extends Build {
 
-  val Scala211 = "2.11.6"
+  val Scala211 = "2.11.7"
 
   type PE = Project => Project
 
@@ -19,7 +19,7 @@ object ScalajsReact extends Build {
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.9.3-SNAPSHOT",
+        version            := "0.10.0-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
@@ -83,7 +83,9 @@ object ScalajsReact extends Build {
 
   def useReactJs(scope: String = "compile"): PE =
     _.settings(
-      jsDependencies += "org.webjars" % "react" % "0.12.1" % scope / "react-with-addons.js" commonJSName "React",
+      jsDependencies += "org.webjars.npm" % "react"     % "0.14.0" % scope / "react-with-addons.js" commonJSName "React"    minified "react-with-addons.min.js",
+      jsDependencies += "org.webjars.npm" % "react-dom" % "0.14.0" % scope / "react-dom.js"         commonJSName "ReactDOM" minified "react-dom.min.js"         dependsOn "react-with-addons.js",
+      jsDependencies += "org.webjars"     % "sizzle"    % "2.1.1"  % scope / "sizzle.min.js"        commonJSName "Sizzle",
       skip in packageJSDependencies := false)
 
   def addCommandAliases(m: (String, String)*) = {
@@ -122,15 +124,20 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val core = project
-    .configure(commonSettings, publicationSettings, hasNoTests)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % "0.8.1"))
+        "org.scala-js" %%% "scalajs-dom" % "0.8.2"))
+
+  lazy val extra = project
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
+    .dependsOn(core)
+    .settings(name := "extra")
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings)
-    .dependsOn(core, scalaz71, extra, monocle)
+    .dependsOn(core, extra, scalaz71, monocle)
     .settings(
       name := "test",
       libraryDependencies += monocleLib("macro") % "test",
@@ -142,7 +149,7 @@ object ScalajsReact extends Build {
     val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")
     Project(shortName, file(name))
       .configure(commonSettings, publicationSettings, extModuleName(shortName), hasNoTests)
-      .dependsOn(core)
+      .dependsOn(core, extra)
       .settings(
         libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
   }
@@ -152,24 +159,18 @@ object ScalajsReact extends Build {
   // ==============================================================================================
   lazy val monocle = project
     .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
-    .dependsOn(core, scalaz71)
+    .dependsOn(core, extra, scalaz71)
     .settings(libraryDependencies += monocleLib("core"))
 
   def monocleLib(name: String) =
     "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.1.1"
 
   // ==============================================================================================
-  lazy val extra = project
-    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
-    .dependsOn(core, scalaz71, monocle)
-    .settings(name := "extra")
-
-  // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
-    .dependsOn(core, scalaz71, extra, monocle, ghpagesMacros)
+    .dependsOn(core, extra, scalaz71, monocle, ghpagesMacros)
     .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
     .settings(
       libraryDependencies += monocleLib("macro"),

@@ -19,19 +19,19 @@ object HelloMessageExample {
       |  }
       |});
       |
-      |React.render(React.createElement(HelloMessage, {name: "John"}), mountNode);
+      |ReactDOM.render(React.createElement(HelloMessage, {name: "John"}), mountNode);
     """.stripMargin
 
   val source =
     s"""
       |${GhPagesMacros.exampleSource}
       |
-      |React.render(HelloMessage("John"), mountNode)""".stripMargin
+      |ReactDOM.render(HelloMessage("John"), mountNode)""".stripMargin
 
   // EXAMPLE:START
 
   val HelloMessage = ReactComponentB[String]("HelloMessage")
-    .render(name => <.div("Hello ", name))
+    .render($ => <.div("Hello ", $.props))
     .build
 
   // EXAMPLE:END

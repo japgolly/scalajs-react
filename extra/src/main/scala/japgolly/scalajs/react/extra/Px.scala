@@ -1,5 +1,8 @@
 package japgolly.scalajs.react.extra
 
+import japgolly.scalajs.react.{BackendScope, CallbackTo}
+import japgolly.scalajs.react.macros.PxMacros
+
 /**
  * A mechanism for caching data with dependencies.
  *
@@ -30,30 +33,61 @@ sealed abstract class Px[A] {
       None
   }
 
-  def map[B](f: A => B): Px[B] =
+  def map[B](f: A => B): Px.Derivative[B] =
     new Px.Map(this, f)
 
-  def flatMap[B](f: A => Px[B]): Px[B] =
+  def flatMap[B](f: A => Px[B]): Px.Derivative[B] =
     new Px.FlatMap(this, f)
+
+  /**
+   * If this Px contains a function, it can be extracted and the Px dropped from the signature. Every time the function
+   * is invoked it will use the latest value of this `Px`, even if you don't explicitly hold a reference to it anymore.
+   *
+   * Example. From a `Px[Int => String]`, an `Int => String` can be extracted.
+   */
+  def extract: A =
+    macro PxMacros.extract[A]
 
   // override def toString = value().toString
 }
 
 object Px {
-  sealed abstract class Root[A] extends Px[A] {
+  private class LazyVar[A](initArg: () => A) {
+    private var init = initArg // Don't prevent GC of initArg or waste mem propagating the ref
+    private var value: A = _
+
+    def get(): A = {
+      if (init ne null)
+        set(init())
+      value
+    }
+
+    def set(a: A): Unit = {
+      value = a
+      init = null
+    }
+  }
+
+  sealed abstract class Root[A](__initValue: () => A) extends Px[A] {
     protected val ignoreChange: (A, A) => Boolean
 
+    private val __value = new LazyVar(__initValue)
+
+    protected final def _updateValue(a: A): Unit =
+      __value set a
+
+    protected final def _value(): A =
+      __value.get()
+
     protected var _rev = 0
-    protected var _value: A
 
-    override final def rev = _rev
-
-    override final def peek = _value
+    override final def rev  = _rev
+    override final def peek = _value()
 
     protected def setMaybe(a: A): Unit =
-      if (!ignoreChange(_value, a)) {
+      if (!ignoreChange(_value(), a)) {
         _rev += 1
-        _value = a
+        _updateValue(a)
       }
   }
 
@@ -62,12 +96,10 @@ object Px {
    *
    * Doesn't change until you explicitly call `set()`.
    */
-  final class Var[A](initialValue: A, protected val ignoreChange: (A, A) => Boolean) extends Root[A] {
+  final class Var[A](initialValue: A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](() => initialValue) {
     override def toString = s"Px.Var(rev: $rev, value: $peek)"
 
-    override protected var _value = initialValue
-
-    override def value() = _value
+    override def value() = _value()
 
     def set(a: A): Unit =
       setMaybe(a)
@@ -79,12 +111,10 @@ object Px {
    * The `M` in `ThunkM` denotes "Manual refresh", meaning that the value will not update until you explicitly call
    * `refresh()`.
    */
-  final class ThunkM[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A] {
+  final class ThunkM[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](next) {
     override def toString = s"Px.ThunkM(rev: $rev, value: $peek)"
 
-    override protected var _value = next()
-
-    override def value() = _value
+    override def value() = _value()
 
     def refresh(): Unit =
       setMaybe(next())
@@ -96,62 +126,84 @@ object Px {
    * The `A` in `ThunkA` denotes "Auto refresh", meaning that the function will be called every time the value is
    * requested, and the value updated if necessary.
    */
-  final class ThunkA[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A] {
+  final class ThunkA[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](next) {
     override def toString = s"Px.ThunkA(rev: $rev, value: $peek)"
-
-    override protected var _value = next()
 
     override def value() = {
       setMaybe(next())
-      _value
+      _value()
     }
+  }
+
+  sealed abstract class Derivative[A] extends Px[A] {
+    /**
+     * In addition to updating when the underlying `Px` changes, this will also check its own result and halt updates
+     * if reusable.
+     */
+    final def reuse(implicit ev: Reusability[A]): Px[A] =
+      Px.thunkA(value())(ev)
+  }
+
+  sealed abstract class DerivativeBase[A, B, C](xa: Px[A], derive: A => B) extends Derivative[C] {
+    protected type ValRev = (B, Int)
+
+    private val __value = new LazyVar[ValRev](() => {
+      val b = derive(xa.value())
+      (b, xa.rev)
+    })
+
+    private final def __updateValue(b: B): ValRev = {
+      val vr = (b, xa.rev)
+      __value set vr
+      vr
+    }
+
+    protected final def _init(): ValRev = __value.get()
+    protected final def _value(): B     = _init()._1
+    protected final def _revA(): Int    = _init()._2
+
+    protected final def _updateValueIfChanged(): Unit =
+      xa.valueSince(_revA()).foreach { a =>
+        __updateValue(derive(a))
+      }
   }
 
   /**
    * A value `B` dependent on the value of some `Px[A]`.
    */
-  final class Map[A, B](xa: Px[A], f: A => B) extends Px[B] {
+  final class Map[A, B](xa: Px[A], f: A => B) extends DerivativeBase[A, B, B](xa, f) {
     override def toString = s"Px.Map(rev: $rev, value: $peek)"
 
-    private var _value = f(xa.value())
-    private var _revA  = xa.rev
+    override def rev  = _revA()
+    override def peek = _value()
 
-    override def rev  = _revA
-    override def peek = _value
-
-    override def map[C](g: B => C): Px[C] =
+    override def map[C](g: B => C) =
       new Map(xa, g compose f)
 
-    override def flatMap[C](g: B => Px[C]): Px[C] =
+    override def flatMap[C](g: B => Px[C]) =
       new Px.FlatMap(xa, g compose f)
 
     override def value(): B = {
-      xa.valueSince(_revA).foreach { a =>
-        _value = f(a)
-        _revA = xa.rev
-      }
-      _value
+      _updateValueIfChanged()
+      _value()
     }
   }
 
   /**
    * A `Px[B]` dependent on the value of some `Px[A]`.
    */
-  final class FlatMap[A, B](xa: Px[A], f: A => Px[B]) extends Px[B] {
+  final class FlatMap[A, B](xa: Px[A], f: A => Px[B]) extends DerivativeBase[A, Px[B], B](xa, f) {
     override def toString = s"Px.FlatMap(rev: $rev, value: $peek)"
 
-    private var _value = f(xa.value())
-    private var _revA  = xa.rev
-
-    override def rev  = _revA + _value.rev
-    override def peek = _value.peek
+    override def peek = _value().peek
+    override def rev  = {
+      val vr = _init()
+      vr._1.rev + vr._2
+    }
 
     override def value(): B = {
-      xa.valueSince(_revA).foreach { a =>
-        _value = f(a)
-        _revA = xa.rev
-      }
-      _value.value()
+      _updateValueIfChanged()
+      _value().value()
     }
   }
 
@@ -185,15 +237,43 @@ object Px {
   @inline def const    [A](a: A)   : Px[A] = new Const(a)
   @inline def lazyConst[A](a: => A): Px[A] = new LazyConst(a)
 
-  def apply [A](a: A)   (implicit r: Reusability[A]) = new Var(a, r.test)
-  def thunkM[A](f: => A)(implicit r: Reusability[A]) = new ThunkM(() => f, r.test)
-  def thunkA[A](f: => A)(implicit r: Reusability[A]) = new ThunkA(() => f, r.test)
+  def apply [A](a: A)             (implicit r: Reusability[A]) = new Var(a, r.test)
+  def thunkM[A](f: => A)          (implicit r: Reusability[A]) = new ThunkM(() => f, r.test)
+  def thunkA[A](f: => A)          (implicit r: Reusability[A]) = new ThunkA(() => f, r.test)
+  def cbM   [A](cb: CallbackTo[A])(implicit r: Reusability[A]) = thunkM(cb.runNow())
+  def cbA   [A](cb: CallbackTo[A])(implicit r: Reusability[A]) = thunkA(cb.runNow())
+
+  def bs[P, S]($: BackendScope[P, S]) = new BackendScopePxOps[P, S]($)
+  final class BackendScopePxOps[P, S](private val $: BackendScope[P, S]) extends AnyVal {
+    def propsA(implicit r: Reusability[P]) = cbA($.props)
+    def propsM(implicit r: Reusability[P]) = cbM($.props)
+    def stateA(implicit r: Reusability[S]) = cbA($.state)
+    def stateM(implicit r: Reusability[S]) = cbM($.state)
+    def propsA[A: Reusability](f: P => A) = cbA($.props map f)
+    def propsM[A: Reusability](f: P => A) = cbM($.props map f)
+    def stateA[A: Reusability](f: S => A) = cbA($.state map f)
+    def stateM[A: Reusability](f: S => A) = cbM($.state map f)
+  }
 
   object NoReuse {
     private val noReuse: (Any, Any) => Boolean = (_, _) => false
-    def apply [A](a: A)    = new Var(a, noReuse)
-    def thunkM[A](f: => A) = new ThunkM(() => f, noReuse)
-    def thunkA[A](f: => A) = new ThunkA(() => f, noReuse)
+    def apply [A](a: A)              = new Var(a, noReuse)
+    def thunkM[A](f: => A)           = new ThunkM(() => f, noReuse)
+    def thunkA[A](f: => A)           = new ThunkA(() => f, noReuse)
+    def cbM   [A](cb: CallbackTo[A]) = thunkM(cb.runNow())
+    def cbA   [A](cb: CallbackTo[A]) = thunkA(cb.runNow())
+
+    def bs[P, S]($: BackendScope[P, S]) = new BackendScopePxOps[P, S]($)
+    final class BackendScopePxOps[P, S](private val $: BackendScope[P, S]) extends AnyVal {
+      def propsA = cbA($.props)
+      def propsM = cbM($.props)
+      def stateA = cbA($.state)
+      def stateM = cbM($.state)
+      def propsA[A](f: P => A) = cbA($.props map f)
+      def propsM[A](f: P => A) = cbM($.props map f)
+      def stateA[A](f: S => A) = cbA($.state map f)
+      def stateM[A](f: S => A) = cbM($.state map f)
+    }
   }
 
   // Generated by bin/gen-px

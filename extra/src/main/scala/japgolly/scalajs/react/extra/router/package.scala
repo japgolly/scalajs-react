@@ -1,32 +1,29 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.ReactElement
-import japgolly.scalajs.react.ScalazReact.ChangeFilter
-import scalaz.Free
-import scalaz.effect.IO
-import scalaz.syntax.bind.ToBindOps
+import japgolly.scalajs.react._
 
 package object router {
 
-  type Renderer[P] = Router[P] => ReactElement
+  type Router [P] = ReactComponentC.ConstProps[Unit, Resolution[P], OnUnmount.Backend, TopNode]
+  type RouterU[P] = ReactComponentU           [Unit, Resolution[P], OnUnmount.Backend, TopNode]
+  type RouterM[P] = ReactComponentM           [Unit, Resolution[P], OnUnmount.Backend, TopNode]
 
-  implicit def routeChangeFilter[P] = ChangeFilter.equal[Location[P]]
-
-  /** Free monad & free functor over route commands. */
-  type RouteProg[P, A] = Free.FreeC[({type λ[α] = RouteCmd[P, α]})#λ, A]
-
-  implicit def reactAutoLiftRouteProg[P, A](c: RouteCmd[P, A]): RouteProg[P, A] =
-    Free.liftFC[({type λ[α] = RouteCmd[P, α]})#λ, A](c)
-
-  implicit final class ReactRouteProgExt[P, A](private val _r: RouteProg[P, A]) extends AnyVal {
-    def >>[B](d: RouteProg[P, B]): RouteProg[P, B] = _r flatMap (_ => d)
+  private[router] implicit class OptionFnExt[A, B](private val f: A => Option[B]) extends AnyVal {
+    def ||(g: A => Option[B]): A => Option[B] = a => f(a) orElse g(a)
+    def | (g: A => B)        : A => B         = a => f(a) getOrElse g(a)
   }
 
-  implicit final class ReactRouteCmdExt[P, A](private val _r: RouteCmd[P, A]) extends AnyVal {
-    def >>[B](d: RouteProg[P, B]): RouteProg[P, B] = new ReactRouteProgExt(_r) >> d
-  }
+  private[router] implicit class SaneEitherMethods[A, B](private val e: Either[A, B]) extends AnyVal {
+    def map[C](f: B => C): Either[A, C] =
+      e match {
+        case Right(b) => Right(f(b))
+        case l: Left[A, B] => l.asInstanceOf[Left[A, Nothing]]
+      }
 
-  implicit final class ReactRouteIOExt[A](private val _io: IO[A]) extends AnyVal {
-    @inline def <<(prepend: IO[Unit]): IO[A] = prepend >> _io
+    def bimap[C, D](f: A => C, g: B => D): Either[C, D] =
+      e match {
+        case Right(b) => Right(g(b))
+        case Left(a)  => Left(f(a))
+      }
   }
 }

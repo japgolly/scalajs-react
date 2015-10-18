@@ -55,6 +55,17 @@ trait ReactEventAliases {
   type ReactWheelEventTA       = SyntheticWheelEvent      [html.TextArea]
 }
 
+object ReactKeyboardEvent {
+  def checkKeyMods(e       : ReactKeyboardEvent,
+                   altKey  : Boolean = false,
+                   ctrlKey : Boolean = false,
+                   metaKey : Boolean = false,
+                   shiftKey: Boolean = false): Boolean =
+    e.altKey   == altKey   &&
+    e.ctrlKey  == ctrlKey  &&
+    e.metaKey  == metaKey  &&
+    e.shiftKey == shiftKey
+}
 
 /** https://facebook.github.io/react/docs/events.html */
 trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends js.Object {

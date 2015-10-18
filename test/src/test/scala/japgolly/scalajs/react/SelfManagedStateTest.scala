@@ -1,12 +1,12 @@
 package japgolly.scalajs.react
 
 import monocle.macros.Lenses
-import scalaz.effect.IO
 import utest._
 import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._, MonocleReact._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.test._
 import TestUtil2._
+import CompScope.DuringCallbackU
 
 object SelfManagedStateTest extends TestSuite {
 
@@ -18,18 +18,18 @@ object SelfManagedStateTest extends TestSuite {
     @inline def render: ReactElement = renderFn()
   }
 
-  type SetState        = State => IO[Unit]
-  type SetStateFor[-A] = StateFor[A] => IO[Unit]
+  type SetState        = State => Callback
+  type SetStateFor[-A] = StateFor[A] => Callback
 
   def selfManaged[S, A](initial   : A,
                         convInput : S => A,
                         setSelf   : SetStateFor[A],
-                        renderEdit: (A, S => IO[Unit]) => ReactElement): StateFor[A] = {
+                        renderEdit: (A, S => Callback) => ReactElement): StateFor[A] = {
 
     def state(a: A): StateFor[A] =
       StateFor(a, () => renderEdit(a, recvEdit))
 
-    def recvEdit: S => IO[Unit] =
+    def recvEdit: S => Callback =
       s => setSelf(editState(convInput(s)))
 
     def editState(a: A): StateFor[A] =
@@ -42,12 +42,12 @@ object SelfManagedStateTest extends TestSuite {
 
   // Copied from ExternalVarExample
   val NameChanger = ReactComponentB[ExternalVar[String]]("Name changer")
-    .render { evar =>
+    .render_P { evar =>
     def updateName = (event: ReactEventI) => evar.set(event.target.value)
     <.input(
       ^.`type`    := "text",
       ^.value     := evar.value,
-      ^.onChange ~~> updateName)
+      ^.onChange ==> updateName)
   }
     .build
 
@@ -60,14 +60,14 @@ object SelfManagedStateTest extends TestSuite {
   @Lenses
   case class TopLevelState(firstName: StateFor[String], lastName: StateFor[String])
 
-  def initTopLevelState($: CompStateFocus[TopLevelState], firstName: String, lastName: String): TopLevelState =
+  def initTopLevelState($: DuringCallbackU[Unit, TopLevelState, Any], firstName: String, lastName: String): TopLevelState =
     TopLevelState(
       selfManagedTextEditor(firstName, $ _setStateL TopLevelState.firstName),
       selfManagedTextEditor(lastName,  $ _setStateL TopLevelState.lastName))
 
   val TopLevel = ReactComponentB[Unit]("TopLevel")
-    .initialStateC[TopLevelState](initTopLevelState(_, "John", "Wick"))
-    .render { (_, s) =>
+    .getInitialState[TopLevelState](initTopLevelState(_, "John", "Wick"))
+    .render_S { s =>
       <.div(
         <.label("First name:", s.firstName.render),
         <.label("Surname:",    s.lastName.render),
@@ -77,7 +77,7 @@ object SelfManagedStateTest extends TestSuite {
 
   override def tests = TestSuite {
     val c  = ReactTestUtils.renderIntoDocument(TopLevel())
-    def p  = ReactTestUtils.findRenderedDOMComponentWithTag(c, "p").getDOMNode().innerHTML
+    def p  = ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(c, "p")).innerHTML
     def is = ReactTestUtils.scryRenderedDOMComponentsWithTag(c, "input")
     def i1 = is(0)
 

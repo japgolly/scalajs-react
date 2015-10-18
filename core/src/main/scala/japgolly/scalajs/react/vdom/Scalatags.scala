@@ -1,13 +1,12 @@
 package japgolly.scalajs.react.vdom
 
-import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound}
 import scala.scalajs.js
-import japgolly.scalajs.react.{ReactElement, ReactNode}
+import japgolly.scalajs.react._
 import Scalatags._
 
 /**
- * Represents a value that can be nested within a [[ReactTag]]. This can be
+ * Represents a value that can be nested within a [[ReactTagOf]]. This can be
  * another [[TagMod]], but can also be a CSS style or HTML attribute binding,
  * which will add itself to the node's attributes but not appear in the final
  * `children` list.
@@ -29,9 +28,15 @@ trait TagMod {
   }
 }
 
-final case class ReactTag private[vdom](tag: String,
-                                        modifiers: List[Seq[TagMod]],
-                                        namespace: Namespace) extends DomFrag {
+object TagMod {
+  @inline def apply(ms: TagMod*): TagMod =
+    TagModComposition(ms.toVector)
+}
+
+final case class ReactTagOf[+N <: TopNode] private[vdom](
+  tag:       String,
+  modifiers: List[Seq[TagMod]],
+  namespace: Namespace) extends DomFrag {
 
   def render: ReactElement = {
     val b = new Builder()
@@ -66,7 +71,7 @@ final case class ReactTag private[vdom](tag: String,
     }
   }
 
-  def apply(xs: TagMod*): ReactTag =
+  def apply(xs: TagMod*): ReactTagOf[N] =
     this.copy(tag = tag, modifiers = xs :: modifiers)
 
   override def toString = render.toString
@@ -87,6 +92,17 @@ case class ClassNameAttr[T](t: T, av: AttrValue[T]) extends TagMod {
 }
 object ClassNameAttr {
   def :=[T](t: T)(implicit av: AttrValue[T]): ClassNameAttr[T] = ClassNameAttr(t, av)
+}
+
+object RefAttr {
+  private val ref = "ref".attr
+
+  def :=[T](v: T)(implicit ev: AttrValue[T]): TagMod =
+    AttrPair(ref, v, ev)
+
+  import Implicits._react_attrJsFn
+  def apply[N <: TopNode](f: N => Unit): TagMod =
+    :=((f: js.Function1[N, Unit]): js.Function)
 }
 
 /**
@@ -191,17 +207,17 @@ private[vdom] object Scalatags {
     override def compare(x: Attr, y: Attr): Int = x.name compareTo y.name
   }
 
-  final class OptionalAttrValue[T[_], A](ot: Optional[T], v: AttrValue[A]) extends AttrValue[T[A]] {
+  final class OptionalAttrValue[T[_], A](ot: OptionLike[T], v: AttrValue[A]) extends AttrValue[T[A]] {
     override def apply(ta: T[A], b: js.Any => Unit): Unit = ot.foreach(ta)(v(_, b))
   }
 
-  final class OptionalStyleValue[T[_], A](ot: Optional[T], v: StyleValue[A]) extends StyleValue[T[A]] {
+  final class OptionalStyleValue[T[_], A](ot: OptionLike[T], v: StyleValue[A]) extends StyleValue[T[A]] {
     override def apply(b: Builder, s: Style, t: T[A]) = ot.foreach(t)(v(b, s, _))
   }
 
-  @inline def makeAbstractReactTag(tag: String, namespaceConfig: Namespace): ReactTag = {
+  @inline def makeAbstractReactTag[N <: TopNode](tag: String, namespaceConfig: Namespace): ReactTagOf[N] = {
     Escaping.assertValidTag(tag)
-    ReactTag(tag, Nil, namespaceConfig)
+    ReactTagOf[N](tag, Nil, namespaceConfig)
   }
 
   implicit final class SeqFrag[A <% Frag](xs: Seq[A]) extends Frag {
@@ -242,16 +258,16 @@ private[vdom] object Scalatags {
 
   implicit class STStringExt(private val s: String) extends AnyVal {
     /**
-     * Converts the string to a [[ReactTag]]
+     * Converts the string to a [[ReactTagOf]]
      */
-    def tag[N <: dom.Node](implicit namespaceConfig: Namespace): ReactTag =
+    def tag[N <: TopNode](implicit namespaceConfig: Namespace): ReactTagOf[N] =
       makeAbstractReactTag(s, namespaceConfig)
 
     /**
-     * Converts the string to a void [[ReactTag]]; that means that they cannot
+     * Converts the string to a void [[ReactTagOf]]; that means that they cannot
      * contain any content, and can be rendered as self-closing tags.
      */
-    def voidTag[N <: dom.Node](implicit namespaceConfig: Namespace): ReactTag =
+    def voidTag[N <: TopNode](implicit namespaceConfig: Namespace): ReactTagOf[N] =
       makeAbstractReactTag(s, namespaceConfig)
 
     /**
@@ -268,7 +284,7 @@ private[vdom] object Scalatags {
   }
 
   /**
-   * Allows you to modify a [[ReactTag]] by adding a Seq containing other nest-able
+   * Allows you to modify a [[ReactTagOf]] by adding a Seq containing other nest-able
    * objects to its list of children.
    */
   implicit class SeqNode[A <% TagMod](xs: Seq[A]) extends TagMod {
