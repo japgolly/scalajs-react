@@ -24,12 +24,11 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.9.2"
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.10.0"
 
-  // React.JS itself
-  // Note the JS filename. Can also be "react/0.12.2/react.js", "react.min.js", or "react-with-addons.min.js".
-  jsDependencies +=
-    "org.webjars" % "react" % "0.12.2" / "react-with-addons.js" commonJSName "React"
+  // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
+  jsDependencies += "org.webjars.npm" % "react"     % "0.14.0" % scope / "react-with-addons.js" commonJSName "React"    minified "react-with-addons.min.js",
+  jsDependencies += "org.webjars.npm" % "react-dom" % "0.14.0" % scope / "react-dom.js"         commonJSName "ReactDOM" minified "react-dom.min.js" dependsOn "react-with-addons.js",
   ```
 
 Creating Virtual-DOM
@@ -69,15 +68,74 @@ There are two built-in ways of creating virtual-DOM.
 
 #### Callbacks
 
-There are two ways of wiring up events to vdom.
+Callbacks are represented by:
+* `Callback` which doesn't return a result.
+* `CallbackTo[A]` which returns an `A`.
 
-1. **`attr ==> handler`** where `handler` is in the shape of `ReactEvent => Unit`, an event handler.
-  Event types are described in [TYPES.md](TYPES.md).
+Actually `Callback` is `CallbackTo[Unit]` with a different companion object, full of different goodies that all return `Unit`.
+
+You can create callbacks in a number of ways:
+
+* By wrapping your async code:
 
   ```scala
-  def onTextChange(e: ReactEventI): Unit = {
-    println("Value received = " + e.target.value)
-  }
+  Callback{ println("Hello! I'll be executed later.") }
+  ```
+
+* When your component modifies its state via `.setState` or `.modState`, you are provided a `Callback` for the operation.
+
+  ```scala
+  $.modState(_.copy(name = newName)) // returns a Callback
+  ```
+
+* Using one of the `Callback` object convenience methods
+
+  ```scala
+  // Convenience for calling `dom.console.log`.
+  Callback.log("Hello Console reader.")
+
+  // Provides both compile-time and runtime warnings that a callback isn't implemented yet.
+  Callback.TODO("AJAX not implemented yet")
+
+  // Return a pure value without doing anything
+  CallbackTo.pure(0)
+  ```
+
+`Callback` also has all kinds of useful methods and combinators. Examples:
+* Join callbacks together with many methods like `map`, `flatMap`, `tap`, `flatTap`, and all the squigglies that
+  you may be used to in Haskell and inspired libraries like `*>`, `<*`, `>>`, `<<`, `>>=`, etc.
+* `.attempt` to catch any error in the callback and handle it.
+* `.async`/`.delay(n)` to run asynchronously and return a `Future`.
+* `.logResult` to print the callback result before returning it.
+* `.logDuration` to measure and log how long the callback takes.
+
+#### Event Handlers
+
+There are two ways of attaching event handlers to your virtual DOM.
+
+1. **`<attribute> --> <procedure>`**
+
+  `<attribute>` is a DOM attribute like `onClick`, `onChange`, etc.<br>
+  `<procedure>` is a `Callback` (see above) which doesn't need any input.
+
+  ```scala
+  def onButtonPressed: Callback =
+    Callback.alert("The button was pressed!")
+
+  <.button(
+    ^.onClick --> onButtonPressed,
+    "Press me!")
+  ```
+
+2. **`<attribute> ==> <handler>`**
+
+  `<attribute>` is a DOM attribute like `onClick`, `onChange`, etc.<br>
+  `<handler>` is a `ReactEvent => Callback`.
+  `ReactEvent` can be more specific - event types are described in [TYPES.md](TYPES.md).
+
+  ```scala
+  def onTextChange(e: ReactEventI): Callback =
+    Callback.alert("Value received = " + e.target.value)
 
   <.input(
     ^.`type`    := "text",
@@ -85,17 +143,10 @@ There are two ways of wiring up events to vdom.
     ^.onChange ==> onTextChange)
   ```
 
-2. **`attr --> proc`** where `proc` is in the shape of `(=> Unit)`, a procedure.
+A helpful way to remember which operator to use is to visualise the arrow stem:
+<br>`==>` - The `========` has a gap in the middle - it's a pipe for data to come through meaning it expects `? => Callback`.
+<br>`-->` - The `--------` has no gap - it's just a wire to a `Callback`.
 
-  ```scala
-  def onButtonPressed: Unit = {
-    println("The button was pressed!")
-  }
-
-  <.button(
-    ^.onClick --> onButtonPressed,
-    "Press me!")
-  ```
 
 #### Optional markup
 
@@ -120,6 +171,24 @@ There are two ways of wiring up events to vdom.
       <.a(
         ^.href := user.profileUrl,
         "My Profile")))
+  ```
+
+* Callbacks can be made optional by adding a `?` to the `-->`/`==>` op, and
+  wrapping the callback in `Option` or `js.UndefOr`.
+
+  ```scala
+  val currentValue: Option[String] = ???
+
+  def onTextChange(e: ReactEventI): Option[Callback] =
+    currentValue.map { before =>
+      def after = e.target.value
+      Callback.alert(s"Value changed from [$before] to [$after]")
+    }
+
+  <.input(
+    ^.`type`     := "text",
+    ^.value      := currentValue.getOrElse(""),
+    ^.onChange ==>? onTextChange)
   ```
 
 * `EmptyTag` - A virtual DOM building block representing nothing.
@@ -188,6 +257,54 @@ In addition to props and state, if you look at the React samples you'll see that
 
 See the [online timer demo](http://japgolly.github.io/scalajs-react/#examples/timer) for an example.
 
+For the extremely common case of having a backend class with a render method, `ReactComponentB` comes with a `.renderBackend` method.
+It will locate the `render` method, determine what the arguments need (props/state/propsChildren) by examining the
+types or the arg names when the types are ambiguous, and create the appropriate function at compile-time.
+If can also automate the creation of the backend, see below.
+
+Before:
+```scala
+type State = Vector[String]
+
+class Backend($: BackendScope[Unit, State]) {
+  def render = {
+    val s = $.state
+    <.div(
+      <.div(s.length, " items found:"),
+      <.ol(s.map(i => <.li(i))))
+  }
+}
+
+val Example = ReactComponentB[Unit]("Example")
+  .initialState(Vector("hello", "world"))
+  .backend(new Backend(_))
+  .render(_.backend.render)
+  .buildU
+```
+
+After:
+```scala
+class Backend($: BackendScope[Unit, State]) {
+  def render(s: State) =   // ← Accept props, state and/or propsChildren as argument
+    <.div(
+      <.div(s.length, " items found:"),
+      <.ol(s.map(i => <.li(i))))
+}
+
+val Example = ReactComponentB[Unit]("Example")
+  .initialState(Vector("hello", "world"))
+  .renderBackend[Backend]  // ← Use Backend class and backend.render
+  .buildU
+```
+
+You can also create a backend yourself and still use `.renderBackend`:
+```scala
+val Example = ReactComponentB[Unit]("Example")
+  .initialState(Vector("hello", "world"))
+  .backend(new Backend(_)) // ← Fine! Do it yourself!
+  .renderBackend           // ← Use backend.render
+  .buildU
+```
 
 Using Components
 ================
@@ -221,7 +338,7 @@ Component classes provides other methods:
 | `withKey(js.Any)` | Apply a (React) key to the component you're about to instantiate. |
 | `withRef(String | Ref)` | Attach a (React) reference to the component you're about to instantiate. |
 | `set(key = ?, ref = ?)` | Alternate means of setting one or both of the above. |
-| `jsCtor` | The React component (constructor) in pure JS (i.e. without the Scala wrapping). |
+| `reactClass` | The React component (constructor) in pure JS (i.e. without the Scala wrapping). |
 | `withProps(=> Props)` | Using the given props fn, return a no-args component. |
 | `withDefaultProps(=> Props)` | Using the given props fn, return a component which optionally accepts props in its constructor but also allows instantiation without specifying. |
 
@@ -250,7 +367,7 @@ React.render(NoArgs(), document.body)
 React Extensions
 ================
 
-* Where `this.setState(State)` is applicable, you can also run `modState(State => State)`.
+* Where `setState(State)` is applicable, you can also run `modState(State => State)`.
 
 * `SyntheticEvent`s have numerous aliases that reduce verbosity.
   For example, in place of `SyntheticKeyboardEvent[HTMLInputElement]` you can use `ReactKeyboardEventI`.
@@ -485,24 +602,25 @@ Gotchas
   ```
 
   If this is a problem you have 2 choices.
-  
-  1. Refactor your logic so that you only call `setState`/`modState` once.
-  2. Use Scalaz state monads as demonstrated in the online [state monad example](https://japgolly.github.io/scalajs-react/#examples/state-monad).
+
+  1. Use `modState`.
+  2. Refactor your logic so that you only call `setState` once.
+  3. Use Scalaz state monads as demonstrated in the online [state monad example](https://japgolly.github.io/scalajs-react/#examples/state-monad).
 
 * Type-inference when creating vdom can break if you call a function whose return type is also infered.
 
   Example: `Option.getOrElse`.
-  
+
   If you have an `Option[A]`, the return type of `getOrElse` is not always `A`.
   This is because the `A` in `Option` is covariant, and so instead of `getOrElse(default: => A): A`
   *(which would avoid this vdom type-inference problem)*, it's actually `getOrElse[B >: A](default: => B): B`.
-  
+
   This confuses Scala:
   ```scala
   def problem(name: Option[String]) =
     <.div(^.title := name.getOrElse("No Name"))
   ```
-  
+
   Workarounds:
   ```scala
   // Workaround #1: Move the call outside.
