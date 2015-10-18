@@ -5,6 +5,8 @@ Many changes are breaking so don't miss the migration commands.
 Some manual change is likely unavoidable as the migiration commands don't cover as much as usual this time
 but they'll save you a significant amount of effort.
 
+*(If you use ScalaCSS, you'll need to upgrade to 0.3.1.)*
+
 #### Summary
 - [React 0.14](#react-014)
 - [Unified the two ways of writing callbacks](#unified-the-two-ways-of-writing-callbacks)
