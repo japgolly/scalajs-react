@@ -84,6 +84,12 @@ object Callback {
     Callback(console.assert(test, message, optionalParams: _*))
 
   /**
+   * Convenience for calling `dom.alert`.
+   */
+  def alert(message: String): Callback =
+    Callback(org.scalajs.dom.alert(message))
+
+  /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.
    *
    * Unlike `???` this doesn't crash, it just prints a warning to the console.
