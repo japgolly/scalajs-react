@@ -2,7 +2,8 @@
 
 This release packs a lot of changes to improve the quality, safety and coding experience.
 Many changes are breaking so don't miss the migration commands.
-Some manual change in mostly unavoidable as they don't cover as much as usual this time, but they will save you a significant amount.
+Some manual change is likely unavoidable as the migiration commands don't cover as much as usual this time
+but they'll save you a significant amount of effort.
 
 #### Summary
 - [React 0.14](#react-014)
@@ -24,7 +25,7 @@ In this release we jump from React 0.12 to 0.14.
 
 * New in React 0.13
   * Components' `modState` can now be called multiple times in the same render pass without clobbering changes.
-    (A fatal issue of NPEs when accessing events in `modState` in React 0.13 has been fixed with React 0.14.)
+    *(A fatal issue causing NPEs accessing events in `modState` in React 0.13 has been resolved in React 0.14.)*
   * The `ref` attribute now accepts a callback for you to store the ref yourself.
     <br>`^.input(^.ref[HTMLInputElement](myInput = _))`
   * Added `React.findDOMNode(component): Node`.
@@ -33,16 +34,25 @@ In this release we jump from React 0.12 to 0.14.
   * Removed methods deprecated in React 0.12.
 
 * New in React 0.14
-  * `React` singleton split into `React`, `ReactDOM`, `ReactDOMServer`. (Currently all in the `core` module for now; will split later.)
+  * `React` singleton split into `React` and `ReactDOM`.
+    `React` still contains functions for both but the DOM ones have been `@deprecated`.
+    <br>`ReactDOMServer` will be added later after a Scala.JS issue is resolved.
+    <br>`React` and `ReactDOM` are both still in the `core` module for now. They will be split later.
   * References to plain DOM elements (`div`,`input`,etc.) now return the nodes directly without a need to call `getDOMNode()`.
-  * Add `FunctionalComponent`, a new type of component which is a thinly-wrapped, pure `P => ReactElement`. [(examples)](../test/src/test/scala/japgolly/scalajs/react/FunctionalComponentTest.scala)
+  * Added `FunctionalComponent`, a new type of component which is a thinly-wrapped, pure `P => ReactElement`. [(examples)](../test/src/test/scala/japgolly/scalajs/react/FunctionalComponentTest.scala)
   * React deprecated `α.getDOMNode()` in favour of `ReactDOM.findDOMNode(α)`, likely because `findDOMNode` won't make
     sense in React Native, etc. However in Scala we have the ability to *conditionally* add the `getDOMNode()` method
-    onto components. This means we can keep the convenient `getDOMNode()` and in future mirror the conditions that
-    React applies (eg. `getDOMNode()` works with the `react-dom` module only).
+    onto components. This means we can keep the convenient `getDOMNode()` *and*, in future, mirror the conditions
+    required by React (eg. make `getDOMNode()` work with the `react-dom` module only).
   * `React.initializeTouchEvents` is no longer necessary and has been removed completely. Touch events now work automatically.
   * New HTML attributes: `capture`, `challenge`, `inputMode`, `is`, `keyParams`, `keyType`, `minLength`, `summary`, `wrap`, `autoSave`, `results`, `security`, `onAbort`, `onCanPlay`, `onCanPlayThrough`, `onDurationChange`, `onEmptied`, `onEncrypted`, `onEnded`, `onError`, `onLoadedData`, `onLoadedMetadata`, `onLoadStart`, `onPause`, `onPlay`, `onPlaying`, `onProgress`, `onRateChange`, `onSeeked`, `onSeeking`, `onStalled`, `onSuspend`, `onTimeUpdate`, `onVolumeChange`, `onWaiting`.
   * New SVG attributes: `xlinkActuate`, `xlinkArcrole`, `xlinkHref`, `xlinkRole`, `xlinkShow`, `xlinkTitle`, `xlinkType`, `xmlBase`, `xmlLang`, `xmlSpace`.
+  * React 0.14 also allows OO-style components by extending an ES6 class.
+    <br>I (majority author) have (mis?)understood this feature as only benefiting raw JS coders and not providing
+    us Scala coders with any benefit, and so I didn't spend time to support this. I've been informed that I may be
+    wrong there, and so [@xsistens](https://github.com/xsistens) has very-kindly submitted a PR to enable it that will
+    likely be included in a follow-up release.
+    <br>All Praise Open-Source!
 
 ---
 
@@ -51,30 +61,38 @@ In this release we jump from React 0.12 to 0.14.
 **Problem:**<br>
 A gap in the community and library was growing because there were two separate ways of writing callbacks.
 An example of which, numerous users using the built-in `Router` experienced confusion and were forced to
-discover Scalaz's (and Haskell's) `unsafePerformIO()` without understanding the reasons or benefit.
-Another example, writing mixins or shared libraries, one would have to create duplicate methods with differing
+discover Scalaz's (and Haskell's) `unsafePerformIO()` without understanding how/why.
+Another example: writing mixins or shared libraries, one would have to create duplicate methods with differing
 type signatures in order to accomodate both styles.
 More examples exist, but it should be clear that this please-everyone approach has failed.
 
-(See [#145: Unify `-->` `==>` `~~>`, remove Scalaz `IO`, add `Callback`](https://github.com/japgolly/scalajs-react/issues/145).)
+(See also [#145: Unify `-->` `==>` `~~>`, remove Scalaz `IO`, add `Callback`](https://github.com/japgolly/scalajs-react/issues/145).)
 
 **Solution:**<br>
 A new data type `Callback` has been added
 (which is actually an alias to the real type `CallbackTo[A]` where `Callback = CallbackTo[Unit]`).
 It replaces the existing two competing methods of `() => Unit` and Scalaz `IO[Unit]`.
-A basic rule of thumb is if a function performs an effect (changing DOM, using network, changing React state),
-it should be wrapped in a `Callback`.
+It is now what is passed to React and DOM event-handlers to represent a procedure that will be executed later.
 
+`Callback` also has all kinds of useful methods and combinators. Examples:
+* Join callbacks together with many methods like `map`, `flatMap`, `tap`, `flatTap`, and all the squigglies that
+  you may be used to in Haskell and inspired libraries like `*>`, `<*`, `>>`, `<<`, `>>=`, etc.
+* `.attempt` to catch any error in the callback and handle it.
+* `.async`/`.delay(n)` to run asynchronously and return a `Future`.
+* `.logResult` to print the callback result before returning it.
+* `.logDuration` to measure and log how long the callback takes.
+
+A quick summary of the changes for all users:
 * When creating HTML, `-->` and `==>` only accept `Callback`s.
 * `setState()`, `modState()` etc now return `Callback`s.
-* Useful methods now moved into core `-->?`, `==>?` which work with optional callbacks.
-* Useful methods now moved into core `_setState()` and `_modState()`.
+* Useful methods now moved into core `-->?`, `==>?`. These ops facilitate optional callbacks.
+* Useful methods now moved into core `_setState()` and `_modState()`. These return a function to a `setState`/`modState` callback.
 * Component lifecycle methods (like `componentWillMount`) now accept `Callback`.
 * `Router` no longer uses Scalaz `IO`.
 * Mixins in `extra` no longer have duplicate methods for Scalaz `IO`.
 
 For Scalaz users:<br>
-Either use `CallbackTo` instead of `IO`, or else change your `IO`s to `CallbackTo`s when you pass them to React.
+* Either use `CallbackTo` instead of `IO`, or keep `IO`s  but add `.toCallback` when passing to React.
 * `~~>` is removed. Use `-->` and `==>` instead.
 * `{,_}{set,mod}StateIO` methods all removed and in core without the `IO`.
 * Isomorphism between `IO` and `CallbackTo` with convenience extension methods `.toCallback` and `.toIO`.
@@ -212,9 +230,7 @@ val Example = ReactComponentB[Unit]("Example")
 
 After:
 ```scala
-type State = Vector[String]
-
-class Backend($: BackendScope[Unit, Vector[String]]) {
+class Backend($: BackendScope[Unit, State]) {
   def render(s: State) =   // ← Accept props, state and/or propsChildren as argument
     <.div(
       <.div(s.length, " items found:"),
@@ -284,65 +300,61 @@ They're now all defined in one place, and have been renamed to represent their t
 Who remembers what mish-mash existed before, in this new world you ask for the types you want by adding suffixes to
 the render function name. Conversely, it's now always obvious what's happening by looking at the function name.
 
+All `render*` functions take as their sole argument a function that returns a `ReactElement` (which is a `ReactComponent` or DOM element).
 
-All `render*` functions take as their sole argument a function that returns a ReactElement (a ReactElement
-is a ReactComponent or DOM element).
-
-The `render` function takes a function which has as its first argument a CompState, 
+The `render` function takes a function which has as its first argument a `CompScope`,
 which is broadly analogous to javascript's `this`, and which scalajs-react conventionally designates with `$`. 
 
 |Method|Argument|Example|
 | --- | --- | --- | --- |
-|render|Function taking CompState (which is analogous to javascript `this`)|`.render { $ => <.div() }`|
+|`render`|Function taking `CompScope`<br>(Component scope: analogous to javascript `this`)|`.render { $ => <.div() }`|
 
 Additional `render*` convenience functions *without an underscore* specify (and unwrap) additional arguments, 
-which scalajs-react conventionally designates as P for props, C for propsChildren, and S for State 
+which scalajs-react conventionally designates as `P` for `props`, `C` for `propsChildren`, and `S` for `state` 
 (see table below). The uppercase is not an accident: all of these are the types of generic arguments 
-explicitly or implicitly given to ReactComponentB.
+explicitly or implicitly given to `ReactComponentB`.
 
 These additional `render*` functions are convenience functions, as all of these additional arguments can be 
-found as members of the CompState argument.
+found as members of the `CompScope` argument.
 
 E.g.:
 
     .render { $ =>
-        val P = $.props
-        val C = $.propsChildren
-        val S = $.state
+        val p = $.props
+        val c = $.propsChildren
+        val s = $.state
         
         <.div()
      }
       
 is equivalent to:
 
-    .renderPCS { ($, P, C, S)  =>
+    .renderPCS { ($, p, c, s)  =>
         <.div()
      }
      
 |Method|Argument|Example|
 | --- | --- | --- | --- |
-|renderPCS|Function taking CompState, props, children, state|`.renderPCS { ($, P, C, S)  => <.div() }`|
-|renderPC|Function taking CompState, props, children|`.renderPC { ($, P, C)  => <.div() }`|
-|renderPS|Function taking CompState, props, state|`.renderPS { ($, P, S)  => <.div() }`|
-|renderP|Function taking CompState, props|`.renderP { ($, P)  => <.div() }`|
-|renderCS|Function taking CompState, children, state|`.renderCS { ($, C, S)  => <.div() }`|
-|renderC|Function taking CompState, children|`.renderC { ($, C)  => <.div() }`|
-|renderS|Function taking CompState, state|`.renderS { ($, S)  => <.div() }`|
+|`renderPCS`|Fn taking `CompScope`, props, children, state|`.renderPCS(($, p, c, s) => <.div())`|
+|`renderPC` |Fn taking `CompScope`, props, children|`.renderPC(($, p, c) => <.div())`|
+|`renderPS` |Fn taking `CompScope`, props, state|`.renderPS(($, p, s) => <.div())`|
+|`renderP`  |Fn taking `CompScope`, props|`.renderP(($, p) => <.div())`|
+|`renderCS` |Fn taking `CompScope`, children, state|`.renderCS(($, c, s) => <.div())`|
+|`renderC`  |Fn taking `CompScope`, children|`.renderC(($, c) => <.div())`|
+|`renderS`  |Fn taking `CompScope`, state|`.renderS(($, s) => <.div())`|
 
 `render*` function overloads *with* an underscore take a function which takes has only that single part of the 
-CompState called out in the function name. The CompState itself is not passed to the function passed.
+`CompScope` called out in the function name. The `CompScope` itself is not passed to the function passed.
  
 |Method|Argument|Example|
 | --- | --- | --- | --- |
-|render_P|Function taking only props|`.render_P { P => <.div() }`|
-|render_C|Function taking only children|`.render_C { C  => <.div() }`|
-|render_S|Function taking only state|`.render_S { S  => <.div() }`|
+|`render_P` | Fn taking only props.    |`.render_P(p => <.div())`|
+|`render_C` | Fn taking only children. |`.render_C(c => <.div())`|
+|`render_S` | Fn taking only state.    |`.render_S(s => <.div())`|
 
+Similarly the `initialState` methods have been revised to both:
 
-
-
-Similarly the `initialState` methods have been revised both
-1. To be consistent with the pattern used in `render` methods
+1. To be consistent with the pattern used in `render` methods.
 2. To optionally accept `Callback`s.
 
 Unlike the `render` methods, this migration can be automated (see below).
@@ -420,13 +432,15 @@ Unlike the `render` methods, this migration can be automated (see below).
 
 * Small improvements to `ReusabilityOverlay`.
 
-* Upgrade scala-js-dom 0.8.{1 ⇒ 2}.
+* Upgrade [scala-js-dom](https://github.com/scala-js/scala-js-dom) 0.8.{1 ⇒ 2}.
 
-* Added `ReactTagOf` to provide more specific types for scalatags. `ReactTag` is the kept the same as before for compatibility or if you don't need it.  
-```scala
-val specific: ReactTagOf[html.Div] = div()
-val general: ReactTag = specific
-```
+* Added `ReactTagOf` to provide more specific types for virtual DOM (ScalaTags).
+  `ReactTag` is the kept the same as before for compatibility or if you don't need it.  
+
+  ```scala
+  val specific: ReactTagOf[html.Anchor] = <.a(^.href := "https://google.com", "Google")
+  val general: ReactTag = specific
+  ```
 
 ---
 
