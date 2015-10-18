@@ -19,8 +19,10 @@ package object vdom {
 
   // If you're wondering why abstract class instead of trait, https://issues.scala-lang.org/browse/SI-4767
   abstract class Base extends Implicits {
-    final type ReactTag = japgolly.scalajs.react.vdom.ReactTag
-    final type TagMod   = japgolly.scalajs.react.vdom.TagMod
+    final type ReactTagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.ReactTagOf[N]
+    final type ReactTag                  = japgolly.scalajs.react.vdom.ReactTagOf[TopNode]
+    final type TagMod                    = japgolly.scalajs.react.vdom.TagMod
+
     @inline final def TagMod   = japgolly.scalajs.react.vdom.TagMod
     @inline final def EmptyTag = japgolly.scalajs.react.vdom.EmptyTag
   }

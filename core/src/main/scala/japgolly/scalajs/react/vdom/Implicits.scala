@@ -66,8 +66,8 @@ abstract class Implicits extends LowPri {
   @inline implicit final def _react_cssNumber    [T: Numeric](t: T): CssNumber       = new CssNumber(t)
 
   // Rendering
-  @inline implicit final def _react_autoRender (t: ReactTag)     : ReactElement      = t.render
-  @inline implicit final def _react_autoRenderS(t: Seq[ReactTag]): Seq[ReactElement] = t.map(_.render)
+  @inline implicit final def _react_autoRender [T <: TopNode](t: ReactTagOf[T])     : ReactElement      = t.render
+  @inline implicit final def _react_autoRenderS[T <: TopNode](t: Seq[ReactTagOf[T]]): Seq[ReactElement] = t.map(_.render)
 
   // Extensions
   @inline implicit final def _react_ext_attr(a: Attr)    = new Extra.AttrExt(a)

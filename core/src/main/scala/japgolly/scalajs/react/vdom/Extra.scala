@@ -50,7 +50,7 @@ object Extra {
   final class StringExt(private val s: String) extends AnyVal {
     @inline def reactAttr : Attr     = Attr(s)
     @inline def reactStyle: Style    = Style(s, s)
-    @inline def reactTag  : ReactTag = makeAbstractReactTag(s, Scalatags.NamespaceHtml.implicitNamespace)
+    @inline def reactTag[N <: TopNode]: ReactTagOf[N] = makeAbstractReactTag(s, Scalatags.NamespaceHtml.implicitNamespace)
   }
 
   trait Tags {
