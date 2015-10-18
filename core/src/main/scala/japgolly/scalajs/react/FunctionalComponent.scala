@@ -15,6 +15,7 @@ import scala.scalajs.js
  *
  * @since React 0.14
  */
+@js.native
 sealed trait FunctionalComponent[-P] extends js.Any
 // type FunctionalComponent[-P] = js.Function1[P, ReactElement]
 // ↑ Doesn't work for Scala for two reasons:
@@ -46,6 +47,7 @@ object FunctionalComponent {
   /**
    * A [[FunctionalComponent]] that accepts [[PropsChildren]] in addition to `props`.
    */
+  @js.native
   sealed trait WithChildren[-P] extends js.Any
 
   def withChildren[P](render: (P, PropsChildren) => ReactElement): WithChildren[P] = {

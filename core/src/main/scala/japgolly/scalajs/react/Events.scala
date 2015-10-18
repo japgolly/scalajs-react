@@ -68,6 +68,7 @@ object ReactKeyboardEvent {
 }
 
 /** https://facebook.github.io/react/docs/events.html */
+@js.native
 trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends js.Object {
   val bubbles         : Boolean        = js.native
   val cancelable      : Boolean        = js.native
@@ -91,6 +92,7 @@ trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends js.Object {
 }
 
 /** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticUIEvent.js */
+@js.native
 trait SyntheticUIEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEventTarget] {
   override val nativeEvent: dom.UIEvent = js.native
   /**
@@ -106,6 +108,7 @@ trait SyntheticUIEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEv
 }
 
 /** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticClipboardEvent.js */
+@js.native
 trait SyntheticClipboardEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEventTarget] {
   /**
    * The clipboardData attribute is an instance of the DataTransfer interface which lets a script read and manipulate
@@ -122,6 +125,7 @@ trait SyntheticClipboardEvent[+DOMEventTarget <: dom.Node] extends SyntheticEven
 }
 
 /** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticCompositionEvent.js */
+@js.native
 trait SyntheticCompositionEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEventTarget] {
   override val nativeEvent: dom.CompositionEvent = js.native
   /**
@@ -136,12 +140,14 @@ trait SyntheticCompositionEvent[+DOMEventTarget <: dom.Node] extends SyntheticEv
 }
 
 /** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticDragEvent.js */
+@js.native
 trait SyntheticDragEvent[+DOMEventTarget <: dom.Node] extends SyntheticMouseEvent[DOMEventTarget] {
   override val nativeEvent: dom.DragEvent = js.native
   val dataTransfer: dom.DataTransfer = js.native
 }
 
 /** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticFocusEvent.js */
+@js.native
 trait SyntheticFocusEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[DOMEventTarget] {
   override val nativeEvent: dom.FocusEvent = js.native
   val relatedTarget: dom.EventTarget = js.native
@@ -162,6 +168,7 @@ trait SyntheticFocusEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[
 //}
 
 /** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticKeyboardEvent.js */
+@js.native
 trait SyntheticKeyboardEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[DOMEventTarget] {
   override val nativeEvent: dom.KeyboardEvent = js.native
   /** See org.scalajs.dom.extensions.KeyValue */
@@ -180,6 +187,7 @@ trait SyntheticKeyboardEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEve
 }
 
 /** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticMouseEvent.js */
+@js.native
 trait SyntheticMouseEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[DOMEventTarget] {
   override val nativeEvent: dom.MouseEvent = js.native
   val screenX  : Double  = js.native
@@ -199,6 +207,7 @@ trait SyntheticMouseEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[
 }
 
 /** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticTouchEvent.js */
+@js.native
 trait SyntheticTouchEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[DOMEventTarget] {
   override val nativeEvent: dom.TouchEvent = js.native
   val altKey        : Boolean       = js.native
@@ -212,6 +221,7 @@ trait SyntheticTouchEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[
 }
 
 /** https://github.com/facebook/react/blob/master/src/browser/syntheticEvents/SyntheticWheelEvent.js */
+@js.native
 trait SyntheticWheelEvent[+DOMEventTarget <: dom.Node] extends SyntheticMouseEvent[DOMEventTarget] {
   override val nativeEvent: dom.WheelEvent = js.native
   def deltaX(event: dom.Event): Double = js.native
