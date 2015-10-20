@@ -49,7 +49,7 @@ find . -name '*.scala' -type f -exec perl -pi -e 's/focusState/zoom/g' {} +
   * nice `.toString` methods to `Px` classes.
   * `ReusableFn.renderComponent` which recreates a `Props ~=> ReactElement`.
   * `ReactComponentB.configureSpec` - useful for JS interop.
-  * [`ReusableVal2`](../extra/PERF.md#reusableval2): A lazy value whose reusability is determined by another value.
+  * [`ReusableVal2`](PERFORMANCE.md#reusableval2): A lazy value whose reusability is determined by another value.
 * Upgrade:
   * [scala-js-dom](https://github.com/scala-js/scala-js-dom) to 0.8.1.
   * Scalaz to 7.1.3.
@@ -85,7 +85,7 @@ find . -name '*.scala' -type f -exec perl -pi -e 's/focusState/zoom/g' {} +
 ## Performance Management
 A number of new tools and utilities have been introduced for you to manage the performance of your React app.
 
-Detail with examples are here: [extra/PERF.md](../extra/PERF.md).
+Detail with examples are here: [PERFORMANCE.md](PERFORMANCE.md).
 
 * Scala facade for `React.addons.Perf`. See https://facebook.github.io/react/docs/perf.html.
 * `Reusability` for fast, easy & safe `shouldComponentUpdate` management.
@@ -99,7 +99,7 @@ Detail with examples are here: [extra/PERF.md](../extra/PERF.md).
 
 This release comes with a new and improved router.
 
-The design of [the v1 Router](../extra/ROUTER.md)
+The design of [the v1 Router](https://github.com/japgolly/scalajs-react/blob/v0.8.4/extra/ROUTER.md)
 made certain features very hard to accommodate:
 [#96](https://github.com/japgolly/scalajs-react/issues/96),
 [#103](https://github.com/japgolly/scalajs-react/issues/103),
@@ -108,7 +108,7 @@ made certain features very hard to accommodate:
 [#94](https://github.com/japgolly/scalajs-react/issues/94),
 [#69](https://github.com/japgolly/scalajs-react/issues/69).
 
-In contrast, [the v2 Router](../extra/ROUTER2.md) has a different design that:
+In contrast, [the v2 Router](https://github.com/japgolly/scalajs-react/blob/v0.9.0/extra/ROUTER2.md) has a different design that:
 
 * Uses a user-provided data representation of your pages to identify routes and their parameters.
 * Similarly the Router can now indicate the current page with precision, faciliating dynamic menus and breadcrumbs even in the presence of complex, dynamic routes.
@@ -117,4 +117,4 @@ In contrast, [the v2 Router](../extra/ROUTER2.md) has a different design that:
 * Routes can be manipulated in bulk.
 * Has a better API such that usage previously recommended against, is now impossible. Noteworthy is that `Router` is now just a `ReactComponent`, and `RouterCtl` is the client API.
 
-Detail with examples are here: [extra/ROUTER2.md](../extra/ROUTER2.md).
+Detail with examples are here: [ROUTER2.md](https://github.com/japgolly/scalajs-react/blob/v0.9.0/extra/ROUTER2.md).

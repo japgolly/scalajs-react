@@ -38,7 +38,7 @@ https://gist.github.com/japgolly/c68482dbadb0077f550c
 #### Router
 New in this release is a router, type-safe and written entirely in Scala.js, for Single-Page Applications.
 
-See [extra/ROUTER.md](https://github.com/japgolly/scalajs-react/blob/master/extra/ROUTER.md) for details.
+See [ROUTER.md](https://github.com/japgolly/scalajs-react/blob/v0.7.0/extra/ROUTER.md) for details.
 
 #### Refs
 * Refs can now be applied to components from the outside, prior to mounting. ([#44](https://github.com/japgolly/scalajs-react/issues/44))
