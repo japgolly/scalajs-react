@@ -5,7 +5,6 @@ Testing
 - [Setup](#setup)
 - [`React.addons.TestUtils`](#reactaddonstestutils)
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
-- [`Sel`](#sel)
 - [`DebugJs`](#debugjs)
 
 Setup
@@ -21,8 +20,8 @@ Setup
 
     // React JS itself.
     // NOTE: Requires react-with-addons.js instead of just react.js
-    jsDependencies +=
-      "org.webjars" % "react" % "0.12.2" % "test" / "react-with-addons.js" commonJSName "React"
+    jsDependencies += "org.webjars.npm" % "react"     % "0.14.0" % "test" / "react-with-addons.js" commonJSName "React"    minified "react-with-addons.min.js",
+    jsDependencies += "org.webjars.npm" % "react-dom" % "0.14.0" % "test" / "react-dom.js"         commonJSName "ReactDOM" minified "react-dom.min.js"         dependsOn "react-with-addons.js",
 
     // Indicate that unit tests will access the DOM
     requiresDOM := true
@@ -76,18 +75,6 @@ val s = Simulation.focusChangeBlur("hi")
 s run component
 ```
 
-`Sel`
-=====
-DOM lookup is much easier than using `ReactTestUtils` directly by instead using `Sel`.
-`Sel` allows you to use a jQuery/CSS-like selector to lookup a DOM element or subset.
-Full examples can be [seen here](src/test/scala/japgolly/scalajs/react/test/SelTest.scala); this is a sample:
-```scala
-val dom = Sel(".inner a.active.new") findIn myComponent
-```
-
-Note: The syntax is quite limited. It supports tags and classes. It does **not** support Ids.
-jQuery or Sizzle will do a better job. I don't think I thought of that when I wrote `Sel` :)
-
 `DebugJs`
 =========
 [DebugJs](src/main/scala/japgolly/scalajs/react/test/DebugJs.scala) is a dumping ground for functionality useful when testing raw JS.
@@ -96,10 +83,10 @@ It doesn't have much but `inspectObject` can be tremendously useful.
 
 Example:
 ```scala
-.componentDidMount { $ =>
+.componentDidMount($ => Callback {
   val dom = $.getDOMNode()
   println(DebugJs inspectObject dom)
-}
+})
 ```
 
 Output (truncated):

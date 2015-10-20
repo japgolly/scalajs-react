@@ -55,20 +55,25 @@ When building your component, pass in `Reusability.shouldComponentUpdate` to you
 
 It will not compile until it knows how to compare the reusability of your props and state.
 Out-of-the-box, it knows how to compare Scala primatives, `String`s, `Option`, `Either`, Scala tuples, `js.UndefOr`,
+Scala and JS `Date`s, `UUID`s, `Set`s, `List`s, `Vector`s,
 and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it how. Use one of the following methods:
 
-* `Reusability.byRef` uses reference equality (ie. `a eq b`).
 * `Reusability.by_==` uses universal equality (ie. `a == b`).
-* `Reusability.byRef_==` uses reference equality and if different, tries universal equality.
+* `Reusability.byRef` uses reference equality (ie. `a eq b`).
+* `Reusability.byRefOr_==` uses reference equality and if different, tries universal equality.
 * `Reusability.caseClass` for case classes of your own.
 * `Reusability.caseClassDebug` as above, but shows you the code that the macro generates.
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
 * `Reusability.fn((A, B) => Boolean)` to hand-write custom logic.
-* `Reusability.byEqual` uses a Scalaz `Equal` typeclass.
-* `Reusability.byRefOrEqual` uses reference equality and if different, tries using a Scalaz `Equal` typeclass.
 * `Reusability.byIterator` uses an `Iterable`'s iterator to check each element in order.
 * `Reusability.indexedSeq` uses `.length` and `.apply(index)` to check each element in order.
+* `Reusability.{double,float}` exist and require a tolerance to be specified.
 * `Reusability.{always,never,const(bool)}` are available too.
+
+If you're using the Scalaz module, you also gain:
+* `Reusability.byEqual` uses a Scalaz `Equal` typeclass.
+* `Reusability.byRefOrEqual` uses reference equality and if different, tries using a Scalaz `Equal` typeclass.
+
 
 #### Example
 The following component will only re-render when one of the following change:
@@ -84,8 +89,7 @@ The following component will only re-render when one of the following change:
   implicit val propsReuse = Reusability.caseClass[Props]     // ← check all fields
 
   val component = ReactComponentB[Props]("Demo")
-    .stateless
-    .render((p, _) =>
+    .render_P(p =>
       <.div(
         <.p("Name: ", p.name),
         <.p("Age: ", p.age.fold("Unknown")(_.toString)),
@@ -136,46 +140,45 @@ provide no means of determining whether a component can safely skip its update.
 In this example `personEditor` will only rerender if `props.name` changes, or the curried `PersonId` in its `props.update` function changes (which it won't - observable from the code).
 
 ```scala
+type State = Map[PersonId, PersonData]
 type PersonId = Long
 type PersonData = String
 
-val topComponent = ReactComponentB[Map[PersonId, PersonData]]("Demo")
-  .getInitialState(identity)
-  .backend(new Backend(_))
-  .render(_.backend.render)
+val topComponent = ReactComponentB[State]("Demo")
+  .initialState_P(identity)
+  .renderBackend[Backend]
   .build
 
-class Backend($: BackendScope[_, Map[PersonId, PersonData]]) {
+class Backend($: BackendScope[_, State]) {
 
   val updateUser = ReusableFn((id: PersonId, data: PersonData) =>         // ← Create a 2-arg fn
-    $.modStateIO(map => map.updated(id, data)))
+    $.modState(map => map.updated(id, data)))
 
-  def render =
+  def render(state: State) =
     <.div(
-      $.state.map { case (id, name) =>
+      state.map { case (id, name) =>
         personEditor.withKey(id)(PersonEditorProps(name, updateUser(id))) // ← Apply 1 arg
       }.toJsArray
     )
 }
 
-case class PersonEditorProps(name: String, update: String ~=> IO[Unit])   // ← Notice the ~=>
+case class PersonEditorProps(name: String, update: String ~=> Callback)   // ← Notice the ~=>
 
 implicit val propsReuse = Reusability.caseClass[PersonEditorProps]
 
 val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
-  .stateless
-  .render((p, _) =>
+  .render_P(p =>
     <.input(
       ^.`type` := "text",
       ^.value := p.name,
-      ^.onChange ~~> ((e: ReactEventI) => p.update(e.target.value))))    // ← Use as normal
+      ^.onChange ==> ((e: ReactEventI) => p.update(e.target.value))))    // ← Use as normal
   .configure(Reusability.shouldComponentUpdate)                          // ← shouldComponentUpdate like magic
   .build
 ```
 
 #### WARNING!
 
-**DO NOT** feed the ReusableFn(...) constructor a function directly *derived* from a component's props or state.
+**DO NOT** feed the `ReusableFn(...)` constructor a function directly *derived* from a component's props or state.
 Access to props/state on the right-hand side of the function args is ok but if the function itself is a result of the
 props/state, the function will forever be based on data that can go stale.
 
@@ -185,11 +188,11 @@ Example:
 case class Props(person: ReusableVar[Person], other: Other)
 
 // THIS IS BAD!!
-ReusableFn($.props.person setL Props.name)
+ReusableFn($.props.runNow().person setL Props.name)
 
 // It is equivalent to:
-val g: String => IO[Unit]  = $.props.person setL Person.name   // ← $.props is evaluated once here
-val f: String ~=> IO[Unit] = ReusableFn(g)                     // ← …and never again.
+val g: String => Callback  = $.props.runNow().person setL Person.name   // ← $.props is evaluated once here
+val f: String ~=> Callback = ReusableFn(g)                              // ← …and never again.
 ```
 
 Alternatives:
@@ -197,33 +200,33 @@ Alternatives:
 1. Use `ReusableFn.byName`:
 
    ```scala
-   ReusableFn.byName($.props.person setL Person.name)
+   ReusableFn.byName($.props.runNow().person setL Person.name)
    ```
 
 2. Create a function with `$` on the right-hand side:
 
    ```scala
-   ReusableFn(str => $.props.person.setL(Person.name)(str))
+   ReusableFn(str => $.props.flatMap(_.person.setL(Person.name)(str)))
    ```
 
 
 #### Tricks
 
 To cater for some common use cases, there are few convenience methods that are useful to know.
-For these examples imagine `$` to be your component's scope instance, eg. `BackendScope[_,S]`, `ComponentScopeM[_,S,_,_]` or similar.
+For these examples imagine `$` to be your component's scope instance, eg. `BackendScope[_,S]`, `CompScope.Mounted[_,S,_,_]` or similar.
 
-1. `ReusableFn($).{set,mod}State{,IO}`.
+1. `ReusableFn($).{set,mod}State`.
 
     You'll find that if you try `ReusableFn($.method)` Scala will fail to infer the correct types.
     Use `ReusableFn($).method` instead to get the types that you expect.
 
-    Example: instead of `ReusableFn($.setState)` use `ReusableFn($).setState` and you will correctly get a `S ~=> Unit`.
+    Example: instead of `ReusableFn($.setState)` use `ReusableFn($).setState` and you will correctly get a `S ~=> Callback`.
 
 2. `ReusableFn.endo____`.
 
     Anytime the input to your `ReusableFn` is an endofunction (`A => A`), additional methods starting with `endo` become available.
 
-    Specifically, `ReusableFn($).modState` returns a `(S => S) ~=> Unit` which you will often want to transform.
+    Specifically, `ReusableFn($).modState` returns a `(S => S) ~=> Callback` which you will often want to transform.
     These examples would be available on an `(S => S) ~=> U`:
 
     * `endoCall (S => (A => S)): A ~=> U` - Call a 1-arg function on `S`.
@@ -237,19 +240,19 @@ For these examples imagine `$` to be your component's scope instance, eg. `Backe
   class Backend($: BackendScope[_, Map[Int, String]]) {
 
     // Manual long-hand
-    val long: Int ~=> (String ~=> IO[Unit]) =
-      ReusableFn((id: Int, data: String) => $.modStateIO(map => map.updated(id, data)))
+    val long: Int ~=> (String ~=> Callback) =
+      ReusableFn((id: Int, data: String) => $.modState(map => map.updated(id, data)))
 
     // Shorter using helpers described above
-    val short: Int ~=> (String ~=> IO[Unit]) =
-      ReusableFn($).modStateIO.endoCall2(_.updated)
+    val short: Int ~=> (String ~=> Callback) =
+      ReusableFn($).modState.endoCall2(_.updated)
   ```
 
-3. `ReusableFn($ focusStateL lens)`
+3. `ReusableFn($ zoomL lens)`
 
   Lenses provide an abstraction over read-and-write field access.
   Using Monocle, you can annotate your case classes with `@Lenses` to gain automatic lenses.
-  `$ focusStateL lens` will then narrow the scope of its state to the field targeted by the given lens.
+  `$ zoomL lens` will then narrow the scope of its state to the field targeted by the given lens.
   This can then be used with `ReusableFn` as follows:
 
   ```scala
@@ -258,8 +261,8 @@ For these examples imagine `$` to be your component's scope instance, eg. `Backe
 
   class Backend($: BackendScope[_, Person]) {
 
-    val nameSetter: String ~=> Unit =
-      ReusableFn($ focusStateL Person.name).setState
+    val nameSetter: String ~=> Callback =
+      ReusableFn($ zoomL Person.name).setState
   ```
 
 
@@ -322,28 +325,23 @@ there is also `ReusableVar`.
 @Lenses case class State(name: String, desc: String)
 
 val topComponent = ReactComponentB[State]("Demo")
-  .getInitialState(identity)
-  .backend(new Backend(_))
-  .render(_.backend.render)
-  .build
+  .initialState_P(identity)
+  .renderP { ($, p) =>
+    val setName = ReusableVar.state($ zoomL State.name)
+    val setDesc = ReusableVar.state($ zoomL State.desc)
 
-class Backend($: BackendScope[State, State]) {
-  val setName = ReusableVar.state($ focusStateL State.name)
-  val setDesc = ReusableVar.state($ focusStateL State.desc)
-
-  def render =
     <.div(
       stringEditor(setName),
       stringEditor(setDesc))
-}
+  }
+  .build
 
-val stringEditor = ReactComponentB[ReusableVar[String]]("StringEditor")
-  .stateless
-  .render((p, _) =>
+lazy val stringEditor = ReactComponentB[ReusableVar[String]]("StringEditor")
+  .render_P(p =>
     <.input(
       ^.`type` := "text",
       ^.value := p.value,
-      ^.onChange ~~> ((e: ReactEventI) => p.set(e.target.value))))
+      ^.onChange ==> ((e: ReactEventI) => p.set(e.target.value))))
   .configure(Reusability.shouldComponentUpdate)
   .build
 ```
@@ -431,9 +429,19 @@ Create a non-derivative `Px` using one of these:
   }
   ```
 
-4. `Px.const(A)` & `Px.lazyConst(=> A)` - A constant value.
+4. `Px.bs($).{props,state}{A,M}` - A value extracts from a component's backend's props or state.
+
+  The `A` suffix denotes "Auto refresh", meaning that the function will be called every time the value is requested, and the value updated if necessary.<br>
+  The `M` suffix denotes "Manual refresh", meaning you must call `.refresh` yourself to check for updates.
+
+5. `Px.const(A)` & `Px.lazyConst(=> A)` - A constant value.
 
   These `Px`s do not have the ability to change.
+
+6. `Px.cb{A,M}(CallbackTo[A])` - A value which is the result of running a callback.
+
+  The `A` suffix denotes "Auto refresh", meaning that the function will be called every time the value is requested, and the value updated if necessary.<br>
+  The `M` suffix denotes "Manual refresh", meaning you must call `.refresh` yourself to check for updates.
 
 
 #### Derivative instances
@@ -445,8 +453,8 @@ Derivative `Px`s are created by:
 
 Example:
 ```scala
-val project     : Px[Project]      = Px.thunkM($.props)
-val viewSettings: Px[ViewSettings] = Px.thunkM($.state.viewSettings)
+val project     : Px[Project]      = Px.bs($).propsM
+val viewSettings: Px[ViewSettings] = Px.bs($).stateM(_.viewSettings)
 
 // Using .map
 val columns   : Px[Columns]    = viewSettings.map(_.columns)

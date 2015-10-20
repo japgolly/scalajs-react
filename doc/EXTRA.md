@@ -105,34 +105,36 @@ Accrues procedures to be run automatically when its component unmounts.
 ##### Example
 ```scala
 class MyBackend extends OnUnmount {
-  def init(): Unit = {
-    console.log("Initialising now...")
-    onUnmount { console.log("Component unmounting...") }
-  }
+  def init: Callback =
+    Callback.log("Initialising now...") >>
+    onUnmount( Callback.log("Component unmounting...") )
 }
 
 val eg = ReactComponentB[Unit]("Example")
   .stateless
   .backend(_ => new MyBackend)
   .render(_ => ???)
-  .componentWillMount(_.backend.init())
+  .componentWillMount(_.backend.init)
   .configure(OnUnmount.install)
   .buildU
 ```
 
-SetInterval
-===========
-Alternative to `window.setInterval` that automatically unregisters installed callbacks when its component unmounts.
+TimerSupport
+============
+Alternatives to `window.setTimeout`/`window.setInterval` that automatically unregister installed callbacks
+when the component unmounts
 
 ##### Example
 ```scala
-class MyBackend extends SetInterval
+import scala.concurrent.duration._
+
+class MyBackend extends TimerSupport
 
 val Timer = ReactComponentB[Unit]("Timer")
   .initialState(0L)
   .backend(_ => new MyBackend)
-  .render((_,s,_) => div("Seconds elapsed: ", s))
+  .render_S(s => <.div("Seconds elapsed: ", s))
   .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1.second))
-  .configure(SetInterval.install)
+  .configure(TimerSupport.install)
   .buildU
 ```

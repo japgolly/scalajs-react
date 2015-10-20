@@ -346,14 +346,14 @@ Here a subset of useful methods. Use IDE auto-complete or check the source for t
   ```
 
 * `set___` - Programmatically navigate to route when invoked.
-  * `set(Page): IO[Unit]` - Return a procedure that will navigate to route.
-  * `setEH(Page): ReactEvent => IO[Unit]` - Consume an event and set the route.
-  * `setOnClick(Page): TagMod` - Set the route when the subject is clicked.<br>Shorthand for `^.onClick ~~> ctl.setEH(page)`.
+  * `set(Page): Callback` - Return a procedure that will navigate to route.
+  * `setEH(Page): ReactEvent => Callback` - Consume an event and set the route.
+  * `setOnClick(Page): TagMod` - Set the route when the subject is clicked.<br>Shorthand for `^.onClick ==> ctl.setEH(page)`.
 
-* `refresh: IO[Unit]` - Refresh the current route when invoked.
+* `refresh: Callback` - Refresh the current route when invoked.
 
   ```scala
-  ^.button("Refresh", ^.onClick ~~> ctl.refresh)
+  ^.button("Refresh", ^.onClick --> ctl.refresh)
   ```
 
 * `urlFor(Page): AbsUrl` - Get the absolute URL of a given page.
@@ -397,14 +397,12 @@ When the condition is met, the route is usable; when unmet, a fallback behaviour
  *                  If response is `None` it will be as if this rule doesn't exist and will likely end
  *                  in the route-not-found fallback behaviour.
  */
-def addCondition(cond: => Boolean)(condUnmet: Page => Option[Action[Page]]): Rule[Page]
-
-def addConditionIO(cond: IO[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page]
+def addCondition(cond: CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page]
 ```
 
 Example:
 ```scala
-def grantPrivateAccess: Boolean =
+def grantPrivateAccess: CallbackB =
   ???
 
 val privatePages = (emptyRule
@@ -416,7 +414,7 @@ val privatePages = (emptyRule
 
 ### Rendering with a layout
 
-Once you have a `RouterConfig`, you can call `.renderWith` on it to supply your own render function that will be invokved each time a route is rendered. It takes a function in the shape: `(RouterCtl[Page], Resolution[Page]) => ReactElement` where a `Resolution` is:
+Once you have a `RouterConfig`, you can call `.renderWith` on it to supply your own render function that will be invoked each time a route is rendered. It takes a function in the shape: `(RouterCtl[Page], Resolution[Page]) => ReactElement` where a `Resolution` is:
 
 ```scala
 /**
@@ -440,26 +438,24 @@ Out-of-the-box, the default action is to scroll the window to the top.
 You can *add* your own actions by calling `.onPostRender` on your `RouterConfig` instance.
 You can *set* the entire callback (i.e. override instead of add) using `.setPostRender`.
 
-Both `.onPostRender` and  `.setPostRender` take a single arg: `(Option[Page], Page) => IO[Unit]`.
+Both `.onPostRender` and  `.setPostRender` take a single arg: `(Option[Page], Page) => Callback`.
 The function is provided the previously-rendered page (or `None` when a router renders its first page),
 and the current page.
 
 Example:
 ```scala
-import scalaz.effect.IO
-
 val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
   import dsl._
   ( staticRoute(root,     Home)  ~> render(???)
   | staticRoute("#about", About) ~> render(???)
   )
     .notFound(???)
-    .onPostRender((prev, cur) =>                         // ← available after .notFound()
-      IO(println(s"Page changing from $prev to $cur."))) // ← our callback
+    .onPostRender((prev, cur) =>                          // ← available after .notFound()
+      Callback.log(s"Page changing from $prev to $cur.")) // ← our callback
 }
 ```
 
-*Hey? Why wrap in `IO()`?*
+*Hey? Why wrap in `Callback`?*
 
 It gives you a guarantee by me and the Scala compiler that whatever you put inside,
 will only be executed in a callback. Underlying code won't accidently call it now when *installing* the callback,
