@@ -1,4 +1,1 @@
-`extra` Utility Module
-======================
-
-See [doc/EXTRA.md](../doc/EXTRA.md)
+Moved to [doc/EXTRA.md](../doc/EXTRA.md).

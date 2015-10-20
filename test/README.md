@@ -1,4 +1,1 @@
-Testing
-=======
-
-See [doc/TESTING.md](../doc/TESTING.md)
+Moved to [doc/TESTING.md](../doc/TESTING.md).
