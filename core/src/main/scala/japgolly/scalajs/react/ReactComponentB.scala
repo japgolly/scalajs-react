@@ -186,18 +186,16 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
     copy(lc = a)
 
   def configureSpec(modify: ReactComponentSpec[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =
-       lc.copy(configureSpec = modify)
+    lc.copy(configureSpec = modify)
 
   def configure(fs: (ReactComponentB[P, S, B, N] => ReactComponentB[P, S, B, N])*): ReactComponentB[P, S, B, N] =
     fs.foldLeft(this)((a,f) => f(a))
-
 
   def getDefaultProps(p: => P): ReactComponentB[P, S, B, N] =
     getDefaultPropsCB(CallbackTo(p))
 
   def getDefaultPropsCB(p: CallbackTo[P]): ReactComponentB[P, S, B, N] =
     lc.copy(getDefaultProps = p)
-
 
   /**
    * Invoked once, both on the client and server, immediately before the initial rendering occurs.

@@ -1,153 +1,139 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom.raw.HTMLElement
+import japgolly.scalajs.react
 
 import scala.scalajs.js
+import scala.scalajs.js.UndefOr
 import scala.scalajs.js.annotation.{JSName, ScalaJSDefined}
-import scala.scalajs.js.{UndefOr, undefined}
-
-@js.native
-trait JSProps[P] extends js.Object {
-  def key: UndefOr[String] = js.native
-
-  def ref: UndefOr[js.Function] = js.native
-
-  def sprops: P = js.native
-
-  def children: PropsChildren = js.native
-}
-
-object JSProps {
-  def apply[P](key: UndefOr[String] = undefined,
-               ref: UndefOr[js.Function] = undefined,
-               sprops: P) = {
-    val dict = js.Dictionary[Any]("sprops" -> sprops)
-    key.foreach(v => dict.update("key", v))
-    ref.foreach(v => dict.update("ref", v))
-    dict.asInstanceOf[JSProps[P]]
-  }
-}
-
-@js.native
-trait JSState[S] extends js.Object {
-  var sstate: S = js.native
-}
-
-object JSState {
-  def apply[S](sstate: S) = js.Dictionary("sstate" -> sstate).asInstanceOf[JSState[S]]
-}
-
-@js.native // unmounted react element
-trait ReactElementU[P, S] extends ReactComponent[P, S] with ReactElement
-
-@js.native // mounted react element
-trait ReactElementM[P, S] extends ReactComponent[P, S] with ReactElement
-
 
 @js.native
 @JSName("React.Component")
-class ReactJSComponent[P, S] extends js.Object {
+private[react] class ReactJSComponent[P, S] extends js.Object {
+  val displayName: String = js.native
 
-  @JSName("props") private[react] var jsProps: JSProps[P] = js.native
-
-  @JSName("state") private[react] var jsState: JSState[S] = js.native
-
-  var refs: js.Dynamic = js.native
+  var refs: RefsObject = js.native
 
   var context: js.Dynamic = js.native
-
-  @JSName("setState") def jsSetState(newState: JSState[S], callback: UndefOr[() => _] = js.undefined): Unit = js.native
-
-  @JSName("setState") def jsSetState(func: js.Function2[JSState[S], JSProps[P], JSState[S]]): Unit = js.native
-
-  def forceUpdate(callback: js.Function = ???): Unit = js.native
-
-  def componentWillMount(): Unit = js.native
+  @JSName("state")
+  private[react] var _state: WrapObj[S] = js.native
 
   def componentDidMount(): Unit = js.native
 
   def componentWillUnmount(): Unit = js.native
 
-  @JSName("componentWillReceiveProps") def jsComponentWillReceiveProps(nextProps: JSProps[P]): Unit = js.native
+  @JSName("forceUpdate")
+  private[react] def _forceUpdate(callback: js.UndefOr[js.Function]): Unit = js.native
 
-  @JSName("shouldComponentUpdate") def jsShouldComponentUpdate(nextProps: JSProps[P], nextState: JSState[S]): Boolean = js.native
+  @JSName("componentWillReceiveProps")
+  private[react] def _componentWillReceiveProps(nextProps: WrapObj[P]): Unit = js.native
 
-  @JSName("componentWillUpdate") def jsComponentWillUpdate(nextProps: JSProps[P], nextState: JSState[S]): Unit = js.native
+  @JSName("shouldComponentUpdate")
+  private[react] def _shouldComponentUpdate(nextProps: WrapObj[P], nextState: WrapObj[S]): Boolean = js.native
 
-  @JSName("componentDidUpdate") def jsComponentDidUpdate(prevProps: JSProps[P], prevState: JSState[S]): Unit = js.native
+  @JSName("componentWillUpdate")
+  private[react] def _componentWillUpdate(nextProps: WrapObj[P], nextState: WrapObj[S]): Unit = js.native
 
+  @JSName("componentDidUpdate")
+  private[react] def _componentDidUpdate(prevProps: WrapObj[P], prevState: WrapObj[S]): Unit = js.native
+
+  @JSName("props")
+  private[react] def _props: WrapObj[P] with PropsMixedIn = js.native
+
+  @JSName("setState")
+  private[react] def _setState(s: WrapObj[S], callback: UndefOr[js.Function]): Unit = js.native
+
+  @JSName("setState")
+  private[react] def _modState(s: js.Function1[WrapObj[S], WrapObj[S]], callback: UndefOr[js.Function]): Unit = js.native
 }
 
-
 @ScalaJSDefined
-abstract class ReactComponent[P, S] extends ReactJSComponent[P, S] {
+abstract class BasicReactComponent[P, S, N <: TopNode] extends ReactJSComponent[P, S] {
+  if (js.isUndefined(_state) || _state == null)
+    _state = js.Dictionary[Any]("v" -> null).asInstanceOf[WrapObj[S]]
 
-  if (js.isUndefined(jsState) || jsState == null) {
-    jsState = js.Dictionary[Any]("sstate" -> null).asInstanceOf[JSState[S]]
-  }
-
-  @JSName("sProps")
-  @inline
-  def props: P = jsProps.sprops
-
-  @JSName("sState")
-  @inline
-  def state: S = jsState.sstate
-
-  @inline
-  def propsDynamic = jsProps.asInstanceOf[js.Dynamic]
-
-  @inline
-  def children: PropsChildren = jsProps.children
-
-
-  @inline
-  def initialState(s: S): Unit = {
-    jsState = JSState(s)
-  }
-
-  @JSName("sSetState")
-  @inline
-  def setState(newState: S, callback: UndefOr[() => _] = js.undefined): Unit = {
-    jsSetState(JSState(newState), callback)
-  }
-
-  @JSName("sSetStateFunc")
-  @inline
-  def setState(func: js.Function2[S, P, S]): Unit = {
-    jsSetState((s: JSState[S], p: JSProps[P]) => JSState[S](func(s.sstate, p.sprops)))
-  }
-
-  @inline
-  def getRef[T](name: String, cls: Class[T]) = {
-    refs.selectDynamic(name).asInstanceOf[T]
-  }
+  def getRef[R <: Ref](ref: R) = ref(refs)
 
   def render(): ReactElement
 
-  @JSName("sComponentWillUpdate")
-  def componentWillUpdate(nextProps: => P, nextState: => S): Unit = ()
+  @JSName("_forceUpdate")
+  def forceUpdate(callback: Callback = Callback.empty): Unit =
+    _forceUpdate(callback.toJsCallback)
 
   @JSName("componentWillUpdate")
-  override def jsComponentWillUpdate(nextProps: JSProps[P], nextState: JSState[S]): Unit = {
-    componentWillUpdate(nextProps.sprops, nextState.sstate)
-  }
+  override def _componentWillUpdate(nextProps: WrapObj[P], nextState: WrapObj[S]): Unit =
+    componentWillUpdate(nextProps.v, nextState.v)
 
-  @JSName("sComponentWillReceiveProps")
-  def componentWillReceiveProps(nextProps: => P): Unit = ()
+  @JSName("_componentWillUpdate")
+  def componentWillUpdate(nextProps: => P, nextState: => S): Unit = ()
 
   @JSName("componentWillReceiveProps")
-  override def jsComponentWillReceiveProps(nextProps: JSProps[P]): Unit = {
-    componentWillReceiveProps(nextProps.sprops)
-  }
+  override def _componentWillReceiveProps(nextProps: WrapObj[P]): Unit =
+    componentWillReceiveProps(nextProps.v)
 
+  @JSName("_componentWillReceiveProps")
+  def componentWillReceiveProps(nextProps: => P): Unit = ()
+
+  def children: PropsChildren = _props.children
+
+  def propsDynamic = _props.asInstanceOf[js.Dynamic]
 }
 
-@js.native
-trait ReactComponentFactory[P, S] extends ReactComponent[P, S] {
-  def apply(props: js.Any, children: ReactNode*): ReactElementU[P, S] = js.native
+@ScalaJSDefined
+abstract class ReactComponentNoProps[S, N <: TopNode] extends BasicReactComponent[Unit, S, N] {
+  def initialState(): S
+
+  @JSName("_state")
+  def state: S = _state.v
+
+  @JSName("_modState")
+  def modState(func: (S) => S, callback: Callback = Callback.empty): Callback =
+    CallbackTo(_modState((s: WrapObj[S]) => WrapObj(func(s.v)), callback.toJsCallback))
+
+  @JSName("componentWillMount")
+  def _componentWillMount(): Unit =
+    (setState(initialState()) >> CallbackTo(componentWillMount())).runNow()
+
+  @JSName("_setState")
+  def setState(newState: S, callback: Callback = Callback.empty): Callback =
+    CallbackTo(_setState(WrapObj(newState), callback.toJsCallback))
+
+  @JSName("_componentWillMount")
+  def componentWillMount(): Unit = ()
 }
 
-@js.native
-trait ReactComponentConstructor[P, S, C <: ReactComponent[P,S]] extends ReactClass[P, S, Unit, HTMLElement]
+@ScalaJSDefined
+abstract class ReactComponentNoState[P, N <: TopNode] extends BasicReactComponent[P, Unit, N] {
+  @JSName("_props")
+  def props: P = _props.v
 
+  def componentWillMount(): Unit = ()
+}
+
+@ScalaJSDefined
+abstract class ReactComponentNoPropsAndState[N <: react.TopNode] extends BasicReactComponent[Unit, Unit, N]
+
+@ScalaJSDefined
+abstract class ReactComponent[P, S, N <: react.TopNode] extends BasicReactComponent[P, S, N] {
+  def initialState(props: P): S
+
+  @JSName("_state")
+  def state: S = _state.v
+
+  @JSName("_modState")
+  def modState(func: (S) => S, callback: Callback = Callback.empty): Callback =
+    CallbackTo(_modState((s: WrapObj[S]) => WrapObj(func(s.v)), callback.toJsCallback))
+
+  @JSName("componentWillMount")
+  def _componentWillMount(): Unit =
+    setState(initialState(props), CallbackTo(componentWillMount())).runNow()
+
+  @JSName("_props")
+  def props: P = _props.v
+
+  @JSName("_setState")
+  def setState(newState: S, callback: Callback = Callback.empty): Callback =
+    CallbackTo(_setState(WrapObj(newState), callback.toJsCallback))
+
+  @JSName("_componentWillMount")
+  def componentWillMount(): Unit = ()
+}

@@ -28,7 +28,7 @@ object ScalazTest extends TestSuite {
     }
 
     'runState {
-      val c = ReactTestUtils.renderIntoDocument(CoreTest.SI())
+      val c = ReactTestUtils.renderIntoDocument(CoreTest.RCB.SI())
       assert(c.state == 123)
       val f = (_:Int) * 2
       c.runState(ReactS.mod(f))
