@@ -102,6 +102,9 @@ trait ReactChildren extends Object {
 
   /** Return the total number of components in children, equal to the number of times that a callback passed to map or forEach would be invoked. */
   def count(c: PropsChildren): Int = js.native
+
+  /** Return the children opaque data structure as a flat array with keys assigned to each child. Useful if you want to manipulate collections of children in your render methods, especially if you want to reorder or slice this.props.children before passing it down. */
+  def toArray(c: PropsChildren): js.Array[ReactNode] = js.native
 }
 
 trait ReactComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
