@@ -8,6 +8,7 @@ package object test {
 
   @js.native
   sealed trait ComponentClass extends Object
+
   @inline final implicit def autoComponentClassFromScalaComponent(c: ReactComponentC[_, _, _, _]): ComponentClass =
     c.reactClass.asInstanceOf[ComponentClass]
 
@@ -15,6 +16,7 @@ package object test {
 
   @js.native
   sealed trait ReactOrDomNode extends Object
+
   @inline final implicit def autoReactOrDomNodeN(n: TopNode): ReactOrDomNode =
     n.asInstanceOf[ReactOrDomNode]
   @inline final implicit def autoReactOrDomNodeU(c: ReactElement): ReactOrDomNode =
