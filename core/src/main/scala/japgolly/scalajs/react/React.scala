@@ -4,7 +4,10 @@ import org.scalajs.dom
 import scala.scalajs.js
 import js.{Dynamic, UndefOr, ThisFunction, ThisFunction0, Object, Any => JAny}
 
+@js.native
 object React extends React
+
+@js.native
 trait React extends Object {
 
   /**
@@ -113,6 +116,7 @@ trait React extends Object {
 }
 
 /** `React.Children` */
+@js.native
 trait ReactChildren extends Object {
 
   /** Invoke fn on every immediate child contained within children with this set to context. If children is a nested object or array it will be traversed: fn will never be passed the container objects. If children is null or undefined returns null or undefined rather than an empty object. */

@@ -1,16 +1,19 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
+import scala.scalajs.js
 import scala.scalajs.js.{Object, UndefOr}
 
 package object test {
 
+  @js.native
   sealed trait ComponentClass extends Object
   @inline final implicit def autoComponentClassFromScalaComponent(c: ReactComponentC[_, _, _, _]): ComponentClass =
     c.reactClass.asInstanceOf[ComponentClass]
 
   final type ComponentM = ReactComponentM_[TopNode]
 
+  @js.native
   sealed trait ReactOrDomNode extends Object
   @inline final implicit def autoReactOrDomNodeN(n: TopNode): ReactOrDomNode =
     n.asInstanceOf[ReactOrDomNode]

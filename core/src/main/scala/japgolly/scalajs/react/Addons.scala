@@ -66,14 +66,17 @@ object Addons {
    *
    * https://facebook.github.io/react/docs/perf.html
    */
+  @js.native
   @JSName("React.addons.Perf")
   object Perf extends js.Object {
     type Measurements = js.Array[Measurement]
 
+    @js.native
     sealed trait Measurement extends js.Object {
       val totalTime: Double = js.native
     }
 
+    @js.native
     sealed trait Report extends js.Object
 
     def start(): Unit = js.native
