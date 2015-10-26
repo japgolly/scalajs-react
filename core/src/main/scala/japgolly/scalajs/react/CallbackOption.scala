@@ -9,7 +9,7 @@ object CallbackOption {
     new CallbackOption(cb.toScalaFn)
 
   def empty: CallbackOption[Unit] =
-    pure(())
+    CallbackOption(CallbackTo pure someUnit)
 
   def pure[A](a: A): CallbackOption[A] =
     CallbackOption(CallbackTo pure Some(a))
