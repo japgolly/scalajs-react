@@ -6,6 +6,7 @@ import js.{ThisFunction, ThisFunction0, Object}
 
 @js.native
 object ReactDOM extends ReactDOM
+
 @js.native
 trait ReactDOM extends Object {
 

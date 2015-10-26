@@ -1,10 +1,11 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
-import scala.scalajs.js.{Object, UndefOr}
 import scala.scalajs.js
+import scala.scalajs.js.{Object, UndefOr}
 
 package object test {
+
   @js.native
   sealed trait ComponentClass extends Object
   @inline final implicit def autoComponentClassFromScalaComponent(c: ReactComponentC[_, _, _, _]): ComponentClass =

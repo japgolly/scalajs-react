@@ -66,6 +66,7 @@ object Addons {
    *
    * https://facebook.github.io/react/docs/perf.html
    */
+  @js.native
   @JSName("React.addons.Perf")
   @js.native
   object Perf extends js.Object {
