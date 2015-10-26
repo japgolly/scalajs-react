@@ -64,14 +64,10 @@ object CompScope {
     @JSName("forceUpdate") private[react] def _forceUpdate(): Unit = js.native
   }
 
-  @js.native
-  trait ReadDirect    extends Object
-  @js.native
-  trait ReadCallback  extends Object
-  @js.native
-  trait WriteDirect   extends Object
-  @js.native
-  trait WriteCallback extends Object
+  @js.native trait ReadDirect    extends Object
+  @js.native trait ReadCallback  extends Object
+  @js.native trait WriteDirect   extends Object
+  @js.native trait WriteCallback extends Object
 
   @js.native
   trait AnyUnmounted[Props, State, +Backend]

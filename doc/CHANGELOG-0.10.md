@@ -1,5 +1,6 @@
 # 0.10.1 (unreleased)
 
+* Upgrade Scala.JS to 0.6.5.
 * Add `React.Children.toArray`.
 
 ---
