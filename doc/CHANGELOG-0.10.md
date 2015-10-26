@@ -1,3 +1,9 @@
+# 0.10.1 (unreleased)
+
+* Add `React.Children.toArray`.
+
+---
+
 # 0.10.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.9.2...v0.10.0))
 
 This release packs a lot of changes to improve the quality, safety and coding experience.
