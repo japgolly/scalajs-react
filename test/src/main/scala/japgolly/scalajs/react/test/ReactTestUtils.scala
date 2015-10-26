@@ -1,12 +1,16 @@
 package japgolly.scalajs.react.test
 
+import scala.scalajs.js
 import scala.scalajs.js.{Function1 => JFn1, Object, Array, UndefOr, undefined, Dynamic, native}
 import scala.scalajs.js.annotation.JSName
 import japgolly.scalajs.react._
 
 /** https://facebook.github.io/react/docs/test-utils.html */
+@js.native
 @JSName("React.addons.TestUtils")
 object ReactTestUtils extends ReactTestUtils
+
+@js.native
 trait ReactTestUtils extends Object {
 
   def Simulate: Simulate = native
@@ -74,6 +78,7 @@ trait ReactTestUtils extends Object {
   def findRenderedComponentWithType(tree: ComponentM, c: ComponentClass): ComponentM = native
 }
 
+@js.native
 trait Simulate extends Object {
   def beforeInput      (t: ReactOrDomNode, eventData: Object = native): Unit = native
   def blur             (t: ReactOrDomNode, eventData: Object = native): Unit = native
