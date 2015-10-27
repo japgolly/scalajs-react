@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.ReactComponentC.ConstProps
 import monocle.macros.Lenses
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
@@ -10,20 +11,53 @@ import japgolly.scalajs.react.test.{Simulation, DebugJs, ReactTestUtils}
 import CompScope._
 import CompState._
 
+import scala.scalajs.js.annotation.ScalaJSDefined
+
 object CoreTest extends TestSuite {
 
-  lazy val CA = ReactComponentB[Unit]("CA").render_C(c => div(c)).buildU
-  lazy val CB = ReactComponentB[Unit]("CB").render_C(c => span(c)).buildU
-  lazy val H1 = ReactComponentB[String]("H").render_P(p => h1(p)).build
+  object RCB {
+    lazy val CA = ReactComponentB[Unit]("CA").render_C(c => div(c)).buildU
+    lazy val CB = ReactComponentB[Unit]("CB").render_C(c => span(c)).buildU
+    lazy val H1 = ReactComponentB[String]("H").render_P(p => h1(p)).build
 
-  lazy val SI = ReactComponentB[Unit]("SI")
-    .initialState(123)
-    .render(T => input(value := T.state.toString))
-    .domType[HTMLInputElement]
-    .componentDidMount($ => Callback {
-      val s: String = ReactDOM.findDOMNode($).value // Look, it knows its DOM node type
-    })
-    .buildU
+    lazy val SI = ReactComponentB[Unit]("SI")
+      .initialState(123)
+      .render(T => input(value := T.state.toString))
+      .domType[HTMLInputElement]
+      .componentDidMount($ => Callback {
+        val s: String = ReactDOM.findDOMNode($).value // Look, it knows its DOM node type
+      })
+      .buildU
+  }
+
+  object ES6 {
+    @ScalaJSDefined
+    class CAC extends ReactComponentNoPropsAndState[HTMLElement] {
+      override def render() = div(children)
+    }
+    lazy val CA = ElementFactory.noProps(js.constructorOf[CAC], classOf[CAC])
+    @ScalaJSDefined
+    class CBC extends ReactComponentNoPropsAndState[HTMLElement] {
+      override def render() = span(children)
+    }
+    lazy val CB = ElementFactory.noProps(js.constructorOf[CBC], classOf[CBC])
+    @ScalaJSDefined
+    class H1C extends ReactComponentNoState[String, HTMLElement] {
+      override def render() = h1(props)
+    }
+    lazy val H1 = ElementFactory.requiredProps(js.constructorOf[H1C], classOf[H1C])
+
+    @ScalaJSDefined
+    class SIC extends ReactComponentNoProps[Int, HTMLInputElement] {
+      override val displayName = "SI2"
+      override def initialState() = 123
+      def render() = {
+        input(value := state.toString)
+      }
+    }
+
+    lazy val SI = ElementFactory.noProps(js.constructorOf[SIC], classOf[SIC])
+  }
 
   val tagmod  : TagMod       = cls := "ho"
   val reacttag: ReactTag     = span()
@@ -38,9 +72,23 @@ object CoreTest extends TestSuite {
   val tests = TestSuite {
 
     'scalatags {
-      def test(subj: ReactElement, exp: String): Unit =
+      @ScalaJSDefined
+      class ScalatagsC extends ReactComponentNoState[ReactElement, HTMLElement] {
+        override def render() = props
+      }
+      val Scalatags = ElementFactory.requiredProps(js.constructorOf[ScalatagsC], classOf[ScalatagsC])
+
+      def test(subj: ReactElement, exp: String): Unit = {
+        testRCB(subj, exp)
+        //testES6(subj, exp)
+      }
+
+      def testRCB(subj: ReactElement, exp: String): Unit =
         ReactComponentB[Unit]("tmp").render(_ => subj).buildU.apply() shouldRender exp
-      def reactNode: ReactNode = H1("cool")
+      def testES6(subj: ReactElement, exp: String): Unit = {
+        Scalatags(subj) shouldRender exp
+      }
+      def reactNode: ReactNode = RCB.H1("cool")
       def checkbox(check: Boolean) = input(`type` := "checkbox", checked := check)
 
       'short     - test(div(45: Short),                        "<div>45</div>")
@@ -50,13 +98,13 @@ object CoreTest extends TestSuite {
       'double    - test(div(12.3),                             "<div>12.3</div>")
       'string    - test(div("yo"),                             "<div>yo</div>")
       'reactNode - test(div(reactNode),                        "<div><h1>cool</h1></div>")
-      'comp      - test(div(H1("a")),                          "<div><h1>a</h1></div>")
+      'comp      - test(div(RCB.H1("a")),                          "<div><h1>a</h1></div>")
       'seqTag    - test(div(Seq (span(1), span(2))),           "<div><span>1</span><span>2</span></div>")
       'listTag   - test(div(List(span(1), span(2))),           "<div><span>1</span><span>2</span></div>")
-      'listComp  - test(div(List(H1("a"), H1("b"))),           "<div><h1>a</h1><h1>b</h1></div>")
-      'list2jAry - test(div(List(H1("a"), H1("b")).toJsArray), "<div><h1>a</h1><h1>b</h1></div>")
+      'listComp  - test(div(List(RCB.H1("a"), RCB.H1("b"))),           "<div><h1>a</h1><h1>b</h1></div>")
+      'list2jAry - test(div(List(ES6.H1("a"), RCB.H1("b")).toJsArray), "<div><h1>a</h1><h1>b</h1></div>")
       'jAryTag   - test(div(JArray(span(1), span(2))),         "<div><span>1</span><span>2</span></div>")
-      'jAryComp  - test(div(JArray(H1("a"), H1("b"))),         "<div><h1>a</h1><h1>b</h1></div>")
+      'jAryComp  - test(div(JArray(RCB.H1("a"), RCB.H1("b"))),         "<div><h1>a</h1><h1>b</h1></div>")
       'checkboxT - test(checkbox(true),                      """<input type="checkbox" checked=""/>""") // checked="" is new as of React 0.14 but it works
       'checkboxF - test(checkbox(false),                     """<input type="checkbox"/>""")
       'aria      - test(div(aria.label := "ow", "a"),        """<div aria-label="ow">a</div>""")
@@ -75,8 +123,8 @@ object CoreTest extends TestSuite {
           'tag_none     - test(div(reacttag.none),       """<div></div>""")
           'element_some - test(div(relement.some),       """<div><span></span></div>""")
           'element_none - test(div(relement.none),       """<div></div>""")
-          'comp_some    - test(div(H1("yoo").some),      """<div><h1>yoo</h1></div>""")
-          'comp_none    - test(div(H1("yoo").none),      """<div></div>""")
+          'comp_some    - test(div(RCB.H1("yoo").some),      """<div><h1>yoo</h1></div>""")
+          'comp_none    - test(div(RCB.H1("yoo").none),      """<div></div>""")
         }
         'jsUndefOr {
           'attr_def      - test(div(cls := "hi".jsdef),    """<div class="hi"></div>""")
@@ -89,8 +137,8 @@ object CoreTest extends TestSuite {
           'tag_undef     - test(div(reacttag.undef),       """<div></div>""")
           'element_def   - test(div(relement.jsdef),       """<div><span></span></div>""")
           'element_undef - test(div(relement.undef),       """<div></div>""")
-          'comp_def      - test(div(H1("yoo").jsdef),      """<div><h1>yoo</h1></div>""")
-          'comp_undef    - test(div(H1("yoo").undef),      """<div></div>""")
+          'comp_def      - test(div(RCB.H1("yoo").jsdef),      """<div><h1>yoo</h1></div>""")
+          'comp_undef    - test(div(RCB.H1("yoo").undef),      """<div></div>""")
         }
         'maybe {
           import ScalazReact._
@@ -104,8 +152,8 @@ object CoreTest extends TestSuite {
           'tag_empty     - test(div(reacttag.maybeNot),       """<div></div>""")
           'element_just  - test(div(relement.just),           """<div><span></span></div>""")
           'element_empty - test(div(relement.maybeNot),       """<div></div>""")
-          'comp_just     - test(div(H1("yoo").just),          """<div><h1>yoo</h1></div>""")
-          'comp_empty    - test(div(H1("yoo").maybeNot),      """<div></div>""")
+          'comp_just     - test(div(RCB.H1("yoo").just),          """<div><h1>yoo</h1></div>""")
+          'comp_empty    - test(div(RCB.H1("yoo").maybeNot),      """<div></div>""")
         }
       }
 
@@ -117,7 +165,7 @@ object CoreTest extends TestSuite {
       }
 
       'combination - test(
-        div(cls := "hi", "Str: ", 123, JArray(H1("a"), H1("b")), p(cls := "pp")("!")),
+        div(cls := "hi", "Str: ", 123, JArray(RCB.H1("a"), RCB.H1("b")), p(cls := "pp")("!")),
         """<div class="hi">Str: 123<h1>a</h1><h1>b</h1><p class="pp">!</p></div>""")
 
       'styles - test(
@@ -178,47 +226,116 @@ object CoreTest extends TestSuite {
 
     'classSet {
       'allConditional {
-        val r = ReactComponentB[(Boolean,Boolean)]("C").render_P(p => div(classSet("p1" -> p._1, "p2" -> p._2))("x")).build
-        r((false, false)) shouldRender """<div>x</div>"""
-        r((true,  false)) shouldRender """<div class="p1">x</div>"""
-        r((false, true))  shouldRender """<div class="p2">x</div>"""
-        r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
+        val rcb = ReactComponentB[(Boolean,Boolean)]("C").render_P(p => div(classSet("p1" -> p._1, "p2" -> p._2))("x")).build
+        @ScalaJSDefined
+        class AllConditionalC extends ReactComponentNoState[(Boolean, Boolean), HTMLElement] {
+          override def render() = div(classSet("p1" -> props._1, "p2" -> props._2))("x")
+        }
+        val es6 = ElementFactory.requiredProps(js.constructorOf[AllConditionalC], classOf[AllConditionalC])
+        def test(p: (Boolean, Boolean), exp: String) = {
+          rcb(p) shouldRender exp
+          //es6(p) shouldRender exp
+        }
+        test((false, false), """<div>x</div>""")
+        test((true,  false), """<div class="p1">x</div>""")
+        test((false, true), """<div class="p2">x</div>""")
+        test((true,  true), """<div class="p1 p2">x</div>""")
       }
       'hasMandatory {
-        val r = ReactComponentB[Boolean]("C").render_P(p => div(classSet1("mmm", "ccc" -> p))("x")).build
-        r(false) shouldRender """<div class="mmm">x</div>"""
-        r(true)  shouldRender """<div class="mmm ccc">x</div>"""
+        val rcb = ReactComponentB[Boolean]("C").render_P(p => div(classSet1("mmm", "ccc" -> p))("x")).build
+        @ScalaJSDefined
+        class HasMandatoryC extends ReactComponentNoState[Boolean, HTMLElement] {
+          override def render() = div(classSet1("mmm", "ccc" -> props))("x")
+        }
+        val es6 = ElementFactory.requiredProps(js.constructorOf[HasMandatoryC], classOf[HasMandatoryC])
+        def test(p: Boolean, exp: String) = {
+          rcb(p) shouldRender exp
+          //es6(p) shouldRender exp
+        }
+        test(false, """<div class="mmm">x</div>""")
+        test(true, """<div class="mmm ccc">x</div>""")
       }
       'appends {
-        val r = ReactComponentB[Boolean]("C").render_P(p =>
+        val rcb = ReactComponentB[Boolean]("C").render_P(p =>
           div(cls := "neat", classSet1("mmm", "ccc" -> p), cls := "slowclap", "x")).build
-        r(false) shouldRender """<div class="neat mmm slowclap">x</div>"""
-        r(true)  shouldRender """<div class="neat mmm ccc slowclap">x</div>"""
+        @ScalaJSDefined
+        class AppendsC extends ReactComponentNoState[Boolean, HTMLElement] {
+          override def render() = div(cls := "neat", classSet1("mmm", "ccc" -> props), cls := "slowclap", "x")
+        }
+        val es6 = ElementFactory.requiredProps(js.constructorOf[AppendsC], classOf[AppendsC])
+        def test(p: Boolean, exp: String) = {
+          rcb(p) shouldRender exp
+          //es6(p) shouldRender exp
+        }
+        test(false, """<div class="neat mmm slowclap">x</div>""")
+        test(true, """<div class="neat mmm ccc slowclap">x</div>""")
       }
     }
 
     'props {
       'unit {
-        val r = ReactComponentB[Unit]("U").render_C(c => h1(c)).buildU
-        r(div("great")) shouldRender "<h1><div>great</div></h1>"
+        val rcb = ReactComponentB[Unit]("U").render_C(c => h1(c)).buildU
+        @ScalaJSDefined
+        class UnitC extends ReactComponentNoPropsAndState[HTMLElement] {
+          override def render() = h1(children)
+        }
+        val es6 = ElementFactory.noProps(js.constructorOf[UnitC], classOf[UnitC])
+        def test(c: ReactNode, exp: String) = {
+          rcb(c) shouldRender exp
+          //es6(p) shouldRender exp
+        }
+        test(div("great"), "<h1><div>great</div></h1>")
       }
 
       'required {
-        val r = ReactComponentB[String]("C").render_P(name => div("Hi ", name)).build
-        r("Mate") shouldRender "<div>Hi Mate</div>"
+        val rcb = ReactComponentB[String]("C").render_P(name => div("Hi ", name)).build
+        @ScalaJSDefined
+        class RequiredC extends ReactComponentNoState[String, HTMLElement] {
+          override def render() = div("Hi ", props)
+        }
+        val es6 = ElementFactory.requiredProps(js.constructorOf[RequiredC], classOf[RequiredC])
+        def test(p: String, exp: String) = {
+          rcb(p) shouldRender exp
+          //es6(p) shouldRender exp
+        }
+        test("Mate", "<div>Hi Mate</div>")
       }
 
-      val O = ReactComponentB[String]("C").render_P(name => div("Hey ", name)).propsDefault("man").build
+      val rcb = ReactComponentB[String]("C").render_P(name => div("Hey ", name)).propsDefault("man").build
+      @ScalaJSDefined
+      class OptionalC extends ReactComponentNoState[String, HTMLElement] {
+        override def render() = div("Hi ", props)
+      }
+      val es6 = ElementFactory.defaultProps(js.constructorOf[OptionalC], classOf[OptionalC])("man")
+      def test(p: Option[String], exp: String) = {
+        p match {
+          case Some(_) =>
+            rcb(p) shouldRender exp
+            //es6(p) shouldRender exp
+          case None =>
+            rcb() shouldRender exp
+            //es6() shouldRender exp
+        }
+      }
       'optionalNone {
-        O() shouldRender "<div>Hey man</div>"
+        test(None, "<div>Hey man</div>")
       }
       'optionalSome {
-        O(Some("dude")) shouldRender "<div>Hey dude</div>"
+        test(Some("dude"), "<div>Hey dude</div>")
       }
 
       'always {
-        val r = ReactComponentB[String]("C").render_P(name => div("Hi ", name)).propsConst("there").build
-        r() shouldRender "<div>Hi there</div>"
+        val rcb = ReactComponentB[String]("C").render_P(name => div("Hi ", name)).propsConst("there").build
+        @ScalaJSDefined
+        class AlwaysC extends ReactComponentNoState[String, HTMLElement] {
+          override def render() = div("Hi ", props)
+        }
+        val es6 = ElementFactory.constantProps(js.constructorOf[AlwaysC], classOf[AlwaysC])("there")
+        def test(exp: String) = {
+          rcb() shouldRender exp
+          //es6() shouldRender exp
+        }
+        test("<div>Hi there</div>")
       }
     }
 
@@ -235,27 +352,63 @@ object CoreTest extends TestSuite {
     'keys {
       'specifiableThruCtor {
         val k1 = "heasdf"
-        val xx = CA.withKey(k1)()
+        val xx = RCB.CA.withKey(k1)()
         val k2 = xx.key
         k2 mustEqual k1
+//        val xx2 = ES6.CA.withKey(k1)()
+//        val k22 = xx2.key
+//        k22 mustEqual k1
       }
     }
 
     'children {
       'argsToComponents {
         'listOfScalatags {
-          CA(List(h1("nice"), h2("good"))) shouldRender "<div><h1>nice</h1><h2>good</h2></div>" }
+          def test[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N]): Unit = {
+            c shouldRender "<div><h1>nice</h1><h2>good</h2></div>"
+          }
+          test(RCB.CA(List(h1("nice"), h2("good"))))
+          //test(ES6.CA(List(h1("nice"), h2("good"))))
+        }
 
         'listOfReactComponents {
-          CA(List(CB(h1("nice")), CB(h2("good")))) shouldRender
-            "<div><span><h1>nice</h1></span><span><h2>good</h2></span></div>" }
+          def test[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N]): Unit = {
+            c shouldRender "<div><span><h1>nice</h1></span><span><h2>good</h2></span></div>"
+          }
+          test(RCB.CA(List(RCB.CB(h1("nice")), RCB.CB(h2("good")))))
+          //test(ES6.CA(List(ES6.CB(h1("nice")), ES6.CB(h2("good")))))
+        }
       }
 
       'rendersGivenChildren {
-        'none { CA() shouldRender "<div></div>" }
-        'one { CA(h1("yay")) shouldRender "<div><h1>yay</h1></div>" }
-        'two { CA(h1("yay"), h3("good")) shouldRender "<div><h1>yay</h1><h3>good</h3></div>" }
-        'nested { CA(CB(h1("nice"))) shouldRender "<div><span><h1>nice</h1></span></div>" }
+        'none {
+          def test[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N]): Unit = {
+            c shouldRender "<div></div>"
+          }
+          test(RCB.CA())
+          //test(ES6.CA())
+        }
+        'one {
+          def test[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N]): Unit = {
+            c shouldRender "<div><h1>yay</h1></div>"
+          }
+          test(RCB.CA(h1("yay")))
+          //test(ES6.CA(h1("yay")))
+        }
+        'two {
+          def test[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N]): Unit = {
+            c shouldRender "<div><h1>yay</h1><h3>good</h3></div>"
+          }
+          test(RCB.CA(h1("yay"), h3("good")))
+          //test(ES6.CA(h1("yay"), h3("good")))
+        }
+        'nested {
+          def test[P,S,B,N <: TopNode](c: ReactComponentU[P,S,B,N]): Unit = {
+            c shouldRender "<div><span><h1>nice</h1></span></div>"
+          }
+          test(RCB.CA(RCB.CB(h1("nice"))))
+          //test(ES6.CA(ES6.CB(h1("nice"))))
+        }
       }
 
       'forEach {
@@ -301,14 +454,19 @@ object CoreTest extends TestSuite {
     }
 
     'mountedStateAccess {
-      val c = ReactTestUtils.renderIntoDocument(SI())
+      val c = ReactTestUtils.renderIntoDocument(RCB.SI())
       assert(c.state == 123)
+//      val c2 = ReactTestUtils.renderIntoDocument(ES6.SI())
+//      assert(c2.state == 123)
     }
 
     'builtWithDomType {
-      val c = ReactTestUtils.renderIntoDocument(SI())
+      val c = ReactTestUtils.renderIntoDocument(RCB.SI())
       val v = ReactDOM.findDOMNode(c).value // Look, it knows its DOM node type
       assert(v == "123")
+//      val c2 = ReactTestUtils.renderIntoDocument(ES6.SI())
+//      val v2 = ReactDOM.findDOMNode(c2).value // Look, it knows its DOM node type
+//      assert(v2 == "123")
     }
 
     'selectWithMultipleValues {
@@ -369,14 +527,14 @@ object CoreTest extends TestSuite {
     }
 
     'findDOMNode {
-      val m = ReactTestUtils renderIntoDocument H1("good")
+      val m = ReactTestUtils renderIntoDocument RCB.H1("good")
       val n = ReactDOM.findDOMNode(m)
       removeReactDataAttr(n.outerHTML) mustEqual "<h1>good</h1>"
     }
 
     // Changed to an extension method that calls ReactDOM.findDOMNode
     'getDOMNode {
-      val m = ReactTestUtils renderIntoDocument H1("good")
+      val m = ReactTestUtils renderIntoDocument RCB.H1("good")
       val n = m.getDOMNode()
       removeReactDataAttr(n.outerHTML) mustEqual "<h1>good</h1>"
     }
