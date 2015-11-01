@@ -597,8 +597,8 @@ There are a number of conversions available to convert between `Callback` and `F
 | `CallbackTo[A]`            | `cb.toFuture`          | `Future[A]`             |
 | `CallbackTo[Future[A]]`    | `cb.toFlatFuture`      | `Future[A]`             |
 | `=> Future[A]`             | `CallbackTo(f)`        | `CallbackTo[Future[A]]` |
-| `=> Future[CallbackTo[A]]` | `Callback.future(f)`   | `Callback`              |
 | `=> Future[CallbackTo[A]]` | `CallbackTo.future(f)` | `CallbackTo[Future[A]]` |
+| `=> Future[CallbackTo[A]]` | `Callback.future(f)`   | `Callback`              |
 
 If you're looking for ways to block (eg. turning a `Callback[Future[A]]` into a `Callback[A]`),
 it is not supported by Scala.JS (See [#1996](https://github.com/scala-js/scala-js/issues/1996)).
