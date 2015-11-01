@@ -10,6 +10,7 @@ import japgolly.scalajs.react.test.ReactTestUtils
 
 object RefTest extends TestSuite {
 
+  @js.native
   trait ReactCssTransitionGroupM extends js.Object
 
   val Static = ReactComponentB.staticN[HTMLElement]("static", <.h2("nice")).buildU

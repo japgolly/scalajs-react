@@ -116,7 +116,7 @@ object TestUtil {
     trait A
     trait B
     type U = Unit
-    abstract class N extends TopNode
+    @js.native trait N extends TopNode
     val c = null.asInstanceOf[ReactComponentM[Unit, S, Unit, N]]
     val bs = null.asInstanceOf[BackendScope[P, S]]
 
