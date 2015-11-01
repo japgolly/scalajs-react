@@ -27,10 +27,6 @@
   val f = updateComponent
   Callback.future(f)
 
-  // This is BAD because the callback wraps a single instance of updateComponent.
-  // 1) The server will be contacted immediately instead of when the callback executes.
-  // 2) If the callback is execute more than once, the future and old result will be reused.
-
   // This is GOOD too because the future is created inside the callback.
   Callback.future {
     val f = updateComponent
@@ -38,6 +34,9 @@
     f
   }
   ```
+
+  If you're looking for ways to block (eg. turning a `Callback[Future[A]]` into a `Callback[A]`),
+  it is not supported by Scala.JS (See [#1996](https://github.com/scala-js/scala-js/issues/1996)).
 
 * Add `React.Children.toArray`.
 
