@@ -10,6 +10,9 @@
   | `=> Future[CallbackTo[A]]` | `Callback.future(f)`   | `Callback`              |
   | `=> Future[CallbackTo[A]]` | `CallbackTo.future(f)` | `CallbackTo[Future[A]]` |
 
+  If you're looking for ways to block (eg. turning a `Callback[Future[A]]` into a `Callback[A]`),
+  it is not supported by Scala.JS (See [#1996](https://github.com/scala-js/scala-js/issues/1996)).
+
   **NOTE:** It's important that when going from `Future` to `Callback`, you're aware of when the `Future` is instantiated.
 
   ```scala
@@ -23,7 +26,7 @@
 
   // This is BAD because the callback wraps a single instance of updateComponent.
   // 1) The server will be contacted immediately instead of when the callback executes.
-  // 2) If the callback is execute more than once, the future and old result will be reused.
+  // 2) If the callback is executed more than once, the future and old result will be reused.
   val f = updateComponent
   Callback.future(f)
 
@@ -34,9 +37,6 @@
     f
   }
   ```
-
-  If you're looking for ways to block (eg. turning a `Callback[Future[A]]` into a `Callback[A]`),
-  it is not supported by Scala.JS (See [#1996](https://github.com/scala-js/scala-js/issues/1996)).
 
 * Add `CallbackOption.{pass,fail}`.
 
