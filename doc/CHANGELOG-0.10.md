@@ -38,6 +38,8 @@
   If you're looking for ways to block (eg. turning a `Callback[Future[A]]` into a `Callback[A]`),
   it is not supported by Scala.JS (See [#1996](https://github.com/scala-js/scala-js/issues/1996)).
 
+* Add `CallbackOption.{pass,fail}`.
+
 * Add `React.Children.toArray`.
 
 * Upgrade React to 0.14.1. Adds new attributes:

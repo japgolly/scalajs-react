@@ -8,8 +8,15 @@ object CallbackOption {
   def apply[A](cb: CallbackTo[Option[A]]): CallbackOption[A] =
     new CallbackOption(cb.toScalaFn)
 
+  @deprecated("Use CallbackOption.pass instead.", "0.10.1")
   def empty: CallbackOption[Unit] =
+    pass
+
+  def pass: CallbackOption[Unit] =
     CallbackOption(CallbackTo pure someUnit)
+
+  def fail[A]: CallbackOption[A] =
+    CallbackOption(CallbackTo pure None)
 
   def pure[A](a: A): CallbackOption[A] =
     CallbackOption(CallbackTo pure Some(a))
