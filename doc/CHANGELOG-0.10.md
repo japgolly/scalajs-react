@@ -1,7 +1,47 @@
 # 0.10.1 (unreleased)
 
-* Upgrade Scala.JS to 0.6.5.
+* Added conversions between `Callback` and `Future`.
+
+  | Input                      | Method                 | Output                  |
+  | -------------------------- | ---------------------- | ----------------------- |
+  | `CallbackTo[A]`            | `cb.toFuture`          | `Future[A]`             |
+  | `CallbackTo[Future[A]]`    | `cb.toFlatFuture`      | `Future[A]`             |
+  | `=> Future[A]`             | `CallbackTo(f)`        | `CallbackTo[Future[A]]` |
+  | `=> Future[CallbackTo[A]]` | `Callback.future(f)`   | `Callback`              |
+  | `=> Future[CallbackTo[A]]` | `CallbackTo.future(f)` | `CallbackTo[Future[A]]` |
+
+  **NOTE:** It's important that when going from `Future` to `Callback`, you're aware of when the `Future` is instantiated.
+
+  ```scala
+  def queryServer: Future[Data] = ???
+
+  def updateComponent: Future[Callback] =
+    queryServer.map($ setState _)
+
+  // This is GOOD because the callback wraps the updateComponent *function*, not an instance.
+  Callback.future(updateComponent)
+
+  // This is BAD because the callback wraps a single instance of updateComponent.
+  // 1) The server will be contacted immediately instead of when the callback executes.
+  // 2) If the callback is execute more than once, the future and old result will be reused.
+  val f = updateComponent
+  Callback.future(f)
+
+  // This is BAD because the callback wraps a single instance of updateComponent.
+  // 1) The server will be contacted immediately instead of when the callback executes.
+  // 2) If the callback is execute more than once, the future and old result will be reused.
+
+  // This is GOOD too because the future is created inside the callback.
+  Callback.future {
+    val f = updateComponent
+    f.onComplete(???)
+    f
+  }
+  ```
+
 * Add `React.Children.toArray`.
+
+* Upgrade Scala.JS to 0.6.5.
 
 ---
 

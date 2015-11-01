@@ -1,6 +1,7 @@
 package japgolly.scalajs
 
 import org.scalajs.dom, dom.html
+import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import js.{Dynamic, Object, Any => JAny, Function => JFn}
 
@@ -205,4 +206,8 @@ package object react extends ReactEventAliases {
     @inline def only: Option[ReactNode] =
       try { Some(React.Children.only(c))} catch { case t: Throwable => None}
   }
+
+  @inline implicit def ReactExt_CallbackToFuture[A](c: CallbackTo[Future[A]]) =
+    new CallbackTo.ReactExt_CallbackToFuture(() => c.runNow())
+
 }

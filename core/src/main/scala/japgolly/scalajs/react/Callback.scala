@@ -2,7 +2,7 @@ package japgolly.scalajs.react
 
 import org.scalajs.dom.console
 import scala.annotation.implicitNotFound
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
 import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
@@ -51,6 +51,17 @@ object Callback {
    */
   @inline def byName(f: => Callback): Callback =
     CallbackTo(f.runNow())
+
+  /**
+   * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
+   *
+   * The result is discarded. To retain it, use [[CallbackTo.future)]] instead.
+   *
+   * WARNING: Futures are scheduled to run as soon as they're created. Ensure that the argument you provide creates a
+   * new [[Future]]; don't reference an existing one.
+   */
+  def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): Callback =
+    CallbackTo.future(f).voidExplicit[Future[A]]
 
   /**
    * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
@@ -144,6 +155,15 @@ object CallbackTo {
     CallbackTo(f.runNow())
 
   /**
+   * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
+   *
+   * WARNING: Futures are scheduled to run as soon as they're created. Ensure that the argument you provide creates a
+   * new [[Future]]; don't reference an existing one.
+   */
+  def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): CallbackTo[Future[A]] =
+    CallbackTo(f.map(_.runNow()))
+
+  /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.
    *
    * Unlike `???` this doesn't crash, it just prints a warning to the console.
@@ -164,6 +184,18 @@ object CallbackTo {
   @deprecated("", "not really deprecated")
   def TODO[A](result: => A, reason: => String): CallbackTo[A] =
     Callback.todoImpl(Some(() => reason)) >> CallbackTo(result)
+
+  final class ReactExt_CallbackToFuture[A](private val _c: () => Future[A]) extends AnyVal {
+    @inline private def c = new CallbackTo(_c)
+
+    /**
+     * Turns a `CallbackTo[Future[A]]` into a `Future[A]`.
+     *
+     * WARNING: This will trigger the execution of the [[Callback]].
+     */
+    def toFlatFuture(implicit ec: ExecutionContext): Future[A] =
+      c.toFuture.flatMap(identity)
+  }
 }
 
 // =====================================================================================================================
@@ -267,6 +299,14 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    */
   def void: Callback =
     ret(())
+
+  /**
+   * Discard the value produced by this callback.
+   *
+   * This method allows you to be explicit about the type you're discarding (which may change in future).
+   */
+  @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
+    void
 
   def conditionally(cond: => Boolean): CallbackTo[Option[A]] =
     CallbackTo(if (cond) Some(f()) else None)
@@ -395,6 +435,12 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     }
 
   /**
+   * Schedules an instance of this callback to run asynchronously.
+   */
+  def toFuture(implicit ec: ExecutionContext): Future[A] =
+    Future(runNow())
+
+  /**
    * Record the duration of this callback's execution.
    */
   def withDuration[B](f: (A, FiniteDuration) => CallbackTo[B]): CallbackTo[B] = {
@@ -459,7 +505,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     bool2(b)(_() || _())
 
   /**
-   * Negates the callback result (so long as its boolean).
+   * Negates the callback result (so long as it's boolean).
    */
   def !(implicit ev: ThisIsBool): CallbackB =
     ev(this).map(!_)
