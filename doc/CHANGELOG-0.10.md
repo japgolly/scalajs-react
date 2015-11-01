@@ -1,4 +1,4 @@
-# 0.10.1 (unreleased)
+# 0.10.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.10.0...v0.10.1))
 
 * Added conversions between `Callback` and `Future`.
 
