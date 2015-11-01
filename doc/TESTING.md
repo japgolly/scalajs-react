@@ -20,8 +20,8 @@ Setup
 
     // React JS itself.
     // NOTE: Requires react-with-addons.js instead of just react.js
-    jsDependencies += "org.webjars.npm" % "react"     % "0.14.0" % "test" / "react-with-addons.js" commonJSName "React"    minified "react-with-addons.min.js",
-    jsDependencies += "org.webjars.npm" % "react-dom" % "0.14.0" % "test" / "react-dom.js"         commonJSName "ReactDOM" minified "react-dom.min.js"         dependsOn "react-with-addons.js",
+    jsDependencies += "org.webjars.npm" % "react"     % "0.14.1" % "test" / "react-with-addons.js" commonJSName "React"    minified "react-with-addons.min.js",
+    jsDependencies += "org.webjars.npm" % "react-dom" % "0.14.1" % "test" / "react-dom.js"         commonJSName "ReactDOM" minified "react-dom.min.js"         dependsOn "react-with-addons.js",
 
     // Indicate that unit tests will access the DOM
     requiresDOM := true

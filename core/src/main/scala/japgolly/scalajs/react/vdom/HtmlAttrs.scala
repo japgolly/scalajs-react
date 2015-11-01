@@ -803,4 +803,7 @@ trait HtmlAttrs {
   final val onVolumeChange = "onVolumeChange".attr
   final val onWaiting = "onWaiting".attr
 
+  final val srcLang = "srcLang".attr
+  final val default = "default".attr
+  final val kind    = "kind".attr
 }

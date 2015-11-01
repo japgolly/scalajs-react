@@ -40,6 +40,11 @@
 
 * Add `React.Children.toArray`.
 
+* Upgrade React to 0.14.1. Adds new attributes:
+  * `default`
+  * `kind`
+  * `srcLang`
+
 * Upgrade Scala.JS to 0.6.5.
 
 ---
