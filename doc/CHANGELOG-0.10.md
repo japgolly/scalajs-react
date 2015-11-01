@@ -40,6 +40,8 @@
 
 * Add `CallbackOption.{pass,fail}`.
 
+* Add `Callback{,Option}.voidExplicit`.
+
 * Add `React.Children.toArray`.
 
 * Upgrade React to 0.14.1. Adds new attributes:

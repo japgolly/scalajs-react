@@ -188,6 +188,14 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def void: CallbackOption[Unit] =
     map(_ => ())
 
+  /**
+   * Discard the value produced by this callback.
+   *
+   * This method allows you to be explicit about the type you're discarding (which may change in future).
+   */
+  @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
+    void
+
   def orElse(tryNext: CallbackOption[A]): CallbackOption[A] =
     CallbackOption(get flatMap {
       case a@ Some(_) => CallbackTo pure a
