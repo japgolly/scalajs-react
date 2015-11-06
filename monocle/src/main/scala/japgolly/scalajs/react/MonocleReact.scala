@@ -18,11 +18,18 @@ object MonocleReact extends MonocleReactExtra {
     new MonocleReactCompStateOps[ReadCallbackWriteCallbackOps[S], S, Callback](ops($))
 
   final class MonocleReactCompStateOps[Ops <: WriteOpAux[S, W], S, W](private val $: Ops) extends AnyVal {
-    def zoomL[T](l: Lens[S, T]): Ops#This[T] =
-      $.zoom(l.get)((s, t) => l.set(t)(s))
+
+    def modStateL[A, B](l: PLens[S, S, A, B])(f: A => B, cb: Callback = Callback.empty): W =
+      $.modState(l.modify(f), cb)
+
+    def setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B, cb: Callback = Callback.empty)(implicit L: SetterMonocle[L]): W =
+      $.modState(L.set(l)(b), cb)
 
     def _setStateL[L[_, _, _, _], B](l: L[S, S, _, B], cb: Callback = Callback.empty)(implicit L: SetterMonocle[L]): B => W =
-      b => $.modState(L.set(l)(b), cb)
+      setStateL(l)(_, cb)
+
+    def zoomL[T](l: Lens[S, T]): Ops#This[T] =
+      $.zoom(l.get)((s, t) => l.set(t)(s))
   }
 
   @inline implicit final class MonocleReactReactSTOps[M[_], S, A](private val s: ReactST[M, S, A]) extends AnyVal {
