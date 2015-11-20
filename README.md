@@ -35,7 +35,8 @@ Includes a router, testing utils, performance utils, more.
 
 * [Interop With Third-Party Components - chandu0101](https://github.com/chandu0101/scalajs-react-components/blob/master/doc/InteropWithThirdParty.md)
 
-* Component Libraries
+* Libraries
+  * [scalajs-benchmark](https://github.com/japgolly/scalajs-benchmark/)
   * [chandu0101 / scalajs-react-components](https://github.com/chandu0101/scalajs-react-components)
   * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
 
