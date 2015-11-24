@@ -40,8 +40,23 @@ final case class BaseUrl(value: String) extends PathLike[BaseUrl] {
 }
 
 object BaseUrl {
-  def fromWindowOrigin   = BaseUrl(dom.window.location.origin)
-  def fromWindowOrigin_/ = fromWindowOrigin.endWith_/
+  def fromWindowOrigin: BaseUrl =
+    BaseUrl(dom.window.location.origin)
+
+  def fromWindowOrigin_/ : BaseUrl =
+    fromWindowOrigin.endWith_/
+
+  def fromWindowUrl(f: String => String): BaseUrl =
+    BaseUrl(f(dom.window.location.href))
+
+  def until(stopAt: String): BaseUrl =
+    fromWindowUrl { u =>
+    val i = u indexOf stopAt
+    if (i < 0) u else u.take(i)
+  }
+
+  def until_# : BaseUrl =
+    until("#")
 }
 
 /**

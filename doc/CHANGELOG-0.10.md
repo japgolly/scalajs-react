@@ -1,5 +1,9 @@
 # 0.10.2 (unreleased)
 
+* [`extra`] Add convenience methods to `router.BaseUrl`:
+  * `BaseUrl.fromWindowUrl(String => String)`
+  * `BaseUrl.until(String)`
+  * `BaseUrl.until_#` ← Replaces `BaseUrl(dom.window.location.href.takeWhile(_ != '#'))`
 * [`ext-monocle`] Add `modStateL` and `setStateL`.
 
 
