@@ -1,7 +1,23 @@
 # 0.10.2 (unreleased)
 
-* Upgrade React to 0.14.2. Adds new attributes:
-  * `integrity`
+* Upgrade React to 0.14.3.
+
+  Adds new attributes:
+    * `integrity`
+    * `nonce`
+    * `reversed`
+
+  React is now published to Bower in such a way that `ReactDOMServer` is accessible.
+  `ReactDOMServer` now appears in scalajs-react and its methods on `React` have been deprecated.
+
+  Update your codebase with:
+  ```
+  find . -name '*.scala' -exec perl -pi -e 's/(?<=React)([ .]+renderTo(?:String|StaticMarkup))(?!\w)/DOMServer$1/g' {} +
+  ```
+
+  Also ensure that you change your dependencies in SBT to use Bower instead of NPM.
+  [SBT snippet here](/doc/TESTING.md#setup).
+
 * Bugfix: `CallbackTo(…).flatten` usage wouldn't compile.
 * Added type aliases to CompState: `{,Read,Write}Access{,D}, AccessRD`.
 * Deprecated and renamed:

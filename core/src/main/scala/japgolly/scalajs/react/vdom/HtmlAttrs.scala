@@ -811,4 +811,10 @@ trait HtmlAttrs {
    * http://www.w3.org/TR/2015/CR-SRI-20151112/#the-integrity-attribute
    */
   final val integrity = "integrity".attr
+
+  /** For &lt;ol&gt; elements. */
+  final val reversed = "reversed".attr
+
+  /** For &lt;script&gt; and &lt;style&gt;elements. */
+  final val nonce = "nonce".attr
 }

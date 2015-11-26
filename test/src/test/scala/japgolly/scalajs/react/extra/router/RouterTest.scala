@@ -139,7 +139,7 @@ object RouterTest extends TestSuite {
 //          val (s, a) = runh(r2, abs)
 //          s.history mustEqual List(abs)
 //          a.path.value mustEqual "/what"
-//          React.renderToStaticMarkup(a render r2) mustEqual "<h1>404!!</h1>"
+//          ReactDOMServer.renderToStaticMarkup(a render r2) mustEqual "<h1>404!!</h1>"
 //        }
         'badbase - testh(r, AbsUrl("https://www.google.com"))(List(_), MyPage.Root, "")
         'tslash_root - testh(r, base / "" abs)      (_ => Nil, MyPage.Root, "")

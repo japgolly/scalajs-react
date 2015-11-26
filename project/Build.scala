@@ -75,17 +75,35 @@ object ScalajsReact extends Build {
     _.configure(useReactJs("test"))
       .settings(
         libraryDependencies  += "com.lihaoyi" %%% "utest" % "0.3.1",
-        jsDependencies += (ProvidedJS / "sampleReactComponent.js" dependsOn "react-with-addons.js") % Test, // dependency for JS Component Type Test.
         testFrameworks       += new TestFramework("utest.runner.Framework"),
         scalaJSStage in Test := FastOptStage,
         requiresDOM          := true,
-        jsEnv in Test        := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
+        jsEnv in Test        := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value),
+        jsDependencies ++= Seq(
+          (ProvidedJS / "sampleReactComponent.js" dependsOn "react-dom.js") % Test, // for JS Component Type Test.
+          "org.webjars" % "sizzle" % "2.1.1" % Test / "sizzle.min.js" commonJSName "Sizzle"))
 
   def useReactJs(scope: String = "compile"): PE =
     _.settings(
-      jsDependencies += "org.webjars.npm" % "react"     % "0.14.1" % scope / "react-with-addons.js" commonJSName "React"    minified "react-with-addons.min.js",
-      jsDependencies += "org.webjars.npm" % "react-dom" % "0.14.1" % scope / "react-dom.js"         commonJSName "ReactDOM" minified "react-dom.min.js"         dependsOn "react-with-addons.js",
-      jsDependencies += "org.webjars"     % "sizzle"    % "2.1.1"  % scope / "sizzle.min.js"        commonJSName "Sizzle",
+      jsDependencies ++= Seq(
+
+        "org.webjars.bower" % "react" % "0.14.3" % scope
+          /        "react-with-addons.js"
+          minified "react-with-addons.min.js"
+          commonJSName "React",
+
+        "org.webjars.bower" % "react" % "0.14.3" % scope
+          /         "react-dom.js"
+          minified  "react-dom.min.js"
+          dependsOn "react-with-addons.js"
+          commonJSName "ReactDOM",
+
+        "org.webjars.bower" % "react" % "0.14.3" % scope
+          /         "react-dom-server.js"
+          minified  "react-dom-server.min.js"
+          dependsOn "react-dom.js"
+          commonJSName "ReactDOMServer"),
+
       skip in packageJSDependencies := false)
 
   def addCommandAliases(m: (String, String)*) = {
