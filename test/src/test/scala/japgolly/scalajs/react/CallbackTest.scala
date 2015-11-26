@@ -62,5 +62,13 @@ object CallbackTest extends TestSuite {
         assert(i == 666)
       }
     }
+
+    'flatten {
+      val a = CallbackTo(CallbackTo(3)).flatten
+      val b: CallbackTo[Int] = a
+
+      val x = CallbackTo(Callback.empty).flatten
+      val y: Callback = x
+    }
   }
 }

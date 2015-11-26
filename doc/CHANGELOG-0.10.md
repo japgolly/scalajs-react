@@ -1,5 +1,6 @@
 # 0.10.2 (unreleased)
 
+* Bugfix: `CallbackTo(…).flatten` usage wouldn't compile.
 * Added type aliases to CompState: `{,Read,Write}Access{,D}, AccessRD`.
 * Deprecated and renamed:
   * `StateAccessCB` → `CompState.Access`
