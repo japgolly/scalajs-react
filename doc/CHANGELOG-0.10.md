@@ -1,5 +1,7 @@
 # 0.10.2 (unreleased)
 
+* Upgrade React to 0.14.2. Adds new attributes:
+  * `integrity`
 * Bugfix: `CallbackTo(…).flatten` usage wouldn't compile.
 * Added type aliases to CompState: `{,Read,Write}Access{,D}, AccessRD`.
 * Deprecated and renamed:
