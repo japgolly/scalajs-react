@@ -24,6 +24,10 @@ object ExternalVar {
   @inline def apply[A](value: A)(set: A => Callback): ExternalVar[A] =
     new ExternalVar(value, set)
 
+  /** What would you call this? I really can't think of anything meaningful - just follow at the types. */
+  def s$[S](s: S, $: CompState.WriteAccess[S]): ExternalVar[S] =
+    new ExternalVar(s, $ setState _)
+
   def state[S]($: CompState.AccessRD[S]): ExternalVar[S] =
     new ExternalVar($.state, $ setState _)
 }

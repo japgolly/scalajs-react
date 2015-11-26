@@ -8,7 +8,9 @@
   * `BaseUrl.fromWindowUrl(String => String)`
   * `BaseUrl.until(String)`
   * `BaseUrl.until_#` ← Replaces `BaseUrl(dom.window.location.href.takeWhile(_ != '#'))`
-* [`ext-monocle`] Add `modStateL` and `setStateL`.
+* [`extra`] Add to `ExternalVar` and `ReusableVar` objects: `s$(state, $)`.
+* [`ext-monocle`] Add to component scopes: `modStateL` and `setStateL`.
+* [`ext-monocle`] Add to `ExternalVar` and `ReusableVar` objects: `at(lens)(state, $)`.
 
 
 # 0.10.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.10.0...v0.10.1))

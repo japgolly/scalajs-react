@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import monocle._
 import scalaz.Functor
+import extra._
 import ScalazReact._
 import CompState._
 import CompScope._
@@ -35,6 +36,16 @@ object MonocleReact extends MonocleReactExtra {
   @inline implicit final class MonocleReactReactSTOps[M[_], S, A](private val s: ReactST[M, S, A]) extends AnyVal {
     def zoomL[T](l: Lens[T, S])(implicit M: Functor[M]): ReactST[M, T, A] =
       ReactS.zoom[M, S, T, A](s, l.get, (a, b) => l.set(b)(a))
+  }
+
+  @inline implicit final class MonocleReactExternalVarObjOps(private val x: ExternalVar.type) extends AnyVal {
+    def at[S, A](lens: Lens[S, A])(s: S, $: CompState.WriteAccess[S]): ExternalVar[A] =
+      new ExternalVar(lens get s, $ modState lens.set(_))
+  }
+
+  @inline implicit final class MonocleReactReusableVarObjOps(private val x: ReusableVar.type) extends AnyVal {
+    def at[S, A: Reusability](lens: Lens[S, A])(s: S, $: CompState.WriteAccess[S]): ReusableVar[A] =
+      new ReusableVar[A](lens get s, ReusableFn($ modState lens.set(_)))
   }
 }
 
