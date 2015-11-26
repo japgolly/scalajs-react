@@ -104,7 +104,7 @@ object ScalajsReact extends Build {
         "org.scala-lang" % "scala-compiler" % Scala211 % "provided"))
 
   def macroParadisePlugin =
-    compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
+    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 
   def hasNoTests: Project => Project =
     _.settings(
