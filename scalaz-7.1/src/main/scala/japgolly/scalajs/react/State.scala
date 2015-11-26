@@ -4,12 +4,11 @@ import scalaz.{Optional => _, _}
 import scalaz.effect.IO
 import Scalaz.Id
 import Leibniz.===
-import CompState._
 
 private[react] object ScalazReactState {
   import ScalazReact._
 
-  final class ScalazReactStateOps[S, W[_]](private val $: ReadCallbackWriteCallbackOps[S], W: CallbackTo ~> W) {
+  final class ScalazReactStateOps[S, W[_]](private val $: CompState.Access[S], W: CallbackTo ~> W) {
     @inline private implicit def autoToW[A](cb: CallbackTo[A]): W[A] = W(cb)
 
     private def run[M[_], A, B](st: => ReactST[M, S, A], f: (S, S, A, => Callback) => CallbackTo[B])(implicit M: M ~> CallbackTo): CallbackTo[B] =
@@ -86,10 +85,10 @@ private[react] object ScalazReactState {
 
 trait ScalazReactState {
 
-  @inline implicit def ScalazReactStateOpsCB[$, S]($: $)(implicit ops: $ => CompState.WriteCallbackOps[S]) =
+  @inline implicit def ScalazReactStateOpsCB[$, S]($: $)(implicit ops: $ => CompState.WriteAccess[S]) =
     new ScalazReactState.ScalazReactStateOps[S, CallbackTo](ops($).accessCB, ScalazReact.callbackToItself)
 
-  @inline implicit def ScalazReactStateOpsDirect[$, S]($: $)(implicit ops: $ => StateAccessDirect[S]) =
+  @inline implicit def ScalazReactStateOpsDirect[$, S]($: $)(implicit ops: $ => CompState.AccessD[S]) =
     new ScalazReactState.ScalazReactStateOps[S, Id](ops($).accessCB, ScalazReact.scalazIdToCallbackIso.to)
 
   @inline def StateAndCallbacks[S](s: S, cb: Callback = Callback.empty) =

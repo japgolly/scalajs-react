@@ -1,5 +1,9 @@
 # 0.10.2 (unreleased)
 
+* Added type aliases to CompState: `{,Read,Write}Access{,D}, AccessRD`.
+* Deprecated and renamed:
+  * `StateAccessCB` → `CompState.Access`
+  * `StateAccessDirect` → `CompState.AccessD`
 * [`extra`] Add convenience methods to `router.BaseUrl`:
   * `BaseUrl.fromWindowUrl(String => String)`
   * `BaseUrl.until(String)`

@@ -12,7 +12,10 @@ package object react extends ReactEventAliases {
   type Callback  = CallbackTo[Unit]
   type CallbackB = CallbackTo[Boolean]
 
-  type StateAccessDirect[S] = CompState.ReadDirectWriteDirectOps[S]
+  @deprecated("Use CompState.AccessD.", "0.10.2")
+  type StateAccessDirect[S] = CompState.AccessD[S]
+
+  @deprecated("CompState.Access", "0.10.2")
   type StateAccessCB    [S] = CompState.ReadCallbackWriteCallbackOps[S]
 
   /**
