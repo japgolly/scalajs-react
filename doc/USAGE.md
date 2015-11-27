@@ -405,14 +405,14 @@ React Extensions
     props.message)
   ```
 
-* Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `focusState()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
+* Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `zoom()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
 
   ```scala
   def incrementCounter(s: CompStateFocus[Int]): Unit =
     s.modState(_ + 1)
 
   // Then later in a render() method
-  val f = $.focusState(_.counter)((a,b) => a.copy(counter = b))
+  val f = $.zoom(_.counter)((a,b) => a.copy(counter = b))
   button(onclick --> incrementCounter(f), "+")
   ```
 
