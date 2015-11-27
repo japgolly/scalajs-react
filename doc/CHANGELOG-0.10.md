@@ -1,38 +1,45 @@
 # 0.10.2 (unreleased)
 
-* Upgrade React to 0.14.3.
+##### Upgrade React to 0.14.3.
+Adds new attributes:
+  * `integrity`
+  * `nonce`
+  * `reversed`
 
-  Adds new attributes:
-    * `integrity`
-    * `nonce`
-    * `reversed`
+React is now published to Bower in such a way that `ReactDOMServer` is accessible.
+`ReactDOMServer` now appears in scalajs-react and its methods on `React` have been deprecated.
 
-  React is now published to Bower in such a way that `ReactDOMServer` is accessible.
-  `ReactDOMServer` now appears in scalajs-react and its methods on `React` have been deprecated.
+To upgrade:
 
-  Update your codebase with:
+1. Update your codebase to use `ReactDOMServer` with:
   ```
   find . -name '*.scala' -exec perl -pi -e 's/(?<=React)([ .]+renderTo(?:String|StaticMarkup))(?!\w)/DOMServer$1/g' {} +
   ```
 
-  Also ensure that you change your dependencies in SBT to use Bower instead of NPM.
-  [SBT snippet here](/doc/TESTING.md#setup).
+2. Ensure that you change your dependencies in SBT to use Bower instead of NPM.
+   <br>[SBT snippet here](/doc/TESTING.md#setup).
 
+##### Core
 * Added shortcuts for `<input>` DOM with type: `<.input.{type}`.
-  <br>Example: `<.input.text(…)` can replace `<.input(^.`type` := "text", …)`
+  <br>Example: `<.input.text(…)` can replace ```<.input(^.`type` := "text", …)```
 * Bugfix: `CallbackTo(…).flatten` usage wouldn't compile.
 * Added type aliases to CompState: `{,Read,Write}Access{,D}, AccessRD`.
 * Deprecated and renamed:
   * `StateAccessCB` → `CompState.Access`
   * `StateAccessDirect` → `CompState.AccessD`
-* [`extra`] Add convenience methods to `router.BaseUrl`:
+
+##### `extra` module
+* Add convenience methods to `router.BaseUrl`:
   * `BaseUrl.fromWindowUrl(String => String)`
   * `BaseUrl.until(String)`
   * `BaseUrl.until_#` ← Replaces `BaseUrl(dom.window.location.href.takeWhile(_ != '#'))`
-* [`extra`] Add to `ExternalVar` and `ReusableVar` objects: `s$(state, $)`.
-* [`ext-monocle`] Add to component scopes: `modStateL` and `setStateL`.
-* [`ext-monocle`] Add to `ExternalVar` and `ReusableVar` objects: `at(lens)(state, $)`.
+* Add to `ExternalVar` and `ReusableVar` objects: `s$(state, $)`.
 
+##### `ext-monocle` module
+* Add to component scopes: `modStateL` and `setStateL`.
+* Add to `ExternalVar` and `ReusableVar` objects: `at(lens)(state, $)`.
+
+---
 
 # 0.10.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.10.0...v0.10.1))
 
