@@ -18,6 +18,8 @@
   Also ensure that you change your dependencies in SBT to use Bower instead of NPM.
   [SBT snippet here](/doc/TESTING.md#setup).
 
+* Added shortcuts for `<input>` DOM with type: `<.input.{type}`.
+  <br>Example: `<.input.text(…)` can replace `<.input(^.`type` := "text", …)`
 * Bugfix: `CallbackTo(…).flatten` usage wouldn't compile.
 * Added type aliases to CompState: `{,Read,Write}Access{,D}, AccessRD`.
 * Deprecated and renamed:
