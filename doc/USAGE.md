@@ -408,15 +408,33 @@ React Extensions
 * Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `zoom()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
 
   ```scala
-  def incrementCounter(s: CompStateFocus[Int]): Unit =
+  def incrementCounter(s: CompState.Access[Int]): Callback =
     s.modState(_ + 1)
 
-  // Then later in a render() method
-  val f = $.zoom(_.counter)((a,b) => a.copy(counter = b))
-  button(onclick --> incrementCounter(f), "+")
+  // Then in some other component:
+  case class State(name: String, counter: Int)
+
+  def render = {
+    val f = $.zoom(_.counter)((a,b) => a.copy(counter = b))
+    button(onclick --> incrementCounter(f), "+")
+  }
   ```
 
-  *(Using the [Monocle extensions](FP.md) greatly improve this approach.)*
+  You can cut down on boilerplate by using [Monocle](https://github.com/julien-truffaut/Monocle)
+  and the [scalajs-react Monocle extensions](FP.md).
+  By doing so, the above snippet will look like this:
+
+  ```scala
+  import monocle.macros._
+  
+  @Lenses case class State(name: String, counter: Int)
+
+  def render = {
+    val f = $ zoomL State.counter
+    button(onclick --> incrementCounter(f), "+")
+  }
+  ```
+
 
 Differences from React proper
 =============================
