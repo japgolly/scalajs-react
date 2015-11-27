@@ -29,6 +29,7 @@ object ScalajsReact extends Build {
                                 "-language:higherKinds", "-language:existentials"),
         //scalacOptions    += "-Xlog-implicits",
         updateOptions      := updateOptions.value.withCachedResolution(true),
+        triggeredMessage   := Watched.clearWhenTriggered,
         clearScreenTask    := { println("\033[2J\033[;H") })
 
   def preventPublication: PE =
@@ -135,6 +136,8 @@ object ScalajsReact extends Build {
     .aggregate(core, test, scalaz71, monocle, extra, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "C"  -> "root/clean",
+      "c"  -> "compile",
+      "tc" -> "test:compile",
       "t"  -> ";clear;  test:compile ; test/test",
       "tt" -> ";clear; +test:compile ;+test/test",
       "T"  -> "; clean ;t",
