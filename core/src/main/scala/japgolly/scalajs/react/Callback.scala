@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import org.scalajs.dom.console
 import scala.annotation.implicitNotFound
+import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
@@ -153,6 +154,22 @@ object CallbackTo {
    */
   @inline def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     CallbackTo(f.runNow())
+
+  def traverse[T[X] <: TraversableOnce[X], A, B](ta: T[A])(f: A => CallbackTo[B])
+                                                (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
+    CallbackTo {
+      val r = cbf(ta)
+      ta.foreach(a => r += f(a).runNow())
+      r.result()
+    }
+
+  def traverseFlat[T[X] <: TraversableOnce[X], A, B](tca: T[CallbackTo[A]])(f: A => CallbackTo[B])
+                                                    (implicit cbf: CanBuildFrom[T[CallbackTo[A]], B, T[B]]): CallbackTo[T[B]] =
+    traverse(tca)(_ >>= f)
+
+  @inline def sequence[T[X] <: TraversableOnce[X], A](tca: T[CallbackTo[A]])
+                                                     (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
+    traverse(tca)(identity)
 
   /**
    * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.

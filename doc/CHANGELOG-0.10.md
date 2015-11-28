@@ -23,6 +23,10 @@ To upgrade:
 * Added shortcuts for `<input>` DOM with type: `<.input.{type}`.
   <br>Example: `<.input.text(…)` can replace ```<.input(^.`type` := "text", …)```
 * Bugfix: `CallbackTo(…).flatten` usage wouldn't compile.
+* Added to `CallbackTo` object:
+  * `traverse`
+  * `traverseFlat`
+  * `sequence`
 * Added type aliases to CompState: `{,Read,Write}Access{,D}, AccessRD`.
 * Deprecated and renamed:
   * `StateAccessCB` → `CompState.Access`
