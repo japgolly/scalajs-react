@@ -25,13 +25,13 @@ object CallbackOption {
     CallbackOption(CallbackTo pure Some(a))
 
   def liftValue[A](a: => A): CallbackOption[A] =
-    CallbackOption(CallbackTo(Some(a)))
+    liftOption(Some(a))
 
   def liftOption[A](oa: => Option[A]): CallbackOption[A] =
     CallbackOption(CallbackTo(oa))
 
   def liftOptionLike[O[_], A](oa: => O[A])(implicit O: OptionLike[O]): CallbackOption[A] =
-    CallbackOption(CallbackTo(O toOption oa))
+    liftOption(O toOption oa)
 
   def liftCallback[A](cb: CallbackTo[A]): CallbackOption[A] =
     CallbackOption(cb map Some.apply)
@@ -47,22 +47,20 @@ object CallbackOption {
 
   def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
                                                 (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
-    CallbackOption(
-      CallbackTo {
-        val it = ta.toIterator
-        val r = cbf(ta)
-        @tailrec
-        def go: Option[T[B]] =
-          if (it.hasNext)
-            f(it.next()).get.runNow() match {
-              case Some(b) => r += b; go
-              case None    => None
-            }
-          else
-            Some(r.result())
-        go
-      }
-    )
+    liftOption {
+      val it = ta.toIterator
+      val r = cbf(ta)
+      @tailrec
+      def go: Option[T[B]] =
+        if (it.hasNext)
+          f(it.next()).get.runNow() match {
+            case Some(b) => r += b; go
+            case None    => None
+          }
+        else
+          Some(r.result())
+      go
+    }
 
   @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackOption[A]])
                                                      (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
