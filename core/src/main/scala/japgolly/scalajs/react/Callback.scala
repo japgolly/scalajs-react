@@ -155,7 +155,7 @@ object CallbackTo {
   @inline def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     CallbackTo(f.runNow())
 
-  def traverse[T[X] <: TraversableOnce[X], A, B](ta: T[A])(f: A => CallbackTo[B])
+  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])
                                                 (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
     CallbackTo {
       val r = cbf(ta)
@@ -163,11 +163,11 @@ object CallbackTo {
       r.result()
     }
 
-  def traverseFlat[T[X] <: TraversableOnce[X], A, B](tca: T[CallbackTo[A]])(f: A => CallbackTo[B])
+  def traverseFlat[T[X] <: TraversableOnce[X], A, B](tca: => T[CallbackTo[A]])(f: A => CallbackTo[B])
                                                     (implicit cbf: CanBuildFrom[T[CallbackTo[A]], B, T[B]]): CallbackTo[T[B]] =
     traverse(tca)(_ >>= f)
 
-  @inline def sequence[T[X] <: TraversableOnce[X], A](tca: T[CallbackTo[A]])
+  @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])
                                                      (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
     traverse(tca)(identity)
 

@@ -45,9 +45,9 @@ object CallbackOption {
   def matchPF[A, B](a: => A)(pf: PartialFunction[A, B]): CallbackOption[B] =
     liftOption(pf lift a)
 
-  def traverse[T[X] <: TraversableOnce[X], A, B](ta: T[A])(f: A => CallbackOption[B])
+  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
                                                 (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
-    CallbackOption {
+    CallbackOption(
       CallbackTo {
         val it = ta.toIterator
         val r = cbf(ta)
@@ -62,13 +62,13 @@ object CallbackOption {
             Some(r.result())
         go
       }
-    }
+    )
 
-  def traverseFlat[T[X] <: TraversableOnce[X], A, B](tca: T[CallbackOption[A]])(f: A => CallbackOption[B])
+  def traverseFlat[T[X] <: TraversableOnce[X], A, B](tca: => T[CallbackOption[A]])(f: A => CallbackOption[B])
                                                     (implicit cbf: CanBuildFrom[T[CallbackOption[A]], B, T[B]]): CallbackOption[T[B]] =
     traverse(tca)(_ >>= f)
 
-  @inline def sequence[T[X] <: TraversableOnce[X], A](tca: T[CallbackOption[A]])
+  @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackOption[A]])
                                                      (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
     traverse(tca)(identity)
 
