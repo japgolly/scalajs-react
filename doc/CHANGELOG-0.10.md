@@ -27,6 +27,10 @@ To upgrade:
   * `traverse`
   * `traverseFlat`
   * `sequence`
+* Added to `CallbackOption` object:
+  * `traverse`
+  * `traverseFlat`
+  * `sequence`
 * Added type aliases to CompState: `{,Read,Write}Access{,D}, AccessRD`.
 * Deprecated and renamed:
   * `StateAccessCB` → `CompState.Access`
