@@ -64,10 +64,6 @@ object CallbackOption {
       }
     )
 
-  def traverseFlat[T[X] <: TraversableOnce[X], A, B](tca: => T[CallbackOption[A]])(f: A => CallbackOption[B])
-                                                    (implicit cbf: CanBuildFrom[T[CallbackOption[A]], B, T[B]]): CallbackOption[T[B]] =
-    traverse(tca)(_ >>= f)
-
   @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackOption[A]])
                                                      (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
     traverse(tca)(identity)
