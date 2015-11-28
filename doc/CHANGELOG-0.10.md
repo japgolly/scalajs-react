@@ -39,6 +39,9 @@ To upgrade:
 * Add to component scopes: `modStateL` and `setStateL`.
 * Add to `ExternalVar` and `ReusableVar` objects: `at(lens)(state, $)`.
 
+##### `ext-scalaz` module
+* Add `Monad[CallbackOption]`.
+
 ---
 
 # 0.10.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.10.0...v0.10.1))

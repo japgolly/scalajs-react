@@ -17,6 +17,16 @@ trait ScalazReactInstances {
         fa map f
     }
 
+  implicit val callbackOptionScalazMonad: Monad[CallbackOption] =
+    new Monad[CallbackOption] {
+      override def point[A](a: => A): CallbackOption[A] =
+        CallbackOption.liftValue(a)
+      override def bind[A, B](fa: CallbackOption[A])(f: A => CallbackOption[B]): CallbackOption[B] =
+        fa >>= f
+      override def map[A, B](fa : CallbackOption[A])(f : A => B): CallbackOption[B] =
+        fa map f
+    }
+
   implicit val maybeInstance: OptionLike[Maybe] = new OptionLike[Maybe] {
     type O[A] = Maybe[A]
     def map     [A, B](o: O[A])(f: A => B)         : O[B]      = o map f
