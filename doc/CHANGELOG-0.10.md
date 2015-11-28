@@ -24,11 +24,15 @@ To upgrade:
   <br>Example: `<.input.text(…)` can replace ```<.input(^.`type` := "text", …)```
 * Bugfix: `CallbackTo(…).flatten` usage wouldn't compile.
 * Added to `CallbackTo` object:
-  * `traverse`
   * `sequence`
+  * `sequenceO`
+  * `traverse`
+  * `traverseO`
 * Added to `CallbackOption` object:
-  * `traverse`
   * `sequence`
+  * `sequenceO`
+  * `traverse`
+  * `traverseO`
 * Added type aliases to CompState: `{,Read,Write}Access{,D}, AccessRD`.
 * Deprecated and renamed:
   * `StateAccessCB` → `CompState.Access`

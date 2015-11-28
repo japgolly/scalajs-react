@@ -167,6 +167,12 @@ object CallbackTo {
                                                      (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
     traverse(tca)(identity)
 
+  def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
+    CallbackTo(oa.map(f(_).runNow()))
+
+  @inline def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
+    traverseO(oca)(identity)
+
   /**
    * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
    *
