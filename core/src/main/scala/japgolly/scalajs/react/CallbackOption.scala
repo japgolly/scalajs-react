@@ -36,6 +36,12 @@ object CallbackOption {
   def liftCallback[A](cb: CallbackTo[A]): CallbackOption[A] =
     CallbackOption(cb map Some.apply)
 
+  def liftOptionCallback[A](oc: => Option[CallbackTo[A]]): CallbackOption[A] =
+    CallbackOption(CallbackTo sequenceO oc)
+
+  def liftOptionLikeCallback[O[_], A](oa: => O[CallbackTo[A]])(implicit O: OptionLike[O]): CallbackOption[A] =
+    liftOptionCallback(O toOption oa)
+
   def require(condition: => Boolean): CallbackOption[Unit] =
     CallbackOption(CallbackTo(if (condition) someUnit else None))
 

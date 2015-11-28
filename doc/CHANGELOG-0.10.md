@@ -29,6 +29,8 @@ To upgrade:
   * `traverse`
   * `traverseO`
 * Added to `CallbackOption` object:
+  * `liftOptionCallback`
+  * `liftOptionLikeCallback`
   * `sequence`
   * `sequenceO`
   * `traverse`
