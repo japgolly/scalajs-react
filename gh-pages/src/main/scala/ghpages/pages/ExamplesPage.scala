@@ -59,13 +59,12 @@ object ExamplesPage {
     .render_P { p =>
       def menuItem(e: Example) = {
         val active = e == p.current
-        <.li(
+        p.router.link(e)(
           ^.classSet1("list-group-item", "active" -> active),
-          p.router setOnClick e,
           e.title)
       }
       <.div(^.cls := "col-md-2",
-        <.ul(^.cls := "list-group",
+        <.div(^.cls := "list-group",
           Example.values map menuItem))
     }
     .configure(Reusability.shouldComponentUpdate)

@@ -67,6 +67,16 @@ object ReactKeyboardEvent {
     e.shiftKey == shiftKey
 }
 
+object ReactMouseEvent {
+  /**
+   * Would this mouse event (if applied to a link), open it in a new tab?
+   */
+  def targetsNewTab_?(e: ReactMouseEvent): Boolean = {
+    e.metaKey || e.ctrlKey || // Ctrl-click opens new tab
+    e.button == 1             // Middle-click opens new tab
+  }
+}
+
 /** https://facebook.github.io/react/docs/events.html */
 @js.native
 trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends js.Object {

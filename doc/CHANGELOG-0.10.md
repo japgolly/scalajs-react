@@ -24,6 +24,7 @@ To upgrade:
   <br>Example: `<.input.text(…)` can replace ```<.input(^.`type` := "text", …)```
 * Bugfix: `CallbackTo(…).flatten` usage wouldn't compile.
 * Bugfix: There were a number of `Event` methods missing and with incorrect signatures. *([diff](https://github.com/japgolly/scalajs-react/commit/010ab527f62013f82afc94f5bee1f5900d8ddcde))*
+* Added `ReactMouseEvent.targetsNewTab_?` to determine whether a mouse event (applied to a link), would open it in a new tab?
 * Added to `CallbackTo` object:
   * `sequence`
   * `sequenceO`
@@ -42,6 +43,7 @@ To upgrade:
   * `StateAccessDirect` → `CompState.AccessD`
 
 ##### `extra` module
+* Allow router-provided links to be opened in new tabs via the normal browser mechanisms (middle-click, ctrl-click).
 * Add convenience methods to `router.BaseUrl`:
   * `BaseUrl.fromWindowUrl(String => String)`
   * `BaseUrl.until(String)`
