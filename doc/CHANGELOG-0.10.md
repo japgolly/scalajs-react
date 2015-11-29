@@ -23,7 +23,7 @@ To upgrade:
 * Added shortcuts for `<input>` DOM with type: `<.input.{type}`.
   <br>Example: `<.input.text(…)` can replace ```<.input(^.`type` := "text", …)```
 * Bugfix: `CallbackTo(…).flatten` usage wouldn't compile.
-* Bugfix: There were a number of `Event` methods missing and with incorrect signatures.
+* Bugfix: There were a number of `Event` methods missing and with incorrect signatures. *([diff](https://github.com/japgolly/scalajs-react/commit/010ab527f62013f82afc94f5bee1f5900d8ddcde))*
 * Added to `CallbackTo` object:
   * `sequence`
   * `sequenceO`
