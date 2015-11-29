@@ -58,8 +58,8 @@ To upgrade:
 * Add `Monad[CallbackOption]`.
 
 ##### `test` module
-* More test event properties settable.
-* Many `Simulation` events now get default event properties. (prevents stupid PhantomJS crashing)
+* More test event properties settable. *([diff](https://github.com/japgolly/scalajs-react/commit/d58883a58becc1eda6aa5371a55e798c2d1b71c0))*
+* Many `Simulation` events now get default event properties. (prevents stupid PhantomJS crashing) *([diff](https://github.com/japgolly/scalajs-react/commit/5a20e96e27e78af86c691f52565941029ec7e35b))*
 
 ---
 
