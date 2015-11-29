@@ -59,6 +59,7 @@ To upgrade:
 
 ##### `test` module
 * More test event properties settable.
+* Many `Simulation` events now get default event properties. (prevents stupid PhantomJS crashing)
 
 ---
 
