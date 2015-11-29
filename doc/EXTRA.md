@@ -2,7 +2,7 @@
 ======================
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.10.1"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.10.2"
 ```
 
 **Big Stuff**

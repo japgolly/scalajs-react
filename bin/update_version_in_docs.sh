@@ -5,5 +5,7 @@ cd "$(dirname "$(readlink -e "$0")")/.." || exit 1
 ver="$1"
 
 find . -name '*.md' -exec perl -pi -e 's/(japgolly.scalajs-react.+)"0(?:\.\d+){2}"/\1"'"$ver"'"/' {} + \
+  && perl -pi -e 's/(?<="'"$ver"')-SNAPSHOT//' project/Build.scala \
+  && perl -pi -e 's/(Latest.+\/changelog\/)[0-9.]+?(?=\.md)/${1}'"$ver"'/' README.md \
   && git diff
 
