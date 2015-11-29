@@ -148,7 +148,9 @@ case class KeyboardEventData(key:      String  = "",
                              shiftKey: Boolean = false,
                              repeat:   Boolean = false,
                              locale:   String  = "",
-                             keyCode:  Int     = 0) {
+                             keyCode:  Int     = 0,
+                             charCode: Int     = 0,
+                             which:    Int     = 0) {
   def toJs: Object = {
     val o = Dynamic.literal()
     o.updateDynamic("key"     )(key     )
@@ -160,6 +162,8 @@ case class KeyboardEventData(key:      String  = "",
     o.updateDynamic("repeat"  )(repeat  )
     o.updateDynamic("locale"  )(locale  )
     o.updateDynamic("keyCode" )(keyCode )
+    o.updateDynamic("charCode")(charCode)
+    o.updateDynamic("which"   )(which   )
     o
   }
   def simulateKeyDown       (t: ReactOrDomNode): Unit = ReactTestUtils.Simulate.keyDown (t, this)
@@ -178,10 +182,13 @@ case class MouseEventData(screenX:  Double  = 0,
                           screenY:  Double  = 0,
                           clientX:  Double  = 0,
                           clientY:  Double  = 0,
+                          pageX  :  Double  = 0,
+                          pageY  :  Double  = 0,
                           altKey:   Boolean = false,
                           ctrlKey:  Boolean = false,
                           metaKey:  Boolean = false,
                           shiftKey: Boolean = false,
+                          button:   Int     = 0,
                           buttons:  Int     = 0) {
   def toJs: Object = {
     val o = Dynamic.literal()
@@ -189,10 +196,13 @@ case class MouseEventData(screenX:  Double  = 0,
     o.updateDynamic("screenY" )(screenY )
     o.updateDynamic("clientX" )(clientX )
     o.updateDynamic("clientY" )(clientY )
+    o.updateDynamic("pageX"   )(pageX   )
+    o.updateDynamic("pageY"   )(pageY   )
     o.updateDynamic("altKey"  )(altKey  )
     o.updateDynamic("ctrlKey" )(ctrlKey )
     o.updateDynamic("metaKey" )(metaKey )
     o.updateDynamic("shiftKey")(shiftKey)
+    o.updateDynamic("button"  )(button  )
     o.updateDynamic("buttons" )(buttons )
     o
   }
