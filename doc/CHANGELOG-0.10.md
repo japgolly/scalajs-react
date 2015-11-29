@@ -23,6 +23,7 @@ To upgrade:
 * Added shortcuts for `<input>` DOM with type: `<.input.{type}`.
   <br>Example: `<.input.text(…)` can replace ```<.input(^.`type` := "text", …)```
 * Bugfix: `CallbackTo(…).flatten` usage wouldn't compile.
+* Bugfix: There were a number of `Event` methods missing and with incorrect signatures.
 * Added to `CallbackTo` object:
   * `sequence`
   * `sequenceO`
