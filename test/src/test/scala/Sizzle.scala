@@ -2,7 +2,7 @@ package sizzle
 
 import scala.scalajs.js
 
-// @js.native
+@js.native
 object Sizzle extends js.Object {
 
   type DOM    = org.scalajs.dom.Element

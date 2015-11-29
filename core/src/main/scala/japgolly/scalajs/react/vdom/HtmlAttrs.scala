@@ -803,4 +803,18 @@ trait HtmlAttrs {
   final val onVolumeChange = "onVolumeChange".attr
   final val onWaiting = "onWaiting".attr
 
+  final val srcLang = "srcLang".attr
+  final val default = "default".attr
+  final val kind    = "kind".attr
+
+  /**
+   * http://www.w3.org/TR/2015/CR-SRI-20151112/#the-integrity-attribute
+   */
+  final val integrity = "integrity".attr
+
+  /** For &lt;ol&gt; elements. */
+  final val reversed = "reversed".attr
+
+  /** For &lt;script&gt; and &lt;style&gt;elements. */
+  final val nonce = "nonce".attr
 }

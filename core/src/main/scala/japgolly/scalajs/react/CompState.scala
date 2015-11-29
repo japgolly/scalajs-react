@@ -4,6 +4,50 @@ import CompScope._
 
 object CompState {
 
+  /**
+   * Read-and-write access to a component's state (or a subset).
+   */
+  type Access[S] = ReadCallbackWriteCallbackOps[S]
+
+  /**
+   * Read-and-write access to a component's state (or a subset).
+   *
+   * (RD = Read Direct)
+   */
+  type AccessRD[S] = ReadDirectWriteCallbackOps[S]
+
+  /**
+   * Read-and-write access to a component's state (or a subset).
+   *
+   * (D = Direct)
+   */
+  type AccessD[S] = ReadDirectWriteDirectOps[S]
+
+  /**
+   * Write access to a component's state (or a subset).
+   */
+  type WriteAccess[S] = WriteCallbackOps[S]
+
+  /**
+   * Write access to a component's state (or a subset).
+   *
+   * (D = Direct)
+   */
+  type WriteAccessD[S] = WriteDirectOps[S]
+
+  /**
+   * Read access to a component's state (or a subset).
+   */
+  type ReadAccess[S] = ReadCallbackOps[S]
+
+  /**
+   * Read access to a component's state (or a subset).
+   *
+   * (D = Direct)
+   */
+  type ReadAccessD[S] = ReadDirectOps[S]
+
+
   // ===================================================================================================================
   // Accessor
   // ===================================================================================================================
@@ -45,8 +89,8 @@ object CompState {
     protected val a: Accessor[$$, S]
     protected def changeAccessor[T](a2: Accessor[$$, T]): This[T]
 
-    def accessCB: StateAccessCB[S]
-    def accessDirect: StateAccessDirect[S]
+    def accessCB: CompState.Access[S]
+    def accessDirect: CompState.AccessD[S]
 
     final def zoom[T](f: S => T)(g: (S, T) => S): This[T] =
       changeAccessor(a.zoom(f)(g))

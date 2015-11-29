@@ -1,5 +1,8 @@
 package japgolly.scalajs.react
 
+import scala.concurrent._
+import scala.concurrent.duration._
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import utest._
 
 object CallbackTest extends TestSuite {
@@ -32,9 +35,40 @@ object CallbackTest extends TestSuite {
       "Callback(Callback)"   - assertFails(compileError("Callback(cb)"))
       "Callback(CallbackTo)" - assertFails(compileError("Callback(cbI)"))
     }
+
     'lazily -
       testEvalStrategy(Callback lazily _, 0, 1, 1)
+
     'byName -
       testEvalStrategy(Callback byName _, 0, 1, 2)
+
+    'future {
+      'repeatable {
+        var runs = 0
+        def modState = Callback(runs += 1)
+        def f = Future(modState)
+        val c = Callback.future(f)
+        assert(runs == 0)
+        c.runNow()
+        c.runNow()
+        assert(runs == 2)
+      }
+
+      'toFlatFuture {
+        val c = CallbackTo(Future(666))
+        val f = c.toFlatFuture
+        var i = 0
+        f.map(i = _)
+        assert(i == 666)
+      }
+    }
+
+    'flatten {
+      val a = CallbackTo(CallbackTo(3)).flatten
+      val b: CallbackTo[Int] = a
+
+      val x = CallbackTo(Callback.empty).flatten
+      val y: Callback = x
+    }
   }
 }

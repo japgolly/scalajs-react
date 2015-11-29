@@ -2,7 +2,8 @@ package japgolly.scalajs.react
 
 import org.scalajs.dom.console
 import scala.annotation.implicitNotFound
-import scala.concurrent.{Future, Promise}
+import scala.collection.generic.CanBuildFrom
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
 import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
@@ -51,6 +52,17 @@ object Callback {
    */
   @inline def byName(f: => Callback): Callback =
     CallbackTo(f.runNow())
+
+  /**
+   * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
+   *
+   * The result is discarded. To retain it, use [[CallbackTo.future)]] instead.
+   *
+   * WARNING: Futures are scheduled to run as soon as they're created. Ensure that the argument you provide creates a
+   * new [[Future]]; don't reference an existing one.
+   */
+  def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): Callback =
+    CallbackTo.future(f).voidExplicit[Future[A]]
 
   /**
    * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
@@ -143,6 +155,33 @@ object CallbackTo {
   @inline def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     CallbackTo(f.runNow())
 
+  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])
+                                                (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
+    CallbackTo {
+      val r = cbf(ta)
+      ta.foreach(a => r += f(a).runNow())
+      r.result()
+    }
+
+  @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])
+                                                     (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
+    traverse(tca)(identity)
+
+  def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
+    CallbackTo(oa.map(f(_).runNow()))
+
+  @inline def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
+    traverseO(oca)(identity)
+
+  /**
+   * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
+   *
+   * WARNING: Futures are scheduled to run as soon as they're created. Ensure that the argument you provide creates a
+   * new [[Future]]; don't reference an existing one.
+   */
+  def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): CallbackTo[Future[A]] =
+    CallbackTo(f.map(_.runNow()))
+
   /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.
    *
@@ -164,6 +203,18 @@ object CallbackTo {
   @deprecated("", "not really deprecated")
   def TODO[A](result: => A, reason: => String): CallbackTo[A] =
     Callback.todoImpl(Some(() => reason)) >> CallbackTo(result)
+
+  final class ReactExt_CallbackToFuture[A](private val _c: () => Future[A]) extends AnyVal {
+    @inline private def c = new CallbackTo(_c)
+
+    /**
+     * Turns a `CallbackTo[Future[A]]` into a `Future[A]`.
+     *
+     * WARNING: This will trigger the execution of the [[Callback]].
+     */
+    def toFlatFuture(implicit ec: ExecutionContext): Future[A] =
+      c.toFuture.flatMap(identity)
+  }
 }
 
 // =====================================================================================================================
@@ -220,7 +271,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   @inline def =<<:[B](g: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(g)
 
-  def flatten[B](implicit ev: A =:= CallbackTo[B]): CallbackTo[B] =
+  def flatten[B](implicit ev: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(ev)
 
   def flatMap2[X, Y, Z](f: (X, Y) => CallbackTo[Z])(implicit ev: A =:= (X, Y)): CallbackTo[Z] =
@@ -267,6 +318,14 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    */
   def void: Callback =
     ret(())
+
+  /**
+   * Discard the value produced by this callback.
+   *
+   * This method allows you to be explicit about the type you're discarding (which may change in future).
+   */
+  @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
+    void
 
   def conditionally(cond: => Boolean): CallbackTo[Option[A]] =
     CallbackTo(if (cond) Some(f()) else None)
@@ -338,11 +397,6 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def isEmpty_? : Boolean =
     f eq Callback.empty.f
 
-//  def flatMapUnlessEmpty(g: Callback => Callback)(implicit ev: This =:= Callback): Callback = {
-//    val c = ev(this)
-//    if (isEmpty_?) c else g(c)
-//  }
-
   /**
    * Log to the console before this callback starts, and after it completes.
    *
@@ -398,6 +452,12 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
       RawTimers.setTimeout(cb.toJsFn, startInMilliseconds)
       p.future
     }
+
+  /**
+   * Schedules an instance of this callback to run asynchronously.
+   */
+  def toFuture(implicit ec: ExecutionContext): Future[A] =
+    Future(runNow())
 
   /**
    * Record the duration of this callback's execution.
@@ -464,36 +524,8 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     bool2(b)(_() || _())
 
   /**
-   * Negates the callback result (so long as its boolean).
+   * Negates the callback result (so long as it's boolean).
    */
   def !(implicit ev: ThisIsBool): CallbackB =
     ev(this).map(!_)
-
-//  /**
-//   * Sequence the given callback to be run when the result of this is `true`.
-//   *
-//   * The result is discarded.
-//   */
-//  def whenTrueRun[B](c: CallbackTo[B])(implicit ev: ThisIsBool): Callback =
-//    ev(this).map(a => if (a) c.f())
-//
-//  /**
-//   * Alias for `whenTrueRun`.
-//   */
-//  @inline def ?>>[B](c: CallbackTo[B])(implicit ev: ThisIsBool): Callback =
-//    whenTrueRun(c)
-//
-//  /**
-//   * Sequence the given callback to be run when the result of this is `true`.
-//   *
-//   * Returns the result wrapped in `Option`.
-//   */
-//  def whenTrue[B](c: CallbackTo[B])(implicit ev: ThisIsBool): CallbackTo[Option[B]] =
-//    ev(this).map(a => if (a) Some(c.f()) else None)
-//
-//  /**
-//   * Alias for `whenTrue`.
-//   */
-//  @inline def ?>>?[B](c: CallbackTo[B])(implicit ev: ThisIsBool): CallbackTo[Option[B]] =
-//    whenTrue(c)
 }

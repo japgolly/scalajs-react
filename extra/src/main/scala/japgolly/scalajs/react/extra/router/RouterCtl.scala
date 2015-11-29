@@ -22,13 +22,20 @@ abstract class RouterCtl[A] {
     pathFor(target).abs(baseUrl)
 
   final def setEH(target: A): ReactEvent => Callback =
-    _.preventDefaultCB >> set(target)
+    e => CallbackOption.asEventDefault(e, set(target))
 
   final def setOnClick(target: A): TagMod =
     ^.onClick ==> setEH(target)
 
+  final def setOnLinkClick(target: A): TagMod = {
+    def go(e: ReactMouseEvent): Callback =
+      CallbackOption.unless(ReactMouseEvent targetsNewTab_? e) >>
+        setEH(target)(e)
+    ^.onClick ==> go
+  }
+
   final def link(target: A): ReactTagOf[html.Anchor] =
-    <.a(^.href := urlFor(target).value, setOnClick(target))
+    <.a(^.href := urlFor(target).value, setOnLinkClick(target))
 
   final def contramap[B](f: B => A): RouterCtl[B] =
     new RouterCtl.Contramap(this, f)

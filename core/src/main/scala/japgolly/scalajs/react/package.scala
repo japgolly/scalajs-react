@@ -1,6 +1,7 @@
 package japgolly.scalajs
 
 import org.scalajs.dom, dom.html
+import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import js.{Dynamic, Object, Any => JAny, Function => JFn}
 
@@ -11,7 +12,10 @@ package object react extends ReactEventAliases {
   type Callback  = CallbackTo[Unit]
   type CallbackB = CallbackTo[Boolean]
 
-  type StateAccessDirect[S] = CompState.ReadDirectWriteDirectOps[S]
+  @deprecated("Use CompState.AccessD.", "0.10.2")
+  type StateAccessDirect[S] = CompState.AccessD[S]
+
+  @deprecated("CompState.Access", "0.10.2")
   type StateAccessCB    [S] = CompState.ReadCallbackWriteCallbackOps[S]
 
   /**
@@ -19,6 +23,7 @@ package object react extends ReactEventAliases {
    * If P,S,B,N types are needed and there's another object that has them, this is used to bridge for type inference.
    */
   trait ReactComponentTypeAux[P, S, +B, +N <: TopNode]
+  @js.native
   trait ReactComponentTypeAuxJ[P, S, +B, +N <: TopNode] extends js.Object
   implicit def reactComponentTypeAuxJ[P, S, B, N <: TopNode](a: ReactComponentTypeAuxJ[P,S,B,N]): ReactComponentTypeAux[P,S,B,N] =
     a.asInstanceOf[ReactComponentTypeAux[P,S,B,N]]
@@ -30,6 +35,7 @@ package object react extends ReactEventAliases {
 
   // TODO WrapObj was one of the first things I did when starting with ScalaJS. Reconsider.
   /** Allows Scala classes to be used in place of `Object`. */
+  @js.native
   trait WrapObj[+A] extends Object { val v: A = js.native }
   def WrapObj[A](v: A) =
     Dynamic.literal("v" -> v.asInstanceOf[JAny]).asInstanceOf[WrapObj[A]]
@@ -203,4 +209,8 @@ package object react extends ReactEventAliases {
     @inline def only: Option[ReactNode] =
       try { Some(React.Children.only(c))} catch { case t: Throwable => None}
   }
+
+  @inline implicit def ReactExt_CallbackToFuture[A](c: CallbackTo[Future[A]]) =
+    new CallbackTo.ReactExt_CallbackToFuture(() => c.runNow())
+
 }

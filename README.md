@@ -18,11 +18,11 @@ Includes a router, testing utils, performance utils, more.
 - [Type Summary](doc/TYPES.md).
 - [Functional Programming](doc/FP.md).
 - Scala-only Utilities.
-  - [Router](extra/ROUTER.md).
-  - [Performance Management](extra/PERF.md).
-  - [Smaller stuff](extra/README.md).
-- [Testing](test/README.md).
-- [Changelogs](doc/) — [Latest](doc/CHANGELOG-0.10.md).
+  - [Router](doc/ROUTER.md).
+  - [Performance Management](doc/PERFORMANCE.md).
+  - [Smaller stuff](doc/EXTRA.md).
+- [Testing](doc/TESTING.md).
+- [Changelogs](doc/changelog) — [Latest](doc/changelog/0.10.2.md).
 
 
 ##### External Resources
@@ -35,7 +35,8 @@ Includes a router, testing utils, performance utils, more.
 
 * [Interop With Third-Party Components - chandu0101](https://github.com/chandu0101/scalajs-react-components/blob/master/doc/InteropWithThirdParty.md)
 
-* Component Libraries
+* Libraries
+  * [scalajs-benchmark](https://github.com/japgolly/scalajs-benchmark/)
   * [chandu0101 / scalajs-react-components](https://github.com/chandu0101/scalajs-react-components)
   * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
 
@@ -43,4 +44,4 @@ Includes a router, testing utils, performance utils, more.
 ##### Requirements:
 * React 0.14
 * Scala 2.11
-* Scala.JS 0.6.4+
+* Scala.JS 0.6.5+

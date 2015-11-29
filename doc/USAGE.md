@@ -13,6 +13,7 @@ It is expected that you know how React itself works.
 - [React Extensions](#react-extensions)
 - [Differences from React proper](#differences-from-react-proper)
 - [Using JS Components](#using-js-components)
+- [Callbacks and Futures](#callbacks-and-futures)
 - [Gotchas](#gotchas)
 
 Setup
@@ -24,11 +25,21 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.10.0"
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.10.2"
 
   // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
-  jsDependencies += "org.webjars.npm" % "react"     % "0.14.0" / "react-with-addons.js" commonJSName "React"    minified "react-with-addons.min.js",
-  jsDependencies += "org.webjars.npm" % "react-dom" % "0.14.0" / "react-dom.js"         commonJSName "ReactDOM" minified "react-dom.min.js" dependsOn "react-with-addons.js",
+  jsDependencies ++= Seq(
+
+    "org.webjars.bower" % "react" % "0.14.3"
+      /        "react-with-addons.js"
+      minified "react-with-addons.min.js"
+      commonJSName "React",
+
+    "org.webjars.bower" % "react" % "0.14.3"
+      /         "react-dom.js"
+      minified  "react-dom.min.js"
+      dependsOn "react-with-addons.js"
+      commonJSName "ReactDOM")
   ```
 
 Creating Virtual-DOM
@@ -394,18 +405,36 @@ React Extensions
     props.message)
   ```
 
-* Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `focusState()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
+* Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `zoom()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
 
   ```scala
-  def incrementCounter(s: CompStateFocus[Int]): Unit =
+  def incrementCounter(s: CompState.Access[Int]): Callback =
     s.modState(_ + 1)
 
-  // Then later in a render() method
-  val f = $.focusState(_.counter)((a,b) => a.copy(counter = b))
-  button(onclick --> incrementCounter(f), "+")
+  // Then in some other component:
+  case class State(name: String, counter: Int)
+
+  def render = {
+    val f = $.zoom(_.counter)((a,b) => a.copy(counter = b))
+    button(onclick --> incrementCounter(f), "+")
+  }
   ```
 
-  *(Using the [Monocle extensions](FP.md) greatly improve this approach.)*
+  You can cut down on boilerplate by using [Monocle](https://github.com/julien-truffaut/Monocle)
+  and the [scalajs-react Monocle extensions](FP.md).
+  By doing so, the above snippet will look like this:
+
+  ```scala
+  import monocle.macros._
+  
+  @Lenses case class State(name: String, counter: Int)
+
+  def render = {
+    val f = $ zoomL State.counter
+    button(onclick --> incrementCounter(f), "+")
+  }
+  ```
+
 
 Differences from React proper
 =============================
@@ -585,6 +614,48 @@ trait SampleReactComponentState extends js.Object {
 mountedComponent.foreach(c =>            // GOOD: call setState
   c.setState(SampleReactComponentState(c.state)(num2 = 1)))
 ```
+
+Callbacks and Futures
+=====================
+
+There are a number of conversions available to convert between `Callback` and `Future`.
+
+| Input                      | Method                 | Output                  |
+| -------------------------- | ---------------------- | ----------------------- |
+| `CallbackTo[A]`            | `cb.toFuture`          | `Future[A]`             |
+| `CallbackTo[Future[A]]`    | `cb.toFlatFuture`      | `Future[A]`             |
+| `=> Future[A]`             | `CallbackTo(f)`        | `CallbackTo[Future[A]]` |
+| `=> Future[CallbackTo[A]]` | `CallbackTo.future(f)` | `CallbackTo[Future[A]]` |
+| `=> Future[CallbackTo[A]]` | `Callback.future(f)`   | `Callback`              |
+
+If you're looking for ways to block (eg. turning a `Callback[Future[A]]` into a `Callback[A]`),
+it is not supported by Scala.JS (See [#1996](https://github.com/scala-js/scala-js/issues/1996)).
+
+**NOTE:** It's important that when going from `Future` to `Callback`, you're aware of when the `Future` is instantiated.
+
+```scala
+def queryServer: Future[Data] = ???
+
+def updateComponent: Future[Callback] =
+  queryServer.map($ setState _)
+
+// This is GOOD because the callback wraps the updateComponent *function*, not an instance.
+Callback.future(updateComponent)
+
+// This is BAD because the callback wraps a single instance of updateComponent.
+// 1) The server will be contacted immediately instead of when the callback executes.
+// 2) If the callback is executed more than once, the future and old result will be reused.
+val f = updateComponent
+Callback.future(f)
+
+// This is GOOD too because the future is created inside the callback.
+Callback.future {
+  val f = updateComponent
+  f.onComplete(???)
+  f
+}
+```
+
 
 Gotchas
 =======

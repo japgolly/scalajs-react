@@ -6,8 +6,8 @@ import scala.scalajs.js.timers.{RawTimers, SetTimeoutHandle}
 import japgolly.scalajs.react.{CallbackTo, Callback, TopNode}
 
 /**
- * Alternatives to `window.setTimeout`/`window.setInterval` that automatically unregisters installed callbacks 
- * when its component unmounts.
+ * Alternatives to `window.setTimeout`/`window.setInterval` that automatically unregister installed callbacks
+ * when the component unmounts.
  * 
  * Provides interval methods that guarentee duration between callbacks.  Regular use of `setInterval` is fine
  * for callbacks with determined execution time.  However, if your callback could possibly take as long or longer

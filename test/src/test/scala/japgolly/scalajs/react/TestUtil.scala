@@ -12,7 +12,7 @@ import CompScope._
 object TestUtil {
 
   def assertRender(comp: ReactElement, expected: String): Unit = {
-    val rendered: String = React.renderToStaticMarkup(comp)
+    val rendered: String = ReactDOMServer.renderToStaticMarkup(comp)
     assert(rendered == expected)
   }
 
@@ -30,7 +30,7 @@ object TestUtil {
   def run1[A](C: ReactComponentC.ReqProps[AtomicReference[Option[A]], _, _, _])
              (f: AtomicReference[Option[A]] => ReactComponentU[AtomicReference[Option[A]], _, _, _]): A = {
     val a = new AtomicReference[Option[A]](None)
-    React renderToStaticMarkup f(a)
+    ReactDOMServer renderToStaticMarkup f(a)
     a.get().get
   }
 
@@ -47,7 +47,7 @@ object TestUtil {
   def runN[A](C: ReactComponentC.ReqProps[ListBuffer[A], _, _, _])
              (f: ListBuffer[A] => ReactComponentU[ListBuffer[A], _, _, _]): List[A] = {
     val l = new ListBuffer[A]
-    React renderToStaticMarkup f(l)
+    ReactDOMServer renderToStaticMarkup f(l)
     l.result()
   }
 
@@ -116,7 +116,7 @@ object TestUtil {
     trait A
     trait B
     type U = Unit
-    abstract class N extends TopNode
+    @js.native trait N extends TopNode
     val c = null.asInstanceOf[ReactComponentM[Unit, S, Unit, N]]
     val bs = null.asInstanceOf[BackendScope[P, S]]
 

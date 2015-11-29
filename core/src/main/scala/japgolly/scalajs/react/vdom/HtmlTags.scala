@@ -480,12 +480,6 @@ trait HtmlTags {
    */
   final val label = "label".tag[*.Label]
   /**
-   * A typed data field allowing the user to input data.
-   *
-   * MDN
-   */
-  final val input = "input".voidTag[*.Input]
-  /**
    * A button
    *
    * MDN
@@ -525,6 +519,86 @@ trait HtmlTags {
 
   // ==== [japgolly] Here begins Scalatags' Tags2 ====
 
+  /**
+   * The HTML element &lt;input&gt; is used to create interactive controls for web-based forms in order to accept data
+   * from the user. How an &lt;input&gt; works varies considerably depending on the value of its type attribute.
+   */
+  object input extends ReactTagOf[*.Input]("input", Nil, implicitly) {
+    private[this] val `type` = "type".attr
+
+    /** Returns a &lt;input type="{t}" /&gt; */
+    def withType(t: String): ReactTagOf[*.Input] =
+      this(`type` := t)
+
+    /** A push button with no default behavior. */
+    def button = this withType "button"
+
+    /** A check box. You must use the value attribute to define the value submitted by this item. Use the checked attribute to indicate whether this item is selected. You can also use the indeterminate attribute to indicate that the checkbox is in an indeterminate state (on most platforms, this draws a horizontal line across the checkbox). */
+    val checkbox = this withType "checkbox"
+
+    /** [HTML5] A control for specifying a color. A color picker's UI has no required features other than accepting simple colors as text (more info). */
+    def color = this withType "color"
+
+    /** [HTML5] A control for entering a date (year, month, and day, with no time). */
+    def date = this withType "date"
+
+    /** [HTML5] A control for entering a date and time (hour, minute, second, and fraction of a second) based on UTC time zone. */
+    def datetime = this withType "datetime"
+
+    /** [HTML5] A control for entering a date and time, with no time zone. */
+    def datetimeLocal = this withType "datetime-local"
+
+    /** [HTML5] A field for editing an e-mail address. The input value is validated to contain either the empty string or a single valid e-mail address before submitting. The :valid and :invalid CSS pseudo-classes are applied as appropriate. */
+    def email = this withType "email"
+
+    /** A control that lets the user select a file. Use the accept attribute to define the types of files that the control can select. */
+    def file = this withType "file"
+
+    /** A control that is not displayed, but whose value is submitted to the server. */
+    def hidden = this withType "hidden"
+
+    /** A graphical submit button. You must use the src attribute to define the source of the image and the alt attribute to define alternative text. You can use the height and width attributes to define the size of the image in pixels. */
+    def image = this withType "image"
+
+    /** [HTML5] A control for entering a month and year, with no time zone. */
+    def month = this withType "month"
+
+    /** [HTML5] A control for entering a floating point number. */
+    def number = this withType "number"
+
+    /** A single-line text field whose value is obscured. Use the maxlength attribute to specify the maximum length of the value that can be entered. */
+    def password = this withType "password"
+
+    /** A radio button. You must use the value attribute to define the value submitted by this item. Use the checked attribute to indicate whether this item is selected by default. Radio buttons that have the same value for the name attribute are in the same "radio button group"; only one radio button in a group can be selected at a time. */
+    def radio = this withType "radio"
+
+    /** [HTML5] A control for entering a number whose exact value is not important. This type control uses the following default values if the corresponding attributes are not specified: */
+    def range = this withType "range"
+
+    /** A button that resets the contents of the form to default values. */
+    def reset = this withType "reset"
+
+    /** [HTML5] A single-line text field for entering search strings; line-breaks are automatically removed from the input value. */
+    def search = this withType "search"
+
+    /** A button that submits the form. */
+    def submit = this withType "submit"
+
+    /** [HTML5] A control for entering a telephone number; line-breaks are automatically removed from the input value, but no other syntax is enforced. You can use attributes such as pattern and maxlength to restrict values entered in the control. The :valid and :invalid CSS pseudo-classes are applied as appropriate. */
+    def tel = this withType "tel"
+
+    /** A single-line text field; line-breaks are automatically removed from the input value. */
+    val text = this withType "text"
+
+    /** [HTML5] A control for entering a time value with no time zone. */
+    def time = this withType "time"
+
+    /** [HTML5] A field for editing a URL. The input value is validated to contain either the empty string or a valid absolute URL before submitting. Line-breaks and leading or trailing whitespace are automatically removed from the input value. You can use attributes such as pattern and maxlength to restrict values entered in the control. The :valid and :invalid CSS pseudo-classes are applied as appropriate. */
+    def url = this withType "url"
+
+    /** [HTML5] A control for entering a date consisting of a week-year number and a week number with no time zone. */
+    def week = this withType "week"
+  }
 
   // Document Metadata
   /**

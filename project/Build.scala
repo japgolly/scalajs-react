@@ -19,7 +19,7 @@ object ScalajsReact extends Build {
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.10.1-SNAPSHOT",
+        version            := "0.10.3-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
@@ -29,6 +29,7 @@ object ScalajsReact extends Build {
                                 "-language:higherKinds", "-language:existentials"),
         //scalacOptions    += "-Xlog-implicits",
         updateOptions      := updateOptions.value.withCachedResolution(true),
+        triggeredMessage   := Watched.clearWhenTriggered,
         clearScreenTask    := { println("\033[2J\033[;H") })
 
   def preventPublication: PE =
@@ -75,17 +76,35 @@ object ScalajsReact extends Build {
     _.configure(useReactJs("test"))
       .settings(
         libraryDependencies  += "com.lihaoyi" %%% "utest" % "0.3.1",
-        jsDependencies += (ProvidedJS / "sampleReactComponent.js" dependsOn "react-with-addons.js") % Test, // dependency for JS Component Type Test.
         testFrameworks       += new TestFramework("utest.runner.Framework"),
         scalaJSStage in Test := FastOptStage,
         requiresDOM          := true,
-        jsEnv in Test        := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
+        jsEnv in Test        := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value),
+        jsDependencies ++= Seq(
+          (ProvidedJS / "sampleReactComponent.js" dependsOn "react-dom.js") % Test, // for JS Component Type Test.
+          "org.webjars" % "sizzle" % "2.1.1" % Test / "sizzle.min.js" commonJSName "Sizzle"))
 
   def useReactJs(scope: String = "compile"): PE =
     _.settings(
-      jsDependencies += "org.webjars.npm" % "react"     % "0.14.0" % scope / "react-with-addons.js" commonJSName "React"    minified "react-with-addons.min.js",
-      jsDependencies += "org.webjars.npm" % "react-dom" % "0.14.0" % scope / "react-dom.js"         commonJSName "ReactDOM" minified "react-dom.min.js"         dependsOn "react-with-addons.js",
-      jsDependencies += "org.webjars"     % "sizzle"    % "2.1.1"  % scope / "sizzle.min.js"        commonJSName "Sizzle",
+      jsDependencies ++= Seq(
+
+        "org.webjars.bower" % "react" % "0.14.3" % scope
+          /        "react-with-addons.js"
+          minified "react-with-addons.min.js"
+          commonJSName "React",
+
+        "org.webjars.bower" % "react" % "0.14.3" % scope
+          /         "react-dom.js"
+          minified  "react-dom.min.js"
+          dependsOn "react-with-addons.js"
+          commonJSName "ReactDOM",
+
+        "org.webjars.bower" % "react" % "0.14.3" % scope
+          /         "react-dom-server.js"
+          minified  "react-dom-server.min.js"
+          dependsOn "react-dom.js"
+          commonJSName "ReactDOMServer"),
+
       skip in packageJSDependencies := false)
 
   def addCommandAliases(m: (String, String)*) = {
@@ -104,7 +123,7 @@ object ScalajsReact extends Build {
         "org.scala-lang" % "scala-compiler" % Scala211 % "provided"))
 
   def macroParadisePlugin =
-    compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
+    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 
   def hasNoTests: Project => Project =
     _.settings(
@@ -117,6 +136,8 @@ object ScalajsReact extends Build {
     .aggregate(core, test, scalaz71, monocle, extra, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "C"  -> "root/clean",
+      "c"  -> "compile",
+      "tc" -> "test:compile",
       "t"  -> ";clear;  test:compile ; test/test",
       "tt" -> ";clear; +test:compile ;+test/test",
       "T"  -> "; clean ;t",

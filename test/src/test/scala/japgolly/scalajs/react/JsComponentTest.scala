@@ -69,10 +69,12 @@ object JsComponentTest extends TestSuite {
   }
 }
 
+@js.native
 trait SampleReactComponentProperty extends js.Object {
   val propOne: js.UndefOr[String] = js.native
 }
 
+@js.native
 trait SampleReactComponentState extends js.Object {
   val num: js.UndefOr[Int] = js.native
   val num2: js.UndefOr[Int] = js.native
@@ -103,8 +105,10 @@ object SampleReactComponentState {
 }
 
 @JSName("SampleReactComponent")
+@js.native
 object SampleReactComponent extends JsComponentType[SampleReactComponentProperty, SampleReactComponentState, HTMLElement]
 
+@js.native
 trait SampleReactComponentM extends JsComponentM[SampleReactComponentProperty, SampleReactComponentState, HTMLElement] {
   def getNum(): Int = js.native
 

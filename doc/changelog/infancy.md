@@ -4,7 +4,7 @@
 * Component builder supports multiple callbacks.
 * JS source maps point to Github.
 
-# 0.4.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.2.0...v0.4.0))
+## 0.4.0 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.2.0...v0.4.0))
 * Major overhaul.
 * Modules for Scalaz and testing.
 

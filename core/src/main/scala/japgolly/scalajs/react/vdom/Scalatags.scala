@@ -33,10 +33,15 @@ object TagMod {
     TagModComposition(ms.toVector)
 }
 
-final case class ReactTagOf[+N <: TopNode] private[vdom](
-  tag:       String,
-  modifiers: List[Seq[TagMod]],
-  namespace: Namespace) extends DomFrag {
+class ReactTagOf[+N <: TopNode] private[vdom](
+  val tag:       String,
+  val modifiers: List[Seq[TagMod]],
+  val namespace: Namespace) extends DomFrag {
+
+  def copy(tag: String                  = this.tag,
+           modifiers: List[Seq[TagMod]] = this.modifiers,
+           namespace: Namespace         = this.namespace): ReactTagOf[N] =
+    new ReactTagOf(tag, modifiers, namespace)
 
   def render: ReactElement = {
     val b = new Builder()
@@ -72,7 +77,7 @@ final case class ReactTagOf[+N <: TopNode] private[vdom](
   }
 
   def apply(xs: TagMod*): ReactTagOf[N] =
-    this.copy(tag = tag, modifiers = xs :: modifiers)
+    this.copy(modifiers = xs :: modifiers)
 
   override def toString = render.toString
 }
@@ -217,7 +222,7 @@ private[vdom] object Scalatags {
 
   @inline def makeAbstractReactTag[N <: TopNode](tag: String, namespaceConfig: Namespace): ReactTagOf[N] = {
     Escaping.assertValidTag(tag)
-    ReactTagOf[N](tag, Nil, namespaceConfig)
+    new ReactTagOf[N](tag, Nil, namespaceConfig)
   }
 
   implicit final class SeqFrag[A <% Frag](xs: Seq[A]) extends Frag {

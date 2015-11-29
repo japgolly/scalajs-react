@@ -1,5 +1,8 @@
 package japgolly.scalajs.react
 
+import scala.annotation.tailrec
+import scala.collection.generic.CanBuildFrom
+
 // TODO Document CallbackOption
 
 object CallbackOption {
@@ -8,23 +11,36 @@ object CallbackOption {
   def apply[A](cb: CallbackTo[Option[A]]): CallbackOption[A] =
     new CallbackOption(cb.toScalaFn)
 
+  @deprecated("Use CallbackOption.pass instead.", "0.10.1")
   def empty: CallbackOption[Unit] =
-    pure(())
+    pass
+
+  def pass: CallbackOption[Unit] =
+    CallbackOption(CallbackTo pure someUnit)
+
+  def fail[A]: CallbackOption[A] =
+    CallbackOption(CallbackTo pure None)
 
   def pure[A](a: A): CallbackOption[A] =
     CallbackOption(CallbackTo pure Some(a))
 
   def liftValue[A](a: => A): CallbackOption[A] =
-    CallbackOption(CallbackTo(Some(a)))
+    liftOption(Some(a))
 
   def liftOption[A](oa: => Option[A]): CallbackOption[A] =
     CallbackOption(CallbackTo(oa))
 
   def liftOptionLike[O[_], A](oa: => O[A])(implicit O: OptionLike[O]): CallbackOption[A] =
-    CallbackOption(CallbackTo(O toOption oa))
+    liftOption(O toOption oa)
 
   def liftCallback[A](cb: CallbackTo[A]): CallbackOption[A] =
     CallbackOption(cb map Some.apply)
+
+  def liftOptionCallback[A](oc: => Option[CallbackTo[A]]): CallbackOption[A] =
+    CallbackOption(CallbackTo sequenceO oc)
+
+  def liftOptionLikeCallback[O[_], A](oa: => O[CallbackTo[A]])(implicit O: OptionLike[O]): CallbackOption[A] =
+    liftOptionCallback(O toOption oa)
 
   def require(condition: => Boolean): CallbackOption[Unit] =
     CallbackOption(CallbackTo(if (condition) someUnit else None))
@@ -34,6 +50,39 @@ object CallbackOption {
 
   def matchPF[A, B](a: => A)(pf: PartialFunction[A, B]): CallbackOption[B] =
     liftOption(pf lift a)
+
+  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
+                                                (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
+    liftOption {
+      val it = ta.toIterator
+      val r = cbf(ta)
+      @tailrec
+      def go: Option[T[B]] =
+        if (it.hasNext)
+          f(it.next()).get.runNow() match {
+            case Some(b) => r += b; go
+            case None    => None
+          }
+        else
+          Some(r.result())
+      go
+    }
+
+  @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackOption[A]])
+                                                     (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
+    traverse(tca)(identity)
+
+  /**
+   * NOTE: Technically a proper, lawful traversal should return `CallbackOption[Option[B]]`.
+   */
+  def traverseO[A, B](oa: => Option[A])(f: A => CallbackOption[B]): CallbackOption[B] =
+    liftOption(oa.map(f(_).get).flatMap(_.runNow()))
+
+  /**
+   * NOTE: Technically a proper, lawful sequence should return `CallbackOption[Option[A]]`.
+   */
+  @inline def sequenceO[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] =
+    traverseO(oca)(identity)
 
   implicit def toCallback(co: CallbackOption[Unit]): Callback =
     co.toCallback
@@ -180,6 +229,14 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
    */
   def void: CallbackOption[Unit] =
     map(_ => ())
+
+  /**
+   * Discard the value produced by this callback.
+   *
+   * This method allows you to be explicit about the type you're discarding (which may change in future).
+   */
+  @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
+    void
 
   def orElse(tryNext: CallbackOption[A]): CallbackOption[A] =
     CallbackOption(get flatMap {

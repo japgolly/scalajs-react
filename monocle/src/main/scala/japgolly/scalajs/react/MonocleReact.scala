@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import monocle._
 import scalaz.Functor
+import extra._
 import ScalazReact._
 import CompState._
 import CompScope._
@@ -18,16 +19,33 @@ object MonocleReact extends MonocleReactExtra {
     new MonocleReactCompStateOps[ReadCallbackWriteCallbackOps[S], S, Callback](ops($))
 
   final class MonocleReactCompStateOps[Ops <: WriteOpAux[S, W], S, W](private val $: Ops) extends AnyVal {
-    def zoomL[T](l: Lens[S, T]): Ops#This[T] =
-      $.zoom(l.get)((s, t) => l.set(t)(s))
+
+    def modStateL[A, B](l: PLens[S, S, A, B])(f: A => B, cb: Callback = Callback.empty): W =
+      $.modState(l.modify(f), cb)
+
+    def setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B, cb: Callback = Callback.empty)(implicit L: SetterMonocle[L]): W =
+      $.modState(L.set(l)(b), cb)
 
     def _setStateL[L[_, _, _, _], B](l: L[S, S, _, B], cb: Callback = Callback.empty)(implicit L: SetterMonocle[L]): B => W =
-      b => $.modState(L.set(l)(b), cb)
+      setStateL(l)(_, cb)
+
+    def zoomL[T](l: Lens[S, T]): Ops#This[T] =
+      $.zoom(l.get)((s, t) => l.set(t)(s))
   }
 
   @inline implicit final class MonocleReactReactSTOps[M[_], S, A](private val s: ReactST[M, S, A]) extends AnyVal {
     def zoomL[T](l: Lens[T, S])(implicit M: Functor[M]): ReactST[M, T, A] =
       ReactS.zoom[M, S, T, A](s, l.get, (a, b) => l.set(b)(a))
+  }
+
+  @inline implicit final class MonocleReactExternalVarObjOps(private val x: ExternalVar.type) extends AnyVal {
+    def at[S, A](lens: Lens[S, A])(s: S, $: CompState.WriteAccess[S]): ExternalVar[A] =
+      new ExternalVar(lens get s, $ modState lens.set(_))
+  }
+
+  @inline implicit final class MonocleReactReusableVarObjOps(private val x: ReusableVar.type) extends AnyVal {
+    def at[S, A: Reusability](lens: Lens[S, A])(s: S, $: CompState.WriteAccess[S]): ReusableVar[A] =
+      new ReusableVar[A](lens get s, ReusableFn($ modState lens.set(_)))
   }
 }
 
