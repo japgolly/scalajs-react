@@ -57,6 +57,9 @@ To upgrade:
 ##### `ext-scalaz` module
 * Add `Monad[CallbackOption]`.
 
+##### `test` module
+* More test event properties settable.
+
 ---
 
 # 0.10.1 ([commit log](https://github.com/japgolly/scalajs-react/compare/v0.10.0...v0.10.1))
