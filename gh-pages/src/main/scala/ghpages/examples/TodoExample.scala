@@ -62,10 +62,10 @@ object TodoExample {
   // EXAMPLE:START
 
   val TodoList = ReactComponentB[List[String]]("TodoList")
-    .render_P(props => {
+    .render_P { props =>
       def createItem(itemText: String) = <.li(itemText)
       <.ul(props map createItem)
-    })
+    }
     .build
 
   case class State(items: List[String], text: String)
