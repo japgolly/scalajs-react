@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import scala.annotation.tailrec
 import scalaz.{Optional => _, _}
 import scalaz.Isomorphism.<~>
 import scalaz.effect.IO
@@ -7,24 +8,51 @@ import Scalaz.Id
 
 trait ScalazReactInstances {
 
-  implicit val callbackScalazMonad: Monad[CallbackTo] =
-    new Monad[CallbackTo] {
+  implicit val callbackScalazInstance: Monad[CallbackTo] with BindRec[CallbackTo] =
+    new Monad[CallbackTo] with BindRec[CallbackTo] {
       override def point[A](a: => A): CallbackTo[A] =
         CallbackTo(a)
+
       override def bind[A, B](fa: CallbackTo[A])(f: A => CallbackTo[B]): CallbackTo[B] =
         fa >>= f
+
       override def map[A, B](fa : CallbackTo[A])(f : A => B): CallbackTo[B] =
         fa map f
+
+      override def tailrecM[A, B](f: A => CallbackTo[A \/ B])(a: A): CallbackTo[B] =
+        CallbackTo {
+          @tailrec
+          def go(a: A): B =
+            f(a).runNow() match {
+              case -\/(n) => go(n)
+              case \/-(b) => b
+            }
+          go(a)
+        }
     }
 
-  implicit val callbackOptionScalazMonad: Monad[CallbackOption] =
-    new Monad[CallbackOption] {
+  implicit val callbackOptionScalazInstance: Monad[CallbackOption] with BindRec[CallbackOption] =
+    new Monad[CallbackOption] with BindRec[CallbackOption] {
       override def point[A](a: => A): CallbackOption[A] =
         CallbackOption.liftValue(a)
+
       override def bind[A, B](fa: CallbackOption[A])(f: A => CallbackOption[B]): CallbackOption[B] =
         fa >>= f
+
       override def map[A, B](fa : CallbackOption[A])(f : A => B): CallbackOption[B] =
         fa map f
+
+      override def tailrecM[A, B](f: A => CallbackOption[A \/ B])(a: A): CallbackOption[B] =
+        CallbackOption.liftOption {
+          @tailrec
+          def go(a: A): Option[B] =
+            f(a).get.runNow() match {
+              case Some(-\/(n)) => go(n)
+              case Some(\/-(b)) => Some(b)
+              case None         => None
+            }
+          go(a)
+        }
     }
 
   implicit val maybeInstance: OptionLike[Maybe] = new OptionLike[Maybe] {

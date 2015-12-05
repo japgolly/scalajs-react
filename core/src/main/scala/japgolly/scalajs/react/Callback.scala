@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom.console
-import scala.annotation.implicitNotFound
+import scala.annotation.{tailrec, implicitNotFound}
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
@@ -170,6 +170,24 @@ object CallbackTo {
    */
   @inline def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     CallbackTo(f.runNow())
+
+  /**
+   * Tail-recursive callback. Uses constant stack space.
+   *
+   * Based on Phil Freeman's work on stack safety in PureScript, described in
+   * [[http://functorial.com/stack-safety-for-free/index.pdf Stack Safety for
+   * Free]].
+   */
+  def tailrec[A, B](a: A)(f: A => CallbackTo[Either[A, B]]): CallbackTo[B] =
+    CallbackTo {
+      @tailrec
+      def go(a: A): B =
+        f(a).runNow() match {
+          case Left(n)  => go(n)
+          case Right(b) => b
+        }
+      go(a)
+    }
 
   def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])
                                                 (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =

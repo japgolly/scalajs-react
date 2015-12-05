@@ -51,6 +51,25 @@ object CallbackOption {
   def matchPF[A, B](a: => A)(pf: PartialFunction[A, B]): CallbackOption[B] =
     liftOption(pf lift a)
 
+  /**
+   * Tail-recursive callback. Uses constant stack space.
+   *
+   * Based on Phil Freeman's work on stack safety in PureScript, described in
+   * [[http://functorial.com/stack-safety-for-free/index.pdf Stack Safety for
+   * Free]].
+   */
+  def tailrec[A, B](a: A)(f: A => CallbackOption[Either[A, B]]): CallbackOption[B] =
+    CallbackOption.liftOption {
+      @tailrec
+      def go(a: A): Option[B] =
+        f(a).get.runNow() match {
+          case Some(Left(n))  => go(n)
+          case Some(Right(b)) => Some(b)
+          case None           => None
+        }
+      go(a)
+    }
+
   def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
                                                 (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
     liftOption {
