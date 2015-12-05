@@ -71,6 +71,22 @@ object Callback {
   def ifTrue(pred: Boolean, c: => Callback): Callback =
     if (pred) c else Callback.empty
 
+  def traverse[T[X] <: TraversableOnce[X], A](ta: => T[A])(f: A => Callback): Callback =
+    Callback(
+      ta.foreach(a =>
+        f(a).runNow()))
+
+  @inline def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
+    traverse(tca)(identity)
+
+  def traverseO[A](oa: => Option[A])(f: A => Callback): Callback =
+    Callback(
+      oa.foreach(a =>
+        f(a).runNow()))
+
+  @inline def sequenceO[A](oca: => Option[Callback]): Callback =
+    traverseO(oca)(identity)
+
   /**
    * Convenience for calling `dom.console.log`.
    */

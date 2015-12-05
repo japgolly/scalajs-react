@@ -133,7 +133,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, test, scalaz71, monocle, extra, ghpagesMacros, ghpages)
+    .aggregate(core, test, scalaz71, scalaz72, monocle, extra, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "C"  -> "root/clean",
       "c"  -> "compile",
@@ -176,6 +176,7 @@ object ScalajsReact extends Build {
   }
 
   lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.3")
+  lazy val scalaz72 = scalazModule("scalaz-7.2", "7.2.0")
 
   // ==============================================================================================
   lazy val monocle = project
