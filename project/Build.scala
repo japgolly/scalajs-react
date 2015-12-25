@@ -158,7 +158,7 @@ object ScalajsReact extends Build {
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings)
-    .dependsOn(core, extra, scalaz71, monocle)
+    .dependsOn(core, extra, monocle)
     .settings(
       name := "test",
       libraryDependencies += monocleLib("macro") % "test",
@@ -181,18 +181,18 @@ object ScalajsReact extends Build {
   // ==============================================================================================
   lazy val monocle = project
     .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
-    .dependsOn(core, extra, scalaz71)
+    .dependsOn(core, extra, scalaz72)
     .settings(libraryDependencies += monocleLib("core"))
 
   def monocleLib(name: String) =
-    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.1.1"
+    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.2.0"
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
-    .dependsOn(core, extra, scalaz71, monocle, ghpagesMacros)
+    .dependsOn(core, extra, monocle, ghpagesMacros)
     .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
     .settings(
       libraryDependencies += monocleLib("macro"),
