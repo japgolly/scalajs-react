@@ -264,7 +264,14 @@ val Hello =
 
 #### Backends
 
-In addition to props and state, if you look at the React samples you'll see that most components need additional functions and even (in the case of React's second example, the timer example), state outside of the designated state object (!). In plain React with JS, functions such as helpers, event handlers, etc. which can have access to the component's props and state are just placed within the body of the component class. But since scalajs-react uses a builder to create the component class, you need another place for those. Instead they should be placed in some arbitrary class you may provide, called a *backend*.
+In addition to props and state, if you look at the React samples you'll see that most components need additional functions
+and even, (in the case of React's second example, the timer example), state outside of the designated state object (!).
+In plain React with JS, functions which can have access to the component's props and state
+(such as helpers fns and event handlers),
+are placed within the body of the component class.
+In scalajs-react you need another place for such functions as scalajs-react
+emphasises type-safety and provides different types for the component's scope at different points in the lifecycle.
+Instead they should be placed in some arbitrary class you may provide, called a *backend*.
 
 See the [online timer demo](http://japgolly.github.io/scalajs-react/#examples/timer) for an example.
 
