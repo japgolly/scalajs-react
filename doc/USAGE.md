@@ -382,7 +382,7 @@ React Extensions
 
 * `SyntheticEvent`s have numerous aliases that reduce verbosity.
   For example, in place of `SyntheticKeyboardEvent[HTMLInputElement]` you can use `ReactKeyboardEventI`.
-  See [TYPES.md](types.md) for details.
+  See [TYPES.md](TYPES.md) for details.
 
 * React has a [classSet addon](https://facebook.github.io/react/docs/class-name-manipulation.html)
   for specifying multiple optional class attributes. The same mechanism is applicable with this library is as follows:
