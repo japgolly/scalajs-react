@@ -8,6 +8,7 @@ import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
 import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
 import js.timers.RawTimers
+import scala.util.{Failure, Success}
 
 /**
  * A callback with no return value. Equivalent to `() => Unit`.
@@ -62,7 +63,10 @@ object Callback {
    * new [[Future]]; don't reference an existing one.
    */
   def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): Callback =
-    CallbackTo.future(f).voidExplicit[Future[A]]
+    CallbackTo(f.onComplete {
+      case Success(cb) => cb.runNow()
+      case Failure(t)  => throw t
+    })
 
   /**
    * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
