@@ -57,7 +57,11 @@ object Callback {
   /**
    * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
    *
-   * The result is discarded. To retain it, use [[CallbackTo.future)]] instead.
+   * The result is discarded. To retain it, use [[CallbackTo.future]] instead.
+   *
+   * Because the `Future` is discarded, when an exception causes it to fail, the exception is re-thrown.
+   * If you want the exception to be ignored or handled differently, use [[CallbackTo.future]] instead and then
+   * `.void` to discard the future and turn the result into a `Callback`.
    *
    * WARNING: Futures are scheduled to run as soon as they're created. Ensure that the argument you provide creates a
    * new [[Future]]; don't reference an existing one.
