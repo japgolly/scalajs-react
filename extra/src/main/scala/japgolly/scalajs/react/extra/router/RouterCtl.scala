@@ -40,6 +40,22 @@ abstract class RouterCtl[A] {
   final def contramap[B](f: B => A): RouterCtl[B] =
     new RouterCtl.Contramap(this, f)
 
+  /**
+   * Change the behaviour of [[set()]] and all derivatives.
+   *
+   * For example, this can be used to set a component's state immediately before setting a new route.
+   */
+  final def onSet(f: (A, Callback) => Callback): RouterCtl[A] =
+    new RouterCtl.ModCB(this, f)
+
+  /**
+   * Change the behaviour of [[set()]] and all derivatives.
+   *
+   * For example, this can be used to set a component's state immediately before setting a new route.
+   */
+  final def onSet(f: Callback => Callback): RouterCtl[A] =
+    onSet((_, cb) => f(cb))
+
   final def narrow[B <: A]: RouterCtl[B] =
     contramap(b => b)
 }
@@ -61,5 +77,13 @@ object RouterCtl {
     override def refresh       = u.refresh
     override def pathFor(b: B) = u pathFor f(b)
     override def set(b: B)     = u set f(b)
+  }
+
+  case class ModCB[A](u: RouterCtl[A], f: (A, Callback) => Callback) extends RouterCtl[A] {
+    override def baseUrl       = u.baseUrl
+    override def byPath        = u.byPath
+    override def refresh       = u.refresh
+    override def pathFor(a: A) = u pathFor a
+    override def set(a: A)     = f(a, u set a)
   }
 }

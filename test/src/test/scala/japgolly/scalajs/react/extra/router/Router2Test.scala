@@ -237,5 +237,14 @@ object Router2Test extends TestSuite {
         assertContains(html, "/module/two/7\"")
       }
     }
+
+    'onSet {
+      var i = 0
+      val ctl2 = ctl.onSet(Callback(i += 1) >> _)
+      isUserLoggedIn = true
+      ctl2.set(PrivatePage2).runNow()
+      assertContains(html, secret)
+      assertEq(i, 1)
+    }
   }
 }
