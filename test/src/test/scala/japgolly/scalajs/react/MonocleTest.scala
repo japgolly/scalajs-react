@@ -1,6 +1,7 @@
 package japgolly.scalajs.react
 
 import monocle._
+import monocle.macros.Lenses
 import utest._
 import React._
 import ScalazReact._
@@ -9,6 +10,8 @@ import CompScope._
 import CompState._
 
 object MonocleTest extends TestSuite {
+
+  @Lenses case class Poly[A](oa: Option[A])
 
   val tests = TestSuite {
 
@@ -30,6 +33,11 @@ object MonocleTest extends TestSuite {
         'DuringCallbackM - test[DuringCallbackM[P, S, U, N]](_ _setStateL lensST).expect[T => Callback]
         'BackendScope    - test[BackendScope   [P, S]      ](_ _setStateL lensST).expect[T => Callback]
         'ReactComponentM - test[ReactComponentM[P, S, U, N]](_ _setStateL lensST).expect[T => Unit]
+      }
+
+      'poly {
+        'zoomL      - test[BackendScope[P, Poly[S]]](_ zoomL      Poly.oa[S]).expect[ReadCallbackWriteCallbackOps[Option[S]]]
+        '_setStateL - test[BackendScope[P, Poly[S]]](_ _setStateL Poly.oa[S]).expect[Option[S] => Callback]
       }
 
     }
