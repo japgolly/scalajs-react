@@ -89,8 +89,8 @@ object CallbackOptionExample {
                                                        //
                                                        // orElse joins CallbackOptions so if one fails, it tries the other.
                                                        //
-                                                       // >> means "and then run" but only the left-hand side passes.
-                                                       // Here preventDefault only runs when a valid key is pressed.
+                                                       // The >> means "and then run" but only if the left side passes.
+                                                       // This means preventDefault only runs if a valid key is pressed.
     }
 
     def render(s: State) =

@@ -1,13 +1,14 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom.console
-import scala.annotation.implicitNotFound
+import scala.annotation.{tailrec, implicitNotFound}
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
 import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
 import js.timers.RawTimers
+import scala.util.{Failure, Success}
 
 /**
  * A callback with no return value. Equivalent to `() => Unit`.
@@ -56,13 +57,20 @@ object Callback {
   /**
    * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
    *
-   * The result is discarded. To retain it, use [[CallbackTo.future)]] instead.
+   * The result is discarded. To retain it, use [[CallbackTo.future]] instead.
+   *
+   * Because the `Future` is discarded, when an exception causes it to fail, the exception is re-thrown.
+   * If you want the exception to be ignored or handled differently, use [[CallbackTo.future]] instead and then
+   * `.void` to discard the future and turn the result into a `Callback`.
    *
    * WARNING: Futures are scheduled to run as soon as they're created. Ensure that the argument you provide creates a
    * new [[Future]]; don't reference an existing one.
    */
   def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): Callback =
-    CallbackTo.future(f).voidExplicit[Future[A]]
+    CallbackTo(f.onComplete {
+      case Success(cb) => cb.runNow()
+      case Failure(t)  => throw t
+    })
 
   /**
    * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
@@ -70,6 +78,22 @@ object Callback {
    */
   def ifTrue(pred: Boolean, c: => Callback): Callback =
     if (pred) c else Callback.empty
+
+  def traverse[T[X] <: TraversableOnce[X], A](ta: => T[A])(f: A => Callback): Callback =
+    Callback(
+      ta.foreach(a =>
+        f(a).runNow()))
+
+  @inline def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
+    traverse(tca)(identity)
+
+  def traverseO[A](oa: => Option[A])(f: A => Callback): Callback =
+    Callback(
+      oa.foreach(a =>
+        f(a).runNow()))
+
+  @inline def sequenceO[A](oca: => Option[Callback]): Callback =
+    traverseO(oca)(identity)
 
   /**
    * Convenience for calling `dom.console.log`.
@@ -154,6 +178,24 @@ object CallbackTo {
    */
   @inline def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     CallbackTo(f.runNow())
+
+  /**
+   * Tail-recursive callback. Uses constant stack space.
+   *
+   * Based on Phil Freeman's work on stack safety in PureScript, described in
+   * [[http://functorial.com/stack-safety-for-free/index.pdf Stack Safety for
+   * Free]].
+   */
+  def tailrec[A, B](a: A)(f: A => CallbackTo[Either[A, B]]): CallbackTo[B] =
+    CallbackTo {
+      @tailrec
+      def go(a: A): B =
+        f(a).runNow() match {
+          case Left(n)  => go(n)
+          case Right(b) => b
+        }
+      go(a)
+    }
 
   def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])
                                                 (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =

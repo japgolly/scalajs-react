@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
 import monocle._
-import scalaz.Functor
+import scalaz.Monad
 import extra._
 import ScalazReact._
 import CompState._
@@ -34,7 +34,7 @@ object MonocleReact extends MonocleReactExtra {
   }
 
   @inline implicit final class MonocleReactReactSTOps[M[_], S, A](private val s: ReactST[M, S, A]) extends AnyVal {
-    def zoomL[T](l: Lens[T, S])(implicit M: Functor[M]): ReactST[M, T, A] =
+    def zoomL[T](l: Lens[T, S])(implicit M: Monad[M]): ReactST[M, T, A] =
       ReactS.zoom[M, S, T, A](s, l.get, (a, b) => l.set(b)(a))
   }
 

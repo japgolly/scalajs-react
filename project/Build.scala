@@ -19,7 +19,7 @@ object ScalajsReact extends Build {
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.10.3-SNAPSHOT",
+        version            := "0.10.5-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Scala211,
@@ -133,7 +133,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, test, scalaz71, monocle, extra, ghpagesMacros, ghpages)
+    .aggregate(core, test, scalaz71, scalaz72, monocle, extra, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "C"  -> "root/clean",
       "c"  -> "compile",
@@ -158,7 +158,7 @@ object ScalajsReact extends Build {
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings)
-    .dependsOn(core, extra, scalaz71, monocle)
+    .dependsOn(core, extra, monocle)
     .settings(
       name := "test",
       libraryDependencies += monocleLib("macro") % "test",
@@ -176,22 +176,23 @@ object ScalajsReact extends Build {
   }
 
   lazy val scalaz71 = scalazModule("scalaz-7.1", "7.1.3")
+  lazy val scalaz72 = scalazModule("scalaz-7.2", "7.2.0")
 
   // ==============================================================================================
   lazy val monocle = project
     .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
-    .dependsOn(core, extra, scalaz71)
+    .dependsOn(core, extra, scalaz72)
     .settings(libraryDependencies += monocleLib("core"))
 
   def monocleLib(name: String) =
-    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.1.1"
+    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % "1.2.0"
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
-    .dependsOn(core, extra, scalaz71, monocle, ghpagesMacros)
+    .dependsOn(core, extra, monocle, ghpagesMacros)
     .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
     .settings(
       libraryDependencies += monocleLib("macro"),

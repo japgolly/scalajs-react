@@ -25,7 +25,7 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.10.2"
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.10.4"
 
   // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
   jsDependencies ++= Seq(
@@ -264,7 +264,14 @@ val Hello =
 
 #### Backends
 
-In addition to props and state, if you look at the React samples you'll see that most components need additional functions and even (in the case of React's second example, the timer example), state outside of the designated state object (!). In this Scala version, all of that can be lumped into some arbitrary class you may provide, called a *backend*.
+In addition to props and state, if you look at the React samples you'll see that most components need additional functions
+and even, (in the case of React's second example, the timer example), state outside of the designated state object (!).
+In plain React with JS, functions which can have access to the component's props and state
+(such as helpers fns and event handlers),
+are placed within the body of the component class.
+In scalajs-react you need another place for such functions as scalajs-react
+emphasises type-safety and provides different types for the component's scope at different points in the lifecycle.
+Instead they should be placed in some arbitrary class you may provide, called a *backend*.
 
 See the [online timer demo](http://japgolly.github.io/scalajs-react/#examples/timer) for an example.
 
@@ -382,7 +389,7 @@ React Extensions
 
 * `SyntheticEvent`s have numerous aliases that reduce verbosity.
   For example, in place of `SyntheticKeyboardEvent[HTMLInputElement]` you can use `ReactKeyboardEventI`.
-  See [TYPES.md](types.md) for details.
+  See [TYPES.md](TYPES.md) for details.
 
 * React has a [classSet addon](https://facebook.github.io/react/docs/class-name-manipulation.html)
   for specifying multiple optional class attributes. The same mechanism is applicable with this library is as follows:
