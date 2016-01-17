@@ -165,9 +165,13 @@ and is automatically converted to a finalised `Route` when used.
 * Combinators on any `RouteB[A]`
   * `.filter(A => Boolean)` causes the route to ignore parsed values which don't satisfy the given filter.
   * `.option` makes this subject portion of the route optional and turns a `RouteB[A]` into a `RouteB[Option[A]]`. Forms an isomorphism between `None` and an empty path.
-  * `.xmap[B](A => B)(B => A)` allows you to map the route type from an `A` to a `B`.
+  * `.pmap[B](A => Option[B])(B => A)` allows you to attempt to map the route type from an `A` to a `B`, or fail. (prism map)
+  * `.xmap[B](A => B)(B => A)` allows you to map the route type from an `A` to a `B`. (exponential map)
   * `.caseClass[A]` maps the route type(s) to a case class.
   * `.caseClassDebug[A]` as above, but shows you the code that the macro generates.
+  * If you're using the `monocle` module and `import MonocleReact._` you also gain access to:
+    * `.pmapL[B](Prism[A, B])`.
+    * `.xmapL[B](Iso[A, B])`.
 
 * Combinators on `RouteB[Option[A]]`
   * `.withDefault(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `==` to compare `A`s to the given default.

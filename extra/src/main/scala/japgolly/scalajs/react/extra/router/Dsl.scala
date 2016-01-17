@@ -89,11 +89,21 @@ object StaticDsl {
     def parseThen(f: Option[A] => Option[A]): R[A]
 
     /**
+     * Prism map.
+     *
+     * Some values of `A` can be turned into a `B`s, some fail (in which case the route is considered non-matching).
+     *
+     * All `B`s can be turned back into `A`s.
+     */
+    def pmap[B](b: A => Option[B])(a: B => A): R[B]
+
+    /**
      * Exponential map.
      *
      * Any `A` can be turned into a `B` and vice versa.
      */
-    def xmap[B](b: A => B)(a: B => A): R[B]
+    final def xmap[B](b: A => B)(a: B => A): R[B] =
+      pmap(a => Some(b(a)))(a)
 
     final def filter(f: A => Boolean): R[A] =
       parseThen(_ filter f)
@@ -131,8 +141,8 @@ object StaticDsl {
     override def parseThen(f: Option[A] => Option[A]): RouteB[A] =
       new RouteB(regex, matchGroups, f compose parse, build)
 
-    override def xmap[B](b: A => B)(a: B => A): RouteB[B] =
-      new RouteB(regex, matchGroups, parse(_) map b, build compose a)
+    override def pmap[B](b: A => Option[B])(a: B => A): RouteB[B] =
+      new RouteB(regex, matchGroups, parse(_) flatMap b, build compose a)
 
     /**
      * Maps the captures values of the route to a case class.
@@ -201,8 +211,8 @@ object StaticDsl {
     override def parseThen(f: Option[A] => Option[A]): Route[A] =
       new Route(pattern, f compose parseFn, buildFn)
 
-    override def xmap[B](b: A => B)(a: B => A): Route[B] =
-      new Route(pattern, parseFn(_) map b, buildFn compose a)
+    override def pmap[B](b: A => Option[B])(a: B => A): Route[B] =
+      new Route(pattern, parseFn(_) flatMap b, buildFn compose a)
 
     /**
      * Maps the captures values of the route to a case class.

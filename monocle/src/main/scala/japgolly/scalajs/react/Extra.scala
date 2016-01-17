@@ -28,6 +28,9 @@ private[react] object MonocleReactExtra {
   }
 
   final class RouteCommonOps[R[X] <: RouteCommon[R, X], A](private val r: RouteCommon[R, A]) extends AnyVal {
+    def pmapL[B](l: Prism[A, B]): R[B] =
+      r.pmap(l.getOption)(l.reverseGet)
+
     def xmapL[B](l: Iso[A, B]): R[B] =
       r.xmap(l.get)(l.reverseGet)
   }

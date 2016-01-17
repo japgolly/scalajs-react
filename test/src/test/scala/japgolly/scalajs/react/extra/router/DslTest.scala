@@ -1,10 +1,13 @@
 package japgolly.scalajs.react.extra.router
 
 import java.util.UUID
+import monocle._
+import scala.util.Try
 import scalaz.Equal
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.prefix_<^._
+import MonocleReact._
 import ScalazReact._
 import TestUtil2._
 
@@ -60,6 +63,10 @@ object DslTest extends TestSuite {
 
   case class CC0()
   implicit val cc0Eq = Equal.equalA[CC0]
+
+  val stringMin5 = Prism[String, Int](
+    s => Try(s.toInt).toOption.filter(_ >= 5))(
+    _.toString)
 
   override def tests = TestSuite {
 
@@ -164,6 +171,10 @@ object DslTest extends TestSuite {
       'xmap -
         test((int / string("[a-z]+")).caseClass[IntStr])(v => v.i + "/" + v.s,
           IntStr(0, "yay"), IntStr(100, "cool"))("0/", "/yay", "yar")
+
+      'pmapL -
+        test(string(".+").pmapL(stringMin5))(_.toString,
+          6, 9, 16, 100)("-3", "0", "4", "x", "")
 
       'caseClass0 -
         test("hello".caseClass[CC0])(_ => "hello", CC0())()
