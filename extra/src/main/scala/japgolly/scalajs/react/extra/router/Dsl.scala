@@ -84,6 +84,30 @@ object StaticDsl {
     val / = literal("/")
   }
 
+  abstract class RouteCommon[R[X] <: RouteCommon[R, X], A] {
+
+    def parseThen(f: Option[A] => Option[A]): R[A]
+
+    /**
+     * Exponential map.
+     *
+     * Any `A` can be turned into a `B` and vice versa.
+     */
+    def xmap[B](b: A => B)(a: B => A): R[B]
+
+    final def filter(f: A => Boolean): R[A] =
+      parseThen(_ filter f)
+
+    final def mapParsed[B <: A](f: A => B): R[B] =
+      xmap(f)(x => x)
+
+    final def mapInput[B >: A](f: B => A): R[B] =
+      xmap[B](x => x)(f)
+
+    final def const[B](b: B)(implicit ev: A =:= Unit, ev2: Unit =:= A): R[B] =
+      xmap(_ => b)(_ => ())
+  }
+
   /**
    * A fragment of a route. Can be composed with other fragments.
    *
@@ -104,10 +128,10 @@ object StaticDsl {
     def /[B](next: RouteB[B])(implicit c: Composition[A, B]): RouteB[c.C] =
       this ~ RouteB./ ~ next
 
-    def parseThen(f: Option[A] => Option[A]): RouteB[A] =
+    override def parseThen(f: Option[A] => Option[A]): RouteB[A] =
       new RouteB(regex, matchGroups, f compose parse, build)
 
-    def xmap[B](b: A => B)(a: B => A): RouteB[B] =
+    override def xmap[B](b: A => B)(a: B => A): RouteB[B] =
       new RouteB(regex, matchGroups, parse(_) map b, build compose a)
 
     /**
@@ -165,23 +189,6 @@ object StaticDsl {
       r.xmap(_ getOrElse default)(a => if (default == a) None else Some(a))
   }
 
-  abstract class RouteCommon[R[X] <: RouteCommon[R, X], A] {
-    def xmap[B](b: A => B)(a: B => A): R[B]
-    def parseThen(f: Option[A] => Option[A]): R[A]
-
-    final def filter(f: A => Boolean): R[A] =
-      parseThen(_ filter f)
-
-    final def mapParsed[B <: A](f: A => B): R[B] =
-      xmap(f)(x => x)
-
-    final def mapInput[B >: A](f: B => A): R[B] =
-      xmap[B](x => x)(f)
-
-    final def const[B](b: B)(implicit ev: A =:= Unit, ev2: Unit =:= A): R[B] =
-      xmap(_ => b)(_ => ())
-  }
-
   /**
    * A complete route.
    */
@@ -191,10 +198,10 @@ object StaticDsl {
     override def toString =
       s"Route($pattern)"
 
-    def parseThen(f: Option[A] => Option[A]): Route[A] =
+    override def parseThen(f: Option[A] => Option[A]): Route[A] =
       new Route(pattern, f compose parseFn, buildFn)
 
-    def xmap[B](b: A => B)(a: B => A): Route[B] =
+    override def xmap[B](b: A => B)(a: B => A): Route[B] =
       new Route(pattern, parseFn(_) map b, buildFn compose a)
 
     /**
