@@ -92,7 +92,7 @@ object StaticDsl {
   class RouteB[A](val regex: String,
                   val matchGroups: Int,
                   val parse: (Int => String) => Option[A],
-                  val build: A => String) extends RouteCommon[A, RouteB] {
+                  val build: A => String) extends RouteCommon[RouteB, A] {
     import RouteB.Composition
 
     override def toString =
@@ -165,7 +165,7 @@ object StaticDsl {
       r.xmap(_ getOrElse default)(a => if (default == a) None else Some(a))
   }
 
-  abstract class RouteCommon[A, R[_]] {
+  abstract class RouteCommon[R[X] <: RouteCommon[R, X], A] {
     def xmap[B](b: A => B)(a: B => A): R[B]
     def parseThen(f: Option[A] => Option[A]): R[A]
 
@@ -187,7 +187,7 @@ object StaticDsl {
    */
   final class Route[A](pattern: Pattern,
                        parseFn: Matcher => Option[A],
-                       buildFn: A => Path) extends RouteCommon[A, Route] {
+                       buildFn: A => Path) extends RouteCommon[Route, A] {
     override def toString =
       s"Route($pattern)"
 
