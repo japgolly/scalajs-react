@@ -118,8 +118,8 @@ object Router2Test extends TestSuite {
       | nestedModule
       | ePages
       | code1
+      | privatePages // Keep this in between code1 & code2. It tests .addCondition wrt prisms.
       | code2.autoCorrect
-      | privatePages
       ) .notFound(redirectToPage(if (isUserLoggedIn) PublicHome else PrivatePage1)(Redirect.Replace))
         .renderWith((ctl, res) =>
           <.div(

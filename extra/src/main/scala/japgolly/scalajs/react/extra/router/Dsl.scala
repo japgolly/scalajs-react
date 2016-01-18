@@ -268,7 +268,7 @@ object StaticDsl {
       new Rule[Page](
         parse  || that.parse,
         path   || that.path,
-        action || that.action)
+        (u, p) => (if (path(p).isDefined) action else that.action)(u, p))
 
     def xmap[A](f: Page => A)(g: A => Page): Rule[A] =
       new Rule[A](
