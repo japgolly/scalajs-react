@@ -147,10 +147,14 @@ and is automatically converted to a finalised `Route` when used.
 
 * `RouteB[Long]` - Use DSL `long`.
 
-* `RouteB[String]` - Use DSL `string(regex)`, like `string("[a-z0-9]{1,20}")`
+* `RouteB[String]` from a URL substring - Use DSL `string(regex)`, like `string("[a-z0-9]{1,20}")`
   * Best to use a whitelist of characters, eg. `[a-zA-Z0-9]+`.
   * Do not capture groups; use `[a-z]+` instead of `([a-z]+)`.
   * If you need to group, use non-capturing groups like `(?:bye|hello)` instead of `(bye|hello)`.
+
+* `RouteB[String]` from the remainder of the unmatched URL.
+  * `remainingPath` - Captures the (non-empty) remaining portion of the URL path.
+  * `remainingPathOrBlank` - Captures the (potentially-empty) remaining portion of the URL path.
 
 * `RouteB[UUID]` - Use DSL `uuid`.
 
@@ -461,7 +465,8 @@ val cfg = RouterConfigDsl[Page].buildConfig { dsl =>
     }
 
   def issueRoute =
-    dynamicRouteCT("issue" / string(".+").pmap(parse)(_.toUrlFrag)) ~> dynRender(renderIssuePage) autoCorrect
+    dynamicRouteCT("issue" / remainingPath.pmap(parse)(_.toUrlFrag)) ~>
+      dynRender(renderIssuePage) autoCorrect
 
   def renderIssuePage(p: IssuePage) =
     <.div("Issue = " + p)

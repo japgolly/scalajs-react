@@ -110,8 +110,8 @@ object Router2Test extends TestSuite {
       val nestedModule =
         Module.routes.prefixPath_/("module").pmap[MyPage2](NestedModule){ case NestedModule(m) => m }
 
-      val code1 = dynamicRouteCT("code1" / string(".+").pmapL(code1Prism)) ~> dynRender(c => <.div(c.code))
-      val code2 = dynamicRouteCT("code2" / string(".+").pmapL(code2Prism)) ~> dynRender(c => <.div(c.code))
+      val code1 = dynamicRouteCT("code1" / remainingPath.pmapL(code1Prism)) ~> dynRender(c => <.div(c.code))
+      val code2 = dynamicRouteCT("code2" / remainingPath.pmapL(code2Prism)) ~> dynRender(c => <.div(c.code))
 
       ( emptyRule // removeTrailingSlashes
       | staticRoute(root, PublicHome) ~> render(<.h1("HOME"))

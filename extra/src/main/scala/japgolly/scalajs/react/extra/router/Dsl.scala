@@ -469,6 +469,9 @@ final class RouterConfigDsl[Page] {
   val long = new RouteB[Long]("(-?\\d+)", 1, g => Some(g(0).toLong),          _.toString)
   val uuid = new RouteB[UUID](uuidRegex,  1, g => Some(UUID fromString g(0)), _.toString)
 
+  private def __string1(regex: String): RouteB[String] =
+    new RouteB(regex, 1, g => Some(g(0)), identity)
+
   /**
    * Matches a string.
    *
@@ -476,7 +479,16 @@ final class RouterConfigDsl[Page] {
    * Do not capture groups; use "[a-z]+" instead of "([a-z]+)".
    * If you need to group, use non-capturing groups like "(?:bye|hello)" instead of "(bye|hello)".
    */
-  def string(regex: String) = new RouteB[String](s"($regex)", 1, g => Some(g(0)), identity)
+  def string(regex: String): RouteB[String] =
+    __string1("(" + regex + ")")
+
+  /** Captures the (non-empty) remaining portion of the URL path. */
+  def remainingPath: RouteB[String] =
+    __string1("(.+)$")
+
+  /** Captures the (potentially-empty) remaining portion of the URL path. */
+  def remainingPathOrBlank: RouteB[String] =
+    __string1("(.*)$")
 
   implicit def _ops_for_routeb_option[A](r: RouteB[Option[A]]) = new RouteBO(r)
 
