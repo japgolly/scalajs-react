@@ -4,6 +4,7 @@ import japgolly.scalajs.react._
 
 case class SimHistory(startUrl: AbsUrl) {
 
+  /** Recent (head) to oldest (tail) */
   var history = List(startUrl)
   var broadcasts = Vector.empty[List[AbsUrl]]
 
@@ -15,12 +16,17 @@ case class SimHistory(startUrl: AbsUrl) {
     broadcasts = Vector.empty
   }
 
+  def currentUrl: AbsUrl =
+    history.head
+
   override def toString =
     s"""
        |SimHistory($startUrl)
        | - history: (${history.length})
+       |     ↑ [CURRENT]
        |${history.map("     " + _) mkString "\n"}
        | - broadcasts: (${broadcasts.length})
+       |     ↓ [FIRST]
        |${broadcasts.map("     " + _) mkString "\n"}
      """.stripMargin
 

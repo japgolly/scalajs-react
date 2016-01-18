@@ -135,14 +135,14 @@ object Router2Test extends TestSuite {
     def syncNoRedirect(path: Path) = {
       sim.reset(path.abs)
       val r = sim.run(lgc syncToPath path)
-      assertEq(sim.history.head, path.abs)
+      assertEq(sim.history, path.abs :: Nil)
       r
     }
 
     def assertSyncRedirects(path: Path, expectTo: Path) = {
       sim.reset(path.abs)
       val r = sim.run(lgc syncToPath path)
-      assertEq(sim.history.head, expectTo.abs)
+      assertEq(sim.currentUrl, expectTo.abs)
       r
     }
 
@@ -206,7 +206,7 @@ object Router2Test extends TestSuite {
       'origPathNotAvail {
         val r = sim.run(lgc syncToPath Path("one"))
         assertEq(r.page,  PublicHome)
-        assertEq(sim.history.head, Path.root.abs)
+        assertEq(sim.currentUrl, Path.root.abs)
       }
       'slashNop {
         // prefixPath_/ only adds a / when rhs is empty
