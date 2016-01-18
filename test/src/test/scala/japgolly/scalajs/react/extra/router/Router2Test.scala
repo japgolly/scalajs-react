@@ -49,6 +49,7 @@ object Router2Test extends TestSuite {
     case class NestedModule(m: Module)  extends MyPage2
     case object SomethingElse           extends MyPage2
     case class Code1(code: String)      extends MyPage2
+    case class Code2(code: String)      extends MyPage2
 
     case class E(n: En) extends MyPage2
     sealed trait En
@@ -87,6 +88,7 @@ object Router2Test extends TestSuite {
 
     val alphaOnly = "^([a-zA-Z]+)$".r
     val code1Prism = Prism[String, Code1](alphaOnly.findFirstIn(_).map(s => Code1(s.toUpperCase)))(_.code)
+    val code2Prism = Prism[String, Code2](alphaOnly.findFirstIn(_).map(s => Code2(s.toUpperCase)))(_.code)
 
     val config = RouterConfigDsl[MyPage2].buildConfig { dsl =>
       import dsl._
@@ -109,12 +111,14 @@ object Router2Test extends TestSuite {
         Module.routes.prefixPath_/("module").pmap[MyPage2](NestedModule){ case NestedModule(m) => m }
 
       val code1 = dynamicRouteCT("code1" / string(".+").pmapL(code1Prism)) ~> dynRender(c => <.div(c.code))
+      val code2 = dynamicRouteCT("code2" / string(".+").pmapL(code2Prism)) ~> dynRender(c => <.div(c.code))
 
       ( emptyRule // removeTrailingSlashes
       | staticRoute(root, PublicHome) ~> render(<.h1("HOME"))
       | nestedModule
       | ePages
       | code1
+      | code2.autoCorrect
       | privatePages
       ) .notFound(redirectToPage(if (isUserLoggedIn) PublicHome else PrivatePage1)(Redirect.Replace))
         .renderWith((ctl, res) =>
@@ -256,7 +260,7 @@ object Router2Test extends TestSuite {
       assertEq(i, 1)
     }
 
-    'prism1 {
+    'prism {
       'buildUrl {
         assertEq(ctl.pathFor(Code1("HEH")).value, "code1/HEH")
       }
@@ -269,6 +273,21 @@ object Router2Test extends TestSuite {
         val r = syncNoRedirect("code1/yay")
         assertEq(r.page, Code1("YAY"))
         assertContains(htmlFor(r), "YAY")
+      }
+    }
+
+    'prismWithRedirect {
+      'buildUrl {
+        assertEq(ctl.pathFor(Code2("HEH")).value, "code2/HEH")
+      }
+      'exact {
+        val r = syncNoRedirect("code2/OMG")
+        assertEq(r.page, Code2("OMG"))
+        assertContains(htmlFor(r), "OMG")
+      }
+      'redirect {
+        assertSyncRedirects("code2/yay", "code2/YAY")
+        ()
       }
     }
   }

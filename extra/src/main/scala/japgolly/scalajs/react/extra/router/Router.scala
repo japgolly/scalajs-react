@@ -90,8 +90,11 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
   def syncToPath(path: Path): RouteCmd[Resolution] = {
     val parsed = cfg.parse(path)
     val cmd = parsed match {
-      case Right(page) => resolve(page, cfg action page)
-      case Left(r)     => redirect(r)
+      case Right(page) =>
+        val action = cfg.action(path, page)
+        log(s"Action for page $page at $path is $action.") >> resolve(page, action)
+      case Left(r) =>
+        redirect(r)
     }
     log(s"Parsed $path to $parsed.") >> cmd
   }
@@ -102,8 +105,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
   }
 
   def resolve(page: Page, action: Action): RouteCmd[Resolution] =
-    log(s"Action for page $page is $action.") >>
-      cmdOrPure(resolveAction(action).map(r => Resolution(page, () => r(ctl))))
+    cmdOrPure(resolveAction(action).map(r => Resolution(page, () => r(ctl))))
 
   def resolveAction(a: Action): Either[RouteCmd[Resolution], Renderer] = a match {
     case r: Renderer => Right(r)

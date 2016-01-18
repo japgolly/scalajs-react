@@ -20,6 +20,7 @@ The package is `japgolly.scalajs.react.extra.router`.
 - [`RouterCtl`](#routerctl)
 - Beyond the Basics
   - [URL rewriting rules](#url-rewriting-rules)
+  - [Loose routes with auto-correction](#loose-routes-with-auto-correction)
   - [Conditional routes](#conditional-routes)
   - [Rendering with a layout](#rendering-with-a-layout)
   - [Post-render callback](#post-render-callback)
@@ -386,6 +387,90 @@ A few rules are included out-of-the-box for you to use:
 * `removeTrailingSlashes` - uses a replace-state redirect to remove trailing slashes from route URLs.
 * `removeLeadingSlashes` - uses a replace-state redirect to remove leading slashes from route URLs.
 * `trimSlashes` - uses a replace-state redirect to remove leading and trailing slashes from route URLs.
+
+### Loose routes with auto-correction
+
+There are cases in which you may want to create a route that
+
+1. Loosely matches a URL so that it can handle variations.
+2. Has a single appropriate URL that you want to use after variations have been accepted and parsed.
+
+##### Example scenario
+
+You may be creating an issue tracker that has URLs for each ticket like:
+```
+/issue/DEV-4
+/issue/DEV-42
+/issue/FRONTEND-23
+```
+
+You also want to accept imperfections such as:
+```
+/issue/DEV-004
+/issue/DEV42
+/issue/frontend-23
+```
+
+When an imperfect URL is parsed you want to auto-correct it like:
+```
+/issue/DEV-004     → /issue/DEV-4
+/issue/DEV42       → /issue/DEV-42
+/issue/frontend-23 → /issue/FRONTEND-23
+```
+
+When a URL is already perfect, you render a page normally.
+
+##### Instructions
+
+There are two features you need to implement this functionality.
+
+First, create a route as you normally would, then map its type using a prism.
+To do so, and then call `.pmap` (or `.pmapL` to use use a [Monocle prism](http://julien-truffaut.github.io/Monocle/api/#monocle.PPrism)).
+
+Second, one you have created you route rule, call `.autoCorrect`.
+By default it will do a replace-state to change the URL meaning that only the correct URL will appear in the user's history -
+pressing *back* will go back to the page before they entered the imperfect URL.
+You can use push-state by using `.autoCorrect(Redirect.Method)` but be warned, unless you're doing something magic/crazy,
+when the user hits their *back* button they will request the imperfect URL again which will just redirect them forward negating their *back* action.
+
+##### Example implementation
+
+This is the implementation for the example scenario described above.
+
+```scala
+sealed trait Page
+
+case object Home extends Page
+
+case class IssuePage(projectCode: String, number: Int) extends Page {
+  def toUrlFrag: String = projectCode + "-" + number
+}
+
+val cfg = RouterConfigDsl[Page].buildConfig { dsl =>
+  import dsl._
+
+  def homeRoute =
+    staticRoute(root, Home) ~> render(<.h1("Home"))
+
+  val urlRegex = """([a-zA-Z]+)-?(\d+)""".r
+
+  def parse(urlFrag: String): Option[IssuePage] =
+    urlFrag match {
+      case urlRegex(code, num) => Some(IssuePage(code.toUpperCase, num.toInt))
+      case _                   => None
+    }
+
+  def issueRoute =
+    dynamicRouteCT("issue" / string(".+").pmap(parse)(_.toUrlFrag)) ~> dynRender(renderIssuePage) autoCorrect
+
+  def renderIssuePage(p: IssuePage) =
+    <.div("Issue = " + p)
+
+  ( homeRoute
+  | issueRoute
+  ).notFound(redirectToPage(Home)(Redirect.Replace))
+}
+```
 
 ### Conditional routes
 

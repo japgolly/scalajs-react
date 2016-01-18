@@ -8,7 +8,7 @@ import RouterConfig.{Logger, Parsed}
 
 case class RouterConfig[Page](parse       : Path => Parsed[Page],
                               path        : Page => Path,
-                              action      : Page => Action[Page],
+                              action      : (Path, Page) => Action[Page],
                               renderFn    : (RouterCtl[Page], Resolution[Page]) => ReactElement,
                               postRenderFn: (Option[Page], Page) => Callback,
                               logger      : Logger) {
@@ -61,7 +61,7 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
       dom.console.error(msg)
       val el: ReactElement =
         <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
-      RouterConfig.withDefaults(_ => Right(page1), _ => Path.root, _ => Renderer(_ => el))
+      RouterConfig.withDefaults(_ => Right(page1), _ => Path.root, (_, _) => Renderer(_ => el))
     }
   }
 
@@ -76,25 +76,26 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
   @elidable(elidable.ASSERTION)
   private def _detectErrors(pages: Page*): Vector[String] = {
     var errors = Vector.empty[String]
-    for (p <- pages) {
-      def error(msg: String): Unit = errors :+= s"Page [$p]: $msg"
+    for (page <- pages) {
+      def error(msg: String): Unit = errors :+= s"Page $page: $msg"
 
-      // page -> path -> page
-      Try(path(p)) match {
+      // page -> path
+      Try(path(page)) match {
         case Failure(f) => error(s"Path missing. ${f.getMessage}")
         case Success(path) =>
+
+          // path -> page
           parse(path) match {
-            case Left(r) => error(s"Parsing its path [${path.value}] leads to a redirect. Cannot verify that this is intended and not a 404.")
-            case Right(q) => if (q != p) error(s"Parsing its path [${path.value}] leads to a different page: $q")
+            case Left(r) => error(s"Parsing its path $path leads to a redirect. Cannot verify that this is intended and not a 404.")
+            case Right(q) => if (q != page) error(s"Parsing its path $path leads to a different page: $q")
+          }
+
+          // page -> action
+          Try(action(path, page)) match {
+            case Failure(f) => error(s"Action missing. ${f.getMessage}")
+            case Success(a) => ()
           }
       }
-
-      // page -> action
-      Try(action(p)) match {
-        case Failure(f) => error(s"Action missing. ${f.getMessage}")
-        case Success(a) => ()
-      }
-
     }
     errors
   }
@@ -124,8 +125,8 @@ object RouterConfig {
     (_, _) => cb
   }
 
-  def withDefaults[Page](parse : Path => Parsed[Page],
-                         path  : Page => Path,
-                         action: Page => Action[Page]): RouterConfig[Page] =
+  def withDefaults[Page](parse : Path         => Parsed[Page],
+                         path  : Page         => Path,
+                         action: (Path, Page) => Action[Page]): RouterConfig[Page] =
     RouterConfig(parse, path, action, defaultRenderFn, defaultPostRenderFn, defaultLogger)
 }
