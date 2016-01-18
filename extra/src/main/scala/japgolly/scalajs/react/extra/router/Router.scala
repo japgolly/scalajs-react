@@ -60,9 +60,9 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
   val syncToWindowUrl: CallbackTo[Resolution] =
    for {
      url <- CallbackTo(AbsUrl.fromWindow)
-     _   <- logger(s"Syncing to [${url.value}].")
+     _   <- logger(s"Syncing to $url.")
      res <- interpret(syncToUrl(url))
-     _   <- logger(s"Resolved to page: [${res.page}].")
+     _   <- logger(s"Resolved to page ${res.page}.")
      _   <- logger("")
    } yield res
 
@@ -77,7 +77,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
 
   def wrongBase(wrongUrl: AbsUrl): RouteCmd[Resolution] = {
     val root = Path.root
-    log(s"Wrong base: [${wrongUrl.value}] is outside of [${root.abs}].") >>
+    log(s"Wrong base: $wrongUrl is outside of ${root.abs}.") >>
       redirectToPath(root, Redirect.Push)
   }
 
@@ -87,11 +87,14 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     else
       None
 
-  def syncToPath(path: Path): RouteCmd[Resolution] =
-    cfg.parse(path) match {
+  def syncToPath(path: Path): RouteCmd[Resolution] = {
+    val parsed = cfg.parse(path)
+    val cmd = parsed match {
       case Right(page) => resolve(page, cfg action page)
       case Left(r)     => redirect(r)
     }
+    log(s"Parsed $path to $parsed.") >> cmd
+  }
 
   def redirectCmd(p: Path, m: Redirect.Method): RouteCmd[Unit] = m match {
     case Redirect.Push    => PushState   (p.abs)
@@ -99,7 +102,8 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
   }
 
   def resolve(page: Page, action: Action): RouteCmd[Resolution] =
-    cmdOrPure(resolveAction(action).map(r => Resolution(page, () => r(ctl))))
+    log(s"Action for page $page is $action.") >>
+      cmdOrPure(resolveAction(action).map(r => Resolution(page, () => r(ctl))))
 
   def resolveAction(a: Action): Either[RouteCmd[Resolution], Renderer] = a match {
     case r: Renderer => Right(r)
@@ -112,8 +116,8 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
   }
 
   def redirectToPath(path: Path, method: Redirect.Method): RouteCmd[Resolution] =
-    //log(s"Redirecting to [${path.value}], method=$method.") >>
-    redirectCmd(path, method) >> syncToUrl(path.abs)
+    log(s"Redirecting to ${path.abs} via $method.") >>
+      redirectCmd(path, method) >> syncToUrl(path.abs)
 
   private def cmdOrPure[A](e: Either[RouteCmd[A], A]): RouteCmd[A] =
     e.fold(identity, Return(_))
@@ -136,7 +140,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     cfg.renderFn(ctl, r)
 
   def setPath(path: Path): RouteCmd[Unit] =
-    log(s"Set route to path [${path.value}].") >>
+    log(s"Set route to $path.") >>
       PushState(path.abs) >> BroadcastSync
 
   val ctlByPath: RouterCtl[Path] =

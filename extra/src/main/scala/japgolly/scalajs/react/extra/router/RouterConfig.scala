@@ -108,7 +108,7 @@ object RouterConfig {
   type Logger = (=> String) => Callback
 
   def consoleLogger: Logger =
-    s => Callback(dom.console.log(s"[Router] $s"))
+    s => Callback.log("[Router] " + s)
 
   val nopLogger: Logger =
     Function const Callback.empty
