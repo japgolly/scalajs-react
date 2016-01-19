@@ -123,7 +123,7 @@ object Callback {
    * Convenience for calling `dom.alert`.
    */
   def alert(message: String): Callback =
-    Callback(org.scalajs.dom.alert(message))
+    Callback(org.scalajs.dom.window.alert(message))
 
   /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.
