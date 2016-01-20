@@ -58,7 +58,11 @@ Caution
 * If you want routes starting with slashes, you will need to configure your server appropriately.
   There's no point having `www.blah.com/foo` have routes like `/bar` if when the server receives a request for `www.blah.com/foo/bar` it doesn't know to use the same endpoint as `www.blah.com/foo`.
   If you don't have that control, begin with a `#` instead, like `#foo`.
+
+* It's a security feature of browsers that if a user enters a different URL, you can't absorb it with your SPA router. Using `window.onbeforeunload` you can only prompt the user to change their mind and keep the current URL. If a user manually enters a URL to move from one part of your SPA to a different part of the SPA, it's going to reload the page... **unless** you use `#` in your URL and they change the portion after the `#`. In such a case you can use the `window.onhashchange` event handler.
+
 * If you use Internet Explorer v0.1 ~ v9, the HTML5 API won't be available. But that's ok, there's no need to code like our homo-heidelbergensis ancestors, just download and use a polyfill.
+
 * These is a small but significant guarantee that this design sacrifices to buy important features. See *[A spot of unsafeness](#a-spot-of-unsafeness)*.
 
 
