@@ -135,13 +135,15 @@ object ScalajsReact extends Build {
   lazy val root = Project("root", file("."))
     .aggregate(core, test, scalaz71, scalaz72, monocle, extra, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
-      "C"  -> "root/clean",
-      "c"  -> "compile",
-      "tc" -> "test:compile",
-      "t"  -> ";clear;  test:compile ; test/test",
-      "tt" -> ";clear; +test:compile ;+test/test",
-      "T"  -> "; clean ;t",
-      "TT" -> ";+clean ;tt"))
+      "/"   -> "project root",
+      "C"   -> "root/clean",
+      "T"   -> ";root/clean;root/test",
+      "c"   -> "compile",
+      "tc"  -> "test:compile",
+      "t"   -> "test",
+      "cc"  -> ";clean;compile",
+      "ctc" -> ";clean;test:compile",
+      "ct"  -> ";clean;test"))
 
   // ==============================================================================================
   lazy val core = project
