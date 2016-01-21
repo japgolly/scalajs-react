@@ -9,14 +9,13 @@ import japgolly.scalajs.react.extra._
  *
  * It can be used to mock an `ExternalVar[A]`, a `ReusableVar[A]` and a `CompState.Access[A]`.
  *
- * @param init The initial value.
  * @tparam A The variable type.
  */
-class ReactTestVar[A](init: A) {
+class ReactTestVar[A](val initialValue: A) {
   import CompScope._
 
   override def toString =
-    s"ReactTestVar(${value()})"
+    s"ReactTestVar(initialValue = $initialValue, value = ${value()})"
 
   private val obj: ObjectWithStateVar[A] = {
     type JSCB = js.UndefOr[js.Function0[js.Any]]
@@ -35,7 +34,7 @@ class ReactTestVar[A](init: A) {
         cb.foreach(_.apply())
       }
 
-    js.Dynamic.literal("state" -> WrapObj(init), "setState" -> setStateFn)
+    js.Dynamic.literal("state" -> WrapObj(initialValue), "setState" -> setStateFn)
       .asInstanceOf[ObjectWithStateVar[A]]
   }
 
@@ -47,6 +46,9 @@ class ReactTestVar[A](init: A) {
 
   def setValue(a: A): Unit =
     obj.state = WrapObj(a)
+
+  def reset(): Unit =
+    setValue(initialValue)
 
   def compStateAccess(): CompState.Access[A] =
     obj.asInstanceOf[CanSetState[A] with ReadCallback with WriteCallback]

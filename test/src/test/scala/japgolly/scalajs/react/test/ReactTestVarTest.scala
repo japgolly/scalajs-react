@@ -15,11 +15,15 @@ object ReactTestVarTest extends TestSuite {
       assertEq(t.value, 3)
       t.set(7).runNow()
       assertEq(v.value(), 7)
+      t.set(9).runNow()
+      assertEq(v.value(), 9)
     }
 
     'reusableVar {
       val t = v.reusableVar()
       assertEq(t.value, 3)
+      t.set(9).runNow()
+      assertEq(v.value(), 9)
       t.set(7).runNow()
       assertEq(v.value(), 7)
     }
@@ -35,6 +39,16 @@ object ReactTestVarTest extends TestSuite {
       $.modState(_ - 2, Callback(called += 1))
       assertEq($.state, 6)
       assertEq(called, 1)
+    }
+
+    'reset {
+      v.setValue(666)
+      assertEq(v.value(), 666)
+      assertEq(v.initialValue, 3)
+      v.reset()
+      assertEq(v.value(), 3)
+      v.reset()
+      assertEq(v.value(), 3)
     }
   }
 }
