@@ -5,6 +5,7 @@ Testing
 - [Setup](#setup)
 - [`React.addons.TestUtils`](#reactaddonstestutils)
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
+- [`ReactTestVar`](#reacttestvar)
 - [`DebugJs`](#debugjs)
 
 Setup
@@ -90,6 +91,42 @@ val s = Simulation.focusChangeBlur("hi")
 // Then run it later
 s run component
 ```
+
+`ReactTestVar`
+==============
+
+A `ReactTestVar` is a class that can be used to mock the following types in tests:
+  * `CompState.Access[A]`
+  * `ExternalVar[A]`
+  * `ReusableVar[A]`
+
+Example:
+```scala
+import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.test._
+
+object ExampleTest extends TestSuite {
+
+  val NameChanger = ReactComponentB[ExternalVar[String]]("Name changer")
+    .render_P { evar =>
+      def updateName = (event: ReactEventI) => evar.set(event.target.value)
+      <.input(
+        ^.`type`    := "text",
+        ^.value     := evar.value,
+        ^.onChange ==> updateName)
+    }
+    .build
+
+  override def tests = TestSuite {
+    val nameVar = ReactTestVar("guy")
+    val comp = ReactTestUtils renderIntoDocument NameChanger(nameVar.externalVar())
+    ChangeEventData("bob").simulate(comp)
+    assert(nameVar.value() == "bob")
+  }
+}
+```
+
 
 `DebugJs`
 =========
