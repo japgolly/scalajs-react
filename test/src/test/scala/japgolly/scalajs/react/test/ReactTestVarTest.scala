@@ -50,5 +50,23 @@ object ReactTestVarTest extends TestSuite {
       v.reset()
       assertEq(v.value(), 3)
     }
+
+    'history {
+      assertEq(v.history(), Vector(3))
+      v.setValue(5)
+      assertEq(v.history(), Vector(3, 5))
+      v.externalVar().set(7).runNow()
+      assertEq(v.history(), Vector(3, 5, 7))
+      v.reusableVar().set(8).runNow()
+      assertEq(v.history(), Vector(3, 5, 7, 8))
+      v.compStateAccess().setState(1).runNow()
+      assertEq(v.history(), Vector(3, 5, 7, 8, 1))
+      v.setValue(1)
+      assertEq(v.history(), Vector(3, 5, 7, 8, 1, 1))
+      v.reset()
+      assertEq(v.history(), Vector(3))
+      v.setValue(3)
+      assertEq(v.history(), Vector(3, 3))
+    }
   }
 }

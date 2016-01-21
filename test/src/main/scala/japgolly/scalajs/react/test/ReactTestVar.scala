@@ -9,6 +9,8 @@ import japgolly.scalajs.react.extra._
  *
  * It can be used to mock an `ExternalVar[A]`, a `ReusableVar[A]` and a `CompState.Access[A]`.
  *
+ * It also keeps a log of changes, accessible via `.history()`.
+ *
  * @tparam A The variable type.
  */
 class ReactTestVar[A](val initialValue: A) {
@@ -34,8 +36,21 @@ class ReactTestVar[A](val initialValue: A) {
         cb.foreach(_.apply())
       }
 
-    js.Dynamic.literal("state" -> WrapObj(initialValue), "setState" -> setStateFn)
-      .asInstanceOf[ObjectWithStateVar[A]]
+    js.Dynamic.literal("setState" -> setStateFn).asInstanceOf[ObjectWithStateVar[A]]
+  }
+
+  private var _history: Vector[A] = _
+
+  def reset(): Unit = {
+    _history = Vector.empty
+    setValue(initialValue)
+  }
+
+  reset()
+
+  def setValue(a: A): Unit = {
+    obj.state = WrapObj(a)
+    _history :+= a
   }
 
   private def valueW(): WrapObj[A] =
@@ -44,11 +59,15 @@ class ReactTestVar[A](val initialValue: A) {
   def value(): A =
     valueW().v
 
-  def setValue(a: A): Unit =
-    obj.state = WrapObj(a)
-
-  def reset(): Unit =
-    setValue(initialValue)
+  /**
+   * Log of state values since initialised or last reset.
+   *
+   * Changes are ordered from oldest to newest.
+   *
+   * The initial value is also included and is always the first element.
+   */
+  def history(): Vector[A] =
+    _history
 
   def compStateAccess(): CompState.Access[A] =
     obj.asInstanceOf[CanSetState[A] with ReadCallback with WriteCallback]
