@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import scala.concurrent.{Future, Promise}
 import CompScope._
 
 object CompState {
@@ -83,24 +84,29 @@ object CompState {
   // ===================================================================================================================
 
   trait BaseOps[S] {
-    type This[_]
+    type This[s] <: BaseOps[s]
+    type WriteFutureAccess[s] <: WriteFutureOps[s]
     protected type $$
     protected val $: $$
     protected val a: Accessor[$$, S]
+
+    def accessCB: Access[S]
+    def accessDirect: AccessD[S]
+    def future: WriteFutureAccess[S]
+  }
+
+  trait ZoomOps[S] extends BaseOps[S] {
+    type This[s] <: ZoomOps[s]
     protected def changeAccessor[T](a2: Accessor[$$, T]): This[T]
-
-    def accessCB: CompState.Access[S]
-    def accessDirect: CompState.AccessD[S]
-
     final def zoom[T](f: S => T)(g: (S, T) => S): This[T] =
       changeAccessor(a.zoom(f)(g))
   }
 
-  trait ReadDirectOps[S] extends BaseOps[S] {
+  trait ReadDirectOps[S] extends ZoomOps[S] {
     type This[T] <: ReadDirectOps[T]
     final def state: S = a state $
   }
-  trait ReadCallbackOps[S] extends BaseOps[S] {
+  trait ReadCallbackOps[S] extends ZoomOps[S] {
     type This[T] <: ReadCallbackOps[T]
     final def state: CallbackTo[S] = CallbackTo(a state $)
   }
@@ -131,15 +137,17 @@ object CompState {
   type WriteOpAux[S, Result] = WriteOps[S] { type WriteResult = Result }
 
   trait WriteDirectOps[S] extends WriteOps[S] {
-    type This[T] <: WriteDirectOps[T]
-    final type WriteResult = Unit
+    override type This[T] <: WriteDirectOps[T]
+    final override type WriteFutureAccess[S] = WriteDirectFutureOps[S]
+    final override type WriteResult = Unit
     final override def setState  (s: S            , cb: Callback = Callback.empty): Unit = a.setState($)(s, cb)
     final override def modState  (f: S => S       , cb: Callback = Callback.empty): Unit = a.modState($)(f, cb)
     final override def setStateCB(s: CallbackTo[S], cb: Callback = Callback.empty): Unit = setState(s.runNow(), cb)
   }
   trait WriteCallbackOps[S] extends WriteOps[S] {
-    type This[T] <: WriteCallbackOps[T]
-    final type WriteResult = Callback
+    override type This[T] <: WriteCallbackOps[T]
+    final override type WriteFutureAccess[S] = WriteCallbackFutureOps[S]
+    final override type WriteResult = Callback
     final override def setState  (s: S            , cb: Callback = Callback.empty): Callback = CallbackTo(a.setState($)(s, cb))
     final override def modState  (f: S => S       , cb: Callback = Callback.empty): Callback = CallbackTo(a.modState($)(f, cb))
     final override def setStateCB(s: CallbackTo[S], cb: Callback = Callback.empty): Callback = s >>= (setState(_, cb))
@@ -155,6 +163,44 @@ object CompState {
     override final type This[T] = ReadCallbackWriteCallbackOps[T]
   }
 
+  trait WriteFutureOps[S] extends WriteOps[S] {
+    type This[T] <: WriteFutureOps[T]
+    protected val underlying: WriteOps[S]
+    protected def make(cb: Callback, call: (underlying.type, Callback) => underlying.WriteResult): WriteResult
+    final override def setState  (s: S            , cb: Callback = Callback.empty) = make(cb, _.setState(s, _))
+    final override def modState  (f: S => S       , cb: Callback = Callback.empty) = make(cb, _.modState(f, _))
+    final override def setStateCB(s: CallbackTo[S], cb: Callback = Callback.empty) = make(cb, _.setStateCB(s, _))
+  }
+
+  trait WriteCallbackFutureOps[S] extends WriteFutureOps[S] {
+    override final type This[T] = WriteCallbackFutureOps[T]
+    final override type WriteFutureAccess[T] = WriteCallbackFutureOps[T]
+    override final type WriteResult = CallbackTo[Future[Unit]]
+    override protected val underlying: WriteCallbackOps[S]
+    override protected def make(cb: Callback, call: (underlying.type, Callback) => underlying.WriteResult): WriteResult =
+      CallbackTo(makeFuture(cb, call(underlying, _).runNow()))
+  }
+
+  trait WriteDirectFutureOps[S] extends WriteFutureOps[S] {
+    override final type This[T] = WriteDirectFutureOps[T]
+    final override type WriteFutureAccess[T] = WriteDirectFutureOps[T]
+    override final type WriteResult = Future[Unit]
+    override protected val underlying: WriteDirectOps[S]
+    override protected def make(cb: Callback, call: (underlying.type, Callback) => underlying.WriteResult): WriteResult =
+      makeFuture(cb, call(underlying, _))
+  }
+
+  private[CompState] def makeFuture(cb: Callback, call: Callback => Unit): Future[Unit] = {
+    val p = Promise[Unit]()
+    val cb2 = cb.attempt.map {
+      case Right(a) => p.success(a); ()
+      case Left (e) => p.failure(e); ()
+    }
+    call(cb2)
+    p.future
+  }
+
+
   // ===================================================================================================================
   // Ops impls
   // ===================================================================================================================
@@ -163,23 +209,46 @@ object CompState {
     extends ReadDirectWriteDirectOps[S] {
     override protected type $$ = $
     override protected def changeAccessor[T](a2: Accessor[$, T]) = new ReadDirectWriteDirect($, a2)
-    override def accessCB: ReadCallbackWriteCallbackOps[S] = new ReadCallbackWriteCallback($, a)
-    override def accessDirect: ReadDirectWriteDirectOps[S] = this
+    override def accessCB     = new ReadCallbackWriteCallback($, a)
+    override def accessDirect = this
+    override def future       = new WriteDirectFuture($, a, this)
   }
 
   private[react] final class ReadDirectWriteCallback[$, S](override protected val $: $, override protected val a: Accessor[$, S])
     extends ReadDirectWriteCallbackOps[S] {
     override protected type $$ = $
     override protected def changeAccessor[T](a2: Accessor[$, T]) = new ReadDirectWriteCallback($, a2)
-    override def accessCB: ReadCallbackWriteCallbackOps[S] = new ReadCallbackWriteCallback($, a)
-    override def accessDirect: ReadDirectWriteDirectOps[S] = new ReadDirectWriteDirect($, a)
+    override def accessCB     = new ReadCallbackWriteCallback($, a)
+    override def accessDirect = new ReadDirectWriteDirect($, a)
+    override def future       = new WriteCallbackFuture($, a, this)
   }
 
   private[react] final class ReadCallbackWriteCallback[$, S](override protected val $: $, override protected val a: Accessor[$, S])
     extends ReadCallbackWriteCallbackOps[S] {
     override protected type $$ = $
     override protected def changeAccessor[T](a2: Accessor[$, T]) = new ReadCallbackWriteCallback($, a2)
-    override def accessCB: ReadCallbackWriteCallbackOps[S] = this
-    override def accessDirect: ReadDirectWriteDirectOps[S] = new ReadDirectWriteDirect($, a)
+    override def accessCB     = this
+    override def accessDirect = new ReadDirectWriteDirect($, a)
+    override def future       = new WriteCallbackFuture($, a, this)
+  }
+
+  private[react] final class WriteDirectFuture[$, S](override protected val $: $,
+                                                     override protected val a: Accessor[$, S],
+                                                     override protected val underlying: WriteDirectOps[S])
+      extends WriteDirectFutureOps[S] {
+    override protected type $$ = $
+    override def accessCB     = new ReadCallbackWriteCallback($, a)
+    override def accessDirect = new ReadDirectWriteDirect($, a)
+    override def future       = this
+  }
+
+  private[react] final class WriteCallbackFuture[$, S](override protected val $: $,
+                                                       override protected val a: Accessor[$, S],
+                                                       override protected val underlying: WriteCallbackOps[S])
+      extends WriteCallbackFutureOps[S] {
+    override protected type $$ = $
+    override def accessCB     = new ReadCallbackWriteCallback($, a)
+    override def accessDirect = new ReadDirectWriteDirect($, a)
+    override def future       = this
   }
 }
