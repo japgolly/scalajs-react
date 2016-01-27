@@ -1,6 +1,5 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom
 import scala.scalajs.js
 import scala.scalajs.js.{Object, UndefOr}
 
@@ -34,4 +33,20 @@ package object test {
 //  implicit final class RTUSimulateExt(private val u: Simulate) extends AnyVal {
 //    def change(t: ReactOrDomNode, newValue: String) = u.change(t, ChangeEventData(value = newValue))
 //  }
+
+  implicit class ReactTestUtilsScalaExt(private val * : ReactTestUtils) extends AnyVal {
+    def withRenderedIntoDocument[A](c: ReactElement)(f: ComponentM => A): A =
+      _withRenderedIntoDocument(c)(* renderIntoDocument _)(_.getDOMNode(), f)
+
+    def withRenderedIntoDocument[P,S,B,N <: TopNode, A](c: ReactComponentU[P,S,B,N])(f: ReactComponentM[P,S,B,N] => A): A =
+      _withRenderedIntoDocument(c)(* renderIntoDocument _)(_.getDOMNode(), f)
+  }
+
+  private def _withRenderedIntoDocument[A, B, C](a: A)(f: A => B)(n: B => TopNode, g: B => C): C = {
+    val b = f(a)
+    try
+      g(b)
+    finally
+      ReactDOM unmountComponentAtNode n(b).parentNode
+  }
 }

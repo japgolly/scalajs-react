@@ -172,5 +172,16 @@ object TestTest extends TestSuite {
         assert(count == 3)
       }
     }
+
+    'withRenderedIntoDocument {
+      var m: IC.Mounted = null
+      ReactTestUtils.withRenderedIntoDocument(IC()) { mm =>
+        m = mm
+        val n = m.getDOMNode()
+        assert(removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
+        assert(m.isMounted())
+      }
+      assert(!m.isMounted())
+    }
   }
 }
