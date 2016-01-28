@@ -97,7 +97,6 @@ s run component
 ==============
 
 A `ReactTestVar` is a class that can be used to mock the following types in tests:
-  * `CompState.Access[A]`
   * `ExternalVar[A]`
   * `ReusableVar[A]`
 

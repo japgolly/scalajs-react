@@ -20,6 +20,8 @@ class ReactTestVar[A](val initialValue: A) {
   override def toString =
     s"ReactTestVar(initialValue = $initialValue, value = ${value()})"
 
+  /* // Use StatefulParent instead.
+
   private val obj: ObjectWithStateVar[A] = {
     type JSCB = js.UndefOr[js.Function0[js.Any]]
     type ModFn = js.Function1[WrapObj[A], WrapObj[A]]
@@ -40,6 +42,14 @@ class ReactTestVar[A](val initialValue: A) {
     js.Dynamic.literal("setState" -> setStateFn).asInstanceOf[ObjectWithStateVar[A]]
   }
 
+  def compStateAccess(): CompState.Access[A] =
+    obj.asInstanceOf[CanSetState[A] with ReadCallback with WriteCallback]
+
+  private def valueW(): WrapObj[A] =
+    obj.state
+  */
+
+  private var _value: A = _
   private var _history: Vector[A] = _
 
   def reset(): Unit = {
@@ -50,15 +60,13 @@ class ReactTestVar[A](val initialValue: A) {
   reset()
 
   def setValue(a: A): Unit = {
-    obj.state = WrapObj(a)
+    // obj.state = WrapObj(a)
+    _value = a
     _history :+= a
   }
 
-  private def valueW(): WrapObj[A] =
-    obj.state
-
   def value(): A =
-    valueW().v
+    _value
 
   /**
    * Log of state values since initialised or last reset.
@@ -69,9 +77,6 @@ class ReactTestVar[A](val initialValue: A) {
    */
   def history(): Vector[A] =
     _history
-
-  def compStateAccess(): CompState.Access[A] =
-    obj.asInstanceOf[CanSetState[A] with ReadCallback with WriteCallback]
 
   val reusableSet: A ~=> Callback =
     ReusableFn(a => Callback(setValue(a)))
