@@ -6,6 +6,7 @@ Testing
 - [`React.addons.TestUtils`](#reactaddonstestutils)
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
 - [`ReactTestVar`](#reacttestvar)
+- [`StatefulParent`](#statefulparent)
 - [`DebugJs`](#debugjs)
 
 Setup
@@ -123,6 +124,50 @@ object ExampleTest extends TestSuite {
     val comp = ReactTestUtils renderIntoDocument NameChanger(nameVar.externalVar())
     ChangeEventData("bob").simulate(comp)
     assert(nameVar.value() == "bob")
+  }
+}
+```
+
+
+`StatefulParent`
+================
+A stateful component you can wrap around a component you want to test.
+
+Scenarios in which this might be useful:
+
+* Testing props changes. (`.setProps` has been deprecated and this is clearer and safer that re-rendering.)
+* Testing a component which uses a parent's `CompState.Access`, `CompState.WriteAccess` or similar.
+
+##### Example:
+
+Say you have a component like:
+```scala
+val Example = ReactComponentB[(CompState.WriteAccess[Int], Int)]("I")
+  .render_P { case (w, i) =>
+    <.div(
+      <.div("state = ", <.span(i)),
+      <.button("inc", ^.onClick --> w.modState(_ + 1)) // weird here - just an example
+    )
+  }
+  .build
+```
+
+You can use `StatefulParent` to write a test like this:
+```scala
+import japgolly.scalajs.react.test.StatefulParent
+import utest._
+
+object ExampleTest extends TestSuite {
+
+  val Parent = StatefulParent[Int](($, i) => Example(($, i)))
+
+  override def tests = TestSuite {
+    val c = ReactTestUtils renderIntoDocument Parent(3)
+    def state = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span").getDOMNode().innerHTML.toInt
+    def button = ReactTestUtils.findRenderedDOMComponentWithTag(c, "button")
+    assert(state == 3)
+    ReactTestUtils.Simulate click button
+    assert(state == 4)
   }
 }
 ```
