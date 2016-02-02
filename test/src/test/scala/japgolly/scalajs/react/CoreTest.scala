@@ -25,9 +25,9 @@ object CoreTest extends TestSuite {
     })
     .buildU
 
-  val tagmod  : TagMod       = cls := "ho"
-  val reacttag: ReactTag     = span()
-  val relement: ReactElement = span()
+  lazy val tagmod  : TagMod       = cls := "ho"
+  lazy val reacttag: ReactTag     = span()
+  lazy val relement: ReactElement = span()
 
   @Lenses
   case class StrInt(str: String, int: Int)
