@@ -13,7 +13,7 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val html = "html".tag[*.Html]
+  final lazy val html = "html".tag[*.Html]
 
   // Document Metadata
   /**
@@ -22,26 +22,26 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val head = "head".tag[*.Head]
+  final lazy val head = "head".tag[*.Head]
 
   /**
    * Defines the base URL for relative URLs in the page.
    *
    * MDN
    */
-  final val base = "base".voidTag[*.Base]
+  final lazy val base = "base".voidTag[*.Base]
   /**
    * Used to link JavaScript and external CSS with the current HTML document.
    *
    * MDN
    */
-  final val link = "link".voidTag[*.Link]
+  final lazy val link = "link".voidTag[*.Link]
   /**
    * Defines metadata that can't be defined using another HTML element.
    *
    * MDN
    */
-  final val meta = "meta".voidTag[*.Meta]
+  final lazy val meta = "meta".voidTag[*.Meta]
 
 
   // Scripting
@@ -51,7 +51,7 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val script = "script".tag[*.Script]
+  final lazy val script = "script".tag[*.Script]
 
 
   // Sections
@@ -61,58 +61,58 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val body = "body".tag[*.Body]
+  final lazy val body = "body".tag[*.Body]
 
   /**
    * Heading level 1
    *
    * MDN
    */
-  final val h1 = "h1".tag[*.Heading]
+  final lazy val h1 = "h1".tag[*.Heading]
   /**
    * Heading level 2
    *
    * MDN
    */
-  final val h2 = "h2".tag[*.Heading]
+  final lazy val h2 = "h2".tag[*.Heading]
   /**
    * Heading level 3
    *
    * MDN
    */
-  final val h3 = "h3".tag[*.Heading]
+  final lazy val h3 = "h3".tag[*.Heading]
   /**
    * Heading level 4
    *
    * MDN
    */
-  final val h4 = "h4".tag[*.Heading]
+  final lazy val h4 = "h4".tag[*.Heading]
   /**
    * Heading level 5
    *
    * MDN
    */
-  final val h5 = "h5".tag[*.Heading]
+  final lazy val h5 = "h5".tag[*.Heading]
   /**
    * Heading level 6
    *
    * MDN
    */
-  final val h6 = "h6".tag[*.Heading]
+  final lazy val h6 = "h6".tag[*.Heading]
   /**
    * Defines the header of a page or section. It often contains a logo, the
    * title of the Web site, and a navigational table of content.
    *
    * MDN
    */
-  final val header = "header".tag[*.Element]
+  final lazy val header = "header".tag[*.Element]
   /**
    * Defines the footer for a page or section. It often contains a copyright
    * notice, some links to legal information, or addresses to give feedback.
    *
    * MDN
    */
-  final val footer = "footer".tag[*.Element]
+  final lazy val footer = "footer".tag[*.Element]
 
 
   // Grouping content
@@ -121,81 +121,81 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val p = "p".tag[*.Paragraph]
+  final lazy val p = "p".tag[*.Paragraph]
   /**
    * Represents a thematic break between paragraphs of a section or article or
    * any longer content.
    *
    * MDN
    */
-  final val hr = "hr".voidTag[*.HR]
+  final lazy val hr = "hr".voidTag[*.HR]
   /**
    * Indicates that its content is preformatted and that this format must be
    * preserved.
    *
    * MDN
    */
-  final val pre = "pre".tag[*.Pre]
+  final lazy val pre = "pre".tag[*.Pre]
   /**
    * Represents a content that is quoted from another source.
    *
    * MDN
    */
-  final val blockquote = "blockquote".tag[*.Quote]
+  final lazy val blockquote = "blockquote".tag[*.Quote]
   /**
    * Defines an ordered list of items.
    *
    * MDN
    */
-  final val ol = "ol".tag[*.OList]
+  final lazy val ol = "ol".tag[*.OList]
   /**
    * Defines an unordered list of items.
    *
    * MDN
    */
-  final val ul = "ul".tag[*.UList]
+  final lazy val ul = "ul".tag[*.UList]
   /**
    * Defines an item of an list.
    *
    * MDN
    */
-  final val li = "li".tag[*.LI]
+  final lazy val li = "li".tag[*.LI]
   /**
    * Defines a definition list; a list of terms and their associated definitions.
    *
    * MDN
    */
-  final val dl = "dl".tag[*.DList]
+  final lazy val dl = "dl".tag[*.DList]
   /**
    * Represents a term defined by the next dd
    *
    * MDN
    */
-  final val dt = "dt".tag[*.DT]
+  final lazy val dt = "dt".tag[*.DT]
   /**
    * Represents the definition of the terms immediately listed before it.
    *
    * MDN
    */
-  final val dd = "dd".tag[*.DD]
+  final lazy val dd = "dd".tag[*.DD]
   /**
    * Represents a figure illustrated as part of the document.
    *
    * MDN
    */
-  final val figure = "figure".tag[*.Element]
+  final lazy val figure = "figure".tag[*.Element]
   /**
    * Represents the legend of a figure.
    *
    * MDN
    */
-  final val figcaption = "figcaption".tag[*.Element]
+  final lazy val figcaption = "figcaption".tag[*.Element]
   /**
    * Represents a generic container with no special meaning.
    *
    * MDN
    */
-  final val div = "div".tag[*.Div]
+  final lazy val div = "div".tag[*.Div]
 
   // Text-level semantics
   /**
@@ -203,76 +203,76 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val a = "a".tag[*.Anchor]
+  final lazy val a = "a".tag[*.Anchor]
   /**
    * Represents emphasized text.
    *
    * MDN
    */
-  final val em = "em".tag[*.Element]
+  final lazy val em = "em".tag[*.Element]
   /**
    * Represents especially important text.
    *
    * MDN
    */
-  final val strong = "strong".tag[*.Element]
+  final lazy val strong = "strong".tag[*.Element]
   /**
    * Represents a side comment; text like a disclaimer or copyright, which is not
    * essential to the comprehension of the document.
    *
    * MDN
    */
-  final val small = "small".tag[*.Element]
+  final lazy val small = "small".tag[*.Element]
   /**
    * Strikethrough element, used for that is no longer accurate or relevant.
    *
    * MDN
    */
-  final val s = "s".tag[*.Element]
+  final lazy val s = "s".tag[*.Element]
   /**
    * Represents the title of a work being cited.
    *
    * MDN
    */
-  final val cite = "cite".tag[*.Element]
+  final lazy val cite = "cite".tag[*.Element]
 
   /**
    * Represents computer code.
    *
    * MDN
    */
-  final val code = "code".tag[*.Element]
+  final lazy val code = "code".tag[*.Element]
 
   /**
    * Subscript tag
    *
    * MDN
    */
-  final val sub = "sub".tag[*.Element]
+  final lazy val sub = "sub".tag[*.Element]
   /**
    * Superscript tag.
    *
    * MDN
    */
-  final val sup = "sup".tag[*.Element]
+  final lazy val sup = "sup".tag[*.Element]
   /**
    * Italicized text.
    *
    * MDN
    */
-  final val i = "i".tag[*.Element]
+  final lazy val i = "i".tag[*.Element]
   /**
    * Bold text.
    *
    * MDN
    */
-  final val b = "b".tag[*.Element]
+  final lazy val b = "b".tag[*.Element]
   /**
    * Underlined text.
    *
    * MDN
    */
-  final val u = "u".tag[*.Element]
+  final lazy val u = "u".tag[*.Element]
 
   /**
    * Represents text with no specific meaning. This has to be used when no other
@@ -281,20 +281,20 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val span = "span".tag[*.Span]
+  final lazy val span = "span".tag[*.Span]
   /**
    * Represents a line break.
    *
    * MDN
    */
-  final val br = "br".voidTag[*.BR]
+  final lazy val br = "br".voidTag[*.BR]
   /**
    * Represents a line break opportunity, that is a suggested point for wrapping
    * text in order to improve readability of text split on several lines.
    *
    * MDN
    */
-  final val wbr = "wbr".voidTag[*.Element]
+  final lazy val wbr = "wbr".voidTag[*.Element]
 
   // Edits
   /**
@@ -302,13 +302,13 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val ins = "ins".tag[*.Mod]
+  final lazy val ins = "ins".tag[*.Mod]
   /**
-   * Defines a remofinal val from the document.
+   * Defines a remofinal lazy val from the document.
    *
    * MDN
    */
-  final val del = "del".tag[*.Mod]
+  final lazy val del = "del".tag[*.Mod]
 
   // Embedded content
   /**
@@ -316,79 +316,79 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val img = "img".voidTag[*.Image]
+  final lazy val img = "img".voidTag[*.Image]
   /**
    * Represents a nested browsing context, that is an embedded HTML document.
    *
    * MDN
    */
-  final val iframe = "iframe".tag[*.IFrame]
+  final lazy val iframe = "iframe".tag[*.IFrame]
   /**
    * Represents a integration point for an external, often non-HTML, application
    * or interactive content.
    *
    * MDN
    */
-  final val embed = "embed".voidTag[*.Embed]
+  final lazy val embed = "embed".voidTag[*.Embed]
   /**
    * Represents an external resource, which is treated as an image, an HTML
    * sub-document, or an external resource to be processed by a plug-in.
    *
    * MDN
    */
-  final val `object` = "object".tag[*.Object]
+  final lazy val `object` = "object".tag[*.Object]
   /**
    * Defines parameters for use by plug-ins invoked by object elements.
    *
    * MDN
    */
-  final val param = "param".voidTag[*.Param]
+  final lazy val param = "param".voidTag[*.Param]
   /**
    * Represents a video, and its associated audio files and captions, with the
    * necessary interface to play it.
    *
    * MDN
    */
-  final val video = "video".tag[*.Video]
+  final lazy val video = "video".tag[*.Video]
   /**
    * Represents a sound or an audio stream.
    *
    * MDN
    */
-  final val audio = "audio".tag[*.Audio]
+  final lazy val audio = "audio".tag[*.Audio]
   /**
    * Allows the authors to specify alternate media resources for media elements
    * like video or audio
    *
    * MDN
    */
-  final val source = "source".voidTag[*.Source]
+  final lazy val source = "source".voidTag[*.Source]
   /**
    * Allows authors to specify timed text track for media elements like video or
    * audio
    *
    * MDN
    */
-  final val track = "track".voidTag[*.Track]
+  final lazy val track = "track".voidTag[*.Track]
   /**
    * Represents a bitmap area that scripts can use to render graphics like graphs,
    * games or any visual images on the fly.
    *
    * MDN
    */
-  final val canvas = "canvas".tag[*.Canvas]
+  final lazy val canvas = "canvas".tag[*.Canvas]
   /**
    * In conjunction with area, defines an image map.
    *
    * MDN
    */
-  final val map = "map".tag[*.Map]
+  final lazy val map = "map".tag[*.Map]
   /**
    * In conjunction with map, defines an image map
    *
    * MDN
    */
-  final val area = "area".voidTag[*.Area]
+  final lazy val area = "area".voidTag[*.Area]
 
 
   // Tabular data
@@ -397,61 +397,61 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val table = "table".tag[*.Table]
+  final lazy val table = "table".tag[*.Table]
   /**
    * The title of a table.
    *
    * MDN
    */
-  final val caption = "caption".tag[*.TableCaption]
+  final lazy val caption = "caption".tag[*.TableCaption]
   /**
    * A set of columns.
    *
    * MDN
    */
-  final val colgroup = "colgroup".tag[*.TableCol]
+  final lazy val colgroup = "colgroup".tag[*.TableCol]
   /**
    * A single column.
    *
    * MDN
    */
-  final val col = "col".voidTag[*.TableCol]
+  final lazy val col = "col".voidTag[*.TableCol]
   /**
    * The table body.
    *
    * MDN
    */
-  final val tbody = "tbody".tag[*.TableSection]
+  final lazy val tbody = "tbody".tag[*.TableSection]
   /**
    * The table headers.
    *
    * MDN
    */
-  final val thead = "thead".tag[*.TableSection]
+  final lazy val thead = "thead".tag[*.TableSection]
   /**
    * The table footer.
    *
    * MDN
    */
-  final val tfoot = "tfoot".tag[*.TableSection]
+  final lazy val tfoot = "tfoot".tag[*.TableSection]
   /**
    * A single row in a table.
    *
    * MDN
    */
-  final val tr = "tr".tag[*.TableRow]
+  final lazy val tr = "tr".tag[*.TableRow]
   /**
    * A single cell in a table.
    *
    * MDN
    */
-  final val td = "td".tag[*.TableCell]
+  final lazy val td = "td".tag[*.TableCell]
   /**
    * A header cell in a table.
    *
    * MDN
    */
-  final val th = "th".tag[*.TableHeaderCell]
+  final lazy val th = "th".tag[*.TableHeaderCell]
 
   // Forms
   /**
@@ -460,61 +460,61 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val form = "form".tag[*.Form]
+  final lazy val form = "form".tag[*.Form]
   /**
    * A set of fields.
    *
    * MDN
    */
-  final val fieldset = "fieldset".tag[*.FieldSet]
+  final lazy val fieldset = "fieldset".tag[*.FieldSet]
   /**
    * The caption for a fieldset.
    *
    * MDN
    */
-  final val legend = "legend".tag[*.Legend]
+  final lazy val legend = "legend".tag[*.Legend]
   /**
    * The caption of a single field
    *
    * MDN
    */
-  final val label = "label".tag[*.Label]
+  final lazy val label = "label".tag[*.Label]
   /**
    * A button
    *
    * MDN
    */
-  final val button = "button".tag[*.Button]
+  final lazy val button = "button".tag[*.Button]
   /**
    * A control that allows the user to select one of a set of options.
    *
    * MDN
    */
-  final val select = "select".tag[*.Select]
+  final lazy val select = "select".tag[*.Select]
   /**
    * A set of predefined options for other controls.
    *
    * MDN
    */
-  final val datalist = "datalist".tag[*.DataList]
+  final lazy val datalist = "datalist".tag[*.DataList]
   /**
    * A set of options, logically grouped.
    *
    * MDN
    */
-  final val optgroup = "optgroup".tag[*.OptGroup]
+  final lazy val optgroup = "optgroup".tag[*.OptGroup]
   /**
    * An option in a select element.
    *
    * MDN
    */
-  final val option = "option".tag[*.Option]
+  final lazy val option = "option".tag[*.Option]
   /**
    * A multiline text edit control.
    *
    * MDN
    */
-  final val textarea = "textarea".tag[*.TextArea]
+  final lazy val textarea = "textarea".tag[*.TextArea]
 
 
   // ==== [japgolly] Here begins Scalatags' Tags2 ====
@@ -524,7 +524,7 @@ trait HtmlTags {
    * from the user. How an &lt;input&gt; works varies considerably depending on the value of its type attribute.
    */
   object input extends ReactTagOf[*.Input]("input", Nil, implicitly) {
-    private[this] val `type` = "type".attr
+    private[this] lazy val `type` = "type".attr
 
     /** Returns a &lt;input type="{t}" /&gt; */
     def withType(t: String): ReactTagOf[*.Input] =
@@ -534,7 +534,7 @@ trait HtmlTags {
     def button = this withType "button"
 
     /** A check box. You must use the value attribute to define the value submitted by this item. Use the checked attribute to indicate whether this item is selected. You can also use the indeterminate attribute to indicate that the checkbox is in an indeterminate state (on most platforms, this draws a horizontal line across the checkbox). */
-    val checkbox = this withType "checkbox"
+    lazy val checkbox = this withType "checkbox"
 
     /** [HTML5] A control for specifying a color. A color picker's UI has no required features other than accepting simple colors as text (more info). */
     def color = this withType "color"
@@ -588,7 +588,7 @@ trait HtmlTags {
     def tel = this withType "tel"
 
     /** A single-line text field; line-breaks are automatically removed from the input value. */
-    val text = this withType "text"
+    lazy val text = this withType "text"
 
     /** [HTML5] A control for entering a time value with no time zone. */
     def time = this withType "time"
@@ -608,14 +608,14 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val titleTag = "title".tag[*.Title]
+  final lazy val titleTag = "title".tag[*.Title]
 
   /**
    * Used to write inline CSS.
    *
    * MDN
    */
-  final val styleTag = "style".tag[*.Style]
+  final lazy val styleTag = "style".tag[*.Style]
   // Scripting
   /**
    * Defines alternative content to display when the browser doesn't support
@@ -623,7 +623,7 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val noscript = "noscript".tag[*.Element]
+  final lazy val noscript = "noscript".tag[*.Element]
 
   // Sections
   /**
@@ -632,34 +632,34 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val section = "section".tag[*.Element]
+  final lazy val section = "section".tag[*.Element]
   /**
    * Represents a section of a page that links to other pages or to parts within
    * the page: a section with navigation links.
    *
    * MDN
    */
-  final val nav = "nav".tag[*.Element]
+  final lazy val nav = "nav".tag[*.Element]
   /**
    * Defines self-contained content that could exist independently of the rest
    * of the content.
    *
    * MDN
    */
-  final val article = "article".tag[*.Element]
+  final lazy val article = "article".tag[*.Element]
   /**
    * Defines some content loosely related to the page content. If it is removed,
    * the remaining content still makes sense.
    *
    * MDN
    */
-  final val aside = "aside".tag[*.Element]
+  final lazy val aside = "aside".tag[*.Element]
   /**
    * Defines a section containing contact information.
    *
    * MDN
    */
-  final val address = "address".tag[*.Element]
+  final lazy val address = "address".tag[*.Element]
 
   /**
    * Defines the main or important content in the document. There is only one
@@ -667,7 +667,7 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val main = "main".tag[*.Element]
+  final lazy val main = "main".tag[*.Element]
 
   // Text level semantics
 
@@ -676,66 +676,66 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val q = "q".tag[*.Quote]
+  final lazy val q = "q".tag[*.Quote]
   /**
    * Represents a term whose definition is contained in its nearest ancestor
    * content.
    *
    * MDN
    */
-  final val dfn = "dfn".tag[*.Element]
+  final lazy val dfn = "dfn".tag[*.Element]
   /**
    * An abbreviation or acronym; the expansion of the abbreviation can be
    * represented in the title attribute.
    *
    * MDN
    */
-  final val abbr = "abbr".tag[*.Element]
+  final lazy val abbr = "abbr".tag[*.Element]
   /**
    * Associates to its content a machine-readable equivalent.
    *
    * MDN
    */
-  final val data = "data".tag[*.Element]
+  final lazy val data = "data".tag[*.Element]
   /**
    * Represents a date and time value; the machine-readable equivalent can be
    * represented in the datetime attribetu
    *
    * MDN
    */
-  final val time = "time".tag[*.Element]
+  final lazy val time = "time".tag[*.Element]
   /**
    * Represents a variable.
    *
    * MDN
    */
-  final val `var` = "var".tag[*.Element]
+  final lazy val `var` = "var".tag[*.Element]
   /**
    * Represents the output of a program or a computer.
    *
    * MDN
    */
-  final val samp = "samp".tag[*.Element]
+  final lazy val samp = "samp".tag[*.Element]
   /**
    * Represents user input, often from a keyboard, but not necessarily.
    *
    * MDN
    */
-  final val kbd = "kbd".tag[*.Element]
+  final lazy val kbd = "kbd".tag[*.Element]
 
   /**
    * Defines a mathematical formula.
    *
    * MDN
    */
-  final val math = "math".tag[*.Element]
+  final lazy val math = "math".tag[*.Element]
   /**
    * Represents text highlighted for reference purposes, that is for its
    * relevance in another context.
    *
    * MDN
    */
-  final val mark = "mark".tag[*.Element]
+  final lazy val mark = "mark".tag[*.Element]
   /**
    * Represents content to be marked with ruby annotations, short runs of text
    * presented alongside the text. This is often used in conjunction with East
@@ -744,13 +744,13 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val ruby = "ruby".tag[*.Element]
+  final lazy val ruby = "ruby".tag[*.Element]
   /**
    * Represents the text of a ruby annotation.
    *
    * MDN
    */
-  final val rt = "rt".tag[*.Element]
+  final lazy val rt = "rt".tag[*.Element]
   /**
    * Represents parenthesis around a ruby annotation, used to display the
    * annotation in an alternate way by browsers not supporting the standard
@@ -758,7 +758,7 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val rp = "rp".tag[*.Element]
+  final lazy val rp = "rp".tag[*.Element]
   /**
    * Represents text that must be isolated from its surrounding for bidirectional
    * text formatting. It allows embedding a span of text with a different, or
@@ -766,14 +766,14 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val bdi = "bdi".tag[*.Element]
+  final lazy val bdi = "bdi".tag[*.Element]
   /**
    * Represents the directionality of its children, in order to explicitly
    * override the Unicode bidirectional algorithm.
    *
    * MDN
    */
-  final val bdo = "bdo".tag[*.Element]
+  final lazy val bdo = "bdo".tag[*.Element]
 
   // Forms
 
@@ -782,25 +782,25 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val keygen = "keygen".voidTag[*.Element]
+  final lazy val keygen = "keygen".voidTag[*.Element]
   /**
    * The result of a calculation
    *
    * MDN
    */
-  final val output = "output".tag[*.Element]
+  final lazy val output = "output".tag[*.Element]
   /**
    * A progress completion bar
    *
    * MDN
    */
-  final val progress = "progress".tag[*.Progress]
+  final lazy val progress = "progress".tag[*.Progress]
   /**
    * A scalar measurement within a known range.
    *
    * MDN
    */
-  final val meter = "meter".tag[*.Element]
+  final lazy val meter = "meter".tag[*.Element]
 
 
   // Interactive elements
@@ -810,23 +810,23 @@ trait HtmlTags {
    *
    * MDN
    */
-  final val details = "details".tag[*.Element]
+  final lazy val details = "details".tag[*.Element]
   /**
    * A summary, caption, or legend for a given details.
    *
    * MDN
    */
-  final val summary = "summary".tag[*.Element]
+  final lazy val summary = "summary".tag[*.Element]
   /**
    * A command that the user can invoke.
    *
    * MDN
    */
-  final val command = "command".voidTag[*.Element]
+  final lazy val command = "command".voidTag[*.Element]
   /**
    * A list of commands
    *
    * MDN
    */
-  final val menu = "menu".tag[*.Menu]
+  final lazy val menu = "menu".tag[*.Menu]
 }

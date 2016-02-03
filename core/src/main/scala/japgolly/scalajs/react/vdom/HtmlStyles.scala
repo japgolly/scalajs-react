@@ -251,7 +251,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val background = new Style("background", "background")
+  final lazy val background = new Style("background", "background")
 
   /**
    * The background-repeat CSS property defines how background images are repeated.
@@ -264,7 +264,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val backgroundRepeat = new Style("backgroundRepeat", "backgroundRepeat")
+  final lazy val backgroundRepeat = new Style("backgroundRepeat", "backgroundRepeat")
 
 
   /**
@@ -274,7 +274,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val backgroundPosition = new Style("backgroundPosition", "backgroundPosition")
+  final lazy val backgroundPosition = new Style("backgroundPosition", "backgroundPosition")
 
   /**
    * The background-color CSS property sets the background color of an element,
@@ -282,7 +282,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val backgroundColor = new Style("backgroundColor", "backgroundColor")
+  final lazy val backgroundColor = new Style("backgroundColor", "backgroundColor")
 
 
   /**
@@ -391,7 +391,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val backgroundImage = new MultiImageStyle("backgroundImage", "backgroundImage")
+  final lazy val backgroundImage = new MultiImageStyle("backgroundImage", "backgroundImage")
 
 
   /**
@@ -401,7 +401,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderTopColor = new Style("borderTopColor", "borderTopColor")
+  final lazy val borderTopColor = new Style("borderTopColor", "borderTopColor")
 
   /**
    * The border-style CSS property is a shorthand property for setting the line
@@ -409,14 +409,14 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderStyle = new BorderStyle("borderStyle", "borderStyle")
+  final lazy val borderStyle = new BorderStyle("borderStyle", "borderStyle")
 
   /**
    * The border-top-style CSS property sets the line style of the top border of a box.
    *
    * MDN
    */
-  final val borderTopStyle = new BorderStyle("borderTopStyle", "borderTopStyle")
+  final lazy val borderTopStyle = new BorderStyle("borderTopStyle", "borderTopStyle")
 
 
   /**
@@ -425,7 +425,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderRightStyle = new BorderStyle("borderRightStyle", "borderRightStyle")
+  final lazy val borderRightStyle = new BorderStyle("borderRightStyle", "borderRightStyle")
 
   /**
    * The border-right-width CSS property sets the width of the right border of
@@ -433,7 +433,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderRightWidth = new BorderWidth("borderRightWidth", "borderRightWidth")
+  final lazy val borderRightWidth = new BorderWidth("borderRightWidth", "borderRightWidth")
 
   /**
    * The border-top-right-radius CSS property sets the rounding of the top-right
@@ -442,7 +442,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderTopRightRadius = new BorderRadius("borderTopRightRadius", "borderTopRightRadius")
+  final lazy val borderTopRightRadius = new BorderRadius("borderTopRightRadius", "borderTopRightRadius")
 
   /**
    * The border-bottom-left-radius CSS property sets the rounding of the
@@ -452,7 +452,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderBottomLeftRadius = new BorderRadius("borderBottomLeftRadius", "borderBottomLeftRadius")
+  final lazy val borderBottomLeftRadius = new BorderRadius("borderBottomLeftRadius", "borderBottomLeftRadius")
 
   /**
    * The border-right-color CSS property sets the color of the top border of an
@@ -461,7 +461,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderRightColor = new Style("borderRightColor", "borderRightColor")
+  final lazy val borderRightColor = new Style("borderRightColor", "borderRightColor")
 
   /**
    * The border-bottom CSS property is a shorthand that sets the values of
@@ -470,7 +470,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderBottom = new Style("borderBottom", "borderBottom")
+  final lazy val borderBottom = new Style("borderBottom", "borderBottom")
   /**
    * The border CSS property is a shorthand property for setting the individual
    * border property values in a single place in the style sheet. border can be
@@ -479,7 +479,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val border = new Style("border", "border")
+  final lazy val border = new Style("border", "border")
 
 
   /**
@@ -488,7 +488,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderBottomWidth = new BorderWidth("borderBottomWidth", "borderBottomWidth")
+  final lazy val borderBottomWidth = new BorderWidth("borderBottomWidth", "borderBottomWidth")
 
   /**
    * The border-right-color CSS property sets the color of the right border of
@@ -497,7 +497,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderLeftColor = new Style("borderLeftColor", "borderLeftColor")
+  final lazy val borderLeftColor = new Style("borderLeftColor", "borderLeftColor")
 
   /**
    * The border-bottom-color CSS property sets the color of the bottom border of
@@ -506,7 +506,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderBottomColor = new Style("borderBottomColor", "borderBottomColor")
+  final lazy val borderBottomColor = new Style("borderBottomColor", "borderBottomColor")
 
   /**
    * The border-collapse CSS property selects a table's border model. This has
@@ -540,14 +540,14 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderLeft = new Style("borderLeft", "borderLeft")
+  final lazy val borderLeft = new Style("borderLeft", "borderLeft")
   /**
    * The border-left-style CSS property sets the line style of the left border
    * of a box.
    *
    * MDN
    */
-  final val borderLeftStyle = new BorderStyle("borderLeftStyle", "borderLeftStyle")
+  final lazy val borderLeftStyle = new BorderStyle("borderLeftStyle", "borderLeftStyle")
 
   /**
    * The border-right CSS property is a shorthand that sets the values of
@@ -556,7 +556,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderRight = new Style("borderRight", "borderRight")
+  final lazy val borderRight = new Style("borderRight", "borderRight")
 
   /**
    * The border-bottom-style CSS property sets the line style of the bottom
@@ -564,19 +564,19 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderBottomStyle = new BorderStyle("borderBottomStyle", "borderBottomStyle")
+  final lazy val borderBottomStyle = new BorderStyle("borderBottomStyle", "borderBottomStyle")
   /**
    * The border-left-width CSS property sets the width of the left border of a box.
    *
    * MDN
    */
-  final val borderLeftWidth = new BorderWidth("borderLeftWidth", "borderLeftWidth")
+  final lazy val borderLeftWidth = new BorderWidth("borderLeftWidth", "borderLeftWidth")
   /**
    * The border-top-width CSS property sets the width of the top border of a box.
    *
    * MDN
    */
-  final val borderTopWidth = new BorderWidth("borderTopWidth", "borderTopWidth")
+  final lazy val borderTopWidth = new BorderWidth("borderTopWidth", "borderTopWidth")
   /**
    * The border-top CSS property is a shorthand that sets the values of
    * border-top-color, border-top-style, and border-top-width. These
@@ -584,7 +584,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderTop = new Style("borderTop", "borderTop")
+  final lazy val borderTop = new Style("borderTop", "borderTop")
   /**
    * The border-spacing CSS property specifies the distance between the borders
    * of adjacent cells (only for the separated borders model). This is equivalent
@@ -605,7 +605,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderRadius = new Style("borderRadius", "borderRadius")
+  final lazy val borderRadius = new Style("borderRadius", "borderRadius")
 
   /**
    * The border-width CSS property sets the width of the border of a box. Using
@@ -613,7 +613,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderWidth = new Style("borderWidth", "borderWidth")
+  final lazy val borderWidth = new Style("borderWidth", "borderWidth")
 
   /**
    * The border-bottom-right-radius CSS property sets the rounding of the
@@ -623,7 +623,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderBottomRightRadius = new BorderRadius("borderBottomRightRadius", "borderBottomRightRadius")
+  final lazy val borderBottomRightRadius = new BorderRadius("borderBottomRightRadius", "borderBottomRightRadius")
 
   /**
    * The border-top-left-radius CSS property sets the rounding of the
@@ -633,7 +633,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderTopLeftRadius = new BorderRadius("borderTopLeftRadius", "borderTopLeftRadius")
+  final lazy val borderTopLeftRadius = new BorderRadius("borderTopLeftRadius", "borderTopLeftRadius")
 
   /**
    * The border-color CSS property is a shorthand for setting the color of the
@@ -642,7 +642,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val borderColor = new Style("borderColor", "borderColor")
+  final lazy val borderColor = new Style("borderColor", "borderColor")
 
   /**
    * The box-sizing CSS property is used to alter the default CSS box model used
@@ -1303,7 +1303,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val opacity = new Style("opacity", "opacity")
+  final lazy val opacity = new Style("opacity", "opacity")
 
 
   /**
@@ -1315,7 +1315,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val maxWidth = new Style("maxWidth", "maxWidth")
+  final lazy val maxWidth = new Style("maxWidth", "maxWidth")
 
 
   /**
@@ -1377,7 +1377,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val overflow = new Overflow("overflow", "overflow")
+  final lazy val overflow = new Overflow("overflow", "overflow")
 
   /**
    * If the value is a URI value, the element pointed to by the URI is used as
@@ -1425,7 +1425,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val height = new AutoStyle("height", "height")
+  final lazy val height = new AutoStyle("height", "height")
 
 
   /**
@@ -1436,7 +1436,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val paddingRight = new Style("paddingRight", "paddingRight")
+  final lazy val paddingRight = new Style("paddingRight", "paddingRight")
 
   /**
    * The padding-top CSS property of an element sets the padding space required
@@ -1446,7 +1446,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val paddingTop = new Style("paddingTop", "paddingTop")
+  final lazy val paddingTop = new Style("paddingTop", "paddingTop")
 
   /**
    * The padding-left CSS property of an element sets the padding space required
@@ -1455,7 +1455,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val paddingLeft = new Style("paddingLeft", "paddingLeft")
+  final lazy val paddingLeft = new Style("paddingLeft", "paddingLeft")
 
   /**
    * The padding CSS property sets the required padding space on all sides of an
@@ -1467,7 +1467,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val padding = new Style("padding", "padding")
+  final lazy val padding = new Style("padding", "padding")
 
   /**
    * The padding-bottom CSS property of an element sets the height of the padding
@@ -1477,7 +1477,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val paddingBottom = new Style("paddingBottom", "paddingBottom")
+  final lazy val paddingBottom = new Style("paddingBottom", "paddingBottom")
 
   /**
    * The right CSS property specifies part of the position of positioned elements.
@@ -1497,7 +1497,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val right = new AutoStyle("right", "right")
+  final lazy val right = new AutoStyle("right", "right")
 
 
 
@@ -1512,7 +1512,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val lineHeight = new NormalOpenStyle("lineHeight", "lineHeight")
+  final lazy val lineHeight = new NormalOpenStyle("lineHeight", "lineHeight")
 
   /**
    * The left CSS property specifies part of the position of positioned elements.
@@ -1523,7 +1523,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val left = new AutoStyle("left", "left")
+  final lazy val left = new AutoStyle("left", "left")
 
 
 
@@ -1679,7 +1679,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val listStyle = new Style("listStyle", "listStyle")
+  final lazy val listStyle = new Style("listStyle", "listStyle")
 
   /**
    * The overflow-y CSS property specifies whether to clip content, render a
@@ -1688,7 +1688,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val overflowY = new Overflow("overflowY", "overflowY")
+  final lazy val overflowY = new Overflow("overflowY", "overflowY")
 
   /**
    * The caption-side CSS property positions the content of a table's caption
@@ -1721,7 +1721,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val boxShadow = new Style("boxShadow", "boxShadow")
+  final lazy val boxShadow = new Style("boxShadow", "boxShadow")
 
 
   /**
@@ -1851,7 +1851,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val fontSizeAdjust = new Style("fontSizeAdjust", "fontSizeAdjust")
+  final lazy val fontSizeAdjust = new Style("fontSizeAdjust", "fontSizeAdjust")
 
   /**
    * The font-family CSS property allows for a prioritized list of font family
@@ -1863,7 +1863,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val fontFamily = new Style("fontFamily", "fontFamily")
+  final lazy val fontFamily = new Style("fontFamily", "fontFamily")
 
 
   /**
@@ -1918,7 +1918,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val font = new Style("font", "font")
+  final lazy val font = new Style("font", "font")
 
   /**
    * The font-feature-settings CSS property allows control over advanced
@@ -1926,7 +1926,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val fontFeatureSettings = new Style("fontFeatureSettings", "fontFeatureSettings")
+  final lazy val fontFeatureSettings = new Style("fontFeatureSettings", "fontFeatureSettings")
 
   /**
    * The font-style CSS property allows italic or oblique faces to be selected
@@ -1996,7 +1996,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val marginBottom = new AutoStyle("marginBottom", "marginBottom")
+  final lazy val marginBottom = new AutoStyle("marginBottom", "marginBottom")
 
   /**
    * The margin-right CSS property of an element sets the margin space required
@@ -2004,7 +2004,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val marginRight = new Style("marginRight", "marginRight") with MarginAuto
+  final lazy val marginRight = new Style("marginRight", "marginRight") with MarginAuto
 
 
   /**
@@ -2013,7 +2013,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val marginTop = new Style("marginTop", "marginTop") with MarginAuto
+  final lazy val marginTop = new Style("marginTop", "marginTop") with MarginAuto
 
 
   /**
@@ -2026,7 +2026,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val marginLeft = new Style("marginLeft", "marginLeft") with MarginAuto
+  final lazy val marginLeft = new Style("marginLeft", "marginLeft") with MarginAuto
   /**
    * The margin CSS property sets the margin for all four sides. It is a
    * shorthand to avoid setting each side separately with the other margin
@@ -2065,7 +2065,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val top = new AutoStyle("top", "top")
+  final lazy val top = new AutoStyle("top", "top")
 
 
   /**
@@ -2076,7 +2076,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val width = new AutoStyle("width", "width")
+  final lazy val width = new AutoStyle("width", "width")
 
   /**
    * The bottom CSS property participates in specifying the position of
@@ -2095,7 +2095,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val bottom = new AutoStyle("bottom", "bottom")
+  final lazy val bottom = new AutoStyle("bottom", "bottom")
 
   /**
    * The letter-spacing CSS property specifies spacing behavior between text
@@ -2103,7 +2103,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val letterSpacing = new NormalOpenStyle("letterSpacing", "letterSpacing")
+  final lazy val letterSpacing = new NormalOpenStyle("letterSpacing", "letterSpacing")
 
 
   /**
@@ -2115,7 +2115,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val maxHeight = new NoneOpenStyle("maxHeight", "maxHeight")
+  final lazy val maxHeight = new NoneOpenStyle("maxHeight", "maxHeight")
 
   /**
    * The min-width CSS property is used to set the minimum width of a given
@@ -2126,7 +2126,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val minWidth = new Style("minWidth", "minWidth")
+  final lazy val minWidth = new Style("minWidth", "minWidth")
 
 
   /**
@@ -2138,7 +2138,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val minHeight = new Style("minHeight", "minHeight")
+  final lazy val minHeight = new Style("minHeight", "minHeight")
 
 
   /**
@@ -2151,7 +2151,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val outline = new Style("outline", "outline")
+  final lazy val outline = new Style("outline", "outline")
 
   /**
    * The outline-style CSS property is used to set the style of the outline of
@@ -2160,7 +2160,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val outlineStyle = new OutlineStyle("outlineStyle", "outlineStyle")
+  final lazy val outlineStyle = new OutlineStyle("outlineStyle", "outlineStyle")
 
   /**
    * The outline-width CSS property is used to set the width of the outline of
@@ -2217,7 +2217,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val overflowX = new Overflow("overflowX", "overflowX")
+  final lazy val overflowX = new Overflow("overflowX", "overflowX")
 
 
   /**
@@ -2226,7 +2226,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val textAlignLast = new Style("textAlignLast", "textAlignLast") with TextAlign
+  final lazy val textAlignLast = new Style("textAlignLast", "textAlignLast") with TextAlign
   trait TextAlign extends Style{
     /**
      * The same as left if direction is left-to-right and right if direction is
@@ -2275,7 +2275,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val textAlign = new Style("textAlign", "textAlign") with TextAlign
+  final lazy val textAlign = new Style("textAlign", "textAlign") with TextAlign
   /**
    * The text-decoration CSS property is used to set the text formatting to
    * underline, overline, line-through or blink.
@@ -2317,7 +2317,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val textIndent = new Style("textIndent", "textIndent")
+  final lazy val textIndent = new Style("textIndent", "textIndent")
 
   /**
    * The text-overflow CSS property determines how overflowed content that is
@@ -2440,7 +2440,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val textShadow = new NoneOpenStyle("textShadow", "textShadow")
+  final lazy val textShadow = new NoneOpenStyle("textShadow", "textShadow")
 
   object visibility extends Style("visibility", "visibility") {
     /**
@@ -2519,7 +2519,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val wordSpacing = new NormalOpenStyle("wordSpacing", "wordSpacing")
+  final lazy val wordSpacing = new NormalOpenStyle("wordSpacing", "wordSpacing")
   /**
    * The z-index CSS property specifies the z-order of an element and its
    * descendants. When elements overlap, z-order determines which one covers the
@@ -2528,7 +2528,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val zIndex = new AutoStyle("zIndex", "zIndex")
+  final lazy val zIndex = new AutoStyle("zIndex", "zIndex")
 
 
   // ==== [japgolly] Here begins Scalatags' Styles2 ====
@@ -2541,7 +2541,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val animationDirection = new Style("animationDirection", "animationDirection")
+  final lazy val animationDirection = new Style("animationDirection", "animationDirection")
 
   /**
    * The animation-duration CSS property specifies the Length of time that an
@@ -2552,7 +2552,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val animationDuration = new Style("animationDuration", "animationDuration")
+  final lazy val animationDuration = new Style("animationDuration", "animationDuration")
 
   /**
    * The animation-name CSS property specifies a list of animations that should
@@ -2561,7 +2561,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val animationName = new Style("animationName", "animationName")
+  final lazy val animationName = new Style("animationName", "animationName")
 
   /**
    * The animation-fill-mode CSS property specifies how a CSS animation should
@@ -2569,7 +2569,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val animationFillMode = new Style("animationFillMode", "animationFillMode")
+  final lazy val animationFillMode = new Style("animationFillMode", "animationFillMode")
 
   /**
    * The animation-iteration-count CSS property defines the number of times an
@@ -2577,7 +2577,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val animationIterationCount = new Style("animationIterationCount", "animationIterationCount")
+  final lazy val animationIterationCount = new Style("animationIterationCount", "animationIterationCount")
 
 
   /**
@@ -2602,7 +2602,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val animationDelay = new MultiTimeStyle("animationDelay", "animationDelay")
+  final lazy val animationDelay = new MultiTimeStyle("animationDelay", "animationDelay")
 
   /**
    * The CSS animation-timing-function property specifies how a CSS animation
@@ -2619,7 +2619,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val animationTimingFunction = new Style("animationTimingFunction", "animationTimingFunction")
+  final lazy val animationTimingFunction = new Style("animationTimingFunction", "animationTimingFunction")
 
 
   /**
@@ -2634,7 +2634,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val animationPlayState = new Style("animationPlayState", "animationPlayState")
+  final lazy val animationPlayState = new Style("animationPlayState", "animationPlayState")
   /**
    * The animation CSS property is a shorthand property for animation-name,
    * animation-duration, animation-timing-function, animation-delay,
@@ -2642,7 +2642,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val animation = new Style("animation", "animation")
+  final lazy val animation = new Style("animation", "animation")
 
 
   /**
@@ -2685,7 +2685,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val columnCount = new AutoStyle("columnCount", "columnCount")
+  final lazy val columnCount = new AutoStyle("columnCount", "columnCount")
 
   /**
    * The column-fill CSS property controls how contents are partitioned into
@@ -2717,7 +2717,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val columnGap = new NormalOpenStyle("columnGap", "columnGap")
+  final lazy val columnGap = new NormalOpenStyle("columnGap", "columnGap")
 
   /**
    * In multi-column layouts, the column-rule CSS property specifies a straight
@@ -2727,7 +2727,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val columnRule = new Style("columnRule", "columnRule")
+  final lazy val columnRule = new Style("columnRule", "columnRule")
 
   /**
    * The column-span CSS property makes it possible for an element to span across
@@ -2766,7 +2766,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val columnWidth = new AutoStyle("columnWidth", "columnWidth")
+  final lazy val columnWidth = new AutoStyle("columnWidth", "columnWidth")
 
   /**
    * The column-rule-color CSS property lets you set the color of the rule drawn
@@ -2774,7 +2774,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val columnRuleColor = new Style("columnRuleColor", "columnRuleColor")
+  final lazy val columnRuleColor = new Style("columnRuleColor", "columnRuleColor")
 
   /**
    * The column-rule-width CSS property lets you set the width of the rule drawn
@@ -2807,7 +2807,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val contentStyle = new Style("content", "content")
+  final lazy val contentStyle = new Style("content", "content")
 
   /**
    * The counter-increment CSS property is used to increase the value of CSS
@@ -2816,7 +2816,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val counterIncrement = new Style("counterIncrement", "counterIncrement")
+  final lazy val counterIncrement = new Style("counterIncrement", "counterIncrement")
 
   /**
    * The counter-reset CSS property is used to reset CSS Counters to a given
@@ -2824,7 +2824,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val counterReset = new Style("counterReset", "counterReset")
+  final lazy val counterReset = new Style("counterReset", "counterReset")
 
 
   /**
@@ -2834,7 +2834,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val orphans = new Style("orphans", "orphans")
+  final lazy val orphans = new Style("orphans", "orphans")
 
 
   /**
@@ -2847,7 +2847,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val widows = new Style("widows", "widows")
+  final lazy val widows = new Style("widows", "widows")
 
 
   /**
@@ -2856,7 +2856,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val pageBreakAfter = new PageBreak("pageBreakAfter", "pageBreakAfter")
+  final lazy val pageBreakAfter = new PageBreak("pageBreakAfter", "pageBreakAfter")
 
   /**
    * The page-break-inside CSS property adjusts page breaks inside the current
@@ -2864,7 +2864,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val pageBreakInside = new PageBreak("pageBreakInside", "pageBreakInside")
+  final lazy val pageBreakInside = new PageBreak("pageBreakInside", "pageBreakInside")
 
 
   /**
@@ -2876,7 +2876,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val pageBreakBefore = new PageBreak("pageBreakBefore", "pageBreakBefore")
+  final lazy val pageBreakBefore = new PageBreak("pageBreakBefore", "pageBreakBefore")
 
 
   /**
@@ -2888,7 +2888,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val perspective = new NoneOpenStyle("perspective", "perspective")
+  final lazy val perspective = new NoneOpenStyle("perspective", "perspective")
 
   /**
    * The perspective-origin CSS property determines the position the viewer is
@@ -2896,7 +2896,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val perspectiveOrigin = new Style("perspectiveOrigin", "perspectiveOrigin")
+  final lazy val perspectiveOrigin = new Style("perspectiveOrigin", "perspectiveOrigin")
 
 
   /**
@@ -2919,7 +2919,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val transitionDelay = new MultiTimeStyle("transitionDelay", "transitionDelay")
+  final lazy val transitionDelay = new MultiTimeStyle("transitionDelay", "transitionDelay")
 
   /**
    * The CSS transition property is a shorthand property for transition-property,
@@ -2930,7 +2930,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val transition = new Style("transition", "transition")
+  final lazy val transition = new Style("transition", "transition")
 
   /**
    * The CSS transition-timing-function property is used to describe how the
@@ -2940,7 +2940,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val transitionTimingFunction = new Style("transitionTimingFunction", "transitionTimingFunction")
+  final lazy val transitionTimingFunction = new Style("transitionTimingFunction", "transitionTimingFunction")
 
   /**
    * The transition-duration CSS property specifies the number of seconds or
@@ -2956,7 +2956,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val transitionDuration = new MultiTimeStyle("transitionDuration", "transitionDuration")
+  final lazy val transitionDuration = new MultiTimeStyle("transitionDuration", "transitionDuration")
 
   /**
    * The transition-property CSS property is used to specify the names of CSS
@@ -2964,7 +2964,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val transitionProperty = new Style("transitionProperty", "transitionProperty")
+  final lazy val transitionProperty = new Style("transitionProperty", "transitionProperty")
 
   /**
    * The CSS transform property lets you modify the coordinate space of the CSS
@@ -2977,7 +2977,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val transform = new Style("transform", "transform")
+  final lazy val transform = new Style("transform", "transform")
 
 
   /**
@@ -2987,7 +2987,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val flex = new Style("flex", "flex")
+  final lazy val flex = new Style("flex", "flex")
 
   /**
    * The CSS flex-basis property specifies the flex basis which is the initial main size of a flex item.
@@ -2995,131 +2995,131 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val flexBasis = new Style("flexBasis", "flexBasis")
+  final lazy val flexBasis = new Style("flexBasis", "flexBasis")
 
   /**
    * The CSS flex-grow property specifies the flex grow factor of a flex item.
    *
    * MDN
    */
-  final val flexGrow = new Style("flexGrow", "flexGrow")
+  final lazy val flexGrow = new Style("flexGrow", "flexGrow")
 
   /**
    * The CSS flex-shrink property specifies the flex shrink factor of a flex item.
    *
    * MDN
    */
-  final val flexShrink = new Style("flexShrink", "flexShrink")
- 
-  /** 
+  final lazy val flexShrink = new Style("flexShrink", "flexShrink")
+
+  /**
    * The CSS align-content property aligns a flex container's lines within the flex container when there is extra
    * space on the cross-axis. This property has no effect on single line flexible boxes.
-   * 
+   *
    * MDN
    */
   object alignContent extends Style("alignContent", "alignContent") {
-    
-    /** 
+
+    /**
      * Lines are packed starting from the cross-start. Cross-start edge of the first line and cross-start edge of
      * the flex container are flushed together. Each following line is flush with the preceding.
-     * 
+     *
      * MDN
      */
-    @inline final def flexStart = this := "flex-start" 
+    @inline final def flexStart = this := "flex-start"
 
-    /** 
+    /**
      * Lines are packed starting from the cross-end. Cross-end of the last line and cross-end of the flex container
      * are flushed together. Each preceding line is flushed with the following line.
-     * 
+     *
      * MDN
      */
-    @inline final def flexEnd = this := "flex-end" 
+    @inline final def flexEnd = this := "flex-end"
 
-    /** 
+    /**
      * Lines are packed toward the center of the flex container. The lines are flushed with each other and aligned
      * in the center of the flex container. Space between the cross-start edge of the flex container and first line
      * and between cross-end of the flex container and the last line is the same.
-     * 
+     *
      * MDN
      */
-    @inline final def center = this := "center" 
+    @inline final def center = this := "center"
 
-    /** 
+    /**
      * Lines are evenly distributed in the flex container. The spacing is done such as the space between two
      * adjacent items is the same. Cross-start edge and cross-end edge of the flex container are flushed with
      * respectively first and last line edges.
-     * 
+     *
      * MDN
      */
-    @inline final def spaceBeteween = this := "space-between" 
+    @inline final def spaceBeteween = this := "space-between"
 
-    /** 
+    /**
      * Lines are evenly distributed so that the space between two adjacent lines is the same. The empty space before
      * the first and after the last lines equals half of the space between two adjacent lines.
-     * 
+     *
      * MDN
      */
-    @inline final def spaceAround = this := "space-around" 
-    
-    /** 
-     * Lines stretch to use the remaining space. The free-space is split equally between all the lines.   
-     * 
+    @inline final def spaceAround = this := "space-around"
+
+    /**
+     * Lines stretch to use the remaining space. The free-space is split equally between all the lines.
+     *
      * MDN
      */
-    @inline final def stretch = this := "stretch" 
+    @inline final def stretch = this := "stretch"
   }
- 
+
   /**
    * The align-self CSS property aligns flex items of the current flex line overriding the align-items value. If any
    * of the flex item's cross-axis margin is set to auto, then align-self is ignored.
-   * 
-   * MDN 
+   *
+   * MDN
    */
   object alignSelf extends Style("alignSelf", "alignSelf") {
-    /** 
+    /**
      * Computes to parent's align-items value or stretch if the element has no parent.
-     * 
+     *
      * MDN
      */
-    @inline final def auto = this := "auto" 
-    
-    /** 
+    @inline final def auto = this := "auto"
+
+    /**
      * The cross-start margin edge of the flex item is flushed with the cross-start edge of the line.
-     * 
+     *
      * MDN
      */
-    @inline final def flexStart = this := "flex-start" 
+    @inline final def flexStart = this := "flex-start"
 
-    /** 
+    /**
      * The cross-end margin edge of the flex item is flushed with the cross-end edge of the line.
-     * 
+     *
      * MDN
      */
-    @inline final def flexEnd = this := "flex-end" 
+    @inline final def flexEnd = this := "flex-end"
 
-    /** 
+    /**
      * The flex item's margin box is centered within the line on the cross-axis. If the cross-size of the item is
      * larger than the flex container, it will overflow equally in both directions.
-     * 
+     *
      * MDN
      */
-    @inline final def center = this := "center" 
+    @inline final def center = this := "center"
 
-    /** 
+    /**
      * All flex items are aligned such that their baselines align. The item with the largest distance between its
      * cross-start margin edge and its baseline is flushed with the cross-start edge of the line.
-     * 
+     *
      * MDN
      */
-    @inline final def baseline = this := "baseline" 
-    
-    /** 
+    @inline final def baseline = this := "baseline"
+
+    /**
      * Flex items are stretched such as the cross-size of the item's margin box is the same as the line while
      * respecting width and height constraints.
-     * 
+     *
      * MDN
      */
-    @inline final def stretch = this := "stretch" 
+    @inline final def stretch = this := "stretch"
   }
 
   /**
@@ -3313,7 +3313,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final val transformOrigin = new Style("transformOrigin", "transformOrigin")
+  final lazy val transformOrigin = new Style("transformOrigin", "transformOrigin")
   /**
    * The transform-style CSS property determines if the children of the element
    * are positioned in the 3D-space or are flattened in the plane of the element.

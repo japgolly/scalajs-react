@@ -20,6 +20,7 @@ The package is `japgolly.scalajs.react.extra.router`.
 - [`RouterCtl`](#routerctl)
 - Beyond the Basics
   - [URL rewriting rules](#url-rewriting-rules)
+  - [Loose routes with auto-correction](#loose-routes-with-auto-correction)
   - [Conditional routes](#conditional-routes)
   - [Rendering with a layout](#rendering-with-a-layout)
   - [Post-render callback](#post-render-callback)
@@ -57,7 +58,11 @@ Caution
 * If you want routes starting with slashes, you will need to configure your server appropriately.
   There's no point having `www.blah.com/foo` have routes like `/bar` if when the server receives a request for `www.blah.com/foo/bar` it doesn't know to use the same endpoint as `www.blah.com/foo`.
   If you don't have that control, begin with a `#` instead, like `#foo`.
+
+* It's a security feature of browsers that if a user enters a different URL, you can't absorb it with your SPA router. Using `window.onbeforeunload` you can only prompt the user to change their mind and keep the current URL. If a user manually enters a URL to move from one part of your SPA to a different part of the SPA, it's going to reload the page... **unless** you use `#` in your URL and they change the portion after the `#`. In such a case you can use the `window.onhashchange` event handler.
+
 * If you use Internet Explorer v0.1 ~ v9, the HTML5 API won't be available. But that's ok, there's no need to code like our homo-heidelbergensis ancestors, just download and use a polyfill.
+
 * These is a small but significant guarantee that this design sacrifices to buy important features. See *[A spot of unsafeness](#a-spot-of-unsafeness)*.
 
 
@@ -146,10 +151,14 @@ and is automatically converted to a finalised `Route` when used.
 
 * `RouteB[Long]` - Use DSL `long`.
 
-* `RouteB[String]` - Use DSL `string(regex)`, like `string("[a-z0-9]{1,20}")`
+* `RouteB[String]` from a URL substring - Use DSL `string(regex)`, like `string("[a-z0-9]{1,20}")`
   * Best to use a whitelist of characters, eg. `[a-zA-Z0-9]+`.
   * Do not capture groups; use `[a-z]+` instead of `([a-z]+)`.
   * If you need to group, use non-capturing groups like `(?:bye|hello)` instead of `(bye|hello)`.
+
+* `RouteB[String]` from the remainder of the unmatched URL.
+  * `remainingPath` - Captures the (non-empty) remaining portion of the URL path.
+  * `remainingPathOrBlank` - Captures the (potentially-empty) remaining portion of the URL path.
 
 * `RouteB[UUID]` - Use DSL `uuid`.
 
@@ -165,9 +174,13 @@ and is automatically converted to a finalised `Route` when used.
 * Combinators on any `RouteB[A]`
   * `.filter(A => Boolean)` causes the route to ignore parsed values which don't satisfy the given filter.
   * `.option` makes this subject portion of the route optional and turns a `RouteB[A]` into a `RouteB[Option[A]]`. Forms an isomorphism between `None` and an empty path.
-  * `.xmap[B](A => B)(B => A)` allows you to map the route type from an `A` to a `B`.
+  * `.pmap[B](A => Option[B])(B => A)` allows you to attempt to map the route type from an `A` to a `B`, or fail. (prism map)
+  * `.xmap[B](A => B)(B => A)` allows you to map the route type from an `A` to a `B`. (exponential map)
   * `.caseClass[A]` maps the route type(s) to a case class.
   * `.caseClassDebug[A]` as above, but shows you the code that the macro generates.
+  * If you're using the `monocle` module and `import MonocleReact._` you also gain access to:
+    * `.pmapL[B](Prism[A, B])`.
+    * `.xmapL[B](Iso[A, B])`.
 
 * Combinators on `RouteB[Option[A]]`
   * `.withDefault(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `==` to compare `A`s to the given default.
@@ -382,6 +395,91 @@ A few rules are included out-of-the-box for you to use:
 * `removeTrailingSlashes` - uses a replace-state redirect to remove trailing slashes from route URLs.
 * `removeLeadingSlashes` - uses a replace-state redirect to remove leading slashes from route URLs.
 * `trimSlashes` - uses a replace-state redirect to remove leading and trailing slashes from route URLs.
+
+### Loose routes with auto-correction
+
+There are cases in which you may want to create a route that
+
+1. Loosely matches a URL so that it can handle variations.
+2. Has a single appropriate URL that you want to use after variations have been accepted and parsed.
+
+##### Example scenario
+
+You may be creating an issue tracker that has URLs for each ticket like:
+```
+/issue/DEV-4
+/issue/DEV-42
+/issue/FRONTEND-23
+```
+
+You also want to accept imperfections such as:
+```
+/issue/DEV-004
+/issue/DEV42
+/issue/frontend-23
+```
+
+When an imperfect URL is parsed you want to auto-correct it like:
+```
+/issue/DEV-004     → /issue/DEV-4
+/issue/DEV42       → /issue/DEV-42
+/issue/frontend-23 → /issue/FRONTEND-23
+```
+
+When a URL is already perfect, you render a page normally.
+
+##### Instructions
+
+There are two features you need to implement this functionality.
+
+First, create a route as you normally would, then map its type using a prism.
+To do so, and then call `.pmap` (or `.pmapL` to use use a [Monocle prism](http://julien-truffaut.github.io/Monocle/api/#monocle.PPrism)).
+
+Second, one you have created you route rule, call `.autoCorrect`.
+By default it will do a replace-state to change the URL meaning that only the correct URL will appear in the user's history -
+pressing *back* will go back to the page before they entered the imperfect URL.
+You can use push-state by using `.autoCorrect(Redirect.Method)` but be warned, unless you're doing something magic/crazy,
+when the user hits their *back* button they will request the imperfect URL again which will just redirect them forward negating their *back* action.
+
+##### Example implementation
+
+This is the implementation for the example scenario described above.
+
+```scala
+sealed trait Page
+
+case object Home extends Page
+
+case class IssuePage(projectCode: String, number: Int) extends Page {
+  def toUrlFrag: String = projectCode + "-" + number
+}
+
+val cfg = RouterConfigDsl[Page].buildConfig { dsl =>
+  import dsl._
+
+  def homeRoute =
+    staticRoute(root, Home) ~> render(<.h1("Home"))
+
+  val urlRegex = """([a-zA-Z]+)-?(\d+)""".r
+
+  def parse(urlFrag: String): Option[IssuePage] =
+    urlFrag match {
+      case urlRegex(code, num) => Some(IssuePage(code.toUpperCase, num.toInt))
+      case _                   => None
+    }
+
+  def issueRoute =
+    dynamicRouteCT("issue" / remainingPath.pmap(parse)(_.toUrlFrag)) ~>
+      dynRender(renderIssuePage) autoCorrect
+
+  def renderIssuePage(p: IssuePage) =
+    <.div("Issue = " + p)
+
+  ( homeRoute
+  | issueRoute
+  ).notFound(redirectToPage(Home)(Redirect.Replace))
+}
+```
 
 ### Conditional routes
 

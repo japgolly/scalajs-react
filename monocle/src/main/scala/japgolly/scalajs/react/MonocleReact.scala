@@ -28,7 +28,18 @@ object MonocleReact extends MonocleReactExtra {
 
     def _setStateL[L[_, _, _, _], B](l: L[S, S, _, B], cb: Callback = Callback.empty)(implicit L: SetterMonocle[L]): B => W =
       setStateL(l)(_, cb)
+  }
 
+  @inline implicit def MonocleReactCompStateZoomOpsDD[$, S]($: $)(implicit ops: $ => ReadDirectWriteDirectOps[S]) =
+    new MonocleReactCompStateZoomOps[ReadDirectWriteDirectOps[S], S](ops($))
+
+  @inline implicit def MonocleReactCompStateZoomOpsDC[$, S]($: $)(implicit ops: $ => ReadDirectWriteCallbackOps[S]) =
+    new MonocleReactCompStateZoomOps[ReadDirectWriteCallbackOps[S], S](ops($))
+
+  @inline implicit def MonocleReactCompStateZoomOpsCC[$, S]($: $)(implicit ops: $ => ReadCallbackWriteCallbackOps[S]) =
+    new MonocleReactCompStateZoomOps[ReadCallbackWriteCallbackOps[S], S](ops($))
+
+  final class MonocleReactCompStateZoomOps[Ops <: ZoomOps[S], S](private val $: Ops) extends AnyVal {
     def zoomL[T](l: Lens[S, T]): Ops#This[T] =
       $.zoom(l.get)((s, t) => l.set(t)(s))
   }

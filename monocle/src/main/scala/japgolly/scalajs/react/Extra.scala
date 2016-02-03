@@ -27,7 +27,10 @@ private[react] object MonocleReactExtra {
       v.set(l.modify(f)(v.value))
   }
 
-  final class RouteCommonOps[A, R[_]](private val r: RouteCommon[A, R]) extends AnyVal {
+  final class RouteCommonOps[R[X] <: RouteCommon[R, X], A](private val r: RouteCommon[R, A]) extends AnyVal {
+    def pmapL[B](l: Prism[A, B]): R[B] =
+      r.pmap(l.getOption)(l.reverseGet)
+
     def xmapL[B](l: Iso[A, B]): R[B] =
       r.xmap(l.get)(l.reverseGet)
   }
@@ -49,6 +52,6 @@ abstract class MonocleReactExtra {
   @inline implicit def MonocleReactExternalVarOps[A](v: ExternalVar[A]) = new ExternalVarOps(v)
   @inline implicit def MonocleReactReusableVarOps[A](v: ReusableVar[A]) = new ReusableVarOps(v)
 
-  @inline implicit def MonocleReactRouteCommonOps[A, R[_]](r: RouteCommon[A, R]) = new RouteCommonOps(r)
+  @inline implicit def MonocleReactRouteCommonOps[R[X] <: RouteCommon[R, X], A](r: RouteCommon[R, A]) = new RouteCommonOps(r)
   @inline implicit def MonocleReactRuleOps[P](r: Rule[P]) = new RuleOps(r)
 }

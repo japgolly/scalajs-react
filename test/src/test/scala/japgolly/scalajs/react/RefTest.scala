@@ -6,6 +6,7 @@ import scala.scalajs.js
 import org.scalajs.dom.raw._
 import vdom.prefix_<^._
 import TestUtil._
+import TestUtil2._
 import japgolly.scalajs.react.test.ReactTestUtils
 
 object RefTest extends TestSuite {
@@ -32,7 +33,7 @@ object RefTest extends TestSuite {
       val c = ReactComponentB[Unit]("").render(_ => <.div(Static.withRef(ref)())).buildU
       val m = ReactTestUtils renderIntoDocument c()
       val e = ReactDOM.findDOMNode(m.refs("omg").get).asInstanceOf[HTMLElement]
-      removeReactDataAttr(e.outerHTML) mustEqual StaticHtml
+      assertOuterHTML(e, StaticHtml)
     }
 
     'toScalaComponentTypesafe {
@@ -40,7 +41,7 @@ object RefTest extends TestSuite {
       val c = ReactComponentB[Unit]("").render(_ => <.div(Static.withRef(ref)())).buildU
       val m = ReactTestUtils renderIntoDocument c()
       val e = ReactDOM findDOMNode ref(m).get
-      removeReactDataAttr(e.outerHTML) mustEqual StaticHtml
+      assertOuterHTML(e, StaticHtml)
     }
 
     'parameterised {

@@ -69,11 +69,6 @@ package object react extends ReactEventAliases {
 
   // ===================================================================================================================
 
-  @inline implicit def autoUnWrapObj[A](a: WrapObj[A]): A = a.v
-  @inline implicit final class ReactExt_Any[A](private val a: A) extends AnyVal {
-    @inline def wrap: WrapObj[A] = WrapObj(a)
-  }
-
   import CompScope._
 
   @inline implicit final class ReactExt_CanGetInitialState[P, S](private val c: CanGetInitialState[P, S]) extends AnyVal {

@@ -1,12 +1,14 @@
 package japgolly.scalajs.react.extra.router
 
 import java.util.UUID
-import scalaz.Equal
+import monocle.Prism
 import org.scalajs.dom
+import scalaz.Equal
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.prefix_<^._
+import MonocleReact._
 import ScalazReact._
 import TestUtil._
 import TestUtil2._
@@ -46,6 +48,8 @@ object Router2Test extends TestSuite {
     case class UserProfilePage(id: Int) extends MyPage2
     case class NestedModule(m: Module)  extends MyPage2
     case object SomethingElse           extends MyPage2
+    case class Code1(code: String)      extends MyPage2
+    case class Code2(code: String)      extends MyPage2
 
     case class E(n: En) extends MyPage2
     sealed trait En
@@ -82,6 +86,10 @@ object Router2Test extends TestSuite {
 
     var innerPageEq: Equal[MyPage2] = null
 
+    val alphaOnly = "^([a-zA-Z]+)$".r
+    val code1Prism = Prism[String, Code1](alphaOnly.findFirstIn(_).map(s => Code1(s.toUpperCase)))(_.code)
+    val code2Prism = Prism[String, Code2](alphaOnly.findFirstIn(_).map(s => Code2(s.toUpperCase)))(_.code)
+
     val config = RouterConfigDsl[MyPage2].buildConfig { dsl =>
       import dsl._
 
@@ -102,17 +110,22 @@ object Router2Test extends TestSuite {
       val nestedModule =
         Module.routes.prefixPath_/("module").pmap[MyPage2](NestedModule){ case NestedModule(m) => m }
 
-      (emptyRule // removeTrailingSlashes
-        | staticRoute(root, PublicHome) ~> render(<.h1("HOME"))
-        | nestedModule
-        | ePages
-        | privatePages
-        )
-        .notFound(redirectToPage(if (isUserLoggedIn) PublicHome else PrivatePage1)(Redirect.Replace))
+      val code1 = dynamicRouteCT("code1" / remainingPath.pmapL(code1Prism)) ~> dynRender(c => <.div(c.code))
+      val code2 = dynamicRouteCT("code2" / remainingPath.pmapL(code2Prism)) ~> dynRender(c => <.div(c.code))
+
+      ( emptyRule // removeTrailingSlashes
+      | staticRoute(root, PublicHome) ~> render(<.h1("HOME"))
+      | nestedModule
+      | ePages
+      | code1
+      | privatePages // Keep this in between code1 & code2. It tests .addCondition wrt prisms.
+      | code2.autoCorrect
+      ) .notFound(redirectToPage(if (isUserLoggedIn) PublicHome else PrivatePage1)(Redirect.Replace))
         .renderWith((ctl, res) =>
           <.div(
             nav(NavProps(res.page, ctl)),
             res.render()))
+        .logToConsole
     }
   }
 
@@ -124,7 +137,7 @@ object Router2Test extends TestSuite {
   override val tests = TestSuite {
     import MyPage2._
     implicit val base = BaseUrl("file:///router2Demo/")
-    val (router, lgc) = Router.componentAndLogic(base, config) // .logToConsole
+    val (router, lgc) = Router.componentAndLogic(base, config)
     val ctl = lgc.ctl
 
     val sim = SimHistory(base.abs)
@@ -135,14 +148,14 @@ object Router2Test extends TestSuite {
     def syncNoRedirect(path: Path) = {
       sim.reset(path.abs)
       val r = sim.run(lgc syncToPath path)
-      assertEq(sim.history.head, path.abs)
+      assertEq(sim.history, path.abs :: Nil)
       r
     }
 
     def assertSyncRedirects(path: Path, expectTo: Path) = {
       sim.reset(path.abs)
       val r = sim.run(lgc syncToPath path)
-      assertEq(sim.history.head, expectTo.abs)
+      assertEq(sim.currentUrl, expectTo.abs)
       r
     }
 
@@ -206,7 +219,7 @@ object Router2Test extends TestSuite {
       'origPathNotAvail {
         val r = sim.run(lgc syncToPath Path("one"))
         assertEq(r.page,  PublicHome)
-        assertEq(sim.history.head, Path.root.abs)
+        assertEq(sim.currentUrl, Path.root.abs)
       }
       'slashNop {
         // prefixPath_/ only adds a / when rhs is empty
@@ -245,6 +258,37 @@ object Router2Test extends TestSuite {
       ctl2.set(PrivatePage2).runNow()
       assertContains(html, secret)
       assertEq(i, 1)
+    }
+
+    'prism {
+      'buildUrl {
+        assertEq(ctl.pathFor(Code1("HEH")).value, "code1/HEH")
+      }
+      'exact {
+        val r = syncNoRedirect("code1/OMG")
+        assertEq(r.page, Code1("OMG"))
+        assertContains(htmlFor(r), "OMG")
+      }
+      'tolerant {
+        val r = syncNoRedirect("code1/yay")
+        assertEq(r.page, Code1("YAY"))
+        assertContains(htmlFor(r), "YAY")
+      }
+    }
+
+    'prismWithRedirect {
+      'buildUrl {
+        assertEq(ctl.pathFor(Code2("HEH")).value, "code2/HEH")
+      }
+      'exact {
+        val r = syncNoRedirect("code2/OMG")
+        assertEq(r.page, Code2("OMG"))
+        assertContains(htmlFor(r), "OMG")
+      }
+      'redirect {
+        assertSyncRedirects("code2/yay", "code2/YAY")
+        ()
+      }
     }
   }
 }

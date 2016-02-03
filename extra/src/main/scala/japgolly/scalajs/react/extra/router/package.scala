@@ -13,6 +13,11 @@ package object router {
     def | (g: A => B)        : A => B         = a => f(a) getOrElse g(a)
   }
 
+  private[router] implicit class OptionFn2Ext[A, B, C](private val f: (A, B) => Option[C]) extends AnyVal {
+    def ||(g: (A, B) => Option[C]): (A, B) => Option[C] = (a, b) => f(a, b) orElse g(a, b)
+    def | (g: (A, B) => C)        : (A, B) => C         = (a, b) => f(a, b) getOrElse g(a, b)
+  }
+
   private[router] implicit class SaneEitherMethods[A, B](private val e: Either[A, B]) extends AnyVal {
     def map[C](f: B => C): Either[A, C] =
       e match {

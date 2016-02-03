@@ -16,7 +16,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val accentHeight = "accent-height".attr
+  final lazy val accentHeight = "accent-height".attr
 
   /**
    * This attribute controls whether or not the animation is cumulative.
@@ -28,7 +28,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val accumulate = "accumulate".attr
+  final lazy val accumulate = "accumulate".attr
 
   /**
    * This attribute controls whether or not the animation is additive.
@@ -41,7 +41,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val additive = "additive".attr
+  final lazy val additive = "additive".attr
 
   /**
    * The alignment-baseline attribute specifies how an object is aligned
@@ -59,7 +59,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val alignmentBaseline = "alignment-baseline".attr
+  final lazy val alignmentBaseline = "alignment-baseline".attr
 
 
   /**
@@ -72,7 +72,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val ascent = "ascent".attr
+  final lazy val ascent = "ascent".attr
 
 
   /**
@@ -83,7 +83,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val attributeName = "attributeName".attr
+  final lazy val attributeName = "attributeName".attr
 
 
   /**
@@ -94,7 +94,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val attributeType = "attributeType".attr
+  final lazy val attributeType = "attributeType".attr
 
 
   /**
@@ -107,7 +107,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val azimuth = "azimuth".attr
+  final lazy val azimuth = "azimuth".attr
 
 
   /**
@@ -124,7 +124,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val baseFrequency = "baseFrequency".attr
+  final lazy val baseFrequency = "baseFrequency".attr
 
 
   /**
@@ -138,7 +138,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val baselineShift = "baseline-shift".attr
+  final lazy val baselineShift = "baseline-shift".attr
 
 
   /**
@@ -153,7 +153,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val begin = "begin".attr
+  final lazy val begin = "begin".attr
 
 
   /**
@@ -167,7 +167,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val bias = "bias".attr
+  final lazy val bias = "bias".attr
 
 
   /**
@@ -179,7 +179,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val calcMode = "calcMode".attr
+  final lazy val calcMode = "calcMode".attr
 
 
   /**
@@ -196,7 +196,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val `class` = "class".attr
+  final lazy val `class` = "class".attr
 
 
   /**
@@ -211,7 +211,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val clip = "clip".attr
+  final lazy val clip = "clip".attr
 
 
   /**
@@ -222,7 +222,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val clipPath = "clip-path".attr
+  final lazy val clipPath = "clip-path".attr
 
   /**
    * The clipPathUnits attribute defines the coordinate system for the contents
@@ -237,7 +237,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val clipPathUnits = "clipPathUnits".attr
+  final lazy val clipPathUnits = "clipPathUnits".attr
 
   /**
    * The clip-rule attribute only applies to graphics elements that are contained within a
@@ -248,7 +248,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val clipRule = "clip-rule".attr
+  final lazy val clipRule = "clip-rule".attr
 
   /**
    * The color attribute is used to provide a potential indirect value (currentColor)
@@ -260,7 +260,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val color = "color".attr
+  final lazy val color = "color".attr
 
 
   /**
@@ -280,7 +280,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val colorInterpolation = "color-interpolation".attr
+  final lazy val colorInterpolation = "color-interpolation".attr
 
 
   /**
@@ -297,7 +297,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val colorInterpolationFilters = "color-interpolation-filters".attr
+  final lazy val colorInterpolationFilters = "color-interpolation-filters".attr
 
 
   /**
@@ -310,7 +310,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val colorProfile = "color-profile".attr
+  final lazy val colorProfile = "color-profile".attr
 
 
   /**
@@ -328,7 +328,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val colorRendering = "color-rendering".attr
+  final lazy val colorRendering = "color-rendering".attr
 
 
   /**
@@ -343,7 +343,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val contentScriptType = "contentScriptType".attr
+  final lazy val contentScriptType = "contentScriptType".attr
 
 
   /**
@@ -355,7 +355,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val contentStyleType = "contentStyleType".attr
+  final lazy val contentStyleType = "contentStyleType".attr
 
 
   /**
@@ -371,7 +371,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val cursor = "cursor".attr
+  final lazy val cursor = "cursor".attr
 
 
   /**
@@ -387,7 +387,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val cx = "cx".attr
+  final lazy val cx = "cx".attr
 
   /**
    * For the <circle> and the <ellipse> element, this attribute define the y-axis coordinate
@@ -402,7 +402,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val cy = "cy".attr
+  final lazy val cy = "cy".attr
 
 
   /**
@@ -410,7 +410,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val d = "d".attr
+  final lazy val d = "d".attr
 
 
   /**
@@ -418,7 +418,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val diffuseConstant = "diffuseConstant".attr
+  final lazy val diffuseConstant = "diffuseConstant".attr
 
 
   /**
@@ -426,7 +426,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val direction = "direction".attr
+  final lazy val direction = "direction".attr
 
 
   /**
@@ -434,7 +434,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val display = "display".attr
+  final lazy val display = "display".attr
 
 
   /**
@@ -442,7 +442,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val divisor = "divisor".attr
+  final lazy val divisor = "divisor".attr
 
 
   /**
@@ -450,7 +450,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val dominantBaseline = "dominant-baseline".attr
+  final lazy val dominantBaseline = "dominant-baseline".attr
 
 
   /**
@@ -458,7 +458,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val dur = "dur".attr
+  final lazy val dur = "dur".attr
 
 
   /**
@@ -466,7 +466,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val dx = "dx".attr
+  final lazy val dx = "dx".attr
 
 
   /**
@@ -474,7 +474,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val dy = "dy".attr
+  final lazy val dy = "dy".attr
 
 
   /**
@@ -482,7 +482,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val edgeMode = "edgeMode".attr
+  final lazy val edgeMode = "edgeMode".attr
 
 
   /**
@@ -490,7 +490,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val elevation = "elevation".attr
+  final lazy val elevation = "elevation".attr
 
 
   /**
@@ -498,7 +498,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val end = "end".attr
+  final lazy val end = "end".attr
 
 
   /**
@@ -506,7 +506,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val externalResourcesRequired = "externalResourcesRequired".attr
+  final lazy val externalResourcesRequired = "externalResourcesRequired".attr
 
 
   /**
@@ -514,7 +514,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fill = "fill".attr
+  final lazy val fill = "fill".attr
 
 
   /**
@@ -522,7 +522,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fillOpacity = "fillOpacity".attr
+  final lazy val fillOpacity = "fillOpacity".attr
 
 
   /**
@@ -530,7 +530,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fillRule = "fill-rule".attr
+  final lazy val fillRule = "fill-rule".attr
 
 
   /**
@@ -538,7 +538,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val filter = "filter".attr
+  final lazy val filter = "filter".attr
 
 
   /**
@@ -546,7 +546,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val filterRes = "filterRes".attr
+  final lazy val filterRes = "filterRes".attr
 
 
   /**
@@ -554,7 +554,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val filterUnits = "filterUnits".attr
+  final lazy val filterUnits = "filterUnits".attr
 
 
   /**
@@ -562,7 +562,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val floodColor = "flood-color".attr
+  final lazy val floodColor = "flood-color".attr
 
 
   /**
@@ -570,7 +570,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val floodOpacity = "flood-opacity".attr
+  final lazy val floodOpacity = "flood-opacity".attr
 
 
   /**
@@ -578,7 +578,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fontFamily = "fontFamily".attr
+  final lazy val fontFamily = "fontFamily".attr
 
 
   /**
@@ -586,7 +586,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fontSize = "fontSize".attr
+  final lazy val fontSize = "fontSize".attr
 
 
   /**
@@ -594,7 +594,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fontSizeAdjust = "font-size-adjust".attr
+  final lazy val fontSizeAdjust = "font-size-adjust".attr
 
 
   /**
@@ -602,7 +602,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fontStretch = "font-stretch".attr
+  final lazy val fontStretch = "font-stretch".attr
 
 
   /**
@@ -610,7 +610,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fontVariant = "font-variant".attr
+  final lazy val fontVariant = "font-variant".attr
 
 
   /**
@@ -618,7 +618,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val fontWeight = "font-weight".attr
+  final lazy val fontWeight = "font-weight".attr
 
 
   /**
@@ -626,7 +626,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val from = "from".attr
+  final lazy val from = "from".attr
 
 
   /**
@@ -634,7 +634,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val gradientTransform = "gradientTransform".attr
+  final lazy val gradientTransform = "gradientTransform".attr
 
 
   /**
@@ -642,7 +642,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val gradientUnits = "gradientUnits".attr
+  final lazy val gradientUnits = "gradientUnits".attr
 
 
   /**
@@ -650,7 +650,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val height = "height".attr
+  final lazy val height = "height".attr
 
 
   /**
@@ -658,16 +658,16 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val imageRendering = "imageRendering".attr
+  final lazy val imageRendering = "imageRendering".attr
 
-  final val id = "id".attr
+  final lazy val id = "id".attr
 
   /**
    *
    *
    * MDN
    */
-  final val in = "in".attr
+  final lazy val in = "in".attr
 
 
 
@@ -676,7 +676,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val in2 = "in2".attr
+  final lazy val in2 = "in2".attr
 
 
 
@@ -685,7 +685,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val k1 = "k1".attr
+  final lazy val k1 = "k1".attr
 
 
   /**
@@ -693,7 +693,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val k2 = "k2".attr
+  final lazy val k2 = "k2".attr
 
 
   /**
@@ -701,7 +701,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val k3 = "k3".attr
+  final lazy val k3 = "k3".attr
 
 
   /**
@@ -709,7 +709,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val k4 = "k4".attr
+  final lazy val k4 = "k4".attr
 
 
 
@@ -718,7 +718,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val kernelMatrix = "kernelMatrix".attr
+  final lazy val kernelMatrix = "kernelMatrix".attr
 
 
 
@@ -727,7 +727,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val kernelUnitLength = "kernelUnitLength".attr
+  final lazy val kernelUnitLength = "kernelUnitLength".attr
 
 
   /**
@@ -735,7 +735,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val kerning = "kerning".attr
+  final lazy val kerning = "kerning".attr
 
 
   /**
@@ -743,7 +743,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val keySplines = "keySplines".attr
+  final lazy val keySplines = "keySplines".attr
 
 
 
@@ -752,7 +752,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val keyTimes = "keyTimes".attr
+  final lazy val keyTimes = "keyTimes".attr
 
 
 
@@ -762,7 +762,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val letterSpacing = "letter-spacing".attr
+  final lazy val letterSpacing = "letter-spacing".attr
 
 
 
@@ -771,7 +771,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val lightingColor = "lighting-color".attr
+  final lazy val lightingColor = "lighting-color".attr
 
 
 
@@ -780,7 +780,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val limitingConeAngle = "limitingConeAngle".attr
+  final lazy val limitingConeAngle = "limitingConeAngle".attr
 
 
 
@@ -789,7 +789,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val local = "local".attr
+  final lazy val local = "local".attr
 
 
 
@@ -798,7 +798,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val markerEnd = "markerEnd".attr
+  final lazy val markerEnd = "markerEnd".attr
 
 
   /**
@@ -806,7 +806,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val markerMid = "markerMid".attr
+  final lazy val markerMid = "markerMid".attr
 
 
   /**
@@ -814,7 +814,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val markerStart = "markerStart".attr
+  final lazy val markerStart = "markerStart".attr
 
 
   /**
@@ -822,7 +822,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val markerHeight = "markerHeight".attr
+  final lazy val markerHeight = "markerHeight".attr
 
 
   /**
@@ -830,7 +830,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val markerUnits = "markerUnits".attr
+  final lazy val markerUnits = "markerUnits".attr
 
 
   /**
@@ -838,7 +838,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val markerWidth = "markerWidth".attr
+  final lazy val markerWidth = "markerWidth".attr
 
 
   /**
@@ -846,7 +846,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val maskContentUnits = "maskContentUnits".attr
+  final lazy val maskContentUnits = "maskContentUnits".attr
 
 
   /**
@@ -854,7 +854,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val maskUnits = "maskUnits".attr
+  final lazy val maskUnits = "maskUnits".attr
 
 
   /**
@@ -862,7 +862,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val mask = "mask".attr
+  final lazy val mask = "mask".attr
 
 
 
@@ -871,7 +871,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val max = "max".attr
+  final lazy val max = "max".attr
 
 
 
@@ -880,7 +880,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val min = "min".attr
+  final lazy val min = "min".attr
 
 
   /**
@@ -888,7 +888,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val mode = "mode".attr
+  final lazy val mode = "mode".attr
 
 
   /**
@@ -896,17 +896,17 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val numOctaves = "numOctaves".attr
+  final lazy val numOctaves = "numOctaves".attr
 
 
-  final val offset = "offset".attr
+  final lazy val offset = "offset".attr
 
   /**
    *
    *
    * MDN
    */
-  final val opacity = "opacity".attr
+  final lazy val opacity = "opacity".attr
 
 
 
@@ -915,7 +915,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val operator = "operator".attr
+  final lazy val operator = "operator".attr
 
 
   /**
@@ -923,7 +923,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val order = "order".attr
+  final lazy val order = "order".attr
 
 
   /**
@@ -931,7 +931,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val overflow = "overflow".attr
+  final lazy val overflow = "overflow".attr
 
 
 
@@ -940,7 +940,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val paintOrder = "paint-order".attr
+  final lazy val paintOrder = "paint-order".attr
 
 
 
@@ -949,7 +949,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val pathLength = "pathLength".attr
+  final lazy val pathLength = "pathLength".attr
 
 
 
@@ -958,7 +958,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val patternContentUnits = "patternContentUnits".attr
+  final lazy val patternContentUnits = "patternContentUnits".attr
 
 
   /**
@@ -966,7 +966,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val patternTransform = "patternTransform".attr
+  final lazy val patternTransform = "patternTransform".attr
 
 
 
@@ -975,7 +975,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val patternUnits = "patternUnits".attr
+  final lazy val patternUnits = "patternUnits".attr
 
 
 
@@ -984,7 +984,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val pointerEvents = "pointer-events".attr
+  final lazy val pointerEvents = "pointer-events".attr
 
 
   /**
@@ -992,7 +992,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val points = "points".attr
+  final lazy val points = "points".attr
 
 
   /**
@@ -1000,7 +1000,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val pointsAtX = "pointsAtX".attr
+  final lazy val pointsAtX = "pointsAtX".attr
 
 
   /**
@@ -1008,7 +1008,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val pointsAtY = "pointsAtY".attr
+  final lazy val pointsAtY = "pointsAtY".attr
 
 
   /**
@@ -1016,7 +1016,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val pointsAtZ = "pointsAtZ".attr
+  final lazy val pointsAtZ = "pointsAtZ".attr
 
 
   /**
@@ -1024,7 +1024,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val preserveAlpha = "preserveAlpha".attr
+  final lazy val preserveAlpha = "preserveAlpha".attr
 
 
 
@@ -1033,7 +1033,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val preserveAspectRatio = "preserveAspectRatio".attr
+  final lazy val preserveAspectRatio = "preserveAspectRatio".attr
 
 
 
@@ -1042,7 +1042,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val primitiveUnits = "primitiveUnits".attr
+  final lazy val primitiveUnits = "primitiveUnits".attr
 
 
   /**
@@ -1050,7 +1050,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val r = "r".attr
+  final lazy val r = "r".attr
 
 
 
@@ -1059,7 +1059,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val radius = "radius".attr
+  final lazy val radius = "radius".attr
 
 
   /**
@@ -1067,7 +1067,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val repeatCount = "repeatCount".attr
+  final lazy val repeatCount = "repeatCount".attr
 
 
   /**
@@ -1075,7 +1075,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val repeatDur = "repeatDur".attr
+  final lazy val repeatDur = "repeatDur".attr
 
 
 
@@ -1084,7 +1084,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val requiredFeatures = "requiredFeatures".attr
+  final lazy val requiredFeatures = "requiredFeatures".attr
 
 
 
@@ -1093,7 +1093,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val restart = "restart".attr
+  final lazy val restart = "restart".attr
 
 
 
@@ -1102,7 +1102,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val result = "result".attr
+  final lazy val result = "result".attr
 
 
 
@@ -1111,7 +1111,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val rx = "rx".attr
+  final lazy val rx = "rx".attr
 
 
 
@@ -1120,7 +1120,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val ry = "ry".attr
+  final lazy val ry = "ry".attr
 
 
 
@@ -1129,7 +1129,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val scale = "scale".attr
+  final lazy val scale = "scale".attr
 
 
 
@@ -1138,7 +1138,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val seed = "seed".attr
+  final lazy val seed = "seed".attr
 
 
 
@@ -1147,7 +1147,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val shapeRendering = "shape-rendering".attr
+  final lazy val shapeRendering = "shape-rendering".attr
 
 
 
@@ -1156,7 +1156,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val specularConstant = "specularConstant".attr
+  final lazy val specularConstant = "specularConstant".attr
 
 
 
@@ -1165,7 +1165,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val specularExponent = "specularExponent".attr
+  final lazy val specularExponent = "specularExponent".attr
 
 
   /**
@@ -1173,7 +1173,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val spreadMethod = "spreadMethod".attr
+  final lazy val spreadMethod = "spreadMethod".attr
 
 
   /**
@@ -1181,7 +1181,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val stdDeviation = "stdDeviation".attr
+  final lazy val stdDeviation = "stdDeviation".attr
 
 
 
@@ -1190,7 +1190,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val stitchTiles = "stitchTiles".attr
+  final lazy val stitchTiles = "stitchTiles".attr
 
 
 
@@ -1199,7 +1199,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val stopColor = "stopColor".attr
+  final lazy val stopColor = "stopColor".attr
 
 
 
@@ -1208,7 +1208,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val stopOpacity = "stopOpacity".attr
+  final lazy val stopOpacity = "stopOpacity".attr
 
 
 
@@ -1217,7 +1217,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val stroke = "stroke".attr
+  final lazy val stroke = "stroke".attr
 
 
   /**
@@ -1225,7 +1225,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val strokeDasharray= "strokeDasharray".attr
+  final lazy val strokeDasharray= "strokeDasharray".attr
 
 
   /**
@@ -1233,7 +1233,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val strokeDashoffset = "stroke-dashoffset".attr
+  final lazy val strokeDashoffset = "stroke-dashoffset".attr
 
 
   /**
@@ -1241,7 +1241,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val strokeLinecap = "strokeLinecap".attr
+  final lazy val strokeLinecap = "strokeLinecap".attr
 
 
   /**
@@ -1249,7 +1249,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val strokeLinejoin = "stroke-linejoin".attr
+  final lazy val strokeLinejoin = "stroke-linejoin".attr
 
 
   /**
@@ -1257,7 +1257,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val strokeMiterlimit = "stroke-miterlimit".attr
+  final lazy val strokeMiterlimit = "stroke-miterlimit".attr
 
 
   /**
@@ -1265,7 +1265,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val strokeOpacity = "strokeOpacity".attr
+  final lazy val strokeOpacity = "strokeOpacity".attr
 
 
   /**
@@ -1273,7 +1273,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val strokeWidth = "strokeWidth".attr
+  final lazy val strokeWidth = "strokeWidth".attr
 
 
   /**
@@ -1281,7 +1281,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val style = "style".attr
+  final lazy val style = "style".attr
 
 
 
@@ -1290,7 +1290,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val surfaceScale = "surfaceScale".attr
+  final lazy val surfaceScale = "surfaceScale".attr
 
 
   /**
@@ -1298,7 +1298,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val targetX = "targetX".attr
+  final lazy val targetX = "targetX".attr
 
 
   /**
@@ -1306,7 +1306,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val targetY = "targetY".attr
+  final lazy val targetY = "targetY".attr
 
 
   /**
@@ -1314,7 +1314,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val textAnchor = "textAnchor".attr
+  final lazy val textAnchor = "textAnchor".attr
 
 
   /**
@@ -1322,7 +1322,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val textDecoration = "text-decoration".attr
+  final lazy val textDecoration = "text-decoration".attr
 
 
   /**
@@ -1330,7 +1330,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val textRendering = "text-rendering".attr
+  final lazy val textRendering = "text-rendering".attr
 
 
   /**
@@ -1338,7 +1338,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val to = "to".attr
+  final lazy val to = "to".attr
 
 
   /*
@@ -1346,7 +1346,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val transform = "transform".attr
+  final lazy val transform = "transform".attr
 
 
   /*
@@ -1354,7 +1354,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val `type`= "type".attr
+  final lazy val `type`= "type".attr
 
 
   /*
@@ -1362,7 +1362,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val values = "values".attr
+  final lazy val values = "values".attr
 
 
   /**
@@ -1415,7 +1415,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val viewBox = "viewBox".attr
+  final lazy val viewBox = "viewBox".attr
 
 
   /*
@@ -1423,7 +1423,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val visibility = "visibility".attr
+  final lazy val visibility = "visibility".attr
 
 
   /*
@@ -1431,7 +1431,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val width = "width".attr
+  final lazy val width = "width".attr
 
 
   /*
@@ -1439,22 +1439,14 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val wordSpacing = "word-spacing".attr
+  final lazy val wordSpacing = "word-spacing".attr
 
   /*
    *
    *
    * MDN
    */
-  final val writingMode = "writing-mode".attr
-
-
-  /*
-   *
-   *
-   * MDN
-   */
-  final val x = "x".attr
+  final lazy val writingMode = "writing-mode".attr
 
 
   /*
@@ -1462,7 +1454,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val x1 = "x1".attr
+  final lazy val x = "x".attr
 
 
   /*
@@ -1470,7 +1462,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val x2 = "x2".attr
+  final lazy val x1 = "x1".attr
 
 
   /*
@@ -1478,7 +1470,15 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val xChannelSelector = "xChannelSelector".attr
+  final lazy val x2 = "x2".attr
+
+
+  /*
+   *
+   *
+   * MDN
+   */
+  final lazy val xChannelSelector = "xChannelSelector".attr
 
 
   /**
@@ -1486,7 +1486,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val xmlns = "xmlns".attr
+  final lazy val xmlns = "xmlns".attr
 
 
   /*
@@ -1494,7 +1494,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val y = "y".attr
+  final lazy val y = "y".attr
 
 
   /*
@@ -1502,7 +1502,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val y1 = "y1".attr
+  final lazy val y1 = "y1".attr
 
 
   /*
@@ -1510,7 +1510,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val y2 = "y2".attr
+  final lazy val y2 = "y2".attr
 
 
   /*
@@ -1518,7 +1518,7 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val yChannelSelector = "yChannelSelector".attr
+  final lazy val yChannelSelector = "yChannelSelector".attr
 
 
   /*
@@ -1526,16 +1526,16 @@ trait SvgAttrs {
    *
    * MDN
    */
-  final val z = "z".attr
+  final lazy val z = "z".attr
 
-  final val xlinkActuate = "xlinkActuate".attr
-  final val xlinkArcrole = "xlinkArcrole".attr
-  final val xlinkHref = "xlinkHref".attr
-  final val xlinkRole = "xlinkRole".attr
-  final val xlinkShow = "xlinkShow".attr
-  final val xlinkTitle = "xlinkTitle".attr
-  final val xlinkType = "xlinkType".attr
-  final val xmlBase = "xmlBase".attr
-  final val xmlLang = "xmlLang".attr
-  final val xmlSpace = "xmlSpace".attr
+  final lazy val xlinkActuate = "xlinkActuate".attr
+  final lazy val xlinkArcrole = "xlinkArcrole".attr
+  final lazy val xlinkHref = "xlinkHref".attr
+  final lazy val xlinkRole = "xlinkRole".attr
+  final lazy val xlinkShow = "xlinkShow".attr
+  final lazy val xlinkTitle = "xlinkTitle".attr
+  final lazy val xlinkType = "xlinkType".attr
+  final lazy val xmlBase = "xmlBase".attr
+  final lazy val xmlLang = "xmlLang".attr
+  final lazy val xmlSpace = "xmlSpace".attr
 }
