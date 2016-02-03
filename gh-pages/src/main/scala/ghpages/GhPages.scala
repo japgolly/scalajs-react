@@ -11,15 +11,16 @@ import pages._
 object GhPages extends JSApp {
 
   sealed trait Page
-  case object Home                 extends Page
-  case class Examples(eg: Example) extends Page
-  case object Doco                 extends Page
+  case object Home          extends Page
+  case class Eg(e: Example) extends Page
+  case object Doco          extends Page
 
   val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
     import dsl._
 
     def exampleRoutes: Rule =
-      Example.routes.prefixPath_/("#examples").pmap[Page](Examples) { case Examples(e) => e }
+      (ExamplesJs.routes | ExamplesScala.routes)
+        .prefixPath_/("#examples").pmap[Page](Eg) { case Eg(e) => e }
 
     (trimSlashes
     | staticRoute(root,   Home) ~> render(HomePage.component())
@@ -28,7 +29,7 @@ object GhPages extends JSApp {
     )
       .notFound(redirectToPage(Home)(Redirect.Replace))
       .renderWith(layout)
-      .verify(Home, Examples(Example.Hello), Examples(Example.Todo), Doco)
+      .verify(Home, Eg(ExamplesJs.Hello), Eg(ExamplesScala.EventListen), Doco)
   }
 
   def layout(c: RouterCtl[Page], r: Resolution[Page]) =
@@ -47,9 +48,10 @@ object GhPages extends JSApp {
         ^.cls := "navbar navbar-default",
         <.ul(
           ^.cls := "navbar-header",
-          nav("Home",          Home),
-          nav("Examples",      Examples(Example.default)),
-          nav("Documentation", Doco)))
+          nav("Home",               Home),
+          nav("JS-Ported Examples", Eg(ExamplesJs.default)),
+          nav("Scala Examples",     Eg(ExamplesScala.default)),
+          nav("Documentation",      Doco)))
     }
     .configure(Reusability.shouldComponentUpdate)
     .build
