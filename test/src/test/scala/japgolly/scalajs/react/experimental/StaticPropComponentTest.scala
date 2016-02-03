@@ -8,21 +8,9 @@ import TestUtil2._
 
 object StaticPropComponentTest extends TestSuite {
 
-  /*
-  object Example1 extends StaticPropComponent.Template {
-    override type StaticProps  = Nothing
-    override type DynamicProps = Nothing
-    override type Backend      = Nothing
-
-    override protected def displayName         = ???
-    override protected def configureState      = ???
-    override protected def configureBackend    = ???
-    override protected def configureRender     = ???
-    override protected def staticPropsEquality = ???
-  }
-  */
-
-  object Example1 extends StaticPropComponent.Template {
+  object Example1 extends StaticPropComponent.Template("Eg1") {
+    override protected def configureBackend = new Backend(_, _)
+    override protected def configureRender  = _.renderBackend
 
     case class StaticProps(s: () => Int)
 
@@ -33,12 +21,6 @@ object StaticPropComponentTest extends TestSuite {
       def render(p: DynamicProps) =
         <.div(s"$n / ${p.d}")
     }
-
-    override protected def displayName         = "Eg1"
-    override protected def configureState      = _.stateless
-    override protected def configureBackend    = new Backend(_, _)
-    override protected def configureRender     = _.renderBackend
-    override protected def staticPropsEquality = _ eq _
   }
 
   override def tests = TestSuite {

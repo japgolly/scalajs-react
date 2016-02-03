@@ -7,7 +7,27 @@ import CompScope._
 import ReactComponentB.BackendKey
 import StaticPropComponent.PropPair
 
-// TODO Add: ScalaDoc, GH doc, gh-pages example.
+// TODO Add: ScalaDoc, GH doc, gh-pages example, doc testing via StatefulParent.
+
+/*
+object xxxxx extends StaticPropComponent.Template("xxxxx") {
+  override protected def configureBackend = new Backend(_, _)
+  override protected def configureRender  = _.renderBackend
+}
+
+object Example extends StaticPropComponent.BareTemplate {
+  override type StaticProps  = Nothing
+  override type DynamicProps = Nothing
+  override type Backend      = Nothing
+
+  override protected def displayName         = ???
+  override protected def configureState      = ???
+  override protected def configureBackend    = ???
+  override protected def configureRender     = ???
+  override protected def staticPropsEquality = ???
+}
+*/
+
 trait StaticPropComponent {
   type StaticProps
   type DynamicProps
@@ -27,18 +47,13 @@ trait StaticPropComponent {
 object StaticPropComponent {
   final case class PropPair[Static, Dynamic](static: Static, dynamic: Dynamic)
 
-  trait Template extends StaticPropComponent {
+  trait BareTemplate extends StaticPropComponent {
 
     protected def displayName: String
     protected def configureState: ReactComponentB.P[ComponentProps] => ReactComponentB.PS[ComponentProps, ComponentState]
     protected def configureBackend: (StaticProps, BackendScope) => Backend
     protected def configureRender: NeedRender[StaticProps, DynamicProps, ComponentState, Backend, ReactComponentB.PSBR[ComponentProps, ComponentState, Backend]] => ReactComponentB.PSBR[ComponentProps, ComponentState, Backend]
 
-    //  protected def staticPropsEquality(implicit isAnyRef: StaticProps <:< AnyRef = null): (StaticProps, StaticProps) => Boolean =
-    //    if (isAnyRef eq null)
-    //      _ == _
-    //    else
-    //      _ eq _
     protected def staticPropsEquality: (StaticProps, StaticProps) => Boolean
 
     protected def warnStaticPropsChange: (StaticProps, StaticProps) => Callback =
@@ -74,6 +89,19 @@ object StaticPropComponent {
         }
       configure(e).build
     }
+  }
+
+  /**
+    * Where as [[BareTemplate]] makes no assumptions at all, this makes a few to reduce boilerplate in 95%+ of usage.
+    */
+  abstract class Template(override protected val displayName: String) extends BareTemplate {
+    final override type ComponentState = Unit
+    final override protected def configureState = _.stateless
+
+    override type StaticProps <: AnyRef
+    override protected def staticPropsEquality = _ eq _
+
+    // TODO would be nice to add configure{Backend,Render} here too but that needs a macro
   }
 
   final class NeedRender[P, Q, S, B, Out] private[experimental](private val g: (DuringCallbackU[PropPair[P, Q], S, B] => ReactElement) => Out) extends AnyVal {
