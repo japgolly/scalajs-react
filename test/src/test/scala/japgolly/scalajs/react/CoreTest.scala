@@ -6,6 +6,7 @@ import scala.scalajs.js, js.{Array => JArray}
 import org.scalajs.dom.raw._
 import vdom.all._
 import TestUtil._
+import TestUtil2._
 import japgolly.scalajs.react.test.{Simulation, DebugJs, ReactTestUtils}
 import CompScope._
 import CompState._
@@ -371,15 +372,13 @@ object CoreTest extends TestSuite {
 
     'findDOMNode {
       val m = ReactTestUtils renderIntoDocument H1("good")
-      val n = ReactDOM.findDOMNode(m)
-      removeReactDataAttr(n.outerHTML) mustEqual "<h1>good</h1>"
+      assertOuterHTML(ReactDOM.findDOMNode(m), "<h1>good</h1>")
     }
 
     // Changed to an extension method that calls ReactDOM.findDOMNode
     'getDOMNode {
       val m = ReactTestUtils renderIntoDocument H1("good")
-      val n = m.getDOMNode()
-      removeReactDataAttr(n.outerHTML) mustEqual "<h1>good</h1>"
+      assertOuterHTML(m.getDOMNode(), "<h1>good</h1>")
     }
 
     'domTypeBeforeCallbacks {

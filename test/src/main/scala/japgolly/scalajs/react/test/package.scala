@@ -34,12 +34,22 @@ package object test {
 //    def change(t: ReactOrDomNode, newValue: String) = u.change(t, ChangeEventData(value = newValue))
 //  }
 
+  private val reactDataAttrRegex = """\s+data-react\S*?\s*?=\s*?".*?"""".r
+
   implicit class ReactTestUtilsScalaExt(private val * : ReactTestUtils) extends AnyVal {
     def withRenderedIntoDocument[A](c: ReactElement)(f: ComponentM => A): A =
       _withRenderedIntoDocument(c)(* renderIntoDocument _)(_.getDOMNode(), f)
 
     def withRenderedIntoDocument[P,S,B,N <: TopNode, A](c: ReactComponentU[P,S,B,N])(f: ReactComponentM[P,S,B,N] => A): A =
       _withRenderedIntoDocument(c)(* renderIntoDocument _)(_.getDOMNode(), f)
+
+
+    /**
+      * Turn `&lt;div data-reactid=".0"&gt;hello&lt/div&gt;`
+      * into `&lt;div&gt;hello&lt/div&gt;`
+      */
+    def removeReactDataAttr(html: String): String =
+      reactDataAttrRegex.replaceAllIn(html, "")
   }
 
   private def _withRenderedIntoDocument[A, B, C](a: A)(f: A => B)(n: B => TopNode, g: B => C): C = {

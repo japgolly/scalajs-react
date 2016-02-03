@@ -7,6 +7,7 @@ import utest._
 import japgolly.scalajs.react._
 import vdom.prefix_<^._
 import TestUtil._
+import TestUtil2._
 
 object TestTest extends TestSuite {
 
@@ -41,10 +42,8 @@ object TestTest extends TestSuite {
     }
 
     'renderIntoDocument {
-      def test(c: ComponentM, exp: String): Unit = {
-        val h = removeReactDataAttr(ReactDOM.findDOMNode(c).outerHTML)
-        h mustEqual exp
-      }
+      def test(c: ComponentM, exp: String): Unit =
+        assertOuterHTML(ReactDOM.findDOMNode(c), exp)
       'plainElement {
         val re: ReactElement = <.div("Good")
         val c = ReactTestUtils.renderIntoDocument(re)
@@ -178,7 +177,7 @@ object TestTest extends TestSuite {
       ReactTestUtils.withRenderedIntoDocument(IC()) { mm =>
         m = mm
         val n = m.getDOMNode()
-        assert(removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
+        assert(ReactTestUtils.removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
         assert(m.isMounted())
       }
       assert(!m.isMounted())

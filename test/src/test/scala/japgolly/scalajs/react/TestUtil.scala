@@ -79,9 +79,6 @@ object TestUtil {
 
   def none[A]: Option[A] = None
 
-  def removeReactDataAttr(s: String): String =
-    s.replaceAll("""\s+data-react\S+?".*?"""", "")
-
   def assertContains(value: String, search: String, expect: Boolean = true): Unit =
     if (value.contains(search) != expect) {
       println(s"\nValue: $value\nSearch: $search\nExpect: $expect\n")
