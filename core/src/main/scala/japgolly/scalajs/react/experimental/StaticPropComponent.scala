@@ -11,14 +11,14 @@ import StaticPropComponent.PropPair
 trait StaticPropComponent {
   type StaticProps
   type DynamicProps
-  type State = Unit
+  type ComponentState = Unit
   type Backend
   type Node = TopNode
 
-  final type Props        = PropPair[StaticProps, DynamicProps]
-  final type BackendScope = BackendScopeMP[DynamicProps, State]
+  final type ComponentProps = PropPair[StaticProps, DynamicProps]
+  final type BackendScope = BackendScopeMP[DynamicProps, ComponentState]
 
-  val Component: ReactComponentC.ReqProps[Props, State, Backend, Node]
+  val Component: ReactComponentC.ReqProps[ComponentProps, ComponentState, Backend, Node]
 
   def apply(sp: StaticProps) =
     (dp: DynamicProps) => Component(PropPair(sp, dp))
@@ -30,9 +30,9 @@ object StaticPropComponent {
   trait Template extends StaticPropComponent {
 
     protected def displayName: String
-    protected def configureState: ReactComponentB.P[Props] => ReactComponentB.PS[Props, State]
+    protected def configureState: ReactComponentB.P[ComponentProps] => ReactComponentB.PS[ComponentProps, ComponentState]
     protected def configureBackend: (StaticProps, BackendScope) => Backend
-    protected def configureRender: NeedRender[StaticProps, DynamicProps, State, Backend, ReactComponentB.PSBR[Props, State, Backend]] => ReactComponentB.PSBR[Props, State, Backend]
+    protected def configureRender: NeedRender[StaticProps, DynamicProps, ComponentState, Backend, ReactComponentB.PSBR[ComponentProps, ComponentState, Backend]] => ReactComponentB.PSBR[ComponentProps, ComponentState, Backend]
 
     //  protected def staticPropsEquality(implicit isAnyRef: StaticProps <:< AnyRef = null): (StaticProps, StaticProps) => Boolean =
     //    if (isAnyRef eq null)
@@ -44,15 +44,15 @@ object StaticPropComponent {
     protected def warnStaticPropsChange: (StaticProps, StaticProps) => Callback =
       (a, b) => Callback.warn(s"[$displayName] Static props changed\nfrom $a\n  to $b")
 
-    protected def configure: ReactComponentB[Props, State, Backend, Node] => ReactComponentB[Props, State, Backend, Node] =
+    protected def configure: ReactComponentB[ComponentProps, ComponentState, Backend, Node] => ReactComponentB[ComponentProps, ComponentState, Backend, Node] =
       identity
 
-    final override val Component: ReactComponentC.ReqProps[Props, State, Backend, Node] = {
+    final override val Component: ReactComponentC.ReqProps[ComponentProps, ComponentState, Backend, Node] = {
       val eq = staticPropsEquality
-      def newBackendScopeMP($: NormalBackendScope[Props, State]) =
+      def newBackendScopeMP($: NormalBackendScope[ComponentProps, ComponentState]) =
         BackendScopeMP($)(_.dynamic)
 
-      val a = ReactComponentB[Props](displayName)
+      val a = ReactComponentB[ComponentProps](displayName)
       val b = configureState(a)
       val c = b.backend($ => configureBackend($.props.runNow().static, newBackendScopeMP($)))
       val d = configureRender(new NeedRender(c.render))
@@ -67,7 +67,7 @@ object StaticPropComponent {
             warnStaticPropsChange(sp1, sp2).attempt >>
               Callback {
                 val raw = i.$.asInstanceOf[js.Dictionary[js.Any]]
-                val bs = newBackendScopeMP(raw.asInstanceOf[NormalBackendScope[Props, State]])
+                val bs = newBackendScopeMP(raw.asInstanceOf[NormalBackendScope[ComponentProps, ComponentState]])
                 val nb = configureBackend(sp2, bs)
                 raw.update(BackendKey, nb.asInstanceOf[js.Any])
               }
