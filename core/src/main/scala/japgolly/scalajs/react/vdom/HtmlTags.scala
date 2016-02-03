@@ -121,7 +121,7 @@ trait HtmlTags {
    *
    * MDN
    */
-  final lazy val p = "p".tag[*.Paragraph]
+  final val p = "p".tag[*.Paragraph]
   /**
    * Represents a thematic break between paragraphs of a section or article or
    * any longer content.
@@ -195,7 +195,7 @@ trait HtmlTags {
    *
    * MDN
    */
-  final lazy val div = "div".tag[*.Div]
+  final val div = "div".tag[*.Div]
 
   // Text-level semantics
   /**
@@ -203,7 +203,7 @@ trait HtmlTags {
    *
    * MDN
    */
-  final lazy val a = "a".tag[*.Anchor]
+  final val a = "a".tag[*.Anchor]
   /**
    * Represents emphasized text.
    *
@@ -281,7 +281,7 @@ trait HtmlTags {
    *
    * MDN
    */
-  final lazy val span = "span".tag[*.Span]
+  final val span = "span".tag[*.Span]
   /**
    * Represents a line break.
    *
@@ -316,7 +316,7 @@ trait HtmlTags {
    *
    * MDN
    */
-  final lazy val img = "img".voidTag[*.Image]
+  final val img = "img".voidTag[*.Image]
   /**
    * Represents a nested browsing context, that is an embedded HTML document.
    *
@@ -484,7 +484,7 @@ trait HtmlTags {
    *
    * MDN
    */
-  final lazy val button = "button".tag[*.Button]
+  final val button = "button".tag[*.Button]
   /**
    * A control that allows the user to select one of a set of options.
    *
@@ -524,7 +524,7 @@ trait HtmlTags {
    * from the user. How an &lt;input&gt; works varies considerably depending on the value of its type attribute.
    */
   object input extends ReactTagOf[*.Input]("input", Nil, implicitly) {
-    private[this] lazy val `type` = "type".attr
+    private[this] val `type` = "type".attr
 
     /** Returns a &lt;input type="{t}" /&gt; */
     def withType(t: String): ReactTagOf[*.Input] =
@@ -588,7 +588,7 @@ trait HtmlTags {
     def tel = this withType "tel"
 
     /** A single-line text field; line-breaks are automatically removed from the input value. */
-    lazy val text = this withType "text"
+    val text = this withType "text"
 
     /** [HTML5] A control for entering a time value with no time zone. */
     def time = this withType "time"

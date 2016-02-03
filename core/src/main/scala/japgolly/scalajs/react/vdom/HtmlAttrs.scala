@@ -105,14 +105,14 @@ trait HtmlAttrs {
    *
    * MDN
    */
-  final lazy val onChange = "onChange".attr
+  final val onChange = "onChange".attr
   /**
    * The click event is raised when the user clicks on an element. The click
    * event will occur after the mousedown and mouseup events.
    *
    * MDN
    */
-  final lazy val onClick = "onClick".attr
+  final val onClick = "onClick".attr
   /**
    * The dblclick event is fired when a pointing device button (usually a
    * mouse button) is clicked twice on a single element.
@@ -286,7 +286,7 @@ trait HtmlAttrs {
    *
    * MDN
    */
-  final lazy val src = "src".attr
+  final val src = "src".attr
   /**
    * This attribute contains CSS styling declarations to be applied to the
    * element. Note that it is recommended for styles to be defined in a separate
@@ -303,7 +303,7 @@ trait HtmlAttrs {
    *
    * MDN
    */
-  final lazy val title = "title".attr
+  final val title = "title".attr
   /**
    * This attribute is used to define the type of the content linked to. The
    * value of the attribute should be a MIME type such as text/html, text/css,
@@ -314,11 +314,11 @@ trait HtmlAttrs {
    *
    * MDN
    */
-  final lazy val `type` = "type".attr
+  final val `type` = "type".attr
   /**
    * Shorthand for the `type` attribute
    */
-  final lazy val tpe = `type`
+  final val tpe = `type`
   /**
    *
    */
@@ -371,7 +371,7 @@ trait HtmlAttrs {
    *
    * MDN
    */
-  final lazy val value = "value".attr
+  final val value = "value".attr
   /**
    * If the value of the type attribute is file, this attribute indicates the
    * types of files that the server accepts; otherwise it is ignored.

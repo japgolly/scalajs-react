@@ -47,11 +47,10 @@ object ReuseExample {
   val InputEditor = ReactComponentB[ReusableVar[Long]]("Input editor")
     .render_P { v =>
       def update = (ev: ReactEventI) => numberRegex.findFirstIn(ev.target.value).map(v set _.toLong)
-      <.input(
+      <.input.text(
         ^.textAlign   := "center",
         ^.marginRight := "1ex",
         ^.width       := "12ex",
-        ^.`type`      := "text",
         ^.value       := v.value.toString,
         ^.onChange  ==>? update)
     }
