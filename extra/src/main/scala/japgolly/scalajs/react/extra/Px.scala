@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react.{BackendScope, CallbackTo}
+import japgolly.scalajs.react.experimental.BackendScopeMP
 import japgolly.scalajs.react.macros.PxMacros
 
 /**
@@ -245,6 +246,19 @@ object Px {
 
   def bs[P, S]($: BackendScope[P, S]) = new BackendScopePxOps[P, S]($)
   final class BackendScopePxOps[P, S](private val $: BackendScope[P, S]) extends AnyVal {
+    def propsA(implicit r: Reusability[P]) = cbA($.props)
+    def propsM(implicit r: Reusability[P]) = cbM($.props)
+    def stateA(implicit r: Reusability[S]) = cbA($.state)
+    def stateM(implicit r: Reusability[S]) = cbM($.state)
+    def propsA[A: Reusability](f: P => A) = cbA($.props map f)
+    def propsM[A: Reusability](f: P => A) = cbM($.props map f)
+    def stateA[A: Reusability](f: S => A) = cbA($.state map f)
+    def stateM[A: Reusability](f: S => A) = cbM($.state map f)
+  }
+
+  // TODO Px.bsMP is temporary: Sync BackendScope + BackendScopeMP
+  def bsMP[P, S]($: BackendScopeMP[P, S]) = new BackendScopeMPPxOps[P, S]($)
+  final class BackendScopeMPPxOps[P, S](private val $: BackendScopeMP[P, S]) extends AnyVal {
     def propsA(implicit r: Reusability[P]) = cbA($.props)
     def propsM(implicit r: Reusability[P]) = cbM($.props)
     def stateA(implicit r: Reusability[S]) = cbA($.state)
