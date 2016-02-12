@@ -134,9 +134,7 @@ object CompState {
       i => modStateCB(f(i), cb)
   }
 
-  type WriteOpAux[S, Result] = WriteOps[S] { type WriteResult = Result }
-
-  trait WriteDirectOps[S] extends WriteOps[S] {
+  trait WriteDirectOps[S] extends WriteOps[S] with ZoomOps[S] {
     override type This[T] <: WriteDirectOps[T]
     final override type WriteFutureAccess[S] = WriteDirectFutureOps[S]
     final override type WriteResult = Unit
@@ -144,7 +142,7 @@ object CompState {
     final override def modState  (f: S => S       , cb: Callback = Callback.empty): Unit = a.modState($)(f, cb)
     final override def setStateCB(s: CallbackTo[S], cb: Callback = Callback.empty): Unit = setState(s.runNow(), cb)
   }
-  trait WriteCallbackOps[S] extends WriteOps[S] {
+  trait WriteCallbackOps[S] extends WriteOps[S] with ZoomOps[S] {
     override type This[T] <: WriteCallbackOps[T]
     final override type WriteFutureAccess[S] = WriteCallbackFutureOps[S]
     final override type WriteResult = Callback
@@ -235,7 +233,7 @@ object CompState {
   private[react] final class WriteDirectFuture[$, S](override protected val $: $,
                                                      override protected val a: Accessor[$, S],
                                                      override protected val underlying: WriteDirectOps[S])
-      extends WriteDirectFutureOps[S] {
+    extends WriteDirectFutureOps[S] {
     override protected type $$ = $
     override def accessCB     = new ReadCallbackWriteCallback($, a)
     override def accessDirect = new ReadDirectWriteDirect($, a)
@@ -245,7 +243,7 @@ object CompState {
   private[react] final class WriteCallbackFuture[$, S](override protected val $: $,
                                                        override protected val a: Accessor[$, S],
                                                        override protected val underlying: WriteCallbackOps[S])
-      extends WriteCallbackFutureOps[S] {
+    extends WriteCallbackFutureOps[S] {
     override protected type $$ = $
     override def accessCB     = new ReadCallbackWriteCallback($, a)
     override def accessDirect = new ReadDirectWriteDirect($, a)

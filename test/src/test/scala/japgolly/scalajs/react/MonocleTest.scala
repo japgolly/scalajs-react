@@ -28,6 +28,13 @@ object MonocleTest extends TestSuite {
         'ReactS          - test[ReactST[M, S, A]           ](_ zoomL lensTS).expect[ReactST[M, T, A]]
       }
 
+      "compState.zoomL" - {
+        'Access      - test[Access     [S]](_ zoomL lensST).expect[Access     [T]]
+        'AccessD     - test[AccessD    [S]](_ zoomL lensST).expect[AccessD    [T]]
+        'AccessRD    - test[AccessRD   [S]](_ zoomL lensST).expect[AccessRD   [T]]
+        'WriteAccess - test[WriteAccess[S]](_ zoomL lensST).expect[WriteAccess[T]]
+      }
+
       '_setStateL {
         'DuringCallbackU - test[DuringCallbackU[P, S, U]   ](_ _setStateL lensST).expect[T => Callback]
         'DuringCallbackM - test[DuringCallbackM[P, S, U, N]](_ _setStateL lensST).expect[T => Callback]
