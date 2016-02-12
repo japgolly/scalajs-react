@@ -146,6 +146,14 @@ object Reusability {
       }
     )
 
+  /** Declare a type reusable when both values pass a given predicate. */
+  def whenTrue[A](f: A => Boolean): Reusability[A] =
+    fn((a, b) => f(a) && f(b))
+
+  /** Declare a type reusable when both values fail a given predicate. */
+  def whenFalse[A](f: A => Boolean): Reusability[A] =
+    whenTrue(!f(_))
+
   // -------------------------------------------------------------------------------------------------------------------
   // Implicit Instances
 
