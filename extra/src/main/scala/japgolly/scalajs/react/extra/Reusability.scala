@@ -116,6 +116,36 @@ object Reusability {
   def float(tolerance: Float): Reusability[Float] =
     fn((x, y) => (x - y).abs <= tolerance)
 
+  /**
+   * This is not implicit because the point of Reusability is to be fast, where as full comparison of all keys and
+   * values in a map, is usually not desirable; in some cases it will probably even be faster just rerender and have
+   * React determine that nothing has changed.
+   *
+   * Nonetheless, there are cases where a full comparison is desired and so use this as needed. `Reusability[K]` isn't
+   * needed because its existence in the map (and thus universal equality) is all that's necessary.
+   * Time is O(|m₁|+|m₂|).
+   */
+  def map[K, V](implicit rv: Reusability[V]): Reusability[Map[K, V]] =
+    byRef[Map[K, V]] || fn((m, n) =>
+      if (m.isEmpty)
+        n.isEmpty
+      else if (n.isEmpty)
+        false
+      else {
+        var ok = true
+        var msize = 0
+
+        val mi = m.iterator
+        while (ok && mi.hasNext) {
+          val (k, v) = mi.next()
+          msize += 1
+          ok = n.get(k).exists(rv.test(v, _))
+        }
+
+        ok && msize == n.size
+      }
+    )
+
   // -------------------------------------------------------------------------------------------------------------------
   // Implicit Instances
 

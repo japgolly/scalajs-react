@@ -19,6 +19,7 @@ object ScalajsReact extends Build {
     val MTest         = "0.3.1"
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.1.1"
+    val Nyaya         = "0.7.0"
   }
 
   type PE = Project => Project
@@ -170,7 +171,11 @@ object ScalajsReact extends Build {
     .dependsOn(core, extra, monocle)
     .settings(
       name := "test",
-      libraryDependencies += monocleLib("macro") % "test",
+      libraryDependencies ++= Seq(
+        "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % "test",
+        "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % "test",
+        "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % "test",
+        monocleLib("macro") % "test"),
       jsDependencies ++= Seq(
         (ProvidedJS / "sampleReactComponent.js" dependsOn "react-dom.js") % Test, // for JS Component Type Test.
         "org.webjars" % "sizzle" % "2.1.1" % Test / "sizzle.min.js" commonJSName "Sizzle"),
