@@ -200,7 +200,7 @@ Callbacks
 =========
 
 A callback is a procedure that is:
-* meant to be run by an event handler or a React lifecycle method (as opposed to on the current/main thread or in  the `render` method).
+* meant to be run by an event handler or React lifecycle method (as opposed to on the main thread or in a `render` method).
 * repeatable. It can be run more than once.
 * Is pure (does nothing) in its construction. If you create a `Callback` but never run it, no action or effects should occur.
 
@@ -253,10 +253,15 @@ There are other useful methods not listed here.
 <br>Have a brief look through the source:
 [Callback.scala](../core/src/main/scala/japgolly/scalajs/react/Callback.scala).
 
+Once you have a `Callback` you can run it manually if you need, by calling `.runNow()`.
+It isn't necessary and you shouldn't do it because scalajs-react handles it for you to ensure things run at the right time
+on the right threads, but if you ever want to, you can.
+
 #### Fusion via `>>`
 
 The `>>` operator deserves a special mention as it's commonly useful.
 It's used to fuse to callbacks together sequentially.
+It's like a pure version of `;` which is how you sequence statements imperatively.
 
 ```scala
 def greet: Callback =
@@ -358,7 +363,7 @@ def speak = Callback {
 ```
 
 Notice that we change `speak()` into `speak` as it's now pure.
-<br>Also be careful to all `.runNow()` to any inner callbacks if you take this approach.
+<br>Also be careful to call `.runNow()` on any inner callbacks if you take this approach. If you don't, scalac will just throw it away without executing it which is probably not what you want -- Scala does all kinds of nasty things when `Unit` is involved which is what `;` does between imperative statements.
 
 It's actually recommended that you *not* take this approach and instead, use proper operators to combine callbacks as the compiler will be able to offer help and catch problems.
 
