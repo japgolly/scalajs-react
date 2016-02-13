@@ -99,7 +99,7 @@ There are two ways of attaching event handlers to your virtual DOM.
 2. **`<attribute> ==> <handler>`**
 
   `<attribute>` is a DOM attribute like `onClick`, `onChange`, etc.<br>
-  `<handler>` is a `ReactEvent => Callback`.
+  `<handler>` is a `ReactEvent => Callback`.<br>
   `ReactEvent` can be more specific - event types are described in [TYPES.md](TYPES.md).
 
   ```scala
@@ -110,6 +110,18 @@ There are two ways of attaching event handlers to your virtual DOM.
     ^.`type`    := "text",
     ^.value     := currentValue,
     ^.onChange ==> onTextChange)
+  ```
+  
+  If your handler needs additional arguments, use currying so that the args you want to specify are on the left and the event is alone on the right.
+
+  ```scala
+  def onTextChange(desc: String)(e: ReactEventI): Callback =
+    Callback.alert(s"Value received for ${desc} = ${e.target.value}")
+
+  <.input(
+    ^.`type`    := "text",
+    ^.value     := currentValue,
+    ^.onChange ==> onTextChange("name"))
   ```
 
 A helpful way to remember which operator to use is to visualise the arrow stem:
