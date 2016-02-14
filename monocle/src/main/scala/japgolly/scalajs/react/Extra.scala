@@ -54,4 +54,14 @@ abstract class MonocleReactExtra {
 
   @inline implicit def MonocleReactRouteCommonOps[R[X] <: RouteCommon[R, X], A](r: RouteCommon[R, A]) = new RouteCommonOps(r)
   @inline implicit def MonocleReactRuleOps[P](r: Rule[P]) = new RuleOps(r)
+
+
+  import MonocleReact._
+  import CompState._
+
+  @inline implicit def MonocleReactCompStateZoomOpsWC[$, S]($: $)(implicit ops: $ => WriteAccess[S]) =
+    new MonocleReactCompStateZoomOps[WriteAccess[S], S, WriteAccess](ops($))
+
+  @inline implicit def MonocleReactCompStateZoomOpsWD[$, S]($: $)(implicit ops: $ => WriteAccessD[S]) =
+    new MonocleReactCompStateZoomOps[WriteAccessD[S], S, WriteAccessD](ops($))
 }

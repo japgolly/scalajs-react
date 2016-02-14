@@ -1,7 +1,11 @@
 package japgolly.scalajs.react
 package extra
 
+import nyaya.gen._
+import nyaya.prop._
+import nyaya.test.PropTest._
 import utest._
+
 import vdom.prefix_<^._
 import test._
 import ScalazReact._
@@ -167,7 +171,7 @@ object ReusabilityTest extends TestSuite {
         assert(outerRenderCount == 3, innerRenderCount == 4)
       }
     }
-    
+
     'uuid {
       import java.util.UUID
       val value = UUID.randomUUID.toString
@@ -185,7 +189,7 @@ object ReusabilityTest extends TestSuite {
       assert(date1 ~=~ date2)
       assert(!(date1 ~=~ new Date(now + 1)))
     }
-    
+
     'javaDate {
       import java.util.Date
       val now = System.currentTimeMillis
@@ -200,17 +204,17 @@ object ReusabilityTest extends TestSuite {
       implicit val r = Reusability.double(0.2)
       assert(1.2.toDouble ~=~ 1.0.toDouble)
       assert(0.8.toDouble ~=~ 1.0.toDouble)
-      
+
       assert(!(0.7.toDouble ~=~ 1.0.toDouble))
       assert(!(1.3.toDouble ~=~ 1.0.toDouble))
     }
-    
+
     'floatWithTolerance {
       implicit val r = Reusability.float(0.2f)
       assert(0.9f ~=~ 1.0f)
       assert(1.0f ~=~ 1.0f)
       assert(1.1f ~=~ 1.0f)
-      
+
       assert(!(0.7f ~=~ 1.0f))
       assert(!(1.3f ~=~ 1.0f))
     }
@@ -225,6 +229,12 @@ object ReusabilityTest extends TestSuite {
     'vector - testCollection(_.toVector)
     'list   - testCollection(_.toList)
     'set    - testCollection(_.toSet)
+
+    'map {
+      val r = Reusability.map[Int, Int]
+      val data = Gen.chooseInt(8).mapTo(Gen.chooseInt(8)).pair
+      data mustSatisfy Prop.equal("Reusability matches equality")(r.test.tupled, i => i._1 == i._2)
+    }
 
     'fns {
       type F1[A] = Int ~=> A

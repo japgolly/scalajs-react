@@ -473,7 +473,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    * Run asynchronously.
    */
   def async: CallbackTo[Future[A]] =
-    delayMs(4) // 4ms is minimum allowed by setTimeout spec
+    delayMs(0)
 
   /**
    * Run asynchronously after a delay of a given duration.

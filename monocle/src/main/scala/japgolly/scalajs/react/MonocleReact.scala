@@ -9,6 +9,8 @@ import CompScope._
 
 object MonocleReact extends MonocleReactExtra {
 
+  type WriteOpAux[S, Result] = WriteOps[S] { type WriteResult = Result }
+
   @inline implicit def MonocleReactCompStateOpsDD[$, S]($: $)(implicit ops: $ => ReadDirectWriteDirectOps[S]) =
     new MonocleReactCompStateOps[ReadDirectWriteDirectOps[S], S, Unit](ops($))
 
@@ -31,16 +33,16 @@ object MonocleReact extends MonocleReactExtra {
   }
 
   @inline implicit def MonocleReactCompStateZoomOpsDD[$, S]($: $)(implicit ops: $ => ReadDirectWriteDirectOps[S]) =
-    new MonocleReactCompStateZoomOps[ReadDirectWriteDirectOps[S], S](ops($))
+    new MonocleReactCompStateZoomOps[ReadDirectWriteDirectOps[S], S, ReadDirectWriteDirectOps](ops($))
 
   @inline implicit def MonocleReactCompStateZoomOpsDC[$, S]($: $)(implicit ops: $ => ReadDirectWriteCallbackOps[S]) =
-    new MonocleReactCompStateZoomOps[ReadDirectWriteCallbackOps[S], S](ops($))
+    new MonocleReactCompStateZoomOps[ReadDirectWriteCallbackOps[S], S, ReadDirectWriteCallbackOps](ops($))
 
   @inline implicit def MonocleReactCompStateZoomOpsCC[$, S]($: $)(implicit ops: $ => ReadCallbackWriteCallbackOps[S]) =
-    new MonocleReactCompStateZoomOps[ReadCallbackWriteCallbackOps[S], S](ops($))
+    new MonocleReactCompStateZoomOps[ReadCallbackWriteCallbackOps[S], S, ReadCallbackWriteCallbackOps](ops($))
 
-  final class MonocleReactCompStateZoomOps[Ops <: ZoomOps[S], S](private val $: Ops) extends AnyVal {
-    def zoomL[T](l: Lens[S, T]): Ops#This[T] =
+  final class MonocleReactCompStateZoomOps[Ops <: ZoomOps[S], S, Zoomed[T] >: Ops#This[T]](private val $: Ops) extends AnyVal {
+    def zoomL[T](l: Lens[S, T]): Zoomed[T] =
       $.zoom(l.get)((s, t) => l.set(t)(s))
   }
 

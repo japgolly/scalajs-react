@@ -4,23 +4,26 @@ import scala.scalajs.js.{Any => JAny, Array => JArray, _}
 import Internal._
 import CompScope._
 import macros.CompBuilderMacros
+import ReactComponentB.BackendKey
 
-abstract class LifecycleInput[P, S, +$ <: HasProps[P] with HasState[S]] {
+sealed abstract class LifecycleInput[P, S, +$ <: HasProps[P] with HasState[S]] {
   val $: $
   @inline final def component: $ = $
   @inline final def currentProps: P = $._props.v
   @inline final def currentState: S = $._state.v
 }
-case class ComponentWillUpdate      [P, S, +B, +N <: TopNode]($: WillUpdate[P, S, B, N],      nextProps: P, nextState: S) extends LifecycleInput[P, S, WillUpdate[P, S, B, N]]
-case class ComponentDidUpdate       [P, S, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], prevProps: P, prevState: S) extends LifecycleInput[P, S, DuringCallbackM[P, S, B, N]]
-case class ShouldComponentUpdate    [P, S, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], nextProps: P, nextState: S) extends LifecycleInput[P, S, DuringCallbackM[P, S, B, N]]
-case class ComponentWillReceiveProps[P, S, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], nextProps: P) extends LifecycleInput[P, S, DuringCallbackM[P, S, B, N]]
+final case class ComponentWillUpdate      [P, S, +B, +N <: TopNode]($: WillUpdate[P, S, B, N],      nextProps: P, nextState: S) extends LifecycleInput[P, S, WillUpdate[P, S, B, N]]
+final case class ComponentDidUpdate       [P, S, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], prevProps: P, prevState: S) extends LifecycleInput[P, S, DuringCallbackM[P, S, B, N]]
+final case class ShouldComponentUpdate    [P, S, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], nextProps: P, nextState: S) extends LifecycleInput[P, S, DuringCallbackM[P, S, B, N]]
+final case class ComponentWillReceiveProps[P, S, +B, +N <: TopNode]($: DuringCallbackM[P, S, B, N], nextProps: P) extends LifecycleInput[P, S, DuringCallbackM[P, S, B, N]]
 
 /**
  * React Component Builder.
  */
 object ReactComponentB {
   @inline def apply[Props](name: String) = new P[Props](name)
+
+  final val BackendKey = "backend"
 
   // ======
   // Stages
@@ -101,45 +104,46 @@ object ReactComponentB {
 
   // ===================================================================================================================
   final class PSB[P, S, B] private[ReactComponentB](name: String, isf: InitStateFn[P, S], ibf: InitBackendFn[P, S, B]) {
+    type Out = PSBR[P, S, B]
 
-    def render(f: DuringCallbackU[P, S, B] => ReactElement): PSBR[P, S, B] =
+    def render(f: DuringCallbackU[P, S, B] => ReactElement): Out =
       new PSBR(name, isf, ibf, f)
 
-    def renderPCS(f: (DuringCallbackU[P, S, B], P, PropsChildren, S) => ReactElement): PSBR[P, S, B] =
+    def renderPCS(f: (DuringCallbackU[P, S, B], P, PropsChildren, S) => ReactElement): Out =
       render($ => f($, $.props, $.propsChildren, $.state))
 
-    def renderPC(f: (DuringCallbackU[P, S, B], P, PropsChildren) => ReactElement): PSBR[P, S, B] =
+    def renderPC(f: (DuringCallbackU[P, S, B], P, PropsChildren) => ReactElement): Out =
       render($ => f($, $.props, $.propsChildren))
 
-    def renderPS(f: (DuringCallbackU[P, S, B], P, S) => ReactElement): PSBR[P, S, B] =
+    def renderPS(f: (DuringCallbackU[P, S, B], P, S) => ReactElement): Out =
       render($ => f($, $.props, $.state))
 
-    def renderP(f: (DuringCallbackU[P, S, B], P) => ReactElement): PSBR[P, S, B] =
+    def renderP(f: (DuringCallbackU[P, S, B], P) => ReactElement): Out =
       render($ => f($, $.props))
 
-    def renderCS(f: (DuringCallbackU[P, S, B], PropsChildren, S) => ReactElement): PSBR[P, S, B] =
+    def renderCS(f: (DuringCallbackU[P, S, B], PropsChildren, S) => ReactElement): Out =
       render($ => f($, $.propsChildren, $.state))
 
-    def renderC(f: (DuringCallbackU[P, S, B], PropsChildren) => ReactElement): PSBR[P, S, B] =
+    def renderC(f: (DuringCallbackU[P, S, B], PropsChildren) => ReactElement): Out =
       render($ => f($, $.propsChildren))
 
-    def renderS(f: (DuringCallbackU[P, S, B], S) => ReactElement): PSBR[P, S, B] =
+    def renderS(f: (DuringCallbackU[P, S, B], S) => ReactElement): Out =
       render($ => f($, $.state))
 
-    def render_P(f: P => ReactElement): PSBR[P, S, B] =
+    def render_P(f: P => ReactElement): Out =
       render($ => f($.props))
 
-    def render_C(f: PropsChildren => ReactElement): PSBR[P, S, B] =
+    def render_C(f: PropsChildren => ReactElement): Out =
       render($ => f($.propsChildren))
 
-    def render_S(f: S => ReactElement): PSBR[P, S, B] =
+    def render_S(f: S => ReactElement): Out =
       render($ => f($.state))
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props, state,
      * propsChildren where needed.
      */
-    def renderBackend: PSBR[P, S, B] =
+    def renderBackend: Out =
       macro CompBuilderMacros.renderBackend[P, S, B]
   }
 
@@ -345,7 +349,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
         spec("displayName") = n
 
       if (ibf.isDefined)
-        spec("backend") = null
+        spec(BackendKey) = null
 
       spec("render") = rf: ThisFunction
 
@@ -376,7 +380,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
         onWillMountFn { $ =>
           val bs = $.asInstanceOf[BackendScope[P, S]]
           val backend = initBackend(bs)
-          $.asInstanceOf[Dynamic].updateDynamic("backend")(backend.asInstanceOf[JAny])
+          $.asInstanceOf[Dynamic].updateDynamic(BackendKey)(backend.asInstanceOf[JAny])
         }
       for (f <- lc.componentWillMount)
         onWillMountFn(f(_).runNow())

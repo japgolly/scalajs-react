@@ -2,7 +2,7 @@ package japgolly.scalajs.react.macros
 
 import scala.reflect.macros.blackbox.Context
 
-class CompBuilderMacros (val c: Context) extends ReactMacroUtils {
+final class CompBuilderMacros (val c: Context) extends ReactMacroUtils {
   import c.universe._
 
   def backendAndRender[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Tree = {
@@ -11,33 +11,38 @@ class CompBuilderMacros (val c: Context) extends ReactMacroUtils {
     q"$backend[$B](x => new $B(x)).renderBackend"
   }
 
-  def renderBackend[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Tree = {
+  final class RenderParam[T: c.WeakTypeTag](val code: Tree)(_names: String*) {
+    val spec    : Type        = weakTypeOf[T]
+    val dealised: Type        = spec.dealias
+    val names   : Set[String] = _names.toSet
+  }
+
+  private def _renderBackend[B: c.WeakTypeTag](rps: List[RenderParam[_]]): c.Tree = {
     val B = concreteWeakTypeOf[B]
     val render = TermName("render")
     def build = replaceMacroMethod("render")
 
     def renderWithParams(params: List[Symbol]): Tree = {
-      val P = weakTypeOf[P]
-      val S = weakTypeOf[S]
-      val Pd = P.dealias
-      val Sd = S.dealias
-      def getProps         = q"x.props"
-      def getState         = q"x.state"
       def getPropsChildren = q"x.propsChildren"
-      def tryB(p: Boolean, s: Boolean): Option[Tree] =
-        if (p == s)
+
+      def attempt(test: RenderParam[_] => Boolean): Option[Tree] = {
+        val it = rps.iterator.filter(test)
+        if (it.isEmpty)
           None
-        else if (p)
-          Some(getProps)
-        else
-          Some(getState)
-      def tryPS[A](p: A, s: A)(t: A => Boolean) =
-        tryB(t(p), t(s))
-      def isPropsChildren(p: Type)  = if (p.toString == "japgolly.scalajs.react.PropsChildren") Some(getPropsChildren) else None
-      def byExactTypeAlias(p: Type) = tryPS(P, S)(p == _)
-      def byExactType(p: Type)      = tryPS(Pd, Sd)(p == _)
-      def bySubType(p: Type)        = tryPS(Pd, Sd)(_ <:< p)
-      def byName(p: Symbol)         = tryPS(Set("p", "props"), Set("s", "state"))(_ contains p.name.toString)
+        else {
+          val rp = it.next()
+          if (it.nonEmpty)
+            None // Avoid ambiguity
+          else
+            Some(rp.code)
+        }
+      }
+
+      def isPropsChildren (t: Type)   = if (t.toString == "japgolly.scalajs.react.PropsChildren") Some(getPropsChildren) else None
+      def byExactTypeAlias(t: Type)   = attempt(_.spec == t)
+      def byExactType     (t: Type)   = attempt(_.dealised == t)
+      def bySubType       (t: Type)   = attempt(_.dealised <:< t)
+      def byName          (s: Symbol) = attempt(_.names contains s.name.toString)
 
       var args = Vector.empty[Tree]
       for (p <- params) {
@@ -66,4 +71,17 @@ class CompBuilderMacros (val c: Context) extends ReactMacroUtils {
       case _ :: t    => fail(s"${m.fullName} mustn't have more than one set of parameters. Found: $t")
     }
   }
+
+  def renderBackend[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Tree =
+    _renderBackend[B](
+      new RenderParam[P](q"x.props")("p", "props") ::
+      new RenderParam[S](q"x.state")("s", "state") ::
+      Nil)
+
+  def renderBackendSP[P: c.WeakTypeTag, Q: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Tree =
+    _renderBackend[B](
+      new RenderParam[P](q"x.props.static") ()             ::
+      new RenderParam[Q](q"x.props.dynamic")("p", "props") ::
+      new RenderParam[S](q"x.state")        ("s", "state") ::
+      Nil)
 }

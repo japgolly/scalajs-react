@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.experimental.StaticPropComponent
 
 /**
  * A stateful component you can wrap around a component you want to test.
@@ -18,4 +19,13 @@ object StatefulParent {
       .initialState_P(s => s)
       .renderS(($, s) => f($.accessCB, s))
       .build
+
+  def spc(c: StaticPropComponent)(sp: CompState.Access[c.DynamicProps] => c.StaticProps) = {
+    var f: c.DynamicProps => ReactElement = null
+    StatefulParent[c.DynamicProps] { ($, s) =>
+      if (f eq null)
+        f = c(sp($))
+      f(s)
+    }
+  }
 }

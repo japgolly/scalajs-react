@@ -68,8 +68,8 @@ object Extra {
     final lazy val colSpan       = "colSpan".attr
     final lazy val rowSpan       = "rowSpan".attr
     final lazy val htmlFor       = "htmlFor".attr   // same as `for`
-    final lazy val ref           = RefAttr
-    final lazy val key           = "key".attr
+    final      val ref           = RefAttr
+    final      val key           = "key".attr
     final lazy val draggable     = "draggable".attr
 
     final lazy val onBeforeInput       = "onBeforeInput".attr

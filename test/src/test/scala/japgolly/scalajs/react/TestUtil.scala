@@ -103,6 +103,7 @@ object TestUtil {
     def test[A] = new {
       def apply[B](f: A => B) = new {
         def expect[C](implicit ev: B =:= C): Unit = ()
+        def expect_<[C](implicit ev: B <:< C): Unit = ()
       }
     }
 

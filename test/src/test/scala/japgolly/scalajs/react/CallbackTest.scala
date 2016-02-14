@@ -2,7 +2,6 @@ package japgolly.scalajs.react
 
 import scala.concurrent._
 import scala.concurrent.duration._
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import utest._
 
 object CallbackTest extends TestSuite {
@@ -44,6 +43,7 @@ object CallbackTest extends TestSuite {
 
     'future {
       'repeatable {
+        import test.RunNowEC.Implicit._
         var runs = 0
         def modState = Callback(runs += 1)
         def f = Future(modState)
@@ -55,11 +55,10 @@ object CallbackTest extends TestSuite {
       }
 
       'toFlatFuture {
+        import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
         val c = CallbackTo(Future(666))
         val f = c.toFlatFuture
-        var i = 0
-        f.map(i = _)
-        assert(i == 666)
+        f.map(i => assert(i == 666))
       }
     }
 

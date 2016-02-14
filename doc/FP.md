@@ -22,7 +22,7 @@ Scalaz
 ======
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % "0.10.4"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz72" % "0.10.4"
 ```
 
 Included is a Scalaz module that facilitates a more functional and pure approach to React integration.
