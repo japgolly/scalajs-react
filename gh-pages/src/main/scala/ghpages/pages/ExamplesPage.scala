@@ -53,9 +53,10 @@ object ExamplesScala extends ExampleCollection {
   case object Reuse        extends Example("Reusability",        "reusability",      ReuseExample         .content)
   case object EventListen  extends Example("EventListener",      "event-listener",   EventListenerExample .content)
   case object CallbackOpt  extends Example("CallbackOption",     "callback-option",  CallbackOptionExample.content)
+  case object WebSockets   extends Example("WebSockets",         "websockets",       WebSocketsExample    .content)
 
   override val values = Vector[Example](
     EventListen, CallbackOpt, ExternalVar, Reuse, StateMonad
-    , Touch
+    , Touch, WebSockets
   ).sortBy(_.title)
 }
