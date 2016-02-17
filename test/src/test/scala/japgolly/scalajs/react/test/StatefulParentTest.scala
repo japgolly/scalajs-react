@@ -32,7 +32,7 @@ object StatefulParentTest extends TestSuite {
     }
 
 
-    'spc {
+    'staticPropComponent {
       object SPC extends StaticPropComponent.Template("SPC") {
         override protected def configureBackend = new Backend(_, _)
         override protected def configureRender  = _.renderBackend
@@ -54,7 +54,7 @@ object StatefulParentTest extends TestSuite {
         }
       }
 
-      val O = StatefulParent.spc(SPC)(SPC.StaticProps)
+      val O = StatefulParent.staticPropComponent(SPC)(SPC.StaticProps)
       ReactTestUtils.withRenderedIntoDocument(O(SPC.DynamicProps(3))) { c =>
         def state = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span").getDOMNode().innerHTML.toInt
         def button = ReactTestUtils.findRenderedDOMComponentWithTag(c, "button")

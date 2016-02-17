@@ -14,18 +14,24 @@ import japgolly.scalajs.react.experimental.StaticPropComponent
  */
 object StatefulParent {
 
-  def apply[S](f: (CompState.Access[S], S) => ReactElement) =
+  def apply[S](render: (CompState.Access[S], S) => ReactElement) =
     ReactComponentB[S]("StatefulParent")
       .initialState_P(s => s)
-      .renderS(($, s) => f($.accessCB, s))
+      .renderS(($, s) => render($.accessCB, s))
       .build
 
-  def spc(c: StaticPropComponent)(sp: CompState.Access[c.DynamicProps] => c.StaticProps) = {
-    var f: c.DynamicProps => ReactElement = null
-    StatefulParent[c.DynamicProps] { ($, s) =>
-      if (f eq null)
-        f = c(sp($))
-      f(s)
+  /**
+   * Creates an initialisation value on first use which is then fed to all render calls.
+   */
+  def init[S, I](init: (CompState.Access[S], S) => I)(render: (I, CompState.Access[S], S) => ReactElement) = {
+    var i: Option[I] = None
+    apply[S] { ($, s) =>
+      if (i.isEmpty)
+        i = Some(init($, s))
+      render(i.get, $, s)
     }
   }
+
+  def staticPropComponent(c: StaticPropComponent)(sp: CompState.Access[c.DynamicProps] => c.StaticProps) =
+    init(($: CompState.Access[c.DynamicProps], _: Any) => c(sp($)))((i, _, s) => i(s))
 }
