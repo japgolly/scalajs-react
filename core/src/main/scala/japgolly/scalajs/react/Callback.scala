@@ -8,7 +8,7 @@ import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
 import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
 import js.timers.RawTimers
-import scala.util.{Failure, Success}
+import scala.util.{Try, Failure, Success}
 
 /**
  * A callback with no return value. Equivalent to `() => Unit`.
@@ -380,6 +380,14 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
       try Right(f())
       catch { case t: Throwable => Left(t) }
     )
+
+  /**
+   * Wraps this callback in a scala `Try` with catches what it considers non-fatal errors.
+   *
+   * Use [[attempt]] to catch everything.
+   */
+  def attemptTry: CallbackTo[Try[A]] =
+    CallbackTo(Try(f()))
 
   /**
    * Convenience-method to run additional code after this callback.
