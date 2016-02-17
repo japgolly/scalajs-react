@@ -16,8 +16,9 @@ object WebSocketsExample {
   // EXAMPLE:START
 
   import org.scalajs.dom.{WebSocket, MessageEvent, Event, CloseEvent, ErrorEvent}
+  import scala.util.{Success, Failure}
 
-  val url = "ws://echo.websocket.org"
+  val url = "wss://echo.websocket.org"
 
   case class State(ws: Option[WebSocket], logLines: Vector[String], message: String) {
 
@@ -46,7 +47,7 @@ object WebSocketsExample {
             "Send")),
         <.h4("Connection log"),
         <.pre(
-          ^.width := 200,
+          ^.width := 360,
           ^.height := 200,
           ^.border := "1px solid",
           s.logLines.map(<.p(_)))       // Display log
@@ -69,39 +70,47 @@ object WebSocketsExample {
     }
 
     def start: Callback = {
-      // Get direct access so WebSockets API can modify state directly
-      // (for access outside of a normal DOM/React callback).
-      val direct = $.accessDirect
+      def connect = Callback {
+        // Get direct access so WebSockets API can modify state directly
+        // (for access outside of a normal DOM/React callback).
+        val direct = $.accessDirect
 
-      // These are message-receiving events from the WebSocket "thread".
+        // These are message-receiving events from the WebSocket "thread".
 
-      def onopen(e: Event): Unit = {
-        // Indicate the connection is open
-        direct.modState(_.log("Connected."))
+        def onopen(e: Event): Unit = {
+          // Indicate the connection is open
+          direct.modState(_.log("Connected."))
+        }
+
+        def onmessage(e: MessageEvent): Unit = {
+          // Echo message received
+          direct.modState(_.log(s"Echo: ${e.data.toString}"))
+        }
+
+        def onerror(e: ErrorEvent): Unit = {
+          // Display error message
+          direct.modState(_.log(s"Error: ${e.message}"))
+        }
+
+        def onclose(e: CloseEvent): Unit = {
+          // Close the connection
+          direct.modState(_.copy(ws = None).log(s"Closed: ${e.reason}"))
+        }
+
+        // Create WebSocket and setup listeners
+        val ws = new WebSocket(url)
+        ws.onopen = onopen _
+        ws.onclose = onclose _
+        ws.onmessage = onmessage _
+        ws.onerror = onerror _
+        direct.setState(State(Some(ws), Vector("Connecting..."), ""))
       }
 
-      def onmessage(e: MessageEvent): Unit = {
-        // Echo message received
-        direct.modState(_.log(s"Echo: ${e.data.toString}"))
+      // Here we attempt to connect and handle a possible exception
+      connect.attemptTry.flatMap {
+        case Success(())    => Callback.empty
+        case Failure(error) => $.modState(_.log(error.toString))
       }
-
-      def onerror(e: ErrorEvent): Unit = {
-        // Display error message
-        direct.modState(_.log(s"Error: ${e.message}"))
-      }
-
-      def onclose(e: CloseEvent): Unit = {
-        // Close the connection
-        direct.modState(_.copy(ws = None).log(s"Closed: ${e.reason}"))
-      }
-
-      // Create WebSocket and setup listeners
-      val ws = new WebSocket(url)
-      ws.onopen = onopen _
-      ws.onclose = onclose _
-      ws.onmessage = onmessage _
-      ws.onerror = onerror _
-      $.setState(State(Some(ws), Vector("Connecting..."), ""))
     }
 
     def end: Callback = {
