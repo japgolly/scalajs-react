@@ -70,7 +70,10 @@ object WebSocketsExample {
     }
 
     def start: Callback = {
-      def connect = Callback {
+
+      // This will establish the connection and return the WebSocket
+      def connect = CallbackTo[WebSocket] {
+
         // Get direct access so WebSockets API can modify state directly
         // (for access outside of a normal DOM/React callback).
         val direct = $.accessDirect
@@ -103,12 +106,12 @@ object WebSocketsExample {
         ws.onclose = onclose _
         ws.onmessage = onmessage _
         ws.onerror = onerror _
-        direct.setState(State(Some(ws), Vector("Connecting..."), ""))
+        ws
       }
 
-      // Here we attempt to connect and handle a possible exception
+      // Here use attemptTry to catch any exceptions in connect.
       connect.attemptTry.flatMap {
-        case Success(())    => Callback.empty
+        case Success(ws)    => $.modState(_.log("Connecting...").copy(ws = Some(ws)))
         case Failure(error) => $.modState(_.log(error.toString))
       }
     }
