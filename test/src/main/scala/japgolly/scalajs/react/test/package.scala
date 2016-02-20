@@ -59,4 +59,9 @@ package object test {
     finally
       ReactDOM unmountComponentAtNode n(b).parentNode
   }
+
+  @inline implicit final class ReactTestExt_Mounted[N <: TopNode](private val c: CompScope.Mounted[N]) extends AnyVal {
+    def outerHtmlWithoutReactDataAttr(): String =
+      ReactTestUtils removeReactDataAttr c.getDOMNode().outerHTML
+  }
 }
