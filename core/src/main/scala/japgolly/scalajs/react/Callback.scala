@@ -257,6 +257,9 @@ object CallbackTo {
     def toFlatFuture(implicit ec: ExecutionContext): Future[A] =
       c.toFuture.flatMap(identity)
   }
+
+  implicit def callbackContravariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =
+    c.widen
 }
 
 // =====================================================================================================================
@@ -286,6 +289,9 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    */
   @inline def runNow(): A =
     f()
+
+  @inline def widen[B >: A]: CallbackTo[B] =
+    new CallbackTo(f)
 
   def map[B](g: A => B): CallbackTo[B] =
     new CallbackTo(() => g(f()))

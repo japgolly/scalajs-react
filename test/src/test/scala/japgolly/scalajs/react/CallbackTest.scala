@@ -21,9 +21,10 @@ object CallbackTest extends TestSuite {
     assert(j == e3)
   }
 
+  def assertCompiles[A](f: => A): Unit = ()
+
   override def tests = TestSuite {
     'guard {
-      def assertCompiles[A](f: => A): Unit = ()
       def assertFails(f: CompileError): Unit = assert(f.msg contains "which will discard without running it")
       def cb = Callback.empty
       def cbI = CallbackTo(3)
@@ -33,6 +34,15 @@ object CallbackTest extends TestSuite {
       "Callback(int)"        - assertCompiles[Callback](Callback(3))
       "Callback(Callback)"   - assertFails(compileError("Callback(cb)"))
       "Callback(CallbackTo)" - assertFails(compileError("Callback(cbI)"))
+    }
+
+    'contravariance {
+      def assertFails(f: CompileError): Unit = ()
+      val x: CallbackTo[Seq[Int]] = CallbackTo(Nil)
+
+      'widen  - assertCompiles(x: CallbackTo[Iterable[Int]])
+      'narrow - assertFails(compileError("x: CallbackTo[List[Int]]"))
+      'unit   - assertFails(compileError("x: Callback"))
     }
 
     'lazily -
