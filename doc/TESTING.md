@@ -7,7 +7,7 @@ Testing
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
 - [`ComponentTester`](#componenttester)
 - [`ReactTestVar`](#reacttestvar)
-- [`StatefulParent`](#statefulparent)
+- [`WithExternalCompStateAccess`](#withexternalcompstateaccess)
 - [`DebugJs`](#debugjs)
 
 Setup
@@ -176,14 +176,10 @@ object ExampleTest extends TestSuite {
 ```
 
 
-`StatefulParent`
-================
-A stateful component you can wrap around a component you want to test.
+`WithExternalCompStateAccess`
+=============================
 
-Scenarios in which this might be useful:
-
-* Testing props changes. (`.setProps` has been deprecated and this is clearer and safer that re-rendering.)
-* Testing a component which uses a parent's `CompState.Access`, `CompState.WriteAccess` or similar.
+Allows you to test a component that requires access to some external component state.
 
 ##### Example:
 
@@ -199,14 +195,14 @@ val Example = ReactComponentB[(CompState.WriteAccess[Int], Int)]("I")
   .build
 ```
 
-You can use `StatefulParent` to write a test like this:
+You can use `WithExternalCompStateAccess` to write a test like this:
 ```scala
-import japgolly.scalajs.react.test.StatefulParent
+import japgolly.scalajs.react.test.WithExternalCompStateAccess
 import utest._
 
 object ExampleTest extends TestSuite {
 
-  val Parent = StatefulParent[Int](($, i) => Example(($, i)))
+  val Parent = WithExternalCompStateAccess[Int](($, i) => Example(($, i)))
 
   override def tests = TestSuite {
     val c = ReactTestUtils renderIntoDocument Parent(3)

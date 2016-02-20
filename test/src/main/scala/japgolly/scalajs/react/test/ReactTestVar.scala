@@ -20,7 +20,7 @@ class ReactTestVar[A](val initialValue: A) {
   override def toString =
     s"ReactTestVar(initialValue = $initialValue, value = ${value()})"
 
-  /* // Use StatefulParent instead.
+  /* // Use WithExternalCompStateAccess instead.
 
   private val obj: ObjectWithStateVar[A] = {
     type JSCB = js.UndefOr[js.Function0[js.Any]]

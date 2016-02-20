@@ -6,7 +6,7 @@ import japgolly.scalajs.react.experimental.StaticPropComponent
 import vdom.prefix_<^._
 import TestUtil2._
 
-object StatefulParentTest extends TestSuite {
+object WithExternalCompStateAccessTest extends TestSuite {
   override def tests = TestSuite {
 
     'normal {
@@ -19,7 +19,7 @@ object StatefulParentTest extends TestSuite {
         }
         .build
 
-      val O = StatefulParent[Int](($, i) => I(($, i)))
+      val O = WithExternalCompStateAccess[Int](($, i) => I(($, i)))
       ReactTestUtils.withRenderedIntoDocument(O(3)) { c =>
         def state = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span").getDOMNode().innerHTML.toInt
         def button = ReactTestUtils.findRenderedDOMComponentWithTag(c, "button")
@@ -54,7 +54,7 @@ object StatefulParentTest extends TestSuite {
         }
       }
 
-      val O = StatefulParent.staticPropComponent(SPC)(SPC.StaticProps)
+      val O = WithExternalCompStateAccess.staticPropComponent(SPC)(SPC.StaticProps)
       ReactTestUtils.withRenderedIntoDocument(O(SPC.DynamicProps(3))) { c =>
         def state = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span").getDOMNode().innerHTML.toInt
         def button = ReactTestUtils.findRenderedDOMComponentWithTag(c, "button")
