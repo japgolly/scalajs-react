@@ -6,7 +6,7 @@ import japgolly.scalajs.react.experimental.StaticPropComponent
 /**
  * Allows you to test a component that requires access to some external component state.
  *
- * @since 0.10.5
+ * @since 0.11.0
  */
 object WithExternalCompStateAccess {
 

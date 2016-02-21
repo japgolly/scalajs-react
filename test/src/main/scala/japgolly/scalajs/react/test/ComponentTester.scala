@@ -8,7 +8,7 @@ import japgolly.scalajs.react._
   * - you can easily change props and/or state.
   * - it is unmounted when the test is over.
   *
-  * @since 0.10.5
+  * @since 0.11.0
   */
 abstract class ComponentTester[P, S, B, N <: TopNode] {
   def component: ReactComponentM[P, S, B, N]

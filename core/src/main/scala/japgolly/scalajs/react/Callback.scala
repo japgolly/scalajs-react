@@ -267,7 +267,7 @@ object CallbackTo {
    *
    * See https://github.com/japgolly/scalajs-react/issues/256
    *
-   * @since 0.10.5
+   * @since 0.11.0
    */
   sealed trait MapGuard[A] { type Out = A }
 

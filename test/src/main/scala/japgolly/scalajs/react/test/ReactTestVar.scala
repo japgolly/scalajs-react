@@ -12,7 +12,7 @@ import japgolly.scalajs.react.extra._
  * It also keeps a log of changes, accessible via `.history()`.
  *
  * @tparam A The variable type.
- * @since 0.10.5
+ * @since 0.11.0
  */
 class ReactTestVar[A](val initialValue: A) {
   import CompScope._
