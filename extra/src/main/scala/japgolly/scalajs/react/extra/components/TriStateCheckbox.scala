@@ -7,6 +7,8 @@ import org.scalajs.dom.html.Input
 
 /**
  * Checkbox that can have three states: Checked, Unchecked, Indeterminate.
+ *
+ * @since 0.11.0
  */
 object TriStateCheckbox {
 
