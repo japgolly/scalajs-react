@@ -55,12 +55,19 @@ trait ReactEventAliases {
   type ReactWheelEventTA       = SyntheticWheelEvent      [html.TextArea]
 }
 
-object ReactKeyboardEvent {
-  def checkKeyMods(e       : ReactKeyboardEvent,
-                   altKey  : Boolean = false,
-                   ctrlKey : Boolean = false,
-                   metaKey : Boolean = false,
-                   shiftKey: Boolean = false): Boolean =
+final class ReactKeyboardEventOps[N <: dom.Node](private val e: SyntheticKeyboardEvent[N]) extends AnyVal {
+
+  /**
+   * Checks the state of all pressed modifier keys.
+   *
+   * `e.pressedModifierKeys()` returns `true` if no modifier keys are currently pressed.
+   *
+   * `e.pressedModifierKeys(altKey = true)` returns `true` if alt is the only modifier key currently pressed.
+   */
+  def pressedModifierKeys(altKey  : Boolean = false,
+                          ctrlKey : Boolean = false,
+                          metaKey : Boolean = false,
+                          shiftKey: Boolean = false): Boolean =
     e.altKey   == altKey   &&
     e.ctrlKey  == ctrlKey  &&
     e.metaKey  == metaKey  &&

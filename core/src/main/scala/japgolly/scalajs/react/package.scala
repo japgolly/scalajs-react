@@ -208,4 +208,8 @@ package object react extends ReactEventAliases {
   @inline implicit def ReactExt_CallbackToFuture[A](c: CallbackTo[Future[A]]) =
     new CallbackTo.ReactExt_CallbackToFuture(() => c.runNow())
 
+  // ===================================================================================================================
+
+  @inline implicit def ReactExt_ReactKeyboardEvent[N <: dom.Node](e: SyntheticKeyboardEvent[N]) =
+    new ReactKeyboardEventOps(e)
 }

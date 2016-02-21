@@ -126,7 +126,7 @@ object CallbackOption {
                            shiftKey: Boolean = false)
                           (switch  : PartialFunction[A, CallbackTo[B]]): CallbackOption[B] =
     for {
-      _  <- require(ReactKeyboardEvent.checkKeyMods(e, altKey, ctrlKey, metaKey, shiftKey))
+      _  <- require(e.pressedModifierKeys(altKey, ctrlKey, metaKey, shiftKey))
       cb <- matchPF(a)(switch)
       b  <- cb.toCBO
     } yield b
