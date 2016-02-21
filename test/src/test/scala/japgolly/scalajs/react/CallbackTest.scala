@@ -25,15 +25,37 @@ object CallbackTest extends TestSuite {
 
   override def tests = TestSuite {
     'guard {
-      def assertFails(f: CompileError): Unit = assert(f.msg contains "which will discard without running it")
       def cb = Callback.empty
       def cbI = CallbackTo(3)
 
-      "Callback(unit)"       - assertCompiles[Callback](Callback(()))
-      "Callback(boolean)"    - assertCompiles[Callback](Callback(false))
-      "Callback(int)"        - assertCompiles[Callback](Callback(3))
-      "Callback(Callback)"   - assertFails(compileError("Callback(cb)"))
-      "Callback(CallbackTo)" - assertFails(compileError("Callback(cbI)"))
+      'constructor {
+        def assertFails(f: CompileError): Unit = assert(f.msg contains "which will discard without running it")
+        "unit"       - assertCompiles[Callback]( Callback(()))
+        "boolean"    - assertCompiles[Callback]( Callback(false))
+        "int"        - assertCompiles[Callback]( Callback(3))
+        "Callback"   - assertFails(compileError("Callback(cb)"))
+        "CallbackTo" - assertFails(compileError("Callback(cbI)"))
+      }
+
+      "map(): Callback" - {
+        def assertFails(f: CompileError): Unit = assert(f.msg contains "type mismatch")
+        def b = false
+        def i = 1
+        "unit"       - assertCompiles[Callback]( cb.map      (_ => ()) : Callback)
+        "boolean"    - assertCompiles[Callback]( cb.map[Unit](_ => b)  : Callback)
+        "int"        - assertCompiles[Callback]( cb.map[Unit](_ => i)  : Callback)
+        "Callback"   - assertFails(compileError("cb.map      (_ => cb) : Callback"))
+        "CallbackTo" - assertFails(compileError("cb.map      (_ => cbI): Callback"))
+      }
+
+      "map(): CallbackTo" - {
+        "unit"       - assertCompiles[Callback                   ](cb.map(_ => ()))
+        "boolean"    - assertCompiles[CallbackTo[Boolean        ]](cb.map(_ => false))
+        "int"        - assertCompiles[CallbackTo[Int            ]](cb.map(_ => 3))
+        "Callback"   - assertCompiles[CallbackTo[Callback       ]](cb.map(_ => cb))
+        "CallbackTo" - assertCompiles[CallbackTo[CallbackTo[Int]]](cb.map(_ => cbI))
+      }
+
     }
 
     'contravariance {

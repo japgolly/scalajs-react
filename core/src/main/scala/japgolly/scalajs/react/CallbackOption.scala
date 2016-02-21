@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
+import CallbackTo.MapGuard
 
 // TODO Document CallbackOption
 
@@ -184,13 +185,13 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
       case Some(_) => None
     })
 
-  def map[B](f: A => B): CallbackOption[B] =
+  def map[B](f: A => B)(implicit ev: MapGuard[B]): CallbackOption[ev.Out] =
     CallbackOption(get.map(_ map f))
 
   /**
    * Alias for `map`.
    */
-  @inline def |>[B](f: A => B): CallbackOption[B] =
+  @inline def |>[B](f: A => B)(implicit ev: MapGuard[B]): CallbackOption[ev.Out] =
     map(f)
 
   def flatMapOption[B](f: A => Option[B]): CallbackOption[B] =
