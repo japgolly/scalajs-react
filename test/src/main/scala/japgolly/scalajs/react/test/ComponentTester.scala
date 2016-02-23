@@ -12,8 +12,14 @@ import japgolly.scalajs.react._
   */
 abstract class ComponentTester[P, S, B, N <: TopNode] {
   def component: ReactComponentM[P, S, B, N]
+
+  def props: P
   def setProps(props: P): Unit
+  def modProps(f: P => P): Unit
+
+  def state: S
   def setState(state: S): Unit
+  def modState(f: S => S): Unit
 }
 
 object ComponentTester {
@@ -31,11 +37,23 @@ object ComponentTester {
 
     override def component = $
 
+    override def props =
+      $.props
+
     override def setProps(props: P): Unit =
       $ = ReactDOM.render(render(props), containerDom)
 
+    override def modProps(f: P => P): Unit =
+      setProps(f(props))
+
+    override def state =
+      $.state
+
     override def setState(state: S): Unit =
       component.setState(state)
+
+    override def modState(f: S => S): Unit =
+      component.modState(f)
 
     def containerDom =
       component.getDOMNode().parentNode
