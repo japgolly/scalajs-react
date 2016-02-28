@@ -38,7 +38,7 @@ object DslTest extends TestSuite {
       <.span("el!")
 
     val compCConst: ReactComponentC.ConstProps[Unit, Unit, Unit, TopNode] =
-      ReactComponentB.static("", <.span("static component")).buildU
+      ReactComponentB.static("", <.span("static component")).build
 
     val compCReqRouter: ReactComponentC.ReqProps[RouterCtl[PageSet], Unit, Unit, TopNode] =
       ReactComponentB[RouterCtl[PageSet]]("").render_P(r => r.link(Obj1)).build

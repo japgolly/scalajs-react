@@ -14,7 +14,7 @@ object EventListenerTest extends TestSuite {
     .backend(_ => new OnUnmount.Backend)
     .renderS((_, state) => <.div(s"Hit $state times"))
     .configure(EventListener.install("hello", _.modState(_ + 1)))
-    .buildU
+    .build
 
   override def tests = TestSuite {
     val c = ReactTestUtils.renderIntoDocument(C())

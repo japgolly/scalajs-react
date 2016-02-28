@@ -27,11 +27,11 @@ object AddonTest extends TestSuite {
         val Parent = ReactComponentB[Unit]("Parent")
           .render_C(c =>
             <.div(^.cls := "parent", ReactCloneWithProps(React.Children only c, Map("className" -> "xyz"))))
-          .buildU
+          .build
 
         val GrandParent = ReactComponentB[Unit]("GrandParent")
           .render(P => Parent(<.div(^.cls:= "child")))
-          .buildU
+          .build
 
         val instance = ReactTestUtils.renderIntoDocument(GrandParent())
         val n = ReactDOM findDOMNode ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz")

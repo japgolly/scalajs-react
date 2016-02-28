@@ -63,7 +63,7 @@ object ReuseExample {
   val topLevelComponent = ReactComponentB[Unit]("Reusability example")
     .initialState(State(Vector(30, 0, 2, 0, 10)))
     .renderBackend[Backend]
-    .buildU
+    .build
 
   case class State(inputs: Vector[Long]) {
     def changeNumberOfInputs(delta: Int) = State(

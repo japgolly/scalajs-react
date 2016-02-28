@@ -71,7 +71,7 @@ object TimerExample {
     .renderBackend[Backend]
     .componentDidMount(_.backend.start)
     .componentWillUnmount(_.backend.clear)
-    .buildU
+    .build
 
   // EXAMPLE:END
 }

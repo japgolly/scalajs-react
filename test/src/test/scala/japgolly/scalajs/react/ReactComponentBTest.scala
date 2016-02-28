@@ -26,7 +26,7 @@ object ReactComponentBTest extends TestSuite {
       'auto2  - test[ReactComponentB.PS[P, S]        ](_ render ???).expect[ReactComponentB.PSBR[P, S, Unit]               ]
       'auto45 - test[ReactComponentB.PSBR[P, S, B]   ](_.build     ).expect[ReactComponentC.ReqProps[P, S, B, TopNode]     ]
       'auto5  - test[ReactComponentB[P, S, B, N]     ](_.build     ).expect[ReactComponentC.ReqProps[P, S, B, N]           ]
-      'auto4U - test[ReactComponentB.PSBR[Unit, S, B]](_.buildU    ).expect[ReactComponentC.ConstProps[Unit, S, B, TopNode]]
+      'auto4U - test[ReactComponentB.PSBR[Unit, S, B]](_.build    ).expect[ReactComponentC.ConstProps[Unit, S, B, TopNode]]
     }
 
     'renderBackend {
@@ -61,14 +61,14 @@ object BackendMacroTestData {
     class Backend($: BackendScope[Unit, State]) {
       val render = <.div("hehe1")
     }
-    val C = ReactComponentB[Unit]("").initialState(State(3)).backend(new Backend(_)).renderBackend.buildU
+    val C = ReactComponentB[Unit]("").initialState(State(3)).backend(new Backend(_)).renderBackend.build
   }
 
   object NoArgs {
     class Backend($: BackendScope[Unit, Unit]) {
       def render = <.div("hehe2")
     }
-    val C = ReactComponentB[Unit]("").backend(new Backend(_)).renderBackend.buildU
+    val C = ReactComponentB[Unit]("").backend(new Backend(_)).renderBackend.build
   }
 
   object AliasesToSameType {
@@ -89,7 +89,7 @@ object BackendMacroTestData {
     class Backend($: BackendScope[Unit, StateInt]) {
       def render(zxc: Int) = <.div(zxc)
     }
-    val C = ReactComponentB[Unit]("").initialState[StateInt](9).renderBackend[Backend].buildU
+    val C = ReactComponentB[Unit]("").initialState[StateInt](9).renderBackend[Backend].build
   }
 
   object TypeAliasesInMethod {
@@ -133,7 +133,7 @@ object BackendMacroTestData {
     class Backend($: BackendScope[Unit, Unit]) {
       def render(pc: PropsChildren) = <.div(pc)
     }
-    val C = ReactComponentB[Unit]("").renderBackend[Backend].buildU
+    val C = ReactComponentB[Unit]("").renderBackend[Backend].build
   }
 
   object AmbiguousType {

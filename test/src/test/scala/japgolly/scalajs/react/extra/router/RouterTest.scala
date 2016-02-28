@@ -29,7 +29,7 @@ object RouterTest extends TestSuite {
       ).build
 
     val HelloComponent =
-      ReactComponentB.static("Hello", <.h3("Hello there!")).buildU
+      ReactComponentB.static("Hello", <.h3("Hello there!")).build
 
     val NameComponent = ReactComponentB[String]("Name")
       .render_P(name => <.h3(s"I believe your name is '$name'."))

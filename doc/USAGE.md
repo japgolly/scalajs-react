@@ -111,7 +111,7 @@ There are two ways of attaching event handlers to your virtual DOM.
     ^.value     := currentValue,
     ^.onChange ==> onTextChange)
   ```
-  
+
   If your handler needs additional arguments, use currying so that the args you want to specify are on the left and the event is alone on the right.
 
   ```scala
@@ -217,7 +217,7 @@ You can create callbacks in a number of ways:
   ```scala
   // This is Callback. It is also a CallbackTo[Unit].
   Callback{ println("Hello! I'll be executed later.") }
-  
+
   // This is a CallbackTo[Int].
   CallbackTo(123)
   ```
@@ -373,7 +373,7 @@ Creating Components
 
 Provided is a component builder DSL called `ReactComponentB`.
 
-You throw types and functions at it, call `build` (or `buildU`) and when it compiles you will have a React component.
+You throw types and functions at it, call `build` and when it compiles you will have a React component.
 
 You first specify your component's properties type, and a component name.
 ```scala
@@ -381,7 +381,8 @@ ReactComponentB[Props]("MyComponent")
 ```
 
 Next you keep calling functions on the result until you get to a `build` method.
-If your props type is `Unit`, use `buildU` instead to be able to instantiate your component with having to pass `()` as a constructor argument.
+
+*(Note: There's a little bit of magic under the covers when you call `.build`, that checks if your props type is `Unit` and if it is, provides your component with a different constructor so that you don't have to always pass in `()`.)*
 
 For a list of available methods, let your IDE guide you or see the
 [source](../core/src/main/scala/japgolly/scalajs/react/ReactComponentB.scala).
@@ -391,17 +392,26 @@ You must create an instance of it to use it in vdom.
 
 (`ReactComponent` types are described in [TYPES.md](TYPES.md).)
 
-Example:
+Example (with props):
 ```scala
-val NoArgs =
-  ReactComponentB[Unit]("No args")
-    .render(_ => <.div("Hello!"))
-    .buildU
-
 val Hello =
   ReactComponentB[String]("Hello <name>")
     .render(name => <.div("Hello ", name))
     .build
+
+// Usage:
+Hello("Draconus")
+```
+
+Example (without props):
+```scala
+val NoArgs =
+  ReactComponentB[Unit]("No args")
+    .render(_ => <.div("Hello!"))
+    .build
+
+// Usage:
+NoArgs()
 ```
 
 #### Backends
@@ -439,7 +449,7 @@ val Example = ReactComponentB[Unit]("Example")
   .initialState(Vector("hello", "world"))
   .backend(new Backend(_))
   .render(_.backend.render)
-  .buildU
+  .build
 ```
 
 After:
@@ -454,7 +464,7 @@ class Backend($: BackendScope[Unit, State]) {
 val Example = ReactComponentB[Unit]("Example")
   .initialState(Vector("hello", "world"))
   .renderBackend[Backend]  // ← Use Backend class and backend.render
-  .buildU
+  .build
 ```
 
 You can also create a backend yourself and still use `.renderBackend`:
@@ -463,7 +473,7 @@ val Example = ReactComponentB[Unit]("Example")
   .initialState(Vector("hello", "world"))
   .backend(new Backend(_)) // ← Fine! Do it yourself!
   .renderBackend           // ← Use backend.render
-  .buildU
+  .build
 ```
 
 Using Components
@@ -477,7 +487,7 @@ To create an instance, you call the constructor.
 val NoArgs =
   ReactComponentB[Unit]("No args")
     .render(_ => <.div("Hello!"))
-    .buildU
+    .build
 
 val Hello =
   ReactComponentB[String]("Hello <name>")
@@ -575,7 +585,7 @@ React Extensions
 
   ```scala
   import monocle.macros._
-  
+
   @Lenses case class State(name: String, counter: Int)
 
   def render = {
@@ -736,7 +746,7 @@ val ref = Ref.toJS[SampleReactComponentM]("ref123")
 val component = ReactComponentB[Unit]("S").stateless.backend(new XxxBackend(_)).render { scope =>
   val factory = React.createFactory(SampleReactComponent)
   factory(SampleReactComponentProperty(ref = ref, propOne = "123"))
-}.buildU
+}.build
 
 React.render(component(), dom.document.body)
 ```

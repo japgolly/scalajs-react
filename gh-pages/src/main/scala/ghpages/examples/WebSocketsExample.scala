@@ -128,7 +128,7 @@ object WebSocketsExample {
     .renderBackend[Backend]
     .componentDidMount(_.backend.start)
     .componentWillUnmount(_.backend.end)
-    .buildU
+    .build
 
   // EXAMPLE:END
 }

@@ -9,7 +9,7 @@ package object examples {
       <.div(
         f(<.p(^.maxWidth := "84%", ^.marginBottom := "1.5em")),
         top.withKey("top")())
-    ).buildU
+    ).build
 
   def reactJsLink(suffix: String = "") = {
     val url = "https://facebook.github.io/react/" + suffix

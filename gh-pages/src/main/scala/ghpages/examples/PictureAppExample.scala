@@ -205,7 +205,7 @@ object PictureAppExample {
         }
       })
     })
-    .buildU
+    .build
 
   // EXAMPLE:END
 }

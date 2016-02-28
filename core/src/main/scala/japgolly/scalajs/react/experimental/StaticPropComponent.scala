@@ -87,7 +87,7 @@ object StaticPropComponent {
                 raw.update(BackendKey, nb.asInstanceOf[js.Any])
               }
         }
-      configure(e).build
+      configure(e).propsRequired.build
     }
   }
 

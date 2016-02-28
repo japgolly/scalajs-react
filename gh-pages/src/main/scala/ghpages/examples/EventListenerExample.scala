@@ -27,7 +27,7 @@ object EventListenerExample {
       EventListener.install("click", _.backend.logLocalClick),
       EventListener.install("click", _.backend.logWindowClick, _ => dom.window)
     )
-    .buildU
+    .build
 
   class Backend($: BackendScope[Unit, String]) extends OnUnmount {
     def logEvent(desc: String)       = $.modState(_ + "\n" + desc)

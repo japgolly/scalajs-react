@@ -14,7 +14,7 @@ object RefTest extends TestSuite {
   @js.native
   trait ReactCssTransitionGroupM extends js.Object
 
-  val Static = ReactComponentB.staticN[HTMLElement]("static", <.h2("nice")).buildU
+  val Static = ReactComponentB.staticN[HTMLElement]("static", <.h2("nice")).build
   val StaticHtml = "<h2>nice</h2>"
 
   val tests = TestSuite {
@@ -23,14 +23,14 @@ object RefTest extends TestSuite {
       val inputRef = Ref[HTMLInputElement]("r")
       val c = ReactComponentB[Unit]("")
         .render(_ => <.div(<.input(^.value := "cool", ^.ref := inputRef)))
-        .buildU
+        .build
       val m = ReactTestUtils renderIntoDocument c()
       inputRef(m).get.value mustEqual "cool"
     }
 
     'toScalaComponentByString {
       val ref = "omg"
-      val c = ReactComponentB[Unit]("").render(_ => <.div(Static.withRef(ref)())).buildU
+      val c = ReactComponentB[Unit]("").render(_ => <.div(Static.withRef(ref)())).build
       val m = ReactTestUtils renderIntoDocument c()
       val e = ReactDOM.findDOMNode(m.refs("omg").get).asInstanceOf[HTMLElement]
       assertOuterHTML(e, StaticHtml)
@@ -38,7 +38,7 @@ object RefTest extends TestSuite {
 
     'toScalaComponentTypesafe {
       val ref = Ref.to(Static, "rushyyz")
-      val c = ReactComponentB[Unit]("").render(_ => <.div(Static.withRef(ref)())).buildU
+      val c = ReactComponentB[Unit]("").render(_ => <.div(Static.withRef(ref)())).build
       val m = ReactTestUtils renderIntoDocument c()
       val e = ReactDOM findDOMNode ref(m).get
       assertOuterHTML(e, StaticHtml)
@@ -46,7 +46,7 @@ object RefTest extends TestSuite {
 
     'parameterised {
       val r = Ref.param[Int, TopNode](i => s"ref-$i")
-      val C = ReactComponentB[Unit]("").render(_ => <.div(<.p(^.ref := r(1), "One"), <.p(^.ref := r(2), "Two"))).buildU
+      val C = ReactComponentB[Unit]("").render(_ => <.div(<.p(^.ref := r(1), "One"), <.p(^.ref := r(2), "Two"))).build
       val c = ReactTestUtils.renderIntoDocument(C())
       r(1)(c).get.innerHTML mustEqual "One"
       r(2)(c).get.innerHTML mustEqual "Two"
@@ -73,13 +73,13 @@ object RefTest extends TestSuite {
           outerRef(scope).get.backend.getName mustEqual outerWName
           tested = true
         })
-        .buildU
+        .build
       ReactTestUtils renderIntoDocument C()
       assert(tested) // just in case
     }
 
     'shouldNotHaveRefsOnUnmountedComponents {
-      val C = ReactComponentB[Unit]("child").render(_ => <.div()).buildU
+      val C = ReactComponentB[Unit]("child").render(_ => <.div()).build
       val P = ReactComponentB[Unit]("parent")
         .render(P => C(<.div(^.ref := "test"))) // div here discarded by C.render
         .componentDidMount(scope => Callback(assert(scope.refs("test").get == null)))
@@ -96,7 +96,7 @@ object RefTest extends TestSuite {
         .backend(new RB(_))
         .render(_ => <.div(ReactCssTransitionGroup(name = "testname", ref = "addon")()))
         .componentDidMount(_.backend.test)
-        .buildU
+        .build
       ReactTestUtils renderIntoDocument C()
     }
 
@@ -105,7 +105,7 @@ object RefTest extends TestSuite {
       var i: js.UndefOr[HTMLInputElement] = js.undefined
       val PC = ReactComponentB[Unit]("PC")
         .render(_ => <.div(<.input(^.value := "yay", ^.ref[HTMLInputElement](i = _))))
-        .buildU
+        .build
       ReactTestUtils renderIntoDocument PC()
       assert(i.isDefined)
       assert(i.get.value == "yay")

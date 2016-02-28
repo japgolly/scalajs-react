@@ -48,7 +48,7 @@ object StateMonadExample {
             ^.onChange ==> $._runState(acceptChange),     // In these cases, the function will be fed the JS event.
             ^.value := s.text),
           <.button("Add #", s.items.length + 1)))
-    ).buildU
+    ).build
 
   // EXAMPLE:END
 }

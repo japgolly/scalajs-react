@@ -67,7 +67,7 @@ object TouchExample {
   val TouchExampleApp = ReactComponentB[Unit]("TouchExample")
     .initialState(new State)
     .renderBackend[Backend]
-    .buildU
+    .build
 
   // EXAMPLE:END
 }

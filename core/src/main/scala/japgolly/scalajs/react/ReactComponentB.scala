@@ -4,7 +4,8 @@ import scala.scalajs.js.{Any => JAny, Array => JArray, _}
 import Internal._
 import CompScope._
 import macros.CompBuilderMacros
-import ReactComponentB.BackendKey
+import ReactComponentB.{BackendKey, BuildResult}
+import ReactComponentC.{ConstProps, ReqProps, UnitPropProof}
 
 sealed abstract class LifecycleInput[P, S, +$ <: HasProps[P] with HasState[S]] {
   val $: $
@@ -37,14 +38,45 @@ object ReactComponentB {
   // 5 = ReactComponentB
   // 6 = ReactComponentB#Builder
 
-  implicit def _defaultBuildStep_stateless    [p](x: P[p])                                           = x.stateless
-  implicit def _defaultBuildStep_noBackend    [p,s,X <% PS[p, s]](x: X)                              = x.noBackend
-  implicit def _defaultBuildStep_topNode      [p,s,b](x: PSBR[p, s, b])                              = x.domType[TopNode]
-  implicit def _defaultBuildStep_propsRequired[P,S,B,N<:TopNode,X <% ReactComponentB[P,S,B,N]](x: X) = x.propsRequired
+  @inline implicit def _defaultBuildStep_stateless[p](x: P[p])              = x.stateless
+  @inline implicit def _defaultBuildStep_noBackend[P,S,X <% PS[P, S]](x: X) = x.noBackend
+  @inline implicit def _defaultBuildStep_topNode  [P,S,B](x: PSBR[P, S, B]) = x.domType[TopNode]
+  @inline implicit def _defaultBuildStep_builder[P, S, B, N <: TopNode, X](x: X)(implicit f: X => ReactComponentB[P, S, B, N], w: BuildResult[P, S, B, N]) =
+    x.builder
 
   type InitStateFn  [P, S]     = DuringCallbackU[P, S, Any] => CallbackTo[S]
   type InitBackendFn[P, S, +B] = Option[BackendScope[P, S] => B]
   type RenderFn     [P, S, -B] = DuringCallbackU[P, S, B] => ReactElement
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * Implicit that automatically determines the type of component to build.
+   */
+  sealed abstract class BuildResult[P, S, B, N <: TopNode] {
+    type Out
+    val apply: ReqProps[P, S, B, N] => Out
+  }
+
+  sealed abstract class BuildResultLowPri {
+    /** Default case - Props are required in the component constructor. */
+    implicit def buildResultId[P, S, B, N <: TopNode]: BuildResult.Aux[P, S, B, N, ReqProps[P, S, B, N]] =
+      BuildResult(c => c)
+  }
+
+  object BuildResult extends BuildResultLowPri {
+    type Aux[P, S, B, N <: TopNode, O] = BuildResult[P, S, B, N] {type Out = O}
+
+    @inline def apply[P, S, B, N <: TopNode, O](f: ReqProps[P, S, B, N] => O): Aux[P, S, B, N, O] =
+      new BuildResult[P, S, B, N] {
+        override type Out = O
+        override val apply = f
+      }
+
+    /** Special case - When Props = Unit, don't ask for props in the component constructor. */
+    implicit def buildResultUnit[S, B, N <: TopNode]: BuildResult.Aux[Unit, S, B, N, ConstProps[Unit, S, B, N]] =
+      BuildResult(_.noProps)
+  }
 
   // ===================================================================================================================
   // Convenience
@@ -324,20 +356,23 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
     copy(rf = f(rf))
 
   // ===================================================================================================================
-  import ReactComponentC.{ConstProps, ReqProps, UnitPropProof}
 
   type BuildFn[Output] = ReqProps[P,S,B,N] => Output
 
-  @inline private def builder[Output](buildFn: BuildFn[Output]) = new Builder(buildFn)
+  @inline private def newBuilder[Output](buildFn: BuildFn[Output]) = new Builder(buildFn)
 
-  def propsRequired         = builder(identity)
-  def propsDefault(p: => P) = builder(_ withDefaultProps p)
-  def propsConst  (p: => P) = builder(_ withProps p)
+  def propsRequired         = newBuilder(identity)
+  def propsDefault(p: => P) = newBuilder(_ withDefaultProps p)
+  def propsConst  (p: => P) = newBuilder(_ withProps p)
 
-  def propsUnit(implicit ev: UnitPropProof[P]) = builder(_.noProps)
+  def propsUnit(implicit ev: UnitPropProof[P]) = newBuilder(_.noProps)
 
-  def buildU(implicit ev: UnitPropProof[P]): ConstProps[P, S, B, N] =
-    propsUnit.build
+  def builder(implicit w: BuildResult[P, S, B, N]): Builder[w.Out] =
+    newBuilder(w.apply)
+
+  @deprecated("Use .build.", "0.11.0")
+  def buildU(implicit ev: ReactComponentB[P, S, B, N] =:= ReactComponentB[Unit, S, B, N]): ConstProps[Unit, S, B, N] =
+    ev(this).build
 
   final class Builder[Output] private[ReactComponentB](buildFn: BuildFn[Output]) {
 

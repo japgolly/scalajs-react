@@ -75,7 +75,7 @@ object RefsExample {
   val App = ReactComponentB[Unit]("App")
     .initialState("")
     .renderBackend[Backend]
-    .buildU
+    .build
 
   // EXAMPLE:END
 }

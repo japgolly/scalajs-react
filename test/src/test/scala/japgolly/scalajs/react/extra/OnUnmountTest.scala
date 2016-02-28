@@ -19,12 +19,12 @@ object OnUnmountTest extends TestSuite {
     .configure(OnUnmount.install)
     .componentDidMount(_.backend onUnmount dec_i)
     .componentDidMountCB(inc_i)
-    .buildU
+    .build
 
   val Outer = ReactComponentB[Unit]("")
     .initialState(true)
     .render_S(s => if (s) C() else <.div)
-    .buildU
+    .build
 
   override def tests = TestSuite {
     val c = ReactTestUtils.renderIntoDocument(Outer())

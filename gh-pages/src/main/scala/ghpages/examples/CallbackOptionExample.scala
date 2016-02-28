@@ -23,7 +23,7 @@ object CallbackOptionExample {
           <.br,
           "Notice that PageDown still scrolls the page but ↓ doesn't? That's because", <.code("preventDefault"), "is only called when a key is matched."),
         Main()))
-    .buildU
+    .build
 
   // EXAMPLE:START
   import org.scalajs.dom.ext.KeyCode
@@ -103,7 +103,7 @@ object CallbackOptionExample {
     .initialState(initState)
     .renderBackend[Backend]
     .componentDidMount(_.backend.init)
-    .buildU
+    .build
 
   // EXAMPLE:END
 }

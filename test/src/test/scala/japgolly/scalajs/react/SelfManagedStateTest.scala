@@ -73,7 +73,7 @@ object SelfManagedStateTest extends TestSuite {
         <.label("Surname:",    s.lastName.render),
         <.p(s"My name is ${s.firstName.value} ${s.lastName.value}."))
     }
-    .buildU
+    .build
 
   override def tests = TestSuite {
     val c  = ReactTestUtils.renderIntoDocument(TopLevel())

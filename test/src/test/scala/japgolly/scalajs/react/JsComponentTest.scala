@@ -36,7 +36,7 @@ object JsComponentTest extends TestSuite {
           React.createFactory(SampleReactComponent)(SampleReactComponentProperty(ref = ref, propOne = "123")),
           <.p(^.ref := p1, ^.onClick --> scope.backend.modifyOne(10)),
           <.p(^.ref := p2, ^.onClick --> scope.backend.modifyTwo(20))
-        )).buildU
+        )).build
       val renderedComponent = ReactTestUtils.renderIntoDocument(component())
       val mountedComponent = ref(renderedComponent)
       assert(mountedComponent.map(ReactDOM.findDOMNode(_).tagName.toLowerCase).toOption == Some("div"))

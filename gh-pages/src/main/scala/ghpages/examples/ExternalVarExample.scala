@@ -37,7 +37,7 @@ object ExternalVarExample {
         <.label("Surname:",    NameChanger(surnameEV  )),
         <.p(s"My name is ${name.surname}, ${name.firstName} ${name.surname}."))
     }
-    .buildU
+    .build
 
   // EXAMPLE:END
 }

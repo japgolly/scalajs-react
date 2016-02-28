@@ -92,7 +92,7 @@ object TodoExample {
   val TodoApp = ReactComponentB[Unit]("TodoApp")
     .initialState(State(Nil, ""))
     .renderBackend[Backend]
-    .buildU
+    .build
 
   // EXAMPLE:END
 }
