@@ -183,7 +183,10 @@ package object react extends ReactEventAliases {
     @inline def stopPropagationCB = Callback(e.stopPropagation())
   }
 
+  @deprecated("Use e.preventDefaultCB.", "0.11.0")
   def preventDefault (e: ReactEvent): Callback = e.preventDefaultCB
+
+  @deprecated("Use e.stopPropagationCB.", "0.11.0")
   def stopPropagation(e: ReactEvent): Callback = e.stopPropagationCB
 
   @inline implicit final class ReactExt_ReactDOMElement(private val e: ReactDOMElement) extends AnyVal {

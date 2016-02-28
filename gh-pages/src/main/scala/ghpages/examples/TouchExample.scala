@@ -33,9 +33,9 @@ object TouchExample {
   /** Saving touch event details to state */
   class Backend(val $: BackendScope[Unit, State]) {
     def debugEvent(e: ReactTouchEvent): Callback =
-      preventDefault(e) >> $.modState { state =>
+      e.preventDefaultCB >> $.modState(state =>
         state withEntry s"${e.nativeEvent.`type`}: ${formatTouches(e.changedTouches)}" limit 10
-      }
+      )
 
     private def formatTouches(touches: dom.TouchList) =
       toSeq(touches).map(formatCoordinates).mkString(" | ")
