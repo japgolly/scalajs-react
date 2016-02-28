@@ -186,7 +186,7 @@ package object react extends ReactEventAliases {
     @inline def stopPropagationCB = Callback(e.stopPropagation())
   }
 
-  @inline implicit final class ReactExt_ReactEventExt(private val e: ReactEvent) extends AnyVal {
+  @inline implicit final class ReactExt_ReactEventExt[E <: ReactEvent](private val e: E) extends AnyVal {
     /**
      * Stops the default action of an element from happening.
      * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
@@ -197,6 +197,18 @@ package object react extends ReactEventAliases {
      * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
      */
     @inline def stopPropagationCB = Callback(e.stopPropagation())
+
+    /**
+     * If you want to access the event properties in an asynchronous way (eg. in a `modState(…)` function),
+     * React will have recycled the event by the time the asynchronous call executes.
+     *
+     * This convenience function extracts a value from the event synchronously (i.e. now!) and so that it is
+     * available to the asynchronous code.
+     */
+    @inline def extract[A, B](getNow: E => A)(useAsync: A => B): B = {
+      val a = getNow(e)
+      useAsync(a)
+    }
   }
 
   @deprecated("Use e.preventDefaultCB.", "0.11.0")

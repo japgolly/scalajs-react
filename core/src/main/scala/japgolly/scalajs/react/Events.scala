@@ -113,8 +113,8 @@ trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends js.Object {
   @JSName("type") val eventType: String = js.native
 
   /**
-   * If you want to access the event properties in an asynchronous way, you should call `.persist()` on the event,
-   * which will remove the synthetic event from the pool and allow references to the event to be retained by user code.
+   * If you want to access the event properties in an asynchronous way, call this on the event, which will remove the
+   * synthetic event from the pool and allow references to the event to be retained by user code.
    */
   def persist(): Unit = js.native
 }
