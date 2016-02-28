@@ -174,12 +174,28 @@ package object react extends ReactEventAliases {
   // ===================================================================================================================
 
   @inline implicit final class ReactExt_domEventExt(private val e: dom.Event) extends AnyVal {
-    @inline def preventDefaultCB  = Callback(e.preventDefault())
+    /**
+     * Stops the default action of an element from happening.
+     * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
+     */
+    @inline def preventDefaultCB = Callback(e.preventDefault())
+
+    /**
+     * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
+     */
     @inline def stopPropagationCB = Callback(e.stopPropagation())
   }
 
   @inline implicit final class ReactExt_ReactEventExt(private val e: ReactEvent) extends AnyVal {
-    @inline def preventDefaultCB  = Callback(e.preventDefault())
+    /**
+     * Stops the default action of an element from happening.
+     * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
+     */
+    @inline def preventDefaultCB = Callback(e.preventDefault())
+
+    /**
+     * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
+     */
     @inline def stopPropagationCB = Callback(e.stopPropagation())
   }
 
