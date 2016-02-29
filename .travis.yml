@@ -5,12 +5,13 @@ scala:
   - 2.11.7
 
 jdk:
-- oraclejdk8
+  - oraclejdk8
 
 script:
-- sbt ++$TRAVIS_SCALA_VERSION test/test:fastOptJS test/test:fullOptJS
-- sbt ++$TRAVIS_SCALA_VERSION test
-- sbt ++$TRAVIS_SCALA_VERSION 'set scalaJSStage in Global := FullOptStage' 'set scalaJSStage in Test in ScalajsReact.test := FullOptStage' test
+  - sbt ++$TRAVIS_SCALA_VERSION test/test:fastOptJS test/test:fullOptJS
+  - sbt ++$TRAVIS_SCALA_VERSION test
+  - sbt ++$TRAVIS_SCALA_VERSION 'set scalaJSStage in Global := FullOptStage' 'set scalaJSStage in Test in ScalajsReact.test := FullOptStage' test
+  - bin/checkDevOnly
 
 # Use PhantomJS 2
 # https://mediocre.com/forum/topics/phantomjs-2-and-travis-ci-we-beat-our-heads-against-a-wall-so-you-dont-have-to

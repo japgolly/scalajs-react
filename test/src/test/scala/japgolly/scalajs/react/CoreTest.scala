@@ -474,8 +474,7 @@ object CoreTest extends TestSuite {
       }
     }
 
-    // Also compile with test/test:fullOptJS and run bin/checkDevOnly
-    // TODO Use SBT and Travis
+    // Also checked with bin/checkDevOnly via Travis CI
     "devOnly" - {
       def test(t: ReactTag)(dev: => String, prod: => String): Unit = {
         val exp = if (developmentMode) dev else prod
