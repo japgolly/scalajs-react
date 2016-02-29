@@ -67,7 +67,7 @@ object Builder {
     }
 }
 
-private[vdom] final class Builder {
+final class Builder {
 
   private[this] var className: js.UndefOr[js.Any] = js.undefined
   private[this] var props    = new js.Object
