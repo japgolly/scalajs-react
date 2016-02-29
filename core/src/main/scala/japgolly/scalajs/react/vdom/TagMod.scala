@@ -1,5 +1,7 @@
 package japgolly.scalajs.react.vdom
 
+import scala.scalajs.LinkingInfo.developmentMode
+
 /**
  * Represents a value that can be nested within a [[ReactTagOf]]. This can be
  * another [[TagMod]], but can also be a CSS style or HTML attribute binding,
@@ -27,6 +29,10 @@ trait TagMod {
 }
 
 object TagMod {
+  @deprecated("Use EmptyTag.", "-")
+  def empty: TagMod =
+    EmptyTag
+
   @inline def apply(ms: TagMod*): TagMod =
     Composite(ms.toVector)
 
@@ -40,5 +46,11 @@ object TagMod {
     override def applyTo(b: Builder): Unit =
       ms.foreach(_ applyTo b)
   }
+
+  @inline def devOnly(m: => TagMod): TagMod =
+    if (developmentMode)
+      apply(m)
+    else
+      EmptyTag
 }
 

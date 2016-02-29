@@ -472,5 +472,13 @@ object CoreTest extends TestSuite {
         input.domToHtml mustEqual Some(input.asInstanceOf[HTMLElement])
       }
     }
+
+    // Compile with test/test:fullOptJS and run bin/checkDevOnly
+    // TODO Use SBT and Travis
+    "TagMod.devOnly" - {
+      * - TagMod.devOnly(p("DEV ONLY"))
+      * - TagMod.devOnly(TagMod(cls := "DEV ONLY", p("DEV ONLY")))
+    }
+
   }
 }
