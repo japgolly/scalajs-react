@@ -36,9 +36,13 @@ class ReusabilityMacros(val c: Context) extends ReactMacroUtils {
           var tests = Vector.empty[Tree]
 
           val reusability = c.typeOf[japgolly.scalajs.react.extra.Reusability[_]]
+          val memo = collection.mutable.HashMap.empty[Type, TermName]
           for ((n, t) <- fieldsAndTypes) {
-            val fp = TermName(c.freshName())
-            insts :+= q"val $fp = ${needInferImplicit(appliedType(reusability, t))}"
+            val fp = memo.getOrElseUpdate(t, {
+              val tmp = TermName(c.freshName())
+              insts :+= q"val $tmp = ${needInferImplicit(appliedType(reusability, t))}"
+              tmp
+            })
             tests :+= q"$fp.test(a.$n, b.$n)"
           }
 
