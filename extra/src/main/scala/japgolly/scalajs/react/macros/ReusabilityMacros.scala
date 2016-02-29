@@ -6,22 +6,29 @@ import japgolly.scalajs.react.extra.Reusability
 class ReusabilityMacros(val c: Context) extends ReactMacroUtils {
   import c.universe._
 
-  def quietCaseClass[T: c.WeakTypeTag]: c.Expr[Reusability[T]] = implCaseClass[T](false)
-  def debugCaseClass[T: c.WeakTypeTag]: c.Expr[Reusability[T]] = implCaseClass[T](true)
+  def quietCaseClass[T: c.WeakTypeTag]: c.Expr[Reusability[T]] =
+    implCaseClass[T](Nil, false)
 
-  def implCaseClass[T: c.WeakTypeTag](debug: Boolean): c.Expr[Reusability[T]] = {
-    val T      = caseClassType[T]
-    val params = primaryConstructorParams(T)
+  def debugCaseClass[T: c.WeakTypeTag]: c.Expr[Reusability[T]] =
+    implCaseClass[T](Nil, true)
 
-    val Reusability  =  q"_root_.japgolly.scalajs.react.extra.Reusability"
+  def quietCaseClassExcept[T: c.WeakTypeTag](field1: c.Expr[scala.Symbol], fieldN: c.Expr[scala.Symbol]*): c.Expr[Reusability[T]] =
+    implCaseClass[T](field1 :: fieldN.toList, false)
+
+  def debugCaseClassExcept[T: c.WeakTypeTag](field1: c.Expr[scala.Symbol], fieldN: c.Expr[scala.Symbol]*): c.Expr[Reusability[T]] =
+    implCaseClass[T](field1 :: fieldN.toList, true)
+
+  private def implCaseClass[T: c.WeakTypeTag](exclusions: Seq[c.Expr[scala.Symbol]], debug: Boolean): c.Expr[Reusability[T]] = {
+    val T              = caseClassType[T]
+    val fieldsAndTypes = primaryConstructorParamsExcluding(T, exclusions)
+    val Reusability    = q"_root_.japgolly.scalajs.react.extra.Reusability"
 
     val impl =
-      params match {
+      fieldsAndTypes match {
         case Nil =>
           q"$Reusability.const[$T](true)"
 
-        case param :: Nil =>
-          val (n, t) = nameAndType(T, param)
+        case (n, t) :: Nil =>
           q"$Reusability.by[$T,$t](_.$n)"
 
         case _ =>
@@ -29,8 +36,7 @@ class ReusabilityMacros(val c: Context) extends ReactMacroUtils {
           var tests = Vector.empty[Tree]
 
           val reusability = c.typeOf[japgolly.scalajs.react.extra.Reusability[_]]
-          for (p <- params) {
-            val (n, t) = nameAndType(T, p)
+          for ((n, t) <- fieldsAndTypes) {
             val fp = TermName(c.freshName())
             insts :+= q"val $fp = ${needInferImplicit(appliedType(reusability, t))}"
             tests :+= q"$fp.test(a.$n, b.$n)"

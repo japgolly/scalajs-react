@@ -63,6 +63,8 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.byRefOr_==` uses reference equality and if different, tries universal equality.
 * `Reusability.caseClass` for case classes of your own.
 * `Reusability.caseClassDebug` as above, but shows you the code that the macro generates.
+* `Reusability.caseClassExcept` for case classes of your own where you want to exclude some fields.
+* `Reusability.caseClassExceptDebug` as above, but shows you the code that the macro generates.
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
 * `Reusability.fn((A, B) => Boolean)` to hand-write custom logic.
 * `Reusability.byIterator` uses an `Iterable`'s iterator to check each element in order.
@@ -82,21 +84,28 @@ The following component will only re-render when one of the following change:
 * `props.pic.id`
 
 ```scala
-  case class Picture(id: Long, url: String, title: String)
-  case class Props(name: String, age: Option[Int], pic: Picture)
+case class Picture(id: Long, url: String, title: String)
+case class Props(name: String, age: Option[Int], pic: Picture)
 
-  implicit val picReuse   = Reusability.by((_: Picture).id)  // ← only check id
-  implicit val propsReuse = Reusability.caseClass[Props]     // ← check all fields
+implicit val picReuse   = Reusability.by((_: Picture).id)  // ← only check id
+implicit val propsReuse = Reusability.caseClass[Props]     // ← check all fields
 
-  val component = ReactComponentB[Props]("Demo")
-    .render_P(p =>
-      <.div(
-        <.p("Name: ", p.name),
-        <.p("Age: ", p.age.fold("Unknown")(_.toString)),
-        <.img(^.src := p.pic.url, ^.title := p.pic.title))
-    )
-    .configure(Reusability.shouldComponentUpdate)                 // ← hook into lifecycle
-    .build
+val component = ReactComponentB[Props]("Demo")
+  .render_P(p =>
+    <.div(
+      <.p("Name: ", p.name),
+      <.p("Age: ", p.age.fold("Unknown")(_.toString)),
+      <.img(^.src := p.pic.url, ^.title := p.pic.title))
+  )
+  .configure(Reusability.shouldComponentUpdate)                 // ← hook into lifecycle
+  .build
+```
+
+Alternatively, `picReuse` could be written using `caseClassExcept` as follows.
+
+```scala
+// Not natural in this case but demonstrates how to use caseClassExcept
+implicit val picReuse = Reusability.caseClassExcept[Picture]('url, 'title)
 ```
 
 #### Monitoring

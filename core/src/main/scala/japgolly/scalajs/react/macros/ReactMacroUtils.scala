@@ -100,4 +100,46 @@ abstract class ReactMacroUtils {
       case x => fail(s"Don't know how to parse macroApplication: ${showRaw(x)}")
     }
 
+  final def readMacroArg_symbol(e: c.Expr[scala.Symbol]): String =
+    e match {
+      case Expr(Apply(_, List(Literal(Constant(n: String))))) => n
+      case _ => fail(s"Expected a symbol, got: ${showRaw(e)}")
+    }
+
+  final def excludeNamedParams(exclusions: Seq[String], data: List[(TermName, Type)]): List[(TermName, Type)] =
+    if (exclusions.isEmpty)
+      data
+    else {
+      var blacklist = Set.empty[String]
+      var bsize = 0
+      for (s <- exclusions) {
+        if (blacklist contains s)
+          fail(s"Duplicate found: $s")
+        blacklist += s
+        bsize += 1
+      }
+
+      def name(x: (TermName, Type)): String =
+        x._1.decodedName.toString
+
+      val b = List.newBuilder[(TermName, Type)]
+      var excluded = 0
+      for (x <- data)
+        if (blacklist contains name(x))
+          excluded += 1
+        else
+          b += x
+
+      if (bsize != excluded) {
+        val x = blacklist -- data.map(name)
+        fail(s"Not found: ${x mkString ", "}")
+      }
+
+      b.result()
+    }
+
+  final def primaryConstructorParamsExcluding(t: Type, exclusions: Seq[c.Expr[scala.Symbol]]): List[(TermName, Type)] =
+    excludeNamedParams(
+      exclusions.map(readMacroArg_symbol),
+      primaryConstructorParams(t).map(nameAndType(t, _)))
 }

@@ -77,6 +77,7 @@ object ReusabilityTest extends TestSuite {
   case class CC0()
   case class CC1(i: Int)
   case class CC2(i: Int, n: String)
+  case class CC4(a: Int, b: Int, c: Int, d: Int)
 
   case class CCT0[A]()
   case class CCT1[A](i: A)
@@ -92,42 +93,85 @@ object ReusabilityTest extends TestSuite {
       assertEq(r.test(a, b), a == b)
   }
 
-  val tests = TestSuite {
+  override def tests = TestSuite {
 
-    'caseClassMacro {
+    'macros {
       def test[A](a: A, b: A, expect: Boolean)(implicit r: Reusability[A]) =
         assert(r.test(a, b) == expect)
 
-      'cc0 {
-        implicit val r = Reusability.caseClass[CC0]
-        test(CC0(), CC0(), true)
-      }
-      'cc1 {
-        implicit val r = Reusability.caseClass[CC1]
-        test(CC1(2), CC1(2), true)
-        test(CC1(2), CC1(3), false)
-      }
-      'cc2 {
-        implicit val r = Reusability.caseClass[CC2]
-        test(CC2(3,"a"), CC2(3,"a"), true)
-        test(CC2(3,"a"), CC2(3,"b"), false)
-        test(CC2(3,"a"), CC2(4,"a"), false)
+      'caseClass {
+        'cc0 {
+          implicit val r = Reusability.caseClass[CC0]
+          test(CC0(), CC0(), true)
+        }
+        'cc1 {
+          implicit val r = Reusability.caseClass[CC1]
+          test(CC1(2), CC1(2), true)
+          test(CC1(2), CC1(3), false)
+        }
+        'cc2 {
+          implicit val r = Reusability.caseClass[CC2]
+          test(CC2(3,"a"), CC2(3,"a"), true)
+          test(CC2(3,"a"), CC2(3,"b"), false)
+          test(CC2(3,"a"), CC2(4,"a"), false)
+        }
+
+        'cct0 {
+          implicit val r = Reusability.caseClass[CCT0[Int]]
+          test(CCT0[Int](), CCT0[Int](), true)
+        }
+        'cct1 {
+          implicit val r = Reusability.caseClass[CCT1[Int]]
+          test(CCT1(2), CCT1(2), true)
+          test(CCT1(2), CCT1(3), false)
+        }
+        'cct2 {
+          implicit val r = Reusability.caseClass[CCT2[String]]
+          test(CCT2(3,"a"), CCT2(3,"a"), true)
+          test(CCT2(3,"a"), CCT2(3,"b"), false)
+          test(CCT2(3,"a"), CCT2(4,"a"), false)
+        }
       }
 
-      'cct0 {
-        implicit val r = Reusability.caseClass[CCT0[Int]]
-        test(CCT0[Int](), CCT0[Int](), true)
-      }
-      'cct1 {
-        implicit val r = Reusability.caseClass[CCT1[Int]]
-        test(CCT1(2), CCT1(2), true)
-        test(CCT1(2), CCT1(3), false)
-      }
-      'cct2 {
-        implicit val r = Reusability.caseClass[CCT2[String]]
-        test(CCT2(3,"a"), CCT2(3,"a"), true)
-        test(CCT2(3,"a"), CCT2(3,"b"), false)
-        test(CCT2(3,"a"), CCT2(4,"a"), false)
+      'caseClassExcept {
+        "1/1" - {
+          implicit val r = Reusability.caseClassExcept[CC1]('i)
+          test(CC1(2), CC1(2), true)
+          test(CC1(2), CC1(3), true)
+        }
+
+        "1st of 2" - {
+          implicit val r = Reusability.caseClassExcept[CC2]('i)
+          test(CC2(3,"a"), CC2(3,"a"), true)
+          test(CC2(3,"a"), CC2(3,"b"), false)
+          test(CC2(3,"a"), CC2(4,"a"), true)
+        }
+
+        "2nd of 2" - {
+          implicit val r = Reusability.caseClassExcept[CC2]('n)
+          test(CC2(3,"a"), CC2(3,"a"), true)
+          test(CC2(3,"a"), CC2(3,"b"), true)
+          test(CC2(3,"a"), CC2(4,"a"), false)
+        }
+
+         "2/4" - {
+           implicit val r = Reusability.caseClassExcept[CC4]('a, 'c)
+           test(CC4(1, 2, 3, 4), CC4(1, 2, 3, 4), true)
+           test(CC4(1, 2, 3, 4), CC4(0, 2, 3, 4), true)
+           test(CC4(1, 2, 3, 4), CC4(1, 0, 3, 4), false)
+           test(CC4(1, 2, 3, 4), CC4(1, 2, 0, 4), true)
+           test(CC4(1, 2, 3, 4), CC4(1, 2, 3, 0), false)
+         }
+
+        'notFound {
+          val e = compileError(""" Reusability.caseClassExcept[CC1]('x) """)
+          assert(e.msg contains "Not found")
+        }
+
+        'dups {
+          val e = compileError(""" Reusability.caseClassExcept[CC1]('i, 'i) """)
+          assert(e.msg contains "Duplicate")
+        }
       }
     }
 
