@@ -529,7 +529,7 @@ trait HtmlTags {
 
     /** Returns a &lt;input type="{t}" /&gt; */
     def withType(t: String): ReactTagOf[*.Input] =
-      this(`type`.:=(t)(Attr.ValueType.string))
+      this(`type`.:=(t)(ReactAttr.ValueType.string))
 
     /** A push button with no default behavior. */
     def button = this withType "button"

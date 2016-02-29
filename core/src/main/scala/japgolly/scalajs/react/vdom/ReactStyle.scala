@@ -3,38 +3,38 @@ package japgolly.scalajs.react.vdom
 import scala.annotation.implicitNotFound
 import scala.scalajs.LinkingInfo.developmentMode
 import japgolly.scalajs.react.OptionLike
-import japgolly.scalajs.react.vdom.Style.ValueType
+import japgolly.scalajs.react.vdom.ReactStyle.ValueType
 
-trait Style {
+trait ReactStyle {
   def name: String
   def :=[A](a: A)(implicit t: ValueType[A]): TagMod
 }
 
-object Style {
+object ReactStyle {
 
-  @inline def apply(name: String): Style =
+  @inline def apply(name: String): ReactStyle =
     new Generic(name)
 
-  class Generic(final val name: String) extends Style {
+  class Generic(final val name: String) extends ReactStyle {
     override final def :=[A](a: A)(implicit t: ValueType[A]): TagMod =
       new NameAndValue(name, a, t)
   }
 
-  object Dud extends Style {
+  object Dud extends ReactStyle {
     override def name =
       ""
     override def :=[A](a: A)(implicit t: ValueType[A]): TagMod =
       EmptyTag
   }
 
-  @inline def devOnly(name: => String): Style =
+  @inline def devOnly(name: => String): ReactStyle =
     if (developmentMode)
       new Generic(name)
     else
       Dud
 
-  implicit val ordering: Ordering[Style] =
-    Ordering.by((_: Style).name)
+  implicit val ordering: Ordering[ReactStyle] =
+    Ordering.by((_: ReactStyle).name)
 
   final class NameAndValue[A](val name: String, val value: A, val valueType: ValueType[A]) extends TagMod {
     override def applyTo(b: Builder): Unit =
@@ -45,7 +45,7 @@ object Style {
 //
   /**
    * Used to specify how to handle a particular type [[A]] when it is used as
-   * the value of a [[Style]]. Only types with a specified [[Style.ValueType]] may
+   * the value of a [[ReactStyle]]. Only types with a specified [[ReactStyle.ValueType]] may
    * be used.
    */
   @implicitNotFound("No StyleValue defined for type ${A}; don't know how to use ${A} as a style." )

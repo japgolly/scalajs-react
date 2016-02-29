@@ -19,49 +19,49 @@ abstract class LowPri {
 abstract class Implicits extends LowPri {
 
   // Attributes
-  @inline implicit final def _react_attrString   : Attr.ValueType[String         ] = Attr.ValueType.string
-          implicit final val _react_attrBoolean  : Attr.ValueType[Boolean        ] = Attr.ValueType.map
-          implicit final def _react_attrByte     : Attr.ValueType[Byte           ] = Attr.ValueType.map
-          implicit final def _react_attrShort    : Attr.ValueType[Short          ] = Attr.ValueType.map
-          implicit final val _react_attrInt      : Attr.ValueType[Int            ] = Attr.ValueType.map
-          implicit final val _react_attrLong     : Attr.ValueType[Long           ] = Attr.ValueType.map
-          implicit final def _react_attrFloat    : Attr.ValueType[Float          ] = Attr.ValueType.map
-          implicit final val _react_attrDouble   : Attr.ValueType[Double         ] = Attr.ValueType.map
-          implicit final val _react_attrJsThisFn : Attr.ValueType[js.ThisFunction] = Attr.ValueType.map
-          implicit final val _react_attrJsFn     : Attr.ValueType[js.Function    ] = Attr.ValueType.map
-          implicit final val _react_attrJsObj    : Attr.ValueType[js.Object      ] = Attr.ValueType.map
+  @inline implicit final def _react_attrString   : ReactAttr.ValueType[String         ] = ReactAttr.ValueType.string
+          implicit final val _react_attrBoolean  : ReactAttr.ValueType[Boolean        ] = ReactAttr.ValueType.map
+          implicit final def _react_attrByte     : ReactAttr.ValueType[Byte           ] = ReactAttr.ValueType.map
+          implicit final def _react_attrShort    : ReactAttr.ValueType[Short          ] = ReactAttr.ValueType.map
+          implicit final val _react_attrInt      : ReactAttr.ValueType[Int            ] = ReactAttr.ValueType.map
+          implicit final val _react_attrLong     : ReactAttr.ValueType[Long           ] = ReactAttr.ValueType.map
+          implicit final def _react_attrFloat    : ReactAttr.ValueType[Float          ] = ReactAttr.ValueType.map
+          implicit final val _react_attrDouble   : ReactAttr.ValueType[Double         ] = ReactAttr.ValueType.map
+          implicit final val _react_attrJsThisFn : ReactAttr.ValueType[js.ThisFunction] = ReactAttr.ValueType.map
+          implicit final val _react_attrJsFn     : ReactAttr.ValueType[js.Function    ] = ReactAttr.ValueType.map
+          implicit final val _react_attrJsObj    : ReactAttr.ValueType[js.Object      ] = ReactAttr.ValueType.map
 
-  implicit final def _react_attrJsDictionary[A]: Attr.ValueType[js.Dictionary[A]] =
-    Attr.ValueType.map(d => d.asInstanceOf[js.Object])
+  implicit final def _react_attrJsDictionary[A]: ReactAttr.ValueType[js.Dictionary[A]] =
+    ReactAttr.ValueType.map(d => d.asInstanceOf[js.Object])
 
-  @inline implicit final def _react_attrRef[R <: Ref]: Attr.ValueType[R] =
-    Attr.ValueType.map(_.name)
+  @inline implicit final def _react_attrRef[R <: Ref]: ReactAttr.ValueType[R] =
+    ReactAttr.ValueType.map(_.name)
 
-  @inline implicit final def _react_attrOptionLike[T[_], A](implicit o: OptionLike[T], t: Attr.ValueType[A]): Attr.ValueType[T[A]] =
-    Attr.ValueType.optional(o, t)
+  @inline implicit final def _react_attrOptionLike[T[_], A](implicit o: OptionLike[T], t: ReactAttr.ValueType[A]): ReactAttr.ValueType[T[A]] =
+    ReactAttr.ValueType.optional(o, t)
 
-  @inline implicit final def _react_attrArray[A](implicit f: A => Any): Attr.ValueType[js.Array[A]] =
-    Attr.ValueType.array(f)
+  @inline implicit final def _react_attrArray[A](implicit f: A => Any): ReactAttr.ValueType[js.Array[A]] =
+    ReactAttr.ValueType.array(f)
 
   // Styles
-  @inline implicit final def _react_styleString   : Style.ValueType[String         ] = Style.ValueType.string
-          implicit final val _react_styleBoolean  : Style.ValueType[Boolean        ] = Style.ValueType.stringValue
-          implicit final def _react_styleByte     : Style.ValueType[Byte           ] = Style.ValueType.stringValue
-          implicit final def _react_styleShort    : Style.ValueType[Short          ] = Style.ValueType.stringValue
-          implicit final val _react_styleInt      : Style.ValueType[Int            ] = Style.ValueType.stringValue
-          implicit final val _react_styleLong     : Style.ValueType[Long           ] = Style.ValueType.stringValue
-          implicit final def _react_styleFloat    : Style.ValueType[Float          ] = Style.ValueType.stringValue
-          implicit final val _react_styleDouble   : Style.ValueType[Double         ] = Style.ValueType.stringValue
+  @inline implicit final def _react_styleString   : ReactStyle.ValueType[String         ] = ReactStyle.ValueType.string
+          implicit final val _react_styleBoolean  : ReactStyle.ValueType[Boolean        ] = ReactStyle.ValueType.stringValue
+          implicit final def _react_styleByte     : ReactStyle.ValueType[Byte           ] = ReactStyle.ValueType.stringValue
+          implicit final def _react_styleShort    : ReactStyle.ValueType[Short          ] = ReactStyle.ValueType.stringValue
+          implicit final val _react_styleInt      : ReactStyle.ValueType[Int            ] = ReactStyle.ValueType.stringValue
+          implicit final val _react_styleLong     : ReactStyle.ValueType[Long           ] = ReactStyle.ValueType.stringValue
+          implicit final def _react_styleFloat    : ReactStyle.ValueType[Float          ] = ReactStyle.ValueType.stringValue
+          implicit final val _react_styleDouble   : ReactStyle.ValueType[Double         ] = ReactStyle.ValueType.stringValue
 
-  @inline implicit final def _react_styleOptionLike[O[_], A](implicit o: OptionLike[O], t: Style.ValueType[A]): Style.ValueType[O[A]] =
-    Style.ValueType.optional(o, t)
+  @inline implicit final def _react_styleOptionLike[O[_], A](implicit o: OptionLike[O], t: ReactStyle.ValueType[A]): ReactStyle.ValueType[O[A]] =
+    ReactStyle.ValueType.optional(o, t)
 
   // Frag
   @inline implicit final def _react_fragReactNode[T <% ReactNode](v: T): Frag = new ReactNodeFrag(v)
 
   // Scalatags misc
-  @inline implicit final def _react_styleOrdering                  : Ordering[Style] = Style.ordering
-  @inline implicit final def _react_attrOrdering                   : Ordering[Attr]  = Attr.ordering
+  @inline implicit final def _react_styleOrdering                  : Ordering[ReactStyle] = ReactStyle.ordering
+  @inline implicit final def _react_attrOrdering                   : Ordering[ReactAttr]  = ReactAttr.ordering
   @inline implicit final def _react_cssNumber    [T: Numeric](t: T): CssNumber       = new CssNumber(t)
 
   // Rendering
@@ -69,7 +69,7 @@ abstract class Implicits extends LowPri {
   @inline implicit final def _react_autoRenderS[T <: TopNode](t: Seq[ReactTagOf[T]]): Seq[ReactElement] = t.map(_.render)
 
   // Extensions
-  @inline implicit final def _react_ext_attr(a: Attr)    = new Extra.AttrExt(a)
+  @inline implicit final def _react_ext_attr(a: ReactAttr)    = new Extra.AttrExt(a)
   @inline implicit final def _react_ext_bool(a: Boolean) = new Extra.BooleanExt(a)
   @inline implicit final def _react_ext_str (a: String)  = new Extra.StringExt(a)
 

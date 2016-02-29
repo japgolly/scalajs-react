@@ -1378,7 +1378,7 @@ trait SvgAttrs {
    * w3.org
    *
    */
-  object vectorEffect extends Style.Generic("vectorEffect") {
+  object vectorEffect extends ReactStyle.Generic("vectorEffect") {
 
     /**
      * Specifies that no vector effect shall be applied, i.e. the default rendering behaviour from SVG 1.1 is used which

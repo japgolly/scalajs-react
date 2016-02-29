@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.test
 
 import sizzle.Sizzle
-import japgolly.scalajs.react.vdom.Attr
+import japgolly.scalajs.react.vdom.ReactAttr
 import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
 import utest._
 import japgolly.scalajs.react._
@@ -67,7 +67,7 @@ object TestTest extends TestSuite {
       }
 
       'eventTypes {
-        val eventTypes = Seq[(Attr, ReactOrDomNode ⇒ Unit)](
+        val eventTypes = Seq[(ReactAttr, ReactOrDomNode ⇒ Unit)](
           (^.onBeforeInput,       n ⇒ ReactTestUtils.Simulate.beforeInput(n)),
           (^.onBlur,              n ⇒ ReactTestUtils.Simulate.blur(n)),
           (^.onChange,            n ⇒ ReactTestUtils.Simulate.change(n)),
