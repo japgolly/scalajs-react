@@ -11,11 +11,7 @@ trait Style {
 
 object Style {
 
-  @inline def Generic(jsName_unused: => String, name: String) =
-    new Generic(jsName_unused, name)
-
-  class Generic(jsName_unused: => String, final val name: String) extends Style {
-
+  class Generic(final val name: String) extends Style {
     override final def :=[A](a: A)(implicit t: ValueType[A]): TagMod =
       new NameAndValue(name, a, t)
   }

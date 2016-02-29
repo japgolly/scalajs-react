@@ -52,7 +52,7 @@ object Extra {
       new Attr.Generic(s)
 
     @inline def reactStyle: Style =
-      new Style.Generic(s, s)
+      new Style.Generic(s)
 
     @inline def reactTag[N <: TopNode]: ReactTagOf[N] =
       makeAbstractReactTag(s, Scalatags.NamespaceHtml.implicitNamespace)
