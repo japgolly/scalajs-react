@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import scala.scalajs.LinkingInfo.developmentMode
 import monocle.macros.Lenses
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
@@ -473,12 +474,33 @@ object CoreTest extends TestSuite {
       }
     }
 
-    // Compile with test/test:fullOptJS and run bin/checkDevOnly
+    // Also compile with test/test:fullOptJS and run bin/checkDevOnly
     // TODO Use SBT and Travis
-    "TagMod.devOnly" - {
-      * - TagMod.devOnly(p("DEV ONLY"))
-      * - TagMod.devOnly(TagMod(cls := "DEV ONLY", p("DEV ONLY")))
-    }
+    "devOnly" - {
+      def test(t: ReactTag)(dev: => String, prod: => String): Unit = {
+        val exp = if (developmentMode) dev else prod
+        assertRender(FunctionalComponent[Unit](_ => t)(()), exp)
+      }
 
+      'tagMod -
+        test(div(1, TagMod devOnly p("DEVONLY-TEST"), 2))(
+          "<div>1<p>DEVONLY-TEST</p>2</div>",
+          "<div>12</div>")
+
+      'tagMod -
+        test(div(1, TagMod devOnly TagMod(cls := "DEVONLY-TEST", p("DEVONLY-TEST")), 2))(
+          """<div class="DEVONLY-TEST">1<p>DEVONLY-TEST</p>2</div>""",
+          "<div>12</div>")
+
+      'attr -
+        test(div(ReactAttr.devOnly("data-devonly-test") := "!DEVONLY-TEST!", 123))(
+          """<div data-devonly-test="!DEVONLY-TEST!">123</div>""",
+          "<div>123</div>")
+
+      'style -
+        test(div(ReactStyle.devOnly("devonly-test") := "!DEVONLY-TEST!", 123))(
+          """<div style="devonly-test:!DEVONLY-TEST!;">123</div>""",
+          "<div>123</div>")
+    }
   }
 }

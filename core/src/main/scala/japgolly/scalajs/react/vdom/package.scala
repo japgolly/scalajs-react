@@ -23,8 +23,10 @@ package object vdom {
     final type ReactTag                  = japgolly.scalajs.react.vdom.ReactTagOf[TopNode]
     final type TagMod                    = japgolly.scalajs.react.vdom.TagMod
 
-    @inline final def TagMod   = japgolly.scalajs.react.vdom.TagMod
-    @inline final def EmptyTag = japgolly.scalajs.react.vdom.EmptyTag
+    @inline final def TagMod     = japgolly.scalajs.react.vdom.TagMod
+    @inline final def EmptyTag   = japgolly.scalajs.react.vdom.EmptyTag
+    @inline final def ReactAttr  = japgolly.scalajs.react.vdom.Attr
+    @inline final def ReactStyle = japgolly.scalajs.react.vdom.Style
   }
 
   object all extends Base with Tags with Attrs {

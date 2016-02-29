@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import scala.annotation.implicitNotFound
+import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import japgolly.scalajs.react.{TopNode, OptionLike}
 import Attr.ValueType
@@ -12,12 +13,27 @@ trait Attr {
 
 object Attr {
 
+  @inline def apply(name: String): Attr =
+    Generic(name)
+
   final case class Generic(name: String) extends Attr {
     Escaping.assertValidAttrName(name)
-
     override def :=[A](a: A)(implicit t: ValueType[A]): TagMod =
       new NameAndValue(name, a, t)
   }
+
+  object Dud extends Attr {
+    override def name =
+      ""
+    override def :=[A](a: A)(implicit t: ValueType[A]): TagMod =
+      EmptyTag
+  }
+
+  @inline def devOnly(name: => String): Attr =
+    if (developmentMode)
+      Generic(name)
+    else
+      Dud
 
   case object ClassName extends Attr {
     override def name = "class"

@@ -5,8 +5,8 @@ echo ';test/test:fastOptJS; test/test:fullOptJS'
 echo
 
 echo ========================================================================================================================
-fgrep --color=always 'DEV ONLY' test/target/scala-2.11/test-test-fastopt.js
+fgrep -i --color=always DEVONLY-TEST test/target/scala-2.11/test-test-fastopt.js
 echo ========================================================================================================================
-fgrep --color=always 'DEV ONLY' test/target/scala-2.11/test-test-opt.js
+fgrep -i --color=always DEVONLY-TEST test/target/scala-2.11/test-test-opt.js
 echo ========================================================================================================================
 

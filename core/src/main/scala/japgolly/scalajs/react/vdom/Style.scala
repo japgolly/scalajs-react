@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import scala.annotation.implicitNotFound
+import scala.scalajs.LinkingInfo.developmentMode
 import japgolly.scalajs.react.OptionLike
 import japgolly.scalajs.react.vdom.Style.ValueType
 
@@ -11,10 +12,26 @@ trait Style {
 
 object Style {
 
+  @inline def apply(name: String): Style =
+    new Generic(name)
+
   class Generic(final val name: String) extends Style {
     override final def :=[A](a: A)(implicit t: ValueType[A]): TagMod =
       new NameAndValue(name, a, t)
   }
+
+  object Dud extends Style {
+    override def name =
+      ""
+    override def :=[A](a: A)(implicit t: ValueType[A]): TagMod =
+      EmptyTag
+  }
+
+  @inline def devOnly(name: => String): Style =
+    if (developmentMode)
+      new Generic(name)
+    else
+      Dud
 
   implicit val ordering: Ordering[Style] =
     Ordering.by((_: Style).name)
