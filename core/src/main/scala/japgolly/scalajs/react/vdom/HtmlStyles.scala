@@ -6,31 +6,31 @@ object HtmlStylesMisc {
   /**
    * A Style that has an auto value
    */
-  final class AutoStyle(jsName: String, cssName: String) extends Style(jsName, cssName) {
+  final class AutoStyle(jsName: String, cssName: String) extends Style.Generic(jsName, cssName) {
     @inline final def auto = this := "auto"
   }
 
   /**
    * A Style that has an none value
    */
-  final class NoneOpenStyle(jsName: String, cssName: String) extends Style(jsName, cssName) {
+  final class NoneOpenStyle(jsName: String, cssName: String) extends Style.Generic(jsName, cssName) {
     @inline final def none = this := "none"
   }
 
   /**
    * A Style that has an normal value
    */
-  final class NormalOpenStyle(jsName: String, cssName: String) extends Style(jsName, cssName) {
+  final class NormalOpenStyle(jsName: String, cssName: String) extends Style.Generic(jsName, cssName) {
     @inline final def normal = this := "normal"
   }
 
-  final class MultiImageStyle(jsName: String, cssName: String) extends Style(jsName, cssName)
+  final class MultiImageStyle(jsName: String, cssName: String) extends Style.Generic(jsName, cssName)
 
-  sealed class CurrentColor(jsName: String, cssName: String) extends Style(jsName, cssName) {
+  sealed class CurrentColor(jsName: String, cssName: String) extends Style.Generic(jsName, cssName) {
     @inline final def currentColor = this -> "currentColor"
   }
 
-  sealed class OutlineStyle(jsName: String, cssName: String) extends Style(jsName, cssName) {
+  sealed class OutlineStyle(jsName: String, cssName: String) extends Style.Generic(jsName, cssName) {
     /**
      * Displays a series of rounded dots. The spacing of the dots are not
      * defined by the specification and are implementation-specific. The radius
@@ -116,7 +116,7 @@ object HtmlStylesMisc {
 
   }
 
-  final class Overflow(jsName: String, cssName: String) extends Style(jsName, cssName) {
+  final class Overflow(jsName: String, cssName: String) extends Style.Generic(jsName, cssName) {
     /**
      * Default value. Content is not clipped, it may be rendered outside the
      * content box.
@@ -148,7 +148,7 @@ object HtmlStylesMisc {
     @inline final def auto = this := "auto"
   }
 
-  final class PageBreak(jsName: String, cssName: String) extends Style(jsName, cssName) {
+  final class PageBreak(jsName: String, cssName: String) extends Style.Generic(jsName, cssName) {
     /**
      * Initial value. Automatic page breaks (neither forced nor forbidden).
      *
@@ -184,7 +184,7 @@ object HtmlStylesMisc {
   }
 
 
-  final class BorderRadius(jsName: String, cssName: String) extends Style(jsName, cssName)
+  final class BorderRadius(jsName: String, cssName: String) extends Style.Generic(jsName, cssName)
 
   trait MarginAuto extends Style {
     /**
@@ -197,13 +197,13 @@ object HtmlStylesMisc {
 
   }
 
-  final class BorderWidth(jsName: String, cssName: String) extends Style(jsName, cssName) {
+  final class BorderWidth(jsName: String, cssName: String) extends Style.Generic(jsName, cssName) {
     @inline final def thin = this := "thin"
     @inline final def medium = this := "medium"
     @inline final def thick = this := "thick"
   }
 
-  final class MultiTimeStyle(jsName: String, cssName: String) extends Style(jsName, cssName)
+  final class MultiTimeStyle(jsName: String, cssName: String) extends Style.Generic(jsName, cssName)
 }
 
 trait HtmlStyles {
@@ -216,7 +216,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object backgroundAttachment extends Style("backgroundAttachment", "backgroundAttachment") {
+  object backgroundAttachment extends Style.Generic("backgroundAttachment", "backgroundAttachment") {
     /**
      * This keyword means that the background image will scroll within the
      * viewport along with the block the image is contained within.
@@ -251,7 +251,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val background = new Style("background", "background")
+  final lazy val background = new Style.Generic("background", "background")
 
   /**
    * The background-repeat CSS property defines how background images are repeated.
@@ -264,7 +264,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val backgroundRepeat = new Style("backgroundRepeat", "backgroundRepeat")
+  final lazy val backgroundRepeat = new Style.Generic("backgroundRepeat", "backgroundRepeat")
 
 
   /**
@@ -274,7 +274,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val backgroundPosition = new Style("backgroundPosition", "backgroundPosition")
+  final lazy val backgroundPosition = new Style.Generic("backgroundPosition", "backgroundPosition")
 
   /**
    * The background-color CSS property sets the background color of an element,
@@ -282,7 +282,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val backgroundColor = new Style("backgroundColor", "backgroundColor")
+  final lazy val backgroundColor = new Style.Generic("backgroundColor", "backgroundColor")
 
 
   /**
@@ -294,7 +294,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object backgroundOrigin extends Style("backgroundOrigin", "backgroundOrigin") {
+  object backgroundOrigin extends Style.Generic("backgroundOrigin", "backgroundOrigin") {
     /**
      * The background extends to the outside edge of the border (but underneath
      * the border in z-ordering).
@@ -327,7 +327,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object backgroundClip extends Style("backgroundClip", "backgroundClip") {
+  object backgroundClip extends Style.Generic("backgroundClip", "backgroundClip") {
     /**
      * The background extends to the outside edge of the border (but underneath
      * the border in z-ordering).
@@ -356,7 +356,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object backgroundSize extends Style("backgroundSize", "backgroundSize") {
+  object backgroundSize extends Style.Generic("backgroundSize", "backgroundSize") {
     /**
      * The auto keyword that scales the background image in the corresponding
      * direction such that its intrinsic proportion is maintained.
@@ -401,7 +401,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val borderTopColor = new Style("borderTopColor", "borderTopColor")
+  final lazy val borderTopColor = new Style.Generic("borderTopColor", "borderTopColor")
 
   /**
    * The border-style CSS property is a shorthand property for setting the line
@@ -461,7 +461,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val borderRightColor = new Style("borderRightColor", "borderRightColor")
+  final lazy val borderRightColor = new Style.Generic("borderRightColor", "borderRightColor")
 
   /**
    * The border-bottom CSS property is a shorthand that sets the values of
@@ -470,7 +470,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val borderBottom = new Style("borderBottom", "borderBottom")
+  final lazy val borderBottom = new Style.Generic("borderBottom", "borderBottom")
   /**
    * The border CSS property is a shorthand property for setting the individual
    * border property values in a single place in the style sheet. border can be
@@ -479,7 +479,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val border = new Style("border", "border")
+  final lazy val border = new Style.Generic("border", "border")
 
 
   /**
@@ -497,7 +497,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val borderLeftColor = new Style("borderLeftColor", "borderLeftColor")
+  final lazy val borderLeftColor = new Style.Generic("borderLeftColor", "borderLeftColor")
 
   /**
    * The border-bottom-color CSS property sets the color of the bottom border of
@@ -506,7 +506,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val borderBottomColor = new Style("borderBottomColor", "borderBottomColor")
+  final lazy val borderBottomColor = new Style.Generic("borderBottomColor", "borderBottomColor")
 
   /**
    * The border-collapse CSS property selects a table's border model. This has
@@ -514,7 +514,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object borderCollapse extends Style("borderCollapse", "borderCollapse") {
+  object borderCollapse extends Style.Generic("borderCollapse", "borderCollapse") {
     /**
      * Is a keyword requesting the use of the separated-border table rendering
      * model. It is the default value.
@@ -540,7 +540,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val borderLeft = new Style("borderLeft", "borderLeft")
+  final lazy val borderLeft = new Style.Generic("borderLeft", "borderLeft")
   /**
    * The border-left-style CSS property sets the line style of the left border
    * of a box.
@@ -556,7 +556,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val borderRight = new Style("borderRight", "borderRight")
+  final lazy val borderRight = new Style.Generic("borderRight", "borderRight")
 
   /**
    * The border-bottom-style CSS property sets the line style of the bottom
@@ -584,7 +584,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val borderTop = new Style("borderTop", "borderTop")
+  final lazy val borderTop = new Style.Generic("borderTop", "borderTop")
   /**
    * The border-spacing CSS property specifies the distance between the borders
    * of adjacent cells (only for the separated borders model). This is equivalent
@@ -593,7 +593,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object borderSpacing extends Style("borderSpacing", "borderSpacing") {
+  object borderSpacing extends Style.Generic("borderSpacing", "borderSpacing") {
     def :=(horizontal: String, vertical: String): TagMod = this := s"$horizontal $vertical"
   }
 
@@ -605,7 +605,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val borderRadius = new Style("borderRadius", "borderRadius")
+  final lazy val borderRadius = new Style.Generic("borderRadius", "borderRadius")
 
   /**
    * The border-width CSS property sets the width of the border of a box. Using
@@ -613,7 +613,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val borderWidth = new Style("borderWidth", "borderWidth")
+  final lazy val borderWidth = new Style.Generic("borderWidth", "borderWidth")
 
   /**
    * The border-bottom-right-radius CSS property sets the rounding of the
@@ -642,7 +642,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val borderColor = new Style("borderColor", "borderColor")
+  final lazy val borderColor = new Style.Generic("borderColor", "borderColor")
 
   /**
    * The box-sizing CSS property is used to alter the default CSS box model used
@@ -652,7 +652,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object boxSizing extends Style("boxSizing", "boxSizing") {
+  object boxSizing extends Style.Generic("boxSizing", "boxSizing") {
     /**
      * This is the default style as specified by the CSS standard. The width and
      * height properties are measured including only the content, but not the
@@ -706,7 +706,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object clip extends Style("clip", "clip") {
+  object clip extends Style.Generic("clip", "clip") {
     def rect(top: String, right: String, bottom: String, left: String) =
       this := s"rect($top, $right, $bottom, $left)"
 
@@ -720,7 +720,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object cursor extends Style("cursor", "cursor") {
+  object cursor extends Style.Generic("cursor", "cursor") {
 
     /**
      * The browser determines the cursor to display based on the current context.
@@ -935,7 +935,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object float extends Style("cssFloat", "float") {
+  object float extends Style.Generic("cssFloat", "float") {
     /**
      * Is a keyword indicating that the element must float on the left side of
      * its containing block.
@@ -980,7 +980,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object direction extends Style("direction", "direction") {
+  object direction extends Style.Generic("direction", "direction") {
     /**
      * The initial value of direction (that is, if not otherwise specified). Text
      * and other elements go from left to right.
@@ -1009,7 +1009,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object display extends Style("display", "display") {
+  object display extends Style.Generic("display", "display") {
     /**
      * Turns off the display of an element (it has no effect on layout); all
      * descendant elements also have their display turned off. The document is
@@ -1139,7 +1139,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object pointerEvents extends Style("pointerEvents", "pointerEvents") {
+  object pointerEvents extends Style.Generic("pointerEvents", "pointerEvents") {
     /**
      * The element behaves as it would if the pointer-events property was not
      * specified. In SVG content, this value and the value visiblePainted have
@@ -1242,7 +1242,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object listStyleImage extends Style("listStyleImage", "listStyleImage"){
+  object listStyleImage extends Style.Generic("listStyleImage", "listStyleImage"){
 
     def none = this := "none"
   }
@@ -1255,7 +1255,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object listStylePosition extends Style("listStylePosition", "listStylePosition") {
+  object listStylePosition extends Style.Generic("listStylePosition", "listStylePosition") {
     /**
      * The marker box is outside the principal block box.
      *
@@ -1271,7 +1271,7 @@ trait HtmlStyles {
     @inline final def inside = this := "inside"
   }
 
-  object wordWrap extends Style("wordWrap", "wordWrap") {
+  object wordWrap extends Style.Generic("wordWrap", "wordWrap") {
     /**
      * Indicates that lines may only break at normal word break points.
      *
@@ -1303,7 +1303,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val opacity = new Style("opacity", "opacity")
+  final lazy val opacity = new Style.Generic("opacity", "opacity")
 
 
   /**
@@ -1315,7 +1315,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val maxWidth = new Style("maxWidth", "maxWidth")
+  final lazy val maxWidth = new Style.Generic("maxWidth", "maxWidth")
 
 
   /**
@@ -1324,7 +1324,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object verticalAlign extends Style("verticalAlign", "verticalAlign") {
+  object verticalAlign extends Style.Generic("verticalAlign", "verticalAlign") {
     /**
      * Aligns the baseline of the element with the baseline of its parent. The
      * baseline of some replaced elements, like textarea is not specified by
@@ -1385,7 +1385,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object mask extends Style("mask", "mask") {
+  object mask extends Style.Generic("mask", "mask") {
     @inline final def none = this := "none"
 
     def uri(s: String) = this := s"uri($s)"
@@ -1399,7 +1399,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object emptyCells extends Style("emptyCells", "emptyCells") {
+  object emptyCells extends Style.Generic("emptyCells", "emptyCells") {
     /**
      * Is a keyword indicating that borders and backgrounds should be drawn like
      * in a normal cells.
@@ -1436,7 +1436,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val paddingRight = new Style("paddingRight", "paddingRight")
+  final lazy val paddingRight = new Style.Generic("paddingRight", "paddingRight")
 
   /**
    * The padding-top CSS property of an element sets the padding space required
@@ -1446,7 +1446,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val paddingTop = new Style("paddingTop", "paddingTop")
+  final lazy val paddingTop = new Style.Generic("paddingTop", "paddingTop")
 
   /**
    * The padding-left CSS property of an element sets the padding space required
@@ -1455,7 +1455,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val paddingLeft = new Style("paddingLeft", "paddingLeft")
+  final lazy val paddingLeft = new Style.Generic("paddingLeft", "paddingLeft")
 
   /**
    * The padding CSS property sets the required padding space on all sides of an
@@ -1467,7 +1467,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val padding = new Style("padding", "padding")
+  final lazy val padding = new Style.Generic("padding", "padding")
 
   /**
    * The padding-bottom CSS property of an element sets the height of the padding
@@ -1477,7 +1477,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val paddingBottom = new Style("paddingBottom", "paddingBottom")
+  final lazy val paddingBottom = new Style.Generic("paddingBottom", "paddingBottom")
 
   /**
    * The right CSS property specifies part of the position of positioned elements.
@@ -1538,7 +1538,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object listStyleType extends Style("listStyleType", "listStyleType") {
+  object listStyleType extends Style.Generic("listStyleType", "listStyleType") {
     /**
      * No item marker is shown
      *
@@ -1679,7 +1679,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val listStyle = new Style("listStyle", "listStyle")
+  final lazy val listStyle = new Style.Generic("listStyle", "listStyle")
 
   /**
    * The overflow-y CSS property specifies whether to clip content, render a
@@ -1696,7 +1696,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object captionSide extends Style("captionSide", "captionSide") {
+  object captionSide extends Style.Generic("captionSide", "captionSide") {
     /**
      * The caption box will be above the table.
      *
@@ -1721,7 +1721,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val boxShadow = new Style("boxShadow", "boxShadow")
+  final lazy val boxShadow = new Style.Generic("boxShadow", "boxShadow")
 
 
   /**
@@ -1730,7 +1730,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object position extends Style("position", "position") {
+  object position extends Style.Generic("position", "position") {
     /**
      * This keyword let the element use the normal behavior, that is it is laid
      * out in its current position in the flow.  The top, right, bottom, and left
@@ -1770,7 +1770,7 @@ trait HtmlStyles {
   }
 
 
-  object quotes extends Style("quotes", "quotes") {
+  object quotes extends Style.Generic("quotes", "quotes") {
     /**
      * The open-quote and close-quote values of the content property produce no
      * quotation marks.
@@ -1785,7 +1785,7 @@ trait HtmlStyles {
 
   }
 
-  object tableLayout extends Style("tableLayout", "tableLayout") {
+  object tableLayout extends Style.Generic("tableLayout", "tableLayout") {
     /**
      * An automatic table layout algorithm is commonly used by most browsers for
      * table layout. The width of the table and its cells depends on the content
@@ -1813,7 +1813,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object fontSize extends Style("fontSize", "fontSize") {
+  object fontSize extends Style.Generic("fontSize", "fontSize") {
     @inline final def `xx-small` = this := "xx-small"
     @inline final def `x-small` = this := "x-small"
     @inline final def small = this := "small"
@@ -1851,7 +1851,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val fontSizeAdjust = new Style("fontSizeAdjust", "fontSizeAdjust")
+  final lazy val fontSizeAdjust = new Style.Generic("fontSizeAdjust", "fontSizeAdjust")
 
   /**
    * The font-family CSS property allows for a prioritized list of font family
@@ -1863,7 +1863,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val fontFamily = new Style("fontFamily", "fontFamily")
+  final lazy val fontFamily = new Style.Generic("fontFamily", "fontFamily")
 
 
   /**
@@ -1881,7 +1881,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object fontWeight extends Style("fontWeight", "fontWeight") {
+  object fontWeight extends Style.Generic("fontWeight", "fontWeight") {
     /**
      * Normal font weight. Same as 400.
      *
@@ -1918,7 +1918,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val font = new Style("font", "font")
+  final lazy val font = new Style.Generic("font", "font")
 
   /**
    * The font-feature-settings CSS property allows control over advanced
@@ -1926,7 +1926,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val fontFeatureSettings = new Style("fontFeatureSettings", "fontFeatureSettings")
+  final lazy val fontFeatureSettings = new Style.Generic("fontFeatureSettings", "fontFeatureSettings")
 
   /**
    * The font-style CSS property allows italic or oblique faces to be selected
@@ -1934,7 +1934,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object fontStyle extends Style("fontStyle", "fontStyle"){
+  object fontStyle extends Style.Generic("fontStyle", "fontStyle"){
     /**
      * Selects a font that is classified as normal within a font-family
      *
@@ -1963,7 +1963,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object clear extends Style("clear", "clear") {
+  object clear extends Style.Generic("clear", "clear") {
     /**
      * The element is not moved down to clear past floating elements.
      *
@@ -2004,7 +2004,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val marginRight = new Style("marginRight", "marginRight") with MarginAuto
+  final lazy val marginRight = new Style.Generic("marginRight", "marginRight") with MarginAuto
 
 
   /**
@@ -2013,7 +2013,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val marginTop = new Style("marginTop", "marginTop") with MarginAuto
+  final lazy val marginTop = new Style.Generic("marginTop", "marginTop") with MarginAuto
 
 
   /**
@@ -2026,7 +2026,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val marginLeft = new Style("marginLeft", "marginLeft") with MarginAuto
+  final lazy val marginLeft = new Style.Generic("marginLeft", "marginLeft") with MarginAuto
   /**
    * The margin CSS property sets the margin for all four sides. It is a
    * shorthand to avoid setting each side separately with the other margin
@@ -2036,7 +2036,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object margin extends Style("margin", "margin") {
+  object margin extends Style.Generic("margin", "margin") {
     /**
      * auto is replaced by some suitable value, e.g. it can be used for
      * centering of blocks.
@@ -2126,7 +2126,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val minWidth = new Style("minWidth", "minWidth")
+  final lazy val minWidth = new Style.Generic("minWidth", "minWidth")
 
 
   /**
@@ -2138,7 +2138,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val minHeight = new Style("minHeight", "minHeight")
+  final lazy val minHeight = new Style.Generic("minHeight", "minHeight")
 
 
   /**
@@ -2151,7 +2151,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val outline = new Style("outline", "outline")
+  final lazy val outline = new Style.Generic("outline", "outline")
 
   /**
    * The outline-style CSS property is used to set the style of the outline of
@@ -2169,7 +2169,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object outlineWidth extends Style("outlineWidth", "outlineWidth") {
+  object outlineWidth extends Style.Generic("outlineWidth", "outlineWidth") {
     /**
      * Typically 1px in desktop browsers like Firefox.
      *
@@ -2197,7 +2197,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object outlineColor extends Style("outlineColor", "outlineColor") {
+  object outlineColor extends Style.Generic("outlineColor", "outlineColor") {
     /**
      * To ensure the outline is visible, performs a color inversion of the
      * background. This makes the focus border more salient, regardless of the
@@ -2226,7 +2226,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val textAlignLast = new Style("textAlignLast", "textAlignLast") with TextAlign
+  final lazy val textAlignLast = new Style.Generic("textAlignLast", "textAlignLast") with TextAlign
   trait TextAlign extends Style{
     /**
      * The same as left if direction is left-to-right and right if direction is
@@ -2275,14 +2275,14 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val textAlign = new Style("textAlign", "textAlign") with TextAlign
+  final lazy val textAlign = new Style.Generic("textAlign", "textAlign") with TextAlign
   /**
    * The text-decoration CSS property is used to set the text formatting to
    * underline, overline, line-through or blink.
    *
    * MDN
    */
-  object textDecoration extends Style("textDecoration", "textDecoration") {
+  object textDecoration extends Style.Generic("textDecoration", "textDecoration") {
     /**
      * Produces no text decoration.
      *
@@ -2317,7 +2317,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val textIndent = new Style("textIndent", "textIndent")
+  final lazy val textIndent = new Style.Generic("textIndent", "textIndent")
 
   /**
    * The text-overflow CSS property determines how overflowed content that is
@@ -2326,7 +2326,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object textOverflow extends Style("textOverflow", "textOverflow") {
+  object textOverflow extends Style.Generic("textOverflow", "textOverflow") {
     /**
      * This keyword value indicates to truncate the text at the limit of the
      * content area, therefore the truncation can happen in the middle of a
@@ -2356,7 +2356,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object textUnderlinePosition extends Style("textUnderlinePosition", "textUnderlinePosition") {
+  object textUnderlinePosition extends Style.Generic("textUnderlinePosition", "textUnderlinePosition") {
     /**
      * This keyword allows the browser to use an algorithm to choose between
      * under and alphabetic.
@@ -2399,7 +2399,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object textTransform extends Style("textTransform", "textTransform") {
+  object textTransform extends Style.Generic("textTransform", "textTransform") {
     /**
      * Forces the first letter of each word to be converted to
      * uppercase. Other characters are unchanged.
@@ -2442,7 +2442,7 @@ trait HtmlStyles {
    */
   final lazy val textShadow = new NoneOpenStyle("textShadow", "textShadow")
 
-  object visibility extends Style("visibility", "visibility") {
+  object visibility extends Style.Generic("visibility", "visibility") {
     /**
      * Default value, the box is visible
      *
@@ -2475,7 +2475,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object whiteSpace extends Style("whiteSpace", "whiteSpace"){
+  object whiteSpace extends Style.Generic("whiteSpace", "whiteSpace"){
     /**
      * Sequences of whitespace are collapsed. Newline characters in the source
      * are handled as other whitespace. Breaks lines as necessary to fill line
@@ -2541,7 +2541,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val animationDirection = new Style("animationDirection", "animationDirection")
+  final lazy val animationDirection = new Style.Generic("animationDirection", "animationDirection")
 
   /**
    * The animation-duration CSS property specifies the Length of time that an
@@ -2552,7 +2552,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val animationDuration = new Style("animationDuration", "animationDuration")
+  final lazy val animationDuration = new Style.Generic("animationDuration", "animationDuration")
 
   /**
    * The animation-name CSS property specifies a list of animations that should
@@ -2561,7 +2561,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val animationName = new Style("animationName", "animationName")
+  final lazy val animationName = new Style.Generic("animationName", "animationName")
 
   /**
    * The animation-fill-mode CSS property specifies how a CSS animation should
@@ -2569,7 +2569,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val animationFillMode = new Style("animationFillMode", "animationFillMode")
+  final lazy val animationFillMode = new Style.Generic("animationFillMode", "animationFillMode")
 
   /**
    * The animation-iteration-count CSS property defines the number of times an
@@ -2577,7 +2577,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val animationIterationCount = new Style("animationIterationCount", "animationIterationCount")
+  final lazy val animationIterationCount = new Style.Generic("animationIterationCount", "animationIterationCount")
 
 
   /**
@@ -2619,7 +2619,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val animationTimingFunction = new Style("animationTimingFunction", "animationTimingFunction")
+  final lazy val animationTimingFunction = new Style.Generic("animationTimingFunction", "animationTimingFunction")
 
 
   /**
@@ -2634,7 +2634,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val animationPlayState = new Style("animationPlayState", "animationPlayState")
+  final lazy val animationPlayState = new Style.Generic("animationPlayState", "animationPlayState")
   /**
    * The animation CSS property is a shorthand property for animation-name,
    * animation-duration, animation-timing-function, animation-delay,
@@ -2642,7 +2642,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val animation = new Style("animation", "animation")
+  final lazy val animation = new Style.Generic("animation", "animation")
 
 
   /**
@@ -2653,7 +2653,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object backfaceVisibility extends Style("backfaceVisibility", "backfaceVisibility") {
+  object backfaceVisibility extends Style.Generic("backfaceVisibility", "backfaceVisibility") {
     /**
      * The back face is visible.
      *
@@ -2676,7 +2676,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object columns extends Style("columns", "columns") {
+  object columns extends Style.Generic("columns", "columns") {
     def :=(number: Int, width: String): TagMod = this := s"$number $width"
   }
 
@@ -2695,7 +2695,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object columnFill extends Style("columnFill", "columnFill") {
+  object columnFill extends Style.Generic("columnFill", "columnFill") {
     /**
      * Is a keyword indicating that columns are filled sequentially.
      *
@@ -2727,7 +2727,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val columnRule = new Style("columnRule", "columnRule")
+  final lazy val columnRule = new Style.Generic("columnRule", "columnRule")
 
   /**
    * The column-span CSS property makes it possible for an element to span across
@@ -2736,7 +2736,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object columnSpan extends Style("columnSpan", "columnSpan") {
+  object columnSpan extends Style.Generic("columnSpan", "columnSpan") {
     /**
      * The element does not span multiple columns.
      *
@@ -2774,7 +2774,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val columnRuleColor = new Style("columnRuleColor", "columnRuleColor")
+  final lazy val columnRuleColor = new Style.Generic("columnRuleColor", "columnRuleColor")
 
   /**
    * The column-rule-width CSS property lets you set the width of the rule drawn
@@ -2782,7 +2782,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object columnRuleWidth extends Style("columnRuleWidth", "columnRuleWidth") {
+  object columnRuleWidth extends Style.Generic("columnRuleWidth", "columnRuleWidth") {
     @inline final def thin = this := "thin"
     @inline final def medium = this := "medium"
     @inline final def thick = this := "thick"
@@ -2807,7 +2807,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val contentStyle = new Style("content", "content")
+  final lazy val contentStyle = new Style.Generic("content", "content")
 
   /**
    * The counter-increment CSS property is used to increase the value of CSS
@@ -2816,7 +2816,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val counterIncrement = new Style("counterIncrement", "counterIncrement")
+  final lazy val counterIncrement = new Style.Generic("counterIncrement", "counterIncrement")
 
   /**
    * The counter-reset CSS property is used to reset CSS Counters to a given
@@ -2824,7 +2824,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val counterReset = new Style("counterReset", "counterReset")
+  final lazy val counterReset = new Style.Generic("counterReset", "counterReset")
 
 
   /**
@@ -2834,7 +2834,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val orphans = new Style("orphans", "orphans")
+  final lazy val orphans = new Style.Generic("orphans", "orphans")
 
 
   /**
@@ -2847,7 +2847,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val widows = new Style("widows", "widows")
+  final lazy val widows = new Style.Generic("widows", "widows")
 
 
   /**
@@ -2896,7 +2896,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val perspectiveOrigin = new Style("perspectiveOrigin", "perspectiveOrigin")
+  final lazy val perspectiveOrigin = new Style.Generic("perspectiveOrigin", "perspectiveOrigin")
 
 
   /**
@@ -2930,7 +2930,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val transition = new Style("transition", "transition")
+  final lazy val transition = new Style.Generic("transition", "transition")
 
   /**
    * The CSS transition-timing-function property is used to describe how the
@@ -2940,7 +2940,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val transitionTimingFunction = new Style("transitionTimingFunction", "transitionTimingFunction")
+  final lazy val transitionTimingFunction = new Style.Generic("transitionTimingFunction", "transitionTimingFunction")
 
   /**
    * The transition-duration CSS property specifies the number of seconds or
@@ -2964,7 +2964,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val transitionProperty = new Style("transitionProperty", "transitionProperty")
+  final lazy val transitionProperty = new Style.Generic("transitionProperty", "transitionProperty")
 
   /**
    * The CSS transform property lets you modify the coordinate space of the CSS
@@ -2977,7 +2977,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val transform = new Style("transform", "transform")
+  final lazy val transform = new Style.Generic("transform", "transform")
 
 
   /**
@@ -2987,7 +2987,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val flex = new Style("flex", "flex")
+  final lazy val flex = new Style.Generic("flex", "flex")
 
   /**
    * The CSS flex-basis property specifies the flex basis which is the initial main size of a flex item.
@@ -2995,21 +2995,21 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val flexBasis = new Style("flexBasis", "flexBasis")
+  final lazy val flexBasis = new Style.Generic("flexBasis", "flexBasis")
 
   /**
    * The CSS flex-grow property specifies the flex grow factor of a flex item.
    *
    * MDN
    */
-  final lazy val flexGrow = new Style("flexGrow", "flexGrow")
+  final lazy val flexGrow = new Style.Generic("flexGrow", "flexGrow")
 
   /**
    * The CSS flex-shrink property specifies the flex shrink factor of a flex item.
    *
    * MDN
    */
-  final lazy val flexShrink = new Style("flexShrink", "flexShrink")
+  final lazy val flexShrink = new Style.Generic("flexShrink", "flexShrink")
 
   /**
    * The CSS align-content property aligns a flex container's lines within the flex container when there is extra
@@ -3017,7 +3017,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object alignContent extends Style("alignContent", "alignContent") {
+  object alignContent extends Style.Generic("alignContent", "alignContent") {
 
     /**
      * Lines are packed starting from the cross-start. Cross-start edge of the first line and cross-start edge of
@@ -3075,7 +3075,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object alignSelf extends Style("alignSelf", "alignSelf") {
+  object alignSelf extends Style.Generic("alignSelf", "alignSelf") {
     /**
      * Computes to parent's align-items value or stretch if the element has no parent.
      *
@@ -3128,7 +3128,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object flexWrap extends Style("flexWrap", "flexWrap") {
+  object flexWrap extends Style.Generic("flexWrap", "flexWrap") {
 
     /**
      * The flex items are laid out in a single line which may cause the flex container to overflow. The cross-start
@@ -3161,7 +3161,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object alignItems extends Style("alignItems", "alignItems") {
+  object alignItems extends Style.Generic("alignItems", "alignItems") {
 
     /**
      * The cross-start margin edge of the flex item is flushed with the cross-start edge of the line.
@@ -3212,7 +3212,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object justifyContent extends Style("justifyContent", "justifyContent") {
+  object justifyContent extends Style.Generic("justifyContent", "justifyContent") {
 
     /**
      * The flex items are packed starting from the main-start. Margins of the first flex item is flushed with the
@@ -3268,7 +3268,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object flexDirection extends Style("flexDirection", "flexDirection") {
+  object flexDirection extends Style.Generic("flexDirection", "flexDirection") {
 
     /**
      * The flex container's main-axis is the same as the block-axis.
@@ -3313,14 +3313,14 @@ trait HtmlStyles {
    *
    * MDN
    */
-  final lazy val transformOrigin = new Style("transformOrigin", "transformOrigin")
+  final lazy val transformOrigin = new Style.Generic("transformOrigin", "transformOrigin")
   /**
    * The transform-style CSS property determines if the children of the element
    * are positioned in the 3D-space or are flattened in the plane of the element.
    *
    * MDN
    */
-  object transformStyle extends Style("transformStyle", "transformStyle") {
+  object transformStyle extends Style.Generic("transformStyle", "transformStyle") {
     /**
      * Indicates that the children of the element should be positioned in the
      * 3D-space.
@@ -3347,7 +3347,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object unicodeBidi extends Style("unicodeBidi", "unicodeBidi") {
+  object unicodeBidi extends Style.Generic("unicodeBidi", "unicodeBidi") {
     /**
      * The element does not offer a additional level of embedding with respect
      * to the bidirectional algorithm. For inline elements implicit reordering
@@ -3384,7 +3384,7 @@ trait HtmlStyles {
    *
    * MDN
    */
-  object wordBreak extends Style("wordBreak", "wordBreak") {
+  object wordBreak extends Style.Generic("wordBreak", "wordBreak") {
     /**
      * Use the default line break rule.
      *

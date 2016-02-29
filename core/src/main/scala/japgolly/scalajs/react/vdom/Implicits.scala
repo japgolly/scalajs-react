@@ -44,17 +44,17 @@ abstract class Implicits extends LowPri {
     Attr.ValueType.array(f)
 
   // Styles
-  @inline implicit final def _react_styleString : StyleValue[String]  = stringStyleX
-          implicit final val _react_styleBoolean: StyleValue[Boolean] = GenericStyle.stringValue
-          implicit final val _react_styleByte   : StyleValue[Byte]    = GenericStyle.stringValue
-          implicit final val _react_styleShort  : StyleValue[Short]   = GenericStyle.stringValue
-          implicit final val _react_styleInt    : StyleValue[Int]     = GenericStyle.stringValue
-          implicit final val _react_styleLong   : StyleValue[Long]    = GenericStyle.stringValue
-          implicit final val _react_styleFloat  : StyleValue[Float]   = GenericStyle.stringValue
-          implicit final val _react_styleDouble : StyleValue[Double]  = GenericStyle.stringValue
+  @inline implicit final def _react_styleString   : Style.ValueType[String         ] = Style.ValueType.string
+          implicit final val _react_styleBoolean  : Style.ValueType[Boolean        ] = Style.ValueType.stringValue
+          implicit final def _react_styleByte     : Style.ValueType[Byte           ] = Style.ValueType.stringValue
+          implicit final def _react_styleShort    : Style.ValueType[Short          ] = Style.ValueType.stringValue
+          implicit final val _react_styleInt      : Style.ValueType[Int            ] = Style.ValueType.stringValue
+          implicit final val _react_styleLong     : Style.ValueType[Long           ] = Style.ValueType.stringValue
+          implicit final def _react_styleFloat    : Style.ValueType[Float          ] = Style.ValueType.stringValue
+          implicit final val _react_styleDouble   : Style.ValueType[Double         ] = Style.ValueType.stringValue
 
-  @inline implicit final def _react_styleOptionLike[O[_], A](implicit O: OptionLike[O], a: StyleValue[A]): StyleValue[O[A]] =
-    new OptionalStyleValue[O, A](O, a)
+  @inline implicit final def _react_styleOptionLike[O[_], A](implicit o: OptionLike[O], t: Style.ValueType[A]): Style.ValueType[O[A]] =
+    Style.ValueType.optional(o, t)
 
   // Frag
   @inline implicit final def _react_fragReactNode[T <% ReactNode](v: T): Frag = new ReactNodeFrag(v)
@@ -66,7 +66,7 @@ abstract class Implicits extends LowPri {
     O.fold(o, EmptyTag)(f)
 
   // Scalatags misc
-  @inline implicit final def _react_styleOrdering                  : Ordering[Style] = Scalatags.styleOrdering
+  @inline implicit final def _react_styleOrdering                  : Ordering[Style] = Style.ordering
   @inline implicit final def _react_attrOrdering                   : Ordering[Attr]  = Attr.ordering
   @inline implicit final def _react_cssNumber    [T: Numeric](t: T): CssNumber       = new CssNumber(t)
 

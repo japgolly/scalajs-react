@@ -12,20 +12,20 @@ trait Attr {
 
 object Attr {
 
-  final class Generic(val name: String) extends Attr {
+  final case class Generic(name: String) extends Attr {
     Escaping.assertValidAttrName(name)
 
     override def :=[A](a: A)(implicit t: ValueType[A]): TagMod =
       new NameAndValue(name, a, t)
   }
 
-  object ClassName extends Attr {
+  case object ClassName extends Attr {
     override def name = "class"
     override def :=[A](a: A)(implicit t: ValueType[A]): TagMod =
       TagMod.fn(b => t.apply(b.addClassName, a))
   }
 
-  object Ref extends Attr {
+  case object Ref extends Attr {
     override def name = "ref"
     override def :=[A](a: A)(implicit t: ValueType[A]): TagMod =
       new Attr.NameAndValue(name, a, t)
@@ -47,15 +47,14 @@ object Attr {
 
   /**
     * Used to specify how to handle a particular type [[A]] when it is used as
-    * the value of a [[Attr]]. Only types with a specified [[ValueType]] may
+    * the value of a [[Attr]]. Only types with a specified [[Attr.ValueType]] may
     * be used.
     */
   @implicitNotFound("No Attr.ValueType defined for type ${A}; don't know how to use ${A} as an attribute.")
   final class ValueType[A](val apply: ValueType.Fn[A]) extends AnyVal
 
   object ValueType {
-    type Fn[A] = (ValueType.BuildFn, A) => Unit
-    type BuildFn = js.Any => Unit
+    type Fn[A] = (js.Any => Unit, A) => Unit
 
     @inline def apply[A](fn: Fn[A]): ValueType[A] =
       new ValueType(fn)
