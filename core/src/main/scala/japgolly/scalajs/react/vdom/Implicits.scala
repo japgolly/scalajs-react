@@ -7,8 +7,8 @@ import Scalatags._
 import scala.scalajs.js.Any
 
 abstract class LowPri {
-  @inline implicit final def _react_fragSeq   [A <% Frag](xs: Seq[A])   : Frag = SeqFrag(xs)
-  @inline implicit final def _react_fragArray [A <% Frag](xs: Array[A]) : Frag = SeqFrag[A](xs.toSeq)
+  @inline implicit final def _react_fragSeq   [A <% Frag](xs: Seq[A])   : Frag = new SeqFrag(xs)
+  @inline implicit final def _react_fragArray [A <% Frag](xs: Array[A]) : Frag = new SeqFrag[A](xs.toSeq)
 
 //  @inline implicit final def _react_fragOption[A <% Frag](xs: Option[A]): Frag = SeqFrag(xs.toSeq)
 //  @inline implicit final def _react_fragOptionLike[T[_], A](t: T[A])(implicit o: OptionLike[T], f: A => Frag): Frag =
@@ -59,12 +59,6 @@ abstract class Implicits extends LowPri {
   // Frag
   @inline implicit final def _react_fragReactNode[T <% ReactNode](v: T): Frag = new ReactNodeFrag(v)
 
-  // TagMod
-  @inline implicit final def _react_nodeSeq  [A <% TagMod](xs: Seq[A])      : TagMod = new SeqNode(xs)
-  @inline implicit final def _react_nodeArray[A <% TagMod](xs: Array[A])    : TagMod = new SeqNode[A](xs.toSeq)
-  @inline implicit final def _react_nodeOptionLike[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => TagMod): TagMod =
-    O.fold(o, EmptyTag)(f)
-
   // Scalatags misc
   @inline implicit final def _react_styleOrdering                  : Ordering[Style] = Style.ordering
   @inline implicit final def _react_attrOrdering                   : Ordering[Attr]  = Attr.ordering
@@ -78,6 +72,17 @@ abstract class Implicits extends LowPri {
   @inline implicit final def _react_ext_attr(a: Attr)    = new Extra.AttrExt(a)
   @inline implicit final def _react_ext_bool(a: Boolean) = new Extra.BooleanExt(a)
   @inline implicit final def _react_ext_str (a: String)  = new Extra.StringExt(a)
+
+  // TagMod
+
+  @inline implicit final def _react_nodeSeq[A <% TagMod](xs: Seq[A]): TagMod =
+    new SeqNode(xs)
+
+  @inline implicit final def _react_nodeArray[A <% TagMod](xs: Array[A]): TagMod =
+    new SeqNode[A](xs.toSeq)
+
+  @inline implicit final def _react_nodeOptionLike[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => TagMod): TagMod =
+    O.fold(o, EmptyTag)(f)
 }
 
 object Implicits extends Implicits

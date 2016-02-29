@@ -1,116 +1,17 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react._
-import Scalatags._
-
-class ReactTagOf[+N <: TopNode] private[vdom](
-  val tag:       String,
-  val modifiers: List[Seq[TagMod]],
-  val namespace: Namespace) extends DomFrag {
-
-  def copy(tag: String                  = this.tag,
-           modifiers: List[Seq[TagMod]] = this.modifiers,
-           namespace: Namespace         = this.namespace): ReactTagOf[N] =
-    new ReactTagOf(tag, modifiers, namespace)
-
-  def render: ReactElement = {
-    val b = new Builder()
-    build(b)
-    b.render(tag)
-  }
-
-  /**
-   * Walks the [[modifiers]] to apply them to a particular [[Builder]].
-   * Super sketchy/procedural for max performance.
-   */
-  private[this] def build(b: Builder): Unit = {
-    var current = modifiers
-    val arr = new Array[Seq[TagMod]](modifiers.length)
-
-    var i = 0
-    while(current != Nil){
-      arr(i) = current.head
-      current =  current.tail
-      i += 1
-    }
-
-    var j = arr.length
-    while (j > 0) {
-      j -= 1
-      val frag = arr(j)
-      var i = 0
-      while(i < frag.length){
-        frag(i).applyTo(b)
-        i += 1
-      }
-    }
-  }
-
-  def apply(xs: TagMod*): ReactTagOf[N] =
-    this.copy(modifiers = xs :: modifiers)
-
-  override def toString = render.toString
-}
 
 private[vdom] object Scalatags {
-
-  /**
-   * Marker sub-type of [[TagMod]] which signifies that that type can be
-   * rendered as a standalone fragment of [[ReactNode]]. This excludes things
-   * like [[AttrPair]]s or [[StylePair]]s which only make sense as part of
-   * a parent fragment
-   */
-  trait Frag extends TagMod {
-    def render: ReactNode
-  }
-
-  trait DomFrag extends Frag {
-    def applyTo(b: Builder): Unit = b.appendChild(this.render)
-  }
-
-
-  /**
-   * Represents a single XML namespace. This is currently ignored in `scalatags.Text`,
-   * but used to create elements with the correct namespace in `scalatags.JsDom`. A
-   * [[Namespace]] can be provided implicitly (or explicitly) when creating tags via
-   * `"".tag`, with a default of "http://www.w3.org/1999/xhtml" if none is found.
-   */
-  trait Namespace {
-    def uri: String
-  }
-  object NamespaceHtml {
-    implicit val implicitNamespace = new Namespace {
-      def uri = "http://www.w3.org/1999/xhtml"
-    }
-  }
-  object NamespaceSvg {
-    implicit val implicitNamespace = new Namespace {
-      def uri = "http://www.w3.org/2000/svg"
-    }
-  }
 
   def camelCase(dashedString: String) = {
     val first :: rest = dashedString.split("-").toList
     (first :: rest.map(s => s(0).toUpper.toString + s.drop(1))).mkString
   }
 
-
   @inline def makeAbstractReactTag[N <: TopNode](tag: String, namespaceConfig: Namespace): ReactTagOf[N] = {
     Escaping.assertValidTag(tag)
     new ReactTagOf[N](tag, Nil, namespaceConfig)
-  }
-
-  implicit final class SeqFrag[A <% Frag](xs: Seq[A]) extends Frag {
-    def applyTo(t: Builder): Unit = xs.foreach(_.applyTo(t))
-    override def render: ReactElement = {
-      val b = new Builder()
-      applyTo(b)
-      b.render("")
-    }
-  }
-
-  final case class ReactNodeFrag(v: ReactNode) extends DomFrag {
-    def render: ReactNode = v
   }
 
   @inline implicit def stringStyleType =
