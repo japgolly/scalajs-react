@@ -21,10 +21,10 @@ object DomCallbackResult {
 object Extra {
 
   final class CompositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => TagMod) {
-    def apply(as: Option[A]*)(implicit ev: AttrValue[A]): TagMod =
+    def apply(as: Option[A]*)(implicit ev: Attr.ValueType[A]): TagMod =
       as.toList.filter(_.isDefined).map(_.get) match {
         case h :: t => k := f(h, t)
-        case Nil => e
+        case Nil    => e
       }
   }
 
@@ -48,9 +48,14 @@ object Extra {
   }
 
   final class StringExt(private val s: String) extends AnyVal {
-    @inline def reactAttr : Attr     = Attr(s)
-    @inline def reactStyle: Style    = Style(s, s)
-    @inline def reactTag[N <: TopNode]: ReactTagOf[N] = makeAbstractReactTag(s, Scalatags.NamespaceHtml.implicitNamespace)
+    @inline def reactAttr: Attr =
+      new Attr.Generic(s)
+
+    @inline def reactStyle: Style =
+      Style(s, s)
+
+    @inline def reactTag[N <: TopNode]: ReactTagOf[N] =
+      makeAbstractReactTag(s, Scalatags.NamespaceHtml.implicitNamespace)
   }
 
   trait Tags {
@@ -61,14 +66,14 @@ object Extra {
   }
 
   trait Attrs {
-    final lazy val className     = ClassNameAttr
+    final lazy val className     = Attr.ClassName
     final lazy val cls           = className
     final lazy val `class`       = className
 
     final lazy val colSpan       = "colSpan".attr
     final lazy val rowSpan       = "rowSpan".attr
     final lazy val htmlFor       = "htmlFor".attr   // same as `for`
-    final      val ref           = RefAttr
+    final      val ref           = Attr.Ref
     final      val key           = "key".attr
     final lazy val draggable     = "draggable".attr
 
@@ -175,7 +180,7 @@ object Extra {
   }
 
   @inline private[vdom] def cls_=(v:  String): TagMod =
-    ClassNameAttr.:=(v)(stringAttrX)
+    Attr.ClassName.:=(v)(Attr.ValueType.string)
 
   private[vdom] def classSetImpl(z: TagMod, ps: Seq[(String, Boolean)]): TagMod =
     ps.foldLeft(z)((q, p) => if (p._2) q + cls_=(p._1) else q)

@@ -7,27 +7,36 @@ package japgolly.scalajs.react.vdom
  * `children` list.
  */
 trait TagMod {
+
   /**
    * Applies this modifier to the specified [[Builder]], such that when
    * rendering is complete the effect of adding this modifier can be seen.
    */
-  def applyTo(t: Builder): Unit
+  def applyTo(b: Builder): Unit
 
-  final def +(that: TagMod): TagMod = this compose that
+  final def +(that: TagMod): TagMod =
+    this compose that
 
-  final def compose(that: TagMod): TagMod = this match {
-    case l if EmptyTag eq l     => that
-    case _ if EmptyTag eq that  => this
-    case TagMod.Composition(ms) => TagMod.Composition(ms :+ that)
-    case _                      => TagMod.Composition(Vector.empty[TagMod] :+ this :+ that)
-  }
+  final def compose(that: TagMod): TagMod =
+    this match {
+      case l if EmptyTag eq l    => that
+      case _ if EmptyTag eq that => this
+      case TagMod.Composite(ms)  => TagMod.Composite(ms :+ that)
+      case _                     => TagMod.Composite(Vector.empty[TagMod] :+ this :+ that)
+    }
 }
 
 object TagMod {
   @inline def apply(ms: TagMod*): TagMod =
-    Composition(ms.toVector)
+    Composite(ms.toVector)
 
-  case class Composition(ms: Vector[TagMod]) extends TagMod {
+  def fn(f: Builder => Unit): TagMod =
+    new TagMod {
+      override def applyTo(b: Builder): Unit =
+        f(b)
+    }
+
+  final case class Composite(ms: Vector[TagMod]) extends TagMod {
     override def applyTo(b: Builder): Unit =
       ms.foreach(_ applyTo b)
   }

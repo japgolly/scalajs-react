@@ -4,6 +4,8 @@ import scala.scalajs.js
 import japgolly.scalajs.react._
 import Scalatags._
 
+import scala.scalajs.js.Any
+
 abstract class LowPri {
   @inline implicit final def _react_fragSeq   [A <% Frag](xs: Seq[A])   : Frag = SeqFrag(xs)
   @inline implicit final def _react_fragArray [A <% Frag](xs: Array[A]) : Frag = SeqFrag[A](xs.toSeq)
@@ -17,29 +19,29 @@ abstract class LowPri {
 abstract class Implicits extends LowPri {
 
   // Attributes
-  @inline implicit final def _react_attrString   : AttrValue[String]          = stringAttrX
-          implicit final val _react_attrBoolean  : AttrValue[Boolean]         = GenericAttr[Boolean]
-          implicit final val _react_attrByte     : AttrValue[Byte]            = GenericAttr[Byte]
-          implicit final val _react_attrShort    : AttrValue[Short]           = GenericAttr[Short]
-          implicit final val _react_attrInt      : AttrValue[Int]             = GenericAttr[Int]
-          implicit final val _react_attrLong     : AttrValue[Long]            = GenericAttr[Long]
-          implicit final val _react_attrFloat    : AttrValue[Float]           = GenericAttr[Float]
-          implicit final val _react_attrDouble   : AttrValue[Double]          = GenericAttr[Double]
-          implicit final val _react_attrJsThisFn : AttrValue[js.ThisFunction] = GenericAttr[js.ThisFunction]
-          implicit final val _react_attrJsFn     : AttrValue[js.Function]     = GenericAttr[js.Function]
-          implicit final val _react_attrJsObj    : AttrValue[js.Object]       = GenericAttr[js.Object]
+  @inline implicit final def _react_attrString   : Attr.ValueType[String         ] = Attr.ValueType.string
+          implicit final val _react_attrBoolean  : Attr.ValueType[Boolean        ] = Attr.ValueType.map
+          implicit final def _react_attrByte     : Attr.ValueType[Byte           ] = Attr.ValueType.map
+          implicit final def _react_attrShort    : Attr.ValueType[Short          ] = Attr.ValueType.map
+          implicit final val _react_attrInt      : Attr.ValueType[Int            ] = Attr.ValueType.map
+          implicit final val _react_attrLong     : Attr.ValueType[Long           ] = Attr.ValueType.map
+          implicit final def _react_attrFloat    : Attr.ValueType[Float          ] = Attr.ValueType.map
+          implicit final val _react_attrDouble   : Attr.ValueType[Double         ] = Attr.ValueType.map
+          implicit final val _react_attrJsThisFn : Attr.ValueType[js.ThisFunction] = Attr.ValueType.map
+          implicit final val _react_attrJsFn     : Attr.ValueType[js.Function    ] = Attr.ValueType.map
+          implicit final val _react_attrJsObj    : Attr.ValueType[js.Object      ] = Attr.ValueType.map
 
-  implicit final def _react_attrJsDictionary[A]: AttrValue[js.Dictionary[A]] =
-    new GenericAttr[js.Dictionary[A]](d => d.asInstanceOf[js.Object])
+  implicit final def _react_attrJsDictionary[A]: Attr.ValueType[js.Dictionary[A]] =
+    Attr.ValueType.map(d => d.asInstanceOf[js.Object])
 
-  @inline implicit final def _react_attrRef[R <: Ref]: AttrValue[R] =
-    new GenericAttr[R](_.name)
+  @inline implicit final def _react_attrRef[R <: Ref]: Attr.ValueType[R] =
+    Attr.ValueType.map(_.name)
 
-  @inline implicit final def _react_attrOptionLike[T[_], A](implicit t: OptionLike[T], a: AttrValue[A]): AttrValue[T[A]] =
-    new OptionalAttrValue[T, A](t, a)
+  @inline implicit final def _react_attrOptionLike[T[_], A](implicit o: OptionLike[T], t: Attr.ValueType[A]): Attr.ValueType[T[A]] =
+    Attr.ValueType.optional(o, t)
 
-  @inline implicit final def _react_attrArray[A <% js.Any]: AttrValue[js.Array[A]] =
-    new ArrayAttr[A]
+  @inline implicit final def _react_attrArray[A](implicit f: A => Any): Attr.ValueType[js.Array[A]] =
+    Attr.ValueType.array(f)
 
   // Styles
   @inline implicit final def _react_styleString : StyleValue[String]  = stringStyleX
@@ -65,7 +67,7 @@ abstract class Implicits extends LowPri {
 
   // Scalatags misc
   @inline implicit final def _react_styleOrdering                  : Ordering[Style] = Scalatags.styleOrdering
-  @inline implicit final def _react_attrOrdering                   : Ordering[Attr]  = Scalatags.attrOrdering
+  @inline implicit final def _react_attrOrdering                   : Ordering[Attr]  = Attr.ordering
   @inline implicit final def _react_cssNumber    [T: Numeric](t: T): CssNumber       = new CssNumber(t)
 
   // Rendering

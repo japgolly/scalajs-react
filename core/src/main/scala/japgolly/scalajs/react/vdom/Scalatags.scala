@@ -55,51 +55,11 @@ class ReactTagOf[+N <: TopNode] private[vdom](
 }
 
 /**
- * Wraps up a HTML attribute in a value which isn't a string.
- */
-final case class Attr(name: String) {
-  Escaping.assertValidAttrName(name)
-
-  def :=[T](v: T)(implicit ev: AttrValue[T]): TagMod = AttrPair(this, v, ev)
-}
-
-case class ClassNameAttr[T](t: T, av: AttrValue[T]) extends TagMod {
-  override def applyTo(b: Builder): Unit =
-    av.apply(t, b.addClassName)
-}
-object ClassNameAttr {
-  def :=[T](t: T)(implicit av: AttrValue[T]): ClassNameAttr[T] = ClassNameAttr(t, av)
-}
-
-object RefAttr {
-  private val ref = "ref".attr
-
-  def :=[T](v: T)(implicit ev: AttrValue[T]): TagMod =
-    AttrPair(ref, v, ev)
-
-  import Implicits._react_attrJsFn
-  def apply[N <: TopNode](f: N => Unit): TagMod =
-    :=((f: js.Function1[N, Unit]): js.Function)
-}
-
-/**
  * Wraps up a CSS style in a value.
  */
 case class Style(jsName: String, cssName: String) {
   // val s2 = camelCase(s); Style(s2, s2)
   def :=[T](v: T)(implicit ev: StyleValue[T]): TagMod = StylePair(this, v, ev)
-}
-
-/**
- * Used to specify how to handle a particular type [[T]] when it is used as
- * the value of a [[Attr]]. Only types with a specified [[AttrValue]] may
- * be used.
- */
-@implicitNotFound(
-  "No AttrValue defined for type ${T}; scalatags does not know how to use ${T} as an attribute"
-)
-trait AttrValue[T]{
-  def apply(v: T, b: js.Any => Unit): Unit
 }
 
 /**
@@ -128,14 +88,6 @@ private[vdom] object Scalatags {
 
   trait DomFrag extends Frag {
     def applyTo(b: Builder): Unit = b.appendChild(this.render)
-  }
-
-  /**
-   * An [[Attr]], it's associated value, and an [[AttrValue]] of the correct type
-   */
-  case class AttrPair[T](a: Attr, t: T, av: AttrValue[T]) extends TagMod {
-    override def applyTo(b: Builder): Unit =
-      av.apply(t, b.addAttr(a.name, _))
   }
 
   /**
@@ -176,14 +128,6 @@ private[vdom] object Scalatags {
     override def compare(x: Style, y: Style): Int = x.cssName compareTo y.cssName
   }
 
-  implicit object attrOrdering extends Ordering[Attr]{
-    override def compare(x: Attr, y: Attr): Int = x.name compareTo y.name
-  }
-
-  final class OptionalAttrValue[T[_], A](ot: OptionLike[T], v: AttrValue[A]) extends AttrValue[T[A]] {
-    override def apply(ta: T[A], b: js.Any => Unit): Unit = ot.foreach(ta)(v(_, b))
-  }
-
   final class OptionalStyleValue[T[_], A](ot: OptionLike[T], v: StyleValue[A]) extends StyleValue[T[A]] {
     override def apply(b: Builder, s: Style, t: T[A]) = ot.foreach(t)(v(b, s, _))
   }
@@ -202,22 +146,10 @@ private[vdom] object Scalatags {
     }
   }
 
-  implicit val stringAttrX: AttrValue[String] = GenericAttr[String]
   implicit val stringStyleX: StyleValue[String] = GenericStyle.stringValue[String]
 
   final case class ReactNodeFrag(v: ReactNode) extends DomFrag {
     def render: ReactNode = v
-  }
-
-  final class GenericAttr[T](f: T => js.Any) extends AttrValue[T] {
-    def apply(v: T, b: js.Any => Unit): Unit = b(f(v))
-  }
-  object GenericAttr {
-    @inline def apply[T <% js.Any] = new GenericAttr[T](a => a)
-  }
-
-  final class ArrayAttr[T <% js.Any] extends AttrValue[js.Array[T]] {
-    def apply(v: js.Array[T], b: js.Any => Unit): Unit = b(v.map(a => a: js.Any))
   }
 
   final class GenericStyle[T](f: T => String) extends StyleValue[T] {
@@ -246,7 +178,7 @@ private[vdom] object Scalatags {
     /**
      * Converts the string to a [[Attr]]
      */
-    def attr = Attr(s)
+    def attr = new Attr.Generic(s)
 
     /**
      * Converts the string to a [[Style]]. The string is used as the cssName of the
