@@ -144,11 +144,13 @@ object ScalajsReact extends Build {
     .aggregate(core, test, scalaz71, scalaz72, monocle, extra, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
+      "L"   -> "root/publishLocal",
       "C"   -> "root/clean",
       "T"   -> ";root/clean;root/test",
       "c"   -> "compile",
       "tc"  -> "test:compile",
       "t"   -> "test",
+      "to"  -> "test/test-only",
       "cc"  -> ";clean;compile",
       "ctc" -> ";clean;test:compile",
       "ct"  -> ";clean;test"))
