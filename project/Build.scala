@@ -15,7 +15,7 @@ object ScalajsReact extends Build {
     val ReactJs       = "0.14.3"
     val Monocle       = "1.2.0"
     val Scalaz71      = "7.1.3"
-    val Scalaz72      = "7.2.0"
+    val Scalaz72      = "7.2.1"
     val MTest         = "0.3.1"
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.1.1"
@@ -191,7 +191,7 @@ object ScalajsReact extends Build {
       .configure(commonSettings, publicationSettings, extModuleName(shortName), hasNoTests)
       .dependsOn(core, extra)
       .settings(
-        libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
+        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version)
   }
 
   lazy val scalaz71 = scalazModule("scalaz-7.1", Ver.Scalaz71)
