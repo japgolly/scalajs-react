@@ -116,7 +116,7 @@ object CallbackOption {
                        metaKey : Boolean = false,
                        shiftKey: Boolean = false)
                       (switch  : PartialFunction[Int, CallbackTo[A]]): CallbackOption[A] =
-    keyEventSwitch(e, e.nativeEvent.keyCode, altKey, ctrlKey, metaKey, shiftKey)(switch)
+    keyEventSwitch(e, e.keyCode, altKey, ctrlKey, metaKey, shiftKey)(switch)
 
   def keyEventSwitch[A, B](e       : ReactKeyboardEvent,
                            a       : A,
