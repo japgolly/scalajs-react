@@ -16,7 +16,7 @@ object ScalajsReact extends Build {
     val Monocle       = "1.2.0"
     val Scalaz71      = "7.1.3"
     val Scalaz72      = "7.2.1"
-    val MTest         = "0.3.1"
+    val MTest         = "0.4.3"
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.1.1"
     val Nyaya         = "0.7.0"
