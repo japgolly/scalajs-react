@@ -6,24 +6,25 @@ import utest._
 import test._
 import Addons._
 import TestUtil._
+import JsEnvUtils.requiresRealBrowser
 
 object AddonTest extends TestSuite {
 
-  val componentA = ReactComponentB[Int]("A")
+  lazy val componentA = ReactComponentB[Int]("A")
     .initialState_P(identity)
     .render_S(i => <.div(
       (0 to i).map(j => componentB(s"$j² = ${j*j}"))
     ))
     .build
 
-  val componentB = ReactComponentB[String]("B")
+  lazy val componentB = ReactComponentB[String]("B")
     .render_P(str => <.div("Input is ", str))
     .build
 
   override def tests = TestSuite {
 
     'cloneWithProps {
-      'shouldCloneDomComponentWithNewProps {
+      'shouldCloneDomComponentWithNewProps - requiresRealBrowser {
         val Parent = ReactComponentB[Unit]("Parent")
           .render_C(c =>
             <.div(^.cls := "parent", ReactCloneWithProps(React.Children only c, Map("className" -> "xyz"))))
@@ -39,7 +40,7 @@ object AddonTest extends TestSuite {
       }
     }
 
-    'perf {
+    'perf - requiresRealBrowser {
       val c = ReactTestUtils renderIntoDocument componentA(10)
       Perf.start()
       c.setState(20)
