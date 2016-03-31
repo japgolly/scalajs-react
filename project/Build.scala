@@ -141,7 +141,7 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, test, scalaz71, scalaz72, monocle, extra, ghpagesMacros, ghpages)
+    .aggregate(core, test, scalaz72, monocle, extra, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -194,7 +194,6 @@ object ScalajsReact extends Build {
         libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version)
   }
 
-  lazy val scalaz71 = scalazModule("scalaz-7.1", Ver.Scalaz71)
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
   // ==============================================================================================
