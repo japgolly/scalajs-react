@@ -10,7 +10,7 @@ import ScalaJSPlugin.autoImport._
 object ScalajsReact extends Build {
 
   object Ver {
-    val Scala211      = "2.11.7"
+    val Scala211      = "2.11.8"
     val ScalaJsDom    = "0.8.2"
     val ReactJs       = "0.14.3"
     val Monocle       = "1.2.0"
