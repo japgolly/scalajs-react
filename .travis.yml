@@ -2,15 +2,20 @@ language: scala
 sudo: false
 
 scala:
-  - 2.11.7
-
+  - 2.11.8
 jdk:
   - oraclejdk8
+env:
+  - TEST=test
+  - TEST=firefox:test
+
+addons:
+  firefox: latest
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test/test:fastOptJS test/test:fullOptJS
-  - sbt ++$TRAVIS_SCALA_VERSION test
-  - sbt ++$TRAVIS_SCALA_VERSION 'set scalaJSStage in Global := FullOptStage' 'set scalaJSStage in Test in ScalajsReact.test := FullOptStage' test
+  - sbt ++$TRAVIS_SCALA_VERSION $TEST
+  - sbt ++$TRAVIS_SCALA_VERSION 'set scalaJSStage in Global := FullOptStage' 'set scalaJSStage in Test in ScalajsReact.test := FullOptStage' $TEST
   - bin/checkDevOnly
 
 # Use PhantomJS 2
