@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom.console
+import org.scalajs.dom.{console, window}
 import scala.annotation.{tailrec, implicitNotFound}
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -124,7 +124,7 @@ object Callback {
    * Convenience for calling `dom.alert`.
    */
   def alert(message: String): Callback =
-    Callback(org.scalajs.dom.alert(message))
+    Callback(window.alert(message))
 
   /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.

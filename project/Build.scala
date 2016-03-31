@@ -11,7 +11,7 @@ object ScalajsReact extends Build {
 
   object Ver {
     val Scala211      = "2.11.8"
-    val ScalaJsDom    = "0.8.2"
+    val ScalaJsDom    = "0.9.0"
     val ReactJs       = "0.14.3"
     val Monocle       = "1.2.0"
     val Scalaz71      = "7.1.3"
