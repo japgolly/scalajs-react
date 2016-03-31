@@ -6,25 +6,36 @@ scala:
 jdk:
   - oraclejdk8
 env:
-  - TEST=test
-  - TEST=firefox:test
+  - STAGE=Fast TEST=test
+  - STAGE=Fast TEST=firefox:test
+  - STAGE=Full TEST=test
+  - STAGE=Full TEST=firefox:test
 
 addons:
-  firefox: latest
+  firefox: "45.0"
+
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
 
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION test/test:fastOptJS test/test:fullOptJS
-  - sbt ++$TRAVIS_SCALA_VERSION $TEST
-  - sbt ++$TRAVIS_SCALA_VERSION 'set scalaJSStage in Global := FullOptStage' 'set scalaJSStage in Test in ScalajsReact.test := FullOptStage' $TEST
-  - bin/checkDevOnly
+  - >
+    sbt ++$TRAVIS_SCALA_VERSION "set scalaJSStage in Global := ${STAGE}OptStage" 'show test/test:scalaJSLinkedFile'
+    && sbt ++$TRAVIS_SCALA_VERSION "set scalaJSStage in Global := ${STAGE}OptStage" $TEST
+  - >
+    if [ $STAGE = Fast ]; then x= ; else x=fast ; fi
+    ; touch test/target/scala-2.11/test-test-${x}opt.js
+    ; bin/checkDevOnly
 
 # Use PhantomJS 2
 # https://mediocre.com/forum/topics/phantomjs-2-and-travis-ci-we-beat-our-heads-against-a-wall-so-you-dont-have-to
-install:
-  - mkdir travis-phantomjs
-  - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -O "$PWD"/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
-  - tar -xvf "$PWD"/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -C "$PWD"/travis-phantomjs
-  - export PATH="$PWD/travis-phantomjs:$PATH"
+install: >
+  if [ $TEST = test ]; then
+  mkdir travis-phantomjs
+  && wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -O "$PWD"/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
+  && tar -xvf "$PWD"/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -C "$PWD"/travis-phantomjs
+  && export PATH="$PWD/travis-phantomjs:$PATH"
+  ; fi
 
 # Taken from https://github.com/typelevel/cats/blob/master/.travis.yml
 cache:
