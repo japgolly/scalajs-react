@@ -169,7 +169,7 @@ object ScalajsReact extends Build {
     .settings(name := "extra")
 
   lazy val test = project
-    .configure(commonSettings, publicationSettings, utestSettings)
+    .configure(commonSettings, publicationSettings, utestSettings, InBrowserTesting.js)
     .dependsOn(core, extra, monocle)
     .settings(
       name := "test",
