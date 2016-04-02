@@ -86,7 +86,7 @@ object ScalajsReact extends Build {
   def utestSettings: PE =
     _.configure(useReactJs("test"))
       .settings(
-        libraryDependencies += "com.lihaoyi" %%% "utest" % Ver.MTest,
+        libraryDependencies += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
         testFrameworks      += new TestFramework("utest.runner.Framework"),
         requiresDOM         := true,
         jsEnv in Test       := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
