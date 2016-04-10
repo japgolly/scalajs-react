@@ -62,29 +62,6 @@ object Addons {
 
   // ===================================================================================================================
 
-  object ReactCloneWithProps {
-
-    def mapToJS(props: Map[String, js.Any]): js.Object = {
-      val obj = js.Dynamic.literal()
-      props.foreach { case (key, value) =>
-        obj.updateDynamic(key)(value)
-      }
-      obj
-    }
-
-    /**
-     * `cloneWithProps` is now deprecated. Use `React.cloneElement` instead (unlike `cloneWithProps`, `cloneElement`
-     * does not merge `className` or `style` automatically; you can merge them manually if needed).
-     */
-    @deprecated("As of React 0.14, you must use React.cloneElement instead.", "0.10.0")
-    def apply(child: ReactNode, newProps: Map[String, js.Any]) = {
-      val f = React.addons.cloneWithProps
-      f(child, mapToJS(newProps)).asInstanceOf[ReactComponentU_]
-    }
-  }
-
-  // ===================================================================================================================
-
   /**
    * React Performance Tools
    *

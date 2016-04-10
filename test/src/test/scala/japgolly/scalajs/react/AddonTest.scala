@@ -23,23 +23,6 @@ object AddonTest extends TestSuite {
 
   override def tests = TestSuite {
 
-    'cloneWithProps {
-      'shouldCloneDomComponentWithNewProps - requiresRealBrowser {
-        val Parent = ReactComponentB[Unit]("Parent")
-          .render_C(c =>
-            <.div(^.cls := "parent", ReactCloneWithProps(React.Children only c, Map("className" -> "xyz"))))
-          .build
-
-        val GrandParent = ReactComponentB[Unit]("GrandParent")
-          .render(P => Parent(<.div(^.cls:= "child")))
-          .build
-
-        val instance = ReactTestUtils.renderIntoDocument(GrandParent())
-        val n = ReactDOM findDOMNode ReactTestUtils.findRenderedDOMComponentWithClass(instance, "xyz")
-        assert(n.matchesBy[HTMLElement](_.className == "xyz child"))
-      }
-    }
-
     'perf - requiresRealBrowser {
       val c = ReactTestUtils renderIntoDocument componentA(10)
       Perf.start()
