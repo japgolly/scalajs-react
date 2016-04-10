@@ -70,7 +70,12 @@ object Addons {
   @js.native
   @JSName("React.addons.Perf")
   object Perf extends js.Object {
-    type Measurements = js.Array[Measurement]
+
+    // Opaque pending:
+    // https://github.com/facebook/react/pull/6286
+    // https://github.com/facebook/react/pull/6046
+    @js.native
+    sealed trait Measurements extends js.Object
 
     @js.native
     sealed trait Measurement extends js.Object {
