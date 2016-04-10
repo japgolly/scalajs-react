@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.test
 
 import scala.util.Try
+import scala.util.control.NonFatal
 import scalajs.js.Dynamic.global
 import Console._
 
@@ -24,5 +25,13 @@ object JsEnvUtils {
     YELLOW + "Skipped; need real browser." + RESET
 
   def requiresRealBrowser(test: => Any): Any =
-    if (isRealBrowser) test else skipMTest
+    if (isRealBrowser)
+      try
+        test
+      catch {
+        case NonFatal(t) => throw t
+        case t: Throwable => throw new RuntimeException(t)
+      }
+    else
+      skipMTest
 }
