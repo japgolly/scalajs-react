@@ -144,7 +144,7 @@ object CallbackOption {
       _ <- e.preventDefaultCB.toCBO
     } yield a
 
-  implicit def callbackOptionContravariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
+  implicit def callbackOptionCovariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
     c.widen
 }
 

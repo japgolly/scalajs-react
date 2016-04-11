@@ -282,7 +282,7 @@ object CallbackTo {
       c.toFuture.flatMap(identity)
   }
 
-  implicit def callbackContravariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =
+  implicit def callbackCovariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =
     c.widen
 
   /**
