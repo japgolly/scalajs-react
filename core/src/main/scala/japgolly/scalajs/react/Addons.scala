@@ -62,29 +62,6 @@ object Addons {
 
   // ===================================================================================================================
 
-  object ReactCloneWithProps {
-
-    def mapToJS(props: Map[String, js.Any]): js.Object = {
-      val obj = js.Dynamic.literal()
-      props.foreach { case (key, value) =>
-        obj.updateDynamic(key)(value)
-      }
-      obj
-    }
-
-    /**
-     * `cloneWithProps` is now deprecated. Use `React.cloneElement` instead (unlike `cloneWithProps`, `cloneElement`
-     * does not merge `className` or `style` automatically; you can merge them manually if needed).
-     */
-    @deprecated("As of React 0.14, you must use React.cloneElement instead.", "0.10.0")
-    def apply(child: ReactNode, newProps: Map[String, js.Any]) = {
-      val f = React.addons.cloneWithProps
-      f(child, mapToJS(newProps)).asInstanceOf[ReactComponentU_]
-    }
-  }
-
-  // ===================================================================================================================
-
   /**
    * React Performance Tools
    *
@@ -93,7 +70,12 @@ object Addons {
   @js.native
   @JSName("React.addons.Perf")
   object Perf extends js.Object {
-    type Measurements = js.Array[Measurement]
+
+    // Opaque pending:
+    // https://github.com/facebook/react/pull/6286
+    // https://github.com/facebook/react/pull/6046
+    @js.native
+    sealed trait Measurements extends js.Object
 
     @js.native
     sealed trait Measurement extends js.Object {
@@ -131,6 +113,9 @@ object Addons {
     /**
      * Prints the underlying DOM manipulations, e.g. "set innerHTML" and "remove".
      */
+    def printOperations(measurements: Measurements = js.native): Report = js.native
+
+    @deprecated("Renamed to printOperations() in React v15.", "0.11.0")
     def printDOM(measurements: Measurements = js.native): Report = js.native
   }
 }

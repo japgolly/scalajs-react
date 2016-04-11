@@ -50,8 +50,8 @@ object TouchExample {
       <.div(
         <.div(
           "Area to test touch events",
-          ^.width := 200,                   // Basic style
-          ^.height := 200,
+          ^.width := 200.px,                // Basic style
+          ^.height := 200.px,
           ^.border := "1px solid blue",
           ^.onTouchStart  ==> debugEvent,   // Forwarding touch events
           ^.onTouchMove   ==> debugEvent,
