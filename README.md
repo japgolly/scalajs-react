@@ -42,7 +42,7 @@ Includes a router, testing utils, performance utils, more.
 
 
 ##### Requirements:
-* React 0.14.n
+* React 15+
 * Scala 2.11.n
 * Scala.JS 0.6.8+
 
