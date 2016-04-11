@@ -17,7 +17,7 @@ object ScalajsReact extends Build {
     val Scalaz72      = "7.2.1"
     val MTest         = "0.4.3"
     val MacroParadise = "2.1.0"
-    val SizzleJs      = "2.1.1"
+    val SizzleJs      = "2.3.0"
     val Nyaya         = "0.7.0"
   }
 
@@ -178,7 +178,7 @@ object ScalajsReact extends Build {
         monocleLib("macro") % "test"),
       jsDependencies ++= Seq(
         (ProvidedJS / "sampleReactComponent.js" dependsOn "react-dom.js") % Test, // for JS Component Type Test.
-        "org.webjars" % "sizzle" % "2.1.1" % Test / "sizzle.min.js" commonJSName "Sizzle"),
+        "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle"),
       addCompilerPlugin(macroParadisePlugin),
       scalacOptions in Test += "-language:reflectiveCalls")
 
