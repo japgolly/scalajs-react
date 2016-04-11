@@ -9,6 +9,9 @@ package object react extends ReactEventAliases {
 
   type TopNode = dom.Element
 
+  /** Type of components' `this.props.children` */
+  type PropsChildren = js.Array[ReactNode]
+
   type Callback  = CallbackTo[Unit]
   type CallbackB = CallbackTo[Boolean]
 
@@ -65,7 +68,6 @@ package object react extends ReactEventAliases {
   @inline implicit def reactNodeInhabitableAn                (v: js.Array[ReactNode]): ReactNode = v.asInstanceOf[ReactNode]
   @inline implicit def reactNodeInhabitableAt[T <% ReactNode](v: js.Array[T])        : ReactNode = v.toReactNodeArray
   @inline implicit def reactNodeInhabitableC [T <% ReactNode](v: TraversableOnce[T]) : ReactNode = v.toReactNodeArray
-  @inline implicit def reactNodeInhabitablePC                (v: PropsChildren)      : ReactNode = v.asInstanceOf[ReactNode]
 
   // ===================================================================================================================
 
