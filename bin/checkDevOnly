@@ -1,0 +1,19 @@
+#!/bin/bash
+cd "$(dirname "$(readlink -e "$0")")/.." || exit 1
+
+echo ';test/test:fastOptJS; test/test:fullOptJS'
+echo
+
+grep="fgrep -i"
+term=DEVONLY-TEST
+fast=test/target/scala-2.11/test-test-fastopt.js
+full=test/target/scala-2.11/test-test-opt.js
+
+echo ========================================================================================================================
+$grep --color=always "$term" $fast
+echo ========================================================================================================================
+$grep --color=always "$term" $full
+echo ========================================================================================================================
+
+[ -e $fast ] && [ -e $full ] && [ "$($grep -l "$term" $fast $full | xargs)" == $fast ]
+

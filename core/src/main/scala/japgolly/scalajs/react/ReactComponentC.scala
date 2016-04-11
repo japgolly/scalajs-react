@@ -22,6 +22,8 @@ sealed trait ReactComponentC[P, S, B, N <: TopNode] extends ReactComponentTypeAu
    * Output of [[React.createFactory()]].
    */
   val factory: ReactComponentCU[P, S, B, N]
+
+  def displayName = reactClass.displayName
 }
 
 object ReactComponentC {

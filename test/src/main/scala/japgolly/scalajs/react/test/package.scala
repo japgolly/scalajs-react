@@ -45,7 +45,7 @@ package object test {
 
 
     /**
-      * Turn `&lt;div data-reactid=".0"&gt;hello&lt/div&gt;`
+      * Turn `&lt;div data-reactroot=""&gt;hello&lt/div&gt;`
       * into `&lt;div&gt;hello&lt/div&gt;`
       */
     def removeReactDataAttr(html: String): String =
@@ -58,5 +58,10 @@ package object test {
       g(b)
     finally
       ReactDOM unmountComponentAtNode n(b).parentNode
+  }
+
+  @inline implicit final class ReactTestExt_Mounted[N <: TopNode](private val c: CompScope.Mounted[N]) extends AnyVal {
+    def outerHtmlWithoutReactDataAttr(): String =
+      ReactTestUtils removeReactDataAttr c.getDOMNode().outerHTML
   }
 }

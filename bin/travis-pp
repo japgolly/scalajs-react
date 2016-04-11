@@ -1,0 +1,7 @@
+#!/bin/bash
+cd "$(dirname "$(readlink -e "$0")")/.." || exit 1
+ruby -e "
+  require 'yaml'
+  require 'pp'
+  pp YAML.load_file('.travis.yml')
+"

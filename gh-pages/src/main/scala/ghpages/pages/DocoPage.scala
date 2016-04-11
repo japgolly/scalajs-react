@@ -12,6 +12,6 @@ object DocoPage {
       "There's plenty, but for now it's all on the ",
       <.a(^.href := "https://github.com/japgolly/scalajs-react", "project page"),
       "...")
-  ).buildU
+  ).build
 
 }

@@ -1,14 +1,12 @@
 package japgolly.scalajs.react
 
+import scala.scalajs.js
+import scala.scalajs.js.annotation.JSName
+import org.scalajs.dom.raw.HTMLElement
+import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.{Simulation, ReactTestUtils}
 import japgolly.scalajs.react.vdom.prefix_<^._
-import org.scalajs.dom.raw.HTMLElement
-import utest.framework.TestSuite
-import utest._
-
-import scala.scalajs.js
-import scala.scalajs.js.annotation.JSName
 
 object JsComponentTest extends TestSuite {
   val ref = Ref.toJS[SampleReactComponentM]("ref123")
@@ -36,7 +34,7 @@ object JsComponentTest extends TestSuite {
           React.createFactory(SampleReactComponent)(SampleReactComponentProperty(ref = ref, propOne = "123")),
           <.p(^.ref := p1, ^.onClick --> scope.backend.modifyOne(10)),
           <.p(^.ref := p2, ^.onClick --> scope.backend.modifyTwo(20))
-        )).buildU
+        )).build
       val renderedComponent = ReactTestUtils.renderIntoDocument(component())
       val mountedComponent = ref(renderedComponent)
       assert(mountedComponent.map(ReactDOM.findDOMNode(_).tagName.toLowerCase).toOption == Some("div"))

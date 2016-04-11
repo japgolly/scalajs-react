@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import scala.scalajs.LinkingInfo.developmentMode
 import monocle.macros.Lenses
 import utest._
 import scala.scalajs.js, js.{Array => JArray}
@@ -13,8 +14,8 @@ import CompState._
 
 object CoreTest extends TestSuite {
 
-  lazy val CA = ReactComponentB[Unit]("CA").render_C(c => div(c)).buildU
-  lazy val CB = ReactComponentB[Unit]("CB").render_C(c => span(c)).buildU
+  lazy val CA = ReactComponentB[Unit]("CA").render_C(c => div(c)).build
+  lazy val CB = ReactComponentB[Unit]("CB").render_C(c => span(c)).build
   lazy val H1 = ReactComponentB[String]("H").render_P(p => h1(p)).build
 
   lazy val SI = ReactComponentB[Unit]("SI")
@@ -24,7 +25,7 @@ object CoreTest extends TestSuite {
     .componentDidMount($ => Callback {
       val s: String = ReactDOM.findDOMNode($).value // Look, it knows its DOM node type
     })
-    .buildU
+    .build
 
   lazy val tagmod  : TagMod       = cls := "ho"
   lazy val reacttag: ReactTag     = span()
@@ -40,7 +41,7 @@ object CoreTest extends TestSuite {
 
     'scalatags {
       def test(subj: ReactElement, exp: String): Unit =
-        ReactComponentB[Unit]("tmp").render(_ => subj).buildU.apply() shouldRender exp
+        ReactComponentB[Unit]("tmp").render(_ => subj).build.apply() shouldRender exp
       def reactNode: ReactNode = H1("cool")
       def checkbox(check: Boolean) = input(`type` := "checkbox", checked := check)
 
@@ -201,7 +202,7 @@ object CoreTest extends TestSuite {
 
     'props {
       'unit {
-        val r = ReactComponentB[Unit]("U").render_C(c => h1(c)).buildU
+        val r = ReactComponentB[Unit]("U").render_C(c => h1(c)).build
         r(div("great")) shouldRender "<h1><div>great</div></h1>"
       }
 
@@ -228,7 +229,7 @@ object CoreTest extends TestSuite {
       'configure {
         var called = 0
         val f = (_: ReactComponentB[Unit,Unit,Unit,TopNode]).componentWillMount(_ => Callback(called += 1))
-        val c = ReactComponentB[Unit]("X").render(_ => div("")).configure(f, f).buildU
+        val c = ReactComponentB[Unit]("X").render(_ => div("")).configure(f, f).build
         ReactTestUtils.renderIntoDocument(c())
         assert(called == 2)
       }
@@ -323,7 +324,7 @@ object CoreTest extends TestSuite {
           )
         )
         .domType[HTMLSelectElement]
-        .buildU
+        .build
 
       val c = ReactTestUtils.renderIntoDocument(s())
       val sel = ReactDOM.findDOMNode(c)
@@ -365,7 +366,7 @@ object CoreTest extends TestSuite {
           .render(P => div())
           .componentWillMount(scope => Callback(assert(!scope.isMounted())))
           .componentDidMount(scope => Callback(assert(scope.isMounted())))
-          .buildU
+          .build
       val instance =  ReactTestUtils.renderIntoDocument(C())
       assert(instance.isMounted())
     }
@@ -386,7 +387,7 @@ object CoreTest extends TestSuite {
         .render(_ => canvas())
         .domType[HTMLCanvasElement]
         .componentDidMount($ => Callback(ReactDOM.findDOMNode($).getContext("2d")))
-        .buildU
+        .build
     }
 
     'multiModState {
@@ -398,7 +399,7 @@ object CoreTest extends TestSuite {
             val add1 = $.modState(_ + 1)
             button(onClick --> (add1 >> add7))
           }
-          .buildU
+          .build
         val c = ReactTestUtils.renderIntoDocument(C())
         c.state mustEqual 3
         Simulation.click run c
@@ -413,7 +414,7 @@ object CoreTest extends TestSuite {
             val add1 = $$.modState(_ + 1)
             button(onClick --> (add1 >> add7))
           }
-          .buildU
+          .build
         val c = ReactTestUtils.renderIntoDocument(C())
         c.state mustEqual StrInt("yay", 3)
         Simulation.click run c
@@ -432,7 +433,7 @@ object CoreTest extends TestSuite {
             val add1 = $$.modState(_ + 1)
             button(onClick --> (add1 >> add7))
           }
-          .buildU
+          .build
         val c = ReactTestUtils.renderIntoDocument(C())
         c.state mustEqual StrInt("yay", 3)
         Simulation.click run c
@@ -451,7 +452,7 @@ object CoreTest extends TestSuite {
             val add1 = $$.modState(_ + 1)
             button(onClick --> (add1 >> add7))
           }
-          .buildU
+          .build
         val c = ReactTestUtils.renderIntoDocument(C())
         c.state mustEqual StrIntWrap(StrInt("yay", 3))
         Simulation.click run c
@@ -471,6 +472,40 @@ object CoreTest extends TestSuite {
         val input = document.createElement("input")
         input.domToHtml mustEqual Some(input.asInstanceOf[HTMLElement])
       }
+    }
+
+    // Also checked with bin/checkDevOnly via Travis CI
+    "devOnly" - {
+      def test(t: ReactTag)(dev: => String, prod: => String): Unit = {
+        val exp = if (developmentMode) dev else prod
+        assertRender(FunctionalComponent[Unit](_ => t)(()), exp)
+      }
+
+      'tagMod -
+        test(div(1, TagMod devOnly p("DEVONLY-TEST"), 2))(
+          "<div>1<p>DEVONLY-TEST</p>2</div>",
+          "<div>12</div>")
+
+      'tagMod -
+        test(div(1, TagMod devOnly TagMod(cls := "DEVONLY-TEST", p("DEVONLY-TEST")), 2))(
+          """<div class="DEVONLY-TEST">1<p>DEVONLY-TEST</p>2</div>""",
+          "<div>12</div>")
+
+      'attr -
+        test(div(ReactAttr.devOnly("data-devonly-test") := "!DEVONLY-TEST!", 123))(
+          """<div data-devonly-test="!DEVONLY-TEST!">123</div>""",
+          "<div>123</div>")
+
+      'style -
+        test(div(ReactStyle.devOnly("devonly-test") := "!DEVONLY-TEST!", 123))(
+          """<div style="devonly-test:!DEVONLY-TEST!;">123</div>""",
+          "<div>123</div>")
+    }
+
+    'displayName {
+      assertEq(CA.displayName, "CA")
+      val mounted = ReactTestUtils.renderIntoDocument(CA())
+      assertEq(mounted.displayName, "CA")
     }
   }
 }

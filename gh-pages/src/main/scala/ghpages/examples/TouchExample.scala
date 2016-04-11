@@ -33,9 +33,9 @@ object TouchExample {
   /** Saving touch event details to state */
   class Backend(val $: BackendScope[Unit, State]) {
     def debugEvent(e: ReactTouchEvent): Callback =
-      preventDefault(e) >> $.modState { state =>
+      e.preventDefaultCB >> $.modState(state =>
         state withEntry s"${e.nativeEvent.`type`}: ${formatTouches(e.changedTouches)}" limit 10
-      }
+      )
 
     private def formatTouches(touches: dom.TouchList) =
       toSeq(touches).map(formatCoordinates).mkString(" | ")
@@ -50,8 +50,8 @@ object TouchExample {
       <.div(
         <.div(
           "Area to test touch events",
-          ^.width := 200,                   // Basic style
-          ^.height := 200,
+          ^.width := 200.px,                // Basic style
+          ^.height := 200.px,
           ^.border := "1px solid blue",
           ^.onTouchStart  ==> debugEvent,   // Forwarding touch events
           ^.onTouchMove   ==> debugEvent,
@@ -67,7 +67,7 @@ object TouchExample {
   val TouchExampleApp = ReactComponentB[Unit]("TouchExample")
     .initialState(new State)
     .renderBackend[Backend]
-    .buildU
+    .build
 
   // EXAMPLE:END
 }

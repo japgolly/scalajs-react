@@ -9,6 +9,9 @@ package object react extends ReactEventAliases {
 
   type TopNode = dom.Element
 
+  /** Type of components' `this.props.children` */
+  type PropsChildren = js.Array[ReactNode]
+
   type Callback  = CallbackTo[Unit]
   type CallbackB = CallbackTo[Boolean]
 
@@ -65,7 +68,6 @@ package object react extends ReactEventAliases {
   @inline implicit def reactNodeInhabitableAn                (v: js.Array[ReactNode]): ReactNode = v.asInstanceOf[ReactNode]
   @inline implicit def reactNodeInhabitableAt[T <% ReactNode](v: js.Array[T])        : ReactNode = v.toReactNodeArray
   @inline implicit def reactNodeInhabitableC [T <% ReactNode](v: TraversableOnce[T]) : ReactNode = v.toReactNodeArray
-  @inline implicit def reactNodeInhabitablePC                (v: PropsChildren)      : ReactNode = v.asInstanceOf[ReactNode]
 
   // ===================================================================================================================
 
@@ -104,6 +106,9 @@ package object react extends ReactEventAliases {
   @inline implicit final class ReactExt_Mounted[N <: TopNode](private val c: Mounted[N]) extends AnyVal {
     // See comments in [[Mounted]].
     @inline def getDOMNode(): N = ReactDOM.findDOMNode(c)
+
+    def displayName: String =
+      c.asInstanceOf[js.Dynamic].constructor.displayName.asInstanceOf[String]
   }
 
   @inline implicit final class ReactExt_MountedD[N <: TopNode](private val c: Mounted[N] with WriteDirect) extends AnyVal {
@@ -174,16 +179,47 @@ package object react extends ReactEventAliases {
   // ===================================================================================================================
 
   @inline implicit final class ReactExt_domEventExt(private val e: dom.Event) extends AnyVal {
-    @inline def preventDefaultCB  = Callback(e.preventDefault())
+    /**
+     * Stops the default action of an element from happening.
+     * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
+     */
+    @inline def preventDefaultCB = Callback(e.preventDefault())
+
+    /**
+     * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
+     */
     @inline def stopPropagationCB = Callback(e.stopPropagation())
   }
 
-  @inline implicit final class ReactExt_ReactEventExt(private val e: ReactEvent) extends AnyVal {
-    @inline def preventDefaultCB  = Callback(e.preventDefault())
+  @inline implicit final class ReactExt_ReactEventExt[E <: ReactEvent](private val e: E) extends AnyVal {
+    /**
+     * Stops the default action of an element from happening.
+     * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
+     */
+    @inline def preventDefaultCB = Callback(e.preventDefault())
+
+    /**
+     * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
+     */
     @inline def stopPropagationCB = Callback(e.stopPropagation())
+
+    /**
+     * If you want to access the event properties in an asynchronous way (eg. in a `modState(…)` function),
+     * React will have recycled the event by the time the asynchronous call executes.
+     *
+     * This convenience function extracts a value from the event synchronously (i.e. now!) and so that it is
+     * available to the asynchronous code.
+     */
+    @inline def extract[A, B](getNow: E => A)(useAsync: A => B): B = {
+      val a = getNow(e)
+      useAsync(a)
+    }
   }
 
+  @deprecated("Use e.preventDefaultCB.", "0.11.0")
   def preventDefault (e: ReactEvent): Callback = e.preventDefaultCB
+
+  @deprecated("Use e.stopPropagationCB.", "0.11.0")
   def stopPropagation(e: ReactEvent): Callback = e.stopPropagationCB
 
   @inline implicit final class ReactExt_ReactDOMElement(private val e: ReactDOMElement) extends AnyVal {
@@ -208,4 +244,8 @@ package object react extends ReactEventAliases {
   @inline implicit def ReactExt_CallbackToFuture[A](c: CallbackTo[Future[A]]) =
     new CallbackTo.ReactExt_CallbackToFuture(() => c.runNow())
 
+  // ===================================================================================================================
+
+  @inline implicit def ReactExt_ReactKeyboardEvent[N <: dom.Node](e: SyntheticKeyboardEvent[N]) =
+    new ReactKeyboardEventOps(e)
 }

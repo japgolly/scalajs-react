@@ -30,7 +30,7 @@ object StaticPropComponentTest extends TestSuite {
       var i = 665
       def ne = Example1(StaticProps(() => { i += 1; i}))
       var e = ne
-      val t = StatefulParent[DynamicProps](($, p) => e(p))
+      val t = WithExternalCompStateAccess[DynamicProps](($, p) => e(p))
       ReactTestUtils.withRenderedIntoDocument(t(DynamicProps(7))) { c =>
 
         // First render

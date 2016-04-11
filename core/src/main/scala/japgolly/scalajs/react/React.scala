@@ -1,8 +1,7 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom
 import scala.scalajs.js
-import js.{Dynamic, UndefOr, ThisFunction, ThisFunction0, Object, Any => JAny}
+import js.{Dynamic, UndefOr, Object, Any => JAny}
 
 @js.native
 object React extends React
@@ -64,30 +63,6 @@ trait React extends Object {
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   def Children: ReactChildren = js.native
-
-  @deprecated("As of React 0.14, you must use ReactDOM.render instead.", "0.10.0")
-  def render(element: ReactElement, container: dom.Node): ReactComponentM_[TopNode] = js.native
-
-  @deprecated("As of React 0.14, you must use ReactDOM.render instead.", "0.10.0")
-  def render(element: ReactElement, container: dom.Node, callback: ThisFunction): ReactComponentM_[TopNode] = js.native
-
-  @deprecated("As of React 0.14, you must use ReactDOM.render instead.", "0.10.0")
-  def render[P,S,B,N <: TopNode](component: ReactComponentU[P,S,B,N], container: dom.Node): ReactComponentM[P,S,B,N] = js.native
-
-  @deprecated("As of React 0.14, you must use ReactDOM.render instead.", "0.10.0")
-  def render[P,S,B,N <: TopNode](component: ReactComponentU[P,S,B,N], container: dom.Node, callback: ThisFunction0[ReactComponentM[P,S,B,N], Unit]): ReactComponentM[P,S,B,N] = js.native
-
-  @deprecated("As of React 0.14, you must use ReactDOM.unmountComponentAtNode instead.", "0.10.0")
-  def unmountComponentAtNode(container: dom.Node): Boolean = js.native
-
-  @deprecated("As of React 0.14, you must use ReactDOM.findDOMNode instead.", "0.10.0")
-  def findDOMNode[N <: TopNode](component: CompScope.Mounted[N]): N = js.native
-
-  @deprecated("As of React 0.14, you must use ReactDOMServer.renderToString instead.", "0.10.2")
-  def renderToString(e: ReactElement): String = js.native
-
-  @deprecated("As of React 0.14, you must use ReactDOMServer.renderToStaticMarkup instead.", "0.10.2")
-  def renderToStaticMarkup(e: ReactElement): String = js.native
 }
 
 /** `React.Children` */

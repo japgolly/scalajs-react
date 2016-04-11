@@ -4,6 +4,7 @@ import org.scalajs.dom.{html => *}
 import Scalatags._
 import NamespaceHtml._
 
+
 trait HtmlTags {
 
   // Root Element
@@ -528,7 +529,7 @@ trait HtmlTags {
 
     /** Returns a &lt;input type="{t}" /&gt; */
     def withType(t: String): ReactTagOf[*.Input] =
-      this(`type` := t)
+      this(`type`.:=(t)(ReactAttr.ValueType.string))
 
     /** A push button with no default behavior. */
     def button = this withType "button"

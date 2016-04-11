@@ -23,7 +23,7 @@ object CallbackOptionExample {
           <.br,
           "Notice that PageDown still scrolls the page but ↓ doesn't? That's because", <.code("preventDefault"), "is only called when a key is matched."),
         Main()))
-    .buildU
+    .build
 
   // EXAMPLE:START
   import org.scalajs.dom.ext.KeyCode
@@ -43,16 +43,16 @@ object CallbackOptionExample {
     <.div(
       ^.ref        := OuterRef,
       ^.tabIndex   := 0,
-      ^.width      := OuterX,
-      ^.height     := OuterY,
+      ^.width      := OuterX.px,
+      ^.height     := OuterY.px,
       ^.border     := "solid 1px #333",
       ^.background := "#ddd")
 
   val InnerDiv =
     <.div(
       ^.position.relative,
-      ^.width      := InnerSize,
-      ^.height     := InnerSize,
+      ^.width      := InnerSize.px,
+      ^.height     := InnerSize.px,
       ^.background := "#800")
 
   def moveOneAxis(pos: Int, steps: Int, max: Int): Int =
@@ -96,14 +96,16 @@ object CallbackOptionExample {
     def render(s: State) =
       OuterDiv(
         ^.onKeyDown ==> handleKey,
-        InnerDiv(^.left := s.x, ^.top := s.y))
+        InnerDiv(
+          ^.left := s.x.px,
+          ^.top  := s.y.px))
   }
 
   val Main = ReactComponentB[Unit]("CallbackOption example")
     .initialState(initState)
     .renderBackend[Backend]
     .componentDidMount(_.backend.init)
-    .buildU
+    .build
 
   // EXAMPLE:END
 }

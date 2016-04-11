@@ -143,10 +143,6 @@ trait PropsMixedIn extends Object {
   def children: PropsChildren = js.native
 }
 
-/** Type of `this.props.children` */
-@js.native
-trait PropsChildren extends Object
-
 /**
  * https://facebook.github.io/react/docs/glossary.html indicates children can be a super type of ReactElement.
  * Array and null are acceptable, thus this can be 0-n elements.
@@ -219,7 +215,9 @@ trait ReactComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Objec
  * A component created via [[React.createClass]].
  */
 @js.native
-trait ReactClass[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
+trait ReactClass[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node] {
+  val displayName: String
+}
 
 // =====================================================================================================================
 

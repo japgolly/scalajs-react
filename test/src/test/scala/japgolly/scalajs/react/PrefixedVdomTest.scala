@@ -9,15 +9,15 @@ import japgolly.scalajs.react.vdom.prefix_<^._
 
 object PrefixedVdomTest extends TestSuite {
 
-  lazy val CA = ReactComponentB[Unit]("CA").render_C(c => <.div(c)).buildU
-  lazy val CB = ReactComponentB[Unit]("CB").render_C(c => <.span(c)).buildU
+  lazy val CA = ReactComponentB[Unit]("CA").render_C(c => <.div(c)).build
+  lazy val CB = ReactComponentB[Unit]("CB").render_C(c => <.span(c)).build
   lazy val H1 = ReactComponentB[String]("H").render_P(p => <.h1(p)).build
 
   lazy val SI = ReactComponentB[Unit]("SI")
     .initialState(123)
     .render(T => <.input(^.value := T.state.toString))
     .domType[HTMLInputElement]
-    .buildU
+    .build
 
   val tagmod  : TagMod       = ^.cls := "ho"
   val reacttag: ReactTag     = <.span()
@@ -27,7 +27,7 @@ object PrefixedVdomTest extends TestSuite {
 
     'altScalatags {
       def test(subj: ReactElement, exp: String): Unit =
-        ReactComponentB[Unit]("tmp").render(_ => subj).buildU.apply() shouldRender exp
+        ReactComponentB[Unit]("tmp").render(_ => subj).build.apply() shouldRender exp
       def reactNode: ReactNode = H1("cool")
       def checkbox(check: Boolean) = <.input(^.`type` := "checkbox", ^.checked := check)
 

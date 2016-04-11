@@ -60,7 +60,7 @@ object CompStateTest extends TestSuite {
   lazy val X = ReactComponentB[Unit]("X")
     .initialState(1)
     .render_S(s => <.div("state = ", s))
-    .buildU
+    .build
 
   override def tests = TestSuite {
     val x = ReactTestUtils renderIntoDocument X()

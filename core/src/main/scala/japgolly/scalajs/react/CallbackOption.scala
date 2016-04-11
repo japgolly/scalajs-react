@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
+import CallbackTo.MapGuard
 
 // TODO Document CallbackOption
 
@@ -115,7 +116,7 @@ object CallbackOption {
                        metaKey : Boolean = false,
                        shiftKey: Boolean = false)
                       (switch  : PartialFunction[Int, CallbackTo[A]]): CallbackOption[A] =
-    keyEventSwitch(e, e.nativeEvent.keyCode, altKey, ctrlKey, metaKey, shiftKey)(switch)
+    keyEventSwitch(e, e.keyCode, altKey, ctrlKey, metaKey, shiftKey)(switch)
 
   def keyEventSwitch[A, B](e       : ReactKeyboardEvent,
                            a       : A,
@@ -125,7 +126,7 @@ object CallbackOption {
                            shiftKey: Boolean = false)
                           (switch  : PartialFunction[A, CallbackTo[B]]): CallbackOption[B] =
     for {
-      _  <- require(ReactKeyboardEvent.checkKeyMods(e, altKey, ctrlKey, metaKey, shiftKey))
+      _  <- require(e.pressedModifierKeys(altKey, ctrlKey, metaKey, shiftKey))
       cb <- matchPF(a)(switch)
       b  <- cb.toCBO
     } yield b
@@ -142,6 +143,9 @@ object CallbackOption {
       a <- co
       _ <- e.preventDefaultCB.toCBO
     } yield a
+
+  implicit def callbackOptionCovariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
+    c.widen
 }
 
 // =====================================================================================================================
@@ -159,6 +163,9 @@ object CallbackOption {
  */
 final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal {
   import CallbackOption.someUnit
+
+  @inline def widen[B >: A]: CallbackOption[B] =
+    new CallbackOption(cbfn)
 
   def get: CallbackTo[Option[A]] =
     CallbackTo lift cbfn
@@ -178,13 +185,13 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
       case Some(_) => None
     })
 
-  def map[B](f: A => B): CallbackOption[B] =
+  def map[B](f: A => B)(implicit ev: MapGuard[B]): CallbackOption[ev.Out] =
     CallbackOption(get.map(_ map f))
 
   /**
    * Alias for `map`.
    */
-  @inline def |>[B](f: A => B): CallbackOption[B] =
+  @inline def |>[B](f: A => B)(implicit ev: MapGuard[B]): CallbackOption[ev.Out] =
     map(f)
 
   def flatMapOption[B](f: A => Option[B]): CallbackOption[B] =
@@ -204,6 +211,9 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
 
   def filter(condition: A => Boolean): CallbackOption[A] =
     CallbackOption(get.map(_ filter condition))
+
+  def filterNot(condition: A => Boolean): CallbackOption[A] =
+    CallbackOption(get.map(_ filterNot condition))
 
   def withFilter(condition: A => Boolean): CallbackOption[A] =
     filter(condition)
@@ -256,6 +266,24 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
    */
   @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
     void
+
+  /**
+   * Conditional execution of this callback.
+   *
+   * @param cond The condition required to be `true` for this callback to execute.
+   */
+  def when(cond: => Boolean): CallbackOption[A] =
+    new CallbackOption[A](() => if (cond) cbfn() else None)
+
+  /**
+   * Conditional execution of this callback.
+   * Reverse of [[when()]].
+   *
+   * @param cond The condition required to be `false` for this callback to execute.
+   * @return `Some` result of the callback executed, else `None`.
+   */
+  @inline def unless(cond: => Boolean): CallbackOption[A] =
+    when(!cond)
 
   def orElse(tryNext: CallbackOption[A]): CallbackOption[A] =
     CallbackOption(get flatMap {

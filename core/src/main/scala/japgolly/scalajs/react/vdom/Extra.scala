@@ -20,15 +20,15 @@ object DomCallbackResult {
 
 object Extra {
 
-  final class CompositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => TagMod) {
-    def apply(as: Option[A]*)(implicit ev: AttrValue[A]): TagMod =
+  final class CompositeAttr[A](k: ReactAttr, f: (A, List[A]) => A, e: => TagMod) {
+    def apply(as: Option[A]*)(implicit ev: ReactAttr.ValueType[A]): TagMod =
       as.toList.filter(_.isDefined).map(_.get) match {
         case h :: t => k := f(h, t)
-        case Nil => e
+        case Nil    => e
       }
   }
 
-  final class AttrExt(private val attr: Attr) extends AnyVal {
+  final class AttrExt(private val attr: ReactAttr) extends AnyVal {
     def -->[A: DomCallbackResult](callback: => CallbackTo[A]): TagMod =
       // not using callback.toJsFn or similar because we don't want to force evaluate of callback
       attr := ((() => callback.runNow()): js.Function)
@@ -48,9 +48,14 @@ object Extra {
   }
 
   final class StringExt(private val s: String) extends AnyVal {
-    @inline def reactAttr : Attr     = Attr(s)
-    @inline def reactStyle: Style    = Style(s, s)
-    @inline def reactTag[N <: TopNode]: ReactTagOf[N] = makeAbstractReactTag(s, Scalatags.NamespaceHtml.implicitNamespace)
+    @inline def reactAttr: ReactAttr =
+      new ReactAttr.Generic(s)
+
+    @inline def reactStyle: ReactStyle =
+      new ReactStyle.Generic(s)
+
+    @inline def reactTag[N <: TopNode]: ReactTagOf[N] =
+      makeAbstractReactTag(s, NamespaceHtml.implicitNamespace)
   }
 
   trait Tags {
@@ -61,14 +66,14 @@ object Extra {
   }
 
   trait Attrs {
-    final lazy val className     = ClassNameAttr
+    final lazy val className     = ReactAttr.ClassName
     final lazy val cls           = className
     final lazy val `class`       = className
 
     final lazy val colSpan       = "colSpan".attr
     final lazy val rowSpan       = "rowSpan".attr
     final lazy val htmlFor       = "htmlFor".attr   // same as `for`
-    final      val ref           = RefAttr
+    final      val ref           = ReactAttr.Ref
     final      val key           = "key".attr
     final lazy val draggable     = "draggable".attr
 
@@ -158,7 +163,7 @@ object Extra {
       dangerouslySetInnerHtmlAttr := o
     }
 
-    final def compositeAttr[A](k: Attr, f: (A, List[A]) => A, e: => TagMod = EmptyTag) =
+    final def compositeAttr[A](k: ReactAttr, f: (A, List[A]) => A, e: => TagMod = EmptyTag) =
       new CompositeAttr(k, f, e)
 
     final def classSet(ps: (String, Boolean)*): TagMod =
@@ -175,7 +180,7 @@ object Extra {
   }
 
   @inline private[vdom] def cls_=(v:  String): TagMod =
-    ClassNameAttr.:=(v)(stringAttrX)
+    ReactAttr.ClassName.:=(v)(ReactAttr.ValueType.string)
 
   private[vdom] def classSetImpl(z: TagMod, ps: Seq[(String, Boolean)]): TagMod =
     ps.foldLeft(z)((q, p) => if (p._2) q + cls_=(p._1) else q)

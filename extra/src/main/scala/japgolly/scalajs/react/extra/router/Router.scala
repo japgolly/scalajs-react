@@ -8,7 +8,7 @@ import japgolly.scalajs.react.extra._
 object Router {
 
   def apply[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): Router[Page] =
-    componentUnbuilt(baseUrl, cfg).buildU
+    componentUnbuilt(baseUrl, cfg).build
 
   def componentUnbuilt[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]) =
     componentUnbuiltC(baseUrl, cfg, new RouterLogic(baseUrl, cfg))
@@ -26,7 +26,7 @@ object Router {
 
   def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
     val l = new RouterLogic(baseUrl, cfg)
-    val r = componentUnbuiltC(baseUrl, cfg, l).buildU
+    val r = componentUnbuiltC(baseUrl, cfg, l).build
     (r, l)
   }
 

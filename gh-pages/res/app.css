@@ -3,7 +3,7 @@
     cursor: pointer;
 }
 
-li {
+.navbar li {
     list-style-type: none;
     cursor: pointer;
 }

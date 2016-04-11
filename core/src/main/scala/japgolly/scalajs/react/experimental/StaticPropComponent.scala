@@ -7,7 +7,7 @@ import CompScope._
 import ReactComponentB.BackendKey
 import StaticPropComponent.PropPair
 
-// TODO Add: ScalaDoc, GH doc, gh-pages example, doc testing via StatefulParent.
+// TODO Add: ScalaDoc, GH doc, gh-pages example, doc testing.
 
 /*
 object xxxxx extends StaticPropComponent.Template("xxxxx") {
@@ -87,7 +87,7 @@ object StaticPropComponent {
                 raw.update(BackendKey, nb.asInstanceOf[js.Any])
               }
         }
-      configure(e).build
+      configure(e).propsRequired.build
     }
   }
 

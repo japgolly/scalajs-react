@@ -12,7 +12,7 @@ import japgolly.scalajs.react.extra._
  * It also keeps a log of changes, accessible via `.history()`.
  *
  * @tparam A The variable type.
- * @since 0.10.5
+ * @since 0.11.0
  */
 class ReactTestVar[A](val initialValue: A) {
   import CompScope._
@@ -20,7 +20,7 @@ class ReactTestVar[A](val initialValue: A) {
   override def toString =
     s"ReactTestVar(initialValue = $initialValue, value = ${value()})"
 
-  /* // Use StatefulParent instead.
+  /* // Use WithExternalCompStateAccess instead.
 
   private val obj: ObjectWithStateVar[A] = {
     type JSCB = js.UndefOr[js.Function0[js.Any]]

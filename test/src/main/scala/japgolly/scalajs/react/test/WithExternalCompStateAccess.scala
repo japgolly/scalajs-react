@@ -4,18 +4,14 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.experimental.StaticPropComponent
 
 /**
- * A stateful component you can wrap around a component you want to test.
+ * Allows you to test a component that requires access to some external component state.
  *
- * Scenarios in which this might be useful:
- *   - Testing props changes. (`.setProps` has been deprecated and this is clearer and safer that re-rendering.)
- *   - Testing a component which uses a parent's `CompState.Access`, `CompState.WriteAccess` or similar.
- *
- * @since 0.10.5
+ * @since 0.11.0
  */
-object StatefulParent {
+object WithExternalCompStateAccess {
 
   def apply[S](render: (CompState.Access[S], S) => ReactElement) =
-    ReactComponentB[S]("StatefulParent")
+    ReactComponentB[S]("WithExternalCompStateAccess")
       .initialState_P(s => s)
       .renderS(($, s) => render($.accessCB, s))
       .build

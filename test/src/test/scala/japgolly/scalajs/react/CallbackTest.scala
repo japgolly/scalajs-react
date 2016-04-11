@@ -3,6 +3,7 @@ package japgolly.scalajs.react
 import scala.concurrent._
 import scala.concurrent.duration._
 import utest._
+import TestUtil2._
 
 object CallbackTest extends TestSuite {
 
@@ -21,18 +22,57 @@ object CallbackTest extends TestSuite {
     assert(j == e3)
   }
 
+  def assertCompiles[A](f: => A): Unit = ()
+
+  class IntVar {
+    var i = 0
+    val inc = Callback(i += 1)
+    val get = CallbackTo(i)
+    val incGet = inc >> get
+  }
+
   override def tests = TestSuite {
     'guard {
-      def assertCompiles[A](f: => A): Unit = ()
-      def assertFails(f: CompileError): Unit = assert(f.msg contains "which will discard without running it")
       def cb = Callback.empty
       def cbI = CallbackTo(3)
 
-      "Callback(unit)"       - assertCompiles[Callback](Callback(()))
-      "Callback(boolean)"    - assertCompiles[Callback](Callback(false))
-      "Callback(int)"        - assertCompiles[Callback](Callback(3))
-      "Callback(Callback)"   - assertFails(compileError("Callback(cb)"))
-      "Callback(CallbackTo)" - assertFails(compileError("Callback(cbI)"))
+      'constructor {
+        def assertFails(f: CompileError): Unit = assert(f.msg contains "which will discard without running it")
+        "unit"       - assertCompiles[Callback]( Callback(()))
+        "boolean"    - assertCompiles[Callback]( Callback(false))
+        "int"        - assertCompiles[Callback]( Callback(3))
+        "Callback"   - assertFails(compileError("Callback(cb)"))
+        "CallbackTo" - assertFails(compileError("Callback(cbI)"))
+      }
+
+      "map(): Callback" - {
+        def assertFails(f: CompileError): Unit = assert(f.msg contains "type mismatch")
+        def b = false
+        def i = 1
+        "unit"       - assertCompiles[Callback]( cb.map      (_ => ()) : Callback)
+        "boolean"    - assertCompiles[Callback]( cb.map[Unit](_ => b)  : Callback)
+        "int"        - assertCompiles[Callback]( cb.map[Unit](_ => i)  : Callback)
+        "Callback"   - assertFails(compileError("cb.map      (_ => cb) : Callback"))
+        "CallbackTo" - assertFails(compileError("cb.map      (_ => cbI): Callback"))
+      }
+
+      "map(): CallbackTo" - {
+        "unit"       - assertCompiles[Callback                   ](cb.map(_ => ()))
+        "boolean"    - assertCompiles[CallbackTo[Boolean        ]](cb.map(_ => false))
+        "int"        - assertCompiles[CallbackTo[Int            ]](cb.map(_ => 3))
+        "Callback"   - assertCompiles[CallbackTo[Callback       ]](cb.map(_ => cb))
+        "CallbackTo" - assertCompiles[CallbackTo[CallbackTo[Int]]](cb.map(_ => cbI))
+      }
+
+    }
+
+    'contravariance {
+      def assertFails(f: CompileError): Unit = ()
+      val x: CallbackTo[Seq[Int]] = CallbackTo(Nil)
+
+      'widen  - assertCompiles(x: CallbackTo[Iterable[Int]])
+      'narrow - assertFails(compileError("x: CallbackTo[List[Int]]"))
+      'unit   - assertFails(compileError("x: Callback"))
     }
 
     'lazily -
@@ -69,5 +109,59 @@ object CallbackTest extends TestSuite {
       val x = CallbackTo(Callback.empty).flatten
       val y: Callback = x
     }
+
+    'when {
+      val t = new IntVar; import t._
+      assertEq(incGet.when(false).runNow(), None)
+      assertEq(incGet.when(true ).runNow(), Some(1))
+      assertEq(incGet.when(true ).runNow(), Some(2))
+      assertEq(incGet.when(false).runNow(), None)
+      assertEq(incGet.when(true ).runNow(), Some(3))
+    }
+
+    'unless {
+      val t = new IntVar; import t._
+      assertEq(incGet.unless(false).runNow(), Some(1))
+      assertEq(incGet.unless(true ).runNow(), None)
+      assertEq(incGet.unless(false).runNow(), Some(2))
+      assertEq(incGet.unless(true ).runNow(), None)
+    }
+
+    'when_ {
+      val t = new IntVar; import t._
+      incGet.when_(false).runNow(); assertEq(i, 0)
+      incGet.when_(true ).runNow(); assertEq(i, 1)
+      incGet.when_(true ).runNow(); assertEq(i, 2)
+      incGet.when_(false).runNow(); assertEq(i, 2)
+      incGet.when_(true ).runNow(); assertEq(i, 3)
+    }
+
+    'unless {
+      val t = new IntVar; import t._
+      incGet.unless_(true ).runNow(); assertEq(i, 0)
+      incGet.unless_(false).runNow(); assertEq(i, 1)
+      incGet.unless_(true ).runNow(); assertEq(i, 1)
+      incGet.unless_(false).runNow(); assertEq(i, 2)
+      incGet.unless_(false).runNow(); assertEq(i, 3)
+    }
+
+    "Callback.when" - {
+      val t = new IntVar; import t._
+      Callback.when(false)(inc).runNow(); assertEq(i, 0)
+      Callback.when(true )(inc).runNow(); assertEq(i, 1)
+      Callback.when(true )(inc).runNow(); assertEq(i, 2)
+      Callback.when(false)(inc).runNow(); assertEq(i, 2)
+      Callback.when(true )(inc).runNow(); assertEq(i, 3)
+    }
+
+    "Callback.unless" - {
+      val t = new IntVar; import t._
+      Callback.unless(true )(inc).runNow(); assertEq(i, 0)
+      Callback.unless(false)(inc).runNow(); assertEq(i, 1)
+      Callback.unless(true )(inc).runNow(); assertEq(i, 1)
+      Callback.unless(false)(inc).runNow(); assertEq(i, 2)
+      Callback.unless(false)(inc).runNow(); assertEq(i, 3)
+    }
+
   }
 }

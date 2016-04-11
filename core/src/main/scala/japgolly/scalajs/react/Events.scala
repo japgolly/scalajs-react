@@ -55,12 +55,19 @@ trait ReactEventAliases {
   type ReactWheelEventTA       = SyntheticWheelEvent      [html.TextArea]
 }
 
-object ReactKeyboardEvent {
-  def checkKeyMods(e       : ReactKeyboardEvent,
-                   altKey  : Boolean = false,
-                   ctrlKey : Boolean = false,
-                   metaKey : Boolean = false,
-                   shiftKey: Boolean = false): Boolean =
+final class ReactKeyboardEventOps[N <: dom.Node](private val e: SyntheticKeyboardEvent[N]) extends AnyVal {
+
+  /**
+   * Checks the state of all pressed modifier keys.
+   *
+   * `e.pressedModifierKeys()` returns `true` if no modifier keys are currently pressed.
+   *
+   * `e.pressedModifierKeys(altKey = true)` returns `true` if alt is the only modifier key currently pressed.
+   */
+  def pressedModifierKeys(altKey  : Boolean = false,
+                          ctrlKey : Boolean = false,
+                          metaKey : Boolean = false,
+                          shiftKey: Boolean = false): Boolean =
     e.altKey   == altKey   &&
     e.ctrlKey  == ctrlKey  &&
     e.metaKey  == metaKey  &&
@@ -106,8 +113,8 @@ trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends js.Object {
   @JSName("type") val eventType: String = js.native
 
   /**
-   * If you want to access the event properties in an asynchronous way, you should call `.persist()` on the event,
-   * which will remove the synthetic event from the pool and allow references to the event to be retained by user code.
+   * If you want to access the event properties in an asynchronous way, call this on the event, which will remove the
+   * synthetic event from the pool and allow references to the event to be retained by user code.
    */
   def persist(): Unit = js.native
 }

@@ -5,8 +5,9 @@ Testing
 - [Setup](#setup)
 - [`React.addons.TestUtils`](#reactaddonstestutils)
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
+- [`ComponentTester`](#componenttester)
 - [`ReactTestVar`](#reacttestvar)
-- [`StatefulParent`](#statefulparent)
+- [`WithExternalCompStateAccess`](#withexternalcompstateaccess)
 - [`DebugJs`](#debugjs)
 
 Setup
@@ -18,24 +19,24 @@ Setup
 
     ```scala
     // scalajs-react test module
-    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.10.4" % "test"
+    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.11.0" % "test"
 
     // React JS itself.
     // NOTE: Requires react-with-addons.js instead of just react.js
     jsDependencies ++= Seq(
 
-      "org.webjars.bower" % "react" % "0.14.3" % "test"
+      "org.webjars.bower" % "react" % "15.0.1" % "test"
         /        "react-with-addons.js"
         minified "react-with-addons.min.js"
         commonJSName "React",
 
-      "org.webjars.bower" % "react" % "0.14.3" % "test"
+      "org.webjars.bower" % "react" % "15.0.1" % "test"
         /         "react-dom.js"
         minified  "react-dom.min.js"
         dependsOn "react-with-addons.js"
         commonJSName "ReactDOM",
 
-      "org.webjars.bower" % "react" % "0.14.3" % "test"
+      "org.webjars.bower" % "react" % "15.0.1" % "test"
         /         "react-dom-server.js"
         minified  "react-dom-server.min.js"
         dependsOn "react-dom.js"
@@ -93,6 +94,53 @@ val s = Simulation.focusChangeBlur("hi")
 s run component
 ```
 
+
+`ComponentTester`
+=================
+
+A helper that renders a component into the document so that
+  * you can easily change props and/or state.
+  * it is unmounted when the test is over.
+
+If you don't need to test props changes, you can actually just use `ReactTestUtils.withRenderedIntoDocument`.
+This might accrue more helpful features over time but currently changing props is the only real advantage this has over `withRenderedIntoDocument`.
+
+##### Example:
+
+If you wanted to test a component that has both props and state, a trivial component could be:
+
+```scala
+val Example = ReactComponentB[String]("Example")
+  .initialState(0)
+  .renderPS((_, p, s) => <.div(s" $p:$s "))
+  .build
+```
+
+you could test it like this:
+
+```scala
+ComponentTester(Example)("First props") { tester =>
+
+  // This imports:
+  // - component which is the mounted component.
+  // - setProps which changes the props and immediately re-renders.
+  // - setState which changes the state and immediately re-renders.
+  import tester._
+
+  def assertHtml(p: String, s: Int): Unit =
+    assert(component.outerHtmlWithoutReactDataAttr() == s"<div> $p:$s </div>")
+
+  assertHtml("First props", 0)
+
+  setState(2)
+  assert("First props", 2)
+
+  setProps("Second props")
+  assert("Second props", 2)
+}
+```
+
+
 `ReactTestVar`
 ==============
 
@@ -128,14 +176,10 @@ object ExampleTest extends TestSuite {
 ```
 
 
-`StatefulParent`
-================
-A stateful component you can wrap around a component you want to test.
+`WithExternalCompStateAccess`
+=============================
 
-Scenarios in which this might be useful:
-
-* Testing props changes. (`.setProps` has been deprecated and this is clearer and safer that re-rendering.)
-* Testing a component which uses a parent's `CompState.Access`, `CompState.WriteAccess` or similar.
+Allows you to test a component that requires access to some external component state.
 
 ##### Example:
 
@@ -151,14 +195,14 @@ val Example = ReactComponentB[(CompState.WriteAccess[Int], Int)]("I")
   .build
 ```
 
-You can use `StatefulParent` to write a test like this:
+You can use `WithExternalCompStateAccess` to write a test like this:
 ```scala
-import japgolly.scalajs.react.test.StatefulParent
+import japgolly.scalajs.react.test.WithExternalCompStateAccess
 import utest._
 
 object ExampleTest extends TestSuite {
 
-  val Parent = StatefulParent[Int](($, i) => Example(($, i)))
+  val Parent = WithExternalCompStateAccess[Int](($, i) => Example(($, i)))
 
   override def tests = TestSuite {
     val c = ReactTestUtils renderIntoDocument Parent(3)

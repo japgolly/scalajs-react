@@ -817,4 +817,13 @@ trait HtmlAttrs {
 
   /** For &lt;script&gt; and &lt;style&gt;elements. */
   final lazy val nonce = "nonce".attr
+
+  // Added in React v15
+  final lazy val citeAttr             = "cite"                .attr // Attr suffix avoid overlap with cite tag
+  final lazy val profile              = "profile"             .attr
+  final lazy val onAnimationStart     = "onAnimationStart"    .attr
+  final lazy val onAnimationEnd       = "onAnimationEnd"      .attr
+  final lazy val onAnimationIteration = "onAnimationIteration".attr
+  final lazy val onTransitionEnd      = "onTransitionEnd"     .attr
+  final lazy val onInvalid            = "onInvalid"           .attr
 }

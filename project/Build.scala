@@ -10,15 +10,14 @@ import ScalaJSPlugin.autoImport._
 object ScalajsReact extends Build {
 
   object Ver {
-    val Scala211      = "2.11.7"
-    val ScalaJsDom    = "0.8.2"
-    val ReactJs       = "0.14.3"
-    val Monocle       = "1.2.0"
-    val Scalaz71      = "7.1.3"
-    val Scalaz72      = "7.2.0"
-    val MTest         = "0.3.1"
+    val Scala211      = "2.11.8"
+    val ScalaJsDom    = "0.9.0"
+    val ReactJs       = "15.0.1"
+    val Monocle       = "1.2.0-2"
+    val Scalaz72      = "7.2.1"
+    val MTest         = "0.4.3"
     val MacroParadise = "2.1.0"
-    val SizzleJs      = "2.1.1"
+    val SizzleJs      = "2.3.0"
     val Nyaya         = "0.7.0"
   }
 
@@ -30,7 +29,7 @@ object ScalajsReact extends Build {
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.10.5-SNAPSHOT",
+        version            := "0.11.0",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Ver.Scala211,
@@ -86,11 +85,10 @@ object ScalajsReact extends Build {
   def utestSettings: PE =
     _.configure(useReactJs("test"))
       .settings(
-        libraryDependencies  += "com.lihaoyi" %%% "utest" % Ver.MTest,
-        testFrameworks       += new TestFramework("utest.runner.Framework"),
-        scalaJSStage in Test := FastOptStage,
-        requiresDOM          := true,
-        jsEnv in Test        := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
+        libraryDependencies += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
+        testFrameworks      += new TestFramework("utest.runner.Framework"),
+        requiresDOM         := true,
+        jsEnv in Test       := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
 
   def useReactJs(scope: String = "compile"): PE =
     _.settings(
@@ -141,14 +139,16 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, test, scalaz71, scalaz72, monocle, extra, ghpagesMacros, ghpages)
+    .aggregate(core, test, scalaz72, monocle, extra, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
+      "L"   -> "root/publishLocal",
       "C"   -> "root/clean",
       "T"   -> ";root/clean;root/test",
       "c"   -> "compile",
       "tc"  -> "test:compile",
       "t"   -> "test",
+      "to"  -> "test/test-only",
       "cc"  -> ";clean;compile",
       "ctc" -> ";clean;test:compile",
       "ct"  -> ";clean;test"))
@@ -167,7 +167,7 @@ object ScalajsReact extends Build {
     .settings(name := "extra")
 
   lazy val test = project
-    .configure(commonSettings, publicationSettings, utestSettings)
+    .configure(commonSettings, publicationSettings, utestSettings, InBrowserTesting.js)
     .dependsOn(core, extra, monocle)
     .settings(
       name := "test",
@@ -178,7 +178,7 @@ object ScalajsReact extends Build {
         monocleLib("macro") % "test"),
       jsDependencies ++= Seq(
         (ProvidedJS / "sampleReactComponent.js" dependsOn "react-dom.js") % Test, // for JS Component Type Test.
-        "org.webjars" % "sizzle" % "2.1.1" % Test / "sizzle.min.js" commonJSName "Sizzle"),
+        "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle"),
       addCompilerPlugin(macroParadisePlugin),
       scalacOptions in Test += "-language:reflectiveCalls")
 
@@ -189,10 +189,9 @@ object ScalajsReact extends Build {
       .configure(commonSettings, publicationSettings, extModuleName(shortName), hasNoTests)
       .dependsOn(core, extra)
       .settings(
-        libraryDependencies += "com.github.japgolly.fork.scalaz" %%% "scalaz-effect" % version)
+        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version)
   }
 
-  lazy val scalaz71 = scalazModule("scalaz-7.1", Ver.Scalaz71)
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
   // ==============================================================================================

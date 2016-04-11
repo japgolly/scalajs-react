@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.test
 
 import sizzle.Sizzle
-import japgolly.scalajs.react.vdom.Attr
+import japgolly.scalajs.react.vdom.ReactAttr
 import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
 import utest._
 import japgolly.scalajs.react._
@@ -11,8 +11,8 @@ import TestUtil2._
 
 object TestTest extends TestSuite {
 
-  lazy val A = ReactComponentB[Unit]("A").render_C(c => <.p(^.cls := "AA", c)).buildU
-  lazy val B = ReactComponentB[Unit]("B").render(_ => <.p(^.cls := "BB", "hehehe")).buildU
+  lazy val A = ReactComponentB[Unit]("A").render_C(c => <.p(^.cls := "AA", c)).build
+  lazy val B = ReactComponentB[Unit]("B").render(_ => <.p(^.cls := "BB", "hehehe")).build
   lazy val rab = ReactTestUtils.renderIntoDocument(A(B()))
 
   val inputRef = Ref[HTMLInputElement]("r")
@@ -22,12 +22,12 @@ object TestTest extends TestSuite {
       <.input.checkbox(^.checked := s, ^.onClick ==> ch, ^.ref := inputRef),
       <.span(s"s = $s")
     )
-  }).buildU
+  }).build
 
   lazy val IT = ReactComponentB[Unit]("IT").initialState("NIL").renderS(($,s) => {
     val ch = (e: SyntheticEvent[HTMLInputElement]) => $.setState(e.target.value.toUpperCase)
     <.input.text(^.value := s, ^.onChange ==> ch)
-  }).buildU
+  }).build
 
   val tests = TestSuite {
 
@@ -67,7 +67,7 @@ object TestTest extends TestSuite {
       }
 
       'eventTypes {
-        val eventTypes = Seq[(Attr, ReactOrDomNode ⇒ Unit)](
+        val eventTypes = Seq[(ReactAttr, ReactOrDomNode ⇒ Unit)](
           (^.onBeforeInput,       n ⇒ ReactTestUtils.Simulate.beforeInput(n)),
           (^.onBlur,              n ⇒ ReactTestUtils.Simulate.blur(n)),
           (^.onChange,            n ⇒ ReactTestUtils.Simulate.change(n)),
@@ -121,7 +121,7 @@ object TestTest extends TestSuite {
                 <.input.text(^.value := $.state, eventType ==> ch, ^.ref := inputRef),
                 <.span(s"s = ${$.state}")
               )
-            }).buildU
+            }).build
 
             val c = ReactTestUtils.renderIntoDocument(IDC())
             val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
@@ -153,7 +153,7 @@ object TestTest extends TestSuite {
           def chg(ev: ReactEventI) =
             e("change") >> T.setState(ev.target.value)
           <.input.text(^.value := T.state, ^.ref := inputRef, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur"))
-        }).buildU
+        }).build
         val c = ReactTestUtils.renderIntoDocument(C())
         val i = inputRef(c).get
         Simulation.focusChangeBlur("good") run i

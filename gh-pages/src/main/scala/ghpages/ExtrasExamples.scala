@@ -33,7 +33,7 @@ object ExtrasExamples {
       .componentDidMount(_.backend.start)
                                                                     // Removed componentWillUnmount() call
       .configure(OnUnmount.install)                                 // Register OnUnmount functionality
-      .buildU
+      .build
   }
 
   // ===================================================================================================================
@@ -52,7 +52,7 @@ object ExtrasExamples {
       .render_S(s => div("Seconds elapsed: ", s))
       .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1.second))
       .configure(TimerSupport.install)
-      .buildU
+      .build
   }
   
   // ===================================================================================================================

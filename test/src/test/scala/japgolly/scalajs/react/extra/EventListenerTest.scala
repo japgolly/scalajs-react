@@ -3,7 +3,7 @@ package japgolly.scalajs.react.extra
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.vdom.prefix_<^._
-import org.scalajs.dom.Event
+import org.scalajs.dom.document
 import utest._
 import TestUtil._
 
@@ -14,13 +14,13 @@ object EventListenerTest extends TestSuite {
     .backend(_ => new OnUnmount.Backend)
     .renderS((_, state) => <.div(s"Hit $state times"))
     .configure(EventListener.install("hello", _.modState(_ + 1)))
-    .buildU
+    .build
 
   override def tests = TestSuite {
     val c = ReactTestUtils.renderIntoDocument(C())
 
     def dispatch(name: String) = {
-      val e = new Event
+      val e = document.createEvent("Event")
       e.initEvent(name, true, true)
       ReactDOM findDOMNode c dispatchEvent e
     }

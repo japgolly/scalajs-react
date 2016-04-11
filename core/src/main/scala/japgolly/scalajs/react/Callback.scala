@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom.console
+import org.scalajs.dom.{console, window}
 import scala.annotation.{tailrec, implicitNotFound}
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -9,6 +9,7 @@ import scala.scalajs.js
 import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
 import js.timers.RawTimers
 import scala.util.{Try, Failure, Success}
+import CallbackTo.MapGuard
 
 /**
  * A callback with no return value. Equivalent to `() => Unit`.
@@ -76,8 +77,31 @@ object Callback {
    * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
    * satisfied.
    */
+  @deprecated("Use when() or unless().", "0.11.0")
   def ifTrue(pred: Boolean, c: => Callback): Callback =
-    if (pred) c else Callback.empty
+    when(pred)(c)
+
+  /**
+   * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
+   * satisfied.
+   *
+   * Notice the condition is strict. If non-strictness is desired use `callback.when(cond)`.
+   *
+   * @param cond The condition required to be `true` for the callback to execute.
+   */
+  def when(cond: Boolean)(c: => Callback): Callback =
+    if (cond) c else Callback.empty
+
+  /**
+   * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition is already
+   * satisfied.
+   *
+   * Notice the condition is strict. If non-strictness is desired use `callback.unless(cond)`.
+   *
+   * @param cond The condition required to be `false` for the callback to execute.
+   */
+  @inline def unless(cond: Boolean)(c: => Callback): Callback =
+    when(!cond)(c)
 
   def traverse[T[X] <: TraversableOnce[X], A](ta: => T[A])(f: A => Callback): Callback =
     Callback(
@@ -123,7 +147,7 @@ object Callback {
    * Convenience for calling `dom.alert`.
    */
   def alert(message: String): Callback =
-    Callback(org.scalajs.dom.alert(message))
+    Callback(window.alert(message))
 
   /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.
@@ -257,6 +281,21 @@ object CallbackTo {
     def toFlatFuture(implicit ec: ExecutionContext): Future[A] =
       c.toFuture.flatMap(identity)
   }
+
+  implicit def callbackCovariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =
+    c.widen
+
+  /**
+   * Prevents `scalac` discarding the result of a map function when the final result is `Callback`.
+   *
+   * See https://github.com/japgolly/scalajs-react/issues/256
+   *
+   * @since 0.11.0
+   */
+  sealed trait MapGuard[A] { type Out = A }
+
+  @inline implicit def MapGuard[A]: MapGuard[A] =
+    null.asInstanceOf[MapGuard[A]]
 }
 
 // =====================================================================================================================
@@ -287,13 +326,16 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   @inline def runNow(): A =
     f()
 
-  def map[B](g: A => B): CallbackTo[B] =
+  @inline def widen[B >: A]: CallbackTo[B] =
+    new CallbackTo(f)
+
+  def map[B](g: A => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
     new CallbackTo(() => g(f()))
 
   /**
    * Alias for `map`.
    */
-  @inline def |>[B](g: A => B): CallbackTo[B] =
+  @inline def |>[B](g: A => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
     map(g)
 
   def flatMap[B](g: A => CallbackTo[B]): CallbackTo[B] =
@@ -369,8 +411,47 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
     void
 
+  @deprecated("Use when() or unless().", "0.11.0")
   def conditionally(cond: => Boolean): CallbackTo[Option[A]] =
+    when(cond)
+
+  /**
+   * Conditional execution of this callback.
+   *
+   * @param cond The condition required to be `true` for this callback to execute.
+   * @return `Some` result of the callback executed, else `None`.
+   */
+  def when(cond: => Boolean): CallbackTo[Option[A]] =
     CallbackTo(if (cond) Some(f()) else None)
+
+  /**
+   * Conditional execution of this callback.
+   * Reverse of [[when()]].
+   *
+   * @param cond The condition required to be `false` for this callback to execute.
+   * @return `Some` result of the callback executed, else `None`.
+   */
+  @inline def unless(cond: => Boolean): CallbackTo[Option[A]] =
+    when(!cond)
+
+  /**
+   * Conditional execution of this callback.
+   * Discards the result.
+   *
+   * @param cond The condition required to be `true` for this callback to execute.
+   */
+  def when_(cond: => Boolean): Callback =
+    when(cond).void
+
+  /**
+   * Conditional execution of this callback.
+   * Discards the result.
+   * Reverse of [[when_()]].
+   *
+   * @param cond The condition required to be `false` for the callback to execute.
+   */
+  @inline def unless_(cond: => Boolean): Callback =
+    when_(!cond)
 
   /**
    * Wraps this callback in a try-catch and returns either the result or the exception if one occurs.
@@ -392,7 +473,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   /**
    * Convenience-method to run additional code after this callback.
    */
-  def thenRun[B](runNext: => B): CallbackTo[B] =
+  def thenRun[B](runNext: => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
     this >> CallbackTo(runNext)
 
   /**

@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-/**
+/*
  * Scalatags version = cdf3d4797236a7d31dc413c1c8ba45466ea4a1c6
  */
 package object vdom {
@@ -22,9 +22,13 @@ package object vdom {
     final type ReactTagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.ReactTagOf[N]
     final type ReactTag                  = japgolly.scalajs.react.vdom.ReactTagOf[TopNode]
     final type TagMod                    = japgolly.scalajs.react.vdom.TagMod
+    final type ReactAttr                 = japgolly.scalajs.react.vdom.ReactAttr
+    final type ReactStyle                = japgolly.scalajs.react.vdom.ReactStyle
 
-    @inline final def TagMod   = japgolly.scalajs.react.vdom.TagMod
-    @inline final def EmptyTag = japgolly.scalajs.react.vdom.EmptyTag
+    @inline final def TagMod     = japgolly.scalajs.react.vdom.TagMod
+    @inline final def EmptyTag   = japgolly.scalajs.react.vdom.EmptyTag
+    @inline final def ReactAttr  = japgolly.scalajs.react.vdom.ReactAttr
+    @inline final def ReactStyle = japgolly.scalajs.react.vdom.ReactStyle
   }
 
   object all extends Base with Tags with Attrs {

@@ -2,7 +2,7 @@
 ======================
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.10.4"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.11.0"
 ```
 
 **Big Stuff**
@@ -116,7 +116,7 @@ val eg = ReactComponentB[Unit]("Example")
   .render(_ => ???)
   .componentWillMount(_.backend.init)
   .configure(OnUnmount.install)
-  .buildU
+  .build
 ```
 
 TimerSupport
@@ -136,5 +136,5 @@ val Timer = ReactComponentB[Unit]("Timer")
   .render_S(s => <.div("Seconds elapsed: ", s))
   .componentDidMount(c => c.backend.setInterval(c.modState(_ + 1), 1.second))
   .configure(TimerSupport.install)
-  .buildU
+  .build
 ```
