@@ -817,4 +817,8 @@ trait HtmlAttrs {
 
   /** For &lt;script&gt; and &lt;style&gt;elements. */
   final lazy val nonce = "nonce".attr
+
+  // Added in React v15
+  final lazy val citeAttr = "cite".attr // Attr suffix avoid overlap with cite tag
+  final lazy val profile = "profile".attr
 }
