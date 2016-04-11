@@ -113,6 +113,9 @@ object Addons {
     /**
      * Prints the underlying DOM manipulations, e.g. "set innerHTML" and "remove".
      */
+    def printOperations(measurements: Measurements = js.native): Report = js.native
+
+    @deprecated("Renamed to printOperations() in React v15.", "0.11.0")
     def printDOM(measurements: Measurements = js.native): Report = js.native
   }
 }
