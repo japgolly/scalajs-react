@@ -40,7 +40,13 @@ Setup
       /         "react-dom.js"
       minified  "react-dom.min.js"
       dependsOn "react-with-addons.js"
-      commonJSName "ReactDOM")
+      commonJSName "ReactDOM",
+
+    "org.webjars.bower" % "react" % "15.0.1"
+      /         "react-dom-server.js"
+      minified  "react-dom-server.min.js"
+      dependsOn "react-dom.js"
+      commonJSName "ReactDOMServer")
   ```
 
 Creating Virtual-DOM
