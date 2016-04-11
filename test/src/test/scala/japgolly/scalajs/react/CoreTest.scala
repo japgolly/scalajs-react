@@ -501,5 +501,11 @@ object CoreTest extends TestSuite {
           """<div style="devonly-test:!DEVONLY-TEST!;">123</div>""",
           "<div>123</div>")
     }
+
+    'displayName {
+      assertEq(CA.displayName, "CA")
+      val mounted = ReactTestUtils.renderIntoDocument(CA())
+      assertEq(mounted.displayName, "CA")
+    }
   }
 }

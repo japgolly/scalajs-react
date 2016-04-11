@@ -104,6 +104,9 @@ package object react extends ReactEventAliases {
   @inline implicit final class ReactExt_Mounted[N <: TopNode](private val c: Mounted[N]) extends AnyVal {
     // See comments in [[Mounted]].
     @inline def getDOMNode(): N = ReactDOM.findDOMNode(c)
+
+    def displayName: String =
+      c.asInstanceOf[js.Dynamic].constructor.displayName.asInstanceOf[String]
   }
 
   @inline implicit final class ReactExt_MountedD[N <: TopNode](private val c: Mounted[N] with WriteDirect) extends AnyVal {

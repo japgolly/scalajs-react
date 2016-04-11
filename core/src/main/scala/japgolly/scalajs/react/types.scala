@@ -219,7 +219,9 @@ trait ReactComponentSpec[Props, State, +Backend, +Node <: TopNode] extends Objec
  * A component created via [[React.createClass]].
  */
 @js.native
-trait ReactClass[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node]
+trait ReactClass[Props, State, +Backend, +Node <: TopNode] extends Object with ReactComponentTypeAuxJ[Props, State, Backend, Node] {
+  val displayName: String
+}
 
 // =====================================================================================================================
 
