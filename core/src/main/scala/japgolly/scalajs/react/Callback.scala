@@ -77,8 +77,31 @@ object Callback {
    * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
    * satisfied.
    */
+  @deprecated("Use when() or unless().", "0.11.0")
   def ifTrue(pred: Boolean, c: => Callback): Callback =
-    if (pred) c else Callback.empty
+    when(pred)(c)
+
+  /**
+   * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
+   * satisfied.
+   *
+   * Notice the condition is strict. If non-strictness is desired use `callback.when(cond)`.
+   *
+   * @param cond The condition required to be `true` for the callback to execute.
+   */
+  def when(cond: Boolean)(c: => Callback): Callback =
+    if (cond) c else Callback.empty
+
+  /**
+   * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition is already
+   * satisfied.
+   *
+   * Notice the condition is strict. If non-strictness is desired use `callback.unless(cond)`.
+   *
+   * @param cond The condition required to be `false` for the callback to execute.
+   */
+  @inline def unless(cond: Boolean)(c: => Callback): Callback =
+    when(!cond)(c)
 
   def traverse[T[X] <: TraversableOnce[X], A](ta: => T[A])(f: A => Callback): Callback =
     Callback(
@@ -388,8 +411,47 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
     void
 
+  @deprecated("Use when() or unless().", "0.11.0")
   def conditionally(cond: => Boolean): CallbackTo[Option[A]] =
+    when(cond)
+
+  /**
+   * Conditional execution of this callback.
+   *
+   * @param cond The condition required to be `true` for this callback to execute.
+   * @return `Some` result of the callback executed, else `None`.
+   */
+  def when(cond: => Boolean): CallbackTo[Option[A]] =
     CallbackTo(if (cond) Some(f()) else None)
+
+  /**
+   * Conditional execution of this callback.
+   * Reverse of [[when()]].
+   *
+   * @param cond The condition required to be `false` for this callback to execute.
+   * @return `Some` result of the callback executed, else `None`.
+   */
+  @inline def unless(cond: => Boolean): CallbackTo[Option[A]] =
+    when(!cond)
+
+  /**
+   * Conditional execution of this callback.
+   * Discards the result.
+   *
+   * @param cond The condition required to be `true` for this callback to execute.
+   */
+  def when_(cond: => Boolean): Callback =
+    when(cond).void
+
+  /**
+   * Conditional execution of this callback.
+   * Discards the result.
+   * Reverse of [[when_()]].
+   *
+   * @param cond The condition required to be `false` for the callback to execute.
+   */
+  @inline def unless_(cond: => Boolean): Callback =
+    when_(!cond)
 
   /**
    * Wraps this callback in a try-catch and returns either the result or the exception if one occurs.
