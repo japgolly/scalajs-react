@@ -45,7 +45,7 @@ package object test {
 
 
     /**
-      * Turn `&lt;div data-reactid=".0"&gt;hello&lt/div&gt;`
+      * Turn `&lt;div data-reactroot=""&gt;hello&lt/div&gt;`
       * into `&lt;div&gt;hello&lt/div&gt;`
       */
     def removeReactDataAttr(html: String): String =
