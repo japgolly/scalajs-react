@@ -38,11 +38,17 @@ object ReactComponentB {
   // 5 = ReactComponentB
   // 6 = ReactComponentB#Builder
 
-  @inline implicit def _defaultBuildStep_stateless[p](x: P[p])              = x.stateless
-  @inline implicit def _defaultBuildStep_noBackend[P,S,X <% PS[P, S]](x: X) = x.noBackend
-  @inline implicit def _defaultBuildStep_topNode  [P,S,B](x: PSBR[P, S, B]) = x.domType[TopNode]
-  @inline implicit def _defaultBuildStep_builder[P, S, B, N <: TopNode, X](x: X)(implicit f: X => ReactComponentB[P, S, B, N], w: BuildResult[P, S, B, N]) =
-    x.builder
+  @inline implicit def _defaultBuildStep_stateless[p](x: P[p]): PS[p, Unit] =
+    x.stateless
+
+  @inline implicit def _defaultBuildStep_noBackend[P, S, X](x: X)(implicit t: X => PS[P, S]): PSB[P, S, Unit] =
+    t(x).noBackend
+
+  @inline implicit def _defaultBuildStep_topNode[P, S, B](x: PSBR[P, S, B]): ReactComponentB[P, S, B, TopNode] =
+    x.domType[TopNode]
+
+  @inline implicit def _defaultBuildStep_builder[P, S, B, N <: TopNode, X](x: X)(implicit t: X => ReactComponentB[P, S, B, N], w: BuildResult[P, S, B, N]): ReactComponentB[P, S, B, N]#Builder[w.Out] =
+    t(x).builder(w)
 
   type InitStateFn  [P, S]     = DuringCallbackU[P, S, Any] => CallbackTo[S]
   type InitBackendFn[P, S, +B] = Option[BackendScope[P, S] => B]
