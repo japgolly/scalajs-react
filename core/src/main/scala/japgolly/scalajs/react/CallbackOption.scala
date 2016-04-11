@@ -212,6 +212,9 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def filter(condition: A => Boolean): CallbackOption[A] =
     CallbackOption(get.map(_ filter condition))
 
+  def filterNot(condition: A => Boolean): CallbackOption[A] =
+    CallbackOption(get.map(_ filterNot condition))
+
   def withFilter(condition: A => Boolean): CallbackOption[A] =
     filter(condition)
 
@@ -263,6 +266,24 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
    */
   @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
     void
+
+  /**
+   * Conditional execution of this callback.
+   *
+   * @param cond The condition required to be `true` for this callback to execute.
+   */
+  def when(cond: => Boolean): CallbackOption[A] =
+    new CallbackOption[A](() => if (cond) cbfn() else None)
+
+  /**
+   * Conditional execution of this callback.
+   * Reverse of [[when()]].
+   *
+   * @param cond The condition required to be `false` for this callback to execute.
+   * @return `Some` result of the callback executed, else `None`.
+   */
+  @inline def unless(cond: => Boolean): CallbackOption[A] =
+    when(!cond)
 
   def orElse(tryNext: CallbackOption[A]): CallbackOption[A] =
     CallbackOption(get flatMap {
