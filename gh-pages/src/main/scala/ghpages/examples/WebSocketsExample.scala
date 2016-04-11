@@ -47,8 +47,8 @@ object WebSocketsExample {
             "Send")),
         <.h4("Connection log"),
         <.pre(
-          ^.width := 360,
-          ^.height := 200,
+          ^.width  := 360.px,
+          ^.height := 200.px,
           ^.border := "1px solid",
           s.logLines.map(<.p(_)))       // Display log
       )

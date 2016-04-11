@@ -151,7 +151,9 @@ object ProductTableExample {
 
   class Backend($: BackendScope[_, State])  {
     def onTextChange(e: ReactEventI) =
-      $.modState(_.copy(filterText = e.target.value))
+      e.extract(_.target.value)(value =>
+        $.modState(_.copy(filterText = value)))
+
     def onCheckBox(e: ReactEvent) =
       $.modState(s => s.copy(inStockOnly = !s.inStockOnly))
   }
@@ -192,15 +194,14 @@ object ProductTableExample {
   val SearchBar = ReactComponentB[(State, Backend)]("SearchBar")
     .render_P { case (s, b) =>
       <.form(
-        <.input(
+        <.input.text(
           ^.placeholder := "Search Bar ...",
           ^.value       := s.filterText,
           ^.onChange   ==> b.onTextChange),
         <.p(
-          <.input(
-            ^.tpe     := "checkbox",
-            ^.onClick ==> b.onCheckBox,
-            "Only show products in stock")))
+          <.input.checkbox(
+            ^.onClick ==> b.onCheckBox),
+          "Only show products in stock"))
     }
     .build
 
@@ -210,7 +211,7 @@ object ProductTableExample {
     .renderPS(($, p, s) =>
       <.div(
         SearchBar((s,$.backend)),
-        ProductTable((p,s))
+        ProductTable((p, s))
       )
     ).build
 
