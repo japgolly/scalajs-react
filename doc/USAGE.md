@@ -401,8 +401,8 @@ You must create an instance of it to use it in vdom.
 Example (with props):
 ```scala
 val Hello =
-  ReactComponentB[String]("Hello <name>")
-    .render(name => <.div("Hello ", name))
+  ReactComponentB[String]("Hello")
+    .render_P(name => <.div("Hello there ", name))
     .build
 
 // Usage:
@@ -496,8 +496,8 @@ val NoArgs =
     .build
 
 val Hello =
-  ReactComponentB[String]("Hello <name>")
-    .render(name => <.div("Hello ", name))
+  ReactComponentB[String]("Hello")
+    .render_P(name => <.div("Hello there ", name))
     .build
 
 // Usage
