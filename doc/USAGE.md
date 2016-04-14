@@ -638,7 +638,7 @@ Rather than specify references using strings, the `Ref` object can provide some 
 
   class Backend($: BackendScope[Props, String]) {
     def clearAndFocusInput(): Unit =
-     $.setState("", () => myRef(t).tryFocus())
+     $.setState("", () => myRef($).tryFocus())
   }
   ```
 
