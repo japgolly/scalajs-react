@@ -13,8 +13,8 @@ object ScalajsReact extends Build {
     val Scala211      = "2.11.8"
     val ScalaJsDom    = "0.9.0"
     val ReactJs       = "15.0.1"
-    val Monocle       = "1.2.0-2"
-    val Scalaz72      = "7.2.1"
+    val Monocle       = "1.2.1"
+    val Scalaz72      = "7.2.2"
     val MTest         = "0.4.3"
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.3.0"
@@ -201,7 +201,7 @@ object ScalajsReact extends Build {
     .settings(libraryDependencies += monocleLib("core"))
 
   def monocleLib(name: String) =
-    "com.github.japgolly.fork.monocle" %%%! s"monocle-$name" % Ver.Monocle
+    "com.github.julien-truffaut" %%%! s"monocle-$name" % Ver.Monocle
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
