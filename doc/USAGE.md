@@ -532,12 +532,12 @@ val Hello2 = Hello.withDefaultProps("Anonymous")
 
 #### Rendering
 
-To render a component, it's the same as React. Use `React.render` and specify a target in the DOM.
+To render a component, it's the same as React. Use `ReactDOM.render` and specify a target in the DOM.
 
 ```scala
 import org.scalajs.dom.document
 
-React.render(NoArgs(), document.body)
+ReactDOM.render(NoArgs(), document.body)
 ```
 
 React Extensions
