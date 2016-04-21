@@ -10,7 +10,7 @@ package object extra {
     if (!test)
       dom.console.warn(msg)
 
-  type ~=>[A, B] = ReusableFn[A, B]
+  type ~=>[A, +B] = ReusableFn[A, B]
 
   @inline implicit class ReactExtrasAnyExt[A](private val self: A) extends AnyVal {
     @inline def ~=~(a: A)(implicit r: Reusability[A]): Boolean = r.test(self, a)

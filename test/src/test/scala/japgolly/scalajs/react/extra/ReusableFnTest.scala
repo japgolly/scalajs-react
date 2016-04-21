@@ -102,5 +102,24 @@ object ReusableFnTest extends TestSuite {
       assert(f3 ~/~ g.fnA(3))
       assert(f3() == 6)
     }
+
+    'variance {
+      import TestUtil.Inference._
+
+      'fn1 {
+        'o {
+          test[Int  => Medium].usableAs[Int  => Big]
+          test[Int ~=> Medium].usableAs[Int ~=> Big]
+          compileError("test[Int  => Medium].usableAs[Int  => Small]")
+          compileError("test[Int ~=> Medium].usableAs[Int ~=> Small]")
+        }
+//        'i1 {
+//          test[Medium  => Int].usableAs[Small  => Int]
+//          test[Medium ~=> Int].usableAs[Small ~=> Int]
+//        }
+      }
+
+    }
+
   }
 }
