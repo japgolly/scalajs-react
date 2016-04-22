@@ -113,10 +113,12 @@ object ReusableFnTest extends TestSuite {
           compileError("test[Int  => Medium].usableAs[Int  => Small]")
           compileError("test[Int ~=> Medium].usableAs[Int ~=> Small]")
         }
-//        'i1 {
-//          test[Medium  => Int].usableAs[Small  => Int]
-//          test[Medium ~=> Int].usableAs[Small ~=> Int]
-//        }
+        'i1 {
+          test[Medium  => Int].usableAs[Small  => Int]
+          test[Medium ~=> Int].usableAs[Small ~=> Int]
+          compileError("test[Medium  => Int].usableAs[Big  => Int]")
+          compileError("test[Medium ~=> Int].usableAs[Big ~=> Int]")
+        }
       }
 
     }

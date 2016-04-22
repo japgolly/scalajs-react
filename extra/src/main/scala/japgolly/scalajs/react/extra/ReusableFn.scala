@@ -13,13 +13,13 @@ import japgolly.scalajs.react._
  *
  * @since 0.9.0
  */
-sealed abstract class ReusableFn[A, +B] extends AbstractFunction1[A, B] {
-  private[extra] def reusable[BB >: B]: PartialFunction[ReusableFn[A, BB], Boolean]
+sealed abstract class ReusableFn[-A, +B] extends AbstractFunction1[A, B] {
+  private[extra] def reusable[AA <: A, BB >: B]: PartialFunction[AA ~=> BB, Boolean]
 
-  def asVar(value: A)(implicit r: Reusability[A], ev: ReusableFn[A, B] <:< ReusableFn[A, Callback]): ReusableVar[A] =
+  def asVar[AA <: A](value: AA)(implicit r: Reusability[AA], ev: (A ~=> B) <:< (AA ~=> Callback)): ReusableVar[AA] =
     new ReusableVar(value, ev(this))(r)
 
-  def asVarR(value: A, r: Reusability[A])(implicit ev: ReusableFn[A, B] <:< ReusableFn[A, Callback]): ReusableVar[A] =
+  def asVarR[AA <: A](value: AA, r: Reusability[AA])(implicit ev: (A ~=> B) <:< (AA ~=> Callback)): ReusableVar[AA] =
     asVar(value)(r, ev)
 
   def dimap[C, D](f: (A => B) => C => D): C ~=> D =
@@ -31,7 +31,7 @@ sealed abstract class ReusableFn[A, +B] extends AbstractFunction1[A, B] {
   def contramap[C](f: C => A): C ~=> B =
     dimap(f.andThen)
 
-  def fnA[BB >: B](a: A)(implicit ra: Reusability[A]): ReusableFnA[A, BB] =
+  def fnA[AA <: A, BB >: B](a: AA)(implicit ra: Reusability[AA]): ReusableFnA[AA, BB] =
     new ReusableFnA(a, this)
 }
 
@@ -98,44 +98,44 @@ object ReusableFn {
   // ===================================================================================================================
   private type R[A] = Reusability[A]
 
-  private class Fn1[Y, +Z](val f: Y => Z) extends ReusableFn[Y, Z] {
+  private class Fn1[-Y, +Z](val f: Y => Z) extends ReusableFn[Y, Z] {
     override def apply(a: Y) = f(a)
-    override private[extra] def reusable[O >: Z] = { case x: Fn1[Y, O] => f eq x.f }
+    override private[extra] def reusable[I <: Y, O >: Z] = { case x: Fn1[I, O] => f eq x.f }
   }
 
-  private class Fn2[A: R, Y, +Z](val f: (A, Y) => Z) extends ReusableFn[A, Y ~=> Z] {
+  private class Fn2[A: R, -Y, +Z](val f: (A, Y) => Z) extends ReusableFn[A, Y ~=> Z] {
     override def apply(a: A) = new Cur1(a, f)
-    override private[extra] def reusable[O >: (Y ~=> Z)] = { case x: Fn2[A, _, _] => f eq x.f }
+    override private[extra] def reusable[I <: A, O >: (Y ~=> Z)] = { case x: Fn2[I, _, _] => f eq x.f }
   }
 
-  private class Fn3[A: R, B: R, Y, +Z](val f: (A, B, Y) => Z) extends ReusableFn[A, B ~=> (Y ~=> Z)] {
+  private class Fn3[A: R, B: R, -Y, +Z](val f: (A, B, Y) => Z) extends ReusableFn[A, B ~=> (Y ~=> Z)] {
     private val c2 = cur2(f)
     override def apply(a: A) = new Cur1(a, c2)
-    override private[extra] def reusable[O >: (B ~=> (Y ~=> Z))] = { case x: Fn3[A, _, _, _] => f eq x.f }
+    override private[extra] def reusable[I <: A, O >: (B ~=> (Y ~=> Z))] = { case x: Fn3[I, _, _, _] => f eq x.f }
   }
 
-  private class Fn4[A: R, B: R, C: R, Y, +Z](val f: (A, B, C, Y) => Z) extends ReusableFn[A, B ~=> (C ~=> (Y ~=> Z))] {
+  private class Fn4[A: R, B: R, C: R, -Y, +Z](val f: (A, B, C, Y) => Z) extends ReusableFn[A, B ~=> (C ~=> (Y ~=> Z))] {
     private val c3 = cur3(f)
     private val c2 = cur2(c3)
     override def apply(a: A) = new Cur1(a, c2)
-    override private[extra] def reusable[O >: (B ~=> (C ~=> (Y ~=> Z)))] = { case x: Fn4[A, _, _, _, _] => f eq x.f }
+    override private[extra] def reusable[I <: A, O >: (B ~=> (C ~=> (Y ~=> Z)))] = { case x: Fn4[I, _, _, _, _] => f eq x.f }
   }
 
-  private class Fn5[A: R, B: R, C: R, D: R, Y, +Z](val f: (A, B, C, D, Y) => Z) extends ReusableFn[A, B ~=> (C ~=> (D ~=> (Y ~=> Z)))] {
+  private class Fn5[A: R, B: R, C: R, D: R, -Y, +Z](val f: (A, B, C, D, Y) => Z) extends ReusableFn[A, B ~=> (C ~=> (D ~=> (Y ~=> Z)))] {
     private val c4 = cur4(f)
     private val c3 = cur3(c4)
     private val c2 = cur2(c3)
     override def apply(a: A) = new Cur1(a, c2)
-    override private[extra] def reusable[O >: (B ~=> (C ~=> (D ~=> (Y ~=> Z))))] = { case x: Fn5[A, _, _, _, _, _] => f eq x.f }
+    override private[extra] def reusable[I <: A, O >: (B ~=> (C ~=> (D ~=> (Y ~=> Z))))] = { case x: Fn5[I, _, _, _, _, _] => f eq x.f }
   }
 
-  private class Fn6[A: R, B: R, C: R, D: R, E: R, Y, +Z](val f: (A, B, C, D, E, Y) => Z) extends ReusableFn[A, B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))] {
+  private class Fn6[A: R, B: R, C: R, D: R, E: R, -Y, +Z](val f: (A, B, C, D, E, Y) => Z) extends ReusableFn[A, B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))] {
     private val c5 = cur5(f)
     private val c4 = cur4(c5)
     private val c3 = cur3(c4)
     private val c2 = cur2(c3)
     override def apply(a: A) = new Cur1(a, c2)
-    override private[extra] def reusable[O >: (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z)))))] = { case x: Fn6[A, _, _, _, _, _, _] => f eq x.f }
+    override private[extra] def reusable[I <: A, O >: (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z)))))] = { case x: Fn6[I, _, _, _, _, _, _] => f eq x.f }
   }
 
   @inline private def cur2[A:R, B:R,                Y, Z](f: (A,B,      Y) => Z): (A,B      ) => (Y ~=> Z) = new Cur2(_,_,      f)
@@ -143,29 +143,29 @@ object ReusableFn {
   @inline private def cur4[A:R, B:R, C:R, D:R,      Y, Z](f: (A,B,C,D,  Y) => Z): (A,B,C,D  ) => (Y ~=> Z) = new Cur4(_,_,_,_,  f)
   @inline private def cur5[A:R, B:R, C:R, D:R, E:R, Y, Z](f: (A,B,C,D,E,Y) => Z): (A,B,C,D,E) => (Y ~=> Z) = new Cur5(_,_,_,_,_,f)
 
-  private class Cur1[A: R, Y, +Z](val a: A, val f: (A, Y) => Z) extends ReusableFn[Y, Z] {
+  private class Cur1[A: R, -Y, +Z](val a: A, val f: (A, Y) => Z) extends ReusableFn[Y, Z] {
     override def apply(y: Y): Z = f(a, y)
-    override private[extra] def reusable[ZZ >: Z] = { case x: Cur1[A, Y, Z] => (f eq x.f) && (a ~=~ x.a) }
+    override private[extra] def reusable[I <: Y, O >: Z] = { case x: Cur1[A, _, _] => (f eq x.f) && (a ~=~ x.a) }
   }
 
-  private class Cur2[A: R, B: R, Y, +Z](val a: A, val b: B, val f: (A, B, Y) => Z) extends ReusableFn[Y, Z] {
+  private class Cur2[A: R, B: R, -Y, +Z](val a: A, val b: B, val f: (A, B, Y) => Z) extends ReusableFn[Y, Z] {
     override def apply(y: Y): Z = f(a, b, y)
-    override private[extra] def reusable[ZZ >: Z] = { case x: Cur2[A, B, Y, Z] => (f eq x.f) && (a ~=~ x.a) && (b ~=~ x.b) }
+    override private[extra] def reusable[I <: Y, O >: Z] = { case x: Cur2[A, B, _, _] => (f eq x.f) && (a ~=~ x.a) && (b ~=~ x.b) }
   }
 
-  private class Cur3[A: R, B: R, C: R, Y, +Z](val a: A, val b: B, val c: C, val f: (A, B, C, Y) => Z) extends ReusableFn[Y, Z] {
+  private class Cur3[A: R, B: R, C: R, -Y, +Z](val a: A, val b: B, val c: C, val f: (A, B, C, Y) => Z) extends ReusableFn[Y, Z] {
     override def apply(y: Y): Z = f(a, b, c, y)
-    override private[extra] def reusable[ZZ >: Z] = { case x: Cur3[A, B, C, Y, Z] => (f eq x.f) && (a ~=~ x.a) && (b ~=~ x.b) && (c ~=~ x.c) }
+    override private[extra] def reusable[I <: Y, O >: Z] = { case x: Cur3[A, B, C, _, _] => (f eq x.f) && (a ~=~ x.a) && (b ~=~ x.b) && (c ~=~ x.c) }
   }
 
-  private class Cur4[A: R, B: R, C: R, D: R, Y, +Z](val a: A, val b: B, val c: C, val d: D, val f: (A, B, C, D, Y) => Z) extends ReusableFn[Y, Z] {
+  private class Cur4[A: R, B: R, C: R, D: R, -Y, +Z](val a: A, val b: B, val c: C, val d: D, val f: (A, B, C, D, Y) => Z) extends ReusableFn[Y, Z] {
     override def apply(y: Y): Z = f(a, b, c, d, y)
-    override private[extra] def reusable[ZZ >: Z] = { case x: Cur4[A, B, C, D, Y, Z] => (f eq x.f) && (a ~=~ x.a) && (b ~=~ x.b) && (c ~=~ x.c) && (d ~=~ x.d) }
+    override private[extra] def reusable[I <: Y, O >: Z] = { case x: Cur4[A, B, C, D, _, _] => (f eq x.f) && (a ~=~ x.a) && (b ~=~ x.b) && (c ~=~ x.c) && (d ~=~ x.d) }
   }
 
-  private class Cur5[A: R, B: R, C: R, D: R, E: R, Y, +Z](val a: A, val b: B, val c: C, val d: D, val e: E, val f: (A, B, C, D, E, Y) => Z) extends ReusableFn[Y, Z] {
+  private class Cur5[A: R, B: R, C: R, D: R, E: R, -Y, +Z](val a: A, val b: B, val c: C, val d: D, val e: E, val f: (A, B, C, D, E, Y) => Z) extends ReusableFn[Y, Z] {
     override def apply(y: Y): Z = f(a, b, c, d, e, y)
-    override private[extra] def reusable[ZZ >: Z] = { case x: Cur5[A, B, C, D, E, Y, Z] => (f eq x.f) && (a ~=~ x.a) && (b ~=~ x.b) && (c ~=~ x.c) && (d ~=~ x.d) && (e ~=~ x.e) }
+    override private[extra] def reusable[I <: Y, O >: Z] = { case x: Cur5[A, B, C, D, E, _, _] => (f eq x.f) && (a ~=~ x.a) && (b ~=~ x.b) && (c ~=~ x.c) && (d ~=~ x.d) && (e ~=~ x.e) }
   }
 }
 
