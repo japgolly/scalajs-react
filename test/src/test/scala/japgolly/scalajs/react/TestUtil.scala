@@ -104,8 +104,16 @@ object TestUtil {
       def apply[B](f: A => B) = new {
         def expect[C](implicit ev: B =:= C): Unit = ()
         def expect_<[C](implicit ev: B <:< C): Unit = ()
+        def expect_>[C](implicit ev: C <:< B): Unit = ()
       }
+      def expect_<[C](implicit ev: A <:< C): Unit = ()
+      def expect_>[C](implicit ev: C <:< A): Unit = ()
+      def usableAs[B](implicit ev: A => B): Unit = ()
     }
+
+    trait Big
+    trait Medium <: Big
+    trait Small <: Medium
 
     trait M[A]
     trait P
