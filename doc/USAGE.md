@@ -401,8 +401,8 @@ You must create an instance of it to use it in vdom.
 Example (with props):
 ```scala
 val Hello =
-  ReactComponentB[String]("Hello <name>")
-    .render(name => <.div("Hello ", name))
+  ReactComponentB[String]("Hello")
+    .render_P(name => <.div("Hello there ", name))
     .build
 
 // Usage:
@@ -496,8 +496,8 @@ val NoArgs =
     .build
 
 val Hello =
-  ReactComponentB[String]("Hello <name>")
-    .render(name => <.div("Hello ", name))
+  ReactComponentB[String]("Hello")
+    .render_P(name => <.div("Hello there ", name))
     .build
 
 // Usage
@@ -532,12 +532,12 @@ val Hello2 = Hello.withDefaultProps("Anonymous")
 
 #### Rendering
 
-To render a component, it's the same as React. Use `React.render` and specify a target in the DOM.
+To render a component, it's the same as React. Use `ReactDOM.render` and specify a target in the DOM.
 
 ```scala
 import org.scalajs.dom.document
 
-React.render(NoArgs(), document.body)
+ReactDOM.render(NoArgs(), document.body)
 ```
 
 React Extensions
@@ -638,7 +638,7 @@ Rather than specify references using strings, the `Ref` object can provide some 
 
   class Backend($: BackendScope[Props, String]) {
     def clearAndFocusInput(): Unit =
-     $.setState("", () => myRef(t).tryFocus())
+     $.setState("", () => myRef($).tryFocus())
   }
   ```
 
