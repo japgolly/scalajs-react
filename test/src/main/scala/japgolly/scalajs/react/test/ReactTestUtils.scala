@@ -160,6 +160,16 @@ case class KeyboardEventData(key             : String  = "",
   def meta  = copy(metaKey  = true)
   def shift = copy(shiftKey = true)
 
+  def desc: String = {
+    var s = key
+    if (s.isEmpty) s = s"($keyCode)"
+    if (shiftKey ) s = "Shift-" + s
+    if (altKey   ) s = "Alt-" + s
+    if (ctrlKey  ) s = "Ctrl-" + s
+    if (metaKey  ) s = "Meta-" + s
+    s
+  }
+
   def toJs: Object = {
     val o = Dynamic.literal()
     o.updateDynamic("key"             )(key             )
