@@ -154,6 +154,12 @@ case class KeyboardEventData(key             : String  = "",
                              charCode        : Int     = 0,
                              which           : Int     = 0,
                              defaultPrevented: Boolean = false) {
+
+  def alt   = copy(altKey   = true)
+  def ctrl  = copy(ctrlKey  = true)
+  def meta  = copy(metaKey  = true)
+  def shift = copy(shiftKey = true)
+
   def toJs: Object = {
     val o = Dynamic.literal()
     o.updateDynamic("key"             )(key             )
@@ -195,6 +201,12 @@ case class MouseEventData(screenX         : Double  = 0,
                           button          : Int     = 0,
                           buttons         : Int     = 0,
                           defaultPrevented: Boolean = false) {
+
+  def alt   = copy(altKey   = true)
+  def ctrl  = copy(ctrlKey  = true)
+  def meta  = copy(metaKey  = true)
+  def shift = copy(shiftKey = true)
+
   def toJs: Object = {
     val o = Dynamic.literal()
     o.updateDynamic("screenX"         )(screenX         )
