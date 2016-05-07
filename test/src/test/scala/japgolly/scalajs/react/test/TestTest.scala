@@ -2,6 +2,7 @@ package japgolly.scalajs.react.test
 
 import sizzle.Sizzle
 import japgolly.scalajs.react.vdom.ReactAttr
+import org.scalajs.dom.document
 import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
 import utest._
 import japgolly.scalajs.react._
@@ -181,6 +182,27 @@ object TestTest extends TestSuite {
         assert(m.isMounted())
       }
       assert(!m.isMounted())
+    }
+
+    'withRenderedIntoBody {
+      def inspectBody() = document.body.childElementCount
+      val body1 = inspectBody()
+      var m: IC.Mounted = null
+      ReactTestUtils.withRenderedIntoBody(IC()) { mm =>
+        m = mm
+        val n = m.getDOMNode()
+        assert(ReactTestUtils.removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
+        assert(m.isMounted())
+
+        // Benefits of body over detached
+        val i = inputRef(mm).get
+        i.focus()
+        assert(document.activeElement == i)
+        i.blur()
+        assert(document.activeElement != i)
+      }
+      val body2 = inspectBody()
+      assert(!m.isMounted(), body1 == body2)
     }
   }
 }
