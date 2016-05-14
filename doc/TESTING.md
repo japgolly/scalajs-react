@@ -133,10 +133,10 @@ ComponentTester(Example)("First props") { tester =>
   assertHtml("First props", 0)
 
   setState(2)
-  assert("First props", 2)
+  assertHtml("First props", 2)
 
   setProps("Second props")
-  assert("Second props", 2)
+  assertHtml("Second props", 2)
 }
 ```
 
