@@ -139,19 +139,36 @@ object ScalajsReact extends Build {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, test, scalaz72, monocle, extra, ghpagesMacros, ghpages)
+    .aggregate(neo, core, test, scalaz72, monocle, extra, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
+      "n"   -> "project neo",
       "L"   -> "root/publishLocal",
       "C"   -> "root/clean",
       "T"   -> ";root/clean;root/test",
       "c"   -> "compile",
       "tc"  -> "test:compile",
       "t"   -> "test",
-      "to"  -> "test/test-only",
+      "tq"  -> "testQuick",
+      "to"  -> "test-only",
       "cc"  -> ";clean;compile",
       "ctc" -> ";clean;test:compile",
       "ct"  -> ";clean;test"))
+
+
+
+
+  lazy val neo = project
+    .configure(commonSettings, definesMacros, utestSettings, InBrowserTesting.js)
+    .settings(
+      name := "neo",
+      libraryDependencies += "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
+      jsDependencies += (ProvidedJS / "component-class.js" dependsOn "react-dom.js") % Test,
+      scalacOptions in Test += "-language:reflectiveCalls"
+    )
+
+
+
 
   // ==============================================================================================
   lazy val core = project
