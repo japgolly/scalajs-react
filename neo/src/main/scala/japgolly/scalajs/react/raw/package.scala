@@ -9,8 +9,8 @@ package object raw {
   type JsNumber = Byte | Short | Int | Float | Double
 
   type Key = String | Boolean | JsNumber | Null
-  type Ref = String | Null
 
+  type Ref = String | Null
 
   type ReactNode = ReactElement | ReactFragment | ReactText
 
@@ -37,7 +37,12 @@ package object raw {
     def ref: Ref
   }
 
-  type ReactFragment = js.Array[ReactNode | ReactEmpty]
+  // Type aliases can't be recursive
+  // type ReactFragment = js.Array[ReactNode | ReactEmpty]
+  @js.native
+  trait ReactFragment extends js.Any
+  @inline implicit def ReactFragment[A](a: A)(implicit w: A => js.Array[ReactNode | ReactEmpty]): ReactFragment =
+    w(a).asInstanceOf[ReactFragment]
 
   type ReactNodeList = ReactNode | ReactEmpty
 
@@ -45,7 +50,7 @@ package object raw {
 
   type ReactEmpty = Null | js.UndefOr[Nothing] | Boolean
 
-  type ReactClass[Props <: js.Object] = Props => ReactComponent[Props]
+  type ReactClass[Props <: js.Object] = js.Function1[Props, ReactComponent[Props]]
 
   @js.native
   trait ReactComponent[+Props <: js.Object] extends js.Object {
@@ -53,26 +58,6 @@ package object raw {
     def render(): ReactElement
   }
 
-  type ReactFunctionalComponent[+Props <: js.Object]  = Props => ReactElement
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  @js.native
-  object ReactDOM extends ReactDOM
-
-  @js.native
-  trait ReactDOM extends js.Object {
-
-    final type Container = dom.html.Element | dom.svg.Element
-
-    def render(element  : ReactElement,
-               container: Container,
-               callback : js.ThisFunction = js.native): ReactComponent[_] = js.native
-
-    def unmountComponentAtNode(container: Container): Boolean = js.native
-
-    def findDOMNode(component: ReactComponent[_]): Container = js.native
-
-  }
+  type ReactFunctionalComponent[-Props <: js.Object] = js.Function1[Props, ReactElement]
 }
 
