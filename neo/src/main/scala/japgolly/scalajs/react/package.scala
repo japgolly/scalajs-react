@@ -321,22 +321,25 @@ package object react {
 
     case class PSB[P, S, Backend](name: String, s: Box[S], backendFn: NewBackendFn[P, S, Backend]) {
 
-      def render(r: Mounted[P, S, Backend] => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] =
+      def render(r: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] =
         new Builder[P, S, Backend, w.Out](name, s, backendFn, r, w)
 
-      def render_P(r: P => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] = render($ => r($.props))(w)
-      def render_S(r: S => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] = render($ => r($.state))(w)
+      def render_P(r: P => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] =
+        render($ => r($.props.runNow()))(w)
+
+      def render_S(r: S => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] =
+        render($ => r($.state.runNow()))(w)
     }
 
     val fieldMounted = "m"
 
-    def mountedFromJs[P, S, Backend](rc: raw.ReactComponent): Mounted[P, S, Backend] =
-      rc.asInstanceOf[js.Dynamic].selectDynamic(fieldMounted).asInstanceOf[Mounted[P, S, Backend]]
+    def mountedFromJs[P, S, Backend](rc: raw.ReactComponent): Mounted[CallbackTo, P, S, Backend] =
+      rc.asInstanceOf[js.Dynamic].selectDynamic(fieldMounted).asInstanceOf[Mounted[CallbackTo, P, S, Backend]]
 
     case class Builder[P, S, Backend, O](name: String,
                                          s: Box[S],
                                          backendFn: NewBackendFn[P, S, Backend],
-                                         render: Mounted[P, S, Backend] => raw.ReactElement,
+                                         render: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement,
                                          w: BuildResult.Aux[P, S, Backend, O]) {
       def build: O = {
 
@@ -345,7 +348,7 @@ package object react {
         for (n <- Option(name))
           spec("displayName") = n
 
-        def withMounted[A](f: Mounted[P, S, Backend] => A): js.ThisFunction0[raw.ReactComponent, A] =
+        def withMounted[A](f: Mounted[CallbackTo, P, S, Backend] => A): js.ThisFunction0[raw.ReactComponent, A] =
           (rc: raw.ReactComponent) =>
             f(mountedFromJs(rc))
 
@@ -380,7 +383,7 @@ package object react {
         val componentWillMountFn: js.ThisFunction0[raw.ReactComponent, Unit] =
           (rc: raw.ReactComponent) => {
             val mjs = CompJs3.Mounted[Box[P], Box[S]](rc)
-            val m = new Mounted[P, S, Backend](mjs)
+            val m = new Mounted[CallbackTo, P, S, Backend](mjs)
             m._backend = backendFn(m.asInstanceOf[BackendScope[P, S]])
             rc.asInstanceOf[js.Dynamic].updateDynamic(fieldMounted)(m.asInstanceOf[js.Any])
           }
@@ -441,40 +444,48 @@ package object react {
       def children: raw.ReactNodeList =
         jsInstance.children
 
-      def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted[P, S, B] = {
+      def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted[CallbackTo, P, S, B] = {
         val rc = raw.ReactDOM.render(jsInstance.rawElement, container, callback.toJsFn)
         mountedFromJs(rc)
       }
     }
 
-    type BackendScope[P, S] = Mounted[P, S, Null]
-    class Mounted[P, S, +Backend](jsInstance: CompJs3.Mounted[Box[P], Box[S]]) {
+    type BackendScope[P, S] = Mounted[CallbackTo, P, S, Null]
+
+    class Mounted[F[_], P, S, +Backend](jsInstance: CompJs3.Mounted[Box[P], Box[S]])
+                                       (implicit F: Effect[F]) {
+
+//      def directAccess: Mounted[Effect.Id, P, S, Backend] = {
+//        val m = new Mounted[Effect.Id, P, S, Backend](jsInstance)
+//        m._backend = _backend
+//        m
+//      }
 
       private[react] var _backend: Any = _
 
       def backend: Backend =
         _backend.asInstanceOf[Backend]
 
-      final def isMounted(): Boolean =
-        jsInstance.isMounted()
+      final def isMounted: F[Boolean] =
+        F point jsInstance.isMounted()
 
-      final def props: P =
-        jsInstance.props.a
+      final def props: F[P] =
+        F point jsInstance.props.a
 
-      final def children: raw.ReactNodeList =
-        jsInstance.children
+      final def children: F[raw.ReactNodeList] =
+        F point jsInstance.children
 
-      final def state: S =
-        jsInstance.state.a
+      final def state: F[S] =
+        F point jsInstance.state.a
 
-      final def setState(newState: S, callback: Callback = Callback.empty): Unit =
-        jsInstance.setState(Box(newState), callback)
+      final def setState(newState: S, callback: Callback = Callback.empty): F[Unit] =
+        F point jsInstance.setState(Box(newState), callback)
 
-      final def modState(mod: S => S, callback: Callback = Callback.empty): Unit =
-        jsInstance.modState(s => Box(mod(s.a)), callback)
+      final def modState(mod: S => S, callback: Callback = Callback.empty): F[Unit] =
+        F point jsInstance.modState(s => Box(mod(s.a)), callback)
 
-      final def getDOMNode(): dom.Element =
-        jsInstance.getDOMNode()
+      final def getDOMNode: F[dom.Element] =
+        F point jsInstance.getDOMNode()
     }
 
   }
