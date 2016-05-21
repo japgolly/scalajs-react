@@ -24,6 +24,8 @@ Bad approaches
 
 package object react {
 
+  type Callback = CallbackTo[Unit]
+
   /*
   case class CtorLike[In, P, Out](apply: (In, P) => Out) extends AnyVal
 
