@@ -10,19 +10,10 @@ object React extends React
 @js.native
 trait React extends js.Object {
 
-//  def createClass[P,S,B,N <: TopNode](spec: ReactComponentSpec[P,S,B,N]): ReactClass[P,S,B,N] = js.native
+  def createClass(spec: ReactComponentSpec): ReactClass = js.native
 
 //  def createFactory[P,S,B,N <: TopNode](t: ReactClass[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
 //  def createFactory[P <: js.Any, S <: js.Any, N <: TopNode](t: JsComponentType[P, S, N]): JsComponentC[P, S, N] = js.native
-
-//  def createElement[P,S,B,N <: TopNode](t: ReactClass[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
-//  def createElement(tag: String, props: Object, children: ReactNode*): ReactDOMElement = js.native
-//  def createElement(fc: FunctionalComponent[Nothing], props: Object, children: ReactNode*): ReactDOMElement = js.native
-//  def createElement(fc: FunctionalComponent.WithChildren[Nothing], props: Object, children: ReactNode*): ReactDOMElement = js.native
-
-//  def createElement(`type`: String | ReactClass                                            ): ReactElement = js.native
-//  def createElement(`type`: String | ReactClass, props: js.Object                          ): ReactElement = js.native
-//  def createElement(`type`: String | ReactClass, props: js.Object, children: ReactNodeList*): ReactElement = js.native
 
   def createElement(`type`: String                                            ): ReactDOMElement = js.native
   def createElement(`type`: String, props: js.Object                          ): ReactDOMElement = js.native
@@ -49,7 +40,7 @@ trait ReactDOM extends js.Object {
 
   def render(element  : ReactElement,
              container: Container,
-             callback : js.ThisFunction = js.native): ReactComponent = js.native
+             callback : js.Function0[Unit] = js.native): ReactComponent = js.native
 
   def unmountComponentAtNode(container: dom.Node): Boolean = js.native
 

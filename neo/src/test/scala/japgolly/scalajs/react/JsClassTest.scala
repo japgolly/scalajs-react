@@ -1,13 +1,10 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.raw.ReactComponent
-
 import scalajs.js
 import utest._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.DebugJs._
 import japgolly.scalajs.react.test.TestUtil._
-import org.scalajs.dom.document
 
 object JsClassPTest extends TestSuite {
 

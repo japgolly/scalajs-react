@@ -176,8 +176,10 @@ package object react {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   object CompJs3 {
-    type Constructor[P <: js.Object, S <: js.Object] = CompJs3X.Constructor[P, S, CompJs3X.Mounted[P, S, raw.ReactComponent]]
-    type Constructor_NoProps[S <: js.Object] = CompJs3X.Constructor_NoProps[S, CompJs3X.Mounted[Null, S, raw.ReactComponent]]
+    type Constructor_NoProps[S <: js.Object] = CompJs3X.Constructor_NoProps[S, Mounted[Null, S]]
+    type Constructor[P <: js.Object, S <: js.Object] = CompJs3X.Constructor[P, S, Mounted[P, S]]
+    type Unmounted  [P <: js.Object, S <: js.Object] = CompJs3X.Unmounted  [P, S, Mounted[P, S]]
+    type Mounted    [P <: js.Object, S <: js.Object] = CompJs3X.Mounted    [P, S, raw.ReactComponent]
 
     def Constructor[P <: js.Object, S <: js.Object](r: raw.ReactClass): Constructor[P, S] =
       CompJs3X.Constructor(r)(CompJs3X.Mounted[P, S, raw.ReactComponent])
@@ -224,8 +226,8 @@ package object react {
       def mapMounted[MM](f: M => MM): Unmounted[P, S, MM] =
         new Unmounted(rawElement, f compose m)
 
-      def renderIntoDOM(container: raw.ReactDOM.Container, callback: js.ThisFunction = null): M =
-        m(raw.ReactDOM.render(rawElement, container, callback))
+      def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): M =
+        m(raw.ReactDOM.render(rawElement, container, callback.toJsFn))
     }
 
     def Mounted[P <: js.Object, S <: js.Object, Raw <: raw.ReactComponent](r: Raw): Mounted[P, S, Raw] =
@@ -260,6 +262,132 @@ package object react {
 
       final def getDOMNode(): dom.Element =
         raw.ReactDOM.findDOMNode(rawInstance)
+    }
+
+  }
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  object CompScala {
+
+    /**
+      * Implicit that automatically determines the type of component to build.
+      */
+    sealed abstract class BuildResult[P, S] {
+      type Out
+      val build: CompJs3.Constructor[Box[P], Box[S]] => Out
+
+      final def apply(c: raw.ReactClass): Out =
+        build(CompJs3.Constructor(c))
+    }
+
+    sealed abstract class BuildResultLowPri {
+      /** Default case - Props are required in the component constructor. */
+      implicit def buildResultId[P, S]: BuildResult.Aux[P, S, Ctor[P, S]] =
+        BuildResult(Ctor(_))
+    }
+
+    object BuildResult extends BuildResultLowPri {
+      type Aux[P, S, O] = BuildResult[P, S] {type Out = O}
+
+      @inline def apply[P, S, O](f: CompJs3.Constructor[Box[P], Box[S]] => O): Aux[P, S, O] =
+        new BuildResult[P, S] {
+          override type Out = O
+          override val build = f
+        }
+
+      /** Special case - When Props = Unit, don't ask for props in the component constructor. */
+      implicit def buildResultUnit[S]: BuildResult.Aux[Unit, S, Ctor_NoProps[S]] =
+        BuildResult(Ctor_NoProps(_))
+    }
+
+    // -------------------------------------------------------------------------------------------------------------------
+
+    def build[P](displayName: String) = new {
+      def initialState[S](s: S) = PS[P, S](displayName, Box(s))
+      def stateless = PS[P, Unit](displayName, Box.Unit)
+    }
+
+    case class PS[P, S](displayName: String, s: Box[S]) {
+      def render_P(r: P => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] = render_PS((p, _) => r(p))(w)
+      def render_S(r: S => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] = render_PS((_, s) => r(s))(w)
+
+      def render_PS(r: (P, S) => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] =
+        new Builder[P, S, w.Out](displayName, s, r, w)
+    }
+
+    case class Builder[P, S, O](displayName: String, s: Box[S], r: (P, S) => raw.ReactElement, w: BuildResult.Aux[P, S, O]) {
+      def build: O = {
+
+        val getInitialStateFn: js.Function0[Box[S]] =
+          () => s
+
+        val renderFn: js.ThisFunction0[js.Any, raw.ReactElement] =
+          (`this`: js.Any) => {
+            // TODO Store an instance of Mounted[P, S] & use everywhere?
+            val m = `this`.asInstanceOf[raw.ReactComponent]
+            val p = m.props.asInstanceOf[Box[P]].a
+            val s = m.state.asInstanceOf[Box[S]].a
+            r(p, s)
+          }
+
+        val spec = js.Dictionary.empty[js.Any]
+        spec.update("displayName", displayName)
+        spec.update("getInitialState", getInitialStateFn)
+        spec.update("render", renderFn)
+
+        w(
+          raw.React.createClass(
+            spec.asInstanceOf[raw.ReactComponentSpec]))
+      }
+    }
+
+    case class Ctor[P, S](jsInstance: CompJs3.Constructor[Box[P], Box[S]]) {
+      def apply(p: P) =
+        new Unmounted[P, S](jsInstance(Box(p)))
+    }
+    case class Ctor_NoProps[S](jsInstance: CompJs3.Constructor[Box[Unit], Box[S]]) {
+      private val instance: Unmounted[Unit, S] =
+        new Unmounted[Unit, S](jsInstance(Box.Unit))
+
+      def apply() = instance
+    }
+
+    class Unmounted[P, S](jsInstance: CompJs3.Unmounted[Box[P], Box[S]]) {
+      def key: Option[Key] =
+        jsInstance.key
+
+      def ref: Option[String] =
+        jsInstance.ref
+
+      def props: P =
+        jsInstance.props.a
+
+      def children: raw.ReactNodeList =
+        jsInstance.children
+
+      def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty) =
+        new Mounted[P, S](jsInstance.renderIntoDOM(container, callback))
+    }
+
+    class Mounted[P, S](jsInstance: CompJs3.Mounted[Box[P], Box[S]]) {
+      final def isMounted(): Boolean =
+        jsInstance.isMounted()
+
+      final def props: P =
+        jsInstance.props.a
+
+      final def children: raw.ReactNodeList =
+        jsInstance.children
+
+      final def state: S =
+        jsInstance.state.a
+
+      final def setState(state: S, callback: Callback = Callback.empty): Unit =
+        jsInstance.setState(Box(state), callback)
+
+      final def getDOMNode(): dom.Element =
+        jsInstance.getDOMNode()
     }
 
   }

@@ -85,9 +85,9 @@ package object raw {
     // [12/30] contextTypes              : object   = null
     // [13/30] forceUpdate               : function = function (callback) {
     // [14/30] getChildContext           : object   = null
-    def getDefaultProps: Props
-    def getInitialState: State
-    def isMounted(): Boolean
+    def getDefaultProps: Props = js.native
+    def getInitialState: State = js.native
+    def isMounted(): Boolean = js.native
     // [18/30] isReactComponent          : object   = [object Object]
     // [19/30] mixins                    : object   = null
     // [20/30] propTypes                 : object   = null
@@ -104,5 +104,9 @@ package object raw {
   }
 
   type ReactFunctionalComponent = js.Function1[Props, ReactElement]
+
+  @js.native
+  trait ReactComponentSpec extends js.Object
+
 }
 
