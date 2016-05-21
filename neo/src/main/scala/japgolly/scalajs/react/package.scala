@@ -182,10 +182,13 @@ package object react {
     type Mounted    [P <: js.Object, S <: js.Object] = CompJs3X.Mounted    [P, S, raw.ReactComponent]
 
     def Constructor[P <: js.Object, S <: js.Object](r: raw.ReactClass): Constructor[P, S] =
-      CompJs3X.Constructor(r)(CompJs3X.Mounted[P, S, raw.ReactComponent])
+      CompJs3X.Constructor(r)(Mounted[P, S])
 
     def Constructor_NoProps[S <: js.Object](r: raw.ReactClass): Constructor_NoProps[S] =
-      CompJs3X.Constructor_NoProps(r)(CompJs3X.Mounted[Null, S, raw.ReactComponent])
+      CompJs3X.Constructor_NoProps(r)(Mounted[Null, S])
+
+    def Mounted[P <: js.Object, S <: js.Object](r: raw.ReactComponent): Mounted[P, S] =
+      CompJs3X.Mounted(r)
   }
 
   object CompJs3X {
@@ -303,42 +306,120 @@ package object react {
 
     // -------------------------------------------------------------------------------------------------------------------
 
-    def build[P](displayName: String) = new {
-      def initialState[S](s: S) = PS[P, S](displayName, Box(s))
-      def stateless = PS[P, Unit](displayName, Box.Unit)
+    def build[P](name: String) = new {
+      def initialState[S](s: S) = PS[P, S](name, Box(s))
+      def stateless = PS[P, Unit](name, Box.Unit)
     }
 
-    case class PS[P, S](displayName: String, s: Box[S]) {
-      def render_P(r: P => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] = render_PS((p, _) => r(p))(w)
-      def render_S(r: S => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] = render_PS((_, s) => r(s))(w)
+    case class PS[P, S](name: String, s: Box[S]) {
+      def render(r: Mounted[P, S] => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] =
+        new Builder[P, S, w.Out](name, s, r, w)
 
-      def render_PS(r: (P, S) => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] =
-        new Builder[P, S, w.Out](displayName, s, r, w)
+      def render_P(r: P => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] = render($ => r($.props))(w)
+      def render_S(r: S => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] = render($ => r($.state))(w)
     }
 
-    case class Builder[P, S, O](displayName: String, s: Box[S], r: (P, S) => raw.ReactElement, w: BuildResult.Aux[P, S, O]) {
+    val fieldMounted = "m"
+
+    def mountedFromJs[P, S](rc: raw.ReactComponent): Mounted[P, S] =
+      rc.asInstanceOf[js.Dynamic].selectDynamic(fieldMounted).asInstanceOf[Mounted[P, S]]
+
+    case class Builder[P, S, O](name: String, s: Box[S], render: Mounted[P, S] => raw.ReactElement, w: BuildResult.Aux[P, S, O]) {
       def build: O = {
 
-        val getInitialStateFn: js.Function0[Box[S]] =
-          () => s
-
-        val renderFn: js.ThisFunction0[js.Any, raw.ReactElement] =
-          (`this`: js.Any) => {
-            // TODO Store an instance of Mounted[P, S] & use everywhere?
-            val m = `this`.asInstanceOf[raw.ReactComponent]
-            val p = m.props.asInstanceOf[Box[P]].a
-            val s = m.state.asInstanceOf[Box[S]].a
-            r(p, s)
-          }
-
         val spec = js.Dictionary.empty[js.Any]
-        spec.update("displayName", displayName)
-        spec.update("getInitialState", getInitialStateFn)
-        spec.update("render", renderFn)
 
-        w(
-          raw.React.createClass(
-            spec.asInstanceOf[raw.ReactComponentSpec]))
+        for (n <- Option(name))
+          spec("displayName") = n
+
+        def withMounted[A](f: Mounted[P, S] => A): js.ThisFunction0[raw.ReactComponent, A] =
+          (rc: raw.ReactComponent) =>
+            f(mountedFromJs(rc))
+
+//        if (ibf.isDefined)
+//          spec(BackendKey) = null
+
+        spec("render") = withMounted(render)
+
+//        @inline def setFnPS[$, A, R](a: ($, P, S) => A)(fn: js.UndefOr[A => CallbackTo[R]], name: String): Unit =
+//          fn.foreach { f =>
+//            val g = ($: $, p: Box[P], s: Box[S]) =>
+//              f(a($, p.v, s.v)).runNow()
+//            spec(name) = g: js.ThisFunction
+//          }
+//
+//        @inline def setFnP[$, A, R](a: ($, P) => A)(fn: js.UndefOr[A => CallbackTo[R]], name: String): Unit =
+//          fn.foreach { f =>
+//            val g = ($: $, p: Box[P], s: Box[S]) =>
+//              f(a($, p.v)).runNow()
+//            spec(name) = g: js.ThisFunction
+//          }
+//
+//        @inline def setThisFn1[A](fn: js.UndefOr[A => Callback], name: String): Unit =
+//          fn.foreach { f =>
+//            val g = (a: A) => f(a).runNow()
+//            spec(name) = g: js.ThisFunction
+//          }
+//
+//        val renderFn: js.ThisFunction0[js.Any, raw.ReactElement] =
+//          (`this`: js.Any) => {
+//            // TODO Store an instance of Mounted[P, S] & use everywhere?
+//            val m = `this`.asInstanceOf[raw.ReactComponent]
+//            val p = m.props.asInstanceOf[Box[P]].a
+//            val s = m.state.asInstanceOf[Box[S]].a
+//            r(p, s)
+//          }
+
+        def getInitialStateFn: js.Function0[Box[S]] = () => s
+        spec.update("getInitialState", getInitialStateFn) // TODO I bet this has a perf impact.
+
+        val componentWillMountFn: js.ThisFunction0[raw.ReactComponent, Unit] =
+          (rc: raw.ReactComponent) => {
+            val m: Mounted[P, S] =
+              new Mounted(CompJs3.Mounted[Box[P], Box[S]](rc))
+            rc.asInstanceOf[js.Dynamic].updateDynamic(fieldMounted)(m.asInstanceOf[js.Any])
+          }
+        spec("componentWillMount") = componentWillMountFn
+
+
+//        def onWillMountFn(f: DuringCallbackU[P, S, B] => Unit): Unit =
+//          componentWillMountFn = Some(componentWillMountFn.fold(f)(g => $ => {g($); f($)}))
+
+//        for (initBackend <- ibf)
+//          onWillMountFn { $ =>
+//            val bs = $.asInstanceOf[BackendScope[P, S]]
+//            val backend = initBackend(bs)
+//            $.asInstanceOf[Dynamic].updateDynamic(BackendKey)(backend.asInstanceOf[JAny])
+//          }
+
+//        for (f <- lc.componentWillMount)
+//          onWillMountFn(f(_).runNow())
+//        for (f <- componentWillMountFn)
+//          spec("componentWillMount") = f: ThisFunction
+//
+//        val initStateFn: DuringCallbackU[P, S, B] => WrapObj[S] =
+//          $ => WrapObj(isf($).runNow())
+//        spec("getInitialState") = initStateFn: ThisFunction
+//
+//        lc.getDefaultProps.flatMap(_.toJsCallback).foreach(spec("getDefaultProps") = _)
+//
+//        setThisFn1(                                             lc.componentWillUnmount     , "componentWillUnmount")
+//        setThisFn1(                                             lc.componentDidMount        , "componentDidMount")
+//        setFnPS   (ComponentWillUpdate      .apply[P, S, B, N])(lc.componentWillUpdate      , "componentWillUpdate")
+//        setFnPS   (ComponentDidUpdate       .apply[P, S, B, N])(lc.componentDidUpdate       , "componentDidUpdate")
+//        setFnPS   (ShouldComponentUpdate    .apply[P, S, B, N])(lc.shouldComponentUpdate    , "shouldComponentUpdate")
+//        setFnP    (ComponentWillReceiveProps.apply[P, S, B, N])(lc.componentWillReceiveProps, "componentWillReceiveProps")
+//
+//        if (jsMixins.nonEmpty)
+//          spec("mixins") = JArray(jsMixins: _*)
+//
+//        val spec2 = spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]
+//        lc.configureSpec.foreach(_(spec2).runNow())
+//        spec2
+
+        val spec2 = spec.asInstanceOf[raw.ReactComponentSpec]
+        val cls = raw.React.createClass(spec2)
+        w(cls)
       }
     }
 
@@ -366,8 +447,10 @@ package object react {
       def children: raw.ReactNodeList =
         jsInstance.children
 
-      def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty) =
-        new Mounted[P, S](jsInstance.renderIntoDOM(container, callback))
+      def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted[P, S] = {
+        val rc = raw.ReactDOM.render(jsInstance.rawElement, container, callback.toJsFn)
+        mountedFromJs(rc)
+      }
     }
 
     class Mounted[P, S](jsInstance: CompJs3.Mounted[Box[P], Box[S]]) {
