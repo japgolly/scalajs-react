@@ -1,10 +1,10 @@
 package japgolly.scalajs.react.test
 
 import org.scalajs.dom.{document, html}
-
+import scala.io.AnsiColor._
 import scalaz.Equal
 import scalaz.syntax.equal._
-import scala.io.AnsiColor._
+import japgolly.scalajs.react.raw
 
 object TestUtil extends TestUtil
 
@@ -17,6 +17,12 @@ trait TestUtil
      with scalaz.std.OptionInstances
      with scalaz.std.AnyValInstances
      with scalaz.std.ListInstances {
+
+  // TODO erm... not really. Only allow in raw testing
+  implicit val equalReactNodeList: Equal[raw.ReactNodeList] = Equal.equalA
+  implicit val equalRawKey       : Equal[raw.Key          ] = Equal.equalA
+  implicit val equalRawRef       : Equal[raw.Ref          ] = Equal.equalA
+  implicit val equalState        : Equal[raw.State        ] = Equal.equalA
 
   def assertEq[A: Equal](actual: A, expect: A): Unit =
     assertEq(null, actual, expect)
@@ -70,17 +76,15 @@ trait TestUtil
     cont.asInstanceOf[html.Element]
   }
 
-//  def withRenderedIntoBody[A, B](render: html.Element => A)(n: A => TopNode, use: A => B): B = {
-//    val parent = newBodyContainer()
-//    try {
-//      val a = render(parent)
-//      try
-//        use(a)
-//      finally
-//        ReactDOM unmountComponentAtNode n(a).parentNode
-//    } finally
-//      document.body.removeChild(parent)
-//  }
+  def withBodyContainer[A](f: html.Element => A): A = {
+    val cont = newBodyContainer()
+    try
+      f(cont)
+    finally {
+      raw.ReactDOM unmountComponentAtNode cont // Doesn't matter if no component mounted here
+      document.body.removeChild(cont)
+    }
+  }
 
 }
 
