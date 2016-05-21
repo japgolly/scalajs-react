@@ -1,5 +1,7 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.raw.ReactComponent
+
 import scalajs.js
 import utest._
 import japgolly.scalajs.react.test.ReactTestUtils
@@ -17,24 +19,25 @@ object JsClassPTest extends TestSuite {
   def JsProps(name: String): JsProps =
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
-  val RawClass =
-    js.Dynamic.global.ComponentClassP.asInstanceOf[raw.ReactClass[JsProps]]
+  val RawClass = js.Dynamic.global.ComponentClassP.asInstanceOf[raw.ReactClass]
+
+  val Component = new CompJs3.Constructor[JsProps, Null](RawClass)
 
   override def tests = TestSuite {
 
     'render {
-      val unmounted = raw.React.createElement(RawClass, JsProps("Bob")).asInstanceOf[raw.ReactComponentElement[JsProps]]
+      val unmounted = Component(JsProps("Bob"))
       assertEq(unmounted.props.name, "Bob")
-      assertEq(unmounted.props.children, raw.emptyReactNodeList)
-      assertEq(unmounted.key, null)
-      assertEq(unmounted.ref, null)
+      assertEq(unmounted.children, raw.emptyReactNodeList)
+      assertEq(unmounted.key, None)
+      assertEq(unmounted.ref, None)
       withBodyContainer { mountNode =>
-        val mounted = raw.ReactDOM.render(unmounted, mountNode).asInstanceOf[raw.ReactComponent[JsProps]]
-        val n = raw.ReactDOM.findDOMNode(mounted)
+        val mounted = unmounted.renderIntoDOM(mountNode)
+        val n = mounted.getDOMNode()
         assertOuterHTML(n, "<div>Hello Bob</div>")
         assertEq(mounted.isMounted(), true)
         assertEq(mounted.props.name, "Bob")
-        assertEq(mounted.props.children, raw.emptyReactNodeList)
+        assertEq(mounted.children, raw.emptyReactNodeList)
         assertEq(mounted.state, null)
       }
     }
@@ -42,6 +45,7 @@ object JsClassPTest extends TestSuite {
 
   }
 }
+
 
 object JsClassSTest extends TestSuite {
 
@@ -57,39 +61,100 @@ object JsClassSTest extends TestSuite {
     def inc(): Unit
   }
 
-  val RawClass =
-    js.Dynamic.global.ComponentClassS.asInstanceOf[raw.ReactClass[Nothing]]
+  val RawClass = js.Dynamic.global.ComponentClassS.asInstanceOf[raw.ReactClass]
+  val Component = new CompJs3.Constructor[Null, JsState](RawClass)
 
   override def tests = TestSuite {
 
     'render {
-      val unmounted = raw.React.createElement(RawClass).asInstanceOf[raw.ReactComponentElement[js.Object]]
-      assertEq(unmounted.props.children, raw.emptyReactNodeList)
-      assertEq(unmounted.key, null)
-      assertEq(unmounted.ref, null)
+      val unmounted = Component(null)
+      assertEq(unmounted.children, raw.emptyReactNodeList)
+      assertEq(unmounted.key, None)
+      assertEq(unmounted.ref, None)
       withBodyContainer { mountNode =>
-        val mounted = raw.ReactDOM.render(unmounted, mountNode).asInstanceOf[raw.ReactComponent[js.Object] with JsMethods]
-        val n = raw.ReactDOM.findDOMNode(mounted)
+        val mounted = unmounted.renderIntoDOM(mountNode) //.asInstanceOf[raw.ReactComponent[js.Object] with JsMethods]
+        val n = mounted.getDOMNode()
 
         assertOuterHTML(n, "<div>State = 123</div>")
         assertEq(mounted.isMounted(), true)
-        assertEq(mounted.props.children, raw.emptyReactNodeList)
-        assertEq(mounted.state.asInstanceOf[JsState].num, 123)
+        assertEq(mounted.children, raw.emptyReactNodeList)
+        assertEq(mounted.state.num, 123)
 
         mounted.setState(JsState(666))
         assertOuterHTML(n, "<div>State = 666</div>")
         assertEq(mounted.isMounted(), true)
-        assertEq(mounted.props.children, raw.emptyReactNodeList)
-        assertEq(mounted.state.asInstanceOf[JsState].num, 666)
+        assertEq(mounted.children, raw.emptyReactNodeList)
+        assertEq(mounted.state.num, 666)
 
-        mounted.inc()
-        assertOuterHTML(n, "<div>State = 667</div>")
-        assertEq(mounted.isMounted(), true)
-        assertEq(mounted.props.children, raw.emptyReactNodeList)
-        assertEq(mounted.state.asInstanceOf[JsState].num, 667)
+//        mounted.inc()
+//        assertOuterHTML(n, "<div>State = 667</div>")
+//        assertEq(mounted.isMounted(), true)
+//        assertEq(mounted.props.children, raw.emptyReactNodeList)
+//        assertEq(mounted.state.asInstanceOf[JsState].num, 667)
       }
     }
 
 
   }
 }
+
+
+object JsClassSTestX extends TestSuite {
+
+  @js.native
+  trait JsState extends js.Object {
+    val num: Int
+  }
+  def JsState(num: Int): JsState =
+    js.Dynamic.literal("num" -> num).asInstanceOf[JsState]
+
+  trait JsMethods extends CompJs3X.HasRaw {
+    def inc(): Unit =
+      rawDyn.inc()
+  }
+
+  val RawClass = js.Dynamic.global.ComponentClassS.asInstanceOf[raw.ReactClass]
+  val Component = new CompJs3X.Constructor_NoProps[JsState, JsMethods](RawClass)
+
+  implicit val xxxxxxxxxxxxxxxxxxxx: raw.ReactComponent => CompJs3X.Mounted[Null, JsState] with JsMethods =
+    r => new CompJs3X.Mounted[Null, JsState] with JsMethods {
+      override val rawInstance = r
+    }
+
+  trait TestAmbiguity extends CompJs3X.HasRaw
+  implicit def xxxxxxxxxxxxxxxxxxxx2: raw.ReactComponent => CompJs3X.Mounted[Null, JsState] with TestAmbiguity = ???
+
+  override def tests = TestSuite {
+
+    'render {
+      val unmounted = Component()
+      assertEq(unmounted.children, raw.emptyReactNodeList)
+      assertEq(unmounted.key, None)
+      assertEq(unmounted.ref, None)
+      withBodyContainer { mountNode =>
+        val mounted = unmounted.renderIntoDOM(mountNode) //.asInstanceOf[raw.ReactComponent[js.Object] with JsMethods]
+        val n = mounted.getDOMNode()
+
+        assertOuterHTML(n, "<div>State = 123</div>")
+        assertEq(mounted.isMounted(), true)
+        assertEq(mounted.children, raw.emptyReactNodeList)
+        assertEq(mounted.state.num, 123)
+
+        mounted.setState(JsState(666))
+        assertOuterHTML(n, "<div>State = 666</div>")
+        assertEq(mounted.isMounted(), true)
+        assertEq(mounted.children, raw.emptyReactNodeList)
+        assertEq(mounted.state.num, 666)
+
+        mounted.inc()
+        assertOuterHTML(n, "<div>State = 667</div>")
+        assertEq(mounted.isMounted(), true)
+        assertEq(mounted.children, raw.emptyReactNodeList)
+        assertEq(mounted.state.num, 667)
+      }
+    }
+
+
+  }
+}
+

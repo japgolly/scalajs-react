@@ -4,7 +4,7 @@ import org.scalajs.dom.{document, html}
 import scala.io.AnsiColor._
 import scalaz.Equal
 import scalaz.syntax.equal._
-import japgolly.scalajs.react.raw
+import japgolly.scalajs.react._
 
 object TestUtil extends TestUtil
 
@@ -17,6 +17,9 @@ trait TestUtil
      with scalaz.std.OptionInstances
      with scalaz.std.AnyValInstances
      with scalaz.std.ListInstances {
+
+  implicit val equalNull: Equal[Null] = Equal.equalA
+  implicit val equalKey : Equal[Key ] = Equal.equalA
 
   // TODO erm... not really. Only allow in raw testing
   implicit val equalReactNodeList: Equal[raw.ReactNodeList] = Equal.equalA

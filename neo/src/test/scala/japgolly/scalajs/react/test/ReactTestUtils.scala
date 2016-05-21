@@ -12,5 +12,5 @@ object ReactTestUtils extends ReactTestUtils
 @js.native
 trait ReactTestUtils extends js.Object {
 
-  def renderIntoDocument(element: ReactElement): ReactComponent[_] = js.native
+  def renderIntoDocument(element: ReactElement): ReactComponent = js.native
 }

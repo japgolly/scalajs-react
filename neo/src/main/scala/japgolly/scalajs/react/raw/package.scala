@@ -1,12 +1,17 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom
 import scalajs.js
 import scalajs.js.|
 
 package object raw {
 
+  type Undefined = js.UndefOr[Nothing]
+
   type JsNumber = Byte | Short | Int | Float | Double
+
+  type Props = js.Object | Null
+
+  type State = js.Object | Null
 
   type Key = String | Boolean | JsNumber | Null
 
@@ -14,10 +19,7 @@ package object raw {
 
   type ReactNode = ReactElement | ReactFragment | ReactText
 
-  type ReactElement = ReactComponentElement[_] | ReactDOMElement
-
-//  type Props = js.Object | Null
-  type State = js.Object | Null
+  type ReactElement = ReactComponentElement | ReactDOMElement
 
   @js.native
   trait PropsWithChildren extends js.Object {
@@ -33,7 +35,7 @@ package object raw {
   }
 
   @js.native
-  trait ReactComponentElement[Props <: js.Object] extends js.Object {
+  trait ReactComponentElement extends js.Object {
     // [1/7] $$typeof : number   = 60103
     // [2/7] _owner   : object   = null
     // [3/7] _store   : object   = [object Object]
@@ -41,8 +43,8 @@ package object raw {
     // [5/7] props    : object   = [object Object]
     // [6/7] ref      : object   = null
     // [7/7] type     : function = function (props, context, updater) {
-    def `type`: ReactClass[Props] | ReactFunctionalComponent[Props]
-    def props: Props with PropsWithChildren
+    def `type`: ReactClass | ReactFunctionalComponent
+    def props: PropsWithChildren
     def key: Key
     def ref: Ref
   }
@@ -57,18 +59,18 @@ package object raw {
   /** Type of `props.children` */
   type ReactNodeList = ReactNode | ReactEmpty
 
-  def emptyReactNodeList: ReactNodeList =
+  @inline def emptyReactNodeList: ReactNodeList =
     js.undefined
 
   type ReactText = String | JsNumber
 
-  type ReactEmpty = Null | js.UndefOr[Nothing] | Boolean
+  type ReactEmpty = Boolean | Undefined | Null
 
-  type ReactClass[Props <: js.Object] = js.Function1[Props, ReactComponent[Props]]
+  type ReactClass = js.Function1[Props, ReactComponent]
 
   /** Once-mounted component. */
   @js.native
-  trait ReactComponent[+Props <: js.Object] extends js.Object {
+  trait ReactComponent extends js.Object {
     // [ 1/30] __reactAutoBindPairs      : object   =
     // [ 2/30] _reactInternalInstance    : object   = [object Object]
     // [ 3/30] childContextTypes         : object   = null
@@ -89,12 +91,11 @@ package object raw {
     // [18/30] isReactComponent          : object   = [object Object]
     // [19/30] mixins                    : object   = null
     // [20/30] propTypes                 : object   = null
-    def props: Props with PropsWithChildren
+    def props: PropsWithChildren
     // [22/30] refs                      : object   = [object Object]
     def render(): ReactElement
-    // [24/30] replaceState              : function = function (newState, callback) {
-    // [25/30] setState                  : function = function (partialState, callback) {
-    def setState(partialState: js.Object, callback: js.Function = js.native): Unit = js.native
+    def replaceState(newState: js.Object, callback: js.Function0[Unit] = js.native): Unit = js.native
+    def setState(partialState: js.Object, callback: js.Function0[Unit] = js.native): Unit = js.native
     // [26/30] shouldComponentUpdate     : object   = null
     def state: State
     // [28/30] statics                   : object   = null
@@ -102,6 +103,6 @@ package object raw {
     // [30/30] updater                   : object   = [object Object]
   }
 
-  type ReactFunctionalComponent[-Props <: js.Object] = js.Function1[Props, ReactElement]
+  type ReactFunctionalComponent = js.Function1[Props, ReactElement]
 }
 

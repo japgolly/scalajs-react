@@ -1,7 +1,9 @@
 package japgolly.scalajs
 
+import japgolly.scalajs.react.raw.ReactComponent
+
 import scalajs.js
-import japgolly.scalajs.react.{raw => Raw}
+import org.scalajs.dom
 
 /*
 Bad approaches
@@ -66,21 +68,148 @@ package object react {
   }
   */
 
-  class JsClassCtor[P <: js.Object](val raw: Raw.ReactClass[P]) extends AnyVal {
-    def apply(props: P): CompU[P] =
-      new CompU(raw(props))
-  }
+//  class JsClassCtor[P <: js.Object](val raw: Raw.ReactClass[P]) extends AnyVal {
+//    def apply(props: P): CompU[P] =
+//      new CompU(raw(props))
+//  }
+//
+//  class CompU[P <: js.Object](val raw: Raw.ReactComponent[P]) extends AnyVal {
+//
+//    def render(container: Raw.ReactDOM.Container): CompM[P] = {
+//      val m: Raw.ReactComponent[_] = Raw.ReactDOM.render(raw.render(), container)
+//      new CompM(m.asInstanceOf[Raw.ReactComponent[P]])
+//    }
+//  }
+//
+//  class CompM[P <: js.Object](val raw: Raw.ReactComponent[P]) extends AnyVal {
+//
+//  }
 
-  class CompU[P <: js.Object](val raw: Raw.ReactComponent[P]) extends AnyVal {
+  import scalajs.js.|
+  def orNullToOption[A](an: A | Null): Option[A] =
+    Option(an.asInstanceOf[A])
 
-    def render(container: Raw.ReactDOM.Container): CompM[P] = {
-      val m: Raw.ReactComponent[_] = Raw.ReactDOM.render(raw.render(), container)
-      new CompM(m.asInstanceOf[Raw.ReactComponent[P]])
+  type Key = String | Boolean | raw.JsNumber
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  object CompJs3 {
+
+    class Constructor[P <: js.Object, S <: js.Object](val rawCls: raw.ReactClass) extends AnyVal {
+      def apply(props: P): Unmounted[P, S] =
+        new Unmounted(raw.React.createElement(rawCls, props))
+    }
+
+    class Unmounted[P <: js.Object, S <: js.Object](val rawElement: raw.ReactComponentElement) extends AnyVal {
+
+      def key: Option[Key] =
+        orNullToOption(rawElement.key)
+
+      def ref: Option[String] =
+        orNullToOption(rawElement.ref)
+
+      def props: P =
+        rawElement.props.asInstanceOf[P]
+
+      def children: raw.ReactNodeList =
+        rawElement.props.children
+
+      def renderIntoDOM(container: raw.ReactDOM.Container, callback: js.ThisFunction = null): Mounted[P, S] =
+        new Mounted(raw.ReactDOM.render(rawElement, container, callback))
+    }
+
+    class Mounted[P <: js.Object, S <: js.Object](val rawInstance: raw.ReactComponent) extends AnyVal {
+//      def getDefaultProps: Props
+//      def getInitialState: js.Object | Null
+//      def render(): ReactElement
+
+      def isMounted(): Boolean =
+        rawInstance.isMounted()
+
+      def props: P =
+        rawInstance.props.asInstanceOf[P]
+
+      def children: raw.ReactNodeList =
+        rawInstance.props.children
+
+      def state: S =
+        rawInstance.state.asInstanceOf[S]
+
+      def setState(state: S, callback: Callback = Callback.empty): Unit =
+        rawInstance.setState(state, callback.toJsFn)
+
+      def getDOMNode(): dom.Element =
+        raw.ReactDOM.findDOMNode(rawInstance)
     }
   }
 
-  class CompM[P <: js.Object](val raw: Raw.ReactComponent[P]) extends AnyVal {
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+  object CompJs3X {
+
+    trait HasRaw {
+      val rawInstance: raw.ReactComponent
+
+      final def rawDyn: js.Dynamic =
+        rawInstance.asInstanceOf[js.Dynamic]
+    }
+
+    class Constructor[P <: js.Object, S <: js.Object, T <: HasRaw](val rawCls: raw.ReactClass) extends AnyVal {
+      def apply(props: P): Unmounted[P, S, T] =
+        new Unmounted(raw.React.createElement(rawCls, props))
+    }
+
+    class Constructor_NoProps[S <: js.Object, T <: HasRaw](val rawCls: raw.ReactClass) {
+      private val instance: Unmounted[Null, S, T] =
+        new Constructor(rawCls).apply(null)
+
+      def apply(): Unmounted[Null, S, T] =
+        instance
+    }
+
+    class Unmounted[P <: js.Object, S <: js.Object, T <: HasRaw](val rawElement: raw.ReactComponentElement) extends AnyVal {
+
+      def key: Option[Key] =
+        orNullToOption(rawElement.key)
+
+      def ref: Option[String] =
+        orNullToOption(rawElement.ref)
+
+      def props: P =
+        rawElement.props.asInstanceOf[P]
+
+      def children: raw.ReactNodeList =
+        rawElement.props.children
+
+      def renderIntoDOM(container: raw.ReactDOM.Container, callback: js.ThisFunction = null)
+                       (implicit b: raw.ReactComponent => Mounted[P, S] with T): Mounted[P, S] with T =
+        b(raw.ReactDOM.render(rawElement, container, callback))
+    }
+
+
+
+    trait Mounted[P <: js.Object, S <: js.Object] extends HasRaw {
+      //      def getDefaultProps: Props
+      //      def getInitialState: js.Object | Null
+      //      def render(): ReactElement
+
+      final def isMounted(): Boolean =
+        rawInstance.isMounted()
+
+      final def props: P =
+        rawInstance.props.asInstanceOf[P]
+
+      final def children: raw.ReactNodeList =
+        rawInstance.props.children
+
+      final def state: S =
+        rawInstance.state.asInstanceOf[S]
+
+      final def setState(state: S, callback: Callback = Callback.empty): Unit =
+        rawInstance.setState(state, callback.toJsFn)
+
+      final def getDOMNode(): dom.Element =
+        raw.ReactDOM.findDOMNode(rawInstance)
+    }
   }
-
 }

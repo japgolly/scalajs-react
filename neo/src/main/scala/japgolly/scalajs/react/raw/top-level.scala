@@ -20,11 +20,19 @@ trait React extends js.Object {
 //  def createElement(fc: FunctionalComponent[Nothing], props: Object, children: ReactNode*): ReactDOMElement = js.native
 //  def createElement(fc: FunctionalComponent.WithChildren[Nothing], props: Object, children: ReactNode*): ReactDOMElement = js.native
 
-  def createElement(`type`: String | ReactClass[_]): ReactDOMElement = js.native
-  def createElement(`type`: String | ReactClass[_], props: js.Object = js.native): ReactDOMElement = js.native
-  def createElement(`type`: String | ReactClass[_], props: js.Object, children: ReactNodeList*): ReactDOMElement = js.native
+//  def createElement(`type`: String | ReactClass                                            ): ReactElement = js.native
+//  def createElement(`type`: String | ReactClass, props: js.Object                          ): ReactElement = js.native
+//  def createElement(`type`: String | ReactClass, props: js.Object, children: ReactNodeList*): ReactElement = js.native
 
-//  /** Verifies the object is a ReactElement. */
+  def createElement(`type`: String                                            ): ReactDOMElement = js.native
+  def createElement(`type`: String, props: js.Object                          ): ReactDOMElement = js.native
+  def createElement(`type`: String, props: js.Object, children: ReactNodeList*): ReactDOMElement = js.native
+
+  def createElement(`type`: ReactClass                                            ): ReactComponentElement = js.native
+  def createElement(`type`: ReactClass, props: js.Object                          ): ReactComponentElement = js.native
+  def createElement(`type`: ReactClass, props: js.Object, children: ReactNodeList*): ReactComponentElement = js.native
+
+  //  /** Verifies the object is a ReactElement. */
 //  def isValidElement(o: JAny): Boolean = js.native
 
 }
@@ -41,10 +49,10 @@ trait ReactDOM extends js.Object {
 
   def render(element  : ReactElement,
              container: Container,
-             callback : js.ThisFunction = js.native): ReactComponent[_ <: js.Object] = js.native
+             callback : js.ThisFunction = js.native): ReactComponent = js.native
 
   def unmountComponentAtNode(container: dom.Node): Boolean = js.native
 
-  def findDOMNode(component: ReactComponent[_]): dom.Element = js.native
+  def findDOMNode(component: ReactComponent): dom.Element = js.native
 }
 
