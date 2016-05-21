@@ -37,13 +37,6 @@ package object raw {
 
   @js.native
   trait ReactComponentElement extends js.Object {
-    // [1/7] $$typeof : number   = 60103
-    // [2/7] _owner   : object   = null
-    // [3/7] _store   : object   = [object Object]
-    // [4/7] key      : object   = null
-    // [5/7] props    : object   = [object Object]
-    // [6/7] ref      : object   = null
-    // [7/7] type     : function = function (props, context, updater) {
     def `type`: ReactClass | ReactFunctionalComponent
     def props: PropsWithChildren
     def key: Key
@@ -72,8 +65,6 @@ package object raw {
   /** Once-mounted component. */
   @js.native
   trait ReactComponent extends js.Object {
-    // [ 1/30] __reactAutoBindPairs      : object   =
-    // [ 2/30] _reactInternalInstance    : object   = [object Object]
     // [ 3/30] childContextTypes         : object   = null
     // [ 4/30] componentDidMount         : object   = null
     // [ 5/30] componentDidUpdate        : object   = null
@@ -81,26 +72,23 @@ package object raw {
     // [ 7/30] componentWillReceiveProps : object   = null
     // [ 8/30] componentWillUnmount      : object   = null
     // [ 9/30] componentWillUpdate       : object   = null
-    // [10/30] constructor               : function = function (props, context, updater) {
+    val constructor: ReactClass | ReactFunctionalComponent
     // [11/30] context                   : object   = [object Object]
     // [12/30] contextTypes              : object   = null
-    // [13/30] forceUpdate               : function = function (callback) {
+    def forceUpdate(callback: js.Function0[Unit] = js.native): Unit = js.native
     // [14/30] getChildContext           : object   = null
     def getDefaultProps: Props = js.native
     def getInitialState: State = js.native
     def isMounted(): Boolean = js.native
     // [18/30] isReactComponent          : object   = [object Object]
-    // [19/30] mixins                    : object   = null
+    val mixins: js.Array[js.Object] | Null = js.native
     // [20/30] propTypes                 : object   = null
     def props: PropsWithChildren
     // [22/30] refs                      : object   = [object Object]
     def render(): ReactElement
     def replaceState(newState: State, callback: js.Function0[Unit] = js.native): Unit = js.native
-
-//    def setState(s: State | js.Function1[State, State], callback: js.Function0[Unit] = js.native): Unit = js.native
     def setState(partialState: State, callback: js.Function0[Unit] = js.native): Unit = js.native
     @JSName("setState") def modState(fn: js.Function1[js.Object, js.Object], callback: js.Function0[Unit] = js.native): Unit = js.native
-
     // [26/30] shouldComponentUpdate     : object   = null
     def state: State
     // [28/30] statics                   : object   = null

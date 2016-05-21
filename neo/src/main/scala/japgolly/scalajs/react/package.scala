@@ -371,6 +371,9 @@ package object react {
 //            spec(name) = g: js.ThisFunction
 //          }
 
+        // val initStateFn: DuringCallbackU[P, S, B] => WrapObj[S] =
+        //   $ => WrapObj(isf($).runNow())
+        // spec("getInitialState") = initStateFn: ThisFunction
         def getInitialStateFn: js.Function0[Box[S]] = () => s
         spec.update("getInitialState", getInitialStateFn) // TODO I bet this has a perf impact.
 
@@ -383,18 +386,14 @@ package object react {
           }
         spec("componentWillMount") = componentWillMountFn
 
-
 //        def onWillMountFn(f: DuringCallbackU[P, S, B] => Unit): Unit =
 //          componentWillMountFn = Some(componentWillMountFn.fold(f)(g => $ => {g($); f($)}))
-
 //        for (f <- lc.componentWillMount)
 //          onWillMountFn(f(_).runNow())
+
 //        for (f <- componentWillMountFn)
 //          spec("componentWillMount") = f: ThisFunction
 //
-//        val initStateFn: DuringCallbackU[P, S, B] => WrapObj[S] =
-//          $ => WrapObj(isf($).runNow())
-//        spec("getInitialState") = initStateFn: ThisFunction
 //
 //        lc.getDefaultProps.flatMap(_.toJsCallback).foreach(spec("getDefaultProps") = _)
 //
