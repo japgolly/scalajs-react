@@ -22,7 +22,7 @@ object ScalaClassPTest extends TestSuite {
     'render {
       val unmounted = Component(Props("Bob"))
       assertEq(unmounted.props.name, "Bob")
-      assertEq(unmounted.children, raw.emptyReactNodeList)
+      assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
       withBodyContainer { mountNode =>
@@ -31,7 +31,7 @@ object ScalaClassPTest extends TestSuite {
         assertOuterHTML(n, "<div>Hello Bob</div>")
         assertEq(mounted.isMounted.runNow(), true)
         assertEq(mounted.props.runNow().name, "Bob")
-        assertEq(mounted.children.runNow(), raw.emptyReactNodeList)
+        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
         assertEq(mounted.state.runNow(), ())
         assertEq(mounted.backend, ())
       }
@@ -62,7 +62,7 @@ object ScalaClassSTest extends TestSuite {
 
     'render {
       val unmounted = Component()
-      assertEq(unmounted.children, raw.emptyReactNodeList)
+      assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
       withBodyContainer { mountNode =>
@@ -71,21 +71,21 @@ object ScalaClassSTest extends TestSuite {
 
         assertOuterHTML(n, "<div>State = 123</div>")
         assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.children.runNow(), raw.emptyReactNodeList)
+        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
         assertEq(mounted.state.runNow().num, 123)
         val b = mounted.backend
 
         mounted.setState(State(666)).runNow()
         assertOuterHTML(n, "<div>State = 666</div>")
         assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.children.runNow(), raw.emptyReactNodeList)
+        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
         assertEq(mounted.state.runNow().num, 666)
         assert(mounted.backend eq b)
 
         mounted.backend.inc.runNow()
         assertOuterHTML(n, "<div>State = 667</div>")
         assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.children.runNow(), raw.emptyReactNodeList)
+        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
         assertEq(mounted.state.runNow().num, 667)
         assert(mounted.backend eq b)
       }

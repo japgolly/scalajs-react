@@ -25,16 +25,16 @@ object JsClassPTest extends TestSuite {
     'render {
       val unmounted = Component(JsProps("Bob"))
       assertEq(unmounted.props.name, "Bob")
-      assertEq(unmounted.children, raw.emptyReactNodeList)
+      assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
       withBodyContainer { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
-        val n = mounted.getDOMNode()
+        val n = mounted.getDOMNode
         assertOuterHTML(n, "<div>Hello Bob</div>")
-        assertEq(mounted.isMounted(), true)
+        assertEq(mounted.isMounted, true)
         assertEq(mounted.props.name, "Bob")
-        assertEq(mounted.children, raw.emptyReactNodeList)
+        assertEq(mounted.propsChildren, raw.emptyReactNodeList)
         assertEq(mounted.state, null)
       }
     }
@@ -65,28 +65,28 @@ object JsClassSTest extends TestSuite {
 
     'render {
       val unmounted = Component(null)
-      assertEq(unmounted.children, raw.emptyReactNodeList)
+      assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
       withBodyContainer { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode) //.asInstanceOf[raw.ReactComponent[js.Object] with JsMethods]
-        val n = mounted.getDOMNode()
+        val n = mounted.getDOMNode
 
         assertOuterHTML(n, "<div>State = 123</div>")
-        assertEq(mounted.isMounted(), true)
-        assertEq(mounted.children, raw.emptyReactNodeList)
+        assertEq(mounted.isMounted, true)
+        assertEq(mounted.propsChildren, raw.emptyReactNodeList)
         assertEq(mounted.state.num, 123)
 
         mounted.setState(JsState(666))
         assertOuterHTML(n, "<div>State = 666</div>")
-        assertEq(mounted.isMounted(), true)
-        assertEq(mounted.children, raw.emptyReactNodeList)
+        assertEq(mounted.isMounted, true)
+        assertEq(mounted.propsChildren, raw.emptyReactNodeList)
         assertEq(mounted.state.num, 666)
 
 //        mounted.inc()
 //        assertOuterHTML(n, "<div>State = 667</div>")
-//        assertEq(mounted.isMounted(), true)
-//        assertEq(mounted.props.children, raw.emptyReactNodeList)
+//        assertEq(mounted.isMounted, true)
+//        assertEq(mounted.props.propsChildren, raw.emptyReactNodeList)
 //        assertEq(mounted.state.asInstanceOf[JsState].num, 667)
       }
     }
@@ -118,28 +118,28 @@ object JsClassSTestX extends TestSuite {
 
     'render {
       val unmounted = Component()
-      assertEq(unmounted.children, raw.emptyReactNodeList)
+      assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
       withBodyContainer { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode) //.asInstanceOf[raw.ReactComponent[js.Object] with JsMethods]
-        val n = mounted.getDOMNode()
+        val n = mounted.getDOMNode
 
         assertOuterHTML(n, "<div>State = 123</div>")
-        assertEq(mounted.isMounted(), true)
-        assertEq(mounted.children, raw.emptyReactNodeList)
+        assertEq(mounted.isMounted, true)
+        assertEq(mounted.propsChildren, raw.emptyReactNodeList)
         assertEq(mounted.state.num, 123)
 
         mounted.setState(JsState(666))
         assertOuterHTML(n, "<div>State = 666</div>")
-        assertEq(mounted.isMounted(), true)
-        assertEq(mounted.children, raw.emptyReactNodeList)
+        assertEq(mounted.isMounted, true)
+        assertEq(mounted.propsChildren, raw.emptyReactNodeList)
         assertEq(mounted.state.num, 666)
 
         mounted.rawInstance.inc()
         assertOuterHTML(n, "<div>State = 667</div>")
-        assertEq(mounted.isMounted(), true)
-        assertEq(mounted.children, raw.emptyReactNodeList)
+        assertEq(mounted.isMounted, true)
+        assertEq(mounted.propsChildren, raw.emptyReactNodeList)
         assertEq(mounted.state.num, 667)
       }
     }
