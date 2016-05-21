@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import scala.scalajs.js.annotation.JSName
 import scalajs.js
 import scalajs.js.|
 
@@ -94,8 +95,12 @@ package object raw {
     def props: PropsWithChildren
     // [22/30] refs                      : object   = [object Object]
     def render(): ReactElement
-    def replaceState(newState: js.Object, callback: js.Function0[Unit] = js.native): Unit = js.native
-    def setState(partialState: js.Object, callback: js.Function0[Unit] = js.native): Unit = js.native
+    def replaceState(newState: State, callback: js.Function0[Unit] = js.native): Unit = js.native
+
+//    def setState(s: State | js.Function1[State, State], callback: js.Function0[Unit] = js.native): Unit = js.native
+    def setState(partialState: State, callback: js.Function0[Unit] = js.native): Unit = js.native
+    @JSName("setState") def modState(fn: js.Function1[js.Object, js.Object], callback: js.Function0[Unit] = js.native): Unit = js.native
+
     // [26/30] shouldComponentUpdate     : object   = null
     def state: State
     // [28/30] statics                   : object   = null

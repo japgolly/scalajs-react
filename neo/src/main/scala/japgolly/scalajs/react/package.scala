@@ -1,7 +1,5 @@
 package japgolly.scalajs
 
-import japgolly.scalajs.react.raw.ReactComponent
-
 import scalajs.js
 import org.scalajs.dom
 
@@ -263,6 +261,9 @@ package object react {
       final def setState(state: S, callback: Callback = Callback.empty): Unit =
         rawInstance.setState(state, callback.toJsFn)
 
+      final def modState(mod: S => S, callback: Callback = Callback.empty): Unit =
+        rawInstance.modState(mod.asInstanceOf[js.Object => js.Object], callback.toJsFn)
+
       final def getDOMNode(): dom.Element =
         raw.ReactDOM.findDOMNode(rawInstance)
     }
@@ -276,7 +277,7 @@ package object react {
     /**
       * Implicit that automatically determines the type of component to build.
       */
-    sealed abstract class BuildResult[P, S] {
+    sealed abstract class BuildResult[P, S, B] {
       type Out
       val build: CompJs3.Constructor[Box[P], Box[S]] => Out
 
@@ -286,21 +287,21 @@ package object react {
 
     sealed abstract class BuildResultLowPri {
       /** Default case - Props are required in the component constructor. */
-      implicit def buildResultId[P, S]: BuildResult.Aux[P, S, Ctor[P, S]] =
+      implicit def buildResultId[P, S, B]: BuildResult.Aux[P, S, B, Ctor[P, S, B]] =
         BuildResult(Ctor(_))
     }
 
     object BuildResult extends BuildResultLowPri {
-      type Aux[P, S, O] = BuildResult[P, S] {type Out = O}
+      type Aux[P, S, B, O] = BuildResult[P, S, B] {type Out = O}
 
-      @inline def apply[P, S, O](f: CompJs3.Constructor[Box[P], Box[S]] => O): Aux[P, S, O] =
-        new BuildResult[P, S] {
+      @inline def apply[P, S, B, O](f: CompJs3.Constructor[Box[P], Box[S]] => O): Aux[P, S, B, O] =
+        new BuildResult[P, S, B] {
           override type Out = O
           override val build = f
         }
 
       /** Special case - When Props = Unit, don't ask for props in the component constructor. */
-      implicit def buildResultUnit[S]: BuildResult.Aux[Unit, S, Ctor_NoProps[S]] =
+      implicit def buildResultUnit[S, B]: BuildResult.Aux[Unit, S, B, Ctor_NoProps[S, B]] =
         BuildResult(Ctor_NoProps(_))
     }
 
@@ -311,20 +312,32 @@ package object react {
       def stateless = PS[P, Unit](name, Box.Unit)
     }
 
-    case class PS[P, S](name: String, s: Box[S]) {
-      def render(r: Mounted[P, S] => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] =
-        new Builder[P, S, w.Out](name, s, r, w)
+    type NewBackendFn[P, S, B] = BackendScope[P, S] => B
 
-      def render_P(r: P => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] = render($ => r($.props))(w)
-      def render_S(r: S => raw.ReactElement)(implicit w: BuildResult[P, S]): Builder[P, S, w.Out] = render($ => r($.state))(w)
+    case class PS[P, S](name: String, s: Box[S]) {
+      def backend[B](f: NewBackendFn[P, S, B]) = PSB[P, S, B](name, s, f)
+      def noBackend = backend[Unit](_ => ())
+    }
+
+    case class PSB[P, S, Backend](name: String, s: Box[S], backendFn: NewBackendFn[P, S, Backend]) {
+
+      def render(r: Mounted[P, S, Backend] => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] =
+        new Builder[P, S, Backend, w.Out](name, s, backendFn, r, w)
+
+      def render_P(r: P => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] = render($ => r($.props))(w)
+      def render_S(r: S => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] = render($ => r($.state))(w)
     }
 
     val fieldMounted = "m"
 
-    def mountedFromJs[P, S](rc: raw.ReactComponent): Mounted[P, S] =
-      rc.asInstanceOf[js.Dynamic].selectDynamic(fieldMounted).asInstanceOf[Mounted[P, S]]
+    def mountedFromJs[P, S, Backend](rc: raw.ReactComponent): Mounted[P, S, Backend] =
+      rc.asInstanceOf[js.Dynamic].selectDynamic(fieldMounted).asInstanceOf[Mounted[P, S, Backend]]
 
-    case class Builder[P, S, O](name: String, s: Box[S], render: Mounted[P, S] => raw.ReactElement, w: BuildResult.Aux[P, S, O]) {
+    case class Builder[P, S, Backend, O](name: String,
+                                         s: Box[S],
+                                         backendFn: NewBackendFn[P, S, Backend],
+                                         render: Mounted[P, S, Backend] => raw.ReactElement,
+                                         w: BuildResult.Aux[P, S, Backend, O]) {
       def build: O = {
 
         val spec = js.Dictionary.empty[js.Any]
@@ -332,12 +345,9 @@ package object react {
         for (n <- Option(name))
           spec("displayName") = n
 
-        def withMounted[A](f: Mounted[P, S] => A): js.ThisFunction0[raw.ReactComponent, A] =
+        def withMounted[A](f: Mounted[P, S, Backend] => A): js.ThisFunction0[raw.ReactComponent, A] =
           (rc: raw.ReactComponent) =>
             f(mountedFromJs(rc))
-
-//        if (ibf.isDefined)
-//          spec(BackendKey) = null
 
         spec("render") = withMounted(render)
 
@@ -360,23 +370,15 @@ package object react {
 //            val g = (a: A) => f(a).runNow()
 //            spec(name) = g: js.ThisFunction
 //          }
-//
-//        val renderFn: js.ThisFunction0[js.Any, raw.ReactElement] =
-//          (`this`: js.Any) => {
-//            // TODO Store an instance of Mounted[P, S] & use everywhere?
-//            val m = `this`.asInstanceOf[raw.ReactComponent]
-//            val p = m.props.asInstanceOf[Box[P]].a
-//            val s = m.state.asInstanceOf[Box[S]].a
-//            r(p, s)
-//          }
 
         def getInitialStateFn: js.Function0[Box[S]] = () => s
         spec.update("getInitialState", getInitialStateFn) // TODO I bet this has a perf impact.
 
         val componentWillMountFn: js.ThisFunction0[raw.ReactComponent, Unit] =
           (rc: raw.ReactComponent) => {
-            val m: Mounted[P, S] =
-              new Mounted(CompJs3.Mounted[Box[P], Box[S]](rc))
+            val mjs = CompJs3.Mounted[Box[P], Box[S]](rc)
+            val m = new Mounted[P, S, Backend](mjs)
+            m._backend = backendFn(m.asInstanceOf[BackendScope[P, S]])
             rc.asInstanceOf[js.Dynamic].updateDynamic(fieldMounted)(m.asInstanceOf[js.Any])
           }
         spec("componentWillMount") = componentWillMountFn
@@ -384,13 +386,6 @@ package object react {
 
 //        def onWillMountFn(f: DuringCallbackU[P, S, B] => Unit): Unit =
 //          componentWillMountFn = Some(componentWillMountFn.fold(f)(g => $ => {g($); f($)}))
-
-//        for (initBackend <- ibf)
-//          onWillMountFn { $ =>
-//            val bs = $.asInstanceOf[BackendScope[P, S]]
-//            val backend = initBackend(bs)
-//            $.asInstanceOf[Dynamic].updateDynamic(BackendKey)(backend.asInstanceOf[JAny])
-//          }
 
 //        for (f <- lc.componentWillMount)
 //          onWillMountFn(f(_).runNow())
@@ -423,18 +418,18 @@ package object react {
       }
     }
 
-    case class Ctor[P, S](jsInstance: CompJs3.Constructor[Box[P], Box[S]]) {
+    case class Ctor[P, S, B](jsInstance: CompJs3.Constructor[Box[P], Box[S]]) {
       def apply(p: P) =
-        new Unmounted[P, S](jsInstance(Box(p)))
+        new Unmounted[P, S, B](jsInstance(Box(p)))
     }
-    case class Ctor_NoProps[S](jsInstance: CompJs3.Constructor[Box[Unit], Box[S]]) {
-      private val instance: Unmounted[Unit, S] =
-        new Unmounted[Unit, S](jsInstance(Box.Unit))
+    case class Ctor_NoProps[S, B](jsInstance: CompJs3.Constructor[Box[Unit], Box[S]]) {
+      private val instance: Unmounted[Unit, S, B] =
+        new Unmounted[Unit, S, B](jsInstance(Box.Unit))
 
       def apply() = instance
     }
 
-    class Unmounted[P, S](jsInstance: CompJs3.Unmounted[Box[P], Box[S]]) {
+    class Unmounted[P, S, B](jsInstance: CompJs3.Unmounted[Box[P], Box[S]]) {
       def key: Option[Key] =
         jsInstance.key
 
@@ -447,13 +442,20 @@ package object react {
       def children: raw.ReactNodeList =
         jsInstance.children
 
-      def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted[P, S] = {
+      def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted[P, S, B] = {
         val rc = raw.ReactDOM.render(jsInstance.rawElement, container, callback.toJsFn)
         mountedFromJs(rc)
       }
     }
 
-    class Mounted[P, S](jsInstance: CompJs3.Mounted[Box[P], Box[S]]) {
+    type BackendScope[P, S] = Mounted[P, S, Null]
+    class Mounted[P, S, +Backend](jsInstance: CompJs3.Mounted[Box[P], Box[S]]) {
+
+      private[react] var _backend: Any = _
+
+      def backend: Backend =
+        _backend.asInstanceOf[Backend]
+
       final def isMounted(): Boolean =
         jsInstance.isMounted()
 
@@ -466,8 +468,11 @@ package object react {
       final def state: S =
         jsInstance.state.a
 
-      final def setState(state: S, callback: Callback = Callback.empty): Unit =
-        jsInstance.setState(Box(state), callback)
+      final def setState(newState: S, callback: Callback = Callback.empty): Unit =
+        jsInstance.setState(Box(newState), callback)
+
+      final def modState(mod: S => S, callback: Callback = Callback.empty): Unit =
+        jsInstance.modState(s => Box(mod(s.a)), callback)
 
       final def getDOMNode(): dom.Element =
         jsInstance.getDOMNode()
