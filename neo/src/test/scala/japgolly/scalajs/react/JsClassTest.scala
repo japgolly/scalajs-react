@@ -21,7 +21,7 @@ object JsClassPTest extends TestSuite {
 
   val RawClass = js.Dynamic.global.ComponentClassP.asInstanceOf[raw.ReactClass]
 
-  val Component = new CompJs3.Constructor[JsProps, Null](RawClass)
+  val Component = CompJs3.Constructor[JsProps, Null](RawClass)
 
   override def tests = TestSuite {
 
@@ -62,7 +62,7 @@ object JsClassSTest extends TestSuite {
   }
 
   val RawClass = js.Dynamic.global.ComponentClassS.asInstanceOf[raw.ReactClass]
-  val Component = new CompJs3.Constructor[Null, JsState](RawClass)
+  val Component = CompJs3.Constructor[Null, JsState](RawClass)
 
   override def tests = TestSuite {
 
@@ -114,7 +114,7 @@ object JsClassSTestX extends TestSuite {
   }
 
   val RawClass = js.Dynamic.global.ComponentClassS.asInstanceOf[raw.ReactClass]
-  val Component = new CompJs3X.Constructor_NoProps[JsState, JsMethods](RawClass)
+  val Component = CompJs3X.Constructor_NoProps[JsState, CompJs3X.Mounted[Null, JsState] with JsMethods](RawClass)
 
   implicit val xxxxxxxxxxxxxxxxxxxx: raw.ReactComponent => CompJs3X.Mounted[Null, JsState] with JsMethods =
     r => new CompJs3X.Mounted[Null, JsState] with JsMethods {
