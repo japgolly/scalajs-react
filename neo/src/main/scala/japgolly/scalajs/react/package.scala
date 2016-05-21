@@ -92,7 +92,7 @@ package object react {
   type Key = String | Boolean | raw.JsNumber
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+/*
   implicit def toPlainMountedNessNess[P <: js.Object, S <: js.Object]: raw.ReactComponent => CompJs3X.Mounted[P, S] =
     r => new CompJs3X.Mounted[P, S] {
       override val rawInstance = r
@@ -105,8 +105,6 @@ package object react {
     def Constructor[P <: js.Object, S <: js.Object](r: raw.ReactClass): Constructor[P, S]      = CompJs3X.Constructor(r)
     def Constructor_NoProps[S <: js.Object]        (r: raw.ReactClass): Constructor_NoProps[S] = CompJs3X.Constructor_NoProps(r)
   }
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   object CompJs3X {
 
@@ -173,4 +171,97 @@ package object react {
         raw.ReactDOM.findDOMNode(rawInstance)
     }
   }
+  */
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  object CompJs3 {
+    type Constructor[P <: js.Object, S <: js.Object] = CompJs3X.Constructor[P, S, CompJs3X.Mounted[P, S, raw.ReactComponent]]
+    type Constructor_NoProps[S <: js.Object] = CompJs3X.Constructor_NoProps[S, CompJs3X.Mounted[Null, S, raw.ReactComponent]]
+
+    def Constructor[P <: js.Object, S <: js.Object](r: raw.ReactClass): Constructor[P, S] =
+      CompJs3X.Constructor(r)(CompJs3X.Mounted[P, S, raw.ReactComponent])
+
+    def Constructor_NoProps[S <: js.Object](r: raw.ReactClass): Constructor_NoProps[S] =
+      CompJs3X.Constructor_NoProps(r)(CompJs3X.Mounted[Null, S, raw.ReactComponent])
+  }
+
+  object CompJs3X {
+
+    case class Constructor[P <: js.Object, S <: js.Object, M](rawCls: raw.ReactClass)(m: raw.ReactComponent => M) {
+      def mapMounted[MM](f: M => MM): Constructor[P, S, MM] =
+        new Constructor(rawCls)(f compose m)
+
+      def apply(props: P): Unmounted[P, S, M] =
+        new Unmounted(raw.React.createElement(rawCls, props), m)
+    }
+
+    case class Constructor_NoProps[S <: js.Object, M](rawCls: raw.ReactClass)(m: raw.ReactComponent => M) {
+      def mapMounted[MM](f: M => MM): Constructor_NoProps[S, MM] =
+        new Constructor_NoProps(rawCls)(f compose m)
+
+      private val instance: Unmounted[Null, S, M] =
+        new Constructor(rawCls)(m)(null)
+
+      def apply(): Unmounted[Null, S, M] =
+        instance
+    }
+
+    class Unmounted[P <: js.Object, S <: js.Object, M](val rawElement: raw.ReactComponentElement, m: raw.ReactComponent => M) {
+
+      def key: Option[Key] =
+        orNullToOption(rawElement.key)
+
+      def ref: Option[String] =
+        orNullToOption(rawElement.ref)
+
+      def props: P =
+        rawElement.props.asInstanceOf[P]
+
+      def children: raw.ReactNodeList =
+        rawElement.props.children
+
+      def mapMounted[MM](f: M => MM): Unmounted[P, S, MM] =
+        new Unmounted(rawElement, f compose m)
+
+      def renderIntoDOM(container: raw.ReactDOM.Container, callback: js.ThisFunction = null): M =
+        m(raw.ReactDOM.render(rawElement, container, callback))
+    }
+
+    def Mounted[P <: js.Object, S <: js.Object, Raw <: raw.ReactComponent](r: Raw): Mounted[P, S, Raw] =
+      new Mounted[P, S, Raw] {
+        override val rawInstance = r
+      }
+
+    trait Mounted[P <: js.Object, S <: js.Object, Raw <: raw.ReactComponent] {
+      val rawInstance: Raw
+
+      def addRawType[T <: js.Object]: Mounted[P, S, Raw with T] =
+        this.asInstanceOf[Mounted[P, S, Raw with T]]
+
+      //      def getDefaultProps: Props
+      //      def getInitialState: js.Object | Null
+      //      def render(): ReactElement
+
+      final def isMounted(): Boolean =
+        rawInstance.isMounted()
+
+      final def props: P =
+        rawInstance.props.asInstanceOf[P]
+
+      final def children: raw.ReactNodeList =
+        rawInstance.props.children
+
+      final def state: S =
+        rawInstance.state.asInstanceOf[S]
+
+      final def setState(state: S, callback: Callback = Callback.empty): Unit =
+        rawInstance.setState(state, callback.toJsFn)
+
+      final def getDOMNode(): dom.Element =
+        raw.ReactDOM.findDOMNode(rawInstance)
+    }
+
+  }
+
 }
