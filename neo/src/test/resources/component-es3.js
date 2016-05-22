@@ -1,4 +1,4 @@
-const ComponentClassP = React.createClass({
+const ES3_P = React.createClass({
   displayName: "HelloMessage",
 
   render: function render() {
@@ -6,7 +6,7 @@ const ComponentClassP = React.createClass({
   }
 });
 
-const ComponentClassS = React.createClass({
+const ES3_S = React.createClass({
   displayName: "Statey",
 
   getInitialState: function getInitialState() {

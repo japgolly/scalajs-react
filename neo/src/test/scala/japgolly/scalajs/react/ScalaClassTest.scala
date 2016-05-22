@@ -20,22 +20,20 @@ object ScalaClassPTest extends TestSuite {
 
   override def tests = TestSuite {
 
-    'render {
-      val unmounted = Component(Props("Bob"))
-      assertEq(unmounted.props.name, "Bob")
-      assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
-      assertEq(unmounted.key, None)
-      assertEq(unmounted.ref, None)
-      withBodyContainer { mountNode =>
-        val mounted = unmounted.renderIntoDOM(mountNode)
-        val n = mounted.getDOMNode.runNow()
-        assertOuterHTML(n, "<div>Hello Bob</div>")
-        assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.props.runNow().name, "Bob")
-        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
-        assertEq(mounted.state.runNow(), ())
-        assertEq(mounted.backend, ())
-      }
+    val unmounted = Component(Props("Bob"))
+    assertEq(unmounted.props.name, "Bob")
+    assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
+    assertEq(unmounted.key, None)
+    assertEq(unmounted.ref, None)
+    withBodyContainer { mountNode =>
+      val mounted = unmounted.renderIntoDOM(mountNode)
+      val n = mounted.getDOMNode.runNow()
+      assertOuterHTML(n, "<div>Hello Bob</div>")
+      assertEq(mounted.isMounted.runNow(), true)
+      assertEq(mounted.props.runNow().name, "Bob")
+      assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
+      assertEq(mounted.state.runNow(), ())
+      assertEq(mounted.backend, ())
     }
 
   }
@@ -64,46 +62,44 @@ object ScalaClassSTest extends TestSuite {
 
   override def tests = TestSuite {
 
-    'render {
-      val unmounted = Component()
-      assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
-      assertEq(unmounted.key, None)
-      assertEq(unmounted.ref, None)
-      withBodyContainer { mountNode =>
-        val mounted = unmounted.renderIntoDOM(mountNode)
-        val n = mounted.getDOMNode.runNow()
+    val unmounted = Component()
+    assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
+    assertEq(unmounted.key, None)
+    assertEq(unmounted.ref, None)
+    withBodyContainer { mountNode =>
+      val mounted = unmounted.renderIntoDOM(mountNode)
+      val n = mounted.getDOMNode.runNow()
 
-        assertOuterHTML(n, "<div>State = 123 + 400 + 7</div>")
-        assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
-        assertEq(mounted.state.runNow(), State(123, State2(400, 7)))
-        val b = mounted.backend
+      assertOuterHTML(n, "<div>State = 123 + 400 + 7</div>")
+      assertEq(mounted.isMounted.runNow(), true)
+      assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
+      assertEq(mounted.state.runNow(), State(123, State2(400, 7)))
+      val b = mounted.backend
 
-        mounted.setState(State(666, State2(500, 7))).runNow()
-        assertOuterHTML(n, "<div>State = 666 + 500 + 7</div>")
-        assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
-        assertEq(mounted.state.runNow(), State(666, State2(500, 7)))
-        assert(mounted.backend eq b)
+      mounted.setState(State(666, State2(500, 7))).runNow()
+      assertOuterHTML(n, "<div>State = 666 + 500 + 7</div>")
+      assertEq(mounted.isMounted.runNow(), true)
+      assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
+      assertEq(mounted.state.runNow(), State(666, State2(500, 7)))
+      assert(mounted.backend eq b)
 
-        mounted.backend.inc.runNow()
-        assertOuterHTML(n, "<div>State = 667 + 500 + 7</div>")
-        assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
-        assertEq(mounted.state.runNow(), State(667, State2(500, 7)))
-        assert(mounted.backend eq b)
+      mounted.backend.inc.runNow()
+      assertOuterHTML(n, "<div>State = 667 + 500 + 7</div>")
+      assertEq(mounted.isMounted.runNow(), true)
+      assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
+      assertEq(mounted.state.runNow(), State(667, State2(500, 7)))
+      assert(mounted.backend eq b)
 
-        val zoomed = mounted
-          .zoomState(_.s2)((s, b) => State(s.num1, b))
-          .zoomState(_.num2)((s, n) => State2(n, s.num3))
-        assertEq(zoomed.state.runNow(), 500)
-        zoomed.modState(_ + 1).runNow()
-        assertOuterHTML(n, "<div>State = 667 + 501 + 7</div>")
-        assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
-        assertEq(mounted.state.runNow(), State(667, State2(501, 7)))
-        assert(mounted.backend eq b)
-      }
+      val zoomed = mounted
+        .zoomState(_.s2)((s, b) => State(s.num1, b))
+        .zoomState(_.num2)((s, n) => State2(n, s.num3))
+      assertEq(zoomed.state.runNow(), 500)
+      zoomed.modState(_ + 1).runNow()
+      assertOuterHTML(n, "<div>State = 667 + 501 + 7</div>")
+      assertEq(mounted.isMounted.runNow(), true)
+      assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
+      assertEq(mounted.state.runNow(), State(667, State2(501, 7)))
+      assert(mounted.backend eq b)
     }
 
   }

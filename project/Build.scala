@@ -164,7 +164,7 @@ object ScalajsReact extends Build {
       name := "neo",
       libraryDependencies += "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
       libraryDependencies += "org.scalaz" %%% "scalaz-core" % Ver.Scalaz72 % "test",
-      jsDependencies += (ProvidedJS / "component-class.js" dependsOn "react-dom.js") % Test,
+      jsDependencies += (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
       scalacOptions in Test += "-language:reflectiveCalls"
     )
 
