@@ -13,7 +13,7 @@ object CompScala {
     val build: CompJs3.Constructor[Box[P], Box[S]] => Out
 
     final def apply(c: raw.ReactClass): Out =
-      build(CompJs3.Constructor(c))
+      build(CompJs3.Constructor(c)(CompJs3X.DirectCtor.askProps)) // TODO ← ///////////////////////////////////////////
   }
 
   sealed abstract class BuildResultLowPri {
