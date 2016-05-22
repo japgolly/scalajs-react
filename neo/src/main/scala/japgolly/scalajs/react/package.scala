@@ -1,7 +1,6 @@
 package japgolly.scalajs
 
-import scalajs.js
-import org.scalajs.dom
+import scalajs.js.|
 
 /*
 Bad approaches
@@ -26,151 +25,30 @@ package object react {
 
   type Callback = CallbackTo[Unit]
 
-  /*
-  case class CtorLike[In, P, Out](apply: (In, P) => Out) extends AnyVal
+  type Key = String | Boolean | raw.JsNumber
 
-  @inline implicit class CtorLikeOps[In, P, Out](ctor: In)(implicit like: CtorLike[In, P, Out]) {
-    @inline def apply(p: P): Out =
-      like.apply(ctor, p)
-    @inline def cmap[P2](f: P2 => P) =
-      new MappedCtor[In, P, P2, Out](ctor, f)(like)
-  }
-
-  case class ReactComponentU[P <: js.Object](r: raw.ReactComponent[P])
-
-  class MappedCtor[In, P0 <: js.Object, P, Out](val underlying: In, val f: P => P0)(implicit val like: CtorLike[In, P0, Out])
-  implicit def likeMappedCtor[In, P0 <: js.Object, P, Out] = CtorLike[MappedCtor[In, P0 , P, Out], P, Out](
-    (c, p) => c.like.apply(c.underlying, c.f(p)))
-
-  class JsClassCtor[P <: js.Object](val cls: raw.ReactClass[P])
-  implicit def likeJsClassCtor[P <: js.Object] = CtorLike[JsClassCtor[P], P, ReactComponentU[P]](
-    (c, p) => ReactComponentU(c.cls(p)))
-
-  class ScalaClassCtor[P](val js: JsClassCtor[Box[P]]) {
-//    def backend
-  }
-  implicit def likeScalaClassCtor[P] = CtorLike[ScalaClassCtor[P], P, ReactComponentU[Box[P]]](
-    (c, p) => c.js(Box(p)))
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  abstract class TEST {
-    type P <: js.Object
-    def p: P
-
-    def jsClassCtor: JsClassCtor[P]
-    jsClassCtor(p)
-
-    jsClassCtor.cmap(???).apply(???)
-
-  }
-  */
-
-//  class JsClassCtor[P <: js.Object](val raw: Raw.ReactClass[P]) extends AnyVal {
-//    def apply(props: P): CompU[P] =
-//      new CompU(raw(props))
-//  }
-//
-//  class CompU[P <: js.Object](val raw: Raw.ReactComponent[P]) extends AnyVal {
-//
-//    def render(container: Raw.ReactDOM.Container): CompM[P] = {
-//      val m: Raw.ReactComponent[_] = Raw.ReactDOM.render(raw.render(), container)
-//      new CompM(m.asInstanceOf[Raw.ReactComponent[P]])
-//    }
-//  }
-//
-//  class CompM[P <: js.Object](val raw: Raw.ReactComponent[P]) extends AnyVal {
-//
-//  }
-
-  import scalajs.js.|
   def orNullToOption[A](an: A | Null): Option[A] =
     Option(an.asInstanceOf[A])
 
-  type Key = String | Boolean | raw.JsNumber
+  // ================================================
+  // From Miles Sabin's "Shapeless" library.
+  //
+  //  type ¬[T] = T => Nothing
+  //  type ¬¬[T] = ¬[¬[T]]
+  //  type ∧[T, U] = T with U
+  //  type ∨[T, U] = ¬[¬[T] ∧ ¬[U]]
+  //
+  //  // Type-lambda for context bound
+  //  type |∨|[T, U] = {
+  //    type λ[X] = ¬¬[X] <:< (T ∨ U)
+  //  }
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-/*
-  implicit def toPlainMountedNessNess[P <: js.Object, S <: js.Object]: raw.ReactComponent => CompJs3X.Mounted[P, S] =
-    r => new CompJs3X.Mounted[P, S] {
-      override val rawInstance = r
-    }
+  // Type inequalities
+  trait =:!=[A, B]
 
-  object CompJs3 {
-    type Constructor[P <: js.Object, S <: js.Object] = CompJs3X.Constructor[P, S, CompJs3X.Mounted[P, S]]
-    type Constructor_NoProps[S <: js.Object] = CompJs3X.Constructor_NoProps[S, CompJs3X.Mounted[Null, S]]
-
-    def Constructor[P <: js.Object, S <: js.Object](r: raw.ReactClass): Constructor[P, S]      = CompJs3X.Constructor(r)
-    def Constructor_NoProps[S <: js.Object]        (r: raw.ReactClass): Constructor_NoProps[S] = CompJs3X.Constructor_NoProps(r)
-  }
-
-  object CompJs3X {
-
-    trait HasRaw {
-      val rawInstance: raw.ReactComponent
-
-      final def rawDyn: js.Dynamic =
-        rawInstance.asInstanceOf[js.Dynamic]
-    }
-
-    case class Constructor[P <: js.Object, S <: js.Object, M](rawCls: raw.ReactClass) {
-      def apply(props: P): Unmounted[P, S, M] =
-        new Unmounted(raw.React.createElement(rawCls, props))
-    }
-
-    case class Constructor_NoProps[S <: js.Object, M](rawCls: raw.ReactClass) {
-      private val instance: Unmounted[Null, S, M] =
-        new Constructor(rawCls).apply(null)
-
-      def apply(): Unmounted[Null, S, M] =
-        instance
-    }
-
-    class Unmounted[P <: js.Object, S <: js.Object, M](val rawElement: raw.ReactComponentElement) {
-
-      def key: Option[Key] =
-        orNullToOption(rawElement.key)
-
-      def ref: Option[String] =
-        orNullToOption(rawElement.ref)
-
-      def props: P =
-        rawElement.props.asInstanceOf[P]
-
-      def children: raw.ReactNodeList =
-        rawElement.props.children
-
-      def renderIntoDOM(container: raw.ReactDOM.Container, callback: js.ThisFunction = null)
-                       (implicit b: raw.ReactComponent => M): M =
-        b(raw.ReactDOM.render(rawElement, container, callback))
-    }
-
-    trait Mounted[P <: js.Object, S <: js.Object] extends HasRaw {
-      //      def getDefaultProps: Props
-      //      def getInitialState: js.Object | Null
-      //      def render(): ReactElement
-
-      final def isMounted(): Boolean =
-        rawInstance.isMounted()
-
-      final def props: P =
-        rawInstance.props.asInstanceOf[P]
-
-      final def children: raw.ReactNodeList =
-        rawInstance.props.children
-
-      final def state: S =
-        rawInstance.state.asInstanceOf[S]
-
-      final def setState(state: S, callback: Callback = Callback.empty): Unit =
-        rawInstance.setState(state, callback.toJsFn)
-
-      final def getDOMNode(): dom.Element =
-        raw.ReactDOM.findDOMNode(rawInstance)
-    }
-  }
-  */
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+  def unexpected : Nothing = sys.error("Unexpected invocation")
+  implicit def neq[A, B] : A =:!= B = new =:!=[A, B] {}
+  implicit def neqAmbig1[A] : A =:!= A = unexpected
+  implicit def neqAmbig2[A] : A =:!= A = unexpected
+  // ================================================
 }

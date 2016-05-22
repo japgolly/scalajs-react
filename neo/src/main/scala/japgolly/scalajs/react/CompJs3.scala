@@ -4,43 +4,19 @@ import org.scalajs.dom
 import scalajs.js
 
 object CompJs3 {
-//  type Constructor_NoProps[S <: js.Object] = Constructor[Null, S]
-//  type Constructor_NoProps[S <: js.Object] = CompJs3X.Constructor_NoProps[S, Mounted[Null, S]]
   type Constructor[P <: js.Object, S <: js.Object] = CompJs3X.Constructor[P, S, Mounted[P, S]]
   type Unmounted  [P <: js.Object, S <: js.Object] = CompJs3X.Unmounted  [P, S, Mounted[P, S]]
   type Mounted    [P <: js.Object, S <: js.Object] = CompJs3X.Mounted    [P, S, raw.ReactComponent]
 
   def Constructor[P <: js.Object, S <: js.Object](r: raw.ReactClass)
-                                                 (implicit direct: CompJs3X.DirectCtor[P, raw.ReactComponentElement]): Constructor[P, S] =
-    CompJs3X.Constructor(r)(Mounted[P, S])(direct)
-
-//  def Constructor_NoProps[S <: js.Object](r: raw.ReactClass): Constructor_NoProps[S] =
-//    ??? //CompJs3X.Constructor_NoProps(r)(Mounted[Null, S])
+                                                 (implicit d: CompJs3X.DirectCtor[P, raw.ReactComponentElement]): Constructor[P, S] =
+    new CompJs3X.Constructor(r, d, Mounted[P, S])
 
   def Mounted[P <: js.Object, S <: js.Object](r: raw.ReactComponent): Mounted[P, S] =
     CompJs3X.Mounted(r)
 }
 
 object CompJs3X {
-
-//  type ¬[T] = T => Nothing
-//  type ¬¬[T] = ¬[¬[T]]
-//  type ∧[T, U] = T with U
-//  type ∨[T, U] = ¬[¬[T] ∧ ¬[U]]
-//
-//  // Type-lambda for context bound
-//  type |∨|[T, U] = {
-//    type λ[X] = ¬¬[X] <:< (T ∨ U)
-//  }
-
-  // Type inequalities
-  trait =:!=[A, B]
-
-  def unexpected : Nothing = sys.error("Unexpected invocation")
-  implicit def neq[A, B] : A =:!= B = new =:!=[A, B] {}
-  implicit def neqAmbig1[A] : A =:!= A = unexpected
-  implicit def neqAmbig2[A] : A =:!= A = unexpected
-
 
   case class CtorTC_P[A, P, U](apply: (A, P) => U) extends AnyVal
   case class CtorTC__[A, U](apply: A => U) extends AnyVal
@@ -58,14 +34,8 @@ object CompJs3X {
     CtorTC_P(_ applyDirect _)
 
   implicit def ctorTC__[S <: js.Object, M]: CtorTC__[Constructor[Null, S, M], Unmounted[Null, S, M]] =
-    //CtorTC__(c => new Constructor(c.rawCls)(c.m)(null))
     CtorTC__(_ applyDirect null)
 
-
-//  case class DirectCtor[P, O](apply: (raw.ReactClass, P) => O) extends AnyVal {
-//    def cmap[X](f: X => P): DirectCtor[X, O] = DirectCtor((c, x) => apply(c, f(x)))
-//    def map [X](f: O => X): DirectCtor[P, X] = DirectCtor((c, p) => f(apply(c, p)))
-//  }
 
   abstract class DirectCtor[P, O] {
     def apply(cls: raw.ReactClass): P => O
@@ -105,42 +75,16 @@ object CompJs3X {
       DirectCtor(raw.React.createElement(_, _))
   }
 
-
-  case class Constructor[P <: js.Object, S <: js.Object, M](rawCls: raw.ReactClass)
-//                                                           (implicit direct: DirectCtor[P, Unmounted[P, S, M]]) {
-                                                           (m: raw.ReactComponent => M)
-                                                           (implicit direct: DirectCtor[P, raw.ReactComponentElement]) {
+  class Constructor[P <: js.Object, S <: js.Object, M](val rawCls: raw.ReactClass,
+                                                       direct    : DirectCtor[P, raw.ReactComponentElement],
+                                                       wrapMount : raw.ReactComponent => M) {
 
     def mapMounted[MM](f: M => MM): Constructor[P, S, MM] =
-//      new Constructor(rawCls)(direct.map(_ mapMounted f))
-      new Constructor(rawCls)(f compose m)(direct)
+      new Constructor(rawCls, direct, f compose wrapMount)
 
     val applyDirect: P => Unmounted[P, S, M] =
-      direct.rmap(new Unmounted[P, S, M](_, m))(rawCls)
-//      new Unmounted(raw.React.createElement(rawCls, props), m)
+      direct.rmap(new Unmounted[P, S, M](_, wrapMount))(rawCls)
   }
-
-
-  /*
-    case class Constructor[P <: js.Object, S <: js.Object, M](rawCls: raw.ReactClass)(m: raw.ReactComponent => M) {
-      def mapMounted[MM](f: M => MM): Constructor[P, S, MM] =
-        new Constructor(rawCls)(f compose m)
-
-      def apply(props: P): Unmounted[P, S, M] =
-        new Unmounted(raw.React.createElement(rawCls, props), m)
-    }
-
-    case class Constructor_NoProps[S <: js.Object, M](rawCls: raw.ReactClass)(m: raw.ReactComponent => M) {
-      def mapMounted[MM](f: M => MM): Constructor_NoProps[S, MM] =
-        new Constructor_NoProps(rawCls)(f compose m)
-
-      private val instance: Unmounted[Null, S, M] =
-        new Constructor(rawCls)(m)(null)
-
-      def apply(): Unmounted[Null, S, M] =
-        instance
-    }
-    */
 
   class Unmounted[P <: js.Object, S <: js.Object, M](val rawElement: raw.ReactComponentElement, m: raw.ReactComponent => M) {
 
