@@ -5,39 +5,6 @@ import scalajs.js
 
 object CompScala {
 
-  /**
-    * Implicit that automatically determines the type of component to build.
-    */
-  sealed abstract class BuildResult[P, S, B] {
-    type Out
-    val build: CompJs3.Constructor[Box[P], Box[S]] => Out
-
-    final def apply(c: raw.ReactClass): Out =
-      build(CompJs3.Constructor(c)(CompJs3X.DirectCtor.askProps)) // TODO ← ///////////////////////////////////////////
-  }
-
-  sealed abstract class BuildResultLowPri {
-    /** Default case - Props are required in the component constructor. */
-    implicit def buildResultId[P, S, B]: BuildResult.Aux[P, S, B, Ctor[P, S, B]] =
-      BuildResult(Ctor(_))
-  }
-
-  object BuildResult extends BuildResultLowPri {
-    type Aux[P, S, B, O] = BuildResult[P, S, B] {type Out = O}
-
-    @inline def apply[P, S, B, O](f: CompJs3.Constructor[Box[P], Box[S]] => O): Aux[P, S, B, O] =
-      new BuildResult[P, S, B] {
-        override type Out = O
-        override val build = f
-      }
-
-    /** Special case - When Props = Unit, don't ask for props in the component constructor. */
-    implicit def buildResultUnit[S, B]: BuildResult.Aux[Unit, S, B, Ctor_NoProps[S, B]] =
-      BuildResult(Ctor_NoProps(_))
-  }
-
-  // -------------------------------------------------------------------------------------------------------------------
-
   def build[P](name: String) = new {
     def initialState[S](s: S) = PS[P, S](name, Box(s))
     def stateless = PS[P, Unit](name, Box.Unit)
@@ -52,14 +19,14 @@ object CompScala {
 
   case class PSB[P, S, Backend](name: String, s: Box[S], backendFn: NewBackendFn[P, S, Backend]) {
 
-    def render(r: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] =
-      new Builder[P, S, Backend, w.Out](name, s, backendFn, r, w)
+    def render(r: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement): Builder[P, S, Backend] =
+      new Builder[P, S, Backend](name, s, backendFn, r)
 
-    def render_P(r: P => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] =
-      render($ => r($.props.runNow()))(w)
+    def render_P(r: P => raw.ReactElement): Builder[P, S, Backend] =
+      render($ => r($.props.runNow()))
 
-    def render_S(r: S => raw.ReactElement)(implicit w: BuildResult[P, S, Backend]): Builder[P, S, Backend, w.Out] =
-      render($ => r($.state.runNow()))(w)
+    def render_S(r: S => raw.ReactElement): Builder[P, S, Backend] =
+      render($ => r($.state.runNow()))
   }
 
   val fieldMounted = "m"
@@ -67,12 +34,12 @@ object CompScala {
   def mountedFromJs[P, S, Backend](rc: raw.ReactComponent): Mounted[CallbackTo, P, S, Backend] =
     rc.asInstanceOf[js.Dynamic].selectDynamic(fieldMounted).asInstanceOf[Mounted[CallbackTo, P, S, Backend]]
 
-  case class Builder[P, S, Backend, O](name: String,
-                                       s: Box[S],
-                                       backendFn: NewBackendFn[P, S, Backend],
-                                       render: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement,
-                                       w: BuildResult.Aux[P, S, Backend, O]) {
-    def build: O = {
+  case class Builder[P, S, Backend](name: String,
+                                    s: Box[S],
+                                    backendFn: NewBackendFn[P, S, Backend],
+                                    render: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement) {
+
+    def build(implicit directCtor: CompJs3X.DirectCtor[Box[P], raw.ReactComponentElement]): Ctor[P, S, Backend] = {
 
       val spec = js.Dictionary.empty[js.Any]
 
@@ -127,19 +94,17 @@ object CompScala {
 
       val spec2 = spec.asInstanceOf[raw.ReactComponentSpec]
       val cls = raw.React.createClass(spec2)
-      w(cls)
+      val jsCtor = CompJs3.Constructor[Box[P], Box[S]](cls)(directCtor)
+      Ctor(jsCtor)
     }
   }
 
   case class Ctor[P, S, B](jsInstance: CompJs3.Constructor[Box[P], Box[S]]) {
-    def apply(p: P) =
-      new Unmounted[P, S, B](jsInstance(Box(p)))
-  }
-  case class Ctor_NoProps[S, B](jsInstance: CompJs3.Constructor[Box[Unit], Box[S]]) {
-    private val instance: Unmounted[Unit, S, B] =
-      new Unmounted[Unit, S, B](jsInstance(Box.Unit))
-
-    def apply() = instance
+    val applyDirect: P => Unmounted[P, S, B] =
+      jsInstance.directCtorU
+        .lmap[P](Box(_))
+        .rmap(new Unmounted[P, S, B](_))
+        .apply(jsInstance.rawCls)
   }
 
   class Unmounted[P, S, B](jsInstance: CompJs3.Unmounted[Box[P], Box[S]]) {

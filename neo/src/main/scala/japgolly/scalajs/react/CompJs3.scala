@@ -18,25 +18,6 @@ object CompJs3 {
 
 object CompJs3X {
 
-  case class CtorTC_P[A, P, U](apply: (A, P) => U) extends AnyVal
-  case class CtorTC__[A, U](apply: A => U) extends AnyVal
-
-  @inline implicit class CtorOps_P[A, P, U](private val self: A)(implicit c: CtorTC_P[A, P, U]) {
-    @inline def apply(props: P): U =
-      c.apply(self, props)
-  }
-  @inline implicit class CtorOps__[A, U](private val self: A)(implicit c: CtorTC__[A, U]) {
-    @inline def apply(): U =
-      c.apply(self)
-  }
-
-  implicit def ctorTC_P[P <: js.Object, S <: js.Object, M](implicit ev: P =:!= Null): CtorTC_P[Constructor[P, S, M], P, Unmounted[P, S, M]] =
-    CtorTC_P(_ applyDirect _)
-
-  implicit def ctorTC__[S <: js.Object, M]: CtorTC__[Constructor[Null, S, M], Unmounted[Null, S, M]] =
-    CtorTC__(_ applyDirect null)
-
-
   abstract class DirectCtor[P, O] {
     def apply(cls: raw.ReactClass): P => O
 
@@ -66,24 +47,34 @@ object CompJs3X {
     def constProps[P <: js.Object](props: P): DirectCtor[P, raw.ReactComponentElement] =
       const(raw.React.createElement(_, props))
 
-    implicit val nullProps: DirectCtor[Null, raw.ReactComponentElement] =
+    implicit val PropsNull: DirectCtor[Null, raw.ReactComponentElement] =
       constProps(null)
+
+    implicit val PropsBoxUnit: DirectCtor[Box[Unit], raw.ReactComponentElement] =
+      constProps(Box.Unit)
   }
 
   trait DirectCtor_LowPri {
-    implicit def askProps[P <: js.Object]/*(implicit ev: P =:!= Null)*/: DirectCtor[P, raw.ReactComponentElement] =
+    // Scala's contravariant implicit search is stupid
+    private val AskPropsInstance: DirectCtor[js.Object, raw.ReactComponentElement] =
       DirectCtor(raw.React.createElement(_, _))
+
+    implicit def askProps[P <: js.Object]: DirectCtor[P, raw.ReactComponentElement] =
+      AskPropsInstance.asInstanceOf[DirectCtor[P, raw.ReactComponentElement]]
   }
 
-  class Constructor[P <: js.Object, S <: js.Object, M](val rawCls: raw.ReactClass,
-                                                       direct    : DirectCtor[P, raw.ReactComponentElement],
-                                                       wrapMount : raw.ReactComponent => M) {
+  class Constructor[P <: js.Object, S <: js.Object, M](val rawCls    : raw.ReactClass,
+                                                       val directCtor: DirectCtor[P, raw.ReactComponentElement],
+                                                       wrapMount     : raw.ReactComponent => M) {
 
     def mapMounted[MM](f: M => MM): Constructor[P, S, MM] =
-      new Constructor(rawCls, direct, f compose wrapMount)
+      new Constructor(rawCls, directCtor, f compose wrapMount)
+
+    val directCtorU: DirectCtor[P, Unmounted[P, S, M]] =
+      directCtor.rmap(new Unmounted[P, S, M](_, wrapMount))
 
     val applyDirect: P => Unmounted[P, S, M] =
-      direct.rmap(new Unmounted[P, S, M](_, wrapMount))(rawCls)
+      directCtorU(rawCls)
   }
 
   class Unmounted[P <: js.Object, S <: js.Object, M](val rawElement: raw.ReactComponentElement, m: raw.ReactComponent => M) {
