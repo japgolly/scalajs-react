@@ -39,7 +39,6 @@ object JsClassPTest extends TestSuite {
       }
     }
 
-
   }
 }
 
@@ -48,12 +47,8 @@ object JsClassSTest extends TestSuite {
 
   @js.native
   trait JsState extends js.Object {
-    val num: Int
-  }
-
-  @js.native
-  trait JsMethods extends js.Object {
-    def inc(): Unit
+    val num1: Int
+    val num2: Int
   }
 
   val RawClass = js.Dynamic.global.ComponentClassS.asInstanceOf[raw.ReactClass]
@@ -61,7 +56,7 @@ object JsClassSTest extends TestSuite {
 
   override def tests = TestSuite {
     def JsState(num: Int): JsState =
-      js.Dynamic.literal("num" -> num).asInstanceOf[JsState]
+      js.Dynamic.literal("num1" -> num).asInstanceOf[JsState]
 
     'render {
       val unmounted = Component(null)
@@ -72,16 +67,18 @@ object JsClassSTest extends TestSuite {
         val mounted = unmounted.renderIntoDOM(mountNode) //.asInstanceOf[raw.ReactComponent[js.Object] with JsMethods]
         val n = mounted.getDOMNode
 
-        assertOuterHTML(n, "<div>State = 123</div>")
+        assertOuterHTML(n, "<div>State = 123 + 500</div>")
         assertEq(mounted.isMounted, true)
         assertEq(mounted.propsChildren, raw.emptyReactNodeList)
-        assertEq(mounted.state.num, 123)
+        assertEq(mounted.state.num1, 123)
+        assertEq(mounted.state.num2, 500)
 
         mounted.setState(JsState(666))
-        assertOuterHTML(n, "<div>State = 666</div>")
+        assertOuterHTML(n, "<div>State = 666 + 500</div>")
         assertEq(mounted.isMounted, true)
         assertEq(mounted.propsChildren, raw.emptyReactNodeList)
-        assertEq(mounted.state.num, 666)
+        assertEq(mounted.state.num1, 666)
+        assertEq(mounted.state.num2, 500)
 
 //        mounted.inc()
 //        assertOuterHTML(n, "<div>State = 667</div>")
@@ -91,7 +88,6 @@ object JsClassSTest extends TestSuite {
       }
     }
 
-
   }
 }
 
@@ -100,7 +96,8 @@ object JsClassSTestX extends TestSuite {
 
   @js.native
   trait JsState extends js.Object {
-    val num: Int
+    val num1: Int
+    val num2: Int
   }
 
   @js.native
@@ -113,8 +110,10 @@ object JsClassSTestX extends TestSuite {
 
 
   override def tests = TestSuite {
-    def JsState(num: Int): JsState =
-      js.Dynamic.literal("num" -> num).asInstanceOf[JsState]
+    def JsState1(num1: Int): JsState =
+      js.Dynamic.literal("num1" -> num1).asInstanceOf[JsState]
+    def JsState(num1: Int, num2: Int): JsState =
+      js.Dynamic.literal("num1" -> num1, "num2" -> num2).asInstanceOf[JsState]
 
     'render {
       val unmounted = Component()
@@ -125,25 +124,36 @@ object JsClassSTestX extends TestSuite {
         val mounted = unmounted.renderIntoDOM(mountNode) //.asInstanceOf[raw.ReactComponent[js.Object] with JsMethods]
         val n = mounted.getDOMNode
 
-        assertOuterHTML(n, "<div>State = 123</div>")
+        assertOuterHTML(n, "<div>State = 123 + 500</div>")
         assertEq(mounted.isMounted, true)
         assertEq(mounted.propsChildren, raw.emptyReactNodeList)
-        assertEq(mounted.state.num, 123)
+        assertEq(mounted.state.num1, 123)
+        assertEq(mounted.state.num2, 500)
 
-        mounted.setState(JsState(666))
-        assertOuterHTML(n, "<div>State = 666</div>")
+        mounted.setState(JsState1(666))
+        assertOuterHTML(n, "<div>State = 666 + 500</div>")
         assertEq(mounted.isMounted, true)
         assertEq(mounted.propsChildren, raw.emptyReactNodeList)
-        assertEq(mounted.state.num, 666)
+        assertEq(mounted.state.num1, 666)
+        assertEq(mounted.state.num2, 500)
 
         mounted.rawInstance.inc()
-        assertOuterHTML(n, "<div>State = 667</div>")
+        assertOuterHTML(n, "<div>State = 667 + 500</div>")
         assertEq(mounted.isMounted, true)
         assertEq(mounted.propsChildren, raw.emptyReactNodeList)
-        assertEq(mounted.state.num, 667)
+        assertEq(mounted.state.num1, 667)
+        assertEq(mounted.state.num2, 500)
+
+        val zoomed = mounted.zoomState(_.num2)((s, n) => JsState(s.num1, n))
+        assertEq(zoomed.state, 500)
+        zoomed.modState(_ + 1)
+        assertOuterHTML(n, "<div>State = 667 + 501</div>")
+        assertEq(mounted.isMounted, true)
+        assertEq(mounted.propsChildren, raw.emptyReactNodeList)
+        assertEq(mounted.state.num1, 667)
+        assertEq(mounted.state.num2, 501)
       }
     }
-
 
   }
 }

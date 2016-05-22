@@ -67,8 +67,11 @@ object CompJs3X {
     }
 
   trait Mounted[P <: js.Object, S <: js.Object, Raw <: raw.ReactComponent]
-      extends BaseMounted[Effect.Id, P, S] {
+      extends MountedBase[Effect.Id, P, S] {
+
     val rawInstance: Raw
+
+    override protected final implicit def F = Effect.InstanceId
 
     def addRawType[T <: js.Object]: Mounted[P, S, Raw with T] =
       this.asInstanceOf[Mounted[P, S, Raw with T]]
@@ -100,6 +103,14 @@ object CompJs3X {
 
     override final def forceUpdate(callback: Callback = Callback.empty): Unit =
       rawInstance.forceUpdate(callback.toJsFn)
+
+//    override final def mapProps[A](f: P => A): Mounted[A, S, Raw] = {
+//      val self = this
+//      new Mounted[A, S, Raw] {
+//        override val rawInstance = self.rawInstance
+//        override def props: A = f(self.props)
+//      }
+//    }
   }
 
 }

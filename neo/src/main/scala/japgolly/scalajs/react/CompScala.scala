@@ -174,14 +174,10 @@ object CompScala {
       extends Mounted[F, P, S, Backend](jsInstance)(F)
 
   abstract class Mounted[F[_], P, S, +Backend](jsInstance: CompJs3.Mounted[Box[P], Box[S]])
-                                              (implicit F: Effect[F]) extends BaseMounted[F, P, S] {
+                                              (override protected final val F: Effect[F]) extends MountedBase[F, P, S] {
 
-//      def directAccess: Mounted[Effect.Id, P, S, Backend] = {
-//        val m = new Mounted[Effect.Id, P, S, Backend](jsInstance)
-//        m._backend = _backend
-//        m
-//      }
-
+//    def direct: Mounted[Effect.Id, P, S, Backend] =
+//      new MountedD[Effect.Id, P, S, Backend](backend, jsInstance)
 
     def backend: Backend
 

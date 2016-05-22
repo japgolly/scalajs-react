@@ -10,15 +10,15 @@ const ComponentClassS = React.createClass({
   displayName: "Statey",
 
   getInitialState: function getInitialState() {
-      return { num: 123 };
+      return { num1: 123, num2: 500 };
     },
 
     inc: function inc() {
-      this.setState({ num: this.state.num + 1 });
+      this.setState({ num1: this.state.num1 + 1 });
     },
 
   render: function render() {
-    return React.createElement("div", null, "State = ", this.state.num);
+    return React.createElement("div", null, "State = ", this.state.num1, " + ", this.state.num2);
   }
 });
 
