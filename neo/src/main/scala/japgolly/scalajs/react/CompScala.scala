@@ -19,14 +19,14 @@ object CompScala {
 
   case class PSB[P, S, Backend](name: String, s: Box[S], backendFn: NewBackendFn[P, S, Backend]) {
 
-    def render(r: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement): Builder[P, S, Backend] =
-      new Builder[P, S, Backend](name, s, backendFn, r)
+    def render[C <: ChildrenArg](r: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement): Builder[P, C, S, Backend] =
+      new Builder[P, C, S, Backend](name, s, backendFn, r)
 
-    def render_P(r: P => raw.ReactElement): Builder[P, S, Backend] =
-      render($ => r($.props.runNow()))
+    def render_P(r: P => raw.ReactElement): Builder[P, ChildrenArg.None, S, Backend] =
+      render[ChildrenArg.None]($ => r($.props.runNow()))
 
-    def render_S(r: S => raw.ReactElement): Builder[P, S, Backend] =
-      render($ => r($.state.runNow()))
+    def render_S(r: S => raw.ReactElement): Builder[P, ChildrenArg.None, S, Backend] =
+      render[ChildrenArg.None]($ => r($.state.runNow()))
   }
 
   val fieldMounted = "m"
@@ -34,12 +34,12 @@ object CompScala {
   def mountedFromJs[P, S, Backend](rc: raw.ReactComponent): Mounted[CallbackTo, P, S, Backend] =
     rc.asInstanceOf[js.Dynamic].selectDynamic(fieldMounted).asInstanceOf[Mounted[CallbackTo, P, S, Backend]]
 
-  case class Builder[P, S, Backend](name: String,
-                                    s: Box[S],
-                                    backendFn: NewBackendFn[P, S, Backend],
-                                    render: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement) {
+  case class Builder[P, C <: ChildrenArg, S, Backend](name: String,
+                                                      s: Box[S],
+                                                      backendFn: NewBackendFn[P, S, Backend],
+                                                      render: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement) {
 
-    def build(implicit directCtor: DirectCtor.Init[Box[P], ChildrenArg.None]): Ctor[P, S, Backend] = {
+    def build(implicit directCtor: DirectCtor.Init[Box[P], C]): Ctor[P, C, S, Backend] = {
 
       val spec = js.Dictionary.empty[js.Any]
 
@@ -94,13 +94,13 @@ object CompScala {
 
       val spec2 = spec.asInstanceOf[raw.ReactComponentSpec]
       val cls = raw.React.createClass(spec2)
-      val jsCtor = CompJs3.Constructor[Box[P], ChildrenArg.None, Box[S]](cls)(directCtor)
+      val jsCtor = CompJs3.Constructor[Box[P], C, Box[S]](cls)(directCtor)
       Ctor(jsCtor)
     }
   }
 
-  case class Ctor[P, S, B](jsInstance: CompJs3.Constructor[Box[P], ChildrenArg.None, Box[S]])
-      extends BaseCtor[P, ChildrenArg.None, Unmounted[P, S, B]] {
+  case class Ctor[P, C <: ChildrenArg, S, B](jsInstance: CompJs3.Constructor[Box[P], C, Box[S]])
+      extends BaseCtor[P, C, Unmounted[P, S, B]] {
 
     override val applyDirect: (P, ChildrenArgSeq) => Unmounted[P, S, B] =
       jsInstance.directCtorU
