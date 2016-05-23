@@ -2,7 +2,7 @@ const ES3_P = React.createClass({
   displayName: "HelloMessage",
 
   render: function render() {
-    return React.createElement("div", null, "Hello ", this.props.name);
+    return React.createElement("div", null, "Hello ", this.props.name, this.props.children);
   }
 });
 
@@ -18,7 +18,7 @@ const ES3_S = React.createClass({
     },
 
   render: function render() {
-    return React.createElement("div", null, "State = ", this.state.num1, " + ", this.state.num2);
+    return React.createElement("div", null, "State = ", this.state.num1, " + ", this.state.num2, this.props.children);
   }
 });
 

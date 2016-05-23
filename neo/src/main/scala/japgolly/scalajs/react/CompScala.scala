@@ -39,7 +39,7 @@ object CompScala {
                                     backendFn: NewBackendFn[P, S, Backend],
                                     render: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement) {
 
-    def build(implicit directCtor: CompJs3X.DirectCtor[Box[P], raw.ReactComponentElement]): Ctor[P, S, Backend] = {
+    def build(implicit directCtor: CompJs3X.DirectCtor.Init[Box[P], ChildrenArg.None]): Ctor[P, S, Backend] = {
 
       val spec = js.Dictionary.empty[js.Any]
 
@@ -94,13 +94,13 @@ object CompScala {
 
       val spec2 = spec.asInstanceOf[raw.ReactComponentSpec]
       val cls = raw.React.createClass(spec2)
-      val jsCtor = CompJs3.Constructor[Box[P], Box[S]](cls)(directCtor)
+      val jsCtor = CompJs3.Constructor[Box[P], ChildrenArg.None, Box[S]](cls)(directCtor)
       Ctor(jsCtor)
     }
   }
 
-  case class Ctor[P, S, B](jsInstance: CompJs3.Constructor[Box[P], Box[S]]) {
-    val applyDirect: P => Unmounted[P, S, B] =
+  case class Ctor[P, S, B](jsInstance: CompJs3.Constructor[Box[P], ChildrenArg.None, Box[S]]) {
+    val applyDirect: (P, ChildrenArgSeq) => Unmounted[P, S, B] =
       jsInstance.directCtorU
         .lmap[P](Box(_))
         .rmap(new Unmounted[P, S, B](_))

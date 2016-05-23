@@ -4,12 +4,12 @@ import org.scalajs.dom
 import scalajs.js
 
 object CompJs3 {
-  type Constructor[P <: js.Object, S <: js.Object] = CompJs3X.Constructor[P, S, Mounted[P, S]]
+  type Constructor[P <: js.Object, C <: ChildrenArg, S <: js.Object] = CompJs3X.Constructor[P, C, S, Mounted[P, S]]
   type Unmounted  [P <: js.Object, S <: js.Object] = CompJs3X.Unmounted  [P, S, Mounted[P, S]]
   type Mounted    [P <: js.Object, S <: js.Object] = CompJs3X.Mounted    [P, S, raw.ReactComponent]
 
-  def Constructor[P <: js.Object, S <: js.Object](r: raw.ReactClass)
-                                                 (implicit d: CompJs3X.DirectCtor[P, raw.ReactComponentElement]): Constructor[P, S] =
+  def Constructor[P <: js.Object, C <: ChildrenArg, S <: js.Object](r: raw.ReactClass)
+      (implicit d: CompJs3X.DirectCtor[P, C, raw.ReactComponentElement]): Constructor[P, C, S] =
     new CompJs3X.Constructor(r, d, Mounted[P, S])
 
   def Mounted[P <: js.Object, S <: js.Object](r: raw.ReactComponent): Mounted[P, S] =
@@ -18,62 +18,77 @@ object CompJs3 {
 
 object CompJs3X {
 
-  abstract class DirectCtor[P, O] {
-    def apply(cls: raw.ReactClass): P => O
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    def lmap[X](f: X => P): DirectCtor[X, O]
-    def rmap[X](f: O => X): DirectCtor[P, X]
+  abstract class DirectCtor[P, C <: ChildrenArg, O] {
+    def apply(cls: raw.ReactClass): (P, ChildrenArgSeq) => O
 
-    def dimap[X, Y](f: X => P)(g: O => Y): DirectCtor[X, Y] =
+    def lmap[X](f: X => P): DirectCtor[X, C, O]
+    def rmap[X](f: O => X): DirectCtor[P, C, X]
+
+    def dimap[X, Y](f: X => P)(g: O => Y): DirectCtor[X, C, Y] =
       lmap(f).rmap(g)
   }
 
   object DirectCtor extends DirectCtor_LowPri {
-    def apply[P, O](run: (raw.ReactClass, P) => O): DirectCtor[P, O] =
-      new DirectCtor[P, O] {
-        override def apply(c: raw.ReactClass) = run(c, _)
-        override def lmap[X](f: X => P)       = DirectCtor[X, O]((c, x) => run(c, f(x)))
-        override def rmap[X](f: O => X)       = DirectCtor[P, X]((c, p) => f(run(c, p)))
+    def apply[P, C <: ChildrenArg, O](run: (raw.ReactClass, P, ChildrenArgSeq) => O): DirectCtor[P, C, O] =
+      new DirectCtor[P, C, O] {
+        override def apply(c: raw.ReactClass) = run(c, _, _)
+        override def lmap[X](f: X => P)       = DirectCtor[X, C, O]((rc, x, c) => run(rc, f(x), c))
+        override def rmap[X](f: O => X)       = DirectCtor[P, C, X]((rc, p, c) => f(run(rc, p, c)))
       }
 
-    def const[P, O](run: raw.ReactClass => O): DirectCtor[P, O] =
-      new DirectCtor[P, O] {
-        override def apply(c: raw.ReactClass) = {val i = run(c); _ => i}
+    def const[P, O](run: raw.ReactClass => O): DirectCtor[P, ChildrenArg.None, O] =
+      new DirectCtor[P, ChildrenArg.None, O] {
+        override def apply(c: raw.ReactClass) = {val i = run(c); (_, _) => i}
         override def lmap[X](f: X => P)       = const[X, O](run)
         override def rmap[X](f: O => X)       = const[P, X](f compose run)
         override def toString                 = "DirectCtor.const"
       }
 
-    def constProps[P <: js.Object](props: P): DirectCtor[P, raw.ReactComponentElement] =
+    type Init[P, C <: ChildrenArg] = DirectCtor[P, C, raw.ReactComponentElement]
+
+    def constProps[P <: js.Object](props: P): Init[P, ChildrenArg.None] =
       const(raw.React.createElement(_, props))
 
-    implicit val PropsNull: DirectCtor[Null, raw.ReactComponentElement] =
+    implicit val PropsNull: Init[Null, ChildrenArg.None] =
       constProps(null)
 
-    implicit val PropsBoxUnit: DirectCtor[Box[Unit], raw.ReactComponentElement] =
+    implicit val PropsBoxUnit: Init[Box[Unit], ChildrenArg.None] =
       constProps(Box.Unit)
   }
 
   trait DirectCtor_LowPri {
-    // Scala's contravariant implicit search is stupid
-    private val AskPropsInstance: DirectCtor[js.Object, raw.ReactComponentElement] =
-      DirectCtor(raw.React.createElement(_, _))
+    import DirectCtor.Init
 
-    implicit def askProps[P <: js.Object]: DirectCtor[P, raw.ReactComponentElement] =
-      AskPropsInstance.asInstanceOf[DirectCtor[P, raw.ReactComponentElement]]
+    // Scala's contravariant implicit search is stupid
+    private val AskPropsInstance: Init[js.Object, ChildrenArg.None] =
+      DirectCtor((rc, p, _) => raw.React.createElement(rc, p))
+
+    implicit def askProps[P <: js.Object]: Init[P, ChildrenArg.None] =
+      AskPropsInstance.asInstanceOf[Init[P, ChildrenArg.None]]
+
+    // Scala's contravariant implicit search is stupid
+    private val AskPropsCInstance: Init[js.Object, ChildrenArg.Varargs] =
+      DirectCtor((rc, p, c) => raw.React.createElement(rc, p, c: _*))
+
+    implicit def askPropsC[P <: js.Object]: Init[P, ChildrenArg.Varargs] =
+      AskPropsCInstance.asInstanceOf[Init[P, ChildrenArg.Varargs]]
   }
 
-  class Constructor[P <: js.Object, S <: js.Object, M](val rawCls    : raw.ReactClass,
-                                                       val directCtor: DirectCtor[P, raw.ReactComponentElement],
-                                                       wrapMount     : raw.ReactComponent => M) {
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    def mapMounted[MM](f: M => MM): Constructor[P, S, MM] =
+  class Constructor[P <: js.Object, C <: ChildrenArg, S <: js.Object, M](val rawCls: raw.ReactClass,
+                                                                         val directCtor: DirectCtor[P, C, raw.ReactComponentElement],
+                                                                         wrapMount: raw.ReactComponent => M) {
+
+    def mapMounted[MM](f: M => MM): Constructor[P, C, S, MM] =
       new Constructor(rawCls, directCtor, f compose wrapMount)
 
-    val directCtorU: DirectCtor[P, Unmounted[P, S, M]] =
+    val directCtorU: DirectCtor[P, C, Unmounted[P, S, M]] =
       directCtor.rmap(new Unmounted[P, S, M](_, wrapMount))
 
-    val applyDirect: P => Unmounted[P, S, M] =
+    val applyDirect: (P, ChildrenArgSeq) => Unmounted[P, S, M] =
       directCtorU(rawCls)
   }
 
