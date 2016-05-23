@@ -99,8 +99,10 @@ object CompScala {
     }
   }
 
-  case class Ctor[P, S, B](jsInstance: CompJs3.Constructor[Box[P], ChildrenArg.None, Box[S]]) {
-    val applyDirect: (P, ChildrenArgSeq) => Unmounted[P, S, B] =
+  case class Ctor[P, S, B](jsInstance: CompJs3.Constructor[Box[P], ChildrenArg.None, Box[S]])
+      extends BaseCtor[P, ChildrenArg.None, Unmounted[P, S, B]] {
+
+    override val applyDirect: (P, ChildrenArgSeq) => Unmounted[P, S, B] =
       jsInstance.directCtorU
         .lmap[P](Box(_))
         .rmap(new Unmounted[P, S, B](_))

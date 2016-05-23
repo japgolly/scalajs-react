@@ -42,95 +42,39 @@ package object react {
   private val EmptyChildrenArgSeq: ChildrenArgSeq =
     Seq.empty
 
-  // ================================================
-  // From Miles Sabin's "Shapeless" library.
-  //
-  //  type ¬[T] = T => Nothing
-  //  type ¬¬[T] = ¬[¬[T]]
-  //  type ∧[T, U] = T with U
-  //  type ∨[T, U] = ¬[¬[T] ∧ ¬[U]]
-  //
-  //  // Type-lambda for context bound
-  //  type |∨|[T, U] = {
-  //    type λ[X] = ¬¬[X] <:< (T ∨ U)
-  //  }
-
-  // Type inequalities
-  trait =:!=[A, B]
-
-  def unexpected : Nothing = sys.error("Unexpected invocation")
-  implicit def neq[A, B] : A =:!= B = new =:!=[A, B] {}
-  implicit def neqAmbig1[A] : A =:!= A = unexpected
-  implicit def neqAmbig2[A] : A =:!= A = unexpected
-  // ================================================
-
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  // ======================
-  // +Props, +Children
-  // ======================
-
-  case class CtorTC_PC[A, P, U](apply: (A, P, ChildrenArgSeq) => U) extends AnyVal
-
-  @inline implicit class CtorOps_PC[A, P, U](private val self: A)(implicit c: CtorTC_PC[A, P, U]) {
-    @inline def apply(props: P)(children: raw.ReactNodeList*): U =
-      c.apply(self, props, children)
+  final case class Singleton[A](value: A) extends AnyVal
+  object Singleton {
+    implicit val Null = Singleton[Null](null)
+    implicit val Unit = Singleton(())
+    implicit val BoxUnit = Singleton(Box.Unit)
   }
 
-  implicit def jsCtorTC_PC[P <: js.Object, S <: js.Object, M](implicit ev: P =:!= Null): CtorTC_PC[CompJs3X.Constructor[P, ChildrenArg.Varargs, S, M], P, CompJs3X.Unmounted[P, S, M]] =
-    CtorTC_PC(_.applyDirect(_, _))
+  sealed trait NoSingletonFor[A]
+  @inline implicit def noSingletonFor[A]: NoSingletonFor[A] = null
+  implicit def singletonFor1[A: Singleton]: NoSingletonFor[A] = null
+  implicit def singletonFor2[A: Singleton]: NoSingletonFor[A] = null
 
-  // TODO missing Scala
-
-  // ======================
-  // +Props, -Children
-  // ======================
-
-  case class CtorTC_P[A, P, U](apply: (A, P) => U) extends AnyVal
-
-  @inline implicit class CtorOps_P[A, P, U](private val self: A)(implicit c: CtorTC_P[A, P, U]) {
-    @inline def apply(props: P): U =
-      c.apply(self, props)
-  }
-
-  implicit def jsCtorTC_P[P <: js.Object, S <: js.Object, M](implicit ev: P =:!= Null): CtorTC_P[CompJs3X.Constructor[P, ChildrenArg.None, S, M], P, CompJs3X.Unmounted[P, S, M]] =
-    CtorTC_P(_.applyDirect(_, EmptyChildrenArgSeq))
-
-  implicit def scalaCtorTC_P[P, S, B](implicit ev: P =:!= Unit): CtorTC_P[CompScala.Ctor[P, S, B], P, CompScala.Unmounted[P, S, B]] =
-    CtorTC_P(_.applyDirect(_, EmptyChildrenArgSeq))
-
-  // ======================
-  // -Props, +Children
-  // ======================
-
-  case class CtorTC__C[A, U](apply: (A, ChildrenArgSeq) => U) extends AnyVal
-
-  @inline implicit class CtorOps__C[A, U](private val self: A)(implicit c: CtorTC__C[A, U]) {
-    @inline def apply(children: raw.ReactNodeList*): U =
-      c.apply(self, children)
-  }
-
-  implicit def jsCtorTC__C[S <: js.Object, M]: CtorTC__C[CompJs3X.Constructor[Null, ChildrenArg.Varargs, S, M], CompJs3X.Unmounted[Null, S, M]] =
-    CtorTC__C(_.applyDirect(null, _))
-
-  // TODO missing Scala
-
-  // ======================
-  // -Props, -Children
-  // ======================
-
-  case class CtorTC__[A, U](apply: A => U) extends AnyVal
-
-  @inline implicit class CtorOps__[A, U](private val self: A)(implicit c: CtorTC__[A, U]) {
+  @inline implicit final class BaseCtorOps__[P, U](private val self: BaseCtor[P, ChildrenArg.None, U])(implicit p: Singleton[P]) {
     @inline def apply(): U =
-      c.apply(self)
+      self.applyDirect(p.value, EmptyChildrenArgSeq)
   }
 
-  implicit def jsCtorTC__[S <: js.Object, M]: CtorTC__[CompJs3X.Constructor[Null, ChildrenArg.None, S, M], CompJs3X.Unmounted[Null, S, M]] =
-    CtorTC__(_.applyDirect(null, EmptyChildrenArgSeq))
+  @inline implicit final class BaseCtorOpsP_[P, U](private val self: BaseCtor[P, ChildrenArg.None, U])(implicit ev: NoSingletonFor[P]) {
+    @inline def apply(props: P): U =
+      self.applyDirect(props, EmptyChildrenArgSeq)
+  }
 
-  implicit def scalaCtorTC__[S, B]: CtorTC__[CompScala.Ctor[Unit, S, B], CompScala.Unmounted[Unit, S, B]] =
-    CtorTC__(_.applyDirect((), EmptyChildrenArgSeq))
+  @inline implicit final class BaseCtorOps_C[P, U](private val self: BaseCtor[P, ChildrenArg.Varargs, U])(implicit p: Singleton[P]) {
+    @inline def apply(children: raw.ReactNodeList*): U =
+      self.applyDirect(p.value, children)
+  }
+
+  @inline implicit final class BaseCtorOpsPC[P, U](private val self: BaseCtor[P, ChildrenArg.Varargs, U])(implicit ev: NoSingletonFor[P]) {
+    @inline def apply(props: P)(children: raw.ReactNodeList*): U =
+      self.applyDirect(props, children)
+  }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

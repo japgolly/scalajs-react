@@ -2,6 +2,10 @@ package japgolly.scalajs.react
 
 import org.scalajs.dom
 
+trait BaseCtor[P, C <: ChildrenArg, U] {
+  val applyDirect: (P, ChildrenArgSeq) => U
+}
+
 /*
   type Constructor_NoProps[S <: js.Object] = CompJs3X.Constructor_NoProps[S, Mounted[Null, S]]
   type Constructor[P <: js.Object, S <: js.Object] = CompJs3X.Constructor[P, S, Mounted[P, S]]

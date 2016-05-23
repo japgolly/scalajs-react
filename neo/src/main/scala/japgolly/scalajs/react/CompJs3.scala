@@ -21,8 +21,9 @@ object CompJs3X {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   class Constructor[P <: js.Object, C <: ChildrenArg, S <: js.Object, M](val rawCls: raw.ReactClass,
-                                                                         val directCtor: DirectCtor[P, C, raw.ReactComponentElement],
-                                                                         wrapMount: raw.ReactComponent => M) {
+                                                                         val directCtor: DirectCtor.Init[P, C],
+                                                                         wrapMount: raw.ReactComponent => M)
+    extends BaseCtor[P, C, Unmounted[P, S, M]] {
 
     def mapMounted[MM](f: M => MM): Constructor[P, C, S, MM] =
       new Constructor(rawCls, directCtor, f compose wrapMount)
@@ -30,7 +31,7 @@ object CompJs3X {
     val directCtorU: DirectCtor[P, C, Unmounted[P, S, M]] =
       directCtor.rmap(new Unmounted[P, S, M](_, wrapMount))
 
-    val applyDirect: (P, ChildrenArgSeq) => Unmounted[P, S, M] =
+    override val applyDirect: (P, ChildrenArgSeq) => Unmounted[P, S, M] =
       directCtorU(rawCls)
   }
 
