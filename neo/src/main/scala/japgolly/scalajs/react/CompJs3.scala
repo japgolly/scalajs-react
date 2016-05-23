@@ -9,7 +9,7 @@ object CompJs3 {
   type Mounted    [P <: js.Object, S <: js.Object] = CompJs3X.Mounted    [P, S, raw.ReactComponent]
 
   def Constructor[P <: js.Object, C <: ChildrenArg, S <: js.Object](r: raw.ReactClass)
-      (implicit d: CompJs3X.DirectCtor[P, C, raw.ReactComponentElement]): Constructor[P, C, S] =
+      (implicit d: DirectCtor[P, C, raw.ReactComponentElement]): Constructor[P, C, S] =
     new CompJs3X.Constructor(r, d, Mounted[P, S])
 
   def Mounted[P <: js.Object, S <: js.Object](r: raw.ReactComponent): Mounted[P, S] =
@@ -17,64 +17,6 @@ object CompJs3 {
 }
 
 object CompJs3X {
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  abstract class DirectCtor[P, C <: ChildrenArg, O] {
-    def apply(cls: raw.ReactClass): (P, ChildrenArgSeq) => O
-
-    def lmap[X](f: X => P): DirectCtor[X, C, O]
-    def rmap[X](f: O => X): DirectCtor[P, C, X]
-
-    def dimap[X, Y](f: X => P)(g: O => Y): DirectCtor[X, C, Y] =
-      lmap(f).rmap(g)
-  }
-
-  object DirectCtor extends DirectCtor_LowPri {
-    def apply[P, C <: ChildrenArg, O](run: (raw.ReactClass, P, ChildrenArgSeq) => O): DirectCtor[P, C, O] =
-      new DirectCtor[P, C, O] {
-        override def apply(c: raw.ReactClass) = run(c, _, _)
-        override def lmap[X](f: X => P)       = DirectCtor[X, C, O]((rc, x, c) => run(rc, f(x), c))
-        override def rmap[X](f: O => X)       = DirectCtor[P, C, X]((rc, p, c) => f(run(rc, p, c)))
-      }
-
-    def const[P, O](run: raw.ReactClass => O): DirectCtor[P, ChildrenArg.None, O] =
-      new DirectCtor[P, ChildrenArg.None, O] {
-        override def apply(c: raw.ReactClass) = {val i = run(c); (_, _) => i}
-        override def lmap[X](f: X => P)       = const[X, O](run)
-        override def rmap[X](f: O => X)       = const[P, X](f compose run)
-        override def toString                 = "DirectCtor.const"
-      }
-
-    type Init[P, C <: ChildrenArg] = DirectCtor[P, C, raw.ReactComponentElement]
-
-    def constProps[P <: js.Object](props: P): Init[P, ChildrenArg.None] =
-      const(raw.React.createElement(_, props))
-
-    implicit val PropsNull: Init[Null, ChildrenArg.None] =
-      constProps(null)
-
-    implicit val PropsBoxUnit: Init[Box[Unit], ChildrenArg.None] =
-      constProps(Box.Unit)
-  }
-
-  trait DirectCtor_LowPri {
-    import DirectCtor.Init
-
-    // Scala's contravariant implicit search is stupid
-    private val AskPropsInstance: Init[js.Object, ChildrenArg.None] =
-      DirectCtor((rc, p, _) => raw.React.createElement(rc, p))
-
-    implicit def askProps[P <: js.Object]: Init[P, ChildrenArg.None] =
-      AskPropsInstance.asInstanceOf[Init[P, ChildrenArg.None]]
-
-    // Scala's contravariant implicit search is stupid
-    private val AskPropsCInstance: Init[js.Object, ChildrenArg.Varargs] =
-      DirectCtor((rc, p, c) => raw.React.createElement(rc, p, c: _*))
-
-    implicit def askPropsC[P <: js.Object]: Init[P, ChildrenArg.Varargs] =
-      AskPropsCInstance.asInstanceOf[Init[P, ChildrenArg.Varargs]]
-  }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

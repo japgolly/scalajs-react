@@ -39,7 +39,7 @@ object CompScala {
                                     backendFn: NewBackendFn[P, S, Backend],
                                     render: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement) {
 
-    def build(implicit directCtor: CompJs3X.DirectCtor.Init[Box[P], ChildrenArg.None]): Ctor[P, S, Backend] = {
+    def build(implicit directCtor: DirectCtor.Init[Box[P], ChildrenArg.None]): Ctor[P, S, Backend] = {
 
       val spec = js.Dictionary.empty[js.Any]
 
