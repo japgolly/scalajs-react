@@ -218,7 +218,7 @@ object ExampleTest extends TestSuite {
 
 `DebugJs`
 =========
-[DebugJs](src/main/scala/japgolly/scalajs/react/test/DebugJs.scala) is a dumping ground for functionality useful when testing raw JS.
+[DebugJs](../test/src/main/scala/japgolly/scalajs/react/test/DebugJs.scala) is a dumping ground for functionality useful when testing raw JS.
 
 It doesn't have much but `inspectObject` can be tremendously useful.
 
