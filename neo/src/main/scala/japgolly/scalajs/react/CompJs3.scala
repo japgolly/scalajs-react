@@ -12,6 +12,9 @@ object CompJs3 {
       (implicit d: DirectCtor[P, C, raw.ReactComponentElement]): Constructor[P, C, S] =
     new CompJs3X.Constructor(r, d, Mounted[P, S])
 
+  def Unmounted[P <: js.Object, S <: js.Object](r: raw.ReactComponentElement): Unmounted[P, S] =
+    new CompJs3X.Unmounted(r, Mounted[P, S])
+
   def Mounted[P <: js.Object, S <: js.Object](r: raw.ReactComponent): Mounted[P, S] =
     CompJs3X.Mounted(r)
 }

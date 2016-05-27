@@ -49,19 +49,19 @@ package object react {
     implicit val Null = Singleton[Null](null)
     implicit val Unit = Singleton(())
     implicit val BoxUnit = Singleton(Box.Unit)
-  }
 
-  sealed trait NoSingletonFor[A]
-  @inline implicit def noSingletonFor[A]: NoSingletonFor[A] = null
-  implicit def singletonFor1[A: Singleton]: NoSingletonFor[A] = null
-  implicit def singletonFor2[A: Singleton]: NoSingletonFor[A] = null
+    sealed trait Not[A]
+    @inline implicit def noSingletonFor[A]: Not[A] = null
+    implicit def singletonFor1[A: Singleton]: Not[A] = null
+    implicit def singletonFor2[A: Singleton]: Not[A] = null
+  }
 
   @inline implicit final class BaseCtorOps__[P, U](private val self: BaseCtor[P, ChildrenArg.None, U])(implicit p: Singleton[P]) {
     @inline def apply(): U =
       self.applyDirect(p.value, EmptyChildrenArgSeq)
   }
 
-  @inline implicit final class BaseCtorOpsP_[P, U](private val self: BaseCtor[P, ChildrenArg.None, U])(implicit ev: NoSingletonFor[P]) {
+  @inline implicit final class BaseCtorOpsP_[P, U](private val self: BaseCtor[P, ChildrenArg.None, U])(implicit ev: Singleton.Not[P]) {
     @inline def apply(props: P): U =
       self.applyDirect(props, EmptyChildrenArgSeq)
   }
@@ -71,7 +71,7 @@ package object react {
       self.applyDirect(p.value, children)
   }
 
-  @inline implicit final class BaseCtorOpsPC[P, U](private val self: BaseCtor[P, ChildrenArg.Varargs, U])(implicit ev: NoSingletonFor[P]) {
+  @inline implicit final class BaseCtorOpsPC[P, U](private val self: BaseCtor[P, ChildrenArg.Varargs, U])(implicit ev: Singleton.Not[P]) {
     @inline def apply(props: P)(children: raw.ReactNodeList*): U =
       self.applyDirect(props, children)
   }
@@ -104,7 +104,7 @@ package object react {
         override def toString                 = "DirectCtor.const"
       }
 
-    type Init[P, C <: ChildrenArg] = DirectCtor[P, C, raw.ReactComponentElement]
+    type Init[P <: js.Object, C <: ChildrenArg] = DirectCtor[P, C, raw.ReactComponentElement]
 
     def constProps[P <: js.Object](props: P): Init[P, ChildrenArg.None] =
       const(raw.React.createElement(_, props))
