@@ -22,9 +22,11 @@ package object raw {
 
   type ReactElement = ReactComponentElement | ReactDOMElement
 
+  type PropsChildren = ReactNodeList
+
   @js.native
   trait PropsWithChildren extends js.Object {
-    val children: ReactNodeList
+    val children: PropsChildren
   }
 
   @js.native
@@ -50,11 +52,10 @@ package object raw {
   @inline implicit def ReactFragment[A](a: A)(implicit w: A => js.Array[ReactNode | ReactEmpty]): ReactFragment =
     w(a).asInstanceOf[ReactFragment]
 
-  /** Type of `props.children` */
   type ReactNodeList = ReactNode | ReactEmpty
 
-  @inline def emptyReactNodeList: ReactNodeList =
-    js.undefined
+//  @inline def emptyReactNodeList: ReactNodeList =
+//    js.undefined
 
   type ReactText = String | JsNumber
 

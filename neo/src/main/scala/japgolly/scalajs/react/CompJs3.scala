@@ -49,8 +49,8 @@ object CompJs3X {
     def props: P =
       rawElement.props.asInstanceOf[P]
 
-    def propsChildren: raw.ReactNodeList =
-      rawElement.props.children
+    def propsChildren: PropsChildren =
+      PropsChildren(rawElement.props.children)
 
     def mapMounted[MM](f: M => MM): Unmounted[P, S, MM] =
       new Unmounted(rawElement, f compose m)
@@ -85,7 +85,7 @@ object CompJs3X {
       rawInstance.props.asInstanceOf[P]
 
     override final def propsChildren =
-      rawInstance.props.children
+      PropsChildren(rawInstance.props.children)
 
     override final def state: S =
       rawInstance.state.asInstanceOf[S]

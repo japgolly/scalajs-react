@@ -31,7 +31,8 @@ object JsEs3PTest extends JsEs3Test {
       'main {
         val unmounted = Component(JsProps("Bob"))
         assertEq(unmounted.props.name, "Bob")
-        assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
+        assertEq(unmounted.propsChildren.count, 0)
+        assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
         withBodyContainer { mountNode =>
@@ -40,7 +41,8 @@ object JsEs3PTest extends JsEs3Test {
           assertOuterHTML(n, "<div>Hello Bob</div>")
           assertEq(mounted.isMounted, true)
           assertEq(mounted.props.name, "Bob")
-          assertEq(mounted.propsChildren, raw.emptyReactNodeList)
+          assertEq(mounted.propsChildren.count, 0)
+          assertEq(mounted.propsChildren.isEmpty, true)
           assertEq(mounted.state, null)
         }
       }
@@ -68,7 +70,8 @@ object JsEs3PTest extends JsEs3Test {
       'use {
         val unmounted = C(JsProps("X"))(H1)
         assertEq(unmounted.props.name, "X")
-//        assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
+        assertEq(unmounted.propsChildren.count, 1)
+        assertEq(unmounted.propsChildren.isEmpty, false)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
         withBodyContainer { mountNode =>
@@ -77,7 +80,8 @@ object JsEs3PTest extends JsEs3Test {
           assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
           assertEq(mounted.isMounted, true)
           assertEq(mounted.props.name, "X")
-//          assertEq(mounted.propsChildren, raw.emptyReactNodeList)
+          assertEq(mounted.propsChildren.count, 1)
+          assertEq(mounted.propsChildren.isEmpty, false)
           assertEq(mounted.state, null)
         }
       }
@@ -113,7 +117,8 @@ object JsEs3STest extends JsEs3Test {
     'noChildren {
       'main {
         val unmounted = Component()
-        assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
+        assertEq(unmounted.propsChildren.count, 0)
+        assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
         withBodyContainer { mountNode =>
@@ -122,21 +127,22 @@ object JsEs3STest extends JsEs3Test {
 
           assertOuterHTML(n, "<div>State = 123 + 500</div>")
           assertEq(mounted.isMounted, true)
-          assertEq(mounted.propsChildren, raw.emptyReactNodeList)
+          assertEq(mounted.propsChildren.count, 0)
+          assertEq(mounted.propsChildren.isEmpty, true)
           assertEq(mounted.state.num1, 123)
           assertEq(mounted.state.num2, 500)
 
           mounted.setState(JsState1(666))
           assertOuterHTML(n, "<div>State = 666 + 500</div>")
           assertEq(mounted.isMounted, true)
-          assertEq(mounted.propsChildren, raw.emptyReactNodeList)
+          assertEq(mounted.propsChildren.isEmpty, true)
           assertEq(mounted.state.num1, 666)
           assertEq(mounted.state.num2, 500)
 
           mounted.rawInstance.inc()
           assertOuterHTML(n, "<div>State = 667 + 500</div>")
           assertEq(mounted.isMounted, true)
-          assertEq(mounted.propsChildren, raw.emptyReactNodeList)
+          assertEq(mounted.propsChildren.isEmpty, true)
           assertEq(mounted.state.num1, 667)
           assertEq(mounted.state.num2, 500)
 
@@ -145,7 +151,7 @@ object JsEs3STest extends JsEs3Test {
           zoomed.modState(_ + 1)
           assertOuterHTML(n, "<div>State = 667 + 501</div>")
           assertEq(mounted.isMounted, true)
-          assertEq(mounted.propsChildren, raw.emptyReactNodeList)
+          assertEq(mounted.propsChildren.isEmpty, true)
           assertEq(mounted.state.num1, 667)
           assertEq(mounted.state.num2, 501)
         }
@@ -174,7 +180,8 @@ object JsEs3STest extends JsEs3Test {
 
       'use {
         val unmounted = C(H1)
-//        assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
+        assertEq(unmounted.propsChildren.count, 1)
+        assertEq(unmounted.propsChildren.isEmpty, false)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
         withBodyContainer { mountNode =>
@@ -183,7 +190,8 @@ object JsEs3STest extends JsEs3Test {
 
           assertOuterHTML(n, "<div>State = 123 + 500<h1>Huge</h1></div>")
           assertEq(mounted.isMounted, true)
-//          assertEq(mounted.propsChildren, raw.emptyReactNodeList)
+          assertEq(mounted.propsChildren.count, 1)
+          assertEq(mounted.propsChildren.isEmpty, false)
           assertEq(mounted.state.num1, 123)
           assertEq(mounted.state.num2, 500)
         }

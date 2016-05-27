@@ -22,7 +22,8 @@ object ScalaClassPTest extends TestSuite {
 
     val unmounted = Component(Props("Bob"))
     assertEq(unmounted.props.name, "Bob")
-    assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
+    assertEq(unmounted.propsChildren.count, 0)
+    assertEq(unmounted.propsChildren.isEmpty, true)
     assertEq(unmounted.key, None)
     assertEq(unmounted.ref, None)
     withBodyContainer { mountNode =>
@@ -31,7 +32,8 @@ object ScalaClassPTest extends TestSuite {
       assertOuterHTML(n, "<div>Hello Bob</div>")
       assertEq(mounted.isMounted.runNow(), true)
       assertEq(mounted.props.runNow().name, "Bob")
-      assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
+      assertEq(mounted.propsChildren.runNow().count, 0)
+      assertEq(mounted.propsChildren.runNow().isEmpty, true)
       assertEq(mounted.state.runNow(), ())
       assertEq(mounted.backend, ())
     }
@@ -67,7 +69,7 @@ object ScalaClassSTest extends TestSuite {
 
     'main {
       val unmounted = Component()
-      assertEq(unmounted.propsChildren, raw.emptyReactNodeList)
+      assert(unmounted.propsChildren.isEmpty)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
       withBodyContainer { mountNode =>
@@ -76,21 +78,22 @@ object ScalaClassSTest extends TestSuite {
 
         assertOuterHTML(n, "<div>State = 123 + 400 + 7</div>")
         assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
+        assertEq(mounted.propsChildren.runNow().count, 0)
+        assertEq(mounted.propsChildren.runNow().isEmpty, true)
         assertEq(mounted.state.runNow(), State(123, State2(400, 7)))
         val b = mounted.backend
 
         mounted.setState(State(666, State2(500, 7))).runNow()
         assertOuterHTML(n, "<div>State = 666 + 500 + 7</div>")
         assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
+        assertEq(mounted.propsChildren.runNow().isEmpty, true)
         assertEq(mounted.state.runNow(), State(666, State2(500, 7)))
         assert(mounted.backend eq b)
 
         mounted.backend.inc.runNow()
         assertOuterHTML(n, "<div>State = 667 + 500 + 7</div>")
         assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
+        assertEq(mounted.propsChildren.runNow().isEmpty, true)
         assertEq(mounted.state.runNow(), State(667, State2(500, 7)))
         assert(mounted.backend eq b)
 
@@ -101,7 +104,7 @@ object ScalaClassSTest extends TestSuite {
         zoomed.modState(_ + 1).runNow()
         assertOuterHTML(n, "<div>State = 667 + 501 + 7</div>")
         assertEq(mounted.isMounted.runNow(), true)
-        assertEq(mounted.propsChildren.runNow(), raw.emptyReactNodeList)
+        assertEq(mounted.propsChildren.runNow().isEmpty, true)
         assertEq(mounted.state.runNow(), State(667, State2(501, 7)))
         assert(mounted.backend eq b)
       }

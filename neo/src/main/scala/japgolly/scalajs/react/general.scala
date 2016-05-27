@@ -31,7 +31,7 @@ trait BaseUnmounted[P, S, M] {
   def key: Option[Key]
   def ref: Option[String]
   def props: P
-  def propsChildren: raw.ReactNodeList
+  def propsChildren: PropsChildren
   def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): M
 
 //  def mapMounted[MM](f: M => MM): BaseUnmounted[P, S, MM]
@@ -39,7 +39,7 @@ trait BaseUnmounted[P, S, M] {
 
 trait CompProps[F[_], P] {
   def props: F[P]
-  def propsChildren: F[raw.ReactNodeList]
+  def propsChildren: F[PropsChildren]
   def mapProps[X](f: P => X): CompProps[F, X]
 }
 

@@ -119,7 +119,7 @@ object CompScala {
     def props: P =
       jsInstance.props.a
 
-    def propsChildren: raw.ReactNodeList =
+    def propsChildren: PropsChildren =
       jsInstance.propsChildren
 
     def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted[CallbackTo, P, S, B] = {
@@ -154,7 +154,7 @@ object CompScala {
     final def props: F[P] =
       F point jsInstance.props.a
 
-    final def propsChildren: F[raw.ReactNodeList] =
+    final def propsChildren: F[PropsChildren] =
       F point jsInstance.propsChildren
 
     final def state: F[S] =
