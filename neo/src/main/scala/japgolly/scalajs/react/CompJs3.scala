@@ -4,38 +4,89 @@ import org.scalajs.dom
 import scalajs.js
 
 object CompJs3 {
-  type Constructor[P <: js.Object, C <: ChildrenArg, S <: js.Object] = CompJs3X.Constructor[P, C, S, Mounted[P, S]]
+  type Constructor[P <: js.Object, S <: js.Object, C[a, b] <: CtorType[a, b]] = CompJs3X.Constructor[P, S, C, Mounted[P, S]]
   type Unmounted  [P <: js.Object, S <: js.Object] = CompJs3X.Unmounted  [P, S, Mounted[P, S]]
   type Mounted    [P <: js.Object, S <: js.Object] = CompJs3X.Mounted    [P, S, raw.ReactComponent]
 
-  def Constructor[P <: js.Object, C <: ChildrenArg, S <: js.Object](r: raw.ReactClass)
-      (implicit d: DirectCtor[P, C, raw.ReactComponentElement]): Constructor[P, C, S] =
-    new CompJs3X.Constructor(r, d, Mounted[P, S])
+  // TODO Change arg order to be consistent
+  def Constructor[P <: js.Object, C <: ChildrenArg, S <: js.Object]
+      (rc: raw.ReactClass)
+      (implicit s: Summoner[P, C, S]): Constructor[P, S, s.CC] =
+    new CompJs3X.Constructor[P, S, s.CC, Mounted[P, S]](rc, s.summon(rc))
 
   def Unmounted[P <: js.Object, S <: js.Object](r: raw.ReactComponentElement): Unmounted[P, S] =
     new CompJs3X.Unmounted(r, Mounted[P, S])
 
   def Mounted[P <: js.Object, S <: js.Object](r: raw.ReactComponent): Mounted[P, S] =
     CompJs3X.Mounted(r)
+
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Summoner
+
+  import CtorType._
+
+  // TODO Change arg order to be consistent
+  sealed trait Summoner[P <: js.Object, C <: ChildrenArg, S <: js.Object] {
+    type CC[-p, +u] <: CtorType[p, u]
+    final type Out = CC[P, Unmounted[P, S]]
+    val summon: raw.ReactClass => Out
+  }
+
+  object Summoner {
+    type Aux[P <: js.Object, C <: ChildrenArg, S <: js.Object, T[-p, +u] <: CtorType[p, u]] =
+      Summoner[P, C, S] {type CC[-p, +u] = T[p, u]}
+
+    def apply[P <: js.Object, C <: ChildrenArg, S <: js.Object, T[-p, +u] <: CtorType[p, u]]
+        (f: raw.ReactClass => T[P, Unmounted[P, S]]): Aux[P, C, S, T] =
+      new Summoner[P, C, S] { override type CC[-p, +u] = T[p, u]; override val summon = f }
+
+    implicit def summonV[P <: js.Object, S <: js.Object](implicit s: Singleton[P]) =
+      Summoner[P, ChildrenArg.None, S, Void](rc =>
+        CtorType.void[P, Unmounted[P, S]](s.value)(singletonProps(s))(p => Unmounted(raw.React.createElement(rc, p))))
+
+    implicit def summonC[P <: js.Object, S <: js.Object](implicit s: Singleton[P]) =
+      Summoner[P, ChildrenArg.Varargs, S, Children](rc =>
+        Children[P, Unmounted[P, S]]((k, r, c) =>
+          Unmounted(raw.React.createElement(rc, maybeSingletonProps(s)(k, r), c: _*))))
+
+    implicit def summonF[P <: js.Object, S <: js.Object](implicit w: Singleton.Not[P]) =
+      Summoner[P, ChildrenArg.Varargs, S, PropsAndChildren](rc =>
+        PropsAndChildren[P, Unmounted[P, S]]((k, r, p, c) =>
+          Unmounted(raw.React.createElement(rc, applyKR(p)(k, r), c: _*))))
+
+    implicit def summonP[P <: js.Object, S <: js.Object](implicit w: Singleton.Not[P]) =
+      Summoner[P, ChildrenArg.None, S, Props](rc =>
+        Props[P, Unmounted[P, S]]((k, r, p) =>
+          Unmounted(raw.React.createElement(rc, applyKR(p)(k, r)))))
+
+    def maybeSingletonProps[P <: js.Object](s: Singleton[P])(key: ArgKey, ref: ArgRef): P =
+      if (key.isEmpty && ref.isEmpty)
+        s.value
+      else
+        singletonProps(s)(key, ref)
+
+    @inline def singletonProps[P <: js.Object](s: Singleton[P])(key: ArgKey, ref: ArgRef): P =
+      applyKR(s.mutable())(key, ref)
+
+    def applyKR[P <: js.Object](p: P)(key: ArgKey, ref: ArgRef): P = {
+      key.foreach(k => p.asInstanceOf[js.Dynamic].updateDynamic("key")(k.asInstanceOf[js.Any]))
+      ref.foreach(r => p.asInstanceOf[js.Dynamic].updateDynamic("ref")(r.asInstanceOf[js.Any]))
+      p
+    }
+  }
 }
 
 object CompJs3X {
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  class Constructor[P <: js.Object, C <: ChildrenArg, S <: js.Object, M](val rawCls: raw.ReactClass,
-                                                                         val directCtor: DirectCtor.Init[P, C],
-                                                                         wrapMount: raw.ReactComponent => M)
-    extends BaseCtor[P, C, Unmounted[P, S, M]] {
+  class Constructor[P <: js.Object, S <: js.Object, C[a, b] <: CtorType[a, b], M](
+        val rawCls: raw.ReactClass, val ctor: C[P, Unmounted[P, S, M]])
+      extends BaseCtor[P, C, Unmounted[P, S, M]] {
 
-    def mapMounted[MM](f: M => MM): Constructor[P, C, S, MM] =
-      new Constructor(rawCls, directCtor, f compose wrapMount)
-
-    val directCtorU: DirectCtor[P, C, Unmounted[P, S, M]] =
-      directCtor.rmap(new Unmounted[P, S, M](_, wrapMount))
-
-    override val applyDirect: (P, ChildrenArgSeq) => Unmounted[P, S, M] =
-      directCtorU(rawCls)
+    def mapMounted[MM](f: M => MM): Constructor[P, S, ctor.This, MM] =
+      new Constructor(rawCls, ctor rmap (_ mapMounted f))
   }
 
   class Unmounted[P <: js.Object, S <: js.Object, M](val rawElement: raw.ReactComponentElement, m: raw.ReactComponent => M) {

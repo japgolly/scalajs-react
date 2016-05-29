@@ -22,8 +22,7 @@ object JsEs3PTest extends JsEs3Test {
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
   val RawClass = js.Dynamic.global.ES3_P.asInstanceOf[raw.ReactClass]
-  val Component = Ctor3.CompJs3.Constructor[JsProps, ChildrenArg.None, Null](RawClass)
-//  val Component = CompJs3.Constructor[JsProps, ChildrenArg.None, Null](RawClass)
+  val Component = CompJs3.Constructor[JsProps, ChildrenArg.None, Null](RawClass)
   compileError(""" Component() """)
 
   override def tests = TestSuite {
@@ -125,7 +124,7 @@ object JsEs3STest extends JsEs3Test {
   }
 
   val RawClass = js.Dynamic.global.ES3_S.asInstanceOf[raw.ReactClass]
-  val Component = Ctor3.CompJs3.Constructor[Null, ChildrenArg.None, JsState](RawClass).mapMounted(_.addRawType[JsMethods])
+  val Component = CompJs3.Constructor[Null, ChildrenArg.None, JsState](RawClass).mapMounted(_.addRawType[JsMethods])
 
   override def tests = TestSuite {
     def JsState1(num1: Int): JsState =

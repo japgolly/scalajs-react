@@ -2,8 +2,8 @@ package japgolly.scalajs.react
 
 import org.scalajs.dom
 
-trait BaseCtor[P, C <: ChildrenArg, U] {
-  val applyDirect: (P, ChildrenArgSeq) => U
+trait BaseCtor[P, C[_, _] <: CtorType[_, _], U] {
+  val ctor: C[P, U]
 }
 
 /*
