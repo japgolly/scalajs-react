@@ -56,25 +56,34 @@ object CtorType {
   // Ops
 
   final class OpsF[P, U](val ctor: PropsAndChildren[P, U]) extends AnyVal {
-    def apply(props: P, key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(children: ArgChild*): U =
+    @inline def apply(props: P)(children: ArgChild*): U =
+      set()(props)(children: _*)
+
+    def set(key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(props: P)(children: ArgChild*): U =
       ctor.fn(key, ref, props, children)
   }
 
   final class OpsC[P, U](val ctor: Children[P, U]) extends AnyVal {
-    def apply(children: ArgChild*): U =
-      ctor.fn(js.undefined, js.undefined, children)
+    @inline def apply(children: ArgChild*): U =
+      set()(children: _*)
 
     def set(key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(children: ArgChild*): U =
       ctor.fn(key, ref, children)
   }
 
   final class OpsP[P, U](val ctor: Props[P, U]) extends AnyVal {
-    def apply(props: P, key: ArgKey = js.undefined, ref: ArgRef = js.undefined): U =
+    @inline def apply(props: P): U =
+      set()(props)
+
+    def set(key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(props: P): U =
       ctor.fn(key, ref, props)
   }
 
   final class OpsV[U](val ctor: Void[_, U]) extends AnyVal {
-    def apply(key: ArgKey = js.undefined, ref: ArgRef = js.undefined): U =
+    @inline def apply(): U =
+      ctor.static
+
+    def set(key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(): U =
       if (key.isEmpty && ref.isEmpty)
         ctor.static
       else

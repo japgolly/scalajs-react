@@ -48,7 +48,7 @@ object JsEs3PTest extends JsEs3Test {
       }
 
       'key {
-        val unmounted = Component(JsProps("Bob"), key = "hehe")
+        val unmounted = Component.set(key = "hehe")(JsProps("Bob"))
         assertEq(unmounted.props.name, "Bob")
         assertEq(unmounted.propsChildren.count, 0)
         assertEq(unmounted.propsChildren.isEmpty, true)
