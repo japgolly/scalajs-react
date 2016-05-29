@@ -4,12 +4,7 @@ import scala.scalajs.js
 import CtorType._
 
 sealed abstract class CtorType[-P, +U] {
-  type This[-p, +u] <: CtorType[p, u]
-
   def applyGeneric(props: P, key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(children: ArgChild*): U
-
-  def lmap[X](f: X => P): This[X, U]
-  def rmap[X](f: U => X): This[P, X]
 }
 
 object CtorType {
@@ -22,35 +17,82 @@ object CtorType {
   // Types
 
   final case class PropsAndChildren[-P, +U](fn: (ArgKey, ArgRef, P, ArgChildren) => U) extends CtorType[P, U] {
-    override type This[-p, +u] = PropsAndChildren[p, u]
     override def applyGeneric(p: P, k: ArgKey = js.undefined, r: ArgRef = js.undefined)(c: ArgChild*): U = fn(k, r, p, c)
-    override def lmap[X](f: X => P): PropsAndChildren[X, U] = PropsAndChildren((k, r, p, c) => fn(k, r, f(p), c))
-    override def rmap[X](f: U => X): PropsAndChildren[P, X] = PropsAndChildren((k, r, p, c) => f(fn(k, r, p, c)))
   }
 
   final case class Props[-P, +U](fn: (ArgKey, ArgRef, P) => U) extends CtorType[P, U] {
-    override type This[-p, +u] = Props[p, u]
     override def applyGeneric(p: P, k: ArgKey = js.undefined, r: ArgRef = js.undefined)(c: ArgChild*): U = fn(k, r, p)
-    override def lmap[X](f: X => P): Props[X, U] = Props((k, r, p) => fn(k, r, f(p)))
-    override def rmap[X](f: U => X): Props[P, X] = Props((k, r, p) => f(fn(k, r, p)))
   }
 
   final case class Children[-P, +U](fn: (ArgKey, ArgRef, ArgChildren) => U) extends CtorType[P, U] {
-    override type This[-p, +u] = Children[p, u]
     override def applyGeneric(p: P, k: ArgKey = js.undefined, r: ArgRef = js.undefined)(c: ArgChild*): U = fn(k, r, c)
-    override def lmap[X](f: X => P): Children[X, U] = Children(fn)
-    override def rmap[X](f: U => X): Children[P, X] = Children((k, r, c) => f(fn(k, r, c)))
   }
 
   final case class Void[-P, +U](fn: (ArgKey, ArgRef) => U, static: U) extends CtorType[P, U] {
-    override type This[-p, +u] = Void[p, u]
     override def applyGeneric(p: P, k: ArgKey = js.undefined, r: ArgRef = js.undefined)(c: ArgChild*): U = fn(k, r)
-    override def lmap[X](f: X => P): Void[X, U] = Void(fn, static)
-    override def rmap[X](f: U => X): Void[P, X] = Void((k, r) => f(fn(k, r)), f(static))
   }
 
   def void[P, U](props: P)(newProps: (ArgKey, ArgRef) => P)(fn: P => U): Void[P, U] =
     Void((k, r) => fn(newProps(k, r)), fn(props))
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Functors
+
+  implicit object ProfunctorF extends Profunctor[PropsAndChildren] {
+    override def lmap[A, B, C](ct: PropsAndChildren[A, B])(f: C => A) = {
+      val fn = ct.fn
+      PropsAndChildren((k, r, p, c) => fn(k, r, f(p), c))
+    }
+    override def rmap[A, B, C](ct: PropsAndChildren[A, B])(f: B => C) = {
+      val fn = ct.fn
+      PropsAndChildren((k, r, p, c) => f(fn(k, r, p, c)))
+    }
+    override def dimap[A, B, C, D](ct: PropsAndChildren[A, B])(f: C => A, g: B => D) = {
+      val fn = ct.fn
+      PropsAndChildren((k, r, p, c) => g(fn(k, r, f(p), c)))
+    }
+  }
+
+  implicit object ProfunctorP extends Profunctor[Props] {
+    override def lmap[A, B, C](ct: Props[A, B])(f: C => A) = {
+      val fn = ct.fn
+      Props((k, r, p) => fn(k, r, f(p)))
+    }
+    override def rmap[A, B, C](ct: Props[A, B])(f: B => C) = {
+      val fn = ct.fn
+      Props((k, r, p) => f(fn(k, r, p)))
+    }
+    override def dimap[A, B, C, D](ct: Props[A, B])(f: C => A, g: B => D) = {
+      val fn = ct.fn
+      Props((k, r, p) => g(fn(k, r, f(p))))
+    }
+  }
+
+  implicit object ProfunctorC extends Profunctor[Children] {
+    override def lmap[A, B, C](ct: Children[A, B])(f: C => A) =
+      Children(ct.fn)
+    override def rmap[A, B, C](ct: Children[A, B])(f: B => C) = {
+      val fn = ct.fn
+      Children((k, r, c) => f(fn(k, r, c)))
+    }
+    override def dimap[A, B, C, D](ct: Children[A, B])(f: C => A, g: B => D) = {
+      val fn = ct.fn
+      Children((k, r, c) => g(fn(k, r, c)))
+    }
+  }
+
+  implicit object ProfunctorV extends Profunctor[Void] {
+    override def lmap[A, B, C](ct: Void[A, B])(f: C => A) =
+      Void(ct.fn, ct.static)
+    override def rmap[A, B, C](ct: Void[A, B])(f: B => C) = {
+      val fn = ct.fn
+      Void((k, r) => f(fn(k, r)), f(ct.static))
+    }
+    override def dimap[A, B, C, D](ct: Void[A, B])(f: C => A, g: B => D) = {
+      val fn = ct.fn
+      Void((k, r) => g(fn(k, r)), g(ct.static))
+    }
+  }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Ops

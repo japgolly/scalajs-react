@@ -31,6 +31,7 @@ object CompJs3 {
     type CC[-p, +u] <: CtorType[p, u]
     final type Out = CC[P, Unmounted[P, S]]
     val summon: raw.ReactClass => Out
+    implicit val pf: Profunctor[CC]
   }
 
   object Summoner {
@@ -38,8 +39,12 @@ object CompJs3 {
       Summoner[P, C, S] {type CC[-p, +u] = T[p, u]}
 
     def apply[P <: js.Object, C <: ChildrenArg, S <: js.Object, T[-p, +u] <: CtorType[p, u]]
-        (f: raw.ReactClass => T[P, Unmounted[P, S]]): Aux[P, C, S, T] =
-      new Summoner[P, C, S] { override type CC[-p, +u] = T[p, u]; override val summon = f }
+        (f: raw.ReactClass => T[P, Unmounted[P, S]])(implicit p: Profunctor[T]): Aux[P, C, S, T] =
+      new Summoner[P, C, S] {
+        override type CC[-p, +u] = T[p, u]
+        override val summon = f
+        override implicit val pf = p
+      }
 
     implicit def summonV[P <: js.Object, S <: js.Object](implicit s: Singleton[P]) =
       Summoner[P, ChildrenArg.None, S, Void](rc =>
@@ -85,7 +90,7 @@ object CompJs3X {
         val rawCls: raw.ReactClass, val ctor: C[P, Unmounted[P, S, M]])
       extends BaseCtor[P, C, Unmounted[P, S, M]] {
 
-    def mapMounted[MM](f: M => MM): Constructor[P, S, ctor.This, MM] =
+    def mapMounted[MM](f: M => MM)(implicit p: Profunctor[C]): Constructor[P, S, C, MM] =
       new Constructor(rawCls, ctor rmap (_ mapMounted f))
   }
 

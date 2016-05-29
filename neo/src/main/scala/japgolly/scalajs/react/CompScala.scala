@@ -95,18 +95,16 @@ object CompScala {
       val spec2 = spec.asInstanceOf[raw.ReactComponentSpec]
       val cls = raw.React.createClass(spec2)
       val jsCtor = CompJs3.Constructor[Box[P], C, Box[S]](cls)(ctorType)
-      Ctor(jsCtor)
+      Ctor(jsCtor)(ctorType.pf)
     }
   }
 
   case class Ctor[P, S, C[a, b] <: CtorType[a, b], B](jsInstance: CompJs3.Constructor[Box[P], Box[S], C])
+                                                     (implicit pf: Profunctor[C])
       extends BaseCtor[P, C, Unmounted[P, S, B]] {
 
     override val ctor: C[P, Unmounted[P, S, B]] =
-      jsInstance.ctor
-        .lmap[P](Box(_))
-        .rmap(new Unmounted[P, S, B](_))
-        .asInstanceOf[C[P, Unmounted[P, S, B]]] // TODO Fark!
+      jsInstance.ctor.dimap(Box(_), new Unmounted[P, S, B](_))
   }
 
   class Unmounted[P, S, B](jsInstance: CompJs3.Unmounted[Box[P], Box[S]]) {
