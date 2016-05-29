@@ -22,7 +22,8 @@ object JsEs3PTest extends JsEs3Test {
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
   val RawClass = js.Dynamic.global.ES3_P.asInstanceOf[raw.ReactClass]
-  val Component = CompJs3.Constructor[JsProps, ChildrenArg.None, Null](RawClass)
+  val Component = Ctor3.CompJs3.Constructor[JsProps, ChildrenArg.None, Null](RawClass)
+//  val Component = CompJs3.Constructor[JsProps, ChildrenArg.None, Null](RawClass)
   compileError(""" Component() """)
 
   override def tests = TestSuite {
@@ -34,6 +35,25 @@ object JsEs3PTest extends JsEs3Test {
         assertEq(unmounted.propsChildren.count, 0)
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
+        assertEq(unmounted.ref, None)
+        withBodyContainer { mountNode =>
+          val mounted = unmounted.renderIntoDOM(mountNode)
+          val n = mounted.getDOMNode
+          assertOuterHTML(n, "<div>Hello Bob</div>")
+          assertEq(mounted.isMounted, true)
+          assertEq(mounted.props.name, "Bob")
+          assertEq(mounted.propsChildren.count, 0)
+          assertEq(mounted.propsChildren.isEmpty, true)
+          assertEq(mounted.state, null)
+        }
+      }
+
+      'key {
+        val unmounted = Component(JsProps("Bob"), key = "hehe")
+        assertEq(unmounted.props.name, "Bob")
+        assertEq(unmounted.propsChildren.count, 0)
+        assertEq(unmounted.propsChildren.isEmpty, true)
+        assertEq(unmounted.key, Some("hehe": Key))
         assertEq(unmounted.ref, None)
         withBodyContainer { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
@@ -105,8 +125,7 @@ object JsEs3STest extends JsEs3Test {
   }
 
   val RawClass = js.Dynamic.global.ES3_S.asInstanceOf[raw.ReactClass]
-  val Component = CompJs3.Constructor[Null, ChildrenArg.None, JsState](RawClass).mapMounted(_.addRawType[JsMethods])
-  compileError(""" Component(null) """)
+  val Component = Ctor3.CompJs3.Constructor[Null, ChildrenArg.None, JsState](RawClass).mapMounted(_.addRawType[JsMethods])
 
   override def tests = TestSuite {
     def JsState1(num1: Int): JsState =
