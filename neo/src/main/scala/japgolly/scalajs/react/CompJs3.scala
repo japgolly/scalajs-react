@@ -30,7 +30,7 @@ object CompJs3 {
   sealed trait Summoner[P <: js.Object, C <: ChildrenArg, S <: js.Object] {
     type CC[-p, +u] <: CtorType[p, u]
     final type Out = CC[P, Unmounted[P, S]]
-    val summon: raw.ReactClass => Out
+    val summon: raw.ReactCtor => Out
     implicit val pf: Profunctor[CC]
   }
 
@@ -39,7 +39,7 @@ object CompJs3 {
       Summoner[P, C, S] {type CC[-p, +u] = T[p, u]}
 
     def apply[P <: js.Object, C <: ChildrenArg, S <: js.Object, T[-p, +u] <: CtorType[p, u]]
-        (f: raw.ReactClass => T[P, Unmounted[P, S]])(implicit p: Profunctor[T]): Aux[P, C, S, T] =
+        (f: raw.ReactCtor => T[P, Unmounted[P, S]])(implicit p: Profunctor[T]): Aux[P, C, S, T] =
       new Summoner[P, C, S] {
         override type CC[-p, +u] = T[p, u]
         override val summon = f

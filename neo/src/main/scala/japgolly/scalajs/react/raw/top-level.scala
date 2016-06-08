@@ -19,9 +19,9 @@ trait React extends js.Object {
   def createElement(`type`: String, props: js.Object                          ): ReactDOMElement = js.native
   def createElement(`type`: String, props: js.Object, children: ReactNodeList*): ReactDOMElement = js.native
 
-  def createElement(`type`: ReactClass                                            ): ReactComponentElement = js.native
-  def createElement(`type`: ReactClass, props: js.Object                          ): ReactComponentElement = js.native
-  def createElement(`type`: ReactClass, props: js.Object, children: ReactNodeList*): ReactComponentElement = js.native
+  def createElement(`type`: ReactCtor                                            ): ReactComponentElement = js.native
+  def createElement(`type`: ReactCtor, props: js.Object                          ): ReactComponentElement = js.native
+  def createElement(`type`: ReactCtor, props: js.Object, children: ReactNodeList*): ReactComponentElement = js.native
 
   //  /** Verifies the object is a ReactElement. */
 //  def isValidElement(o: JAny): Boolean = js.native
