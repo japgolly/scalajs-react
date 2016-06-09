@@ -131,5 +131,62 @@ object CtorType {
       else
         ctor.fn(key, ref)
   }
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Summoner
+
+  sealed trait Summoner[P <: js.Object, C <: ChildrenArg] {
+    type CC[-p, +u] <: CtorType[p, u]
+    final type Out = CC[P, raw.ReactComponentElement]
+    val summon: raw.ReactCtor => Out
+    implicit val pf: Profunctor[CC]
+  }
+
+  object Summoner {
+    type Aux[P <: js.Object, C <: ChildrenArg, T[-p, +u] <: CtorType[p, u]] =
+    Summoner[P, C] {type CC[-p, +u] = T[p, u]}
+
+    def apply[P <: js.Object, C <: ChildrenArg, T[-p, +u] <: CtorType[p, u]]
+    (f: raw.ReactCtor => T[P, raw.ReactComponentElement])(implicit p: Profunctor[T]): Aux[P, C, T] =
+      new Summoner[P, C] {
+        override type CC[-p, +u] = T[p, u]
+        override val summon = f
+        override implicit val pf = p
+      }
+
+    implicit def summonV[P <: js.Object](implicit s: Singleton[P]) =
+      Summoner[P, ChildrenArg.None, Void](rc =>
+        CtorType.void[P, raw.ReactComponentElement](s.value)(singletonProps(s))(p => raw.React.createElement(rc, p)))
+
+    implicit def summonC[P <: js.Object](implicit s: Singleton[P]) =
+      Summoner[P, ChildrenArg.Varargs, Children](rc =>
+        Children[P, raw.ReactComponentElement]((k, r, c) =>
+          raw.React.createElement(rc, maybeSingletonProps(s)(k, r), c: _*)))
+
+    implicit def summonF[P <: js.Object](implicit w: Singleton.Not[P]) =
+      Summoner[P, ChildrenArg.Varargs, PropsAndChildren](rc =>
+        PropsAndChildren[P, raw.ReactComponentElement]((k, r, p, c) =>
+          raw.React.createElement(rc, applyKR(p)(k, r), c: _*)))
+
+    implicit def summonP[P <: js.Object](implicit w: Singleton.Not[P]) =
+      Summoner[P, ChildrenArg.None, Props](rc =>
+        Props[P, raw.ReactComponentElement]((k, r, p) =>
+          raw.React.createElement(rc, applyKR(p)(k, r))))
+
+    def maybeSingletonProps[P <: js.Object](s: Singleton[P])(key: ArgKey, ref: ArgRef): P =
+      if (key.isEmpty && ref.isEmpty)
+        s.value
+      else
+        singletonProps(s)(key, ref)
+
+    @inline def singletonProps[P <: js.Object](s: Singleton[P])(key: ArgKey, ref: ArgRef): P =
+      applyKR(s.mutable())(key, ref)
+
+    def applyKR[P <: js.Object](p: P)(key: ArgKey, ref: ArgRef): P = {
+      key.foreach(k => p.asInstanceOf[js.Dynamic].updateDynamic("key")(k.asInstanceOf[js.Any]))
+      ref.foreach(r => p.asInstanceOf[js.Dynamic].updateDynamic("ref")(r.asInstanceOf[js.Any]))
+      p
+    }
+  }
 }
 

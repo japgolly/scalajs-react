@@ -11,75 +11,14 @@ object CompJs3 {
   // TODO Change arg order to be consistent
   def Constructor[P <: js.Object, C <: ChildrenArg, S <: js.Object]
       (rc: raw.ReactClass)
-      (implicit s: Summoner[P, C, S]): Constructor[P, S, s.CC] =
-    new CompJs3X.Constructor[P, S, s.CC, Mounted[P, S]](rc, s.summon(rc))
+      (implicit s: CtorType.Summoner[P, C]): Constructor[P, S, s.CC] =
+    new CompJs3X.Constructor[P, S, s.CC, Mounted[P, S]](rc, s.pf.rmap(s.summon(rc))(Unmounted(_)))
 
   def Unmounted[P <: js.Object, S <: js.Object](r: raw.ReactComponentElement): Unmounted[P, S] =
     new CompJs3X.Unmounted(r, Mounted[P, S])
 
   def Mounted[P <: js.Object, S <: js.Object](r: raw.ReactComponent): Mounted[P, S] =
     CompJs3X.Mounted(r)
-
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Summoner
-
-  import CtorType._
-
-  // TODO Change arg order to be consistent
-  sealed trait Summoner[P <: js.Object, C <: ChildrenArg, S <: js.Object] {
-    type CC[-p, +u] <: CtorType[p, u]
-    final type Out = CC[P, Unmounted[P, S]]
-    val summon: raw.ReactCtor => Out
-    implicit val pf: Profunctor[CC]
-  }
-
-  object Summoner {
-    type Aux[P <: js.Object, C <: ChildrenArg, S <: js.Object, T[-p, +u] <: CtorType[p, u]] =
-      Summoner[P, C, S] {type CC[-p, +u] = T[p, u]}
-
-    def apply[P <: js.Object, C <: ChildrenArg, S <: js.Object, T[-p, +u] <: CtorType[p, u]]
-        (f: raw.ReactCtor => T[P, Unmounted[P, S]])(implicit p: Profunctor[T]): Aux[P, C, S, T] =
-      new Summoner[P, C, S] {
-        override type CC[-p, +u] = T[p, u]
-        override val summon = f
-        override implicit val pf = p
-      }
-
-    implicit def summonV[P <: js.Object, S <: js.Object](implicit s: Singleton[P]) =
-      Summoner[P, ChildrenArg.None, S, Void](rc =>
-        CtorType.void[P, Unmounted[P, S]](s.value)(singletonProps(s))(p => Unmounted(raw.React.createElement(rc, p))))
-
-    implicit def summonC[P <: js.Object, S <: js.Object](implicit s: Singleton[P]) =
-      Summoner[P, ChildrenArg.Varargs, S, Children](rc =>
-        Children[P, Unmounted[P, S]]((k, r, c) =>
-          Unmounted(raw.React.createElement(rc, maybeSingletonProps(s)(k, r), c: _*))))
-
-    implicit def summonF[P <: js.Object, S <: js.Object](implicit w: Singleton.Not[P]) =
-      Summoner[P, ChildrenArg.Varargs, S, PropsAndChildren](rc =>
-        PropsAndChildren[P, Unmounted[P, S]]((k, r, p, c) =>
-          Unmounted(raw.React.createElement(rc, applyKR(p)(k, r), c: _*))))
-
-    implicit def summonP[P <: js.Object, S <: js.Object](implicit w: Singleton.Not[P]) =
-      Summoner[P, ChildrenArg.None, S, Props](rc =>
-        Props[P, Unmounted[P, S]]((k, r, p) =>
-          Unmounted(raw.React.createElement(rc, applyKR(p)(k, r)))))
-
-    def maybeSingletonProps[P <: js.Object](s: Singleton[P])(key: ArgKey, ref: ArgRef): P =
-      if (key.isEmpty && ref.isEmpty)
-        s.value
-      else
-        singletonProps(s)(key, ref)
-
-    @inline def singletonProps[P <: js.Object](s: Singleton[P])(key: ArgKey, ref: ArgRef): P =
-      applyKR(s.mutable())(key, ref)
-
-    def applyKR[P <: js.Object](p: P)(key: ArgKey, ref: ArgRef): P = {
-      key.foreach(k => p.asInstanceOf[js.Dynamic].updateDynamic("key")(k.asInstanceOf[js.Any]))
-      ref.foreach(r => p.asInstanceOf[js.Dynamic].updateDynamic("ref")(r.asInstanceOf[js.Any]))
-      p
-    }
-  }
 }
 
 object CompJs3X {

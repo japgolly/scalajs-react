@@ -1,7 +1,6 @@
 package japgolly.scalajs.react
 
 import scalajs.js
-import japgolly.scalajs.react.CompJs3.Summoner
 
 object CompJsFn {
   /*
@@ -20,9 +19,8 @@ object CompJsFn {
   type State = Null
 
   def Constructor[P <: js.Object, C <: ChildrenArg](rc: raw.ReactFunctionalComponent)
-                                                   (implicit s: Summoner[P, C, State]): Constructor[P, s.CC] =
-    new Constructor[P, s.CC](rc, s.pf.rmap(s.summon(rc))(u => new Unmounted(u.rawElement)))
-    // TODO Avoid this rmap ↗
+                                                   (implicit s: CtorType.Summoner[P, C]): Constructor[P, s.CC] =
+    new Constructor[P, s.CC](rc, s.pf.rmap(s.summon(rc))(new Unmounted(_)))
 
   class Constructor[P <: js.Object, C[a, b] <: CtorType[a, b]](val rawFn: raw.ReactFunctionalComponent, val ctor: C[P, Unmounted[P]])
     extends BaseCtor[P, C, Unmounted[P]] {
