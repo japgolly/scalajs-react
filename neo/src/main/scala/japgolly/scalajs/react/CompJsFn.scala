@@ -51,3 +51,56 @@ object CompJsFn {
     }
   }
 }
+
+
+object CompScalaFn {
+
+  private def create[P, C <: ChildrenArg](f: Box[P] with raw.PropsWithChildren => raw.ReactElement)
+                                         (implicit s: CtorType.Summoner[Box[P], C]) = {
+    val fn1 = f: js.Function1[Box[P] with raw.PropsWithChildren, raw.ReactElement]
+    val fn2 = fn1.asInstanceOf[raw.ReactFunctionalComponent]
+    val jc = CompJsFn.Constructor[Box[P], C](fn2)(s)
+    new Ctor(jc)(s.pf)
+  }
+
+  def props[P](render: P => raw.ReactElement) =
+    create[P, ChildrenArg.None](b => render(b.a))
+
+  def propsAndChildren[P](render: (P, PropsChildren) => raw.ReactElement) =
+    create[P, ChildrenArg.Varargs](b => render(b.a, PropsChildren(b.children)))
+
+  def children(render: PropsChildren => raw.ReactElement) =
+    create[Unit, ChildrenArg.Varargs](b => render(PropsChildren(b.children)))
+
+  case class Ctor[P, C[a, b] <: CtorType[a, b]](jsInstance: CompJsFn.Constructor[Box[P], C])
+                                               (implicit pf: Profunctor[C])
+    extends BaseCtor[P, C, Unmounted[P]] {
+
+    override val ctor: C[P, Unmounted[P]] =
+      jsInstance.ctor.dimap(Box(_), new Unmounted(_))
+  }
+
+  final class Unmounted[P](val jsInstance: CompJsFn.Unmounted[Box[P]]) {
+
+    def key: Option[Key] =
+      jsInstance.key
+
+    def props: P =
+      jsInstance.props.a
+
+    def propsChildren: PropsChildren =
+      jsInstance.propsChildren
+
+    def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Unit =
+      jsInstance.renderIntoDOM(container, callback)
+  }
+
+//  val cp = props[Int](???)
+//  cp(23)
+//
+//  val cpc = propsAndChildren[Int](???)
+//  cpc(23)()
+//
+//  val cc = children(???)
+//  cc()
+}
