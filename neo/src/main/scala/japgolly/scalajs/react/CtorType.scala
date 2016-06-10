@@ -143,20 +143,21 @@ object CtorType {
   // Summoner
 
   sealed trait Summoner[P <: js.Object, C <: ChildrenArg] {
-    type CC[-p, +u] <: CtorType[p, u]
-    final type Out = CC[P, raw.ReactComponentElement]
+    type CT[-p, +u] <: CtorType[p, u]
+    final type Out = CT[P, raw.ReactComponentElement]
     val summon: raw.ReactCtor => Out
-    implicit val pf: Profunctor[CC]
+    implicit val pf: Profunctor[CT]
+    final def aux: Summoner.Aux[P, C, CT] = this
   }
 
   object Summoner {
     type Aux[P <: js.Object, C <: ChildrenArg, T[-p, +u] <: CtorType[p, u]] =
-    Summoner[P, C] {type CC[-p, +u] = T[p, u]}
+      Summoner[P, C] {type CT[-p, +u] = T[p, u]}
 
     def apply[P <: js.Object, C <: ChildrenArg, T[-p, +u] <: CtorType[p, u]]
     (f: raw.ReactCtor => T[P, raw.ReactComponentElement])(implicit p: Profunctor[T]): Aux[P, C, T] =
       new Summoner[P, C] {
-        override type CC[-p, +u] = T[p, u]
+        override type CT[-p, +u] = T[p, u]
         override val summon = f
         override implicit val pf = p
       }

@@ -3,8 +3,10 @@ package japgolly.scalajs.react
 import org.scalajs.dom
 import scalajs.js
 import japgolly.scalajs.react.internal._
+/*
+import ScalaComponent.{BackendScope, Mounted}
 
-object CompScala {
+object ScalaComponentB {
 
   def build[P](name: String) = new {
     def initialState[S](s: S) = PS[P, S](name, Box(s))
@@ -40,7 +42,7 @@ object CompScala {
                                                       backendFn: NewBackendFn[P, S, Backend],
                                                       render: Mounted[CallbackTo, P, S, Backend] => raw.ReactElement) {
 
-    def build(implicit ctorType: CtorType.Summoner[Box[P], C]): Ctor[P, S, ctorType.CC, Backend] = {
+    def build(implicit ctorType: CtorType.Summoner[Box[P], C]): ScalaComponent[P, S, ctorType.CT, Backend] = {
 
       val spec = js.Dictionary.empty[js.Any]
 
@@ -95,81 +97,10 @@ object CompScala {
 
       val spec2 = spec.asInstanceOf[raw.ReactComponentSpec]
       val cls = raw.React.createClass(spec2)
-      val jsCtor = CompJs3.Constructor[Box[P], C, Box[S]](cls)(ctorType)
-      Ctor(jsCtor)(ctorType.pf)
+      val jsCtor = JsComponent[Box[P], C, Box[S]](cls)(ctorType)
+      ScalaComponent(jsCtor)(ctorType.pf)
     }
-  }
-
-  case class Ctor[P, S, C[a, b] <: CtorType[a, b], B](jsInstance: CompJs3.Constructor[Box[P], Box[S], C])
-                                                     (implicit pf: Profunctor[C])
-      extends BaseCtor[P, C, Unmounted[P, S, B]] {
-
-    override val ctor: C[P, Unmounted[P, S, B]] =
-      jsInstance.ctor.dimap(Box(_), new Unmounted[P, S, B](_))
-  }
-
-  class Unmounted[P, S, B](jsInstance: CompJs3.Unmounted[Box[P], Box[S]]) {
-    def key: Option[Key] =
-      jsInstance.key
-
-    def ref: Option[String] =
-      jsInstance.ref
-
-    def props: P =
-      jsInstance.props.a
-
-    def propsChildren: PropsChildren =
-      jsInstance.propsChildren
-
-    def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted[CallbackTo, P, S, B] = {
-      val rc = raw.ReactDOM.render(jsInstance.rawElement, container, callback.toJsFn)
-      mountedFromJs(rc)
-    }
-  }
-
-  type BackendScope[P, S] = Mounted[CallbackTo, P, S, Null]
-
-  private[CompScala] final class Mounted0[F[_], P, S, Backend](jsInstance: CompJs3.Mounted[Box[P], Box[S]])(implicit F: Effect[F])
-      extends Mounted[F, P, S, Backend](jsInstance)(F) {
-    var _backend: Backend = _
-    override def backend: Backend = _backend
-  }
-
-  class MountedD[F[_], P, S, +Backend](val backend: Backend,
-                                       jsInstance: CompJs3.Mounted[Box[P], Box[S]])(implicit F: Effect[F])
-      extends Mounted[F, P, S, Backend](jsInstance)(F)
-
-  abstract class Mounted[F[_], P, S, +Backend](jsInstance: CompJs3.Mounted[Box[P], Box[S]])
-                                              (override protected final val F: Effect[F]) extends MountedBase[F, P, S] {
-
-//    def direct: Mounted[Effect.Id, P, S, Backend] =
-//      new MountedD[Effect.Id, P, S, Backend](backend, jsInstance)
-
-    def backend: Backend
-
-    final def isMounted: F[Boolean] =
-      F point jsInstance.isMounted
-
-    final def props: F[P] =
-      F point jsInstance.props.a
-
-    final def propsChildren: F[PropsChildren] =
-      F point jsInstance.propsChildren
-
-    final def state: F[S] =
-      F point jsInstance.state.a
-
-    final def setState(newState: S, callback: Callback = Callback.empty): F[Unit] =
-      F point jsInstance.setState(Box(newState), callback)
-
-    final def modState(mod: S => S, callback: Callback = Callback.empty): F[Unit] =
-      F point jsInstance.modState(s => Box(mod(s.a)), callback)
-
-    final def getDOMNode: F[dom.Element] =
-      F point jsInstance.getDOMNode
-
-    override final def forceUpdate(callback: Callback = Callback.empty): F[Unit] =
-      F point jsInstance.forceUpdate(callback)
   }
 
 }
+*/

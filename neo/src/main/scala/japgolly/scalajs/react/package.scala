@@ -30,8 +30,8 @@ package object react {
   type Ref = String // TODO Ummm.....
 
   import CtorType._
-  @inline implicit def toCtorOpsF[P, U](base: BaseCtor[P, PropsAndChildren, U]): OpsF[P, U] = new OpsF(base.ctor)
-  @inline implicit def toCtorOpsP[P, U](base: BaseCtor[P, Props           , U]): OpsP[P, U] = new OpsP(base.ctor)
-  @inline implicit def toCtorOpsC[P, U](base: BaseCtor[P, Children        , U]): OpsC[P, U] = new OpsC(base.ctor)
-  @inline implicit def toCtorOpsV[P, U](base: BaseCtor[P, Void            , U]): OpsV[   U] = new OpsV(base.ctor)
+  @inline implicit def toCtorOpsF[P, U](base: Component[P, PropsAndChildren, U]): OpsF[P, U] = new OpsF(base.ctor)
+  @inline implicit def toCtorOpsP[P, U](base: Component[P, Props           , U]): OpsP[P, U] = new OpsP(base.ctor)
+  @inline implicit def toCtorOpsC[P, U](base: Component[P, Children        , U]): OpsC[P, U] = new OpsC(base.ctor)
+  @inline implicit def toCtorOpsV[P, U](base: Component[P, Void            , U]): OpsV[   U] = new OpsV(base.ctor)
 }
