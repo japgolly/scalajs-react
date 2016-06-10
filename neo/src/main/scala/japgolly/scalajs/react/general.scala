@@ -1,6 +1,8 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
+import japgolly.scalajs.react.internal._
+
 
 trait BaseCtor[P, C[_, _] <: CtorType[_, _], U] {
   val ctor: C[P, U]

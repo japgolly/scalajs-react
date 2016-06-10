@@ -1,4 +1,6 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.internal
+
+import japgolly.scalajs.react.CallbackTo
 
 abstract class Effect[F[_]] {
   @inline def point  [A]   (a: => A)              : F[A]

@@ -1,4 +1,4 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.internal
 
 import scala.scalajs.js.UndefOr
 

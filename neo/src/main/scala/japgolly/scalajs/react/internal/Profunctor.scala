@@ -1,4 +1,4 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.internal
 
 trait Profunctor[F[_, _]] {
   def lmap[A, B, C](f: F[A, B])(m: C => A): F[C, B]

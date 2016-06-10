@@ -1,6 +1,7 @@
 package japgolly.scalajs.react
 
 import scalajs.js
+import japgolly.scalajs.react.internal._
 
 object CompJsFn {
   /*

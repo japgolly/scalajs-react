@@ -3,6 +3,7 @@ package japgolly.scalajs.react
 import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
 import CallbackTo.MapGuard
+import japgolly.scalajs.react.internal.OptionLike
 
 // TODO Document CallbackOption
 

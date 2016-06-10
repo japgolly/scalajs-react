@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import org.scalajs.dom
 import scalajs.js
+import japgolly.scalajs.react.internal._
 
 object CompScala {
 

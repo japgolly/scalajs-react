@@ -1,4 +1,4 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.internal
 
 import scalajs.js
 import scalajs.js.annotation._

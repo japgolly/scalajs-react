@@ -1,11 +1,17 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.internal
 
 final class Singleton[A](val value: A)(val mutable: () => A)
 
 object Singleton {
-  implicit val Null    = new Singleton[Null](null)(() => null)
-  implicit val Unit    = new Singleton(())(() => ())
-  implicit val BoxUnit = new Singleton(Box.Unit)(() => Box(()))
+
+  implicit val Null: Singleton[Null] =
+    new Singleton(null)(() => null)
+
+  implicit val Unit: Singleton[Unit] =
+    new Singleton(())(() => ())
+
+  implicit val BoxUnit: Singleton[Box[Unit]] =
+    new Singleton(Box.Unit)(() => Box(()))
 
   sealed trait Not[A]
   @inline implicit def noSingletonFor[A]: Not[A] = null

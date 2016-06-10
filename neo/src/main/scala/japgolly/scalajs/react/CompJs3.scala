@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import org.scalajs.dom
 import scalajs.js
+import japgolly.scalajs.react.internal._
 
 object CompJs3 {
   type Constructor[P <: js.Object, S <: js.Object, C[a, b] <: CtorType[a, b]] = CompJs3X.Constructor[P, S, C, Mounted[P, S]]

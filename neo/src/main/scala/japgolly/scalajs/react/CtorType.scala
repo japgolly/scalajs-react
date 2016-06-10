@@ -1,6 +1,7 @@
 package japgolly.scalajs.react
 
 import scala.scalajs.js
+import japgolly.scalajs.react.internal._
 import CtorType._
 
 sealed abstract class CtorType[-P, +U] {
