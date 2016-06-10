@@ -37,10 +37,10 @@ object CompJs3X {
   class Unmounted[P <: js.Object, S <: js.Object, M](val rawElement: raw.ReactComponentElement, m: raw.ReactComponent => M) {
 
     def key: Option[Key] =
-      orNullToOption(rawElement.key)
+      jsNullToOption(rawElement.key)
 
     def ref: Option[String] =
-      orNullToOption(rawElement.ref)
+      jsNullToOption(rawElement.ref)
 
     def props: P =
       rawElement.props.asInstanceOf[P]

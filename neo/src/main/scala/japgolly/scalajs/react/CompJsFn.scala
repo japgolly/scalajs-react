@@ -32,7 +32,7 @@ object CompJsFn {
   final class Unmounted[P <: js.Object](val rawElement: raw.ReactComponentElement) {
 
     def key: Option[Key] =
-      orNullToOption(rawElement.key)
+      jsNullToOption(rawElement.key)
 
 //    def ref: Option[String] =
 //      orNullToOption(rawElement.ref)

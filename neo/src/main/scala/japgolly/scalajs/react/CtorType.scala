@@ -4,6 +4,12 @@ import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import CtorType._
 
+sealed trait ChildrenArg
+object ChildrenArg {
+  sealed trait None       extends ChildrenArg
+  sealed trait Varargs    extends ChildrenArg
+}
+
 sealed abstract class CtorType[-P, +U] {
   def applyGeneric(props: P, key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(children: ArgChild*): U
 }
