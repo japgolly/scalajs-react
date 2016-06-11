@@ -30,6 +30,8 @@ package object react {
 
   type Ref = String // TODO Ummm.....
 
+  // TODO Rename?
+  type BackendScope[P, S] = ScalaComponent.BackendScope[P, S]
 
   @inline implicit def toJsComponentToMountedOps
       [P <: js.Object, S <: js.Object, CT[_, _] <: CtorType[_, _], R <: JsComponent.RawMounted]

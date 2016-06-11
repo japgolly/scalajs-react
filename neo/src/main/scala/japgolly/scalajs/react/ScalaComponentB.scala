@@ -3,6 +3,7 @@ package japgolly.scalajs.react
 import org.scalajs.dom
 import scalajs.js
 import japgolly.scalajs.react.internal._
+import ScalaComponent._
 
 object ScalaComponentB {
 
@@ -31,21 +32,20 @@ object ScalaComponentB {
       render[ChildrenArg.None]($ => r($.state.runNow()))
   }
 
-  case class Builder[P, C <: ChildrenArg, S, Backend](name: String,
-                                                      s: Box[S],
-                                                      backendFn: NewBackendFn[P, S, Backend],
-                                                      render: RenderFn[P, S, Backend]) {
+  case class Builder[P, C <: ChildrenArg, S, B](name: String,
+                                                s: Box[S],
+                                                backendFn: NewBackendFn[P, S, B],
+                                                render: RenderFn[P, S, B]) {
 
-    def build(implicit ctorType: CtorType.Summoner[Box[P], C]): ScalaComponent[P, S, Backend, ctorType.CT] = {
-
+    def spec: raw.ReactComponentSpec = {
       val spec = js.Dictionary.empty[js.Any]
 
       for (n <- Option(name))
         spec("displayName") = n
 
-      def withMounted[A](f: MountedC[P, S, Backend] => A): js.ThisFunction0[raw.ReactComponent, A] =
+      def withMounted[A](f: MountedC[P, S, B] => A): js.ThisFunction0[raw.ReactComponent, A] =
         (rc: raw.ReactComponent) =>
-          f(rc.asInstanceOf[Hax[P, S, Backend]].mountedC)
+          f(rc.asInstanceOf[Vars[P, S, B]].mountedC)
 
       spec("render") = withMounted(render)
 
@@ -57,13 +57,13 @@ object ScalaComponentB {
 
       val componentWillMountFn: js.ThisFunction0[raw.ReactComponent, Unit] =
         (rc: raw.ReactComponent) => {
-          val jsMounted = JsComponent.BasicMounted[Box[P], Box[S]](rc).addRawType[Hax[P, S, Backend]]
-          val sMountedI: MountedI[P, S, Backend] = new ScalaComponent.Mounted(jsMounted)
-          val sMountedC: MountedC[P, S, Backend] = new ScalaComponent.Mounted(jsMounted)
-          val backend: Backend = backendFn(sMountedC)
-          jsMounted.rawInstance.mountedI = sMountedI
-          jsMounted.rawInstance.mountedC = sMountedC
-          jsMounted.rawInstance.backend = backend
+          val jMounted : JsMounted[P, S, B] = JsComponent.BasicMounted[Box[P], Box[S]](rc).addRawType[Vars[P, S, B]]
+          val sMountedI: Mounted  [P, S, B] = new ScalaComponent.MountedF(jMounted)
+          val sMountedC: MountedC [P, S, B] = new ScalaComponent.MountedF(jMounted)
+          val backend  : B                  = backendFn(sMountedC)
+          jMounted.rawInstance.mounted  = sMountedI
+          jMounted.rawInstance.mountedC = sMountedC
+          jMounted.rawInstance.backend  = backend
         }
       spec("componentWillMount") = componentWillMountFn
 
@@ -91,77 +91,13 @@ object ScalaComponentB {
 //        val spec2 = spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]
 //        lc.configureSpec.foreach(_(spec2).runNow())
 //        spec2
+      spec.asInstanceOf[raw.ReactComponentSpec]
+    }
 
-
-
-
-      val spec2 = spec.asInstanceOf[raw.ReactComponentSpec]
-      val rc = raw.React.createClass(spec2)
-
-      val jsCtor: JsComp[P, S, Backend, ctorType.CT] =
-        JsComponent[Box[P], C, Box[S]](rc)(ctorType).addRawType[Hax[P, S, Backend]](ctorType.pf)
-
-      new ScalaComponent(jsCtor)(ctorType.pf)
+    def build(implicit ctorType: CtorType.Summoner[Box[P], C]): ScalaComponent[P, S, B, ctorType.CT] = {
+      val rc = raw.React.createClass(spec)
+      val jc = JsComponent[Box[P], C, Box[S]](rc)(ctorType).addRawType[Vars[P, S, B]](ctorType.pf)
+      new ScalaComponent(jc)(ctorType.pf)
     }
   }
-
-  @js.native
-  trait Hax[P, S, B] extends js.Object {
-    var mountedI: MountedI[P, S, B]
-    var mountedC: MountedC[P, S, B]
-    var backend: B
-  }
-
-  type Unmounted[P, S, B] = Component.Unmounted[P, MountedI[P, S, B]]
-  type MountedI[P, S, B] = ScalaComponent.Mounted[Effect.Id, P, S, B]
-  type MountedC[P, S, B] = ScalaComponent.Mounted[CallbackTo, P, S, B]
-  type BackendScope[P, S] = Component.Mounted[CallbackTo, P, S]
-
-  type JsComp[P, S, B, CT[_, _] <: CtorType[_, _]] =
-    JsComponent[Box[P], Box[S], CT, JsComponent.MountedWithRawType[Box[P], Box[S], Hax[P, S, B]]]
-
-  final class ScalaComponent[P, S, B, CT[_, _] <: CtorType[_, _]](val jsInstance: JsComp[P, S, B, CT])
-                                                                 (implicit pf: Profunctor[CT])
-    extends Component[P, CT, Unmounted[P, S, B]] {
-
-    override val ctor: CT[P, Unmounted[P, S, B]] =
-      //jsInstance.ctor.dimap(Box(_), _.mapProps(_.a).mapMounted(_.mapProps(_.a).xmapState(_.a)(Box(_))))
-      jsInstance.ctor.dimap(Box(_), _.mapProps(_.a).mapMounted(_.rawInstance.mountedI))
-  }
-
-  object ScalaComponent {
-
-    final class Mounted[F[_], P, S, B](val jsInstance: JsComponent.MountedWithRawType[Box[P], Box[S], Hax[P, S, B]])
-                                      (implicit override protected val F: Effect[F])
-        extends Component.Mounted[F, P, S] {
-
-      def backend: F[B] =
-        F point jsInstance.rawInstance.backend
-
-      override def isMounted: F[Boolean] =
-        F point jsInstance.isMounted
-
-      override def props: F[P] =
-        F point jsInstance.props.a
-
-      override def propsChildren: F[PropsChildren] =
-        F point jsInstance.propsChildren
-
-      override def state: F[S] =
-        F point jsInstance.state.a
-
-      override def setState(newState: S, callback: Callback = Callback.empty): F[Unit] =
-        F point jsInstance.setState(Box(newState), callback)
-
-      override def modState(mod: S => S, callback: Callback = Callback.empty): F[Unit] =
-        F point jsInstance.modState(s => Box(mod(s.a)), callback)
-
-      override def getDOMNode: F[dom.Element] =
-        F point jsInstance.getDOMNode
-
-      override def forceUpdate(callback: Callback = Callback.empty): F[Unit] =
-        F point jsInstance.forceUpdate(callback)
-    }
-  }
-
 }

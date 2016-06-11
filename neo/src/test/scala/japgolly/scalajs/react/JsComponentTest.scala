@@ -6,12 +6,12 @@ import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.DebugJs._
 import japgolly.scalajs.react.test.TestUtil._
 
-abstract class JsEs3Test extends TestSuite {
+abstract class JsComponentTest extends TestSuite {
   final val H1: raw.ReactElement =
     raw.React.createElement("h1", null, "Huge")
 }
 
-object JsEs3PTest extends JsEs3Test {
+object JsComponentPTest extends JsComponentTest {
 
   @js.native
   trait JsProps extends js.Object {
@@ -110,7 +110,7 @@ object JsEs3PTest extends JsEs3Test {
 }
 
 
-object JsEs3STest extends JsEs3Test {
+object JsComponentSTest extends JsComponentTest {
 
   @js.native
   trait JsState extends js.Object {

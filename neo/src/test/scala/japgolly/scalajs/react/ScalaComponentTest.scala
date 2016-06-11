@@ -7,7 +7,7 @@ import japgolly.scalajs.react.test.DebugJs._
 import japgolly.scalajs.react.test.TestUtil._
 import scalaz.Equal
 
-object ScalaClassPTest extends TestSuite {
+object ScalaComponentPTest extends TestSuite {
 
   case class Props(name: String)
 
@@ -45,7 +45,7 @@ object ScalaClassPTest extends TestSuite {
 }
 
 
-object ScalaClassSTest extends TestSuite {
+object ScalaComponentSTest extends TestSuite {
 
   case class State(num1: Int, s2: State2)
   case class State2(num2: Int, num3: Int)
@@ -53,7 +53,7 @@ object ScalaClassSTest extends TestSuite {
   implicit val equalState: Equal[State] = Equal.equalA
   implicit val equalState2: Equal[State2] = Equal.equalA
 
-  class Backend($: ScalaComponentB.BackendScope[Unit, State]) {
+  class Backend($: BackendScope[Unit, State]) {
     val inc: Callback =
       $.modState(s => s.copy(s.num1 + 1))
   }

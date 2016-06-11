@@ -1,95 +1,66 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal._
 import org.scalajs.dom
-//import ScalaComponent._
+import scala.scalajs.js
+import japgolly.scalajs.react.internal._
+import ScalaComponent._
 
-//final class ScalaComponent[P, S, B, CT[_, _] <: CtorType[_, _]](val jsInstance: JsComponent.Basic[Box[P], Box[S], CT])
-//                                                               (implicit pf: Profunctor[CT])
-//    extends Component[P, CT, Unmounted[P, S, B]] {
-//
-//  override val ctor: CT[P, Unmounted[P, S, B]] =
-//    jsInstance.ctor.dimap(Box(_), new Unmounted[P, S, B](_))
-//}
+final class ScalaComponent[P, S, B, CT[_, _] <: CtorType[_, _]](val jsInstance: JsComp[P, S, B, CT])
+                                                               (implicit pf: Profunctor[CT])
+  extends Component[P, CT, Unmounted[P, S, B]] {
 
-//object ScalaComponent {
+  override val ctor: CT[P, Unmounted[P, S, B]] =
+    jsInstance.ctor.dimap(Box(_), _.mapProps(_.a).mapMounted(_.rawInstance.mounted))
+}
 
-//  type Unmounted[P, S, B] = Unit
-//  type Mounted[P, S, B] = Unit
-////  type BackendScope[P, S] = Mounted[CallbackTo, P, S, Null]
-//  type BackendScope[P, S] = Unit
+object ScalaComponent {
 
-  // ===================================================================================================================
+  @js.native
+  trait Vars[P, S, B] extends js.Object {
+    var mounted : Mounted[P, S, B]
+    var mountedC: MountedC[P, S, B]
+    var backend : B
+  }
 
-//  // TODO This is just JsComponent.Unmounted + dimap
-//  final class Unmounted[P, S, B](val jsInstance: JsComponent.BasicUnmounted[Box[P], Box[S]])
-//      extends Component.Unmounted[P, Mounted[CallbackTo, P, S, B]] { // TODO Mounted[CallbackTo, P, S, B] ← no
-//
-//    override def key: Option[Key] =
-//      jsInstance.key
-//
-//    override def ref: Option[String] =
-//      jsInstance.ref
-//
-//    override def props: P =
-//      jsInstance.props.a
-//
-//    override def propsChildren: PropsChildren =
-//      jsInstance.propsChildren
-//
-//    override def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted[CallbackTo, P, S, B] = {
-//      val rc = raw.ReactDOM.render(jsInstance.rawElement, container, callback.toJsFn)
-//      ScalaComponentB.mountedFromJs(rc)
-//      // TODO ↑ it escaped!
-//      // TODO hey, should use addRawTypes to access the backed and mounted stuff. More honest.
-//    }
-//  }
+  type JsComp[P, S, B, CT[_, _] <: CtorType[_, _]] =
+    JsComponent[Box[P], Box[S], CT, JsComponent.MountedWithRawType[Box[P], Box[S], Vars[P, S, B]]]
 
-  // ===================================================================================================================
+  type JsMounted[P, S, B] =
+    JsComponent.MountedWithRawType[Box[P], Box[S], Vars[P, S, B]]
 
-//  type BackendScope[P, S] = Mounted[CallbackTo, P, S, Null]
-//
-//  private[CompScala] final class Mounted0[F[_], P, S, Backend](jsInstance: JsComponent.BasicMounted[Box[P], Box[S]])(implicit F: Effect[F])
-//      extends Mounted[F, P, S, Backend](jsInstance)(F) {
-//    var _backend: Backend = _
-//    override def backend: Backend = _backend
-//  }
-//
-//  class MountedD[F[_], P, S, +Backend](val backend: Backend,
-//                                       jsInstance: JsComponent.BasicMounted[Box[P], Box[S]])(implicit F: Effect[F])
-//      extends Mounted[F, P, S, Backend](jsInstance)(F)
-//
-//  abstract class Mounted[F[_], P, S, +Backend](jsInstance: JsComponent.BasicMounted[Box[P], Box[S]])
-//                                              (override protected final val F: Effect[F])
-//      extends Component.Mounted[F, P, S] {
-//
-////    def direct: Mounted[Effect.Id, P, S, Backend] =
-////      new MountedD[Effect.Id, P, S, Backend](backend, jsInstance)
-//
-//    def backend: Backend
-//
-//    final def isMounted: F[Boolean] =
-//      F point jsInstance.isMounted
-//
-//    final def props: F[P] =
-//      F point jsInstance.props.a
-//
-//    final def propsChildren: F[PropsChildren] =
-//      F point jsInstance.propsChildren
-//
-//    final def state: F[S] =
-//      F point jsInstance.state.a
-//
-//    final def setState(newState: S, callback: Callback = Callback.empty): F[Unit] =
-//      F point jsInstance.setState(Box(newState), callback)
-//
-//    final def modState(mod: S => S, callback: Callback = Callback.empty): F[Unit] =
-//      F point jsInstance.modState(s => Box(mod(s.a)), callback)
-//
-//    final def getDOMNode: F[dom.Element] =
-//      F point jsInstance.getDOMNode
-//
-//    override final def forceUpdate(callback: Callback = Callback.empty): F[Unit] =
-//      F point jsInstance.forceUpdate(callback)
-//  }
-//}
+  type Unmounted[P, S, B] = Component.Unmounted[P, Mounted[P, S, B]]
+  type Mounted  [P, S, B] = MountedF[Effect.Id, P, S, B]
+  type MountedC [P, S, B] = MountedF[CallbackTo, P, S, B]
+  type BackendScope[P, S] = Component.Mounted[CallbackTo, P, S]
+
+  final class MountedF[F[_], P, S, B](val jsInstance: JsMounted[P, S, B])(implicit override protected val F: Effect[F])
+      extends Component.Mounted[F, P, S] {
+
+    def backend: F[B] =
+      F point jsInstance.rawInstance.backend
+
+    override def isMounted: F[Boolean] =
+      F point jsInstance.isMounted
+
+    override def props: F[P] =
+      F point jsInstance.props.a
+
+    override def propsChildren: F[PropsChildren] =
+      F point jsInstance.propsChildren
+
+    override def state: F[S] =
+      F point jsInstance.state.a
+
+    override def setState(newState: S, callback: Callback = Callback.empty): F[Unit] =
+      F point jsInstance.setState(Box(newState), callback)
+
+    override def modState(mod: S => S, callback: Callback = Callback.empty): F[Unit] =
+      F point jsInstance.modState(s => Box(mod(s.a)), callback)
+
+    override def getDOMNode: F[dom.Element] =
+      F point jsInstance.getDOMNode
+
+    override def forceUpdate(callback: Callback = Callback.empty): F[Unit] =
+      F point jsInstance.forceUpdate(callback)
+  }
+}
