@@ -75,6 +75,7 @@ object Component {
     def state: F[S]
     def setState(newState: S, callback: Callback = Callback.empty): F[Unit]
     def modState(mod: S => S, callback: Callback = Callback.empty): F[Unit]
+    def xmapState[X](f: S => X)(g: X => S): State[F, X]
     def zoomState[X](get: S => X)(set: (S, X) => S): State[F, X]
     def withEffect[G[_]](implicit t: Effect.Trans[F, G]): State[G, S]
   }
@@ -88,6 +89,9 @@ object Component {
 
     override def mapProps[X](f: P => X): Mounted[F, X, S] =
       Mounted.Mapped(this)(f, identity)((_, s) => s)
+
+    override def xmapState[X](f: S => X)(g: X => S): Mounted[F, P, X] =
+      zoomState(f)((_, s) => g(s))
 
     override def zoomState[X](get: S => X)(set: (S, X) => S): Mounted[F, P, X] =
       Mounted.Mapped(this)(identity, get)(set)
@@ -160,6 +164,9 @@ object Component {
 
       override def mapProps[X](f: P => X) =
         Mapped(delegate)(f compose pMap, sGet)(sSet)
+
+      override def xmapState[X](f: S => X)(g: X => S): Mounted[F, P, X] =
+        Mapped(delegate)(pMap, f compose sGet)((s0, x) => sSet(s0, g(x)))
 
       override def zoomState[X](get: S => X)(set: (S, X) => S) =
         Mapped(delegate)(pMap, get compose sGet)((s0, x) => sMod(s0, set(_, x)))
