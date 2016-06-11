@@ -6,6 +6,7 @@ import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.DebugJs._
 import japgolly.scalajs.react.test.TestUtil._
 
+/*
 object JsFnCompTest extends TestSuite {
   @js.native
   trait JsProps extends js.Object {
@@ -66,3 +67,4 @@ object JsFnCompTest extends TestSuite {
 
   }
 }
+*/

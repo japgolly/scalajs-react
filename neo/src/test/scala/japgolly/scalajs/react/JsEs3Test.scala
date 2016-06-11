@@ -6,6 +6,7 @@ import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.DebugJs._
 import japgolly.scalajs.react.test.TestUtil._
 
+/*
 abstract class JsEs3Test extends TestSuite {
   final val H1: raw.ReactElement =
     raw.React.createElement("h1", null, "Huge")
@@ -219,3 +220,4 @@ object JsEs3STest extends JsEs3Test {
   }
 }
 
+*/

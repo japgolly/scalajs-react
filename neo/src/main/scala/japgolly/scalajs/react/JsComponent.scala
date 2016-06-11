@@ -15,6 +15,13 @@ final class JsComponent[P <: js.Object, S <: js.Object, CT[_, _] <: CtorType[_, 
 
 object JsComponent {
 
+  final class CompToMountedOps[P <: js.Object, S <: js.Object, CT[_, _] <: CtorType[_, _], R <: RawMounted]
+      (private val self: JsComponent[P, S, CT, JsComponent.Mounted[P, S, R]]) extends AnyVal {
+
+    def addRawType[T <: js.Object](implicit p: Profunctor[CT]): JsComponent[P, S, CT, Mounted[P, S, R with T]] =
+      self.mapMounted(_.addRawType[T])(p)
+  }
+
   // ===================================================================================================================
 
   final class Unmounted[P <: js.Object, S <: js.Object, M]
@@ -42,7 +49,9 @@ object JsComponent {
 
   // ===================================================================================================================
 
-  final class Mounted[P <: js.Object, S <: js.Object, Raw <: raw.ReactComponent](val rawInstance: Raw)
+  type RawMounted = raw.ReactComponent
+
+  final class Mounted[P <: js.Object, S <: js.Object, Raw <: RawMounted](val rawInstance: Raw)
       extends Component.Mounted[Effect.Id, P, S] {
 
     override protected implicit def F = Effect.InstanceId
@@ -87,6 +96,9 @@ object JsComponent {
 //    }
   }
 
+  type MountedWithRawType[P <: js.Object, S <: js.Object, T <: js.Object] =
+    Mounted[P, S, RawMounted with T]
+
   // ===================================================================================================================
 
   type Basic[P <: js.Object, S <: js.Object, CT[_, _] <: CtorType[_, _]] =
@@ -96,7 +108,7 @@ object JsComponent {
     Unmounted[P, S, BasicMounted[P, S]]
 
   type BasicMounted[P <: js.Object, S <: js.Object] =
-    Mounted[P, S, raw.ReactComponent]
+    Mounted[P, S, RawMounted]
 
   def apply[P <: js.Object, C <: ChildrenArg, S <: js.Object](rc: raw.ReactClass)
                                                              (implicit s: CtorType.Summoner[P, C]): Basic[P, S, s.CT] =
@@ -105,6 +117,6 @@ object JsComponent {
   def BasicUnmounted[P <: js.Object, S <: js.Object](r: raw.ReactComponentElement): BasicUnmounted[P, S] =
     new Unmounted(r, BasicMounted[P, S])
 
-  def BasicMounted[P <: js.Object, S <: js.Object](r: raw.ReactComponent): BasicMounted[P, S] =
+  def BasicMounted[P <: js.Object, S <: js.Object](r: RawMounted): BasicMounted[P, S] =
     new Mounted(r)
 }

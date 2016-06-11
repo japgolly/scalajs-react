@@ -1,5 +1,6 @@
 package japgolly.scalajs
 
+import scala.scalajs.js
 import scala.scalajs.js.|
 
 /*
@@ -28,6 +29,12 @@ package object react {
   type Key = String | Boolean | raw.JsNumber
 
   type Ref = String // TODO Ummm.....
+
+
+  @inline implicit def toJsComponentToMountedOps
+      [P <: js.Object, S <: js.Object, CT[_, _] <: CtorType[_, _], R <: JsComponent.RawMounted]
+      (c: JsComponent[P, S, CT, JsComponent.Mounted[P, S, R]]): JsComponent.CompToMountedOps[P, S, CT, R] =
+    new JsComponent.CompToMountedOps(c)
 
   import CtorType._
   @inline implicit def toCtorOpsF[P, U](base: Component[P, PropsAndChildren, U]): OpsF[P, U] = new OpsF(base.ctor)

@@ -62,6 +62,9 @@ object Component {
 
   trait HasEffect[F[_]] {
     def withEffect[G[_]](implicit t: Effect.Trans[F, G]): HasEffect[G]
+
+    def withUntypedEffects(implicit t: Effect.Trans[F, Effect.Id]): HasEffect[Effect.Id] =
+      withEffect
   }
 
   trait Props[F[_], P] extends HasEffect[F] {
