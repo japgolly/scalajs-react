@@ -3,7 +3,6 @@ package japgolly.scalajs.react
 import org.scalajs.dom
 import japgolly.scalajs.react.internal._
 
-// TODO Make Unmounted <: Component.Unmounted
 trait Component[P, CT[_, _] <: CtorType[_, _], Unmounted] {
   val ctor: CT[P, Unmounted]
 
@@ -14,17 +13,49 @@ trait Component[P, CT[_, _] <: CtorType[_, _], Unmounted] {
 
 object Component {
 
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
   trait Unmounted[P, Mounted] {
     def key: Option[Key]
     def ref: Option[String]
     def props: P
     def propsChildren: PropsChildren
     def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted
-    //  def mapMounted[MM](f: M => MM): BaseUnmounted[P, S, MM]
 
-    // TODO Morph P
-    // TODO Morph S
-    // TODO Morph M
+    // TODO This should map in mounted too
+    def mapProps[PP](f: P => PP): Unmounted[PP, Mounted] =
+      Unmounted.Mapped(this)(f,  identity)
+
+    def mapMounted[M](f: Mounted => M): Unmounted[P, M] =
+      Unmounted.Mapped(this)(identity, f)
+  }
+
+  object Unmounted {
+    @inline def Mapped[P0, M0, P, M](delegate: Unmounted[P0, M0])(pMap: P0 => P, mMap: M0 => M): Mapped[P0, M0, P, M] =
+      new Mapped(delegate, pMap, mMap)
+
+    final class Mapped[P0, M0, P, M](val delegate: Unmounted[P0, M0], pMap: P0 => P, mMap: M0 => M) extends Unmounted[P, M] {
+      override def key =
+        delegate.key
+
+      override def ref =
+        delegate.ref
+
+      override def props =
+        pMap(delegate.props)
+
+      override def propsChildren =
+        delegate.propsChildren
+
+      override def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty) =
+        mMap(delegate.renderIntoDOM(container, callback))
+
+      override def mapProps[PP](f: P => PP): Unmounted[PP, M] =
+        Unmounted.Mapped(delegate)(f compose pMap, mMap)
+
+      override def mapMounted[MM](f: M => MM): Unmounted[P, MM] =
+        Unmounted.Mapped(delegate)(pMap, f compose mMap)
+    }
   }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -52,94 +83,60 @@ object Component {
     def forceUpdate(callback: Callback = Callback.empty): F[Unit]
 
     override def mapProps[X](f: P => X): Mounted[F, X, S] =
-      new Mounted.MorphedP[F, P, X, S](this, f)
+      Mounted.Mapped(this)(f, identity)((_, s) => s)
 
     override def zoomState[X](get: S => X)(set: (S, X) => S): Mounted[F, P, X] =
-      new Mounted.MorphedS[F, P, S, X](this, get, set)
+      Mounted.Mapped(this)(identity, get)(set)
 
     // TODO Morph F
   }
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
   object Mounted {
 
-    //////////////////////////////////////////////////
-    // Delegates                                    //
-    //////////////////////////////////////////////////
+    @inline def Mapped[F[_], P0, P, S0, S](delegate: Mounted[F, P0, S0])
+                                          (pMap: P0 => P, sGet: S0 => S)
+                                          (sSet: (S0, S) => S0): Mapped[F, P0, P, S0, S] =
+      new Mapped(delegate, pMap, sGet, sSet)
 
-    trait DelegateG[F[_], P, S] extends Mounted[F, P, S] {
-      protected val delegate: Mounted[F, _, _]
-      override def isMounted                = delegate.isMounted
-      override def getDOMNode               = delegate.getDOMNode
-      override def forceUpdate(c: Callback) = delegate.forceUpdate(c)
-    }
 
-    trait DelegateP[F[_], P, S] extends Mounted[F, P, S] {
-      protected val delegate: Mounted[F, P, _]
-      override def props         = delegate.props
-      override def propsChildren = delegate.propsChildren
-    }
+    final class Mapped[F[_], P0, P, S0, S](val delegate: Mounted[F, P0, S0],
+                                           pMap: P0 => P,
+                                           sGet: S0 => S,
+                                           sSet: (S0, S) => S0) extends Mounted[F, P, S] {
+      override protected implicit def F = delegate.F
 
-    trait DelegateS[F[_], P, S] extends Mounted[F, P, S] {
-      protected val delegate: Mounted[F, _, S]
-      override def state                            = delegate.state
-      override def modState(f: S => S, c: Callback) = delegate.modState(f, c)
-      override def setState(s: S, c: Callback)      = delegate.setState(s, c)
-    }
+      protected def sMod(s0: S0, f: S => S): S0 =
+        sSet(s0, f(sGet(s0)))
 
-    //////////////////////////////////////////////////
-    // Morphisms                                    //
-    //////////////////////////////////////////////////
+      override def props =
+        F.map(delegate.props)(pMap)
 
-    trait MorphP[F[_], P0, P, S] extends Mounted[F, P, S] {
-      protected val delegate: Mounted[F, P0, _]
-      protected val pMap: P0 => P
-      override def props         = F.map(delegate.props)(pMap)
-      override def propsChildren = delegate.propsChildren
-    }
+      override def propsChildren =
+        delegate.propsChildren
 
-    trait MorphS[F[_], P, S0, S] extends Mounted[F, P, S] {
-      protected val delegate: Mounted[F, _, S0]
-      protected val sGet: S0 => S
-      protected val sSet: (S0, S) => S0
-      protected def sMod(s0: S0, f: S => S): S0     = sSet(s0, f(sGet(s0)))
-      override def state                            = F.map(delegate.state)(sGet)
-      override def modState(f: S => S, c: Callback) = delegate.modState(sMod(_, f), c)
-      override def setState(s: S, c: Callback)      = delegate.modState(sSet(_, s), c)
-    }
+      override def state =
+        F.map(delegate.state)(sGet)
 
-    class MorphedP[F[_], P0, P, S](protected val delegate: Mounted[F, P0, S],
-                                   protected val pMap: P0 => P)
-                                  (implicit protected val F: Effect[F])
-      extends DelegateG[F, P, S] with MorphP[F, P0, P, S] with DelegateS[F, P, S] {
+      override def setState(newState: S, callback: Callback = Callback.empty) =
+        delegate.modState(sSet(_, newState), callback)
+
+      override def modState(mod: S => S, callback: Callback = Callback.empty) =
+        delegate.modState(sMod(_, mod), callback)
+
+      override def isMounted =
+        delegate.isMounted
+
+      override def getDOMNode =
+        delegate.getDOMNode
+
+      override def forceUpdate(callback: Callback = Callback.empty) =
+        delegate.forceUpdate(callback)
+
       override def mapProps[X](f: P => X) =
-        new MorphedP[F, P0, X, S](delegate, f compose pMap)
-      override def zoomState[X](get: S => X)(set: (S, X) => S) =
-        new MorphedPS[F, P0, P, S, X](delegate, pMap, get, set)
-    }
+        Mapped(delegate)(f compose pMap, sGet)(sSet)
 
-    class MorphedS[F[_], P, S0, S](protected val delegate: Mounted[F, P, S0],
-                                   protected val sGet: S0 => S,
-                                   protected val sSet: (S0, S) => S0)
-                                  (implicit protected val F: Effect[F])
-      extends DelegateG[F, P, S] with DelegateP[F, P, S] with MorphS[F, P, S0, S] {
-      override def mapProps[X](f: P => X) =
-        new MorphedPS[F, P, X, S0, S](delegate, f, sGet, sSet)
       override def zoomState[X](get: S => X)(set: (S, X) => S) =
-        new MorphedS[F, P, S0, X](delegate, get compose sGet, (s0, x) => sMod(s0, set(_, x)))
-    }
-
-    class MorphedPS[F[_], P0, P, S0, S](protected val delegate: Mounted[F, P0, S0],
-                                        protected val pMap: P0 => P,
-                                        protected val sGet: S0 => S,
-                                        protected val sSet: (S0, S) => S0)
-                                       (implicit protected val F: Effect[F])
-      extends DelegateG[F, P, S] with MorphP[F, P0, P, S] with MorphS[F, P, S0, S] {
-      override def mapProps[X](f: P => X) =
-        new MorphedPS[F, P0, X, S0, S](delegate, f compose pMap, sGet, sSet)
-      override def zoomState[X](get: S => X)(set: (S, X) => S) =
-        new MorphedPS[F, P0, P, S0, X](delegate, pMap, get compose sGet, (s0, x) => sMod(s0, set(_, x)))
+        Mapped(delegate)(pMap, get compose sGet)((s0, x) => sMod(s0, set(_, x)))
     }
   }
 }

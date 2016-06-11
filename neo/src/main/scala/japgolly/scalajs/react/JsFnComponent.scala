@@ -37,6 +37,8 @@ object JsFnComponent {
       // Protect against future React change.
       assert(result eq null, "Expected rendered functional component to return null; not " + result)
     }
+
+    // override def mapMounted[M](f: Mounted => M): Unmounted[P, M] =
   }
 
   type Mounted = Unit

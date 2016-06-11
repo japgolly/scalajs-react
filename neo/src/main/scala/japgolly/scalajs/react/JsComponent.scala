@@ -36,7 +36,7 @@ object JsComponent {
     override def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): M =
       m(raw.ReactDOM.render(rawElement, container, callback.toJsFn))
 
-    def mapMounted[MM](f: M => MM): Unmounted[P, S, MM] =
+    override def mapMounted[MM](f: M => MM): Unmounted[P, S, MM] =
       new Unmounted(rawElement, f compose m)
   }
 
