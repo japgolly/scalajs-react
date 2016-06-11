@@ -9,10 +9,16 @@ final class ScalaFnComponent[P, CT[_, _] <: CtorType[_, _]](val jsInstance: JsFn
     extends Component[P, CT, Unmounted[P]] {
 
   override val ctor: CT[P, Unmounted[P]] =
-    jsInstance.ctor.dimap(Box(_), new Unmounted(_))
+    jsInstance.ctor.dimap(Box(_), _.mapProps(_.a))
 }
 
 object ScalaFnComponent {
+
+  type Unmounted[P] = Component.Unmounted[P, Mounted]
+
+  type Mounted = Unit
+
+  // ===================================================================================================================
 
   @inline private def create[P, C <: ChildrenArg]
       (f: Box[P] with raw.PropsWithChildren => raw.ReactElement)
@@ -38,29 +44,6 @@ object ScalaFnComponent {
 
   def Children(render: PropsChildren => raw.ReactElement): ScalaFnComponent[Unit, CtorType.Children] =
     create2(b => render(PropsChildren(b.children)))
-
-  // ===================================================================================================================
-
-  // TODO This is just JsFnComponent.Unmounted with mapped props
-  final class Unmounted[P](val jsInstance: JsFnComponent.Unmounted[Box[P]]) extends Component.Unmounted[P, Mounted] {
-
-    override def key: Option[Key] =
-      jsInstance.key
-
-    override def ref: Option[String] =
-      jsInstance.ref
-
-    override def props: P =
-      jsInstance.props.a
-
-    override def propsChildren: PropsChildren =
-      jsInstance.propsChildren
-
-    override def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Unit =
-      jsInstance.renderIntoDOM(container, callback)
-  }
-
-  type Mounted = Unit
 
 // TODO TEST!
 //  val cp = props[Int](???)
