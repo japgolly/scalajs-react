@@ -96,6 +96,9 @@ object JsComponent {
 //    }
   }
 
+  type UnmountedWithRawType[P <: js.Object, S <: js.Object, T <: js.Object] =
+    Unmounted[P, S, MountedWithRawType[P, S, T]]
+
   type MountedWithRawType[P <: js.Object, S <: js.Object, T <: js.Object] =
     Mounted[P, S, RawMounted with T]
 

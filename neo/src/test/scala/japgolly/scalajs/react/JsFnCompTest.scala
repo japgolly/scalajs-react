@@ -6,7 +6,6 @@ import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.DebugJs._
 import japgolly.scalajs.react.test.TestUtil._
 
-/*
 object JsFnCompTest extends TestSuite {
   @js.native
   trait JsProps extends js.Object {
@@ -17,7 +16,7 @@ object JsFnCompTest extends TestSuite {
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
   val RawFn = js.Dynamic.global.FnComp.asInstanceOf[raw.ReactFunctionalComponent]
-  val Component = CompJsFn.Constructor[JsProps, ChildrenArg.None](RawFn)
+  val Component = JsFnComponent[JsProps, ChildrenArg.None](RawFn)
 
 
   override def tests = TestSuite {
@@ -67,4 +66,3 @@ object JsFnCompTest extends TestSuite {
 
   }
 }
-*/

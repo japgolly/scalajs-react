@@ -6,7 +6,6 @@ import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.DebugJs._
 import japgolly.scalajs.react.test.TestUtil._
 
-/*
 abstract class JsEs3Test extends TestSuite {
   final val H1: raw.ReactElement =
     raw.React.createElement("h1", null, "Huge")
@@ -23,7 +22,7 @@ object JsEs3PTest extends JsEs3Test {
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
   val RawClass = js.Dynamic.global.ES3_P.asInstanceOf[raw.ReactClass]
-  val Component = CompJs3.Constructor[JsProps, ChildrenArg.None, Null](RawClass)
+  val Component = JsComponent[JsProps, ChildrenArg.None, Null](RawClass)
   compileError(""" Component() """)
 
   override def tests = TestSuite {
@@ -72,11 +71,11 @@ object JsEs3PTest extends JsEs3Test {
     }
 
     'children {
-      val C = CompJs3.Constructor[JsProps, ChildrenArg.Varargs, Null](RawClass)
+      val C = JsComponent[JsProps, ChildrenArg.Varargs, Null](RawClass)
 
       'ctors {
         val p = JsProps("x")
-        def test(u: CompJs3.Unmounted[JsProps, Null]) = ()
+        def test(u: JsComponent.BasicUnmounted[JsProps, Null]) = ()
         compileError(""" test(C())         """)
         compileError(""" test(C()())       """)
         compileError(""" test(C()(H1))     """)
@@ -125,7 +124,7 @@ object JsEs3STest extends JsEs3Test {
   }
 
   val RawClass = js.Dynamic.global.ES3_S.asInstanceOf[raw.ReactClass]
-  val Component = CompJs3.Constructor[Null, ChildrenArg.None, JsState](RawClass).mapMounted(_.addRawType[JsMethods])
+  val Component = JsComponent[Null, ChildrenArg.None, JsState](RawClass).addRawType[JsMethods]
 
   override def tests = TestSuite {
     def JsState1(num1: Int): JsState =
@@ -181,11 +180,10 @@ object JsEs3STest extends JsEs3Test {
     }
 
     'children {
-      val C = CompJs3.Constructor[Null, ChildrenArg.Varargs, JsState](RawClass).mapMounted(_.addRawType[JsMethods])
+      val C = JsComponent[Null, ChildrenArg.Varargs, JsState](RawClass).addRawType[JsMethods]
 
       'ctors {
-        type M = CompJs3X.Mounted[Null, JsState, raw.ReactComponent with JsMethods]
-        def test(u: CompJs3X.Unmounted[Null, JsState, M]) = ()
+        def test(u: JsComponent.UnmountedWithRawType[Null, JsState, JsMethods]) = ()
         compileError(""" test(C()())           """)
         compileError(""" test(C()(H1))         """)
         compileError(""" test(C()(H1, H1))     """)
@@ -220,4 +218,3 @@ object JsEs3STest extends JsEs3Test {
   }
 }
 
-*/
