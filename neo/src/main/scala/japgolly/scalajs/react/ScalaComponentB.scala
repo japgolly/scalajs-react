@@ -61,9 +61,9 @@ object ScalaComponentB {
           val sMountedI: Mounted  [P, S, B] = new ScalaComponent.MountedF(jMounted)
           val sMountedC: MountedC [P, S, B] = new ScalaComponent.MountedF(jMounted)
           val backend  : B                  = backendFn(sMountedC)
-          jMounted.rawInstance.mounted  = sMountedI
-          jMounted.rawInstance.mountedC = sMountedC
-          jMounted.rawInstance.backend  = backend
+          jMounted.raw.mounted  = sMountedI
+          jMounted.raw.mountedC = sMountedC
+          jMounted.raw.backend  = backend
         }
       spec("componentWillMount") = componentWillMountFn
 

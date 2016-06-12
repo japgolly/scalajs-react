@@ -4,12 +4,12 @@ import scalajs.js
 import japgolly.scalajs.react.internal._
 import ScalaFnComponent._
 
-final class ScalaFnComponent[P, CT[_, _] <: CtorType[_, _]](val jsInstance: JsFnComponent[Box[P], CT])
+final class ScalaFnComponent[P, CT[_, _] <: CtorType[_, _]](val js: JsFnComponent[Box[P], CT])
                                                            (implicit pf: Profunctor[CT])
     extends Component[P, CT, Unmounted[P]] {
 
   override val ctor: CT[P, Unmounted[P]] =
-    jsInstance.ctor.dimap(Box(_), _.mapProps(_.a))
+    js.ctor.dimap(Box(_), _.mapProps(_.a))
 }
 
 object ScalaFnComponent {

@@ -157,7 +157,7 @@ object JsComponentSTest extends JsComponentTest {
           assertEq(mounted.state.num1, 666)
           assertEq(mounted.state.num2, 500)
 
-          mounted.rawInstance.inc()
+          mounted.raw.inc()
           assertOuterHTML(n, "<div>State = 667 + 500</div>")
           assertEq(mounted.isMounted, true)
           assertEq(mounted.propsChildren.isEmpty, true)
