@@ -162,7 +162,7 @@ object CallbackOption {
  *
  * For a more generic (i.e. beyond Option) or comprehensive monad transformer use Scalaz or similar.
  */
-final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal {
+final class CallbackOption[+A](private val cbfn: () => Option[A]) extends AnyVal {
   import CallbackOption.someUnit
 
   @inline def widen[B >: A]: CallbackOption[B] =
@@ -171,16 +171,16 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def get: CallbackTo[Option[A]] =
     CallbackTo lift cbfn
 
-  def getOrElse(default: => A): CallbackTo[A] =
+  def getOrElse[AA >: A](default: => AA): CallbackTo[AA] =
     get.map(_ getOrElse default)
 
-  def toCallback(implicit ev: A =:= Unit): Callback =
+  def toCallback(implicit ev: A <:< Unit): Callback =
     get.void
 
   def toBoolCB: CallbackTo[Boolean] =
     get.map(_.isDefined)
 
-  def unary_!(implicit ev: A =:= Unit): CallbackOption[Unit] =
+  def unary_!(implicit ev: A <:< Unit): CallbackOption[Unit] =
     CallbackOption(get.map {
       case None    => someUnit
       case Some(_) => None
@@ -265,7 +265,7 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
    *
    * This method allows you to be explicit about the type you're discarding (which may change in future).
    */
-  @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
+  @inline def voidExplicit[B](implicit ev: A <:< B): Callback =
     void
 
   /**
@@ -286,7 +286,7 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   @inline def unless(cond: => Boolean): CallbackOption[A] =
     when(!cond)
 
-  def orElse(tryNext: CallbackOption[A]): CallbackOption[A] =
+  def orElse[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =
     CallbackOption(get flatMap {
       case a@ Some(_) => CallbackTo pure a
       case None       => tryNext.get
@@ -295,7 +295,7 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   /**
    * Alias for `orElse`.
    */
-  @inline def |(tryNext: CallbackOption[A]): CallbackOption[A] =
+  @inline def |[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =
     orElse(tryNext)
 
   def &&[B](b: CallbackOption[B]): CallbackOption[Unit] =

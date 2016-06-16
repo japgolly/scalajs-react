@@ -15,7 +15,7 @@ object Component {
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  trait Unmounted[P, Mounted] {
+  trait Unmounted[+P, +Mounted] {
     def key: Option[Key]
     def ref: Option[String]
     def props: P
@@ -60,30 +60,30 @@ object Component {
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  trait HasEffect[F[_]] {
-    def withEffect[G[_]](implicit t: Effect.Trans[F, G]): HasEffect[G]
+  trait HasEffect[F[+_]] {
+    def withEffect[G[+_]](implicit t: Effect.Trans[F, G]): HasEffect[G]
 
     def withUntypedEffects(implicit t: Effect.Trans[F, Effect.Id]): HasEffect[Effect.Id] =
       withEffect
   }
 
-  trait Props[F[_], P] extends HasEffect[F] {
+  trait Props[F[+_], P] extends HasEffect[F] {
     def props: F[P]
     def propsChildren: F[PropsChildren]
     def mapProps[X](f: P => X): Props[F, X]
-    def withEffect[G[_]](implicit t: Effect.Trans[F, G]): Props[G, P]
+    def withEffect[G[+_]](implicit t: Effect.Trans[F, G]): Props[G, P]
   }
 
-  trait State[F[_], S] extends HasEffect[F] {
+  trait State[F[+_], S] extends HasEffect[F] {
     def state: F[S]
     def setState(newState: S, callback: Callback = Callback.empty): F[Unit]
     def modState(mod: S => S, callback: Callback = Callback.empty): F[Unit]
     def xmapState[X](f: S => X)(g: X => S): State[F, X]
     def zoomState[X](get: S => X)(set: (S, X) => S): State[F, X]
-    def withEffect[G[_]](implicit t: Effect.Trans[F, G]): State[G, S]
+    def withEffect[G[+_]](implicit t: Effect.Trans[F, G]): State[G, S]
   }
 
-  trait Mounted[F[_], P, S] extends Props[F, P] with State[F, S] {
+  trait Mounted[F[+_], P, S] extends Props[F, P] with State[F, S] {
     protected implicit def F: Effect[F]
 
     def isMounted: F[Boolean]
@@ -99,18 +99,18 @@ object Component {
     override def zoomState[X](get: S => X)(set: (S, X) => S): Mounted[F, P, X] =
       Mounted.Mapped(this)(identity, get)(set)
 
-    override def withEffect[G[_]](implicit t: Effect.Trans[F, G]): Mounted[G, P, S] =
+    override def withEffect[G[+_]](implicit t: Effect.Trans[F, G]): Mounted[G, P, S] =
       Mounted.WithEffect(this)(t)
   }
 
   object Mounted {
 
-    @inline def WithEffect[F0[_], F[_], P, S](delegate: Mounted[F0, P, S])
+    @inline def WithEffect[F0[+_], F[+_], P, S](delegate: Mounted[F0, P, S])
                                              (implicit t: Effect.Trans[F0, F]): WithEffect[F0, F, P, S] =
       // TODO Could check if trans is Trans.Id and if so, just return delegate
       new WithEffect(delegate, t)
 
-    final class WithEffect[F0[_], F[_], P, S](val delegate: Mounted[F0, P, S],
+    final class WithEffect[F0[+_], F[+_], P, S](val delegate: Mounted[F0, P, S],
                                               t: Effect.Trans[F0, F]) extends Mounted[F, P, S] {
       protected implicit def F = t.to
       override def props                                             = t(delegate.props)
@@ -122,17 +122,17 @@ object Component {
       override def getDOMNode                                        = t(delegate.getDOMNode)
       override def forceUpdate(c: Callback = Callback.empty)         = t(delegate.forceUpdate(c))
 
-      override def withEffect[G[_]](implicit t2: Effect.Trans[F, G]): Mounted[G, P, S] =
+      override def withEffect[G[+_]](implicit t2: Effect.Trans[F, G]): Mounted[G, P, S] =
         Mounted.WithEffect(delegate)(t compose t2)
     }
 
 
-    @inline def Mapped[F[_], P0, P, S0, S](delegate: Mounted[F, P0, S0])
+    @inline def Mapped[F[+_], P0, P, S0, S](delegate: Mounted[F, P0, S0])
                                           (pMap: P0 => P, sGet: S0 => S)
                                           (sSet: (S0, S) => S0): Mapped[F, P0, P, S0, S] =
       new Mapped(delegate, pMap, sGet, sSet)
 
-    final class Mapped[F[_], P0, P, S0, S](val delegate: Mounted[F, P0, S0],
+    final class Mapped[F[+_], P0, P, S0, S](val delegate: Mounted[F, P0, S0],
                                            pMap: P0 => P,
                                            sGet: S0 => S,
                                            sSet: (S0, S) => S0) extends Mounted[F, P, S] {

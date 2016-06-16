@@ -313,8 +313,7 @@ object CallbackTo {
  *
  * @since 0.10.0
  */
-final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) extends AnyVal {
-  type This = CallbackTo[A]
+final class CallbackTo[+A] private[react] (private[CallbackTo] val f: () => A) extends AnyVal {
 
   /**
    * Executes this callback, on the current thread, right now, blocking until complete.
@@ -358,7 +357,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def flatten[B](implicit ev: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(ev)
 
-  def flatMap2[X, Y, Z](f: (X, Y) => CallbackTo[Z])(implicit ev: A =:= (X, Y)): CallbackTo[Z] =
+  def flatMap2[X, Y, Z](f: (X, Y) => CallbackTo[Z])(implicit ev: A <:< (X, Y)): CallbackTo[Z] =
     flatMap(f tupled _)
 
   /**
@@ -408,7 +407,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    *
    * This method allows you to be explicit about the type you're discarding (which may change in future).
    */
-  @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
+  @inline def voidExplicit[B](implicit ev: A <:< B): Callback =
     void
 
   @deprecated("Use when() or unless().", "0.11.0")
@@ -625,7 +624,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def logDuration: CallbackTo[A] =
     logDuration("Callback")
 
-  def asCBO[B](implicit ev: This =:= CallbackTo[Option[B]]): CallbackOption[B] =
+  def asCBO[B](implicit ev:  CallbackTo[A] <:< CallbackTo[Option[B]]): CallbackOption[B] =
     CallbackOption(ev(this))
 
   def toCBO: CallbackOption[A] =
@@ -634,9 +633,9 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean ops
 
-  type ThisIsBool = This =:= CallbackTo[Boolean]
-
-  private def bool2(b: CallbackTo[Boolean])(op: (() => Boolean, () => Boolean) => Boolean)(implicit ev: ThisIsBool): CallbackTo[Boolean] = {
+  private def bool2(b: CallbackTo[Boolean])
+                   (op: (() => Boolean, () => Boolean) => Boolean)
+                   (implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] = {
     val x = ev(this).f
     val y = b.f
     CallbackTo(op(x, y))
@@ -645,18 +644,18 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   /**
    * Creates a new callback that returns `true` when both this and the given callback return `true`.
    */
-  def &&(b: CallbackTo[Boolean])(implicit ev: ThisIsBool): CallbackTo[Boolean] =
+  def &&(b: CallbackTo[Boolean])(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
     bool2(b)(_() && _())
 
   /**
    * Creates a new callback that returns `true` when either this or the given callback return `true`.
    */
-  def ||(b: CallbackTo[Boolean])(implicit ev: ThisIsBool): CallbackTo[Boolean] =
+  def ||(b: CallbackTo[Boolean])(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
     bool2(b)(_() || _())
 
   /**
    * Negates the callback result (so long as it's boolean).
    */
-  def !(implicit ev: ThisIsBool): CallbackTo[Boolean] =
+  def !(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
     ev(this).map(!_)
 }

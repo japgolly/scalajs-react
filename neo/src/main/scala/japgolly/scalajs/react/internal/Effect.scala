@@ -2,7 +2,7 @@ package japgolly.scalajs.react.internal
 
 import japgolly.scalajs.react.CallbackTo
 
-abstract class Effect[F[_]] {
+abstract class Effect[F[+_]] {
   @inline def point  [A]   (a: => A)              : F[A]
   @inline def pure   [A]   (a: A)                 : F[A]
   @inline def map    [A, B](a: F[A])(f: A => B)   : F[B]
@@ -11,7 +11,7 @@ abstract class Effect[F[_]] {
 }
 
 object Effect {
-  type Id[A] = A
+  type Id[+A] = A
 
   implicit object InstanceId extends Effect[Id] {
     @inline override def point  [A]   (a: => A)         = a
@@ -31,13 +31,13 @@ object Effect {
 
   // ===================================================================================================================
 
-  class Trans[F[_], G[_]](val from: Effect[F], val to: Effect[G]) {
+  class Trans[F[+_], G[+_]](val from: Effect[F], val to: Effect[G]) {
     def apply[A](f: F[A]): G[A] = {
       val fn = from.extract(f)
       to.point(fn())
     }
 
-    def compose[H[_]](t: G Trans H)(implicit ev: Trans[F, F] =:= Trans[F, H] = null): F Trans H =
+    def compose[H[+_]](t: G Trans H)(implicit ev: Trans[F, F] <:< Trans[F, H] = null): F Trans H =
       if (ev eq null)
         new Trans(from, t.to)
       else
@@ -45,14 +45,14 @@ object Effect {
   }
 
   object Trans {
-    final class Id[F[_]](F: Effect[F]) extends Trans[F, F](F, F) {
+    final class Id[F[+_]](F: Effect[F]) extends Trans[F, F](F, F) {
       override def apply[A](f: F[A]) = f
     }
 
-    @inline def id[F[_]](F: Effect[F]): Id[F] =
+    @inline def id[F[+_]](F: Effect[F]): Id[F] =
       new Id(F)
 
-    def apply[F[_], G[_]](implicit F: Effect[F], G: Effect[G], ev: Trans[F, F] =:= Trans[F, G] = null): F Trans G =
+    def apply[F[+_], G[+_]](implicit F: Effect[F], G: Effect[G], ev: Trans[F, F] =:= Trans[F, G] = null): F Trans G =
       if (ev eq null)
         new Trans(F, G)
       else

@@ -33,7 +33,7 @@ object ScalaComponent {
   type MountedC [P, S, B] = MountedF[CallbackTo, P, S, B]
   type BackendScope[P, S] = Component.Mounted[CallbackTo, P, S]
 
-  final class MountedF[F[_], P, S, B](val js: JsMounted[P, S, B])(implicit override protected val F: Effect[F])
+  final class MountedF[F[+_], P, S, B](val js: JsMounted[P, S, B])(implicit override protected val F: Effect[F])
       extends Component.Mounted[F, P, S] {
 
     def backend: F[B] =
