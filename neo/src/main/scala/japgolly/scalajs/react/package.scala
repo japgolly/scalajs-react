@@ -34,7 +34,7 @@ package object react {
   type BackendScope[P, S] = ScalaComponent.BackendScope[P, S]
 
   @inline implicit def toJsComponentToMountedOps
-      [P <: js.Object, S <: js.Object, CT[_, _] <: CtorType[_, _], R <: JsComponent.RawMounted]
+      [P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted]
       (c: JsComponent[P, S, CT, JsComponent.Mounted[P, S, R]]): JsComponent.CompToMountedOps[P, S, CT, R] =
     new JsComponent.CompToMountedOps(c)
 

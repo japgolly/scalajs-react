@@ -4,7 +4,7 @@ import scalajs.js
 import japgolly.scalajs.react.internal._
 import ScalaFnComponent._
 
-final class ScalaFnComponent[P, CT[_, _] <: CtorType[_, _]](val js: JsFnComponent[Box[P], CT])
+final class ScalaFnComponent[P, CT[-p, +u] <: CtorType[p, u]](val js: JsFnComponent[Box[P], CT])
                                                            (implicit pf: Profunctor[CT])
     extends Component[P, CT, Unmounted[P]] {
 

@@ -5,7 +5,7 @@ import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import ScalaComponent._
 
-final class ScalaComponent[P, S, B, CT[_, _] <: CtorType[_, _]](val js: JsComp[P, S, B, CT])
+final class ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](val js: JsComp[P, S, B, CT])
                                                                (implicit pf: Profunctor[CT])
   extends Component[P, CT, Unmounted[P, S, B]] {
 
@@ -22,7 +22,7 @@ object ScalaComponent {
     var backend : B
   }
 
-  type JsComp[P, S, B, CT[_, _] <: CtorType[_, _]] =
+  type JsComp[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
     JsComponent[Box[P], Box[S], CT, JsComponent.MountedWithRawType[Box[P], Box[S], Vars[P, S, B]]]
 
   type JsMounted[P, S, B] =

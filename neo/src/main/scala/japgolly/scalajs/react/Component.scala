@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import org.scalajs.dom
 import japgolly.scalajs.react.internal._
 
-trait Component[P, CT[_, _] <: CtorType[_, _], Unmounted] {
+trait Component[-P, CT[-p, +u] <: CtorType[p, u], +Unmounted] {
   val ctor: CT[P, Unmounted]
 
   // TODO Morph P
@@ -67,7 +67,7 @@ object Component {
       withEffect
   }
 
-  trait Props[F[+_], P] extends HasEffect[F] {
+  trait Props[F[+_], +P] extends HasEffect[F] {
     def props: F[P]
     def propsChildren: F[PropsChildren]
     def mapProps[X](f: P => X): Props[F, X]
@@ -83,7 +83,7 @@ object Component {
     def withEffect[G[+_]](implicit t: Effect.Trans[F, G]): State[G, S]
   }
 
-  trait Mounted[F[+_], P, S] extends Props[F, P] with State[F, S] {
+  trait Mounted[F[+_], +P, S] extends Props[F, P] with State[F, S] {
     protected implicit def F: Effect[F]
 
     def isMounted: F[Boolean]

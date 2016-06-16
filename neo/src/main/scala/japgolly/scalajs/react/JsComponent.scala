@@ -6,7 +6,7 @@ import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{raw => Raw}
 import JsComponent._
 
-final class JsComponent[P <: js.Object, S <: js.Object, CT[_, _] <: CtorType[_, _], M]
+final class JsComponent[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], M]
     (val raw: Raw.ReactClass, override val ctor: CT[P, Unmounted[P, S, M]])
     extends Component[P, CT, Unmounted[P, S, M]] {
 
@@ -16,7 +16,7 @@ final class JsComponent[P <: js.Object, S <: js.Object, CT[_, _] <: CtorType[_, 
 
 object JsComponent {
 
-  final class CompToMountedOps[P <: js.Object, S <: js.Object, CT[_, _] <: CtorType[_, _], R <: RawMounted]
+  final class CompToMountedOps[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: RawMounted]
       (private val self: JsComponent[P, S, CT, JsComponent.Mounted[P, S, R]]) extends AnyVal {
 
     def addRawType[T <: js.Object](implicit p: Profunctor[CT]): JsComponent[P, S, CT, Mounted[P, S, R with T]] =
@@ -105,7 +105,7 @@ object JsComponent {
 
   // ===================================================================================================================
 
-  type Basic[P <: js.Object, S <: js.Object, CT[_, _] <: CtorType[_, _]] =
+  type Basic[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u]] =
     JsComponent[P, S, CT, BasicMounted[P, S]]
 
   type BasicUnmounted[P <: js.Object, S <: js.Object] =

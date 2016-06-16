@@ -5,7 +5,7 @@ import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{raw => Raw}
 import JsFnComponent._
 
-final class JsFnComponent[P <: js.Object, CT[_, _] <: CtorType[_, _]](val raw: Raw.ReactFunctionalComponent,
+final class JsFnComponent[P <: js.Object, CT[-p, +u] <: CtorType[p, u]](val raw: Raw.ReactFunctionalComponent,
                                                                       override val ctor: CT[P, Unmounted[P]])
     extends Component[P, CT, Unmounted[P]]
 
