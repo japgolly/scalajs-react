@@ -11,6 +11,10 @@ Provides (opt-in) support for pure functional programming, using [Scalaz](https:
 Comes utility modules [`extra`](extra/) and [`test`](test/), helpful for React in Scala(.js), rather than React in JS.
 Includes a router, testing utils, performance utils, more.
 
+<br>
+#### ***Notice: A redesign is currently underway on the [topic/neo](https://github.com/japgolly/scalajs-react/tree/topic/neo) branch. Pop in, have a look around, if you'd like to make some big changes now is the time.***
+<br>
+
 ##### Index
 
 - [Usage (+ Setup)](doc/USAGE.md).
