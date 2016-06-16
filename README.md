@@ -5,6 +5,7 @@ scalajs-react [neo]
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/japgolly/scalajs-react?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This branch is where a [redesign](https://github.com/japgolly/scalajs-react/issues/259) is currently taking place.
+At the moment, it's all in a new module called [`neo`](neo/src).
 
 The v0.x.y series started as an experiment and grew organically from there.
 As such, it has accrued a number of annoyances and obstacles to desired improvements,
@@ -40,10 +41,12 @@ Contributions welcome.
   - It should be trivial to reuse `scalajs-react` components in other React libraries, and vice-versa.
 
 - `JsComponent` - Import React components written in pure JS.
+  ([test JS](neo/src/test/resources/component-es3.js) & [test Scala](neo/src/test/scala/japgolly/scalajs/react/JsComponentTest.scala))
 
 - Type-safety for JS components that expose ad-hoc methods once mounted.
 
 - `JsFnComponent` - Import React functional components written in pure JS.
+  ([test JS](neo/src/test/resources/component-es3.js) & [test Scala](neo/src/test/scala/japgolly/scalajs/react/JsFnComponentTest.scala))
 
 - `ScalaFnComponent` - Create React functional components in Scala.
 
