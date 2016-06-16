@@ -1,41 +1,60 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
+import scala.{Either => Or}
 import scalajs.js
 import japgolly.scalajs.react.internal._
 import ScalaComponent._
 
 object ScalaComponentB {
 
-  def build[P](name: String) = new {
-    def initialState[S](s: S) = PS[P, S](name, Box(s))
-    def stateless = PS[P, Unit](name, Box.Unit)
+  type InitStateFnU[P, S]    = Component.Unmounted[P, Any]
+  type InitStateArg[P, S]    = (InitStateFnU[P, S] => S) Or js.Function0[Box[S]]
+  type NewBackendFn[P, S, B] = BackendScope[P, S] => B
+  type RenderFn    [P, S, B] = MountedC[P, S, B] => raw.ReactElement
+
+
+  private val InitStateUnit : Nothing Or js.Function0[Box[Unit]] =
+    Right(() => Box.Unit)
+
+  def build[P](name: String) = new PPPP[P](name)
+
+  case class PPPP[P](name: String) {
+
+    // getInitialState is how it's named in React
+    def getInitialState  [State](f: InitStateFnU[P, State] => State)             = new PS[P, State](name, Left(f))
+    def getInitialStateCB[State](f: InitStateFnU[P, State] => CallbackTo[State]) = getInitialState(f.andThen(_.runNow()))
+
+    // More convenient methods that don't need the full CompScope
+    def initialState    [State](s: => State              ) = new PS[P, State](name, Right(() => Box(s)))
+    def initialStateCB  [State](s: CallbackTo[State]     ) = initialState(s.runNow())
+    def initialState_P  [State](f: P => State            ) = getInitialState[State]($ => f($.props))
+    def initialStateCB_P[State](f: P => CallbackTo[State]) = getInitialState[State]($ => f($.props).runNow())
+
+    def stateless = PS[P, Unit](name, InitStateUnit)
   }
 
-  type NewBackendFn[P, S, B] = BackendScope[P, S] => B
-  type RenderFn[P, S, B] = MountedC[P, S, B] => raw.ReactElement
-
-  case class PS[P, S](name: String, s: Box[S]) {
-    def backend[B](f: NewBackendFn[P, S, B]) = PSB[P, S, B](name, s, f)
+  case class PS[P, S](name: String, initStateFn: InitStateArg[P, S]) {
+    def backend[B](f: NewBackendFn[P, S, B]) = PSB[P, S, B](name, initStateFn, f)
     def noBackend = backend[Unit](_ => ())
   }
 
-  case class PSB[P, S, Backend](name: String, s: Box[S], backendFn: NewBackendFn[P, S, Backend]) {
+  case class PSB[P, S, B](name: String, initStateFn: InitStateArg[P, S], backendFn: NewBackendFn[P, S, B]) {
 
-    def render[C <: ChildrenArg](r: RenderFn[P, S, Backend]): Builder[P, C, S, Backend] =
-      new Builder[P, C, S, Backend](name, s, backendFn, r)
+    def render[C <: ChildrenArg](r: RenderFn[P, S, B]): Builder[P, C, S, B] =
+      new Builder[P, C, S, B](name, initStateFn, backendFn, r)
 
-    def render_P(r: P => raw.ReactElement): Builder[P, ChildrenArg.None, S, Backend] =
+    def render_P(r: P => raw.ReactElement): Builder[P, ChildrenArg.None, S, B] =
       render[ChildrenArg.None]($ => r($.props.runNow()))
 
-    def render_S(r: S => raw.ReactElement): Builder[P, ChildrenArg.None, S, Backend] =
+    def render_S(r: S => raw.ReactElement): Builder[P, ChildrenArg.None, S, B] =
       render[ChildrenArg.None]($ => r($.state.runNow()))
   }
 
-  case class Builder[P, C <: ChildrenArg, S, B](name: String,
-                                                s: Box[S],
-                                                backendFn: NewBackendFn[P, S, B],
-                                                render: RenderFn[P, S, B]) {
+  case class Builder[P, C <: ChildrenArg, S, B](name       : String,
+                                                initStateFn: InitStateArg[P, S],
+                                                backendFn  : NewBackendFn[P, S, B],
+                                                renderFn   : RenderFn[P, S, B]) {
 
     def spec: raw.ReactComponentSpec = {
       val spec = js.Dictionary.empty[js.Any]
@@ -47,13 +66,17 @@ object ScalaComponentB {
         (rc: raw.ReactComponent) =>
           f(rc.asInstanceOf[Vars[P, S, B]].mountedC)
 
-      spec("render") = withMounted(render)
+      spec("render") = withMounted(renderFn)
 
-      // val initStateFn: DuringCallbackU[P, S, B] => WrapObj[S] =
-      //   $ => WrapObj(isf($).runNow())
-      // spec("getInitialState") = initStateFn: ThisFunction
-      def getInitialStateFn: js.Function0[Box[S]] = () => s
-      spec.update("getInitialState", getInitialStateFn) // TODO I bet this has a perf impact.
+      def getInitialStateFn: js.Function =
+        initStateFn match {
+          case Right(fn0) => fn0
+          case Left(fn) => ((rc: raw.ReactComponentElement) => {
+            val js = JsComponent.BasicUnmounted[Box[P], Box[S]](rc)
+            Box(fn(js.mapProps(_.a)))
+          }): js.ThisFunction0[raw.ReactComponentElement, Box[S]]
+        }
+      spec.update("getInitialState", getInitialStateFn)
 
       val componentWillMountFn: js.ThisFunction0[raw.ReactComponent, Unit] =
         (rc: raw.ReactComponent) => {

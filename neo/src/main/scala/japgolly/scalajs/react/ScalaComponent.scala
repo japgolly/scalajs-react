@@ -28,10 +28,10 @@ object ScalaComponent {
   type JsMounted[P, S, B] =
     JsComponent.MountedWithRawType[Box[P], Box[S], Vars[P, S, B]]
 
-  type Unmounted[P, S, B] = Component.Unmounted[P, Mounted[P, S, B]]
-  type Mounted  [P, S, B] = MountedF[Effect.Id, P, S, B]
-  type MountedC [P, S, B] = MountedF[CallbackTo, P, S, B]
-  type BackendScope[P, S] = Component.Mounted[CallbackTo, P, S]
+  type Unmounted   [P, S, B] = Component.Unmounted[P, Mounted[P, S, B]]
+  type Mounted     [P, S, B] = MountedF[Effect.Id, P, S, B]
+  type MountedC    [P, S, B] = MountedF[CallbackTo, P, S, B]
+  type BackendScope[P, S]    = Component.Mounted[CallbackTo, P, S]
 
   final class MountedF[F[+_], P, S, B](val js: JsMounted[P, S, B])(implicit override protected val F: Effect[F])
       extends Component.Mounted[F, P, S] {

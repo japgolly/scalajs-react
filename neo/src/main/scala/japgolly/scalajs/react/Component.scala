@@ -22,7 +22,6 @@ object Component {
     def propsChildren: PropsChildren
     def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted
 
-    // TODO This should map in mounted too
     def mapProps[PP](f: P => PP): Unmounted[PP, Mounted] =
       Unmounted.Mapped(this)(f,  identity)
 
