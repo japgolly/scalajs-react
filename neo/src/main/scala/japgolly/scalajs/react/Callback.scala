@@ -282,8 +282,8 @@ object CallbackTo {
       c.toFuture.flatMap(identity)
   }
 
-  implicit def callbackCovariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =
-    c.widen
+//  implicit def callbackCovariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =
+//    c.widen
 
   /**
    * Prevents `scalac` discarding the result of a map function when the final result is `Callback`.
@@ -325,8 +325,8 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val f: () => A) e
   @inline def runNow(): A =
     f()
 
-  @inline def widen[B >: A]: CallbackTo[B] =
-    new CallbackTo(f)
+//  @inline def widen[B >: A]: CallbackTo[B] =
+//    new CallbackTo(f)
 
   def map[B](g: A => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
     new CallbackTo(() => g(f()))

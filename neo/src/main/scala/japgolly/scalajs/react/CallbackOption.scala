@@ -145,8 +145,8 @@ object CallbackOption {
 //      _ <- e.preventDefaultCB.toCBO
 //    } yield a
 
-  implicit def callbackOptionCovariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
-    c.widen
+//  implicit def callbackOptionCovariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
+//    c.widen
 }
 
 // =====================================================================================================================
@@ -165,8 +165,8 @@ object CallbackOption {
 final class CallbackOption[+A](private val cbfn: () => Option[A]) extends AnyVal {
   import CallbackOption.someUnit
 
-  @inline def widen[B >: A]: CallbackOption[B] =
-    new CallbackOption(cbfn)
+//  @inline def widen[B >: A]: CallbackOption[B] =
+//    new CallbackOption(cbfn)
 
   def get: CallbackTo[Option[A]] =
     CallbackTo lift cbfn
