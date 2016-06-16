@@ -46,7 +46,7 @@ Contributions welcome.
 - Type-safety for JS components that expose ad-hoc methods once mounted.
 
 - `JsFnComponent` - Import React functional components written in pure JS.
-  ([test JS](neo/src/test/resources/component-es3.js) & [test Scala](neo/src/test/scala/japgolly/scalajs/react/JsFnComponentTest.scala))
+  ([test JS](neo/src/test/resources/component-fn.js) & [test Scala](neo/src/test/scala/japgolly/scalajs/react/JsFnComponentTest.scala))
 
 - `ScalaFnComponent` - Create React functional components in Scala.
 
