@@ -123,4 +123,9 @@ object JsComponent {
 
   def BasicMounted[P <: js.Object, S <: js.Object](r: RawMounted): BasicMounted[P, S] =
     new Mounted(r)
+
+  def byName[P <: js.Object, C <: ChildrenArg, S <: js.Object](name: String)
+      (implicit s: CtorType.Summoner[P, C]): Basic[P, S, s.CT] =
+    apply[P, C, S](js.Dynamic.global.selectDynamic(name).asInstanceOf[Raw.ReactClass])(s)
+
 }

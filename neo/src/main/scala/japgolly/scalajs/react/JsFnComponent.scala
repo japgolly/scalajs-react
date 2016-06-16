@@ -15,6 +15,10 @@ object JsFnComponent {
                                              (implicit s: CtorType.Summoner[P, C]): JsFnComponent[P, s.CT] =
     new JsFnComponent[P, s.CT](rc, s.pf.rmap(s.summon(rc))(new Unmounted(_)))
 
+  def byName[P <: js.Object, C <: ChildrenArg](name: String)
+                                             (implicit s: CtorType.Summoner[P, C]): JsFnComponent[P, s.CT] =
+    apply[P, C](js.Dynamic.global.selectDynamic(name).asInstanceOf[Raw.ReactFunctionalComponent])(s)
+
   // ===================================================================================================================
 
   final class Unmounted[P <: js.Object](val raw: Raw.ReactComponentElement) extends Component.Unmounted[P, Mounted] {

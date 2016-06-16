@@ -21,8 +21,7 @@ object JsComponentPTest extends JsComponentTest {
   def JsProps(name: String): JsProps =
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
-  val RawClass = js.Dynamic.global.ES3_P.asInstanceOf[raw.ReactClass]
-  val Component = JsComponent[JsProps, ChildrenArg.None, Null](RawClass)
+  val Component = JsComponent.byName[JsProps, ChildrenArg.None, Null]("ES3_P")
   compileError(""" Component() """)
 
   override def tests = TestSuite {
@@ -71,7 +70,7 @@ object JsComponentPTest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent[JsProps, ChildrenArg.Varargs, Null](RawClass)
+      val C = JsComponent.byName[JsProps, ChildrenArg.Varargs, Null]("ES3_P")
 
       'ctors {
         val p = JsProps("x")
@@ -123,8 +122,7 @@ object JsComponentSTest extends JsComponentTest {
     def inc(): Unit = js.native
   }
 
-  val RawClass = js.Dynamic.global.ES3_S.asInstanceOf[raw.ReactClass]
-  val Component = JsComponent[Null, ChildrenArg.None, JsState](RawClass).addRawType[JsMethods]
+  val Component = JsComponent.byName[Null, ChildrenArg.None, JsState]("ES3_S").addRawType[JsMethods]
 
   override def tests = TestSuite {
     def JsState1(num1: Int): JsState =
@@ -180,7 +178,7 @@ object JsComponentSTest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent[Null, ChildrenArg.Varargs, JsState](RawClass).addRawType[JsMethods]
+      val C = JsComponent.byName[Null, ChildrenArg.Varargs, JsState]("ES3_S").addRawType[JsMethods]
 
       'ctors {
         def test(u: JsComponent.UnmountedWithRawType[Null, JsState, JsMethods]) = ()
