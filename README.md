@@ -52,6 +52,8 @@ Contributions welcome.
 
 - Safe `PropsChildren` type and usage.
 
+- Consistency wrt wrapping typed effects. Eg. `BackendScope.getDOMNode` should be `Callback`/direct just like everything else.
+
 
 #### In Progress
 
@@ -65,6 +67,7 @@ Contributions welcome.
 
 #### Pending
 
+- The `.vdom` package.
 - Integration with all the `.extra` awesomeness. (Because most of it has been tremendously useful in real-world code.)
 - Maybe a new means of declaring Scala mixins.
 - Static and dynamic props (for Scala components).
