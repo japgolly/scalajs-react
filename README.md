@@ -43,6 +43,11 @@ Contributions welcome.
 - `JsComponent` - Import React components written in pure JS.
   ([test JS](neo/src/test/resources/component-es3.js) & [test Scala](neo/src/test/scala/japgolly/scalajs/react/JsComponentTest.scala))
 
+  Importing a JS component is now a one-liner.
+  ```scala
+  val Component = JsComponent.byName[JsProps, AcceptsChildren, JsState]("ReactXYZ")
+  ```
+
 - Type-safety for JS components that expose ad-hoc methods once mounted.
 
 - `JsFnComponent` - Import React functional components written in pure JS.
