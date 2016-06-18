@@ -102,7 +102,21 @@ package object raw {
   type ReactFunctionalComponent = js.Function1[Props, ReactElement]
 
   @js.native
-  trait ReactComponentSpec extends js.Object
+  trait ReactComponentSpec extends js.Object {
+    var displayName              : String                                                                   = js.native
+    var render                   : js.ThisFunction0[raw.ReactComponent, raw.ReactElement]                   = js.native
+    var getInitialState          : js.Function                                                              = js.native
+ // var getInitialState          : js.ThisFunction0[raw.ReactComponentElement, State] | js.Function0[State] = js.native
+    var componentWillMount       : js.ThisFunction0[raw.ReactComponent, Unit]                               = js.native
+    var componentWillUnmount     : js.ThisFunction0[raw.ReactComponent, Unit]                               = js.native
+    var componentDidMount        : js.ThisFunction0[raw.ReactComponent, Unit]                               = js.native
+ // var componentWillUpdate      : xxxxx                                                                    = js.native
+ // var componentDidUpdate       : xxxxx                                                                    = js.native
+ // var componentWillReceiveProps: xxxxx                                                                    = js.native
+ // var shouldComponentUpdate    : xxxxx                                                                    = js.native
+ // var getDefaultProps          : xxxxx                                                                    = js.native
+ // var mixins                   : xxxxx                                                                    = js.native
+  }
 
 }
 

@@ -12,7 +12,7 @@ object ScalaComponentPTest extends TestSuite {
   case class Props(name: String)
 
   val Component =
-    ScalaComponentB.build[Props]("HelloMessage")
+    ScalaComponent.build[Props]("HelloMessage")
       .stateless
       .noBackend
       .render_P(p => raw.React.createElement("div", null, "Hello ", p.name))
@@ -59,7 +59,7 @@ object ScalaComponentSTest extends TestSuite {
   }
 
   val Component =
-    ScalaComponentB.build[Unit]("State, no Props")
+    ScalaComponent.build[Unit]("State, no Props")
       .initialState(State(123, State2(400, 7)))
       .backend(new Backend(_))
       .render_S(s => raw.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3))

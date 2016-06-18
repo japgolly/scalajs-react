@@ -6,7 +6,7 @@ import japgolly.scalajs.react.internal._
 import ScalaComponent._
 
 final class ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](val js: JsComp[P, S, B, CT])
-                                                               (implicit pf: Profunctor[CT])
+                                                                 (implicit pf: Profunctor[CT])
   extends Component[P, CT, Unmounted[P, S, B]] {
 
   override val ctor: CT[P, Unmounted[P, S, B]] =
@@ -15,22 +15,25 @@ final class ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](val js: JsComp
 
 object ScalaComponent {
 
+  @inline def build[P](name: String) =
+    new ScalaComponentB.Step1[P](name)
+
   @js.native
   trait Vars[P, S, B] extends js.Object {
-    var mounted : Mounted[P, S, B]
-    var mountedC: MountedC[P, S, B]
-    var backend : B
+    var mounted  : Mounted[P, S, B]
+    var mountedCB: MountedCB[P, S, B]
+    var backend  : B
   }
 
   type JsComp[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
-    JsComponent[Box[P], Box[S], CT, JsComponent.MountedWithRawType[Box[P], Box[S], Vars[P, S, B]]]
+    JsComponent[Box[P], Box[S], CT, JsMounted[P, S, B]]
 
   type JsMounted[P, S, B] =
     JsComponent.MountedWithRawType[Box[P], Box[S], Vars[P, S, B]]
 
   type Unmounted   [P, S, B] = Component.Unmounted[P, Mounted[P, S, B]]
   type Mounted     [P, S, B] = MountedF[Effect.Id, P, S, B]
-  type MountedC    [P, S, B] = MountedF[CallbackTo, P, S, B]
+  type MountedCB   [P, S, B] = MountedF[CallbackTo, P, S, B]
   type BackendScope[P, S]    = Component.Mounted[CallbackTo, P, S]
 
   final class MountedF[F[+_], P, S, B](val js: JsMounted[P, S, B])(implicit override protected val F: Effect[F])
