@@ -16,7 +16,7 @@ final class JsComponent[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p
 
 object JsComponent {
 
-  final class CompToMountedOps[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: RawMounted]
+  final class CompStdOps[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: RawMounted]
       (private val self: JsComponent[P, S, CT, JsComponent.Mounted[P, S, R]]) extends AnyVal {
 
     def addRawType[T <: js.Object](implicit p: Profunctor[CT]): JsComponent[P, S, CT, Mounted[P, S, R with T]] =
