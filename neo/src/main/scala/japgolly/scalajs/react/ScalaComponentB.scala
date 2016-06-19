@@ -1,6 +1,5 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom
 import scala.{Either => Or}
 import scalajs.js
 import japgolly.scalajs.react.internal._
@@ -11,7 +10,9 @@ object ScalaComponentB {
   type InitStateFnU[P, S]    = Component.Unmounted[P, Any]
   type InitStateArg[P, S]    = (InitStateFnU[P, S] => S) Or js.Function0[Box[S]]
   type NewBackendFn[P, S, B] = BackendScope[P, S] => B
-  type RenderFn    [P, S, B] = MountedCB[P, S, B] => raw.ReactElement // TODO This should be Unmounted
+  type RenderFn    [P, S, B] = MountedCB[P, S, B] => raw.ReactElement
+  // Technically ↗ MountedCB ↗ should be Unmounted but because it can used to create event callbacks
+  // (eg. onclick --> $.setState), it needs access to all Mounted methods.
 
   private val InitStateUnit : Nothing Or js.Function0[Box[Unit]] =
     Right(() => Box.Unit)
@@ -60,83 +61,61 @@ object ScalaComponentB {
 
   // ===================================================================================================================
 
-    /*
-    backend ->
-      ? -> render ->
-      render{PS}  ->
-      render{*C*} ->
-
-  render
-
-  No children
-  ============
-  renderPS
-  renderP
-  renderS
-  render_PS
-  render_P
-  render_S
-
-  Has children
-  ============
-  renderPCS
-  renderPC
-  renderCS
-  renderC
-  render_PCS
-  render_PC
-  render_CS
-  render_C
-
-     */
-
   final class Step3[P, S, B](name: String, initStateFn: InitStateArg[P, S], backendFn: NewBackendFn[P, S, B]) {
     type Next[C <: ChildrenArg] = Step4[P, C, S, B]
+    type $ = MountedCB[P, S, B]
+
+    // TODO Hmmm, if no children are used, should not the .propsChildren methods be removed from {Unm,M}ounted?
 
     def render[C <: ChildrenArg](r: RenderFn[P, S, B]): Next[C] =
       new Step4[P, C, S, B](name, initStateFn, backendFn, r)
 
-    def render_P(r: P => raw.ReactElement): Next[ChildrenArg.None] =
-      render[ChildrenArg.None]($ => r($.props.runNow()))
+    // No children
 
-    def render_S(r: S => raw.ReactElement): Next[ChildrenArg.None] =
-      render[ChildrenArg.None]($ => r($.state.runNow()))
+     def renderPS(r: ($, P, S) => raw.ReactElement): Next[ChildrenArg.None] =
+       render($ => r($, $.props.runNow(), $.state.runNow()))
 
-//    type Out = PSBR[P, S, B]
-//
-//    def render(f: DuringCallbackU[P, S, B] => ReactElement): Out =
-//      new PSBR(name, isf, ibf, f)
-//
-//    def renderPCS(f: (DuringCallbackU[P, S, B], P, PropsChildren, S) => ReactElement): Out =
-//      render($ => f($, $.props, $.propsChildren, $.state))
-//
-//    def renderPC(f: (DuringCallbackU[P, S, B], P, PropsChildren) => ReactElement): Out =
-//      render($ => f($, $.props, $.propsChildren))
-//
-//    def renderPS(f: (DuringCallbackU[P, S, B], P, S) => ReactElement): Out =
-//      render($ => f($, $.props, $.state))
-//
-//    def renderP(f: (DuringCallbackU[P, S, B], P) => ReactElement): Out =
-//      render($ => f($, $.props))
-//
-//    def renderCS(f: (DuringCallbackU[P, S, B], PropsChildren, S) => ReactElement): Out =
-//      render($ => f($, $.propsChildren, $.state))
-//
-//    def renderC(f: (DuringCallbackU[P, S, B], PropsChildren) => ReactElement): Out =
-//      render($ => f($, $.propsChildren))
-//
-//    def renderS(f: (DuringCallbackU[P, S, B], S) => ReactElement): Out =
-//      render($ => f($, $.state))
-//
-//    def render_P(f: P => ReactElement): Out =
-//      render($ => f($.props))
-//
-//    def render_C(f: PropsChildren => ReactElement): Out =
-//      render($ => f($.propsChildren))
-//
-//    def render_S(f: S => ReactElement): Out =
-//      render($ => f($.state))
-//
+     def renderP(r: ($, P) => raw.ReactElement): Next[ChildrenArg.None] =
+       render($ => r($, $.props.runNow()))
+
+     def renderS(r: ($, S) => raw.ReactElement): Next[ChildrenArg.None] =
+       render($ => r($, $.state.runNow()))
+
+     def render_PS(r: (P, S) => raw.ReactElement): Next[ChildrenArg.None] =
+       render($ => r($.props.runNow(), $.state.runNow()))
+
+     def render_P(r: P => raw.ReactElement): Next[ChildrenArg.None] =
+       render($ => r($.props.runNow()))
+
+     def render_S(r: S => raw.ReactElement): Next[ChildrenArg.None] =
+       render($ => r($.state.runNow()))
+
+    // Has children
+
+     def renderPCS(r: ($, P, PropsChildren, S) => raw.ReactElement): Next[ChildrenArg.Varargs] =
+       render($ => r($, $.props.runNow(), $.propsChildren.runNow(), $.state.runNow()))
+
+     def renderPC(r: ($, P, PropsChildren) => raw.ReactElement): Next[ChildrenArg.Varargs] =
+       render($ => r($, $.props.runNow(), $.propsChildren.runNow()))
+
+     def renderCS(r: ($, PropsChildren, S) => raw.ReactElement): Next[ChildrenArg.Varargs] =
+       render($ => r($, $.propsChildren.runNow(), $.state.runNow()))
+
+     def renderC(r: ($, PropsChildren) => raw.ReactElement): Next[ChildrenArg.Varargs] =
+       render($ => r($, $.propsChildren.runNow()))
+
+     def render_PCS(r: (P, PropsChildren, S) => raw.ReactElement): Next[ChildrenArg.Varargs] =
+       render($ => r($.props.runNow(), $.propsChildren.runNow(), $.state.runNow()))
+
+     def render_PC(r: (P, PropsChildren) => raw.ReactElement): Next[ChildrenArg.Varargs] =
+       render($ => r($.props.runNow(), $.propsChildren.runNow()))
+
+     def render_CS(r: (PropsChildren, S) => raw.ReactElement): Next[ChildrenArg.Varargs] =
+       render($ => r($.propsChildren.runNow(), $.state.runNow()))
+
+     def render_C(r: PropsChildren => raw.ReactElement): Next[ChildrenArg.Varargs] =
+       render($ => r($.propsChildren.runNow()))
+
 //    /**
 //     * Use a method named `render` in the backend, automatically populating its arguments with props, state,
 //     * propsChildren where needed.
