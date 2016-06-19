@@ -13,10 +13,8 @@ trait Component[-P, CT[-p, +u] <: CtorType[p, u], +Unmounted] {
 
 object Component {
 
-  @inline implicit def toCtorOpsF[P, U](base: Component[P, CtorType.PropsAndChildren, U]): CtorType.OpsF[P, U] = new CtorType.OpsF(base.ctor)
-  @inline implicit def toCtorOpsP[P, U](base: Component[P, CtorType.Props           , U]): CtorType.OpsP[P, U] = new CtorType.OpsP(base.ctor)
-  @inline implicit def toCtorOpsC[P, U](base: Component[P, CtorType.Children        , U]): CtorType.OpsC[P, U] = new CtorType.OpsC(base.ctor)
-  @inline implicit def toCtorOpsV[P, U](base: Component[P, CtorType.Void            , U]): CtorType.OpsV[   U] = new CtorType.OpsV(base.ctor)
+  @inline implicit def toCtorOps[P, CT[-p, +u] <: CtorType[p, u], U](base: Component[P, CT, U]) =
+    base.ctor
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
