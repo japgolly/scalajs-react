@@ -1,6 +1,5 @@
 package japgolly.scalajs
 
-import scala.scalajs.js
 import scala.scalajs.js.|
 
 package object react {
@@ -13,15 +12,4 @@ package object react {
 
   // TODO Rename?
   type BackendScope[P, S] = ScalaComponent.BackendScope[P, S]
-
-  @inline implicit def toJsCompStdOps
-      [P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted]
-      (c: JsComponent[P, S, CT, JsComponent.Mounted[P, S, R]]): JsComponent.CompStdOps[P, S, CT, R] =
-    new JsComponent.CompStdOps(c)
-
-  import CtorType._
-  @inline implicit def toCtorOpsF[P, U](base: Component[P, PropsAndChildren, U]): OpsF[P, U] = new OpsF(base.ctor)
-  @inline implicit def toCtorOpsP[P, U](base: Component[P, Props           , U]): OpsP[P, U] = new OpsP(base.ctor)
-  @inline implicit def toCtorOpsC[P, U](base: Component[P, Children        , U]): OpsC[P, U] = new OpsC(base.ctor)
-  @inline implicit def toCtorOpsV[P, U](base: Component[P, Void            , U]): OpsV[   U] = new OpsV(base.ctor)
 }

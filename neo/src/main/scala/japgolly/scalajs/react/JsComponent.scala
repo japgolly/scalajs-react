@@ -23,6 +23,11 @@ object JsComponent {
       self.mapMounted(_.addRawType[T])(p)
   }
 
+  @inline implicit def toJsCompStdOps
+      [P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: RawMounted]
+      (c: JsComponent[P, S, CT, Mounted[P, S, R]]): CompStdOps[P, S, CT, R] =
+    new CompStdOps(c)
+
   // ===================================================================================================================
 
   final class Unmounted[P <: js.Object, S <: js.Object, M]
