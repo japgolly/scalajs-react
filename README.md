@@ -73,6 +73,8 @@ Contributions welcome.
 #### Pending
 
 - The `.vdom` package.
+  - Reintegration & new types.
+  - [Re-think vdom operators](https://github.com/japgolly/scalajs-react/issues/292)
 - Integration with all the `.extra` awesomeness. (Because most of it has been tremendously useful in real-world code.)
 - Maybe a new means of declaring Scala mixins.
 - Static and dynamic props (for Scala components).
