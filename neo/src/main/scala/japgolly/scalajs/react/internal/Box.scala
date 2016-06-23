@@ -3,14 +3,14 @@ package japgolly.scalajs.react.internal
 import scalajs.js
 import scalajs.js.annotation._
 
-@ScalaJSDefined
+@js.native
 trait Box[+A] extends js.Object {
-  val a: A
+  @JSName("a") val unbox: A = js.native
 }
 
 object Box {
   @inline def apply[A](value: A): Box[A] =
-    new Box[A] { override val a = value }
+    js.Dynamic.literal(a = value.asInstanceOf[js.Any]).asInstanceOf[Box[A]]
 
   val Unit: Box[Unit] =
     Box(())

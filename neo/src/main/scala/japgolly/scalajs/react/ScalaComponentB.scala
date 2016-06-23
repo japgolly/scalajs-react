@@ -148,7 +148,7 @@ object ScalaComponentB {
           case Right(fn0) => fn0
           case Left(fn) => ((rc: raw.ReactComponentElement) => {
             val js = JsComponent.BasicUnmounted[Box[P], Box[S]](rc)
-            Box(fn(js.mapProps(_.a)))
+            Box(fn(js.mapProps(_.unbox)))
           }): js.ThisFunction0[raw.ReactComponentElement, Box[S]]
         }
       spec.getInitialState = getInitialStateFn

@@ -9,7 +9,7 @@ final class ScalaFnComponent[P, CT[-p, +u] <: CtorType[p, u]](val js: JsFnCompon
     extends Component[P, CT, Unmounted[P]] {
 
   override val ctor: CT[P, Unmounted[P]] =
-    js.ctor.dimap(Box(_), _.mapProps(_.a))
+    js.ctor.dimap(Box(_), _.mapProps(_.unbox))
 }
 
 object ScalaFnComponent {
@@ -36,11 +36,11 @@ object ScalaFnComponent {
 
   def Props[P](render: P => raw.ReactElement)
               (implicit s: CtorType.Summoner[Box[P], ChildrenArg.None]) =
-    create[P, ChildrenArg.None](b => render(b.a))(s)
+    create[P, ChildrenArg.None](b => render(b.unbox))(s)
 
   def PropsAndChildren[P](render: (P, PropsChildren) => raw.ReactElement)
                          (implicit s: CtorType.Summoner[Box[P], ChildrenArg.Varargs]) =
-    create[P, ChildrenArg.Varargs](b => render(b.a, PropsChildren(b.children)))(s)
+    create[P, ChildrenArg.Varargs](b => render(b.unbox, PropsChildren(b.children)))(s)
 
   def Children(render: PropsChildren => raw.ReactElement): ScalaFnComponent[Unit, CtorType.Children] =
     create2(b => render(PropsChildren(b.children)))

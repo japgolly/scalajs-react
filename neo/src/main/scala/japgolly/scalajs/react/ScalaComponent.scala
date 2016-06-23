@@ -10,7 +10,7 @@ final class ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](val js: JsComp
   extends Component[P, CT, Unmounted[P, S, B]] {
 
   override val ctor: CT[P, Unmounted[P, S, B]] =
-    js.ctor.dimap(Box(_), _.mapProps(_.a).mapMounted(_.raw.mounted))
+    js.ctor.dimap(Box(_), _.mapProps(_.unbox).mapMounted(_.raw.mounted))
 }
 
 object ScalaComponent {
@@ -46,19 +46,19 @@ object ScalaComponent {
       F point js.isMounted
 
     override def props: F[P] =
-      F point js.props.a
+      F point js.props.unbox
 
     override def propsChildren: F[PropsChildren] =
       F point js.propsChildren
 
     override def state: F[S] =
-      F point js.state.a
+      F point js.state.unbox
 
     override def setState(newState: S, callback: Callback = Callback.empty): F[Unit] =
       F point js.setState(Box(newState), callback)
 
     override def modState(mod: S => S, callback: Callback = Callback.empty): F[Unit] =
-      F point js.modState(s => Box(mod(s.a)), callback)
+      F point js.modState(s => Box(mod(s.unbox)), callback)
 
     override def getDOMNode: F[dom.Element] =
       F point js.getDOMNode
