@@ -81,7 +81,7 @@ object Component {
     def setState(newState: S, callback: Callback = Callback.empty): F[Unit]
     def modState(mod: S => S, callback: Callback = Callback.empty): F[Unit]
     def xmapState[X](f: S => X)(g: X => S): State[F, X]
-    def zoomState[X](get: S => X)(set: (S, X) => S): State[F, X]
+    def zoomState[X](get: S => X)(set: X => S => S): State[F, X]
     def withEffect[G[+_]](implicit t: Effect.Trans[F, G]): State[G, S]
   }
 
@@ -93,13 +93,13 @@ object Component {
     def forceUpdate(callback: Callback = Callback.empty): F[Unit]
 
     override def mapProps[X](f: P => X): Mounted[F, X, S] =
-      Mounted.Mapped(this)(f, identity)((_, s) => s)
+      Mounted.Mapped(this)(f, Lens.id)
 
     override def xmapState[X](f: S => X)(g: X => S): Mounted[F, P, X] =
-      zoomState(f)((_, s) => g(s))
+      Mounted.Mapped(this)(identity, Iso(f)(g).toLens)
 
-    override def zoomState[X](get: S => X)(set: (S, X) => S): Mounted[F, P, X] =
-      Mounted.Mapped(this)(identity, get)(set)
+    override def zoomState[X](get: S => X)(set: X => S => S): Mounted[F, P, X] =
+      Mounted.Mapped(this)(identity, Lens(get)(set))
 
     override def withEffect[G[+_]](implicit t: Effect.Trans[F, G]): Mounted[G, P, S] =
       Mounted.WithEffect(this)(t)
@@ -130,18 +130,14 @@ object Component {
 
 
     @inline def Mapped[F[+_], P0, P, S0, S](delegate: Mounted[F, P0, S0])
-                                          (pMap: P0 => P, sGet: S0 => S)
-                                          (sSet: (S0, S) => S0): Mapped[F, P0, P, S0, S] =
-      new Mapped(delegate, pMap, sGet, sSet)
+                                           (pMap: P0 => P,
+                                            sMap: Lens[S0, S]): Mapped[F, P0, P, S0, S] =
+      new Mapped(delegate, pMap, sMap)
 
     final class Mapped[F[+_], P0, P, S0, S](val delegate: Mounted[F, P0, S0],
-                                           pMap: P0 => P,
-                                           sGet: S0 => S,
-                                           sSet: (S0, S) => S0) extends Mounted[F, P, S] {
+                                            pMap: P0 => P,
+                                            sMap: Lens[S0, S]) extends Mounted[F, P, S] {
       override protected implicit def F = delegate.F
-
-      protected def sMod(s0: S0, f: S => S): S0 =
-        sSet(s0, f(sGet(s0)))
 
       override def props =
         F.map(delegate.props)(pMap)
@@ -150,13 +146,13 @@ object Component {
         delegate.propsChildren
 
       override def state =
-        F.map(delegate.state)(sGet)
+        F.map(delegate.state)(sMap.get)
 
       override def setState(newState: S, callback: Callback = Callback.empty) =
-        delegate.modState(sSet(_, newState), callback)
+        delegate.modState(sMap.set(newState), callback)
 
       override def modState(mod: S => S, callback: Callback = Callback.empty) =
-        delegate.modState(sMod(_, mod), callback)
+        delegate.modState(sMap.mod(mod), callback)
 
       override def isMounted =
         delegate.isMounted
@@ -168,13 +164,13 @@ object Component {
         delegate.forceUpdate(callback)
 
       override def mapProps[X](f: P => X) =
-        Mapped(delegate)(f compose pMap, sGet)(sSet)
+        Mapped(delegate)(f compose pMap, sMap)
 
       override def xmapState[X](f: S => X)(g: X => S): Mounted[F, P, X] =
-        Mapped(delegate)(pMap, f compose sGet)((s0, x) => sSet(s0, g(x)))
+        Mapped(delegate)(pMap, sMap --> Iso(f)(g))
 
-      override def zoomState[X](get: S => X)(set: (S, X) => S) =
-        Mapped(delegate)(pMap, get compose sGet)((s0, x) => sMod(s0, set(_, x)))
+      override def zoomState[X](get: S => X)(set: X => S => S) =
+        Mapped(delegate)(pMap, sMap --> Lens(get)(set))
     }
   }
 }

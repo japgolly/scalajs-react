@@ -98,8 +98,8 @@ object ScalaComponentSTest extends TestSuite {
         assert(mounted.backend eq b)
 
         val zoomed = mounted
-          .zoomState(_.s2)((s, b) => State(s.num1, b))
-          .zoomState(_.num2)((s, n) => State2(n, s.num3))
+          .zoomState(_.s2)(n => _.copy(s2 = n))
+          .zoomState(_.num2)(n => _.copy(num2 = n))
         assertEq(zoomed.state, 500)
         zoomed.modState(_ + 1)
         assertOuterHTML(n, "<div>State = 667 + 501 + 7</div>")

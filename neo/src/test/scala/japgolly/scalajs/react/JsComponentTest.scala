@@ -162,7 +162,7 @@ object JsComponentSTest extends JsComponentTest {
           assertEq(mounted.state.num1, 667)
           assertEq(mounted.state.num2, 500)
 
-          val zoomed = mounted.zoomState(_.num2)((s, n) => JsState(s.num1, n))
+          val zoomed = mounted.zoomState(_.num2)(n => s => JsState(s.num1, n))
           assertEq(zoomed.state, 500)
           zoomed.modState(_ + 1)
           assertOuterHTML(n, "<div>State = 667 + 501</div>")
