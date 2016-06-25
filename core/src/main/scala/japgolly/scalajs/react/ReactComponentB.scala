@@ -254,7 +254,7 @@ final class ReactComponentB[P,S,B,N <: TopNode](val name: String,
    * in the lifecycle, the component has a DOM representation which you can access via `ReactDOM.findDOMNode(this)`.
    * The `componentDidMount()` method of child components is invoked before that of parent components.
    *
-   * If you want to integrate with other JavaScript frameworks, set timers using `setTimeout` or `setInterval``, or send
+   * If you want to integrate with other JavaScript frameworks, set timers using `setTimeout` or `setInterval`, or send
    * AJAX requests, perform those operations in this method.
    */
   def componentDidMount(f: DuringCallbackM[P, S, B, N] => Callback): ReactComponentB[P, S, B, N] =

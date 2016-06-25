@@ -68,7 +68,7 @@ object ScalaComponentB {
     // TODO Hmmm, if no children are used, should not the .propsChildren methods be removed from {Unm,M}ounted?
 
     def render[C <: ChildrenArg](r: RenderFn[P, S, B]): Next[C] =
-      new Step4[P, C, S, B](name, initStateFn, backendFn, r)
+      new Step4[P, C, S, B](name, initStateFn, backendFn, r, Lifecycle.empty)
 
     // No children
 
@@ -126,10 +126,86 @@ object ScalaComponentB {
 
   // ===================================================================================================================
 
+//  sealed abstract class LifecycleInput[P, S, +$ <: HasProps[P] with HasState[S]] {
+//    val $: $
+//    @inline final def component: $ = $
+//    @inline final def currentProps: P = $._props.v
+//    @inline final def currentState: S = $._state.v
+//  }
+//  final case class ComponentWillUpdate      [P, S, +B]($: WillUpdate[P, S, B],      nextProps: P, nextState: S) extends LifecycleInput[P, S, WillUpdate[P, S, B]]
+//  final case class ComponentDidUpdate       [P, S, +B]($: DuringCallbackM[P, S, B], prevProps: P, prevState: S) extends LifecycleInput[P, S, DuringCallbackM[P, S, B]]
+//  final case class ShouldComponentUpdate    [P, S, +B]($: DuringCallbackM[P, S, B], nextProps: P, nextState: S) extends LifecycleInput[P, S, DuringCallbackM[P, S, B]]
+//  final case class ComponentWillReceiveProps[P, S, +B]($: DuringCallbackM[P, S, B], nextProps: P) extends LifecycleInput[P, S, DuringCallbackM[P, S, B]]
+
+  final case class ShouldComponentUpdate[P, S, B]($: Mounted[P, S, B], nextProps: P, nextState: S) {
+    @inline final def component        = $
+    @inline final def backend          = $.backend
+    @inline final def propsChildren    = $.propsChildren
+    @inline final def currentProps : P = $.props
+    @inline final def currentState : S = $.state
+
+    @inline def cmpProps(cmp: (P, P) => Boolean): Boolean = cmp(currentProps, nextProps)
+    @inline def cmpState(cmp: (S, S) => Boolean): Boolean = cmp(currentState, nextState)
+  }
+
+  private case class Lifecycle[P, S, B](
+//    configureSpec            : js.UndefOr[ReactComponentSpec       [P, S, B] => Callback],
+//    getDefaultProps          : js.UndefOr[                                      CallbackTo[P]],
+//    componentWillMount       : js.UndefOr[DuringCallbackU          [P, S, B] => Callback],
+//    componentDidMount        : js.UndefOr[DuringCallbackM          [P, S, B] => Callback],
+//    componentWillUnmount     : js.UndefOr[DuringCallbackM          [P, S, B] => Callback],
+//    componentWillUpdate      : js.UndefOr[ComponentWillUpdate      [P, S, B] => Callback],
+//    componentDidUpdate       : js.UndefOr[ComponentDidUpdate       [P, S, B] => Callback],
+//    componentWillReceiveProps: js.UndefOr[ComponentWillReceiveProps[P, S, B] => Callback],
+    shouldComponentUpdate    : Option[ShouldComponentUpdate    [P, S, B] => Boolean])
+
+  private object Lifecycle {
+    def shouldComponentUpdate[P, S, B] = Lens((_: Lifecycle[P, S, B]).shouldComponentUpdate)(n => _.copy(shouldComponentUpdate = n))
+
+    def empty[P, S, B]: Lifecycle[P, S, B] =
+      new Lifecycle(None)
+  }
+
   final class Step4[P, C <: ChildrenArg, S, B](name       : String,
                                                initStateFn: InitStateArg[P, S],
                                                backendFn  : NewBackendFn[P, S, B],
-                                               renderFn   : RenderFn[P, S, B]) {
+                                               renderFn   : RenderFn[P, S, B],
+                                               lifecycle  : Lifecycle[P, S, B]) {
+    type This = Step4[P, C, S, B]
+
+    private def copy(name       : String                = this.name       ,
+                     initStateFn: InitStateArg[P, S]    = this.initStateFn,
+                     backendFn  : NewBackendFn[P, S, B] = this.backendFn  ,
+                     renderFn   : RenderFn    [P, S, B] = this.renderFn   ,
+                     lifecycle  : Lifecycle   [P, S, B] = this.lifecycle  ): This =
+      new Step4(name, initStateFn, backendFn, renderFn, lifecycle)
+
+    private def lcMod[A](lens: Lens[Lifecycle[P, S, B], A])(m: A => A): This =
+      copy(lifecycle = lens.mod(m)(lifecycle))
+
+    private def lcAppend[I, O](lens: Lens[Lifecycle[P, S, B], Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
+      lcMod(lens)(o => Some(o.fold(g)(f => i => s.append(f(i), g(i)))))
+
+    /**
+     * Invoked before rendering when new props or state are being received. This method is not called for the initial
+     * render or when `forceUpdate` is used.
+     *
+     * Use this as an opportunity to `return false` when you're certain that the transition to the new props and state
+     * will not require a component update.
+     *
+     * If `shouldComponentUpdate` returns false, then `render()` will be completely skipped until the next state change.
+     * In addition, `componentWillUpdate` and `componentDidUpdate` will not be called.
+     *
+     * By default, `shouldComponentUpdate` always returns `true` to prevent subtle bugs when `state` is mutated in place,
+     * but if you are careful to always treat `state` as immutable and to read only from `props` and `state` in `render()`
+     * then you can override `shouldComponentUpdate` with an implementation that compares the old props and state to their
+     * replacements.
+     *
+     * If performance is a bottleneck, especially with dozens or hundreds of components, use `shouldComponentUpdate` to
+     * speed up your app.
+     */
+    def shouldComponentUpdate(f: ShouldComponentUpdate[P, S, B] => Boolean): This =
+      lcAppend(Lifecycle.shouldComponentUpdate)(f)(Semigroup.either)
 
     def spec: raw.ReactComponentSpec = {
       val spec = js.Object().asInstanceOf[raw.ReactComponentSpec]
@@ -180,9 +256,15 @@ object ScalaComponentB {
 //        setThisFn1(                                             lc.componentDidMount        , "componentDidMount")
 //        setFnPS   (ComponentWillUpdate      .apply[P, S, B, N])(lc.componentWillUpdate      , "componentWillUpdate")
 //        setFnPS   (ComponentDidUpdate       .apply[P, S, B, N])(lc.componentDidUpdate       , "componentDidUpdate")
-//        setFnPS   (ShouldComponentUpdate    .apply[P, S, B, N])(lc.shouldComponentUpdate    , "shouldComponentUpdate")
 //        setFnP    (ComponentWillReceiveProps.apply[P, S, B, N])(lc.componentWillReceiveProps, "componentWillReceiveProps")
-//
+
+      lifecycle.shouldComponentUpdate.foreach(f =>
+        spec.shouldComponentUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
+          f(ShouldComponentUpdate(
+            $.asInstanceOf[Vars[P, S, B]].mounted,
+            p.asInstanceOf[Box[P]].unbox,
+            s.asInstanceOf[Box[S]].unbox)))
+
 //        if (jsMixins.nonEmpty)
 //          spec("mixins") = JArray(jsMixins: _*)
 //

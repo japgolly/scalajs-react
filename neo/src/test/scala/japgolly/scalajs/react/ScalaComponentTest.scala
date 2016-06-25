@@ -9,10 +9,10 @@ import scalaz.Equal
 
 object ScalaComponentPTest extends TestSuite {
 
-  case class Props(name: String)
+  case class BasicProps(name: String)
 
-  val Component =
-    ScalaComponent.build[Props]("HelloMessage")
+  val BasicComponent =
+    ScalaComponent.build[BasicProps]("HelloMessage")
       .stateless
       .noBackend
       .render_P(p => raw.React.createElement("div", null, "Hello ", p.name))
@@ -20,27 +20,49 @@ object ScalaComponentPTest extends TestSuite {
 
   override def tests = TestSuite {
 
-    val unmounted = Component(Props("Bob"))
-    assertEq(unmounted.props.name, "Bob")
-    assertEq(unmounted.propsChildren.count, 0)
-    assertEq(unmounted.propsChildren.isEmpty, true)
-    assertEq(unmounted.key, None)
-    assertEq(unmounted.ref, None)
-    withBodyContainer { mountNode =>
-      val mounted = unmounted.renderIntoDOM(mountNode)
-      val n = mounted.getDOMNode
-      assertOuterHTML(n, "<div>Hello Bob</div>")
-      assertEq(mounted.isMounted, true)
-      assertEq(mounted.props.name, "Bob")
-      assertEq(mounted.propsChildren.count, 0)
-      assertEq(mounted.propsChildren.isEmpty, true)
-      assertEq(mounted.state, ())
-      assertEq(mounted.backend, ())
+    'basic {
+      val unmounted = BasicComponent(BasicProps("Bob"))
+      assertEq(unmounted.props.name, "Bob")
+      assertEq(unmounted.propsChildren.count, 0)
+      assertEq(unmounted.propsChildren.isEmpty, true)
+      assertEq(unmounted.key, None)
+      assertEq(unmounted.ref, None)
+      withBodyContainer { mountNode =>
+        val mounted = unmounted.renderIntoDOM(mountNode)
+        val n = mounted.getDOMNode
+        assertOuterHTML(n, "<div>Hello Bob</div>")
+        assertEq(mounted.isMounted, true)
+        assertEq(mounted.props.name, "Bob")
+        assertEq(mounted.propsChildren.count, 0)
+        assertEq(mounted.propsChildren.isEmpty, true)
+        assertEq(mounted.state, ())
+        assertEq(mounted.backend, ())
+      }
     }
 
     'ctorReuse -
-      assert(Component(Props("a")) ne Component(Props("b")))
+      assert(BasicComponent(BasicProps("a")) ne BasicComponent(BasicProps("b")))
 
+    'shouldComponentUpdate {
+      case class Props(a: Int, b: Int, c: Int)
+      val Comp =
+        ScalaComponent.build[Props]("")
+          .stateless
+          .noBackend
+          .render_P(p => raw.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
+          .shouldComponentUpdate(_.cmpProps(_.a != _.a)) // update if .a differs
+          .shouldComponentUpdate(_.cmpProps(_.b != _.b)) // update if .b differs
+          .build
+
+      withBodyContainer { mountNode =>
+        var mounted = Comp(Props(1, 2, 3)).renderIntoDOM(mountNode)
+        assertOuterHTML(mounted.getDOMNode, "<div>1 2 3</div>")
+        mounted = Comp(Props(1, 2, 8)).renderIntoDOM(mountNode)
+        assertOuterHTML(mounted.getDOMNode, "<div>1 2 3</div>")
+        mounted = Comp(Props(1, 5, 8)).renderIntoDOM(mountNode)
+        assertOuterHTML(mounted.getDOMNode, "<div>1 5 8</div>")
+      }
+    }
   }
 }
 
