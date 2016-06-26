@@ -61,11 +61,20 @@ object ScalaComponentPTest extends TestSuite {
         assertEq("mountCountBeforeMountB", mountCountBeforeMountB, 0)
       }
 
-      case class Props(a: Int, b: Int, c: Int)
+      var willUpdates = Vector.empty[Props]
+
+      case class Props(a: Int, b: Int, c: Int) {
+        def -(x: Props) = Props(
+          this.a - x.a,
+          this.b - x.b,
+          this.c - x.c)
+      }
+      implicit def equalProps = Equal.equalA[Props]
 
       class Backend($: BackendScope[Props, Unit]) {
         def willMount = Callback { mountCountBeforeMountB += mountCountB; willMountCountB += 1 }
         def incMountCount = Callback(mountCountB += 1)
+        def willUpdate(cur: Props, next: Props) = Callback(willUpdates :+= next - cur)
       }
 
       val Comp = ScalaComponent.build[Props]("")
@@ -78,6 +87,7 @@ object ScalaComponentPTest extends TestSuite {
         .componentDidMount(_.backend.incMountCount)
         .componentWillMount(_ => Callback { mountCountBeforeMountA += mountCountA; willMountCountA += 1 })
         .componentWillMount(_.backend.willMount)
+        .componentWillUpdate(x => x.backend.willUpdate(x.currentProps, x.nextProps))
         .build
 
       withBodyContainer { mountNode =>
@@ -86,12 +96,15 @@ object ScalaComponentPTest extends TestSuite {
         var mounted = Comp(Props(1, 2, 3)).renderIntoDOM(mountNode)
         assertMountCount(1)
         assertOuterHTML(mounted.getDOMNode, "<div>1 2 3</div>")
+        assertEq(willUpdates, Vector.empty)
 
         mounted = Comp(Props(1, 2, 8)).renderIntoDOM(mountNode)
         assertOuterHTML(mounted.getDOMNode, "<div>1 2 3</div>")
+        assertEq(willUpdates, Vector.empty)
 
         mounted = Comp(Props(1, 5, 8)).renderIntoDOM(mountNode)
         assertOuterHTML(mounted.getDOMNode, "<div>1 5 8</div>")
+        assertEq(willUpdates, Vector(Props(0, 3, 0)))
       }
 
       assertMountCount(1)

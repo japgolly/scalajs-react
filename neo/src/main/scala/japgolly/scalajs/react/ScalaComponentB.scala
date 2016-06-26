@@ -184,10 +184,24 @@ object ScalaComponentB {
     def shouldComponentUpdate(f: ShouldComponentUpdateFn[P, S, B]): This =
       lcAppend(Lifecycle.shouldComponentUpdate)(f)(Semigroup.either)
 
+    /**
+     * Invoked immediately before rendering when new props or state are being received. This method is not called for the
+     * initial render.
+     *
+     * Use this as an opportunity to perform preparation before an update occurs.
+     *
+     * Note: You *cannot* use `this.setState()` in this method. If you need to update state in response to a prop change,
+     * use `componentWillReceiveProps` instead.
+     */
+    def componentWillUpdate(f: ComponentWillUpdateFn[P, S, B]): This =
+      lcAppend(Lifecycle.componentWillUpdate)(f)
+
     def spec: raw.ReactComponentSpec = {
       val spec = js.Object().asInstanceOf[raw.ReactComponentSpec]
 
-      @inline def vars($: raw.ReactComponent) = $.asInstanceOf[Vars[P, S, B]]
+      @inline def castV($: raw.ReactComponent) = $.asInstanceOf[Vars[P, S, B]]
+      @inline def castP($: raw.Props) = $.asInstanceOf[Box[P]]
+      @inline def castS($: raw.State) = $.asInstanceOf[Box[S]]
 
       for (n <- Option(name))
         spec.displayName = n
@@ -223,7 +237,7 @@ object ScalaComponentB {
         case Some(f) =>
           ($: raw.ReactComponent) => {
             setup($)
-            f(new ComponentWillMount(vars($))).runNow()
+            f(new ComponentWillMount(castV($))).runNow()
           }
       }
 
@@ -246,14 +260,15 @@ object ScalaComponentB {
 
       lifecycle.componentDidMount.foreach(f =>
         spec.componentDidMount = ($: raw.ReactComponent) =>
-          f(new ComponentDidMount(vars($))).runNow())
+          f(new ComponentDidMount(castV($))).runNow())
 
       lifecycle.shouldComponentUpdate.foreach(f =>
         spec.shouldComponentUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
-          f(new ShouldComponentUpdate(
-            vars($).mounted,
-            p.asInstanceOf[Box[P]].unbox,
-            s.asInstanceOf[Box[S]].unbox)))
+          f(new ShouldComponentUpdate(castV($).mounted, castP(p).unbox, castS(s).unbox)))
+
+      lifecycle.componentWillUpdate.foreach(f =>
+        spec.componentWillUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
+          f(new ComponentWillUpdate(castV($).mounted, castP(p).unbox, castS(s).unbox)).runNow())
 
 //        if (jsMixins.nonEmpty)
 //          spec("mixins") = JArray(jsMixins: _*)
