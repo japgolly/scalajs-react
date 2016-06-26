@@ -145,6 +145,14 @@ object ScalaComponentB {
       copy(lifecycle = lifecycle.append(lens)(g)(s))
 
     /**
+     * Invoked once, both on the client and server, immediately before the initial rendering occurs.
+     * If you call `setState` within this method, `render()` will see the updated state and will be executed only once
+     * despite the state change.
+     */
+    def componentWillMount(f: ComponentWillMountFn[P, S, B]): This =
+      lcAppend(Lifecycle.componentWillMount)(f)
+
+    /**
      * Invoked once, only on the client (not on the server), immediately after the initial rendering occurs. At this point
      * in the lifecycle, the component has a DOM representation which you can access via `ReactDOM.findDOMNode(this)`.
      * The `componentDidMount()` method of child components is invoked before that of parent components.
@@ -200,8 +208,8 @@ object ScalaComponentB {
         }
       spec.getInitialState = getInitialStateFn
 
-      val componentWillMountFn: js.ThisFunction0[raw.ReactComponent, Unit] =
-        (rc: raw.ReactComponent) => {
+      val setup: raw.ReactComponent => Unit =
+        rc => {
           val jMounted : JsMounted[P, S, B] = JsComponent.BasicMounted[Box[P], Box[S]](rc).addRawType[Vars[P, S, B]]
           val sMountedI: Mounted  [P, S, B] = new ScalaComponent.MountedF(jMounted)
           val sMountedC: MountedCB[P, S, B] = new ScalaComponent.MountedF(jMounted)
@@ -210,7 +218,14 @@ object ScalaComponentB {
           jMounted.raw.mountedCB = sMountedC
           jMounted.raw.backend   = backend
         }
-      spec.componentWillMount = componentWillMountFn
+      spec.componentWillMount = lifecycle.componentWillMount match {
+        case None    => setup
+        case Some(f) =>
+          ($: raw.ReactComponent) => {
+            setup($)
+            f(new ComponentWillMount(vars($))).runNow()
+          }
+      }
 
 //        def onWillMountFn(f: DuringCallbackU[P, S, B] => Unit): Unit =
 //          componentWillMountFn = Some(componentWillMountFn.fold(f)(g => $ => {g($); f($)}))

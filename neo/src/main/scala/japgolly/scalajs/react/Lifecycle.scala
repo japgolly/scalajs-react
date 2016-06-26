@@ -7,8 +7,7 @@ import org.scalajs.dom
 
 final case class Lifecycle[P, S, B](
 //    configureSpec            : js.UndefOr[ReactComponentSpec       [P, S, B] => Callback],
-//    getDefaultProps          : js.UndefOr[                                      CallbackTo[P]],
-//    componentWillMount       : js.UndefOr[DuringCallbackU          [P, S, B] => Callback],
+  componentWillMount       : Option[ComponentWillMountFn[P, S, B]],
   componentDidMount        : Option[ComponentDidMountFn[P, S, B]],
 //    componentWillUnmount     : js.UndefOr[DuringCallbackM          [P, S, B] => Callback],
 //    componentWillUpdate      : js.UndefOr[ComponentWillUpdate      [P, S, B] => Callback],
@@ -24,7 +23,7 @@ final case class Lifecycle[P, S, B](
 
 object Lifecycle {
   def empty[P, S, B]: Lifecycle[P, S, B] =
-    new Lifecycle(None, None)
+    new Lifecycle(None, None, None)
 
   // Reads are untyped
   //   - Safe because of implementation in builder (creating a new Callback on demand).
@@ -36,12 +35,37 @@ object Lifecycle {
 
   // ===================================================================================================================
 
+  def componentWillMount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentWillMount)(n => _.copy(componentWillMount = n))
+
+  type ComponentWillMountFn[P, S, B] = ComponentWillMount[P, S, B] => Callback
+
+  final class ComponentWillMount[P, S, B](val raw: Vars[P, S, B]) extends AnyVal {
+    def backend      : B             = raw.backend
+    def props        : P             = raw.mounted.props
+    def propsChildren: PropsChildren = raw.mounted.propsChildren
+    def state        : S             = raw.mounted.state
+
+    def setState   (newState: S, cb: Callback = Callback.empty): Callback = raw.mountedCB.setState(newState, cb)
+    def modState   (mod: S => S, cb: Callback = Callback.empty): Callback = raw.mountedCB.modState(mod, cb)
+
+    // Nope
+    // def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
+    // def forceUpdate(cb: Callback = Callback.empty)             : Callback = raw.mountedCB.forceUpdate(cb)
+
+//    def isMounted: F[Boolean]
+//    def withEffect[G[+_]](implicit t: Effect.Trans[F, G]): Props[G, P]
+//    def mapProps[X](f: P => X): Mounted[F, X, S] =
+//    def xmapState[X](f: S => X)(g: X => S): Mounted[F, P, X] =
+//    def zoomState[X](get: S => X)(set: X => S => S): Mounted[F, P, X] =
+  }
+
+  // ===================================================================================================================
+
   def componentDidMount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentDidMount)(n => _.copy(componentDidMount = n))
 
   type ComponentDidMountFn[P, S, B] = ComponentDidMount[P, S, B] => Callback
 
   final class ComponentDidMount[P, S, B](val raw: Vars[P, S, B]) extends AnyVal {
-
     def backend      : B             = raw.backend
     def props        : P             = raw.mounted.props
     def propsChildren: PropsChildren = raw.mounted.propsChildren

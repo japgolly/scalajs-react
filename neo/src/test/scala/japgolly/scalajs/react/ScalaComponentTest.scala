@@ -47,15 +47,27 @@ object ScalaComponentPTest extends TestSuite {
 
       var mountCountA = 0
       var mountCountB = 0
+      var mountCountBeforeMountA = 0
+      var mountCountBeforeMountB = 0
+      var willMountCountA = 0
+      var willMountCountB = 0
+
       def assertMountCount(expect: Int): Unit = {
         assertEq("mountCountA", mountCountA, expect)
         assertEq("mountCountB", mountCountB, expect)
+        assertEq("willMountCountA", willMountCountA, expect)
+        assertEq("willMountCountB", willMountCountB, expect)
+        assertEq("mountCountBeforeMountA", mountCountBeforeMountA, 0)
+        assertEq("mountCountBeforeMountB", mountCountBeforeMountB, 0)
       }
 
       case class Props(a: Int, b: Int, c: Int)
+
       class Backend($: BackendScope[Props, Unit]) {
+        def willMount = Callback { mountCountBeforeMountB += mountCountB; willMountCountB += 1 }
         def incMountCount = Callback(mountCountB += 1)
       }
+
       val Comp = ScalaComponent.build[Props]("")
         .stateless
         .backend(new Backend(_))
@@ -64,6 +76,8 @@ object ScalaComponentPTest extends TestSuite {
         .shouldComponentUpdate(_.cmpProps(_.b != _.b)) // update if .b differs
         .componentDidMount(_ => Callback(mountCountA += 1))
         .componentDidMount(_.backend.incMountCount)
+        .componentWillMount(_ => Callback { mountCountBeforeMountA += mountCountA; willMountCountA += 1 })
+        .componentWillMount(_.backend.willMount)
         .build
 
       withBodyContainer { mountNode =>
