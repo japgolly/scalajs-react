@@ -156,6 +156,15 @@ object ScalaComponentB {
       lcAppend(Lifecycle.componentDidMount)(f)
 
     /**
+     * Invoked immediately after the component's updates are flushed to the DOM. This method is not called for the initial
+     * render.
+     *
+     * Use this as an opportunity to operate on the DOM when the component has been updated.
+     */
+    def componentDidUpdate(f: ComponentDidUpdateFn[P, S, B]): This =
+      lcAppend(Lifecycle.componentDidUpdate)(f)
+
+    /**
      * Invoked once, both on the client and server, immediately before the initial rendering occurs.
      * If you call `setState` within this method, `render()` will see the updated state and will be executed only once
      * despite the state change.
@@ -260,6 +269,10 @@ object ScalaComponentB {
       lifecycle.componentDidMount.foreach(f =>
         spec.componentDidMount = ($: raw.ReactComponent) =>
           f(new ComponentDidMount(castV($))).runNow())
+
+      lifecycle.componentDidUpdate.foreach(f =>
+        spec.componentDidUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
+          f(new ComponentDidUpdate(castV($), castP(p).unbox, castS(s).unbox)).runNow())
 
       lifecycle.componentWillUpdate.foreach(f =>
         spec.componentWillUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>

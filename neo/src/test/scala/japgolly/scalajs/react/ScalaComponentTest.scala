@@ -45,6 +45,14 @@ object ScalaComponentPTest extends TestSuite {
 
     'lifecycle {
 
+      case class Props(a: Int, b: Int, c: Int) {
+        def -(x: Props) = Props(
+          this.a - x.a,
+          this.b - x.b,
+          this.c - x.c)
+      }
+      implicit def equalProps = Equal.equalA[Props]
+
       var mountCountA = 0
       var mountCountB = 0
       var mountCountBeforeMountA = 0
@@ -61,20 +69,19 @@ object ScalaComponentPTest extends TestSuite {
         assertEq("mountCountBeforeMountB", mountCountBeforeMountB, 0)
       }
 
+      var didUpdates = Vector.empty[Props]
       var willUpdates = Vector.empty[Props]
-
-      case class Props(a: Int, b: Int, c: Int) {
-        def -(x: Props) = Props(
-          this.a - x.a,
-          this.b - x.b,
-          this.c - x.c)
+      def assertUpdates(ps: Props*): Unit = {
+        val e = ps.toVector
+        assertEq("willUpdates", willUpdates, e)
+        assertEq("didUpdates", didUpdates, e)
       }
-      implicit def equalProps = Equal.equalA[Props]
 
       class Backend($: BackendScope[Props, Unit]) {
         def willMount = Callback { mountCountBeforeMountB += mountCountB; willMountCountB += 1 }
         def incMountCount = Callback(mountCountB += 1)
         def willUpdate(cur: Props, next: Props) = Callback(willUpdates :+= next - cur)
+        def didUpdate(prev: Props, cur: Props) = Callback(didUpdates :+= cur - prev)
       }
 
       val Comp = ScalaComponent.build[Props]("")
@@ -88,6 +95,7 @@ object ScalaComponentPTest extends TestSuite {
         .componentWillMount(_ => Callback { mountCountBeforeMountA += mountCountA; willMountCountA += 1 })
         .componentWillMount(_.backend.willMount)
         .componentWillUpdate(x => x.backend.willUpdate(x.currentProps, x.nextProps))
+        .componentDidUpdate(x => x.backend.didUpdate(x.prevProps, x.currentProps))
         .build
 
       withBodyContainer { mountNode =>
@@ -96,15 +104,15 @@ object ScalaComponentPTest extends TestSuite {
         var mounted = Comp(Props(1, 2, 3)).renderIntoDOM(mountNode)
         assertMountCount(1)
         assertOuterHTML(mounted.getDOMNode, "<div>1 2 3</div>")
-        assertEq(willUpdates, Vector.empty)
+        assertUpdates()
 
         mounted = Comp(Props(1, 2, 8)).renderIntoDOM(mountNode)
         assertOuterHTML(mounted.getDOMNode, "<div>1 2 3</div>")
-        assertEq(willUpdates, Vector.empty)
+        assertUpdates()
 
         mounted = Comp(Props(1, 5, 8)).renderIntoDOM(mountNode)
         assertOuterHTML(mounted.getDOMNode, "<div>1 5 8</div>")
-        assertEq(willUpdates, Vector(Props(0, 3, 0)))
+        assertUpdates(Props(0, 3, 0))
       }
 
       assertMountCount(1)

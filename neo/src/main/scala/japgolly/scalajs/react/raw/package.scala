@@ -111,7 +111,7 @@ package object raw {
     var componentWillUnmount     : js.ThisFunction0[raw.ReactComponent, Unit]                               = js.native
     var componentDidMount        : js.ThisFunction0[raw.ReactComponent, Unit]                               = js.native
     var componentWillUpdate      : js.ThisFunction2[raw.ReactComponent, Props, State, Unit]                 = js.native
- // var componentDidUpdate       : xxxxx                                                                    = js.native
+    var componentDidUpdate       : js.ThisFunction2[raw.ReactComponent, Props, State, Unit]                 = js.native
  // var componentWillReceiveProps: xxxxx                                                                    = js.native
     var shouldComponentUpdate    : js.ThisFunction2[raw.ReactComponent, Props, State, Boolean]              = js.native
  // var getDefaultProps          : xxxxx                                                                    = js.native
