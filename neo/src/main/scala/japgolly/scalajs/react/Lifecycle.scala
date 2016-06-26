@@ -6,7 +6,6 @@ import ScalaComponent._
 import org.scalajs.dom
 
 final case class Lifecycle[P, S, B](
-//    configureSpec            : js.UndefOr[ReactComponentSpec       [P, S, B] => Callback],
   componentDidMount        : Option[ComponentDidMountFn        [P, S, B]],
   componentDidUpdate       : Option[ComponentDidUpdateFn       [P, S, B]],
   componentWillMount       : Option[ComponentWillMountFn       [P, S, B]],

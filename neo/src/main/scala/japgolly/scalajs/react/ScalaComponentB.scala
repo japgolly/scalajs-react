@@ -66,8 +66,6 @@ object ScalaComponentB {
     type Next[C <: ChildrenArg] = Step4[P, C, S, B]
     type $ = MountedCB[P, S, B]
 
-    // TODO Hmmm, if no children are used, should not the .propsChildren methods be removed from {Unm,M}ounted?
-
     def render[C <: ChildrenArg](r: RenderFn[P, S, B]): Next[C] =
       new Step4[P, C, S, B](name, initStateFn, backendFn, r, Lifecycle.empty)
 
@@ -288,23 +286,6 @@ object ScalaComponentB {
           }
       }
 
-//        def onWillMountFn(f: DuringCallbackU[P, S, B] => Unit): Unit =
-//          componentWillMountFn = Some(componentWillMountFn.fold(f)(g => $ => {g($); f($)}))
-//        for (f <- lc.componentWillMount)
-//          onWillMountFn(f(_).runNow())
-
-//        for (f <- componentWillMountFn)
-//          spec("componentWillMount") = f: ThisFunction
-//
-//
-//        lc.getDefaultProps.flatMap(_.toJsCallback).foreach(spec("getDefaultProps") = _)
-//
-//        setThisFn1(                                             lc.componentWillUnmount     , "componentWillUnmount")
-//        setThisFn1(                                             lc.componentDidMount        , "componentDidMount")
-//        setFnPS   (ComponentWillUpdate      .apply[P, S, B, N])(lc.componentWillUpdate      , "componentWillUpdate")
-//        setFnPS   (ComponentDidUpdate       .apply[P, S, B, N])(lc.componentDidUpdate       , "componentDidUpdate")
-//        setFnP    (ComponentWillReceiveProps.apply[P, S, B, N])(lc.componentWillReceiveProps, "componentWillReceiveProps")
-
       lifecycle.componentDidMount.foreach(f =>
         spec.componentDidMount = ($: raw.ReactComponent) =>
           f(new ComponentDidMount(castV($))).runNow())
@@ -328,9 +309,7 @@ object ScalaComponentB {
 //        if (jsMixins.nonEmpty)
 //          spec("mixins") = JArray(jsMixins: _*)
 //
-//        val spec2 = spec.asInstanceOf[ReactComponentSpec[P, S, B, N]]
 //        lc.configureSpec.foreach(_(spec2).runNow())
-//        spec2
 
       spec
     }
