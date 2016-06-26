@@ -7,13 +7,13 @@ import org.scalajs.dom
 
 final case class Lifecycle[P, S, B](
 //    configureSpec            : js.UndefOr[ReactComponentSpec       [P, S, B] => Callback],
-  componentDidMount        : Option[ComponentDidMountFn    [P, S, B]],
-  componentDidUpdate       : Option[ComponentDidUpdateFn    [P, S, B]],
-  componentWillMount       : Option[ComponentWillMountFn   [P, S, B]],
-//    componentWillReceiveProps: js.UndefOr[ComponentWillReceiveProps[P, S, B] => Callback],
-  componentWillUnmount     : Option[ComponentWillUnmountFn    [P, S, B]],
-  componentWillUpdate      : Option[ComponentWillUpdateFn  [P, S, B]],
-  shouldComponentUpdate    : Option[ShouldComponentUpdateFn[P, S, B]]) {
+  componentDidMount        : Option[ComponentDidMountFn        [P, S, B]],
+  componentDidUpdate       : Option[ComponentDidUpdateFn       [P, S, B]],
+  componentWillMount       : Option[ComponentWillMountFn       [P, S, B]],
+  componentWillReceiveProps: Option[ComponentWillReceivePropsFn[P, S, B]],
+  componentWillUnmount     : Option[ComponentWillUnmountFn     [P, S, B]],
+  componentWillUpdate      : Option[ComponentWillUpdateFn      [P, S, B]],
+  shouldComponentUpdate    : Option[ShouldComponentUpdateFn    [P, S, B]]) {
 
   type This = Lifecycle[P, S, B]
 
@@ -23,7 +23,7 @@ final case class Lifecycle[P, S, B](
 
 object Lifecycle {
   def empty[P, S, B]: Lifecycle[P, S, B] =
-    new Lifecycle(None, None, None, None, None, None)
+    new Lifecycle(None, None, None, None, None, None, None)
 
   // Reads are untyped
   //   - Safe because of implementation in builder (creating a new Callback on demand).
@@ -119,6 +119,24 @@ object Lifecycle {
 
     @deprecated("forceUpdate prohibited within the componentWillUnmount callback.", "")
     def forceUpdate(prohibited: Nothing): Nothing = ???
+  }
+
+  // ===================================================================================================================
+
+  def componentWillReceiveProps[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentWillReceiveProps)(n => _.copy(componentWillReceiveProps = n))
+
+  type ComponentWillReceivePropsFn[P, S, B] = ComponentWillReceiveProps[P, S, B] => Callback
+
+  final class ComponentWillReceiveProps[P, S, B](val raw: Vars[P, S, B], val nextProps: P) {
+    def backend      : B             = raw.backend
+    def propsChildren: PropsChildren = raw.mounted.propsChildren
+    def currentProps : P             = raw.mounted.props
+    def state        : S             = raw.mounted.state
+    def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
+
+    def setState   (newState: S, cb: Callback = Callback.empty): Callback = raw.mountedCB.setState(newState, cb)
+    def modState   (mod: S => S, cb: Callback = Callback.empty): Callback = raw.mountedCB.modState(mod, cb)
+    def forceUpdate(cb: Callback = Callback.empty)             : Callback = raw.mountedCB.forceUpdate(cb)
   }
 
   // ===================================================================================================================

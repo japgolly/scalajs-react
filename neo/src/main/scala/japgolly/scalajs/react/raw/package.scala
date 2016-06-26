@@ -112,7 +112,7 @@ package object raw {
     var componentDidMount        : js.ThisFunction0[raw.ReactComponent, Unit]                               = js.native
     var componentWillUpdate      : js.ThisFunction2[raw.ReactComponent, Props, State, Unit]                 = js.native
     var componentDidUpdate       : js.ThisFunction2[raw.ReactComponent, Props, State, Unit]                 = js.native
- // var componentWillReceiveProps: xxxxx                                                                    = js.native
+    var componentWillReceiveProps: js.ThisFunction1[raw.ReactComponent, Props, Unit]                        = js.native
     var shouldComponentUpdate    : js.ThisFunction2[raw.ReactComponent, Props, State, Boolean]              = js.native
  // var getDefaultProps          : xxxxx                                                                    = js.native
  // var mixins                   : xxxxx                                                                    = js.native

@@ -77,6 +77,8 @@ object ScalaComponentPTest extends TestSuite {
         assertEq("didUpdates", didUpdates, e)
       }
 
+      var recievedPropDeltas = Vector.empty[Props]
+
       var willUnmountCount = 0
 
       class Backend($: BackendScope[Props, Unit]) {
@@ -84,6 +86,7 @@ object ScalaComponentPTest extends TestSuite {
         def incMountCount = Callback(mountCountB += 1)
         def willUpdate(cur: Props, next: Props) = Callback(willUpdates :+= next - cur)
         def didUpdate(prev: Props, cur: Props) = Callback(didUpdates :+= cur - prev)
+        def receive(cur: Props, next: Props) = Callback(recievedPropDeltas :+= next - cur)
         def incUnmountCount = Callback(willUnmountCount += 1)
       }
 
@@ -100,6 +103,7 @@ object ScalaComponentPTest extends TestSuite {
         .componentWillUpdate(x => x.backend.willUpdate(x.currentProps, x.nextProps))
         .componentDidUpdate(x => x.backend.didUpdate(x.prevProps, x.currentProps))
         .componentWillUnmount(_.backend.incUnmountCount)
+        .componentWillReceiveProps(x => x.backend.receive(x.currentProps, x.nextProps))
         .build
 
       withBodyContainer { mountNode =>
@@ -123,6 +127,7 @@ object ScalaComponentPTest extends TestSuite {
 
       assertMountCount(1)
       assertEq("willUnmountCount", willUnmountCount, 1)
+      assertEq("recievedPropDeltas", recievedPropDeltas, Vector(Props(0, 0, 5), Props(0, 3, 0)))
     }
   }
 }

@@ -173,6 +173,20 @@ object ScalaComponentB {
       lcAppend(Lifecycle.componentWillMount)(f)
 
     /**
+     * Invoked when a component is receiving new props. This method is not called for the initial render.
+     *
+     * Use this as an opportunity to react to a prop transition before `render()` is called by updating the state using
+     * `this.setState()`. The old props can be accessed via `this.props`. Calling `this.setState()` within this function
+     * will not trigger an additional render.
+     *
+     * Note: There is no analogous method `componentWillReceiveState`. An incoming prop transition may cause a state
+     * change, but the opposite is not true. If you need to perform operations in response to a state change, use
+     * `componentWillUpdate`.
+     */
+    def componentWillReceiveProps(f: ComponentWillReceivePropsFn[P, S, B]): This =
+      lcAppend(Lifecycle.componentWillReceiveProps)(f)
+
+    /**
      * Invoked immediately before a component is unmounted from the DOM.
      *
      * Perform any necessary cleanup in this method, such as invalidating timers or cleaning up any DOM elements that were
@@ -298,6 +312,10 @@ object ScalaComponentB {
       lifecycle.componentDidUpdate.foreach(f =>
         spec.componentDidUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
           f(new ComponentDidUpdate(castV($), castP(p).unbox, castS(s).unbox)).runNow())
+
+      lifecycle.componentWillReceiveProps.foreach(f =>
+        spec.componentWillReceiveProps = ($: raw.ReactComponent, p: raw.Props) =>
+          f(new ComponentWillReceiveProps(castV($), castP(p).unbox)).runNow())
 
       lifecycle.componentWillUpdate.foreach(f =>
         spec.componentWillUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
