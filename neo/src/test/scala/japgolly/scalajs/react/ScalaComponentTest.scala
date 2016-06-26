@@ -77,11 +77,14 @@ object ScalaComponentPTest extends TestSuite {
         assertEq("didUpdates", didUpdates, e)
       }
 
+      var willUnmountCount = 0
+
       class Backend($: BackendScope[Props, Unit]) {
         def willMount = Callback { mountCountBeforeMountB += mountCountB; willMountCountB += 1 }
         def incMountCount = Callback(mountCountB += 1)
         def willUpdate(cur: Props, next: Props) = Callback(willUpdates :+= next - cur)
         def didUpdate(prev: Props, cur: Props) = Callback(didUpdates :+= cur - prev)
+        def incUnmountCount = Callback(willUnmountCount += 1)
       }
 
       val Comp = ScalaComponent.build[Props]("")
@@ -96,6 +99,7 @@ object ScalaComponentPTest extends TestSuite {
         .componentWillMount(_.backend.willMount)
         .componentWillUpdate(x => x.backend.willUpdate(x.currentProps, x.nextProps))
         .componentDidUpdate(x => x.backend.didUpdate(x.prevProps, x.currentProps))
+        .componentWillUnmount(_.backend.incUnmountCount)
         .build
 
       withBodyContainer { mountNode =>
@@ -113,9 +117,12 @@ object ScalaComponentPTest extends TestSuite {
         mounted = Comp(Props(1, 5, 8)).renderIntoDOM(mountNode)
         assertOuterHTML(mounted.getDOMNode, "<div>1 5 8</div>")
         assertUpdates(Props(0, 3, 0))
+
+        assertEq("willUnmountCount", willUnmountCount, 0)
       }
 
       assertMountCount(1)
+      assertEq("willUnmountCount", willUnmountCount, 1)
     }
   }
 }

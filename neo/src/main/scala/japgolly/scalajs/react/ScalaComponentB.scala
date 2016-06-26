@@ -173,6 +173,15 @@ object ScalaComponentB {
       lcAppend(Lifecycle.componentWillMount)(f)
 
     /**
+     * Invoked immediately before a component is unmounted from the DOM.
+     *
+     * Perform any necessary cleanup in this method, such as invalidating timers or cleaning up any DOM elements that were
+     * created in `componentDidMount`.
+     */
+    def componentWillUnmount(f: ComponentWillUnmountFn[P, S, B]): This =
+      lcAppend(Lifecycle.componentWillUnmount)(f)
+
+    /**
      * Invoked immediately before rendering when new props or state are being received. This method is not called for the
      * initial render.
      *
@@ -246,6 +255,22 @@ object ScalaComponentB {
           ($: raw.ReactComponent) => {
             setup($)
             f(new ComponentWillMount(castV($))).runNow()
+          }
+      }
+
+      val teardown: raw.ReactComponent => Unit =
+        $ => {
+          val vars = castV($)
+          vars.mounted   = null
+          vars.mountedCB = null
+          vars.backend   = null.asInstanceOf[B]
+        }
+      spec.componentWillUnmount = lifecycle.componentWillUnmount match {
+        case None    => teardown
+        case Some(f) =>
+          ($: raw.ReactComponent) => {
+            f(new ComponentWillUnmount(castV($))).runNow()
+            teardown($)
           }
       }
 

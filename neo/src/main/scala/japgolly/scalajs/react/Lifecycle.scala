@@ -11,7 +11,7 @@ final case class Lifecycle[P, S, B](
   componentDidUpdate       : Option[ComponentDidUpdateFn    [P, S, B]],
   componentWillMount       : Option[ComponentWillMountFn   [P, S, B]],
 //    componentWillReceiveProps: js.UndefOr[ComponentWillReceiveProps[P, S, B] => Callback],
-//    componentWillUnmount     : js.UndefOr[DuringCallbackM          [P, S, B] => Callback],
+  componentWillUnmount     : Option[ComponentWillUnmountFn    [P, S, B]],
   componentWillUpdate      : Option[ComponentWillUpdateFn  [P, S, B]],
   shouldComponentUpdate    : Option[ShouldComponentUpdateFn[P, S, B]]) {
 
@@ -23,7 +23,7 @@ final case class Lifecycle[P, S, B](
 
 object Lifecycle {
   def empty[P, S, B]: Lifecycle[P, S, B] =
-    new Lifecycle(None, None, None, None, None)
+    new Lifecycle(None, None, None, None, None, None)
 
   // Reads are untyped
   //   - Safe because of implementation in builder (creating a new Callback on demand).
@@ -96,6 +96,29 @@ object Lifecycle {
 
     // Nope
     // def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
+  }
+
+  // ===================================================================================================================
+
+  def componentWillUnmount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentWillUnmount)(n => _.copy(componentWillUnmount = n))
+
+  type ComponentWillUnmountFn[P, S, B] = ComponentWillUnmount[P, S, B] => Callback
+
+  final class ComponentWillUnmount[P, S, B](val raw: Vars[P, S, B]) extends AnyVal {
+    def backend      : B             = raw.backend
+    def props        : P             = raw.mounted.props
+    def propsChildren: PropsChildren = raw.mounted.propsChildren
+    def state        : S             = raw.mounted.state
+    def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
+
+    @deprecated("setState prohibited within the componentWillUnmount callback.", "")
+    def setState(prohibited: Nothing): Nothing = ???
+
+    @deprecated("modState prohibited within the componentWillUnmount callback.", "")
+    def modState(prohibited: Nothing): Nothing = ???
+
+    @deprecated("forceUpdate prohibited within the componentWillUnmount callback.", "")
+    def forceUpdate(prohibited: Nothing): Nothing = ???
   }
 
   // ===================================================================================================================
