@@ -43,25 +43,44 @@ object ScalaComponentPTest extends TestSuite {
     'ctorReuse -
       assert(BasicComponent(BasicProps("a")) ne BasicComponent(BasicProps("b")))
 
-    'shouldComponentUpdate {
+    'lifecycle {
+
+      var mountCountA = 0
+      var mountCountB = 0
+      def assertMountCount(expect: Int): Unit = {
+        assertEq("mountCountA", mountCountA, expect)
+        assertEq("mountCountB", mountCountB, expect)
+      }
+
       case class Props(a: Int, b: Int, c: Int)
-      val Comp =
-        ScalaComponent.build[Props]("")
-          .stateless
-          .noBackend
-          .render_P(p => raw.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
-          .shouldComponentUpdate(_.cmpProps(_.a != _.a)) // update if .a differs
-          .shouldComponentUpdate(_.cmpProps(_.b != _.b)) // update if .b differs
-          .build
+      class Backend($: BackendScope[Props, Unit]) {
+        def incMountCount = Callback(mountCountB += 1)
+      }
+      val Comp = ScalaComponent.build[Props]("")
+        .stateless
+        .backend(new Backend(_))
+        .render_P(p => raw.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
+        .shouldComponentUpdate(_.cmpProps(_.a != _.a)) // update if .a differs
+        .shouldComponentUpdate(_.cmpProps(_.b != _.b)) // update if .b differs
+        .componentDidMount(_ => Callback(mountCountA += 1))
+        .componentDidMount(_.backend.incMountCount)
+        .build
 
       withBodyContainer { mountNode =>
+        assertMountCount(0)
+
         var mounted = Comp(Props(1, 2, 3)).renderIntoDOM(mountNode)
+        assertMountCount(1)
         assertOuterHTML(mounted.getDOMNode, "<div>1 2 3</div>")
+
         mounted = Comp(Props(1, 2, 8)).renderIntoDOM(mountNode)
         assertOuterHTML(mounted.getDOMNode, "<div>1 2 3</div>")
+
         mounted = Comp(Props(1, 5, 8)).renderIntoDOM(mountNode)
         assertOuterHTML(mounted.getDOMNode, "<div>1 5 8</div>")
       }
+
+      assertMountCount(1)
     }
   }
 }
