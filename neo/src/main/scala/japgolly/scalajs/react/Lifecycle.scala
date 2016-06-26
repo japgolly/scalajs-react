@@ -7,14 +7,13 @@ import org.scalajs.dom
 
 final case class Lifecycle[P, S, B](
 //    configureSpec            : js.UndefOr[ReactComponentSpec       [P, S, B] => Callback],
-  componentWillMount       : Option[ComponentWillMountFn   [P, S, B]],
   componentDidMount        : Option[ComponentDidMountFn    [P, S, B]],
-  shouldComponentUpdate    : Option[ShouldComponentUpdateFn[P, S, B]],
-  componentWillUpdate      : Option[ComponentWillUpdateFn  [P, S, B]]) {
-//    componentWillUnmount     : js.UndefOr[DuringCallbackM          [P, S, B] => Callback],
-//    componentWillUpdate      : js.UndefOr[ComponentWillUpdate      [P, S, B] => Callback],
 //    componentDidUpdate       : js.UndefOr[ComponentDidUpdate       [P, S, B] => Callback],
+  componentWillMount       : Option[ComponentWillMountFn   [P, S, B]],
 //    componentWillReceiveProps: js.UndefOr[ComponentWillReceiveProps[P, S, B] => Callback],
+//    componentWillUnmount     : js.UndefOr[DuringCallbackM          [P, S, B] => Callback],
+  componentWillUpdate      : Option[ComponentWillUpdateFn  [P, S, B]],
+  shouldComponentUpdate    : Option[ShouldComponentUpdateFn[P, S, B]]) {
 
   type This = Lifecycle[P, S, B]
 
@@ -43,6 +42,24 @@ object Lifecycle {
 
   // ===================================================================================================================
 
+  def componentDidMount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentDidMount)(n => _.copy(componentDidMount = n))
+
+  type ComponentDidMountFn[P, S, B] = ComponentDidMount[P, S, B] => Callback
+
+  final class ComponentDidMount[P, S, B](val raw: Vars[P, S, B]) extends AnyVal {
+    def backend      : B             = raw.backend
+    def props        : P             = raw.mounted.props
+    def propsChildren: PropsChildren = raw.mounted.propsChildren
+    def state        : S             = raw.mounted.state
+    def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
+
+    def setState   (newState: S, cb: Callback = Callback.empty): Callback = raw.mountedCB.setState(newState, cb)
+    def modState   (mod: S => S, cb: Callback = Callback.empty): Callback = raw.mountedCB.modState(mod, cb)
+    def forceUpdate(cb: Callback = Callback.empty)             : Callback = raw.mountedCB.forceUpdate(cb)
+  }
+
+  // ===================================================================================================================
+
   def componentWillMount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentWillMount)(n => _.copy(componentWillMount = n))
 
   type ComponentWillMountFn[P, S, B] = ComponentWillMount[P, S, B] => Callback
@@ -65,21 +82,26 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentDidMount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentDidMount)(n => _.copy(componentDidMount = n))
+  def componentWillUpdate[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentWillUpdate)(n => _.copy(componentWillUpdate = n))
 
-  type ComponentDidMountFn[P, S, B] = ComponentDidMount[P, S, B] => Callback
+  type ComponentWillUpdateFn[P, S, B] = ComponentWillUpdate[P, S, B] => Callback
 
-  final class ComponentDidMount[P, S, B](val raw: Vars[P, S, B]) extends AnyVal {
-    def backend      : B             = raw.backend
-    def props        : P             = raw.mounted.props
-    def propsChildren: PropsChildren = raw.mounted.propsChildren
-    def state        : S             = raw.mounted.state
-    def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
+  final class ComponentWillUpdate[P, S, B](val $: Mounted[P, S, B], val nextProps: P, val nextState: S) {
+    @inline def component        = $
+    @inline def backend          = $.backend
+    @inline def propsChildren    = $.propsChildren
+    @inline def currentProps : P = $.props
+    @inline def currentState : S = $.state
+    @inline def getDOMNode       = $.getDOMNode
 
-    def setState   (newState: S, cb: Callback = Callback.empty): Callback = raw.mountedCB.setState(newState, cb)
-    def modState   (mod: S => S, cb: Callback = Callback.empty): Callback = raw.mountedCB.modState(mod, cb)
-    def forceUpdate(cb: Callback = Callback.empty)             : Callback = raw.mountedCB.forceUpdate(cb)
+    @deprecated("setState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
+    def setState(prohibited: Nothing): Nothing = ???
 
+    @deprecated("modState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
+    def modState(prohibited: Nothing): Nothing = ???
+
+    @deprecated("forceUpdate prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
+    def forceUpdate(prohibited: Nothing): Nothing = ???
   }
 
   // ===================================================================================================================
@@ -108,30 +130,5 @@ object Lifecycle {
     @deprecated("forceUpdate prohibited within the shouldComponentUpdate callback.", "")
     def forceUpdate(prohibited: Nothing): Nothing = ???
   }
-
-  // ===================================================================================================================
-
-  def componentWillUpdate[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentWillUpdate)(n => _.copy(componentWillUpdate = n))
-
-  type ComponentWillUpdateFn[P, S, B] = ComponentWillUpdate[P, S, B] => Callback
-
-  final class ComponentWillUpdate[P, S, B](val $: Mounted[P, S, B], val nextProps: P, val nextState: S) {
-    @inline def component        = $
-    @inline def backend          = $.backend
-    @inline def propsChildren    = $.propsChildren
-    @inline def currentProps : P = $.props
-    @inline def currentState : S = $.state
-    @inline def getDOMNode       = $.getDOMNode
-
-    @deprecated("setState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-    def setState(prohibited: Nothing): Nothing = ???
-
-    @deprecated("modState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-    def modState(prohibited: Nothing): Nothing = ???
-
-    @deprecated("forceUpdate prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-    def forceUpdate(prohibited: Nothing): Nothing = ???
-  }
-
 }
 

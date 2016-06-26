@@ -145,14 +145,6 @@ object ScalaComponentB {
       copy(lifecycle = lifecycle.append(lens)(g)(s))
 
     /**
-     * Invoked once, both on the client and server, immediately before the initial rendering occurs.
-     * If you call `setState` within this method, `render()` will see the updated state and will be executed only once
-     * despite the state change.
-     */
-    def componentWillMount(f: ComponentWillMountFn[P, S, B]): This =
-      lcAppend(Lifecycle.componentWillMount)(f)
-
-    /**
      * Invoked once, only on the client (not on the server), immediately after the initial rendering occurs. At this point
      * in the lifecycle, the component has a DOM representation which you can access via `ReactDOM.findDOMNode(this)`.
      * The `componentDidMount()` method of child components is invoked before that of parent components.
@@ -162,6 +154,26 @@ object ScalaComponentB {
      */
     def componentDidMount(f: ComponentDidMountFn[P, S, B]): This =
       lcAppend(Lifecycle.componentDidMount)(f)
+
+    /**
+     * Invoked once, both on the client and server, immediately before the initial rendering occurs.
+     * If you call `setState` within this method, `render()` will see the updated state and will be executed only once
+     * despite the state change.
+     */
+    def componentWillMount(f: ComponentWillMountFn[P, S, B]): This =
+      lcAppend(Lifecycle.componentWillMount)(f)
+
+    /**
+     * Invoked immediately before rendering when new props or state are being received. This method is not called for the
+     * initial render.
+     *
+     * Use this as an opportunity to perform preparation before an update occurs.
+     *
+     * Note: You *cannot* use `this.setState()` in this method. If you need to update state in response to a prop change,
+     * use `componentWillReceiveProps` instead.
+     */
+    def componentWillUpdate(f: ComponentWillUpdateFn[P, S, B]): This =
+      lcAppend(Lifecycle.componentWillUpdate)(f)
 
     /**
      * Invoked before rendering when new props or state are being received. This method is not called for the initial
@@ -184,18 +196,6 @@ object ScalaComponentB {
     def shouldComponentUpdate(f: ShouldComponentUpdateFn[P, S, B]): This =
       lcAppend(Lifecycle.shouldComponentUpdate)(f)(Semigroup.either)
 
-    /**
-     * Invoked immediately before rendering when new props or state are being received. This method is not called for the
-     * initial render.
-     *
-     * Use this as an opportunity to perform preparation before an update occurs.
-     *
-     * Note: You *cannot* use `this.setState()` in this method. If you need to update state in response to a prop change,
-     * use `componentWillReceiveProps` instead.
-     */
-    def componentWillUpdate(f: ComponentWillUpdateFn[P, S, B]): This =
-      lcAppend(Lifecycle.componentWillUpdate)(f)
-
     def spec: raw.ReactComponentSpec = {
       val spec = js.Object().asInstanceOf[raw.ReactComponentSpec]
 
@@ -207,12 +207,12 @@ object ScalaComponentB {
         spec.displayName = n
 
       def withMounted[A](f: MountedCB[P, S, B] => A): js.ThisFunction0[raw.ReactComponent, A] =
-        (rc: raw.ReactComponent) =>
-          f(rc.asInstanceOf[Vars[P, S, B]].mountedCB)
+        ($: raw.ReactComponent) =>
+          f(castV($).mountedCB)
 
       spec.render = withMounted(renderFn)
 
-      def getInitialStateFn: js.Function =
+      spec.getInitialState =
         initStateFn match {
           case Right(fn0) => fn0
           case Left(fn) => ((rc: raw.ReactComponentElement) => {
@@ -220,11 +220,10 @@ object ScalaComponentB {
             Box(fn(js.mapProps(_.unbox)))
           }): js.ThisFunction0[raw.ReactComponentElement, Box[S]]
         }
-      spec.getInitialState = getInitialStateFn
 
       val setup: raw.ReactComponent => Unit =
-        rc => {
-          val jMounted : JsMounted[P, S, B] = JsComponent.BasicMounted[Box[P], Box[S]](rc).addRawType[Vars[P, S, B]]
+        $ => {
+          val jMounted : JsMounted[P, S, B] = JsComponent.BasicMounted[Box[P], Box[S]]($).addRawType[Vars[P, S, B]]
           val sMountedI: Mounted  [P, S, B] = new ScalaComponent.MountedF(jMounted)
           val sMountedC: MountedCB[P, S, B] = new ScalaComponent.MountedF(jMounted)
           val backend  : B                  = backendFn(sMountedC)
@@ -262,13 +261,13 @@ object ScalaComponentB {
         spec.componentDidMount = ($: raw.ReactComponent) =>
           f(new ComponentDidMount(castV($))).runNow())
 
-      lifecycle.shouldComponentUpdate.foreach(f =>
-        spec.shouldComponentUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
-          f(new ShouldComponentUpdate(castV($).mounted, castP(p).unbox, castS(s).unbox)))
-
       lifecycle.componentWillUpdate.foreach(f =>
         spec.componentWillUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
           f(new ComponentWillUpdate(castV($).mounted, castP(p).unbox, castS(s).unbox)).runNow())
+
+      lifecycle.shouldComponentUpdate.foreach(f =>
+        spec.shouldComponentUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
+          f(new ShouldComponentUpdate(castV($).mounted, castP(p).unbox, castS(s).unbox)))
 
 //        if (jsMixins.nonEmpty)
 //          spec("mixins") = JArray(jsMixins: _*)
