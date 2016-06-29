@@ -80,6 +80,9 @@ Contributions welcome.
 - Static and dynamic props (for Scala components).
 - Simplify `Scalaz` and `Monocle` modules.
 - Functional components don't allow refs. Current `CtorType` doesn't support this.
+- Refs.
+  - Stringly typed.
+  - DOM/component type of target may differ between declaration and assignment.
 
 #### Maybe
 
