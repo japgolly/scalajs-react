@@ -129,13 +129,15 @@ trait Simulate extends Object {
 // NOTE: Do not use UndefOr for arguments below; undefined causes Phantom-bloody-JS to crash.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-case class ChangeEventData(value           : String  = "",
-                           defaultPrevented: Boolean = false) {
+case class ChangeEventData(value           : String              = "",
+                           checked         : js.UndefOr[Boolean] = js.undefined,
+                           defaultPrevented: Boolean             = false) {
   def toJs: Object = {
-    val t = Dynamic.literal()
-    t.updateDynamic("defaultPrevented")(defaultPrevented)
-    t.updateDynamic("value")(value)
-    val o = Dynamic.literal("target" -> t)
+    val target = Dynamic.literal(
+      "value"            -> value,
+      "checked"          -> checked,
+      "defaultPrevented" -> defaultPrevented)
+    val o = Dynamic.literal("target" -> target)
     o
   }
   def simulate(t: ReactOrDomNode) = ReactTestUtils.Simulate.change(t, this)
