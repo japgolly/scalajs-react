@@ -14,9 +14,7 @@ This begins a v1.x.y series and will begin with **v1.0.0**.
 
 Contributions welcome.
 
-# Progress
-
-#### Done
+# Done
 
 - Component interfaces that allow any kind (JS, Scala, Clojure) of React component to be used generically.
 
@@ -60,7 +58,7 @@ Contributions welcome.
 - Consistency wrt wrapping typed effects. Eg. `BackendScope.getDOMNode` should be `Callback`/direct just like everything else.
 
 
-#### In Progress
+# In Progress
 
 - Create React components in Scala.
 
@@ -75,7 +73,7 @@ Contributions welcome.
 
   See [NEO-VDOM.md](NEO-VDOM.md) for detail.
 
-#### Pending
+# Pending
 
 - Integration with all the `.extra` awesomeness. (Because most of it has been tremendously useful in real-world code.)
 - Maybe a new means of declaring Scala mixins.
@@ -86,7 +84,7 @@ Contributions welcome.
   - Stringly typed.
   - DOM/component type of target may differ between declaration and assignment.
 
-#### Maybe
+# Maybe
 
 - Component DOM/`getDOMNode` types. Currently none.
   - Having `N <: TopNode` all over the place was annoying.
