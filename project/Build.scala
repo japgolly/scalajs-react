@@ -11,8 +11,8 @@ object ScalajsReact extends Build {
 
   object Ver {
     val Scala211      = "2.11.8"
-    val ScalaJsDom    = "0.9.0"
-    val ReactJs       = "15.0.2"
+    val ScalaJsDom    = "0.9.1"
+    val ReactJs       = "15.2.1"
     val Monocle       = "1.2.1"
     val Scalaz72      = "7.2.2"
     val MTest         = "0.4.3"
@@ -39,6 +39,7 @@ object ScalajsReact extends Build {
                                 "-language:higherKinds", "-language:existentials"),
         //scalacOptions    += "-Xlog-implicits",
         updateOptions      := updateOptions.value.withCachedResolution(true),
+        incOptions         := incOptions.value.withLogRecompileOnMacro(false),
         triggeredMessage   := Watched.clearWhenTriggered,
         clearScreenTask    := { println("\033[2J\033[;H") })
 

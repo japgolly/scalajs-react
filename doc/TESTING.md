@@ -25,18 +25,18 @@ Setup
     // NOTE: Requires react-with-addons.js instead of just react.js
     jsDependencies ++= Seq(
 
-      "org.webjars.bower" % "react" % "15.0.2" % "test"
+      "org.webjars.bower" % "react" % "15.2.1" % "test"
         /        "react-with-addons.js"
         minified "react-with-addons.min.js"
         commonJSName "React",
 
-      "org.webjars.bower" % "react" % "15.0.2" % "test"
+      "org.webjars.bower" % "react" % "15.2.1" % "test"
         /         "react-dom.js"
         minified  "react-dom.min.js"
         dependsOn "react-with-addons.js"
         commonJSName "ReactDOM",
 
-      "org.webjars.bower" % "react" % "15.0.2" % "test"
+      "org.webjars.bower" % "react" % "15.2.1" % "test"
         /         "react-dom-server.js"
         minified  "react-dom-server.min.js"
         dependsOn "react-dom.js"
@@ -218,7 +218,7 @@ object ExampleTest extends TestSuite {
 
 `DebugJs`
 =========
-[DebugJs](src/main/scala/japgolly/scalajs/react/test/DebugJs.scala) is a dumping ground for functionality useful when testing raw JS.
+[DebugJs](../test/src/main/scala/japgolly/scalajs/react/test/DebugJs.scala) is a dumping ground for functionality useful when testing raw JS.
 
 It doesn't have much but `inspectObject` can be tremendously useful.
 
