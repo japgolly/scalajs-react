@@ -69,12 +69,14 @@ Contributions welcome.
 
   (Note: if for backwards-compatibility and nothing else, `ReactComponentB` will be kept around for a long while. If a nice alternative appears then both methods will coexist.)
 
+- Virtual DOM.
+
+  This will be a major revision that will improve safety, ease of use, and readability.
+
+  See [NEO-VDOM.md](NEO-VDOM.md) for detail.
 
 #### Pending
 
-- The `.vdom` package.
-  - Reintegration & new types.
-  - [Re-think vdom operators](https://github.com/japgolly/scalajs-react/issues/292)
 - Integration with all the `.extra` awesomeness. (Because most of it has been tremendously useful in real-world code.)
 - Maybe a new means of declaring Scala mixins.
 - Static and dynamic props (for Scala components).
