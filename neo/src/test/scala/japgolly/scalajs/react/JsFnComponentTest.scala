@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import scalajs.js
 import utest._
 import japgolly.scalajs.react.test.ReactTestUtils
-import japgolly.scalajs.react.test.DebugJs._
+import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.TestUtil._
 
 object JsFnComponentTest extends TestSuite {

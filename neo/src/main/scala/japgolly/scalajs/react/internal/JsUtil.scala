@@ -1,20 +1,19 @@
-package japgolly.scalajs.react.test
+package japgolly.scalajs.react.internal
 
 import scala.scalajs.js
-import js.{Object, Dynamic, Any => JAny}
 
-object DebugJs {
+object JsUtil {
 
-  def objectPropValues(o: Object): Stream[(String, JAny)] = {
-    val d = o.asInstanceOf[Dynamic]
-    Object.properties(o).toStream.map(n => {
-      val v = (try d.selectDynamic(n) catch{case t:Throwable => t.toString}).asInstanceOf[JAny]
+  def objectIterator(o: js.Object): Iterator[(String, js.Any)] = {
+    val d = o.asInstanceOf[js.Dynamic]
+    js.Object.properties(o).iterator.map { n =>
+      val v = (try d.selectDynamic(n) catch { case t: Throwable => t.toString }).asInstanceOf[js.Any]
       n -> v
-    })
+    }
   }
 
-  def inspectObject(o: Object): String = {
-    val s = objectPropValues(o).sortBy(_._1)
+  def inspectObject(o: js.Object): String = {
+    val s = objectIterator(o).toVector.sortBy(_._1)
     if (s.isEmpty)
       "Value has no object properties: " + o
     else {
