@@ -26,7 +26,7 @@ object ReactAttr {
   def apply[U](name: String): ReactAttr[U] =
     Generic(name)
 
-  private[vdom] final case class Generic[-U](name: String) extends ReactAttr[U] {
+  case class Generic[-U](name: String) extends ReactAttr[U] {
     override def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod =
       t(name, a)
   }
@@ -46,6 +46,12 @@ object ReactAttr {
     override val name = "class"
     override def :=[A](a: A)(implicit t: ValueType[A, String]): TagMod =
       TagMod.fn(b => t.fn(b.addClassName, a))
+  }
+
+  private[vdom] object Style extends ReactAttr[js.Object] {
+    override val name = "style"
+    override def :=[A](a: A)(implicit t: ValueType[A, js.Object]): TagMod =
+      TagMod.fn(b => t.fn(b.addStyles, a))
   }
 
 //  case object Ref extends ReactAttr[Any] {

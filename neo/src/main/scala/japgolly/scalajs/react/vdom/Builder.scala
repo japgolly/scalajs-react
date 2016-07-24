@@ -3,7 +3,7 @@ package japgolly.scalajs.react.vdom
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 //import japgolly.scalajs.react.{ReactElement, ReactNode, React}
-import Builder.set
+import japgolly.scalajs.react.internal.JsUtil
 
 object Builder {
   @inline private[Builder] def set(o: js.Object, k: String, v: js.Any): Unit =
@@ -68,14 +68,15 @@ object Builder {
 }
 
 final class Builder {
+  import Builder.set
 
   private[this] var className: js.UndefOr[js.Any] = js.undefined
   private[this] var props    = new js.Object
   private[this] var style    = new js.Object
 //  private[this] var children = new js.Array[ReactNode]()
 
-  def addClassName(n: js.Any): Unit =
-    className = className.fold(n)(m => s"$m $n")
+  val addClassName: js.Any => Unit =
+    n => className = className.fold(n)(m => s"$m $n")
 
 //  def appendChild(c: ReactNode): Unit =
 //    children.push(c)
@@ -83,12 +84,18 @@ final class Builder {
   def addAttr(k: String, v: js.Any): Unit =
     set(props, k, v)
 
-  def addStyle(k: String, v: String): Unit =
+  def addStyle(k: String, v: js.Any): Unit =
     set(style, k, v)
 
-  @inline private[this] def hasStyle: Boolean =
-    js.Object.keys(style).length != 0
+  val addStyles: js.Any => Unit = {
+    case obj: js.Object =>
+      for ((k,v) <- JsUtil.objectIterator(obj))
+        addStyle(k, v)
+  }
 
+//  @inline private[this] def hasStyle: Boolean =
+//    js.Object.keys(style).length != 0
+//
 //  def render(tag: String): ReactElement = {
 //    className.foreach(set(props, "className", _))
 //    if (hasStyle)

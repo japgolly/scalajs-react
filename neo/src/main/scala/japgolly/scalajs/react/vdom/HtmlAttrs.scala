@@ -1,7 +1,9 @@
 package japgolly.scalajs.react.vdom
 
-import Exports._
+import scala.scalajs.js
+import PackageBase._
 
+object HtmlAttrs extends HtmlAttrs
 trait HtmlAttrs {
 
   /**
@@ -30,7 +32,7 @@ trait HtmlAttrs {
     * will see this displayed if the image URL is wrong, the image is not in one
     * of the supported formats, or until the image is downloaded.
     */
-  final lazy val alt = "alt".reactAttr
+  final lazy val alt = "alt".reactAttr[String]
 
   /**
     * ARIA is a set of special accessibility attributes which can be added
@@ -44,7 +46,7 @@ trait HtmlAttrs {
     /**
       * Identifies the currently active descendant of a composite widget.
       */
-    final lazy val activedescendant = "aria-activedescendant".reactAttr
+    final lazy val activeDescendant = "aria-activedescendant".reactAttr
 
     /**
       * Indicates whether assistive technologies will present all, or only parts of, the changed region based on the change notifications defined by the aria-relevant attribute. See related aria-relevant.
@@ -54,7 +56,7 @@ trait HtmlAttrs {
     /**
       * Indicates whether user input completion suggestions are provided.
       */
-    final lazy val autocomplete = "aria-autocomplete".reactAttr
+    final lazy val autoComplete = "aria-autocomplete".reactAttr
 
     /**
       * Indicates whether an element, and its subtree, are currently being updated.
@@ -74,7 +76,7 @@ trait HtmlAttrs {
     /**
       * Identifies the element (or elements) that describes the object. See related aria-labelledby.
       */
-    final lazy val describedby = "aria-describedby".reactAttr
+    final lazy val describedBy = "aria-describedby".reactAttr
 
     /**
       * Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable. See related aria-hidden and aria-readonly.
@@ -84,7 +86,7 @@ trait HtmlAttrs {
     /**
       * Indicates what functions can be performed when the dragged object is released on the drop target. This allows assistive technologies to convey the possible drag options available to users, including whether a pop-up menu of choices is provided by the application. Typically, drop effect functions can only be provided once an object has been grabbed for a drag operation as the drop effect functions available are dependent on the object being dragged.
       */
-    final lazy val dropeffect = "aria-dropeffect".reactAttr
+    final lazy val dropEffect = "aria-dropeffect".reactAttr
 
     /**
       * Indicates whether the element, or another grouping element it controls, is currently expanded or collapsed.
@@ -94,7 +96,7 @@ trait HtmlAttrs {
     /**
       * Identifies the next element (or elements) in an alternate reading order of content which, at the user's discretion, allows assistive technology to override the general default of reading in document source order.
       */
-    final lazy val flowto = "aria-flowto".reactAttr
+    final lazy val flowTo = "aria-flowto".reactAttr
 
     /**
       * Indicates an element's "grabbed" state in a drag-and-drop operation.
@@ -104,7 +106,7 @@ trait HtmlAttrs {
     /**
       * Indicates that the element has a popup context menu or sub-level menu.
       */
-    final lazy val haspopup = "aria-haspopup".reactAttr
+    final lazy val hasPopup = "aria-haspopup".reactAttr
 
     /**
       * Indicates that the element and all of its descendants are not visible or perceivable to any user as implemented by the author. See related aria-disabled.
@@ -124,7 +126,7 @@ trait HtmlAttrs {
     /**
       * Identifies the element (or elements) that labels the current element. See related aria-label and aria-describedby.
       */
-    final lazy val labelledby = "aria-labelledby".reactAttr
+    final lazy val labelledBy = "aria-labelledby".reactAttr
 
     /**
       * Defines the hierarchical level of an element within a structure.
@@ -159,7 +161,7 @@ trait HtmlAttrs {
     /**
       * Defines an element's number or position in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-setsize.
       */
-    final lazy val posinset = "aria-posinset".reactAttr
+    final lazy val posInSet = "aria-posinset".reactAttr
 
     /**
       * Indicates the current "pressed" state of toggle buttons. See related aria-checked and aria-selected.
@@ -189,7 +191,7 @@ trait HtmlAttrs {
     /**
       * Defines the number of items in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-posinset.
       */
-    final lazy val setsize = "aria-setsize".reactAttr
+    final lazy val setSize = "aria-setsize".reactAttr
 
     /**
       * Indicates if items in a table or grid are sorted in ascending or descending order.
@@ -199,22 +201,22 @@ trait HtmlAttrs {
     /**
       * Defines the maximum allowed value for a range widget.
       */
-    final lazy val valuemax = "aria-valuemax".reactAttr
+    final lazy val valueMax = "aria-valuemax".reactAttr
 
     /**
       * Defines the minimum allowed value for a range widget.
       */
-    final lazy val valuemin = "aria-valuemin".reactAttr
+    final lazy val valueMin = "aria-valuemin".reactAttr
 
     /**
       * Defines the current value for a range widget. See related aria-valuetext.
       */
-    final lazy val valuenow = "aria-valuenow".reactAttr
+    final lazy val valueNow = "aria-valuenow".reactAttr
 
     /**
       * Defines the human readable text alternative of aria-valuenow for a range widget.
       */
-    final lazy val valuetext = "aria-valuetext".reactAttr
+    final lazy val valueText = "aria-valuetext".reactAttr
   }
 
   final lazy val async = "async".reactAttr
@@ -264,26 +266,24 @@ trait HtmlAttrs {
     * Declares the character encoding of the page or script. Used on meta and
     * script elements.
     */
-  final lazy val charset = "charset".reactAttr
+  final lazy val charset = "charset".reactAttr[String]
 
   /**
     * When the value of the type attribute is radio or checkbox, the presence of
     * this Boolean attribute indicates that the control is selected by default;
     * otherwise it is ignored.
     */
-  final lazy val checked = "checked".reactAttr
+  final lazy val checked = "checked".reactAttr[Boolean]
 
   final lazy val citeAttr = "cite".reactAttr
 
-  final def `class`       = ReactAttr.ClassName
-
-  final def className     = ReactAttr.ClassName
-
-  final def cls           = ReactAttr.ClassName
-
   final lazy val classID = "classID".reactAttr
 
-  final lazy val colSpan = "colSpan".reactAttr
+  final lazy val colSpan = "colSpan".reactAttr[Int]
+
+  final def `class`  : ReactAttr[String] = ReactAttr.ClassName
+  final def className: ReactAttr[String] = ReactAttr.ClassName
+  final def cls      : ReactAttr[String] = ReactAttr.ClassName
 
   /**
     * The visible width of the text control, in average character widths. If it
@@ -325,11 +325,11 @@ trait HtmlAttrs {
     *
     * This attribute is ignored if the value of the type attribute is hidden.
     */
-  final lazy val disabled = "disabled".reactAttr
+  final lazy val disabled = "disabled".reactAttr[Boolean]
 
   final lazy val download = "download".reactAttr
 
-  final lazy val draggable = "draggable".reactAttr
+  final lazy val draggable = "draggable".reactAttr[Boolean]
 
   final lazy val encType = "encType".reactAttr
 
@@ -369,7 +369,7 @@ trait HtmlAttrs {
     * supported by the browser. For example, file, ftp, and mailto work in most
     * user agents.
     */
-  final lazy val href = "href".reactAttr
+  final lazy val href = "href".reactAttr[String]
 
   final lazy val hrefLang = "hrefLang".reactAttr
 
@@ -417,7 +417,7 @@ trait HtmlAttrs {
   final lazy val itemType = "itemType".reactAttr
 
   /** React key */
-  final val key = "key".reactAttr
+  final val key = "key".reactAttr // TODO See types in `.raw`
 
   /** For use in &lt;keygen&gt; */
   final lazy val keyParams = "keyParams".reactAttr
@@ -436,7 +436,7 @@ trait HtmlAttrs {
     * to unknown; if the tag content is not valid, regarding to BCP47, it is set
     * to invalid.
     */
-  final lazy val lang = "lang".reactAttr
+  final lazy val lang = "lang".reactAttr[String]
 
   final lazy val list = "list".reactAttr
 
@@ -802,7 +802,7 @@ trait HtmlAttrs {
     * the control. This attribute is ignored if the value of the type attribute
     * is hidden, range, color, checkbox, radio, file, or a button type.
     */
-  final lazy val readOnly = "readOnly".reactAttr
+  final lazy val readOnly = "readOnly".reactAttr[Boolean]
 
   // final val ref = ReactAttr.Ref
 
@@ -822,7 +822,7 @@ trait HtmlAttrs {
     * image, or a button type (submit, reset, or button). The :optional and
     * :required CSS pseudo-classes will be applied to the field as appropriate.
     */
-  final lazy val required = "required".reactAttr
+  final lazy val required = "required".reactAttr[Boolean]
 
   final lazy val results = "results".reactAttr
 
@@ -846,12 +846,12 @@ trait HtmlAttrs {
     */
   final lazy val role = "role".reactAttr
 
-  final lazy val rowSpan = "rowSpan".reactAttr
+  final lazy val rowSpan = "rowSpan".reactAttr[Int]
 
   /**
     * The number of visible text lines for the control.
     */
-  final lazy val rows = "rows".reactAttr
+  final lazy val rows = "rows".reactAttr[Int]
 
   final lazy val sandbox = "sandbox".reactAttr
 
@@ -883,7 +883,7 @@ trait HtmlAttrs {
     * otherwise it is ignored. In addition, the size must be greater than zero.
     * If you don't specify a size, a default value of 20 is used.
     */
-  final lazy val size = "size".reactAttr
+  final lazy val size = "size".reactAttr[Int]
 
   final lazy val sizes = "sizes".reactAttr
 
@@ -898,7 +898,7 @@ trait HtmlAttrs {
     * for the location of an image to display on the graphical submit button;
     * otherwise it is ignored.
     */
-  final val src = "src".reactAttr
+  final val src = "src".reactAttr[String]
 
   final lazy val srcDoc = "srcDoc".reactAttr
 
@@ -914,7 +914,7 @@ trait HtmlAttrs {
     * file or files. This attribute and the style element have mainly the
     * purpose of allowing for quick styling, for example for testing purposes.
     */
-  final lazy val style = "style".reactAttr
+  final def style: ReactAttr[js.Object] = ReactAttr.Style
 
   /**
     * The value is actually just `summary`. This is named `summaryAttr` in Scala to avoid a conflict with the
@@ -940,7 +940,7 @@ trait HtmlAttrs {
     *
     * An element with a 0 value, an invalid value, or no tabIndex value should be placed after elements with a positive tabIndex in the sequential keyboard navigation order.
     */
-  final lazy val tabIndex = "tabIndex".reactAttr
+  final lazy val tabIndex = "tabIndex".reactAttr[Int]
 
   /**
     * A name or keyword indicating where to display the response that is received
@@ -964,7 +964,33 @@ trait HtmlAttrs {
     * same way as _self.
     * - iframename: The response is displayed in a named iframe.
     */
-  final lazy val target = "target".reactAttr
+  object target extends ReactAttr.Generic[String]("target") {
+
+    /** Load the response into the same HTML 4 frame (or HTML5 browsing
+      * context) as the current one. This value is the default if the attribute
+      * is not specified.
+      */
+    def self = this := "_self"
+
+    /** Load the response into a new unnamed HTML 4 window or HTML5 browsing context. */
+    def blank = this := "_blank"
+
+    /**
+      * Load the response into the HTML 4 frameset parent of the current
+      * frame or HTML5 parent browsing context of the current one. If there is no
+      * parent, this option behaves the same way as _self.
+      */
+    def parent = this := "_parent"
+
+    /**
+      * HTML 4: Load the response into the full, original window, canceling
+      * all other frames. HTML5: Load the response into the top-level browsing
+      * context (that is, the browsing context that is an ancestor of the current
+      * one, and has no parent). If there is no parent, this option behaves the
+      * same way as _self.
+      */
+    def top = this := "_top"
+  }
 
   /**
     * This attribute contains a text representing advisory information related to
