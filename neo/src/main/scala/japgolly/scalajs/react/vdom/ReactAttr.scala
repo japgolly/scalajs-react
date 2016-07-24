@@ -10,6 +10,8 @@ import ReactAttr.ValueType
   * @tparam U Underlying type of the value required by this attribute.
   */
 trait ReactAttr[-U] {
+  override def toString = s"ReactAttr.$name"
+
   val name: String
 
   def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod
@@ -19,7 +21,7 @@ trait ReactAttr[-U] {
 }
 
 object ReactAttr {
-//  type CB = ReactAttr[js.Function]
+  // type Event[-E] = ReactAttr[js.Function1[E, Unit]]
 
   def apply[U](name: String): ReactAttr[U] =
     Generic(name)
@@ -40,11 +42,11 @@ object ReactAttr {
     else
       Dud
 
-//  case object ClassName extends ReactAttr[String] {
-//    override def name = "class"
-//    override def :=[A](a: A)(implicit t: ValueType[A, String]): TagMod =
-//      TagMod.fn(b => t.fn(b.addClassName, a))
-//  }
+  private[vdom] object ClassName extends ReactAttr[String] {
+    override val name = "class"
+    override def :=[A](a: A)(implicit t: ValueType[A, String]): TagMod =
+      TagMod.fn(b => t.fn(b.addClassName, a))
+  }
 
 //  case object Ref extends ReactAttr[Any] {
 //    override def name = "ref"
