@@ -15,7 +15,7 @@ object PackageBase extends PackageBase
 
 object html_<^ extends PackageBase {
 //  @inline def < = Tags
-  @inline def ^ = HtmlAttrs
+  val ^ = HtmlAttrs
 }
 
 object svg_<^ extends PackageBase {

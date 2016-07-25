@@ -1,19 +1,27 @@
 package japgolly.scalajs.react.vdom
 
-import utest._
 import scala.scalajs.js
-import PackageBase._
+import utest._
+import japgolly.scalajs.react._
+import html_<^._
 
 object ReactAttrTest extends TestSuite {
 
-  val stringOnly = "".reactAttr[String]
-  val intOnly = "".reactAttr[Int]
-  val style = "".reactAttr[js.Object]
   val anything = "".reactAttr[Any]
+  val intOnly = ^.colSpan
+  val stringOnly = ^.href
+  val style = ^.style
+  val mouse = ^.onMouseDown
+  val focus = ^.onFocus
 
   def jsObj: js.Object = new js.Object()
   def jsDict: js.Dictionary[String] = js.Dictionary.empty
   def unit = ()
+  def callback = Callback.empty
+  def anyEH: ReactEvent => Callback = _ => callback
+  def mouseEH: ReactMouseEvent => Callback = _ => callback
+  def focusEH: ReactFocusEvent => Callback = _ => callback
+  def mouseInputEH: ReactMouseEventI => Callback = _ => callback
 
   override def tests = TestSuite {
 
@@ -29,7 +37,7 @@ object ReactAttrTest extends TestSuite {
 
       'string {
         stringOnly := ""
-        compileError("stringOnly := 5")
+        compileError("stringOnly := 5") // Explicit .toString required
         compileError("stringOnly := jsObj")
         compileError("stringOnly := jsDict")
         compileError("stringOnly := unit").msg
@@ -49,6 +57,32 @@ object ReactAttrTest extends TestSuite {
         compileError("style := 5")
         compileError("style := \"\"")
         compileError("style := unit").msg
+      }
+
+      'mouseEvent {
+        mouse --> callback
+        mouse ==> anyEH
+        mouse ==> mouseEH
+        mouse ==> mouseInputEH
+        compileError("mouse ==> focusEH")
+        compileError("mouse := \"\"")
+        compileError("mouse := 5")
+        compileError("mouse := jsObj")
+        compileError("mouse := jsDict")
+        compileError("mouse := unit").msg
+      }
+
+      'focusEvent {
+        focus --> callback
+        focus ==> anyEH
+        focus ==> focusEH
+        compileError("focus ==> mouseEH")
+        compileError("focus ==> mouseInputEH")
+        compileError("focus := \"\"")
+        compileError("focus := 5")
+        compileError("focus := jsObj")
+        compileError("focus := jsDict")
+        compileError("focus := unit").msg
       }
 
     }

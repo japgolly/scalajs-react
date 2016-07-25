@@ -2,7 +2,7 @@ package japgolly.scalajs
 
 import scala.scalajs.js.|
 
-package object react {
+package object react extends ReactEventTypes {
 
   type Callback = CallbackTo[Unit]
 
