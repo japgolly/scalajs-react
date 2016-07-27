@@ -7,17 +7,17 @@ import scala.scalajs.js
 import japgolly.scalajs.react.internal.OptionLike
 import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.raw
-import ReactAttr.ValueType
+import Attr.ValueType
 
 /**
   * @tparam U Underlying type of the value required by this attribute.
   */
-abstract class ReactAttr[-U](final val name: String) {
+abstract class Attr[-U](final val name: String) {
   override final def toString = s"ReactAttr.$name"
 
   override def hashCode = name.##
   override def equals(any: Any) = any match {
-    case that: ReactAttr[_] => this.name == that.name
+    case that: Attr[_] => this.name == that.name
     case _                  => false
   }
 
@@ -38,11 +38,11 @@ object DomCallbackResult {
   @inline implicit def undefOrBoolean = force[js.UndefOr[Boolean]]
 }
 
-object ReactAttr {
-  def apply[U](name: String): ReactAttr[U] =
+object Attr {
+  def apply[U](name: String): Attr[U] =
     new Generic(name)
 
-  class Generic[-U](name: String) extends ReactAttr[U](name) {
+  class Generic[-U](name: String) extends Attr[U](name) {
     override def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod =
       t(name, a)
   }
@@ -82,22 +82,22 @@ object ReactAttr {
     @inline def wheel      (name: String) = apply[raw.SyntheticWheelEvent      ](name)
   }
 
-  private[vdom] object Dud extends ReactAttr[Any]("") {
+  private[vdom] object Dud extends Attr[Any]("") {
     override def :=[A](a: A)(implicit t: ValueType[A, Any]) = TagMod.Empty
   }
 
-  @inline def devOnly[A](name: => String): ReactAttr[A] =
+  @inline def devOnly[A](name: => String): Attr[A] =
     if (developmentMode)
       apply(name)
     else
       Dud
 
-  private[vdom] object ClassName extends ReactAttr[String]("class") {
+  private[vdom] object ClassName extends Attr[String]("class") {
     override def :=[A](a: A)(implicit t: ValueType[A, String]): TagMod =
       TagMod.fn(b => t.fn(b.addClassName, a))
   }
 
-  private[vdom] object Style extends ReactAttr[js.Object]("style") {
+  private[vdom] object Style extends Attr[js.Object]("style") {
     override def :=[A](a: A)(implicit t: ValueType[A, js.Object]): TagMod =
       TagMod.fn(b => t.fn(b.addStyles, a))
   }
@@ -119,7 +119,7 @@ object ReactAttr {
 
   /**
     * Used to specify how to handle a particular type [[A]] when it is used as
-    * the value of a [[ReactAttr]] of type [[U]].
+    * the value of a [[Attr]] of type [[U]].
     *
     * @tparam A Input type. Type provided by dev.
     * @tparam U Underlying type. Type required by attribute.

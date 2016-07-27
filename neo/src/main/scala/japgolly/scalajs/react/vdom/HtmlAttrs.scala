@@ -282,9 +282,9 @@ trait HtmlAttrs {
 
   final lazy val colSpan = "colSpan".reactAttr[Int]
 
-  final def `class`  : ReactAttr[String] = ReactAttr.ClassName
-  final def className: ReactAttr[String] = ReactAttr.ClassName
-  final def cls      : ReactAttr[String] = ReactAttr.ClassName
+  final def `class`  : Attr[String] = Attr.ClassName
+  final def className: Attr[String] = Attr.ClassName
+  final def cls      : Attr[String] = Attr.ClassName
 
   /**
     * The visible width of the text control, in average character widths. If it
@@ -523,48 +523,48 @@ trait HtmlAttrs {
   /** For &lt;script&gt; and &lt;style&gt;elements. */
   final lazy val nonce = "nonce".reactAttr
 
-  final lazy val onAbort = ReactAttr.Event.base("onAbort")
+  final lazy val onAbort = Attr.Event.base("onAbort")
 
-  final lazy val onAnimationEnd = ReactAttr.Event.base("onAnimationEnd")
+  final lazy val onAnimationEnd = Attr.Event.base("onAnimationEnd")
 
-  final lazy val onAnimationIteration = ReactAttr.Event.base("onAnimationIteration")
+  final lazy val onAnimationIteration = Attr.Event.base("onAnimationIteration")
 
-  final lazy val onAnimationStart = ReactAttr.Event.base("onAnimationStart")
+  final lazy val onAnimationStart = Attr.Event.base("onAnimationStart")
 
-  final lazy val onBeforeInput = ReactAttr.Event.base("onBeforeInput")
+  final lazy val onBeforeInput = Attr.Event.base("onBeforeInput")
 
   /**
     * The blur event is raised when an element loses focus.
     */
-  final lazy val onBlur = ReactAttr.Event.focus("onBlur")
+  final lazy val onBlur = Attr.Event.focus("onBlur")
 
-  final lazy val onCanPlay = ReactAttr.Event.base("onCanPlay")
+  final lazy val onCanPlay = Attr.Event.base("onCanPlay")
 
-  final lazy val onCanPlayThrough = ReactAttr.Event.base("onCanPlayThrough")
+  final lazy val onCanPlayThrough = Attr.Event.base("onCanPlayThrough")
 
   /**
     * The change event is fired for input, select, and textarea elements
     * when a change to the element's value is committed by the user.
     */
-  final val onChange = ReactAttr.Event.base("onChange")
+  final val onChange = Attr.Event.base("onChange")
 
   /**
     * The click event is raised when the user clicks on an element. The click
     * event will occur after the mousedown and mouseup events.
     */
-  final val onClick = ReactAttr.Event.mouse("onClick")
+  final val onClick = Attr.Event.mouse("onClick")
 
-  final lazy val onCompositionEnd = ReactAttr.Event.composition("onCompositionEnd")
+  final lazy val onCompositionEnd = Attr.Event.composition("onCompositionEnd")
 
-  final lazy val onCompositionStart = ReactAttr.Event.composition("onCompositionStart")
+  final lazy val onCompositionStart = Attr.Event.composition("onCompositionStart")
 
-  final lazy val onCompositionUpdate = ReactAttr.Event.composition("onCompositionUpdate")
+  final lazy val onCompositionUpdate = Attr.Event.composition("onCompositionUpdate")
 
-  final lazy val onContextMenu = ReactAttr.Event.base("onContextMenu")
+  final lazy val onContextMenu = Attr.Event.base("onContextMenu")
 
-  final lazy val onCopy = ReactAttr.Event.base("onCopy")
+  final lazy val onCopy = Attr.Event.base("onCopy")
 
-  final lazy val onCut = ReactAttr.Event.base("onCut")
+  final lazy val onCut = Attr.Event.base("onCut")
 
   /** React alias for [[onDoubleClick]] */
   final def onDblClick = onDoubleClick
@@ -573,31 +573,31 @@ trait HtmlAttrs {
     * The dblclick event is fired when a pointing device button (usually a
     * mouse button) is clicked twice on a single element.
     */
-  final lazy val onDoubleClick = ReactAttr.Event.mouse("onDoubleClick")
+  final lazy val onDoubleClick = Attr.Event.mouse("onDoubleClick")
 
-  final lazy val onDrag = ReactAttr.Event.drag("onDrag")
+  final lazy val onDrag = Attr.Event.drag("onDrag")
 
-  final lazy val onDragEnd = ReactAttr.Event.drag("onDragEnd")
+  final lazy val onDragEnd = Attr.Event.drag("onDragEnd")
 
-  final lazy val onDragEnter = ReactAttr.Event.drag("onDragEnter")
+  final lazy val onDragEnter = Attr.Event.drag("onDragEnter")
 
-  final lazy val onDragExit = ReactAttr.Event.drag("onDragExit")
+  final lazy val onDragExit = Attr.Event.drag("onDragExit")
 
-  final lazy val onDragLeave = ReactAttr.Event.drag("onDragLeave")
+  final lazy val onDragLeave = Attr.Event.drag("onDragLeave")
 
-  final lazy val onDragOver = ReactAttr.Event.drag("onDragOver")
+  final lazy val onDragOver = Attr.Event.drag("onDragOver")
 
-  final lazy val onDragStart = ReactAttr.Event.drag("onDragStart")
+  final lazy val onDragStart = Attr.Event.drag("onDragStart")
 
-  final lazy val onDrop = ReactAttr.Event.base("onDrop")
+  final lazy val onDrop = Attr.Event.base("onDrop")
 
-  final lazy val onDurationChange = ReactAttr.Event.base("onDurationChange")
+  final lazy val onDurationChange = Attr.Event.base("onDurationChange")
 
-  final lazy val onEmptied = ReactAttr.Event.base("onEmptied")
+  final lazy val onEmptied = Attr.Event.base("onEmptied")
 
-  final lazy val onEncrypted = ReactAttr.Event.base("onEncrypted")
+  final lazy val onEncrypted = Attr.Event.base("onEncrypted")
 
-  final lazy val onEnded = ReactAttr.Event.base("onEnded")
+  final lazy val onEnded = Attr.Event.base("onEnded")
 
   /**
     * Type: script code
@@ -606,21 +606,21 @@ trait HtmlAttrs {
     *
     * https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/image#a-onerror
     */
-  final lazy val onError = ReactAttr.Event.base("onError")
+  final lazy val onError = Attr.Event.base("onError")
 
   /**
     * The focus event is raised when the user sets focus on the given element.
     */
-  final lazy val onFocus = ReactAttr.Event.focus("onFocus")
+  final lazy val onFocus = Attr.Event.focus("onFocus")
 
-  final lazy val onInput = ReactAttr.Event.base("onInput")
+  final lazy val onInput = Attr.Event.base("onInput")
 
-  final lazy val onInvalid = ReactAttr.Event.base("onInvalid")
+  final lazy val onInvalid = Attr.Event.base("onInvalid")
 
   /**
     * The keydown event is raised when the user presses a keyboard key.
     */
-  final lazy val onKeyDown = ReactAttr.Event.keyboard("onKeyDown")
+  final lazy val onKeyDown = Attr.Event.keyboard("onKeyDown")
 
   /**
     * The keypress event should be raised when the user presses a key on the keyboard.
@@ -629,141 +629,141 @@ trait HtmlAttrs {
     * Webkit-based browsers (Google Chrome and Safari, for example) do not fire keypress events on the arrow keys.
     * Firefox does not fire keypress events on modifier keys like SHIFT.
     */
-  final lazy val onKeyPress = ReactAttr.Event.keyboard("onKeyPress")
+  final lazy val onKeyPress = Attr.Event.keyboard("onKeyPress")
 
   /**
     * The keyup event is raised when the user releases a key that's been pressed.
     */
-  final lazy val onKeyUp = ReactAttr.Event.keyboard("onKeyUp")
+  final lazy val onKeyUp = Attr.Event.keyboard("onKeyUp")
 
   /**
     * The load event fires at the end of the document loading process. At this
     * point, all of the objects in the document are in the DOM, and all the
     * images and sub-frames have finished loading.
     */
-  final lazy val onLoad = ReactAttr.Event.base("onLoad")
+  final lazy val onLoad = Attr.Event.base("onLoad")
 
-  final lazy val onLoadStart = ReactAttr.Event.base("onLoadStart")
+  final lazy val onLoadStart = Attr.Event.base("onLoadStart")
 
-  final lazy val onLoadedData = ReactAttr.Event.base("onLoadedData")
+  final lazy val onLoadedData = Attr.Event.base("onLoadedData")
 
-  final lazy val onLoadedMetadata = ReactAttr.Event.base("onLoadedMetadata")
+  final lazy val onLoadedMetadata = Attr.Event.base("onLoadedMetadata")
 
   /**
     * The mousedown event is raised when the user presses the mouse button.
     */
-  final lazy val onMouseDown = ReactAttr.Event.mouse("onMouseDown")
+  final lazy val onMouseDown = Attr.Event.mouse("onMouseDown")
 
   /**
     * The mouseenter event is fired when a pointing device (usually a mouse)
     * is moved over the element that has the listener attached.
     */
-  final lazy val onMouseEnter = ReactAttr.Event.mouse("onMouseEnter")
+  final lazy val onMouseEnter = Attr.Event.mouse("onMouseEnter")
 
   /**
     * The mouseleave event is fired when a pointing device (usually a mouse)
     * is moved off the element that has the listener attached.
     */
-  final lazy val onMouseLeave = ReactAttr.Event.mouse("onMouseLeave")
+  final lazy val onMouseLeave = Attr.Event.mouse("onMouseLeave")
 
   /**
     * The mousemove event is raised when the user moves the mouse.
     */
-  final lazy val onMouseMove = ReactAttr.Event.mouse("onMouseMove")
+  final lazy val onMouseMove = Attr.Event.mouse("onMouseMove")
 
   /**
     * The mouseout event is raised when the mouse leaves an element (e.g, when
     * the mouse moves off of an image in the web page, the mouseout event is
     * raised for that image element).
     */
-  final lazy val onMouseOut = ReactAttr.Event.mouse("onMouseOut")
+  final lazy val onMouseOut = Attr.Event.mouse("onMouseOut")
 
   /**
     * The mouseover event is raised when the user moves the mouse over a
     * particular element.
     */
-  final lazy val onMouseOver = ReactAttr.Event.mouse("onMouseOver")
+  final lazy val onMouseOver = Attr.Event.mouse("onMouseOver")
 
   /**
     * The mouseup event is raised when the user releases the mouse button.
     */
-  final lazy val onMouseUp = ReactAttr.Event.mouse("onMouseUp")
+  final lazy val onMouseUp = Attr.Event.mouse("onMouseUp")
 
-  final lazy val onPaste = ReactAttr.Event.base("onPaste")
+  final lazy val onPaste = Attr.Event.base("onPaste")
 
-  final lazy val onPause = ReactAttr.Event.base("onPause")
+  final lazy val onPause = Attr.Event.base("onPause")
 
-  final lazy val onPlay = ReactAttr.Event.base("onPlay")
+  final lazy val onPlay = Attr.Event.base("onPlay")
 
-  final lazy val onPlaying = ReactAttr.Event.base("onPlaying")
+  final lazy val onPlaying = Attr.Event.base("onPlaying")
 
-  final lazy val onProgress = ReactAttr.Event.base("onProgress")
+  final lazy val onProgress = Attr.Event.base("onProgress")
 
-  final lazy val onRateChange = ReactAttr.Event.base("onRateChange")
+  final lazy val onRateChange = Attr.Event.base("onRateChange")
 
   /**
     * The reset event is fired when a form is reset.
     */
-  final lazy val onReset = ReactAttr.Event.base("onReset")
+  final lazy val onReset = Attr.Event.base("onReset")
 
   /**
     * Specifies the function to be called when the window is scrolled.
     */
-  final lazy val onScroll = ReactAttr.Event.base("onScroll")
+  final lazy val onScroll = Attr.Event.base("onScroll")
 
-  final lazy val onSeeked = ReactAttr.Event.base("onSeeked")
+  final lazy val onSeeked = Attr.Event.base("onSeeked")
 
-  final lazy val onSeeking = ReactAttr.Event.base("onSeeking")
+  final lazy val onSeeking = Attr.Event.base("onSeeking")
 
   /**
     * The select event only fires when text inside a text input or textarea is
     * selected. The event is fired after the text has been selected.
     */
-  final lazy val onSelect = ReactAttr.Event.base("onSelect")
+  final lazy val onSelect = Attr.Event.base("onSelect")
 
-  final lazy val onStalled = ReactAttr.Event.base("onStalled")
+  final lazy val onStalled = Attr.Event.base("onStalled")
 
   /**
     * The submit event is raised when the user clicks a submit button in a form
     * (<input type="submit"/>).
     */
-  final lazy val onSubmit = ReactAttr.Event.base("onSubmit")
+  final lazy val onSubmit = Attr.Event.base("onSubmit")
 
-  final lazy val onSuspend = ReactAttr.Event.base("onSuspend")
+  final lazy val onSuspend = Attr.Event.base("onSuspend")
 
-  final lazy val onTimeUpdate = ReactAttr.Event.base("onTimeUpdate")
+  final lazy val onTimeUpdate = Attr.Event.base("onTimeUpdate")
 
   /**
     * Event indicating that the touch point has been canceled or disrupted.
     *
     * For example, when popup menu is shown.
     */
-  final lazy val onTouchCancel = ReactAttr.Event.touch("onTouchCancel")
+  final lazy val onTouchCancel = Attr.Event.touch("onTouchCancel")
 
   /**
     * Event indicating that the touch point does not exist any more.
     *
     * For example, whn you release your finger.
     */
-  final lazy val onTouchEnd = ReactAttr.Event.touch("onTouchEnd")
+  final lazy val onTouchEnd = Attr.Event.touch("onTouchEnd")
 
   /**
     * Event indicating that the touch point has moved along the plane.
     */
-  final lazy val onTouchMove = ReactAttr.Event.touch("onTouchMove")
+  final lazy val onTouchMove = Attr.Event.touch("onTouchMove")
 
   /**
     * Event indicating that the user has touched the plane.
     */
-  final lazy val onTouchStart = ReactAttr.Event.touch("onTouchStart")
+  final lazy val onTouchStart = Attr.Event.touch("onTouchStart")
 
-  final lazy val onTransitionEnd = ReactAttr.Event.base("onTransitionEnd")
+  final lazy val onTransitionEnd = Attr.Event.base("onTransitionEnd")
 
-  final lazy val onVolumeChange = ReactAttr.Event.base("onVolumeChange")
+  final lazy val onVolumeChange = Attr.Event.base("onVolumeChange")
 
-  final lazy val onWaiting = ReactAttr.Event.base("onWaiting")
+  final lazy val onWaiting = Attr.Event.base("onWaiting")
 
-  final lazy val onWheel = ReactAttr.Event.wheel("onWheel")
+  final lazy val onWheel = Attr.Event.wheel("onWheel")
 
   final lazy val open = "open".reactAttr
 
@@ -907,7 +907,7 @@ trait HtmlAttrs {
     * file or files. This attribute and the style element have mainly the
     * purpose of allowing for quick styling, for example for testing purposes.
     */
-  final def style: ReactAttr[js.Object] = ReactAttr.Style
+  final def style: Attr[js.Object] = Attr.Style
 
   /**
     * The value is actually just `summary`. This is named `summaryAttr` in Scala to avoid a conflict with the
@@ -957,7 +957,7 @@ trait HtmlAttrs {
     * same way as _self.
     * - iframename: The response is displayed in a named iframe.
     */
-  object target extends ReactAttr.Generic[String]("target") {
+  object target extends Attr.Generic[String]("target") {
 
     /** Load the response into the same HTML 4 frame (or HTML5 browsing
       * context) as the current one. This value is the default if the attribute

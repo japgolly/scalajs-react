@@ -1,20 +1,16 @@
 package japgolly.scalajs.react.vdom
 
-import org.scalajs.dom
+class TagOf[+N <: TopNode] private[vdom](final val tag: String,
+                                         final val modifiers: List[Seq[TagMod]],
+                                         final val namespace: Namespace) {
 
-class ReactTagOf[+N <: TopNode] private[vdom](final val tag: String,
-                                              final val modifiers: List[Seq[TagMod]],
-                                              final val namespace: Namespace)
-// extends DomFrag
-{
-
-  def apply(xs: TagMod*): ReactTagOf[N] =
+  def apply(xs: TagMod*): TagOf[N] =
     copy(modifiers = xs :: modifiers)
 
   def copy(tag: String = this.tag,
            modifiers: List[Seq[TagMod]] = this.modifiers,
-           namespace: Namespace = this.namespace): ReactTagOf[N] =
-    new ReactTagOf(tag, modifiers, namespace)
+           namespace: Namespace = this.namespace): TagOf[N] =
+    new TagOf(tag, modifiers, namespace)
 
   /**
     * Walks the [[modifiers]] to apply them to a particular [[Builder]].
@@ -56,24 +52,24 @@ class ReactTagOf[+N <: TopNode] private[vdom](final val tag: String,
 // =====================================================================================================================
 
 final class HtmlTagOf[+N <: HtmlTopNode](val name: String) extends AnyVal {
-  def apply(xs: TagMod*): ReactTagOf[N] =
-    new ReactTagOf(name, xs :: Nil, Namespace.Html)
+  def apply(xs: TagMod*): TagOf[N] =
+    new TagOf(name, xs :: Nil, Namespace.Html)
 }
 
 object HtmlTagOf {
-  implicit def autoToTag[N <: HtmlTopNode](t: HtmlTagOf[N]): ReactTagOf[N] =
-    new ReactTagOf[N](t.name, Nil, Namespace.Html)
+  implicit def autoToTag[N <: HtmlTopNode](t: HtmlTagOf[N]): TagOf[N] =
+    new TagOf[N](t.name, Nil, Namespace.Html)
 }
 
 // =====================================================================================================================
 
 final class SvgTagOf[+N <: SvgTopNode](val name: String) extends AnyVal {
-  def apply(xs: TagMod*): ReactTagOf[N] =
-    new ReactTagOf(name, xs :: Nil, Namespace.Svg)
+  def apply(xs: TagMod*): TagOf[N] =
+    new TagOf(name, xs :: Nil, Namespace.Svg)
 }
 
 object SvgTagOf {
-  implicit def autoToTag[N <: SvgTopNode](t: SvgTagOf[N]): ReactTagOf[N] =
-    new ReactTagOf[N](t.name, Nil, Namespace.Svg)
+  implicit def autoToTag[N <: SvgTopNode](t: SvgTagOf[N]): TagOf[N] =
+    new TagOf[N](t.name, Nil, Namespace.Svg)
 }
 

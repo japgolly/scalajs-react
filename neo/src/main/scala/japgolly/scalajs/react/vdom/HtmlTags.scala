@@ -279,13 +279,13 @@ trait HtmlTags {
     * The HTML element &lt;input&gt; is used to create interactive controls for web-based forms in order to accept data
     * from the user. How an &lt;input&gt; works varies considerably depending on the value of its type attribute.
     */
-  object input extends ReactTagOf[*.Input]("input", Nil, Namespace.Html) {
+  object input extends TagOf[*.Input]("input", Nil, Namespace.Html) {
 
     private[this] val `type` = "type".reactAttr[String]
 
     /** Returns a &lt;input type="{t}" /&gt; */
-    def withType(t: String): ReactTagOf[*.Input] =
-      this(`type`.:=(t)(ReactAttr.ValueType.string))
+    def withType(t: String): TagOf[*.Input] =
+      this(`type`.:=(t)(Attr.ValueType.string))
 
     /** A push button with no default behavior. */
     def button = this withType "button"

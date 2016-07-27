@@ -3,7 +3,7 @@ package japgolly.scalajs.react.vdom
 import scala.scalajs.js
 
 trait ImplicitReactAttrValueTypes {
-  import ReactAttr.ValueType
+  import Attr.ValueType
   import ValueType._
 
   implicit val reactAttrVtString: Simple[String] = string

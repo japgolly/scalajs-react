@@ -4,8 +4,8 @@ object ExportsStatic {
 
   final class VdomExtString(private val s: String) extends AnyVal {
 
-    @inline def reactAttr[A]: ReactAttr[A] =
-      ReactAttr(s)
+    @inline def reactAttr[A]: Attr[A] =
+      Attr(s)
 
 //    @inline def reactStyle: ReactStyle =
 //      new ReactStyle.Generic(s)
@@ -16,9 +16,6 @@ object ExportsStatic {
     // May eventually make use of this
     @inline private[vdom] def reactTerminalTag[N <: HtmlTopNode]: HtmlTagOf[N] =
       new HtmlTagOf[N](s)
-
-//    @inline def reactTag[N <: TopNode]: ReactTagOf[N] =
-//      makeAbstractReactTag(s, NamespaceHtml.implicitNamespace)
   }
 }
 
@@ -32,18 +29,18 @@ abstract class Exports {
   final type TagMod = japgolly.scalajs.react.vdom.TagMod
   final val TagMod = japgolly.scalajs.react.vdom.TagMod
 
-  final type ReactAttr[-U] = japgolly.scalajs.react.vdom.ReactAttr[U]
-  final val ReactAttr = japgolly.scalajs.react.vdom.ReactAttr
+  final type Attr[-U] = japgolly.scalajs.react.vdom.Attr[U]
+  final val Attr = japgolly.scalajs.react.vdom.Attr
 
-  final type ReactTagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.ReactTagOf[N]
-  final type ReactTag = ReactTagOf[TopNode]
+  final type TagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.TagOf[N]
+  final type Tag = TagOf[TopNode]
 
-  final type ReactHtmlTagOf[+N <: HtmlTopNode] = japgolly.scalajs.react.vdom.HtmlTagOf[N]
-  final type ReactHtmlTag = HtmlTagOf[HtmlTopNode]
+  final type HtmlTagOf[+N <: HtmlTopNode] = japgolly.scalajs.react.vdom.HtmlTagOf[N]
+  final type HtmlTag = HtmlTagOf[HtmlTopNode]
 
-  final type ReactSvgTagOf[+N <: SvgTopNode] = japgolly.scalajs.react.vdom.SvgTagOf[N]
-  final type ReactSvgTag = SvgTagOf[SvgTopNode]
+  final type SvgTagOf[+N <: SvgTopNode] = japgolly.scalajs.react.vdom.SvgTagOf[N]
+  final type SvgTag = SvgTagOf[SvgTopNode]
 
-  //  final type ReactStyle                = japgolly.scalajs.react.vdom.ReactStyle
-  //  @inline final def ReactStyle = japgolly.scalajs.react.vdom.ReactStyle
+  //  final type Style                = japgolly.scalajs.react.vdom.Style
+  //  @inline final def Style = japgolly.scalajs.react.vdom.Style
 }
