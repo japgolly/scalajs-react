@@ -1,313 +1,303 @@
 package japgolly.scalajs.react.vdom
 
-/*
-
 import org.scalajs.dom.{html => *}
-import NamespaceHtml._
-import Scalatags._
+import Exports._
 
-// TODO Make ReactTags a case class (String) AnyVal then use def instead of lazy val
-
-final class HtmlTag(val name: String) extends AnyVal {
-
-}
-
+object HtmlTags extends HtmlTags
 trait HtmlTags {
 
   /**
     * Represents a hyperlink, linking to another resource.
     */
-  final val a = "a".tag[*.Anchor]
+  final def a: HtmlTagOf[*.Anchor] = "a".reactTag
 
   /**
     * An abbreviation or acronym; the expansion of the abbreviation can be
     * represented in the title attribute.
     */
-  final lazy val abbr = "abbr".tag[*.Element]
+  final def abbr: HtmlTagOf[*.Element] = "abbr".reactTag
 
   /**
     * Defines a section containing contact information.
     */
-  final lazy val address = "address".tag[*.Element]
+  final def address: HtmlTagOf[*.Element] = "address".reactTag
 
   /**
     * In conjunction with map, defines an image map
     */
-  final lazy val area = "area".voidTag[*.Area]
+  final def area: HtmlTagOf[*.Area] = "area".reactTerminalTag
 
   /**
     * Defines self-contained content that could exist independently of the rest
     * of the content.
     */
-  final lazy val article = "article".tag[*.Element]
+  final def article: HtmlTagOf[*.Element] = "article".reactTag
 
   /**
     * Defines some content loosely related to the page content. If it is removed,
     * the remaining content still makes sense.
     */
-  final lazy val aside = "aside".tag[*.Element]
+  final def aside: HtmlTagOf[*.Element] = "aside".reactTag
 
   /**
     * Represents a sound or an audio stream.
     */
-  final lazy val audio = "audio".tag[*.Audio]
+  final def audio: HtmlTagOf[*.Audio] = "audio".reactTag
 
   /**
     * Bold text.
     */
-  final lazy val b = "b".tag[*.Element]
+  final def b: HtmlTagOf[*.Element] = "b".reactTag
 
   /**
     * Defines the base URL for relative URLs in the page.
     */
-  final lazy val base = "base".voidTag[*.Base]
+  final def base: HtmlTagOf[*.Base] = "base".reactTerminalTag
 
   /**
     * Represents text that must be isolated from its surrounding for bidirectional
     * text formatting. It allows embedding a span of text with a different, or
     * unknown, directionality.
     */
-  final lazy val bdi = "bdi".tag[*.Element]
+  final def bdi: HtmlTagOf[*.Element] = "bdi".reactTag
 
   /**
     * Represents the directionality of its children, in order to explicitly
     * override the Unicode bidirectional algorithm.
     */
-  final lazy val bdo = "bdo".tag[*.Element]
+  final def bdo: HtmlTagOf[*.Element] = "bdo".reactTag
 
   /**
     * Represents a content that is quoted from another source.
     */
-  final lazy val blockquote = "blockquote".tag[*.Quote]
+  final def blockquote: HtmlTagOf[*.Quote] = "blockquote".reactTag
 
   /**
     * Represents the content of an HTML document. There is only one body
     * element in a document.
     */
-  final lazy val body = "body".tag[*.Body]
+  final def body: HtmlTagOf[*.Body] = "body".reactTag
 
   /**
     * Represents a line break.
     */
-  final val br = "br".voidTag[*.BR]
+  final def br: HtmlTagOf[*.BR] = "br".reactTerminalTag
 
-  final val button = "button".tag[*.Button]
+  final def button: HtmlTagOf[*.Button] = "button".reactTag
 
   /**
     * Represents a bitmap area that scripts can use to render graphics like graphs,
     * games or any visual images on the fly.
     */
-  final lazy val canvas = "canvas".tag[*.Canvas]
+  final def canvas: HtmlTagOf[*.Canvas] = "canvas".reactTag
 
   /**
     * The title of a table.
     */
-  final lazy val caption = "caption".tag[*.TableCaption]
+  final def caption: HtmlTagOf[*.TableCaption] = "caption".reactTag
 
   /**
     * Represents the title of a work being cited.
     */
-  final lazy val cite = "cite".tag[*.Element]
+  final def cite: HtmlTagOf[*.Element] = "cite".reactTag
 
   /**
     * Represents computer code.
     */
-  final lazy val code = "code".tag[*.Element]
+  final def code: HtmlTagOf[*.Element] = "code".reactTag
 
   /**
     * A single column.
     */
-  final lazy val col = "col".voidTag[*.TableCol]
+  final def col: HtmlTagOf[*.TableCol] = "col".reactTerminalTag
 
   /**
     * A set of columns.
     */
-  final lazy val colgroup = "colgroup".tag[*.TableCol]
+  final def colgroup: HtmlTagOf[*.TableCol] = "colgroup".reactTag
 
   /**
     * A command that the user can invoke.
     */
-  final lazy val command = "command".voidTag[*.Element]
+  final def command: HtmlTagOf[*.Element] = "command".reactTerminalTag
 
   /**
     * Associates to its content a machine-readable equivalent.
     */
-  final lazy val data = "data".tag[*.Element]
+  final def data: HtmlTagOf[*.Element] = "data".reactTag
 
   /**
     * A set of predefined options for other controls.
     */
-  final lazy val datalist = "datalist".tag[*.DataList]
+  final def datalist: HtmlTagOf[*.DataList] = "datalist".reactTag
 
   /**
     * Represents the definition of the terms immediately listed before it.
     */
-  final lazy val dd = "dd".tag[*.DD]
+  final def dd: HtmlTagOf[*.DD] = "dd".reactTag
 
   /**
-    * Defines a remofinal lazy val from the document.
+    * Defines a remofinal def from the document.
     */
-  final lazy val del = "del".tag[*.Mod]
+  final def del: HtmlTagOf[*.Mod] = "del".reactTag
 
   /**
     * A widget from which the user can obtain additional information
     * or controls.
     */
-  final lazy val details = "details".tag[*.Element]
+  final def details: HtmlTagOf[*.Element] = "details".reactTag
 
   /**
     * Represents a term whose definition is contained in its nearest ancestor
     * content.
     */
-  final lazy val dfn = "dfn".tag[*.Element]
+  final def dfn: HtmlTagOf[*.Element] = "dfn".reactTag
 
   /**
     * Represents a generic container with no special meaning.
     */
-  final val div = "div".tag[*.Div]
+  final def div: HtmlTagOf[*.Div] = "div".reactTag
 
   /**
     * Defines a definition list; a list of terms and their associated definitions.
     */
-  final lazy val dl = "dl".tag[*.DList]
+  final def dl: HtmlTagOf[*.DList] = "dl".reactTag
 
   /**
     * Represents a term defined by the next dd
     */
-  final lazy val dt = "dt".tag[*.DT]
+  final def dt: HtmlTagOf[*.DT] = "dt".reactTag
 
   /**
     * Represents emphasized text.
     */
-  final lazy val em = "em".tag[*.Element]
+  final def em: HtmlTagOf[*.Element] = "em".reactTag
 
   /**
     * Represents a integration point for an external, often non-HTML, application
     * or interactive content.
     */
-  final lazy val embed = "embed".voidTag[*.Embed]
+  final def embed: HtmlTagOf[*.Embed] = "embed".reactTerminalTag
 
   /**
     * A set of fields.
     */
-  final lazy val fieldset = "fieldset".tag[*.FieldSet]
+  final def fieldset: HtmlTagOf[*.FieldSet] = "fieldset".reactTag
 
   /**
     * Represents the legend of a figure.
     */
-  final lazy val figcaption = "figcaption".tag[*.Element]
+  final def figcaption: HtmlTagOf[*.Element] = "figcaption".reactTag
 
   /**
     * Represents a figure illustrated as part of the document.
     */
-  final lazy val figure = "figure".tag[*.Element]
+  final def figure: HtmlTagOf[*.Element] = "figure".reactTag
 
   /**
     * Defines the footer for a page or section. It often contains a copyright
     * notice, some links to legal information, or addresses to give feedback.
     */
-  final lazy val footer = "footer".tag[*.Element]
+  final def footer: HtmlTagOf[*.Element] = "footer".reactTag
 
   /**
     * Represents a form, consisting of controls, that can be submitted to a
     * server for processing.
     */
-  final lazy val form = "form".tag[*.Form]
+  final def form: HtmlTagOf[*.Form] = "form".reactTag
 
   /**
     * Heading level 1
     */
-  final lazy val h1 = "h1".tag[*.Heading]
+  final def h1: HtmlTagOf[*.Heading] = "h1".reactTag
 
   /**
     * Heading level 2
     */
-  final lazy val h2 = "h2".tag[*.Heading]
+  final def h2: HtmlTagOf[*.Heading] = "h2".reactTag
 
   /**
     * Heading level 3
     */
-  final lazy val h3 = "h3".tag[*.Heading]
+  final def h3: HtmlTagOf[*.Heading] = "h3".reactTag
 
   /**
     * Heading level 4
     */
-  final lazy val h4 = "h4".tag[*.Heading]
+  final def h4: HtmlTagOf[*.Heading] = "h4".reactTag
 
   /**
     * Heading level 5
     */
-  final lazy val h5 = "h5".tag[*.Heading]
+  final def h5: HtmlTagOf[*.Heading] = "h5".reactTag
 
   /**
     * Heading level 6
     */
-  final lazy val h6 = "h6".tag[*.Heading]
+  final def h6: HtmlTagOf[*.Heading] = "h6".reactTag
 
   /**
     * Represents a collection of metadata about the document, including links to,
     * or definitions of, scripts and style sheets.
     */
-  final lazy val head = "head".tag[*.Head]
+  final def head: HtmlTagOf[*.Head] = "head".reactTag
 
   /**
     * Defines the header of a page or section. It often contains a logo, the
     * title of the Web site, and a navigational table of content.
     */
-  final lazy val header = "header".tag[*.Element]
+  final def header: HtmlTagOf[*.Element] = "header".reactTag
 
   /**
     * Represents a thematic break between paragraphs of a section or article or
     * any longer content.
     */
-  final lazy val hr = "hr".voidTag[*.HR]
+  final def hr: HtmlTagOf[*.HR] = "hr".reactTerminalTag
 
   /**
     * Represents the root of an HTML or XHTML document. All other elements must
     * be descendants of this element.
     */
-  final lazy val html = "html".tag[*.Html]
+  final def html: HtmlTagOf[*.Html] = "html".reactTag
 
   /**
     * Italicized text.
     */
-  final lazy val i = "i".tag[*.Element]
+  final def i: HtmlTagOf[*.Element] = "i".reactTag
 
   /**
     * Represents a nested browsing context, that is an embedded HTML document.
     */
-  final lazy val iframe = "iframe".tag[*.IFrame]
+  final def iframe: HtmlTagOf[*.IFrame] = "iframe".reactTag
 
   /**
     * Represents an image.
     */
-  final val img = "img".voidTag[*.Image]
+  final def img: HtmlTagOf[*.Image] = "img".reactTerminalTag
 
   /**
     * The HTML element &lt;input&gt; is used to create interactive controls for web-based forms in order to accept data
     * from the user. How an &lt;input&gt; works varies considerably depending on the value of its type attribute.
     */
-  object input extends ReactTagOf[*.Input]("input", Nil, implicitly) {
+  object input extends ReactTagOf[*.Input]("input", Nil, Namespace.Html) {
 
-    /** A check box. You must use the value attribute to define the value submitted by this item. Use the checked attribute to indicate whether this item is selected. You can also use the indeterminate attribute to indicate that the checkbox is in an indeterminate state (on most platforms, this draws a horizontal line across the checkbox). */
-    lazy val checkbox = this withType "checkbox"
+    private[this] val `type` = "type".reactAttr[String]
 
-    /** A single-line text field; line-breaks are automatically removed from the input value. */
-    val text = this withType "text"
-    private[this] val `type` = "type".attr
+    /** Returns a &lt;input type="{t}" /&gt; */
+    def withType(t: String): ReactTagOf[*.Input] =
+      this(`type`.:=(t)(ReactAttr.ValueType.string))
 
     /** A push button with no default behavior. */
     def button = this withType "button"
+
+    /** A check box. You must use the value attribute to define the value submitted by this item. Use the checked attribute to indicate whether this item is selected. You can also use the indeterminate attribute to indicate that the checkbox is in an indeterminate state (on most platforms, this draws a horizontal line across the checkbox). */
+    val checkbox = this withType "checkbox"
 
     /** [HTML5] A control for specifying a color. A color picker's UI has no required features other than accepting simple colors as text (more info). */
     def color = this withType "color"
 
     /** [HTML5] A control for entering a date (year, month, and day, with no time). */
     def date = this withType "date"
-
-    /** Returns a &lt;input type="{t}" /&gt; */
-    def withType(t: String): ReactTagOf[*.Input] =
-    this (`type`.:=(t)(ReactAttr.ValueType.string))
 
     /** [HTML5] A control for entering a date and time (hour, minute, second, and fraction of a second) based on UTC time zone. */
     def datetime = this withType "datetime"
@@ -354,6 +344,9 @@ trait HtmlTags {
     /** [HTML5] A control for entering a telephone number; line-breaks are automatically removed from the input value, but no other syntax is enforced. You can use attributes such as pattern and maxlength to restrict values entered in the control. The :valid and :invalid CSS pseudo-classes are applied as appropriate. */
     def tel = this withType "tel"
 
+    /** A single-line text field; line-breaks are automatically removed from the input value. */
+    val text = this withType "text"
+
     /** [HTML5] A control for entering a time value with no time zone. */
     def time = this withType "time"
 
@@ -367,150 +360,150 @@ trait HtmlTags {
   /**
     * Defines an addition to the document.
     */
-  final lazy val ins = "ins".tag[*.Mod]
+  final def ins: HtmlTagOf[*.Mod] = "ins".reactTag
 
   /**
     * Represents user input, often from a keyboard, but not necessarily.
     */
-  final lazy val kbd = "kbd".tag[*.Element]
+  final def kbd: HtmlTagOf[*.Element] = "kbd".reactTag
 
   /**
     * A key-pair generator control.
     */
-  final lazy val keygen = "keygen".voidTag[*.Element]
+  final def keygen: HtmlTagOf[*.Element] = "keygen".reactTerminalTag
 
   /**
     * The caption of a single field
     */
-  final lazy val label = "label".tag[*.Label]
+  final def label: HtmlTagOf[*.Label] = "label".reactTag
 
   /**
     * The caption for a fieldset.
     */
-  final lazy val legend = "legend".tag[*.Legend]
+  final def legend: HtmlTagOf[*.Legend] = "legend".reactTag
 
   /**
     * Defines an item of an list.
     */
-  final val li = "li".tag[*.LI]
+  final def li: HtmlTagOf[*.LI] = "li".reactTag
 
   /**
     * Used to link JavaScript and external CSS with the current HTML document.
     */
-  final lazy val link = "link".voidTag[*.Link]
+  final def link: HtmlTagOf[*.Link] = "link".reactTerminalTag
 
   /**
     * Defines the main or important content in the document. There is only one
     * main element in the document.
     */
-  final lazy val main = "main".tag[*.Element]
+  final def main: HtmlTagOf[*.Element] = "main".reactTag
 
   /**
     * In conjunction with area, defines an image map.
     */
-  final lazy val map = "map".tag[*.Map]
+  final def map: HtmlTagOf[*.Map] = "map".reactTag
 
   /**
     * Represents text highlighted for reference purposes, that is for its
     * relevance in another context.
     */
-  final lazy val mark = "mark".tag[*.Element]
+  final def mark: HtmlTagOf[*.Element] = "mark".reactTag
 
   /**
     * Defines a mathematical formula.
     */
-  final lazy val math = "math".tag[*.Element]
+  final def math: HtmlTagOf[*.Element] = "math".reactTag
 
   /**
     * A list of commands
     */
-  final lazy val menu = "menu".tag[*.Menu]
+  final def menu: HtmlTagOf[*.Menu] = "menu".reactTag
 
   /**
     * Defines metadata that can't be defined using another HTML element.
     */
-  final lazy val meta = "meta".voidTag[*.Meta]
+  final def meta: HtmlTagOf[*.Meta] = "meta".reactTerminalTag
 
   /**
     * A scalar measurement within a known range.
     */
-  final lazy val meter = "meter".tag[*.Element]
+  final def meter: HtmlTagOf[*.Element] = "meter".reactTag
 
   /**
     * Represents a section of a page that links to other pages or to parts within
     * the page: a section with navigation links.
     */
-  final lazy val nav = "nav".tag[*.Element]
+  final def nav: HtmlTagOf[*.Element] = "nav".reactTag
 
   /**
     * Defines alternative content to display when the browser doesn't support
     * scripting.
     */
-  final lazy val noscript = "noscript".tag[*.Element]
+  final def noscript: HtmlTagOf[*.Element] = "noscript".reactTag
 
   /**
     * Represents an external resource, which is treated as an image, an HTML
     * sub-document, or an external resource to be processed by a plug-in.
     */
-  final lazy val `object` = "object".tag[*.Object]
+  final def `object`: HtmlTagOf[*.Object] = "object".reactTag
 
   /**
     * Defines an ordered list of items.
     */
-  final val ol = "ol".tag[*.OList]
+  final def ol: HtmlTagOf[*.OList] = "ol".reactTag
 
   /**
     * A set of options, logically grouped.
     */
-  final lazy val optgroup = "optgroup".tag[*.OptGroup]
+  final def optgroup: HtmlTagOf[*.OptGroup] = "optgroup".reactTag
 
   /**
     * An option in a select element.
     */
-  final lazy val option = "option".tag[*.Option]
+  final def option: HtmlTagOf[*.Option] = "option".reactTag
 
   /**
     * The result of a calculation
     */
-  final lazy val output = "output".tag[*.Element]
+  final def output: HtmlTagOf[*.Element] = "output".reactTag
 
   /**
     * Defines a portion that should be displayed as a paragraph.
     */
-  final val p = "p".tag[*.Paragraph]
+  final def p: HtmlTagOf[*.Paragraph] = "p".reactTag
 
   /**
     * Defines parameters for use by plug-ins invoked by object elements.
     */
-  final lazy val param = "param".voidTag[*.Param]
+  final def param: HtmlTagOf[*.Param] = "param".reactTerminalTag
 
   /**
     * Indicates that its content is preformatted and that this format must be
     * preserved.
     */
-  final lazy val pre = "pre".tag[*.Pre]
+  final def pre: HtmlTagOf[*.Pre] = "pre".reactTag
 
   /**
     * A progress completion bar
     */
-  final lazy val progress = "progress".tag[*.Progress]
+  final def progress: HtmlTagOf[*.Progress] = "progress".reactTag
 
   /**
     * An inline quotation.
     */
-  final lazy val q = "q".tag[*.Quote]
+  final def q: HtmlTagOf[*.Quote] = "q".reactTag
 
   /**
     * Represents parenthesis around a ruby annotation, used to display the
     * annotation in an alternate way by browsers not supporting the standard
     * display for annotations.
     */
-  final lazy val rp = "rp".tag[*.Element]
+  final def rp: HtmlTagOf[*.Element] = "rp".reactTag
 
   /**
     * Represents the text of a ruby annotation.
     */
-  final lazy val rt = "rt".tag[*.Element]
+  final def rt: HtmlTagOf[*.Element] = "rt".reactTag
 
   /**
     * Represents content to be marked with ruby annotations, short runs of text
@@ -518,165 +511,164 @@ trait HtmlTags {
     * Asian language where the annotations act as a guide for pronunciation, like
     * the Japanese furigana .
     */
-  final lazy val ruby = "ruby".tag[*.Element]
+  final def ruby: HtmlTagOf[*.Element] = "ruby".reactTag
 
   /**
     * Strikethrough element, used for that is no longer accurate or relevant.
     */
-  final lazy val s = "s".tag[*.Element]
+  final def s: HtmlTagOf[*.Element] = "s".reactTag
 
   /**
     * Represents the output of a program or a computer.
     */
-  final lazy val samp = "samp".tag[*.Element]
+  final def samp: HtmlTagOf[*.Element] = "samp".reactTag
 
   /**
     * Defines either an internal script or a link to an external script. The
     * script language is JavaScript.
     */
-  final lazy val script = "script".tag[*.Script]
+  final def script: HtmlTagOf[*.Script] = "script".reactTag
 
   /**
     * Represents a generic section of a document, i.e., a thematic grouping of
     * content, typically with a heading.
     */
-  final lazy val section = "section".tag[*.Element]
+  final def section: HtmlTagOf[*.Element] = "section".reactTag
 
   /**
     * A control that allows the user to select one of a set of options.
     */
-  final lazy val select = "select".tag[*.Select]
+  final def select: HtmlTagOf[*.Select] = "select".reactTag
 
   /**
     * Represents a side comment; text like a disclaimer or copyright, which is not
     * essential to the comprehension of the document.
     */
-  final lazy val small = "small".tag[*.Element]
+  final def small: HtmlTagOf[*.Element] = "small".reactTag
 
   /**
     * Allows the authors to specify alternate media resources for media elements
     * like video or audio
     */
-  final lazy val source = "source".voidTag[*.Source]
+  final def source: HtmlTagOf[*.Source] = "source".reactTerminalTag
 
   /**
     * Represents text with no specific meaning. This has to be used when no other
     * text-semantic element conveys an adequate meaning, which, in this case, is
     * often brought by global attributes like class, lang, or dir.
     */
-  final val span = "span".tag[*.Span]
+  final def span: HtmlTagOf[*.Span] = "span".reactTag
 
   /**
     * Represents especially important text.
     */
-  final lazy val strong = "strong".tag[*.Element]
+  final def strong: HtmlTagOf[*.Element] = "strong".reactTag
 
   /**
     * Used to write inline CSS.
     */
-  final lazy val styleTag = "style".tag[*.Style]
+  final def styleTag: HtmlTagOf[*.Style] = "style".reactTag
 
   /**
     * Subscript tag
     */
-  final lazy val sub = "sub".tag[*.Element]
+  final def sub: HtmlTagOf[*.Element] = "sub".reactTag
 
   /**
     * A summary, caption, or legend for a given details.
     */
-  final lazy val summary = "summary".tag[*.Element]
+  final def summary: HtmlTagOf[*.Element] = "summary".reactTag
 
   /**
     * Superscript tag.
     */
-  final lazy val sup = "sup".tag[*.Element]
+  final def sup: HtmlTagOf[*.Element] = "sup".reactTag
 
   /**
     * Represents data with more than one dimension.
     */
-  final val table = "table".tag[*.Table]
+  final def table: HtmlTagOf[*.Table] = "table".reactTag
 
   /**
     * The table body.
     */
-  final val tbody = "tbody".tag[*.TableSection]
+  final def tbody: HtmlTagOf[*.TableSection] = "tbody".reactTag
 
   /**
     * A single cell in a table.
     */
-  final val td = "td".tag[*.TableCell]
+  final def td: HtmlTagOf[*.TableCell] = "td".reactTag
 
   /**
     * A multiline text edit control.
     */
-  final val textarea = "textarea".tag[*.TextArea]
+  final def textarea: HtmlTagOf[*.TextArea] = "textarea".reactTag
 
   /**
     * The table footer.
     */
-  final lazy val tfoot = "tfoot".tag[*.TableSection]
+  final def tfoot: HtmlTagOf[*.TableSection] = "tfoot".reactTag
 
   /**
     * A header cell in a table.
     */
-  final val th = "th".tag[*.TableHeaderCell]
+  final def th: HtmlTagOf[*.TableHeaderCell] = "th".reactTag
 
   /**
     * The table headers.
     */
-  final lazy val thead = "thead".tag[*.TableSection]
+  final def thead: HtmlTagOf[*.TableSection] = "thead".reactTag
 
   /**
     * Represents a date and time value; the machine-readable equivalent can be
     * represented in the datetime attribetu
     */
-  final lazy val time = "time".tag[*.Element]
+  final def time: HtmlTagOf[*.Element] = "time".reactTag
 
   /**
     * Defines the title of the document, shown in a browser's title bar or on the
     * page's tab. It can only contain text and any contained tags are not
     * interpreted.
     */
-  final lazy val titleTag = "title".tag[*.Title]
+  final def titleTag: HtmlTagOf[*.Title] = "title".reactTag
 
   /**
     * A single row in a table.
     */
-  final val tr = "tr".tag[*.TableRow]
+  final def tr: HtmlTagOf[*.TableRow] = "tr".reactTag
 
   /**
     * Allows authors to specify timed text track for media elements like video or
     * audio
     */
-  final lazy val track = "track".voidTag[*.Track]
+  final def track: HtmlTagOf[*.Track] = "track".reactTerminalTag
 
   /**
     * Underlined text.
     */
-  final lazy val u = "u".tag[*.Element]
+  final def u: HtmlTagOf[*.Element] = "u".reactTag
 
   /**
     * Defines an unordered list of items.
     */
-  final val ul = "ul".tag[*.UList]
+  final def ul: HtmlTagOf[*.UList] = "ul".reactTag
 
   /**
     * Represents a variable.
     */
-  final lazy val `var` = "var".tag[*.Element]
+  final def `var`: HtmlTagOf[*.Element] = "var".reactTag
 
   /**
     * Represents a line break opportunity, that is a suggested point for wrapping
     * text in order to improve readability of text split on several lines.
     */
-  final lazy val wbr = "wbr".voidTag[*.Element]
+  final def wbr: HtmlTagOf[*.Element] = "wbr".reactTerminalTag
 
   /**
     * Represents a video, and its associated audio files and captions, with the
     * necessary interface to play it.
     */
-  final lazy val video = "video".tag[*.Video]
+  final def video: HtmlTagOf[*.Video] = "video".reactTag
 }
 
- */
 

@@ -9,7 +9,14 @@ object ExportsStatic {
 
 //    @inline def reactStyle: ReactStyle =
 //      new ReactStyle.Generic(s)
-//
+
+    @inline def reactTag[N <: HtmlTopNode]: HtmlTagOf[N] =
+      new HtmlTagOf[N](s)
+
+    // May eventually make use of this
+    @inline private[vdom] def reactTerminalTag[N <: HtmlTopNode]: HtmlTagOf[N] =
+      new HtmlTagOf[N](s)
+
 //    @inline def reactTag[N <: TopNode]: ReactTagOf[N] =
 //      makeAbstractReactTag(s, NamespaceHtml.implicitNamespace)
   }
@@ -28,16 +35,15 @@ abstract class Exports {
   final type ReactAttr[-U] = japgolly.scalajs.react.vdom.ReactAttr[U]
   final val ReactAttr = japgolly.scalajs.react.vdom.ReactAttr
 
-  //  final type ReactTagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.ReactTagOf[N]
-  //  final type ReactTag                  = japgolly.scalajs.react.vdom.ReactTagOf[TopNode]
+  final type ReactTagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.ReactTagOf[N]
+  final type ReactTag = ReactTagOf[TopNode]
+
+  final type ReactHtmlTagOf[+N <: HtmlTopNode] = japgolly.scalajs.react.vdom.HtmlTagOf[N]
+  final type ReactHtmlTag = HtmlTagOf[HtmlTopNode]
+
+  final type ReactSvgTagOf[+N <: SvgTopNode] = japgolly.scalajs.react.vdom.SvgTagOf[N]
+  final type ReactSvgTag = SvgTagOf[SvgTopNode]
+
   //  final type ReactStyle                = japgolly.scalajs.react.vdom.ReactStyle
   //  @inline final def ReactStyle = japgolly.scalajs.react.vdom.ReactStyle
 }
-
-//trait Tags extends HtmlTags with Extra.Tags
-//trait JustTags extends Tags { final def svg = SvgTags }
-//object Tags extends JustTags
-//
-//trait Attrs extends HtmlAttrs with Extra.Attrs with HtmlStyles
-//trait JustAttrs extends Attrs { final def svg = SvgAttrs }
-//object Attrs extends JustAttrs

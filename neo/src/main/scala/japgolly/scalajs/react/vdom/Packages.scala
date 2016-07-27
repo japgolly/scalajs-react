@@ -14,7 +14,7 @@ abstract class PackageBase extends Exports with Implicits
 object PackageBase extends PackageBase
 
 object html_<^ extends PackageBase {
-//  @inline def < = Tags
+  val < = HtmlTags
   val ^ = HtmlAttrs
 }
 

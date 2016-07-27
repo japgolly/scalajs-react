@@ -10,14 +10,9 @@ final case class Namespace(uri: String) extends AnyVal
 
 object Namespace {
 
-  object Html {
-    implicit val reactNamespace: Namespace =
-      Namespace("http://www.w3.org/1999/xhtml")
-  }
+  val Html: Namespace =
+    Namespace("http://www.w3.org/1999/xhtml")
 
-  object Svg {
-    implicit val reactNamespace: Namespace =
-      Namespace("http://www.w3.org/2000/svg")
-  }
-
+  val Svg: Namespace =
+    Namespace("http://www.w3.org/2000/svg")
 }
