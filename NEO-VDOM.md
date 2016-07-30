@@ -90,3 +90,5 @@ Breaking Changes
 * Import `vdom.html_<^._` instead of `vdom.prefix_<^._`.
 * `?=` deprecated in favour of `when`/`unless`.
 * Change `:=` to `:=?` when the right-hand side is an `Option`.
+* TagMod: `+` and `compose` replaced with `apply(TagMod*)` just like tags.
+

@@ -22,17 +22,8 @@ trait TagMod {
   final def unless(condition: Boolean): TagMod =
     when(!condition)
 
-
-//  final def +(that: TagMod): TagMod =
-//    this compose that
-//
-//  final def compose(that: TagMod): TagMod =
-//    this match {
-//      case l if EmptyTag eq l    => that
-//      case _ if EmptyTag eq that => this
-//      case TagMod.Composite(ms)  => TagMod.Composite(ms :+ that)
-//      case _                     => TagMod.Composite(Vector.empty[TagMod] :+ this :+ that)
-//    }
+  def apply(ms: TagMod*): TagMod =
+    if (ms.isEmpty) this else TagMod.Composite((Iterator.single(this) ++ ms).toVector)
 }
 
 object TagMod {
@@ -42,18 +33,28 @@ object TagMod {
         f(b)
     }
 
-  @inline def apply(ms: TagMod*): TagMod =
-    Composite(ms.toVector)
+  def apply(ms: TagMod*): TagMod = {
+    val v = ms.toVector
+    v.length match {
+      case 0 => Empty
+      case 1 => v.head
+      case _ => Composite(v)
+    }
+  }
 
   final case class Composite(mods: Vector[TagMod]) extends TagMod {
     override def applyTo(b: Builder): Unit =
       mods.foreach(_ applyTo b)
+
+    override def apply(ms: TagMod*) =
+      if (ms.isEmpty) this else Composite(mods ++ ms)
   }
 
   private[vdom] val Empty: TagMod =
     new TagMod {
       override def toString = "EmptyTag"
       override def applyTo(b: Builder) = ()
+      override def apply(ms: TagMod*) = TagMod(ms: _*)
     }
 
   @inline def devOnly(m: => TagMod): TagMod =

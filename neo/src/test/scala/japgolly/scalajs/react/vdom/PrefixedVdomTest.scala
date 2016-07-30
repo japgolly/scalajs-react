@@ -175,27 +175,29 @@ object PrefixedVdomTest extends TestSuite {
         <.a(^.tabIndex := 1, ^.cls := "lol")(^.href := "boo", ^.alt := "g"),
         """<a tabindex="1" href="boo" alt="g" class="lol"></a>""")
     }
-
+*/
     'classSet {
       'allConditional {
-        val r = ScalaComponent.build[(Boolean,Boolean)]("C").render_P(p => <.div(^.classSet("p1" -> p._1, "p2" -> p._2))("x")).build
-        r((false, false)) shouldRender """<div>x</div>"""
-        r((true,  false)) shouldRender """<div class="p1">x</div>"""
-        r((false, true))  shouldRender """<div class="p2">x</div>"""
-        r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
+        val r = ScalaComponent.build[(Boolean,Boolean)]("C").render_P(p =>
+          <.div(^.classSet("p1" -> p._1, "p2" -> p._2))("x")).build
+        assertRender(r((false, false)), """<div>x</div>""")
+        assertRender(r((true,  false)), """<div class="p1">x</div>""")
+        assertRender(r((false, true)) , """<div class="p2">x</div>""")
+        assertRender(r((true,  true)) , """<div class="p1 p2">x</div>""")
       }
       'hasMandatory {
-        val r = ScalaComponent.build[Boolean]("C").render_P(p => <.div(^.classSet1("mmm", "ccc" -> p))("x")).build
-        r(false) shouldRender """<div class="mmm">x</div>"""
-        r(true)  shouldRender """<div class="mmm ccc">x</div>"""
+        val r = ScalaComponent.build[Boolean]("C").render_P(p =>
+          <.div(^.classSet1("mmm", "ccc" -> p))("x")).build
+        assertRender(r(false), """<div class="mmm">x</div>""")
+        assertRender(r(true) , """<div class="mmm ccc">x</div>""")
       }
       'appends {
         val r = ScalaComponent.build[Boolean]("C").render_P(p =>
           <.div(^.cls := "neat", ^.classSet1("mmm", "ccc" -> p), ^.cls := "slowclap", "x")).build
-        r(false) shouldRender """<div class="neat mmm slowclap">x</div>"""
-        r(true)  shouldRender """<div class="neat mmm ccc slowclap">x</div>"""
+        assertRender(r(false), """<div class="neat mmm slowclap">x</div>""")
+        assertRender(r(true) , """<div class="neat mmm ccc slowclap">x</div>""")
       }
     }
-*/
+
   }
 }

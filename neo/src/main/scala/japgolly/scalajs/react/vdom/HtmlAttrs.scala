@@ -286,6 +286,25 @@ trait HtmlAttrs {
   final def className: Attr[String] = Attr.ClassName
   final def cls      : Attr[String] = Attr.ClassName
 
+  private def classSetImpl(z: TagMod, ps: Seq[(String, Boolean)]): TagMod =
+    ps.foldLeft(z)((q, p) =>
+      if (p._2)
+        q(cls := p._1)
+      else
+        q)
+
+  final def classSet(ps: (String, Boolean)*): TagMod =
+    classSetImpl(EmptyTag, ps)
+
+  final def classSet1(a: String, ps: (String, Boolean)*): TagMod =
+    classSetImpl(cls := a, ps)
+
+  final def classSetM(ps: Map[String, Boolean]): TagMod =
+    classSetImpl(EmptyTag, ps.toSeq)
+
+  final def classSet1M(a: String, ps: Map[String, Boolean]): TagMod =
+    classSetImpl(cls := a, ps.toSeq)
+
   /**
     * The visible width of the text control, in average character widths. If it
     * is specified, it must be a positive integer. If it is not specified, the
