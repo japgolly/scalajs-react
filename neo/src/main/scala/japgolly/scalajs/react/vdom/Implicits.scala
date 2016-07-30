@@ -1,19 +1,20 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.{Component, PropsChildren, raw}
+import japgolly.scalajs.react.internal.OptionLike
 import scala.scalajs.js
 import Exports.Tag
 
 // =====================================================================================================================
 
-trait ImplicitReactAttrValueTypes0 {
+trait ImplicitsForReactAttr0 {
   import Attr.ValueType
 
   implicit lazy val reactAttrVtInnerHtml: ValueType[String, InnerHtmlAttr] =
     ValueType[String, InnerHtmlAttr]((b, html) => b(js.Dynamic.literal("__html" -> html)))
 }
 
-trait ImplicitReactAttrValueTypes extends ImplicitReactAttrValueTypes0 {
+trait ImplicitsForReactAttr extends ImplicitsForReactAttr0 {
   import Attr.ValueType
   import ValueType._
 
@@ -34,7 +35,14 @@ trait ImplicitReactAttrValueTypes extends ImplicitReactAttrValueTypes0 {
 
 // =====================================================================================================================
 
-trait ImplicitReactNodeTypes {
+trait ImplicitsForTagMod {
+  implicit def tagModFromO[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => TagMod): TagMod =
+    O.fold(o, TagMod.Empty)(f)
+}
+
+// =====================================================================================================================
+
+trait ImplicitsForReactNode {
   @inline implicit def reactNodeFromL                 (v: Long)               : ReactNode = ReactNode.cast(v.toString)
   @inline implicit def reactNodeFromI                 (v: Int)                : ReactNode = ReactNode.cast(v)
   @inline implicit def reactNodeFromSh                (v: Short)              : ReactNode = ReactNode.cast(v)
@@ -52,7 +60,7 @@ trait ImplicitReactNodeTypes {
 
 // =====================================================================================================================
 
-trait ImplicitReactElementTypes {
+trait ImplicitsForReactElement {
   @inline implicit def reactElementFromTag[A](a: A)(implicit f: A => Tag): ReactElement =
     f(a).render
 
@@ -63,9 +71,10 @@ trait ImplicitReactElementTypes {
 // =====================================================================================================================
 
 trait Implicits
-  extends ImplicitReactAttrValueTypes
-     with ImplicitReactNodeTypes
-     with ImplicitReactElementTypes
+  extends ImplicitsForReactAttr
+     with ImplicitsForTagMod
+     with ImplicitsForReactNode
+     with ImplicitsForReactElement
 
 object Implicits extends Implicits
 

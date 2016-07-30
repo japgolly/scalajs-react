@@ -2,7 +2,8 @@ package japgolly.scalajs.react.test
 
 import org.scalajs.dom.{document, html}
 import scala.io.AnsiColor._
-import scalaz.Equal
+import scala.scalajs.js
+import scalaz.{Equal, Maybe}
 import scalaz.syntax.equal._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.PackageBase._
@@ -60,6 +61,25 @@ trait TestUtil
       t.setStackTrace(Array.empty)
     throw t
   }
+
+  implicit class AnyTestExt[A](a: A) {
+
+    def some: Option[A] = Some(a)
+    def none: Option[A] = None
+
+    def jsdef: js.UndefOr[A] = a
+    def undef: js.UndefOr[A] = js.undefined
+
+    def just    : Maybe[A] = Maybe.just(a)
+    def maybeNot: Maybe[A] = Maybe.empty
+
+//    def matchesBy[B <: A : ClassTag](f: B => Boolean) = v match {
+//      case b: B => f(b)
+//      case _ => false
+//    }
+  }
+
+  def none[A]: Option[A] = None
 
   final type TopNode = org.scalajs.dom.Element
 

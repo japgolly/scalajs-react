@@ -58,13 +58,12 @@ object PrefixedVdomTest extends TestSuite {
 
     'dangerouslySetInnerHtml - test(<.div(^.dangerouslySetInnerHtml := "<span>"), "<div><span></div>")
 
-/*
     'optional {
       'option {
-        'attr_some    - test(<.div(^.cls := "hi".some),    """<div class="hi"></div>""")
-        'attr_none    - test(<.div(^.cls := "h1".none),    """<div></div>""")
-        'style_some   - test(<.div(^.color := "red".some), """<div style="color:red;"></div>""")
-        'style_none   - test(<.div(^.color := "red".none), """<div></div>""")
+        'attr_some    - test(<.div(^.cls :=? "hi".some),    """<div class="hi"></div>""")
+        'attr_none    - test(<.div(^.cls :=? "h1".none),    """<div></div>""")
+//        'style_some   - test(<.div(^.color :=? "red".some), """<div style="color:red;"></div>""")
+//        'style_none   - test(<.div(^.color :=? "red".none), """<div></div>""")
         'tagmod_some  - test(<.div(tagmod.some),           """<div class="ho"></div>""")
         'tagmod_none  - test(<.div(tagmod.none),           """<div></div>""")
         'tag_some     - test(<.div(reacttag.some),         """<div><span></span></div>""")
@@ -75,10 +74,10 @@ object PrefixedVdomTest extends TestSuite {
         'comp_none    - test(<.div(H1("yoo").none),        """<div></div>""")
       }
       'jsUndefOr {
-        'attr_def      - test(<.div(^.cls := "hi".jsdef),    """<div class="hi"></div>""")
-        'attr_undef    - test(<.div(^.cls := "hi".undef),    """<div></div>""")
-        'style_def     - test(<.div(^.color := "red".jsdef), """<div style="color:red;"></div>""")
-        'style_undef   - test(<.div(^.color := "red".undef), """<div></div>""")
+        'attr_def      - test(<.div(^.cls :=? "hi".jsdef),    """<div class="hi"></div>""")
+        'attr_undef    - test(<.div(^.cls :=? "hi".undef),    """<div></div>""")
+//        'style_def     - test(<.div(^.color :=? "red".jsdef), """<div style="color:red;"></div>""")
+//        'style_undef   - test(<.div(^.color :=? "red".undef), """<div></div>""")
         'tagmod_def    - test(<.div(tagmod.jsdef),           """<div class="ho"></div>""")
         'tagmod_undef  - test(<.div(tagmod.undef),           """<div></div>""")
         'tag_def       - test(<.div(reacttag.jsdef),         """<div><span></span></div>""")
@@ -88,23 +87,40 @@ object PrefixedVdomTest extends TestSuite {
         'comp_def      - test(<.div(H1("yoo").jsdef),        """<div><h1>yoo</h1></div>""")
         'comp_undef    - test(<.div(H1("yoo").undef),        """<div></div>""")
       }
-      'maybe {
-        import ScalazReact._
-        'attr_just     - test(<.div(^.cls := "hi".just),        """<div class="hi"></div>""")
-        'attr_empty    - test(<.div(^.cls := "h1".maybeNot),    """<div></div>""")
-        'style_just    - test(<.div(^.color := "red".just),     """<div style="color:red;"></div>""")
-        'style_empty   - test(<.div(^.color := "red".maybeNot), """<div></div>""")
-        'tagmod_just   - test(<.div(tagmod.just),               """<div class="ho"></div>""")
-        'tagmod_empty  - test(<.div(tagmod.maybeNot),           """<div></div>""")
-        'tag_just      - test(<.div(reacttag.just),             """<div><span></span></div>""")
-        'tag_empty     - test(<.div(reacttag.maybeNot),         """<div></div>""")
-        'element_just  - test(<.div(relement.just),             """<div><span></span></div>""")
-        'element_empty - test(<.div(relement.maybeNot),         """<div></div>""")
-        'comp_just     - test(<.div(H1("yoo").just),            """<div><h1>yoo</h1></div>""")
-        'comp_empty    - test(<.div(H1("yoo").maybeNot),        """<div></div>""")
+//      'maybe {
+//        import ScalazReact._
+//        'attr_just     - test(<.div(^.cls :=? "hi".just),        """<div class="hi"></div>""")
+//        'attr_empty    - test(<.div(^.cls :=? "h1".maybeNot),    """<div></div>""")
+//        'style_just    - test(<.div(^.color :=? "red".just),     """<div style="color:red;"></div>""")
+//        'style_empty   - test(<.div(^.color :=? "red".maybeNot), """<div></div>""")
+//        'tagmod_just   - test(<.div(tagmod.just),               """<div class="ho"></div>""")
+//        'tagmod_empty  - test(<.div(tagmod.maybeNot),           """<div></div>""")
+//        'tag_just      - test(<.div(reacttag.just),             """<div><span></span></div>""")
+//        'tag_empty     - test(<.div(reacttag.maybeNot),         """<div></div>""")
+//        'element_just  - test(<.div(relement.just),             """<div><span></span></div>""")
+//        'element_empty - test(<.div(relement.maybeNot),         """<div></div>""")
+//        'comp_just     - test(<.div(H1("yoo").just),            """<div><h1>yoo</h1></div>""")
+//        'comp_empty    - test(<.div(H1("yoo").maybeNot),        """<div></div>""")
+//      }
+      'when {
+        'attrs - test(
+          <.span((^.cls := "great").when(true), (^.cls := "saywhat").when(false), "ok"),
+          """<span class="great">ok</span>""")
+//        'styles - test(
+//          <.span((^.color := "red").when(true), (^.color := "black").when(false), "ok"),
+//          """<span style="color:red;">ok</span>""")
+      }
+      'unless {
+        'attrs - test(
+          <.span((^.cls := "great").unless(false), (^.cls := "saywhat").unless(true), "ok"),
+          """<span class="great">ok</span>""")
+//        'styles - test(
+//          <.span((^.color := "red").unless(false), (^.color := "black").unless(true), "ok"),
+//          """<span style="color:red;">ok</span>""")
       }
     }
 
+/*
     'tagmodComposition {
       val a: TagMod = ^.cls := "hehe"
       val b: TagMod = <.h3("Good")
@@ -128,13 +144,6 @@ object PrefixedVdomTest extends TestSuite {
       'em  - test(<.div(^.marginTop := 2.em),  """<div style="margin-top:2em;"></div>""")
       'str - assertContains(compileError("""<.div(^.marginTop := "hehe".em)""").msg, "not a member of String")
     }
-
-    "?=" - test(
-      <.span(
-        true ?= (^.color := "red"), false ?= (^.color := "black"),
-        true ?= (^.cls := "great"), false ?= (^.cls := "saywhat"),
-        "ok"),
-      """<span class="great" style="color:red;">ok</span>""")
 
     // Copied from Scalatags
     'copied {
@@ -169,19 +178,19 @@ object PrefixedVdomTest extends TestSuite {
 
     'classSet {
       'allConditional {
-        val r = ReactComponentB[(Boolean,Boolean)]("C").render_P(p => <.div(^.classSet("p1" -> p._1, "p2" -> p._2))("x")).build
+        val r = ScalaComponent.build[(Boolean,Boolean)]("C").render_P(p => <.div(^.classSet("p1" -> p._1, "p2" -> p._2))("x")).build
         r((false, false)) shouldRender """<div>x</div>"""
         r((true,  false)) shouldRender """<div class="p1">x</div>"""
         r((false, true))  shouldRender """<div class="p2">x</div>"""
         r((true,  true))  shouldRender """<div class="p1 p2">x</div>"""
       }
       'hasMandatory {
-        val r = ReactComponentB[Boolean]("C").render_P(p => <.div(^.classSet1("mmm", "ccc" -> p))("x")).build
+        val r = ScalaComponent.build[Boolean]("C").render_P(p => <.div(^.classSet1("mmm", "ccc" -> p))("x")).build
         r(false) shouldRender """<div class="mmm">x</div>"""
         r(true)  shouldRender """<div class="mmm ccc">x</div>"""
       }
       'appends {
-        val r = ReactComponentB[Boolean]("C").render_P(p =>
+        val r = ScalaComponent.build[Boolean]("C").render_P(p =>
           <.div(^.cls := "neat", ^.classSet1("mmm", "ccc" -> p), ^.cls := "slowclap", "x")).build
         r(false) shouldRender """<div class="neat mmm slowclap">x</div>"""
         r(true)  shouldRender """<div class="neat mmm ccc slowclap">x</div>"""

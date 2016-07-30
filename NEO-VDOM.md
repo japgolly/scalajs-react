@@ -89,3 +89,4 @@ Breaking Changes
 * Use `^.dangerouslySetInnerHtml := x` instead of `^.dangerouslySetInnerHtml(x)`.
 * Import `vdom.html_<^._` instead of `vdom.prefix_<^._`.
 * `?=` deprecated in favour of `when`/`unless`.
+* Change `:=` to `:=?` when the right-hand side is an `Option`.
