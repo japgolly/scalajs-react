@@ -5,6 +5,7 @@ import scala.io.AnsiColor._
 import scalaz.Equal
 import scalaz.syntax.equal._
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.PackageBase._
 
 object TestUtil extends TestUtil
 
@@ -84,10 +85,14 @@ trait TestUtil
     try
       f(cont)
     finally {
-      raw.ReactDOM unmountComponentAtNode cont // Doesn't matter if no component mounted here
+      ReactDOM unmountComponentAtNode cont // Doesn't matter if no component mounted here
       document.body.removeChild(cont)
     }
   }
 
+  def assertRender(comp: ReactElement, expected: String): Unit = {
+    val rendered: String = ReactDOMServer.renderToStaticMarkup(comp)
+    assertEq(rendered, expected)
+  }
 }
 

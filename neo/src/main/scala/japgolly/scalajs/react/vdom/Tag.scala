@@ -1,15 +1,15 @@
 package japgolly.scalajs.react.vdom
 
 class TagOf[+N <: TopNode] private[vdom](final val tag: String,
-                                         final val modifiers: List[Seq[TagMod]],
-                                         final val namespace: Namespace) {
+                                         final protected val modifiers: List[Seq[TagMod]],
+                                         final val namespace: Namespace) extends TagMod {
 
   def apply(xs: TagMod*): TagOf[N] =
     copy(modifiers = xs :: modifiers)
 
-  def copy(tag: String = this.tag,
-           modifiers: List[Seq[TagMod]] = this.modifiers,
-           namespace: Namespace = this.namespace): TagOf[N] =
+  protected def copy(tag: String = this.tag,
+                     modifiers: List[Seq[TagMod]] = this.modifiers,
+                     namespace: Namespace = this.namespace): TagOf[N] =
     new TagOf(tag, modifiers, namespace)
 
   /**
@@ -39,14 +39,17 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
     }
   }
 
-  //  override def render: ReactElement = {
-  //    val b = new Builder()
-  //    build(b)
-  //    b.render(tag)
-  //  }
+  lazy val render: ReactElement = {
+    val b = new Builder()
+    build(b)
+    b.render(tag)
+  }
 
-  //  override def toString =
-  //    render.toString
+  override def toString =
+    render.toString
+
+  override def applyTo(b: Builder): Unit =
+    b.appendChild(render.raw)
 }
 
 // =====================================================================================================================

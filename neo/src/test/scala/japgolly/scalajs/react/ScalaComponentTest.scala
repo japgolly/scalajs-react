@@ -2,10 +2,11 @@ package japgolly.scalajs.react
 
 import scalajs.js
 import utest._
+import scalaz.Equal
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.TestUtil._
-import scalaz.Equal
+import vdom.ImplicitsFromRaw._
 
 object ScalaComponentPTest extends TestSuite {
 

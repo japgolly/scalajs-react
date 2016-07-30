@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import org.scalajs.dom
 import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.{raw => Raw}
 
 trait Component[-P, CT[-p, +u] <: CtorType[p, u], +Unmounted] {
   val ctor: CT[P, Unmounted]
@@ -19,11 +20,13 @@ object Component {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   trait Unmounted[+P, +Mounted] {
+    def reactElement: vdom.ReactElement
     def key: Option[Key]
     def ref: Option[String]
     def props: P
     def propsChildren: PropsChildren
-    def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted
+
+    def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted
 
     def mapProps[PP](f: P => PP): Unmounted[PP, Mounted] =
       Unmounted.Mapped(this)(f,  identity)
@@ -37,6 +40,9 @@ object Component {
       new Mapped(delegate, pMap, mMap)
 
     final class Mapped[P0, M0, P, M](val delegate: Unmounted[P0, M0], pMap: P0 => P, mMap: M0 => M) extends Unmounted[P, M] {
+      override def reactElement =
+        delegate.reactElement
+
       override def key =
         delegate.key
 
@@ -49,7 +55,7 @@ object Component {
       override def propsChildren =
         delegate.propsChildren
 
-      override def renderIntoDOM(container: raw.ReactDOM.Container, callback: Callback = Callback.empty) =
+      override def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty) =
         mMap(delegate.renderIntoDOM(container, callback))
 
       override def mapProps[PP](f: P => PP): Unmounted[PP, M] =

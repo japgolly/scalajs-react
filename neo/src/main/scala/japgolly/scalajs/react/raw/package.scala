@@ -18,9 +18,13 @@ package object raw {
 
   type Ref = String | Null
 
+  type ReactText = String | JsNumber
+
   type ReactNode = ReactElement | ReactFragment | ReactText
 
-  type ReactElement = ReactComponentElement | ReactDOMElement
+  type ReactEmpty = Boolean | Undefined | Null
+
+  type ReactNodeList = ReactNode | ReactEmpty
 
   type PropsChildren = ReactNodeList
 
@@ -29,8 +33,12 @@ package object raw {
     val children: PropsChildren
   }
 
+  /** ReactComponentElement | ReactDOMElement */
   @js.native
-  trait ReactDOMElement extends js.Object {
+  trait ReactElement extends js.Object
+
+  @js.native
+  trait ReactDOMElement extends ReactElement {
     def `type`: String
     def props: PropsWithChildren
     def key: Key
@@ -40,7 +48,7 @@ package object raw {
   type ReactCtor = ReactClass | ReactFunctionalComponent
 
   @js.native
-  trait ReactComponentElement extends js.Object {
+  trait ReactComponentElement extends ReactElement {
     def `type`: ReactCtor
     def props: PropsWithChildren
     def key: Key
@@ -54,14 +62,8 @@ package object raw {
   @inline implicit def ReactFragment[A](a: A)(implicit w: A => js.Array[ReactNode | ReactEmpty]): ReactFragment =
     w(a).asInstanceOf[ReactFragment]
 
-  type ReactNodeList = ReactNode | ReactEmpty
-
 //  @inline def emptyReactNodeList: ReactNodeList =
 //    js.undefined
-
-  type ReactText = String | JsNumber
-
-  type ReactEmpty = Boolean | Undefined | Null
 
   type ReactClass = js.Function1[Props, ReactComponent]
 

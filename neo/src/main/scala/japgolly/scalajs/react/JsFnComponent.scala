@@ -22,6 +22,8 @@ object JsFnComponent {
   // ===================================================================================================================
 
   final class Unmounted[P <: js.Object](val raw: Raw.ReactComponentElement) extends Component.Unmounted[P, Mounted] {
+    override val reactElement =
+      vdom.ReactElement(raw)
 
     override def key: Option[Key] =
       jsNullToOption(raw.key)

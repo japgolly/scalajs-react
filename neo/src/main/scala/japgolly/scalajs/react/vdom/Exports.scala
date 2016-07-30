@@ -24,6 +24,12 @@ abstract class Exports {
 
   @inline implicit final def VdomExtString(a: String) = new ExportsStatic.VdomExtString(a)
 
+  final type ReactElement = japgolly.scalajs.react.vdom.ReactElement
+  final val ReactElement = japgolly.scalajs.react.vdom.ReactElement
+
+  final type ReactNode = japgolly.scalajs.react.vdom.ReactNode
+  final val ReactNode = japgolly.scalajs.react.vdom.ReactNode
+
   final val EmptyTag = japgolly.scalajs.react.vdom.TagMod.Empty
 
   final type TagMod = japgolly.scalajs.react.vdom.TagMod

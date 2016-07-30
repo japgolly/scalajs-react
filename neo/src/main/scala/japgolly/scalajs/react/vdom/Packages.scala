@@ -1,17 +1,13 @@
 package japgolly.scalajs.react.vdom
 
-//object all extends Base with Tags with Attrs {
+abstract class PackageBase extends Exports with Implicits
+object PackageBase extends PackageBase
+
+object all extends PackageBase with HtmlTags with HtmlAttrs {
 //  object svg extends SvgTags with SvgAttrs
 //  @inline def keyAttr = key
 //  @inline def refAttr = ref
-//}
-
-//object svg {
-//  object all extends Base with SvgTags with SvgAttrs
-//}
-
-abstract class PackageBase extends Exports with Implicits
-object PackageBase extends PackageBase
+}
 
 object html_<^ extends PackageBase {
   val < = HtmlTags

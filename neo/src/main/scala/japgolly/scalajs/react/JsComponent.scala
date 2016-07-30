@@ -34,6 +34,9 @@ object JsComponent {
       (val raw: Raw.ReactComponentElement, m: Raw.ReactComponent => M)
       extends Component.Unmounted[P, M] {
 
+    override val reactElement =
+      vdom.ReactElement(raw)
+
     override def key: Option[Key] =
       jsNullToOption(raw.key)
 
