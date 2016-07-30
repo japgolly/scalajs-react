@@ -308,6 +308,8 @@ trait HtmlAttrs {
 
   final lazy val crossOrigin = "crossOrigin".reactAttr
 
+  final lazy val dangerouslySetInnerHtml = "dangerouslySetInnerHTML".reactAttr[InnerHtmlAttr]
+
   final lazy val dateTime = "dateTime".reactAttr
 
   final lazy val default = "default".reactAttr

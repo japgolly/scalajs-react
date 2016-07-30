@@ -38,6 +38,8 @@ object DomCallbackResult {
   @inline implicit def undefOrBoolean = force[js.UndefOr[Boolean]]
 }
 
+sealed trait InnerHtmlAttr
+
 object Attr {
   def apply[U](name: String): Attr[U] =
     new Generic(name)

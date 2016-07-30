@@ -82,3 +82,10 @@ Refs
 
 TODO
 
+
+Breaking Changes
+================
+
+* Use `^.dangerouslySetInnerHtml := x` instead of `^.dangerouslySetInnerHtml(x)`.
+* Import `vdom.html_<^._` instead of `vdom.prefix_<^._`.
+* `?=` deprecated in favour of `when`/`unless`.

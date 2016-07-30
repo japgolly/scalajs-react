@@ -56,7 +56,7 @@ object PrefixedVdomTest extends TestSuite {
 //    'jAryTag   - test(<.div(JArray(<.span(1), <.span(2))),           "<div><span>1</span><span>2</span></div>")
 //    'jAryComp  - test(<.div(JArray(H1("a"), H1("b"))),               "<div><h1>a</h1><h1>b</h1></div>")
 
-//    'dangerouslySetInnerHtml - test(<.div(^.dangerouslySetInnerHtml("<span>")), "<div><span></div>")
+    'dangerouslySetInnerHtml - test(<.div(^.dangerouslySetInnerHtml := "<span>"), "<div><span></div>")
 
 /*
     'optional {

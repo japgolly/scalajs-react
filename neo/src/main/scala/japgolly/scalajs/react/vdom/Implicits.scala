@@ -4,7 +4,16 @@ import japgolly.scalajs.react.{Component, PropsChildren, raw}
 import scala.scalajs.js
 import Exports.Tag
 
-trait ImplicitReactAttrValueTypes {
+// =====================================================================================================================
+
+trait ImplicitReactAttrValueTypes0 {
+  import Attr.ValueType
+
+  implicit lazy val reactAttrVtInnerHtml: ValueType[String, InnerHtmlAttr] =
+    ValueType[String, InnerHtmlAttr]((b, html) => b(js.Dynamic.literal("__html" -> html)))
+}
+
+trait ImplicitReactAttrValueTypes extends ImplicitReactAttrValueTypes0 {
   import Attr.ValueType
   import ValueType._
 
@@ -20,6 +29,7 @@ trait ImplicitReactAttrValueTypes {
 
   // For attributes that aren't typed yet
   implicit def reactAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
+
 }
 
 // =====================================================================================================================
