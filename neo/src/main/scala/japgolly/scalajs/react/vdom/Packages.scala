@@ -3,15 +3,18 @@ package japgolly.scalajs.react.vdom
 abstract class PackageBase extends Exports with Implicits
 object PackageBase extends PackageBase
 
-object all extends PackageBase with HtmlTags with HtmlAttrs {
+trait HtmlAttrAndStyles extends HtmlAttrs with HtmlStyles
+object HtmlAttrAndStyles extends HtmlAttrAndStyles
+
+object all extends PackageBase with HtmlAttrAndStyles {
 //  object svg extends SvgTags with SvgAttrs
-//  @inline def keyAttr = key
+  @inline def keyAttr = key
 //  @inline def refAttr = ref
 }
 
 object html_<^ extends PackageBase {
   val < = HtmlTags
-  val ^ = HtmlAttrs
+  val ^ = HtmlAttrAndStyles
 }
 
 object svg_<^ extends PackageBase {

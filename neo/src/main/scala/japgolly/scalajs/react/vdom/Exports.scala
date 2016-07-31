@@ -4,11 +4,12 @@ object ExportsStatic {
 
   final class VdomExtString(private val s: String) extends AnyVal {
 
-    @inline def reactAttr[A]: Attr[A] =
-      Attr(s)
+    // TODO Should this just be ReactAttr(name)
+    def reactAttr[A]: Attr[A] =
+      new Attr.Generic(s)
 
-//    @inline def reactStyle: ReactStyle =
-//      new ReactStyle.Generic(s)
+    def reactStyle[A]: Attr[A] =
+      new Attr.Style.Child(s)
 
     @inline def reactTag[N <: HtmlTopNode]: HtmlTagOf[N] =
       new HtmlTagOf[N](s)
@@ -35,6 +36,7 @@ abstract class Exports {
   final type TagMod = japgolly.scalajs.react.vdom.TagMod
   final val TagMod = japgolly.scalajs.react.vdom.TagMod
 
+  // TODO Shouldn't the alias be ReactAttr?
   final type Attr[-U] = japgolly.scalajs.react.vdom.Attr[U]
   final val Attr = japgolly.scalajs.react.vdom.Attr
 

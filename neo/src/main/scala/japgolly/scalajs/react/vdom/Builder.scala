@@ -87,10 +87,12 @@ final class Builder {
   def addStyle(k: String, v: js.Any): Unit =
     set(style, k, v)
 
-  val addStyles: js.Any => Unit = {
-    case obj: js.Object =>
-      for ((k,v) <- JsUtil.objectIterator(obj))
-        addStyle(k, v)
+  val addStyles: js.Any => Unit = { j =>
+    // Hack because Attr.ValueType.Fn takes a js.Any => Unit.
+    // Safe because Attr.Style declares that it needs a js.Object.
+    val obj = j.asInstanceOf[js.Object]
+    for ((k,v) <- JsUtil.objectIterator(obj))
+      addStyle(k, v)
   }
 
   @inline private[this] def hasStyle: Boolean =

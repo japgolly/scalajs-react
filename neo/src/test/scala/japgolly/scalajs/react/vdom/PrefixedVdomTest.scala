@@ -22,6 +22,7 @@ object PrefixedVdomTest extends TestSuite {
   lazy val tagmod  : TagMod       = ^.cls := "ho"
   lazy val reacttag: Tag          = <.span
   lazy val relement: ReactElement = <.span
+  lazy val jsObj   : js.Object    = js.Dynamic.literal("a" -> "b").asInstanceOf[js.Object]
 
   def reactNode: ReactNode = H1("cool")
   def checkbox(check: Boolean) = <.input.checkbox(^.checked := check, ^.readOnly := true)
@@ -44,10 +45,13 @@ object PrefixedVdomTest extends TestSuite {
     'reactNode - test(<.div(reactNode),                              "<div><h1>cool</h1></div>")
     'comp      - test(<.div(H1("a")),                                "<div><h1>a</h1></div>")
 
-    'checkboxT - test(checkbox(true),                              """<input type="checkbox" checked="" readonly=""/>""")
-    'checkboxF - test(checkbox(false),                             """<input type="checkbox" readonly=""/>""")
-    'aria      - test(<.div(^.aria.label := "ow", "a"),            """<div aria-label="ow">a</div>""")
-    'jsDict    - test(<.div(^.style := js.Dictionary("a" -> "b")), """<div style="a:b;"></div>""")
+    'checkboxT  - test(checkbox(true),                              """<input type="checkbox" checked="" readonly=""/>""")
+    'checkboxF  - test(checkbox(false),                             """<input type="checkbox" readonly=""/>""")
+    'aria       - test(<.div(^.aria.label := "ow", "a"),            """<div aria-label="ow">a</div>""")
+    'attrs      - test(<.div(^.rowSpan := 1, ^.colSpan := 3),       """<div rowspan="1" colspan="3"></div>""")
+    'styleObj   - test(<.div(^.style := jsObj),                     """<div style="a:b;"></div>""")
+    'styleDict  - test(<.div(^.style := js.Dictionary("x" -> "y")), """<div style="x:y;"></div>""")
+    'styleAttrs - test(<.div(^.color := "red", ^.cursor.auto),      """<div style="color:red;cursor:auto;"></div>""")
 
 //    'seqTag    - test(<.div(Seq (<.span(1), <.span(2))),             "<div><span>1</span><span>2</span></div>")
 //    'listTag   - test(<.div(List(<.span(1), <.span(2))),             "<div><span>1</span><span>2</span></div>")

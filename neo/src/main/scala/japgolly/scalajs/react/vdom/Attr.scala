@@ -41,8 +41,6 @@ object DomCallbackResult {
 sealed trait InnerHtmlAttr
 
 object Attr {
-  def apply[U](name: String): Attr[U] =
-    new Generic(name)
 
   class Generic[-U](name: String) extends Attr[U](name) {
     override def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod =
@@ -90,7 +88,7 @@ object Attr {
 
   @inline def devOnly[A](name: => String): Attr[A] =
     if (developmentMode)
-      apply(name)
+      new Generic(name)
     else
       Dud
 
@@ -102,6 +100,11 @@ object Attr {
   private[vdom] object Style extends Attr[js.Object]("style") {
     override def :=[A](a: A)(implicit t: ValueType[A, js.Object]): TagMod =
       TagMod.fn(b => t.fn(b.addStyles, a))
+
+    class Child[-U](name: String) extends Attr[U]("style." + name) {
+      override def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod =
+        TagMod.fn(b => t.fn(b.addStyle(name, _), a))
+    }
   }
 
 //  case object Ref extends ReactAttr[Any] {

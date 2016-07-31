@@ -92,3 +92,6 @@ Breaking Changes
 * Change `:=` to `:=?` when the right-hand side is an `Option`.
 * TagMod: `+` and `compose` replaced with `apply(TagMod*)` just like tags.
 
+
+# DON'T FORGET!! Go through all the TODOs in `vdom`
+
