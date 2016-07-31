@@ -11,29 +11,29 @@ trait HtmlAttrs {
     * If the value of the type attribute is file, this attribute indicates the
     * types of files that the server accepts; otherwise it is ignored.
     */
-  final lazy val accept = "accept".reactAttr
+  final lazy val accept = ReactAttr("accept")
 
-  final lazy val acceptCharset = "acceptCharset".reactAttr
+  final lazy val acceptCharset = ReactAttr("acceptCharset")
 
-  final lazy val accessKey = "accessKey".reactAttr
+  final lazy val accessKey = ReactAttr("accessKey")
 
   /**
     * The URI of a program that processes the information submitted via the form.
     * This value can be overridden by a formaction attribute on a button or
     * input element.
     */
-  final lazy val action = "action".reactAttr
+  final lazy val action = ReactAttr("action")
 
-  final lazy val allowFullScreen = "allowFullScreen".reactAttr
+  final lazy val allowFullScreen = ReactAttr("allowFullScreen")
 
-  final lazy val allowTransparency = "allowTransparency".reactAttr
+  final lazy val allowTransparency = ReactAttr("allowTransparency")
 
   /**
     * This attribute defines the alternative text describing the image. Users
     * will see this displayed if the image URL is wrong, the image is not in one
     * of the supported formats, or until the image is downloaded.
     */
-  final lazy val alt = "alt".reactAttr[String]
+  final lazy val alt = ReactAttr[String]("alt")
 
   /**
     * ARIA is a set of special accessibility attributes which can be added
@@ -47,182 +47,182 @@ trait HtmlAttrs {
     /**
       * Identifies the currently active descendant of a composite widget.
       */
-    final lazy val activeDescendant = "aria-activedescendant".reactAttr
+    final lazy val activeDescendant = ReactAttr("aria-activedescendant")
 
     /**
       * Indicates whether assistive technologies will present all, or only parts of, the changed region based on the change notifications defined by the aria-relevant attribute. See related aria-relevant.
       */
-    final lazy val atomic = "aria-atomic".reactAttr
+    final lazy val atomic = ReactAttr("aria-atomic")
 
     /**
       * Indicates whether user input completion suggestions are provided.
       */
-    final lazy val autoComplete = "aria-autocomplete".reactAttr
+    final lazy val autoComplete = ReactAttr("aria-autocomplete")
 
     /**
       * Indicates whether an element, and its subtree, are currently being updated.
       */
-    final lazy val busy = "aria-busy".reactAttr
+    final lazy val busy = ReactAttr("aria-busy")
 
     /**
       * Indicates the current "checked" state of checkboxes, radio buttons, and other widgets. See related aria-pressed and aria-selected.
       */
-    final lazy val checked = "aria-checked".reactAttr
+    final lazy val checked = ReactAttr("aria-checked")
 
     /**
       * Identifies the element (or elements) whose contents or presence are controlled by the current element. See related aria-owns.
       */
-    final lazy val controls = "aria-controls".reactAttr
+    final lazy val controls = ReactAttr("aria-controls")
 
     /**
       * Identifies the element (or elements) that describes the object. See related aria-labelledby.
       */
-    final lazy val describedBy = "aria-describedby".reactAttr
+    final lazy val describedBy = ReactAttr("aria-describedby")
 
     /**
       * Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable. See related aria-hidden and aria-readonly.
       */
-    final lazy val disabled = "aria-disabled".reactAttr
+    final lazy val disabled = ReactAttr("aria-disabled")
 
     /**
       * Indicates what functions can be performed when the dragged object is released on the drop target. This allows assistive technologies to convey the possible drag options available to users, including whether a pop-up menu of choices is provided by the application. Typically, drop effect functions can only be provided once an object has been grabbed for a drag operation as the drop effect functions available are dependent on the object being dragged.
       */
-    final lazy val dropEffect = "aria-dropeffect".reactAttr
+    final lazy val dropEffect = ReactAttr("aria-dropeffect")
 
     /**
       * Indicates whether the element, or another grouping element it controls, is currently expanded or collapsed.
       */
-    final lazy val expanded = "aria-expanded".reactAttr
+    final lazy val expanded = ReactAttr("aria-expanded")
 
     /**
       * Identifies the next element (or elements) in an alternate reading order of content which, at the user's discretion, allows assistive technology to override the general default of reading in document source order.
       */
-    final lazy val flowTo = "aria-flowto".reactAttr
+    final lazy val flowTo = ReactAttr("aria-flowto")
 
     /**
       * Indicates an element's "grabbed" state in a drag-and-drop operation.
       */
-    final lazy val grabbed = "aria-grabbed".reactAttr
+    final lazy val grabbed = ReactAttr("aria-grabbed")
 
     /**
       * Indicates that the element has a popup context menu or sub-level menu.
       */
-    final lazy val hasPopup = "aria-haspopup".reactAttr
+    final lazy val hasPopup = ReactAttr("aria-haspopup")
 
     /**
       * Indicates that the element and all of its descendants are not visible or perceivable to any user as implemented by the author. See related aria-disabled.
       */
-    final lazy val hidden = "aria-hidden".reactAttr
+    final lazy val hidden = ReactAttr("aria-hidden")
 
     /**
       * Indicates the entered value does not conform to the format expected by the application.
       */
-    final lazy val invalid = "aria-invalid".reactAttr
+    final lazy val invalid = ReactAttr("aria-invalid")
 
     /**
       * Defines a string value that labels the current element. See related aria-labelledby.
       */
-    final lazy val label = "aria-label".reactAttr
+    final lazy val label = ReactAttr("aria-label")
 
     /**
       * Identifies the element (or elements) that labels the current element. See related aria-label and aria-describedby.
       */
-    final lazy val labelledBy = "aria-labelledby".reactAttr
+    final lazy val labelledBy = ReactAttr("aria-labelledby")
 
     /**
       * Defines the hierarchical level of an element within a structure.
       */
-    final lazy val level = "aria-level".reactAttr
+    final lazy val level = ReactAttr("aria-level")
 
     /**
       * Indicates that an element will be updated, and describes the types of updates the user agents, assistive technologies, and user can expect from the live region.
       */
-    final lazy val live = "aria-live".reactAttr
+    final lazy val live = ReactAttr("aria-live")
 
     /**
       * Indicates whether a text box accepts multiple lines of input or only a single line.
       */
-    final lazy val multiline = "aria-multiline".reactAttr
+    final lazy val multiline = ReactAttr("aria-multiline")
 
     /**
       * Indicates that the user may select more than one item from the current selectable descendants.
       */
-    final lazy val multiselectable = "aria-multiselectable".reactAttr
+    final lazy val multiselectable = ReactAttr("aria-multiselectable")
 
     /**
       * Indicates whether the element and orientation is horizontal or vertical.
       */
-    final lazy val orientation = "aria-orientation".reactAttr
+    final lazy val orientation = ReactAttr("aria-orientation")
 
     /**
       * Identifies an element (or elements) in order to define a visual, functional, or contextual parent/child relationship between DOM elements where the DOM hierarchy cannot be used to represent the relationship. See related aria-controls.
       */
-    final lazy val owns = "aria-owns".reactAttr
+    final lazy val owns = ReactAttr("aria-owns")
 
     /**
       * Defines an element's number or position in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-setsize.
       */
-    final lazy val posInSet = "aria-posinset".reactAttr
+    final lazy val posInSet = ReactAttr("aria-posinset")
 
     /**
       * Indicates the current "pressed" state of toggle buttons. See related aria-checked and aria-selected.
       */
-    final lazy val pressed = "aria-pressed".reactAttr
+    final lazy val pressed = ReactAttr("aria-pressed")
 
     /**
       * Indicates that the element is not editable, but is otherwise operable. See related aria-disabled.
       */
-    final lazy val readonly = "aria-readonly".reactAttr
+    final lazy val readonly = ReactAttr("aria-readonly")
 
     /**
       * Indicates what user agent change notifications (additions, removals, etc.) assistive technologies will receive within a live region. See related aria-atomic.
       */
-    final lazy val relevant = "aria-relevant".reactAttr
+    final lazy val relevant = ReactAttr("aria-relevant")
 
     /**
       * Indicates that user input is required on the element before a form may be submitted.
       */
-    final lazy val required = "aria-required".reactAttr
+    final lazy val required = ReactAttr("aria-required")
 
     /**
       * Indicates the current "selected" state of various widgets. See related aria-checked and aria-pressed.
       */
-    final lazy val selected = "aria-selected".reactAttr
+    final lazy val selected = ReactAttr("aria-selected")
 
     /**
       * Defines the number of items in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-posinset.
       */
-    final lazy val setSize = "aria-setsize".reactAttr
+    final lazy val setSize = ReactAttr("aria-setsize")
 
     /**
       * Indicates if items in a table or grid are sorted in ascending or descending order.
       */
-    final lazy val sort = "aria-sort".reactAttr
+    final lazy val sort = ReactAttr("aria-sort")
 
     /**
       * Defines the maximum allowed value for a range widget.
       */
-    final lazy val valueMax = "aria-valuemax".reactAttr
+    final lazy val valueMax = ReactAttr("aria-valuemax")
 
     /**
       * Defines the minimum allowed value for a range widget.
       */
-    final lazy val valueMin = "aria-valuemin".reactAttr
+    final lazy val valueMin = ReactAttr("aria-valuemin")
 
     /**
       * Defines the current value for a range widget. See related aria-valuetext.
       */
-    final lazy val valueNow = "aria-valuenow".reactAttr
+    final lazy val valueNow = ReactAttr("aria-valuenow")
 
     /**
       * Defines the human readable text alternative of aria-valuenow for a range widget.
       */
-    final lazy val valueText = "aria-valuetext".reactAttr
+    final lazy val valueText = ReactAttr("aria-valuetext")
   }
 
-  final lazy val async = "async".reactAttr
+  final lazy val async = ReactAttr("async")
 
-  final lazy val autoCapitalize = "autoCapitalize".reactAttr
+  final lazy val autoCapitalize = ReactAttr("autoCapitalize")
 
   /**
     * This attribute indicates whether the value of the control can be
@@ -232,9 +232,9 @@ trait HtmlAttrs {
     *
     * Possible values are "off" and "on"
     */
-  final lazy val autoComplete = "autoComplete".reactAttr
+  final lazy val autoComplete = ReactAttr("autoComplete")
 
-  final lazy val autoCorrect = "autoCorrect".reactAttr
+  final lazy val autoCorrect = ReactAttr("autoCorrect")
 
   /**
     * This Boolean attribute lets you specify that a form control should have
@@ -244,43 +244,43 @@ trait HtmlAttrs {
     * the type attribute is set to hidden (that is, you cannot automatically set
     * focus to a hidden control).
     */
-  final lazy val autoFocus = "autoFocus".reactAttr
+  final lazy val autoFocus = ReactAttr("autoFocus")
 
-  final lazy val autoPlay = "autoPlay".reactAttr
+  final lazy val autoPlay = ReactAttr("autoPlay")
 
-  final lazy val autoSave = "autoSave".reactAttr
+  final lazy val autoSave = ReactAttr("autoSave")
 
   /**
     * The capture attribute allows authors to declaratively request use of a media capture mechanism, such as a camera or
     * microphone, from within a file upload control, for capturing media on the spot.
     */
-  final lazy val capture = "capture".reactAttr
+  final lazy val capture = ReactAttr("capture")
 
-  final lazy val cellPadding = "cellPadding".reactAttr
+  final lazy val cellPadding = ReactAttr("cellPadding")
 
-  final lazy val cellSpacing = "cellSpacing".reactAttr
+  final lazy val cellSpacing = ReactAttr("cellSpacing")
 
   /** &lt;keygen&gt;: A challenge string that is submitted along with the public key. */
-  final lazy val challenge = "challenge".reactAttr
+  final lazy val challenge = ReactAttr("challenge")
 
   /**
     * Declares the character encoding of the page or script. Used on meta and
     * script elements.
     */
-  final lazy val charset = "charset".reactAttr[String]
+  final lazy val charset = ReactAttr[String]("charset")
 
   /**
     * When the value of the type attribute is radio or checkbox, the presence of
     * this Boolean attribute indicates that the control is selected by default;
     * otherwise it is ignored.
     */
-  final lazy val checked = "checked".reactAttr[Boolean]
+  final lazy val checked = ReactAttr[Boolean]("checked")
 
-  final lazy val citeAttr = "cite".reactAttr
+  final lazy val citeAttr = ReactAttr("cite")
 
-  final lazy val classID = "classID".reactAttr
+  final lazy val classID = ReactAttr("classID")
 
-  final lazy val colSpan = "colSpan".reactAttr[Int]
+  final lazy val colSpan = ReactAttr[Int]("colSpan")
 
   final def `class`  : Attr[String] = Attr.ClassName
   final def className: Attr[String] = Attr.ClassName
@@ -310,34 +310,34 @@ trait HtmlAttrs {
     * is specified, it must be a positive integer. If it is not specified, the
     * default value is 20 (HTML5).
     */
-  final lazy val cols = "cols".reactAttr
+  final lazy val cols = ReactAttr("cols")
   /**
     * This attribute gives the value associated with the http-equiv or name
     * attribute, depending of the context.
     */
-  final lazy val contentAttr = "content".reactAttr
+  final lazy val contentAttr = ReactAttr("content")
 
-  final lazy val contentEditable = "contentEditable".reactAttr
+  final lazy val contentEditable = ReactAttr("contentEditable")
 
-  final lazy val contextMenu = "contextMenu".reactAttr
+  final lazy val contextMenu = ReactAttr("contextMenu")
 
-  final lazy val controls = "controls".reactAttr
+  final lazy val controls = ReactAttr("controls")
 
-  final lazy val coords = "coords".reactAttr
+  final lazy val coords = ReactAttr("coords")
 
-  final lazy val crossOrigin = "crossOrigin".reactAttr
+  final lazy val crossOrigin = ReactAttr("crossOrigin")
 
-  final lazy val dangerouslySetInnerHtml = "dangerouslySetInnerHTML".reactAttr[InnerHtmlAttr]
+  final lazy val dangerouslySetInnerHtml = ReactAttr[InnerHtmlAttr]("dangerouslySetInnerHTML")
 
-  final lazy val dateTime = "dateTime".reactAttr
+  final lazy val dateTime = ReactAttr("dateTime")
 
-  final lazy val default = "default".reactAttr
+  final lazy val default = ReactAttr("default")
 
-  final lazy val defaultValue = "defaultValue".reactAttr
+  final lazy val defaultValue = ReactAttr("defaultValue")
 
-  final lazy val defer = "defer".reactAttr
+  final lazy val defer = ReactAttr("defer")
 
-  final lazy val dir = "dir".reactAttr
+  final lazy val dir = ReactAttr("dir")
 
   /**
     * This Boolean attribute indicates that the form control is not available for
@@ -347,40 +347,40 @@ trait HtmlAttrs {
     *
     * This attribute is ignored if the value of the type attribute is hidden.
     */
-  final lazy val disabled = "disabled".reactAttr[Boolean]
+  final lazy val disabled = ReactAttr[Boolean]("disabled")
 
-  final lazy val download = "download".reactAttr
+  final lazy val download = ReactAttr("download")
 
-  final lazy val draggable = "draggable".reactAttr[Boolean]
+  final lazy val draggable = ReactAttr[Boolean]("draggable")
 
-  final lazy val encType = "encType".reactAttr
+  final lazy val encType = ReactAttr("encType")
 
   /**
     * Describes elements which belongs to this one. Used on labels and output
     * elements.
     */
-  final lazy val `for` = "htmlFor".reactAttr
+  final lazy val `for` = ReactAttr("htmlFor")
 
-  final lazy val formAction = "formAction".reactAttr
+  final lazy val formAction = ReactAttr("formAction")
 
-  final lazy val formEncType = "formEncType".reactAttr
+  final lazy val formEncType = ReactAttr("formEncType")
 
-  final lazy val formMethod = "formMethod".reactAttr
+  final lazy val formMethod = ReactAttr("formMethod")
 
-  final lazy val formNoValidate = "formNoValidate".reactAttr
+  final lazy val formNoValidate = ReactAttr("formNoValidate")
 
-  final lazy val formTarget = "formTarget".reactAttr
+  final lazy val formTarget = ReactAttr("formTarget")
 
-  final lazy val frameBorder = "frameBorder".reactAttr
+  final lazy val frameBorder = ReactAttr("frameBorder")
 
-  final lazy val headers = "headers".reactAttr
+  final lazy val headers = ReactAttr("headers")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final lazy val high = "high".reactAttr
+  final lazy val high = ReactAttr("high")
 
   /**
     * This is the single required attribute for anchors defining a hypertext
@@ -391,11 +391,11 @@ trait HtmlAttrs {
     * supported by the browser. For example, file, ftp, and mailto work in most
     * user agents.
     */
-  final lazy val href = "href".reactAttr[String]
+  final lazy val href = ReactAttr[String]("href")
 
-  final lazy val hrefLang = "hrefLang".reactAttr
+  final lazy val hrefLang = ReactAttr("hrefLang")
 
-  final lazy val htmlFor = "htmlFor".reactAttr
+  final lazy val htmlFor = ReactAttr("htmlFor")
 
   /**
     * This enumerated attribute defines the pragma that can alter servers and
@@ -408,46 +408,46 @@ trait HtmlAttrs {
     * - refresh
     * - set-cookie
     */
-  final lazy val httpEquiv = "httpEquiv".reactAttr
+  final lazy val httpEquiv = ReactAttr("httpEquiv")
 
-  final lazy val icon = "icon".reactAttr
+  final lazy val icon = ReactAttr("icon")
 
   /**
     * This attribute defines a unique identifier (ID) which must be unique in
     * the whole document. Its purpose is to identify the element when linking
     * (using a fragment identifier), scripting, or styling (with CSS).
     */
-  final lazy val id = "id".reactAttr
+  final lazy val id = ReactAttr("id")
 
   /**
     * The inputmode attribute tells the browser on devices with dynamic keyboards which keyboard to display. The
     * inputmode attribute applies to the text, search and password input types as well as &lt;textarea&gt;.
     */
-  final lazy val inputMode = "inputMode".reactAttr
+  final lazy val inputMode = ReactAttr("inputMode")
 
   /**
     * http://www.w3.org/TR/2015/CR-SRI-20151112/#the-integrity-attribute
     */
-  final lazy val integrity = "integrity".reactAttr
+  final lazy val integrity = ReactAttr("integrity")
 
-  final lazy val is = "is".reactAttr
+  final lazy val is = ReactAttr("is")
 
-  final lazy val itemProp = "itemProp".reactAttr
+  final lazy val itemProp = ReactAttr("itemProp")
 
-  final lazy val itemScope = "itemScope".reactAttr
+  final lazy val itemScope = ReactAttr("itemScope")
 
-  final lazy val itemType = "itemType".reactAttr
+  final lazy val itemType = ReactAttr("itemType")
 
   /** React key */
-  final val key = "key".reactAttr // TODO See types in `.raw`
+  final val key = ReactAttr("key") // TODO See types in `.raw`
 
   /** For use in &lt;keygen&gt; */
-  final lazy val keyParams = "keyParams".reactAttr
+  final lazy val keyParams = ReactAttr("keyParams")
 
   /** &lt;keygen&gt;: Specifies the type of key generated. */
-  final lazy val keyType = "keyType".reactAttr
+  final lazy val keyType = ReactAttr("keyType")
 
-  final lazy val kind = "kind".reactAttr
+  final lazy val kind = ReactAttr("kind")
 
   /**
     * This attribute participates in defining the language of the element, the
@@ -458,33 +458,33 @@ trait HtmlAttrs {
     * to unknown; if the tag content is not valid, regarding to BCP47, it is set
     * to invalid.
     */
-  final lazy val lang = "lang".reactAttr[String]
+  final lazy val lang = ReactAttr[String]("lang")
 
-  final lazy val list = "list".reactAttr
+  final lazy val list = ReactAttr("list")
 
-  final lazy val loop = "loop".reactAttr
-
-  /**
-    * For use in &lt;meter&gt; tags.
-    *
-    * @see https://css-tricks.com/html5-meter-element/
-    */
-  final lazy val low = "low".reactAttr
-
-  final lazy val manifest = "manifest".reactAttr
-
-  final lazy val marginHeight = "marginHeight".reactAttr
-
-  final lazy val marginWidth = "marginWidth".reactAttr
+  final lazy val loop = ReactAttr("loop")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final lazy val max = "max".reactAttr
+  final lazy val low = ReactAttr("low")
 
-  final lazy val maxLength = "maxLength".reactAttr
+  final lazy val manifest = ReactAttr("manifest")
+
+  final lazy val marginHeight = ReactAttr("marginHeight")
+
+  final lazy val marginWidth = ReactAttr("marginWidth")
+
+  /**
+    * For use in &lt;meter&gt; tags.
+    *
+    * @see https://css-tricks.com/html5-meter-element/
+    */
+  final lazy val max = ReactAttr("max")
+
+  final lazy val maxLength = ReactAttr("maxLength")
 
   /**
     * This attribute specifies the media which the linked resource applies to.
@@ -494,9 +494,9 @@ trait HtmlAttrs {
     *
     * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link#attr-media
     */
-  final lazy val media = "media".reactAttr
+  final lazy val media = ReactAttr("media")
 
-  final lazy val mediaGroup = "mediaGroup".reactAttr
+  final lazy val mediaGroup = ReactAttr("mediaGroup")
 
   /**
     * The HTTP method that the browser uses to submit the form. Possible values are:
@@ -512,20 +512,20 @@ trait HtmlAttrs {
     * This value can be overridden by a formmethod attribute on a button or
     * input element.
     */
-  final lazy val method = "method".reactAttr
+  final lazy val method = ReactAttr("method")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final lazy val min = "min".reactAttr
+  final lazy val min = ReactAttr("min")
 
-  final lazy val minLength = "minLength".reactAttr
+  final lazy val minLength = ReactAttr("minLength")
 
-  final lazy val multiple = "multiple".reactAttr
+  final lazy val multiple = ReactAttr("multiple")
 
-  final lazy val muted = "muted".reactAttr
+  final lazy val muted = ReactAttr("muted")
 
   /**
     * On form elements (input etc.):
@@ -537,12 +537,12 @@ trait HtmlAttrs {
     * This document-level metadata name is associated with a value, contained by
     * the content attribute.
     */
-  final lazy val name = "name".reactAttr
+  final lazy val name = ReactAttr("name")
 
-  final lazy val noValidate = "noValidate".reactAttr
+  final lazy val noValidate = ReactAttr("noValidate")
 
   /** For &lt;script&gt; and &lt;style&gt;elements. */
-  final lazy val nonce = "nonce".reactAttr
+  final lazy val nonce = ReactAttr("nonce")
 
   final lazy val onAbort = Attr.Event.base("onAbort")
 
@@ -786,14 +786,14 @@ trait HtmlAttrs {
 
   final lazy val onWheel = Attr.Event.wheel("onWheel")
 
-  final lazy val open = "open".reactAttr
+  final lazy val open = ReactAttr("open")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final lazy val optimum = "optimum".reactAttr
+  final lazy val optimum = ReactAttr("optimum")
 
   /**
     * A hint to the user of what can be entered in the control. The placeholder
@@ -801,22 +801,22 @@ trait HtmlAttrs {
     * applies when the value of the type attribute is text, search, tel, url or
     * email; otherwise it is ignored.
     */
-  final lazy val placeholder = "placeholder".reactAttr
+  final lazy val placeholder = ReactAttr("placeholder")
 
-  final lazy val poster = "poster".reactAttr
+  final lazy val poster = ReactAttr("poster")
 
-  final lazy val preload = "preload".reactAttr
+  final lazy val preload = ReactAttr("preload")
 
-  final lazy val profile = "profile".reactAttr
+  final lazy val profile = ReactAttr("profile")
 
-  final lazy val radioGroup = "radioGroup".reactAttr
+  final lazy val radioGroup = ReactAttr("radioGroup")
 
   /**
     * This Boolean attribute indicates that the user cannot modify the value of
     * the control. This attribute is ignored if the value of the type attribute
     * is hidden, range, color, checkbox, radio, file, or a button type.
     */
-  final lazy val readOnly = "readOnly".reactAttr[Boolean]
+  final lazy val readOnly = ReactAttr[Boolean]("readOnly")
 
   // final val ref = ReactAttr.Ref
 
@@ -828,7 +828,7 @@ trait HtmlAttrs {
     * attribute is set to the URL of an external style sheet to format the page.
     *
     */
-  final lazy val rel = "rel".reactAttr
+  final lazy val rel = ReactAttr("rel")
 
   /**
     * This attribute specifies that the user must fill in a value before
@@ -836,12 +836,12 @@ trait HtmlAttrs {
     * image, or a button type (submit, reset, or button). The :optional and
     * :required CSS pseudo-classes will be applied to the field as appropriate.
     */
-  final lazy val required = "required".reactAttr[Boolean]
+  final lazy val required = ReactAttr[Boolean]("required")
 
-  final lazy val results = "results".reactAttr
+  final lazy val results = ReactAttr("results")
 
   /** For &lt;ol&gt; elements. */
-  final lazy val reversed = "reversed".reactAttr
+  final lazy val reversed = ReactAttr("reversed")
 
   /**
     * The attribute describes the role(s) the current element plays in the
@@ -858,18 +858,18 @@ trait HtmlAttrs {
     *
     * @see http://www.w3.org/TR/role-attribute/#s_role_module_attributes
     */
-  final lazy val role = "role".reactAttr
+  final lazy val role = ReactAttr("role")
 
-  final lazy val rowSpan = "rowSpan".reactAttr[Int]
+  final lazy val rowSpan = ReactAttr[Int]("rowSpan")
 
   /**
     * The number of visible text lines for the control.
     */
-  final lazy val rows = "rows".reactAttr[Int]
+  final lazy val rows = ReactAttr[Int]("rows")
 
-  final lazy val sandbox = "sandbox".reactAttr
+  final lazy val sandbox = ReactAttr("sandbox")
 
-  final lazy val scope = "scope".reactAttr
+  final lazy val scope = ReactAttr("scope")
 
   /**
     * For use in &lt;style&gt; tags.
@@ -877,17 +877,17 @@ trait HtmlAttrs {
     * If this attribute is present, then the style applies only to its parent element.
     * If absent, the style applies to the whole document.
     */
-  final lazy val scoped = "scoped".reactAttr
+  final lazy val scoped = ReactAttr("scoped")
 
-  final lazy val scrolling = "scrolling".reactAttr
+  final lazy val scrolling = ReactAttr("scrolling")
 
-  final lazy val seamless = "seamless".reactAttr
+  final lazy val seamless = ReactAttr("seamless")
 
-  final lazy val security = "security".reactAttr
+  final lazy val security = ReactAttr("security")
 
-  final lazy val selected = "selected".reactAttr
+  final lazy val selected = ReactAttr("selected")
 
-  final lazy val shape = "shape".reactAttr
+  final lazy val shape = ReactAttr("shape")
 
   /**
     * The initial size of the control. This value is in pixels unless the value
@@ -897,30 +897,30 @@ trait HtmlAttrs {
     * otherwise it is ignored. In addition, the size must be greater than zero.
     * If you don't specify a size, a default value of 20 is used.
     */
-  final lazy val size = "size".reactAttr[Int]
+  final lazy val size = ReactAttr[Int]("size")
 
-  final lazy val sizes = "sizes".reactAttr
+  final lazy val sizes = ReactAttr("sizes")
 
   /**
     * This enumerated attribute defines whether the element may be checked for
     * spelling errors.
     */
-  final lazy val spellCheck = "spellCheck".reactAttr
+  final lazy val spellCheck = ReactAttr("spellCheck")
 
   /**
     * If the value of the type attribute is image, this attribute specifies a URI
     * for the location of an image to display on the graphical submit button;
     * otherwise it is ignored.
     */
-  final val src = "src".reactAttr[String]
+  final val src = ReactAttr[String]("src")
 
-  final lazy val srcDoc = "srcDoc".reactAttr
+  final lazy val srcDoc = ReactAttr("srcDoc")
 
-  final lazy val srcLang = "srcLang".reactAttr
+  final lazy val srcLang = ReactAttr("srcLang")
 
-  final lazy val srcSet = "srcSet".reactAttr
+  final lazy val srcSet = ReactAttr("srcSet")
 
-  final lazy val step = "step".reactAttr
+  final lazy val step = ReactAttr("step")
 
   /**
     * This attribute contains CSS styling declarations to be applied to the
@@ -934,7 +934,7 @@ trait HtmlAttrs {
     * The value is actually just `summary`. This is named `summaryAttr` in Scala to avoid a conflict with the
     * &lt;summary&gt; tag in [[all]].
     */
-  final lazy val summaryAttr = "summary".reactAttr
+  final lazy val summaryAttr = ReactAttr("summary")
 
   /**
     * This integer attribute indicates if the element can take input focus (is
@@ -954,7 +954,7 @@ trait HtmlAttrs {
     *
     * An element with a 0 value, an invalid value, or no tabIndex value should be placed after elements with a positive tabIndex in the sequential keyboard navigation order.
     */
-  final lazy val tabIndex = "tabIndex".reactAttr[Int]
+  final lazy val tabIndex = ReactAttr[Int]("tabIndex")
 
   /**
     * A name or keyword indicating where to display the response that is received
@@ -1011,7 +1011,7 @@ trait HtmlAttrs {
     * the element it belongs too. Such information can typically, but not
     * necessarily, be presented to the user as a tooltip.
     */
-  final val title = "title".reactAttr
+  final val title = ReactAttr("title")
 
   /**
     * Shorthand for the `type` attribute
@@ -1026,23 +1026,23 @@ trait HtmlAttrs {
     * a Cascading Style Sheet format. You can use tpe as an alias for this
     * attribute so you don't have to backtick-escape this attribute.
     */
-  final val `type` = "type".reactAttr
+  final val `type` = ReactAttr("type")
 
   /** IE-specific property to prevent user selection */
-  final lazy val unselectable = "unselectable".reactAttr
+  final lazy val unselectable = ReactAttr("unselectable")
 
-  final lazy val useMap = "useMap".reactAttr
+  final lazy val useMap = ReactAttr("useMap")
 
   /**
     * The initial value of the control. This attribute is optional except when
     * the value of the type attribute is radio or checkbox.
     */
-  final val value = "value".reactAttr
+  final val value = ReactAttr("value")
 
-  final lazy val wmode = "wmode".reactAttr
+  final lazy val wmode = ReactAttr("wmode")
 
   /** &lt;textarea&gt;: Indicates whether the text should be wrapped. */
-  final lazy val wrap = "wrap".reactAttr
+  final lazy val wrap = ReactAttr("wrap")
 
-  final lazy val xmlns = "xmlns".reactAttr
+  final lazy val xmlns = ReactAttr("xmlns")
 }

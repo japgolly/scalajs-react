@@ -7,7 +7,7 @@ import html_<^._
 
 object ReactAttrTest extends TestSuite {
 
-  val anything = "".reactAttr[Any]
+  val anything = ReactAttr[Any]("")
   val intOnly = ^.colSpan
   val stringOnly = ^.href
   val style = ^.style

@@ -20,7 +20,7 @@ object PrefixedVdomTest extends TestSuite {
 //    .build
 
   lazy val tagmod  : TagMod       = ^.cls := "ho"
-  lazy val reacttag: Tag          = <.span
+  lazy val reacttag: ReactTag     = <.span
   lazy val relement: ReactElement = <.span
   lazy val jsObj   : js.Object    = js.Dynamic.literal("a" -> "b").asInstanceOf[js.Object]
 

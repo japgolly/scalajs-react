@@ -86,11 +86,15 @@ TODO
 Breaking Changes
 ================
 
+Should really add these back in and deprecate them
+
 * Use `^.dangerouslySetInnerHtml := x` instead of `^.dangerouslySetInnerHtml(x)`.
 * Import `vdom.html_<^._` instead of `vdom.prefix_<^._`.
 * `?=` deprecated in favour of `when`/`unless`.
 * Change `:=` to `:=?` when the right-hand side is an `Option`.
 * TagMod: `+` and `compose` replaced with `apply(TagMod*)` just like tags.
+* Use `ReactAttr[A](x)` in place of `"".reactAttr`.
+* Use `ReactAttr.style[A](x)` in place of `"".reactStyle`.
 
 
 # DON'T FORGET!! Go through all the TODOs in `vdom`

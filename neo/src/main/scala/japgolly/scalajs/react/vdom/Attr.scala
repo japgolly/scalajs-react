@@ -42,6 +42,18 @@ sealed trait InnerHtmlAttr
 
 object Attr {
 
+  def apply[A](name: String): Attr[A] =
+    new Generic[A](name)
+
+  def style[A](name: String): Attr[A] =
+    new Style.Child[A](name)
+
+  @inline def devOnly[A](name: => String): Attr[A] =
+    if (developmentMode)
+      new Generic(name)
+    else
+      Dud
+
   class Generic[-U](name: String) extends Attr[U](name) {
     override def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod =
       t(name, a)
@@ -85,12 +97,6 @@ object Attr {
   private[vdom] object Dud extends Attr[Any]("") {
     override def :=[A](a: A)(implicit t: ValueType[A, Any]) = TagMod.Empty
   }
-
-  @inline def devOnly[A](name: => String): Attr[A] =
-    if (developmentMode)
-      new Generic(name)
-    else
-      Dud
 
   private[vdom] object ClassName extends Attr[String]("class") {
     override def :=[A](a: A)(implicit t: ValueType[A, String]): TagMod =

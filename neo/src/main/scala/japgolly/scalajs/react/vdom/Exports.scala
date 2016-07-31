@@ -4,12 +4,13 @@ object ExportsStatic {
 
   final class VdomExtString(private val s: String) extends AnyVal {
 
-    // TODO Should this just be ReactAttr(name)
+    @deprecated("Use ReactAttr[A](\"name\") instead.", "1.0")
     def reactAttr[A]: Attr[A] =
-      new Attr.Generic(s)
+      Attr[A](s)
 
+    @deprecated("Use ReactAttr.style[A](\"name\") instead.", "1.0")
     def reactStyle[A]: Attr[A] =
-      new Attr.Style.Child(s)
+      Attr.style[A](s)
 
     @inline def reactTag[N <: HtmlTopNode]: HtmlTagOf[N] =
       new HtmlTagOf[N](s)
@@ -36,12 +37,11 @@ abstract class Exports {
   final type TagMod = japgolly.scalajs.react.vdom.TagMod
   final val TagMod = japgolly.scalajs.react.vdom.TagMod
 
-  // TODO Shouldn't the alias be ReactAttr?
-  final type Attr[-U] = japgolly.scalajs.react.vdom.Attr[U]
-  final val Attr = japgolly.scalajs.react.vdom.Attr
+  final type ReactAttr[-U] = japgolly.scalajs.react.vdom.Attr[U]
+  final val ReactAttr = japgolly.scalajs.react.vdom.Attr
 
-  final type TagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.TagOf[N]
-  final type Tag = TagOf[TopNode]
+  final type ReactTagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.TagOf[N]
+  final type ReactTag = ReactTagOf[TopNode]
 
   final type HtmlTagOf[+N <: HtmlTopNode] = japgolly.scalajs.react.vdom.HtmlTagOf[N]
   final type HtmlTag = HtmlTagOf[HtmlTopNode]
