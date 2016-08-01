@@ -13,6 +13,8 @@ object PrefixedVdomTest extends TestSuite {
   lazy val CB = ScalaComponent.build[Unit]("CB").render_C(c => <.span(c)).build
   lazy val H1 = ScalaComponent.build[String]("H").render_P(p => <.h1(p)).build
 
+  def jsComp = JsComponentPTest.Component(JsComponentPTest.JsProps("yo"))
+
 //  lazy val SI = ReactComponentB[Unit]("SI")
 //    .initialState(123)
 //    .render(T => <.input(^.value := T.state.toString))
@@ -42,8 +44,15 @@ object PrefixedVdomTest extends TestSuite {
     'long      - test(<.div(123L),                                   "<div>123</div>")
     'double    - test(<.div(12.3),                                   "<div>12.3</div>")
     'string    - test(<.div("yo"),                                   "<div>yo</div>")
+
     'reactNode - test(<.div(reactNode),                              "<div><h1>cool</h1></div>")
-    'comp      - test(<.div(H1("a")),                                "<div><h1>a</h1></div>")
+    'reactTag  - test(<.div(reacttag),                               "<div><span></span></div>")
+    'reactEl   - test(<.div(relement),                               "<div><span></span></div>")
+    'tagMod    - test(<.div(tagmod),                                 """<div class="ho"></div>""")
+    'tagHtml   - test(<.div(<.span),                                 "<div><span></span></div>")
+    'tagHtmlM  - test(<.div(<.span(^.size := 3)),                    """<div><span size="3"></span></div>""")
+    'compScala - test(<.div(H1("a")),                                "<div><h1>a</h1></div>")
+    'compJS    - test(<.div(jsComp),                                 "<div><div>Hello yo</div></div>")
 
     'checkboxT  - test(checkbox(true),                              """<input type="checkbox" checked="" readonly=""/>""")
     'checkboxF  - test(checkbox(false),                             """<input type="checkbox" readonly=""/>""")
@@ -66,8 +75,8 @@ object PrefixedVdomTest extends TestSuite {
       'option {
         'attr_some    - test(<.div(^.cls :=? "hi".some),    """<div class="hi"></div>""")
         'attr_none    - test(<.div(^.cls :=? "h1".none),    """<div></div>""")
-//        'style_some   - test(<.div(^.color :=? "red".some), """<div style="color:red;"></div>""")
-//        'style_none   - test(<.div(^.color :=? "red".none), """<div></div>""")
+        'style_some   - test(<.div(^.color :=? "red".some), """<div style="color:red;"></div>""")
+        'style_none   - test(<.div(^.color :=? "red".none), """<div></div>""")
         'tagmod_some  - test(<.div(tagmod.some),           """<div class="ho"></div>""")
         'tagmod_none  - test(<.div(tagmod.none),           """<div></div>""")
         'tag_some     - test(<.div(reacttag.some),         """<div><span></span></div>""")
@@ -80,8 +89,8 @@ object PrefixedVdomTest extends TestSuite {
       'jsUndefOr {
         'attr_def      - test(<.div(^.cls :=? "hi".jsdef),    """<div class="hi"></div>""")
         'attr_undef    - test(<.div(^.cls :=? "hi".undef),    """<div></div>""")
-//        'style_def     - test(<.div(^.color :=? "red".jsdef), """<div style="color:red;"></div>""")
-//        'style_undef   - test(<.div(^.color :=? "red".undef), """<div></div>""")
+        'style_def     - test(<.div(^.color :=? "red".jsdef), """<div style="color:red;"></div>""")
+        'style_undef   - test(<.div(^.color :=? "red".undef), """<div></div>""")
         'tagmod_def    - test(<.div(tagmod.jsdef),           """<div class="ho"></div>""")
         'tagmod_undef  - test(<.div(tagmod.undef),           """<div></div>""")
         'tag_def       - test(<.div(reacttag.jsdef),         """<div><span></span></div>""")
@@ -110,31 +119,30 @@ object PrefixedVdomTest extends TestSuite {
         'attrs - test(
           <.span((^.cls := "great").when(true), (^.cls := "saywhat").when(false), "ok"),
           """<span class="great">ok</span>""")
-//        'styles - test(
-//          <.span((^.color := "red").when(true), (^.color := "black").when(false), "ok"),
-//          """<span style="color:red;">ok</span>""")
+        'styles - test(
+          <.span((^.color := "red").when(true), (^.color := "black").when(false), "ok"),
+          """<span style="color:red;">ok</span>""")
       }
       'unless {
         'attrs - test(
           <.span((^.cls := "great").unless(false), (^.cls := "saywhat").unless(true), "ok"),
           """<span class="great">ok</span>""")
-//        'styles - test(
-//          <.span((^.color := "red").unless(false), (^.color := "black").unless(true), "ok"),
-//          """<span style="color:red;">ok</span>""")
+        'styles - test(
+          <.span((^.color := "red").unless(false), (^.color := "black").unless(true), "ok"),
+          """<span style="color:red;">ok</span>""")
       }
     }
 
-/*
     'tagmodComposition {
       val a: TagMod = ^.cls := "hehe"
       val b: TagMod = <.h3("Good")
-      val c = a compose b
+      val c = a(b)
       test(<.div(c), """<div class="hehe"><h3>Good</h3></div>""")
     }
 
-    'combination - test(
-      <.div(^.cls := "hi", "Str: ", 123, JArray(H1("a"), H1("b")), <.p(^.cls := "pp")("!")),
-      """<div class="hi">Str: 123<h1>a</h1><h1>b</h1><p class="pp">!</p></div>""")
+//    'combination - test(
+//      <.div(^.cls := "hi", "Str: ", 123, JArray(H1("a"), H1("b")), <.p(^.cls := "pp")("!")),
+//      """<div class="hi">Str: 123<h1>a</h1><h1>b</h1><p class="pp">!</p></div>""")
 
     'styles - test(
       <.div(^.backgroundColor := "red", ^.marginTop := "10px", "!"),
@@ -142,44 +150,44 @@ object PrefixedVdomTest extends TestSuite {
 
     'noImplicitUnit - assertTypeMismatch(compileError("""val x: TagMod = ()"""))
 
-    'numericStyleUnits {
-      'px  - test(<.div(^.marginTop := 2.px),  """<div style="margin-top:2px;"></div>""")
-      'ex  - test(<.div(^.marginTop := 2.ex),  """<div style="margin-top:2ex;"></div>""")
-      'em  - test(<.div(^.marginTop := 2.em),  """<div style="margin-top:2em;"></div>""")
-      'str - assertContains(compileError("""<.div(^.marginTop := "hehe".em)""").msg, "not a member of String")
-    }
+//    'numericStyleUnits {
+//      'px  - test(<.div(^.marginTop := 2.px),  """<div style="margin-top:2px;"></div>""")
+//      'ex  - test(<.div(^.marginTop := 2.ex),  """<div style="margin-top:2ex;"></div>""")
+//      'em  - test(<.div(^.marginTop := 2.em),  """<div style="margin-top:2em;"></div>""")
+//      'str - assertContains(compileError("""<.div(^.marginTop := "hehe".em)""").msg, "not a member of String")
+//    }
+//
+//    // Copied from Scalatags
+//    'copied {
+//
+//      'attributeChaining - test(
+//        <.div(^.`class` := "thing lol", ^.id := "cow"),
+//        """<div id="cow" class="thing lol"></div>""")
+//
+//      'mixingAttributesStylesAndChildren - test(
+//        <.div(^.id := "cow", ^.float.left, <.p("i am a cow")),
+//        """<div id="cow" style="float:left;"><p>i am a cow</p></div>""")
+//
+//      //class/style after attr appends, but attr after class/style overwrites
+//      //        'classStyleAttrOverwriting - test(
+//      //          div(cls := "my-class", style := "background-color: red;", float.left, p("i am a cow")),
+//      //          """<div class="my-class" style="background-color:red;float:left;"><p>i am a cow</p></div>""")
+//
+//      'intSeq - test(
+//        <.div(<.h1("Hello"), for (i <- 0 until 5) yield i),
+//        """<div><h1>Hello</h1>01234</div>""")
+//
+//      'stringArray - {
+//        val strArr = Array("hello")
+//        test(<.div("lol".some, 1.some, None: Option[String], <.h1("Hello"), Array(1, 2, 3), strArr, EmptyTag),
+//          """<div>lol1<h1>Hello</h1>123hello</div>""")
+//      }
+//
+//      'applyChaining - test(
+//        <.a(^.tabIndex := 1, ^.cls := "lol")(^.href := "boo", ^.alt := "g"),
+//        """<a tabindex="1" href="boo" alt="g" class="lol"></a>""")
+//    }
 
-    // Copied from Scalatags
-    'copied {
-
-      'attributeChaining - test(
-        <.div(^.`class` := "thing lol", ^.id := "cow"),
-        """<div id="cow" class="thing lol"></div>""")
-
-      'mixingAttributesStylesAndChildren - test(
-        <.div(^.id := "cow", ^.float.left, <.p("i am a cow")),
-        """<div id="cow" style="float:left;"><p>i am a cow</p></div>""")
-
-      //class/style after attr appends, but attr after class/style overwrites
-      //        'classStyleAttrOverwriting - test(
-      //          div(cls := "my-class", style := "background-color: red;", float.left, p("i am a cow")),
-      //          """<div class="my-class" style="background-color:red;float:left;"><p>i am a cow</p></div>""")
-
-      'intSeq - test(
-        <.div(<.h1("Hello"), for (i <- 0 until 5) yield i),
-        """<div><h1>Hello</h1>01234</div>""")
-
-      'stringArray - {
-        val strArr = Array("hello")
-        test(<.div("lol".some, 1.some, None: Option[String], <.h1("Hello"), Array(1, 2, 3), strArr, EmptyTag),
-          """<div>lol1<h1>Hello</h1>123hello</div>""")
-      }
-
-      'applyChaining - test(
-        <.a(^.tabIndex := 1, ^.cls := "lol")(^.href := "boo", ^.alt := "g"),
-        """<a tabindex="1" href="boo" alt="g" class="lol"></a>""")
-    }
-*/
     'classSet {
       'allConditional {
         val r = ScalaComponent.build[(Boolean,Boolean)]("C").render_P(p =>

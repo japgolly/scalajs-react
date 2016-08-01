@@ -5,6 +5,7 @@ import scala.io.AnsiColor._
 import scala.scalajs.js
 import scalaz.{Equal, Maybe}
 import scalaz.syntax.equal._
+import utest.CompileError
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.PackageBase._
 
@@ -114,5 +115,14 @@ trait TestUtil
     val rendered: String = ReactDOMServer.renderToStaticMarkup(comp)
     assertEq(rendered, expected)
   }
+
+  def assertContains(value: String, search: String, expect: Boolean = true): Unit =
+    if (value.contains(search) != expect) {
+      println(s"\nValue: $value\nSearch: $search\nExpect: $expect\n")
+      assert(false)
+    }
+
+  def assertTypeMismatch(e: CompileError): Unit =
+    assertContains(e.msg, "type mismatch")
 }
 
