@@ -53,7 +53,9 @@ trait TestUtil
       println(s"expect: $pre$BOLD$BLUE$es$RESET$post")
       println(s"actual: $pre$BOLD$RED$as$RESET$post")
       println()
-      assert(false)
+      val f = new AssertionError(s"$es ≠ $as")
+      f.setStackTrace(Array.empty)
+      throw f
     }
 
   def fail(msg: String, clearStackTrace: Boolean = true): Nothing = {

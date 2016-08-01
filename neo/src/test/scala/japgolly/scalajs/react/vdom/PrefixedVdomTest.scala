@@ -150,13 +150,15 @@ object PrefixedVdomTest extends TestSuite {
 
     'noImplicitUnit - assertTypeMismatch(compileError("""val x: TagMod = ()"""))
 
-//    'numericStyleUnits {
-//      'px  - test(<.div(^.marginTop := 2.px),  """<div style="margin-top:2px;"></div>""")
-//      'ex  - test(<.div(^.marginTop := 2.ex),  """<div style="margin-top:2ex;"></div>""")
-//      'em  - test(<.div(^.marginTop := 2.em),  """<div style="margin-top:2em;"></div>""")
-//      'str - assertContains(compileError("""<.div(^.marginTop := "hehe".em)""").msg, "not a member of String")
-//    }
-//
+    'numericStyleUnits {
+    //'zero - test(<.div(^.marginTop := 0.em),    """<div style="margin-top:0;"></div>""")
+      'px   - test(<.div(^.marginTop := 2.px),    """<div style="margin-top:2px;"></div>""")
+    //'ex   - test(<.div(^.marginTop := 2.3f.ex), """<div style="margin-top:2.3ex;"></div>""")
+      'em   - test(<.div(^.marginTop := 2.7.em),  """<div style="margin-top:2.7em;"></div>""")
+      'rem  - test(<.div(^.marginTop := 2L.rem),  """<div style="margin-top:2rem;"></div>""")
+      'str  - assertContains(compileError("""<.div(^.marginTop := "hehe".em)""").msg, "not a member of String")
+    }
+
 //    // Copied from Scalatags
 //    'copied {
 //

@@ -26,10 +26,12 @@ trait ImplicitsForReactAttr extends ImplicitsForReactAttr0 {
 
   implicit val reactAttrVtJsObject: Simple[js.Object] = direct
 
-  implicit def reactAttrVtJsDictionary[A]: ValueType[js.Dictionary[A], js.Object] = byImplicit
+  @inline implicit def reactAttrVtJsDictionary[A]: ValueType[js.Dictionary[A], js.Object] = byImplicit
 
   // For attributes that aren't typed yet
-  implicit def reactAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
+  @inline implicit def reactAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
+
+  @inline implicit def reactAttrVtCssUnits[N: Numeric](n: N): CssUnits = new CssUnits(n)
 
 }
 
