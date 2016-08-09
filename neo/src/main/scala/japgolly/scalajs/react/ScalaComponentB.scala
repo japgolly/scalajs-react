@@ -243,7 +243,7 @@ object ScalaComponentB {
         ($: raw.ReactComponent) =>
           f(castV($).mountedCB)
 
-      spec.render = withMounted(renderFn.andThen(_.raw))
+      spec.render = withMounted(renderFn.andThen(_.rawReactElement))
 
       spec.getInitialState =
         initStateFn match {

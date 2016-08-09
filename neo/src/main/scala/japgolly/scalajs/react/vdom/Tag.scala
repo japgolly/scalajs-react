@@ -49,7 +49,7 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
     render.toString
 
   override def applyTo(b: Builder): Unit =
-    b.appendChild(render.raw)
+    b.appendChild(render.rawReactElement)
 }
 
 // =====================================================================================================================

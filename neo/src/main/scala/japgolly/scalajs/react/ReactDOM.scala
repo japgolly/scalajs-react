@@ -28,7 +28,7 @@ object ReactDOMServer {
     * only attach event handlers, allowing you to have a very performant first-load experience.
     */
   @inline def renderToString(e: ReactElement): String =
-    raw.ReactDOMServer.renderToString(e.raw)
+    raw.ReactDOMServer.renderToString(e.rawReactElement)
 
   /**
     * Similar to [[renderToString]], except this doesn't create extra DOM attributes such as `data-react-id`, that React
@@ -36,5 +36,5 @@ object ReactDOMServer {
     * extra attributes can save lots of bytes.
     */
   @inline def renderToStaticMarkup(e: ReactElement): String =
-    raw.ReactDOMServer.renderToStaticMarkup(e.raw)
+    raw.ReactDOMServer.renderToStaticMarkup(e.rawReactElement)
 }

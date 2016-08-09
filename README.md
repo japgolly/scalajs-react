@@ -75,17 +75,18 @@ Contributions welcome.
 
 # Pending
 
-- Integration with all the `.extra` awesomeness. (Because most of it has been tremendously useful in real-world code.)
-- Maybe a new means of declaring Scala mixins.
-- Static and dynamic props (for Scala components).
-- Simplify `Scalaz` and `Monocle` modules.
-- Functional components don't allow refs. Current `CtorType` doesn't support this.
 - Refs.
+  - VDOM
+  - Functional components don't allow refs. Current `CtorType` doesn't support this.
   - Stringly typed.
   - DOM/component type of target may differ between declaration and assignment.
+- Static and dynamic props (for Scala components).
+- Integration with all the `.extra` awesomeness. (Because most of it has been tremendously useful in real-world code.)
+- Simplify `Scalaz` and `Monocle` modules.
 
 # Maybe
 
+- Maybe a new means of declaring Scala mixins.
 - Component DOM/`getDOMNode` types. Currently none.
   - Having `N <: TopNode` all over the place was annoying.
   - Could add manually like before.

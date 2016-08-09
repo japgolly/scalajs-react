@@ -2,9 +2,9 @@ package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.{raw => Raw}
 
-sealed class ReactNode(raw: Raw.ReactNode) extends TagMod {
+sealed class ReactNode(val rawReactNode: Raw.ReactNode) extends TagMod {
   override def applyTo(b: Builder): Unit =
-    b.appendChild(raw)
+    b.appendChild(rawReactNode)
 }
 
 object ReactNode {
@@ -17,7 +17,8 @@ object ReactNode {
 
 // =====================================================================================================================
 
-final class ReactElement(val raw: Raw.ReactElement) extends ReactNode(raw)
+// TODO ReactXxx[raw.Node], ReactXxx[raw.Element]
+final class ReactElement(val rawReactElement: Raw.ReactElement) extends ReactNode(rawReactElement)
 
 object ReactElement {
   @inline def apply(n: Raw.ReactElement): ReactElement =

@@ -23,7 +23,7 @@ object PrefixedVdomTest extends TestSuite {
 
   lazy val tagmod  : TagMod       = ^.cls := "ho"
   lazy val reacttag: ReactTag     = <.span
-  lazy val relement: ReactElement = <.span
+  lazy val relement: ReactElement = <.p
   lazy val jsObj   : js.Object    = js.Dynamic.literal("a" -> "b").asInstanceOf[js.Object]
 
   def reactNode: ReactNode = H1("cool")
@@ -47,7 +47,7 @@ object PrefixedVdomTest extends TestSuite {
 
     'reactNode - test(<.div(reactNode),                              "<div><h1>cool</h1></div>")
     'reactTag  - test(<.div(reacttag),                               "<div><span></span></div>")
-    'reactEl   - test(<.div(relement),                               "<div><span></span></div>")
+    'reactEl   - test(<.div(relement),                               "<div><p></p></div>")
     'tagMod    - test(<.div(tagmod),                                 """<div class="ho"></div>""")
     'tagHtml   - test(<.div(<.span),                                 "<div><span></span></div>")
     'tagHtmlM  - test(<.div(<.span(^.size := 3)),                    """<div><span size="3"></span></div>""")
@@ -62,12 +62,19 @@ object PrefixedVdomTest extends TestSuite {
     'styleDict  - test(<.div(^.style := js.Dictionary("x" -> "y")), """<div style="x:y;"></div>""")
     'styleAttrs - test(<.div(^.color := "red", ^.cursor.auto),      """<div style="color:red;cursor:auto;"></div>""")
 
-//    'seqTag    - test(<.div(Seq (<.span(1), <.span(2))),             "<div><span>1</span><span>2</span></div>")
-//    'listTag   - test(<.div(List(<.span(1), <.span(2))),             "<div><span>1</span><span>2</span></div>")
-//    'listComp  - test(<.div(List(H1("a"), H1("b"))),                 "<div><h1>a</h1><h1>b</h1></div>")
-//    'list2jAry - test(<.div(List(H1("a"), H1("b")).toJsArray),       "<div><h1>a</h1><h1>b</h1></div>")
-//    'jAryTag   - test(<.div(JArray(<.span(1), <.span(2))),           "<div><span>1</span><span>2</span></div>")
-//    'jAryComp  - test(<.div(JArray(H1("a"), H1("b"))),               "<div><h1>a</h1><h1>b</h1></div>")
+
+    'array {
+      'seqReactNode - test(<.div(Seq     (reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+      'lstReactTag  - test(<.div(List    (reacttag , reacttag ).toReactArray), "<div><span></span><span></span></div>")
+      'strReactEl   - test(<.div(Stream  (relement , relement ).toReactArray), "<div><p></p><p></p></div>")
+   // 'seqTagMod    - test(<.div(Seq     (tagmod   , tagmod   ).toReactArray), """<div class="ho ho"></div>""")
+      'seqTagHtml   - test(<.div(Seq     (<.span   , <.span   ).toReactArray), "<div><span></span><span></span></div>")
+      'seqCompScala - test(<.div(Seq     (H1("a")  , CA("b")  ).toReactArray), """<div><h1>a</h1><div>b</div></div>""")
+      'seqCompJS    - test(<.div(Seq     (jsComp   , jsComp   ).toReactArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
+      'vecCompMix   - test(<.div(Vector  (jsComp   , jsComp   ).toReactArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
+      'arrayScala   - test(<.div(Array   (reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+      'arrayJs      - test(<.div(js.Array(reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+    }
 
     'dangerouslySetInnerHtml - test(<.div(^.dangerouslySetInnerHtml := "<span>"), "<div><span></div>")
 
@@ -81,7 +88,7 @@ object PrefixedVdomTest extends TestSuite {
         'tagmod_none  - test(<.div(tagmod.none),           """<div></div>""")
         'tag_some     - test(<.div(reacttag.some),         """<div><span></span></div>""")
         'tag_none     - test(<.div(reacttag.none),         """<div></div>""")
-        'element_some - test(<.div(relement.some),         """<div><span></span></div>""")
+        'element_some - test(<.div(relement.some),         """<div><p></p></div>""")
         'element_none - test(<.div(relement.none),         """<div></div>""")
         'comp_some    - test(<.div(H1("yoo").some),        """<div><h1>yoo</h1></div>""")
         'comp_none    - test(<.div(H1("yoo").none),        """<div></div>""")
@@ -95,7 +102,7 @@ object PrefixedVdomTest extends TestSuite {
         'tagmod_undef  - test(<.div(tagmod.undef),           """<div></div>""")
         'tag_def       - test(<.div(reacttag.jsdef),         """<div><span></span></div>""")
         'tag_undef     - test(<.div(reacttag.undef),         """<div></div>""")
-        'element_def   - test(<.div(relement.jsdef),         """<div><span></span></div>""")
+        'element_def   - test(<.div(relement.jsdef),         """<div><p></p></div>""")
         'element_undef - test(<.div(relement.undef),         """<div></div>""")
         'comp_def      - test(<.div(H1("yoo").jsdef),        """<div><h1>yoo</h1></div>""")
         'comp_undef    - test(<.div(H1("yoo").undef),        """<div></div>""")
