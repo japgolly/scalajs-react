@@ -63,17 +63,24 @@ object PrefixedVdomTest extends TestSuite {
     'styleAttrs - test(<.div(^.color := "red", ^.cursor.auto),      """<div style="color:red;cursor:auto;"></div>""")
 
 
-    'array {
-      'seqReactNode - test(<.div(Seq     (reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
-      'lstReactTag  - test(<.div(List    (reacttag , reacttag ).toReactArray), "<div><span></span><span></span></div>")
-      'strReactEl   - test(<.div(Stream  (relement , relement ).toReactArray), "<div><p></p><p></p></div>")
-   // 'seqTagMod    - test(<.div(Seq     (tagmod   , tagmod   ).toReactArray), """<div class="ho ho"></div>""")
-      'seqTagHtml   - test(<.div(Seq     (<.span   , <.span   ).toReactArray), "<div><span></span><span></span></div>")
-      'seqCompScala - test(<.div(Seq     (H1("a")  , CA("b")  ).toReactArray), """<div><h1>a</h1><div>b</div></div>""")
-      'seqCompJS    - test(<.div(Seq     (jsComp   , jsComp   ).toReactArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
-      'vecCompMix   - test(<.div(Vector  (jsComp   , jsComp   ).toReactArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
-      'arrayScala   - test(<.div(Array   (reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
-      'arrayJs      - test(<.div(js.Array(reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+    'ReactArray {
+
+      'ctorRN - test(<.div(ReactArray(reactNode, reactNode)), "<div><h1>cool</h1><h1>cool</h1></div>")
+
+      'ctorMix - test(<.div(ReactArray(reactNode, <.br, relement)), "<div><h1>cool</h1><br/><p></p></div>")
+
+      'toReactArray {
+        'seqReactNode - test(<.div(Seq     (reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+        'lstReactTag  - test(<.div(List    (reacttag , reacttag ).toReactArray), "<div><span></span><span></span></div>")
+        'strReactEl   - test(<.div(Stream  (relement , relement ).toReactArray), "<div><p></p><p></p></div>")
+     // 'seqTagMod    - test(<.div(Seq     (tagmod   , tagmod   ).toReactArray), """<div class="ho ho"></div>""")
+        'seqTagHtml   - test(<.div(Seq     (<.span   , <.span   ).toReactArray), "<div><span></span><span></span></div>")
+        'seqCompScala - test(<.div(Seq     (H1("a")  , CA("b")  ).toReactArray), """<div><h1>a</h1><div>b</div></div>""")
+        'seqCompJS    - test(<.div(Seq     (jsComp   , jsComp   ).toReactArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
+        'vecCompMix   - test(<.div(Vector  (jsComp   , jsComp   ).toReactArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
+        'arrayScala   - test(<.div(Array   (reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+        'arrayJs      - test(<.div(js.Array(reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+      }
     }
 
     'dangerouslySetInnerHtml - test(<.div(^.dangerouslySetInnerHtml := "<span>"), "<div><span></div>")

@@ -95,7 +95,7 @@ Should really add these back in and deprecate them
 * TagMod: `+` and `compose` replaced with `apply(TagMod*)` just like tags.
 * Use `ReactAttr[A](x)` in place of `"".reactAttr`.
 * Use `ReactAttr.style[A](x)` in place of `"".reactStyle`.
-* No more auto conversion of vdom arrays. Either use `blah: _*`, `TagMod(blah: _*)`, or `blah.toReactArray`.
+* No more auto conversion of vdom arrays. Either use `blah: _*`, `TagMod(blah: _*)`, or `blah.toReactArray`, `ReactArray(…)`.
 
 
 # DON'T FORGET!! Go through all the TODOs in `vdom`

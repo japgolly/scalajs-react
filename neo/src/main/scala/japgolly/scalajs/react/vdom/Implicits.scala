@@ -45,21 +45,17 @@ trait ImplicitsForTagMod {
 // =====================================================================================================================
 
 object ImplicitsForReactNode {
-  type ReactArray = ReactNode
 
-  final class TravOnceExt[A](as: TraversableOnce[A], f: A => ReactNode) {
-    def toReactArray: ReactArray = {
-      val array = new js.Array[raw.ReactNode]
-      for (a <- as)
-        array.push(f(a).rawReactNode)
-      ReactNode.cast(array)
-    }
+  final class TravOnceExt[A](as: TraversableOnce[A])(implicit f: A => ReactNode) {
+    def toReactArray: ReactArray =
+      ReactArray.empty() ++ as
   }
 }
 
 trait ImplicitsForReactNode {
   import ImplicitsForReactNode._
 
+  // TODO Confirm @inline impacts on output size
           implicit def reactNodeFromL                 (v: Long)               : ReactNode = ReactNode.cast(v.toString)
   @inline implicit def reactNodeFromI                 (v: Int)                : ReactNode = ReactNode.cast(v)
   @inline implicit def reactNodeFromSh                (v: Short)              : ReactNode = ReactNode.cast(v)
@@ -70,13 +66,13 @@ trait ImplicitsForReactNode {
           implicit def reactNodeFromPC                (pc: PropsChildren)     : ReactNode = ReactNode.cast(pc.raw)
 
   implicit def reactNodeExtForTO[A](as: TraversableOnce[A])(implicit f: A => ReactNode): TravOnceExt[A] =
-    new TravOnceExt[A](as, f)
+    new TravOnceExt[A](as)(f)
 
   implicit def reactNodeExtForAS[A](as: Array[A])(implicit f: A => ReactNode): TravOnceExt[A] =
-    new TravOnceExt[A](as, f)
+    new TravOnceExt[A](as)(f)
 
   implicit def reactNodeExtForAJ[A](as: js.Array[A])(implicit f: A => ReactNode): TravOnceExt[A] =
-    new TravOnceExt[A](as, f)
+    new TravOnceExt[A](as)(f)
 }
 
 // =====================================================================================================================
