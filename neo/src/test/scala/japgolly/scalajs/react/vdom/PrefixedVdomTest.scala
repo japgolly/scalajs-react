@@ -130,6 +130,9 @@ object PrefixedVdomTest extends TestSuite {
 //        'comp_empty    - test(<.div(H1("yoo").maybeNot),        """<div></div>""")
 //      }
       'when {
+        'tags - test(
+          <.span(<.span("1").when(true), <.span("2").when(false)),
+          """<span><span>1</span></span>""")
         'attrs - test(
           <.span((^.cls := "great").when(true), (^.cls := "saywhat").when(false), "ok"),
           """<span class="great">ok</span>""")
@@ -138,6 +141,9 @@ object PrefixedVdomTest extends TestSuite {
           """<span style="color:red;">ok</span>""")
       }
       'unless {
+        'tags - test(
+          <.span(<.span("1").unless(true), <.span("2").unless(false)),
+          """<span><span>2</span></span>""")
         'attrs - test(
           <.span((^.cls := "great").unless(false), (^.cls := "saywhat").unless(true), "ok"),
           """<span class="great">ok</span>""")
