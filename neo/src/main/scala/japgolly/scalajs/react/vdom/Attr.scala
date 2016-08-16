@@ -113,6 +113,9 @@ object Attr {
     }
   }
 
+  sealed trait Key
+  val Key = apply[Key]("key")
+
 //  case object Ref extends ReactAttr[Any] {
 //    override def name = "ref"
 //    override def :=[A](a: A)(implicit t: ValueType[A, Any]): TagMod =

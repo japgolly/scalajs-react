@@ -12,6 +12,15 @@ trait ImplicitsForReactAttr0 {
 
   implicit lazy val reactAttrVtInnerHtml: ValueType[String, InnerHtmlAttr] =
     ValueType[String, InnerHtmlAttr]((b, html) => b(js.Dynamic.literal("__html" -> html)))
+
+  implicit def reactAttrVtKey[A](implicit k: A => raw.Key): ValueType[A, Attr.Key] =
+    ValueType((b, a) => b(k(a).asInstanceOf[js.Any]))
+
+  implicit val reactAttrVtKeyL: ValueType[Long, Attr.Key] =
+    ValueType((b, a) => b(a.toString))
+
+  // 90% case so reuse
+  implicit val reactAttrVtKeyS = reactAttrVtKey[String]
 }
 
 trait ImplicitsForReactAttr extends ImplicitsForReactAttr0 {
@@ -32,7 +41,6 @@ trait ImplicitsForReactAttr extends ImplicitsForReactAttr0 {
   @inline implicit def reactAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
 
   @inline implicit def reactAttrVtCssUnits[N: Numeric](n: N): CssUnits = new CssUnits(n)
-
 }
 
 // =====================================================================================================================

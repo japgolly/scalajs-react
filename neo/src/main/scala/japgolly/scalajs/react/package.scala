@@ -6,6 +6,7 @@ package object react extends ReactEventTypes {
 
   type Callback = CallbackTo[Unit]
 
+  // Same as raw.Key except its non-null
   type Key = String | Boolean | raw.JsNumber
 
   type Ref = String // TODO Ummm.....

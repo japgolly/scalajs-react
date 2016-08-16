@@ -439,7 +439,7 @@ trait HtmlAttrs {
   final lazy val itemType = ReactAttr("itemType")
 
   /** React key */
-  final val key = ReactAttr("key") // TODO See types in `.raw`
+  final val key = ReactAttr.Key
 
   /** For use in &lt;keygen&gt; */
   final lazy val keyParams = ReactAttr("keyParams")

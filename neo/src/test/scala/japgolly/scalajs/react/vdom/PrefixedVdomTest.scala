@@ -233,5 +233,20 @@ object PrefixedVdomTest extends TestSuite {
       }
     }
 
+    'key {
+      def t(m: TagMod) = test(<.span(m, "1"), "<span>1</span>")
+      val obj = new AnyRef
+      'str  - t(^.key := "1")
+      'bool - t(^.key := false)
+      'int  - t(^.key := 3)
+      'long - t(^.key := 3L)
+      'shrt - t(^.key := 3.toShort)
+      'flt  - t(^.key := 3.4f)
+      'dbl  - t(^.key := 3.4)
+      'byte - t(^.key := 3.toByte)
+      'unit - compileError(" ^.key := (())  ")
+      'obj  - compileError(" ^.key := obj   ")
+      'key  - compileError(" ^.key := ^.key ")
+    }
   }
 }
