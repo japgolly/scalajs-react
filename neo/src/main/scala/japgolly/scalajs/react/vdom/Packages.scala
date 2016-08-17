@@ -6,7 +6,7 @@ object PackageBase extends PackageBase
 trait HtmlAttrAndStyles extends HtmlAttrs with HtmlStyles
 object HtmlAttrAndStyles extends HtmlAttrAndStyles
 
-object all extends PackageBase with HtmlAttrAndStyles {
+object all extends PackageBase with HtmlTags with HtmlAttrAndStyles {
 //  object svg extends SvgTags with SvgAttrs
   @inline def keyAttr = key
 //  @inline def refAttr = ref
