@@ -57,6 +57,17 @@ Contributions welcome.
 
 - Consistency wrt wrapping typed effects. Eg. `BackendScope.getDOMNode` should be `Callback`/direct just like everything else.
 
+- Virtual DOM major revision.
+  - Rewrite and simplify types. Now easier to work with internally. This no longer bears any resemblence to Scalatags and certainly can no longer be considered a fork. Scalatags was tremedously helpful in this journey so if you have a chance, give @lihaoyi a big thanks for his work.
+  - Improved efficiency for vdom representation and creation.
+  - Add type-safety between attributes/styles and values. Eg `^:disabled = 7` no longer compiles.
+  - Event attributes now know which types of events they will generate. Eg `^.onMouseDown` knows to expect a mouse event and won't compile if you pass it a drag event handler.
+  - React node array handling is safety, more efficient and has its own type with a nicer interface.
+  - No more automatic expansion of `Seq`s. Either use `seq: _*` yourself or turn it into a `ReactArray`.
+  - Optional vdom supported when enclosed in `Option` or `js.UndefOr`.
+  - All vdom now has `.when(condition)` and `.unless(condition)` when will omit it unless a given condition is met. This replaces the `cond ?= (vdom)` syntax.
+  - All vdom composes the same way, call `.apply` on what you have and specify more. This was usually the case but there were a few corner types that did it differently.
+  - Easier and clearer access to SVG VDOM.
 
 # In Progress
 
@@ -66,12 +77,6 @@ Contributions welcome.
   Not sure if 'ole `ReactComponentB` was the best idea - it does work very well - but it would be nice to explore alternatives.
 
   (Note: if for backwards-compatibility and nothing else, `ReactComponentB` will be kept around for a long while. If a nice alternative appears then both methods will coexist.)
-
-- Virtual DOM.
-
-  This will be a major revision that will improve safety, ease of use, and readability.
-
-  See [NEO-VDOM.md](NEO-VDOM.md) for detail.
 
 # Pending
 
