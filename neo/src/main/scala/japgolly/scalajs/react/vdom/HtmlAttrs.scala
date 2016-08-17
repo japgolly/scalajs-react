@@ -546,11 +546,11 @@ trait HtmlAttrs {
 
   final lazy val onAbort = Attr.Event.base("onAbort")
 
-  final lazy val onAnimationEnd = Attr.Event.base("onAnimationEnd")
+  final lazy val onAnimationEnd = Attr.Event.animation("onAnimationEnd")
 
-  final lazy val onAnimationIteration = Attr.Event.base("onAnimationIteration")
+  final lazy val onAnimationIteration = Attr.Event.animation("onAnimationIteration")
 
-  final lazy val onAnimationStart = Attr.Event.base("onAnimationStart")
+  final lazy val onAnimationStart = Attr.Event.animation("onAnimationStart")
 
   final lazy val onBeforeInput = Attr.Event.base("onBeforeInput")
 
@@ -581,11 +581,11 @@ trait HtmlAttrs {
 
   final lazy val onCompositionUpdate = Attr.Event.composition("onCompositionUpdate")
 
-  final lazy val onContextMenu = Attr.Event.base("onContextMenu")
+  final lazy val onContextMenu = Attr.Event.mouse("onContextMenu")
 
-  final lazy val onCopy = Attr.Event.base("onCopy")
+  final lazy val onCopy = Attr.Event.clipboard("onCopy")
 
-  final lazy val onCut = Attr.Event.base("onCut")
+  final lazy val onCut = Attr.Event.clipboard("onCut")
 
   /** React alias for [[onDoubleClick]] */
   final def onDblClick = onDoubleClick
@@ -610,7 +610,7 @@ trait HtmlAttrs {
 
   final lazy val onDragStart = Attr.Event.drag("onDragStart")
 
-  final lazy val onDrop = Attr.Event.base("onDrop")
+  final lazy val onDrop = Attr.Event.drag("onDrop")
 
   final lazy val onDurationChange = Attr.Event.base("onDurationChange")
 
@@ -710,7 +710,7 @@ trait HtmlAttrs {
     */
   final lazy val onMouseUp = Attr.Event.mouse("onMouseUp")
 
-  final lazy val onPaste = Attr.Event.base("onPaste")
+  final lazy val onPaste = Attr.Event.clipboard("onPaste")
 
   final lazy val onPause = Attr.Event.base("onPause")
 
@@ -730,7 +730,7 @@ trait HtmlAttrs {
   /**
     * Specifies the function to be called when the window is scrolled.
     */
-  final lazy val onScroll = Attr.Event.base("onScroll")
+  final lazy val onScroll = Attr.Event.ui("onScroll")
 
   final lazy val onSeeked = Attr.Event.base("onSeeked")
 
@@ -778,7 +778,7 @@ trait HtmlAttrs {
     */
   final lazy val onTouchStart = Attr.Event.touch("onTouchStart")
 
-  final lazy val onTransitionEnd = Attr.Event.base("onTransitionEnd")
+  final lazy val onTransitionEnd = Attr.Event.transition("onTransitionEnd")
 
   final lazy val onVolumeChange = Attr.Event.base("onVolumeChange")
 
