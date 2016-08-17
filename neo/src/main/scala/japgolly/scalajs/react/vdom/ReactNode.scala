@@ -3,8 +3,6 @@ package japgolly.scalajs.react.vdom
 import japgolly.scalajs.react.{raw => Raw}
 import scala.scalajs.js
 
-// TODO Make TagMod a type class and all of these value classes
-
 sealed class ReactNode(val rawReactNode: Raw.ReactNode) extends TagMod {
   override def applyTo(b: Builder): Unit =
     b.appendChild(rawReactNode)
@@ -20,7 +18,6 @@ object ReactNode {
 
 // =====================================================================================================================
 
-// TODO ReactXxx[raw.Node], ReactXxx[raw.Element]
 final class ReactElement(val rawReactElement: Raw.ReactElement) extends ReactNode(rawReactElement)
 
 object ReactElement {
