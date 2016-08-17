@@ -54,7 +54,7 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
 
 // =====================================================================================================================
 
-final class HtmlTagOf[+N <: HtmlTopNode](val name: String) extends AnyVal {
+final case class HtmlTagOf[+N <: HtmlTopNode](name: String) extends AnyVal {
   def apply(xs: TagMod*): TagOf[N] =
     new TagOf(name, xs :: Nil, Namespace.Html)
 }
@@ -66,7 +66,7 @@ object HtmlTagOf {
 
 // =====================================================================================================================
 
-final class SvgTagOf[+N <: SvgTopNode](val name: String) extends AnyVal {
+final case class SvgTagOf[+N <: SvgTopNode](name: String) extends AnyVal {
   def apply(xs: TagMod*): TagOf[N] =
     new TagOf(name, xs :: Nil, Namespace.Svg)
 }
