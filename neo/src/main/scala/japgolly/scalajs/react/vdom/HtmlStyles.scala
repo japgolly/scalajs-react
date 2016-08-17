@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.vdom
 
 import PackageBase._
-
 import Attr.Style.{Child => Style}
 
 object HtmlStylesStatic {

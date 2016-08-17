@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.vdom
 
 import scala.scalajs.js
-import japgolly.scalajs.react.raw
 import PackageBase._
 
 object HtmlAttrs extends HtmlAttrs

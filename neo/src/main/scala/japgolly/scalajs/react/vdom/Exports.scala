@@ -12,8 +12,13 @@ object ExportsStatic {
     def reactStyle[A]: Attr[A] =
       Attr.style[A](s)
 
+    // TODO Deprecate these too
+
     @inline def reactTag[N <: HtmlTopNode]: HtmlTagOf[N] =
       new HtmlTagOf[N](s)
+
+    @inline def reactTagSvg[N <: SvgTopNode]: SvgTagOf[N] =
+      new SvgTagOf[N](s)
 
     // May eventually make use of this
     @inline private[vdom] def reactTerminalTag[N <: HtmlTopNode]: HtmlTagOf[N] =

@@ -6,10 +6,13 @@ object PackageBase extends PackageBase
 trait HtmlAttrAndStyles extends HtmlAttrs with HtmlStyles
 object HtmlAttrAndStyles extends HtmlAttrAndStyles
 
+trait SvgAttrAndStyles extends SvgAttrs with SvgStyles
+object SvgAttrAndStyles extends SvgAttrAndStyles
+
 object all extends PackageBase with HtmlTags with HtmlAttrAndStyles {
-//  object svg extends SvgTags with SvgAttrs
+  object svg extends SvgTags with SvgAttrAndStyles
   @inline def keyAttr = key
-//  @inline def refAttr = ref
+//  TODO @inline def refAttr = ref
 }
 
 object html_<^ extends PackageBase {
@@ -18,6 +21,6 @@ object html_<^ extends PackageBase {
 }
 
 object svg_<^ extends PackageBase {
-// @inline def < = SvgTags
-// @inline def ^ = SvgAttrs
+  val < = SvgTags
+  val ^ = SvgAttrAndStyles
 }
