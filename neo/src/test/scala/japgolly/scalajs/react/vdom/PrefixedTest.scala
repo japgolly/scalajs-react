@@ -8,18 +8,12 @@ import scala.scalajs.js
 import scala.scalajs.js.{Array => JArray}
 import utest._
 
-object PrefixedVdomTest extends TestSuite {
+object PrefixedTest extends TestSuite {
   lazy val CA = ScalaComponent.build[Unit]("CA").render_C(c => <.div(c)).build
   lazy val CB = ScalaComponent.build[Unit]("CB").render_C(c => <.span(c)).build
   lazy val H1 = ScalaComponent.build[String]("H").render_P(p => <.h1(p)).build
 
   def jsComp = JsComponentPTest.Component(JsComponentPTest.JsProps("yo"))
-
-//  lazy val SI = ReactComponentB[Unit]("SI")
-//    .initialState(123)
-//    .render(T => <.input(^.value := T.state.toString))
-//    .domType[HTMLInputElement]
-//    .build
 
   lazy val tagmod  : TagMod       = ^.cls := "ho"
   lazy val reacttag: ReactTag     = <.span
@@ -179,36 +173,19 @@ object PrefixedVdomTest extends TestSuite {
       'str  - assertContains(compileError("""<.div(^.marginTop := "hehe".em)""").msg, "not a member of String")
     }
 
-//    // Copied from Scalatags
-//    'copied {
-//
-//      'attributeChaining - test(
-//        <.div(^.`class` := "thing lol", ^.id := "cow"),
-//        """<div id="cow" class="thing lol"></div>""")
-//
-//      'mixingAttributesStylesAndChildren - test(
-//        <.div(^.id := "cow", ^.float.left, <.p("i am a cow")),
-//        """<div id="cow" style="float:left;"><p>i am a cow</p></div>""")
-//
-//      //class/style after attr appends, but attr after class/style overwrites
-//      //        'classStyleAttrOverwriting - test(
-//      //          div(cls := "my-class", style := "background-color: red;", float.left, p("i am a cow")),
-//      //          """<div class="my-class" style="background-color:red;float:left;"><p>i am a cow</p></div>""")
-//
-//      'intSeq - test(
-//        <.div(<.h1("Hello"), for (i <- 0 until 5) yield i),
-//        """<div><h1>Hello</h1>01234</div>""")
-//
-//      'stringArray - {
-//        val strArr = Array("hello")
-//        test(<.div("lol".some, 1.some, None: Option[String], <.h1("Hello"), Array(1, 2, 3), strArr, EmptyTag),
-//          """<div>lol1<h1>Hello</h1>123hello</div>""")
-//      }
-//
-//      'applyChaining - test(
-//        <.a(^.tabIndex := 1, ^.cls := "lol")(^.href := "boo", ^.alt := "g"),
-//        """<a tabindex="1" href="boo" alt="g" class="lol"></a>""")
-//    }
+    'fromScalatags {
+      'attributeChaining - test(
+        <.div(^.`class` := "thing lol", ^.id := "cow"),
+        """<div id="cow" class="thing lol"></div>""")
+
+      'mixingAttributesStylesAndChildren - test(
+        <.div(^.id := "cow", ^.float.left, <.p("i am a cow")),
+        """<div id="cow" style="float:left;"><p>i am a cow</p></div>""")
+
+      'applyChaining - test(
+        <.a(^.tabIndex := 1, ^.cls := "lol")(^.href := "boo", ^.alt := "g"),
+        """<a tabindex="1" href="boo" alt="g" class="lol"></a>""")
+    }
 
     'classSet {
       'allConditional {
