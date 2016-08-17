@@ -82,8 +82,8 @@ object Attr {
     def apply[E[+x <: dom.Node] <: raw.SyntheticEvent[x]](name: String): Event[E] =
       new Event(name)
 
+    @inline def animation  (name: String) = apply[raw.SyntheticAnimationEvent  ](name)
     @inline def base       (name: String) = apply[raw.SyntheticEvent           ](name)
-    @inline def ui         (name: String) = apply[raw.SyntheticUIEvent         ](name)
     @inline def clipboard  (name: String) = apply[raw.SyntheticClipboardEvent  ](name)
     @inline def composition(name: String) = apply[raw.SyntheticCompositionEvent](name)
     @inline def drag       (name: String) = apply[raw.SyntheticDragEvent       ](name)
@@ -91,6 +91,8 @@ object Attr {
     @inline def keyboard   (name: String) = apply[raw.SyntheticKeyboardEvent   ](name)
     @inline def mouse      (name: String) = apply[raw.SyntheticMouseEvent      ](name)
     @inline def touch      (name: String) = apply[raw.SyntheticTouchEvent      ](name)
+    @inline def transition (name: String) = apply[raw.SyntheticTransitionEvent ](name)
+    @inline def ui         (name: String) = apply[raw.SyntheticUIEvent         ](name)
     @inline def wheel      (name: String) = apply[raw.SyntheticWheelEvent      ](name)
   }
 

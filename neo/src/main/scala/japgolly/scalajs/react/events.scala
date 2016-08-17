@@ -5,6 +5,7 @@ import org.scalajs.dom.html
 
 trait ReactEventTypes {
   final type ReactEvent            = raw.SyntheticEvent           [dom.Node]
+  final type ReactAnimationEvent   = raw.SyntheticAnimationEvent  [dom.Node]
   final type ReactClipboardEvent   = raw.SyntheticClipboardEvent  [dom.Node]
   final type ReactCompositionEvent = raw.SyntheticCompositionEvent[dom.Node]
   final type ReactDragEvent        = raw.SyntheticDragEvent       [dom.Node]
@@ -13,10 +14,12 @@ trait ReactEventTypes {
   final type ReactKeyboardEvent    = raw.SyntheticKeyboardEvent   [dom.Node]
   final type ReactMouseEvent       = raw.SyntheticMouseEvent      [dom.Node]
   final type ReactTouchEvent       = raw.SyntheticTouchEvent      [dom.Node]
+  final type ReactTransitionEvent  = raw.SyntheticTransitionEvent [dom.Node]
   final type ReactUIEvent          = raw.SyntheticUIEvent         [dom.Node]
   final type ReactWheelEvent       = raw.SyntheticWheelEvent      [dom.Node]
 
   final type ReactEventH            = raw.SyntheticEvent           [html.Element]
+  final type ReactAnimationEventH   = raw.SyntheticAnimationEvent  [html.Element]
   final type ReactClipboardEventH   = raw.SyntheticClipboardEvent  [html.Element]
   final type ReactCompositionEventH = raw.SyntheticCompositionEvent[html.Element]
   final type ReactDragEventH        = raw.SyntheticDragEvent       [html.Element]
@@ -25,10 +28,12 @@ trait ReactEventTypes {
   final type ReactKeyboardEventH    = raw.SyntheticKeyboardEvent   [html.Element]
   final type ReactMouseEventH       = raw.SyntheticMouseEvent      [html.Element]
   final type ReactTouchEventH       = raw.SyntheticTouchEvent      [html.Element]
+  final type ReactTransitionEventH  = raw.SyntheticTransitionEvent [html.Element]
   final type ReactUIEventH          = raw.SyntheticUIEvent         [html.Element]
   final type ReactWheelEventH       = raw.SyntheticWheelEvent      [html.Element]
 
   final type ReactEventI            = raw.SyntheticEvent           [html.Input]
+  final type ReactAnimationEventI   = raw.SyntheticAnimationEvent  [html.Input]
   final type ReactClipboardEventI   = raw.SyntheticClipboardEvent  [html.Input]
   final type ReactCompositionEventI = raw.SyntheticCompositionEvent[html.Input]
   final type ReactDragEventI        = raw.SyntheticDragEvent       [html.Input]
@@ -37,10 +42,12 @@ trait ReactEventTypes {
   final type ReactKeyboardEventI    = raw.SyntheticKeyboardEvent   [html.Input]
   final type ReactMouseEventI       = raw.SyntheticMouseEvent      [html.Input]
   final type ReactTouchEventI       = raw.SyntheticTouchEvent      [html.Input]
+  final type ReactTransitionEventI  = raw.SyntheticTransitionEvent [html.Input]
   final type ReactUIEventI          = raw.SyntheticUIEvent         [html.Input]
   final type ReactWheelEventI       = raw.SyntheticWheelEvent      [html.Input]
 
   final type ReactEventTA            = raw.SyntheticEvent           [html.TextArea]
+  final type ReactAnimationEventTA   = raw.SyntheticAnimationEvent  [html.TextArea]
   final type ReactClipboardEventTA   = raw.SyntheticClipboardEvent  [html.TextArea]
   final type ReactCompositionEventTA = raw.SyntheticCompositionEvent[html.TextArea]
   final type ReactDragEventTA        = raw.SyntheticDragEvent       [html.TextArea]
@@ -49,6 +56,7 @@ trait ReactEventTypes {
   final type ReactKeyboardEventTA    = raw.SyntheticKeyboardEvent   [html.TextArea]
   final type ReactMouseEventTA       = raw.SyntheticMouseEvent      [html.TextArea]
   final type ReactTouchEventTA       = raw.SyntheticTouchEvent      [html.TextArea]
+  final type ReactTransitionEventTA  = raw.SyntheticTransitionEvent [html.TextArea]
   final type ReactUIEventTA          = raw.SyntheticUIEvent         [html.TextArea]
   final type ReactWheelEventTA       = raw.SyntheticWheelEvent      [html.TextArea]
 

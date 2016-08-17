@@ -55,6 +55,22 @@ trait SyntheticUIEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEv
   def detail: Double = js.native
 }
 
+/** https://github.com/facebook/react/blob/master/src/renderers/dom/client/syntheticEvents/SyntheticAnimationEvent.js */
+@js.native
+trait SyntheticAnimationEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEventTarget] {
+  val animationName: String
+  val pseudoElement: String
+  val elapsedTime: Double
+}
+
+/** https://github.com/facebook/react/blob/master/src/renderers/dom/client/syntheticEvents/SyntheticTransitionEvent.js */
+@js.native
+trait SyntheticTransitionEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEventTarget] {
+  val propertyName: String
+  val pseudoElement: String
+  val elapsedTime: Double
+}
+
 /** https://github.com/facebook/react/blob/master/src/renderers/dom/client/syntheticEvents/SyntheticClipboardEvent.js */
 @js.native
 trait SyntheticClipboardEvent[+DOMEventTarget <: dom.Node] extends SyntheticEvent[DOMEventTarget] {
