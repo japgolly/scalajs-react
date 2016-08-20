@@ -12,7 +12,9 @@ Comes utility modules [`extra`](extra/) and [`test`](test/), helpful for React i
 Includes a router, testing utils, performance utils, more.
 
 <br>
-#### ***Notice: A redesign is currently underway on the [topic/neo](https://github.com/japgolly/scalajs-react/tree/topic/neo) branch. Pop in, have a look around, if you'd like to make some big changes now is the time.***
+## Notice: A redesign is currently underway on the [topic/neo](https://github.com/japgolly/scalajs-react/tree/topic/neo) branch.  
+### Pop in, have a look around, if you'd like to make some big changes now is the time.
+### Also it will largely be backward-compatible so don't be afraid to get started with the latest release if you're a new user.
 <br>
 
 ##### Index
