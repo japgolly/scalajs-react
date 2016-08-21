@@ -1,15 +1,15 @@
 `extra` Utility Module
 ======================
 
+This describes the smaller utilities in the `extra` module.
+Find links to the larger utilities from the [main README](../README.md).
+
 ```scala
 libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.11.1"
 ```
 
-**Big Stuff**
-- [Router](ROUTER.md)
-- [Performance Management](PERFORMANCE.md)
+#### Contents
 
-**Small Stuff**
 - [ExternalVar](#externalvar)
 - Component Mixins:
   - [Broadcaster and Listenable](#broadcaster-and-listenable)
