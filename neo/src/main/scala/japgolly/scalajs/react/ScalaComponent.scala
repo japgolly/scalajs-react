@@ -39,8 +39,11 @@ object ScalaComponent {
   final class MountedF[F[+_], P, S, B](val js: JsMounted[P, S, B])(implicit override protected val F: Effect[F])
       extends Component.Mounted[F, P, S] {
 
-    def backend: F[B] =
-      F point js.raw.backend
+    // B instead of F[B] because
+    // 1. Builder takes a MountedCB but needs immediate access to this.
+    // 2. It never changes.
+    val backend: B =
+      js.raw.backend
 
     override def isMounted: F[Boolean] =
       F point js.isMounted
