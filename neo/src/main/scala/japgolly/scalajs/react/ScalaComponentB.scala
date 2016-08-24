@@ -61,6 +61,9 @@ object ScalaComponentB {
 //     */
 //    def renderBackend[B]: PSBR[P, S, B] =
 //      macro CompBuilderMacros.backendAndRender[P, S, B]
+
+//    def renderBackend[B](implicit i: macros.RenderBackend[P, S, B]) =
+//      backend(???).render(i.renderFn)
   }
 
   // ===================================================================================================================
@@ -124,6 +127,14 @@ object ScalaComponentB {
 //     */
 //    def renderBackend: Out =
 //      macro CompBuilderMacros.renderBackend[P, S, B]
+
+    def renderBackend(implicit i: macros.RenderBackend[P, S, B]): Next[i.C] =
+      render(i.renderFn)
+//    def renderBackend[C](implicit i: macros.RenderBackend.Aux[P, C, S, B]) = i
+//    def renderBackend[C <: ChildrenArg](implicit i: macros.RenderBackend[P, C, S, B]): Next[C] =
+//      render(i.renderFn)
+//    def renderBackend[C](implicit i: macros.RenderBackend[P, C, S, B], ev: C <:< ChildrenArg): Next[C] =
+//      render[C](i.renderFn)
   }
 
   // ===================================================================================================================
