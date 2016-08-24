@@ -57,15 +57,10 @@ object BackendMacroTestData {
   type StateAlias = State
 
   object Val {
-
     class Backend($: BackendScope[Unit, State]) {
       val render = <.div("hehe1")
     }
-//    japgolly.scalajs.react.macros.RenderBackend[Unit, japgolly.scalajs.react.ChildrenArg.None, japgolly.scalajs.react.BackendMacroTestData.State, japgolly.scalajs.react.BackendMacroTestData.Val.Backend](((x$2) => x$2.backend.render))
-
     val C = ScalaComponent.build[Unit]("").initialState(State(3)).backend(new Backend(_)).renderBackend.build
-//    val C1 = ScalaComponent.build[Unit]("").initialState(State(3)).backend(new Backend(_))
-//    val C = C1.renderBackend //.build
   }
 
 //  object NoArgs {
@@ -137,8 +132,7 @@ object BackendMacroTestData {
     class Backend($: BackendScope[Unit, Unit]) {
       def render(pc: PropsChildren) = <.div(pc)
     }
-//    val C = ScalaComponent.build[Unit]("").renderBackend[Backend].build
-    val C = ScalaComponent.build[Unit]("").backend(new Backend(_)).renderBackend.build
+    val C = ScalaComponent.build[Unit]("").renderBackendWithChildren[Backend].build
   }
 
 //  object AmbiguousType {

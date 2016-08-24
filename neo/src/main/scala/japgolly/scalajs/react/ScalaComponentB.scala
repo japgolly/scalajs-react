@@ -3,6 +3,7 @@ package japgolly.scalajs.react
 import scala.{Either => Or}
 import scalajs.js
 import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.macros.CompBuilderMacros
 import Lifecycle._
 import ScalaComponent._
 
@@ -51,19 +52,27 @@ object ScalaComponentB {
     def noBackend: Next[Unit] =
       backend(_ => ())
 
-//    /**
-//     * Shortcut for:
-//     *
-//     * {{{
-//     *   .backend[B](new B(_))
-//     *   .renderBackend
-//     * }}}
-//     */
-//    def renderBackend[B]: PSBR[P, S, B] =
-//      macro CompBuilderMacros.backendAndRender[P, S, B]
+    /**
+     * Shortcut for:
+     *
+     * {{{
+     *   .backend[B](new B(_))
+     *   .renderBackend
+     * }}}
+     */
+    def renderBackend[B]: Next[B] =
+      macro CompBuilderMacros.backendAndRender[P, S, B]
 
-//    def renderBackend[B](implicit i: macros.RenderBackend[P, S, B]) =
-//      backend(???).render(i.renderFn)
+    /**
+     * Shortcut for:
+     *
+     * {{{
+     *   .backend[B](new B(_))
+     *   .renderBackendWithChildren
+     * }}}
+     */
+    def renderBackendWithChildren[B]: Next[B] =
+      macro CompBuilderMacros.backendAndRenderWithChildren[P, S, B]
   }
 
   // ===================================================================================================================
@@ -121,20 +130,19 @@ object ScalaComponentB {
      def render_C(r: PropsChildren => vdom.ReactElement): Next[ChildrenArg.Varargs] =
        render($ => r($.propsChildren.runNow()))
 
-//    /**
-//     * Use a method named `render` in the backend, automatically populating its arguments with props, state,
-//     * propsChildren where needed.
-//     */
-//    def renderBackend: Out =
-//      macro CompBuilderMacros.renderBackend[P, S, B]
+    /**
+     * Use a method named `render` in the backend, automatically populating its arguments with props and state
+     * where needed.
+     */
+    def renderBackend: Next[ChildrenArg.None] =
+      macro CompBuilderMacros.renderBackend[P, S, B]
 
-    def renderBackend(implicit i: macros.RenderBackend[P, S, B]): Next[i.C] =
-      render(i.renderFn)
-//    def renderBackend[C](implicit i: macros.RenderBackend.Aux[P, C, S, B]) = i
-//    def renderBackend[C <: ChildrenArg](implicit i: macros.RenderBackend[P, C, S, B]): Next[C] =
-//      render(i.renderFn)
-//    def renderBackend[C](implicit i: macros.RenderBackend[P, C, S, B], ev: C <:< ChildrenArg): Next[C] =
-//      render[C](i.renderFn)
+    /**
+     * Use a method named `render` in the backend, automatically populating its arguments with props, state, and
+     * propsChildren where needed.
+     */
+    def renderBackendWithChildren: Next[ChildrenArg.Varargs] =
+      macro CompBuilderMacros.renderBackendWithChildren[P, S, B]
   }
 
   // ===================================================================================================================

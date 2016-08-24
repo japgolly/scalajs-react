@@ -2,44 +2,21 @@ package japgolly.scalajs.react.macros
 
 import scala.reflect.macros.blackbox.Context
 import japgolly.scalajs.react.ChildrenArg
-import japgolly.scalajs.react.ScalaComponentB.RenderFn
-
-// TODO AnyVal
-sealed trait RenderBackend[P, S, B] {
-  type C <: ChildrenArg
-  val renderFn: RenderFn[P, S, B]
-}
-
-object RenderBackend {
-  type Aux[P, CC <: ChildrenArg, S, B] =
-    RenderBackend[P, S, B] { type C = CC }
-
-  def apply[P, CC <: ChildrenArg, S, B](f: RenderFn[P, S, B]): Aux[P, CC, S, B] =
-    new RenderBackend[P, S, B] {
-      override type C = CC
-      override val renderFn = f
-    }
-
-  implicit def materializeOmg[P, C <: ChildrenArg, S, B]: RenderBackend.Aux[P, C, S, B] =
-    macro CompBuilderMacros.renderBackend[P, S, B]
-}
-/*
-case class RenderBackend[P, C <: ChildrenArg, S, B](renderFn: RenderFn[P, S, B])
-object RenderBackend {
-  implicit def materializeIso[P, C <: ChildrenArg, S, B]: RenderBackend[P, C, S, B] =
-    macro CompBuilderMacros.renderBackend[P, C, S, B]
-}
-*/
-
 
 final class CompBuilderMacros (val c: Context) extends ReactMacroUtils {
   import c.universe._
 
-//  def backendAndRender[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Tree = {
-//    val B = weakTypeOf[B]
-//    val backend = replaceMacroMethod("backend")
-//    q"$backend[$B](x => new $B(x)).renderBackend"
-//  }
+  private def createBackend[B: c.WeakTypeTag] = {
+    val B = weakTypeOf[B]
+    val backend = replaceMacroCallWith("backend")
+    q"$backend[$B](x => new $B(x))"
+  }
+
+  def backendAndRender[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Tree =
+    q"${createBackend[B]}.renderBackend"
+
+  def backendAndRenderWithChildren[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Tree =
+    q"${createBackend[B]}.renderBackendWithChildren"
 
   private final class RenderParam[T: c.WeakTypeTag](val code: Tree)(_names: String*) {
     val spec    : Type        = weakTypeOf[T]
@@ -47,32 +24,36 @@ final class CompBuilderMacros (val c: Context) extends ReactMacroUtils {
     val names   : Set[String] = _names.toSet
   }
 
-//  private def _renderBackend[P: c.WeakTypeTag, C <: ChildrenArg: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag](rps: List[RenderParam[_]]): c.Expr[RenderBackend[P,C,S,B]] = {
-//  private def _renderBackend[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag](rps: List[RenderParam[_]]): c.Expr[RenderBackend[P,S,B]] = {
-  private def _renderBackend[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag](rps: List[RenderParam[_]]): c.Tree = {
-    println("ah!!!!!!!!!! 1")
-
-    val P = weakTypeOf[P]
-    val S = weakTypeOf[S]
-
-    println("ah!!!!!!!!!! 2")
-
+  private def _renderBackend[B: c.WeakTypeTag](allowChildren: Boolean, rps: List[RenderParam[_]]): c.Tree = {
     val B = concreteWeakTypeOf[B]
-    println("ah!!!!!!!!!! 3")
+    val C = if (allowChildren) weakTypeOf[ChildrenArg.Varargs] else weakTypeOf[ChildrenArg.None]
     val render = TermName("render")
-//    def callRender = replaceMacroCallWith("render")
-    println("ah!!!!!!!!!! 4")
+    def genericRender = replaceMacroCallWith("render")
 
-    val C0 = weakTypeOf[ChildrenArg.None]
+    def assertChildrenTypeMatches(childrenUsed: Boolean): Unit =
+      if (childrenUsed != allowChildren)
+        fail {
+          val pc = "PropsChildren"
+          val rb = "renderBackend"
+          val rbc = "renderBackendWithoutChildren"
+          if (allowChildren)
+            s"Use of $pc not detected. Use $rb instead of $rbc."
+          else
+            s"Use of $pc detected. Use $rbc instead of $rb."
+        }
 
-    println("ah!!!!!!!!!! 5a")
-    val CN = weakTypeOf[ChildrenArg.Varargs]
+    def renderWithoutParams(): c.Tree = {
+      assertChildrenTypeMatches(false)
+      q"$genericRender[$C](_.backend.$render)"
+    }
 
-    println("ah!!!!!!!!!! 5b")
-
-//    def renderWithParams(params: List[Symbol]): c.Expr[RenderBackend[P,S,B]] = {
     def renderWithParams(params: List[Symbol]): c.Tree = {
-      def getPropsChildren = q"x.propsChildren"
+
+      var childrenUsed = false
+      def getPropsChildren = {
+        childrenUsed = true
+        q"x.propsChildren"
+      }
 
       def attempt(test: RenderParam[_] => Boolean): Option[Tree] = {
         val it = rps.iterator.filter(test)
@@ -105,10 +86,9 @@ final class CompBuilderMacros (val c: Context) extends ReactMacroUtils {
           byName(p)            getOrElse
           fail(s"Don't know what to feed (${p.name}: ${p.info}) in $B.$render."))
       }
-      val containsC = true
-      val C = if (containsC) CN else C0
-//      c.Expr[RenderBackend[P,S,B]](q"japgolly.scalajs.react.macros.RenderBackend[$P,$C,$S,$B](x => x.backend.$render(..$args))")
-      q"japgolly.scalajs.react.macros.RenderBackend[$P,$C,$S,$B](x => x.backend.$render(..$args))"
+
+      assertChildrenTypeMatches(childrenUsed)
+      q"$genericRender[$C](x => x.backend.$render(..$args))"
     }
 
     val renderMethod = B.member(render) match {
@@ -117,33 +97,23 @@ final class CompBuilderMacros (val c: Context) extends ReactMacroUtils {
       case s                                => s.asMethod
     }
 
-    val x =
     renderMethod.paramLists match {
-      case Nil       =>
-        println("aaaaaaaaaaaahhhhhhhhhhhhhhhhhhh ----------- 0")
-//        c.Expr[RenderBackend[P,C,S,B]](q"japgolly.scalajs.react.macros.RenderBackend[$P,$C0,$S,$B](_.backend.$render)")
-//        c.Expr[RenderBackend[P,S,B]](q"japgolly.scalajs.react.macros.RenderBackend[$P,$C0,$S,$B](_.backend.$render)")
-        q"japgolly.scalajs.react.macros.RenderBackend[$P,$C0,$S,$B](_.backend.$render)"
+      case Nil       => renderWithoutParams()
       case ps :: Nil => renderWithParams(ps)
       case _ :: t    => fail(s"${renderMethod.fullName} mustn't have more than one set of parameters. Found: $t")
     }
-
-    println()
-    println(x)
-    println()
-    println(showRaw(x))
-    println()
-    x
   }
 
-//  def renderBackend[P: c.WeakTypeTag, C <: ChildrenArg: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Expr[RenderBackend[P,C,S,B]] =
-//    _renderBackend[P, C, S, B](
-//  def renderBackend[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Expr[RenderBackend[P,S,B]] =
+  private def renderParams[P: c.WeakTypeTag, S: c.WeakTypeTag] =
+    new RenderParam[P](q"x.props")("p", "props") ::
+    new RenderParam[S](q"x.state")("s", "state") ::
+    Nil
+
   def renderBackend[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Tree =
-    _renderBackend[P, S, B](
-      new RenderParam[P](q"x.props")("p", "props") ::
-      new RenderParam[S](q"x.state")("s", "state") ::
-      Nil)
+    _renderBackend[B](false, renderParams[P, S])
+
+  def renderBackendWithChildren[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Tree =
+    _renderBackend[B](true, renderParams[P, S])
 
 //  def renderBackendSP[P: c.WeakTypeTag, Q: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Tree =
 //    _renderBackend[B](
