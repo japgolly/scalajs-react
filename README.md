@@ -73,15 +73,18 @@ Contributions welcome.
 
 # In Progress
 
+- Static and dynamic props (for Scala components).
 
-# Pending
+- Generic component-morphing. (P, CT, U…)
 
 - Refs.
   - VDOM
   - Functional components don't allow refs. Current `CtorType` doesn't support this.
   - Stringly typed.
   - DOM/component type of target may differ between declaration and assignment.
-- Static and dynamic props (for Scala components).
+
+# Pending
+
 - Integration with all the `.extra` awesomeness. (Because most of it has been tremendously useful in real-world code.)
 - Simplify `Scalaz` and `Monocle` modules.
 
