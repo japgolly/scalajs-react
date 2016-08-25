@@ -51,6 +51,8 @@ Contributions welcome.
 - `JsFnComponent` - Import React functional components written in pure JS.
   ([test JS](neo/src/test/resources/component-fn.js) & [test Scala](neo/src/test/scala/japgolly/scalajs/react/JsFnComponentTest.scala))
 
+- `ScalaComponent` - Create React components in Scala.
+
 - `ScalaFnComponent` - Create React functional components in Scala.
 
 - Safe `PropsChildren` type and usage.
@@ -71,12 +73,6 @@ Contributions welcome.
 
 # In Progress
 
-- Create React components in Scala.
-
-  Currently `ScalaComponent` and a basic `ScalaComponentB` similar to `ReactComponentB` exist and work (with tests).
-  Not sure if 'ole `ReactComponentB` was the best idea - it does work very well - but it would be nice to explore alternatives.
-
-  (Note: if for backwards-compatibility and nothing else, `ReactComponentB` will be kept around for a long while. If a nice alternative appears then both methods will coexist.)
 
 # Pending
 

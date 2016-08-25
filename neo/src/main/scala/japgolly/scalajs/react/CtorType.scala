@@ -17,7 +17,7 @@ sealed abstract class CtorType[-P, +U] {
 object CtorType {
   type ArgKey      = js.UndefOr[Key]
   type ArgRef      = js.UndefOr[Ref]
-  type ArgChild    = raw.ReactNodeList
+  type ArgChild    = vdom.ReactNode
   type ArgChildren = Seq[ArgChild]
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -158,17 +158,23 @@ object CtorType {
     implicit def summonC[P <: js.Object](implicit s: Singleton[P]) =
       Summoner[P, ChildrenArg.Varargs, Children](rc =>
         Children[P, raw.ReactComponentElement]((k, r, c) =>
-          raw.React.createElement(rc, maybeSingletonProps(s)(k, r), c: _*)))
+          raw.React.createElement(rc, maybeSingletonProps(s)(k, r), formatChildren(c): _*)))
 
     implicit def summonF[P <: js.Object](implicit w: Singleton.Not[P]) =
       Summoner[P, ChildrenArg.Varargs, PropsAndChildren](rc =>
         PropsAndChildren[P, raw.ReactComponentElement]((k, r, p, c) =>
-          raw.React.createElement(rc, applyKR(p)(k, r), c: _*)))
+          raw.React.createElement(rc, applyKR(p)(k, r), formatChildren(c): _*)))
 
     implicit def summonP[P <: js.Object](implicit w: Singleton.Not[P]) =
       Summoner[P, ChildrenArg.None, Props](rc =>
         Props[P, raw.ReactComponentElement]((k, r, p) =>
           raw.React.createElement(rc, applyKR(p)(k, r))))
+
+    def formatChildren(c: ArgChildren): Seq[raw.ReactNodeList] =
+      if (c.isEmpty)
+        Nil
+      else
+        c.map(_.rawReactNode: raw.ReactNodeList)
 
     def maybeSingletonProps[P <: js.Object](s: Singleton[P])(key: ArgKey, ref: ArgRef): P =
       if (key.isEmpty && ref.isEmpty)

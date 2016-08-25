@@ -23,31 +23,33 @@ object ScalaComponentB {
   // ===================================================================================================================
 
   final class Step1[P](name: String) {
-    type Next[S] = Step2[P, S]
+    // Dealiases type aliases :(
+    // type Next[S] = Step2[P, S]
 
     // getInitialState is how it's named in React
-    def getInitialState  [S](f: InitStateFnU[P, S] => S)            : Next[S] = new Step2(name, Left(f))
-    def getInitialStateCB[S](f: InitStateFnU[P, S] => CallbackTo[S]): Next[S] = getInitialState(f.andThen(_.runNow()))
+    def getInitialState  [S](f: InitStateFnU[P, S] => S)            : Step2[P, S] = new Step2(name, Left(f))
+    def getInitialStateCB[S](f: InitStateFnU[P, S] => CallbackTo[S]): Step2[P, S] = getInitialState(f.andThen(_.runNow()))
 
     // More convenient methods that don't need the full CompScope
-    def initialState    [S](s: => S              ): Next[S] = new Step2(name, Right(() => Box(s)))
-    def initialStateCB  [S](s: CallbackTo[S]     ): Next[S] = initialState(s.runNow())
-    def initialState_P  [S](f: P => S            ): Next[S] = getInitialState[S]($ => f($.props))
-    def initialStateCB_P[S](f: P => CallbackTo[S]): Next[S] = getInitialState[S]($ => f($.props).runNow())
+    def initialState    [S](s: => S              ): Step2[P, S] = new Step2(name, Right(() => Box(s)))
+    def initialStateCB  [S](s: CallbackTo[S]     ): Step2[P, S] = initialState(s.runNow())
+    def initialState_P  [S](f: P => S            ): Step2[P, S] = getInitialState[S]($ => f($.props))
+    def initialStateCB_P[S](f: P => CallbackTo[S]): Step2[P, S] = getInitialState[S]($ => f($.props).runNow())
 
-    def stateless: Next[Unit] =
+    def stateless: Step2[P, Unit] =
       new Step2(name, InitStateUnit)
   }
 
   // ===================================================================================================================
 
   final class Step2[P, S](name: String, initStateFn: InitStateArg[P, S]) {
-    type Next[B] = Step3[P, S, B]
+    // Dealiases type aliases :(
+    // type Next[B] = Step3[P, S, B]
 
-    def backend[B](f: NewBackendFn[P, S, B]): Next[B] =
+    def backend[B](f: NewBackendFn[P, S, B]): Step3[P, S, B] =
       new Step3(name, initStateFn, f)
 
-    def noBackend: Next[Unit] =
+    def noBackend: Step3[P, S, Unit] =
       backend(_ => ())
 
     /**
@@ -76,70 +78,72 @@ object ScalaComponentB {
   // ===================================================================================================================
 
   final class Step3[P, S, B](name: String, initStateFn: InitStateArg[P, S], backendFn: NewBackendFn[P, S, B]) {
-    type Next[C <: ChildrenArg] = Step4[P, C, S, B]
+    // Dealiases type aliases :(
+    // type Next[C <: ChildrenArg] = Step4[P, C, S, B]
+
     type $ = RenderScope[P, S, B]
 
-    def render[C <: ChildrenArg](r: RenderFn[P, S, B]): Next[C] =
+    def render[C <: ChildrenArg](r: RenderFn[P, S, B]): Step4[P, C, S, B] =
       new Step4[P, C, S, B](name, initStateFn, backendFn, r, Lifecycle.empty)
 
     // No children
 
-     def renderPS(r: ($, P, S) => vdom.ReactElement): Next[ChildrenArg.None] =
+     def renderPS(r: ($, P, S) => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
        render($ => r($, $.props, $.state))
 
-     def renderP(r: ($, P) => vdom.ReactElement): Next[ChildrenArg.None] =
+     def renderP(r: ($, P) => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
        render($ => r($, $.props))
 
-     def renderS(r: ($, S) => vdom.ReactElement): Next[ChildrenArg.None] =
+     def renderS(r: ($, S) => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
        render($ => r($, $.state))
 
-     def render_PS(r: (P, S) => vdom.ReactElement): Next[ChildrenArg.None] =
+     def render_PS(r: (P, S) => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
        render($ => r($.props, $.state))
 
-     def render_P(r: P => vdom.ReactElement): Next[ChildrenArg.None] =
+     def render_P(r: P => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
        render($ => r($.props))
 
-     def render_S(r: S => vdom.ReactElement): Next[ChildrenArg.None] =
+     def render_S(r: S => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
        render($ => r($.state))
 
     // Has children
 
-     def renderPCS(r: ($, P, PropsChildren, S) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
+     def renderPCS(r: ($, P, PropsChildren, S) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
        render($ => r($, $.props, $.propsChildren, $.state))
 
-     def renderPC(r: ($, P, PropsChildren) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
+     def renderPC(r: ($, P, PropsChildren) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
        render($ => r($, $.props, $.propsChildren))
 
-     def renderCS(r: ($, PropsChildren, S) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
+     def renderCS(r: ($, PropsChildren, S) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
        render($ => r($, $.propsChildren, $.state))
 
-     def renderC(r: ($, PropsChildren) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
+     def renderC(r: ($, PropsChildren) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
        render($ => r($, $.propsChildren))
 
-     def render_PCS(r: (P, PropsChildren, S) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
+     def render_PCS(r: (P, PropsChildren, S) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
        render($ => r($.props, $.propsChildren, $.state))
 
-     def render_PC(r: (P, PropsChildren) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
+     def render_PC(r: (P, PropsChildren) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
        render($ => r($.props, $.propsChildren))
 
-     def render_CS(r: (PropsChildren, S) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
+     def render_CS(r: (PropsChildren, S) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
        render($ => r($.propsChildren, $.state))
 
-     def render_C(r: PropsChildren => vdom.ReactElement): Next[ChildrenArg.Varargs] =
+     def render_C(r: PropsChildren => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
        render($ => r($.propsChildren))
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props and state
      * where needed.
      */
-    def renderBackend: Next[ChildrenArg.None] =
+    def renderBackend: Step4[P, ChildrenArg.None, S, B] =
       macro CompBuilderMacros.renderBackend[P, S, B]
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props, state, and
      * propsChildren where needed.
      */
-    def renderBackendWithChildren: Next[ChildrenArg.Varargs] =
+    def renderBackendWithChildren: Step4[P, ChildrenArg.Varargs, S, B] =
       macro CompBuilderMacros.renderBackendWithChildren[P, S, B]
   }
 

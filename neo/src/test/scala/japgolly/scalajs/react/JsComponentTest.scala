@@ -5,6 +5,7 @@ import utest._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.TestUtil._
+import vdom.ImplicitsFromRaw._
 
 abstract class JsComponentTest extends TestSuite {
   final val H1: raw.ReactElement =

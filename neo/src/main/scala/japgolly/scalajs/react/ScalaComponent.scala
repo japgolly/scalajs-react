@@ -41,8 +41,9 @@ object ScalaComponent {
 
     // B instead of F[B] because
     // 1. Builder takes a MountedCB but needs immediate access to this.
-    // 2. It never changes.
-    val backend: B =
+    // 2. It never changes once initialised.
+    // Note: Keep this is def instead of val because the builder sets it after creation.
+    def backend: B =
       js.raw.backend
 
     override def isMounted: F[Boolean] =
