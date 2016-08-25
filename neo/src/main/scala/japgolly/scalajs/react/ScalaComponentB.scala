@@ -12,9 +12,7 @@ object ScalaComponentB {
   type InitStateFnU[P, S]    = Component.Unmounted[P, Any]
   type InitStateArg[P, S]    = (InitStateFnU[P, S] => S) Or js.Function0[Box[S]]
   type NewBackendFn[P, S, B] = BackendScope[P, S] => B
-  type RenderFn    [P, S, B] = MountedCB[P, S, B] => vdom.ReactElement
-  // Technically ↗ MountedCB ↗ should be Unmounted but because it can used to create event callbacks
-  // (eg. onclick --> $.setState), it needs access to all Mounted methods.
+  type RenderFn    [P, S, B] = RenderScope[P, S, B] => vdom.ReactElement
 
   private val InitStateUnit : Nothing Or js.Function0[Box[Unit]] =
     Right(() => Box.Unit)
@@ -60,7 +58,7 @@ object ScalaComponentB {
      *   .renderBackend
      * }}}
      */
-    def renderBackend[B]: Next[B] =
+    def renderBackend[B]: Step4[P, ChildrenArg.None, S, B] =
       macro CompBuilderMacros.backendAndRender[P, S, B]
 
     /**
@@ -71,7 +69,7 @@ object ScalaComponentB {
      *   .renderBackendWithChildren
      * }}}
      */
-    def renderBackendWithChildren[B]: Next[B] =
+    def renderBackendWithChildren[B]: Step4[P, ChildrenArg.Varargs, S, B] =
       macro CompBuilderMacros.backendAndRenderWithChildren[P, S, B]
   }
 
@@ -79,7 +77,7 @@ object ScalaComponentB {
 
   final class Step3[P, S, B](name: String, initStateFn: InitStateArg[P, S], backendFn: NewBackendFn[P, S, B]) {
     type Next[C <: ChildrenArg] = Step4[P, C, S, B]
-    type $ = MountedCB[P, S, B]
+    type $ = RenderScope[P, S, B]
 
     def render[C <: ChildrenArg](r: RenderFn[P, S, B]): Next[C] =
       new Step4[P, C, S, B](name, initStateFn, backendFn, r, Lifecycle.empty)
@@ -87,48 +85,48 @@ object ScalaComponentB {
     // No children
 
      def renderPS(r: ($, P, S) => vdom.ReactElement): Next[ChildrenArg.None] =
-       render($ => r($, $.props.runNow(), $.state.runNow()))
+       render($ => r($, $.props, $.state))
 
      def renderP(r: ($, P) => vdom.ReactElement): Next[ChildrenArg.None] =
-       render($ => r($, $.props.runNow()))
+       render($ => r($, $.props))
 
      def renderS(r: ($, S) => vdom.ReactElement): Next[ChildrenArg.None] =
-       render($ => r($, $.state.runNow()))
+       render($ => r($, $.state))
 
      def render_PS(r: (P, S) => vdom.ReactElement): Next[ChildrenArg.None] =
-       render($ => r($.props.runNow(), $.state.runNow()))
+       render($ => r($.props, $.state))
 
      def render_P(r: P => vdom.ReactElement): Next[ChildrenArg.None] =
-       render($ => r($.props.runNow()))
+       render($ => r($.props))
 
      def render_S(r: S => vdom.ReactElement): Next[ChildrenArg.None] =
-       render($ => r($.state.runNow()))
+       render($ => r($.state))
 
     // Has children
 
      def renderPCS(r: ($, P, PropsChildren, S) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
-       render($ => r($, $.props.runNow(), $.propsChildren.runNow(), $.state.runNow()))
+       render($ => r($, $.props, $.propsChildren, $.state))
 
      def renderPC(r: ($, P, PropsChildren) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
-       render($ => r($, $.props.runNow(), $.propsChildren.runNow()))
+       render($ => r($, $.props, $.propsChildren))
 
      def renderCS(r: ($, PropsChildren, S) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
-       render($ => r($, $.propsChildren.runNow(), $.state.runNow()))
+       render($ => r($, $.propsChildren, $.state))
 
      def renderC(r: ($, PropsChildren) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
-       render($ => r($, $.propsChildren.runNow()))
+       render($ => r($, $.propsChildren))
 
      def render_PCS(r: (P, PropsChildren, S) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
-       render($ => r($.props.runNow(), $.propsChildren.runNow(), $.state.runNow()))
+       render($ => r($.props, $.propsChildren, $.state))
 
      def render_PC(r: (P, PropsChildren) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
-       render($ => r($.props.runNow(), $.propsChildren.runNow()))
+       render($ => r($.props, $.propsChildren))
 
      def render_CS(r: (PropsChildren, S) => vdom.ReactElement): Next[ChildrenArg.Varargs] =
-       render($ => r($.propsChildren.runNow(), $.state.runNow()))
+       render($ => r($.propsChildren, $.state))
 
      def render_C(r: PropsChildren => vdom.ReactElement): Next[ChildrenArg.Varargs] =
-       render($ => r($.propsChildren.runNow()))
+       render($ => r($.propsChildren))
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props and state
@@ -258,9 +256,9 @@ object ScalaComponentB {
       for (n <- Option(name))
         spec.displayName = n
 
-      def withMounted[A](f: MountedCB[P, S, B] => A): js.ThisFunction0[raw.ReactComponent, A] =
+      def withMounted[A](f: RenderScope[P, S, B] => A): js.ThisFunction0[raw.ReactComponent, A] =
         ($: raw.ReactComponent) =>
-          f(castV($).mountedCB)
+          f(RenderScope(castV($).mounted.js))
 
       spec.render = withMounted(renderFn.andThen(_.rawReactElement))
 

@@ -186,5 +186,38 @@ object Lifecycle {
     @deprecated("forceUpdate prohibited within the shouldComponentUpdate callback.", "")
     def forceUpdate(prohibited: Nothing): Nothing = ???
   }
+
+  // ===================================================================================================================
+
+  final case class RenderScope[P, S, B](js: JsMounted[P, S, B]) extends AnyVal {
+
+    def backend: B =
+      js.raw.backend
+
+     def isMounted: Boolean =
+      js.isMounted
+
+     def props: P =
+      js.props.unbox
+
+     def propsChildren: PropsChildren =
+      js.propsChildren
+
+     def state: S =
+      js.state.unbox
+
+     def getDOMNode: org.scalajs.dom.Element =
+      js.getDOMNode
+
+    def setState(newState: S, callback: Callback = Callback.empty): Callback =
+      Callback(js.setState(Box(newState), callback))
+
+    def modState(mod: S => S, callback: Callback = Callback.empty): Callback =
+      Callback(js.modState(s => Box(mod(s.unbox)), callback))
+
+    def forceUpdate(callback: Callback = Callback.empty): Callback =
+      Callback(js.forceUpdate(callback))
+  }
+
 }
 
