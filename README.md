@@ -85,7 +85,12 @@ Contributions welcome.
 
 # Pending
 
+- Clean up new types
+  - *Arg, Arg*
+  - ScalaComponent{No,With}Children ?
+
 - Integration with all the `.extra` awesomeness. (Because most of it has been tremendously useful in real-world code.)
+
 - Simplify `Scalaz` and `Monocle` modules.
 
 # Maybe

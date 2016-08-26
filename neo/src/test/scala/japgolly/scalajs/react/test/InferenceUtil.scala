@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
+import scala.reflect.ClassTag
 
 object InferenceUtil {
 //  import scalaz.{Monad, ~>}
@@ -11,6 +12,14 @@ object InferenceUtil {
       def expect_<[C](implicit ev: B <:< C): Unit = ()
       def expect_>[C](implicit ev: C <:< B): Unit = ()
     }
+    def expect_<[C](implicit ev: A <:< C): Unit = ()
+    def expect_>[C](implicit ev: C <:< A): Unit = ()
+    def usableAs[B](implicit ev: A => B): Unit = ()
+  }
+
+  def testExpr[A](a: => A)(implicit t: ClassTag[A]) = new {
+    override def toString = t.toString()
+    def expect[C](implicit ev: A =:= C): Unit = ()
     def expect_<[C](implicit ev: A <:< C): Unit = ()
     def expect_>[C](implicit ev: C <:< A): Unit = ()
     def usableAs[B](implicit ev: A => B): Unit = ()
