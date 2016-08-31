@@ -36,10 +36,10 @@ object Component {
   }
 
   object Unmounted {
-    @inline def Mapped[P0, M0, P, M](delegate: Unmounted[P0, M0])(pMap: P0 => P, mMap: M0 => M): Mapped[P0, M0, P, M] =
+    @inline def Mapped[P0, M0, P, M](delegate: Unmounted[P0, M0])(pMap: P0 => P, mMap: M0 => M): Mapped[P0, M0, P, M, delegate.type] =
       new Mapped(delegate, pMap, mMap)
 
-    final class Mapped[P0, M0, P, M](val delegate: Unmounted[P0, M0], pMap: P0 => P, mMap: M0 => M) extends Unmounted[P, M] {
+    final class Mapped[P0, M0, P, M, D <: Unmounted[P0, M0]](val delegate: D, pMap: P0 => P, mMap: M0 => M) extends Unmounted[P, M] {
       override def reactElement =
         delegate.reactElement
 
@@ -135,14 +135,14 @@ object Component {
     }
 
 
-    @inline def Mapped[F[+_], P0, P, S0, S](delegate: Mounted[F, P0, S0])
-                                           (pMap: P0 => P,
-                                            sMap: Lens[S0, S]): Mapped[F, P0, P, S0, S] =
+    @inline def Mapped[F[+ _], P0, P, S0, S](delegate: Mounted[F, P0, S0])
+                                            (pMap: P0 => P,
+                                             sMap: Lens[S0, S]): Mapped[F, P0, P, S0, S, delegate.type] =
       new Mapped(delegate, pMap, sMap)
 
-    final class Mapped[F[+_], P0, P, S0, S](val delegate: Mounted[F, P0, S0],
-                                            pMap: P0 => P,
-                                            sMap: Lens[S0, S]) extends Mounted[F, P, S] {
+    final class Mapped[F[+ _], P0, P, S0, S, D <: Mounted[F, P0, S0]](val delegate: D,
+                                                                      pMap: P0 => P,
+                                                                      sMap: Lens[S0, S]) extends Mounted[F, P, S] {
       override protected implicit def F = delegate.F
 
       override def props =
