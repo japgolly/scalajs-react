@@ -340,7 +340,7 @@ object ScalaComponentB {
 
     def build(implicit ctorType: CtorType.Summoner[Box[P], C]): ScalaComponent[P, S, B, ctorType.CT] = {
       val rc = raw.React.createClass(spec)
-      val jc = JsComponent[Box[P], C, Box[S]](rc)(ctorType).addRawType[Vars[P, S, B]](ctorType.pf)
+      val jc = JsComponent[Box[P], C, Box[S]](rc)(ctorType).addRawType[Vars[P, S, B]]
       new ScalaComponent(jc)(ctorType.pf)
     }
   }

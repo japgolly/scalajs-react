@@ -7,10 +7,10 @@ import japgolly.scalajs.react.{raw => Raw}
 import JsComponent._
 
 final class JsComponent[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], M]
-    (val raw: Raw.ReactClass, override val ctor: CT[P, Unmounted[P, S, M]])
+    (val raw: Raw.ReactClass, override val ctor: CT[P, Unmounted[P, S, M]])(implicit pf: Profunctor[CT])
     extends Component[P, CT, Unmounted[P, S, M]] {
 
-  def mapMounted[MM](f: M => MM)(implicit p: Profunctor[CT]): JsComponent[P, S, CT, MM] =
+  def mapMounted[MM](f: M => MM): JsComponent[P, S, CT, MM] =
     new JsComponent(raw, ctor rmap (_ mapMounted f))
 }
 
@@ -19,8 +19,8 @@ object JsComponent {
   final class CompStdOps[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: RawMounted]
       (private val self: JsComponent[P, S, CT, JsComponent.Mounted[P, S, R]]) extends AnyVal {
 
-    def addRawType[T <: js.Object](implicit p: Profunctor[CT]): JsComponent[P, S, CT, Mounted[P, S, R with T]] =
-      self.mapMounted(_.addRawType[T])(p)
+    def addRawType[T <: js.Object]: JsComponent[P, S, CT, Mounted[P, S, R with T]] =
+      self.mapMounted(_.addRawType[T])
   }
 
   @inline implicit def toJsCompStdOps
@@ -124,7 +124,7 @@ object JsComponent {
 
   def apply[P <: js.Object, C <: ChildrenArg, S <: js.Object](rc: Raw.ReactClass)
                                                              (implicit s: CtorType.Summoner[P, C]): Basic[P, S, s.CT] =
-    new JsComponent[P, S, s.CT, BasicMounted[P, S]](rc, s.pf.rmap(s.summon(rc))(BasicUnmounted(_)))
+    new JsComponent[P, S, s.CT, BasicMounted[P, S]](rc, s.pf.rmap(s.summon(rc))(BasicUnmounted(_)))(s.pf)
 
   def BasicUnmounted[P <: js.Object, S <: js.Object](r: Raw.ReactComponentElement): BasicUnmounted[P, S] =
     new Unmounted(r, BasicMounted[P, S])
