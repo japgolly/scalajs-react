@@ -1,7 +1,15 @@
 Testing
 =======
 
-##### Contents
+This file describes testing functionality provided by React.JS and scalajs-react.
+<br>It is plenty for simple and small unit tests.
+
+For larger and/or complicated tests, **it is highly recommended to use
+[Scala Test-State](https://github.com/japgolly/test-state)**.
+<br>See [this example](https://github.com/japgolly/test-state/tree/master/example-react)
+for how to write tests for real-world scalajs-react applications.
+
+#### Contents
 - [Setup](#setup)
 - [`React.addons.TestUtils`](#reactaddonstestutils)
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
