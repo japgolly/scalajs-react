@@ -44,12 +44,19 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
   /**
    * Change the document title after the router renders.
    *
+   * @param f Given the current page that just rendered, return a new title.
+   */
+  def setTitle(f: Page => String): RouterConfig[Page] =
+    setTitleOption(p => Some(f(p)))
+
+  /**
+   * Change the document title after the router renders.
+   *
    * @param f Given the current page that just rendered, return potential new title.
    */
-  def setTitle(f: Page=> Option[String]) =
-    this.onPostRender {
-      case (_, page)  => f(page).map(title => Callback(dom.document.title = title )).getOrElse(Callback.empty)
-    }
+  def setTitleOption(f: Page => Option[String]): RouterConfig[Page] =
+    onPostRender((_, page) =>
+      f(page).fold(Callback.empty)(title => Callback(dom.document.title = title)))
 
   /**
    * Verify that the page arguments provided, don't encounter any route config errors.

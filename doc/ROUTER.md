@@ -27,6 +27,7 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.11.1
   - [Loose routes with auto-correction](#loose-routes-with-auto-correction)
   - [Conditional routes](#conditional-routes)
   - [Rendering with a layout](#rendering-with-a-layout)
+  - [Setting page title](#setting-page-title)
   - [Post-render callback](#post-render-callback)
   - [Nested routes (modules)](#nested-routes-modules)
 - [Examples](#examples)
@@ -531,6 +532,25 @@ final case class Resolution[P](page: P, render: () => ReactElement)
 Thus using the given `RouterCtl` and `Resolution` you can wrap the page in a layout, link to other pages, highlight the current page, etc.
 
 See *[Examples](#examples)* for a live demonstration.
+
+### Setting page title
+
+You'll likely want to update your page's title to reflect the current route being shown.
+To do so, call one of:
+* `.setTitle(Page => String)`
+* `.setTitleOption(Page => Option[String])`
+
+Example:
+```scala
+val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
+  import dsl._
+  ( staticRoute(root,     Home)  ~> render(???)
+  | staticRoute("#about", About) ~> render(???)
+  )
+    .notFound(???)
+    .setTitle(p => s"PAGE = $p | Example App")  // ← available after .notFound()
+}
+```
 
 ### Post-render callback
 
