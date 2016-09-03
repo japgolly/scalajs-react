@@ -17,6 +17,7 @@ for how to write tests for real-world scalajs-react applications.
 - [`ReactTestVar`](#reacttestvar)
 - [`WithExternalCompStateAccess`](#withexternalcompstateaccess)
 - [`DebugJs`](#debugjs)
+- [`Test Scripts`](#test-scripts)
 
 Setup
 =====
@@ -306,3 +307,20 @@ Output (truncated):
   [ 63/137] id                                        : string   =
 ...
 ```
+
+Test Scripts
+============
+
+It's possible to write test scripts like
+
+1. *click this*
+2. *verify that*
+3. *press the Back button*
+4. *type name*
+5. *press Enter*
+
+In case you missed the notice at the top of the file, that functionality is provided in a sister library called
+[Scala Test-State](https://github.com/japgolly/test-state).
+
+See [this example](https://github.com/japgolly/test-state/tree/master/example-react)
+for how to write tests for real-world scalajs-react applications.
