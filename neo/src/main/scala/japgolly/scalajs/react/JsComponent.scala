@@ -11,8 +11,8 @@ import scala.scalajs.js.UndefOr
 import scala.util.{Failure, Success, Try}
 
 final class JsComponent[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], M]
-    (val raw: Raw.ReactClass, override val ctor: CT[P, Unmounted[P, S, M]])(implicit pf: Profunctor[CT])
-    extends Component[P, CT, Unmounted[P, S, M]] {
+    (val raw: Raw.ReactClass, override val ctor: CT[P, Unmounted[P, M]])(implicit pf: Profunctor[CT])
+    extends Component[P, CT, Unmounted[P, M]] {
 
   def mapMounted[MM](f: M => MM): JsComponent[P, S, CT, MM] =
     new JsComponent(raw, ctor rmap (_ mapMounted f))
@@ -34,7 +34,7 @@ object JsComponent {
 
   // ===================================================================================================================
 
-  final class Unmounted[P <: js.Object, S <: js.Object, M]
+  final class Unmounted[P <: js.Object, M]
       (val raw: Raw.ReactComponentElement, m: Raw.ReactComponent => M)
       extends Component.Unmounted[P, M] {
 
@@ -56,7 +56,7 @@ object JsComponent {
     override def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): M =
       m(Raw.ReactDOM.render(raw, container, callback.toJsFn))
 
-    override def mapMounted[MM](f: M => MM): Unmounted[P, S, MM] =
+    override def mapMounted[MM](f: M => MM): Unmounted[P, MM] =
       new Unmounted(raw, f compose m)
   }
 
@@ -110,7 +110,7 @@ object JsComponent {
   }
 
   type UnmountedWithRawType[P <: js.Object, S <: js.Object, T <: js.Object] =
-    Unmounted[P, S, MountedWithRawType[P, S, T]]
+    Unmounted[P, MountedWithRawType[P, S, T]]
 
   type MountedWithRawType[P <: js.Object, S <: js.Object, T <: js.Object] =
     Mounted[P, S, RawMounted with T]
@@ -121,7 +121,7 @@ object JsComponent {
     JsComponent[P, S, CT, BasicMounted[P, S]]
 
   type BasicUnmounted[P <: js.Object, S <: js.Object] =
-    Unmounted[P, S, BasicMounted[P, S]]
+    Unmounted[P, BasicMounted[P, S]]
 
   type BasicMounted[P <: js.Object, S <: js.Object] =
     Mounted[P, S, RawMounted]
