@@ -355,7 +355,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val foreignobject = "foreignobject".tag[*.Element]
+  final lazy val foreignobject = "foreignObject".tag[*.Element]
   /**
    * The g element is a container used to group objects. Transformations applied
    * to the g element are performed on all of its child elements. Attributes
