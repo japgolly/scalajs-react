@@ -13,13 +13,13 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val altglyph = "altglyph".tag[*.Element]
+  final lazy val altGlyph = "altGlyph".tag[*.Element]
   /**
    * The altGlyphDef element defines a substitution representation for glyphs.
    *
    * MDN
    */
-  final lazy val altglyphdef = "altglyphdef".tag[*.Element]
+  final lazy val altGlyphDef = "altGlyphDef".tag[*.Element]
 
   /**
    * The altGlyphItem element provides a set of candidates for glyph substitution
@@ -27,7 +27,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val altglyphitem = "altglyphitem".tag[*.Element]
+  final lazy val altGlyphItem = "altGlyphItem".tag[*.Element]
   /**
    * The animate element is put inside a shape element and defines how an
    * attribute of an element changes over the animation
@@ -41,7 +41,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val animatemotion = "animatemotion".tag[*.Element]
+  final lazy val animateMotion = "animateMotion".tag[*.Element]
   /**
    * The animateTransform element animates a transformation attribute on a target
    * element, thereby allowing animations to control translation, scaling,
@@ -49,7 +49,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val animatetransform = "animatetransform".tag[*.Element]
+  final lazy val animateTransform = "animateTransform".tag[*.Element]
   /**
    * The circle element is an SVG basic shape, used to create circles based on a
    * center point and a radius.
@@ -64,7 +64,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val clippath = "clippath".tag[*.ClipPath]
+  final lazy val clipPath = "clipPath".tag[*.ClipPath]
   /**
    * The element allows describing the color profile used for the image.
    *
@@ -80,7 +80,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val cursorTag = "cursor".tag[*.Element]
+  final lazy val cursor = "cursor".tag[*.Element]
   /**
    * SVG allows graphical objects to be defined for later reuse. It is
    * recommended that, wherever possible, referenced elements be defined inside
@@ -105,6 +105,9 @@ trait SvgTags {
    * MDN
    */
   final lazy val desc = "desc".tag[*.Desc]
+
+  // TODO: Add discard tag (not available in scalajs-dom)
+
   /**
    * The ellipse element is an SVG basic shape, used to create ellipses based
    * on a center coordinate, and both their x and y radius.
@@ -123,7 +126,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val feblend = "feblend".tag[*.FEBlend]
+  final lazy val feBlend = "feBlend".tag[*.FEBlend]
   /**
    * This filter changes colors based on a transformation matrix. Every pixel's
    * color value (represented by an [R,G,B,A] vector) is matrix multiplied to
@@ -131,7 +134,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val fecolormatrix = "fecolormatrix".tag[*.FEColorMatrix]
+  final lazy val feColorMatrix = "feColorMatrix".tag[*.FEColorMatrix]
   /**
    * The color of each pixel is modified by changing each channel (R, G, B, and
    * A) to the result of what the children fefuncr, fefuncb, fefuncg,
@@ -139,7 +142,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val fecomponenttransfer = "fecomponenttransfer".tag[*.ComponentTransferFunction]
+  final lazy val feComponentTransfer = "feComponentTransfer".tag[*.ComponentTransferFunction]
   /**
    * This filter primitive performs the combination of two input images pixel-wise
    * in image space using one of the Porter-Duff compositing operations: over,
@@ -148,7 +151,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val fecomposite = "fecomposite".tag[*.FEComposite]
+  final lazy val feComposite = "feComposite".tag[*.FEComposite]
   /**
    * the feConvolveMatrix element applies a matrix convolution filter effect.
    * A convolution combines pixels in the input image with neighboring pixels
@@ -158,7 +161,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val feconvolvematrix = "feconvolvematrix".tag[*.FEConvolveMatrix]
+  final lazy val feConvolveMatrix = "feConvolveMatrix".tag[*.FEConvolveMatrix]
   /**
    * This filter primitive lights an image using the alpha channel as a bump map.
    * The resulting image, which is an RGBA opaque image, depends on the light
@@ -166,14 +169,14 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val fediffuselighting = "fediffuselighting".tag[*.FEDiffuseLighting]
+  final lazy val feDiffuseLighting = "feDiffuseLighting".tag[*.FEDiffuseLighting]
   /**
    * This filter primitive uses the pixels values from the image from in2 to
    * spatially displace the image from in.
    *
    * MDN
    */
-  final lazy val fedisplacementmap = "fedisplacementmap".tag[*.FEDisplacementMap]
+  final lazy val feDisplacementMap = "feDisplacementMap".tag[*.FEDisplacementMap]
   /**
    * This filter primitive define a distant light source that can be used
    * within a lighting filter primitive: fediffuselighting or
@@ -181,49 +184,49 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val fedistantlighting = "fedistantlighting".tag[*.FEDistantLight]
+  final lazy val feDistantLight = "feDistantLight".tag[*.FEDistantLight]
   /**
    * The filter fills the filter subregion with the color and opacity defined by
    * flood-color and flood-opacity.
    *
    * MDN
    */
-  final lazy val feflood = "feflood".tag[*.FEFlood]
+  final lazy val feFlood = "feFlood".tag[*.FEFlood]
   /**
    * This filter primitive defines the transfer function for the alpha component
    * of the input graphic of its parent fecomponenttransfer element.
    *
    * MDN
    */
-  final lazy val fefunca = "fefunca".tag[*.FEFuncA]
+  final lazy val feFuncA = "feFuncA".tag[*.FEFuncA]
   /**
    * This filter primitive defines the transfer function for the blue component
    * of the input graphic of its parent fecomponenttransfer element.
    *
    * MDN
    */
-  final lazy val fefuncb = "fefuncb".tag[*.FEFuncB]
+  final lazy val feFuncB = "feFuncB".tag[*.FEFuncB]
   /**
    * This filter primitive defines the transfer function for the green component
    * of the input graphic of its parent fecomponenttransfer element.
    *
    * MDN
    */
-  final lazy val fefuncg = "fefuncg".tag[*.FEFuncG]
+  final lazy val feFuncG = "feFuncG".tag[*.FEFuncG]
   /**
    * This filter primitive defines the transfer function for the red component
    * of the input graphic of its parent fecomponenttransfer element.
    *
    * MDN
    */
-  final lazy val fefuncr = "fefuncr".tag[*.FEFuncR]
+  final lazy val feFuncR = "feFuncR".tag[*.FEFuncR]
   /**
    * The filter blurs the input image by the amount specified in stdDeviation,
    * which defines the bell-curve.
    *
    * MDN
    */
-  final lazy val fegaussianblur = "fegaussianblur".tag[*.FEGaussianBlur]
+  final lazy val feFaussianBlur = "feFaussianBlur".tag[*.FEGaussianBlur]
 
   /**
    * The feImage filter fetches image data from an external source and provides
@@ -232,7 +235,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val feimage = "feimage".tag[*.FEImage]
+  final lazy val feImage = "feImage".tag[*.FEImage]
 
   /**
    * The feMerge filter allows filter effects to be applied concurrently
@@ -242,7 +245,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val femerge = "femerge".tag[*.FEMerge]
+  final lazy val feMerge = "feMerge".tag[*.FEMerge]
 
   /**
    * The feMergeNode takes the result of another filter to be processed by its
@@ -250,22 +253,22 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val femergenode = "femergenode".tag[*.FEMergeNode]
+  final lazy val feMergeNode = "feMergeNode".tag[*.FEMergeNode]
   /**
    * This filter is used to erode or dilate the input image. It's usefulness
    * lies especially in fattening or thinning effects.
    *
    * MDN
    */
-  final lazy val femorphology = "femorphology".tag[*.FEMorphology]
+  final lazy val feMorphology = "feMorphology".tag[*.FEMorphology]
   /**
    * The input image as a whole is offset by the values specified in the dx
    * and dy attributes. It's used in creating drop-shadows.
    *
    * MDN
    */
-  final lazy val feoffset = "feoffset".tag[*.FEOffset]
-  final lazy val fepointlight = "fepointlight".tag[*.FEPointLight]
+  final lazy val feOffset = "feOffset".tag[*.FEOffset]
+  final lazy val fePointLight = "fePointLight".tag[*.FEPointLight]
   /**
    * This filter primitive lights a source graphic using the alpha channel as a
    * bump map. The resulting image is an RGBA image based on the light color.
@@ -277,18 +280,18 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val fespecularlighting = "fespecularlighting".tag[*.FESpecularLighting]
+  final lazy val feSpecularLighting = "feSpecularLighting".tag[*.FESpecularLighting]
   /**
    *
    */
-  final lazy val fespotlight = "fespotlight".tag[*.FESpotLight]
+  final lazy val feSpotLight = "feSpotLight".tag[*.FESpotLight]
   /**
    * An input image is tiled and the result used to fill a target. The effect
    * is similar to the one of a pattern.
    *
    * MDN
    */
-  final lazy val fetile = "fetile".tag[*.FETile]
+  final lazy val feTile = "feTile".tag[*.FETile]
   /**
    * This filter primitive creates an image using the Perlin turbulence
    * function. It allows the synthesis of artificial textures like clouds or
@@ -296,7 +299,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val feturbulance = "feturbulance".tag[*.FETurbulence]
+  final lazy val feTurbulance = "feTurbulance".tag[*.FETurbulence]
   /**
    * The filter element serves as container for atomic filter operations. It is
    * never rendered directly. A filter is referenced by using the filter
@@ -304,7 +307,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val filterTag = "filter".tag[*.Filter]
+  final lazy val filter = "filter".tag[*.Filter]
   /**
    * The font element defines a font to be used for text layout.
    *
@@ -355,7 +358,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val foreignobject = "foreignObject".tag[*.Element]
+  final lazy val foreignObject = "foreignObject".tag[*.Element]
   /**
    * The g element is a container used to group objects. Transformations applied
    * to the g element are performed on all of its child elements. Attributes
@@ -377,7 +380,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val glyphref = "glyphref".tag[*.Element]
+  final lazy val glyphRef = "glyphRef".tag[*.Element]
   /**
    * The horizontal distance between two glyphs can be fine-tweaked with an
    * hkern Element. This process is known as Kerning.
@@ -405,7 +408,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val lineargradient = "lineargradient".tag[*.LinearGradient]
+  final lazy val linearGradient = "linearGradient".tag[*.LinearGradient]
   /**
    * The marker element defines the graphics that is to be used for drawing
    * arrowheads or polymarkers on a given path, line, polyline or
@@ -422,7 +425,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val maskTag = "mask".tag[*.Mask]
+  final lazy val mask = "mask".tag[*.Mask]
   /**
    * Metadata is structured data about data. Metadata which is included with SVG
    * content should be specified within metadata elements. The contents of the
@@ -483,7 +486,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val radialgradient = "radialgradient".tag[*.RadialGradient]
+  final lazy val radialGradient = "radialGradient".tag[*.RadialGradient]
   /**
    * The rect element is an SVG basic shape, used to create rectangles based on
    * the position of a corner and their width and height. It may also be used to
@@ -492,6 +495,16 @@ trait SvgTags {
    * MDN
    */
   final lazy val rect = "rect".tag[*.RectElement]
+  /**
+   * A SVG script element is equivalent to the script element in HTML and thus is
+   * the place for scripts (e.g., ECMAScript).
+   *
+   * Any functions defined within any script element have a global scope across* the
+   * entire current document.
+   *
+   * MDN
+   */
+  final lazy val script = "script".tag[*.Script]
   /**
    * The set element provides a simple means of just setting the value of an
    * attribute for a specified duration. It supports all attribute types,
@@ -560,7 +573,24 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val textpath = "textpath".tag[*.TextPath]
+  final lazy val textPath = "textPath".tag[*.TextPath]
+  /**
+   * Each container element or graphics element in an SVG drawing can supply
+   * a title description string where the description is text-only. When the
+   * current SVG document fragment is rendered as SVG on visual media, title
+   * element is not rendered as part of the graphics. However, some user agents
+   * may, for example, display the title element as a tooltip. Alternate
+   * presentations are possible, both visual and aural, which display the title
+   * element but do not display path elements or other graphics elements. The
+   * title element generally improve accessibility of SVG documents
+   *
+   * Generally title element should be the first child element of its parent.
+   * Note that those implementations that do use title to display a tooltip often
+   * will only do so if the title is indeed the first child element of its parent.
+   *
+   * MDN
+   */
+  final lazy val title = "textPath".tag[*.Title]
   /**
    * The textual content for a text can be either character data directly
    * embedded within the text element or the character data content of a
