@@ -64,7 +64,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val clipPath = "clipPath".tag[*.ClipPath]
+  final lazy val clipPathTag = "clipPath".tag[*.ClipPath]
   /**
    * The element allows describing the color profile used for the image.
    *
@@ -80,7 +80,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val cursor = "cursor".tag[*.Element]
+  final lazy val cursorTag = "cursor".tag[*.Element]
   /**
    * SVG allows graphical objects to be defined for later reuse. It is
    * recommended that, wherever possible, referenced elements be defined inside
@@ -307,7 +307,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val filter = "filter".tag[*.Filter]
+  final lazy val filterTag = "filter".tag[*.Filter]
   /**
    * The font element defines a font to be used for text layout.
    *
@@ -425,7 +425,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val mask = "mask".tag[*.Mask]
+  final lazy val maskTag = "mask".tag[*.Mask]
   /**
    * Metadata is structured data about data. Metadata which is included with SVG
    * content should be specified within metadata elements. The contents of the
