@@ -14,12 +14,16 @@ trait SvgTags {
    * MDN
    */
   final lazy val altGlyph = "altGlyph".tag[*.Element]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def altglyph = altGlyph
   /**
    * The altGlyphDef element defines a substitution representation for glyphs.
    *
    * MDN
    */
   final lazy val altGlyphDef = "altGlyphDef".tag[*.Element]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def altglyphdef = altGlyphDef
 
   /**
    * The altGlyphItem element provides a set of candidates for glyph substitution
@@ -28,6 +32,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val altGlyphItem = "altGlyphItem".tag[*.Element]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def altglyphitem = altGlyphItem
   /**
    * The animate element is put inside a shape element and defines how an
    * attribute of an element changes over the animation
@@ -42,6 +48,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val animateMotion = "animateMotion".tag[*.Element]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def animatemotion = animateMotion
   /**
    * The animateTransform element animates a transformation attribute on a target
    * element, thereby allowing animations to control translation, scaling,
@@ -50,6 +58,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val animateTransform = "animateTransform".tag[*.Element]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def animatetransform = animateTransform
   /**
    * The circle element is an SVG basic shape, used to create circles based on a
    * center point and a radius.
@@ -65,6 +75,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val clipPathTag = "clipPath".tag[*.ClipPath]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def clippath = clipPathTag
   /**
    * The element allows describing the color profile used for the image.
    *
@@ -127,6 +139,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feBlend = "feBlend".tag[*.FEBlend]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def feblend = feBlend
   /**
    * This filter changes colors based on a transformation matrix. Every pixel's
    * color value (represented by an [R,G,B,A] vector) is matrix multiplied to
@@ -135,6 +149,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feColorMatrix = "feColorMatrix".tag[*.FEColorMatrix]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fecolormatrix = feColorMatrix
   /**
    * The color of each pixel is modified by changing each channel (R, G, B, and
    * A) to the result of what the children fefuncr, fefuncb, fefuncg,
@@ -143,6 +159,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feComponentTransfer = "feComponentTransfer".tag[*.ComponentTransferFunction]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fecomponenttransfer = feComponentTransfer
   /**
    * This filter primitive performs the combination of two input images pixel-wise
    * in image space using one of the Porter-Duff compositing operations: over,
@@ -152,6 +170,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feComposite = "feComposite".tag[*.FEComposite]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fecomposite = feComposite
   /**
    * the feConvolveMatrix element applies a matrix convolution filter effect.
    * A convolution combines pixels in the input image with neighboring pixels
@@ -162,6 +182,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feConvolveMatrix = "feConvolveMatrix".tag[*.FEConvolveMatrix]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def feconvolvematrix = feConvolveMatrix
   /**
    * This filter primitive lights an image using the alpha channel as a bump map.
    * The resulting image, which is an RGBA opaque image, depends on the light
@@ -170,6 +192,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feDiffuseLighting = "feDiffuseLighting".tag[*.FEDiffuseLighting]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fediffuselighting = feDiffuseLighting
   /**
    * This filter primitive uses the pixels values from the image from in2 to
    * spatially displace the image from in.
@@ -177,6 +201,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feDisplacementMap = "feDisplacementMap".tag[*.FEDisplacementMap]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fedisplacementmap = feDisplacementMap
   /**
    * This filter primitive define a distant light source that can be used
    * within a lighting filter primitive: fediffuselighting or
@@ -185,6 +211,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feDistantLight = "feDistantLight".tag[*.FEDistantLight]
+  @deprecated("SvgTags now use correct camelCase spelling.", "0.11.2")
+  final def fedistantlighting = feDistantLight
   /**
    * The filter fills the filter subregion with the color and opacity defined by
    * flood-color and flood-opacity.
@@ -192,6 +220,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feFlood = "feFlood".tag[*.FEFlood]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def feflood = feFlood
   /**
    * This filter primitive defines the transfer function for the alpha component
    * of the input graphic of its parent fecomponenttransfer element.
@@ -199,6 +229,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feFuncA = "feFuncA".tag[*.FEFuncA]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fefunca = feFuncA
   /**
    * This filter primitive defines the transfer function for the blue component
    * of the input graphic of its parent fecomponenttransfer element.
@@ -206,6 +238,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feFuncB = "feFuncB".tag[*.FEFuncB]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fefuncb = feFuncB
   /**
    * This filter primitive defines the transfer function for the green component
    * of the input graphic of its parent fecomponenttransfer element.
@@ -213,6 +247,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feFuncG = "feFuncG".tag[*.FEFuncG]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fefuncg = feFuncG
   /**
    * This filter primitive defines the transfer function for the red component
    * of the input graphic of its parent fecomponenttransfer element.
@@ -220,14 +256,17 @@ trait SvgTags {
    * MDN
    */
   final lazy val feFuncR = "feFuncR".tag[*.FEFuncR]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fefuncr = feFuncR
   /**
    * The filter blurs the input image by the amount specified in stdDeviation,
    * which defines the bell-curve.
    *
    * MDN
    */
-  final lazy val feFaussianBlur = "feFaussianBlur".tag[*.FEGaussianBlur]
-
+  final lazy val feGaussianBlur = "feGaussianBlur".tag[*.FEGaussianBlur]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fegaussianblur = feGaussianBlur
   /**
    * The feImage filter fetches image data from an external source and provides
    * the pixel data as output (meaning, if the external source is an SVG image,
@@ -236,7 +275,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feImage = "feImage".tag[*.FEImage]
-
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def feimage = feImage
   /**
    * The feMerge filter allows filter effects to be applied concurrently
    * instead of sequentially. This is achieved by other filters storing their
@@ -246,7 +286,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feMerge = "feMerge".tag[*.FEMerge]
-
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def femerge = feMerge
   /**
    * The feMergeNode takes the result of another filter to be processed by its
    * parent femerge.
@@ -254,6 +295,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feMergeNode = "feMergeNode".tag[*.FEMergeNode]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def femergenode = feMergeNode
   /**
    * This filter is used to erode or dilate the input image. It's usefulness
    * lies especially in fattening or thinning effects.
@@ -261,6 +304,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feMorphology = "feMorphology".tag[*.FEMorphology]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def femorphology = feMorphology
   /**
    * The input image as a whole is offset by the values specified in the dx
    * and dy attributes. It's used in creating drop-shadows.
@@ -268,7 +313,14 @@ trait SvgTags {
    * MDN
    */
   final lazy val feOffset = "feOffset".tag[*.FEOffset]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def feoffset = feOffset
+  /**
+   *
+   */
   final lazy val fePointLight = "fePointLight".tag[*.FEPointLight]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fepointlight = fePointLight
   /**
    * This filter primitive lights a source graphic using the alpha channel as a
    * bump map. The resulting image is an RGBA image based on the light color.
@@ -281,10 +333,14 @@ trait SvgTags {
    * MDN
    */
   final lazy val feSpecularLighting = "feSpecularLighting".tag[*.FESpecularLighting]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fespecularlighting = feSpecularLighting
   /**
    *
    */
   final lazy val feSpotLight = "feSpotLight".tag[*.FESpotLight]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fespotlight = feSpotLight
   /**
    * An input image is tiled and the result used to fill a target. The effect
    * is similar to the one of a pattern.
@@ -292,6 +348,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val feTile = "feTile".tag[*.FETile]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def fetile = feTile
   /**
    * This filter primitive creates an image using the Perlin turbulence
    * function. It allows the synthesis of artificial textures like clouds or
@@ -299,7 +357,9 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val feTurbulance = "feTurbulance".tag[*.FETurbulence]
+  final lazy val feTurbulence = "feTurbulence".tag[*.FETurbulence]
+  @deprecated("SvgTags now use correct camelCase spelling.", "0.11.2")
+  final def feturbulance = feTurbulence
   /**
    * The filter element serves as container for atomic filter operations. It is
    * never rendered directly. A filter is referenced by using the filter
@@ -359,6 +419,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val foreignObject = "foreignObject".tag[*.Element]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def foreignobject = foreignObject
   /**
    * The g element is a container used to group objects. Transformations applied
    * to the g element are performed on all of its child elements. Attributes
@@ -381,6 +443,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val glyphRef = "glyphRef".tag[*.Element]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def glyphref = glyphRef
   /**
    * The horizontal distance between two glyphs can be fine-tweaked with an
    * hkern Element. This process is known as Kerning.
@@ -409,6 +473,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val linearGradient = "linearGradient".tag[*.LinearGradient]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def lineargradient = linearGradient
   /**
    * The marker element defines the graphics that is to be used for drawing
    * arrowheads or polymarkers on a given path, line, polyline or
@@ -487,6 +553,8 @@ trait SvgTags {
    * MDN
    */
   final lazy val radialGradient = "radialGradient".tag[*.RadialGradient]
+  @deprecated("SvgTags now use camelCase.", "0.11.2")
+  final def radialgradient = radialGradient
   /**
    * The rect element is an SVG basic shape, used to create rectangles based on
    * the position of a corner and their width and height. It may also be used to
