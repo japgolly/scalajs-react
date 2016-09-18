@@ -590,7 +590,7 @@ trait SvgTags {
    *
    * MDN
    */
-  final lazy val title = "textPath".tag[*.Title]
+  final lazy val title = "title".tag[*.Title]
   /**
    * The textual content for a text can be either character data directly
    * embedded within the text element or the character data content of a
