@@ -13,12 +13,12 @@ object ScalajsReact extends Build {
     val Scala211      = "2.11.8"
     val ScalaJsDom    = "0.9.1"
     val ReactJs       = "15.3.2"
-    val Monocle       = "1.2.1"
-    val Scalaz72      = "7.2.2"
+    val Monocle       = "1.2.2"
+    val Scalaz72      = "7.2.6"
     val MTest         = "0.4.3"
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.3.0"
-    val Nyaya         = "0.7.0"
+    val Nyaya         = "0.7.2"
   }
 
   type PE = Project => Project
