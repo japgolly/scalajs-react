@@ -22,7 +22,7 @@ Scalaz
 ======
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz72" % "0.11.1"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz72" % "0.11.2"
 ```
 
 Included is a Scalaz module that facilitates a more functional and pure approach to React integration.
@@ -39,7 +39,7 @@ Monocle
 =======
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "0.11.1"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "0.11.2"
 ```
 
 A module with a extensions for [Monocle](https://github.com/julien-truffaut/Monocle) also exists under `ext-monocle`.
