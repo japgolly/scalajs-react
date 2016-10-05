@@ -34,7 +34,7 @@ object ScalajsReact extends Build {
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Ver.Scala211,
         // crossScalaVersions := Seq("2.10.4", Scala211), https://github.com/japgolly/scalajs-react/issues/39
-        scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
+        scalacOptions     ++= Seq("-Xmax-classfile-name", "128", "-deprecation", "-unchecked", "-feature",
                                 "-language:postfixOps", "-language:implicitConversions",
                                 "-language:higherKinds", "-language:existentials"),
         //scalacOptions    += "-Xlog-implicits",
