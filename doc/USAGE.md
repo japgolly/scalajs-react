@@ -545,7 +545,8 @@ React Extensions
 
 * Where `setState(State)` is applicable, you can also run `modState(State => State)`.
 
-* Since `setState` and `modState` return callbacks, if you need to call them from outside of a component, e.g. by accessing the backend of a mounted component, call `.runNow()` to trigger the change. Else the callback will never run.
+* Since `setState` and `modState` return callbacks, if you need to call them from outside of a component (e.g. by accessing the backend of a mounted component), call `.runNow()` to trigger the change; else the callback will never run.
+  See the [Callbacks](#callbacks) section for more detail.
 
 * `SyntheticEvent`s have numerous aliases that reduce verbosity.
   For example, in place of `SyntheticKeyboardEvent[HTMLInputElement]` you can use `ReactKeyboardEventI`.
@@ -844,6 +845,9 @@ Gotchas
   1. Use `modState`.
   2. Refactor your logic so that you only call `setState` once.
   3. Use Scalaz state monads as demonstrated in the online [state monad example](https://japgolly.github.io/scalajs-react/#examples/state-monad).
+
+* Since `setState` and `modState` return callbacks, if you need to call them from outside of a component (e.g. by accessing the backend of a mounted component), call `.runNow()` to trigger the change; else the callback will never run.
+  See the [Callbacks](#callbacks) section for more detail.
 
 * Type-inference when creating vdom can break if you call a function whose return type is also infered.
 
