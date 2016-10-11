@@ -1,10 +1,14 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
+
 import scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{raw => Raw}
 import JsComponent._
+
+import scala.scalajs.js.UndefOr
+import scala.util.{Failure, Success, Try}
 
 final class JsComponent[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], M]
     (val raw: Raw.ReactClass, override val ctor: CT[P, Unmounted[P, S, M]])(implicit pf: Profunctor[CT])
@@ -133,7 +137,23 @@ object JsComponent {
     new Mounted(r)
 
   def byName[P <: js.Object, C <: ChildrenArg, S <: js.Object](name: String)
-      (implicit s: CtorType.Summoner[P, C]): Basic[P, S, s.CT] =
-    apply[P, C, S](js.Dynamic.global.selectDynamic(name).asInstanceOf[Raw.ReactClass])(s)
+      (implicit s: CtorType.Summoner[P, C]): Basic[P, S, s.CT] = {
+
+    val reactClass = findInScope(name.split('.').toList) match {
+      case Some(constructor : js.Function) => constructor
+      case Some(_) => throw new IllegalArgumentException(s"React constructor $name is not a function")
+      case None => throw new IllegalArgumentException(s"React constructor $name is not defined")
+    }
+    apply[P, C, S](reactClass.asInstanceOf[Raw.ReactClass])(s)
+  }
+
+  private[this] def findInScope(path: List[String], scope: js.Dynamic = js.Dynamic.global) : Option[js.Dynamic] = {
+    path match {
+      case Nil => Some(scope)
+      case name :: tail =>
+        val nextScope = scope.selectDynamic(name).asInstanceOf[js.UndefOr[js.Dynamic]].toOption
+        nextScope.flatMap(s => findInScope(tail, s))
+    }
+  }
 
 }

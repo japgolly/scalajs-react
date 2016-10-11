@@ -1,5 +1,8 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.CtorType.Void
+import japgolly.scalajs.react.JsComponent.Basic
+
 import scalajs.js
 import utest._
 import japgolly.scalajs.react.test.ReactTestUtils
@@ -10,6 +13,34 @@ import vdom.ImplicitsFromRaw._
 abstract class JsComponentTest extends TestSuite {
   final val H1: raw.ReactElement =
     raw.React.createElement("h1", null, "Huge")
+}
+
+object JsComponentNSTest extends  JsComponentTest {
+
+  override def tests = TestSuite {
+
+    def tryResolve(name: String) : Boolean = {
+      try {
+        JsComponent.byName[Null, ChildrenArg.None, Null](name).raw
+        true
+      } catch {
+        case ex: IllegalArgumentException => false
+      }
+    }
+
+    'resolve {
+      'defined {
+        assertEq(tryResolve("TestNS.SubNS.MyNestedCmp"), true)
+      }
+
+      'undefined {
+        assertEq(tryResolve(""), false)
+        assertEq(tryResolve("TestNS"), false)
+        assertEq(tryResolve("TestNS.MissingNS"), false)
+        assertEq(tryResolve("TestNS.SubNS.MyMissingCmp"), false)
+      }
+    }
+  }
 }
 
 object JsComponentPTest extends JsComponentTest {
