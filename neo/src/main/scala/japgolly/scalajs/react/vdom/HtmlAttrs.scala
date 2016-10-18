@@ -545,11 +545,19 @@ trait HtmlAttrs {
 
   final lazy val onAbort = Attr.Event.base("onAbort")
 
+  final lazy val onAbortCapture = Attr.Event.base("onAbortCapture")
+
   final lazy val onAnimationEnd = Attr.Event.animation("onAnimationEnd")
+
+  final lazy val onAnimationEndCapture = Attr.Event.animation("onAnimationEndCapture")
 
   final lazy val onAnimationIteration = Attr.Event.animation("onAnimationIteration")
 
+  final lazy val onAnimationIterationCapture = Attr.Event.animation("onAnimationIterationCapture")
+
   final lazy val onAnimationStart = Attr.Event.animation("onAnimationStart")
+
+  final lazy val onAnimationStartCapture = Attr.Event.animation("onAnimationStartCapture")
 
   final lazy val onBeforeInput = Attr.Event.base("onBeforeInput")
 
@@ -558,7 +566,11 @@ trait HtmlAttrs {
     */
   final lazy val onBlur = Attr.Event.focus("onBlur")
 
+  final lazy val onBlurCapture = Attr.Event.focus("onBlurCapture")
+
   final lazy val onCanPlay = Attr.Event.base("onCanPlay")
+
+  final lazy val onCanPlayCapture = Attr.Event.base("onCanPlayCapture")
 
   final lazy val onCanPlayThrough = Attr.Event.base("onCanPlayThrough")
 
@@ -574,6 +586,8 @@ trait HtmlAttrs {
     */
   final val onClick = Attr.Event.mouse("onClick")
 
+  final val onClickCapture = Attr.Event.mouse("onClickCapture")
+
   final lazy val onCompositionEnd = Attr.Event.composition("onCompositionEnd")
 
   final lazy val onCompositionStart = Attr.Event.composition("onCompositionStart")
@@ -582,9 +596,15 @@ trait HtmlAttrs {
 
   final lazy val onContextMenu = Attr.Event.mouse("onContextMenu")
 
+  final lazy val onContextMenuCapture = Attr.Event.mouse("onContextMenuCapture")
+
   final lazy val onCopy = Attr.Event.clipboard("onCopy")
 
+  final lazy val onCopyCapture = Attr.Event.clipboard("onCopyCapture")
+
   final lazy val onCut = Attr.Event.clipboard("onCut")
+
+  final lazy val onCutCapture = Attr.Event.clipboard("onCutCapture")
 
   /** React alias for [[onDoubleClick]] */
   final def onDblClick = onDoubleClick
@@ -595,29 +615,55 @@ trait HtmlAttrs {
     */
   final lazy val onDoubleClick = Attr.Event.mouse("onDoubleClick")
 
+  final lazy val onDoubleClickCapture = Attr.Event.mouse("onDoubleClickCapture")
+
   final lazy val onDrag = Attr.Event.drag("onDrag")
+
+  final lazy val onDragCapture = Attr.Event.drag("onDragCapture")
 
   final lazy val onDragEnd = Attr.Event.drag("onDragEnd")
 
+  final lazy val onDragEndCapture = Attr.Event.drag("onDragEndCapture")
+
   final lazy val onDragEnter = Attr.Event.drag("onDragEnter")
+
+  final lazy val onDragEnterCapture = Attr.Event.drag("onDragEnterCapture")
 
   final lazy val onDragExit = Attr.Event.drag("onDragExit")
 
+  final lazy val onDragExitCapture = Attr.Event.drag("onDragExitCapture")
+
   final lazy val onDragLeave = Attr.Event.drag("onDragLeave")
+
+  final lazy val onDragLeaveCapture = Attr.Event.drag("onDragLeaveCapture")
 
   final lazy val onDragOver = Attr.Event.drag("onDragOver")
 
+  final lazy val onDragOverCapture = Attr.Event.drag("onDragOverCapture")
+
   final lazy val onDragStart = Attr.Event.drag("onDragStart")
+
+  final lazy val onDragStartCapture = Attr.Event.drag("onDragStartCapture")
 
   final lazy val onDrop = Attr.Event.drag("onDrop")
 
+  final lazy val onDropCapture = Attr.Event.drag("onDropCapture")
+
   final lazy val onDurationChange = Attr.Event.base("onDurationChange")
+
+  final lazy val onDurationChangeCapture = Attr.Event.base("onDurationChangeCapture")
 
   final lazy val onEmptied = Attr.Event.base("onEmptied")
 
+  final lazy val onEmptiedCapture = Attr.Event.base("onEmptiedCapture")
+
   final lazy val onEncrypted = Attr.Event.base("onEncrypted")
 
+  final lazy val onEncryptedCapture = Attr.Event.base("onEncryptedCapture")
+
   final lazy val onEnded = Attr.Event.base("onEnded")
+
+  final lazy val onEndedCapture = Attr.Event.base("onEndedCapture")
 
   /**
     * Type: script code
@@ -628,19 +674,29 @@ trait HtmlAttrs {
     */
   final lazy val onError = Attr.Event.base("onError")
 
+  final lazy val onErrorCapture = Attr.Event.base("onErrorCapture")
+
   /**
     * The focus event is raised when the user sets focus on the given element.
     */
   final lazy val onFocus = Attr.Event.focus("onFocus")
 
+  final lazy val onFocusCapture = Attr.Event.focus("onFocusCapture")
+
   final lazy val onInput = Attr.Event.base("onInput")
 
+  final lazy val onInputCapture = Attr.Event.base("onInputCapture")
+
   final lazy val onInvalid = Attr.Event.base("onInvalid")
+
+  final lazy val onInvalidCapture = Attr.Event.base("onInvalidCapture")
 
   /**
     * The keydown event is raised when the user presses a keyboard key.
     */
   final lazy val onKeyDown = Attr.Event.keyboard("onKeyDown")
+
+  final lazy val onKeyDownCapture = Attr.Event.keyboard("onKeyDownCapture")
 
   /**
     * The keypress event should be raised when the user presses a key on the keyboard.
@@ -651,10 +707,14 @@ trait HtmlAttrs {
     */
   final lazy val onKeyPress = Attr.Event.keyboard("onKeyPress")
 
+  final lazy val onKeyPressCapture = Attr.Event.keyboard("onKeyPressCapture")
+
   /**
     * The keyup event is raised when the user releases a key that's been pressed.
     */
   final lazy val onKeyUp = Attr.Event.keyboard("onKeyUp")
+
+  final lazy val onKeyUpCapture = Attr.Event.keyboard("onKeyUpCapture")
 
   /**
     * The load event fires at the end of the document loading process. At this
@@ -663,16 +723,26 @@ trait HtmlAttrs {
     */
   final lazy val onLoad = Attr.Event.base("onLoad")
 
+  final lazy val onLoadCapture = Attr.Event.base("onLoadCapture")
+
   final lazy val onLoadStart = Attr.Event.base("onLoadStart")
+
+  final lazy val onLoadStartCapture = Attr.Event.base("onLoadStartCapture")
 
   final lazy val onLoadedData = Attr.Event.base("onLoadedData")
 
+  final lazy val onLoadedDataCapture = Attr.Event.base("onLoadedDataCapture")
+
   final lazy val onLoadedMetadata = Attr.Event.base("onLoadedMetadata")
+
+  final lazy val onLoadedMetadataCapture = Attr.Event.base("onLoadedMetadataCapture")
 
   /**
     * The mousedown event is raised when the user presses the mouse button.
     */
   final lazy val onMouseDown = Attr.Event.mouse("onMouseDown")
+
+  final lazy val onMouseDownCapture = Attr.Event.mouse("onMouseDownCapture")
 
   /**
     * The mouseenter event is fired when a pointing device (usually a mouse)
@@ -691,6 +761,8 @@ trait HtmlAttrs {
     */
   final lazy val onMouseMove = Attr.Event.mouse("onMouseMove")
 
+  final lazy val onMouseMoveCapture = Attr.Event.mouse("onMouseMoveCapture")
+
   /**
     * The mouseout event is raised when the mouse leaves an element (e.g, when
     * the mouse moves off of an image in the web page, the mouseout event is
@@ -698,42 +770,68 @@ trait HtmlAttrs {
     */
   final lazy val onMouseOut = Attr.Event.mouse("onMouseOut")
 
+  final lazy val onMouseOutCapture = Attr.Event.mouse("onMouseOutCapture")
+
   /**
     * The mouseover event is raised when the user moves the mouse over a
     * particular element.
     */
   final lazy val onMouseOver = Attr.Event.mouse("onMouseOver")
 
+  final lazy val onMouseOverCapture = Attr.Event.mouse("onMouseOverCapture")
+
   /**
     * The mouseup event is raised when the user releases the mouse button.
     */
   final lazy val onMouseUp = Attr.Event.mouse("onMouseUp")
 
+  final lazy val onMouseUpCapture = Attr.Event.mouse("onMouseUpCapture")
+
   final lazy val onPaste = Attr.Event.clipboard("onPaste")
+
+  final lazy val onPasteCapture = Attr.Event.clipboard("onPasteCapture")
 
   final lazy val onPause = Attr.Event.base("onPause")
 
+  final lazy val onPauseCapture = Attr.Event.base("onPauseCapture")
+
   final lazy val onPlay = Attr.Event.base("onPlay")
+
+  final lazy val onPlayCapture = Attr.Event.base("onPlayCapture")
 
   final lazy val onPlaying = Attr.Event.base("onPlaying")
 
+  final lazy val onPlayingCapture = Attr.Event.base("onPlayingCapture")
+
   final lazy val onProgress = Attr.Event.base("onProgress")
 
+  final lazy val onProgressCapture = Attr.Event.base("onProgressCapture")
+
   final lazy val onRateChange = Attr.Event.base("onRateChange")
+
+  final lazy val onRateChangeCapture = Attr.Event.base("onRateChangeCapture")
 
   /**
     * The reset event is fired when a form is reset.
     */
   final lazy val onReset = Attr.Event.base("onReset")
 
+  final lazy val onResetCapture = Attr.Event.base("onResetCapture")
+
   /**
     * Specifies the function to be called when the window is scrolled.
     */
   final lazy val onScroll = Attr.Event.ui("onScroll")
 
+  final lazy val onScrollCapture = Attr.Event.ui("onScrollCapture")
+
   final lazy val onSeeked = Attr.Event.base("onSeeked")
 
+  final lazy val onSeekedCapture = Attr.Event.base("onSeekedCapture")
+
   final lazy val onSeeking = Attr.Event.base("onSeeking")
+
+  final lazy val onSeekingCapture = Attr.Event.base("onSeekingCapture")
 
   /**
     * The select event only fires when text inside a text input or textarea is
@@ -743,15 +841,23 @@ trait HtmlAttrs {
 
   final lazy val onStalled = Attr.Event.base("onStalled")
 
+  final lazy val onStalledCapture = Attr.Event.base("onStalledCapture")
+
   /**
     * The submit event is raised when the user clicks a submit button in a form
     * (<input type="submit"/>).
     */
   final lazy val onSubmit = Attr.Event.base("onSubmit")
 
+  final lazy val onSubmitCapture = Attr.Event.base("onSubmitCapture")
+
   final lazy val onSuspend = Attr.Event.base("onSuspend")
 
+  final lazy val onSuspendCapture = Attr.Event.base("onSuspendCapture")
+
   final lazy val onTimeUpdate = Attr.Event.base("onTimeUpdate")
+
+  final lazy val onTimeUpdateCapture = Attr.Event.base("onTimeUpdateCapture")
 
   /**
     * Event indicating that the touch point has been canceled or disrupted.
@@ -760,6 +866,8 @@ trait HtmlAttrs {
     */
   final lazy val onTouchCancel = Attr.Event.touch("onTouchCancel")
 
+  final lazy val onTouchCancelCapture = Attr.Event.touch("onTouchCancelCapture")
+
   /**
     * Event indicating that the touch point does not exist any more.
     *
@@ -767,23 +875,37 @@ trait HtmlAttrs {
     */
   final lazy val onTouchEnd = Attr.Event.touch("onTouchEnd")
 
+  final lazy val onTouchEndCapture = Attr.Event.touch("onTouchEndCapture")
+
   /**
     * Event indicating that the touch point has moved along the plane.
     */
   final lazy val onTouchMove = Attr.Event.touch("onTouchMove")
+
+  final lazy val onTouchMoveCapture = Attr.Event.touch("onTouchMoveCapture")
 
   /**
     * Event indicating that the user has touched the plane.
     */
   final lazy val onTouchStart = Attr.Event.touch("onTouchStart")
 
+  final lazy val onTouchStartCapture = Attr.Event.touch("onTouchStartCapture")
+
   final lazy val onTransitionEnd = Attr.Event.transition("onTransitionEnd")
+
+  final lazy val onTransitionEndCapture = Attr.Event.transition("onTransitionEndCapture")
 
   final lazy val onVolumeChange = Attr.Event.base("onVolumeChange")
 
+  final lazy val onVolumeChangeCapture = Attr.Event.base("onVolumeChangeCapture")
+
   final lazy val onWaiting = Attr.Event.base("onWaiting")
 
+  final lazy val onWaitingCapture = Attr.Event.base("onWaitingCapture")
+
   final lazy val onWheel = Attr.Event.wheel("onWheel")
+
+  final lazy val onWheelCapture = Attr.Event.wheel("onWheelCapture")
 
   final lazy val open = ReactAttr("open")
 
