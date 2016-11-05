@@ -16,11 +16,11 @@ import CallbackTo.MapGuard
  *
  * @see CallbackTo
  */
-object Callback {
+object Callback_TempHack {
   @implicitNotFound("You're wrapping a ${A} in a Callback which will discard without running it. Instead use CallbackTo(…).flatten or Callback{,To}.lazily(…).")
-  final class ResultGuard[A] private[Callback]()
+  final class ResultGuard[A] private[Callback_TempHack]()
   object ResultGuard {
-    final class Proof[A] private[Callback]()
+    final class Proof[A] private[Callback_TempHack]()
     object Proof {
       implicit def preventCallback1[A]: Proof[CallbackTo[A]] = ???
       implicit def preventCallback2[A]: Proof[CallbackTo[A]] = ???
