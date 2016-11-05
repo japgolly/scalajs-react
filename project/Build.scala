@@ -1,13 +1,11 @@
 import sbt._
 import Keys._
-
 import com.typesafe.sbt.pgp.PgpKeys._
-
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import ScalaJSPlugin._
 import ScalaJSPlugin.autoImport._
 
-object ScalajsReact extends Build {
+object ScalajsReact {
 
   object Ver {
     val Scala211      = "2.11.8"
@@ -29,7 +27,6 @@ object ScalajsReact extends Build {
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.11.3-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
         scalaVersion       := Ver.Scala211,
