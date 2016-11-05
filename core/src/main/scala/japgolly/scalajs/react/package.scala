@@ -1,6 +1,6 @@
 package japgolly.scalajs
 
-import org.scalajs.dom, dom.html
+import org.scalajs.dom, dom.html, dom.raw.HTMLElement
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import js.{Dynamic, Object, Any => JAny, Function => JFn}
@@ -157,8 +157,8 @@ package object react extends ReactEventAliases {
   }
 
   implicit final class ReactExt_DomNodeO[O[_], N <: dom.raw.Node](o: O[N])(implicit O: OptionLike[O]) {
-    def tryFocus: Callback =
-      Callback(O.toOption(o).flatMap(_.domToHtml).foreach(_.focus()))
+    def tryTo(f: HTMLElement => Unit): Callback = Callback(O.toOption(o).flatMap(_.domToHtml).foreach(f))
+    def tryFocus: Callback = tryTo(_.focus())
   }
 
   @inline implicit final class ReactExt_ReactComponentM[N <: TopNode](private val c: ReactComponentM_[N]) extends AnyVal {
