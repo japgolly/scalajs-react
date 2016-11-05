@@ -1,4 +1,4 @@
-version in ThisBuild := "0.11.3-SNAPSHOT"
+version in ThisBuild := "0.11.3"
 
 val root          = ScalajsReact.root
 val core          = ScalajsReact.core
