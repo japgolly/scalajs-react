@@ -1,7 +1,9 @@
 package sizzle
 
 import scala.scalajs.js
+import scala.scalajs.js.annotation.JSImport
 
+@JSImport("sizzle", JSImport.Namespace)
 @js.native
 object Sizzle extends js.Object {
 

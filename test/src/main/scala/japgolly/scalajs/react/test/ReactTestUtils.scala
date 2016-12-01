@@ -1,13 +1,13 @@
 package japgolly.scalajs.react.test
 
 import scala.scalajs.js
-import scala.scalajs.js.{Function1 => JFn1, Object, Array, UndefOr, undefined, Dynamic, native}
-import scala.scalajs.js.annotation.JSName
+import scala.scalajs.js.{Array, Dynamic, Object, UndefOr, native, undefined, Function1 => JFn1}
+import scala.scalajs.js.annotation.JSImport
 import japgolly.scalajs.react._
 
 /** https://facebook.github.io/react/docs/test-utils.html */
 @js.native
-@JSName("React.addons.TestUtils")
+@JSImport("react-addons-test-utils", JSImport.Namespace)
 object ReactTestUtils extends ReactTestUtils
 
 @js.native

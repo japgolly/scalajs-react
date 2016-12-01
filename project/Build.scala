@@ -2,8 +2,9 @@ import sbt._
 import Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
 import org.scalajs.sbtplugin.ScalaJSPlugin
-import ScalaJSPlugin._
 import ScalaJSPlugin.autoImport._
+import scalajsbundler.ScalaJSBundlerPlugin
+import ScalaJSBundlerPlugin.autoImport._
 
 object ScalajsReact {
 
@@ -25,7 +26,7 @@ object ScalajsReact {
   val clearScreenTask = TaskKey[Unit]("clear", "Clears the screen.")
 
   def commonSettings: PE =
-    _.enablePlugins(ScalaJSPlugin)
+    _.enablePlugins(ScalaJSBundlerPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
@@ -82,35 +83,11 @@ object ScalajsReact {
     )
 
   def utestSettings: PE =
-    _.configure(useReactJs("test"))
-      .settings(
-        libraryDependencies += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
-        testFrameworks      += new TestFramework("utest.runner.Framework"),
-        requiresDOM         := true,
-        jsEnv in Test       := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
-
-  def useReactJs(scope: String = "compile"): PE =
     _.settings(
-      jsDependencies ++= Seq(
-
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /        "react-with-addons.js"
-          minified "react-with-addons.min.js"
-          commonJSName "React",
-
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /         "react-dom.js"
-          minified  "react-dom.min.js"
-          dependsOn "react-with-addons.js"
-          commonJSName "ReactDOM",
-
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /         "react-dom-server.js"
-          minified  "react-dom-server.min.js"
-          dependsOn "react-dom.js"
-          commonJSName "ReactDOMServer"),
-
-      skip in packageJSDependencies := false)
+      libraryDependencies += "com.lihaoyi" %%% "utest" % Ver.MTest % Test,
+      testFrameworks      += new TestFramework("utest.runner.Framework"),
+      requiresDOM         := true
+    )
 
   def addCommandAliases(m: (String, String)*) = {
     val s = m.map(p => addCommandAlias(p._1, p._2)).reduce(_ ++ _)
@@ -158,7 +135,14 @@ object ScalajsReact {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom))
+        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom),
+      npmDependencies in Compile ++= Seq(
+        "react" -> Ver.ReactJs,
+        "react-dom" -> Ver.ReactJs,
+        "react-addons-perf" -> Ver.ReactJs,
+        "react-addons-css-transition-group" -> Ver.ReactJs
+      )
+    )
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
@@ -175,9 +159,11 @@ object ScalajsReact {
         "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % "test",
         "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % "test",
         monocleLib("macro") % "test"),
-      jsDependencies ++= Seq(
-        (ProvidedJS / "sampleReactComponent.js" dependsOn "react-dom.js") % Test, // for JS Component Type Test.
-        "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle"),
+      npmDependencies in Test ++= Seq(
+        "react-dom" -> Ver.ReactJs, // for JS component Type Test.
+        "sizzle" -> Ver.SizzleJs,
+        "react-addons-test-utils" -> Ver.ReactJs
+      ),
       addCompilerPlugin(macroParadisePlugin),
       scalacOptions in Test += "-language:reflectiveCalls")
 
@@ -208,10 +194,18 @@ object ScalajsReact {
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocle, ghpagesMacros)
-    .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
+    .configure(commonSettings, preventPublication, hasNoTests)
     .settings(
       libraryDependencies += monocleLib("macro"),
       addCompilerPlugin(macroParadisePlugin),
       emitSourceMaps := false,
-      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
+      webpack in (Compile, fullOptJS) := {
+        val files = (webpack in (Compile, fullOptJS)).value
+        // We have only one entry point so the body will be executed exactly once
+        files.foreach { f =>
+          IO.copyFile(f, file("gh-pages/res/ghpages.js"))
+        }
+        files
+      }
+    )
 }

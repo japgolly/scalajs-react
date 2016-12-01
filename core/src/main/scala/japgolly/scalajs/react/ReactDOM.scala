@@ -1,9 +1,12 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
-import scala.scalajs.js
-import js.{ThisFunction, ThisFunction0, Object}
 
+import scala.scalajs.js
+import js.{Object, ThisFunction, ThisFunction0}
+import scala.scalajs.js.annotation.JSImport
+
+@JSImport("react-dom", JSImport.Namespace)
 @js.native
 object ReactDOM extends ReactDOM
 
@@ -118,6 +121,7 @@ trait ReactDOM extends Object {
   def findDOMNode[N <: TopNode](component: CompScope.Mounted[N]): N = js.native
 }
 
+@JSImport("react-dom/server", JSImport.Namespace)
 @js.native
 object ReactDOMServer extends ReactDOMServer
 

@@ -1,11 +1,11 @@
 package japgolly.scalajs.react
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.JSName
+import scala.scalajs.js.annotation.JSImport
 import org.scalajs.dom.raw.HTMLElement
 import utest._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.{Simulation, ReactTestUtils}
+import japgolly.scalajs.react.test.{ReactTestUtils, Simulation}
 import japgolly.scalajs.react.vdom.prefix_<^._
 
 object JsComponentTest extends TestSuite {
@@ -102,7 +102,7 @@ object SampleReactComponentState {
   }
 }
 
-@JSName("SampleReactComponent")
+@JSImport("./sampleReactComponent.js", JSImport.Namespace)
 @js.native
 object SampleReactComponent extends JsComponentType[SampleReactComponentProperty, SampleReactComponentState, HTMLElement]
 
