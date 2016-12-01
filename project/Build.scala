@@ -1,6 +1,8 @@
 import sbt._, Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
 import org.scalajs.sbtplugin.ScalaJSPlugin, ScalaJSPlugin.autoImport._
+import scalajsbundler.ScalaJSBundlerPlugin
+import ScalaJSBundlerPlugin.autoImport._
 
 object ScalajsReact {
 
@@ -23,7 +25,7 @@ object ScalajsReact {
     Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
 
   def commonSettings: PE =
-    _.enablePlugins(ScalaJSPlugin)
+    _.enablePlugins(ScalaJSBundlerPlugin)
       .settings(
         scalaVersion       := Ver.Scala212,
         crossScalaVersions := Seq(Ver.Scala211, Ver.Scala212),
@@ -88,35 +90,13 @@ object ScalajsReact {
     }
 
   def utestSettings: PE =
-    _.configure(useReactJs("test"), setupJsEnv, InBrowserTesting.js)
+    _.configure(setupJsEnv, InBrowserTesting.js)
       .settings(
         scalacOptions in Test += "-language:reflectiveCalls",
-        libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
+        libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % Test,
         testFrameworks        += new TestFramework("utest.runner.Framework"),
-        requiresDOM           := true)
-
-  def useReactJs(scope: String = "compile"): PE =
-    _.settings(
-      jsDependencies ++= Seq(
-
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /        "react-with-addons.js"
-          minified "react-with-addons.min.js"
-          commonJSName "React",
-
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /         "react-dom.js"
-          minified  "react-dom.min.js"
-          dependsOn "react-with-addons.js"
-          commonJSName "ReactDOM",
-
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /         "react-dom-server.js"
-          minified  "react-dom-server.min.js"
-          dependsOn "react-dom.js"
-          commonJSName "ReactDOMServer"),
-
-      skip in packageJSDependencies := false)
+        requiresDOM           := true
+      )
 
   def addCommandAliases(m: (String, String)*) = {
     val s = m.map(p => addCommandAlias(p._1, p._2)).reduce(_ ++ _)
@@ -170,7 +150,14 @@ object ScalajsReact {
       name := "core",
       libraryDependencies ++= Seq(
         "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
-        "org.scalaz"   %%% "scalaz-core" % Ver.Scalaz72 % "test"))
+        "org.scalaz"   %%% "scalaz-core" % Ver.Scalaz72 % Test),
+      npmDependencies in Compile ++= Seq(
+        "react" -> Ver.ReactJs,
+        "react-dom" -> Ver.ReactJs,
+        "react-addons-perf" -> Ver.ReactJs,
+        "react-addons-css-transition-group" -> Ver.ReactJs
+      )
+    )
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
@@ -189,10 +176,13 @@ object ScalajsReact {
         "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
         monocleLib("macro") % Test),
-      jsDependencies ++= Seq(
-        "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
-        (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
-        (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test),
+      npmDependencies in Test ++= Seq(
+        "react-dom" -> Ver.ReactJs, // for JS component Type Test.
+        "sizzle" -> Ver.SizzleJs,
+        "react-addons-test-utils" -> Ver.ReactJs
+//        (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
+//        (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test),
+      ),
       addCompilerPlugin(macroParadisePlugin))
 
   def scalazModule(name: String, version: String) = {
@@ -217,10 +207,18 @@ object ScalajsReact {
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocle, ghpagesMacros)
-    .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
+    .configure(commonSettings, preventPublication, hasNoTests)
     .settings(
       libraryDependencies += monocleLib("macro"),
       addCompilerPlugin(macroParadisePlugin),
       emitSourceMaps := false,
-      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
+      webpack in (Compile, fullOptJS) := {
+        val files = (webpack in (Compile, fullOptJS)).value
+        // We have only one entry point so the body will be executed exactly once
+        files.foreach { f =>
+          IO.copyFile(f, file("gh-pages/res/ghpages.js"))
+        }
+        files
+      }
+    )
 }
