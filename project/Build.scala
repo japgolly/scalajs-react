@@ -159,10 +159,12 @@ object ScalajsReact {
         "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % "test",
         "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % "test",
         monocleLib("macro") % "test"),
+      npmDependencies in Compile ++= Seq(
+        "react-addons-test-utils" -> Ver.ReactJs
+      ),
       npmDependencies in Test ++= Seq(
         "react-dom" -> Ver.ReactJs, // for JS component Type Test.
-        "sizzle" -> Ver.SizzleJs,
-        "react-addons-test-utils" -> Ver.ReactJs
+        "sizzle" -> Ver.SizzleJs
       ),
       addCompilerPlugin(macroParadisePlugin),
       scalacOptions in Test += "-language:reflectiveCalls")
