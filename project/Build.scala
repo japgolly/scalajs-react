@@ -176,10 +176,12 @@ object ScalajsReact {
         "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
         monocleLib("macro") % Test),
+      npmDependencies in Compile ++= Seq(
+        "react-addons-test-utils" -> Ver.ReactJs
+      ),
       npmDependencies in Test ++= Seq(
         "react-dom" -> Ver.ReactJs, // for JS component Type Test.
-        "sizzle" -> Ver.SizzleJs,
-        "react-addons-test-utils" -> Ver.ReactJs
+        "sizzle" -> Ver.SizzleJs
 //        (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
 //        (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test),
       ),
