@@ -26,6 +26,17 @@ Setup
   libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.0.0-RC1"
   ```
 
+3. Add dependencies to React.js (adjust as needed, eg. to remove addons):
+
+  ~~~ scala
+  npmDependencies in Compile ++= Seq(
+    "react" -> "15.3.2",
+    "react-dom" -> "15.3.2",
+    "react-addons-perf" -> "15.3.2", // Optional
+    "react-addons-css-transition-group" -> "15.3.3" // Optional
+  )
+  ~~~
+
 Creating Virtual-DOM
 ====================
 
