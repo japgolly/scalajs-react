@@ -83,10 +83,20 @@ object ScalajsReact {
     )
 
   def utestSettings: PE =
+    _.configure(useReactJs(Test))
+      .settings(
+        libraryDependencies += "com.lihaoyi" %%% "utest" % Ver.MTest % Test,
+        testFrameworks      += new TestFramework("utest.runner.Framework"),
+        requiresDOM         := true)
+
+  def useReactJs(scope: Configuration = Compile): PE =
     _.settings(
-      libraryDependencies += "com.lihaoyi" %%% "utest" % Ver.MTest % Test,
-      testFrameworks      += new TestFramework("utest.runner.Framework"),
-      requiresDOM         := true
+      npmDependencies in scope ++= Seq(
+        "react" -> Ver.ReactJs,
+        "react-dom" -> Ver.ReactJs,
+        "react-addons-perf" -> Ver.ReactJs,
+        "react-addons-css-transition-group" -> Ver.ReactJs
+      )
     )
 
   def addCommandAliases(m: (String, String)*) = {
@@ -135,14 +145,7 @@ object ScalajsReact {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom),
-      npmDependencies in Compile ++= Seq(
-        "react" -> Ver.ReactJs,
-        "react-dom" -> Ver.ReactJs,
-        "react-addons-perf" -> Ver.ReactJs,
-        "react-addons-css-transition-group" -> Ver.ReactJs
-      )
-    )
+        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom))
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
@@ -196,7 +199,7 @@ object ScalajsReact {
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocle, ghpagesMacros)
-    .configure(commonSettings, preventPublication, hasNoTests)
+    .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
     .settings(
       libraryDependencies += monocleLib("macro"),
       addCompilerPlugin(macroParadisePlugin),
