@@ -14,7 +14,6 @@ package object react extends ReactEventAliases {
 
   type Callback  = CallbackTo[Unit]
   type CallbackB = CallbackTo[Boolean]
-  val Callback = Callback_TempHack
 
   @deprecated("Use CompState.AccessD.", "0.10.2")
   type StateAccessDirect[S] = CompState.AccessD[S]

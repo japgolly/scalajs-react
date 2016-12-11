@@ -9,7 +9,7 @@ object ScalajsReact {
 
   object Ver {
     val Scala211      = "2.11.8"
-    val Scala212      = "2.12.0"
+    val Scala212      = "2.12.1"
     val ScalaJsDom    = "0.9.1"
     val ReactJs       = "15.3.2"
     val Monocle       = "1.3.2"
