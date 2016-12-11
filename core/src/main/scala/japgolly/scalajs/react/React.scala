@@ -1,8 +1,10 @@
 package japgolly.scalajs.react
 
 import scala.scalajs.js
-import js.{Dynamic, UndefOr, Object, Any => JAny}
+import js.{Dynamic, Object, UndefOr, Any => JAny}
+import scala.scalajs.js.annotation.JSImport
 
+@JSImport("react", JSImport.Namespace)
 @js.native
 object React extends React
 
@@ -58,8 +60,6 @@ trait React extends Object {
    * when not using JSX. For example, React.DOM.div(null, 'Hello World!')
    */
   def DOM: Dynamic = js.native
-
-  def addons: Dynamic = js.native
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   def Children: ReactChildren = js.native

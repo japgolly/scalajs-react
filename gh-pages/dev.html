@@ -6,32 +6,11 @@
     <link rel="stylesheet" href="res/bootstrap.css">
     <link rel="stylesheet" href="res/app.css">
     <link rel="stylesheet" href="res/default.css">
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/react/15.0.1/react-with-addons.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/react/15.0.1/react-dom.js"></script>
     <script type="text/javascript" src="res/highlight.pack.js"></script>
 </head>
 <body>
 
-<script>
-    function jsonp(url, callback) {
-        var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-        window[callbackName] = function(data) {
-            delete window[callbackName];
-//            document.body.removeChild(script);
-            callback(data);
-        };
+<script type="text/javascript" src="target/scala-2.11/gh-pages-fastopt-bundle.js"></script>
 
-        var script = document.createElement('script');
-        script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
-        document.body.appendChild(script);
-    }
-</script>
-
-<script type="text/javascript" src="target/scala-2.11/gh-pages-fastopt.js"></script>
-
-<script type="text/javascript">
-  ((typeof global === "object" && global &&
-         global["Object"] === Object) ? global : this)["ghpages"]["GhPages"]().main();
-</script>
 </body>
 </html>

@@ -1,4 +1,6 @@
-var SampleReactComponent = React.createClass({
+var React = require('react');
+
+module.exports = React.createClass({
   getInitialState: function() {
     return {num:0,num2:0};
   },

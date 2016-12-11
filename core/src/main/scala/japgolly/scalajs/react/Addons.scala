@@ -1,18 +1,13 @@
 package japgolly.scalajs.react
 
 import scala.scalajs.js
-import js.annotation.JSName
+import js.annotation.JSImport
 
 object Addons {
 
-  object ReactCssTransitionGroup {
-    /** Items in the CSSTransitionGroup need this attribute for animation to work properly. */
-    @inline final def key = vdom.Attrs.key
-
-    private val factory =
-      React.createFactory(
-        React.addons.CSSTransitionGroup.asInstanceOf[JsComponentType[js.Any, js.Any, TopNode]])
-  }
+  @JSImport("react-addons-css-transition-group", JSImport.Namespace)
+  @js.native
+  object CSSTransitionGroup extends JsComponentType[js.Any, js.Any, TopNode]
 
   /**
     * [[ReactCssTransitionGroup]] is based on `ReactTransitionGroup` and is an easy way to perform CSS transitions and
@@ -57,7 +52,7 @@ object Addons {
       * single item. This is how React will determine which children have entered, left, or stayed.
       */
     def apply(children: ReactNode*): ReactComponentU_ =
-      ReactCssTransitionGroup.factory(toJs, children.toJsArray).asInstanceOf[ReactComponentU_]
+      React.createFactory(CSSTransitionGroup)(toJs, children.toJsArray).asInstanceOf[ReactComponentU_]
   }
 
   // ===================================================================================================================
@@ -67,8 +62,8 @@ object Addons {
    *
    * @see https://facebook.github.io/react/docs/perf.html
    */
+  @JSImport("react-addons-perf", JSImport.Namespace)
   @js.native
-  @JSName("React.addons.Perf")
   object Perf extends js.Object {
 
     // Opaque pending:

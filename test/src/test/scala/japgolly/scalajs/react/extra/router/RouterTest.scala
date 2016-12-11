@@ -72,7 +72,7 @@ object RouterTest extends TestSuite {
 
     'sim {
       import MyPage.{Root, Hello, Greet, Person}
-      val base = BaseUrl("file:///routerDemo")
+      val base = BaseUrl("http://localhost/")
       val router = Router(base, MyPage.config.logToConsole)
       val c = ReactTestUtils.renderIntoDocument(router())
       def node = ReactDOM findDOMNode c
