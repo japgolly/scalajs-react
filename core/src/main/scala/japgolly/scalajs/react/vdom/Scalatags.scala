@@ -51,5 +51,13 @@ private[vdom] object Scalatags {
   implicit class SeqNode[A <% TagMod](xs: Seq[A]) extends TagMod {
     def applyTo(t: Builder) = xs.foreach(_.applyTo(t))
   }
+ 
+  /** 
+   * Treats Unit as a no-op in VDOM tree.  Useful when doing partial ifs:
+   * (if (condition) span("Error Message"))
+   */
+  implicit class UnitNode(u: Unit) extends TagMod {
+    def applyTo(t: Builder) = ()
+  }
 }
 
