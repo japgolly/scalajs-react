@@ -393,7 +393,7 @@ They can be composed with other rules via `|` as usual.
 
 Example: This would remove leading dots.
 ```scala
-rewritePathR("^\\.+(.*)$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+rewritePathR("^\\.+(.*)$".r, m => Some(redirectToPath(m group 1)(Redirect.Replace)))
 ```
 
 A few rules are included out-of-the-box for you to use:
