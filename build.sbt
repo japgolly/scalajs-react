@@ -1,5 +1,7 @@
 version in ThisBuild := "0.11.4-SNAPSHOT"
 
+shellPrompt in ThisBuild := ((s: State) => Project.extract(s).currentRef.project + "> ")
+
 val root          = ScalajsReact.root
 val core          = ScalajsReact.core
 val extra         = ScalajsReact.extra

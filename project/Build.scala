@@ -43,7 +43,7 @@ object ScalajsReact {
                                 }.value,
         //scalacOptions    += "-Xlog-implicits",
         updateOptions      := updateOptions.value.withCachedResolution(true),
-        incOptions         := incOptions.value.withLogRecompileOnMacro(false),
+        incOptions         := incOptions.value.withNameHashing(true).withLogRecompileOnMacro(false),
         triggeredMessage   := Watched.clearWhenTriggered,
         clearScreenTask    := { println("\033[2J\033[;H") })
 
