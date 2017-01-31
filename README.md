@@ -28,6 +28,12 @@ Includes a router, testing utils, performance utils, more.
   - [Performance Management](doc/PERFORMANCE.md).
   - [Smaller stuff](doc/EXTRA.md).
 - [Testing](doc/TESTING.md).
+- ScalaDoc
+  - [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.11/0.11.3)
+  - [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.11/0.11.3)
+  - [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/scalaz72_sjs0.6_2.12/0.11.3)
+  - [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/monocle_sjs0.6_2.12/0.11.3)
+  - [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/0.11.3)
 - [Changelogs](doc/changelog) — [Latest](doc/changelog/0.11.3.md).
 
 
@@ -45,8 +51,6 @@ Includes a router, testing utils, performance utils, more.
   * [scalajs-benchmark](https://github.com/japgolly/scalajs-benchmark/)
   * [chandu0101 / scalajs-react-components](https://github.com/chandu0101/scalajs-react-components)
   * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
-
-* [Scaladoc](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.11)
 
 ##### Requirements:
 * React 15+
