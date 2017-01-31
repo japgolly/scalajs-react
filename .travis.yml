@@ -11,7 +11,7 @@ jdk:
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test/test:fastOptJS test/test:fullOptJS
   - sbt ++$TRAVIS_SCALA_VERSION test
-  - sbt ++$TRAVIS_SCALA_VERSION 'set scalaJSStage in Global := FullOptStage' 'set scalaJSStage in Test in ScalajsReact.test := FullOptStage' test
+  - sbt ++$TRAVIS_SCALA_VERSION 'set scalaJSStage in ThisBuild := FullOptStage' test
   - bin/checkDevOnly $TRAVIS_SCALA_VERSION
 
 # Use PhantomJS 2
