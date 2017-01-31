@@ -3,6 +3,7 @@ sudo: false
 
 scala:
   - 2.11.8
+  - 2.12.1
 
 jdk:
   - oraclejdk8
@@ -10,8 +11,8 @@ jdk:
 script:
   - sbt ++$TRAVIS_SCALA_VERSION neo/test:fastOptJS neo/test:fullOptJS
   - sbt ++$TRAVIS_SCALA_VERSION neo/test
-  - sbt ++$TRAVIS_SCALA_VERSION 'set scalaJSStage in Global := FullOptStage' 'set scalaJSStage in Test in ScalajsReact.neo := FullOptStage' neo/test
-  # - bin/checkDevOnly
+  - sbt ++$TRAVIS_SCALA_VERSION 'set scalaJSStage in ThisBuild := FullOptStage' neo/test
+  # - bin/checkDevOnly $TRAVIS_SCALA_VERSION
 
 # Use PhantomJS 2
 # https://mediocre.com/forum/topics/phantomjs-2-and-travis-ci-we-beat-our-heads-against-a-wall-so-you-dont-have-to

@@ -1,16 +1,18 @@
 #!/bin/bash
 cd "$(dirname "$(readlink -e "$0")")/.." || exit 1
+[ $# -ne 1 ] && echo "USAGE: $(basename "$0") <scala-version>" && exit 1
 
-echo ';test/test:fastOptJS; test/test:fullOptJS'
+echo '+ ;test/test:fastOptJS; test/test:fullOptJS'
 echo
 
 grep="fgrep -i"
 term=DEVONLY-TEST
-fast=test/target/scala-2.11/test-test-fastopt.js
-full=test/target/scala-2.11/test-test-opt.js
+scalaVersion=${1:0:4}
+fast=test/target/scala-$scalaVersion/test-test-fastopt.js
+full=test/target/scala-$scalaVersion/test-test-opt.js
 
 echo ========================================================================================================================
-$grep --color=always "$term" $fast
+$grep --color=never "$term" $fast
 echo ========================================================================================================================
 $grep --color=always "$term" $full
 echo ========================================================================================================================

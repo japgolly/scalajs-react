@@ -91,11 +91,11 @@ trait ScalazReactState {
   @inline implicit def ScalazReactStateOpsDirect[$, S]($: $)(implicit ops: $ => CompState.AccessD[S]) =
     new ScalazReactState.ScalazReactStateOps[S, Id](ops($).accessCB, ScalazReact.scalazIdToCallbackIso.to)
 
-  @inline def StateAndCallbacks[S](s: S, cb: Callback = Callback.empty) =
+  @inline final def StateAndCallbacks[S](s: S, cb: Callback = Callback.empty) =
     new StateAndCallbacks[S](s, cb)
 
   final class StateAndCallbacks[S](val state: S, val cb: Callback) {
-    @inline def withState(s2: S) = new StateAndCallbacks(s2, cb)
+    def withState(s2: S) = new StateAndCallbacks(s2, cb)
     def addCallback(cb2: Callback) = new StateAndCallbacks(state, appendCallbacks(cb, cb2))
     override def toString = s"StateAndCallbacks($state, $cb)"
   }

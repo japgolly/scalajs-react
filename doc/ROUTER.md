@@ -5,6 +5,10 @@ Included is a router (in the orbit of Single-Page Applications) that is written 
 
 The package is `japgolly.scalajs.react.extra.router`.
 
+```scala
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.11.3"
+```
+
 ## Contents
 
 - [Features](#features)
@@ -23,6 +27,7 @@ The package is `japgolly.scalajs.react.extra.router`.
   - [Loose routes with auto-correction](#loose-routes-with-auto-correction)
   - [Conditional routes](#conditional-routes)
   - [Rendering with a layout](#rendering-with-a-layout)
+  - [Setting page title](#setting-page-title)
   - [Post-render callback](#post-render-callback)
   - [Nested routes (modules)](#nested-routes-modules)
 - [Examples](#examples)
@@ -388,7 +393,7 @@ They can be composed with other rules via `|` as usual.
 
 Example: This would remove leading dots.
 ```scala
-rewritePathR("^\\.+(.*)$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+rewritePathR("^\\.+(.*)$".r, m => Some(redirectToPath(m group 1)(Redirect.Replace)))
 ```
 
 A few rules are included out-of-the-box for you to use:
@@ -528,6 +533,25 @@ Thus using the given `RouterCtl` and `Resolution` you can wrap the page in a lay
 
 See *[Examples](#examples)* for a live demonstration.
 
+### Setting page title
+
+You'll likely want to update your page's title to reflect the current route being shown.
+To do so, call one of:
+* `.setTitle(Page => String)`
+* `.setTitleOption(Page => Option[String])`
+
+Example:
+```scala
+val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
+  import dsl._
+  ( staticRoute(root,     Home)  ~> render(???)
+  | staticRoute("#about", About) ~> render(???)
+  )
+    .notFound(???)
+    .setTitle(p => s"PAGE = $p | Example App")  // ← available after .notFound()
+}
+```
+
 ### Post-render callback
 
 Each time a route is rendered, the "post-render" callback is invoked.
@@ -631,3 +655,5 @@ uses this router and demonstrates a number of features.
 There are also unit tests available in the
 [japgolly.scalajs.react.extra.router](../test/src/test/scala/japgolly/scalajs/react/extra/router)
 package.
+
+[This] (https://github.com/chandu0101/scalajs-react-template) simple example [demonstrates](http://chandu0101.github.io/scalajs-react-template/) routing as well.

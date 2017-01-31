@@ -1,45 +1,50 @@
 import sbt._
 import Keys._
-
 import com.typesafe.sbt.pgp.PgpKeys._
-
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import ScalaJSPlugin._
 import ScalaJSPlugin.autoImport._
 
-object ScalajsReact extends Build {
+object ScalajsReact {
 
   object Ver {
     val Scala211      = "2.11.8"
+    val Scala212      = "2.12.1"
     val ScalaJsDom    = "0.9.1"
-    val ReactJs       = "15.2.1"
-    val Monocle       = "1.2.1"
-    val Scalaz72      = "7.2.2"
-    val MTest         = "0.4.3"
+    val ReactJs       = "15.3.2"
+    val Monocle       = "1.3.2"
+    val Scalaz72      = "7.2.7"
+    val MTest         = "0.4.4"
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.3.0"
-    val Nyaya         = "0.7.0"
+    val Nyaya         = "0.8.1"
   }
 
   type PE = Project => Project
 
   val clearScreenTask = TaskKey[Unit]("clear", "Clears the screen.")
 
+  def byScalaVersion[A](f: PartialFunction[(Int, Int), Seq[A]]): Def.Initialize[Seq[A]] =
+    Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
+
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin)
       .settings(
         organization       := "com.github.japgolly.scalajs-react",
-        version            := "1.0.0-SNAPSHOT",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
-        scalaVersion       := Ver.Scala211,
-        // crossScalaVersions := Seq("2.10.4", Scala211), https://github.com/japgolly/scalajs-react/issues/39
+        scalaVersion       := Ver.Scala212,
+        crossScalaVersions := Seq(Ver.Scala211, Ver.Scala212),
         scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
                                 "-language:postfixOps", "-language:implicitConversions",
-                                "-language:higherKinds", "-language:existentials"),
+                                "-language:higherKinds", "-language:existentials")
+                                ++ byScalaVersion {
+                                  case (2, 12) => Seq("-opt:l:method")
+                                  // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
+                                }.value,
         //scalacOptions    += "-Xlog-implicits",
         updateOptions      := updateOptions.value.withCachedResolution(true),
-        incOptions         := incOptions.value.withLogRecompileOnMacro(false),
+        incOptions         := incOptions.value.withNameHashing(true).withLogRecompileOnMacro(false),
         triggeredMessage   := Watched.clearWhenTriggered,
         clearScreenTask    := { println("\033[2J\033[;H") })
 
@@ -126,8 +131,8 @@ object ScalajsReact extends Build {
     _.settings(
       scalacOptions += "-language:experimental.macros",
       libraryDependencies ++= Seq(
-        "org.scala-lang" % "scala-reflect"  % Ver.Scala211,
-        "org.scala-lang" % "scala-compiler" % Ver.Scala211 % "provided"))
+        "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
+        "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"))
 
   def macroParadisePlugin =
     compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.full)

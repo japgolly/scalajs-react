@@ -1,7 +1,15 @@
 Testing
 =======
 
-##### Contents
+This file describes testing functionality provided by React.JS and scalajs-react.
+<br>It is plenty for simple and small unit tests.
+
+For larger and/or complicated tests, **it is highly recommended to use
+[Scala Test-State](https://github.com/japgolly/test-state)**.
+<br>See [this example](https://github.com/japgolly/test-state/tree/master/example-react)
+for how to write tests for real-world scalajs-react applications.
+
+#### Contents
 - [Setup](#setup)
 - [`React.addons.TestUtils`](#reactaddonstestutils)
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
@@ -9,6 +17,7 @@ Testing
 - [`ReactTestVar`](#reacttestvar)
 - [`WithExternalCompStateAccess`](#withexternalcompstateaccess)
 - [`DebugJs`](#debugjs)
+- [`Test Scripts`](#test-scripts)
 
 Setup
 =====
@@ -19,24 +28,24 @@ Setup
 
     ```scala
     // scalajs-react test module
-    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.11.1" % "test"
+    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "0.11.3" % "test"
 
     // React JS itself.
     // NOTE: Requires react-with-addons.js instead of just react.js
     jsDependencies ++= Seq(
 
-      "org.webjars.bower" % "react" % "15.2.1" % "test"
+      "org.webjars.bower" % "react" % "15.3.2" % "test"
         /        "react-with-addons.js"
         minified "react-with-addons.min.js"
         commonJSName "React",
 
-      "org.webjars.bower" % "react" % "15.2.1" % "test"
+      "org.webjars.bower" % "react" % "15.3.2" % "test"
         /         "react-dom.js"
         minified  "react-dom.min.js"
         dependsOn "react-with-addons.js"
         commonJSName "ReactDOM",
 
-      "org.webjars.bower" % "react" % "15.2.1" % "test"
+      "org.webjars.bower" % "react" % "15.3.2" % "test"
         /         "react-dom-server.js"
         minified  "react-dom-server.min.js"
         dependsOn "react-dom.js"
@@ -298,3 +307,20 @@ Output (truncated):
   [ 63/137] id                                        : string   =
 ...
 ```
+
+Test Scripts
+============
+
+It's possible to write test scripts like
+
+1. *click this*
+2. *verify that*
+3. *press the Back button*
+4. *type name*
+5. *press Enter*
+
+In case you missed the notice at the top of the file, that functionality is provided in a sister library called
+[Scala Test-State](https://github.com/japgolly/test-state).
+
+See [this example](https://github.com/japgolly/test-state/tree/master/example-react)
+for how to write tests for real-world scalajs-react applications.

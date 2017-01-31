@@ -9,7 +9,11 @@ These utilities help you avoid work in two ways.
 1. By making components' `shouldComponentUpdate` fns both easy to create, and accurate (safe). If it compiles, the logic in `shouldComponentUpdate` will be what you expect.
 2. By allowing you to cache your own arbitrary data, and build on it in a way such that derivative data is also cached effeciently.
 
-#### Contents
+```scala
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.11.3"
+```
+
+### Contents
 
 - [`React.addons.Perf`](#reactaddonsperf)
 - [`Reusability`](#reusability)

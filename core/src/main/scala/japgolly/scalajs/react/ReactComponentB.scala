@@ -41,7 +41,7 @@ object ReactComponentB {
   @inline implicit def _defaultBuildStep_stateless[p](x: P[p]): PS[p, Unit] =
     x.stateless
 
-  @inline implicit def _defaultBuildStep_noBackend[P, S, X](x: X)(implicit t: X => PS[P, S]): PSB[P, S, Unit] =
+  implicit def _defaultBuildStep_noBackend[P, S, X](x: X)(implicit t: X => PS[P, S]): PSB[P, S, Unit] =
     t(x).noBackend
 
   @inline implicit def _defaultBuildStep_topNode[P, S, B](x: PSBR[P, S, B]): ReactComponentB[P, S, B, TopNode] =

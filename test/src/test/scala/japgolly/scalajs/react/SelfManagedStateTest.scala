@@ -14,8 +14,8 @@ object SelfManagedStateTest extends TestSuite {
 
   type State = StateFor[Any]
 
-  case class StateFor[+A](value: A, renderFn: () => ReactElement) {
-    @inline def render: ReactElement = renderFn()
+  final case class StateFor[+A](value: A, renderFn: () => ReactElement) {
+    def render: ReactElement = renderFn()
   }
 
   type SetState        = State => Callback
