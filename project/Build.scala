@@ -40,6 +40,7 @@ object ScalajsReact {
                                 "-language:higherKinds", "-language:existentials")
                                 ++ byScalaVersion {
                                   case (2, 12) => Seq("-opt:l:method")
+                                  // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
                                 }.value,
         //scalacOptions    += "-Xlog-implicits",
         updateOptions      := updateOptions.value.withCachedResolution(true),
