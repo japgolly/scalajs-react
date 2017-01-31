@@ -24,6 +24,9 @@ object ScalajsReact {
 
   val clearScreenTask = TaskKey[Unit]("clear", "Clears the screen.")
 
+  def byScalaVersion[A](f: PartialFunction[(Int, Int), Seq[A]]): Def.Initialize[Seq[A]] =
+    Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
+
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin)
       .settings(
@@ -34,7 +37,10 @@ object ScalajsReact {
         crossScalaVersions := Seq(Ver.Scala211, Ver.Scala212),
         scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
                                 "-language:postfixOps", "-language:implicitConversions",
-                                "-language:higherKinds", "-language:existentials"),
+                                "-language:higherKinds", "-language:existentials")
+                                ++ byScalaVersion {
+                                  case (2, 12) => Seq("-opt:l:method")
+                                }.value,
         //scalacOptions    += "-Xlog-implicits",
         updateOptions      := updateOptions.value.withCachedResolution(true),
         incOptions         := incOptions.value.withLogRecompileOnMacro(false),
