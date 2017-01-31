@@ -9,18 +9,18 @@ trait SvgTags {
     * The altGlyph element allows sophisticated selection of the glyphs used to
     * render its child character data.
     */
-  final def altglyph = SvgTagOf[*.Element]("altglyph")
+  final def altGlyph = SvgTagOf[*.Element]("altGlyph")
 
   /**
     * The altGlyphDef element defines a substitution representation for glyphs.
     */
-  final def altglyphdef = SvgTagOf[*.Element]("altglyphdef")
+  final def altGlyphDef = SvgTagOf[*.Element]("altGlyphDef")
 
   /**
     * The altGlyphItem element provides a set of candidates for glyph substitution
     * by the altglyph element.
     */
-  final def altglyphitem = SvgTagOf[*.Element]("altglyphitem")
+  final def altGlyphItem = SvgTagOf[*.Element]("altGlyphItem")
 
   /**
     * The animate element is put inside a shape element and defines how an
@@ -32,14 +32,14 @@ trait SvgTags {
     * The animateMotion element causes a referenced element to move along a
     * motion path.
     */
-  final def animatemotion = SvgTagOf[*.Element]("animatemotion")
+  final def animateMotion = SvgTagOf[*.Element]("animateMotion")
 
   /**
     * The animateTransform element animates a transformation attribute on a target
     * element, thereby allowing animations to control translation, scaling,
     * rotation and/or skewing.
     */
-  final def animatetransform = SvgTagOf[*.Element]("animatetransform")
+  final def animateTransform = SvgTagOf[*.Element]("animateTransform")
 
   /**
     * The circle element is an SVG basic shape, used to create circles based on a
@@ -52,7 +52,7 @@ trait SvgTags {
     * Conceptually, any parts of the drawing that lie outside of the region
     * bounded by the currently active clipping path are not drawn.
     */
-  final def clippath = SvgTagOf[*.ClipPath]("clippath")
+  final def clipPathTag = SvgTagOf[*.ClipPath]("clipPathTag")
 
   /**
     * The element allows describing the color profile used for the image.
@@ -90,6 +90,8 @@ trait SvgTags {
     */
   final def desc = SvgTagOf[*.Desc]("desc")
 
+  // TODO: Add discard tag (not available in scalajs-dom)
+
   /**
     * The ellipse element is an SVG basic shape, used to create ellipses based
     * on a center coordinate, and both their x and y radius.
@@ -105,21 +107,21 @@ trait SvgTags {
     * mode. This is similar to what is known from image editing software when
     * blending two layers. The mode is defined by the mode attribute.
     */
-  final def feblend = SvgTagOf[*.FEBlend]("feblend")
+  final def feBlend = SvgTagOf[*.FEBlend]("feBlend")
 
   /**
     * This filter changes colors based on a transformation matrix. Every pixel's
     * color value (represented by an [R,G,B,A] vector) is matrix multiplied to
     * create a new color.
     */
-  final def fecolormatrix = SvgTagOf[*.FEColorMatrix]("fecolormatrix")
+  final def feColorMatrix = SvgTagOf[*.FEColorMatrix]("feColorMatrix")
 
   /**
     * The color of each pixel is modified by changing each channel (R, G, B, and
     * A) to the result of what the children fefuncr, fefuncb, fefuncg,
     * and fefunca return.
     */
-  final def fecomponenttransfer = SvgTagOf[*.ComponentTransferFunction]("fecomponenttransfer")
+  final def feComponentTransfer = SvgTagOf[*.ComponentTransferFunction]("feComponentTransfer")
 
   /**
     * This filter primitive performs the combination of two input images pixel-wise
@@ -127,7 +129,7 @@ trait SvgTags {
     * in, atop, out, xor. Additionally, a component-wise arithmetic operation
     * (with the result clamped between [0..1]) can be applied.
     */
-  final def fecomposite = SvgTagOf[*.FEComposite]("fecomposite")
+  final def feComposite = SvgTagOf[*.FEComposite]("feComposite")
 
   /**
     * the feConvolveMatrix element applies a matrix convolution filter effect.
@@ -136,70 +138,70 @@ trait SvgTags {
     * achieved through convolutions, including blurring, edge detection,
     * sharpening, embossing and beveling.
     */
-  final def feconvolvematrix = SvgTagOf[*.FEConvolveMatrix]("feconvolvematrix")
+  final def feConvolveMatrix = SvgTagOf[*.FEConvolveMatrix]("feConvolveMatrix")
 
   /**
     * This filter primitive lights an image using the alpha channel as a bump map.
     * The resulting image, which is an RGBA opaque image, depends on the light
     * color, light position and surface geometry of the input bump map.
     */
-  final def fediffuselighting = SvgTagOf[*.FEDiffuseLighting]("fediffuselighting")
+  final def feDiffuseLighting = SvgTagOf[*.FEDiffuseLighting]("feDiffuseLighting")
 
   /**
     * This filter primitive uses the pixels values from the image from in2 to
     * spatially displace the image from in.
     */
-  final def fedisplacementmap = SvgTagOf[*.FEDisplacementMap]("fedisplacementmap")
+  final def feDisplacementMap = SvgTagOf[*.FEDisplacementMap]("feDisplacementMap")
 
   /**
     * This filter primitive define a distant light source that can be used
     * within a lighting filter primitive: fediffuselighting or
     * fespecularlighting.
     */
-  final def fedistantlighting = SvgTagOf[*.FEDistantLight]("fedistantlighting")
+  final def feDistantLight = SvgTagOf[*.FEDistantLight]("feDistantLight")
 
   /**
     * The filter fills the filter subregion with the color and opacity defined by
     * flood-color and flood-opacity.
     */
-  final def feflood = SvgTagOf[*.FEFlood]("feflood")
+  final def feFlood = SvgTagOf[*.FEFlood]("feFlood")
 
   /**
     * This filter primitive defines the transfer function for the alpha component
     * of the input graphic of its parent fecomponenttransfer element.
     */
-  final def fefunca = SvgTagOf[*.FEFuncA]("fefunca")
+  final def feFuncA = SvgTagOf[*.FEFuncA]("feFuncA")
 
   /**
     * This filter primitive defines the transfer function for the blue component
     * of the input graphic of its parent fecomponenttransfer element.
     */
-  final def fefuncb = SvgTagOf[*.FEFuncB]("fefuncb")
+  final def feFuncB = SvgTagOf[*.FEFuncB]("feFuncB")
 
   /**
     * This filter primitive defines the transfer function for the green component
     * of the input graphic of its parent fecomponenttransfer element.
     */
-  final def fefuncg = SvgTagOf[*.FEFuncG]("fefuncg")
+  final def feFuncG = SvgTagOf[*.FEFuncG]("feFuncG")
 
   /**
     * This filter primitive defines the transfer function for the red component
     * of the input graphic of its parent fecomponenttransfer element.
     */
-  final def fefuncr = SvgTagOf[*.FEFuncR]("fefuncr")
+  final def feFuncR = SvgTagOf[*.FEFuncR]("feFuncR")
 
   /**
     * The filter blurs the input image by the amount specified in stdDeviation,
     * which defines the bell-curve.
     */
-  final def fegaussianblur = SvgTagOf[*.FEGaussianBlur]("fegaussianblur")
+  final def feGaussianBlur = SvgTagOf[*.FEGaussianBlur]("feGaussianBlur")
 
   /**
     * The feImage filter fetches image data from an external source and provides
     * the pixel data as output (meaning, if the external source is an SVG image,
     * it is rasterize).
     */
-  final def feimage = SvgTagOf[*.FEImage]("feimage")
+  final def feImage = SvgTagOf[*.FEImage]("feImage")
 
   /**
     * The feMerge filter allows filter effects to be applied concurrently
@@ -207,27 +209,27 @@ trait SvgTags {
     * output via the result attribute and then accessing it in a femergenode
     * child.
     */
-  final def femerge = SvgTagOf[*.FEMerge]("femerge")
+  final def feMerge = SvgTagOf[*.FEMerge]("feMerge")
 
   /**
     * The feMergeNode takes the result of another filter to be processed by its
     * parent femerge.
     */
-  final def femergenode = SvgTagOf[*.FEMergeNode]("femergenode")
+  final def feMergeNode = SvgTagOf[*.FEMergeNode]("feMergeNode")
 
   /**
     * This filter is used to erode or dilate the input image. It's usefulness
     * lies especially in fattening or thinning effects.
     */
-  final def femorphology = SvgTagOf[*.FEMorphology]("femorphology")
+  final def feMorphology = SvgTagOf[*.FEMorphology]("feMorphology")
 
   /**
     * The input image as a whole is offset by the values specified in the dx
     * and dy attributes. It's used in creating drop-shadows.
     */
-  final def feoffset = SvgTagOf[*.FEOffset]("feoffset")
+  final def feOffset = SvgTagOf[*.FEOffset]("feOffset")
 
-  final def fepointlight = SvgTagOf[*.FEPointLight]("fepointlight")
+  final def fePointLight = SvgTagOf[*.FEPointLight]("fePointLight")
 
   /**
     * This filter primitive lights a source graphic using the alpha channel as a
@@ -238,25 +240,22 @@ trait SvgTags {
     * lighting calculation is added. The filter primitive assumes that the viewer
     * is at infinity in the z direction.
     */
-  final def fespecularlighting = SvgTagOf[*.FESpecularLighting]("fespecularlighting")
+  final def feSpecularLighting = SvgTagOf[*.FESpecularLighting]("feSpecularLighting")
 
-  /**
-    *
-    */
-  final def fespotlight = SvgTagOf[*.FESpotLight]("fespotlight")
+  final def feSpotlight = SvgTagOf[*.FESpotLight]("feSpotlight")
 
   /**
     * An input image is tiled and the result used to fill a target. The effect
     * is similar to the one of a pattern.
     */
-  final def fetile = SvgTagOf[*.FETile]("fetile")
+  final def feTile = SvgTagOf[*.FETile]("feTile")
 
   /**
     * This filter primitive creates an image using the Perlin turbulence
     * function. It allows the synthesis of artificial textures like clouds or
     * marble.
     */
-  final def feturbulance = SvgTagOf[*.FETurbulence]("feturbulance")
+  final def feTurbulence = SvgTagOf[*.FETurbulence]("feTurbulence")
 
   /**
     * The filter element serves as container for atomic filter operations. It is
@@ -307,7 +306,7 @@ trait SvgTags {
     * included foreign graphical content is subject to SVG transformations and
     * compositing.
     */
-  final def foreignobject = SvgTagOf[*.Element]("foreignobject")
+  final def foreignObject = SvgTagOf[*.Element]("foreignObject")
 
   /**
     * The g element is a container used to group objects. Transformations applied
@@ -326,7 +325,7 @@ trait SvgTags {
     * The glyphRef element provides a single possible glyph to the referencing
     * altglyph substitution.
     */
-  final def glyphref = SvgTagOf[*.Element]("glyphref")
+  final def glyphRef = SvgTagOf[*.Element]("glyphRef")
 
   /**
     * The horizontal distance between two glyphs can be fine-tweaked with an
@@ -350,7 +349,7 @@ trait SvgTags {
     * linearGradient lets authors define linear gradients to fill or stroke
     * graphical elements.
     */
-  final def lineargradient = SvgTagOf[*.LinearGradient]("lineargradient")
+  final def linearGradient = SvgTagOf[*.LinearGradient]("linearGradient")
 
   /**
     * The marker element defines the graphics that is to be used for drawing
@@ -420,7 +419,7 @@ trait SvgTags {
     * radialGradient lets authors define radial gradients to fill or stroke
     * graphical elements.
     */
-  final def radialgradient = SvgTagOf[*.RadialGradient]("radialgradient")
+  final def radialGradient = SvgTagOf[*.RadialGradient]("radialGradient")
 
   /**
     * The rect element is an SVG basic shape, used to create rectangles based on
@@ -428,6 +427,15 @@ trait SvgTags {
     * create rectangles with rounded corners.
     */
   final def rect = SvgTagOf[*.RectElement]("rect")
+
+  /**
+   * A SVG script element is equivalent to the script element in HTML and thus is
+   * the place for scripts (e.g., ECMAScript).
+   *
+   * Any functions defined within any script element have a global scope across* the
+   * entire current document.
+   */
+  final def script = SvgTagOf[*.Script]("script")
 
   /**
     * The set element provides a simple means of just setting the value of an
@@ -489,7 +497,23 @@ trait SvgTags {
     * the given text within a textPath element which includes an xlink:href
     * attribute with a reference to a path element.
     */
-  final def textpath = SvgTagOf[*.TextPath]("textpath")
+  final def textPath = SvgTagOf[*.TextPath]("textPath")
+
+  /**
+   * Each container element or graphics element in an SVG drawing can supply
+   * a title description string where the description is text-only. When the
+   * current SVG document fragment is rendered as SVG on visual media, title
+   * element is not rendered as part of the graphics. However, some user agents
+   * may, for example, display the title element as a tooltip. Alternate
+   * presentations are possible, both visual and aural, which display the title
+   * element but do not display path elements or other graphics elements. The
+   * title element generally improve accessibility of SVG documents
+   *
+   * Generally title element should be the first child element of its parent.
+   * Note that those implementations that do use title to display a tooltip often
+   * will only do so if the title is indeed the first child element of its parent.
+   */
+  final def title = SvgTagOf[*.Title]("title")
 
   /**
     * The textual content for a text can be either character data directly
