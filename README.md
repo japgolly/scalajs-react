@@ -28,12 +28,7 @@ Includes a router, testing utils, performance utils, more.
   - [Performance Management](doc/PERFORMANCE.md).
   - [Smaller stuff](doc/EXTRA.md).
 - [Testing](doc/TESTING.md).
-- ScalaDoc
-  - [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.11/0.11.3)
-  - [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.11/0.11.3)
-  - [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/scalaz72_sjs0.6_2.12/0.11.3)
-  - [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/monocle_sjs0.6_2.12/0.11.3)
-  - [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/0.11.3)
+- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.11/0.11.3) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.11/0.11.3) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/scalaz72_sjs0.6_2.12/0.11.3) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/monocle_sjs0.6_2.12/0.11.3) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/0.11.3)
 - [Changelogs](doc/changelog) — [Latest](doc/changelog/0.11.3.md).
 
 
