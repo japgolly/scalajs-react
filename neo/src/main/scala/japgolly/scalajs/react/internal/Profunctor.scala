@@ -9,13 +9,13 @@ trait Profunctor[F[_, _]] {
 
 object Profunctor {
   final class Ops[F[_, _], A, B](f: F[A, B])(implicit p: Profunctor[F]) {
-    @inline def lmap[C](m: C => A): F[C, B] =
+    def lmap[C](m: C => A): F[C, B] =
       p.lmap(f)(m)
 
-    @inline def rmap[C](m: B => C): F[A, C] =
+    def rmap[C](m: B => C): F[A, C] =
       p.rmap(f)(m)
 
-    @inline def dimap[C, D](l: C => A, r: B => D): F[C, D] =
+    def dimap[C, D](l: C => A, r: B => D): F[C, D] =
       p.dimap(f)(l, r)
   }
 }

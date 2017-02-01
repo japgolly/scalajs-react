@@ -13,7 +13,7 @@ abstract class Effect[F[+_]] {
 object Effect {
   type Id[+A] = A
 
-  implicit object InstanceId extends Effect[Id] {
+  implicit val idInstance: Effect[Id] = new Effect[Id] {
     @inline override def point  [A]   (a: => A)         = a
     @inline override def pure   [A]   (a: A)            = a
     @inline override def map    [A, B](a: A)(f: A => B) = f(a)
@@ -21,7 +21,7 @@ object Effect {
     @inline override def extract[A]   (a: => A)         = () => a
   }
 
-  implicit object InstanceCallback extends Effect[CallbackTo] {
+  implicit val callbackInstance: Effect[CallbackTo] = new Effect[CallbackTo] {
     @inline override def point  [A]   (a: => A)                                 = CallbackTo(a)
     @inline override def pure   [A]   (a: A)                                    = CallbackTo.pure(a)
     @inline override def map    [A, B](a: CallbackTo[A])(f: A => B)             = a map f
@@ -31,7 +31,7 @@ object Effect {
 
   // ===================================================================================================================
 
-  class Trans[F[+_], G[+_]](val from: Effect[F], val to: Effect[G]) {
+  class Trans[F[+_], G[+_]](final val from: Effect[F], final val to: Effect[G]) {
     def apply[A](f: F[A]): G[A] = {
       val fn = from.extract(f)
       to.point(fn())
@@ -58,8 +58,8 @@ object Effect {
       else
         ev(id(F))
 
-    implicit val IdToCallback = Trans[Effect.Id, CallbackTo]
-    implicit val CallbackToId = Trans[CallbackTo, Effect.Id]
+    implicit val idToCallback = Trans[Effect.Id, CallbackTo]
+    implicit val callbackToId = Trans[CallbackTo, Effect.Id]
   }
 }
 

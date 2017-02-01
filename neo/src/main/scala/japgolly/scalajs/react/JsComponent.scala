@@ -67,7 +67,7 @@ object JsComponent {
   final class Mounted[P <: js.Object, S <: js.Object, Raw <: RawMounted](val raw: Raw)
       extends Component.Mounted[Effect.Id, P, S] {
 
-    override protected implicit def F = Effect.InstanceId
+    override protected implicit def F = Effect.idInstance
 
     override def props: P =
       raw.props.asInstanceOf[P]
