@@ -7,6 +7,7 @@ import scala.scalajs.js
 import scalaz.Maybe
 import vdom.all._
 import utest._
+import utest.asserts._
 import CompScope._
 
 object TestUtil {
@@ -81,8 +82,9 @@ object TestUtil {
 
   def assertContains(value: String, search: String, expect: Boolean = true): Unit =
     if (value.contains(search) != expect) {
-      println(s"\nValue: $value\nSearch: $search\nExpect: $expect\n")
-      assert(false)
+      val err = s"\nValue: $value\nSearch: $search\nExpect: $expect\n"
+      println(err)
+      Predef.assert(false, err)
     }
 
   def assertTypeMismatch(e: CompileError): Unit =

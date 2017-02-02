@@ -4,6 +4,7 @@ import com.typesafe.sbt.pgp.PgpKeys._
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import ScalaJSPlugin._
 import ScalaJSPlugin.autoImport._
+import org.scalajs.jsenv.JSEnv
 
 object ScalajsReact {
 
@@ -88,13 +89,19 @@ object ScalajsReact {
       }))
     )
 
+  val setupJsEnv: Project => Project =
+    sys.env.get("JSENV").map(_.toLowerCase.replaceFirst("js$", "")) match {
+      case Some("phantom") | None => _.settings(jsEnv in Test := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
+      case Some("node")           => identity
+      case Some(x)                => sys error s"Unsupported JsEnv: $x"
+    }
+
   def utestSettings: PE =
-    _.configure(useReactJs("test"))
+    _.configure(useReactJs("test"), setupJsEnv)
       .settings(
         libraryDependencies += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
         testFrameworks      += new TestFramework("utest.runner.Framework"),
-        requiresDOM         := true,
-        jsEnv in Test       := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
+        requiresDOM         := true)
 
   def useReactJs(scope: String = "compile"): PE =
     _.settings(
