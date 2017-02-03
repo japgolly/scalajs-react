@@ -23,105 +23,152 @@ object TestUtil {
 import TestUtil._
 
 // Implemented so far:
+// - Multiple component types
 // - Component props exist
 // - Component props mappable
 
+/*
+Generic
+- map → Generic'
+- props
+
+Js < Generic
+- map → Js'
+- props
+- rawThing
+*/
+
 // =====================================================================================================================
-object `ops in typeclasses` {
-
-  trait Comp[P]
-
-  case class Mapped[P, P0](underlying: Comp[P0], mapP: P0 => P)
-
-  trait Ops[P] {
+object `ops in typeclasses (shared Mapped)` {
+  trait GenOps[P] {
     def props: P
   }
-
-  trait MapOps[P, P0] {
-    def map[A](f: P => A): Mapped[A, P0]
+  trait JsOps[P] extends GenOps[P] {
+    def rawSomething: P
+  }
+  trait MapOps[P, P0, U, Ops[x] <: GenOps[x]] {
+    def map[A](f: P => A): Mapped[A, P0, U, Ops]
   }
 
-  implicit def opsSimple[P](c: Comp[P]): Ops[P] with MapOps[P, P] =
-    new Ops[P] with MapOps[P, P] {
+  trait Js[P]
+
+  case class Mapped[P, P0, U, Ops[x] <: GenOps[x]](underlying: U, mapP: P0 => P, ops: Ops[P])
+                                                  (implicit val uops: U => Ops[P0])
+
+  implicit def toMappedOps[P, P0, U, Ops[x] <: GenOps[x]](m: Mapped[P, P0, U, Ops]): Ops[P] =
+    m.ops
+
+  implicit def toJsOps[P](js: Js[P]): JsOps[P] =
+    new JsOps[P] {
       override def props = ???
-      override def map[A](f: P => A): Mapped[A, P] =
-        Mapped(c, f)
+      override def rawSomething = ???
     }
 
-  implicit def opsMapped[P, P0](c: Mapped[P, P0]): Ops[P] with MapOps[P, P0] =
-    new Ops[P] with MapOps[P, P0] {
-      override def props = c.mapP(c.underlying.props)
-      override def map[A](f: P => A): Mapped[A, P0] =
-        Mapped(c.underlying, f compose c.mapP)
+  implicit def toJsMapOps[P](u: Js[P]): MapOps[P, P, Js[P], JsOps] =
+    new MapOps[P, P, Js[P], JsOps] {
+      override def map[A](f: P => A) =
+        Mapped[A, P, Js[P], JsOps](u, f, _mappedJsOps(f, u))
     }
 
-  test[Comp[X]](_.props).expect[X]
-  test[Comp[X]](_ map xy).expect[Mapped[Y, X]]
-  test[Mapped[X, O]](_.props).expect[X]
-  test[Mapped[X, O]](_ map xy).expect[Mapped[Y, O]]
+  implicit def toJsMapOps2[P, P0](u: Mapped[P, P0, Js[P0], JsOps]): MapOps[P, P0, Js[P0], JsOps] =
+    new MapOps[P, P0, Js[P0], JsOps] {
+      override def map[A](f: P => A) =
+        Mapped[A, P0, Js[P0], JsOps](u.underlying, f compose u.mapP, _mappedJsOps(f, u))
+    }
+
+  def _mappedJsOps[A, P](f: P => A, m: JsOps[P]): JsOps[A] =
+    new JsOps[A] {
+      override def props = f(m.props)
+      override def rawSomething = f(m.rawSomething)
+    }
+
+  test[Js[X]](_.props).expect[X]
+  test[Js[X]](_ map xy).expect[Mapped[Y, X, Js[X], JsOps]]
+  test[Mapped[X, O, Js[O], JsOps]](_.props).expect[X]
+  test[Mapped[X, O, Js[O], JsOps]](_ map xy).expect[Mapped[Y, O, Js[O], JsOps]]
+
+  // Problem 1.
+  // implicit toMappedOps cant create ops instances because the ops is polymorphic
+  // Ops have to be embedded in the component
+
+  // Problem 2.
+  // Generic ops classes can't define map() because there is no generic component representation.
 }
 
 // =====================================================================================================================
 object Subtyping {
 
-  trait Ops[P] {
+  trait Generic[P] {
     def props: P
-    def map[A](f: P => A): Ops[A]
+    def map[A](f: P => A): Generic[A]
   }
 
-  trait Comp[P] extends Ops[P] {
-    override def map[A](f: P => A): Mapped[A, P] =
-      Mapped(this, f)
-    override def props: P =
-      ???
+  trait GenericMapped[P, P0] extends Generic[P] {
+    val underlying: Generic[P0]
+    val mapP: P0 => P
+    override final def props = mapP(underlying.props)
+    override def map[A](f: P => A): Generic[A] with GenericMapped[A, P0]
   }
 
-  case class Mapped[P, P0](underlying: Comp[P0], mapP: P0 => P) extends Ops[P] {
-    override def map[A](f: P => A): Mapped[A, P0] =
-      Mapped(underlying, f compose mapP)
-    override def props: P =
-      mapP(underlying.props)
+  trait JsLike[P, P0] extends Generic[P] {
+    def rawThing: P
+    override def map[A](f: P => A): JsMapped[A, P0]
   }
 
-  test[Comp[X]](_.props).expect[X]
-  test[Comp[X]](_ map xy).expect[Mapped[Y, X]]
-  test[Mapped[X, O]](_.props).expect[X]
-  test[Mapped[X, O]](_ map xy).expect[Mapped[Y, O]]
-  test[Ops[X]](_.props).expect[X]
-  // test[Ops[X]](_ map xy).expect[Mapped[Y, X]]
+  final case class Js[P]() extends JsLike[P, P] {
+    def props = ???
+    def rawThing = ???
+    override def map[A](f: P => A) = JsMapped(this, f)
+  }
+
+  case class JsMapped[P, P0](underlying: Js[P0], mapP: P0 => P) extends JsLike[P, P0] with GenericMapped[P, P0] {
+    override def rawThing = mapP(underlying.rawThing)
+    override def map[A](f: P => A) = JsMapped[A, P0](underlying, f compose mapP)
+  }
+
+  test[Js[X]](_.props).expect[X]
+  test[Js[X]](_ map xy).expect[JsMapped[Y, X]]
+  test[JsMapped[X, O]](_.props).expect[X]
+  test[JsMapped[X, O]](_ map xy).expect[JsMapped[Y, O]]
 }
 
 // =====================================================================================================================
-object `single trait type alias` {
+object `single trait per family, type alias for non-mapped case` {
 
-  type Simple[P] = Comp[P, P]
-
-  sealed trait Comp[P, P0] {
+  type Generic[P] = Generic0[P, P]
+  trait Generic0[P, P0] {
     def props: P
-
-    def map[A](f: P => A): Comp[A, P0] = {
-      val self = this
-      new Comp[A, P0] {
-        override def underlying = self.underlying
-        override def props = f(self.props)
-        // override def mapP = f compose self.mapP
-      }
-    }
-
-    def underlying: Simple[P0]
-    // def mapP: P0 => P
+    def map[A](f: P => A): Generic0[A, P0]
   }
 
-  def simple[P]: Simple[P] =
-    new Comp[P, P] {
-      def props: P = ???
+  type Js[P] = Js0[P, P]
+  sealed trait Js0[P, P0] extends Generic0[P, P0] {
+    def underlying: Js[P0]
+    def rawThing: P
+
+    override def map[A](f: P => A): Js0[A, P0] = {
+      val self = this
+      new Js0[A, P0] {
+        override def underlying = self.underlying
+        override def props = f(self.props)
+        override def rawThing = f(self.rawThing)
+      }
+    }
+  }
+
+  def js[P]: Js[P] =
+    new Js0[P, P] {
       def underlying = this
+      def props: P = ???
+      def rawThing: P = ???
     }
 
-  test[Simple[X]](_.props).expect[X]
-  test[Simple[X]](_ map xy).expect[Comp[Y, X]]
-  test[Comp[X, O]](_.props).expect[X]
-  test[Comp[X, O]](_ map xy).expect[Comp[Y, O]]
+  test[Js[X]](_.props).expect[X]
+  test[Js[X]](_ map xy).expect[Js0[Y, X]]
+  test[Js0[X, O]](_.props).expect[X]
+  test[Js0[X, O]](_ map xy).expect[Js0[Y, O]]
+  test[Generic0[X, O]](_.props).expect[X]
+  test[Generic0[X, O]](_ map xy).expect[Generic0[Y, O]]
 }
 
 // =====================================================================================================================
