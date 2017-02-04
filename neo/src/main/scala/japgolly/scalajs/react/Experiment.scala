@@ -178,4 +178,6 @@ object `single trait per family, type alias for non-mapped case` {
 // - 1 class per impl + 1 shared Mapped class with ops typeclasses is terrible
 //   - it takes a matrix of class/ops to provide ops `implicit def`s.
 //   - mapped needs a lot of type complexity to retain unmapped bases.
-// Regardless of the strategy, map() cannot (simply) be written once to cover all impl cases. Each impl's map() is impl-specific.
+// Regardless of the strategy
+// - map() cannot (simply) be written once to cover all impl cases. Each impl's map() is impl-specific.
+// - map() return type must be overwritten in each impl
