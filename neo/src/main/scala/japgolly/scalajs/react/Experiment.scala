@@ -172,7 +172,10 @@ object `single trait per family, type alias for non-mapped case` {
 }
 
 // =====================================================================================================================
-// Subtyping problems
-// - map() in the base class.
-// - map() result type isn't Mapped. Either needs a new type param (P0).
-// SingleTrait doesn't need to expose mapP.
+// Interface that can map its types whilst providing access to the unmapped instance
+// - Easiest is a single class per instance impl that has mapped & unmapped types. One repr for everything.
+// - 3 classes per instance (base, unmapped, mapped) is also possible but verbose and makes usage noisy.
+// - 1 class per impl + 1 shared Mapped class with ops typeclasses is terrible
+//   - it takes a matrix of class/ops to provide ops `implicit def`s.
+//   - mapped needs a lot of type complexity to retain unmapped bases.
+// Regardless of the strategy, map() cannot (simply) be written once to cover all impl cases. Each impl's map() is impl-specific.
