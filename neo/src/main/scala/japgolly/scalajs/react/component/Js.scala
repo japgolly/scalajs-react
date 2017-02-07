@@ -42,24 +42,32 @@ object Js {
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
       extends Generic.Component0[P1, CT1, U1, P0, CT0, U0] {
+
     override def underlying: UnderlyingComponent[P0, CT0, U0]
   }
 
-  sealed trait Unmounted0[P, M, P0 <: js.Object, M0]
-      extends Generic.Unmounted0[P, M, P0, M0] {
+  sealed trait Unmounted0[P1, M1, P0 <: js.Object, M0]
+      extends Generic.Unmounted0[P1, M1, P0, M0] {
+
     override def underlying: UnderlyingUnmounted[P0, M0]
+    override def mapUnmountedProps[P2](f: P1 => P2): Unmounted0[P2, M1, P0, M0]
+    override def mapMounted[M2](f: M1 => M2): Unmounted0[P1, M2, P0, M0]
 
     val raw: Raw.ReactComponentElement
   }
 
-  sealed trait Mounted0[F[+_], P, S, R <: RawMounted, P0 <: js.Object, S0 <: js.Object]
-      extends Generic.Mounted0[F, P, S, P0, S0] {
+  sealed trait Mounted0[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object]
+      extends Generic.Mounted0[F, P1, S1, P0, S0] {
+
     override def underlying: UnderlyingMounted[F, P0, S0, R]
+    override def mapProps[P2](f: P1 => P2): Mounted0[F, P2, S1, R, P0, S0]
+    override def xmapState[S2](f: S1 => S2)(g: S2 => S1): Mounted0[F, P1, S2, R, P0, S0]
+    override def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): Mounted0[F, P1, S2, R, P0, S0]
 
     val raw: R
 
-    final def addRawType[T <: js.Object]: Mounted0[F, P, S, R with T, P0, S0] =
-      this.asInstanceOf[Mounted0[F, P, S, R with T, P0, S0]]
+    final def addRawType[T <: js.Object]: Mounted0[F, P1, S1, R with T, P0, S0] =
+      this.asInstanceOf[Mounted0[F, P1, S1, R with T, P0, S0]]
 
     // def getDefaultProps: Props
     // def getInitialState: js.Object | Null
@@ -98,6 +106,12 @@ object Js {
 
       override def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): M =
         m(Raw.ReactDOM.render(raw, container, callback.toJsFn))
+
+      override def mapUnmountedProps[P2](f: P => P2) =
+        mappedU(this)(f, identity)
+
+      override def mapMounted[M2](f: M => M2) =
+        mappedU(this)(identity, f)
     }
 
   def underlyingMounted[P <: js.Object, S <: js.Object, R <: RawMounted](r: R): UnderlyingMounted[Effect.Id, P, S, R] =
@@ -107,7 +121,7 @@ object Js {
 
       override val raw = r
 
-      override protected implicit def F = Effect.idInstance
+      override implicit def F = Effect.idInstance
 
       override def props: P =
         raw.props.asInstanceOf[P]
@@ -132,12 +146,79 @@ object Js {
 
       override def forceUpdate(callback: Callback = Callback.empty): Unit =
         raw.forceUpdate(callback.toJsFn)
+
+      override def mapProps[P2](f: P => P2) =
+        mappedM(this)(f, Lens.id)
+
+      override def xmapState[S2](f: S => S2)(g: S2 => S) =
+        mappedM(this)(identity, Iso(f)(g).toLens)
+
+      override def zoomState[S2](get: S => S2)(set: S2 => S => S) =
+        mappedM(this)(identity, Lens(get)(set))
+    }
+
+  // ===================================================================================================================
+
+  private def mappedU[P2, M2, P1, M1, P0 <: js.Object, M0]
+      (from: Unmounted0[P1, M1, P0, M0])
+      (mp: P1 => P2, mm: M1 => M2)
+      : Unmounted0[P2, M2, P0, M0] =
+    new Unmounted0[P2, M2, P0, M0] {
+      override def underlying    = from.underlying
+      override def props         = mp(from.props)
+      override val raw           = from.raw
+      override def reactElement  = from.reactElement
+      override def key           = from.key
+      override def ref           = from.ref
+      override def propsChildren = from.propsChildren
+
+      override def mapUnmountedProps[P3](f: P2 => P3) =
+        mappedU(from)(f compose mp, mm)
+
+      override def mapMounted[M3](f: M2 => M3) =
+        mappedU(from)(mp, f compose mm)
+
+      override def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty) =
+        mm(from.renderIntoDOM(container, callback))
+    }
+
+  private def mappedM[F[+_], P2, S2, P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object]
+      (from: Mounted0[F, P1, S1, R, P0, S0])
+      (mp: P1 => P2, ls: Lens[S1, S2])
+      : Mounted0[F, P2, S2, R, P0, S0] =
+    new Mounted0[F, P2, S2, R, P0, S0] {
+      override implicit def F    = from.F
+      override def underlying    = from.underlying
+      override val raw           = from.raw
+      override def isMounted     = from.isMounted
+      override def getDOMNode    = from.getDOMNode
+      override def propsChildren = from.propsChildren
+      override def props         = F.map(from.props)(mp)
+      override def state         = F.map(from.state)(ls.get)
+
+      override def mapProps[P3](f: P2 => P3) =
+        mappedM(from)(f compose mp, ls)
+
+      override def forceUpdate(callback: Callback = Callback.empty) =
+        from.forceUpdate(callback)
+
+      override def setState(s: State, callback: Callback = Callback.empty) =
+        from.modState(ls set s, callback)
+
+      override def modState(f: State => State, callback: Callback = Callback.empty) =
+        from.modState(ls mod f, callback)
+
+      override def xmapState[S3](f: S2 => S3)(g: S3 => S2) =
+        mappedM(from)(mp, ls --> Iso(f)(g))
+
+      override def zoomState[S3](get: S2 => S3)(set: S3 => S2 => S2) =
+        mappedM(from)(mp, ls --> Lens(get)(set))
     }
 
   // ===================================================================================================================
 
   def simpleComponent[P <: js.Object, C <: ChildrenArg, S <: js.Object](rc: Raw.ReactClass)
-                                                             (implicit s: CtorType.Summoner[P, C]): SimpleComponent[P, S, s.CT] =
+                                                                       (implicit s: CtorType.Summoner[P, C]): SimpleComponent[P, S, s.CT] =
     underlyingComponent(s.pf.rmap(s.summon(rc))(simpleUnmounted))
 
   def simpleUnmounted[P <: js.Object, S <: js.Object](r: Raw.ReactComponentElement): SimpleUnmounted[P, S] =
@@ -148,7 +229,7 @@ object Js {
 
   // ===================================================================================================================
 
-  def byName[P <: js.Object, C <: ChildrenArg, S <: js.Object](name: String)
+  def apply[P <: js.Object, C <: ChildrenArg, S <: js.Object](name: String)
       (implicit s: CtorType.Summoner[P, C]): SimpleComponent[P, S, s.CT] = {
 
     val reactClass = findInScope(name.split('.').toList) match {
