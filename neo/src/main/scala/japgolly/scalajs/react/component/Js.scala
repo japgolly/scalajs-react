@@ -86,10 +86,11 @@ object Js {
       override def underlying = this
       override val ctor = c
       override implicit def ctorPF = pf
-      override def cmapCtorProps[P2](f: P2 => P) = mappedC(this)(f, identity)
-      override def mapUnmounted[U2](f: U => U2) = mappedC(this)(identity, f)
+
+      override def cmapCtorProps[P2](f: P2 => P) = mappedC(this)(f, pf.lmap(_)(f), identity, pf)
+      override def mapUnmounted[U2](f: U => U2) = mappedC(this)(identity, pf.rmap(_)(f), f, pf)
       override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT[P, U] => CT2[P, U])(implicit pf: Profunctor[CT2]) =
-        mappedC(this)(identity, identity)
+        mappedC(this)(identity, f, identity, pf)
     }
 
   def underlyingUnmounted[P <: js.Object, M](r: Raw.ReactComponentElement, m: Raw.ReactComponent => M): UnderlyingUnmounted[P, M] =
@@ -177,21 +178,19 @@ object Js {
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
       (from: Component0[P1, CT1, U1, P0, CT0, U0])
-      (cp: P2 => P1, mu: U1 => U2)
+      (cp: P2 => P1, mc: CT1[P1, U1] => CT2[P2, U2],  mu: U1 => U2, pf: Profunctor[CT2])
       : Component0[P2, CT2, U2, P0, CT0, U0] =
     new Component0[P2, CT2, U2, P0, CT0, U0] {
       override def underlying = from.underlying
 
-      def mc: CT1[P1, U1] => CT2[P2, U2] = ???
-      override implicit def ctorPF = ??? // TODO =======================================================================
+      override implicit def ctorPF = pf
 
-      override val ctor: CT2[P2, U2] =
-        ??? //from.ctor.dimap(cp, mu)
+      override val ctor: CT2[P2, U2] = mc(from.ctor)
 
-      override def cmapCtorProps[P3](f: P3 => P2) = mappedC(from)(cp compose f, mu)
-      override def mapUnmounted[U3](f: U2 => U3) = mappedC(from)(cp, f compose mu)
-      override def mapCtorType[CT3[-p, +u] <: CtorType[p, u]](f: CT2[P2, U2] => CT3[P2, U2])(implicit pf: Profunctor[CT3]) =
-        ??? /////////////////////////////mappedC(from)(cp, mu)
+      override def cmapCtorProps[P3](f: P3 => P2) = mappedC(from)(cp compose f, mc.andThen(pf.lmap(_)(f)), mu, pf)
+      override def mapUnmounted[U3](f: U2 => U3) = mappedC(from)(cp, mc.andThen(pf.rmap(_)(f)), f compose mu, pf)
+      override def mapCtorType[CT3[-p, +u] <: CtorType[p, u]](f: CT2[P2, U2] => CT3[P2, U2])(implicit pf3: Profunctor[CT3]) =
+        mappedC(from)(cp, f compose mc, mu, pf3)
     }
 
 
