@@ -11,8 +11,7 @@ object Js {
   // Simple~      = when you first create a component before any mapping or addRawType
   // ~WithRawType = Simple~ with raw type
 
-  type RawMounted =
-    Raw.ReactComponent
+  type RawMounted = Raw.ReactComponent
 
   type UnderlyingComponent[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U] =
     Component0[P, CT, U, P, CT, U]
@@ -38,6 +37,7 @@ object Js {
 
   // ===================================================================================================================
 
+  // The only difference between this and its Generic counterpart is that P0 has an upper bound of js.Object.
   sealed trait Component0[
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]

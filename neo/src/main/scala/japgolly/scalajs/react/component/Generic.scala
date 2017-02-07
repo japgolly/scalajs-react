@@ -22,19 +22,15 @@ object Generic {
     final type Unmounted = U1
 
     def underlying: Component[P0, CT0, U0]
+    def cmapCtorProps[P2](f: P2 => P1): Component0[P2, CT1, U1, P0, CT0, U0]
+    def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): Component0[P1, CT2, U1, P0, CT0, U0]
+    def mapUnmounted[U2](f: U1 => U2): Component0[P1, CT1, U2, P0, CT0, U0]
 
     val ctor: CT1[P1, U1]
     implicit def ctorPF: Profunctor[CT1]
-
-    def cmapCtorProps[P2](f: P2 => P1): Component0[P2, CT1, U1, P0, CT0, U0]
-    def mapUnmounted[U2](f: U1 => U2): Component0[P1, CT1, U2, P0, CT0, U0]
-    def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): Component0[P1, CT2, U1, P0, CT0, U0]
   }
 
-  trait Unmounted0[
-      P1, M1,
-      P0, M0] {
-
+  trait Unmounted0[P1, M1, P0, M0] {
     final type Props = P1
     final type Mounted = M1
 
@@ -51,11 +47,7 @@ object Generic {
     def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted
   }
 
-  trait Mounted0[
-      F[+_],
-      P1, S1,
-      P0, S0] {
-
+  trait Mounted0[F[+ _], P1, S1, P0, S0] {
     final type Props = P1
     final type State = S1
 
