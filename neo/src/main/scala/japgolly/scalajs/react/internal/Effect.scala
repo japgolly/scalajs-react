@@ -49,7 +49,7 @@ object Effect {
       override def apply[A](f: F[A]) = f
     }
 
-    @inline def id[F[+_]](F: Effect[F]): Id[F] =
+    def id[F[+_]](implicit F: Effect[F]): Id[F] =
       new Id(F)
 
     def apply[F[+_], G[+_]](implicit F: Effect[F], G: Effect[G], ev: Trans[F, F] =:= Trans[F, G] = null): F Trans G =
@@ -58,6 +58,8 @@ object Effect {
       else
         ev(id(F))
 
+    implicit val endoId       = Trans.id[Effect.Id]
+    implicit val endoCallback = Trans.id[CallbackTo]
     implicit val idToCallback = Trans[Effect.Id, CallbackTo]
     implicit val callbackToId = Trans[CallbackTo, Effect.Id]
   }

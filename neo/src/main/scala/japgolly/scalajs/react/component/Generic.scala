@@ -62,6 +62,7 @@ object Generic {
     def mapProps[P2](f: P1 => P2): Mounted0[F, P2, S1, P0, S0]
     def xmapState[S2](f: S1 => S2)(g: S2 => S1): Mounted0[F, P1, S2, P0, S0]
     def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): Mounted0[F, P1, S2, P0, S0]
+    def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): Mounted0[F2, P1, S1, P0, S0]
 
     def isMounted: F[Boolean]
     def getDOMNode: F[dom.Element]

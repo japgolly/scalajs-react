@@ -63,6 +63,7 @@ object Js {
     override def mapProps[P2](f: P1 => P2): Mounted0[F, P2, S1, R, P0, S0]
     override def xmapState[S2](f: S1 => S2)(g: S2 => S1): Mounted0[F, P1, S2, R, P0, S0]
     override def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): Mounted0[F, P1, S2, R, P0, S0]
+    override def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): Mounted0[F2, P1, S1, R, P0, S0]
 
     val raw: R
 
@@ -155,6 +156,9 @@ object Js {
 
       override def zoomState[S2](get: S => S2)(set: S2 => S => S) =
         mappedM(this)(identity, Lens(get)(set))
+
+      override def withEffect[F[+_]](implicit t: Effect.Trans[Effect.Id, F]) =
+        mappedM(this)(identity, Lens.id)
     }
 
   // ===================================================================================================================
@@ -183,36 +187,40 @@ object Js {
     }
 
   private def mappedM[F[+_], P2, S2, P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object]
-      (from: Mounted0[F, P1, S1, R, P0, S0])
+      (from: Mounted0[Effect.Id, P1, S1, R, P0, S0])
       (mp: P1 => P2, ls: Lens[S1, S2])
+      (implicit ft: Effect.Trans[Effect.Id, F])
       : Mounted0[F, P2, S2, R, P0, S0] =
     new Mounted0[F, P2, S2, R, P0, S0] {
-      override implicit def F    = from.F
-      override def underlying    = from.underlying
+      override implicit def F    = ft.to
+      override def underlying    = from.underlying.withEffect[F]
       override val raw           = from.raw
-      override def isMounted     = from.isMounted
-      override def getDOMNode    = from.getDOMNode
-      override def propsChildren = from.propsChildren
-      override def props         = F.map(from.props)(mp)
-      override def state         = F.map(from.state)(ls.get)
+      override def isMounted     = ft apply from.isMounted
+      override def getDOMNode    = ft apply from.getDOMNode
+      override def propsChildren = ft apply from.propsChildren
+      override def props         = ft apply mp(from.props)
+      override def state         = ft apply ls.get(from.state)
+
+      override def forceUpdate(callback: Callback = Callback.empty) =
+        ft apply from.forceUpdate(callback)
+
+      override def setState(s: State, callback: Callback = Callback.empty) =
+        ft apply from.modState(ls set s, callback)
+
+      override def modState(f: State => State, callback: Callback = Callback.empty) =
+        ft apply from.modState(ls mod f, callback)
 
       override def mapProps[P3](f: P2 => P3) =
         mappedM(from)(f compose mp, ls)
-
-      override def forceUpdate(callback: Callback = Callback.empty) =
-        from.forceUpdate(callback)
-
-      override def setState(s: State, callback: Callback = Callback.empty) =
-        from.modState(ls set s, callback)
-
-      override def modState(f: State => State, callback: Callback = Callback.empty) =
-        from.modState(ls mod f, callback)
 
       override def xmapState[S3](f: S2 => S3)(g: S3 => S2) =
         mappedM(from)(mp, ls --> Iso(f)(g))
 
       override def zoomState[S3](get: S2 => S3)(set: S3 => S2 => S2) =
         mappedM(from)(mp, ls --> Lens(get)(set))
+
+      override def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]) =
+        mappedM(from)(mp, ls)(ft compose t)
     }
 
   // ===================================================================================================================
