@@ -31,6 +31,12 @@ object CtorType {
 
     def set(key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(props: P)(children: ArgChild*): U =
       ctorFn(key, ref, props, children)
+
+    def withChildren(c: ArgChild*): Props[P, U] =
+      Props[P, U](ctorFn(_, _, _, c))
+
+    def withProps(p: P): Children[P, U] =
+      Children[P, U](ctorFn(_, _, p, _))
   }
 
   final case class Props[-P, +U](ctorFn: (ArgKey, ArgRef, P) => U) extends CtorType[P, U] {
@@ -41,6 +47,9 @@ object CtorType {
 
     def set(key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(props: P): U =
       ctorFn(key, ref, props)
+
+    def withProps(p: P): Void[P, U] =
+      Void[P, U](ctorFn(_, _, p), apply(p))
   }
 
   final case class Children[-P, +U](ctorFn: (ArgKey, ArgRef, ArgChildren) => U) extends CtorType[P, U] {
@@ -51,6 +60,9 @@ object CtorType {
 
     def set(key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(children: ArgChild*): U =
       ctorFn(key, ref, children)
+
+    def withChildren(c: ArgChild*): Void[P, U] =
+      Void[P, U](ctorFn(_, _, c), apply(c: _*))
   }
 
   final case class Void[-P, +U](ctorFn: (ArgKey, ArgRef) => U, static: U) extends CtorType[P, U] {

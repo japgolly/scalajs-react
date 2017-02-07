@@ -22,7 +22,13 @@ object Generic {
     final type Unmounted = U1
 
     def underlying: Component[P0, CT0, U0]
+
     val ctor: CT1[P1, U1]
+    implicit def ctorPF: Profunctor[CT1]
+
+    def cmapCtorProps[P2](f: P2 => P1): Component0[P2, CT1, U1, P0, CT0, U0]
+    def mapUnmounted[U2](f: U1 => U2): Component0[P1, CT1, U2, P0, CT0, U0]
+    def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): Component0[P1, CT2, U1, P0, CT0, U0]
 
     // map P CT U
     // def mapCtor[P2, CT2[-p, +u] <: CtorType[p, u], U2](f: CT1[P1, U1] => CT2[P2, U2]): Component0[P2, CT2, U2, P0, CT0, U0]
