@@ -76,6 +76,5 @@ object Generic {
     def setState(newState: State, callback: Callback = Callback.empty): F[Unit]
     def modState(mod: State => State, callback: Callback = Callback.empty): F[Unit]
   }
-
 }
 
