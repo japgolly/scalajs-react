@@ -7,10 +7,10 @@ import org.scalajs.dom
 
 object Js extends TemplateForJsComponent0[Raw.ReactClass] {
 
-  // Underlying~  = 0s match 1s
-  // Simple~      = when you first create a component before any mapping or addRawType
-  // ~WithRawType = Simple~ with raw type
-  // Mapped~      = it's been mapped yo
+  // Underlying~  = Shallow. 0s match 1s. {P,S,CT} unmapped {F,R} possibly mapped.
+  // Simple~      = Deep. when you first create a component before any mapping or addRawType
+  // ~WithRawType = Deep. Simple~ with raw type
+  // Mapped~      = Deep.
 
   type RawMounted = Raw.ReactComponent
 
@@ -20,25 +20,33 @@ object Js extends TemplateForJsComponent0[Raw.ReactClass] {
   type UnderlyingMounted[F[+_], P <: js.Object, S <: js.Object, R <: RawMounted] =
     Mounted0[F, P, S, R, P, S]
 
-  type SimpleComponent[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentWithRawType[P, S, CT, RawMounted]
-  type SimpleUnmounted[P <: js.Object, S <: js.Object]                               = UnmountedWithRawType[P, S,     RawMounted]
-  type SimpleMounted  [P <: js.Object, S <: js.Object]                               = MountedWithRawType  [P, S,     RawMounted]
+  type SimpleComponent[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentWithRawType2[P, S, CT, RawMounted]
+  type SimpleUnmounted[P <: js.Object, S <: js.Object]                               = UnmountedWithRawType2[P, S,     RawMounted]
+  type SimpleMounted  [P <: js.Object, S <: js.Object]                               = MountedWithRawType2  [P, S,     RawMounted]
 
-  type ComponentWithRawType[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: RawMounted] =
-    UnderlyingComponent[P, CT, UnmountedWithRawType[P, S, R]]
+  type ComponentWithRawType2[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: RawMounted] =
+    UnderlyingComponent[P, CT, UnmountedWithRawType2[P, S, R]]
 
-  type UnmountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted] =
-    UnderlyingUnmounted[P, MountedWithRawType[P, S, R]]
+  type UnmountedWithRawType2[P <: js.Object, S <: js.Object, R <: RawMounted] =
+    UnderlyingUnmounted[P, MountedWithRawType2[P, S, R]]
 
-  type MountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted] =
+  type MountedWithRawType2[P <: js.Object, S <: js.Object, R <: RawMounted] =
     UnderlyingMounted[Effect.Id, P, S, R]
+
+  type ComponentWithRawType[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: js.Object] =
+    ComponentWithRawType2[P, S, CT, RawMounted with R]
+
+  type UnmountedWithRawType[P <: js.Object, S <: js.Object, R <: js.Object] =
+    UnmountedWithRawType2[P, S, RawMounted with R]
+
+  type MountedWithRawType[P <: js.Object, S <: js.Object, R <: js.Object] =
+    MountedWithRawType2[P, S, RawMounted with R]
 
   // ===================================================================================================================
 
   type MappedMounted  [F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object] = Mounted0[F, P1, S1, R, P0, S0]
-  type MappedUnmounted[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object] = Unmounted0[P1, MappedMounted[F, P1, S1, R, P0, S0], P0, SimpleMounted[P0, S0]]
-  type MappedComponent[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object,
-                       CT1[-p, +u] <: CtorType[p, u], CT0[-p, +u] <: CtorType[p, u]] = Component0[P1, CT1, MappedUnmounted[F, P1, S1, R, P0, S0], P0, CT0, SimpleUnmounted[P0, S0]]
+  type MappedUnmounted[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object] = Unmounted0[P1, MappedMounted[F, P1, S1, R, P0, S0], P0, MountedWithRawType2[P0, S0, R]]
+  type MappedComponent[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object, CT1[-p, +u] <: CtorType[p, u], CT0[-p, +u] <: CtorType[p, u]] = Component0[P1, CT1, MappedUnmounted[F, P1, S1, R, P0, S0], P0, CT0, UnmountedWithRawType2[P0, S0, R]]
 
   implicit def toJsUnmountedOps[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object](x: MappedUnmounted[F, P1, S1, R, P0, S0]): JsUnmountedOps[F, P1, S1, R, P0, S0] = new JsUnmountedOps(x)
   implicit def toJsComponentOps[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object, CT1[-p, +u] <: CtorType[p, u], CT0[-p, +u] <: CtorType[p, u]](x: MappedComponent[F, P1, S1, R, P0, S0, CT1, CT0]): JsComponentOps[F, P1, S1, R, P0, S0, CT1, CT0] = new JsComponentOps(x)
@@ -49,9 +57,9 @@ object Js extends TemplateForJsComponent0[Raw.ReactClass] {
 
   final class JsUnmountedOps[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object](private val self: MappedUnmounted[F, P1, S1, R, P0, S0]) extends AnyVal {
     def withRawType[R2 <: RawMounted]: MappedUnmounted[F, P1, S1, R2, P0, S0] =
-      self.mapMounted(_.withRawType[R2])
+      self.asInstanceOf[MappedUnmounted[F, P1, S1, R2, P0, S0]]
     def addRawType[T <: js.Object]: MappedUnmounted[F, P1, S1, R with T, P0, S0] =
-      self.mapMounted(_.addRawType[T])
+      withRawType[R with T]
     def mapProps[P2](f: P1 => P2): MappedUnmounted[F, P2, S1, R, P0, S0] =
       self.mapUnmountedProps(f).mapMounted(_ mapProps f)
     def xmapState[S2](f: S1 => S2)(g: S2 => S1): MappedUnmounted[F, P1, S2, R, P0, S0] =
@@ -62,9 +70,9 @@ object Js extends TemplateForJsComponent0[Raw.ReactClass] {
 
   final class JsComponentOps[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object, CT1[-p, +u] <: CtorType[p, u], CT0[-p, +u] <: CtorType[p, u]](private val self: MappedComponent[F, P1, S1, R, P0, S0, CT1, CT0]) extends AnyVal {
     def withRawType[R2 <: RawMounted]: MappedComponent[F, P1, S1, R2, P0, S0, CT1, CT0] =
-      self.mapUnmounted(_.withRawType[R2])
+      self.asInstanceOf[MappedComponent[F, P1, S1, R2, P0, S0, CT1, CT0]]
     def addRawType[T <: js.Object]: MappedComponent[F, P1, S1, R with T, P0, S0, CT1, CT0] =
-      self.mapUnmounted(_.addRawType[T])
+      withRawType[R with T]
     def xmapProps[P2](f: P1 => P2)(g: P2 => P1): MappedComponent[F, P2, S1, R, P0, S0, CT1, CT0] =
       self.cmapCtorProps(g).mapUnmounted(_ mapProps f)
     def xmapState[S2](f: S1 => S2)(g: S2 => S1): MappedComponent[F, P1, S2, R, P0, S0, CT1, CT0] =
