@@ -2,7 +2,7 @@ package japgolly.scalajs.react.component
 
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, ChildrenArg, CtorType, Key, PropsChildren, vdom, raw => Raw}
+import japgolly.scalajs.react.{Callback, CallbackTo, ChildrenArg, CtorType, Key, PropsChildren, vdom, raw => Raw}
 import org.scalajs.dom
 
 object Js {
@@ -10,6 +10,7 @@ object Js {
   // Underlying~  = 0s match 1s
   // Simple~      = when you first create a component before any mapping or addRawType
   // ~WithRawType = Simple~ with raw type
+  // Mapped~      = it's been mapped yo
 
   type RawMounted = Raw.ReactComponent
 
@@ -34,6 +35,107 @@ object Js {
 
   type MountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted] =
     UnderlyingMounted[Effect.Id, P, S, R]
+
+  // ===================================================================================================================
+
+  type MappedMounted  [F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object] = Mounted0[F, P1, S1, R, P0, S0]
+  type MappedUnmounted[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object] = Unmounted0[P1, MappedMounted[F, P1, S1, R, P0, S0], P0, SimpleMounted[P0, S0]]
+  type MappedComponent[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object,
+                       CT1[-p, +u] <: CtorType[p, u], CT0[-p, +u] <: CtorType[p, u]] = Component0[P1, CT1, MappedUnmounted[F, P1, S1, R, P0, S0], P0, CT0, SimpleUnmounted[P0, S0]]
+
+  implicit def toJsUnmountedOps[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object](x: MappedUnmounted[F, P1, S1, R, P0, S0]): JsUnmountedOps[F, P1, S1, R, P0, S0] = new JsUnmountedOps(x)
+  implicit def toJsComponentOps[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object, CT1[-p, +u] <: CtorType[p, u], CT0[-p, +u] <: CtorType[p, u]](x: MappedComponent[F, P1, S1, R, P0, S0, CT1, CT0]): JsComponentOps[F, P1, S1, R, P0, S0, CT1, CT0] = new JsComponentOps(x)
+
+  // Scala bug requires special help for the Effect.Id case
+  implicit def toJsUnmountedOpsI[P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object](x: MappedUnmounted[Effect.Id, P1, S1, R, P0, S0]): JsUnmountedOps[Effect.Id, P1, S1, R, P0, S0] = new JsUnmountedOps(x)
+  implicit def toJsComponentOpsI[P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object, CT1[-p, +u] <: CtorType[p, u], CT0[-p, +u] <: CtorType[p, u]](x: MappedComponent[Effect.Id, P1, S1, R, P0, S0, CT1, CT0]): JsComponentOps[Effect.Id, P1, S1, R, P0, S0, CT1, CT0] = new JsComponentOps(x)
+
+  final class JsUnmountedOps[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object](private val self: MappedUnmounted[F, P1, S1, R, P0, S0]) extends AnyVal {
+    def withRawType[R2 <: RawMounted]: MappedUnmounted[F, P1, S1, R2, P0, S0] =
+      self.mapMounted(_.withRawType[R2])
+    def addRawType[T <: js.Object]: MappedUnmounted[F, P1, S1, R with T, P0, S0] =
+      self.mapMounted(_.addRawType[T])
+    def mapProps[P2](f: P1 => P2): MappedUnmounted[F, P2, S1, R, P0, S0] =
+      self.mapUnmountedProps(f).mapMounted(_ mapProps f)
+    def xmapState[S2](f: S1 => S2)(g: S2 => S1): MappedUnmounted[F, P1, S2, R, P0, S0] =
+      self.mapMounted(_.xmapState(f)(g))
+    def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): MappedUnmounted[F, P1, S2, R, P0, S0] =
+      self.mapMounted(_.zoomState(get)(set))
+  }
+
+  final class JsComponentOps[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object, CT1[-p, +u] <: CtorType[p, u], CT0[-p, +u] <: CtorType[p, u]](private val self: MappedComponent[F, P1, S1, R, P0, S0, CT1, CT0]) extends AnyVal {
+    def withRawType[R2 <: RawMounted]: MappedComponent[F, P1, S1, R2, P0, S0, CT1, CT0] =
+      self.mapUnmounted(_.withRawType[R2])
+    def addRawType[T <: js.Object]: MappedComponent[F, P1, S1, R with T, P0, S0, CT1, CT0] =
+      self.mapUnmounted(_.addRawType[T])
+    def xmapProps[P2](f: P1 => P2)(g: P2 => P1): MappedComponent[F, P2, S1, R, P0, S0, CT1, CT0] =
+      self.cmapCtorProps(g).mapUnmounted(_ mapProps f)
+    def xmapState[S2](f: S1 => S2)(g: S2 => S1): MappedComponent[F, P1, S2, R, P0, S0, CT1, CT0] =
+      self.mapUnmounted(_.xmapState(f)(g))
+    def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): MappedComponent[F, P1, S2, R, P0, S0, CT1, CT0] =
+      self.mapUnmounted(_.zoomState(get)(set))
+    def mapMounted[M2](f: MappedMounted[F, P1, S1, R, P0, S0] => M2) =
+      self.mapUnmounted(_ mapMounted f)
+  }
+
+  object Test {
+    @js.native sealed trait Raw1 extends js.Object { def raw1: Int }
+    @js.native sealed trait Raw2 extends js.Object { def raw2: Int }
+    @js.native sealed trait JsObjP extends js.Object
+    case class ScalaObjP(js: JsObjP)
+    case class ScalaObjP2(s: ScalaObjP)
+    @js.native sealed trait JsObjS extends js.Object
+    case class ScalaObjS(js: JsObjS)
+    case class ScalaObjS2(s: ScalaObjS)
+  }
+  object TestId {
+    import Test._
+    val xxx = apply[JsObjP, ChildrenArg.None, JsObjS]("Test")
+
+    xxx.mapUnmounted(u =>
+//      toJsUnmountedOps[Effect.Id, JsObjP, JsObjS, RawMounted, JsObjP, JsObjS](u)
+//      JsUnmountedOps(u)
+//      toJsUnmountedOps(u)
+      u
+        .mapProps(ScalaObjP)
+        .addRawType[Raw1]
+        .mapProps(ScalaObjP2)
+        .addRawType[Raw2]
+    )
+
+    toJsComponentOps[Effect.Id, JsObjP, JsObjS, RawMounted, JsObjP, JsObjS, CtorType.Props, CtorType.Props](xxx)
+//    JsComponentOps(xxx)
+//    toJsComponentOps(xxx)
+//    xxx
+      .xmapProps(ScalaObjP)(_.js)
+      .addRawType[Raw1]
+      .xmapProps(ScalaObjP2)(_.s)
+      .addRawType[Raw2]
+  }
+  object TestCB {
+    import Test._
+    val xxx = apply[JsObjP, ChildrenArg.None, JsObjS]("Test").mapUnmounted(_.mapMounted(_.withEffect[CallbackTo]))
+
+    xxx.mapUnmounted(u =>
+//      toJsUnmountedOps[CallbackTo, JsObjP, JsObjS, RawMounted, JsObjP, JsObjS](u)
+//      JsUnmountedOps(u)
+//      toJsUnmountedOps(u)
+      u
+        .mapProps(ScalaObjP)
+        .addRawType[Raw1]
+        .mapProps(ScalaObjP2)
+        .addRawType[Raw2]
+    )
+
+//    toJsComponentOps[CallbackTo, JsObjP, JsObjS, RawMounted, JsObjP, JsObjS, CtorType.Props, CtorType.Props](xxx)
+//    JsComponentOps(xxx)
+//    toJsComponentOps(xxx)
+    xxx
+      .xmapProps(ScalaObjP)(_.js)
+      .addRawType[Raw1]
+      .xmapProps(ScalaObjP2)(_.s)
+      .addRawType[Raw2]
+  }
 
   // ===================================================================================================================
 
