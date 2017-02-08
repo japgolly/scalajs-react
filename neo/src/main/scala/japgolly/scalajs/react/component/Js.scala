@@ -43,7 +43,7 @@ object Js {
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
       extends Generic.Component0[P1, CT1, U1, P0, CT0, U0] {
 
-    override def underlying: UnderlyingComponent[P0, CT0, U0]
+    override final type Underlying = UnderlyingComponent[P0, CT0, U0]
     override def cmapCtorProps[P2](f: P2 => P1): Component0[P2, CT1, U1, P0, CT0, U0]
     override def mapUnmounted[U2](f: U1 => U2): Component0[P1, CT1, U2, P0, CT0, U0]
     override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): Component0[P1, CT2, U1, P0, CT0, U0]
@@ -52,7 +52,7 @@ object Js {
   sealed trait Unmounted0[P1, M1, P0 <: js.Object, M0]
       extends Generic.Unmounted0[P1, M1, P0, M0] {
 
-    override def underlying: UnderlyingUnmounted[P0, M0]
+    override final type Underlying = UnderlyingUnmounted[P0, M0]
     override def mapUnmountedProps[P2](f: P1 => P2): Unmounted0[P2, M1, P0, M0]
     override def mapMounted[M2](f: M1 => M2): Unmounted0[P1, M2, P0, M0]
 
@@ -62,7 +62,7 @@ object Js {
   sealed trait Mounted0[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object]
       extends Generic.Mounted0[F, P1, S1, P0, S0] {
 
-    override def underlying: UnderlyingMounted[F, P0, S0, R]
+    override final type Underlying = UnderlyingMounted[F, P0, S0, R]
     override def mapProps[P2](f: P1 => P2): Mounted0[F, P2, S1, R, P0, S0]
     override def xmapState[S2](f: S1 => S2)(g: S2 => S1): Mounted0[F, P1, S2, R, P0, S0]
     override def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): Mounted0[F, P1, S2, R, P0, S0]

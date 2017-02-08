@@ -27,7 +27,7 @@ object JsFn {
   // ===================================================================================================================
 
   sealed trait Unmounted0[P1, M1, P0 <: js.Object] extends Generic.Unmounted0[P1, M1, P0, Mounted] {
-    override def underlying: UnderlyingUnmounted[P0]
+    override final type Underlying = UnderlyingUnmounted[P0]
     override def mapUnmountedProps[P2](f: P1 => P2): Unmounted0[P2, M1, P0]
     override def mapMounted[M2](f: M1 => M2): Unmounted0[P1, M2, P0]
 

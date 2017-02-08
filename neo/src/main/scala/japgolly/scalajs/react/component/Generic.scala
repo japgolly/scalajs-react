@@ -21,10 +21,12 @@ object Generic {
     final type Props = P1
     final type Unmounted = U1
 
-    def underlying: Component[P0, CT0, U0]
+    type Underlying <: Component[P0, CT0, U0]
+    def underlying: Underlying
+
     def cmapCtorProps[P2](f: P2 => P1): Component0[P2, CT1, U1, P0, CT0, U0]
-    def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): Component0[P1, CT2, U1, P0, CT0, U0]
     def mapUnmounted[U2](f: U1 => U2): Component0[P1, CT1, U2, P0, CT0, U0]
+    def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): Component0[P1, CT2, U1, P0, CT0, U0]
 
     val ctor: CT1[P1, U1]
     implicit def ctorPF: Profunctor[CT1]
@@ -34,7 +36,9 @@ object Generic {
     final type Props = P1
     final type Mounted = M1
 
-    def underlying: Unmounted[P0, M0]
+    type Underlying <: Unmounted[P0, M0]
+    def underlying: Underlying
+
     def mapUnmountedProps[P2](f: P1 => P2): Unmounted0[P2, M1, P0, M0]
     def mapMounted[M2](f: M1 => M2): Unmounted0[P1, M2, P0, M0]
 
@@ -53,7 +57,9 @@ object Generic {
 
     protected[component] implicit def F: Effect[F]
 
-    def underlying: Mounted[F, P0, S0]
+    type Underlying <: Mounted[F, P0, S0]
+    def underlying: Underlying
+
     def mapProps[P2](f: P1 => P2): Mounted0[F, P2, S1, P0, S0]
     def xmapState[S2](f: S1 => S2)(g: S2 => S1): Mounted0[F, P1, S2, P0, S0]
     def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): Mounted0[F, P1, S2, P0, S0]
