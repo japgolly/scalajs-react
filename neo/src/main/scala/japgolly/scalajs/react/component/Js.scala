@@ -70,8 +70,11 @@ object Js {
 
     val raw: R
 
+    final def withRawType[R2 <: RawMounted]: Mounted0[F, P1, S1, R2, P0, S0] =
+      this.asInstanceOf[Mounted0[F, P1, S1, R2, P0, S0]]
+
     final def addRawType[T <: js.Object]: Mounted0[F, P1, S1, R with T, P0, S0] =
-      this.asInstanceOf[Mounted0[F, P1, S1, R with T, P0, S0]]
+      withRawType[R with T]
 
     // def getDefaultProps: Props
     // def getInitialState: js.Object | Null
