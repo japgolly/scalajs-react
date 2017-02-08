@@ -139,7 +139,9 @@ object Js {
 
   // ===================================================================================================================
 
-  // The only difference between this and its Generic counterpart is that P0 has an upper bound of js.Object.
+  // Difference between this and its Generic counterpart:
+  // - P0 has an upper bound of js.Object.
+  // - .raw
   sealed trait Component0[
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
@@ -149,6 +151,8 @@ object Js {
     override def cmapCtorProps[P2](f: P2 => P1): Component0[P2, CT1, U1, P0, CT0, U0]
     override def mapUnmounted[U2](f: U1 => U2): Component0[P1, CT1, U2, P0, CT0, U0]
     override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): Component0[P1, CT2, U1, P0, CT0, U0]
+
+    val raw: Raw.ReactClass
   }
 
   sealed trait Unmounted0[P1, M1, P0 <: js.Object, M0]
@@ -185,10 +189,11 @@ object Js {
 
   // ===================================================================================================================
 
-  def underlyingComponent[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U](c: CT[P, U])
+  def underlyingComponent[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U](rc: Raw.ReactClass, c: CT[P, U])
                                                                           (implicit pf: Profunctor[CT]): UnderlyingComponent[P, CT, U] =
     new UnderlyingComponent[P, CT, U] {
       override def underlying = this
+      override val raw = rc
       override val ctor = c
       override implicit def ctorPF = pf
 
@@ -283,14 +288,16 @@ object Js {
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
       (from: Component0[P1, CT1, U1, P0, CT0, U0])
-      (cp: P2 => P1, mc: CT1[P1, U1] => CT2[P1, U1],  mu: U1 => U2, pf: Profunctor[CT2])
+      (cp: P2 => P1, mc: CT1[P1, U1] => CT2[P1, U1], mu: U1 => U2, pf: Profunctor[CT2])
       : Component0[P2, CT2, U2, P0, CT0, U0] =
     new Component0[P2, CT2, U2, P0, CT0, U0] {
       override def underlying = from.underlying
 
+      override val raw = from.raw
+
       override implicit def ctorPF = pf
 
-      override val ctor: CT2[P2, U2] = mc(from.ctor).dimap(cp, mu)
+      override val ctor = mc(from.ctor).dimap(cp, mu)
 
       override def cmapCtorProps[P3](f: P3 => P2) = mappedC(from)(cp compose f, mc, mu, pf)
       override def mapUnmounted[U3](f: U2 => U3) = mappedC(from)(cp, mc, f compose mu, pf)
@@ -363,7 +370,7 @@ object Js {
 
   def simpleComponent[P <: js.Object, C <: ChildrenArg, S <: js.Object](rc: Raw.ReactClass)
                                                                        (implicit s: CtorType.Summoner[P, C]): SimpleComponent[P, S, s.CT] =
-    underlyingComponent[P, s.CT, SimpleUnmounted[P, S]](s.pf.rmap(s.summon(rc))(simpleUnmounted))(s.pf)
+    underlyingComponent[P, s.CT, SimpleUnmounted[P, S]](rc, s.pf.rmap(s.summon(rc))(simpleUnmounted))(s.pf)
 
   def simpleUnmounted[P <: js.Object, S <: js.Object](r: Raw.ReactComponentElement): SimpleUnmounted[P, S] =
     underlyingUnmounted(r, simpleMounted)

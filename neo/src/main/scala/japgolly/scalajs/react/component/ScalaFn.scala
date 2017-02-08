@@ -6,7 +6,7 @@ import scala.scalajs.js
 
 object ScalaFn {
 
-  type Component[P, CT[-p, +u] <: CtorType[p, u]] = Js.Component0[P, CT, Unmounted[P], Box[P], CT, JsFn.Unmounted[Box[P]]]
+  type Component[P, CT[-p, +u] <: CtorType[p, u]] = JsFn.Component0[P, CT, Unmounted[P], Box[P], CT, JsFn.Unmounted[Box[P]]]
   type Unmounted[P]                               = JsFn.Unmounted0[P, Mounted, Box[P]]
   type Mounted                                    = Unit
 
