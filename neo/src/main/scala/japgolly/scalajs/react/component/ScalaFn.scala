@@ -8,7 +8,7 @@ object ScalaFn {
 
   type Component[P, CT[-p, +u] <: CtorType[p, u]] = JsFn.BaseComponent[P, CT, Unmounted[P], Box[P], CT, JsFn.Unmounted[Box[P]]]
   type Unmounted[P]                               = JsFn.BaseUnmounted[P, Mounted, Box[P]]
-  type Mounted                                    = Unit
+  type Mounted                                    = JsFn.Mounted
 
   private def create[P, C <: ChildrenArg, CT[-p, +u] <: CtorType[p, u]]
       (render: Box[P] with raw.PropsWithChildren => raw.ReactElement)

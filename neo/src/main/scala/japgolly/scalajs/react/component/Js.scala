@@ -129,7 +129,7 @@ object Js extends TemplateForJsBaseComponent[Raw.ReactClass] {
     final def withRawType[R2 <: RawMounted]: BaseMounted[F, P1, S1, R2, P0, S0] =
       this.asInstanceOf[BaseMounted[F, P1, S1, R2, P0, S0]]
 
-    final def addRawType[T <: js.Object]: BaseMounted[F, P1, S1, R with T, P0, S0] =
+    final def addFacade[T <: js.Object]: BaseMounted[F, P1, S1, R with T, P0, S0] =
       withRawType[R with T]
 
     // def getDefaultProps: Props
@@ -253,7 +253,7 @@ object Js extends TemplateForJsBaseComponent[Raw.ReactClass] {
   final class JsUnmountedOps[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object](private val self: MappedUnmounted[F, P1, S1, R, P0, S0]) extends AnyVal {
     def withRawType[R2 <: RawMounted]: MappedUnmounted[F, P1, S1, R2, P0, S0] =
       self.asInstanceOf[MappedUnmounted[F, P1, S1, R2, P0, S0]]
-    def addRawType[T <: js.Object]: MappedUnmounted[F, P1, S1, R with T, P0, S0] =
+    def addFacade[T <: js.Object]: MappedUnmounted[F, P1, S1, R with T, P0, S0] =
       withRawType[R with T]
     def mapProps[P2](f: P1 => P2): MappedUnmounted[F, P2, S1, R, P0, S0] =
       self.mapUnmountedProps(f).mapMounted(_ mapProps f)
@@ -266,7 +266,7 @@ object Js extends TemplateForJsBaseComponent[Raw.ReactClass] {
   final class JsComponentOps[F[+_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: RawMounted, P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]](private val self: MappedComponent[F, P1, S1, CT1, R, P0, S0, CT0]) extends AnyVal {
     def withRawType[R2 <: RawMounted]: MappedComponent[F, P1, S1, CT1, R2, P0, S0, CT0] =
       self.asInstanceOf[MappedComponent[F, P1, S1, CT1, R2, P0, S0, CT0]]
-    def addRawType[T <: js.Object]: MappedComponent[F, P1, S1, CT1, R with T, P0, S0, CT0] =
+    def addFacade[T <: js.Object]: MappedComponent[F, P1, S1, CT1, R with T, P0, S0, CT0] =
       withRawType[R with T]
     def xmapProps[P2](f: P1 => P2)(g: P2 => P1): MappedComponent[F, P2, S1, CT1, R, P0, S0, CT0] =
       self.cmapCtorProps(g).mapUnmounted(_ mapProps f)
