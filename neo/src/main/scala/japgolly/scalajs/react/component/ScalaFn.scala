@@ -6,8 +6,8 @@ import scala.scalajs.js
 
 object ScalaFn {
 
-  type Component[P, CT[-p, +u] <: CtorType[p, u]] = JsFn.Component0[P, CT, Unmounted[P], Box[P], CT, JsFn.Unmounted[Box[P]]]
-  type Unmounted[P]                               = JsFn.Unmounted0[P, Mounted, Box[P]]
+  type Component[P, CT[-p, +u] <: CtorType[p, u]] = JsFn.BaseComponent[P, CT, Unmounted[P], Box[P], CT, JsFn.Unmounted[Box[P]]]
+  type Unmounted[P]                               = JsFn.BaseUnmounted[P, Mounted, Box[P]]
   type Mounted                                    = Unit
 
   private def create[P, C <: ChildrenArg, CT[-p, +u] <: CtorType[p, u]]

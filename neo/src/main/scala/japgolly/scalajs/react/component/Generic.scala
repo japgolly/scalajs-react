@@ -10,37 +10,37 @@ import org.scalajs.dom
 
 object Generic {
 
-  type Component[P, CT[-p, +u] <: CtorType[p, u], U] = Component0[P, CT, U, P, CT, U]
-  type Unmounted[P, M]                               = Unmounted0[P, M, P, M]
-  type Mounted[F[+_], P, S]                          = Mounted0[F, P, S, P, S]
+  type Component[P, CT[-p, +u] <: CtorType[p, u], U] = BaseComponent[P, CT, U, P, CT, U]
+  type Unmounted[P, M]                               = BaseUnmounted[P, M, P, M]
+  type Mounted[F[+_], P, S]                          = BaseMounted[F, P, S, P, S]
 
-  trait Component0[
+  trait BaseComponent[
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
       P0, CT0[-p, +u] <: CtorType[p, u], U0] {
 
     final type Props = P1
     final type Unmounted = U1
 
-    type Underlying <: Component[P0, CT0, U0]
-    def underlying: Underlying
+    type Root <: Component[P0, CT0, U0]
+    def root: Root
 
-    def cmapCtorProps[P2](f: P2 => P1): Component0[P2, CT1, U1, P0, CT0, U0]
-    def mapUnmounted[U2](f: U1 => U2): Component0[P1, CT1, U2, P0, CT0, U0]
-    def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): Component0[P1, CT2, U1, P0, CT0, U0]
+    def cmapCtorProps[P2](f: P2 => P1): BaseComponent[P2, CT1, U1, P0, CT0, U0]
+    def mapUnmounted[U2](f: U1 => U2): BaseComponent[P1, CT1, U2, P0, CT0, U0]
+    def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): BaseComponent[P1, CT2, U1, P0, CT0, U0]
 
     val ctor: CT1[P1, U1]
     implicit def ctorPF: Profunctor[CT1]
   }
 
-  trait Unmounted0[P1, M1, P0, M0] {
+  trait BaseUnmounted[P1, M1, P0, M0] {
     final type Props = P1
     final type Mounted = M1
 
-    type Underlying <: Unmounted[P0, M0]
-    def underlying: Underlying
+    type Root <: Unmounted[P0, M0]
+    def root: Root
 
-    def mapUnmountedProps[P2](f: P1 => P2): Unmounted0[P2, M1, P0, M0]
-    def mapMounted[M2](f: M1 => M2): Unmounted0[P1, M2, P0, M0]
+    def mapUnmountedProps[P2](f: P1 => P2): BaseUnmounted[P2, M1, P0, M0]
+    def mapMounted[M2](f: M1 => M2): BaseUnmounted[P1, M2, P0, M0]
 
     def reactElement: vdom.ReactElement
     def key: Option[Key]
@@ -51,19 +51,19 @@ object Generic {
     def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted
   }
 
-  trait Mounted0[F[+ _], P1, S1, P0, S0] {
+  trait BaseMounted[F[+ _], P1, S1, P0, S0] {
     final type Props = P1
     final type State = S1
 
     protected[component] implicit def F: Effect[F]
 
-    type Underlying <: Mounted[F, P0, S0]
-    def underlying: Underlying
+    type Root <: Mounted[F, P0, S0]
+    def root: Root
 
-    def mapProps[P2](f: P1 => P2): Mounted0[F, P2, S1, P0, S0]
-    def xmapState[S2](f: S1 => S2)(g: S2 => S1): Mounted0[F, P1, S2, P0, S0]
-    def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): Mounted0[F, P1, S2, P0, S0]
-    def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): Mounted0[F2, P1, S1, P0, S0]
+    def mapProps[P2](f: P1 => P2): BaseMounted[F, P2, S1, P0, S0]
+    def xmapState[S2](f: S1 => S2)(g: S2 => S1): BaseMounted[F, P1, S2, P0, S0]
+    def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): BaseMounted[F, P1, S2, P0, S0]
+    def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): BaseMounted[F2, P1, S1, P0, S0]
 
     def isMounted: F[Boolean]
     def getDOMNode: F[dom.Element]

@@ -5,19 +5,19 @@ import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, ChildrenArg, CtorType, Key, PropsChildren, vdom, raw => Raw}
 
 
-object JsFn extends TemplateForJsComponent0[Raw.ReactFunctionalComponent] {
+object JsFn extends TemplateForJsBaseComponent[Raw.ReactFunctionalComponent] {
 
-  type Component[P <: js.Object, CT[-p, +u] <: CtorType[p, u]] = UnderlyingComponent[P, CT, Unmounted[P]]
-  type Unmounted[P <: js.Object]                               = UnderlyingUnmounted[P]
+  type Component[P <: js.Object, CT[-p, +u] <: CtorType[p, u]] = RootComponent[P, CT, Unmounted[P]]
+  type Unmounted[P <: js.Object]                               = RootUnmounted[P]
   type Mounted                                                 = Unit
 
-  type UnderlyingUnmounted[P <: js.Object] = Unmounted0[P, Mounted, P]
+  type RootUnmounted[P <: js.Object] = BaseUnmounted[P, Mounted, P]
 
   // ===================================================================================================================
 
   def apply[P <: js.Object, C <: ChildrenArg](rc: Raw.ReactFunctionalComponent)
                                              (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
-    underlyingComponent[P, s.CT, Unmounted[P]](rc, s.pf.rmap(s.summon(rc))(underlyingUnmounted))(s.pf)
+    rootComponent[P, s.CT, Unmounted[P]](rc, s.pf.rmap(s.summon(rc))(rootUnmounted))(s.pf)
 
   def apply[P <: js.Object, C <: ChildrenArg](name: String)
                                              (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
@@ -25,18 +25,18 @@ object JsFn extends TemplateForJsComponent0[Raw.ReactFunctionalComponent] {
 
   // ===================================================================================================================
 
-  sealed trait Unmounted0[P1, M1, P0 <: js.Object] extends Generic.Unmounted0[P1, M1, P0, Mounted] {
-    override final type Underlying = UnderlyingUnmounted[P0]
-    override def mapUnmountedProps[P2](f: P1 => P2): Unmounted0[P2, M1, P0]
-    override def mapMounted[M2](f: M1 => M2): Unmounted0[P1, M2, P0]
+  sealed trait BaseUnmounted[P1, M1, P0 <: js.Object] extends Generic.BaseUnmounted[P1, M1, P0, Mounted] {
+    override final type Root = RootUnmounted[P0]
+    override def mapUnmountedProps[P2](f: P1 => P2): BaseUnmounted[P2, M1, P0]
+    override def mapMounted[M2](f: M1 => M2): BaseUnmounted[P1, M2, P0]
 
     val raw: Raw.ReactComponentElement
   }
 
-  def underlyingUnmounted[P <: js.Object](r: Raw.ReactComponentElement): UnderlyingUnmounted[P] =
-    new UnderlyingUnmounted[P] {
+  def rootUnmounted[P <: js.Object](r: Raw.ReactComponentElement): RootUnmounted[P] =
+    new RootUnmounted[P] {
 
-      override def underlying = this
+      override def root = this
       override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identity)
       override def mapMounted[M2](f: Mounted => M2) = mappedU(this)(identity, f)
 
@@ -66,10 +66,10 @@ object JsFn extends TemplateForJsComponent0[Raw.ReactFunctionalComponent] {
       }
     }
 
-  private def mappedU[P2, M2, P1, M1, P0 <: js.Object](from: Unmounted0[P1, M1, P0])
-                                                      (mp: P1 => P2, mm: M1 => M2): Unmounted0[P2, M2, P0] =
-    new Unmounted0[P2, M2, P0] {
-      override def underlying    = from.underlying
+  private def mappedU[P2, M2, P1, M1, P0 <: js.Object](from: BaseUnmounted[P1, M1, P0])
+                                                      (mp: P1 => P2, mm: M1 => M2): BaseUnmounted[P2, M2, P0] =
+    new BaseUnmounted[P2, M2, P0] {
+      override def root    = from.root
       override val raw           = from.raw
       override def reactElement  = from.reactElement
       override def key           = from.key

@@ -20,32 +20,32 @@ object Scala {
       .xmapState(_.unbox)(Box(_))
 
   type JsComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
-    Js.ComponentWithRawType[Box[P], Box[S], CT, Vars[P, S, B]]
+    Js.ComponentPlusFacade[Box[P], Box[S], CT, Vars[P, S, B]]
 
 //  type JsUnmounted[P, S, B] =
 //    Js.UnmountedWithRawType[Box[P], Box[S], Vars[P, S, B]]
 
   type JsMounted[P, S, B] =
-    Js.MountedWithRawType[Box[P], Box[S], Vars[P, S, B]]
+    Js.MountedPlusFacade[Box[P], Box[S], Vars[P, S, B]]
 
   type Component[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
     Js.MappedComponent[Effect.Id, P, S, Js.RawMounted with Vars[P, S, B], Box[P], Box[S], CT, CT]
 
   type Unmounted   [P, S, B] = Generic.Unmounted[P, Mounted[P, S, B]]
-  type Mounted     [P, S, B] = UnderlyingMounted[Effect.Id, P, S, B]
-  type MountedCB   [P, S, B] = UnderlyingMounted[CallbackTo, P, S, B]
+  type Mounted     [P, S, B] = RootMounted[Effect.Id, P, S, B]
+  type MountedCB   [P, S, B] = RootMounted[CallbackTo, P, S, B]
   type BackendScope[P, S]    = Generic.Mounted[CallbackTo, P, S]
 
   // ===================================================================================================================
 
-  type UnderlyingMounted[F[+_], P, S, B] = Mounted0[F, P, S, B, P, S]
+  type RootMounted[F[+_], P, S, B] = BaseMounted[F, P, S, B, P, S]
 
-  sealed trait Mounted0[F[+_], P1, S1, B, P0, S0] extends Generic.Mounted0[F, P1, S1, P0, S0] {
-    override final type Underlying = UnderlyingMounted[F, P0, S0, B]
-    override def mapProps[P2](f: P1 => P2): Mounted0[F, P2, S1, B, P0, S0]
-    override def xmapState[S2](f: S1 => S2)(g: S2 => S1): Mounted0[F, P1, S2, B, P0, S0]
-    override def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): Mounted0[F, P1, S2, B, P0, S0]
-    override def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): Mounted0[F2, P1, S1, B, P0, S0]
+  sealed trait BaseMounted[F[+_], P1, S1, B, P0, S0] extends Generic.BaseMounted[F, P1, S1, P0, S0] {
+    override final type Root = RootMounted[F, P0, S0, B]
+    override def mapProps[P2](f: P1 => P2): BaseMounted[F, P2, S1, B, P0, S0]
+    override def xmapState[S2](f: S1 => S2)(g: S2 => S1): BaseMounted[F, P1, S2, B, P0, S0]
+    override def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): BaseMounted[F, P1, S2, B, P0, S0]
+    override def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): BaseMounted[F2, P1, S1, B, P0, S0]
 
     val js: JsMounted[P0, S0, B]
 
@@ -58,10 +58,10 @@ object Scala {
   }
 
   // TODO so much copy-paste, maybe use type families again?
-  def underlyingMounted[P, S, B](x: JsMounted[P, S, B]): UnderlyingMounted[Effect.Id, P, S, B] =
-    new UnderlyingMounted[Effect.Id, P, S, B] {
+  def rootMounted[P, S, B](x: JsMounted[P, S, B]): RootMounted[Effect.Id, P, S, B] =
+    new RootMounted[Effect.Id, P, S, B] {
 
-      override def underlying = this
+      override def root = this
 
       override val js = x
 
@@ -107,13 +107,13 @@ object Scala {
 
   // TODO so much copy-paste
   private def mappedM[F[+_], P2, S2, P1, S1, B, P0, S0]
-      (from: Mounted0[Effect.Id, P1, S1, B, P0, S0])
+      (from: BaseMounted[Effect.Id, P1, S1, B, P0, S0])
       (mp: P1 => P2, ls: Lens[S1, S2])
       (implicit ft: Effect.Trans[Effect.Id, F])
-      : Mounted0[F, P2, S2, B, P0, S0] =
-    new Mounted0[F, P2, S2, B, P0, S0] {
+      : BaseMounted[F, P2, S2, B, P0, S0] =
+    new BaseMounted[F, P2, S2, B, P0, S0] {
       override implicit def F    = ft.to
-      override def underlying    = from.underlying.withEffect[F]
+      override def root    = from.root.withEffect[F]
       override val js            = from.js
       override def isMounted     = ft apply from.isMounted
       override def getDOMNode    = ft apply from.getDOMNode
