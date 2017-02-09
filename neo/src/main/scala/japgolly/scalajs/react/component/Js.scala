@@ -154,30 +154,6 @@ object Js extends TemplateForJsComponent0[Raw.ReactClass] {
     val raw: Raw.ReactComponentElement
   }
 
-  sealed trait Mounted0[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object]
-      extends Generic.Mounted0[F, P1, S1, P0, S0] {
-
-    override final type Underlying = UnderlyingMounted[F, P0, S0, R]
-    override def mapProps[P2](f: P1 => P2): Mounted0[F, P2, S1, R, P0, S0]
-    override def xmapState[S2](f: S1 => S2)(g: S2 => S1): Mounted0[F, P1, S2, R, P0, S0]
-    override def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): Mounted0[F, P1, S2, R, P0, S0]
-    override def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): Mounted0[F2, P1, S1, R, P0, S0]
-
-    val raw: R
-
-    final def withRawType[R2 <: RawMounted]: Mounted0[F, P1, S1, R2, P0, S0] =
-      this.asInstanceOf[Mounted0[F, P1, S1, R2, P0, S0]]
-
-    final def addRawType[T <: js.Object]: Mounted0[F, P1, S1, R with T, P0, S0] =
-      withRawType[R with T]
-
-    // def getDefaultProps: Props
-    // def getInitialState: js.Object | Null
-    // def render(): ReactElement
-  }
-
-  // ===================================================================================================================
-
   def underlyingUnmounted[P <: js.Object, M](r: Raw.ReactComponentElement, m: Raw.ReactComponent => M): UnderlyingUnmounted[P, M] =
     new UnderlyingUnmounted[P, M] {
 
@@ -209,6 +185,53 @@ object Js extends TemplateForJsComponent0[Raw.ReactClass] {
       override def mapMounted[M2](f: M => M2) =
         mappedU(this)(identity, f)
     }
+
+  private def mappedU[P2, M2, P1, M1, P0 <: js.Object, M0]
+      (from: Unmounted0[P1, M1, P0, M0])
+      (mp: P1 => P2, mm: M1 => M2)
+      : Unmounted0[P2, M2, P0, M0] =
+    new Unmounted0[P2, M2, P0, M0] {
+      override def underlying    = from.underlying
+      override def props         = mp(from.props)
+      override val raw           = from.raw
+      override def reactElement  = from.reactElement
+      override def key           = from.key
+      override def ref           = from.ref
+      override def propsChildren = from.propsChildren
+
+      override def mapUnmountedProps[P3](f: P2 => P3) =
+        mappedU(from)(f compose mp, mm)
+
+      override def mapMounted[M3](f: M2 => M3) =
+        mappedU(from)(mp, f compose mm)
+
+      override def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty) =
+        mm(from.renderIntoDOM(container, callback))
+    }
+
+  // ===================================================================================================================
+
+  sealed trait Mounted0[F[+_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object]
+      extends Generic.Mounted0[F, P1, S1, P0, S0] {
+
+    override final type Underlying = UnderlyingMounted[F, P0, S0, R]
+    override def mapProps[P2](f: P1 => P2): Mounted0[F, P2, S1, R, P0, S0]
+    override def xmapState[S2](f: S1 => S2)(g: S2 => S1): Mounted0[F, P1, S2, R, P0, S0]
+    override def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): Mounted0[F, P1, S2, R, P0, S0]
+    override def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): Mounted0[F2, P1, S1, R, P0, S0]
+
+    val raw: R
+
+    final def withRawType[R2 <: RawMounted]: Mounted0[F, P1, S1, R2, P0, S0] =
+      this.asInstanceOf[Mounted0[F, P1, S1, R2, P0, S0]]
+
+    final def addRawType[T <: js.Object]: Mounted0[F, P1, S1, R with T, P0, S0] =
+      withRawType[R with T]
+
+    // def getDefaultProps: Props
+    // def getInitialState: js.Object | Null
+    // def render(): ReactElement
+  }
 
   def underlyingMounted[P <: js.Object, S <: js.Object, R <: RawMounted](r: R): UnderlyingMounted[Effect.Id, P, S, R] =
     new UnderlyingMounted[Effect.Id, P, S, R] {
@@ -254,31 +277,6 @@ object Js extends TemplateForJsComponent0[Raw.ReactClass] {
 
       override def withEffect[F[+_]](implicit t: Effect.Trans[Effect.Id, F]) =
         mappedM(this)(identity, Lens.id)
-    }
-
-  // ===================================================================================================================
-
-  private def mappedU[P2, M2, P1, M1, P0 <: js.Object, M0]
-      (from: Unmounted0[P1, M1, P0, M0])
-      (mp: P1 => P2, mm: M1 => M2)
-      : Unmounted0[P2, M2, P0, M0] =
-    new Unmounted0[P2, M2, P0, M0] {
-      override def underlying    = from.underlying
-      override def props         = mp(from.props)
-      override val raw           = from.raw
-      override def reactElement  = from.reactElement
-      override def key           = from.key
-      override def ref           = from.ref
-      override def propsChildren = from.propsChildren
-
-      override def mapUnmountedProps[P3](f: P2 => P3) =
-        mappedU(from)(f compose mp, mm)
-
-      override def mapMounted[M3](f: M2 => M3) =
-        mappedU(from)(mp, f compose mm)
-
-      override def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty) =
-        mm(from.renderIntoDOM(container, callback))
     }
 
   private def mappedM[F[+_], P2, S2, P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object]
