@@ -4,16 +4,11 @@ import scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, ChildrenArg, CtorType, Key, PropsChildren, vdom, raw => Raw}
 
-
 object JsFn extends TemplateForJsBaseComponent[Raw.ReactFunctionalComponent] {
 
   type Component[P <: js.Object, CT[-p, +u] <: CtorType[p, u]] = RootComponent[P, CT, Unmounted[P]]
   type Unmounted[P <: js.Object]                               = RootUnmounted[P]
   type Mounted                                                 = Unit
-
-  type RootUnmounted[P <: js.Object] = BaseUnmounted[P, Mounted, P]
-
-  // ===================================================================================================================
 
   def apply[P <: js.Object, C <: ChildrenArg](rc: Raw.ReactFunctionalComponent)
                                              (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
@@ -25,6 +20,8 @@ object JsFn extends TemplateForJsBaseComponent[Raw.ReactFunctionalComponent] {
 
   // ===================================================================================================================
 
+  type RootUnmounted[P <: js.Object] = BaseUnmounted[P, Mounted, P]
+
   sealed trait BaseUnmounted[P1, M1, P0 <: js.Object] extends Generic.BaseUnmounted[P1, M1, P0, Mounted] {
     override final type Root = RootUnmounted[P0]
     override def mapUnmountedProps[P2](f: P1 => P2): BaseUnmounted[P2, M1, P0]
@@ -35,7 +32,6 @@ object JsFn extends TemplateForJsBaseComponent[Raw.ReactFunctionalComponent] {
 
   def rootUnmounted[P <: js.Object](r: Raw.ReactComponentElement): RootUnmounted[P] =
     new RootUnmounted[P] {
-
       override def root = this
       override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identity)
       override def mapMounted[M2](f: Mounted => M2) = mappedU(this)(identity, f)
@@ -69,7 +65,7 @@ object JsFn extends TemplateForJsBaseComponent[Raw.ReactFunctionalComponent] {
   private def mappedU[P2, M2, P1, M1, P0 <: js.Object](from: BaseUnmounted[P1, M1, P0])
                                                       (mp: P1 => P2, mm: M1 => M2): BaseUnmounted[P2, M2, P0] =
     new BaseUnmounted[P2, M2, P0] {
-      override def root    = from.root
+      override def root          = from.root
       override val raw           = from.raw
       override def reactElement  = from.reactElement
       override def key           = from.key

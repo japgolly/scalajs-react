@@ -2,10 +2,23 @@ package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, CallbackTo, ChildrenArg, CtorType, PropsChildren, raw => Raw}
-import org.scalajs.dom
 import scala.scalajs.js
 
 object Scala {
+
+  type Component[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
+    Js.MappedComponent[Effect.Id, P, S, CT, Js.RawMounted with Vars[P, S, B], Box[P], Box[S], CT]
+
+  type Unmounted   [P, S, B] = Generic.Unmounted[P, Mounted[P, S, B]]
+  type Mounted     [P, S, B] = RootMounted[Effect.Id, P, S, B]
+  type MountedCB   [P, S, B] = RootMounted[CallbackTo, P, S, B]
+  type BackendScope[P, S]    = Generic.Mounted[CallbackTo, P, S]
+
+  type JsComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
+    Js.ComponentPlusFacade[Box[P], Box[S], CT, Vars[P, S, B]]
+
+  type JsMounted[P, S, B] =
+    Js.MountedPlusFacade[Box[P], Box[S], Vars[P, S, B]]
 
   @js.native
   trait Vars[P, S, B] extends js.Object {
@@ -15,26 +28,8 @@ object Scala {
   }
 
   def apply[P, S, B, CT[-p, +u] <: CtorType[p, u]](js: JsComponent[P, S, B, CT]): Component[P, S, B, CT] =
-    js
-      .xmapProps(_.unbox)(Box(_))
+    js.xmapProps(_.unbox)(Box(_))
       .xmapState(_.unbox)(Box(_))
-
-  type JsComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
-    Js.ComponentPlusFacade[Box[P], Box[S], CT, Vars[P, S, B]]
-
-//  type JsUnmounted[P, S, B] =
-//    Js.UnmountedWithRawType[Box[P], Box[S], Vars[P, S, B]]
-
-  type JsMounted[P, S, B] =
-    Js.MountedPlusFacade[Box[P], Box[S], Vars[P, S, B]]
-
-  type Component[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
-    Js.MappedComponent[Effect.Id, P, S, Js.RawMounted with Vars[P, S, B], Box[P], Box[S], CT, CT]
-
-  type Unmounted   [P, S, B] = Generic.Unmounted[P, Mounted[P, S, B]]
-  type Mounted     [P, S, B] = RootMounted[Effect.Id, P, S, B]
-  type MountedCB   [P, S, B] = RootMounted[CallbackTo, P, S, B]
-  type BackendScope[P, S]    = Generic.Mounted[CallbackTo, P, S]
 
   // ===================================================================================================================
 
@@ -104,7 +99,6 @@ object Scala {
         mappedM(this)(identity, Lens.id)
     }
 
-
   // TODO so much copy-paste
   private def mappedM[F[+_], P2, S2, P1, S1, B, P0, S0]
       (from: BaseMounted[Effect.Id, P1, S1, B, P0, S0])
@@ -113,7 +107,7 @@ object Scala {
       : BaseMounted[F, P2, S2, B, P0, S0] =
     new BaseMounted[F, P2, S2, B, P0, S0] {
       override implicit def F    = ft.to
-      override def root    = from.root.withEffect[F]
+      override def root          = from.root.withEffect[F]
       override val js            = from.js
       override def isMounted     = ft apply from.isMounted
       override def getDOMNode    = ft apply from.getDOMNode
@@ -142,5 +136,4 @@ object Scala {
       override def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]) =
         mappedM(from)(mp, ls)(ft compose t)
     }
-
 }

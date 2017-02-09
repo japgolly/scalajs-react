@@ -21,13 +21,13 @@ object ScalaFn {
       .mapUnmounted(_.mapUnmountedProps(_.unbox))
   }
 
-  def Props[P](render: P => raw.ReactElement): Component[P, CtorType.Props] =
+  def apply[P](render: P => raw.ReactElement): Component[P, CtorType.Props] =
     create(b => render(b.unbox))
 
-  def PropsAndChildren[P](render: (P, PropsChildren) => raw.ReactElement): Component[P, CtorType.PropsAndChildren] =
+  def apply[P](render: (P, PropsChildren) => raw.ReactElement): Component[P, CtorType.PropsAndChildren] =
     create(b => render(b.unbox, PropsChildren(b.children)))
 
-  def Children(render: PropsChildren => raw.ReactElement): Component[Unit, CtorType.Children] =
+  def children(render: PropsChildren => raw.ReactElement): Component[Unit, CtorType.Children] =
     create(b => render(PropsChildren(b.children)))
 
 }
