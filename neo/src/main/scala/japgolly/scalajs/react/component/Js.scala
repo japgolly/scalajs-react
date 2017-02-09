@@ -83,65 +83,6 @@ object Js extends TemplateForJsBaseComponent[Raw.ReactClass] {
       self.mapUnmounted(_ mapMounted f)
   }
 
-  object Test {
-    @js.native sealed trait Raw1 extends js.Object { def raw1: Int }
-    @js.native sealed trait Raw2 extends js.Object { def raw2: Int }
-    @js.native sealed trait JsObjP extends js.Object
-    case class ScalaObjP(js: JsObjP)
-    case class ScalaObjP2(s: ScalaObjP)
-    @js.native sealed trait JsObjS extends js.Object
-    case class ScalaObjS(js: JsObjS)
-    case class ScalaObjS2(s: ScalaObjS)
-  }
-  object TestId {
-    import Test._
-    val xxx = apply[JsObjP, ChildrenArg.None, JsObjS]("Test")
-
-    xxx.mapUnmounted(u =>
-//      toJsUnmountedOps[Effect.Id, JsObjP, JsObjS, RawMounted, JsObjP, JsObjS](u)
-//      JsUnmountedOps(u)
-//      toJsUnmountedOps(u)
-      u
-        .mapProps(ScalaObjP)
-        .addRawType[Raw1]
-        .mapProps(ScalaObjP2)
-        .addRawType[Raw2]
-    )
-
-    toJsComponentOps[Effect.Id, JsObjP, JsObjS, RawMounted, JsObjP, JsObjS, CtorType.Props, CtorType.Props](xxx)
-//    JsComponentOps(xxx)
-//    toJsComponentOps(xxx)
-//    xxx
-      .xmapProps(ScalaObjP)(_.js)
-      .addRawType[Raw1]
-      .xmapProps(ScalaObjP2)(_.s)
-      .addRawType[Raw2]
-  }
-  object TestCB {
-    import Test._
-    val xxx = apply[JsObjP, ChildrenArg.None, JsObjS]("Test").mapUnmounted(_.mapMounted(_.withEffect[CallbackTo]))
-
-    xxx.mapUnmounted(u =>
-//      toJsUnmountedOps[CallbackTo, JsObjP, JsObjS, RawMounted, JsObjP, JsObjS](u)
-//      JsUnmountedOps(u)
-//      toJsUnmountedOps(u)
-      u
-        .mapProps(ScalaObjP)
-        .addRawType[Raw1]
-        .mapProps(ScalaObjP2)
-        .addRawType[Raw2]
-    )
-
-//    toJsComponentOps[CallbackTo, JsObjP, JsObjS, RawMounted, JsObjP, JsObjS, CtorType.Props, CtorType.Props](xxx)
-//    JsComponentOps(xxx)
-//    toJsComponentOps(xxx)
-    xxx
-      .xmapProps(ScalaObjP)(_.js)
-      .addRawType[Raw1]
-      .xmapProps(ScalaObjP2)(_.s)
-      .addRawType[Raw2]
-  }
-
   // ===================================================================================================================
 
   sealed trait BaseUnmounted[P1, M1, P0 <: js.Object, M0]
