@@ -1,6 +1,8 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom.{Element, document}
+
+import scala.concurrent.{ExecutionContext, Future}
 import scalajs.js
 import scalajs.js.{Object, UndefOr}
 
@@ -103,6 +105,31 @@ package object test {
     def renderIntoBody[P,S,B,N <: TopNode, A](c: ReactComponentU[P,S,B,N])(f: ReactComponentM[P,S,B,N] => A): ReactComponentM[P,S,B,N] =
       ReactDOM.render(c, _renderIntoBodyContainer())
 
+    /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
+      * and asynchronously waits for the Future to complete before unmounting.
+      */
+    def withRenderedIntoDocumentAsync[A](c: ReactElement)(f: ComponentM => Future[A])(implicit ec: ExecutionContext): Future[A] =
+      _withRenderedIntoDocumentAsync(* renderIntoDocument c)(_.getDOMNode(), f)
+
+    /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
+      * and asynchronously waits for the Future to complete before unmounting.
+      */
+    def withRenderedIntoDocumentAsync[P,S,B,N <: TopNode, A](c: ReactComponentU[P,S,B,N])(f: ReactComponentM[P,S,B,N] => Future[A])(implicit ec: ExecutionContext): Future[A] =
+      _withRenderedIntoDocumentAsync(* renderIntoDocument c)(_.getDOMNode(), f)
+
+    /** Renders a component into the document body via [[ReactDOM.render()]],
+      * and asynchronously waits for the Future to complete before unmounting.
+      */
+    def withRenderedIntoBodyAsync[A](c: ReactElement)(f: ReactComponentM_[TopNode] => Future[A])(implicit ec: ExecutionContext): Future[A] =
+      _withRenderedIntoBodyAsync(ReactDOM.render(c, _))(_.getDOMNode(), f)
+
+
+    /** Renders a component into the document body via [[ReactDOM.render()]],
+      * and asynchronously waits for the Future to complete before unmounting.
+      */
+    def withRenderedIntoBodyAsync[P,S,B,N <: TopNode, A](c: ReactComponentU[P,S,B,N])(f: ReactComponentM[P,S,B,N] => Future[A])(implicit ec: ExecutionContext): Future[A] =
+      _withRenderedIntoBodyAsync(ReactDOM.render(c, _))(_.getDOMNode(), f)
+
     /**
       * Turn `&lt;div data-reactroot=""&gt;hello&lt/div&gt;`
       * into `&lt;div&gt;hello&lt/div&gt;`
@@ -134,6 +161,30 @@ package object test {
         ReactDOM unmountComponentAtNode n(a).parentNode
     } finally
       document.body.removeChild(parent)
+  }
+
+  private def _withRenderedIntoBodyAsync[A, B](render: Element => A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] = {
+    val parent = _renderIntoBodyContainer()
+
+    try {
+      val a = render(parent)
+      use(a).andThen {
+        case _ =>
+          ReactDOM unmountComponentAtNode n(a).parentNode
+          document.body.removeChild(parent)
+      }
+    } catch {
+      case e: Exception => {
+        document.body.removeChild(parent)
+        Future.failed(e)
+      }
+    }
+  }
+
+  private def _withRenderedIntoDocumentAsync[A, B](a: A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] = {
+    use(a).andThen {
+      case _ => ReactDOM unmountComponentAtNode n(a).parentNode
+    }
   }
 
   @inline implicit final class ReactTestExt_Mounted[N <: TopNode](private val c: CompScope.Mounted[N]) extends AnyVal {
