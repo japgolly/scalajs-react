@@ -2,7 +2,7 @@ package japgolly.scalajs.react.component
 
 import scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, ChildrenArg, CtorType, Key, PropsChildren, vdom, raw => Raw}
+import japgolly.scalajs.react.{Callback, ChildrenArg, CtorType, PropsChildren, vdom, raw => Raw}
 
 object JsFn extends JsBaseComponentTemplate[Raw.ReactFunctionalComponent] {
 
@@ -32,27 +32,16 @@ object JsFn extends JsBaseComponentTemplate[Raw.ReactFunctionalComponent] {
 
   def rootUnmounted[P <: js.Object](r: Raw.ReactComponentElement): RootUnmounted[P] =
     new RootUnmounted[P] {
-      override def root = this
       override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identity)
       override def mapMounted[M2](f: Mounted => M2) = mappedU(this)(identity, f)
 
-      override val raw = r
-
-      override val reactElement =
-        vdom.ReactElement(raw)
-
-      override def key: Option[Key] =
-        jsNullToOption(raw.key)
-
-      override def ref: Option[String] =
-        // orNullToOption(raw.ref)
-        None
-
-      override def props: P =
-        raw.props.asInstanceOf[P]
-
-      override def propsChildren: PropsChildren =
-        PropsChildren(raw.props.children)
+      override def root          = this
+      override val raw           = r
+      override val reactElement  = vdom.ReactElement(raw)
+      override def key           = jsNullToOption(raw.key)
+      override def ref           = None // orNullToOption(raw.ref)
+      override def props         = raw.props.asInstanceOf[P]
+      override def propsChildren = PropsChildren(raw.props.children)
 
       override def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted = {
         val result = Raw.ReactDOM.render(raw, container, callback.toJsFn)

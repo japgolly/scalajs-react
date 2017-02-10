@@ -57,27 +57,16 @@ object Scala {
       js.raw.backend
   }
 
-  // TODO so much copy-paste, maybe use type families again?
   def rootMounted[P, S, B](x: JsMounted[P, S, B]): RootMounted[Effect.Id, P, S, B] =
-    new RootMounted[Effect.Id, P, S, B] {
-
-      override def root = this
-
-      override val js = x
-
-      override implicit def F = Effect.idInstance
-
-      override def isMounted =
-        x.isMounted
-
-      override def props =
-        x.props.unbox
-
-      override def propsChildren =
-        x.propsChildren
-
-      override def state: S =
-        x.state.unbox
+    new Template.RootMounted[Effect.Id, P, S] with RootMounted[Effect.Id, P, S, B] {
+      override implicit def F    = Effect.idInstance
+      override def root          = this
+      override val js            = x
+      override def isMounted     = x.isMounted
+      override def props         = x.props.unbox
+      override def propsChildren = x.propsChildren
+      override def state         = x.state.unbox
+      override def getDOMNode    = x.getDOMNode
 
       override def setState(newState: S, callback: Callback = Callback.empty) =
         x.setState(Box(newState), callback)
@@ -85,60 +74,21 @@ object Scala {
       override def modState(mod: S => S, callback: Callback = Callback.empty) =
         x.modState(s => Box(mod(s.unbox)), callback)
 
-      override def getDOMNode =
-        x.getDOMNode
-
       override def forceUpdate(callback: Callback = Callback.empty) =
         x.forceUpdate(callback)
 
-      override def mapProps[P2](f: P => P2) =
-        mappedM(this)(f, Lens.id)
-
-      override def xmapState[S2](f: S => S2)(g: S2 => S) =
-        mappedM(this)(identity, Iso(f)(g).toLens)
-
-      override def zoomState[S2](get: S => S2)(set: S2 => S => S) =
-        mappedM(this)(identity, Lens(get)(set))
-
-      override def withEffect[F[+_]](implicit t: Effect.Trans[Effect.Id, F]) =
-        mappedM(this)(identity, Lens.id)
+      override type Mapped[F1[+ _], P1, S1] = BaseMounted[F1, P1, S1, B, P, S]
+      override def mapped[F[+ _], P1, S1](mp: P => P1, ls: Lens[S, S1])(implicit ft: Effect.Trans[Effect.Id, F]) =
+        mappedM(this)(mp, ls)
     }
 
-  // TODO so much copy-paste
   private def mappedM[F[+_], P2, S2, P1, S1, B, P0, S0]
-      (from: BaseMounted[Effect.Id, P1, S1, B, P0, S0])
-      (mp: P1 => P2, ls: Lens[S1, S2])
-      (implicit ft: Effect.Trans[Effect.Id, F])
-      : BaseMounted[F, P2, S2, B, P0, S0] =
-    new BaseMounted[F, P2, S2, B, P0, S0] {
-      override implicit def F    = ft.to
-      override def root          = from.root.withEffect[F]
-      override val js            = from.js
-      override def isMounted     = ft apply from.isMounted
-      override def getDOMNode    = ft apply from.getDOMNode
-      override def propsChildren = ft apply from.propsChildren
-      override def props         = ft apply mp(from.props)
-      override def state         = ft apply ls.get(from.state)
-
-      override def forceUpdate(callback: Callback = Callback.empty) =
-        ft apply from.forceUpdate(callback)
-
-      override def setState(s: State, callback: Callback = Callback.empty) =
-        ft apply from.modState(ls set s, callback)
-
-      override def modState(f: State => State, callback: Callback = Callback.empty) =
-        ft apply from.modState(ls mod f, callback)
-
-      override def mapProps[P3](f: P2 => P3) =
-        mappedM(from)(f compose mp, ls)
-
-      override def xmapState[S3](f: S2 => S3)(g: S3 => S2) =
-        mappedM(from)(mp, ls --> Iso(f)(g))
-
-      override def zoomState[S3](get: S2 => S3)(set: S3 => S2 => S2) =
-        mappedM(from)(mp, ls --> Lens(get)(set))
-
-      override def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]) =
-        mappedM(from)(mp, ls)(ft compose t)
+      (from: BaseMounted[Effect.Id, P1, S1, B, P0, S0])(mp: P1 => P2, ls: Lens[S1, S2])
+      (implicit ft: Effect.Trans[Effect.Id, F]): BaseMounted[F, P2, S2, B, P0, S0] =
+    new Template.MappedMounted[F, P2, S2, P1, S1, P0, S0](from)(mp, ls) with BaseMounted[F, P2, S2, B, P0, S0] {
+      override def root = from.root.withEffect[F]
+      override val js = from.js
+      override type Mapped[F3[+ _], P3, S3] = BaseMounted[F3, P3, S3, B, P0, S0]
+      override def mapped[F3[+ _], P3, S3](mp: P1 => P3, ls: Lens[S1, S3])(implicit ft: Effect.Trans[Effect.Id, F3]) = mappedM(from)(mp, ls)(ft)
     }
 }
