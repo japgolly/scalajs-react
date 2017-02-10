@@ -4,7 +4,7 @@ import scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, ChildrenArg, CtorType, Key, PropsChildren, vdom, raw => Raw}
 
-object JsFn extends TemplateForJsBaseComponent[Raw.ReactFunctionalComponent] {
+object JsFn extends JsBaseComponentTemplate[Raw.ReactFunctionalComponent] {
 
   type Component[P <: js.Object, CT[-p, +u] <: CtorType[p, u]] = RootComponent[P, CT, Unmounted[P]]
   type Unmounted[P <: js.Object]                               = RootUnmounted[P]
