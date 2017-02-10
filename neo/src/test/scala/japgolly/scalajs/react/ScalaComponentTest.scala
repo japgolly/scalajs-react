@@ -5,6 +5,7 @@ import utest._
 import scalaz.Equal
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.internal.JsUtil.inspectObject
+import japgolly.scalajs.react.test.InferenceUtil
 import japgolly.scalajs.react.test.TestUtil._
 import vdom.ImplicitsFromRaw._
 
@@ -22,13 +23,10 @@ object ScalaComponentPTest extends TestSuite {
   override def tests = TestSuite {
 
     'types {
-      def test[A, B](f: A => B) = ()
-      trait P
-      trait S
-      trait B
+      import InferenceUtil._
       import ScalaComponent._
-      'cu - test[Component[P, S, B, CtorType.Void], Unmounted[P, S, B]](_.ctor())
-      'um - test[Unmounted[P, S, B], Mounted[P, S, B]](_.renderIntoDOM(null))
+      'cu - test[Component[P, S, B, CtorType.Void]](_.ctor()).expect[Unmounted[P, S, B]]
+      'um - test[Unmounted[P, S, B]](_.renderIntoDOM(null)).expect[Mounted[P, S, B]]
     }
 
     'basic {
