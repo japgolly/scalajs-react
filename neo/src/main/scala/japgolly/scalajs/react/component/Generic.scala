@@ -6,8 +6,6 @@ import japgolly.scalajs.react.vdom
 import japgolly.scalajs.react.{raw => Raw}
 import japgolly.scalajs.react.{Callback, CtorType, Key, PropsChildren}
 
-// TODO Type variance later
-
 object Generic {
 
   type Component[P, CT[-p, +u] <: CtorType[p, u], U] = BaseComponent[P, CT, U, P, CT, U]

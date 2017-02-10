@@ -26,7 +26,6 @@ package object react extends ReactEventTypes {
   val ScalaComponent = component.Scala
   type ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = ScalaComponent.Component[P, S, B, CT]
   type BackendScope[P, S] = ScalaComponent.BackendScope[P, S]
-  // TODO Rename BackendScope?
 
   val ScalaFnComponent = component.ScalaFn
   type ScalaFnComponent [P, CT[-p, +u] <: CtorType[p, u]] = ScalaFnComponent.Component[P, CT]
