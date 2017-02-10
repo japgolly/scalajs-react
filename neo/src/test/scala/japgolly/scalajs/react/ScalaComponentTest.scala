@@ -23,6 +23,7 @@ object ScalaComponentPTest extends TestSuite {
 
     'basic {
       val unmounted = BasicComponent(BasicProps("Bob"))
+      val _: ScalaComponent.Unmounted[BasicProps, Unit, Unit] = unmounted
       assertEq(unmounted.props.name, "Bob")
       assertEq(unmounted.propsChildren.count, 0)
       assertEq(unmounted.propsChildren.isEmpty, true)
@@ -30,6 +31,7 @@ object ScalaComponentPTest extends TestSuite {
       assertEq(unmounted.ref, None)
       withBodyContainer { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
+        val _: ScalaComponent.Mounted[BasicProps, Unit, Unit] = mounted
         val n = mounted.getDOMNode
         assertOuterHTML(n, "<div>Hello Bob</div>")
         assertEq(mounted.isMounted, true)

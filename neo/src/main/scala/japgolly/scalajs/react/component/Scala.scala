@@ -1,24 +1,30 @@
 package japgolly.scalajs.react.component
 
-import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, CallbackTo, ChildrenArg, CtorType, PropsChildren, raw => Raw}
 import scala.scalajs.js
+import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.{Callback, CallbackTo, CtorType}
 
 object Scala {
 
-  type Component[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
-    Js.MappedComponent[Effect.Id, P, S, CT, Js.RawMounted with Vars[P, S, B], Box[P], Box[S], CT]
+  def build[P](name: String) =
+    new ScalaBuilder.Step1[P](name)
 
-  type Unmounted   [P, S, B] = Generic.Unmounted[P, Mounted[P, S, B]]
+  type Component[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
+    Js.BaseComponent[
+      P, CT, Unmounted[P, S, B],
+      Box[P], CT, JsUnmounted[P, S, B]]
+
+//  type Component[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
+//    Js.MappedComponent[Effect.Id, P, S, CT, Js.RawMounted with Vars[P, S, B], Box[P], Box[S], CT]
+
+  type Unmounted   [P, S, B] = Js.BaseUnmounted[P, Mounted[P, S, B], Box[P], JsMounted[P, S, B]]
   type Mounted     [P, S, B] = RootMounted[Effect.Id, P, S, B]
   type MountedCB   [P, S, B] = RootMounted[CallbackTo, P, S, B]
   type BackendScope[P, S]    = Generic.Mounted[CallbackTo, P, S]
 
-  type JsComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
-    Js.ComponentPlusFacade[Box[P], Box[S], CT, Vars[P, S, B]]
-
-  type JsMounted[P, S, B] =
-    Js.MountedPlusFacade[Box[P], Box[S], Vars[P, S, B]]
+  type JsComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = Js.ComponentPlusFacade[Box[P], Box[S], CT, Vars[P, S, B]]
+  type JsUnmounted[P, S, B]                               = Js.UnmountedPlusFacade[Box[P], Box[S],     Vars[P, S, B]]
+  type JsMounted  [P, S, B]                               = Js.MountedPlusFacade  [Box[P], Box[S],     Vars[P, S, B]]
 
   @js.native
   trait Vars[P, S, B] extends js.Object {
@@ -27,9 +33,8 @@ object Scala {
     var backend  : B
   }
 
-  def apply[P, S, B, CT[-p, +u] <: CtorType[p, u]](js: JsComponent[P, S, B, CT]): Component[P, S, B, CT] =
-    js.xmapProps(_.unbox)(Box(_))
-      .xmapState(_.unbox)(Box(_))
+//  private[this] def sanityCheckCU[P, S, B](c: Component[P, S, B, CtorType.Void]): Unmounted[P, S, B] = c.ctor()
+//  private[this] def sanityCheckUM[P, S, B](u: Unmounted[P, S, B]): Mounted[P, S, B] = u.renderIntoDOM(null)
 
   // ===================================================================================================================
 

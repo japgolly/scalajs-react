@@ -1,15 +1,16 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.component
 
 import scala.{Either => Or}
 import scalajs.js
+import japgolly.scalajs.react.{CallbackTo, ChildrenArg, CtorType, PropsChildren, raw, vdom}
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.macros.CompBuilderMacros
 import Lifecycle._
-import ScalaComponent._
+import Scala._
 
-object ScalaComponentB {
+object ScalaBuilder {
 
-  type InitStateFnU[P, S]    = Component.Unmounted[P, Any]
+  type InitStateFnU[P, S]    = Generic.BaseUnmounted[P, _, Box[P], _]
   type InitStateArg[P, S]    = (InitStateFnU[P, S] => S) Or js.Function0[Box[S]]
   type NewBackendFn[P, S, B] = BackendScope[P, S] => B
   type RenderFn    [P, S, B] = RenderScope[P, S, B] => vdom.ReactElement
@@ -270,16 +271,16 @@ object ScalaComponentB {
         initStateFn match {
           case Right(fn0) => fn0
           case Left(fn) => ((rc: raw.ReactComponentElement) => {
-            val js = JsComponent.BasicUnmounted[Box[P], Box[S]](rc)
-            Box(fn(js.mapProps(_.unbox)))
+            val js = Js.unmounted[Box[P], Box[S]](rc)
+            Box(fn(js.mapUnmountedProps(_.unbox)))
           }): js.ThisFunction0[raw.ReactComponentElement, Box[S]]
         }
 
       val setup: raw.ReactComponent => Unit =
         $ => {
-          val jMounted : JsMounted[P, S, B] = JsComponent.BasicMounted[Box[P], Box[S]]($).addRawType[Vars[P, S, B]]
-          val sMountedI: Mounted  [P, S, B] = new ScalaComponent.MountedF(jMounted)
-          val sMountedC: MountedCB[P, S, B] = new ScalaComponent.MountedF(jMounted)
+          val jMounted : JsMounted[P, S, B] = Js.mounted[Box[P], Box[S]]($).addFacade[Vars[P, S, B]]
+          val sMountedI: Mounted  [P, S, B] = Scala.rootMounted(jMounted)
+          val sMountedC: MountedCB[P, S, B] = sMountedI.withEffect
           val backend  : B                  = backendFn(sMountedC)
           jMounted.raw.mounted   = sMountedI
           jMounted.raw.mountedCB = sMountedC
@@ -338,10 +339,14 @@ object ScalaComponentB {
       spec
     }
 
-    def build(implicit ctorType: CtorType.Summoner[Box[P], C]): ScalaComponent[P, S, B, ctorType.CT] = {
+    def build(implicit ctorType: CtorType.Summoner[Box[P], C]): Scala.Component[P, S, B, ctorType.CT] = {
       val rc = raw.React.createClass(spec)
-      val jc = JsComponent[Box[P], C, Box[S]](rc)(ctorType).addRawType[Vars[P, S, B]]
-      new ScalaComponent(jc)(ctorType.pf)
+      Js.component[Box[P], C, Box[S]](rc)(ctorType)
+        .addFacade[Vars[P, S, B]]
+        .cmapCtorProps[P](Box(_))
+        .mapUnmounted(_
+          .mapUnmountedProps(_.unbox)
+          .mapMounted(Scala.rootMounted))
     }
   }
 }

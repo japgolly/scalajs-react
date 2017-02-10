@@ -1,12 +1,9 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.CtorType.Void
-import japgolly.scalajs.react.JsComponent.Basic
-
 import scalajs.js
 import utest._
-import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.internal.JsUtil.inspectObject
+import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import vdom.ImplicitsFromRaw._
 
@@ -21,7 +18,7 @@ object JsComponentNSTest extends  JsComponentTest {
 
     def tryResolve(name: String) : Boolean = {
       try {
-        JsComponent.byName[Null, ChildrenArg.None, Null](name).raw
+        JsComponent[Null, ChildrenArg.None, Null](name).raw
         true
       } catch {
         case ex: IllegalArgumentException => false
@@ -53,7 +50,7 @@ object JsComponentPTest extends JsComponentTest {
   def JsProps(name: String): JsProps =
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
-  val Component = JsComponent.byName[JsProps, ChildrenArg.None, Null]("ES3_P")
+  val Component = JsComponent[JsProps, ChildrenArg.None, Null]("ES3_P")
   compileError(""" Component() """)
 
   override def tests = TestSuite {
@@ -102,11 +99,11 @@ object JsComponentPTest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent.byName[JsProps, ChildrenArg.Varargs, Null]("ES3_P")
+      val C = JsComponent[JsProps, ChildrenArg.Varargs, Null]("ES3_P")
 
       'ctors {
         val p = JsProps("x")
-        def test(u: JsComponent.BasicUnmounted[JsProps, Null]) = ()
+        def test(u: JsComponent.Unmounted[JsProps, Null]) = ()
         compileError(""" test(C())         """)
         compileError(""" test(C()())       """)
         compileError(""" test(C()(H1))     """)
@@ -154,7 +151,7 @@ object JsComponentSTest extends JsComponentTest {
     def inc(): Unit = js.native
   }
 
-  val Component = JsComponent.byName[Null, ChildrenArg.None, JsState]("ES3_S").addRawType[JsMethods]
+  val Component = JsComponent[Null, ChildrenArg.None, JsState]("ES3_S").addFacade[JsMethods]
 
   override def tests = TestSuite {
     def JsState1(num1: Int): JsState =
@@ -210,10 +207,10 @@ object JsComponentSTest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent.byName[Null, ChildrenArg.Varargs, JsState]("ES3_S").addRawType[JsMethods]
+      val C = JsComponent[Null, ChildrenArg.Varargs, JsState]("ES3_S").addFacade[JsMethods]
 
       'ctors {
-        def test(u: JsComponent.UnmountedWithRawType[Null, JsState, JsMethods]) = ()
+        def test(u: JsComponent.UnmountedPlusFacade[Null, JsState, JsMethods]) = ()
         compileError(""" test(C()())           """)
         compileError(""" test(C()(H1))         """)
         compileError(""" test(C()(H1, H1))     """)

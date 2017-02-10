@@ -1,10 +1,10 @@
 package japgolly.scalajs.react.component
 
+import org.scalajs.dom
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom
 import japgolly.scalajs.react.{raw => Raw}
 import japgolly.scalajs.react.{Callback, CtorType, Key, PropsChildren}
-import org.scalajs.dom
 
 // TODO Type variance later
 
@@ -13,6 +13,11 @@ object Generic {
   type Component[P, CT[-p, +u] <: CtorType[p, u], U] = BaseComponent[P, CT, U, P, CT, U]
   type Unmounted[P, M]                               = BaseUnmounted[P, M, P, M]
   type Mounted[F[+_], P, S]                          = BaseMounted[F, P, S, P, S]
+
+  @inline implicit def componentCtorOps[
+      P1, CT1[-p, +u] <: CtorType[p, u], U1,
+      P0, CT0[-p, +u] <: CtorType[p, u], U0](base: BaseComponent[P1, CT1, U1, P0, CT0, U0]): CT1[P1, U1] =
+    base.ctor
 
   trait BaseComponent[
       P1, CT1[-p, +u] <: CtorType[p, u], U1,

@@ -1,10 +1,12 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.component
 
+import org.scalajs.dom
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal._
 import Lifecycle._
 import ScalaComponent._
-import org.scalajs.dom
 
+// TODO Rename and maybe even hide Lifecycle. It's only applicable to ScalaBuilder.
 final case class Lifecycle[P, S, B](
   componentDidMount        : Option[ComponentDidMountFn        [P, S, B]],
   componentDidUpdate       : Option[ComponentDidUpdateFn       [P, S, B]],
@@ -220,4 +222,3 @@ object Lifecycle {
   }
 
 }
-

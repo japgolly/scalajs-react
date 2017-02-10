@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.component
 
+import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{ChildrenArg, CtorType, PropsChildren, raw}
-import scala.scalajs.js
 
 object ScalaFn {
 
@@ -30,4 +30,13 @@ object ScalaFn {
   def children(render: PropsChildren => raw.ReactElement): Component[Unit, CtorType.Children] =
     create(b => render(PropsChildren(b.children)))
 
+// TODO TEST!
+//  val cp = props[Int](???)
+//  cp(23)
+//
+//  val cpc = propsAndChildren[Int](???)
+//  cpc(23)()
+//
+//  val cc = children(???)
+//  cc()
 }

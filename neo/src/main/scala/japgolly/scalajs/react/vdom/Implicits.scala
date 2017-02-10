@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.{Component, PropsChildren, raw}
+import japgolly.scalajs.react.{PropsChildren, raw}
+import japgolly.scalajs.react.component.Generic
 import japgolly.scalajs.react.internal.OptionLike
 import scala.scalajs.js
 import Exports.ReactTag
@@ -89,7 +90,7 @@ trait ImplicitsForReactElement {
   @inline implicit def reactElementFromTag[A](a: A)(implicit f: A => ReactTag): ReactElement =
     f(a).render
 
-  @inline implicit def reactElementFromCompUnmounted(u: Component.Unmounted[Any, Any]): ReactElement =
+  @inline implicit def reactElementFromCompUnmounted(u: Generic.BaseUnmounted[_, _, _, _]): ReactElement =
     u.reactElement
 }
 
