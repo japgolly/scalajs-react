@@ -165,7 +165,6 @@ package object test {
 
   private def _withRenderedIntoBodyAsync[A, B](render: Element => A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] = {
     val parent = _renderIntoBodyContainer()
-
     try {
       val a = render(parent)
       use(a).andThen {
@@ -174,10 +173,9 @@ package object test {
           document.body.removeChild(parent)
       }
     } catch {
-      case e: Exception => {
+      case e: Exception =>
         document.body.removeChild(parent)
         Future.failed(e)
-      }
     }
   }
 
