@@ -91,7 +91,8 @@ Contributions welcome.
 
 - Clean up new types
   - *Arg, Arg*
-  - ScalaComponent{No,With}Children ?
+
+- Easy way to change MountedCB back into Mounted. Same for State/Prop traits if they get added back.
 
 - Integration with all the `.extra` awesomeness. (Because most of it has been tremendously useful in real-world code.)
 
