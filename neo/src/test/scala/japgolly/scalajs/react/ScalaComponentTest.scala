@@ -21,9 +21,18 @@ object ScalaComponentPTest extends TestSuite {
 
   override def tests = TestSuite {
 
+    'types {
+      def test[A, B](f: A => B) = ()
+      trait P
+      trait S
+      trait B
+      import ScalaComponent._
+      'cu - test[Component[P, S, B, CtorType.Void], Unmounted[P, S, B]](_.ctor())
+      'um - test[Unmounted[P, S, B], Mounted[P, S, B]](_.renderIntoDOM(null))
+    }
+
     'basic {
       val unmounted = BasicComponent(BasicProps("Bob"))
-      val _: ScalaComponent.Unmounted[BasicProps, Unit, Unit] = unmounted
       assertEq(unmounted.props.name, "Bob")
       assertEq(unmounted.propsChildren.count, 0)
       assertEq(unmounted.propsChildren.isEmpty, true)
@@ -31,7 +40,6 @@ object ScalaComponentPTest extends TestSuite {
       assertEq(unmounted.ref, None)
       withBodyContainer { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
-        val _: ScalaComponent.Mounted[BasicProps, Unit, Unit] = mounted
         val n = mounted.getDOMNode
         assertOuterHTML(n, "<div>Hello Bob</div>")
         assertEq(mounted.isMounted, true)
