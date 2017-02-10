@@ -49,6 +49,7 @@ object Lens {
   @inline def apply[A, B](get: A => B)(set: B => A => A): Lens[A, B] =
     new Lens(get, set)
 
+  // TODO reuse
   def id[A]: Lens[A, A] =
     apply[A, A](a => a)(a => _ => a)
 }

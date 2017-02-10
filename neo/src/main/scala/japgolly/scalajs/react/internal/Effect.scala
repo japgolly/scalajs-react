@@ -32,7 +32,7 @@ object Effect {
   // ===================================================================================================================
 
   class Trans[F[+_], G[+_]](final val from: Effect[F], final val to: Effect[G]) {
-    def apply[A](f: F[A]): G[A] = {
+    def apply[A](f: => F[A]): G[A] = {
       val fn = from.extract(f)
       to.point(fn())
     }
@@ -46,10 +46,10 @@ object Effect {
 
   object Trans {
     final class Id[F[+_]](F: Effect[F]) extends Trans[F, F](F, F) {
-      override def apply[A](f: F[A]) = f
+      override def apply[A](f: => F[A]): F[A] = f
     }
 
-    @inline def id[F[+_]](F: Effect[F]): Id[F] =
+    def id[F[+_]](implicit F: Effect[F]): Id[F] =
       new Id(F)
 
     def apply[F[+_], G[+_]](implicit F: Effect[F], G: Effect[G], ev: Trans[F, F] =:= Trans[F, G] = null): F Trans G =
@@ -58,6 +58,8 @@ object Effect {
       else
         ev(id(F))
 
+    implicit val endoId       = Trans.id[Effect.Id]
+    implicit val endoCallback = Trans.id[CallbackTo]
     implicit val idToCallback = Trans[Effect.Id, CallbackTo]
     implicit val callbackToId = Trans[CallbackTo, Effect.Id]
   }

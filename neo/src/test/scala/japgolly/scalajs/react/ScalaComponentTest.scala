@@ -21,6 +21,16 @@ object ScalaComponentPTest extends TestSuite {
 
   override def tests = TestSuite {
 
+    'types {
+      def test[A, B](f: A => B) = ()
+      trait P
+      trait S
+      trait B
+      import ScalaComponent._
+      'cu - test[Component[P, S, B, CtorType.Void], Unmounted[P, S, B]](_.ctor())
+      'um - test[Unmounted[P, S, B], Mounted[P, S, B]](_.renderIntoDOM(null))
+    }
+
     'basic {
       val unmounted = BasicComponent(BasicProps("Bob"))
       assertEq(unmounted.props.name, "Bob")
@@ -44,8 +54,18 @@ object ScalaComponentPTest extends TestSuite {
     'ctorReuse -
       assert(BasicComponent(BasicProps("a")) ne BasicComponent(BasicProps("b")))
 
-    'lifecycle {
+    'ctorMap - {
+      val c2 = BasicComponent.mapCtorType(_ withProps BasicProps("hello!"))
+      val unmounted = c2()
+      assertEq(unmounted.props.name, "hello!")
+      withBodyContainer { mountNode =>
+        val mounted = unmounted.renderIntoDOM(mountNode)
+        val n = mounted.getDOMNode
+        assertOuterHTML(n, "<div>Hello hello!</div>")
+      }
+    }
 
+    'lifecycle {
       case class Props(a: Int, b: Int, c: Int) {
         def -(x: Props) = Props(
           this.a - x.a,

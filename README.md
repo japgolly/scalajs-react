@@ -71,11 +71,15 @@ Contributions welcome.
   - All vdom composes the same way, call `.apply` on what you have and specify more. This was usually the case but there were a few corner types that did it differently.
   - Easier and clearer access to SVG VDOM.
 
+- Component (and constituent) mapping.
+  - Can map props & state (at top-level, and in Unmounted & Mounted too).
+  - Can map CtorType.
+  - Can map next stage (i.e. Unmounted and Mounted).
+  - Can change effect type in Mounted.
+
 # In Progress
 
 - Static and dynamic props (for Scala components).
-
-- Generic component-morphing. (P, CT, U…)
 
 - Refs.
   - VDOM
@@ -87,7 +91,8 @@ Contributions welcome.
 
 - Clean up new types
   - *Arg, Arg*
-  - ScalaComponent{No,With}Children ?
+
+- Easy way to change MountedCB back into Mounted. Same for State/Prop traits if they get added back.
 
 - Integration with all the `.extra` awesomeness. (Because most of it has been tremendously useful in real-world code.)
 
