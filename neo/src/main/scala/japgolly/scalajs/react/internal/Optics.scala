@@ -15,13 +15,18 @@ final class Iso[A, B](val get: A => B, val set: B => A) {
 }
 
 object Iso {
-  @inline def apply[A, B](get: A => B)(set: B => A): Iso[A, B] =
+  def apply[A, B](get: A => B)(set: B => A): Iso[A, B] =
     new Iso(get, set)
 
-  def id[A]: Iso[A, A] = {
+  private def _id[A]: Iso[A, A] = {
     val i: A => A = a => a
     apply(i)(i)
   }
+
+  private val idInstance = _id[Any]
+
+  def id[A]: Iso[A, A] =
+    idInstance.asInstanceOf[Iso[A, A]]
 }
 
 // =====================================================================================================================
@@ -43,13 +48,14 @@ final class Lens[A, B](val get: A => B, val set: B => A => A) {
 }
 
 object Lens {
-//  @inline def apply[A, B](get: A => B)(set: (A, B) => A): Lens[A, B] =
-//    new Lens(get, set)
-
-  @inline def apply[A, B](get: A => B)(set: B => A => A): Lens[A, B] =
+  def apply[A, B](get: A => B)(set: B => A => A): Lens[A, B] =
     new Lens(get, set)
 
-  // TODO reuse
-  def id[A]: Lens[A, A] =
+  private def _id[A]: Lens[A, A] =
     apply[A, A](a => a)(a => _ => a)
+
+  private val idInstance = _id[Any]
+
+  def id[A]: Lens[A, A] =
+    idInstance.asInstanceOf[Lens[A, A]]
 }
