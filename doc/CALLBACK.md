@@ -296,3 +296,14 @@ Common Mistakes
   val grantPrivateAccess: CallbackTo[Boolean] =
     getToken.map(_ != null)
   ```
+
+* **() => Callback**
+
+  Callbacks are already repeatable, and do nothing when you create one.
+  There's no need or benefit to adding `() =>`.
+
+  Just pass around `Callback` instances instead. If React never chooses to execute them, they'll never be executed.
+  
+  But look, if for some reason you just really, really want to have a side-effect in the *construction* of the callback,
+  then wrap the construction in `Callback.byName` and continue to pass around `Callback` instead of `() => Callback`.
+
