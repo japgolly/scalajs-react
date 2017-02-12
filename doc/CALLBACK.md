@@ -1,69 +1,109 @@
 Callback
 ========
 
+The `Callback` class encapsulates logic and side-effects that are meant to be *executable by React*, when/if React chooses to execute it. Examples are React responding to the user clicking a button, or React unmounting a component.
+
+**WARNING**: If you're new to scalajs-react and typed effects (or just functional programming in general), then it's important you read this because if you incorrectly mix this with imperative-style code that performs side-effects, you'll likely have runtime bugs where data goes stale and/or changes go undetected.
+
+#### Contents
+- [Introduction](#introduction)
+- [Utilities once you have a `Callback`](#utilities-once-you-have-a-callback)
+- [Composition](#composition)
+- [Monadic Learning Curve](#monadic-learning-curve)
+- [Manual Execution](#manual-execution)
+
+Introduction
+============
+
 A callback is a procedure that is:
-* meant to be run by an event handler or React lifecycle method (as opposed to on the main thread or in a `render` method).
-* repeatable. It can be run more than once.
-* Is pure (does nothing) in its construction. If you create a `Callback` but never run it, no action or effects should occur.
+* Executable by React when/if it chooses (usually an event handler or React lifecycle method.
+* Executed asychronously by React.
+* Repeatable. It can be run more than once.
+* Pure (does nothing) when you create an instance. If you create a `Callback` but never run it, no action or effects should occur.
 
 Callbacks are represented by:
 * `Callback` which doesn't return a result.
 * `CallbackTo[A]` which returns an `A`.
 
+Intuitively, you can think of a `CallbackTo[A]` as `() => A`, and a `Callback` as a `() => Unit`.
+
 Actually `Callback` is `CallbackTo[Unit]` with a different companion object, full of different goodies that all return `Unit`.
 
-You can create callbacks in a number of ways:
 
-* By wrapping your code:
+Creation
+========
 
-  ```scala
-  // This is Callback. It is also a CallbackTo[Unit].
-  Callback{ println("Hello! I'll be executed later.") }
+There are a number of ways in which to create a callback.
 
-  // This is a CallbackTo[Int].
-  CallbackTo(123)
-  ```
+The simplest is just to surround all of your code in `Callback{ ... }` or  `CallbackTo{ ... }`.
+Example:
+```scala
+// This is Callback. It is also a CallbackTo[Unit].
+val sayHello = Callback {
+  println("Hello, I'll be executed asynchronously.")
+  println("Bye!")
+}
+```
 
-* When your component modifies its state via `.setState` or `.modState`, you are provided a `Callback` for the operation.
+Any impure logic/effects (such as accessing DOM state, AAJX, or global variables), *must be inside* the Callback.
+Example:
+```scala
+object Auth {
+  private var _isUserLoggedIn = false
 
-  ```scala
-  componentScope.modState(_.copy(name = newName)) // returns a Callback
-  ```
+  val isUserLoggedIn: CallbackTo[Boolean] =
+    CallbackTo(_isUserLoggedIn)
 
-* Using one of the `Callback` object convenience methods
+  // Callback = CallbackTo[Unit] = no result
+  val login: Callback =
+    Callback(_isUserLoggedIn = true)
+}
+```
 
-  ```scala
-  // Convenience for calling `dom.console.log`.
-  Callback.log("Hello Console reader.")
+Another way to create a `Callback` is by calling `.setState` or `.modState` on a component.
+The result of these methods is already a `Callback` because a component's state is only changed when React responds to some kind of
+event; it's an error to sychronously update the state in a component's `render` method, for example.
+```scala
+myComponent.setState(Person(1001, "Bob")) // returns a Callback
+```
 
-  // Provides both compile-time and runtime warnings that a callback isn't implemented yet.
-  Callback.TODO("AJAX not implemented yet")
+There are also convenience methods in the `Callback` object:
+```scala
+// Convenience for calling `dom.console.log`.
+Callback.log("Hello Console reader.")
 
-  // Return a pure value without doing anything
-  CallbackTo.pure(0)
-  ```
+// Provides both compile-time and runtime warnings that a callback isn't implemented yet.
+Callback.TODO("AJAX not implemented yet")
 
-`Callback` also has all kinds of useful methods and combinators. Examples:
-* Join callbacks together with many methods like `map`, `flatMap`, `tap`, `flatTap`, and all the squigglies that
-  you may be used to in Haskell and inspired libraries like `*>`, `<*`, `>>`, `<<`, `>>=`, etc.
+// Return a pure value without doing anything
+CallbackTo.pure(0)
+```
+
+Utilities once you have a `Callback`
+====================================
+
+`Callback` instances come with a bunch of useful utility methods:
 * `.attempt` to catch any error in the callback and handle it.
 * `.async`/`.delay(n)` to run asynchronously and return a `Future`.
 * `.logResult` to print the callback result before returning it.
 * `.logDuration` to measure and log how long the callback takes.
+* `.map` (as you would expect) to transform the result.
+* `.when`/`.unless` to add a condition so that sometimes the callback will be ignored. Like an `if` statement.
+* More; see: [Callback.scala](../core/src/main/scala/japgolly/scalajs/react/Callback.scala).
 
-There are other useful methods not listed here.
-<br>Have a brief look through the source:
-[Callback.scala](../core/src/main/scala/japgolly/scalajs/react/Callback.scala).
 
-Once you have a `Callback` you can run it manually if you need, by calling `.runNow()`.
-It isn't necessary and you shouldn't do it because scalajs-react handles it for you to ensure things run at the right time
-on the right threads, but if you ever want to, you can.
+Composition
+===========
 
-#### Fusion via `>>`
+When you want to compose multiple `Callback` instances, there are many ways depending on what specifically you want to do.
+* *(Most-common)* `.flatMap` and/or for-comprehensions. Same as using Scala's `Future`.
+* *(Most-common)* `>>`. This operator composes callbacks sequentially. i.e. `a >> b >> c` will create a new callback which will execute `a` first, then `b` second, and finally `c` third.
+* If you want to compose more than two callbacks, or don't know how many you'll have at runtime, there is `Callback.sequence` and `Callback.traverse`.
+* Monadic and applicative ops that'd you'd expect coming from languages like Haskell are there (`*>`, `<*`, `>>`, `<<`, `>>=`, etc). They're baked in rather than typeclass-provided.
 
 The `>>` operator deserves a special mention as it's commonly useful.
 It's used to fuse to callbacks together sequentially.
-It's like a pure version of `;` which is how you sequence statements imperatively.
+It's like a pure version of `;` which is how you sequence statements imperatively (i.e. `doThis(); doThat()` becomes `doThis >> doThat`).
 
 ```scala
 def greet: Callback =
@@ -86,6 +126,15 @@ def greet: Callback = {
   val hello = Callback(println("Hello."))
   val bye   = Callback(println("Goodbye."))
   hello.flatMap(_ => bye)
+}
+
+// and again, equivalent to this ↓
+
+def greet: Callback =
+  for {
+    _ <- Callback(println("Hello."))
+    _ <- Callback(println("Goodbye."))
+  } yield ()
 }
 ```
 
@@ -170,3 +219,20 @@ Notice that we change `speak()` into `speak` as it's now pure.
 It's actually recommended that you *not* take this approach and instead, use proper operators to combine callbacks as the compiler will be able to offer help and catch problems.
 
 
+Manual Execution
+================
+
+As is stressed above, `Callback`s are meant to be executed by React at a time and frequency of its choosing.
+
+There are scenarios in which you may want to execute a callback manually:
+* Working with an external service.
+  * In an AJAX callback.
+  * In a websocket callback.
+* In a unit test.
+
+There are two ways to go about this:
+
+1. Execute the `Callback` yourself by calling `.runNow()`.
+2. Ask `scalajs-react` for an interface that performs the side-effects directly instead of returning `Callback`s. See https://japgolly.github.io/scalajs-react/#examples/websockets for a demo.
+
+Reminder: You should never do this in a React context.
