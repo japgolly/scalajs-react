@@ -26,11 +26,14 @@ object CtorType {
   final case class PropsAndChildren[-P, +U](ctorFn: (ArgKey, ArgRef, P, ArgChildren) => U) extends CtorType[P, U] {
     override def applyGeneric(p: P, k: ArgKey = js.undefined, r: ArgRef = js.undefined)(c: ArgChild*): U = ctorFn(k, r, p, c)
 
-    @inline def apply(props: P)(children: ArgChild*): U =
+    def apply(props: P)(children: ArgChild*): U =
       set()(props)(children: _*)
 
     def set(key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(props: P)(children: ArgChild*): U =
       ctorFn(key, ref, props, children)
+
+    def cmapProps[P2](f: P2 => P): PropsAndChildren[P2, U] =
+      copy((k, r, p2, c) => ctorFn(k, r, f(p2), c))
 
     def withChildren(c: ArgChild*): Props[P, U] =
       Props[P, U](ctorFn(_, _, _, c))
@@ -42,11 +45,14 @@ object CtorType {
   final case class Props[-P, +U](ctorFn: (ArgKey, ArgRef, P) => U) extends CtorType[P, U] {
     override def applyGeneric(p: P, k: ArgKey = js.undefined, r: ArgRef = js.undefined)(c: ArgChild*): U = ctorFn(k, r, p)
 
-    @inline def apply(props: P): U =
+    def apply(props: P): U =
       set()(props)
 
     def set(key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(props: P): U =
       ctorFn(key, ref, props)
+
+    def cmapProps[P2](f: P2 => P): Props[P2, U] =
+      copy((k, r, p2) => ctorFn(k, r, f(p2)))
 
     def withProps(p: P): Void[P, U] =
       Void[P, U](ctorFn(_, _, p), apply(p))
@@ -55,7 +61,7 @@ object CtorType {
   final case class Children[-P, +U](ctorFn: (ArgKey, ArgRef, ArgChildren) => U) extends CtorType[P, U] {
     override def applyGeneric(p: P, k: ArgKey = js.undefined, r: ArgRef = js.undefined)(c: ArgChild*): U = ctorFn(k, r, c)
 
-    @inline def apply(children: ArgChild*): U =
+    def apply(children: ArgChild*): U =
       set()(children: _*)
 
     def set(key: ArgKey = js.undefined, ref: ArgRef = js.undefined)(children: ArgChild*): U =
