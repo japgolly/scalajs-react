@@ -79,8 +79,6 @@ Contributions welcome.
 
 # In Progress
 
-- Static and dynamic props (for Scala components).
-
 - Refs.
   - VDOM
   - Functional components don't allow refs. Current `CtorType` doesn't support this.
@@ -90,17 +88,23 @@ Contributions welcome.
 # Pending
 
 - Clean up new types
-  - *Arg, Arg*
+  - `*Arg`, `Arg*`
 
 - Easy way to change MountedCB back into Mounted. Same for State/Prop traits if they get added back.
 
-- Integration with all the `.extra` awesomeness. (Because most of it has been tremendously useful in real-world code.)
-
-- Simplify `Scalaz` and `Monocle` modules.
+- Revise & integrate the `extra` module.
+- Revise & integrate the `test` module.
+- Revise & integrate the Scalaz module.
+- Revise & integrate the Monocle module.
 
 # Maybe
 
+- Static and dynamic props (for Scala components).
+  Probably not as a normal Scala function is all that's really needed.
+  There's no big need to avoid creating a new component per staic data.
+
 - Maybe a new means of declaring Scala mixins.
+
 - Component DOM/`getDOMNode` types. Currently none.
   - Having `N <: TopNode` all over the place was annoying.
   - Could add manually like before.
