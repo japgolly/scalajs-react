@@ -11,6 +11,7 @@ The `Callback` class encapsulates logic and side-effects that are meant to be *e
 - [Composition](#composition)
 - [Monadic Learning Curve](#monadic-learning-curve)
 - [Manual Execution](#manual-execution)
+- [Common Mistakes](#common-mistakes)
 
 Introduction
 ============
@@ -236,3 +237,62 @@ There are two ways to go about this:
 2. Ask `scalajs-react` for an interface that performs the side-effects directly instead of returning `Callback`s. See https://japgolly.github.io/scalajs-react/#examples/websockets for a demo.
 
 Reminder: You should never do this in a React context.
+
+
+Common Mistakes
+===============
+
+* **Executing instead of composing.**
+
+  Callbacks must do nothing when you first create them; React might never even call them.
+  If you call `.runNow()` when you're creating a `Callback` that's a bug because you're forcing a one-time execution during construction.
+
+  If fact, even the `{` in `def increment(): Callback = {` is a code-smell. Either use `(` or nothing at all.
+
+  BROKEN:
+  ```scala
+  def increment(): Callback = {
+    $.modState(_ + 1).runNow()
+    Callback.log("Incremented count by 1")
+  }
+  ```
+  
+  FIXED:
+  ```scala
+  val increment: Callback =
+    $.modState(_ + 1) >>
+    Callback.log("Incremented count by 1")
+  ```
+
+* **Side-effects (especially accessing mutable state) during construction**
+
+  Callbacks must be repeatable.
+  If you perform a side-effect during construction then it happens exactly once (instead of repeatedly) and at the wrong time (construction instead of callback execution).
+  If during construction, you read mutable state like a global variable then it is read exactly once and at the wrong time too, which will give the impression at runtime that the state is never updated.
+
+  Make sure anything impure is *inside* the callback.
+
+  BROKEN:
+  ```scala
+  def grantPrivateAccess = {
+    val rule: js.Any = global.window.localStorage.getItem("token")
+    CallbackTo(rule != null)
+  }
+  ```
+  
+  FIXED:
+  ```scala
+  val grantPrivateAccess = CallbackTo {
+    val rule: js.Any = global.window.localStorage.getItem("token")
+    rule != null
+  }
+  ```
+
+  Even better is to isolate the impurity and make it DRY.
+  ```scala
+  val getToken: CallbackTo[js.Any] =
+    CallbackTo(global.window.localStorage.getItem("token"))
+
+  val grantPrivateAccess: CallbackTo[Boolean] =
+    getToken.map(_ != null)
+  ```
