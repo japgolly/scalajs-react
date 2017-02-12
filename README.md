@@ -17,9 +17,10 @@ Includes a router, testing utils, performance utils, more.
 ### Also it will largely be backward-compatible so don't be afraid to get started with the latest release if you're a new user.
 <br>
 
-##### Index
+##### Contents
 
 - [Usage (+ Setup)](doc/USAGE.md).
+  - [The `Callback` class](doc/CALLBACK.md).
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/).
 - [Type Summary](doc/TYPES.md).
 - [Functional Programming](doc/FP.md).
