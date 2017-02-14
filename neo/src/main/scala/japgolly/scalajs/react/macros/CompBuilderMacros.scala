@@ -9,7 +9,17 @@ final class CompBuilderMacros (val c: Context) extends ReactMacroUtils {
   private def createBackend[B: c.WeakTypeTag] = {
     val B = weakTypeOf[B]
     val backend = replaceMacroCallWith("backend")
-    q"$backend[$B](x => new $B(x))"
+    val fn = {
+      var args = Vector.empty[Tree]
+      val ctor = primaryConstructorParams(B)
+      ctor.size match {
+        case 0 => ()
+        case 1 => args :+= q"x"
+        case n => fail(s"Constructor of $B has $n parameters: $ctor.")
+      }
+      q"new $B(..$args)"
+    }
+    q"$backend[$B](x => $fn)"
   }
 
   def backendAndRender[P: c.WeakTypeTag, S: c.WeakTypeTag, B: c.WeakTypeTag]: c.Tree =
