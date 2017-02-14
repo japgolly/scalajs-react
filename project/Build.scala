@@ -99,9 +99,10 @@ object ScalajsReact {
   def utestSettings: PE =
     _.configure(useReactJs("test"), setupJsEnv)
       .settings(
-        libraryDependencies += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
-        testFrameworks      += new TestFramework("utest.runner.Framework"),
-        requiresDOM         := true)
+        scalacOptions in Test += "-language:reflectiveCalls",
+        libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
+        testFrameworks        += new TestFramework("utest.runner.Framework"),
+        requiresDOM           := true)
 
   def useReactJs(scope: String = "compile"): PE =
     _.settings(
@@ -152,10 +153,10 @@ object ScalajsReact {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(neo, core, test, scalaz72, monocle, extra, ghpagesMacros, ghpages)
+    // .aggregate(core, test, scalaz72, monocle, extra, ghpagesMacros, ghpages)
+    .aggregate(core)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
-      "n"   -> "project neo",
       "L"   -> "root/publishLocal",
       "C"   -> "root/clean",
       "T"   -> ";root/clean;root/test",
@@ -168,83 +169,69 @@ object ScalajsReact {
       "ctc" -> ";clean;test:compile",
       "ct"  -> ";clean;test"))
 
-
-
-
-  lazy val neo = project
-    .configure(commonSettings, definesMacros, utestSettings, InBrowserTesting.js)
-    .settings(
-      name := "neo",
-      libraryDependencies += "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
-      libraryDependencies += "org.scalaz" %%% "scalaz-core" % Ver.Scalaz72 % "test",
-      jsDependencies += (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
-      jsDependencies += (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test,
-      scalacOptions in Test += "-language:reflectiveCalls"
-    )
-
-
-
-
   // ==============================================================================================
   lazy val core = project
-    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
+    .configure(commonSettings, publicationSettings, definesMacros, utestSettings, InBrowserTesting.js)
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom))
-
-  lazy val extra = project
-    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
-    .dependsOn(core)
-    .settings(name := "extra")
-
-  lazy val test = project
-    .configure(commonSettings, publicationSettings, utestSettings, InBrowserTesting.js)
-    .dependsOn(core, extra, monocle)
-    .settings(
-      name := "test",
-      libraryDependencies ++= Seq(
-        "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % "test",
-        "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % "test",
-        "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % "test",
-        monocleLib("macro") % "test"),
+        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
+        "org.scalaz"   %%% "scalaz-core" % Ver.Scalaz72 % "test"),
       jsDependencies ++= Seq(
-        (ProvidedJS / "sampleReactComponent.js" dependsOn "react-dom.js") % Test, // for JS Component Type Test.
-        "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle"),
-      addCompilerPlugin(macroParadisePlugin),
-      scalacOptions in Test += "-language:reflectiveCalls")
+        (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
+        (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test))
+
+//  lazy val extra = project
+//    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
+//    .dependsOn(core)
+//    .settings(name := "extra")
+//
+//  lazy val test = project
+//    .configure(commonSettings, publicationSettings, utestSettings, InBrowserTesting.js)
+//    .dependsOn(core, extra, monocle)
+//    .settings(
+//      name := "test",
+//      libraryDependencies ++= Seq(
+//        "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % "test",
+//        "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % "test",
+//        "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % "test",
+//        monocleLib("macro") % "test"),
+//      jsDependencies ++= Seq(
+//        (ProvidedJS / "sampleReactComponent.js" dependsOn "react-dom.js") % Test, // for JS Component Type Test.
+//        "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle"),
+//      addCompilerPlugin(macroParadisePlugin))
 
   // ==============================================================================================
-  def scalazModule(name: String, version: String) = {
-    val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")
-    Project(shortName, file(name))
-      .configure(commonSettings, publicationSettings, extModuleName(shortName), hasNoTests)
-      .dependsOn(core, extra)
-      .settings(
-        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version)
-  }
-
-  lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
-
-  // ==============================================================================================
-  lazy val monocle = project
-    .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
-    .dependsOn(core, extra, scalaz72)
-    .settings(libraryDependencies += monocleLib("core"))
-
-  def monocleLib(name: String) =
-    "com.github.julien-truffaut" %%%! s"monocle-$name" % Ver.Monocle
+//  def scalazModule(name: String, version: String) = {
+//    val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")
+//    Project(shortName, file(name))
+//      .configure(commonSettings, publicationSettings, extModuleName(shortName), hasNoTests)
+//      .dependsOn(core, extra)
+//      .settings(
+//        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version)
+//  }
+//
+//  lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
   // ==============================================================================================
-  lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
-    .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
+//  lazy val monocle = project
+//    .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
+//    .dependsOn(core, extra, scalaz72)
+//    .settings(libraryDependencies += monocleLib("core"))
+//
+//  def monocleLib(name: String) =
+//    "com.github.julien-truffaut" %%%! s"monocle-$name" % Ver.Monocle
 
-  lazy val ghpages = Project("gh-pages", file("gh-pages"))
-    .dependsOn(core, extra, monocle, ghpagesMacros)
-    .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
-    .settings(
-      libraryDependencies += monocleLib("macro"),
-      addCompilerPlugin(macroParadisePlugin),
-      emitSourceMaps := false,
-      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
+  // ==============================================================================================
+//  lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
+//    .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
+//
+//  lazy val ghpages = Project("gh-pages", file("gh-pages"))
+//    .dependsOn(core, extra, monocle, ghpagesMacros)
+//    .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
+//    .settings(
+//      libraryDependencies += monocleLib("macro"),
+//      addCompilerPlugin(macroParadisePlugin),
+//      emitSourceMaps := false,
+//      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
 }

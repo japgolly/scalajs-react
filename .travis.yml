@@ -21,13 +21,10 @@ env:
     JSENV=phantom
 
 script:
-  # - sbt ++$TRAVIS_SCALA_VERSION test/test:fastOptJS test/test:fullOptJS
-  # - sbt ++$TRAVIS_SCALA_VERSION 'set parallelExecution in ThisBuild := false' test
-  # - sbt ++$TRAVIS_SCALA_VERSION 'set parallelExecution in ThisBuild := false' 'set scalaJSStage in ThisBuild := FullOptStage' test
+  - sbt ++$TRAVIS_SCALA_VERSION test:fastOptJS test:fullOptJS
+  - sbt ++$TRAVIS_SCALA_VERSION 'set parallelExecution in ThisBuild := false' test
+  - sbt ++$TRAVIS_SCALA_VERSION 'set parallelExecution in ThisBuild := false' 'set scalaJSStage in ThisBuild := FullOptStage' test
   # - bin/checkDevOnly $TRAVIS_SCALA_VERSION
-  - sbt ++$TRAVIS_SCALA_VERSION neo/test:fastOptJS neo/test:fullOptJS
-  - sbt ++$TRAVIS_SCALA_VERSION 'set parallelExecution in ThisBuild := false' neo/test
-  - sbt ++$TRAVIS_SCALA_VERSION 'set parallelExecution in ThisBuild := false' 'set scalaJSStage in ThisBuild := FullOptStage' neo/test
 
 # Taken from https://github.com/typelevel/cats/blob/master/.travis.yml
 before_cache:
