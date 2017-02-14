@@ -25,7 +25,7 @@ object UnprefixedTest extends TestSuite {
 
   def test(subj: ReactElement, exp: String): Unit = {
     val comp = ScalaComponent.build[Unit]("tmp")
-        .render[Children.None](_ => subj)
+        .renderStatic(subj)
         .build
     assertRender(comp(), exp)
   }

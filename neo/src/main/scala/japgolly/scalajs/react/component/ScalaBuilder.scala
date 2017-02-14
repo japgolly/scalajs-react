@@ -88,6 +88,14 @@ object ScalaBuilder {
     def render[C <: Children](r: RenderFn[P, S, B]): Step4[P, C, S, B] =
       new Step4[P, C, S, B](name, initStateFn, backendFn, r, Lifecycle.empty)
 
+    // No args
+
+    def renderStatic(r: vdom.ReactElement): Step4[P, Children.None, S, B] =
+      render(_ => r)
+
+    def render_(r: => vdom.ReactElement): Step4[P, Children.None, S, B] =
+      render(_ => r)
+
     // No children
 
      def renderPS(r: ($, P, S) => vdom.ReactElement): Step4[P, Children.None, S, B] =
