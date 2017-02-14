@@ -2,7 +2,7 @@ package japgolly.scalajs.react.component
 
 import scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, ChildrenArg, CtorType, PropsChildren, vdom, raw => Raw}
+import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => Raw}
 
 object JsFn extends JsBaseComponentTemplate[Raw.ReactFunctionalComponent] {
 
@@ -10,12 +10,12 @@ object JsFn extends JsBaseComponentTemplate[Raw.ReactFunctionalComponent] {
   type Unmounted[P <: js.Object]                               = RootUnmounted[P]
   type Mounted                                                 = Unit
 
-  def apply[P <: js.Object, C <: ChildrenArg](rc: Raw.ReactFunctionalComponent)
-                                             (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
+  def apply[P <: js.Object, C <: Children](rc: Raw.ReactFunctionalComponent)
+                                          (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
     rootComponent[P, s.CT, Unmounted[P]](rc, s.pf.rmap(s.summon(rc))(rootUnmounted))(s.pf)
 
-  def apply[P <: js.Object, C <: ChildrenArg](name: String)
-                                             (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
+  def apply[P <: js.Object, C <: Children](name: String)
+                                          (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
     apply[P, C](js.Dynamic.global.selectDynamic(name).asInstanceOf[Raw.ReactFunctionalComponent])(s)
 
   // ===================================================================================================================

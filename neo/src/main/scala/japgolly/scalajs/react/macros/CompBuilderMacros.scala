@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.macros
 
 import scala.reflect.macros.blackbox.Context
-import japgolly.scalajs.react.ChildrenArg
+import japgolly.scalajs.react.Children
 
 final class CompBuilderMacros (val c: Context) extends ReactMacroUtils {
   import c.universe._
@@ -36,7 +36,7 @@ final class CompBuilderMacros (val c: Context) extends ReactMacroUtils {
 
   private def _renderBackend[B: c.WeakTypeTag](allowChildren: Boolean, rps: List[RenderParam[_]]): c.Tree = {
     val B = concreteWeakTypeOf[B]
-    val C = if (allowChildren) weakTypeOf[ChildrenArg.Varargs] else weakTypeOf[ChildrenArg.None]
+    val C = if (allowChildren) weakTypeOf[Children.Varargs] else weakTypeOf[Children.None]
     val render = TermName("render")
     def genericRender = replaceMacroCallWith("render")
 

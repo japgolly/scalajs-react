@@ -3,7 +3,7 @@ package japgolly.scalajs.react.component
 import org.scalajs.dom
 import scala.{Either => Or}
 import scalajs.js
-import japgolly.scalajs.react.{Callback, CallbackTo, ChildrenArg, CtorType, PropsChildren, raw, vdom}
+import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, raw, vdom}
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.macros.CompBuilderMacros
 import Scala._
@@ -62,7 +62,7 @@ object ScalaBuilder {
      *   .renderBackend
      * }}}
      */
-    def renderBackend[B]: Step4[P, ChildrenArg.None, S, B] =
+    def renderBackend[B]: Step4[P, Children.None, S, B] =
       macro CompBuilderMacros.backendAndRender[P, S, B]
 
     /**
@@ -73,7 +73,7 @@ object ScalaBuilder {
      *   .renderBackendWithChildren
      * }}}
      */
-    def renderBackendWithChildren[B]: Step4[P, ChildrenArg.Varargs, S, B] =
+    def renderBackendWithChildren[B]: Step4[P, Children.Varargs, S, B] =
       macro CompBuilderMacros.backendAndRenderWithChildren[P, S, B]
   }
 
@@ -85,77 +85,77 @@ object ScalaBuilder {
 
     type $ = RenderScope[P, S, B]
 
-    def render[C <: ChildrenArg](r: RenderFn[P, S, B]): Step4[P, C, S, B] =
+    def render[C <: Children](r: RenderFn[P, S, B]): Step4[P, C, S, B] =
       new Step4[P, C, S, B](name, initStateFn, backendFn, r, Lifecycle.empty)
 
     // No children
 
-     def renderPS(r: ($, P, S) => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
+     def renderPS(r: ($, P, S) => vdom.ReactElement): Step4[P, Children.None, S, B] =
        render($ => r($, $.props, $.state))
 
-     def renderP(r: ($, P) => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
+     def renderP(r: ($, P) => vdom.ReactElement): Step4[P, Children.None, S, B] =
        render($ => r($, $.props))
 
-     def renderS(r: ($, S) => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
+     def renderS(r: ($, S) => vdom.ReactElement): Step4[P, Children.None, S, B] =
        render($ => r($, $.state))
 
-     def render_PS(r: (P, S) => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
+     def render_PS(r: (P, S) => vdom.ReactElement): Step4[P, Children.None, S, B] =
        render($ => r($.props, $.state))
 
-     def render_P(r: P => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
+     def render_P(r: P => vdom.ReactElement): Step4[P, Children.None, S, B] =
        render($ => r($.props))
 
-     def render_S(r: S => vdom.ReactElement): Step4[P, ChildrenArg.None, S, B] =
+     def render_S(r: S => vdom.ReactElement): Step4[P, Children.None, S, B] =
        render($ => r($.state))
 
     // Has children
 
-     def renderPCS(r: ($, P, PropsChildren, S) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
+     def renderPCS(r: ($, P, PropsChildren, S) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
        render($ => r($, $.props, $.propsChildren, $.state))
 
-     def renderPC(r: ($, P, PropsChildren) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
+     def renderPC(r: ($, P, PropsChildren) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
        render($ => r($, $.props, $.propsChildren))
 
-     def renderCS(r: ($, PropsChildren, S) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
+     def renderCS(r: ($, PropsChildren, S) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
        render($ => r($, $.propsChildren, $.state))
 
-     def renderC(r: ($, PropsChildren) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
+     def renderC(r: ($, PropsChildren) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
        render($ => r($, $.propsChildren))
 
-     def render_PCS(r: (P, PropsChildren, S) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
+     def render_PCS(r: (P, PropsChildren, S) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
        render($ => r($.props, $.propsChildren, $.state))
 
-     def render_PC(r: (P, PropsChildren) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
+     def render_PC(r: (P, PropsChildren) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
        render($ => r($.props, $.propsChildren))
 
-     def render_CS(r: (PropsChildren, S) => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
+     def render_CS(r: (PropsChildren, S) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
        render($ => r($.propsChildren, $.state))
 
-     def render_C(r: PropsChildren => vdom.ReactElement): Step4[P, ChildrenArg.Varargs, S, B] =
+     def render_C(r: PropsChildren => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
        render($ => r($.propsChildren))
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props and state
      * where needed.
      */
-    def renderBackend: Step4[P, ChildrenArg.None, S, B] =
+    def renderBackend: Step4[P, Children.None, S, B] =
       macro CompBuilderMacros.renderBackend[P, S, B]
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props, state, and
      * propsChildren where needed.
      */
-    def renderBackendWithChildren: Step4[P, ChildrenArg.Varargs, S, B] =
+    def renderBackendWithChildren: Step4[P, Children.Varargs, S, B] =
       macro CompBuilderMacros.renderBackendWithChildren[P, S, B]
   }
 
   // ===================================================================================================================
 
-  final class Step4[P, C <: ChildrenArg, S, B](name       : String,
-                                               initStateFn: InitStateArg[P, S],
-                                               backendFn  : NewBackendFn[P, S, B],
-                                               renderFn   : RenderFn[P, S, B],
-                                               lifecycle  : Lifecycle[P, S, B]) {
+  final class Step4[P, C <: Children, S, B](name       : String,
+                                            initStateFn: InitStateArg[P, S],
+                                            backendFn  : NewBackendFn[P, S, B],
+                                            renderFn   : RenderFn[P, S, B],
+                                            lifecycle  : Lifecycle[P, S, B]) {
     type This = Step4[P, C, S, B]
 
     private def copy(name       : String                = this.name       ,

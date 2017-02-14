@@ -2,7 +2,7 @@ package japgolly.scalajs.react.component
 
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{ChildrenArg, CtorType, PropsChildren, raw}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, raw}
 
 object ScalaFn {
 
@@ -10,7 +10,7 @@ object ScalaFn {
   type Unmounted[P]                               = JsFn.BaseUnmounted[P, Mounted, Box[P]]
   type Mounted                                    = JsFn.Mounted
 
-  private def create[P, C <: ChildrenArg, CT[-p, +u] <: CtorType[p, u]]
+  private def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
       (render: Box[P] with raw.PropsWithChildren => raw.ReactElement)
       (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] = {
 

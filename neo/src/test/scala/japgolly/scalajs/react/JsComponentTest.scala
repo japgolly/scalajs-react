@@ -18,7 +18,7 @@ object JsComponentNSTest extends  JsComponentTest {
 
     def tryResolve(name: String) : Boolean = {
       try {
-        JsComponent[Null, ChildrenArg.None, Null](name).raw
+        JsComponent[Null, Children.None, Null](name).raw
         true
       } catch {
         case ex: IllegalArgumentException => false
@@ -50,7 +50,7 @@ object JsComponentPTest extends JsComponentTest {
   def JsProps(name: String): JsProps =
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
-  val Component = JsComponent[JsProps, ChildrenArg.None, Null]("ES3_P")
+  val Component = JsComponent[JsProps, Children.None, Null]("ES3_P")
   compileError(""" Component() """)
 
   override def tests = TestSuite {
@@ -99,7 +99,7 @@ object JsComponentPTest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent[JsProps, ChildrenArg.Varargs, Null]("ES3_P")
+      val C = JsComponent[JsProps, Children.Varargs, Null]("ES3_P")
 
       'ctors {
         val p = JsProps("x")
@@ -151,7 +151,7 @@ object JsComponentSTest extends JsComponentTest {
     def inc(): Unit = js.native
   }
 
-  val Component = JsComponent[Null, ChildrenArg.None, JsState]("ES3_S").addFacade[JsMethods]
+  val Component = JsComponent[Null, Children.None, JsState]("ES3_S").addFacade[JsMethods]
 
   override def tests = TestSuite {
     def JsState1(num1: Int): JsState =
@@ -207,7 +207,7 @@ object JsComponentSTest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent[Null, ChildrenArg.Varargs, JsState]("ES3_S").addFacade[JsMethods]
+      val C = JsComponent[Null, Children.Varargs, JsState]("ES3_S").addFacade[JsMethods]
 
       'ctors {
         def test(u: JsComponent.UnmountedPlusFacade[Null, JsState, JsMethods]) = ()

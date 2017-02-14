@@ -3,12 +3,12 @@ package japgolly.scalajs.react.component
 import org.scalajs.dom
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, ChildrenArg, CtorType, Key, PropsChildren, vdom, raw => Raw}
+import japgolly.scalajs.react.{Callback, Children, CtorType, Key, PropsChildren, vdom, raw => Raw}
 
 object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
 
-  def apply[P <: js.Object, C <: ChildrenArg, S <: js.Object](name: String)
-                                                             (implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
+  def apply[P <: js.Object, C <: Children, S <: js.Object](name: String)
+                                                          (implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
     val reactClass = findInScope(name.split('.').toList) match {
       case Some(x: js.Function) => x
       case Some(_)              => throw new IllegalArgumentException(s"React constructor $name is not a function")
@@ -176,7 +176,7 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
 
   // ===================================================================================================================
 
-  def component[P <: js.Object, C <: ChildrenArg, S <: js.Object](rc: Raw.ReactClass)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
+  def component[P <: js.Object, C <: Children, S <: js.Object](rc: Raw.ReactClass)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
     rootComponent[P, s.CT, Unmounted[P, S]](rc, s.pf.rmap(s.summon(rc))(unmounted))(s.pf)
 
   def unmounted[P <: js.Object, S <: js.Object](r: Raw.ReactComponentElement): Unmounted[P, S] =

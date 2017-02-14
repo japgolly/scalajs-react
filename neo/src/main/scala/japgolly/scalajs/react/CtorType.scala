@@ -4,10 +4,15 @@ import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import CtorType._
 
-sealed trait ChildrenArg
-object ChildrenArg {
-  sealed trait None       extends ChildrenArg
-  sealed trait Varargs    extends ChildrenArg
+/** Describes how a component uses `.props.children`. */
+sealed trait Children
+object Children {
+
+  /** The component doesn't use `.props.children`. */
+  sealed trait None extends Children
+
+  /** The component uses `.props.children`: 0-n children are acceptable. */
+  sealed trait Varargs extends Children
 }
 
 sealed abstract class CtorType[-P, +U] {
@@ -191,6 +196,8 @@ object CtorType {
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Summoner
+
+  import japgolly.scalajs.react.{Children => ChildrenArg}
 
   sealed trait Summoner[P <: js.Object, C <: ChildrenArg] {
     type CT[-p, +u] <: CtorType[p, u]
