@@ -61,7 +61,7 @@ object RefTest extends TestSuite {
     def testRefAndKey(): Unit = {
       class Backend {
         val ref = ScalaComponent.mutableRefTo(InnerScala.C)
-        def render = <.div(ref.component.withKey("some-key")(123))
+        def render = <.div(ref.component.withKey(555555555)(123))
       }
       val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].build
       withBodyContainer { mountNode =>
