@@ -230,4 +230,29 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
     def mapMounted[M2](f: MappedMounted[F, P1, S1, R, P0, S0] => M2) =
       self.mapUnmounted(_ mapMounted f)
   }
+
+  // ===================================================================================================================
+
+  def mutableRefTo
+      [F[+_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: RawMounted, P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
+      (c: MappedComponent[F, P1, S1, CT1, R, P0, S0, CT0])
+      : MutableRef[F, P1, S1, CT1, R, P0, S0, CT0] =
+    new MutableRef(c)
+
+  final class MutableRef
+      [F[+_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: RawMounted, P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
+      (c: MappedComponent[F, P1, S1, CT1, R, P0, S0, CT0]) {
+
+    var value: MountedWithRawType[P0, S0, R] = null
+
+    private def refSet: Raw.RefFn =
+      (i: js.Any) => value =
+        if (i == null) null else {
+          val r = i.asInstanceOf[Js.RawMounted with R]
+          mounted[P0, S0](r).withRawType[R]
+        }
+
+    val component: CT1[P1, MappedUnmounted[F, P1, S1, R, P0, S0]] =
+      CtorType.hackBackToSelf(c.ctor)(c.ctor.withRawProp("ref", refSet))
+  }
 }

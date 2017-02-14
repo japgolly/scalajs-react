@@ -83,6 +83,7 @@ Contributions welcome.
   - Remove String-based refs. React.JS has deprecated these and will remove them.
   - Type-safe refs to HTML/SVG tags that preserve the DOM type.
   - Type-safe refs to Scala components.
+  - Type-safe refs to JS components.
   - Prevent refs to functional components.
 
 # Pending

@@ -71,12 +71,44 @@ object RefTest extends TestSuite {
     }
   }
 
+  object TestJs {
+    val InnerJs = JsComponentSTest.Component
+
+    def testRef(): Unit = {
+      class Backend {
+        val ref = JsComponent.mutableRefTo(InnerJs)
+        def render = <.div(ref.component())
+      }
+      val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].build
+      withBodyContainer { mountNode =>
+        val mounted = C().renderIntoDOM(mountNode)
+        mounted.backend.ref.value.raw.inc() // compilation and evaluation without error is test enough
+      }
+    }
+
+    def testRefAndKey(): Unit = {
+      class Backend {
+        val ref = JsComponent.mutableRefTo(InnerJs)
+        def render = <.div(ref.component.withKey(555555555)())
+      }
+      val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].build
+      withBodyContainer { mountNode =>
+        val mounted = C().renderIntoDOM(mountNode)
+        mounted.backend.ref.value.raw.inc() // compilation and evaluation without error is test enough
+      }
+    }
+  }
+
   override def tests = TestSuite {
     'htmlTag - testHtmlTag()
     'svgTag - testSvgTag()
     'scalaComponent - {
       'ref - TestScala.testRef()
       'refAndKey - TestScala.testRefAndKey()
+    }
+    'jsComponent - {
+      'ref - TestJs.testRef()
+      'refAndKey - TestJs.testRefAndKey()
     }
   }
 }
