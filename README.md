@@ -77,13 +77,13 @@ Contributions welcome.
   - Can map next stage (i.e. Unmounted and Mounted).
   - Can change effect type in Mounted.
 
-# In Progress
-
 - Refs.
-  - VDOM
-  - Functional components don't allow refs. Current `CtorType` doesn't support this.
-  - Stringly typed.
-  - DOM/component type of target may differ between declaration and assignment.
+  - Remove String-based refs. React.JS has deprecated these and will remove them.
+  - Type-safe refs to HTML/SVG tags that preserve the DOM type.
+  - Type-safe refs to Scala components.
+  - Prevent refs to functional components.
+
+# In Progress
 
 # Pending
 

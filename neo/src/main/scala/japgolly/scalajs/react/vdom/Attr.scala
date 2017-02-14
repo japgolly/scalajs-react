@@ -118,15 +118,14 @@ object Attr {
   sealed trait Key
   val Key = apply[Key]("key")
 
-//  case object Ref extends ReactAttr[Any] {
-//    override def name = "ref"
-//    override def :=[A](a: A)(implicit t: ValueType[A, Any]): TagMod =
-//      t(name, a)
-//
-//    import Implicits._react_attrJsFn
-//    def apply[N <: TopNode](f: N => Unit): TagMod =
-//      this := ((f: js.Function1[N, Unit]): js.Function)
-//  }
+  object Ref extends Attr[raw.RefFn]("ref") {
+    override def :=[A](a: A)(implicit t: ValueType[A, raw.RefFn]) =
+      t(name, a)
+    private[vdom] def tag[N <: TopNode](f: N => Unit): TagMod =
+      :=(f: js.Function1[N, Unit])(ValueType.direct)
+    def apply(f: js.Any => Unit): TagMod =
+      :=(f: js.Function1[js.Any, Unit])(ValueType.direct)
+  }
 
 //  implicit val ordering: Ordering[ReactAttr[Nothing]] =
 //    Ordering.by((_: ReactAttr[Nothing]).name)

@@ -4,6 +4,9 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                                          final protected val modifiers: List[Seq[TagMod]],
                                          final val namespace: Namespace) extends TagMod {
 
+  def ref(f: N => Unit): TagOf[N] =
+    apply(Attr.Ref.tag(f))
+
   override def apply(xs: TagMod*): TagOf[N] =
     copy(modifiers = xs :: modifiers)
 

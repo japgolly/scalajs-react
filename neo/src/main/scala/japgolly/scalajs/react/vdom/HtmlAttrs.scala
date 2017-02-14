@@ -939,8 +939,6 @@ trait HtmlAttrs {
     */
   final lazy val readOnly = ReactAttr[Boolean]("readOnly")
 
-  // final val ref = ReactAttr.Ref
-
   /**
     * This attribute names a relationship of the linked document to the current
     * document. The attribute must be a space-separated list of the link types
@@ -1151,6 +1149,8 @@ trait HtmlAttrs {
 
   /** IE-specific property to prevent user selection */
   final lazy val unselectable = ReactAttr("unselectable")
+
+  final def untypedRef = ReactAttr.Ref
 
   final lazy val useMap = ReactAttr("useMap")
 

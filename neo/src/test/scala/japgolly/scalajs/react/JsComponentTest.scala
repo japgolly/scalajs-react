@@ -76,7 +76,7 @@ object JsComponentPTest extends JsComponentTest {
       }
 
       'key {
-        val unmounted = Component.set(key = "hehe")(JsProps("Bob"))
+        val unmounted = Component.withKey("hehe")(JsProps("Bob"))
         assertEq(unmounted.props.name, "Bob")
         assertEq(unmounted.propsChildren.count, 0)
         assertEq(unmounted.propsChildren.isEmpty, true)

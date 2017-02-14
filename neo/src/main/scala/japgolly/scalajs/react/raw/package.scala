@@ -16,7 +16,10 @@ package object raw {
 
   type Key = String | Boolean | JsNumber | Null
 
+  // Deprecated by React
   type Ref = String | Null
+
+  type RefFn = js.Function1[js.Any, Unit]
 
   type ReactText = String | JsNumber
 

@@ -559,6 +559,8 @@ trait SvgAttrs {
 
   final def `type` = ReactAttr("type")
 
+  final def untypedRef = ReactAttr.Ref
+
   final def values = ReactAttr("values")
 
   final def viewBox = ReactAttr("viewBox")

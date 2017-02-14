@@ -10,9 +10,6 @@ package object react extends ReactEventTypes {
   // Same as raw.Key except its non-null
   type Key = String | Boolean | raw.JsNumber
 
-  type Ref = String // TODO Ummm.....
-
-
   val GenericComponent = component.Generic
   type GenericComponent[P, CT[-p, +u] <: CtorType[p, u], U] = GenericComponent.Component[P, CT, U]
 

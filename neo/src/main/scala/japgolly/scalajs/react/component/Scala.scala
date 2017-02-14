@@ -2,7 +2,7 @@ package japgolly.scalajs.react.component
 
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, CallbackTo, CtorType}
+import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, raw}
 
 object Scala {
 
@@ -91,4 +91,21 @@ object Scala {
       override type Mapped[F3[+ _], P3, S3] = BaseMounted[F3, P3, S3, B, P0, S0]
       override def mapped[F3[+ _], P3, S3](mp: P1 => P3, ls: Lens[S1, S3])(implicit ft: Effect.Trans[Effect.Id, F3]) = mappedM(from)(mp, ls)(ft)
     }
+
+  // ===================================================================================================================
+
+  def mutableRefTo[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: Component[P, S, B, CT]): MutableRef[P, S, B, CT] =
+    new MutableRef(c)
+
+  final class MutableRef[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: Component[P, S, B, CT]) {
+
+    var value: Mounted[P, S, B] = null
+
+    private def refSet: raw.RefFn =
+      (i: js.Any) => value =
+        if (i == null) null else i.asInstanceOf[Js.RawMounted with Vars[P, S, B]].mounted
+
+    val component: CT[P, Unmounted[P, S, B]] =
+      CtorType.hackBackToSelf(c.ctor)(c.ctor.withRawProp("ref", refSet))
+  }
 }
