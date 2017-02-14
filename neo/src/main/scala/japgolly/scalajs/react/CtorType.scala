@@ -169,7 +169,8 @@ object CtorType {
 
   implicit object ProfunctorC extends Profunctor[Children] {
     override def lmap[A, B, C](ct: Children[A, B])(f: C => A) =
-      new Children(ct.construct, ct.mods)
+      // new Children(ct.construct, ct.mods)
+      ct.asInstanceOf[Children[C, B]]
 
     override def rmap[A, B, C](ct: Children[A, B])(g: B => C) = {
       val fn = ct.construct
@@ -183,7 +184,7 @@ object CtorType {
   }
 
   implicit object ProfunctorV extends Profunctor[Void] {
-    override def lmap [A, B, C   ](x: Void[A, B])(f: C => A)            = new Void(x.unmodified, x.construct, x.mods)
+    override def lmap [A, B, C   ](x: Void[A, B])(f: C => A)            = x.asInstanceOf[Void[C, B]]
     override def rmap [A, B, C   ](x: Void[A, B])(g: B => C)            = new Void(g(x.unmodified), g compose x.construct, x.mods)
     override def dimap[A, B, C, D](x: Void[A, B])(f: C => A, g: B => D) = new Void(g(x.unmodified), g compose x.construct, x.mods)
   }
