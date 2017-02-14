@@ -31,8 +31,9 @@ Contributions welcome.
   - Allows possibility of even more children type-safety such as requiring exactly one child.
   - Input can be transformed.
   - Output can be transformed.
+  - Additional raw React props fields can be configured.
 
-- More transparency. No more magic.
+- More transparency. No more hidden magic.
   - A separate `.raw` package that contains the React JS facade (without any Scala niceness).
   - All components expose their raw JS types.
   - All Scala components expose their underlying JS components.
@@ -43,10 +44,11 @@ Contributions welcome.
 
   Importing a JS component is now a one-liner.
   ```scala
-  val Component = JsComponent.byName[JsProps, AcceptsChildren, JsState]("ReactXYZ")
+  val Component = JsComponent[JsProps, Children.None, JsState]("ReactXYZ")
   ```
 
 - Type-safety for JS components that expose ad-hoc methods once mounted.
+  You can now specify the JS facade.
 
 - `JsFnComponent` - Import React functional components written in pure JS.
   ([test JS](neo/src/test/resources/component-fn.js) & [test Scala](neo/src/test/scala/japgolly/scalajs/react/JsFnComponentTest.scala))
@@ -64,17 +66,17 @@ Contributions welcome.
   - Improved efficiency for vdom representation and creation.
   - Add type-safety between attributes/styles and values. Eg `^:disabled = 7` no longer compiles.
   - Event attributes now know which types of events they will generate. Eg `^.onMouseDown` knows to expect a mouse event and won't compile if you pass it a drag event handler.
-  - React node array handling is safety, more efficient and has its own type with a nicer interface.
+  - React node array handling is safer, more efficient and has its own type with a nicer interface.
   - No more automatic expansion of `Seq`s. Either use `seq: _*` yourself or turn it into a `ReactArray`.
   - Optional vdom supported when enclosed in `Option` or `js.UndefOr`.
   - All vdom now has `.when(condition)` and `.unless(condition)` when will omit it unless a given condition is met. This replaces the `cond ?= (vdom)` syntax.
-  - All vdom composes the same way, call `.apply` on what you have and specify more. This was usually the case but there were a few corner types that did it differently.
+  - All vdom composes the same way, call `.apply` on what you have and specify more. This was usually the case but there were a few corner cases that had differences.
   - Easier and clearer access to SVG VDOM.
 
 - Component (and constituent) mapping.
   - Can map props & state (at top-level, and in Unmounted & Mounted too).
-  - Can map CtorType.
-  - Can map next stage (i.e. Unmounted and Mounted).
+  - Can map the constructor type.
+  - Can map next stage (i.e. Component→Unmounted and Unmounted→Mounted).
   - Can change effect type in Mounted.
 
 - Refs.
@@ -83,12 +85,9 @@ Contributions welcome.
   - Type-safe refs to Scala components.
   - Prevent refs to functional components.
 
-# In Progress
-
 # Pending
 
-- Clean up new types
-  - `*Arg`, `Arg*`
+- Clean up new types (eg. `*Arg`, `Arg*`)
 
 - Easy way to change MountedCB back into Mounted. Same for State/Prop traits if they get added back.
 
@@ -96,6 +95,8 @@ Contributions welcome.
 - Revise & integrate the `test` module.
 - Revise & integrate the Scalaz module.
 - Revise & integrate the Monocle module.
+- Update the `gh-pages` module.
+- Update doc.
 
 # Maybe
 
