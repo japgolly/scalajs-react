@@ -167,9 +167,23 @@ object PrefixedTest extends TestSuite {
 //      <.div(^.cls := "hi", "Str: ", 123, JArray(H1("a"), H1("b")), <.p(^.cls := "pp")("!")),
 //      """<div class="hi">Str: 123<h1>a</h1><h1>b</h1><p class="pp">!</p></div>""")
 
-    'styles - test(
-      <.div(^.backgroundColor := "red", ^.marginTop := "10px", "!"),
-      """<div style="background-color:red;margin-top:10px;">!</div>""")
+    'styles - {
+      'named - test(
+        <.div(^.backgroundColor := "red", ^.marginTop := "10px", "!"),
+        """<div style="background-color:red;margin-top:10px;">!</div>""")
+
+      'direct - test(
+        <.div(^.style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), "!"),
+        """<div style="color:black;margin-left:1em;">!</div>""")
+
+      'namedAndDirect - test(
+        <.div(^.backgroundColor := "red", ^.style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), "!"),
+        """<div style="background-color:red;color:black;margin-left:1em;">!</div>""")
+
+      'directAndNamed - test(
+        <.div(^.style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), ^.backgroundColor := "red", "!"),
+        """<div style="color:black;margin-left:1em;background-color:red;">!</div>""")
+    }
 
     'noImplicitUnit - assertTypeMismatch(compileError("""val x: TagMod = ()"""))
 

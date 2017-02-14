@@ -72,6 +72,7 @@ Contributions welcome.
   - All vdom now has `.when(condition)` and `.unless(condition)` when will omit it unless a given condition is met. This replaces the `cond ?= (vdom)` syntax.
   - All vdom composes the same way, call `.apply` on what you have and specify more. This was usually the case but there were a few corner cases that had differences.
   - Easier and clearer access to SVG VDOM.
+  - Manually-specified style objects now compose with other style attributes.
 
   ```
   ReactArray(...)
