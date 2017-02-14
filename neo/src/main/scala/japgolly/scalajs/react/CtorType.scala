@@ -224,35 +224,35 @@ object CtorType {
       Summoner[P, ChildrenArg.None, Void](rc =>
         new Void[P, raw.ReactComponentElement](
           raw.React.createElement(rc, s.value),
-          m => raw.React.createElement(rc, m(s.mutable())),
+          m => raw.React.createElement(rc, m(s.mutableObj())),
           noMod))
 
     implicit def summonC[P <: js.Object](implicit s: Singleton[P]) =
       Summoner[P, ChildrenArg.Varargs, Children](rc =>
         new Children[P, raw.ReactComponentElement]((mm, c) => {
-          val p = mm.fold[js.Object](s.value)(m => m(s.mutable()))
+          val p = mm.fold[js.Object](s.value)(m => m(s.mutableObj()))
           raw.React.createElement(rc, p, formatChildren(c): _*)
         }, noMod))
 
     implicit def summonF[P <: js.Object](implicit w: Singleton.Not[P]) =
       Summoner[P, ChildrenArg.Varargs, PropsAndChildren](rc =>
         new PropsAndChildren[P, raw.ReactComponentElement]((p, mm, c) => {
-          val p2 = mm.fold[js.Object](p)(m => m(clone(p)))
+          val p2 = mm.fold[js.Object](p)(m => m(prepareForMutation(p)))
           raw.React.createElement(rc, p2, formatChildren(c): _*)
         }, noMod))
 
     implicit def summonP[P <: js.Object](implicit w: Singleton.Not[P]) =
       Summoner[P, ChildrenArg.None, Props](rc =>
         new Props[P, raw.ReactComponentElement]((p, mm) => {
-            val p2 = mm.fold[js.Object](p)(m => m(clone(p)))
+            val p2 = mm.fold[js.Object](p)(m => m(prepareForMutation(p)))
             raw.React.createElement(rc, p2)
           }, noMod))
 
     // This could be used to defensively-copy user-provided props before applying modifications (i.e. setting key/ref).
     // For Scala components, a new Box is created each time props are specified so that's fine to modify directly.
     // For other components, this should be considered.
-    private def clone[P <: js.Object](p: P): P =
-      p
+    private def prepareForMutation(o: js.Object): js.Object =
+      if (o.isInstanceOf[js.Object]) o else new js.Object
 
     def formatChildren(c: ChildrenArgs): Seq[raw.ReactNodeList] =
       if (c.isEmpty)

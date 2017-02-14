@@ -49,6 +49,13 @@ object ScalaComponentPTest extends TestSuite {
       }
     }
 
+    'withKey {
+      withBodyContainer { mountNode =>
+        val n = BasicComponent.withKey("k")(BasicProps("Bob")).renderIntoDOM(mountNode).getDOMNode
+        assertOuterHTML(n, "<div>Hello Bob</div>")
+      }
+    }
+
     'ctorReuse -
       assert(BasicComponent(BasicProps("a")) ne BasicComponent(BasicProps("b")))
 

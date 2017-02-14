@@ -75,7 +75,7 @@ object JsComponentPTest extends JsComponentTest {
         }
       }
 
-      'key {
+      'withKey {
         val unmounted = Component.withKey("hehe")(JsProps("Bob"))
         assertEq(unmounted.props.name, "Bob")
         assertEq(unmounted.propsChildren.count, 0)
@@ -130,6 +130,13 @@ object JsComponentPTest extends JsComponentTest {
           assertEq(mounted.propsChildren.count, 1)
           assertEq(mounted.propsChildren.isEmpty, false)
           assertEq(mounted.state, null)
+        }
+      }
+
+      'withKey {
+        withBodyContainer { mountNode =>
+          val n = C.withKey("k")(JsProps("X"))(H1).renderIntoDOM(mountNode).getDOMNode
+          assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
         }
       }
     }
@@ -204,6 +211,13 @@ object JsComponentSTest extends JsComponentTest {
 
       'ctorReuse -
         assert(Component() eq Component())
+
+      'withKey {
+        withBodyContainer { mountNode =>
+          val n = Component.withKey("k")().renderIntoDOM(mountNode).getDOMNode
+          assertOuterHTML(n, "<div>State = 123 + 500</div>")
+        }
+      }
     }
 
     'children {
@@ -238,6 +252,13 @@ object JsComponentSTest extends JsComponentTest {
           assertEq(mounted.propsChildren.isEmpty, false)
           assertEq(mounted.state.num1, 123)
           assertEq(mounted.state.num2, 500)
+        }
+      }
+
+      'withKey {
+        withBodyContainer { mountNode =>
+          val n = C.withKey("k")(H1).renderIntoDOM(mountNode).getDOMNode
+          assertOuterHTML(n, "<div>State = 123 + 500<h1>Huge</h1></div>")
         }
       }
     }
