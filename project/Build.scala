@@ -34,7 +34,7 @@ object ScalajsReact {
         organization       := "com.github.japgolly.scalajs-react",
         homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
         licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
-        scalaVersion       := Ver.Scala211, // pending https://issues.scala-lang.org/browse/SI-10168
+        scalaVersion       := Ver.Scala212,
         crossScalaVersions := Seq(Ver.Scala211, Ver.Scala212),
         scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
                                 "-language:postfixOps", "-language:implicitConversions",

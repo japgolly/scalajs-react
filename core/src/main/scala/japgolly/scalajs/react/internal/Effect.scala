@@ -10,8 +10,11 @@ abstract class Effect[F[+_]] {
   @inline def extract[A]   (a: => F[A])           : () => A
 }
 
-object Effect {
-  type Id[+A] = A
+// https://issues.scala-lang.org/browse/SI-10140
+abstract class EffectScalacWorkaround private[internal]() {
+  final type Id[+A] = A
+}
+object Effect extends EffectScalacWorkaround {
 
   implicit val idInstance: Effect[Id] = new Effect[Id] {
     @inline override def point  [A]   (a: => A)         = a
