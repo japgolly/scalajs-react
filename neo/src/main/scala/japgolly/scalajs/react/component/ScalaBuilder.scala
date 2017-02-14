@@ -5,7 +5,7 @@ import scala.{Either => Or}
 import scalajs.js
 import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, raw, vdom}
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.macros.CompBuilderMacros
+import japgolly.scalajs.react.macros.ComponentBuilderMacros
 import Scala._
 
 object ScalaBuilder {
@@ -63,7 +63,7 @@ object ScalaBuilder {
      * }}}
      */
     def renderBackend[B]: Step4[P, Children.None, S, B] =
-      macro CompBuilderMacros.backendAndRender[P, S, B]
+      macro ComponentBuilderMacros.backendAndRender[P, S, B]
 
     /**
      * Shortcut for:
@@ -74,14 +74,14 @@ object ScalaBuilder {
      * }}}
      */
     def renderBackendWithChildren[B]: Step4[P, Children.Varargs, S, B] =
-      macro CompBuilderMacros.backendAndRenderWithChildren[P, S, B]
+      macro ComponentBuilderMacros.backendAndRenderWithChildren[P, S, B]
   }
 
   // ===================================================================================================================
 
   final class Step3[P, S, B](name: String, initStateFn: InitStateArg[P, S], backendFn: NewBackendFn[P, S, B]) {
     // Dealiases type aliases :(
-    // type Next[C <: ChildrenArg] = Step4[P, C, S, B]
+    // type Next[C <: Children] = Step4[P, C, S, B]
 
     type $ = RenderScope[P, S, B]
 
@@ -147,14 +147,14 @@ object ScalaBuilder {
      * where needed.
      */
     def renderBackend: Step4[P, Children.None, S, B] =
-      macro CompBuilderMacros.renderBackend[P, S, B]
+      macro ComponentBuilderMacros.renderBackend[P, S, B]
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props, state, and
      * propsChildren where needed.
      */
     def renderBackendWithChildren: Step4[P, Children.Varargs, S, B] =
-      macro CompBuilderMacros.renderBackendWithChildren[P, S, B]
+      macro ComponentBuilderMacros.renderBackendWithChildren[P, S, B]
   }
 
   // ===================================================================================================================

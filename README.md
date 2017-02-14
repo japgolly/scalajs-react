@@ -87,8 +87,6 @@ Contributions welcome.
 
 # Pending
 
-- Clean up new types (eg. `*Arg`, `Arg*`)
-
 - Easy way to change MountedCB back into Mounted. Same for State/Prop traits if they get added back.
 
 - Revise & integrate the `extra` module.

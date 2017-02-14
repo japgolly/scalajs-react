@@ -5,7 +5,7 @@ import vdom.ReactElement
 
 object ReactDOM {
 
-  @inline def unmountComponentAtNode(container: dom.Node): Boolean =
+  def unmountComponentAtNode(container: dom.Node): Boolean =
     raw.ReactDOM.unmountComponentAtNode(container)
 
   @deprecated("Use .renderIntoDOM on unmounted components.", "")
@@ -27,7 +27,7 @@ object ReactDOMServer {
     * If you call `ReactDOM.render()` on a node that already has this server-rendered markup, React will preserve it and
     * only attach event handlers, allowing you to have a very performant first-load experience.
     */
-  @inline def renderToString(e: ReactElement): String =
+  def renderToString(e: ReactElement): String =
     raw.ReactDOMServer.renderToString(e.rawReactElement)
 
   /**
@@ -35,6 +35,6 @@ object ReactDOMServer {
     * uses internally. This is useful if you want to use React as a simple static page generator, as stripping away the
     * extra attributes can save lots of bytes.
     */
-  @inline def renderToStaticMarkup(e: ReactElement): String =
+  def renderToStaticMarkup(e: ReactElement): String =
     raw.ReactDOMServer.renderToStaticMarkup(e.rawReactElement)
 }

@@ -18,7 +18,7 @@ object Children {
 sealed abstract class CtorType[-P, +U] {
   type This[-P, +U] <: CtorType[P, U]
 
-  def applyGeneric(props: P)(children: ArgChild*): U
+  def applyGeneric(props: P)(children: ChildArg*): U
 
   def addMod(f: ModFn): This[P, U]
 
@@ -30,8 +30,8 @@ sealed abstract class CtorType[-P, +U] {
 }
 
 object CtorType {
-  type ArgChild    = vdom.ReactNode
-  type ArgChildren = Seq[ArgChild]
+  type ChildArg     = vdom.ReactNode
+  type ChildrenArgs = Seq[ChildArg]
 
   type ModFn = js.Object => Unit
 
@@ -57,15 +57,15 @@ object CtorType {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Types
 
-  final class PropsAndChildren[-P, +U](private[CtorType] val construct: (P, MaybeMod, ArgChildren) => U,
+  final class PropsAndChildren[-P, +U](private[CtorType] val construct: (P, MaybeMod, ChildrenArgs) => U,
                                        private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
 
     override type This[-P, +U] = PropsAndChildren[P, U]
 
-    override def applyGeneric(props: P)(children: ArgChild*): U =
+    override def applyGeneric(props: P)(children: ChildArg*): U =
       apply(props)(children: _*)
 
-    def apply(props: P)(children: ArgChild*): U =
+    def apply(props: P)(children: ChildArg*): U =
       construct(props, mods, children)
 
     override def addMod(f: ModFn): This[P, U] =
@@ -74,7 +74,7 @@ object CtorType {
     def cmapProps[P2](f: P2 => P): PropsAndChildren[P2, U] =
       new PropsAndChildren((p2, m, c) => construct(f(p2), m, c), mods)
 
-    def withChildren(c: ArgChild*): Props[P, U] =
+    def withChildren(c: ChildArg*): Props[P, U] =
       new Props((p, m) => construct(p, m, c), mods)
 
     def withProps(p: P): Children[P, U] =
@@ -87,7 +87,7 @@ object CtorType {
 
     override type This[-P, +U] = Props[P, U]
 
-    override def applyGeneric(props: P)(children: ArgChild*): U =
+    override def applyGeneric(props: P)(children: ChildArg*): U =
       apply(props)
 
     def apply(props: P): U =
@@ -104,21 +104,21 @@ object CtorType {
   }
 
 
-  final class Children[-P, +U](private[CtorType] val construct: (MaybeMod, ArgChildren) => U,
+  final class Children[-P, +U](private[CtorType] val construct: (MaybeMod, ChildrenArgs) => U,
                                private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
 
     override type This[-P, +U] = Children[P, U]
 
-    override def applyGeneric(props: P)(children: ArgChild*): U =
+    override def applyGeneric(props: P)(children: ChildArg*): U =
       apply(children: _*)
 
-    def apply(children: ArgChild*): U =
+    def apply(children: ChildArg*): U =
       construct(mods, children)
 
     override def addMod(f: ModFn): This[P, U] =
       new Children(construct, modAppend(mods, f))
 
-    def withChildren(c: ArgChild*): Void[P, U] =
+    def withChildren(c: ChildArg*): Void[P, U] =
       new Void[P, U](construct(mods, c), m => construct(m, c), noMod)
   }
 
@@ -129,7 +129,7 @@ object CtorType {
 
     override type This[-P, +U] = Void[P, U]
 
-    override def applyGeneric(props: P)(children: ArgChild*): U =
+    override def applyGeneric(props: P)(children: ChildArg*): U =
       apply()
 
     def apply(): U =
@@ -254,7 +254,7 @@ object CtorType {
     private def clone[P <: js.Object](p: P): P =
       p
 
-    def formatChildren(c: ArgChildren): Seq[raw.ReactNodeList] =
+    def formatChildren(c: ChildrenArgs): Seq[raw.ReactNodeList] =
       if (c.isEmpty)
         Nil
       else
