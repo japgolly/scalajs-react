@@ -64,7 +64,7 @@ Contributions welcome.
 - Virtual DOM major revision.
   - Rewrite and simplify types. Now easier to work with internally. This no longer bears any resemblence to Scalatags and certainly can no longer be considered a fork. Scalatags was tremedously helpful in this journey so if you have a chance, give @lihaoyi a big thanks for his work.
   - Improved efficiency for vdom representation and creation.
-  - Add type-safety between attributes/styles and values. Eg `^:disabled = 7` no longer compiles.
+  - Add type-safety between attributes/styles and values. Eg `^.disabled := 7` no longer compiles.
   - Event attributes now know which types of events they will generate. Eg `^.onMouseDown` knows to expect a mouse event and won't compile if you pass it a drag event handler.
   - React node array handling is safer, more efficient and has its own type with a nicer interface.
   - No more automatic expansion of `Seq`s. Either use `seq: _*` yourself or turn it into a `ReactArray`.
@@ -72,6 +72,17 @@ Contributions welcome.
   - All vdom now has `.when(condition)` and `.unless(condition)` when will omit it unless a given condition is met. This replaces the `cond ?= (vdom)` syntax.
   - All vdom composes the same way, call `.apply` on what you have and specify more. This was usually the case but there were a few corner cases that had differences.
   - Easier and clearer access to SVG VDOM.
+
+  ```
+  ReactArray(...)
+  Seq(...).toReactArray
+  Array(...).toReactArray
+
+  Attr :=? Option(Value)
+  Option(Tag | Attr | Component | Value | TagMod)
+  (Tag | Attr | Component | Value | TagMod).when(Boolean)
+  (Tag | Attr | Component | Value | TagMod).unless(Boolean)
+  ```
 
 - Component (and constituent) mapping.
   - Can map props & state (at top-level, and in Unmounted & Mounted too).

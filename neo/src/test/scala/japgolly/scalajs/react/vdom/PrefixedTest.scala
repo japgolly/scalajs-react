@@ -56,7 +56,6 @@ object PrefixedTest extends TestSuite {
     'styleDict  - test(<.div(^.style := js.Dictionary("x" -> "y")), """<div style="x:y;"></div>""")
     'styleAttrs - test(<.div(^.color := "red", ^.cursor.auto),      """<div style="color:red;cursor:auto;"></div>""")
 
-
     'ReactArray {
 
       'ctorRN - test(<.div(ReactArray(reactNode, reactNode)), "<div><h1>cool</h1><h1>cool</h1></div>")
@@ -75,38 +74,48 @@ object PrefixedTest extends TestSuite {
         'arrayScala   - test(<.div(Array   (reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
         'arrayJs      - test(<.div(js.Array(reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
       }
+
+      "Seq requires .toReactArray" - compileError("<.div(Seq(reactNode))")
     }
 
     'dangerouslySetInnerHtml - test(<.div(^.dangerouslySetInnerHtml := "<span>"), "<div><span></div>")
 
     'optional {
       'option {
-        'attr_some    - test(<.div(^.cls :=? "hi".some),    """<div class="hi"></div>""")
-        'attr_none    - test(<.div(^.cls :=? "h1".none),    """<div></div>""")
-        'style_some   - test(<.div(^.color :=? "red".some), """<div style="color:red;"></div>""")
-        'style_none   - test(<.div(^.color :=? "red".none), """<div></div>""")
-        'tagmod_some  - test(<.div(tagmod.some),            """<div class="ho"></div>""")
-        'tagmod_none  - test(<.div(tagmod.none),            """<div></div>""")
-        'tag_some     - test(<.div(reacttag.some),          """<div><span></span></div>""")
-        'tag_none     - test(<.div(reacttag.none),          """<div></div>""")
-        'element_some - test(<.div(relement.some),          """<div><p></p></div>""")
-        'element_none - test(<.div(relement.none),          """<div></div>""")
-        'comp_some    - test(<.div(H1("yoo").some),         """<div><h1>yoo</h1></div>""")
-        'comp_none    - test(<.div(H1("yoo").none),         """<div></div>""")
+        'attr_some    - test(<.div(^.cls :=? "hi".some),     """<div class="hi"></div>""")
+        'attr_none    - test(<.div(^.cls :=? "h1".none),     """<div></div>""")
+        'style_some   - test(<.div(^.color :=? "red".some),  """<div style="color:red;"></div>""")
+        'style_none   - test(<.div(^.color :=? "red".none),  """<div></div>""")
+        'attr_some    - test(<.div((^.color := "red").some), """<div style="color:red;"></div>""")
+        'attr_none    - test(<.div((^.color := "red").none), """<div></div>""")
+        'tagmod_some  - test(<.div(tagmod.some),             """<div class="ho"></div>""")
+        'tagmod_none  - test(<.div(tagmod.none),             """<div></div>""")
+        'tag_some     - test(<.div(reacttag.some),           """<div><span></span></div>""")
+        'tag_none     - test(<.div(reacttag.none),           """<div></div>""")
+        'element_some - test(<.div(relement.some),           """<div><p></p></div>""")
+        'element_none - test(<.div(relement.none),           """<div></div>""")
+        'comp_some    - test(<.div(H1("yoo").some),          """<div><h1>yoo</h1></div>""")
+        'comp_none    - test(<.div(H1("yoo").none),          """<div></div>""")
+        'text_some    - test(<.div("yoo".some),              """<div>yoo</div>""")
+        'text_none    - test(<.div("yoo".none),              """<div></div>""")
       }
       'jsUndefOr {
-        'attr_def      - test(<.div(^.cls :=? "hi".jsdef),    """<div class="hi"></div>""")
-        'attr_undef    - test(<.div(^.cls :=? "hi".undef),    """<div></div>""")
-        'style_def     - test(<.div(^.color :=? "red".jsdef), """<div style="color:red;"></div>""")
-        'style_undef   - test(<.div(^.color :=? "red".undef), """<div></div>""")
-        'tagmod_def    - test(<.div(tagmod.jsdef),            """<div class="ho"></div>""")
-        'tagmod_undef  - test(<.div(tagmod.undef),            """<div></div>""")
-        'tag_def       - test(<.div(reacttag.jsdef),          """<div><span></span></div>""")
-        'tag_undef     - test(<.div(reacttag.undef),          """<div></div>""")
-        'element_def   - test(<.div(relement.jsdef),          """<div><p></p></div>""")
-        'element_undef - test(<.div(relement.undef),          """<div></div>""")
-        'comp_def      - test(<.div(H1("yoo").jsdef),         """<div><h1>yoo</h1></div>""")
-        'comp_undef    - test(<.div(H1("yoo").undef),         """<div></div>""")
+        'attr_def      - test(<.div(^.cls :=? "hi".jsdef),     """<div class="hi"></div>""")
+        'attr_undef    - test(<.div(^.cls :=? "hi".undef),     """<div></div>""")
+        'style_def     - test(<.div(^.color :=? "red".jsdef),  """<div style="color:red;"></div>""")
+        'style_undef   - test(<.div(^.color :=? "red".undef),  """<div></div>""")
+        'attr_def      - test(<.div((^.color := "red").jsdef), """<div style="color:red;"></div>""")
+        'attr_undef    - test(<.div((^.color := "red").undef), """<div></div>""")
+        'tagmod_def    - test(<.div(tagmod.jsdef),             """<div class="ho"></div>""")
+        'tagmod_undef  - test(<.div(tagmod.undef),             """<div></div>""")
+        'tag_def       - test(<.div(reacttag.jsdef),           """<div><span></span></div>""")
+        'tag_undef     - test(<.div(reacttag.undef),           """<div></div>""")
+        'element_def   - test(<.div(relement.jsdef),           """<div><p></p></div>""")
+        'element_undef - test(<.div(relement.undef),           """<div></div>""")
+        'comp_def      - test(<.div(H1("yoo").jsdef),          """<div><h1>yoo</h1></div>""")
+        'comp_undef    - test(<.div(H1("yoo").undef),          """<div></div>""")
+        'text_def      - test(<.div("yoo".jsdef),              """<div>yoo</div>""")
+        'text_undef    - test(<.div("yoo".undef),              """<div></div>""")
       }
 //      'maybe {
 //        import ScalazReact._
