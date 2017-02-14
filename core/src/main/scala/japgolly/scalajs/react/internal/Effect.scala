@@ -3,11 +3,11 @@ package japgolly.scalajs.react.internal
 import japgolly.scalajs.react.CallbackTo
 
 abstract class Effect[F[+_]] {
-  @inline def point  [A]   (a: => A)              : F[A]
-  @inline def pure   [A]   (a: A)                 : F[A]
-  @inline def map    [A, B](a: F[A])(f: A => B)   : F[B]
-  @inline def flatMap[A, B](a: F[A])(f: A => F[B]): F[B]
-  @inline def extract[A]   (a: => F[A])           : () => A
+  def point  [A]   (a: => A)              : F[A]
+  def pure   [A]   (a: A)                 : F[A]
+  def map    [A, B](a: F[A])(f: A => B)   : F[B]
+  def flatMap[A, B](a: F[A])(f: A => F[B]): F[B]
+  def extract[A]   (a: => F[A])           : () => A
 }
 
 // https://issues.scala-lang.org/browse/SI-10140
