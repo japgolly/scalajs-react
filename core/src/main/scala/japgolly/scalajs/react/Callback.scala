@@ -364,9 +364,10 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val f: () => A) e
    * Sequence a callback to run after this, discarding any value produced by this.
    */
   def >>[B](runNext: CallbackTo[B]): CallbackTo[B] =
-    //if (isEmpty_?) runNext else
-    //flatMap(_ => runNext)
-    new CallbackTo(() => {f(); runNext.f()})
+    if (isEmpty_?)
+      runNext
+    else
+      new CallbackTo(() => {f(); runNext.f()})
 
   /**
    * Alias for `>>`.
@@ -394,13 +395,13 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val f: () => A) e
    * `ret`, short for `return`.
    */
   def ret[B](b: B): CallbackTo[B] =
-    map(_ => b)
+    this >> CallbackTo.pure(b)
 
   /**
    * Discard the value produced by this callback.
    */
   def void: Callback =
-    ret(())
+    this >> Callback.empty
 
   /**
    * Discard the value produced by this callback.
