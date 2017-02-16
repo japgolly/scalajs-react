@@ -78,6 +78,20 @@ object Generic {
     def state: F[State]
     def setState(newState: State, callback: Callback = Callback.empty): F[Unit]
     def modState(mod: State => State, callback: Callback = Callback.empty): F[Unit]
+
+    @deprecated("Renamed to setStateFn", "1.0.0")
+    final def _setState[I](f: I => State, callback: Callback = Callback.empty): I => F[Unit] =
+      setStateFn(f, callback)
+
+    @deprecated("Renamed to modStateFn", "1.0.0")
+    final def _modState[I](f: I => State => State, callback: Callback = Callback.empty): I => F[Unit] =
+      modStateFn(f, callback)
+
+    final def setStateFn[I](f: I => State, callback: Callback = Callback.empty): I => F[Unit] =
+      i => setState(f(i), callback)
+
+    final def modStateFn[I](f: I => State => State, callback: Callback = Callback.empty): I => F[Unit] =
+      i => modState(f(i), callback)
   }
 }
 
