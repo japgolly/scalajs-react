@@ -14,7 +14,7 @@ import ReusabilityOverlay.Comp
  * Heavily inspired by https://github.com/redsunsoft/react-render-visualizer
  */
 object ReusabilityOverlay {
-   type Comp = ScalaComponent.Mounted[_, _, _]
+  type Comp = ScalaComponent.Mounted[_, _, _]
 
   private val key = "reusabilityOverlay"
 
