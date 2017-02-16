@@ -2,8 +2,7 @@ package japgolly.scalajs.react.extra.router
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.Reusability
-import japgolly.scalajs.react.vdom.ReactTagOf
-import japgolly.scalajs.react.vdom.prefix_<^._
+import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html
 
 /**
@@ -62,10 +61,10 @@ abstract class RouterCtl[A] {
 
 object RouterCtl {
   private lazy val reuse: Reusability[RouterCtl[Any]] =
-    Reusability.fn[RouterCtl[Any]]{
-      case (a, b) if a eq b => true // First because most common case and fastest
+    Reusability[RouterCtl[Any]] {
+      case (a, b) if a eq b                       => true // First because most common case and fastest
       case (Contramap(ac, af), Contramap(bc, bf)) => (af eq bf) && reuse.test(ac, bc)
-      case _ => false
+      case _                                      => false
     }
 
   implicit def reusability[A]: Reusability[RouterCtl[A]] =

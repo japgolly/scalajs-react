@@ -4,14 +4,13 @@ import org.scalajs.dom.raw.EventTarget
 import org.scalajs.dom.Event
 import scala.scalajs.js
 import japgolly.scalajs.react._
-import CompScope.DuringCallbackM
 
 object EventListener {
 
   def apply[E <: Event] = new OfEventType[E](true)
 
-  def defaultTarget[P, S, B, N <: TopNode]: DuringCallbackM[P,S,B,N] => EventTarget =
-    ReactDOM.findDOMNode(_)
+  def defaultTarget[P, S, B]: ScalaComponent.Mounted[P, S, B] => EventTarget =
+    _.getDOMNode
 
   final class OfEventType[E <: Event](private val _unused: Boolean) extends AnyVal {
 
@@ -27,13 +26,13 @@ object EventListener {
      *                   Events which are bubbling upward through the tree will not trigger a listener designated to use
      *                   capture.
      */
-    def install[P, S, B <: OnUnmount, N <: TopNode](eventType : String,
-                                                    listener  : DuringCallbackM[P,S,B,N] => E => Callback,
-                                                    target    : DuringCallbackM[P,S,B,N] => EventTarget = defaultTarget[P,S,B,N],
-                                                    useCapture: Boolean = false) =
-      OnUnmount.install[P,S,B,N] andThen (_.componentDidMount { $ =>
-        val et = target($)
-        val fe = listener($)
+    def install[P, C <: Children, S, B <: OnUnmount](eventType : String,
+                                                     listener  : ScalaComponent.Mounted[P, S, B] => E => Callback,
+                                                     target    : ScalaComponent.Mounted[P, S, B] => EventTarget = defaultTarget[P, S, B],
+                                                     useCapture: Boolean = false) =
+      OnUnmount.install[P, C, S, B] andThen (_.componentDidMount { $ =>
+        val et = target($.mounted)
+        val fe = listener($.mounted)
         val f: js.Function1[E, Unit] = (e: E) => fe(e).runNow()
         val add = Callback(et.addEventListener(eventType, f, useCapture))
         val del = Callback(et.removeEventListener(eventType, f, useCapture))
@@ -43,11 +42,11 @@ object EventListener {
   } //end class
 
   /** See [[OfEventType.install()]]. */
-  def install[P, S, B <: OnUnmount, N <: TopNode](eventType : String,
-                                                  listener  : DuringCallbackM[P,S,B,N] => Callback,
-                                                  target    : DuringCallbackM[P,S,B,N] => EventTarget = defaultTarget[P,S,B,N],
-                                                  useCapture: Boolean = false) =
-    EventListener[Event].install[P,S,B,N](
+  def install[P, C <: Children, S, B <: OnUnmount](eventType : String,
+                                                   listener  : ScalaComponent.Mounted[P, S, B] => Callback,
+                                                   target    : ScalaComponent.Mounted[P, S, B] => EventTarget = defaultTarget[P, S, B],
+                                                   useCapture: Boolean = false) =
+    EventListener[Event].install[P, C, S, B](
       eventType,
       $ => { val cb = listener($); _ => cb },
       target, useCapture)

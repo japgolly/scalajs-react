@@ -1,36 +1,37 @@
 package japgolly.scalajs.react.extra
 
-import org.scalajs.dom
+import org.scalajs.dom.{console, document, window}
+import org.scalajs.dom.html.Element
+import org.scalajs.dom.raw.{CSSStyleDeclaration, Node}
 import scala.concurrent.duration._
 import scalajs.js
-import japgolly.scalajs.react._, vdom.prefix_<^._
-import dom.{console, document, window}
-import dom.html.Element
-import dom.raw.{CSSStyleDeclaration, Node}
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.internal.Box
+import japgolly.scalajs.react.vdom.html_<^._
 import ReusabilityOverlay.Comp
 
 /**
  * Heavily inspired by https://github.com/redsunsoft/react-render-visualizer
  */
 object ReusabilityOverlay {
-  type Comp = CompScope.Mounted[TopNode]
+   type Comp = ScalaComponent.Mounted[_, _, _]
 
   private val key = "reusabilityOverlay"
 
-  def install[P: Reusability, S: Reusability, B, N <: TopNode](newOverlay: Comp => ReusabilityOverlay) = {
+  def install[P: Reusability, C <: Children, S: Reusability, B](newOverlay: ScalaComponent.Mounted[P, S, B] => ReusabilityOverlay): ScalaComponentConfig[P, C, S, B] = {
 
     // Store the overlay stats on each instance
-    def get(c: Comp): ReusabilityOverlay = {
-      def $ = c.asInstanceOf[js.Dynamic]
-      $.selectDynamic(key).asInstanceOf[js.UndefOr[WrapObj[ReusabilityOverlay]]].fold {
-        val o = newOverlay(c)
-        $.updateDynamic(key)(WrapObj(o))
+    def get(raw: ScalaComponent.RawMounted[P, S, B]): ReusabilityOverlay = {
+      def $ = raw.asInstanceOf[js.Dynamic]
+      $.selectDynamic(key).asInstanceOf[js.UndefOr[Box[ReusabilityOverlay]]].fold {
+        val o = newOverlay(ScalaComponent.mountRaw(raw))
+        $.updateDynamic(key)(Box(o))
         o
-      }(_.v)
+      }(_.unbox)
     }
 
-    Reusability.shouldComponentUpdateAnd[P, S, B, N] { r =>
-      val overlay = get(r.$)
+    Reusability.shouldComponentUpdateAnd[P, C, S, B] { r =>
+      val overlay = get(r.mounted.js.raw)
       if (r.update) {
         def fmt(update: Boolean, name: String, va: Any, vb: Any) =
           if (!update)
@@ -48,15 +49,15 @@ object ReusabilityOverlay {
               s"$name update: $a ⇒ $b"
           }
         val sep = if (r.updateProps && r.updateState) "\n" else ""
-        val reason = fmt(r.updateProps, "Props", r.$.props, r.nextProps) + sep +
-                     fmt(r.updateState, "State", r.$.state, r.nextState)
+        val reason = fmt(r.updateProps, "Props", r.currentProps, r.nextProps) + sep +
+                     fmt(r.updateState, "State", r.currentState, r.nextState)
         overlay logBad reason
       }
       else
         overlay.logGood
     } andThen (_
-      .componentDidMount(get(_).onMount)
-      .componentWillUnmount(get(_).onUnmount)
+      .componentDidMount(i => get(i.raw).onMount)
+      .componentWillUnmount(i => get(i.raw).onUnmount)
     )
   }
 }
@@ -96,7 +97,7 @@ object DefaultReusabilityOverlay {
   }
 
   val styleAll: TagMod =
-    (^.fontSize := "0.9em") compose (^.lineHeight := "0.9em")
+    TagMod(^.fontSize := "0.9em", ^.lineHeight := "0.9em")
 
   val defaultContainer =
     <.div(
@@ -134,7 +135,7 @@ object DefaultReusabilityOverlay {
                   frame1: CSSStyleDeclaration => Unit,
                   frame2: CSSStyleDeclaration => Unit): Comp => Callback =
     $ => Callback {
-      val n = ReactDOM findDOMNode $
+      val n = $.getDOMNode
       before(n.style)
       window.requestAnimationFrame{(_: Double) =>
         frame1(n.style)
@@ -191,9 +192,9 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
   val create = Callback {
 
     // Create
-    val tmp = document.createElement("div")
+    val tmp = document.createElement("div").domAsHtml
     document.body.appendChild(tmp)
-    ReactDOM.render(options.template.template, tmp)
+    raw.ReactDOM.render(options.template.template.rawReactElement, tmp)
     val outer = tmp.firstChild
     document.body.replaceChild(outer, tmp)
 
@@ -210,7 +211,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     Callback(overlay foreach f)
 
   val updatePosition = withNodes { n =>
-    val d = ReactDOM findDOMNode $
+    val d = $.getDOMNode
     val ds = d.getBoundingClientRect()
     val ns = n.outer.getBoundingClientRect()
 

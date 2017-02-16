@@ -3,7 +3,8 @@ package japgolly.scalajs.react.extra.router
 import org.scalajs.dom
 import scala.annotation.elidable
 import scala.util.{Failure, Success, Try}
-import japgolly.scalajs.react.{Callback, ReactElement}
+import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.vdom.ReactElement
 import RouterConfig.{Logger, Parsed}
 
 case class RouterConfig[Page](parse       : Path => Parsed[Page],
@@ -72,7 +73,7 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
     if (errors.isEmpty)
       this
     else {
-      import japgolly.scalajs.react.vdom.prefix_<^._
+      import japgolly.scalajs.react.vdom.html_<^._
       val es = errors.sorted.map(e => s"\n  - $e") mkString ""
       val msg = s"${errors.size} RouterConfig errors detected:$es"
       dom.console.error(msg)

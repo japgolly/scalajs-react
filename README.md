@@ -128,3 +128,23 @@ Contributions welcome.
   - Once the above works, it would be good to be able to choose a backend type for `ReactComponentB`.
 
 - Add a `Cats` module too? Contribution welcome.
+
+# Release note / migration reminders
+
+Refactored:
+  * ExternalVar/ReusableVar -> StateSnapshot
+  * ReusableVal/ReusableVal2 -> Reusable
+
+* Update in ScalaDoc:
+  * ReactComponentB
+
+* Moved into extra:
+  * domCast
+  * domAsHtml
+  * domToHtml
+
+* Removed completely:
+  * tryFocus
+  * tryTo
+  * {set,mod}StateCB
+  * CallbackB

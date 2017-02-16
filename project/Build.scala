@@ -97,7 +97,7 @@ object ScalajsReact {
     }
 
   def utestSettings: PE =
-    _.configure(useReactJs("test"), setupJsEnv)
+    _.configure(useReactJs("test"), setupJsEnv, InBrowserTesting.js)
       .settings(
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
@@ -153,8 +153,8 @@ object ScalajsReact {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    // .aggregate(core, test, scalaz72, monocle, extra, ghpagesMacros, ghpages)
-    .aggregate(core)
+    // .aggregate(test, scalaz72, monocle, ghpagesMacros, ghpages)
+    .aggregate(core, extra)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -171,7 +171,7 @@ object ScalajsReact {
 
   // ==============================================================================================
   lazy val core = project
-    .configure(commonSettings, publicationSettings, definesMacros, utestSettings, InBrowserTesting.js)
+    .configure(commonSettings, publicationSettings, definesMacros, utestSettings)
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
@@ -181,11 +181,11 @@ object ScalajsReact {
         (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
         (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test))
 
-//  lazy val extra = project
-//    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
-//    .dependsOn(core)
-//    .settings(name := "extra")
-//
+  lazy val extra = project
+    .configure(commonSettings, publicationSettings, definesMacros, utestSettings)
+    .dependsOn(core)
+    .settings(name := "extra")
+
 //  lazy val test = project
 //    .configure(commonSettings, publicationSettings, utestSettings, InBrowserTesting.js)
 //    .dependsOn(core, extra, monocle)

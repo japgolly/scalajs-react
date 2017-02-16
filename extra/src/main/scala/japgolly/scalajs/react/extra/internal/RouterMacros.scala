@@ -1,7 +1,8 @@
-package japgolly.scalajs.react.macros
+package japgolly.scalajs.react.extra.internal
 
 import scala.reflect.macros.blackbox.Context
 import japgolly.scalajs.react.extra.router.StaticDsl.{Route, RouteB}
+import japgolly.scalajs.react.internal.ReactMacroUtils
 
 class RouterMacros (val c: Context) extends ReactMacroUtils {
   import c.universe._
@@ -17,8 +18,8 @@ class RouterMacros (val c: Context) extends ReactMacroUtils {
     val params  = primaryConstructorParams(T)
     val applyFn = tcApplyFn(T)
 
-    def xmap  = replaceMacroMethod("xmap")
-    def const = replaceMacroMethod("const")
+    def xmap  = replaceMacroCallWith("xmap")
+    def const = replaceMacroCallWith("const")
 
     val impl =
       params match {

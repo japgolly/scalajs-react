@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.{TopNode, ReactComponentB, Callback}
+import japgolly.scalajs.react._
 
 /**
  * Accrues procedures to be run automatically when its component unmounts.
@@ -18,8 +18,8 @@ trait OnUnmount {
 }
 
 object OnUnmount {
-  def install[P, S, B <: OnUnmount, N <: TopNode] =
-    (_: ReactComponentB[P, S, B, N]).componentWillUnmount(_.backend.unmount)
+  def install[P, C <: Children, S, B <: OnUnmount]: ScalaComponentConfig[P, C, S, B] =
+    _.componentWillUnmount(_.backend.unmount)
 
   /**
    * Convenience class for the frequent case that a component needs a backend with `OnUnmount` and nothing else.

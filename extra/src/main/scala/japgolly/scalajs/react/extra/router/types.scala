@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.extra.router
 
 import org.scalajs.dom
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra.assertWarn
+import japgolly.scalajs.react.extra.internal.assertWarn
+import japgolly.scalajs.react.vdom.ReactElement
 
 // =====================================================================================================================
 // URLs

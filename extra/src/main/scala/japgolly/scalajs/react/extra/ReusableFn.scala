@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.extra
 
 import scala.runtime.AbstractFunction1
-import japgolly.scalajs.react._
 
 /**
  * A function that facilitates stability and reuse.
@@ -16,12 +15,6 @@ import japgolly.scalajs.react._
 sealed abstract class ReusableFn[-A, +B] extends AbstractFunction1[A, B] {
   private[extra] def reusable[AA <: A, BB >: B]: PartialFunction[AA ~=> BB, Boolean]
 
-  def asVar[AA <: A](value: AA)(implicit r: Reusability[AA], ev: (A ~=> B) <:< (AA ~=> Callback)): ReusableVar[AA] =
-    new ReusableVar(value, ev(this))(r)
-
-  def asVarR[AA <: A](value: AA, r: Reusability[AA])(implicit ev: (A ~=> B) <:< (AA ~=> Callback)): ReusableVar[AA] =
-    asVar(value)(r, ev)
-
   def dimap[C, D](f: (A => B) => C => D): C ~=> D =
     ReusableFn(f(this))
 
@@ -30,9 +23,6 @@ sealed abstract class ReusableFn[-A, +B] extends AbstractFunction1[A, B] {
 
   def contramap[C](f: C => A): C ~=> B =
     dimap(f.andThen)
-
-  def fnA[AA <: A, BB >: B](a: AA)(implicit ra: Reusability[AA]): ReusableFnA[AA, BB] =
-    new ReusableFnA(a, this)
 }
 
 object ReusableFn {
@@ -59,41 +49,41 @@ object ReusableFn {
   def byName[A, B](f: => (A => B)): A ~=> B =
     ReusableFn[A, B](a => f(a))
 
-  @inline def apply[Y, Z](f: Y => Z): Y ~=> Z =
+  def apply[Y, Z](f: Y => Z): Y ~=> Z =
     new Fn1(f)
 
-  @inline def apply[A: Reusability, Y, Z](f: (A, Y) => Z): A ~=> (Y ~=> Z) =
+  def apply[A: Reusability, Y, Z](f: (A, Y) => Z): A ~=> (Y ~=> Z) =
     new Fn2(f)
 
-  @inline def apply[A: Reusability, B: Reusability, Y, Z](f: (A, B, Y) => Z): A ~=> (B ~=> (Y ~=> Z)) =
+  def apply[A: Reusability, B: Reusability, Y, Z](f: (A, B, Y) => Z): A ~=> (B ~=> (Y ~=> Z)) =
     new Fn3(f)
 
-  @inline def apply[A: Reusability, B: Reusability, C: Reusability, Y, Z](f: (A, B, C, Y) => Z): A ~=> (B ~=> (C ~=> (Y ~=> Z))) =
+  def apply[A: Reusability, B: Reusability, C: Reusability, Y, Z](f: (A, B, C, Y) => Z): A ~=> (B ~=> (C ~=> (Y ~=> Z))) =
     new Fn4(f)
 
-  @inline def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, Y, Z](f: (A, B, C, D, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (Y ~=> Z)))) =
+  def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, Y, Z](f: (A, B, C, D, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (Y ~=> Z)))) =
     new Fn5(f)
 
-  @inline def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, E: Reusability, Y, Z](f: (A, B, C, D, E, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))) =
+  def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, E: Reusability, Y, Z](f: (A, B, C, D, E, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))) =
     new Fn6(f)
 
-  def renderComponent[P](c: ReactComponentC.ReqProps[P, _, _, TopNode]): P ~=> ReactElement =
-    ReusableFn(c(_: P))
+//  def renderComponent[P](c: ReactComponentC.ReqProps[P, _, _, TopNode]): P ~=> ReactElement =
+//    ReusableFn(c(_: P))
 
-  @inline def apply[S]($: CompState.WriteAccess[S]) = new CompOps($)
+//  @inline def apply[S]($: CompState.WriteAccess[S]) = new CompOps($)
 
-  final class CompOps[S](private val $: CompState.WriteAccess[S]) extends AnyVal {
-    // These look useless but avoid Scala type-inference issues
-
-    def modState: (S => S) ~=> Callback =
-      ReusableFn($ modState _)
-
-    def setState: S ~=> Callback =
-      ReusableFn($ setState _)
-  }
+//  final class CompOps[S](private val $: CompState.WriteAccess[S]) extends AnyVal {
+//    // These look useless but avoid Scala type-inference issues
+//
+//    def modState: (S => S) ~=> Callback =
+//      ReusableFn($ modState _)
+//
+//    def setState: S ~=> Callback =
+//      ReusableFn($ setState _)
+//  }
 
   implicit def reusability[A, B]: Reusability[ReusableFn[A, B]] =
-    Reusability.fn((x, y) => (x eq y) || x.reusable.applyOrElse(y, (_: ReusableFn[A, B]) => false))
+    Reusability((x, y) => (x eq y) || x.reusable.applyOrElse(y, (_: ReusableFn[A, B]) => false))
 
   // ===================================================================================================================
   private type R[A] = Reusability[A]
@@ -138,10 +128,10 @@ object ReusableFn {
     override private[extra] def reusable[I <: A, O >: (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z)))))] = { case x: Fn6[I, _, _, _, _, _, _] => f eq x.f }
   }
 
-  @inline private def cur2[A:R, B:R,                Y, Z](f: (A,B,      Y) => Z): (A,B      ) => (Y ~=> Z) = new Cur2(_,_,      f)
-  @inline private def cur3[A:R, B:R, C:R,           Y, Z](f: (A,B,C,    Y) => Z): (A,B,C    ) => (Y ~=> Z) = new Cur3(_,_,_,    f)
-  @inline private def cur4[A:R, B:R, C:R, D:R,      Y, Z](f: (A,B,C,D,  Y) => Z): (A,B,C,D  ) => (Y ~=> Z) = new Cur4(_,_,_,_,  f)
-  @inline private def cur5[A:R, B:R, C:R, D:R, E:R, Y, Z](f: (A,B,C,D,E,Y) => Z): (A,B,C,D,E) => (Y ~=> Z) = new Cur5(_,_,_,_,_,f)
+  private def cur2[A:R, B:R,                Y, Z](f: (A,B,      Y) => Z): (A,B      ) => (Y ~=> Z) = new Cur2(_,_,      f)
+  private def cur3[A:R, B:R, C:R,           Y, Z](f: (A,B,C,    Y) => Z): (A,B,C    ) => (Y ~=> Z) = new Cur3(_,_,_,    f)
+  private def cur4[A:R, B:R, C:R, D:R,      Y, Z](f: (A,B,C,D,  Y) => Z): (A,B,C,D  ) => (Y ~=> Z) = new Cur4(_,_,_,_,  f)
+  private def cur5[A:R, B:R, C:R, D:R, E:R, Y, Z](f: (A,B,C,D,E,Y) => Z): (A,B,C,D,E) => (Y ~=> Z) = new Cur5(_,_,_,_,_,f)
 
   private class Cur1[A: R, -Y, +Z](val a: A, val f: (A, Y) => Z) extends ReusableFn[Y, Z] {
     override def apply(y: Y): Z = f(a, y)
@@ -167,22 +157,4 @@ object ReusableFn {
     override def apply(y: Y): Z = f(a, b, c, d, e, y)
     override private[extra] def reusable[I <: Y, O >: Z] = { case x: Cur5[A, B, C, D, E, _, _] => (f eq x.f) && (a ~=~ x.a) && (b ~=~ x.b) && (c ~=~ x.c) && (d ~=~ x.d) && (e ~=~ x.e) }
   }
-}
-
-// ===================================================================================================================
-
-/**
- * A [[ReusableFn]] from `A` to `B`, paired with a value of `A`.
- *
- * Ideally this would be `ReusableFn0[B]` without needing the `A` (a reusable version of `() => B`)
- * but the overhead to reliably create such a construct is annoyingly high and not worth it.
- */
-final class ReusableFnA[A, B] private[extra](val a: A, val fn: A ~=> B) {
-  def apply(): B =
-    fn(a)
-}
-
-object ReusableFnA {
-  implicit def reusability[A: Reusability, B]: Reusability[ReusableFnA[A, B]] =
-    Reusability.fn((x, y) => (x.a ~=~ y.a) && (x.fn ~=~ y.fn))
 }

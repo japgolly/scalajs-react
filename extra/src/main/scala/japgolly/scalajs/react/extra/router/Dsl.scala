@@ -4,8 +4,9 @@ import java.util.UUID
 import java.util.regex.{Pattern, Matcher}
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
-import japgolly.scalajs.react.macros.RouterMacros
-import japgolly.scalajs.react.{CallbackTo, ReactElement}
+import japgolly.scalajs.react.CallbackTo
+import japgolly.scalajs.react.extra.internal.RouterMacros
+import japgolly.scalajs.react.vdom.ReactElement
 import RouterConfig.Parsed
 
 /**

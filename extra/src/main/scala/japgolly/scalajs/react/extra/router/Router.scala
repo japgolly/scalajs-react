@@ -4,6 +4,7 @@ import org.scalajs.dom
 import scala.scalajs.js
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.vdom.ReactElement
 
 object Router {
 
@@ -14,7 +15,7 @@ object Router {
     componentUnbuiltC(baseUrl, cfg, new RouterLogic(baseUrl, cfg))
 
   def componentUnbuiltC[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page], lgc: RouterLogic[Page]) =
-    ReactComponentB[Unit]("Router")
+    ScalaComponent.build[Unit]("Router")
       .initialStateCB    (     lgc.syncToWindowUrl)
       .backend           (_ => new OnUnmount.Backend)
       .render_S          (     lgc.render)
@@ -22,7 +23,7 @@ object Router {
       .componentDidUpdate(i => cfg.postRenderFn(Some(i.prevState.page), i.currentState.page))
       .configure(
         EventListener.install("popstate", _ => lgc.ctl.refresh, _ => dom.window),
-        Listenable.installU(_ => lgc, $ => $ setStateCB lgc.syncToWindowUrl))
+        Listenable.installU(_ => lgc, $ => lgc.syncToWindowUrl.flatMap($.setState(_))))
 
   def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
     val l = new RouterLogic(baseUrl, cfg)

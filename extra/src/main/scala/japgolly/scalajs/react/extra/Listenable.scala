@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import CompScope.DuringCallbackM
 
 /**
  * External entities can register with this to listen (receive) data of type A.
@@ -21,10 +20,12 @@ trait Listenable[A] {
 
 object Listenable {
 
-  def install[P, S, B <: OnUnmount, N <: TopNode, A](f: P => Listenable[A], g: DuringCallbackM[P, S, B, N] => A => Callback) =
-    OnUnmount.install[P, S, B, N] andThen (_.componentDidMount($ =>
+  def install[P, C <: Children, S, B <: OnUnmount, A](f: P => Listenable[A],
+                                                      g: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => A => Callback): ScalaComponentConfig[P, C, S, B] =
+    OnUnmount.install[P, C, S, B] andThen (_.componentDidMount($ =>
       f($.props).register(g($)) >>= $.backend.onUnmount))
 
-  def installU[P, S, B <: OnUnmount, N <: TopNode](f: P => Listenable[Unit], g: DuringCallbackM[P, S, B, N] => Callback) =
-    install[P, S, B, N, Unit](f, $ => _ => g($))
+  def installU[P, C <: Children, S, B <: OnUnmount](f: P => Listenable[Unit],
+                                                    g: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => Callback): ScalaComponentConfig[P, C, S, B] =
+    install[P, C, S, B, Unit](f, $ => _ => g($))
 }

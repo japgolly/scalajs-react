@@ -3,7 +3,7 @@ package japgolly.scalajs.react.extra
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js.{UndefOr, undefined}
 import scala.scalajs.js.timers.{RawTimers, SetTimeoutHandle}
-import japgolly.scalajs.react.{CallbackTo, Callback, TopNode}
+import japgolly.scalajs.react._
 
 /**
  * Alternatives to `window.setTimeout`/`window.setInterval` that automatically unregister installed callbacks
@@ -53,5 +53,6 @@ trait TimerSupport extends OnUnmount {
 }
 
 object TimerSupport {
-  def install[P, S, B <: TimerSupport, N <: TopNode] = OnUnmount.install[P, S, B, N]
+  @inline def install[P, C <: Children, S, B <: TimerSupport]: ScalaComponentConfig[P, C, S, B] =
+    OnUnmount.install
 }
