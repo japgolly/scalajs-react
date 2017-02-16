@@ -5,7 +5,6 @@ import scala.{Either => Or}
 import scalajs.js
 import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, raw, vdom}
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.macros.ComponentBuilderMacros
 import Scala._
 
 object ScalaBuilder {
@@ -159,7 +158,10 @@ object ScalaBuilder {
 
   // ===================================================================================================================
 
-  final class Step4[P, C <: Children, S, B](name       : String,
+  type Config[P, C <: Children, S, B] =
+    Step4[P, C, S, B] => Step4[P, C, S, B]
+
+  final class Step4[P, C <: Children, S, B](val name   : String,
                                             initStateFn: InitStateArg[P, S],
                                             backendFn  : NewBackendFn[P, S, B],
                                             renderFn   : RenderFn[P, S, B],
@@ -175,6 +177,9 @@ object ScalaBuilder {
 
     private def lcAppend[I, O](lens: Lens[Lifecycle[P, S, B], Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
       copy(lifecycle = lifecycle.append(lens)(g)(s))
+
+    def configure(fs: Config[P, C, S, B]*): This =
+      fs.foldLeft(this)((s, f) => f(s))
 
     /**
      * Invoked once, only on the client (not on the server), immediately after the initial rendering occurs. At this point
@@ -258,12 +263,50 @@ object ScalaBuilder {
      * speed up your app.
      */
     def shouldComponentUpdate(f: ShouldComponentUpdateFn[P, S, B]): This =
-      lcAppend(Lifecycle.shouldComponentUpdate)(f)(Semigroup.either)
+      lcAppend(Lifecycle.shouldComponentUpdate)(f)(Semigroup.eitherCB)
+
+    /**
+     * Invoked before rendering when new props or state are being received. This method is not called for the initial
+     * render or when `forceUpdate` is used.
+     *
+     * Use this as an opportunity to `return false` when you're certain that the transition to the new props and state
+     * will not require a component update.
+     *
+     * If `shouldComponentUpdate` returns false, then `render()` will be completely skipped until the next state change.
+     * In addition, `componentWillUpdate` and `componentDidUpdate` will not be called.
+     *
+     * By default, `shouldComponentUpdate` always returns `true` to prevent subtle bugs when `state` is mutated in place,
+     * but if you are careful to always treat `state` as immutable and to read only from `props` and `state` in `render()`
+     * then you can override `shouldComponentUpdate` with an implementation that compares the old props and state to their
+     * replacements.
+     *
+     * If performance is a bottleneck, especially with dozens or hundreds of components, use `shouldComponentUpdate` to
+     * speed up your app.
+     */
+    def shouldComponentUpdatePure(f: ShouldComponentUpdate[P, S, B] => Boolean): This =
+      shouldComponentUpdate($ => CallbackTo(f($)))
+
+    @deprecated("Use componentDidMountConst",         "1.0.0") def componentDidMountCB        (cb: Callback           ): This = componentDidMount        (_ => cb)
+    @deprecated("Use componentDidUpdateConst",        "1.0.0") def componentDidUpdateCB       (cb: Callback           ): This = componentDidUpdate       (_ => cb)
+    @deprecated("Use componentWillMountConst",        "1.0.0") def componentWillMountCB       (cb: Callback           ): This = componentWillMount       (_ => cb)
+    @deprecated("Use componentWillReceivePropsConst", "1.0.0") def componentWillReceivePropsCB(cb: Callback           ): This = componentWillReceiveProps(_ => cb)
+    @deprecated("Use componentWillUnmountConst",      "1.0.0") def componentWillUnmountCB     (cb: Callback           ): This = componentWillUnmount     (_ => cb)
+    @deprecated("Use componentWillUpdateConst",       "1.0.0") def componentWillUpdateCB      (cb: Callback           ): This = componentWillUpdate      (_ => cb)
+    @deprecated("Use shouldComponentUpdateConst",     "1.0.0") def shouldComponentUpdateCB    (cb: CallbackTo[Boolean]): This = shouldComponentUpdate    (_ => cb)
+
+    def componentDidMountConst        (cb: Callback           ): This = componentDidMount         (_ => cb)
+    def componentDidUpdateConst       (cb: Callback           ): This = componentDidUpdate        (_ => cb)
+    def componentWillMountConst       (cb: Callback           ): This = componentWillMount        (_ => cb)
+    def componentWillReceivePropsConst(cb: Callback           ): This = componentWillReceiveProps (_ => cb)
+    def componentWillUnmountConst     (cb: Callback           ): This = componentWillUnmount      (_ => cb)
+    def componentWillUpdateConst      (cb: Callback           ): This = componentWillUpdate       (_ => cb)
+    def shouldComponentUpdateConst    (cb: CallbackTo[Boolean]): This = shouldComponentUpdate     (_ => cb)
+    def shouldComponentUpdateConst    (b : Boolean            ): This = shouldComponentUpdateConst(CallbackTo pure b)
 
     def spec: raw.ReactComponentSpec = {
       val spec = js.Object().asInstanceOf[raw.ReactComponentSpec]
 
-      @inline def castV($: raw.ReactComponent) = $.asInstanceOf[Vars[P, S, B]]
+      @inline def castV($: raw.ReactComponent) = $.asInstanceOf[RawMounted[P, S, B]]
       @inline def castP($: raw.Props) = $.asInstanceOf[Box[P]]
       @inline def castS($: raw.State) = $.asInstanceOf[Box[S]]
 
@@ -272,7 +315,7 @@ object ScalaBuilder {
 
       def withMounted[A](f: RenderScope[P, S, B] => A): js.ThisFunction0[raw.ReactComponent, A] =
         ($: raw.ReactComponent) =>
-          f(RenderScope(castV($).mounted.js))
+          f(new RenderScope(castV($)))
 
       spec.render = withMounted(renderFn.andThen(_.rawReactElement))
 
@@ -334,11 +377,11 @@ object ScalaBuilder {
 
       lifecycle.componentWillUpdate.foreach(f =>
         spec.componentWillUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
-          f(new ComponentWillUpdate(castV($).mounted, castP(p).unbox, castS(s).unbox)).runNow())
+          f(new ComponentWillUpdate(castV($), castP(p).unbox, castS(s).unbox)).runNow())
 
       lifecycle.shouldComponentUpdate.foreach(f =>
         spec.shouldComponentUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
-          f(new ShouldComponentUpdate(castV($).mounted, castP(p).unbox, castS(s).unbox)))
+          f(new ShouldComponentUpdate(castV($), castP(p).unbox, castS(s).unbox)).runNow())
 
 //        if (jsMixins.nonEmpty)
 //          spec("mixins") = JArray(jsMixins: _*)
@@ -395,22 +438,34 @@ object ScalaBuilder {
     //   - def xmapState[X](f: S => X)(g: X => S): Mounted[F, P, X] =
     //   - def zoomState[X](get: S => X)(set: X => S => S): Mounted[F, P, X] =
 
+    sealed trait Base[P, S, B] extends Any {
+      def raw: RawMounted[P, S, B]
+
+      final def backend  : B                  = raw.backend
+      final def mounted  : Mounted  [P, S, B] = raw.mounted
+      final def mountedCB: MountedCB[P, S, B] = raw.mountedCB
+    }
+
+    sealed trait SetStateCB[P, S, B] extends Any with Base[P, S, B] {
+      final def setState   (newState: S, cb: Callback = Callback.empty): Callback = mountedCB.setState(newState, cb)
+      final def modState   (mod: S => S, cb: Callback = Callback.empty): Callback = mountedCB.modState(mod, cb)
+    }
+
+    sealed trait UpdateCB[P, S, B] extends Any with SetStateCB[P, S, B] {
+      final def forceUpdate(cb: Callback = Callback.empty): Callback = mountedCB.forceUpdate(cb)
+    }
+
     // ===================================================================================================================
 
     def componentDidMount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentDidMount)(n => _.copy(componentDidMount = n))
 
     type ComponentDidMountFn[P, S, B] = ComponentDidMount[P, S, B] => Callback
 
-    final class ComponentDidMount[P, S, B](val raw: Vars[P, S, B]) extends AnyVal {
-      def backend      : B             = raw.backend
-      def props        : P             = raw.mounted.props
-      def propsChildren: PropsChildren = raw.mounted.propsChildren
-      def state        : S             = raw.mounted.state
-      def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
-
-      def setState   (newState: S, cb: Callback = Callback.empty): Callback = raw.mountedCB.setState(newState, cb)
-      def modState   (mod: S => S, cb: Callback = Callback.empty): Callback = raw.mountedCB.modState(mod, cb)
-      def forceUpdate(cb: Callback = Callback.empty)             : Callback = raw.mountedCB.forceUpdate(cb)
+    final class ComponentDidMount[P, S, B](val raw: RawMounted[P, S, B]) extends AnyVal with UpdateCB[P, S, B] {
+      def props        : P                = mounted.props
+      def propsChildren: PropsChildren    = mounted.propsChildren
+      def state        : S                = mounted.state
+      def getDOMNode   : dom.Element      = mounted.getDOMNode
     }
 
     // ===================================================================================================================
@@ -419,16 +474,11 @@ object ScalaBuilder {
 
     type ComponentDidUpdateFn[P, S, B] = ComponentDidUpdate[P, S, B] => Callback
 
-    final class ComponentDidUpdate[P, S, B](val raw: Vars[P, S, B], val prevProps: P, val prevState: S) {
-      def backend      : B             = raw.mounted.backend
-      def propsChildren: PropsChildren = raw.mounted.propsChildren
-      def currentProps : P             = raw.mounted.props
-      def currentState : S             = raw.mounted.state
-      def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
-
-      def setState   (newState: S, cb: Callback = Callback.empty): Callback = raw.mountedCB.setState(newState, cb)
-      def modState   (mod: S => S, cb: Callback = Callback.empty): Callback = raw.mountedCB.modState(mod, cb)
-      def forceUpdate(cb: Callback = Callback.empty)             : Callback = raw.mountedCB.forceUpdate(cb)
+    final class ComponentDidUpdate[P, S, B](val raw: RawMounted[P, S, B], val prevProps: P, val prevState: S) extends UpdateCB[P, S, B] {
+      def propsChildren: PropsChildren = mounted.propsChildren
+      def currentProps : P             = mounted.props
+      def currentState : S             = mounted.state
+      def getDOMNode   : dom.Element   = mounted.getDOMNode
     }
 
     // ===================================================================================================================
@@ -437,17 +487,13 @@ object ScalaBuilder {
 
     type ComponentWillMountFn[P, S, B] = ComponentWillMount[P, S, B] => Callback
 
-    final class ComponentWillMount[P, S, B](val raw: Vars[P, S, B]) extends AnyVal {
-      def backend      : B             = raw.backend
-      def props        : P             = raw.mounted.props
-      def propsChildren: PropsChildren = raw.mounted.propsChildren
-      def state        : S             = raw.mounted.state
-
-      def setState   (newState: S, cb: Callback = Callback.empty): Callback = raw.mountedCB.setState(newState, cb)
-      def modState   (mod: S => S, cb: Callback = Callback.empty): Callback = raw.mountedCB.modState(mod, cb)
+    final class ComponentWillMount[P, S, B](val raw: RawMounted[P, S, B]) extends AnyVal with SetStateCB[P, S, B] {
+      def props        : P             = mounted.props
+      def propsChildren: PropsChildren = mounted.propsChildren
+      def state        : S             = mounted.state
 
       @deprecated("forceUpdate prohibited within the componentWillMount callback.", "")
-      def forceUpdate(prohibited: Nothing): Nothing = ???
+      def forceUpdate(prohibited: Nothing = ???): Nothing = ???
 
       // Nope
       // def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
@@ -459,21 +505,20 @@ object ScalaBuilder {
 
     type ComponentWillUnmountFn[P, S, B] = ComponentWillUnmount[P, S, B] => Callback
 
-    final class ComponentWillUnmount[P, S, B](val raw: Vars[P, S, B]) extends AnyVal {
-      def backend      : B             = raw.backend
-      def props        : P             = raw.mounted.props
-      def propsChildren: PropsChildren = raw.mounted.propsChildren
-      def state        : S             = raw.mounted.state
-      def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
+    final class ComponentWillUnmount[P, S, B](val raw: RawMounted[P, S, B]) extends AnyVal with Base[P, S, B] {
+      def props        : P             = mounted.props
+      def propsChildren: PropsChildren = mounted.propsChildren
+      def state        : S             = mounted.state
+      def getDOMNode   : dom.Element   = mounted.getDOMNode
 
       @deprecated("setState prohibited within the componentWillUnmount callback.", "")
-      def setState(prohibited: Nothing): Nothing = ???
+      def setState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
 
       @deprecated("modState prohibited within the componentWillUnmount callback.", "")
-      def modState(prohibited: Nothing): Nothing = ???
+      def modState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
 
       @deprecated("forceUpdate prohibited within the componentWillUnmount callback.", "")
-      def forceUpdate(prohibited: Nothing): Nothing = ???
+      def forceUpdate(prohibited: Nothing = ???): Nothing = ???
     }
 
     // ===================================================================================================================
@@ -482,16 +527,11 @@ object ScalaBuilder {
 
     type ComponentWillReceivePropsFn[P, S, B] = ComponentWillReceiveProps[P, S, B] => Callback
 
-    final class ComponentWillReceiveProps[P, S, B](val raw: Vars[P, S, B], val nextProps: P) {
-      def backend      : B             = raw.backend
-      def propsChildren: PropsChildren = raw.mounted.propsChildren
-      def currentProps : P             = raw.mounted.props
-      def state        : S             = raw.mounted.state
-      def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
-
-      def setState   (newState: S, cb: Callback = Callback.empty): Callback = raw.mountedCB.setState(newState, cb)
-      def modState   (mod: S => S, cb: Callback = Callback.empty): Callback = raw.mountedCB.modState(mod, cb)
-      def forceUpdate(cb: Callback = Callback.empty)             : Callback = raw.mountedCB.forceUpdate(cb)
+    final class ComponentWillReceiveProps[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P) extends UpdateCB[P, S, B] {
+      def propsChildren: PropsChildren = mounted.propsChildren
+      def currentProps : P             = mounted.props
+      def state        : S             = mounted.state
+      def getDOMNode   : dom.Element   = mounted.getDOMNode
     }
 
     // ===================================================================================================================
@@ -500,79 +540,55 @@ object ScalaBuilder {
 
     type ComponentWillUpdateFn[P, S, B] = ComponentWillUpdate[P, S, B] => Callback
 
-    final class ComponentWillUpdate[P, S, B](val raw: Mounted[P, S, B], val nextProps: P, val nextState: S) {
-      @inline def backend      : B             = raw.backend
-      @inline def propsChildren: PropsChildren = raw.propsChildren
-      @inline def currentProps : P             = raw.props
-      @inline def currentState : S             = raw.state
-      @inline def getDOMNode   : dom.Element   = raw.getDOMNode
+    final class ComponentWillUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S) extends Base[P, S, B] {
+      def propsChildren: PropsChildren = mounted.propsChildren
+      def currentProps : P             = mounted.props
+      def currentState : S             = mounted.state
+      def getDOMNode   : dom.Element   = mounted.getDOMNode
 
       @deprecated("setState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-      def setState(prohibited: Nothing): Nothing = ???
+      def setState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
 
       @deprecated("modState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-      def modState(prohibited: Nothing): Nothing = ???
+      def modState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
 
       @deprecated("forceUpdate prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-      def forceUpdate(prohibited: Nothing): Nothing = ???
+      def forceUpdate(prohibited: Nothing = ???): Nothing = ???
     }
 
     // ===================================================================================================================
 
     def shouldComponentUpdate[P, S, B] = Lens((_: Lifecycle[P, S, B]).shouldComponentUpdate)(n => _.copy(shouldComponentUpdate = n))
 
-    type ShouldComponentUpdateFn[P, S, B] = ShouldComponentUpdate[P, S, B] => Boolean
+    type ShouldComponentUpdateFn[P, S, B] = ShouldComponentUpdate[P, S, B] => CallbackTo[Boolean]
 
-    final class ShouldComponentUpdate[P, S, B](val raw: Mounted[P, S, B], val nextProps: P, val nextState: S) {
-      @inline def backend      : B             = raw.backend
-      @inline def propsChildren: PropsChildren = raw.propsChildren
-      @inline def currentProps : P             = raw.props
-      @inline def currentState : S             = raw.state
-      @inline def getDOMNode   : dom.Element   = raw.getDOMNode
+    final class ShouldComponentUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S) extends Base[P, S, B] {
+      def propsChildren: PropsChildren = mounted.propsChildren
+      def currentProps : P             = mounted.props
+      def currentState : S             = mounted.state
+      def getDOMNode   : dom.Element   = mounted.getDOMNode
 
-      @inline def cmpProps(cmp: (P, P) => Boolean): Boolean = cmp(currentProps, nextProps)
-      @inline def cmpState(cmp: (S, S) => Boolean): Boolean = cmp(currentState, nextState)
+      def cmpProps(cmp: (P, P) => Boolean): Boolean = cmp(currentProps, nextProps)
+      def cmpState(cmp: (S, S) => Boolean): Boolean = cmp(currentState, nextState)
 
       @deprecated("setState prohibited within the shouldComponentUpdate callback.", "")
-      def setState(prohibited: Nothing): Nothing = ???
+      def setState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
 
       @deprecated("modState prohibited within the shouldComponentUpdate callback.", "")
-      def modState(prohibited: Nothing): Nothing = ???
+      def modState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
 
       @deprecated("forceUpdate prohibited within the shouldComponentUpdate callback.", "")
-      def forceUpdate(prohibited: Nothing): Nothing = ???
+      def forceUpdate(prohibited: Nothing = ???): Nothing = ???
     }
 
     // ===================================================================================================================
 
-    final case class RenderScope[P, S, B](js: JsMounted[P, S, B]) extends AnyVal {
-
-      def backend: B =
-        js.raw.backend
-
-       def isMounted: Boolean =
-        js.isMounted
-
-       def props: P =
-        js.props.unbox
-
-       def propsChildren: PropsChildren =
-        js.propsChildren
-
-       def state: S =
-        js.state.unbox
-
-       def getDOMNode: org.scalajs.dom.Element =
-        js.getDOMNode
-
-      def setState(newState: S, callback: Callback = Callback.empty): Callback =
-        Callback(js.setState(Box(newState), callback))
-
-      def modState(mod: S => S, callback: Callback = Callback.empty): Callback =
-        Callback(js.modState(s => Box(mod(s.unbox)), callback))
-
-      def forceUpdate(callback: Callback = Callback.empty): Callback =
-        Callback(js.forceUpdate(callback))
+    final class RenderScope[P, S, B](val raw: RawMounted[P, S, B]) extends UpdateCB[P, S, B] {
+      def isMounted    : Boolean       = mounted.isMounted
+      def props        : P             = mounted.props
+      def propsChildren: PropsChildren = mounted.propsChildren
+      def state        : S             = mounted.state
+      def getDOMNode   : dom.Element   = mounted.getDOMNode
     }
 
   }

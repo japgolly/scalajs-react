@@ -9,13 +9,15 @@ object Scala {
   def build[P](name: String) =
     new ScalaBuilder.Step1[P](name)
 
+  val Lifecycle = ScalaBuilder.Lifecycle
+
   type Component[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
     Js.BaseComponent[
       P, CT, Unmounted[P, S, B],
       Box[P], CT, JsUnmounted[P, S, B]]
 
 //  type Component[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
-//    Js.MappedComponent[Effect.Id, P, S, CT, Js.RawMounted with Vars[P, S, B], Box[P], Box[S], CT]
+//    Js.MappedComponent[Effect.Id, P, S, CT, RawMounted[P, S, B], Box[P], Box[S], CT]
 
   type Unmounted   [P, S, B] = Js.BaseUnmounted[P, Mounted[P, S, B], Box[P], JsMounted[P, S, B]]
   type Mounted     [P, S, B] = RootMounted[Effect.Id, P, S, B]
@@ -25,6 +27,8 @@ object Scala {
   type JsComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = Js.ComponentPlusFacade[Box[P], Box[S], CT, Vars[P, S, B]]
   type JsUnmounted[P, S, B]                               = Js.UnmountedPlusFacade[Box[P], Box[S],     Vars[P, S, B]]
   type JsMounted  [P, S, B]                               = Js.MountedPlusFacade  [Box[P], Box[S],     Vars[P, S, B]]
+
+  type RawMounted[P, S, B] = Js.RawMounted with Vars[P, S, B]
 
   @js.native
   trait Vars[P, S, B] extends js.Object {
@@ -92,6 +96,9 @@ object Scala {
       override def mapped[F3[+ _], P3, S3](mp: P1 => P3, ls: Lens[S1, S3])(implicit ft: Effect.Trans[Effect.Id, F3]) = mappedM(from)(mp, ls)(ft)
     }
 
+  def mountRaw[P, S, B](x: RawMounted[P, S, B]): Mounted[P, S, B] =
+    rootMounted(Js.rootMounted(x))
+
   // ===================================================================================================================
 
   def mutableRefTo[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: Component[P, S, B, CT]): MutableRef[P, S, B, CT] =
@@ -103,7 +110,7 @@ object Scala {
 
     private def refSet: raw.RefFn =
       (i: js.Any) => value =
-        if (i == null) null else i.asInstanceOf[Js.RawMounted with Vars[P, S, B]].mounted
+        if (i == null) null else i.asInstanceOf[RawMounted[P, S, B]].mounted
 
     val component: CT[P, Unmounted[P, S, B]] =
       CtorType.hackBackToSelf(c.ctor)(c.ctor.withRawProp("ref", refSet))

@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.macros
+package japgolly.scalajs.react.internal
 
 import scala.reflect.macros.blackbox.Context
 import japgolly.scalajs.react.Children

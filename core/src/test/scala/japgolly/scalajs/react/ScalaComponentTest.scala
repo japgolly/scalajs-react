@@ -120,8 +120,8 @@ object ScalaComponentPTest extends TestSuite {
         .stateless
         .backend(new Backend(_))
         .render_P(p => raw.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
-        .shouldComponentUpdate(_.cmpProps(_.a != _.a)) // update if .a differs
-        .shouldComponentUpdate(_.cmpProps(_.b != _.b)) // update if .b differs
+        .shouldComponentUpdatePure(_.cmpProps(_.a != _.a)) // update if .a differs
+        .shouldComponentUpdatePure(_.cmpProps(_.b != _.b)) // update if .b differs
         .componentDidMount(_ => Callback(mountCountA += 1))
         .componentDidMount(_.backend.incMountCount)
         .componentWillMount(_ => Callback { mountCountBeforeMountA += mountCountA; willMountCountA += 1 })
