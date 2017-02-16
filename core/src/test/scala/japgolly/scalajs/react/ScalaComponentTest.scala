@@ -25,7 +25,7 @@ object ScalaComponentPTest extends TestSuite {
     'types {
       import InferenceUtil._
       import ScalaComponent._
-      'cu - test[Component[P, S, B, CtorType.Void]](_.ctor()).expect[Unmounted[P, S, B]]
+      'cu - test[Component[P, S, B, CtorType.Nullary]](_.ctor()).expect[Unmounted[P, S, B]]
       'um - test[Unmounted[P, S, B]](_.renderIntoDOM(null)).expect[Mounted[P, S, B]]
     }
 

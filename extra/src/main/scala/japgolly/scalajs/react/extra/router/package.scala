@@ -4,7 +4,7 @@ import japgolly.scalajs.react._
 
 package object router {
 
-  type Router [P] = ScalaComponent          [Unit, Resolution[P], OnUnmount.Backend, CtorType.Void]
+  type Router [P] = ScalaComponent          [Unit, Resolution[P], OnUnmount.Backend, CtorType.Nullary]
   type RouterU[P] = ScalaComponent.Unmounted[Unit, Resolution[P], OnUnmount.Backend]
   type RouterM[P] = ScalaComponent.Mounted  [Unit, Resolution[P], OnUnmount.Backend]
 

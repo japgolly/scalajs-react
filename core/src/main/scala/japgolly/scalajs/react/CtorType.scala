@@ -99,8 +99,8 @@ object CtorType {
     def cmapProps[P2](f: P2 => P): Props[P2, U] =
       new Props((p2, m) => construct(f(p2), m), mods)
 
-    def withProps(p: P): Void[P, U] =
-      new Void[P, U](construct(p, mods), m => construct(p, m), noMod)
+    def withProps(p: P): Nullary[P, U] =
+      new Nullary[P, U](construct(p, mods), m => construct(p, m), noMod)
   }
 
 
@@ -118,16 +118,16 @@ object CtorType {
     override def addMod(f: ModFn): This[P, U] =
       new Children(construct, modAppend(mods, f))
 
-    def withChildren(c: ChildArg*): Void[P, U] =
-      new Void[P, U](construct(mods, c), m => construct(m, c), noMod)
+    def withChildren(c: ChildArg*): Nullary[P, U] =
+      new Nullary[P, U](construct(mods, c), m => construct(m, c), noMod)
   }
 
 
-  final class Void[-P, +U](private[CtorType] val unmodified: U,
-                           private[CtorType] val construct: Mod => U,
-                           private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
+  final class Nullary[-P, +U](private[CtorType] val unmodified: U,
+                              private[CtorType] val construct: Mod => U,
+                              private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
 
-    override type This[-P, +U] = Void[P, U]
+    override type This[-P, +U] = Nullary[P, U]
 
     override def applyGeneric(props: P)(children: ChildArg*): U =
       apply()
@@ -136,7 +136,7 @@ object CtorType {
       mods.fold(unmodified)(construct)
 
     override def addMod(f: ModFn): This[P, U] =
-      new Void(unmodified, construct, modAppend(mods, f))
+      new Nullary(unmodified, construct, modAppend(mods, f))
   }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -188,10 +188,10 @@ object CtorType {
     }
   }
 
-  implicit object ProfunctorV extends Profunctor[Void] {
-    override def lmap [A, B, C   ](x: Void[A, B])(f: C => A)            = x.asInstanceOf[Void[C, B]]
-    override def rmap [A, B, C   ](x: Void[A, B])(g: B => C)            = new Void(g(x.unmodified), g compose x.construct, x.mods)
-    override def dimap[A, B, C, D](x: Void[A, B])(f: C => A, g: B => D) = new Void(g(x.unmodified), g compose x.construct, x.mods)
+  implicit object ProfunctorN extends Profunctor[Nullary] {
+    override def lmap [A, B, C   ](x: Nullary[A, B])(f: C => A)            = x.asInstanceOf[Nullary[C, B]]
+    override def rmap [A, B, C   ](x: Nullary[A, B])(g: B => C)            = new Nullary(g(x.unmodified), g compose x.construct, x.mods)
+    override def dimap[A, B, C, D](x: Nullary[A, B])(f: C => A, g: B => D) = new Nullary(g(x.unmodified), g compose x.construct, x.mods)
   }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -220,9 +220,9 @@ object CtorType {
         override implicit val pf = p
       }
 
-    implicit def summonV[P <: js.Object](implicit s: Singleton[P]) =
-      Summoner[P, ChildrenArg.None, Void](rc =>
-        new Void[P, raw.ReactComponentElement](
+    implicit def summonN[P <: js.Object](implicit s: Singleton[P]) =
+      Summoner[P, ChildrenArg.None, Nullary](rc =>
+        new Nullary[P, raw.ReactComponentElement](
           raw.React.createElement(rc, s.value),
           m => raw.React.createElement(rc, m(s.mutableObj())),
           noMod))
@@ -234,7 +234,7 @@ object CtorType {
           raw.React.createElement(rc, p, formatChildren(c): _*)
         }, noMod))
 
-    implicit def summonF[P <: js.Object](implicit w: Singleton.Not[P]) =
+    implicit def summonPC[P <: js.Object](implicit w: Singleton.Not[P]) =
       Summoner[P, ChildrenArg.Varargs, PropsAndChildren](rc =>
         new PropsAndChildren[P, raw.ReactComponentElement]((p, mm, c) => {
           val p2 = mm.fold[js.Object](p)(m => m(prepareForMutation(p)))
