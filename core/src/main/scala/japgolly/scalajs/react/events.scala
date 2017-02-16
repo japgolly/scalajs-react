@@ -60,11 +60,50 @@ trait ReactEventTypes {
   final type ReactUIEventTA          = raw.SyntheticUIEvent         [html.TextArea]
   final type ReactWheelEventTA       = raw.SyntheticWheelEvent      [html.TextArea]
 
-  implicit def toReactKeyboardEventOps[N <: dom.Node](e: raw.SyntheticKeyboardEvent[N]): ReactKeyboardEventOps[N] =
-    new ReactKeyboardEventOps(e)
+  implicit def toReactExt_DomEvent                         (e: dom.Event                    ): ReactExt_DomEvent              = new ReactExt_DomEvent(e)
+  implicit def toReactExt_ReactEvent[E <: ReactEvent]      (e: E                            ): ReactExt_ReactEvent[E]         = new ReactExt_ReactEvent(e)
+  implicit def toReactExt_ReactKeyboardEvent[N <: dom.Node](e: raw.SyntheticKeyboardEvent[N]): ReactExt_ReactKeyboardEvent[N] = new ReactExt_ReactKeyboardEvent(e)
 }
 
-final class ReactKeyboardEventOps[N <: dom.Node](private val e: raw.SyntheticKeyboardEvent[N]) extends AnyVal {
+final class ReactExt_DomEvent(private val e: dom.Event) extends AnyVal {
+  /**
+   * Stops the default action of an element from happening.
+   * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
+   */
+  def preventDefaultCB = Callback(e.preventDefault())
+
+  /**
+   * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
+   */
+  def stopPropagationCB = Callback(e.stopPropagation())
+}
+
+final class ReactExt_ReactEvent[E <: ReactEvent](private val e: E) extends AnyVal {
+  /**
+   * Stops the default action of an element from happening.
+   * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
+   */
+  def preventDefaultCB = Callback(e.preventDefault())
+
+  /**
+   * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
+   */
+  def stopPropagationCB = Callback(e.stopPropagation())
+
+  /**
+   * If you want to access the event properties in an asynchronous way (eg. in a `modState(…)` function),
+   * React will have recycled the event by the time the asynchronous call executes.
+   *
+   * This convenience function extracts a value from the event synchronously (i.e. now!) and so that it is
+   * available to the asynchronous code.
+   */
+  @inline def extract[A, B](getNow: E => A)(useAsync: A => B): B = {
+    val a = getNow(e)
+    useAsync(a)
+  }
+}
+
+final class ReactExt_ReactKeyboardEvent[N <: dom.Node](private val e: raw.SyntheticKeyboardEvent[N]) extends AnyVal {
 
   /**
    * Checks the state of all pressed modifier keys.
