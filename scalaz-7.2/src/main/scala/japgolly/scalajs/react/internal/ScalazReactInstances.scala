@@ -1,14 +1,16 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.internal
 
 import scala.annotation.tailrec
 import scalaz.{Optional => _, _}
 import scalaz.Isomorphism.<~>
 import scalaz.effect.IO
 import Scalaz.Id
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra._
 
 trait ScalazReactInstances {
 
-  implicit val callbackScalazInstance: Monad[CallbackTo] with BindRec[CallbackTo] =
+  implicit final lazy val callbackScalazInstance: Monad[CallbackTo] with BindRec[CallbackTo] =
     new Monad[CallbackTo] with BindRec[CallbackTo] {
       override def point[A](a: => A): CallbackTo[A] =
         CallbackTo(a)
@@ -31,7 +33,7 @@ trait ScalazReactInstances {
         }
     }
 
-  implicit val callbackOptionScalazInstance: Monad[CallbackOption] with BindRec[CallbackOption] =
+  implicit final lazy val callbackOptionScalazInstance: Monad[CallbackOption] with BindRec[CallbackOption] =
     new Monad[CallbackOption] with BindRec[CallbackOption] {
       override def point[A](a: => A): CallbackOption[A] =
         CallbackOption.liftValue(a)
@@ -55,7 +57,7 @@ trait ScalazReactInstances {
         }
     }
 
-  implicit val maybeInstance: OptionLike[Maybe] = new OptionLike[Maybe] {
+  implicit final lazy val maybeInstance: OptionLike[Maybe] = new OptionLike[Maybe] {
     type O[A] = Maybe[A]
     def map     [A, B](o: O[A])(f: A => B)         : O[B]      = o map f
     def fold    [A, B](o: O[A], b: => B)(f: A => B): B         = o.cata(f, b)
@@ -64,26 +66,55 @@ trait ScalazReactInstances {
     def toOption[A]   (o: O[A])                    : Option[A] = o.toOption
   }
 
-  implicit val callbackToItself: (CallbackTo ~> CallbackTo) =
+  implicit final lazy val callbackToItself: (CallbackTo ~> CallbackTo) =
     new (CallbackTo ~> CallbackTo) { override def apply[A](a: CallbackTo[A]) = a }
 
-  implicit val scalazIoToCallback: (IO ~> CallbackTo) =
+  implicit final lazy val scalazIoToCallback: (IO ~> CallbackTo) =
     new (IO ~> CallbackTo) { override def apply[A](a: IO[A]) = CallbackTo(a.unsafePerformIO()) }
 
-  val scalazIoToCallbackIso: (CallbackTo <~> IO) =
+  final lazy val scalazIoToCallbackIso: (CallbackTo <~> IO) =
     new (CallbackTo <~> IO) {
       override val from = scalazIoToCallback
       override val to: CallbackTo ~> IO =
         new (CallbackTo ~> IO) { override def apply[A](a: CallbackTo[A]): IO[A] = IO(a.runNow()) }
     }
 
-  implicit val scalazIdToCallback: (Id ~> CallbackTo) =
+  implicit final lazy val scalazIdToCallback: (Id ~> CallbackTo) =
     new (Id ~> CallbackTo) { override def apply[A](a: Id[A]) = CallbackTo pure a }
 
-  val scalazIdToCallbackIso: (CallbackTo <~> Id) =
+  final lazy val scalazIdToCallbackIso: (CallbackTo <~> Id) =
     new (CallbackTo <~> Id) {
       override val from = scalazIdToCallback
       override val to: CallbackTo ~> Id =
         new (CallbackTo ~> Id) { override def apply[A](a: CallbackTo[A]): Id[A] = a.runNow() }
     }
+
+  implicit final def reusabilityDisjunction[A: Reusability, B: Reusability]: Reusability[A \/ B] =
+    Reusability((x, y) =>
+      x.fold[Boolean](
+        a => y.fold(a ~=~ _, _ => false),
+        b => y.fold(_ => false, b ~=~ _)))
+
+  implicit final def reusabilityThese[A: Reusability, B: Reusability]: Reusability[A \&/ B] = {
+    import \&/._
+    Reusability {
+      case (Both(a, b), Both(c, d)) => (a ~=~ c) && (b ~=~ d)
+      case (This(a),    This(b))    => a ~=~ b
+      case (That(a),    That(b))    => a ~=~ b
+      case _ => false
+    }
+  }
+
+  implicit final def routerEqualBaseUrl: Equal[router.BaseUrl] = Equal.equalA
+  implicit final def routerEqualPath   : Equal[router.Path]    = Equal.equalA
+  implicit final def routerEqualAbsUrl : Equal[router.AbsUrl]  = Equal.equalA
+
+  implicit final def routerRuleMonoid[P]: Monoid[router.StaticDsl.Rule[P]] = {
+    import router.StaticDsl.Rule
+    new Monoid[Rule[P]] {
+      override def zero = Rule.empty
+      override def append(a: Rule[P], b: => Rule[P]) = a | b
+    }
+  }
+
 }

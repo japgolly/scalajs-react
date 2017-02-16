@@ -153,8 +153,8 @@ object ScalajsReact {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    // .aggregate(test, scalaz72, monocle, ghpagesMacros, ghpages)
-    .aggregate(core, extra)
+    // .aggregate(test, monocle, ghpagesMacros, ghpages)
+    .aggregate(core, extra, scalaz72)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -202,16 +202,16 @@ object ScalajsReact {
 //      addCompilerPlugin(macroParadisePlugin))
 
   // ==============================================================================================
-//  def scalazModule(name: String, version: String) = {
-//    val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")
-//    Project(shortName, file(name))
-//      .configure(commonSettings, publicationSettings, extModuleName(shortName), hasNoTests)
-//      .dependsOn(core, extra)
-//      .settings(
-//        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version)
-//  }
-//
-//  lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
+  def scalazModule(name: String, version: String) = {
+    val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")
+    Project(shortName, file(name))
+      .configure(commonSettings, publicationSettings, extModuleName(shortName), hasNoTests)
+      .dependsOn(core, extra)
+      .settings(
+        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version)
+  }
+
+  lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
   // ==============================================================================================
 //  lazy val monocle = project
