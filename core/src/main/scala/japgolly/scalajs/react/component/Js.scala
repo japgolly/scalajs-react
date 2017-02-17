@@ -119,9 +119,8 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
       extends Generic.BaseMounted[F, P1, S1, P0, S0] {
 
     override final type Root = RootMounted[F, P0, S0, R]
+    override type WithMappedState[S2] <: BaseMounted[F, P1, S2, R, P0, S0]
     override def mapProps[P2](f: P1 => P2): BaseMounted[F, P2, S1, R, P0, S0]
-    override def xmapState[S2](f: S1 => S2)(g: S2 => S1): BaseMounted[F, P1, S2, R, P0, S0]
-    override def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): BaseMounted[F, P1, S2, R, P0, S0]
     override def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): BaseMounted[F2, P1, S1, R, P0, S0]
 
     val raw: R

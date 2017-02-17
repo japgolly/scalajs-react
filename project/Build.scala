@@ -13,8 +13,8 @@ object ScalajsReact {
     val Scala212      = "2.12.1"
     val ScalaJsDom    = "0.9.1"
     val ReactJs       = "15.3.2"
-    val Monocle       = "1.3.2"
-    val Scalaz72      = "7.2.7"
+    val Monocle       = "1.4.0"
+    val Scalaz72      = "7.2.8"
     val MTest         = "0.4.4"
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.3.0"
@@ -153,8 +153,8 @@ object ScalajsReact {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    // .aggregate(test, monocle, ghpagesMacros, ghpages)
-    .aggregate(core, extra, scalaz72)
+    // .aggregate(test, ghpagesMacros, ghpages)
+    .aggregate(core, extra, scalaz72, monocle)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -214,13 +214,13 @@ object ScalajsReact {
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
   // ==============================================================================================
-//  lazy val monocle = project
-//    .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
-//    .dependsOn(core, extra, scalaz72)
-//    .settings(libraryDependencies += monocleLib("core"))
-//
-//  def monocleLib(name: String) =
-//    "com.github.julien-truffaut" %%%! s"monocle-$name" % Ver.Monocle
+  lazy val monocle = project
+    .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
+    .dependsOn(core, extra, scalaz72)
+    .settings(libraryDependencies += monocleLib("core"))
+
+  def monocleLib(name: String) =
+    "com.github.julien-truffaut" %%%! s"monocle-$name" % Ver.Monocle
 
   // ==============================================================================================
 //  lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))

@@ -63,9 +63,11 @@ object Generic {
     type Root <: Mounted[F, P0, S0]
     def root: Root
 
+    type WithMappedState[S2] <: BaseMounted[F, P1, S2, P0, S0]
+
     def mapProps[P2](f: P1 => P2): BaseMounted[F, P2, S1, P0, S0]
-    def xmapState[S2](f: S1 => S2)(g: S2 => S1): BaseMounted[F, P1, S2, P0, S0]
-    def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): BaseMounted[F, P1, S2, P0, S0]
+    def xmapState[S2](f: S1 => S2)(g: S2 => S1): WithMappedState[S2]
+    def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): WithMappedState[S2]
     def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): BaseMounted[F2, P1, S1, P0, S0]
 
     def isMounted: F[Boolean]

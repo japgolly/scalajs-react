@@ -12,6 +12,8 @@ object Template {
     type Mapped[F1[+ _], P1, S1] <: Generic.BaseMounted[F1, P1, S1, P0, S0]
     protected def mapped[F1[+ _], P1, S1](mp: P0 => P1, ls: Lens[S0, S1])(implicit ft: Effect.Trans[Effect.Id, F1]): Mapped[F1, P1, S1]
 
+    override type WithMappedState[S1] = Mapped[F, P0, S1]
+
     override def mapProps[P1](f: P0 => P1) =
       mapped(f, Lens.id)
 
@@ -48,6 +50,8 @@ object Template {
 
     override def modState(f: State => State, callback: Callback = Callback.empty) =
       ft apply from.modState(ls mod f, callback)
+
+    override type WithMappedState[S3] = Mapped[F, P2, S3]
 
     override def mapProps[P3](f: P2 => P3) =
       mapped(f compose mp, ls)

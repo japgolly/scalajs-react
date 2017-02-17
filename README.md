@@ -100,12 +100,12 @@ Contributions welcome.
 
 - Revise & integrate the `extra` module.
 - Revise & integrate the Scalaz module.
+- Revise & integrate the Monocle module.
 
 # Pending
 
 - Easy way to change MountedCB back into Mounted. Same for State/Prop traits if they get added back.
 - Revise & integrate the `test` module.
-- Revise & integrate the Monocle module.
 - Update the `gh-pages` module.
 - Update doc.
 
