@@ -5,7 +5,8 @@ import scalaz.effect.IO
 import Scalaz.Id
 import Leibniz.===
 import japgolly.scalajs.react._
-import ScalazReact.callbackScalazInstance
+import japgolly.scalajs.react.extra.StateAccess
+import ScalazReact.{reactCallbackScalazInstance, ScalazReactExt_ReactST}
 
 trait ScalazReactState {
 
@@ -14,43 +15,19 @@ trait ScalazReactState {
 
   final val ReactS = ScalazReactState.ReactS
 
+  type ChangeFilter[S] = ScalazReactState.ChangeFilter[S]
+  val ChangeFilter = ScalazReactState.ChangeFilter
+
   import ScalazReactState._
 
+  //@inline implicit final def ScalazReactExt_StateAccessRW[F[_], C, S](component: C)(implicit sa: StateAccess.ReadWriteF[F, C, S], fToCb: Effect.Trans[F, CallbackTo]) = new Ext_StateAccessRW(component)
+  @inline implicit final def ScalazReactExt_StateAccessRWId[C, S](component: C)(implicit sa: StateAccess.ReadWrite[C, S]) = new Ext_StateAccessRW[Effect.Id, C, S](component)
+  @inline implicit final def ScalazReactExt_StateAccessRWCB[C, S](component: C)(implicit sa: StateAccess.ReadWriteCB[C, S]) = new Ext_StateAccessRW[CallbackTo, C, S](component)
   @inline implicit final def ScalazReactExt_ReactS[S, A](a: ReactS[S, A]) = new Ext_ReactS(a)
   @inline implicit final def ScalazReactExt_ReactST[M[_], S, A](a: ReactST[M, S, A]) = new Ext_ReactST(a)
   @inline implicit final def ScalazReactExt_StateT[M[_], S, A](a: StateT[M, S, A]) = new Ext_StateT(a)
   @inline implicit final def ScalazReactExt_FnToStateT[I, M[_], S, A](a: I => StateT[M, S, A]) = new Ext_FnToStateT(a)
 }
-
-//  implicit def Ext_StateTOps[M[_], S, A](s: StateT[M, S, A]) =
-//    new ScalazReactState.Ext_StateTOps(s)
-//
-//  implicit def Ext__StateTOps[I, M[_], S, A](f: I => StateT[M, S, A]) =
-//    new ScalazReactState.Ext__StateTOps(f)
-//
-//  implicit def Ext_ReactSOps[S, A](r: ReactS[S,A]) =
-//    new ScalazReactState.Ext_ReactSOps(r)
-//
-//  implicit def Ext_ReactSTOps[M[_], S, A](r: ReactST[M,S,A]) =
-//    new ScalazReactState.Ext_ReactSTOps(r)
-//
-//  implicit def ScalazReactStateOpsCB[$, S]($: $)(implicit ops: $ => CompState.WriteAccess[S]) =
-//    new ScalazReactState.ScalazReactStateOps[S, CallbackTo](ops($).accessCB, ScalazReact.callbackToItself)
-//
-//  implicit def ScalazReactStateOpsDirect[$, S]($: $)(implicit ops: $ => CompState.AccessD[S]) =
-//    new ScalazReactState.ScalazReactStateOps[S, Id](ops($).accessCB, ScalazReact.scalazIdToCallbackIso.to)
-//
-//  final case class ChangeFilter[S](allowChange: (S, S) => Boolean) {
-//    def apply[A](s1: S, s2: S, orElse: => A, change: S => A): A =
-//      if (allowChange(s1, s2)) change(s2) else orElse
-//  }
-//  object ChangeFilter {
-//    def refl[S] = apply[S](_ != _)
-//    def reflOn[S, T](f: S => T) = apply[S](f(_) != f(_))
-//    def equal[S: Equal] = apply[S]((a,b) => !implicitly[Equal[S]].equal(a,b))
-//    def equalOn[S, T: Equal](f: S => T) = apply[S]((a,b) => !implicitly[Equal[T]].equal(f(a),f(b)))
-//  }
-//
 
 // =====================================================================================================================
 
@@ -205,43 +182,66 @@ object ScalazReactState {
     }
   }
 
-//  final class ScalazReactStateOps[S, W[_]](private val $: CompState.Access[S], W: CallbackTo ~> W) {
-//    private implicit def autoToW[A](cb: CallbackTo[A]): W[A] = W(cb)
-//
-//    private def run[M[_], A, B](st: => ReactST[M, S, A], f: (S, S, A, => Callback) => CallbackTo[B])(implicit M: M ~> CallbackTo, N: Monad[M]): CallbackTo[B] =
-//      $.state |> (StateAndCallbacks(_)) >>= (s1 =>
-//        M(st run s1) >>= { x2 =>
-//          val s2 = x2._1
-//          val a  = x2._2
-//          f(s1.state, s2.state, a, $.setState(s2.state, s2.cb))
-//        }
-//      )
-//
-//    def runState[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): W[A] =
-//      run[M, A, A](st, (s1,s2,a,cb) => cb.map(_ => a))
-//
-//    def _runState[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): I => W[A] =
-//      i => runState(f(i))
-//
-//    def _runState[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M]): I => W[A] =
-//      i => runState(f(i) addCallback cb(i))
-//
-//    def runStateF[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): W[A] =
-//      run[M, A, A](st, (s1,s2,a,cb) => F(s1, s2, CallbackTo pure a, _ => cb.map(_ => a)))
-//
-//    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => W[A] =
-//      i => runStateF(f(i))
-//
-//    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => W[A] =
-//      i => runStateF(f(i) addCallback cb(i))
-//
-//    def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): W[Unit] =
-//      $.state >>= (s1 =>
-//        F(s1, f(s1), Callback.empty, $.setState(_, cb)))
-//
-//    def _modStateF[I](f: I => S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): I => W[Unit] =
-//      i => modStateF(f(i), cb)
-//  }
+  final class Ext_StateAccessRW[F[+_], C, S](component: C)(implicit sa: StateAccess.ReadWriteF[F, C, S], fToCb: Effect.Trans[F, CallbackTo]) {
+    type Out[A] = CallbackTo[A]
+
+    private def stateCB: CallbackTo[S] =
+      fToCb(sa.state(component))
+
+    private def run[M[_], A, B](st: => ReactST[M, S, A], f: (S, S, A, => Callback) => CallbackTo[B])(implicit M: M ~> CallbackTo, N: Monad[M]): CallbackTo[B] =
+      stateCB.flatMap { _s1 =>
+        val s1 = StateAndCallbacks(_s1)
+        M(st run s1).flatMap { x2 =>
+          val s2 = x2._1
+          val a = x2._2
+          f(s1.state, s2.state, a, sa.setStateCB(component)(s2.state, s2.cb))
+        }
+      }
+
+    def runState[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): Out[A] =
+      run[M, A, A](st, (s1,s2,a,cb) => cb.map(_ => a))
+
+    @deprecated("Use runStateFn.", "1.0.0")
+    def _runState[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): I => Out[A] = runStateFn(f)
+    def runStateFn[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): I => Out[A] =
+      i => runState(f(i))
+
+    @deprecated("Use runStateFn.", "1.0.0")
+    def _runState[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M]): I => Out[A] = runStateFn(f, cb)
+    def runStateFn[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M]): I => Out[A] =
+      i => runState(f(i) addCallback cb(i))
+
+    def runStateF[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): Out[A] =
+      run[M, A, A](st, (s1,s2,a,cb) => F(s1, s2, CallbackTo pure a, _ => cb.map(_ => a)))
+
+    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
+      i => runStateF(f(i))
+
+    @deprecated("Use runStateFnF.", "1.0.0")
+    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] = runStateFnF(f, cb)
+    def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
+      i => runStateF(f(i) addCallback cb(i))
+
+    def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): Out[Unit] =
+      stateCB.flatMap(s1 =>
+        F(s1, f(s1), Callback.empty, sa.setStateCB(component)(_, cb)))
+
+    @deprecated("Use modStateFnF.", "1.0.0")
+    def _modStateF[I](f: I => S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): I => Out[Unit] = modStateFnF(f, cb)
+    def modStateFnF[I](f: I => S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): I => Out[Unit] =
+      i => modStateF(f(i), cb)
+  }
+
+  final case class ChangeFilter[S](allowChange: (S, S) => Boolean) {
+    def apply[A](s1: S, s2: S, orElse: => A, change: S => A): A =
+      if (allowChange(s1, s2)) change(s2) else orElse
+  }
+  object ChangeFilter {
+    def refl[S] = apply[S](_ != _)
+    def reflOn[S, T](f: S => T) = apply[S](f(_) != f(_))
+    def equal[S: Equal] = apply[S]((a,b) => !implicitly[Equal[S]].equal(a,b))
+    def equalOn[S, T: Equal](f: S => T) = apply[S]((a,b) => !implicitly[Equal[T]].equal(f(a),f(b)))
+  }
 
   final class Ext_StateT[M[_], S, A](private val s: StateT[M, S, A]) extends AnyVal {
     def liftS(implicit M: Monad[M]): ReactST[M, S, A] = ReactS.liftS(s)

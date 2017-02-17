@@ -10,7 +10,7 @@ import japgolly.scalajs.react.extra._
 
 trait ScalazReactInstances {
 
-  implicit final lazy val callbackScalazInstance: Monad[CallbackTo] with BindRec[CallbackTo] =
+  implicit final lazy val reactCallbackScalazInstance: Monad[CallbackTo] with BindRec[CallbackTo] =
     new Monad[CallbackTo] with BindRec[CallbackTo] {
       override def point[A](a: => A): CallbackTo[A] =
         CallbackTo(a)
@@ -33,7 +33,7 @@ trait ScalazReactInstances {
         }
     }
 
-  implicit final lazy val callbackOptionScalazInstance: Monad[CallbackOption] with BindRec[CallbackOption] =
+  implicit final lazy val reactCallbackOptionScalazInstance: Monad[CallbackOption] with BindRec[CallbackOption] =
     new Monad[CallbackOption] with BindRec[CallbackOption] {
       override def point[A](a: => A): CallbackOption[A] =
         CallbackOption.liftValue(a)
@@ -57,7 +57,7 @@ trait ScalazReactInstances {
         }
     }
 
-  implicit final lazy val maybeInstance: OptionLike[Maybe] = new OptionLike[Maybe] {
+  implicit final lazy val maybeReactInstance: OptionLike[Maybe] = new OptionLike[Maybe] {
     type O[A] = Maybe[A]
     def map     [A, B](o: O[A])(f: A => B)         : O[B]      = o map f
     def fold    [A, B](o: O[A], b: => B)(f: A => B): B         = o.cata(f, b)
@@ -66,28 +66,23 @@ trait ScalazReactInstances {
     def toOption[A]   (o: O[A])                    : Option[A] = o.toOption
   }
 
-  implicit final lazy val callbackToItself: (CallbackTo ~> CallbackTo) =
-    new (CallbackTo ~> CallbackTo) { override def apply[A](a: CallbackTo[A]) = a }
+  // Nope: variance
+  // implicit final lazy val ioReactInstance: Effect[IO] = new Effect[IO] {
 
-  implicit final lazy val scalazIoToCallback: (IO ~> CallbackTo) =
+  implicit final lazy val ioToReactCallback: (IO ~> CallbackTo) =
     new (IO ~> CallbackTo) { override def apply[A](a: IO[A]) = CallbackTo(a.unsafePerformIO()) }
 
-  final lazy val scalazIoToCallbackIso: (CallbackTo <~> IO) =
+  implicit final lazy val reactCallbackToIso: (CallbackTo ~> IO) =
+    new (CallbackTo ~> IO) { override def apply[A](a: CallbackTo[A]) = IO(a.runNow()) }
+
+  final lazy val ioToReactCallbackIso: (CallbackTo <~> IO) =
     new (CallbackTo <~> IO) {
-      override val from = scalazIoToCallback
-      override val to: CallbackTo ~> IO =
-        new (CallbackTo ~> IO) { override def apply[A](a: CallbackTo[A]): IO[A] = IO(a.runNow()) }
+      override val from = ioToReactCallback
+      override val to = reactCallbackToIso
     }
 
-  implicit final lazy val scalazIdToCallback: (Id ~> CallbackTo) =
-    new (Id ~> CallbackTo) { override def apply[A](a: Id[A]) = CallbackTo pure a }
-
-  final lazy val scalazIdToCallbackIso: (CallbackTo <~> Id) =
-    new (CallbackTo <~> Id) {
-      override val from = scalazIdToCallback
-      override val to: CallbackTo ~> Id =
-        new (CallbackTo ~> Id) { override def apply[A](a: CallbackTo[A]): Id[A] = a.runNow() }
-    }
+  implicit final lazy val reactCallbackToItself: (CallbackTo ~> CallbackTo) =
+    new (CallbackTo ~> CallbackTo) { override def apply[A](a: CallbackTo[A]) = a }
 
   implicit final def reusabilityDisjunction[A: Reusability, B: Reusability]: Reusability[A \/ B] =
     Reusability((x, y) =>

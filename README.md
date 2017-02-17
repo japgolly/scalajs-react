@@ -98,13 +98,13 @@ Contributions welcome.
   - Type-safe refs to JS components.
   - Prevent refs to functional components.
 
+- Revise & integrate the `extra` module.
+- Revise & integrate the Scalaz module.
+
 # Pending
 
 - Easy way to change MountedCB back into Mounted. Same for State/Prop traits if they get added back.
-
-- Revise & integrate the `extra` module.
 - Revise & integrate the `test` module.
-- Revise & integrate the Scalaz module.
 - Revise & integrate the Monocle module.
 - Update the `gh-pages` module.
 - Update doc.
@@ -135,6 +135,8 @@ Refactored:
   * ExternalVar/ReusableVar -> StateSnapshot
   * ReusableVal/ReusableVal2 -> Reusable
   * ReusableFn(x).{set,mod}State -> ReusableFn.state(x).{set,mod}
+  * Listenable.*
+  * CompStatee -> StateAccess
 
 * Update in ScalaDoc:
   * ReactComponentB

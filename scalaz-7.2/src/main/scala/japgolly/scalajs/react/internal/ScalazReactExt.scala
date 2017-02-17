@@ -5,6 +5,7 @@ import scalaz.effect.IO
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import ScalazReactExt._
+import ScalazReact.{ChangeFilter, ScalazReactExt_StateAccessRWId}
 
 object ScalazReactExt {
 
@@ -12,7 +13,7 @@ object ScalazReactExt {
     private def c = CallbackTo lift _c
 
     def toIO: IO[A] =
-      ScalazReact.scalazIoToCallbackIso to c
+      ScalazReact.ioToReactCallbackIso to c
 
     def flattenIO[B](implicit ev: A =:= IO[B]): CallbackTo[B] =
       //_c.flatMap(a => ev(a).toCallback)
@@ -38,11 +39,13 @@ object ScalazReactExt {
   @inline final class ListenableOps(private val ε: Listenable.type) extends AnyVal {
     import ScalazReact.ReactST
 
-//    def installS[P, C <: Children, S, B <: OnUnmount, M[_], A](f: P => Listenable[A])(g: A => ReactST[M, S, Unit])(implicit M: M ~> CallbackTo, N: Monad[M]) =
-//      Listenable.install[P, C, S, B, A](f, $ => a => $.runState(g(a)))
-//
-//    def installSF[P, C <: Children, S, B <: OnUnmount, M[_], A](f: P => Listenable[A])(g: A => ReactST[M, S, Unit])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]) =
-//      Listenable.install[P, C, S, B, A](f, $ => a => $.runStateF(g(a)))
+    def listenWithStateMonad[P, C <: Children, S, B <: OnUnmount, M[_], A](listenable: P => Listenable[A])
+                                                                          (listener: A => ReactST[M, S, Unit])(implicit M: M ~> CallbackTo, N: Monad[M]) =
+      Listenable.listen[P, C, S, B, A](listenable, $ => a => $.runState(listener(a)))
+
+    def listenWithStateMonadF[P, C <: Children, S, B <: OnUnmount, M[_], A](listenable: P => Listenable[A])
+                                                                           (listener: A => ReactST[M, S, Unit])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]) =
+      Listenable.listen[P, C, S, B, A](listenable, $ => a => $.runStateF(listener(a)))
   }
 
 }
