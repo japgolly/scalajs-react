@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import scala.runtime.AbstractFunction1
+import japgolly.scalajs.react.Callback
 
 /**
  * A function that facilitates stability and reuse.
@@ -67,20 +68,16 @@ object ReusableFn {
   def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, E: Reusability, Y, Z](f: (A, B, C, D, E, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))) =
     new Fn6(f)
 
-//  def renderComponent[P](c: ReactComponentC.ReqProps[P, _, _, TopNode]): P ~=> ReactElement =
-//    ReusableFn(c(_: P))
+  def state[I, S](i: I)(implicit t: StateAccess.Write[I, S]) = new StateAccessWriteOps(i)(t)
+  final class StateAccessWriteOps[I, S](i: I)(implicit t: StateAccess.Write[I, S]) {
+    // These look useless but avoid Scala type-inference issues
 
-//  @inline def apply[S]($: CompState.WriteAccess[S]) = new CompOps($)
+    def mod: (S => S) ~=> Callback =
+      ReusableFn(t modState i)
 
-//  final class CompOps[S](private val $: CompState.WriteAccess[S]) extends AnyVal {
-//    // These look useless but avoid Scala type-inference issues
-//
-//    def modState: (S => S) ~=> Callback =
-//      ReusableFn($ modState _)
-//
-//    def setState: S ~=> Callback =
-//      ReusableFn($ setState _)
-//  }
+    def set: S ~=> Callback =
+      ReusableFn(t setState i)
+  }
 
   implicit def reusability[A, B]: Reusability[ReusableFn[A, B]] =
     Reusability((x, y) => (x eq y) || x.reusable.applyOrElse(y, (_: ReusableFn[A, B]) => false))

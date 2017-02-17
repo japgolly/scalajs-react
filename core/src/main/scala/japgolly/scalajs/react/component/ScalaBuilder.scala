@@ -446,12 +446,16 @@ object ScalaBuilder {
       final def mountedCB: MountedCB[P, S, B] = raw.mountedCB
     }
 
-    sealed trait SetStateCB[P, S, B] extends Any with Base[P, S, B] {
-      final def setState   (newState: S, cb: Callback = Callback.empty): Callback = mountedCB.setState(newState, cb)
-      final def modState   (mod: S => S, cb: Callback = Callback.empty): Callback = mountedCB.modState(mod, cb)
+    sealed trait StateW[P, S, B] extends Any with Base[P, S, B] {
+      final def setState(newState: S, cb: Callback = Callback.empty): Callback = mountedCB.setState(newState, cb)
+      final def modState(mod: S => S, cb: Callback = Callback.empty): Callback = mountedCB.modState(mod, cb)
     }
 
-    sealed trait UpdateCB[P, S, B] extends Any with SetStateCB[P, S, B] {
+    sealed trait StateRW[P, S, B] extends Any with StateW[P, S, B] {
+      final def state: S = mounted.state
+    }
+
+    sealed trait ForceUpdate[P, S, B] extends Any with Base[P, S, B] {
       final def forceUpdate(cb: Callback = Callback.empty): Callback = mountedCB.forceUpdate(cb)
     }
 
@@ -461,10 +465,11 @@ object ScalaBuilder {
 
     type ComponentDidMountFn[P, S, B] = ComponentDidMount[P, S, B] => Callback
 
-    final class ComponentDidMount[P, S, B](val raw: RawMounted[P, S, B]) extends AnyVal with UpdateCB[P, S, B] {
+    final class ComponentDidMount[P, S, B](val raw: RawMounted[P, S, B])
+        extends AnyVal with StateRW[P, S, B] with ForceUpdate[P, S, B] {
+
       def props        : P                = mounted.props
       def propsChildren: PropsChildren    = mounted.propsChildren
-      def state        : S                = mounted.state
       def getDOMNode   : dom.Element      = mounted.getDOMNode
     }
 
@@ -474,7 +479,9 @@ object ScalaBuilder {
 
     type ComponentDidUpdateFn[P, S, B] = ComponentDidUpdate[P, S, B] => Callback
 
-    final class ComponentDidUpdate[P, S, B](val raw: RawMounted[P, S, B], val prevProps: P, val prevState: S) extends UpdateCB[P, S, B] {
+    final class ComponentDidUpdate[P, S, B](val raw: RawMounted[P, S, B], val prevProps: P, val prevState: S)
+        extends StateW[P, S, B] with ForceUpdate[P, S, B] {
+
       def propsChildren: PropsChildren = mounted.propsChildren
       def currentProps : P             = mounted.props
       def currentState : S             = mounted.state
@@ -487,10 +494,11 @@ object ScalaBuilder {
 
     type ComponentWillMountFn[P, S, B] = ComponentWillMount[P, S, B] => Callback
 
-    final class ComponentWillMount[P, S, B](val raw: RawMounted[P, S, B]) extends AnyVal with SetStateCB[P, S, B] {
+    final class ComponentWillMount[P, S, B](val raw: RawMounted[P, S, B])
+        extends AnyVal with StateRW[P, S, B] {
+
       def props        : P             = mounted.props
       def propsChildren: PropsChildren = mounted.propsChildren
-      def state        : S             = mounted.state
 
       @deprecated("forceUpdate prohibited within the componentWillMount callback.", "")
       def forceUpdate(prohibited: Nothing = ???): Nothing = ???
@@ -505,7 +513,9 @@ object ScalaBuilder {
 
     type ComponentWillUnmountFn[P, S, B] = ComponentWillUnmount[P, S, B] => Callback
 
-    final class ComponentWillUnmount[P, S, B](val raw: RawMounted[P, S, B]) extends AnyVal with Base[P, S, B] {
+    final class ComponentWillUnmount[P, S, B](val raw: RawMounted[P, S, B])
+        extends AnyVal with Base[P, S, B] {
+
       def props        : P             = mounted.props
       def propsChildren: PropsChildren = mounted.propsChildren
       def state        : S             = mounted.state
@@ -527,10 +537,11 @@ object ScalaBuilder {
 
     type ComponentWillReceivePropsFn[P, S, B] = ComponentWillReceiveProps[P, S, B] => Callback
 
-    final class ComponentWillReceiveProps[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P) extends UpdateCB[P, S, B] {
+    final class ComponentWillReceiveProps[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P)
+        extends StateRW[P, S, B] with ForceUpdate[P, S, B] {
+
       def propsChildren: PropsChildren = mounted.propsChildren
       def currentProps : P             = mounted.props
-      def state        : S             = mounted.state
       def getDOMNode   : dom.Element   = mounted.getDOMNode
     }
 
@@ -540,7 +551,9 @@ object ScalaBuilder {
 
     type ComponentWillUpdateFn[P, S, B] = ComponentWillUpdate[P, S, B] => Callback
 
-    final class ComponentWillUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S) extends Base[P, S, B] {
+    final class ComponentWillUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
+        extends Base[P, S, B] {
+
       def propsChildren: PropsChildren = mounted.propsChildren
       def currentProps : P             = mounted.props
       def currentState : S             = mounted.state
@@ -562,7 +575,9 @@ object ScalaBuilder {
 
     type ShouldComponentUpdateFn[P, S, B] = ShouldComponentUpdate[P, S, B] => CallbackTo[Boolean]
 
-    final class ShouldComponentUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S) extends Base[P, S, B] {
+    final class ShouldComponentUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
+        extends Base[P, S, B] {
+
       def propsChildren: PropsChildren = mounted.propsChildren
       def currentProps : P             = mounted.props
       def currentState : S             = mounted.state
@@ -583,11 +598,12 @@ object ScalaBuilder {
 
     // ===================================================================================================================
 
-    final class RenderScope[P, S, B](val raw: RawMounted[P, S, B]) extends UpdateCB[P, S, B] {
+    final class RenderScope[P, S, B](val raw: RawMounted[P, S, B])
+        extends StateRW[P, S, B] with ForceUpdate[P, S, B] {
+
       def isMounted    : Boolean       = mounted.isMounted
       def props        : P             = mounted.props
       def propsChildren: PropsChildren = mounted.propsChildren
-      def state        : S             = mounted.state
       def getDOMNode   : dom.Element   = mounted.getDOMNode
     }
 

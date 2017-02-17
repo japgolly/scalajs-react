@@ -9,17 +9,17 @@ object StateSnapshotTest extends TestSuite {
   def assertNotReusable[A](a: A, b: A)(implicit r: Reusability[A]): Unit = assert(a ~/~ b)
 
   override def tests = TestSuite {
-    'notReusable {
+    'noReuse {
       def make = StateSnapshot(1)(Callback.log(_))
       'same - {val a = make; assertReusable(a, a)}
       'diff - assertNotReusable(make, make)
     }
-    'reusable {
+    'withReuse {
       val log: Int ~=> Callback = ReusableFn(Callback.log(_))
-      def make = StateSnapshot.reuse(1)(log)
+      def make = StateSnapshot.withReuse(1)(log)
       'equal - assertReusable(make, make)
-      'diffGet - assertNotReusable(make, StateSnapshot.reuse(2)(log))
-      'diffSet - assertNotReusable(make, StateSnapshot.reuse(1)(ReusableFn(Callback.warn(_))))
+      'diffGet - assertNotReusable(make, StateSnapshot.withReuse(2)(log))
+      'diffSet - assertNotReusable(make, StateSnapshot.withReuse(1)(ReusableFn(Callback.warn(_))))
     }
   }
 }

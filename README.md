@@ -134,6 +134,7 @@ Contributions welcome.
 Refactored:
   * ExternalVar/ReusableVar -> StateSnapshot
   * ReusableVal/ReusableVal2 -> Reusable
+  * ReusableFn(x).{set,mod}State -> ReusableFn.state(x).{set,mod}
 
 * Update in ScalaDoc:
   * ReactComponentB

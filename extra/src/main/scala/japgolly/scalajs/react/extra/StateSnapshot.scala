@@ -31,11 +31,39 @@ object StateSnapshot {
   implicit def reusability[S]: Reusability[StateSnapshot[S]] =
     reusabilityInstance.asInstanceOf[Reusability[StateSnapshot[S]]]
 
-  def apply[S](value: S)(set: S => Callback): StateSnapshot[S] =
-    new StateSnapshot(value, ReusableFn(set), Reusability.never)
+  // ===================================================================================================================
+  // No reuse
 
-  object reuse {
-    def apply[S](value: S)(set: S ~=> Callback)(implicit r: Reusability[S]): StateSnapshot[S] =
-      new StateSnapshot(value, set, r)
+  def apply[S](value: S) = new NoReuse(value)
+  final class NoReuse[S](private val value: S) extends AnyVal {
+
+    def apply(set: S => Callback): StateSnapshot[S] =
+      new StateSnapshot(value, ReusableFn(set), Reusability.never)
+
+    def writeVia[I](i: I)(implicit t: StateAccess.Write[I, S]): StateSnapshot[S] =
+      apply(t.setState(i))
+  }
+
+  def of[I, S](i: I)(implicit t: StateAccess.ReadWrite[I, S]): StateSnapshot[S] =
+    apply(t.state(i)).writeVia(i)
+
+  // ===================================================================================================================
+
+  object withReuse {
+
+    // Putting (implicit r: Reusability[S]) here would shadow WithReuse.apply
+    def apply[S](value: S) = new WithReuse(value)
+    final class WithReuse[S](private val value: S) extends AnyVal {
+
+      def apply(set: S ~=> Callback)(implicit r: Reusability[S]): StateSnapshot[S] =
+        new StateSnapshot(value, set, r)
+
+      def writeVia[I](i: I)(implicit t: StateAccess.Write[I, S], r: Reusability[S]): StateSnapshot[S] =
+        apply(ReusableFn(t setState i))(r)
+    }
+
+    def of[I, S](i: I)(implicit t: StateAccess.ReadWrite[I, S], r: Reusability[S]): StateSnapshot[S] =
+      apply(t.state(i)).writeVia(i)(t, r)
+
   }
 }
