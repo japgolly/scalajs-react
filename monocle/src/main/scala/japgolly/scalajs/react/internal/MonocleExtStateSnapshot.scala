@@ -30,7 +30,7 @@ object MonocleExtStateSnapshot {
   final class WithLens[S, A](private val lens: Lens[S, A]) extends AnyVal {
     def apply(value: S) = new WithLensValue(lens, value)
 
-    def of[I](i: I)(implicit t: StateAccess.ReadWrite[I, S]): StateSnapshot[A] =
+    def of[I](i: I)(implicit t: StateAccess.ReadIdWriteCB[I, S]): StateSnapshot[A] =
       apply(t.state(i)).writeVia(i)
 
     def withReuse = new WithLensReuse(lens)
@@ -39,7 +39,7 @@ object MonocleExtStateSnapshot {
   final class WithLensReuse[S, A](private val lens: Lens[S, A]) extends AnyVal {
     def apply(value: S) = new WithLensReuseValue(lens, value)
 
-    def of[I](i: I)(implicit t: StateAccess.ReadWrite[I, S], r: Reusability[A]): StateSnapshot[A] =
+    def of[I](i: I)(implicit t: StateAccess.ReadIdWriteCB[I, S], r: Reusability[A]): StateSnapshot[A] =
       apply(t.state(i)).writeVia(i)
   }
 
@@ -49,7 +49,7 @@ object MonocleExtStateSnapshot {
     def apply(mod: (S => S) => Callback): StateSnapshot[A] =
       StateSnapshot(lens get value)(a => mod(lens set a))
 
-    def writeVia[I](i: I)(implicit t: StateAccess.Write[I, S]): StateSnapshot[A] =
+    def writeVia[I](i: I)(implicit t: StateAccess.WriteCB[I, S]): StateSnapshot[A] =
       apply(t.modState(i))
   }
 
@@ -57,7 +57,7 @@ object MonocleExtStateSnapshot {
     def apply(mod: (S => S) => Callback)(implicit r: Reusability[A]): StateSnapshot[A] =
       StateSnapshot.withReuse(lens get value)(ReusableFn(a => mod(lens set a)))(r)
 
-    def writeVia[I](i: I)(implicit t: StateAccess.Write[I, S], r: Reusability[A]): StateSnapshot[A] =
+    def writeVia[I](i: I)(implicit t: StateAccess.WriteCB[I, S], r: Reusability[A]): StateSnapshot[A] =
       apply(t.modState(i))
   }
 }
