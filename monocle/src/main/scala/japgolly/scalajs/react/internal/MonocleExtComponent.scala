@@ -2,11 +2,11 @@ package japgolly.scalajs.react.internal
 
 import monocle._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra.StateAccess
+import japgolly.scalajs.react.extra.StateAccessor
 
 trait MonocleExtComponent {
   implicit final def MonocleReactExt_Mounted[F[+_], S, M <: GenericComponent.BaseMounted[F, _, S, _, _]](m: M) = new MonocleExtComponent.Mounted[F, S, m.type](m)
-  implicit final def MonocleReactExt_StateWritableCB[I, S](i: I)(implicit sa: StateAccess.WriteCB[I, S]) = new MonocleExtComponent.StateWritableCB[I, S](i)(sa)
+  implicit final def MonocleReactExt_StateWritableCB[I, S](i: I)(implicit sa: StateAccessor.WriteCB[I, S]) = new MonocleExtComponent.StateWritableCB[I, S](i)(sa)
 }
 
 object MonocleExtComponent {
@@ -16,7 +16,7 @@ object MonocleExtComponent {
       self.zoomState(l.get)(l.set)
   }
 
-  final class StateWritableCB[I, S](private val i: I)(implicit sa: StateAccess.WriteCB[I, S]) {
+  final class StateWritableCB[I, S](private val i: I)(implicit sa: StateAccessor.WriteCB[I, S]) {
     def modStateL[A, B](l: PLens[S, S, A, B])(f: A => B, cb: Callback = Callback.empty): Callback =
       sa.modStateCB(i)(l.modify(f), cb)
 

@@ -40,11 +40,11 @@ object StateSnapshot {
     def apply(set: S => Callback): StateSnapshot[S] =
       new StateSnapshot(value, ReusableFn(set), Reusability.never)
 
-    def writeVia[I](i: I)(implicit t: StateAccess.WriteCB[I, S]): StateSnapshot[S] =
+    def writeVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): StateSnapshot[S] =
       apply(t.setState(i))
   }
 
-  def of[I, S](i: I)(implicit t: StateAccess.ReadIdWriteCB[I, S]): StateSnapshot[S] =
+  def of[I, S](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S]): StateSnapshot[S] =
     apply(t.state(i)).writeVia(i)
 
   // ===================================================================================================================
@@ -58,11 +58,11 @@ object StateSnapshot {
       def apply(set: S ~=> Callback)(implicit r: Reusability[S]): StateSnapshot[S] =
         new StateSnapshot(value, set, r)
 
-      def writeVia[I](i: I)(implicit t: StateAccess.WriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
+      def writeVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
         apply(ReusableFn(t setState i))(r)
     }
 
-    def of[I, S](i: I)(implicit t: StateAccess.ReadIdWriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
+    def of[I, S](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
       apply(t.state(i)).writeVia(i)(t, r)
 
   }

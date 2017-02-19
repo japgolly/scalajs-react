@@ -6,7 +6,7 @@ import japgolly.scalajs.react.internal.Effect
 /**
   * Type-classes for abstracting over things that have state.
   */
-object StateAccess extends StateAccessImplicits {
+object StateAccessor extends StateAccessorImplicits {
 
   class WriteCB[-I, S](
     final val setStateCB: I => (S, Callback) => Callback,
@@ -34,9 +34,9 @@ object StateAccess extends StateAccessImplicits {
 }
 
 // =====================================================================================================================
-import StateAccess.{WriteCB, ReadFWriteCB, ReadIdWriteCB, ReadCBWriteCB}
+import StateAccessor.{WriteCB, ReadFWriteCB, ReadIdWriteCB, ReadCBWriteCB}
 
-sealed trait StateAccessImplicits1 {
+sealed trait StateAccessorImplicits1 {
 
   protected sealed trait X
   private def castW[I, S](w: WriteCB[_, _]) = w.asInstanceOf[WriteCB[I, S]]
@@ -48,7 +48,7 @@ sealed trait StateAccessImplicits1 {
     castW(_scalaLifecycleW)
 }
 
-sealed trait StateAccessImplicits2 extends StateAccessImplicits1 {
+sealed trait StateAccessorImplicits2 extends StateAccessorImplicits1 {
 
   protected def castRW[F[_], I, S](w: ReadFWriteCB[F, _, _]) = w.asInstanceOf[ReadFWriteCB[F, I, S]]
 
@@ -59,7 +59,7 @@ sealed trait StateAccessImplicits2 extends StateAccessImplicits1 {
     castRW(_mountedCB)
 }
 
-sealed trait StateAccessImplicits3 extends StateAccessImplicits2 {
+sealed trait StateAccessorImplicits3 extends StateAccessorImplicits2 {
 
   // ReadCBWriteCB -- GenericComponent.BaseMounted[Id
   private[this] lazy val _mountedIdCB = new ReadFWriteCB[CallbackTo, GenericComponent.BaseMounted[Effect.Id, _, X, _, _], X](
@@ -70,7 +70,7 @@ sealed trait StateAccessImplicits3 extends StateAccessImplicits2 {
     castRW(_mountedIdCB)
 }
 
-sealed trait StateAccessImplicits extends StateAccessImplicits3 {
+sealed trait StateAccessorImplicits extends StateAccessorImplicits3 {
 
   // ReadIdWriteCB -- GenericComponent.BaseMounted[Id
   private[this] val _mountedId = new ReadFWriteCB[Effect.Id, GenericComponent.BaseMounted[Effect.Id, _, X, _, _], X](

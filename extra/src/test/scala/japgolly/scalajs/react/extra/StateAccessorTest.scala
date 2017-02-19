@@ -4,7 +4,7 @@ import utest._
 import japgolly.scalajs.react.{test => _, _}
 import japgolly.scalajs.react.test.InferenceUtil._
 
-object StateAccessTest extends TestSuite {
+object StateAccessorTest extends TestSuite {
 
   type Render = ScalaComponent.Lifecycle.RenderScope[P, S, B]
   type Backend = BackendScope[P, S]
@@ -33,7 +33,7 @@ object StateAccessTest extends TestSuite {
     }
 
     'readCBWriteCB {
-      def use[I, S](i: I)(implicit sa: StateAccess.ReadCBWriteCB[I, S]): CallbackTo[S] = sa.state(i)
+      def use[I, S](i: I)(implicit sa: StateAccessor.ReadCBWriteCB[I, S]): CallbackTo[S] = sa.state(i)
       compileError(""" test[Render        ](use(_)) """)
                        test[Backend       ](use(_)).expect[CallbackTo[S]]
                        test[JsMounted     ](use(_)).expect[CallbackTo[J]]

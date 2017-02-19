@@ -5,7 +5,7 @@ import scalaz.effect.IO
 import Scalaz.Id
 import Leibniz.===
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra.StateAccess
+import japgolly.scalajs.react.extra.StateAccessor
 import ScalazReact.{reactCallbackScalazInstance, ScalazReactExt_ReactST}
 
 trait ScalazReactState {
@@ -21,8 +21,8 @@ trait ScalazReactState {
   import ScalazReactState._
 
   //@inline implicit final def ScalazReactExt_StateAccessRW[F[_], C, S](component: C)(implicit sa: StateAccess.ReadWriteF[F, C, S], fToCb: Effect.Trans[F, CallbackTo]) = new Ext_StateAccessRW(component)
-  @inline implicit final def ScalazReactExt_StateAccessRWId[C, S](component: C)(implicit sa: StateAccess.ReadIdWriteCB[C, S]) = new Ext_StateAccessRW[Effect.Id, C, S](component)
-  @inline implicit final def ScalazReactExt_StateAccessRWCB[C, S](component: C)(implicit sa: StateAccess.ReadCBWriteCB[C, S]) = new Ext_StateAccessRW[CallbackTo, C, S](component)
+  @inline implicit final def ScalazReactExt_StateAccessRWId[C, S](component: C)(implicit sa: StateAccessor.ReadIdWriteCB[C, S]) = new Ext_StateAccessRW[Effect.Id, C, S](component)
+  @inline implicit final def ScalazReactExt_StateAccessRWCB[C, S](component: C)(implicit sa: StateAccessor.ReadCBWriteCB[C, S]) = new Ext_StateAccessRW[CallbackTo, C, S](component)
   @inline implicit final def ScalazReactExt_ReactS[S, A](a: ReactS[S, A]) = new Ext_ReactS(a)
   @inline implicit final def ScalazReactExt_ReactST[M[_], S, A](a: ReactST[M, S, A]) = new Ext_ReactST(a)
   @inline implicit final def ScalazReactExt_StateT[M[_], S, A](a: StateT[M, S, A]) = new Ext_StateT(a)
@@ -182,7 +182,7 @@ object ScalazReactState {
     }
   }
 
-  final class Ext_StateAccessRW[F[+_], C, S](component: C)(implicit sa: StateAccess.ReadFWriteCB[F, C, S], fToCb: Effect.Trans[F, CallbackTo]) {
+  final class Ext_StateAccessRW[F[+_], C, S](component: C)(implicit sa: StateAccessor.ReadFWriteCB[F, C, S], fToCb: Effect.Trans[F, CallbackTo]) {
     type Out[A] = CallbackTo[A]
 
     private def stateCB: CallbackTo[S] =
