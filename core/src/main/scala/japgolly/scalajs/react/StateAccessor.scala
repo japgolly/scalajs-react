@@ -1,6 +1,5 @@
-package japgolly.scalajs.react.extra
+package japgolly.scalajs.react
 
-import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.Effect
 
 /**
@@ -70,32 +69,32 @@ sealed trait StateAccessorImplicits2 extends StateAccessorImplicits1 {
 
   protected def castRW[F[+_], I, S](w: ReadFWriteCB[F, _, _]) = w.asInstanceOf[ReadFWriteCB[F, I, S]]
 
-  // ReadCBWriteCB -- GenericComponent.BaseMounted[CallbackTo
-  private[this] val _mountedCB = new ReadFWriteCB[CallbackTo, GenericComponent.BaseMounted[CallbackTo, _, X, _, _], X](
+  // ReadCBWriteCB -- StateAccessPure
+  private[this] val _mountedCB = new ReadFWriteCB[CallbackTo, StateAccessPure[X], X](
     _.state, i => i.setState(_, _), i => i.modState(_, _))
-  implicit def mountedCB[S]: ReadCBWriteCB[GenericComponent.BaseMounted[CallbackTo, _, S, _, _], S] =
+  implicit def mountedCB[S]: ReadCBWriteCB[StateAccessPure[S], S] =
     castRW(_mountedCB)
 }
 
 sealed trait StateAccessorImplicits3 extends StateAccessorImplicits2 {
 
-  // ReadCBWriteCB -- GenericComponent.BaseMounted[Id
-  private[this] lazy val _mountedIdCB = new ReadFWriteCB[CallbackTo, GenericComponent.BaseMounted[Effect.Id, _, X, _, _], X](
+  // ReadCBWriteCB -- StateAccessImpure
+  private[this] lazy val _mountedIdCB = new ReadFWriteCB[CallbackTo, StateAccessImpure[X], X](
     i => CallbackTo(i.state),
     i => (s, cb) => Callback(i.setState(s, cb)),
     i => (f, cb) => Callback(i.modState(f, cb)))
-  implicit def mountedIdCB[S]: ReadCBWriteCB[GenericComponent.BaseMounted[Effect.Id, _, S, _, _], S] =
+  implicit def mountedIdCB[S]: ReadCBWriteCB[StateAccessImpure[S], S] =
     castRW(_mountedIdCB)
 }
 
 sealed trait StateAccessorImplicits extends StateAccessorImplicits3 {
 
-  // ReadIdWriteCB -- GenericComponent.BaseMounted[Id
-  private[this] val _mountedId = new ReadFWriteCB[Effect.Id, GenericComponent.BaseMounted[Effect.Id, _, X, _, _], X](
+  // ReadIdWriteCB -- StateAccessImpure
+  private[this] val _mountedId = new ReadFWriteCB[Effect.Id, StateAccessImpure[X], X](
     _.state,
     i => (s, cb) => Callback(i.setState(s, cb)),
     i => (f, cb) => Callback(i.modState(f, cb)))
-  implicit def mountedId[S]: ReadIdWriteCB[GenericComponent.BaseMounted[Effect.Id, _, S, _, _], S] =
+  implicit def mountedId[S]: ReadIdWriteCB[StateAccessImpure[S], S] =
     castRW(_mountedId)
 
   // ReadIdWriteCB -- ScalaComponent.Lifecycle.StateRW

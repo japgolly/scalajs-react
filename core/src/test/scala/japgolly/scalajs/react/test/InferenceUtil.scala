@@ -2,6 +2,7 @@ package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
 import scala.reflect.ClassTag
+import scala.scalajs.js
 
 object InferenceUtil {
 //  import scalaz.{Monad, ~>}
@@ -36,6 +37,9 @@ object InferenceUtil {
   trait A
   trait B
   type U = Unit
+
+  @js.native trait JP extends js.Object
+  @js.native trait JS extends js.Object
 //  @js.native trait N extends TopNode
 //  val c = null.asInstanceOf[ReactComponentM[Unit, S, Unit, N]]
   val bs = null.asInstanceOf[BackendScope[P, S]]

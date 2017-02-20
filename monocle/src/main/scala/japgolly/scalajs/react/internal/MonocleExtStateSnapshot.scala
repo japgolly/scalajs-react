@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.internal
 
 import monocle._
-import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.{Callback, StateAccessor}
 import japgolly.scalajs.react.extra._
 
 trait MonocleExtStateSnapshot {

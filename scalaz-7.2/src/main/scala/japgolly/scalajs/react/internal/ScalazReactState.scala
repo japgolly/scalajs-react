@@ -5,7 +5,6 @@ import scalaz.effect.IO
 import Scalaz.Id
 import Leibniz.===
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra.StateAccessor
 import ScalazReact.{reactCallbackScalazInstance, ScalazReactExt_ReactST}
 
 trait ScalazReactState {

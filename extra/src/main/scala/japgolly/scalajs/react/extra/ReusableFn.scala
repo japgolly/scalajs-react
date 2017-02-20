@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import scala.runtime.AbstractFunction1
-import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.{Callback, StateAccessor}
 
 /**
  * A function that facilitates stability and reuse.
