@@ -4,7 +4,7 @@ import org.scalajs.dom
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom
 import japgolly.scalajs.react.{raw => Raw}
-import japgolly.scalajs.react.{Callback, CtorType, Key, PropsChildren}
+import japgolly.scalajs.react.{Callback, CtorType, Key, PropsChildren, StateAccess}
 
 object Generic {
 
@@ -54,21 +54,16 @@ object Generic {
     def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted
   }
 
-  trait BaseMounted[F[+ _], P1, S1, P0, S0] {
+  trait BaseMounted[F[+ _], P1, S1, P0, S0] extends StateAccess[F, S1] {
     final type Props = P1
-    final type State = S1
-
-    protected[component] implicit def F: Effect[F]
 
     type Root <: Mounted[F, P0, S0]
     def root: Root
 
-    type WithMappedState[S2] <: BaseMounted[F, P1, S2, P0, S0]
-
-    def mapProps[P2](f: P1 => P2): BaseMounted[F, P2, S1, P0, S0]
-    def xmapState[S2](f: S1 => S2)(g: S2 => S1): WithMappedState[S2]
-    def zoomState[S2](get: S1 => S2)(set: S2 => S1 => S1): WithMappedState[S2]
-    def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): BaseMounted[F2, P1, S1, P0, S0]
+    override type WithEffect[F2[+_]] <: BaseMounted[F2, P1, S1, P0, S0]
+    override type WithMappedState[S2] <: BaseMounted[F, P1, S2, P0, S0]
+    type WithMappedProps[P2] <: BaseMounted[F, P2, S1, P0, S0]
+    def mapProps[P2](f: P1 => P2): WithMappedProps[P2]
 
     def isMounted: F[Boolean]
     def getDOMNode: F[dom.Element]
@@ -76,24 +71,6 @@ object Generic {
 
     def props: F[Props]
     def propsChildren: F[PropsChildren]
-
-    def state: F[State]
-    def setState(newState: State, callback: Callback = Callback.empty): F[Unit]
-    def modState(mod: State => State, callback: Callback = Callback.empty): F[Unit]
-
-    @deprecated("Renamed to setStateFn", "1.0.0")
-    final def _setState[I](f: I => State, callback: Callback = Callback.empty): I => F[Unit] =
-      setStateFn(f, callback)
-
-    @deprecated("Renamed to modStateFn", "1.0.0")
-    final def _modState[I](f: I => State => State, callback: Callback = Callback.empty): I => F[Unit] =
-      modStateFn(f, callback)
-
-    final def setStateFn[I](f: I => State, callback: Callback = Callback.empty): I => F[Unit] =
-      i => setState(f(i), callback)
-
-    final def modStateFn[I](f: I => State => State, callback: Callback = Callback.empty): I => F[Unit] =
-      i => modState(f(i), callback)
   }
 }
 

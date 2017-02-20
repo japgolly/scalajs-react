@@ -12,6 +12,8 @@ object Template {
     type Mapped[F1[+ _], P1, S1] <: Generic.BaseMounted[F1, P1, S1, P0, S0]
     protected def mapped[F1[+ _], P1, S1](mp: P0 => P1, ls: Lens[S0, S1])(implicit ft: Effect.Trans[Effect.Id, F1]): Mapped[F1, P1, S1]
 
+    override type WithEffect[F1[+_]] = Mapped[F1, P0, S0]
+    override type WithMappedProps[P1] = Mapped[F, P1, S0]
     override type WithMappedState[S1] = Mapped[F, P0, S1]
 
     override def mapProps[P1](f: P0 => P1) =
@@ -35,6 +37,10 @@ object Template {
     type Mapped[F3[+ _], P3, S3] <: Generic.BaseMounted[F3, P3, S3, P0, S0]
     protected def mapped[F3[+ _], P3, S3](mp: P1 => P3, ls: Lens[S1, S3])(implicit ft: Effect.Trans[Effect.Id, F3]): Mapped[F3, P3, S3]
 
+    override type WithEffect[F3[+_]] = Mapped[F3, P2, S2]
+    override type WithMappedProps[P3] = Mapped[F, P3, S2]
+    override type WithMappedState[S3] = Mapped[F, P2, S3]
+
     override implicit def F    = ft.to
     override def isMounted     = ft apply from.isMounted
     override def getDOMNode    = ft apply from.getDOMNode
@@ -50,8 +56,6 @@ object Template {
 
     override def modState(f: State => State, callback: Callback = Callback.empty) =
       ft apply from.modState(ls mod f, callback)
-
-    override type WithMappedState[S3] = Mapped[F, P2, S3]
 
     override def mapProps[P3](f: P2 => P3) =
       mapped(f compose mp, ls)

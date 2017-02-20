@@ -8,9 +8,9 @@ import japgolly.scalajs.react.internal.Effect
   */
 object StateAccessor extends StateAccessorImplicits {
 
-  class WriteCB[-I, S](
-    final val setStateCB: I => (S, Callback) => Callback,
-    final val modStateCB: I => ((S => S), Callback) => Callback) {
+  sealed class WriteCB[-I, S](
+      final val setStateCB: I => (S, Callback) => Callback,
+      final val modStateCB: I => ((S => S), Callback) => Callback) {
 
     final val setState: I => S => Callback = i => {
       val f = setStateCB(i)
@@ -23,11 +23,29 @@ object StateAccessor extends StateAccessorImplicits {
     }
   }
 
-  class ReadFWriteCB[F[_], -I, S](
-    final val state: I => F[S],
-    setStateCB: I => (S, Callback) => Callback,
-    modStateCB: I => ((S => S), Callback) => Callback)
-    extends WriteCB[I, S](setStateCB, modStateCB)
+  final class ReadFWriteCB[F[+_], -I, S](
+      val state: I => F[S],
+      setStateCB: I => (S, Callback) => Callback,
+      modStateCB: I => ((S => S), Callback) => Callback)
+      extends WriteCB[I, S](setStateCB, modStateCB) {
+
+    def toStateAccess(i: I)(implicit t: Effect.Trans[CallbackTo, F]): StateAccess[F, S] =
+      if (t.to eq Effect.callbackInstance) {
+        val fakeEv1 = =:=.tpEquals[Any].asInstanceOf[this.type =:= ReadCBWriteCB[I, S]]
+        val fakeEv2 = fakeEv1.asInstanceOf[StateAccessPure[S] =:= StateAccess[F, S]]
+        fakeEv2(toStateAccessPure(i)(fakeEv1))
+      } else {
+        val ss = setStateCB(i)
+        val ms = modStateCB(i)
+        StateAccess(state(i))((s, c) => t(ss(s, c)), (f, c) => t(ms(f, c)))(t.to)
+      }
+
+    def toStateAccessPure[II <: I](i: II)(implicit ev: this.type =:= ReadCBWriteCB[II, S]): StateAccessPure[S] = {
+      val x = ev(this)
+      val get = x.state(i) // force by-value
+      StateAccess(get)(setStateCB(i), modStateCB(i))
+    }
+  }
 
   type ReadIdWriteCB[-I, S] = ReadFWriteCB[Effect.Id, I, S]
   type ReadCBWriteCB[-I, S] = ReadFWriteCB[CallbackTo, I, S]
@@ -50,7 +68,7 @@ sealed trait StateAccessorImplicits1 {
 
 sealed trait StateAccessorImplicits2 extends StateAccessorImplicits1 {
 
-  protected def castRW[F[_], I, S](w: ReadFWriteCB[F, _, _]) = w.asInstanceOf[ReadFWriteCB[F, I, S]]
+  protected def castRW[F[+_], I, S](w: ReadFWriteCB[F, _, _]) = w.asInstanceOf[ReadFWriteCB[F, I, S]]
 
   // ReadCBWriteCB -- GenericComponent.BaseMounted[CallbackTo
   private[this] val _mountedCB = new ReadFWriteCB[CallbackTo, GenericComponent.BaseMounted[CallbackTo, _, X, _, _], X](

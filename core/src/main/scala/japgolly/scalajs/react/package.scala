@@ -2,13 +2,17 @@ package japgolly.scalajs
 
 import scala.scalajs.js
 import scala.scalajs.js.|
+import japgolly.scalajs.react.internal.Effect
 
 package object react extends ReactEventTypes {
 
-  type Callback = CallbackTo[Unit]
-
   // Same as raw.Key except it's non-null
   type Key = String | Boolean | raw.JsNumber
+
+  type Callback = CallbackTo[Unit]
+
+  type StateAccessPure[S] = StateAccess[CallbackTo, S]
+  type StateAccessImpure[S] = StateAccess[Effect.Id, S]
 
   val GenericComponent = component.Generic
   type GenericComponent[P, CT[-p, +u] <: CtorType[p, u], U] = GenericComponent.Component[P, CT, U]
