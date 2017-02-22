@@ -452,6 +452,20 @@ object ScalaBuilder {
     sealed trait StateW[P, S, B] extends Any with Base[P, S, B] {
       final def setState(newState: S, cb: Callback = Callback.empty): Callback = mountedCB.setState(newState, cb)
       final def modState(mod: S => S, cb: Callback = Callback.empty): Callback = mountedCB.modState(mod, cb)
+
+      @deprecated("Renamed to setStateFn", "1.0.0")
+      final def _setState[I](f: I => S, callback: Callback = Callback.empty): I => Callback =
+        setStateFn(f, callback)
+
+      @deprecated("Renamed to modStateFn", "1.0.0")
+      final def _modState[I](f: I => S => S, callback: Callback = Callback.empty): I => Callback =
+        modStateFn(f, callback)
+
+      final def setStateFn[I](f: I => S, callback: Callback = Callback.empty): I => Callback =
+        i => setState(f(i), callback)
+
+      final def modStateFn[I](f: I => S => S, callback: Callback = Callback.empty): I => Callback =
+        i => modState(f(i), callback)
     }
 
     sealed trait StateRW[P, S, B] extends Any with StateW[P, S, B] {
