@@ -35,37 +35,41 @@ object StateSnapshot {
     reusabilityInstance.asInstanceOf[Reusability[StateSnapshot[S]]]
 
   // ===================================================================================================================
-  // No reuse
-
-  def apply[S](value: S) = new NoReuse(value)
-  final class NoReuse[S](private val value: S) extends AnyVal {
-
-    def apply(set: S => Callback): StateSnapshot[S] =
-      new StateSnapshot(value, ReusableFn(set), Reusability.never)
-
-    def writeVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): StateSnapshot[S] =
-      apply(t.setState(i))
-  }
-
-  def of[I, S](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S]): StateSnapshot[S] =
-    apply(t.state(i)).writeVia(i)
-
-  // ===================================================================================================================
 
   object withReuse {
 
     // Putting (implicit r: Reusability[S]) here would shadow WithReuse.apply
-    def apply[S](value: S) = new WithReuse(value)
-    final class WithReuse[S](private val value: S) extends AnyVal {
+    def apply[S](value: S) = new FromValue(value)
 
+    def of[I, S](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
+      apply(t.state(i)).writeVia(i)(t, r)
+
+    final class FromValue[S](private val value: S) extends AnyVal {
       def apply(set: S ~=> Callback)(implicit r: Reusability[S]): StateSnapshot[S] =
         new StateSnapshot(value, set, r)
 
       def writeVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
         apply(ReusableFn(t setState i))(r)
     }
-
-    def of[I, S](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
-      apply(t.state(i)).writeVia(i)(t, r)
   }
+
+  // ===================================================================================================================
+  import withoutReuse._
+
+  def apply[S](value: S) = new FromValue(value)
+
+  def of[I, S](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S]): StateSnapshot[S] =
+    apply(t.state(i)).writeVia(i)
+
+  object withoutReuse {
+
+    final class FromValue[S](private val value: S) extends AnyVal {
+      def apply(set: S => Callback): StateSnapshot[S] =
+        new StateSnapshot(value, ReusableFn(set), Reusability.never)
+
+      def writeVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): StateSnapshot[S] =
+        apply(t.setState(i))
+    }
+  }
+
 }
