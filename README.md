@@ -104,7 +104,6 @@ Contributions welcome.
 
 # Pending
 
-- Easy way to change MountedCB back into Mounted. Same for State/Prop traits if they get added back.
 - Revise & integrate the `test` module.
 - Update the `gh-pages` module.
 - Update doc.
@@ -129,6 +128,8 @@ Contributions welcome.
 
 - Add a `Cats` module too? Contribution welcome.
 
+- Rename ScalaComponent.Mounted{,CB} & Lifecycle.mounted{,cb} to be {Pure,Impure} like StateAccess aliases and methods.
+
 # Release note / migration reminders
 
 Refactored:
@@ -137,6 +138,7 @@ Refactored:
   * ReusableFn(x).{set,mod}State -> ReusableFn.state(x).{set,mod}
   * Listenable.*
   * CompStatee -> StateAccess
+  * `_ChangeData` -> `SimEvent._`
 
 * Update in ScalaDoc:
   * ReactComponentB
@@ -151,3 +153,16 @@ Refactored:
   * tryTo
   * {set,mod}StateCB
   * CallbackB
+  * Exotics in `[test]`: ComponentTester, WithExternalCompStateAccess
+
+* VDOM
+  * `^.dangerouslySetInnerHtml := x` instead of `^.dangerouslySetInnerHtml(x)`.
+  * Import `vdom.html_<^._` instead of `vdom.prefix_<^._`.
+  * `?=` deprecated in favour of `when`/`unless`.
+  * Change `:=` to `:=?` when the right-hand side is an `Option`.
+  * TagMod: `+` and `compose` replaced with `apply(TagMod*)` just like tags.
+  * Use `ReactAttr[A]("")` in place of `"".reactAttr`.
+  * Use `ReactAttr.style[A]("")` in place of `"".reactStyle`.
+  * Use `HtmlTag("")` or `HtmlTagOf[N]("")` in place of `"".reactTag`.
+  * No more auto conversion of vdom arrays. Either use `blah: _*`, `TagMod(blah: _*)`, or `blah.toReactArray`, `ReactArray(…)`.
+
