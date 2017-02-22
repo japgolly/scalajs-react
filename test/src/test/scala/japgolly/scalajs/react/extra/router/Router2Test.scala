@@ -7,11 +7,10 @@ import scalaz.Equal
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test._
-import japgolly.scalajs.react.vdom.prefix_<^._
+import japgolly.scalajs.react.vdom.html_<^._
 import MonocleReact._
 import ScalazReact._
 import TestUtil._
-import TestUtil2._
 
 object Router2Test extends TestSuite {
 
@@ -63,12 +62,12 @@ object Router2Test extends TestSuite {
     var secret = "apples"
 
     val userProfilePage =
-      ReactComponentB[UserProfilePage]("User profile")
+      ScalaComponent.build[UserProfilePage]("User profile")
         .render_P(p => <.div(s"Hello user #${p.id}"))
         .build
 
     case class NavProps(curPage: MyPage2, ctl: RouterCtl[MyPage2])
-    val nav = ReactComponentB[NavProps]("NavBar")
+    val nav = ScalaComponent.build[NavProps]("NavBar")
       .render_P { i =>
         def item(p: MyPage2, name: String) =
           if (p == i.curPage)
@@ -77,9 +76,10 @@ object Router2Test extends TestSuite {
             i.ctl.link(p)(name)
         <.div(
           item(PublicHome, "Home"),
-          isUserLoggedIn ?= Seq(
+          ReactArray(
             item(PrivatePage1, "Private page #1"),
             item(PrivatePage2, "Private page #2"))
+            .when(isUserLoggedIn)
         )
       }
       .build
@@ -142,7 +142,7 @@ object Router2Test extends TestSuite {
 
     val sim = SimHistory(base.abs)
     val r = ReactTestUtils.renderIntoDocument(router())
-    def html = ReactDOM.findDOMNode(r).outerHTML
+    def html = r.getDOMNode.outerHTML
     isUserLoggedIn = false
 
     def syncNoRedirect(path: Path) = {
