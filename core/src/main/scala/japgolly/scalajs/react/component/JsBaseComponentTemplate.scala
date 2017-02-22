@@ -4,25 +4,25 @@ import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.CtorType
 
-trait JsBaseComponentTemplate[RawComponent] {
+trait JsBaseComponentTemplate[RawComponent <: js.Any] {
 
   final type RootComponent[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U] =
     BaseComponent[P, CT, U, P, CT, U]
 
   // Difference between this and its Generic counterpart:
   // - P0 has an upper bound of js.Object.
-  // - .raw
+  // - Raw type specified
   sealed trait BaseComponent[
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
       extends Generic.BaseComponent[P1, CT1, U1, P0, CT0, U0] {
 
     override final type Root = RootComponent[P0, CT0, U0]
+    override final type Raw = RawComponent
+
     override def cmapCtorProps[P2](f: P2 => P1): BaseComponent[P2, CT1, U1, P0, CT0, U0]
     override def mapUnmounted[U2](f: U1 => U2): BaseComponent[P1, CT1, U2, P0, CT0, U0]
     override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): BaseComponent[P1, CT2, U1, P0, CT0, U0]
-
-    val raw: RawComponent
   }
 
   final def rootComponent[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U](rc: RawComponent, c: CT[P, U])
