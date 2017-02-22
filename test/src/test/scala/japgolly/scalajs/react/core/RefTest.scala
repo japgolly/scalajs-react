@@ -1,5 +1,7 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.core
 
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.{html, svg}
@@ -20,7 +22,7 @@ object RefTest extends TestSuite {
       def render = <.div(<.input.text(^.defaultValue := "2").ref(PTI(_)(input = _)))
     }
     val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
-    withBodyContainer { mountNode =>
+    ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = C().renderIntoDOM(mountNode)
       assertEq(mounted.getDOMNode.querySelector("input").getAttribute(attr), V)
     }
@@ -34,7 +36,7 @@ object RefTest extends TestSuite {
       def render = <.svg(<.circle().ref(circle = _))
     }
     val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
-    withBodyContainer { mountNode =>
+    ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = C().renderIntoDOM(mountNode)
       assertEq(mounted.getDOMNode.querySelector("circle").getAttribute(attr), V)
     }
@@ -52,7 +54,7 @@ object RefTest extends TestSuite {
         def render = <.div(ref.component(123))
       }
       val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].build
-      withBodyContainer { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         assertEq(mounted.backend.ref.value.backend.secret, 666)
       }
@@ -64,7 +66,7 @@ object RefTest extends TestSuite {
         def render = <.div(ref.component.withKey(555555555)(123))
       }
       val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].build
-      withBodyContainer { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         assertEq(mounted.backend.ref.value.backend.secret, 666)
       }
@@ -80,7 +82,7 @@ object RefTest extends TestSuite {
         def render = <.div(ref.component())
       }
       val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].build
-      withBodyContainer { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         mounted.backend.ref.value.raw.inc() // compilation and evaluation without error is test enough
       }
@@ -92,7 +94,7 @@ object RefTest extends TestSuite {
         def render = <.div(ref.component.withKey(555555555)())
       }
       val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].build
-      withBodyContainer { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         mounted.backend.ref.value.raw.inc() // compilation and evaluation without error is test enough
       }

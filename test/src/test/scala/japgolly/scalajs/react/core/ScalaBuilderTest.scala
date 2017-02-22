@@ -1,11 +1,12 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.core
 
 import utest._
-import vdom.html_<^._
-import test.TestUtil._
-import test.InferenceUtil._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test.InferenceUtil._
 
-object ScalaComponentBTest extends TestSuite {
+object ScalaBuilderTest extends TestSuite {
 
   // ======
   // Stages

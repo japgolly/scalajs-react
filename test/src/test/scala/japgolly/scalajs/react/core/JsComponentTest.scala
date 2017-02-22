@@ -1,11 +1,11 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.core
 
 import scalajs.js
 import utest._
-import japgolly.scalajs.react.internal.JsUtil.inspectObject
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
-import vdom.ImplicitsFromRaw._
+import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 
 abstract class JsComponentTest extends TestSuite {
   final val H1: raw.ReactElement =
@@ -63,7 +63,7 @@ object JsComponentPTest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        withBodyContainer { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode
           assertOuterHTML(n, "<div>Hello Bob</div>")
@@ -82,7 +82,7 @@ object JsComponentPTest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, Some("hehe": Key))
         assertEq(unmounted.ref, None)
-        withBodyContainer { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode
           assertOuterHTML(n, "<div>Hello Bob</div>")
@@ -121,7 +121,7 @@ object JsComponentPTest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, false)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        withBodyContainer { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode
           assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
@@ -134,7 +134,7 @@ object JsComponentPTest extends JsComponentTest {
       }
 
       'withKey {
-        withBodyContainer { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           val n = C.withKey("k")(JsProps("X"))(H1).renderIntoDOM(mountNode).getDOMNode
           assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
         }
@@ -173,7 +173,7 @@ object JsComponentSTest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        withBodyContainer { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode
 
@@ -213,7 +213,7 @@ object JsComponentSTest extends JsComponentTest {
         assert(Component() eq Component())
 
       'withKey {
-        withBodyContainer { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           val n = Component.withKey("k")().renderIntoDOM(mountNode).getDOMNode
           assertOuterHTML(n, "<div>State = 123 + 500</div>")
         }
@@ -242,7 +242,7 @@ object JsComponentSTest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, false)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        withBodyContainer { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode
 
@@ -256,7 +256,7 @@ object JsComponentSTest extends JsComponentTest {
       }
 
       'withKey {
-        withBodyContainer { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           val n = C.withKey("k")(H1).renderIntoDOM(mountNode).getDOMNode
           assertOuterHTML(n, "<div>State = 123 + 500<h1>Huge</h1></div>")
         }

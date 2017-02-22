@@ -1,9 +1,9 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.core
 
 import scalajs.js
 import utest._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
-import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.TestUtil._
 
 object JsFnComponentTest extends TestSuite {
@@ -27,7 +27,7 @@ object JsFnComponentTest extends TestSuite {
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
 //        assertEq(unmounted.ref, None)
-        withBodyContainer { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mountNode
           assertOuterHTML(n, "<div><div>Hello Bob</div></div>")
@@ -46,7 +46,7 @@ object JsFnComponentTest extends TestSuite {
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, Some("hehe": Key))
 //        assertEq(unmounted.ref, None)
-        withBodyContainer { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mountNode
           assertOuterHTML(n, "<div><div>Hello Bob</div></div>")

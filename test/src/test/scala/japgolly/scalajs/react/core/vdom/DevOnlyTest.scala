@@ -1,7 +1,7 @@
-package japgolly.scalajs.react.vdom
+package japgolly.scalajs.react.core.vdom
 
-import japgolly.scalajs.react.TestUtil._
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.all._
 import scala.scalajs.LinkingInfo.developmentMode
 import utest._
@@ -15,7 +15,7 @@ object VdomTest extends TestSuite {
 
       def test(t: ReactTag)(dev: => String, prod: => String): Unit = {
         val exp = if (developmentMode) dev else prod
-        assertRender(FunctionalComponent[Unit](_ => t)(()), exp)
+        assertRender(ScalaComponent.static("", t)(), exp)
       }
 
       'tagMod -

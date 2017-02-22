@@ -1,9 +1,9 @@
-package japgolly.scalajs.react.vdom
+package japgolly.scalajs.react.core.vdom
 
 import scala.scalajs.js
 import utest._
 import japgolly.scalajs.react._
-import html_<^._
+import japgolly.scalajs.react.vdom.html_<^._
 
 object ReactAttrTest extends TestSuite {
 

@@ -1,23 +1,24 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.core
 
 import org.scalajs.dom.raw.HTMLElement
-import vdom.prefix_<^._
 import utest._
-import test._
-import Addons._
-import TestUtil._
-import JsEnvUtils.requiresRealBrowser
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test.JsEnvUtils.requiresRealBrowser
+import japgolly.scalajs.react.test.ReactTestUtils
+import ReactAddons._
 
 object AddonTest extends TestSuite {
 
-  lazy val componentA = ReactComponentB[Int]("A")
+  lazy val componentA = ScalaComponent.build[Int]("A")
     .initialState_P(identity)
     .render_S(i => <.div(
-      (0 to i).map(j => componentB(s"$j² = ${j*j}"))
+      (0 to i).map(j => componentB(s"$j² = ${j*j}")).toReactArray
     ))
     .build
 
-  lazy val componentB = ReactComponentB[String]("B")
+  lazy val componentB = ScalaComponent.build[String]("B")
     .render_P(str => <.div("Input is ", str))
     .build
 

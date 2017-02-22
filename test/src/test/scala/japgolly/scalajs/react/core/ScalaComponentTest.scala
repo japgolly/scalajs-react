@@ -1,13 +1,13 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.core
 
 import scalajs.js
 import utest._
 import scalaz.Equal
-import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.JsUtil.inspectObject
-import japgolly.scalajs.react.test.InferenceUtil
+import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils}
 import japgolly.scalajs.react.test.TestUtil._
-import vdom.ImplicitsFromRaw._
+import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 
 object ScalaComponentPTest extends TestSuite {
 
@@ -36,7 +36,7 @@ object ScalaComponentPTest extends TestSuite {
       assertEq(unmounted.propsChildren.isEmpty, true)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
-      withBodyContainer { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode
         assertOuterHTML(n, "<div>Hello Bob</div>")
@@ -50,9 +50,11 @@ object ScalaComponentPTest extends TestSuite {
     }
 
     'withKey {
-      withBodyContainer { mountNode =>
-        val n = BasicComponent.withKey("k")(BasicProps("Bob")).renderIntoDOM(mountNode).getDOMNode
-        assertOuterHTML(n, "<div>Hello Bob</div>")
+      ReactTestUtils.withNewBodyElement { mountNode =>
+        val u = BasicComponent.withKey("k")(BasicProps("Bob"))
+        assertEq(u.key, Option[Key]("k"))
+        val m = u.renderIntoDOM(mountNode)
+        assertOuterHTML(m.getDOMNode, "<div>Hello Bob</div>")
       }
     }
 
@@ -63,7 +65,7 @@ object ScalaComponentPTest extends TestSuite {
       val c2 = BasicComponent.mapCtorType(_ withProps BasicProps("hello!"))
       val unmounted = c2()
       assertEq(unmounted.props.name, "hello!")
-      withBodyContainer { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode
         assertOuterHTML(n, "<div>Hello hello!</div>")
@@ -132,7 +134,7 @@ object ScalaComponentPTest extends TestSuite {
         .componentWillReceiveProps(x => x.backend.receive(x.currentProps, x.nextProps))
         .build
 
-      withBodyContainer { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         assertMountCount(0)
 
         var mounted = Comp(Props(1, 2, 3)).renderIntoDOM(mountNode)
@@ -186,7 +188,7 @@ object ScalaComponentSTest extends TestSuite {
       assert(unmounted.propsChildren.isEmpty)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
-      withBodyContainer { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode
 

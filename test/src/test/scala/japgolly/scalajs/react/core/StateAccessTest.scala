@@ -1,6 +1,7 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.core
 
 import utest._
+import japgolly.scalajs.react._
 
 object StateAccessTest extends TestSuite {
 
