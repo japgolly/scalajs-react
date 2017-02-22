@@ -14,10 +14,11 @@ object ReactTestUtils {
   type Unmounted[M] = GenericComponent.BaseUnmounted[_, M, _, _]
   type Mounted      = GenericComponent.RawAccessMounted
 
+  private type RawM = japgolly.scalajs.react.raw.ReactComponent
   type MountedOutput   = JsComponent.Mounted[js.Object, js.Object]
-  private def wrapMO(r: japgolly.scalajs.react.raw.ReactComponent): MountedOutput = JsComponent.mounted(r)
+  private def wrapMO(r: RawM): MountedOutput = JsComponent.mounted(r)
 //  type MountedOutput   = japgolly.scalajs.react.raw.ReactComponent
-//  private def wrapMO(r: japgolly.scalajs.react.raw.ReactComponent): MountedOutput = r
+//  private def wrapMO(r: RawM): MountedOutput = r
 
   type CompType = GenericComponent.RawAccessComponent {type Raw = japgolly.scalajs.react.raw.ReactClass }
 
@@ -35,7 +36,7 @@ object ReactTestUtils {
    * This is not that useful on its own, but it's used as a primitive for other test utils.
    */
   def findAllInRenderedTree(tree: Mounted, test: MountedOutput => Boolean): Vector[MountedOutput] =
-    raw.findAllInRenderedTree(tree.raw, m => test(wrapMO(m))).iterator.map(wrapMO).toVector
+    raw.findAllInRenderedTree(tree.raw, (m: RawM) => test(wrapMO(m))).iterator.map(wrapMO).toVector
 
   /**
    * Finds all instance of components in the rendered tree that are DOM components with the class name
