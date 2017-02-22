@@ -45,9 +45,6 @@ object Attr {
   def apply[A](name: String): Attr[A] =
     new Generic[A](name)
 
-  def style[A](name: String): Attr[A] =
-    new Style.Child[A](name)
-
   @inline def devOnly[A](name: => String): Attr[A] =
     if (developmentMode)
       new Generic(name)
@@ -108,11 +105,6 @@ object Attr {
   private[vdom] object Style extends Attr[js.Object]("style") {
     override def :=[A](a: A)(implicit t: ValueType[A, js.Object]): TagMod =
       TagMod.fn(b => t.fn(b.addStyles, a))
-
-    class Child[-U](name: String) extends Attr[U]("style." + name) {
-      override def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod =
-        TagMod.fn(b => t.fn(b.addStyle(name, _), a))
-    }
   }
 
   sealed trait Key
