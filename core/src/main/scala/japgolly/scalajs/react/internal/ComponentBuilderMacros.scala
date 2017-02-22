@@ -38,7 +38,7 @@ final class ComponentBuilderMacros(val c: Context) extends ReactMacroUtils {
     val B = concreteWeakTypeOf[B]
     val C = if (allowChildren) weakTypeOf[Children.Varargs] else weakTypeOf[Children.None]
     val render = TermName("render")
-    def genericRender = replaceMacroCallWith("render")
+    def genericRender = replaceMacroCallWith("renderWith")
 
     def assertChildrenTypeMatches(childrenUsed: Boolean): Unit =
       if (childrenUsed != allowChildren)
