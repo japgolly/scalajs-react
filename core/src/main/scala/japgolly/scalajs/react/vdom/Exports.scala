@@ -33,6 +33,9 @@ abstract class Exports {
   final type ReactNode = japgolly.scalajs.react.vdom.ReactNode
   final val ReactNode = japgolly.scalajs.react.vdom.ReactNode
 
+  final type ReactArray = japgolly.scalajs.react.vdom.ReactArray
+  final val ReactArray = japgolly.scalajs.react.vdom.ReactArray
+
   final val EmptyTag = japgolly.scalajs.react.vdom.TagMod.Empty
 
   final type TagMod = japgolly.scalajs.react.vdom.TagMod
