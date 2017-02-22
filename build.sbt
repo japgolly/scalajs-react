@@ -5,8 +5,8 @@ shellPrompt in ThisBuild := ((s: State) => Project.extract(s).currentRef.project
 val root          = ScalajsReact.root
 val core          = ScalajsReact.core
 val extra         = ScalajsReact.extra
-//val test          = ScalajsReact.test
 val scalaz72      = ScalajsReact.scalaz72
 val monocle       = ScalajsReact.monocle
+val test          = ScalajsReact.test
 //val ghpagesMacros = ScalajsReact.ghpagesMacros
 //val ghpages       = ScalajsReact.ghpages
