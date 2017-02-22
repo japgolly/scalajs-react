@@ -4,13 +4,21 @@ import scalajs.js
 import japgolly.scalajs.react.{raw => Raw}
 
 object PropsChildren {
-  def apply(c: Raw.PropsChildren): PropsChildren =
+  def apply(c: js.UndefOr[Raw.PropsChildren]): PropsChildren =
     new PropsChildren(c.asInstanceOf[js.Any])
+
+  def fromRawProps(p: js.Object): PropsChildren = {
+    val pp = p.asInstanceOf[js.UndefOr[Raw.PropsWithChildren]]
+    apply(pp.map(_.children))
+  }
 }
 
 final class PropsChildren private[PropsChildren](private val self: js.Any) extends AnyVal {
   def raw: Raw.PropsChildren =
     self.asInstanceOf[Raw.PropsChildren]
+
+  override def toString: String =
+    iterator.mkString("PropsChildren(", ", ", ")")
 
 //    /** Invoke fn on every immediate child contained within children with this set to context. If children is a nested object or array it will be traversed: fn will never be passed the container objects. If children is null or undefined returns null or undefined rather than an empty object. */
 //    def map(c: PropsChildren, fn: MapFn): js.UndefOr[js.Object] = js.native

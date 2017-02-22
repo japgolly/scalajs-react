@@ -51,7 +51,7 @@ class ReusabilityMacros(val c: Context) extends ReactMacroUtils {
 
           q""" {
             ..$insts
-            $Reusability.fn[$T]((a,b) => $testExpr)
+            $Reusability[$T]((a,b) => $testExpr)
           } """
       }
 

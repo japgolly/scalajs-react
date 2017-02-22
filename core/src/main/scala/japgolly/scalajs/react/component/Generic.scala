@@ -1,9 +1,10 @@
 package japgolly.scalajs.react.component
 
 import org.scalajs.dom
+import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom
-import japgolly.scalajs.react.{raw => Raw}
+import japgolly.scalajs.react.{raw => RAW}
 import japgolly.scalajs.react.{Callback, CtorType, Key, PropsChildren, StateAccess}
 
 object Generic {
@@ -17,9 +18,14 @@ object Generic {
       P0, CT0[-p, +u] <: CtorType[p, u], U0](base: BaseComponent[P1, CT1, U1, P0, CT0, U0]): CT1[P1, U1] =
     base.ctor
 
+  trait RawAccessComponent {
+    type Raw <: js.Any
+    val raw: Raw
+  }
+
   trait BaseComponent[
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
-      P0, CT0[-p, +u] <: CtorType[p, u], U0] {
+      P0, CT0[-p, +u] <: CtorType[p, u], U0] extends RawAccessComponent {
 
     final type Props = P1
     final type Unmounted = U1
@@ -35,7 +41,12 @@ object Generic {
     implicit def ctorPF: Profunctor[CT1]
   }
 
-  trait BaseUnmounted[P1, M1, P0, M0] {
+  trait RawAccessUnmounted {
+    type Raw <: RAW.ReactElement
+    val raw: Raw
+  }
+
+  trait BaseUnmounted[P1, M1, P0, M0] extends RawAccessUnmounted {
     final type Props = P1
     final type Mounted = M1
 
@@ -51,10 +62,18 @@ object Generic {
     def props: Props
     def propsChildren: PropsChildren
 
-    def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted
+    val mountRaw: RAW.ReactComponent => M1
+
+    def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): Mounted =
+      mountRaw(RAW.ReactDOM.render(raw, container, callback.toJsFn))
   }
 
-  trait BaseMounted[F[+ _], P1, S1, P0, S0] extends StateAccess[F, S1] {
+  trait RawAccessMounted {
+    type Raw <: RAW.ReactComponent
+    val raw: Raw
+  }
+
+  trait BaseMounted[F[+ _], P1, S1, P0, S0] extends RawAccessMounted with StateAccess[F, S1] {
     final type Props = P1
 
     type Root <: Mounted[F, P0, S0]

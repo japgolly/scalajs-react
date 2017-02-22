@@ -5,7 +5,7 @@ import scalaz.effect.IO
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import ScalazReactExt._
-import ScalazReact.{ChangeFilter, ScalazReactExt_StateAccessRWId}
+import ScalazReact.{ChangeFilter, ScalazReactExt_StateAccessCB}
 
 object ScalazReactExt {
 

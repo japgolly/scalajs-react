@@ -1,14 +1,11 @@
 package japgolly.scalajs.react.vdom
 
 import PackageBase._
-import Attr.Style.{Child => Style}
 
 object SvgStyles extends SvgStyles
 trait SvgStyles {
 
-  /**
-    *
-    * NOTE: This is a Style because react.js does not support it as an Attribute
+  /** NOTE: This is a Style because react.js does not support it as an Attribute
     *
     * Sometimes it is of interest to let the outline of an object keep its original width no matter which transforms are
     * applied to it. For example, in a map with a 2px wide line representing roads it is of interest to keep the roads
@@ -38,7 +35,6 @@ trait SvgStyles {
       * of the element (including non-uniform scaling and shear transformations) and zoom level.
       **/
     final def nonScalingStroke = this := "non-scaling-stroke"
-
   }
 
 }

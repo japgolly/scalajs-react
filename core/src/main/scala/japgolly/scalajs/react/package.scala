@@ -1,5 +1,7 @@
 package japgolly.scalajs
 
+import org.scalajs.dom
+import org.scalajs.dom.html
 import scala.scalajs.js
 import scala.scalajs.js.|
 import japgolly.scalajs.react.internal.Effect
@@ -31,4 +33,20 @@ package object react extends ReactEventTypes {
 
   val ScalaFnComponent = component.ScalaFn
   type ScalaFnComponent[P, CT[-p, +u] <: CtorType[p, u]] = ScalaFnComponent.Component[P, CT]
+
+  /** Extensions to plain old DOM. */
+  @inline implicit final class ReactExt_DomNode(private val n: dom.raw.Node) extends AnyVal {
+
+    @inline def domCast[N <: dom.raw.Node]: N =
+      n.asInstanceOf[N]
+
+    @inline def domAsHtml: html.Element =
+      domCast
+
+    def domToHtml: Option[html.Element] =
+      n match {
+        case e: html.Element => Some(e)
+        case _               => None
+      }
+  }
 }

@@ -2,14 +2,23 @@ package japgolly.scalajs.react.component
 
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, raw}
+import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, raw, vdom}
 
 object Scala {
 
   def build[P](name: String) =
     new ScalaBuilder.Step1[P](name)
 
+  /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
+  def static(name: String, content: vdom.ReactElement): Component[Unit, Unit, Unit, CtorType.Nullary] =
+    build[Unit](name)
+      .renderStatic(content)
+      .shouldComponentUpdateConst(false)
+      .build
+
   val Lifecycle = ScalaBuilder.Lifecycle
+
+  // ===================================================================================================================
 
   type Component[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
     Js.BaseComponent[
@@ -50,6 +59,8 @@ object Scala {
     override final type WithMappedProps[P2] = BaseMounted[F, P2, S1, B, P0, S0]
     override final type WithMappedState[S2] = BaseMounted[F, P1, S2, B, P0, S0]
 
+    override final type Raw = RawMounted[P0, S0, B]
+
     val js: JsMounted[P0, S0, B]
 
     // B instead of F[B] because
@@ -65,6 +76,7 @@ object Scala {
       override implicit def F    = Effect.idInstance
       override def root          = this
       override val js            = x
+      override val raw           = x.raw
       override def isMounted     = x.isMounted
       override def props         = x.props.unbox
       override def propsChildren = x.propsChildren
@@ -91,6 +103,7 @@ object Scala {
     new Template.MappedMounted[F, P2, S2, P1, S1, P0, S0](from)(mp, ls) with BaseMounted[F, P2, S2, B, P0, S0] {
       override def root = from.root.withEffect[F]
       override val js = from.js
+      override val raw = from.raw
       override type Mapped[F3[+ _], P3, S3] = BaseMounted[F3, P3, S3, B, P0, S0]
       override def mapped[F3[+ _], P3, S3](mp: P1 => P3, ls: Lens[S1, S3])(implicit ft: Effect.Trans[Effect.Id, F3]) = mappedM(from)(mp, ls)(ft)
     }

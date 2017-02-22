@@ -2,10 +2,7 @@ package japgolly.scalajs.react.extra
 
 import utest._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.prefix_<^._
 import japgolly.scalajs.react.test._
-import ScalazReact._
-import TestUtil2._
 
 object ReusableFnTest extends TestSuite {
 
@@ -83,24 +80,20 @@ object ReusableFnTest extends TestSuite {
       assert(f(1)(2)(3) == 6)
     }
 
-    'overComponent {
-      import TestUtil.Inference._
-      import CompScope._
-      import CompState._
-      test[DuringCallbackU[P, S, B]       ]($ => ReusableFn($).modState).expect[(S => S) ~=> Callback]
-      test[DuringCallbackM[P, S, B, N]    ]($ => ReusableFn($).modState).expect[(S => S) ~=> Callback]
-      test[BackendScope   [P, S]          ]($ => ReusableFn($).modState).expect[(S => S) ~=> Callback]
-      test[ReadCallbackWriteCallbackOps[T]]($ => ReusableFn($).modState).expect[(T => T) ~=> Callback]
+    'state {
+      import InferenceUtil._
+      test[BackendScope[P, S]]($ => ReusableFn.state($).set).expect[S ~=> Callback]
+      test[BackendScope[P, S]]($ => ReusableFn.state($).mod).expect[(S => S) ~=> Callback]
     }
 
     'endoOps {
-      import TestUtil.Inference._
+      import InferenceUtil._
       case class Counter(count: Int) {
         def add(i: Int): Counter = copy(count = count + i)
       }
-      test[BackendScope[P, S]          ]($ => ReusableFn($).modState.endoZoom(st_s)      ).expect[T ~=> Callback]
-      test[BackendScope[P, Counter]    ]($ => ReusableFn($).modState.endoCall(_.add)     ).expect[Int ~=> Callback]
-      test[BackendScope[P, Map[Int, S]]]($ => ReusableFn($).modState.endoCall2(_.updated)).expect[Int ~=> (S ~=> Callback)]
+      test[BackendScope[P, S]          ]($ => ReusableFn.state($).mod.endoZoom(st_s)      ).expect[T ~=> Callback]
+      test[BackendScope[P, Counter]    ]($ => ReusableFn.state($).mod.endoCall(_.add)     ).expect[Int ~=> Callback]
+      test[BackendScope[P, Map[Int, S]]]($ => ReusableFn.state($).mod.endoCall2(_.updated)).expect[Int ~=> (S ~=> Callback)]
     }
 
     'byName {
@@ -111,25 +104,8 @@ object ReusableFnTest extends TestSuite {
       assert(fn(2) == 22)
     }
 
-    'renderComponent {
-      import ReusabilityTest.SampleComponent1._
-      val f = ReusableFn.renderComponent(component)
-      val g: Props => ReactElement = f
-      ()
-    }
-
-    'fnA {
-      val f = ReusableFn((a: Int) => a + a)
-      val g = ReusableFn((a: Int) => a * a)
-      val f3 = f.fnA(3)
-      assert(f3 ~=~ f.fnA(3))
-      assert(f3 ~/~ f.fnA(2))
-      assert(f3 ~/~ g.fnA(3))
-      assert(f3() == 6)
-    }
-
     'variance {
-      import TestUtil.Inference._
+      import InferenceUtil._
 
       'fn1 {
         'i {

@@ -6,10 +6,10 @@ import scala.util.Try
 import scalaz.Equal
 import utest._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.prefix_<^._
+import japgolly.scalajs.react.vdom.html_<^._
 import MonocleReact._
 import ScalazReact._
-import TestUtil2._
+import test.TestUtil._
 
 object DslTest extends TestSuite {
 
@@ -37,23 +37,23 @@ object DslTest extends TestSuite {
     def reactElement: ReactElement =
       <.span("el!")
 
-    val compCConst: ReactComponentC.ConstProps[Unit, Unit, Unit, TopNode] =
-      ReactComponentB.static("", <.span("static component")).build
+    val compCConst: ScalaComponent[Unit, Unit, Unit, CtorType.Nullary] =
+      ScalaComponent.static("", <.span("static component"))
 
-    val compCReqRouter: ReactComponentC.ReqProps[RouterCtl[PageSet], Unit, Unit, TopNode] =
-      ReactComponentB[RouterCtl[PageSet]]("").render_P(r => r.link(Obj1)).build
+    val compCReqRouter: ScalaComponent[RouterCtl[PageSet], Unit, Unit, CtorType.Props] =
+      ScalaComponent.build[RouterCtl[PageSet]]("").render_P(r => r.link(Obj1)).build
 
-    val compCReqPage: ReactComponentC.ReqProps[PageSet, Unit, Unit, TopNode] =
-      ReactComponentB[PageSet]("").render_P(p => <.div(s"Page = $p")).build
+    val compCReqPage: ScalaComponent[PageSet, Unit, Unit, CtorType.Props] =
+      ScalaComponent.build[PageSet]("").render_P(p => <.div(s"Page = $p")).build
 
-    val compCReqPageSub: ReactComponentC.ReqProps[PageSubSet, Unit, Unit, TopNode] =
-      ReactComponentB[PageSubSet]("").render_P(p => <.div(s"Page = $p")).build
+    val compCReqPageSub: ScalaComponent[PageSubSet, Unit, Unit, CtorType.Props] =
+      ScalaComponent.build[PageSubSet]("").render_P(p => <.div(s"Page = $p")).build
 
-    def compU: ReactComponentU[Unit, Unit, Unit, TopNode] =
+    def compU: ScalaComponent.Unmounted[Unit, Unit, Unit] =
       compCConst()
 
     case class CompX(title: String, page: PageSet, router: RouterCtl[PageSet])
-    val compX = ReactComponentB[CompX]("X").render_P(p => <.div()).build
+    val compX = ScalaComponent.build[CompX]("X").render_P(p => <.div()).build
   }
 
 

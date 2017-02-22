@@ -7,25 +7,37 @@ import Leibniz.===
 import japgolly.scalajs.react._
 import ScalazReact.{reactCallbackScalazInstance, ScalazReactExt_ReactST}
 
-trait ScalazReactState {
+trait ScalazReactState1 {
 
   final type ReactST[M[_], S, A] = ScalazReactState.ReactST[M, S, A]
   final type ReactS[S, A] = ScalazReactState.ReactS[S, A]
 
   final val ReactS = ScalazReactState.ReactS
 
-  type ChangeFilter[S] = ScalazReactState.ChangeFilter[S]
-  val ChangeFilter = ScalazReactState.ChangeFilter
+  final type ChangeFilter[S] = ScalazReactState.ChangeFilter[S]
+  final val ChangeFilter = ScalazReactState.ChangeFilter
 
   import ScalazReactState._
 
-  //@inline implicit final def ScalazReactExt_StateAccessRW[F[_], C, S](component: C)(implicit sa: StateAccess.ReadWriteF[F, C, S], fToCb: Effect.Trans[F, CallbackTo]) = new Ext_StateAccessRW(component)
-  @inline implicit final def ScalazReactExt_StateAccessRWId[C, S](component: C)(implicit sa: StateAccessor.ReadIdWriteCB[C, S]) = new Ext_StateAccessRW[Effect.Id, C, S](component)
-  @inline implicit final def ScalazReactExt_StateAccessRWCB[C, S](component: C)(implicit sa: StateAccessor.ReadCBWriteCB[C, S]) = new Ext_StateAccessRW[CallbackTo, C, S](component)
-  @inline implicit final def ScalazReactExt_ReactS[S, A](a: ReactS[S, A]) = new Ext_ReactS(a)
-  @inline implicit final def ScalazReactExt_ReactST[M[_], S, A](a: ReactST[M, S, A]) = new Ext_ReactST(a)
-  @inline implicit final def ScalazReactExt_StateT[M[_], S, A](a: StateT[M, S, A]) = new Ext_StateT(a)
-  @inline implicit final def ScalazReactExt_FnToStateT[I, M[_], S, A](a: I => StateT[M, S, A]) = new Ext_FnToStateT(a)
+  implicit final def ScalazReactExt_StateAccessId[I, S](i: I)(implicit sa: StateAccessor.ReadIdWriteId[I, S]): Ext_StateAccessRW[Effect.Id, I, S, Effect.Id] = new Ext_StateAccessRW(i)
+}
+
+trait ScalazReactState2 extends ScalazReactState1 {
+  import ScalazReactState._
+
+  implicit final def ScalazReactExt_StateAccessCB[I, S](i: I)(implicit sa: StateAccessor.ReadCBWriteCB[I, S]): Ext_StateAccessRW[CallbackTo, I, S, CallbackTo] = new Ext_StateAccessRW(i)
+}
+
+trait ScalazReactState extends ScalazReactState2 {
+  import ScalazReactState._
+
+//  implicit final def ScalazReactExt_StateAccessRIWC[I, S](i: I)(implicit sa: StateAccessor.ReadIdWriteCB[I, S]) =
+//    ScalazReactExt_StateAccessCB(i)(sa.withReadEffect)
+
+  implicit final def ScalazReactExt_ReactS[S, A](a: ReactS[S, A]) = new Ext_ReactS(a)
+  implicit final def ScalazReactExt_ReactST[M[_], S, A](a: ReactST[M, S, A]) = new Ext_ReactST(a)
+  implicit final def ScalazReactExt_StateT[M[_], S, A](a: StateT[M, S, A]) = new Ext_StateT(a)
+  implicit final def ScalazReactExt_FnToStateT[I, M[_], S, A](a: I => StateT[M, S, A]) = new Ext_FnToStateT(a)
 }
 
 // =====================================================================================================================
@@ -181,24 +193,26 @@ object ScalazReactState {
     }
   }
 
-  final class Ext_StateAccessRW[F[+_], C, S](component: C)(implicit sa: StateAccessor.ReadFWriteCB[F, C, S], fToCb: Effect.Trans[F, CallbackTo]) {
-    type Out[A] = CallbackTo[A]
+//  final class Ext_StateAccessRW[F[_], SI, S, Out[_]](si: SI)(implicit sa: StateAccessor.ReadWrite[SI, F, F, S], F: F ~> CallbackTo, cbToOut: CallbackTo ~> Out) {
+  final class Ext_StateAccessRW[F[+_], SI, S, Out[+_]](si: SI)(implicit sa: StateAccessor.ReadWrite[SI, F, F, S], fToCb: Effect.Trans[F, CallbackTo], cbToOut: Effect.Trans[CallbackTo, Out]) {
+    implicit private def autoOut[A](a: CallbackTo[A]): Out[A] = cbToOut(a)
 
-    private def stateCB: CallbackTo[S] =
-      fToCb(sa.state(component))
+    private def stateCB: CallbackTo[S] = fToCb(sa.state(si))
 
     private def run[M[_], A, B](st: => ReactST[M, S, A], f: (S, S, A, => Callback) => CallbackTo[B])(implicit M: M ~> CallbackTo, N: Monad[M]): CallbackTo[B] =
-      stateCB.flatMap { _s1 =>
-        val s1 = StateAndCallbacks(_s1)
-        M(st run s1).flatMap { x2 =>
-          val s2 = x2._1
-          val a = x2._2
-          f(s1.state, s2.state, a, sa.setStateCB(component)(s2.state, s2.cb))
+      stateCB.flatMap { s1 =>
+        val runCB: CallbackTo[(StateAndCallbacks[S], A)] = M(st run StateAndCallbacks(s1))
+        runCB.flatMap { x2 =>
+          val s2 : StateAndCallbacks[S] = x2._1
+          val a  : A                    = x2._2
+          def cb : Callback             = fToCb(sa.setStateCB(si)(s2.state, s2.cb))
+          val res: CallbackTo[B]        = f(s1, s2.state, a, cb)
+          res
         }
       }
 
     def runState[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): Out[A] =
-      run[M, A, A](st, (s1,s2,a,cb) => cb.map(_ => a))
+      run[M, A, A](st, (s1, s2, a, cb) => cb.map(_ => a))
 
     @deprecated("Use runStateFn.", "1.0.0")
     def _runState[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): I => Out[A] = runStateFn(f)
@@ -211,7 +225,7 @@ object ScalazReactState {
       i => runState(f(i) addCallback cb(i))
 
     def runStateF[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): Out[A] =
-      run[M, A, A](st, (s1,s2,a,cb) => F(s1, s2, CallbackTo pure a, _ => cb.map(_ => a)))
+      run[M, A, A](st, (s1, s2, a, cb) => F(s1, s2, CallbackTo pure a, _ => cb.map(_ => a)))
 
     def _runStateF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
       i => runStateF(f(i))
@@ -223,7 +237,7 @@ object ScalazReactState {
 
     def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): Out[Unit] =
       stateCB.flatMap(s1 =>
-        F(s1, f(s1), Callback.empty, sa.setStateCB(component)(_, cb)))
+        F(s1, f(s1), Callback.empty, s => fToCb(sa.setStateCB(si)(s, cb))))
 
     @deprecated("Use modStateFnF.", "1.0.0")
     def _modStateF[I](f: I => S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): I => Out[Unit] = modStateFnF(f, cb)

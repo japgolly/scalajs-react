@@ -4,15 +4,15 @@ object ExportsStatic {
 
   @inline final class VdomExtString(private val s: String) extends AnyVal {
 
-    @deprecated("Use ReactAttr[A](\"name\") instead.", "1.0")
+    @deprecated("Use ReactAttr[A](\"name\") instead.", "1.0.0")
     def reactAttr[A]: Attr[A] =
       Attr[A](s)
 
-    @deprecated("Use ReactAttr.style[A](\"name\") instead.", "1.0")
+    @deprecated("Use ReactStyle[A](\"name\") instead.", "1.0.0")
     def reactStyle[A]: Attr[A] =
-      Attr.style[A](s)
+      Style[A](s)
 
-    @deprecated("Use HtmlTag(\"name\") or HtmlTagOf[A](\"name\") instead.", "1.0")
+    @deprecated("Use HtmlTag(\"name\") or HtmlTagOf[A](\"name\") instead.", "1.0.0")
     def reactTag[N <: HtmlTopNode]: HtmlTagOf[N] =
       new HtmlTagOf[N](s)
 
@@ -33,6 +33,9 @@ abstract class Exports {
   final type ReactNode = japgolly.scalajs.react.vdom.ReactNode
   final val ReactNode = japgolly.scalajs.react.vdom.ReactNode
 
+  final type ReactArray = japgolly.scalajs.react.vdom.ReactArray
+  final val ReactArray = japgolly.scalajs.react.vdom.ReactArray
+
   final val EmptyTag = japgolly.scalajs.react.vdom.TagMod.Empty
 
   final type TagMod = japgolly.scalajs.react.vdom.TagMod
@@ -40,6 +43,8 @@ abstract class Exports {
 
   final type ReactAttr[-U] = japgolly.scalajs.react.vdom.Attr[U]
   final val ReactAttr = japgolly.scalajs.react.vdom.Attr
+
+  final val ReactStyle = japgolly.scalajs.react.vdom.Style
 
   final type ReactTagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.TagOf[N]
   final type ReactTag = ReactTagOf[TopNode]

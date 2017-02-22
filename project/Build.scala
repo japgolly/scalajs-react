@@ -151,10 +151,13 @@ object ScalajsReact {
       testOnly      in Test := (),
       testQuick     in Test := ())
 
+  def monocleLib(name: String) =
+    "com.github.julien-truffaut" %%%! s"monocle-$name" % Ver.Monocle
+
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    // .aggregate(test, ghpagesMacros, ghpages)
-    .aggregate(core, extra, scalaz72, monocle)
+    // .aggregate(ghpagesMacros, ghpages)
+    .aggregate(core, extra, scalaz72, monocle, test)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -171,37 +174,36 @@ object ScalajsReact {
 
   // ==============================================================================================
   lazy val core = project
-    .configure(commonSettings, publicationSettings, definesMacros, utestSettings)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
         "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
-        "org.scalaz"   %%% "scalaz-core" % Ver.Scalaz72 % "test"),
-      jsDependencies ++= Seq(
-        (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
-        (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test))
+        "org.scalaz"   %%% "scalaz-core" % Ver.Scalaz72 % "test"))
 
   lazy val extra = project
-    .configure(commonSettings, publicationSettings, definesMacros, utestSettings)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .dependsOn(core)
     .settings(name := "extra")
 
-//  lazy val test = project
-//    .configure(commonSettings, publicationSettings, utestSettings, InBrowserTesting.js)
-//    .dependsOn(core, extra, monocle)
-//    .settings(
-//      name := "test",
-//      libraryDependencies ++= Seq(
-//        "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % "test",
-//        "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % "test",
-//        "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % "test",
-//        monocleLib("macro") % "test"),
-//      jsDependencies ++= Seq(
-//        (ProvidedJS / "sampleReactComponent.js" dependsOn "react-dom.js") % Test, // for JS Component Type Test.
-//        "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle"),
-//      addCompilerPlugin(macroParadisePlugin))
+  lazy val test = project
+    .configure(commonSettings, publicationSettings, utestSettings)
+    .dependsOn(core, extra)
+    .dependsOn(scalaz72 % "test->compile")
+    .dependsOn(monocle % "test->compile")
+    .settings(
+      name := "test",
+      libraryDependencies ++= Seq(
+        "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
+        "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
+        "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
+        monocleLib("macro") % Test),
+      jsDependencies ++= Seq(
+        "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
+        (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
+        (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test),
+      addCompilerPlugin(macroParadisePlugin))
 
-  // ==============================================================================================
   def scalazModule(name: String, version: String) = {
     val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")
     Project(shortName, file(name))
@@ -213,14 +215,10 @@ object ScalajsReact {
 
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
-  // ==============================================================================================
   lazy val monocle = project
     .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
     .dependsOn(core, extra, scalaz72)
     .settings(libraryDependencies += monocleLib("core"))
-
-  def monocleLib(name: String) =
-    "com.github.julien-truffaut" %%%! s"monocle-$name" % Ver.Monocle
 
   // ==============================================================================================
 //  lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))

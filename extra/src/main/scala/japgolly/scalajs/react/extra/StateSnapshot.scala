@@ -6,6 +6,9 @@ final class StateSnapshot[S](val value: S,
                              val setState: S ~=> Callback,
                              private[StateSnapshot] val reusability: Reusability[S]) {
 
+  @deprecated("Use setState instead.", "1.0.0") def set = setState
+  @deprecated("Use modState instead.", "1.0.0") def mod = modState _
+
   def modState(f: S => S): Callback =
     setState(f(value))
 
@@ -64,6 +67,5 @@ object StateSnapshot {
 
     def of[I, S](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
       apply(t.state(i)).writeVia(i)(t, r)
-
   }
 }

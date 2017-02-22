@@ -68,7 +68,12 @@ package object raw {
 //  @inline def emptyReactNodeList: ReactNodeList =
 //    js.undefined
 
-  type ReactClass = js.Function1[Props, ReactComponent]
+  type ReactClass = js.Function1[Props, ReactComponent] with HasDisplayName
+
+  @js.native
+  trait HasDisplayName extends js.Object {
+    val displayName: String = js.native
+  }
 
   /** Once-mounted component. */
   @js.native

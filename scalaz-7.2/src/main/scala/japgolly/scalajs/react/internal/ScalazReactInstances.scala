@@ -69,16 +69,22 @@ trait ScalazReactInstances {
   // Nope: variance
   // implicit final lazy val ioReactInstance: Effect[IO] = new Effect[IO] {
 
+  implicit final lazy val scalazIdToIo: (Scalaz.Id ~> IO) =
+    new (Scalaz.Id ~> IO) { override def apply[A](a: A) = IO(a) }
+
+  implicit final lazy val scalazIdToReactCallback: (Scalaz.Id ~> CallbackTo) =
+    new (Scalaz.Id ~> CallbackTo) { override def apply[A](a: A) = CallbackTo(a) }
+
   implicit final lazy val ioToReactCallback: (IO ~> CallbackTo) =
     new (IO ~> CallbackTo) { override def apply[A](a: IO[A]) = CallbackTo(a.unsafePerformIO()) }
 
-  implicit final lazy val reactCallbackToIso: (CallbackTo ~> IO) =
+  implicit final lazy val reactCallbackToIo: (CallbackTo ~> IO) =
     new (CallbackTo ~> IO) { override def apply[A](a: CallbackTo[A]) = IO(a.runNow()) }
 
   final lazy val ioToReactCallbackIso: (CallbackTo <~> IO) =
     new (CallbackTo <~> IO) {
       override val from = ioToReactCallback
-      override val to = reactCallbackToIso
+      override val to = reactCallbackToIo
     }
 
   implicit final lazy val reactCallbackToItself: (CallbackTo ~> CallbackTo) =

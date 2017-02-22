@@ -3,9 +3,9 @@ package japgolly.scalajs.react.component
 import org.scalajs.dom
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, Children, CtorType, Key, PropsChildren, vdom, raw => Raw}
+import japgolly.scalajs.react.{Callback, Children, CtorType, Key, PropsChildren, vdom, raw => RAW}
 
-object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
+object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
 
   def apply[P <: js.Object, C <: Children, S <: js.Object](name: String)
                                                           (implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
@@ -14,7 +14,7 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
       case Some(_)              => throw new IllegalArgumentException(s"React constructor $name is not a function")
       case None                 => throw new IllegalArgumentException(s"React constructor $name is not defined")
     }
-    component[P, C, S](reactClass.asInstanceOf[Raw.ReactClass])(s)
+    component[P, C, S](reactClass.asInstanceOf[RAW.ReactClass])(s)
   }
 
   private[this] def findInScope(path: List[String], scope: js.Dynamic = js.Dynamic.global): Option[js.Dynamic] = {
@@ -28,7 +28,7 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
 
   // ===================================================================================================================
 
-  type RawMounted = Raw.ReactComponent
+  type RawMounted = RAW.ReactComponent
 
   type Component[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentWithRawType[P, S, CT, RawMounted]
   type Unmounted[P <: js.Object, S <: js.Object]                               = UnmountedWithRawType[P, S,     RawMounted]
@@ -50,18 +50,17 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
       extends Generic.BaseUnmounted[P1, M1, P0, M0] {
 
     override final type Root = RootUnmounted[P0, M0]
+    override final type Raw = RAW.ReactComponentElement
     override def mapUnmountedProps[P2](f: P1 => P2): BaseUnmounted[P2, M1, P0, M0]
     override def mapMounted[M2](f: M1 => M2): BaseUnmounted[P1, M2, P0, M0]
-
-    val raw: Raw.ReactComponentElement
   }
 
-  def rootUnmounted[P <: js.Object, M](r: Raw.ReactComponentElement, m: Raw.ReactComponent => M): RootUnmounted[P, M] =
+  def rootUnmounted[P <: js.Object, M](r: RAW.ReactComponentElement, m: RAW.ReactComponent => M): RootUnmounted[P, M] =
     new RootUnmounted[P, M] {
 
       override def root = this
-
       override val raw = r
+      override val mountRaw = m
 
       override val reactElement =
         vdom.ReactElement(raw)
@@ -76,10 +75,7 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
         raw.props.asInstanceOf[P]
 
       override def propsChildren: PropsChildren =
-        PropsChildren(raw.props.children)
-
-      override def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): M =
-        m(Raw.ReactDOM.render(raw, container, callback.toJsFn))
+        PropsChildren.fromRawProps(raw.props)
 
       override def mapUnmountedProps[P2](f: P => P2) =
         mappedU(this)(f, identity)
@@ -107,8 +103,7 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
       override def mapMounted[M3](f: M2 => M3) =
         mappedU(from)(mp, f compose mm)
 
-      override def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty) =
-        mm(from.renderIntoDOM(container, callback))
+      override val mountRaw = mm compose from.mountRaw
     }
 
   // ===================================================================================================================
@@ -123,7 +118,7 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
     override final type WithMappedProps[P2] = BaseMounted[F, P2, S1, R, P0, S0]
     override final type WithMappedState[S2] = BaseMounted[F, P1, S2, R, P0, S0]
 
-    val raw: R
+    override final type Raw = R
 
     final def withRawType[R2 <: RawMounted]: BaseMounted[F, P1, S1, R2, P0, S0] =
       this.asInstanceOf[BaseMounted[F, P1, S1, R2, P0, S0]]
@@ -142,10 +137,10 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
       override def root          = this
       override val raw           = r
       override def props         = raw.props.asInstanceOf[P]
-      override def propsChildren = PropsChildren(raw.props.children)
+      override def propsChildren = PropsChildren.fromRawProps(raw.props)
       override def state         = raw.state.asInstanceOf[S]
       override def isMounted     = raw.isMounted()
-      override def getDOMNode    = Raw.ReactDOM.findDOMNode(raw)
+      override def getDOMNode    = RAW.ReactDOM.findDOMNode(raw)
 
       override def setState(state: S, callback: Callback = Callback.empty): Unit =
         raw.setState(state, callback.toJsFn)
@@ -175,10 +170,10 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
 
   // ===================================================================================================================
 
-  def component[P <: js.Object, C <: Children, S <: js.Object](rc: Raw.ReactClass)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
+  def component[P <: js.Object, C <: Children, S <: js.Object](rc: RAW.ReactClass)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
     rootComponent[P, s.CT, Unmounted[P, S]](rc, s.pf.rmap(s.summon(rc))(unmounted))(s.pf)
 
-  def unmounted[P <: js.Object, S <: js.Object](r: Raw.ReactComponentElement): Unmounted[P, S] =
+  def unmounted[P <: js.Object, S <: js.Object](r: RAW.ReactComponentElement): Unmounted[P, S] =
     rootUnmounted(r, mounted)
 
   def mounted[P <: js.Object, S <: js.Object](r: RawMounted): Mounted[P, S] =
@@ -244,7 +239,7 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
 
     var value: MountedWithRawType[P0, S0, R] = null
 
-    private def refSet: Raw.RefFn =
+    private def refSet: RAW.RefFn =
       (i: js.Any) => value =
         if (i == null) null else {
           val r = i.asInstanceOf[Js.RawMounted with R]

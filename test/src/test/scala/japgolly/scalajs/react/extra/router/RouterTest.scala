@@ -1,13 +1,14 @@
 package japgolly.scalajs.react.extra.router
 
-import sizzle.Sizzle
-import japgolly.scalajs.react._, vdom.prefix_<^._
-import japgolly.scalajs.react.test._
 import org.scalajs.dom._
 import scalaz._
 import scalaz.effect.IO
+import sizzle.Sizzle
+import japgolly.scalajs.react._, vdom.html_<^._
+import japgolly.scalajs.react.test._
 import utest._
 import TestUtil._
+import ScalazReact._
 
 object RouterTest extends TestSuite {
 
@@ -18,7 +19,9 @@ object RouterTest extends TestSuite {
     case class Greet(name: String) extends MyPage
     case class Person(id: Long) extends MyPage
 
-    val RootComponent = ReactComponentB[RouterCtl[MyPage]]("Root")
+    implicit def equality = Equal.equalA[MyPage]
+
+    val RootComponent = ScalaComponent.build[RouterCtl[MyPage]]("Root")
       .render_P(r =>
         <.div(
           <.h2("Router Demonstration"),
@@ -29,13 +32,13 @@ object RouterTest extends TestSuite {
       ).build
 
     val HelloComponent =
-      ReactComponentB.static("Hello", <.h3("Hello there!")).build
+      ScalaComponent.static("Hello", <.h3("Hello there!"))
 
-    val NameComponent = ReactComponentB[String]("Name")
+    val NameComponent = ScalaComponent.build[String]("Name")
       .render_P(name => <.h3(s"I believe your name is '$name'."))
       .build
 
-    val PersonComponent = ReactComponentB[Person]("Person by ID")
+    val PersonComponent = ScalaComponent.build[Person]("Person by ID")
       .render_P(p => <.h3(s"Person #${p.id} Details..."))
       .build
 
@@ -75,11 +78,11 @@ object RouterTest extends TestSuite {
       val base = RouterTestHelp.localBaseUrl_/
       val router = Router(base, MyPage.config.logToConsole)
       val c = ReactTestUtils.renderIntoDocument(router())
-      def node = ReactDOM findDOMNode c
+      def node = c.getDOMNode
       def html = node.outerHTML
 
       def testView(routeSuffix: String, p: MyPage): Unit = {
-        window.location.href mustEqual base.+(routeSuffix).value
+        assertEq(window.location.href, base.+(routeSuffix).value)
         val h = html
         assertContains(h, "Router Demo",  p == Root)
         assertContains(h, """>Back<""",   p != Root)
@@ -111,23 +114,23 @@ object RouterTest extends TestSuite {
       val r = new RouterLogic(base, MyPage.config.logToConsole)
 
       'urlParsing {
-        'root   { r.parseUrl(base.abs)          mustEqual Some(Path("")) }
-        'tslash { r.parseUrl(base / "" abs)     mustEqual Some(Path("/")) }
-        'path   { r.parseUrl(base / "hehe" abs) mustEqual Some(Path("/hehe")) }
+        'root   { assertEq(r.parseUrl(base.abs)         , Some(Path(""))) }
+        'tslash { assertEq(r.parseUrl(base / "" abs)    , Some(Path("/"))) }
+        'path   { assertEq(r.parseUrl(base / "hehe" abs), Some(Path("/hehe"))) }
       }
 
       'syncToUrl {
         def runh[P](r: RouterLogic[P], start: AbsUrl) = {
           val s = SimHistory(start)
           val a = s.run(r.syncToUrl(s.startUrl))
-          s.broadcasts mustEqual Vector.empty // this is sync(), not set()
+          assertEq(s.broadcasts, Vector.empty) // this is sync(), not set()
           (s, a)
         }
 
-        def testh[P](r: RouterLogic[P], start: AbsUrl)(expectPrevHistory: AbsUrl => List[AbsUrl], expectPage: P, expectPath: String): Unit = {
+        def testh[P: Equal](r: RouterLogic[P], start: AbsUrl)(expectPrevHistory: AbsUrl => List[AbsUrl], expectPage: P, expectPath: String): Unit = {
           val (s, res) = runh(r, start)
-          s.history.mustEqual(Path(expectPath).abs :: expectPrevHistory(start))
-          res.page mustEqual expectPage
+          assertEq(s.history, Path(expectPath).abs :: expectPrevHistory(start))
+          assertEq(res.page, expectPage)
         }
 
 //        'match_root - r.syncToUrl(base.abs)          .mustEqual(\/-(MyPage.root))

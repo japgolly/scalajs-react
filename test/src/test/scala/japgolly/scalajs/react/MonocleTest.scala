@@ -3,48 +3,45 @@ package japgolly.scalajs.react
 import monocle._
 import monocle.macros.Lenses
 import utest._
-import React._
 import ScalazReact._
 import MonocleReact._
-import CompScope._
-import CompState._
 
 object MonocleTest extends TestSuite {
+  import japgolly.scalajs.react.test.InferenceUtil._
 
   @Lenses case class Poly[A](oa: Option[A])
 
   val tests = TestSuite {
 
     'inference {
-      import TestUtil.Inference._
-      val lensST: Lens[S, T] = null
-      val lensTS: Lens[T, S] = null
+      def lensST: Lens[S, T] = null
+      def lensTS: Lens[T, S] = null
+      def lensJST: Lens[JS, T] = null
 
-      'zoomL {
-        'DuringCallbackU - test[DuringCallbackU[P, S, U]   ](_ zoomL lensST).expect[ReadDirectWriteCallbackOps[T]]
-        'DuringCallbackM - test[DuringCallbackM[P, S, U, N]](_ zoomL lensST).expect[ReadDirectWriteCallbackOps[T]]
-        'BackendScope    - test[BackendScope   [P, S]      ](_ zoomL lensST).expect[ReadCallbackWriteCallbackOps[T]]
-        'ReactComponentM - test[ReactComponentM[P, S, U, N]](_ zoomL lensST).expect[ReadDirectWriteDirectOps[T]]
-        'ReactS          - test[ReactST[M, S, A]           ](_ zoomL lensTS).expect[ReactST[M, T, A]]
+      'zoom {
+      //'RenderScope       - test[Render              ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
+        'StateAccessPure   - test[StateAccessPure[S]  ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
+        'BackendScope      - test[Backend             ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
+        'ScalaMountedCB    - test[ScalaMountedCB      ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
+        'StateAccessImpure - test[StateAccessImpure[S]](_ zoomStateL lensST ).expect_<[StateAccessImpure[T]]
+        'JsMounted         - test[JsMounted           ](_ zoomStateL lensJST).expect_<[StateAccessImpure[T]]
+        'ScalaMountedId    - test[ScalaMountedId      ](_ zoomStateL lensST ).expect_<[StateAccessImpure[T]]
+        'ReactS            - test[ReactST[M, S, A]    ](_ zoomL      lensTS ).expect  [ReactST[M, T, A]]
       }
 
-      "compState.zoomL" - {
-        'Access      - test[Access     [S]](_ zoomL lensST).expect[Access     [T]]
-        'AccessD     - test[AccessD    [S]](_ zoomL lensST).expect[AccessD    [T]]
-        'AccessRD    - test[AccessRD   [S]](_ zoomL lensST).expect[AccessRD   [T]]
-        'WriteAccess - test[WriteAccess[S]](_ zoomL lensST).expect[WriteAccess[T]]
-      }
-
-      '_setStateL {
-        'DuringCallbackU - test[DuringCallbackU[P, S, U]   ](_ _setStateL lensST).expect[T => Callback]
-        'DuringCallbackM - test[DuringCallbackM[P, S, U, N]](_ _setStateL lensST).expect[T => Callback]
-        'BackendScope    - test[BackendScope   [P, S]      ](_ _setStateL lensST).expect[T => Callback]
-        'ReactComponentM - test[ReactComponentM[P, S, U, N]](_ _setStateL lensST).expect[T => Unit]
+      'setStateFnL {
+        'RenderScope       - test[Render              ](_ setStateFnL lensST ).expect[T => Callback]
+        'StateAccessPure   - test[StateAccessPure[S]  ](_ setStateFnL lensST ).expect[T => Callback]
+        'BackendScope      - test[Backend             ](_ setStateFnL lensST ).expect[T => Callback]
+        'ScalaMountedCB    - test[ScalaMountedCB      ](_ setStateFnL lensST ).expect[T => Callback]
+        'StateAccessImpure - test[StateAccessImpure[S]](_ setStateFnL lensST ).expect[T => Unit]
+        'JsMounted         - test[JsMounted           ](_ setStateFnL lensJST).expect[T => Unit]
+        'ScalaMountedId    - test[ScalaMountedId      ](_ setStateFnL lensST ).expect[T => Unit]
       }
 
       'poly {
-        'zoomL      - test[BackendScope[P, Poly[S]]](_ zoomL      Poly.oa[S]).expect[ReadCallbackWriteCallbackOps[Option[S]]]
-        '_setStateL - test[BackendScope[P, Poly[S]]](_ _setStateL Poly.oa[S]).expect[Option[S] => Callback]
+        'zoomStateL  - test[BackendScope[P, Poly[S]]](_ zoomStateL  Poly.oa[S]).expect_<[StateAccessPure[Option[S]]]
+        'setStateFnL - test[BackendScope[P, Poly[S]]](_ setStateFnL Poly.oa[S]).expect[Option[S] => Callback]
       }
 
     }
