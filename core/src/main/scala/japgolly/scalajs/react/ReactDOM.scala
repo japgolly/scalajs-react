@@ -1,12 +1,13 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
-import vdom.ReactElement
+import japgolly.scalajs.react.vdom.ReactElement
 
 object ReactDOM {
+  def raw = japgolly.scalajs.react.raw.ReactDOM
 
   def unmountComponentAtNode(container: dom.Node): Boolean =
-    raw.ReactDOM.unmountComponentAtNode(container)
+    raw.unmountComponentAtNode(container)
 
   @deprecated("Use .renderIntoDOM on unmounted components.", "")
   def render(x: Nothing): Null = null
@@ -18,6 +19,7 @@ object ReactDOM {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 object ReactDOMServer {
+  def raw = japgolly.scalajs.react.raw.ReactDOMServer
 
   /**
     * Render a ReactElement to its initial HTML. This should only be used on the server. React will return an HTML
@@ -28,7 +30,7 @@ object ReactDOMServer {
     * only attach event handlers, allowing you to have a very performant first-load experience.
     */
   def renderToString(e: ReactElement): String =
-    raw.ReactDOMServer.renderToString(e.rawReactElement)
+    raw.renderToString(e.rawReactElement)
 
   /**
     * Similar to [[renderToString]], except this doesn't create extra DOM attributes such as `data-react-id`, that React
@@ -36,5 +38,5 @@ object ReactDOMServer {
     * extra attributes can save lots of bytes.
     */
   def renderToStaticMarkup(e: ReactElement): String =
-    raw.ReactDOMServer.renderToStaticMarkup(e.rawReactElement)
+    raw.renderToStaticMarkup(e.rawReactElement)
 }
