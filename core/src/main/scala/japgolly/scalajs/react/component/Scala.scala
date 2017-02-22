@@ -2,14 +2,23 @@ package japgolly.scalajs.react.component
 
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, raw}
+import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, raw, vdom}
 
 object Scala {
 
   def build[P](name: String) =
     new ScalaBuilder.Step1[P](name)
 
+  /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
+  def static(name: String, content: vdom.ReactElement): Component[Unit, Unit, Unit, CtorType.Nullary] =
+    build[Unit](name)
+      .renderStatic(content)
+      .shouldComponentUpdateConst(false)
+      .build
+
   val Lifecycle = ScalaBuilder.Lifecycle
+
+  // ===================================================================================================================
 
   type Component[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
     Js.BaseComponent[
