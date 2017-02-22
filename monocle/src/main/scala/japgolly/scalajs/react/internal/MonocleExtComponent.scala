@@ -1,14 +1,17 @@
 package japgolly.scalajs.react.internal
 
-import monocle._
 import japgolly.scalajs.react._
 
-trait MonocleExtComponent {
-  implicit final def MonocleReactExt_StateAccess[F[+_], S, M <: StateAccess[F, S]](m: M) = new MonocleExtComponent.StateAcc[F, S, m.type](m)
+trait MonocleExtComponentLowPriorityImplicits {
   implicit final def MonocleReactExt_StateWritableCB[I, S](i: I)(implicit sa: StateAccessor.WriteCB[I, S]) = new MonocleExtComponent.StateWritableCB[I, S](i)(sa)
+}
+trait MonocleExtComponent extends MonocleExtComponentLowPriorityImplicits {
+  implicit final def MonocleReactExt_StateAccess[F[+_], S](m: StateAccess[F, S]) = new MonocleExtComponent.StateAcc[F, S, m.type](m)
 }
 
 object MonocleExtComponent {
+  // Keep this import here so that Lens etc take priority over .internal
+  import monocle._
 
   final class StateAcc[F[+_], S, M <: StateAccess[F, S]](val self: M) extends AnyVal {
     def zoomStateL[T](l: Lens[S, T]): self.WithMappedState[T] =
@@ -24,8 +27,6 @@ object MonocleExtComponent {
       setStateL(l)(_, cb)
   }
 
-  // TODO what about the conflicts between these? test
-
   final class StateWritableCB[I, S](private val i: I)(implicit sa: StateAccessor.WriteCB[I, S]) {
     def modStateL[A, B](l: PLens[S, S, A, B])(f: A => B, cb: Callback = Callback.empty): Callback =
       sa.modStateCB(i)(l.modify(f), cb)
@@ -36,5 +37,4 @@ object MonocleExtComponent {
     def setStateFnL[L[_, _, _, _], B](l: L[S, S, _, B], cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): B => Callback =
       setStateL(l)(_, cb)
   }
-
 }

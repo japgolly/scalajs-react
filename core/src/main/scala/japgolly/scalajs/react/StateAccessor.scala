@@ -1,105 +1,95 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.Effect
+import ScalaComponent.Lifecycle
+import StateAccessor._
 
 /**
-  * Type-classes for abstracting over things that have state.
+  * Type-classes that provide read and/or write access to state.
   */
 object StateAccessor extends StateAccessorImplicits {
 
-  sealed class WriteCB[-I, S](
-      final val setStateCB: I => (S, Callback) => Callback,
-      final val modStateCB: I => ((S => S), Callback) => Callback) {
+  trait Read[-I, F[_], S] {
+    val state: I => F[S]
+  }
 
-    final val setState: I => S => Callback = i => {
+  trait Write[-I, F[_], S] {
+    val setStateCB: I => (S, Callback) => F[Unit]
+    val modStateCB: I => ((S => S), Callback) => F[Unit]
+
+    final def setState(i: I): S => F[Unit] = {
       val f = setStateCB(i)
       f(_, Callback.empty)
     }
 
-    final val modState: I => (S => S) => Callback = i => {
+    final def modState(i: I): (S => S) => F[Unit] = {
       val f = modStateCB(i)
       f(_, Callback.empty)
     }
   }
 
-  final class ReadFWriteCB[F[+_], -I, S](
-      val state: I => F[S],
-      setStateCB: I => (S, Callback) => Callback,
-      modStateCB: I => ((S => S), Callback) => Callback)
-      extends WriteCB[I, S](setStateCB, modStateCB) {
+  type ReadWrite[-I, R[_], W[_], S] = Read[I, R, S] with Write[I, W, S]
 
-    def toStateAccess(i: I)(implicit t: Effect.Trans[CallbackTo, F]): StateAccess[F, S] =
-      if (t.to eq Effect.callbackInstance) {
-        val fakeEv1 = =:=.tpEquals[Any].asInstanceOf[this.type =:= ReadCBWriteCB[I, S]]
-        val fakeEv2 = fakeEv1.asInstanceOf[StateAccessPure[S] =:= StateAccess[F, S]]
-        fakeEv2(toStateAccessPure(i)(fakeEv1))
-      } else {
-        val ss = setStateCB(i)
-        val ms = modStateCB(i)
-        StateAccess(state(i))((s, c) => t(ss(s, c)), (f, c) => t(ms(f, c)))(t.to)
-      }
+  type ReadId[-I, S] = Read[I, Effect.Id, S]
+  type ReadCB[-I, S] = Read[I, CallbackTo, S]
 
-    def toStateAccessPure[II <: I](i: II)(implicit ev: this.type =:= ReadCBWriteCB[II, S]): StateAccessPure[S] = {
-      val x = ev(this)
-      val get = x.state(i) // force by-value
-      StateAccess(get)(setStateCB(i), modStateCB(i))
+  type WriteId[-I, S] = Write[I, Effect.Id, S]
+  type WriteCB[-I, S] = Write[I, CallbackTo, S]
+
+  type ReadIdWriteId[-I, S] = ReadWrite[I, Effect.Id, Effect.Id, S]
+  type ReadIdWriteCB[-I, S] = ReadWrite[I, Effect.Id, CallbackTo, S]
+  type ReadCBWriteId[-I, S] = ReadWrite[I, CallbackTo, Effect.Id, S]
+  type ReadCBWriteCB[-I, S] = ReadWrite[I, CallbackTo, CallbackTo, S]
+}
+
+trait StateAccessorImplicits2 {
+  protected def castW[I, F[+_], S](w: Write[_, F, _]) = w.asInstanceOf[Write[I, F, S]]
+  protected def castR[I, F[+_], S](w: Read[_, F, _]) = w.asInstanceOf[Read[I, F, S]]
+  protected def castRW[I, R[+_], W[+_], S](w: ReadWrite[_, R, W, _]) = w.asInstanceOf[ReadWrite[I, R, W, S]]
+
+  implicit def stateAccess[F[+_], S]: ReadWrite[StateAccess[F, S], F, F, S] =
+    new Read[StateAccess[F, S], F, S] with Write[StateAccess[F, S], F, S] {
+      override val state = _.state
+      override val setStateCB = i => i.setState(_, _)
+      override val modStateCB = i => i.modState(_, _)
     }
-  }
 
-  type ReadIdWriteCB[-I, S] = ReadFWriteCB[Effect.Id, I, S]
-  type ReadCBWriteCB[-I, S] = ReadFWriteCB[CallbackTo, I, S]
+  private def newScalaLifecycleStateW[S]: WriteCB[Lifecycle.StateW[_, S, _], S] =
+    new Write[Lifecycle.StateW[_, S, _], CallbackTo, S] {
+      override val setStateCB = i => i.setState(_, _)
+      override val modStateCB = i => i.modState(_, _)
+    }
+  private[this] lazy val scalaLifecycleStateWInstance = newScalaLifecycleStateW[Any]
+  implicit def scalaLifecycleStateW[S]: WriteCB[Lifecycle.StateW[_, S, _], S] = castW(scalaLifecycleStateWInstance)
 }
 
-// =====================================================================================================================
-import StateAccessor.{WriteCB, ReadFWriteCB, ReadIdWriteCB, ReadCBWriteCB}
+trait StateAccessorImplicits1 extends StateAccessorImplicits2 {
 
-sealed trait StateAccessorImplicits1 {
+  private[this] lazy val stateAccessImpureInstance = stateAccess[Effect.Id, Any]
+  implicit def stateAccessImpure[S]: ReadIdWriteId[StateAccessImpure[S], S] = castRW(stateAccessImpureInstance)
 
-  protected sealed trait X
-  private def castW[I, S](w: WriteCB[_, _]) = w.asInstanceOf[WriteCB[I, S]]
-
-  // WriteCB -- ScalaComponent.Lifecycle.StateW
-  private[this] val _scalaLifecycleW = new WriteCB[ScalaComponent.Lifecycle.StateW[_, X, _], X](
-    i => i.setState(_, _), i => i.modState(_, _))
-  implicit def scalaLifecycleW[S]: WriteCB[ScalaComponent.Lifecycle.StateW[_, S, _], S] =
-    castW(_scalaLifecycleW)
+  // Coercion: Lifecycle ReadIdWriteCB → ReadCBWriteCB
+  private def newScalaLifecycleStateRWCB[S]: ReadCBWriteCB[Lifecycle.StateRW[_, S, _], S] =
+    new Read[Lifecycle.StateRW[_, S, _], CallbackTo, S] with Write[Lifecycle.StateRW[_, S, _], CallbackTo, S] {
+      override val state = i => CallbackTo(i.state)
+      override val setStateCB = i => i.setState(_, _)
+      override val modStateCB = i => i.modState(_, _)
+    }
+  private[this] lazy val scalaLifecycleStateRWCBInstance = newScalaLifecycleStateRWCB[Any]
+  implicit def scalaLifecycleStateRWCB[S]: ReadCBWriteCB[Lifecycle.StateRW[_, S, _], S] = castRW(scalaLifecycleStateRWCBInstance)
 }
 
-sealed trait StateAccessorImplicits2 extends StateAccessorImplicits1 {
+trait StateAccessorImplicits extends StateAccessorImplicits1 {
 
-  protected def castRW[F[+_], I, S](w: ReadFWriteCB[F, _, _]) = w.asInstanceOf[ReadFWriteCB[F, I, S]]
+  private[this] lazy val stateAccessPureInstance = stateAccess[CallbackTo, Any]
+  implicit def stateAccessPure[S]: ReadCBWriteCB[StateAccessPure[S], S] = castRW(stateAccessPureInstance)
 
-  // ReadCBWriteCB -- StateAccessPure
-  private[this] val _mountedCB = new ReadFWriteCB[CallbackTo, StateAccessPure[X], X](
-    _.state, i => i.setState(_, _), i => i.modState(_, _))
-  implicit def mountedCB[S]: ReadCBWriteCB[StateAccessPure[S], S] =
-    castRW(_mountedCB)
-}
-
-sealed trait StateAccessorImplicits3 extends StateAccessorImplicits2 {
-
-  // ReadCBWriteCB -- StateAccessImpure
-  private[this] lazy val _mountedIdCB = new ReadFWriteCB[CallbackTo, StateAccessImpure[X], X](
-    i => CallbackTo(i.state),
-    i => (s, cb) => Callback(i.setState(s, cb)),
-    i => (f, cb) => Callback(i.modState(f, cb)))
-  implicit def mountedIdCB[S]: ReadCBWriteCB[StateAccessImpure[S], S] =
-    castRW(_mountedIdCB)
-}
-
-sealed trait StateAccessorImplicits extends StateAccessorImplicits3 {
-
-  // ReadIdWriteCB -- StateAccessImpure
-  private[this] val _mountedId = new ReadFWriteCB[Effect.Id, StateAccessImpure[X], X](
-    _.state,
-    i => (s, cb) => Callback(i.setState(s, cb)),
-    i => (f, cb) => Callback(i.modState(f, cb)))
-  implicit def mountedId[S]: ReadIdWriteCB[StateAccessImpure[S], S] =
-    castRW(_mountedId)
-
-  // ReadIdWriteCB -- ScalaComponent.Lifecycle.StateRW
-  private[this] val _scalaLifecycleRW = new ReadFWriteCB[Effect.Id, ScalaComponent.Lifecycle.StateRW[_, X, _], X](
-    _.state, i => i.setState(_, _), i => i.modState(_, _))
-  implicit def scalaLifecycleRW[S]: ReadIdWriteCB[ScalaComponent.Lifecycle.StateRW[_, S, _], S] =
-    castRW(_scalaLifecycleRW)
+  private def newScalaLifecycleStateRW[S]: ReadIdWriteCB[Lifecycle.StateRW[_, S, _], S] =
+    new Read[Lifecycle.StateRW[_, S, _], Effect.Id, S] with Write[Lifecycle.StateRW[_, S, _], CallbackTo, S] {
+      override val state = _.state
+      override val setStateCB = i => i.setState(_, _)
+      override val modStateCB = i => i.modState(_, _)
+    }
+  private[this] lazy val scalaLifecycleStateRWInstance = newScalaLifecycleStateRW[Any]
+  implicit def scalaLifecycleStateRW[S]: ReadIdWriteCB[Lifecycle.StateRW[_, S, _], S] = castRW(scalaLifecycleStateRWInstance)
 }

@@ -2,17 +2,23 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.{Effect, Lens}
 
+/**
+  * Base class for something that has read/write state access (under the same effect type).
+  *
+  * Passing this around (top-level) is fine but do not use it in a generic/library/helper method.
+  * In intermediary positions, use [[StateAccessor]] instead.
+  *
+  * @tparam F The type of effect when accessing state.
+  * @tparam S State type.
+  */
 trait StateAccess[F[+_], S] {
   final type State = S
 
   protected implicit def F: Effect[F]
 
-  type WithEffect[F2[+_]] <: StateAccess[F2, S]
   type WithMappedState[S2] <: StateAccess[F, S2]
-
   def xmapState[S2](f: S => S2)(g: S2 => S): WithMappedState[S2]
   def zoomState[S2](get: S => S2)(set: S2 => S => S): WithMappedState[S2]
-  def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): WithEffect[F2]
 
   def state: F[State]
   def setState(newState: State, callback: Callback = Callback.empty): F[Unit]
@@ -31,10 +37,16 @@ trait StateAccess[F[+_], S] {
 
   final def modStateFn[I](f: I => State => State, callback: Callback = Callback.empty): I => F[Unit] =
     i => modState(f(i), callback)
+
+  type WithEffect[F2[+_]] <: StateAccess[F2, S]
+  def withEffect[F2[+_]](implicit t: Effect.Trans[F, F2]): WithEffect[F2]
+  @inline final def withEffectsPure(implicit t: Effect.Trans[F, CallbackTo]): WithEffect[CallbackTo] = withEffect
+  @inline final def withEffectsImpure(implicit t: Effect.Trans[F, Effect.Id]): WithEffect[Effect.Id] = withEffect
 }
 
 object StateAccess {
 
+  /** For testing. */
   def apply[F[+_], S](stateFn: => F[S])
                      (setItFn: (S, Callback) => F[Unit],
                       modItFn: ((S => S), Callback) => F[Unit])
