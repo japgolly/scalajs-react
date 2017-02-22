@@ -76,7 +76,7 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
         raw.props.asInstanceOf[P]
 
       override def propsChildren: PropsChildren =
-        PropsChildren(raw.props.children)
+        PropsChildren.fromRawProps(raw.props)
 
       override def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): M =
         m(Raw.ReactDOM.render(raw, container, callback.toJsFn))
@@ -142,7 +142,7 @@ object Js extends JsBaseComponentTemplate[Raw.ReactClass] {
       override def root          = this
       override val raw           = r
       override def props         = raw.props.asInstanceOf[P]
-      override def propsChildren = PropsChildren(raw.props.children)
+      override def propsChildren = PropsChildren.fromRawProps(raw.props)
       override def state         = raw.state.asInstanceOf[S]
       override def isMounted     = raw.isMounted()
       override def getDOMNode    = Raw.ReactDOM.findDOMNode(raw)

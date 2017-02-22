@@ -41,7 +41,7 @@ object JsFn extends JsBaseComponentTemplate[Raw.ReactFunctionalComponent] {
       override def key           = jsNullToOption(raw.key)
       override def ref           = None // orNullToOption(raw.ref)
       override def props         = raw.props.asInstanceOf[P]
-      override def propsChildren = PropsChildren(raw.props.children)
+      override def propsChildren = PropsChildren.fromRawProps(raw.props)
 
       override def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted = {
         val result = Raw.ReactDOM.render(raw, container, callback.toJsFn)
