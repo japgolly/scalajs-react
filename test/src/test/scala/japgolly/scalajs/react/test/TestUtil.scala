@@ -2,6 +2,7 @@ package japgolly.scalajs.react.test
 
 import org.scalajs.dom.{document, html}
 import scala.io.AnsiColor._
+import scala.reflect.ClassTag
 import scala.scalajs.js
 import scalaz.{Equal, Maybe}
 import scalaz.syntax.equal._
@@ -22,13 +23,13 @@ trait TestUtil
      with scalaz.std.ListInstances {
 
   implicit val equalNull: Equal[Null] = Equal.equalA
-  implicit val equalKey : Equal[Key ] = Equal.equalA
+  implicit val equalKey: Equal[Key] = Equal.equalA
+  implicit val equalRawKey: Equal[japgolly.scalajs.react.raw.Key] = Equal.equalA
 
   // TODO erm... not really. Only allow in raw testing
-  implicit val equalReactNodeList: Equal[raw.ReactNodeList] = Equal.equalA
-  implicit val equalRawKey       : Equal[raw.Key          ] = Equal.equalA
-  implicit val equalRawRef       : Equal[raw.Ref          ] = Equal.equalA
-  implicit val equalState        : Equal[raw.State        ] = Equal.equalA
+  implicit val equalReactNodeList: Equal[japgolly.scalajs.react.raw.ReactNodeList] = Equal.equalA
+  implicit val equalRawRef       : Equal[japgolly.scalajs.react.raw.Ref          ] = Equal.equalA
+  implicit val equalState        : Equal[japgolly.scalajs.react.raw.State        ] = Equal.equalA
 
   def assertEq[A: Equal](actual: A, expect: A): Unit =
     assertEq(null, actual, expect)
@@ -76,10 +77,10 @@ trait TestUtil
     def just    : Maybe[A] = Maybe.just(a)
     def maybeNot: Maybe[A] = Maybe.empty
 
-//    def matchesBy[B <: A : ClassTag](f: B => Boolean) = v match {
-//      case b: B => f(b)
-//      case _ => false
-//    }
+    def matchesBy[B <: A : ClassTag](f: B => Boolean) = a match {
+      case b: B => f(b)
+      case _ => false
+    }
   }
 
   def none[A]: Option[A] = None
@@ -97,24 +98,12 @@ trait TestUtil
   def scrubReactHtml(html: String): String =
     reactRubbish.replaceAllIn(html, "")
 
-  def newBodyContainer(): html.Element = {
-    val cont = document.createElement("div")
-    document.body.appendChild(cont)
-    cont.asInstanceOf[html.Element]
-  }
-
-  def withBodyContainer[A](f: html.Element => A): A = {
-    val cont = newBodyContainer()
-    try
-      f(cont)
-    finally {
-      ReactDOM unmountComponentAtNode cont // Doesn't matter if no component mounted here
-      document.body.removeChild(cont)
-    }
-  }
-
-  def assertRender(comp: ReactElement, expected: String): Unit = {
-    val rendered: String = ReactDOMServer.renderToStaticMarkup(comp)
+  def assertRender(u: GenericComponent.RawAccessUnmounted, expected: String): Unit =
+    assertRender(u.raw, expected)
+  def assertRender(e: japgolly.scalajs.react.vdom.ReactElement, expected: String): Unit =
+    assertRender(e.rawReactElement, expected)
+  def assertRender(e: japgolly.scalajs.react.raw.ReactElement, expected: String): Unit = {
+    val rendered: String = ReactDOMServer.raw.renderToStaticMarkup(e)
     assertEq(rendered, expected)
   }
 
@@ -126,5 +115,13 @@ trait TestUtil
 
   def assertTypeMismatch(e: CompileError): Unit =
     assertContains(e.msg, "type mismatch")
+
+  implicit class JsArrayTestExt[A](private val a: js.Array[A]) {
+    def sole(): A =
+      a.length match {
+        case 1 => a(0)
+        case n => fail(s"Expected an array with one element, found $n: ${a.mkString("[", ",", "]")}")
+      }
+  }
 }
 

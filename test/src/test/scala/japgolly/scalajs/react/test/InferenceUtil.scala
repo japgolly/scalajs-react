@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.test
 
-import japgolly.scalajs.react._
 import scala.reflect.ClassTag
 import scala.scalajs.js
+import scalaz.{Monad, ~>}
+import japgolly.scalajs.react._
 
 object InferenceUtil {
-//  import scalaz.{Monad, ~>}
 
   def test[A] = new {
     def apply[B](f: A => B) = new {
@@ -40,12 +40,23 @@ object InferenceUtil {
 
   @js.native trait JP extends js.Object
   @js.native trait JS extends js.Object
+  @js.native trait JT extends js.Object
+
+  def S: S = ???
+
 //  @js.native trait N extends TopNode
 //  val c = null.asInstanceOf[ReactComponentM[Unit, S, Unit, N]]
   val bs = null.asInstanceOf[BackendScope[P, S]]
 
   def st_s(s: S, t: T): S = ???
 
-//  implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
+  implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
 
+  type Render = ScalaComponent.Lifecycle.RenderScope[P, S, B]
+  type Backend = BackendScope[P, S]
+  type JsMounted = JsComponent.Mounted[JP, JS]
+  type ScalaMountedId = ScalaComponent.Mounted[P, S, B]
+  type ScalaMountedCB = ScalaComponent.MountedCB[P, S, B]
+  type StateAccessP = StateAccessPure[S]
+  type StateAccessI = StateAccessImpure[S]
 }
