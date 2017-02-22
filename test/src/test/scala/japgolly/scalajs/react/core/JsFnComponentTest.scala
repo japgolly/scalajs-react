@@ -19,6 +19,11 @@ object JsFnComponentTest extends TestSuite {
 
   override def tests = TestSuite {
 
+//    'displayName {
+//      println(Component.raw)
+//      println(internal.JsUtil inspectObject Component.raw)
+//    }
+
     'noChildren {
       'main {
         val unmounted = Component(JsProps("Bob"))

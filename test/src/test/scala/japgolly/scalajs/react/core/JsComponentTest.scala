@@ -166,6 +166,10 @@ object JsComponentSTest extends JsComponentTest {
     def JsState(num1: Int, num2: Int): JsState =
       js.Dynamic.literal("num1" -> num1, "num2" -> num2).asInstanceOf[JsState]
 
+    'displayName {
+      assertEq(Component.raw.displayName, "Statey")
+    }
+
     'noChildren {
       'main {
         val unmounted = Component()

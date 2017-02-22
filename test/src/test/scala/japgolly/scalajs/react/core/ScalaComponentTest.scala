@@ -22,6 +22,14 @@ object ScalaComponentPTest extends TestSuite {
 
   override def tests = TestSuite {
 
+    'displayName {
+      assertEq(BasicComponent.raw.displayName, "HelloMessage")
+//      ReactTestUtils.withRenderedIntoDocument(BasicComponent(BasicProps("X"))) { m =>
+//        println(inspectObject(m.raw))
+//        assertEq(m.raw.displayName, "HelloMessage")
+//      }
+    }
+
     'types {
       import InferenceUtil._
       import ScalaComponent._
