@@ -101,34 +101,33 @@ Contributions welcome.
 - Revise & integrate the `extra` module.
 - Revise & integrate the Scalaz module.
 - Revise & integrate the Monocle module.
+- Revise & integrate the `test` module.
 
 # Pending
 
-- Revise & integrate the `test` module.
+- #293 StateSnapshot + lens helper
+- Rename ScalaComponent.Mounted{,CB} & Lifecycle.mounted{,cb} to be {Pure,Impure} like StateAccess aliases and methods.
+- reuse identity
+- effect invariance
+- vdom lazy vals
+
 - Update the `gh-pages` module.
+- #324 over-zealous inlining
 - Update doc.
 
 # Maybe
 
+- #303 Infer component name
+
 - Static and dynamic props (for Scala components).
   Probably not as a normal Scala function is all that's really needed.
   There's no big need to avoid creating a new component per staic data.
-
-- Maybe a new means of declaring Scala mixins.
-
-- Component DOM/`getDOMNode` types. Currently none.
-  - Having `N <: TopNode` all over the place was annoying.
-  - Could add manually like before.
-  - Would be nice to auto-detected based on `.render` result. Introduces circular dependency wrt `BackendScope` tho.
+  See also #180
 
 - Anything ES6-related should be easy to add now. Please contribute if interested.
   - Facades over ES6-based JS classes. (I tried briefly but didn't get the JS working.)
   - Scala-based ES6-based classes. Because it's important to some people. (Apparently its faster but I'm yet to see any benchmarks or other evidence supporting this.)
   - Once the above works, it would be good to be able to choose a backend type for `ReactComponentB`.
-
-- Add a `Cats` module too? Contribution welcome.
-
-- Rename ScalaComponent.Mounted{,CB} & Lifecycle.mounted{,cb} to be {Pure,Impure} like StateAccess aliases and methods.
 
 # Release note / migration reminders
 
