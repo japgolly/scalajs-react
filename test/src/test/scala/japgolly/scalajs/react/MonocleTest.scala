@@ -3,6 +3,7 @@ package japgolly.scalajs.react
 import monocle._
 import monocle.macros.Lenses
 import utest._
+import extra._
 import ScalazReact._
 import MonocleReact._
 
@@ -14,9 +15,9 @@ object MonocleTest extends TestSuite {
   val tests = TestSuite {
 
     'inference {
-      def lensST: Lens[S, T] = null
-      def lensTS: Lens[T, S] = null
-      def lensJST: Lens[JS, T] = null
+      def lensST: monocle.Lens[S, T] = null
+      def lensTS: monocle.Lens[T, S] = null
+      def lensJST: monocle.Lens[JS, T] = null
 
       'zoom {
       //'RenderScope       - test[Render              ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
@@ -42,6 +43,17 @@ object MonocleTest extends TestSuite {
       'poly {
         'zoomStateL  - test[BackendScope[P, Poly[S]]](_ zoomStateL  Poly.oa[S]).expect_<[StateAccessPure[Option[S]]]
         'setStateFnL - test[BackendScope[P, Poly[S]]](_ setStateFnL Poly.oa[S]).expect[Option[S] => Callback]
+      }
+
+      'stateSnapshot {
+        'oneOff   - test[Render](StateSnapshot.zoomL(lensST).of(_)).expect[StateSnapshot[T]]
+        'prepared {
+          test[Render] { $ =>
+            val p = StateSnapshot.withReuse.zoomL(lensST).prepareVia($)
+            implicit def rt: Reusability[T] = ???
+            p(S)
+          }.expect[StateSnapshot[T]]
+        }
       }
 
     }

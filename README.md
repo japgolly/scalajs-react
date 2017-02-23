@@ -102,10 +102,10 @@ Contributions welcome.
 - Revise & integrate the Scalaz module.
 - Revise & integrate the Monocle module.
 - Revise & integrate the `test` module.
+- #293 StateSnapshot + lens helper
 
 # Pending
 
-- #293 StateSnapshot + lens helper
 - Rename ScalaComponent.Mounted{,CB} & Lifecycle.mounted{,cb} to be {Pure,Impure} like StateAccess aliases and methods.
 - reuse identity
 - effect invariance

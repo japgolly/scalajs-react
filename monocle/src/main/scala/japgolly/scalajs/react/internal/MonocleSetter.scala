@@ -1,7 +1,5 @@
 package japgolly.scalajs.react.internal
 
-import monocle._
-
 /**
   * Provide access to the set function on any compatible optic.
   *
@@ -12,6 +10,9 @@ trait MonocleSetter[O[_, _, _, _]] {
 }
 
 object MonocleSetter {
+  // Keep this import here so that Lens etc take priority over .internal
+  import monocle._
+
   implicit object LensS extends MonocleSetter[PLens] {
     @inline final override def set[S, B](l: PLens[S, S, _, B]): B => S => S = l.set
   }

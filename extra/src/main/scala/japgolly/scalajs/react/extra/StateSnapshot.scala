@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.internal.Lens
 
 final class StateSnapshot[S](val value: S,
                              val setState: S ~=> Callback,
@@ -12,8 +13,9 @@ final class StateSnapshot[S](val value: S,
   def modState(f: S => S): Callback =
     setState(f(value))
 
-  def xmap[T](f: S => T)(g: T => S): StateSnapshot[T] =
-    new StateSnapshot(f(value), setState contramap g, reusability contramap g)
+  // Breaks reusability of setState
+  //def xmap[T](f: S => T)(g: T => S): StateSnapshot[T] =
+  //  new StateSnapshot(f(value), setState contramap g, reusability contramap g)
 
   // Zoom is dangerously deceptive here as it appears to work but will often override the non-zoomed subset of state.
   // Use the zoom methods on Mounted directly for a reliable function.
@@ -39,10 +41,39 @@ object StateSnapshot {
   object withReuse {
 
     // Putting (implicit r: Reusability[S]) here would shadow WithReuse.apply
-    def apply[S](value: S) = new FromValue(value)
+    def apply[S](value: S): FromValue[S] =
+      new FromValue(value)
 
     def of[I, S](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
       apply(t.state(i)).writeVia(i)(t, r)
+
+    /** This is meant to be called once and reused so that the setState callback stays the same. */
+    def prepare[S](f: S => Callback): FromWriteFn[S] =
+      new FromWriteFn(ReusableFn(f))
+
+    /** This is meant to be called once and reused so that the setState callback stays the same. */
+    def prepareVia[I, S](i: I)(implicit t: StateAccessor.WriteCB[I, S]): FromWriteFn[S] =
+      prepare(t.setState(i))
+
+    def zoom[S, T](get: S => T)(set: T => S => S): FromLens[S, T] =
+      new FromLens(Lens(get)(set))
+
+    final class FromLens[S, T](private val l: Lens[S, T]) extends AnyVal {
+      // There's no point having (value: S)(mod: (S => S) ~=> Callback) because the callback will be composed with the
+      // lens which avoids reusability.
+      // def apply(value: S) = new FromLensValue(l, l get value)
+
+      /** This is meant to be called once and reused so that the setState callback stays the same. */
+      def prepare(modify: (S => S) => Callback): FromLensWriteFn[S, T] =
+        new FromLensWriteFn(l, ReusableFn(modify compose l.set))
+
+      /** This is meant to be called once and reused so that the setState callback stays the same. */
+      def prepareVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): FromLensWriteFn[S, T] =
+        prepare(t.modState(i))
+
+      def zoom[U](get: T => U)(set: U => T => T): FromLens[S, U] =
+        new FromLens(l --> Lens(get)(set))
+    }
 
     final class FromValue[S](private val value: S) extends AnyVal {
       def apply(set: S ~=> Callback)(implicit r: Reusability[S]): StateSnapshot[S] =
@@ -51,17 +82,40 @@ object StateSnapshot {
       def writeVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
         apply(ReusableFn(t setState i))(r)
     }
+
+    final class FromWriteFn[S](private val set: S ~=> Callback) extends AnyVal {
+      def apply(value: S)(implicit r: Reusability[S]): StateSnapshot[S] =
+        withReuse(value)(set)(r)
+    }
+
+    final class FromLensWriteFn[S, T](l: Lens[S, T], set: T ~=> Callback) {
+      def apply(value: S)(implicit r: Reusability[T]): StateSnapshot[T] =
+        withReuse(l get value)(set)(r)
+    }
   }
 
   // ===================================================================================================================
   import withoutReuse._
 
-  def apply[S](value: S) = new FromValue(value)
+  def apply[S](value: S): FromValue[S] =
+    new FromValue(value)
 
   def of[I, S](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S]): StateSnapshot[S] =
     apply(t.state(i)).writeVia(i)
 
+  def zoom[S, T](get: S => T)(set: T => S => S): FromLens[S, T] =
+    new FromLens(Lens(get)(set))
+
   object withoutReuse {
+    final class FromLens[S, T](private val l: Lens[S, T]) extends AnyVal {
+      def apply(value: S) = new FromLensValue(l, l get value)
+
+      def of[I](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S]): StateSnapshot[T] =
+        apply(t.state(i)).writeVia(i)
+
+      def zoom[U](get: T => U)(set: U => T => T): FromLens[S, U] =
+        new FromLens(l --> Lens(get)(set))
+    }
 
     final class FromValue[S](private val value: S) extends AnyVal {
       def apply(set: S => Callback): StateSnapshot[S] =
@@ -70,6 +124,13 @@ object StateSnapshot {
       def writeVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): StateSnapshot[S] =
         apply(t.setState(i))
     }
-  }
 
+    final class FromLensValue[S, T](l: Lens[S, T], value: T) {
+      def apply(modify: (S => S) => Callback): StateSnapshot[T] =
+        StateSnapshot(value)(modify compose l.set)
+
+      def writeVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): StateSnapshot[T] =
+        apply(t.modState(i))
+    }
+  }
 }
