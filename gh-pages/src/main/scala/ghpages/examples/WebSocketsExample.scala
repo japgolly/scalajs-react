@@ -2,7 +2,7 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 
 object WebSocketsExample {
 
@@ -54,7 +54,7 @@ object WebSocketsExample {
       )
     }
 
-    def onChange(e: ReactEventI): Callback = {
+    def onChange(e: ReactEventFromInput): Callback = {
       val newMessage = e.target.value
       $.modState(_.copy(message = newMessage))
     }
@@ -123,7 +123,7 @@ object WebSocketsExample {
     }
   }
 
-  val WebSocketsApp = ReactComponentB[Unit]("WebSocketsApp")
+  val WebSocketsApp = ScalaComponent.build[Unit]("WebSocketsApp")
     .initialState(State(None, Vector.empty, ""))
     .renderBackend[Backend]
     .componentDidMount(_.backend.start)

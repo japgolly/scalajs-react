@@ -2,7 +2,7 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 
 object TriStateCheckboxExample {
 
@@ -94,7 +94,7 @@ object TriStateCheckboxExample {
       $.modState(_ intersect newProps.ids)
   }
 
-  val App = ReactComponentB[Props]("TriStateCheckboxExample")
+  val App = ScalaComponent.build[Props]("TriStateCheckboxExample")
     .initialState[State](Set.empty)
     .renderBackend[Backend]
     .componentWillReceiveProps(i => i.$.backend.onPropsChange(i.nextProps))

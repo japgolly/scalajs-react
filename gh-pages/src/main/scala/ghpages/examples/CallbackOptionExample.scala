@@ -2,7 +2,7 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 
 object CallbackOptionExample {
 
@@ -10,7 +10,7 @@ object CallbackOptionExample {
 
   val source = GhPagesMacros.exampleSource
 
-  def Main2 = ReactComponentB[Unit]("CallbackOption example")
+  def Main2 = ScalaComponent.build[Unit]("CallbackOption example")
     .render(_ =>
       <.div(
         <.p(
@@ -101,7 +101,7 @@ object CallbackOptionExample {
           ^.top  := s.y.px))
   }
 
-  val Main = ReactComponentB[Unit]("CallbackOption example")
+  val Main = ScalaComponent.build[Unit]("CallbackOption example")
     .initialState(initState)
     .renderBackend[Backend]
     .componentDidMount(_.backend.init)

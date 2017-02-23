@@ -1,7 +1,7 @@
 package ghpages.examples
 
 import ghpages.GhPagesMacros
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 import org.scalajs.dom.window
 import ghpages.examples.util.SideBySide
 import Addons.ReactCssTransitionGroup
@@ -75,7 +75,7 @@ object AnimationExample {
       )
   }
 
-  val TodoList = ReactComponentB[Unit]("TodoList")
+  val TodoList = ScalaComponent.build[Unit]("TodoList")
     .initialState(Vector("hello", "world", "click", "me"))
     .renderBackend[Backend]
     .build

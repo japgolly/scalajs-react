@@ -2,10 +2,10 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.prefix_<^._, MonocleReact._
-import japgolly.scalajs.react.extra.ExternalVar
+import japgolly.scalajs.react._, vdom.html_<^._, MonocleReact._
+import japgolly.scalajs.react.extra.StateSnapshot
 
-object ExternalVarExample {
+object StateSnapshotExample {
 
   def content = SingleSide.Content(source, Main())
 
@@ -17,21 +17,21 @@ object ExternalVarExample {
   @Lenses
   case class Name(firstName: String, surname: String)
 
-  val NameChanger = ReactComponentB[ExternalVar[String]]("Name changer")
+  val NameChanger = ScalaComponent.build[StateSnapshot[String]]("Name changer")
     .render_P { evar =>
-      def updateName = (event: ReactEventI) => evar.set(event.target.value)
+      def updateName = (event: ReactEventFromInput) => evar.set(event.target.value)
       <.input.text(
         ^.value     := evar.value,
         ^.onChange ==> updateName)
     }
     .build
 
-  val Main = ReactComponentB[Unit]("ExternalVar example")
+  val Main = ScalaComponent.build[Unit]("StateSnapshot example")
     .initialState(Name("John", "Wick"))
     .render { $ =>
       val name        = $.state
-      val firstNameEV = ExternalVar.state($.zoomL(Name.firstName))
-      val surnameEV   = ExternalVar.state($.zoomL(Name.surname))
+      val firstNameEV = StateSnapshot.zoomL(Name.firstName).of($)
+      val surnameEV   = StateSnapshot.zoomL(Name.surname).of($)
       <.div(
         <.label("First name:", NameChanger(firstNameEV)),
         <.label("Surname:",    NameChanger(surnameEV  )),

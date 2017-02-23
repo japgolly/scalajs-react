@@ -1,6 +1,6 @@
 package ghpages.pages
 
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router.{RouterConfigDsl, RouterCtl}
 import ghpages.examples._
@@ -49,7 +49,7 @@ object ExamplesJs extends ExampleCollection {
 object ExamplesScala extends ExampleCollection {
   case object StateMonad   extends Example("State monads",       "state-monad",       StateMonadExample      .content)
   case object Touch        extends Example("Touch events",       "touch-events",      TouchExample           .content)
-  case object ExternalVar  extends Example("ExternalVar",        "external-var",      ExternalVarExample     .content)
+  case object StateSnapshot  extends Example("StateSnapshot",        "external-var",      StateSnapshotExample     .content)
   case object Reuse        extends Example("Reusability",        "reusability",       ReuseExample           .content)
   case object EventListen  extends Example("EventListener",      "event-listener",    EventListenerExample   .content)
   case object CallbackOpt  extends Example("CallbackOption",     "callback-option",   CallbackOptionExample  .content)
@@ -57,6 +57,6 @@ object ExamplesScala extends ExampleCollection {
   case object Checkbox3    extends Example("Tri-state Checkbox", "tristate-checkbox", TriStateCheckboxExample.content)
 
   override val values = Vector[Example](
-    EventListen, CallbackOpt, ExternalVar, Reuse, StateMonad, Touch, WebSockets, Checkbox3
+    EventListen, CallbackOpt, StateSnapshot, Reuse, StateMonad, Touch, WebSockets, Checkbox3
   ).sortBy(_.title)
 }

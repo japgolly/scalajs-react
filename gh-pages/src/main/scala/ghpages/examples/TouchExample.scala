@@ -3,7 +3,7 @@ package ghpages.examples
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.prefix_<^._
+import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom
 
 /**
@@ -64,7 +64,7 @@ object TouchExample {
   }
 
   /** Rendering touch area and history of events */
-  val TouchExampleApp = ReactComponentB[Unit]("TouchExample")
+  val TouchExampleApp = ScalaComponent.build[Unit]("TouchExample")
     .initialState(new State)
     .renderBackend[Backend]
     .build

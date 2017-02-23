@@ -10,7 +10,7 @@ object SideBySide {
     def apply() = sideBySideComponent(this)
   }
 
-  val sideBySideComponent = ReactComponentB[Content]("sideBySideExample")
+  val sideBySideComponent = ScalaComponent.build[Content]("sideBySideExample")
     .render_P(p =>
       div(
         section(cls := "demo",
@@ -28,10 +28,9 @@ object SideBySide {
     .configure(installSyntaxHighlighting)
     .build
 
-  def installSyntaxHighlighting[P, S, B, N <: TopNode] =
-    (_: ReactComponentB[P, S, B, N])
-      .componentDidMountCB(applySyntaxHighlight)
-      .componentDidUpdateCB(applySyntaxHighlight)
+  def installSyntaxHighlighting[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B] =
+    _.componentDidMountConst(applySyntaxHighlight)
+      .componentDidUpdateConst(applySyntaxHighlight)
 
   def applySyntaxHighlight = Callback {
     import scala.scalajs.js.Dynamic.{global => g}

@@ -3,7 +3,7 @@ package ghpages
 import org.scalajs.dom
 import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
-import japgolly.scalajs.react._, vdom.prefix_<^._, ScalazReact._
+import japgolly.scalajs.react._, vdom.html_<^._, ScalazReact._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router._
 import pages._
@@ -37,7 +37,7 @@ object GhPages extends JSApp {
       navMenu(c),
       <.div(^.cls := "container", r.render()))
 
-  val navMenu = ReactComponentB[RouterCtl[Page]]("Menu")
+  val navMenu = ScalaComponent.build[RouterCtl[Page]]("Menu")
     .render_P { ctl =>
       def nav(name: String, target: Page) =
         <.li(

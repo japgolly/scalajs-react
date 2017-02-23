@@ -1,7 +1,7 @@
 package ghpages.examples
 
 import ghpages.GhPagesMacros
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 import org.scalajs.dom.raw.HTMLInputElement
 import ghpages.examples.util.SideBySide
 
@@ -55,7 +55,7 @@ object RefsExample {
   val theInput = Ref[HTMLInputElement]("theInput")
 
   class Backend($: BackendScope[Unit, String]) {
-    def handleChange(e: ReactEventI) =
+    def handleChange(e: ReactEventFromInput) =
       $.setState(e.target.value)
 
     def clearAndFocusInput() =
@@ -72,7 +72,7 @@ object RefsExample {
           ^.onChange ==> handleChange))
   }
 
-  val App = ReactComponentB[Unit]("App")
+  val App = ScalaComponent.build[Unit]("App")
     .initialState("")
     .renderBackend[Backend]
     .build

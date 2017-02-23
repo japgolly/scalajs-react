@@ -2,7 +2,7 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 import japgolly.scalajs.react.extra._
 
 object ReuseExample {
@@ -22,7 +22,7 @@ object ReuseExample {
   // EXAMPLE:START
   // Reusable stateless components
 
-  val showSum = ReactComponentB[Long]("Show sum")
+  val showSum = ScalaComponent.build[Long]("Show sum")
     .render_P(sum =>
       <.h1(
         "The sum of all inputs is", <.br, sum))
@@ -32,7 +32,7 @@ object ReuseExample {
   case class InputControl(current: Int, change: Int ~=> Callback)
   implicit val inputControlReuse = Reusability.caseClass[InputControl]
 
-  val inputControl = ReactComponentB[InputControl]("InputControl")
+  val inputControl = ScalaComponent.build[InputControl]("InputControl")
     .render_P(p =>
       <.div(^.paddingLeft := "4ex",
         <.button("-1", ^.onClick --> p.change(-1)),
@@ -44,9 +44,9 @@ object ReuseExample {
 
   val numberRegex = "^-?\\d+$".r
 
-  val InputEditor = ReactComponentB[ReusableVar[Long]]("Input editor")
+  val InputEditor = ScalaComponent.build[StateSnapshot[Long]]("Input editor")
     .render_P { v =>
-      def update = (ev: ReactEventI) => numberRegex.findFirstIn(ev.target.value).map(v set _.toLong)
+      def update = (ev: ReactEventFromInput) => numberRegex.findFirstIn(ev.target.value).map(v set _.toLong)
       <.input.text(
         ^.textAlign   := "center",
         ^.marginRight := "1ex",
@@ -60,7 +60,7 @@ object ReuseExample {
   // ---------------------------------------------------------------------------------------------------------
   // Top-level stateful component
 
-  val topLevelComponent = ReactComponentB[Unit]("Reusability example")
+  val topLevelComponent = ScalaComponent.build[Unit]("Reusability example")
     .initialState(State(Vector(30, 0, 2, 0, 10)))
     .renderBackend[Backend]
     .build
@@ -83,13 +83,13 @@ object ReuseExample {
   }
 
   class Backend($: BackendScope[Unit, State]) {
-    val changeFn   = ReusableFn($).modState.endoCall(_.changeNumberOfInputs)
-    val setInputFn = ReusableFn($).modState.endoCall2(_.setInput)
+    val changeFn   = ReusableFn.state($).mod.endoCall(_.changeNumberOfInputs)
+    val setInputFn = ReusableFn.state($).mod.endoCall2(_.setInput)
 
     def render(s: State) = {
       def inputEditor(index: Int) = {
         val value = s.inputs(index)
-        val rvar = ReusableVar(value)(setInputFn(index))
+        val rvar = StateSnapshot(value)(setInputFn(index))
         InputEditor.withKey(index)(rvar)
       }
 
