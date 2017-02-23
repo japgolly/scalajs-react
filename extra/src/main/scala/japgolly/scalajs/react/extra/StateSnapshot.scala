@@ -7,6 +7,8 @@ final class StateSnapshot[S](val value: S,
                              val setState: S ~=> Callback,
                              private[StateSnapshot] val reusability: Reusability[S]) {
 
+  override def toString = s"StateSnapshot($value)"
+
   @deprecated("Use setState instead.", "1.0.0") def set = setState
   @deprecated("Use modState instead.", "1.0.0") def mod = modState _
 
@@ -29,8 +31,8 @@ object StateSnapshot {
   private[this] val reusabilityInstance: Reusability[StateSnapshot[Any]] = {
     val f = implicitly[Reusability[Any ~=> Callback]] // Safe to reuse
     Reusability((x, y) =>
-      (x eq y) ||
-      (x.reusability.test(x.value, y.value) && f.test(x.setState, y.setState)))
+      (x eq y) || (
+        f.test(x.setState, y.setState) && x.reusability.test(x.value, y.value) && y.reusability.test(x.value, y.value)))
   }
 
   implicit def reusability[S]: Reusability[StateSnapshot[S]] =
