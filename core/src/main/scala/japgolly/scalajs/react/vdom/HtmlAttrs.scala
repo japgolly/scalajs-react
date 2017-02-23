@@ -233,7 +233,7 @@ trait HtmlAttrs {
     */
   final lazy val autoComplete = ReactAttr("autoComplete")
 
-  final lazy val autoCorrect = ReactAttr("autoCorrect")
+  final lazy val autoCorrect = ReactAttr[Boolean]("autoCorrect")
 
   /**
     * This Boolean attribute lets you specify that a form control should have
@@ -243,11 +243,11 @@ trait HtmlAttrs {
     * the type attribute is set to hidden (that is, you cannot automatically set
     * focus to a hidden control).
     */
-  final lazy val autoFocus = ReactAttr("autoFocus")
+  final lazy val autoFocus = ReactAttr[Boolean]("autoFocus")
 
-  final lazy val autoPlay = ReactAttr("autoPlay")
+  final lazy val autoPlay = ReactAttr[Boolean]("autoPlay")
 
-  final lazy val autoSave = ReactAttr("autoSave")
+  final lazy val autoSave = ReactAttr[Boolean]("autoSave")
 
   /**
     * The capture attribute allows authors to declaratively request use of a media capture mechanism, such as a camera or
