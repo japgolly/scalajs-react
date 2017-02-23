@@ -143,6 +143,7 @@ object Router2Test extends TestSuite {
     val sim = SimHistory(base.abs)
     val r = ReactTestUtils.renderIntoDocument(router())
     def html = r.getDOMNode.outerHTML
+    def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.parse(_).right.toOption)
     isUserLoggedIn = false
 
     def syncNoRedirect(path: Path) = {
@@ -256,8 +257,21 @@ object Router2Test extends TestSuite {
       val ctl2 = ctl.onSet(Callback(i += 1) >> _)
       isUserLoggedIn = true
       ctl2.set(PrivatePage2).runNow()
+      assertEq(currentPage(), Some(PrivatePage2))
       assertContains(html, secret)
       assertEq(i, 1)
+    }
+
+    'setRespectRouteCondition {
+      // Make sure we're not starting on PublicHome cos that's were we expect to be redirected
+      ctl.set(NestedModule(ModuleRoot)).runNow()
+      assertEq(currentPage(), Some(NestedModule(ModuleRoot)))
+
+      // set without being logged in
+      isUserLoggedIn = false
+      ctl.set(PrivatePage2).runNow()
+      assertEq(currentPage(), Some(PublicHome))
+      assert(!html.contains(secret))
     }
 
     'prism {

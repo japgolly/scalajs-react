@@ -4,6 +4,9 @@ import sizzle.Sizzle
 import org.scalajs.dom
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
+import scala.concurrent.Promise
+import scala.util.Success
+import scalajs.concurrent.JSExecutionContext.Implicits.queue
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.raw.SyntheticEvent
@@ -196,6 +199,50 @@ object TestTest extends TestSuite {
       }
       val body2 = inspectBody()
       assert(!m.isMounted, body1 == body2)
+    }
+
+    'withRenderedIntoDocumentAsync {
+      var m: IC.Mounted = null
+      val promise: Promise[Unit] = Promise[Unit]()
+      ReactTestUtils.withRenderedIntoDocumentAsync(IC()) { mm =>
+        m = mm
+        promise.future
+      }
+      val n = m.getDOMNode()
+      assert(ReactTestUtils.removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
+      assert(m.isMounted())
+
+      promise.success(())
+
+      promise.future.map(_ => assert(!m.isMounted()))
+    }
+
+    'withRenderedIntoBodyAsync {
+      def inspectBody() = document.body.childElementCount
+      val body1 = inspectBody()
+      var m: IC.Mounted = null
+      val promise: Promise[Unit] = Promise[Unit]()
+      ReactTestUtils.withRenderedIntoBodyAsync(IC()) { mm =>
+        m = mm
+        promise.future
+      }
+      val n = m.getDOMNode()
+      assert(ReactTestUtils.removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
+      assert(m.isMounted())
+
+      // Benefits of body over detached
+      val i = inputRef(m).get
+      i.focus()
+      assert(document.activeElement == i)
+      i.blur()
+      assert(document.activeElement != i)
+
+      promise.success(())
+
+      promise.future.map(_ => {
+        val body2 = inspectBody()
+        assert(!m.isMounted(), body1 == body2)
+      })
     }
   }
 }
