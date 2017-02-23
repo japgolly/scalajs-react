@@ -193,7 +193,6 @@ object ScalazReactState {
     }
   }
 
-//  final class Ext_StateAccessRW[F[_], SI, S, Out[_]](si: SI)(implicit sa: StateAccessor.ReadWrite[SI, F, F, S], F: F ~> CallbackTo, cbToOut: CallbackTo ~> Out) {
   final class Ext_StateAccessRW[F[_], SI, S, Out[_]](si: SI)(implicit sa: StateAccessor.ReadWrite[SI, F, F, S], fToCb: Effect.Trans[F, CallbackTo], cbToOut: Effect.Trans[CallbackTo, Out]) {
     implicit private def autoOut[A](a: CallbackTo[A]): Out[A] = cbToOut(a)
 

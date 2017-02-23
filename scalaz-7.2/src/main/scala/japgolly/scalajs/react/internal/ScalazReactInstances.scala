@@ -66,11 +66,19 @@ trait ScalazReactInstances {
     def toOption[A]   (o: O[A])                    : Option[A] = o.toOption
   }
 
-  // Nope: variance
-  // implicit final lazy val ioReactInstance: Effect[IO] = new Effect[IO] {
+  implicit final lazy val ioReactInstance: Effect[IO] = new Effect[IO] {
+    override def point  [A]   (a: => A)                 = IO(a)
+    override def pure   [A]   (a: A)                    = IO(a)
+    override def map    [A, B](a: IO[A])(f: A => B)     = a map f
+    override def flatMap[A, B](a: IO[A])(f: A => IO[B]) = a flatMap f
+    override def extract[A]   (a: => IO[A])             = () => a.unsafePerformIO()
+  }
 
-  implicit final lazy val scalazIdToIo: (Scalaz.Id ~> IO) =
-    new (Scalaz.Id ~> IO) { override def apply[A](a: A) = IO(a) }
+  implicit final lazy val effectTransEndoIo       = Effect.Trans.id[IO]
+  implicit final lazy val effectTransIdToIo       = Effect.Trans[Effect.Id, IO]
+  implicit final lazy val effectTransCallbackToIo = Effect.Trans[CallbackTo, IO]
+  implicit final lazy val effectTransIoToId       = Effect.Trans[IO, Effect.Id]
+  implicit final lazy val effectTransIoToCallback = Effect.Trans[IO, CallbackTo]
 
   implicit final lazy val scalazIdToReactCallback: (Scalaz.Id ~> CallbackTo) =
     new (Scalaz.Id ~> CallbackTo) { override def apply[A](a: A) = CallbackTo(a) }

@@ -13,7 +13,7 @@ object ScalazReactExt {
     private def c = CallbackTo lift _c
 
     def toIO: IO[A] =
-      ScalazReact.ioToReactCallbackIso to c
+      IO(_c())
 
     def flattenIO[B](implicit ev: A =:= IO[B]): CallbackTo[B] =
       //_c.flatMap(a => ev(a).toCallback)
