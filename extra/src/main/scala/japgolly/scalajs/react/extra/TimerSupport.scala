@@ -8,19 +8,19 @@ import japgolly.scalajs.react._
 /**
  * Alternatives to `window.setTimeout`/`window.setInterval` that automatically unregister installed callbacks
  * when the component unmounts.
- * 
+ *
  * Provides interval methods that guarentee duration between callbacks.  Regular use of `setInterval` is fine
  * for callbacks with determined execution time.  However, if your callback could possibly take as long or longer
- * than your `timeout`, you can end up with callbacks firing back to back. 
+ * than your `timeout`, you can end up with callbacks firing back to back.
  *
- * Install in `ReactComponentB` via `.configure(TimerSupport.install)`.
+ * Install in `ScalaComponent.build` via `.configure(TimerSupport.install)`.
  */
 trait TimerSupport extends OnUnmount {
 
   /** Invokes the callback `f` once after a minimum of `timeout` elapses. */
-  final def setTimeout(f: Callback, timeout: FiniteDuration): Callback = 
+  final def setTimeout(f: Callback, timeout: FiniteDuration): Callback =
     setTimeoutMs(f, timeout.toMillis.toDouble)
-  
+
   /** Invokes the callback `f` once after a minimum of `timeout` elapses. */
   final def setTimeoutMs(f: Callback, timeoutInMilliseconds: Double): Callback = {
     CallbackTo {
@@ -32,15 +32,15 @@ trait TimerSupport extends OnUnmount {
   }
 
   /** Provides `setInterval`-like behavior insuring that the time between calls of `f` is *at least* the `timeout`. */
-  final def setGuaranteedInterval(f: Callback, interval: FiniteDuration): Callback = 
+  final def setGuaranteedInterval(f: Callback, interval: FiniteDuration): Callback =
     setGuaranteedIntervalMs(f, interval.toMillis.toDouble)
-  
+
   /** Provides `setInterval`-like behavior insuring that the time between calls of `f` is *at least* the `timeout`. */
   final def setGuaranteedIntervalMs(f: Callback, intervalInMilliseconds: Double): Callback= {
     val reschedule = Callback byName setGuaranteedIntervalMs(f, intervalInMilliseconds)
     setTimeoutMs(f finallyRun reschedule, intervalInMilliseconds)
   }
-  
+
   /** Invokes the callback `f` repeatedly every `period`. */
   final def setInterval(f: Callback, period: FiniteDuration): Callback =
     setIntervalMs(f, period.toMillis.toDouble)

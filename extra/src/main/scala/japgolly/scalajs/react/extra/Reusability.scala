@@ -15,7 +15,8 @@ import japgolly.scalajs.react.internal.OptionLike
  * the ID field, the update-date, or the revision number.
  * You might think of this as a very quick version of equality.
  *
- * Don't miss `Reusability.shouldComponentUpdate` which can be applied to a component via `ReactComponentB.configure`.
+ * Don't miss `Reusability.shouldComponentUpdate` which can be applied to a component via
+ * `ScalaComponent.build#configure`.
  *
  * @since 0.9.0
  */

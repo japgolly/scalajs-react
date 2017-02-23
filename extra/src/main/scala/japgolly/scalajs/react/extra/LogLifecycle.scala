@@ -5,7 +5,7 @@ import japgolly.scalajs.react._
 /**
  * Installing this will cause logging to occur at React component lifecycle stages.
  *
- * Install in `ReactComponentB` via `.configure(LogLifecycle.short)` or `.configure(LogLifecycle.verbose)`.
+ * Install in `ScalaComponent.build` via `.configure(LogLifecycle.short)` or `.configure(LogLifecycle.verbose)`.
  */
 object LogLifecycle {
 

@@ -112,8 +112,6 @@ Contributions welcome.
 
 # Maybe
 
-- Infer component name (#303)
-
 - Static and dynamic props (for Scala components).
   Probably not as a normal Scala function is all that's really needed.
   There's no big need to avoid creating a new component per staic data.
@@ -122,7 +120,7 @@ Contributions welcome.
 - Anything ES6-related should be easy to add now. Please contribute if interested.
   - Facades over ES6-based JS classes. (I tried briefly but didn't get the JS working.)
   - Scala-based ES6-based classes. Because it's important to some people. (Apparently its faster but I'm yet to see any benchmarks or other evidence supporting this.)
-  - Once the above works, it would be good to be able to choose a backend type for `ReactComponentB`.
+  - Once the above works, it would be good to be able to choose a backend type for `ScalaComponent.build`.
 
 # Release note / migration reminders
 

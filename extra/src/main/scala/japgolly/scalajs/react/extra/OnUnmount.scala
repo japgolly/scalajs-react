@@ -5,7 +5,7 @@ import japgolly.scalajs.react._
 /**
  * Accrues procedures to be run automatically when its component unmounts.
  *
- * Install in `ReactComponentB` via `.configure(OnUnmount.install)`.
+ * Install in `ScalaComponent.build` via `.configure(OnUnmount.install)`.
  */
 trait OnUnmount {
   private var unmountProcs: List[Callback] = Nil

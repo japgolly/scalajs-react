@@ -5,7 +5,7 @@ import japgolly.scalajs.react._
 /**
  * External entities can register with this to listen (receive) data of type A.
  *
- * Install in `ReactComponentB` via `.configure(Listenable.install...)`.
+ * Install in `ScalaComponent.build` via `.configure(Listenable.listen)`.
  */
 trait Listenable[A] {
 
