@@ -1,11 +1,14 @@
 package japgolly.scalajs.react.component
 
-import org.scalajs.dom
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, Key, PropsChildren, vdom, raw => RAW}
 
 object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
+
+  def apply[P <: js.Object, C <: Children, S <: js.Object](r: RAW.ReactClass)
+                                                          (implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
+    component[P, C, S](r)(s)
 
   def apply[P <: js.Object, C <: Children, S <: js.Object](name: String)
                                                           (implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
@@ -14,7 +17,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
       case Some(_)              => throw new IllegalArgumentException(s"React constructor $name is not a function")
       case None                 => throw new IllegalArgumentException(s"React constructor $name is not defined")
     }
-    component[P, C, S](reactClass.asInstanceOf[RAW.ReactClass])(s)
+    apply[P, C, S](reactClass)(s)
   }
 
   private[this] def findInScope(path: List[String], scope: js.Dynamic = js.Dynamic.global): Option[js.Dynamic] = {
@@ -25,6 +28,10 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
         nextScope.flatMap(findInScope(tail, _))
     }
   }
+
+  def apply[P <: js.Object, C <: Children, S <: js.Object](d: js.Dynamic)
+                                                          (implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
+    apply[P, C, S](d.asInstanceOf[RAW.ReactClass])(s)
 
   // ===================================================================================================================
 
