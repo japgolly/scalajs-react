@@ -1,7 +1,7 @@
 package ghpages.examples
 
 import ghpages.GhPagesMacros
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 import ghpages.examples.util.SideBySide
 
 object TodoExample {
@@ -10,7 +10,7 @@ object TodoExample {
 
   def content = SideBySide.Content(jsSource, source, main())
 
-  lazy val main = addIntro(TodoApp, _(scalaPortOf("An Application")))
+  lazy val main = addIntro(TodoApp.withKey(_)(), _(scalaPortOf("An Application")))
 
   val jsSource =
     """
@@ -61,22 +61,22 @@ object TodoExample {
 
   // EXAMPLE:START
 
-  val TodoList = ReactComponentB[List[String]]("TodoList")
+  val TodoList = ScalaComponent.build[List[String]]("TodoList")
     .render_P { props =>
       def createItem(itemText: String) = <.li(itemText)
-      <.ul(props map createItem)
+      <.ul(props map createItem: _*)
     }
     .build
 
   case class State(items: List[String], text: String)
 
   class Backend($: BackendScope[Unit, State]) {
-    def onChange(e: ReactEventI) = {
+    def onChange(e: ReactEventFromInput) = {
       val newValue = e.target.value
       $.modState(_.copy(text = newValue))
     }
 
-    def handleSubmit(e: ReactEventI) =
+    def handleSubmit(e: ReactEventFromInput) =
       e.preventDefaultCB >>
       $.modState(s => State(s.items :+ s.text, ""))
 
@@ -91,7 +91,7 @@ object TodoExample {
       )
   }
 
-  val TodoApp = ReactComponentB[Unit]("TodoApp")
+  val TodoApp = ScalaComponent.build[Unit]("TodoApp")
     .initialState(State(Nil, ""))
     .renderBackend[Backend]
     .build

@@ -156,8 +156,7 @@ object ScalajsReact {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    // .aggregate(ghpagesMacros, ghpages)
-    .aggregate(core, extra, scalaz72, monocle, test)
+    .aggregate(core, extra, scalaz72, monocle, test, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -221,15 +220,15 @@ object ScalajsReact {
     .settings(libraryDependencies += monocleLib("core"))
 
   // ==============================================================================================
-//  lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
-//    .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
-//
-//  lazy val ghpages = Project("gh-pages", file("gh-pages"))
-//    .dependsOn(core, extra, monocle, ghpagesMacros)
-//    .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
-//    .settings(
-//      libraryDependencies += monocleLib("macro"),
-//      addCompilerPlugin(macroParadisePlugin),
-//      emitSourceMaps := false,
-//      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
+  lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
+    .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
+
+  lazy val ghpages = Project("gh-pages", file("gh-pages"))
+    .dependsOn(core, extra, monocle, ghpagesMacros)
+    .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
+    .settings(
+      libraryDependencies += monocleLib("macro"),
+      addCompilerPlugin(macroParadisePlugin),
+      emitSourceMaps := false,
+      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
 }

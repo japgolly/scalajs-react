@@ -8,5 +8,5 @@ val extra         = ScalajsReact.extra
 val scalaz72      = ScalajsReact.scalaz72
 val monocle       = ScalajsReact.monocle
 val test          = ScalajsReact.test
-//val ghpagesMacros = ScalajsReact.ghpagesMacros
-//val ghpages       = ScalajsReact.ghpages
+val ghpagesMacros = ScalajsReact.ghpagesMacros
+val ghpages       = ScalajsReact.ghpages

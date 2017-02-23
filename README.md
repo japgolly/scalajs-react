@@ -103,10 +103,10 @@ Contributions welcome.
 - Revise & integrate the Monocle module.
 - Revise & integrate the `test` module.
 - StateSnapshot + lens helper (#293)
+- Update the `gh-pages` module.
 
 # Pending
 
-- Update the `gh-pages` module.
 - vdom lazy vals
 - over-zealous inlining (#324)
 - Update doc.

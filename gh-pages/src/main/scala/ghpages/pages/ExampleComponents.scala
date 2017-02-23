@@ -1,6 +1,6 @@
 package ghpages.pages
 
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router.RouterCtl
 
@@ -10,7 +10,7 @@ object ExampleComponents {
 
   implicit val propsReuse = Reusability.caseClass[Props]
 
-  val menu = ReactComponentB[Props]("Example menu")
+  val menu = ScalaComponent.build[Props]("Example menu")
     .render_P { p =>
       def menuItem(e: Example) = {
         val active = e == p.current
@@ -19,20 +19,20 @@ object ExampleComponents {
           e.title)
       }
       <.div(^.cls := "col-md-2",
-        <.div(^.cls := "list-group",
-          p.examples map menuItem))
+        <.div(^.cls := "list-group")(
+          p.examples.map(menuItem): _*))
     }
     .configure(Reusability.shouldComponentUpdate)
     .build
 
-  val body = ReactComponentB[Example]("Example body")
+  val body = ScalaComponent.build[Example]("Example body")
     .render_P(eg =>
       <.div(
         ^.cls := "col-md-10",
         eg.render()))
     .build
 
-  val component = ReactComponentB[Props]("Examples")
+  val component = ScalaComponent.build[Props]("Examples")
     .render_P(p =>
       <.div(^.cls := "row",
         menu(p),
