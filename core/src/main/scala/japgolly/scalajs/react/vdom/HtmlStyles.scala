@@ -201,7 +201,7 @@ trait HtmlStyles {
    * background-image, background-origin, background-position, background-repeat,
    * background-size, and background-attachment.
    */
-  final lazy val background = Style[String]("background")
+  final def background = Style[String]("background")
 
   /**
    * The background-repeat CSS property defines how background images are repeated.
@@ -212,7 +212,7 @@ trait HtmlStyles {
    * the different tiles can instead be re-sized, or space can be inserted
    * between the tiles.
    */
-  final lazy val backgroundRepeat = Style[String]("backgroundRepeat")
+  final def backgroundRepeat = Style[String]("backgroundRepeat")
 
 
   /**
@@ -220,13 +220,13 @@ trait HtmlStyles {
    * the background position layer defined by background-origin for each defined
    * background image.
    */
-  final lazy val backgroundPosition = Style[String]("backgroundPosition")
+  final def backgroundPosition = Style[String]("backgroundPosition")
 
   /**
    * The background-color CSS property sets the background color of an element,
    * either through a color value or the keyword transparent.
    */
-  final lazy val backgroundColor = Style[String]("backgroundColor")
+  final def backgroundColor = Style[String]("backgroundColor")
 
 
   /**
@@ -305,7 +305,7 @@ trait HtmlStyles {
    * borders of the element are then drawn on top of them, and the background-color
    * is drawn beneath them.
    */
-  final lazy val backgroundImage = new MultiImageStyle("backgroundImage")
+  final def backgroundImage = new MultiImageStyle("backgroundImage")
 
 
   /**
@@ -313,36 +313,36 @@ trait HtmlStyles {
    * element. Note that in many cases the shorthand CSS properties border-color
    * or border-top are more convenient and preferable.
    */
-  final lazy val borderTopColor = Style[String]("borderTopColor")
+  final def borderTopColor = Style[String]("borderTopColor")
 
   /**
    * The border-style CSS property is a shorthand property for setting the line
    * style for all four sides of the elements border.
    */
-  final lazy val borderStyle = new BorderStyle("borderStyle")
+  final def borderStyle = new BorderStyle("borderStyle")
 
   /** The border-top-style CSS property sets the line style of the top border of a box. */
-  final lazy val borderTopStyle = new BorderStyle("borderTopStyle")
+  final def borderTopStyle = new BorderStyle("borderTopStyle")
 
 
   /**
    * The border-right-style CSS property sets the line style of the right border
    * of a box.
    */
-  final lazy val borderRightStyle = new BorderStyle("borderRightStyle")
+  final def borderRightStyle = new BorderStyle("borderRightStyle")
 
   /**
    * The border-right-width CSS property sets the width of the right border of
    * a box.
    */
-  final lazy val borderRightWidth = new BorderWidth("borderRightWidth")
+  final def borderRightWidth = new BorderWidth("borderRightWidth")
 
   /**
    * The border-top-right-radius CSS property sets the rounding of the top-right
    * corner of the element. The rounding can be a circle or an ellipse, or if
    * one of the value is 0 no rounding is done and the corner is square.
    */
-  final lazy val borderTopRightRadius = new BorderRadius("borderTopRightRadius")
+  final def borderTopRightRadius = new BorderRadius("borderTopRightRadius")
 
   /**
    * The border-bottom-left-radius CSS property sets the rounding of the
@@ -350,49 +350,49 @@ trait HtmlStyles {
    * ellipse, or if one of the value is 0 no rounding is done and the corner is
    * square.
    */
-  final lazy val borderBottomLeftRadius = new BorderRadius("borderBottomLeftRadius")
+  final def borderBottomLeftRadius = new BorderRadius("borderBottomLeftRadius")
 
   /**
    * The border-right-color CSS property sets the color of the top border of an
    * element. Note that in many cases the shorthand CSS properties border-color
    * or border-right are more convenient and preferable.
    */
-  final lazy val borderRightColor = Style[String]("borderRightColor")
+  final def borderRightColor = Style[String]("borderRightColor")
 
   /**
    * The border-bottom CSS property is a shorthand that sets the values of
    * border-bottom-color, border-bottom-style, and border-bottom-width. These
    * properties describe the bottom border of elements.
    */
-  final lazy val borderBottom = Style[String]("borderBottom")
+  final def borderBottom = Style[String]("borderBottom")
   /**
    * The border CSS property is a shorthand property for setting the individual
    * border property values in a single place in the style sheet. border can be
    * used to set the values for one or more of: border-width, border-style,
    * border-color.
    */
-  final lazy val border = Style[String]("border")
+  final def border = Style[String]("border")
 
 
   /**
    * The border-bottom-width CSS property sets the width of the bottom border of
    * a box.
    */
-  final lazy val borderBottomWidth = new BorderWidth("borderBottomWidth")
+  final def borderBottomWidth = new BorderWidth("borderBottomWidth")
 
   /**
    * The border-right-color CSS property sets the color of the right border of
    * an element. Note that in many cases the shorthand CSS properties
    * border-color or border-right are more convenient and preferable.
    */
-  final lazy val borderLeftColor = Style[String]("borderLeftColor")
+  final def borderLeftColor = Style[String]("borderLeftColor")
 
   /**
    * The border-bottom-color CSS property sets the color of the bottom border of
    * an element. Note that in many cases the shorthand CSS properties border-color
    * or border-bottom are more convenient and preferable.
    */
-  final lazy val borderBottomColor = Style[String]("borderBottomColor")
+  final def borderBottomColor = Style[String]("borderBottomColor")
 
   /**
    * The border-collapse CSS property selects a table's border model. This has
@@ -418,35 +418,35 @@ trait HtmlStyles {
    * The three values of the shorthand property can be specified in any order,
    * and one or two of them may be omitted.
    */
-  final lazy val borderLeft = Style[String]("borderLeft")
+  final def borderLeft = Style[String]("borderLeft")
   /**
    * The border-left-style CSS property sets the line style of the left border
    * of a box.
    */
-  final lazy val borderLeftStyle = new BorderStyle("borderLeftStyle")
+  final def borderLeftStyle = new BorderStyle("borderLeftStyle")
 
   /**
    * The border-right CSS property is a shorthand that sets the values of
    * border-right-color, border-right-style, and border-right-width. These
    * properties describe the right border of elements.
    */
-  final lazy val borderRight = Style[String]("borderRight")
+  final def borderRight = Style[String]("borderRight")
 
   /**
    * The border-bottom-style CSS property sets the line style of the bottom
    * border of a box.
    */
-  final lazy val borderBottomStyle = new BorderStyle("borderBottomStyle")
+  final def borderBottomStyle = new BorderStyle("borderBottomStyle")
   /** The border-left-width CSS property sets the width of the left border of a box. */
-  final lazy val borderLeftWidth = new BorderWidth("borderLeftWidth")
+  final def borderLeftWidth = new BorderWidth("borderLeftWidth")
   /** The border-top-width CSS property sets the width of the top border of a box. */
-  final lazy val borderTopWidth = new BorderWidth("borderTopWidth")
+  final def borderTopWidth = new BorderWidth("borderTopWidth")
   /**
    * The border-top CSS property is a shorthand that sets the values of
    * border-top-color, border-top-style, and border-top-width. These
    * properties describe the top border of elements.
    */
-  final lazy val borderTop = Style[String]("borderTop")
+  final def borderTop = Style[String]("borderTop")
   /**
    * The border-spacing CSS property specifies the distance between the borders
    * of adjacent cells (only for the separated borders model). This is equivalent
@@ -463,13 +463,13 @@ trait HtmlStyles {
    * border corners are. The curve of each corner is defined using one or two
    * radii, defining its shape: circle or ellipse.
    */
-  final lazy val borderRadius = Style[String]("borderRadius")
+  final def borderRadius = Style[String]("borderRadius")
 
   /**
    * The border-width CSS property sets the width of the border of a box. Using
    * the shorthand property border is often more convenient.
    */
-  final lazy val borderWidth = Style[String]("borderWidth")
+  final def borderWidth = Style[String]("borderWidth")
 
   /**
    * The border-bottom-right-radius CSS property sets the rounding of the
@@ -477,7 +477,7 @@ trait HtmlStyles {
    * ellipse, or if one of the value is 0 no rounding is done and the corner is
    * square.
    */
-  final lazy val borderBottomRightRadius = new BorderRadius("borderBottomRightRadius")
+  final def borderBottomRightRadius = new BorderRadius("borderBottomRightRadius")
 
   /**
    * The border-top-left-radius CSS property sets the rounding of the
@@ -485,14 +485,14 @@ trait HtmlStyles {
    * ellipse, or if one of the value is 0 no rounding is done and the corner is
    * square.
    */
-  final lazy val borderTopLeftRadius = new BorderRadius("borderTopLeftRadius")
+  final def borderTopLeftRadius = new BorderRadius("borderTopLeftRadius")
 
   /**
    * The border-color CSS property is a shorthand for setting the color of the
    * four sides of an element's border: border-top-color, border-right-color,
    * border-bottom-color, border-left-color
    */
-  final lazy val borderColor = Style[String]("borderColor")
+  final def borderColor = Style[String]("borderColor")
 
   /**
    * The box-sizing CSS property is used to alter the default CSS box model used
@@ -902,7 +902,7 @@ trait HtmlStyles {
    * Using this property with a value different than 1 places the element in a
    * new stacking context.
    */
-  final lazy val opacity = Style[String]("opacity")
+  final def opacity = Style[String]("opacity")
 
 
   /**
@@ -912,7 +912,7 @@ trait HtmlStyles {
    *
    * max-width overrides width, but min-width overrides max-width.
    */
-  final lazy val maxWidth = Style[String]("maxWidth")
+  final def maxWidth = Style[String]("maxWidth")
 
 
   /**
@@ -956,7 +956,7 @@ trait HtmlStyles {
    * The overflow CSS property specifies whether to clip content, render scroll
    * bars or display overflow content of a block-level element.
    */
-  final lazy val overflow = new Overflow("overflow")
+  final def overflow = new Overflow("overflow")
 
   /**
    * If the value is a URI value, the element pointed to by the URI is used as
@@ -992,7 +992,7 @@ trait HtmlStyles {
    *
    * The min-height and max-height properties override height.
    */
-  final lazy val height = new AutoStyle("height")
+  final def height = new AutoStyle("height")
 
 
   /**
@@ -1001,7 +1001,7 @@ trait HtmlStyles {
    * between the content of the element and its border. Negative values are not
    * allowed.
    */
-  final lazy val paddingRight = Style[String]("paddingRight")
+  final def paddingRight = Style[String]("paddingRight")
 
   /**
    * The padding-top CSS property of an element sets the padding space required
@@ -1009,14 +1009,14 @@ trait HtmlStyles {
    * of the element and its border. Contrary to margin-top values, negative
    * values of padding-top are invalid.
    */
-  final lazy val paddingTop = Style[String]("paddingTop")
+  final def paddingTop = Style[String]("paddingTop")
 
   /**
    * The padding-left CSS property of an element sets the padding space required
    * on the left side of an element. The padding area is the space between the
    * content of the element and it's border. A negative value is not allowed.
    */
-  final lazy val paddingLeft = Style[String]("paddingLeft")
+  final def paddingLeft = Style[String]("paddingLeft")
 
   /**
    * The padding CSS property sets the required padding space on all sides of an
@@ -1026,7 +1026,7 @@ trait HtmlStyles {
    * The padding property is a shorthand to avoid setting each side separately
    * (padding-top, padding-right, padding-bottom, padding-left).
    */
-  final lazy val padding = Style[String]("padding")
+  final def padding = Style[String]("padding")
 
   /**
    * The padding-bottom CSS property of an element sets the height of the padding
@@ -1034,7 +1034,7 @@ trait HtmlStyles {
    * content of the element and it's border. Contrary to margin-bottom values,
    * negative values of padding-bottom are invalid.
    */
-  final lazy val paddingBottom = Style[String]("paddingBottom")
+  final def paddingBottom = Style[String]("paddingBottom")
 
   /**
    * The right CSS property specifies part of the position of positioned elements.
@@ -1052,7 +1052,7 @@ trait HtmlStyles {
    * the container is right-to-left (that is that the left computed value is set
    * to -right).
    */
-  final lazy val right = new AutoStyle("right")
+  final def right = new AutoStyle("right")
 
 
 
@@ -1065,7 +1065,7 @@ trait HtmlStyles {
    *
    * On replaced inline elements, like buttons or other input element, line-height has no effect.
    */
-  final lazy val lineHeight = new NormalOpenStyle("lineHeight")
+  final def lineHeight = new NormalOpenStyle("lineHeight")
 
   /**
    * The left CSS property specifies part of the position of positioned elements.
@@ -1074,7 +1074,7 @@ trait HtmlStyles {
    * position: fixed), it specifies the distance between the left margin edge of
    * the element and the left edge of its containing block.
    */
-  final lazy val left = new AutoStyle("left")
+  final def left = new AutoStyle("left")
 
 
 
@@ -1146,14 +1146,14 @@ trait HtmlStyles {
    * The list-style CSS property is a shorthand property for setting
    * list-style-type, list-style-image and list-style-position.
    */
-  final lazy val listStyle = Style[String]("listStyle")
+  final def listStyle = Style[String]("listStyle")
 
   /**
    * The overflow-y CSS property specifies whether to clip content, render a
    * scroll bar, or display overflow content of a block-level element, when it
    * overflows at the top and bottom edges.
    */
-  final lazy val overflowY = new Overflow("overflowY")
+  final def overflowY = new Overflow("overflowY")
 
   /**
    * The caption-side CSS property positions the content of a table's caption
@@ -1174,7 +1174,7 @@ trait HtmlStyles {
    * of multiple box shadows is the same as multiple text shadows (the first
    * specified shadow is on top).
    */
-  final lazy val boxShadow = Style[String]("boxShadow")
+  final def boxShadow = Style[String]("boxShadow")
 
 
   /**
@@ -1280,7 +1280,7 @@ trait HtmlStyles {
    * unavailable and its replacement has a significantly different aspect ratio
    * (the ratio of the size of lowercase letters to the size of the font).
    */
-  final lazy val fontSizeAdjust = Style[String]("fontSizeAdjust")
+  final def fontSizeAdjust = Style[String]("fontSizeAdjust")
 
   /**
    * The font-family CSS property allows for a prioritized list of font family
@@ -1290,7 +1290,7 @@ trait HtmlStyles {
    * list that is installed on the computer, or that can be downloaded using the
    * information provided by a @font-face at-rule.
    */
-  final lazy val fontFamily = Style[String]("fontFamily")
+  final def fontFamily = Style[String]("fontFamily")
 
 
   /**
@@ -1329,13 +1329,13 @@ trait HtmlStyles {
    * font-variant, font-weight, font-size, line-height and font-family, or a way
    * to set the element's font to a system font, using specific keywords.
    */
-  final lazy val font = Style[String]("font")
+  final def font = Style[String]("font")
 
   /**
    * The font-feature-settings CSS property allows control over advanced
    * typographic features in OpenType fonts.
    */
-  final lazy val fontFeatureSettings = Style[String]("fontFeatureSettings")
+  final def fontFeatureSettings = Style[String]("fontFeatureSettings")
 
   /**
    * The font-style CSS property allows italic or oblique faces to be selected
@@ -1371,20 +1371,20 @@ trait HtmlStyles {
    * The margin-bottom CSS property of an element sets the margin space required
    * on the bottom of an element. A negative value is also allowed.
    */
-  final lazy val marginBottom = new AutoStyle("marginBottom")
+  final def marginBottom = new AutoStyle("marginBottom")
 
   /**
    * The margin-right CSS property of an element sets the margin space required
    * on the bottom of an element. A negative value is also allowed.
    */
-  final lazy val marginRight = new AutoStyle("marginRight")
+  final def marginRight = new AutoStyle("marginRight")
 
 
   /**
    * The margin-top CSS property of an element sets the margin space required on
    * the top of an element. A negative value is also allowed.
    */
-  final lazy val marginTop = new AutoStyle("marginTop")
+  final def marginTop = new AutoStyle("marginTop")
 
 
   /**
@@ -1395,7 +1395,7 @@ trait HtmlStyles {
    * The vertical margins of two adjacent boxes may fuse. This is called margin
    * collapsing.
    */
-  final lazy val marginLeft = new AutoStyle("marginLeft")
+  final def marginLeft = new AutoStyle("marginLeft")
   /**
    * The margin CSS property sets the margin for all four sides. It is a
    * shorthand to avoid setting each side separately with the other margin
@@ -1403,7 +1403,7 @@ trait HtmlStyles {
    *
    * Negative values are also allowed.
    */
-  final lazy val margin = new AutoStyle("margin")
+  final def margin = new AutoStyle("margin")
 
 
   /**
@@ -1421,7 +1421,7 @@ trait HtmlStyles {
    * over-constrained and the top property has precedence: the computed value
    * of bottom is set to -top, while its specified value is ignored.
    */
-  final lazy val top = new AutoStyle("top")
+  final def top = new AutoStyle("top")
 
 
   /**
@@ -1430,7 +1430,7 @@ trait HtmlStyles {
    *
    * The min-width and max-width properties override width.
    */
-  final lazy val width = new AutoStyle("width")
+  final def width = new AutoStyle("width")
 
   /**
    * The bottom CSS property participates in specifying the position of
@@ -1447,13 +1447,13 @@ trait HtmlStyles {
    * auto, the computed value of bottom is the negative of the computed value of
    * top.
    */
-  final lazy val bottom = new AutoStyle("bottom")
+  final def bottom = new AutoStyle("bottom")
 
   /**
    * The letter-spacing CSS property specifies spacing behavior between text
    * characters.
    */
-  final lazy val letterSpacing = new NormalOpenStyle("letterSpacing")
+  final def letterSpacing = new NormalOpenStyle("letterSpacing")
 
 
   /**
@@ -1463,7 +1463,7 @@ trait HtmlStyles {
    *
    * max-height overrides height, but min-height overrides max-height.
    */
-  final lazy val maxHeight = new NoneOpenStyle("maxHeight")
+  final def maxHeight = new NoneOpenStyle("maxHeight")
 
   /**
    * The min-width CSS property is used to set the minimum width of a given
@@ -1472,7 +1472,7 @@ trait HtmlStyles {
    *
    * The value of min-width overrides both max-width and width.
    */
-  final lazy val minWidth = Style[String]("minWidth")
+  final def minWidth = Style[String]("minWidth")
 
 
   /**
@@ -1482,7 +1482,7 @@ trait HtmlStyles {
    *
    * The value of min-height overrides both max-height and height.
    */
-  final lazy val minHeight = Style[String]("minHeight")
+  final def minHeight = Style[String]("minHeight")
 
 
   /**
@@ -1493,14 +1493,14 @@ trait HtmlStyles {
    *
    * Outlines do not take up space, they are drawn above the content.
    */
-  final lazy val outline = Style[String]("outline")
+  final def outline = Style[String]("outline")
 
   /**
    * The outline-style CSS property is used to set the style of the outline of
    * an element. An outline is a line that is drawn around elements, outside the
    * border edge, to make the element stand out.
    */
-  final lazy val outlineStyle = new OutlineStyle("outlineStyle")
+  final def outlineStyle = new OutlineStyle("outlineStyle")
 
   /**
    * The outline-width CSS property is used to set the width of the outline of
@@ -1537,21 +1537,21 @@ trait HtmlStyles {
    * scroll bar or display overflow content of a block-level element, when it
    * overflows at the left and right edges.
    */
-  final lazy val overflowX = new Overflow("overflowX")
+  final def overflowX = new Overflow("overflowX")
 
 
   /**
    * The text-align-last CSS property describes how the last line of a block or
    * a line, right before a forced line break, is aligned.
    */
-  final lazy val textAlignLast = new TextAlign("textAlignLast")
+  final def textAlignLast = new TextAlign("textAlignLast")
 
   /**
    * The text-align CSS property describes how inline content like text is
    * aligned in its parent block element. text-align does not control the
    * alignment of block elements itself, only their inline content.
    */
-  final lazy val textAlign = new TextAlign("textAlign")
+  final def textAlign = new TextAlign("textAlign")
   /**
    * The text-decoration CSS property is used to set the text formatting to
    * underline, overline, line-through or blink.
@@ -1573,7 +1573,7 @@ trait HtmlStyles {
    * Horizontal spacing is with respect to the left (or right, for right-to-left
    * layout) edge of the containing block element's box.
    */
-  final lazy val textIndent = Style[String]("textIndent")
+  final def textIndent = Style[String]("textIndent")
 
   /**
    * The text-overflow CSS property determines how overflowed content that is
@@ -1662,7 +1662,7 @@ trait HtmlStyles {
    * Multiple shadows are applied front-to-back, with the first-specified shadow
    * on top.
    */
-  final lazy val textShadow = new NoneOpenStyle("textShadow")
+  final def textShadow = new NoneOpenStyle("textShadow")
 
   object visibility extends Style[String]("visibility") {
     /** Default value, the box is visible */
@@ -1719,14 +1719,14 @@ trait HtmlStyles {
    * The word-spacing CSS property specifies spacing behavior between tags and
    * words.
    */
-  final lazy val wordSpacing = new NormalOpenStyle("wordSpacing")
+  final def wordSpacing = new NormalOpenStyle("wordSpacing")
   /**
    * The z-index CSS property specifies the z-order of an element and its
    * descendants. When elements overlap, z-order determines which one covers the
    * other. An element with a larger z-index generally covers an element with a
    * lower one.
    */
-  final lazy val zIndex = new AutoStyle("zIndex")
+  final def zIndex = new AutoStyle("zIndex")
 
 
   // ==== [japgolly] Here begins Scalatags' Styles2 ====
@@ -1737,7 +1737,7 @@ trait HtmlStyles {
    * The animation-direction CSS property indicates whether the animation should
    * play in reverse on alternate cycles.
    */
-  final lazy val animationDirection = Style[String]("animationDirection")
+  final def animationDirection = Style[String]("animationDirection")
 
   /**
    * The animation-duration CSS property specifies the Length of time that an
@@ -1746,26 +1746,26 @@ trait HtmlStyles {
    * A value of 0s, which is the default value, indicates that no animation should
    * occur.
    */
-  final lazy val animationDuration = Style[String]("animationDuration")
+  final def animationDuration = Style[String]("animationDuration")
 
   /**
    * The animation-name CSS property specifies a list of animations that should
    * be applied to the selected element. Each name indicates a @keyframes at-rule
    * that defines the property values for the animation sequence.
    */
-  final lazy val animationName = Style[String]("animationName")
+  final def animationName = Style[String]("animationName")
 
   /**
    * The animation-fill-mode CSS property specifies how a CSS animation should
    * apply styles to its target before and after it is executing.
    */
-  final lazy val animationFillMode = Style[String]("animationFillMode")
+  final def animationFillMode = Style[String]("animationFillMode")
 
   /**
    * The animation-iteration-count CSS property defines the number of times an
    * animation cycle should be played before stopping.
    */
-  final lazy val animationIterationCount = Style[String]("animationIterationCount")
+  final def animationIterationCount = Style[String]("animationIterationCount")
 
 
   /**
@@ -1788,7 +1788,7 @@ trait HtmlStyles {
    * value is implicit, the starting value is taken from the moment the animation
    * is applied to the element.
    */
-  final lazy val animationDelay = new MultiTimeStyle("animationDelay")
+  final def animationDelay = new MultiTimeStyle("animationDelay")
 
   /**
    * The CSS animation-timing-function property specifies how a CSS animation
@@ -1803,7 +1803,7 @@ trait HtmlStyles {
    * keyframe; otherwise. If no timing function is specified for the keyframe,
    * the timing function specified for the overall animation is used.
    */
-  final lazy val animationTimingFunction = Style[String]("animationTimingFunction")
+  final def animationTimingFunction = Style[String]("animationTimingFunction")
 
 
   /**
@@ -1816,13 +1816,13 @@ trait HtmlStyles {
    * at the time it was paused, rather than starting over from the beginning of
    * the animation sequence.
    */
-  final lazy val animationPlayState = Style[String]("animationPlayState")
+  final def animationPlayState = Style[String]("animationPlayState")
   /**
    * The animation CSS property is a shorthand property for animation-name,
    * animation-duration, animation-timing-function, animation-delay,
    * animation-iteration-count and animation-direction.
    */
-  final lazy val animation = Style[String]("animation")
+  final def animation = Style[String]("animation")
 
 
   /**
@@ -1849,7 +1849,7 @@ trait HtmlStyles {
   }
 
   /** The column-count CSS property describes the number of columns of the element. */
-  final lazy val columnCount = new AutoStyle("columnCount")
+  final def columnCount = new AutoStyle("columnCount")
 
   /**
    * The column-fill CSS property controls how contents are partitioned into
@@ -1869,7 +1869,7 @@ trait HtmlStyles {
    * The column-gap CSS property sets the size of the gap between columns for
    * elements which are specified to display as a multi-column element.
    */
-  final lazy val columnGap = new NormalOpenStyle("columnGap")
+  final def columnGap = new NormalOpenStyle("columnGap")
 
   /**
    * In multi-column layouts, the column-rule CSS property specifies a straight
@@ -1877,7 +1877,7 @@ trait HtmlStyles {
    * shorthand to avoid setting each of the individual column-rule-* properties
    * separately : column-rule-width, column-rule-style and column-rule-color.
    */
-  final lazy val columnRule = Style[String]("columnRule")
+  final def columnRule = Style[String]("columnRule")
 
   /**
    * The column-span CSS property makes it possible for an element to span across
@@ -1906,13 +1906,13 @@ trait HtmlStyles {
    * values must be specified. In horizontal text these are width, column-width,
    * column-gap, and column-rule-width
    */
-  final lazy val columnWidth = new AutoStyle("columnWidth")
+  final def columnWidth = new AutoStyle("columnWidth")
 
   /**
    * The column-rule-color CSS property lets you set the color of the rule drawn
    * between columns in multi-column layouts.
    */
-  final lazy val columnRuleColor = Style[String]("columnRuleColor")
+  final def columnRuleColor = Style[String]("columnRuleColor")
 
   /**
    * The column-rule-width CSS property lets you set the width of the rule drawn
@@ -1939,20 +1939,20 @@ trait HtmlStyles {
    * to generate content in an element. Objects inserted using the content
    * property are anonymous replaced elements.
    */
-  final lazy val contentStyle = Style[String]("content")
+  final def contentStyle = Style[String]("content")
 
   /**
    * The counter-increment CSS property is used to increase the value of CSS
    * Counters by a given value. The counter's value can be reset using the
    * counter-reset CSS property.
    */
-  final lazy val counterIncrement = Style[String]("counterIncrement")
+  final def counterIncrement = Style[String]("counterIncrement")
 
   /**
    * The counter-reset CSS property is used to reset CSS Counters to a given
    * value.
    */
-  final lazy val counterReset = Style[String]("counterReset")
+  final def counterReset = Style[String]("counterReset")
 
 
   /**
@@ -1960,7 +1960,7 @@ trait HtmlStyles {
    * container that must be left at the bottom of the page. This property is
    * normally used to control how page breaks occur.
    */
-  final lazy val orphans = Style[String]("orphans")
+  final def orphans = Style[String]("orphans")
 
 
   /**
@@ -1971,20 +1971,20 @@ trait HtmlStyles {
    *
    * On a non-paged media, like screen, the widows CSS property has no effect.
    */
-  final lazy val widows = Style[String]("widows")
+  final def widows = Style[String]("widows")
 
 
   /**
    * The page-break-after CSS property adjusts page breaks after the current
    * element.
    */
-  final lazy val pageBreakAfter = new PageBreak("pageBreakAfter")
+  final def pageBreakAfter = new PageBreak("pageBreakAfter")
 
   /**
    * The page-break-inside CSS property adjusts page breaks inside the current
    * element.
    */
-  final lazy val pageBreakInside = new PageBreak("pageBreakInside")
+  final def pageBreakInside = new PageBreak("pageBreakInside")
 
 
   /**
@@ -1994,7 +1994,7 @@ trait HtmlStyles {
    * This properties applies to block elements that generate a box. It won't
    * apply on an empty div that won't generate a box.
    */
-  final lazy val pageBreakBefore = new PageBreak("pageBreakBefore")
+  final def pageBreakBefore = new PageBreak("pageBreakBefore")
 
 
   /**
@@ -2004,13 +2004,13 @@ trait HtmlStyles {
    * smaller. The strength of the effect is determined by the value of this
    * property.
    */
-  final lazy val perspective = new NoneOpenStyle("perspective")
+  final def perspective = new NoneOpenStyle("perspective")
 
   /**
    * The perspective-origin CSS property determines the position the viewer is
    * looking at. It is used as the vanishing point by the perspective property.
    */
-  final lazy val perspectiveOrigin = Style[String]("perspectiveOrigin")
+  final def perspectiveOrigin = Style[String]("perspectiveOrigin")
 
 
   /**
@@ -2031,7 +2031,7 @@ trait HtmlStyles {
    * more delays, the list is simply truncated to the right size. In both case
    * the CSS declaration stays valid.
    */
-  final lazy val transitionDelay = new MultiTimeStyle("transitionDelay")
+  final def transitionDelay = new MultiTimeStyle("transitionDelay")
 
   /**
    * The CSS transition property is a shorthand property for transition-property,
@@ -2040,7 +2040,7 @@ trait HtmlStyles {
    * states may be defined using pseudo-classes like :hover or :active or
    * dynamically set using JavaScript.
    */
-  final lazy val transition = Style[String]("transition")
+  final def transition = Style[String]("transition")
 
   /**
    * The CSS transition-timing-function property is used to describe how the
@@ -2048,7 +2048,7 @@ trait HtmlStyles {
    * effect are calculated. This in essence lets you establish an acceleration
    * curve, so that the speed of the transition can vary over its duration.
    */
-  final lazy val transitionTimingFunction = Style[String]("transitionTimingFunction")
+  final def transitionTimingFunction = Style[String]("transitionTimingFunction")
 
   /**
    * The transition-duration CSS property specifies the number of seconds or
@@ -2062,13 +2062,13 @@ trait HtmlStyles {
    * more durations, the list is simply truncated to the right size. In both
    * case the CSS declaration stays valid.
    */
-  final lazy val transitionDuration = new MultiTimeStyle("transitionDuration")
+  final def transitionDuration = new MultiTimeStyle("transitionDuration")
 
   /**
    * The transition-property CSS property is used to specify the names of CSS
    * properties to which a transition effect should be applied.
    */
-  final lazy val transitionProperty = Style[String]("transitionProperty")
+  final def transitionProperty = Style[String]("transitionProperty")
 
   /**
    * The CSS transform property lets you modify the coordinate space of the CSS
@@ -2079,7 +2079,7 @@ trait HtmlStyles {
    * created. In that case the object will act as a containing block for
    * position: fixed elements that it contains.
    */
-  final lazy val transform = Style[String]("transform")
+  final def transform = Style[String]("transform")
 
 
   /**
@@ -2087,19 +2087,19 @@ trait HtmlStyles {
    * fill available space. Flex items can be stretched to use available space proportional to their flex grow factor
    * or their flex shrink factor to prevent overflow.
    */
-  final lazy val flex = Style[String]("flex")
+  final def flex = Style[String]("flex")
 
   /**
    * The CSS flex-basis property specifies the flex basis which is the initial main size of a flex item.
    * The property determines the size of the content-box unless specified otherwise using box-sizing.
    */
-  final lazy val flexBasis = Style[String]("flexBasis")
+  final def flexBasis = Style[String]("flexBasis")
 
   /** The CSS flex-grow property specifies the flex grow factor of a flex item. */
-  final lazy val flexGrow = Style[String]("flexGrow")
+  final def flexGrow = Style[String]("flexGrow")
 
   /** The CSS flex-shrink property specifies the flex shrink factor of a flex item. */
-  final lazy val flexShrink = Style[String]("flexShrink")
+  final def flexShrink = Style[String]("flexShrink")
 
   /**
    * The CSS align-content property aligns a flex container's lines within the flex container when there is extra
@@ -2313,7 +2313,7 @@ trait HtmlStyles {
    *
    * Not explicitely set values are reset to their corresponding values.
    */
-  final lazy val transformOrigin = Style[String]("transformOrigin")
+  final def transformOrigin = Style[String]("transformOrigin")
   /**
    * The transform-style CSS property determines if the children of the element
    * are positioned in the 3D-space or are flattened in the plane of the element.

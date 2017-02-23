@@ -107,7 +107,6 @@ Contributions welcome.
 
 # Pending
 
-- vdom lazy vals
 - over-zealous inlining (#324)
 - Update doc.
 

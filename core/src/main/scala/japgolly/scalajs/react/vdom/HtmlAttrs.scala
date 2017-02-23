@@ -10,29 +10,29 @@ trait HtmlAttrs {
     * If the value of the type attribute is file, this attribute indicates the
     * types of files that the server accepts; otherwise it is ignored.
     */
-  final lazy val accept = ReactAttr("accept")
+  final def accept = ReactAttr("accept")
 
-  final lazy val acceptCharset = ReactAttr("acceptCharset")
+  final def acceptCharset = ReactAttr("acceptCharset")
 
-  final lazy val accessKey = ReactAttr("accessKey")
+  final def accessKey = ReactAttr("accessKey")
 
   /**
     * The URI of a program that processes the information submitted via the form.
     * This value can be overridden by a formaction attribute on a button or
     * input element.
     */
-  final lazy val action = ReactAttr("action")
+  final def action = ReactAttr("action")
 
-  final lazy val allowFullScreen = ReactAttr("allowFullScreen")
+  final def allowFullScreen = ReactAttr("allowFullScreen")
 
-  final lazy val allowTransparency = ReactAttr("allowTransparency")
+  final def allowTransparency = ReactAttr("allowTransparency")
 
   /**
     * This attribute defines the alternative text describing the image. Users
     * will see this displayed if the image URL is wrong, the image is not in one
     * of the supported formats, or until the image is downloaded.
     */
-  final lazy val alt = ReactAttr[String]("alt")
+  final def alt = ReactAttr[String]("alt")
 
   /**
     * ARIA is a set of special accessibility attributes which can be added
@@ -46,182 +46,182 @@ trait HtmlAttrs {
     /**
       * Identifies the currently active descendant of a composite widget.
       */
-    final lazy val activeDescendant = ReactAttr("aria-activedescendant")
+    final def activeDescendant = ReactAttr("aria-activedescendant")
 
     /**
       * Indicates whether assistive technologies will present all, or only parts of, the changed region based on the change notifications defined by the aria-relevant attribute. See related aria-relevant.
       */
-    final lazy val atomic = ReactAttr("aria-atomic")
+    final def atomic = ReactAttr("aria-atomic")
 
     /**
       * Indicates whether user input completion suggestions are provided.
       */
-    final lazy val autoComplete = ReactAttr("aria-autocomplete")
+    final def autoComplete = ReactAttr("aria-autocomplete")
 
     /**
       * Indicates whether an element, and its subtree, are currently being updated.
       */
-    final lazy val busy = ReactAttr("aria-busy")
+    final def busy = ReactAttr("aria-busy")
 
     /**
       * Indicates the current "checked" state of checkboxes, radio buttons, and other widgets. See related aria-pressed and aria-selected.
       */
-    final lazy val checked = ReactAttr("aria-checked")
+    final def checked = ReactAttr("aria-checked")
 
     /**
       * Identifies the element (or elements) whose contents or presence are controlled by the current element. See related aria-owns.
       */
-    final lazy val controls = ReactAttr("aria-controls")
+    final def controls = ReactAttr("aria-controls")
 
     /**
       * Identifies the element (or elements) that describes the object. See related aria-labelledby.
       */
-    final lazy val describedBy = ReactAttr("aria-describedby")
+    final def describedBy = ReactAttr("aria-describedby")
 
     /**
       * Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable. See related aria-hidden and aria-readonly.
       */
-    final lazy val disabled = ReactAttr("aria-disabled")
+    final def disabled = ReactAttr("aria-disabled")
 
     /**
       * Indicates what functions can be performed when the dragged object is released on the drop target. This allows assistive technologies to convey the possible drag options available to users, including whether a pop-up menu of choices is provided by the application. Typically, drop effect functions can only be provided once an object has been grabbed for a drag operation as the drop effect functions available are dependent on the object being dragged.
       */
-    final lazy val dropEffect = ReactAttr("aria-dropeffect")
+    final def dropEffect = ReactAttr("aria-dropeffect")
 
     /**
       * Indicates whether the element, or another grouping element it controls, is currently expanded or collapsed.
       */
-    final lazy val expanded = ReactAttr("aria-expanded")
+    final def expanded = ReactAttr("aria-expanded")
 
     /**
       * Identifies the next element (or elements) in an alternate reading order of content which, at the user's discretion, allows assistive technology to override the general default of reading in document source order.
       */
-    final lazy val flowTo = ReactAttr("aria-flowto")
+    final def flowTo = ReactAttr("aria-flowto")
 
     /**
       * Indicates an element's "grabbed" state in a drag-and-drop operation.
       */
-    final lazy val grabbed = ReactAttr("aria-grabbed")
+    final def grabbed = ReactAttr("aria-grabbed")
 
     /**
       * Indicates that the element has a popup context menu or sub-level menu.
       */
-    final lazy val hasPopup = ReactAttr("aria-haspopup")
+    final def hasPopup = ReactAttr("aria-haspopup")
 
     /**
       * Indicates that the element and all of its descendants are not visible or perceivable to any user as implemented by the author. See related aria-disabled.
       */
-    final lazy val hidden = ReactAttr("aria-hidden")
+    final def hidden = ReactAttr("aria-hidden")
 
     /**
       * Indicates the entered value does not conform to the format expected by the application.
       */
-    final lazy val invalid = ReactAttr("aria-invalid")
+    final def invalid = ReactAttr("aria-invalid")
 
     /**
       * Defines a string value that labels the current element. See related aria-labelledby.
       */
-    final lazy val label = ReactAttr("aria-label")
+    final def label = ReactAttr("aria-label")
 
     /**
       * Identifies the element (or elements) that labels the current element. See related aria-label and aria-describedby.
       */
-    final lazy val labelledBy = ReactAttr("aria-labelledby")
+    final def labelledBy = ReactAttr("aria-labelledby")
 
     /**
       * Defines the hierarchical level of an element within a structure.
       */
-    final lazy val level = ReactAttr("aria-level")
+    final def level = ReactAttr("aria-level")
 
     /**
       * Indicates that an element will be updated, and describes the types of updates the user agents, assistive technologies, and user can expect from the live region.
       */
-    final lazy val live = ReactAttr("aria-live")
+    final def live = ReactAttr("aria-live")
 
     /**
       * Indicates whether a text box accepts multiple lines of input or only a single line.
       */
-    final lazy val multiline = ReactAttr("aria-multiline")
+    final def multiline = ReactAttr("aria-multiline")
 
     /**
       * Indicates that the user may select more than one item from the current selectable descendants.
       */
-    final lazy val multiselectable = ReactAttr("aria-multiselectable")
+    final def multiselectable = ReactAttr("aria-multiselectable")
 
     /**
       * Indicates whether the element and orientation is horizontal or vertical.
       */
-    final lazy val orientation = ReactAttr("aria-orientation")
+    final def orientation = ReactAttr("aria-orientation")
 
     /**
       * Identifies an element (or elements) in order to define a visual, functional, or contextual parent/child relationship between DOM elements where the DOM hierarchy cannot be used to represent the relationship. See related aria-controls.
       */
-    final lazy val owns = ReactAttr("aria-owns")
+    final def owns = ReactAttr("aria-owns")
 
     /**
       * Defines an element's number or position in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-setsize.
       */
-    final lazy val posInSet = ReactAttr("aria-posinset")
+    final def posInSet = ReactAttr("aria-posinset")
 
     /**
       * Indicates the current "pressed" state of toggle buttons. See related aria-checked and aria-selected.
       */
-    final lazy val pressed = ReactAttr("aria-pressed")
+    final def pressed = ReactAttr("aria-pressed")
 
     /**
       * Indicates that the element is not editable, but is otherwise operable. See related aria-disabled.
       */
-    final lazy val readonly = ReactAttr("aria-readonly")
+    final def readonly = ReactAttr("aria-readonly")
 
     /**
       * Indicates what user agent change notifications (additions, removals, etc.) assistive technologies will receive within a live region. See related aria-atomic.
       */
-    final lazy val relevant = ReactAttr("aria-relevant")
+    final def relevant = ReactAttr("aria-relevant")
 
     /**
       * Indicates that user input is required on the element before a form may be submitted.
       */
-    final lazy val required = ReactAttr("aria-required")
+    final def required = ReactAttr("aria-required")
 
     /**
       * Indicates the current "selected" state of various widgets. See related aria-checked and aria-pressed.
       */
-    final lazy val selected = ReactAttr("aria-selected")
+    final def selected = ReactAttr("aria-selected")
 
     /**
       * Defines the number of items in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-posinset.
       */
-    final lazy val setSize = ReactAttr("aria-setsize")
+    final def setSize = ReactAttr("aria-setsize")
 
     /**
       * Indicates if items in a table or grid are sorted in ascending or descending order.
       */
-    final lazy val sort = ReactAttr("aria-sort")
+    final def sort = ReactAttr("aria-sort")
 
     /**
       * Defines the maximum allowed value for a range widget.
       */
-    final lazy val valueMax = ReactAttr("aria-valuemax")
+    final def valueMax = ReactAttr("aria-valuemax")
 
     /**
       * Defines the minimum allowed value for a range widget.
       */
-    final lazy val valueMin = ReactAttr("aria-valuemin")
+    final def valueMin = ReactAttr("aria-valuemin")
 
     /**
       * Defines the current value for a range widget. See related aria-valuetext.
       */
-    final lazy val valueNow = ReactAttr("aria-valuenow")
+    final def valueNow = ReactAttr("aria-valuenow")
 
     /**
       * Defines the human readable text alternative of aria-valuenow for a range widget.
       */
-    final lazy val valueText = ReactAttr("aria-valuetext")
+    final def valueText = ReactAttr("aria-valuetext")
   }
 
-  final lazy val async = ReactAttr("async")
+  final def async = ReactAttr("async")
 
-  final lazy val autoCapitalize = ReactAttr("autoCapitalize")
+  final def autoCapitalize = ReactAttr("autoCapitalize")
 
   /**
     * This attribute indicates whether the value of the control can be
@@ -231,9 +231,9 @@ trait HtmlAttrs {
     *
     * Possible values are "off" and "on"
     */
-  final lazy val autoComplete = ReactAttr("autoComplete")
+  final def autoComplete = ReactAttr("autoComplete")
 
-  final lazy val autoCorrect = ReactAttr[Boolean]("autoCorrect")
+  final def autoCorrect = ReactAttr[Boolean]("autoCorrect")
 
   /**
     * This Boolean attribute lets you specify that a form control should have
@@ -243,43 +243,43 @@ trait HtmlAttrs {
     * the type attribute is set to hidden (that is, you cannot automatically set
     * focus to a hidden control).
     */
-  final lazy val autoFocus = ReactAttr[Boolean]("autoFocus")
+  final def autoFocus = ReactAttr[Boolean]("autoFocus")
 
-  final lazy val autoPlay = ReactAttr[Boolean]("autoPlay")
+  final def autoPlay = ReactAttr[Boolean]("autoPlay")
 
-  final lazy val autoSave = ReactAttr[Boolean]("autoSave")
+  final def autoSave = ReactAttr[Boolean]("autoSave")
 
   /**
     * The capture attribute allows authors to declaratively request use of a media capture mechanism, such as a camera or
     * microphone, from within a file upload control, for capturing media on the spot.
     */
-  final lazy val capture = ReactAttr("capture")
+  final def capture = ReactAttr("capture")
 
-  final lazy val cellPadding = ReactAttr("cellPadding")
+  final def cellPadding = ReactAttr("cellPadding")
 
-  final lazy val cellSpacing = ReactAttr("cellSpacing")
+  final def cellSpacing = ReactAttr("cellSpacing")
 
   /** &lt;keygen&gt;: A challenge string that is submitted along with the public key. */
-  final lazy val challenge = ReactAttr("challenge")
+  final def challenge = ReactAttr("challenge")
 
   /**
     * Declares the character encoding of the page or script. Used on meta and
     * script elements.
     */
-  final lazy val charset = ReactAttr[String]("charset")
+  final def charset = ReactAttr[String]("charset")
 
   /**
     * When the value of the type attribute is radio or checkbox, the presence of
     * this Boolean attribute indicates that the control is selected by default;
     * otherwise it is ignored.
     */
-  final lazy val checked = ReactAttr[Boolean]("checked")
+  final def checked = ReactAttr[Boolean]("checked")
 
-  final lazy val citeAttr = ReactAttr("cite")
+  final def citeAttr = ReactAttr("cite")
 
-  final lazy val classID = ReactAttr("classID")
+  final def classID = ReactAttr("classID")
 
-  final lazy val colSpan = ReactAttr[Int]("colSpan")
+  final def colSpan = ReactAttr[Int]("colSpan")
 
   final def `class`  : Attr[String] = Attr.ClassName
   final def className: Attr[String] = Attr.ClassName
@@ -309,34 +309,34 @@ trait HtmlAttrs {
     * is specified, it must be a positive integer. If it is not specified, the
     * default value is 20 (HTML5).
     */
-  final lazy val cols = ReactAttr("cols")
+  final def cols = ReactAttr("cols")
   /**
     * This attribute gives the value associated with the http-equiv or name
     * attribute, depending of the context.
     */
-  final lazy val contentAttr = ReactAttr("content")
+  final def contentAttr = ReactAttr("content")
 
-  final lazy val contentEditable = ReactAttr("contentEditable")
+  final def contentEditable = ReactAttr("contentEditable")
 
-  final lazy val contextMenu = ReactAttr("contextMenu")
+  final def contextMenu = ReactAttr("contextMenu")
 
-  final lazy val controls = ReactAttr("controls")
+  final def controls = ReactAttr("controls")
 
-  final lazy val coords = ReactAttr("coords")
+  final def coords = ReactAttr("coords")
 
-  final lazy val crossOrigin = ReactAttr("crossOrigin")
+  final def crossOrigin = ReactAttr("crossOrigin")
 
-  final lazy val dangerouslySetInnerHtml = ReactAttr[InnerHtmlAttr]("dangerouslySetInnerHTML")
+  final def dangerouslySetInnerHtml = ReactAttr[InnerHtmlAttr]("dangerouslySetInnerHTML")
 
-  final lazy val dateTime = ReactAttr("dateTime")
+  final def dateTime = ReactAttr("dateTime")
 
-  final lazy val default = ReactAttr("default")
+  final def default = ReactAttr("default")
 
-  final lazy val defaultValue = ReactAttr("defaultValue")
+  final def defaultValue = ReactAttr("defaultValue")
 
-  final lazy val defer = ReactAttr("defer")
+  final def defer = ReactAttr("defer")
 
-  final lazy val dir = ReactAttr("dir")
+  final def dir = ReactAttr("dir")
 
   /**
     * This Boolean attribute indicates that the form control is not available for
@@ -346,40 +346,40 @@ trait HtmlAttrs {
     *
     * This attribute is ignored if the value of the type attribute is hidden.
     */
-  final lazy val disabled = ReactAttr[Boolean]("disabled")
+  final def disabled = ReactAttr[Boolean]("disabled")
 
-  final lazy val download = ReactAttr("download")
+  final def download = ReactAttr("download")
 
-  final lazy val draggable = ReactAttr[Boolean]("draggable")
+  final def draggable = ReactAttr[Boolean]("draggable")
 
-  final lazy val encType = ReactAttr("encType")
+  final def encType = ReactAttr("encType")
 
   /**
     * Describes elements which belongs to this one. Used on labels and output
     * elements.
     */
-  final lazy val `for` = ReactAttr("htmlFor")
+  final def `for` = ReactAttr("htmlFor")
 
-  final lazy val formAction = ReactAttr("formAction")
+  final def formAction = ReactAttr("formAction")
 
-  final lazy val formEncType = ReactAttr("formEncType")
+  final def formEncType = ReactAttr("formEncType")
 
-  final lazy val formMethod = ReactAttr("formMethod")
+  final def formMethod = ReactAttr("formMethod")
 
-  final lazy val formNoValidate = ReactAttr("formNoValidate")
+  final def formNoValidate = ReactAttr("formNoValidate")
 
-  final lazy val formTarget = ReactAttr("formTarget")
+  final def formTarget = ReactAttr("formTarget")
 
-  final lazy val frameBorder = ReactAttr("frameBorder")
+  final def frameBorder = ReactAttr("frameBorder")
 
-  final lazy val headers = ReactAttr("headers")
+  final def headers = ReactAttr("headers")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final lazy val high = ReactAttr("high")
+  final def high = ReactAttr("high")
 
   /**
     * This is the single required attribute for anchors defining a hypertext
@@ -390,11 +390,11 @@ trait HtmlAttrs {
     * supported by the browser. For example, file, ftp, and mailto work in most
     * user agents.
     */
-  final lazy val href = ReactAttr[String]("href")
+  final def href = ReactAttr[String]("href")
 
-  final lazy val hrefLang = ReactAttr("hrefLang")
+  final def hrefLang = ReactAttr("hrefLang")
 
-  final lazy val htmlFor = ReactAttr("htmlFor")
+  final def htmlFor = ReactAttr("htmlFor")
 
   /**
     * This enumerated attribute defines the pragma that can alter servers and
@@ -407,46 +407,46 @@ trait HtmlAttrs {
     * - refresh
     * - set-cookie
     */
-  final lazy val httpEquiv = ReactAttr("httpEquiv")
+  final def httpEquiv = ReactAttr("httpEquiv")
 
-  final lazy val icon = ReactAttr("icon")
+  final def icon = ReactAttr("icon")
 
   /**
     * This attribute defines a unique identifier (ID) which must be unique in
     * the whole document. Its purpose is to identify the element when linking
     * (using a fragment identifier), scripting, or styling (with CSS).
     */
-  final lazy val id = ReactAttr("id")
+  final def id = ReactAttr("id")
 
   /**
     * The inputmode attribute tells the browser on devices with dynamic keyboards which keyboard to display. The
     * inputmode attribute applies to the text, search and password input types as well as &lt;textarea&gt;.
     */
-  final lazy val inputMode = ReactAttr("inputMode")
+  final def inputMode = ReactAttr("inputMode")
 
   /**
     * http://www.w3.org/TR/2015/CR-SRI-20151112/#the-integrity-attribute
     */
-  final lazy val integrity = ReactAttr("integrity")
+  final def integrity = ReactAttr("integrity")
 
-  final lazy val is = ReactAttr("is")
+  final def is = ReactAttr("is")
 
-  final lazy val itemProp = ReactAttr("itemProp")
+  final def itemProp = ReactAttr("itemProp")
 
-  final lazy val itemScope = ReactAttr("itemScope")
+  final def itemScope = ReactAttr("itemScope")
 
-  final lazy val itemType = ReactAttr("itemType")
+  final def itemType = ReactAttr("itemType")
 
   /** React key */
   final val key = ReactAttr.Key
 
   /** For use in &lt;keygen&gt; */
-  final lazy val keyParams = ReactAttr("keyParams")
+  final def keyParams = ReactAttr("keyParams")
 
   /** &lt;keygen&gt;: Specifies the type of key generated. */
-  final lazy val keyType = ReactAttr("keyType")
+  final def keyType = ReactAttr("keyType")
 
-  final lazy val kind = ReactAttr("kind")
+  final def kind = ReactAttr("kind")
 
   /**
     * This attribute participates in defining the language of the element, the
@@ -457,33 +457,33 @@ trait HtmlAttrs {
     * to unknown; if the tag content is not valid, regarding to BCP47, it is set
     * to invalid.
     */
-  final lazy val lang = ReactAttr[String]("lang")
+  final def lang = ReactAttr[String]("lang")
 
-  final lazy val list = ReactAttr("list")
+  final def list = ReactAttr("list")
 
-  final lazy val loop = ReactAttr("loop")
-
-  /**
-    * For use in &lt;meter&gt; tags.
-    *
-    * @see https://css-tricks.com/html5-meter-element/
-    */
-  final lazy val low = ReactAttr("low")
-
-  final lazy val manifest = ReactAttr("manifest")
-
-  final lazy val marginHeight = ReactAttr("marginHeight")
-
-  final lazy val marginWidth = ReactAttr("marginWidth")
+  final def loop = ReactAttr("loop")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final lazy val max = ReactAttr("max")
+  final def low = ReactAttr("low")
 
-  final lazy val maxLength = ReactAttr("maxLength")
+  final def manifest = ReactAttr("manifest")
+
+  final def marginHeight = ReactAttr("marginHeight")
+
+  final def marginWidth = ReactAttr("marginWidth")
+
+  /**
+    * For use in &lt;meter&gt; tags.
+    *
+    * @see https://css-tricks.com/html5-meter-element/
+    */
+  final def max = ReactAttr("max")
+
+  final def maxLength = ReactAttr("maxLength")
 
   /**
     * This attribute specifies the media which the linked resource applies to.
@@ -493,9 +493,9 @@ trait HtmlAttrs {
     *
     * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link#attr-media
     */
-  final lazy val media = ReactAttr("media")
+  final def media = ReactAttr("media")
 
-  final lazy val mediaGroup = ReactAttr("mediaGroup")
+  final def mediaGroup = ReactAttr("mediaGroup")
 
   /**
     * The HTTP method that the browser uses to submit the form. Possible values are:
@@ -511,20 +511,20 @@ trait HtmlAttrs {
     * This value can be overridden by a formmethod attribute on a button or
     * input element.
     */
-  final lazy val method = ReactAttr("method")
+  final def method = ReactAttr("method")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final lazy val min = ReactAttr("min")
+  final def min = ReactAttr("min")
 
-  final lazy val minLength = ReactAttr("minLength")
+  final def minLength = ReactAttr("minLength")
 
-  final lazy val multiple = ReactAttr("multiple")
+  final def multiple = ReactAttr("multiple")
 
-  final lazy val muted = ReactAttr("muted")
+  final def muted = ReactAttr("muted")
 
   /**
     * On form elements (input etc.):
@@ -536,43 +536,43 @@ trait HtmlAttrs {
     * This document-level metadata name is associated with a value, contained by
     * the content attribute.
     */
-  final lazy val name = ReactAttr("name")
+  final def name = ReactAttr("name")
 
-  final lazy val noValidate = ReactAttr("noValidate")
+  final def noValidate = ReactAttr("noValidate")
 
   /** For &lt;script&gt; and &lt;style&gt;elements. */
-  final lazy val nonce = ReactAttr("nonce")
+  final def nonce = ReactAttr("nonce")
 
-  final lazy val onAbort = Attr.Event.base("onAbort")
+  final def onAbort = Attr.Event.base("onAbort")
 
-  final lazy val onAbortCapture = Attr.Event.base("onAbortCapture")
+  final def onAbortCapture = Attr.Event.base("onAbortCapture")
 
-  final lazy val onAnimationEnd = Attr.Event.animation("onAnimationEnd")
+  final def onAnimationEnd = Attr.Event.animation("onAnimationEnd")
 
-  final lazy val onAnimationEndCapture = Attr.Event.animation("onAnimationEndCapture")
+  final def onAnimationEndCapture = Attr.Event.animation("onAnimationEndCapture")
 
-  final lazy val onAnimationIteration = Attr.Event.animation("onAnimationIteration")
+  final def onAnimationIteration = Attr.Event.animation("onAnimationIteration")
 
-  final lazy val onAnimationIterationCapture = Attr.Event.animation("onAnimationIterationCapture")
+  final def onAnimationIterationCapture = Attr.Event.animation("onAnimationIterationCapture")
 
-  final lazy val onAnimationStart = Attr.Event.animation("onAnimationStart")
+  final def onAnimationStart = Attr.Event.animation("onAnimationStart")
 
-  final lazy val onAnimationStartCapture = Attr.Event.animation("onAnimationStartCapture")
+  final def onAnimationStartCapture = Attr.Event.animation("onAnimationStartCapture")
 
-  final lazy val onBeforeInput = Attr.Event.base("onBeforeInput")
+  final def onBeforeInput = Attr.Event.base("onBeforeInput")
 
   /**
     * The blur event is raised when an element loses focus.
     */
-  final lazy val onBlur = Attr.Event.focus("onBlur")
+  final def onBlur = Attr.Event.focus("onBlur")
 
-  final lazy val onBlurCapture = Attr.Event.focus("onBlurCapture")
+  final def onBlurCapture = Attr.Event.focus("onBlurCapture")
 
-  final lazy val onCanPlay = Attr.Event.base("onCanPlay")
+  final def onCanPlay = Attr.Event.base("onCanPlay")
 
-  final lazy val onCanPlayCapture = Attr.Event.base("onCanPlayCapture")
+  final def onCanPlayCapture = Attr.Event.base("onCanPlayCapture")
 
-  final lazy val onCanPlayThrough = Attr.Event.base("onCanPlayThrough")
+  final def onCanPlayThrough = Attr.Event.base("onCanPlayThrough")
 
   /**
     * The change event is fired for input, select, and textarea elements
@@ -588,23 +588,23 @@ trait HtmlAttrs {
 
   final val onClickCapture = Attr.Event.mouse("onClickCapture")
 
-  final lazy val onCompositionEnd = Attr.Event.composition("onCompositionEnd")
+  final def onCompositionEnd = Attr.Event.composition("onCompositionEnd")
 
-  final lazy val onCompositionStart = Attr.Event.composition("onCompositionStart")
+  final def onCompositionStart = Attr.Event.composition("onCompositionStart")
 
-  final lazy val onCompositionUpdate = Attr.Event.composition("onCompositionUpdate")
+  final def onCompositionUpdate = Attr.Event.composition("onCompositionUpdate")
 
-  final lazy val onContextMenu = Attr.Event.mouse("onContextMenu")
+  final def onContextMenu = Attr.Event.mouse("onContextMenu")
 
-  final lazy val onContextMenuCapture = Attr.Event.mouse("onContextMenuCapture")
+  final def onContextMenuCapture = Attr.Event.mouse("onContextMenuCapture")
 
-  final lazy val onCopy = Attr.Event.clipboard("onCopy")
+  final def onCopy = Attr.Event.clipboard("onCopy")
 
-  final lazy val onCopyCapture = Attr.Event.clipboard("onCopyCapture")
+  final def onCopyCapture = Attr.Event.clipboard("onCopyCapture")
 
-  final lazy val onCut = Attr.Event.clipboard("onCut")
+  final def onCut = Attr.Event.clipboard("onCut")
 
-  final lazy val onCutCapture = Attr.Event.clipboard("onCutCapture")
+  final def onCutCapture = Attr.Event.clipboard("onCutCapture")
 
   /** React alias for [[onDoubleClick]] */
   final def onDblClick = onDoubleClick
@@ -613,57 +613,57 @@ trait HtmlAttrs {
     * The dblclick event is fired when a pointing device button (usually a
     * mouse button) is clicked twice on a single element.
     */
-  final lazy val onDoubleClick = Attr.Event.mouse("onDoubleClick")
+  final def onDoubleClick = Attr.Event.mouse("onDoubleClick")
 
-  final lazy val onDoubleClickCapture = Attr.Event.mouse("onDoubleClickCapture")
+  final def onDoubleClickCapture = Attr.Event.mouse("onDoubleClickCapture")
 
-  final lazy val onDrag = Attr.Event.drag("onDrag")
+  final def onDrag = Attr.Event.drag("onDrag")
 
-  final lazy val onDragCapture = Attr.Event.drag("onDragCapture")
+  final def onDragCapture = Attr.Event.drag("onDragCapture")
 
-  final lazy val onDragEnd = Attr.Event.drag("onDragEnd")
+  final def onDragEnd = Attr.Event.drag("onDragEnd")
 
-  final lazy val onDragEndCapture = Attr.Event.drag("onDragEndCapture")
+  final def onDragEndCapture = Attr.Event.drag("onDragEndCapture")
 
-  final lazy val onDragEnter = Attr.Event.drag("onDragEnter")
+  final def onDragEnter = Attr.Event.drag("onDragEnter")
 
-  final lazy val onDragEnterCapture = Attr.Event.drag("onDragEnterCapture")
+  final def onDragEnterCapture = Attr.Event.drag("onDragEnterCapture")
 
-  final lazy val onDragExit = Attr.Event.drag("onDragExit")
+  final def onDragExit = Attr.Event.drag("onDragExit")
 
-  final lazy val onDragExitCapture = Attr.Event.drag("onDragExitCapture")
+  final def onDragExitCapture = Attr.Event.drag("onDragExitCapture")
 
-  final lazy val onDragLeave = Attr.Event.drag("onDragLeave")
+  final def onDragLeave = Attr.Event.drag("onDragLeave")
 
-  final lazy val onDragLeaveCapture = Attr.Event.drag("onDragLeaveCapture")
+  final def onDragLeaveCapture = Attr.Event.drag("onDragLeaveCapture")
 
-  final lazy val onDragOver = Attr.Event.drag("onDragOver")
+  final def onDragOver = Attr.Event.drag("onDragOver")
 
-  final lazy val onDragOverCapture = Attr.Event.drag("onDragOverCapture")
+  final def onDragOverCapture = Attr.Event.drag("onDragOverCapture")
 
-  final lazy val onDragStart = Attr.Event.drag("onDragStart")
+  final def onDragStart = Attr.Event.drag("onDragStart")
 
-  final lazy val onDragStartCapture = Attr.Event.drag("onDragStartCapture")
+  final def onDragStartCapture = Attr.Event.drag("onDragStartCapture")
 
-  final lazy val onDrop = Attr.Event.drag("onDrop")
+  final def onDrop = Attr.Event.drag("onDrop")
 
-  final lazy val onDropCapture = Attr.Event.drag("onDropCapture")
+  final def onDropCapture = Attr.Event.drag("onDropCapture")
 
-  final lazy val onDurationChange = Attr.Event.base("onDurationChange")
+  final def onDurationChange = Attr.Event.base("onDurationChange")
 
-  final lazy val onDurationChangeCapture = Attr.Event.base("onDurationChangeCapture")
+  final def onDurationChangeCapture = Attr.Event.base("onDurationChangeCapture")
 
-  final lazy val onEmptied = Attr.Event.base("onEmptied")
+  final def onEmptied = Attr.Event.base("onEmptied")
 
-  final lazy val onEmptiedCapture = Attr.Event.base("onEmptiedCapture")
+  final def onEmptiedCapture = Attr.Event.base("onEmptiedCapture")
 
-  final lazy val onEncrypted = Attr.Event.base("onEncrypted")
+  final def onEncrypted = Attr.Event.base("onEncrypted")
 
-  final lazy val onEncryptedCapture = Attr.Event.base("onEncryptedCapture")
+  final def onEncryptedCapture = Attr.Event.base("onEncryptedCapture")
 
-  final lazy val onEnded = Attr.Event.base("onEnded")
+  final def onEnded = Attr.Event.base("onEnded")
 
-  final lazy val onEndedCapture = Attr.Event.base("onEndedCapture")
+  final def onEndedCapture = Attr.Event.base("onEndedCapture")
 
   /**
     * Type: script code
@@ -672,31 +672,31 @@ trait HtmlAttrs {
     *
     * https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/image#a-onerror
     */
-  final lazy val onError = Attr.Event.base("onError")
+  final def onError = Attr.Event.base("onError")
 
-  final lazy val onErrorCapture = Attr.Event.base("onErrorCapture")
+  final def onErrorCapture = Attr.Event.base("onErrorCapture")
 
   /**
     * The focus event is raised when the user sets focus on the given element.
     */
-  final lazy val onFocus = Attr.Event.focus("onFocus")
+  final def onFocus = Attr.Event.focus("onFocus")
 
-  final lazy val onFocusCapture = Attr.Event.focus("onFocusCapture")
+  final def onFocusCapture = Attr.Event.focus("onFocusCapture")
 
-  final lazy val onInput = Attr.Event.base("onInput")
+  final def onInput = Attr.Event.base("onInput")
 
-  final lazy val onInputCapture = Attr.Event.base("onInputCapture")
+  final def onInputCapture = Attr.Event.base("onInputCapture")
 
-  final lazy val onInvalid = Attr.Event.base("onInvalid")
+  final def onInvalid = Attr.Event.base("onInvalid")
 
-  final lazy val onInvalidCapture = Attr.Event.base("onInvalidCapture")
+  final def onInvalidCapture = Attr.Event.base("onInvalidCapture")
 
   /**
     * The keydown event is raised when the user presses a keyboard key.
     */
-  final lazy val onKeyDown = Attr.Event.keyboard("onKeyDown")
+  final def onKeyDown = Attr.Event.keyboard("onKeyDown")
 
-  final lazy val onKeyDownCapture = Attr.Event.keyboard("onKeyDownCapture")
+  final def onKeyDownCapture = Attr.Event.keyboard("onKeyDownCapture")
 
   /**
     * The keypress event should be raised when the user presses a key on the keyboard.
@@ -705,216 +705,216 @@ trait HtmlAttrs {
     * Webkit-based browsers (Google Chrome and Safari, for example) do not fire keypress events on the arrow keys.
     * Firefox does not fire keypress events on modifier keys like SHIFT.
     */
-  final lazy val onKeyPress = Attr.Event.keyboard("onKeyPress")
+  final def onKeyPress = Attr.Event.keyboard("onKeyPress")
 
-  final lazy val onKeyPressCapture = Attr.Event.keyboard("onKeyPressCapture")
+  final def onKeyPressCapture = Attr.Event.keyboard("onKeyPressCapture")
 
   /**
     * The keyup event is raised when the user releases a key that's been pressed.
     */
-  final lazy val onKeyUp = Attr.Event.keyboard("onKeyUp")
+  final def onKeyUp = Attr.Event.keyboard("onKeyUp")
 
-  final lazy val onKeyUpCapture = Attr.Event.keyboard("onKeyUpCapture")
+  final def onKeyUpCapture = Attr.Event.keyboard("onKeyUpCapture")
 
   /**
     * The load event fires at the end of the document loading process. At this
     * point, all of the objects in the document are in the DOM, and all the
     * images and sub-frames have finished loading.
     */
-  final lazy val onLoad = Attr.Event.base("onLoad")
+  final def onLoad = Attr.Event.base("onLoad")
 
-  final lazy val onLoadCapture = Attr.Event.base("onLoadCapture")
+  final def onLoadCapture = Attr.Event.base("onLoadCapture")
 
-  final lazy val onLoadStart = Attr.Event.base("onLoadStart")
+  final def onLoadStart = Attr.Event.base("onLoadStart")
 
-  final lazy val onLoadStartCapture = Attr.Event.base("onLoadStartCapture")
+  final def onLoadStartCapture = Attr.Event.base("onLoadStartCapture")
 
-  final lazy val onLoadedData = Attr.Event.base("onLoadedData")
+  final def onLoadedData = Attr.Event.base("onLoadedData")
 
-  final lazy val onLoadedDataCapture = Attr.Event.base("onLoadedDataCapture")
+  final def onLoadedDataCapture = Attr.Event.base("onLoadedDataCapture")
 
-  final lazy val onLoadedMetadata = Attr.Event.base("onLoadedMetadata")
+  final def onLoadedMetadata = Attr.Event.base("onLoadedMetadata")
 
-  final lazy val onLoadedMetadataCapture = Attr.Event.base("onLoadedMetadataCapture")
+  final def onLoadedMetadataCapture = Attr.Event.base("onLoadedMetadataCapture")
 
   /**
     * The mousedown event is raised when the user presses the mouse button.
     */
-  final lazy val onMouseDown = Attr.Event.mouse("onMouseDown")
+  final def onMouseDown = Attr.Event.mouse("onMouseDown")
 
-  final lazy val onMouseDownCapture = Attr.Event.mouse("onMouseDownCapture")
+  final def onMouseDownCapture = Attr.Event.mouse("onMouseDownCapture")
 
   /**
     * The mouseenter event is fired when a pointing device (usually a mouse)
     * is moved over the element that has the listener attached.
     */
-  final lazy val onMouseEnter = Attr.Event.mouse("onMouseEnter")
+  final def onMouseEnter = Attr.Event.mouse("onMouseEnter")
 
   /**
     * The mouseleave event is fired when a pointing device (usually a mouse)
     * is moved off the element that has the listener attached.
     */
-  final lazy val onMouseLeave = Attr.Event.mouse("onMouseLeave")
+  final def onMouseLeave = Attr.Event.mouse("onMouseLeave")
 
   /**
     * The mousemove event is raised when the user moves the mouse.
     */
-  final lazy val onMouseMove = Attr.Event.mouse("onMouseMove")
+  final def onMouseMove = Attr.Event.mouse("onMouseMove")
 
-  final lazy val onMouseMoveCapture = Attr.Event.mouse("onMouseMoveCapture")
+  final def onMouseMoveCapture = Attr.Event.mouse("onMouseMoveCapture")
 
   /**
     * The mouseout event is raised when the mouse leaves an element (e.g, when
     * the mouse moves off of an image in the web page, the mouseout event is
     * raised for that image element).
     */
-  final lazy val onMouseOut = Attr.Event.mouse("onMouseOut")
+  final def onMouseOut = Attr.Event.mouse("onMouseOut")
 
-  final lazy val onMouseOutCapture = Attr.Event.mouse("onMouseOutCapture")
+  final def onMouseOutCapture = Attr.Event.mouse("onMouseOutCapture")
 
   /**
     * The mouseover event is raised when the user moves the mouse over a
     * particular element.
     */
-  final lazy val onMouseOver = Attr.Event.mouse("onMouseOver")
+  final def onMouseOver = Attr.Event.mouse("onMouseOver")
 
-  final lazy val onMouseOverCapture = Attr.Event.mouse("onMouseOverCapture")
+  final def onMouseOverCapture = Attr.Event.mouse("onMouseOverCapture")
 
   /**
     * The mouseup event is raised when the user releases the mouse button.
     */
-  final lazy val onMouseUp = Attr.Event.mouse("onMouseUp")
+  final def onMouseUp = Attr.Event.mouse("onMouseUp")
 
-  final lazy val onMouseUpCapture = Attr.Event.mouse("onMouseUpCapture")
+  final def onMouseUpCapture = Attr.Event.mouse("onMouseUpCapture")
 
-  final lazy val onPaste = Attr.Event.clipboard("onPaste")
+  final def onPaste = Attr.Event.clipboard("onPaste")
 
-  final lazy val onPasteCapture = Attr.Event.clipboard("onPasteCapture")
+  final def onPasteCapture = Attr.Event.clipboard("onPasteCapture")
 
-  final lazy val onPause = Attr.Event.base("onPause")
+  final def onPause = Attr.Event.base("onPause")
 
-  final lazy val onPauseCapture = Attr.Event.base("onPauseCapture")
+  final def onPauseCapture = Attr.Event.base("onPauseCapture")
 
-  final lazy val onPlay = Attr.Event.base("onPlay")
+  final def onPlay = Attr.Event.base("onPlay")
 
-  final lazy val onPlayCapture = Attr.Event.base("onPlayCapture")
+  final def onPlayCapture = Attr.Event.base("onPlayCapture")
 
-  final lazy val onPlaying = Attr.Event.base("onPlaying")
+  final def onPlaying = Attr.Event.base("onPlaying")
 
-  final lazy val onPlayingCapture = Attr.Event.base("onPlayingCapture")
+  final def onPlayingCapture = Attr.Event.base("onPlayingCapture")
 
-  final lazy val onProgress = Attr.Event.base("onProgress")
+  final def onProgress = Attr.Event.base("onProgress")
 
-  final lazy val onProgressCapture = Attr.Event.base("onProgressCapture")
+  final def onProgressCapture = Attr.Event.base("onProgressCapture")
 
-  final lazy val onRateChange = Attr.Event.base("onRateChange")
+  final def onRateChange = Attr.Event.base("onRateChange")
 
-  final lazy val onRateChangeCapture = Attr.Event.base("onRateChangeCapture")
+  final def onRateChangeCapture = Attr.Event.base("onRateChangeCapture")
 
   /**
     * The reset event is fired when a form is reset.
     */
-  final lazy val onReset = Attr.Event.base("onReset")
+  final def onReset = Attr.Event.base("onReset")
 
-  final lazy val onResetCapture = Attr.Event.base("onResetCapture")
+  final def onResetCapture = Attr.Event.base("onResetCapture")
 
   /**
     * Specifies the function to be called when the window is scrolled.
     */
-  final lazy val onScroll = Attr.Event.ui("onScroll")
+  final def onScroll = Attr.Event.ui("onScroll")
 
-  final lazy val onScrollCapture = Attr.Event.ui("onScrollCapture")
+  final def onScrollCapture = Attr.Event.ui("onScrollCapture")
 
-  final lazy val onSeeked = Attr.Event.base("onSeeked")
+  final def onSeeked = Attr.Event.base("onSeeked")
 
-  final lazy val onSeekedCapture = Attr.Event.base("onSeekedCapture")
+  final def onSeekedCapture = Attr.Event.base("onSeekedCapture")
 
-  final lazy val onSeeking = Attr.Event.base("onSeeking")
+  final def onSeeking = Attr.Event.base("onSeeking")
 
-  final lazy val onSeekingCapture = Attr.Event.base("onSeekingCapture")
+  final def onSeekingCapture = Attr.Event.base("onSeekingCapture")
 
   /**
     * The select event only fires when text inside a text input or textarea is
     * selected. The event is fired after the text has been selected.
     */
-  final lazy val onSelect = Attr.Event.base("onSelect")
+  final def onSelect = Attr.Event.base("onSelect")
 
-  final lazy val onStalled = Attr.Event.base("onStalled")
+  final def onStalled = Attr.Event.base("onStalled")
 
-  final lazy val onStalledCapture = Attr.Event.base("onStalledCapture")
+  final def onStalledCapture = Attr.Event.base("onStalledCapture")
 
   /**
     * The submit event is raised when the user clicks a submit button in a form
     * (<input type="submit"/>).
     */
-  final lazy val onSubmit = Attr.Event.base("onSubmit")
+  final def onSubmit = Attr.Event.base("onSubmit")
 
-  final lazy val onSubmitCapture = Attr.Event.base("onSubmitCapture")
+  final def onSubmitCapture = Attr.Event.base("onSubmitCapture")
 
-  final lazy val onSuspend = Attr.Event.base("onSuspend")
+  final def onSuspend = Attr.Event.base("onSuspend")
 
-  final lazy val onSuspendCapture = Attr.Event.base("onSuspendCapture")
+  final def onSuspendCapture = Attr.Event.base("onSuspendCapture")
 
-  final lazy val onTimeUpdate = Attr.Event.base("onTimeUpdate")
+  final def onTimeUpdate = Attr.Event.base("onTimeUpdate")
 
-  final lazy val onTimeUpdateCapture = Attr.Event.base("onTimeUpdateCapture")
+  final def onTimeUpdateCapture = Attr.Event.base("onTimeUpdateCapture")
 
   /**
     * Event indicating that the touch point has been canceled or disrupted.
     *
     * For example, when popup menu is shown.
     */
-  final lazy val onTouchCancel = Attr.Event.touch("onTouchCancel")
+  final def onTouchCancel = Attr.Event.touch("onTouchCancel")
 
-  final lazy val onTouchCancelCapture = Attr.Event.touch("onTouchCancelCapture")
+  final def onTouchCancelCapture = Attr.Event.touch("onTouchCancelCapture")
 
   /**
     * Event indicating that the touch point does not exist any more.
     *
     * For example, whn you release your finger.
     */
-  final lazy val onTouchEnd = Attr.Event.touch("onTouchEnd")
+  final def onTouchEnd = Attr.Event.touch("onTouchEnd")
 
-  final lazy val onTouchEndCapture = Attr.Event.touch("onTouchEndCapture")
+  final def onTouchEndCapture = Attr.Event.touch("onTouchEndCapture")
 
   /**
     * Event indicating that the touch point has moved along the plane.
     */
-  final lazy val onTouchMove = Attr.Event.touch("onTouchMove")
+  final def onTouchMove = Attr.Event.touch("onTouchMove")
 
-  final lazy val onTouchMoveCapture = Attr.Event.touch("onTouchMoveCapture")
+  final def onTouchMoveCapture = Attr.Event.touch("onTouchMoveCapture")
 
   /**
     * Event indicating that the user has touched the plane.
     */
-  final lazy val onTouchStart = Attr.Event.touch("onTouchStart")
+  final def onTouchStart = Attr.Event.touch("onTouchStart")
 
-  final lazy val onTouchStartCapture = Attr.Event.touch("onTouchStartCapture")
+  final def onTouchStartCapture = Attr.Event.touch("onTouchStartCapture")
 
-  final lazy val onTransitionEnd = Attr.Event.transition("onTransitionEnd")
+  final def onTransitionEnd = Attr.Event.transition("onTransitionEnd")
 
-  final lazy val onTransitionEndCapture = Attr.Event.transition("onTransitionEndCapture")
+  final def onTransitionEndCapture = Attr.Event.transition("onTransitionEndCapture")
 
-  final lazy val onVolumeChange = Attr.Event.base("onVolumeChange")
+  final def onVolumeChange = Attr.Event.base("onVolumeChange")
 
-  final lazy val onVolumeChangeCapture = Attr.Event.base("onVolumeChangeCapture")
+  final def onVolumeChangeCapture = Attr.Event.base("onVolumeChangeCapture")
 
-  final lazy val onWaiting = Attr.Event.base("onWaiting")
+  final def onWaiting = Attr.Event.base("onWaiting")
 
-  final lazy val onWaitingCapture = Attr.Event.base("onWaitingCapture")
+  final def onWaitingCapture = Attr.Event.base("onWaitingCapture")
 
-  final lazy val onWheel = Attr.Event.wheel("onWheel")
+  final def onWheel = Attr.Event.wheel("onWheel")
 
-  final lazy val onWheelCapture = Attr.Event.wheel("onWheelCapture")
+  final def onWheelCapture = Attr.Event.wheel("onWheelCapture")
 
-  final lazy val open = ReactAttr("open")
+  final def open = ReactAttr("open")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final lazy val optimum = ReactAttr("optimum")
+  final def optimum = ReactAttr("optimum")
 
   /**
     * A hint to the user of what can be entered in the control. The placeholder
@@ -922,22 +922,22 @@ trait HtmlAttrs {
     * applies when the value of the type attribute is text, search, tel, url or
     * email; otherwise it is ignored.
     */
-  final lazy val placeholder = ReactAttr("placeholder")
+  final def placeholder = ReactAttr("placeholder")
 
-  final lazy val poster = ReactAttr("poster")
+  final def poster = ReactAttr("poster")
 
-  final lazy val preload = ReactAttr("preload")
+  final def preload = ReactAttr("preload")
 
-  final lazy val profile = ReactAttr("profile")
+  final def profile = ReactAttr("profile")
 
-  final lazy val radioGroup = ReactAttr("radioGroup")
+  final def radioGroup = ReactAttr("radioGroup")
 
   /**
     * This Boolean attribute indicates that the user cannot modify the value of
     * the control. This attribute is ignored if the value of the type attribute
     * is hidden, range, color, checkbox, radio, file, or a button type.
     */
-  final lazy val readOnly = ReactAttr[Boolean]("readOnly")
+  final def readOnly = ReactAttr[Boolean]("readOnly")
 
   /**
     * This attribute names a relationship of the linked document to the current
@@ -947,7 +947,7 @@ trait HtmlAttrs {
     * attribute is set to the URL of an external style sheet to format the page.
     *
     */
-  final lazy val rel = ReactAttr("rel")
+  final def rel = ReactAttr("rel")
 
   /**
     * This attribute specifies that the user must fill in a value before
@@ -955,12 +955,12 @@ trait HtmlAttrs {
     * image, or a button type (submit, reset, or button). The :optional and
     * :required CSS pseudo-classes will be applied to the field as appropriate.
     */
-  final lazy val required = ReactAttr[Boolean]("required")
+  final def required = ReactAttr[Boolean]("required")
 
-  final lazy val results = ReactAttr("results")
+  final def results = ReactAttr("results")
 
   /** For &lt;ol&gt; elements. */
-  final lazy val reversed = ReactAttr("reversed")
+  final def reversed = ReactAttr("reversed")
 
   /**
     * The attribute describes the role(s) the current element plays in the
@@ -977,18 +977,18 @@ trait HtmlAttrs {
     *
     * @see http://www.w3.org/TR/role-attribute/#s_role_module_attributes
     */
-  final lazy val role = ReactAttr("role")
+  final def role = ReactAttr("role")
 
-  final lazy val rowSpan = ReactAttr[Int]("rowSpan")
+  final def rowSpan = ReactAttr[Int]("rowSpan")
 
   /**
     * The number of visible text lines for the control.
     */
-  final lazy val rows = ReactAttr[Int]("rows")
+  final def rows = ReactAttr[Int]("rows")
 
-  final lazy val sandbox = ReactAttr("sandbox")
+  final def sandbox = ReactAttr("sandbox")
 
-  final lazy val scope = ReactAttr("scope")
+  final def scope = ReactAttr("scope")
 
   /**
     * For use in &lt;style&gt; tags.
@@ -996,17 +996,17 @@ trait HtmlAttrs {
     * If this attribute is present, then the style applies only to its parent element.
     * If absent, the style applies to the whole document.
     */
-  final lazy val scoped = ReactAttr("scoped")
+  final def scoped = ReactAttr("scoped")
 
-  final lazy val scrolling = ReactAttr("scrolling")
+  final def scrolling = ReactAttr("scrolling")
 
-  final lazy val seamless = ReactAttr("seamless")
+  final def seamless = ReactAttr("seamless")
 
-  final lazy val security = ReactAttr("security")
+  final def security = ReactAttr("security")
 
-  final lazy val selected = ReactAttr("selected")
+  final def selected = ReactAttr("selected")
 
-  final lazy val shape = ReactAttr("shape")
+  final def shape = ReactAttr("shape")
 
   /**
     * The initial size of the control. This value is in pixels unless the value
@@ -1016,15 +1016,15 @@ trait HtmlAttrs {
     * otherwise it is ignored. In addition, the size must be greater than zero.
     * If you don't specify a size, a default value of 20 is used.
     */
-  final lazy val size = ReactAttr[Int]("size")
+  final def size = ReactAttr[Int]("size")
 
-  final lazy val sizes = ReactAttr("sizes")
+  final def sizes = ReactAttr("sizes")
 
   /**
     * This enumerated attribute defines whether the element may be checked for
     * spelling errors.
     */
-  final lazy val spellCheck = ReactAttr("spellCheck")
+  final def spellCheck = ReactAttr("spellCheck")
 
   /**
     * If the value of the type attribute is image, this attribute specifies a URI
@@ -1033,13 +1033,13 @@ trait HtmlAttrs {
     */
   final val src = ReactAttr[String]("src")
 
-  final lazy val srcDoc = ReactAttr("srcDoc")
+  final def srcDoc = ReactAttr("srcDoc")
 
-  final lazy val srcLang = ReactAttr("srcLang")
+  final def srcLang = ReactAttr("srcLang")
 
-  final lazy val srcSet = ReactAttr("srcSet")
+  final def srcSet = ReactAttr("srcSet")
 
-  final lazy val step = ReactAttr("step")
+  final def step = ReactAttr("step")
 
   /**
     * This attribute contains CSS styling declarations to be applied to the
@@ -1053,7 +1053,7 @@ trait HtmlAttrs {
     * The value is actually just `summary`. This is named `summaryAttr` in Scala to avoid a conflict with the
     * &lt;summary&gt; tag in [[all]].
     */
-  final lazy val summaryAttr = ReactAttr("summary")
+  final def summaryAttr = ReactAttr("summary")
 
   /**
     * This integer attribute indicates if the element can take input focus (is
@@ -1073,7 +1073,7 @@ trait HtmlAttrs {
     *
     * An element with a 0 value, an invalid value, or no tabIndex value should be placed after elements with a positive tabIndex in the sequential keyboard navigation order.
     */
-  final lazy val tabIndex = ReactAttr[Int]("tabIndex")
+  final def tabIndex = ReactAttr[Int]("tabIndex")
 
   /**
     * A name or keyword indicating where to display the response that is received
@@ -1148,11 +1148,11 @@ trait HtmlAttrs {
   final val `type` = ReactAttr("type")
 
   /** IE-specific property to prevent user selection */
-  final lazy val unselectable = ReactAttr("unselectable")
+  final def unselectable = ReactAttr("unselectable")
 
   final def untypedRef = ReactAttr.Ref
 
-  final lazy val useMap = ReactAttr("useMap")
+  final def useMap = ReactAttr("useMap")
 
   /**
     * The initial value of the control. This attribute is optional except when
@@ -1160,10 +1160,10 @@ trait HtmlAttrs {
     */
   final val value = ReactAttr("value")
 
-  final lazy val wmode = ReactAttr("wmode")
+  final def wmode = ReactAttr("wmode")
 
   /** &lt;textarea&gt;: Indicates whether the text should be wrapped. */
-  final lazy val wrap = ReactAttr("wrap")
+  final def wrap = ReactAttr("wrap")
 
-  final lazy val xmlns = ReactAttr("xmlns")
+  final def xmlns = ReactAttr("xmlns")
 }
