@@ -21,7 +21,7 @@ object ReactAttrTest extends TestSuite {
   def anyEH: ReactEvent => Callback = _ => callback
   def mouseEH: ReactMouseEvent => Callback = _ => callback
   def focusEH: ReactFocusEvent => Callback = _ => callback
-  def mouseInputEH: ReactMouseEventI => Callback = _ => callback
+  def mouseInputEH: ReactMouseEventFromInput => Callback = _ => callback
 
   override def tests = TestSuite {
 

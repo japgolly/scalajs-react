@@ -134,6 +134,7 @@ Refactored:
   * Listenable.*
   * CompStatee -> StateAccess
   * `_ChangeData` -> `SimEvent._`
+  * events
 
 * Update in ScalaDoc:
   * ReactComponentB

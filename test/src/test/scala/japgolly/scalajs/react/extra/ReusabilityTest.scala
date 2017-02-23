@@ -65,7 +65,7 @@ object ReusabilityTest extends TestSuite {
         <.input(
           ^.`type` := "text",
           ^.value := p.name,
-          ^.onChange ==> ((e: ReactEventI) => p.update(e.target.value)))
+          ^.onChange ==> ((e: ReactEventFromInput) => p.update(e.target.value)))
       }
       .configure(Reusability.shouldComponentUpdate)
       .build

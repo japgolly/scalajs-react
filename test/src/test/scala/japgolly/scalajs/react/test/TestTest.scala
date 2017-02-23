@@ -27,7 +27,7 @@ object TestTest extends TestSuite {
   }).build
 
   lazy val IT = ScalaComponent.build[Unit]("IT").initialState("NIL").renderS(($,s) => {
-    val ch = (e: ReactEventI) => $.setState(e.target.value.toUpperCase)
+    val ch = (e: ReactEventFromInput) => $.setState(e.target.value.toUpperCase)
     <.input.text(^.value := s, ^.onChange ==> ch)
   }).build
 
@@ -146,7 +146,7 @@ object TestTest extends TestSuite {
         var events = Vector.empty[String]
         val C = ScalaComponent.build[Unit]("C").initialState("ey").render(T => {
           def e(s: String) = Callback(events :+= s)
-          def chg(ev: ReactEventI) =
+          def chg(ev: ReactEventFromInput) =
             e("change") >> T.setState(ev.target.value)
           <.input.text(^.value := T.state, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur")).ref(inputRef = _)
         }).build

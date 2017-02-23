@@ -61,7 +61,7 @@ object TriStateCheckbox {
    * Clicking or pressing space = change.
    */
   def eventHandlers(onChange: Callback): TagMod = {
-    def handleKey(e: ReactKeyboardEventH): Callback =
+    def handleKey(e: ReactKeyboardEventFromHtml): Callback =
       CallbackOption.asEventDefault(e,
         CallbackOption.keyCodeSwitch(e) {
           case KeyCode.Space => onChange
