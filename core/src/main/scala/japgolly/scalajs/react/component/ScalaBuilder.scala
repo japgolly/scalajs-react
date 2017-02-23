@@ -444,14 +444,14 @@ object ScalaBuilder {
     sealed trait Base[P, S, B] extends Any {
       def raw: RawMounted[P, S, B]
 
-      final def backend  : B                  = raw.backend
-      final def mounted  : Mounted  [P, S, B] = raw.mounted
-      final def mountedCB: MountedPure[P, S, B] = raw.mountedPure
+      final def backend      : B                    = raw.backend
+      final def mountedImpure: Mounted    [P, S, B] = raw.mounted
+      final def mountedPure  : MountedPure[P, S, B] = raw.mountedPure
     }
 
     sealed trait StateW[P, S, B] extends Any with Base[P, S, B] {
-      final def setState(newState: S, cb: Callback = Callback.empty): Callback = mountedCB.setState(newState, cb)
-      final def modState(mod: S => S, cb: Callback = Callback.empty): Callback = mountedCB.modState(mod, cb)
+      final def setState(newState: S, cb: Callback = Callback.empty): Callback = mountedPure.setState(newState, cb)
+      final def modState(mod: S => S, cb: Callback = Callback.empty): Callback = mountedPure.modState(mod, cb)
 
       @deprecated("Renamed to setStateFn", "1.0.0")
       final def _setState[I](f: I => S, callback: Callback = Callback.empty): I => Callback =
@@ -469,11 +469,11 @@ object ScalaBuilder {
     }
 
     sealed trait StateRW[P, S, B] extends Any with StateW[P, S, B] {
-      final def state: S = mounted.state
+      final def state: S = mountedImpure.state
     }
 
     sealed trait ForceUpdate[P, S, B] extends Any with Base[P, S, B] {
-      final def forceUpdate(cb: Callback = Callback.empty): Callback = mountedCB.forceUpdate(cb)
+      final def forceUpdate(cb: Callback = Callback.empty): Callback = mountedPure.forceUpdate(cb)
     }
 
     // ===================================================================================================================
@@ -485,9 +485,9 @@ object ScalaBuilder {
     final class ComponentDidMount[P, S, B](val raw: RawMounted[P, S, B])
         extends AnyVal with StateRW[P, S, B] with ForceUpdate[P, S, B] {
 
-      def props        : P                = mounted.props
-      def propsChildren: PropsChildren    = mounted.propsChildren
-      def getDOMNode   : dom.Element      = mounted.getDOMNode
+      def props        : P                = mountedImpure.props
+      def propsChildren: PropsChildren    = mountedImpure.propsChildren
+      def getDOMNode   : dom.Element      = mountedImpure.getDOMNode
     }
 
     // ===================================================================================================================
@@ -499,10 +499,10 @@ object ScalaBuilder {
     final class ComponentDidUpdate[P, S, B](val raw: RawMounted[P, S, B], val prevProps: P, val prevState: S)
         extends StateW[P, S, B] with ForceUpdate[P, S, B] {
 
-      def propsChildren: PropsChildren = mounted.propsChildren
-      def currentProps : P             = mounted.props
-      def currentState : S             = mounted.state
-      def getDOMNode   : dom.Element   = mounted.getDOMNode
+      def propsChildren: PropsChildren = mountedImpure.propsChildren
+      def currentProps : P             = mountedImpure.props
+      def currentState : S             = mountedImpure.state
+      def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
     }
 
     // ===================================================================================================================
@@ -514,8 +514,8 @@ object ScalaBuilder {
     final class ComponentWillMount[P, S, B](val raw: RawMounted[P, S, B])
         extends AnyVal with StateRW[P, S, B] {
 
-      def props        : P             = mounted.props
-      def propsChildren: PropsChildren = mounted.propsChildren
+      def props        : P             = mountedImpure.props
+      def propsChildren: PropsChildren = mountedImpure.propsChildren
 
       @deprecated("forceUpdate prohibited within the componentWillMount callback.", "")
       def forceUpdate(prohibited: Nothing = ???): Nothing = ???
@@ -533,10 +533,10 @@ object ScalaBuilder {
     final class ComponentWillUnmount[P, S, B](val raw: RawMounted[P, S, B])
         extends AnyVal with Base[P, S, B] {
 
-      def props        : P             = mounted.props
-      def propsChildren: PropsChildren = mounted.propsChildren
-      def state        : S             = mounted.state
-      def getDOMNode   : dom.Element   = mounted.getDOMNode
+      def props        : P             = mountedImpure.props
+      def propsChildren: PropsChildren = mountedImpure.propsChildren
+      def state        : S             = mountedImpure.state
+      def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
 
       @deprecated("setState prohibited within the componentWillUnmount callback.", "")
       def setState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
@@ -557,9 +557,9 @@ object ScalaBuilder {
     final class ComponentWillReceiveProps[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P)
         extends StateRW[P, S, B] with ForceUpdate[P, S, B] {
 
-      def propsChildren: PropsChildren = mounted.propsChildren
-      def currentProps : P             = mounted.props
-      def getDOMNode   : dom.Element   = mounted.getDOMNode
+      def propsChildren: PropsChildren = mountedImpure.propsChildren
+      def currentProps : P             = mountedImpure.props
+      def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
     }
 
     // ===================================================================================================================
@@ -571,10 +571,10 @@ object ScalaBuilder {
     final class ComponentWillUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
         extends Base[P, S, B] {
 
-      def propsChildren: PropsChildren = mounted.propsChildren
-      def currentProps : P             = mounted.props
-      def currentState : S             = mounted.state
-      def getDOMNode   : dom.Element   = mounted.getDOMNode
+      def propsChildren: PropsChildren = mountedImpure.propsChildren
+      def currentProps : P             = mountedImpure.props
+      def currentState : S             = mountedImpure.state
+      def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
 
       @deprecated("setState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
       def setState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
@@ -595,10 +595,10 @@ object ScalaBuilder {
     final class ShouldComponentUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
         extends Base[P, S, B] {
 
-      def propsChildren: PropsChildren = mounted.propsChildren
-      def currentProps : P             = mounted.props
-      def currentState : S             = mounted.state
-      def getDOMNode   : dom.Element   = mounted.getDOMNode
+      def propsChildren: PropsChildren = mountedImpure.propsChildren
+      def currentProps : P             = mountedImpure.props
+      def currentState : S             = mountedImpure.state
+      def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
 
       def cmpProps(cmp: (P, P) => Boolean): Boolean = cmp(currentProps, nextProps)
       def cmpState(cmp: (S, S) => Boolean): Boolean = cmp(currentState, nextState)
@@ -618,10 +618,10 @@ object ScalaBuilder {
     final class RenderScope[P, S, B](val raw: RawMounted[P, S, B])
         extends StateRW[P, S, B] with ForceUpdate[P, S, B] {
 
-      def isMounted    : Boolean       = mounted.isMounted
-      def props        : P             = mounted.props
-      def propsChildren: PropsChildren = mounted.propsChildren
-      def getDOMNode   : dom.Element   = mounted.getDOMNode
+      def isMounted    : Boolean       = mountedImpure.isMounted
+      def props        : P             = mountedImpure.props
+      def propsChildren: PropsChildren = mountedImpure.propsChildren
+      def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
     }
 
   }

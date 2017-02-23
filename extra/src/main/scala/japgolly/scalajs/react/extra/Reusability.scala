@@ -304,7 +304,7 @@ object Reusability {
     ReusabilityOverlay.install(DefaultReusabilityOverlay.defaults)
 
   final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[P, S, B]) {
-    def mounted       = self.mounted
+    def mounted       = self.mountedImpure
     def backend       = self.backend
     def propsChildren = self.propsChildren
     def currentProps  = self.currentProps

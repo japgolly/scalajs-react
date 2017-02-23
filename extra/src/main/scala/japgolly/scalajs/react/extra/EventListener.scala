@@ -31,8 +31,8 @@ object EventListener {
                                                      target    : ScalaComponent.Mounted[P, S, B] => EventTarget = defaultTarget[P, S, B],
                                                      useCapture: Boolean = false) =
       OnUnmount.install[P, C, S, B] andThen (_.componentDidMount { $ =>
-        val et = target($.mounted)
-        val fe = listener($.mountedCB)
+        val et = target($.mountedImpure)
+        val fe = listener($.mountedPure)
         val f: js.Function1[E, Unit] = (e: E) => fe(e).runNow()
         val add = Callback(et.addEventListener(eventType, f, useCapture))
         val del = Callback(et.removeEventListener(eventType, f, useCapture))

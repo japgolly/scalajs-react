@@ -65,7 +65,7 @@ object MiscTest extends TestSuite {
     'renderScopeZoomState {
       case class SI(s: String, i: Int)
       val C = ScalaComponent.build[SI]("C").initialState_P(p => p).render { $ =>
-        val f = $.mounted.zoomState(_.i)(b => _.copy(i = b))
+        val f = $.mountedImpure.zoomState(_.i)(b => _.copy(i = b))
         <.div($.state.s + "/" + (f.state * 3))
       }.build
       assertRender(C(SI("Me",7)), "<div>Me/21</div>")
@@ -91,7 +91,7 @@ object MiscTest extends TestSuite {
         val C = ScalaComponent.build[Unit]("multiModState")
           .initialState(StrInt("yay", 3))
           .render { $ =>
-            val $$ = $.mountedCB.zoomState(_.int)(b => _.copy(int = b))
+            val $$ = $.mountedPure.zoomState(_.int)(b => _.copy(int = b))
             val add7 = $$.modState(_ + 7)
             val add1 = $$.modState(_ + 1)
             <.button(^.onClick --> (add1 >> add7))
@@ -110,7 +110,7 @@ object MiscTest extends TestSuite {
         val C = ScalaComponent.build[Unit]("multiModState")
           .initialState(StrInt("yay", 3))
           .render { $ =>
-            val $$ = $.mountedCB zoomStateL StrInt.int
+            val $$ = $.mountedPure zoomStateL StrInt.int
             val add7 = $$.modState(_ + 7)
             val add1 = $$.modState(_ + 1)
             <.button(^.onClick --> (add1 >> add7))
@@ -129,7 +129,7 @@ object MiscTest extends TestSuite {
         val C = ScalaComponent.build[Unit]("multiModState")
           .initialState(StrIntWrap(StrInt("yay", 3)))
           .render { $ =>
-            val $$ = $.mountedCB zoomStateL StrIntWrap.strInt zoomStateL StrInt.int
+            val $$ = $.mountedPure zoomStateL StrIntWrap.strInt zoomStateL StrInt.int
             val add7 = $$.modState(_ + 7)
             val add1 = $$.modState(_ + 1)
             <.button(^.onClick --> (add1 >> add7))
