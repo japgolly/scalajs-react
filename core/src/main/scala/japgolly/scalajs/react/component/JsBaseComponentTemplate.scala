@@ -32,10 +32,10 @@ trait JsBaseComponentTemplate[RawComponent <: js.Any] {
       override val raw = rc
       override val ctor = c
       override implicit def ctorPF = pf
-      override def cmapCtorProps[P2](f: P2 => P) = mappedC(this)(f, identity, identity, pf)
-      override def mapUnmounted[U2](f: U => U2) = mappedC(this)(identity, identity, f, pf)
+      override def cmapCtorProps[P2](f: P2 => P) = mappedC(this)(f, identityFn, identityFn, pf)
+      override def mapUnmounted[U2](f: U => U2) = mappedC(this)(identityFn, identityFn, f, pf)
       override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT[P, U] => CT2[P, U])(implicit pf: Profunctor[CT2]) =
-        mappedC(this)(identity, f, identity, pf)
+        mappedC(this)(identityFn, f, identityFn, pf)
     }
 
   protected final def mappedC[
@@ -53,6 +53,6 @@ trait JsBaseComponentTemplate[RawComponent <: js.Any] {
       override def cmapCtorProps[P3](f: P3 => P2) = mappedC(from)(cp compose f, mc, mu, pf)
       override def mapUnmounted[U3](f: U2 => U3) = mappedC(from)(cp, mc, f compose mu, pf)
       override def mapCtorType[CT3[-p, +u] <: CtorType[p, u]](f: CT2[P2, U2] => CT3[P2, U2])(implicit pf3: Profunctor[CT3]) =
-        mappedC(this)(identity, f, identity, pf3)
+        mappedC(this)(identityFn, f, identityFn, pf3)
     }
 }

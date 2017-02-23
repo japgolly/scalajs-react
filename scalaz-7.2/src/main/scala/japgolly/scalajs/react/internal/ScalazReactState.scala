@@ -65,7 +65,7 @@ object ScalazReactState {
     def apply    [S,A](f: S => (S, A))        : ReactS[S,A]    = applyM[Id, S, A](f)
     def callback [S,A](a: A, c: Callback)     : ReactS[S,A]    = callbackM[Id, S, A](a, c)
     def callbacks[S,A](a: A, c: S => Callback): ReactS[S,A]    = callbacksM[Id, S, A](a, c)
-    def get      [S]                          : ReactS[S,S]    = gets(identity[S])
+    def get      [S]                          : ReactS[S,S]    = gets(identityFn[S])
     def mod      [S]  (f: S => S)             : ReactS[S,Unit] = modM[Id, S](f)
     def ret      [S,A](a: A)                  : ReactS[S,A]    = retM[Id, S, A](a)
     def set      [S]  (s: S)                  : ReactS[S,Unit] = mod((_: S) => s)

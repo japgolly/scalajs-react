@@ -42,8 +42,8 @@ object JsFn extends JsBaseComponentTemplate[RAW.ReactFunctionalComponent] {
 
   def rootUnmounted[P <: js.Object](r: RAW.ReactComponentElement): RootUnmounted[P] =
     new RootUnmounted[P] {
-      override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identity)
-      override def mapMounted[M2](f: Mounted => M2) = mappedU(this)(identity, f)
+      override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identityFn)
+      override def mapMounted[M2](f: Mounted => M2) = mappedU(this)(identityFn, f)
 
       override def root          = this
       override val raw           = r

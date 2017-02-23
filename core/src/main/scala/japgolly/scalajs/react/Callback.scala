@@ -6,9 +6,10 @@ import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
-import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
-import js.timers.RawTimers
+import scala.scalajs.js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
+import scala.scalajs.js.timers.RawTimers
 import scala.util.{Try, Failure, Success}
+import japgolly.scalajs.react.internal.identityFn
 import CallbackTo.MapGuard
 
 /**
@@ -109,7 +110,7 @@ object Callback {
         f(a).runNow()))
 
   @inline def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
-    traverse(tca)(identity)
+    traverse(tca)(identityFn)
 
   def traverseO[A](oa: => Option[A])(f: A => Callback): Callback =
     Callback(
@@ -117,7 +118,7 @@ object Callback {
         f(a).runNow()))
 
   @inline def sequenceO[A](oca: => Option[Callback]): Callback =
-    traverseO(oca)(identity)
+    traverseO(oca)(identityFn)
 
   /**
    * Convenience for calling `dom.console.log`.
@@ -231,13 +232,13 @@ object CallbackTo {
 
   @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])
                                                      (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
-    traverse(tca)(identity)
+    traverse(tca)(identityFn)
 
   def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
     CallbackTo(oa.map(f(_).runNow()))
 
   @inline def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
-    traverseO(oca)(identity)
+    traverseO(oca)(identityFn)
 
   /**
    * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
@@ -279,7 +280,7 @@ object CallbackTo {
      * WARNING: This will trigger the execution of the [[Callback]].
      */
     def toFlatFuture(implicit ec: ExecutionContext): Future[A] =
-      c.toFuture.flatMap(identity)
+      c.toFuture.flatMap(identityFn)
   }
 
   @inline implicit def callbackCovariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =

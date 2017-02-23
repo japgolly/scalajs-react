@@ -6,6 +6,7 @@ import scala.reflect.ClassTag
 import scala.util.matching.Regex
 import japgolly.scalajs.react.CallbackTo
 import japgolly.scalajs.react.extra.internal.RouterMacros
+import japgolly.scalajs.react.internal.identityFn
 import japgolly.scalajs.react.vdom.ReactElement
 import RouterConfig.Parsed
 
@@ -60,8 +61,8 @@ object StaticDsl {
       implicit def T3[A, B, C] = Composition[(A, B), C, (A, B, C)](r => (r._1, r._2), _._3, (l, r) => (l._1, l._2, r))
     }
     trait Composition_PriMed extends Composition_PriLow {
-      implicit def _toA[A] = Composition[Unit, A, A](_ => (), identity, (_, a) => a)
-      implicit def Ato_[A] = Composition[A, Unit, A](identity, _ => (), (a, _) => a)
+      implicit def _toA[A] = Composition[Unit, A, A](_ => (), identityFn, (_, a) => a)
+      implicit def Ato_[A] = Composition[A, Unit, A](identityFn, _ => (), (a, _) => a)
     }
     object Composition extends Composition_PriMed {
       implicit def _to_ = Composition[Unit, Unit, Unit](_ => (), _ => (), (_, _) => ())
@@ -471,7 +472,7 @@ final class RouterConfigDsl[Page] {
   val uuid = new RouteB[UUID](uuidRegex,  1, g => Some(UUID fromString g(0)), _.toString)
 
   private def __string1(regex: String): RouteB[String] =
-    new RouteB(regex, 1, g => Some(g(0)), identity)
+    new RouteB(regex, 1, g => Some(g(0)), identityFn)
 
   /**
    * Matches a string.

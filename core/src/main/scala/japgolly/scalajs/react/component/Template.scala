@@ -20,13 +20,13 @@ object Template {
       mapped(f, Lens.id)
 
     override def xmapState[S1](f: S0 => S1)(g: S1 => S0) =
-      mapped(identity, Iso(f)(g).toLens)
+      mapped(identityFn, Iso(f)(g).toLens)
 
     override def zoomState[S1](get: S0 => S1)(set: S1 => S0 => S0) =
-      mapped(identity, Lens(get)(set))
+      mapped(identityFn, Lens(get)(set))
 
     override def withEffect[F1[_]](implicit t: Effect.Trans[F, F1]) =
-      mapped(identity, Lens.id)(ft compose t)
+      mapped(identityFn, Lens.id)(ft compose t)
   }
 
   abstract class MappedMounted[F[_], P2, S2, P1, S1, P0, S0]

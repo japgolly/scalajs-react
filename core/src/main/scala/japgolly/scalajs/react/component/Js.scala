@@ -85,10 +85,10 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
         PropsChildren.fromRawProps(raw.props)
 
       override def mapUnmountedProps[P2](f: P => P2) =
-        mappedU(this)(f, identity)
+        mappedU(this)(f, identityFn)
 
       override def mapMounted[M2](f: M => M2) =
-        mappedU(this)(identity, f)
+        mappedU(this)(identityFn, f)
     }
 
   private def mappedU[P2, M2, P1, M1, P0 <: js.Object, M0]

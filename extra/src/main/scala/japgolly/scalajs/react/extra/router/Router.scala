@@ -4,6 +4,7 @@ import org.scalajs.dom
 import scala.scalajs.js
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.internal.identityFn
 import japgolly.scalajs.react.vdom.ReactElement
 
 object Router {
@@ -123,7 +124,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
       redirectCmd(path, method) >> syncToUrl(path.abs)
 
   private def cmdOrPure[A](e: Either[RouteCmd[A], A]): RouteCmd[A] =
-    e.fold(identity, Return(_))
+    e.fold(identityFn, Return(_))
 
   def interpret[A](r: RouteCmd[A]): CallbackTo[A] = {
     @inline def hs = js.Dynamic.literal()

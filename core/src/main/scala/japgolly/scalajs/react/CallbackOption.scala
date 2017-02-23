@@ -2,8 +2,8 @@ package japgolly.scalajs.react
 
 import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
+import japgolly.scalajs.react.internal.{OptionLike, identityFn}
 import CallbackTo.MapGuard
-import japgolly.scalajs.react.internal.OptionLike
 
 // TODO Document CallbackOption
 
@@ -91,7 +91,7 @@ object CallbackOption {
 
   @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackOption[A]])
                                                      (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
-    traverse(tca)(identity)
+    traverse(tca)(identityFn)
 
   /**
    * NOTE: Technically a proper, lawful traversal should return `CallbackOption[Option[B]]`.
@@ -103,7 +103,7 @@ object CallbackOption {
    * NOTE: Technically a proper, lawful sequence should return `CallbackOption[Option[A]]`.
    */
   @inline def sequenceO[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] =
-    traverseO(oca)(identity)
+    traverseO(oca)(identityFn)
 
   implicit def toCallback(co: CallbackOption[Unit]): Callback =
     co.toCallback
