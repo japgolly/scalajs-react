@@ -6,14 +6,14 @@ trait MonocleExtComponentLowPriorityImplicits {
   implicit final def MonocleReactExt_StateWritableCB[I, S](i: I)(implicit sa: StateAccessor.WriteCB[I, S]) = new MonocleExtComponent.StateWritableCB[I, S](i)(sa)
 }
 trait MonocleExtComponent extends MonocleExtComponentLowPriorityImplicits {
-  implicit final def MonocleReactExt_StateAccess[F[+_], S](m: StateAccess[F, S]) = new MonocleExtComponent.StateAcc[F, S, m.type](m)
+  implicit final def MonocleReactExt_StateAccess[F[_], S](m: StateAccess[F, S]) = new MonocleExtComponent.StateAcc[F, S, m.type](m)
 }
 
 object MonocleExtComponent {
   // Keep this import here so that Lens etc take priority over .internal
   import monocle._
 
-  final class StateAcc[F[+_], S, M <: StateAccess[F, S]](val self: M) extends AnyVal {
+  final class StateAcc[F[_], S, M <: StateAccess[F, S]](val self: M) extends AnyVal {
     def zoomStateL[T](l: Lens[S, T]): self.WithMappedState[T] =
       self.zoomState(l.get)(l.set)
 

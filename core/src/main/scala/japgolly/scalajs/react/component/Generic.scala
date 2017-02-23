@@ -11,7 +11,7 @@ object Generic {
 
   type Component[P, CT[-p, +u] <: CtorType[p, u], U] = BaseComponent[P, CT, U, P, CT, U]
   type Unmounted[P, M]                               = BaseUnmounted[P, M, P, M]
-  type Mounted[F[+_], P, S]                          = BaseMounted[F, P, S, P, S]
+  type Mounted[F[_], P, S]                           = BaseMounted[F, P, S, P, S]
 
   @inline implicit def componentCtorOps[
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
@@ -73,13 +73,13 @@ object Generic {
     val raw: Raw
   }
 
-  trait BaseMounted[F[+ _], P1, S1, P0, S0] extends RawAccessMounted with StateAccess[F, S1] {
+  trait BaseMounted[F[_], P1, S1, P0, S0] extends RawAccessMounted with StateAccess[F, S1] {
     final type Props = P1
 
     type Root <: Mounted[F, P0, S0]
     def root: Root
 
-    override type WithEffect[F2[+_]] <: BaseMounted[F2, P1, S1, P0, S0]
+    override type WithEffect[F2[_]] <: BaseMounted[F2, P1, S1, P0, S0]
     override type WithMappedState[S2] <: BaseMounted[F, P1, S2, P0, S0]
     type WithMappedProps[P2] <: BaseMounted[F, P2, S1, P0, S0]
     def mapProps[P2](f: P1 => P2): WithMappedProps[P2]

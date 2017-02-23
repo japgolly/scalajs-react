@@ -436,7 +436,7 @@ object ScalaBuilder {
 
     // Missing from all below:
     //   - def isMounted: F[Boolean]
-    //   - def withEffect[G[+_]](implicit t: Effect.Trans[F, G]): Props[G, P]
+    //   - def withEffect[G[_]](implicit t: Effect.Trans[F, G]): Props[G, P]
     //   - def mapProps[X](f: P => X): Mounted[F, X, S] =
     //   - def xmapState[X](f: S => X)(g: X => S): Mounted[F, P, X] =
     //   - def zoomState[X](get: S => X)(set: X => S => S): Mounted[F, P, X] =

@@ -51,11 +51,11 @@ object Scala {
 
   // ===================================================================================================================
 
-  type RootMounted[F[+_], P, S, B] = BaseMounted[F, P, S, B, P, S]
+  type RootMounted[F[_], P, S, B] = BaseMounted[F, P, S, B, P, S]
 
-  sealed trait BaseMounted[F[+_], P1, S1, B, P0, S0] extends Generic.BaseMounted[F, P1, S1, P0, S0] {
+  sealed trait BaseMounted[F[_], P1, S1, B, P0, S0] extends Generic.BaseMounted[F, P1, S1, P0, S0] {
     override final type Root = RootMounted[F, P0, S0, B]
-    override final type WithEffect[F2[+_]] = BaseMounted[F2, P1, S1, B, P0, S0]
+    override final type WithEffect[F2[_]]  = BaseMounted[F2, P1, S1, B, P0, S0]
     override final type WithMappedProps[P2] = BaseMounted[F, P2, S1, B, P0, S0]
     override final type WithMappedState[S2] = BaseMounted[F, P1, S2, B, P0, S0]
 
@@ -92,20 +92,20 @@ object Scala {
       override def forceUpdate(callback: Callback = Callback.empty) =
         x.forceUpdate(callback)
 
-      override type Mapped[F1[+ _], P1, S1] = BaseMounted[F1, P1, S1, B, P, S]
-      override def mapped[F[+ _], P1, S1](mp: P => P1, ls: Lens[S, S1])(implicit ft: Effect.Trans[Effect.Id, F]) =
+      override type Mapped[F1[_], P1, S1] = BaseMounted[F1, P1, S1, B, P, S]
+      override def mapped[F[_], P1, S1](mp: P => P1, ls: Lens[S, S1])(implicit ft: Effect.Trans[Effect.Id, F]) =
         mappedM(this)(mp, ls)
     }
 
-  private def mappedM[F[+_], P2, S2, P1, S1, B, P0, S0]
+  private def mappedM[F[_], P2, S2, P1, S1, B, P0, S0]
       (from: BaseMounted[Effect.Id, P1, S1, B, P0, S0])(mp: P1 => P2, ls: Lens[S1, S2])
       (implicit ft: Effect.Trans[Effect.Id, F]): BaseMounted[F, P2, S2, B, P0, S0] =
     new Template.MappedMounted[F, P2, S2, P1, S1, P0, S0](from)(mp, ls) with BaseMounted[F, P2, S2, B, P0, S0] {
       override def root = from.root.withEffect[F]
       override val js = from.js
       override val raw = from.raw
-      override type Mapped[F3[+ _], P3, S3] = BaseMounted[F3, P3, S3, B, P0, S0]
-      override def mapped[F3[+ _], P3, S3](mp: P1 => P3, ls: Lens[S1, S3])(implicit ft: Effect.Trans[Effect.Id, F3]) = mappedM(from)(mp, ls)(ft)
+      override type Mapped[F3[_], P3, S3] = BaseMounted[F3, P3, S3, B, P0, S0]
+      override def mapped[F3[_], P3, S3](mp: P1 => P3, ls: Lens[S1, S3])(implicit ft: Effect.Trans[Effect.Id, F3]) = mappedM(from)(mp, ls)(ft)
     }
 
   def mountRaw[P, S, B](x: RawMounted[P, S, B]): Mounted[P, S, B] =

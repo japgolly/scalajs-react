@@ -43,11 +43,11 @@ object StateAccessor extends StateAccessorImplicits {
 }
 
 trait StateAccessorImplicits2 {
-  protected def castW[I, F[+_], S](w: Write[_, F, _]) = w.asInstanceOf[Write[I, F, S]]
-  protected def castR[I, F[+_], S](w: Read[_, F, _]) = w.asInstanceOf[Read[I, F, S]]
-  protected def castRW[I, R[+_], W[+_], S](w: ReadWrite[_, R, W, _]) = w.asInstanceOf[ReadWrite[I, R, W, S]]
+  protected def castW[I, F[_], S](w: Write[_, F, _]) = w.asInstanceOf[Write[I, F, S]]
+  protected def castR[I, F[_], S](w: Read[_, F, _]) = w.asInstanceOf[Read[I, F, S]]
+  protected def castRW[I, R[_], W[_], S](w: ReadWrite[_, R, W, _]) = w.asInstanceOf[ReadWrite[I, R, W, S]]
 
-  implicit def stateAccess[F[+_], S]: ReadWrite[StateAccess[F, S], F, F, S] = {
+  implicit def stateAccess[F[_], S]: ReadWrite[StateAccess[F, S], F, F, S] = {
     type I = StateAccess[F, S]
     new Read[I, F, S] with Write[I, F, S] {
       override val state = (_: I).state

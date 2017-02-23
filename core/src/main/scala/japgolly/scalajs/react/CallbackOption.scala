@@ -21,10 +21,10 @@ object CallbackOption {
     CallbackOption(CallbackTo pure someUnit)
 
   def fail[A]: CallbackOption[A] =
-    CallbackOption(CallbackTo pure None)
+    CallbackOption(CallbackTo pure[Option[A]] None)
 
   def pure[A](a: A): CallbackOption[A] =
-    CallbackOption(CallbackTo pure Some(a))
+    CallbackOption(CallbackTo pure[Option[A]] Some(a))
 
   def liftValue[A](a: => A): CallbackOption[A] =
     liftOption(Some(a))
@@ -36,7 +36,7 @@ object CallbackOption {
     liftOption(O toOption oa)
 
   def liftCallback[A](cb: CallbackTo[A]): CallbackOption[A] =
-    CallbackOption(cb map Some.apply)
+    CallbackOption(cb map[Option[A]] Some.apply)
 
   def liftOptionCallback[A](oc: => Option[CallbackTo[A]]): CallbackOption[A] =
     CallbackOption(CallbackTo sequenceO oc)
@@ -144,6 +144,9 @@ object CallbackOption {
       a <- co
       _ <- e.preventDefaultCB.toCBO
     } yield a
+
+  @inline implicit def callbackOptionCovariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
+    c.widen
 }
 
 // =====================================================================================================================
@@ -159,8 +162,11 @@ object CallbackOption {
  *
  * For a more generic (i.e. beyond Option) or comprehensive monad transformer use Scalaz or similar.
  */
-final class CallbackOption[+A](private val cbfn: () => Option[A]) extends AnyVal {
+final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal {
   import CallbackOption.someUnit
+
+  def widen[B >: A]: CallbackOption[B] =
+    new CallbackOption(cbfn)
 
   def get: CallbackTo[Option[A]] =
     CallbackTo lift cbfn
@@ -195,7 +201,7 @@ final class CallbackOption[+A](private val cbfn: () => Option[A]) extends AnyVal
   def flatMap[B](f: A => CallbackOption[B]): CallbackOption[B] =
     CallbackOption(get flatMap {
       case Some(a) => f(a).get
-      case None    => CallbackTo pure None
+      case None    => CallbackTo pure[Option[B]] None
     })
 
   /**
@@ -282,7 +288,7 @@ final class CallbackOption[+A](private val cbfn: () => Option[A]) extends AnyVal
 
   def orElse[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =
     CallbackOption(get flatMap {
-      case a@ Some(_) => CallbackTo pure a
+      case a@ Some(_) => CallbackTo pure (a: Option[AA])
       case None       => tryNext.get
     })
 

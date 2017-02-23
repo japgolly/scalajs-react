@@ -106,8 +106,6 @@ Contributions welcome.
 
 # Pending
 
-- effect invariance
-
 - Update the `gh-pages` module.
 - vdom lazy vals
 - over-zealous inlining (#324)

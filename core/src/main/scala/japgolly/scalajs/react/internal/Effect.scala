@@ -2,7 +2,7 @@ package japgolly.scalajs.react.internal
 
 import japgolly.scalajs.react.CallbackTo
 
-abstract class Effect[F[+_]] {
+abstract class Effect[F[_]] {
   def point  [A]   (a: => A)              : F[A]
   def pure   [A]   (a: A)                 : F[A]
   def map    [A, B](a: F[A])(f: A => B)   : F[B]
@@ -10,11 +10,8 @@ abstract class Effect[F[+_]] {
   def extract[A]   (a: => F[A])           : () => A
 }
 
-// https://issues.scala-lang.org/browse/SI-10140
-abstract class EffectScalacWorkaround private[internal]() {
-  final type Id[+A] = A
-}
-object Effect extends EffectScalacWorkaround {
+object Effect {
+  type Id[A] = A
 
   implicit val idInstance: Effect[Id] = new Effect[Id] {
     @inline override def point  [A]   (a: => A)         = a
@@ -34,13 +31,13 @@ object Effect extends EffectScalacWorkaround {
 
   // ===================================================================================================================
 
-  class Trans[F[+_], G[+_]](final val from: Effect[F], final val to: Effect[G]) {
+  class Trans[F[_], G[_]](final val from: Effect[F], final val to: Effect[G]) {
     def apply[A](f: => F[A]): G[A] = {
       val fn = from.extract(f)
       to.point(fn())
     }
 
-    def compose[H[+_]](t: G Trans H)(implicit ev: Trans[F, F] <:< Trans[F, H] = null): F Trans H =
+    def compose[H[_]](t: G Trans H)(implicit ev: Trans[F, F] <:< Trans[F, H] = null): F Trans H =
       if (ev eq null)
         new Trans(from, t.to)
       else
@@ -48,14 +45,14 @@ object Effect extends EffectScalacWorkaround {
   }
 
   object Trans {
-    final class Id[F[+_]](F: Effect[F]) extends Trans[F, F](F, F) {
+    final class Id[F[_]](F: Effect[F]) extends Trans[F, F](F, F) {
       override def apply[A](f: => F[A]): F[A] = f
     }
 
-    def id[F[+_]](implicit F: Effect[F]): Id[F] =
+    def id[F[_]](implicit F: Effect[F]): Id[F] =
       new Id(F)
 
-    def apply[F[+_], G[+_]](implicit F: Effect[F], G: Effect[G], ev: Trans[F, F] =:= Trans[F, G] = null): F Trans G =
+    def apply[F[_], G[_]](implicit F: Effect[F], G: Effect[G], ev: Trans[F, F] =:= Trans[F, G] = null): F Trans G =
       if (ev eq null)
         new Trans(F, G)
       else
