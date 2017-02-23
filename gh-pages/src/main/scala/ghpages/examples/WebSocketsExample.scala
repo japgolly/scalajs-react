@@ -8,7 +8,7 @@ object WebSocketsExample {
 
   def content = SingleSide.Content(source, main())
 
-  lazy val main = addIntro(WebSocketsApp, _(
+  lazy val main = addIntro(WebSocketsApp.withKey(_)(), _(
     s"Echo messages with WebSockets using ReactJS"))
 
   val source = GhPagesMacros.exampleSource
@@ -49,8 +49,8 @@ object WebSocketsExample {
         <.pre(
           ^.width  := 360.px,
           ^.height := 200.px,
-          ^.border := "1px solid",
-          s.logLines.map(<.p(_)))       // Display log
+          ^.border := "1px solid")(
+          s.logLines.map(<.p(_)): _*)       // Display log
       )
     }
 
@@ -76,7 +76,8 @@ object WebSocketsExample {
 
         // Get direct access so WebSockets API can modify state directly
         // (for access outside of a normal DOM/React callback).
-        val direct = $.accessDirect
+        // This means that calls like .setState will now return Unit instead of Callback.
+        val direct = $.withEffectsImpure
 
         // These are message-receiving events from the WebSocket "thread".
 

@@ -8,7 +8,7 @@ object TriStateCheckboxExample {
 
   def content = SingleSide.Content(source, main())
 
-  lazy val main = addIntro(App withProps sampleData, _(
+  lazy val main = addIntro(App.withKey(_)(sampleData), _(
     s"React doesn't come with support for a tri-state checkbox so scalajs-react includes a ",
     <.a(
       ^.href := "https://github.com/japgolly/scalajs-react/blob/master/extra/src/main/scala/japgolly/scalajs/react/extra/components/TriStateCheckbox.scala",
@@ -84,9 +84,7 @@ object TriStateCheckboxExample {
           itemCheckbox(item.id),
           item.name)
 
-      <.div(
-        allRow,
-        p.items map itemRow)
+      <.div(allRow)(p.items.map(itemRow): _*)
     }
 
     // When an item is removed from props, remove it from state as well.
@@ -97,7 +95,7 @@ object TriStateCheckboxExample {
   val App = ScalaComponent.build[Props]("TriStateCheckboxExample")
     .initialState[State](Set.empty)
     .renderBackend[Backend]
-    .componentWillReceiveProps(i => i.$.backend.onPropsChange(i.nextProps))
+    .componentWillReceiveProps(i => i.backend.onPropsChange(i.nextProps))
     .build
 
   // EXAMPLE:END

@@ -1,8 +1,10 @@
 package ghpages.examples
 
+import org.scalajs.dom.html
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.html_<^._
 
 object CallbackOptionExample {
 
@@ -10,8 +12,7 @@ object CallbackOptionExample {
 
   val source = GhPagesMacros.exampleSource
 
-  def Main2 = ScalaComponent.build[Unit]("CallbackOption example")
-    .render(_ =>
+  def Main2 = ScalaComponent.static("CallbackOption example",
       <.div(
         <.p(
           <.code("CallbackOption"), " is a ", <.code("Callback"), " that you can compose so that steps can abort the rest of the process.",
@@ -23,7 +24,6 @@ object CallbackOptionExample {
           <.br,
           "Notice that PageDown still scrolls the page but ↓ doesn't? That's because", <.code("preventDefault"), "is only called when a key is matched."),
         Main()))
-    .build
 
   // EXAMPLE:START
   import org.scalajs.dom.ext.KeyCode
@@ -37,11 +37,8 @@ object CallbackOptionExample {
 
   def initState = State((OuterX - InnerSize) / 2, (OuterY - InnerSize) / 2)
 
-  val OuterRef = Ref("o")
-
   val OuterDiv =
     <.div(
-      ^.ref        := OuterRef,
       ^.tabIndex   := 0,
       ^.width      := OuterX.px,
       ^.height     := OuterY.px,
@@ -59,8 +56,10 @@ object CallbackOptionExample {
     (pos + steps * MoveDist) min (max - InnerSize) max 0
 
   class Backend($: BackendScope[Unit, State]) {
+    var outerRef: html.Element = _
+
     def init: Callback =
-      OuterRef($).tryFocus
+      Callback(outerRef.focus())
 
     def move(dx: Int, dy: Int): Callback =
       $.modState(s => s.copy(
@@ -94,7 +93,7 @@ object CallbackOptionExample {
     }
 
     def render(s: State) =
-      OuterDiv(
+      OuterDiv.ref(outerRef = _)(
         ^.onKeyDown ==> handleKey,
         InnerDiv(
           ^.left := s.x.px,

@@ -1,61 +1,67 @@
 package ghpages.examples
 
-import ghpages.GhPagesMacros
-import japgolly.scalajs.react._, vdom.html_<^._
 import org.scalajs.dom.window
+import japgolly.scalajs.react._, vdom.html_<^._
+import ghpages.GhPagesMacros
 import ghpages.examples.util.SideBySide
-import Addons.ReactCssTransitionGroup
 
 object AnimationExample {
 
   def content = SideBySide.Content(jsSource, source, main())
 
-  lazy val main = addIntro(TodoList, _(scalaPortOfPage("docs/animation.html")))
+  lazy val main = addIntro(App.withKey(_)(), _(scalaPortOfPage("docs/animation.html")))
 
   val jsSource =
     """
       |var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
       |
-      |var TodoList = React.createClass({
-      |  getInitialState: function() {
-      |    return {items: ['hello', 'world', 'click', 'me']};
-      |  },
+      |class TodoList extends React.Component {
+      |  constructor(props) {
+      |    super(props);
+      |    this.state = {items: ['hello', 'world', 'click', 'me']};
+      |    this.handleAdd = this.handleAdd.bind(this);
+      |  }
       |
-      |  handleAdd: function() {
-      |    var newItems =
-      |      this.state.items.concat([prompt('Enter some text')]);
+      |  handleAdd() {
+      |    const newItems = this.state.items.concat([
+      |      prompt('Enter some text')
+      |    ]);
       |    this.setState({items: newItems});
-      |  },
+      |  }
       |
-      |  handleRemove: function(i) {
-      |    var newItems = this.state.items;
+      |  handleRemove(i) {
+      |    let newItems = this.state.items.slice();
       |    newItems.splice(i, 1);
       |    this.setState({items: newItems});
-      |  },
+      |  }
       |
-      |  render: function() {
-      |    var items = this.state.items.map(function(item, i) {
-      |      return (
-      |        <div key={item} onClick={this.handleRemove.bind(this, i)}>
-      |          {item}
-      |        </div>
-      |      );
-      |    }.bind(this));
+      |  render() {
+      |    const items = this.state.items.map((item, i) => (
+      |      <div key={item} onClick={() => this.handleRemove(i)}>
+      |        {item}
+      |      </div>
+      |    ));
+      |
       |    return (
       |      <div>
       |        <button onClick={this.handleAdd}>Add Item</button>
-      |        <ReactCSSTransitionGroup transitionName="example">
+      |        <ReactCSSTransitionGroup
+      |          transitionName="example"
+      |          transitionEnterTimeout={500}
+      |          transitionLeaveTimeout={300}>
       |          {items}
       |        </ReactCSSTransitionGroup>
       |      </div>
       |    );
       |  }
-      |});
+      |}
     """.stripMargin
 
   val source = GhPagesMacros.exampleSource
 
   // EXAMPLE:START
+
+  import ReactAddons._
 
   class Backend($: BackendScope[Unit, Vector[String]]) {
     def handleAdd =
@@ -64,18 +70,24 @@ object AnimationExample {
     def handleRemove(i: Int) =
       $.modState(_.zipWithIndex.filterNot(_._2 == i).map(_._1))
 
-    def render(state: Vector[String]) =
+    def render(state: Vector[String]) = {
+      val items = state.zipWithIndex.map { case (item, i) =>
+        <.div(^.key := item, ^.onClick --> handleRemove(i),
+          item)
+      }
+
+      val p = CSSTransitionGroupProps()
+      p.transitionName = "example"
+      p.transitionEnterTimeout = 500
+      p.transitionLeaveTimeout = 300
+
       <.div(
         <.button(^.onClick --> handleAdd, "Add Item"),
-        ReactCssTransitionGroup("example", component = "h1")(
-          state.zipWithIndex.map { case (s, i) =>
-            <.div(^.key := s, ^.onClick --> handleRemove(i), s)
-          }: _*
-        )
-      )
+        CSSTransitionGroup(p)(items.toReactArray))
+    }
   }
 
-  val TodoList = ScalaComponent.build[Unit]("TodoList")
+  val App = ScalaComponent.build[Unit]("TodoList")
     .initialState(Vector("hello", "world", "click", "me"))
     .renderBackend[Backend]
     .build

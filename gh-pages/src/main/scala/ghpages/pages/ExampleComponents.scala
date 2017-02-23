@@ -19,8 +19,8 @@ object ExampleComponents {
           e.title)
       }
       <.div(^.cls := "col-md-2",
-        <.div(^.cls := "list-group",
-          p.examples map menuItem))
+        <.div(^.cls := "list-group")(
+          p.examples.map(menuItem): _*))
     }
     .configure(Reusability.shouldComponentUpdate)
     .build

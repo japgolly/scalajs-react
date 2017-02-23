@@ -60,7 +60,7 @@ object TouchExample {
         ),
         <.ul(                               // Rendering history of events
           s.log.map(
-            <.li(_))))
+            <.li(_)): _*))
   }
 
   /** Rendering touch area and history of events */

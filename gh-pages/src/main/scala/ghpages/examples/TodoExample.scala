@@ -10,7 +10,7 @@ object TodoExample {
 
   def content = SideBySide.Content(jsSource, source, main())
 
-  lazy val main = addIntro(TodoApp, _(scalaPortOf("An Application")))
+  lazy val main = addIntro(TodoApp.withKey(_)(), _(scalaPortOf("An Application")))
 
   val jsSource =
     """
@@ -64,7 +64,7 @@ object TodoExample {
   val TodoList = ScalaComponent.build[List[String]]("TodoList")
     .render_P { props =>
       def createItem(itemText: String) = <.li(itemText)
-      <.ul(props map createItem)
+      <.ul(props map createItem: _*)
     }
     .build
 

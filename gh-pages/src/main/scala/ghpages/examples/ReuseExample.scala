@@ -9,7 +9,7 @@ object ReuseExample {
 
   def content = SingleSide.Content(source, main())
 
-  lazy val main = addIntro(topLevelComponent, _(
+  lazy val main = addIntro(topLevelComponent.withKey(_)(), _(
     ^.marginBottom := "2.4em",
     "The colourful overlays here are provided by ",
     <.code("Reusability.shouldComponentUpdateWithOverlay"),
@@ -46,7 +46,7 @@ object ReuseExample {
 
   val InputEditor = ScalaComponent.build[StateSnapshot[Long]]("Input editor")
     .render_P { v =>
-      def update = (ev: ReactEventFromInput) => numberRegex.findFirstIn(ev.target.value).map(v set _.toLong)
+      def update = (ev: ReactEventFromInput) => numberRegex.findFirstIn(ev.target.value).map(v setState _.toLong)
       <.input.text(
         ^.textAlign   := "center",
         ^.marginRight := "1ex",
@@ -89,7 +89,7 @@ object ReuseExample {
     def render(s: State) = {
       def inputEditor(index: Int) = {
         val value = s.inputs(index)
-        val rvar = StateSnapshot(value)(setInputFn(index))
+        val rvar = StateSnapshot.withReuse(value)(setInputFn(index))
         InputEditor.withKey(index)(rvar)
       }
 
@@ -97,7 +97,7 @@ object ReuseExample {
         <.h4("Number of inputs:"),
         inputControl(InputControl(s.inputs.size, changeFn)),
         <.h4("Inputs:"),
-        Array.tabulate(s.inputs.length)(inputEditor),
+        Array.tabulate(s.inputs.length)(inputEditor).toReactArray,
         showSum.withKey("sum")(s.sum))
     }
   }

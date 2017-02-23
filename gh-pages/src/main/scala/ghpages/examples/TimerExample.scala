@@ -9,7 +9,7 @@ object TimerExample {
 
   def content = SideBySide.Content(jsSource, source, main())
 
-  lazy val main = addIntro(Timer, _(scalaPortOf("A Stateful Component")))
+  lazy val main = addIntro(Timer.withKey(_)(), _(scalaPortOf("A Stateful Component")))
 
   val jsSource =
     """

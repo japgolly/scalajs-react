@@ -2,14 +2,14 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import japgolly.scalajs.react._, vdom.html_<^._
-import org.scalajs.dom.raw.HTMLInputElement
+import org.scalajs.dom.html
 import ghpages.examples.util.SideBySide
 
 object RefsExample {
 
   def content = SideBySide.Content(jsSource, source, main())
 
-  lazy val main = addIntro(App, _(scalaPortOfPage("docs/more-about-refs.html")))
+  lazy val main = addIntro(App.withKey(_)(), _(scalaPortOfPage("docs/more-about-refs.html")))
 
   val jsSource =
     """
@@ -52,14 +52,15 @@ object RefsExample {
 
   // EXAMPLE:START
 
-  val theInput = Ref[HTMLInputElement]("theInput")
-
   class Backend($: BackendScope[Unit, String]) {
+
+    var theInput: html.Input = _
+
     def handleChange(e: ReactEventFromInput) =
       $.setState(e.target.value)
 
     def clearAndFocusInput() =
-      $.setState("", theInput($).tryFocus)
+      $.setState("", Callback(theInput.focus()))
 
     def render(state: String) =
       <.div(
@@ -67,9 +68,10 @@ object RefsExample {
           ^.onClick --> clearAndFocusInput,
           "Click to Focus and Reset"),
         <.input(
-          ^.ref       := theInput,
           ^.value     := state,
-          ^.onChange ==> handleChange))
+          ^.onChange ==> handleChange)
+          .ref(theInput = _)
+      )
   }
 
   val App = ScalaComponent.build[Unit]("App")

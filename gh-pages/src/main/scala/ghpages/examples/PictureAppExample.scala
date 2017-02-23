@@ -169,10 +169,10 @@ object PictureAppExample {
   val pictureList = ScalaComponent.build[(List[Picture], PicClick)]("pictureList")
     .render_P { case (list, b) =>
       div(`class` := "pictures")(
-        if (list.isEmpty) span("Loading Pics..")
-        else {
-          list.map(p => picture.withKey(p.id)((p, b)))
-        }
+        if (list.isEmpty)
+          span("Loading Pics..")
+        else
+          list.map(p => picture.withKey(p.id)((p, b))).toReactArray
       )
     }
     .build
@@ -180,10 +180,10 @@ object PictureAppExample {
   val favoriteList = ScalaComponent.build[(List[Picture], PicClick)]("favoriteList")
     .render_P { case (list, b) =>
       div(`class` := "favorites")(
-        if (list.isEmpty) span("Click an image to mark as  favorite")
-        else {
-          list.map(p => picture.withKey(p.id)((p, b)))
-        }
+        if (list.isEmpty)
+          span("Click an image to mark as  favorite")
+        else
+          list.map(p => picture.withKey(p.id)((p, b))).toReactArray
       )
     }
     .build

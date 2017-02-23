@@ -48,6 +48,5 @@ object HomePage {
         ^.color     := "#444",
         "Big thanks to ",
         <.a(^.href := "https://twitter.com/chandu0101", "@chandu0101"),
-        " for creating these pages.")))
-  ).build
+        " for creating these pages."))))
 }

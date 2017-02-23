@@ -18,23 +18,22 @@ object StateSnapshotExample {
   case class Name(firstName: String, surname: String)
 
   val NameChanger = ScalaComponent.build[StateSnapshot[String]]("Name changer")
-    .render_P { evar =>
-      def updateName = (event: ReactEventFromInput) => evar.set(event.target.value)
+    .render_P { stateSnapshot =>
       <.input.text(
-        ^.value     := evar.value,
-        ^.onChange ==> updateName)
+        ^.value     := stateSnapshot.value,
+        ^.onChange ==> ((e: ReactEventFromInput) => stateSnapshot.setState(e.target.value)))
     }
     .build
 
   val Main = ScalaComponent.build[Unit]("StateSnapshot example")
     .initialState(Name("John", "Wick"))
     .render { $ =>
-      val name        = $.state
-      val firstNameEV = StateSnapshot.zoomL(Name.firstName).of($)
-      val surnameEV   = StateSnapshot.zoomL(Name.surname).of($)
+      val name       = $.state
+      val firstNameV = StateSnapshot.zoomL(Name.firstName).of($)
+      val surnameV   = StateSnapshot.zoomL(Name.surname).of($)
       <.div(
-        <.label("First name:", NameChanger(firstNameEV)),
-        <.label("Surname:",    NameChanger(surnameEV  )),
+        <.label("First name:", NameChanger(firstNameV)),
+        <.label("Surname:",    NameChanger(surnameV  )),
         <.p(s"My name is ${name.surname}, ${name.firstName} ${name.surname}."))
     }
     .build

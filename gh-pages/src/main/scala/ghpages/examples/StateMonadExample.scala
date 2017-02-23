@@ -8,7 +8,7 @@ object StateMonadExample {
 
   def content = SingleSide.Content(source, main())
 
-  lazy val main = addIntro(TodoApp, _(
+  lazy val main = addIntro(TodoApp.withKey(_)(), _(
     "This is the same as the ",
     TodoExample.title,
     " example using state monads for change and effects."))
@@ -19,7 +19,7 @@ object StateMonadExample {
 
   val TodoList = ScalaComponent.build[List[String]]("TodoList")
     .render_P(items =>
-      <.ul(items map (<.li(_))))
+      <.ul(items.map(<.li(_)): _*))
     .build
 
   case class State(items: List[String], text: String)
@@ -43,9 +43,9 @@ object StateMonadExample {
       <.div(
         <.h3("TODO"),
         TodoList(s.items),
-        <.form(^.onSubmit ==> $.runStateFn(handleSubmit),  // runState runs a state monad and applies the result.
+        <.form(^.onSubmit ==> $.runStateFn(handleSubmit), // runState runs a state monad and applies the result.
           <.input(                                        // runStateFn is similar but takes a function-to-a-state-monad.
-            ^.onChange ==> $.runStateFn(acceptChange),     // In these cases, the function will be fed the JS event.
+            ^.onChange ==> $.runStateFn(acceptChange),    // In these cases, the function will be fed the JS event.
             ^.value := s.text),
           <.button("Add #", s.items.length + 1)))
     ).build

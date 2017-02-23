@@ -4,11 +4,11 @@ import japgolly.scalajs.react._, vdom.html_<^._
 
 package object examples {
 
-  def addIntro(top: ReactComponentC.ConstProps[_, _, _, TopNode], f: ReactTag => ReactTag) =
+  def addIntro(top: Key => TagMod, f: ReactTag => ReactTag) =
     ScalaComponent.build[Unit]("").render(_ =>
       <.div(
         f(<.p(^.maxWidth := "84%", ^.marginBottom := "1.5em")),
-        top.withKey("top")())
+        top("top"))
     ).build
 
   def reactJsLink(suffix: String = "") = {

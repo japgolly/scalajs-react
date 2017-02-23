@@ -9,7 +9,7 @@ object HelloMessageExample {
 
   def content = SideBySide.Content(jsSource, source, main())
 
-  lazy val main = addIntro(HelloMessage withProps "John", _(scalaPortOf("A Simple Component")))
+  lazy val main = addIntro(HelloMessage.withKey(_)("John"), _(scalaPortOf("A Simple Component")))
 
   val jsSource =
     """

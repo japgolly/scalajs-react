@@ -8,7 +8,7 @@ object ProductTableExample {
 
   def content = SideBySide.Content(jsSource, source, main())
 
-  lazy val main = addIntro(FilterableProductTable withProps PRODUCTS,
+  lazy val main = addIntro(FilterableProductTable.withKey(_)(PRODUCTS),
     _(scalaPortOfPage("docs/thinking-in-react.html")))
 
   val jsSource =
@@ -165,7 +165,7 @@ object ProductTableExample {
   val ProductRow = ScalaComponent.build[Product]("ProductRow")
     .render_P(p =>
       <.tr(
-        <.td(<.span(!p.stocked ?= ^.color.red, p.name)),
+        <.td(<.span(^.color.red.unless(p.stocked), p.name)),
         <.td(p.price))
     )
     .build
@@ -187,7 +187,7 @@ object ProductTableExample {
             <.th("Name"),
             <.th("Price"))),
         <.tbody(
-          rows))
+          rows.toReactArray))
     }
     .build
 

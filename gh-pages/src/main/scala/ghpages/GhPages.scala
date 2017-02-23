@@ -66,6 +66,6 @@ object GhPages extends JSApp {
   override def main(): Unit = {
     dom.console.info("Router logging is enabled. Enjoy!")
     val router = Router(baseUrl, routerConfig.logToConsole)
-    router() render dom.document.body
+    router() renderIntoDOM dom.document.body
   }
 }

@@ -47,14 +47,14 @@ object ExamplesJs extends ExampleCollection {
 
 
 object ExamplesScala extends ExampleCollection {
-  case object StateMonad   extends Example("State monads",       "state-monad",       StateMonadExample      .content)
-  case object Touch        extends Example("Touch events",       "touch-events",      TouchExample           .content)
-  case object StateSnapshot  extends Example("StateSnapshot",        "external-var",      StateSnapshotExample     .content)
-  case object Reuse        extends Example("Reusability",        "reusability",       ReuseExample           .content)
-  case object EventListen  extends Example("EventListener",      "event-listener",    EventListenerExample   .content)
-  case object CallbackOpt  extends Example("CallbackOption",     "callback-option",   CallbackOptionExample  .content)
-  case object WebSockets   extends Example("WebSockets",         "websockets",        WebSocketsExample      .content)
-  case object Checkbox3    extends Example("Tri-state Checkbox", "tristate-checkbox", TriStateCheckboxExample.content)
+  case object StateMonad    extends Example("State monads",       "state-monad",       StateMonadExample      .content)
+  case object Touch         extends Example("Touch events",       "touch-events",      TouchExample           .content)
+  case object StateSnapshot extends Example("StateSnapshot",      "state-snapshot",    StateSnapshotExample   .content)
+  case object Reuse         extends Example("Reusability",        "reusability",       ReuseExample           .content)
+  case object EventListen   extends Example("EventListener",      "event-listener",    EventListenerExample   .content)
+  case object CallbackOpt   extends Example("CallbackOption",     "callback-option",   CallbackOptionExample  .content)
+  case object WebSockets    extends Example("WebSockets",         "websockets",        WebSocketsExample      .content)
+  case object Checkbox3     extends Example("Tri-state Checkbox", "tristate-checkbox", TriStateCheckboxExample.content)
 
   override val values = Vector[Example](
     EventListen, CallbackOpt, StateSnapshot, Reuse, StateMonad, Touch, WebSockets, Checkbox3

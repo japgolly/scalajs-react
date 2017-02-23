@@ -44,7 +44,7 @@ object ExtrasExamples {
    */
   object SetIntervalExample {
 
-    class Backend extends TimerSupport 
+    class Backend extends TimerSupport
 
     val Timer = ScalaComponent.build[Unit]("Timer")
       .initialState(0L)
@@ -54,7 +54,7 @@ object ExtrasExamples {
       .configure(TimerSupport.install)
       .build
   }
-  
+
   // ===================================================================================================================
 
   /**
