@@ -45,14 +45,14 @@ object StateSnapshot {
       new FromValue(value)
 
     def of[I, S](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
-      apply(t.state(i)).writeVia(i)(t, r)
+      apply(t.state(i)).setStateVia(i)(t, r)
 
     /** This is meant to be called once and reused so that the setState callback stays the same. */
-    def prepare[S](f: S => Callback): FromWriteFn[S] =
-      new FromWriteFn(ReusableFn(f))
+    def prepare[S](f: S => Callback): FromSetStateFn[S] =
+      new FromSetStateFn(ReusableFn(f))
 
     /** This is meant to be called once and reused so that the setState callback stays the same. */
-    def prepareVia[I, S](i: I)(implicit t: StateAccessor.WriteCB[I, S]): FromWriteFn[S] =
+    def prepareVia[I, S](i: I)(implicit t: StateAccessor.WriteCB[I, S]): FromSetStateFn[S] =
       prepare(t.setState(i))
 
     def zoom[S, T](get: S => T)(set: T => S => S): FromLens[S, T] =
@@ -64,11 +64,11 @@ object StateSnapshot {
       // def apply(value: S) = new FromLensValue(l, l get value)
 
       /** This is meant to be called once and reused so that the setState callback stays the same. */
-      def prepare(modify: (S => S) => Callback): FromLensWriteFn[S, T] =
-        new FromLensWriteFn(l, ReusableFn(modify compose l.set))
+      def prepare(modify: (S => S) => Callback): FromLensSetStateFn[S, T] =
+        new FromLensSetStateFn(l, ReusableFn(modify compose l.set))
 
       /** This is meant to be called once and reused so that the setState callback stays the same. */
-      def prepareVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): FromLensWriteFn[S, T] =
+      def prepareVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): FromLensSetStateFn[S, T] =
         prepare(t.modState(i))
 
       def zoom[U](get: T => U)(set: U => T => T): FromLens[S, U] =
@@ -79,16 +79,16 @@ object StateSnapshot {
       def apply(set: S ~=> Callback)(implicit r: Reusability[S]): StateSnapshot[S] =
         new StateSnapshot(value, set, r)
 
-      def writeVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
+      def setStateVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
         apply(ReusableFn(t setState i))(r)
     }
 
-    final class FromWriteFn[S](private val set: S ~=> Callback) extends AnyVal {
+    final class FromSetStateFn[S](private val set: S ~=> Callback) extends AnyVal {
       def apply(value: S)(implicit r: Reusability[S]): StateSnapshot[S] =
         withReuse(value)(set)(r)
     }
 
-    final class FromLensWriteFn[S, T](l: Lens[S, T], set: T ~=> Callback) {
+    final class FromLensSetStateFn[S, T](l: Lens[S, T], set: T ~=> Callback) {
       def apply(value: S)(implicit r: Reusability[T]): StateSnapshot[T] =
         withReuse(l get value)(set)(r)
     }
@@ -101,7 +101,7 @@ object StateSnapshot {
     new FromValue(value)
 
   def of[I, S](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S]): StateSnapshot[S] =
-    apply(t.state(i)).writeVia(i)
+    apply(t.state(i)).setStateVia(i)
 
   def zoom[S, T](get: S => T)(set: T => S => S): FromLens[S, T] =
     new FromLens(Lens(get)(set))
@@ -111,7 +111,7 @@ object StateSnapshot {
       def apply(value: S) = new FromLensValue(l, l get value)
 
       def of[I](i: I)(implicit t: StateAccessor.ReadIdWriteCB[I, S]): StateSnapshot[T] =
-        apply(t.state(i)).writeVia(i)
+        apply(t.state(i)).setStateVia(i)
 
       def zoom[U](get: T => U)(set: U => T => T): FromLens[S, U] =
         new FromLens(l --> Lens(get)(set))
@@ -121,7 +121,7 @@ object StateSnapshot {
       def apply(set: S => Callback): StateSnapshot[S] =
         new StateSnapshot(value, ReusableFn(set), Reusability.never)
 
-      def writeVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): StateSnapshot[S] =
+      def setStateVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): StateSnapshot[S] =
         apply(t.setState(i))
     }
 
@@ -129,7 +129,7 @@ object StateSnapshot {
       def apply(modify: (S => S) => Callback): StateSnapshot[T] =
         StateSnapshot(value)(modify compose l.set)
 
-      def writeVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): StateSnapshot[T] =
+      def setStateVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): StateSnapshot[T] =
         apply(t.modState(i))
     }
   }

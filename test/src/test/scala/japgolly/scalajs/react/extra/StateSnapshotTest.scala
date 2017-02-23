@@ -22,27 +22,27 @@ object StateSnapshotTest extends TestSuite {
           compileError(""" test[StateAccessP  ](StateSnapshot.of(_)) """) // lack safe read
           compileError(""" test[Backend       ](StateSnapshot.of(_)) """) // lack safe read
           compileError(""" test[ScalaMountedCB](StateSnapshot.of(_)) """) // lack safe read
-          compileError(""" test[JsMounted     ](StateSnapshot.of(_)) """) // use (x.state).writeVia(x.pure)
-          compileError(""" test[ScalaMountedId](StateSnapshot.of(_)) """) // use (x.state).writeVia(x.pure)
-          compileError(""" test[StateAccessI  ](StateSnapshot.of(_)) """) // use (x.state).writeVia(x.pure)
+          compileError(""" test[JsMounted     ](StateSnapshot.of(_)) """) // use (x.state).setStateVia(x.pure)
+          compileError(""" test[ScalaMountedId](StateSnapshot.of(_)) """) // use (x.state).setStateVia(x.pure)
+          compileError(""" test[StateAccessI  ](StateSnapshot.of(_)) """) // use (x.state).setStateVia(x.pure)
         }
         'apply_apply - test[S => Callback](StateSnapshot(S)(_)).expect[StateSnapshot[S]]
-        'apply_writeVia {
-                           test[Render        ](StateSnapshot(S).writeVia(_)).expect[StateSnapshot[S]]
-                           test[Backend       ](StateSnapshot(S).writeVia(_)).expect[StateSnapshot[S]]
-                           test[ScalaMountedCB](StateSnapshot(S).writeVia(_)).expect[StateSnapshot[S]]
-                           test[StateAccessP  ](StateSnapshot(S).writeVia(_)).expect[StateSnapshot[S]]
-          compileError(""" test[JsMounted     ](StateSnapshot(S).writeVia(_)) """) // use writeVia(x.pure)
-          compileError(""" test[ScalaMountedId](StateSnapshot(S).writeVia(_)) """) // use writeVia(x.pure)
-          compileError(""" test[StateAccessI  ](StateSnapshot(S).writeVia(_)) """) // use writeVia(x.pure)
+        'apply_setStateVia {
+                           test[Render        ](StateSnapshot(S).setStateVia(_)).expect[StateSnapshot[S]]
+                           test[Backend       ](StateSnapshot(S).setStateVia(_)).expect[StateSnapshot[S]]
+                           test[ScalaMountedCB](StateSnapshot(S).setStateVia(_)).expect[StateSnapshot[S]]
+                           test[StateAccessP  ](StateSnapshot(S).setStateVia(_)).expect[StateSnapshot[S]]
+          compileError(""" test[JsMounted     ](StateSnapshot(S).setStateVia(_)) """) // use setStateVia(x.pure)
+          compileError(""" test[ScalaMountedId](StateSnapshot(S).setStateVia(_)) """) // use setStateVia(x.pure)
+          compileError(""" test[StateAccessI  ](StateSnapshot(S).setStateVia(_)) """) // use setStateVia(x.pure)
         }
         'zoom {
           def z = StateSnapshot.zoom[S, T](???)(???)
           'of - test[Render](z.of(_)).expect[StateSnapshot[T]]
           'apply_apply - test[(S => S) => Callback](z(S)(_)).expect[StateSnapshot[T]]
-          'apply_writeVia {
-            test[Render ](z(S).writeVia(_)).expect[StateSnapshot[T]]
-            test[Backend](z(S).writeVia(_)).expect[StateSnapshot[T]]
+          'apply_setStateVia {
+            test[Render ](z(S).setStateVia(_)).expect[StateSnapshot[T]]
+            test[Backend](z(S).setStateVia(_)).expect[StateSnapshot[T]]
           }
         }
       }
@@ -64,19 +64,19 @@ object StateSnapshotTest extends TestSuite {
           compileError(""" test[StateAccessP  ](SS.of(_)) """) // lack safe read
           compileError(""" test[Backend       ](SS.of(_)) """) // lack safe read
           compileError(""" test[ScalaMountedCB](SS.of(_)) """) // lack safe read
-          compileError(""" test[JsMounted     ](SS.of(_)) """) // use (x.state).writeVia(x.pure)
-          compileError(""" test[ScalaMountedId](SS.of(_)) """) // use (x.state).writeVia(x.pure)
-          compileError(""" test[StateAccessI  ](SS.of(_)) """) // use (x.state).writeVia(x.pure)
+          compileError(""" test[JsMounted     ](SS.of(_)) """) // use (x.state).setStateVia(x.pure)
+          compileError(""" test[ScalaMountedId](SS.of(_)) """) // use (x.state).setStateVia(x.pure)
+          compileError(""" test[StateAccessI  ](SS.of(_)) """) // use (x.state).setStateVia(x.pure)
         }
         'apply_apply - test[S ~=> Callback](SS(S)(_)).expect[StateSnapshot[S]]
-        'apply_writeVia {
-                           test[Render        ](SS(S).writeVia(_)).expect[StateSnapshot[S]]
-                           test[Backend       ](SS(S).writeVia(_)).expect[StateSnapshot[S]]
-                           test[ScalaMountedCB](SS(S).writeVia(_)).expect[StateSnapshot[S]]
-                           test[StateAccessP  ](SS(S).writeVia(_)).expect[StateSnapshot[S]]
-          compileError(""" test[JsMounted     ](SS(S).writeVia(_)) """) // use writeVia(x.pure)
-          compileError(""" test[ScalaMountedId](SS(S).writeVia(_)) """) // use writeVia(x.pure)
-          compileError(""" test[StateAccessI  ](SS(S).writeVia(_)) """) // use writeVia(x.pure)
+        'apply_setStateVia {
+                           test[Render        ](SS(S).setStateVia(_)).expect[StateSnapshot[S]]
+                           test[Backend       ](SS(S).setStateVia(_)).expect[StateSnapshot[S]]
+                           test[ScalaMountedCB](SS(S).setStateVia(_)).expect[StateSnapshot[S]]
+                           test[StateAccessP  ](SS(S).setStateVia(_)).expect[StateSnapshot[S]]
+          compileError(""" test[JsMounted     ](SS(S).setStateVia(_)) """) // use setStateVia(x.pure)
+          compileError(""" test[ScalaMountedId](SS(S).setStateVia(_)) """) // use setStateVia(x.pure)
+          compileError(""" test[StateAccessI  ](SS(S).setStateVia(_)) """) // use setStateVia(x.pure)
         }
         'zoom {
           def rs = ??? // shadow
