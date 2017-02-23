@@ -102,22 +102,21 @@ Contributions welcome.
 - Revise & integrate the Scalaz module.
 - Revise & integrate the Monocle module.
 - Revise & integrate the `test` module.
-- #293 StateSnapshot + lens helper
+- StateSnapshot + lens helper (#293)
 
 # Pending
 
 - Rename ScalaComponent.Mounted{,CB} & Lifecycle.mounted{,cb} to be {Pure,Impure} like StateAccess aliases and methods.
-- reuse identity
 - effect invariance
 - vdom lazy vals
 
 - Update the `gh-pages` module.
-- #324 over-zealous inlining
+- over-zealous inlining (#324)
 - Update doc.
 
 # Maybe
 
-- #303 Infer component name
+- Infer component name (#303)
 
 - Static and dynamic props (for Scala components).
   Probably not as a normal Scala function is all that's really needed.
