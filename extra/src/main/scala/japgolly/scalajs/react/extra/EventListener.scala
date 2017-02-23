@@ -27,7 +27,7 @@ object EventListener {
      *                   capture.
      */
     def install[P, C <: Children, S, B <: OnUnmount](eventType : String,
-                                                     listener  : ScalaComponent.MountedCB[P, S, B] => E => Callback,
+                                                     listener  : ScalaComponent.MountedPure[P, S, B] => E => Callback,
                                                      target    : ScalaComponent.Mounted[P, S, B] => EventTarget = defaultTarget[P, S, B],
                                                      useCapture: Boolean = false) =
       OnUnmount.install[P, C, S, B] andThen (_.componentDidMount { $ =>
@@ -43,7 +43,7 @@ object EventListener {
 
   /** See [[OfEventType.install()]]. */
   def install[P, C <: Children, S, B <: OnUnmount](eventType : String,
-                                                   listener  : ScalaComponent.MountedCB[P, S, B] => Callback,
+                                                   listener  : ScalaComponent.MountedPure[P, S, B] => Callback,
                                                    target    : ScalaComponent.Mounted[P, S, B] => EventTarget = defaultTarget[P, S, B],
                                                    useCapture: Boolean = false) =
     EventListener[Event].install[P, C, S, B](

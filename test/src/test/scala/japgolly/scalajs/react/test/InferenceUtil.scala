@@ -56,7 +56,7 @@ object InferenceUtil {
   type Backend = BackendScope[P, S]
   type JsMounted = JsComponent.Mounted[JP, JS]
   type ScalaMountedId = ScalaComponent.Mounted[P, S, B]
-  type ScalaMountedCB = ScalaComponent.MountedCB[P, S, B]
+  type ScalaMountedCB = ScalaComponent.MountedPure[P, S, B]
   type StateAccessP = StateAccessPure[S]
   type StateAccessI = StateAccessImpure[S]
 }

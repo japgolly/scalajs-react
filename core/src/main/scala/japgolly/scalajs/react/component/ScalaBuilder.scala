@@ -333,13 +333,13 @@ object ScalaBuilder {
 
       val setup: raw.ReactComponent => Unit =
         $ => {
-          val jMounted : JsMounted[P, S, B] = Js.mounted[Box[P], Box[S]]($).addFacade[Vars[P, S, B]]
-          val sMountedI: Mounted  [P, S, B] = Scala.rootMounted(jMounted)
-          val sMountedC: MountedCB[P, S, B] = sMountedI.withEffect
-          val backend  : B                  = backendFn(sMountedC)
-          jMounted.raw.mounted   = sMountedI
-          jMounted.raw.mountedCB = sMountedC
-          jMounted.raw.backend   = backend
+          val jMounted : JsMounted  [P, S, B] = Js.mounted[Box[P], Box[S]]($).addFacade[Vars[P, S, B]]
+          val sMounted : Mounted    [P, S, B] = Scala.rootMounted(jMounted)
+          val sMountedP: MountedPure[P, S, B] = sMounted.withEffect
+          val backend  : B                    = backendFn(sMountedP)
+          jMounted.raw.mounted     = sMounted
+          jMounted.raw.mountedPure = sMountedP
+          jMounted.raw.backend     = backend
         }
       spec.componentWillMount = lifecycle.componentWillMount match {
         case None    => setup
@@ -353,9 +353,9 @@ object ScalaBuilder {
       val teardown: raw.ReactComponent => Unit =
         $ => {
           val vars = castV($)
-          vars.mounted   = null
-          vars.mountedCB = null
-          vars.backend   = null.asInstanceOf[B]
+          vars.mounted      = null
+          vars.mountedPure = null
+          vars.backend     = null.asInstanceOf[B]
         }
       spec.componentWillUnmount = lifecycle.componentWillUnmount match {
         case None    => teardown
@@ -446,7 +446,7 @@ object ScalaBuilder {
 
       final def backend  : B                  = raw.backend
       final def mounted  : Mounted  [P, S, B] = raw.mounted
-      final def mountedCB: MountedCB[P, S, B] = raw.mountedCB
+      final def mountedCB: MountedPure[P, S, B] = raw.mountedPure
     }
 
     sealed trait StateW[P, S, B] extends Any with Base[P, S, B] {

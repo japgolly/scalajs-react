@@ -26,12 +26,12 @@ object ScalazTest extends TestSuite {
 
       val reactSIO: ReactST[IO, S, Int] = ReactS retM IO(3)
 
-      "runState(s.liftS)"   - test[StateT[M,S,A]                    ](s => bs.runState(s.liftS)  ).expect[CallbackTo[A]]
-      "runStateFn(f.liftS)" - test[B => StateT[M,S,A]               ](s => bs.runStateFn(s.liftS)).expect[B => CallbackTo[A]]
-      "BackendScope"        - test[BackendScope[Unit, S]            ](_.runState(reactSIO)       ).expect[CallbackTo[Int]]
-      "RenderScope"         - test[Render                           ](_.runState(reactSIO)       ).expect[CallbackTo[Int]]
-      "ScalaMountedId"      - test[ScalaComponent.Mounted  [U, S, U]](_.runState(reactSIO)       ).expect[Int]
-      "ScalaMountedCB"      - test[ScalaComponent.MountedCB[U, S, U]](_.runState(reactSIO)       ).expect[CallbackTo[Int]]
+      "runState(s.liftS)"   - test[StateT[M,S,A]                      ](s => bs.runState(s.liftS)  ).expect[CallbackTo[A]]
+      "runStateFn(f.liftS)" - test[B => StateT[M,S,A]                 ](s => bs.runStateFn(s.liftS)).expect[B => CallbackTo[A]]
+      "BackendScope"        - test[BackendScope[Unit, S]              ](_.runState(reactSIO)       ).expect[CallbackTo[Int]]
+      "RenderScope"         - test[Render                             ](_.runState(reactSIO)       ).expect[CallbackTo[Int]]
+      "ScalaMountedId"      - test[ScalaComponent.Mounted    [U, S, U]](_.runState(reactSIO)       ).expect[Int]
+      "ScalaMountedCB"      - test[ScalaComponent.MountedPure[U, S, U]](_.runState(reactSIO)       ).expect[CallbackTo[Int]]
     }
 
     'runState {

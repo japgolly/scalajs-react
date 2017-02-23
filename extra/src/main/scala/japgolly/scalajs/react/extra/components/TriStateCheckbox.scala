@@ -52,7 +52,7 @@ object TriStateCheckbox {
   implicit def reusabilityProps: Reusability[Props] =
     Reusability.by(_.state) // .setNextState is never accessed outside of a Callback
 
-  private def render($: ScalaComponent.MountedCB[Props, Unit, Unit]) = {
+  private def render($: ScalaComponent.MountedPure[Props, Unit, Unit]) = {
     val setNext = $.props.flatMap(_.setNextState) // Only access .setNextState inside the Callback for Reusability
     <.input.checkbox(eventHandlers(setNext))
   }

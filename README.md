@@ -106,11 +106,10 @@ Contributions welcome.
 
 # Pending
 
-- Rename ScalaComponent.Mounted{,CB} & Lifecycle.mounted{,cb} to be {Pure,Impure} like StateAccess aliases and methods.
 - effect invariance
-- vdom lazy vals
 
 - Update the `gh-pages` module.
+- vdom lazy vals
 - over-zealous inlining (#324)
 - Update doc.
 

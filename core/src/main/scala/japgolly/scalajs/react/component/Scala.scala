@@ -30,7 +30,7 @@ object Scala {
 
   type Unmounted   [P, S, B] = Js.BaseUnmounted[P, Mounted[P, S, B], Box[P], JsMounted[P, S, B]]
   type Mounted     [P, S, B] = RootMounted[Effect.Id, P, S, B]
-  type MountedCB   [P, S, B] = RootMounted[CallbackTo, P, S, B]
+  type MountedPure [P, S, B] = RootMounted[CallbackTo, P, S, B]
   type BackendScope[P, S]    = Generic.Mounted[CallbackTo, P, S]
 
   type JsComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = Js.ComponentPlusFacade[Box[P], Box[S], CT, Vars[P, S, B]]
@@ -41,9 +41,9 @@ object Scala {
 
   @js.native
   trait Vars[P, S, B] extends js.Object {
-    var mounted  : Mounted[P, S, B]
-    var mountedCB: MountedCB[P, S, B]
-    var backend  : B
+    var mounted    : Mounted    [P, S, B]
+    var mountedPure: MountedPure[P, S, B]
+    var backend    : B
   }
 
 //  private[this] def sanityCheckCU[P, S, B](c: Component[P, S, B, CtorType.Void]): Unmounted[P, S, B] = c.ctor()
