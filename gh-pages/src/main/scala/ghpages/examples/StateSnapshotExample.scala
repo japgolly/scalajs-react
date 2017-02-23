@@ -23,6 +23,7 @@ object StateSnapshotExample {
         ^.value     := stateSnapshot.value,
         ^.onChange ==> ((e: ReactEventFromInput) => stateSnapshot.setState(e.target.value)))
     }
+    .configure(extra.LogLifecycle.default)
     .build
 
   val Main = ScalaComponent.build[Unit]("StateSnapshot example")
@@ -36,6 +37,7 @@ object StateSnapshotExample {
         <.label("Surname:",    NameChanger(surnameV  )),
         <.p(s"My name is ${name.surname}, ${name.firstName} ${name.surname}."))
     }
+    .configure(extra.LogLifecycle.default)
     .build
 
   // EXAMPLE:END

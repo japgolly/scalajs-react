@@ -5,38 +5,30 @@ import japgolly.scalajs.react._
 /**
  * Installing this will cause logging to occur at React component lifecycle stages.
  *
- * Install in `ScalaComponent.build` via `.configure(LogLifecycle.short)` or `.configure(LogLifecycle.verbose)`.
+ * Install in `ScalaComponent.build` via `.configure(LogLifecycle.xxxxxx)`.
  */
 object LogLifecycle {
 
-  def short[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B] =
+  def custom[P, C <: Children, S, B](logFn: String => ScalaComponent.Lifecycle.Base[P, S, B] => Callback): ScalaComponentConfig[P, C, S, B] =
     in => {
-      val componentName = in.name
-
-      def log(cbName: String): Callback =
-        Callback.log(s"[$componentName] $cbName")
-
-      in.componentWillMountConst       (log("componentWillMount"))
-        .componentDidMountConst        (log("componentDidMount"))
-        .componentWillUnmountConst     (log("componentWillUnmount"))
-        .componentWillUpdateConst      (log("componentWillUpdate"))
-        .componentDidUpdateConst       (log("componentDidUpdate"))
-        .componentWillReceivePropsConst(log("componentWillReceiveProps"))
+      val log = logFn(in.name)
+      in.componentWillMount       (log)
+        .componentDidMount        (log)
+        .componentWillUnmount     (log)
+        .componentWillUpdate      (log)
+        .componentDidUpdate       (log)
+        .componentWillReceiveProps(log)
     }
+
+  def short[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B] =
+    custom(componentName => lc =>
+      Callback.log(s"[$componentName] ${lc.toString.replaceFirst("\\(.+", "")}"))
+
+  def default[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B] =
+    custom(componentName => lc =>
+      Callback.log(s"[$componentName] $lc"))
 
   def verbose[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B] =
-    in => {
-      val componentName = in.name
-
-      // TODO Test LogLifecycle.verbose
-      def log(cbName: String): ScalaComponent.Lifecycle.Base[P, S, B] => Callback =
-        b => Callback.log(s"[$componentName] $cbName\n  $b\n  ", b.raw)
-
-      in.componentWillMount       (log("componentWillMount"))
-        .componentDidMount        (log("componentDidMount"))
-        .componentWillUnmount     (log("componentWillUnmount"))
-        .componentWillUpdate      (log("componentWillUpdate"))
-        .componentDidUpdate       (log("componentDidUpdate"))
-        .componentWillReceiveProps(log("componentWillReceiveProps"))
-    }
+    custom(componentName => lc =>
+      Callback.log(s"[$componentName] $lc", lc.raw))
 }

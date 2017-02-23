@@ -476,6 +476,13 @@ object ScalaBuilder {
       final def forceUpdate(cb: Callback = Callback.empty): Callback = mountedPure.forceUpdate(cb)
     }
 
+    private def wrapTostring(toString: String) = toString
+      .replaceAll("undefined → undefined", "undefined")
+      .replace("props" +
+        ": undefined, ", "")
+      .replace("state: undefined)", ")")
+      .replace(", )", ")")
+
     // ===================================================================================================================
 
     def componentDidMount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentDidMount)(n => _.copy(componentDidMount = n))
@@ -484,6 +491,8 @@ object ScalaBuilder {
 
     final class ComponentDidMount[P, S, B](val raw: RawMounted[P, S, B])
         extends AnyVal with StateRW[P, S, B] with ForceUpdate[P, S, B] {
+
+      override def toString = wrapTostring(s"ComponentDidMount(props: $props, state: $state)")
 
       def props        : P                = mountedImpure.props
       def propsChildren: PropsChildren    = mountedImpure.propsChildren
@@ -499,6 +508,8 @@ object ScalaBuilder {
     final class ComponentDidUpdate[P, S, B](val raw: RawMounted[P, S, B], val prevProps: P, val prevState: S)
         extends StateW[P, S, B] with ForceUpdate[P, S, B] {
 
+      override def toString = wrapTostring(s"ComponentDidUpdate(props: $prevProps → $currentProps, state: $prevState → $currentState)")
+
       def propsChildren: PropsChildren = mountedImpure.propsChildren
       def currentProps : P             = mountedImpure.props
       def currentState : S             = mountedImpure.state
@@ -513,6 +524,8 @@ object ScalaBuilder {
 
     final class ComponentWillMount[P, S, B](val raw: RawMounted[P, S, B])
         extends AnyVal with StateRW[P, S, B] {
+
+      override def toString = wrapTostring(s"ComponentWillMount(props: $props, state: $state)")
 
       def props        : P             = mountedImpure.props
       def propsChildren: PropsChildren = mountedImpure.propsChildren
@@ -532,6 +545,8 @@ object ScalaBuilder {
 
     final class ComponentWillUnmount[P, S, B](val raw: RawMounted[P, S, B])
         extends AnyVal with Base[P, S, B] {
+
+      override def toString = wrapTostring(s"ComponentWillUnmount(props: $props, state: $state)")
 
       def props        : P             = mountedImpure.props
       def propsChildren: PropsChildren = mountedImpure.propsChildren
@@ -557,6 +572,8 @@ object ScalaBuilder {
     final class ComponentWillReceiveProps[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P)
         extends StateRW[P, S, B] with ForceUpdate[P, S, B] {
 
+      override def toString = wrapTostring(s"ComponentWillReceiveProps(props: $currentProps → $nextProps, state: $state)")
+
       def propsChildren: PropsChildren = mountedImpure.propsChildren
       def currentProps : P             = mountedImpure.props
       def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
@@ -570,6 +587,8 @@ object ScalaBuilder {
 
     final class ComponentWillUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
         extends Base[P, S, B] {
+
+      override def toString = wrapTostring(s"ComponentWillUpdate(props: $currentProps → $nextProps, state: $currentState → $nextState)")
 
       def propsChildren: PropsChildren = mountedImpure.propsChildren
       def currentProps : P             = mountedImpure.props
@@ -595,6 +614,8 @@ object ScalaBuilder {
     final class ShouldComponentUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
         extends Base[P, S, B] {
 
+      override def toString = wrapTostring(s"ShouldComponentUpdate(props: $currentProps → $nextProps, state: $currentState → $nextState)")
+
       def propsChildren: PropsChildren = mountedImpure.propsChildren
       def currentProps : P             = mountedImpure.props
       def currentState : S             = mountedImpure.state
@@ -617,6 +638,8 @@ object ScalaBuilder {
 
     final class RenderScope[P, S, B](val raw: RawMounted[P, S, B])
         extends StateRW[P, S, B] with ForceUpdate[P, S, B] {
+
+      override def toString = wrapTostring(s"Render(props: $props, state: $state)")
 
       def isMounted    : Boolean       = mountedImpure.isMounted
       def props        : P             = mountedImpure.props
