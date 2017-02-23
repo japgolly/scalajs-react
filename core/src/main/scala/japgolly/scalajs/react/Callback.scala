@@ -30,7 +30,7 @@ object Callback {
     @inline implicit def apply[A: Proof]: ResultGuard[A] = null
   }
 
-  @inline def apply[U: ResultGuard](f: => U): Callback =
+  def apply[U: ResultGuard](f: => U): Callback =
     CallbackTo(f: Unit)
 
   @inline def lift(f: () => Unit): Callback =
@@ -53,7 +53,7 @@ object Callback {
    *
    * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
    */
-  @inline def byName(f: => Callback): Callback =
+  def byName(f: => Callback): Callback =
     CallbackTo(f.runNow())
 
   /**
@@ -101,7 +101,7 @@ object Callback {
    *
    * @param cond The condition required to be `false` for the callback to execute.
    */
-  @inline def unless(cond: Boolean)(c: => Callback): Callback =
+  def unless(cond: Boolean)(c: => Callback): Callback =
     when(!cond)(c)
 
   def traverse[T[X] <: TraversableOnce[X], A](ta: => T[A])(f: A => Callback): Callback =
@@ -109,7 +109,7 @@ object Callback {
       ta.foreach(a =>
         f(a).runNow()))
 
-  @inline def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
+  def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
     traverse(tca)(identityFn)
 
   def traverseO[A](oa: => Option[A])(f: A => Callback): Callback =
@@ -117,7 +117,7 @@ object Callback {
       oa.foreach(a =>
         f(a).runNow()))
 
-  @inline def sequenceO[A](oca: => Option[Callback]): Callback =
+  def sequenceO[A](oca: => Option[Callback]): Callback =
     traverseO(oca)(identityFn)
 
   /**
@@ -179,13 +179,13 @@ object Callback {
 // =====================================================================================================================
 
 object CallbackTo {
-  @inline def apply[A](f: => A): CallbackTo[A] =
+  def apply[A](f: => A): CallbackTo[A] =
     new CallbackTo(() => f)
 
-  @inline def lift[A](f: () => A): CallbackTo[A] =
+  def lift[A](f: () => A): CallbackTo[A] =
     new CallbackTo(f)
 
-  @inline def pure[A](a: A): CallbackTo[A] =
+  def pure[A](a: A): CallbackTo[A] =
     new CallbackTo(() => a)
 
   /**
@@ -201,7 +201,7 @@ object CallbackTo {
    *
    * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
    */
-  @inline def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
+  def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     CallbackTo(f.runNow())
 
   /**
@@ -230,14 +230,14 @@ object CallbackTo {
       r.result()
     }
 
-  @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])
-                                                     (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
+  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])
+                                             (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
     traverse(tca)(identityFn)
 
   def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
     CallbackTo(oa.map(f(_).runNow()))
 
-  @inline def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
+  def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
     traverseO(oca)(identityFn)
 
   /**
@@ -272,7 +272,7 @@ object CallbackTo {
     Callback.todoImpl(Some(() => reason)) >> CallbackTo(result)
 
   final class ReactExt_CallbackToFuture[A](private val _c: () => Future[A]) extends AnyVal {
-    @inline private def c = new CallbackTo(_c)
+    private def c = new CallbackTo(_c)
 
     /**
      * Turns a `CallbackTo[Future[A]]` into a `Future[A]`.
@@ -432,7 +432,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    * @param cond The condition required to be `false` for this callback to execute.
    * @return `Some` result of the callback executed, else `None`.
    */
-  @inline def unless(cond: => Boolean): CallbackTo[Option[A]] =
+  def unless(cond: => Boolean): CallbackTo[Option[A]] =
     when(!cond)
 
   /**
@@ -451,7 +451,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    *
    * @param cond The condition required to be `false` for the callback to execute.
    */
-  @inline def unless_(cond: => Boolean): Callback =
+  def unless_(cond: => Boolean): Callback =
     when_(!cond)
 
   /**
@@ -595,7 +595,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    * Record the duration of this callback's execution.
    */
   def withDuration[B](f: (A, FiniteDuration) => CallbackTo[B]): CallbackTo[B] = {
-    @inline def nowMS: Long = System.currentTimeMillis()
+    def nowMS: Long = System.currentTimeMillis()
     CallbackTo {
       val s = nowMS
       val a = runNow()

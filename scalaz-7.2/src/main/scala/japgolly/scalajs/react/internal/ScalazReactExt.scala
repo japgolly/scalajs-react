@@ -9,7 +9,7 @@ import ScalazReact.{ChangeFilter, ScalazReactExt_StateAccessCB}
 
 object ScalazReactExt {
 
-  @inline final class CallbackToOps[A](private val _c: () => A) extends AnyVal {
+  final class CallbackToOps[A](private val _c: () => A) extends AnyVal {
     private def c = CallbackTo lift _c
 
     def toIO: IO[A] =
@@ -20,12 +20,12 @@ object ScalazReactExt {
       c.map(_.unsafePerformIO())
   }
 
-  @inline final class MA[M[_], A](private val m: M[A]) extends AnyVal {
-    @inline def toCallback(implicit t: M ~> CallbackTo): CallbackTo[A] =
+  final class MA[M[_], A](private val m: M[A]) extends AnyVal {
+    def toCallback(implicit t: M ~> CallbackTo): CallbackTo[A] =
       t(m)
   }
 
-  @inline final class ReusabilityOps(private val ε: Reusability.type) extends AnyVal {
+  final class ReusabilityOps(private val ε: Reusability.type) extends AnyVal {
 
     /** Compare using Scalaz equality. */
     def byEqual[A](implicit e: Equal[A]): Reusability[A] =
@@ -36,7 +36,7 @@ object ScalazReactExt {
       Reusability.byRef[A] || byEqual[A]
   }
 
-  @inline final class ListenableOps(private val ε: Listenable.type) extends AnyVal {
+  final class ListenableOps(private val ε: Listenable.type) extends AnyVal {
     import ScalazReact.ReactST
 
     def listenWithStateMonad[P, C <: Children, S, B <: OnUnmount, M[_], A](listenable: P => Listenable[A],
@@ -51,8 +51,8 @@ object ScalazReactExt {
 }
 
 trait ScalazReactExt {
-  @inline implicit final def ScalazReactExt_Reusability(a: Reusability.type) = new ReusabilityOps(a)
-  @inline implicit final def ScalazReactExt_Listenable(a: Listenable.type) = new ListenableOps(a)
-  @inline implicit final def ScalazReactExt_CallbackTo[A](a: CallbackTo[A]) = new CallbackToOps(a.toScalaFn)
-  @inline implicit final def ScalazReactExt_MA[M[_], A](a: M[A]) = new MA(a)
+  implicit final def ScalazReactExt_Reusability(a: Reusability.type) = new ReusabilityOps(a)
+  implicit final def ScalazReactExt_Listenable(a: Listenable.type) = new ListenableOps(a)
+  implicit final def ScalazReactExt_CallbackTo[A](a: CallbackTo[A]) = new CallbackToOps(a.toScalaFn)
+  implicit final def ScalazReactExt_MA[M[_], A](a: M[A]) = new MA(a)
 }

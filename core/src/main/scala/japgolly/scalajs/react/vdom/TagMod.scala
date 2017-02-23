@@ -57,7 +57,7 @@ object TagMod {
       override def apply(ms: TagMod*) = TagMod(ms: _*)
     }
 
-  @inline def devOnly(m: => TagMod): TagMod =
+  def devOnly(m: => TagMod): TagMod =
     if (developmentMode)
       m
     else

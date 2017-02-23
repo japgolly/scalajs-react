@@ -6,7 +6,7 @@ import japgolly.scalajs.react.internal.JsUtil
 import japgolly.scalajs.react.raw
 
 object Builder {
-  @inline private[Builder] def set(o: js.Object, k: String, v: js.Any): Unit =
+  private[Builder] def set(o: js.Object, k: String, v: js.Any): Unit =
     o.asInstanceOf[js.Dynamic].updateDynamic(k)(v)
 
   type BuildFn = (String, js.Object, js.Array[raw.ReactNodeList]) => raw.ReactElement
@@ -95,7 +95,7 @@ final class Builder {
       addStyle(k, v)
   }
 
-  @inline private[this] def hasStyle: Boolean =
+  private[this] def hasStyle: Boolean =
     js.Object.keys(style).length != 0
 
   def render(tag: String): ReactElement = {

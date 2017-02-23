@@ -104,10 +104,10 @@ Contributions welcome.
 - Revise & integrate the `test` module.
 - StateSnapshot + lens helper (#293)
 - Update the `gh-pages` module.
+- over-zealous inlining (#324)
 
 # Pending
 
-- over-zealous inlining (#324)
 - Update doc.
 
 # Maybe

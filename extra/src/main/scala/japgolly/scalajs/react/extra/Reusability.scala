@@ -48,10 +48,10 @@ object Reusability {
   def const[A](r: Boolean): Reusability[A] =
     new Reusability((_, _) => r)
 
-  @inline def always[A]: Reusability[A] =
+  def always[A]: Reusability[A] =
     const(true)
 
-  @inline def never[A]: Reusability[A] =
+  def never[A]: Reusability[A] =
     const(false)
 
   /** Compare by reference. Reuse if both values are the same instance. */

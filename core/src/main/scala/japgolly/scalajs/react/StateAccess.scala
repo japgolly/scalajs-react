@@ -40,8 +40,8 @@ trait StateAccess[F[_], S] {
 
   type WithEffect[F2[_]] <: StateAccess[F2, S]
   def withEffect[F2[_]](implicit t: Effect.Trans[F, F2]): WithEffect[F2]
-  @inline final def withEffectsPure(implicit t: Effect.Trans[F, CallbackTo]): WithEffect[CallbackTo] = withEffect
-  @inline final def withEffectsImpure(implicit t: Effect.Trans[F, Effect.Id]): WithEffect[Effect.Id] = withEffect
+  final def withEffectsPure(implicit t: Effect.Trans[F, CallbackTo]): WithEffect[CallbackTo] = withEffect
+  final def withEffectsImpure(implicit t: Effect.Trans[F, Effect.Id]): WithEffect[Effect.Id] = withEffect
 }
 
 object StateAccess {

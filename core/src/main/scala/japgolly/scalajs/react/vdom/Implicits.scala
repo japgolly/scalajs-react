@@ -41,7 +41,7 @@ trait ImplicitsForReactAttr extends ImplicitsForReactAttr0 {
   // For attributes that aren't typed yet
   @inline implicit def reactAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
 
-  @inline implicit def reactAttrVtCssUnits[N: Numeric](n: N): CssUnits = new CssUnits(n)
+  implicit def reactAttrVtCssUnits[N: Numeric](n: N): CssUnits = new CssUnits(n)
 }
 
 // =====================================================================================================================
@@ -64,15 +64,14 @@ object ImplicitsForReactNode {
 trait ImplicitsForReactNode {
   import ImplicitsForReactNode._
 
-  // TODO Confirm @inline impacts on output size
-          implicit def reactNodeFromL                 (v: Long)               : ReactNode = ReactNode.cast(v.toString)
-  @inline implicit def reactNodeFromI                 (v: Int)                : ReactNode = ReactNode.cast(v)
-  @inline implicit def reactNodeFromSh                (v: Short)              : ReactNode = ReactNode.cast(v)
-  @inline implicit def reactNodeFromB                 (v: Byte)               : ReactNode = ReactNode.cast(v)
-  @inline implicit def reactNodeFromD                 (v: Double)             : ReactNode = ReactNode.cast(v)
-  @inline implicit def reactNodeFromF                 (v: Float)              : ReactNode = ReactNode.cast(v)
-  @inline implicit def reactNodeFromS                 (v: String)             : ReactNode = ReactNode.cast(v)
-          implicit def reactNodeFromPC                (pc: PropsChildren)     : ReactNode = ReactNode.cast(pc.raw)
+  implicit def reactNodeFromL                 (v: Long)               : ReactNode = ReactNode.cast(v.toString)
+  implicit def reactNodeFromI                 (v: Int)                : ReactNode = ReactNode.cast(v)
+  implicit def reactNodeFromSh                (v: Short)              : ReactNode = ReactNode.cast(v)
+  implicit def reactNodeFromB                 (v: Byte)               : ReactNode = ReactNode.cast(v)
+  implicit def reactNodeFromD                 (v: Double)             : ReactNode = ReactNode.cast(v)
+  implicit def reactNodeFromF                 (v: Float)              : ReactNode = ReactNode.cast(v)
+  implicit def reactNodeFromS                 (v: String)             : ReactNode = ReactNode.cast(v)
+  implicit def reactNodeFromPC                (pc: PropsChildren)     : ReactNode = ReactNode.cast(pc.raw)
 
   implicit def reactNodeExtForTO[A](as: TraversableOnce[A])(implicit f: A => ReactNode): TravOnceExt[A] =
     new TravOnceExt[A](as)(f)
@@ -87,10 +86,10 @@ trait ImplicitsForReactNode {
 // =====================================================================================================================
 
 trait ImplicitsForReactElement {
-  @inline implicit def reactElementFromTag[A](a: A)(implicit f: A => ReactTag): ReactElement =
+  implicit def reactElementFromTag[A](a: A)(implicit f: A => ReactTag): ReactElement =
     f(a).render
 
-  @inline implicit def reactElementFromCompUnmounted(u: Generic.BaseUnmounted[_, _, _, _]): ReactElement =
+  implicit def reactElementFromCompUnmounted(u: Generic.BaseUnmounted[_, _, _, _]): ReactElement =
     u.reactElement
 }
 

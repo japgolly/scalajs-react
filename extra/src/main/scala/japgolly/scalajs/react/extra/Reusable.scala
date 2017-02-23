@@ -34,19 +34,19 @@ object Reusable {
       case _    => false
     })
 
-  @inline def implicitly[A: ClassTag : Reusability](a: A): Reusable[A] =
+  def implicitly[A: ClassTag : Reusability](a: A): Reusable[A] =
     explicitly(a)(Predef.implicitly)
 
-  @inline def explicitly[A: ClassTag](a: A)(r: Reusability[A]): Reusable[A] =
+  def explicitly[A: ClassTag](a: A)(r: Reusability[A]): Reusable[A] =
     apply(a)(r.test)
 
   def const[A](a: A, reuse: Boolean): Reusable[A] =
     root(a, _ => reuse)
 
-  @inline def always[A](a: A): Reusable[A] =
+  def always[A](a: A): Reusable[A] =
     const(a, true)
 
-  @inline def never[A](a: A): Reusable[A] =
+  def never[A](a: A): Reusable[A] =
     const(a, false)
 
   /** Compare by reference. Reuse if both values are the same instance. */

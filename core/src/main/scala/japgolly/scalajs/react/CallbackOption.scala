@@ -89,8 +89,8 @@ object CallbackOption {
       go
     }
 
-  @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackOption[A]])
-                                                     (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
+  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackOption[A]])
+                                             (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
     traverse(tca)(identityFn)
 
   /**
@@ -102,7 +102,7 @@ object CallbackOption {
   /**
    * NOTE: Technically a proper, lawful sequence should return `CallbackOption[Option[A]]`.
    */
-  @inline def sequenceO[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] =
+  def sequenceO[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] =
     traverseO(oca)(identityFn)
 
   implicit def toCallback(co: CallbackOption[Unit]): Callback =
@@ -265,7 +265,7 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
    *
    * This method allows you to be explicit about the type you're discarding (which may change in future).
    */
-  @inline def voidExplicit[B](implicit ev: A <:< B): Callback =
+  @inline def voidExplicit[B](implicit ev: A <:< B): CallbackOption[Unit] =
     void
 
   /**
@@ -283,7 +283,7 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
    * @param cond The condition required to be `false` for this callback to execute.
    * @return `Some` result of the callback executed, else `None`.
    */
-  @inline def unless(cond: => Boolean): CallbackOption[A] =
+  def unless(cond: => Boolean): CallbackOption[A] =
     when(!cond)
 
   def orElse[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =

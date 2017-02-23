@@ -12,7 +12,7 @@ object Style {
   def apply[A](name: String): Attr[A] =
     new Style[A](name)
 
-  @inline def devOnly[A](name: => String): Attr[A] =
+  def devOnly[A](name: => String): Attr[A] =
     if (developmentMode)
       apply(name)
     else

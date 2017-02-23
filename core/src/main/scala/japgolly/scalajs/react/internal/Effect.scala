@@ -14,19 +14,19 @@ object Effect {
   type Id[A] = A
 
   implicit val idInstance: Effect[Id] = new Effect[Id] {
-    @inline override def point  [A]   (a: => A)         = a
-    @inline override def pure   [A]   (a: A)            = a
-    @inline override def map    [A, B](a: A)(f: A => B) = f(a)
-    @inline override def flatMap[A, B](a: A)(f: A => B) = f(a)
-    @inline override def extract[A]   (a: => A)         = () => a
+    override def point  [A]   (a: => A)         = a
+    override def pure   [A]   (a: A)            = a
+    override def map    [A, B](a: A)(f: A => B) = f(a)
+    override def flatMap[A, B](a: A)(f: A => B) = f(a)
+    override def extract[A]   (a: => A)         = () => a
   }
 
   implicit val callbackInstance: Effect[CallbackTo] = new Effect[CallbackTo] {
-    @inline override def point  [A]   (a: => A)                                 = CallbackTo(a)
-    @inline override def pure   [A]   (a: A)                                    = CallbackTo.pure(a)
-    @inline override def map    [A, B](a: CallbackTo[A])(f: A => B)             = a map f
-    @inline override def flatMap[A, B](a: CallbackTo[A])(f: A => CallbackTo[B]) = a flatMap f
-    @inline override def extract[A]   (a: => CallbackTo[A])                     = a.toScalaFn
+    override def point  [A]   (a: => A)                                 = CallbackTo(a)
+    override def pure   [A]   (a: A)                                    = CallbackTo.pure(a)
+    override def map    [A, B](a: CallbackTo[A])(f: A => B)             = a map f
+    override def flatMap[A, B](a: CallbackTo[A])(f: A => CallbackTo[B]) = a flatMap f
+    override def extract[A]   (a: => CallbackTo[A])                     = a.toScalaFn
   }
 
   // ===================================================================================================================

@@ -62,10 +62,10 @@ package object raw {
   // type ReactFragment = js.Array[ReactNode | ReactEmpty]
   @js.native
   trait ReactFragment extends js.Any
-  @inline implicit def ReactFragment[A](a: A)(implicit w: A => js.Array[ReactNode | ReactEmpty]): ReactFragment =
+  implicit def ReactFragment[A](a: A)(implicit w: A => js.Array[ReactNode | ReactEmpty]): ReactFragment =
     w(a).asInstanceOf[ReactFragment]
 
-//  @inline def emptyReactNodeList: ReactNodeList =
+//  def emptyReactNodeList: ReactNodeList =
 //    js.undefined
 
   type ReactClass = js.Function1[Props, ReactComponent] with HasDisplayName

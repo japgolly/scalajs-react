@@ -110,7 +110,7 @@ sealed trait Action[P] extends Product with Serializable {
 }
 
 final case class Renderer[P](f: RouterCtl[P] => ReactElement) extends Action[P] {
-  @inline def apply(ctl: RouterCtl[P]) = f(ctl)
+  def apply(ctl: RouterCtl[P]) = f(ctl)
 
   override def map[A](g: P => A): Renderer[A] =
     Renderer(r => f(r contramap g))

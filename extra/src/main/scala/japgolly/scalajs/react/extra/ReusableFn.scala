@@ -28,7 +28,7 @@ sealed abstract class ReusableFn[-A, +B] extends AbstractFunction1[A, B] {
 
 object ReusableFn {
 
-  @inline implicit final class EndoOps[E, B](private val s: (E => E) ~=> B) extends AnyVal {
+  implicit final class EndoOps[E, B](private val s: (E => E) ~=> B) extends AnyVal {
     def endoCall[I](f: E => I => E): I ~=> B =
       s.dimap(g => i => g(f(_)(i)))
 

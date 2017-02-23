@@ -45,7 +45,7 @@ object Attr {
   def apply[A](name: String): Attr[A] =
     new Generic[A](name)
 
-  @inline def devOnly[A](name: => String): Attr[A] =
+  def devOnly[A](name: => String): Attr[A] =
     if (developmentMode)
       new Generic(name)
     else
@@ -142,7 +142,7 @@ object Attr {
 
     type Fn[-A] = (js.Any => Unit, A) => Unit
 
-    @inline def apply[A, U](fn: Fn[A]): ValueType[A, U] =
+    def apply[A, U](fn: Fn[A]): ValueType[A, U] =
       new ValueType(fn)
 
     val direct: ValueType[js.Any, Nothing] =
