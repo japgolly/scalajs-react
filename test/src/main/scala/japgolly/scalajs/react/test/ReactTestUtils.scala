@@ -80,6 +80,25 @@ object ReactTestUtils {
 
   // ===================================================================================================================
 
+  def newBodyElement(): Element = {
+    val cont = document.createElement("div").domAsHtml
+    document.body.appendChild(cont)
+    cont
+  }
+
+  def removeNewBodyElement(e: Element): Unit = {
+    ReactDOM unmountComponentAtNode e // Doesn't matter if no component mounted here
+    document.body.removeChild(e)
+  }
+
+  def withNewBodyElement[A](use: Element => A): A = {
+    val e = newBodyElement()
+    try
+      use(e)
+    finally
+      removeNewBodyElement(e)
+  }
+
   /** Renders a component then unmounts and cleans up after use.
     *
     * @param intoBody Whether to use [[renderIntoBody()]] or [[ReactTestUtils.renderIntoDocument()]].
@@ -115,7 +134,7 @@ object ReactTestUtils {
     *
     * Unlike [[ReactTestUtils.renderIntoDocument()]], this allows DOM focus to work.
     */
-  def renderIntoBody[M, A](u: Unmounted[M])(f: M => A): M =
+  def renderIntoBody[M, A](u: Unmounted[M]): M =
     u.mountRaw(RawReactDOM.render(u.raw, newBodyElement()))
 
   private def _withRenderedIntoBody[A, B](render: Element => A)(n: A => TopNode, use: A => B): B =
@@ -127,67 +146,46 @@ object ReactTestUtils {
         ReactDOM unmountComponentAtNode n(a).parentNode
     }
 
-  def withNewBodyElement[A](use: Element => A): A = {
+  // -------------------------------------------------------------------------------------------------------------------
+
+  private def attemptFuture[A](f: => Future[A]): Future[A] =
+    try f catch { case err: Exception => Future.failed(err) }
+
+  def withNewBodyElementAsync[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     val e = newBodyElement()
-    try
-      use(e)
-    finally {
-      ReactDOM unmountComponentAtNode e // Doesn't matter if no component mounted here
-      document.body.removeChild(e)
-    }
+    attemptFuture(use(e)).andThen { case _ => removeNewBodyElement(e) }
   }
 
-  def newBodyElement(): Element = {
-    val cont = document.createElement("div").domAsHtml
-    document.body.appendChild(cont)
-    cont
-  }
+  /** Renders a component then unmounts and cleans up after use.
+    *
+    * @param intoBody Whether to use [[renderIntoBodyAsync()]] or [[renderIntoDocumentAsync()]].
+    */
+  def withRenderedAsync[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
+    if (intoBody)
+      withRenderedIntoBodyAsync(u)(f)
+    else
+      withRenderedIntoDocumentAsync(u)(f)
 
   /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
     * and asynchronously waits for the Future to complete before unmounting.
     */
-  def withRenderedIntoDocumentAsync[A](c: ReactElement)(f: ComponentM => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    _withRenderedIntoDocumentAsync(* renderIntoDocument c)(_.getDOMNode(), f)
+  def withRenderedIntoDocumentAsync[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
+    _withRenderedIntoDocumentAsync(raw.renderIntoDocument(u.raw))(RawReactDOM.findDOMNode, f compose u.mountRaw)
 
-  /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
-    * and asynchronously waits for the Future to complete before unmounting.
-    */
-  def withRenderedIntoDocumentAsync[P,S,B,N <: TopNode, A](c: ReactComponentU[P,S,B,N])(f: ReactComponentM[P,S,B,N] => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    _withRenderedIntoDocumentAsync(* renderIntoDocument c)(_.getDOMNode(), f)
+  private def _withRenderedIntoDocumentAsync[A, B](a: A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] =
+    attemptFuture(use(a)).andThen { case _ => ReactDOM unmountComponentAtNode n(a).parentNode }
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * and asynchronously waits for the Future to complete before unmounting.
     */
-  def withRenderedIntoBodyAsync[A](c: ReactElement)(f: ReactComponentM_[TopNode] => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    _withRenderedIntoBodyAsync(ReactDOM.render(c, _))(_.getDOMNode(), f)
+  def withRenderedIntoBodyAsync[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
+    _withRenderedIntoBodyAsync(RawReactDOM.render(u.raw, _))(RawReactDOM.findDOMNode, f compose u.mountRaw)
 
-  /** Renders a component into the document body via [[ReactDOM.render()]],
-    * and asynchronously waits for the Future to complete before unmounting.
-    */
-  def withRenderedIntoBodyAsync[P,S,B,N <: TopNode, A](c: ReactComponentU[P,S,B,N])(f: ReactComponentM[P,S,B,N] => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    _withRenderedIntoBodyAsync(ReactDOM.render(c, _))(_.getDOMNode(), f)
-
-  private def _withRenderedIntoBodyAsync[A, B](render: Element => A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] = {
-    val parent = _renderIntoBodyContainer()
-    try {
+  private def _withRenderedIntoBodyAsync[A, B](render: Element => A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] =
+    withNewBodyElementAsync { parent =>
       val a = render(parent)
-      use(a).andThen {
-        case _ =>
-          ReactDOM unmountComponentAtNode n(a).parentNode
-          document.body.removeChild(parent)
-      }
-    } catch {
-      case e: Exception =>
-        document.body.removeChild(parent)
-        Future.failed(e)
+      attemptFuture(use(a)).andThen { case _ => ReactDOM unmountComponentAtNode n(a).parentNode }
     }
-  }
-
-  private def _withRenderedIntoDocumentAsync[A, B](a: A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] = {
-    use(a).andThen {
-      case _ => ReactDOM unmountComponentAtNode n(a).parentNode
-    }
-  }
 
   // ===================================================================================================================
 

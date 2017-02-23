@@ -202,47 +202,46 @@ object TestTest extends TestSuite {
     }
 
     'withRenderedIntoDocumentAsync {
-      var m: IC.Mounted = null
+      var m: ScalaComponent.Mounted[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
       ReactTestUtils.withRenderedIntoDocumentAsync(IC()) { mm =>
         m = mm
         promise.future
       }
-      val n = m.getDOMNode()
+      val n = m.getDOMNode
       assert(ReactTestUtils.removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
-      assert(m.isMounted())
+      assert(m.isMounted)
 
       promise.success(())
 
-      promise.future.map(_ => assert(!m.isMounted()))
+      promise.future.map(_ => assert(!m.isMounted))
     }
 
     'withRenderedIntoBodyAsync {
       def inspectBody() = document.body.childElementCount
       val body1 = inspectBody()
-      var m: IC.Mounted = null
+      var m: ScalaComponent.Mounted[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
-      ReactTestUtils.withRenderedIntoBodyAsync(IC()) { mm =>
+      val future = ReactTestUtils.withRenderedIntoBodyAsync(IC()) { mm =>
         m = mm
         promise.future
       }
-      val n = m.getDOMNode()
+      val n = m.getDOMNode
       assert(ReactTestUtils.removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
-      assert(m.isMounted())
+      assert(m.isMounted)
 
       // Benefits of body over detached
-      val i = inputRef(m).get
-      i.focus()
-      assert(document.activeElement == i)
-      i.blur()
-      assert(document.activeElement != i)
+      inputRef.focus()
+      assert(document.activeElement == inputRef)
+      inputRef.blur()
+      assert(document.activeElement != inputRef)
 
       promise.success(())
 
-      promise.future.map(_ => {
+      future.map { _ =>
         val body2 = inspectBody()
-        assert(!m.isMounted(), body1 == body2)
-      })
+        assert(!m.isMounted, body1 == body2)
+      }
     }
   }
 }
