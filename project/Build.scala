@@ -1,10 +1,6 @@
-import sbt._
-import Keys._
+import sbt._, Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
-import org.scalajs.sbtplugin.ScalaJSPlugin
-import ScalaJSPlugin._
-import ScalaJSPlugin.autoImport._
-import org.scalajs.jsenv.JSEnv
+import org.scalajs.sbtplugin.ScalaJSPlugin, ScalaJSPlugin.autoImport._
 
 object ScalajsReact {
 
@@ -14,16 +10,14 @@ object ScalajsReact {
     val ScalaJsDom    = "0.9.1"
     val ReactJs       = "15.3.2"
     val Monocle       = "1.4.0"
-    val Scalaz72      = "7.2.8"
-    val MTest         = "0.4.4"
+    val Scalaz72      = "7.2.9"
+    val MTest         = "0.4.5"
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.3.0"
     val Nyaya         = "0.8.1"
   }
 
   type PE = Project => Project
-
-  val clearScreenTask = TaskKey[Unit]("clear", "Clears the screen.")
 
   def byScalaVersion[A](f: PartialFunction[(Int, Int), Seq[A]]): Def.Initialize[Seq[A]] =
     Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
@@ -46,8 +40,7 @@ object ScalajsReact {
         //scalacOptions    += "-Xlog-implicits",
         updateOptions      := updateOptions.value.withCachedResolution(true),
         incOptions         := incOptions.value.withNameHashing(true).withLogRecompileOnMacro(false),
-        triggeredMessage   := Watched.clearWhenTriggered,
-        clearScreenTask    := { println("\033[2J\033[;H") })
+        triggeredMessage   := Watched.clearWhenTriggered)
 
   def preventPublication: PE =
     _.settings(
