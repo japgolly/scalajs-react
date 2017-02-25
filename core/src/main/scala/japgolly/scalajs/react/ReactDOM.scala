@@ -10,10 +10,12 @@ object ReactDOM {
     raw.unmountComponentAtNode(container)
 
   @deprecated("Use .renderIntoDOM on unmounted components.", "")
-  def render(x: Nothing): Null = null
+  def render(element  : Nothing,
+             container: Nothing,
+             callback : Any = null): Null = null
 
   @deprecated("Use .getDOMNode on mounted components.", "")
-  def findDOMNode(x: Nothing): Null = null
+  def findDOMNode(comonent: Nothing): Null = null
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
