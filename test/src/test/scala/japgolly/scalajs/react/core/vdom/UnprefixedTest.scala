@@ -25,9 +25,7 @@ object UnprefixedTest extends TestSuite {
   def checkbox(check: Boolean) = input.checkbox(checked := check, readOnly := true)
 
   def test(subj: ReactElement, exp: String): Unit = {
-    val comp = ScalaComponent.build[Unit]("tmp")
-        .renderStatic(subj)
-        .build
+    val comp = ScalaComponent.static("tmp", subj)
     assertRender(comp(), exp)
   }
 
@@ -56,6 +54,11 @@ object UnprefixedTest extends TestSuite {
     'styleObj   - test(div(style := jsObj),                     """<div style="a:b;"></div>""")
     'styleDict  - test(div(style := js.Dictionary("x" -> "y")), """<div style="x:y;"></div>""")
     'styleAttrs - test(div(color := "red", cursor.auto),        """<div style="color:red;cursor:auto;"></div>""")
+
+    'boolean {
+      't - test(div(disabled := true), """<div disabled=""></div>""")
+      'f - test(div(disabled := false), """<div></div>""")
+    }
 
     'ReactArray {
 
