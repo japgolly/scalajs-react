@@ -60,7 +60,7 @@ object ReactDOM extends ReactDOM
 @js.native
 trait ReactDOM extends js.Object {
 
-  final type Container = dom.html.Element | dom.svg.Element
+  final type Container = dom.Element
 
   def render(element  : ReactElement,
              container: Container,
