@@ -6,6 +6,8 @@ import japgolly.scalajs.react.CtorType
 
 trait JsBaseComponentTemplate[RawComponent <: js.Any] {
 
+  protected def rawComponentDisplayName: RawComponent => String
+
   final type RootComponent[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U] =
     BaseComponent[P, CT, U, P, CT, U]
 
@@ -19,6 +21,7 @@ trait JsBaseComponentTemplate[RawComponent <: js.Any] {
 
     override final type Root = RootComponent[P0, CT0, U0]
     override final type Raw = RawComponent
+    override final def displayName = rawComponentDisplayName(raw)
 
     override def cmapCtorProps[P2](f: P2 => P1): BaseComponent[P2, CT1, U1, P0, CT0, U0]
     override def mapUnmounted[U2](f: U1 => U2): BaseComponent[P1, CT1, U2, P0, CT0, U0]

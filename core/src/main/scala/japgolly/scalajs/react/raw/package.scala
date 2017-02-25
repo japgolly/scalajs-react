@@ -50,9 +50,12 @@ package object raw {
 
   type ReactCtor = ReactClass | ReactFunctionalComponent
 
+  // function(props, context, updater)
+  type ReactCtorAfterUse = js.Function3[Props, js.Any, js.Any, js.Any] with HasDisplayName
+
   @js.native
   trait ReactComponentElement extends ReactElement {
-    def `type`: ReactCtor
+    def `type`: ReactCtorAfterUse
     def props: PropsWithChildren
     def key: Key
     def ref: Ref
@@ -85,7 +88,7 @@ package object raw {
     // [ 7/30] componentWillReceiveProps : object   = null
     // [ 8/30] componentWillUnmount      : object   = null
     // [ 9/30] componentWillUpdate       : object   = null
-    val constructor: ReactCtor
+    val constructor: ReactCtorAfterUse
     // [11/30] context                   : object   = [object Object]
     // [12/30] contextTypes              : object   = null
     def forceUpdate(callback: js.Function0[Unit] = js.native): Unit = js.native

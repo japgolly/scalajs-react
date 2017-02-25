@@ -49,6 +49,9 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
   type UnmountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted]                               = RootUnmounted[P,       MountedWithRawType[P, S, R]]
   type   MountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted]                               = RootMounted[Effect.Id, P, S, R]
 
+  override protected val rawComponentDisplayName: RAW.ReactClass => String =
+    _.displayName
+
   // ===================================================================================================================
 
   type RootUnmounted[P <: js.Object, M] = BaseUnmounted[P, M, P, M]
@@ -60,6 +63,8 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
     override final type Raw = RAW.ReactComponentElement
     override def mapUnmountedProps[P2](f: P1 => P2): BaseUnmounted[P2, M1, P0, M0]
     override def mapMounted[M2](f: M1 => M2): BaseUnmounted[P1, M2, P0, M0]
+
+    override final def displayName = raw.`type`.displayName
   }
 
   def rootUnmounted[P <: js.Object, M](r: RAW.ReactComponentElement, m: RAW.ReactComponent => M): RootUnmounted[P, M] =
@@ -126,6 +131,8 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
     override final type WithMappedState[S2] = BaseMounted[F, P1, S2, R, P0, S0]
 
     override final type Raw = R
+
+    override final def displayName = raw.constructor.displayName
 
     final def withRawType[R2 <: RawMounted]: BaseMounted[F, P1, S1, R2, P0, S0] =
       this.asInstanceOf[BaseMounted[F, P1, S1, R2, P0, S0]]

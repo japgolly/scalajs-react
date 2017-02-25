@@ -21,6 +21,7 @@ object Generic {
   trait RawAccessComponent {
     type Raw <: js.Any
     val raw: Raw
+    def displayName: String
   }
 
   trait BaseComponent[
@@ -44,6 +45,7 @@ object Generic {
   trait RawAccessUnmounted {
     type Raw <: RAW.ReactElement
     val raw: Raw
+    def displayName: String
   }
 
   trait BaseUnmounted[P1, M1, P0, M0] extends RawAccessUnmounted {
@@ -71,6 +73,7 @@ object Generic {
   trait RawAccessMounted {
     type Raw <: RAW.ReactComponent
     val raw: Raw
+    def displayName: String
   }
 
   trait BaseMounted[F[_], P1, S1, P0, S0] extends RawAccessMounted with StateAccess[F, S1] {

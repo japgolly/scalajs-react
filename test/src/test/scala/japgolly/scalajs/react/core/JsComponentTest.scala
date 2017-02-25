@@ -167,7 +167,10 @@ object JsComponentSTest extends JsComponentTest {
       js.Dynamic.literal("num1" -> num1, "num2" -> num2).asInstanceOf[JsState]
 
     'displayName {
-      assertEq(Component.raw.displayName, "Statey")
+      def n = "Statey"
+      'c - assertEq(Component.displayName, n)
+      'u - assertEq(Component().displayName, n)
+      'm - assertEq(ReactTestUtils.withRenderedIntoDocument(Component())(_.displayName), n)
     }
 
     'noChildren {

@@ -18,6 +18,11 @@ object JsFn extends JsBaseComponentTemplate[RAW.ReactFunctionalComponent] {
                                           (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
     apply[P, C](js.Dynamic.global.selectDynamic(name).asInstanceOf[RAW.ReactFunctionalComponent])(s)
 
+  private def staticDisplayName = "<FnComponent>"
+
+  override protected def rawComponentDisplayName: RAW.ReactFunctionalComponent => String =
+    _ => staticDisplayName
+
   // ===================================================================================================================
 
   type RootUnmounted[P <: js.Object] = BaseUnmounted[P, Mounted, P]
@@ -27,6 +32,8 @@ object JsFn extends JsBaseComponentTemplate[RAW.ReactFunctionalComponent] {
     override final type Raw = RAW.ReactComponentElement
     override def mapUnmountedProps[P2](f: P1 => P2): BaseUnmounted[P2, M1, P0]
     override def mapMounted[M2](f: M1 => M2): BaseUnmounted[P1, M2, P0]
+
+    override final def displayName = staticDisplayName
 
     override final def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): Mounted = {
       val result = RAW.ReactDOM.render(raw, container, callback.toJsFn)

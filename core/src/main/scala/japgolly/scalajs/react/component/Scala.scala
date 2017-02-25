@@ -63,6 +63,8 @@ object Scala {
 
     val js: JsMounted[P0, S0, B]
 
+    override final def displayName = js.displayName
+
     // B instead of F[B] because
     // 1. Builder takes a MountedCB but needs immediate access to this.
     // 2. It never changes once initialised.
