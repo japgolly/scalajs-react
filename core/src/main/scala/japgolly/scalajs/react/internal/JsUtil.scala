@@ -33,4 +33,16 @@ object JsUtil {
     }
   }
 
+  def jsArray[A](as: A*): js.Array[A] = {
+    val array = new js.Array[A]
+    array.push(as: _*)
+    array
+  }
+
+  def jsArrayFromTraversable[A](as: TraversableOnce[A]): js.Array[A] = {
+    val array = new js.Array[A]
+    as.foreach(array push _)
+    array
+  }
+
 }
