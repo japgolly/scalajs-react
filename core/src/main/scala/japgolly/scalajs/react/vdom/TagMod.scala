@@ -33,8 +33,11 @@ object TagMod {
         f(b)
     }
 
-  def apply(ms: TagMod*): TagMod = {
-    val v = ms.toVector
+  def apply(ms: TagMod*): TagMod =
+    fromTraversableOnce(ms)
+
+  def fromTraversableOnce(t: TraversableOnce[TagMod]): TagMod = {
+    val v = t.toVector
     v.length match {
       case 0 => Empty
       case 1 => v.head

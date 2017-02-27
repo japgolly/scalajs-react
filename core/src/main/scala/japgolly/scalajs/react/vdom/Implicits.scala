@@ -55,9 +55,14 @@ trait ImplicitsForTagMod {
 // =====================================================================================================================
 
 object ImplicitsForVdomNode {
-  final class TravOnceExt[A](as: TraversableOnce[A])(implicit f: A => VdomNode) {
+  final class VdomNodeSeqExt[A](as: TraversableOnce[A])(implicit f: A => VdomNode) {
     def toVdomArray: VdomArray =
       VdomArray.empty() ++ as
+  }
+
+  final class TagModSeqExt[A](as: TraversableOnce[A])(implicit f: A => TagMod) {
+    def toTagMod: TagMod =
+      TagMod.fromTraversableOnce(as.toIterator.map(f))
   }
 }
 
@@ -73,9 +78,13 @@ trait ImplicitsForVdomNode {
   implicit def vdomNodeFromString       (v: String)       : VdomNode = VdomNode.cast(v)
   implicit def vdomNodeFromPropsChildren(v: PropsChildren): VdomNode = VdomNode.cast(v.raw)
 
-  implicit def vdomNodeExtForTO[A](as: TraversableOnce[A])(implicit f: A => VdomNode): TravOnceExt[A] = new TravOnceExt[A](as)(f)
-  implicit def vdomNodeExtForSA[A](as: Array          [A])(implicit f: A => VdomNode): TravOnceExt[A] = new TravOnceExt[A](as)(f)
-  implicit def vdomNodeExtForJA[A](as: js.Array       [A])(implicit f: A => VdomNode): TravOnceExt[A] = new TravOnceExt[A](as)(f)
+  implicit def vdomNodeExtForTO[A](as: TraversableOnce[A])(implicit f: A => VdomNode) = new VdomNodeSeqExt[A](as)(f)
+  implicit def vdomNodeExtForSA[A](as: Array          [A])(implicit f: A => VdomNode) = new VdomNodeSeqExt[A](as)(f)
+  implicit def vdomNodeExtForJA[A](as: js.Array       [A])(implicit f: A => VdomNode) = new VdomNodeSeqExt[A](as)(f)
+
+  implicit def tagModExtForTO[A](as: TraversableOnce[A])(implicit f: A => TagMod) = new TagModSeqExt[A](as)(f)
+  implicit def tagModExtForSA[A](as: Array          [A])(implicit f: A => TagMod) = new TagModSeqExt[A](as)(f)
+  implicit def tagModExtForJA[A](as: js.Array       [A])(implicit f: A => TagMod) = new TagModSeqExt[A](as)(f)
 }
 
 // =====================================================================================================================

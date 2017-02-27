@@ -59,11 +59,8 @@ object PrefixedTest extends TestSuite {
     }
 
     'VdomArray {
-
       'ctorRN - test(<.div(VdomArray(vdomNode, vdomNode)), "<div><h1>cool</h1><h1>cool</h1></div>")
-
       'ctorMix - test(<.div(VdomArray(vdomNode, <.br, vdomElement)), "<div><h1>cool</h1><br/><p></p></div>")
-
       'toVdomArray {
         'seqVdomNode  - test(<.div(Seq     (vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
         'lstVdomTag   - test(<.div(List    (vdomTag    , vdomTag     ).toVdomArray), "<div><span></span><span></span></div>")
@@ -76,8 +73,24 @@ object PrefixedTest extends TestSuite {
         'arrayScala   - test(<.div(Array   (vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
         'arrayJs      - test(<.div(js.Array(vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
       }
+    }
 
-      "Seq requires .toVdomArray" - compileError("<.div(Seq(reactNode))")
+    'Seq {
+      "without expansion" - compileError("<.div(Seq(reactNode))")
+
+      'seqReactNode    - test(<.div(Seq     (vdomNode   , vdomNode    ).toTagMod), "<div><h1>cool</h1><h1>cool</h1></div>")
+      'lstReactTag     - test(<.div(List    (vdomTag    , vdomTag     ).toTagMod), "<div><span></span><span></span></div>")
+      'strReactEl      - test(<.div(Stream  (vdomElement, vdomElement ).toTagMod), "<div><p></p><p></p></div>")
+      'seqTagMod       - test(<.div(Seq     (tagMod     , tagMod      ).toTagMod), """<div class="ho ho"></div>""")
+      'x_seqTagHtml    - test(<.div(Seq     (<.span     , <.span      ).toTagMod), "<div><span></span><span></span></div>")
+      'x_seqCompScala1 - test(<.div(Seq     (H1("a")    , H1("b")     ).toTagMod), """<div><h1>a</h1><h1>b</h1></div>""")
+      'x_seqCompScala2 - test(<.div(Seq     (H1("a")    , CA("b")     ).toTagMod), """<div><h1>a</h1><div>b</div></div>""")
+      'x_seqCompJS     - test(<.div(Seq     (jsComp     , jsComp      ).toTagMod), "<div><div>Hello yo</div><div>Hello yo</div></div>")
+      'x_vecCompMix    - test(<.div(Vector  (jsComp     , jsComp      ).toTagMod), "<div><div>Hello yo</div><div>Hello yo</div></div>")
+      'arrayScala      - test(<.div(Array   (vdomNode   , vdomNode    ).toTagMod), "<div><h1>cool</h1><h1>cool</h1></div>")
+      'arrayJs         - test(<.div(js.Array(vdomNode   , vdomNode    ).toTagMod), "<div><h1>cool</h1><h1>cool</h1></div>")
+
+      'mix - test(<.div(TagMod(vdomNode, <.br, vdomElement)), "<div><h1>cool</h1><br/><p></p></div>")
     }
 
     'dangerouslySetInnerHtml - test(<.div(^.dangerouslySetInnerHtml := "<span>"), "<div><span></div>")

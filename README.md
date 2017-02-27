@@ -158,4 +158,5 @@ Refactored:
   * Use `VdomStyle[A]("")` in place of `"".reactStyle`.
   * Use `HtmlTag("")` or `HtmlTagOf[N]("")` in place of `"".reactTag`.
   * No more auto conversion of vdom arrays. Either use `blah: _*`, `TagMod(blah: _*)`, or `blah.toVdomArray`, `VdomArray(…)`.
+  * Explain all the Seq => TagMod/Array gotchas; see PrefixedTest
 
