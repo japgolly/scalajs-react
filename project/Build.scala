@@ -46,6 +46,7 @@ object ScalajsReact {
     _.settings(
       publishTo := Some(Resolver.file("Unused transient repository", target.value / "fakepublish")),
       publishArtifact := false,
+      publishLocal := (),
       publishLocalSigned := (),       // doesn't work
       publishSigned := (),            // doesn't work
       packagedArtifacts := Map.empty) // doesn't work - https://github.com/sbt/sbt-pgp/issues/42
@@ -149,6 +150,7 @@ object ScalajsReact {
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
+    .settings(name := "scalajs-react")
     .aggregate(core, extra, scalaz72, monocle, test, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
