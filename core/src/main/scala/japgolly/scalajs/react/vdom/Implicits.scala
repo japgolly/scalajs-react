@@ -55,14 +55,13 @@ trait ImplicitsForTagMod {
 // =====================================================================================================================
 
 object ImplicitsForVdomNode {
-  final class VdomNodeSeqExt[A](as: TraversableOnce[A])(implicit f: A => VdomNode) {
-    def toVdomArray: VdomArray =
-      VdomArray.empty() ++ as
-  }
+  final class TraversableOnceExt[A](private val as: TraversableOnce[A]) extends AnyVal {
 
-  final class TagModSeqExt[A](as: TraversableOnce[A])(implicit f: A => TagMod) {
-    def toTagMod: TagMod =
+    def toTagMod(implicit f: A => TagMod): TagMod =
       TagMod.fromTraversableOnce(as.toIterator.map(f))
+
+    def toVdomArray(implicit f: A => VdomNode): VdomArray =
+      VdomArray.empty() ++ as
   }
 }
 
@@ -78,13 +77,9 @@ trait ImplicitsForVdomNode {
   implicit def vdomNodeFromString       (v: String)       : VdomNode = VdomNode.cast(v)
   implicit def vdomNodeFromPropsChildren(v: PropsChildren): VdomNode = VdomNode.cast(v.raw)
 
-  implicit def vdomNodeExtForTO[A](as: TraversableOnce[A])(implicit f: A => VdomNode) = new VdomNodeSeqExt[A](as)(f)
-  implicit def vdomNodeExtForSA[A](as: Array          [A])(implicit f: A => VdomNode) = new VdomNodeSeqExt[A](as)(f)
-  implicit def vdomNodeExtForJA[A](as: js.Array       [A])(implicit f: A => VdomNode) = new VdomNodeSeqExt[A](as)(f)
-
-  implicit def tagModExtForTO[A](as: TraversableOnce[A])(implicit f: A => TagMod) = new TagModSeqExt[A](as)(f)
-  implicit def tagModExtForSA[A](as: Array          [A])(implicit f: A => TagMod) = new TagModSeqExt[A](as)(f)
-  implicit def tagModExtForJA[A](as: js.Array       [A])(implicit f: A => TagMod) = new TagModSeqExt[A](as)(f)
+  implicit def vdomSeqExtForTO[A](as: TraversableOnce[A]) = new TraversableOnceExt[A](as)
+  implicit def vdomSeqExtForSA[A](as: Array          [A]) = new TraversableOnceExt[A](as)
+  implicit def vdomSeqExtForJA[A](as: js.Array       [A]) = new TraversableOnceExt[A](as)
 }
 
 // =====================================================================================================================
