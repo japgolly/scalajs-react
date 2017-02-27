@@ -52,7 +52,7 @@ object ReusabilityTest extends TestSuite {
         <.div(
           s.map { case (id, name) =>
             innerComponent.withKey(id)(InnerProps(name, updateUser(id)))
-          }.toReactArray)
+          }.toVdomArray)
       }
     }
 

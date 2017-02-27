@@ -52,7 +52,7 @@ object TagMod {
 
   private[vdom] val Empty: TagMod =
     new TagMod {
-      override def toString = "EmptyTag"
+      override def toString = "EmptyVdom"
       override def applyTo(b: Builder) = ()
       override def apply(ms: TagMod*) = TagMod(ms: _*)
     }

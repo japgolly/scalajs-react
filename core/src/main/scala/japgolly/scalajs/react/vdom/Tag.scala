@@ -42,7 +42,7 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
     }
   }
 
-  lazy val render: ReactElement = {
+  lazy val render: VdomElement = {
     val b = new Builder()
     build(b)
     b.render(tag)
@@ -52,7 +52,7 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
     render.toString
 
   override def applyTo(b: Builder): Unit =
-    b.appendChild(render.rawReactElement)
+    b.appendChild(render.rawElement)
 }
 
 // =====================================================================================================================

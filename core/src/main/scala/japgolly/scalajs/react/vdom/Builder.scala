@@ -98,10 +98,10 @@ final class Builder {
   private[this] def hasStyle: Boolean =
     js.Object.keys(style).length != 0
 
-  def render(tag: String): ReactElement = {
+  def render(tag: String): VdomElement = {
     className.foreach(set(props, "className", _))
     if (hasStyle)
       set(props, "style", style)
-    ReactElement(Builder.buildFn(tag, props, children))
+    VdomElement(Builder.buildFn(tag, props, children))
   }
 }

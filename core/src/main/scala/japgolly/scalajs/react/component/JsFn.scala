@@ -55,7 +55,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.ReactFunctionalComponent] {
       override def root          = this
       override val raw           = r
       override val mountRaw      = constUnit
-      override val reactElement  = vdom.ReactElement(raw)
+      override val vdomElement   = vdom.VdomElement(raw)
       override def key           = jsNullToOption(raw.key)
       override def ref           = None // orNullToOption(raw.ref)
       override def props         = raw.props.asInstanceOf[P]
@@ -68,7 +68,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.ReactFunctionalComponent] {
       override def root          = from.root
       override val raw           = from.raw
       override val mountRaw      = mm compose from.mountRaw
-      override def reactElement  = from.reactElement
+      override def vdomElement   = from.vdomElement
       override def key           = from.key
       override def ref           = from.ref
       override def props         = mp(from.props)

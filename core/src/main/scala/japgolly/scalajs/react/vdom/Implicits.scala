@@ -4,111 +4,106 @@ import japgolly.scalajs.react.{PropsChildren, raw}
 import japgolly.scalajs.react.component.Generic
 import japgolly.scalajs.react.internal.OptionLike
 import scala.scalajs.js
-import Exports.ReactTag
+import Exports.VdomTag
 
 // =====================================================================================================================
 
-trait ImplicitsForReactAttr0 {
+trait ImplicitsForVdomAttr1 {
   import Attr.ValueType
 
-  implicit lazy val reactAttrVtInnerHtml: ValueType[String, InnerHtmlAttr] =
+  implicit lazy val vdomAttrVtInnerHtml: ValueType[String, InnerHtmlAttr] =
     ValueType[String, InnerHtmlAttr]((b, html) => b(js.Dynamic.literal("__html" -> html)))
 
-  implicit def reactAttrVtKey[A](implicit k: A => raw.Key): ValueType[A, Attr.Key] =
+  implicit def vdomAttrVtKey[A](implicit k: A => raw.Key): ValueType[A, Attr.Key] =
     ValueType((b, a) => b(k(a).asInstanceOf[js.Any]))
 
-  implicit val reactAttrVtKeyL: ValueType[Long, Attr.Key] =
+  implicit val vdomAttrVtKeyL: ValueType[Long, Attr.Key] =
     ValueType((b, a) => b(a.toString))
 
   // 90% case so reuse
-  implicit val reactAttrVtKeyS = reactAttrVtKey[String]
+  implicit val vdomAttrVtKeyS = vdomAttrVtKey[String]
 }
 
-trait ImplicitsForReactAttr extends ImplicitsForReactAttr0 {
+trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
   import Attr.ValueType
   import ValueType._
 
-  implicit val reactAttrVtBoolean: Simple[Boolean] = byImplicit
+  implicit val vdomAttrVtBoolean: Simple[Boolean] = byImplicit
 
-  implicit val reactAttrVtString: Simple[String] = string
+  implicit val vdomAttrVtString: Simple[String] = string
 
-  implicit val reactAttrVtInt: Simple[Int] = byImplicit
+  implicit val vdomAttrVtInt: Simple[Int] = byImplicit
 
-  implicit val reactAttrVtJsObject: Simple[js.Object] = direct
+  implicit val vdomAttrVtJsObject: Simple[js.Object] = direct
 
-  @inline implicit def reactAttrVtJsDictionary[A]: ValueType[js.Dictionary[A], js.Object] = byImplicit
+  @inline implicit def vdomAttrVtJsDictionary[A]: ValueType[js.Dictionary[A], js.Object] = byImplicit
 
   // For attributes that aren't typed yet
-  @inline implicit def reactAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
+  @inline implicit def vdomAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
 
-  implicit def reactAttrVtCssUnits[N: Numeric](n: N): CssUnits = new CssUnits(n)
+  implicit def vdomAttrVtCssUnits[N: Numeric](n: N): CssUnits =
+    new CssUnits(n)
 }
 
 // =====================================================================================================================
 
 trait ImplicitsForTagMod {
-  implicit def tagModFromO[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => TagMod): TagMod =
+  implicit def tagModFromOptionLike[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => TagMod): TagMod =
     O.fold(o, TagMod.Empty)(f)
 }
 
 // =====================================================================================================================
 
-object ImplicitsForReactNode {
-
-  final class TravOnceExt[A](as: TraversableOnce[A])(implicit f: A => ReactNode) {
-    def toReactArray: ReactArray =
-      ReactArray.empty() ++ as
+object ImplicitsForVdomNode {
+  final class TravOnceExt[A](as: TraversableOnce[A])(implicit f: A => VdomNode) {
+    def toVdomArray: VdomArray =
+      VdomArray.empty() ++ as
   }
 }
 
-trait ImplicitsForReactNode {
-  import ImplicitsForReactNode._
+trait ImplicitsForVdomNode {
+  import ImplicitsForVdomNode._
 
-  implicit def reactNodeFromL                 (v: Long)               : ReactNode = ReactNode.cast(v.toString)
-  implicit def reactNodeFromI                 (v: Int)                : ReactNode = ReactNode.cast(v)
-  implicit def reactNodeFromSh                (v: Short)              : ReactNode = ReactNode.cast(v)
-  implicit def reactNodeFromB                 (v: Byte)               : ReactNode = ReactNode.cast(v)
-  implicit def reactNodeFromD                 (v: Double)             : ReactNode = ReactNode.cast(v)
-  implicit def reactNodeFromF                 (v: Float)              : ReactNode = ReactNode.cast(v)
-  implicit def reactNodeFromS                 (v: String)             : ReactNode = ReactNode.cast(v)
-  implicit def reactNodeFromPC                (pc: PropsChildren)     : ReactNode = ReactNode.cast(pc.raw)
+  implicit def vdomNodeFromLong         (v: Long)         : VdomNode = VdomNode.cast(v.toString)
+  implicit def vdomNodeFromInt          (v: Int)          : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromShort        (v: Short)        : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromByte         (v: Byte)         : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromDouble       (v: Double)       : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromFloat        (v: Float)        : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromString       (v: String)       : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromPropsChildren(v: PropsChildren): VdomNode = VdomNode.cast(v.raw)
 
-  implicit def reactNodeExtForTO[A](as: TraversableOnce[A])(implicit f: A => ReactNode): TravOnceExt[A] =
-    new TravOnceExt[A](as)(f)
-
-  implicit def reactNodeExtForAS[A](as: Array[A])(implicit f: A => ReactNode): TravOnceExt[A] =
-    new TravOnceExt[A](as)(f)
-
-  implicit def reactNodeExtForAJ[A](as: js.Array[A])(implicit f: A => ReactNode): TravOnceExt[A] =
-    new TravOnceExt[A](as)(f)
+  implicit def vdomNodeExtForTO[A](as: TraversableOnce[A])(implicit f: A => VdomNode): TravOnceExt[A] = new TravOnceExt[A](as)(f)
+  implicit def vdomNodeExtForSA[A](as: Array          [A])(implicit f: A => VdomNode): TravOnceExt[A] = new TravOnceExt[A](as)(f)
+  implicit def vdomNodeExtForJA[A](as: js.Array       [A])(implicit f: A => VdomNode): TravOnceExt[A] = new TravOnceExt[A](as)(f)
 }
 
 // =====================================================================================================================
 
-trait ImplicitsForReactElement {
-  implicit def reactElementFromTag[A](a: A)(implicit f: A => ReactTag): ReactElement =
+trait ImplicitsForVdomElement {
+  implicit def vdomElementFromTag[A](a: A)(implicit f: A => VdomTag): VdomElement =
     f(a).render
 
-  implicit def reactElementFromCompUnmounted(u: Generic.BaseUnmounted[_, _, _, _]): ReactElement =
-    u.reactElement
+  implicit def vdomElementFromComponent(u: Generic.BaseUnmounted[_, _, _, _]): VdomElement =
+    u.vdomElement
 }
 
 // =====================================================================================================================
 
 trait Implicits
-  extends ImplicitsForReactAttr
-     with ImplicitsForTagMod
-     with ImplicitsForReactNode
-     with ImplicitsForReactElement
+  extends ImplicitsForTagMod
+     with ImplicitsForVdomAttr
+     with ImplicitsForVdomNode
+     with ImplicitsForVdomElement
 
 object Implicits extends Implicits
 
 // =====================================================================================================================
 
 object ImplicitsFromRaw {
-  @inline implicit def rawToVdomReactElement(e: raw.ReactElement): ReactElement =
-    ReactElement(e)
+  implicit def vdomElementFromRawReactElement(e: raw.ReactElement): VdomElement =
+    VdomElement(e)
 
-  @inline implicit def rawToVdomReactNode(e: raw.ReactNode): ReactNode =
-    ReactNode(e)
+  implicit def vdomNodeFromRawReactNode(e: raw.ReactNode): VdomNode =
+    VdomNode(e)
 }

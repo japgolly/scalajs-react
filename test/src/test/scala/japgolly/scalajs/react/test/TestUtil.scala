@@ -100,8 +100,8 @@ trait TestUtil
 
   def assertRender(u: GenericComponent.RawAccessUnmounted, expected: String): Unit =
     assertRender(u.raw, expected)
-  def assertRender(e: japgolly.scalajs.react.vdom.ReactElement, expected: String): Unit =
-    assertRender(e.rawReactElement, expected)
+  def assertRender(e: japgolly.scalajs.react.vdom.VdomElement, expected: String): Unit =
+    assertRender(e.rawElement, expected)
   def assertRender(e: japgolly.scalajs.react.raw.ReactElement, expected: String): Unit = {
     val rendered: String = ReactDOMServer.raw.renderToStaticMarkup(e)
     assertEq(rendered, expected)

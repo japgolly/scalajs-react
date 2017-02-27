@@ -13,7 +13,7 @@ object VdomTest extends TestSuite {
     // Also checked with bin/checkDevOnly via Travis CI
     "devOnly" - {
 
-      def test(t: ReactTag)(dev: => String, prod: => String): Unit = {
+      def test(t: VdomTag)(dev: => String, prod: => String): Unit = {
         val exp = if (developmentMode) dev else prod
         assertRender(ScalaComponent.static("", t)(), exp)
       }
@@ -29,12 +29,12 @@ object VdomTest extends TestSuite {
           "<div>12</div>")
 
       'attr -
-        test(div(ReactAttr.devOnly("data-devonly-test") := "!DEVONLY-TEST!", 123))(
+        test(div(VdomAttr.devOnly("data-devonly-test") := "!DEVONLY-TEST!", 123))(
           """<div data-devonly-test="!DEVONLY-TEST!">123</div>""",
           "<div>123</div>")
 
       'style -
-        test(div(ReactStyle.devOnly("devonly-test") := "!DEVONLY-TEST!", 123))(
+        test(div(VdomStyle.devOnly("devonly-test") := "!DEVONLY-TEST!", 123))(
           """<div style="devonly-test:!DEVONLY-TEST!;">123</div>""",
           "<div>123</div>")
     }

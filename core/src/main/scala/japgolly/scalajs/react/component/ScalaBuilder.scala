@@ -3,8 +3,9 @@ package japgolly.scalajs.react.component
 import org.scalajs.dom
 import scala.{Either => Or}
 import scalajs.js
-import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, raw, vdom}
+import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, raw}
 import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.vdom.VdomElement
 import Scala._
 
 object ScalaBuilder {
@@ -13,7 +14,7 @@ object ScalaBuilder {
   type InitStateFnU[P, S]    = Generic.BaseUnmounted[P, _, Box[P], _]
   type InitStateArg[P, S]    = (InitStateFnU[P, S] => S) Or js.Function0[Box[S]]
   type NewBackendFn[P, S, B] = BackendScope[P, S] => B
-  type RenderFn    [P, S, B] = RenderScope[P, S, B] => vdom.ReactElement
+  type RenderFn    [P, S, B] = RenderScope[P, S, B] => VdomElement
 
   private val InitStateUnit : Nothing Or js.Function0[Box[Unit]] =
     Right(() => Box.Unit)
@@ -89,10 +90,10 @@ object ScalaBuilder {
 
     // No args
 
-    def renderStatic(r: vdom.ReactElement): Step4[P, Children.None, S, B] =
+    def renderStatic(r: VdomElement): Step4[P, Children.None, S, B] =
       renderWith(_ => r)
 
-    def render_(r: => vdom.ReactElement): Step4[P, Children.None, S, B] =
+    def render_(r: => VdomElement): Step4[P, Children.None, S, B] =
       renderWith(_ => r)
 
     // No children
@@ -100,48 +101,48 @@ object ScalaBuilder {
     def render(r: RenderFn[P, S, B]): Step4[P, Children.None, S, B] =
       renderWith(r)
 
-    def renderPS(r: ($, P, S) => vdom.ReactElement): Step4[P, Children.None, S, B] =
+    def renderPS(r: ($, P, S) => VdomElement): Step4[P, Children.None, S, B] =
        renderWith($ => r($, $.props, $.state))
 
-     def renderP(r: ($, P) => vdom.ReactElement): Step4[P, Children.None, S, B] =
+     def renderP(r: ($, P) => VdomElement): Step4[P, Children.None, S, B] =
        renderWith($ => r($, $.props))
 
-     def renderS(r: ($, S) => vdom.ReactElement): Step4[P, Children.None, S, B] =
+     def renderS(r: ($, S) => VdomElement): Step4[P, Children.None, S, B] =
        renderWith($ => r($, $.state))
 
-     def render_PS(r: (P, S) => vdom.ReactElement): Step4[P, Children.None, S, B] =
+     def render_PS(r: (P, S) => VdomElement): Step4[P, Children.None, S, B] =
        renderWith($ => r($.props, $.state))
 
-     def render_P(r: P => vdom.ReactElement): Step4[P, Children.None, S, B] =
+     def render_P(r: P => VdomElement): Step4[P, Children.None, S, B] =
        renderWith($ => r($.props))
 
-     def render_S(r: S => vdom.ReactElement): Step4[P, Children.None, S, B] =
+     def render_S(r: S => VdomElement): Step4[P, Children.None, S, B] =
        renderWith($ => r($.state))
 
     // Has children
 
-     def renderPCS(r: ($, P, PropsChildren, S) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
+     def renderPCS(r: ($, P, PropsChildren, S) => VdomElement): Step4[P, Children.Varargs, S, B] =
        renderWith($ => r($, $.props, $.propsChildren, $.state))
 
-     def renderPC(r: ($, P, PropsChildren) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
+     def renderPC(r: ($, P, PropsChildren) => VdomElement): Step4[P, Children.Varargs, S, B] =
        renderWith($ => r($, $.props, $.propsChildren))
 
-     def renderCS(r: ($, PropsChildren, S) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
+     def renderCS(r: ($, PropsChildren, S) => VdomElement): Step4[P, Children.Varargs, S, B] =
        renderWith($ => r($, $.propsChildren, $.state))
 
-     def renderC(r: ($, PropsChildren) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
+     def renderC(r: ($, PropsChildren) => VdomElement): Step4[P, Children.Varargs, S, B] =
        renderWith($ => r($, $.propsChildren))
 
-     def render_PCS(r: (P, PropsChildren, S) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
+     def render_PCS(r: (P, PropsChildren, S) => VdomElement): Step4[P, Children.Varargs, S, B] =
        renderWith($ => r($.props, $.propsChildren, $.state))
 
-     def render_PC(r: (P, PropsChildren) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
+     def render_PC(r: (P, PropsChildren) => VdomElement): Step4[P, Children.Varargs, S, B] =
        renderWith($ => r($.props, $.propsChildren))
 
-     def render_CS(r: (PropsChildren, S) => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
+     def render_CS(r: (PropsChildren, S) => VdomElement): Step4[P, Children.Varargs, S, B] =
        renderWith($ => r($.propsChildren, $.state))
 
-     def render_C(r: PropsChildren => vdom.ReactElement): Step4[P, Children.Varargs, S, B] =
+     def render_C(r: PropsChildren => VdomElement): Step4[P, Children.Varargs, S, B] =
        renderWith($ => r($.propsChildren))
 
     /**
@@ -320,7 +321,7 @@ object ScalaBuilder {
         ($: raw.ReactComponent) =>
           f(new RenderScope(castV($)))
 
-      spec.render = withMounted(renderFn.andThen(_.rawReactElement))
+      spec.render = withMounted(renderFn.andThen(_.rawElement))
 
       spec.getInitialState =
         initStateFn match {

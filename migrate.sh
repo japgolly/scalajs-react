@@ -6,6 +6,7 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/ReactComponentB *(?=\[)/ScalaComponent.build/g;
   s/ReactComponentB\.static/ScalaComponent.static/g;
   s/prefix_\<\^/html_<^/g;
+  s/(?<!\w)EmptyTag(?!\w)/EmptyVdom/g;
   s/((?:componentDid|componentWill|shouldComponent)[a-zA-Z]+)CB/\1Const/g;
   s/(?<=Listenable\.)installS/listenWithStateMonad/g;
   s/(?<=Listenable\.)installU/listenToUnit/g;

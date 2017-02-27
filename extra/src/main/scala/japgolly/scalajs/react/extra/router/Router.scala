@@ -5,7 +5,7 @@ import scala.scalajs.js
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.internal.identityFn
-import japgolly.scalajs.react.vdom.ReactElement
+import japgolly.scalajs.react.vdom.VdomElement
 
 object Router {
 
@@ -140,7 +140,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     }
   }
 
-  def render(r: Resolution): ReactElement =
+  def render(r: Resolution): VdomElement =
     cfg.renderFn(ctl, r)
 
   def setPath(path: Path): RouteCmd[Unit] =

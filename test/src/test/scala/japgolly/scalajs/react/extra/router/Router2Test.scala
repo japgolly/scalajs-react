@@ -76,7 +76,7 @@ object Router2Test extends TestSuite {
             i.ctl.link(p)(name)
         <.div(
           item(PublicHome, "Home"),
-          ReactArray(
+          VdomArray(
             item(PrivatePage1, "Private page #1"),
             item(PrivatePage2, "Private page #2"))
             .when(isUserLoggedIn)

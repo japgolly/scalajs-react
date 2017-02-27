@@ -10,29 +10,29 @@ trait HtmlAttrs {
     * If the value of the type attribute is file, this attribute indicates the
     * types of files that the server accepts; otherwise it is ignored.
     */
-  final def accept = ReactAttr("accept")
+  final def accept = VdomAttr("accept")
 
-  final def acceptCharset = ReactAttr("acceptCharset")
+  final def acceptCharset = VdomAttr("acceptCharset")
 
-  final def accessKey = ReactAttr("accessKey")
+  final def accessKey = VdomAttr("accessKey")
 
   /**
     * The URI of a program that processes the information submitted via the form.
     * This value can be overridden by a formaction attribute on a button or
     * input element.
     */
-  final def action = ReactAttr("action")
+  final def action = VdomAttr("action")
 
-  final def allowFullScreen = ReactAttr("allowFullScreen")
+  final def allowFullScreen = VdomAttr("allowFullScreen")
 
-  final def allowTransparency = ReactAttr("allowTransparency")
+  final def allowTransparency = VdomAttr("allowTransparency")
 
   /**
     * This attribute defines the alternative text describing the image. Users
     * will see this displayed if the image URL is wrong, the image is not in one
     * of the supported formats, or until the image is downloaded.
     */
-  final def alt = ReactAttr[String]("alt")
+  final def alt = VdomAttr[String]("alt")
 
   /**
     * ARIA is a set of special accessibility attributes which can be added
@@ -46,182 +46,182 @@ trait HtmlAttrs {
     /**
       * Identifies the currently active descendant of a composite widget.
       */
-    final def activeDescendant = ReactAttr("aria-activedescendant")
+    final def activeDescendant = VdomAttr("aria-activedescendant")
 
     /**
       * Indicates whether assistive technologies will present all, or only parts of, the changed region based on the change notifications defined by the aria-relevant attribute. See related aria-relevant.
       */
-    final def atomic = ReactAttr("aria-atomic")
+    final def atomic = VdomAttr("aria-atomic")
 
     /**
       * Indicates whether user input completion suggestions are provided.
       */
-    final def autoComplete = ReactAttr("aria-autocomplete")
+    final def autoComplete = VdomAttr("aria-autocomplete")
 
     /**
       * Indicates whether an element, and its subtree, are currently being updated.
       */
-    final def busy = ReactAttr("aria-busy")
+    final def busy = VdomAttr("aria-busy")
 
     /**
       * Indicates the current "checked" state of checkboxes, radio buttons, and other widgets. See related aria-pressed and aria-selected.
       */
-    final def checked = ReactAttr("aria-checked")
+    final def checked = VdomAttr("aria-checked")
 
     /**
       * Identifies the element (or elements) whose contents or presence are controlled by the current element. See related aria-owns.
       */
-    final def controls = ReactAttr("aria-controls")
+    final def controls = VdomAttr("aria-controls")
 
     /**
       * Identifies the element (or elements) that describes the object. See related aria-labelledby.
       */
-    final def describedBy = ReactAttr("aria-describedby")
+    final def describedBy = VdomAttr("aria-describedby")
 
     /**
       * Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable. See related aria-hidden and aria-readonly.
       */
-    final def disabled = ReactAttr("aria-disabled")
+    final def disabled = VdomAttr("aria-disabled")
 
     /**
       * Indicates what functions can be performed when the dragged object is released on the drop target. This allows assistive technologies to convey the possible drag options available to users, including whether a pop-up menu of choices is provided by the application. Typically, drop effect functions can only be provided once an object has been grabbed for a drag operation as the drop effect functions available are dependent on the object being dragged.
       */
-    final def dropEffect = ReactAttr("aria-dropeffect")
+    final def dropEffect = VdomAttr("aria-dropeffect")
 
     /**
       * Indicates whether the element, or another grouping element it controls, is currently expanded or collapsed.
       */
-    final def expanded = ReactAttr("aria-expanded")
+    final def expanded = VdomAttr("aria-expanded")
 
     /**
       * Identifies the next element (or elements) in an alternate reading order of content which, at the user's discretion, allows assistive technology to override the general default of reading in document source order.
       */
-    final def flowTo = ReactAttr("aria-flowto")
+    final def flowTo = VdomAttr("aria-flowto")
 
     /**
       * Indicates an element's "grabbed" state in a drag-and-drop operation.
       */
-    final def grabbed = ReactAttr("aria-grabbed")
+    final def grabbed = VdomAttr("aria-grabbed")
 
     /**
       * Indicates that the element has a popup context menu or sub-level menu.
       */
-    final def hasPopup = ReactAttr("aria-haspopup")
+    final def hasPopup = VdomAttr("aria-haspopup")
 
     /**
       * Indicates that the element and all of its descendants are not visible or perceivable to any user as implemented by the author. See related aria-disabled.
       */
-    final def hidden = ReactAttr("aria-hidden")
+    final def hidden = VdomAttr("aria-hidden")
 
     /**
       * Indicates the entered value does not conform to the format expected by the application.
       */
-    final def invalid = ReactAttr("aria-invalid")
+    final def invalid = VdomAttr("aria-invalid")
 
     /**
       * Defines a string value that labels the current element. See related aria-labelledby.
       */
-    final def label = ReactAttr("aria-label")
+    final def label = VdomAttr("aria-label")
 
     /**
       * Identifies the element (or elements) that labels the current element. See related aria-label and aria-describedby.
       */
-    final def labelledBy = ReactAttr("aria-labelledby")
+    final def labelledBy = VdomAttr("aria-labelledby")
 
     /**
       * Defines the hierarchical level of an element within a structure.
       */
-    final def level = ReactAttr("aria-level")
+    final def level = VdomAttr("aria-level")
 
     /**
       * Indicates that an element will be updated, and describes the types of updates the user agents, assistive technologies, and user can expect from the live region.
       */
-    final def live = ReactAttr("aria-live")
+    final def live = VdomAttr("aria-live")
 
     /**
       * Indicates whether a text box accepts multiple lines of input or only a single line.
       */
-    final def multiline = ReactAttr("aria-multiline")
+    final def multiline = VdomAttr("aria-multiline")
 
     /**
       * Indicates that the user may select more than one item from the current selectable descendants.
       */
-    final def multiselectable = ReactAttr("aria-multiselectable")
+    final def multiselectable = VdomAttr("aria-multiselectable")
 
     /**
       * Indicates whether the element and orientation is horizontal or vertical.
       */
-    final def orientation = ReactAttr("aria-orientation")
+    final def orientation = VdomAttr("aria-orientation")
 
     /**
       * Identifies an element (or elements) in order to define a visual, functional, or contextual parent/child relationship between DOM elements where the DOM hierarchy cannot be used to represent the relationship. See related aria-controls.
       */
-    final def owns = ReactAttr("aria-owns")
+    final def owns = VdomAttr("aria-owns")
 
     /**
       * Defines an element's number or position in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-setsize.
       */
-    final def posInSet = ReactAttr("aria-posinset")
+    final def posInSet = VdomAttr("aria-posinset")
 
     /**
       * Indicates the current "pressed" state of toggle buttons. See related aria-checked and aria-selected.
       */
-    final def pressed = ReactAttr("aria-pressed")
+    final def pressed = VdomAttr("aria-pressed")
 
     /**
       * Indicates that the element is not editable, but is otherwise operable. See related aria-disabled.
       */
-    final def readonly = ReactAttr("aria-readonly")
+    final def readonly = VdomAttr("aria-readonly")
 
     /**
       * Indicates what user agent change notifications (additions, removals, etc.) assistive technologies will receive within a live region. See related aria-atomic.
       */
-    final def relevant = ReactAttr("aria-relevant")
+    final def relevant = VdomAttr("aria-relevant")
 
     /**
       * Indicates that user input is required on the element before a form may be submitted.
       */
-    final def required = ReactAttr("aria-required")
+    final def required = VdomAttr("aria-required")
 
     /**
       * Indicates the current "selected" state of various widgets. See related aria-checked and aria-pressed.
       */
-    final def selected = ReactAttr("aria-selected")
+    final def selected = VdomAttr("aria-selected")
 
     /**
       * Defines the number of items in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-posinset.
       */
-    final def setSize = ReactAttr("aria-setsize")
+    final def setSize = VdomAttr("aria-setsize")
 
     /**
       * Indicates if items in a table or grid are sorted in ascending or descending order.
       */
-    final def sort = ReactAttr("aria-sort")
+    final def sort = VdomAttr("aria-sort")
 
     /**
       * Defines the maximum allowed value for a range widget.
       */
-    final def valueMax = ReactAttr("aria-valuemax")
+    final def valueMax = VdomAttr("aria-valuemax")
 
     /**
       * Defines the minimum allowed value for a range widget.
       */
-    final def valueMin = ReactAttr("aria-valuemin")
+    final def valueMin = VdomAttr("aria-valuemin")
 
     /**
       * Defines the current value for a range widget. See related aria-valuetext.
       */
-    final def valueNow = ReactAttr("aria-valuenow")
+    final def valueNow = VdomAttr("aria-valuenow")
 
     /**
       * Defines the human readable text alternative of aria-valuenow for a range widget.
       */
-    final def valueText = ReactAttr("aria-valuetext")
+    final def valueText = VdomAttr("aria-valuetext")
   }
 
-  final def async = ReactAttr("async")
+  final def async = VdomAttr("async")
 
-  final def autoCapitalize = ReactAttr("autoCapitalize")
+  final def autoCapitalize = VdomAttr("autoCapitalize")
 
   /**
     * This attribute indicates whether the value of the control can be
@@ -231,9 +231,9 @@ trait HtmlAttrs {
     *
     * Possible values are "off" and "on"
     */
-  final def autoComplete = ReactAttr("autoComplete")
+  final def autoComplete = VdomAttr("autoComplete")
 
-  final def autoCorrect = ReactAttr[Boolean]("autoCorrect")
+  final def autoCorrect = VdomAttr[Boolean]("autoCorrect")
 
   /**
     * This Boolean attribute lets you specify that a form control should have
@@ -243,43 +243,43 @@ trait HtmlAttrs {
     * the type attribute is set to hidden (that is, you cannot automatically set
     * focus to a hidden control).
     */
-  final def autoFocus = ReactAttr[Boolean]("autoFocus")
+  final def autoFocus = VdomAttr[Boolean]("autoFocus")
 
-  final def autoPlay = ReactAttr[Boolean]("autoPlay")
+  final def autoPlay = VdomAttr[Boolean]("autoPlay")
 
-  final def autoSave = ReactAttr[Boolean]("autoSave")
+  final def autoSave = VdomAttr[Boolean]("autoSave")
 
   /**
     * The capture attribute allows authors to declaratively request use of a media capture mechanism, such as a camera or
     * microphone, from within a file upload control, for capturing media on the spot.
     */
-  final def capture = ReactAttr("capture")
+  final def capture = VdomAttr("capture")
 
-  final def cellPadding = ReactAttr("cellPadding")
+  final def cellPadding = VdomAttr("cellPadding")
 
-  final def cellSpacing = ReactAttr("cellSpacing")
+  final def cellSpacing = VdomAttr("cellSpacing")
 
   /** &lt;keygen&gt;: A challenge string that is submitted along with the public key. */
-  final def challenge = ReactAttr("challenge")
+  final def challenge = VdomAttr("challenge")
 
   /**
     * Declares the character encoding of the page or script. Used on meta and
     * script elements.
     */
-  final def charset = ReactAttr[String]("charset")
+  final def charset = VdomAttr[String]("charset")
 
   /**
     * When the value of the type attribute is radio or checkbox, the presence of
     * this Boolean attribute indicates that the control is selected by default;
     * otherwise it is ignored.
     */
-  final def checked = ReactAttr[Boolean]("checked")
+  final def checked = VdomAttr[Boolean]("checked")
 
-  final def citeAttr = ReactAttr("cite")
+  final def citeAttr = VdomAttr("cite")
 
-  final def classID = ReactAttr("classID")
+  final def classID = VdomAttr("classID")
 
-  final def colSpan = ReactAttr[Int]("colSpan")
+  final def colSpan = VdomAttr[Int]("colSpan")
 
   final def `class`  : Attr[String] = Attr.ClassName
   final def className: Attr[String] = Attr.ClassName
@@ -293,13 +293,13 @@ trait HtmlAttrs {
         q)
 
   final def classSet(ps: (String, Boolean)*): TagMod =
-    classSetImpl(EmptyTag, ps)
+    classSetImpl(EmptyVdom, ps)
 
   final def classSet1(a: String, ps: (String, Boolean)*): TagMod =
     classSetImpl(cls := a, ps)
 
   final def classSetM(ps: Map[String, Boolean]): TagMod =
-    classSetImpl(EmptyTag, ps.toSeq)
+    classSetImpl(EmptyVdom, ps.toSeq)
 
   final def classSet1M(a: String, ps: Map[String, Boolean]): TagMod =
     classSetImpl(cls := a, ps.toSeq)
@@ -309,34 +309,34 @@ trait HtmlAttrs {
     * is specified, it must be a positive integer. If it is not specified, the
     * default value is 20 (HTML5).
     */
-  final def cols = ReactAttr("cols")
+  final def cols = VdomAttr("cols")
   /**
     * This attribute gives the value associated with the http-equiv or name
     * attribute, depending of the context.
     */
-  final def contentAttr = ReactAttr("content")
+  final def contentAttr = VdomAttr("content")
 
-  final def contentEditable = ReactAttr("contentEditable")
+  final def contentEditable = VdomAttr("contentEditable")
 
-  final def contextMenu = ReactAttr("contextMenu")
+  final def contextMenu = VdomAttr("contextMenu")
 
-  final def controls = ReactAttr("controls")
+  final def controls = VdomAttr("controls")
 
-  final def coords = ReactAttr("coords")
+  final def coords = VdomAttr("coords")
 
-  final def crossOrigin = ReactAttr("crossOrigin")
+  final def crossOrigin = VdomAttr("crossOrigin")
 
-  final def dangerouslySetInnerHtml = ReactAttr[InnerHtmlAttr]("dangerouslySetInnerHTML")
+  final def dangerouslySetInnerHtml = VdomAttr[InnerHtmlAttr]("dangerouslySetInnerHTML")
 
-  final def dateTime = ReactAttr("dateTime")
+  final def dateTime = VdomAttr("dateTime")
 
-  final def default = ReactAttr("default")
+  final def default = VdomAttr("default")
 
-  final def defaultValue = ReactAttr("defaultValue")
+  final def defaultValue = VdomAttr("defaultValue")
 
-  final def defer = ReactAttr("defer")
+  final def defer = VdomAttr("defer")
 
-  final def dir = ReactAttr("dir")
+  final def dir = VdomAttr("dir")
 
   /**
     * This Boolean attribute indicates that the form control is not available for
@@ -346,40 +346,40 @@ trait HtmlAttrs {
     *
     * This attribute is ignored if the value of the type attribute is hidden.
     */
-  final def disabled = ReactAttr[Boolean]("disabled")
+  final def disabled = VdomAttr[Boolean]("disabled")
 
-  final def download = ReactAttr("download")
+  final def download = VdomAttr("download")
 
-  final def draggable = ReactAttr[Boolean]("draggable")
+  final def draggable = VdomAttr[Boolean]("draggable")
 
-  final def encType = ReactAttr("encType")
+  final def encType = VdomAttr("encType")
 
   /**
     * Describes elements which belongs to this one. Used on labels and output
     * elements.
     */
-  final def `for` = ReactAttr("htmlFor")
+  final def `for` = VdomAttr("htmlFor")
 
-  final def formAction = ReactAttr("formAction")
+  final def formAction = VdomAttr("formAction")
 
-  final def formEncType = ReactAttr("formEncType")
+  final def formEncType = VdomAttr("formEncType")
 
-  final def formMethod = ReactAttr("formMethod")
+  final def formMethod = VdomAttr("formMethod")
 
-  final def formNoValidate = ReactAttr("formNoValidate")
+  final def formNoValidate = VdomAttr("formNoValidate")
 
-  final def formTarget = ReactAttr("formTarget")
+  final def formTarget = VdomAttr("formTarget")
 
-  final def frameBorder = ReactAttr("frameBorder")
+  final def frameBorder = VdomAttr("frameBorder")
 
-  final def headers = ReactAttr("headers")
+  final def headers = VdomAttr("headers")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final def high = ReactAttr("high")
+  final def high = VdomAttr("high")
 
   /**
     * This is the single required attribute for anchors defining a hypertext
@@ -390,11 +390,11 @@ trait HtmlAttrs {
     * supported by the browser. For example, file, ftp, and mailto work in most
     * user agents.
     */
-  final def href = ReactAttr[String]("href")
+  final def href = VdomAttr[String]("href")
 
-  final def hrefLang = ReactAttr("hrefLang")
+  final def hrefLang = VdomAttr("hrefLang")
 
-  final def htmlFor = ReactAttr("htmlFor")
+  final def htmlFor = VdomAttr("htmlFor")
 
   /**
     * This enumerated attribute defines the pragma that can alter servers and
@@ -407,46 +407,46 @@ trait HtmlAttrs {
     * - refresh
     * - set-cookie
     */
-  final def httpEquiv = ReactAttr("httpEquiv")
+  final def httpEquiv = VdomAttr("httpEquiv")
 
-  final def icon = ReactAttr("icon")
+  final def icon = VdomAttr("icon")
 
   /**
     * This attribute defines a unique identifier (ID) which must be unique in
     * the whole document. Its purpose is to identify the element when linking
     * (using a fragment identifier), scripting, or styling (with CSS).
     */
-  final def id = ReactAttr("id")
+  final def id = VdomAttr("id")
 
   /**
     * The inputmode attribute tells the browser on devices with dynamic keyboards which keyboard to display. The
     * inputmode attribute applies to the text, search and password input types as well as &lt;textarea&gt;.
     */
-  final def inputMode = ReactAttr("inputMode")
+  final def inputMode = VdomAttr("inputMode")
 
   /**
     * http://www.w3.org/TR/2015/CR-SRI-20151112/#the-integrity-attribute
     */
-  final def integrity = ReactAttr("integrity")
+  final def integrity = VdomAttr("integrity")
 
-  final def is = ReactAttr("is")
+  final def is = VdomAttr("is")
 
-  final def itemProp = ReactAttr("itemProp")
+  final def itemProp = VdomAttr("itemProp")
 
-  final def itemScope = ReactAttr("itemScope")
+  final def itemScope = VdomAttr("itemScope")
 
-  final def itemType = ReactAttr("itemType")
+  final def itemType = VdomAttr("itemType")
 
   /** React key */
-  final val key = ReactAttr.Key
+  final val key = VdomAttr.Key
 
   /** For use in &lt;keygen&gt; */
-  final def keyParams = ReactAttr("keyParams")
+  final def keyParams = VdomAttr("keyParams")
 
   /** &lt;keygen&gt;: Specifies the type of key generated. */
-  final def keyType = ReactAttr("keyType")
+  final def keyType = VdomAttr("keyType")
 
-  final def kind = ReactAttr("kind")
+  final def kind = VdomAttr("kind")
 
   /**
     * This attribute participates in defining the language of the element, the
@@ -457,33 +457,33 @@ trait HtmlAttrs {
     * to unknown; if the tag content is not valid, regarding to BCP47, it is set
     * to invalid.
     */
-  final def lang = ReactAttr[String]("lang")
+  final def lang = VdomAttr[String]("lang")
 
-  final def list = ReactAttr("list")
+  final def list = VdomAttr("list")
 
-  final def loop = ReactAttr("loop")
-
-  /**
-    * For use in &lt;meter&gt; tags.
-    *
-    * @see https://css-tricks.com/html5-meter-element/
-    */
-  final def low = ReactAttr("low")
-
-  final def manifest = ReactAttr("manifest")
-
-  final def marginHeight = ReactAttr("marginHeight")
-
-  final def marginWidth = ReactAttr("marginWidth")
+  final def loop = VdomAttr("loop")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final def max = ReactAttr("max")
+  final def low = VdomAttr("low")
 
-  final def maxLength = ReactAttr("maxLength")
+  final def manifest = VdomAttr("manifest")
+
+  final def marginHeight = VdomAttr("marginHeight")
+
+  final def marginWidth = VdomAttr("marginWidth")
+
+  /**
+    * For use in &lt;meter&gt; tags.
+    *
+    * @see https://css-tricks.com/html5-meter-element/
+    */
+  final def max = VdomAttr("max")
+
+  final def maxLength = VdomAttr("maxLength")
 
   /**
     * This attribute specifies the media which the linked resource applies to.
@@ -493,9 +493,9 @@ trait HtmlAttrs {
     *
     * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link#attr-media
     */
-  final def media = ReactAttr("media")
+  final def media = VdomAttr("media")
 
-  final def mediaGroup = ReactAttr("mediaGroup")
+  final def mediaGroup = VdomAttr("mediaGroup")
 
   /**
     * The HTTP method that the browser uses to submit the form. Possible values are:
@@ -511,20 +511,20 @@ trait HtmlAttrs {
     * This value can be overridden by a formmethod attribute on a button or
     * input element.
     */
-  final def method = ReactAttr("method")
+  final def method = VdomAttr("method")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final def min = ReactAttr("min")
+  final def min = VdomAttr("min")
 
-  final def minLength = ReactAttr("minLength")
+  final def minLength = VdomAttr("minLength")
 
-  final def multiple = ReactAttr("multiple")
+  final def multiple = VdomAttr("multiple")
 
-  final def muted = ReactAttr("muted")
+  final def muted = VdomAttr("muted")
 
   /**
     * On form elements (input etc.):
@@ -536,12 +536,12 @@ trait HtmlAttrs {
     * This document-level metadata name is associated with a value, contained by
     * the content attribute.
     */
-  final def name = ReactAttr("name")
+  final def name = VdomAttr("name")
 
-  final def noValidate = ReactAttr("noValidate")
+  final def noValidate = VdomAttr("noValidate")
 
   /** For &lt;script&gt; and &lt;style&gt;elements. */
-  final def nonce = ReactAttr("nonce")
+  final def nonce = VdomAttr("nonce")
 
   final def onAbort = Attr.Event.base("onAbort")
 
@@ -907,14 +907,14 @@ trait HtmlAttrs {
 
   final def onWheelCapture = Attr.Event.wheel("onWheelCapture")
 
-  final def open = ReactAttr("open")
+  final def open = VdomAttr("open")
 
   /**
     * For use in &lt;meter&gt; tags.
     *
     * @see https://css-tricks.com/html5-meter-element/
     */
-  final def optimum = ReactAttr("optimum")
+  final def optimum = VdomAttr("optimum")
 
   /**
     * A hint to the user of what can be entered in the control. The placeholder
@@ -922,22 +922,22 @@ trait HtmlAttrs {
     * applies when the value of the type attribute is text, search, tel, url or
     * email; otherwise it is ignored.
     */
-  final def placeholder = ReactAttr("placeholder")
+  final def placeholder = VdomAttr("placeholder")
 
-  final def poster = ReactAttr("poster")
+  final def poster = VdomAttr("poster")
 
-  final def preload = ReactAttr("preload")
+  final def preload = VdomAttr("preload")
 
-  final def profile = ReactAttr("profile")
+  final def profile = VdomAttr("profile")
 
-  final def radioGroup = ReactAttr("radioGroup")
+  final def radioGroup = VdomAttr("radioGroup")
 
   /**
     * This Boolean attribute indicates that the user cannot modify the value of
     * the control. This attribute is ignored if the value of the type attribute
     * is hidden, range, color, checkbox, radio, file, or a button type.
     */
-  final def readOnly = ReactAttr[Boolean]("readOnly")
+  final def readOnly = VdomAttr[Boolean]("readOnly")
 
   /**
     * This attribute names a relationship of the linked document to the current
@@ -947,7 +947,7 @@ trait HtmlAttrs {
     * attribute is set to the URL of an external style sheet to format the page.
     *
     */
-  final def rel = ReactAttr("rel")
+  final def rel = VdomAttr("rel")
 
   /**
     * This attribute specifies that the user must fill in a value before
@@ -955,12 +955,12 @@ trait HtmlAttrs {
     * image, or a button type (submit, reset, or button). The :optional and
     * :required CSS pseudo-classes will be applied to the field as appropriate.
     */
-  final def required = ReactAttr[Boolean]("required")
+  final def required = VdomAttr[Boolean]("required")
 
-  final def results = ReactAttr("results")
+  final def results = VdomAttr("results")
 
   /** For &lt;ol&gt; elements. */
-  final def reversed = ReactAttr("reversed")
+  final def reversed = VdomAttr("reversed")
 
   /**
     * The attribute describes the role(s) the current element plays in the
@@ -977,18 +977,18 @@ trait HtmlAttrs {
     *
     * @see http://www.w3.org/TR/role-attribute/#s_role_module_attributes
     */
-  final def role = ReactAttr("role")
+  final def role = VdomAttr("role")
 
-  final def rowSpan = ReactAttr[Int]("rowSpan")
+  final def rowSpan = VdomAttr[Int]("rowSpan")
 
   /**
     * The number of visible text lines for the control.
     */
-  final def rows = ReactAttr[Int]("rows")
+  final def rows = VdomAttr[Int]("rows")
 
-  final def sandbox = ReactAttr("sandbox")
+  final def sandbox = VdomAttr("sandbox")
 
-  final def scope = ReactAttr("scope")
+  final def scope = VdomAttr("scope")
 
   /**
     * For use in &lt;style&gt; tags.
@@ -996,17 +996,17 @@ trait HtmlAttrs {
     * If this attribute is present, then the style applies only to its parent element.
     * If absent, the style applies to the whole document.
     */
-  final def scoped = ReactAttr("scoped")
+  final def scoped = VdomAttr("scoped")
 
-  final def scrolling = ReactAttr("scrolling")
+  final def scrolling = VdomAttr("scrolling")
 
-  final def seamless = ReactAttr("seamless")
+  final def seamless = VdomAttr("seamless")
 
-  final def security = ReactAttr("security")
+  final def security = VdomAttr("security")
 
-  final def selected = ReactAttr("selected")
+  final def selected = VdomAttr("selected")
 
-  final def shape = ReactAttr("shape")
+  final def shape = VdomAttr("shape")
 
   /**
     * The initial size of the control. This value is in pixels unless the value
@@ -1016,30 +1016,30 @@ trait HtmlAttrs {
     * otherwise it is ignored. In addition, the size must be greater than zero.
     * If you don't specify a size, a default value of 20 is used.
     */
-  final def size = ReactAttr[Int]("size")
+  final def size = VdomAttr[Int]("size")
 
-  final def sizes = ReactAttr("sizes")
+  final def sizes = VdomAttr("sizes")
 
   /**
     * This enumerated attribute defines whether the element may be checked for
     * spelling errors.
     */
-  final def spellCheck = ReactAttr("spellCheck")
+  final def spellCheck = VdomAttr("spellCheck")
 
   /**
     * If the value of the type attribute is image, this attribute specifies a URI
     * for the location of an image to display on the graphical submit button;
     * otherwise it is ignored.
     */
-  final val src = ReactAttr[String]("src")
+  final val src = VdomAttr[String]("src")
 
-  final def srcDoc = ReactAttr("srcDoc")
+  final def srcDoc = VdomAttr("srcDoc")
 
-  final def srcLang = ReactAttr("srcLang")
+  final def srcLang = VdomAttr("srcLang")
 
-  final def srcSet = ReactAttr("srcSet")
+  final def srcSet = VdomAttr("srcSet")
 
-  final def step = ReactAttr("step")
+  final def step = VdomAttr("step")
 
   /**
     * This attribute contains CSS styling declarations to be applied to the
@@ -1053,7 +1053,7 @@ trait HtmlAttrs {
     * The value is actually just `summary`. This is named `summaryAttr` in Scala to avoid a conflict with the
     * &lt;summary&gt; tag in [[all]].
     */
-  final def summaryAttr = ReactAttr("summary")
+  final def summaryAttr = VdomAttr("summary")
 
   /**
     * This integer attribute indicates if the element can take input focus (is
@@ -1073,7 +1073,7 @@ trait HtmlAttrs {
     *
     * An element with a 0 value, an invalid value, or no tabIndex value should be placed after elements with a positive tabIndex in the sequential keyboard navigation order.
     */
-  final def tabIndex = ReactAttr[Int]("tabIndex")
+  final def tabIndex = VdomAttr[Int]("tabIndex")
 
   /**
     * A name or keyword indicating where to display the response that is received
@@ -1130,7 +1130,7 @@ trait HtmlAttrs {
     * the element it belongs too. Such information can typically, but not
     * necessarily, be presented to the user as a tooltip.
     */
-  final val title = ReactAttr("title")
+  final val title = VdomAttr("title")
 
   /**
     * Shorthand for the `type` attribute
@@ -1145,25 +1145,25 @@ trait HtmlAttrs {
     * a Cascading Style Sheet format. You can use tpe as an alias for this
     * attribute so you don't have to backtick-escape this attribute.
     */
-  final val `type` = ReactAttr("type")
+  final val `type` = VdomAttr("type")
 
   /** IE-specific property to prevent user selection */
-  final def unselectable = ReactAttr("unselectable")
+  final def unselectable = VdomAttr("unselectable")
 
-  final def untypedRef = ReactAttr.Ref
+  final def untypedRef = VdomAttr.Ref
 
-  final def useMap = ReactAttr("useMap")
+  final def useMap = VdomAttr("useMap")
 
   /**
     * The initial value of the control. This attribute is optional except when
     * the value of the type attribute is radio or checkbox.
     */
-  final val value = ReactAttr("value")
+  final val value = VdomAttr("value")
 
-  final def wmode = ReactAttr("wmode")
+  final def wmode = VdomAttr("wmode")
 
   /** &lt;textarea&gt;: Indicates whether the text should be wrapped. */
-  final def wrap = ReactAttr("wrap")
+  final def wrap = VdomAttr("wrap")
 
-  final def xmlns = ReactAttr("xmlns")
+  final def xmlns = VdomAttr("xmlns")
 }

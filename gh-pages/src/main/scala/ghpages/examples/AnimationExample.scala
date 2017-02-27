@@ -83,7 +83,7 @@ object AnimationExample {
 
       <.div(
         <.button(^.onClick --> handleAdd, "Add Item"),
-        CSSTransitionGroup(p)(items.toReactArray))
+        CSSTransitionGroup(p)(items.toVdomArray))
     }
   }
 

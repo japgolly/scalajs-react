@@ -4,9 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.core.JsComponentPTest
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.raw.HTMLInputElement
 import scala.scalajs.js
-import scala.scalajs.js.{Array => JArray}
 import utest._
 
 object PrefixedTest extends TestSuite {
@@ -16,15 +14,15 @@ object PrefixedTest extends TestSuite {
 
   def jsComp = JsComponentPTest.Component(JsComponentPTest.JsProps("yo"))
 
-  lazy val tagmod  : TagMod       = ^.cls := "ho"
-  lazy val reacttag: ReactTag     = <.span
-  lazy val relement: ReactElement = <.p
-  lazy val jsObj   : js.Object    = js.Dynamic.literal("a" -> "b").asInstanceOf[js.Object]
+  lazy val tagMod     : TagMod      = ^.cls := "ho"
+  lazy val vdomNode   : VdomNode    = H1("cool")
+  lazy val vdomTag    : VdomTag     = <.span
+  lazy val vdomElement: VdomElement = <.p
+  lazy val jsObject   : js.Object   = js.Dynamic.literal("a" -> "b").asInstanceOf[js.Object]
 
-  def reactNode: ReactNode = H1("cool")
   def checkbox(check: Boolean) = <.input.checkbox(^.checked := check, ^.readOnly := true)
 
-  def test(subj: ReactElement, exp: String): Unit = {
+  def test(subj: VdomElement, exp: String): Unit = {
     val comp = ScalaComponent.static("tmp", subj)
     assertRender(comp(), exp)
   }
@@ -38,10 +36,10 @@ object PrefixedTest extends TestSuite {
     'double    - test(<.div(12.3),                                  """<div>12.3</div>""")
     'string    - test(<.div("yo"),                                  """<div>yo</div>""")
 
-    'reactNode - test(<.div(reactNode),                             """<div><h1>cool</h1></div>""")
-    'reactTag  - test(<.div(reacttag),                              """<div><span></span></div>""")
-    'reactEl   - test(<.div(relement),                              """<div><p></p></div>""")
-    'tagMod    - test(<.div(tagmod),                                """<div class="ho"></div>""")
+    'vdomNode  - test(<.div(vdomNode),                              """<div><h1>cool</h1></div>""")
+    'vdomTag   - test(<.div(vdomTag),                               """<div><span></span></div>""")
+    'vdomEl    - test(<.div(vdomElement),                           """<div><p></p></div>""")
+    'tagMod    - test(<.div(tagMod),                                """<div class="ho"></div>""")
     'tagHtml   - test(<.div(<.span),                                """<div><span></span></div>""")
     'tagHtmlM  - test(<.div(<.span(^.size := 3)),                   """<div><span size="3"></span></div>""")
     'compScala - test(<.div(H1("a")),                               """<div><h1>a</h1></div>""")
@@ -51,7 +49,7 @@ object PrefixedTest extends TestSuite {
     'checkboxF  - test(checkbox(false),                             """<input type="checkbox" readonly=""/>""")
     'aria       - test(<.div(^.aria.label := "ow", "a"),            """<div aria-label="ow">a</div>""")
     'attrs      - test(<.div(^.rowSpan := 1, ^.colSpan := 3),       """<div rowspan="1" colspan="3"></div>""")
-    'styleObj   - test(<.div(^.style := jsObj),                     """<div style="a:b;"></div>""")
+    'styleObj   - test(<.div(^.style := jsObject),                  """<div style="a:b;"></div>""")
     'styleDict  - test(<.div(^.style := js.Dictionary("x" -> "y")), """<div style="x:y;"></div>""")
     'styleAttrs - test(<.div(^.color := "red", ^.cursor.auto),      """<div style="color:red;cursor:auto;"></div>""")
 
@@ -60,26 +58,26 @@ object PrefixedTest extends TestSuite {
       'f - test(<.div(^.disabled := false), """<div></div>""")
     }
 
-    'ReactArray {
+    'VdomArray {
 
-      'ctorRN - test(<.div(ReactArray(reactNode, reactNode)), "<div><h1>cool</h1><h1>cool</h1></div>")
+      'ctorRN - test(<.div(VdomArray(vdomNode, vdomNode)), "<div><h1>cool</h1><h1>cool</h1></div>")
 
-      'ctorMix - test(<.div(ReactArray(reactNode, <.br, relement)), "<div><h1>cool</h1><br/><p></p></div>")
+      'ctorMix - test(<.div(VdomArray(vdomNode, <.br, vdomElement)), "<div><h1>cool</h1><br/><p></p></div>")
 
-      'toReactArray {
-        'seqReactNode - test(<.div(Seq     (reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
-        'lstReactTag  - test(<.div(List    (reacttag , reacttag ).toReactArray), "<div><span></span><span></span></div>")
-        'strReactEl   - test(<.div(Stream  (relement , relement ).toReactArray), "<div><p></p><p></p></div>")
-     // 'seqTagMod    - test(<.div(Seq     (tagmod   , tagmod   ).toReactArray), """<div class="ho ho"></div>""")
-        'seqTagHtml   - test(<.div(Seq     (<.span   , <.span   ).toReactArray), "<div><span></span><span></span></div>")
-        'seqCompScala - test(<.div(Seq     (H1("a")  , CA("b")  ).toReactArray), """<div><h1>a</h1><div>b</div></div>""")
-        'seqCompJS    - test(<.div(Seq     (jsComp   , jsComp   ).toReactArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
-        'vecCompMix   - test(<.div(Vector  (jsComp   , jsComp   ).toReactArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
-        'arrayScala   - test(<.div(Array   (reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
-        'arrayJs      - test(<.div(js.Array(reactNode, reactNode).toReactArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+      'toVdomArray {
+        'seqVdomNode  - test(<.div(Seq     (vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+        'lstVdomTag   - test(<.div(List    (vdomTag    , vdomTag     ).toVdomArray), "<div><span></span><span></span></div>")
+        'strVdomEl    - test(<.div(Stream  (vdomElement, vdomElement ).toVdomArray), "<div><p></p><p></p></div>")
+     // 'seqTagMod    - test(<.div(Seq     (tagMod     , tagMod      ).toVdomArray), """<div class="ho ho"></div>""")
+        'seqTagHtml   - test(<.div(Seq     (<.span     , <.span      ).toVdomArray), "<div><span></span><span></span></div>")
+        'seqCompScala - test(<.div(Seq     (H1("a")    , CA("b")     ).toVdomArray), """<div><h1>a</h1><div>b</div></div>""")
+        'seqCompJS    - test(<.div(Seq     (jsComp     , jsComp      ).toVdomArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
+        'vecCompMix   - test(<.div(Vector  (jsComp     , jsComp      ).toVdomArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
+        'arrayScala   - test(<.div(Array   (vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+        'arrayJs      - test(<.div(js.Array(vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
       }
 
-      "Seq requires .toReactArray" - compileError("<.div(Seq(reactNode))")
+      "Seq requires .toVdomArray" - compileError("<.div(Seq(reactNode))")
     }
 
     'dangerouslySetInnerHtml - test(<.div(^.dangerouslySetInnerHtml := "<span>"), "<div><span></div>")
@@ -92,12 +90,12 @@ object PrefixedTest extends TestSuite {
         'style_none   - test(<.div(^.color :=? "red".none),  """<div></div>""")
         'attr_some    - test(<.div((^.color := "red").some), """<div style="color:red;"></div>""")
         'attr_none    - test(<.div((^.color := "red").none), """<div></div>""")
-        'tagmod_some  - test(<.div(tagmod.some),             """<div class="ho"></div>""")
-        'tagmod_none  - test(<.div(tagmod.none),             """<div></div>""")
-        'tag_some     - test(<.div(reacttag.some),           """<div><span></span></div>""")
-        'tag_none     - test(<.div(reacttag.none),           """<div></div>""")
-        'element_some - test(<.div(relement.some),           """<div><p></p></div>""")
-        'element_none - test(<.div(relement.none),           """<div></div>""")
+        'tagMod_some  - test(<.div(tagMod.some),             """<div class="ho"></div>""")
+        'tagMod_none  - test(<.div(tagMod.none),             """<div></div>""")
+        'tag_some     - test(<.div(vdomTag.some),            """<div><span></span></div>""")
+        'tag_none     - test(<.div(vdomTag.none),            """<div></div>""")
+        'element_some - test(<.div(vdomElement.some),        """<div><p></p></div>""")
+        'element_none - test(<.div(vdomElement.none),        """<div></div>""")
         'comp_some    - test(<.div(H1("yoo").some),          """<div><h1>yoo</h1></div>""")
         'comp_none    - test(<.div(H1("yoo").none),          """<div></div>""")
         'text_some    - test(<.div("yoo".some),              """<div>yoo</div>""")
@@ -110,12 +108,12 @@ object PrefixedTest extends TestSuite {
         'style_undef   - test(<.div(^.color :=? "red".undef),  """<div></div>""")
         'attr_def      - test(<.div((^.color := "red").jsdef), """<div style="color:red;"></div>""")
         'attr_undef    - test(<.div((^.color := "red").undef), """<div></div>""")
-        'tagmod_def    - test(<.div(tagmod.jsdef),             """<div class="ho"></div>""")
-        'tagmod_undef  - test(<.div(tagmod.undef),             """<div></div>""")
-        'tag_def       - test(<.div(reacttag.jsdef),           """<div><span></span></div>""")
-        'tag_undef     - test(<.div(reacttag.undef),           """<div></div>""")
-        'element_def   - test(<.div(relement.jsdef),           """<div><p></p></div>""")
-        'element_undef - test(<.div(relement.undef),           """<div></div>""")
+        'tagMod_def    - test(<.div(tagMod.jsdef),             """<div class="ho"></div>""")
+        'tagMod_undef  - test(<.div(tagMod.undef),             """<div></div>""")
+        'tag_def       - test(<.div(vdomTag.jsdef),            """<div><span></span></div>""")
+        'tag_undef     - test(<.div(vdomTag.undef),            """<div></div>""")
+        'element_def   - test(<.div(vdomElement.jsdef),        """<div><p></p></div>""")
+        'element_undef - test(<.div(vdomElement.undef),        """<div></div>""")
         'comp_def      - test(<.div(H1("yoo").jsdef),          """<div><h1>yoo</h1></div>""")
         'comp_undef    - test(<.div(H1("yoo").undef),          """<div></div>""")
         'text_def      - test(<.div("yoo".jsdef),              """<div>yoo</div>""")
@@ -127,8 +125,8 @@ object PrefixedTest extends TestSuite {
 //        'attr_empty    - test(<.div(^.cls :=? "h1".maybeNot),    """<div></div>""")
 //        'style_just    - test(<.div(^.color :=? "red".just),     """<div style="color:red;"></div>""")
 //        'style_empty   - test(<.div(^.color :=? "red".maybeNot), """<div></div>""")
-//        'tagmod_just   - test(<.div(tagmod.just),                """<div class="ho"></div>""")
-//        'tagmod_empty  - test(<.div(tagmod.maybeNot),            """<div></div>""")
+//        'tagMod_just   - test(<.div(tagMod.just),                """<div class="ho"></div>""")
+//        'tagMod_empty  - test(<.div(tagMod.maybeNot),            """<div></div>""")
 //        'tag_just      - test(<.div(reacttag.just),              """<div><span></span></div>""")
 //        'tag_empty     - test(<.div(reacttag.maybeNot),          """<div></div>""")
 //        'element_just  - test(<.div(relement.just),              """<div><span></span></div>""")
@@ -160,7 +158,7 @@ object PrefixedTest extends TestSuite {
       }
     }
 
-    'tagmodComposition {
+    'tagModComposition {
       val a: TagMod = ^.cls := "hehe"
       val b: TagMod = <.h3("Good")
       val c = a(b)

@@ -97,7 +97,7 @@ object ReuseExample {
         <.h4("Number of inputs:"),
         inputControl(InputControl(s.inputs.size, changeFn)),
         <.h4("Inputs:"),
-        Array.tabulate(s.inputs.length)(inputEditor).toReactArray,
+        Array.tabulate(s.inputs.length)(inputEditor).toVdomArray,
         showSum.withKey("sum")(s.sum))
     }
   }

@@ -1,8 +1,9 @@
 package japgolly.scalajs.react.component
 
 import scala.scalajs.js
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, raw}
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, raw, vdom}
+import japgolly.scalajs.react.vdom.VdomElement
 
 object ScalaFn {
 
@@ -11,22 +12,22 @@ object ScalaFn {
   type Mounted                                    = JsFn.Mounted
 
   private def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
-      (render: Box[P] with raw.PropsWithChildren => vdom.ReactElement)
+      (render: Box[P] with raw.PropsWithChildren => VdomElement)
       (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] = {
 
-    val jsRender = render.andThen(_.rawReactElement): js.Function1[Box[P] with raw.PropsWithChildren, raw.ReactElement]
+    val jsRender = render.andThen(_.rawElement): js.Function1[Box[P] with raw.PropsWithChildren, raw.ReactElement]
     val rawComponent = jsRender.asInstanceOf[raw.ReactFunctionalComponent]
     JsFn[Box[P], C](rawComponent)(s)
       .cmapCtorProps[P](Box(_))
       .mapUnmounted(_.mapUnmountedProps(_.unbox))
   }
 
-  def apply[P](render: P => vdom.ReactElement): Component[P, CtorType.Props] =
+  def apply[P](render: P => VdomElement): Component[P, CtorType.Props] =
     create(b => render(b.unbox))
 
-  def withChildren[P](render: (P, PropsChildren) => vdom.ReactElement): Component[P, CtorType.PropsAndChildren] =
+  def withChildren[P](render: (P, PropsChildren) => VdomElement): Component[P, CtorType.PropsAndChildren] =
     create(b => render(b.unbox, PropsChildren(b.children)))
 
-  def justChildren(render: PropsChildren => vdom.ReactElement): Component[Unit, CtorType.Children] =
+  def justChildren(render: PropsChildren => VdomElement): Component[Unit, CtorType.Children] =
     create(b => render(PropsChildren(b.children)))
 }

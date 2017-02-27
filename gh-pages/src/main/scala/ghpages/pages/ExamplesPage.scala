@@ -8,15 +8,15 @@ import ghpages.examples.util._
 
 abstract class Example(val title: String,
                        val routerPath: String,
-                       val render: () => ReactElement)
+                       val render: () => VdomElement)
 
 object Example {
   implicit val reusability: Reusability[Example] = Reusability.by_==
 }
 
 abstract class ExampleCollection {
-  implicit protected def auto1(v: SideBySide.Content): () => ReactElement = () => v()
-  implicit protected def auto2(v: SingleSide.Content): () => ReactElement = () => v()
+  implicit protected def auto1(v: SideBySide.Content): () => VdomElement = () => v()
+  implicit protected def auto2(v: SingleSide.Content): () => VdomElement = () => v()
 
   val values: Vector[Example]
   def default: Example = values.head

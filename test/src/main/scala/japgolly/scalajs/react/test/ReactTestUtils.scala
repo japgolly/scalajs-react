@@ -29,8 +29,8 @@ object ReactTestUtils {
     unmounted.mountRaw(r)
   }
 
-  def renderIntoDocument(e: vdom.ReactElement): MountedOutput =
-    wrapMO(raw.renderIntoDocument(e.rawReactElement))
+  def renderIntoDocument(e: vdom.VdomElement): MountedOutput =
+    wrapMO(raw.renderIntoDocument(e.rawElement))
 
   /**
    * Traverse all components in tree and accumulate all components where test(component) is true.

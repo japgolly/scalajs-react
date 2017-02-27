@@ -7,7 +7,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 
 object ReactAttrTest extends TestSuite {
 
-  val anything = ReactAttr[Any]("")
+  val anything = VdomAttr[Any]("")
   val intOnly = ^.colSpan
   val stringOnly = ^.href
   val style = ^.style

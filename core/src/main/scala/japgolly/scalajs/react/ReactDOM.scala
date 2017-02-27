@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom
-import japgolly.scalajs.react.vdom.ReactElement
+import japgolly.scalajs.react.vdom.VdomElement
 
 object ReactDOM {
   def raw = japgolly.scalajs.react.raw.ReactDOM
@@ -31,14 +31,14 @@ object ReactDOMServer {
     * If you call `ReactDOM.render()` on a node that already has this server-rendered markup, React will preserve it and
     * only attach event handlers, allowing you to have a very performant first-load experience.
     */
-  def renderToString(e: ReactElement): String =
-    raw.renderToString(e.rawReactElement)
+  def renderToString(e: VdomElement): String =
+    raw.renderToString(e.rawElement)
 
   /**
     * Similar to [[renderToString]], except this doesn't create extra DOM attributes such as `data-react-id`, that React
     * uses internally. This is useful if you want to use React as a simple static page generator, as stripping away the
     * extra attributes can save lots of bytes.
     */
-  def renderToStaticMarkup(e: ReactElement): String =
-    raw.renderToStaticMarkup(e.rawReactElement)
+  def renderToStaticMarkup(e: VdomElement): String =
+    raw.renderToStaticMarkup(e.rawElement)
 }

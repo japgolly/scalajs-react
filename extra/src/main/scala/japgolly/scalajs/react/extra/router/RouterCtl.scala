@@ -33,7 +33,7 @@ abstract class RouterCtl[A] {
     ^.onClick ==> go
   }
 
-  final def link(target: A): ReactTagOf[html.Anchor] =
+  final def link(target: A): VdomTagOf[html.Anchor] =
     <.a(^.href := urlFor(target).value, setOnLinkClick(target))
 
   final def contramap[B](f: B => A): RouterCtl[B] =

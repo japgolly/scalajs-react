@@ -30,7 +30,7 @@ sealed abstract class CtorType[-P, +U] {
 }
 
 object CtorType {
-  type ChildArg     = vdom.ReactNode
+  type ChildArg     = vdom.VdomNode
   type ChildrenArgs = Seq[ChildArg]
 
   type ModFn = js.Object => Unit
@@ -258,7 +258,7 @@ object CtorType {
       if (c.isEmpty)
         Nil
       else
-        c.map(_.rawReactNode: raw.ReactNodeList)
+        c.map(_.rawNode: raw.ReactNodeList)
   }
 }
 

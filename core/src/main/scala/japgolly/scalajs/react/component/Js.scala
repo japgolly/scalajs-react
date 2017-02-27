@@ -74,8 +74,8 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
       override val raw = r
       override val mountRaw = m
 
-      override val reactElement =
-        vdom.ReactElement(raw)
+      override val vdomElement =
+        vdom.VdomElement(raw)
 
       override def key: Option[Key] =
         jsNullToOption(raw.key)
@@ -104,7 +104,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
       override def root          = from.root
       override def props         = mp(from.props)
       override val raw           = from.raw
-      override def reactElement  = from.reactElement
+      override def vdomElement   = from.vdomElement
       override def key           = from.key
       override def ref           = from.ref
       override def propsChildren = from.propsChildren

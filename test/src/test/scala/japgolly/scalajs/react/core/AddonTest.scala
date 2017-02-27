@@ -14,7 +14,7 @@ object AddonTest extends TestSuite {
   lazy val componentA = ScalaComponent.build[Int]("A")
     .initialState_P(identity)
     .render_S(i => <.div(
-      (0 to i).map(j => componentB(s"$j² = ${j*j}")).toReactArray
+      (0 to i).map(j => componentB(s"$j² = ${j*j}")).toVdomArray
     ))
     .build
 

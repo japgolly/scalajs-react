@@ -172,7 +172,7 @@ object PictureAppExample {
         if (list.isEmpty)
           span("Loading Pics..")
         else
-          list.map(p => picture.withKey(p.id)((p, b))).toReactArray
+          list.map(p => picture.withKey(p.id)((p, b))).toVdomArray
       )
     }
     .build
@@ -183,7 +183,7 @@ object PictureAppExample {
         if (list.isEmpty)
           span("Click an image to mark as  favorite")
         else
-          list.map(p => picture.withKey(p.id)((p, b))).toReactArray
+          list.map(p => picture.withKey(p.id)((p, b))).toVdomArray
       )
     }
     .build

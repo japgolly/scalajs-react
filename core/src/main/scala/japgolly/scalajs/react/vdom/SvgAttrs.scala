@@ -13,7 +13,7 @@ trait SvgAttrs {
     *
     * Value 	<number>
     */
-  final def accentHeight = ReactAttr("accent-height")
+  final def accentHeight = VdomAttr("accent-height")
 
   /**
     * This attribute controls whether or not the animation is cumulative.
@@ -23,7 +23,7 @@ trait SvgAttrs {
     *
     * Value 	none | sum
     */
-  final def accumulate = ReactAttr("accumulate")
+  final def accumulate = VdomAttr("accumulate")
 
   /**
     * This attribute controls whether or not the animation is additive.
@@ -34,7 +34,7 @@ trait SvgAttrs {
     *
     * Value 	replace | sum
     */
-  final def additive = ReactAttr("additive")
+  final def additive = VdomAttr("additive")
 
   /**
     * The alignment-baseline attribute specifies how an object is aligned
@@ -50,7 +50,7 @@ trait SvgAttrs {
     * Value: 	auto | baseline | before-edge | text-before-edge | middle | central | after-edge |
     * text-after-edge | ideographic | alphabetic | hanging | mathematical | inherit
     */
-  final def alignmentBaseline = ReactAttr("alignment-baseline")
+  final def alignmentBaseline = VdomAttr("alignment-baseline")
 
   /**
     * This attribute defines the maximum unaccented depth of the font
@@ -60,7 +60,7 @@ trait SvgAttrs {
     *
     * Value 	<number>
     */
-  final def ascent = ReactAttr("ascent")
+  final def ascent = VdomAttr("ascent")
 
   /**
     * This attribute indicates the name of the attribute in the parent element
@@ -68,7 +68,7 @@ trait SvgAttrs {
     *
     * Value 	<attributeName>
     */
-  final def attributeName = ReactAttr("attributeName")
+  final def attributeName = VdomAttr("attributeName")
 
   /**
     * This attribute specifies the namespace in which the target attribute
@@ -76,7 +76,7 @@ trait SvgAttrs {
     *
     * Value 	CSS | XML | auto
     */
-  final def attributeType = ReactAttr("attributeType")
+  final def attributeType = VdomAttr("attributeType")
 
   /**
     * The azimuth attribute represent the direction angle for the light
@@ -86,7 +86,7 @@ trait SvgAttrs {
     *
     * Value 	<number>
     */
-  final def azimuth = ReactAttr("azimuth")
+  final def azimuth = VdomAttr("azimuth")
 
   /**
     * The baseFrequency attribute represent The base frequencies parameter
@@ -100,7 +100,7 @@ trait SvgAttrs {
     *
     * Value 	<number-optional-number>
     */
-  final def baseFrequency = ReactAttr("baseFrequency")
+  final def baseFrequency = VdomAttr("baseFrequency")
 
   /**
     * The baseline-shift attribute allows repositioning of the dominant-baseline
@@ -111,7 +111,7 @@ trait SvgAttrs {
     *
     * Value 	auto | baseline | sup | sub | <percentage> | <length> | inherit
     */
-  final def baselineShift = ReactAttr("baseline-shift")
+  final def baselineShift = VdomAttr("baseline-shift")
 
   /**
     * This attribute defines when an animation should begin.
@@ -123,7 +123,7 @@ trait SvgAttrs {
     *
     * Value 	<begin-value-list>
     */
-  final def begin = ReactAttr("begin")
+  final def begin = VdomAttr("begin")
 
   /**
     * The bias attribute shifts the range of the filter. After applying the kernelMatrix
@@ -134,7 +134,7 @@ trait SvgAttrs {
     *
     * Value 	<number>
     */
-  final def bias = ReactAttr("bias")
+  final def bias = VdomAttr("bias")
 
   /**
     * This attribute specifies the interpolation mode for the animation. The default
@@ -143,7 +143,7 @@ trait SvgAttrs {
     *
     * Value 	discrete | linear | paced | spline
     */
-  final def calcMode = ReactAttr("calcMode")
+  final def calcMode = VdomAttr("calcMode")
 
   /**
     * Assigns a class name or set of class names to an element. You may assign the same
@@ -157,7 +157,7 @@ trait SvgAttrs {
     *
     * Value 	<list-of-class-names>
     */
-  final def `class` = ReactAttr("class")
+  final def `class` = VdomAttr("class")
 
   /**
     * The clip attribute has the same parameter values as defined for the css clip property.
@@ -169,7 +169,7 @@ trait SvgAttrs {
     *
     * Value 	auto | <shape> | inherit
     */
-  final def clip = ReactAttr("clip")
+  final def clip = VdomAttr("clip")
 
   /**
     * The clip-path attribute bind the element is applied to with a given <clippath> element
@@ -177,7 +177,7 @@ trait SvgAttrs {
     *
     * Value 	<FuncIRI> | none | inherit
     */
-  final def clipPath = ReactAttr("clip-path")
+  final def clipPath = VdomAttr("clip-path")
 
   /**
     * The clipPathUnits attribute defines the coordinate system for the contents
@@ -190,7 +190,7 @@ trait SvgAttrs {
     *
     * Value 	userSpaceOnUse | objectBoundingBox
     */
-  final def clipPathUnits = ReactAttr("clipPathUnits")
+  final def clipPathUnits = VdomAttr("clipPathUnits")
 
   /**
     * The clip-rule attribute only applies to graphics elements that are contained within a
@@ -199,7 +199,7 @@ trait SvgAttrs {
     *
     * Value 	nonezero | evenodd | inherit
     */
-  final def clipRule = ReactAttr("clip-rule")
+  final def clipRule = VdomAttr("clip-rule")
 
   /**
     * The color attribute is used to provide a potential indirect value (currentColor)
@@ -209,7 +209,7 @@ trait SvgAttrs {
     *
     * Value 	<color> | inherit
     */
-  final def color = ReactAttr("color")
+  final def color = VdomAttr("color")
 
   /**
     * The color-interpolation attribute specifies the color space for gradient interpolations,
@@ -226,7 +226,7 @@ trait SvgAttrs {
     *
     * Value 	auto | sRGB | linearRGB | inherit
     */
-  final def colorInterpolation = ReactAttr("color-interpolation")
+  final def colorInterpolation = VdomAttr("color-interpolation")
 
   /**
     * The color-interpolation-filters attribute specifies the color space for imaging operations
@@ -240,7 +240,7 @@ trait SvgAttrs {
     *
     * Value 	auto | sRGB | linearRGB | inherit
     */
-  final def colorInterpolationFilters = ReactAttr("color-interpolation-filters")
+  final def colorInterpolationFilters = VdomAttr("color-interpolation-filters")
 
   /**
     * The color-profile attribute is used to define which color profile a raster image
@@ -250,7 +250,7 @@ trait SvgAttrs {
     *
     * Value 	auto | sRGB | <name> | <IRI> | inherit
     */
-  final def colorProfile = ReactAttr("color-profile")
+  final def colorProfile = VdomAttr("color-profile")
 
   /**
     * The color-rendering attribute provides a hint to the SVG user agent about how to
@@ -265,7 +265,7 @@ trait SvgAttrs {
     *
     * Value 	auto | optimizeSpeed | optimizeQuality | inherit
     */
-  final def colorRendering = ReactAttr("color-rendering")
+  final def colorRendering = VdomAttr("color-rendering")
 
   /**
     * The contentScriptType attribute on the <svg> element specifies the default scripting
@@ -277,7 +277,7 @@ trait SvgAttrs {
     *
     * Value 	<content-type>
     */
-  final def contentScriptType = ReactAttr("contentScriptType")
+  final def contentScriptType = VdomAttr("contentScriptType")
 
   /**
     * This attribute specifies the style sheet language for the given document fragment.
@@ -286,7 +286,7 @@ trait SvgAttrs {
     *
     * Value 	<content-type>
     */
-  final def contentStyleType = ReactAttr("contentStyleType")
+  final def contentStyleType = VdomAttr("contentStyleType")
 
   /**
     * The cursor attribute specifies the mouse cursor displayed when the mouse pointer
@@ -299,7 +299,7 @@ trait SvgAttrs {
     * ne-resize | nw-resize | n-resize | se-resize | sw-resize | s-resize | w-resize| text |
     * wait | help | inherit
     */
-  final def cursor = ReactAttr("cursor")
+  final def cursor = VdomAttr("cursor")
 
   /**
     * For the <circle> and the <ellipse> element, this attribute define the x-axis coordinate
@@ -312,7 +312,7 @@ trait SvgAttrs {
     *
     * Value 	<coordinate>
     */
-  final def cx = ReactAttr("cx")
+  final def cx = VdomAttr("cx")
 
   /**
     * For the <circle> and the <ellipse> element, this attribute define the y-axis coordinate
@@ -325,291 +325,291 @@ trait SvgAttrs {
     *
     * Value 	<coordinate>
     */
-  final def cy = ReactAttr("cy")
+  final def cy = VdomAttr("cy")
 
-  final def d = ReactAttr("d")
+  final def d = VdomAttr("d")
 
-  final def diffuseConstant = ReactAttr("diffuseConstant")
+  final def diffuseConstant = VdomAttr("diffuseConstant")
 
-  final def direction = ReactAttr("direction")
+  final def direction = VdomAttr("direction")
 
-  final def display = ReactAttr("display")
+  final def display = VdomAttr("display")
 
-  final def divisor = ReactAttr("divisor")
+  final def divisor = VdomAttr("divisor")
 
-  final def dominantBaseline = ReactAttr("dominant-baseline")
+  final def dominantBaseline = VdomAttr("dominant-baseline")
 
-  final def dur = ReactAttr("dur")
+  final def dur = VdomAttr("dur")
 
-  final def dx = ReactAttr("dx")
+  final def dx = VdomAttr("dx")
 
-  final def dy = ReactAttr("dy")
+  final def dy = VdomAttr("dy")
 
-  final def edgeMode = ReactAttr("edgeMode")
+  final def edgeMode = VdomAttr("edgeMode")
 
-  final def elevation = ReactAttr("elevation")
+  final def elevation = VdomAttr("elevation")
 
-  final def end = ReactAttr("end")
+  final def end = VdomAttr("end")
 
-  final def externalResourcesRequired = ReactAttr("externalResourcesRequired")
+  final def externalResourcesRequired = VdomAttr("externalResourcesRequired")
 
-  final def fill = ReactAttr("fill")
+  final def fill = VdomAttr("fill")
 
-  final def fillOpacity = ReactAttr("fillOpacity")
+  final def fillOpacity = VdomAttr("fillOpacity")
 
-  final def fillRule = ReactAttr("fill-rule")
+  final def fillRule = VdomAttr("fill-rule")
 
-  final def filter = ReactAttr("filter")
+  final def filter = VdomAttr("filter")
 
-  final def filterRes = ReactAttr("filterRes")
+  final def filterRes = VdomAttr("filterRes")
 
-  final def filterUnits = ReactAttr("filterUnits")
+  final def filterUnits = VdomAttr("filterUnits")
 
-  final def floodColor = ReactAttr("flood-color")
+  final def floodColor = VdomAttr("flood-color")
 
-  final def floodOpacity = ReactAttr("flood-opacity")
+  final def floodOpacity = VdomAttr("flood-opacity")
 
-  final def fontFamily = ReactAttr("fontFamily")
+  final def fontFamily = VdomAttr("fontFamily")
 
-  final def fontSize = ReactAttr("fontSize")
+  final def fontSize = VdomAttr("fontSize")
 
-  final def fontSizeAdjust = ReactAttr("font-size-adjust")
+  final def fontSizeAdjust = VdomAttr("font-size-adjust")
 
-  final def fontStretch = ReactAttr("font-stretch")
+  final def fontStretch = VdomAttr("font-stretch")
 
-  final def fontVariant = ReactAttr("font-variant")
+  final def fontVariant = VdomAttr("font-variant")
 
-  final def fontWeight = ReactAttr("font-weight")
+  final def fontWeight = VdomAttr("font-weight")
 
-  final def from = ReactAttr("from")
+  final def from = VdomAttr("from")
 
-  final def gradientTransform = ReactAttr("gradientTransform")
+  final def gradientTransform = VdomAttr("gradientTransform")
 
-  final def gradientUnits = ReactAttr("gradientUnits")
+  final def gradientUnits = VdomAttr("gradientUnits")
 
-  final def height = ReactAttr("height")
+  final def height = VdomAttr("height")
 
-  final def imageRendering = ReactAttr("imageRendering")
+  final def imageRendering = VdomAttr("imageRendering")
 
-  final def id = ReactAttr("id")
+  final def id = VdomAttr("id")
 
-  final def in = ReactAttr("in")
+  final def in = VdomAttr("in")
 
-  final def in2 = ReactAttr("in2")
+  final def in2 = VdomAttr("in2")
 
-  final def k1 = ReactAttr("k1")
+  final def k1 = VdomAttr("k1")
 
-  final def k2 = ReactAttr("k2")
+  final def k2 = VdomAttr("k2")
 
-  final def k3 = ReactAttr("k3")
+  final def k3 = VdomAttr("k3")
 
-  final def k4 = ReactAttr("k4")
+  final def k4 = VdomAttr("k4")
 
-  final def kernelMatrix = ReactAttr("kernelMatrix")
+  final def kernelMatrix = VdomAttr("kernelMatrix")
 
-  final def kernelUnitLength = ReactAttr("kernelUnitLength")
+  final def kernelUnitLength = VdomAttr("kernelUnitLength")
 
-  final def kerning = ReactAttr("kerning")
+  final def kerning = VdomAttr("kerning")
 
-  final def keySplines = ReactAttr("keySplines")
+  final def keySplines = VdomAttr("keySplines")
 
-  final def keyTimes = ReactAttr("keyTimes")
+  final def keyTimes = VdomAttr("keyTimes")
 
-  final def letterSpacing = ReactAttr("letter-spacing")
+  final def letterSpacing = VdomAttr("letter-spacing")
 
-  final def lightingColor = ReactAttr("lighting-color")
+  final def lightingColor = VdomAttr("lighting-color")
 
-  final def limitingConeAngle = ReactAttr("limitingConeAngle")
+  final def limitingConeAngle = VdomAttr("limitingConeAngle")
 
-  final def local = ReactAttr("local")
+  final def local = VdomAttr("local")
 
-  final def markerEnd = ReactAttr("markerEnd")
+  final def markerEnd = VdomAttr("markerEnd")
 
-  final def markerMid = ReactAttr("markerMid")
+  final def markerMid = VdomAttr("markerMid")
 
-  final def markerStart = ReactAttr("markerStart")
+  final def markerStart = VdomAttr("markerStart")
 
-  final def markerHeight = ReactAttr("markerHeight")
+  final def markerHeight = VdomAttr("markerHeight")
 
-  final def markerUnits = ReactAttr("markerUnits")
+  final def markerUnits = VdomAttr("markerUnits")
 
-  final def markerWidth = ReactAttr("markerWidth")
+  final def markerWidth = VdomAttr("markerWidth")
 
-  final def maskContentUnits = ReactAttr("maskContentUnits")
+  final def maskContentUnits = VdomAttr("maskContentUnits")
 
-  final def maskUnits = ReactAttr("maskUnits")
+  final def maskUnits = VdomAttr("maskUnits")
 
-  final def mask = ReactAttr("mask")
+  final def mask = VdomAttr("mask")
 
-  final def max = ReactAttr("max")
+  final def max = VdomAttr("max")
 
-  final def min = ReactAttr("min")
+  final def min = VdomAttr("min")
 
-  final def mode = ReactAttr("mode")
+  final def mode = VdomAttr("mode")
 
-  final def numOctaves = ReactAttr("numOctaves")
+  final def numOctaves = VdomAttr("numOctaves")
 
-  final def offset = ReactAttr("offset")
+  final def offset = VdomAttr("offset")
 
-  final def opacity = ReactAttr("opacity")
+  final def opacity = VdomAttr("opacity")
 
-  final def operator = ReactAttr("operator")
+  final def operator = VdomAttr("operator")
 
-  final def order = ReactAttr("order")
+  final def order = VdomAttr("order")
 
-  final def overflow = ReactAttr("overflow")
+  final def overflow = VdomAttr("overflow")
 
-  final def paintOrder = ReactAttr("paint-order")
+  final def paintOrder = VdomAttr("paint-order")
 
-  final def pathLength = ReactAttr("pathLength")
+  final def pathLength = VdomAttr("pathLength")
 
-  final def patternContentUnits = ReactAttr("patternContentUnits")
+  final def patternContentUnits = VdomAttr("patternContentUnits")
 
-  final def patternTransform = ReactAttr("patternTransform")
+  final def patternTransform = VdomAttr("patternTransform")
 
-  final def patternUnits = ReactAttr("patternUnits")
+  final def patternUnits = VdomAttr("patternUnits")
 
-  final def pointerEvents = ReactAttr("pointer-events")
+  final def pointerEvents = VdomAttr("pointer-events")
 
-  final def points = ReactAttr("points")
+  final def points = VdomAttr("points")
 
-  final def pointsAtX = ReactAttr("pointsAtX")
+  final def pointsAtX = VdomAttr("pointsAtX")
 
-  final def pointsAtY = ReactAttr("pointsAtY")
+  final def pointsAtY = VdomAttr("pointsAtY")
 
-  final def pointsAtZ = ReactAttr("pointsAtZ")
+  final def pointsAtZ = VdomAttr("pointsAtZ")
 
-  final def preserveAlpha = ReactAttr("preserveAlpha")
+  final def preserveAlpha = VdomAttr("preserveAlpha")
 
-  final def preserveAspectRatio = ReactAttr("preserveAspectRatio")
+  final def preserveAspectRatio = VdomAttr("preserveAspectRatio")
 
-  final def primitiveUnits = ReactAttr("primitiveUnits")
+  final def primitiveUnits = VdomAttr("primitiveUnits")
 
-  final def r = ReactAttr("r")
+  final def r = VdomAttr("r")
 
-  final def radius = ReactAttr("radius")
+  final def radius = VdomAttr("radius")
 
-  final def repeatCount = ReactAttr("repeatCount")
+  final def repeatCount = VdomAttr("repeatCount")
 
-  final def repeatDur = ReactAttr("repeatDur")
+  final def repeatDur = VdomAttr("repeatDur")
 
-  final def requiredFeatures = ReactAttr("requiredFeatures")
+  final def requiredFeatures = VdomAttr("requiredFeatures")
 
-  final def restart = ReactAttr("restart")
+  final def restart = VdomAttr("restart")
 
-  final def result = ReactAttr("result")
+  final def result = VdomAttr("result")
 
-  final def rx = ReactAttr("rx")
+  final def rx = VdomAttr("rx")
 
-  final def ry = ReactAttr("ry")
+  final def ry = VdomAttr("ry")
 
-  final def scale = ReactAttr("scale")
+  final def scale = VdomAttr("scale")
 
-  final def seed = ReactAttr("seed")
+  final def seed = VdomAttr("seed")
 
-  final def shapeRendering = ReactAttr("shape-rendering")
+  final def shapeRendering = VdomAttr("shape-rendering")
 
-  final def specularConstant = ReactAttr("specularConstant")
+  final def specularConstant = VdomAttr("specularConstant")
 
-  final def specularExponent = ReactAttr("specularExponent")
+  final def specularExponent = VdomAttr("specularExponent")
 
-  final def spreadMethod = ReactAttr("spreadMethod")
+  final def spreadMethod = VdomAttr("spreadMethod")
 
-  final def stdDeviation = ReactAttr("stdDeviation")
+  final def stdDeviation = VdomAttr("stdDeviation")
 
-  final def stitchTiles = ReactAttr("stitchTiles")
+  final def stitchTiles = VdomAttr("stitchTiles")
 
-  final def stopColor = ReactAttr("stopColor")
+  final def stopColor = VdomAttr("stopColor")
 
-  final def stopOpacity = ReactAttr("stopOpacity")
+  final def stopOpacity = VdomAttr("stopOpacity")
 
-  final def stroke = ReactAttr("stroke")
+  final def stroke = VdomAttr("stroke")
 
-  final def strokeDasharray = ReactAttr("strokeDasharray")
+  final def strokeDasharray = VdomAttr("strokeDasharray")
 
-  final def strokeDashoffset = ReactAttr("stroke-dashoffset")
+  final def strokeDashoffset = VdomAttr("stroke-dashoffset")
 
-  final def strokeLinecap = ReactAttr("strokeLinecap")
+  final def strokeLinecap = VdomAttr("strokeLinecap")
 
-  final def strokeLinejoin = ReactAttr("stroke-linejoin")
+  final def strokeLinejoin = VdomAttr("stroke-linejoin")
 
-  final def strokeMiterlimit = ReactAttr("stroke-miterlimit")
+  final def strokeMiterlimit = VdomAttr("stroke-miterlimit")
 
-  final def strokeOpacity = ReactAttr("strokeOpacity")
+  final def strokeOpacity = VdomAttr("strokeOpacity")
 
-  final def strokeWidth = ReactAttr("strokeWidth")
+  final def strokeWidth = VdomAttr("strokeWidth")
 
-  final def style = ReactAttr("style")
+  final def style = VdomAttr("style")
 
-  final def surfaceScale = ReactAttr("surfaceScale")
+  final def surfaceScale = VdomAttr("surfaceScale")
 
-  final def targetX = ReactAttr("targetX")
+  final def targetX = VdomAttr("targetX")
 
-  final def targetY = ReactAttr("targetY")
+  final def targetY = VdomAttr("targetY")
 
-  final def textAnchor = ReactAttr("textAnchor")
+  final def textAnchor = VdomAttr("textAnchor")
 
-  final def textDecoration = ReactAttr("text-decoration")
+  final def textDecoration = VdomAttr("text-decoration")
 
-  final def textRendering = ReactAttr("text-rendering")
+  final def textRendering = VdomAttr("text-rendering")
 
-  final def to = ReactAttr("to")
+  final def to = VdomAttr("to")
 
-  final def transform = ReactAttr("transform")
+  final def transform = VdomAttr("transform")
 
-  final def `type` = ReactAttr("type")
+  final def `type` = VdomAttr("type")
 
-  final def untypedRef = ReactAttr.Ref
+  final def untypedRef = VdomAttr.Ref
 
-  final def values = ReactAttr("values")
+  final def values = VdomAttr("values")
 
-  final def viewBox = ReactAttr("viewBox")
+  final def viewBox = VdomAttr("viewBox")
 
-  final def visibility = ReactAttr("visibility")
+  final def visibility = VdomAttr("visibility")
 
-  final def width = ReactAttr("width")
+  final def width = VdomAttr("width")
 
-  final def wordSpacing = ReactAttr("word-spacing")
+  final def wordSpacing = VdomAttr("word-spacing")
 
-  final def writingMode = ReactAttr("writing-mode")
+  final def writingMode = VdomAttr("writing-mode")
 
-  final def x = ReactAttr("x")
+  final def x = VdomAttr("x")
 
-  final def x1 = ReactAttr("x1")
+  final def x1 = VdomAttr("x1")
 
-  final def x2 = ReactAttr("x2")
+  final def x2 = VdomAttr("x2")
 
-  final def xChannelSelector = ReactAttr("xChannelSelector")
+  final def xChannelSelector = VdomAttr("xChannelSelector")
 
-  final def xmlns = ReactAttr("xmlns")
+  final def xmlns = VdomAttr("xmlns")
 
-  final def y = ReactAttr("y")
+  final def y = VdomAttr("y")
 
-  final def y1 = ReactAttr("y1")
+  final def y1 = VdomAttr("y1")
 
-  final def y2 = ReactAttr("y2")
+  final def y2 = VdomAttr("y2")
 
-  final def yChannelSelector = ReactAttr("yChannelSelector")
+  final def yChannelSelector = VdomAttr("yChannelSelector")
 
-  final def z = ReactAttr("z")
+  final def z = VdomAttr("z")
 
-  final def xlinkActuate = ReactAttr("xlinkActuate")
+  final def xlinkActuate = VdomAttr("xlinkActuate")
 
-  final def xlinkArcrole = ReactAttr("xlinkArcrole")
+  final def xlinkArcrole = VdomAttr("xlinkArcrole")
 
-  final def xlinkHref = ReactAttr("xlinkHref")
+  final def xlinkHref = VdomAttr("xlinkHref")
 
-  final def xlinkRole = ReactAttr("xlinkRole")
+  final def xlinkRole = VdomAttr("xlinkRole")
 
-  final def xlinkShow = ReactAttr("xlinkShow")
+  final def xlinkShow = VdomAttr("xlinkShow")
 
-  final def xlinkTitle = ReactAttr("xlinkTitle")
+  final def xlinkTitle = VdomAttr("xlinkTitle")
 
-  final def xlinkType = ReactAttr("xlinkType")
+  final def xlinkType = VdomAttr("xlinkType")
 
-  final def xmlBase = ReactAttr("xmlBase")
+  final def xmlBase = VdomAttr("xmlBase")
 
-  final def xmlLang = ReactAttr("xmlLang")
+  final def xmlLang = VdomAttr("xmlLang")
 
-  final def xmlSpace = ReactAttr("xmlSpace")
+  final def xmlSpace = VdomAttr("xmlSpace")
 }

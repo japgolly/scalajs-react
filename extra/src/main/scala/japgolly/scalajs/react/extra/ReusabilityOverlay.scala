@@ -91,7 +91,7 @@ object DefaultReusabilityOverlay {
   private[DefaultReusabilityOverlay] implicit def autoLiftHtml(n: Node): Element = n.domAsHtml
 
   trait Template {
-    def template: ReactElement
+    def template: VdomElement
     def good(e: Element): Node
     def bad(e: Element): Node
   }
@@ -113,7 +113,7 @@ object DefaultReusabilityOverlay {
       ^.cursor       := "pointer")
 
   object ShowGoodAndBadCounts extends Template {
-    override val template: ReactElement =
+    override val template: VdomElement =
       defaultContainer(styleAll,
         <.span(styleAll, ^.color := "#070"),
         <.span(styleAll, ^.padding := "0", ^.margin := "0 0.4ex", "-"),
@@ -123,7 +123,7 @@ object DefaultReusabilityOverlay {
   }
 
   object ShowBadCount extends Template {
-    override val template: ReactElement =
+    override val template: VdomElement =
       defaultContainer(styleAll,
         <.span(styleAll, ^.display := "none"),
         <.span(styleAll, ^.color := "#900", ^.fontWeight := "bold"))
@@ -194,7 +194,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     // Create
     val tmp = document.createElement("div").domAsHtml
     document.body.appendChild(tmp)
-    raw.ReactDOM.render(options.template.template.rawReactElement, tmp)
+    raw.ReactDOM.render(options.template.template.rawElement, tmp)
     val outer = tmp.firstChild
     document.body.replaceChild(outer, tmp)
 

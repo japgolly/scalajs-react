@@ -7,7 +7,7 @@ import scala.util.matching.Regex
 import japgolly.scalajs.react.CallbackTo
 import japgolly.scalajs.react.extra.internal.RouterMacros
 import japgolly.scalajs.react.internal.identityFn
-import japgolly.scalajs.react.vdom.ReactElement
+import japgolly.scalajs.react.vdom.VdomElement
 import RouterConfig.Parsed
 
 /**
@@ -503,16 +503,16 @@ final class RouterConfigDsl[Page] {
 
   implicit def _auto_someAction[A <: Action](a: A): Option[A] = Some(a)
 
-  def render[A <% ReactElement](a: => A): Renderer =
+  def render[A <% VdomElement](a: => A): Renderer =
     Renderer(_ => a)
 
-  def renderR[A <% ReactElement](g: RouterCtl[Page] => A): Renderer =
+  def renderR[A <% VdomElement](g: RouterCtl[Page] => A): Renderer =
     Renderer(g(_))
 
-  def dynRender[P <: Page, A <% ReactElement](g: P => A): P => Renderer =
+  def dynRender[P <: Page, A <% VdomElement](g: P => A): P => Renderer =
     p => Renderer(_ => g(p))
 
-  def dynRenderR[P <: Page, A <% ReactElement](g: (P, RouterCtl[Page]) => A): P => Renderer =
+  def dynRenderR[P <: Page, A <% VdomElement](g: (P, RouterCtl[Page]) => A): P => Renderer =
     p => Renderer(r => g(p, r))
 
   def redirectToPage(page: Page)(implicit method: Redirect.Method): RedirectToPage[Page] =

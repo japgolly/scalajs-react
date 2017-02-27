@@ -58,7 +58,7 @@ object Generic {
     def mapUnmountedProps[P2](f: P1 => P2): BaseUnmounted[P2, M1, P0, M0]
     def mapMounted[M2](f: M1 => M2): BaseUnmounted[P1, M2, P0, M0]
 
-    def reactElement: vdom.ReactElement
+    def vdomElement: vdom.VdomElement
     def key: Option[Key]
     def ref: Option[String]
     def props: Props

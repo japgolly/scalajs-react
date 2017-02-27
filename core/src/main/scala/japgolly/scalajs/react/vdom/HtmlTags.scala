@@ -281,7 +281,7 @@ trait HtmlTags {
     */
   object input extends TagOf[*.Input]("input", Nil, Namespace.Html) {
 
-    private[this] val `type` = ReactAttr[String]("type")
+    private[this] val `type` = VdomAttr[String]("type")
 
     /** Returns a &lt;input type="{t}" /&gt; */
     def withType(t: String): TagOf[*.Input] =

@@ -4,13 +4,13 @@ import org.scalajs.dom
 import scala.annotation.elidable
 import scala.util.{Failure, Success, Try}
 import japgolly.scalajs.react.Callback
-import japgolly.scalajs.react.vdom.ReactElement
+import japgolly.scalajs.react.vdom.VdomElement
 import RouterConfig.{Logger, Parsed}
 
 case class RouterConfig[Page](parse       : Path => Parsed[Page],
                               path        : Page => Path,
                               action      : (Path, Page) => Action[Page],
-                              renderFn    : (RouterCtl[Page], Resolution[Page]) => ReactElement,
+                              renderFn    : (RouterCtl[Page], Resolution[Page]) => VdomElement,
                               postRenderFn: (Option[Page], Page) => Callback,
                               logger      : Logger) {
 
@@ -23,7 +23,7 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
   /**
    * Specify how to render a page once it's resolved. This function will be applied to all renderable pages.
    */
-  def renderWith(f: (RouterCtl[Page], Resolution[Page]) => ReactElement): RouterConfig[Page] =
+  def renderWith(f: (RouterCtl[Page], Resolution[Page]) => VdomElement): RouterConfig[Page] =
     copy(renderFn = f)
 
   /**
@@ -77,7 +77,7 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
       val es = errors.sorted.map(e => s"\n  - $e") mkString ""
       val msg = s"${errors.size} RouterConfig errors detected:$es"
       dom.console.error(msg)
-      val el: ReactElement =
+      val el: VdomElement =
         <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
       RouterConfig.withDefaults(_ => Right(page1), _ => Path.root, (_, _) => Renderer(_ => el))
     }
@@ -135,7 +135,7 @@ object RouterConfig {
   def defaultLogger: Logger =
     nopLogger
 
-  def defaultRenderFn[Page]: (RouterCtl[Page], Resolution[Page]) => ReactElement =
+  def defaultRenderFn[Page]: (RouterCtl[Page], Resolution[Page]) => VdomElement =
     (_, r) => r.render()
 
   def defaultPostRenderFn[Page]: (Option[Page], Page) => Callback = {

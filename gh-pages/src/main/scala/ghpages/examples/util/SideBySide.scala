@@ -6,7 +6,7 @@ import org.scalajs.dom.ext.PimpedNodeList
 
 object SideBySide {
 
-  case class Content(jsSource: String, scalaSource: String, el: ReactElement) {
+  case class Content(jsSource: String, scalaSource: String, el: VdomElement) {
     def apply() = sideBySideComponent(this)
   }
 

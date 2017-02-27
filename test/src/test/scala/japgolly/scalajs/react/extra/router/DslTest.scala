@@ -31,10 +31,10 @@ object DslTest extends TestSuite {
     val routeCCl = "ccl" / long.caseClass[CCl]
     val routeCCu = "ccu" / uuid.caseClass[CCu]
 
-    def reactTag: ReactTag =
+    def reactTag: VdomTag =
       <.span("tag!")
 
-    def reactElement: ReactElement =
+    def reactElement: VdomElement =
       <.span("el!")
 
     val compCConst: ScalaComponent[Unit, Unit, Unit, CtorType.Nullary] =

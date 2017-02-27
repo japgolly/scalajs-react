@@ -11,8 +11,8 @@ package object test {
   implicit def reactOrDomNodeFromMounted(m: GenericComponent.RawAccessMounted): ReactOrDomNode =
     ReactDOM.raw.findDOMNode(m.raw)
 
-  implicit def reactOrDomNodeFromVRE(m: vdom.ReactElement): ReactOrDomNode =
-    m.rawReactElement
+  implicit def reactOrDomNodeFromVRE(m: vdom.VdomElement): ReactOrDomNode =
+    m.rawElement
 
   implicit final class ReactTestExt_MountedId(private val c: GenericComponent.BaseMounted[Effect.Id, _, _, _, _]) extends AnyVal {
     def outerHtmlWithoutReactDataAttr(): String =

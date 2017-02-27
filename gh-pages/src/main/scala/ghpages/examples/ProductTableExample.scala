@@ -187,7 +187,7 @@ object ProductTableExample {
             <.th("Name"),
             <.th("Price"))),
         <.tbody(
-          rows.toReactArray))
+          rows.toVdomArray))
     }
     .build
 

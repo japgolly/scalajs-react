@@ -4,7 +4,7 @@ import japgolly.scalajs.react._, vdom.all._
 
 object SingleSide {
 
-  case class Content(scalaSource: String, el: ReactElement) {
+  case class Content(scalaSource: String, el: VdomElement) {
     def apply() = singleSideComponent(this)
   }
 

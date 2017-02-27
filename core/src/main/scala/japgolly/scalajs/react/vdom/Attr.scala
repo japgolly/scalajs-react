@@ -13,7 +13,7 @@ import Attr.ValueType
   * @tparam U Underlying type of the value required by this attribute.
   */
 abstract class Attr[-U](final val name: String) {
-  override final def toString = s"ReactAttr.$name"
+  override final def toString = s"VdomAttr{name=$name}"
 
   override def hashCode = name.##
   override def equals(any: Any) = any match {

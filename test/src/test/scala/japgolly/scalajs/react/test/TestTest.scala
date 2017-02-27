@@ -52,7 +52,7 @@ object TestTest extends TestSuite {
         assertOuterHTML(ReactDOM.raw.findDOMNode(c.raw), exp)
 
       'plainElement {
-        val re: ReactElement = <.div("Good")
+        val re: VdomElement = <.div("Good")
         val c = ReactTestUtils.renderIntoDocument(re)
         test(c, """<div>Good</div>""")
       }
@@ -74,7 +74,7 @@ object TestTest extends TestSuite {
       }
 
       'eventTypes {
-        def test[E[+x <: dom.Node] <: SyntheticEvent[x]](eventType: ReactAttr.Event[E], simF: ReactOrDomNode ⇒ Unit) = {
+        def test[E[+x <: dom.Node] <: SyntheticEvent[x]](eventType: VdomAttr.Event[E], simF: ReactOrDomNode ⇒ Unit) = {
           val IDC = ScalaComponent.build[Unit]("IC").initialState(true).render($ => {
             val ch = (e: E[dom.Node]) => $.modState(x => !x)
             <.label(
