@@ -229,14 +229,14 @@ object Px {
 
   def bs[P, S]($: BackendScope[P, S]) = new BackendScopePxOps[P, S]($)
   final class BackendScopePxOps[P, S](private val $: BackendScope[P, S]) extends AnyVal {
-    def propsA(implicit r: Reusability[P]): Px[P] = cbA($.props)
-    def propsM(implicit r: Reusability[P]): Px[P] = cbM($.props)
-    def stateA(implicit r: Reusability[S]): Px[S] = cbA($.state)
-    def stateM(implicit r: Reusability[S]): Px[S] = cbM($.state)
-    def propsA[A: Reusability](f: P => A): Px[A] = cbA($.props map f)
-    def propsM[A: Reusability](f: P => A): Px[A] = cbM($.props map f)
-    def stateA[A: Reusability](f: S => A): Px[A] = cbA($.state map f)
-    def stateM[A: Reusability](f: S => A): Px[A] = cbM($.state map f)
+    def propsA(implicit r: Reusability[P]): ThunkA[P] = cbA($.props)
+    def propsM(implicit r: Reusability[P]): ThunkM[P] = cbM($.props)
+    def stateA(implicit r: Reusability[S]): ThunkA[S] = cbA($.state)
+    def stateM(implicit r: Reusability[S]): ThunkM[S] = cbM($.state)
+    def propsA[A: Reusability](f: P => A) : ThunkA[A] = cbA($.props map f)
+    def propsM[A: Reusability](f: P => A) : ThunkM[A] = cbM($.props map f)
+    def stateA[A: Reusability](f: S => A) : ThunkA[A] = cbA($.state map f)
+    def stateM[A: Reusability](f: S => A) : ThunkM[A] = cbM($.state map f)
   }
 
   object NoReuse {
@@ -249,14 +249,14 @@ object Px {
 
     def bs[P, S]($: BackendScope[P, S]) = new BackendScopePxOps[P, S]($)
     final class BackendScopePxOps[P, S](private val $: BackendScope[P, S]) extends AnyVal {
-      def propsA              : Px[P] = cbA($.props)
-      def propsM              : Px[P] = cbM($.props)
-      def stateA              : Px[S] = cbA($.state)
-      def stateM              : Px[S] = cbM($.state)
-      def propsA[A](f: P => A): Px[A] = cbA($.props map f)
-      def propsM[A](f: P => A): Px[A] = cbM($.props map f)
-      def stateA[A](f: S => A): Px[A] = cbA($.state map f)
-      def stateM[A](f: S => A): Px[A] = cbM($.state map f)
+      def propsA              : ThunkA[P] = cbA($.props)
+      def propsM              : ThunkM[P] = cbM($.props)
+      def stateA              : ThunkA[S] = cbA($.state)
+      def stateM              : ThunkM[S] = cbM($.state)
+      def propsA[A](f: P => A): ThunkA[A] = cbA($.props map f)
+      def propsM[A](f: P => A): ThunkM[A] = cbM($.props map f)
+      def stateA[A](f: S => A): ThunkA[A] = cbA($.state map f)
+      def stateM[A](f: S => A): ThunkM[A] = cbM($.state map f)
     }
   }
 
