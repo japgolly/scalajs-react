@@ -12,6 +12,13 @@ object MonocleTest extends TestSuite {
 
   @Lenses case class Poly[A](oa: Option[A])
 
+  private class ScopeTest[A](s: StateAccessPure[A]) {
+    // Testing:
+    // [error] private value s escapes its defining scope as part of type ScopeTest.this.s.WithMappedState[Int]
+    // val t = s.zoomStateL(null.asInstanceOf[monocle.Lens[A, Int]])
+    // TODO I can't think of how to fix this without crazy typeclasses or f-bounded types
+  }
+
   val tests = TestSuite {
 
     'inference {
