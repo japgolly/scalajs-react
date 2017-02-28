@@ -226,7 +226,9 @@ object ScalazReactState {
     def runStateF[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): Out[A] =
       run[M, A, A](st, (s1, s2, a, cb) => F(s1, s2, CallbackTo pure a, _ => cb.map(_ => a)))
 
-    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
+    @deprecated("Use runStateFnF.", "1.0.0")
+    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] = runStateFnF(f)
+    def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
       i => runStateF(f(i))
 
     @deprecated("Use runStateFnF.", "1.0.0")
