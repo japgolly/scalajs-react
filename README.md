@@ -160,3 +160,26 @@ Refactored:
   * No more auto conversion of vdom arrays. Either use `blah: _*`, `TagMod(blah: _*)`, or `blah.toVdomArray`, `VdomArray(…)`.
   * Explain all the Seq => TagMod/Array gotchas; see PrefixedTest
 
+Ref usage is hugely different now
+
+CompState.WriteAccess migration
+
+ReactComponent{,U,M]_ migration
+
+add cheatsheets
+
+add usage recommendations
+
+-------------------
+
+s/mapCtorType/mapCtor/g
+
+RawAccessMounted <-- something without the word Access in it...?
+
+toReactArray -> toVdomArray?
+
+is Callback necessary from non-render lifecycle hooks?
+DOM isn't used, is it really confusing?
+
+Rename {Read,Write}{Id,CB} in StateAccessor?
+Rename initialState*CB. Maybe add initialStatePure or Const or something
