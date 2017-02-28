@@ -29,12 +29,12 @@ object VdomElement {
 
 final class VdomArray(val rawArray: js.Array[Raw.ReactNode]) extends VdomNode(rawArray.asInstanceOf[Raw.ReactNode]) {
 
-  def +(n: VdomNode): this.type = {
+  def +=(n: VdomNode): this.type = {
     rawArray push n.rawNode
     this
   }
 
-  def ++[A](as: TraversableOnce[A])(implicit f: A => VdomNode): this.type = {
+  def ++=[A](as: TraversableOnce[A])(implicit f: A => VdomNode): this.type = {
     for (a <- as)
       rawArray push f(a).rawNode
     this
@@ -46,5 +46,5 @@ object VdomArray {
     new VdomArray(new js.Array)
 
   def apply(ns: VdomNode*): VdomArray =
-    empty() ++ ns
+    empty() ++= ns
 }
