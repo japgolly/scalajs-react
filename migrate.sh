@@ -37,6 +37,7 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/(?<!\w)ReusableVar( +(?=[a-z])| *[(.])/StateSnapshot.withReuse\1/g;
   s/(?<!\w)ExternalVar( +(?=[a-z])| *[(.])/StateSnapshot\1/g;
   s/(?<!\w)(import +[^\n]*)(?:External|Reusable)Var(?!\w)/\1StateSnapshot/g;
+  s/(?<!\w)ReusableVal2?(?!\w)/Reusable\1/g;
 
   s/(?<=Listenable\.)installS/listenWithStateMonad/g;
   s/(?<=Listenable\.)installU/listenToUnit/g;

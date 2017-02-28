@@ -147,6 +147,8 @@ Refactored:
   * {set,mod}StateCB
   * CallbackB
   * Exotics in `[test]`: ComponentTester, WithExternalCompStateAccess
+  * ReusableFn#asVar{,R}
+  * ReusableFn#fnA, ReusableFnA
 
 * VDOM
   * `^.dangerouslySetInnerHtml := x` instead of `^.dangerouslySetInnerHtml(x)`.

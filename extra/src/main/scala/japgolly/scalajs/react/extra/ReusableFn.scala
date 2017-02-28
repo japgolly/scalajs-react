@@ -2,6 +2,7 @@ package japgolly.scalajs.react.extra
 
 import scala.runtime.AbstractFunction1
 import japgolly.scalajs.react.{Callback, StateAccessor}
+import scala.reflect.ClassTag
 
 /**
  * A function that facilitates stability and reuse.
@@ -24,6 +25,9 @@ sealed abstract class ReusableFn[-A, +B] extends AbstractFunction1[A, B] {
 
   def contramap[C](f: C => A): C ~=> B =
     dimap(f.andThen)
+
+  def reusableResult[AA <: A : ClassTag : Reusability](a: AA): Reusable[B] =
+    Reusable.implicitly(a).map(apply)
 }
 
 object ReusableFn {
