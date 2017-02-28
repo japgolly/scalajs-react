@@ -23,9 +23,9 @@ trait HtmlAttrs {
     */
   final def action = VdomAttr("action")
 
-  final def allowFullScreen = VdomAttr("allowFullScreen")
+  final def allowFullScreen = VdomAttr[Boolean]("allowFullScreen")
 
-  final def allowTransparency = VdomAttr("allowTransparency")
+  final def allowTransparency = VdomAttr[Boolean]("allowTransparency")
 
   /**
     * This attribute defines the alternative text describing the image. Users
@@ -231,7 +231,10 @@ trait HtmlAttrs {
     *
     * Possible values are "off" and "on"
     */
-  final def autoComplete = VdomAttr("autoComplete")
+  object autoComplete extends VdomAttr.Generic("autoComplete") {
+    def on  = this := "on"
+    def off = this := "off"
+  }
 
   final def autoCorrect = VdomAttr[Boolean]("autoCorrect")
 
@@ -536,7 +539,7 @@ trait HtmlAttrs {
     * This document-level metadata name is associated with a value, contained by
     * the content attribute.
     */
-  final def name = VdomAttr("name")
+  final def name = VdomAttr[String]("name")
 
   final def noValidate = VdomAttr("noValidate")
 
@@ -930,7 +933,7 @@ trait HtmlAttrs {
 
   final def profile = VdomAttr("profile")
 
-  final def radioGroup = VdomAttr("radioGroup")
+  final def radioGroup = VdomAttr[String]("radioGroup")
 
   /**
     * This Boolean attribute indicates that the user cannot modify the value of
@@ -977,7 +980,7 @@ trait HtmlAttrs {
     *
     * @see http://www.w3.org/TR/role-attribute/#s_role_module_attributes
     */
-  final def role = VdomAttr("role")
+  final def role = VdomAttr[String]("role")
 
   final def rowSpan = VdomAttr[Int]("rowSpan")
 
@@ -1130,7 +1133,7 @@ trait HtmlAttrs {
     * the element it belongs too. Such information can typically, but not
     * necessarily, be presented to the user as a tooltip.
     */
-  final val title = VdomAttr("title")
+  final val title = VdomAttr[String]("title")
 
   /**
     * Shorthand for the `type` attribute
@@ -1163,7 +1166,10 @@ trait HtmlAttrs {
   final def wmode = VdomAttr("wmode")
 
   /** &lt;textarea&gt;: Indicates whether the text should be wrapped. */
-  final def wrap = VdomAttr("wrap")
+  object wrap extends VdomAttr.Generic("wrap") {
+    def soft = this := "soft"
+    def hard = this := "hard"
+  }
 
   final def xmlns = VdomAttr("xmlns")
 }
