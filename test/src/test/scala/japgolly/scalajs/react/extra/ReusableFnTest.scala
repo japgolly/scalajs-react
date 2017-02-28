@@ -91,7 +91,7 @@ object ReusableFnTest extends TestSuite {
       case class Counter(count: Int) {
         def add(i: Int): Counter = copy(count = count + i)
       }
-      test[BackendScope[P, S]          ]($ => ReusableFn.state($).mod.endoZoom(st_s)      ).expect[T ~=> Callback]
+      test[BackendScope[P, S]          ]($ => ReusableFn.state($).mod.endoUpdate(st_s)    ).expect[T ~=> Callback]
       test[BackendScope[P, Counter]    ]($ => ReusableFn.state($).mod.endoCall(_.add)     ).expect[Int ~=> Callback]
       test[BackendScope[P, Map[Int, S]]]($ => ReusableFn.state($).mod.endoCall2(_.updated)).expect[Int ~=> (S ~=> Callback)]
     }

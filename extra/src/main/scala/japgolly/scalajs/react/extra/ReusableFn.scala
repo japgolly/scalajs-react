@@ -28,18 +28,21 @@ sealed abstract class ReusableFn[-A, +B] extends AbstractFunction1[A, B] {
 
 object ReusableFn {
 
-  implicit final class EndoOps[E, B](private val s: (E => E) ~=> B) extends AnyVal {
-    def endoCall[I](f: E => I => E): I ~=> B =
+  implicit final class EndoOps[A, B](private val s: (A => A) ~=> B) extends AnyVal {
+    def endoCall[I](f: A => I => A): I ~=> B =
       s.dimap(g => i => g(f(_)(i)))
 
-    def endoZoom[I](f: (E, I) => E): I ~=> B =
-      s.dimap(g => i => g(f(_, i)))
-
-    def endoCall2[I: Reusability, J](f: E => (I, J) => E): I ~=> (J ~=> B) =
+    def endoCall2[I: Reusability, J](f: A => (I, J) => A): I ~=> (J ~=> B) =
       ReusableFn((i: I, j: J) => s(f(_)(i, j)))
 
-    def endoCall3[I: Reusability, J: Reusability, K](f: E => (I, J, K) => E): I ~=> (J ~=> (K ~=> B)) =
+    def endoCall3[I: Reusability, J: Reusability, K](f: A => (I, J, K) => A): I ~=> (J ~=> (K ~=> B)) =
       ReusableFn((i: I, j: J, k: K) => s(f(_)(i, j, k)))
+
+    def endoUpdate[I](f: (A, I) => A): I ~=> B =
+       s.dimap(g => i => g(f(_, i)))
+
+//    def endoSet[I](f: I => A => A): I ~=> B =
+//      s.contramap(f)
   }
 
   // ===================================================================================================================
