@@ -2,6 +2,10 @@
 
 find . -name '*.scala' -type f -exec perl -pi -e '
   undef $/;
+  use Regexp::Common;
+  $x= "(){"."}";
+  $bp = $RE{balanced}{-parens=>$x};
+
   s/(import +[a-z.]*)ReactComponentB(?![A-Za-z])/\1ScalaComponent/g;
   s/ReactComponentB *(?=\[)/ScalaComponent.build/g;
   s/ReactComponentB\.static/ScalaComponent.static/g;
@@ -40,34 +44,34 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/(Reusability *\.? *when)True/\1/g;
   s/(Reusability *)\. *fn(?=[\(\[])/\1/g;
 
-  s/Px\(([^\n]+?)\) *(?=[.\n])/Px(\1).withReuse.manualUpdate/g;
-  s/Px *\. *const\(([^\n]+?)\) *(?=[.\n])/Px.constByValue(\1)/g;
-  s/Px *\. *lazyConst\(([^\n]+?)\) *(?=[.\n])/Px.constByNeed(\1)/g;
-  s/Px *\. *thunkM\(([^\n]+?)\) *(?=[.\n])/Px(\1).withReuse.manualRefresh/g;
-  s/Px *\. *thunkA\(([^\n]+?)\) *(?=[.\n])/Px(\1).withReuse.autoRefresh/g;
-  s/Px *\. *cbM\(([^\n]+?)\) *(?=[.\n])/Px.callback(\1).withReuse.manualRefresh/g;
-  s/Px *\. *cbA\(([^\n]+?)\) *(?=[.\n])/Px.callback(\1).withReuse.autoRefresh/g;
-  s/Px *\. *bs\((.+?)\) *\. *propsM\(([^\n]+?)\) *(?=[.\n])/Px.props(\1).map(\2).withReuse.manualRefresh/g;
-  s/Px *\. *bs\((.+?)\) *\. *propsA\(([^\n]+?)\) *(?=[.\n])/Px.props(\1).map(\2).withReuse.autoRefresh/g;
-  s/Px *\. *bs\((.+?)\) *\. *stateM\(([^\n]+?)\) *(?=[.\n])/Px.state(\1).map(\2).withReuse.manualRefresh/g;
-  s/Px *\. *bs\((.+?)\) *\. *stateA\(([^\n]+?)\) *(?=[.\n])/Px.state(\1).map(\2).withReuse.autoRefresh/g;
-  s/Px *\. *bs\((.+?)\) *\. *propsM *(?=[.\n])/Px.props(\1).withReuse.manualRefresh/g;
-  s/Px *\. *bs\((.+?)\) *\. *propsA *(?=[.\n])/Px.props(\1).withReuse.autoRefresh/g;
-  s/Px *\. *bs\((.+?)\) *\. *stateM *(?=[.\n])/Px.state(\1).withReuse.manualRefresh/g;
-  s/Px *\. *bs\((.+?)\) *\. *stateA *(?=[.\n])/Px.state(\1).withReuse.autoRefresh/g;
-  s/Px *\. *NoReuse\(([^\n]+?)\) *(?=[.\n])/Px(\1).withoutReuse.manualUpdate/g;
-  s/Px *\. *NoReuse *\. *thunkM\(([^\n]+?)\) *(?=[.\n])/Px(\1).withoutReuse.manualRefresh/g;
-  s/Px *\. *NoReuse *\. *thunkA\(([^\n]+?)\) *(?=[.\n])/Px(\1).withoutReuse.autoRefresh/g;
-  s/Px *\. *NoReuse *\. *cbM\(([^\n]+?)\) *(?=[.\n])/Px.callback(\1).withoutReuse.manualRefresh/g;
-  s/Px *\. *NoReuse *\. *cbA\(([^\n]+?)\) *(?=[.\n])/Px.callback(\1).withoutReuse.autoRefresh/g;
-  s/Px *\. *NoReuse *\. *bs\((.+?)\) *\. *propsM\(([^\n]+?)\) *(?=[.\n])/Px.props(\1).map(\2).withoutReuse.manualRefresh/g;
-  s/Px *\. *NoReuse *\. *bs\((.+?)\) *\. *propsA\(([^\n]+?)\) *(?=[.\n])/Px.props(\1).map(\2).withoutReuse.autoRefresh/g;
-  s/Px *\. *NoReuse *\. *bs\((.+?)\) *\. *stateM\(([^\n]+?)\) *(?=[.\n])/Px.state(\1).map(\2).withoutReuse.manualRefresh/g;
-  s/Px *\. *NoReuse *\. *bs\((.+?)\) *\. *stateA\(([^\n]+?)\) *(?=[.\n])/Px.state(\1).map(\2).withoutReuse.autoRefresh/g;
-  s/Px *\. *NoReuse *\. *bs\((.+?)\) *\. *propsM *(?=[.\n])/Px.props(\1).withoutReuse.manualRefresh/g;
-  s/Px *\. *NoReuse *\. *bs\((.+?)\) *\. *propsA *(?=[.\n])/Px.props(\1).withoutReuse.autoRefresh/g;
-  s/Px *\. *NoReuse *\. *bs\((.+?)\) *\. *stateM *(?=[.\n])/Px.state(\1).withoutReuse.manualRefresh/g;
-  s/Px *\. *NoReuse *\. *bs\((.+?)\) *\. *stateA *(?=[.\n])/Px.state(\1).withoutReuse.autoRefresh/g;
+  s/Px($bp) *(?=[.\n])/Px\1.withReuse.manualUpdate/g;
+  s/Px *\. *const($bp) *(?=[.\n])/Px.constByValue\1/g;
+  s/Px *\. *lazyConst($bp) *(?=[.\n])/Px.constByNeed\1/g;
+  s/Px *\. *thunkM($bp) *(?=[.\n])/Px\1.withReuse.manualRefresh/g;
+  s/Px *\. *thunkA($bp) *(?=[.\n])/Px\1.withReuse.autoRefresh/g;
+  s/Px *\. *cbM($bp) *(?=[.\n])/Px.callback\1.withReuse.manualRefresh/g;
+  s/Px *\. *cbA($bp) *(?=[.\n])/Px.callback\1.withReuse.autoRefresh/g;
+  s/Px *\. *bs(\([^\n;]+\)) *\. *propsM($bp) *(?=[.\n])/Px.props\1.map\2.withReuse.manualRefresh/g;
+  s/Px *\. *bs(\([^\n;]+\)) *\. *propsA($bp) *(?=[.\n])/Px.props\1.map\2.withReuse.autoRefresh/g;
+  s/Px *\. *bs(\([^\n;]+\)) *\. *stateM($bp) *(?=[.\n])/Px.state\1.map\2.withReuse.manualRefresh/g;
+  s/Px *\. *bs(\([^\n;]+\)) *\. *stateA($bp) *(?=[.\n])/Px.state\1.map\2.withReuse.autoRefresh/g;
+  s/Px *\. *bs($bp) *\. *propsM *(?=[.\n])/Px.props\1.withReuse.manualRefresh/g;
+  s/Px *\. *bs($bp) *\. *propsA *(?=[.\n])/Px.props\1.withReuse.autoRefresh/g;
+  s/Px *\. *bs($bp) *\. *stateM *(?=[.\n])/Px.state\1.withReuse.manualRefresh/g;
+  s/Px *\. *bs($bp) *\. *stateA *(?=[.\n])/Px.state\1.withReuse.autoRefresh/g;
+  s/Px *\. *NoReuse($bp) *(?=[.\n])/Px\1.withoutReuse.manualUpdate/g;
+  s/Px *\. *NoReuse *\. *thunkM($bp) *(?=[.\n])/Px\1.withoutReuse.manualRefresh/g;
+  s/Px *\. *NoReuse *\. *thunkA($bp) *(?=[.\n])/Px\1.withoutReuse.autoRefresh/g;
+  s/Px *\. *NoReuse *\. *cbM($bp) *(?=[.\n])/Px.callback\1.withoutReuse.manualRefresh/g;
+  s/Px *\. *NoReuse *\. *cbA($bp) *(?=[.\n])/Px.callback\1.withoutReuse.autoRefresh/g;
+  s/Px *\. *NoReuse *\. *bs(\([^\n;]+\)) *\. *propsM($bp) *(?=[.\n])/Px.props\1.map\2.withoutReuse.manualRefresh/g;
+  s/Px *\. *NoReuse *\. *bs(\([^\n;]+\)) *\. *propsA($bp) *(?=[.\n])/Px.props\1.map\2.withoutReuse.autoRefresh/g;
+  s/Px *\. *NoReuse *\. *bs(\([^\n;]+\)) *\. *stateM($bp) *(?=[.\n])/Px.state\1.map\2.withoutReuse.manualRefresh/g;
+  s/Px *\. *NoReuse *\. *bs(\([^\n;]+\)) *\. *stateA($bp) *(?=[.\n])/Px.state\1.map\2.withoutReuse.autoRefresh/g;
+  s/Px *\. *NoReuse *\. *bs($bp) *\. *propsM *(?=[.\n])/Px.props\1.withoutReuse.manualRefresh/g;
+  s/Px *\. *NoReuse *\. *bs($bp) *\. *propsA *(?=[.\n])/Px.props\1.withoutReuse.autoRefresh/g;
+  s/Px *\. *NoReuse *\. *bs($bp) *\. *stateM *(?=[.\n])/Px.state\1.withoutReuse.manualRefresh/g;
+  s/Px *\. *NoReuse *\. *bs($bp) *\. *stateA *(?=[.\n])/Px.state\1.withoutReuse.autoRefresh/g;
 
   s/(Change|Keyboard|Mouse)EventData/SimEvent.\1/g;
   s/ReactTestUtils *\. *(?=Simulate)//g;
