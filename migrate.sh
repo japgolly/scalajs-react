@@ -14,7 +14,7 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/\. *\$ *\. *(?=backend)/./g;
   s/\[ *P, *S, *B, *N *\<: *TopNode *\]( *=\s*)\( *_ *: *ScalaComponent.build\[ *P, *S, *B, *N *\] *\)\s+/[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B]\1_/;
   s/_((?:set|mod|run)State)/\1Fn/g;
-  s/(getDOMNode|isMounted)\(\)/\1/g;
+  s/(forceUpdate|getDOMNode|isMounted)\(\)/\1/g;
 
   s/prefix_\<\^/html_<^/g;
   s/(?<!\w)React(Tag|TagOf|Attr|Node|Element)(?!\w)/Vdom\1/g;

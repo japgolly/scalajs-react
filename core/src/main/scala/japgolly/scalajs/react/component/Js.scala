@@ -162,7 +162,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
       override def modState(mod: S => S, callback: Callback = Callback.empty): Unit =
         raw.modState(mod.asInstanceOf[js.Object => js.Object], callback.toJsFn)
 
-      override def forceUpdate(callback: Callback = Callback.empty): Unit =
+      override def forceUpdate(callback: Callback): Unit =
         raw.forceUpdate(callback.toJsFn)
 
       override type Mapped[F1[_], P1, S1] = BaseMounted[F1, P1, S1, R, P, S]

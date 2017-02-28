@@ -474,7 +474,8 @@ object ScalaBuilder {
     }
 
     sealed trait ForceUpdate[P, S, B] extends Any with Base[P, S, B] {
-      final def forceUpdate(cb: Callback = Callback.empty): Callback = mountedPure.forceUpdate(cb)
+      final def forceUpdate: Callback = forceUpdate(Callback.empty)
+      final def forceUpdate(cb: Callback): Callback = mountedPure.forceUpdate(cb)
     }
 
     private def wrapTostring(toString: String) = toString

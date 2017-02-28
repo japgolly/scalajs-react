@@ -97,7 +97,7 @@ object Scala {
       override def modState(mod: S => S, callback: Callback = Callback.empty) =
         x.modState(s => Box(mod(s.unbox)), callback)
 
-      override def forceUpdate(callback: Callback = Callback.empty) =
+      override def forceUpdate(callback: Callback) =
         x.forceUpdate(callback)
 
       override type Mapped[F1[_], P1, S1] = BaseMounted[F1, P1, S1, B, P, S]

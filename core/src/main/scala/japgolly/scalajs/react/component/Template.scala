@@ -48,7 +48,7 @@ object Template {
     override def props         = ft apply mp(from.props)
     override def state         = ft apply ls.get(from.state)
 
-    override def forceUpdate(callback: Callback = Callback.empty) =
+    override def forceUpdate(callback: Callback) =
       ft apply from.forceUpdate(callback)
 
     override def setState(s: State, callback: Callback = Callback.empty) =

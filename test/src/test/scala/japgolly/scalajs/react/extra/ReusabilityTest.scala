@@ -206,7 +206,7 @@ object ReusabilityTest extends TestSuite {
         val data2: M = Map(1 -> "One", 2 -> "Two", 3 -> "33333")
         val c = ReactTestUtils renderIntoDocument outerComponent(data1)
         assert(outerRenderCount == 1, innerRenderCount == 3)
-        c.forceUpdate()
+        c.forceUpdate
         assert(outerRenderCount == 2, innerRenderCount == 3)
         c.setState(data2)
         assert(outerRenderCount == 3, innerRenderCount == 4)

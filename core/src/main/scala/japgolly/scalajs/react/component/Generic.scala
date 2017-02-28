@@ -89,10 +89,11 @@ object Generic {
 
     def isMounted: F[Boolean]
     def getDOMNode: F[dom.Element]
-    def forceUpdate(callback: Callback = Callback.empty): F[Unit]
-
     def props: F[Props]
     def propsChildren: F[PropsChildren]
+
+    def forceUpdate(callback: Callback): F[Unit]
+    final def forceUpdate: F[Unit] = forceUpdate(Callback.empty)
   }
 }
 
