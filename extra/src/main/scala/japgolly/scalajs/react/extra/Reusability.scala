@@ -52,8 +52,11 @@ object Reusability {
   def always[A]: Reusability[A] =
     const(true)
 
-  def never[A]: Reusability[A] =
+  private[this] val neverInstance: Reusability[Any] =
     const(false)
+
+  def never[A]: Reusability[A] =
+    neverInstance.asInstanceOf[Reusability[A]]
 
   /** Compare by reference. Reuse if both values are the same instance. */
   def byRef[A <: AnyRef]: Reusability[A] =

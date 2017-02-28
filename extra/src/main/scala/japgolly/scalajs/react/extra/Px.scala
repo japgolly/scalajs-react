@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.{BackendScope, CallbackTo}
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.internal.{LazyVar, PxMacros}
 
 /**
@@ -53,7 +53,7 @@ sealed abstract class Px[A] {
 
 object Px {
   sealed abstract class Root[A](__initValue: () => A) extends Px[A] {
-    protected val ignoreChange: (A, A) => Boolean
+    protected val reusability: Reusability[A]
 
     private val __value = new LazyVar(__initValue)
 
@@ -69,7 +69,7 @@ object Px {
     override final def peek = _value()
 
     protected def setMaybe(a: A): Unit =
-      if (!ignoreChange(_value(), a)) {
+      if (!reusability.test(_value(), a)) {
         _rev += 1
         _updateValue(a)
       }
@@ -80,7 +80,7 @@ object Px {
    *
    * Doesn't change until you explicitly call `set()`.
    */
-  final class Var[A](initialValue: A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](() => initialValue) {
+  final class Var[A](initialValue: A, protected val reusability: Reusability[A]) extends Root[A](() => initialValue) {
     override def toString = s"Px.Var(rev: $rev, value: $peek)"
 
     override def value() = _value()
@@ -95,7 +95,7 @@ object Px {
    * The `M` in `ThunkM` denotes "Manual refresh", meaning that the value will not update until you explicitly call
    * `refresh()`.
    */
-  final class ThunkM[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](next) {
+  final class ThunkM[A](next: () => A, protected val reusability: Reusability[A]) extends Root[A](next) {
     override def toString = s"Px.ThunkM(rev: $rev, value: $peek)"
 
     override def value() = _value()
@@ -110,7 +110,7 @@ object Px {
    * The `A` in `ThunkA` denotes "Auto refresh", meaning that the function will be called every time the value is
    * requested, and the value updated if necessary.
    */
-  final class ThunkA[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](next) {
+  private final class ThunkA[A](next: () => A, protected val reusability: Reusability[A]) extends Root[A](next) {
     override def toString = s"Px.ThunkA(rev: $rev, value: $peek)"
 
     override def value() = {
@@ -120,12 +120,16 @@ object Px {
   }
 
   sealed abstract class Derivative[A] extends Px[A] {
+
+    @deprecated("Use .withReuse", "1.0.0") final def reuse(implicit ev: Reusability[A]): Px[A] =
+      withReuse
+
     /**
      * In addition to updating when the underlying `Px` changes, this will also check its own result and halt updates
      * if reusable.
      */
-    final def reuse(implicit ev: Reusability[A]): Px[A] =
-      Px.thunkA(value())(ev)
+    final def withReuse(implicit ev: Reusability[A]): Px[A] =
+      Px(value()).withReuse(ev).autoRefresh
   }
 
   sealed abstract class DerivativeBase[A, B, C](xa: Px[A], derive: A => B) extends Derivative[C] {
@@ -191,17 +195,20 @@ object Px {
     }
   }
 
-  final class Const[A](a: A) extends Px[A] {
-    override def toString = s"Px.Const($a)"
+  private final class ConstByValue[A](a: A) extends Px[A] {
+    override def toString = s"Px.constByValue($a)"
 
     override def rev     = 0
     override def peek    = a
     override def value() = a
   }
 
-  final class LazyConst[A](a: => A) extends Px[A] {
+  private final class ConstByNeed[A](a: => A) extends Px[A] {
+    override def toString = s"Px.constByNeed(${if (available) value() else "…"})"
+    private[this] var available = false
+
     override def      rev     = 0
-    override lazy val peek    = a
+    override lazy val peek    = {val x = a; available = true; x}
     override def      value() = peek
   }
 
@@ -218,46 +225,55 @@ object Px {
 
   // ===================================================================================================================
 
-  def const    [A](a: A)   : Px[A] = new Const(a)
-  def lazyConst[A](a: => A): Px[A] = new LazyConst(a)
+  def constByValue[A](a: A): Px[A] =
+    new ConstByValue(a)
 
-  def apply [A](a: A)             (implicit r: Reusability[A]) = new Var(a, r.test)
-  def thunkM[A](f: => A)          (implicit r: Reusability[A]) = new ThunkM(() => f, r.test)
-  def thunkA[A](f: => A)          (implicit r: Reusability[A]) = new ThunkA(() => f, r.test)
-  def cbM   [A](cb: CallbackTo[A])(implicit r: Reusability[A]) = thunkM(cb.runNow())
-  def cbA   [A](cb: CallbackTo[A])(implicit r: Reusability[A]) = thunkA(cb.runNow())
+  def constByNeed[A](a: => A): Px[A] =
+    new ConstByNeed(a)
 
-  def bs[P, S]($: BackendScope[P, S]) = new BackendScopePxOps[P, S]($)
-  final class BackendScopePxOps[P, S](private val $: BackendScope[P, S]) extends AnyVal {
-    def propsA(implicit r: Reusability[P]): ThunkA[P] = cbA($.props)
-    def propsM(implicit r: Reusability[P]): ThunkM[P] = cbM($.props)
-    def stateA(implicit r: Reusability[S]): ThunkA[S] = cbA($.state)
-    def stateM(implicit r: Reusability[S]): ThunkM[S] = cbM($.state)
-    def propsA[A: Reusability](f: P => A) : ThunkA[A] = cbA($.props map f)
-    def propsM[A: Reusability](f: P => A) : ThunkM[A] = cbM($.props map f)
-    def stateA[A: Reusability](f: S => A) : ThunkA[A] = cbA($.state map f)
-    def stateM[A: Reusability](f: S => A) : ThunkM[A] = cbM($.state map f)
+  def apply[A](f: => A): FromThunk[A] =
+    new FromThunk(() => f)
+
+  def callback[A](cb: CallbackTo[A]): FromThunk[A] =
+    new FromThunk(cb.toScalaFn)
+
+  def props[P](s: GenericComponent.BaseMounted[CallbackTo, P, _, _, _]): FromThunk[P] =
+    callback(s.props)
+
+  def state[I, S](i: I)(implicit sa: StateAccessor.ReadCB[I, S]): FromThunk[S] =
+    callback(sa.state(i))
+
+  final class FromThunk[A](private val thunk: () => A) extends AnyVal {
+    def map[B](f: A => B): FromThunk[B] =
+      new FromThunk(() => f(thunk()))
+
+    def withReuse(implicit r: Reusability[A]): FromThunkReusability[A] =
+      new FromThunkReusability(thunk, r)
+
+    def withoutReuse: FromThunkReusability[A] =
+      new FromThunkReusability(thunk, Reusability.never)
   }
 
-  object NoReuse {
-    private val noReuse: (Any, Any) => Boolean = (_, _) => false
-    def apply [A](a: A)              = new Var(a, noReuse)
-    def thunkM[A](f: => A)           = new ThunkM(() => f, noReuse)
-    def thunkA[A](f: => A)           = new ThunkA(() => f, noReuse)
-    def cbM   [A](cb: CallbackTo[A]) = thunkM(cb.runNow())
-    def cbA   [A](cb: CallbackTo[A]) = thunkA(cb.runNow())
+  final class FromThunkReusability[A](thunk: () => A, reusability: Reusability[A]) {
 
-    def bs[P, S]($: BackendScope[P, S]) = new BackendScopePxOps[P, S]($)
-    final class BackendScopePxOps[P, S](private val $: BackendScope[P, S]) extends AnyVal {
-      def propsA              : ThunkA[P] = cbA($.props)
-      def propsM              : ThunkM[P] = cbM($.props)
-      def stateA              : ThunkA[S] = cbA($.state)
-      def stateM              : ThunkM[S] = cbM($.state)
-      def propsA[A](f: P => A): ThunkA[A] = cbA($.props map f)
-      def propsM[A](f: P => A): ThunkM[A] = cbM($.props map f)
-      def stateA[A](f: S => A): ThunkA[A] = cbA($.state map f)
-      def stateM[A](f: S => A): ThunkM[A] = cbM($.state map f)
-    }
+    /** Every time [[japgolly.scalajs.react.extra.Px.value()]] is called, the underlying data function is re-evaluated.
+      * If a non-reusable change is detected, the value is replaced.
+      */
+    def autoRefresh: Px[A] =
+      new ThunkA(thunk, reusability)
+
+    /** The underlying data function will only be re-evaluated and checked for non-reusable change when
+      * [[japgolly.scalajs.react.extra.Px.ThunkM.refresh()]] is called.
+      *
+      * [[japgolly.scalajs.react.extra.Px.refresh()]] also exists as a convenience to refresh multiple instances at once.
+      */
+    def manualRefresh: ThunkM[A] =
+      new ThunkM(thunk, reusability)
+
+    /** The value is never updated until [[japgolly.scalajs.react.extra.Px.Var.set()]] is called to specify a new value.
+      */
+    def manualUpdate: Var[A] =
+      new Var(thunk(), reusability)
   }
 
   // Generated by bin/gen-px

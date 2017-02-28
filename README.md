@@ -160,6 +160,8 @@ Refactored:
   * No more auto conversion of vdom arrays. Either use `blah: _*`, `TagMod(blah: _*)`, or `blah.toVdomArray`, `VdomArray(…)`.
   * Explain all the Seq => TagMod/Array gotchas; see PrefixedTest
 
+Px
+
 Ref usage is hugely different now
 
 CompState.WriteAccess migration
