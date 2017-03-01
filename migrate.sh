@@ -4,7 +4,8 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   undef $/;
   use Regexp::Common;
   $x= "(){"."}";
-  $bp = $RE{balanced}{-parens=>$x};
+  $bp = "(?:$RE{balanced}{-parens=>$x})";
+  $arg = "(?:[^()}{,]*$bp?)+";
 
   s/(import +[a-z.]*)ReactComponentB(?![A-Za-z])/\1ScalaComponent/g;
   s/ReactComponentB *(?=\[)/ScalaComponent.build/g;
@@ -15,6 +16,7 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/\[ *P, *S, *B, *N *\<: *TopNode *\]( *=\s*)\( *_ *: *ScalaComponent.build\[ *P, *S, *B, *N *\] *\)\s+/[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B]\1_/;
   s/_((?:set|mod|run)State)/\1Fn/g;
   s/(forceUpdate|getDOMNode|isMounted)\(\)/\1/g;
+  s/ReactDOM *\. *render *\(($arg) *, *($arg) *\)/\1.renderIntoDOM(\3)/g;
 
   s/prefix_\<\^/html_<^/g;
   s/(?<!\w)React(Tag|TagOf|Attr|Node|Element)(?!\w)/Vdom\1/g;
