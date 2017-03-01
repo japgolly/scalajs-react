@@ -132,7 +132,8 @@ Refactored:
   * CompStatee -> StateAccess
   * `_ChangeData` -> `SimEvent._`
   * events
-  * ComponentTester -> RTU.{withRenderedIntoDocument,modifyProps,replaceProps}
+  * `[test]` ComponentTester -> RTU.{withRenderedIntoDocument,modifyProps,replaceProps}
+  * `[test]` WithExternalCompStateAccess -> ReactTestVar#stateAccess
 
 * Update in ScalaDoc:
   * ReactComponentB
@@ -147,7 +148,6 @@ Refactored:
   * tryTo
   * {set,mod}StateCB
   * CallbackB
-  * Exotics in `[test]`: ComponentTester, WithExternalCompStateAccess
   * ReusableFn#asVar{,R}
   * ReusableFn#fnA, ReusableFnA
 
@@ -188,3 +188,6 @@ DOM isn't used, is it really confusing?
 
 Rename {Read,Write}{Id,CB} in StateAccessor?
 Rename initialState*CB. Maybe add initialStatePure or Const or something
+
+withEffects{Imp,P}ure <- remove withEffects?
+
