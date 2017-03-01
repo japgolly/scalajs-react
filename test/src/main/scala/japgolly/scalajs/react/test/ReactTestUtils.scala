@@ -189,6 +189,15 @@ object ReactTestUtils {
 
   // ===================================================================================================================
 
+  def modifyProps[P, S, B](c: ScalaComponent[P, S, B, CtorType.Props])(m: ScalaComponent.Mounted[P, S, B], f: P => P): ScalaComponent.Mounted[P, S, B] = {
+    val container = m.getDOMNode.parentNode
+    val p2 = f(m.props)
+    c(p2).renderIntoDOM(container.domCast[org.scalajs.dom.raw.Element])
+  }
+
+  def replaceProps[P, S, B](c: ScalaComponent[P, S, B, CtorType.Props])(m: ScalaComponent.Mounted[P, S, B], p: P): ScalaComponent.Mounted[P, S, B] =
+    modifyProps(c)(m, _ => p)
+
   private val reactDataAttrRegex = """\s+data-react\S*?\s*?=\s*?".*?"""".r
 
   /**

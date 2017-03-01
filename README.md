@@ -132,6 +132,7 @@ Refactored:
   * CompStatee -> StateAccess
   * `_ChangeData` -> `SimEvent._`
   * events
+  * ComponentTester -> RTU.{withRenderedIntoDocument,modifyProps,replaceProps}
 
 * Update in ScalaDoc:
   * ReactComponentB

@@ -34,6 +34,16 @@ object TestTest extends TestSuite {
     <.input.text(^.value := s, ^.onChange ==> ch)
   }).build
 
+  class CP {
+    var prev = "none"
+    def render(p: String) = <.div(s"$prev → $p")
+  }
+  val CP = ScalaComponent.build[String]("asd")
+    .backend(_ => new CP)
+    .renderBackend
+    .componentWillReceiveProps(i => Callback(i.backend.prev = i.currentProps))
+    .build
+
   val tests = TestSuite {
 
     'findRenderedDOMComponentWithClass {
@@ -241,6 +251,16 @@ object TestTest extends TestSuite {
       future.map { _ =>
         val body2 = inspectBody()
         assert(!m.isMounted, body1 == body2)
+      }
+    }
+
+    'modifyProps {
+      ReactTestUtils.withRenderedIntoDocument(CP("start")) { m =>
+        assertRendered(m.getDOMNode, "<div>none → start</div>")
+        ReactTestUtils.modifyProps(CP)(m, _ + "ed")
+        assertRendered(m.getDOMNode, "<div>start → started</div>")
+        ReactTestUtils.replaceProps(CP)(m, "done!")
+        assertRendered(m.getDOMNode, "<div>started → done!</div>")
       }
     }
   }

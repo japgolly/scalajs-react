@@ -107,6 +107,11 @@ trait TestUtil
     assertEq(rendered, expected)
   }
 
+  def assertRendered(n: TopNode, expected: String): Unit = {
+    val rendered: String = ReactTestUtils.removeReactDataAttr(n.outerHTML)
+    assertEq(rendered, expected)
+  }
+
   def assertContains(value: String, search: String, expect: Boolean = true): Unit =
     if (value.contains(search) != expect) {
       println(s"\nValue: $value\nSearch: $search\nExpect: $expect\n")
