@@ -24,17 +24,28 @@ class ReactTestVar[A](val initialValue: A) {
 
   private var _value: A = _
   private var _history: Vector[A] = _
+  private var _onUpdate: Vector[Callback] = _
+  reset()
 
   def reset(): Unit = {
+    resetListeners()
+    resetData()
+  }
+
+  def resetListeners(): Unit = {
+    _onUpdate = Vector.empty
+  }
+
+  def resetData(): Unit = {
     _history = Vector.empty
     setValue(initialValue)
   }
 
-  reset()
-
   def setValue(a: A): Unit = {
     _value = a
     _history :+= a
+    for (cb <- _onUpdate)
+      cb.attempt.runNow().left.toOption.foreach(_.printStackTrace())
   }
 
   def modValue(f: A => A): Unit =
@@ -42,6 +53,9 @@ class ReactTestVar[A](val initialValue: A) {
 
   def value(): A =
     _value
+
+  def onUpdate(callback: => Unit): Unit =
+    _onUpdate :+= Callback(callback)
 
   /**
    * Log of state values since initialised or last reset.

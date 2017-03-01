@@ -2,7 +2,8 @@ package japgolly.scalajs.react.test
 
 import utest._
 import TestUtil._
-import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
 
 object ReactTestVarTest extends TestSuite {
 
@@ -67,6 +68,20 @@ object ReactTestVarTest extends TestSuite {
       assertEq(v.history(), Vector(3))
       v.setValue(3)
       assertEq(v.history(), Vector(3, 3))
+    }
+
+    'mockParentComponent {
+      val c = ScalaComponent.build[StateAccessPure[Int]]("")
+        .render_P(parent => <.div(parent.state.runNow(), ^.onClick --> parent.modState(_ + 1)))
+        .build
+      val v = ReactTestVar(1)
+      ReactTestUtils.withRenderedIntoDocument(c(v.stateAccess)) { m =>
+        v.onUpdate(m.forceUpdate)
+        assertRendered(m.getDOMNode, "<div>1</div>")
+        Simulate.click(m.getDOMNode)
+        assertEq(v.value(), 2)
+        assertRendered(m.getDOMNode, "<div>2</div>")
+      }
     }
   }
 }
