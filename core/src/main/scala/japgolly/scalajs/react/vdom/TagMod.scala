@@ -23,7 +23,7 @@ trait TagMod {
     when(!condition)
 
   def apply(ms: TagMod*): TagMod =
-    if (ms.isEmpty) this else TagMod.Composite((Iterator.single(this) ++ ms).toVector)
+    TagMod.Composite((Vector.newBuilder[TagMod] += this ++= ms).result())
 }
 
 object TagMod {
@@ -39,8 +39,8 @@ object TagMod {
   def fromTraversableOnce(t: TraversableOnce[TagMod]): TagMod = {
     val v = t.toVector
     v.length match {
-      case 0 => Empty
       case 1 => v.head
+      case 0 => Empty
       case _ => Composite(v)
     }
   }
@@ -50,14 +50,14 @@ object TagMod {
       mods.foreach(_ applyTo b)
 
     override def apply(ms: TagMod*) =
-      if (ms.isEmpty) this else Composite(mods ++ ms)
+      Composite(mods ++ ms)
   }
 
   private[vdom] val Empty: TagMod =
     new TagMod {
       override def toString = "EmptyVdom"
       override def applyTo(b: Builder) = ()
-      override def apply(ms: TagMod*) = TagMod(ms: _*)
+      override def apply(ms: TagMod*) = TagMod.fromTraversableOnce(ms)
     }
 
   def devOnly(m: => TagMod): TagMod =
