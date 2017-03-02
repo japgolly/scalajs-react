@@ -41,9 +41,9 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
   type Unmounted[P <: js.Object, S <: js.Object]                               = UnmountedWithRawType[P, S,     RawMounted]
   type Mounted  [P <: js.Object, S <: js.Object]                               = MountedWithRawType  [P, S,     RawMounted]
 
-  type ComponentPlusFacade[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: js.Object] = ComponentWithRawType[P, S, CT, RawMounted with R]
-  type UnmountedPlusFacade[P <: js.Object, S <: js.Object, R <: js.Object]                               = UnmountedWithRawType[P, S,     RawMounted with R]
-  type   MountedPlusFacade[P <: js.Object, S <: js.Object, R <: js.Object]                               =   MountedWithRawType[P, S,     RawMounted with R]
+  type ComponentWithFacade[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: js.Object] = ComponentWithRawType[P, S, CT, RawMounted with R]
+  type UnmountedWithFacade[P <: js.Object, S <: js.Object, R <: js.Object]                               = UnmountedWithRawType[P, S,     RawMounted with R]
+  type   MountedWithFacade[P <: js.Object, S <: js.Object, R <: js.Object]                               =   MountedWithRawType[P, S,     RawMounted with R]
 
   type ComponentWithRawType[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: RawMounted] = RootComponent[P, CT, UnmountedWithRawType[P, S, R]]
   type UnmountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted]                               = RootUnmounted[P,       MountedWithRawType[P, S, R]]

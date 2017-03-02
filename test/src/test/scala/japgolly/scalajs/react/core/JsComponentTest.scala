@@ -231,7 +231,7 @@ object JsComponentSTest extends JsComponentTest {
       val C = JsComponent[Null, Children.Varargs, JsState]("ES3_S").addFacade[JsMethods]
 
       'ctors {
-        def test(u: JsComponent.UnmountedPlusFacade[Null, JsState, JsMethods]) = ()
+        def test(u: JsComponent.UnmountedWithFacade[Null, JsState, JsMethods]) = ()
         compileError(""" test(C()())           """)
         compileError(""" test(C()(H1))         """)
         compileError(""" test(C()(H1, H1))     """)

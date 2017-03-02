@@ -21,7 +21,7 @@ package object react extends ReactEventTypes {
 
   val JsComponent = component.Js
   type JsComponent[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u]] = JsComponent.Component[P, S, CT]
-  type JsComponentPlusFacade[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: js.Object] = JsComponent.ComponentPlusFacade[P, S, CT, R]
+  type JsComponentWithFacade[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: js.Object] = JsComponent.ComponentWithFacade[P, S, CT, R]
 
   val JsFnComponent = component.JsFn
   type JsFnComponent[P <: js.Object, CT[-p, +u] <: CtorType[p, u]] = JsFnComponent.Component[P, CT]

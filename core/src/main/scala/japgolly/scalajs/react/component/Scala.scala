@@ -39,9 +39,9 @@ object Scala {
   type MountedPure [P, S, B] = RootMounted[CallbackTo, P, S, B]
   type BackendScope[P, S]    = Generic.Mounted[CallbackTo, P, S]
 
-  type JsComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = Js.ComponentPlusFacade[Box[P], Box[S], CT, Vars[P, S, B]]
-  type JsUnmounted[P, S, B]                               = Js.UnmountedPlusFacade[Box[P], Box[S],     Vars[P, S, B]]
-  type JsMounted  [P, S, B]                               = Js.MountedPlusFacade  [Box[P], Box[S],     Vars[P, S, B]]
+  type JsComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = Js.ComponentWithFacade[Box[P], Box[S], CT, Vars[P, S, B]]
+  type JsUnmounted[P, S, B]                               = Js.UnmountedWithFacade[Box[P], Box[S],     Vars[P, S, B]]
+  type JsMounted  [P, S, B]                               = Js.MountedWithFacade  [Box[P], Box[S],     Vars[P, S, B]]
 
   type RawMounted[P, S, B] = Js.RawMounted with Vars[P, S, B]
 
