@@ -47,7 +47,10 @@ final class PropsChildren private[PropsChildren](private val self: js.Any) exten
   def toJsArray: js.Array[Raw.ReactNode] =
     Raw.React.Children.toArray(raw)
 
-  def toSeq: Seq[Raw.ReactNode] =
-    toJsArray
+  def toList: List[Raw.ReactNode] =
+    iterator.toList
+
+  def toVector: Vector[Raw.ReactNode] =
+    iterator.toVector
 }
 
