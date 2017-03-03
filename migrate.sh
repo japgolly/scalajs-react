@@ -81,6 +81,7 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/(?<=\n) *import +Simulate *\n//g;
   s/(?<=\n) *import +japgolly.scalajs.react.test.Simulate *\n+( *import +japgolly.scalajs.react.test._ *\n)/\1/g;
   s/(?<=\n)( *import +japgolly.scalajs.react.test._ *\n)\s*import +japgolly.scalajs.react.test.Simulate *\n/\1/g;
+  s/(?<=remove|ithout)ReactDataAttr/ReactInternals/g;
 
   s/(\$[ .]+)zoomL(?!\w)/\1zoomStateL/g;
 

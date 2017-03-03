@@ -108,7 +108,7 @@ trait TestUtil
   }
 
   def assertRendered(n: TopNode, expected: String): Unit = {
-    val rendered: String = ReactTestUtils.removeReactDataAttr(n.outerHTML)
+    val rendered: String = ReactTestUtils.removeReactInternals(n.outerHTML)
     assertEq(rendered, expected)
   }
 

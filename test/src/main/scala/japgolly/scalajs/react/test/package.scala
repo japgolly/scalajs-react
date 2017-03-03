@@ -15,7 +15,7 @@ package object test {
     m.rawElement
 
   implicit final class ReactTestExt_MountedId(private val c: GenericComponent.MountedImpure[_, _]) extends AnyVal {
-    def outerHtmlWithoutReactDataAttr(): String =
-      ReactTestUtils.removeReactDataAttr(c.getDOMNode.outerHTML)
+    def outerHtmlWithoutReactInternals(): String =
+      ReactTestUtils.removeReactInternals(c.getDOMNode.outerHTML)
   }
 }

@@ -199,11 +199,14 @@ object ReactTestUtils {
     modifyProps(c)(m, _ => p)
 
   private val reactDataAttrRegex = """\s+data-react\S*?\s*?=\s*?".*?"""".r
+  private val reactTextCommentRegex = """<!-- /?react-text[: ].*?-->""".r
 
   /**
     * Turn `&lt;div data-reactroot=""&gt;hello&lt/div&gt;`
     * into `&lt;div&gt;hello&lt/div&gt;`
     */
-  def removeReactDataAttr(html: String): String =
-    reactDataAttrRegex.replaceAllIn(html, "")
+  def removeReactInternals(html: String): String =
+    reactDataAttrRegex.replaceAllIn(
+      reactTextCommentRegex.replaceAllIn(
+        html, ""), "")
 }

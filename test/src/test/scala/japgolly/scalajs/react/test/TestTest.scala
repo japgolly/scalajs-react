@@ -185,7 +185,7 @@ object TestTest extends TestSuite {
       ReactTestUtils.withRenderedIntoDocument(IC()) { mm =>
         m = mm
         val n = m.getDOMNode
-        assert(ReactTestUtils.removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
+        assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
         assert(m.isMounted)
       }
       assert(!m.isMounted)
@@ -198,7 +198,7 @@ object TestTest extends TestSuite {
       ReactTestUtils.withRenderedIntoBody(IC()) { mm =>
         m = mm
         val n = m.getDOMNode
-        assert(ReactTestUtils.removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
+        assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
         assert(m.isMounted)
 
         // Benefits of body over detached
@@ -219,7 +219,7 @@ object TestTest extends TestSuite {
         promise.future
       }
       val n = m.getDOMNode
-      assert(ReactTestUtils.removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
+      assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
       assert(m.isMounted)
 
       promise.success(())
@@ -237,7 +237,7 @@ object TestTest extends TestSuite {
         promise.future
       }
       val n = m.getDOMNode
-      assert(ReactTestUtils.removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
+      assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
       assert(m.isMounted)
 
       // Benefits of body over detached
@@ -261,6 +261,16 @@ object TestTest extends TestSuite {
         assertRendered(m.getDOMNode, "<div>start → started</div>")
         ReactTestUtils.replaceProps(CP)(m, "done!")
         assertRendered(m.getDOMNode, "<div>started → done!</div>")
+      }
+    }
+
+    'removeReactInternals {
+      val c = ScalaComponent.static("", <.div(<.br, "hello", <.hr))
+      ReactTestUtils.withRenderedIntoDocument(c()) { m =>
+        val orig = m.getDOMNode.outerHTML
+        val after = ReactTestUtils.removeReactInternals(orig)
+        assertEq("<div><br>hello<hr></div>", after)
+        s"$orig  →  $after"
       }
     }
   }

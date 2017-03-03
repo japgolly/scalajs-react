@@ -228,5 +228,3 @@ new releases for scalacss & test-state
 
 upgrade to latest React
 
-<!-- react-text: 19 -->Description<!-- /react-text -->
-
