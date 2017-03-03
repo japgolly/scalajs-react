@@ -237,7 +237,7 @@ object Px {
   def callback[A](cb: CallbackTo[A]): FromThunk[A] =
     new FromThunk(cb.toScalaFn)
 
-  def props[P](s: GenericComponent.BaseMounted[CallbackTo, P, _, _, _]): FromThunk[P] =
+  def props[P](s: GenericComponent.MountedWithRoot[CallbackTo, P, _, _, _]): FromThunk[P] =
     callback(s.props)
 
   def state[I, S](i: I)(implicit sa: StateAccessor.ReadCB[I, S]): FromThunk[S] =

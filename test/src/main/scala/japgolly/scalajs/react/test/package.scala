@@ -8,13 +8,13 @@ package object test {
 
   type ReactOrDomNode = japgolly.scalajs.react.test.raw.ReactOrDomNode
 
-  implicit def reactOrDomNodeFromMounted(m: GenericComponent.RawAccessMounted): ReactOrDomNode =
+  implicit def reactOrDomNodeFromMounted(m: GenericComponent.MountedRaw): ReactOrDomNode =
     ReactDOM.raw.findDOMNode(m.raw)
 
   implicit def reactOrDomNodeFromVRE(m: vdom.VdomElement): ReactOrDomNode =
     m.rawElement
 
-  implicit final class ReactTestExt_MountedId(private val c: GenericComponent.BaseMounted[Effect.Id, _, _, _, _]) extends AnyVal {
+  implicit final class ReactTestExt_MountedId(private val c: GenericComponent.MountedWithRoot[Effect.Id, _, _, _, _]) extends AnyVal {
     def outerHtmlWithoutReactDataAttr(): String =
       ReactTestUtils.removeReactDataAttr(c.getDOMNode.outerHTML)
   }

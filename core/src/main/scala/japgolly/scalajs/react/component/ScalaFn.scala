@@ -7,8 +7,8 @@ import japgolly.scalajs.react.vdom.VdomElement
 
 object ScalaFn {
 
-  type Component[P, CT[-p, +u] <: CtorType[p, u]] = JsFn.BaseComponent[P, CT, Unmounted[P], Box[P], CT, JsFn.Unmounted[Box[P]]]
-  type Unmounted[P]                               = JsFn.BaseUnmounted[P, Mounted, Box[P]]
+  type Component[P, CT[-p, +u] <: CtorType[p, u]] = JsFn.ComponentWithRoot[P, CT, Unmounted[P], Box[P], CT, JsFn.Unmounted[Box[P]]]
+  type Unmounted[P]                               = JsFn.UnmountedWithRoot[P, Mounted, Box[P]]
   type Mounted                                    = JsFn.Mounted
 
   private def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]

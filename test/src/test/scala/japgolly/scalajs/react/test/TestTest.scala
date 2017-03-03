@@ -58,7 +58,7 @@ object TestTest extends TestSuite {
     }
 
     'renderIntoDocument {
-      def test(c: GenericComponent.RawAccessMounted, exp: String): Unit =
+      def test(c: GenericComponent.MountedRaw, exp: String): Unit =
         assertOuterHTML(ReactDOM.raw.findDOMNode(c.raw), exp)
 
       'plainElement {

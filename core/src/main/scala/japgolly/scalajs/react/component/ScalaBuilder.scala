@@ -11,7 +11,7 @@ import Scala._
 object ScalaBuilder {
   import Lifecycle._
 
-  type InitStateFnU[P, S]    = Generic.BaseUnmounted[P, _, Box[P], _]
+  type InitStateFnU[P, S]    = Generic.UnmountedWithRoot[P, _, Box[P], _]
   type InitStateArg[P, S]    = (InitStateFnU[P, S] => S) Or js.Function0[Box[S]]
   type NewBackendFn[P, S, B] = BackendScope[P, S] => B
   type RenderFn    [P, S, B] = RenderScope[P, S, B] => VdomElement
@@ -335,7 +335,7 @@ object ScalaBuilder {
       val setup: raw.ReactComponent => Unit =
         $ => {
           val jMounted : JsMounted  [P, S, B] = Js.mounted[Box[P], Box[S]]($).addFacade[Vars[P, S, B]]
-          val sMounted : Mounted    [P, S, B] = Scala.rootMounted(jMounted)
+          val sMounted : Mounted    [P, S, B] = Scala.mountedRoot(jMounted)
           val sMountedP: MountedPure[P, S, B] = sMounted.withEffect
           val backend  : B                    = backendFn(sMountedP)
           jMounted.raw.mounted     = sMounted
@@ -402,7 +402,7 @@ object ScalaBuilder {
         .cmapCtorProps[P](Box(_))
         .mapUnmounted(_
           .mapUnmountedProps(_.unbox)
-          .mapMounted(Scala.rootMounted))
+          .mapMounted(Scala.mountedRoot))
     }
   }
 

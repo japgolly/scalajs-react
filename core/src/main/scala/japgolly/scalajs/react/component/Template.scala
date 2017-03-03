@@ -5,11 +5,11 @@ import japgolly.scalajs.react.Callback
 
 object Template {
 
-  abstract class RootMounted[F[_], P0, S0]
+  abstract class MountedWithRoot[F[_], P0, S0]
       (implicit ft: Effect.Trans[Effect.Id, F])
-      extends Generic.BaseMounted[F, P0, S0, P0, S0] {
+      extends Generic.MountedWithRoot[F, P0, S0, P0, S0] {
 
-    type Mapped[F1[_], P1, S1] <: Generic.BaseMounted[F1, P1, S1, P0, S0]
+    type Mapped[F1[_], P1, S1] <: Generic.MountedWithRoot[F1, P1, S1, P0, S0]
     protected def mapped[F1[_], P1, S1](mp: P0 => P1, ls: Lens[S0, S1])(implicit ft: Effect.Trans[Effect.Id, F1]): Mapped[F1, P1, S1]
 
     override type WithEffect[F1[_]]  = Mapped[F1, P0, S0]
@@ -29,12 +29,12 @@ object Template {
       mapped(identityFn, Lens.id)(ft compose t)
   }
 
-  abstract class MappedMounted[F[_], P2, S2, P1, S1, P0, S0]
-      (from: Generic.BaseMounted[Effect.Id, P1, S1, P0, S0])(mp: P1 => P2, ls: Lens[S1, S2])
+  abstract class MountedMapped[F[_], P2, S2, P1, S1, P0, S0]
+      (from: Generic.MountedWithRoot[Effect.Id, P1, S1, P0, S0])(mp: P1 => P2, ls: Lens[S1, S2])
       (implicit ft: Effect.Trans[Effect.Id, F])
-      extends Generic.BaseMounted[F, P2, S2, P0, S0] {
+      extends Generic.MountedWithRoot[F, P2, S2, P0, S0] {
 
-    type Mapped[F3[_], P3, S3] <: Generic.BaseMounted[F3, P3, S3, P0, S0]
+    type Mapped[F3[_], P3, S3] <: Generic.MountedWithRoot[F3, P3, S3, P0, S0]
     protected def mapped[F3[_], P3, S3](mp: P1 => P3, ls: Lens[S1, S3])(implicit ft: Effect.Trans[Effect.Id, F3]): Mapped[F3, P3, S3]
 
     override type WithEffect[F3[_]]  = Mapped[F3, P2, S2]

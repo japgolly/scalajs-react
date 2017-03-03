@@ -177,11 +177,44 @@ add usage recommendations
 
 -------------------
 
+Generic
+- RawAccess_   -> _Raw
+- Base_        -> _WithRoot
+- _            -> _Root
+- <rootless>   -> _Simple
+with Mounted & Unmounted aliases -> Simple
+package GenericComponent alias -> Simple
+
+Js
+- RawMounted   -> RawMounted
+- _            -> _
+- _WithFacade  -> _WithFacade
+- _WithRawType -> _WithRawType
+- Root_        -> _Root
+- Base_        -> _WithRoot
+- Mapped_      -> _Mapped
+- <rootless>   -> _Simple
+
+Scala
+- RawMounted   -> RawMounted
+- _            -> _
+- Js_          -> Js_
+- Root_        -> _Root
+- Base_        -> _WithRoot
+- <rootless>   -> _Simple
+
+JsFn
+- _            -> _
+- Root_        -> _Root
+- Base_        -> _WithRoot
+- <rootless>   -> _Simple
+
+ScalaFn
+- _            -> _
+
 s/mapCtorType/mapCtor/g
 
 RawAccessMounted <-- something without the word Access in it...?
-
-toReactArray -> toVdomArray?
 
 is Callback necessary from non-render lifecycle hooks?
 DOM isn't used, is it really confusing?
@@ -190,4 +223,13 @@ Rename {Read,Write}{Id,CB} in StateAccessor?
 Rename initialState*CB. Maybe add initialStatePure or Const or something
 
 withEffects{Imp,P}ure <- remove withEffects?
+
+new releases for scalacss & test-state
+
+upgrade to latest React
+
+<!-- react-text: 19 -->Description<!-- /react-text -->
+
+seprate BaseComponent into with/without .root & T0s
+replace usage in text, extra, ext-*
 

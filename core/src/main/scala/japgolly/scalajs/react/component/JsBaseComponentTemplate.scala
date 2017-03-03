@@ -8,29 +8,29 @@ trait JsBaseComponentTemplate[RawComponent <: js.Any] {
 
   protected def rawComponentDisplayName: RawComponent => String
 
-  final type RootComponent[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U] =
-    BaseComponent[P, CT, U, P, CT, U]
+  final type ComponentRoot[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U] =
+    ComponentWithRoot[P, CT, U, P, CT, U]
 
   // Difference between this and its Generic counterpart:
   // - P0 has an upper bound of js.Object.
   // - Raw type specified
-  sealed trait BaseComponent[
+  sealed trait ComponentWithRoot[
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
-      extends Generic.BaseComponent[P1, CT1, U1, P0, CT0, U0] {
+      extends Generic.ComponentWithRoot[P1, CT1, U1, P0, CT0, U0] {
 
-    override final type Root = RootComponent[P0, CT0, U0]
+    override final type Root = ComponentRoot[P0, CT0, U0]
     override final type Raw = RawComponent
     override final def displayName = rawComponentDisplayName(raw)
 
-    override def cmapCtorProps[P2](f: P2 => P1): BaseComponent[P2, CT1, U1, P0, CT0, U0]
-    override def mapUnmounted[U2](f: U1 => U2): BaseComponent[P1, CT1, U2, P0, CT0, U0]
-    override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): BaseComponent[P1, CT2, U1, P0, CT0, U0]
+    override def cmapCtorProps[P2](f: P2 => P1): ComponentWithRoot[P2, CT1, U1, P0, CT0, U0]
+    override def mapUnmounted[U2](f: U1 => U2): ComponentWithRoot[P1, CT1, U2, P0, CT0, U0]
+    override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): ComponentWithRoot[P1, CT2, U1, P0, CT0, U0]
   }
 
-  final def rootComponent[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U](rc: RawComponent, c: CT[P, U])
-                                                                          (implicit pf: Profunctor[CT]): RootComponent[P, CT, U] =
-    new RootComponent[P, CT, U] {
+  final def componentRoot[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U](rc: RawComponent, c: CT[P, U])
+                                                                          (implicit pf: Profunctor[CT]): ComponentRoot[P, CT, U] =
+    new ComponentRoot[P, CT, U] {
       override def root = this
       override val raw = rc
       override val ctor = c
@@ -45,10 +45,10 @@ trait JsBaseComponentTemplate[RawComponent <: js.Any] {
       P2, CT2[-p, +u] <: CtorType[p, u], U2,
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
-      (from: BaseComponent[P1, CT1, U1, P0, CT0, U0])
+      (from: ComponentWithRoot[P1, CT1, U1, P0, CT0, U0])
       (cp: P2 => P1, mc: CT1[P1, U1] => CT2[P1, U1], mu: U1 => U2, pf: Profunctor[CT2])
-      : BaseComponent[P2, CT2, U2, P0, CT0, U0] =
-    new BaseComponent[P2, CT2, U2, P0, CT0, U0] {
+      : ComponentWithRoot[P2, CT2, U2, P0, CT0, U0] =
+    new ComponentWithRoot[P2, CT2, U2, P0, CT0, U0] {
       override def root = from.root
       override val raw = from.raw
       override val ctor = mc(from.ctor).dimap(cp, mu)

@@ -98,7 +98,7 @@ trait TestUtil
   def scrubReactHtml(html: String): String =
     reactRubbish.replaceAllIn(html, "")
 
-  def assertRender(u: GenericComponent.RawAccessUnmounted, expected: String): Unit =
+  def assertRender(u: GenericComponent.UnmountedRaw, expected: String): Unit =
     assertRender(u.raw, expected)
   def assertRender(e: japgolly.scalajs.react.vdom.VdomElement, expected: String): Unit =
     assertRender(e.rawElement, expected)
