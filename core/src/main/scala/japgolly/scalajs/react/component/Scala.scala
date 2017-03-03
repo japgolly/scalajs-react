@@ -57,9 +57,21 @@ object Scala {
 
   // ===================================================================================================================
 
-  type MountedRoot[F[_], P, S, B] = MountedWithRoot[F, P, S, B, P, S]
+  sealed trait MountedSimple[F[_], P, S, B] extends Generic.MountedSimple[F, P, S] {
+    override type WithEffect[F2[_]]   <: MountedSimple[F2, P, S, B]
+    override type WithMappedProps[P2] <: MountedSimple[F, P2, S, B]
+    override type WithMappedState[S2] <: MountedSimple[F, P, S2, B]
 
-  sealed trait MountedWithRoot[F[_], P1, S1, B, P0, S0] extends Generic.MountedWithRoot[F, P1, S1, P0, S0] {
+    // B instead of F[B] because
+    // . Builder takes a MountedCB but needs immediate access to this.
+    // 2. It never changes once initialised.
+    // Note: Keep this is def instead of val because the builder sets it after creation.
+    def backend: B
+  }
+
+  sealed trait MountedWithRoot[F[_], P1, S1, B, P0, S0]
+      extends MountedSimple[F, P1, S1, B] with Generic.MountedWithRoot[F, P1, S1, P0, S0] {
+
     override final type Root = MountedRoot[F, P0, S0, B]
     override final type WithEffect[F2[_]]  = MountedWithRoot[F2, P1, S1, B, P0, S0]
     override final type WithMappedProps[P2] = MountedWithRoot[F, P2, S1, B, P0, S0]
@@ -70,14 +82,10 @@ object Scala {
     val js: JsMounted[P0, S0, B]
 
     override final def displayName = js.displayName
-
-    // B instead of F[B] because
-    // 1. Builder takes a MountedCB but needs immediate access to this.
-    // 2. It never changes once initialised.
-    // Note: Keep this is def instead of val because the builder sets it after creation.
-    final def backend: B =
-      js.raw.backend
+    override final def backend = js.raw.backend
   }
+
+  type MountedRoot[F[_], P, S, B] = MountedWithRoot[F, P, S, B, P, S]
 
   def mountedRoot[P, S, B](x: JsMounted[P, S, B]): MountedRoot[Effect.Id, P, S, B] =
     new Template.MountedWithRoot[Effect.Id, P, S] with MountedRoot[Effect.Id, P, S, B] {
@@ -106,8 +114,8 @@ object Scala {
     }
 
   private def mappedM[F[_], P2, S2, P1, S1, B, P0, S0]
-  (from: MountedWithRoot[Effect.Id, P1, S1, B, P0, S0])(mp: P1 => P2, ls: Lens[S1, S2])
-  (implicit ft: Effect.Trans[Effect.Id, F]): MountedWithRoot[F, P2, S2, B, P0, S0] =
+      (from: MountedWithRoot[Effect.Id, P1, S1, B, P0, S0])(mp: P1 => P2, ls: Lens[S1, S2])
+      (implicit ft: Effect.Trans[Effect.Id, F]): MountedWithRoot[F, P2, S2, B, P0, S0] =
     new Template.MountedMapped[F, P2, S2, P1, S1, P0, S0](from)(mp, ls) with MountedWithRoot[F, P2, S2, B, P0, S0] {
       override def root = from.root.withEffect[F]
       override val js = from.js

@@ -14,7 +14,7 @@ package object test {
   implicit def reactOrDomNodeFromVRE(m: vdom.VdomElement): ReactOrDomNode =
     m.rawElement
 
-  implicit final class ReactTestExt_MountedId(private val c: GenericComponent.MountedWithRoot[Effect.Id, _, _, _, _]) extends AnyVal {
+  implicit final class ReactTestExt_MountedId(private val c: GenericComponent.MountedImpure[_, _]) extends AnyVal {
     def outerHtmlWithoutReactDataAttr(): String =
       ReactTestUtils.removeReactDataAttr(c.getDOMNode.outerHTML)
   }

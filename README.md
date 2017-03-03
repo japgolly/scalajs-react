@@ -212,9 +212,9 @@ JsFn
 ScalaFn
 - _            -> _
 
-s/mapCtorType/mapCtor/g
+-------------------
 
-RawAccessMounted <-- something without the word Access in it...?
+add mapCtor? (in addition to mapCtorType)
 
 is Callback necessary from non-render lifecycle hooks?
 DOM isn't used, is it really confusing?
@@ -229,7 +229,4 @@ new releases for scalacss & test-state
 upgrade to latest React
 
 <!-- react-text: 19 -->Description<!-- /react-text -->
-
-seprate BaseComponent into with/without .root & T0s
-replace usage in text, extra, ext-*
 

@@ -8,25 +8,33 @@ trait JsBaseComponentTemplate[RawComponent <: js.Any] {
 
   protected def rawComponentDisplayName: RawComponent => String
 
-  final type ComponentRoot[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U] =
-    ComponentWithRoot[P, CT, U, P, CT, U]
-
   // Difference between this and its Generic counterpart:
   // - P0 has an upper bound of js.Object.
   // - Raw type specified
+
+  sealed trait ComponentSimple[P, CT[-p, +u] <: CtorType[p, u], U] extends Generic.ComponentSimple[P, CT, U] {
+    override final type Raw = RawComponent
+    override final def displayName = rawComponentDisplayName(raw)
+
+    override def cmapCtorProps[P2](f: P2 => P): ComponentSimple[P2, CT, U]
+    override def mapUnmounted[U2](f: U => U2): ComponentSimple[P, CT, U2]
+    override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT[P, U] => CT2[P, U])(implicit pf: Profunctor[CT2]): ComponentSimple[P, CT2, U]
+  }
+
   sealed trait ComponentWithRoot[
       P1, CT1[-p, +u] <: CtorType[p, u], U1,
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
-      extends Generic.ComponentWithRoot[P1, CT1, U1, P0, CT0, U0] {
+      extends ComponentSimple[P1, CT1, U1] with Generic.ComponentWithRoot[P1, CT1, U1, P0, CT0, U0] {
 
     override final type Root = ComponentRoot[P0, CT0, U0]
-    override final type Raw = RawComponent
-    override final def displayName = rawComponentDisplayName(raw)
 
     override def cmapCtorProps[P2](f: P2 => P1): ComponentWithRoot[P2, CT1, U1, P0, CT0, U0]
     override def mapUnmounted[U2](f: U1 => U2): ComponentWithRoot[P1, CT1, U2, P0, CT0, U0]
     override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): ComponentWithRoot[P1, CT2, U1, P0, CT0, U0]
   }
+
+  final type ComponentRoot[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U] =
+    ComponentWithRoot[P, CT, U, P, CT, U]
 
   final def componentRoot[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U](rc: RawComponent, c: CT[P, U])
                                                                           (implicit pf: Profunctor[CT]): ComponentRoot[P, CT, U] =

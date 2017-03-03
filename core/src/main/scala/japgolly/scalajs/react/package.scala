@@ -17,7 +17,7 @@ package object react extends ReactEventTypes {
   type StateAccessImpure[S] = StateAccess[Effect.Id, S]
 
   val GenericComponent = component.Generic
-  type GenericComponent[P, CT[-p, +u] <: CtorType[p, u], U] = GenericComponent.ComponentRoot[P, CT, U]
+  type GenericComponent[P, CT[-p, +u] <: CtorType[p, u], U] = GenericComponent.ComponentSimple[P, CT, U]
 
   val JsComponent = component.Js
   type JsComponent[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u]] = JsComponent.Component[P, S, CT]

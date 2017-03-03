@@ -54,96 +54,85 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
 
   // ===================================================================================================================
 
-  type UnmountedRoot[P <: js.Object, M] = UnmountedWithRoot[P, M, P, M]
+  sealed trait UnmountedSimple[P, M] extends Generic.UnmountedSimple[P, M] {
+    override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
+    override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
-  sealed trait UnmountedWithRoot[P1, M1, P0 <: js.Object, M0]
-      extends Generic.UnmountedWithRoot[P1, M1, P0, M0] {
-
-    override final type Root = UnmountedRoot[P0, M0]
     override final type Raw = RAW.ReactComponentElement
-    override def mapUnmountedProps[P2](f: P1 => P2): UnmountedWithRoot[P2, M1, P0, M0]
-    override def mapMounted[M2](f: M1 => M2): UnmountedWithRoot[P1, M2, P0, M0]
-
     override final def displayName = raw.`type`.displayName
   }
 
+  sealed trait UnmountedWithRoot[P1, M1, P0 <: js.Object, M0] extends UnmountedSimple[P1, M1] with Generic.UnmountedWithRoot[P1, M1, P0, M0] {
+    override final type Root = UnmountedRoot[P0, M0]
+    override def mapUnmountedProps[P2](f: P1 => P2): UnmountedWithRoot[P2, M1, P0, M0]
+    override def mapMounted[M2](f: M1 => M2): UnmountedWithRoot[P1, M2, P0, M0]
+  }
+
+  type UnmountedRoot[P <: js.Object, M] = UnmountedWithRoot[P, M, P, M]
+
   def unmountedRoot[P <: js.Object, M](r: RAW.ReactComponentElement, m: RAW.ReactComponent => M): UnmountedRoot[P, M] =
     new UnmountedRoot[P, M] {
-
-      override def root = this
-      override val raw = r
-      override val mountRaw = m
-
-      override val vdomElement =
-        vdom.VdomElement(raw)
-
-      override def key: Option[Key] =
-        jsNullToOption(raw.key)
-
-      override def ref: Option[String] =
-        jsNullToOption(raw.ref)
-
-      override def props: P =
-        raw.props.asInstanceOf[P]
-
-      override def propsChildren: PropsChildren =
-        PropsChildren.fromRawProps(raw.props)
-
-      override def mapUnmountedProps[P2](f: P => P2) =
-        mappedU(this)(f, identityFn)
-
-      override def mapMounted[M2](f: M => M2) =
-        mappedU(this)(identityFn, f)
+      override def root                              = this
+      override val raw                               = r
+      override val mountRaw                          = m
+      override val vdomElement                       = vdom.VdomElement(raw)
+      override def key                               = jsNullToOption(raw.key)
+      override def ref                               = jsNullToOption(raw.ref)
+      override def props                             = raw.props.asInstanceOf[P]
+      override def propsChildren                     = PropsChildren.fromRawProps(raw.props)
+      override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identityFn)
+      override def mapMounted[M2](f: M => M2)        = mappedU(this)(identityFn, f)
     }
 
-  private def mappedU[P2, M2, P1, M1, P0 <: js.Object, M0]
-      (from: UnmountedWithRoot[P1, M1, P0, M0])
-      (mp: P1 => P2, mm: M1 => M2)
+  private def mappedU[P2, M2, P1, M1, P0 <: js.Object, M0](from: UnmountedWithRoot[P1, M1, P0, M0])
+                                                          (mp: P1 => P2, mm: M1 => M2)
       : UnmountedWithRoot[P2, M2, P0, M0] =
     new UnmountedWithRoot[P2, M2, P0, M0] {
-      override def root          = from.root
-      override def props         = mp(from.props)
-      override val raw           = from.raw
-      override def vdomElement   = from.vdomElement
-      override def key           = from.key
-      override def ref           = from.ref
-      override def propsChildren = from.propsChildren
-
-      override def mapUnmountedProps[P3](f: P2 => P3) =
-        mappedU(from)(f compose mp, mm)
-
-      override def mapMounted[M3](f: M2 => M3) =
-        mappedU(from)(mp, f compose mm)
-
-      override val mountRaw = mm compose from.mountRaw
+      override def root                               = from.root
+      override def props                              = mp(from.props)
+      override val raw                                = from.raw
+      override def vdomElement                        = from.vdomElement
+      override def key                                = from.key
+      override def ref                                = from.ref
+      override def propsChildren                      = from.propsChildren
+      override def mapUnmountedProps[P3](f: P2 => P3) = mappedU(from)(f compose mp, mm)
+      override def mapMounted[M3](f: M2 => M3)        = mappedU(from)(mp, f compose mm)
+      override val mountRaw                           = mm compose from.mountRaw
     }
 
   // ===================================================================================================================
 
-  type MountedRoot[F[_], P <: js.Object, S <: js.Object, R <: RawMounted] = MountedWithRoot[F, P, S, R, P, S]
+  sealed trait MountedSimple[F[_], P, S, R <: RawMounted] extends Generic.MountedSimple[F, P, S] {
 
-  sealed trait MountedWithRoot[F[_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object]
-      extends Generic.MountedWithRoot[F, P1, S1, P0, S0] {
-
-    override final type Root = MountedRoot[F, P0, S0, R]
-    override final type WithEffect[F2[_]]  = MountedWithRoot[F2, P1, S1, R, P0, S0]
-    override final type WithMappedProps[P2] = MountedWithRoot[F, P2, S1, R, P0, S0]
-    override final type WithMappedState[S2] = MountedWithRoot[F, P1, S2, R, P0, S0]
+    override type WithEffect[F2[_]]    <: MountedSimple[F2, P, S, R]
+    override type WithMappedProps[P2]  <: MountedSimple[F, P2, S, R]
+    override type WithMappedState[S2]  <: MountedSimple[F, P, S2, R]
 
     override final type Raw = R
-
     override final def displayName = raw.constructor.displayName
 
-    final def withRawType[R2 <: RawMounted]: MountedWithRoot[F, P1, S1, R2, P0, S0] =
-      this.asInstanceOf[MountedWithRoot[F, P1, S1, R2, P0, S0]]
-
-    final def addFacade[T <: js.Object]: MountedWithRoot[F, P1, S1, R with T, P0, S0] =
-      withRawType[R with T]
-
+    def withRawType[R2 <: RawMounted]: MountedSimple[F, P, S, R2]
+    def addFacade[T <: js.Object]: MountedSimple[F, P, S, R with T]
     // def getDefaultProps: Props
     // def getInitialState: js.Object | Null
     // def render(): ReactElement
   }
+
+  sealed trait MountedWithRoot[F[_], P1, S1, R <: RawMounted, P0 <: js.Object, S0 <: js.Object]
+      extends MountedSimple[F, P1, S1, R] with Generic.MountedWithRoot[F, P1, S1, P0, S0] {
+    override final type Root                          = MountedRoot[F, P0, S0, R]
+    override final type WithEffect[F2[_]]             = MountedWithRoot[F2, P1, S1, R, P0, S0]
+    override final type WithMappedProps[P2]           = MountedWithRoot[F, P2, S1, R, P0, S0]
+    override final type WithMappedState[S2]           = MountedWithRoot[F, P1, S2, R, P0, S0]
+
+    override final def withRawType[R2 <: RawMounted]: MountedWithRoot[F, P1, S1, R2, P0, S0] =
+      this.asInstanceOf[MountedWithRoot[F, P1, S1, R2, P0, S0]]
+
+    override final def addFacade[T <: js.Object]: MountedWithRoot[F, P1, S1, R with T, P0, S0] =
+      withRawType[R with T]
+  }
+
+  type MountedRoot[F[_], P <: js.Object, S <: js.Object, R <: RawMounted] = MountedWithRoot[F, P, S, R, P, S]
 
   def mountedRoot[P <: js.Object, S <: js.Object, R <: RawMounted](r: R): MountedRoot[Effect.Id, P, S, R] =
     new Template.MountedWithRoot[Effect.Id, P, S] with MountedRoot[Effect.Id, P, S, R] {

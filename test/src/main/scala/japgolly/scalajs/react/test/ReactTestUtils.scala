@@ -12,7 +12,7 @@ object ReactTestUtils {
 
   def raw = japgolly.scalajs.react.test.raw.ReactTestUtils
 
-  type Unmounted[M] = GenericComponent.UnmountedWithRoot[_, M, _, _]
+  type Unmounted[M] = GenericComponent.Unmounted[_, M]
   type Mounted      = GenericComponent.MountedRaw
 
   private type RawM = japgolly.scalajs.react.raw.ReactComponent
