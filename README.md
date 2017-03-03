@@ -178,12 +178,12 @@ add usage recommendations
 
 -------------------
 
+shallow renderer
+
 is Callback necessary from non-render lifecycle hooks?
 DOM isn't used, is it really confusing?
 
 Rename {Read,Write}{Id,CB} in StateAccessor?
 
 new releases for scalacss & test-state
-
-upgrade to latest React
 
