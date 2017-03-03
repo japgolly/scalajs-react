@@ -17,6 +17,7 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/_((?:set|mod|run)State)/\1Fn/g;
   s/(forceUpdate|getDOMNode|isMounted)\(\)/\1/g;
   s/ReactDOM *\. *render *\(($arg) *, *($arg) *\)/\1.renderIntoDOM(\3)/g;
+  s/React *\. *addons/ReactAddons/g;
 
   s/prefix_\<\^/html_<^/g;
   s/(?<!\w)React(Tag|TagOf|Attr|Node|Element)(?!\w)/Vdom\1/g;
@@ -24,13 +25,14 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/("\S*?") *\. *react(Attr|Style)/Vdom\2(\1)/g;
   s/(disabled +:= +)"disabled"/\1true/g;
   s/toReactNodeArray/toVdomArray/g;
+  s/dangerouslySetInnerHtml *\( *($arg) *\)/dangerouslySetInnerHtml := \1/g;
 
   s/(React(?:[A-Z][a-z]+)?Event)H/\1FromHtml/g;
   s/(React(?:[A-Z][a-z]+)?Event)I/\1FromInput/g;
   s/(React(?:[A-Z][a-z]+)?Event)TA/\1FromTextArea/g;
   s/Synthetic((?:[A-Z][a-z]+)?Event)/React\1From/g;
 
-  s/ReusableFn *\(([^()]+?)\) *\. *(set|mod)State/ReusableFn.state(\1).\2/g;
+  s/ReusableFn *($bp) *\. *(set|mod)State/ReusableFn.state\1.\3/g;
   s/ExternalVar *\. *state *\( *([a-zA-Z0-9\$]+) *\. *zoomL *\( *([A-Za-z][A-Za-z. ]*?) *\) *\)/StateSnapshot.zoomL(\2).of(\1)/g;
   s/ExternalVar *\. *state *\( *([a-zA-Z0-9\$]+) *zoomL *([A-Za-z][A-Za-z. ]*?) *\)/StateSnapshot.zoomL(\2).of(\1)/g;
   s/ReusableVar *\. *state *\( *([a-zA-Z0-9\$]+) *\. *zoomL *\( *([A-Za-z][A-Za-z. ]*?) *\) *\)/StateSnapshot.withReuse.zoomL(\2).of(\1)/g;
