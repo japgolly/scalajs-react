@@ -174,55 +174,14 @@ ReactComponent{,U,M]_ migration
 add cheatsheets
 
 add usage recommendations
+- stateless
 
 -------------------
-
-Generic
-- RawAccess_   -> _Raw
-- Base_        -> _WithRoot
-- _            -> _Root
-- <rootless>   -> _Simple
-with Mounted & Unmounted aliases -> Simple
-package GenericComponent alias -> Simple
-
-Js
-- RawMounted   -> RawMounted
-- _            -> _
-- _WithFacade  -> _WithFacade
-- _WithRawType -> _WithRawType
-- Root_        -> _Root
-- Base_        -> _WithRoot
-- Mapped_      -> _Mapped
-- <rootless>   -> _Simple
-
-Scala
-- RawMounted   -> RawMounted
-- _            -> _
-- Js_          -> Js_
-- Root_        -> _Root
-- Base_        -> _WithRoot
-- <rootless>   -> _Simple
-
-JsFn
-- _            -> _
-- Root_        -> _Root
-- Base_        -> _WithRoot
-- <rootless>   -> _Simple
-
-ScalaFn
-- _            -> _
-
--------------------
-
-add mapCtor? (in addition to mapCtorType)
 
 is Callback necessary from non-render lifecycle hooks?
 DOM isn't used, is it really confusing?
 
 Rename {Read,Write}{Id,CB} in StateAccessor?
-Rename initialState*CB. Maybe add initialStatePure or Const or something
-
-withEffects{Imp,P}ure <- remove withEffects?
 
 new releases for scalacss & test-state
 
