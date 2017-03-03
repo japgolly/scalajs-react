@@ -45,6 +45,7 @@ object Extra {
 
   final class BooleanExt(private val b: Boolean) extends AnyVal {
     @inline def ?=(m: => TagMod): TagMod = if (b) m else EmptyTag
+    @inline def ?=(m: => ReactNode): ReactNode = if (b) m else null
   }
 
   final class StringExt(private val s: String) extends AnyVal {
