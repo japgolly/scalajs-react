@@ -7,7 +7,6 @@ import japgolly.scalajs.react._
 
 /** https://facebook.github.io/react/docs/test-utils.html */
 @js.native
-@JSName("React.addons.TestUtils")
 object ReactTestUtils extends ReactTestUtils
 
 @js.native
