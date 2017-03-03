@@ -15,7 +15,7 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.11.3
 
 ### Contents
 
-- [`React.addons.Perf`](#reactaddonsperf)
+- [`ReactAddons.Perf`](#reactaddonsperf)
 - [`Reusability`](#reusability)
   - [Usage](#usage)
   - [Example](#example)
@@ -34,7 +34,7 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.11.3
   - [`Px` doesn't have `Reusability`](#px-doesnt-have-reusability)
 
 
-`React.addons.Perf`
+`ReactAddons.Perf`
 ===================
 React addons come with performance tools. See https://facebook.github.io/react/docs/perf.html.
 
@@ -70,7 +70,7 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.caseClassExcept` for case classes of your own where you want to exclude some fields.
 * `Reusability.caseClassExceptDebug` as above, but shows you the code that the macro generates.
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
-* `Reusability.fn((A, B) => Boolean)` to hand-write custom logic.
+* `Reusability((A, B) => Boolean)` to hand-write custom logic.
 * `Reusability.byIterator` uses an `Iterable`'s iterator to check each element in order.
 * `Reusability.indexedSeq` uses `.length` and `.apply(index)` to check each element in order.
 * `Reusability.{double,float}` exist and require a tolerance to be specified.
@@ -94,7 +94,7 @@ case class Props(name: String, age: Option[Int], pic: Picture)
 implicit val picReuse   = Reusability.by((_: Picture).id)  // ← only check id
 implicit val propsReuse = Reusability.caseClass[Props]     // ← check all fields
 
-val component = ReactComponentB[Props]("Demo")
+val component = ScalaComponent.build[Props]("Demo")
   .render_P(p =>
     <.div(
       <.p("Name: ", p.name),
@@ -157,7 +157,7 @@ type State = Map[PersonId, PersonData]
 type PersonId = Long
 type PersonData = String
 
-val topComponent = ReactComponentB[State]("Demo")
+val topComponent = ScalaComponent.build[State]("Demo")
   .initialState_P(identity)
   .renderBackend[Backend]
   .build
@@ -179,12 +179,11 @@ case class PersonEditorProps(name: String, update: String ~=> Callback)   // ←
 
 implicit val propsReuse = Reusability.caseClass[PersonEditorProps]
 
-val personEditor = ReactComponentB[PersonEditorProps]("PersonEditor")
+val personEditor = ScalaComponent.build[PersonEditorProps]("PersonEditor")
   .render_P(p =>
-    <.input(
-      ^.`type` := "text",
-      ^.value := p.name,
-      ^.onChange ==> ((e: ReactEventI) => p.update(e.target.value))))    // ← Use as normal
+    <.input.text(
+      ^.value := p.name,                                                 // ← Use as normal
+      ^.onChange ==> ((e: ReactEventFromInput) => p.update(e.target.value))))
   .configure(Reusability.shouldComponentUpdate)                          // ← shouldComponentUpdate like magic
   .build
 ```
@@ -198,7 +197,7 @@ props/state, the function will forever be based on data that can go stale.
 Example:
 ```scala
 @Lenses case class Person(name: String, age: Int)
-case class Props(person: ReusableVar[Person], other: Other)
+case class Props(person: StateSnapshot[Person], other: Other)
 
 // THIS IS BAD!!
 ReusableFn($.props.runNow().person setL Props.name)
@@ -233,13 +232,13 @@ For these examples imagine `$` to be your component's scope instance, eg. `Backe
     You'll find that if you try `ReusableFn($.method)` Scala will fail to infer the correct types.
     Use `ReusableFn($).method` instead to get the types that you expect.
 
-    Example: instead of `ReusableFn($.setState)` use `ReusableFn($).setState` and you will correctly get a `S ~=> Callback`.
+    Example: instead of `ReusableFn($.setState)` use `ReusableFn.state($).set` and you will correctly get a `S ~=> Callback`.
 
 2. `ReusableFn.endo____`.
 
     Anytime the input to your `ReusableFn` is an endofunction (`A => A`), additional methods starting with `endo` become available.
 
-    Specifically, `ReusableFn($).modState` returns a `(S => S) ~=> Callback` which you will often want to transform.
+    Specifically, `ReusableFn.state($).mod` returns a `(S => S) ~=> Callback` which you will often want to transform.
     These examples would be available on an `(S => S) ~=> U`:
 
     * `endoCall (S => (A => S)): A ~=> U` - Call a 1-arg function on `S`.
@@ -258,14 +257,14 @@ For these examples imagine `$` to be your component's scope instance, eg. `Backe
 
     // Shorter using helpers described above
     val short: Int ~=> (String ~=> Callback) =
-      ReusableFn($).modState.endoCall2(_.updated)
+      ReusableFn.state($).mod.endoCall2(_.updated)
   ```
 
-3. `ReusableFn($ zoomL lens)`
+3. `ReusableFn($ zoomStateL lens)`
 
   Lenses provide an abstraction over read-and-write field access.
   Using Monocle, you can annotate your case classes with `@Lenses` to gain automatic lenses.
-  `$ zoomL lens` will then narrow the scope of its state to the field targeted by the given lens.
+  `$ zoomStateL lens` will then narrow the scope of its state to the field targeted by the given lens.
   This can then be used with `ReusableFn` as follows:
 
   ```scala
@@ -337,11 +336,11 @@ there is also `ReusableVar`.
 ```scala
 @Lenses case class State(name: String, desc: String)
 
-val topComponent = ReactComponentB[State]("Demo")
+val topComponent = ScalaComponent.build[State]("Demo")
   .initialState_P(identity)
   .renderP { ($, p) =>
-    val setName = ReusableVar.state($ zoomL State.name)
-    val setDesc = ReusableVar.state($ zoomL State.desc)
+    val setName = StateSnapshot.withReuse.zoomL(State.name).of($)
+    val setDesc = StateSnapshot.withReuse.zoomL(State.desc).of($)
 
     <.div(
       stringEditor(setName),
@@ -349,12 +348,12 @@ val topComponent = ReactComponentB[State]("Demo")
   }
   .build
 
-lazy val stringEditor = ReactComponentB[ReusableVar[String]]("StringEditor")
+lazy val stringEditor = ScalaComponent.build[StateSnapshot[String]]("StringEditor")
   .render_P(p =>
     <.input(
       ^.`type` := "text",
       ^.value := p.value,
-      ^.onChange ==> ((e: ReactEventI) => p.set(e.target.value))))
+      ^.onChange ==> ((e: ReactEventFromInput) => p.set(e.target.value))))
   .configure(Reusability.shouldComponentUpdate)
   .build
 ```
@@ -387,7 +386,7 @@ Create a non-derivative `Px` using one of these:
   Doesn't change until you explicitly call `set()`.
 
   ```scala
-  val num = Px(123)
+  val num = Px(123).withReuse.manualUpdate
   num.set(666)
   ```
 
@@ -399,10 +398,10 @@ Create a non-derivative `Px` using one of these:
   case class State(name: String, age: Int)
 
   class ComponentBackend($: BackendScope[User, State]) {
-    val user     = Px.thunkM($.props)
-    val stateAge = Px.thunkM($.state.age)
+    val user     = Px($.props).withReuse.manualRefresh
+    val stateAge = Px($.state.age).withReuse.manualRefresh
 
-    def render: ReactElement = {
+    def render: VdomElement = {
       // Every render cycle, refresh Pxs. Unnecessary changes will be discarded.
       Px.refresh(user, stateAge)
 
@@ -426,16 +425,16 @@ Create a non-derivative `Px` using one of these:
   }
 
   class ComponentBackend($: BackendScope[Props, _]) {
-    val usersOnline = Px.thunkA(InternalGlobalState.usersOnline)
+    val usersOnline = Px(InternalGlobalState.usersOnline).withReuse.autoRefresh
 
     // Only updated when the InternalGlobalState changes
-    val coolGraphOfUsersOnline: Px[ReactElement] =
+    val coolGraphOfUsersOnline: Px[VdomElement] =
       for (u <- usersOnline) yield
         <.div(
           <.h3("Users online: ", u),
           coolgraph(u))
 
-    def render: ReactElement =
+    def render: VdomElement =
       <.div(
         "Hello ", $.props.username,
         coolGraphOfUsersOnline.value())
@@ -466,8 +465,8 @@ Derivative `Px`s are created by:
 
 Example:
 ```scala
-val project     : Px[Project]      = Px.bs($).propsM
-val viewSettings: Px[ViewSettings] = Px.bs($).stateM(_.viewSettings)
+val project     : Px[Project]      = Px.props($).withReuse.manualRefresh
+val viewSettings: Px[ViewSettings] = Px.state($).map(_.viewSettings).withReuse.manualRefresh
 
 // Using .map
 val columns   : Px[Columns]    = viewSettings.map(_.columns)
@@ -507,7 +506,7 @@ In short, do not use `Px` in a component's props or state. Instead of `Px[A]`, j
 case class Component2Props(count: Px[Int])
 class Component1Backend {
   val px: Px[Int] = ...
-  def render: ReactElement =
+  def render: VdomElement =
     Component2(Component2Props(px))
 }
 
@@ -515,7 +514,7 @@ class Component1Backend {
 case class Component2Props(count: Int)
 class Component1Backend {
   val px: Px[Int] = ...
-  def render: ReactElement =
+  def render: VdomElement =
     Component2(Component2Props(px.value()))
 }
 ```
@@ -529,7 +528,7 @@ import Px.AutoValue._
 case class Component2Props(count: Int)
 class Component1Backend {
   val px: Px[Int] = ...
-  def render: ReactElement =
+  def render: VdomElement =
     Component2(Component2Props(px))  // .value() called implicitly
 }
 ```

@@ -75,26 +75,26 @@ Setup
 To make event simulation easier, certain event types have dedicated, strongly-typed case classes to wrap event data. For example, JS like
 ```js
 // JavaScript
-React.addons.TestUtils.Simulate.change(t, {target: {value: "Hi"}})
+ReactAddons.TestUtils.Simulate.change(t, {target: {value: "Hi"}})
 ```
 becomes
 ```scala
 // Scala
-ReactTestUtils.Simulate.change(t, ChangeEventData(value = "Hi"))
+Simulate.change(t, SimEvent.Change(value = "Hi"))
 
 // Or shorter
-ChangeEventData("Hi") simulate t
+SimEvent.Change("Hi") simulate t
 ```
 
 Simulations can also be created and composed without a target, using `Simulation`. Example:
 ```scala
 val a = Simulation.focus
-val b = Simulation.change(ChangeEventData(value = "hi"))
+val b = Simulation.change(SimEvent.Change(value = "hi"))
 val c = Simulation.blur
 val s = a andThen b andThen c
 
 // Or shorter
-val s = Simulation.focus >> ChangeEventData("hi").simulation >> Simulation.blur
+val s = Simulation.focus >> SimEvent.Change("hi").simulation >> Simulation.blur
 
 // Or even shorter again, using a convenience method
 val s = Simulation.focusChangeBlur("hi")
@@ -119,7 +119,7 @@ This might accrue more helpful features over time but currently changing props i
 If you wanted to test a component that has both props and state, a trivial component could be:
 
 ```scala
-val Example = ReactComponentB[String]("Example")
+val Example = ScalaComponent.build[String]("Example")
   .initialState(0)
   .renderPS((_, p, s) => <.div(s" $p:$s "))
   .build
@@ -137,7 +137,7 @@ ComponentTester(Example)("First props") { tester =>
   import tester._
 
   def assertHtml(p: String, s: Int): Unit =
-    assert(component.outerHtmlWithoutReactDataAttr() == s"<div> $p:$s </div>")
+    assert(component.outerHtmlWithoutReactInternals() == s"<div> $p:$s </div>")
 
   assertHtml("First props", 0)
 
@@ -159,15 +159,15 @@ A `ReactTestVar` is a class that can be used to mock the following types in test
 
 Example:
 ```scala
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.test._
 
 object ExampleTest extends TestSuite {
 
-  val NameChanger = ReactComponentB[ExternalVar[String]]("Name changer")
+  val NameChanger = ScalaComponent.build[StateSnapshot[String]]("Name changer")
     .render_P { evar =>
-      def updateName = (event: ReactEventI) => evar.set(event.target.value)
+      def updateName = (event: ReactEventFromInput) => evar.set(event.target.value)
       <.input(
         ^.`type`    := "text",
         ^.value     := evar.value,
@@ -178,7 +178,7 @@ object ExampleTest extends TestSuite {
   override def tests = TestSuite {
     val nameVar = ReactTestVar("guy")
     val comp = ReactTestUtils renderIntoDocument NameChanger(nameVar.externalVar())
-    ChangeEventData("bob").simulate(comp)
+    SimEvent.Change("bob").simulate(comp)
     assert(nameVar.value() == "bob")
   }
 }
@@ -194,7 +194,7 @@ Allows you to test a component that requires access to some external component s
 
 Say you have a component like:
 ```scala
-val Example = ReactComponentB[(CompState.WriteAccess[Int], Int)]("I")
+val Example = ScalaComponent.build[(CompState.WriteAccess[Int], Int)]("I")
   .render_P { case (w, i) =>
     <.div(
       <.div("state = ", <.span(i)),
@@ -215,10 +215,10 @@ object ExampleTest extends TestSuite {
 
   override def tests = TestSuite {
     val c = ReactTestUtils renderIntoDocument Parent(3)
-    def state = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span").getDOMNode().innerHTML.toInt
+    def state = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span").getDOMNode.innerHTML.toInt
     def button = ReactTestUtils.findRenderedDOMComponentWithTag(c, "button")
     assert(state == 3)
-    ReactTestUtils.Simulate click button
+    Simulate click button
     assert(state == 4)
   }
 }
@@ -234,7 +234,7 @@ It doesn't have much but `inspectObject` can be tremendously useful.
 Example:
 ```scala
 .componentDidMount($ => Callback {
-  val dom = $.getDOMNode()
+  val dom = $.getDOMNode
   println(DebugJs inspectObject dom)
 })
 ```

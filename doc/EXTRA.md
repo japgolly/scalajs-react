@@ -26,11 +26,11 @@ These help your components listen and react to external events or data changes.
 ##### Usage
 ```scala
 // A listening component
-val component = ReactComponentB[...]
+val component = ScalaComponent.build[...]
   ...
   .backend(_ => new OnUnmount.Backend)
   ...
-  .configure(Listenable.install(...))
+  .configure(Listenable.listen(...))
   ...
 
 // A simple broadcaster
@@ -71,7 +71,7 @@ This will cause logging to occur at React component lifecycle stages.
 
 ##### Usage
 ```scala
-val component = ReactComponentB[...]
+val component = ScalaComponent.build[...]
   ...
   .configure(LogLifecycle.short)   // Logs the component name and stage
   .configure(LogLifecycle.verbose) // Logs component props and state as well
@@ -110,7 +110,7 @@ class MyBackend extends OnUnmount {
     onUnmount( Callback.log("Component unmounting...") )
 }
 
-val eg = ReactComponentB[Unit]("Example")
+val eg = ScalaComponent.build[Unit]("Example")
   .stateless
   .backend(_ => new MyBackend)
   .render(_ => ???)
@@ -130,7 +130,7 @@ import scala.concurrent.duration._
 
 class MyBackend extends TimerSupport
 
-val Timer = ReactComponentB[Unit]("Timer")
+val Timer = ScalaComponent.build[Unit]("Timer")
   .initialState(0L)
   .backend(_ => new MyBackend)
   .render_S(s => <.div("Seconds elapsed: ", s))

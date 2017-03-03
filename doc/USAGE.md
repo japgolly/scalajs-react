@@ -61,7 +61,7 @@ There are two built-in ways of creating virtual-DOM.
 1. **Prefixed (recommended)** - Importing DOM tags and attributes under prefixes is recommended. Apart from essential implicit conversions, only two names are imported: `<` for tags, `^` for attributes.
 
   ```scala
-  import japgolly.scalajs.react.vdom.prefix_<^._
+  import japgolly.scalajs.react.vdom.html_<^._
 
   <.ol(
     ^.id     := "my-list",
@@ -109,7 +109,7 @@ There are two ways of attaching event handlers to your virtual DOM.
   `ReactEvent` can be more specific - event types are described in [TYPES.md](TYPES.md).
 
   ```scala
-  def onTextChange(e: ReactEventI): Callback =
+  def onTextChange(e: ReactEventFromInput): Callback =
     Callback.alert("Value received = " + e.target.value)
 
   <.input(
@@ -121,7 +121,7 @@ There are two ways of attaching event handlers to your virtual DOM.
   If your handler needs additional arguments, use currying so that the args you want to specify are on the left and the event is alone on the right.
 
   ```scala
-  def onTextChange(desc: String)(e: ReactEventI): Callback =
+  def onTextChange(desc: String)(e: ReactEventFromInput): Callback =
     Callback.alert(s"Value received for ${desc} = ${e.target.value}")
 
   <.input(
@@ -166,7 +166,7 @@ A helpful way to remember which operator to use is to visualise the arrow stem:
   ```scala
   val currentValue: Option[String] = ???
 
-  def onTextChange(e: ReactEventI): Option[Callback] =
+  def onTextChange(e: ReactEventFromInput): Option[Callback] =
     currentValue.map { before =>
       def after = e.target.value
       Callback.alert(s"Value changed from [$before] to [$after]")
@@ -178,10 +178,10 @@ A helpful way to remember which operator to use is to visualise the arrow stem:
     ^.onChange ==>? onTextChange)
   ```
 
-* `EmptyTag` - A virtual DOM building block representing nothing.
+* `EmptyVdom` - A virtual DOM building block representing nothing.
 
   ```scala
-  <.div(if (allowEdit) editButton else EmptyTag)
+  <.div(if (allowEdit) editButton else EmptyVdom)
   ```
 
 #### Custom markup elements
@@ -189,8 +189,8 @@ A helpful way to remember which operator to use is to visualise the arrow stem:
 The vdom imports will add string extension methods that allow you to create you own custom tags, attributes and styles.
 
 ```scala
-val customAttr  = "customAttr" .reactAttr
-val customStyle = "customStyle".reactStyle
+val customAttr  = VdomAttr("customAttr")
+val customStyle = VdomStyle("customStyle")
 val customTag   = "customTag"  .reactTag
 
 // Produces: <customTag customAttr="hello" style="customStyle:123;">bye</customTag>
@@ -217,7 +217,7 @@ You throw types and functions at it, call `build` and when it compiles you will 
 
 You first specify your component's properties type, and a component name.
 ```scala
-ReactComponentB[Props]("MyComponent")
+ScalaComponent.build[Props]("MyComponent")
 ```
 
 Next you keep calling functions on the result until you get to a `build` method.
@@ -235,7 +235,7 @@ You must create an instance of it to use it in vdom.
 Example (with props):
 ```scala
 val Hello =
-  ReactComponentB[String]("Hello")
+  ScalaComponent.build[String]("Hello")
     .render_P(name => <.div("Hello there ", name))
     .build
 
@@ -246,7 +246,7 @@ Hello("Draconus")
 Example (without props):
 ```scala
 val NoArgs =
-  ReactComponentB[Unit]("No args")
+  ScalaComponent.build[Unit]("No args")
     .render(_ => <.div("Hello!"))
     .build
 
@@ -285,7 +285,7 @@ class Backend($: BackendScope[Unit, State]) {
   }
 }
 
-val Example = ReactComponentB[Unit]("Example")
+val Example = ScalaComponent.build[Unit]("Example")
   .initialState(Vector("hello", "world"))
   .backend(new Backend(_))
   .render(_.backend.render)
@@ -301,7 +301,7 @@ class Backend($: BackendScope[Unit, State]) {
       <.ol(s.map(i => <.li(i))))
 }
 
-val Example = ReactComponentB[Unit]("Example")
+val Example = ScalaComponent.build[Unit]("Example")
   .initialState(Vector("hello", "world"))
   .renderBackend[Backend]  // ← Use Backend class and backend.render
   .build
@@ -309,7 +309,7 @@ val Example = ReactComponentB[Unit]("Example")
 
 You can also create a backend yourself and still use `.renderBackend`:
 ```scala
-val Example = ReactComponentB[Unit]("Example")
+val Example = ScalaComponent.build[Unit]("Example")
   .initialState(Vector("hello", "world"))
   .backend(new Backend(_)) // ← Fine! Do it yourself!
   .renderBackend           // ← Use backend.render
@@ -325,12 +325,12 @@ To create an instance, you call the constructor.
 
 ```scala
 val NoArgs =
-  ReactComponentB[Unit]("No args")
+  ScalaComponent.build[Unit]("No args")
     .render(_ => <.div("Hello!"))
     .build
 
 val Hello =
-  ReactComponentB[String]("Hello")
+  ScalaComponent.build[String]("Hello")
     .render_P(name => <.div("Hello there ", name))
     .build
 
@@ -371,7 +371,7 @@ To render a component, it's the same as React. Use `ReactDOM.render` and specify
 ```scala
 import org.scalajs.dom.document
 
-ReactDOM.render(NoArgs(), document.body)
+NoArgs().renderIntoDOM(document.body)
 ```
 
 React Extensions
@@ -382,8 +382,8 @@ React Extensions
 * Since `setState` and `modState` return callbacks, if you need to call them from outside of a component (e.g. by accessing the backend of a mounted component), call `.runNow()` to trigger the change; else the callback will never run.
   See the [Callbacks](#callbacks) section for more detail.
 
-* `SyntheticEvent`s have numerous aliases that reduce verbosity.
-  For example, in place of `SyntheticKeyboardEvent[HTMLInputElement]` you can use `ReactKeyboardEventI`.
+* `ReactEventFrom`s have numerous aliases that reduce verbosity.
+  For example, in place of `ReactKeyboardEventFrom[HTMLInputElement]` you can use `ReactKeyboardEventFromInput`.
   See [TYPES.md](TYPES.md) for details.
 
 * React has a [classSet addon](https://facebook.github.io/react/docs/class-name-manipulation.html)
@@ -432,7 +432,7 @@ React Extensions
   @Lenses case class State(name: String, counter: Int)
 
   def render = {
-    val f = $ zoomL State.counter
+    val f = $ zoomStateL State.counter
     button(onclick --> incrementCounter(f), "+")
   }
   ```
@@ -586,7 +586,7 @@ class XxxBackend(scope: BackendScope[Unit, Unit]) {
 
 val ref = Ref.toJS[SampleReactComponentM]("ref123")
 
-val component = ReactComponentB[Unit]("S").stateless.backend(new XxxBackend(_)).render { scope =>
+val component = ScalaComponent.build[Unit]("S").stateless.backend(new XxxBackend(_)).render { scope =>
   val factory = React.createFactory(SampleReactComponent)
   factory(SampleReactComponentProperty(ref = ref, propOne = "123"))
 }.build

@@ -187,3 +187,4 @@ Rename {Read,Write}{Id,CB} in StateAccessor?
 
 new releases for scalacss & test-state
 
+router's {dyn,}render{,R}

@@ -3,25 +3,25 @@
 #### React
 A `ReactDOMElement` is a representation of a standard DOM element such as a `<div>`, an `<input>`, etc.
 
-A `ReactElement` is a `ReactDOMElement` or a React component.
+A `VdomElement` is a `ReactDOMElement` or a React component.
 
-A`ReactNode` which is anything usable a child of a `ReactElement`. This can be another `ReactElement`, an array of `ReactElement`s, or plain text or number.
+A`VdomNode` which is anything usable a child of a `VdomElement`. This can be another `VdomElement`, an array of `VdomElement`s, or plain text or number.
 
 *More detail: https://facebook.github.io/react/docs/glossary.html*
 
 #### Scalatags
-A custom version [Scalatags](https://github.com/lihaoyi/scalatags) is used for DOM-building type-safety. A DOM element is first constructed via Scalatags, then converted automatically to a `ReactElement`.
+A custom version [Scalatags](https://github.com/lihaoyi/scalatags) is used for DOM-building type-safety. A DOM element is first constructed via Scalatags, then converted automatically to a `VdomElement`.
 
 There are two types to note:
-* `...react.vdom.ReactTag` - A DOM still being constructed, a soon-to-be `ReactElement`. Additional properties, styles and children can be specified via `.apply(TagMod): ReactTag`.
-* `...react.vdom.TagMod` - 0, 1, or *n* properties, styles or children that can be applied to a `ReactTag`.
+* `...react.vdom.VdomTag` - A DOM still being constructed, a soon-to-be `VdomElement`. Additional properties, styles and children can be specified via `.apply(TagMod): VdomTag`.
+* `...react.vdom.TagMod` - 0, 1, or *n* properties, styles or children that can be applied to a `VdomTag`.
 
 Example:
 ```scala
-val tag1   : ReactTag     = input(className := "name")
+val tag1   : VdomTag     = input(className := "name")
 val mod    : TagMod       = value := "Bob"
-val tag2   : ReactTag     = tag1(mod, readOnly := true)
-val element: ReactElement = tag2
+val tag2   : VdomTag     = tag1(mod, readOnly := true)
+val element: VdomElement = tag2
 // equivalent to <input class="name" value="Bob" readonly=true />
 ```
 
@@ -36,7 +36,7 @@ They are arbitrary types for:
 
 | Scala Component | JS Component | Desc |
 | --------------- | ------------ | ---- |
-| `ReactComponentB[P, S, B]`      | -                      | Scala component builder. |
+| `ScalaComponent.build[P, S, B]`      | -                      | Scala component builder. |
 | `ReactComponentC[P, S, +B, +N]` | `ReactComponentC_`     | A component constructor. |
 | `ReactComponentU[P, S, +B, +N]` | `ReactComponentU_`     | An unmounted component.  |
 | `ReactComponentM[P, S, +B, +N]` | `ReactComponentM_[+N]` | A mounted component.     |
@@ -74,16 +74,16 @@ but if you don't know or care about the event target type, simply use `ReactEven
 
 | React Event Type | Alias for any `Node` |
 | ---- | ---- |
-| `SyntheticEvent[Node]` | `ReactEvent` |
-| `SyntheticClipboardEvent[Node]` | `ReactClipboardEvent` |
-| `SyntheticCompositionEvent[Node]` | `ReactCompositionEvent` |
-| `SyntheticDragEvent[Node]` | `ReactDragEvent` |
-| `SyntheticFocusEvent[Node]` | `ReactFocusEvent` |
-| `SyntheticKeyboardEvent[Node]` | `ReactKeyboardEvent` |
-| `SyntheticMouseEvent[Node]` | `ReactMouseEvent` |
-| `SyntheticTouchEvent[Node]` | `ReactTouchEvent` |
+| `ReactEventFrom[Node]` | `ReactEvent` |
+| `ReactClipboardEventFrom[Node]` | `ReactClipboardEvent` |
+| `ReactCompositionEventFrom[Node]` | `ReactCompositionEvent` |
+| `ReactDragEventFrom[Node]` | `ReactDragEvent` |
+| `ReactFocusEventFrom[Node]` | `ReactFocusEvent` |
+| `ReactKeyboardEventFrom[Node]` | `ReactKeyboardEvent` |
+| `ReactMouseEventFrom[Node]` | `ReactMouseEvent` |
+| `ReactTouchEventFrom[Node]` | `ReactTouchEvent` |
 | `SyntheticUIEvent[Node]` | `ReactUIEvent` |
-| `SyntheticWheelEvent[Node]` | `ReactWheelEvent` |
+| `ReactWheelEventFrom[Node]` | `ReactWheelEvent` |
 
 One of the suffixes below can be added to any the ReactEvents above, to provide an alias with a more specific node type.
 
@@ -93,7 +93,7 @@ One of the suffixes below can be added to any the ReactEvents above, to provide 
 | `I` | `HTMLInputElement` |
 | `TA` | `HTMLTextAreaElement` |
 
-For example, `ReactDragEventI` is a `ReactDragEvent` over a `HTMLInputElement` (an `<input>`), the same as writing `SyntheticDragEvent[HTMLInputElement]`.
+For example, `ReactDragEventFromInput` is a `ReactDragEvent` over a `HTMLInputElement` (an `<input>`), the same as writing `ReactDragEventFrom[HTMLInputElement]`.
 
 ### Component-scope access
 
