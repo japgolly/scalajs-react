@@ -47,9 +47,16 @@ trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
 
 // =====================================================================================================================
 
+object ImplicitsForTagMod {
+  final class OptionExt[O[_], A](o: O[A])(implicit O: OptionLike[O]) {
+    def whenDefined(implicit f: A => TagMod): TagMod =
+      O.fold(o, TagMod.Empty)(f)
+  }
+}
+
 trait ImplicitsForTagMod {
-  implicit def tagModFromOptionLike[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => TagMod): TagMod =
-    O.fold(o, TagMod.Empty)(f)
+  implicit def vdomOptionExt[O[_], A](o: O[A])(implicit O: OptionLike[O]): ImplicitsForTagMod.OptionExt[O, A] =
+    new ImplicitsForTagMod.OptionExt(o)
 }
 
 // =====================================================================================================================

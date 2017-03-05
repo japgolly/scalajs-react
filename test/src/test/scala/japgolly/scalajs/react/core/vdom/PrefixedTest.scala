@@ -97,56 +97,61 @@ object PrefixedTest extends TestSuite {
 
     'optional {
       'option {
-        'attr_some    - test(<.div(^.cls :=? "hi".some),     """<div class="hi"></div>""")
-        'attr_none    - test(<.div(^.cls :=? "h1".none),     """<div></div>""")
-        'style_some   - test(<.div(^.color :=? "red".some),  """<div style="color:red;"></div>""")
-        'style_none   - test(<.div(^.color :=? "red".none),  """<div></div>""")
-        'attr_some    - test(<.div((^.color := "red").some), """<div style="color:red;"></div>""")
-        'attr_none    - test(<.div((^.color := "red").none), """<div></div>""")
-        'tagMod_some  - test(<.div(tagMod.some),             """<div class="ho"></div>""")
-        'tagMod_none  - test(<.div(tagMod.none),             """<div></div>""")
-        'tag_some     - test(<.div(vdomTag.some),            """<div><span></span></div>""")
-        'tag_none     - test(<.div(vdomTag.none),            """<div></div>""")
-        'element_some - test(<.div(vdomElement.some),        """<div><p></p></div>""")
-        'element_none - test(<.div(vdomElement.none),        """<div></div>""")
-        'comp_some    - test(<.div(H1("yoo").some),          """<div><h1>yoo</h1></div>""")
-        'comp_none    - test(<.div(H1("yoo").none),          """<div></div>""")
-        'text_some    - test(<.div("yoo".some),              """<div>yoo</div>""")
-        'text_none    - test(<.div("yoo".none),              """<div></div>""")
+        def some[A](a: A): Option[A] = Some(a)
+        def none[A](a: A): Option[A] = None
+        'attr_some    - test(<.div(^.cls   :=? some("hi")       ), """<div class="hi"></div>""")
+        'attr_none    - test(<.div(^.cls   :=? none("h1")       ), """<div></div>""")
+        'style_some   - test(<.div(^.color :=? some("red")      ), """<div style="color:red;"></div>""")
+        'style_none   - test(<.div(^.color :=? none("red")      ), """<div></div>""")
+        'tagMod_some  - test(<.div(some(tagMod     ).whenDefined), """<div class="ho"></div>""")
+        'tagMod_none  - test(<.div(none(tagMod     ).whenDefined), """<div></div>""")
+        'tag_some     - test(<.div(some(vdomTag    ).whenDefined), """<div><span></span></div>""")
+        'tag_none     - test(<.div(none(vdomTag    ).whenDefined), """<div></div>""")
+        'element_some - test(<.div(some(vdomElement).whenDefined), """<div><p></p></div>""")
+        'element_none - test(<.div(none(vdomElement).whenDefined), """<div></div>""")
+        'comp_some    - test(<.div(some(H1("yoo")  ).whenDefined), """<div><h1>yoo</h1></div>""")
+        'comp_none    - test(<.div(none(H1("yoo")  ).whenDefined), """<div></div>""")
+        'text_some    - test(<.div(some("yoo"      ).whenDefined), """<div>yoo</div>""")
+        'text_none    - test(<.div(none("yoo"      ).whenDefined), """<div></div>""")
       }
       'jsUndefOr {
-        'attr_def      - test(<.div(^.cls :=? "hi".jsdef),     """<div class="hi"></div>""")
-        'attr_undef    - test(<.div(^.cls :=? "hi".undef),     """<div></div>""")
-        'style_def     - test(<.div(^.color :=? "red".jsdef),  """<div style="color:red;"></div>""")
-        'style_undef   - test(<.div(^.color :=? "red".undef),  """<div></div>""")
-        'attr_def      - test(<.div((^.color := "red").jsdef), """<div style="color:red;"></div>""")
-        'attr_undef    - test(<.div((^.color := "red").undef), """<div></div>""")
-        'tagMod_def    - test(<.div(tagMod.jsdef),             """<div class="ho"></div>""")
-        'tagMod_undef  - test(<.div(tagMod.undef),             """<div></div>""")
-        'tag_def       - test(<.div(vdomTag.jsdef),            """<div><span></span></div>""")
-        'tag_undef     - test(<.div(vdomTag.undef),            """<div></div>""")
-        'element_def   - test(<.div(vdomElement.jsdef),        """<div><p></p></div>""")
-        'element_undef - test(<.div(vdomElement.undef),        """<div></div>""")
-        'comp_def      - test(<.div(H1("yoo").jsdef),          """<div><h1>yoo</h1></div>""")
-        'comp_undef    - test(<.div(H1("yoo").undef),          """<div></div>""")
-        'text_def      - test(<.div("yoo".jsdef),              """<div>yoo</div>""")
-        'text_undef    - test(<.div("yoo".undef),              """<div></div>""")
+        def some[A](a: A): js.UndefOr[A] = a
+        def none[A](a: A): js.UndefOr[A] = js.undefined
+        'attr_some    - test(<.div(^.cls   :=? some("hi")       ), """<div class="hi"></div>""")
+        'attr_none    - test(<.div(^.cls   :=? none("h1")       ), """<div></div>""")
+        'style_some   - test(<.div(^.color :=? some("red")      ), """<div style="color:red;"></div>""")
+        'style_none   - test(<.div(^.color :=? none("red")      ), """<div></div>""")
+        'tagMod_some  - test(<.div(some(tagMod     ).whenDefined), """<div class="ho"></div>""")
+        'tagMod_none  - test(<.div(none(tagMod     ).whenDefined), """<div></div>""")
+        'tag_some     - test(<.div(some(vdomTag    ).whenDefined), """<div><span></span></div>""")
+        'tag_none     - test(<.div(none(vdomTag    ).whenDefined), """<div></div>""")
+        'element_some - test(<.div(some(vdomElement).whenDefined), """<div><p></p></div>""")
+        'element_none - test(<.div(none(vdomElement).whenDefined), """<div></div>""")
+        'comp_some    - test(<.div(some(H1("yoo")  ).whenDefined), """<div><h1>yoo</h1></div>""")
+        'comp_none    - test(<.div(none(H1("yoo")  ).whenDefined), """<div></div>""")
+        'text_some    - test(<.div(some("yoo"      ).whenDefined), """<div>yoo</div>""")
+        'text_none    - test(<.div(none("yoo"      ).whenDefined), """<div></div>""")
       }
-//      'maybe {
-//        import ScalazReact._
-//        'attr_just     - test(<.div(^.cls :=? "hi".just),        """<div class="hi"></div>""")
-//        'attr_empty    - test(<.div(^.cls :=? "h1".maybeNot),    """<div></div>""")
-//        'style_just    - test(<.div(^.color :=? "red".just),     """<div style="color:red;"></div>""")
-//        'style_empty   - test(<.div(^.color :=? "red".maybeNot), """<div></div>""")
-//        'tagMod_just   - test(<.div(tagMod.just),                """<div class="ho"></div>""")
-//        'tagMod_empty  - test(<.div(tagMod.maybeNot),            """<div></div>""")
-//        'tag_just      - test(<.div(reacttag.just),              """<div><span></span></div>""")
-//        'tag_empty     - test(<.div(reacttag.maybeNot),          """<div></div>""")
-//        'element_just  - test(<.div(relement.just),              """<div><span></span></div>""")
-//        'element_empty - test(<.div(relement.maybeNot),          """<div></div>""")
-//        'comp_just     - test(<.div(H1("yoo").just),             """<div><h1>yoo</h1></div>""")
-//        'comp_empty    - test(<.div(H1("yoo").maybeNot),         """<div></div>""")
-//      }
+      'maybe {
+        import ScalazReact._
+        import scalaz.Maybe
+        def some[A](a: A): Maybe[A] = Maybe.Just(a)
+        def none[A](a: A): Maybe[A] = Maybe.empty
+        'attr_some    - test(<.div(^.cls   :=? some("hi")       ), """<div class="hi"></div>""")
+        'attr_none    - test(<.div(^.cls   :=? none("h1")       ), """<div></div>""")
+        'style_some   - test(<.div(^.color :=? some("red")      ), """<div style="color:red;"></div>""")
+        'style_none   - test(<.div(^.color :=? none("red")      ), """<div></div>""")
+        'tagMod_some  - test(<.div(some(tagMod     ).whenDefined), """<div class="ho"></div>""")
+        'tagMod_none  - test(<.div(none(tagMod     ).whenDefined), """<div></div>""")
+        'tag_some     - test(<.div(some(vdomTag    ).whenDefined), """<div><span></span></div>""")
+        'tag_none     - test(<.div(none(vdomTag    ).whenDefined), """<div></div>""")
+        'element_some - test(<.div(some(vdomElement).whenDefined), """<div><p></p></div>""")
+        'element_none - test(<.div(none(vdomElement).whenDefined), """<div></div>""")
+        'comp_some    - test(<.div(some(H1("yoo")  ).whenDefined), """<div><h1>yoo</h1></div>""")
+        'comp_none    - test(<.div(none(H1("yoo")  ).whenDefined), """<div></div>""")
+        'text_some    - test(<.div(some("yoo"      ).whenDefined), """<div>yoo</div>""")
+        'text_none    - test(<.div(none("yoo"      ).whenDefined), """<div></div>""")
+      }
       'when {
         'tags - test(
           <.span(<.span("1").when(true), <.span("2").when(false)),
