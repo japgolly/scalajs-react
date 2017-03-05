@@ -2,14 +2,14 @@ package japgolly.scalajs.react.extra
 
 import scala.reflect.ClassTag
 
-final class Reusable[+A] private[Reusable](valueFn: () => A,
+final class Reusable[+A] private[Reusable](valueByNeed: () => A,
                                            private[Reusable] val root: Any,
                                            val isReusable: Reusable[Any] => Boolean) {
   override def toString = s"Reusable($value)"
   override def hashCode = value.##
 
   def value: A =
-    valueFn()
+    valueByNeed()
 
   /** WARNING: This does not affect reusability.
     * Only the initial (pre-mapped) values matter when considering reusability.
@@ -18,7 +18,7 @@ final class Reusable[+A] private[Reusable](valueFn: () => A,
     * considered reusable. Any differences as a result of second the mapping will be discarded.
     */
   def map[B](f: A => B): Reusable[B] = {
-    lazy val b = f(valueFn())
+    lazy val b = f(valueByNeed())
     new Reusable[B](() => b, root, isReusable)
   }
 }
