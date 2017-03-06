@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import scala.reflect.ClassTag
+import japgolly.scalajs.react.{Callback, StateAccessor}
 
 final class Reusable[+A] private[Reusable](valueByNeed: () => A,
                                            private[Reusable] val root: Any,
@@ -24,6 +25,9 @@ final class Reusable[+A] private[Reusable](valueByNeed: () => A,
 }
 
 object Reusable {
+
+  @inline implicit def autoValue[A](r: Reusable[A]): A =
+    r.value
 
   private def root[A](a: A, isReusable: Reusable[Any] => Boolean): Reusable[A] =
     new Reusable[A](() => a, a, isReusable)
@@ -72,5 +76,175 @@ object Reusable {
 
   implicit def reusableReusability[A]: Reusability[Reusable[A]] =
     reusabilityInstance.narrow
-}
 
+  // ===================================================================================================================
+
+  /**
+   * A function that facilitates stability and reuse.
+   *
+   * In effective usage of React, callbacks are passed around as component properties.
+   * Due to the ease of function creation in Scala it is often the case that functions are created inline and thus
+   * provide no means of determining whether a component can safely skip its update.
+   * This exists as a solution.
+   *
+   * @since 0.9.0
+   */
+  object fn {
+    import FnInternals._
+
+    def apply[Y, Z](f: Y => Z): Y ~=> Z =
+      Reusable.implicitly(new Fn1(f))
+
+    def apply[A: Reusability, Y, Z](f: (A, Y) => Z): A ~=> (Y ~=> Z) =
+      Reusable.implicitly(new Fn2(f))
+
+    def apply[A: Reusability, B: Reusability, Y, Z](f: (A, B, Y) => Z): A ~=> (B ~=> (Y ~=> Z)) =
+      Reusable.implicitly(new Fn3(f))
+
+    def apply[A: Reusability, B: Reusability, C: Reusability, Y, Z](f: (A, B, C, Y) => Z): A ~=> (B ~=> (C ~=> (Y ~=> Z))) =
+      Reusable.implicitly(new Fn4(f))
+
+    def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, Y, Z](f: (A, B, C, D, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (Y ~=> Z)))) =
+      Reusable.implicitly(new Fn5(f))
+
+    def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, E: Reusability, Y, Z](f: (A, B, C, D, E, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))) =
+      Reusable.implicitly(new Fn6(f))
+
+    def state[I, S](i: I)(implicit t: StateAccessor.WriteCB[I, S]) = new StateAccessWriteOps(i)(t)
+    final class StateAccessWriteOps[I, S](i: I)(implicit t: StateAccessor.WriteCB[I, S]) {
+
+      def mod: (S => S) ~=> Callback =
+        Reusable.fn(t modState i)
+
+      def set: S ~=> Callback =
+        Reusable.fn(t setState i)
+    }
+  }
+
+  // ===================================================================================================================
+
+  private object FnInternals {
+    private type R[A] = Reusability[A]
+    type ReusableFn[-A, +B] = scala.runtime.AbstractFunction1[A, B]
+
+    // -------------------------------------------------------------------------
+
+    class Fn1[-Y, +Z](val f: Y => Z) extends ReusableFn[Y, Z] {
+      override def apply(a: Y) = f(a)
+    }
+
+    private val _reusabilityFn1: Reusability[Fn1[_, _]] =
+      Reusability((x, y) => (x eq y) || (x.f eq y.f))
+
+    implicit def reusabilityFn1[Y, Z]: Reusability[Fn1[Y, Z]] =
+      _reusabilityFn1.narrow
+
+    // -------------------------------------------------------------------------
+
+    class Fn2[A: R, -Y, +Z](val f: (A, Y) => Z) extends ReusableFn[A, Y ~=> Z] {
+      override def apply(a: A) = Reusable.implicitly(new Cur2(a, f))
+    }
+
+    class Cur2[A, -Y, +Z](val a: A, val f: (A, Y) => Z) extends ReusableFn[Y, Z] {
+      override def apply(y: Y): Z = f(a, y)
+    }
+
+    private val _reusabilityFn2: Reusability[Fn2[_, _, _]] =
+      Reusability((x, y) => (x eq y) || (x.f eq y.f))
+
+    implicit def reusabilityFn2[A, Y, Z]: Reusability[Fn2[A, Y, Z]] =
+      _reusabilityFn2.narrow
+
+    implicit def reusabilityCur2[A: R, Y, Z]: Reusability[Cur2[A, Y, Z]] =
+      Reusability((x, y) => (x eq y) || ((x.f eq y.f) && (x.a ~=~ y.a)))
+
+    // -------------------------------------------------------------------------
+
+    class Fn3[A: R, B: R, -Y, +Z](val f: (A, B, Y) => Z) extends ReusableFn[A, B ~=> (Y ~=> Z)] {
+      private val c2 = cur3(f)
+      override def apply(a: A) = Reusable.implicitly(new Cur2(a, c2))
+    }
+
+    def cur3[A: R, B: R, Y, Z](f: (A, B, Y) => Z): (A, B) => (Y ~=> Z) =
+      (a, b) => Reusable.implicitly(new Cur3(a, b, f))
+
+    class Cur3[A, B, -Y, +Z](val a: A, val b: B, val f: (A, B, Y) => Z) extends ReusableFn[Y, Z] {
+      override def apply(y: Y): Z = f(a, b, y)
+    }
+
+    private val _reusabilityFn3: Reusability[Fn3[_, _, _, _]] =
+      Reusability((x, y) => (x eq y) || (x.f eq y.f))
+
+    implicit def reusabilityFn3[A, B, Y, Z]: Reusability[Fn3[A, B, Y, Z]] =
+      _reusabilityFn3.narrow
+
+    implicit def reusabilityCur3[A: R, B: R, Y, Z]: Reusability[Cur3[A, B, Y, Z]] =
+      Reusability((x, y) => (x eq y) || ((x.f eq y.f) && (x.a ~=~ y.a) && (x.b ~=~ y.b)))
+
+    // -------------------------------------------------------------------------
+
+    class Fn4[A: R, B: R, C: R, -Y, +Z](val f: (A, B, C, Y) => Z) extends ReusableFn[A, B ~=> (C ~=> (Y ~=> Z))] {
+      private val c3 = cur4(f)
+      private val c2 = cur3(c3)
+      override def apply(a: A) = Reusable.implicitly(new Cur2(a, c2))
+    }
+
+    def cur4[A: R, B: R, C: R, Y, Z](f: (A, B, C, Y) => Z): (A, B, C) => (Y ~=> Z) =
+      (a, b, c) => Reusable.implicitly(new Cur4(a, b, c, f))
+
+    class Cur4[A, B, C, -Y, +Z](val a: A, val b: B, val c: C, val f: (A, B, C, Y) => Z) extends ReusableFn[Y, Z] {
+      override def apply(y: Y): Z = f(a, b, c, y)
+    }
+
+    implicit def reusabilityFn4[A, B, C, Y, Z]: Reusability[Fn4[A, B, C, Y, Z]] =
+      Reusability((x, y) => (x eq y) || (x.f eq y.f))
+
+    implicit def reusabilityCur4[A: R, B: R, C: R, Y, Z]: Reusability[Cur4[A, B, C, Y, Z]] =
+      Reusability((x, y) => (x eq y) || ((x.f eq y.f) && (x.a ~=~ y.a) && (x.b ~=~ y.b) && (x.c ~=~ y.c)))
+
+    // -------------------------------------------------------------------------
+
+    class Fn5[A: R, B: R, C: R, D: R, -Y, +Z](val f: (A, B, C, D, Y) => Z) extends ReusableFn[A, B ~=> (C ~=> (D ~=> (Y ~=> Z)))] {
+      private val c4 = cur5(f)
+      private val c3 = cur4(c4)
+      private val c2 = cur3(c3)
+      override def apply(a: A) = Reusable.implicitly(new Cur2(a, c2))
+    }
+
+    def cur5[A: R, B: R, C: R, D: R, Y, Z](f: (A, B, C, D, Y) => Z): (A, B, C, D) => (Y ~=> Z) =
+      (a, b, c, d) => Reusable.implicitly(new Cur5(a, b, c, d, f))
+
+    class Cur5[A, B, C, D, -Y, +Z](val a: A, val b: B, val c: C, val d: D, val f: (A, B, C, D, Y) => Z) extends ReusableFn[Y, Z] {
+      override def apply(y: Y): Z = f(a, b, c, d, y)
+    }
+
+    implicit def reusabilityFn5[A, B, C, D, Y, Z]: Reusability[Fn5[A, B, C, D, Y, Z]] =
+      Reusability((x, y) => (x eq y) || (x.f eq y.f))
+
+    implicit def reusabilityCur5[A: R, B: R, C: R, D: R, Y, Z]: Reusability[Cur5[A, B, C, D, Y, Z]] =
+      Reusability((x, y) => (x eq y) || ((x.f eq y.f) && (x.a ~=~ y.a) && (x.b ~=~ y.b) && (x.c ~=~ y.c) && (x.d ~=~ y.d)))
+
+    // -------------------------------------------------------------------------
+
+    class Fn6[A: R, B: R, C: R, D: R, E: R, -Y, +Z](val f: (A, B, C, D, E, Y) => Z) extends ReusableFn[A, B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))] {
+      private val c5 = cur6(f)
+      private val c4 = cur5(c5)
+      private val c3 = cur4(c4)
+      private val c2 = cur3(c3)
+      override def apply(a: A) = Reusable.implicitly(new Cur2(a, c2))
+    }
+
+    def cur6[A: R, B: R, C: R, D: R, E: R, Y, Z](f: (A, B, C, D, E, Y) => Z): (A, B, C, D, E) => (Y ~=> Z) =
+      (a, b, c, d, e) => Reusable.implicitly(new Cur6(a, b, c, d, e, f))
+
+    class Cur6[A, B, C, D, E, -Y, +Z](val a: A, val b: B, val c: C, val d: D, val e: E, val f: (A, B, C, D, E, Y) => Z) extends ReusableFn[Y, Z] {
+      override def apply(y: Y): Z = f(a, b, c, d, e, y)
+    }
+
+    implicit def reusabilityFn6[A, B, C, D, E, Y, Z]: Reusability[Fn6[A, B, C, D, E, Y, Z]] =
+      Reusability((x, y) => (x eq y) || (x.f eq y.f))
+
+    implicit def reusabilityCur6[A: R, B: R, C: R, D: R, E: R, Y, Z]: Reusability[Cur6[A, B, C, D, E, Y, Z]] =
+      Reusability((x, y) => (x eq y) || ((x.f eq y.f) && (x.a ~=~ y.a) && (x.b ~=~ y.b) && (x.c ~=~ y.c) && (x.d ~=~ y.d) && (x.e ~=~ y.e)))
+  }
+}

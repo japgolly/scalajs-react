@@ -83,8 +83,8 @@ object ReuseExample {
   }
 
   class Backend($: BackendScope[Unit, State]) {
-    val changeFn   = ReusableFn.state($).mod.endoCall(_.changeNumberOfInputs)
-    val setInputFn = ReusableFn.state($).mod.endoCall2(_.setInput)
+    val changeFn   = Reusable.fn((i: Int)              => $.modState(_.changeNumberOfInputs(i)))
+    val setInputFn = Reusable.fn((i: Int, value: Long) => $.modState(_.setInput(i, value)))
 
     def render(s: State) = {
       def inputEditor(index: Int) = {

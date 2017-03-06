@@ -49,11 +49,11 @@ object StateSnapshotTest extends TestSuite {
     }
 
     'withReuse {
-      val log: Int ~=> Callback = ReusableFn(Callback.log(_))
+      val log: Int ~=> Callback = Reusable.fn(Callback.log(_))
       def make = StateSnapshot.withReuse(1)(log)
       'equal - assertReusable(make, make)
       'diffGet - assertNotReusable(make, StateSnapshot.withReuse(2)(log))
-      'diffSet - assertNotReusable(make, StateSnapshot.withReuse(1)(ReusableFn(Callback.warn(_))))
+      'diffSet - assertNotReusable(make, StateSnapshot.withReuse(1)(Reusable.fn(Callback.warn(_))))
 
       'inference {
         import japgolly.scalajs.react.test.InferenceUtil._

@@ -13,7 +13,7 @@ final class StateSnapshot[S](val value: S,
   @deprecated("Use modState instead.", "1.0.0") def mod = modState _
 
   def modState(f: S => S): Callback =
-    setState(f(value))
+    setState.value(f(value))
 
   // Breaks reusability of setState
   //def xmap[T](f: S => T)(g: T => S): StateSnapshot[T] =
@@ -51,7 +51,7 @@ object StateSnapshot {
 
     /** This is meant to be called once and reused so that the setState callback stays the same. */
     def prepare[S](f: S => Callback): FromSetStateFn[S] =
-      new FromSetStateFn(ReusableFn(f))
+      new FromSetStateFn(Reusable.fn(f))
 
     /** This is meant to be called once and reused so that the setState callback stays the same. */
     def prepareVia[I, S](i: I)(implicit t: StateAccessor.WriteCB[I, S]): FromSetStateFn[S] =
@@ -67,7 +67,7 @@ object StateSnapshot {
 
       /** This is meant to be called once and reused so that the setState callback stays the same. */
       def prepare(modify: (S => S) => Callback): FromLensSetStateFn[S, T] =
-        new FromLensSetStateFn(l, ReusableFn(modify compose l.set))
+        new FromLensSetStateFn(l, Reusable.fn(modify compose l.set))
 
       /** This is meant to be called once and reused so that the setState callback stays the same. */
       def prepareVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): FromLensSetStateFn[S, T] =
@@ -82,7 +82,7 @@ object StateSnapshot {
         new StateSnapshot(value, set, r)
 
       def setStateVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S], r: Reusability[S]): StateSnapshot[S] =
-        apply(ReusableFn(t setState i))(r)
+        apply(Reusable.fn(t setState i))(r)
     }
 
     final class FromSetStateFn[S](private val set: S ~=> Callback) extends AnyVal {
@@ -121,7 +121,7 @@ object StateSnapshot {
 
     final class FromValue[S](private val value: S) extends AnyVal {
       def apply(set: S => Callback): StateSnapshot[S] =
-        new StateSnapshot(value, ReusableFn(set), Reusability.never)
+        new StateSnapshot(value, Reusable.fn(set), Reusability.never)
 
       def setStateVia[I](i: I)(implicit t: StateAccessor.WriteCB[I, S]): StateSnapshot[S] =
         apply(t.setState(i))

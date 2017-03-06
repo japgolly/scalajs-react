@@ -33,6 +33,7 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/Synthetic((?:[A-Z][a-z]+)?Event)/React\1From/g;
 
   s/ReusableFn *($bp) *\. *(set|mod)State/ReusableFn.state\1.\3/g;
+  s/(?<!\w)ReusableFn(?!\w)/Reusable.fn/g;
   s/ExternalVar *\. *state *\( *([a-zA-Z0-9\$]+) *\. *zoomL *\( *([A-Za-z][A-Za-z. ]*?) *\) *\)/StateSnapshot.zoomL(\2).of(\1)/g;
   s/ExternalVar *\. *state *\( *([a-zA-Z0-9\$]+) *zoomL *([A-Za-z][A-Za-z. ]*?) *\)/StateSnapshot.zoomL(\2).of(\1)/g;
   s/ReusableVar *\. *state *\( *([a-zA-Z0-9\$]+) *\. *zoomL *\( *([A-Za-z][A-Za-z. ]*?) *\) *\)/StateSnapshot.withReuse.zoomL(\2).of(\1)/g;

@@ -45,7 +45,7 @@ object ReusabilityTest extends TestSuite {
       .build
 
     class Backend($: BackendScope[_, M]) {
-      val updateUser = ReusableFn((id: Int, data: String) =>
+      val updateUser = Reusable.fn((id: Int, data: String) =>
         $.modState(_.updated(id, data)))
       def render(s: M) = {
         outerRenderCount += 1

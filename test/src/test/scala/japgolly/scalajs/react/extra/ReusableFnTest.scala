@@ -58,50 +58,32 @@ object ReusableFnTest extends TestSuite {
 
     'fn1 {
       import Fs._
-      val f = ReusableFn((i: Int) => i + 1)
-      val g = ReusableFn((i: Int) => i + 10)
+      val f = Reusable.fn((i: Int) => i + 1)
+      val g = Reusable.fn((i: Int) => i + 10)
       test1(f, g)
       assert(f(5) == 6)
     }
 
     'fn2 {
       import Fs._
-      val f = ReusableFn((a: Int, b: Int) => a + b)
-      val g = ReusableFn((a: Int, b: Int) => a * b)
+      val f = Reusable.fn((a: Int, b: Int) => a + b)
+      val g = Reusable.fn((a: Int, b: Int) => a * b)
       test2(f, g)
       assert(f(1)(2) == 3)
     }
 
     'fn3 {
       import Fs._
-      val f = ReusableFn((a: Int, b: Int, c: Int) => a + b + c)
-      val g = ReusableFn((a: Int, b: Int, c: Int) => a * b * c)
+      val f = Reusable.fn((a: Int, b: Int, c: Int) => a + b + c)
+      val g = Reusable.fn((a: Int, b: Int, c: Int) => a * b * c)
       test3(f, g)
       assert(f(1)(2)(3) == 6)
     }
 
     'state {
       import InferenceUtil._
-      test[BackendScope[P, S]]($ => ReusableFn.state($).set).expect[S ~=> Callback]
-      test[BackendScope[P, S]]($ => ReusableFn.state($).mod).expect[(S => S) ~=> Callback]
-    }
-
-    'endoOps {
-      import InferenceUtil._
-      case class Counter(count: Int) {
-        def add(i: Int): Counter = copy(count = count + i)
-      }
-      test[BackendScope[P, S]          ]($ => ReusableFn.state($).mod.endoUpdate(st_s)    ).expect[T ~=> Callback]
-      test[BackendScope[P, Counter]    ]($ => ReusableFn.state($).mod.endoCall(_.add)     ).expect[Int ~=> Callback]
-      test[BackendScope[P, Map[Int, S]]]($ => ReusableFn.state($).mod.endoCall2(_.updated)).expect[Int ~=> (S ~=> Callback)]
-    }
-
-    'byName {
-      var state = 10
-      val fn = ReusableFn.byName((_: Int) + state)
-      assert(fn(2) == 12)
-      state = 20
-      assert(fn(2) == 22)
+      test[BackendScope[P, S]]($ => Reusable.fn.state($).set).expect[S ~=> Callback]
+      test[BackendScope[P, S]]($ => Reusable.fn.state($).mod).expect[(S => S) ~=> Callback]
     }
 
     'variance {
@@ -124,7 +106,7 @@ object ReusableFnTest extends TestSuite {
           import AIs._
 
           def fai(add: Int): A ~=> I =
-            ReusableFn[A, I] {
+            Reusable.fn[A, I] {
               case I(i) => I(i + add)
               case O    => I(0)
             }
@@ -160,7 +142,7 @@ object ReusableFnTest extends TestSuite {
           import AIs._
 
           def faai(add: Int): A ~=> (A ~=> I) =
-            ReusableFn[A, A, I]((a, b) => b match {
+            Reusable.fn[A, A, I]((a, b) => b match {
               case I(i) => I(a.i + i + add)
               case O    => I(a.i + 0)
             })

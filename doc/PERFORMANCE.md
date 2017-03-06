@@ -20,7 +20,7 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.11.3
   - [Usage](#usage)
   - [Example](#example)
   - [Monitoring](#monitoring)
-- [`ReusableFn`](#reusablefn)
+- [`Reusable.fn`](#reusablefn)
   - [Usage](#usage-1)
   - [Example](#example-1)
   - [Warning](#warning)
@@ -132,21 +132,21 @@ Usage:
 ```
 
 
-`ReusableFn`
+`Reusable.fn`
 ============
 
 In effective usage of React, callbacks are passed around as component properties.
 Due to the ease of function creation in Scala it is often the case that functions are created inline and thus
 provide no means of determining whether a component can safely skip its update.
 
-`ReusableFn` exists as a solution. It is a wrapper around a function that allows it to be both reused, and curried in a way that allows reuse.
+`Reusable.fn` exists as a solution. It is a wrapper around a function that allows it to be both reused, and curried in a way that allows reuse.
 
 #### Usage
 
-1. Just wrap `ReusableFn` around your function.
-2. Store the `ReusableFn` as a `val` somewhere outside of your `render` function, usually in the body of your backend class.
-3. Replace the callback (say `A => B`) in components' props, to take a `ReusableFn[A, B]` or the shorthand `A ~=> B`.
-4. Treat the `ReusableFn` as you would a normal function, save for one difference: application is curried (or Schönfinkel'ed), and each curried argument must have `Reusability`.
+1. Just wrap `Reusable.fn` around your function.
+2. Store the `Reusable.fn` as a `val` somewhere outside of your `render` function, usually in the body of your backend class.
+3. Replace the callback (say `A => B`) in components' props, to take a `Reusable.fn[A, B]` or the shorthand `A ~=> B`.
+4. Treat the `Reusable.fn` as you would a normal function, save for one difference: application is curried (or Schönfinkel'ed), and each curried argument must have `Reusability`.
 
 #### Example
 
@@ -164,7 +164,7 @@ val topComponent = ScalaComponent.build[State]("Demo")
 
 class Backend($: BackendScope[_, State]) {
 
-  val updateUser = ReusableFn((id: PersonId, data: PersonData) =>         // ← Create a 2-arg fn
+  val updateUser = Reusable.fn((id: PersonId, data: PersonData) =>         // ← Create a 2-arg fn
     $.modState(map => map.updated(id, data)))
 
   def render(state: State) =
@@ -190,7 +190,7 @@ val personEditor = ScalaComponent.build[PersonEditorProps]("PersonEditor")
 
 #### WARNING!
 
-**DO NOT** feed the `ReusableFn(...)` constructor a function directly *derived* from a component's props or state.
+**DO NOT** feed the `Reusable.fn(...)` constructor a function directly *derived* from a component's props or state.
 Access to props/state on the right-hand side of the function args is ok but if the function itself is a result of the
 props/state, the function will forever be based on data that can go stale.
 
@@ -200,25 +200,25 @@ Example:
 case class Props(person: StateSnapshot[Person], other: Other)
 
 // THIS IS BAD!!
-ReusableFn($.props.runNow().person setL Props.name)
+Reusable.fn($.props.runNow().person setL Props.name)
 
 // It is equivalent to:
 val g: String => Callback  = $.props.runNow().person setL Person.name   // ← $.props is evaluated once here
-val f: String ~=> Callback = ReusableFn(g)                              // ← …and never again.
+val f: String ~=> Callback = Reusable.fn(g)                              // ← …and never again.
 ```
 
 Alternatives:
 
-1. Use `ReusableFn.byName`:
+1. Use `Reusable.fn.byName`:
 
    ```scala
-   ReusableFn.byName($.props.runNow().person setL Person.name)
+   Reusable.fn.byName($.props.runNow().person setL Person.name)
    ```
 
 2. Create a function with `$` on the right-hand side:
 
    ```scala
-   ReusableFn(str => $.props.flatMap(_.person.setL(Person.name)(str)))
+   Reusable.fn(str => $.props.flatMap(_.person.setL(Person.name)(str)))
    ```
 
 
@@ -227,18 +227,18 @@ Alternatives:
 To cater for some common use cases, there are few convenience methods that are useful to know.
 For these examples imagine `$` to be your component's scope instance, eg. `BackendScope[_,S]`, `CompScope.Mounted[_,S,_,_]` or similar.
 
-1. `ReusableFn($).{set,mod}State`.
+1. `Reusable.fn($).{set,mod}State`.
 
-    You'll find that if you try `ReusableFn($.method)` Scala will fail to infer the correct types.
-    Use `ReusableFn($).method` instead to get the types that you expect.
+    You'll find that if you try `Reusable.fn($.method)` Scala will fail to infer the correct types.
+    Use `Reusable.fn($).method` instead to get the types that you expect.
 
-    Example: instead of `ReusableFn($.setState)` use `ReusableFn.state($).set` and you will correctly get a `S ~=> Callback`.
+    Example: instead of `Reusable.fn($.setState)` use `Reusable.fn.state($).set` and you will correctly get a `S ~=> Callback`.
 
-2. `ReusableFn.endo____`.
+2. `Reusable.fn.endo____`.
 
-    Anytime the input to your `ReusableFn` is an endofunction (`A => A`), additional methods starting with `endo` become available.
+    Anytime the input to your `Reusable.fn` is an endofunction (`A => A`), additional methods starting with `endo` become available.
 
-    Specifically, `ReusableFn.state($).mod` returns a `(S => S) ~=> Callback` which you will often want to transform.
+    Specifically, `Reusable.fn.state($).mod` returns a `(S => S) ~=> Callback` which you will often want to transform.
     These examples would be available on an `(S => S) ~=> U`:
 
     * `endoCall (S => (A => S)): A ~=> U` - Call a 1-arg function on `S`.
@@ -253,19 +253,19 @@ For these examples imagine `$` to be your component's scope instance, eg. `Backe
 
     // Manual long-hand
     val long: Int ~=> (String ~=> Callback) =
-      ReusableFn((id: Int, data: String) => $.modState(map => map.updated(id, data)))
+      Reusable.fn((id: Int, data: String) => $.modState(map => map.updated(id, data)))
 
     // Shorter using helpers described above
     val short: Int ~=> (String ~=> Callback) =
-      ReusableFn.state($).mod.endoCall2(_.updated)
+      Reusable.fn.state($).mod.endoCall2(_.updated)
   ```
 
-3. `ReusableFn($ zoomStateL lens)`
+3. `Reusable.fn($ zoomStateL lens)`
 
   Lenses provide an abstraction over read-and-write field access.
   Using Monocle, you can annotate your case classes with `@Lenses` to gain automatic lenses.
   `$ zoomStateL lens` will then narrow the scope of its state to the field targeted by the given lens.
-  This can then be used with `ReusableFn` as follows:
+  This can then be used with `Reusable.fn` as follows:
 
   ```scala
   @Lenses
@@ -274,7 +274,7 @@ For these examples imagine `$` to be your component's scope instance, eg. `Backe
   class Backend($: BackendScope[_, Person]) {
 
     val nameSetter: String ~=> Callback =
-      ReusableFn($ zoomL Person.name).setState
+      Reusable.fn($ zoomL Person.name).setState
   ```
 
 

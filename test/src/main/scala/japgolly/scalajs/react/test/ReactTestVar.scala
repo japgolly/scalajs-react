@@ -68,7 +68,7 @@ class ReactTestVar[A](val initialValue: A) {
     _history
 
   val setStateFn: A ~=> Callback =
-    ReusableFn(a => Callback(setValue(a)))
+    Reusable.fn(a => Callback(setValue(a)))
 
   def stateSnapshot(): StateSnapshot[A] =
     StateSnapshot(value())(setStateFn)
