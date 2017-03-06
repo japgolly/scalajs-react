@@ -181,7 +181,7 @@ object TestTest extends TestSuite {
     }
 
     'withRenderedIntoDocument {
-      var m: ScalaComponent.Mounted[Unit, Boolean, Unit] = null
+      var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       ReactTestUtils.withRenderedIntoDocument(IC()) { mm =>
         m = mm
         val n = m.getDOMNode
@@ -194,7 +194,7 @@ object TestTest extends TestSuite {
     'withRenderedIntoBody {
       def inspectBody() = document.body.childElementCount
       val body1 = inspectBody()
-      var m: ScalaComponent.Mounted[Unit, Boolean, Unit] = null
+      var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       ReactTestUtils.withRenderedIntoBody(IC()) { mm =>
         m = mm
         val n = m.getDOMNode
@@ -212,7 +212,7 @@ object TestTest extends TestSuite {
     }
 
     'withRenderedIntoDocumentAsync {
-      var m: ScalaComponent.Mounted[Unit, Boolean, Unit] = null
+      var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
       ReactTestUtils.withRenderedIntoDocumentAsync(IC()) { mm =>
         m = mm
@@ -230,7 +230,7 @@ object TestTest extends TestSuite {
     'withRenderedIntoBodyAsync {
       def inspectBody() = document.body.childElementCount
       val body1 = inspectBody()
-      var m: ScalaComponent.Mounted[Unit, Boolean, Unit] = null
+      var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
       val future = ReactTestUtils.withRenderedIntoBodyAsync(IC()) { mm =>
         m = mm

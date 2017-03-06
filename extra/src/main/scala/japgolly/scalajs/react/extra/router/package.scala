@@ -4,9 +4,9 @@ import japgolly.scalajs.react._
 
 package object router {
 
-  type Router [P] = ScalaComponent          [Unit, Resolution[P], OnUnmount.Backend, CtorType.Nullary]
-  type RouterU[P] = ScalaComponent.Unmounted[Unit, Resolution[P], OnUnmount.Backend]
-  type RouterM[P] = ScalaComponent.Mounted  [Unit, Resolution[P], OnUnmount.Backend]
+  type Router [P] = ScalaComponent              [Unit, Resolution[P], OnUnmount.Backend, CtorType.Nullary]
+  type RouterU[P] = ScalaComponent.Unmounted    [Unit, Resolution[P], OnUnmount.Backend]
+  type RouterM[P] = ScalaComponent.MountedImpure[Unit, Resolution[P], OnUnmount.Backend]
 
   private[router] implicit class OptionFnExt[A, B](private val f: A => Option[B]) extends AnyVal {
     def ||(g: A => Option[B]): A => Option[B] = a => f(a) orElse g(a)

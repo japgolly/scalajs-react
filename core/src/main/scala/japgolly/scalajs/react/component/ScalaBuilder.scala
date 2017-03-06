@@ -334,13 +334,13 @@ object ScalaBuilder {
 
       val setup: raw.ReactComponent => Unit =
         $ => {
-          val jMounted : JsMounted  [P, S, B] = Js.mounted[Box[P], Box[S]]($).addFacade[Vars[P, S, B]]
-          val sMounted : Mounted    [P, S, B] = Scala.mountedRoot(jMounted)
-          val sMountedP: MountedPure[P, S, B] = sMounted.withEffect
-          val backend  : B                    = backendFn(sMountedP)
-          jMounted.raw.mounted     = sMounted
-          jMounted.raw.mountedPure = sMountedP
-          jMounted.raw.backend     = backend
+          val jMounted : JsMounted    [P, S, B] = Js.mounted[Box[P], Box[S]]($).addFacade[Vars[P, S, B]]
+          val sMountedI: MountedImpure[P, S, B] = Scala.mountedRoot(jMounted)
+          val sMountedP: MountedPure  [P, S, B] = sMountedI.withEffect
+          val backend  : B                      = backendFn(sMountedP)
+          jMounted.raw.mountedImpure = sMountedI
+          jMounted.raw.mountedPure   = sMountedP
+          jMounted.raw.backend       = backend
         }
       spec.componentWillMount = lifecycle.componentWillMount match {
         case None    => setup
@@ -354,9 +354,9 @@ object ScalaBuilder {
       val teardown: raw.ReactComponent => Unit =
         $ => {
           val vars = castV($)
-          vars.mounted      = null
-          vars.mountedPure = null
-          vars.backend     = null.asInstanceOf[B]
+          vars.mountedImpure = null
+          vars.mountedPure   = null
+          vars.backend       = null.asInstanceOf[B]
         }
       spec.componentWillUnmount = lifecycle.componentWillUnmount match {
         case None    => teardown
@@ -427,27 +427,12 @@ object ScalaBuilder {
     def empty[P, S, B]: Lifecycle[P, S, B] =
       new Lifecycle(None, None, None, None, None, None, None)
 
-    // Reads are untyped
-    //   - Safe because of implementation in builder (creating a new Callback on demand).
-    //   - Preferred because use is easier. (TODO is it really?)
-
-    // Writes are Callbacks
-    //   - All state modification from within a component should return a Callback.
-    //     Consistency, type-safe, protects API & future changes.
-
-    // Missing from all below:
-    //   - def isMounted: F[Boolean]
-    //   - def withEffect[G[_]](implicit t: Effect.Trans[F, G]): Props[G, P]
-    //   - def mapProps[X](f: P => X): Mounted[F, X, S] =
-    //   - def xmapState[X](f: S => X)(g: X => S): Mounted[F, P, X] =
-    //   - def zoomState[X](get: S => X)(set: X => S => S): Mounted[F, P, X] =
-
     sealed trait Base[P, S, B] extends Any {
       def raw: RawMounted[P, S, B]
 
-      final def backend      : B                    = raw.backend
-      final def mountedImpure: Mounted    [P, S, B] = raw.mounted
-      final def mountedPure  : MountedPure[P, S, B] = raw.mountedPure
+      final def backend      : B                      = raw.backend
+      final def mountedImpure: MountedImpure[P, S, B] = raw.mountedImpure
+      final def mountedPure  : MountedPure[P, S, B]   = raw.mountedPure
     }
 
     sealed trait StateW[P, S, B] extends Any with Base[P, S, B] {

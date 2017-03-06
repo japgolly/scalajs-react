@@ -72,7 +72,7 @@ object TriStateCheckbox {
       ^.onKeyDown ==> handleKey)
   }
 
-  private def updateDom($: ScalaComponent.Mounted[_, _, _], nextProps: Props): Callback = {
+  private def updateDom($: ScalaComponent.MountedImpure[_, _, _], nextProps: Props): Callback = {
     val s = nextProps.state
     Callback {
       val d = $.getDOMNode.domCast[Input]

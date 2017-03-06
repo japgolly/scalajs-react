@@ -14,11 +14,11 @@ import ReusabilityOverlay.Comp
  * Heavily inspired by https://github.com/redsunsoft/react-render-visualizer
  */
 object ReusabilityOverlay {
-  type Comp = ScalaComponent.Mounted[_, _, _]
+  type Comp = ScalaComponent.MountedImpure[_, _, _]
 
   private val key = "reusabilityOverlay"
 
-  def install[P: Reusability, C <: Children, S: Reusability, B](newOverlay: ScalaComponent.Mounted[P, S, B] => ReusabilityOverlay): ScalaComponentConfig[P, C, S, B] = {
+  def install[P: Reusability, C <: Children, S: Reusability, B](newOverlay: ScalaComponent.MountedImpure[P, S, B] => ReusabilityOverlay): ScalaComponentConfig[P, C, S, B] = {
 
     // Store the overlay stats on each instance
     def get(raw: ScalaComponent.RawMounted[P, S, B]): ReusabilityOverlay = {

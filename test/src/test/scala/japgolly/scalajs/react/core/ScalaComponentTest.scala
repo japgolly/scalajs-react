@@ -34,7 +34,7 @@ object ScalaComponentPTest extends TestSuite {
       import InferenceUtil._
       import ScalaComponent._
       'cu - test[Component[P, S, B, CtorType.Nullary]](_.ctor()).expect[Unmounted[P, S, B]]
-      'um - test[Unmounted[P, S, B]](_.renderIntoDOM(null)).expect[Mounted[P, S, B]]
+      'um - test[Unmounted[P, S, B]](_.renderIntoDOM(null)).expect[MountedImpure[P, S, B]]
     }
 
     'basic {

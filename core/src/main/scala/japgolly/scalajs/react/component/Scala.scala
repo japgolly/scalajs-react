@@ -31,13 +31,11 @@ object Scala {
       P, CT, Unmounted[P, S, B],
       Box[P], CT, JsUnmounted[P, S, B]]
 
-//  type Component[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
-//    Js.MappedComponent[Effect.Id, P, S, CT, RawMounted[P, S, B], Box[P], Box[S], CT]
-
-  type Unmounted   [P, S, B] = Js.UnmountedWithRoot[P, Mounted[P, S, B], Box[P], JsMounted[P, S, B]]
-  type Mounted     [P, S, B] = MountedRoot[Effect.Id, P, S, B]
-  type MountedPure [P, S, B] = MountedRoot[CallbackTo, P, S, B]
-  type BackendScope[P, S]    = Generic.MountedRoot[CallbackTo, P, S]
+  type Unmounted    [P, S, B] = Js.UnmountedWithRoot[P, MountedImpure[P, S, B], Box[P], JsMounted[P, S, B]]
+  type Mounted[F[_], P, S, B] = MountedRoot[F, P, S, B]
+  type MountedImpure[P, S, B] = Mounted[Effect.Id, P, S, B]
+  type MountedPure  [P, S, B] = Mounted[CallbackTo, P, S, B]
+  type BackendScope [P, S]    = Generic.MountedRoot[CallbackTo, P, S]
 
   type JsComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = Js.ComponentWithFacade[Box[P], Box[S], CT, Vars[P, S, B]]
   type JsUnmounted[P, S, B]                               = Js.UnmountedWithFacade[Box[P], Box[S],     Vars[P, S, B]]
@@ -47,9 +45,9 @@ object Scala {
 
   @js.native
   trait Vars[P, S, B] extends js.Object {
-    var mounted    : Mounted    [P, S, B]
-    var mountedPure: MountedPure[P, S, B]
-    var backend    : B
+    var mountedImpure: MountedImpure[P, S, B]
+    var mountedPure  : MountedPure[P, S, B]
+    var backend      : B
   }
 
 //  private[this] def sanityCheckCU[P, S, B](c: Component[P, S, B, CtorType.Void]): Unmounted[P, S, B] = c.ctor()
@@ -63,7 +61,7 @@ object Scala {
     override type WithMappedState[S2] <: MountedSimple[F, P, S2, B]
 
     // B instead of F[B] because
-    // . Builder takes a MountedCB but needs immediate access to this.
+    // 1. Builder takes a MountedPure but needs immediate access to this.
     // 2. It never changes once initialised.
     // Note: Keep this is def instead of val because the builder sets it after creation.
     def backend: B
@@ -124,7 +122,7 @@ object Scala {
       override def mapped[F3[_], P3, S3](mp: P1 => P3, ls: Lens[S1, S3])(implicit ft: Effect.Trans[Effect.Id, F3]) = mappedM(from)(mp, ls)(ft)
     }
 
-  def mountRaw[P, S, B](x: RawMounted[P, S, B]): Mounted[P, S, B] =
+  def mountRaw[P, S, B](x: RawMounted[P, S, B]): MountedImpure[P, S, B] =
     mountedRoot(Js.mountedRoot(x))
 
   // ===================================================================================================================
@@ -134,11 +132,11 @@ object Scala {
 
   final class MutableRef[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: Component[P, S, B, CT]) {
 
-    var value: Mounted[P, S, B] = null
+    var value: MountedImpure[P, S, B] = null
 
     private def refSet: raw.RefFn =
       (i: js.Any) => value =
-        if (i == null) null else i.asInstanceOf[RawMounted[P, S, B]].mounted
+        if (i == null) null else i.asInstanceOf[RawMounted[P, S, B]].mountedImpure
 
     val component: CT[P, Unmounted[P, S, B]] =
       CtorType.hackBackToSelf(c.ctor)(c.ctor.withRawProp("ref", refSet))
