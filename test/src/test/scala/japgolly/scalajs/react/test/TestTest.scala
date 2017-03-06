@@ -257,9 +257,9 @@ object TestTest extends TestSuite {
     'modifyProps {
       ReactTestUtils.withRenderedIntoDocument(CP("start")) { m =>
         assertRendered(m.getDOMNode, "<div>none → start</div>")
-        ReactTestUtils.modifyProps(CP)(m, _ + "ed")
+        ReactTestUtils.modifyProps(CP, m)(_ + "ed")
         assertRendered(m.getDOMNode, "<div>start → started</div>")
-        ReactTestUtils.replaceProps(CP)(m, "done!")
+        ReactTestUtils.replaceProps(CP, m)("done!")
         assertRendered(m.getDOMNode, "<div>started → done!</div>")
       }
     }
