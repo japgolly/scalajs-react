@@ -37,16 +37,16 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
 
   type RawMounted = RAW.ReactComponent
 
-  type Component[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentWithRawType[P, S, CT, RawMounted]
-  type Unmounted[P <: js.Object, S <: js.Object]                               = UnmountedWithRawType[P, S,     RawMounted]
-  type Mounted  [P <: js.Object, S <: js.Object]                               = MountedWithRawType  [P, S,     RawMounted]
+  type Component[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentWithRawType[P, S, RawMounted, CT]
+  type Unmounted[P <: js.Object, S <: js.Object]                               = UnmountedWithRawType[P, S, RawMounted]
+  type Mounted  [P <: js.Object, S <: js.Object]                               = MountedWithRawType  [P, S, RawMounted]
 
-  type ComponentWithFacade[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: js.Object] = ComponentWithRawType[P, S, CT, RawMounted with R]
-  type UnmountedWithFacade[P <: js.Object, S <: js.Object, R <: js.Object]                               = UnmountedWithRawType[P, S,     RawMounted with R]
-  type   MountedWithFacade[P <: js.Object, S <: js.Object, R <: js.Object]                               =   MountedWithRawType[P, S,     RawMounted with R]
+  type ComponentWithFacade[P <: js.Object, S <: js.Object, F <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentWithRawType[P, S, RawMounted with F, CT]
+  type UnmountedWithFacade[P <: js.Object, S <: js.Object, F <: js.Object]                               = UnmountedWithRawType[P, S, RawMounted with F]
+  type   MountedWithFacade[P <: js.Object, S <: js.Object, F <: js.Object]                               =   MountedWithRawType[P, S, RawMounted with F]
 
-  type ComponentWithRawType[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u], R <: RawMounted] = ComponentRoot[P, CT, UnmountedWithRawType[P, S, R]]
-  type UnmountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted]                               = UnmountedRoot[P,       MountedWithRawType[P, S, R]]
+  type ComponentWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted, CT[-p, +u] <: CtorType[p, u]] = ComponentRoot[P, CT, UnmountedWithRawType[P, S, R]]
+  type UnmountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted]                               = UnmountedRoot[P, MountedWithRawType[P, S, R]]
   type   MountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted]                               = MountedRoot[Effect.Id, P, S, R]
 
   override protected val rawComponentDisplayName: RAW.ReactClass => String =
