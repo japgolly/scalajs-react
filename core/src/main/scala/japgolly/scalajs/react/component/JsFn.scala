@@ -25,12 +25,12 @@ object JsFn extends JsBaseComponentTemplate[RAW.ReactFunctionalComponent] {
 
   // ===================================================================================================================
 
-  sealed trait UnmountedSimple[P1, M1] extends Generic.UnmountedSimple[P1, M1] {
+  sealed trait UnmountedSimple[P, M] extends Generic.UnmountedSimple[P, M] {
     override final type Raw = RAW.ReactComponentElement
     override final def displayName = staticDisplayName
 
-    override def mapUnmountedProps[P2](f: P1 => P2): UnmountedSimple[P2, M1]
-    override def mapMounted[M2](f: M1 => M2): UnmountedSimple[P1, M2]
+    override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
+    override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
     override final def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): Mounted = {
       val result = RAW.ReactDOM.render(raw, container, callback.toJsFn)
