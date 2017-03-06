@@ -19,19 +19,19 @@ trait ScalazReactState1 {
 
   import ScalazReactState._
 
-  implicit final def ScalazReactExt_StateAccessId[I, S](i: I)(implicit sa: StateAccessor.ReadIdWriteId[I, S]): Ext_StateAccessRW[Effect.Id, I, S, Effect.Id] = new Ext_StateAccessRW(i)
+  implicit final def ScalazReactExt_StateAccessId[I, S](i: I)(implicit sa: StateAccessor.ReadWriteImpure[I, S]): Ext_StateAccessRW[Effect.Id, I, S, Effect.Id] = new Ext_StateAccessRW(i)
 }
 
 trait ScalazReactState2 extends ScalazReactState1 {
   import ScalazReactState._
 
-  implicit final def ScalazReactExt_StateAccessCB[I, S](i: I)(implicit sa: StateAccessor.ReadCBWriteCB[I, S]): Ext_StateAccessRW[CallbackTo, I, S, CallbackTo] = new Ext_StateAccessRW(i)
+  implicit final def ScalazReactExt_StateAccessCB[I, S](i: I)(implicit sa: StateAccessor.ReadWritePure[I, S]): Ext_StateAccessRW[CallbackTo, I, S, CallbackTo] = new Ext_StateAccessRW(i)
 }
 
 trait ScalazReactState extends ScalazReactState2 {
   import ScalazReactState._
 
-//  implicit final def ScalazReactExt_StateAccessRIWC[I, S](i: I)(implicit sa: StateAccessor.ReadIdWriteCB[I, S]) =
+//  implicit final def ScalazReactExt_StateAccessRIWC[I, S](i: I)(implicit sa: StateAccessor.ReadImpureWritePure[I, S]) =
 //    ScalazReactExt_StateAccessCB(i)(sa.withReadEffect)
 
   implicit final def ScalazReactExt_ReactS[S, A](a: ReactS[S, A]) = new Ext_ReactS(a)

@@ -240,7 +240,7 @@ object Px {
   def props[P](s: GenericComponent.MountedPure[P, _]): FromThunk[P] =
     callback(s.props)
 
-  def state[I, S](i: I)(implicit sa: StateAccessor.ReadCB[I, S]): FromThunk[S] =
+  def state[I, S](i: I)(implicit sa: StateAccessor.ReadPure[I, S]): FromThunk[S] =
     callback(sa.state(i))
 
   final class FromThunk[A](private val thunk: () => A) extends AnyVal {

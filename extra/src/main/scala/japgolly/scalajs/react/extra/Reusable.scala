@@ -110,8 +110,8 @@ object Reusable {
     def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, E: Reusability, Y, Z](f: (A, B, C, D, E, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))) =
       Reusable.implicitly(new Fn6(f))
 
-    def state[I, S](i: I)(implicit t: StateAccessor.WriteCB[I, S]) = new StateAccessWriteOps(i)(t)
-    final class StateAccessWriteOps[I, S](i: I)(implicit t: StateAccessor.WriteCB[I, S]) {
+    def state[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]) = new StateAccessWriteOps(i)(t)
+    final class StateAccessWriteOps[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]) {
 
       def mod: (S => S) ~=> Callback =
         Reusable.fn(t modState i)
