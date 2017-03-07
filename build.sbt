@@ -1,6 +1,8 @@
-version in ThisBuild := "1.0.0-SNAPSHOT"
-
-shellPrompt in ThisBuild := ((s: State) => Project.extract(s).currentRef.project + "> ")
+version      in ThisBuild := "1.0.0-RC1"
+organization in ThisBuild := "com.github.japgolly.scalajs-react"
+homepage     in ThisBuild := Some(url("https://github.com/japgolly/scalajs-react"))
+licenses     in ThisBuild := ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")) :: Nil
+shellPrompt  in ThisBuild := ((s: State) => Project.extract(s).currentRef.project + "> ")
 
 val root          = ScalajsReact.root
 val core          = ScalajsReact.core
