@@ -1,190 +1,51 @@
-scalajs-react [neo]
+scalajs-react
 =============
 
 [![Build Status](https://travis-ci.org/japgolly/scalajs-react.svg?branch=master)](https://travis-ci.org/japgolly/scalajs-react)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/japgolly/scalajs-react?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-This branch is where a [redesign](https://github.com/japgolly/scalajs-react/issues/259) is currently taking place.
-At the moment, it's all in a new module called [`neo`](neo/src).
+Lifts Facebook's [React](https://facebook.github.io/react/) library into [Scala.js](http://www.scala-js.org/) and endeavours to make it as type-safe and Scala-friendly as possible.
 
-The v0.x.y series started as an experiment and grew organically from there.
-As such, it has accrued a number of annoyances and obstacles to desired improvements,
-that can now only be solved by a redesign.
-This begins a v1.x.y series and will begin with **v1.0.0**.
+Provides (opt-in) support for pure functional programming, using [Scalaz](https://github.com/scalaz/scalaz) and [Monocle](https://github.com/julien-truffaut/Monocle).
 
-Contributions welcome.
+Comes utility modules [`extra`](extra/) and [`test`](test/), helpful for React in Scala(.js), rather than React in JS.
+Includes a router, testing utils, performance utils, more.
 
-# Done
+##### Contents
 
-- Component interfaces that allow any kind (JS, Scala, Clojure) of React component to be used generically.
+- [Usage & Getting Started](doc/USAGE.md)
+  - [VDOM](doc/VDOM.md)
+  - [Refs](doc/REFS.md)
+  - [The `Callback` class](doc/CALLBACK.md)
+- Delving deeper
+  - [Types](doc/TYPES.md)
+  - [Interoperability](doc/INTEROP.md)
+  - [Functional programming](doc/FP.md)
+- Scala-only Utilities
+  - [Router](doc/ROUTER.md)
+  - [Performance Management](doc/PERFORMANCE.md)
+  - [Other](doc/EXTRA.md)
+- [Testing](doc/TESTING.md)
+- [Live Examples & Demos](https://japgolly.github.io/scalajs-react/)
+- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.11/0.11.3) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.11/0.11.3) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/0.11.3) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/0.11.3) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/0.11.3)
+- [Changelogs](doc/changelog) — [Latest](doc/changelog/0.11.3.md)
 
-  This is really awesome because it allows a component to declare access to a subset of any component's state as long as it is a certain type, then satisfy it using Monocle to zoom in and/or transform along the way, even if its a JS component.
 
-  - Allow (any kind of) constructor transforms.
-  - Allow (any kind of) props transforms.
-  - Allow (any kind of) state transforms.
+##### External Resources
 
-- Better Constructors
-  - Agnostic to underlying implementation of component (JS, Scala, etc.)
-  - Don't ask for non-existent or singleton props.
-  - Depending on component, either don't ask for children, or ensure children are specified.
-  - Allows possibility of even more children type-safety such as requiring exactly one child.
-  - Input can be transformed.
-  - Output can be transformed.
-  - Additional raw React props fields can be configured.
+* Templates & Tutorials
+  * [chandu0101 / scalajs-react-template](https://github.com/chandu0101/scalajs-react-template)
+  * [ochrons / scalajs-spa-tutorial](https://github.com/ochrons/scalajs-spa-tutorial)
+  * [TodoMVC example](http://todomvc.com/examples/scalajs-react)
+  * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
 
-- More transparency. No more hidden magic.
-  - A separate `.raw` package that contains the React JS facade (without any Scala niceness).
-  - All components expose their raw JS types.
-  - All Scala components expose their underlying JS components.
-  - It should be trivial to reuse `scalajs-react` components in other React libraries, and vice-versa.
+* Libraries
+  * [test-state](https://github.com/japgolly/test-state/) - Integration/Functional/Property testing for scalajs-react.
+  * [scalajs-benchmark](https://github.com/japgolly/scalajs-benchmark/)
+  * [chandu0101 / scalajs-react-components](https://github.com/chandu0101/scalajs-react-components)
+  * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
 
-- `JsComponent` - Import React components written in pure JS.
-  ([test JS](neo/src/test/resources/component-es3.js) & [test Scala](neo/src/test/scala/japgolly/scalajs/react/JsComponentTest.scala))
-
-  Importing a JS component is now a one-liner.
-  ```scala
-  val Component = JsComponent[JsProps, Children.None, JsState]("ReactXYZ")
-  ```
-
-- Type-safety for JS components that expose ad-hoc methods once mounted.
-  You can now specify the JS facade.
-
-- `JsFnComponent` - Import React functional components written in pure JS.
-  ([test JS](neo/src/test/resources/component-fn.js) & [test Scala](neo/src/test/scala/japgolly/scalajs/react/JsFnComponentTest.scala))
-
-- `ScalaComponent` - Create React components in Scala.
-
-- `ScalaFnComponent` - Create React functional components in Scala.
-
-- Safe `PropsChildren` type and usage.
-
-- Consistency wrt wrapping typed effects. Eg. `BackendScope.getDOMNode` should be `Callback`/direct just like everything else.
-
-- Virtual DOM major revision.
-  - Rewrite and simplify types. Now easier to work with internally. This no longer bears any resemblence to Scalatags and certainly can no longer be considered a fork. Scalatags was tremedously helpful in this journey so if you have a chance, give @lihaoyi a big thanks for his work.
-  - Improved efficiency for vdom representation and creation.
-  - Add type-safety between attributes/styles and values. Eg `^.disabled := 7` no longer compiles.
-  - Event attributes now know which types of events they will generate. Eg `^.onMouseDown` knows to expect a mouse event and won't compile if you pass it a drag event handler.
-  - React node array handling is safer, more efficient and has its own type with a nicer interface.
-  - No more automatic expansion of `Seq`s. Either use `seq: _*` yourself or turn it into a `ReactArray`.
-  - Optional vdom supported when enclosed in `Option` or `js.UndefOr`.
-  - All vdom now has `.when(condition)` and `.unless(condition)` when will omit it unless a given condition is met. This replaces the `cond ?= (vdom)` syntax.
-  - All vdom composes the same way, call `.apply` on what you have and specify more. This was usually the case but there were a few corner cases that had differences.
-  - Easier and clearer access to SVG VDOM.
-  - Manually-specified style objects now compose with other style attributes.
-
-  ```
-  ReactArray(...)
-  Seq(...).toReactArray
-  Array(...).toReactArray
-
-  Attr :=? Option(Value)
-  Option(Tag | Attr | Component | Value | TagMod)
-  (Tag | Attr | Component | Value | TagMod).when(Boolean)
-  (Tag | Attr | Component | Value | TagMod).unless(Boolean)
-  ```
-
-- Component (and constituent) mapping.
-  - Can map props & state (at top-level, and in Unmounted & Mounted too).
-  - Can map the constructor type.
-  - Can map next stage (i.e. Component→Unmounted and Unmounted→Mounted).
-  - Can change effect type in Mounted.
-
-- Refs.
-  - Remove String-based refs. React.JS has deprecated these and will remove them.
-  - Type-safe refs to HTML/SVG tags that preserve the DOM type.
-  - Type-safe refs to Scala components.
-  - Type-safe refs to JS components.
-  - Prevent refs to functional components.
-
-- Revise & integrate the `extra` module.
-- Revise & integrate the Scalaz module.
-- Revise & integrate the Monocle module.
-- Revise & integrate the `test` module.
-- StateSnapshot + lens helper (#293)
-- Update the `gh-pages` module.
-- over-zealous inlining (#324)
-
-# Pending
-
-- Update doc.
-
-# Maybe
-
-- Static and dynamic props (for Scala components).
-  Probably not as a normal Scala function is all that's really needed.
-  There's no big need to avoid creating a new component per staic data.
-  See also #180
-
-- Anything ES6-related should be easy to add now. Please contribute if interested.
-  - Facades over ES6-based JS classes. (I tried briefly but didn't get the JS working.)
-  - Scala-based ES6-based classes. Because it's important to some people. (Apparently its faster but I'm yet to see any benchmarks or other evidence supporting this.)
-  - Once the above works, it would be good to be able to choose a backend type for `ScalaComponent.build`.
-
-# Release note / migration reminders
-
-Refactored:
-  * ExternalVar/ReusableVar -> StateSnapshot
-  * ReusableVal/ReusableVal2 -> Reusable
-  * ReusableFn(x).{set,mod}State -> ReusableFn.state(x).{set,mod}
-  * Listenable.*
-  * CompStatee -> StateAccess
-  * `_ChangeData` -> `SimEvent._`
-  * events
-  * `[test]` ComponentTester -> RTU.{withRenderedIntoDocument,modifyProps,replaceProps}
-  * `[test]` WithExternalCompStateAccess -> ReactTestVar#stateAccess
-
-* Update in ScalaDoc:
-  * ReactComponentB
-
-* Moved into extra:
-  * domCast
-  * domAsHtml
-  * domToHtml
-
-* Removed completely:
-  * tryFocus
-  * tryTo
-  * {set,mod}StateCB
-  * CallbackB
-  * ReusableFn#asVar{,R}
-  * ReusableFn#fnA, ReusableFnA
-
-* VDOM
-  * `^.dangerouslySetInnerHtml := x` instead of `^.dangerouslySetInnerHtml(x)`.
-  * Import `vdom.html_<^._` instead of `vdom.prefix_<^._`.
-  * `?=` deprecated in favour of `when`/`unless`.
-  * Change `:=` to `:=?` when the right-hand side is an `Option`.
-  * TagMod: `+` and `compose` replaced with `apply(TagMod*)` just like tags.
-  * Use `VdomAttr[A]("")` in place of `"".reactAttr`.
-  * Use `VdomStyle[A]("")` in place of `"".reactStyle`.
-  * Use `HtmlTag("")` or `HtmlTagOf[N]("")` in place of `"".reactTag`.
-  * No more auto conversion of vdom arrays. Either use `blah: _*`, `TagMod(blah: _*)`, or `blah.toVdomArray`, `VdomArray(…)`.
-  * Explain all the Seq => TagMod/Array gotchas; see PrefixedTest
-
-Px
-
-Ref usage is hugely different now
-
-CompState.WriteAccess migration
-
-ReactComponent{,U,M]_ migration
-
-add cheatsheets
-
-add usage recommendations
-- stateless
-
--------------------
-
-shallow renderer
-
-is Callback necessary from non-render lifecycle hooks?
-DOM isn't used, is it really confusing?
-
-Rename {Read,Write}{Id,CB} in StateAccessor?
-
-new releases for scalacss & test-state
-
-router's {dyn,}render{,R}
+##### Requirements:
+* React 15.3+
+* Scala 2.11 or 2.12.
+* Scala.JS 0.6.14+

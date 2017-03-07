@@ -1,6 +1,8 @@
 digraph G {
 
 start [label="∅"]
+FromThunk [label=""]
+FromThunkReusability [label=""]
 
 start -> Const [label=".constByValue\l.constByNeed\l"]
 

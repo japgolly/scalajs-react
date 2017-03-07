@@ -11,12 +11,10 @@ for how to write tests for real-world scalajs-react applications.
 
 #### Contents
 - [Setup](#setup)
-- [`React.addons.TestUtils`](#reactaddonstestutils)
+- [`ReactTestUtils`](#reacttestutils)
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
-- [`ComponentTester`](#componenttester)
+- [`Testing props changes`](#testing-props-changes)
 - [`ReactTestVar`](#reacttestvar)
-- [`WithExternalCompStateAccess`](#withexternalcompstateaccess)
-- [`DebugJs`](#debugjs)
 - [`Test Scripts`](#test-scripts)
 
 Setup
@@ -65,10 +63,37 @@ Setup
     ```
 
 
-`React.addons.TestUtils`
-========================
-[React.addons.TestUtils](https://facebook.github.io/react/docs/test-utils.html) is wrapped in Scala and available as `ReactTestUtils`. Usage is unchanged from JS.
+`ReactTestUtils`
+================
 
+The main bucket of testing utilities lies in `japgolly.scalajs.react.test.ReactTestUtils`.
+
+Half of the methods delegate to React.JS's [React.addons.TestUtils](https://facebook.github.io/react/docs/test-utils.html)
+(for which there is a raw facade in `japgolly.scalajs.react.test.raw.ReactAddonsTestUtils` if you're interested).
+
+The other half are new functions added specifically in scalajs-react.
+* Rendering into DOM with auto-removal
+  * `withRendered[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => A): A`
+  * `withRenderedIntoDocument[M, A](u: Unmounted[M])(f: M => A): A`
+  * `withRenderedIntoBody[M, A](u: Unmounted[M])(f: M => A): A`
+  * `withNewBodyElement[A](use: Element => A): A`
+  * `newBodyElement(): Element`
+  * `removeNewBodyElement(e: Element): Unit`
+  * `renderIntoBody[M, A](u: Unmounted[M]): M`
+* Asynchronously rendering into DOM with auto-removal
+  * `withRenderedAsync[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => Future[A]): Future[A]`
+  * `withRenderedIntoDocumentAsync[M, A](u: Unmounted[M])(f: M => Future[A]): Future[A]`
+  * `withRenderedIntoBodyAsync[M, A](u: Unmounted[M])(f: M => Future[A]): Future[A]`
+  * `withNewBodyElementAsync[A](use: Element => Future[A]): Future[A]`
+* Mounted props modification
+  * `replaceProps(component, mounted)(newProps: P): mounted'`
+  * `modifyProps(component, mounted)(f: P => P): mounted'`
+* Other
+  * `removeReactInternals(html: String): String` - Removes internal annotations from HTML that React inserts.
+
+There's only one magic implicit method this time around:
+Mounted components get `.outerHtmlScrubbed()` which is shorthand for
+`ReactTestUtils.removeReactInternals(m.getDOMNode.outerHTML)`.
 
 `Simulate` and `Simulation`
 ===========================
@@ -86,7 +111,11 @@ Simulate.change(t, SimEvent.Change(value = "Hi"))
 SimEvent.Change("Hi") simulate t
 ```
 
-Simulations can also be created and composed without a target, using `Simulation`. Example:
+`Simulate` is from React and imperative.
+If you'd like more composability and/or purity there's also `Simulation` which
+represents action (without a target). It does nothing until `.run` is called and a target is provided.
+
+Example:
 ```scala
 val a = Simulation.focus
 val b = Simulation.change(SimEvent.Change(value = "hi"))
@@ -99,53 +128,40 @@ val s = Simulation.focus >> SimEvent.Change("hi").simulation >> Simulation.blur
 // Or even shorter again, using a convenience method
 val s = Simulation.focusChangeBlur("hi")
 
-// Then run it later
+// Then run it when you're ready
 s run component
 ```
 
 
-`ComponentTester`
-=================
+Testing props changes
+=====================
 
-A helper that renders a component into the document so that
-  * you can easily change props and/or state.
-  * it is unmounted when the test is over.
+When you want to simulate a parent component re-rendering a child component with different props,
+you can test the child directly using `ReactTestUtils.{modify,replace}Props`.
 
-If you don't need to test props changes, you can actually just use `ReactTestUtils.withRenderedIntoDocument`.
-This might accrue more helpful features over time but currently changing props is the only real advantage this has over `withRenderedIntoDocument`.
-
-##### Example:
-
-If you wanted to test a component that has both props and state, a trivial component could be:
-
+Example of code to test:
 ```scala
-val Example = ScalaComponent.build[String]("Example")
-  .initialState(0)
-  .renderPS((_, p, s) => <.div(s" $p:$s "))
+class CP {
+  var prev = "none"
+  def render(p: String) = <.div(s"$prev → $p")
+}
+val CP = ScalaComponent.build[String]("asd")
+  .backend(_ => new CP)
+  .renderBackend
+  .componentWillReceiveProps(i => Callback(i.backend.prev = i.currentProps))
   .build
 ```
 
-you could test it like this:
-
+Example test case:
 ```scala
-ComponentTester(Example)("First props") { tester =>
+ReactTestUtils.withRenderedIntoDocument(CP("start")) { m =>
+  assert(m.outerHtmlScrubbed(), "<div>none → start</div>")
 
-  // This imports:
-  // - component which is the mounted component.
-  // - setProps which changes the props and immediately re-renders.
-  // - setState which changes the state and immediately re-renders.
-  import tester._
+  ReactTestUtils.modifyProps(CP, m)(_ + "ed")
+  assert(m.outerHtmlScrubbed(), "<div>start → started</div>")
 
-  def assertHtml(p: String, s: Int): Unit =
-    assert(component.outerHtmlWithoutReactInternals() == s"<div> $p:$s </div>")
-
-  assertHtml("First props", 0)
-
-  setState(2)
-  assertHtml("First props", 2)
-
-  setProps("Second props")
-  assertHtml("Second props", 2)
+  ReactTestUtils.replaceProps(CP, m)("done!")
+  assert(m.outerHtmlScrubbed(), "<div>started → done!</div>")
 }
 ```
 
@@ -153,12 +169,20 @@ ComponentTester(Example)("First props") { tester =>
 `ReactTestVar`
 ==============
 
-A `ReactTestVar` is a class that can be used to mock the following types in tests:
-  * `ExternalVar[A]`
-  * `ReusableVar[A]`
+A `ReactTestVar[A]` is a wrapper around a `var a: A` that:
+* can produce a `StateSnapshot[A]` with or without `Reusability`
+* can produce a `StateAccess[A]`
+* retains history when modified
+* can perform arbitrary actions when modified
+* can be reset
 
-Example:
+It's useful for testing components that accept `StateSnapshot[A]`/`StateAccess[A]` instances
+in their props.
+
+#### Example testing `StateSnapshot`
+
 ```scala
+import utest._
 import japgolly.scalajs.react._, vdom.html_<^._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.test._
@@ -166,147 +190,45 @@ import japgolly.scalajs.react.test._
 object ExampleTest extends TestSuite {
 
   val NameChanger = ScalaComponent.build[StateSnapshot[String]]("Name changer")
-    .render_P { evar =>
-      def updateName = (event: ReactEventFromInput) => evar.set(event.target.value)
-      <.input(
-        ^.`type`    := "text",
-        ^.value     := evar.value,
+    .render_P { ss =>
+      def updateName = (event: ReactEventFromInput) => ss.setState(event.target.value)
+      <.input.text(
+        ^.value     := ss.value,
         ^.onChange ==> updateName)
     }
     .build
 
   override def tests = TestSuite {
+
     val nameVar = ReactTestVar("guy")
-    val comp = ReactTestUtils renderIntoDocument NameChanger(nameVar.externalVar())
-    SimEvent.Change("bob").simulate(comp)
-    assert(nameVar.value() == "bob")
+    ReactTestUtils.withRenderedIntoDocument(NameChanger(nameVar.stateSnapshot())) { m =>
+      SimEvent.Change("bob").simulate(m)
+      assert(nameVar.value() == "bob")
+    }
+
   }
 }
 ```
 
+#### Example testing `StateAccess`
 
-`WithExternalCompStateAccess`
-=============================
+When testing a `StateAccess` make sure to feed updates to the `ReactTestVar` back into the component
+via `.forceUpdate`.
 
-Allows you to test a component that requires access to some external component state.
-
-##### Example:
-
-Say you have a component like:
 ```scala
-val Example = ScalaComponent.build[(CompState.WriteAccess[Int], Int)]("I")
-  .render_P { case (w, i) =>
-    <.div(
-      <.div("state = ", <.span(i)),
-      <.button("inc", ^.onClick --> w.modState(_ + 1)) // weird here - just an example
-    )
-  }
-  .build
-```
+val component: ScalaComponent[StateAccessPure[Int], Unit, Unit] = ...
 
-You can use `WithExternalCompStateAccess` to write a test like this:
-```scala
-import japgolly.scalajs.react.test.WithExternalCompStateAccess
-import utest._
+val testVar = ReactTestVar(1)
+ReactTestUtils.withRenderedIntoDocument(component(testVar.stateAccess)) { m =>
+  testVar.onUpdate(m.forceUpdate) // Update the component when it changes the state
 
-object ExampleTest extends TestSuite {
-
-  val Parent = WithExternalCompStateAccess[Int](($, i) => Example(($, i)))
-
-  override def tests = TestSuite {
-    val c = ReactTestUtils renderIntoDocument Parent(3)
-    def state = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span").getDOMNode.innerHTML.toInt
-    def button = ReactTestUtils.findRenderedDOMComponentWithTag(c, "button")
-    assert(state == 3)
-    Simulate click button
-    assert(state == 4)
-  }
+  assert(m.outerHtmlScrubbed() == "<div>1</div>")
+  Simulate.click(m.getDOMNode) // our eample component calls .modState(_ + 1) onClick
+  assert(testVar.value() == 2)
+  assert(m.outerHtmlScrubbed() == "<div>2</div>")
 }
 ```
 
-
-`DebugJs`
-=========
-[DebugJs](../test/src/main/scala/japgolly/scalajs/react/test/DebugJs.scala) is a dumping ground for functionality useful when testing raw JS.
-
-It doesn't have much but `inspectObject` can be tremendously useful.
-
-Example:
-```scala
-.componentDidMount($ => Callback {
-  val dom = $.getDOMNode
-  println(DebugJs inspectObject dom)
-})
-```
-
-Output (truncated):
-```
-[object HTMLCanvasElement]
-  [  1/137] ALLOW_KEYBOARD_INPUT                      : number   = 1
-  [  2/137] ATTRIBUTE_NODE                            : number   = 2
-  [  3/137] CDATA_SECTION_NODE                        : number   = 4
-  [  4/137] COMMENT_NODE                              : number   = 8
-  [  5/137] DOCUMENT_FRAGMENT_NODE                    : number   = 11
-  [  6/137] DOCUMENT_NODE                             : number   = 9
-  [  7/137] DOCUMENT_POSITION_CONTAINED_BY            : number   = 16
-  [  8/137] DOCUMENT_POSITION_CONTAINS                : number   = 8
-  [  9/137] DOCUMENT_POSITION_DISCONNECTED            : number   = 1
-  [ 10/137] DOCUMENT_POSITION_FOLLOWING               : number   = 4
-  [ 11/137] DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC : number   = 32
-  [ 12/137] DOCUMENT_POSITION_PRECEDING               : number   = 2
-  [ 13/137] DOCUMENT_TYPE_NODE                        : number   = 10
-  [ 14/137] ELEMENT_NODE                              : number   = 1
-  [ 15/137] ENTITY_NODE                               : number   = 6
-  [ 16/137] ENTITY_REFERENCE_NODE                     : number   = 5
-  [ 17/137] NOTATION_NODE                             : number   = 12
-  [ 18/137] PROCESSING_INSTRUCTION_NODE               : number   = 7
-  [ 19/137] TEXT_NODE                                 : number   = 3
-  [ 20/137] accessKey                                 : string   =
-  [ 21/137] addEventListener                          : function = function addEventListener() {
-  [ 22/137] appendChild                               : function = function appendChild() {
-  [ 23/137] attributes                                : object   = [object NamedNodeMap]
-  [ 24/137] baseURI                                   : object   = null
-  [ 25/137] blur                                      : function = function blur() {
-  [ 26/137] childElementCount                         : number   = 0
-  [ 27/137] childNodes                                : object   = [object NodeList]
-  [ 28/137] children                                  : object   = [object HTMLCollection]
-  [ 29/137] classList                                 : object   =
-  [ 30/137] className                                 : string   =
-  [ 31/137] click                                     : function = function click() {
-  [ 32/137] clientHeight                              : number   = 0
-  [ 33/137] clientLeft                                : number   = 0
-  [ 34/137] clientTop                                 : number   = 0
-  [ 35/137] clientWidth                               : number   = 0
-  [ 36/137] cloneNode                                 : function = function cloneNode() {
-  [ 37/137] compareDocumentPosition                   : function = function compareDocumentPosition() {
-  [ 38/137] contains                                  : function = function contains() {
-  [ 39/137] contentEditable                           : string   = inherit
-  [ 40/137] dataset                                   : object   = [object DOMStringMap]
-  [ 41/137] dir                                       : string   =
-  [ 42/137] dispatchEvent                             : function = function dispatchEvent() {
-  [ 43/137] draggable                                 : boolean  = false
-  [ 44/137] firstChild                                : object   = null
-  [ 45/137] firstElementChild                         : object   = null
-  [ 46/137] focus                                     : function = function focus() {
-  [ 47/137] getAttribute                              : function = function getAttribute() {
-  [ 48/137] getAttributeNS                            : function = function getAttributeNS() {
-  [ 49/137] getAttributeNode                          : function = function getAttributeNode() {
-  [ 50/137] getAttributeNodeNS                        : function = function getAttributeNodeNS() {
-  [ 51/137] getBoundingClientRect                     : function = function getBoundingClientRect() {
-  [ 52/137] getClientRects                            : function = function getClientRects() {
-  [ 53/137] getContext                                : function = function getContext() {
-  [ 54/137] getElementsByClassName                    : function = function getElementsByClassName() {
-  [ 55/137] getElementsByTagName                      : function = function getElementsByTagName() {
-  [ 56/137] getElementsByTagNameNS                    : function = function getElementsByTagNameNS() {
-  [ 57/137] hasAttribute                              : function = function hasAttribute() {
-  [ 58/137] hasAttributeNS                            : function = function hasAttributeNS() {
-  [ 59/137] hasAttributes                             : function = function hasAttributes() {
-  [ 60/137] hasChildNodes                             : function = function hasChildNodes() {
-  [ 61/137] height                                    : number   = 150
-  [ 62/137] hidden                                    : boolean  = false
-  [ 63/137] id                                        : string   =
-...
-```
 
 Test Scripts
 ============

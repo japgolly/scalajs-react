@@ -88,7 +88,7 @@ Rendering the router is the same as any other React component; just create an in
   @JSExport
   override def main(): Unit = {
     val router = Router(baseUrl, routerConfig)
-    router() render dom.document.body
+    router().renderIntoDOM(dom.document.body)
   }
 ```
 

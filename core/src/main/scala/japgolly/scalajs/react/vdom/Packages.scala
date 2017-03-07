@@ -12,7 +12,6 @@ object SvgAttrAndStyles extends SvgAttrAndStyles
 object all extends PackageBase with HtmlTags with HtmlAttrAndStyles {
   object svg extends SvgTags with SvgAttrAndStyles
   @inline def keyAttr = key
-//  TODO @inline def refAttr = ref
 }
 
 object html_<^ extends PackageBase {

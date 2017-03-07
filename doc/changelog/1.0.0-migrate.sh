@@ -11,6 +11,7 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/ReactComponentB *(?=\[)/ScalaComponent.build/g;
   s/ReactComponentB\.static/ScalaComponent.static/g;
   s/(?<!\w)FunctionalComponent(?!\w)/ScalaFnComponent/g;
+  s/(?<!\w)CallbackB(?!\w)/CallbackTo[Boolean]/g;
   s/((?:componentDid|componentWill|shouldComponent)[a-zA-Z]+)CB/\1Const/g;
   s/\. *\$ *\. *(?=backend)/./g;
   s/\[ *P, *S, *B, *N *\<: *TopNode *\]( *=\s*)\( *_ *: *ScalaComponent.build\[ *P, *S, *B, *N *\] *\)\s+/[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B]\1_/;
@@ -30,7 +31,7 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/(React(?:[A-Z][a-z]+)?Event)H/\1FromHtml/g;
   s/(React(?:[A-Z][a-z]+)?Event)I/\1FromInput/g;
   s/(React(?:[A-Z][a-z]+)?Event)TA/\1FromTextArea/g;
-  s/Synthetic((?:[A-Z][a-z]+)?Event)/React\1From/g;
+  s/Synthetic((?:[A-Z][a-z]+|UI)?Event)/React\1From/g;
 
   s/ReusableFn *($bp) *\. *(set|mod)State/ReusableFn.state\1.\3/g;
   s/(?<!\w)ReusableFn(?!\w)/Reusable.fn/g;
@@ -87,6 +88,4 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/(?<=remove|ithout)ReactDataAttr/ReactInternals/g;
 
   s/(\$[ .]+)zoomL(?!\w)/\1zoomStateL/g;
-
 ' {} +
-  # s/(\. *component[a-zA-Z]+ *\( *_ *\.) *\$ *\. *(?=backend)/\1/g;

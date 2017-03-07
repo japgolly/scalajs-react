@@ -56,7 +56,7 @@ object CallbackOptionExample {
     (pos + steps * MoveDist) min (max - InnerSize) max 0
 
   class Backend($: BackendScope[Unit, State]) {
-    var outerRef: html.Element = _
+    private var outerRef: html.Element = _
 
     def init: Callback =
       Callback(outerRef.focus())
