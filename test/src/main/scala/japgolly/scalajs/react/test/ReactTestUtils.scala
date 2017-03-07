@@ -10,7 +10,7 @@ import japgolly.scalajs.react.vdom.TopNode
 
 object ReactTestUtils {
 
-  def raw = japgolly.scalajs.react.test.raw.ReactTestUtils
+  def raw = japgolly.scalajs.react.test.raw.ReactAddonsTestUtils
 
   type Unmounted[M] = GenericComponent.Unmounted[_, M]
   type Mounted      = GenericComponent.MountedRaw

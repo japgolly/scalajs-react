@@ -4,7 +4,7 @@ import japgolly.scalajs.react.internal.Effect
 
 package object test {
 
-  val Simulate = japgolly.scalajs.react.test.raw.ReactTestUtils.Simulate
+  val Simulate = japgolly.scalajs.react.test.raw.ReactAddonsTestUtils.Simulate
 
   type ReactOrDomNode = japgolly.scalajs.react.test.raw.ReactOrDomNode
 

@@ -7,10 +7,10 @@ import japgolly.scalajs.react.raw._
 /** https://facebook.github.io/react/docs/test-utils.html */
 @js.native
 @JSName("React.addons.TestUtils")
-object ReactTestUtils extends ReactTestUtils
+object ReactAddonsTestUtils extends ReactAddonsTestUtils
 
 @js.native
-trait ReactTestUtils extends js.Object {
+trait ReactAddonsTestUtils extends js.Object {
 
   val Simulate: Simulate = js.native
 
