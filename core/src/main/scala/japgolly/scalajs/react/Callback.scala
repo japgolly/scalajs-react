@@ -632,6 +632,11 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def toCBO: CallbackOption[A] =
     CallbackOption liftCallback this
 
+  def distFn[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): B => CallbackTo[C] = {
+    val bc = ev(this)
+    b => bc.map(_(b))
+  }
+
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean ops
 
