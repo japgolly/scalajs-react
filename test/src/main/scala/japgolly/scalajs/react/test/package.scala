@@ -1,7 +1,5 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.Effect
-
 package object test {
 
   val Simulate = japgolly.scalajs.react.test.raw.ReactAddonsTestUtils.Simulate
@@ -15,7 +13,7 @@ package object test {
     m.rawElement
 
   implicit final class ReactTestExt_MountedId(private val c: GenericComponent.MountedImpure[_, _]) extends AnyVal {
-    def outerHtmlWithoutReactInternals(): String =
+    def outerHtmlScrubbed(): String =
       ReactTestUtils.removeReactInternals(c.getDOMNode.outerHTML)
   }
 }
