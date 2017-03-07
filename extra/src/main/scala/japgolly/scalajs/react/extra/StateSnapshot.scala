@@ -46,9 +46,6 @@ object StateSnapshot {
     def apply[S](value: S): FromValue[S] =
       new FromValue(value)
 
-    def of[I, S](i: I)(implicit t: StateAccessor.ReadImpureWritePure[I, S], r: Reusability[S]): StateSnapshot[S] =
-      apply(t.state(i)).setStateVia(i)(t, r)
-
     /** This is meant to be called once and reused so that the setState callback stays the same. */
     def prepare[S](f: S => Callback): FromSetStateFn[S] =
       new FromSetStateFn(Reusable.fn(f))
@@ -80,9 +77,6 @@ object StateSnapshot {
     final class FromValue[S](private val value: S) extends AnyVal {
       def apply(set: S ~=> Callback)(implicit r: Reusability[S]): StateSnapshot[S] =
         new StateSnapshot(value, set, r)
-
-      def setStateVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S], r: Reusability[S]): StateSnapshot[S] =
-        apply(Reusable.fn(t setState i))(r)
     }
 
     final class FromSetStateFn[S](private val set: S ~=> Callback) extends AnyVal {

@@ -59,25 +59,7 @@ object StateSnapshotTest extends TestSuite {
         import japgolly.scalajs.react.test.InferenceUtil._
         def SS = StateSnapshot.withReuse
         implicit def rs: Reusability[S] = ???
-        'of {
-                           test[Render        ](SS.of(_)).expect[StateSnapshot[S]]
-          compileError(""" test[StateAccessP  ](SS.of(_)) """) // lack safe read
-          compileError(""" test[Backend       ](SS.of(_)) """) // lack safe read
-          compileError(""" test[ScalaMountedCB](SS.of(_)) """) // lack safe read
-          compileError(""" test[JsMounted     ](SS.of(_)) """) // use (x.state).setStateVia(x.pure)
-          compileError(""" test[ScalaMountedId](SS.of(_)) """) // use (x.state).setStateVia(x.pure)
-          compileError(""" test[StateAccessI  ](SS.of(_)) """) // use (x.state).setStateVia(x.pure)
-        }
         'apply_apply - test[S ~=> Callback](SS(S)(_)).expect[StateSnapshot[S]]
-        'apply_setStateVia {
-                           test[Render        ](SS(S).setStateVia(_)).expect[StateSnapshot[S]]
-                           test[Backend       ](SS(S).setStateVia(_)).expect[StateSnapshot[S]]
-                           test[ScalaMountedCB](SS(S).setStateVia(_)).expect[StateSnapshot[S]]
-                           test[StateAccessP  ](SS(S).setStateVia(_)).expect[StateSnapshot[S]]
-          compileError(""" test[JsMounted     ](SS(S).setStateVia(_)) """) // use setStateVia(x.pure)
-          compileError(""" test[ScalaMountedId](SS(S).setStateVia(_)) """) // use setStateVia(x.pure)
-          compileError(""" test[StateAccessI  ](SS(S).setStateVia(_)) """) // use setStateVia(x.pure)
-        }
         'zoom {
           def rs = ??? // shadow
           implicit def rt: Reusability[T] = ???
