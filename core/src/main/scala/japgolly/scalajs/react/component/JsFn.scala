@@ -10,13 +10,17 @@ object JsFn extends JsBaseComponentTemplate[RAW.ReactFunctionalComponent] {
   type Unmounted[P <: js.Object]                               = UnmountedRoot[P]
   type Mounted                                                 = Unit
 
-  def apply[P <: js.Object, C <: Children](rc: RAW.ReactFunctionalComponent)
-                                          (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
+  def apply[P <: js.Object, C <: Children](rc: RAW.ReactFunctionalComponent)(implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
     componentRoot[P, s.CT, Unmounted[P]](rc, s.pf.rmap(s.summon(rc))(unmountedRoot))(s.pf)
 
-  def apply[P <: js.Object, C <: Children](name: String)
-                                          (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
-    apply[P, C](js.Dynamic.global.selectDynamic(name).asInstanceOf[RAW.ReactFunctionalComponent])(s)
+  def apply[P <: js.Object, C <: Children](d: js.Dynamic)(implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
+    apply[P, C](d.asInstanceOf[RAW.ReactFunctionalComponent])(s)
+
+  def apply[P <: js.Object, C <: Children](name: String)(implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
+    JsUtil.evalName(name) match {
+      case Some(d) => apply[P, C](d)(s)
+      case None    => throw new IllegalArgumentException(s"React constructor $name is not defined")
+    }
 
   private def staticDisplayName = "<FnComponent>"
 

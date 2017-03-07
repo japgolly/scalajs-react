@@ -2,36 +2,22 @@ package japgolly.scalajs.react.component
 
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, Children, CtorType, Key, PropsChildren, vdom, raw => RAW}
+import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
 
 object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
 
-  def apply[P <: js.Object, C <: Children, S <: js.Object](r: RAW.ReactClass)
-                                                          (implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
+  def apply[P <: js.Object, C <: Children, S <: js.Object](r: RAW.ReactClass)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
     component[P, C, S](r)(s)
 
-  def apply[P <: js.Object, C <: Children, S <: js.Object](name: String)
-                                                          (implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
-    val reactClass = findInScope(name.split('.').toList) match {
-      case Some(x: js.Function) => x
+  def apply[P <: js.Object, C <: Children, S <: js.Object](d: js.Dynamic)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
+    apply[P, C, S](d.asInstanceOf[RAW.ReactClass])(s)
+
+  def apply[P <: js.Object, C <: Children, S <: js.Object](name: String)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
+    JsUtil.evalName(name) match {
+      case Some(d: js.Function) => apply[P, C, S](d)(s)
       case Some(_)              => throw new IllegalArgumentException(s"React constructor $name is not a function")
       case None                 => throw new IllegalArgumentException(s"React constructor $name is not defined")
     }
-    apply[P, C, S](reactClass)(s)
-  }
-
-  private[this] def findInScope(path: List[String], scope: js.Dynamic = js.Dynamic.global): Option[js.Dynamic] = {
-    path match {
-      case Nil => Some(scope)
-      case name :: tail =>
-        val nextScope = scope.selectDynamic(name).asInstanceOf[js.UndefOr[js.Dynamic]].toOption
-        nextScope.flatMap(findInScope(tail, _))
-    }
-  }
-
-  def apply[P <: js.Object, C <: Children, S <: js.Object](d: js.Dynamic)
-                                                          (implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
-    apply[P, C, S](d.asInstanceOf[RAW.ReactClass])(s)
 
   // ===================================================================================================================
 
