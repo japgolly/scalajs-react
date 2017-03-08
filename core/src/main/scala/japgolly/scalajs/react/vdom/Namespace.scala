@@ -8,12 +8,11 @@ package japgolly.scalajs.react.vdom
   */
 final case class Namespace(uri: String) extends AnyVal
 
-object NamespaceHtml {
-  implicit val implicitNamespace: Namespace =
-    Namespace("http://www.w3.org/1999/xhtml")
-}
+object Namespace {
 
-object NamespaceSvg {
-  implicit val implicitNamespace: Namespace =
+  val Html: Namespace =
+    Namespace("http://www.w3.org/1999/xhtml")
+
+  val Svg: Namespace =
     Namespace("http://www.w3.org/2000/svg")
 }

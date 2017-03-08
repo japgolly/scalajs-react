@@ -158,7 +158,7 @@ object PictureAppExample {
         favoriteList((s.favourites, onPicClick)))
   }
 
-  val picture = ReactComponentB[(Picture, PicClick)]("picture")
+  val picture = ScalaComponent.build[(Picture, PicClick)]("picture")
     .render_P { case (p, b) =>
       div(if (p.favorite) cls := "picture favorite" else cls := "picture", onClick --> b(p.id, p.favorite))(
         img(src := p.src, title := p.title)
@@ -166,29 +166,29 @@ object PictureAppExample {
     }
     .build
 
-  val pictureList = ReactComponentB[(List[Picture], PicClick)]("pictureList")
+  val pictureList = ScalaComponent.build[(List[Picture], PicClick)]("pictureList")
     .render_P { case (list, b) =>
       div(`class` := "pictures")(
-        if (list.isEmpty) span("Loading Pics..")
-        else {
-          list.map(p => picture.withKey(p.id)((p, b)))
-        }
+        if (list.isEmpty)
+          span("Loading Pics..")
+        else
+          list.map(p => picture.withKey(p.id)((p, b))).toVdomArray
       )
     }
     .build
 
-  val favoriteList = ReactComponentB[(List[Picture], PicClick)]("favoriteList")
+  val favoriteList = ScalaComponent.build[(List[Picture], PicClick)]("favoriteList")
     .render_P { case (list, b) =>
       div(`class` := "favorites")(
-        if (list.isEmpty) span("Click an image to mark as  favorite")
-        else {
-          list.map(p => picture.withKey(p.id)((p, b)))
-        }
+        if (list.isEmpty)
+          span("Click an image to mark as  favorite")
+        else
+          list.map(p => picture.withKey(p.id)((p, b))).toVdomArray
       )
     }
     .build
 
-  val PictureApp = ReactComponentB[Unit]("PictureApp")
+  val PictureApp = ScalaComponent.build[Unit]("PictureApp")
     .initialState(State(Nil, Nil))
     .renderBackend[Backend]
     .componentDidMount(scope => Callback {

@@ -5,18 +5,51 @@ This describes the smaller utilities in the `extra` module.
 Find links to the larger utilities from the [main README](../README.md).
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.11.3"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.0.0-RC1"
 ```
 
 #### Contents
 
-- [ExternalVar](#externalvar)
+- [`StateSnapshot`](#statesnapshot)
 - Component Mixins:
   - [Broadcaster and Listenable](#broadcaster-and-listenable)
   - [EventListener](#eventlistener)
   - [LogLifecycle](#loglifecycle)
   - [OnUnmount](#onunmount)
   - [SetInterval](#setinterval)
+
+
+`StateSnapshot`
+===============
+Consider:
+1. React has unidirectional flow (yay) and pure render methods (yay!).
+2. Stateful components are like mutable variables, stateless components are like immutable values.
+   As such state should be avoided, externalised and pushed all the way up to the top of the component tree.
+
+How does one write components that appear stateful yet maintain referential-transparency?
+By declaring the following in the component's props:
+1. `S` - The current state value to use in the view.
+2. `S => Callback` - A function that accepts a new state and returns a `Callack`.
+  The component calls this to request a new state be recorded and then just assumes that the function does something
+  meaningful. This is great because no assumptions about the larger context are encoded; it has just enough to do its job.
+
+`StateSnapshot[S]` encapsulates this `(S, S => Callback)` pattern.
+It's called StateSnapshot because it takes a snapshot of state at its current value.
+It also supports optional [`Reusability`](PERFORMANCE.md).
+
+Construction:
+
+* `StateSnapshot(s)(setStateFn)` - Provide a current value, and update function manually.
+* `StateSnapshot(s).setStateVia($)` - Provide a current value manually, and use the `.setState` on `$`.
+* `StateSnapshot.of($)` - Read the current value and the update function from `$` (usually a lifecycle scope).
+* `StateSnapshot.zoom(…)` - Zooms into a subset of the total state. For example, you could create a `StateSnapshot[Age]` from `Person`.
+  * `StateSnapshot.zoom(…)(s)(setStateFn)`
+  * `StateSnapshot.zoom(…)(s).setStateVia($)`
+  * `StateSnapshot.zoom(…).of($)`
+
+A live demo with accompanying code is available here:
+
+https://japgolly.github.io/scalajs-react/#examples/state-snapshot
 
 
 Broadcaster and Listenable
@@ -26,11 +59,11 @@ These help your components listen and react to external events or data changes.
 ##### Usage
 ```scala
 // A listening component
-val component = ReactComponentB[...]
+val component = ScalaComponent.build[...]
   ...
   .backend(_ => new OnUnmount.Backend)
   ...
-  .configure(Listenable.install(...))
+  .configure(Listenable.listen(...))
   ...
 
 // A simple broadcaster
@@ -56,25 +89,17 @@ A live demo with accompanying code is available here:
 https://japgolly.github.io/scalajs-react/#examples/event-listener
 
 
-ExternalVar
-===========
-Provides a component with safe R/W access to an external variable.
-
-A live demo with accompanying code is available here:
-
-https://japgolly.github.io/scalajs-react/#examples/external-var
-
-
 LogLifecycle
 ============
 This will cause logging to occur at React component lifecycle stages.
 
 ##### Usage
 ```scala
-val component = ReactComponentB[...]
+val component = ScalaComponent.build[...]
   ...
   .configure(LogLifecycle.short)   // Logs the component name and stage
-  .configure(LogLifecycle.verbose) // Logs component props and state as well
+  .configure(LogLifecycle.default) // Logs the component name, stage and the props/state
+  .configure(LogLifecycle.verbose) // Logs everything in the world
   ...
 ```
 
@@ -110,7 +135,7 @@ class MyBackend extends OnUnmount {
     onUnmount( Callback.log("Component unmounting...") )
 }
 
-val eg = ReactComponentB[Unit]("Example")
+val eg = ScalaComponent.build[Unit]("Example")
   .stateless
   .backend(_ => new MyBackend)
   .render(_ => ???)
@@ -130,7 +155,7 @@ import scala.concurrent.duration._
 
 class MyBackend extends TimerSupport
 
-val Timer = ReactComponentB[Unit]("Timer")
+val Timer = ScalaComponent.build[Unit]("Timer")
   .initialState(0L)
   .backend(_ => new MyBackend)
   .render_S(s => <.div("Seconds elapsed: ", s))

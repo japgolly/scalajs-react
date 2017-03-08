@@ -1,6 +1,6 @@
 package ghpages.pages
 
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router.{RouterConfigDsl, RouterCtl}
 import ghpages.examples._
@@ -8,15 +8,15 @@ import ghpages.examples.util._
 
 abstract class Example(val title: String,
                        val routerPath: String,
-                       val render: () => ReactElement)
+                       val render: () => VdomElement)
 
 object Example {
   implicit val reusability: Reusability[Example] = Reusability.by_==
 }
 
 abstract class ExampleCollection {
-  implicit protected def auto1(v: SideBySide.Content): () => ReactElement = () => v()
-  implicit protected def auto2(v: SingleSide.Content): () => ReactElement = () => v()
+  implicit protected def auto1(v: SideBySide.Content): () => VdomElement = () => v()
+  implicit protected def auto2(v: SingleSide.Content): () => VdomElement = () => v()
 
   val values: Vector[Example]
   def default: Example = values.head
@@ -47,16 +47,16 @@ object ExamplesJs extends ExampleCollection {
 
 
 object ExamplesScala extends ExampleCollection {
-  case object StateMonad   extends Example("State monads",       "state-monad",       StateMonadExample      .content)
-  case object Touch        extends Example("Touch events",       "touch-events",      TouchExample           .content)
-  case object ExternalVar  extends Example("ExternalVar",        "external-var",      ExternalVarExample     .content)
-  case object Reuse        extends Example("Reusability",        "reusability",       ReuseExample           .content)
-  case object EventListen  extends Example("EventListener",      "event-listener",    EventListenerExample   .content)
-  case object CallbackOpt  extends Example("CallbackOption",     "callback-option",   CallbackOptionExample  .content)
-  case object WebSockets   extends Example("WebSockets",         "websockets",        WebSocketsExample      .content)
-  case object Checkbox3    extends Example("Tri-state Checkbox", "tristate-checkbox", TriStateCheckboxExample.content)
+  case object StateMonad    extends Example("State monads",       "state-monad",       StateMonadExample      .content)
+  case object Touch         extends Example("Touch events",       "touch-events",      TouchExample           .content)
+  case object StateSnapshot extends Example("StateSnapshot",      "state-snapshot",    StateSnapshotExample   .content)
+  case object Reuse         extends Example("Reusability",        "reusability",       ReuseExample           .content)
+  case object EventListen   extends Example("EventListener",      "event-listener",    EventListenerExample   .content)
+  case object CallbackOpt   extends Example("CallbackOption",     "callback-option",   CallbackOptionExample  .content)
+  case object WebSockets    extends Example("WebSockets",         "websockets",        WebSocketsExample      .content)
+  case object Checkbox3     extends Example("Tri-state Checkbox", "tristate-checkbox", TriStateCheckboxExample.content)
 
   override val values = Vector[Example](
-    EventListen, CallbackOpt, ExternalVar, Reuse, StateMonad, Touch, WebSockets, Checkbox3
+    EventListen, CallbackOpt, StateSnapshot, Reuse, StateMonad, Touch, WebSockets, Checkbox3
   ).sortBy(_.title)
 }

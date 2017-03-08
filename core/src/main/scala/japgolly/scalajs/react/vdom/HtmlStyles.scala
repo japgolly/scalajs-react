@@ -1,94 +1,69 @@
 package japgolly.scalajs.react.vdom
 
-import Scalatags._
+import PackageBase._
 
-object HtmlStylesMisc {
-  /**
-   * A Style that has an auto value
-   */
-  final class AutoStyle(name: String) extends ReactStyle.Generic(name) {
-    @inline final def auto = this := "auto"
+object HtmlStylesStatic {
+
+  /** A Style that has an auto value */
+  final class AutoStyle(name: String) extends Style[String](name) {
+    def auto = this := "auto"
   }
 
-  /**
-   * A Style that has an none value
-   */
-  final class NoneOpenStyle(name: String) extends ReactStyle.Generic(name) {
-    @inline final def none = this := "none"
+  /** A Style that has an none value */
+  final class NoneOpenStyle(name: String) extends Style[String](name) {
+    def none = this := "none"
   }
 
-  /**
-   * A Style that has an normal value
-   */
-  final class NormalOpenStyle(name: String) extends ReactStyle.Generic(name) {
-    @inline final def normal = this := "normal"
+  /** A Style that has an normal value */
+  final class NormalOpenStyle(name: String) extends Style[String](name) {
+    def normal = this := "normal"
   }
 
-  final class MultiImageStyle(name: String) extends ReactStyle.Generic(name)
+  final class MultiImageStyle(name: String) extends Style[String](name)
 
-  sealed class CurrentColor(name: String) extends ReactStyle.Generic(name) {
-    @inline final def currentColor = this -> "currentColor"
+  sealed class CurrentColor(name: String) extends Style[String](name) {
+    final def currentColor = this -> "currentColor"
   }
 
-  sealed class OutlineStyle(name: String) extends ReactStyle.Generic(name) {
+  sealed class OutlineStyle(name: String) extends Style[String](name) {
     /**
      * Displays a series of rounded dots. The spacing of the dots are not
      * defined by the specification and are implementation-specific. The radius
      * of the dots is half the calculated border-right-width.
-     *
-     * MDN
      */
-    @inline final def dotted = this := "dotted"
+    final def dotted = this := "dotted"
     /**
      * Displays a series of short square-ended dashes or line segments. The exact
      * size and Length of the segments are not defined by the specification and
      * are implementation-specific.
-     *
-     * MDN
      */
-    @inline final def dashed = this := "dashed"
-    /**
-     * Displays a single, straight, solid line.
-     *
-     * MDN
-     */
-    @inline final def solid = this := "solid"
+    final def dashed = this := "dashed"
+    /** Displays a single, straight, solid line. */
+    final def solid = this := "solid"
     /**
      * Displays two straight lines that add up to the pixel amount defined as
      * border-width or border-right-width.
-     *
-     * MDN
      */
-    @inline final def double = this := "double"
-    /**
-     * Displays a border leading to a carved effect. It is the opposite of ridge.
-     *
-     * MDN
-     */
-    @inline final def groove = this := "groove"
+    final def double = this := "double"
+    /** Displays a border leading to a carved effect. It is the opposite of ridge. */
+    final def groove = this := "groove"
     /**
      * Displays a border with a 3D effect, like if it is coming out of the page.
      * It is the opposite of groove.
-     *
-     * MDN
      */
-    @inline final def ridge = this := "ridge"
+    final def ridge = this := "ridge"
     /**
      * Displays a border that makes the box appear embedded. It is the opposite
      * of outset. When applied to a table cell with border-collapse set to
      * collapsed, this value behaves like groove.
-     *
-     * MDN
      */
-    @inline final def inset = this := "inset"
+    final def inset = this := "inset"
     /**
      * Displays a border that makes the box appear in 3D, embossed. It is the
      * opposite of inset. When applied to a table cell with border-collapse set
      * to collapsed, this value behaves like ridge.
-     *
-     * MDN
      */
-    @inline final def outset = this := "outset"
+    final def outset = this := "outset"
   }
 
   final class BorderStyle(name: String) extends OutlineStyle(name) {
@@ -99,146 +74,123 @@ object HtmlStylesMisc {
      * table cell and border collapsing, the none value has the lowest priority:
      * it means that if any other conflicting border is set, it will be
      * displayed.
-     *
-     * MDN
      */
-    @inline final def none = this := "none"
+    def none = this := "none"
     /**
      * Like for the none keyword, displays no border. In that case, except if a
      * background image is set, the calculated values of border-right-width will
      * be 0, even if specified otherwise through the property. In case of table
      * cell and border collapsing, the hidden value has the highest priority: it
      * means that if any other conflicting border is set, it won't be displayed.
-     *
-     * MDN
      */
-    @inline final def hidden = this := "hidden"
+    def hidden = this := "hidden"
 
   }
 
-  final class Overflow(name: String) extends ReactStyle.Generic(name) {
+  final class Overflow(name: String) extends Style[String](name) {
     /**
      * Default value. Content is not clipped, it may be rendered outside the
      * content box.
-     *
-     * MDN
      */
-    @inline final def visible = this := "visible"
-    /**
-     * The content is clipped and no scrollbars are provided.
-     *
-     * MDN
-     */
-    @inline final def hidden = this := "hidden"
+    def visible = this := "visible"
+    /** The content is clipped and no scrollbars are provided. */
+    def hidden = this := "hidden"
     /**
      * The content is clipped and desktop browsers use scrollbars, whether or
      * not any content is clipped. This avoids any problem with scrollbars
      * appearing and disappearing in a dynamic environment. Printers may print
      * overflowing content.
-     *
-     * MDN
      */
-    @inline final def scroll = this := "scroll"
+    def scroll = this := "scroll"
     /**
      * Depends on the user agent. Desktop browsers like Firefox provide
      * scrollbars if content overflows.
-     *
-     * MDN
      */
-    @inline final def auto = this := "auto"
+    def auto = this := "auto"
   }
 
-  final class PageBreak(name: String) extends ReactStyle.Generic(name) {
-    /**
-     * Initial value. Automatic page breaks (neither forced nor forbidden).
-     *
-     * MDN
-     */
-    @inline final def auto = this := "auto"
-    /**
-     * Always force page breaks.
-     *
-     * MDN
-     */
-    @inline final def always = this := "always"
-    /**
-     * Avoid page breaks.
-     *
-     * MDN
-     */
-    @inline final def avoid = this := "avoid"
+  final class PageBreak(name: String) extends Style[String](name) {
+    /** Initial value. Automatic page breaks (neither forced nor forbidden). */
+    def auto = this := "auto"
+    /** Always force page breaks. */
+    def always = this := "always"
+    /** Avoid page breaks. */
+    def avoid = this := "avoid"
     /**
      * Force page breaks so that the next page is formatted
      * as a left page.
-     *
-     * MDN
      */
-    @inline final def left = this := "left"
+    def left = this := "left"
     /**
      * Force page breaks so that the next page is formatted
      * as a right page.
-     *
-     * MDN
      */
-    @inline final def right = this := "right"
+    def right = this := "right"
   }
 
 
-  final class BorderRadius(name: String) extends ReactStyle.Generic(name)
+  final class BorderRadius(name: String) extends Style[String](name)
 
-  trait MarginAuto extends ReactStyle {
+  final class BorderWidth(name: String) extends Style[String](name) {
+    def thin   = this := "thin"
+    def medium = this := "medium"
+    def thick  = this := "thick"
+  }
+
+  final class MultiTimeStyle(name: String) extends Style[String](name)
+
+  final class TextAlign(name: String) extends Style[String](name) {
     /**
-     * auto is replaced by some suitable value, e.g. it can be used for
-     * centering of blocks.
-     *
-     * MDN
-     */
-    @inline final def auto = this := "auto"
-
+      * The same as left if direction is left-to-right and right if direction is
+      * right-to-left.
+      */
+    def start = this := "start"
+    /**
+      * The same as right if direction is left-to-right and left if direction is
+      * right-to-left.
+      */
+    def end = this := "end"
+    /** The inline contents are aligned to the left edge of the line box. */
+    def left = this := "left"
+    /** The inline contents are aligned to the right edge of the line box. */
+    def right = this := "right"
+    /** The inline contents are centered within the line box. */
+    def center = this := "center"
+    /**
+      * The text is justified. Text should line up their left and right edges to
+      * the left and right content edges of the paragraph.
+      */
+    def justify = this := "justify"
   }
 
-  final class BorderWidth(name: String) extends ReactStyle.Generic(name) {
-    @inline final def thin = this := "thin"
-    @inline final def medium = this := "medium"
-    @inline final def thick = this := "thick"
-  }
-
-  final class MultiTimeStyle(name: String) extends ReactStyle.Generic(name)
 }
 
+object HtmlStyles extends HtmlStyles
 trait HtmlStyles {
-  import HtmlStylesMisc._
+  import HtmlStylesStatic._
 
   /**
    * If a background-image is specified, the background-attachment CSS
    * property determines whether that image's position is fixed within
    * the viewport, or scrolls along with its containing block.
-   *
-   * MDN
    */
-  object backgroundAttachment extends ReactStyle.Generic("backgroundAttachment") {
+  object backgroundAttachment extends Style[String]("backgroundAttachment") {
     /**
      * This keyword means that the background image will scroll within the
      * viewport along with the block the image is contained within.
-     *
-     * MDN
      */
-    @inline final def scroll = this := "scroll"
+    final def scroll = this := "scroll"
     /**
      * This keyword means that the background image will not scroll with its
      * containing element, instead remaining stationary within the viewport.
-     *
-     * MDN
      */
-    @inline final def fixed = this := "fixed"
+    final def fixed = this := "fixed"
     /**
      * This keyword means that the background image will not scroll with its
      * containing element, but will scroll when the element's content scrolls:
      * it is fixed regarding the element's content.
-     *
-     * MDN
      */
-    @inline final def local = this := "local"
+    final def local = this := "local"
   }
 
 
@@ -248,10 +200,8 @@ trait HtmlStyles {
    * used to set the values for one or more of: background-clip, background-color,
    * background-image, background-origin, background-position, background-repeat,
    * background-size, and background-attachment.
-   *
-   * MDN
    */
-  final lazy val background = new ReactStyle.Generic("background")
+  final def background = Style[String]("background")
 
   /**
    * The background-repeat CSS property defines how background images are repeated.
@@ -261,28 +211,22 @@ trait HtmlStyles {
    * can be controlled by the author: by default, the last image is clipped, but
    * the different tiles can instead be re-sized, or space can be inserted
    * between the tiles.
-   *
-   * MDN
    */
-  final lazy val backgroundRepeat = new ReactStyle.Generic("backgroundRepeat")
+  final def backgroundRepeat = Style[String]("backgroundRepeat")
 
 
   /**
    * The background-position CSS property sets the initial position, relative to
    * the background position layer defined by background-origin for each defined
    * background image.
-   *
-   * MDN
    */
-  final lazy val backgroundPosition = new ReactStyle.Generic("backgroundPosition")
+  final def backgroundPosition = Style[String]("backgroundPosition")
 
   /**
    * The background-color CSS property sets the background color of an element,
    * either through a color value or the keyword transparent.
-   *
-   * MDN
    */
-  final lazy val backgroundColor = new ReactStyle.Generic("backgroundColor")
+  final def backgroundColor = Style[String]("backgroundColor")
 
 
   /**
@@ -291,30 +235,20 @@ trait HtmlStyles {
    * background-image CSS property.
    *
    * Note that background-origin is ignored when background-attachment is fixed.
-   *
-   * MDN
    */
-  object backgroundOrigin extends ReactStyle.Generic("backgroundOrigin") {
+  object backgroundOrigin extends Style[String]("backgroundOrigin") {
     /**
      * The background extends to the outside edge of the border (but underneath
      * the border in z-ordering).
-     *
-     * MDN
      */
-    @inline final def `border-box` = this := "border-box"
+    final def `border-box` = this := "border-box"
     /**
      * No background is drawn below the border (background extends to the
      * outside edge of the padding).
-     *
-     * MDN
      */
-    @inline final def `padding-box` = this := "border-box"
-    /**
-     * The background is painted within (clipped to) the content box.
-     *
-     * MDN
-     */
-    @inline final def `content-box` = this := "content-box"
+    final def `padding-box` = this := "border-box"
+    /** The background is painted within (clipped to) the content box. */
+    final def `content-box` = this := "content-box"
   }
 
   /**
@@ -324,63 +258,45 @@ trait HtmlStyles {
    * If there is no background image, this property has only visual effect when
    * the border has transparent regions (because of border-style) or partially
    * opaque regions; otherwise the border covers up the difference.
-   *
-   * MDN
    */
-  object backgroundClip extends ReactStyle.Generic("backgroundClip") {
+  object backgroundClip extends Style[String]("backgroundClip") {
     /**
      * The background extends to the outside edge of the border (but underneath
      * the border in z-ordering).
-     *
-     * MDN
      */
-    @inline final def `border-box` = this := "border-box"
+    final def `border-box` = this := "border-box"
     /**
      * No background is drawn below the border (background extends to the
      * outside edge of the padding).
-     *
-     * MDN
      */
-    @inline final def `padding-box` = this := "padding-box"
-    /**
-     * The background is painted within (clipped to) the content box.
-     *
-     * MDN
-     */
-    @inline final def `content-box` = this := "content-box"
+    final def `padding-box` = this := "padding-box"
+    /** The background is painted within (clipped to) the content box. */
+    final def `content-box` = this := "content-box"
   }
   /**
    * The background-size CSS property specifies the size of the background
    * images. The size of the image can be fully constrained or only partially in
    * order to preserve its intrinsic ratio.
-   *
-   * MDN
    */
-  object backgroundSize extends ReactStyle.Generic("backgroundSize") {
+  object backgroundSize extends Style[String]("backgroundSize") {
     /**
      * The auto keyword that scales the background image in the corresponding
      * direction such that its intrinsic proportion is maintained.
-     *
-     * MDN
      */
-    @inline final def auto = this := "auto"
+    final def auto = this := "auto"
     /**
      * This keyword specifies that the background image should be scaled to be
      * as small as possible while ensuring both its dimensions are greater than
      * or equal to the corresponding dimensions of the background positioning
      * area.
-     *
-     * MDN
      */
-    @inline final def cover = this := "cover"
+    final def cover = this := "cover"
     /**
      * This keyword specifies that the background image should be scaled to be
      * as large as possible while ensuring both its dimensions are less than or
      * equal to the corresponding dimensions of the background positioning area.
-     *
-     * MDN
      */
-    @inline final def contain = this := "contain"
+    final def contain = this := "contain"
   }
   /**
    * The CSS background-image property sets one or several background images for
@@ -388,147 +304,111 @@ trait HtmlStyles {
    * the first specified being drawn as if it is the closest to the user. The
    * borders of the element are then drawn on top of them, and the background-color
    * is drawn beneath them.
-   *
-   * MDN
    */
-  final lazy val backgroundImage = new MultiImageStyle("backgroundImage")
+  final def backgroundImage = new MultiImageStyle("backgroundImage")
 
 
   /**
    * The border-top-color CSS property sets the color of the top border of an
    * element. Note that in many cases the shorthand CSS properties border-color
    * or border-top are more convenient and preferable.
-   *
-   * MDN
    */
-  final lazy val borderTopColor = new ReactStyle.Generic("borderTopColor")
+  final def borderTopColor = Style[String]("borderTopColor")
 
   /**
    * The border-style CSS property is a shorthand property for setting the line
    * style for all four sides of the elements border.
-   *
-   * MDN
    */
-  final lazy val borderStyle = new BorderStyle("borderStyle")
+  final def borderStyle = new BorderStyle("borderStyle")
 
-  /**
-   * The border-top-style CSS property sets the line style of the top border of a box.
-   *
-   * MDN
-   */
-  final lazy val borderTopStyle = new BorderStyle("borderTopStyle")
+  /** The border-top-style CSS property sets the line style of the top border of a box. */
+  final def borderTopStyle = new BorderStyle("borderTopStyle")
 
 
   /**
    * The border-right-style CSS property sets the line style of the right border
    * of a box.
-   *
-   * MDN
    */
-  final lazy val borderRightStyle = new BorderStyle("borderRightStyle")
+  final def borderRightStyle = new BorderStyle("borderRightStyle")
 
   /**
    * The border-right-width CSS property sets the width of the right border of
    * a box.
-   *
-   * MDN
    */
-  final lazy val borderRightWidth = new BorderWidth("borderRightWidth")
+  final def borderRightWidth = new BorderWidth("borderRightWidth")
 
   /**
    * The border-top-right-radius CSS property sets the rounding of the top-right
    * corner of the element. The rounding can be a circle or an ellipse, or if
    * one of the value is 0 no rounding is done and the corner is square.
-   *
-   * MDN
    */
-  final lazy val borderTopRightRadius = new BorderRadius("borderTopRightRadius")
+  final def borderTopRightRadius = new BorderRadius("borderTopRightRadius")
 
   /**
    * The border-bottom-left-radius CSS property sets the rounding of the
    * bottom-left corner of the element. The rounding can be a circle or an
    * ellipse, or if one of the value is 0 no rounding is done and the corner is
    * square.
-   *
-   * MDN
    */
-  final lazy val borderBottomLeftRadius = new BorderRadius("borderBottomLeftRadius")
+  final def borderBottomLeftRadius = new BorderRadius("borderBottomLeftRadius")
 
   /**
    * The border-right-color CSS property sets the color of the top border of an
    * element. Note that in many cases the shorthand CSS properties border-color
    * or border-right are more convenient and preferable.
-   *
-   * MDN
    */
-  final lazy val borderRightColor = new ReactStyle.Generic("borderRightColor")
+  final def borderRightColor = Style[String]("borderRightColor")
 
   /**
    * The border-bottom CSS property is a shorthand that sets the values of
    * border-bottom-color, border-bottom-style, and border-bottom-width. These
    * properties describe the bottom border of elements.
-   *
-   * MDN
    */
-  final lazy val borderBottom = new ReactStyle.Generic("borderBottom")
+  final def borderBottom = Style[String]("borderBottom")
   /**
    * The border CSS property is a shorthand property for setting the individual
    * border property values in a single place in the style sheet. border can be
    * used to set the values for one or more of: border-width, border-style,
    * border-color.
-   *
-   * MDN
    */
-  final lazy val border = new ReactStyle.Generic("border")
+  final def border = Style[String]("border")
 
 
   /**
    * The border-bottom-width CSS property sets the width of the bottom border of
    * a box.
-   *
-   * MDN
    */
-  final lazy val borderBottomWidth = new BorderWidth("borderBottomWidth")
+  final def borderBottomWidth = new BorderWidth("borderBottomWidth")
 
   /**
    * The border-right-color CSS property sets the color of the right border of
    * an element. Note that in many cases the shorthand CSS properties
    * border-color or border-right are more convenient and preferable.
-   *
-   * MDN
    */
-  final lazy val borderLeftColor = new ReactStyle.Generic("borderLeftColor")
+  final def borderLeftColor = Style[String]("borderLeftColor")
 
   /**
    * The border-bottom-color CSS property sets the color of the bottom border of
    * an element. Note that in many cases the shorthand CSS properties border-color
    * or border-bottom are more convenient and preferable.
-   *
-   * MDN
    */
-  final lazy val borderBottomColor = new ReactStyle.Generic("borderBottomColor")
+  final def borderBottomColor = Style[String]("borderBottomColor")
 
   /**
    * The border-collapse CSS property selects a table's border model. This has
    * a big influence on the look and style of the table cells.
-   *
-   * MDN
    */
-  object borderCollapse extends ReactStyle.Generic("borderCollapse") {
+  object borderCollapse extends Style[String]("borderCollapse") {
     /**
      * Is a keyword requesting the use of the separated-border table rendering
      * model. It is the default value.
-     *
-     * MDN
      */
-    @inline final def separate = this := "separate"
+    final def separate = this := "separate"
     /**
      * Is a keyword requesting the use of the collapsed-border table rendering
      * model.
-     *
-     * MDN
      */
-    @inline final def collapse = this := "collapse"
+    final def collapse = this := "collapse"
   }
   /**
    * The border-left CSS property is a shorthand that sets the values of
@@ -537,63 +417,43 @@ trait HtmlStyles {
    *
    * The three values of the shorthand property can be specified in any order,
    * and one or two of them may be omitted.
-   *
-   * MDN
    */
-  final lazy val borderLeft = new ReactStyle.Generic("borderLeft")
+  final def borderLeft = Style[String]("borderLeft")
   /**
    * The border-left-style CSS property sets the line style of the left border
    * of a box.
-   *
-   * MDN
    */
-  final lazy val borderLeftStyle = new BorderStyle("borderLeftStyle")
+  final def borderLeftStyle = new BorderStyle("borderLeftStyle")
 
   /**
    * The border-right CSS property is a shorthand that sets the values of
    * border-right-color, border-right-style, and border-right-width. These
    * properties describe the right border of elements.
-   *
-   * MDN
    */
-  final lazy val borderRight = new ReactStyle.Generic("borderRight")
+  final def borderRight = Style[String]("borderRight")
 
   /**
    * The border-bottom-style CSS property sets the line style of the bottom
    * border of a box.
-   *
-   * MDN
    */
-  final lazy val borderBottomStyle = new BorderStyle("borderBottomStyle")
-  /**
-   * The border-left-width CSS property sets the width of the left border of a box.
-   *
-   * MDN
-   */
-  final lazy val borderLeftWidth = new BorderWidth("borderLeftWidth")
-  /**
-   * The border-top-width CSS property sets the width of the top border of a box.
-   *
-   * MDN
-   */
-  final lazy val borderTopWidth = new BorderWidth("borderTopWidth")
+  final def borderBottomStyle = new BorderStyle("borderBottomStyle")
+  /** The border-left-width CSS property sets the width of the left border of a box. */
+  final def borderLeftWidth = new BorderWidth("borderLeftWidth")
+  /** The border-top-width CSS property sets the width of the top border of a box. */
+  final def borderTopWidth = new BorderWidth("borderTopWidth")
   /**
    * The border-top CSS property is a shorthand that sets the values of
    * border-top-color, border-top-style, and border-top-width. These
    * properties describe the top border of elements.
-   *
-   * MDN
    */
-  final lazy val borderTop = new ReactStyle.Generic("borderTop")
+  final def borderTop = Style[String]("borderTop")
   /**
    * The border-spacing CSS property specifies the distance between the borders
    * of adjacent cells (only for the separated borders model). This is equivalent
    * to the cellspacing attribute in presentational HTML, but an optional second
    * value can be used to set different horizontal and vertical spacing.
-   *
-   * MDN
    */
-  object borderSpacing extends ReactStyle.Generic("borderSpacing") {
+  object borderSpacing extends Style[String]("borderSpacing") {
     def :=(horizontal: String, vertical: String): TagMod = this := s"$horizontal $vertical"
   }
 
@@ -602,73 +462,57 @@ trait HtmlStyles {
    * The border-radius CSS property allows Web authors to define how rounded
    * border corners are. The curve of each corner is defined using one or two
    * radii, defining its shape: circle or ellipse.
-   *
-   * MDN
    */
-  final lazy val borderRadius = new ReactStyle.Generic("borderRadius")
+  final def borderRadius = Style[String]("borderRadius")
 
   /**
    * The border-width CSS property sets the width of the border of a box. Using
    * the shorthand property border is often more convenient.
-   *
-   * MDN
    */
-  final lazy val borderWidth = new ReactStyle.Generic("borderWidth")
+  final def borderWidth = Style[String]("borderWidth")
 
   /**
    * The border-bottom-right-radius CSS property sets the rounding of the
    * bottom-right corner of the element. The rounding can be a circle or an
    * ellipse, or if one of the value is 0 no rounding is done and the corner is
    * square.
-   *
-   * MDN
    */
-  final lazy val borderBottomRightRadius = new BorderRadius("borderBottomRightRadius")
+  final def borderBottomRightRadius = new BorderRadius("borderBottomRightRadius")
 
   /**
    * The border-top-left-radius CSS property sets the rounding of the
    * top-left corner of the element. The rounding can be a circle or an
    * ellipse, or if one of the value is 0 no rounding is done and the corner is
    * square.
-   *
-   * MDN
    */
-  final lazy val borderTopLeftRadius = new BorderRadius("borderTopLeftRadius")
+  final def borderTopLeftRadius = new BorderRadius("borderTopLeftRadius")
 
   /**
    * The border-color CSS property is a shorthand for setting the color of the
    * four sides of an element's border: border-top-color, border-right-color,
    * border-bottom-color, border-left-color
-   *
-   * MDN
    */
-  final lazy val borderColor = new ReactStyle.Generic("borderColor")
+  final def borderColor = Style[String]("borderColor")
 
   /**
    * The box-sizing CSS property is used to alter the default CSS box model used
    * to calculate widths and heights of elements. It is possible to use this
    * property to emulate the behavior of browsers that do not correctly support
    * the CSS box model specification.
-   *
-   * MDN
    */
-  object boxSizing extends ReactStyle.Generic("boxSizing") {
+  object boxSizing extends Style[String]("boxSizing") {
     /**
      * This is the default style as specified by the CSS standard. The width and
      * height properties are measured including only the content, but not the
      * border, margin, or padding.
-     *
-     * MDN
      */
-    @inline final def `content-box` = this := "content-box"
+    final def `content-box` = this := "content-box"
     /**
      * The width and height properties include the padding and border, but not
      * the margin. This is the box model used by Internet Explorer when the
      * document is in Quirks mode.
-     *
-     * MDN
      */
-    @inline final def `border-box` = this := "border-box"
+    final def `border-box` = this := "border-box"
   }
 
   /**
@@ -676,254 +520,125 @@ trait HtmlStyles {
    * content, and its decorations. It doesn't affect any other characteristic of
    * the element; it should really be called text-color and would have been
    * named so, save for historical reasons and its appearance in CSS Level 1.
-   *
-   * MDN
    */
-  object color extends CurrentColor("color"){
-    @inline final def black = this := "black"
-    @inline final def silver = this := "silver"
-    @inline final def gray = this := "gray"
-    @inline final def white = this := "white"
-    @inline final def maroon = this := "maroon"
-    @inline final def red = this := "red"
-    @inline final def purple = this := "purple"
-    @inline final def fuschia = this := "fuschia"
-    @inline final def green = this := "green"
-    @inline final def lime = this := "lime"
-    @inline final def olive = this := "olive"
-    @inline final def yellow = this := "yellow"
-    @inline final def navy = this := "navy"
-    @inline final def blue = this := "blue"
-    @inline final def teal = this := "teal"
-    @inline final def aqua = this := "aqua"
+  object color extends Style[String]("color") {
+    def black   = this := "black"
+    def silver  = this := "silver"
+    def gray    = this := "gray"
+    def white   = this := "white"
+    def maroon  = this := "maroon"
+    def red     = this := "red"
+    def purple  = this := "purple"
+    def fuschia = this := "fuschia"
+    def green   = this := "green"
+    def lime    = this := "lime"
+    def olive   = this := "olive"
+    def yellow  = this := "yellow"
+    def navy    = this := "navy"
+    def blue    = this := "blue"
+    def teal    = this := "teal"
+    def aqua    = this := "aqua"
   }
-
 
 
   /**
    * The clip CSS property defines what portion of an element is visible. The
    * clip property applies only to elements with position:absolute.
-   *
-   * MDN
    */
-  object clip extends ReactStyle.Generic("clip") {
+  object clip extends Style[String]("clip") {
     def rect(top: String, right: String, bottom: String, left: String) =
       this := s"rect($top, $right, $bottom, $left)"
 
     def auto = this := "auto"
   }
 
-
   /**
    * The cursor CSS property specifies the mouse cursor displayed when the mouse
    * pointer is over an element.
-   *
-   * MDN
    */
-  object cursor extends ReactStyle.Generic("cursor") {
-
+  object cursor extends Style[String]("cursor") {
     /**
      * The browser determines the cursor to display based on the current context.
      * E.g. equivalent to text when hovering text.
-     *
-     * MDN
      */
-    @inline final def auto = this := "auto"
-    /**
-     * Default cursor, typically an arrow.
-     *
-     * MDN
-     */
-    @inline final def default = this := "default"
-    /**
-     * No cursor is rendered.
-     *
-     * MDN
-     */
-    @inline final def none = this := "none"
-    /**
-     * A context menu is available under the cursor.
-     *
-     * MDN
-     */
-    @inline final def `context-menu` = this := "context-menu"
-    /**
-     * Indicating help is available.
-     *
-     * MDN
-     */
-    @inline final def help = this := "help"
-    /**
-     * E.g. used when hovering over links, typically a hand.
-     *
-     * MDN
-     */
-    @inline final def pointer = this := "pointer"
+    def auto = this := "auto"
+    /** Default cursor, typically an arrow. */
+    def default = this := "default"
+    /** No cursor is rendered. */
+    def none = this := "none"
+    /** A context menu is available under the cursor. */
+    def `context-menu` = this := "context-menu"
+    /** Indicating help is available. */
+    def help = this := "help"
+    /** E.g. used when hovering over links, typically a hand. */
+    def pointer = this := "pointer"
     /**
      * The program is busy in the background but the user can still interact
      * with the interface (unlike for wait).
-     *
-     * MDN
      */
-    @inline final def progress = this := "progress"
-    /**
-     * The program is busy (sometimes an hourglass or a watch).
-     *
-     * MDN
-     */
-    @inline final def cssWait = this := "wait"
-    /**
-     * Indicating that cells can be selected.
-     *
-     * MDN
-     */
-    @inline final def cell = this := "cell"
-    /**
-     * Cross cursor, often used to indicate selection in a bitmap.
-     *
-     * MDN
-     */
-    @inline final def crosshair = this := "crosshair"
-    /**
-     * Indicating text can be selected, typically an I-beam.
-     *
-     * MDN
-     */
-    @inline final def text = this := "text"
-    /**
-     * Indicating that vertical text can be selected, typically a sideways I-beam
-     *
-     * MDN
-     */
-    @inline final def `vertical-text` = this := "vertical-text"
-    /**
-     * Indicating an alias or shortcut is to be created.
-     *
-     * MDN
-     */
-    @inline final def alias = this := "alias"
-    /**
-     * Indicating that something can be copied
-     *
-     * MDN
-     */
-    @inline final def copy = this := "copy"
-    /**
-     * The hoevered object may be moved.
-     *
-     * MDN
-     */
-    @inline final def move = this := "move"
-    /**
-     * Cursor showing that a drop is not allowed at the current location.
-     *
-     * MDN
-     */
-    @inline final def `no-drop` = this := "no-drop"
-    /**
-     * Cursor showing that something cannot be done.
-     *
-     * MDN
-     */
-    @inline final def `not-allowed` = this := "not-allowed"
-    /**
-     * Cursor showing that something can be scrolled in any direction (panned).
-     *
-     * MDN
-     */
-    @inline final def `all-scroll` = this := "all-scroll"
+    def progress = this := "progress"
+    /** The program is busy (sometimes an hourglass or a watch). */
+    def cssWait = this := "wait"
+    /** Indicating that cells can be selected. */
+    def cell = this := "cell"
+    /** Cross cursor, often used to indicate selection in a bitmap. */
+    def crosshair = this := "crosshair"
+    /** Indicating text can be selected, typically an I-beam. */
+    def text = this := "text"
+    /** Indicating that vertical text can be selected, typically a sideways I-beam */
+    def `vertical-text` = this := "vertical-text"
+    /** Indicating an alias or shortcut is to be created. */
+    def alias = this := "alias"
+    /** Indicating that something can be copied */
+    def copy = this := "copy"
+    /** The hoevered object may be moved. */
+    def move = this := "move"
+    /** Cursor showing that a drop is not allowed at the current location. */
+    def `no-drop` = this := "no-drop"
+    /** Cursor showing that something cannot be done. */
+    def `not-allowed` = this := "not-allowed"
+    /** Cursor showing that something can be scrolled in any direction (panned). */
+    def `all-scroll` = this := "all-scroll"
     /**
      * The item/column can be resized horizontally. Often rendered as arrows
      * pointing left and right with a vertical separating.
-     *
-     * MDN
      */
-    @inline final def `col-resize` = this := "col-resize"
+    def `col-resize` = this := "col-resize"
     /**
      * The item/row can be resized vertically. Often rendered as arrows pointing
      * up and down with a horizontal bar separating them.
-     *
-     * MDN
      */
-    @inline final def `row-resize` = this := "row-resize"
-    /**
-     * The top edge is to be moved.
-     *
-     * MDN
-     */
-    @inline final def `n-resize` = this := "n-resize"
-    /**
-     * The right edge is to be moved.
-     *
-     * MDN
-     */
-    @inline final def `e-resize` = this := "e-resize"
-    /**
-     * The bottom edge is to be moved.
-     *
-     * MDN
-     */
-    @inline final def `s-resize` = this := "s-resize"
-    /**
-     * The left edge is to be moved.
-     *
-     * MDN
-     */
-    @inline final def `w-resize` = this := "w-resize"
-    /**
-     * The top-right corner is to be moved.
-     *
-     * MDN
-     */
-    @inline final def `ne-resize` = this := "ne-resize"
-    /**
-     * The top-left corner is to be moved.
-     *
-     * MDN
-     */
-    @inline final def `nw-resize` = this := "nw-resize"
-    /**
-     * The bottom-right corner is to be moved.
-     *
-     * MDN
-     */
-    @inline final def `se-resize` = this := "se-resize"
-    /**
-     * The bottom-left corner is to be moved.
-     *
-     * MDN
-     */
-    @inline final def `sw-resize` = this := "sw-resize"
+    def `row-resize` = this := "row-resize"
+    /** The top edge is to be moved. */
+    def `n-resize` = this := "n-resize"
+    /** The right edge is to be moved. */
+    def `e-resize` = this := "e-resize"
+    /** The bottom edge is to be moved. */
+    def `s-resize` = this := "s-resize"
+    /** The left edge is to be moved. */
+    def `w-resize` = this := "w-resize"
+    /** The top-right corner is to be moved. */
+    def `ne-resize` = this := "ne-resize"
+    /** The top-left corner is to be moved. */
+    def `nw-resize` = this := "nw-resize"
+    /** The bottom-right corner is to be moved. */
+    def `se-resize` = this := "se-resize"
+    /** The bottom-left corner is to be moved. */
+    def `sw-resize` = this := "sw-resize"
 
-    @inline final def `ew-resize` = this := "ew-resize"
-    @inline final def `ns-resize` = this := "ns-resize"
-    @inline final def `nesw-resize` = this := "nesw-resize"
-    @inline final def `nwse-resize` = this := "nwse-resize"
+    def `ew-resize` = this := "ew-resize"
+    def `ns-resize` = this := "ns-resize"
+    def `nesw-resize` = this := "nesw-resize"
+    def `nwse-resize` = this := "nwse-resize"
 
-    /**
-     * Indicates that something can be zoomed (magnified) in.
-     *
-     * MDN
-     */
-    @inline final def `zoom-in` = this := "zoom-in"
-    /**
-     * Indicates that something can be zoomed (magnified) out.
-     *
-     * MDN
-     */
-    @inline final def `zoom-out` = this := "zoom-out"
-    /**
-     * Indicates that something can be grabbed (dragged to be moved).
-     *
-     * MDN
-     */
-    @inline final def grab = this := "grab"
-    /**
-     * Indicates that something can be grabbed (dragged to be moved).
-     *
-     * MDN
-     */
-    @inline final def grabbing = this := "grabbing"
+    /** Indicates that something can be zoomed (magnified) in. */
+    def `zoom-in` = this := "zoom-in"
+    /** Indicates that something can be zoomed (magnified) out. */
+    def `zoom-out` = this := "zoom-out"
+    /** Indicates that something can be grabbed (dragged to be moved). */
+    def grab = this := "grab"
+    /** Indicates that something can be grabbed (dragged to be moved). */
+    def grabbing = this := "grabbing"
   }
 
 
@@ -932,30 +647,20 @@ trait HtmlStyles {
    * normal flow and placed along the left or right side of its container, where
    * text and inline elements will wrap around it. A floating element is one
    * where the computed value of float is not none.
-   *
-   * MDN
    */
-  object float extends ReactStyle.Generic("float") { // Style.Generic("cssFloat", "float")
+  object float extends Style[String]("float") { // Style.Generic("cssFloat", "float")
     /**
      * Is a keyword indicating that the element must float on the left side of
      * its containing block.
-     *
-     * MDN
      */
-    @inline final def left = this := "left"
+    final def left = this := "left"
     /**
      * Is a keyword indicating that the element must float on the right side of
      * its containing block.
-     *
-     * MDN
      */
-    @inline final def right = this := "right"
-    /**
-     * Is a keyword indicating that the element must not float
-     *
-     * MDN
-     */
-    @inline final def none = this := "none"
+    final def right = this := "right"
+    /** Is a keyword indicating that the element must not float */
+    final def none = this := "none"
   }
 
 
@@ -977,23 +682,15 @@ trait HtmlStyles {
    *
    * The direction and unicode-bidi properties are the two only properties which
    * are not affected by the all shorthand.
-   *
-   * MDN
    */
-  object direction extends ReactStyle.Generic("direction") {
+  object direction extends Style[String]("direction") {
     /**
      * The initial value of direction (that is, if not otherwise specified). Text
      * and other elements go from left to right.
-     *
-     * MDN
      */
-    @inline final def ltr = this := "ltr"
-    /**
-     * Text and other elements go from right to left
-     *
-     * MDN
-     */
-    @inline final def rtl = this := "rtl"
+    final def ltr = this := "ltr"
+    /** Text and other elements go from right to left */
+    final def rtl = this := "rtl"
   }
 
   /**
@@ -1006,10 +703,8 @@ trait HtmlStyles {
    * you turn off the display of an element; when you use none, all descendant
    * elements also have their display turned off. The document is rendered as
    * though the element doesn't exist in the document tree.
-   *
-   * MDN
    */
-  object display extends ReactStyle.Generic("display") {
+  object display extends Style[String]("display") {
     /**
      * Turns off the display of an element (it has no effect on layout); all
      * descendant elements also have their display turned off. The document is
@@ -1017,112 +712,56 @@ trait HtmlStyles {
      *
      * To render an element box's dimensions, yet have its contents be invisible,
      * see the visibility property.
-     *
-     * MDN
      */
-    @inline final def none = this := "none"
-    /**
-     * The element generates one or more inline element boxes.
-     *
-     * MDN
-     */
-    @inline final def inline = this := "inline"
-    /**
-     * The element generates a block element box.
-     *
-     * MDN
-     */
-    @inline final def block = this := "block"
+    final def none = this := "none"
+    /** The element generates one or more inline element boxes. */
+    final def inline = this := "inline"
+    /** The element generates a block element box. */
+    final def block = this := "block"
     /**
      * The element generates a block box for the content and a separate
      * list-item inline box.
-     *
-     * MDN
      */
-    @inline final def `list-item` = this := "list-item"
+    final def `list-item` = this := "list-item"
     /**
      * The element generates a block element box that will be flowed with
      * surrounding content as if it were a single inline box.
-     *
-     * MDN
      */
-    @inline final def `inline-block` = this := "inline-block"
+    final def `inline-block` = this := "inline-block"
     /**
      * The inline-table value does not have a direct mapping in HTML. It behaves
      * like a table HTML element, but as an inline box, rather than a
      * block-level box. Inside the table box is a block-level context
-     *
-     * MDN
      */
-    @inline final def `inline-table` = this := "inline-table"
-    /**
-     * Behaves like the table HTML element. It defines a block-level box.
-     *
-     * MDN
-     */
-    @inline final def table = this := "table"
-    /**
-     * Behaves like the caption HTML element.
-     *
-     * MDN
-     */
-    @inline final def `table-caption` = this := "table-caption"
-    /**
-     * Behaves like the td HTML element
-     *
-     * MDN
-     */
-    @inline final def `table-cell` = this := "table-cell"
-    /**
-     * These elements behave like the corresponding col HTML elements.
-     *
-     * MDN
-     */
-    @inline final def `table-column` = this := "table-column"
-    /**
-     * These elements behave like the corresponding colgroup HTML elements.
-     *
-     * MDN
-     */
-    @inline final def `table-column-group` = this := "table-column-group"
-    /**
-     * These elements behave like the corresponding tfoot HTML elements
-     *
-     * MDN
-     */
-    @inline final def `table-footer-group` = this := "table-footer-group"
-    /**
-     * These elements behave like the corresponding thead HTML elements
-     *
-     * MDN
-     */
-    @inline final def `table-header-group` = this := "table-header-group"
-    /**
-     * Behaves like the tr HTML element
-     *
-     * MDN
-     */
-    @inline final def `table-row` = this := "table-row"
-    /**
-     * These elements behave like the corresponding tbody HTML elements
-     *
-     * MDN
-     */
-    @inline final def `table-row-group` = this := "table-row-group"
+    final def `inline-table` = this := "inline-table"
+    /** Behaves like the table HTML element. It defines a block-level box. */
+    final def table = this := "table"
+    /** Behaves like the caption HTML element. */
+    final def `table-caption` = this := "table-caption"
+    /** Behaves like the td HTML element */
+    final def `table-cell` = this := "table-cell"
+    /** These elements behave like the corresponding col HTML elements. */
+    final def `table-column` = this := "table-column"
+    /** These elements behave like the corresponding colgroup HTML elements. */
+    final def `table-column-group` = this := "table-column-group"
+    /** These elements behave like the corresponding tfoot HTML elements */
+    final def `table-footer-group` = this := "table-footer-group"
+    /** These elements behave like the corresponding thead HTML elements */
+    final def `table-header-group` = this := "table-header-group"
+    /** Behaves like the tr HTML element */
+    final def `table-row` = this := "table-row"
+    /** These elements behave like the corresponding tbody HTML elements */
+    final def `table-row-group` = this := "table-row-group"
     /**
      * The element behaves like a block element and lays out its content according
      * to the flexbox model.
-     *
-     * MDN
      */
-    @inline final def flex = this := "flex"
+    final def flex = this := "flex"
     /**
      * The element behaves like an inline element and lays out its content
      * according to the flexbox model.
-     *
-     * MDN
      */
-    @inline final def `inline-flex` = this := "inline-flex"
+    final def `inline-flex` = this := "inline-flex"
   }
 
 
@@ -1136,28 +775,22 @@ trait HtmlStyles {
    * In addition to indicating that the element is not the target of mouse events,
    * the value none instructs the mouse event to go "through" the element and
    * target whatever is "underneath" that element instead.
-   *
-   * MDN
    */
-  object pointerEvents extends ReactStyle.Generic("pointerEvents") {
+  object pointerEvents extends Style[String]("pointerEvents") {
     /**
      * The element behaves as it would if the pointer-events property was not
      * specified. In SVG content, this value and the value visiblePainted have
      * the same effect.
-     *
-     * MDN
      */
-    @inline final def auto = this := "auto"
+    final def auto = this := "auto"
     /**
      * The element is never the target of mouse events; however, mouse events
      * may target its descendant elements if those descendants have pointer-events
      * set to some other value. In these circumstances, mouse events will trigger
      * event listeners on this parent element as appropriate on their way to/from
      * the descendant during the event capture/bubble phases.
-     *
-     * MDN
      */
-    @inline final def none = this := "none"
+    final def none = this := "none"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * visibility property is set to visible and when the mouse cursor is over
@@ -1165,37 +798,29 @@ trait HtmlStyles {
      * to a value other than none, or when the mouse cursor is over the perimeter
      * (i.e., 'stroke') of the element and the stroke property is set to a value
      * other than none.
-     *
-     * MDN
      */
-    @inline final def visiblePainted = this := "visiblePainted"
+    final def visiblePainted = this := "visiblePainted"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * visibility property is set to visible and when the mouse cursor is over
      * the interior (i.e., fill) of the element. The value of the fill property
      * does not effect event processing.
-     *
-     * MDN
      */
-    @inline final def visibleFill = this := "visibleFill"
+    final def visibleFill = this := "visibleFill"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * visibility property is set to visible and when the mouse cursor is over
      * the perimeter (i.e., stroke) of the element. The value of the stroke
      * property does not effect event processing.
-     *
-     * MDN
      */
-    @inline final def visibleStroke = this := "visibleStroke"
+    final def visibleStroke = this := "visibleStroke"
     /**
      * SVG only. The element can be the target of a mouse event when the
      * visibility property is set to visible and the mouse cursor is over either
      * the interior (i.e., fill) or the perimeter (i.e., stroke) of the element.
      * The values of the fill and stroke do not effect event processing.
-     *
-     * MDN
      */
-    @inline final def visible = this := "visible"
+    final def visible = this := "visible"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * mouse cursor is over the interior (i.e., 'fill') of the element and the
@@ -1203,35 +828,27 @@ trait HtmlStyles {
      * is over the perimeter (i.e., 'stroke') of the element and the stroke
      * property is set to a value other than none. The value of the visibility
      * property does not effect event processing.
-     *
-     * MDN
      */
-    @inline final def painted = this := "painted"
+    final def painted = this := "painted"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * pointer is over the interior (i.e., fill) of the element. The values of
      * the fill and visibility properties do not effect event processing.
-     *
-     * MDN
      */
-    @inline final def fill = this := "fill"
+    final def fill = this := "fill"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * pointer is over the perimeter (i.e., stroke) of the element. The values
      * of the stroke and visibility properties do not effect event processing.
-     *
-     * MDN
      */
-    @inline final def stroke = this := "stroke"
+    final def stroke = this := "stroke"
     /**
      * SVG only. The element can only be the target of a mouse event when the
      * pointer is over the interior (i.e., fill) or the perimeter (i.e., stroke)
      * of the element. The values of the fill, stroke and visibility properties
      * do not effect event processing.
-     *
-     * MDN
      */
-    @inline final def all = this := "all"
+    final def all = this := "all"
   }
 
 
@@ -1239,10 +856,8 @@ trait HtmlStyles {
    * The list-style-image CSS property sets the image that will be used as the
    * list item marker. It is often more convenient to use the shorthand
    * list-style.
-   *
-   * MDN
    */
-  object listStyleImage extends ReactStyle.Generic("listStyleImage"){
+  object listStyleImage extends Style[String]("listStyleImage"){
 
     def none = this := "none"
   }
@@ -1252,39 +867,25 @@ trait HtmlStyles {
    * The list-style-position CSS property specifies the position of the marker
    * box in the principal block box. It is often more convenient to use the
    * shortcut list-style.
-   *
-   * MDN
    */
-  object listStylePosition extends ReactStyle.Generic("listStylePosition") {
-    /**
-     * The marker box is outside the principal block box.
-     *
-     * MDN
-     */
-    @inline final def outside = this := "outside"
+  object listStylePosition extends Style[String]("listStylePosition") {
+    /** The marker box is outside the principal block box. */
+    final def outside = this := "outside"
     /**
      * The marker box is the first inline box in the principal block box, after
      * which the element's content flows.
-     *
-     * MDN
      */
-    @inline final def inside = this := "inside"
+    final def inside = this := "inside"
   }
 
-  object wordWrap extends ReactStyle.Generic("wordWrap") {
-    /**
-     * Indicates that lines may only break at normal word break points.
-     *
-     * MDN
-     */
-    @inline final def normal = this := "normal"
+  object wordWrap extends Style[String]("wordWrap") {
+    /** Indicates that lines may only break at normal word break points. */
+    final def normal = this := "normal"
     /**
      * Indicates that normally unbreakable words may be broken at arbitrary
      * points if there are no otherwise acceptable break points in the line.
-     *
-     * MDN
      */
-    @inline final def `break-word` = this := "break-word"
+    final def `break-word` = this := "break-word"
   }
 
 
@@ -1300,10 +901,8 @@ trait HtmlStyles {
    *
    * Using this property with a value different than 1 places the element in a
    * new stacking context.
-   *
-   * MDN
    */
-  final lazy val opacity = new ReactStyle.Generic("opacity")
+  final def opacity = Style[String]("opacity")
 
 
   /**
@@ -1312,81 +911,59 @@ trait HtmlStyles {
    * larger than the value specified for max-width.
    *
    * max-width overrides width, but min-width overrides max-width.
-   *
-   * MDN
    */
-  final lazy val maxWidth = new ReactStyle.Generic("maxWidth")
+  final def maxWidth = Style[String]("maxWidth")
 
 
   /**
    * The vertical-align CSS property specifies the vertical alignment of an
    * inline or table-cell box.
-   *
-   * MDN
    */
-  object verticalAlign extends ReactStyle.Generic("verticalAlign") {
+  object verticalAlign extends Style[String]("verticalAlign") {
     /**
      * Aligns the baseline of the element with the baseline of its parent. The
      * baseline of some replaced elements, like textarea is not specified by
      * the HTML specification, meaning that their behavior with this keyword may
      * change from one browser to the other.
-     *
-     * MDN
      */
-    @inline final def baseline = this := "baseline"
+    final def baseline = this := "baseline"
     /**
      * Aligns the baseline of the element with the subscript-baseline of its
      * parent.
-     *
-     * MDN
      */
-    @inline final def sub = this := "sub"
+    final def sub = this := "sub"
     /**
      * Aligns the baseline of the element with the superscript-baseline of its
      * parent.
-     *
-     * MDN
      */
-    @inline final def `super` = this := "super"
-    /**
-     * Aligns the top of the element with the top of the parent element's font.
-     *
-     * MDN
-     */
-    @inline final def `text-top` = this := "text-top"
+    final def `super` = this := "super"
+    /** Aligns the top of the element with the top of the parent element's font. */
+    final def `text-top` = this := "text-top"
     /**
      * Aligns the bottom of the element with the bottom of the parent element's
      * font.
-     *
-     * MDN
      */
-    @inline final def `text-bottom` = this := "text-bottom"
+    final def `text-bottom` = this := "text-bottom"
     /**
      * Aligns the middle of the element with the middle of lowercase letters in
      * the parent.
-     *
-     * MDN
      */
-    @inline final def middle = this := "middle"
+    final def middle = this := "middle"
   }
 
 
   /**
    * The overflow CSS property specifies whether to clip content, render scroll
    * bars or display overflow content of a block-level element.
-   *
-   * MDN
    */
-  final lazy val overflow = new Overflow("overflow")
+  final def overflow = new Overflow("overflow")
 
   /**
    * If the value is a URI value, the element pointed to by the URI is used as
    * an SVG mask.
-   *
-   * MDN
    */
-  object mask extends ReactStyle.Generic("mask") {
-    @inline final def none = this := "none"
+  object mask extends Style[String]("mask") {
+    final def none = this := "none"
 
     def uri(s: String) = this := s"uri($s)"
   }
@@ -1396,23 +973,15 @@ trait HtmlStyles {
   /**
    * he empty-cells CSS property specifies how user agents should render borders
    * and backgrounds around cells that have no visible content.
-   *
-   * MDN
    */
-  object emptyCells extends ReactStyle.Generic("emptyCells") {
+  object emptyCells extends Style[String]("emptyCells") {
     /**
      * Is a keyword indicating that borders and backgrounds should be drawn like
      * in a normal cells.
-     *
-     * MDN
      */
-    @inline final def show = this := "show"
-    /**
-     * Is a keyword indicating that no border or backgrounds should be drawn.
-     *
-     * MDN
-     */
-    @inline final def hide = this := "hide"
+    final def show = this := "show"
+    /** Is a keyword indicating that no border or backgrounds should be drawn. */
+    final def hide = this := "hide"
   }
 
 
@@ -1422,10 +991,8 @@ trait HtmlStyles {
    * element.
    *
    * The min-height and max-height properties override height.
-   *
-   * MDN
    */
-  final lazy val height = new AutoStyle("height")
+  final def height = new AutoStyle("height")
 
 
   /**
@@ -1433,29 +1000,23 @@ trait HtmlStyles {
    * required on the right side of an element. The padding area is the space
    * between the content of the element and its border. Negative values are not
    * allowed.
-   *
-   * MDN
    */
-  final lazy val paddingRight = new ReactStyle.Generic("paddingRight")
+  final def paddingRight = Style[String]("paddingRight")
 
   /**
    * The padding-top CSS property of an element sets the padding space required
    * on the top of an element. The padding area is the space between the content
    * of the element and its border. Contrary to margin-top values, negative
    * values of padding-top are invalid.
-   *
-   * MDN
    */
-  final lazy val paddingTop = new ReactStyle.Generic("paddingTop")
+  final def paddingTop = Style[String]("paddingTop")
 
   /**
    * The padding-left CSS property of an element sets the padding space required
    * on the left side of an element. The padding area is the space between the
    * content of the element and it's border. A negative value is not allowed.
-   *
-   * MDN
    */
-  final lazy val paddingLeft = new ReactStyle.Generic("paddingLeft")
+  final def paddingLeft = Style[String]("paddingLeft")
 
   /**
    * The padding CSS property sets the required padding space on all sides of an
@@ -1464,20 +1025,16 @@ trait HtmlStyles {
    *
    * The padding property is a shorthand to avoid setting each side separately
    * (padding-top, padding-right, padding-bottom, padding-left).
-   *
-   * MDN
    */
-  final lazy val padding = new ReactStyle.Generic("padding")
+  final def padding = Style[String]("padding")
 
   /**
    * The padding-bottom CSS property of an element sets the height of the padding
    * area at the bottom of an element. The padding area is the space between the
    * content of the element and it's border. Contrary to margin-bottom values,
    * negative values of padding-bottom are invalid.
-   *
-   * MDN
    */
-  final lazy val paddingBottom = new ReactStyle.Generic("paddingBottom")
+  final def paddingBottom = Style[String]("paddingBottom")
 
   /**
    * The right CSS property specifies part of the position of positioned elements.
@@ -1494,10 +1051,8 @@ trait HtmlStyles {
    * computed value is set to -left), and the right value has precedence when
    * the container is right-to-left (that is that the left computed value is set
    * to -right).
-   *
-   * MDN
    */
-  final lazy val right = new AutoStyle("right")
+  final def right = new AutoStyle("right")
 
 
 
@@ -1509,10 +1064,8 @@ trait HtmlStyles {
    * used in the calculation of the line box height.
    *
    * On replaced inline elements, like buttons or other input element, line-height has no effect.
-   *
-   * MDN
    */
-  final lazy val lineHeight = new NormalOpenStyle("lineHeight")
+  final def lineHeight = new NormalOpenStyle("lineHeight")
 
   /**
    * The left CSS property specifies part of the position of positioned elements.
@@ -1520,10 +1073,8 @@ trait HtmlStyles {
    * For absolutely positioned elements (those with position: absolute or
    * position: fixed), it specifies the distance between the left margin edge of
    * the element and the left edge of its containing block.
-   *
-   * MDN
    */
-  final lazy val left = new AutoStyle("left")
+  final def left = new AutoStyle("left")
 
 
 
@@ -1535,140 +1086,58 @@ trait HtmlStyles {
    * The list-style-type CSS property specifies appearance of a list item element.
    * As it is the only one who defaults to display:list-item, this is usually a
    * li element, but can be any element with this display value.
-   *
-   * MDN
    */
-  object listStyleType extends ReactStyle.Generic("listStyleType") {
-    /**
-     * No item marker is shown
-     *
-     * MDN
-     */
-    @inline final def none = this := "none"
-    /**
-     * A filled circle (default value)
-     *
-     * MDN
-     */
-    @inline final def disc = this := "disc"
-    /**
-     * A hollow circle
-     *
-     * MDN
-     */
-    @inline final def circle = this := "circle"
-    /**
-     * A filled square
-     *
-     * MDN
-     */
-    @inline final def square = this := "square"
-    /**
-     * Decimal numbers begining with 1
-     *
-     * MDN
-     */
-    @inline final def decimal = this := "decimal"
-    /**
-     * Han decimal numbers
-     *
-     * MDN
-     */
-    @inline final def `cjk-decimal` = this := "cjk-decimal"
-    /**
-     * Decimal numbers padded by initial zeros
-     *
-     * MDN
-     */
-    @inline final def `decimal-leading-zero` = this := "decimal-leading-zero"
-    /**
-     * Lowercase roman numerals
-     *
-     * MDN
-     */
-    @inline final def `lower-roman` = this := "lower-roman"
-    /**
-     * Uppercase roman numerals
-     *
-     * MDN
-     */
-    @inline final def `upper-roman` = this := "upper-roman"
-    /**
-     * Lowercase classical greek
-     *
-     * MDN
-     */
-    @inline final def `lower-greek` = this := "lower-greek"
-    /**
-     * Lowercase ASCII letters
-     *
-     * MDN
-     */
-    @inline final def `lower-alpha` = this := "lower-alpha"
-    /**
-     * Lowercase ASCII letters
-     *
-     * MDN
-     */
-    @inline final def `lower-latin` = this := "lower-latin"
-    /**
-     * Uppercase ASCII letters
-     *
-     * MDN
-     */
-    @inline final def `upper-alpha` = this := "upper-alpha"
-    /**
-     * Uppercase ASCII letters
-     *
-     * MDN
-     */
-    @inline final def `upper-latin` = this := "upper-latin"
-    /**
-     * Traditional Armenian numbering
-     *
-     * MDN
-     */
-    @inline final def armenian = this := "armenian"
-    /**
-     * Traditional Georgian numbering
-     *
-     * MDN
-     */
-    @inline final def georgian = this := "georgian"
-    /**
-     * Traditional Hebrew numbering
-     *
-     * MDN
-     */
-    @inline final def hebrew = this := "hebrew"
-    /**
-     * Japanese Hiragana
-     *
-     * MDN
-     */
-    @inline final def hiragana = this := "hiragana"
+  object listStyleType extends Style[String]("listStyleType") {
+    /** No item marker is shown */
+    final def none = this := "none"
+    /** A filled circle (default value) */
+    final def disc = this := "disc"
+    /** A hollow circle */
+    final def circle = this := "circle"
+    /** A filled square */
+    final def square = this := "square"
+    /** Decimal numbers begining with 1 */
+    final def decimal = this := "decimal"
+    /** Han decimal numbers */
+    final def `cjk-decimal` = this := "cjk-decimal"
+    /** Decimal numbers padded by initial zeros */
+    final def `decimal-leading-zero` = this := "decimal-leading-zero"
+    /** Lowercase roman numerals */
+    final def `lower-roman` = this := "lower-roman"
+    /** Uppercase roman numerals */
+    final def `upper-roman` = this := "upper-roman"
+    /** Lowercase classical greek */
+    final def `lower-greek` = this := "lower-greek"
+    /** Lowercase ASCII letters */
+    final def `lower-alpha` = this := "lower-alpha"
+    /** Lowercase ASCII letters */
+    final def `lower-latin` = this := "lower-latin"
+    /** Uppercase ASCII letters */
+    final def `upper-alpha` = this := "upper-alpha"
+    /** Uppercase ASCII letters */
+    final def `upper-latin` = this := "upper-latin"
+    /** Traditional Armenian numbering */
+    final def armenian = this := "armenian"
+    /** Traditional Georgian numbering */
+    final def georgian = this := "georgian"
+    /** Traditional Hebrew numbering */
+    final def hebrew = this := "hebrew"
+    /** Japanese Hiragana */
+    final def hiragana = this := "hiragana"
     /**
      * Japanese Hiragana
      *
      * Iroha is the old japanese ordering of syllabs
-     *
-     * MDN
      */
-    @inline final def `hiragana-iroha` = this := "hiragana-iroha"
-    /**
-     * Japanese Katakana
-     *
-     * MDN
-     */
-    @inline final def katakana = this := "katakana"
+    final def `hiragana-iroha` = this := "hiragana-iroha"
+    /** Japanese Katakana */
+    final def katakana = this := "katakana"
     /**
      * Japanese Katakana
      *
      * Iroha is the old japanese ordering of syllabs
-     *
-     * MDN
      */
-    @inline final def `katakana-iroha` = this := "katakana-iroha"
+    final def `katakana-iroha` = this := "katakana-iroha"
   }
 
 
@@ -1676,39 +1145,25 @@ trait HtmlStyles {
   /**
    * The list-style CSS property is a shorthand property for setting
    * list-style-type, list-style-image and list-style-position.
-   *
-   * MDN
    */
-  final lazy val listStyle = new ReactStyle.Generic("listStyle")
+  final def listStyle = Style[String]("listStyle")
 
   /**
    * The overflow-y CSS property specifies whether to clip content, render a
    * scroll bar, or display overflow content of a block-level element, when it
    * overflows at the top and bottom edges.
-   *
-   * MDN
    */
-  final lazy val overflowY = new Overflow("overflowY")
+  final def overflowY = new Overflow("overflowY")
 
   /**
    * The caption-side CSS property positions the content of a table's caption
    * on the specified side.
-   *
-   * MDN
    */
-  object captionSide extends ReactStyle.Generic("captionSide") {
-    /**
-     * The caption box will be above the table.
-     *
-     * MDN
-     */
-    @inline final def top = this := "top"
-    /**
-     * The caption box will be below the table.
-     *
-     * MDN
-     */
-    @inline final def bottom = this := "bottom"
+  object captionSide extends Style[String]("captionSide") {
+    /** The caption box will be above the table. */
+    final def top = this := "top"
+    /** The caption box will be below the table. */
+    final def bottom = this := "bottom"
   }
 
   /**
@@ -1718,27 +1173,21 @@ trait HtmlStyles {
    * box shadow, the box shadow takes on the same rounded corners. The z-ordering
    * of multiple box shadows is the same as multiple text shadows (the first
    * specified shadow is on top).
-   *
-   * MDN
    */
-  final lazy val boxShadow = new ReactStyle.Generic("boxShadow")
+  final def boxShadow = Style[String]("boxShadow")
 
 
   /**
    * The position CSS property chooses alternative rules for positioning elements,
    * designed to be useful for scripted animation effects.
-   *
-   * MDN
    */
-  object position extends ReactStyle.Generic("position") {
+  object position extends Style[String]("position") {
     /**
      * This keyword let the element use the normal behavior, that is it is laid
      * out in its current position in the flow.  The top, right, bottom, and left
      * properties do not apply.
-     *
-     * MDN
      */
-    @inline final def static = this := "static"
+    final def static = this := "static"
     /**
      * This keyword lays out all elements as though the element were not
      * positioned, and then adjust the element's position, without changing
@@ -1746,38 +1195,30 @@ trait HtmlStyles {
      * had it not been positioned). The effect of position:relative on
      * table-*-group, table-row, table-column, table-cell, and table-caption
      * elements is undefined.
-     *
-     * MDN
      */
-    @inline final def relative = this := "relative"
+    final def relative = this := "relative"
     /**
      * Do not leave space for the element. Instead, position it at a specified
      * position relative to its closest positioned ancestor or to the containing
      * block. Absolutely positioned boxes can have margins, they do not collapse
      * with any other margins.
-     *
-     * MDN
      */
-    @inline final def absolute = this := "absolute"
+    final def absolute = this := "absolute"
     /**
      * Do not leave space for the element. Instead, position it at a specified
      * position relative to the screen's viewport and doesn't move when scrolled.
      * When printing, position it at that fixed position on every page.
-     *
-     * MDN
      */
-    @inline final def fixed = this := "fixed"
+    final def fixed = this := "fixed"
   }
 
 
-  object quotes extends ReactStyle.Generic("quotes") {
+  object quotes extends Style[String]("quotes") {
     /**
      * The open-quote and close-quote values of the content property produce no
      * quotation marks.
-     *
-     * MDN
      */
-    @inline final def none = this := "none"
+    final def none = this := "none"
 
     def ~(pairs: (String, String)*) = {
       this := pairs.flatMap(x => Seq(x._1, x._2)).map('"' + _ + '"').mkString(" ")
@@ -1785,23 +1226,19 @@ trait HtmlStyles {
 
   }
 
-  object tableLayout extends ReactStyle.Generic("tableLayout") {
+  object tableLayout extends Style[String]("tableLayout") {
     /**
      * An automatic table layout algorithm is commonly used by most browsers for
      * table layout. The width of the table and its cells depends on the content
      * thereof.
-     *
-     * MDN
      */
-    @inline final def auto = this := "auto"
+    final def auto = this := "auto"
     /**
      * Table and column widths are set by the widths of table and col elements
      * or by the width of the first row of cells. Cells in subsequent rows do
      * not affect column widths.
-     *
-     * MDN
      */
-    @inline final def fixed = this := "fixed"
+    final def fixed = this := "fixed"
   }
 
 
@@ -1810,31 +1247,25 @@ trait HtmlStyles {
    * the desired height of glyphs from the font. Setting the font size may, in
    * turn, change the size of other items, since it is used to compute the value
    * of em and ex Length units.
-   *
-   * MDN
    */
-  object fontSize extends ReactStyle.Generic("fontSize") {
-    @inline final def `xx-small` = this := "xx-small"
-    @inline final def `x-small` = this := "x-small"
-    @inline final def small = this := "small"
-    @inline final def medium = this := "medium"
-    @inline final def large = this := "large"
-    @inline final def `x-large` = this := "x-large"
-    @inline final def `xx-large` = this := "xx-large"
+  object fontSize extends Style[String]("fontSize") {
+    final def `xx-small` = this := "xx-small"
+    final def `x-small` = this := "x-small"
+    final def small = this := "small"
+    final def medium = this := "medium"
+    final def large = this := "large"
+    final def `x-large` = this := "x-large"
+    final def `xx-large` = this := "xx-large"
     /**
      * Larger than the parent element's font size, by roughly the ratio used to
      * separate the absolute size keywords above.
-     *
-     * MDN
      */
-    @inline final def larger = this := "larger"
+    final def larger = this := "larger"
     /**
      * Smaller than the parent element's font size, by roughly the ratio used to
      * separate the absolute size keywords above.
-     *
-     * MDN
      */
-    @inline final def smaller = this := "smaller"
+    final def smaller = this := "smaller"
   }
 
 
@@ -1848,10 +1279,8 @@ trait HtmlStyles {
    * letters. This can cause problems when the first-choice font-family is
    * unavailable and its replacement has a significantly different aspect ratio
    * (the ratio of the size of lowercase letters to the size of the font).
-   *
-   * MDN
    */
-  final lazy val fontSizeAdjust = new ReactStyle.Generic("fontSizeAdjust")
+  final def fontSizeAdjust = Style[String]("fontSizeAdjust")
 
   /**
    * The font-family CSS property allows for a prioritized list of font family
@@ -1860,10 +1289,8 @@ trait HtmlStyles {
    * that they are alternatives. The browser will select the first font on the
    * list that is installed on the computer, or that can be downloaded using the
    * information provided by a @font-face at-rule.
-   *
-   * MDN
    */
-  final lazy val fontFamily = new ReactStyle.Generic("fontFamily")
+  final def fontFamily = Style[String]("fontFamily")
 
 
   /**
@@ -1878,36 +1305,22 @@ trait HtmlStyles {
    * if there is none, the closest available darker weight). This means that for
    * fonts that provide only normal and bold, 100-500 are normal, and 600-900
    * are bold.
-   *
-   * MDN
    */
-  object fontWeight extends ReactStyle.Generic("fontWeight") {
-    /**
-     * Normal font weight. Same as 400.
-     *
-     * MDN
-     */
-    @inline final def normal = this := "normal"
-    /**
-     * Bold font weight. Same as 700.
-     *
-     * MDN
-     */
-    @inline final def bold = this := "bold"
+  object fontWeight extends Style[String]("fontWeight") {
+    /** Normal font weight. Same as 400. */
+    final def normal = this := "normal"
+    /** Bold font weight. Same as 700. */
+    final def bold = this := "bold"
     /**
      * One font weight lighter than the parent element (among the available
      * weights of the font).
-     *
-     * MDN
      */
-    @inline final def lighter = this := "lighter"
+    final def lighter = this := "lighter"
     /**
      * One font weight darker than the parent element (among the available
      * weights of the font)
-     *
-     * MDN
      */
-    @inline final def bolder = this := "bolder"
+    final def bolder = this := "bolder"
 
   }
 
@@ -1915,44 +1328,26 @@ trait HtmlStyles {
    * The font CSS property is either a shorthand property for setting font-style,
    * font-variant, font-weight, font-size, line-height and font-family, or a way
    * to set the element's font to a system font, using specific keywords.
-   *
-   * MDN
    */
-  final lazy val font = new ReactStyle.Generic("font")
+  final def font = Style[String]("font")
 
   /**
    * The font-feature-settings CSS property allows control over advanced
    * typographic features in OpenType fonts.
-   *
-   * MDN
    */
-  final lazy val fontFeatureSettings = new ReactStyle.Generic("fontFeatureSettings")
+  final def fontFeatureSettings = Style[String]("fontFeatureSettings")
 
   /**
    * The font-style CSS property allows italic or oblique faces to be selected
    * within a font-family.
-   *
-   * MDN
    */
-  object fontStyle extends ReactStyle.Generic("fontStyle"){
-    /**
-     * Selects a font that is classified as normal within a font-family
-     *
-     * MDN
-     */
-    @inline final def normal = this := "normal"
-    /**
-     * Selects a font that is labeled italic, if that is not available, one labeled oblique
-     *
-     * MDN
-     */
-    @inline final def italic = this := "italic"
-    /**
-     * Selects a font that is labeled oblique
-     *
-     * MDN
-     */
-    @inline final def oblique = this := "oblique"
+  object fontStyle extends Style[String]("fontStyle"){
+    /** Selects a font that is classified as normal within a font-family */
+    final def normal = this := "normal"
+    /** Selects a font that is labeled italic, if that is not available, one labeled oblique */
+    final def italic = this := "italic"
+    /** Selects a font that is labeled oblique */
+    final def oblique = this := "oblique"
   }
 
   /**
@@ -1960,60 +1355,36 @@ trait HtmlStyles {
    * elements that precede it or must be moved down (cleared) below them.
    *
    * The clear property applies to both floating and non-floating elements.
-   *
-   * MDN
    */
-  object clear extends ReactStyle.Generic("clear") {
-    /**
-     * The element is not moved down to clear past floating elements.
-     *
-     * MDN
-     */
-    @inline final def none = this := "none"
-    /**
-     * The element is moved down to clear past left floats.
-     *
-     * MDN
-     */
-    @inline final def left = this := "left"
-    /**
-     * The element is moved down to clear past right floats.
-     *
-     * MDN
-     */
-    @inline final def right = this := "right"
-    /**
-     * The element is moved down to clear past both left and right floats.
-     *
-     * MDN
-     */
-    @inline final def both = this := "both"
+  object clear extends Style[String]("clear") {
+    /** The element is not moved down to clear past floating elements. */
+    final def none = this := "none"
+    /** The element is moved down to clear past left floats. */
+    final def left = this := "left"
+    /** The element is moved down to clear past right floats. */
+    final def right = this := "right"
+    /** The element is moved down to clear past both left and right floats. */
+    final def both = this := "both"
   }
 
   /**
    * The margin-bottom CSS property of an element sets the margin space required
    * on the bottom of an element. A negative value is also allowed.
-   *
-   * MDN
    */
-  final lazy val marginBottom = new AutoStyle("marginBottom")
+  final def marginBottom = new AutoStyle("marginBottom")
 
   /**
    * The margin-right CSS property of an element sets the margin space required
    * on the bottom of an element. A negative value is also allowed.
-   *
-   * MDN
    */
-  final lazy val marginRight = new ReactStyle.Generic("marginRight") with MarginAuto
+  final def marginRight = new AutoStyle("marginRight")
 
 
   /**
    * The margin-top CSS property of an element sets the margin space required on
    * the top of an element. A negative value is also allowed.
-   *
-   * MDN
    */
-  final lazy val marginTop = new ReactStyle.Generic("marginTop") with MarginAuto
+  final def marginTop = new AutoStyle("marginTop")
 
 
   /**
@@ -2023,29 +1394,16 @@ trait HtmlStyles {
    *
    * The vertical margins of two adjacent boxes may fuse. This is called margin
    * collapsing.
-   *
-   * MDN
    */
-  final lazy val marginLeft = new ReactStyle.Generic("marginLeft") with MarginAuto
+  final def marginLeft = new AutoStyle("marginLeft")
   /**
    * The margin CSS property sets the margin for all four sides. It is a
    * shorthand to avoid setting each side separately with the other margin
    * properties: margin-top, margin-right, margin-bottom and margin-left.
    *
    * Negative values are also allowed.
-   *
-   * MDN
    */
-  object margin extends ReactStyle.Generic("margin") {
-    /**
-     * auto is replaced by some suitable value, e.g. it can be used for
-     * centering of blocks.
-     *
-     * MDN
-     */
-    @inline final def auto = this := "auto"
-
-  }
+  final def margin = new AutoStyle("margin")
 
 
   /**
@@ -2062,10 +1420,8 @@ trait HtmlStyles {
    * When both top and bottom are specified, the element position is
    * over-constrained and the top property has precedence: the computed value
    * of bottom is set to -top, while its specified value is ignored.
-   *
-   * MDN
    */
-  final lazy val top = new AutoStyle("top")
+  final def top = new AutoStyle("top")
 
 
   /**
@@ -2073,10 +1429,8 @@ trait HtmlStyles {
    * The content area is inside the padding, border, and margin of the element.
    *
    * The min-width and max-width properties override width.
-   *
-   * MDN
    */
-  final lazy val width = new AutoStyle("width")
+  final def width = new AutoStyle("width")
 
   /**
    * The bottom CSS property participates in specifying the position of
@@ -2092,18 +1446,14 @@ trait HtmlStyles {
    * However, the top property overrides the bottom property, so if top is not
    * auto, the computed value of bottom is the negative of the computed value of
    * top.
-   *
-   * MDN
    */
-  final lazy val bottom = new AutoStyle("bottom")
+  final def bottom = new AutoStyle("bottom")
 
   /**
    * The letter-spacing CSS property specifies spacing behavior between text
    * characters.
-   *
-   * MDN
    */
-  final lazy val letterSpacing = new NormalOpenStyle("letterSpacing")
+  final def letterSpacing = new NormalOpenStyle("letterSpacing")
 
 
   /**
@@ -2112,10 +1462,8 @@ trait HtmlStyles {
    * larger than the value specified for max-height.
    *
    * max-height overrides height, but min-height overrides max-height.
-   *
-   * MDN
    */
-  final lazy val maxHeight = new NoneOpenStyle("maxHeight")
+  final def maxHeight = new NoneOpenStyle("maxHeight")
 
   /**
    * The min-width CSS property is used to set the minimum width of a given
@@ -2123,10 +1471,8 @@ trait HtmlStyles {
    * smaller than the value specified for min-width.
    *
    * The value of min-width overrides both max-width and width.
-   *
-   * MDN
    */
-  final lazy val minWidth = new ReactStyle.Generic("minWidth")
+  final def minWidth = Style[String]("minWidth")
 
 
   /**
@@ -2135,10 +1481,8 @@ trait HtmlStyles {
    * smaller than the value specified for min-height.
    *
    * The value of min-height overrides both max-height and height.
-   *
-   * MDN
    */
-  final lazy val minHeight = new ReactStyle.Generic("minHeight")
+  final def minHeight = Style[String]("minHeight")
 
 
   /**
@@ -2148,65 +1492,43 @@ trait HtmlStyles {
    * preferable and more convenient.
    *
    * Outlines do not take up space, they are drawn above the content.
-   *
-   * MDN
    */
-  final lazy val outline = new ReactStyle.Generic("outline")
+  final def outline = Style[String]("outline")
 
   /**
    * The outline-style CSS property is used to set the style of the outline of
    * an element. An outline is a line that is drawn around elements, outside the
    * border edge, to make the element stand out.
-   *
-   * MDN
    */
-  final lazy val outlineStyle = new OutlineStyle("outlineStyle")
+  final def outlineStyle = new OutlineStyle("outlineStyle")
 
   /**
    * The outline-width CSS property is used to set the width of the outline of
    * an element. An outline is a line that is drawn around elements, outside the
    * border edge, to make the element stand out.
-   *
-   * MDN
    */
-  object outlineWidth extends ReactStyle.Generic("outlineWidth") {
-    /**
-     * Typically 1px in desktop browsers like Firefox.
-     *
-     * MDN
-     */
-    @inline final def thin = this := "thin"
-    /**
-     * Typically 3px in desktop browsers like Firefox.
-     *
-     * MDN
-     */
-    @inline final def medium = this := "medium"
-    /**
-     * Typically 5px in desktop browsers like Firefox.
-     *
-     * MDN
-     */
-    @inline final def thick = this := "thick"
+  object outlineWidth extends Style[String]("outlineWidth") {
+    /** Typically 1px in desktop browsers like Firefox. */
+    final def thin = this := "thin"
+    /** Typically 3px in desktop browsers like Firefox. */
+    final def medium = this := "medium"
+    /** Typically 5px in desktop browsers like Firefox. */
+    final def thick = this := "thick"
   }
 
   /**
    * The outline-color CSS property sets the color of the outline of an element.
    * An outline is a line that is drawn around elements, outside the border edge,
    * to make the element stand out.
-   *
-   * MDN
    */
-  object outlineColor extends ReactStyle.Generic("outlineColor") {
+  object outlineColor extends Style[String]("outlineColor") {
     /**
      * To ensure the outline is visible, performs a color inversion of the
      * background. This makes the focus border more salient, regardless of the
      * color in the background. Note that browser are not required to support
      * it. If not, they just consider the statement as invalid
-     *
-     * MDN
      */
-    @inline final def invert = this := "invert"
+    final def invert = this := "invert"
   }
 
 
@@ -2214,99 +1536,35 @@ trait HtmlStyles {
    * The overflow-x CSS property specifies whether to clip content, render a
    * scroll bar or display overflow content of a block-level element, when it
    * overflows at the left and right edges.
-   *
-   * MDN
    */
-  final lazy val overflowX = new Overflow("overflowX")
+  final def overflowX = new Overflow("overflowX")
 
 
   /**
    * The text-align-last CSS property describes how the last line of a block or
    * a line, right before a forced line break, is aligned.
-   *
-   * MDN
    */
-  final lazy val textAlignLast = new ReactStyle.Generic("textAlignLast") with TextAlign
-  trait TextAlign extends ReactStyle{
-    /**
-     * The same as left if direction is left-to-right and right if direction is
-     * right-to-left.
-     *
-     * MDN
-     */
-    @inline final def start = this := "start"
-    /**
-     * The same as right if direction is left-to-right and left if direction is
-     * right-to-left.
-     *
-     * MDN
-     */
-    @inline final def end = this := "end"
-    /**
-     * The inline contents are aligned to the left edge of the line box.
-     *
-     * MDN
-     */
-    @inline final def left = this := "left"
-    /**
-     * The inline contents are aligned to the right edge of the line box.
-     *
-     * MDN
-     */
-    @inline final def right = this := "right"
-    /**
-     * The inline contents are centered within the line box.
-     *
-     * MDN
-     */
-    @inline final def center = this := "center"
-    /**
-     * The text is justified. Text should line up their left and right edges to
-     * the left and right content edges of the paragraph.
-     *
-     * MDN
-     */
-    @inline final def justify = this := "justify"
-  }
+  final def textAlignLast = new TextAlign("textAlignLast")
+
   /**
    * The text-align CSS property describes how inline content like text is
    * aligned in its parent block element. text-align does not control the
    * alignment of block elements itself, only their inline content.
-   *
-   * MDN
    */
-  final lazy val textAlign = new ReactStyle.Generic("textAlign") with TextAlign
+  final def textAlign = new TextAlign("textAlign")
   /**
    * The text-decoration CSS property is used to set the text formatting to
    * underline, overline, line-through or blink.
-   *
-   * MDN
    */
-  object textDecoration extends ReactStyle.Generic("textDecoration") {
-    /**
-     * Produces no text decoration.
-     *
-     * MDN
-     */
-    @inline final def none = this := "none"
-    /**
-     * Each line of text is underlined.
-     *
-     * MDN
-     */
-    @inline final def underline = this := "underline"
-    /**
-     * Each line of text has a line above it.
-     *
-     * MDN
-     */
-    @inline final def overline = this := "overline"
-    /**
-     * Each line of text has a line through the middle.
-     *
-     * MDN
-     */
-    @inline final def `line-through` = this := "line-through"
+  object textDecoration extends Style[String]("textDecoration") {
+    /** Produces no text decoration. */
+    final def none = this := "none"
+    /** Each line of text is underlined. */
+    final def underline = this := "underline"
+    /** Each line of text has a line above it. */
+    final def overline = this := "overline"
+    /** Each line of text has a line through the middle. */
+    final def `line-through` = this := "line-through"
   }
 
   /**
@@ -2314,38 +1572,30 @@ trait HtmlStyles {
    * left before the beginning of the first line of the text content of an element.
    * Horizontal spacing is with respect to the left (or right, for right-to-left
    * layout) edge of the containing block element's box.
-   *
-   * MDN
    */
-  final lazy val textIndent = new ReactStyle.Generic("textIndent")
+  final def textIndent = Style[String]("textIndent")
 
   /**
    * The text-overflow CSS property determines how overflowed content that is
    * not displayed is signaled to the users. It can be clipped, or display an
    * ellipsis ('…', U+2026 HORIZONTAL ELLIPSIS) or a Web author-defined string.
-   *
-   * MDN
    */
-  object textOverflow extends ReactStyle.Generic("textOverflow") {
+  object textOverflow extends Style[String]("textOverflow") {
     /**
      * This keyword value indicates to truncate the text at the limit of the
      * content area, therefore the truncation can happen in the middle of a
      * character. To truncate at the transition between two characters, the
      * empty string value must be used. The value clip is the default for
      * this property.
-     *
-     * MDN
      */
-    @inline final def clip = this := "clip"
+    final def clip = this := "clip"
     /**
      * This keyword value indicates to display an ellipsis ('…', U+2026 HORIZONTAL
      * ELLIPSIS) to represent clipped text. The ellipsis is displayed inside the
      * content area, decreasing the amount of text displayed. If there is not
      * enough space to display the ellipsis, it is clipped.
-     *
-     * MDN
      */
-    @inline final def ellipsis = this := "ellipsis"
+    final def ellipsis = this := "ellipsis"
   }
   /**
    * The CSS text-underline-position property specifies the position of the
@@ -2353,78 +1603,52 @@ trait HtmlStyles {
    *
    * This property inherits and is not reset by the text-decoration shorthand,
    * allowing to easily set it globally for a given document.
-   *
-   * MDN
    */
-  object textUnderlinePosition extends ReactStyle.Generic("textUnderlinePosition") {
+  object textUnderlinePosition extends Style[String]("textUnderlinePosition") {
     /**
      * This keyword allows the browser to use an algorithm to choose between
      * under and alphabetic.
-     *
-     * MDN
      */
-    @inline final def auto = this := "auto"
+    final def auto = this := "auto"
     /**
      * This keyword forces the line to be set below the alphabetic baseline, at
      * a position where it won't cross any descender. This is useful to prevent
      * chemical or mathematical formulas, which make a large use of subscripts,
      * to be illegible.
-     *
-     * MDN
      */
-    @inline final def under = this := "under"
+    final def under = this := "under"
     /**
      * In vertical writing-modes, this keyword forces the line to be placed on
      * the left of the characters. In horizontal writing-modes, it is a synonym
      * of under.
-     *
-     * MDN
      */
-    @inline final def left = this := "left"
+    final def left = this := "left"
     /**
      * In vertical writing-modes, this keyword forces the line to be placed on
      * the right of the characters. In horizontal writing-modes, it is a synonym
      * of under.
-     *
-     * MDN
      */
-    @inline final def right = this := "right"
-    @inline final def `under left` = this := "under left"
-    @inline final def `under right` = this := "under right"
+    final def right = this := "right"
+    final def `under left` = this := "under left"
+    final def `under right` = this := "under right"
   }
   /**
    * The text-transform CSS property specifies how to capitalize an element's
    * text. It can be used to make text appear in all-uppercase or all-lowercase,
    * or with each word capitalized.
-   *
-   * MDN
    */
-  object textTransform extends ReactStyle.Generic("textTransform") {
+  object textTransform extends Style[String]("textTransform") {
     /**
      * Forces the first letter of each word to be converted to
      * uppercase. Other characters are unchanged.
-     *
-     * MDN
      */
-    @inline final def capitalize = this := "capitalize"
-    /**
-     * Forces all characters to be converted to uppercase.
-     *
-     * MDN
-     */
-    @inline final def uppercase = this := "uppercase"
-    /**
-     * Forces all characters to be converted to lowercase.
-     *
-     * MDN
-     */
-    @inline final def lowercase = this := "lowercase"
-    /**
-     * Prevents the case of all characters from being changed
-     *
-     * MDN
-     */
-    @inline final def none = this := "none"
+    final def capitalize = this := "capitalize"
+    /** Forces all characters to be converted to uppercase. */
+    final def uppercase = this := "uppercase"
+    /** Forces all characters to be converted to lowercase. */
+    final def lowercase = this := "lowercase"
+    /** Prevents the case of all characters from being changed */
+    final def none = this := "none"
   }
 
 
@@ -2437,34 +1661,24 @@ trait HtmlStyles {
    *
    * Multiple shadows are applied front-to-back, with the first-specified shadow
    * on top.
-   *
-   * MDN
    */
-  final lazy val textShadow = new NoneOpenStyle("textShadow")
+  final def textShadow = new NoneOpenStyle("textShadow")
 
-  object visibility extends ReactStyle.Generic("visibility") {
-    /**
-     * Default value, the box is visible
-     *
-     * MDN
-     */
-    @inline final def visible = this := "visible"
+  object visibility extends Style[String]("visibility") {
+    /** Default value, the box is visible */
+    final def visible = this := "visible"
     /**
      * The box is invisible (fully transparent, nothing is drawn), but still
      * affects layout.  Descendants of the element will be visible if they have
      * visibility:visible
-     *
-     * MDN
      */
-    @inline final def hidden = this := "hidden"
+    final def hidden = this := "hidden"
     /**
      * For table rows, columns, column groups, and row groups the row(s) or
      * column(s) are hidden and the space they would have occupied is (as if
      * display: none were applied to the column/row of the table)
-     *
-     * MDN
      */
-    @inline final def collapse = this := "collapse"
+    final def collapse = this := "collapse"
   }
 
 
@@ -2472,63 +1686,47 @@ trait HtmlStyles {
   /**
    * The white-space CSS property is used to to describe how whitespace inside
    * the element is handled.
-   *
-   * MDN
    */
-  object whiteSpace extends ReactStyle.Generic("whiteSpace"){
+  object whiteSpace extends Style[String]("whiteSpace"){
     /**
      * Sequences of whitespace are collapsed. Newline characters in the source
      * are handled as other whitespace. Breaks lines as necessary to fill line
      * boxes.
-     *
-     * MDN
      */
-    @inline final def normal = this := "normal"
+    final def normal = this := "normal"
     /**
      * Collapses whitespace as for normal, but suppresses line breaks (text
      * wrapping) within text.
-     *
-     * MDN
      */
-    @inline final def nowrap = this := "nowrap"
+    final def nowrap = this := "nowrap"
     /**
      * Sequences of whitespace are preserved, lines are only broken at newline
      * characters in the source and at br elements.
-     *
-     * MDN
      */
-    @inline final def pre = this := "pre"
+    final def pre = this := "pre"
     /**
      * Sequences of whitespace are preserved. Lines are broken at newline
      * characters, at br, and as necessary to fill line boxes.
-     *
-     * MDN
      */
-    @inline final def `pre-wrap` = this := "pre-wrap"
+    final def `pre-wrap` = this := "pre-wrap"
     /**
      * Sequences of whitespace are collapsed. Lines are broken at newline
      * characters, at br, and as necessary to fill line boxes.
-     *
-     * MDN
      */
-    @inline final def `pre-line` = this := "pre-line"
+    final def `pre-line` = this := "pre-line"
   }
   /**
    * The word-spacing CSS property specifies spacing behavior between tags and
    * words.
-   *
-   * MDN
    */
-  final lazy val wordSpacing = new NormalOpenStyle("wordSpacing")
+  final def wordSpacing = new NormalOpenStyle("wordSpacing")
   /**
    * The z-index CSS property specifies the z-order of an element and its
    * descendants. When elements overlap, z-order determines which one covers the
    * other. An element with a larger z-index generally covers an element with a
    * lower one.
-   *
-   * MDN
    */
-  final lazy val zIndex = new AutoStyle("zIndex")
+  final def zIndex = new AutoStyle("zIndex")
 
 
   // ==== [japgolly] Here begins Scalatags' Styles2 ====
@@ -2538,10 +1736,8 @@ trait HtmlStyles {
   /**
    * The animation-direction CSS property indicates whether the animation should
    * play in reverse on alternate cycles.
-   *
-   * MDN
    */
-  final lazy val animationDirection = new ReactStyle.Generic("animationDirection")
+  final def animationDirection = Style[String]("animationDirection")
 
   /**
    * The animation-duration CSS property specifies the Length of time that an
@@ -2549,35 +1745,27 @@ trait HtmlStyles {
    *
    * A value of 0s, which is the default value, indicates that no animation should
    * occur.
-   *
-   * MDN
    */
-  final lazy val animationDuration = new ReactStyle.Generic("animationDuration")
+  final def animationDuration = Style[String]("animationDuration")
 
   /**
    * The animation-name CSS property specifies a list of animations that should
    * be applied to the selected element. Each name indicates a @keyframes at-rule
    * that defines the property values for the animation sequence.
-   *
-   * MDN
    */
-  final lazy val animationName = new ReactStyle.Generic("animationName")
+  final def animationName = Style[String]("animationName")
 
   /**
    * The animation-fill-mode CSS property specifies how a CSS animation should
    * apply styles to its target before and after it is executing.
-   *
-   * MDN
    */
-  final lazy val animationFillMode = new ReactStyle.Generic("animationFillMode")
+  final def animationFillMode = Style[String]("animationFillMode")
 
   /**
    * The animation-iteration-count CSS property defines the number of times an
    * animation cycle should be played before stopping.
-   *
-   * MDN
    */
-  final lazy val animationIterationCount = new ReactStyle.Generic("animationIterationCount")
+  final def animationIterationCount = Style[String]("animationIterationCount")
 
 
   /**
@@ -2599,10 +1787,8 @@ trait HtmlStyles {
    * If you specify a negative value for the animation delay, but the starting
    * value is implicit, the starting value is taken from the moment the animation
    * is applied to the element.
-   *
-   * MDN
    */
-  final lazy val animationDelay = new MultiTimeStyle("animationDelay")
+  final def animationDelay = new MultiTimeStyle("animationDelay")
 
   /**
    * The CSS animation-timing-function property specifies how a CSS animation
@@ -2616,10 +1802,8 @@ trait HtmlStyles {
    * An animation timing function defined within a keyframe block applies to that
    * keyframe; otherwise. If no timing function is specified for the keyframe,
    * the timing function specified for the overall animation is used.
-   *
-   * MDN
    */
-  final lazy val animationTimingFunction = new ReactStyle.Generic("animationTimingFunction")
+  final def animationTimingFunction = Style[String]("animationTimingFunction")
 
 
   /**
@@ -2631,18 +1815,14 @@ trait HtmlStyles {
    * Resuming a paused animation will start the animation from where it left off
    * at the time it was paused, rather than starting over from the beginning of
    * the animation sequence.
-   *
-   * MDN
    */
-  final lazy val animationPlayState = new ReactStyle.Generic("animationPlayState")
+  final def animationPlayState = Style[String]("animationPlayState")
   /**
    * The animation CSS property is a shorthand property for animation-name,
    * animation-duration, animation-timing-function, animation-delay,
    * animation-iteration-count and animation-direction.
-   *
-   * MDN
    */
-  final lazy val animation = new ReactStyle.Generic("animation")
+  final def animation = Style[String]("animation")
 
 
   /**
@@ -2650,22 +1830,12 @@ trait HtmlStyles {
    * face of the element is visible when facing the user. The back face of an
    * element always is a transparent background, letting, when visible, a mirror
    * image of the front face be displayed.
-   *
-   * MDN
    */
-  object backfaceVisibility extends ReactStyle.Generic("backfaceVisibility") {
-    /**
-     * The back face is visible.
-     *
-     * MDN
-     */
-    @inline final def visible = this := "visible"
-    /**
-     * The back face is not visible.
-     *
-     * MDN
-     */
-    @inline final def hidden = this := "hidden"
+  object backfaceVisibility extends Style[String]("backfaceVisibility") {
+    /** The back face is visible. */
+    final def visible = this := "visible"
+    /** The back face is not visible. */
+    final def hidden = this := "hidden"
   }
 
 
@@ -2673,85 +1843,57 @@ trait HtmlStyles {
   /**
    * The columns CSS property is a shorthand property allowing to set both the
    * column-width and the column-count properties at the same time.
-   *
-   * MDN
    */
-  object columns extends ReactStyle.Generic("columns") {
+  object columns extends Style[String]("columns") {
     def :=(number: Int, width: String): TagMod = this := s"$number $width"
   }
 
-  /**
-   * The column-count CSS property describes the number of columns of the element.
-   *
-   * MDN
-   */
-  final lazy val columnCount = new AutoStyle("columnCount")
+  /** The column-count CSS property describes the number of columns of the element. */
+  final def columnCount = new AutoStyle("columnCount")
 
   /**
    * The column-fill CSS property controls how contents are partitioned into
    * columns. Contents are either balanced, which means that contents in all
    * columns will have the same height or, when using auto, just take up the
    * room the content needs.
-   *
-   * MDN
    */
-  object columnFill extends ReactStyle.Generic("columnFill") {
-    /**
-     * Is a keyword indicating that columns are filled sequentially.
-     *
-     * MDN
-     */
-    @inline final def auto = this := "auto"
+  object columnFill extends Style[String]("columnFill") {
+    /** Is a keyword indicating that columns are filled sequentially. */
+    final def auto = this := "auto"
 
-    /**
-     * Is a keyword indicating that content is equally divided between columns.
-     *
-     * MDN
-     */
-    @inline final def balance = this := "balance"
+    /** Is a keyword indicating that content is equally divided between columns. */
+    final def balance = this := "balance"
   }
 
   /**
    * The column-gap CSS property sets the size of the gap between columns for
    * elements which are specified to display as a multi-column element.
-   *
-   * MDN
    */
-  final lazy val columnGap = new NormalOpenStyle("columnGap")
+  final def columnGap = new NormalOpenStyle("columnGap")
 
   /**
    * In multi-column layouts, the column-rule CSS property specifies a straight
    * line, or "rule", to be drawn between each column. It is a convenient
    * shorthand to avoid setting each of the individual column-rule-* properties
    * separately : column-rule-width, column-rule-style and column-rule-color.
-   *
-   * MDN
    */
-  final lazy val columnRule = new ReactStyle.Generic("columnRule")
+  final def columnRule = Style[String]("columnRule")
 
   /**
    * The column-span CSS property makes it possible for an element to span across
    * all columns when its value is set to all. An element that spans more than
    * one column is called a spanning element.
-   *
-   * MDN
    */
-  object columnSpan extends ReactStyle.Generic("columnSpan") {
-    /**
-     * The element does not span multiple columns.
-     *
-     * MDN
-     */
-    @inline final def none = this := "none"
+  object columnSpan extends Style[String]("columnSpan") {
+    /** The element does not span multiple columns. */
+    final def none = this := "none"
     /**
      * The element spans across all columns. Content in the normal flow that
      * appears before the element is automatically balanced across all columns
      * before the element appears. The element establishes a new block formatting
      * context.
-     *
-     * MDN
      */
-    @inline final def all = this := "all"
+    final def all = this := "all"
   }
 
 
@@ -2763,40 +1905,32 @@ trait HtmlStyles {
    * CSS property which has precedence, to set an exact column width, all Length
    * values must be specified. In horizontal text these are width, column-width,
    * column-gap, and column-rule-width
-   *
-   * MDN
    */
-  final lazy val columnWidth = new AutoStyle("columnWidth")
+  final def columnWidth = new AutoStyle("columnWidth")
 
   /**
    * The column-rule-color CSS property lets you set the color of the rule drawn
    * between columns in multi-column layouts.
-   *
-   * MDN
    */
-  final lazy val columnRuleColor = new ReactStyle.Generic("columnRuleColor")
+  final def columnRuleColor = Style[String]("columnRuleColor")
 
   /**
    * The column-rule-width CSS property lets you set the width of the rule drawn
    * between columns in multi-column layouts.
-   *
-   * MDN
    */
-  object columnRuleWidth extends ReactStyle.Generic("columnRuleWidth") {
-    @inline final def thin = this := "thin"
-    @inline final def medium = this := "medium"
-    @inline final def thick = this := "thick"
+  object columnRuleWidth extends Style[String]("columnRuleWidth") {
+    final def thin = this := "thin"
+    final def medium = this := "medium"
+    final def thick = this := "thick"
   }
 
   /**
    * The column-rule-style CSS property lets you set the style of the rule drawn
    * between columns in multi-column layouts.
-   *
-   * MDN
    */
   object columnRuleStyle
     extends OutlineStyle("columnRuleStyle"){
-    @inline final def hidden = this := "hidden"
+    final def hidden = this := "hidden"
   }
 
 
@@ -2804,37 +1938,29 @@ trait HtmlStyles {
    * The content CSS property is used with the ::before and ::after pseudo-elements
    * to generate content in an element. Objects inserted using the content
    * property are anonymous replaced elements.
-   *
-   * MDN
    */
-  final lazy val contentStyle = new ReactStyle.Generic("content")
+  final def contentStyle = Style[String]("content")
 
   /**
    * The counter-increment CSS property is used to increase the value of CSS
    * Counters by a given value. The counter's value can be reset using the
    * counter-reset CSS property.
-   *
-   * MDN
    */
-  final lazy val counterIncrement = new ReactStyle.Generic("counterIncrement")
+  final def counterIncrement = Style[String]("counterIncrement")
 
   /**
    * The counter-reset CSS property is used to reset CSS Counters to a given
    * value.
-   *
-   * MDN
    */
-  final lazy val counterReset = new ReactStyle.Generic("counterReset")
+  final def counterReset = Style[String]("counterReset")
 
 
   /**
    * The orphans CSS property refers to the minimum number of lines in a block
    * container that must be left at the bottom of the page. This property is
    * normally used to control how page breaks occur.
-   *
-   * MDN
    */
-  final lazy val orphans = new ReactStyle.Generic("orphans")
+  final def orphans = Style[String]("orphans")
 
 
   /**
@@ -2844,27 +1970,21 @@ trait HtmlStyles {
    * allows to prevent widows to be left.
    *
    * On a non-paged media, like screen, the widows CSS property has no effect.
-   *
-   * MDN
    */
-  final lazy val widows = new ReactStyle.Generic("widows")
+  final def widows = Style[String]("widows")
 
 
   /**
    * The page-break-after CSS property adjusts page breaks after the current
    * element.
-   *
-   * MDN
    */
-  final lazy val pageBreakAfter = new PageBreak("pageBreakAfter")
+  final def pageBreakAfter = new PageBreak("pageBreakAfter")
 
   /**
    * The page-break-inside CSS property adjusts page breaks inside the current
    * element.
-   *
-   * MDN
    */
-  final lazy val pageBreakInside = new PageBreak("pageBreakInside")
+  final def pageBreakInside = new PageBreak("pageBreakInside")
 
 
   /**
@@ -2873,10 +1993,8 @@ trait HtmlStyles {
    *
    * This properties applies to block elements that generate a box. It won't
    * apply on an empty div that won't generate a box.
-   *
-   * MDN
    */
-  final lazy val pageBreakBefore = new PageBreak("pageBreakBefore")
+  final def pageBreakBefore = new PageBreak("pageBreakBefore")
 
 
   /**
@@ -2885,18 +2003,14 @@ trait HtmlStyles {
    * Each 3D element with z>0 becomes larger; each 3D-element with z<0 becomes
    * smaller. The strength of the effect is determined by the value of this
    * property.
-   *
-   * MDN
    */
-  final lazy val perspective = new NoneOpenStyle("perspective")
+  final def perspective = new NoneOpenStyle("perspective")
 
   /**
    * The perspective-origin CSS property determines the position the viewer is
    * looking at. It is used as the vanishing point by the perspective property.
-   *
-   * MDN
    */
-  final lazy val perspectiveOrigin = new ReactStyle.Generic("perspectiveOrigin")
+  final def perspectiveOrigin = Style[String]("perspectiveOrigin")
 
 
   /**
@@ -2916,10 +2030,8 @@ trait HtmlStyles {
    * master list, missing values are set to the initial value (0s). If there are
    * more delays, the list is simply truncated to the right size. In both case
    * the CSS declaration stays valid.
-   *
-   * MDN
    */
-  final lazy val transitionDelay = new MultiTimeStyle("transitionDelay")
+  final def transitionDelay = new MultiTimeStyle("transitionDelay")
 
   /**
    * The CSS transition property is a shorthand property for transition-property,
@@ -2927,20 +2039,16 @@ trait HtmlStyles {
    * allows to define the transition between two states of an element. Different
    * states may be defined using pseudo-classes like :hover or :active or
    * dynamically set using JavaScript.
-   *
-   * MDN
    */
-  final lazy val transition = new ReactStyle.Generic("transition")
+  final def transition = Style[String]("transition")
 
   /**
    * The CSS transition-timing-function property is used to describe how the
    * intermediate values of the CSS properties being affected by a transition
    * effect are calculated. This in essence lets you establish an acceleration
    * curve, so that the speed of the transition can vary over its duration.
-   *
-   * MDN
    */
-  final lazy val transitionTimingFunction = new ReactStyle.Generic("transitionTimingFunction")
+  final def transitionTimingFunction = Style[String]("transitionTimingFunction")
 
   /**
    * The transition-duration CSS property specifies the number of seconds or
@@ -2953,18 +2061,14 @@ trait HtmlStyles {
    * the master list, the user agent repeat the list of durations. If there are
    * more durations, the list is simply truncated to the right size. In both
    * case the CSS declaration stays valid.
-   *
-   * MDN
    */
-  final lazy val transitionDuration = new MultiTimeStyle("transitionDuration")
+  final def transitionDuration = new MultiTimeStyle("transitionDuration")
 
   /**
    * The transition-property CSS property is used to specify the names of CSS
    * properties to which a transition effect should be applied.
-   *
-   * MDN
    */
-  final lazy val transitionProperty = new ReactStyle.Generic("transitionProperty")
+  final def transitionProperty = Style[String]("transitionProperty")
 
   /**
    * The CSS transform property lets you modify the coordinate space of the CSS
@@ -2974,232 +2078,156 @@ trait HtmlStyles {
    * If the property has a value different than none, a stacking context will be
    * created. In that case the object will act as a containing block for
    * position: fixed elements that it contains.
-   *
-   * MDN
    */
-  final lazy val transform = new ReactStyle.Generic("transform")
+  final def transform = Style[String]("transform")
 
 
   /**
    * The flex CSS property is a shorthand property specifying the ability of a flex item to alter its dimensions to
    * fill available space. Flex items can be stretched to use available space proportional to their flex grow factor
    * or their flex shrink factor to prevent overflow.
-   *
-   * MDN
    */
-  final lazy val flex = new ReactStyle.Generic("flex")
+  final def flex = Style[String]("flex")
 
   /**
    * The CSS flex-basis property specifies the flex basis which is the initial main size of a flex item.
    * The property determines the size of the content-box unless specified otherwise using box-sizing.
-   *
-   * MDN
    */
-  final lazy val flexBasis = new ReactStyle.Generic("flexBasis")
+  final def flexBasis = Style[String]("flexBasis")
 
-  /**
-   * The CSS flex-grow property specifies the flex grow factor of a flex item.
-   *
-   * MDN
-   */
-  final lazy val flexGrow = new ReactStyle.Generic("flexGrow")
+  /** The CSS flex-grow property specifies the flex grow factor of a flex item. */
+  final def flexGrow = Style[String]("flexGrow")
 
-  /**
-   * The CSS flex-shrink property specifies the flex shrink factor of a flex item.
-   *
-   * MDN
-   */
-  final lazy val flexShrink = new ReactStyle.Generic("flexShrink")
+  /** The CSS flex-shrink property specifies the flex shrink factor of a flex item. */
+  final def flexShrink = Style[String]("flexShrink")
 
   /**
    * The CSS align-content property aligns a flex container's lines within the flex container when there is extra
    * space on the cross-axis. This property has no effect on single line flexible boxes.
-   *
-   * MDN
    */
-  object alignContent extends ReactStyle.Generic("alignContent") {
+  object alignContent extends Style[String]("alignContent") {
 
     /**
      * Lines are packed starting from the cross-start. Cross-start edge of the first line and cross-start edge of
      * the flex container are flushed together. Each following line is flush with the preceding.
-     *
-     * MDN
      */
-    @inline final def flexStart = this := "flex-start"
+    final def flexStart = this := "flex-start"
 
     /**
      * Lines are packed starting from the cross-end. Cross-end of the last line and cross-end of the flex container
      * are flushed together. Each preceding line is flushed with the following line.
-     *
-     * MDN
      */
-    @inline final def flexEnd = this := "flex-end"
+    final def flexEnd = this := "flex-end"
 
     /**
      * Lines are packed toward the center of the flex container. The lines are flushed with each other and aligned
      * in the center of the flex container. Space between the cross-start edge of the flex container and first line
      * and between cross-end of the flex container and the last line is the same.
-     *
-     * MDN
      */
-    @inline final def center = this := "center"
+    final def center = this := "center"
 
     /**
      * Lines are evenly distributed in the flex container. The spacing is done such as the space between two
      * adjacent items is the same. Cross-start edge and cross-end edge of the flex container are flushed with
      * respectively first and last line edges.
-     *
-     * MDN
      */
-    @inline final def spaceBeteween = this := "space-between"
+    final def spaceBeteween = this := "space-between"
 
     /**
      * Lines are evenly distributed so that the space between two adjacent lines is the same. The empty space before
      * the first and after the last lines equals half of the space between two adjacent lines.
-     *
-     * MDN
      */
-    @inline final def spaceAround = this := "space-around"
+    final def spaceAround = this := "space-around"
 
-    /**
-     * Lines stretch to use the remaining space. The free-space is split equally between all the lines.
-     *
-     * MDN
-     */
-    @inline final def stretch = this := "stretch"
+    /** Lines stretch to use the remaining space. The free-space is split equally between all the lines. */
+    final def stretch = this := "stretch"
   }
 
   /**
    * The align-self CSS property aligns flex items of the current flex line overriding the align-items value. If any
    * of the flex item's cross-axis margin is set to auto, then align-self is ignored.
-   *
-   * MDN
    */
-  object alignSelf extends ReactStyle.Generic("alignSelf") {
-    /**
-     * Computes to parent's align-items value or stretch if the element has no parent.
-     *
-     * MDN
-     */
-    @inline final def auto = this := "auto"
+  object alignSelf extends Style[String]("alignSelf") {
+    /** Computes to parent's align-items value or stretch if the element has no parent. */
+    final def auto = this := "auto"
 
-    /**
-     * The cross-start margin edge of the flex item is flushed with the cross-start edge of the line.
-     *
-     * MDN
-     */
-    @inline final def flexStart = this := "flex-start"
+    /** The cross-start margin edge of the flex item is flushed with the cross-start edge of the line. */
+    final def flexStart = this := "flex-start"
 
-    /**
-     * The cross-end margin edge of the flex item is flushed with the cross-end edge of the line.
-     *
-     * MDN
-     */
-    @inline final def flexEnd = this := "flex-end"
+    /** The cross-end margin edge of the flex item is flushed with the cross-end edge of the line. */
+    final def flexEnd = this := "flex-end"
 
     /**
      * The flex item's margin box is centered within the line on the cross-axis. If the cross-size of the item is
      * larger than the flex container, it will overflow equally in both directions.
-     *
-     * MDN
      */
-    @inline final def center = this := "center"
+    final def center = this := "center"
 
     /**
      * All flex items are aligned such that their baselines align. The item with the largest distance between its
      * cross-start margin edge and its baseline is flushed with the cross-start edge of the line.
-     *
-     * MDN
      */
-    @inline final def baseline = this := "baseline"
+    final def baseline = this := "baseline"
 
     /**
      * Flex items are stretched such as the cross-size of the item's margin box is the same as the line while
      * respecting width and height constraints.
-     *
-     * MDN
      */
-    @inline final def stretch = this := "stretch"
+    final def stretch = this := "stretch"
   }
 
   /**
    * The CSS flex-wrap property specifies whether the children are forced into a single line or if the items can be
    * flowed on multiple lines.
-   *
-   * MDN
    */
-  object flexWrap extends ReactStyle.Generic("flexWrap") {
+  object flexWrap extends Style[String]("flexWrap") {
 
     /**
      * The flex items are laid out in a single line which may cause the flex container to overflow. The cross-start
      * is either equivalent to start or before depending flex-direction value.
-     *
-     * MDN
      */
-    @inline final def nowrap = this := "nowrap"
+    final def nowrap = this := "nowrap"
 
     /**
      * The flex items break into multiple lines. The cross-start is either equivalent to start or before depending
      * flex-direction value and the cross-end is the opposite of the specified cross-start.
-     *
-     * MDN
      */
-    @inline final def wrap = this := "wrap"
+    final def wrap = this := "wrap"
 
-    /**
-     * Behaves the same as wrap but cross-start and cross-end are permuted.
-     *
-     * MDN
-     */
-    @inline final def wrapReverse = this := "wrapReverse"
+    /** Behaves the same as wrap but cross-start and cross-end are permuted. */
+    final def wrapReverse = this := "wrapReverse"
 
   }
 
   /**
    * The CSS align-items property aligns flex items of the current flex line the same way as justify-content
    * but in the perpendicular direction.
-   *
-   * MDN
    */
-  object alignItems extends ReactStyle.Generic("alignItems") {
+  object alignItems extends Style[String]("alignItems") {
 
-    /**
-     * The cross-start margin edge of the flex item is flushed with the cross-start edge of the line.
-     *
-     * MDN
-     */
-    @inline final def flexStart = this := "flex-start"
+    /** The cross-start margin edge of the flex item is flushed with the cross-start edge of the line. */
+    final def flexStart = this := "flex-start"
 
-    /**
-     * The cross-end margin edge of the flex item is flushed with the cross-end edge of the line.
-     *
-     * MDN
-     */
-    @inline final def flexEnd = this := "flex-end"
+    /** The cross-end margin edge of the flex item is flushed with the cross-end edge of the line. */
+    final def flexEnd = this := "flex-end"
 
     /**
      * The flex item's margin box is centered within the line on the cross-axis. If the cross-size of the item
      * is larger than the flex container, it will overflow equally in both directions.
-     *
-     * MDN
      */
-    @inline final def center = this := "center"
+    final def center = this := "center"
 
     /**
      * All flex items are aligned such that their baselines align. The item with the largest distance between its
      * cross-start margin edge and its baseline is flushed with the cross-start edge of the line.
-     *
-     * MDN
      */
-    @inline final def baseline = this := "baseline"
+    final def baseline = this := "baseline"
 
     /**
      * Flex items are stretched such as the cross-size of the item's margin box is the same as the line while
      * respecting width and height constraints.
-     *
-     * MDN
      */
-    @inline final def stretch = this := "stretch"
+    final def stretch = this := "stretch"
 
   }
 
@@ -3209,51 +2237,39 @@ trait HtmlStyles {
    * when aligning flex items in the main-axis of the current line. The alignment is done after the lengths and auto
    * margins are applied, meaning that, if there is at least one flexible element, with flex-grow different than 0, it
    * will have no effect as there won't be any available space.
-   *
-   * MDN
    */
-  object justifyContent extends ReactStyle.Generic("justifyContent") {
+  object justifyContent extends Style[String]("justifyContent") {
 
     /**
      * The flex items are packed starting from the main-start. Margins of the first flex item is flushed with the
      * main-start edge of the line and each following flex item is flushed with the preceding.
-     *
-     * MDN
      */
-    @inline final def flexStart = this := "flex-start"
+    final def flexStart = this := "flex-start"
 
     /**
      * The flex items are packed starting from the main-end. The margin edge of the last flex item is flushed with the
      * main-end edge of the line and each preceding flex item is flushed with the following.
-     *
-     * MDN
      */
-    @inline final def flexEnd = this := "flex-end"
+    final def flexEnd = this := "flex-end"
 
     /**
      * The flex items are packed toward the center of the line. The flex items are flushed with each other and aligned
      * in the center of the line. Space between the main-start edge of the line and first item and between main-end
      * and the last item of the line is the same.
-     *
-     * MDN
      */
-    @inline final def center = this := "center"
+    final def center = this := "center"
 
     /**
      * Flex items are evenly distributed along the line. The spacing is done such as the space between two adjacent
      * items is the same. Main-start edge and main-end edge are flushed with respectively first and last flex item edges.
-     *
-     * MDN
      */
-    @inline final def spaceBetween = this := "space-between"
+    final def spaceBetween = this := "space-between"
 
     /**
      * Flex items are evenly distributed so that the space between two adjacent items is the same. The empty space
      * before the first and after the last items equals half of the space between two adjacent items.
-     *
-     * MDN
      */
-    @inline final def spaceAround = this := "space-around"
+    final def spaceAround = this := "space-around"
 
   }
 
@@ -3265,40 +2281,26 @@ trait HtmlStyles {
    * If its dir attribute is ltr, row represents the horizontal axis oriented from the left to the right, and
    * row-reverse from the right to the left; if the dir attribute is rtl, row represents the axis oriented from the
    * right to the left, and row-reverse from the left to the right.
-   *
-   * MDN
    */
-  object flexDirection extends ReactStyle.Generic("flexDirection") {
+  object flexDirection extends Style[String]("flexDirection") {
 
     /**
      * The flex container's main-axis is the same as the block-axis.
      * The main-start and main-end points are the same as the before and after points of the writing-mode.
-     *
-     * MDN
      */
-    @inline final def column = this := "column"
+    final def column = this := "column"
 
-    /**
-     * Behaves the same as column but the main-start and main-end are permuted.
-     *
-     * MDN
-     */
-    @inline final def columnReverse = this := "column-reverse"
+    /** Behaves the same as column but the main-start and main-end are permuted. */
+    final def columnReverse = this := "column-reverse"
 
     /**
      * The flex container's main-axis is defined to be the same as the text direction.
      * The main-start and main-end points are the same as the content direction.
-     *
-     * MDN
      */
-    @inline final def row = this := "row"
+    final def row = this := "row"
 
-    /**
-     * Behaves the same as row but the main-start and main-end points are permuted.
-     *
-     * MDN
-     */
-    @inline final def rowReverse = this := "row-reverse"
+    /** Behaves the same as row but the main-start and main-end points are permuted. */
+    final def rowReverse = this := "row-reverse"
 
   }
 
@@ -3310,31 +2312,23 @@ trait HtmlStyles {
    * applying the element's transform, then translating by the property value.)
    *
    * Not explicitely set values are reset to their corresponding values.
-   *
-   * MDN
    */
-  final lazy val transformOrigin = new ReactStyle.Generic("transformOrigin")
+  final def transformOrigin = Style[String]("transformOrigin")
   /**
    * The transform-style CSS property determines if the children of the element
    * are positioned in the 3D-space or are flattened in the plane of the element.
-   *
-   * MDN
    */
-  object transformStyle extends ReactStyle.Generic("transformStyle") {
+  object transformStyle extends Style[String]("transformStyle") {
     /**
      * Indicates that the children of the element should be positioned in the
      * 3D-space.
-     *
-     * MDN
      */
-    @inline final def `preserve-3d` = this := "preserve-3d"
+    final def `preserve-3d` = this := "preserve-3d"
     /**
      * Indicates that the children of the element are lying in the plane of the
      * element itself.
-     *
-     * MDN
      */
-    @inline final def flat = this := "flat"
+    final def flat = this := "flat"
   }
 
   /**
@@ -3344,36 +2338,28 @@ trait HtmlStyles {
    * user-agent uses a complex Unicode algorithm to decide how to display the
    * text. This property overrides this algorithm and allows the developer to
    * control the text embedding.
-   *
-   * MDN
    */
-  object unicodeBidi extends ReactStyle.Generic("unicodeBidi") {
+  object unicodeBidi extends Style[String]("unicodeBidi") {
     /**
      * The element does not offer a additional level of embedding with respect
      * to the bidirectional algorithm. For inline elements implicit reordering
      * works across element boundaries.
-     *
-     * MDN
      */
-    @inline final def normal = this := "normal"
+    final def normal = this := "normal"
     /**
      * If the element is inline, this value opens an additional level of
      * embedding with respect to the bidirectional algorithm. The direction of
      * this embedding level is given by the direction property.
-     *
-     * MDN
      */
-    @inline final def embed = this := "embed"
+    final def embed = this := "embed"
     /**
      * For inline elements this creates an override. For block container elements
      * this creates an override for inline-level descendants not within another
      * block container element. This means that inside the element, reordering
      * is strictly in sequence according to the direction property; the implicit
      * part of the bidirectional algorithm is ignored.
-     *
-     * MDN
      */
-    @inline final def `bidi-override` = this := "bidi-override"
+    final def `bidi-override` = this := "bidi-override"
   }
 
 
@@ -3381,29 +2367,19 @@ trait HtmlStyles {
   /**
    * The word-break CSS property is used to specify how (or if) to break lines
    * within words.
-   *
-   * MDN
    */
-  object wordBreak extends ReactStyle.Generic("wordBreak") {
-    /**
-     * Use the default line break rule.
-     *
-     * MDN
-     */
-    @inline final def normal = this := "normal"
+  object wordBreak extends Style[String]("wordBreak") {
+    /** Use the default line break rule. */
+    final def normal = this := "normal"
     /**
      * Word breaks may be inserted between any character for non-CJK
      * (Chinese/Japanese/Korean) text.
-     *
-     * MDN
      */
-    @inline final def `break-all` = this := "break-all"
+    final def `break-all` = this := "break-all"
     /**
      * Don't allow word breaks for CJK text.  Non-CJK text behavior is same
      * as normal.
-     *
-     * MDN
      */
-    @inline final def `keep-all` = this := "keep-all"
+    final def `keep-all` = this := "keep-all"
   }
 }

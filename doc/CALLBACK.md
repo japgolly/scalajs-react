@@ -12,6 +12,7 @@ The `Callback` class encapsulates logic and side-effects that are meant to be *e
 - [Monadic Learning Curve](#monadic-learning-curve)
 - [Manual Execution](#manual-execution)
 - [Common Mistakes](#common-mistakes)
+- [Callbacks and Futures](#callbacks-and-futures)
 
 Introduction
 ============
@@ -256,7 +257,7 @@ Common Mistakes
     Callback.log("Incremented count by 1")
   }
   ```
-  
+
   FIXED:
   ```scala
   val increment: Callback =
@@ -279,7 +280,7 @@ Common Mistakes
     CallbackTo(rule != null)
   }
   ```
-  
+
   FIXED:
   ```scala
   val grantPrivateAccess = CallbackTo {
@@ -303,7 +304,48 @@ Common Mistakes
   There's no need or benefit to adding `() =>`.
 
   Just pass around `Callback` instances instead. If React never chooses to execute them, they'll never be executed.
-  
+
   But look, if for some reason you just really, really want to have a side-effect in the *construction* of the callback,
   then wrap the construction in `Callback.byName` and continue to pass around `Callback` instead of `() => Callback`.
 
+
+  Callbacks and Futures
+  =====================
+
+  There are a number of conversions available to convert between `Callback` and `Future`.
+
+  | Input                      | Method                 | Output                  |
+  | -------------------------- | ---------------------- | ----------------------- |
+  | `CallbackTo[A]`            | `cb.toFuture`          | `Future[A]`             |
+  | `CallbackTo[Future[A]]`    | `cb.toFlatFuture`      | `Future[A]`             |
+  | `=> Future[A]`             | `CallbackTo(f)`        | `CallbackTo[Future[A]]` |
+  | `=> Future[CallbackTo[A]]` | `CallbackTo.future(f)` | `CallbackTo[Future[A]]` |
+  | `=> Future[CallbackTo[A]]` | `Callback.future(f)`   | `Callback`              |
+
+  If you're looking for ways to block (eg. turning a `Callback[Future[A]]` into a `Callback[A]`),
+  it is not supported by Scala.JS (See [#1996](https://github.com/scala-js/scala-js/issues/1996)).
+
+  **NOTE:** It's important that when going from `Future` to `Callback`, you're aware of when the `Future` is instantiated.
+
+  ```scala
+  def queryServer: Future[Data] = ???
+
+  def updateComponent: Future[Callback] =
+    queryServer.map($ setState _)
+
+  // This is GOOD because the callback wraps the updateComponent *function*, not an instance.
+  Callback.future(updateComponent)
+
+  // This is BAD because the callback wraps a single instance of updateComponent.
+  // 1) The server will be contacted immediately instead of when the callback executes.
+  // 2) If the callback is executed more than once, the future and old result will be reused.
+  val f = updateComponent
+  Callback.future(f)
+
+  // This is GOOD too because the future is created inside the callback.
+  Callback.future {
+    val f = updateComponent
+    f.onComplete(???)
+    f
+  }
+  ```

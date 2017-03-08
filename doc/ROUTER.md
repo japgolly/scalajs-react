@@ -6,7 +6,7 @@ Included is a router (in the orbit of Single-Page Applications) that is written 
 The package is `japgolly.scalajs.react.extra.router`.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "0.11.3"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.0.0-RC1"
 ```
 
 ## Contents
@@ -88,7 +88,7 @@ Rendering the router is the same as any other React component; just create an in
   @JSExport
   override def main(): Unit = {
     val router = Router(baseUrl, routerConfig)
-    router() render dom.document.body
+    router().renderIntoDOM(dom.document.body)
   }
 ```
 
@@ -123,10 +123,10 @@ Each route can be associated with an action. The following actions are available
 
 | DSL | Args | Description |
 |-----|------|-------------|
-| `render` | `ReactElement` | Render something. |
-| `renderR` | `RouterCtl => ReactElement` | Render something using a [`RouterCtl`](#routerctl). |
-| `dynRender` | `Page => ReactElement` | Render something using the current page.<br>* *Dynamic routes only.* |
-| `dynRenderR` | `(Page, RouterCtl) => ReactElement` | Render something using  the current page, and a [`RouterCtl`](#routerctl).<br>* *Dynamic routes only.* |
+| `render` | `VdomElement` | Render something. |
+| `renderR` | `RouterCtl => VdomElement` | Render something using a [`RouterCtl`](#routerctl). |
+| `dynRender` | `Page => VdomElement` | Render something using the current page.<br>* *Dynamic routes only.* |
+| `dynRenderR` | `(Page, RouterCtl) => VdomElement` | Render something using  the current page, and a [`RouterCtl`](#routerctl).<br>* *Dynamic routes only.* |
 | `redirectToPage` | `(Page)`<br>`(implicit Redirect.Method)` | Redirect to a page. |
 | `redirectToPath` | `(Path | String)`<br>`(implicit Redirect.Method)` | Redirect to a path (a URL suffix proceding the `BaseUrl`). |
 
@@ -256,7 +256,7 @@ Example: This creates a route in the format of `item/<id>`.
 ```scala
 case class ItemPage(id: Int) extends MyPage
 
-val itemPage = ReactComponentB[ItemPage]("Item page")
+val itemPage = ScalaComponent.build[ItemPage]("Item page")
   .render(p => <.div(s"Info for item #${p.id}"))
   .build
 
@@ -357,7 +357,7 @@ A conversion to the former is just a `.contramap` or `.narrow` call away for the
 
 Here a subset of useful methods. Use IDE auto-complete or check the source for the full list.
 
-* `link(Page): ReactTag` - Create a link to a page.
+* `link(Page): VdomTag` - Create a link to a page.
 
   ```scala
   ctl.link(Specials)("Today's Specials", ^.color := "red")
@@ -517,7 +517,7 @@ val privatePages = (emptyRule
 
 ### Rendering with a layout
 
-Once you have a `RouterConfig`, you can call `.renderWith` on it to supply your own render function that will be invoked each time a route is rendered. It takes a function in the shape: `(RouterCtl[Page], Resolution[Page]) => ReactElement` where a `Resolution` is:
+Once you have a `RouterConfig`, you can call `.renderWith` on it to supply your own render function that will be invoked each time a route is rendered. It takes a function in the shape: `(RouterCtl[Page], Resolution[Page]) => VdomElement` where a `Resolution` is:
 
 ```scala
 /**
@@ -526,7 +526,7 @@ Once you have a `RouterConfig`, you can call `.renderWith` on it to supply your 
  * @param page Data representation (or command) of what will be drawn.
  * @param render The render function provided by the rules and logic in [[RouterConfig]].
  */
-final case class Resolution[P](page: P, render: () => ReactElement)
+final case class Resolution[P](page: P, render: () => VdomElement)
 ```
 
 Thus using the given `RouterCtl` and `Resolution` you can wrap the page in a layout, link to other pages, highlight the current page, etc.

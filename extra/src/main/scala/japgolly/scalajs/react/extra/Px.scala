@@ -1,8 +1,7 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.{BackendScope, CallbackTo}
-import japgolly.scalajs.react.experimental.BackendScopeMP
-import japgolly.scalajs.react.macros.PxMacros
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra.internal.{LazyVar, PxMacros}
 
 /**
  * A mechanism for caching data with dependencies.
@@ -53,24 +52,8 @@ sealed abstract class Px[A] {
 }
 
 object Px {
-  private class LazyVar[A](initArg: () => A) {
-    private var init = initArg // Don't prevent GC of initArg or waste mem propagating the ref
-    private var value: A = _
-
-    def get(): A = {
-      if (init ne null)
-        set(init())
-      value
-    }
-
-    def set(a: A): Unit = {
-      value = a
-      init = null
-    }
-  }
-
   sealed abstract class Root[A](__initValue: () => A) extends Px[A] {
-    protected val ignoreChange: (A, A) => Boolean
+    protected val reusability: Reusability[A]
 
     private val __value = new LazyVar(__initValue)
 
@@ -86,7 +69,7 @@ object Px {
     override final def peek = _value()
 
     protected def setMaybe(a: A): Unit =
-      if (!ignoreChange(_value(), a)) {
+      if (!reusability.test(_value(), a)) {
         _rev += 1
         _updateValue(a)
       }
@@ -97,7 +80,7 @@ object Px {
    *
    * Doesn't change until you explicitly call `set()`.
    */
-  final class Var[A](initialValue: A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](() => initialValue) {
+  final class Var[A](initialValue: A, protected val reusability: Reusability[A]) extends Root[A](() => initialValue) {
     override def toString = s"Px.Var(rev: $rev, value: $peek)"
 
     override def value() = _value()
@@ -112,7 +95,7 @@ object Px {
    * The `M` in `ThunkM` denotes "Manual refresh", meaning that the value will not update until you explicitly call
    * `refresh()`.
    */
-  final class ThunkM[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](next) {
+  final class ThunkM[A](next: () => A, protected val reusability: Reusability[A]) extends Root[A](next) {
     override def toString = s"Px.ThunkM(rev: $rev, value: $peek)"
 
     override def value() = _value()
@@ -127,7 +110,7 @@ object Px {
    * The `A` in `ThunkA` denotes "Auto refresh", meaning that the function will be called every time the value is
    * requested, and the value updated if necessary.
    */
-  final class ThunkA[A](next: () => A, protected val ignoreChange: (A, A) => Boolean) extends Root[A](next) {
+  private final class ThunkA[A](next: () => A, protected val reusability: Reusability[A]) extends Root[A](next) {
     override def toString = s"Px.ThunkA(rev: $rev, value: $peek)"
 
     override def value() = {
@@ -137,12 +120,16 @@ object Px {
   }
 
   sealed abstract class Derivative[A] extends Px[A] {
+
+    @deprecated("Use .withReuse", "1.0.0") final def reuse(implicit ev: Reusability[A]): Px[A] =
+      withReuse
+
     /**
      * In addition to updating when the underlying `Px` changes, this will also check its own result and halt updates
      * if reusable.
      */
-    final def reuse(implicit ev: Reusability[A]): Px[A] =
-      Px.thunkA(value())(ev)
+    final def withReuse(implicit ev: Reusability[A]): Px[A] =
+      Px(value()).withReuse(ev).autoRefresh
   }
 
   sealed abstract class DerivativeBase[A, B, C](xa: Px[A], derive: A => B) extends Derivative[C] {
@@ -208,17 +195,20 @@ object Px {
     }
   }
 
-  final class Const[A](a: A) extends Px[A] {
-    override def toString = s"Px.Const($a)"
+  private final class ConstByValue[A](a: A) extends Px[A] {
+    override def toString = s"Px.constByValue($a)"
 
     override def rev     = 0
     override def peek    = a
     override def value() = a
   }
 
-  final class LazyConst[A](a: => A) extends Px[A] {
+  private final class ConstByNeed[A](a: => A) extends Px[A] {
+    override def toString = s"Px.constByNeed(${if (available) value() else "…"})"
+    private[this] var available = false
+
     override def      rev     = 0
-    override lazy val peek    = a
+    override lazy val peek    = {val x = a; available = true; x}
     override def      value() = peek
   }
 
@@ -226,132 +216,128 @@ object Px {
 
   /** Import this to avoid the need to call `.value()` on your `Px`s. */
   object AutoValue {
-    @inline implicit def autoPxValue[A](x: Px[A]): A = x.value()
+    implicit def autoPxValue[A](x: Px[A]): A = x.value()
   }
 
   /** Refresh multiple [[ThunkM]]s at once. */
-  @inline def refresh(xs: ThunkM[_]*): Unit =
+  def refresh(xs: ThunkM[_]*): Unit =
     xs.foreach(_.refresh())
 
   // ===================================================================================================================
 
-  @inline def const    [A](a: A)   : Px[A] = new Const(a)
-  @inline def lazyConst[A](a: => A): Px[A] = new LazyConst(a)
+  def constByValue[A](a: A): Px[A] =
+    new ConstByValue(a)
 
-  def apply [A](a: A)             (implicit r: Reusability[A]) = new Var(a, r.test)
-  def thunkM[A](f: => A)          (implicit r: Reusability[A]) = new ThunkM(() => f, r.test)
-  def thunkA[A](f: => A)          (implicit r: Reusability[A]) = new ThunkA(() => f, r.test)
-  def cbM   [A](cb: CallbackTo[A])(implicit r: Reusability[A]) = thunkM(cb.runNow())
-  def cbA   [A](cb: CallbackTo[A])(implicit r: Reusability[A]) = thunkA(cb.runNow())
+  def constByNeed[A](a: => A): Px[A] =
+    new ConstByNeed(a)
 
-  def bs[P, S]($: BackendScope[P, S]) = new BackendScopePxOps[P, S]($)
-  final class BackendScopePxOps[P, S](private val $: BackendScope[P, S]) extends AnyVal {
-    def propsA(implicit r: Reusability[P]) = cbA($.props)
-    def propsM(implicit r: Reusability[P]) = cbM($.props)
-    def stateA(implicit r: Reusability[S]) = cbA($.state)
-    def stateM(implicit r: Reusability[S]) = cbM($.state)
-    def propsA[A: Reusability](f: P => A) = cbA($.props map f)
-    def propsM[A: Reusability](f: P => A) = cbM($.props map f)
-    def stateA[A: Reusability](f: S => A) = cbA($.state map f)
-    def stateM[A: Reusability](f: S => A) = cbM($.state map f)
+  def apply[A](f: => A): FromThunk[A] =
+    new FromThunk(() => f)
+
+  def callback[A](cb: CallbackTo[A]): FromThunk[A] =
+    new FromThunk(cb.toScalaFn)
+
+  def props[P](s: GenericComponent.MountedPure[P, _]): FromThunk[P] =
+    callback(s.props)
+
+  def state[I, S](i: I)(implicit sa: StateAccessor.ReadPure[I, S]): FromThunk[S] =
+    callback(sa.state(i))
+
+  final class FromThunk[A](private val thunk: () => A) extends AnyVal {
+    def map[B](f: A => B): FromThunk[B] =
+      new FromThunk(() => f(thunk()))
+
+    def withReuse(implicit r: Reusability[A]): FromThunkReusability[A] =
+      new FromThunkReusability(thunk, r)
+
+    def withoutReuse: FromThunkReusability[A] =
+      new FromThunkReusability(thunk, Reusability.never)
   }
 
-  // TODO Px.bsMP is temporary: Sync BackendScope + BackendScopeMP
-  def bsMP[P, S]($: BackendScopeMP[P, S]) = new BackendScopeMPPxOps[P, S]($)
-  final class BackendScopeMPPxOps[P, S](private val $: BackendScopeMP[P, S]) extends AnyVal {
-    def propsA(implicit r: Reusability[P]) = cbA($.props)
-    def propsM(implicit r: Reusability[P]) = cbM($.props)
-    def stateA(implicit r: Reusability[S]) = cbA($.state)
-    def stateM(implicit r: Reusability[S]) = cbM($.state)
-    def propsA[A: Reusability](f: P => A) = cbA($.props map f)
-    def propsM[A: Reusability](f: P => A) = cbM($.props map f)
-    def stateA[A: Reusability](f: S => A) = cbA($.state map f)
-    def stateM[A: Reusability](f: S => A) = cbM($.state map f)
-  }
+  final class FromThunkReusability[A](thunk: () => A, reusability: Reusability[A]) {
 
-  object NoReuse {
-    private val noReuse: (Any, Any) => Boolean = (_, _) => false
-    def apply [A](a: A)              = new Var(a, noReuse)
-    def thunkM[A](f: => A)           = new ThunkM(() => f, noReuse)
-    def thunkA[A](f: => A)           = new ThunkA(() => f, noReuse)
-    def cbM   [A](cb: CallbackTo[A]) = thunkM(cb.runNow())
-    def cbA   [A](cb: CallbackTo[A]) = thunkA(cb.runNow())
+    /** Every time [[japgolly.scalajs.react.extra.Px.value()]] is called, the underlying data function is re-evaluated.
+      * If a non-reusable change is detected, the value is replaced.
+      */
+    def autoRefresh: Px[A] =
+      new ThunkA(thunk, reusability)
 
-    def bs[P, S]($: BackendScope[P, S]) = new BackendScopePxOps[P, S]($)
-    final class BackendScopePxOps[P, S](private val $: BackendScope[P, S]) extends AnyVal {
-      def propsA = cbA($.props)
-      def propsM = cbM($.props)
-      def stateA = cbA($.state)
-      def stateM = cbM($.state)
-      def propsA[A](f: P => A) = cbA($.props map f)
-      def propsM[A](f: P => A) = cbM($.props map f)
-      def stateA[A](f: S => A) = cbA($.state map f)
-      def stateM[A](f: S => A) = cbM($.state map f)
-    }
+    /** The underlying data function will only be re-evaluated and checked for non-reusable change when
+      * [[japgolly.scalajs.react.extra.Px.ThunkM.refresh()]] is called.
+      *
+      * [[japgolly.scalajs.react.extra.Px.refresh()]] also exists as a convenience to refresh multiple instances at once.
+      */
+    def manualRefresh: ThunkM[A] =
+      new ThunkM(thunk, reusability)
+
+    /** The value is never updated until [[japgolly.scalajs.react.extra.Px.Var.set()]] is called to specify a new value.
+      */
+    def manualUpdate: Var[A] =
+      new Var(thunk(), reusability)
   }
 
   // Generated by bin/gen-px
 
-  @inline def apply2[A,B,Z](pa:Px[A], pb:Px[B])(z:(A,B)⇒Z): Px[Z] =
+  def apply2[A,B,Z](pa:Px[A], pb:Px[B])(z:(A,B)⇒Z): Px[Z] =
     for {a←pa;b←pb} yield z(a,b)
 
-  @inline def apply3[A,B,C,Z](pa:Px[A], pb:Px[B], pc:Px[C])(z:(A,B,C)⇒Z): Px[Z] =
+  def apply3[A,B,C,Z](pa:Px[A], pb:Px[B], pc:Px[C])(z:(A,B,C)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc} yield z(a,b,c)
 
-  @inline def apply4[A,B,C,D,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D])(z:(A,B,C,D)⇒Z): Px[Z] =
+  def apply4[A,B,C,D,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D])(z:(A,B,C,D)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd} yield z(a,b,c,d)
 
-  @inline def apply5[A,B,C,D,E,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E])(z:(A,B,C,D,E)⇒Z): Px[Z] =
+  def apply5[A,B,C,D,E,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E])(z:(A,B,C,D,E)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe} yield z(a,b,c,d,e)
 
-  @inline def apply6[A,B,C,D,E,F,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F])(z:(A,B,C,D,E,F)⇒Z): Px[Z] =
+  def apply6[A,B,C,D,E,F,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F])(z:(A,B,C,D,E,F)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf} yield z(a,b,c,d,e,f)
 
-  @inline def apply7[A,B,C,D,E,F,G,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G])(z:(A,B,C,D,E,F,G)⇒Z): Px[Z] =
+  def apply7[A,B,C,D,E,F,G,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G])(z:(A,B,C,D,E,F,G)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg} yield z(a,b,c,d,e,f,g)
 
-  @inline def apply8[A,B,C,D,E,F,G,H,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H])(z:(A,B,C,D,E,F,G,H)⇒Z): Px[Z] =
+  def apply8[A,B,C,D,E,F,G,H,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H])(z:(A,B,C,D,E,F,G,H)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph} yield z(a,b,c,d,e,f,g,h)
 
-  @inline def apply9[A,B,C,D,E,F,G,H,I,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I])(z:(A,B,C,D,E,F,G,H,I)⇒Z): Px[Z] =
+  def apply9[A,B,C,D,E,F,G,H,I,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I])(z:(A,B,C,D,E,F,G,H,I)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi} yield z(a,b,c,d,e,f,g,h,i)
 
-  @inline def apply10[A,B,C,D,E,F,G,H,I,J,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J])(z:(A,B,C,D,E,F,G,H,I,J)⇒Z): Px[Z] =
+  def apply10[A,B,C,D,E,F,G,H,I,J,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J])(z:(A,B,C,D,E,F,G,H,I,J)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj} yield z(a,b,c,d,e,f,g,h,i,j)
 
-  @inline def apply11[A,B,C,D,E,F,G,H,I,J,K,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K])(z:(A,B,C,D,E,F,G,H,I,J,K)⇒Z): Px[Z] =
+  def apply11[A,B,C,D,E,F,G,H,I,J,K,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K])(z:(A,B,C,D,E,F,G,H,I,J,K)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk} yield z(a,b,c,d,e,f,g,h,i,j,k)
 
-  @inline def apply12[A,B,C,D,E,F,G,H,I,J,K,L,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L])(z:(A,B,C,D,E,F,G,H,I,J,K,L)⇒Z): Px[Z] =
+  def apply12[A,B,C,D,E,F,G,H,I,J,K,L,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L])(z:(A,B,C,D,E,F,G,H,I,J,K,L)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl} yield z(a,b,c,d,e,f,g,h,i,j,k,l)
 
-  @inline def apply13[A,B,C,D,E,F,G,H,I,J,K,L,M,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M)⇒Z): Px[Z] =
+  def apply13[A,B,C,D,E,F,G,H,I,J,K,L,M,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl;m←pm} yield z(a,b,c,d,e,f,g,h,i,j,k,l,m)
 
-  @inline def apply14[A,B,C,D,E,F,G,H,I,J,K,L,M,N,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N)⇒Z): Px[Z] =
+  def apply14[A,B,C,D,E,F,G,H,I,J,K,L,M,N,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl;m←pm;n←pn} yield z(a,b,c,d,e,f,g,h,i,j,k,l,m,n)
 
-  @inline def apply15[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O)⇒Z): Px[Z] =
+  def apply15[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl;m←pm;n←pn;o←po} yield z(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o)
 
-  @inline def apply16[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P)⇒Z): Px[Z] =
+  def apply16[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl;m←pm;n←pn;o←po;p←pp} yield z(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p)
 
-  @inline def apply17[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q)⇒Z): Px[Z] =
+  def apply17[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl;m←pm;n←pn;o←po;p←pp;q←pq} yield z(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q)
 
-  @inline def apply18[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q], pr:Px[R])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)⇒Z): Px[Z] =
+  def apply18[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q], pr:Px[R])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl;m←pm;n←pn;o←po;p←pp;q←pq;r←pr} yield z(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r)
 
-  @inline def apply19[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q], pr:Px[R], ps:Px[S])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S)⇒Z): Px[Z] =
+  def apply19[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q], pr:Px[R], ps:Px[S])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl;m←pm;n←pn;o←po;p←pp;q←pq;r←pr;s←ps} yield z(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s)
 
-  @inline def apply20[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q], pr:Px[R], ps:Px[S], pt:Px[T])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T)⇒Z): Px[Z] =
+  def apply20[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q], pr:Px[R], ps:Px[S], pt:Px[T])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl;m←pm;n←pn;o←po;p←pp;q←pq;r←pr;s←ps;t←pt} yield z(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t)
 
-  @inline def apply21[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q], pr:Px[R], ps:Px[S], pt:Px[T], pu:Px[U])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U)⇒Z): Px[Z] =
+  def apply21[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q], pr:Px[R], ps:Px[S], pt:Px[T], pu:Px[U])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl;m←pm;n←pn;o←po;p←pp;q←pq;r←pr;s←ps;t←pt;u←pu} yield z(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u)
 
-  @inline def apply22[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q], pr:Px[R], ps:Px[S], pt:Px[T], pu:Px[U], pv:Px[V])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V)⇒Z): Px[Z] =
+  def apply22[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q], pr:Px[R], ps:Px[S], pt:Px[T], pu:Px[U], pv:Px[V])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl;m←pm;n←pn;o←po;p←pp;q←pq;r←pr;s←ps;t←pt;u←pu;v←pv} yield z(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v)
 }

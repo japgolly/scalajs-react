@@ -1,88 +1,120 @@
 package japgolly.scalajs.react.vdom
 
+import japgolly.scalajs.react.{PropsChildren, raw}
+import japgolly.scalajs.react.component.Generic
+import japgolly.scalajs.react.internal.OptionLike
 import scala.scalajs.js
-import japgolly.scalajs.react._
-import Scalatags._
+import Exports.VdomTag
 
-import scala.scalajs.js.Any
+// =====================================================================================================================
 
-abstract class LowPri {
-  @inline implicit final def _react_fragSeq   [A <% Frag](xs: Seq[A])   : Frag = new SeqFrag(xs)
-  @inline implicit final def _react_fragArray [A <% Frag](xs: Array[A]) : Frag = new SeqFrag[A](xs.toSeq)
+trait ImplicitsForVdomAttr1 {
+  import Attr.ValueType
 
-//  @inline implicit final def _react_fragOption[A <% Frag](xs: Option[A]): Frag = SeqFrag(xs.toSeq)
-//  @inline implicit final def _react_fragOptionLike[T[_], A](t: T[A])(implicit o: OptionLike[T], f: A => Frag): Frag =
-//    o.fold(t, f, js.native)
+  implicit lazy val vdomAttrVtInnerHtml: ValueType[String, InnerHtmlAttr] =
+    ValueType[String, InnerHtmlAttr]((b, html) => b(js.Dynamic.literal("__html" -> html)))
+
+  implicit def vdomAttrVtKey[A](implicit k: A => raw.Key): ValueType[A, Attr.Key] =
+    ValueType((b, a) => b(k(a).asInstanceOf[js.Any]))
+
+  implicit val vdomAttrVtKeyL: ValueType[Long, Attr.Key] =
+    ValueType((b, a) => b(a.toString))
+
+  // 90% case so reuse
+  implicit val vdomAttrVtKeyS = vdomAttrVtKey[String]
 }
 
-// If you're wondering why abstract class instead of trait, https://issues.scala-lang.org/browse/SI-4767
-abstract class Implicits extends LowPri {
+trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
+  import Attr.ValueType
+  import ValueType._
 
-  // Attributes
-  @inline implicit final def _react_attrString   : ReactAttr.ValueType[String         ] = ReactAttr.ValueType.string
-          implicit final val _react_attrBoolean  : ReactAttr.ValueType[Boolean        ] = ReactAttr.ValueType.map
-          implicit final def _react_attrByte     : ReactAttr.ValueType[Byte           ] = ReactAttr.ValueType.map
-          implicit final def _react_attrShort    : ReactAttr.ValueType[Short          ] = ReactAttr.ValueType.map
-          implicit final val _react_attrInt      : ReactAttr.ValueType[Int            ] = ReactAttr.ValueType.map
-          implicit final val _react_attrLong     : ReactAttr.ValueType[Long           ] = ReactAttr.ValueType.map
-          implicit final def _react_attrFloat    : ReactAttr.ValueType[Float          ] = ReactAttr.ValueType.map
-          implicit final val _react_attrDouble   : ReactAttr.ValueType[Double         ] = ReactAttr.ValueType.map
-          implicit final val _react_attrJsThisFn : ReactAttr.ValueType[js.ThisFunction] = ReactAttr.ValueType.map
-          implicit final val _react_attrJsFn     : ReactAttr.ValueType[js.Function    ] = ReactAttr.ValueType.map
-          implicit final val _react_attrJsObj    : ReactAttr.ValueType[js.Object      ] = ReactAttr.ValueType.map
+  implicit val vdomAttrVtBoolean: Simple[Boolean] = byImplicit
 
-  implicit final def _react_attrJsDictionary[A]: ReactAttr.ValueType[js.Dictionary[A]] =
-    ReactAttr.ValueType.map(d => d.asInstanceOf[js.Object])
+  implicit val vdomAttrVtString: Simple[String] = string
 
-  @inline implicit final def _react_attrRef[R <: Ref]: ReactAttr.ValueType[R] =
-    ReactAttr.ValueType.map(_.name)
+  implicit val vdomAttrVtInt: Simple[Int] = byImplicit
 
-  @inline implicit final def _react_attrOptionLike[T[_], A](implicit o: OptionLike[T], t: ReactAttr.ValueType[A]): ReactAttr.ValueType[T[A]] =
-    ReactAttr.ValueType.optional(o, t)
+  implicit val vdomAttrVtJsObject: Simple[js.Object] = direct
 
-  @inline implicit final def _react_attrArray[A](implicit f: A => Any): ReactAttr.ValueType[js.Array[A]] =
-    ReactAttr.ValueType.array(f)
+  @inline implicit def vdomAttrVtJsDictionary[A]: ValueType[js.Dictionary[A], js.Object] = byImplicit
 
-  // Styles
-  @inline implicit final def _react_styleString   : ReactStyle.ValueType[String         ] = ReactStyle.ValueType.string
-          implicit final val _react_styleBoolean  : ReactStyle.ValueType[Boolean        ] = ReactStyle.ValueType.stringValue
-          implicit final def _react_styleByte     : ReactStyle.ValueType[Byte           ] = ReactStyle.ValueType.stringValue
-          implicit final def _react_styleShort    : ReactStyle.ValueType[Short          ] = ReactStyle.ValueType.stringValue
-          implicit final val _react_styleInt      : ReactStyle.ValueType[Int            ] = ReactStyle.ValueType.stringValue
-          implicit final val _react_styleLong     : ReactStyle.ValueType[Long           ] = ReactStyle.ValueType.stringValue
-          implicit final def _react_styleFloat    : ReactStyle.ValueType[Float          ] = ReactStyle.ValueType.stringValue
-          implicit final val _react_styleDouble   : ReactStyle.ValueType[Double         ] = ReactStyle.ValueType.stringValue
+  // For attributes that aren't typed yet
+  @inline implicit def vdomAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
 
-  @inline implicit final def _react_styleOptionLike[O[_], A](implicit o: OptionLike[O], t: ReactStyle.ValueType[A]): ReactStyle.ValueType[O[A]] =
-    ReactStyle.ValueType.optional(o, t)
-
-  // Frag
-  @inline implicit final def _react_fragReactNode[T <% ReactNode](v: T): Frag = new ReactNodeFrag(v)
-
-  // Scalatags misc
-  @inline implicit final def _react_styleOrdering                  : Ordering[ReactStyle] = ReactStyle.ordering
-  @inline implicit final def _react_attrOrdering                   : Ordering[ReactAttr]  = ReactAttr.ordering
-  @inline implicit final def _react_cssNumber    [T: Numeric](t: T): CssNumber       = new CssNumber(t)
-
-  // Rendering
-  @inline implicit final def _react_autoRender [T <: TopNode](t: ReactTagOf[T])     : ReactElement      = t.render
-  @inline implicit final def _react_autoRenderS[T <: TopNode](t: Seq[ReactTagOf[T]]): Seq[ReactElement] = t.map(_.render)
-
-  // Extensions
-  @inline implicit final def _react_ext_attr(a: ReactAttr)    = new Extra.AttrExt(a)
-  @inline implicit final def _react_ext_bool(a: Boolean) = new Extra.BooleanExt(a)
-  @inline implicit final def _react_ext_str (a: String)  = new Extra.StringExt(a)
-
-  // TagMod
-
-  @inline implicit final def _react_nodeSeq[A <% TagMod](xs: Seq[A]): TagMod =
-    new SeqNode(xs)
-
-  @inline implicit final def _react_nodeArray[A <% TagMod](xs: Array[A]): TagMod =
-    new SeqNode[A](xs.toSeq)
-
-  @inline implicit final def _react_nodeOptionLike[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => TagMod): TagMod =
-    O.fold(o, EmptyTag)(f)
+  implicit def vdomAttrVtCssUnits[N: Numeric](n: N): CssUnits =
+    new CssUnits(n)
 }
+
+// =====================================================================================================================
+
+object ImplicitsForTagMod {
+  final class OptionExt[O[_], A](o: O[A])(implicit O: OptionLike[O]) {
+    def whenDefined(implicit f: A => TagMod): TagMod =
+      O.fold(o, TagMod.Empty)(f)
+  }
+}
+
+trait ImplicitsForTagMod {
+  implicit def vdomOptionExt[O[_], A](o: O[A])(implicit O: OptionLike[O]): ImplicitsForTagMod.OptionExt[O, A] =
+    new ImplicitsForTagMod.OptionExt(o)
+}
+
+// =====================================================================================================================
+
+object ImplicitsForVdomNode {
+  final class TraversableOnceExt[A](private val as: TraversableOnce[A]) extends AnyVal {
+
+    def toTagMod(implicit f: A => TagMod): TagMod =
+      TagMod.fromTraversableOnce(as.toIterator.map(f))
+
+    def toVdomArray(implicit f: A => VdomNode): VdomArray =
+      VdomArray.empty() ++= as
+  }
+}
+
+trait ImplicitsForVdomNode {
+  import ImplicitsForVdomNode._
+
+  implicit def vdomNodeFromLong         (v: Long)         : VdomNode = VdomNode.cast(v.toString)
+  implicit def vdomNodeFromInt          (v: Int)          : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromShort        (v: Short)        : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromByte         (v: Byte)         : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromDouble       (v: Double)       : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromFloat        (v: Float)        : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromString       (v: String)       : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromPropsChildren(v: PropsChildren): VdomNode = VdomNode.cast(v.raw)
+
+  implicit def vdomSeqExtForTO[A](as: TraversableOnce[A]) = new TraversableOnceExt[A](as)
+  implicit def vdomSeqExtForSA[A](as: Array          [A]) = new TraversableOnceExt[A](as)
+  implicit def vdomSeqExtForJA[A](as: js.Array       [A]) = new TraversableOnceExt[A](as)
+}
+
+// =====================================================================================================================
+
+trait ImplicitsForVdomElement {
+  implicit def vdomElementFromTag[A](a: A)(implicit f: A => VdomTag): VdomElement =
+    f(a).render
+
+  implicit def vdomElementFromComponent(u: Generic.UnmountedWithRoot[_, _, _, _]): VdomElement =
+    u.vdomElement
+}
+
+// =====================================================================================================================
+
+trait Implicits
+  extends ImplicitsForTagMod
+     with ImplicitsForVdomAttr
+     with ImplicitsForVdomNode
+     with ImplicitsForVdomElement
 
 object Implicits extends Implicits
+
+// =====================================================================================================================
+
+object ImplicitsFromRaw {
+  implicit def vdomElementFromRawReactElement(e: raw.ReactElement): VdomElement =
+    VdomElement(e)
+
+  implicit def vdomNodeFromRawReactNode(e: raw.ReactNode): VdomNode =
+    VdomNode(e)
+}

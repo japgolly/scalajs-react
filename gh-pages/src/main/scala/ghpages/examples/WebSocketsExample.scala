@@ -2,13 +2,13 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 
 object WebSocketsExample {
 
   def content = SingleSide.Content(source, main())
 
-  lazy val main = addIntro(WebSocketsApp, _(
+  lazy val main = addIntro(WebSocketsApp.withKey(_)(), _(
     s"Echo messages with WebSockets using ReactJS"))
 
   val source = GhPagesMacros.exampleSource
@@ -49,12 +49,12 @@ object WebSocketsExample {
         <.pre(
           ^.width  := 360.px,
           ^.height := 200.px,
-          ^.border := "1px solid",
-          s.logLines.map(<.p(_)))       // Display log
+          ^.border := "1px solid")(
+          s.logLines.map(<.p(_)): _*)       // Display log
       )
     }
 
-    def onChange(e: ReactEventI): Callback = {
+    def onChange(e: ReactEventFromInput): Callback = {
       val newMessage = e.target.value
       $.modState(_.copy(message = newMessage))
     }
@@ -76,7 +76,8 @@ object WebSocketsExample {
 
         // Get direct access so WebSockets API can modify state directly
         // (for access outside of a normal DOM/React callback).
-        val direct = $.accessDirect
+        // This means that calls like .setState will now return Unit instead of Callback.
+        val direct = $.withEffectsImpure
 
         // These are message-receiving events from the WebSocket "thread".
 
@@ -123,7 +124,7 @@ object WebSocketsExample {
     }
   }
 
-  val WebSocketsApp = ReactComponentB[Unit]("WebSocketsApp")
+  val WebSocketsApp = ScalaComponent.build[Unit]("WebSocketsApp")
     .initialState(State(None, Vector.empty, ""))
     .renderBackend[Backend]
     .componentDidMount(_.backend.start)

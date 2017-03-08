@@ -36,13 +36,13 @@ object PxTest extends TestSuite {
 
   override def tests = TestSuite {
     'big {
-      val xa = Px("a")
+      val xa = Px("a").withReuse.manualUpdate
 
       var vb = "b"
-      val xb = Px.thunkA(vb)
+      val xb = Px(vb).withReuse.autoRefresh
 
       var vc = "c"
-      val xc = Px.thunkM(vc)
+      val xc = Px(vc).withReuse.manualRefresh
 
       var rab   = 0
       var rbc   = 0
@@ -108,7 +108,7 @@ object PxTest extends TestSuite {
     'map {
       val add0 = addFn(0)
       val add5 = addFn(5)
-      val px3 = Px(3)
+      val px3 = Px(3).withReuse.manualUpdate
       val px = px3 map add0.fn map add5.fn
       def test(res: Int, called0: Int, called5: Int): Unit = {
         val v1 = px.value()
@@ -125,8 +125,8 @@ object PxTest extends TestSuite {
     'mapReuse {
       val even = TraceFn((_: Int) & 254)
       val add5 = addFn(5)
-      val px4 = Px(4)
-      val px = px4.map(even.fn).reuse map add5.fn
+      val px4 = Px(4).withReuse.manualUpdate
+      val px = px4.map(even.fn).withReuse map add5.fn
       def test(res: Int, called0: Int, called5: Int): Unit = {
         val v1 = px.value()
         assertEq((v1, even.count(), add5.count()), (res, called0, called5))
@@ -142,19 +142,19 @@ object PxTest extends TestSuite {
 
     'extract {
       'bad {
-        val px: Px[Int] = Px(3)
+        val px: Px[Int] = Px(3).withReuse.manualUpdate
         assert(compileError("px.extract").msg contains "with functions, not Int")
       }
       'fn0 {
         var i = () => 30
-        val fn = Px.NoReuse.thunkA(i).extract
+        val fn = Px(i).withoutReuse.autoRefresh.extract
         assertEq(fn(), 30)
         i = () => 4
         assertEq(fn(), 4)
       }
       'fn1 {
         var i = 30
-        val px = Px.thunkA(i).map(a => (b: Int) => a - b)
+        val px = Px(i).withReuse.autoRefresh.map(a => (b: Int) => a - b)
         val fn = px.extract
         assertEq(fn(7), 23)
         i = 20
@@ -162,14 +162,14 @@ object PxTest extends TestSuite {
       }
       'fn2 {
         var i = 30
-        val fn = Px.thunkA(i).map(a => (b: Int, c: Int) => a - b - c).extract
+        val fn = Px(i).withReuse.autoRefresh.map(a => (b: Int, c: Int) => a - b - c).extract
         assertEq(fn(7, 3), 20)
         i = 20
         assertEq(fn(3, 7), 10)
       }
       'dealias {
         val add: AddCC = _ + 8
-        val fn = Px.NoReuse.thunkA(add).extract
+        val fn = Px(add).withoutReuse.autoRefresh.extract
         assertEq(fn(3), 11)
       }
     }

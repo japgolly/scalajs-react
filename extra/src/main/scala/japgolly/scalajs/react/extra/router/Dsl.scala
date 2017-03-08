@@ -4,8 +4,10 @@ import java.util.UUID
 import java.util.regex.{Pattern, Matcher}
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
-import japgolly.scalajs.react.macros.RouterMacros
-import japgolly.scalajs.react.{CallbackTo, ReactElement}
+import japgolly.scalajs.react.CallbackTo
+import japgolly.scalajs.react.extra.internal.RouterMacros
+import japgolly.scalajs.react.internal.identityFn
+import japgolly.scalajs.react.vdom.VdomElement
 import RouterConfig.Parsed
 
 /**
@@ -59,8 +61,8 @@ object StaticDsl {
       implicit def T3[A, B, C] = Composition[(A, B), C, (A, B, C)](r => (r._1, r._2), _._3, (l, r) => (l._1, l._2, r))
     }
     trait Composition_PriMed extends Composition_PriLow {
-      implicit def _toA[A] = Composition[Unit, A, A](_ => (), identity, (_, a) => a)
-      implicit def Ato_[A] = Composition[A, Unit, A](identity, _ => (), (a, _) => a)
+      implicit def _toA[A] = Composition[Unit, A, A](_ => (), identityFn, (_, a) => a)
+      implicit def Ato_[A] = Composition[A, Unit, A](identityFn, _ => (), (a, _) => a)
     }
     object Composition extends Composition_PriMed {
       implicit def _to_ = Composition[Unit, Unit, Unit](_ => (), _ => (), (_, _) => ())
@@ -470,7 +472,7 @@ final class RouterConfigDsl[Page] {
   val uuid = new RouteB[UUID](uuidRegex,  1, g => Some(UUID fromString g(0)), _.toString)
 
   private def __string1(regex: String): RouteB[String] =
-    new RouteB(regex, 1, g => Some(g(0)), identity)
+    new RouteB(regex, 1, g => Some(g(0)), identityFn)
 
   /**
    * Matches a string.
@@ -501,16 +503,16 @@ final class RouterConfigDsl[Page] {
 
   implicit def _auto_someAction[A <: Action](a: A): Option[A] = Some(a)
 
-  def render[A <% ReactElement](a: => A): Renderer =
+  def render[A <% VdomElement](a: => A): Renderer =
     Renderer(_ => a)
 
-  def renderR[A <% ReactElement](g: RouterCtl[Page] => A): Renderer =
+  def renderR[A <% VdomElement](g: RouterCtl[Page] => A): Renderer =
     Renderer(g(_))
 
-  def dynRender[P <: Page, A <% ReactElement](g: P => A): P => Renderer =
+  def dynRender[P <: Page, A <% VdomElement](g: P => A): P => Renderer =
     p => Renderer(_ => g(p))
 
-  def dynRenderR[P <: Page, A <% ReactElement](g: (P, RouterCtl[Page]) => A): P => Renderer =
+  def dynRenderR[P <: Page, A <% VdomElement](g: (P, RouterCtl[Page]) => A): P => Renderer =
     p => Renderer(r => g(p, r))
 
   def redirectToPage(page: Page)(implicit method: Redirect.Method): RedirectToPage[Page] =

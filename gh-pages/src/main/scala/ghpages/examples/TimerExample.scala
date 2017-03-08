@@ -1,7 +1,7 @@
 package ghpages.examples
 
 import ghpages.GhPagesMacros
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 import scala.scalajs.js
 import ghpages.examples.util.SideBySide
 
@@ -9,7 +9,7 @@ object TimerExample {
 
   def content = SideBySide.Content(jsSource, source, main())
 
-  lazy val main = addIntro(Timer, _(scalaPortOf("A Stateful Component")))
+  lazy val main = addIntro(Timer.withKey(_)(), _(scalaPortOf("A Stateful Component")))
 
   val jsSource =
     """
@@ -66,7 +66,7 @@ object TimerExample {
       <.div("Seconds elapsed: ", s.secondsElapsed)
   }
 
-  val Timer = ReactComponentB[Unit]("Timer")
+  val Timer = ScalaComponent.build[Unit]("Timer")
     .initialState(State(0))
     .renderBackend[Backend]
     .componentDidMount(_.backend.start)

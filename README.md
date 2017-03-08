@@ -11,26 +11,24 @@ Provides (opt-in) support for pure functional programming, using [Scalaz](https:
 Comes utility modules [`extra`](extra/) and [`test`](test/), helpful for React in Scala(.js), rather than React in JS.
 Includes a router, testing utils, performance utils, more.
 
-<br>
-## Notice: A redesign is currently underway on the [topic/neo](https://github.com/japgolly/scalajs-react/tree/topic/neo) branch.  
-### Pop in, have a look around, if you'd like to make some big changes now is the time.
-### Also it will largely be backward-compatible so don't be afraid to get started with the latest release if you're a new user.
-<br>
-
 ##### Contents
 
-- [Usage (+ Setup)](doc/USAGE.md).
-  - [The `Callback` class](doc/CALLBACK.md).
-- [Live Examples & Demos](https://japgolly.github.io/scalajs-react/).
-- [Type Summary](doc/TYPES.md).
-- [Functional Programming](doc/FP.md).
-- Scala-only Utilities.
-  - [Router](doc/ROUTER.md).
-  - [Performance Management](doc/PERFORMANCE.md).
-  - [Smaller stuff](doc/EXTRA.md).
-- [Testing](doc/TESTING.md).
-- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.11/0.11.3) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.11/0.11.3) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/0.11.3) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/0.11.3) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/0.11.3)
-- [Changelogs](doc/changelog) — [Latest](doc/changelog/0.11.3.md).
+- [Usage & Getting Started](doc/USAGE.md)
+  - [VDOM](doc/VDOM.md)
+  - [Refs](doc/REFS.md)
+  - [The `Callback` class](doc/CALLBACK.md)
+- Delving deeper
+  - [Types](doc/TYPES.md)
+  - [Interoperability](doc/INTEROP.md)
+  - [Functional programming](doc/FP.md)
+- Scala-only Utilities
+  - [Router](doc/ROUTER.md)
+  - [Performance Management](doc/PERFORMANCE.md)
+  - [Other](doc/EXTRA.md)
+- [Testing](doc/TESTING.md)
+- [Live Examples & Demos](https://japgolly.github.io/scalajs-react/)
+- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.11/1.0.0-RC1) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.11/1.0.0-RC1) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/1.0.0-RC1) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/1.0.0-RC1) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/1.0.0-RC1)
+- [Changelogs](doc/changelog) — [Latest](doc/changelog/1.0.0.md)
 
 
 ##### External Resources
@@ -41,15 +39,13 @@ Includes a router, testing utils, performance utils, more.
   * [TodoMVC example](http://todomvc.com/examples/scalajs-react)
   * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
 
-* [Interop With Third-Party Components - chandu0101](https://github.com/chandu0101/scalajs-react-components/blob/master/doc/InteropWithThirdParty.md)
-
 * Libraries
+  * [test-state](https://github.com/japgolly/test-state/) - Integration/Functional/Property testing for scalajs-react.
   * [scalajs-benchmark](https://github.com/japgolly/scalajs-benchmark/)
   * [chandu0101 / scalajs-react-components](https://github.com/chandu0101/scalajs-react-components)
   * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
 
 ##### Requirements:
-* React 15+
+* React 15.3+
 * Scala 2.11 or 2.12.
 * Scala.JS 0.6.14+
-

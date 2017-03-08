@@ -5,7 +5,7 @@ import org.scalajs.dom, dom.MouseEvent
 import ghpages.examples.util.SingleSide
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
-import japgolly.scalajs.react.vdom.prefix_<^._
+import japgolly.scalajs.react.vdom.html_<^._
 
 object EventListenerExample {
 
@@ -15,7 +15,7 @@ object EventListenerExample {
 
   // EXAMPLE:START
 
-  val Main = ReactComponentB[Unit]("EventListener Example")
+  val Main = ScalaComponent.build[Unit]("EventListener Example")
     .initialState("Local mouseenter events + local/global click events will appear here.")
     .renderBackend[Backend]
     .configure(

@@ -6,9 +6,10 @@ import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
-import js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
-import js.timers.RawTimers
+import scala.scalajs.js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
+import scala.scalajs.js.timers.RawTimers
 import scala.util.{Try, Failure, Success}
+import japgolly.scalajs.react.internal.identityFn
 import CallbackTo.MapGuard
 
 /**
@@ -29,7 +30,7 @@ object Callback {
     @inline implicit def apply[A: Proof]: ResultGuard[A] = null
   }
 
-  @inline def apply[U: ResultGuard](f: => U): Callback =
+  def apply[U: ResultGuard](f: => U): Callback =
     CallbackTo(f: Unit)
 
   @inline def lift(f: () => Unit): Callback =
@@ -52,7 +53,7 @@ object Callback {
    *
    * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
    */
-  @inline def byName(f: => Callback): Callback =
+  def byName(f: => Callback): Callback =
     CallbackTo(f.runNow())
 
   /**
@@ -100,7 +101,7 @@ object Callback {
    *
    * @param cond The condition required to be `false` for the callback to execute.
    */
-  @inline def unless(cond: Boolean)(c: => Callback): Callback =
+  def unless(cond: Boolean)(c: => Callback): Callback =
     when(!cond)(c)
 
   def traverse[T[X] <: TraversableOnce[X], A](ta: => T[A])(f: A => Callback): Callback =
@@ -108,16 +109,16 @@ object Callback {
       ta.foreach(a =>
         f(a).runNow()))
 
-  @inline def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
-    traverse(tca)(identity)
+  def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
+    traverse(tca)(identityFn)
 
   def traverseO[A](oa: => Option[A])(f: A => Callback): Callback =
     Callback(
       oa.foreach(a =>
         f(a).runNow()))
 
-  @inline def sequenceO[A](oca: => Option[Callback]): Callback =
-    traverseO(oca)(identity)
+  def sequenceO[A](oca: => Option[Callback]): Callback =
+    traverseO(oca)(identityFn)
 
   /**
    * Convenience for calling `dom.console.log`.
@@ -178,13 +179,13 @@ object Callback {
 // =====================================================================================================================
 
 object CallbackTo {
-  @inline def apply[A](f: => A): CallbackTo[A] =
+  def apply[A](f: => A): CallbackTo[A] =
     new CallbackTo(() => f)
 
-  @inline def lift[A](f: () => A): CallbackTo[A] =
+  def lift[A](f: () => A): CallbackTo[A] =
     new CallbackTo(f)
 
-  @inline def pure[A](a: A): CallbackTo[A] =
+  def pure[A](a: A): CallbackTo[A] =
     new CallbackTo(() => a)
 
   /**
@@ -200,7 +201,7 @@ object CallbackTo {
    *
    * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
    */
-  @inline def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
+  def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     CallbackTo(f.runNow())
 
   /**
@@ -229,15 +230,15 @@ object CallbackTo {
       r.result()
     }
 
-  @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])
-                                                     (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
-    traverse(tca)(identity)
+  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])
+                                             (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
+    traverse(tca)(identityFn)
 
   def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
     CallbackTo(oa.map(f(_).runNow()))
 
-  @inline def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
-    traverseO(oca)(identity)
+  def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
+    traverseO(oca)(identityFn)
 
   /**
    * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
@@ -271,7 +272,7 @@ object CallbackTo {
     Callback.todoImpl(Some(() => reason)) >> CallbackTo(result)
 
   final class ReactExt_CallbackToFuture[A](private val _c: () => Future[A]) extends AnyVal {
-    @inline private def c = new CallbackTo(_c)
+    private def c = new CallbackTo(_c)
 
     /**
      * Turns a `CallbackTo[Future[A]]` into a `Future[A]`.
@@ -279,10 +280,10 @@ object CallbackTo {
      * WARNING: This will trigger the execution of the [[Callback]].
      */
     def toFlatFuture(implicit ec: ExecutionContext): Future[A] =
-      c.toFuture.flatMap(identity)
+      c.toFuture.flatMap(identityFn)
   }
 
-  implicit def callbackCovariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =
+  @inline implicit def callbackCovariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =
     c.widen
 
   /**
@@ -314,7 +315,6 @@ object CallbackTo {
  * @since 0.10.0
  */
 final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) extends AnyVal {
-  type This = CallbackTo[A]
 
   /**
    * Executes this callback, on the current thread, right now, blocking until complete.
@@ -326,7 +326,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   @inline def runNow(): A =
     f()
 
-  @inline def widen[B >: A]: CallbackTo[B] =
+  def widen[B >: A]: CallbackTo[B] =
     new CallbackTo(f)
 
   def map[B](g: A => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
@@ -358,16 +358,17 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def flatten[B](implicit ev: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(ev)
 
-  def flatMap2[X, Y, Z](f: (X, Y) => CallbackTo[Z])(implicit ev: A =:= (X, Y)): CallbackTo[Z] =
+  def flatMap2[X, Y, Z](f: (X, Y) => CallbackTo[Z])(implicit ev: A <:< (X, Y)): CallbackTo[Z] =
     flatMap(f tupled _)
 
   /**
    * Sequence a callback to run after this, discarding any value produced by this.
    */
   def >>[B](runNext: CallbackTo[B]): CallbackTo[B] =
-    //if (isEmpty_?) runNext else
-    //flatMap(_ => runNext)
-    new CallbackTo(() => {f(); runNext.f()})
+    if (isEmpty_?)
+      runNext
+    else
+      new CallbackTo(() => {f(); runNext.f()})
 
   /**
    * Alias for `>>`.
@@ -395,20 +396,20 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    * `ret`, short for `return`.
    */
   def ret[B](b: B): CallbackTo[B] =
-    map(_ => b)
+    this >> CallbackTo.pure(b)
 
   /**
    * Discard the value produced by this callback.
    */
   def void: Callback =
-    ret(())
+    this >> Callback.empty
 
   /**
    * Discard the value produced by this callback.
    *
    * This method allows you to be explicit about the type you're discarding (which may change in future).
    */
-  @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
+  @inline def voidExplicit[B](implicit ev: A <:< B): Callback =
     void
 
   @deprecated("Use when() or unless().", "0.11.0")
@@ -431,7 +432,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    * @param cond The condition required to be `false` for this callback to execute.
    * @return `Some` result of the callback executed, else `None`.
    */
-  @inline def unless(cond: => Boolean): CallbackTo[Option[A]] =
+  def unless(cond: => Boolean): CallbackTo[Option[A]] =
     when(!cond)
 
   /**
@@ -450,7 +451,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    *
    * @param cond The condition required to be `false` for the callback to execute.
    */
-  @inline def unless_(cond: => Boolean): Callback =
+  def unless_(cond: => Boolean): Callback =
     when_(!cond)
 
   /**
@@ -594,7 +595,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    * Record the duration of this callback's execution.
    */
   def withDuration[B](f: (A, FiniteDuration) => CallbackTo[B]): CallbackTo[B] = {
-    @inline def nowMS: Long = System.currentTimeMillis()
+    def nowMS: Long = System.currentTimeMillis()
     CallbackTo {
       val s = nowMS
       val a = runNow()
@@ -625,18 +626,23 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def logDuration: CallbackTo[A] =
     logDuration("Callback")
 
-  def asCBO[B](implicit ev: This =:= CallbackTo[Option[B]]): CallbackOption[B] =
+  def asCBO[B](implicit ev:  CallbackTo[A] <:< CallbackTo[Option[B]]): CallbackOption[B] =
     CallbackOption(ev(this))
 
   def toCBO: CallbackOption[A] =
     CallbackOption liftCallback this
 
+  def distFn[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): B => CallbackTo[C] = {
+    val bc = ev(this)
+    b => bc.map(_(b))
+  }
+
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean ops
 
-  type ThisIsBool = This =:= CallbackB
-
-  private def bool2(b: CallbackB)(op: (() => Boolean, () => Boolean) => Boolean)(implicit ev: ThisIsBool): CallbackB = {
+  private def bool2(b: CallbackTo[Boolean])
+                   (op: (() => Boolean, () => Boolean) => Boolean)
+                   (implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] = {
     val x = ev(this).f
     val y = b.f
     CallbackTo(op(x, y))
@@ -645,18 +651,18 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   /**
    * Creates a new callback that returns `true` when both this and the given callback return `true`.
    */
-  def &&(b: CallbackB)(implicit ev: ThisIsBool): CallbackB =
+  def &&(b: CallbackTo[Boolean])(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
     bool2(b)(_() && _())
 
   /**
    * Creates a new callback that returns `true` when either this or the given callback return `true`.
    */
-  def ||(b: CallbackB)(implicit ev: ThisIsBool): CallbackB =
+  def ||(b: CallbackTo[Boolean])(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
     bool2(b)(_() || _())
 
   /**
    * Negates the callback result (so long as it's boolean).
    */
-  def !(implicit ev: ThisIsBool): CallbackB =
+  def !(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
     ev(this).map(!_)
 }

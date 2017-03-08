@@ -1,829 +1,1175 @@
 package japgolly.scalajs.react.vdom
 
-import Scalatags._
+import scala.scalajs.js
+import PackageBase._
 
+object HtmlAttrs extends HtmlAttrs
 trait HtmlAttrs {
 
   /**
-   * This is the single required attribute for anchors defining a hypertext
-   * source link. It indicates the link target, either a URL or a URL fragment.
-   * A URL fragment is a name preceded by a hash mark (#), which specifies an
-   * internal target location (an ID) within the current document. URLs are not
-   * restricted to Web (HTTP)-based documents. URLs might use any protocol
-   * supported by the browser. For example, file, ftp, and mailto work in most
-   * user agents.
-   *
-   * MDN
-   */
-  final lazy val href = "href".attr
-  /**
-   * The URI of a program that processes the information submitted via the form.
-   * This value can be overridden by a formaction attribute on a button or
-   * input element.
-   *
-   * MDN
-   */
-  final lazy val action = "action".attr
-  /**
-   * The HTTP method that the browser uses to submit the form. Possible values are:
-   *
-   * - post: Corresponds to the HTTP POST method ; form data are included in the
-   *   body of the form and sent to the server.
-   *
-   * - get: Corresponds to the HTTP GET method; form data are appended to the
-   *   action attribute URI with a '?' as a separator, and the resulting URI is
-   *   sent to the server. Use this method when the form has no side-effects and
-   *   contains only ASCII characters.
-   *
-   * This value can be overridden by a formmethod attribute on a button or
-   * input element.
-   *
-   * MDN
-   */
-  final lazy val method = "method".attr
-  /**
-   * This attribute defines a unique identifier (ID) which must be unique in
-   * the whole document. Its purpose is to identify the element when linking
-   * (using a fragment identifier), scripting, or styling (with CSS).
-   *
-   * MDN
-   */
-  final lazy val id = "id".attr
-  /**
-   * A name or keyword indicating where to display the response that is received
-   * after submitting the form. In HTML 4, this is the name of, or a keyword
-   * for, a frame. In HTML5, it is a name of, or keyword for, a browsing context
-   * (for example, tab, window, or inline frame). The following keywords have
-   * special meanings:
-   *
-   * - _self: Load the response into the same HTML 4 frame (or HTML5 browsing
-   *   context) as the current one. This value is the default if the attribute
-   *   is not specified.
-   * - _blank: Load the response into a new unnamed HTML 4 window or HTML5
-   *   browsing context.
-   * - _parent: Load the response into the HTML 4 frameset parent of the current
-   *   frame or HTML5 parent browsing context of the current one. If there is no
-   *   parent, this option behaves the same way as _self.
-   * - _top: HTML 4: Load the response into the full, original window, canceling
-   *   all other frames. HTML5: Load the response into the top-level browsing
-   *   context (that is, the browsing context that is an ancestor of the current
-   *   one, and has no parent). If there is no parent, this option behaves the
-   *   same way as _self.
-   * - iframename: The response is displayed in a named iframe.
-   */
-  final lazy val target = "target".attr
-  /**
-   * On form elements (input etc.):
-   *   Name of the element. For example used by the server to identify the fields
-   *   in form submits.
-   *
-   * On the meta tag:
-   *   This attribute defines the name of a document-level metadata.
-   *   This document-level metadata name is associated with a value, contained by
-   *   the content attribute.
-   *
-   * MDN
-   */
-  final lazy val name = "name".attr
-  /**
-   * This attribute defines the alternative text describing the image. Users
-   * will see this displayed if the image URL is wrong, the image is not in one
-   * of the supported formats, or until the image is downloaded.
-   *
-   * MDN
-   */
-  final lazy val alt = "alt".attr
-  /**
-   * The blur event is raised when an element loses focus.
-   *
-   * MDN
-   */
-  final lazy val onBlur = "onBlur".attr
-  /**
-   * The change event is fired for input, select, and textarea elements
-   * when a change to the element's value is committed by the user.
-   *
-   * MDN
-   */
-  final val onChange = "onChange".attr
-  /**
-   * The click event is raised when the user clicks on an element. The click
-   * event will occur after the mousedown and mouseup events.
-   *
-   * MDN
-   */
-  final val onClick = "onClick".attr
-  /**
-   * The dblclick event is fired when a pointing device button (usually a
-   * mouse button) is clicked twice on a single element.
-   *
-   * MDN
-   */
-  final lazy val onDblClick = "onDoubleClick".attr
+    * If the value of the type attribute is file, this attribute indicates the
+    * types of files that the server accepts; otherwise it is ignored.
+    */
+  final def accept = VdomAttr("accept")
 
-  /** React alias for [[onDblClick]] */
-  final def onDoubleClick = onDblClick
-  /**
-   * Type: script code
-   *
-   * This event is sent to an image element when an error occurs loading the image.
-   *
-   * https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/image#a-onerror
-   */
-  final lazy val onError = "onError".attr
-  /**
-   * The focus event is raised when the user sets focus on the given element.
-   *
-   * MDN
-   */
-  final lazy val onFocus = "onFocus".attr
-  /**
-   * The keydown event is raised when the user presses a keyboard key.
-   *
-   * MDN
-   */
-  final lazy val onKeyDown = "onKeyDown".attr
-  /**
-   * The keyup event is raised when the user releases a key that's been pressed.
-   *
-   * MDN
-   */
-  final lazy val onKeyUp = "onKeyUp".attr
-  /**
-   * The keypress event should be raised when the user presses a key on the keyboard.
-   * However, not all browsers fire keypress events for certain keys.
-   *
-   * Webkit-based browsers (Google Chrome and Safari, for example) do not fire keypress events on the arrow keys.
-   * Firefox does not fire keypress events on modifier keys like SHIFT.
-   *
-   * MDN
-   */
-  final lazy val onKeyPress = "onKeyPress".attr
-  /**
-   * The load event fires at the end of the document loading process. At this
-   * point, all of the objects in the document are in the DOM, and all the
-   * images and sub-frames have finished loading.
-   *
-   * MDN
-   */
-  final lazy val onLoad = "onLoad".attr
-  /**
-   * The mousedown event is raised when the user presses the mouse button.
-   *
-   * MDN
-   */
-  final lazy val onMouseDown = "onMouseDown".attr
-  /**
-   * The mouseenter event is fired when a pointing device (usually a mouse)
-   * is moved over the element that has the listener attached.
-   *
-   * MDN
-   */
-  final lazy val onMouseEnter = "onMouseEnter".attr
-  /**
-   * The mouseleave event is fired when a pointing device (usually a mouse)
-   * is moved off the element that has the listener attached.
-   *
-   * MDN
-   */
-  final lazy val onMouseLeave = "onMouseLeave".attr
-  /**
-   * The mousemove event is raised when the user moves the mouse.
-   *
-   * MDN
-   */
-  final lazy val onMouseMove = "onMouseMove".attr
-  /**
-   * The mouseout event is raised when the mouse leaves an element (e.g, when
-   * the mouse moves off of an image in the web page, the mouseout event is
-   * raised for that image element).
-   *
-   * MDN
-   */
-  final lazy val onMouseOut = "onMouseOut".attr
-  /**
-   * The mouseover event is raised when the user moves the mouse over a
-   * particular element.
-   *
-   * MDN
-   */
-  final lazy val onMouseOver = "onMouseOver".attr
-  /**
-   * The mouseup event is raised when the user releases the mouse button.
-   *
-   * MDN
-   */
-  final lazy val onMouseUp = "onMouseUp".attr
-  /**
-   * Event indicating that the touch point has been canceled or disrupted.
-   *
-   * For example, when popup menu is shown.
-   *
-   * @see [[japgolly.scalajs.react.ReactTouchEvent]]
-   */
-  final lazy val onTouchCancel = "onTouchCancel".attr
-  /**
-   * Event indicating that the touch point does not exist any more.
-   *
-   * For example, whn you release your finger.
-   *
-   * @see [[japgolly.scalajs.react.ReactTouchEvent]]
-   */
-  final lazy val onTouchEnd = "onTouchEnd".attr
-  /**
-   * Event indicating that the touch point has moved along the plane.
-   *
-   * @see [[japgolly.scalajs.react.ReactTouchEvent]]
-   */
-  final lazy val onTouchMove = "onTouchMove".attr
-  /**
-   * Event indicating that the user has touched the plane.
-   *
-   * @see [[japgolly.scalajs.react.ReactTouchEvent]]
-   */
-  final lazy val onTouchStart = "onTouchStart".attr
-  /**
-   * The select event only fires when text inside a text input or textarea is
-   * selected. The event is fired after the text has been selected.
-   *
-   * MDN
-   */
-  final lazy val onSelect = "onSelect".attr
-  /**
-   * Specifies the function to be called when the window is scrolled.
-   *
-   * MDN
-   */
-  final lazy val onScroll = "onScroll".attr
-  /**
-   * The submit event is raised when the user clicks a submit button in a form
-   * (<input type="submit"/>).
-   *
-   * MDN
-   */
-  final lazy val onSubmit = "onSubmit".attr
-  /**
-   * The reset event is fired when a form is reset.
-   *
-   * MDN
-   */
-  final lazy val onReset = "onReset".attr
-  /**
-   * This attribute names a relationship of the linked document to the current
-   * document. The attribute must be a space-separated list of the link types
-   * values. The most common use of this attribute is to specify a link to an
-   * external style sheet: the rel attribute is set to stylesheet, and the href
-   * attribute is set to the URL of an external style sheet to format the page.
-   *
-   *
-   * MDN
-   */
-  final lazy val rel = "rel".attr
-  /**
-   * If the value of the type attribute is image, this attribute specifies a URI
-   * for the location of an image to display on the graphical submit button;
-   * otherwise it is ignored.
-   *
-   * MDN
-   */
-  final val src = "src".attr
-  /**
-   * This attribute contains CSS styling declarations to be applied to the
-   * element. Note that it is recommended for styles to be defined in a separate
-   * file or files. This attribute and the style element have mainly the
-   * purpose of allowing for quick styling, for example for testing purposes.
-   *
-   * MDN
-   */
-  final lazy val style = "style".attr
-  /**
-   * This attribute contains a text representing advisory information related to
-   * the element it belongs too. Such information can typically, but not
-   * necessarily, be presented to the user as a tooltip.
-   *
-   * MDN
-   */
-  final val title = "title".attr
-  /**
-   * This attribute is used to define the type of the content linked to. The
-   * value of the attribute should be a MIME type such as text/html, text/css,
-   * and so on. The common use of this attribute is to define the type of style
-   * sheet linked and the most common current value is text/css, which indicates
-   * a Cascading Style Sheet format. You can use tpe as an alias for this
-   * attribute so you don't have to backtick-escape this attribute.
-   *
-   * MDN
-   */
-  final val `type` = "type".attr
-  /**
-   * Shorthand for the `type` attribute
-   */
-  final val tpe = `type`
-  /**
-   *
-   */
-  final lazy val xmlns = "xmlns".attr
-//  /**
-//   * This attribute is a space-separated list of the classes of the element.
-//   * Classes allows CSS and Javascript to select and access specific elements
-//   * via the class selectors or functions like the DOM method
-//   * document.getElementsByClassName. You can use cls as an alias for this
-//   * attribute so you don't have to backtick-escape this attribute.
-//   *
-//   * MDN
-//   */
-//  final lazy val `class` = "className".attr
-//  /**
-//   * Shorthand for the `class` attribute
-//   */
-//  final lazy val cls = `class`
-  /**
-   * This attribute participates in defining the language of the element, the
-   * language that non-editable elements are written in or the language that
-   * editable elements should be written in. The tag contains one single entry
-   * value in the format defines in the Tags for Identifying Languages (BCP47)
-   * IETF document. If the tag content is the empty string the language is set
-   * to unknown; if the tag content is not valid, regarding to BCP47, it is set
-   * to invalid.
-   *
-   * MDN
-   */
-  final lazy val lang = "lang".attr
-  /**
-   * A hint to the user of what can be entered in the control. The placeholder
-   * text must not contain carriage returns or line-feeds. This attribute
-   * applies when the value of the type attribute is text, search, tel, url or
-   * email; otherwise it is ignored.
-   *
-   * MDN
-   */
-  final lazy val placeholder = "placeholder".attr
-  /**
-   * This enumerated attribute defines whether the element may be checked for
-   * spelling errors.
-   *
-   * MDN
-   */
-  final lazy val spellCheck = "spellCheck".attr
-  /**
-   * The initial value of the control. This attribute is optional except when
-   * the value of the type attribute is radio or checkbox.
-   *
-   * MDN
-   */
-  final val value = "value".attr
-  /**
-   * If the value of the type attribute is file, this attribute indicates the
-   * types of files that the server accepts; otherwise it is ignored.
-   *
-   * MDN
-   */
-  final lazy val accept = "accept".attr
-  /**
-   * This attribute indicates whether the value of the control can be
-   * automatically completed by the browser. This attribute is ignored if the
-   * value of the type attribute is hidden, checkbox, radio, file, or a button
-   * type (button, submit, reset, image).
-   *
-   * Possible values are "off" and "on"
-   *
-   * MDN
-   */
-  final lazy val autoComplete = "autoComplete".attr
-  /**
-   * This Boolean attribute lets you specify that a form control should have
-   * input focus when the page loads, unless the user overrides it, for example
-   * by typing in a different control. Only one form element in a document can
-   * have the autoFocus attribute, which is a Boolean. It cannot be applied if
-   * the type attribute is set to hidden (that is, you cannot automatically set
-   * focus to a hidden control).
-   *
-   * MDN
-   */
-  final lazy val autoFocus = "autoFocus".attr
-  /**
-   * When the value of the type attribute is radio or checkbox, the presence of
-   * this Boolean attribute indicates that the control is selected by default;
-   * otherwise it is ignored.
-   *
-   * MDN
-   */
-  final lazy val checked = "checked".attr
-  /**
-   * Declares the character encoding of the page or script. Used on meta and
-   * script elements.
-   *
-   * MDN
-   */
-  final lazy val charset = "charset".attr
-  /**
-   * This Boolean attribute indicates that the form control is not available for
-   * interaction. In particular, the click event will not be dispatched on
-   * disabled controls. Also, a disabled control's value isn't submitted with
-   * the form.
-   *
-   * This attribute is ignored if the value of the type attribute is hidden.
-   *
-   * MDN
-   */
-  final lazy val disabled = "disabled".attr
-  /**
-   * Describes elements which belongs to this one. Used on labels and output
-   * elements.
-   *
-   * MDN
-   */
-  final lazy val `for` = "htmlFor".attr
-  /**
-   * This Boolean attribute indicates that the user cannot modify the value of
-   * the control. This attribute is ignored if the value of the type attribute
-   * is hidden, range, color, checkbox, radio, file, or a button type.
-   *
-   * MDN
-   */
-  final lazy val readOnly = "readOnly".attr
-  /**
-   * This attribute specifies that the user must fill in a value before
-   * submitting a form. It cannot be used when the type attribute is hidden,
-   * image, or a button type (submit, reset, or button). The :optional and
-   * :required CSS pseudo-classes will be applied to the field as appropriate.
-   *
-   * MDN
-   */
-  final lazy val required = "required".attr
-  /**
-   * The number of visible text lines for the control.
-   *
-   * MDN
-   */
-  final lazy val rows = "rows".attr
-  /**
-   * The visible width of the text control, in average character widths. If it
-   * is specified, it must be a positive integer. If it is not specified, the
-   * default value is 20 (HTML5).
-   *
-   * MDN
-   */
-  final lazy val cols = "cols".attr
-  /**
-   * The initial size of the control. This value is in pixels unless the value
-   * of the type attribute is text or password, in which case, it is an integer
-   * number of characters. Starting in HTML5, this attribute applies only when
-   * the type attribute is set to text, search, tel, url, email, or password;
-   * otherwise it is ignored. In addition, the size must be greater than zero.
-   * If you don't specify a size, a default value of 20 is used.
-   *
-   * MDN
-   */
-  final lazy val size = "size".attr
-  /**
-   * This integer attribute indicates if the element can take input focus (is
-   * focusable), if it should participate to sequential keyboard navigation, and
-   * if so, at what position. It can takes several values:
-   *
-   * - a negative value means that the element should be focusable, but should
-   *   not be reachable via sequential keyboard navigation;
-   * - 0 means that the element should be focusable and reachable via sequential
-   *   keyboard navigation, but its relative order is defined by the platform
-   *   convention;
-   * - a positive value which means should be focusable and reachable via
-   *   sequential keyboard navigation; its relative order is defined by the value
-   *   of the attribute: the sequential follow the increasing number of the
-   *   tabIndex. If several elements share the same tabIndex, their relative order
-   *   follows their relative position in the document).
-   *
-   * An element with a 0 value, an invalid value, or no tabIndex value should be placed after elements with a positive tabIndex in the sequential keyboard navigation order.
-   */
-  final lazy val tabIndex = "tabIndex".attr
-  /**
-   * The attribute describes the role(s) the current element plays in the
-   * context of the document. This can be used, for example,
-   * by applications and assistive technologies to determine the purpose of
-   * an element. This could allow a user to make informed decisions on which
-   * actions may be taken on an element and activate the selected action in a
-   * device independent way. It could also be used as a mechanism for
-   * annotating portions of a document in a domain specific way (e.g.,
-   * a legal term taxonomy). Although the role attribute may be used to add
-   * semantics to an element, authors should use elements with inherent
-   * semantics, such as p, rather than layering semantics on semantically
-   * neutral elements, such as div role="paragraph".
-   *
-   * @see http://www.w3.org/TR/role-attribute/#s_role_module_attributes
-   */
-  final lazy val role = "role".attr
-  /**
-   * This attribute gives the value associated with the http-equiv or name
-   * attribute, depending of the context.
-   *
-   * MDN
-   */
-  final lazy val contentAttr = "content".attr
-  /**
-   * This enumerated attribute defines the pragma that can alter servers and
-   * user-agents behavior. The value of the pragma is defined using the content
-   * attribute and can be one of the following:
-   *
-   *   - content-language
-   *   - content-type
-   *   - default-style
-   *   - refresh
-   *   - set-cookie
-   *
-   * MDN
-   */
-  final lazy val httpEquiv = "httpEquiv".attr
-  /**
-   * This attribute specifies the media which the linked resource applies to.
-   * Its value must be a media query. This attribute is mainly useful when
-   * linking to external stylesheets by allowing the user agent to pick
-   * the best adapted one for the device it runs on.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link#attr-media
-   */
-  final lazy val media = "media".attr
+  final def acceptCharset = VdomAttr("acceptCharset")
+
+  final def accessKey = VdomAttr("accessKey")
 
   /**
-   * ARIA is a set of special accessibility attributes which can be added
-   * to any markup, but is especially suited to HTML. The role attribute
-   * defines what the general type of object is (such as an article, alert,
-   * or slider). Additional ARIA attributes provide other useful properties,
-   * such as a description for a form or the current value of a progressbar.
-   *
-   * MDN
-   */
+    * The URI of a program that processes the information submitted via the form.
+    * This value can be overridden by a formaction attribute on a button or
+    * input element.
+    */
+  final def action = VdomAttr("action")
+
+  final def allowFullScreen = VdomAttr[Boolean]("allowFullScreen")
+
+  final def allowTransparency = VdomAttr[Boolean]("allowTransparency")
+
+  /**
+    * This attribute defines the alternative text describing the image. Users
+    * will see this displayed if the image URL is wrong, the image is not in one
+    * of the supported formats, or until the image is downloaded.
+    */
+  final def alt = VdomAttr[String]("alt")
+
+  /**
+    * ARIA is a set of special accessibility attributes which can be added
+    * to any markup, but is especially suited to HTML. The role attribute
+    * defines what the general type of object is (such as an article, alert,
+    * or slider). Additional ARIA attributes provide other useful properties,
+    * such as a description for a form or the current value of a progressbar.
+    */
   object aria {
+
     /**
-     * Identifies the currently active descendant of a composite widget.
-     */
-    final lazy val activedescendant = "aria-activedescendant".attr
+      * Identifies the currently active descendant of a composite widget.
+      */
+    final def activeDescendant = VdomAttr("aria-activedescendant")
+
     /**
-     * Indicates whether assistive technologies will present all, or only parts of, the changed region based on the change notifications defined by the aria-relevant attribute. See related aria-relevant.
-     */
-    final lazy val atomic = "aria-atomic".attr
+      * Indicates whether assistive technologies will present all, or only parts of, the changed region based on the change notifications defined by the aria-relevant attribute. See related aria-relevant.
+      */
+    final def atomic = VdomAttr("aria-atomic")
+
     /**
-     * Indicates whether user input completion suggestions are provided.
-     */
-    final lazy val autocomplete = "aria-autocomplete".attr
+      * Indicates whether user input completion suggestions are provided.
+      */
+    final def autoComplete = VdomAttr("aria-autocomplete")
+
     /**
-     * Indicates whether an element, and its subtree, are currently being updated.
-     */
-    final lazy val busy = "aria-busy".attr
+      * Indicates whether an element, and its subtree, are currently being updated.
+      */
+    final def busy = VdomAttr("aria-busy")
+
     /**
-     * Indicates the current "checked" state of checkboxes, radio buttons, and other widgets. See related aria-pressed and aria-selected.
-     */
-    final lazy val checked = "aria-checked".attr
+      * Indicates the current "checked" state of checkboxes, radio buttons, and other widgets. See related aria-pressed and aria-selected.
+      */
+    final def checked = VdomAttr("aria-checked")
+
     /**
-     * Identifies the element (or elements) whose contents or presence are controlled by the current element. See related aria-owns.
-     */
-    final lazy val controls = "aria-controls".attr
+      * Identifies the element (or elements) whose contents or presence are controlled by the current element. See related aria-owns.
+      */
+    final def controls = VdomAttr("aria-controls")
+
     /**
-     * Identifies the element (or elements) that describes the object. See related aria-labelledby.
-     */
-    final lazy val describedby = "aria-describedby".attr
+      * Identifies the element (or elements) that describes the object. See related aria-labelledby.
+      */
+    final def describedBy = VdomAttr("aria-describedby")
+
     /**
-     * Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable. See related aria-hidden and aria-readonly.
-     */
-    final lazy val disabled = "aria-disabled".attr
+      * Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable. See related aria-hidden and aria-readonly.
+      */
+    final def disabled = VdomAttr("aria-disabled")
+
     /**
-     * Indicates what functions can be performed when the dragged object is released on the drop target. This allows assistive technologies to convey the possible drag options available to users, including whether a pop-up menu of choices is provided by the application. Typically, drop effect functions can only be provided once an object has been grabbed for a drag operation as the drop effect functions available are dependent on the object being dragged.
-     */
-    final lazy val dropeffect = "aria-dropeffect".attr
+      * Indicates what functions can be performed when the dragged object is released on the drop target. This allows assistive technologies to convey the possible drag options available to users, including whether a pop-up menu of choices is provided by the application. Typically, drop effect functions can only be provided once an object has been grabbed for a drag operation as the drop effect functions available are dependent on the object being dragged.
+      */
+    final def dropEffect = VdomAttr("aria-dropeffect")
+
     /**
-     * Indicates whether the element, or another grouping element it controls, is currently expanded or collapsed.
-     */
-    final lazy val expanded = "aria-expanded".attr
+      * Indicates whether the element, or another grouping element it controls, is currently expanded or collapsed.
+      */
+    final def expanded = VdomAttr("aria-expanded")
+
     /**
-     * Identifies the next element (or elements) in an alternate reading order of content which, at the user's discretion, allows assistive technology to override the general default of reading in document source order.
-     */
-    final lazy val flowto = "aria-flowto".attr
+      * Identifies the next element (or elements) in an alternate reading order of content which, at the user's discretion, allows assistive technology to override the general default of reading in document source order.
+      */
+    final def flowTo = VdomAttr("aria-flowto")
+
     /**
-     * Indicates an element's "grabbed" state in a drag-and-drop operation.
-     */
-    final lazy val grabbed = "aria-grabbed".attr
+      * Indicates an element's "grabbed" state in a drag-and-drop operation.
+      */
+    final def grabbed = VdomAttr("aria-grabbed")
+
     /**
-     * Indicates that the element has a popup context menu or sub-level menu.
-     */
-    final lazy val haspopup = "aria-haspopup".attr
+      * Indicates that the element has a popup context menu or sub-level menu.
+      */
+    final def hasPopup = VdomAttr("aria-haspopup")
+
     /**
-     * Indicates that the element and all of its descendants are not visible or perceivable to any user as implemented by the author. See related aria-disabled.
-     */
-    final lazy val hidden = "aria-hidden".attr
+      * Indicates that the element and all of its descendants are not visible or perceivable to any user as implemented by the author. See related aria-disabled.
+      */
+    final def hidden = VdomAttr("aria-hidden")
+
     /**
-     * Indicates the entered value does not conform to the format expected by the application.
-     */
-    final lazy val invalid = "aria-invalid".attr
+      * Indicates the entered value does not conform to the format expected by the application.
+      */
+    final def invalid = VdomAttr("aria-invalid")
+
     /**
-     * Defines a string value that labels the current element. See related aria-labelledby.
-     */
-    final lazy val label = "aria-label".attr
+      * Defines a string value that labels the current element. See related aria-labelledby.
+      */
+    final def label = VdomAttr("aria-label")
+
     /**
-     * Identifies the element (or elements) that labels the current element. See related aria-label and aria-describedby.
-     */
-    final lazy val labelledby = "aria-labelledby".attr
+      * Identifies the element (or elements) that labels the current element. See related aria-label and aria-describedby.
+      */
+    final def labelledBy = VdomAttr("aria-labelledby")
+
     /**
-     * Defines the hierarchical level of an element within a structure.
-     */
-    final lazy val level = "aria-level".attr
+      * Defines the hierarchical level of an element within a structure.
+      */
+    final def level = VdomAttr("aria-level")
+
     /**
-     * Indicates that an element will be updated, and describes the types of updates the user agents, assistive technologies, and user can expect from the live region.
-     */
-    final lazy val live = "aria-live".attr
+      * Indicates that an element will be updated, and describes the types of updates the user agents, assistive technologies, and user can expect from the live region.
+      */
+    final def live = VdomAttr("aria-live")
+
     /**
-     * Indicates whether a text box accepts multiple lines of input or only a single line.
-     */
-    final lazy val multiline = "aria-multiline".attr
+      * Indicates whether a text box accepts multiple lines of input or only a single line.
+      */
+    final def multiline = VdomAttr("aria-multiline")
+
     /**
-     * Indicates that the user may select more than one item from the current selectable descendants.
-     */
-    final lazy val multiselectable = "aria-multiselectable".attr
+      * Indicates that the user may select more than one item from the current selectable descendants.
+      */
+    final def multiselectable = VdomAttr("aria-multiselectable")
+
     /**
-     * Indicates whether the element and orientation is horizontal or vertical.
-     */
-    final lazy val orientation = "aria-orientation".attr
+      * Indicates whether the element and orientation is horizontal or vertical.
+      */
+    final def orientation = VdomAttr("aria-orientation")
+
     /**
-     * Identifies an element (or elements) in order to define a visual, functional, or contextual parent/child relationship between DOM elements where the DOM hierarchy cannot be used to represent the relationship. See related aria-controls.
-     */
-    final lazy val owns = "aria-owns".attr
+      * Identifies an element (or elements) in order to define a visual, functional, or contextual parent/child relationship between DOM elements where the DOM hierarchy cannot be used to represent the relationship. See related aria-controls.
+      */
+    final def owns = VdomAttr("aria-owns")
+
     /**
-     * Defines an element's number or position in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-setsize.
-     */
-    final lazy val posinset = "aria-posinset".attr
+      * Defines an element's number or position in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-setsize.
+      */
+    final def posInSet = VdomAttr("aria-posinset")
+
     /**
-     * Indicates the current "pressed" state of toggle buttons. See related aria-checked and aria-selected.
-     */
-    final lazy val pressed = "aria-pressed".attr
+      * Indicates the current "pressed" state of toggle buttons. See related aria-checked and aria-selected.
+      */
+    final def pressed = VdomAttr("aria-pressed")
+
     /**
-     * Indicates that the element is not editable, but is otherwise operable. See related aria-disabled.
-     */
-    final lazy val readonly = "aria-readonly".attr
+      * Indicates that the element is not editable, but is otherwise operable. See related aria-disabled.
+      */
+    final def readonly = VdomAttr("aria-readonly")
+
     /**
-     * Indicates what user agent change notifications (additions, removals, etc.) assistive technologies will receive within a live region. See related aria-atomic.
-     */
-    final lazy val relevant = "aria-relevant".attr
+      * Indicates what user agent change notifications (additions, removals, etc.) assistive technologies will receive within a live region. See related aria-atomic.
+      */
+    final def relevant = VdomAttr("aria-relevant")
+
     /**
-     * Indicates that user input is required on the element before a form may be submitted.
-     */
-    final lazy val required = "aria-required".attr
+      * Indicates that user input is required on the element before a form may be submitted.
+      */
+    final def required = VdomAttr("aria-required")
+
     /**
-     * Indicates the current "selected" state of various widgets. See related aria-checked and aria-pressed.
-     */
-    final lazy val selected = "aria-selected".attr
+      * Indicates the current "selected" state of various widgets. See related aria-checked and aria-pressed.
+      */
+    final def selected = VdomAttr("aria-selected")
+
     /**
-     * Defines the number of items in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-posinset.
-     */
-    final lazy val setsize = "aria-setsize".attr
+      * Defines the number of items in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-posinset.
+      */
+    final def setSize = VdomAttr("aria-setsize")
+
     /**
-     * Indicates if items in a table or grid are sorted in ascending or descending order.
-     */
-    final lazy val sort = "aria-sort".attr
+      * Indicates if items in a table or grid are sorted in ascending or descending order.
+      */
+    final def sort = VdomAttr("aria-sort")
+
     /**
-     * Defines the maximum allowed value for a range widget.
-     */
-    final lazy val valuemax = "aria-valuemax".attr
+      * Defines the maximum allowed value for a range widget.
+      */
+    final def valueMax = VdomAttr("aria-valuemax")
+
     /**
-     * Defines the minimum allowed value for a range widget.
-     */
-    final lazy val valuemin = "aria-valuemin".attr
+      * Defines the minimum allowed value for a range widget.
+      */
+    final def valueMin = VdomAttr("aria-valuemin")
+
     /**
-     * Defines the current value for a range widget. See related aria-valuetext.
-     */
-    final lazy val valuenow = "aria-valuenow".attr
+      * Defines the current value for a range widget. See related aria-valuetext.
+      */
+    final def valueNow = VdomAttr("aria-valuenow")
+
     /**
-     * Defines the human readable text alternative of aria-valuenow for a range widget.
-     */
-    final lazy val valuetext = "aria-valuetext".attr
+      * Defines the human readable text alternative of aria-valuenow for a range widget.
+      */
+    final def valueText = VdomAttr("aria-valuetext")
+  }
+
+  final def async = VdomAttr("async")
+
+  final def autoCapitalize = VdomAttr("autoCapitalize")
+
+  /**
+    * This attribute indicates whether the value of the control can be
+    * automatically completed by the browser. This attribute is ignored if the
+    * value of the type attribute is hidden, checkbox, radio, file, or a button
+    * type (button, submit, reset, image).
+    *
+    * Possible values are "off" and "on"
+    */
+  object autoComplete extends VdomAttr.Generic("autoComplete") {
+    def on  = this := "on"
+    def off = this := "off"
+  }
+
+  final def autoCorrect = VdomAttr[Boolean]("autoCorrect")
+
+  /**
+    * This Boolean attribute lets you specify that a form control should have
+    * input focus when the page loads, unless the user overrides it, for example
+    * by typing in a different control. Only one form element in a document can
+    * have the autoFocus attribute, which is a Boolean. It cannot be applied if
+    * the type attribute is set to hidden (that is, you cannot automatically set
+    * focus to a hidden control).
+    */
+  final def autoFocus = VdomAttr[Boolean]("autoFocus")
+
+  final def autoPlay = VdomAttr[Boolean]("autoPlay")
+
+  final def autoSave = VdomAttr[Boolean]("autoSave")
+
+  /**
+    * The capture attribute allows authors to declaratively request use of a media capture mechanism, such as a camera or
+    * microphone, from within a file upload control, for capturing media on the spot.
+    */
+  final def capture = VdomAttr("capture")
+
+  final def cellPadding = VdomAttr("cellPadding")
+
+  final def cellSpacing = VdomAttr("cellSpacing")
+
+  /** &lt;keygen&gt;: A challenge string that is submitted along with the public key. */
+  final def challenge = VdomAttr("challenge")
+
+  /**
+    * Declares the character encoding of the page or script. Used on meta and
+    * script elements.
+    */
+  final def charset = VdomAttr[String]("charset")
+
+  /**
+    * When the value of the type attribute is radio or checkbox, the presence of
+    * this Boolean attribute indicates that the control is selected by default;
+    * otherwise it is ignored.
+    */
+  final def checked = VdomAttr[Boolean]("checked")
+
+  final def citeAttr = VdomAttr("cite")
+
+  final def classID = VdomAttr("classID")
+
+  final def colSpan = VdomAttr[Int]("colSpan")
+
+  final def `class`  : Attr[String] = Attr.ClassName
+  final def className: Attr[String] = Attr.ClassName
+  final def cls      : Attr[String] = Attr.ClassName
+
+  private def classSetImpl(z: TagMod, ps: Seq[(String, Boolean)]): TagMod =
+    ps.foldLeft(z)((q, p) =>
+      if (p._2)
+        q(cls := p._1)
+      else
+        q)
+
+  final def classSet(ps: (String, Boolean)*): TagMod =
+    classSetImpl(EmptyVdom, ps)
+
+  final def classSet1(a: String, ps: (String, Boolean)*): TagMod =
+    classSetImpl(cls := a, ps)
+
+  final def classSetM(ps: Map[String, Boolean]): TagMod =
+    classSetImpl(EmptyVdom, ps.toSeq)
+
+  final def classSet1M(a: String, ps: Map[String, Boolean]): TagMod =
+    classSetImpl(cls := a, ps.toSeq)
+
+  /**
+    * The visible width of the text control, in average character widths. If it
+    * is specified, it must be a positive integer. If it is not specified, the
+    * default value is 20 (HTML5).
+    */
+  final def cols = VdomAttr("cols")
+  /**
+    * This attribute gives the value associated with the http-equiv or name
+    * attribute, depending of the context.
+    */
+  final def contentAttr = VdomAttr("content")
+
+  final def contentEditable = VdomAttr("contentEditable")
+
+  final def contextMenu = VdomAttr("contextMenu")
+
+  final def controls = VdomAttr("controls")
+
+  final def coords = VdomAttr("coords")
+
+  final def crossOrigin = VdomAttr("crossOrigin")
+
+  final def dangerouslySetInnerHtml = VdomAttr[InnerHtmlAttr]("dangerouslySetInnerHTML")
+
+  final def dateTime = VdomAttr("dateTime")
+
+  final def default = VdomAttr("default")
+
+  final def defaultValue = VdomAttr("defaultValue")
+
+  final def defer = VdomAttr("defer")
+
+  final def dir = VdomAttr("dir")
+
+  /**
+    * This Boolean attribute indicates that the form control is not available for
+    * interaction. In particular, the click event will not be dispatched on
+    * disabled controls. Also, a disabled control's value isn't submitted with
+    * the form.
+    *
+    * This attribute is ignored if the value of the type attribute is hidden.
+    */
+  final def disabled = VdomAttr[Boolean]("disabled")
+
+  final def download = VdomAttr("download")
+
+  final def draggable = VdomAttr[Boolean]("draggable")
+
+  final def encType = VdomAttr("encType")
+
+  /**
+    * Describes elements which belongs to this one. Used on labels and output
+    * elements.
+    */
+  final def `for` = VdomAttr("htmlFor")
+
+  final def formAction = VdomAttr("formAction")
+
+  final def formEncType = VdomAttr("formEncType")
+
+  final def formMethod = VdomAttr("formMethod")
+
+  final def formNoValidate = VdomAttr("formNoValidate")
+
+  final def formTarget = VdomAttr("formTarget")
+
+  final def frameBorder = VdomAttr("frameBorder")
+
+  final def headers = VdomAttr("headers")
+
+  /**
+    * For use in &lt;meter&gt; tags.
+    *
+    * @see https://css-tricks.com/html5-meter-element/
+    */
+  final def high = VdomAttr("high")
+
+  /**
+    * This is the single required attribute for anchors defining a hypertext
+    * source link. It indicates the link target, either a URL or a URL fragment.
+    * A URL fragment is a name preceded by a hash mark (#), which specifies an
+    * internal target location (an ID) within the current document. URLs are not
+    * restricted to Web (HTTP)-based documents. URLs might use any protocol
+    * supported by the browser. For example, file, ftp, and mailto work in most
+    * user agents.
+    */
+  final def href = VdomAttr[String]("href")
+
+  final def hrefLang = VdomAttr("hrefLang")
+
+  final def htmlFor = VdomAttr("htmlFor")
+
+  /**
+    * This enumerated attribute defines the pragma that can alter servers and
+    * user-agents behavior. The value of the pragma is defined using the content
+    * attribute and can be one of the following:
+    *
+    * - content-language
+    * - content-type
+    * - default-style
+    * - refresh
+    * - set-cookie
+    */
+  final def httpEquiv = VdomAttr("httpEquiv")
+
+  final def icon = VdomAttr("icon")
+
+  /**
+    * This attribute defines a unique identifier (ID) which must be unique in
+    * the whole document. Its purpose is to identify the element when linking
+    * (using a fragment identifier), scripting, or styling (with CSS).
+    */
+  final def id = VdomAttr("id")
+
+  /**
+    * The inputmode attribute tells the browser on devices with dynamic keyboards which keyboard to display. The
+    * inputmode attribute applies to the text, search and password input types as well as &lt;textarea&gt;.
+    */
+  final def inputMode = VdomAttr("inputMode")
+
+  /**
+    * http://www.w3.org/TR/2015/CR-SRI-20151112/#the-integrity-attribute
+    */
+  final def integrity = VdomAttr("integrity")
+
+  final def is = VdomAttr("is")
+
+  final def itemProp = VdomAttr("itemProp")
+
+  final def itemScope = VdomAttr("itemScope")
+
+  final def itemType = VdomAttr("itemType")
+
+  /** React key */
+  final val key = VdomAttr.Key
+
+  /** For use in &lt;keygen&gt; */
+  final def keyParams = VdomAttr("keyParams")
+
+  /** &lt;keygen&gt;: Specifies the type of key generated. */
+  final def keyType = VdomAttr("keyType")
+
+  final def kind = VdomAttr("kind")
+
+  /**
+    * This attribute participates in defining the language of the element, the
+    * language that non-editable elements are written in or the language that
+    * editable elements should be written in. The tag contains one single entry
+    * value in the format defines in the Tags for Identifying Languages (BCP47)
+    * IETF document. If the tag content is the empty string the language is set
+    * to unknown; if the tag content is not valid, regarding to BCP47, it is set
+    * to invalid.
+    */
+  final def lang = VdomAttr[String]("lang")
+
+  final def list = VdomAttr("list")
+
+  final def loop = VdomAttr("loop")
+
+  /**
+    * For use in &lt;meter&gt; tags.
+    *
+    * @see https://css-tricks.com/html5-meter-element/
+    */
+  final def low = VdomAttr("low")
+
+  final def manifest = VdomAttr("manifest")
+
+  final def marginHeight = VdomAttr("marginHeight")
+
+  final def marginWidth = VdomAttr("marginWidth")
+
+  /**
+    * For use in &lt;meter&gt; tags.
+    *
+    * @see https://css-tricks.com/html5-meter-element/
+    */
+  final def max = VdomAttr("max")
+
+  final def maxLength = VdomAttr("maxLength")
+
+  /**
+    * This attribute specifies the media which the linked resource applies to.
+    * Its value must be a media query. This attribute is mainly useful when
+    * linking to external stylesheets by allowing the user agent to pick
+    * the best adapted one for the device it runs on.
+    *
+    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link#attr-media
+    */
+  final def media = VdomAttr("media")
+
+  final def mediaGroup = VdomAttr("mediaGroup")
+
+  /**
+    * The HTTP method that the browser uses to submit the form. Possible values are:
+    *
+    * - post: Corresponds to the HTTP POST method ; form data are included in the
+    * body of the form and sent to the server.
+    *
+    * - get: Corresponds to the HTTP GET method; form data are appended to the
+    * action attribute URI with a '?' as a separator, and the resulting URI is
+    * sent to the server. Use this method when the form has no side-effects and
+    * contains only ASCII characters.
+    *
+    * This value can be overridden by a formmethod attribute on a button or
+    * input element.
+    */
+  final def method = VdomAttr("method")
+
+  /**
+    * For use in &lt;meter&gt; tags.
+    *
+    * @see https://css-tricks.com/html5-meter-element/
+    */
+  final def min = VdomAttr("min")
+
+  final def minLength = VdomAttr("minLength")
+
+  final def multiple = VdomAttr("multiple")
+
+  final def muted = VdomAttr("muted")
+
+  /**
+    * On form elements (input etc.):
+    * Name of the element. For example used by the server to identify the fields
+    * in form submits.
+    *
+    * On the meta tag:
+    * This attribute defines the name of a document-level metadata.
+    * This document-level metadata name is associated with a value, contained by
+    * the content attribute.
+    */
+  final def name = VdomAttr[String]("name")
+
+  final def noValidate = VdomAttr("noValidate")
+
+  /** For &lt;script&gt; and &lt;style&gt;elements. */
+  final def nonce = VdomAttr("nonce")
+
+  final def onAbort = Attr.Event.base("onAbort")
+
+  final def onAbortCapture = Attr.Event.base("onAbortCapture")
+
+  final def onAnimationEnd = Attr.Event.animation("onAnimationEnd")
+
+  final def onAnimationEndCapture = Attr.Event.animation("onAnimationEndCapture")
+
+  final def onAnimationIteration = Attr.Event.animation("onAnimationIteration")
+
+  final def onAnimationIterationCapture = Attr.Event.animation("onAnimationIterationCapture")
+
+  final def onAnimationStart = Attr.Event.animation("onAnimationStart")
+
+  final def onAnimationStartCapture = Attr.Event.animation("onAnimationStartCapture")
+
+  final def onBeforeInput = Attr.Event.base("onBeforeInput")
+
+  /**
+    * The blur event is raised when an element loses focus.
+    */
+  final def onBlur = Attr.Event.focus("onBlur")
+
+  final def onBlurCapture = Attr.Event.focus("onBlurCapture")
+
+  final def onCanPlay = Attr.Event.base("onCanPlay")
+
+  final def onCanPlayCapture = Attr.Event.base("onCanPlayCapture")
+
+  final def onCanPlayThrough = Attr.Event.base("onCanPlayThrough")
+
+  /**
+    * The change event is fired for input, select, and textarea elements
+    * when a change to the element's value is committed by the user.
+    */
+  final val onChange = Attr.Event.base("onChange")
+
+  /**
+    * The click event is raised when the user clicks on an element. The click
+    * event will occur after the mousedown and mouseup events.
+    */
+  final val onClick = Attr.Event.mouse("onClick")
+
+  final val onClickCapture = Attr.Event.mouse("onClickCapture")
+
+  final def onCompositionEnd = Attr.Event.composition("onCompositionEnd")
+
+  final def onCompositionStart = Attr.Event.composition("onCompositionStart")
+
+  final def onCompositionUpdate = Attr.Event.composition("onCompositionUpdate")
+
+  final def onContextMenu = Attr.Event.mouse("onContextMenu")
+
+  final def onContextMenuCapture = Attr.Event.mouse("onContextMenuCapture")
+
+  final def onCopy = Attr.Event.clipboard("onCopy")
+
+  final def onCopyCapture = Attr.Event.clipboard("onCopyCapture")
+
+  final def onCut = Attr.Event.clipboard("onCut")
+
+  final def onCutCapture = Attr.Event.clipboard("onCutCapture")
+
+  /** React alias for [[onDoubleClick]] */
+  final def onDblClick = onDoubleClick
+
+  /**
+    * The dblclick event is fired when a pointing device button (usually a
+    * mouse button) is clicked twice on a single element.
+    */
+  final def onDoubleClick = Attr.Event.mouse("onDoubleClick")
+
+  final def onDoubleClickCapture = Attr.Event.mouse("onDoubleClickCapture")
+
+  final def onDrag = Attr.Event.drag("onDrag")
+
+  final def onDragCapture = Attr.Event.drag("onDragCapture")
+
+  final def onDragEnd = Attr.Event.drag("onDragEnd")
+
+  final def onDragEndCapture = Attr.Event.drag("onDragEndCapture")
+
+  final def onDragEnter = Attr.Event.drag("onDragEnter")
+
+  final def onDragEnterCapture = Attr.Event.drag("onDragEnterCapture")
+
+  final def onDragExit = Attr.Event.drag("onDragExit")
+
+  final def onDragExitCapture = Attr.Event.drag("onDragExitCapture")
+
+  final def onDragLeave = Attr.Event.drag("onDragLeave")
+
+  final def onDragLeaveCapture = Attr.Event.drag("onDragLeaveCapture")
+
+  final def onDragOver = Attr.Event.drag("onDragOver")
+
+  final def onDragOverCapture = Attr.Event.drag("onDragOverCapture")
+
+  final def onDragStart = Attr.Event.drag("onDragStart")
+
+  final def onDragStartCapture = Attr.Event.drag("onDragStartCapture")
+
+  final def onDrop = Attr.Event.drag("onDrop")
+
+  final def onDropCapture = Attr.Event.drag("onDropCapture")
+
+  final def onDurationChange = Attr.Event.base("onDurationChange")
+
+  final def onDurationChangeCapture = Attr.Event.base("onDurationChangeCapture")
+
+  final def onEmptied = Attr.Event.base("onEmptied")
+
+  final def onEmptiedCapture = Attr.Event.base("onEmptiedCapture")
+
+  final def onEncrypted = Attr.Event.base("onEncrypted")
+
+  final def onEncryptedCapture = Attr.Event.base("onEncryptedCapture")
+
+  final def onEnded = Attr.Event.base("onEnded")
+
+  final def onEndedCapture = Attr.Event.base("onEndedCapture")
+
+  /**
+    * Type: script code
+    *
+    * This event is sent to an image element when an error occurs loading the image.
+    *
+    * https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/image#a-onerror
+    */
+  final def onError = Attr.Event.base("onError")
+
+  final def onErrorCapture = Attr.Event.base("onErrorCapture")
+
+  /**
+    * The focus event is raised when the user sets focus on the given element.
+    */
+  final def onFocus = Attr.Event.focus("onFocus")
+
+  final def onFocusCapture = Attr.Event.focus("onFocusCapture")
+
+  final def onInput = Attr.Event.base("onInput")
+
+  final def onInputCapture = Attr.Event.base("onInputCapture")
+
+  final def onInvalid = Attr.Event.base("onInvalid")
+
+  final def onInvalidCapture = Attr.Event.base("onInvalidCapture")
+
+  /**
+    * The keydown event is raised when the user presses a keyboard key.
+    */
+  final def onKeyDown = Attr.Event.keyboard("onKeyDown")
+
+  final def onKeyDownCapture = Attr.Event.keyboard("onKeyDownCapture")
+
+  /**
+    * The keypress event should be raised when the user presses a key on the keyboard.
+    * However, not all browsers fire keypress events for certain keys.
+    *
+    * Webkit-based browsers (Google Chrome and Safari, for example) do not fire keypress events on the arrow keys.
+    * Firefox does not fire keypress events on modifier keys like SHIFT.
+    */
+  final def onKeyPress = Attr.Event.keyboard("onKeyPress")
+
+  final def onKeyPressCapture = Attr.Event.keyboard("onKeyPressCapture")
+
+  /**
+    * The keyup event is raised when the user releases a key that's been pressed.
+    */
+  final def onKeyUp = Attr.Event.keyboard("onKeyUp")
+
+  final def onKeyUpCapture = Attr.Event.keyboard("onKeyUpCapture")
+
+  /**
+    * The load event fires at the end of the document loading process. At this
+    * point, all of the objects in the document are in the DOM, and all the
+    * images and sub-frames have finished loading.
+    */
+  final def onLoad = Attr.Event.base("onLoad")
+
+  final def onLoadCapture = Attr.Event.base("onLoadCapture")
+
+  final def onLoadStart = Attr.Event.base("onLoadStart")
+
+  final def onLoadStartCapture = Attr.Event.base("onLoadStartCapture")
+
+  final def onLoadedData = Attr.Event.base("onLoadedData")
+
+  final def onLoadedDataCapture = Attr.Event.base("onLoadedDataCapture")
+
+  final def onLoadedMetadata = Attr.Event.base("onLoadedMetadata")
+
+  final def onLoadedMetadataCapture = Attr.Event.base("onLoadedMetadataCapture")
+
+  /**
+    * The mousedown event is raised when the user presses the mouse button.
+    */
+  final def onMouseDown = Attr.Event.mouse("onMouseDown")
+
+  final def onMouseDownCapture = Attr.Event.mouse("onMouseDownCapture")
+
+  /**
+    * The mouseenter event is fired when a pointing device (usually a mouse)
+    * is moved over the element that has the listener attached.
+    */
+  final def onMouseEnter = Attr.Event.mouse("onMouseEnter")
+
+  /**
+    * The mouseleave event is fired when a pointing device (usually a mouse)
+    * is moved off the element that has the listener attached.
+    */
+  final def onMouseLeave = Attr.Event.mouse("onMouseLeave")
+
+  /**
+    * The mousemove event is raised when the user moves the mouse.
+    */
+  final def onMouseMove = Attr.Event.mouse("onMouseMove")
+
+  final def onMouseMoveCapture = Attr.Event.mouse("onMouseMoveCapture")
+
+  /**
+    * The mouseout event is raised when the mouse leaves an element (e.g, when
+    * the mouse moves off of an image in the web page, the mouseout event is
+    * raised for that image element).
+    */
+  final def onMouseOut = Attr.Event.mouse("onMouseOut")
+
+  final def onMouseOutCapture = Attr.Event.mouse("onMouseOutCapture")
+
+  /**
+    * The mouseover event is raised when the user moves the mouse over a
+    * particular element.
+    */
+  final def onMouseOver = Attr.Event.mouse("onMouseOver")
+
+  final def onMouseOverCapture = Attr.Event.mouse("onMouseOverCapture")
+
+  /**
+    * The mouseup event is raised when the user releases the mouse button.
+    */
+  final def onMouseUp = Attr.Event.mouse("onMouseUp")
+
+  final def onMouseUpCapture = Attr.Event.mouse("onMouseUpCapture")
+
+  final def onPaste = Attr.Event.clipboard("onPaste")
+
+  final def onPasteCapture = Attr.Event.clipboard("onPasteCapture")
+
+  final def onPause = Attr.Event.base("onPause")
+
+  final def onPauseCapture = Attr.Event.base("onPauseCapture")
+
+  final def onPlay = Attr.Event.base("onPlay")
+
+  final def onPlayCapture = Attr.Event.base("onPlayCapture")
+
+  final def onPlaying = Attr.Event.base("onPlaying")
+
+  final def onPlayingCapture = Attr.Event.base("onPlayingCapture")
+
+  final def onProgress = Attr.Event.base("onProgress")
+
+  final def onProgressCapture = Attr.Event.base("onProgressCapture")
+
+  final def onRateChange = Attr.Event.base("onRateChange")
+
+  final def onRateChangeCapture = Attr.Event.base("onRateChangeCapture")
+
+  /**
+    * The reset event is fired when a form is reset.
+    */
+  final def onReset = Attr.Event.base("onReset")
+
+  final def onResetCapture = Attr.Event.base("onResetCapture")
+
+  /**
+    * Specifies the function to be called when the window is scrolled.
+    */
+  final def onScroll = Attr.Event.ui("onScroll")
+
+  final def onScrollCapture = Attr.Event.ui("onScrollCapture")
+
+  final def onSeeked = Attr.Event.base("onSeeked")
+
+  final def onSeekedCapture = Attr.Event.base("onSeekedCapture")
+
+  final def onSeeking = Attr.Event.base("onSeeking")
+
+  final def onSeekingCapture = Attr.Event.base("onSeekingCapture")
+
+  /**
+    * The select event only fires when text inside a text input or textarea is
+    * selected. The event is fired after the text has been selected.
+    */
+  final def onSelect = Attr.Event.base("onSelect")
+
+  final def onStalled = Attr.Event.base("onStalled")
+
+  final def onStalledCapture = Attr.Event.base("onStalledCapture")
+
+  /**
+    * The submit event is raised when the user clicks a submit button in a form
+    * (<input type="submit"/>).
+    */
+  final def onSubmit = Attr.Event.base("onSubmit")
+
+  final def onSubmitCapture = Attr.Event.base("onSubmitCapture")
+
+  final def onSuspend = Attr.Event.base("onSuspend")
+
+  final def onSuspendCapture = Attr.Event.base("onSuspendCapture")
+
+  final def onTimeUpdate = Attr.Event.base("onTimeUpdate")
+
+  final def onTimeUpdateCapture = Attr.Event.base("onTimeUpdateCapture")
+
+  /**
+    * Event indicating that the touch point has been canceled or disrupted.
+    *
+    * For example, when popup menu is shown.
+    */
+  final def onTouchCancel = Attr.Event.touch("onTouchCancel")
+
+  final def onTouchCancelCapture = Attr.Event.touch("onTouchCancelCapture")
+
+  /**
+    * Event indicating that the touch point does not exist any more.
+    *
+    * For example, whn you release your finger.
+    */
+  final def onTouchEnd = Attr.Event.touch("onTouchEnd")
+
+  final def onTouchEndCapture = Attr.Event.touch("onTouchEndCapture")
+
+  /**
+    * Event indicating that the touch point has moved along the plane.
+    */
+  final def onTouchMove = Attr.Event.touch("onTouchMove")
+
+  final def onTouchMoveCapture = Attr.Event.touch("onTouchMoveCapture")
+
+  /**
+    * Event indicating that the user has touched the plane.
+    */
+  final def onTouchStart = Attr.Event.touch("onTouchStart")
+
+  final def onTouchStartCapture = Attr.Event.touch("onTouchStartCapture")
+
+  final def onTransitionEnd = Attr.Event.transition("onTransitionEnd")
+
+  final def onTransitionEndCapture = Attr.Event.transition("onTransitionEndCapture")
+
+  final def onVolumeChange = Attr.Event.base("onVolumeChange")
+
+  final def onVolumeChangeCapture = Attr.Event.base("onVolumeChangeCapture")
+
+  final def onWaiting = Attr.Event.base("onWaiting")
+
+  final def onWaitingCapture = Attr.Event.base("onWaitingCapture")
+
+  final def onWheel = Attr.Event.wheel("onWheel")
+
+  final def onWheelCapture = Attr.Event.wheel("onWheelCapture")
+
+  final def open = VdomAttr("open")
+
+  /**
+    * For use in &lt;meter&gt; tags.
+    *
+    * @see https://css-tricks.com/html5-meter-element/
+    */
+  final def optimum = VdomAttr("optimum")
+
+  /**
+    * A hint to the user of what can be entered in the control. The placeholder
+    * text must not contain carriage returns or line-feeds. This attribute
+    * applies when the value of the type attribute is text, search, tel, url or
+    * email; otherwise it is ignored.
+    */
+  final def placeholder = VdomAttr("placeholder")
+
+  final def poster = VdomAttr("poster")
+
+  final def preload = VdomAttr("preload")
+
+  final def profile = VdomAttr("profile")
+
+  final def radioGroup = VdomAttr[String]("radioGroup")
+
+  /**
+    * This Boolean attribute indicates that the user cannot modify the value of
+    * the control. This attribute is ignored if the value of the type attribute
+    * is hidden, range, color, checkbox, radio, file, or a button type.
+    */
+  final def readOnly = VdomAttr[Boolean]("readOnly")
+
+  /**
+    * This attribute names a relationship of the linked document to the current
+    * document. The attribute must be a space-separated list of the link types
+    * values. The most common use of this attribute is to specify a link to an
+    * external style sheet: the rel attribute is set to stylesheet, and the href
+    * attribute is set to the URL of an external style sheet to format the page.
+    *
+    */
+  final def rel = VdomAttr("rel")
+
+  /**
+    * This attribute specifies that the user must fill in a value before
+    * submitting a form. It cannot be used when the type attribute is hidden,
+    * image, or a button type (submit, reset, or button). The :optional and
+    * :required CSS pseudo-classes will be applied to the field as appropriate.
+    */
+  final def required = VdomAttr[Boolean]("required")
+
+  final def results = VdomAttr("results")
+
+  /** For &lt;ol&gt; elements. */
+  final def reversed = VdomAttr("reversed")
+
+  /**
+    * The attribute describes the role(s) the current element plays in the
+    * context of the document. This can be used, for example,
+    * by applications and assistive technologies to determine the purpose of
+    * an element. This could allow a user to make informed decisions on which
+    * actions may be taken on an element and activate the selected action in a
+    * device independent way. It could also be used as a mechanism for
+    * annotating portions of a document in a domain specific way (e.g.,
+    * a legal term taxonomy). Although the role attribute may be used to add
+    * semantics to an element, authors should use elements with inherent
+    * semantics, such as p, rather than layering semantics on semantically
+    * neutral elements, such as div role="paragraph".
+    *
+    * @see http://www.w3.org/TR/role-attribute/#s_role_module_attributes
+    */
+  final def role = VdomAttr[String]("role")
+
+  final def rowSpan = VdomAttr[Int]("rowSpan")
+
+  /**
+    * The number of visible text lines for the control.
+    */
+  final def rows = VdomAttr[Int]("rows")
+
+  final def sandbox = VdomAttr("sandbox")
+
+  final def scope = VdomAttr("scope")
+
+  /**
+    * For use in &lt;style&gt; tags.
+    *
+    * If this attribute is present, then the style applies only to its parent element.
+    * If absent, the style applies to the whole document.
+    */
+  final def scoped = VdomAttr("scoped")
+
+  final def scrolling = VdomAttr("scrolling")
+
+  final def seamless = VdomAttr("seamless")
+
+  final def security = VdomAttr("security")
+
+  final def selected = VdomAttr("selected")
+
+  final def shape = VdomAttr("shape")
+
+  /**
+    * The initial size of the control. This value is in pixels unless the value
+    * of the type attribute is text or password, in which case, it is an integer
+    * number of characters. Starting in HTML5, this attribute applies only when
+    * the type attribute is set to text, search, tel, url, email, or password;
+    * otherwise it is ignored. In addition, the size must be greater than zero.
+    * If you don't specify a size, a default value of 20 is used.
+    */
+  final def size = VdomAttr[Int]("size")
+
+  final def sizes = VdomAttr("sizes")
+
+  /**
+    * This enumerated attribute defines whether the element may be checked for
+    * spelling errors.
+    */
+  final def spellCheck = VdomAttr("spellCheck")
+
+  /**
+    * If the value of the type attribute is image, this attribute specifies a URI
+    * for the location of an image to display on the graphical submit button;
+    * otherwise it is ignored.
+    */
+  final val src = VdomAttr[String]("src")
+
+  final def srcDoc = VdomAttr("srcDoc")
+
+  final def srcLang = VdomAttr("srcLang")
+
+  final def srcSet = VdomAttr("srcSet")
+
+  final def step = VdomAttr("step")
+
+  /**
+    * This attribute contains CSS styling declarations to be applied to the
+    * element. Note that it is recommended for styles to be defined in a separate
+    * file or files. This attribute and the style element have mainly the
+    * purpose of allowing for quick styling, for example for testing purposes.
+    */
+  final def style: Attr[js.Object] = Attr.Style
+
+  /**
+    * The value is actually just `summary`. This is named `summaryAttr` in Scala to avoid a conflict with the
+    * &lt;summary&gt; tag in [[all]].
+    */
+  final def summaryAttr = VdomAttr("summary")
+
+  /**
+    * This integer attribute indicates if the element can take input focus (is
+    * focusable), if it should participate to sequential keyboard navigation, and
+    * if so, at what position. It can takes several values:
+    *
+    * - a negative value means that the element should be focusable, but should
+    * not be reachable via sequential keyboard navigation;
+    * - 0 means that the element should be focusable and reachable via sequential
+    * keyboard navigation, but its relative order is defined by the platform
+    * convention;
+    * - a positive value which means should be focusable and reachable via
+    * sequential keyboard navigation; its relative order is defined by the value
+    * of the attribute: the sequential follow the increasing number of the
+    * tabIndex. If several elements share the same tabIndex, their relative order
+    * follows their relative position in the document).
+    *
+    * An element with a 0 value, an invalid value, or no tabIndex value should be placed after elements with a positive tabIndex in the sequential keyboard navigation order.
+    */
+  final def tabIndex = VdomAttr[Int]("tabIndex")
+
+  /**
+    * A name or keyword indicating where to display the response that is received
+    * after submitting the form. In HTML 4, this is the name of, or a keyword
+    * for, a frame. In HTML5, it is a name of, or keyword for, a browsing context
+    * (for example, tab, window, or inline frame). The following keywords have
+    * special meanings:
+    *
+    * - _self: Load the response into the same HTML 4 frame (or HTML5 browsing
+    * context) as the current one. This value is the default if the attribute
+    * is not specified.
+    * - _blank: Load the response into a new unnamed HTML 4 window or HTML5
+    * browsing context.
+    * - _parent: Load the response into the HTML 4 frameset parent of the current
+    * frame or HTML5 parent browsing context of the current one. If there is no
+    * parent, this option behaves the same way as _self.
+    * - _top: HTML 4: Load the response into the full, original window, canceling
+    * all other frames. HTML5: Load the response into the top-level browsing
+    * context (that is, the browsing context that is an ancestor of the current
+    * one, and has no parent). If there is no parent, this option behaves the
+    * same way as _self.
+    * - iframename: The response is displayed in a named iframe.
+    */
+  object target extends Attr.Generic[String]("target") {
+
+    /** Load the response into the same HTML 4 frame (or HTML5 browsing
+      * context) as the current one. This value is the default if the attribute
+      * is not specified.
+      */
+    def self = this := "_self"
+
+    /** Load the response into a new unnamed HTML 4 window or HTML5 browsing context. */
+    def blank = this := "_blank"
+
+    /**
+      * Load the response into the HTML 4 frameset parent of the current
+      * frame or HTML5 parent browsing context of the current one. If there is no
+      * parent, this option behaves the same way as _self.
+      */
+    def parent = this := "_parent"
+
+    /**
+      * HTML 4: Load the response into the full, original window, canceling
+      * all other frames. HTML5: Load the response into the top-level browsing
+      * context (that is, the browsing context that is an ancestor of the current
+      * one, and has no parent). If there is no parent, this option behaves the
+      * same way as _self.
+      */
+    def top = this := "_top"
   }
 
   /**
-   * For use in &lt;style&gt; tags.
-   *
-   * If this attribute is present, then the style applies only to its parent element.
-   * If absent, the style applies to the whole document.
-   */
-  final lazy val scoped = "scoped".attr
+    * This attribute contains a text representing advisory information related to
+    * the element it belongs too. Such information can typically, but not
+    * necessarily, be presented to the user as a tooltip.
+    */
+  final val title = VdomAttr[String]("title")
 
   /**
-   * For use in &lt;meter&gt; tags.
-   *
-   * @see https://css-tricks.com/html5-meter-element/
-   */
-  final lazy val high = "high".attr
+    * Shorthand for the `type` attribute
+    */
+  final def tpe = `type`
 
   /**
-   * For use in &lt;meter&gt; tags.
-   *
-   * @see https://css-tricks.com/html5-meter-element/
-   */
-  final lazy val low = "low".attr
-
-  /**
-   * For use in &lt;meter&gt; tags.
-   *
-   * @see https://css-tricks.com/html5-meter-element/
-   */
-  final lazy val optimum = "optimum".attr
-
-  /**
-   * For use in &lt;meter&gt; tags.
-   *
-   * @see https://css-tricks.com/html5-meter-element/
-   */
-  final lazy val min = "min".attr
-
-  /**
-   * For use in &lt;meter&gt; tags.
-   *
-   * @see https://css-tricks.com/html5-meter-element/
-   */
-  final lazy val max = "max".attr
+    * This attribute is used to define the type of the content linked to. The
+    * value of the attribute should be a MIME type such as text/html, text/css,
+    * and so on. The common use of this attribute is to define the type of style
+    * sheet linked and the most common current value is text/css, which indicates
+    * a Cascading Style Sheet format. You can use tpe as an alias for this
+    * attribute so you don't have to backtick-escape this attribute.
+    */
+  final val `type` = VdomAttr("type")
 
   /** IE-specific property to prevent user selection */
-  final lazy val unselectable = "unselectable".attr
+  final def unselectable = VdomAttr("unselectable")
+
+  final def untypedRef = VdomAttr.Ref
+
+  final def useMap = VdomAttr("useMap")
 
   /**
-   * The capture attribute allows authors to declaratively request use of a media capture mechanism, such as a camera or
-   * microphone, from within a file upload control, for capturing media on the spot.
-   */
-  final lazy val capture = "capture".attr
+    * The initial value of the control. This attribute is optional except when
+    * the value of the type attribute is radio or checkbox.
+    */
+  final val value = VdomAttr("value")
 
-  /** &lt;keygen&gt;: A challenge string that is submitted along with the public key. */
-  final lazy val challenge = "challenge".attr
-
-  /**
-   * The inputmode attribute tells the browser on devices with dynamic keyboards which keyboard to display. The
-   * inputmode attribute applies to the text, search and password input types as well as &lt;textarea&gt;.
-   */
-  final lazy val inputMode = "inputMode".attr
-
-  final lazy val is = "is".attr
-
-  /** For use in &lt;keygen&gt; */
-  final lazy val keyParams = "keyParams".attr
-
-  /** &lt;keygen&gt;: Specifies the type of key generated. */
-  final lazy val keyType = "keyType".attr
-
-  final lazy val minLength = "minLength".attr
-
-  /**
-   * The value is actually just `summary`. This is named `summaryAttr` in Scala to avoid a conflict with the
-   * &lt;summary&gt; tag in [[all]].
-   */
-  final lazy val summaryAttr = "summary".attr
+  final def wmode = VdomAttr("wmode")
 
   /** &lt;textarea&gt;: Indicates whether the text should be wrapped. */
-  final lazy val wrap = "wrap".attr
+  object wrap extends VdomAttr.Generic("wrap") {
+    def soft = this := "soft"
+    def hard = this := "hard"
+  }
 
-  final lazy val autoSave = "autoSave".attr
-
-  final lazy val results = "results".attr
-
-  final lazy val security = "security".attr
-
-  final lazy val onAbort = "onAbort".attr
-  final lazy val onCanPlay = "onCanPlay".attr
-  final lazy val onCanPlayThrough = "onCanPlayThrough".attr
-  final lazy val onDurationChange = "onDurationChange".attr
-  final lazy val onEmptied = "onEmptied".attr
-  final lazy val onEncrypted = "onEncrypted".attr
-  final lazy val onEnded = "onEnded".attr
-  final lazy val onLoadedData = "onLoadedData".attr
-  final lazy val onLoadedMetadata = "onLoadedMetadata".attr
-  final lazy val onLoadStart = "onLoadStart".attr
-  final lazy val onPause = "onPause".attr
-  final lazy val onPlay = "onPlay".attr
-  final lazy val onPlaying = "onPlaying".attr
-  final lazy val onProgress = "onProgress".attr
-  final lazy val onRateChange = "onRateChange".attr
-  final lazy val onSeeked = "onSeeked".attr
-  final lazy val onSeeking = "onSeeking".attr
-  final lazy val onStalled = "onStalled".attr
-  final lazy val onSuspend = "onSuspend".attr
-  final lazy val onTimeUpdate = "onTimeUpdate".attr
-  final lazy val onVolumeChange = "onVolumeChange".attr
-  final lazy val onWaiting = "onWaiting".attr
-
-  final lazy val srcLang = "srcLang".attr
-  final lazy val default = "default".attr
-  final lazy val kind    = "kind".attr
-
-  /**
-   * http://www.w3.org/TR/2015/CR-SRI-20151112/#the-integrity-attribute
-   */
-  final lazy val integrity = "integrity".attr
-
-  /** For &lt;ol&gt; elements. */
-  final lazy val reversed = "reversed".attr
-
-  /** For &lt;script&gt; and &lt;style&gt;elements. */
-  final lazy val nonce = "nonce".attr
-
-  // Added in React v15
-  final lazy val citeAttr             = "cite"                .attr // Attr suffix avoid overlap with cite tag
-  final lazy val profile              = "profile"             .attr
-  final lazy val onAnimationStart     = "onAnimationStart"    .attr
-  final lazy val onAnimationEnd       = "onAnimationEnd"      .attr
-  final lazy val onAnimationIteration = "onAnimationIteration".attr
-  final lazy val onTransitionEnd      = "onTransitionEnd"     .attr
-  final lazy val onInvalid            = "onInvalid"           .attr
+  final def xmlns = VdomAttr("xmlns")
 }
