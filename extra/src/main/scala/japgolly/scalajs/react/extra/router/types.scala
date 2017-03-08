@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.extra.router
 
 import org.scalajs.dom
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra.assertWarn
+import japgolly.scalajs.react.extra.internal.assertWarn
+import japgolly.scalajs.react.vdom.VdomElement
 
 // =====================================================================================================================
 // URLs
@@ -109,8 +109,8 @@ sealed trait Action[P] extends Product with Serializable {
   def map[A](f: P => A): Action[A]
 }
 
-final case class Renderer[P](f: RouterCtl[P] => ReactElement) extends Action[P] {
-  @inline def apply(ctl: RouterCtl[P]) = f(ctl)
+final case class Renderer[P](f: RouterCtl[P] => VdomElement) extends Action[P] {
+  def apply(ctl: RouterCtl[P]) = f(ctl)
 
   override def map[A](g: P => A): Renderer[A] =
     Renderer(r => f(r contramap g))
@@ -149,4 +149,4 @@ final case class RedirectToPath[P](path: Path, method: Redirect.Method) extends 
  * @param page Data representation (or command) of what will be drawn.
  * @param render The render function provided by the rules and logic in [[RouterConfig]].
  */
-final case class Resolution[P](page: P, render: () => ReactElement)
+final case class Resolution[P](page: P, render: () => VdomElement)

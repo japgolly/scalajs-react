@@ -1,18 +1,10 @@
 package japgolly.scalajs.react
 
-import scala.annotation.elidable
-import org.scalajs.dom
-
 package object extra {
 
-  @elidable(elidable.ASSERTION)
-  def assertWarn(test: => Boolean, msg: => String): Unit =
-    if (!test)
-      dom.console.warn(msg)
+  type ~=>[-A, +B] = Reusable[A => B]
 
-  type ~=>[-A, +B] = ReusableFn[A, B]
-
-  @inline implicit class ReactExtrasAnyExt[A](private val self: A) extends AnyVal {
+  implicit final class ReactExtrasExt_Any[A](private val self: A) extends AnyVal {
     @inline def ~=~(a: A)(implicit r: Reusability[A]): Boolean = r.test(self, a)
     @inline def ~/~(a: A)(implicit r: Reusability[A]): Boolean = !r.test(self, a)
   }

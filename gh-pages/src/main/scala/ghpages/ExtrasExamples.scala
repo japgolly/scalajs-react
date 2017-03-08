@@ -26,7 +26,7 @@ object ExtrasExamples {
     }
 
 
-    val Timer = ReactComponentB[Unit]("Timer")
+    val Timer = ScalaComponent.build[Unit]("Timer")
       .initialState(0L)
       .backend(new Backend(_))
       .render_S(s => div("Seconds elapsed: ", s))
@@ -44,9 +44,9 @@ object ExtrasExamples {
    */
   object SetIntervalExample {
 
-    class Backend extends TimerSupport 
+    class Backend extends TimerSupport
 
-    val Timer = ReactComponentB[Unit]("Timer")
+    val Timer = ScalaComponent.build[Unit]("Timer")
       .initialState(0L)
       .backend(_ => new Backend)
       .render_S(s => div("Seconds elapsed: ", s))
@@ -54,7 +54,7 @@ object ExtrasExamples {
       .configure(TimerSupport.install)
       .build
   }
-  
+
   // ===================================================================================================================
 
   /**
@@ -66,11 +66,11 @@ object ExtrasExamples {
 
     def recv(i: Int) = ReactS.mod[Int](_ + i)           // External event handler.
                                                         // When an int is received, add to component state.
-    val C = ReactComponentB[Listenable[Int]]("C")
+    val C = ScalaComponent.build[Listenable[Int]]("C")
       .initialState(0)
       .backend(_ => new Backend)
       .render_S(s => div("Total: ", s))
-      .configure(Listenable.installS(identity, recv))   // Listen to events when mounted.
+      .configure(Listenable.listenWithStateMonad(identity, recv))   // Listen to events when mounted.
       .build
   }
 }

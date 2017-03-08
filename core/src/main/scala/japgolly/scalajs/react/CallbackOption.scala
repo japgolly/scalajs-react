@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
+import japgolly.scalajs.react.internal.{OptionLike, identityFn}
 import CallbackTo.MapGuard
 
 // TODO Document CallbackOption
@@ -20,10 +21,10 @@ object CallbackOption {
     CallbackOption(CallbackTo pure someUnit)
 
   def fail[A]: CallbackOption[A] =
-    CallbackOption(CallbackTo pure None)
+    CallbackOption(CallbackTo pure[Option[A]] None)
 
   def pure[A](a: A): CallbackOption[A] =
-    CallbackOption(CallbackTo pure Some(a))
+    CallbackOption(CallbackTo pure[Option[A]] Some(a))
 
   def liftValue[A](a: => A): CallbackOption[A] =
     liftOption(Some(a))
@@ -35,7 +36,7 @@ object CallbackOption {
     liftOption(O toOption oa)
 
   def liftCallback[A](cb: CallbackTo[A]): CallbackOption[A] =
-    CallbackOption(cb map Some.apply)
+    CallbackOption(cb map[Option[A]] Some.apply)
 
   def liftOptionCallback[A](oc: => Option[CallbackTo[A]]): CallbackOption[A] =
     CallbackOption(CallbackTo sequenceO oc)
@@ -88,9 +89,9 @@ object CallbackOption {
       go
     }
 
-  @inline def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackOption[A]])
-                                                     (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
-    traverse(tca)(identity)
+  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackOption[A]])
+                                             (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
+    traverse(tca)(identityFn)
 
   /**
    * NOTE: Technically a proper, lawful traversal should return `CallbackOption[Option[B]]`.
@@ -101,8 +102,8 @@ object CallbackOption {
   /**
    * NOTE: Technically a proper, lawful sequence should return `CallbackOption[Option[A]]`.
    */
-  @inline def sequenceO[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] =
-    traverseO(oca)(identity)
+  def sequenceO[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] =
+    traverseO(oca)(identityFn)
 
   implicit def toCallback(co: CallbackOption[Unit]): Callback =
     co.toCallback
@@ -144,7 +145,7 @@ object CallbackOption {
       _ <- e.preventDefaultCB.toCBO
     } yield a
 
-  implicit def callbackOptionCovariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
+  @inline implicit def callbackOptionCovariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
     c.widen
 }
 
@@ -164,22 +165,22 @@ object CallbackOption {
 final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal {
   import CallbackOption.someUnit
 
-  @inline def widen[B >: A]: CallbackOption[B] =
+  def widen[B >: A]: CallbackOption[B] =
     new CallbackOption(cbfn)
 
   def get: CallbackTo[Option[A]] =
     CallbackTo lift cbfn
 
-  def getOrElse(default: => A): CallbackTo[A] =
+  def getOrElse[AA >: A](default: => AA): CallbackTo[AA] =
     get.map(_ getOrElse default)
 
-  def toCallback(implicit ev: A =:= Unit): Callback =
+  def toCallback(implicit ev: A <:< Unit): Callback =
     get.void
 
-  def toCallbackB: CallbackB =
+  def toBoolCB: CallbackTo[Boolean] =
     get.map(_.isDefined)
 
-  def unary_!(implicit ev: A =:= Unit): CallbackOption[Unit] =
+  def unary_!(implicit ev: A <:< Unit): CallbackOption[Unit] =
     CallbackOption(get.map {
       case None    => someUnit
       case Some(_) => None
@@ -200,7 +201,7 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def flatMap[B](f: A => CallbackOption[B]): CallbackOption[B] =
     CallbackOption(get flatMap {
       case Some(a) => f(a).get
-      case None    => CallbackTo pure None
+      case None    => CallbackTo pure[Option[B]] None
     })
 
   /**
@@ -264,7 +265,7 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
    *
    * This method allows you to be explicit about the type you're discarding (which may change in future).
    */
-  @inline def voidExplicit[B](implicit ev: A =:= B): Callback =
+  @inline def voidExplicit[B](implicit ev: A <:< B): CallbackOption[Unit] =
     void
 
   /**
@@ -282,19 +283,19 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
    * @param cond The condition required to be `false` for this callback to execute.
    * @return `Some` result of the callback executed, else `None`.
    */
-  @inline def unless(cond: => Boolean): CallbackOption[A] =
+  def unless(cond: => Boolean): CallbackOption[A] =
     when(!cond)
 
-  def orElse(tryNext: CallbackOption[A]): CallbackOption[A] =
+  def orElse[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =
     CallbackOption(get flatMap {
-      case a@ Some(_) => CallbackTo pure a
+      case a@ Some(_) => CallbackTo pure (a: Option[AA])
       case None       => tryNext.get
     })
 
   /**
    * Alias for `orElse`.
    */
-  @inline def |(tryNext: CallbackOption[A]): CallbackOption[A] =
+  @inline def |[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =
     orElse(tryNext)
 
   def &&[B](b: CallbackOption[B]): CallbackOption[Unit] =

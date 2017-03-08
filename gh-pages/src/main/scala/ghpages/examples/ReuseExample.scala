@@ -2,14 +2,14 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 import japgolly.scalajs.react.extra._
 
 object ReuseExample {
 
   def content = SingleSide.Content(source, main())
 
-  lazy val main = addIntro(topLevelComponent, _(
+  lazy val main = addIntro(topLevelComponent.withKey(_)(), _(
     ^.marginBottom := "2.4em",
     "The colourful overlays here are provided by ",
     <.code("Reusability.shouldComponentUpdateWithOverlay"),
@@ -22,7 +22,7 @@ object ReuseExample {
   // EXAMPLE:START
   // Reusable stateless components
 
-  val showSum = ReactComponentB[Long]("Show sum")
+  val showSum = ScalaComponent.build[Long]("Show sum")
     .render_P(sum =>
       <.h1(
         "The sum of all inputs is", <.br, sum))
@@ -32,7 +32,7 @@ object ReuseExample {
   case class InputControl(current: Int, change: Int ~=> Callback)
   implicit val inputControlReuse = Reusability.caseClass[InputControl]
 
-  val inputControl = ReactComponentB[InputControl]("InputControl")
+  val inputControl = ScalaComponent.build[InputControl]("InputControl")
     .render_P(p =>
       <.div(^.paddingLeft := "4ex",
         <.button("-1", ^.onClick --> p.change(-1)),
@@ -44,9 +44,9 @@ object ReuseExample {
 
   val numberRegex = "^-?\\d+$".r
 
-  val InputEditor = ReactComponentB[ReusableVar[Long]]("Input editor")
+  val InputEditor = ScalaComponent.build[StateSnapshot[Long]]("Input editor")
     .render_P { v =>
-      def update = (ev: ReactEventI) => numberRegex.findFirstIn(ev.target.value).map(v set _.toLong)
+      def update = (ev: ReactEventFromInput) => numberRegex.findFirstIn(ev.target.value).map(v setState _.toLong)
       <.input.text(
         ^.textAlign   := "center",
         ^.marginRight := "1ex",
@@ -60,7 +60,7 @@ object ReuseExample {
   // ---------------------------------------------------------------------------------------------------------
   // Top-level stateful component
 
-  val topLevelComponent = ReactComponentB[Unit]("Reusability example")
+  val topLevelComponent = ScalaComponent.build[Unit]("Reusability example")
     .initialState(State(Vector(30, 0, 2, 0, 10)))
     .renderBackend[Backend]
     .build
@@ -83,13 +83,13 @@ object ReuseExample {
   }
 
   class Backend($: BackendScope[Unit, State]) {
-    val changeFn   = ReusableFn($).modState.endoCall(_.changeNumberOfInputs)
-    val setInputFn = ReusableFn($).modState.endoCall2(_.setInput)
+    val changeFn   = Reusable.fn((i: Int)              => $.modState(_.changeNumberOfInputs(i)))
+    val setInputFn = Reusable.fn((i: Int, value: Long) => $.modState(_.setInput(i, value)))
 
     def render(s: State) = {
       def inputEditor(index: Int) = {
         val value = s.inputs(index)
-        val rvar = ReusableVar(value)(setInputFn(index))
+        val rvar = StateSnapshot.withReuse(value)(setInputFn(index))
         InputEditor.withKey(index)(rvar)
       }
 
@@ -97,7 +97,7 @@ object ReuseExample {
         <.h4("Number of inputs:"),
         inputControl(InputControl(s.inputs.size, changeFn)),
         <.h4("Inputs:"),
-        Array.tabulate(s.inputs.length)(inputEditor),
+        Array.tabulate(s.inputs.length)(inputEditor).toVdomArray,
         showSum.withKey("sum")(s.sum))
     }
   }

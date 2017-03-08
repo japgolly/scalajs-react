@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra.components
 
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.extra._
 import org.scalajs.dom.ext.KeyCode
 import org.scalajs.dom.html.Input
@@ -51,8 +52,8 @@ object TriStateCheckbox {
   implicit def reusabilityProps: Reusability[Props] =
     Reusability.by(_.state) // .setNextState is never accessed outside of a Callback
 
-  private def render($: CompScope.DuringCallbackU[Props, Unit, Unit]) = {
-    val setNext = $.propsCB.flatMap(_.setNextState) // Only access .setNextState inside the Callback for Reusability
+  private def render($: ScalaComponent.MountedPure[Props, Unit, Unit]) = {
+    val setNext = $.props.flatMap(_.setNextState) // Only access .setNextState inside the Callback for Reusability
     <.input.checkbox(eventHandlers(setNext))
   }
 
@@ -60,7 +61,7 @@ object TriStateCheckbox {
    * Clicking or pressing space = change.
    */
   def eventHandlers(onChange: Callback): TagMod = {
-    def handleKey(e: ReactKeyboardEventH): Callback =
+    def handleKey(e: ReactKeyboardEventFromHtml): Callback =
       CallbackOption.asEventDefault(e,
         CallbackOption.keyCodeSwitch(e) {
           case KeyCode.Space => onChange
@@ -71,20 +72,19 @@ object TriStateCheckbox {
       ^.onKeyDown ==> handleKey)
   }
 
-  private def updateDom($: CompScope.Mounted[Input], nextProps: Props): Callback = {
+  private def updateDom($: ScalaComponent.MountedImpure[_, _, _], nextProps: Props): Callback = {
     val s = nextProps.state
     Callback {
-      val d = $.getDOMNode()
+      val d = $.getDOMNode.domCast[Input]
       d.checked       = s == Checked
       d.indeterminate = s == Indeterminate
     }
   }
 
-  val Component = ReactComponentB[Props]("TriStateCheckbox")
-    .render(render)
-    .domType[Input]
-    .componentDidMount($ => updateDom($, $.props))
-    .componentWillReceiveProps(i => updateDom(i.$, i.nextProps))
+  val Component = ScalaComponent.build[Props]("TriStateCheckbox")
+    .render(i => render(i.mountedPure))
+    .componentDidMount(i => updateDom(i.mountedImpure, i.props))
+    .componentWillReceiveProps(i => updateDom(i.mountedImpure, i.nextProps))
     .configure(Reusability.shouldComponentUpdate)
     .build
 }

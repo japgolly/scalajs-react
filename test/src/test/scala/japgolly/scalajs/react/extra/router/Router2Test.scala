@@ -7,11 +7,10 @@ import scalaz.Equal
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test._
-import japgolly.scalajs.react.vdom.prefix_<^._
+import japgolly.scalajs.react.vdom.html_<^._
 import MonocleReact._
 import ScalazReact._
 import TestUtil._
-import TestUtil2._
 
 object Router2Test extends TestSuite {
 
@@ -63,12 +62,12 @@ object Router2Test extends TestSuite {
     var secret = "apples"
 
     val userProfilePage =
-      ReactComponentB[UserProfilePage]("User profile")
+      ScalaComponent.build[UserProfilePage]("User profile")
         .render_P(p => <.div(s"Hello user #${p.id}"))
         .build
 
     case class NavProps(curPage: MyPage2, ctl: RouterCtl[MyPage2])
-    val nav = ReactComponentB[NavProps]("NavBar")
+    val nav = ScalaComponent.build[NavProps]("NavBar")
       .render_P { i =>
         def item(p: MyPage2, name: String) =
           if (p == i.curPage)
@@ -77,9 +76,10 @@ object Router2Test extends TestSuite {
             i.ctl.link(p)(name)
         <.div(
           item(PublicHome, "Home"),
-          isUserLoggedIn ?= Seq(
+          VdomArray(
             item(PrivatePage1, "Private page #1"),
             item(PrivatePage2, "Private page #2"))
+            .when(isUserLoggedIn)
         )
       }
       .build
@@ -136,13 +136,14 @@ object Router2Test extends TestSuite {
 
   override val tests = TestSuite {
     import MyPage2._
-    implicit val base = BaseUrl("file:///router2Demo/")
+    implicit val base = RouterTestHelp.localBaseUrl_/
     val (router, lgc) = Router.componentAndLogic(base, config)
     val ctl = lgc.ctl
 
     val sim = SimHistory(base.abs)
     val r = ReactTestUtils.renderIntoDocument(router())
-    def html = ReactDOM.findDOMNode(r).outerHTML
+    def html = r.getDOMNode.outerHTML
+    def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.parse(_).right.toOption)
     isUserLoggedIn = false
 
     def syncNoRedirect(path: Path) = {
@@ -164,7 +165,7 @@ object Router2Test extends TestSuite {
       assertContains(html, "Private page", false) // not logged in
 
       isUserLoggedIn = true
-      r.forceUpdate()
+      r.forceUpdate
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", true) // logged in
 
@@ -190,7 +191,7 @@ object Router2Test extends TestSuite {
       ctl.set(PrivatePage2).runNow()
       assertContains(html, secret)
       secret = "oranges"
-      r.forceUpdate()
+      r.forceUpdate
       assertContains(html, secret)
     }
 
@@ -256,8 +257,21 @@ object Router2Test extends TestSuite {
       val ctl2 = ctl.onSet(Callback(i += 1) >> _)
       isUserLoggedIn = true
       ctl2.set(PrivatePage2).runNow()
+      assertEq(currentPage(), Some(PrivatePage2))
       assertContains(html, secret)
       assertEq(i, 1)
+    }
+
+    'setRespectRouteCondition {
+      // Make sure we're not starting on PublicHome cos that's were we expect to be redirected
+      ctl.set(NestedModule(ModuleRoot)).runNow()
+      assertEq(currentPage(), Some(NestedModule(ModuleRoot)))
+
+      // set without being logged in
+      isUserLoggedIn = false
+      ctl.set(PrivatePage2).runNow()
+      assertEq(currentPage(), Some(PublicHome))
+      assert(!html.contains(secret))
     }
 
     'prism {

@@ -3,7 +3,7 @@ package japgolly.scalajs.react.vdom
 import scala.scalajs.LinkingInfo.developmentMode
 
 /**
- * Represents a value that can be nested within a [[ReactTagOf]]. This can be
+ * Represents a value that can be nested within a [[TagOf]]. This can be
  * another [[TagMod]], but can also be a CSS style or HTML attribute binding,
  * which will add itself to the node's attributes but not appear in the final
  * `children` list.
@@ -16,41 +16,53 @@ trait TagMod {
    */
   def applyTo(b: Builder): Unit
 
-  final def +(that: TagMod): TagMod =
-    this compose that
+  final def when(condition: Boolean): TagMod =
+    if (condition) this else TagMod.Empty
 
-  final def compose(that: TagMod): TagMod =
-    this match {
-      case l if EmptyTag eq l    => that
-      case _ if EmptyTag eq that => this
-      case TagMod.Composite(ms)  => TagMod.Composite(ms :+ that)
-      case _                     => TagMod.Composite(Vector.empty[TagMod] :+ this :+ that)
-    }
+  final def unless(condition: Boolean): TagMod =
+    when(!condition)
+
+  def apply(ms: TagMod*): TagMod =
+    TagMod.Composite((Vector.newBuilder[TagMod] += this ++= ms).result())
 }
 
 object TagMod {
-  @deprecated("Use EmptyTag.", "-")
-  def empty: TagMod =
-    EmptyTag
-
-  @inline def apply(ms: TagMod*): TagMod =
-    Composite(ms.toVector)
-
   def fn(f: Builder => Unit): TagMod =
     new TagMod {
       override def applyTo(b: Builder): Unit =
         f(b)
     }
 
-  final case class Composite(ms: Vector[TagMod]) extends TagMod {
-    override def applyTo(b: Builder): Unit =
-      ms.foreach(_ applyTo b)
+  def apply(ms: TagMod*): TagMod =
+    fromTraversableOnce(ms)
+
+  def fromTraversableOnce(t: TraversableOnce[TagMod]): TagMod = {
+    val v = t.toVector
+    v.length match {
+      case 1 => v.head
+      case 0 => Empty
+      case _ => Composite(v)
+    }
   }
 
-  @inline def devOnly(m: => TagMod): TagMod =
-    if (developmentMode)
-      apply(m)
-    else
-      EmptyTag
-}
+  final case class Composite(mods: Vector[TagMod]) extends TagMod {
+    override def applyTo(b: Builder): Unit =
+      mods.foreach(_ applyTo b)
 
+    override def apply(ms: TagMod*) =
+      Composite(mods ++ ms)
+  }
+
+  private[vdom] val Empty: TagMod =
+    new TagMod {
+      override def toString = "EmptyVdom"
+      override def applyTo(b: Builder) = ()
+      override def apply(ms: TagMod*) = TagMod.fromTraversableOnce(ms)
+    }
+
+  def devOnly(m: => TagMod): TagMod =
+    if (developmentMode)
+      m
+    else
+      Empty
+}

@@ -45,7 +45,7 @@ object InBrowserTesting {
           scalaJSOptimizerOptions       := (scalaJSOptimizerOptions       in Test).value,
           scalaJSOutputMode             := (scalaJSOutputMode             in Test).value,
           scalaJSOutputWrapper          := (scalaJSOutputWrapper          in Test).value,
-          scalajsp                      := (scalajsp                      in Test).value,
+          scalajsp                      := (scalajsp                      in Test).inputTaskValue,
           scalaJSSemantics              := (scalaJSSemantics              in Test).value,
           scalaJSStage                  := (scalaJSStage                  in Test).value,
 
@@ -79,13 +79,12 @@ object InBrowserTesting {
 
           // In-browser settings
           jsEnv           := env,
-          requiresDOM     := true,
-          scalaJSUseRhino := false)))
+          requiresDOM     := true)))
 
   def js: Project => Project =
     _.configure(
-      browserConfig(ConfigFirefox, new SeleniumJSEnv(Firefox)),
-      browserConfig(ConfigChrome, new SeleniumJSEnv(Chrome)))
+      browserConfig(ConfigFirefox, new SeleniumJSEnv(Firefox())),
+      browserConfig(ConfigChrome, new SeleniumJSEnv(Chrome())))
     .settings(
       testAll := {
         (test in Test         ).value

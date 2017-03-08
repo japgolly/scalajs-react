@@ -4,6 +4,8 @@ import org.scalajs.dom
 import scala.scalajs.js
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.internal.identityFn
+import japgolly.scalajs.react.vdom.VdomElement
 
 object Router {
 
@@ -14,7 +16,7 @@ object Router {
     componentUnbuiltC(baseUrl, cfg, new RouterLogic(baseUrl, cfg))
 
   def componentUnbuiltC[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page], lgc: RouterLogic[Page]) =
-    ReactComponentB[Unit]("Router")
+    ScalaComponent.build[Unit]("Router")
       .initialStateCB    (     lgc.syncToWindowUrl)
       .backend           (_ => new OnUnmount.Backend)
       .render_S          (     lgc.render)
@@ -22,7 +24,7 @@ object Router {
       .componentDidUpdate(i => cfg.postRenderFn(Some(i.prevState.page), i.currentState.page))
       .configure(
         EventListener.install("popstate", _ => lgc.ctl.refresh, _ => dom.window),
-        Listenable.installU(_ => lgc, $ => $ setStateCB lgc.syncToWindowUrl))
+        Listenable.listenToUnit(_ => lgc, $ => lgc.syncToWindowUrl.flatMap($.setState(_))))
 
   def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
     val l = new RouterLogic(baseUrl, cfg)
@@ -122,7 +124,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
       redirectCmd(path, method) >> syncToUrl(path.abs)
 
   private def cmdOrPure[A](e: Either[RouteCmd[A], A]): RouteCmd[A] =
-    e.fold(identity, Return(_))
+    e.fold(identityFn, Return(_))
 
   def interpret[A](r: RouteCmd[A]): CallbackTo[A] = {
     @inline def hs = js.Dynamic.literal()
@@ -138,7 +140,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     }
   }
 
-  def render(r: Resolution): ReactElement =
+  def render(r: Resolution): VdomElement =
     cfg.renderFn(ctl, r)
 
   def setPath(path: Path): RouteCmd[Unit] =

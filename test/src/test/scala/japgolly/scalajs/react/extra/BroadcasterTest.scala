@@ -2,7 +2,7 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
-import japgolly.scalajs.react.vdom.prefix_<^._
+import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
 object BroadcasterTest extends TestSuite {
@@ -12,11 +12,11 @@ object BroadcasterTest extends TestSuite {
       super.broadcast(a)
   }
 
-  val C = ReactComponentB[B]("")
+  val C = ScalaComponent.build[B]("")
     .initialState(Vector.empty[Int])
     .backend(_ => new OnUnmount.Backend)
     .renderS((_, state) => <.div("Got: " + state.mkString("{",",","}")))
-    .configure(Listenable.install(b => b, $ => (i: Int) => $.modState(_ :+ i)))
+    .configure(Listenable.listen(b => b, $ => (i: Int) => $.modState(_ :+ i)))
     .build
 
   override def tests = TestSuite {

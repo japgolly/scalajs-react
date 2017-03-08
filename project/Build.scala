@@ -1,51 +1,49 @@
-import sbt._
-import Keys._
-
+import sbt._, Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
+import org.scalajs.sbtplugin.ScalaJSPlugin, ScalaJSPlugin.autoImport._
 
-import org.scalajs.sbtplugin.ScalaJSPlugin
-import ScalaJSPlugin._
-import ScalaJSPlugin.autoImport._
-
-object ScalajsReact extends Build {
+object ScalajsReact {
 
   object Ver {
     val Scala211      = "2.11.8"
-    val ScalaJsDom    = "0.9.0"
-    val ReactJs       = "15.0.1"
-    val Monocle       = "1.2.1"
-    val Scalaz72      = "7.2.2"
-    val MTest         = "0.4.3"
+    val Scala212      = "2.12.1"
+    val ScalaJsDom    = "0.9.1"
+    val ReactJs       = "15.4.2"
+    val Monocle       = "1.4.0"
+    val Scalaz72      = "7.2.9"
+    val MTest         = "0.4.5"
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.3.0"
-    val Nyaya         = "0.7.0"
+    val Nyaya         = "0.8.1"
   }
 
   type PE = Project => Project
 
-  val clearScreenTask = TaskKey[Unit]("clear", "Clears the screen.")
+  def byScalaVersion[A](f: PartialFunction[(Int, Int), Seq[A]]): Def.Initialize[Seq[A]] =
+    Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
 
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin)
       .settings(
-        organization       := "com.github.japgolly.scalajs-react",
-        version            := "0.11.2-SNAPSHOT",
-        homepage           := Some(url("https://github.com/japgolly/scalajs-react")),
-        licenses           += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
-        scalaVersion       := Ver.Scala211,
-        // crossScalaVersions := Seq("2.10.4", Scala211), https://github.com/japgolly/scalajs-react/issues/39
+        scalaVersion       := Ver.Scala212,
+        crossScalaVersions := Seq(Ver.Scala211, Ver.Scala212),
         scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
                                 "-language:postfixOps", "-language:implicitConversions",
-                                "-language:higherKinds", "-language:existentials"),
+                                "-language:higherKinds", "-language:existentials")
+                                ++ byScalaVersion {
+                                  case (2, 12) => Seq("-opt:l:method")
+                                  // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
+                                }.value,
         //scalacOptions    += "-Xlog-implicits",
         updateOptions      := updateOptions.value.withCachedResolution(true),
-        triggeredMessage   := Watched.clearWhenTriggered,
-        clearScreenTask    := { println("\033[2J\033[;H") })
+        incOptions         := incOptions.value.withNameHashing(true).withLogRecompileOnMacro(false),
+        triggeredMessage   := Watched.clearWhenTriggered)
 
   def preventPublication: PE =
     _.settings(
       publishTo := Some(Resolver.file("Unused transient repository", target.value / "fakepublish")),
       publishArtifact := false,
+      publishLocal := (),
       publishLocalSigned := (),       // doesn't work
       publishSigned := (),            // doesn't work
       packagedArtifacts := Map.empty) // doesn't work - https://github.com/sbt/sbt-pgp/issues/42
@@ -82,13 +80,20 @@ object ScalajsReact extends Build {
       }))
     )
 
+  val setupJsEnv: Project => Project =
+    sys.env.get("JSENV").map(_.toLowerCase.replaceFirst("js$", "")) match {
+      case Some("phantom") | None => _.settings(jsEnv in Test := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
+      case Some("node")           => identity
+      case Some(x)                => sys error s"Unsupported JsEnv: $x"
+    }
+
   def utestSettings: PE =
-    _.configure(useReactJs("test"))
+    _.configure(useReactJs("test"), setupJsEnv, InBrowserTesting.js)
       .settings(
-        libraryDependencies += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
-        testFrameworks      += new TestFramework("utest.runner.Framework"),
-        requiresDOM         := true,
-        jsEnv in Test       := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
+        scalacOptions in Test += "-language:reflectiveCalls",
+        libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
+        testFrameworks        += new TestFramework("utest.runner.Framework"),
+        requiresDOM           := true)
 
   def useReactJs(scope: String = "compile"): PE =
     _.settings(
@@ -125,8 +130,8 @@ object ScalajsReact extends Build {
     _.settings(
       scalacOptions += "-language:experimental.macros",
       libraryDependencies ++= Seq(
-        "org.scala-lang" % "scala-reflect"  % Ver.Scala211,
-        "org.scala-lang" % "scala-compiler" % Ver.Scala211 % "provided"))
+        "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
+        "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"))
 
   def macroParadisePlugin =
     compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.full)
@@ -137,9 +142,13 @@ object ScalajsReact extends Build {
       testOnly      in Test := (),
       testQuick     in Test := ())
 
+  def monocleLib(name: String) =
+    "com.github.julien-truffaut" %%%! s"monocle-$name" % Ver.Monocle
+
   // ==============================================================================================
   lazy val root = Project("root", file("."))
-    .aggregate(core, test, scalaz72, monocle, extra, ghpagesMacros, ghpages)
+    .settings(name := "scalajs-react")
+    .aggregate(core, extra, scalaz72, monocle, test, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -148,7 +157,8 @@ object ScalajsReact extends Build {
       "c"   -> "compile",
       "tc"  -> "test:compile",
       "t"   -> "test",
-      "to"  -> "test/test-only",
+      "tq"  -> "testQuick",
+      "to"  -> "test-only",
       "cc"  -> ";clean;compile",
       "ctc" -> ";clean;test:compile",
       "ct"  -> ";clean;test"))
@@ -159,7 +169,8 @@ object ScalajsReact extends Build {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom))
+        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
+        "org.scalaz"   %%% "scalaz-core" % Ver.Scalaz72 % "test"))
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
@@ -167,22 +178,23 @@ object ScalajsReact extends Build {
     .settings(name := "extra")
 
   lazy val test = project
-    .configure(commonSettings, publicationSettings, utestSettings, InBrowserTesting.js)
-    .dependsOn(core, extra, monocle)
+    .configure(commonSettings, publicationSettings, utestSettings)
+    .dependsOn(core, extra)
+    .dependsOn(scalaz72 % "test->compile")
+    .dependsOn(monocle % "test->compile")
     .settings(
       name := "test",
       libraryDependencies ++= Seq(
-        "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % "test",
-        "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % "test",
-        "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % "test",
-        monocleLib("macro") % "test"),
+        "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
+        "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
+        "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
+        monocleLib("macro") % Test),
       jsDependencies ++= Seq(
-        (ProvidedJS / "sampleReactComponent.js" dependsOn "react-dom.js") % Test, // for JS Component Type Test.
-        "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle"),
-      addCompilerPlugin(macroParadisePlugin),
-      scalacOptions in Test += "-language:reflectiveCalls")
+        "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
+        (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
+        (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test),
+      addCompilerPlugin(macroParadisePlugin))
 
-  // ==============================================================================================
   def scalazModule(name: String, version: String) = {
     val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")
     Project(shortName, file(name))
@@ -194,14 +206,10 @@ object ScalajsReact extends Build {
 
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
-  // ==============================================================================================
   lazy val monocle = project
     .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
     .dependsOn(core, extra, scalaz72)
     .settings(libraryDependencies += monocleLib("core"))
-
-  def monocleLib(name: String) =
-    "com.github.julien-truffaut" %%%! s"monocle-$name" % Ver.Monocle
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))

@@ -1,14 +1,14 @@
 package ghpages.examples
 
 import ghpages.GhPagesMacros
-import japgolly.scalajs.react._, vdom.prefix_<^._
+import japgolly.scalajs.react._, vdom.html_<^._
 import ghpages.examples.util.SideBySide
 
 object ProductTableExample {
 
   def content = SideBySide.Content(jsSource, source, main())
 
-  lazy val main = addIntro(FilterableProductTable withProps PRODUCTS,
+  lazy val main = addIntro(FilterableProductTable.withKey(_)(PRODUCTS),
     _(scalaPortOfPage("docs/thinking-in-react.html")))
 
   val jsSource =
@@ -150,7 +150,7 @@ object ProductTableExample {
   case class State(filterText: String, inStockOnly: Boolean)
 
   class Backend($: BackendScope[_, State])  {
-    def onTextChange(e: ReactEventI) =
+    def onTextChange(e: ReactEventFromInput) =
       e.extract(_.target.value)(value =>
         $.modState(_.copy(filterText = value)))
 
@@ -158,14 +158,14 @@ object ProductTableExample {
       $.modState(s => s.copy(inStockOnly = !s.inStockOnly))
   }
 
-  val ProductCategoryRow = ReactComponentB[String]("ProductCategoryRow")
+  val ProductCategoryRow = ScalaComponent.build[String]("ProductCategoryRow")
     .render_P(category => <.tr(<.th(^.colSpan := 2, category)))
     .build
 
-  val ProductRow = ReactComponentB[Product]("ProductRow")
+  val ProductRow = ScalaComponent.build[Product]("ProductRow")
     .render_P(p =>
       <.tr(
-        <.td(<.span(!p.stocked ?= ^.color.red, p.name)),
+        <.td(<.span(^.color.red.unless(p.stocked), p.name)),
         <.td(p.price))
     )
     .build
@@ -174,7 +174,7 @@ object ProductTableExample {
     p.name.contains(s.filterText) &&
     (!s.inStockOnly || p.stocked)
 
-  val ProductTable = ReactComponentB[(List[Product], State)]("ProductTable")
+  val ProductTable = ScalaComponent.build[(List[Product], State)]("ProductTable")
     .render_P { case (products, state) =>
       val rows = products.filter(productFilter(state))
                  .groupBy(_.category).toList
@@ -187,11 +187,11 @@ object ProductTableExample {
             <.th("Name"),
             <.th("Price"))),
         <.tbody(
-          rows))
+          rows.toVdomArray))
     }
     .build
 
-  val SearchBar = ReactComponentB[(State, Backend)]("SearchBar")
+  val SearchBar = ScalaComponent.build[(State, Backend)]("SearchBar")
     .render_P { case (s, b) =>
       <.form(
         <.input.text(
@@ -205,7 +205,7 @@ object ProductTableExample {
     }
     .build
 
-  val FilterableProductTable = ReactComponentB[List[Product]]("FilterableProductTable")
+  val FilterableProductTable = ScalaComponent.build[List[Product]]("FilterableProductTable")
     .initialState(State("", false))
     .backend(new Backend(_))
     .renderPS(($, p, s) =>

@@ -1,17 +1,14 @@
-package japgolly.scalajs.react
-package extra
+package japgolly.scalajs.react.extra
 
 import nyaya.gen._
 import nyaya.prop._
 import nyaya.test.PropTest._
 import utest._
 
-import vdom.prefix_<^._
-import test._
-import ScalazReact._
-import TestUtil2._
-import CompScope._
-import CompState._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.test._
+import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.vdom.html_<^._
 
 object ReusabilityTest extends TestSuite {
 
@@ -24,7 +21,7 @@ object ReusabilityTest extends TestSuite {
 
     var renderCount = 0
 
-    val component = ReactComponentB[Props]("Demo")
+    val component = ScalaComponent.build[Props]("Demo")
       .initialState_P(identity)
       .renderS { (_, *) =>
         renderCount += 1
@@ -42,33 +39,33 @@ object ReusabilityTest extends TestSuite {
     var innerRenderCount = 0
     type M = Map[Int, String]
 
-    val outerComponent = ReactComponentB[M]("Demo")
+    val outerComponent = ScalaComponent.build[M]("Demo")
       .initialState_P(identity)
       .renderBackend[Backend]
       .build
 
     class Backend($: BackendScope[_, M]) {
-      val updateUser = ReusableFn((id: Int, data: String) =>
+      val updateUser = Reusable.fn((id: Int, data: String) =>
         $.modState(_.updated(id, data)))
       def render(s: M) = {
         outerRenderCount += 1
         <.div(
           s.map { case (id, name) =>
             innerComponent.withKey(id)(InnerProps(name, updateUser(id)))
-          }.toJsArray)
+          }.toVdomArray)
       }
     }
 
     case class InnerProps(name: String, update: String ~=> Callback)
     implicit val propsReuse = Reusability.caseClass[InnerProps]
 
-    val innerComponent = ReactComponentB[InnerProps]("PersonEditor")
+    val innerComponent = ScalaComponent.build[InnerProps]("PersonEditor")
       .renderP { (_, p) =>
         innerRenderCount += 1
         <.input(
           ^.`type` := "text",
           ^.value := p.name,
-          ^.onChange ==> ((e: ReactEventI) => p.update(e.target.value)))
+          ^.onChange ==> ((e: ReactEventFromInput) => p.update(e.target.value)))
       }
       .configure(Reusability.shouldComponentUpdate)
       .build
@@ -209,7 +206,7 @@ object ReusabilityTest extends TestSuite {
         val data2: M = Map(1 -> "One", 2 -> "Two", 3 -> "33333")
         val c = ReactTestUtils renderIntoDocument outerComponent(data1)
         assert(outerRenderCount == 1, innerRenderCount == 3)
-        c.forceUpdate()
+        c.forceUpdate
         assert(outerRenderCount == 2, innerRenderCount == 3)
         c.setState(data2)
         assert(outerRenderCount == 3, innerRenderCount == 4)

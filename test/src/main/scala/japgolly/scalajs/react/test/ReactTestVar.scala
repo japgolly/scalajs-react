@@ -1,72 +1,61 @@
 package japgolly.scalajs.react.test
 
-import scalajs.js
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 
 /**
- * Houses a variable and provides React-like access to it.
- *
- * It can be used to mock an `ExternalVar[A]`, a `ReusableVar[A]` and a `CompState.Access[A]`.
- *
- * It also keeps a log of changes, accessible via `.history()`.
- *
- * @tparam A The variable type.
- * @since 0.11.0
- */
+  * Houses a variable and provides React-like access to it.
+  *
+  * Provides mock-like instances of the following:
+  * - [[ReusableFn]]
+  * - [[StateAccess]]
+  * - [[StateSnapshot]]
+  * - [[StateSnapshot]] with [[Reusability]]
+  *
+  * It also keeps a log of changes, accessible via `.history()`.
+  *
+  * @tparam A The variable type.
+  * @since 0.11.0
+  */
 class ReactTestVar[A](val initialValue: A) {
-  import CompScope._
 
   override def toString =
     s"ReactTestVar(initialValue = $initialValue, value = ${value()})"
 
-  /* // Use WithExternalCompStateAccess instead.
-
-  private val obj: ObjectWithStateVar[A] = {
-    type JSCB = js.UndefOr[js.Function0[js.Any]]
-    type ModFn = js.Function1[WrapObj[A], WrapObj[A]]
-
-    val setStateFn: js.Function2[js.Any, JSCB, Unit] =
-      (arg: js.Any, cb: JSCB) => {
-
-        val newValue: A =
-          if (arg.toString.startsWith("function"))
-            arg.asInstanceOf[ModFn].apply(valueW()).v
-          else
-            arg.asInstanceOf[WrapObj[A]].v
-
-        setValue(newValue)
-        cb.foreach(_.apply())
-      }
-
-    js.Dynamic.literal("setState" -> setStateFn).asInstanceOf[ObjectWithStateVar[A]]
-  }
-
-  def compStateAccess(): CompState.Access[A] =
-    obj.asInstanceOf[CanSetState[A] with ReadCallback with WriteCallback]
-
-  private def valueW(): WrapObj[A] =
-    obj.state
-  */
-
   private var _value: A = _
   private var _history: Vector[A] = _
+  private var _onUpdate: Vector[Callback] = _
+  reset()
 
   def reset(): Unit = {
+    resetListeners()
+    resetData()
+  }
+
+  def resetListeners(): Unit = {
+    _onUpdate = Vector.empty
+  }
+
+  def resetData(): Unit = {
     _history = Vector.empty
     setValue(initialValue)
   }
 
-  reset()
-
   def setValue(a: A): Unit = {
-    // obj.state = WrapObj(a)
     _value = a
     _history :+= a
+    for (cb <- _onUpdate)
+      cb.attempt.runNow().left.toOption.foreach(_.printStackTrace())
   }
+
+  def modValue(f: A => A): Unit =
+    setValue(f(value()))
 
   def value(): A =
     _value
+
+  def onUpdate(callback: => Unit): Unit =
+    _onUpdate :+= Callback(callback)
 
   /**
    * Log of state values since initialised or last reset.
@@ -78,25 +67,22 @@ class ReactTestVar[A](val initialValue: A) {
   def history(): Vector[A] =
     _history
 
-  val reusableSet: A ~=> Callback =
-    ReusableFn(a => Callback(setValue(a)))
+  val setStateFn: A ~=> Callback =
+    Reusable.fn(a => Callback(setValue(a)))
 
-  def reusableVar()(implicit r: Reusability[A]): ReusableVar[A] =
-    ReusableVar(value())(reusableSet)(r)
+  def stateSnapshot(): StateSnapshot[A] =
+    StateSnapshot(value())(setStateFn)
 
-  def externalVar(): ExternalVar[A] =
-    ExternalVar(value())(reusableSet)
+  def stateSnapshotWithReuse()(implicit r: Reusability[A]): StateSnapshot[A] =
+    StateSnapshot.withReuse(value())(setStateFn)
+
+  lazy val stateAccess: StateAccessPure[A] =
+    StateAccess(CallbackTo(value()))(
+      (a, cb) => Callback(setValue(a)) >> cb,
+      (f, cb) => Callback(modValue(f)) >> cb)
 }
 
 object ReactTestVar {
   def apply[A](a: A): ReactTestVar[A] =
     new ReactTestVar(a)
-}
-
-/**
- * A JS object with a state variable.
- */
-@js.native
-trait ObjectWithStateVar[A] extends js.Object {
-  var state: WrapObj[A] = js.native
 }

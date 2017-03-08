@@ -1,56 +1,74 @@
 package japgolly.scalajs.react.test
 
 import sizzle.Sizzle
-import japgolly.scalajs.react.vdom.ReactAttr
+import org.scalajs.dom
+import org.scalajs.dom.document
 import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
+import scala.concurrent.Promise
+import scala.util.Success
+import scalajs.concurrent.JSExecutionContext.Implicits.queue
 import utest._
 import japgolly.scalajs.react._
-import vdom.prefix_<^._
+import japgolly.scalajs.react.raw.SyntheticEvent
+import japgolly.scalajs.react.vdom.html_<^._
 import TestUtil._
-import TestUtil2._
 
 object TestTest extends TestSuite {
 
-  lazy val A = ReactComponentB[Unit]("A").render_C(c => <.p(^.cls := "AA", c)).build
-  lazy val B = ReactComponentB[Unit]("B").render(_ => <.p(^.cls := "BB", "hehehe")).build
+  lazy val A = ScalaComponent.build[Unit]("A").render_C(c => <.p(^.cls := "AA", c)).build
+  lazy val B = ScalaComponent.build[Unit]("B").renderStatic(<.p(^.cls := "BB", "hehehe")).build
   lazy val rab = ReactTestUtils.renderIntoDocument(A(B()))
 
-  val inputRef = Ref[HTMLInputElement]("r")
-  lazy val IC = ReactComponentB[Unit]("IC").initialState(true).renderS(($,s) => {
-    val ch = (e: ReactEvent) => $.modState(x => !x)
+  var inputRef: HTMLInputElement = _
+
+  lazy val IC = ScalaComponent.build[Unit]("IC").initialState(true).renderS(($,s) => {
+    val ch = (_: ReactEvent) => $.modState(x => !x)
     <.label(
-      <.input.checkbox(^.checked := s, ^.onClick ==> ch, ^.ref := inputRef),
+      <.input.checkbox(^.checked := s, ^.onClick ==> ch).ref(inputRef = _),
       <.span(s"s = $s")
     )
   }).build
 
-  lazy val IT = ReactComponentB[Unit]("IT").initialState("NIL").renderS(($,s) => {
-    val ch = (e: SyntheticEvent[HTMLInputElement]) => $.setState(e.target.value.toUpperCase)
+  lazy val IT = ScalaComponent.build[Unit]("IT").initialState("NIL").renderS(($,s) => {
+    val ch = (e: ReactEventFromInput) => $.setState(e.target.value.toUpperCase)
     <.input.text(^.value := s, ^.onChange ==> ch)
   }).build
+
+  class CP {
+    var prev = "none"
+    def render(p: String) = <.div(s"$prev → $p")
+  }
+  val CP = ScalaComponent.build[String]("asd")
+    .backend(_ => new CP)
+    .renderBackend
+    .componentWillReceiveProps(i => Callback(i.backend.prev = i.currentProps))
+    .build
 
   val tests = TestSuite {
 
     'findRenderedDOMComponentWithClass {
-      val n = ReactDOM findDOMNode ReactTestUtils.findRenderedDOMComponentWithClass(rab, "BB")
+      val x = ReactTestUtils.findRenderedDOMComponentWithClass(rab, "BB")
+      val n = x.getDOMNode
       assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
     'findRenderedComponentWithType {
-      val n = ReactDOM findDOMNode ReactTestUtils.findRenderedComponentWithType(rab, B)
+      val n = ReactTestUtils.findRenderedComponentWithType(rab, B).getDOMNode
       assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
     'renderIntoDocument {
-      def test(c: ComponentM, exp: String): Unit =
-        assertOuterHTML(ReactDOM.findDOMNode(c), exp)
+      def test(c: GenericComponent.MountedRaw, exp: String): Unit =
+        assertOuterHTML(ReactDOM.raw.findDOMNode(c.raw), exp)
+
       'plainElement {
-        val re: ReactElement = <.div("Good")
+        val re: VdomElement = <.div("Good")
         val c = ReactTestUtils.renderIntoDocument(re)
         test(c, """<div>Good</div>""")
       }
-      'component {
-        val c: ReactComponentM[Unit, Unit, Unit, TopNode] = ReactTestUtils.renderIntoDocument(B())
+
+      'scalaComponent {
+        val c = ReactTestUtils.renderIntoDocument(B())
         test(c, """<p class="BB">hehehe</p>""")
       }
     }
@@ -58,114 +76,104 @@ object TestTest extends TestSuite {
     'Simulate {
       'click {
         val c = ReactTestUtils.renderIntoDocument(IC())
-        val i = inputRef(c).get
         val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
-        val a = ReactDOM.findDOMNode(s).innerHTML
-        ReactTestUtils.Simulate.click(i)
-        val b = ReactDOM.findDOMNode(s).innerHTML
+        val a = s.getDOMNode.innerHTML
+        Simulate.click(inputRef)
+        val b = s.getDOMNode.innerHTML
         assert(a != b)
       }
 
       'eventTypes {
-        val eventTypes = Seq[(ReactAttr, ReactOrDomNode ⇒ Unit)](
-          (^.onBeforeInput,       n ⇒ ReactTestUtils.Simulate.beforeInput(n)),
-          (^.onBlur,              n ⇒ ReactTestUtils.Simulate.blur(n)),
-          (^.onChange,            n ⇒ ReactTestUtils.Simulate.change(n)),
-          (^.onClick,             n ⇒ ReactTestUtils.Simulate.click(n)),
-          (^.onCompositionEnd,    n ⇒ ReactTestUtils.Simulate.compositionEnd(n)),
-          (^.onCompositionStart,  n ⇒ ReactTestUtils.Simulate.compositionStart(n)),
-          (^.onCompositionUpdate, n ⇒ ReactTestUtils.Simulate.compositionUpdate(n)),
-          (^.onContextMenu,       n ⇒ ReactTestUtils.Simulate.contextMenu(n)),
-          (^.onCopy,              n ⇒ ReactTestUtils.Simulate.copy(n)),
-          (^.onCut,               n ⇒ ReactTestUtils.Simulate.cut(n)),
-          (^.onDrag,              n ⇒ ReactTestUtils.Simulate.drag(n)),
-          (^.onDblClick,          n ⇒ ReactTestUtils.Simulate.doubleClick(n)),
-          (^.onDragEnd,           n ⇒ ReactTestUtils.Simulate.dragEnd(n)),
-          (^.onDragEnter,         n ⇒ ReactTestUtils.Simulate.dragEnter(n)),
-          (^.onDragExit,          n ⇒ ReactTestUtils.Simulate.dragExit(n)),
-          (^.onDragLeave,         n ⇒ ReactTestUtils.Simulate.dragLeave(n)),
-          (^.onDragOver,          n ⇒ ReactTestUtils.Simulate.dragOver(n)),
-          (^.onDragStart,         n ⇒ ReactTestUtils.Simulate.dragStart(n)),
-          (^.onDrop,              n ⇒ ReactTestUtils.Simulate.drop(n)),
-          (^.onError,             n ⇒ ReactTestUtils.Simulate.error(n)),
-          (^.onFocus,             n ⇒ ReactTestUtils.Simulate.focus(n)),
-          (^.onInput,             n ⇒ ReactTestUtils.Simulate.input(n)),
-          (^.onKeyDown,           n ⇒ ReactTestUtils.Simulate.keyDown(n)),
-          (^.onKeyPress,          n ⇒ ReactTestUtils.Simulate.keyPress(n)),
-          (^.onKeyUp,             n ⇒ ReactTestUtils.Simulate.keyUp(n)),
-          (^.onLoad,              n ⇒ ReactTestUtils.Simulate.load(n)),
-          (^.onMouseDown,         n ⇒ ReactTestUtils.Simulate.mouseDown(n)),
-          (^.onMouseEnter,        n ⇒ ReactTestUtils.Simulate.mouseEnter(n)),
-          (^.onMouseLeave,        n ⇒ ReactTestUtils.Simulate.mouseLeave(n)),
-          (^.onMouseMove,         n ⇒ ReactTestUtils.Simulate.mouseMove(n)),
-          (^.onMouseOut,          n ⇒ ReactTestUtils.Simulate.mouseOut(n)),
-          (^.onMouseOver,         n ⇒ ReactTestUtils.Simulate.mouseOver(n)),
-          (^.onMouseUp,           n ⇒ ReactTestUtils.Simulate.mouseUp(n)),
-          (^.onPaste,             n ⇒ ReactTestUtils.Simulate.paste(n)),
-          (^.onReset,             n ⇒ ReactTestUtils.Simulate.reset(n)),
-          (^.onScroll,            n ⇒ ReactTestUtils.Simulate.scroll(n)),
-          (^.onSelect,            n ⇒ ReactTestUtils.Simulate.select(n)),
-          (^.onSubmit,            n ⇒ ReactTestUtils.Simulate.submit(n)),
-          (^.onTouchCancel,       n ⇒ ReactTestUtils.Simulate.touchCancel(n)),
-          (^.onTouchEnd,          n ⇒ ReactTestUtils.Simulate.touchEnd(n)),
-          (^.onTouchMove,         n ⇒ ReactTestUtils.Simulate.touchMove(n)),
-          (^.onTouchStart,        n ⇒ ReactTestUtils.Simulate.touchStart(n)),
-          (^.onWheel,             n ⇒ ReactTestUtils.Simulate.wheel(n))
-        )
+        def test[E[+x <: dom.Node] <: SyntheticEvent[x]](eventType: VdomAttr.Event[E], simF: ReactOrDomNode ⇒ Unit) = {
+          val IDC = ScalaComponent.build[Unit]("IC").initialState(true).render($ => {
+            val ch = (e: E[dom.Node]) => $.modState(x => !x)
+            <.label(
+              <.input.text(^.value := $.state, eventType ==> ch).ref(inputRef = _),
+              <.span(s"s = ${$.state}")
+            )
+          }).build
 
-        val results = eventTypes map {
-          case (eventType, simF) ⇒
-            val IDC = ReactComponentB[Unit]("IC").initialState(true).render($ => {
-              val ch = (e: ReactEvent) => $.modState(x => !x)
-              <.label(
-                <.input.text(^.value := $.state, eventType ==> ch, ^.ref := inputRef),
-                <.span(s"s = ${$.state}")
-              )
-            }).build
+          val c = ReactTestUtils.renderIntoDocument(IDC())
+          val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
 
-            val c = ReactTestUtils.renderIntoDocument(IDC())
-            val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
+          val a = s.getDOMNode.innerHTML
+          simF(inputRef)
+          val b = s.getDOMNode.innerHTML
 
-            val a = ReactDOM.findDOMNode(s).innerHTML
-            simF(inputRef(c).get)
-            val b = ReactDOM.findDOMNode(s).innerHTML
-
-            (eventType, a != b)
+          assert(a != b)
         }
 
-        val failed = results collect {
-          case (attr, false) ⇒ attr.name
-        }
-
-        assert(failed == Seq.empty)
+        'onBeforeInput       - test(^.onBeforeInput,       Simulate.beforeInput(_))
+        'onBlur              - test(^.onBlur,              Simulate.blur(_))
+        'onChange            - test(^.onChange,            Simulate.change(_))
+        'onClick             - test(^.onClick,             Simulate.click(_))
+        'onCompositionEnd    - test(^.onCompositionEnd,    Simulate.compositionEnd(_))
+        'onCompositionStart  - test(^.onCompositionStart,  Simulate.compositionStart(_))
+        'onCompositionUpdate - test(^.onCompositionUpdate, Simulate.compositionUpdate(_))
+        'onContextMenu       - test(^.onContextMenu,       Simulate.contextMenu(_))
+        'onCopy              - test(^.onCopy,              Simulate.copy(_))
+        'onCut               - test(^.onCut,               Simulate.cut(_))
+        'onDrag              - test(^.onDrag,              Simulate.drag(_))
+        'onDblClick          - test(^.onDblClick,          Simulate.doubleClick(_))
+        'onDragEnd           - test(^.onDragEnd,           Simulate.dragEnd(_))
+        'onDragEnter         - test(^.onDragEnter,         Simulate.dragEnter(_))
+        'onDragExit          - test(^.onDragExit,          Simulate.dragExit(_))
+        'onDragLeave         - test(^.onDragLeave,         Simulate.dragLeave(_))
+        'onDragOver          - test(^.onDragOver,          Simulate.dragOver(_))
+        'onDragStart         - test(^.onDragStart,         Simulate.dragStart(_))
+        'onDrop              - test(^.onDrop,              Simulate.drop(_))
+        'onError             - test(^.onError,             Simulate.error(_))
+        'onFocus             - test(^.onFocus,             Simulate.focus(_))
+        'onInput             - test(^.onInput,             Simulate.input(_))
+        'onKeyDown           - test(^.onKeyDown,           Simulate.keyDown(_))
+        'onKeyPress          - test(^.onKeyPress,          Simulate.keyPress(_))
+        'onKeyUp             - test(^.onKeyUp,             Simulate.keyUp(_))
+        'onLoad              - test(^.onLoad,              Simulate.load(_))
+        'onMouseDown         - test(^.onMouseDown,         Simulate.mouseDown(_))
+        'onMouseEnter        - test(^.onMouseEnter,        Simulate.mouseEnter(_))
+        'onMouseLeave        - test(^.onMouseLeave,        Simulate.mouseLeave(_))
+        'onMouseMove         - test(^.onMouseMove,         Simulate.mouseMove(_))
+        'onMouseOut          - test(^.onMouseOut,          Simulate.mouseOut(_))
+        'onMouseOver         - test(^.onMouseOver,         Simulate.mouseOver(_))
+        'onMouseUp           - test(^.onMouseUp,           Simulate.mouseUp(_))
+        'onPaste             - test(^.onPaste,             Simulate.paste(_))
+        'onReset             - test(^.onReset,             Simulate.reset(_))
+        'onScroll            - test(^.onScroll,            Simulate.scroll(_))
+        'onSelect            - test(^.onSelect,            Simulate.select(_))
+        'onSubmit            - test(^.onSubmit,            Simulate.submit(_))
+        'onTouchCancel       - test(^.onTouchCancel,       Simulate.touchCancel(_))
+        'onTouchEnd          - test(^.onTouchEnd,          Simulate.touchEnd(_))
+        'onTouchMove         - test(^.onTouchMove,         Simulate.touchMove(_))
+        'onTouchStart        - test(^.onTouchStart,        Simulate.touchStart(_))
+        'onWheel             - test(^.onWheel,             Simulate.wheel(_))
       }
 
       'change {
-        val c = ReactTestUtils.renderIntoDocument(IT()).domType[HTMLInputElement]
-        ChangeEventData("hehe").simulate(c)
-        val t = ReactDOM.findDOMNode(c).value
-        t mustEqual "HEHE"
+        val c = ReactTestUtils.renderIntoDocument(IT())
+        SimEvent.Change("hehe").simulate(c)
+        val t = c.getDOMNode.domCast[HTMLInputElement].value
+        assertEq(t, "HEHE")
       }
+
       'focusChangeBlur {
         var events = Vector.empty[String]
-        val C = ReactComponentB[Unit]("C").initialState("ey").render(T => {
+        val C = ScalaComponent.build[Unit]("C").initialState("ey").render(T => {
           def e(s: String) = Callback(events :+= s)
-          def chg(ev: ReactEventI) =
+          def chg(ev: ReactEventFromInput) =
             e("change") >> T.setState(ev.target.value)
-          <.input.text(^.value := T.state, ^.ref := inputRef, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur"))
+          <.input.text(^.value := T.state, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur")).ref(inputRef = _)
         }).build
         val c = ReactTestUtils.renderIntoDocument(C())
-        val i = inputRef(c).get
-        Simulation.focusChangeBlur("good") run i
-        events mustEqual Vector("focus", "change", "blur")
-        i.value mustEqual "good"
+        Simulation.focusChangeBlur("good") run inputRef
+        assertEq(events, Vector("focus", "change", "blur"))
+        assertEq(inputRef.value, "good")
       }
       'targetByName {
         val c = ReactTestUtils.renderIntoDocument(IC())
         var count = 0
         def tgt = {
           count += 1
-          Sizzle("input", ReactDOM findDOMNode c).sole
+          Sizzle("input", c.getDOMNode).sole
         }
         Simulation.focusChangeBlur("-") run tgt
         assert(count == 3)
@@ -173,14 +181,97 @@ object TestTest extends TestSuite {
     }
 
     'withRenderedIntoDocument {
-      var m: IC.Mounted = null
+      var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       ReactTestUtils.withRenderedIntoDocument(IC()) { mm =>
         m = mm
-        val n = m.getDOMNode()
-        assert(ReactTestUtils.removeReactDataAttr(n.outerHTML) startsWith "<label><input ")
-        assert(m.isMounted())
+        val n = m.getDOMNode
+        assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
+        assert(m.isMounted)
       }
-      assert(!m.isMounted())
+      assert(!m.isMounted)
+    }
+
+    'withRenderedIntoBody {
+      def inspectBody() = document.body.childElementCount
+      val body1 = inspectBody()
+      var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
+      ReactTestUtils.withRenderedIntoBody(IC()) { mm =>
+        m = mm
+        val n = m.getDOMNode
+        assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
+        assert(m.isMounted)
+
+        // Benefits of body over detached
+        inputRef.focus()
+        assert(document.activeElement == inputRef)
+        inputRef.blur()
+        assert(document.activeElement != inputRef)
+      }
+      val body2 = inspectBody()
+      assert(!m.isMounted, body1 == body2)
+    }
+
+    'withRenderedIntoDocumentAsync {
+      var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
+      val promise: Promise[Unit] = Promise[Unit]()
+      ReactTestUtils.withRenderedIntoDocumentAsync(IC()) { mm =>
+        m = mm
+        promise.future
+      }
+      val n = m.getDOMNode
+      assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
+      assert(m.isMounted)
+
+      promise.success(())
+
+      promise.future.map(_ => assert(!m.isMounted))
+    }
+
+    'withRenderedIntoBodyAsync {
+      def inspectBody() = document.body.childElementCount
+      val body1 = inspectBody()
+      var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
+      val promise: Promise[Unit] = Promise[Unit]()
+      val future = ReactTestUtils.withRenderedIntoBodyAsync(IC()) { mm =>
+        m = mm
+        promise.future
+      }
+      val n = m.getDOMNode
+      assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
+      assert(m.isMounted)
+
+      // Benefits of body over detached
+      inputRef.focus()
+      assert(document.activeElement == inputRef)
+      inputRef.blur()
+      assert(document.activeElement != inputRef)
+
+      promise.success(())
+
+      future.map { _ =>
+        val body2 = inspectBody()
+        assert(!m.isMounted, body1 == body2)
+      }
+    }
+
+    'modifyProps {
+      ReactTestUtils.withRenderedIntoDocument(CP("start")) { m =>
+        assertRendered(m.getDOMNode, "<div>none → start</div>")
+        ReactTestUtils.modifyProps(CP, m)(_ + "ed")
+        assertRendered(m.getDOMNode, "<div>start → started</div>")
+        ReactTestUtils.replaceProps(CP, m)("done!")
+        assertRendered(m.getDOMNode, "<div>started → done!</div>")
+      }
+    }
+
+    'removeReactInternals {
+      val c = ScalaComponent.static("", <.div(<.br, "hello", <.hr))
+      ReactTestUtils.withRenderedIntoDocument(c()) { m =>
+        val orig = m.getDOMNode.outerHTML
+        val after = ReactTestUtils.removeReactInternals(orig)
+        assertEq("<div><br>hello<hr></div>", after)
+        s"$orig  →  $after"
+      }
     }
   }
 }

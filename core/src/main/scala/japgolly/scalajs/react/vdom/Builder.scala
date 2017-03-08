@@ -2,21 +2,21 @@ package japgolly.scalajs.react.vdom
 
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
-import japgolly.scalajs.react.{ReactElement, ReactNode, React}
-import Builder.set
+import japgolly.scalajs.react.internal.JsUtil
+import japgolly.scalajs.react.raw
 
 object Builder {
-  @inline private[Builder] def set(o: js.Object, k: String, v: js.Any): Unit =
+  private[Builder] def set(o: js.Object, k: String, v: js.Any): Unit =
     o.asInstanceOf[js.Dynamic].updateDynamic(k)(v)
 
-  type BuildFn = (String, js.Object, js.Array[ReactNode]) => ReactElement
+  type BuildFn = (String, js.Object, js.Array[raw.ReactNodeList]) => raw.ReactElement
 
   val buildFn: BuildFn =
     if (developmentMode)
 
       // Development mode
       (tag, props, children) => {
-        React.createElement(tag, props, children: _*)
+        raw.React.createElement(tag, props, children: _*)
       }
 
     else {
@@ -38,7 +38,7 @@ object Builder {
       (tag, props, children) => {
         val ref = props.asInstanceOf[js.Dynamic].ref.asInstanceOf[js.UndefOr[js.Any]]
         if (ref.isDefined)
-          React.createElement(tag, props, children: _*)
+          raw.React.createElement(tag, props, children: _*)
         else {
 
           val key = props.asInstanceOf[js.Dynamic].key.asInstanceOf[js.UndefOr[js.Any]]
@@ -46,7 +46,7 @@ object Builder {
           val clen = children.length
           if (clen != 0) {
             val c = if (clen == 1) children(0) else children
-            set(props, "children", c)
+            set(props, "children", c.asInstanceOf[js.Any])
           }
 
           val output =
@@ -57,7 +57,7 @@ object Builder {
               ref        = null,
               props      = props,
               _owner     = null)
-              .asInstanceOf[ReactElement]
+              .asInstanceOf[raw.ReactElement]
 
 //         org.scalajs.dom.console.log("VDOM: ", output)
 
@@ -68,31 +68,40 @@ object Builder {
 }
 
 final class Builder {
+  import Builder.set
 
   private[this] var className: js.UndefOr[js.Any] = js.undefined
   private[this] var props    = new js.Object
   private[this] var style    = new js.Object
-  private[this] var children = new js.Array[ReactNode]()
+  private[this] var children = new js.Array[raw.ReactNodeList]()
 
-  def addClassName(n: js.Any): Unit =
-    className = className.fold(n)(m => s"$m $n")
+  val addClassName: js.Any => Unit =
+    n => className = className.fold(n)(m => s"$m $n")
 
-  def appendChild(c: ReactNode): Unit =
-    children.push(c)
+  def appendChild(n: raw.ReactNodeList): Unit =
+    children.push(n)
 
   def addAttr(k: String, v: js.Any): Unit =
     set(props, k, v)
 
-  def addStyle(k: String, v: String): Unit =
+  def addStyle(k: String, v: js.Any): Unit =
     set(style, k, v)
 
-  @inline private[this] def hasStyle: Boolean =
+  val addStyles: js.Any => Unit = { j =>
+    // Hack because Attr.ValueType.Fn takes a js.Any => Unit.
+    // Safe because Attr.Style declares that it needs a js.Object.
+    val obj = j.asInstanceOf[js.Object]
+    for ((k,v) <- JsUtil.objectIterator(obj))
+      addStyle(k, v)
+  }
+
+  private[this] def hasStyle: Boolean =
     js.Object.keys(style).length != 0
 
-  def render(tag: String): ReactElement = {
+  def render(tag: String): VdomElement = {
     className.foreach(set(props, "className", _))
     if (hasStyle)
       set(props, "style", style)
-    Builder.buildFn(tag, props, children)
+    VdomElement(Builder.buildFn(tag, props, children))
   }
 }

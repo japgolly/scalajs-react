@@ -4,11 +4,11 @@ import japgolly.scalajs.react._, vdom.all._
 
 object SingleSide {
 
-  case class Content(scalaSource: String, el: ReactElement) {
+  case class Content(scalaSource: String, el: VdomElement) {
     def apply() = singleSideComponent(this)
   }
 
-  val singleSideComponent = ReactComponentB[Content]("singleSideComponent")
+  val singleSideComponent = ScalaComponent.build[Content]("singleSideComponent")
     .render_P(p =>
       div(
         section(cls := "demo",

@@ -1,15 +1,15 @@
 package ghpages.examples
 
 import ghpages.GhPagesMacros
-import japgolly.scalajs.react.ReactComponentB
-import japgolly.scalajs.react.vdom.prefix_<^._
+import japgolly.scalajs.react.ScalaComponent
+import japgolly.scalajs.react.vdom.html_<^._
 import ghpages.examples.util.SideBySide
 
 object HelloMessageExample {
 
   def content = SideBySide.Content(jsSource, source, main())
 
-  lazy val main = addIntro(HelloMessage withProps "John", _(scalaPortOf("A Simple Component")))
+  lazy val main = addIntro(HelloMessage.withKey(_)("John"), _(scalaPortOf("A Simple Component")))
 
   val jsSource =
     """
@@ -30,7 +30,7 @@ object HelloMessageExample {
 
   // EXAMPLE:START
 
-  val HelloMessage = ReactComponentB[String]("HelloMessage")
+  val HelloMessage = ScalaComponent.build[String]("HelloMessage")
     .render($ => <.div("Hello ", $.props))
     .build
 

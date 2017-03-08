@@ -1,12 +1,11 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import CompScope.DuringCallbackM
 
 /**
  * External entities can register with this to listen (receive) data of type A.
  *
- * Install in `ReactComponentB` via `.configure(Listenable.install...)`.
+ * Install in `ScalaComponent.build` via `.configure(Listenable.listen)`.
  */
 trait Listenable[A] {
 
@@ -21,10 +20,14 @@ trait Listenable[A] {
 
 object Listenable {
 
-  def install[P, S, B <: OnUnmount, N <: TopNode, A](f: P => Listenable[A], g: DuringCallbackM[P, S, B, N] => A => Callback) =
-    OnUnmount.install[P, S, B, N] andThen (_.componentDidMount($ =>
-      f($.props).register(g($)) >>= $.backend.onUnmount))
+  def listen[P, C <: Children, S, B <: OnUnmount, A](
+      listenable: P => Listenable[A],
+      makeListener: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => A => Callback): ScalaComponentConfig[P, C, S, B] =
+    OnUnmount.install[P, C, S, B] andThen (_.componentDidMount($ =>
+      listenable($.props).register(makeListener($)) >>= $.backend.onUnmount))
 
-  def installU[P, S, B <: OnUnmount, N <: TopNode](f: P => Listenable[Unit], g: DuringCallbackM[P, S, B, N] => Callback) =
-    install[P, S, B, N, Unit](f, $ => _ => g($))
+  def listenToUnit[P, C <: Children, S, B <: OnUnmount](
+      listenable: P => Listenable[Unit],
+      makeListener: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => Callback): ScalaComponentConfig[P, C, S, B] =
+    listen[P, C, S, B, Unit](listenable, $ => _ => makeListener($))
 }
