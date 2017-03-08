@@ -24,6 +24,7 @@ Type parameters below are abbreviated as follows:
 ### Stages
 
 React components can be thought of as having 3 stages.
+
 1. `Component` - A component at it's top-level. After creation, before use. Input (props and/or children) may be required. Pure.
 2. `Unmounted` - An instance of a component that's ready to be rendered. Still pure at this point.
 3. `Mounted` - A reference to a component that has been mounted/rendered. Usually live. Impure as it can change as the user interacts with the app. Pure versions available where impurity is encapulated in `CallbackTo[A]`.
@@ -127,9 +128,9 @@ You only need to specify these when you want to explicitly declare the types of 
   They allow you to reference JS components more generically and with less constraints.
   Useful in library methods that do something with any kind of JS component,
   regardless of whether it's been mapped or modified after creation.
-  `JsComponent.ComponentSimple[P, CT, U]`
-  `JsComponent.UnmountedSimple[P, M]`
-  `JsComponent.MountedSimple[F, P, S, R]`
+  * `JsComponent.ComponentSimple[P, CT, U]`
+  * `JsComponent.UnmountedSimple[P, M]`
+  * `JsComponent.MountedSimple[F, P, S, R]`
 
 * Raw types. I don't imagine library users would need to use this but just in case, there is also:
   * `JsComponent.RawMounted` - the type of the raw JS mounted value without additional facades.
