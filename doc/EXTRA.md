@@ -16,7 +16,7 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.0.0-
   - [EventListener](#eventlistener)
   - [LogLifecycle](#loglifecycle)
   - [OnUnmount](#onunmount)
-  - [SetInterval](#setinterval)
+  - [TimerSupport](#timersupport)
 
 
 `StateSnapshot`

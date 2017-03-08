@@ -1,6 +1,6 @@
 # Interoperability
 
-Firstly, it's recommended you read [TYPES.md](types.md).
+Firstly, it's recommended you read [TYPES.md](TYPES.md).
 
 - [Using JS components](#using-js-components)
 - [Using JS functional components](#using-js-functional-components)

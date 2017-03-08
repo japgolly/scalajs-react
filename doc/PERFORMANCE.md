@@ -361,7 +361,7 @@ You can consider this "Performance eXtension". If this were Java it'd be named
 
 #### Initial instances
 
-![DSL](https://rawgit.com/japgolly/scalajs-react/topic/neo/doc/px.gv.svg)
+![DSL](https://rawgit.com/japgolly/scalajs-react/master/doc/px.gv.svg)
 
 `Px` comes in two flavours: those with reusable values, and those without.
 If its values are reusable then when its underlying value `A` changes, it will compare the new `A` value to the previous `A` (using `Reusability[A]`) and discard the change if it can.
