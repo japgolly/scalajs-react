@@ -14,7 +14,7 @@ object ScalaComponentPTest extends TestSuite {
   case class BasicProps(name: String)
 
   val BasicComponent =
-    ScalaComponent.build[BasicProps]("HelloMessage")
+    ScalaComponent.builder[BasicProps]("HelloMessage")
       .stateless
       .noBackend
       .render_P(p => raw.React.createElement("div", null, "Hello ", p.name))
@@ -126,7 +126,7 @@ object ScalaComponentPTest extends TestSuite {
         def incUnmountCount = Callback(willUnmountCount += 1)
       }
 
-      val Comp = ScalaComponent.build[Props]("")
+      val Comp = ScalaComponent.builder[Props]("")
         .stateless
         .backend(new Backend(_))
         .render_P(p => raw.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
@@ -183,7 +183,7 @@ object ScalaComponentSTest extends TestSuite {
   }
 
   val Component =
-    ScalaComponent.build[Unit]("State, no Props")
+    ScalaComponent.builder[Unit]("State, no Props")
       .initialState(State(123, State2(400, 7)))
       .backend(new Backend(_))
       .render_S(s => raw.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3))

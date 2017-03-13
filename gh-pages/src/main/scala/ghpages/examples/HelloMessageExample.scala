@@ -30,7 +30,7 @@ object HelloMessageExample {
 
   // EXAMPLE:START
 
-  val HelloMessage = ScalaComponent.build[String]("HelloMessage")
+  val HelloMessage = ScalaComponent.builder[String]("HelloMessage")
     .render($ => <.div("Hello ", $.props))
     .build
 

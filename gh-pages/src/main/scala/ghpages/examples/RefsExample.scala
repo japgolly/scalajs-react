@@ -74,7 +74,7 @@ object RefsExample {
       )
   }
 
-  val App = ScalaComponent.build[Unit]("App")
+  val App = ScalaComponent.builder[Unit]("App")
     .initialState("")
     .renderBackend[Backend]
     .build

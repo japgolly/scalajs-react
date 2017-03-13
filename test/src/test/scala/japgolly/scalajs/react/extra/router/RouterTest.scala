@@ -21,7 +21,7 @@ object RouterTest extends TestSuite {
 
     implicit def equality = Equal.equalA[MyPage]
 
-    val RootComponent = ScalaComponent.build[RouterCtl[MyPage]]("Root")
+    val RootComponent = ScalaComponent.builder[RouterCtl[MyPage]]("Root")
       .render_P(r =>
         <.div(
           <.h2("Router Demonstration"),
@@ -34,11 +34,11 @@ object RouterTest extends TestSuite {
     val HelloComponent =
       ScalaComponent.static("Hello", <.h3("Hello there!"))
 
-    val NameComponent = ScalaComponent.build[String]("Name")
+    val NameComponent = ScalaComponent.builder[String]("Name")
       .render_P(name => <.h3(s"I believe your name is '$name'."))
       .build
 
-    val PersonComponent = ScalaComponent.build[Person]("Person by ID")
+    val PersonComponent = ScalaComponent.builder[Person]("Person by ID")
       .render_P(p => <.h3(s"Person #${p.id} Details..."))
       .build
 

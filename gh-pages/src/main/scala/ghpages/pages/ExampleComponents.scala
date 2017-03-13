@@ -10,7 +10,7 @@ object ExampleComponents {
 
   implicit val propsReuse = Reusability.caseClass[Props]
 
-  val menu = ScalaComponent.build[Props]("Example menu")
+  val menu = ScalaComponent.builder[Props]("Example menu")
     .render_P { p =>
       def menuItem(e: Example) = {
         val active = e == p.current
@@ -25,14 +25,14 @@ object ExampleComponents {
     .configure(Reusability.shouldComponentUpdate)
     .build
 
-  val body = ScalaComponent.build[Example]("Example body")
+  val body = ScalaComponent.builder[Example]("Example body")
     .render_P(eg =>
       <.div(
         ^.cls := "col-md-10",
         eg.render()))
     .build
 
-  val component = ScalaComponent.build[Props]("Examples")
+  val component = ScalaComponent.builder[Props]("Examples")
     .render_P(p =>
       <.div(^.cls := "row",
         menu(p),

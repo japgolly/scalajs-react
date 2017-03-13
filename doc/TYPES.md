@@ -32,7 +32,7 @@ React components can be thought of as having 3 stages.
 Example:
 ```scala
 // Stage 1: Component
-val component = ScalaComponent.build[String]("HelloComponent")
+val component = ScalaComponent.builder[String]("HelloComponent")
   .render(i => <.div(s"Hello ${i.props}. How are you?"))
   .build
 

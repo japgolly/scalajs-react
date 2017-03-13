@@ -12,7 +12,7 @@ object OnUnmountTest extends TestSuite {
   val dec_i = Callback(i -= 1)
   val inc_i = Callback(i += 1)
 
-  val C = ScalaComponent.build[Unit]("")
+  val C = ScalaComponent.builder[Unit]("")
     .backend(_ => new OnUnmount.Backend)
     .renderStatic(<.div)
     .configure(OnUnmount.install)
@@ -20,7 +20,7 @@ object OnUnmountTest extends TestSuite {
     .componentDidMountConst(inc_i)
     .build
 
-  val Outer = ScalaComponent.build[Unit]("")
+  val Outer = ScalaComponent.builder[Unit]("")
     .initialState(true)
     .render_S(s => if (s) C() else <.div)
     .build

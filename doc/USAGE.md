@@ -70,7 +70,7 @@ You throw types and functions at it, call `build` and when it compiles you will 
 1. The first step is to specify your component's properties type, and a component name.
   ```scala
   val myComponent =
-    ScalaComponent.build[Props]("MyComponent")
+    ScalaComponent.builder[Props]("MyComponent")
       |
   ```
 
@@ -101,7 +101,7 @@ You throw types and functions at it, call `build` and when it compiles you will 
 Example with props:
 ```scala
 val Hello =
-  ScalaComponent.build[String]("Hello")
+  ScalaComponent.builder[String]("Hello")
     .render_P(name => <.div("Hello there ", name))
     .build
 
@@ -112,7 +112,7 @@ Hello("Draconus")
 Example without props:
 ```scala
 val NoArgs =
-  ScalaComponent.build[Unit]("No args")
+  ScalaComponent.builder[Unit]("No args")
     .renderStatic(<.div("Hello!"))
     .build
 
@@ -152,7 +152,7 @@ class Backend(bs: BackendScope[Unit, State]) {
   }
 }
 
-val Example = ScalaComponent.build[Unit]("Example")
+val Example = ScalaComponent.builder[Unit]("Example")
   .initialState(Vector("hello", "world"))
   .backend(new Backend(_))
   .render(_.backend.render)
@@ -168,7 +168,7 @@ class Backend(bs: BackendScope[Unit, State]) {
       <.ol(s.toTagMod(i => <.li(i))))
 }
 
-val Example = ScalaComponent.build[Unit]("Example")
+val Example = ScalaComponent.builder[Unit]("Example")
   .initialState(Vector("hello", "world"))
   .renderBackend[Backend]  // ← Use Backend class and backend.render
   .build
@@ -176,7 +176,7 @@ val Example = ScalaComponent.build[Unit]("Example")
 
 You can also create a backend yourself and still use `.renderBackend`:
 ```scala
-val Example = ScalaComponent.build[Unit]("Example")
+val Example = ScalaComponent.builder[Unit]("Example")
   .initialState(Vector("hello", "world"))
   .backend(new Backend(_)) // ← Fine! Do it yourself!
   .renderBackend           // ← Use backend.render
@@ -195,7 +195,7 @@ val NoArgs =
   ScalaComponent.static("No args", <.div("Hello!"))
 
 val Hello =
-  ScalaComponent.build[String]("Hello")
+  ScalaComponent.builder[String]("Hello")
     .render_P(name => <.div("Hello there ", name))
     .build
 

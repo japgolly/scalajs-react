@@ -158,7 +158,7 @@ object PictureAppExample {
         favoriteList((s.favourites, onPicClick)))
   }
 
-  val picture = ScalaComponent.build[(Picture, PicClick)]("picture")
+  val picture = ScalaComponent.builder[(Picture, PicClick)]("picture")
     .render_P { case (p, b) =>
       div(if (p.favorite) cls := "picture favorite" else cls := "picture", onClick --> b(p.id, p.favorite))(
         img(src := p.src, title := p.title)
@@ -166,7 +166,7 @@ object PictureAppExample {
     }
     .build
 
-  val pictureList = ScalaComponent.build[(List[Picture], PicClick)]("pictureList")
+  val pictureList = ScalaComponent.builder[(List[Picture], PicClick)]("pictureList")
     .render_P { case (list, b) =>
       div(`class` := "pictures")(
         if (list.isEmpty)
@@ -177,7 +177,7 @@ object PictureAppExample {
     }
     .build
 
-  val favoriteList = ScalaComponent.build[(List[Picture], PicClick)]("favoriteList")
+  val favoriteList = ScalaComponent.builder[(List[Picture], PicClick)]("favoriteList")
     .render_P { case (list, b) =>
       div(`class` := "favorites")(
         if (list.isEmpty)
@@ -188,7 +188,7 @@ object PictureAppExample {
     }
     .build
 
-  val PictureApp = ScalaComponent.build[Unit]("PictureApp")
+  val PictureApp = ScalaComponent.builder[Unit]("PictureApp")
     .initialState(State(Nil, Nil))
     .renderBackend[Backend]
     .componentDidMount(scope => Callback {

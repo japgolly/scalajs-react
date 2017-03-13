@@ -22,15 +22,10 @@ object ScalaBuilderTest extends TestSuite {
 
   override def tests = TestSuite {
     'defaults {
-      import ScalaComponent.build
-
-      // TODO Add easier types generally
-      type ScalaComponentNoChildren[P, S, B] = ScalaComponent[P, S, B, CtorType.Props]
-      type ScalaComponentWithChildren[P, S, B] = ScalaComponent[P, S, B, CtorType.PropsAndChildren]
-
-      'autoSB - testExpr(build[P]("")                     .render_P(???).build).expect[ScalaComponentNoChildren[P, Unit, Unit]]
-      'autoB  - testExpr(build[P]("").initialState[S](???).render_P(???).build).expect[ScalaComponentNoChildren[P, S, Unit]]
-      'autoS  - testExpr(build[P]("").backend[B](???)     .render_P(???).build).expect[ScalaComponentNoChildren[P, Unit, B]]
+      import ScalaComponent.builder
+      'autoSB - testExpr(builder[P]("")                     .render_P(???).build).expect[ScalaComponent[P, Unit, Unit, CtorType.Props]]
+      'autoB  - testExpr(builder[P]("").initialState[S](???).render_P(???).build).expect[ScalaComponent[P, S   , Unit, CtorType.Props]]
+      'autoS  - testExpr(builder[P]("").backend[B](???)     .render_P(???).build).expect[ScalaComponent[P, Unit, B   , CtorType.Props]]
     }
 
     'renderBackend {
@@ -81,63 +76,63 @@ object BackendMacroTestData {
     class Backend($: BackendScope[Unit, State]) {
       val render = <.div("hehe1")
     }
-    val C = ScalaComponent.build[Unit]("").initialState(State(3)).backend(new Backend(_)).renderBackend.build
+    val C = ScalaComponent.builder[Unit]("").initialState(State(3)).backend(new Backend(_)).renderBackend.build
   }
 
   object NoArgs {
     class Backend($: BackendScope[Unit, Unit]) {
       def render = <.div("hehe2")
     }
-    val C = ScalaComponent.build[Unit]("").backend(new Backend(_)).renderBackend.build
+    val C = ScalaComponent.builder[Unit]("").backend(new Backend(_)).renderBackend.build
   }
 
   object AliasesToSameType {
     class Backend($: BackendScope[PropsInt, StateInt]) {
       def render(zxc: PropsInt, qwe: StateInt) = <.div(zxc - qwe)
     }
-    val C = ScalaComponent.build[PropsInt]("").initialState[StateInt](3).renderBackend[Backend].build
+    val C = ScalaComponent.builder[PropsInt]("").initialState[StateInt](3).renderBackend[Backend].build
   }
 
   object TypeAliasP {
     class Backend($: BackendScope[PropsInt, Unit]) {
       def render(zxc: Int) = <.div(zxc)
     }
-    val C = ScalaComponent.build[PropsInt]("").renderBackend[Backend].build
+    val C = ScalaComponent.builder[PropsInt]("").renderBackend[Backend].build
   }
 
   object TypeAliasS {
     class Backend($: BackendScope[Unit, StateInt]) {
       def render(zxc: Int) = <.div(zxc)
     }
-    val C = ScalaComponent.build[Unit]("").initialState[StateInt](9).renderBackend[Backend].build
+    val C = ScalaComponent.builder[Unit]("").initialState[StateInt](9).renderBackend[Backend].build
   }
 
   object TypeAliasesInMethod {
     class Backend($: BackendScope[PropsAlias, StateAlias]) {
       def render(zxc: Props, qwe: State) = <.div(zxc.a - qwe.a)
     }
-    val C = ScalaComponent.build[PropsAlias]("").initialState[StateAlias](State(3)).renderBackend[Backend].build
+    val C = ScalaComponent.builder[PropsAlias]("").initialState[StateAlias](State(3)).renderBackend[Backend].build
   }
 
   object TypeAliasesInBackend {
     class Backend($: BackendScope[Props, State]) {
       def render(qwe: StateAlias, zxc: PropsAlias) = <.div(zxc.a - qwe.a)
     }
-    val C = ScalaComponent.build[Props]("").initialState[State](State(3)).renderBackend[Backend].build
+    val C = ScalaComponent.builder[Props]("").initialState[State](State(3)).renderBackend[Backend].build
   }
 
   object Subtypes {
     class Backend($: BackendScope[Vector[Int], Unit]) {
       def render(zxc: Traversable[Int]) = <.div(zxc.sum)
     }
-    val C = ScalaComponent.build[Vector[Int]]("").renderBackend[Backend].build
+    val C = ScalaComponent.builder[Vector[Int]]("").renderBackend[Backend].build
   }
 
   object ParamNamesFull {
     class Backend($: BackendScope[Int, Int]) {
       def render(state: Int, props: Int) = <.div(props - state)
     }
-    val C = ScalaComponent.build[Int]("").initialState(3).renderBackend[Backend].build
+    val C = ScalaComponent.builder[Int]("").initialState(3).renderBackend[Backend].build
   }
 
   object ParamNamesShort {
@@ -145,7 +140,7 @@ object BackendMacroTestData {
       def render(p: Int, s: Int) = <.div(p - s)
     }
     // Confirm pausing works, as used in negative tests
-    val pause = ScalaComponent.build[Int]("").initialState(3).backend(new Backend(_))
+    val pause = ScalaComponent.builder[Int]("").initialState(3).backend(new Backend(_))
     val C = pause.renderBackend.build
   }
 
@@ -153,34 +148,34 @@ object BackendMacroTestData {
     class Backend($: BackendScope[Unit, Unit]) {
       def render(pc: PropsChildren) = <.div(pc)
     }
-    val C = ScalaComponent.build[Unit]("").renderBackendWithChildren[Backend].build
+    val C = ScalaComponent.builder[Unit]("").renderBackendWithChildren[Backend].build
   }
 
   object UsePropsAndChildren {
     class Backend($: BackendScope[Int, Unit]) {
       def render(i: Int, pc: PropsChildren) = <.div(i, pc)
     }
-    val C = ScalaComponent.build[Int]("").renderBackendWithChildren[Backend].build
+    val C = ScalaComponent.builder[Int]("").renderBackendWithChildren[Backend].build
   }
 
   object UseChildrenWithoutSpecifying {
     class Backend($: BackendScope[Unit, Unit]) {
       def render(pc: PropsChildren) = <.div(pc)
     }
-    val x = ScalaComponent.build[Unit]("").backend(new Backend(_))
+    val x = ScalaComponent.builder[Unit]("").backend(new Backend(_))
   }
 
   object SpecifyChildrenWithoutUsing {
     class Backend($: BackendScope[Int, Unit]) {
       def render(props: Int) = <.div(props)
     }
-    val x = ScalaComponent.build[Int]("").backend(new Backend(_))
+    val x = ScalaComponent.builder[Int]("").backend(new Backend(_))
   }
 
   object AmbiguousType {
     class Backend($: BackendScope[Int, Int]) {
       def render(what: Int) = <.div(what)
     }
-    val x = ScalaComponent.build[Int]("").initialState(3).backend(new Backend(_))
+    val x = ScalaComponent.builder[Int]("").initialState(3).backend(new Backend(_))
   }
 }

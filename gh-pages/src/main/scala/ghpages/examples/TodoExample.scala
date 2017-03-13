@@ -61,7 +61,7 @@ object TodoExample {
 
   // EXAMPLE:START
 
-  val TodoList = ScalaComponent.build[List[String]]("TodoList")
+  val TodoList = ScalaComponent.builder[List[String]]("TodoList")
     .render_P { props =>
       def createItem(itemText: String) = <.li(itemText)
       <.ul(props map createItem: _*)
@@ -91,7 +91,7 @@ object TodoExample {
       )
   }
 
-  val TodoApp = ScalaComponent.build[Unit]("TodoApp")
+  val TodoApp = ScalaComponent.builder[Unit]("TodoApp")
     .initialState(State(Nil, ""))
     .renderBackend[Backend]
     .build

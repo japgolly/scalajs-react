@@ -14,7 +14,7 @@ import ScalazReact._
  */
 object ScalazTest extends TestSuite {
 
-  lazy val SI = ScalaComponent.build[Unit]("SI")
+  lazy val SI = ScalaComponent.builder[Unit]("SI")
     .initialState(123)
     .render(T => <.input(^.value := T.state.toString))
     .build

@@ -10,7 +10,7 @@ object SideBySide {
     def apply() = sideBySideComponent(this)
   }
 
-  val sideBySideComponent = ScalaComponent.build[Content]("sideBySideExample")
+  val sideBySideComponent = ScalaComponent.builder[Content]("sideBySideExample")
     .render_P(p =>
       div(
         section(cls := "demo",

@@ -21,7 +21,7 @@ object RefTest extends TestSuite {
       def addDataAttr = Callback { input.setAttribute(attr, V) }
       def render = <.div(<.input.text(^.defaultValue := "2").ref(PTI(_)(input = _)))
     }
-    val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
+    val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
     ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = C().renderIntoDOM(mountNode)
       assertEq(mounted.getDOMNode.querySelector("input").getAttribute(attr), V)
@@ -35,7 +35,7 @@ object RefTest extends TestSuite {
       def addDataAttr = Callback { circle.setAttribute(attr, V) }
       def render = <.svg(<.circle().ref(circle = _))
     }
-    val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
+    val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
     ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = C().renderIntoDOM(mountNode)
       assertEq(mounted.getDOMNode.querySelector("circle").getAttribute(attr), V)
@@ -45,7 +45,7 @@ object RefTest extends TestSuite {
   object TestScala {
     object InnerScala {
       class B { def secret = 666 }
-      val C = ScalaComponent.build[Int]("X").backend(_ => new B).render_P(i => <.p(s"Hello $i")).build
+      val C = ScalaComponent.builder[Int]("X").backend(_ => new B).render_P(i => <.p(s"Hello $i")).build
     }
 
     def testRef(): Unit = {
@@ -53,7 +53,7 @@ object RefTest extends TestSuite {
         val ref = ScalaComponent.mutableRefTo(InnerScala.C)
         def render = <.div(ref.component(123))
       }
-      val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].build
+      val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         assertEq(mounted.backend.ref.value.backend.secret, 666)
@@ -65,7 +65,7 @@ object RefTest extends TestSuite {
         val ref = ScalaComponent.mutableRefTo(InnerScala.C)
         def render = <.div(ref.component.withKey(555555555)(123))
       }
-      val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].build
+      val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         assertEq(mounted.backend.ref.value.backend.secret, 666)
@@ -81,7 +81,7 @@ object RefTest extends TestSuite {
         val ref = JsComponent.mutableRefTo(InnerJs)
         def render = <.div(ref.component())
       }
-      val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].build
+      val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         mounted.backend.ref.value.raw.inc() // compilation and evaluation without error is test enough
@@ -93,7 +93,7 @@ object RefTest extends TestSuite {
         val ref = JsComponent.mutableRefTo(InnerJs)
         def render = <.div(ref.component.withKey(555555555)())
       }
-      val C = ScalaComponent.build[Unit]("X").renderBackend[Backend].build
+      val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         mounted.backend.ref.value.raw.inc() // compilation and evaluation without error is test enough

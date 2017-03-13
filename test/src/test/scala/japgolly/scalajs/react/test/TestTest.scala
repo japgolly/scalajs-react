@@ -15,13 +15,13 @@ import TestUtil._
 
 object TestTest extends TestSuite {
 
-  lazy val A = ScalaComponent.build[Unit]("A").render_C(c => <.p(^.cls := "AA", c)).build
-  lazy val B = ScalaComponent.build[Unit]("B").renderStatic(<.p(^.cls := "BB", "hehehe")).build
+  lazy val A = ScalaComponent.builder[Unit]("A").render_C(c => <.p(^.cls := "AA", c)).build
+  lazy val B = ScalaComponent.builder[Unit]("B").renderStatic(<.p(^.cls := "BB", "hehehe")).build
   lazy val rab = ReactTestUtils.renderIntoDocument(A(B()))
 
   var inputRef: HTMLInputElement = _
 
-  lazy val IC = ScalaComponent.build[Unit]("IC").initialState(true).renderS(($,s) => {
+  lazy val IC = ScalaComponent.builder[Unit]("IC").initialState(true).renderS(($,s) => {
     val ch = (_: ReactEvent) => $.modState(x => !x)
     <.label(
       <.input.checkbox(^.checked := s, ^.onClick ==> ch).ref(inputRef = _),
@@ -29,7 +29,7 @@ object TestTest extends TestSuite {
     )
   }).build
 
-  lazy val IT = ScalaComponent.build[Unit]("IT").initialState("NIL").renderS(($,s) => {
+  lazy val IT = ScalaComponent.builder[Unit]("IT").initialState("NIL").renderS(($,s) => {
     val ch = (e: ReactEventFromInput) => $.setState(e.target.value.toUpperCase)
     <.input.text(^.value := s, ^.onChange ==> ch)
   }).build
@@ -38,7 +38,7 @@ object TestTest extends TestSuite {
     var prev = "none"
     def render(p: String) = <.div(s"$prev → $p")
   }
-  val CP = ScalaComponent.build[String]("asd")
+  val CP = ScalaComponent.builder[String]("asd")
     .backend(_ => new CP)
     .renderBackend
     .componentWillReceiveProps(i => Callback(i.backend.prev = i.currentProps))
@@ -85,7 +85,7 @@ object TestTest extends TestSuite {
 
       'eventTypes {
         def test[E[+x <: dom.Node] <: SyntheticEvent[x]](eventType: VdomAttr.Event[E], simF: ReactOrDomNode ⇒ Unit) = {
-          val IDC = ScalaComponent.build[Unit]("IC").initialState(true).render($ => {
+          val IDC = ScalaComponent.builder[Unit]("IC").initialState(true).render($ => {
             val ch = (e: E[dom.Node]) => $.modState(x => !x)
             <.label(
               <.input.text(^.value := $.state, eventType ==> ch).ref(inputRef = _),
@@ -157,7 +157,7 @@ object TestTest extends TestSuite {
 
       'focusChangeBlur {
         var events = Vector.empty[String]
-        val C = ScalaComponent.build[Unit]("C").initialState("ey").render(T => {
+        val C = ScalaComponent.builder[Unit]("C").initialState("ey").render(T => {
           def e(s: String) = Callback(events :+= s)
           def chg(ev: ReactEventFromInput) =
             e("change") >> T.setState(ev.target.value)

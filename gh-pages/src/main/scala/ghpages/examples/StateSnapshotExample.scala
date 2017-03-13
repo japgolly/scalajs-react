@@ -17,7 +17,7 @@ object StateSnapshotExample {
   @Lenses
   case class Name(firstName: String, surname: String)
 
-  val NameChanger = ScalaComponent.build[StateSnapshot[String]]("Name changer")
+  val NameChanger = ScalaComponent.builder[StateSnapshot[String]]("Name changer")
     .render_P { stateSnapshot =>
       <.input.text(
         ^.value     := stateSnapshot.value,
@@ -26,7 +26,7 @@ object StateSnapshotExample {
     .configure(extra.LogLifecycle.default)
     .build
 
-  val Main = ScalaComponent.build[Unit]("StateSnapshot example")
+  val Main = ScalaComponent.builder[Unit]("StateSnapshot example")
     .initialState(Name("John", "Wick"))
     .render { $ =>
       val name       = $.state

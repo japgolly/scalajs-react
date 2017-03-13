@@ -37,7 +37,7 @@ object GhPages extends JSApp {
       navMenu(c),
       <.div(^.cls := "container", r.render()))
 
-  val navMenu = ScalaComponent.build[RouterCtl[Page]]("Menu")
+  val navMenu = ScalaComponent.builder[RouterCtl[Page]]("Menu")
     .render_P { ctl =>
       def nav(name: String, target: Page) =
         <.li(

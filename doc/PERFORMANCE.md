@@ -92,7 +92,7 @@ case class Props(name: String, age: Option[Int], pic: Picture)
 implicit val picReuse   = Reusability.by((_: Picture).id)  // ← only check id
 implicit val propsReuse = Reusability.caseClass[Props]     // ← check all fields
 
-val component = ScalaComponent.build[Props]("Demo")
+val component = ScalaComponent.builder[Props]("Demo")
   .render_P(p =>
     <.div(
       <.p("Name: ", p.name),
@@ -212,7 +212,7 @@ type State = Map[PersonId, PersonData]
 type PersonId = Long
 type PersonData = String
 
-val topComponent = ScalaComponent.build[State]("Demo")
+val topComponent = ScalaComponent.builder[State]("Demo")
   .initialState_P(identity)
   .renderBackend[Backend]
   .build
@@ -234,7 +234,7 @@ case class PersonEditorProps(name: String, update: String ~=> Callback)   // ←
 
 implicit val propsReuse = Reusability.caseClass[PersonEditorProps]
 
-val personEditor = ScalaComponent.build[PersonEditorProps]("PersonEditor")
+val personEditor = ScalaComponent.builder[PersonEditorProps]("PersonEditor")
   .render_P(p =>
     <.input.text(
       ^.onChange ==> ((e: ReactEventFromInput) => p.update(e.target.value)),
@@ -329,12 +329,12 @@ class Backend(bs: BackendScope[State, State]) {
       stringEditor(ssDesc(s)))
 }
 
-val topComponent = ScalaComponent.build[State]("Demo")
+val topComponent = ScalaComponent.builder[State]("Demo")
   .initialState_P(identity)
   .renderBackend[Backend]
   .build
 
-lazy val stringEditor = ScalaComponent.build[StateSnapshot[String]]("StringEditor")
+lazy val stringEditor = ScalaComponent.builder[StateSnapshot[String]]("StringEditor")
   .render_P(p =>
     <.input.text(
       ^.value := p.value,

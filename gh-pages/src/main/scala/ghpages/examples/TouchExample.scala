@@ -64,7 +64,7 @@ object TouchExample {
   }
 
   /** Rendering touch area and history of events */
-  val TouchExampleApp = ScalaComponent.build[Unit]("TouchExample")
+  val TouchExampleApp = ScalaComponent.builder[Unit]("TouchExample")
     .initialState(new State)
     .renderBackend[Backend]
     .build

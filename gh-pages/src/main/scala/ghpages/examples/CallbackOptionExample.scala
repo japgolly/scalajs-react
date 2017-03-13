@@ -100,7 +100,7 @@ object CallbackOptionExample {
           ^.top  := s.y.px))
   }
 
-  val Main = ScalaComponent.build[Unit]("CallbackOption example")
+  val Main = ScalaComponent.builder[Unit]("CallbackOption example")
     .initialState(initState)
     .renderBackend[Backend]
     .componentDidMount(_.backend.init)

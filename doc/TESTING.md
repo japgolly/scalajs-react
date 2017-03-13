@@ -145,7 +145,7 @@ class CP {
   var prev = "none"
   def render(p: String) = <.div(s"$prev → $p")
 }
-val CP = ScalaComponent.build[String]("asd")
+val CP = ScalaComponent.builder[String]("asd")
   .backend(_ => new CP)
   .renderBackend
   .componentWillReceiveProps(i => Callback(i.backend.prev = i.currentProps))
@@ -189,7 +189,7 @@ import japgolly.scalajs.react.test._
 
 object ExampleTest extends TestSuite {
 
-  val NameChanger = ScalaComponent.build[StateSnapshot[String]]("Name changer")
+  val NameChanger = ScalaComponent.builder[StateSnapshot[String]]("Name changer")
     .render_P { ss =>
       def updateName = (event: ReactEventFromInput) => ss.setState(event.target.value)
       <.input.text(

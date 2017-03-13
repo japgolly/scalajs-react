@@ -16,7 +16,7 @@ object Router {
     componentUnbuiltC(baseUrl, cfg, new RouterLogic(baseUrl, cfg))
 
   def componentUnbuiltC[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page], lgc: RouterLogic[Page]) =
-    ScalaComponent.build[Unit]("Router")
+    ScalaComponent.builder[Unit]("Router")
       .initialStateCB    (     lgc.syncToWindowUrl)
       .backend           (_ => new OnUnmount.Backend)
       .render_S          (     lgc.render)

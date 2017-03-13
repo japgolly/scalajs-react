@@ -256,7 +256,7 @@ Example: This creates a route in the format of `item/<id>`.
 ```scala
 case class ItemPage(id: Int) extends MyPage
 
-val itemPage = ScalaComponent.build[ItemPage]("Item page")
+val itemPage = ScalaComponent.builder[ItemPage]("Item page")
   .render(p => <.div(s"Info for item #${p.id}"))
   .build
 

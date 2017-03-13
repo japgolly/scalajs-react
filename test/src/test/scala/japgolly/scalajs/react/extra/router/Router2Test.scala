@@ -62,12 +62,12 @@ object Router2Test extends TestSuite {
     var secret = "apples"
 
     val userProfilePage =
-      ScalaComponent.build[UserProfilePage]("User profile")
+      ScalaComponent.builder[UserProfilePage]("User profile")
         .render_P(p => <.div(s"Hello user #${p.id}"))
         .build
 
     case class NavProps(curPage: MyPage2, ctl: RouterCtl[MyPage2])
-    val nav = ScalaComponent.build[NavProps]("NavBar")
+    val nav = ScalaComponent.builder[NavProps]("NavBar")
       .render_P { i =>
         def item(p: MyPage2, name: String) =
           if (p == i.curPage)

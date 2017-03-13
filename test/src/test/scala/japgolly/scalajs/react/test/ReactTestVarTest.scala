@@ -71,7 +71,7 @@ object ReactTestVarTest extends TestSuite {
     }
 
     'mockParentComponent {
-      val c = ScalaComponent.build[StateAccessPure[Int]]("")
+      val c = ScalaComponent.builder[StateAccessPure[Int]]("")
         .render_P(parent => <.div(parent.state.runNow(), ^.onClick --> parent.modState(_ + 1)))
         .build
       val v = ReactTestVar(1)

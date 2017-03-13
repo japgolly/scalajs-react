@@ -87,7 +87,7 @@ object AnimationExample {
     }
   }
 
-  val App = ScalaComponent.build[Unit]("TodoList")
+  val App = ScalaComponent.builder[Unit]("TodoList")
     .initialState(Vector("hello", "world", "click", "me"))
     .renderBackend[Backend]
     .build
