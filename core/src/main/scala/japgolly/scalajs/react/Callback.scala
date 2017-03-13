@@ -91,7 +91,7 @@ object Callback {
    * @param cond The condition required to be `true` for the callback to execute.
    */
   def when(cond: Boolean)(c: => Callback): Callback =
-    if (cond) c else Callback.empty
+    Callback.lazily(if (cond) c else Callback.empty)
 
   /**
    * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition is already
