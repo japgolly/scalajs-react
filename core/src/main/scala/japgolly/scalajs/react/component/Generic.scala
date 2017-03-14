@@ -100,7 +100,9 @@ object Generic {
              type WithMappedProps[P2] <: MountedSimple[F, P2, S]
     def mapProps[P2](f: P => P2): WithMappedProps[P2]
 
-    def isMounted: F[Boolean]
+    /** Not all components support this; ES6 classes don't. */
+    def isMounted: F[Option[Boolean]]
+
     def getDOMNode: F[dom.Element]
     def props: F[Props]
     def propsChildren: F[PropsChildren]

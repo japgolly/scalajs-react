@@ -128,7 +128,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
       override def props         = raw.props.asInstanceOf[P]
       override def propsChildren = PropsChildren.fromRawProps(raw.props)
       override def state         = raw.state.asInstanceOf[S]
-      override def isMounted     = raw.isMounted()
+      override def isMounted     = raw.isMounted().toOption
       override def getDOMNode    = RAW.ReactDOM.findDOMNode(raw)
 
       override def setState(state: S, callback: Callback = Callback.empty): Unit =

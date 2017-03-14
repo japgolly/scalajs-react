@@ -95,7 +95,10 @@ package object raw {
     // [14/30] getChildContext           : object   = null
     def getDefaultProps: Props = js.native
     def getInitialState: State = js.native
-    def isMounted(): Boolean = js.native
+
+    /** js.UndefOr because ES6 components return undefined */
+    def isMounted(): js.UndefOr[Boolean] = js.native
+
     // [18/30] isReactComponent          : object   = [object Object]
     val mixins: js.Array[js.Object] | Null = js.native
     // [20/30] propTypes                 : object   = null

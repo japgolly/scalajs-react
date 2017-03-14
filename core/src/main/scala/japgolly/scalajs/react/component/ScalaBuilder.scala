@@ -645,7 +645,6 @@ object ScalaBuilder {
 
       override def toString = wrapTostring(s"Render(props: $props, state: $state)")
 
-      def isMounted    : Boolean       = mountedImpure.isMounted
       def props        : P             = mountedImpure.props
       def propsChildren: PropsChildren = mountedImpure.propsChildren
       def getDOMNode   : dom.Element   = mountedImpure.getDOMNode

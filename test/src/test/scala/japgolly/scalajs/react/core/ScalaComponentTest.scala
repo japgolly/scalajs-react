@@ -48,7 +48,7 @@ object ScalaComponentPTest extends TestSuite {
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode
         assertOuterHTML(n, "<div>Hello Bob</div>")
-        assertEq(mounted.isMounted, true)
+        assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.props.name, "Bob")
         assertEq(mounted.propsChildren.count, 0)
         assertEq(mounted.propsChildren.isEmpty, true)
@@ -201,7 +201,7 @@ object ScalaComponentSTest extends TestSuite {
         val n = mounted.getDOMNode
 
         assertOuterHTML(n, "<div>State = 123 + 400 + 7</div>")
-        assertEq(mounted.isMounted, true)
+        assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.count, 0)
         assertEq(mounted.propsChildren.isEmpty, true)
         assertEq(mounted.state, State(123, State2(400, 7)))
@@ -209,14 +209,14 @@ object ScalaComponentSTest extends TestSuite {
 
         mounted.setState(State(666, State2(500, 7)))
         assertOuterHTML(n, "<div>State = 666 + 500 + 7</div>")
-        assertEq(mounted.isMounted, true)
+        assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
         assertEq(mounted.state, State(666, State2(500, 7)))
         assert(mounted.backend eq b)
 
         mounted.backend.inc.runNow()
         assertOuterHTML(n, "<div>State = 667 + 500 + 7</div>")
-        assertEq(mounted.isMounted, true)
+        assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
         assertEq(mounted.state, State(667, State2(500, 7)))
         assert(mounted.backend eq b)
@@ -227,7 +227,7 @@ object ScalaComponentSTest extends TestSuite {
         assertEq(zoomed.state, 500)
         zoomed.modState(_ + 1)
         assertOuterHTML(n, "<div>State = 667 + 501 + 7</div>")
-        assertEq(mounted.isMounted, true)
+        assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
         assertEq(mounted.state, State(667, State2(501, 7)))
         assert(mounted.backend eq b)
