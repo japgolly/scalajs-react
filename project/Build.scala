@@ -80,15 +80,8 @@ object ScalajsReact {
       }))
     )
 
-  val setupJsEnv: Project => Project =
-    sys.env.get("JSENV").map(_.toLowerCase.replaceFirst("js$", "")) match {
-      case Some("phantom") | None => _.settings(jsEnv in Test := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
-      case Some("node")           => identity
-      case Some(x)                => sys error s"Unsupported JsEnv: $x"
-    }
-
   def utestSettings: PE =
-    _.configure(useReactJs(Test), setupJsEnv, InBrowserTesting.js)
+    _.configure(useReactJs(Test), InBrowserTesting.js)
       .settings(
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",

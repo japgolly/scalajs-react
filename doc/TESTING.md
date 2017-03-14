@@ -56,7 +56,7 @@ Setup
     scalaJSStage in Test := FastOptStage
     ```
 
-3. To [workaround](https://github.com/scala-js/scala-js/issues/1555) a [PhantomJS bug](https://github.com/ariya/phantomjs/issues/13112) that causes tests to crash if they write to stderr, copy [`PhantomJS2Env.scala`](../project/PhantomJS2Env.scala) to your `project` directory and add this to SBT:
+3. To [workaround](https://github.com/scala-js/scala-js/issues/1555) a [PhantomJS bug](https://github.com/ariya/phantomjs/issues/13112) that causes tests to crash if they write to stderr, copy [`PhantomJS2Env.scala`](https://github.com/japgolly/scalajs-react/blob/v1.0.0-RC1/project/PhantomJS2Env.scala) to your `project` directory and add this to SBT:
 
     ```scala
     jsEnv in Test := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value)

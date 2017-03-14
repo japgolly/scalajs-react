@@ -8,17 +8,12 @@ scala:
 jdk:
   - oraclejdk8
 
-# Use PhantomJS 2
-# https://mediocre.com/forum/topics/phantomjs-2-and-travis-ci-we-beat-our-heads-against-a-wall-so-you-dont-have-to
 install:
-  - mkdir travis-phantomjs
-  - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -O "$PWD"/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
-  - tar -xvf "$PWD"/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -C "$PWD"/travis-phantomjs
-  - export PATH="$PWD/travis-phantomjs:$PATH"
-
-env:
-  global:
-    JSENV=phantom
+  - . $HOME/.nvm/nvm.sh
+  - nvm install stable
+  - nvm use stable
+  - npm install
+  - npm install jsdom source-map-support
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test:fastOptJS test:fullOptJS
