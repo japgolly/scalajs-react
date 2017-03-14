@@ -1,8 +1,7 @@
 import sbt._, Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
 import org.scalajs.sbtplugin.ScalaJSPlugin, ScalaJSPlugin.autoImport._
-import scalajsbundler.ScalaJSBundlerPlugin
-import ScalaJSBundlerPlugin.autoImport._
+import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin, ScalaJSBundlerPlugin.autoImport._
 
 object ScalajsReact {
 

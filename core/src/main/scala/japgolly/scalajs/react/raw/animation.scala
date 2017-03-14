@@ -6,7 +6,7 @@ import scala.scalajs.js.annotation.JSImport
 
 @JSImport("react-addons-css-transition-group", JSImport.Namespace)
 @js.native
-object ReactCSSTransitionGroup extends ReactClass
+object ReactCSSTransitionGroup extends js.Any
 
 @js.native
 trait ReactCSSTransitionGroupProps extends js.Object {
