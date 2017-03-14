@@ -50,7 +50,7 @@ object JsComponentPTest extends JsComponentTest {
   def JsProps(name: String): JsProps =
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
-  val Component = JsComponent[JsProps, Children.None, Null]("ES3_P")
+  lazy val Component = JsComponent[JsProps, Children.None, Null]("ES3_P")
   compileError(""" Component() """)
 
   override def tests = TestSuite {
@@ -158,7 +158,7 @@ object JsComponentSTest extends JsComponentTest {
     def inc(): Unit = js.native
   }
 
-  val Component = JsComponent[Null, Children.None, JsState]("ES3_S").addFacade[JsMethods]
+  lazy val Component = JsComponent[Null, Children.None, JsState]("ES3_S").addFacade[JsMethods]
 
   override def tests = TestSuite {
     def JsState1(num1: Int): JsState =
