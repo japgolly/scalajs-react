@@ -75,7 +75,7 @@ package object raw {
 
   @js.native
   trait HasDisplayName extends js.Object {
-    val displayName: String = js.native
+    val displayName: js.UndefOr[String] = js.native
   }
 
   /** Once-mounted component. */
@@ -119,7 +119,7 @@ package object raw {
 
   @js.native
   trait ReactComponentSpec extends js.Object {
-    var displayName              : String                                                                   = js.native
+    var displayName              : js.UndefOr[String]                                                       = js.native
     var render                   : js.ThisFunction0[raw.ReactComponent, raw.ReactElement]                   = js.native
     var getInitialState          : js.Function                                                              = js.native
  // var getInitialState          : js.ThisFunction0[raw.ReactComponentElement, State] | js.Function0[State] = js.native

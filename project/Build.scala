@@ -191,6 +191,7 @@ object ScalajsReact {
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
+        (ProvidedJS / "component-es6.js" dependsOn "react-dom.js") % Test,
         (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test),
       addCompilerPlugin(macroParadisePlugin))
 

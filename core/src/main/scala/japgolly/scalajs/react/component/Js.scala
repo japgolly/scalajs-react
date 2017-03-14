@@ -35,8 +35,11 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
   type UnmountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted]                               = UnmountedRoot[P, MountedWithRawType[P, S, R]]
   type   MountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted]                               = MountedRoot[Effect.Id, P, S, R]
 
+  private def fixDisplayName(n: js.UndefOr[String]): String =
+    n.getOrElse("")
+
   override protected val rawComponentDisplayName: RAW.ReactClass => String =
-    _.displayName
+    c => fixDisplayName(c.displayName)
 
   // ===================================================================================================================
 
@@ -45,7 +48,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
     override final type Raw = RAW.ReactComponentElement
-    override final def displayName = raw.`type`.displayName
+    override final def displayName = fixDisplayName(raw.`type`.displayName)
   }
 
   sealed trait UnmountedWithRoot[P1, M1, P0 <: js.Object, M0] extends UnmountedSimple[P1, M1] with Generic.UnmountedWithRoot[P1, M1, P0, M0] {
@@ -95,7 +98,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
     override type WithMappedState[S2]  <: MountedSimple[F, P, S2, R]
 
     override final type Raw = R
-    override final def displayName = raw.constructor.displayName
+    override final def displayName = fixDisplayName(raw.constructor.displayName)
 
     def withRawType[R2 <: RawMounted]: MountedSimple[F, P, S, R2]
     def addFacade[T <: js.Object]: MountedSimple[F, P, S, R with T]
