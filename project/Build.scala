@@ -88,14 +88,14 @@ object ScalajsReact {
     }
 
   def utestSettings: PE =
-    _.configure(useReactJs("test"), setupJsEnv, InBrowserTesting.js)
+    _.configure(useReactJs(Test), setupJsEnv, InBrowserTesting.js)
       .settings(
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
         testFrameworks        += new TestFramework("utest.runner.Framework"),
         requiresDOM           := true)
 
-  def useReactJs(scope: String = "compile"): PE =
+  def useReactJs(scope: Configuration = Compile): PE =
     _.settings(
       jsDependencies ++= Seq(
 
@@ -169,8 +169,7 @@ object ScalajsReact {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
-        "org.scalaz"   %%% "scalaz-core" % Ver.Scalaz72 % "test"))
+        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom))
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
