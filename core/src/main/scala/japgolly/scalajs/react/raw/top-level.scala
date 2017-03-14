@@ -16,12 +16,12 @@ trait React extends js.Object {
 //  def createFactory[P <: js.Any, S <: js.Any, N <: TopNode](t: JsComponentType[P, S, N]): JsComponentC[P, S, N] = js.native
 
   def createElement(`type`: String                                            ): ReactDOMElement = js.native
-  def createElement(`type`: String, props: js.Object                          ): ReactDOMElement = js.native
-  def createElement(`type`: String, props: js.Object, children: ReactNodeList*): ReactDOMElement = js.native
+  def createElement(`type`: String, props: Props                          ): ReactDOMElement = js.native
+  def createElement(`type`: String, props: Props, children: ReactNodeList*): ReactDOMElement = js.native
 
   def createElement(`type`: ReactCtor                                            ): ReactComponentElement = js.native
-  def createElement(`type`: ReactCtor, props: js.Object                          ): ReactComponentElement = js.native
-  def createElement(`type`: ReactCtor, props: js.Object, children: ReactNodeList*): ReactComponentElement = js.native
+  def createElement(`type`: ReactCtor, props: Props                          ): ReactComponentElement = js.native
+  def createElement(`type`: ReactCtor, props: Props, children: ReactNodeList*): ReactComponentElement = js.native
 
   //  /** Verifies the object is a ReactElement. */
 //  def isValidElement(o: JAny): Boolean = js.native
