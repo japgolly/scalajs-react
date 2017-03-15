@@ -6,18 +6,11 @@ import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom
 
 object Js extends JsBaseComponentTemplate[RAW.ReactClassUntyped] {
 
-  def apply[P <: js.Object, C <: Children, S <: js.Object](r: RAW.ReactClass[P, S])(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
-    component[P, C, S](r)(s)
-
-  def apply[P <: js.Object, C <: Children, S <: js.Object](d: js.Dynamic)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
-    apply[P, C, S](d.asInstanceOf[RAW.ReactClass[P, S]])(s)
-
-  def apply[P <: js.Object, C <: Children, S <: js.Object](name: String)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
-    JsUtil.evalName(name) match {
-      case Some(d: js.Function) => apply[P, C, S](d)(s)
-      case Some(_)              => throw new IllegalArgumentException(s"React constructor $name is not a function")
-      case None                 => throw new IllegalArgumentException(s"React constructor $name is not defined")
-    }
+  def apply[P <: js.Object, C <: Children, S <: js.Object](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
+    assert(raw.isInstanceOf[js.Object], s"Invalid JsComponent: $raw")
+    val rc = raw.asInstanceOf[RAW.ReactClass[P, S]]
+    component[P, C, S](rc)(s)
+  }
 
   // ===================================================================================================================
 

@@ -44,7 +44,4 @@ object JsUtil {
     as.foreach(array push _)
     array
   }
-
-  def evalName(name: String): Option[js.Dynamic] =
-    js.eval(name).asInstanceOf[js.UndefOr[js.Dynamic]].toOption
 }

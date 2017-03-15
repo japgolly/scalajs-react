@@ -1,12 +1,12 @@
 package japgolly.scalajs.react.core
 
 import scalajs.js
+import scalajs.js.annotation.JSImport
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
-import scala.scalajs.js.annotation.JSImport
 
 object JsComponentEs6PTest extends JsComponentTest {
   @JSImport("./component-es6.js", "ES6_P")
@@ -21,7 +21,7 @@ object JsComponentEs6PTest extends JsComponentTest {
   def JsProps(name: String): JsProps =
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
-  lazy val Component = JsComponent[JsProps, Children.None, Null](RawComp.asInstanceOf[js.Dynamic])
+  lazy val Component = JsComponent[JsProps, Children.None, Null](RawComp)
   compileError(""" Component() """)
 
   override def tests = TestSuite {
@@ -78,7 +78,7 @@ object JsComponentEs6PTest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent[JsProps, Children.Varargs, Null](RawComp.asInstanceOf[js.Dynamic])
+      val C = JsComponent[JsProps, Children.Varargs, Null](RawComp)
 
       'ctors {
         val p = JsProps("x")
@@ -140,7 +140,7 @@ object JsComponentEs6STest extends JsComponentTest {
     def inc(): Unit = js.native
   }
 
-  lazy val Component = JsComponent[Null, Children.None, JsState](RawComp.asInstanceOf[js.Dynamic]).addFacade[JsMethods]
+  lazy val Component = JsComponent[Null, Children.None, JsState](RawComp).addFacade[JsMethods]
 
   override def tests = TestSuite {
     def JsState1(num1: Int): JsState =
@@ -210,7 +210,7 @@ object JsComponentEs6STest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent[Null, Children.Varargs, JsState](RawComp.asInstanceOf[js.Dynamic]).addFacade[JsMethods]
+      val C = JsComponent[Null, Children.Varargs, JsState](RawComp).addFacade[JsMethods]
 
       'ctors {
         def test(u: JsComponent.UnmountedWithFacade[Null, JsState, JsMethods]) = ()

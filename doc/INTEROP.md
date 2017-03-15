@@ -14,10 +14,20 @@ Firstly, it's recommended you read [TYPES.md](TYPES.md).
   * **State** - Create a standard Scala.JS facade for the component's state object if it exists. Use `Null` otherwise.
   * **Children** - Determine whether the component uses `.props.children` and choose either `Children.None` or `Children.Varargs` accordingly.
   * **Mounted Facade** - Create a standard Scala.JS facade for the component's mounted instance if it contains additional API.
-2. Create the component by calling `JsComponent[Props, Children, State](x)` where x is:
-  * a `String` which is the name of the component.
-  * an instance of `js.Dynamic`.
-3. *(Optional)* To attach a mounted facade (`F`), append `.addFacade[F]` to your `JsComponent`.
+2. Get a reference to the target component. Either:
+  ```scala
+  @JSName("Blah")                // If you're not using modules
+  @JSImport("./blah.js", "Blah") // If you're using modules
+  @js.native
+  object BlahJs extends js.Object
+  ```
+  or
+  ```scala
+  val BlahJs = js.Dynamic.global.Blah // If you're not using modules
+  ```
+3. Create the component by calling `JsComponent[Props, Children, State](raw)` where `raw`
+  is the raw JS value of the component you created in the previous step.
+4. *(Optional)* To attach a mounted facade (`F`), append `.addFacade[F]` to your `JsComponent`.
 
 Example:
 ```scala
@@ -32,6 +42,10 @@ import scalajs.js
  */
 object ReactCollapse {
 
+  @JSName("ReactCollapse")
+  @js.native
+  object RawComponent extends js.Object
+
   @js.native
   trait Props extends js.Object {
     var isOpened: Boolean = js.native
@@ -43,7 +57,7 @@ object ReactCollapse {
     p
   }
 
-  val component = JsComponent[Props, Children.Varargs, Null]("ReactCollapse")
+  val component = JsComponent[Props, Children.Varargs, Null](RawComponent)
 }
 ```
 
