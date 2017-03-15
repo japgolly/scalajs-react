@@ -9,6 +9,7 @@ val core          = ScalajsReact.core
 val extra         = ScalajsReact.extra
 val scalaz72      = ScalajsReact.scalaz72
 val monocle       = ScalajsReact.monocle
+val cats          = ScalajsReact.cats
 val test          = ScalajsReact.test
 val ghpagesMacros = ScalajsReact.ghpagesMacros
 val ghpages       = ScalajsReact.ghpages
