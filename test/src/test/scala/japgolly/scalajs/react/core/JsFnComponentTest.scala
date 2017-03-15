@@ -15,7 +15,7 @@ object JsFnComponentTest extends TestSuite {
   def JsProps(name: String): JsProps =
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
-  val Component = JsFnComponent[JsProps, Children.None]("FnComp")
+  lazy val Component = JsFnComponent[JsProps, Children.None]("FnComp")
 
   override def tests = TestSuite {
 

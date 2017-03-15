@@ -45,16 +45,6 @@ object JsUtil {
     array
   }
 
-  def evalName(name: String, scope: js.Dynamic = js.Dynamic.global): Option[js.Dynamic] =
-    evalPath(name.split('.').toList, scope)
-
-  def evalPath(path: List[String], scope: js.Dynamic = js.Dynamic.global): Option[js.Dynamic] = {
-    path match {
-      case Nil => Some(scope)
-      case name :: tail =>
-        val nextScope = scope.selectDynamic(name).asInstanceOf[js.UndefOr[js.Dynamic]].toOption
-        nextScope.flatMap(evalPath(tail, _))
-    }
-  }
-
+  def evalName(name: String): Option[js.Dynamic] =
+    js.eval(name).asInstanceOf[js.UndefOr[js.Dynamic]].toOption
 }

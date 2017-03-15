@@ -4,29 +4,37 @@ import scalajs.js
 import utest._
 import scalaz.Equal
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils}
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
+import scala.scalajs.js.annotation.ScalaJSDefined
 
-object ScalaComponentPTest extends TestSuite {
+object RawComponentEs6PTest extends TestSuite {
 
   case class BasicProps(name: String)
 
+  @ScalaJSDefined
+  class RawComp(ctorProps: Box[BasicProps]) extends raw.ReactComponentEs6[Box[BasicProps], Box[Unit]] {
+    override def render() =
+      raw.React.createElement("div", null, "Hello ", this.props.unbox.name)
+  }
+  val RawCompCtor = js.constructorOf[RawComp]
+  RawCompCtor.displayName = "HelloRaw6"
+
   val BasicComponent =
-    ScalaComponent.builder[BasicProps]("HelloMessage")
-      .stateless
-      .noBackend
-      .render_P(p => raw.React.createElement("div", null, "Hello ", p.name))
-      .build
+    JsComponent[Box[BasicProps], Children.None, Box[Unit]](RawCompCtor)
+        .xmapProps(_.unbox)(Box(_))
+        .xmapState(_.unbox)(Box(_))
 
   override def tests = TestSuite {
 
     'displayName {
-      assertEq(BasicComponent.displayName, "HelloMessage")
+      assertEq(BasicComponent.displayName, "HelloRaw6")
 //      ReactTestUtils.withRenderedIntoDocument(BasicComponent(BasicProps("X"))) { m =>
 //        println(inspectObject(m.raw))
-//        assertEq(m.raw.displayName, "HelloMessage")
+//        assertEq(m.raw.displayName, "HelloRaw6")
 //      }
     }
 
@@ -48,12 +56,12 @@ object ScalaComponentPTest extends TestSuite {
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode
         assertOuterHTML(n, "<div>Hello Bob</div>")
-        assertEq(mounted.isMounted, yesItsMounted)
+        // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.props.name, "Bob")
         assertEq(mounted.propsChildren.count, 0)
         assertEq(mounted.propsChildren.isEmpty, true)
         assertEq(mounted.state, ())
-        assertEq(mounted.backend, ())
+        // assertEq(mounted.backend, ())
       }
     }
 
@@ -169,7 +177,7 @@ object ScalaComponentPTest extends TestSuite {
 }
 
 
-object ScalaComponentSTest extends TestSuite {
+object RawComponentEs6STest extends TestSuite {
 
   case class State(num1: Int, s2: State2)
   case class State2(num2: Int, num3: Int)
@@ -177,17 +185,24 @@ object ScalaComponentSTest extends TestSuite {
   implicit val equalState: Equal[State] = Equal.equalA
   implicit val equalState2: Equal[State2] = Equal.equalA
 
-  class Backend($: BackendScope[Unit, State]) {
-    val inc: Callback =
-      $.modState(s => s.copy(s.num1 + 1))
+  @ScalaJSDefined
+  class RawComp(ctorProps: Box[Unit]) extends raw.ReactComponentEs6[Box[Unit], Box[State]] {
+    this.state = Box(State(123, State2(400, 7)))
+    override def render() = {
+      val s = this.state.unbox
+      raw.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3)
+    }
+    def inc(): Unit =
+      modState((s: State) => Box(s.unbox.copy(s.unbox.num1 + 1)))
   }
+  val RawCompCtor = js.constructorOf[RawComp]
+  RawCompCtor.displayName = "State, no Props"
 
   val Component =
-    ScalaComponent.builder[Unit]("State, no Props")
-      .initialState(State(123, State2(400, 7)))
-      .backend(new Backend(_))
-      .render_S(s => raw.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3))
-      .build
+    JsComponent[Box[Unit], Children.None, Box[State]](RawCompCtor)
+        .xmapProps(_.unbox)(Box(_))
+        .xmapState(_.unbox)(Box(_))
+        .withRawType[RawComp]
 
   override def tests = TestSuite {
 
@@ -201,25 +216,22 @@ object ScalaComponentSTest extends TestSuite {
         val n = mounted.getDOMNode
 
         assertOuterHTML(n, "<div>State = 123 + 400 + 7</div>")
-        assertEq(mounted.isMounted, yesItsMounted)
+        // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.count, 0)
         assertEq(mounted.propsChildren.isEmpty, true)
         assertEq(mounted.state, State(123, State2(400, 7)))
-        val b = mounted.backend
 
         mounted.setState(State(666, State2(500, 7)))
         assertOuterHTML(n, "<div>State = 666 + 500 + 7</div>")
-        assertEq(mounted.isMounted, yesItsMounted)
+        // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
         assertEq(mounted.state, State(666, State2(500, 7)))
-        assert(mounted.backend eq b)
 
-        mounted.backend.inc.runNow()
+        mounted.raw.inc()
         assertOuterHTML(n, "<div>State = 667 + 500 + 7</div>")
-        assertEq(mounted.isMounted, yesItsMounted)
+        // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
         assertEq(mounted.state, State(667, State2(500, 7)))
-        assert(mounted.backend eq b)
 
         val zoomed = mounted
           .zoomState(_.s2)(n => _.copy(s2 = n))
@@ -227,10 +239,9 @@ object ScalaComponentSTest extends TestSuite {
         assertEq(zoomed.state, 500)
         zoomed.modState(_ + 1)
         assertOuterHTML(n, "<div>State = 667 + 501 + 7</div>")
-        assertEq(mounted.isMounted, yesItsMounted)
+        // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
         assertEq(mounted.state, State(667, State2(501, 7)))
-        assert(mounted.backend eq b)
       }
     }
 

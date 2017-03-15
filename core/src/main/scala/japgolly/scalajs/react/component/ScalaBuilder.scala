@@ -324,18 +324,17 @@ object ScalaBuilder {
     def shouldComponentUpdateConst    (cb: CallbackTo[Boolean]): This = shouldComponentUpdate     (_ => cb)
     def shouldComponentUpdateConst    (b : Boolean            ): This = shouldComponentUpdateConst(CallbackTo pure b)
 
-    def spec: raw.ReactComponentSpec = {
-      val spec = js.Object().asInstanceOf[raw.ReactComponentSpec]
+    def spec: raw.ReactComponentSpec[Box[P], Box[S]] = {
+      type RawComp = raw.ReactComponent[Box[P], Box[S]]
+      val spec = js.Object().asInstanceOf[raw.ReactComponentSpec[Box[P], Box[S]]]
 
-      @inline def castV($: raw.ReactComponent) = $.asInstanceOf[RawMounted[P, S, B]]
-      @inline def castP($: raw.Props) = $.asInstanceOf[Box[P]]
-      @inline def castS($: raw.State) = $.asInstanceOf[Box[S]]
+      @inline def castV($: RawComp) = $.asInstanceOf[RawMounted[P, S, B]]
 
       for (n <- Option(name))
         spec.displayName = n
 
-      def withMounted[A](f: RenderScope[P, S, B] => A): js.ThisFunction0[raw.ReactComponent, A] =
-        ($: raw.ReactComponent) =>
+      def withMounted[A](f: RenderScope[P, S, B] => A): js.ThisFunction0[RawComp, A] =
+        ($: RawComp) =>
           f(new RenderScope(castV($)))
 
       spec.render = withMounted(renderFn.andThen(_.rawElement))
@@ -349,7 +348,7 @@ object ScalaBuilder {
           }): js.ThisFunction0[raw.ReactComponentElement, Box[S]]
         }
 
-      val setup: raw.ReactComponent => Unit =
+      val setup: RawComp => Unit =
         $ => {
           val jMounted : JsMounted    [P, S, B] = Js.mounted[Box[P], Box[S]]($).addFacade[Vars[P, S, B]]
           val sMountedI: MountedImpure[P, S, B] = Scala.mountedRoot(jMounted)
@@ -362,13 +361,13 @@ object ScalaBuilder {
       spec.componentWillMount = lifecycle.componentWillMount match {
         case None    => setup
         case Some(f) =>
-          ($: raw.ReactComponent) => {
+          ($: RawComp) => {
             setup($)
             f(new ComponentWillMount(castV($))).runNow()
           }
       }
 
-      val teardown: raw.ReactComponent => Unit =
+      val teardown: RawComp => Unit =
         $ => {
           val vars = castV($)
           vars.mountedImpure = null
@@ -378,31 +377,31 @@ object ScalaBuilder {
       spec.componentWillUnmount = lifecycle.componentWillUnmount match {
         case None    => teardown
         case Some(f) =>
-          ($: raw.ReactComponent) => {
+          ($: RawComp) => {
             f(new ComponentWillUnmount(castV($))).runNow()
             teardown($)
           }
       }
 
       lifecycle.componentDidMount.foreach(f =>
-        spec.componentDidMount = ($: raw.ReactComponent) =>
+        spec.componentDidMount = ($: RawComp) =>
           f(new ComponentDidMount(castV($))).runNow())
 
       lifecycle.componentDidUpdate.foreach(f =>
-        spec.componentDidUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
-          f(new ComponentDidUpdate(castV($), castP(p).unbox, castS(s).unbox)).runNow())
+        spec.componentDidUpdate = ($: RawComp, p: Box[P], s: Box[S]) =>
+          f(new ComponentDidUpdate(castV($), p.unbox, s.unbox)).runNow())
 
       lifecycle.componentWillReceiveProps.foreach(f =>
-        spec.componentWillReceiveProps = ($: raw.ReactComponent, p: raw.Props) =>
-          f(new ComponentWillReceiveProps(castV($), castP(p).unbox)).runNow())
+        spec.componentWillReceiveProps = ($: RawComp, p: Box[P]) =>
+          f(new ComponentWillReceiveProps(castV($), p.unbox)).runNow())
 
       lifecycle.componentWillUpdate.foreach(f =>
-        spec.componentWillUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
-          f(new ComponentWillUpdate(castV($), castP(p).unbox, castS(s).unbox)).runNow())
+        spec.componentWillUpdate = ($: RawComp, p: Box[P], s: Box[S]) =>
+          f(new ComponentWillUpdate(castV($), p.unbox, s.unbox)).runNow())
 
       lifecycle.shouldComponentUpdate.foreach(f =>
-        spec.shouldComponentUpdate = ($: raw.ReactComponent, p: raw.Props, s: raw.State) =>
-          f(new ShouldComponentUpdate(castV($), castP(p).unbox, castS(s).unbox)).runNow())
+        spec.shouldComponentUpdate = ($: RawComp, p: Box[P], s: Box[S]) =>
+          f(new ShouldComponentUpdate(castV($), p.unbox, s.unbox)).runNow())
 
 //        if (jsMixins.nonEmpty)
 //          spec("mixins") = JArray(jsMixins: _*)
@@ -645,7 +644,6 @@ object ScalaBuilder {
 
       override def toString = wrapTostring(s"Render(props: $props, state: $state)")
 
-      def isMounted    : Boolean       = mountedImpure.isMounted
       def props        : P             = mountedImpure.props
       def propsChildren: PropsChildren = mountedImpure.propsChildren
       def getDOMNode   : dom.Element   = mountedImpure.getDOMNode

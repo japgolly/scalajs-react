@@ -31,6 +31,10 @@ trait TestUtil
   implicit val equalRawRef       : Equal[japgolly.scalajs.react.raw.Ref          ] = Equal.equalA
   implicit val equalState        : Equal[japgolly.scalajs.react.raw.State        ] = Equal.equalA
 
+  implicit def jsUndefOrEqual[A](implicit e: Equal[A]): Equal[js.UndefOr[A]] =
+    Equal.equal[js.UndefOr[A]]((a, b) =>
+      if (a.isEmpty) b.isEmpty else b.exists(e.equal(a.get, _)))
+
   def assertEq[A: Equal](actual: A, expect: A): Unit =
     assertEq(null, actual, expect)
 
@@ -128,5 +132,8 @@ trait TestUtil
         case n => fail(s"Expected an array with one element, found $n: ${a.mkString("[", ",", "]")}")
       }
   }
+
+  def yesItsMounted: Option[Boolean] = Some(true)
+  def nopeNotMounted: Option[Boolean] = Some(false)
 }
 
