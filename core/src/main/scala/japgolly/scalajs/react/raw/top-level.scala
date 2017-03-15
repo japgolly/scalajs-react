@@ -10,16 +10,16 @@ object React extends React
 @js.native
 trait React extends js.Object {
 
-  def createClass(spec: ReactComponentSpec): ReactClass = js.native
+  def createClass[P <: js.Object, S <: js.Object](spec: ReactComponentSpec[P, S]): ReactClass[P, S] = js.native
 
 //  def createFactory[P,S,B,N <: TopNode](t: ReactClass[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
 //  def createFactory[P <: js.Any, S <: js.Any, N <: TopNode](t: JsComponentType[P, S, N]): JsComponentC[P, S, N] = js.native
 
-  def createElement(`type`: String                                            ): ReactDOMElement = js.native
+  def createElement(`type`: String                                        ): ReactDOMElement = js.native
   def createElement(`type`: String, props: Props                          ): ReactDOMElement = js.native
   def createElement(`type`: String, props: Props, children: ReactNodeList*): ReactDOMElement = js.native
 
-  def createElement(`type`: ReactCtor                                            ): ReactComponentElement = js.native
+  def createElement(`type`: ReactCtor                                        ): ReactComponentElement = js.native
   def createElement(`type`: ReactCtor, props: Props                          ): ReactComponentElement = js.native
   def createElement(`type`: ReactCtor, props: Props, children: ReactNodeList*): ReactComponentElement = js.native
 
@@ -64,11 +64,11 @@ trait ReactDOM extends js.Object {
 
   def render(element  : ReactElement,
              container: Container,
-             callback : js.Function0[Unit] = js.native): ReactComponent = js.native
+             callback : js.Function0[Unit] = js.native): ReactComponentUntyped = js.native
 
   def unmountComponentAtNode(container: dom.Node): Boolean = js.native
 
-  def findDOMNode(component: ReactComponent): dom.Element = js.native
+  def findDOMNode(component: ReactComponentUntyped): dom.Element = js.native
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

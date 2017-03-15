@@ -4,13 +4,13 @@ import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
 
-object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
+object Js extends JsBaseComponentTemplate[RAW.ReactClassUntyped] {
 
-  def apply[P <: js.Object, C <: Children, S <: js.Object](r: RAW.ReactClass)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
+  def apply[P <: js.Object, C <: Children, S <: js.Object](r: RAW.ReactClass[P, S])(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
     component[P, C, S](r)(s)
 
   def apply[P <: js.Object, C <: Children, S <: js.Object](d: js.Dynamic)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
-    apply[P, C, S](d.asInstanceOf[RAW.ReactClass])(s)
+    apply[P, C, S](d.asInstanceOf[RAW.ReactClass[P, S]])(s)
 
   def apply[P <: js.Object, C <: Children, S <: js.Object](name: String)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
     JsUtil.evalName(name) match {
@@ -21,7 +21,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
 
   // ===================================================================================================================
 
-  type RawMounted = RAW.ReactComponent
+  type RawMounted = RAW.ReactComponentUntyped
 
   type Component[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentWithRawType[P, S, RawMounted, CT]
   type Unmounted[P <: js.Object, S <: js.Object]                               = UnmountedWithRawType[P, S, RawMounted]
@@ -38,7 +38,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
   private def fixDisplayName(n: js.UndefOr[String]): String =
     n.getOrElse("")
 
-  override protected val rawComponentDisplayName: RAW.ReactClass => String =
+  override protected val rawComponentDisplayName: RAW.ReactClassUntyped => String =
     c => fixDisplayName(c.displayName)
 
   // ===================================================================================================================
@@ -59,7 +59,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
 
   type UnmountedRoot[P <: js.Object, M] = UnmountedWithRoot[P, M, P, M]
 
-  def unmountedRoot[P <: js.Object, M](r: RAW.ReactComponentElement, m: RAW.ReactComponent => M): UnmountedRoot[P, M] =
+  def unmountedRoot[P <: js.Object, M](r: RAW.ReactComponentElement, m: RAW.ReactComponentUntyped => M): UnmountedRoot[P, M] =
     new UnmountedRoot[P, M] {
       override def root                              = this
       override val raw                               = r
@@ -162,7 +162,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClass] {
 
   // ===================================================================================================================
 
-  def component[P <: js.Object, C <: Children, S <: js.Object](rc: RAW.ReactClass)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
+  def component[P <: js.Object, C <: Children, S <: js.Object](rc: RAW.ReactClass[P, S])(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
     componentRoot[P, s.CT, Unmounted[P, S]](rc, s.pf.rmap(s.summon(rc))(unmounted))(s.pf)
 
   def unmounted[P <: js.Object, S <: js.Object](r: RAW.ReactComponentElement): Unmounted[P, S] =

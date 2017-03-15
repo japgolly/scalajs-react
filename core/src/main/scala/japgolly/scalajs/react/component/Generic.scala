@@ -64,7 +64,7 @@ object Generic {
     def props: Props
     def propsChildren: PropsChildren
 
-    val mountRaw: RAW.ReactComponent => M
+    val mountRaw: RAW.ReactComponentUntyped => M
 
     def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): Mounted =
       mountRaw(RAW.ReactDOM.render(raw, container, callback.toJsFn))
@@ -87,7 +87,7 @@ object Generic {
   type MountedImpure[P, S] = MountedSimple[Effect.Id, P, S]
 
   trait MountedRaw {
-    type Raw <: RAW.ReactComponent
+    type Raw <: RAW.ReactComponentUntyped
     val raw: Raw
     def displayName: String
   }
