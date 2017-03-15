@@ -23,7 +23,7 @@ trait CatsReactState extends CatsReactState2 {
 trait CatsReactState2 extends CatsReactState1 {
   import CatsReactState._
 
-  implicit final def ScalazReactExt_StateAccessCB[I, S](i: I)(implicit sa: StateAccessor.ReadWritePure[I, S]): Ext_StateAccessRW[CallbackTo, I, S, CallbackTo] = new Ext_StateAccessRW(i)
+  implicit final def CatsReactExt_StateAccessCB[I, S](i: I)(implicit sa: StateAccessor.ReadWritePure[I, S]): Ext_StateAccessRW[CallbackTo, I, S, CallbackTo] = new Ext_StateAccessRW(i)
 }
 
 trait CatsReactState1 {
@@ -35,7 +35,7 @@ trait CatsReactState1 {
   final val ChangeFilter = CatsReactState.ChangeFilter
 
   import CatsReactState._
-  implicit final def ScalazReactExt_StateAccessId[I, S](i: I)(implicit sa: StateAccessor.ReadWriteImpure[I, S]): Ext_StateAccessRW[Effect.Id, I, S, Effect.Id] = new Ext_StateAccessRW(i)
+  implicit final def CatsReactExt_StateAccessId[I, S](i: I)(implicit sa: StateAccessor.ReadWriteImpure[I, S]): Ext_StateAccessRW[Effect.Id, I, S, Effect.Id] = new Ext_StateAccessRW(i)
 }
 
 object CatsReactState {
