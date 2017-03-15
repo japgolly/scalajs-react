@@ -1,3 +1,5 @@
+var React = require('react');
+
 const ES3_P = React.createClass({
   render: function render() {
     return React.createElement("div", null, "Hello ", this.props.name, this.props.children);
@@ -20,14 +22,4 @@ const ES3_S = React.createClass({
   }
 });
 
-const TestNS = {
-    SubNS: {
-        MyNestedCmp: React.createClass({
-         displayName: "MyNestedComponent",
-
-         render: function render() {
-           return React.createElement("div", null, "I am nested");
-         }
-       })
-    }
-}
+module.exports = {ES3_P, ES3_S};

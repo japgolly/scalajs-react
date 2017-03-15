@@ -6,41 +6,17 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
+import scala.scalajs.js.annotation.JSImport
 
 abstract class JsComponentTest extends TestSuite {
   final val H1: raw.ReactElement =
     raw.React.createElement("h1", null, "Huge")
 }
 
-object JsComponentNSTest extends JsComponentTest {
-
-  override def tests = TestSuite {
-
-    def tryResolve(name: String) : Boolean = {
-      try {
-        JsComponent[Null, Children.None, Null](name).raw
-        true
-      } catch {
-        case ex: IllegalArgumentException => false
-      }
-    }
-
-    'resolve {
-      'defined {
-        assertEq(tryResolve("TestNS.SubNS.MyNestedCmp"), true)
-      }
-
-      'undefined {
-        assertEq(tryResolve(""), false)
-        assertEq(tryResolve("TestNS"), false)
-        assertEq(tryResolve("TestNS.MissingNS"), false)
-        assertEq(tryResolve("TestNS.SubNS.MyMissingCmp"), false)
-      }
-    }
-  }
-}
-
 object JsComponentPTest extends JsComponentTest {
+  @JSImport("./component-es3.js", "ES3_P")
+  @js.native
+  object RawComp extends js.Object
 
   @js.native
   trait JsProps extends js.Object {
@@ -50,7 +26,7 @@ object JsComponentPTest extends JsComponentTest {
   def JsProps(name: String): JsProps =
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
-  lazy val Component = JsComponent[JsProps, Children.None, Null]("ES3_P")
+  lazy val Component = JsComponent[JsProps, Children.None, Null](RawComp.asInstanceOf[js.Dynamic])
   compileError(""" Component() """)
 
   override def tests = TestSuite {
@@ -107,7 +83,7 @@ object JsComponentPTest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent[JsProps, Children.Varargs, Null]("ES3_P")
+      val C = JsComponent[JsProps, Children.Varargs, Null](RawComp.asInstanceOf[js.Dynamic])
 
       'ctors {
         val p = JsProps("x")
@@ -154,6 +130,9 @@ object JsComponentPTest extends JsComponentTest {
 
 
 object JsComponentSTest extends JsComponentTest {
+  @JSImport("./component-es3.js", "ES3_S")
+  @js.native
+  object RawComp extends js.Object
 
   @js.native
   trait JsState extends js.Object {
@@ -166,7 +145,7 @@ object JsComponentSTest extends JsComponentTest {
     def inc(): Unit = js.native
   }
 
-  lazy val Component = JsComponent[Null, Children.None, JsState]("ES3_S").addFacade[JsMethods]
+  lazy val Component = JsComponent[Null, Children.None, JsState](RawComp.asInstanceOf[js.Dynamic]).addFacade[JsMethods]
 
   override def tests = TestSuite {
     def JsState1(num1: Int): JsState =
@@ -236,7 +215,7 @@ object JsComponentSTest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent[Null, Children.Varargs, JsState]("ES3_S").addFacade[JsMethods]
+      val C = JsComponent[Null, Children.Varargs, JsState](RawComp.asInstanceOf[js.Dynamic]).addFacade[JsMethods]
 
       'ctors {
         def test(u: JsComponent.UnmountedWithFacade[Null, JsState, JsMethods]) = ()

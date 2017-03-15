@@ -1,3 +1,5 @@
+var React = require('react');
+
 function FnComp(props) {
   return React.createElement(
     "div",
@@ -6,3 +8,5 @@ function FnComp(props) {
     props.name
   );
 }
+
+module.exports = {FnComp};

@@ -16,6 +16,7 @@ object ScalajsReact {
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.3.0"
     val Nyaya         = "0.8.1"
+    val Webpack       = "2.2.1"
   }
 
   type PE = Project => Project
@@ -36,6 +37,7 @@ object ScalajsReact {
                                   // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
                                 }.value,
         //scalacOptions    += "-Xlog-implicits",
+        version in webpack := Ver.Webpack,
         updateOptions      := updateOptions.value.withCachedResolution(true),
         incOptions         := incOptions.value.withNameHashing(true).withLogRecompileOnMacro(false),
         triggeredMessage   := Watched.clearWhenTriggered)

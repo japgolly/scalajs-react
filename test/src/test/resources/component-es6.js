@@ -1,3 +1,5 @@
+var React = require('react');
+
 class ES6_P extends React.Component {
   render() {
     return React.createElement("div", null, "Hello ", this.props.name, this.props.children);
@@ -22,3 +24,5 @@ class ES6_S extends React.Component {
   }
 }
 ES6_S.displayName = "Statey";
+
+module.exports = {ES6_P, ES6_S};

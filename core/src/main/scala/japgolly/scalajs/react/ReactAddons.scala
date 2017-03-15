@@ -8,7 +8,7 @@ object ReactAddons {
 
   lazy val CSSTransitionGroup =
     JsComponent[raw.ReactCSSTransitionGroupProps, Children.Varargs, Null](
-      raw.ReactCSSTransitionGroup.asInstanceOf[raw.ReactClass])
+      raw.ReactCSSTransitionGroup.asInstanceOf[js.Dynamic])
 
   @inline def CSSTransitionGroupProps(): raw.ReactCSSTransitionGroupProps =
     (new js.Object).asInstanceOf[raw.ReactCSSTransitionGroupProps]
