@@ -15,7 +15,7 @@ object VdomTest extends TestSuite {
 
       def test(t: VdomTag)(dev: => String, prod: => String): Unit = {
         val exp = if (developmentMode) dev else prod
-        assertRender(ScalaComponent.static("", t)(), exp)
+        assertRender(ScalaComponent.static("")(t)(), exp)
       }
 
       'tagMod -

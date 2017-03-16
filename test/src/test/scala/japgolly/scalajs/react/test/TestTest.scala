@@ -264,7 +264,7 @@ object TestTest extends TestSuite {
     }
 
     'removeReactInternals {
-      val c = ScalaComponent.static("", <.div(<.br, "hello", <.hr))
+      val c = ScalaComponent.static("")(<.div(<.br, "hello", <.hr))
       ReactTestUtils.withRenderedIntoDocument(c()) { m =>
         val orig = m.getDOMNode.outerHTML
         val after = ReactTestUtils.removeReactInternals(orig)

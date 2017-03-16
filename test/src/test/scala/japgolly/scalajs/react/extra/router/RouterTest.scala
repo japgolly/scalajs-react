@@ -32,7 +32,7 @@ object RouterTest extends TestSuite {
       ).build
 
     val HelloComponent =
-      ScalaComponent.static("Hello", <.h3("Hello there!"))
+      ScalaComponent.static("Hello")(<.h3("Hello there!"))
 
     val NameComponent = ScalaComponent.builder[String]("Name")
       .render_P(name => <.h3(s"I believe your name is '$name'."))

@@ -12,7 +12,7 @@ object CallbackOptionExample {
 
   val source = GhPagesMacros.exampleSource
 
-  def Main2 = ScalaComponent.static("CallbackOption example",
+  def Main2 = ScalaComponent.static("CallbackOption example")(
       <.div(
         <.p(
           <.code("CallbackOption"), " is a ", <.code("Callback"), " that you can compose so that steps can abort the rest of the process.",

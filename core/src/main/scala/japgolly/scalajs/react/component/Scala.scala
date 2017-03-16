@@ -10,8 +10,8 @@ object Scala {
   val builder = ScalaBuilder.EntryPoint
 
   /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
-  def static(name: String, content: VdomElement): Component[Unit, Unit, Unit, CtorType.Nullary] =
-    builder.static(name, content).build
+  def static(name: String)(content: VdomElement): Component[Unit, Unit, Unit, CtorType.Nullary] =
+    builder.static(name)(content).build
 
   val Lifecycle = ScalaBuilder.Lifecycle
 

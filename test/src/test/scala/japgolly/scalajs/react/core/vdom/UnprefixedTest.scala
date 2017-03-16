@@ -25,7 +25,7 @@ object UnprefixedTest extends TestSuite {
   def checkbox(check: Boolean) = input.checkbox(checked := check, readOnly := true)
 
   def test(subj: VdomElement, exp: String): Unit = {
-    val comp = ScalaComponent.static("tmp", subj)
+    val comp = ScalaComponent.static("tmp")(subj)
     assertRender(comp(), exp)
   }
 

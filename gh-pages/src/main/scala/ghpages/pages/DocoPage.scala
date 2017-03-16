@@ -4,7 +4,7 @@ import japgolly.scalajs.react._, vdom.html_<^._
 
 object DocoPage {
 
-  val component = ScalaComponent.static("Doco",
+  val component = ScalaComponent.static("Doco")(
     <.p(
       ^.marginTop := "1em",
       ^.fontSize := "110%",
