@@ -109,6 +109,83 @@ object CatsReactState {
 
     def zoomU[M[_], S, A](rst: ReactST[M, Unit, A])(implicit M: Monad[M]): ReactST[M, S, A] =
       zoom[M, Unit, S, A](rst, _ => (), (s, _) => s)
+
+    /**
+      * M prefix indicates M in args.
+      * T prefix indicates we want the result lifted into an M.
+      */
+    def Fix[S] = new Fix[S]
+    final class Fix[S] {
+      type T[A] = ReactS[S, A]
+
+      def nop :        ReactS[S,Unit] = ret(())
+      def _nop: Any => ReactS[S,Unit] = _ => nop
+
+      def apply    [A]     (f: S => (S, A))           : ReactS[S,A]    = ReactS(f)
+      def callback [A]     (a: A, c: Callback)        : ReactS[S,A]    = ReactS.callback(a, c)
+      def callbacks[A]     (a: A, c: S => Callback)   : ReactS[S,A]    = ReactS.callbacks(a, c)
+      def get                                         : ReactS[S,S]    = ReactS.get
+      def gets     [A]     (f: S => A)                : ReactS[S,A]    = ReactS.inspect(f)
+      def mod              (f: S => S)                : ReactS[S,Unit] = ReactS.mod(f)
+      def ret      [A]     (a: A)                     : ReactS[S,A]    = ReactS.ret(a)
+      def set              (s: S)                     : ReactS[S,Unit] = ReactS.set(s)
+      def zoom     [T,A]   (r: ReactS[T, A])
+                           (f: S => T, g: (S, T) => S): ReactS[S,A]    = ReactS.zoom(r, f, g)
+      def zoomU    [A]     (r: ReactS[Unit, A])       : ReactS[S,A]    = ReactS.zoomU(r)
+
+      def applyM    [M[_],A](f: S => M[(S, A)])        (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.applyM(f)
+      def applyT    [M[_],A](f: S => (S, A))           (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.applyT(f)
+      def callbackM [M[_],A](a: M[A], c: Callback)     (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.callbackM(a, c)
+      def callbackT [M[_],A](a: A, c: Callback)        (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.callbackT(a, c)
+      def callbacksM[M[_],A](a: M[A], c: S => Callback)(implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.callbacksM(a, c)
+      def callbacksT[M[_],A](a: A, c: S => Callback)   (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.callbacksT(a, c)
+      def getT      [M[_]]                             (implicit M: Applicative[M]): ReactST[M,S,S]    = ReactS.getT
+      def inspectM  [M[_],A](f: S => M[A])             (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.inspectM(f)
+      def inspectT  [M[_],A](f: S => A)                (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.inspectT(f)
+      def liftR     [M[_],A](f: S => ReactST[M, S, A]) (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.liftR(f)
+      def liftS     [M[_],A](t: StateT[M, S, A])       (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.liftS(t)
+      def modM      [M[_]]  (f: S => M[S])             (implicit M: Monad      [M]): ReactST[M,S,Unit] = ReactS.modM(f)
+      def modT      [M[_]]  (f: S => S)                (implicit M: Monad      [M]): ReactST[M,S,Unit] = ReactS.modT(f)
+      def retM      [M[_],A](ma: M[A])                 (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.retM(ma)
+      def retT      [M[_],A](a: A)                     (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.retT(a)
+      def setM      [M[_]]  (ms: M[S])                 (implicit M: Monad      [M]): ReactST[M,S,Unit] = ReactS.setM(ms)
+      def setT      [M[_]]  (s: S)                     (implicit M: Monad      [M]): ReactST[M,S,Unit] = ReactS.setT(s)
+      def unlift    [M[_],A](t: ReactST[M, S, A])      (implicit M: Monad      [M]): StateT [M,S,A]    = ReactS.unlift(t)
+    }
+
+    /**
+      * T prefix indicates we want the result lifted into an M.
+      */
+    def FixT[M[_], S] = new FixT[M, S]
+    def FixCB[S] = new FixT[CallbackTo, S]
+    final class FixT[M[_], S] {
+      type T[A] = ReactST[M, S, A]
+
+      def nop (implicit M: Monad[M]):        ReactST[M,S,Unit] = retT(())
+      def _nop(implicit M: Monad[M]): Any => ReactST[M,S,Unit] = _ => nop
+
+      def apply     [A]  (f: S => M[(S, A)])        (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.applyM(f)
+      def applyT    [A]  (f: S => (S, A))           (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.applyT(f)
+      def callback  [A]  (a: M[A], c: Callback)     (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.callbackM(a, c)
+      def callbackT [A]  (a: A, c: Callback)        (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.callbackT(a, c)
+      def callbacks [A]  (a: M[A], c: S => Callback)(implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.callbacksM(a, c)
+      def callbacksT[A]  (a: A, c: S => Callback)   (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.callbacksT(a, c)
+      def get                                       (implicit M: Applicative[M]): ReactST[M,S,S]    = ReactS.getT
+      def inspect   [A]  (f: S => M[A])             (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.inspectM(f)
+      def inspectT  [A]  (f: S => A)                (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.inspectT(f)
+      def liftR     [A]  (f: S => ReactST[M, S, A]) (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.liftR(f)
+      def liftS     [A]  (t: StateT[M, S, A])       (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.liftS(t)
+      def mod            (f: S => M[S])             (implicit M: Monad      [M]): ReactST[M,S,Unit] = ReactS.modM(f)
+      def modT           (f: S => S)                (implicit M: Monad      [M]): ReactST[M,S,Unit] = ReactS.modT(f)
+      def ret       [A]  (ma: M[A])                 (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.retM(ma)
+      def retT      [A]  (a: A)                     (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.retT(a)
+      def set            (ms: M[S])                 (implicit M: Monad      [M]): ReactST[M,S,Unit] = ReactS.setM(ms)
+      def setT           (s: S)                     (implicit M: Monad      [M]): ReactST[M,S,Unit] = ReactS.setT(s)
+      def unlift    [A]  (t: ReactST[M, S, A])      (implicit M: Monad      [M]): StateT [M,S,A]    = ReactS.unlift(t)
+      def zoom      [T,A](r: ReactST[M, T, A])
+                         (f: S => T, g: (S,T) => S) (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.zoom(r, f, g)
+      def zoomU     [A]  (r: ReactST[M, Unit, A])   (implicit M: Monad      [M]): ReactST[M,S,A]    = ReactS.zoomU(r)
+    }
   }
 
   final case class ChangeFilter[S](allowChange: (S, S) => Boolean) {
