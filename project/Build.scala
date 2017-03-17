@@ -15,6 +15,7 @@ object ScalajsReact {
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.3.0"
     val Nyaya         = "0.8.1"
+    val Cats          = "0.9.0"
   }
 
   type PE = Project => Project
@@ -141,7 +142,7 @@ object ScalajsReact {
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .settings(name := "scalajs-react")
-    .aggregate(core, extra, scalaz72, monocle, test, ghpagesMacros, ghpages)
+    .aggregate(core, extra, scalaz72, monocle, cats, test, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -174,6 +175,7 @@ object ScalajsReact {
     .dependsOn(core, extra)
     .dependsOn(scalaz72 % "test->compile")
     .dependsOn(monocle % "test->compile")
+    .dependsOn(cats % "test->compile")
     .settings(
       name := "test",
       libraryDependencies ++= Seq(
@@ -203,6 +205,11 @@ object ScalajsReact {
     .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
     .dependsOn(core, extra, scalaz72)
     .settings(libraryDependencies += monocleLib("core"))
+
+  lazy val cats = project
+    .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
+    .dependsOn(core, extra)
+    .settings(libraryDependencies += "org.typelevel" %%% "cats" % Ver.Cats)
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))

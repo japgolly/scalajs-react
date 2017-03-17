@@ -7,8 +7,12 @@ import extra._
 import ScalazReact._
 import MonocleReact._
 
+import scalaz.{Monad, ~>}
+
 object MonocleTest extends TestSuite {
   import japgolly.scalajs.react.test.InferenceUtil._
+
+  implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
 
   @Lenses case class Poly[A](oa: Option[A])
 
