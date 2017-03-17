@@ -50,8 +50,6 @@ object InferenceUtil {
 
   def st_s(s: S, t: T): S = ???
 
-  implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
-
   type Render = ScalaComponent.Lifecycle.RenderScope[P, S, B]
   type Backend = BackendScope[P, S]
   type JsMounted = JsComponent.Mounted[JP, JS]

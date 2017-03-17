@@ -175,6 +175,7 @@ object ScalajsReact {
     .dependsOn(core, extra)
     .dependsOn(scalaz72 % "test->compile")
     .dependsOn(monocle % "test->compile")
+    .dependsOn(cats % "test->compile")
     .settings(
       name := "test",
       libraryDependencies ++= Seq(
