@@ -135,5 +135,23 @@ trait TestUtil
 
   def yesItsMounted: Option[Boolean] = Some(true)
   def nopeNotMounted: Option[Boolean] = Some(false)
+
+  def catchError[A](a: => A): Option[Throwable] =
+    try {
+      a
+      None
+    }
+    catch {
+      case t: Throwable => Some(t)
+    }
+
+  def expectError[A](a: => A): Throwable =
+    catchError(a).getOrElse(fail("Error expected but code succeeded."))
+
+  def expectErrorContaining[A](errFrag: String)(a: => A): String = {
+    val err = expectError(a).getMessage
+    assertContains(err, errFrag)
+    err
+  }
 }
 

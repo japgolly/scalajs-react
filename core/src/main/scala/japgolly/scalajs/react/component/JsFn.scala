@@ -11,7 +11,11 @@ object JsFn extends JsBaseComponentTemplate[RAW.ReactFunctionalComponent] {
   type Mounted                                                 = Unit
 
   def apply[P <: js.Object, C <: Children](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] = {
-    assert(raw.isInstanceOf[js.Object], s"Invalid JsFnComponent: $raw")
+    InspectRaw.assertIsComponent(raw, "JsFnComponent")
+    force[P, C](raw)(s)
+  }
+
+  def force[P <: js.Object, C <: Children](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] = {
     val rc = raw.asInstanceOf[RAW.ReactFunctionalComponent]
     componentRoot[P, s.CT, Unmounted[P]](rc, s.pf.rmap(s.summon(rc))(unmountedRoot))(s.pf)
   }

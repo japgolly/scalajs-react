@@ -7,7 +7,11 @@ import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom
 object Js extends JsBaseComponentTemplate[RAW.ReactClassUntyped] {
 
   def apply[P <: js.Object, C <: Children, S <: js.Object](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
-    assert(raw.isInstanceOf[js.Object], s"Invalid JsComponent: $raw")
+    InspectRaw.assertIsComponent(raw, "JsComponent")
+    force[P, C, S](raw)(s)
+  }
+
+  def force[P <: js.Object, C <: Children, S <: js.Object](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
     val rc = raw.asInstanceOf[RAW.ReactClass[P, S]]
     component[P, C, S](rc)(s)
   }
