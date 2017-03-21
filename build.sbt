@@ -1,4 +1,4 @@
-version      in ThisBuild := "1.0.0-RC2"
+version      in ThisBuild := "1.0.0-RC3-SNAPSHOT"
 organization in ThisBuild := "com.github.japgolly.scalajs-react"
 homepage     in ThisBuild := Some(url("https://github.com/japgolly/scalajs-react"))
 licenses     in ThisBuild := ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")) :: Nil
