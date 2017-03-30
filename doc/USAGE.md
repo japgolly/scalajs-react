@@ -192,7 +192,7 @@ To create an instance, you call the constructor.
 
 ```scala
 val NoArgs =
-  ScalaComponent.static("No args", <.div("Hello!"))
+  ScalaComponent.static("No args")(<.div("Hello!"))
 
 val Hello =
   ScalaComponent.builder[String]("Hello")
