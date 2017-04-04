@@ -364,6 +364,20 @@ object StaticDsl {
         (u, p) => if (cond.runNow()) action(u, p) else condUnmet(p))
 
     /**
+      * Prevent this rule from functioning unless some condition holds, passes in the page
+      * requested as part of the context.
+      * When the condition doesn't hold, an alternative action may be performed.
+      *
+      * @param cond Function that takes the requested page and returns true if the page should be rendered.
+      * @param condUnmet Response when rule matches but condition doesn't hold.
+      *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
+      *                  route-not-found fallback behaviour.
+      */
+    def addCondition(cond: (Page) => CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
+      new Rule[Page](parse, path,
+        (u, p) => if (cond(p).runNow()) action(u, p) else condUnmet(p))
+
+    /**
      * Specify behaviour when a `Page` doesn't have an associated `Path` or `Action`.
      */
     def fallback(fp: Page => Path, fa: (Path, Page) => Action[Page]): Rules[Page] =
