@@ -317,12 +317,18 @@ object CallbackTo {
 final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) extends AnyVal {
 
   /**
-   * Executes this callback, on the current thread, right now, blocking until complete.
-   *
-   * In most cases, this type is passed to scalajs-react such that you don't need to call this method yourself.
-   *
-   * Exceptions will not be caught. Use [[attempt]] to catch thrown exceptions.
-   */
+    * Executes this callback, on the current thread, right now, blocking until complete.
+    * Exceptions will not be thrown, not caught. Use [[CallbackTo#attempt]] to catch exceptions.
+    *
+    * Typically, callbacks are passed to scalajs-react and you're expected not to call this method yourself.
+    * Generally speaking, the only time you should call this method is in some other non-React code's async callback.
+    * Inside an AJAX callback is a common example. Even for those cases though, you can avoid calling this by getting
+    * direct access instead of callback-based access to your component;
+    * see the online WebSockets example: https://japgolly.github.io/scalajs-react/#examples/websockets
+    *
+    * While it's technically safe to call [[CallbackTo#runNow]] inside the body of another [[Callback]], it's better
+    * to just use combinators like [[CallbackTo#flatMap]] or even a Scala for-comprehension.
+    */
   @inline def runNow(): A =
     f()
 
