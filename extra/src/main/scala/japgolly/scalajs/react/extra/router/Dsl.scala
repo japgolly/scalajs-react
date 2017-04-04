@@ -360,8 +360,7 @@ object StaticDsl {
      *                  route-not-found fallback behaviour.
      */
     def addCondition(cond: CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
-      new Rule[Page](parse, path,
-        (u, p) => if (cond.runNow()) action(u, p) else condUnmet(p))
+      addCondition(_ => cond)(condUnmet)
 
     /**
       * Prevent this rule from functioning unless some condition holds, passes in the page
@@ -373,7 +372,7 @@ object StaticDsl {
       *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
       *                  route-not-found fallback behaviour.
       */
-    def addCondition(cond: (Page) => CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
+    def addCondition(cond: Page => CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
       new Rule[Page](parse, path,
         (u, p) => if (cond(p).runNow()) action(u, p) else condUnmet(p))
 
