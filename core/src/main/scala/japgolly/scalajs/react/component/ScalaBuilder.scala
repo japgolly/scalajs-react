@@ -640,7 +640,7 @@ object ScalaBuilder {
     // ===================================================================================================================
 
     final class RenderScope[P, S, B](val raw: RawMounted[P, S, B])
-        extends StateRW[P, S, B] with ForceUpdate[P, S, B] {
+        extends AnyVal with StateRW[P, S, B] with ForceUpdate[P, S, B] {
 
       override def toString = wrapTostring(s"Render(props: $props, state: $state)")
 
