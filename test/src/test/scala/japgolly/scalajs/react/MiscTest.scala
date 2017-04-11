@@ -64,7 +64,7 @@ object MiscTest extends TestSuite {
 
     'renderScopeZoomState {
       case class SI(s: String, i: Int)
-      val C = ScalaComponent.builder[SI]("C").initialState_P(p => p).render { $ =>
+      val C = ScalaComponent.builder[SI]("C").initialStateFromProps(p => p).render { $ =>
         val f = $.mountedImpure.zoomState(_.i)(b => _.copy(i = b))
         <.div($.state.s + "/" + (f.state * 3))
       }.build

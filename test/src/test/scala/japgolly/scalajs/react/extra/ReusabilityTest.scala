@@ -22,7 +22,7 @@ object ReusabilityTest extends TestSuite {
     var renderCount = 0
 
     val component = ScalaComponent.builder[Props]("Demo")
-      .initialState_P(identity)
+      .initialStateFromProps(identity)
       .renderS { (_, *) =>
         renderCount += 1
         <.div(
@@ -40,7 +40,7 @@ object ReusabilityTest extends TestSuite {
     type M = Map[Int, String]
 
     val outerComponent = ScalaComponent.builder[M]("Demo")
-      .initialState_P(identity)
+      .initialStateFromProps(identity)
       .renderBackend[Backend]
       .build
 

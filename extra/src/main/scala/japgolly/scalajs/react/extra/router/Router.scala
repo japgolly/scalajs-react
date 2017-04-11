@@ -17,11 +17,11 @@ object Router {
 
   def componentUnbuiltC[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page], lgc: RouterLogic[Page]) =
     ScalaComponent.builder[Unit]("Router")
-      .initialStateCB    (     lgc.syncToWindowUrl)
-      .backend           (_ => new OnUnmount.Backend)
-      .render_S          (     lgc.render)
-      .componentDidMount ($ => cfg.postRenderFn(None, $.state.page))
-      .componentDidUpdate(i => cfg.postRenderFn(Some(i.prevState.page), i.currentState.page))
+      .initialStateCallback(     lgc.syncToWindowUrl)
+      .backend             (_ => new OnUnmount.Backend)
+      .render_S            (     lgc.render)
+      .componentDidMount   ($ => cfg.postRenderFn(None, $.state.page))
+      .componentDidUpdate  (i => cfg.postRenderFn(Some(i.prevState.page), i.currentState.page))
       .configure(
         EventListener.install("popstate", _ => lgc.ctl.refresh, _ => dom.window),
         Listenable.listenToUnit(_ => lgc, $ => lgc.syncToWindowUrl.flatMap($.setState(_))))

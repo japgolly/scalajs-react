@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.component
 
 import org.scalajs.dom
-import scala.{Either => Or}
 import scalajs.js
 import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, raw}
 import japgolly.scalajs.react.internal._
@@ -11,13 +10,12 @@ import Scala._
 object ScalaBuilder {
   import Lifecycle._
 
-  type InitStateFnU[P, S]    = Generic.UnmountedWithRoot[P, _, Box[P], _]
-  type InitStateArg[P, S]    = (InitStateFnU[P, S] => S) Or js.Function0[Box[S]]
+  type InitStateFn [-P, +S]  = Box[P] => Box[S]
   type NewBackendFn[P, S, B] = BackendScope[P, S] => B
   type RenderFn    [P, S, B] = RenderScope[P, S, B] => VdomElement
 
-  private val InitStateUnit : Nothing Or js.Function0[Box[Unit]] =
-    Right(() => Box.Unit)
+  private val InitStateUnit: InitStateFn[Any, Unit] =
+    _ => Box.Unit
 
   implicit def defaultToNoState  [P](b: Step1[P]): Step2[P, Unit] = b.stateless
   implicit def defaultToNoBackend[X, P, S](b: X)(implicit ev: X => Step2[P, S]): Step3[P, S, Unit] = b.noBackend
@@ -45,15 +43,17 @@ object ScalaBuilder {
     // Dealiases type aliases :(
     // type Next[S] = Step2[P, S]
 
-    // getInitialState is how it's named in React
-    def getInitialState  [S](f: InitStateFnU[P, S] => S)            : Step2[P, S] = new Step2(name, Left(f))
-    def getInitialStateCB[S](f: InitStateFnU[P, S] => CallbackTo[S]): Step2[P, S] = getInitialState(f.andThen(_.runNow()))
+    def initialState[S](s: => S): Step2[P, S] =
+      new Step2(name, _ => Box(s))
 
-    // More convenient methods that don't need the full CompScope
-    def initialState    [S](s: => S              ): Step2[P, S] = new Step2(name, Right(() => Box(s)))
-    def initialStateCB  [S](s: CallbackTo[S]     ): Step2[P, S] = initialState(s.runNow())
-    def initialState_P  [S](f: P => S            ): Step2[P, S] = getInitialState[S]($ => f($.props))
-    def initialStateCB_P[S](f: P => CallbackTo[S]): Step2[P, S] = getInitialState[S]($ => f($.props).runNow())
+    def initialStateFromProps[S](f: P => S): Step2[P, S] =
+      new Step2(name, p => Box(f(p.unbox)))
+
+    def initialStateCallback[S](cb: CallbackTo[S]): Step2[P, S] =
+      initialState(cb.runNow())
+
+    def initialStateCallbackFromProps[S](f: P => CallbackTo[S]): Step2[P, S] =
+      initialStateFromProps(f(_).runNow())
 
     def stateless: Step2[P, Unit] =
       new Step2(name, InitStateUnit)
@@ -61,7 +61,7 @@ object ScalaBuilder {
 
   // ===================================================================================================================
 
-  final class Step2[P, S](name: String, initStateFn: InitStateArg[P, S]) {
+  final class Step2[P, S](name: String, initStateFn: InitStateFn[P, S]) {
     // Dealiases type aliases :(
     // type Next[B] = Step3[P, S, B]
 
@@ -96,7 +96,7 @@ object ScalaBuilder {
 
   // ===================================================================================================================
 
-  final class Step3[P, S, B](name: String, initStateFn: InitStateArg[P, S], backendFn: NewBackendFn[P, S, B]) {
+  final class Step3[P, S, B](name: String, initStateFn: InitStateFn[P, S], backendFn: NewBackendFn[P, S, B]) {
     // Dealiases type aliases :(
     // type Next[C <: Children] = Step4[P, C, S, B]
 
@@ -183,16 +183,16 @@ object ScalaBuilder {
     Step4[P, C, S, B] => Step4[P, C, S, B]
 
   final class Step4[P, C <: Children, S, B](val name   : String,
-                                            initStateFn: InitStateArg[P, S],
+                                            initStateFn: InitStateFn[P, S],
                                             backendFn  : NewBackendFn[P, S, B],
                                             renderFn   : RenderFn[P, S, B],
                                             lifecycle  : Lifecycle[P, S, B]) {
     type This = Step4[P, C, S, B]
 
-    private def copy(name       : String                = this.name       ,
-                     initStateFn: InitStateArg[P, S]    = this.initStateFn,
-                     backendFn  : NewBackendFn[P, S, B] = this.backendFn  ,
-                     renderFn   : RenderFn    [P, S, B] = this.renderFn   ,
+    private def copy(name       : String                = this.name,
+                     initStateFn: InitStateFn [P, S]    = this.initStateFn,
+                     backendFn  : NewBackendFn[P, S, B] = this.backendFn,
+                     renderFn   : RenderFn    [P, S, B] = this.renderFn,
                      lifecycle  : Lifecycle   [P, S, B] = this.lifecycle  ): This =
       new Step4(name, initStateFn, backendFn, renderFn, lifecycle)
 
@@ -340,13 +340,7 @@ object ScalaBuilder {
       spec.render = withMounted(renderFn.andThen(_.rawElement))
 
       spec.getInitialState =
-        initStateFn match {
-          case Right(fn0) => fn0
-          case Left(fn) => ((rc: raw.ReactComponentElement) => {
-            val js = Js.unmounted[Box[P], Box[S]](rc)
-            Box(fn(js.mapUnmountedProps(_.unbox)))
-          }): js.ThisFunction0[raw.ReactComponentElement, Box[S]]
-        }
+        ($ => initStateFn($.props.asInstanceOf[Box[P]])): js.ThisFunction0[js.Dynamic, Box[S]]
 
       val setup: RawComp => Unit =
         $ => {
