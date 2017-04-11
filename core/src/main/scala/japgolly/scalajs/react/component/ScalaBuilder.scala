@@ -39,6 +39,12 @@ object ScalaBuilder {
 
   // ===================================================================================================================
 
+  /** You're on step 1/4 on the way to building a component.
+    *
+    * If your component is to be stateful, here you must specify it's initial state.
+    *
+    * If your component is to be stateless, you can skip this step or explicitly use `.stateless`.
+    */
   final class Step1[P](name: String) {
     // Dealiases type aliases :(
     // type Next[S] = Step2[P, S]
@@ -61,6 +67,18 @@ object ScalaBuilder {
 
   // ===================================================================================================================
 
+  /** You're on step 2/4 on the way to building a component.
+    *
+    * Here you specify whether your component has a "backend" or not.
+    * A backend like a class that is created when your component mounts and remains until it is unmounted.
+    *
+    * If you don't need a backend, you can skip this step or explicitly use `.noBackend`.
+    *
+    * Making common cases convenient, you can even use `.renderBackend` or `.renderBackendWithChildren` to take care
+    * of both this and the following step automatically, using macros to save you typing boring boilerplate.
+    * If you have an unhealthy fear of macros you can ignore then and do it all manually too; the macros don't have any
+    * special privileges.
+    */
   final class Step2[P, S](name: String, initStateFn: InitStateFn[P, S]) {
     // Dealiases type aliases :(
     // type Next[B] = Step3[P, S, B]
@@ -96,6 +114,18 @@ object ScalaBuilder {
 
   // ===================================================================================================================
 
+  /** You're on step 3/4 on the way to building a component.
+    *
+    * Here you specify your component's render function. For convenience there are a plethoria of methods you can call
+    * that all do the same thing but accept the argument in different shapes; the suffixes in method names refer to the
+    * argument type(s). This means you choose the method that provides the types that you need, rather than having to
+    * manually specify the types for all arguments including stuff you don't need.
+    *
+    * If you're using a backend, then it's highly recommended that you put your render function in the backend.
+    * When you do that, make sure it's called `.render` and then here in the builder, use the `.renderBackend` or
+    * `.renderBackendWithChildren` methods which will use a macro to inspect your backend's render method and provide
+    * everything it needs automatically.
+    */
   final class Step3[P, S, B](name: String, initStateFn: InitStateFn[P, S], backendFn: NewBackendFn[P, S, B]) {
     // Dealiases type aliases :(
     // type Next[C <: Children] = Step4[P, C, S, B]
@@ -182,6 +212,12 @@ object ScalaBuilder {
   type Config[P, C <: Children, S, B] =
     Step4[P, C, S, B] => Step4[P, C, S, B]
 
+  /** You're on the final step on the way to building a component.
+    *
+    * This is where you add lifecycle callbacks if you need to.
+    *
+    * When you're done, simply call `.build` to create and return your `ScalaComponent`.
+    */
   final class Step4[P, C <: Children, S, B](val name   : String,
                                             initStateFn: InitStateFn[P, S],
                                             backendFn  : NewBackendFn[P, S, B],
@@ -405,6 +441,10 @@ object ScalaBuilder {
       spec
     }
 
+    /** This is the end of the road for this component builder.
+      *
+      * @return Your brand-new, spanking, ScalaComponent. Mmmmmmmm, new-car smell.
+      */
     def build(implicit ctorType: CtorType.Summoner[Box[P], C]): Scala.Component[P, S, B, ctorType.CT] = {
       val rc = raw.React.createClass(spec)
       Js.component[Box[P], C, Box[S]](rc)(ctorType)
