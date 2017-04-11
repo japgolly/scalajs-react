@@ -376,7 +376,7 @@ object ScalaBuilder {
       spec.render = withMounted(renderFn.andThen(_.rawElement))
 
       spec.getInitialState =
-        ($ => initStateFn($.props.asInstanceOf[Box[P]])): js.ThisFunction0[js.Dynamic, Box[S]]
+        (($: js.Dynamic) => initStateFn($.props.asInstanceOf[Box[P]])): js.ThisFunction0[js.Dynamic, Box[S]]
 
       val setup: RawComp => Unit =
         $ => {
