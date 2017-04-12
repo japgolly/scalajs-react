@@ -7,13 +7,13 @@ import japgolly.scalajs.react.vdom.VdomElement
 
 object Scala {
 
-  val builder = ScalaBuilder.EntryPoint
+  val builder = japgolly.scalajs.react.component.builder.EntryPoint
 
   /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
   def static(name: String)(content: VdomElement): Component[Unit, Unit, Unit, CtorType.Nullary] =
     builder.static(name)(content).build
 
-  val Lifecycle = ScalaBuilder.Lifecycle
+  val Lifecycle = japgolly.scalajs.react.component.builder.Lifecycle
 
   // ===================================================================================================================
 
