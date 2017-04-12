@@ -254,7 +254,7 @@ Common Mistakes
   ```scala
   def increment(): Callback = {
     $.modState(_ + 1).runNow()
-    Callback.log("Incremented count by 1")
+    Callback.log("Scheduled state increment by 1")
   }
   ```
 
@@ -262,7 +262,7 @@ Common Mistakes
   ```scala
   val increment: Callback =
     $.modState(_ + 1) >>
-    Callback.log("Incremented count by 1")
+    Callback.log("Scheduled state increment by 1")
   ```
 
 * **Side-effects (especially accessing mutable state) during construction**
