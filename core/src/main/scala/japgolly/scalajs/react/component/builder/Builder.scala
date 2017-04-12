@@ -346,6 +346,11 @@ object Builder {
       * @return Your brand-new, spanking, ScalaComponent. Mmmmmmmm, new-car smell.
       */
     def build(implicit ctorType: CtorType.Summoner[Box[P], C]): Scala.Component[P, S, B, ctorType.CT] = {
+      val c = ViaReactComponent(this)
+      fromReactClass(c)(ctorType)
+    }
+
+    def buildWithReactCreateClass(implicit ctorType: CtorType.Summoner[Box[P], C]): Scala.Component[P, S, B, ctorType.CT] = {
       val c = ViaCreateClass(this)
       fromReactClass(c)(ctorType)
     }
