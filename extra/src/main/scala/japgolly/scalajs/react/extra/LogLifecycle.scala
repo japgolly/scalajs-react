@@ -9,7 +9,7 @@ import japgolly.scalajs.react._
  */
 object LogLifecycle {
 
-  def custom[P, C <: Children, S, B](logFn: String => ScalaComponent.Lifecycle.Base[P, S, B] => Callback): ScalaComponentConfig[P, C, S, B] =
+  def custom[P, C <: Children, S, B](logFn: String => ScalaComponent.Lifecycle.Base[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B] =
     in => {
       val log = logFn(in.name)
       in.componentWillMount       (log)
@@ -20,15 +20,15 @@ object LogLifecycle {
         .componentWillReceiveProps(log)
     }
 
-  def short[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B] =
+  def short[P, C <: Children, S, B]: ScalaComponent.Config[P, C, S, B] =
     custom(componentName => lc =>
       Callback.log(s"[$componentName] ${lc.toString.replaceFirst("\\(.+", "")}"))
 
-  def default[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B] =
+  def default[P, C <: Children, S, B]: ScalaComponent.Config[P, C, S, B] =
     custom(componentName => lc =>
       Callback.log(s"[$componentName] $lc"))
 
-  def verbose[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B] =
+  def verbose[P, C <: Children, S, B]: ScalaComponent.Config[P, C, S, B] =
     custom(componentName => lc =>
       Callback.log(s"[$componentName] $lc", lc.raw))
 }

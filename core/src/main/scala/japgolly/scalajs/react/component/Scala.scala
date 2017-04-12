@@ -2,7 +2,7 @@ package japgolly.scalajs.react.component
 
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, raw}
+import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, raw}
 import japgolly.scalajs.react.vdom.VdomElement
 
 object Scala {
@@ -14,6 +14,9 @@ object Scala {
     builder.static(name)(content).build
 
   val Lifecycle = japgolly.scalajs.react.component.builder.Lifecycle
+
+  type Config[P, C <: Children, S, B] =
+    japgolly.scalajs.react.component.builder.Builder.Config[P, C, S, B]
 
   // ===================================================================================================================
 

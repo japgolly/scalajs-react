@@ -28,7 +28,7 @@ object SideBySide {
     .configure(installSyntaxHighlighting)
     .build
 
-  def installSyntaxHighlighting[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B] =
+  def installSyntaxHighlighting[P, C <: Children, S, B]: ScalaComponent.Config[P, C, S, B] =
     _.componentDidMountConst(applySyntaxHighlight)
       .componentDidUpdateConst(applySyntaxHighlight)
 
