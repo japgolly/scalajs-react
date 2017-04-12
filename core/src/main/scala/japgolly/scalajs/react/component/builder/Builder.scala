@@ -1,14 +1,13 @@
 package japgolly.scalajs.react.component.builder
 
-import scalajs.js
 import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, raw}
-import japgolly.scalajs.react.component._
+import japgolly.scalajs.react.component.{Js, Scala}
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomElement
-import Scala._
+import Scala.{BackendScope, Vars}
+import Lifecycle._
 
 object Builder {
-  import Lifecycle._
 
   type InitStateFn [-P, +S]  = Box[P] => Box[S]
   type NewBackendFn[P, S, B] = BackendScope[P, S] => B
@@ -200,11 +199,11 @@ object Builder {
     *
     * When you're done, simply call `.build` to create and return your `ScalaComponent`.
     */
-  final class Step4[P, C <: Children, S, B](val name   : String,
-                                            initStateFn: InitStateFn[P, S],
-                                            backendFn  : NewBackendFn[P, S, B],
-                                            renderFn   : RenderFn[P, S, B],
-                                            lifecycle  : Lifecycle[P, S, B]) {
+  final class Step4[P, C <: Children, S, B](val name: String,
+                                            private[builder] val initStateFn: InitStateFn[P, S],
+                                            private[builder] val backendFn  : NewBackendFn[P, S, B],
+                                            private[builder] val renderFn   : RenderFn[P, S, B],
+                                            private[builder] val lifecycle  : Lifecycle[P, S, B]) {
     type This = Step4[P, C, S, B]
 
     private def copy(name       : String                = this.name,
@@ -342,99 +341,24 @@ object Builder {
     def shouldComponentUpdateConst    (cb: CallbackTo[Boolean]): This = shouldComponentUpdate     (_ => cb)
     def shouldComponentUpdateConst    (b : Boolean            ): This = shouldComponentUpdateConst(CallbackTo pure b)
 
-    def spec: raw.ReactComponentSpec[Box[P], Box[S]] = {
-      type RawComp = raw.ReactComponent[Box[P], Box[S]]
-      val spec = js.Object().asInstanceOf[raw.ReactComponentSpec[Box[P], Box[S]]]
-
-      @inline def castV($: RawComp) = $.asInstanceOf[RawMounted[P, S, B]]
-
-      for (n <- Option(name))
-        spec.displayName = n
-
-      def withMounted[A](f: RenderScope[P, S, B] => A): js.ThisFunction0[RawComp, A] =
-        ($: RawComp) =>
-          f(new RenderScope(castV($)))
-
-      spec.render = withMounted(renderFn.andThen(_.rawElement))
-
-      spec.getInitialState =
-        (($: js.Dynamic) => initStateFn($.props.asInstanceOf[Box[P]])): js.ThisFunction0[js.Dynamic, Box[S]]
-
-      val setup: RawComp => Unit =
-        $ => {
-          val jMounted : JsMounted    [P, S, B] = Js.mounted[Box[P], Box[S]]($).addFacade[Vars[P, S, B]]
-          val sMountedI: MountedImpure[P, S, B] = Scala.mountedRoot(jMounted)
-          val sMountedP: MountedPure  [P, S, B] = sMountedI.withEffect
-          val backend  : B                      = backendFn(sMountedP)
-          jMounted.raw.mountedImpure = sMountedI
-          jMounted.raw.mountedPure   = sMountedP
-          jMounted.raw.backend       = backend
-        }
-      spec.componentWillMount = lifecycle.componentWillMount match {
-        case None    => setup
-        case Some(f) =>
-          ($: RawComp) => {
-            setup($)
-            f(new ComponentWillMount(castV($))).runNow()
-          }
-      }
-
-      val teardown: RawComp => Unit =
-        $ => {
-          val vars = castV($)
-          vars.mountedImpure = null
-          vars.mountedPure   = null
-          vars.backend       = null.asInstanceOf[B]
-        }
-      spec.componentWillUnmount = lifecycle.componentWillUnmount match {
-        case None    => teardown
-        case Some(f) =>
-          ($: RawComp) => {
-            f(new ComponentWillUnmount(castV($))).runNow()
-            teardown($)
-          }
-      }
-
-      lifecycle.componentDidMount.foreach(f =>
-        spec.componentDidMount = ($: RawComp) =>
-          f(new ComponentDidMount(castV($))).runNow())
-
-      lifecycle.componentDidUpdate.foreach(f =>
-        spec.componentDidUpdate = ($: RawComp, p: Box[P], s: Box[S]) =>
-          f(new ComponentDidUpdate(castV($), p.unbox, s.unbox)).runNow())
-
-      lifecycle.componentWillReceiveProps.foreach(f =>
-        spec.componentWillReceiveProps = ($: RawComp, p: Box[P]) =>
-          f(new ComponentWillReceiveProps(castV($), p.unbox)).runNow())
-
-      lifecycle.componentWillUpdate.foreach(f =>
-        spec.componentWillUpdate = ($: RawComp, p: Box[P], s: Box[S]) =>
-          f(new ComponentWillUpdate(castV($), p.unbox, s.unbox)).runNow())
-
-      lifecycle.shouldComponentUpdate.foreach(f =>
-        spec.shouldComponentUpdate = ($: RawComp, p: Box[P], s: Box[S]) =>
-          f(new ShouldComponentUpdate(castV($), p.unbox, s.unbox)).runNow())
-
-//        if (jsMixins.nonEmpty)
-//          spec("mixins") = JArray(jsMixins: _*)
-//
-//        lc.configureSpec.foreach(_(spec2).runNow())
-
-      spec
-    }
-
     /** This is the end of the road for this component builder.
       *
       * @return Your brand-new, spanking, ScalaComponent. Mmmmmmmm, new-car smell.
       */
     def build(implicit ctorType: CtorType.Summoner[Box[P], C]): Scala.Component[P, S, B, ctorType.CT] = {
-      val rc = raw.React.createClass(spec)
-      Js.component[Box[P], C, Box[S]](rc)(ctorType)
-        .addFacade[Vars[P, S, B]]
-        .cmapCtorProps[P](Box(_))
-        .mapUnmounted(_
-          .mapUnmountedProps(_.unbox)
-          .mapMounted(Scala.mountedRoot))
+      val c = ViaCreateClass(this)
+      fromReactClass(c)(ctorType)
     }
   }
+
+  // ===================================================================================================================
+
+  def fromReactClass[P, C <: Children, S, B](rc: raw.ReactClass[Box[P], Box[S]])
+                                            (implicit ctorType: CtorType.Summoner[Box[P], C]): Scala.Component[P, S, B, ctorType.CT] =
+    Js.component[Box[P], C, Box[S]](rc)(ctorType)
+      .addFacade[Vars[P, S, B]]
+      .cmapCtorProps[P](Box(_))
+      .mapUnmounted(_
+        .mapUnmountedProps(_.unbox)
+        .mapMounted(Scala.mountedRoot))
 }
