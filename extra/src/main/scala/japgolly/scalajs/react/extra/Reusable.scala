@@ -22,6 +22,12 @@ final class Reusable[+A] private[Reusable](valueByNeed: () => A,
     lazy val b = f(valueByNeed())
     new Reusable[B](() => b, root, isReusable)
   }
+
+  def ap[B](rf: Reusable[A => B]): Reusable[B] =
+    Reusable.ap(this, rf)((a, f) => f(a))
+
+  def tuple[B](rb: Reusable[B]): Reusable[(A, B)] =
+    Reusable.ap(this, rb)((_, _))
 }
 
 object Reusable {
@@ -70,6 +76,9 @@ object Reusable {
       case b: AnyRef => (a eq b) || (a == b)
       case _         => false
     })
+
+  def ap[A, B, C](ra: Reusable[A], rb: Reusable[B])(f: (A, B) => C): Reusable[C] =
+    implicitly((ra, rb)).map(x => f(x._1, x._2))
 
   private[this] val reusabilityInstance =
     Reusability[Reusable[Any]]((x, y) => x.isReusable(y) && y.isReusable(x))
