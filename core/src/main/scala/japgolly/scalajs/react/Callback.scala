@@ -112,13 +112,19 @@ object Callback {
   def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
     traverse(tca)(identityFn)
 
-  def traverseO[A](oa: => Option[A])(f: A => Callback): Callback =
+  @deprecated("Use .traverseOption", "1.0.0")
+  def traverseO[A](oa: => Option[A])(f: A => Callback): Callback = traverseOption(oa)(f)
+
+  @deprecated("Use .sequenceOption", "1.0.0")
+  def sequenceO[A](oca: => Option[Callback]): Callback = sequenceOption(oca)
+
+  def traverseOption[A](oa: => Option[A])(f: A => Callback): Callback =
     Callback(
       oa.foreach(a =>
         f(a).runNow()))
 
-  def sequenceO[A](oca: => Option[Callback]): Callback =
-    traverseO(oca)(identityFn)
+  def sequenceOption[A](oca: => Option[Callback]): Callback =
+    traverseOption(oca)(identityFn)
 
   /**
    * Convenience for calling `dom.console.log`.
@@ -234,11 +240,17 @@ object CallbackTo {
                                              (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
     traverse(tca)(identityFn)
 
-  def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
+  @deprecated("Use .traverseOption", "1.0.0")
+  def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] = traverseOption(oa)(f)
+
+  @deprecated("Use .sequenceOption", "1.0.0")
+  def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] = sequenceOption(oca)
+
+  def traverseOption[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
     CallbackTo(oa.map(f(_).runNow()))
 
-  def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
-    traverseO(oca)(identityFn)
+  def sequenceOption[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
+    traverseOption(oca)(identityFn)
 
   /**
    * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
