@@ -24,7 +24,8 @@ testFull() {
   out="$($grep $full)"
   if [ -n "$out" ]; then
     echo "Attributes present in fullOptJS."
-    #echo "$out"
+    echo
+    echo "$out"
     failFull=1
   fi
 }
