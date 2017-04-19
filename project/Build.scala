@@ -5,12 +5,12 @@ import org.scalajs.sbtplugin.ScalaJSPlugin, ScalaJSPlugin.autoImport._
 object ScalajsReact {
 
   object Ver {
-    val Scala211      = "2.11.8"
-    val Scala212      = "2.12.1"
+    val Scala211      = "2.11.11"
+    val Scala212      = "2.12.2"
     val ScalaJsDom    = "0.9.1"
     val ReactJs       = "15.4.2"
     val Monocle       = "1.4.0"
-    val Scalaz72      = "7.2.9"
+    val Scalaz72      = "7.2.11"
     val MTest         = "0.4.5"
     val MacroParadise = "2.1.0"
     val SizzleJs      = "2.3.0"
