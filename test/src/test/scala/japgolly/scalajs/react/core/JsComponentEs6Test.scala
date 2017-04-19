@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core
 
 import scalajs.js
-import scalajs.js.annotation.JSName
+import scalajs.js.annotation._
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils

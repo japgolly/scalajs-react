@@ -222,5 +222,7 @@ object ScalajsReact {
       libraryDependencies += monocleLib("macro"),
       addCompilerPlugin(macroParadisePlugin),
       emitSourceMaps := false,
+      scalaJSUseMainModuleInitializer := true,
+      mainClass in Compile := Some("ghpages.GhPages"),
       artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
 }

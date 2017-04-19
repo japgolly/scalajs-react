@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core
 
 import scalajs.js
-import scalajs.js.annotation.JSName
+import scalajs.js.annotation._
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
@@ -14,7 +14,7 @@ abstract class JsComponentTest extends TestSuite {
 }
 
 object JsComponentPTest extends JsComponentTest {
-  @JSName("ES3_P")
+  @JSGlobal("ES3_P")
   @js.native
   object RawComp extends js.Object
 
@@ -130,7 +130,7 @@ object JsComponentPTest extends JsComponentTest {
 
 
 object JsComponentSTest extends JsComponentTest {
-  @JSName("ES3_S")
+  @JSGlobal("ES3_S")
   @js.native
   object RawComp extends js.Object
 

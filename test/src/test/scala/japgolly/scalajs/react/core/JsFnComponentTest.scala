@@ -1,14 +1,14 @@
 package japgolly.scalajs.react.core
 
 import scalajs.js
-import scalajs.js.annotation.JSName
+import scalajs.js.annotation._
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 
 object JsFnComponentTest extends TestSuite {
-  @JSName("FnComp")
+  @JSGlobal("FnComp")
   @js.native
   object RawComp extends js.Object
 

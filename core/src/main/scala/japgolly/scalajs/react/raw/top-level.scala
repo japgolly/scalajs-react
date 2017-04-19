@@ -3,7 +3,9 @@ package japgolly.scalajs.react.raw
 import org.scalajs.dom
 import scalajs.js
 import scalajs.js.|
+import scalajs.js.annotation._
 
+@JSGlobal
 @js.native
 object React extends React
 
@@ -54,6 +56,7 @@ trait ReactChildren extends js.Object {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+@JSGlobal
 @js.native
 object ReactDOM extends ReactDOM
 
@@ -73,6 +76,7 @@ trait ReactDOM extends js.Object {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+@JSGlobal
 @js.native
 object ReactDOMServer extends ReactDOMServer
 

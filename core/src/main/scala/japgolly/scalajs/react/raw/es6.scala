@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.raw
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.JSName
+import scala.scalajs.js.annotation._
 
-@JSName("React.Component")
+@JSGlobal("React.Component")
 @js.native
 abstract class ReactComponentEs6[P <: js.Object, S <: js.Object](ctorProps: P = js.native) extends ReactComponent[P, S] {
 
