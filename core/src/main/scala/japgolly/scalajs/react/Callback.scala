@@ -228,17 +228,32 @@ object CallbackTo {
       go(a)
     }
 
-  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])
-                                                (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
-    CallbackTo {
-      val r = cbf(ta)
-      ta.foreach(a => r += f(a).runNow())
-      r.result()
-    }
+  def liftTraverse[A, B](f: A => CallbackTo[B]): LiftTraverseDsl[A, B] =
+    new LiftTraverseDsl(f)
 
-  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])
-                                             (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
-    traverse(tca)(identityFn)
+  final class LiftTraverseDsl[A, B](private val f: A => CallbackTo[B]) extends AnyVal {
+
+    /** See [[CallbackTo.distFn]] for the dual. */
+    def id: CallbackTo[A => B] =
+      CallbackTo(f(_).runNow())
+
+    /** Anything traversable by the Scala stdlib definition */
+    def std[T[X] <: TraversableOnce[X]](implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[A] => T[B]] =
+      CallbackTo { ta =>
+        val r = cbf(ta)
+        ta.foreach(a => r += f(a).runNow())
+        r.result()
+      }
+
+    def option: CallbackTo[Option[A] => Option[B]] =
+      CallbackTo(_.map(f(_).runNow()))
+  }
+
+  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])(implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
+    liftTraverse(f).std[T](cbf).map(_(ta))
+
+  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])(implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
+    traverse(tca)(identityFn)(cbf)
 
   @deprecated("Use .traverseOption", "1.0.0")
   def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] = traverseOption(oa)(f)
@@ -247,7 +262,7 @@ object CallbackTo {
   def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] = sequenceOption(oca)
 
   def traverseOption[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
-    CallbackTo(oa.map(f(_).runNow()))
+    liftTraverse(f).option.map(_(oa))
 
   def sequenceOption[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
     traverseOption(oca)(identityFn)
@@ -650,6 +665,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def toCBO: CallbackOption[A] =
     CallbackOption liftCallback this
 
+  /** Function distribution. See `CallbackTo.liftTraverse(f).id` for the dual. */
   def distFn[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): B => CallbackTo[C] = {
     val bc = ev(this)
     b => bc.map(_(b))
