@@ -30,8 +30,8 @@ Includes a router, testing utils, performance utils, more.
   - [Other](doc/EXTRA.md)
 - [Testing](doc/TESTING.md)
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/)
-- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.11/1.0.0-RC2) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.11/1.0.0-RC2) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/1.0.0-RC2) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/1.0.0-RC2) | [cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-cats_sjs0.6_2.12/1.0.0-RC2) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/1.0.0-RC2)
-- [Changelogs](doc/changelog) — [**v1.0.0-RC2** (Latest)](doc/changelog/1.0.0-RC.md)
+- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.11/1.0.0-RC3) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.11/1.0.0-RC3) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/1.0.0-RC3) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/1.0.0-RC3) | [cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-cats_sjs0.6_2.12/1.0.0-RC3) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/1.0.0-RC3)
+- [Changelogs](doc/changelog) — [**v1.0.0-RC3** (Latest)](doc/changelog/1.0.0-RC.md)
 
 
 ##### External Resources
@@ -51,4 +51,4 @@ Includes a router, testing utils, performance utils, more.
 ##### Requirements:
 * React 15.3+
 * Scala 2.11 or 2.12.
-* Scala.JS 0.6.14+
+* Scala.JS 0.6.15+

@@ -23,7 +23,7 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.0.0-RC2"
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.0.0-RC3"
 
   // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
   jsDependencies ++= Seq(
