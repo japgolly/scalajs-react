@@ -51,7 +51,7 @@ object ScalaBuilderTest extends TestSuite {
 
         'useChildrenWithoutSpecifying - assertContains(
           compileError("UseChildrenWithoutSpecifying.x.renderBackend").msg,
-          "Use renderBackendWithoutChildren instead")
+          "Use renderBackendWithChildren instead")
 
         'specifyChildrenWithoutUsing - assertContains(
           compileError("SpecifyChildrenWithoutUsing.x.renderBackendWithChildren").msg,
