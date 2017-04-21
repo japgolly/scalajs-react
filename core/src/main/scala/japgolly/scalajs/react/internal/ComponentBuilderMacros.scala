@@ -45,7 +45,7 @@ final class ComponentBuilderMacros(val c: Context) extends ReactMacroUtils {
         fail {
           val pc = "PropsChildren"
           val rb = "renderBackend"
-          val rbc = "renderBackendWithoutChildren"
+          val rbc = "renderBackendWithChildren"
           if (allowChildren)
             s"Use of $pc not detected. Use $rb instead of $rbc."
           else
