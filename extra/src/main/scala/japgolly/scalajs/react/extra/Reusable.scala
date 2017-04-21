@@ -23,9 +23,11 @@ final class Reusable[+A] private[Reusable](valueByNeed: () => A,
     new Reusable[B](() => b, root, isReusable)
   }
 
+  /** Create a new `Reusable[B]` that is reusable so long as this `Reusable[A]` and the `Reusable[A => B]` are. */
   def ap[B](rf: Reusable[A => B]): Reusable[B] =
     Reusable.ap(this, rf)((a, f) => f(a))
 
+  /** Create a `Reusable[(A, B)]` that is reusable so long as this `Reusable[A]` and the `Reusable[B]` are. */
   def tuple[B](rb: Reusable[B]): Reusable[(A, B)] =
     Reusable.ap(this, rb)((_, _))
 }
@@ -50,8 +52,9 @@ object Reusable {
   def explicitly[A: ClassTag](a: A)(r: Reusability[A]): Reusable[A] =
     apply(a)(r.test)
 
-  def const[A](a: A, reuse: Boolean): Reusable[A] =
-    root(a, _ => reuse)
+  /** Use constant reusability (i.e. always-reuse or never-reuse) */
+  def const[A](a: A, isReusable: Boolean): Reusable[A] =
+    root(a, _ => isReusable)
 
   def always[A](a: A): Reusable[A] =
     const(a, true)
@@ -77,6 +80,7 @@ object Reusable {
       case _         => false
     })
 
+  /** Create a new `Reusable[C]` that is reusable so long as `Reusable[A]` and `Reusable[B]` are. */
   def ap[A, B, C](ra: Reusable[A], rb: Reusable[B])(f: (A, B) => C): Reusable[C] =
     implicitly((ra, rb)).map(x => f(x._1, x._2))
 
