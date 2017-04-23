@@ -38,22 +38,22 @@ object DslTest extends TestSuite {
       <.span("el!")
 
     val compCConst: ScalaComponent[Unit, Unit, Unit, CtorType.Nullary] =
-      ScalaComponent.static("", <.span("static component"))
+      ScalaComponent.static("")(<.span("static component"))
 
     val compCReqRouter: ScalaComponent[RouterCtl[PageSet], Unit, Unit, CtorType.Props] =
-      ScalaComponent.build[RouterCtl[PageSet]]("").render_P(r => r.link(Obj1)).build
+      ScalaComponent.builder[RouterCtl[PageSet]]("").render_P(r => r.link(Obj1)).build
 
     val compCReqPage: ScalaComponent[PageSet, Unit, Unit, CtorType.Props] =
-      ScalaComponent.build[PageSet]("").render_P(p => <.div(s"Page = $p")).build
+      ScalaComponent.builder[PageSet]("").render_P(p => <.div(s"Page = $p")).build
 
     val compCReqPageSub: ScalaComponent[PageSubSet, Unit, Unit, CtorType.Props] =
-      ScalaComponent.build[PageSubSet]("").render_P(p => <.div(s"Page = $p")).build
+      ScalaComponent.builder[PageSubSet]("").render_P(p => <.div(s"Page = $p")).build
 
     def compU: ScalaComponent.Unmounted[Unit, Unit, Unit] =
       compCConst()
 
     case class CompX(title: String, page: PageSet, router: RouterCtl[PageSet])
-    val compX = ScalaComponent.build[CompX]("X").render_P(p => <.div()).build
+    val compX = ScalaComponent.builder[CompX]("X").render_P(p => <.div()).build
   }
 
 

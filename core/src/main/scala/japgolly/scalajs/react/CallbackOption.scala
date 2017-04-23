@@ -39,7 +39,7 @@ object CallbackOption {
     CallbackOption(cb map[Option[A]] Some.apply)
 
   def liftOptionCallback[A](oc: => Option[CallbackTo[A]]): CallbackOption[A] =
-    CallbackOption(CallbackTo sequenceO oc)
+    CallbackOption(CallbackTo sequenceOption oc)
 
   def liftOptionLikeCallback[O[_], A](oa: => O[CallbackTo[A]])(implicit O: OptionLike[O]): CallbackOption[A] =
     liftOptionCallback(O toOption oa)
@@ -93,17 +93,23 @@ object CallbackOption {
                                              (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
     traverse(tca)(identityFn)
 
+  @deprecated("Use .traverseOption", "1.0.0")
+  def traverseO[A, B](oa: => Option[A])(f: A => CallbackOption[B]): CallbackOption[B] = traverseOption(oa)(f)
+
+  @deprecated("Use .sequenceOption", "1.0.0")
+  def sequenceO[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] = sequenceOption(oca)
+
   /**
    * NOTE: Technically a proper, lawful traversal should return `CallbackOption[Option[B]]`.
    */
-  def traverseO[A, B](oa: => Option[A])(f: A => CallbackOption[B]): CallbackOption[B] =
+  def traverseOption[A, B](oa: => Option[A])(f: A => CallbackOption[B]): CallbackOption[B] =
     liftOption(oa.map(f(_).get).flatMap(_.runNow()))
 
   /**
    * NOTE: Technically a proper, lawful sequence should return `CallbackOption[Option[A]]`.
    */
-  def sequenceO[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] =
-    traverseO(oca)(identityFn)
+  def sequenceOption[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] =
+    traverseOption(oca)(identityFn)
 
   implicit def toCallback(co: CallbackOption[Unit]): Callback =
     co.toCallback

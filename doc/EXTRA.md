@@ -5,7 +5,7 @@ This describes the smaller utilities in the `extra` module.
 Find links to the larger utilities from the [main README](../README.md).
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.0.0-RC1"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.0.0-RC3"
 ```
 
 #### Contents
@@ -59,7 +59,7 @@ These help your components listen and react to external events or data changes.
 ##### Usage
 ```scala
 // A listening component
-val component = ScalaComponent.build[...]
+val component = ScalaComponent.builder[...]
   ...
   .backend(_ => new OnUnmount.Backend)
   ...
@@ -95,7 +95,7 @@ This will cause logging to occur at React component lifecycle stages.
 
 ##### Usage
 ```scala
-val component = ScalaComponent.build[...]
+val component = ScalaComponent.builder[...]
   ...
   .configure(LogLifecycle.short)   // Logs the component name and stage
   .configure(LogLifecycle.default) // Logs the component name, stage and the props/state
@@ -135,7 +135,7 @@ class MyBackend extends OnUnmount {
     onUnmount( Callback.log("Component unmounting...") )
 }
 
-val eg = ScalaComponent.build[Unit]("Example")
+val eg = ScalaComponent.builder[Unit]("Example")
   .stateless
   .backend(_ => new MyBackend)
   .render(_ => ???)
@@ -155,7 +155,7 @@ import scala.concurrent.duration._
 
 class MyBackend extends TimerSupport
 
-val Timer = ScalaComponent.build[Unit]("Timer")
+val Timer = ScalaComponent.builder[Unit]("Timer")
   .initialState(0L)
   .backend(_ => new MyBackend)
   .render_S(s => <.div("Seconds elapsed: ", s))

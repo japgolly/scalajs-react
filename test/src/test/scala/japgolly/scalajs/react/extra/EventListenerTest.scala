@@ -9,7 +9,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 
 object EventListenerTest extends TestSuite {
 
-  val C = ScalaComponent.build[Unit]("")
+  val C = ScalaComponent.builder[Unit]("")
     .initialState(0)
     .backend(_ => new OnUnmount.Backend)
     .renderS((_, state) => <.div(s"Hit $state times"))

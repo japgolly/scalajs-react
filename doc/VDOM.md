@@ -5,11 +5,10 @@
 - [Conditional VDOM](#conditional-vdom)
 - [Collections](#collections)
 - [Custom VDOM](#custom-vdom)
+- [Types](#types)
 - [Cheatsheet](#cheatsheet)
 
 ## Basics
-
-It's important to understand the [VDOM types](TYPES.md#vdom) too so have a read.
 
 There are two ways of creating virtual-DOM.
 
@@ -243,6 +242,38 @@ customTag(customAttr := "hello", customStyle := "123", "bye")
 ```
 
 In addition to `HtmlTag(…)`, there is also `SvgTag(…)`, `HtmlTagTo[N](…)`, `SvgTagTo[N](…)`.
+
+
+## Types
+
+The most important types are probably `TagMod` and `VdomElement`.
+
+| Type | Explaination |
+| ---- | ---- |
+| `VdomElement` | A single VDOM tag. <br> This can be a tag like `<div>`, or a rendered component. This is also the result of components' `.render` methods. |
+| `VdomNode` | A single piece of VDOM. <br> Can be a `VdomElement`, or a piece of text, a number, etc. |
+| `VdomArray` | An array of VDOM nodes. <br> This is passed to React as an array which helps Reacts diff'ing mechanism. React also requires that each array element have a key. |
+| `VdomAttr` | A tag attribute (including styles). <br> Examples: `href`, `value`, `onClick`, `margin`. |
+| `VdomTagOf[Node]` | A HTML or SVG tag of type `Node`. |
+| `VdomTag` | A HTML or SVG tag. |
+| `HtmlTagOf[Node]` | A HTML tag of type `Node`. |
+| `HtmlTag` | A HTML tag. |
+| `SvgTagOf[Node]` | An SVG tag of type `Node`. |
+| `SvgTag` | An SVG tag. |
+| `TagMod` | Tag-Modifier. A modification to a `VdomTag`. <br> All of the types here can be a `TagMod` because they can all be used to modify a `VdomTag`. <br> This is ***very useful*** for reuse and abstraction in practice, very useful for separating DOM functionality, asthetics and content. <br> For example, it allows a function to return a child tag, a style and some event handlers which the function caller can then apply to some external tag. |
+
+Examples:
+```scala
+import japgolly.scalajs.react.vdom.all._
+
+val tag1   : VdomTag     = input(className := "name")
+val mod1   : TagMod      = value := "Bob"
+val mod2   : TagMod      = TagMod(mod1, `type` := "text", title := "hello!")
+val tag2   : VdomTag     = tag1(mod2, readOnly := true)
+val element: VdomElement = tag2
+// equivalent to
+// <input class="name" value="Bob" type="text", title := "hello!" readonly=true />
+```
 
 
 ## Cheatsheet

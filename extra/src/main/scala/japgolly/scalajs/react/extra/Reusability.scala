@@ -291,20 +291,20 @@ object Reusability {
 
   // ===================================================================================================================
 
-  def shouldComponentUpdate[P: Reusability, C <: Children, S: Reusability, B]: ScalaComponentConfig[P, C, S, B] =
+  def shouldComponentUpdate[P: Reusability, C <: Children, S: Reusability, B]: ScalaComponent.Config[P, C, S, B] =
     _.shouldComponentUpdatePure(i =>
       (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
 
-  def shouldComponentUpdateAnd[P: Reusability, C <: Children, S: Reusability, B](f: ShouldComponentUpdateResult[P, S, B] => Callback): ScalaComponentConfig[P, C, S, B] =
+  def shouldComponentUpdateAnd[P: Reusability, C <: Children, S: Reusability, B](f: ShouldComponentUpdateResult[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B] =
     _.shouldComponentUpdate { i =>
       val r = ShouldComponentUpdateResult(i)
       f(r).map(_ => r.update)
     }
 
-  def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B](name: String): ScalaComponentConfig[P, C, S, B] =
+  def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B](name: String): ScalaComponent.Config[P, C, S, B] =
     shouldComponentUpdateAnd(_ log name)
 
-  def shouldComponentUpdateWithOverlay[P: Reusability, C <: Children, S: Reusability, B]: ScalaComponentConfig[P, C, S, B] =
+  def shouldComponentUpdateWithOverlay[P: Reusability, C <: Children, S: Reusability, B]: ScalaComponent.Config[P, C, S, B] =
     ReusabilityOverlay.install(DefaultReusabilityOverlay.defaults)
 
   final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[P, S, B]) {

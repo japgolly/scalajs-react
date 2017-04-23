@@ -6,7 +6,7 @@ Included is a router (in the orbit of Single-Page Applications) that is written 
 The package is `japgolly.scalajs.react.extra.router`.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.0.0-RC1"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.0.0-RC3"
 ```
 
 ## Contents
@@ -256,7 +256,7 @@ Example: This creates a route in the format of `item/<id>`.
 ```scala
 case class ItemPage(id: Int) extends MyPage
 
-val itemPage = ScalaComponent.build[ItemPage]("Item page")
+val itemPage = ScalaComponent.builder[ItemPage]("Item page")
   .render(p => <.div(s"Info for item #${p.id}"))
   .build
 

@@ -92,7 +92,7 @@ object TriStateCheckboxExample {
       $.modState(_ intersect newProps.ids)
   }
 
-  val App = ScalaComponent.build[Props]("TriStateCheckboxExample")
+  val App = ScalaComponent.builder[Props]("TriStateCheckboxExample")
     .initialState[State](Set.empty)
     .renderBackend[Backend]
     .componentWillReceiveProps(i => i.backend.onPropsChange(i.nextProps))

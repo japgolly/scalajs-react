@@ -1,15 +1,15 @@
 package japgolly.scalajs.react.raw
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.JSName
+import scala.scalajs.js.annotation._
 
 /**
  * React Performance Tools
  *
  * @see https://facebook.github.io/react/docs/perf.html
  */
+@JSGlobal("React.addons.Perf")
 @js.native
-@JSName("React.addons.Perf")
 object Perf extends js.Object {
 
   // Opaque pending:

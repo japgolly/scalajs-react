@@ -21,8 +21,8 @@ object ReusabilityTest extends TestSuite {
 
     var renderCount = 0
 
-    val component = ScalaComponent.build[Props]("Demo")
-      .initialState_P(identity)
+    val component = ScalaComponent.builder[Props]("Demo")
+      .initialStateFromProps(identity)
       .renderS { (_, *) =>
         renderCount += 1
         <.div(
@@ -39,8 +39,8 @@ object ReusabilityTest extends TestSuite {
     var innerRenderCount = 0
     type M = Map[Int, String]
 
-    val outerComponent = ScalaComponent.build[M]("Demo")
-      .initialState_P(identity)
+    val outerComponent = ScalaComponent.builder[M]("Demo")
+      .initialStateFromProps(identity)
       .renderBackend[Backend]
       .build
 
@@ -59,7 +59,7 @@ object ReusabilityTest extends TestSuite {
     case class InnerProps(name: String, update: String ~=> Callback)
     implicit val propsReuse = Reusability.caseClass[InnerProps]
 
-    val innerComponent = ScalaComponent.build[InnerProps]("PersonEditor")
+    val innerComponent = ScalaComponent.builder[InnerProps]("PersonEditor")
       .renderP { (_, p) =>
         innerRenderCount += 1
         <.input(

@@ -8,9 +8,9 @@ import scala.scalajs.js
 import utest._
 
 object PrefixedTest extends TestSuite {
-  lazy val CA = ScalaComponent.build[Unit]("CA").render_C(c => <.div(c)).build
-  lazy val CB = ScalaComponent.build[Unit]("CB").render_C(c => <.span(c)).build
-  lazy val H1 = ScalaComponent.build[String]("H").render_P(p => <.h1(p)).build
+  lazy val CA = ScalaComponent.builder[Unit]("CA").render_C(c => <.div(c)).build
+  lazy val CB = ScalaComponent.builder[Unit]("CB").render_C(c => <.span(c)).build
+  lazy val H1 = ScalaComponent.builder[String]("H").render_P(p => <.h1(p)).build
 
   def jsComp = JsComponentPTest.Component(JsComponentPTest.JsProps("yo"))
 
@@ -23,7 +23,7 @@ object PrefixedTest extends TestSuite {
   def checkbox(check: Boolean) = <.input.checkbox(^.checked := check, ^.readOnly := true)
 
   def test(subj: VdomElement, exp: String): Unit = {
-    val comp = ScalaComponent.static("tmp", subj)
+    val comp = ScalaComponent.static("tmp")(subj)
     assertRender(comp(), exp)
   }
 
@@ -232,7 +232,7 @@ object PrefixedTest extends TestSuite {
 
     'classSet {
       'allConditional {
-        val r = ScalaComponent.build[(Boolean,Boolean)]("C").render_P(p =>
+        val r = ScalaComponent.builder[(Boolean,Boolean)]("C").render_P(p =>
           <.div(^.classSet("p1" -> p._1, "p2" -> p._2))("x")).build
         assertRender(r((false, false)), """<div>x</div>""")
         assertRender(r((true,  false)), """<div class="p1">x</div>""")
@@ -240,13 +240,13 @@ object PrefixedTest extends TestSuite {
         assertRender(r((true,  true)) , """<div class="p1 p2">x</div>""")
       }
       'hasMandatory {
-        val r = ScalaComponent.build[Boolean]("C").render_P(p =>
+        val r = ScalaComponent.builder[Boolean]("C").render_P(p =>
           <.div(^.classSet1("mmm", "ccc" -> p))("x")).build
         assertRender(r(false), """<div class="mmm">x</div>""")
         assertRender(r(true) , """<div class="mmm ccc">x</div>""")
       }
       'appends {
-        val r = ScalaComponent.build[Boolean]("C").render_P(p =>
+        val r = ScalaComponent.builder[Boolean]("C").render_P(p =>
           <.div(^.cls := "neat", ^.classSet1("mmm", "ccc" -> p), ^.cls := "slowclap", "x")).build
         assertRender(r(false), """<div class="neat mmm slowclap">x</div>""")
         assertRender(r(true) , """<div class="neat mmm ccc slowclap">x</div>""")

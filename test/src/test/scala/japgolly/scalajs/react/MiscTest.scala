@@ -13,8 +13,8 @@ import MonocleReact._
 
 object MiscTest extends TestSuite {
 
-  lazy val CA = ScalaComponent.build[Unit]("CA").render_C(c => <.div(c)).build
-  lazy val CB = ScalaComponent.build[Unit]("CB").render_C(c => <.span(c)).build
+  lazy val CA = ScalaComponent.builder[Unit]("CA").render_C(c => <.div(c)).build
+  lazy val CB = ScalaComponent.builder[Unit]("CB").render_C(c => <.span(c)).build
 
   @Lenses
   case class StrInt(str: String, int: Int)
@@ -48,7 +48,7 @@ object MiscTest extends TestSuite {
     }
 
     'selectWithMultipleValues {
-      val s = ScalaComponent.build[Unit]("s").renderStatic(
+      val s = ScalaComponent.builder[Unit]("s").renderStatic(
           <.select(^.multiple := true, ^.value := js.Array("a", "c"))(
             <.option(^.value := "a")("a"),
             <.option(^.value := "b")("b"),
@@ -64,7 +64,7 @@ object MiscTest extends TestSuite {
 
     'renderScopeZoomState {
       case class SI(s: String, i: Int)
-      val C = ScalaComponent.build[SI]("C").initialState_P(p => p).render { $ =>
+      val C = ScalaComponent.builder[SI]("C").initialStateFromProps(p => p).render { $ =>
         val f = $.mountedImpure.zoomState(_.i)(b => _.copy(i = b))
         <.div($.state.s + "/" + (f.state * 3))
       }.build
@@ -73,7 +73,7 @@ object MiscTest extends TestSuite {
 
     'multiModState {
       'simple {
-        val C = ScalaComponent.build[Unit]("multiModState")
+        val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(3)
           .render { $ =>
             val add7 = $.modState(_ + 7)
@@ -88,7 +88,7 @@ object MiscTest extends TestSuite {
       }
 
       'zoomState {
-        val C = ScalaComponent.build[Unit]("multiModState")
+        val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(StrInt("yay", 3))
           .render { $ =>
             val $$ = $.mountedPure.zoomState(_.int)(b => _.copy(int = b))
@@ -107,7 +107,7 @@ object MiscTest extends TestSuite {
       }
 
       'zoomStateL {
-        val C = ScalaComponent.build[Unit]("multiModState")
+        val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(StrInt("yay", 3))
           .render { $ =>
             val $$ = $.mountedPure zoomStateL StrInt.int
@@ -126,7 +126,7 @@ object MiscTest extends TestSuite {
       }
 
       'zoomStateL2 {
-        val C = ScalaComponent.build[Unit]("multiModState")
+        val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(StrIntWrap(StrInt("yay", 3)))
           .render { $ =>
             val $$ = $.mountedPure zoomStateL StrIntWrap.strInt zoomStateL StrInt.int
@@ -159,7 +159,7 @@ object MiscTest extends TestSuite {
 
     /*
     'future {
-      val X = ScalaComponent.build[Unit]("X")
+      val X = ScalaComponent.builder[Unit]("X")
         .initialState(1)
         .render_S(s => <.div("state = ", s))
         .build

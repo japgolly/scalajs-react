@@ -1,11 +1,13 @@
 package japgolly.scalajs.react
 
-import scalaz.StateT
+import scalaz.{Monad, StateT, ~>}
 import scalaz.effect.IO
+
 import utest._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+
 import ScalazReact._
 
 /**
@@ -14,7 +16,7 @@ import ScalazReact._
  */
 object ScalazTest extends TestSuite {
 
-  lazy val SI = ScalaComponent.build[Unit]("SI")
+  lazy val SI = ScalaComponent.builder[Unit]("SI")
     .initialState(123)
     .render(T => <.input(^.value := T.state.toString))
     .build
@@ -23,6 +25,8 @@ object ScalazTest extends TestSuite {
 
     'inference {
       import japgolly.scalajs.react.test.InferenceUtil._
+
+      implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
 
       val reactSIO: ReactST[IO, S, Int] = ReactS retM IO(3)
 

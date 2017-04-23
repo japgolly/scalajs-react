@@ -15,13 +15,13 @@ object ReactTestUtils {
   type Unmounted[M] = GenericComponent.Unmounted[_, M]
   type Mounted      = GenericComponent.MountedRaw
 
-  private type RawM = japgolly.scalajs.react.raw.ReactComponent
+  private type RawM = japgolly.scalajs.react.raw.ReactComponentUntyped
   type MountedOutput   = JsComponent.Mounted[js.Object, js.Object]
   private def wrapMO(r: RawM): MountedOutput = JsComponent.mounted(r)
 //  type MountedOutput   = japgolly.scalajs.react.raw.ReactComponent
 //  private def wrapMO(r: RawM): MountedOutput = r
 
-  type CompType = GenericComponent.ComponentRaw {type Raw = japgolly.scalajs.react.raw.ReactClass }
+  type CompType = GenericComponent.ComponentRaw {type Raw = japgolly.scalajs.react.raw.ReactClassUntyped }
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
   def renderIntoDocument[M](unmounted: Unmounted[M]): M = {

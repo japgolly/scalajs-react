@@ -4,42 +4,63 @@ import utest._
 
 object ReusableTest extends TestSuite {
 
-  def assertReusable[A](a: A, b: A)(implicit r: Reusability[A]): Unit = assert(a ~=~ b)
-  def assertNotReusable[A](a: A, b: A)(implicit r: Reusability[A]): Unit = assert(a ~/~ b)
+  def assertReusable[A](a: A, b: A)(implicit r: Reusability[A]): Unit =
+    assert(a ~=~ b)
 
-  def i(n: Int) = Reusable(n)((x, y) => Math.abs(x - y) < 10)
-  val one = i(1)
+  def assertNotReusable[A](a: A, b1: A, bn: A*)(implicit r: Reusability[A]): Unit =
+    (b1 :: bn.toList).foreach(b => assert(a ~/~ b))
+
+  def n(i: Int) = Reusable.implicitly(i)
+  def nIsh(n: Int) = Reusable(n)((x, y) => Math.abs(x - y) < 10)
+  val oneIsh = nIsh(1)
 
   override def tests = TestSuite {
 
-    'refl - assertReusable(one, one)
+    'refl - assertReusable(oneIsh, oneIsh)
 
     'simple {
-      assertReusable(one, i(4))
-      assertNotReusable(one, i(400))
+      assertReusable(oneIsh, nIsh(4))
+      assertNotReusable(oneIsh, nIsh(400))
     }
 
     'symmetric {
-      assertNotReusable(one, Reusable.implicitly(2))
-      assertNotReusable(Reusable.implicitly(2), one)
+      assertNotReusable(oneIsh, n(2))
+      assertNotReusable(n(2), oneIsh)
     }
 
-    'differentTypes - assertNotReusable(one, Reusable.implicitly("hi").map(_.length))
+    'differentTypes - assertNotReusable(oneIsh, Reusable.implicitly("hi").map(_.length))
 
     'map {
       "doesn't affect reusability" - {
-        assertReusable(one.map(_ + 99999), i(1))
-        assertNotReusable(one, i(99999).map(_ => 1))
+        assertReusable(oneIsh.map(_ + 99999), nIsh(1))
+        assertNotReusable(oneIsh, nIsh(99999).map(_ => 1))
       }
       'lazy {
         var set = 0
-        val x = one.map(_ => {set += 1; set})
+        val x = oneIsh.map(_ => {set += 1; set})
         assert(set == 0)
         var a = x.value
         assert(set == 1, a == 1)
         a = x.value
         assert(set == 1)
       }
+    }
+
+    'ap {
+      val f = Reusable.fn((_: Int) => 5)
+      val g = Reusable.fn((_: Int) => 6)
+      def f1 = n(1) ap f
+      def f2 = n(2) ap f
+      def g1 = n(1) ap g
+      def g2 = n(2) ap g
+      assertReusable(f1, f1)
+      assertReusable(f2, f2)
+      assertReusable(g1, g1)
+      assertReusable(g2, g2)
+      assertNotReusable(f1, f2, g1, g2)
+      assertNotReusable(f2, g1, g2, f1)
+      assertNotReusable(g1, g2, f1, f2)
+      assertNotReusable(g2, f1, f2, g1)
     }
 
   }

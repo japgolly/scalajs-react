@@ -13,7 +13,7 @@ It is roughly equivalent to `IO`/`Task` in Scalaz, Haskell's `IO` monad, etc.
 
 Living in the `core` module with no FP dependencies,
 many ops normally provided via typeclasses (eg. `<*`, `>>=`, etc.) are built-in directly.
-The Scalaz module contains typeclass instances for it.
+The Cats & Scalaz modules contain typeclass instances for it.
 
 There's also `CallbackOption` which is a callback & option monad stack.
 Check out the online [`CallbackOption` example](https://japgolly.github.io/scalajs-react/#examples/callback-option).
@@ -22,7 +22,7 @@ Scalaz
 ======
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz72" % "1.0.0-RC1"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz72" % "1.0.0-RC3"
 ```
 
 Included is a Scalaz module that facilitates a more functional and pure approach to React integration.
@@ -39,10 +39,20 @@ Monocle
 =======
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "1.0.0-RC1"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "1.0.0-RC3"
 ```
 
 A module with a extensions for [Monocle](https://github.com/julien-truffaut/Monocle) also exists under `ext-monocle`.
 
 There's one example online that demonstrates Monocle usage:
 [`ExternalVar` example](https://japgolly.github.io/scalajs-react/#examples/external-var).
+
+Cats
+====
+
+```scala
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-cats" % "1.0.0-RC3"
+```
+
+There's a Cats module now too. It's pretty much that same as the Scalaz module but without
+any `IO` stuff.

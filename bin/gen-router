@@ -1,0 +1,28 @@
+#!/bin/env scala
+// vim: set ft=scala :
+
+val comma = ", "
+def T(i: Int) = (64+i).toChar.toString
+
+var ra = Seq.empty[String]
+
+def A(j: Int) = ('A'+j).toChar.toString
+def a(j: Int) = ('a'+j).toChar.toString
+
+case class X(private val i: Int) {
+  val As = (0 until i) map A
+  val as = (0 until i) map a
+  val Ac = As mkString ","
+  val ac = as mkString ","
+}
+
+for (i <- 3 to 22) {
+  val curr = X(i)
+  val prev = X(i - 1)
+  import curr._
+
+  def p(a: String) = (1 until i).map(a + "._" + _).mkString(",")
+
+  ra :+= s"implicit def T$i[$Ac] = Composition[(${prev.Ac}), ${A(i-1)}, ($Ac)](r => (${p("r")}), _._$i, (l,r) => (${p("l")},r))"
+}
+println(ra mkString "\n")

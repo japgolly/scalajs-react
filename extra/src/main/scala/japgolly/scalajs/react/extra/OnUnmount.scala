@@ -18,7 +18,7 @@ trait OnUnmount {
 }
 
 object OnUnmount {
-  def install[P, C <: Children, S, B <: OnUnmount]: ScalaComponentConfig[P, C, S, B] =
+  def install[P, C <: Children, S, B <: OnUnmount]: ScalaComponent.Config[P, C, S, B] =
     _.componentWillUnmount(_.backend.unmount)
 
   /**

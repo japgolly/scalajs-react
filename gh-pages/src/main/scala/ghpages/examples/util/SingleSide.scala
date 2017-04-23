@@ -8,7 +8,7 @@ object SingleSide {
     def apply() = singleSideComponent(this)
   }
 
-  val singleSideComponent = ScalaComponent.build[Content]("singleSideComponent")
+  val singleSideComponent = ScalaComponent.builder[Content]("singleSideComponent")
     .render_P(p =>
       div(
         section(cls := "demo",

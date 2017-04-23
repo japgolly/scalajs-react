@@ -12,7 +12,7 @@ object BroadcasterTest extends TestSuite {
       super.broadcast(a)
   }
 
-  val C = ScalaComponent.build[B]("")
+  val C = ScalaComponent.builder[B]("")
     .initialState(Vector.empty[Int])
     .backend(_ => new OnUnmount.Backend)
     .renderS((_, state) => <.div("Got: " + state.mkString("{",",","}")))

@@ -22,12 +22,12 @@ object Listenable {
 
   def listen[P, C <: Children, S, B <: OnUnmount, A](
       listenable: P => Listenable[A],
-      makeListener: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => A => Callback): ScalaComponentConfig[P, C, S, B] =
+      makeListener: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => A => Callback): ScalaComponent.Config[P, C, S, B] =
     OnUnmount.install[P, C, S, B] andThen (_.componentDidMount($ =>
       listenable($.props).register(makeListener($)) >>= $.backend.onUnmount))
 
   def listenToUnit[P, C <: Children, S, B <: OnUnmount](
       listenable: P => Listenable[Unit],
-      makeListener: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => Callback): ScalaComponentConfig[P, C, S, B] =
+      makeListener: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B] =
     listen[P, C, S, B, Unit](listenable, $ => _ => makeListener($))
 }

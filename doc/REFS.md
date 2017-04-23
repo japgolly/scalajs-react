@@ -36,7 +36,7 @@ object CallbackOptionExample {
       Callback(outerRef.focus())
   }
 
-  val Main = ScalaComponent.build[Unit]("CallbackOption example")
+  val Main = ScalaComponent.builder[Unit]("CallbackOption example")
     .initialState(initState)
     .renderBackend[Backend]
     .componentDidMount(_.backend.init)
@@ -55,7 +55,7 @@ object CallbackOptionExample {
 
 Example:
 ```scala
-val Double = ScalaComponent.build[Int]("Doubler")
+val Double = ScalaComponent.builder[Int]("Doubler")
   .render_P(i => <.p(s"$i + $i = ${i << 1}"))
   .build
 
@@ -71,7 +71,7 @@ class Backend {
   def onMount = Callback.log("DOM HTML: ", ref.value.getDOMNode.outerHTML)
 }
 
-val Exapmle = ScalaComponent.build[Unit]("Example")
+val Exapmle = ScalaComponent.builder[Unit]("Example")
   .renderBackend[Backend]
   .componentDidMount(_.backend.onMount)
   .build

@@ -88,4 +88,8 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   s/(?<=remove|ithout)ReactDataAttr/ReactInternals/g;
 
   s/(\$[ .]+)zoomL(?!\w)/\1zoomStateL/g;
+
+  # RC1 -> RC2
+  s/(ScalaComponent\s*\.\s*build)(\s*\[)/\1er\2/g;
+  s/(ScalaComponent\s*\.\s*static\s*\(\s*".*?")\s*, */\1)(/;
 ' {} +

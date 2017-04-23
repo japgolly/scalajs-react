@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.core
 
 import scalajs.js
+import scalajs.js.annotation._
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
@@ -12,35 +13,10 @@ abstract class JsComponentTest extends TestSuite {
     raw.React.createElement("h1", null, "Huge")
 }
 
-object JsComponentNSTest extends  JsComponentTest {
-
-  override def tests = TestSuite {
-
-    def tryResolve(name: String) : Boolean = {
-      try {
-        JsComponent[Null, Children.None, Null](name).raw
-        true
-      } catch {
-        case ex: IllegalArgumentException => false
-      }
-    }
-
-    'resolve {
-      'defined {
-        assertEq(tryResolve("TestNS.SubNS.MyNestedCmp"), true)
-      }
-
-      'undefined {
-        assertEq(tryResolve(""), false)
-        assertEq(tryResolve("TestNS"), false)
-        assertEq(tryResolve("TestNS.MissingNS"), false)
-        assertEq(tryResolve("TestNS.SubNS.MyMissingCmp"), false)
-      }
-    }
-  }
-}
-
 object JsComponentPTest extends JsComponentTest {
+  @JSGlobal("ES3_P")
+  @js.native
+  object RawComp extends js.Object
 
   @js.native
   trait JsProps extends js.Object {
@@ -50,10 +26,18 @@ object JsComponentPTest extends JsComponentTest {
   def JsProps(name: String): JsProps =
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
-  val Component = JsComponent[JsProps, Children.None, Null]("ES3_P")
+  lazy val Component = JsComponent[JsProps, Children.None, Null](RawComp)
   compileError(""" Component() """)
 
   override def tests = TestSuite {
+
+    'unspecifiedDisplayName {
+      def n = ""
+      def p = JsProps("Bob")
+      'c - assertEq(Component.displayName, n)
+      'u - assertEq(Component(p).displayName, n)
+      'm - assertEq(ReactTestUtils.withRenderedIntoDocument(Component(p))(_.displayName), n)
+    }
 
     'noChildren {
       'main {
@@ -67,7 +51,7 @@ object JsComponentPTest extends JsComponentTest {
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode
           assertOuterHTML(n, "<div>Hello Bob</div>")
-          assertEq(mounted.isMounted, true)
+          assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.props.name, "Bob")
           assertEq(mounted.propsChildren.count, 0)
           assertEq(mounted.propsChildren.isEmpty, true)
@@ -86,7 +70,7 @@ object JsComponentPTest extends JsComponentTest {
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode
           assertOuterHTML(n, "<div>Hello Bob</div>")
-          assertEq(mounted.isMounted, true)
+          assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.props.name, "Bob")
           assertEq(mounted.propsChildren.count, 0)
           assertEq(mounted.propsChildren.isEmpty, true)
@@ -99,7 +83,7 @@ object JsComponentPTest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent[JsProps, Children.Varargs, Null]("ES3_P")
+      val C = JsComponent[JsProps, Children.Varargs, Null](RawComp)
 
       'ctors {
         val p = JsProps("x")
@@ -125,7 +109,7 @@ object JsComponentPTest extends JsComponentTest {
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode
           assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
-          assertEq(mounted.isMounted, true)
+          assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.props.name, "X")
           assertEq(mounted.propsChildren.count, 1)
           assertEq(mounted.propsChildren.isEmpty, false)
@@ -146,6 +130,9 @@ object JsComponentPTest extends JsComponentTest {
 
 
 object JsComponentSTest extends JsComponentTest {
+  @JSGlobal("ES3_S")
+  @js.native
+  object RawComp extends js.Object
 
   @js.native
   trait JsState extends js.Object {
@@ -158,7 +145,7 @@ object JsComponentSTest extends JsComponentTest {
     def inc(): Unit = js.native
   }
 
-  val Component = JsComponent[Null, Children.None, JsState]("ES3_S").addFacade[JsMethods]
+  lazy val Component = JsComponent[Null, Children.None, JsState](RawComp).addFacade[JsMethods]
 
   override def tests = TestSuite {
     def JsState1(num1: Int): JsState =
@@ -185,7 +172,7 @@ object JsComponentSTest extends JsComponentTest {
           val n = mounted.getDOMNode
 
           assertOuterHTML(n, "<div>State = 123 + 500</div>")
-          assertEq(mounted.isMounted, true)
+          assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.propsChildren.count, 0)
           assertEq(mounted.propsChildren.isEmpty, true)
           assertEq(mounted.state.num1, 123)
@@ -193,14 +180,14 @@ object JsComponentSTest extends JsComponentTest {
 
           mounted.setState(JsState1(666))
           assertOuterHTML(n, "<div>State = 666 + 500</div>")
-          assertEq(mounted.isMounted, true)
+          assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.propsChildren.isEmpty, true)
           assertEq(mounted.state.num1, 666)
           assertEq(mounted.state.num2, 500)
 
           mounted.raw.inc()
           assertOuterHTML(n, "<div>State = 667 + 500</div>")
-          assertEq(mounted.isMounted, true)
+          assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.propsChildren.isEmpty, true)
           assertEq(mounted.state.num1, 667)
           assertEq(mounted.state.num2, 500)
@@ -209,7 +196,7 @@ object JsComponentSTest extends JsComponentTest {
           assertEq(zoomed.state, 500)
           zoomed.modState(_ + 1)
           assertOuterHTML(n, "<div>State = 667 + 501</div>")
-          assertEq(mounted.isMounted, true)
+          assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.propsChildren.isEmpty, true)
           assertEq(mounted.state.num1, 667)
           assertEq(mounted.state.num2, 501)
@@ -228,7 +215,7 @@ object JsComponentSTest extends JsComponentTest {
     }
 
     'children {
-      val C = JsComponent[Null, Children.Varargs, JsState]("ES3_S").addFacade[JsMethods]
+      val C = JsComponent[Null, Children.Varargs, JsState](RawComp).addFacade[JsMethods]
 
       'ctors {
         def test(u: JsComponent.UnmountedWithFacade[Null, JsState, JsMethods]) = ()
@@ -254,7 +241,7 @@ object JsComponentSTest extends JsComponentTest {
           val n = mounted.getDOMNode
 
           assertOuterHTML(n, "<div>State = 123 + 500<h1>Huge</h1></div>")
-          assertEq(mounted.isMounted, true)
+          assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.propsChildren.count, 1)
           assertEq(mounted.propsChildren.isEmpty, false)
           assertEq(mounted.state.num1, 123)

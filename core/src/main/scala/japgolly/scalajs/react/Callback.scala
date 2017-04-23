@@ -112,13 +112,19 @@ object Callback {
   def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
     traverse(tca)(identityFn)
 
-  def traverseO[A](oa: => Option[A])(f: A => Callback): Callback =
+  @deprecated("Use .traverseOption", "1.0.0")
+  def traverseO[A](oa: => Option[A])(f: A => Callback): Callback = traverseOption(oa)(f)
+
+  @deprecated("Use .sequenceOption", "1.0.0")
+  def sequenceO[A](oca: => Option[Callback]): Callback = sequenceOption(oca)
+
+  def traverseOption[A](oa: => Option[A])(f: A => Callback): Callback =
     Callback(
       oa.foreach(a =>
         f(a).runNow()))
 
-  def sequenceO[A](oca: => Option[Callback]): Callback =
-    traverseO(oca)(identityFn)
+  def sequenceOption[A](oca: => Option[Callback]): Callback =
+    traverseOption(oca)(identityFn)
 
   /**
    * Convenience for calling `dom.console.log`.
@@ -222,23 +228,44 @@ object CallbackTo {
       go(a)
     }
 
-  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])
-                                                (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
-    CallbackTo {
-      val r = cbf(ta)
-      ta.foreach(a => r += f(a).runNow())
-      r.result()
-    }
+  def liftTraverse[A, B](f: A => CallbackTo[B]): LiftTraverseDsl[A, B] =
+    new LiftTraverseDsl(f)
 
-  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])
-                                             (implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
-    traverse(tca)(identityFn)
+  final class LiftTraverseDsl[A, B](private val f: A => CallbackTo[B]) extends AnyVal {
 
-  def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
-    CallbackTo(oa.map(f(_).runNow()))
+    /** See [[CallbackTo.distFn]] for the dual. */
+    def id: CallbackTo[A => B] =
+      CallbackTo(f(_).runNow())
 
-  def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
-    traverseO(oca)(identityFn)
+    /** Anything traversable by the Scala stdlib definition */
+    def std[T[X] <: TraversableOnce[X]](implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[A] => T[B]] =
+      CallbackTo { ta =>
+        val r = cbf(ta)
+        ta.foreach(a => r += f(a).runNow())
+        r.result()
+      }
+
+    def option: CallbackTo[Option[A] => Option[B]] =
+      CallbackTo(_.map(f(_).runNow()))
+  }
+
+  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])(implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
+    liftTraverse(f).std[T](cbf).map(_(ta))
+
+  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])(implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
+    traverse(tca)(identityFn)(cbf)
+
+  @deprecated("Use .traverseOption", "1.0.0")
+  def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] = traverseOption(oa)(f)
+
+  @deprecated("Use .sequenceOption", "1.0.0")
+  def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] = sequenceOption(oca)
+
+  def traverseOption[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
+    liftTraverse(f).option.map(_(oa))
+
+  def sequenceOption[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
+    traverseOption(oca)(identityFn)
 
   /**
    * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
@@ -317,12 +344,18 @@ object CallbackTo {
 final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) extends AnyVal {
 
   /**
-   * Executes this callback, on the current thread, right now, blocking until complete.
-   *
-   * In most cases, this type is passed to scalajs-react such that you don't need to call this method yourself.
-   *
-   * Exceptions will not be caught. Use [[attempt]] to catch thrown exceptions.
-   */
+    * Executes this callback, on the current thread, right now, blocking until complete.
+    * Exceptions will not be thrown, not caught. Use [[CallbackTo#attempt]] to catch exceptions.
+    *
+    * Typically, callbacks are passed to scalajs-react and you're expected not to call this method yourself.
+    * Generally speaking, the only time you should call this method is in some other non-React code's async callback.
+    * Inside an AJAX callback is a common example. Even for those cases though, you can avoid calling this by getting
+    * direct access instead of callback-based access to your component;
+    * see the online WebSockets example: https://japgolly.github.io/scalajs-react/#examples/websockets
+    *
+    * While it's technically safe to call [[CallbackTo#runNow]] inside the body of another [[Callback]], it's better
+    * to just use combinators like [[CallbackTo#flatMap]] or even a Scala for-comprehension.
+    */
   @inline def runNow(): A =
     f()
 
@@ -632,6 +665,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def toCBO: CallbackOption[A] =
     CallbackOption liftCallback this
 
+  /** Function distribution. See `CallbackTo.liftTraverse(f).id` for the dual. */
   def distFn[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): B => CallbackTo[C] = {
     val bc = ev(this)
     b => bc.map(_(b))

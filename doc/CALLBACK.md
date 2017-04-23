@@ -104,7 +104,7 @@ When you want to compose multiple `Callback` instances, there are many ways depe
 * Monadic and applicative ops that'd you'd expect coming from languages like Haskell are there (`*>`, `<*`, `>>`, `<<`, `>>=`, etc). They're baked in rather than typeclass-provided.
 
 The `>>` operator deserves a special mention as it's commonly useful.
-It's used to fuse to callbacks together sequentially.
+It's used to fuse two callbacks together sequentially.
 It's like a pure version of `;` which is how you sequence statements imperatively (i.e. `doThis(); doThat()` becomes `doThis >> doThat`).
 
 ```scala
@@ -184,7 +184,7 @@ val haha1 = Callback(print("ha")) >> Callback(print("ha"))
 ```
 
 because `Callback` is referentially-transparent, and is the representation of an action instead of the result of an action,
-we can do reduce duplication by doing this:
+we can reduce duplication by doing this:
 
 ```scala
 val ha = Callback(print("ha"))
@@ -254,7 +254,7 @@ Common Mistakes
   ```scala
   def increment(): Callback = {
     $.modState(_ + 1).runNow()
-    Callback.log("Incremented count by 1")
+    Callback.log("Scheduled state increment by 1")
   }
   ```
 
@@ -262,7 +262,7 @@ Common Mistakes
   ```scala
   val increment: Callback =
     $.modState(_ + 1) >>
-    Callback.log("Incremented count by 1")
+    Callback.log("Scheduled state increment by 1")
   ```
 
 * **Side-effects (especially accessing mutable state) during construction**

@@ -1,12 +1,17 @@
 package japgolly.scalajs.react.core
 
 import scalajs.js
+import scalajs.js.annotation._
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 
 object JsFnComponentTest extends TestSuite {
+  @JSGlobal("FnComp")
+  @js.native
+  object RawComp extends js.Object
+
   @js.native
   trait JsProps extends js.Object {
     val name: String
@@ -15,7 +20,7 @@ object JsFnComponentTest extends TestSuite {
   def JsProps(name: String): JsProps =
     js.Dynamic.literal("name" -> name).asInstanceOf[JsProps]
 
-  val Component = JsFnComponent[JsProps, Children.None]("FnComp")
+  lazy val Component = JsFnComponent[JsProps, Children.None](RawComp)
 
   override def tests = TestSuite {
 

@@ -11,14 +11,14 @@ import ReactAddons._
 
 object AddonTest extends TestSuite {
 
-  lazy val componentA = ScalaComponent.build[Int]("A")
-    .initialState_P(identity)
+  lazy val componentA = ScalaComponent.builder[Int]("A")
+    .initialStateFromProps(identity)
     .render_S(i => <.div(
       (0 to i).map(j => componentB(s"$j² = ${j*j}")).toVdomArray
     ))
     .build
 
-  lazy val componentB = ScalaComponent.build[String]("B")
+  lazy val componentB = ScalaComponent.builder[String]("B")
     .render_P(str => <.div("Input is ", str))
     .build
 

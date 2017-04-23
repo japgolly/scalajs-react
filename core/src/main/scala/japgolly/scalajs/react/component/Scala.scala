@@ -7,22 +7,16 @@ import japgolly.scalajs.react.vdom.VdomElement
 
 object Scala {
 
-  def build[P](name: String) =
-    new ScalaBuilder.Step1[P](name)
-
-  /** Partially builds a component that always displays the same content, never needs to be redrawn, never needs vdom diffing.
-    * The builder is returned and can be customised futher before finally being built.
-    */
-  def buildStatic(name: String, content: VdomElement): ScalaBuilder.Step4[Unit, Children.None, Unit, Unit] =
-    build[Unit](name)
-      .renderStatic(content)
-      .shouldComponentUpdateConst(false)
+  val builder = japgolly.scalajs.react.component.builder.EntryPoint
 
   /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
-  def static(name: String, content: VdomElement): Component[Unit, Unit, Unit, CtorType.Nullary] =
-    buildStatic(name, content).build
+  def static(name: String)(content: VdomElement): Component[Unit, Unit, Unit, CtorType.Nullary] =
+    builder.static(name)(content).build
 
-  val Lifecycle = ScalaBuilder.Lifecycle
+  val Lifecycle = japgolly.scalajs.react.component.builder.Lifecycle
+
+  type Config[P, C <: Children, S, B] =
+    japgolly.scalajs.react.component.builder.Builder.Config[P, C, S, B]
 
   // ===================================================================================================================
 

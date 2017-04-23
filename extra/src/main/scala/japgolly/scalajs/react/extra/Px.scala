@@ -33,6 +33,9 @@ sealed abstract class Px[A] {
       None
   }
 
+  final def toCallback: CallbackTo[A] =
+    CallbackTo(value())
+
   def map[B](f: A => B): Px.Derivative[B] =
     new Px.Map(this, f)
 

@@ -1,14 +1,12 @@
 package ghpages
 
 import org.scalajs.dom
-import scala.scalajs.js.JSApp
-import scala.scalajs.js.annotation.JSExport
 import japgolly.scalajs.react._, vdom.html_<^._, ScalazReact._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router._
 import pages._
 
-object GhPages extends JSApp {
+object GhPages {
 
   sealed trait Page
   case object Home          extends Page
@@ -37,7 +35,7 @@ object GhPages extends JSApp {
       navMenu(c),
       <.div(^.cls := "container", r.render()))
 
-  val navMenu = ScalaComponent.build[RouterCtl[Page]]("Menu")
+  val navMenu = ScalaComponent.builder[RouterCtl[Page]]("Menu")
     .render_P { ctl =>
       def nav(name: String, target: Page) =
         <.li(
@@ -62,8 +60,7 @@ object GhPages extends JSApp {
     else
       BaseUrl.fromWindowOrigin / "scalajs-react/"
 
-  @JSExport
-  override def main(): Unit = {
+  def main(): Unit = {
     dom.console.info("Router logging is enabled. Enjoy!")
     val router = Router(baseUrl, routerConfig.logToConsole)
     router() renderIntoDOM dom.document.body

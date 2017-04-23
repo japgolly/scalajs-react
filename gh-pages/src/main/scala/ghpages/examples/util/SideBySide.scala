@@ -10,7 +10,7 @@ object SideBySide {
     def apply() = sideBySideComponent(this)
   }
 
-  val sideBySideComponent = ScalaComponent.build[Content]("sideBySideExample")
+  val sideBySideComponent = ScalaComponent.builder[Content]("sideBySideExample")
     .render_P(p =>
       div(
         section(cls := "demo",
@@ -28,7 +28,7 @@ object SideBySide {
     .configure(installSyntaxHighlighting)
     .build
 
-  def installSyntaxHighlighting[P, C <: Children, S, B]: ScalaComponentConfig[P, C, S, B] =
+  def installSyntaxHighlighting[P, C <: Children, S, B]: ScalaComponent.Config[P, C, S, B] =
     _.componentDidMountConst(applySyntaxHighlight)
       .componentDidUpdateConst(applySyntaxHighlight)
 
