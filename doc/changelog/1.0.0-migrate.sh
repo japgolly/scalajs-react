@@ -92,4 +92,11 @@ find . -name '*.scala' -type f -exec perl -pi -e '
   # RC1 -> RC2
   s/(ScalaComponent\s*\.\s*build)(\s*\[)/\1er\2/g;
   s/(ScalaComponent\s*\.\s*static\s*\(\s*".*?")\s*, */\1)(/;
+
+  # RC2 -> RC3
+  s/initialStateCB_P/initialStateCallbackFromProps/g;
+  s/initialStateCB/initialStateCallback/g;
+  s/initialState_P/initialStateFromProps/g;
+  s/ScalaComponentConfig/ScalaComponent.Config/g;
+  s/(Callback(?:To|Option)? *(?:\. *)?(?:traverse|sequence))O(?!\w)/\1Option/g;
 ' {} +
