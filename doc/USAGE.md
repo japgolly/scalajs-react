@@ -24,27 +24,41 @@ Setup
   ```scala
   // core = essentials only. No bells or whistles.
   libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.0.0-RC3"
-
-  // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
-  jsDependencies ++= Seq(
-
-    "org.webjars.bower" % "react" % "15.5.4"
-      /        "react-with-addons.js"
-      minified "react-with-addons.min.js"
-      commonJSName "React",
-
-    "org.webjars.bower" % "react" % "15.5.4"
-      /         "react-dom.js"
-      minified  "react-dom.min.js"
-      dependsOn "react-with-addons.js"
-      commonJSName "ReactDOM",
-
-    "org.webjars.bower" % "react" % "15.5.4"
-      /         "react-dom-server.js"
-      minified  "react-dom-server.min.js"
-      dependsOn "react-dom.js"
-      commonJSName "ReactDOMServer")
   ```
+
+3. Add React to your build.
+
+    How to do this depends on your Scala.JS config and build setup.
+
+    If you're using [scalajs-bundler](https://scalacenter.github.io/scalajs-bundler/),
+    follow the scalajs-bundler instructions. For convenience, scalajs-react comes with
+    `WebpackRequire` which has `@JSImport`s that you can just reference to configure Webpack.
+    [See here](https://github.com/japgolly/misc/blob/38ec096551fdc2dfee48989613ca488de02ef911/src/main/scala/demo/Main.scala#L9-L13) for an example.
+
+    If you're using old-school `jsDependencies`, add something akin to:
+
+    ```scala
+    // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
+    jsDependencies ++= Seq(
+
+      "org.webjars.bower" % "react" % "15.5.4"
+        /        "react-with-addons.js"
+        minified "react-with-addons.min.js"
+        commonJSName "React",
+
+      "org.webjars.bower" % "react" % "15.5.4"
+        /         "react-dom.js"
+        minified  "react-dom.min.js"
+        dependsOn "react-with-addons.js"
+        commonJSName "ReactDOM",
+
+      "org.webjars.bower" % "react" % "15.5.4"
+        /         "react-dom-server.js"
+        minified  "react-dom-server.min.js"
+        dependsOn "react-dom.js"
+        commonJSName "ReactDOMServer")
+    ```
+
 
 Creating Virtual-DOM
 ====================
@@ -69,9 +83,17 @@ You throw types and functions at it, call `build` and when it compiles you will 
 
 1. The first step is to specify your component's properties type, and a component name.
   ```scala
-  val myComponent =
-    ScalaComponent.builder[Props]("MyComponent")
-      |
+  import japgolly.scalajs.react._
+  import japgolly.scalajs.react.vdom.html_<^._
+
+  object MyComponent {
+  
+    case class Props(/* TODO */)
+
+    val myComponent =
+      ScalaComponent.builder[Props]("MyComponent")
+        |
+  }
   ```
 
 2. *(Optional)* If you want a stateful component,
