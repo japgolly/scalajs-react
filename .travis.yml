@@ -19,7 +19,7 @@ script:
   - sbt ++$TRAVIS_SCALA_VERSION test:fastOptJS test:fullOptJS
   - sbt ++$TRAVIS_SCALA_VERSION 'set parallelExecution in ThisBuild := false' test
   - sbt ++$TRAVIS_SCALA_VERSION 'set parallelExecution in ThisBuild := false' 'set scalaJSStage in ThisBuild := FullOptStage' test
-  #- bin/checkDevOnly $TRAVIS_SCALA_VERSION
+  - bin/checkDevOnly $TRAVIS_SCALA_VERSION
 
 # Taken from https://github.com/typelevel/cats/blob/master/.travis.yml
 before_cache:

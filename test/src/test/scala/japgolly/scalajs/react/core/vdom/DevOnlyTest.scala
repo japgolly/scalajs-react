@@ -16,22 +16,26 @@ object DevOnlyTest extends TestSuite {
       assertRender(ScalaComponent.static("")(t)(), exp)
     }
 
-    'tagMod -
+    'tagMod - testTagMod()
+    def testTagMod() =
       test(div(1, TagMod devOnly p("DEVONLY-TEST"), 2))(
         "<div>1<p>DEVONLY-TEST</p>2</div>",
         "<div>12</div>")
 
-    'tagMod -
+    'tagMod - testTagMod2()
+    def testTagMod2() =
       test(div(1, TagMod devOnly TagMod(cls := "DEVONLY-TEST", p("DEVONLY-TEST")), 2))(
         """<div class="DEVONLY-TEST">1<p>DEVONLY-TEST</p>2</div>""",
         "<div>12</div>")
 
-    'attr -
+    'attr - testAttr()
+    def testAttr() =
       test(div(VdomAttr.devOnly("data-devonly-test") := "!DEVONLY-TEST!", 123))(
         """<div data-devonly-test="!DEVONLY-TEST!">123</div>""",
         "<div>123</div>")
 
-    'style -
+    'style - testStyle()
+    def testStyle() =
       test(div(VdomStyle.devOnly("devonly-test") := "!DEVONLY-TEST!", 123))(
         """<div style="devonly-test:!DEVONLY-TEST!;">123</div>""",
         "<div>123</div>")
