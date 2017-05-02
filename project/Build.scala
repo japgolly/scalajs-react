@@ -86,8 +86,8 @@ object ScalajsReact {
       .settings(
         libraryDependencies += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
         testFrameworks      += new TestFramework("utest.runner.Framework"),
-        requiresDOM         := true,
-        jsEnv in Test       := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
+        requiresDOM         := true)
+        // jsEnv in Test       := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value))
 
   def useReactJs(scope: String = "compile"): PE =
     _.settings(
@@ -132,6 +132,8 @@ object ScalajsReact {
 
   def hasNoTests: Project => Project =
     _.settings(
+      fastOptJS     in Test := Attributed(artifactPath.in(fastOptJS).in(Test).value)(AttributeMap.empty),
+      fullOptJS     in Test := Attributed(artifactPath.in(fullOptJS).in(Test).value)(AttributeMap.empty),
       sbt.Keys.test in Test := (),
       testOnly      in Test := (),
       testQuick     in Test := ())

@@ -136,7 +136,7 @@ object Router2Test extends TestSuite {
 
   override val tests = TestSuite {
     import MyPage2._
-    implicit val base = BaseUrl("file:///router2Demo/")
+    implicit val base = RouterTestHelp.localBaseUrl_/
     val (router, lgc) = Router.componentAndLogic(base, config)
     val ctl = lgc.ctl
 
