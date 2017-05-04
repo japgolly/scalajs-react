@@ -16,7 +16,7 @@ object ScalajsReact {
     val MacroParadise = "2.1.1"
     val SizzleJs      = "2.3.0"
     val Nyaya         = "0.8.1"
-    val Cats          = "1.0.0-RC1"
+    val CatsEffect    = "0.6"
   }
 
   type PE = Project => Project
@@ -241,7 +241,7 @@ object ScalajsReact {
   lazy val cats = project
     .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
     .dependsOn(core, extra)
-    .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % Ver.Cats)
+    .settings(libraryDependencies += "org.typelevel" %%% "cats-effect" % Ver.CatsEffect)
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))

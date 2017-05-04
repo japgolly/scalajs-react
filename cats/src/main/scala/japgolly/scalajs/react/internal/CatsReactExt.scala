@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.internal
 
 import cats.{Eq, Monad, ~>}
+import cats.effect.IO
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
@@ -9,6 +10,15 @@ import japgolly.scalajs.react.extra._
   * Created by alonsodomin on 13/03/2017.
   */
 object CatsReactExt {
+
+  final class CallbackToOps[A](private val body: () => A) extends AnyVal {
+    private def callback = CallbackTo.lift(body)
+
+    def toIO: IO[A] = IO(body())
+
+    def flattenIO[B](implicit ev: A =:= IO[B]): CallbackTo[B] =
+      callback.map(_.unsafeRunSync())
+  }
 
   final class MA[M[_], A](private val ma: M[A]) extends AnyVal {
     def toCallback(implicit t: M ~> CallbackTo): CallbackTo[A] = t(ma)
@@ -44,5 +54,6 @@ trait CatsReactExt {
 
   implicit final def CatsReactExt_Reusability(a: Reusability.type) = new ReusabilityOps(a)
   implicit final def CatsReactExt_Listenable(a: Listenable.type) = new ListenableOps(a)
+  implicit final def CatsReactExt_CallbackTo[A](a: CallbackTo[A]) = new CallbackToOps(a.toScalaFn)
   implicit final def CatsReactExt_MA[M[_], A](a: M[A]) = new MA(a)
 }
