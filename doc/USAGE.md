@@ -31,7 +31,24 @@ Setup
     How to do this depends on your Scala.JS config and build setup.
 
     If you're using [scalajs-bundler](https://scalacenter.github.io/scalajs-bundler/),
-    follow the scalajs-bundler instructions. For convenience, scalajs-react comes with
+    add the following SBT settings to get started:
+    
+    ```scala
+      enablePlugins(ScalaJSPlugin)
+      
+      enablePlugins(ScalaJSBundlerPlugin)
+      
+      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.0.0"
+      
+      npmDependencies in Compile ++= Seq(
+        "react" -> "15.5.4",
+        "react-dom" -> "15.5.4"
+      )
+      
+      npmDevDependencies in Compile += "expose-loader" -> "0.7.1"
+    ```
+
+    scalajs-react comes with
     `WebpackRequire` which has `@JSImport`s that you can just reference to configure Webpack.
     [See here](https://github.com/japgolly/misc/blob/38ec096551fdc2dfee48989613ca488de02ef911/src/main/scala/demo/Main.scala#L9-L13) for an example.
 
