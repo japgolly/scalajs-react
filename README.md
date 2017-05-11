@@ -20,6 +20,7 @@ Includes a router, testing utils, performance utils, more.
   - [VDOM](doc/VDOM.md)
   - [Refs](doc/REFS.md)
   - [The `Callback` class](doc/CALLBACK.md)
+  - [IDE support](dom/IDE.md)
 - Delving deeper
   - [Types](doc/TYPES.md)
   - [Interoperability](doc/INTEROP.md)
