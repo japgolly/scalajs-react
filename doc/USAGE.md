@@ -75,6 +75,8 @@ Setup
         commonJSName "ReactDOMServer")
     ```
 
+[See here](IDE.md) for tips on configuring your IDE.
+
 
 Creating Virtual-DOM
 ====================
