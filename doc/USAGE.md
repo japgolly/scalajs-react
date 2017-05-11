@@ -32,19 +32,18 @@ Setup
 
     If you're using [scalajs-bundler](https://scalacenter.github.io/scalajs-bundler/),
     add the following SBT settings to get started:
-    
+
     ```scala
       enablePlugins(ScalaJSPlugin)
-      
+
       enablePlugins(ScalaJSBundlerPlugin)
-      
+
       libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.0.0"
-      
+
       npmDependencies in Compile ++= Seq(
         "react" -> "15.5.4",
-        "react-dom" -> "15.5.4"
-      )
-      
+        "react-dom" -> "15.5.4")
+
       npmDevDependencies in Compile += "expose-loader" -> "0.7.1"
     ```
 
@@ -104,7 +103,7 @@ You throw types and functions at it, call `build` and when it compiles you will 
   import japgolly.scalajs.react.vdom.html_<^._
 
   object MyComponent {
-  
+
     case class Props(/* TODO */)
 
     val myComponent =
