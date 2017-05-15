@@ -46,3 +46,45 @@ object $NAME$ {
 Once you're done, when you want to create a new component, create a new file,
 type `newcomp` and hit enter when Intellij offers you the template.
 
+#### New component template (with State)
+
+Similar to above, here is a `newcompS` template that creates a new component
+with state. As is recommended generally, the component shouldn't be stateful from
+React's perspective but referentially-transparent with state externalised to the
+top of the page/SPA component tree and provided through the props.
+
+```scala
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.extra._
+
+object $NAME$ {
+
+  final case class Props(state: StateSnapshot[State]) {
+    @inline def render: VdomElement = Component(this)
+  }
+
+  //implicit val reusabilityProps: Reusability[Props] =
+  //  Reusability.caseClass
+
+  final case class State()
+
+  object State {
+    def init: State =
+      State()
+
+    //implicit val reusability: Reusability[State] =
+    //  Reusability.caseClass
+  }
+
+  final class Backend($: BackendScope[Props, Unit]) {
+    def render(p: Props): VdomElement =
+      <.div
+  }
+
+  val Component = ScalaComponent.builder[Props]("$NAME$")
+    .renderBackend[Backend]
+    //.configure(Reusability.shouldComponentUpdate)
+    .build
+}
+```
