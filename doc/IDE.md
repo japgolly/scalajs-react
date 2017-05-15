@@ -10,7 +10,7 @@ It's a new page and a little bereft so please don't hesitate to contribute!
 
 #### New component template
 
-1. Go to File → Settings → Editor → Code Style → Live Templates → Scala
+1. Go to File → Settings → Editor → Live Templates → Scala
 1. Click the green `+` button in the top right and select *Live Template*
 1. At the bottom where it says *No applicable contexts yet.* click Define → Scala → Code
 1. In the *Abbreviation* field, type `newcomp` (or whatever you want to use to invoke the template from your code)
