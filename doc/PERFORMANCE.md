@@ -213,7 +213,7 @@ type PersonId = Long
 type PersonData = String
 
 val topComponent = ScalaComponent.builder[State]("Demo")
-  .initialState_P(identity)
+  .initialStateFromProps(identity)
   .renderBackend[Backend]
   .build
 
@@ -225,7 +225,7 @@ class Backend(bs: BackendScope[_, State]) {
   def render(state: State) =
     <.div(
       state.toVdomArray { case (id, name) =>
-        personEditor.withKey(id)(PersonEditorProps(name, updateUser(id))) // ← Apply 1 arg
+        personEditor.withKey(id.toString)(PersonEditorProps(name, updateUser(id))) // ← Apply 1 arg
       }
     )
 }
