@@ -39,7 +39,13 @@ Monocle
 =======
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "1.0.0"
+libraryDependencies ++= Seq(
+    "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "1.0.0",
+    "com.github.julien-truffaut" %%%  "monocle-core"  % "1.4.0",
+    "com.github.julien-truffaut" %%%  "monocle-macro" % "1.4.0"
+)
+
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 ```
 
 A module with a extensions for [Monocle](https://github.com/julien-truffaut/Monocle) also exists under `ext-monocle`.
