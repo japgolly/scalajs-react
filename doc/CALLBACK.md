@@ -53,7 +53,7 @@ val sayHello = Callback {
 }
 ```
 
-Any impure logic/effects (such as accessing DOM state, AAJX, or global variables), *must be inside* the Callback.
+Any impure logic/effects (such as accessing DOM state, AJAX, or global variables), *must be inside* the Callback.
 Example:
 ```scala
 object Auth {
