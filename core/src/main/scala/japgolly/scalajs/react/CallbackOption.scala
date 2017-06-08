@@ -64,7 +64,7 @@ object CallbackOption {
     CallbackOption.liftOption {
       @tailrec
       def go(a: A): Option[B] =
-        f(a).get.runNow() match {
+        f(a).asCallback.runNow() match {
           case Some(Left(n))  => go(n)
           case Some(Right(b)) => Some(b)
           case None           => None
@@ -80,7 +80,7 @@ object CallbackOption {
       @tailrec
       def go: Option[T[B]] =
         if (it.hasNext)
-          f(it.next()).get.runNow() match {
+          f(it.next()).asCallback.runNow() match {
             case Some(b) => r += b; go
             case None    => None
           }
@@ -103,7 +103,7 @@ object CallbackOption {
    * NOTE: Technically a proper, lawful traversal should return `CallbackOption[Option[B]]`.
    */
   def traverseOption[A, B](oa: => Option[A])(f: A => CallbackOption[B]): CallbackOption[B] =
-    liftOption(oa.map(f(_).get).flatMap(_.runNow()))
+    liftOption(oa.map(f(_).asCallback).flatMap(_.runNow()))
 
   /**
    * NOTE: Technically a proper, lawful sequence should return `CallbackOption[Option[A]]`.
@@ -174,26 +174,31 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def widen[B >: A]: CallbackOption[B] =
     new CallbackOption(cbfn)
 
+  @deprecated("Use .toCallback instead of .get.void, or .asCallback instead of .get", "1.0.1")
   def get: CallbackTo[Option[A]] =
-    CallbackTo lift cbfn
+    asCallback
 
   def getOrElse[AA >: A](default: => AA): CallbackTo[AA] =
-    get.map(_ getOrElse default)
+    asCallback.map(_ getOrElse default)
+
+  def asCallback: CallbackTo[Option[A]] =
+    CallbackTo lift cbfn
 
   def toCallback(implicit ev: A <:< Unit): Callback =
-    get.void
+    asCallback.void
 
+  @deprecated("Use .asCallback.map(_.isDefined)", "1.0.1")
   def toBoolCB: CallbackTo[Boolean] =
-    get.map(_.isDefined)
+    asCallback.map(_.isDefined)
 
   def unary_!(implicit ev: A <:< Unit): CallbackOption[Unit] =
-    CallbackOption(get.map {
+    CallbackOption(asCallback.map {
       case None    => someUnit
       case Some(_) => None
     })
 
   def map[B](f: A => B)(implicit ev: MapGuard[B]): CallbackOption[ev.Out] =
-    CallbackOption(get.map(_ map f))
+    CallbackOption(asCallback.map(_ map f))
 
   /**
    * Alias for `map`.
@@ -202,11 +207,11 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
     map(f)
 
   def flatMapOption[B](f: A => Option[B]): CallbackOption[B] =
-    CallbackOption(get.map(_ flatMap f))
+    CallbackOption(asCallback.map(_ flatMap f))
 
   def flatMap[B](f: A => CallbackOption[B]): CallbackOption[B] =
-    CallbackOption(get flatMap {
-      case Some(a) => f(a).get
+    CallbackOption(asCallback flatMap {
+      case Some(a) => f(a).asCallback
       case None    => CallbackTo pure[Option[B]] None
     })
 
@@ -217,10 +222,10 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
     flatMap(f)
 
   def filter(condition: A => Boolean): CallbackOption[A] =
-    CallbackOption(get.map(_ filter condition))
+    CallbackOption(asCallback.map(_ filter condition))
 
   def filterNot(condition: A => Boolean): CallbackOption[A] =
-    CallbackOption(get.map(_ filterNot condition))
+    CallbackOption(asCallback.map(_ filterNot condition))
 
   def withFilter(condition: A => Boolean): CallbackOption[A] =
     filter(condition)
@@ -293,9 +298,9 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
     when(!cond)
 
   def orElse[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =
-    CallbackOption(get flatMap {
+    CallbackOption(asCallback flatMap {
       case a@ Some(_) => CallbackTo pure (a: Option[AA])
-      case None       => tryNext.get
+      case None       => tryNext.asCallback
     })
 
   /**
