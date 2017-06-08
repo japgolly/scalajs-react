@@ -48,7 +48,7 @@ trait ScalazReactInstances {
         CallbackOption.liftOption {
           @tailrec
           def go(a: A): Option[B] =
-            f(a).get.runNow() match {
+            f(a).asCallback.runNow() match {
               case Some(-\/(n)) => go(n)
               case Some(\/-(b)) => Some(b)
               case None         => None
