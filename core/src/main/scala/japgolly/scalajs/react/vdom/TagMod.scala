@@ -65,4 +65,10 @@ object TagMod {
       m
     else
       Empty
+
+  def when(cond: Boolean)(t: => TagMod): TagMod =
+    if (cond) t else Empty
+
+  @inline def unless(cond: Boolean)(t: => TagMod): TagMod =
+    when(!cond)(t)
 }
