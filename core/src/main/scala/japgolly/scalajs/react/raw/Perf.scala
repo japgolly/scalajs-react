@@ -8,7 +8,7 @@ import scala.scalajs.js.annotation._
  *
  * @see https://facebook.github.io/react/docs/perf.html
  */
-@JSGlobal("React.addons.Perf")
+@JSImport("react-addons-perf", JSImport.Namespace, "React.addons.Perf")
 @js.native
 object Perf extends js.Object {
 

@@ -9,6 +9,7 @@ import scalajs.js.annotation.JSImport
   * users who use module-style and webpack/scalajs-bundler should simply reference the relevant objects below so that
   * webpack 1) imports them, and 2) exposes them correctly.
   */
+@deprecated("No replacement needed. Facades now support modules directly.", "1.0.1")
 object WebpackRequire {
 
   @inline def main = japgolly.scalajs.react.WebpackRequire

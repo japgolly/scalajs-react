@@ -5,7 +5,7 @@ import scalajs.js
 import scalajs.js.|
 import scalajs.js.annotation._
 
-@JSGlobal
+@JSImport("react", JSImport.Namespace, "React")
 @js.native
 object React extends React
 
@@ -56,7 +56,7 @@ trait ReactChildren extends js.Object {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-@JSGlobal
+@JSImport("react-dom", JSImport.Namespace, "ReactDOM")
 @js.native
 object ReactDOM extends ReactDOM
 
@@ -76,7 +76,7 @@ trait ReactDOM extends js.Object {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-@JSGlobal
+@JSImport("react-dom/server", JSImport.Namespace, "ReactDOMServer")
 @js.native
 object ReactDOMServer extends ReactDOMServer
 

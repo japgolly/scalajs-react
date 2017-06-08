@@ -2,7 +2,11 @@ package japgolly.scalajs.react.raw
 
 import scala.scalajs.js
 import scala.scalajs.js.|
-import scala.scalajs.js.annotation.JSName
+import scala.scalajs.js.annotation._
+
+@JSImport("react-addons-css-transition-group", JSImport.Namespace, "React.addons.CSSTransitionGroup")
+@js.native
+object ReactCSSTransitionGroup extends js.Object
 
 @js.native
 trait ReactCSSTransitionGroupProps extends js.Object {

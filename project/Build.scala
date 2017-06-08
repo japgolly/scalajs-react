@@ -1,6 +1,7 @@
 import sbt._, Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
 import org.scalajs.sbtplugin.ScalaJSPlugin, ScalaJSPlugin.autoImport._
+import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin, ScalaJSBundlerPlugin.autoImport._
 
 object ScalajsReact {
 
@@ -81,15 +82,21 @@ object ScalajsReact {
       }))
     )
 
+  def useScalaJsBundler: PE =
+    _.enablePlugins(ScalaJSBundlerPlugin)
+      .settings(
+        useYarn := true,
+        version in webpack := "2.6.1")
+
   def utestSettings: PE =
-    _.configure(useReactJs(Test), InBrowserTesting.js)
+    _.configure(InBrowserTesting.js)
       .settings(
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
         testFrameworks        += new TestFramework("utest.runner.Framework"),
         requiresDOM           := true)
 
-  def useReactJs(scope: Configuration = Compile): PE =
+  def addReactJsDependencies(scope: Configuration): PE =
     _.settings(
       jsDependencies ++= Seq(
 
@@ -144,7 +151,7 @@ object ScalajsReact {
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .settings(name := "scalajs-react")
-    .aggregate(core, extra, scalaz72, monocle, cats, test, ghpagesMacros, ghpages)
+    .aggregate(core, extra, scalaz72, monocle, cats, test, testModule, ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -173,7 +180,7 @@ object ScalajsReact {
     .settings(name := "extra")
 
   lazy val test = project
-    .configure(commonSettings, publicationSettings, utestSettings)
+    .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test))
     .dependsOn(core, extra)
     .dependsOn(scalaz72 % "test->compile")
     .dependsOn(monocle % "test->compile")
@@ -191,6 +198,17 @@ object ScalajsReact {
         (ProvidedJS / "component-es6.js" dependsOn "react-dom.js") % Test,
         (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test),
       addCompilerPlugin(macroParadisePlugin))
+
+  lazy val testModule = project.in(file("test-module"))
+    .configure(commonSettings, useScalaJsBundler, preventPublication, utestSettings)
+    .dependsOn(core, extra, test)
+    .settings(
+      name := "test-module",
+      npmDependencies in Test ++= Seq(
+        "react"                             -> Ver.ReactJs,
+        "react-dom"                         -> Ver.ReactJs,
+        "react-addons-perf"                 -> "15.5.0-rc.2",
+        "react-addons-css-transition-group" -> "15.5.2"))
 
   def scalazModule(name: String, version: String) = {
     val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")
@@ -219,7 +237,7 @@ object ScalajsReact {
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocle, ghpagesMacros)
-    .configure(commonSettings, useReactJs(), preventPublication, hasNoTests)
+    .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
       libraryDependencies += monocleLib("macro"),
       addCompilerPlugin(macroParadisePlugin),
