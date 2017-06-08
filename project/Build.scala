@@ -82,10 +82,18 @@ object ScalajsReact {
       }))
     )
 
+  lazy val yarnOnPath: Boolean =
+    try {
+      Process("yarn --version").!!
+      true
+    } catch {
+      case t: Throwable => false
+    }
+
   def useScalaJsBundler: PE =
     _.enablePlugins(ScalaJSBundlerPlugin)
       .settings(
-        useYarn := true,
+        useYarn := yarnOnPath,
         version in webpack := "2.6.1")
 
   def utestSettings: PE =
