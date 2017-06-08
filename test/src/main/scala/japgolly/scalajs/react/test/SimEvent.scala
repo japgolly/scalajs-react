@@ -9,12 +9,9 @@ import scala.scalajs.js.Dynamic
 
 object SimEvent {
 
-  object Change {
-    implicit def autoToJsObject(d: Change): js.Object = d.toJs
-  }
   case class Change(value           : String              = "",
-                             checked         : js.UndefOr[Boolean] = js.undefined,
-                             defaultPrevented: Boolean             = false) {
+                    checked         : js.UndefOr[Boolean] = js.undefined,
+                    defaultPrevented: Boolean             = false) {
     def toJs: js.Object = {
       val target = Dynamic.literal(
         "value"            -> value,
@@ -27,23 +24,24 @@ object SimEvent {
     def simulation = Simulation.change(this)
   }
 
-  // =====================================================================================================================
-
-  object Keyboard {
-    implicit def autoToJsObject(d: Keyboard): js.Object = d.toJs
+  object Change {
+    implicit def autoToJsObject(d: Change): js.Object = d.toJs
   }
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
   case class Keyboard(key             : String  = "",
-                               location        : Double  = 0,
-                               altKey          : Boolean = false,
-                               ctrlKey         : Boolean = false,
-                               metaKey         : Boolean = false,
-                               shiftKey        : Boolean = false,
-                               repeat          : Boolean = false,
-                               locale          : String  = "",
-                               keyCode         : Int     = 0,
-                               charCode        : Int     = 0,
-                               which           : Int     = 0,
-                               defaultPrevented: Boolean = false) {
+                      location        : Double  = 0,
+                      altKey          : Boolean = false,
+                      ctrlKey         : Boolean = false,
+                      metaKey         : Boolean = false,
+                      shiftKey        : Boolean = false,
+                      repeat          : Boolean = false,
+                      locale          : String  = "",
+                      keyCode         : Int     = 0,
+                      charCode        : Int     = 0,
+                      which           : Int     = 0,
+                      defaultPrevented: Boolean = false) {
 
     def alt   = copy(altKey   = true)
     def ctrl  = copy(ctrlKey  = true)
@@ -88,24 +86,25 @@ object SimEvent {
     def simulationKeyDownPressUp = simulationKeyDown >> simulationKeyPress >> simulationKeyUp
   }
 
-  // =====================================================================================================================
-
-  object Mouse {
-    implicit def autoToJsObject(d: Mouse): js.Object = d.toJs
+  object Keyboard {
+    implicit def autoToJsObject(d: Keyboard): js.Object = d.toJs
   }
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
   case class Mouse(screenX         : Double  = 0,
-                            screenY         : Double  = 0,
-                            clientX         : Double  = 0,
-                            clientY         : Double  = 0,
-                            pageX           : Double  = 0,
-                            pageY           : Double  = 0,
-                            altKey          : Boolean = false,
-                            ctrlKey         : Boolean = false,
-                            metaKey         : Boolean = false,
-                            shiftKey        : Boolean = false,
-                            button          : Int     = 0,
-                            buttons         : Int     = 0,
-                            defaultPrevented: Boolean = false) {
+                   screenY         : Double  = 0,
+                   clientX         : Double  = 0,
+                   clientY         : Double  = 0,
+                   pageX           : Double  = 0,
+                   pageY           : Double  = 0,
+                   altKey          : Boolean = false,
+                   ctrlKey         : Boolean = false,
+                   metaKey         : Boolean = false,
+                   shiftKey        : Boolean = false,
+                   button          : Int     = 0,
+                   buttons         : Int     = 0,
+                   defaultPrevented: Boolean = false) {
 
     def alt   = copy(altKey   = true)
     def ctrl  = copy(ctrlKey  = true)
@@ -160,6 +159,10 @@ object SimEvent {
     def simulationMouseOver  = Simulation.mouseOver (this)
     def simulationMouseUp    = Simulation.mouseUp   (this)
     def simulationWheel      = Simulation.wheel     (this)
+  }
+
+  object Mouse {
+    implicit def autoToJsObject(d: Mouse): js.Object = d.toJs
   }
 
 }
