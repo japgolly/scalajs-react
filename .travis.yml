@@ -10,8 +10,9 @@ jdk:
 
 install:
   - . $HOME/.nvm/nvm.sh
-  - nvm install stable
-  - nvm use stable
+  - nvm install 7
+  - nvm use 7
+  - export NODE_PATH="$(npm config get prefix)"/lib/node_modules
   - npm install
   - npm install jsdom source-map-support
 

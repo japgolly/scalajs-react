@@ -93,7 +93,7 @@ object ScalajsReact {
   def useScalaJsBundler: PE =
     _.enablePlugins(ScalaJSBundlerPlugin)
       .settings(
-        useYarn := yarnOnPath,
+        // useYarn := yarnOnPath,
         version in webpack := "2.6.1")
 
   def utestSettings: PE =
