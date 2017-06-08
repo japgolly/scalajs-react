@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import scala.annotation.tailrec
+import scala.reflect.ClassTag
 import java.util.{Date, UUID}
 import scala.scalajs.js.{Date => JsDate}
 import japgolly.scalajs.react._
@@ -35,6 +36,9 @@ final class Reusability[A](val test: (A, A) => Boolean) extends AnyVal {
 
   def &&[B <: A](tryNext: Reusability[B]): Reusability[B] =
     Reusability[B]((x, y) => test(x, y) && tryNext.test(x, y))
+
+  def reusable(a: A)(implicit c: ClassTag[A]): Reusable[A] =
+    Reusable.explicitly(a)(this)(c)
 }
 
 object Reusability {
