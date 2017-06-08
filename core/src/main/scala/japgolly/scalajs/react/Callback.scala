@@ -90,7 +90,7 @@ object Callback {
    *
    * @param cond The condition required to be `true` for the callback to execute.
    */
-  def when(cond: Boolean)(c: => Callback): Callback =
+  def when(cond: => Boolean)(c: => Callback): Callback =
     if (cond) c else Callback.empty
 
   /**
