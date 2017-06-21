@@ -26,7 +26,7 @@ object HelloMessageExample {
     s"""
       |${GhPagesMacros.exampleSource}
       |
-      |ReactDOM.render(HelloMessage("John"), mountNode)""".stripMargin
+      |HelloMessage("John").renderIntoDOM(mountNode)""".stripMargin
 
   // EXAMPLE:START
 
