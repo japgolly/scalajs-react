@@ -13,7 +13,7 @@ trait SvgAttrs {
     *
     * Value 	<number>
     */
-  final def accentHeight = VdomAttr("accent-height")
+  final def accentHeight = VdomAttr("accentHeight")
 
   /**
     * This attribute controls whether or not the animation is cumulative.
@@ -50,7 +50,7 @@ trait SvgAttrs {
     * Value: 	auto | baseline | before-edge | text-before-edge | middle | central | after-edge |
     * text-after-edge | ideographic | alphabetic | hanging | mathematical | inherit
     */
-  final def alignmentBaseline = VdomAttr("alignment-baseline")
+  final def alignmentBaseline = VdomAttr("alignmentBaseline")
 
   /**
     * This attribute defines the maximum unaccented depth of the font
@@ -111,7 +111,7 @@ trait SvgAttrs {
     *
     * Value 	auto | baseline | sup | sub | <percentage> | <length> | inherit
     */
-  final def baselineShift = VdomAttr("baseline-shift")
+  final def baselineShift = VdomAttr("baselineShift")
 
   /**
     * This attribute defines when an animation should begin.
@@ -177,7 +177,7 @@ trait SvgAttrs {
     *
     * Value 	<FuncIRI> | none | inherit
     */
-  final def clipPath = VdomAttr("clip-path")
+  final def clipPath = VdomAttr("clipPath")
 
   /**
     * The clipPathUnits attribute defines the coordinate system for the contents
@@ -199,7 +199,7 @@ trait SvgAttrs {
     *
     * Value 	nonezero | evenodd | inherit
     */
-  final def clipRule = VdomAttr("clip-rule")
+  final def clipRule = VdomAttr("clipRule")
 
   /**
     * The color attribute is used to provide a potential indirect value (currentColor)
@@ -226,7 +226,7 @@ trait SvgAttrs {
     *
     * Value 	auto | sRGB | linearRGB | inherit
     */
-  final def colorInterpolation = VdomAttr("color-interpolation")
+  final def colorInterpolation = VdomAttr("colorInterpolation")
 
   /**
     * The color-interpolation-filters attribute specifies the color space for imaging operations
@@ -240,7 +240,7 @@ trait SvgAttrs {
     *
     * Value 	auto | sRGB | linearRGB | inherit
     */
-  final def colorInterpolationFilters = VdomAttr("color-interpolation-filters")
+  final def colorInterpolationFilters = VdomAttr("colorInterpolationFilters")
 
   /**
     * The color-profile attribute is used to define which color profile a raster image
@@ -250,7 +250,7 @@ trait SvgAttrs {
     *
     * Value 	auto | sRGB | <name> | <IRI> | inherit
     */
-  final def colorProfile = VdomAttr("color-profile")
+  final def colorProfile = VdomAttr("colorProfile")
 
   /**
     * The color-rendering attribute provides a hint to the SVG user agent about how to
@@ -265,7 +265,7 @@ trait SvgAttrs {
     *
     * Value 	auto | optimizeSpeed | optimizeQuality | inherit
     */
-  final def colorRendering = VdomAttr("color-rendering")
+  final def colorRendering = VdomAttr("colorRendering")
 
   /**
     * The contentScriptType attribute on the <svg> element specifies the default scripting
@@ -337,7 +337,7 @@ trait SvgAttrs {
 
   final def divisor = VdomAttr("divisor")
 
-  final def dominantBaseline = VdomAttr("dominant-baseline")
+  final def dominantBaseline = VdomAttr("dominantBaseline")
 
   final def dur = VdomAttr("dur")
 
@@ -357,7 +357,7 @@ trait SvgAttrs {
 
   final def fillOpacity = VdomAttr("fillOpacity")
 
-  final def fillRule = VdomAttr("fill-rule")
+  final def fillRule = VdomAttr("fillRule")
 
   final def filter = VdomAttr("filter")
 
@@ -365,21 +365,21 @@ trait SvgAttrs {
 
   final def filterUnits = VdomAttr("filterUnits")
 
-  final def floodColor = VdomAttr("flood-color")
+  final def floodColor = VdomAttr("floodColor")
 
-  final def floodOpacity = VdomAttr("flood-opacity")
+  final def floodOpacity = VdomAttr("floodOpacity")
 
   final def fontFamily = VdomAttr("fontFamily")
 
   final def fontSize = VdomAttr("fontSize")
 
-  final def fontSizeAdjust = VdomAttr("font-size-adjust")
+  final def fontSizeAdjust = VdomAttr("fontSizeAdjust")
 
-  final def fontStretch = VdomAttr("font-stretch")
+  final def fontStretch = VdomAttr("fontStretch")
 
-  final def fontVariant = VdomAttr("font-variant")
+  final def fontVariant = VdomAttr("fontVariant")
 
-  final def fontWeight = VdomAttr("font-weight")
+  final def fontWeight = VdomAttr("fontWeight")
 
   final def from = VdomAttr("from")
 
@@ -415,9 +415,9 @@ trait SvgAttrs {
 
   final def keyTimes = VdomAttr("keyTimes")
 
-  final def letterSpacing = VdomAttr("letter-spacing")
+  final def letterSpacing = VdomAttr("letterSpacing")
 
-  final def lightingColor = VdomAttr("lighting-color")
+  final def lightingColor = VdomAttr("lightingColor")
 
   final def limitingConeAngle = VdomAttr("limitingConeAngle")
 
@@ -459,7 +459,7 @@ trait SvgAttrs {
 
   final def overflow = VdomAttr("overflow")
 
-  final def paintOrder = VdomAttr("paint-order")
+  final def paintOrder = VdomAttr("paintOrder")
 
   final def pathLength = VdomAttr("pathLength")
 
@@ -469,7 +469,7 @@ trait SvgAttrs {
 
   final def patternUnits = VdomAttr("patternUnits")
 
-  final def pointerEvents = VdomAttr("pointer-events")
+  final def pointerEvents = VdomAttr("pointerEvents")
 
   final def points = VdomAttr("points")
 
@@ -507,7 +507,7 @@ trait SvgAttrs {
 
   final def seed = VdomAttr("seed")
 
-  final def shapeRendering = VdomAttr("shape-rendering")
+  final def shapeRendering = VdomAttr("shapeRendering")
 
   final def specularConstant = VdomAttr("specularConstant")
 
@@ -527,13 +527,13 @@ trait SvgAttrs {
 
   final def strokeDasharray = VdomAttr("strokeDasharray")
 
-  final def strokeDashoffset = VdomAttr("stroke-dashoffset")
+  final def strokeDashoffset = VdomAttr("strokeDashoffset")
 
   final def strokeLinecap = VdomAttr("strokeLinecap")
 
-  final def strokeLinejoin = VdomAttr("stroke-linejoin")
+  final def strokeLinejoin = VdomAttr("strokeLinejoin")
 
-  final def strokeMiterlimit = VdomAttr("stroke-miterlimit")
+  final def strokeMiterlimit = VdomAttr("strokeMiterlimit")
 
   final def strokeOpacity = VdomAttr("strokeOpacity")
 
@@ -549,9 +549,9 @@ trait SvgAttrs {
 
   final def textAnchor = VdomAttr("textAnchor")
 
-  final def textDecoration = VdomAttr("text-decoration")
+  final def textDecoration = VdomAttr("textDecoration")
 
-  final def textRendering = VdomAttr("text-rendering")
+  final def textRendering = VdomAttr("textRendering")
 
   final def to = VdomAttr("to")
 
@@ -569,9 +569,9 @@ trait SvgAttrs {
 
   final def width = VdomAttr("width")
 
-  final def wordSpacing = VdomAttr("word-spacing")
+  final def wordSpacing = VdomAttr("wordSpacing")
 
-  final def writingMode = VdomAttr("writing-mode")
+  final def writingMode = VdomAttr("writingMode")
 
   final def x = VdomAttr("x")
 
