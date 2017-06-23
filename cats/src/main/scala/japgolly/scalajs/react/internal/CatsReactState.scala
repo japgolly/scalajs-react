@@ -7,6 +7,8 @@ import cats.implicits._
 import japgolly.scalajs.react._
 import CatsReact.{reactCallbackCatsInstance, CatsReactExt_ReactST}
 
+import scala.concurrent.{ExecutionContext, Future}
+
 /**
   * Created by alonsodomin on 13/03/2017.
   */
@@ -230,6 +232,15 @@ object CatsReactState {
 
     def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
       i => runStateF(f(i))
+
+    def runStateFuture(st: => ReactST[Future, S, Unit])(implicit F: FlatMap[Future], ec: ExecutionContext): Callback =
+      stateCB.flatMap { s1 =>
+        val runCB = st.runS(ReactS.StateAndCallbacks(s1))
+        Callback.future(runCB.map { s2 => fToCb(sa.setStateCB(si)(s2.state, s2.cb)) })
+      }
+
+    def runStateFnFuture[I](f: I => ReactST[Future, S, Unit])(implicit F: FlatMap[Future], ec: ExecutionContext): I => Callback =
+      i => runStateFuture(f(i))
 
     def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): Out[Unit] =
       stateCB.flatMap(s1 =>
