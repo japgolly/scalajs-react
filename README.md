@@ -49,6 +49,11 @@ Includes a router, testing utils, performance utils, more.
   * [scalajs-benchmark](https://github.com/japgolly/scalajs-benchmark/)
   * [chandu0101 / scalajs-react-components](https://github.com/chandu0101/scalajs-react-components)
   * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
+  * [diode](https://github.com/suzaku-io/diode) - library for managing application state, influenced by Flux and Elm
+
+* Open Source Projects, which are using [scalajs-react](https://github.com/japgolly/scalajs-react)
+  * [scastie](https://github.com/scalacenter/scastie) - An interactive playground for Scala [https://scastie.scala-lang.org](https://scastie.scala-lang.org)
+  * [scalafiddle-editor](https://github.com/scalafiddle/scalafiddle-editor) - Web user interface for ScalaFiddle [https://scalafiddle.io](https://scalafiddle.io)
 
 ##### Requirements:
 * React 15.3+
