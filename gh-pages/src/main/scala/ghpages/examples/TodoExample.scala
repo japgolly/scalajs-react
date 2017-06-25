@@ -56,7 +56,7 @@ object TodoExample {
     s"""
       |${GhPagesMacros.exampleSource}
       |
-      |ReactDOM.render(TodoApp(), mountNode)
+      |TodoApp().renderIntoDOM(mountNode)
       |""".stripMargin
 
   // EXAMPLE:START
