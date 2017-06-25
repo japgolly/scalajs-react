@@ -43,7 +43,7 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
   }
 
   lazy val render: VdomElement = {
-    val b = new Builder()
+    val b = new Builder.ToVdomElement()
     build(b)
     b.render(tag)
   }
