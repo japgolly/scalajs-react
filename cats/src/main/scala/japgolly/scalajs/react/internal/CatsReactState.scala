@@ -232,13 +232,13 @@ object CatsReactState {
     def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
       i => runStateF(f(i))
 
-    def runStateAsync[M[_]](st: => ReactST[M, S, Unit])(implicit F: FlatMap[M], C: M[Callback]=>Callback, ec: ExecutionContext): Callback =
+    def runStateAsync[M[_], A](st: => ReactST[M, S, A])(implicit F: FlatMap[M], C: M[Callback]=>Callback, ec: ExecutionContext): Callback =
       stateCB.flatMap { s1 =>
         val runCB = st.runS(ReactS.StateAndCallbacks(s1))
         C(F.map(runCB)(s2 => fToCb(sa.setStateCB(si)(s2.state, s2.cb))))
       }
 
-    def runStateFnAsync[M[_], I](f: I => ReactST[M, S, Unit])(implicit F: FlatMap[M], C: M[Callback]=>Callback, ec: ExecutionContext): I => Callback =
+    def runStateFnAsync[I, M[_], A](f: I => ReactST[M, S, A])(implicit F: FlatMap[M], C: M[Callback]=>Callback, ec: ExecutionContext): I => Callback =
       i => runStateAsync(f(i))
 
     def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): Out[Unit] =
