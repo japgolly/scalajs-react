@@ -324,14 +324,6 @@ object Builder {
     def shouldComponentUpdatePure(f: ShouldComponentUpdate[P, S, B] => Boolean): This =
       shouldComponentUpdate($ => CallbackTo(f($)))
 
-    @deprecated("Use componentDidMountConst",         "1.0.0") def componentDidMountCB        (cb: Callback           ): This = componentDidMount        (_ => cb)
-    @deprecated("Use componentDidUpdateConst",        "1.0.0") def componentDidUpdateCB       (cb: Callback           ): This = componentDidUpdate       (_ => cb)
-    @deprecated("Use componentWillMountConst",        "1.0.0") def componentWillMountCB       (cb: Callback           ): This = componentWillMount       (_ => cb)
-    @deprecated("Use componentWillReceivePropsConst", "1.0.0") def componentWillReceivePropsCB(cb: Callback           ): This = componentWillReceiveProps(_ => cb)
-    @deprecated("Use componentWillUnmountConst",      "1.0.0") def componentWillUnmountCB     (cb: Callback           ): This = componentWillUnmount     (_ => cb)
-    @deprecated("Use componentWillUpdateConst",       "1.0.0") def componentWillUpdateCB      (cb: Callback           ): This = componentWillUpdate      (_ => cb)
-    @deprecated("Use shouldComponentUpdateConst",     "1.0.0") def shouldComponentUpdateCB    (cb: CallbackTo[Boolean]): This = shouldComponentUpdate    (_ => cb)
-
     def componentDidMountConst        (cb: Callback           ): This = componentDidMount         (_ => cb)
     def componentDidUpdateConst       (cb: Callback           ): This = componentDidUpdate        (_ => cb)
     def componentWillMountConst       (cb: Callback           ): This = componentWillMount        (_ => cb)

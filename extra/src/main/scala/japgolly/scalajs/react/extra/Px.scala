@@ -124,9 +124,6 @@ object Px {
 
   sealed abstract class Derivative[A] extends Px[A] {
 
-    @deprecated("Use .withReuse", "1.0.0") final def reuse(implicit ev: Reusability[A]): Px[A] =
-      withReuse
-
     /**
      * In addition to updating when the underlying `Px` changes, this will also check its own result and halt updates
      * if reusable.

@@ -37,14 +37,6 @@ object Lifecycle {
     final def setState(newState: S, cb: Callback = Callback.empty): Callback = mountedPure.setState(newState, cb)
     final def modState(mod: S => S, cb: Callback = Callback.empty): Callback = mountedPure.modState(mod, cb)
 
-    @deprecated("Renamed to setStateFn", "1.0.0")
-    final def _setState[I](f: I => S, callback: Callback = Callback.empty): I => Callback =
-      setStateFn(f, callback)
-
-    @deprecated("Renamed to modStateFn", "1.0.0")
-    final def _modState[I](f: I => S => S, callback: Callback = Callback.empty): I => Callback =
-      modStateFn(f, callback)
-
     final def setStateFn[I](f: I => S, callback: Callback = Callback.empty): I => Callback =
       i => setState(f(i), callback)
 

@@ -93,12 +93,6 @@ object CallbackOption {
                                              (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
     traverse(tca)(identityFn)
 
-  @deprecated("Use .traverseOption", "1.0.0")
-  def traverseO[A, B](oa: => Option[A])(f: A => CallbackOption[B]): CallbackOption[B] = traverseOption(oa)(f)
-
-  @deprecated("Use .sequenceOption", "1.0.0")
-  def sequenceO[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] = sequenceOption(oca)
-
   /**
    * NOTE: Technically a proper, lawful traversal should return `CallbackOption[Option[B]]`.
    */

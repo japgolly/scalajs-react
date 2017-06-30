@@ -4,18 +4,6 @@ object ExportsStatic {
 
   final class VdomExtString(private val s: String) extends AnyVal {
 
-    @deprecated("Use VdomAttr[A](\"name\") instead.", "1.0.0")
-    def reactAttr[A]: Attr[A] =
-      Attr[A](s)
-
-    @deprecated("Use VdomStyle[A](\"name\") instead.", "1.0.0")
-    def reactStyle[A]: Attr[A] =
-      Style[A](s)
-
-    @deprecated("Use HtmlTag(\"name\") or HtmlTagOf[A](\"name\") instead.", "1.0.0")
-    def reactTag[N <: HtmlTopNode]: HtmlTagOf[N] =
-      new HtmlTagOf[N](s)
-
     // May eventually make use of this
     private[vdom] def reactTerminalTag[N <: HtmlTopNode]: HtmlTagOf[N] =
       new HtmlTagOf[N](s)
@@ -25,7 +13,8 @@ object ExportsStatic {
 object Exports extends Exports
 abstract class Exports {
 
-  implicit final def VdomExtString(a: String) = new ExportsStatic.VdomExtString(a)
+  private[vdom] implicit final def VdomExtString(a: String): ExportsStatic.VdomExtString =
+    new ExportsStatic.VdomExtString(a)
 
   final type VdomNode = japgolly.scalajs.react.vdom.VdomNode
   final val VdomNode = japgolly.scalajs.react.vdom.VdomNode

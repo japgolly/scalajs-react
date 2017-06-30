@@ -78,14 +78,6 @@ object Callback {
   /**
    * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
    * satisfied.
-   */
-  @deprecated("Use when() or unless().", "0.11.0")
-  def ifTrue(pred: Boolean, c: => Callback): Callback =
-    when(pred)(c)
-
-  /**
-   * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
-   * satisfied.
    *
    * Notice the condition is strict. If non-strictness is desired use `callback.when(cond)`.
    *
@@ -112,12 +104,6 @@ object Callback {
 
   def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
     traverse(tca)(identityFn)
-
-  @deprecated("Use .traverseOption", "1.0.0")
-  def traverseO[A](oa: => Option[A])(f: A => Callback): Callback = traverseOption(oa)(f)
-
-  @deprecated("Use .sequenceOption", "1.0.0")
-  def sequenceO[A](oca: => Option[Callback]): Callback = sequenceOption(oca)
 
   def traverseOption[A](oa: => Option[A])(f: A => Callback): Callback =
     Callback(
@@ -255,12 +241,6 @@ object CallbackTo {
 
   def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])(implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
     traverse(tca)(identityFn)(cbf)
-
-  @deprecated("Use .traverseOption", "1.0.0")
-  def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] = traverseOption(oa)(f)
-
-  @deprecated("Use .sequenceOption", "1.0.0")
-  def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] = sequenceOption(oca)
 
   def traverseOption[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
     liftTraverse(f).option.map(_(oa))
@@ -460,10 +440,6 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    */
   @inline def voidExplicit[B](implicit ev: A <:< B): Callback =
     void
-
-  @deprecated("Use when() or unless().", "0.11.0")
-  def conditionally(cond: => Boolean): CallbackTo[Option[A]] =
-    when(cond)
 
   /**
    * Conditional execution of this callback.

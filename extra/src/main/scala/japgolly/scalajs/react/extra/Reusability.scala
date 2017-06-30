@@ -46,10 +46,6 @@ object Reusability {
   def apply[A](f: (A, A) => Boolean): Reusability[A] =
     new Reusability(f)
 
-  @deprecated("Use .apply. So Reusability[A](…) instead of Reusability.fn[A](…)", "1.0.0")
-  def fn[A](f: (A, A) => Boolean): Reusability[A] =
-    new Reusability(f)
-
   def const[A](r: Boolean): Reusability[A] =
     new Reusability((_, _) => r)
 
@@ -178,9 +174,6 @@ object Reusability {
   /** Declare a type reusable when both values fail a given predicate. */
   def unless[A](f: A => Boolean): Reusability[A] =
     when(!f(_))
-
-  @deprecated("Use Reusability.when",   "1.0.0") def whenTrue [A](f: A => Boolean): Reusability[A] = when(f)
-  @deprecated("Use Reusability.unless", "1.0.0") def whenFalse[A](f: A => Boolean): Reusability[A] = unless(f)
 
   // -------------------------------------------------------------------------------------------------------------------
   // Implicit Instances
