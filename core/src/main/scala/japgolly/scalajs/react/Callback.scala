@@ -1,14 +1,15 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom.{console, window}
-import scala.annotation.{tailrec, implicitNotFound}
+import org.scalajs.dom.raw.Window
+import scala.annotation.{implicitNotFound, tailrec}
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
-import scala.scalajs.js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
+import scala.scalajs.js.{UndefOr, undefined, Function0 => JFn0, Function1 => JFn1}
 import scala.scalajs.js.timers.RawTimers
-import scala.util.{Try, Failure, Success}
+import scala.util.{Failure, Success, Try}
 import japgolly.scalajs.react.internal.identityFn
 import CallbackTo.MapGuard
 
@@ -275,6 +276,21 @@ object CallbackTo {
    */
   def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): CallbackTo[Future[A]] =
     CallbackTo(f.map(_.runNow()))
+
+  /** When executed, opens a new window (tab) to a given URL.
+    *
+    * @param noopener See https://developers.google.com/web/tools/lighthouse/audits/noopener
+    * @param focus    Whether or not to focus the new window.
+    */
+  def windowOpen(url     : String,
+                 noopener: Boolean = true,
+                 focus   : Boolean = true): CallbackTo[Window] =
+    CallbackTo {
+      val w = window.open(url, target = "_blank")
+      if (noopener) w.opener = null
+      if (focus) w.focus()
+      w
+    }
 
   /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.

@@ -268,5 +268,9 @@ object PrefixedTest extends TestSuite {
       'obj  - compileError(" ^.key := obj   ")
       'key  - compileError(" ^.key := ^.key ")
     }
+
+    'anchorToNewWindow {
+      test(<.a.toNewWindow("/ok")("OK!"), """<a target="_blank" href="/ok" rel="noopener">OK!</a>""")
+    }
   }
 }
