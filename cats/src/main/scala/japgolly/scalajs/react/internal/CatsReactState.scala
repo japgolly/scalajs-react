@@ -209,10 +209,12 @@ object CatsReactState {
       stateCB.flatMap { s1 =>
         val runCB: CallbackTo[(StateAndCallbacks[S], A)] = M(st run StateAndCallbacks(s1))
         runCB.flatMap { x2 =>
-          val s2 : StateAndCallbacks[S] = x2._1
-          val a  : A                    = x2._2
-          def cb : Callback             = fToCb(sa.setStateCB(si)(s2.state, s2.cb))
-          val res: CallbackTo[B]        = f(s1, s2.state, a, cb)
+          val s2: StateAndCallbacks[S] = x2._1
+          val a: A = x2._2
+
+          def cb: Callback = fToCb(sa.setStateCB(si)(s2.state, s2.cb))
+
+          val res: CallbackTo[B] = f(s1, s2.state, a, cb)
           res
         }
       }
@@ -232,13 +234,20 @@ object CatsReactState {
     def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
       i => runStateF(f(i))
 
-    def runStateAsync[M[_], A](st: => ReactST[M, S, A])(implicit F: FlatMap[M], C: M[Callback]=>Callback, ec: ExecutionContext): Callback =
-      stateCB.flatMap { s1 =>
-        val runCB = st.runS(ReactS.StateAndCallbacks(s1))
-        C(F.map(runCB)(s2 => fToCb(sa.setStateCB(si)(s2.state, s2.cb))))
-      }
+    def runStateAsync[M[_], A](st: => ReactST[M, S, A])(implicit N: Monad[M], ec: ExecutionContext): CallbackTo[M[A]] = {
+      stateCB.map { s1 =>
+        val runCB = st.run(ReactS.StateAndCallbacks(s1))
+        runCB.map { x2 =>
+            val s2: StateAndCallbacks[S] = x2._1
+            val a: A = x2._2
 
-    def runStateFnAsync[I, M[_], A](f: I => ReactST[M, S, A])(implicit F: FlatMap[M], C: M[Callback]=>Callback, ec: ExecutionContext): I => Callback =
+            fToCb(sa.setStateCB(si)(s2.state, s2.cb)).runNow()
+            a
+        }
+      }
+    }
+
+    def runStateFnAsync[I, M[_], A](f: I => ReactST[M, S, A])(implicit N: Monad[M], ec: ExecutionContext): I => CallbackTo[M[A]] =
       i => runStateAsync(f(i))
 
     def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): Out[Unit] =
