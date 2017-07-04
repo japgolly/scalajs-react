@@ -234,7 +234,7 @@ object CatsReactState {
     def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
       i => runStateF(f(i))
 
-    def runStateAsync[M[_], A](st: => ReactST[M, S, A])(implicit N: Monad[M], ec: ExecutionContext): CallbackTo[M[A]] = {
+    def runStateAsync[M[_], A](st: => ReactST[M, S, A])(implicit N: Monad[M]): CallbackTo[M[A]] = {
       stateCB.map { s1 =>
         val runCB = st.run(ReactS.StateAndCallbacks(s1))
         runCB.map { x2 =>
@@ -247,7 +247,7 @@ object CatsReactState {
       }
     }
 
-    def runStateFnAsync[I, M[_], A](f: I => ReactST[M, S, A])(implicit N: Monad[M], ec: ExecutionContext): I => CallbackTo[M[A]] =
+    def runStateFnAsync[I, M[_], A](f: I => ReactST[M, S, A])(implicit N: Monad[M]): I => CallbackTo[M[A]] =
       i => runStateAsync(f(i))
 
     def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): Out[Unit] =
