@@ -28,7 +28,7 @@ Includes a router, testing utils, performance utils, more.
   - [Performance Management](doc/PERFORMANCE.md).
   - [Smaller stuff](doc/EXTRA.md).
 - [Testing](doc/TESTING.md).
-- [Changelogs](doc/changelog) — [Latest](doc/changelog/0.11.4.md).
+- [Changelogs](doc/changelog) — [Latest](doc/changelog/0.11.5.md).
 
 
 ##### External Resources
