@@ -39,6 +39,17 @@ object Builder {
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+  /**
+    * Raw JS values of:
+    * - className
+    * - props
+    * - styles
+    * - children
+    *
+    * Everything here is mutable.
+    *
+    * There are convenience methods to (mutably) add className and styles to props.
+    */
   trait ToJs extends Builder {
     // Exposing vars here is acceptable because:
     // 1. The contents are all mutable anyway and a defensive-copy cost isn't worth it
@@ -74,6 +85,20 @@ object Builder {
 
     def addStyleToProps(): Unit =
       nonEmptyStyles.foreach(setObjectKeyValue(props, "style", _))
+
+    def childrenAsVdomNodes: List[VdomNode] = {
+      import Implicits._
+      var i = children.length
+      var nodes = List.empty[VdomNode]
+      while (i > 0) {
+        i -= 1
+        nodes ::= children(i)
+      }
+      nodes
+    }
+
+    def nonEmptyChildrenAsVdomNodes: js.UndefOr[List[VdomNode]] =
+      if (children.length == 0) js.undefined else childrenAsVdomNodes
   }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
