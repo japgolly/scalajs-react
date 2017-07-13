@@ -128,6 +128,13 @@ object Redirect {
 
   /** The current URL will be recorded in history. User can hit ''Back'' button to reach it. */
   case object Push extends Method
+
+  /** `window.location.href` will be programmatically set to the new URL.
+    * If the new URL is part of the current SPA, the entire SPA will be reloaded.
+    *
+    * The current URL will be recorded in history. User can hit ''Back'' button to reach it.
+    */
+  case object Force extends Method
 }
 
 final case class RedirectToPage[P](page: P, method: Redirect.Method) extends Redirect[P] {
