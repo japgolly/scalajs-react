@@ -32,18 +32,18 @@ Setup
     // NOTE: Requires react-with-addons.js instead of just react.js
     jsDependencies ++= Seq(
 
-      "org.webjars.bower" % "react" % "15.5.4" % "test"
+      "org.webjars.bower" % "react" % "15.6.1" % "test"
         /        "react-with-addons.js"
         minified "react-with-addons.min.js"
         commonJSName "React",
 
-      "org.webjars.bower" % "react" % "15.5.4" % "test"
+      "org.webjars.bower" % "react" % "15.6.1" % "test"
         /         "react-dom.js"
         minified  "react-dom.min.js"
         dependsOn "react-with-addons.js"
         commonJSName "ReactDOM",
 
-      "org.webjars.bower" % "react" % "15.5.4" % "test"
+      "org.webjars.bower" % "react" % "15.6.1" % "test"
         /         "react-dom-server.js"
         minified  "react-dom-server.min.js"
         dependsOn "react-dom.js"
