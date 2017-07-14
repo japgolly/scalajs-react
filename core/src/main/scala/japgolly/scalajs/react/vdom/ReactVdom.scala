@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.{raw => Raw}
+import japgolly.scalajs.react.{Callback, raw => Raw}
 import scala.scalajs.js
 
 sealed class VdomNode(val rawNode: Raw.ReactNode) extends TagMod {
@@ -18,7 +18,10 @@ object VdomNode {
 
 // =====================================================================================================================
 
-final class VdomElement(val rawElement: Raw.ReactElement) extends VdomNode(rawElement)
+final class VdomElement(val rawElement: Raw.ReactElement) extends VdomNode(rawElement) {
+  def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Raw.ReactComponentUntyped =
+    Raw.ReactDOM.render(rawElement, container, callback.toJsFn)
+}
 
 object VdomElement {
   def apply(n: Raw.ReactElement): VdomElement =

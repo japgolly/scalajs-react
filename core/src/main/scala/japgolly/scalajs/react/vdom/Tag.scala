@@ -1,5 +1,7 @@
 package japgolly.scalajs.react.vdom
 
+import japgolly.scalajs.react.{Callback, raw => Raw}
+
 class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                                          final protected val modifiers: List[Seq[TagMod]],
                                          final val namespace: Namespace) extends TagMod {
@@ -53,6 +55,9 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
 
   override def applyTo(b: Builder): Unit =
     b.appendChild(render.rawElement)
+
+  def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty) =
+    render.renderIntoDOM(container, callback)
 }
 
 // =====================================================================================================================
