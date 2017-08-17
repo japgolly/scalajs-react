@@ -28,13 +28,15 @@ trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
   import Attr.ValueType
   import ValueType._
 
-  implicit val vdomAttrVtBoolean: Simple[Boolean] = byImplicit
-
-  implicit val vdomAttrVtString: Simple[String] = string
-
-  implicit val vdomAttrVtInt: Simple[Int] = byImplicit
-
-  implicit val vdomAttrVtJsObject: Simple[js.Object] = direct
+  implicit      val vdomAttrVtBoolean : Simple[Boolean  ] = byImplicit
+  implicit      val vdomAttrVtString  : Simple[String   ] = string
+  implicit      val vdomAttrVtInt     : Simple[Int      ] = byImplicit
+  implicit lazy val vdomAttrVtLong    : Simple[Long     ] = byImplicit
+  implicit lazy val vdomAttrVtFloat   : Simple[Float    ] = byImplicit
+  implicit lazy val vdomAttrVtDouble  : Simple[Double   ] = byImplicit
+  implicit lazy val vdomAttrVtShort   : Simple[Short    ] = byImplicit
+  implicit lazy val vdomAttrVtByte    : Simple[Byte     ] = byImplicit
+  implicit      val vdomAttrVtJsObject: Simple[js.Object] = direct
 
   @inline implicit def vdomAttrVtJsDictionary[A]: ValueType[js.Dictionary[A], js.Object] = byImplicit
 
@@ -75,14 +77,16 @@ object ImplicitsForVdomNode {
 trait ImplicitsForVdomNode {
   import ImplicitsForVdomNode._
 
-  implicit def vdomNodeFromLong         (v: Long)         : VdomNode = VdomNode.cast(v.toString)
-  implicit def vdomNodeFromInt          (v: Int)          : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromShort        (v: Short)        : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromByte         (v: Byte)         : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromDouble       (v: Double)       : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromFloat        (v: Float)        : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromString       (v: String)       : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromPropsChildren(v: PropsChildren): VdomNode = VdomNode.cast(v.raw)
+  implicit def vdomNodeFromLong         (v: Long)             : VdomNode = VdomNode.cast(v.toString)
+  implicit def vdomNodeFromInt          (v: Int)              : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromShort        (v: Short)            : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromByte         (v: Byte)             : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromDouble       (v: Double)           : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromFloat        (v: Float)            : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromString       (v: String)           : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromReactNode    (v: raw.ReactNode)    : VdomNode = VdomNode(v)
+  implicit def vdomNodeFromReactNodeList(v: raw.ReactNodeList): VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromPropsChildren(v: PropsChildren)    : VdomNode = VdomNode.cast(v.raw)
 
   implicit def vdomSeqExtForTO[A](as: TraversableOnce[A]) = new TraversableOnceExt[A](as)
   implicit def vdomSeqExtForSA[A](as: Array          [A]) = new TraversableOnceExt[A](as)

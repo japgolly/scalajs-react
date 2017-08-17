@@ -8,15 +8,15 @@ object ScalajsReact {
   object Ver {
     val Scala211      = "2.11.11"
     val Scala212      = "2.12.2"
-    val ScalaJsDom    = "0.9.2"
-    val ReactJs       = "15.5.4"
+    val ScalaJsDom    = "0.9.3"
+    val ReactJs       = "15.6.1"
     val Monocle       = "1.4.0"
-    val Scalaz72      = "7.2.13"
-    val MTest         = "0.4.7"
-    val MacroParadise = "2.1.0"
+    val Scalaz72      = "7.2.14"
+    val MTest         = "0.4.8"
+    val MacroParadise = "2.1.1"
     val SizzleJs      = "2.3.0"
     val Nyaya         = "0.8.1"
-    val Cats          = "0.9.0"
+    val Cats          = "1.0.0-MF"
   }
 
   type PE = Project => Project
@@ -237,7 +237,7 @@ object ScalajsReact {
   lazy val cats = project
     .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
     .dependsOn(core, extra)
-    .settings(libraryDependencies += "org.typelevel" %%% "cats" % Ver.Cats)
+    .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % Ver.Cats)
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))

@@ -1,14 +1,15 @@
 package japgolly.scalajs.react
 
 import org.scalajs.dom.{console, window}
-import scala.annotation.{tailrec, implicitNotFound}
+import org.scalajs.dom.raw.Window
+import scala.annotation.{implicitNotFound, tailrec}
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
-import scala.scalajs.js.{undefined, UndefOr, Function0 => JFn0, Function1 => JFn1}
+import scala.scalajs.js.{UndefOr, undefined, Function0 => JFn0, Function1 => JFn1}
 import scala.scalajs.js.timers.RawTimers
-import scala.util.{Try, Failure, Success}
+import scala.util.{Failure, Success, Try}
 import japgolly.scalajs.react.internal.identityFn
 import CallbackTo.MapGuard
 
@@ -77,14 +78,6 @@ object Callback {
   /**
    * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
    * satisfied.
-   */
-  @deprecated("Use when() or unless().", "0.11.0")
-  def ifTrue(pred: Boolean, c: => Callback): Callback =
-    when(pred)(c)
-
-  /**
-   * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition isn't
-   * satisfied.
    *
    * Notice the condition is strict. If non-strictness is desired use `callback.when(cond)`.
    *
@@ -111,12 +104,6 @@ object Callback {
 
   def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
     traverse(tca)(identityFn)
-
-  @deprecated("Use .traverseOption", "1.0.0")
-  def traverseO[A](oa: => Option[A])(f: A => Callback): Callback = traverseOption(oa)(f)
-
-  @deprecated("Use .sequenceOption", "1.0.0")
-  def sequenceO[A](oca: => Option[Callback]): Callback = sequenceOption(oca)
 
   def traverseOption[A](oa: => Option[A])(f: A => Callback): Callback =
     Callback(
@@ -255,12 +242,6 @@ object CallbackTo {
   def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])(implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
     traverse(tca)(identityFn)(cbf)
 
-  @deprecated("Use .traverseOption", "1.0.0")
-  def traverseO[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] = traverseOption(oa)(f)
-
-  @deprecated("Use .sequenceOption", "1.0.0")
-  def sequenceO[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] = sequenceOption(oca)
-
   def traverseOption[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
     liftTraverse(f).option.map(_(oa))
 
@@ -275,6 +256,21 @@ object CallbackTo {
    */
   def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): CallbackTo[Future[A]] =
     CallbackTo(f.map(_.runNow()))
+
+  /** When executed, opens a new window (tab) to a given URL.
+    *
+    * @param noopener See https://developers.google.com/web/tools/lighthouse/audits/noopener
+    * @param focus    Whether or not to focus the new window.
+    */
+  def windowOpen(url     : String,
+                 noopener: Boolean = true,
+                 focus   : Boolean = true): CallbackTo[Window] =
+    CallbackTo {
+      val w = window.open(url, target = "_blank")
+      if (noopener) w.opener = null
+      if (focus) w.focus()
+      w
+    }
 
   /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.
@@ -444,10 +440,6 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    */
   @inline def voidExplicit[B](implicit ev: A <:< B): Callback =
     void
-
-  @deprecated("Use when() or unless().", "0.11.0")
-  def conditionally(cond: => Boolean): CallbackTo[Option[A]] =
-    when(cond)
 
   /**
    * Conditional execution of this callback.

@@ -9,9 +9,6 @@ final class StateSnapshot[S](val value: S,
 
   override def toString = s"StateSnapshot($value)"
 
-  @deprecated("Use setState instead.", "1.0.0") def set = setState
-  @deprecated("Use modState instead.", "1.0.0") def mod = modState _
-
   def modState(f: S => S): Callback =
     setState.value(f(value))
 

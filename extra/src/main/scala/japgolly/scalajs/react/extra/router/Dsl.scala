@@ -624,6 +624,14 @@ final class RouterConfigDsl[Page] {
   // Utilities
 
   /**
+    * Removes the query portion of the URL.
+    *
+    * e.g. `a/b?c=1` to `a/b`
+    */
+  def removeQuery: Rule =
+    rewritePathR("^(.*?)\\?.*$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+
+  /**
    * A rule that uses a replace-state redirect to remove trailing slashes from route URLs.
    */
   def removeTrailingSlashes: Rule =

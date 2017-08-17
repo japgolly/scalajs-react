@@ -9,7 +9,27 @@ trait HtmlTags {
   /**
     * Represents a hyperlink, linking to another resource.
     */
-  final def a = HtmlTagOf[*.Anchor]("a")
+  object a extends TagOf[*.Anchor]("a", Nil, Namespace.Html) {
+
+    /** A link to open a new window (tab) to a given URL.
+      *
+      * Like: `<a href="https://google.com" target="_blank" rel="noopener"></a>`
+      *
+      * @param noopener See https://developers.google.com/web/tools/lighthouse/audits/noopener
+      */
+    def toNewWindow(href      : String,
+                    noopener  : Boolean = true,
+                    noreferrer: Boolean = false) = {
+      implicit def strAttr = Attr.ValueType.string
+      val a = this(HtmlAttrs.target.blank, HtmlAttrs.href := href)
+      (noopener, noreferrer) match {
+        case(true , false) => a(HtmlAttrs.rel := "noopener")
+        case(true , true ) => a(HtmlAttrs.rel := "noopener noreferrer")
+        case(false, true ) => a(HtmlAttrs.rel := "noreferrer")
+        case(false, false) => a
+      }
+    }
+  }
 
   /**
     * An abbreviation or acronym; the expansion of the abbreviation can be

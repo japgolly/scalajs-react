@@ -33,12 +33,13 @@ case class SimHistory(startUrl: AbsUrl) {
   def interpret[B](cmd: RouteCmd[B]): CallbackTo[B] = {
     import RouteCmd._
     cmd match {
-      case PushState(url)    => Callback{history = url :: history}
-      case ReplaceState(url) => Callback{history = url :: history.tail}
-      case BroadcastSync     => Callback{broadcasts :+= history}
-      case Return(a)         => CallbackTo.pure(a)
-      case Log(msg)          => Callback.log("[SimHistory] " + msg())
-      case Sequence(a, b)    => a.foldLeft[CallbackTo[_]](Callback.empty)(_ >> interpret(_)) >> interpret(b)
+      case PushState(url)         => Callback{history = url :: history}
+      case ReplaceState(url)      => Callback{history = url :: history.tail}
+      case SetWindowLocation(url) => Callback{history = url :: Nil}
+      case BroadcastSync          => Callback{broadcasts :+= history}
+      case Return(a)              => CallbackTo.pure(a)
+      case Log(msg)               => Callback.log("[SimHistory] " + msg())
+      case Sequence(a, b)         => a.foldLeft[CallbackTo[_]](Callback.empty)(_ >> interpret(_)) >> interpret(b)
     }
   }
 
