@@ -44,6 +44,7 @@ object CatsReactState {
 
   type ReactST[M[_], S, A] = StateT[M, StateAndCallbacks[S], A]
   type ReactS[S, A] = ReactST[Id, S, A]
+  final type TransAsync[M[_], N[_]] = M ~> ({type X[a] = CallbackTo[N[a]]})#X
 
   object ReactS {
     final def StateAndCallbacks[S](state: S, cb: Callback = Callback.empty) =
@@ -202,8 +203,6 @@ object CatsReactState {
 
   final class Ext_StateAccessRW[F[_], SI, S, Out[_]](si: SI)(implicit sa: StateAccessor.ReadWrite[SI, F, F, S], fToCb: Effect.Trans[F, CallbackTo], cbToOut: Effect.Trans[CallbackTo, Out]) {
     implicit private def autoOut[A](a: CallbackTo[A]): Out[A] = cbToOut(a)
-
-    private type TransAsync[M[_], N[_]] = M ~> ({type X[a] = CallbackTo[N[a]]})#X
 
     private def stateCB: CallbackTo[S] = fToCb(sa.state(si))
 
