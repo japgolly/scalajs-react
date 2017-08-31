@@ -296,7 +296,7 @@ React Extensions
     props.message)
   ```
 
-* Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `zoom()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
+* Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `.zoomState()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
 
   ```scala
   def incrementCounter(s: StateAccessPure[Int]): Callback =
@@ -306,7 +306,7 @@ React Extensions
   case class State(name: String, counter: Int)
 
   def render = {
-    val f = $.zoom(_.counter)((a,b) => a.copy(counter = b))
+    val f = $.zoomState(_.counter)(value => _.copy(counter = value))
     button(onclick --> incrementCounter(f), "+")
   }
   ```
