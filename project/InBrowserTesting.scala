@@ -1,8 +1,9 @@
 import sbt._
 import sbt.Keys._
+import org.openqa.selenium.remote.DesiredCapabilities
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import org.scalajs.sbtplugin.cross.CrossProject
-import org.scalajs.sbtplugin.ScalaJSPluginInternal._
+import org.scalajs.sbtplugin.{ScalaJSPluginInternal => I}
 import org.scalajs.jsenv.selenium._
 
 object InBrowserTesting {
@@ -16,7 +17,7 @@ object InBrowserTesting {
     _.settings(
       inConfig(cfg)(
         Defaults.testSettings ++
-        scalaJSTestSettings ++
+        I.scalaJSTestSettings ++
         Seq(
 
           // Scala.JS public settings
@@ -46,14 +47,11 @@ object InBrowserTesting {
           scalaJSStage                  := (scalaJSStage                  in Test).value,
 
           // Scala.JS internal settings
-          scalaJSClearCacheStats := (scalaJSClearCacheStats in Test).value,
-          scalaJSEnsureUnforked  := (scalaJSEnsureUnforked  in Test).value,
-          scalaJSIRCacheHolder   := (scalaJSIRCacheHolder   in Test).value,
-          scalaJSIRCache         := (scalaJSIRCache         in Test).value,
-          scalaJSLinker          := (scalaJSLinker          in Test).value,
-          scalaJSRequestsDOM     := (scalaJSRequestsDOM     in Test).value,
-          sjsirFilesOnClasspath  := (sjsirFilesOnClasspath  in Test).value,
-          usesScalaJSLinkerTag   := (usesScalaJSLinkerTag   in Test).value,
+          I.scalaJSEnsureUnforked  := (I.scalaJSEnsureUnforked  in Test).value,
+          I.scalaJSIRCache         := (I.scalaJSIRCache         in Test).value,
+          I.scalaJSLinker          := (I.scalaJSLinker          in Test).value,
+          I.sjsirFilesOnClasspath  := (I.sjsirFilesOnClasspath  in Test).value,
+          I.usesScalaJSLinkerTag   := (I.usesScalaJSLinkerTag   in Test).value,
 
           // SBT test settings
           definedTestNames     := (definedTestNames     in Test).value,
@@ -74,13 +72,12 @@ object InBrowserTesting {
        // test                 := (test                 in Test).value,
 
           // In-browser settings
-          jsEnv           := env,
-          requiresDOM     := true)))
+          jsEnv := env)))
 
   def js: Project => Project =
     _.configure(
-      browserConfig(ConfigFirefox, new SeleniumJSEnv(Firefox())),
-      browserConfig(ConfigChrome, new SeleniumJSEnv(Chrome())))
+      browserConfig(ConfigFirefox, new SeleniumJSEnv(DesiredCapabilities.firefox())),
+      browserConfig(ConfigChrome, new SeleniumJSEnv(DesiredCapabilities.chrome())))
     .settings(
       testAll := {
         (test in Test         ).value
