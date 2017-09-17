@@ -12,7 +12,7 @@ object ScalajsReact {
     val ReactJs       = "15.6.1"
     val Monocle       = "1.4.0"
     val Scalaz72      = "7.2.14"
-    val MTest         = "0.4.8"
+    val MTest         = "0.5.3"
     val MacroParadise = "2.1.1"
     val SizzleJs      = "2.3.0"
     val Nyaya         = "0.8.1"
