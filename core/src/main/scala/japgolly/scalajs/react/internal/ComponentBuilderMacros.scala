@@ -3,7 +3,7 @@ package japgolly.scalajs.react.internal
 import scala.reflect.macros.blackbox.Context
 import japgolly.scalajs.react.Children
 
-final class ComponentBuilderMacros(val c: Context) extends ReactMacroUtils {
+final class ComponentBuilderMacros(val c: Context) extends MacroUtils {
   import c.universe._
 
   private def createBackend[B: c.WeakTypeTag] = {

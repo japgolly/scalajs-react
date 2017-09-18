@@ -2,9 +2,9 @@ package japgolly.scalajs.react.extra.internal
 
 import scala.reflect.macros.blackbox.Context
 import japgolly.scalajs.react.extra.router.StaticDsl.{Route, RouteB}
-import japgolly.scalajs.react.internal.ReactMacroUtils
+import japgolly.scalajs.react.internal.MacroUtils
 
-class RouterMacros (val c: Context) extends ReactMacroUtils {
+class RouterMacros (val c: Context) extends MacroUtils {
   import c.universe._
 
   def quietCaseClass[T: c.WeakTypeTag]: c.Expr[Route[T]] = implCaseClass[Route, T](false)

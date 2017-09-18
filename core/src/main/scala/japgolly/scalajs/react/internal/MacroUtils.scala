@@ -2,7 +2,7 @@ package japgolly.scalajs.react.internal
 
 import scala.reflect.macros.blackbox.Context
 
-abstract class ReactMacroUtils {
+abstract class MacroUtils {
   val c: Context
   import c.universe._
 
