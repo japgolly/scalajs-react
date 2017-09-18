@@ -59,4 +59,4 @@ Includes a router, testing utils, performance utils, more.
 ##### Requirements:
 * React 15.3+
 * Scala 2.11 or 2.12.
-* Scala.JS 0.6.15+
+* Scala.JS 0.6.17+
