@@ -19,7 +19,7 @@ object BroadcasterTest extends TestSuite {
     .configure(Listenable.listen(b => b, $ => (i: Int) => $.modState(_ :+ i)))
     .build
 
-  override def tests = TestSuite {
+  override def tests = Tests {
     val b = new B
 
     'component {

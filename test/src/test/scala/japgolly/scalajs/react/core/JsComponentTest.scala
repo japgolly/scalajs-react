@@ -29,7 +29,7 @@ object JsComponentPTest extends JsComponentTest {
   lazy val Component = JsComponent[JsProps, Children.None, Null](RawComp)
   compileError(""" Component() """)
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'unspecifiedDisplayName {
       def n = ""
@@ -147,7 +147,7 @@ object JsComponentSTest extends JsComponentTest {
 
   lazy val Component = JsComponent[Null, Children.None, JsState](RawComp).addFacade[JsMethods]
 
-  override def tests = TestSuite {
+  override def tests = Tests {
     def JsState1(num1: Int): JsState =
       js.Dynamic.literal("num1" -> num1).asInstanceOf[JsState]
     def JsState(num1: Int, num2: Int): JsState =

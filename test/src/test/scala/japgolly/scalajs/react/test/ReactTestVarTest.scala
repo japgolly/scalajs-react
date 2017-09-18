@@ -7,7 +7,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 
 object ReactTestVarTest extends TestSuite {
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     val v = ReactTestVar(3)
 

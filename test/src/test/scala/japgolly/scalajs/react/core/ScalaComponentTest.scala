@@ -20,7 +20,7 @@ object ScalaComponentPTest extends TestSuite {
       .render_P(p => raw.React.createElement("div", null, "Hello ", p.name))
       .build
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'displayName {
       assertEq(BasicComponent.displayName, "HelloMessage")
@@ -189,7 +189,7 @@ object ScalaComponentSTest extends TestSuite {
       .render_S(s => raw.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3))
       .build
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'main {
       val unmounted = Component()

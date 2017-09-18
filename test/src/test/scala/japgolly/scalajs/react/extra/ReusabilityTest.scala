@@ -90,7 +90,7 @@ object ReusabilityTest extends TestSuite {
       assertEq(r.test(a, b), a == b)
   }
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'macros {
       def test[A](a: A, b: A, expect: Boolean)(implicit r: Reusability[A]) =

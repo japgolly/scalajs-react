@@ -134,7 +134,7 @@ object Router2Test extends TestSuite {
   implicit def str2path(s: String) = Path(s)
   def htmlFor(r: Resolution[_]) = ReactDOMServer.renderToStaticMarkup(r.render())
 
-  override val tests = TestSuite {
+  override val tests = Tests {
     import MyPage2._
     implicit val base = RouterTestHelp.localBaseUrl_/
     val (router, lgc) = Router.componentAndLogic(base, config)

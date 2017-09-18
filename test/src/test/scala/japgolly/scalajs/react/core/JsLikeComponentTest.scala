@@ -19,7 +19,7 @@ object JsLikeComponentTest extends TestSuite {
 
   val o = js.Dynamic.literal("hello" -> 123)
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'js {
       'undefined - expectErrorContaining("undefined")(JsComponent[Null, Children.None, Null](js.undefined))

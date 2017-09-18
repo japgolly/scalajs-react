@@ -29,7 +29,7 @@ object UnprefixedTest extends TestSuite {
     assertRender(comp(), exp)
   }
 
-  val tests = TestSuite {
+  val tests = Tests {
     'void      - test(br,                                       """<br/>""")
     'short     - test(div(45: Short),                           """<div>45</div>""")
     'byte      - test(div(50: Byte),                            """<div>50</div>""")

@@ -27,7 +27,7 @@ object MiscTest extends TestSuite {
   val witnessOptionCallbackToCallback: Option[Callback] => Callback =
     _.getOrEmpty
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'children {
       'argsToComponents {

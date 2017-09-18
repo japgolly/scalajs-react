@@ -21,7 +21,7 @@ object CatsTest extends TestSuite {
     .render(T => <.input(^.value := T.state.toString))
     .build
 
-  val tests = TestSuite {
+  val tests = Tests {
 
     'inference {
       import japgolly.scalajs.react.test.InferenceUtil._

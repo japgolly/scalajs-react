@@ -54,7 +54,7 @@ object ReusableFnTest extends TestSuite {
     }
   }
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'fn1 {
       import Fs._

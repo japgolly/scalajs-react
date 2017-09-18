@@ -22,7 +22,7 @@ object JsFnComponentTest extends TestSuite {
 
   lazy val Component = JsFnComponent[JsProps, Children.None](RawComp)
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
 //    'displayName {
 //      println(Component.raw)

@@ -43,7 +43,7 @@ object TestTest extends TestSuite {
     .componentWillReceiveProps(i => Callback(i.backend.prev = i.currentProps))
     .build
 
-  val tests = TestSuite {
+  val tests = Tests {
 
     'findRenderedDOMComponentWithClass {
       val x = ReactTestUtils.findRenderedDOMComponentWithClass(rab, "BB")

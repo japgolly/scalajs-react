@@ -68,7 +68,7 @@ object DslTest extends TestSuite {
     s => Try(s.toInt).toOption.filter(_ >= 5))(
     _.toString)
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'route {
       import StaticDsl.Route

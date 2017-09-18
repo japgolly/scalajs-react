@@ -23,7 +23,7 @@ object ReactAttrTest extends TestSuite {
   def focusEH: ReactFocusEvent => Callback = _ => callback
   def mouseInputEH: ReactMouseEventFromInput => Callback = _ => callback
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'valueTypes {
 

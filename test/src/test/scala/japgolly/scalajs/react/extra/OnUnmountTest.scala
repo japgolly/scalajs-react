@@ -25,7 +25,7 @@ object OnUnmountTest extends TestSuite {
     .render_S(s => if (s) C() else <.div)
     .build
 
-  override def tests = TestSuite {
+  override def tests = Tests {
     val c = ReactTestUtils.renderIntoDocument(Outer())
     assert(i == 1)
     c.setState(false)

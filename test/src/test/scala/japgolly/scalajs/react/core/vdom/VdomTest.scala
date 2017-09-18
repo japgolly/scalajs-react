@@ -10,7 +10,7 @@ object VdomTest extends TestSuite {
   val C = ScalaComponent.static("")(<.br)
   val Span = ScalaComponent.builder[Unit]("").render_C(<.span(_)).build
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'tagModToJs {
       'childrenAsVdomNodes {

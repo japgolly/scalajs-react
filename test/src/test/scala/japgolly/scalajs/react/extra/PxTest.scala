@@ -34,7 +34,7 @@ object PxTest extends TestSuite {
 
   type AddCC = Int => Int
 
-  override def tests = TestSuite {
+  override def tests = Tests {
     'big {
       val xa = Px("a").withReuse.manualUpdate
 

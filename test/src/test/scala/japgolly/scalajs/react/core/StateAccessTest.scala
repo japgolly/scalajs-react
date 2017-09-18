@@ -5,7 +5,7 @@ import japgolly.scalajs.react._
 
 object StateAccessTest extends TestSuite {
 
-  override def tests = TestSuite {
+  override def tests = Tests {
     import test.InferenceUtil._
 
     'generic {

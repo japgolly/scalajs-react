@@ -71,7 +71,7 @@ object RouterTest extends TestSuite {
 
   // -------------------------------------------------------------------------------------------------------------------
 
-  override val tests = TestSuite {
+  override val tests = Tests {
 
     'sim {
       import MyPage.{Root, Hello, Greet, Person}

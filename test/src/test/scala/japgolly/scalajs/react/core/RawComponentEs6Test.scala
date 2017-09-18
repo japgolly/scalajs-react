@@ -28,7 +28,7 @@ object RawComponentEs6PTest extends TestSuite {
         .xmapProps(_.unbox)(Box(_))
         .xmapState(_.unbox)(Box(_))
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'displayName {
       assertEq(BasicComponent.displayName, "HelloRaw6")
@@ -204,7 +204,7 @@ object RawComponentEs6STest extends TestSuite {
         .xmapState(_.unbox)(Box(_))
         .withRawType[RawComp]
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'main {
       val unmounted = Component()

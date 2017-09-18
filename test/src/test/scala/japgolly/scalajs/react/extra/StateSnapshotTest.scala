@@ -8,7 +8,7 @@ object StateSnapshotTest extends TestSuite {
   def assertReusable[A](a: A, b: A)(implicit r: Reusability[A]): Unit = assert(a ~=~ b)
   def assertNotReusable[A](a: A, b: A)(implicit r: Reusability[A]): Unit = assert(a ~/~ b)
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'noReuse {
       def make = StateSnapshot(1)(Callback.log(_))

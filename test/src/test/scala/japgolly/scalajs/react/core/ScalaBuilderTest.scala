@@ -20,7 +20,7 @@ object ScalaBuilderTest extends TestSuite {
   // 5 = ScalaComponent.build
   // 6 = ScalaComponent.build#Builder
 
-  override def tests = TestSuite {
+  override def tests = Tests {
     'defaults {
       import ScalaComponent.builder
       'autoSB - testExpr(builder[P]("")                     .render_P(???).build).expect[ScalaComponent[P, Unit, Unit, CtorType.Props]]

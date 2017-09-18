@@ -8,7 +8,7 @@ object StateAccessorTest extends TestSuite {
 
   type J = JS
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'writePure {
       def use[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]): S => Callback = t.setState(i)(_)

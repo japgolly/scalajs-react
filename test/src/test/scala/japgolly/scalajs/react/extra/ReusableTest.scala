@@ -14,7 +14,7 @@ object ReusableTest extends TestSuite {
   def nIsh(n: Int) = Reusable(n)((x, y) => Math.abs(x - y) < 10)
   val oneIsh = nIsh(1)
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     'refl - assertReusable(oneIsh, oneIsh)
 

@@ -23,7 +23,7 @@ object MonocleTest extends TestSuite {
     // TODO I can't think of how to fix this without crazy typeclasses or f-bounded types
   }
 
-  val tests = TestSuite {
+  val tests = Tests {
 
     'inference {
       def lensST: monocle.Lens[S, T] = null

@@ -9,7 +9,7 @@ import utest._
 // Also checked with bin/checkDevOnly via Travis CI
 object DevOnlyTest extends TestSuite {
 
-  val tests = TestSuite {
+  val tests = Tests {
 
     def test(t: VdomTag)(dev: => String, prod: => String): Unit = {
       val exp = if (developmentMode) dev else prod
