@@ -103,8 +103,7 @@ object ScalajsReact {
       .settings(
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
-        testFrameworks        += new TestFramework("utest.runner.Framework"),
-        requiresDOM           := true)
+        testFrameworks        += new TestFramework("utest.runner.Framework"))
 
   def addReactJsDependencies(scope: Configuration): PE =
     _.settings(
