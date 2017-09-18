@@ -70,7 +70,7 @@ object DslTest extends TestSuite {
 
   override def tests = Tests {
 
-    'route {
+    'route - {
       import StaticDsl.Route
       import noPageDsl._
 
@@ -140,7 +140,7 @@ object DslTest extends TestSuite {
       'T3 -
         test[(Int, Int, Int)](int / int / int)(t => t._1 + "/" + t._2 + "/" + t._3, ints3: _*)("3/3", "3/a/3", "a/3/3", "4/4/a")
 
-      'T45678 {
+      'T45678 - {
         val s1 = string("[ab]")
         val s2 = string("[cd]")
         val s3 = string("[ef]")
@@ -179,11 +179,11 @@ object DslTest extends TestSuite {
       'caseClass0 -
         test("hello".caseClass[CC0])(_ => "hello", CC0())()
 
-      'option {
+      'option - {
         'basic -
           testM(int.option)("" -> None, "3" -> Some(3))("asd")
 
-        'combo {
+        'combo - {
           testM("yar:" ~ int.option)("yar:" -> None, "yar:22" -> Some(22))("", "3")
           testM(("yar:" ~ int).option)("" -> None, "yar:7" -> Some(7))("yar:", "3")
           testM("a" / int.option / "b" / int.option / "c")(
@@ -206,7 +206,7 @@ object DslTest extends TestSuite {
           assertEq(r pathFor "xz", Path("data.xz"))
         }
 
-        'withDefault {
+        'withDefault - {
           val r: Route[String] = "data" ~ ("." ~ string("[a-z0-9]+")).option.withDefault("xz")
           testM(r)("data.zip" -> "zip")("data.")
           assertEq(r parse Path("data.xz"), Some("xz"))
@@ -216,11 +216,11 @@ object DslTest extends TestSuite {
       }
     }
 
-    'rules {
+    'rules - {
       import PageSet._, dsl._
       implicit def redirectMethod = Redirect.Push
 
-      'staticRoute {
+      'staticRoute - {
         staticRoute("abc", Obj1) ~> render (reactTag)
         staticRoute("abc", Obj1) ~> render (reactElement)
         staticRoute("abc", Obj1) ~> render (compCConst())
@@ -233,7 +233,7 @@ object DslTest extends TestSuite {
         ()
       }
 
-      'dynamicRoute {
+      'dynamicRoute - {
         dynamicRouteCT(routeCCi) ~> render (reactTag)
         dynamicRouteCT(routeCCi) ~> render (reactElement)
         dynamicRouteCT(routeCCi) ~> render (compCConst())

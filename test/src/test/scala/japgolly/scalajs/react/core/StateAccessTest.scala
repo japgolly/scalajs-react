@@ -8,10 +8,10 @@ object StateAccessTest extends TestSuite {
   override def tests = Tests {
     import test.InferenceUtil._
 
-    'generic {
+    'generic - {
       'xmap - test[StateAccessPure[S]](_.xmapState[T](???)(???)).expect_<[StateAccessPure[T]]
     }
-    'backendScope {
+    'backendScope - {
       'is   - test[ScalaComponent.BackendScope[P, S]].usableAs[StateAccessPure[S]]
       'xmap - test[ScalaComponent.BackendScope[P, S]](_.xmapState[T](???)(???)).expect_<[StateAccessPure[T]]
     }

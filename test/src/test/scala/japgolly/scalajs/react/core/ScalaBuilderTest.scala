@@ -21,16 +21,16 @@ object ScalaBuilderTest extends TestSuite {
   // 6 = ScalaComponent.build#Builder
 
   override def tests = Tests {
-    'defaults {
+    'defaults - {
       import ScalaComponent.builder
       'autoSB - testExpr(builder[P]("")                     .render_P(???).build).expect[ScalaComponent[P, Unit, Unit, CtorType.Props]]
       'autoB  - testExpr(builder[P]("").initialState[S](???).render_P(???).build).expect[ScalaComponent[P, S   , Unit, CtorType.Props]]
       'autoS  - testExpr(builder[P]("").backend[B](???)     .render_P(???).build).expect[ScalaComponent[P, Unit, B   , CtorType.Props]]
     }
 
-    'renderBackend {
+    'renderBackend - {
       import BackendMacroTestData._
-      'success {
+      'success - {
         'val                  - assertRender(Val.C(), "<div>hehe1</div>")
         'noArgs               - assertRender(NoArgs.C(), "<div>hehe2</div>")
         'aliasesToSameType    - assertRender(AliasesToSameType.C(7), "<div>4</div>")
@@ -45,7 +45,7 @@ object ScalaBuilderTest extends TestSuite {
         'usePropsAndChildren  - assertRender(UsePropsAndChildren.C(1)(<.br), "<div>1<br/></div>")
       }
 
-      'failure {
+      'failure - {
         'ambiguousType - assertContains(
           compileError("AmbiguousType.x.renderBackend").msg, "what: Int")
 

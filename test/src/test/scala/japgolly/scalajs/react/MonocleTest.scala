@@ -25,12 +25,12 @@ object MonocleTest extends TestSuite {
 
   val tests = Tests {
 
-    'inference {
+    'inference - {
       def lensST: monocle.Lens[S, T] = null
       def lensTS: monocle.Lens[T, S] = null
       def lensJST: monocle.Lens[JS, T] = null
 
-      'zoom {
+      'zoom - {
       //'RenderScope       - test[Render              ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
         'StateAccessPure   - test[StateAccessPure[S]  ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
         'BackendScope      - test[Backend             ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
@@ -41,7 +41,7 @@ object MonocleTest extends TestSuite {
         'ReactS            - test[ReactST[M, S, A]    ](_ zoomL      lensTS ).expect  [ReactST[M, T, A]]
       }
 
-      'setStateFnL {
+      'setStateFnL - {
         'RenderScope       - test[Render              ](_ setStateFnL lensST ).expect[T => Callback]
         'StateAccessPure   - test[StateAccessPure[S]  ](_ setStateFnL lensST ).expect[T => Callback]
         'BackendScope      - test[Backend             ](_ setStateFnL lensST ).expect[T => Callback]
@@ -51,14 +51,14 @@ object MonocleTest extends TestSuite {
         'ScalaMountedId    - test[ScalaMountedId      ](_ setStateFnL lensST ).expect[T => Unit]
       }
 
-      'poly {
+      'poly - {
         'zoomStateL  - test[BackendScope[P, Poly[S]]](_ zoomStateL  Poly.oa[S]).expect_<[StateAccessPure[Option[S]]]
         'setStateFnL - test[BackendScope[P, Poly[S]]](_ setStateFnL Poly.oa[S]).expect[Option[S] => Callback]
       }
 
-      'stateSnapshot {
+      'stateSnapshot - {
         'oneOff   - test[Render](StateSnapshot.zoomL(lensST).of(_)).expect[StateSnapshot[T]]
-        'prepared {
+        'prepared - {
           test[Render] { $ =>
             val p = StateSnapshot.withReuse.zoomL(lensST).prepareVia($)
             implicit def rt: Reusability[T] = ???

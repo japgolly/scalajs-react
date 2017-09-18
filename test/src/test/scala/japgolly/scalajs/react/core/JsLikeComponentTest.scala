@@ -21,7 +21,7 @@ object JsLikeComponentTest extends TestSuite {
 
   override def tests = Tests {
 
-    'js {
+    'js - {
       'undefined - expectErrorContaining("undefined")(JsComponent[Null, Children.None, Null](js.undefined))
       'string - expectErrorContaining("tring")(JsComponent[Null, Children.None, Null]("what"))
       'num - expectErrorContaining("123")(JsComponent[Null, Children.None, Null](123))
@@ -32,7 +32,7 @@ object JsLikeComponentTest extends TestSuite {
       'es61 - assertNoError(JsComponent[Null, Children.None, Null](RawJs6b))
     }
 
-    'jsFn {
+    'jsFn - {
       'undefined - expectErrorContaining("undefined")(JsFnComponent[Null, Children.None](js.undefined))
       'string - expectErrorContaining("tring")(JsFnComponent[Null, Children.None]("what"))
       'num - expectErrorContaining("123")(JsFnComponent[Null, Children.None](123))

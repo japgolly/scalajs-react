@@ -29,8 +29,8 @@ object MiscTest extends TestSuite {
 
   override def tests = Tests {
 
-    'children {
-      'argsToComponents {
+    'children - {
+      'argsToComponents - {
 
         'listOfScalatags - assertRender(
           CA(<.h1("nice"), <.h2("good")),
@@ -41,7 +41,7 @@ object MiscTest extends TestSuite {
           "<div><span><h1>nice</h1></span><span><h2>good</h2></span></div>")
       }
 
-      'rendersGivenChildren {
+      'rendersGivenChildren - {
         'none - assertRender(CA(), "<div></div>")
         'one - assertRender(CA(<.h1("yay")), "<div><h1>yay</h1></div>")
         'two - assertRender(CA(<.h1("yay"), <.h3("good")), "<div><h1>yay</h1><h3>good</h3></div>")
@@ -50,7 +50,7 @@ object MiscTest extends TestSuite {
 
     }
 
-    'selectWithMultipleValues {
+    'selectWithMultipleValues - {
       val s = ScalaComponent.builder[Unit]("s").renderStatic(
           <.select(^.multiple := true, ^.value := js.Array("a", "c"))(
             <.option(^.value := "a")("a"),
@@ -65,7 +65,7 @@ object MiscTest extends TestSuite {
       assert(selectedOptions.toSet == Set("a", "c"))
     }
 
-    'renderScopeZoomState {
+    'renderScopeZoomState - {
       case class SI(s: String, i: Int)
       val C = ScalaComponent.builder[SI]("C").initialStateFromProps(p => p).render { $ =>
         val f = $.mountedImpure.zoomState(_.i)(b => _.copy(i = b))
@@ -74,8 +74,8 @@ object MiscTest extends TestSuite {
       assertRender(C(SI("Me",7)), "<div>Me/21</div>")
     }
 
-    'multiModState {
-      'simple {
+    'multiModState - {
+      'simple - {
         val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(3)
           .render { $ =>
@@ -90,7 +90,7 @@ object MiscTest extends TestSuite {
         assertEq(c.state, 11)
       }
 
-      'zoomState {
+      'zoomState - {
         val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(StrInt("yay", 3))
           .render { $ =>
@@ -109,7 +109,7 @@ object MiscTest extends TestSuite {
         assertEq(c.state, StrInt("oh", 108))
       }
 
-      'zoomStateL {
+      'zoomStateL - {
         val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(StrInt("yay", 3))
           .render { $ =>
@@ -128,7 +128,7 @@ object MiscTest extends TestSuite {
         assertEq(c.state, StrInt("oh", 108))
       }
 
-      'zoomStateL2 {
+      'zoomStateL2 - {
         val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(StrIntWrap(StrInt("yay", 3)))
           .render { $ =>
@@ -148,12 +148,12 @@ object MiscTest extends TestSuite {
       }
     }
 
-    'domExt {
+    'domExt - {
       import org.scalajs.dom.raw._
       import InferenceUtil._
       'domCast   - test[Node](_.domCast[HTMLInputElement]).expect[HTMLInputElement]
       'domAsHtml - test[Node](_.domAsHtml).expect[HTMLElement]
-      'domToHtml {
+      'domToHtml - {
         import org.scalajs.dom._
         val input = document.createElement("input")
         assert(input.domToHtml == Option(input.asInstanceOf[HTMLElement]))
@@ -161,7 +161,7 @@ object MiscTest extends TestSuite {
     }
 
     /*
-    'future {
+    'future - {
       val X = ScalaComponent.builder[Unit]("X")
         .initialState(1)
         .render_S(s => <.div("state = ", s))
@@ -169,7 +169,7 @@ object MiscTest extends TestSuite {
 
       val x = ReactTestUtils renderIntoDocument X()
 
-      'direct {
+      'direct - {
         var i = 10
         val ff = x.future.modState(_ + 1, Callback(i -= 7))
         val f: Future[Unit] = ff
@@ -179,7 +179,7 @@ object MiscTest extends TestSuite {
         }
       }
 
-      'callback {
+      'callback - {
         var i = 90
         val cbb = x.accessCB.future.modState(_ + 1, Callback(i -= 5))
         val cb: CallbackTo[Future[Unit]] = cbb

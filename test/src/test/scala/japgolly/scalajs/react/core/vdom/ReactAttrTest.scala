@@ -25,9 +25,9 @@ object ReactAttrTest extends TestSuite {
 
   override def tests = Tests {
 
-    'valueTypes {
+    'valueTypes - {
 
-      'any {
+      'any - {
         anything := ""
         anything := 5
         anything := jsObj
@@ -35,7 +35,7 @@ object ReactAttrTest extends TestSuite {
         anything := unit
       }
 
-      'string {
+      'string - {
         stringOnly := ""
         compileError("stringOnly := 5") // Explicit .toString required
         compileError("stringOnly := jsObj")
@@ -43,7 +43,7 @@ object ReactAttrTest extends TestSuite {
         compileError("stringOnly := unit").msg
       }
 
-      'int {
+      'int - {
         intOnly := 5
         compileError("intOnly := \"\"")
         compileError("intOnly := jsObj")
@@ -51,7 +51,7 @@ object ReactAttrTest extends TestSuite {
         compileError("intOnly := unit").msg
       }
 
-      'jsObject {
+      'jsObject - {
         style := jsObj
         style := jsDict
         compileError("style := 5")
@@ -59,7 +59,7 @@ object ReactAttrTest extends TestSuite {
         compileError("style := unit").msg
       }
 
-      'mouseEvent {
+      'mouseEvent - {
         mouse --> callback
         mouse ==> anyEH
         mouse ==> mouseEH
@@ -72,7 +72,7 @@ object ReactAttrTest extends TestSuite {
         compileError("mouse := unit").msg
       }
 
-      'focusEvent {
+      'focusEvent - {
         focus --> callback
         focus ==> anyEH
         focus ==> focusEH
