@@ -10,6 +10,7 @@ object CodeSnippets {
 
   def apply(lang: String)(src: String): VdomTag =
     <.pre(
+      ^.padding := "0",
       <.code(
         ^.cls := s"lang-$lang",
         src.trim))
