@@ -82,6 +82,7 @@ object ScalajsReact {
       }))
     )
 
+  /*
   lazy val yarnOnPath: Boolean =
     try {
       Process("yarn --version").!!
@@ -90,7 +91,6 @@ object ScalajsReact {
       case t: Throwable => false
     }
 
-  /*
   def useScalaJsBundler: PE =
     _.enablePlugins(ScalaJSBundlerPlugin)
       .settings(
