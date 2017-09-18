@@ -18,8 +18,8 @@ class RouterMacros (val c: Context) extends MacroUtils {
     val params  = primaryConstructorParams(T)
     val applyFn = tcApplyFn(T)
 
-    def xmap  = replaceMacroCallWith("xmap")
-    def const = replaceMacroCallWith("const")
+    def xmap  = replaceMacroMethod("xmap")
+    def const = replaceMacroMethod("const")
 
     val impl =
       params match {

@@ -8,7 +8,7 @@ final class ComponentBuilderMacros(val c: Context) extends MacroUtils {
 
   private def createBackend[B: c.WeakTypeTag] = {
     val B = weakTypeOf[B]
-    val backend = replaceMacroCallWith("backend")
+    val backend = replaceMacroMethod("backend")
     val fn = {
       var args = Vector.empty[Tree]
       val ctor = primaryConstructorParams(B)
@@ -38,7 +38,7 @@ final class ComponentBuilderMacros(val c: Context) extends MacroUtils {
     val B = concreteWeakTypeOf[B]
     val C = if (allowChildren) weakTypeOf[Children.Varargs] else weakTypeOf[Children.None]
     val render = TermName("render")
-    def genericRender = replaceMacroCallWith("renderWith")
+    def genericRender = replaceMacroMethod("renderWith")
 
     def assertChildrenTypeMatches(childrenUsed: Boolean): Unit =
       if (childrenUsed != allowChildren)
