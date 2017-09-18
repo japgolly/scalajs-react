@@ -1,5 +1,9 @@
-.navbar-brand {
+button[disabled] {
+    color: #888;
+    opacity: 0.4;
+}
 
+.navbar-brand {
     cursor: pointer;
 }
 
