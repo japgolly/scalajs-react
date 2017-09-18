@@ -23,28 +23,54 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.0.0-RC3"
-
-  // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
-  jsDependencies ++= Seq(
-
-    "org.webjars.bower" % "react" % "15.5.4"
-      /        "react-with-addons.js"
-      minified "react-with-addons.min.js"
-      commonJSName "React",
-
-    "org.webjars.bower" % "react" % "15.5.4"
-      /         "react-dom.js"
-      minified  "react-dom.min.js"
-      dependsOn "react-with-addons.js"
-      commonJSName "ReactDOM",
-
-    "org.webjars.bower" % "react" % "15.5.4"
-      /         "react-dom-server.js"
-      minified  "react-dom-server.min.js"
-      dependsOn "react-dom.js"
-      commonJSName "ReactDOMServer")
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.1.0"
   ```
+
+3. Add React to your build.
+
+    How to do this depends on your Scala.JS config and build setup.
+
+    If you're using [scalajs-bundler](https://scalacenter.github.io/scalajs-bundler/),
+    add the following SBT settings to get started:
+
+    ```scala
+      enablePlugins(ScalaJSPlugin)
+
+      enablePlugins(ScalaJSBundlerPlugin)
+
+      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.1.0"
+
+      npmDependencies in Compile ++= Seq(
+        "react" -> "15.6.1",
+        "react-dom" -> "15.6.1")
+    ```
+
+    If you're using old-school `jsDependencies`, add something akin to:
+
+    ```scala
+    // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
+    jsDependencies ++= Seq(
+
+      "org.webjars.bower" % "react" % "15.6.1"
+        /        "react-with-addons.js"
+        minified "react-with-addons.min.js"
+        commonJSName "React",
+
+      "org.webjars.bower" % "react" % "15.6.1"
+        /         "react-dom.js"
+        minified  "react-dom.min.js"
+        dependsOn "react-with-addons.js"
+        commonJSName "ReactDOM",
+
+      "org.webjars.bower" % "react" % "15.6.1"
+        /         "react-dom-server.js"
+        minified  "react-dom-server.min.js"
+        dependsOn "react-dom.js"
+        commonJSName "ReactDOMServer")
+    ```
+
+[See here](IDE.md) for tips on configuring your IDE.
+
 
 Creating Virtual-DOM
 ====================
@@ -69,9 +95,17 @@ You throw types and functions at it, call `build` and when it compiles you will 
 
 1. The first step is to specify your component's properties type, and a component name.
   ```scala
-  val myComponent =
-    ScalaComponent.builder[Props]("MyComponent")
-      |
+  import japgolly.scalajs.react._
+  import japgolly.scalajs.react.vdom.html_<^._
+
+  object MyComponent {
+
+    case class Props(/* TODO */)
+
+    val myComponent =
+      ScalaComponent.builder[Props]("MyComponent")
+        |
+  }
   ```
 
 2. *(Optional)* If you want a stateful component,
@@ -262,7 +296,7 @@ React Extensions
     props.message)
   ```
 
-* Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `zoom()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
+* Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `.zoomState()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
 
   ```scala
   def incrementCounter(s: StateAccessPure[Int]): Callback =
@@ -272,7 +306,7 @@ React Extensions
   case class State(name: String, counter: Int)
 
   def render = {
-    val f = $.zoom(_.counter)((a,b) => a.copy(counter = b))
+    val f = $.zoomState(_.counter)(value => _.copy(counter = value))
     button(onclick --> incrementCounter(f), "+")
   }
   ```

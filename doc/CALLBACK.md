@@ -3,7 +3,13 @@ Callback
 
 The `Callback` class encapsulates logic and side-effects that are meant to be *executable by React*, when/if React chooses to execute it. Examples are React responding to the user clicking a button, or React unmounting a component.
 
-**WARNING**: If you're new to scalajs-react and typed effects (or just functional programming in general), then it's important you read this because if you incorrectly mix this with imperative-style code that performs side-effects, you'll likely have runtime bugs where data goes stale and/or changes go undetected.
+There's also a this blog post with a great introduction to typed side-effects:
+http://typelevel.org/blog/2017/05/02/io-monad-for-cats.html
+
+**WARNING**: *If you're new to scalajs-react and typed effects (or just functional programming in general), then it's important you read this because if you incorrectly mix this with imperative-style code that performs side-effects, you'll likely have runtime bugs where data goes stale and/or changes go undetected.*
+
+
+<br>
 
 #### Contents
 - [Introduction](#introduction)
@@ -47,7 +53,7 @@ val sayHello = Callback {
 }
 ```
 
-Any impure logic/effects (such as accessing DOM state, AAJX, or global variables), *must be inside* the Callback.
+Any impure logic/effects (such as accessing DOM state, AJAX, or global variables), *must be inside* the Callback.
 Example:
 ```scala
 object Auth {

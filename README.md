@@ -20,6 +20,7 @@ Includes a router, testing utils, performance utils, more.
   - [VDOM](doc/VDOM.md)
   - [Refs](doc/REFS.md)
   - [The `Callback` class](doc/CALLBACK.md)
+  - [IDE support](doc/IDE.md)
 - Delving deeper
   - [Types](doc/TYPES.md)
   - [Interoperability](doc/INTEROP.md)
@@ -30,8 +31,8 @@ Includes a router, testing utils, performance utils, more.
   - [Other](doc/EXTRA.md)
 - [Testing](doc/TESTING.md)
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/)
-- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.11/1.0.0-RC3) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.11/1.0.0-RC3) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/1.0.0-RC3) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/1.0.0-RC3) | [cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-cats_sjs0.6_2.12/1.0.0-RC3) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/1.0.0-RC3)
-- [Changelogs](doc/changelog) — [**v1.0.0-RC3** (Latest)](doc/changelog/1.0.0-RC.md)
+- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.11/1.1.0) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.11/1.1.0) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/1.1.0) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/1.1.0) | [cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-cats_sjs0.6_2.12/1.1.0) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/1.1.0)
+- [Changelogs](doc/changelog) — [**v1.1.0** (Latest)](doc/changelog/1.1.0.md)
 
 
 ##### External Resources
@@ -41,12 +42,19 @@ Includes a router, testing utils, performance utils, more.
   * [ochrons / scalajs-spa-tutorial](https://github.com/ochrons/scalajs-spa-tutorial)
   * [TodoMVC example](http://todomvc.com/examples/scalajs-react)
   * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
+  * [Scala.js, React and ScalaCSS Boilerplate](https://github.com/shashkovdanil/scalajs-react-boilerplate)
 
 * Libraries
   * [test-state](https://github.com/japgolly/test-state/) - Integration/Functional/Property testing for scalajs-react.
   * [scalajs-benchmark](https://github.com/japgolly/scalajs-benchmark/)
   * [chandu0101 / scalajs-react-components](https://github.com/chandu0101/scalajs-react-components)
   * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
+  * [diode](https://github.com/suzaku-io/diode) - library for managing application state, influenced by Flux and Elm
+
+* Open Source Projects, which are using [scalajs-react](https://github.com/japgolly/scalajs-react)
+  * [scastie](https://github.com/scalacenter/scastie) - An interactive playground for Scala [https://scastie.scala-lang.org](https://scastie.scala-lang.org)
+  * [scalafiddle-editor](https://github.com/scalafiddle/scalafiddle-editor) - Web user interface for ScalaFiddle [https://scalafiddle.io](https://scalafiddle.io)
+  * [scala-weather-app](https://github.com/malaman/scala-weather-app) - Yet another weather application, based on Scala.js, scalajs-react and Playframework
 
 ##### Requirements:
 * React 15.3+

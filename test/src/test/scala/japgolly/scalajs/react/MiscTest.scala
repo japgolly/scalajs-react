@@ -24,6 +24,9 @@ object MiscTest extends TestSuite {
   case class StrIntWrap(strInt: StrInt)
   implicit def equalStrIntWrap: Equal[StrIntWrap] = Equal.equalA
 
+  val witnessOptionCallbackToCallback: Option[Callback] => Callback =
+    _.getOrEmpty
+
   override def tests = TestSuite {
 
     'children {

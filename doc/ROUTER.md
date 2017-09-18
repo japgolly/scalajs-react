@@ -6,7 +6,7 @@ Included is a router (in the orbit of Single-Page Applications) that is written 
 The package is `japgolly.scalajs.react.extra.router`.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.0.0-RC3"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.1.0"
 ```
 
 ## Contents
@@ -128,7 +128,7 @@ Each route can be associated with an action. The following actions are available
 | `dynRender` | `Page => VdomElement` | Render something using the current page.<br>* *Dynamic routes only.* |
 | `dynRenderR` | `(Page, RouterCtl) => VdomElement` | Render something using  the current page, and a [`RouterCtl`](#routerctl).<br>* *Dynamic routes only.* |
 | `redirectToPage` | `(Page)`<br>`(implicit Redirect.Method)` | Redirect to a page. |
-| `redirectToPath` | `(Path | String)`<br>`(implicit Redirect.Method)` | Redirect to a path (a URL suffix proceding the `BaseUrl`). |
+| `redirectToPath` | `(Path \| String)`<br>`(implicit Redirect.Method)` | Redirect to a path (a URL suffix proceding the `BaseUrl`). |
 
 In the redirect actions, unless you declare your own redirect method, you'll need to specify one manually. (Eg. `redirectToPage(Home)(Redirect.Push)`).
 

@@ -53,9 +53,24 @@ object PrefixedTest extends TestSuite {
     'styleDict  - test(<.div(^.style := js.Dictionary("x" -> "y")), """<div style="x:y;"></div>""")
     'styleAttrs - test(<.div(^.color := "red", ^.cursor.auto),      """<div style="color:red;cursor:auto;"></div>""")
 
-    'boolean {
-      't - test(<.div(^.disabled := true), """<div disabled=""></div>""")
-      'f - test(<.div(^.disabled := false), """<div></div>""")
+    'attr {
+      'any {
+        def aa: VdomAttr[Any] = ^.profile
+        def as = "profile"
+        'short     - test(<.div(aa := (45: Short)), s"""<div $as="45"></div>""")
+        'byte      - test(<.div(aa := (50: Byte)),  s"""<div $as="50"></div>""")
+        'int       - test(<.div(aa := 666),         s"""<div $as="666"></div>""")
+        'long      - test(<.div(aa := 123L),        s"""<div $as="123"></div>""")
+        'float     - test(<.div(aa := 321f),        s"""<div $as="321"></div>""")
+        'double    - test(<.div(aa := 12.3),        s"""<div $as="12.3"></div>""")
+        'string    - test(<.div(aa := "yo"),        s"""<div $as="yo"></div>""")
+        'booleanT  - test(<.div(aa := true),        s"""<div $as="true"></div>""")
+        'booleanF  - test(<.div(aa := false),       s"""<div $as="false"></div>""")
+      }
+      'boolean {
+        't - test(<.div(^.disabled := true), """<div disabled=""></div>""")
+        'f - test(<.div(^.disabled := false), """<div></div>""")
+      }
     }
 
     'VdomArray {
@@ -267,6 +282,10 @@ object PrefixedTest extends TestSuite {
       'unit - compileError(" ^.key := (())  ")
       'obj  - compileError(" ^.key := obj   ")
       'key  - compileError(" ^.key := ^.key ")
+    }
+
+    'anchorToNewWindow {
+      test(<.a.toNewWindow("/ok")("OK!"), """<a target="_blank" href="/ok" rel="noopener">OK!</a>""")
     }
   }
 }

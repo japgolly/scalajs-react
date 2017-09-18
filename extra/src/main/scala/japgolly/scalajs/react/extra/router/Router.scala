@@ -101,9 +101,13 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     log(s"Parsed $path to $parsed.") >> cmd
   }
 
-  def redirectCmd(p: Path, m: Redirect.Method): RouteCmd[Unit] = m match {
-    case Redirect.Push    => PushState   (p.abs)
-    case Redirect.Replace => ReplaceState(p.abs)
+  def redirectCmd(p: Path, m: Redirect.Method): RouteCmd[Unit] = {
+    val url = p.abs
+    m match {
+      case Redirect.Push    => PushState        (url)
+      case Redirect.Replace => ReplaceState     (url)
+      case Redirect.Force   => SetWindowLocation(url)
+    }
   }
 
   def resolve(page: Page, action: Action): RouteCmd[Resolution] =
@@ -131,12 +135,27 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     @inline def ht = ""
     @inline def h = window.history
     r match {
-      case PushState(url)    => CallbackTo(h.pushState   (hs, ht, url.value)) << logger(s"PushState: [${url.value}]")
-      case ReplaceState(url) => CallbackTo(h.replaceState(hs, ht, url.value)) << logger(s"ReplaceState: [${url.value}]")
-      case BroadcastSync     => broadcast(())                                 << logger("Broadcasting sync request.")
-      case Return(a)         => CallbackTo.pure(a)
-      case Log(msg)          => logger(msg())
-      case Sequence(a, b)    => a.foldLeft[CallbackTo[_]](Callback.empty)(_ >> interpret(_)) >> interpret(b)
+
+      case PushState(url) =>
+        CallbackTo(h.pushState(hs, ht, url.value)) << logger(s"PushState: [${url.value}]")
+
+      case ReplaceState(url) =>
+        CallbackTo(h.replaceState(hs, ht, url.value)) << logger(s"ReplaceState: [${url.value}]")
+
+      case SetWindowLocation(url) =>
+        CallbackTo(window.location.href = url.value) << logger(s"SetWindowLocation: [${url.value}]")
+
+      case BroadcastSync =>
+        broadcast(()) << logger("Broadcasting sync request.")
+
+      case Return(a) =>
+        CallbackTo.pure(a)
+
+      case Log(msg) =>
+        logger(msg())
+
+      case Sequence(a, b) =>
+        a.foldLeft[CallbackTo[_]](Callback.empty)(_ >> interpret(_)) >> interpret(b)
     }
   }
 

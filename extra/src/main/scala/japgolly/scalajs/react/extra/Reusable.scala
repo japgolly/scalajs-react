@@ -3,14 +3,23 @@ package japgolly.scalajs.react.extra
 import scala.reflect.ClassTag
 import japgolly.scalajs.react.{Callback, StateAccessor}
 
-final class Reusable[+A] private[Reusable](valueByNeed: () => A,
+/**
+  * A value that has been explicitly paired with a (potentially ad-hoc) [[Reusability]] instance.
+  *
+  * @tparam A The type of value.
+  * @since 1.0.0
+  */
+final class Reusable[+A] private[Reusable](lazyValue: () => A,
                                            private[Reusable] val root: Any,
                                            val isReusable: Reusable[Any] => Boolean) {
   override def toString = s"Reusable($value)"
   override def hashCode = value.##
 
   def value: A =
-    valueByNeed()
+    // This always returns the same value and is actually referentially transparent and safe.
+    // Doing this avoids applying modifications from .map in the event that this is reusable and
+    // the value is never read.
+    lazyValue()
 
   /** WARNING: This does not affect reusability.
     * Only the initial (pre-mapped) values matter when considering reusability.
@@ -19,7 +28,7 @@ final class Reusable[+A] private[Reusable](valueByNeed: () => A,
     * considered reusable. Any differences as a result of second the mapping will be discarded.
     */
   def map[B](f: A => B): Reusable[B] = {
-    lazy val b = f(valueByNeed())
+    lazy val b = f(lazyValue())
     new Reusable[B](() => b, root, isReusable)
   }
 

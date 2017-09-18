@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import scala.annotation.tailrec
+import scala.reflect.ClassTag
 import java.util.{Date, UUID}
 import scala.scalajs.js.{Date => JsDate}
 import japgolly.scalajs.react._
@@ -35,15 +36,14 @@ final class Reusability[A](val test: (A, A) => Boolean) extends AnyVal {
 
   def &&[B <: A](tryNext: Reusability[B]): Reusability[B] =
     Reusability[B]((x, y) => test(x, y) && tryNext.test(x, y))
+
+  def reusable(a: A)(implicit c: ClassTag[A]): Reusable[A] =
+    Reusable.explicitly(a)(this)(c)
 }
 
 object Reusability {
 
   def apply[A](f: (A, A) => Boolean): Reusability[A] =
-    new Reusability(f)
-
-  @deprecated("Use .apply. So Reusability[A](…) instead of Reusability.fn[A](…)", "1.0.0")
-  def fn[A](f: (A, A) => Boolean): Reusability[A] =
     new Reusability(f)
 
   def const[A](r: Boolean): Reusability[A] =
@@ -174,9 +174,6 @@ object Reusability {
   /** Declare a type reusable when both values fail a given predicate. */
   def unless[A](f: A => Boolean): Reusability[A] =
     when(!f(_))
-
-  @deprecated("Use Reusability.when",   "1.0.0") def whenTrue [A](f: A => Boolean): Reusability[A] = when(f)
-  @deprecated("Use Reusability.unless", "1.0.0") def whenFalse[A](f: A => Boolean): Reusability[A] = unless(f)
 
   // -------------------------------------------------------------------------------------------------------------------
   // Implicit Instances

@@ -1,8 +1,7 @@
 package ghpages.examples.util
 
-import japgolly.scalajs.react._, vdom.all._
-import org.scalajs.dom.document
-import org.scalajs.dom.ext.PimpedNodeList
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
 
 object SideBySide {
 
@@ -12,29 +11,18 @@ object SideBySide {
 
   val sideBySideComponent = ScalaComponent.builder[Content]("sideBySideExample")
     .render_P(p =>
-      div(
-        section(cls := "demo",
-          div(cls := "demo", p.el)),
-        hr,
-        div(`class` := "row",
-          div(`class` := "col-md-6",
-            h3("JS source"),
-            pre(code(p.jsSource.trim))),
-          div(`class` := "col-md-6",
-            h3("Scala source"),
-            pre(code(p.scalaSource.trim))))
-      )
-    )
-    .configure(installSyntaxHighlighting)
+      <.div(
+        <.section(^.cls := "demo",
+          <.div(^.cls := "demo", p.el)),
+        <.hr,
+        <.div(^.cls := "row",
+          <.div(^.cls := "col-md-6",
+            <.h3("JS source"),
+            CodeSnippets.js(p.jsSource)),
+          <.div(^.cls := "col-md-6",
+            <.h3("Scala source"),
+            CodeSnippets.scala(p.scalaSource)))))
+    .configure(CodeSnippets.installSyntaxHighlighting)
     .build
 
-  def installSyntaxHighlighting[P, C <: Children, S, B]: ScalaComponent.Config[P, C, S, B] =
-    _.componentDidMountConst(applySyntaxHighlight)
-      .componentDidUpdateConst(applySyntaxHighlight)
-
-  def applySyntaxHighlight = Callback {
-    import scala.scalajs.js.Dynamic.{global => g}
-    val nodeList = document.querySelectorAll("pre code").toArray
-    nodeList.foreach(g.hljs highlightBlock _)
-  }
 }

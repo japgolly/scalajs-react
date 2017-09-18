@@ -5,7 +5,7 @@ import scala.scalajs.js.annotation._
 import japgolly.scalajs.react.raw._
 
 /** https://facebook.github.io/react/docs/test-utils.html */
-@JSGlobal("React.addons.TestUtils")
+@JSImport("react-dom/test-utils", JSImport.Namespace, "React.addons.TestUtils")
 @js.native
 object ReactAddonsTestUtils extends ReactAddonsTestUtils
 

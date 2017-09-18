@@ -8,7 +8,7 @@ import scala.scalajs.js.annotation._
  *
  * @see https://facebook.github.io/react/docs/perf.html
  */
-@JSGlobal("React.addons.Perf")
+@JSImport("react-addons-perf", JSImport.Namespace, "React.addons.Perf")
 @js.native
 object Perf extends js.Object {
 
@@ -55,7 +55,4 @@ object Perf extends js.Object {
    * Prints the underlying DOM manipulations, e.g. "set innerHTML" and "remove".
    */
   def printOperations(measurements: Measurements = js.native): Report = js.native
-
-  @deprecated("Renamed to printOperations() in React v15.", "0.11.0")
-  def printDOM(measurements: Measurements = js.native): Report = js.native
 }

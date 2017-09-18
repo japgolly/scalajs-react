@@ -1,16 +1,13 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.internal.Lens
+import japgolly.scalajs.react.internal.{Iso, Lens}
 
 final class StateSnapshot[S](val value: S,
                              val setState: S ~=> Callback,
                              private[StateSnapshot] val reusability: Reusability[S]) {
 
   override def toString = s"StateSnapshot($value)"
-
-  @deprecated("Use setState instead.", "1.0.0") def set = setState
-  @deprecated("Use modState instead.", "1.0.0") def mod = modState _
 
   def modState(f: S => S): Callback =
     setState.value(f(value))
@@ -54,6 +51,9 @@ object StateSnapshot {
     def prepareVia[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]): FromSetStateFn[S] =
       prepare(t.setState(i))
 
+    def xmap[S, T](get: S => T)(set: T => S): FromLens[S, T] =
+      new FromLens(Iso(get)(set).toLens)
+
     def zoom[S, T](get: S => T)(set: T => S => S): FromLens[S, T] =
       new FromLens(Lens(get)(set))
 
@@ -69,6 +69,9 @@ object StateSnapshot {
       /** This is meant to be called once and reused so that the setState callback stays the same. */
       def prepareVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): FromLensSetStateFn[S, T] =
         prepare(t.modState(i))
+
+      def xmap[U](get: T => U)(set: U => T): FromLens[S, U] =
+        new FromLens(l --> Iso(get)(set))
 
       def zoom[U](get: T => U)(set: U => T => T): FromLens[S, U] =
         new FromLens(l --> Lens(get)(set))
@@ -99,6 +102,9 @@ object StateSnapshot {
   def of[I, S](i: I)(implicit t: StateAccessor.ReadImpureWritePure[I, S]): StateSnapshot[S] =
     apply(t.state(i)).setStateVia(i)
 
+  def xmap[S, T](get: S => T)(set: T => S): FromLens[S, T] =
+    new FromLens(Iso(get)(set).toLens)
+
   def zoom[S, T](get: S => T)(set: T => S => S): FromLens[S, T] =
     new FromLens(Lens(get)(set))
 
@@ -108,6 +114,9 @@ object StateSnapshot {
 
       def of[I](i: I)(implicit t: StateAccessor.ReadImpureWritePure[I, S]): StateSnapshot[T] =
         apply(t.state(i)).setStateVia(i)
+
+      def xmap[U](get: T => U)(set: U => T): FromLens[S, U] =
+        new FromLens(l --> Iso(get)(set))
 
       def zoom[U](get: T => U)(set: U => T => T): FromLens[S, U] =
         new FromLens(l --> Lens(get)(set))

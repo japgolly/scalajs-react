@@ -10,7 +10,7 @@ These utilities help you avoid work in two ways.
 2. By allowing you to cache your own arbitrary data, and build on it in a way such that derivative data is also cached effeciently.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.0.0-RC3"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.1.0"
 ```
 
 ### Contents
@@ -213,7 +213,7 @@ type PersonId = Long
 type PersonData = String
 
 val topComponent = ScalaComponent.builder[State]("Demo")
-  .initialState_P(identity)
+  .initialStateFromProps(identity)
   .renderBackend[Backend]
   .build
 
@@ -225,7 +225,7 @@ class Backend(bs: BackendScope[_, State]) {
   def render(state: State) =
     <.div(
       state.toVdomArray { case (id, name) =>
-        personEditor.withKey(id)(PersonEditorProps(name, updateUser(id))) // ← Apply 1 arg
+        personEditor.withKey(id.toString)(PersonEditorProps(name, updateUser(id))) // ← Apply 1 arg
       }
     )
 }

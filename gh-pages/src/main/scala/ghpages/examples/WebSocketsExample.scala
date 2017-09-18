@@ -15,12 +15,16 @@ object WebSocketsExample {
 
   // EXAMPLE:START
 
-  import org.scalajs.dom.{WebSocket, MessageEvent, Event, CloseEvent, ErrorEvent}
-  import scala.util.{Success, Failure}
+  import org.scalajs.dom.{WebSocket, MessageEvent, Event, CloseEvent}
+  import org.scalajs.dom.ext.KeyCode
+  import scala.scalajs.js
 
   val url = "wss://echo.websocket.org"
 
   case class State(ws: Option[WebSocket], logLines: Vector[String], message: String) {
+
+    def allowSend: Boolean =
+      ws.exists(_.readyState == WebSocket.OPEN) && message.nonEmpty
 
     // Create a new state with a line added to the log
     def log(line: String): State =
@@ -32,22 +36,31 @@ object WebSocketsExample {
 
       // Can only send if WebSocket is connected and user has entered text
       val send: Option[Callback] =
-        for (ws <- s.ws if s.message.nonEmpty)
+        for (ws <- s.ws if s.allowSend)
           yield sendMessage(ws, s.message)
+
+      def sendOnEnter(e: ReactKeyboardEvent): Callback =
+        CallbackOption.asEventDefault(e,
+          CallbackOption.keyCodeSwitch(e) {
+            case KeyCode.Enter => send.getOrEmpty
+          }
+        )
 
       <.div(
         <.h3("Type a message and get an echo:"),
         <.div(
-          <.input(
-            ^.onChange ==> onChange,
-            ^.value := s.message),
+          <.input.text(
+            ^.autoFocus  := true,
+            ^.value      := s.message,
+            ^.onChange  ==> onChange,
+            ^.onKeyDown ==> sendOnEnter),
           <.button(
-            ^.disabled := send.isEmpty, // Disable button if unable to send
+            ^.disabled  := send.isEmpty, // Disable button if unable to send
             ^.onClick -->? send,        // --> suffixed by ? because it's for Option[Callback]
             "Send")),
         <.h4("Connection log"),
         <.pre(
-          ^.width  := 360.px,
+          ^.width  := "83%",
           ^.height := 200.px,
           ^.border := "1px solid")(
           s.logLines.map(<.p(_)): _*)       // Display log
@@ -91,14 +104,18 @@ object WebSocketsExample {
           direct.modState(_.log(s"Echo: ${e.data.toString}"))
         }
 
-        def onerror(e: ErrorEvent): Unit = {
+        def onerror(e: Event): Unit = {
           // Display error message
-          direct.modState(_.log(s"Error: ${e.message}"))
+          val msg: String =
+            e.asInstanceOf[js.Dynamic]
+              .message.asInstanceOf[js.UndefOr[String]]
+              .fold(s"Error occurred!")("Error occurred: " + _)
+          direct.modState(_.log(msg))
         }
 
         def onclose(e: CloseEvent): Unit = {
           // Close the connection
-          direct.modState(_.copy(ws = None).log(s"Closed: ${e.reason}"))
+          direct.modState(_.copy(ws = None).log(s"""Closed. Reason = "${e.reason}""""))
         }
 
         // Create WebSocket and setup listeners
@@ -110,15 +127,15 @@ object WebSocketsExample {
         ws
       }
 
-      // Here use attemptTry to catch any exceptions in connect.
-      connect.attemptTry.flatMap {
-        case Success(ws)    => $.modState(_.log("Connecting...").copy(ws = Some(ws)))
-        case Failure(error) => $.modState(_.log(error.toString))
+      // Here use attempt to catch any exceptions in connect
+      connect.attempt.flatMap {
+        case Right(ws)   => $.modState(_.log(s"Connecting to $url ...").copy(ws = Some(ws)))
+        case Left(error) => $.modState(_.log(s"Error connecting: ${error.getMessage}"))
       }
     }
 
     def end: Callback = {
-      def closeWebSocket = $.state.map(_.ws.foreach(_.close()))
+      def closeWebSocket = $.state.map(_.ws.foreach(_.close())).attempt
       def clearWebSocket = $.modState(_.copy(ws = None))
       closeWebSocket >> clearWebSocket
     }

@@ -24,6 +24,19 @@ trait TagMod {
 
   def apply(ms: TagMod*): TagMod =
     TagMod.Composite((Vector.newBuilder[TagMod] += this ++= ms).result())
+
+  /**
+    * Converts this VDOM and all its potential children into raw JS values.
+    *
+    * Meant for very advanced usage.
+    *
+    * Do not use this unless you know what you're doing (and you're doing something very funky)!
+    */
+  final def toJs: Builder.ToJs = {
+    val t = new Builder.ToJs {}
+    applyTo(t)
+    t
+  }
 }
 
 object TagMod {
@@ -65,4 +78,10 @@ object TagMod {
       m
     else
       Empty
+
+  def when(cond: Boolean)(t: => TagMod): TagMod =
+    if (cond) t else Empty
+
+  @inline def unless(cond: Boolean)(t: => TagMod): TagMod =
+    when(!cond)(t)
 }

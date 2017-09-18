@@ -213,26 +213,18 @@ object ScalazReactState {
     def runState[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): Out[A] =
       run[M, A, A](st, (s1, s2, a, cb) => cb.map(_ => a))
 
-    @deprecated("Use runStateFn.", "1.0.0")
-    def _runState[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): I => Out[A] = runStateFn(f)
     def runStateFn[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): I => Out[A] =
       i => runState(f(i))
 
-    @deprecated("Use runStateFn.", "1.0.0")
-    def _runState[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M]): I => Out[A] = runStateFn(f, cb)
     def runStateFn[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M]): I => Out[A] =
       i => runState(f(i) addCallback cb(i))
 
     def runStateF[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): Out[A] =
       run[M, A, A](st, (s1, s2, a, cb) => F(s1, s2, CallbackTo pure a, _ => cb.map(_ => a)))
 
-    @deprecated("Use runStateFnF.", "1.0.0")
-    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] = runStateFnF(f)
     def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
       i => runStateF(f(i))
 
-    @deprecated("Use runStateFnF.", "1.0.0")
-    def _runStateF[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] = runStateFnF(f, cb)
     def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
       i => runStateF(f(i) addCallback cb(i))
 
@@ -240,8 +232,6 @@ object ScalazReactState {
       stateCB.flatMap(s1 =>
         F(s1, f(s1), Callback.empty, s => fToCb(sa.setStateCB(si)(s, cb))))
 
-    @deprecated("Use modStateFnF.", "1.0.0")
-    def _modStateF[I](f: I => S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): I => Out[Unit] = modStateFnF(f, cb)
     def modStateFnF[I](f: I => S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): I => Out[Unit] =
       i => modStateF(f(i), cb)
   }

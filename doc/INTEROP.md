@@ -47,13 +47,28 @@ object ReactCollapse {
   object RawComponent extends js.Object
 
   @js.native
-  trait Props extends js.Object {
-    var isOpened: Boolean = js.native
+  trait Measures extends js.Object {
+    val height: Double = js.native
+    val width: Double = js.native
   }
 
-  def props(isOpened: Boolean): Props = {
+  type OnMeasure = js.Function1[Measures, Unit]
+  type OnRest = js.Function0[Unit]
+
+  @js.native
+  trait Props extends js.Object {
+    var isOpened: Boolean = js.native
+    var onMeasure: OnMeasure = js.native
+    var onRest: OnRest = js.native
+  }
+
+  def props(isOpened: Boolean,
+            onMeasure: Measures => Callback = _ => Callback.empty,
+            onRest: Callback = Callback.empty): Props = {
     val p = (new js.Object).asInstanceOf[Props]
     p.isOpened = isOpened
+    p.onMeasure = (measures: Measures) => onMeasure(measures).runNow()
+    p.onRest = onRest.toJsCallback // or alternatively: () => onRest.runNow()
     p
   }
 

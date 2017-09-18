@@ -48,4 +48,10 @@ package object react extends ReactEventTypes {
         case _               => None
       }
   }
+
+  @inline implicit final class ReactExt_OptionCallback(private val o: Option[Callback]) extends AnyVal {
+    /** Convenience for `.getOrElse(Callback.empty)` */
+    @inline def getOrEmpty: Callback =
+       o.getOrElse(Callback.empty)
+  }
 }

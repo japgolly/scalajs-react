@@ -44,7 +44,7 @@ trait CatsReactInstances {
     override def tailRecM[A, B](a: A)(f: A => CallbackOption[Either[A, B]]): CallbackOption[B] =
       CallbackOption.liftOption {
         @tailrec
-        def go(a: A): Option[B] = f(a).get.runNow() match {
+        def go(a: A): Option[B] = f(a).asCallback.runNow() match {
           case Some(Left(a0)) => go(a0)
           case Some(Right(b)) => Some(b)
           case None           => None
