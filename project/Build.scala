@@ -101,6 +101,7 @@ object ScalajsReact {
   def utestSettings: PE =
     _.configure(InBrowserTesting.js)
       .settings(
+        jsEnv                 := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv,
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
         testFrameworks        += new TestFramework("utest.runner.Framework"))
