@@ -112,25 +112,53 @@ abstract class MacroUtils {
     sym
   }
 
-  final def crawlADT[A](tpe: Type, f: ClassSymbol => Option[A], giveUp: ClassSymbol => Vector[A]): Vector[A] = {
-    def go(t: Type, as: Vector[A]): Vector[A] = {
+  final def crawlADT[A](tpe    : Type,
+                        attempt: ClassSymbol => Option[A],
+                        giveUp : ClassSymbol => TraversableOnce[A]): Vector[A] = {
+    var seen = Set.empty[Type]
+    val results = Vector.newBuilder[A]
+
+    def markAsSeen(t: Type): Unit = {
+      seen += t
+      t.typeConstructor // https://issues.scala-lang.org/browse/SI-7755
+      seen ++= t.typeSymbol.asClass.knownDirectSubclasses.iterator.map(_.asType.toType)
+    }
+
+    val firstPass: ClassSymbol => Boolean =
+      c => c.isAbstract || c.isTrait
+
+    def go(t: Type): Unit = {
       val tb = ensureValidAdtBase(t)
-      tb.knownDirectSubclasses.foldLeft(as) { (q, sub) =>
+      val subclasses = tb.knownDirectSubclasses
+
+      // abstract first because their children may also be considered knownDirectSubclasses
+      for (sub <- subclasses) {
         val subClass = sub.asClass
         val subType = sub.asType.toType
+        if (firstPass(subClass) && !seen.contains(subType)) {
+          attempt(subClass) match {
+            case Some(a) => markAsSeen(subType); results += a
+            case None    => go(subType)
+          }
+        }
+      }
 
-        f(subClass) match {
-          case Some(a) =>
-            q :+ a
-          case None =>
-            if (subClass.isAbstract || subClass.isTrait)
-              go(subType, q)
-            else
-              q ++ giveUp(subClass)
+      // second pass: concrete leaves
+      for (sub <- subclasses) {
+        val subClass = sub.asClass
+        val subType = sub.asType.toType
+        if (!firstPass(subClass) && !seen.contains(subType)) {
+          markAsSeen(subType)
+          attempt(subClass) match {
+            case Some(a) => results += a
+            case None    => results ++= giveUp(subClass)
+          }
         }
       }
     }
-    go(tpe, Vector.empty)
+
+    go(tpe)
+    results.result()
   }
 
   /**
