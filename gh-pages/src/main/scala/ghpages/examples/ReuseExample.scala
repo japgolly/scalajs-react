@@ -30,7 +30,7 @@ object ReuseExample {
     .build
 
   case class InputControl(current: Int, change: Int ~=> Callback)
-  implicit val inputControlReuse = Reusability.caseClass[InputControl]
+  implicit val inputControlReuse = Reusability.derive[InputControl]
 
   val inputControl = ScalaComponent.builder[InputControl]("InputControl")
     .render_P(p =>
