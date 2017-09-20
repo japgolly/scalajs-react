@@ -12,30 +12,44 @@ final class StateSnapshot[S](val value: S,
   def modState(f: S => S): Callback =
     setState.value(f(value))
 
-  // Breaks reusability of setState
-  //def xmap[T](f: S => T)(g: T => S): StateSnapshot[T] =
-  //  new StateSnapshot(f(value), setState contramap g, reusability contramap g)
+  /** THIS WILL VOID REUSABILITY.
+    *
+    * The resulting `StateSnapshot[T]` will not be reusable.
+    */
+  def xmapState[T](f: S => T)(g: T => S): StateSnapshot[T] =
+    StateSnapshot(f(value))(setState.value compose g)
 
-  // Zoom is dangerously deceptive here as it appears to work but will often override the non-zoomed subset of state.
-  // Use the zoom methods on Mounted directly for a reliable function.
-  //
-  //def zoom[T](f: S => T)(g: T => S => S): StateSnapshot[T] =
-  //  xmap(f)(g(_)(value))
+  /** THIS WILL VOID REUSABILITY.
+    *
+    * The resulting `StateSnapshot[T]` will not be reusable.
+    */
+  def zoomState[T](f: S => T)(g: T => S => S): StateSnapshot[T] =
+    xmapState(f)(g(_)(value))
+
+  def withReuse: StateSnapshot.InstanceMethodsWithReuse[S] =
+    new StateSnapshot.InstanceMethodsWithReuse(this)
 }
 
 object StateSnapshot {
 
-  private[this] val reusabilityInstance: Reusability[StateSnapshot[Any]] = {
-    val f = implicitly[Reusability[Any ~=> Callback]] // Safe to reuse
-    Reusability((x, y) =>
-      (x eq y) || (
-        f.test(x.setState, y.setState) && x.reusability.test(x.value, y.value) && y.reusability.test(x.value, y.value)))
+  final class InstanceMethodsWithReuse[S](self: StateSnapshot[S]) { // not AnyVal, nominal for Monocle ext
+    import self.{value, setState}
+
+    def xmapState[T](iso: Reusable[(S => T, T => S)]): StateSnapshot[T] =
+      new StateSnapshot[T](
+        iso._1(value),
+        Reusable.ap(setState, iso)((f, g) => f compose g._2),
+        self.reusability.contramap(iso._2))
+
+    def zoomState[T](lens: Reusable[(S => T, T => S => S)]): StateSnapshot[T] =
+      new StateSnapshot[T](
+        lens._1(value),
+        Reusable.ap(setState, lens)((f, g) => (t: T) => f(g._2(t)(value))),
+        self.reusability.contramap(lens._2(_)(value)))
   }
 
-  implicit def reusability[S]: Reusability[StateSnapshot[S]] =
-    reusabilityInstance.asInstanceOf[Reusability[StateSnapshot[S]]]
-
-  // ===================================================================================================================
+  // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
+  // Construction DSL
 
   object withReuse {
 
@@ -93,7 +107,9 @@ object StateSnapshot {
     }
   }
 
-  // ===================================================================================================================
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // withoutReuse is the default and needn't be specified explicitly
+
   import withoutReuse._
 
   def apply[S](value: S): FromValue[S] =
@@ -138,4 +154,18 @@ object StateSnapshot {
         apply(t.modState(i))
     }
   }
+
+  // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
+
+  private[this] val reusabilityInstance: Reusability[StateSnapshot[Any]] = {
+    val f = implicitly[Reusability[Any ~=> Callback]] // Safe to reuse
+    Reusability((x, y) =>
+      (x eq y) ||
+        (f.test(x.setState, y.setState)
+          && x.reusability.test(x.value, y.value)
+          && y.reusability.test(x.value, y.value)))
+  }
+
+  implicit def reusability[S]: Reusability[StateSnapshot[S]] =
+    reusabilityInstance.asInstanceOf[Reusability[StateSnapshot[S]]]
 }
