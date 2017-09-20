@@ -106,6 +106,12 @@ case class ProductInfo(id: ProductId) extends MyPages
 
 Next, you'll want to call `RouterConfigDsl.buildConfig` and use the provided DSL.
 ```scala
+import japgolly.scalajs.react.extra.router._
+
+// import japgolly.scalajs.react.vdom.Implicits._
+// ↑ Depending on your usage you might also need this
+// ↑ If you have VDOM-related compilation errors, add this import.
+
 val routerConfig = RouterConfigDsl[MyPages].buildConfig { dsl =>
   import dsl._
 
