@@ -66,6 +66,14 @@ trait ImplicitsForTagMod {
 object ImplicitsForVdomNode {
   final class TraversableOnceExt[A](private val as: TraversableOnce[A]) extends AnyVal {
 
+    /** Like `.mkString(String)` in Scala stdlib. */
+    def mkTagMod(sep: TagMod)(implicit f: A => TagMod): TagMod =
+      TagMod.intercalate(as.toIterator.map(f), sep)
+
+    /** Like `.mkString(String, String, String)` in Scala stdlib. */
+    def mkTagMod(start: TagMod, sep: TagMod, end: TagMod)(implicit f: A => TagMod): TagMod =
+      TagMod.Composite(Vector.empty :+ start :+ mkTagMod(sep) :+ end)
+
     def toTagMod(implicit f: A => TagMod): TagMod =
       TagMod.fromTraversableOnce(as.toIterator.map(f))
 

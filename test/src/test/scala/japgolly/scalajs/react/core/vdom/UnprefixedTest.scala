@@ -108,6 +108,14 @@ object UnprefixedTest extends TestSuite {
       'arrayJs         - test(div(js.Array(vdomNode   , vdomNode    ).toTagMod), "<div><h1>cool</h1><h1>cool</h1></div>")
 
       'mix - test(div(TagMod(vdomNode, br, vdomElement)), "<div><h1>cool</h1><br/><p></p></div>")
+
+      'mkVdomTag - {
+        'sep0 - test(div(List[TagMod]() .mkTagMod(" | ")), "<div></div>")
+        'sep1 - test(div(List(p)        .mkTagMod(" | ")), "<div><p></p></div>")
+        'sep2 - test(div(List(p, br)    .mkTagMod(" | ")), "<div><p></p> | <br/></div>")
+        'sep3 - test(div(List(p, br, hr).mkTagMod(" | ")), "<div><p></p> | <br/> | <hr/></div>")
+        'sep4 - test(div((1 to 4)       .mkTagMod(br)   ), "<div>1<br/>2<br/>3<br/>4</div>")
+      }
     }
 
     'dangerouslySetInnerHtml - test(div(dangerouslySetInnerHtml := "<span>"), "<div><span></div>")
