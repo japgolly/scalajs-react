@@ -13,14 +13,14 @@ object HelloMessageExample {
 
   val jsSource =
     """
-      |var HelloMessage = React.createClass({displayName: 'HelloMessage',
-      |  render: function() {
+      |class HelloMessage extends React.Component {
+      |  render() {
       |    return React.createElement("div", null, "Hello ", this.props.name);
       |  }
-      |});
+      |}
       |
       |ReactDOM.render(React.createElement(HelloMessage, {name: "John"}), mountNode);
-    """.stripMargin
+      |    """.stripMargin
 
   val source =
     s"""
