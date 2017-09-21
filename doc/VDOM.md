@@ -186,6 +186,8 @@ There are various ways to do this:
 2. Flatten the collection into a `TagMod`.
   There are various ways to do this:
   * Call `.toTagMod` on your collection.
+  * Call `.mkTagMod(sep)` on your collection which is like `.mkString(sep)` in Scala stdlib.
+  * Call `.mkTagMod(start,sep,end)` on your collection which is like `.mkString(start,sep,end)` in Scala stdlib.
   * If you find yourself with `.map(...).toTagMod`, replace it with just `.toTagMod(...)` for improved readability and efficiency.
   * Create the collection using `TagMod(a, b, c, d)`. You'll need to do this if elements have different types, eg `VdomTags` and rendered components.
 
