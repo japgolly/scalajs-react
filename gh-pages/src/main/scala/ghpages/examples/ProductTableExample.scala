@@ -14,12 +14,11 @@ object ProductTableExample {
   val jsSource =
     """
       |class ProductCategoryRow extends React.Component {
-      |
       |  render() {
       |    return (
-      |      React.createElement('tr', null,
-      |        React.createElement('td', {style: {fontWeight: 'bold'}}, this.props.category)
-      |      )
+      |      <tr>
+      |        <td style={{fontWeight: 'bold'}}>{this.props.category}</td>
+      |      </tr>
       |    );
       |  }
       |}
@@ -32,11 +31,10 @@ object ProductTableExample {
       |        {this.props.product.name}
       |      </span>;
       |    return (
-      |      React.createElement('tr', null,
-      |        React.createElement('td', null, name),
-      |        React.createElement('td', null, this.props.product.price)
-      |      )
-      |
+      |      <tr>
+      |        <td>{name}</td>
+      |        <td>{this.props.product.price}</td>
+      |      </tr>
       |    );
       |  }
       |}
@@ -45,27 +43,28 @@ object ProductTableExample {
       |  render() {
       |    var rows = [];
       |    var lastCategory = null;
-      |
       |    this.props.products.forEach(function(product) {
       |      if (product.name.indexOf(this.props.filterText) === -1 || (!product.stocked && this.props.inStockOnly)) {
       |        return;
       |      }
       |      if (product.category !== lastCategory) {
-      |        rows.push(React.createElement(ProductCategoryRow, {category: product.category, key: product.category}));
+      |        rows.push(<ProductCategoryRow category={product.category} key={product.category} />)
       |      }
-      |      rows.push(React.createElement(ProductRow, {product, key: product.name}));
+      |      rows.push(<ProductRow product={product} key={product.name}/>);
       |      lastCategory = product.category;
       |    }.bind(this));
       |    return (
-      |      React.createElement('table', null,
-      |        React.createElement('thead', null,
-      |          React.createElement('tr', null,
-      |            React.createElement('th', null, 'Name'),
-      |            React.createElement('th', null, 'Price')
-      |          )
-      |        ),
-      |        React.createElement('tbody', null, rows)
-      |      )
+      |      <table>
+      |        <thead>
+      |          <tr>
+      |            <th>Name</th>
+      |            <th>Price</th>
+      |          </tr>
+      |        </thead>
+      |        <tbody>
+      |          {rows}
+      |        </tbody>
+      |      </table>
       |    );
       |  }
       |}
@@ -85,24 +84,24 @@ object ProductTableExample {
       |
       |  render() {
       |    return (
-      |      React.createElement('form', null,
-      |        React.createElement('input', {
-      |          type: 'text',
-      |          placeholder:'Search...',
-      |          value: this.props.filterText,
-      |          ref: 'filterTextInput',
-      |          onChange: this.handleChange
-      |        }),
-      |        React.createElement('p', null,
-      |          React.createElement('input', {
-      |            type: 'checkbox',
-      |            value: this.props.inStockOnly,
-      |            ref: 'inStockOnlyInput',
-      |            onChange: this.handleChange
-      |          }),
-      |          'Only show products in stock'
-      |        )
-      |      )
+      |        <form>
+      |            <input
+      |                type="text"
+      |                placeholder="Search..."
+      |                value={this.props.filterText}
+      |                ref="filterTextInput"
+      |                onChange={this.handleChange}
+      |            />
+      |            <p>
+      |                <input
+      |                    type="checkbox"
+      |                    value={this.props.inStockOnly}
+      |                    ref="inStockOnlyInput"
+      |                    onChange={this.handleChange}
+      |                />
+      |                Only show products in stock
+      |            </p>
+      |        </form>
       |    );
       |  }
       |}
@@ -126,18 +125,18 @@ object ProductTableExample {
       |
       |  render() {
       |    return (
-      |      React.createElement('div', null,
-      |        React.createElement(SearchBar, {
-      |          filterText: this.state.filterText,
-      |          inStockOnly: this.state.inStockOnly,
-      |          onUserInput: this.handleUserInput
-      |        }),
-      |        React.createElement(ProductTable, {
-      |          products: this.props.products,
-      |          filterText: this.state.filterText,
-      |          inStockOnly: this.state.inStockOnly
-      |        }),
-      |      )
+      |      <div>
+      |          <SearchBar
+      |              filterText={this.state.filterText}
+      |              inStockOnly={this.state.inStockOnly}
+      |              onUserInput={this.handleUserInput}
+      |          />
+      |          <ProductTable
+      |              products={this.props.products}
+      |              filterText={this.state.filterText}
+      |              inStockOnly={this.state.inStockOnly}
+      |          />
+      |      </div>
       |    );
       |  }
       |}
@@ -151,7 +150,7 @@ object ProductTableExample {
       |  {category: 'Electronics', price: '$199.99', stocked: true, name: 'Nexus 7'}
       |];
       |
-      |ReactDOM.render(React.createElement(FilterableProductTable, {products:PRODUCTS}), document.body);
+      |ReactDOM.render(<FilterableProductTable product={PRODUCTS} />, document.body);
       | """.stripMargin
 
   val source = GhPagesMacros.exampleSource

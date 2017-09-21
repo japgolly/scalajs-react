@@ -14,6 +14,13 @@ object TodoExample {
 
   val jsSource =
     """
+      |class TodoList extends React.Component {
+      |  render() {
+      |    var createItem = (itemText,index) => React.createElement('li', {key: index}, itemText);
+      |    return React.createElement('ul', null, this.props.items.map(createItem));
+      |  }
+      |}
+      |
       |class TodoApp extends React.Component {
       |  constructor(props) {
       |    super(props);
