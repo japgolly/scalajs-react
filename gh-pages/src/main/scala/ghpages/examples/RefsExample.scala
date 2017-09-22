@@ -13,38 +13,43 @@ object RefsExample {
 
   val jsSource =
     """
-      |var App = React.createClass({
-      |  getInitialState: function() {
-      |    return {userInput: ''};
-      |  },
+      |class Refs extends React.Component {
+      |  constructor(props) {
+      |    super(props);
+      |    this.state = {
+      |      userInput: ''
+      |    };
+      |    this.handleChange = this.handleChange.bind(this);
+      |    this.clearAndFocusInput = this.clearAndFocusInput.bind(this);
+      |  }
       |
-      |  handleChange: function(e) {
+      |  handleChange(e) {
       |    this.setState({userInput: e.target.value});
-      |  },
+      |  }
       |
-      |  clearAndFocusInput: function() {
+      |  clearAndFocusInput() {
       |    // Clear the input
       |    this.setState({userInput: ''}, function() {
       |      // This code executes after the component is re-rendered
       |      this.refs.theInput.focus();   // Boom! Focused!
       |    });
-      |  },
+      |  }
       |
-      |  render: function() {
+      |  render() {
       |    return (
-      |      <div>
-      |        <div onClick={this.clearAndFocusInput}>
-      |          Click to Focus and Reset
-      |        </div>
-      |        <input
-      |          ref      = "theInput"
-      |          value    = {this.state.userInput}
-      |          onChange = {this.handleChange}
-      |        />
-      |      </div>
+      |      React.createElement("div", null,
+      |        React.createElement("div", {onClick: this.clearAndFocusInput},
+      |         'Click to Focus and Reset'
+      |       ),
+      |        React.createElement("input",
+      |          {ref: 'theInput', value: this.state.userInput, onChange: this.handleChange}
+      |        )
+      |      )
       |    );
       |  }
-      |});
+      |}
+      |
+      |ReactDOM.render(React.createElement(Refs), mountNode);
       |""".stripMargin
 
 
