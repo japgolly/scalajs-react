@@ -3,10 +3,9 @@ package japgolly.scalajs.react.internal
 import cats._
 import cats.data.StateT
 import cats.implicits._
-import japgolly.scalajs.react._
-import CatsReact.{CatsReactExt_ReactST, reactCallbackCatsInstance}
 
-import scala.concurrent.{ExecutionContext, Future}
+import japgolly.scalajs.react._
+import CatsReact.{reactCallbackCatsInstance, CatsReactExt_ReactST}
 
 /**
   * Created by alonsodomin on 13/03/2017.
@@ -44,7 +43,6 @@ object CatsReactState {
 
   type ReactST[M[_], S, A] = StateT[M, StateAndCallbacks[S], A]
   type ReactS[S, A] = ReactST[Id, S, A]
-  final type TransAsync[M[_], N[_]] = M ~> ({type X[a] = CallbackTo[N[a]]})#X
 
   object ReactS {
     final def StateAndCallbacks[S](state: S, cb: Callback = Callback.empty) =
@@ -204,18 +202,18 @@ object CatsReactState {
   final class Ext_StateAccessRW[F[_], SI, S, Out[_]](si: SI)(implicit sa: StateAccessor.ReadWrite[SI, F, F, S], fToCb: Effect.Trans[F, CallbackTo], cbToOut: Effect.Trans[CallbackTo, Out]) {
     implicit private def autoOut[A](a: CallbackTo[A]): Out[A] = cbToOut(a)
 
+    private type TransAsync[M[_], N[_]] = M ~> ({type X[a] = CallbackTo[N[a]]})#X
+
     private def stateCB: CallbackTo[S] = fToCb(sa.state(si))
 
     private def run[M[_], A, B](st: => ReactST[M, S, A], f: (S, S, A, => Callback) => CallbackTo[B])(implicit M: M ~> CallbackTo, N: Monad[M]): CallbackTo[B] =
       stateCB.flatMap { s1 =>
         val runCB: CallbackTo[(StateAndCallbacks[S], A)] = M(st run StateAndCallbacks(s1))
         runCB.flatMap { x2 =>
-          val s2: StateAndCallbacks[S] = x2._1
-          val a: A = x2._2
-
-          def cb: Callback = fToCb(sa.setStateCB(si)(s2.state, s2.cb))
-
-          val res: CallbackTo[B] = f(s1, s2.state, a, cb)
+          val s2 : StateAndCallbacks[S] = x2._1
+          val a  : A                    = x2._2
+          def cb : Callback             = fToCb(sa.setStateCB(si)(s2.state, s2.cb))
+          val res: CallbackTo[B]        = f(s1, s2.state, a, cb)
           res
         }
       }
