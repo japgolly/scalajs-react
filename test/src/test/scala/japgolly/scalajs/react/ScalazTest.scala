@@ -21,9 +21,9 @@ object ScalazTest extends TestSuite {
     .render(T => <.input(^.value := T.state.toString))
     .build
 
-  val tests = TestSuite {
+  val tests = Tests {
 
-    'inference {
+    'inference - {
       import japgolly.scalajs.react.test.InferenceUtil._
 
       implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
@@ -38,7 +38,7 @@ object ScalazTest extends TestSuite {
       "ScalaMountedCB"      - test[ScalaComponent.MountedPure  [U, S, U]](_.runState(reactSIO)       ).expect[CallbackTo[Int]]
     }
 
-    'runState {
+    'runState - {
       val c = ReactTestUtils.renderIntoDocument(SI())
       assertEq(c.state, 123)
       val f = (_: Int) * 2

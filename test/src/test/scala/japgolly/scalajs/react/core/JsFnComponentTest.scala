@@ -22,15 +22,15 @@ object JsFnComponentTest extends TestSuite {
 
   lazy val Component = JsFnComponent[JsProps, Children.None](RawComp)
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
-//    'displayName {
+//    'displayName - {
 //      println(Component.raw)
 //      println(internal.JsUtil inspectObject Component.raw)
 //    }
 
-    'noChildren {
-      'main {
+    'noChildren - {
+      'main - {
         val unmounted = Component(JsProps("Bob"))
         assertEq(unmounted.props.name, "Bob")
         assertEq(unmounted.propsChildren.count, 0)
@@ -49,7 +49,7 @@ object JsFnComponentTest extends TestSuite {
         }
       }
 
-      'key {
+      'key - {
         val unmounted = Component.withKey("hehe")(JsProps("Bob"))
         assertEq(unmounted.props.name, "Bob")
         assertEq(unmounted.propsChildren.count, 0)

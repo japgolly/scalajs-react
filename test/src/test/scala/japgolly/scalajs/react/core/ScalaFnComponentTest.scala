@@ -23,7 +23,7 @@ object ScalaFnComponentTest extends TestSuite {
   val c1 = <.i("good")
   val c2 = "222"
 
-  override def tests = TestSuite {
+  override def tests = Tests {
     'int          - assertRender(IntProps(7),                "<code>7² = 49</code>")
     'caseClass    - assertRender(CaseClassProps(Add(11, 8)), "<code>11 + 8 = 19</code>")
     'withChild    - assertRender(WithChildren(3)(c1),        "<div>i=3<i>good</i></div>")

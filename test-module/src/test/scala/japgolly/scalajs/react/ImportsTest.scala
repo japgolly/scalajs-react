@@ -12,7 +12,7 @@ object ImportsTest extends TestSuite {
     .render_P(i => <.p(s"$i² = ", <.em(i * i)))
     .build
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     // + react
     "react-dom/server" - {

@@ -13,31 +13,33 @@ object TimerExample {
 
   val jsSource =
     """
-      |var Timer = React.createClass({displayName: 'Timer',
-      |  getInitialState: function() {
-      |    return {secondsElapsed: 0};
-      |  },
-      |
-      |  tick: function() {
-      |    this.setState({secondsElapsed: this.state.secondsElapsed + 1});
-      |  },
-      |
-      |  componentDidMount: function() {
-      |    this.interval = setInterval(this.tick, 1000);
-      |  },
-      |
-      |  componentWillUnmount: function() {
-      |    clearInterval(this.interval);
-      |  },
-      |
-      |  render: function() {
-      |    return (
-      |      React.createElement("div", null, "Seconds Elapsed: ", this.state.secondsElapsed)
-      |    );
+      |class Timer extends React.Component {
+      |  constructor(props) {
+      |    super(props);
+      |    this.state = {
+      |      secondsElapsed: 0
+      |    };
+      |    this.tick = this.tick.bind(this);
       |  }
-      |});
       |
-      |ReactDOM.render(React.createElement(Timer, null), mountNode);
+      |  tick() {
+      |    this.setState({secondsElapsed: this.state.secondsElapsed + 1});
+      |  }
+      |
+      |  componentDidMount() {
+      |    this.interval = setInterval(this.tick, 1000);
+      |  }
+      |
+      |  componentWillUnmount() {
+      |    clearInterval(this.interval);
+      |  }
+      |
+      |  render() {
+      |    return React.createElement("div", null, "Seconds Elapsed: ", this.state.secondsElapsed);
+      |  }
+      |}
+      |
+      |ReactDOM.render(React.createElement(Timer), mountNode);
       |""".stripMargin
 
   val source = GhPagesMacros.exampleSource

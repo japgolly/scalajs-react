@@ -28,9 +28,9 @@ object RawComponentEs6PTest extends TestSuite {
         .xmapProps(_.unbox)(Box(_))
         .xmapState(_.unbox)(Box(_))
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
-    'displayName {
+    'displayName - {
       assertEq(BasicComponent.displayName, "HelloRaw6")
 //      ReactTestUtils.withRenderedIntoDocument(BasicComponent(BasicProps("X"))) { m =>
 //        println(inspectObject(m.raw))
@@ -38,14 +38,14 @@ object RawComponentEs6PTest extends TestSuite {
 //      }
     }
 
-    'types {
+    'types - {
       import InferenceUtil._
       import ScalaComponent._
       'cu - test[Component[P, S, B, CtorType.Nullary]](_.ctor()).expect[Unmounted[P, S, B]]
       'um - test[Unmounted[P, S, B]](_.renderIntoDOM(null)).expect[MountedImpure[P, S, B]]
     }
 
-    'basic {
+    'basic - {
       val unmounted = BasicComponent(BasicProps("Bob"))
       assertEq(unmounted.props.name, "Bob")
       assertEq(unmounted.propsChildren.count, 0)
@@ -65,7 +65,7 @@ object RawComponentEs6PTest extends TestSuite {
       }
     }
 
-    'withKey {
+    'withKey - {
       ReactTestUtils.withNewBodyElement { mountNode =>
         val u = BasicComponent.withKey("k")(BasicProps("Bob"))
         assertEq(u.key, Option[Key]("k"))
@@ -88,7 +88,7 @@ object RawComponentEs6PTest extends TestSuite {
       }
     }
 
-    'lifecycle {
+    'lifecycle - {
       case class Props(a: Int, b: Int, c: Int) {
         def -(x: Props) = Props(
           this.a - x.a,
@@ -204,9 +204,9 @@ object RawComponentEs6STest extends TestSuite {
         .xmapState(_.unbox)(Box(_))
         .withRawType[RawComp]
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
-    'main {
+    'main - {
       val unmounted = Component()
       assert(unmounted.propsChildren.isEmpty)
       assertEq(unmounted.key, None)

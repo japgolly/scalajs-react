@@ -10,10 +10,10 @@ object VdomTest extends TestSuite {
   val C = ScalaComponent.static("")(<.br)
   val Span = ScalaComponent.builder[Unit]("").render_C(<.span(_)).build
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
-    'tagModToJs {
-      'childrenAsVdomNodes {
+    'tagModToJs - {
+      'childrenAsVdomNodes - {
         val vdom = TagMod("hehe", 123, <.em(456L), C())
         val expect = "<span>hehe123<em>456</em><br/></span>"
         assertRender(<.span(vdom), expect)

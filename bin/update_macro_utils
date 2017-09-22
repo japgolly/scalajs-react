@@ -1,0 +1,8 @@
+#!/bin/bash
+cd "$(dirname "$(readlink -e "$0")")/.." || exit 1
+
+url=https://raw.githubusercontent.com/japgolly/microlibs-scala/master/macro-utils/shared/src/main/scala/japgolly/microlibs/macro_utils/MacroUtils.scala
+
+curl -s $url \
+  | perl -pe 's!^package .+!package japgolly.scalajs.react.internal\n\n// Copied from '"$url!" \
+  > core/src/main/scala/japgolly/scalajs/react/internal/MacroUtils.scala

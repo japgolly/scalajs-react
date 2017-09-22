@@ -82,6 +82,7 @@ object ScalajsReact {
       }))
     )
 
+  /*
   lazy val yarnOnPath: Boolean =
     try {
       Process("yarn --version").!!
@@ -95,14 +96,15 @@ object ScalajsReact {
       .settings(
         // useYarn := yarnOnPath,
         version in webpack := "2.6.1")
+  */
 
   def utestSettings: PE =
     _.configure(InBrowserTesting.js)
       .settings(
+        jsEnv                 := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv,
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
-        testFrameworks        += new TestFramework("utest.runner.Framework"),
-        requiresDOM           := true)
+        testFrameworks        += new TestFramework("utest.runner.Framework"))
 
   def addReactJsDependencies(scope: Configuration): PE =
     _.settings(
@@ -159,7 +161,7 @@ object ScalajsReact {
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .settings(name := "scalajs-react")
-    .aggregate(core, extra, scalaz72, monocle, cats, test, testModule, ghpagesMacros, ghpages)
+    .aggregate(core, extra, scalaz72, monocle, cats, test, /*testModule,*/ ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -207,6 +209,7 @@ object ScalajsReact {
         (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test),
       addCompilerPlugin(macroParadisePlugin))
 
+  /*
   lazy val testModule = project.in(file("test-module"))
     .configure(commonSettings, useScalaJsBundler, preventPublication, utestSettings)
     .dependsOn(core, extra, test)
@@ -217,6 +220,7 @@ object ScalajsReact {
         "react-dom"                         -> Ver.ReactJs,
         "react-addons-perf"                 -> "15.5.0-rc.2",
         "react-addons-css-transition-group" -> "15.5.2"))
+  */
 
   def scalazModule(name: String, version: String) = {
     val shortName = name.replaceAll("[^a-zA-Z0-9]+", "")

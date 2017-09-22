@@ -101,7 +101,7 @@ object RefTest extends TestSuite {
     }
   }
 
-  override def tests = TestSuite {
+  override def tests = Tests {
     'htmlTag - testHtmlTag()
     'svgTag - testSvgTag()
     'scalaComponent - {

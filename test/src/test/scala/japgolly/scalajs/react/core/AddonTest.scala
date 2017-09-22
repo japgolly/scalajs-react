@@ -22,7 +22,7 @@ object AddonTest extends TestSuite {
     .render_P(str => <.div("Input is ", str))
     .build
 
-  override def tests = TestSuite {
+  override def tests = Tests {
 
     // Doesn't work with PhantomJS due to: "ReferenceError: Can't find variable: WeakMap"
     'perf - requiresRealBrowser {

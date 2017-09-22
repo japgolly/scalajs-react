@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.extra.internal
 
 import scala.reflect.macros.blackbox.Context
-import japgolly.scalajs.react.internal.ReactMacroUtils
+import japgolly.scalajs.react.internal.MacroUtils
 
-class PxMacros(val c: Context) extends ReactMacroUtils {
+class PxMacros(val c: Context) extends MacroUtils {
   import c.universe._
 
   def extract[T: c.WeakTypeTag]: c.Expr[T] = {

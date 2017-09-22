@@ -2,7 +2,7 @@ package ghpages
 
 import java.util.regex.Pattern
 import scala.reflect.macros.blackbox.Context
-import japgolly.scalajs.react.internal.ReactMacroUtils
+import japgolly.scalajs.react.internal.MacroUtils
 
 object GhPagesMacros {
   def exampleSource: String = macro GhPagesMacroImpls.exampleSource
@@ -25,7 +25,7 @@ object GhPagesMacroImpls {
   val exampleEnd = "EXAMPLE:END"
 }
 
-class GhPagesMacroImpls(val c: Context) extends ReactMacroUtils {
+class GhPagesMacroImpls(val c: Context) extends MacroUtils {
   import GhPagesMacroImpls._
   import c.universe._
 

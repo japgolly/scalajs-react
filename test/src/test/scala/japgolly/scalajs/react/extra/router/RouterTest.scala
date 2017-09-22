@@ -71,9 +71,9 @@ object RouterTest extends TestSuite {
 
   // -------------------------------------------------------------------------------------------------------------------
 
-  override val tests = TestSuite {
+  override val tests = Tests {
 
-    'sim {
+    'sim - {
       import MyPage.{Root, Hello, Greet, Person}
       val base = RouterTestHelp.localBaseUrl_/
       val router = Router(base, MyPage.config.logToConsole)
@@ -109,17 +109,17 @@ object RouterTest extends TestSuite {
       }
     }
 
-    'pure {
+    'pure - {
       implicit val base = BaseUrl("http://www.yaya.com/blah")
       val r = new RouterLogic(base, MyPage.config.logToConsole)
 
-      'urlParsing {
-        'root   { assertEq(r.parseUrl(base.abs)         , Some(Path(""))) }
-        'tslash { assertEq(r.parseUrl(base / "" abs)    , Some(Path("/"))) }
-        'path   { assertEq(r.parseUrl(base / "hehe" abs), Some(Path("/hehe"))) }
+      'urlParsing - {
+        'root - { assertEq(r.parseUrl(base.abs)         , Some(Path(""))) }
+        'tslash - { assertEq(r.parseUrl(base / "" abs)    , Some(Path("/"))) }
+        'path - { assertEq(r.parseUrl(base / "hehe" abs), Some(Path("/hehe"))) }
       }
 
-      'syncToUrl {
+      'syncToUrl - {
         def runh[P](r: RouterLogic[P], start: AbsUrl) = {
           val s = SimHistory(start)
           val a = s.run(r.syncToUrl(s.startUrl))
@@ -136,7 +136,7 @@ object RouterTest extends TestSuite {
 //        'match_root - r.syncToUrl(base.abs)          .mustEqual(\/-(MyPage.root))
 //        'match_path - r.syncToUrl(base / "hello" abs).mustEqual(\/-(MyPage.hello))
         'notFound_redirect - testh(r, base / "what" abs)(_ => Nil, MyPage.Root, "")
-//        'notFound_render {
+//        'notFound_render - {
 //          val abs = base / "what" abs
 //          val r2 = MyOtherPage.routingEngine(base)
 //          val (s, a) = runh(r2, abs)

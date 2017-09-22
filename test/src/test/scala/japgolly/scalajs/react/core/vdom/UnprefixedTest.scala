@@ -29,7 +29,7 @@ object UnprefixedTest extends TestSuite {
     assertRender(comp(), exp)
   }
 
-  val tests = TestSuite {
+  val tests = Tests {
     'void      - test(br,                                       """<br/>""")
     'short     - test(div(45: Short),                           """<div>45</div>""")
     'byte      - test(div(50: Byte),                            """<div>50</div>""")
@@ -55,8 +55,8 @@ object UnprefixedTest extends TestSuite {
     'styleDict  - test(div(style := js.Dictionary("x" -> "y")), """<div style="x:y;"></div>""")
     'styleAttrs - test(div(color := "red", cursor.auto),        """<div style="color:red;cursor:auto;"></div>""")
 
-    'attr {
-      'any {
+    'attr - {
+      'any - {
         def aa: VdomAttr[Any] = profile
         def as = "profile"
         'short     - test(div(aa := (45: Short)), s"""<div $as="45"></div>""")
@@ -69,16 +69,16 @@ object UnprefixedTest extends TestSuite {
         'booleanT  - test(div(aa := true),        s"""<div $as="true"></div>""")
         'booleanF  - test(div(aa := false),       s"""<div $as="false"></div>""")
       }
-      'boolean {
+      'boolean - {
         't - test(div(disabled := true), """<div disabled=""></div>""")
         'f - test(div(disabled := false), """<div></div>""")
       }
     }
 
-    'VdomArray {
+    'VdomArray - {
       'ctorRN - test(div(VdomArray(vdomNode, vdomNode)), "<div><h1>cool</h1><h1>cool</h1></div>")
       'ctorMix - test(div(VdomArray(vdomNode, br, vdomElement)), "<div><h1>cool</h1><br/><p></p></div>")
-      'toVdomArray {
+      'toVdomArray - {
         'seqVdomNode  - test(div(Seq     (vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
         'lstVdomTag   - test(div(List    (vdomTag    , vdomTag     ).toVdomArray), "<div><span></span><span></span></div>")
         'strVdomEl    - test(div(Stream  (vdomElement, vdomElement ).toVdomArray), "<div><p></p><p></p></div>")
@@ -92,7 +92,7 @@ object UnprefixedTest extends TestSuite {
       }
     }
 
-    'Seq {
+    'Seq - {
       "without expansion" - compileError("<.div(Seq(reactNode))")
 
       'seqReactNode    - test(div(Seq     (vdomNode   , vdomNode    ).toTagMod), "<div><h1>cool</h1><h1>cool</h1></div>")
@@ -108,12 +108,20 @@ object UnprefixedTest extends TestSuite {
       'arrayJs         - test(div(js.Array(vdomNode   , vdomNode    ).toTagMod), "<div><h1>cool</h1><h1>cool</h1></div>")
 
       'mix - test(div(TagMod(vdomNode, br, vdomElement)), "<div><h1>cool</h1><br/><p></p></div>")
+
+      'mkVdomTag - {
+        'sep0 - test(div(List[TagMod]() .mkTagMod(" | ")), "<div></div>")
+        'sep1 - test(div(List(p)        .mkTagMod(" | ")), "<div><p></p></div>")
+        'sep2 - test(div(List(p, br)    .mkTagMod(" | ")), "<div><p></p> | <br/></div>")
+        'sep3 - test(div(List(p, br, hr).mkTagMod(" | ")), "<div><p></p> | <br/> | <hr/></div>")
+        'sep4 - test(div((1 to 4)       .mkTagMod(br)   ), "<div>1<br/>2<br/>3<br/>4</div>")
+      }
     }
 
     'dangerouslySetInnerHtml - test(div(dangerouslySetInnerHtml := "<span>"), "<div><span></div>")
 
-    'optional {
-      'option {
+    'optional - {
+      'option - {
         def some[A](a: A): Option[A] = Some(a)
         def none[A](a: A): Option[A] = None
         'attr_some    - test(div(cls   :=? some("hi")         ), """<div class="hi"></div>""")
@@ -131,7 +139,7 @@ object UnprefixedTest extends TestSuite {
         'text_some    - test(div(some("yoo"      ).whenDefined), """<div>yoo</div>""")
         'text_none    - test(div(none("yoo"      ).whenDefined), """<div></div>""")
       }
-      'jsUndefOr {
+      'jsUndefOr - {
         def some[A](a: A): js.UndefOr[A] = a
         def none[A](a: A): js.UndefOr[A] = js.undefined
         'attr_some    - test(div(cls   :=? some("hi")         ), """<div class="hi"></div>""")
@@ -149,7 +157,7 @@ object UnprefixedTest extends TestSuite {
         'text_some    - test(div(some("yoo"      ).whenDefined), """<div>yoo</div>""")
         'text_none    - test(div(none("yoo"      ).whenDefined), """<div></div>""")
       }
-      'maybe {
+      'maybe - {
         import ScalazReact._
         import scalaz.Maybe
         def some[A](a: A): Maybe[A] = Maybe.Just(a)
@@ -169,7 +177,7 @@ object UnprefixedTest extends TestSuite {
         'text_some    - test(div(some("yoo"      ).whenDefined), """<div>yoo</div>""")
         'text_none    - test(div(none("yoo"      ).whenDefined), """<div></div>""")
       }
-      'when {
+      'when - {
         'tags - test(
           span(span("1").when(true), span("2").when(false)),
           """<span><span>1</span></span>""")
@@ -180,7 +188,7 @@ object UnprefixedTest extends TestSuite {
           span((color := "red").when(true), (color := "black").when(false), "ok"),
           """<span style="color:red;">ok</span>""")
       }
-      'unless {
+      'unless - {
         'tags - test(
           span(span("1").unless(true), span("2").unless(false)),
           """<span><span>2</span></span>""")
@@ -193,7 +201,7 @@ object UnprefixedTest extends TestSuite {
       }
     }
 
-    'tagModComposition {
+    'tagModComposition - {
       val a: TagMod = cls := "hehe"
       val b: TagMod = h3("Good")
       val c = a(b)
@@ -224,7 +232,7 @@ object UnprefixedTest extends TestSuite {
 
     'noImplicitUnit - assertTypeMismatch(compileError("""val x: TagMod = ()"""))
 
-    'numericStyleUnits {
+    'numericStyleUnits - {
     //'zero - test(div(marginTop := 0.em),    """<div style="margin-top:0;"></div>""")
       'px   - test(div(marginTop := 2.px),    """<div style="margin-top:2px;"></div>""")
     //'ex   - test(div(marginTop := 2.3f.ex), """<div style="margin-top:2.3ex;"></div>""")
@@ -233,7 +241,7 @@ object UnprefixedTest extends TestSuite {
       'str  - assertContains(compileError("""div(marginTop := "hehe".em)""").msg, "not a member of String")
     }
 
-    'fromScalatags {
+    'fromScalatags - {
       'attributeChaining - test(
         div(`class` := "thing lol", id := "cow"),
         """<div id="cow" class="thing lol"></div>""")
@@ -247,8 +255,8 @@ object UnprefixedTest extends TestSuite {
         """<a tabindex="1" href="boo" alt="g" class="lol"></a>""")
     }
 
-    'classSet {
-      'allConditional {
+    'classSet - {
+      'allConditional - {
         val r = ScalaComponent.builder[(Boolean,Boolean)]("C").render_P(p =>
           div(classSet("p1" -> p._1, "p2" -> p._2))("x")).build
         assertRender(r((false, false)), """<div>x</div>""")
@@ -256,13 +264,13 @@ object UnprefixedTest extends TestSuite {
         assertRender(r((false, true)) , """<div class="p2">x</div>""")
         assertRender(r((true,  true)) , """<div class="p1 p2">x</div>""")
       }
-      'hasMandatory {
+      'hasMandatory - {
         val r = ScalaComponent.builder[Boolean]("C").render_P(p =>
           div(classSet1("mmm", "ccc" -> p))("x")).build
         assertRender(r(false), """<div class="mmm">x</div>""")
         assertRender(r(true) , """<div class="mmm ccc">x</div>""")
       }
-      'appends {
+      'appends - {
         val r = ScalaComponent.builder[Boolean]("C").render_P(p =>
           div(cls := "neat", classSet1("mmm", "ccc" -> p), cls := "slowclap", "x")).build
         assertRender(r(false), """<div class="neat mmm slowclap">x</div>""")
@@ -270,7 +278,7 @@ object UnprefixedTest extends TestSuite {
       }
     }
 
-    'key {
+    'key - {
       def t(m: TagMod) = test(span(m, "1"), "<span>1</span>")
       val obj = new AnyRef
       'str  - t(key := "1")
@@ -286,7 +294,7 @@ object UnprefixedTest extends TestSuite {
       'key  - compileError(" key := key ")
     }
 
-    'anchorToNewWindow {
+    'anchorToNewWindow - {
       test(a.toNewWindow("/ok")("OK!"), """<a target="_blank" href="/ok" rel="noopener">OK!</a>""")
     }
   }

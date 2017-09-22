@@ -14,28 +14,33 @@ object TodoExample {
 
   val jsSource =
     """
-      |var TodoList = React.createClass({displayName: 'TodoList',
-      |  render: function() {
-      |    var createItem = function(itemText) {
-      |      return React.createElement("li", null, itemText);
-      |    };
-      |    return React.createElement("ul", null, this.props.items.map(createItem));
+      |class TodoList extends React.Component {
+      |  render() {
+      |    var createItem = (itemText,index) => React.createElement('li', {key: index}, itemText);
+      |    return React.createElement('ul', null, this.props.items.map(createItem));
       |  }
-      |});
-      |var TodoApp = React.createClass({displayName: 'TodoApp',
-      |  getInitialState: function() {
-      |    return {items: [], text: ''};
-      |  },
-      |  onChange: function(e) {
+      |}
+      |
+      |class TodoApp extends React.Component {
+      |  constructor(props) {
+      |    super(props);
+      |    this.state = {items: [], text: ''};
+      |    this.onChange = this.onChange.bind(this);
+      |    this.handleSubmit = this.handleSubmit.bind(this);
+      |  }
+      |
+      |  onChange(e) {
       |    this.setState({text: e.target.value});
-      |  },
-      |  handleSubmit: function(e) {
+      |  }
+      |
+      |  handleSubmit(e) {
       |    e.preventDefault();
       |    var nextItems = this.state.items.concat([this.state.text]);
       |    var nextText = '';
       |    this.setState({items: nextItems, text: nextText});
-      |  },
-      |  render: function() {
+      |  }
+      |
+      |  render() {
       |    return (
       |      React.createElement("div", null,
       |        React.createElement("h3", null, "TODO"),
@@ -47,9 +52,9 @@ object TodoExample {
       |      )
       |    );
       |  }
-      |});
+      |}
       |
-      |ReactDOM.render(React.createElement(TodoApp, null), mountNode);
+      |ReactDOM.render(React.createElement(TodoApp), mountNode);
       |""".stripMargin
 
   val source =
@@ -61,12 +66,10 @@ object TodoExample {
 
   // EXAMPLE:START
 
-  val TodoList = ScalaComponent.builder[List[String]]("TodoList")
-    .render_P { props =>
+  val TodoList = ScalaFnComponent[List[String]]{ props =>
       def createItem(itemText: String) = <.li(itemText)
       <.ul(props map createItem: _*)
     }
-    .build
 
   case class State(items: List[String], text: String)
 
