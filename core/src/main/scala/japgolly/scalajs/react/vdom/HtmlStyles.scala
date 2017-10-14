@@ -878,6 +878,7 @@ trait HtmlStyles {
     final def inside = this := "inside"
   }
 
+  /** The property was originally a nonstandard and unprefixed Microsoft extension called word-wrap, and was implemented by most browsers with the same name. It has since been renamed to overflow-wrap, with word-wrap being an alias. */
   object wordWrap extends Style[String]("wordWrap") {
     /** Indicates that lines may only break at normal word break points. */
     final def normal = this := "normal"
@@ -886,6 +887,16 @@ trait HtmlStyles {
      * points if there are no otherwise acceptable break points in the line.
      */
     final def `break-word` = this := "break-word"
+  }
+
+  object overflowWrap extends Style[String]("overflowWrap") {
+    /** Indicates that lines may only break at normal word break points. */
+    final def normal = this := "normal"
+    /**
+     * Indicates that normally unbreakable words may be broken at arbitrary
+     * points if there are no otherwise acceptable break points in the line.
+     */
+    final def breakWord = this := "break-word"
   }
 
 
