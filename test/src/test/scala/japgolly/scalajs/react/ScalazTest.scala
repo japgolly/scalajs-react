@@ -1,13 +1,13 @@
 package japgolly.scalajs.react
 
-import scalaz.{Monad, StateT, ~>}
+import scala.concurrent.Future
+import scalajs.concurrent.JSExecutionContext.Implicits.queue
+import scalaz.{Applicative, Distributive, Functor, Monad, StateT, Traverse, ~>}
 import scalaz.effect.IO
-
 import utest._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
-
 import ScalazReact._
 
 /**
@@ -41,9 +41,21 @@ object ScalazTest extends TestSuite {
     'runState - {
       val c = ReactTestUtils.renderIntoDocument(SI())
       assertEq(c.state, 123)
-      val f = (_: Int) * 2
-      c.runState(ReactS.mod(f))
-      assertEq(c.state, 246)
+      val double = ReactS.mod((_: Int) * 2)
+      c.runState(double)
+      assertEq(c.state, 123 * 2)
+    }
+
+    'runStateAsync - {
+      implicit val futureInstance: Monad[Future] = new Monad[Future] {
+        override def bind[A, B](fa: Future[A])(f: A => Future[B]) = fa flatMap f
+        override def point[A](a: => A) = Future(a)
+      }
+      val c = ReactTestUtils.renderIntoDocument(SI())
+      assertEq(c.state, 123)
+      val double = ReactS.modM((n: Int) => Future(n * 2))
+      val result = c.runStateAsync[Future, Future, Unit](double)
+      result.map(_ => assertEq(c.state, 123 * 2))
     }
 
   }
