@@ -46,7 +46,7 @@ object ScalazTest extends TestSuite {
       assertEq(c.state, 123 * 2)
     }
 
-    'runStateAsync - {
+    'runStateM - {
       implicit val futureInstance: Monad[Future] = new Monad[Future] {
         override def bind[A, B](fa: Future[A])(f: A => Future[B]) = fa flatMap f
         override def point[A](a: => A) = Future(a)
@@ -54,7 +54,7 @@ object ScalazTest extends TestSuite {
       val c = ReactTestUtils.renderIntoDocument(SI())
       assertEq(c.state, 123)
       val double = ReactS.modM((n: Int) => Future(n * 2))
-      val result = c.runStateAsync(double)
+      val result = c.runStateM(double)
       result.map(_ => assertEq(c.state, 123 * 2))
     }
 

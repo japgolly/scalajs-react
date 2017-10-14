@@ -206,7 +206,7 @@ object CatsReactState {
 
     private def run[M[_], A, B](st: => ReactST[M, S, A], conclude: (S, S, A, => Callback) => CallbackTo[B])
                                (implicit M: FlatMap[M], trans: M ~> CallbackTo): CallbackTo[B] =
-      runAsync[M, A, B](st, conclude).flatMap(trans(_))
+      runM[M, A, B](st, conclude).flatMap(trans(_))
 
     def runState[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: FlatMap[M]): Out[A] =
       run[M, A, A](st, (_, _, a, cb) => cb.map(_ => a))
@@ -223,8 +223,8 @@ object CatsReactState {
     def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: FlatMap[M], F: ChangeFilter[S]): I => Out[A] =
       i => runStateF(f(i))
 
-    private def runAsync[M[_], A, B](st: => ReactST[M, S, A], conclude: (S, S, A, => Callback) => CallbackTo[B])
-                                    (implicit M: FlatMap[M]): CallbackTo[M[B]] =
+    private def runM[M[_], A, B](st: => ReactST[M, S, A], conclude: (S, S, A, => Callback) => CallbackTo[B])
+                                (implicit M: FlatMap[M]): CallbackTo[M[B]] =
       stateCB.flatMap { s1 =>
         type SA = (StateAndCallbacks[S], A)
         val runCM: CallbackTo[M[SA]] = CallbackTo(st run ReactS.StateAndCallbacks(s1))
@@ -239,11 +239,11 @@ object CatsReactState {
         }
       }
 
-    def runStateAsync[M[_], A](st: => ReactST[M, S, A])(implicit M: FlatMap[M]): Out[M[A]] =
-      runAsync[M, A, A](st, (_, _, a, cb) => cb.map(_ => a))
+    def runStateM[M[_], A](st: => ReactST[M, S, A])(implicit M: FlatMap[M]): Out[M[A]] =
+      runM[M, A, A](st, (_, _, a, cb) => cb.map(_ => a))
 
-    def runStateFnAsync[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: FlatMap[M]): I => Out[M[A]] =
-      i => runStateAsync[M, A](f(i))
+    def runStateFnM[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: FlatMap[M]): I => Out[M[A]] =
+      i => runStateM[M, A](f(i))
 
     def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): Out[Unit] =
       stateCB.flatMap(s1 =>
