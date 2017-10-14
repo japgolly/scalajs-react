@@ -113,7 +113,7 @@ You throw types and functions at it, call `build` and when it compiles you will 
   Use your IDE to see the methods and the differences in their type signatures.
 
 3. *(Optional)* If you want a backend (explained below) for your component
-  (and you do for non-trivial compnents), call `.backend`.
+  (and you do for non-trivial components), call `.backend`.
   If your backend has a `.render` function, instead of `.backend` here you can call `.renderBackend`
   which will use a macro to instantiate your backend, and automatically choose the
   appropriate `.render` function in the next step, bypassing it for you.
