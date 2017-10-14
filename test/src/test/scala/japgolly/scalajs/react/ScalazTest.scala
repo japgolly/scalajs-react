@@ -54,7 +54,7 @@ object ScalazTest extends TestSuite {
       val c = ReactTestUtils.renderIntoDocument(SI())
       assertEq(c.state, 123)
       val double = ReactS.modM((n: Int) => Future(n * 2))
-      val result = c.runStateAsync[Future, Future, Unit](double)
+      val result = c.runStateAsync(double)
       result.map(_ => assertEq(c.state, 123 * 2))
     }
 

@@ -13,16 +13,12 @@ trait ScalazReactState1 {
   final type ReactS[S, A] = ScalazReactState.ReactS[S, A]
   final val ReactS = ScalazReactState.ReactS
 
-  final type TransAsync[M[_], N[_]] = ScalazReactState.TransAsync[M, N]
-  val TransAsync = ScalazReactState.TransAsync
-
   final type ChangeFilter[S] = ScalazReactState.ChangeFilter[S]
   final val ChangeFilter = ScalazReactState.ChangeFilter
 
   import ScalazReactState._
 
   implicit final def ScalazReactExt_StateAccessId[I, S](i: I)(implicit sa: StateAccessor.ReadWriteImpure[I, S]): Ext_StateAccessRW[Effect.Id, I, S, Effect.Id] = new Ext_StateAccessRW(i)
-  implicit final def ScalazReactExt_TransAsyncId[F[_]]: TransAsync[F, F] = TransAsync.id[F]
 }
 
 trait ScalazReactState2 extends ScalazReactState1 {
@@ -50,13 +46,6 @@ object ScalazReactState {
 
   type ReactST[M[_], S, A] = StateT[M, StateAndCallbacks[S], A]
   type ReactS[S, A] = ReactST[Id, S, A]
-
-  type TransAsync[M[_], N[_]] = M ~> ({type X[a] = CallbackTo[N[a]]})#X
-  object TransAsync {
-    def id[F[_]]: TransAsync[F, F] = new TransAsync[F, F] {
-      override def apply[A](fa: F[A]) = CallbackTo.pure(fa)
-    }
-  }
 
   /**
    * M prefix indicates M in args.
@@ -204,15 +193,13 @@ object ScalazReactState {
   }
 
   final class Ext_StateAccessRW[F[_], SI, S, Out[_]](si: SI)(implicit sa: StateAccessor.ReadWrite[SI, F, F, S], fToCb: Effect.Trans[F, CallbackTo], cbToOut: Effect.Trans[CallbackTo, Out]) {
-    import ScalazReact.ScalazReactExt_TransAsyncId
-
     implicit private def autoOut[A](a: CallbackTo[A]): Out[A] = cbToOut(a)
 
     private def stateCB: CallbackTo[S] = fToCb(sa.state(si))
 
     private def run[M[_], A, B](st: => ReactST[M, S, A], conclude: (S, S, A, => Callback) => CallbackTo[B])
                                (implicit M: Monad[M], trans: M ~> CallbackTo): CallbackTo[B] =
-      runAsync[M, Id, A, B](st, conclude)
+      runAsync[M, A, B](st, conclude).flatMap(trans(_))
 
     def runState[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): Out[A] =
       run[M, A, A](st, (_, _, a, cb) => cb.map(_ => a))
@@ -229,29 +216,27 @@ object ScalazReactState {
     def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
       i => runStateF(f(i))
 
-    private def runAsync[M[_], N[_], A, B](st: => ReactST[M, S, A], conclude: (S, S, A, => Callback) => CallbackTo[B])
-                                          (implicit M: Monad[M], N: Functor[N], trans: TransAsync[M, N]): CallbackTo[N[B]] =
+    private def runAsync[M[_], A, B](st: => ReactST[M, S, A], conclude: (S, S, A, => Callback) => CallbackTo[B])
+                                    (implicit M: Monad[M]): CallbackTo[M[B]] =
       stateCB.flatMap { s1 =>
         type SA = (StateAndCallbacks[S], A)
-        type CN[X] = CallbackTo[N[X]]
-        val runM : M [SA] = st run ReactS.StateAndCallbacks(s1)
-        val runCN: CN[SA] = trans(runM)
-        runCN.flatMap { nxa =>
+        val runCM: CallbackTo[M[SA]] = CallbackTo(st run ReactS.StateAndCallbacks(s1))
+        runCM.flatMap { msa =>
           CallbackTo.liftTraverse[SA, B] { xa =>
             val s2: StateAndCallbacks[S] = xa._1
             val a : A                    = xa._2
             def c : Callback             = fToCb(sa.setStateCB(si)(s2.state, s2.cb))
             val cb: CallbackTo[B]        = conclude(s1, s2.state, a, c)
             cb
-          }.id.map(N.map(nxa))
+          }.id.map(M.map(msa))
         }
       }
 
-    def runStateAsync[M[_], N[_], A](st: => ReactST[M, S, A])(implicit M: Monad[M], N: Functor[N], trans: TransAsync[M, N]): Out[N[A]] =
-      runAsync[M, N, A, A](st, (_, _, a, cb) => cb.map(_ => a))
+    def runStateAsync[M[_], A](st: => ReactST[M, S, A])(implicit M: Monad[M]): Out[M[A]] =
+      runAsync[M, A, A](st, (_, _, a, cb) => cb.map(_ => a))
 
-    def runStateFnAsync[I, M[_], N[_], A](f: I => ReactST[M, S, A])(implicit M: Monad[M], N: Functor[N], trans: TransAsync[M, N]): I => Out[N[A]] =
-      i => runStateAsync[M, N, A](f(i))
+    def runStateFnAsync[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: Monad[M]): I => Out[M[A]] =
+      i => runStateAsync[M, A](f(i))
 
     def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): Out[Unit] =
       stateCB.flatMap(s1 =>
