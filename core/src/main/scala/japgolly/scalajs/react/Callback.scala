@@ -272,6 +272,30 @@ object CallbackTo {
       w
     }
 
+  /** Displays a dialog with an optional message prompting the user to input some text.
+    *
+    * @return Some string comprising the text entered by the user, or None.
+    */
+  def prompt: CallbackTo[Option[String]] =
+    apply(Option(window.prompt()))
+
+  /** Displays a dialog with an optional message prompting the user to input some text.
+    *
+    * @param message a string of text to display to the user. This parameter is optional and can be omitted if there is nothing to show in the prompt window.
+    * @return Some string comprising the text entered by the user, or None.
+    */
+  def prompt(message: String): CallbackTo[Option[String]] =
+    apply(Option(window.prompt(message)))
+
+  /** Displays a dialog with an optional message prompting the user to input some text.
+    *
+    * @param message a string of text to display to the user. This parameter is optional and can be omitted if there is nothing to show in the prompt window.
+    * @param default a string containing the default value displayed in the text input field. It is an optional parameter. Note that in Internet Explorer 7 and 8, if you do not provide this parameter, the string "undefined" is the default value.
+    * @return Some string comprising the text entered by the user, or None.
+    */
+  def prompt(message: String, default: String): CallbackTo[Option[String]] =
+    apply(Option(window.prompt(message, default)))
+
   /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.
    *
