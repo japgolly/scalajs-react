@@ -683,11 +683,15 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def logDuration: CallbackTo[A] =
     logDuration("Callback")
 
-  def asCBO[B](implicit ev:  CallbackTo[A] <:< CallbackTo[Option[B]]): CallbackOption[B] =
+  def asCBO[B](implicit ev: CallbackTo[A] <:< CallbackTo[Option[B]]): CallbackOption[B] =
     CallbackOption(ev(this))
 
   def toCBO: CallbackOption[A] =
     CallbackOption liftCallback this
+
+  /** Returns a [[CallbackOption]] that requires the boolean value therein to be true. */
+  def requireCBO(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackOption[Unit] =
+    ev(this).toCBO.flatMap(CallbackOption.require(_))
 
   /** Function distribution. See `CallbackTo.liftTraverse(f).id` for the dual. */
   def distFn[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): B => CallbackTo[C] = {
