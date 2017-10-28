@@ -304,6 +304,12 @@ object CallbackTo {
   def confirm(message: String): CallbackTo[Boolean] =
     apply(window.confirm(message))
 
+  def retryUntilRight[L, R](attempt: CallbackTo[Either[L, R]])(onLeft: L => Callback): CallbackTo[R] =
+    tailrec[Unit, R](())(_ => attempt.flatMap {
+      case Left(e)  => onLeft(e).map(_ => Left(()))
+      case Right(a) => CallbackTo pure Right(a)
+    })
+
   /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.
    *
