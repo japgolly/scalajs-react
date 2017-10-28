@@ -296,6 +296,14 @@ object CallbackTo {
   def prompt(message: String, default: String): CallbackTo[Option[String]] =
     apply(Option(window.prompt(message, default)))
 
+  /** Displays a modal dialog with a message and two buttons, OK and Cancel.
+    *
+    * @param message a string to be displayed in the dialog.
+    * @return A boolean value indicating whether OK or Cancel was selected (true means OK).
+    */
+  def confirm(message: String): CallbackTo[Boolean] =
+    apply(window.confirm(message))
+
   /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.
    *
