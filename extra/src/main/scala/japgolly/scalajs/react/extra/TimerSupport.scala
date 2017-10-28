@@ -25,7 +25,7 @@ trait TimerSupport extends OnUnmount {
   final def setTimeoutMs(f: Callback, timeoutInMilliseconds: Double): Callback = {
     CallbackTo {
       var handle: UndefOr[SetTimeoutHandle] = undefined
-      val proc = f << Callback(handle = undefined)
+      val proc = f << Callback { handle = undefined }
       handle = RawTimers.setTimeout(proc.toJsFn, timeoutInMilliseconds)
       Callback(handle foreach RawTimers.clearTimeout)
     } flatMap onUnmount
