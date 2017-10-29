@@ -26,7 +26,7 @@ Setup
 
     ```scala
     // scalajs-react test module
-    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "1.1.0" % "test"
+    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "1.1.1" % "test"
 
     // React JS itself.
     // NOTE: Requires react-with-addons.js instead of just react.js
