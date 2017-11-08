@@ -10,8 +10,8 @@ import japgolly.scalajs.react.extra._
 
 trait ScalazReactInstances {
 
-  implicit final lazy val reactCallbackScalazInstance: Monad[CallbackTo] with BindRec[CallbackTo] with Distributive[CallbackTo] =
-    new Monad[CallbackTo] with BindRec[CallbackTo] with Distributive[CallbackTo] {
+  implicit final lazy val reactCallbackScalazInstance: MonadError[CallbackTo, Throwable] with BindRec[CallbackTo] with Distributive[CallbackTo] =
+    new MonadError[CallbackTo, Throwable] with BindRec[CallbackTo] with Distributive[CallbackTo] {
 
       override def point[A](a: => A): CallbackTo[A] =
         CallbackTo(a)
@@ -35,6 +35,15 @@ trait ScalazReactInstances {
 
       override def distributeImpl[G[_], A, B](ga: G[A])(f: A => CallbackTo[B])(implicit G: Functor[G]): CallbackTo[G[B]] =
         CallbackTo.liftTraverse(f).id.map(G.map(ga))
+
+      override def raiseError[A](e: Throwable): CallbackTo[A] =
+        CallbackTo(throw e)
+
+      override def handleError[A](fa: CallbackTo[A])(f: Throwable => CallbackTo[A]): CallbackTo[A] =
+        fa.attempt.flatMap {
+          case Right(a) => CallbackTo pure a
+          case Left(t)  => f(t)
+        }
     }
 
   implicit final lazy val reactCallbackOptionScalazInstance: Monad[CallbackOption] with BindRec[CallbackOption] =

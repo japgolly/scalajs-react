@@ -13,7 +13,7 @@ import scala.annotation.tailrec
   */
 trait CatsReactInstances {
 
-  implicit final lazy val reactCallbackCatsInstance: Monad[CallbackTo] = new Monad[CallbackTo] {
+  implicit final lazy val reactCallbackCatsInstance: MonadError[CallbackTo, Throwable] = new MonadError[CallbackTo, Throwable] {
     override def pure[A](x: A): CallbackTo[A] = CallbackTo.pure(x)
 
     override def map[A, B](fa: CallbackTo[A])(f: A => B): CallbackTo[B] =
@@ -30,6 +30,15 @@ trait CatsReactInstances {
       }
       go(a)
     }
+
+    override def raiseError[A](e: Throwable): CallbackTo[A] =
+      CallbackTo(throw e)
+
+    override def handleErrorWith[A](fa: CallbackTo[A])(f: Throwable => CallbackTo[A]): CallbackTo[A] =
+      fa.attempt.flatMap {
+        case Right(a) => CallbackTo pure a
+        case Left(t)  => f(t)
+      }
   }
 
   implicit final lazy val reactCallbackOptionCatsInstance: Monad[CallbackOption] = new Monad[CallbackOption] {
