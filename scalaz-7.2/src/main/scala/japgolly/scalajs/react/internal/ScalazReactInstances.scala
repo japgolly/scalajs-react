@@ -46,8 +46,8 @@ trait ScalazReactInstances {
         }
     }
 
-  implicit final lazy val reactCallbackOptionScalazInstance: Monad[CallbackOption] with BindRec[CallbackOption] =
-    new Monad[CallbackOption] with BindRec[CallbackOption] {
+  implicit final lazy val reactCallbackOptionScalazInstance: MonadPlus[CallbackOption] with BindRec[CallbackOption] =
+    new MonadPlus[CallbackOption] with BindRec[CallbackOption] {
       override def point[A](a: => A): CallbackOption[A] =
         CallbackOption.liftValue(a)
 
@@ -68,6 +68,12 @@ trait ScalazReactInstances {
             }
           go(a)
         }
+
+      override def empty[A]: CallbackOption[A] =
+        CallbackOption.fail
+
+      override def plus[A](a: CallbackOption[A], b: => CallbackOption[A]): CallbackOption[A] =
+        a orElse b
     }
 
   implicit final lazy val maybeReactInstance: OptionLike[Maybe] = new OptionLike[Maybe] {
