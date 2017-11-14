@@ -16,7 +16,7 @@ object ScalajsReact {
     val MacroParadise = "2.1.1"
     val SizzleJs      = "2.3.0"
     val Nyaya         = "0.8.1"
-    val Cats          = "1.0.0-MF"
+    val Cats          = "1.0.0-RC1"
   }
 
   type PE = Project => Project
