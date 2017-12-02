@@ -61,3 +61,9 @@ Includes a router, testing utils, performance utils, more.
 * React 15.3+
 * Scala 2.11 or 2.12.
 * Scala.JS 0.6.17+
+
+##### Support:
+If you like what I do
+—my OSS libraries, my contributions to other OSS libs, [my programming blog](https://japgolly.blogspot.com)—
+and you'd like to support me, more content, more lib maintenance, [please become a patron](https://www.patreon.com/japgolly)!
+I do all my OSS work unpaid so showing your support will make a big difference.
