@@ -241,7 +241,9 @@ object ScalajsReact {
   lazy val cats = project
     .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
     .dependsOn(core, extra)
-    .settings(libraryDependencies += "org.typelevel" %%% "cats-effect" % Ver.CatsEffect)
+    .settings(
+      libraryDependencies += "org.typelevel" %%% "cats-effect" % Ver.CatsEffect
+    )
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))

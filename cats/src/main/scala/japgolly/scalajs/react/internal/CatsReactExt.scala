@@ -6,6 +6,8 @@ import cats.effect.IO
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 
+import scala.concurrent.Future
+
 /**
   * Created by alonsodomin on 13/03/2017.
   */

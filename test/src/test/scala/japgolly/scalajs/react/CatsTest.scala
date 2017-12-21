@@ -12,6 +12,8 @@ import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
+import scala.concurrent.Future
+
 /**
  * Scala's type inference can be pretty weak sometimes.
  * Successful compilation will suffice as proof for most of these tests.
@@ -30,7 +32,7 @@ object CatsTest extends TestSuite {
 
       implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
 
-      val reactSId: ReactST[IO, S, Int] = ReactS retM IO(3)
+      val reactSId: ReactST[IO, S, Int] = ReactS retM IO.pure(3)
 
       "runState(s.liftS)"   - test[StateT[M,S,A]                        ](s => bs.runState(s.liftS)  ).expect[CallbackTo[A]]
       "runStateFn(f.liftS)" - test[B => StateT[M,S,A]                   ](s => bs.runStateFn(s.liftS)).expect[B => CallbackTo[A]]
