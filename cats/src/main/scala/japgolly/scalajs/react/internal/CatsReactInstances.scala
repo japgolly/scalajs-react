@@ -2,6 +2,7 @@ package japgolly.scalajs.react.internal
 
 import cats._
 import cats.data.Ior
+import cats.effect.IO
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
@@ -62,8 +63,30 @@ trait CatsReactInstances {
       }
   }
 
+  implicit final lazy val catsIOReactInstance: Effect[IO] = new Effect[IO] {
+    override def point  [A]   (a: => A)                 = IO(a)
+    override def pure   [A]   (a: A)                    = IO(a)
+    override def map    [A, B](a: IO[A])(f: A => B)     = a map f
+    override def flatMap[A, B](a: IO[A])(f: A => IO[B]) = a flatMap f
+    override def extract[A]   (a: => IO[A])             = () => a.unsafeRunSync()
+  }
+
+  implicit final lazy val effectTransEndoIo       = Effect.Trans.id[IO]
+  implicit final lazy val effectTransIdToIo       = Effect.Trans[Effect.Id, IO]
+  implicit final lazy val effectTransCallbackToIo = Effect.Trans[CallbackTo, IO]
+  implicit final lazy val effectTransIoToId       = Effect.Trans[IO, Effect.Id]
+  implicit final lazy val effectTransIoToCallback = Effect.Trans[IO, CallbackTo]
+
   implicit final lazy val catsIdToReactCallback: (Id ~> CallbackTo) = new (Id ~> CallbackTo) {
     override def apply[A](fa: Id[A]): CallbackTo[A] = CallbackTo(fa)
+  }
+
+  implicit final lazy val catsIOToReactCallback: (IO ~> CallbackTo) = new (IO ~> CallbackTo) {
+    override def apply[A](fa: IO[A]): CallbackTo[A] = CallbackTo(fa.unsafeRunSync())
+  }
+
+  implicit final lazy val catsReactCallbackToIO: (CallbackTo ~> IO) = new (CallbackTo ~> IO) {
+    override def apply[A](fa: CallbackTo[A]): IO[A] = IO(fa.runNow())
   }
 
   implicit final lazy val catsReactCallbackToItself: (CallbackTo ~> CallbackTo) = new (CallbackTo ~> CallbackTo) {
@@ -75,6 +98,18 @@ trait CatsReactInstances {
     case (Ior.Left(a), Ior.Left(b))       => a ~=~ b
     case (Ior.Right(a), Ior.Right(b))     => a ~=~ b
     case _                                => false
+  }
+
+  implicit final def routerEqBaseUrl : Eq[router.BaseUrl] = Eq.fromUniversalEquals
+  implicit final def routerEqPath    : Eq[router.Path]    = Eq.fromUniversalEquals
+  implicit final def routerEqAbsUrl  : Eq[router.AbsUrl]  = Eq.fromUniversalEquals
+
+  implicit final def routerRuleMonoid[P]: Monoid[router.StaticDsl.Rule[P]] = {
+    import router.StaticDsl.Rule
+    new Monoid[Rule[P]] {
+      override def empty = Rule.empty
+      override def combine(a: Rule[P], b: Rule[P]): Rule[P] = a | b
+    }
   }
 
 }

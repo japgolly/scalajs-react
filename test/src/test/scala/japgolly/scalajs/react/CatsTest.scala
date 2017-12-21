@@ -3,12 +3,16 @@ package japgolly.scalajs.react
 import cats.{Monad, Id, ~>}
 import cats.data.StateT
 import cats.implicits._
+import cats.effect.IO
+import cats.effect.implicits._
 
 import japgolly.scalajs.react.CatsReact._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
+
+import scala.concurrent.Future
 
 /**
  * Scala's type inference can be pretty weak sometimes.
@@ -28,8 +32,7 @@ object CatsTest extends TestSuite {
 
       implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
 
-      val retVal: Id[Int] = 3
-      val reactSId: ReactST[Id, S, Int] = ReactS retM retVal
+      val reactSId: ReactST[IO, S, Int] = ReactS retM IO.pure(3)
 
       "runState(s.liftS)"   - test[StateT[M,S,A]                        ](s => bs.runState(s.liftS)  ).expect[CallbackTo[A]]
       "runStateFn(f.liftS)" - test[B => StateT[M,S,A]                   ](s => bs.runStateFn(s.liftS)).expect[B => CallbackTo[A]]
