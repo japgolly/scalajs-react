@@ -252,6 +252,29 @@ object ReusabilityTest extends TestSuite {
       }
     }
 
+    'logNonReusable - {
+      def conductTest(wrappedReusability: Reusability[Int]): List[String] = {
+        var output = List.empty[String]
+        def collectingPrint(s: String): Unit = output = output :+ s
+
+        val reusability =
+          Reusability.logNonReusable(wrappedReusability, (v: Int) => v.toString, collectingPrint)
+        reusability.test(0, 0)
+
+        output
+      }
+
+      'nonReusable - {
+        val loggedOutput = conductTest(Reusability.never)
+        assert(loggedOutput == List("Non-reusability:  0\n  0"))
+      }
+
+      'reusable - {
+        val loggedOutput = conductTest(Reusability.always)
+        assert(loggedOutput == List.empty)
+      }
+    }
+
     'shouldComponentUpdate - {
       'reusableState - {
         import SampleComponent1._

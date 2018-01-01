@@ -73,6 +73,7 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.indexedSeq` uses `.length` and `.apply(index)` to check each element in order.
 * `Reusability.{double,float}` exist and require a tolerance to be specified.
 * `Reusability.{always,never,const(bool)}` for a hard-coded reusability decision.
+* `Reusability.logNonReusable` wraps any reusability to println a message about non-reusability to aid quick debugging.
 
 If you're using the Scalaz module, you also gain:
 * `Reusability.byEqual` uses a Scalaz `Equal` typeclass.
@@ -108,6 +109,13 @@ Alternatively, `picReuse` could be written using `caseClassExcept` as follows.
 ```scala
 // Not natural in this case but demonstrates how to use caseClassExcept
 implicit val picReuse = Reusability.caseClassExcept[Picture]('url, 'title)
+```
+
+You can peek into reusability calculation by wrapping it with a logger:
+
+```scala
+implicit val loggedPicReuse =
+    Reusability.logNonReusable(Reusability.caseClassExcept[Picture]('url, 'title))
 ```
 
 #### Monitoring

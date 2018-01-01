@@ -99,6 +99,17 @@ object Reusability {
     apply((x, y) =>
       (x.length == y.length) && x.indices.forall(i => x(i) ~=~ y(i)))
 
+  def logNonReusable[A](reusability: Reusability[A]): Reusability[A] =
+    logNonReusable(reusability, _.toString)
+
+  def logNonReusable[A](reusability: Reusability[A], show: A => String, print: String => Unit = println): Reusability[A] =
+    Reusability { (a, b) =>
+      val r = reusability.test(a, b)
+      if (!r)
+        print(s"Non-reusability:  ${show(a)}\n  ${show(b)}")
+      r
+    }
+
   /**
     * Generate an instance for A.
     *
