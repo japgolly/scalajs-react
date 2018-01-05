@@ -274,7 +274,7 @@ object ReusabilityTest extends TestSuite {
       }
 
       'show - {
-        Reusability.never.logNonReusable(log = logSink.log, show = v => s"Value is $v").test(0, 0)
+        Reusability.never[Int].logNonReusable(log = logSink.log, show = v => s"Value is $v").test(0, 0)
         assert(logSink.messages == List("Non-reusability:\n- Value is 0\n- Value is 0"))
       }
     }
