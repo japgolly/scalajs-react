@@ -253,25 +253,29 @@ object ReusabilityTest extends TestSuite {
     }
 
     'logNonReusable - {
-      def conductTest(wrappedReusability: Reusability[Int]): List[String] = {
-        var output = List.empty[String]
-        def collectingPrint(s: String): Unit = output = output :+ s
-
-        val reusability =
-          Reusability.logNonReusable(wrappedReusability, (v: Int) => v.toString, collectingPrint)
-        reusability.test(0, 0)
-
-        output
+      val logSink = new {
+        var messages = List.empty[String]
+        def log(s: String): Unit = messages = messages :+ s
       }
 
       'nonReusable - {
-        val loggedOutput = conductTest(Reusability.never)
-        assert(loggedOutput == List("Non-reusability:  0\n  0"))
+        Reusability.never.logNonReusable(log = logSink.log).test(0, 0)
+        assert(logSink.messages == List("Non-reusability:\n- 0\n- 0"))
       }
 
       'reusable - {
-        val loggedOutput = conductTest(Reusability.always)
-        assert(loggedOutput == List.empty)
+        Reusability.always.logNonReusable(log = logSink.log).test(0, 0)
+        assert(logSink.messages == List.empty)
+      }
+
+      'formatting - {
+        Reusability.never.logNonReusable(log = logSink.log, fmt = (x, y) => s"$x, $y").test(0, 0)
+        assert(logSink.messages == List("0, 0"))
+      }
+
+      'show - {
+        Reusability.never.logNonReusable(log = logSink.log, show = v => s"Value is $v").test(0, 0)
+        assert(logSink.messages == List("Non-reusability:\n- Value is 0\n- Value is 0"))
       }
     }
 

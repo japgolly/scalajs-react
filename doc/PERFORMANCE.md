@@ -73,12 +73,10 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.indexedSeq` uses `.length` and `.apply(index)` to check each element in order.
 * `Reusability.{double,float}` exist and require a tolerance to be specified.
 * `Reusability.{always,never,const(bool)}` for a hard-coded reusability decision.
-* `Reusability.logNonReusable` wraps any reusability to println a message about non-reusability to aid quick debugging.
 
 If you're using the Scalaz module, you also gain:
 * `Reusability.byEqual` uses a Scalaz `Equal` typeclass.
 * `Reusability.byRefOrEqual` uses reference equality and if different, tries using a Scalaz `Equal` typeclass.
-
 
 #### Example
 The following component will only re-render when one of the following change:
@@ -115,7 +113,7 @@ You can peek into reusability calculation by wrapping it with a logger:
 
 ```scala
 implicit val loggedPicReuse =
-    Reusability.logNonReusable(Reusability.caseClassExcept[Picture]('url, 'title))
+    Reusability.caseClassExcept[Picture]('url, 'title).logNonReusable
 ```
 
 #### Monitoring
@@ -136,6 +134,9 @@ Usage:
 // Log to console
 .configure(Reusability.shouldComponentUpdateAndLog("MyComponent"))
 ```
+
+You can also call `.logNonReusable` on any reusability instance to get a new reusability which emits a warning
+about non-reusability to aid quick debugging.
 
 
 `Reusable`

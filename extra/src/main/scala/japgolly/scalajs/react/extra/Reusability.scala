@@ -3,6 +3,7 @@ package japgolly.scalajs.react.extra
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
 import java.util.{Date, UUID}
+import org.scalajs.dom.console
 import scala.scalajs.js.{Date => JsDate}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.internal.ReusabilityMacros
@@ -39,6 +40,16 @@ final class Reusability[A](val test: (A, A) => Boolean) extends AnyVal {
 
   def reusable(a: A)(implicit c: ClassTag[A]): Reusable[A] =
     Reusable.explicitly(a)(this)(c)
+
+  def logNonReusable(show: A => String = _.toString,
+                     log : String => Unit = console.warn(_),
+                     fmt : (=> String, => String) => String = (x, y) => s"Non-reusability:\n- $x\n- $y"): Reusability[A] =
+    Reusability { (a, b) =>
+      val r = test(a, b)
+      if (!r)
+        log(fmt(show(a), show(b)))
+      r
+    }
 }
 
 object Reusability {
@@ -98,17 +109,6 @@ object Reusability {
   def indexedSeq[S[X] <: IndexedSeq[X], A: Reusability]: Reusability[S[A]] =
     apply((x, y) =>
       (x.length == y.length) && x.indices.forall(i => x(i) ~=~ y(i)))
-
-  def logNonReusable[A](reusability: Reusability[A]): Reusability[A] =
-    logNonReusable(reusability, _.toString)
-
-  def logNonReusable[A](reusability: Reusability[A], show: A => String, print: String => Unit = println): Reusability[A] =
-    Reusability { (a, b) =>
-      val r = reusability.test(a, b)
-      if (!r)
-        print(s"Non-reusability:  ${show(a)}\n  ${show(b)}")
-      r
-    }
 
   /**
     * Generate an instance for A.
