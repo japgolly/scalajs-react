@@ -6,17 +6,17 @@ import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin, ScalaJSBundlerPlugin.autoI
 object ScalajsReact {
 
   object Ver {
-    val Scala211      = "2.11.11"
+    val Scala211      = "2.11.12"
     val Scala212      = "2.12.4"
-    val ScalaJsDom    = "0.9.3"
+    val ScalaJsDom    = "0.9.4"
     val ReactJs       = "15.6.1"
     val Monocle       = "1.4.0"
-    val Scalaz72      = "7.2.16"
+    val Scalaz72      = "7.2.18"
     val MTest         = "0.5.3"
     val MacroParadise = "2.1.1"
     val SizzleJs      = "2.3.0"
     val Nyaya         = "0.8.1"
-    val Cats          = "1.0.0-RC1"
+    val Cats          = "1.0.1"
   }
 
   type PE = Project => Project
