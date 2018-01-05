@@ -6,7 +6,7 @@ import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin, ScalaJSBundlerPlugin.autoI
 object ScalajsReact {
 
   object Ver {
-    val Scala211      = "2.11.11"
+    val Scala211      = "2.11.12"
     val Scala212      = "2.12.4"
     val ScalaJsDom    = "0.9.4"
     val ReactJs       = "15.6.1"
