@@ -53,6 +53,6 @@ object ScalazReactExt {
 trait ScalazReactExt {
   implicit final def ScalazReactExt_Reusability(a: Reusability.type) = new ReusabilityOps(a)
   implicit final def ScalazReactExt_Listenable(a: Listenable.type) = new ListenableOps(a)
-  implicit final def ScalazReactExt_CallbackTo[A](a: CallbackTo[A]) = new CallbackToOps(a.toScalaFn)
+  implicit final def ScalazReactExt_CallbackTo[A](a: CallbackTo[A]) = new CallbackToOps(a.underlyingRepr)
   implicit final def ScalazReactExt_MA[M[_], A](a: M[A]) = new MA(a)
 }
