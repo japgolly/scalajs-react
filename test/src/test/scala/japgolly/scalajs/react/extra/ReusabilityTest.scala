@@ -252,6 +252,38 @@ object ReusabilityTest extends TestSuite {
       }
     }
 
+    'logNonReusable - {
+      val logSink = new {
+        var messages = List.empty[String]
+        def log(s: String): Unit = messages = messages :+ s
+      }
+
+      'nonReusable - {
+        Reusability.never.logNonReusable(log = logSink.log).test(0, 0)
+        assert(logSink.messages == List("Non-reusability:\n- 0\n- 0"))
+      }
+
+      'reusable - {
+        Reusability.always.logNonReusable(log = logSink.log).test(0, 0)
+        assert(logSink.messages == List.empty)
+      }
+
+      'formatting - {
+        Reusability.never.logNonReusable(log = logSink.log, fmt = (_, x, y) => s"$x, $y").test(0, 0)
+        assert(logSink.messages == List("0, 0"))
+      }
+
+      'title - {
+        Reusability.never.logNonReusable(log = logSink.log, title = "Sidebar:").test(0, 0)
+        assert(logSink.messages == List("Sidebar:\n- 0\n- 0"))
+      }
+
+      'show - {
+        Reusability.never[Int].logNonReusable(log = logSink.log, show = v => s"Value is $v").test(0, 0)
+        assert(logSink.messages == List("Non-reusability:\n- Value is 0\n- Value is 0"))
+      }
+    }
+
     'shouldComponentUpdate - {
       'reusableState - {
         import SampleComponent1._

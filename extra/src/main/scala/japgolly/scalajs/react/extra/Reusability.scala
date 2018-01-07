@@ -3,6 +3,7 @@ package japgolly.scalajs.react.extra
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
 import java.util.{Date, UUID}
+import org.scalajs.dom.console
 import scala.scalajs.js.{Date => JsDate}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.internal.ReusabilityMacros
@@ -39,6 +40,19 @@ final class Reusability[A](val test: (A, A) => Boolean) extends AnyVal {
 
   def reusable(a: A)(implicit c: ClassTag[A]): Reusable[A] =
     Reusable.explicitly(a)(this)(c)
+
+  def logNonReusable: Reusability[A] = logNonReusable()
+
+  def logNonReusable(show: A => String = _.toString,
+                     log : String => Unit = console.warn(_),
+                     title: String = "Non-reusability:",
+                     fmt : (String, => String, => String) => String = (t, x, y) => s"$t\n- $x\n- $y"): Reusability[A] =
+    Reusability { (a, b) =>
+      val r = test(a, b)
+      if (!r)
+        log(fmt(title, show(a), show(b)))
+      r
+    }
 }
 
 object Reusability {

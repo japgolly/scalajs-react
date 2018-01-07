@@ -110,6 +110,13 @@ Alternatively, `picReuse` could be written using `caseClassExcept` as follows.
 implicit val picReuse = Reusability.caseClassExcept[Picture]('url, 'title)
 ```
 
+You can peek into reusability calculation by wrapping it with a logger:
+
+```scala
+implicit val loggedPicReuse =
+    Reusability.caseClassExcept[Picture]('url, 'title).logNonReusable
+```
+
 #### Monitoring
 
 There exist two mixins, out-of-the-box, to help you monitor reusability. Use them instead of `shouldComponentUpdate`.
@@ -128,6 +135,9 @@ Usage:
 // Log to console
 .configure(Reusability.shouldComponentUpdateAndLog("MyComponent"))
 ```
+
+You can also call `.logNonReusable` on any reusability instance to get a new reusability which emits a warning
+about non-reusability to aid quick debugging.
 
 
 `Reusable`
