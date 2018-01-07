@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import scala.reflect.ClassTag
-import japgolly.scalajs.react.{Callback, StateAccessor}
+import japgolly.scalajs.react.{Callback, CallbackOption, CallbackTo, StateAccessor}
 
 /**
   * A value that has been explicitly paired with a (potentially ad-hoc) [[Reusability]] instance.
@@ -78,6 +78,15 @@ object Reusable {
       case _         => false
     })
 
+  /** Compare by reference through an isomorphism. Reuse if both values are the same instance. */
+  def byRefIso[A, B <: AnyRef](a: A)(iso: A => B): Reusable[A] = {
+    val b = iso(a)
+    new Reusable[A](() => a, b, _.root match {
+      case x: AnyRef => b eq x
+      case _         => false
+    })
+  }
+
   /** Compare using universal equality (Scala's == operator). */
   def by_==[A](a: A): Reusable[A] =
     root(a, a == _.root)
@@ -100,6 +109,12 @@ object Reusable {
     reusabilityInstance.narrow
 
   // ===================================================================================================================
+
+  def callbackByRef[A](c: CallbackTo[A]): Reusable[CallbackTo[A]] =
+    byRefIso(c)(_.underlyingRepr)
+
+  def callbackOptionByRef[A](c: CallbackOption[A]): Reusable[CallbackOption[A]] =
+    byRefIso(c)(_.underlyingRepr)
 
   /**
    * A function that facilitates stability and reuse.
