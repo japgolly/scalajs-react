@@ -41,13 +41,16 @@ final class Reusability[A](val test: (A, A) => Boolean) extends AnyVal {
   def reusable(a: A)(implicit c: ClassTag[A]): Reusable[A] =
     Reusable.explicitly(a)(this)(c)
 
+  def logNonReusable: Reusability[A] = logNonReusable()
+
   def logNonReusable(show: A => String = _.toString,
                      log : String => Unit = console.warn(_),
-                     fmt : (=> String, => String) => String = (x, y) => s"Non-reusability:\n- $x\n- $y"): Reusability[A] =
+                     title: String = "Non-reusability:",
+                     fmt : (String, => String, => String) => String = (t, x, y) => s"$t\n- $x\n- $y"): Reusability[A] =
     Reusability { (a, b) =>
       val r = test(a, b)
       if (!r)
-        log(fmt(show(a), show(b)))
+        log(fmt(title, show(a), show(b)))
       r
     }
 }

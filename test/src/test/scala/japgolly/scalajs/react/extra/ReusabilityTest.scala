@@ -269,8 +269,13 @@ object ReusabilityTest extends TestSuite {
       }
 
       'formatting - {
-        Reusability.never.logNonReusable(log = logSink.log, fmt = (x, y) => s"$x, $y").test(0, 0)
+        Reusability.never.logNonReusable(log = logSink.log, fmt = (_, x, y) => s"$x, $y").test(0, 0)
         assert(logSink.messages == List("0, 0"))
+      }
+
+      'title - {
+        Reusability.never.logNonReusable(log = logSink.log, title = "Sidebar:").test(0, 0)
+        assert(logSink.messages == List("Sidebar:\n- 0\n- 0"))
       }
 
       'show - {
