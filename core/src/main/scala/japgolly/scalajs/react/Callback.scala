@@ -580,6 +580,10 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   @inline def toScalaFn: () => A =
     f
 
+  /** The underlying representation of this value-class */
+  @inline def underlyingRepr: () => A =
+    f
+
   def toJsFn: JFn0[A] =
     f
 
