@@ -48,10 +48,10 @@ object PrefixedTest extends TestSuite {
     'checkboxT  - test(checkbox(true),                              """<input type="checkbox" checked="" readonly=""/>""")
     'checkboxF  - test(checkbox(false),                             """<input type="checkbox" readonly=""/>""")
     'aria       - test(<.div(^.aria.label := "ow", "a"),            """<div aria-label="ow">a</div>""")
-    'attrs      - test(<.div(^.rowSpan := 1, ^.colSpan := 3),       """<div rowspan="1" colspan="3"></div>""")
-    'styleObj   - test(<.div(^.style := jsObject),                  """<div style="a:b;"></div>""")
-    'styleDict  - test(<.div(^.style := js.Dictionary("x" -> "y")), """<div style="x:y;"></div>""")
-    'styleAttrs - test(<.div(^.color := "red", ^.cursor.auto),      """<div style="color:red;cursor:auto;"></div>""")
+    'attrs      - test(<.div(^.rowSpan := 1, ^.colSpan := 3),       """<div rowspan="1" colSpan="3"></div>""")
+    'styleObj   - test(<.div(^.style := jsObject),                  """<div style="a:b"></div>""")
+    'styleDict  - test(<.div(^.style := js.Dictionary("x" -> "y")), """<div style="x:y"></div>""")
+    'styleAttrs - test(<.div(^.color := "red", ^.cursor.auto),      """<div style="color:red;cursor:auto"></div>""")
 
     'attr - {
       'any - {
@@ -124,7 +124,7 @@ object PrefixedTest extends TestSuite {
         def none[A](a: A): Option[A] = None
         'attr_some    - test(<.div(^.cls   :=? some("hi")       ), """<div class="hi"></div>""")
         'attr_none    - test(<.div(^.cls   :=? none("h1")       ), """<div></div>""")
-        'style_some   - test(<.div(^.color :=? some("red")      ), """<div style="color:red;"></div>""")
+        'style_some   - test(<.div(^.color :=? some("red")      ), """<div style="color:red"></div>""")
         'style_none   - test(<.div(^.color :=? none("red")      ), """<div></div>""")
         'tagMod_some  - test(<.div(some(tagMod     ).whenDefined), """<div class="ho"></div>""")
         'tagMod_none  - test(<.div(none(tagMod     ).whenDefined), """<div></div>""")
@@ -142,7 +142,7 @@ object PrefixedTest extends TestSuite {
         def none[A](a: A): js.UndefOr[A] = js.undefined
         'attr_some    - test(<.div(^.cls   :=? some("hi")       ), """<div class="hi"></div>""")
         'attr_none    - test(<.div(^.cls   :=? none("h1")       ), """<div></div>""")
-        'style_some   - test(<.div(^.color :=? some("red")      ), """<div style="color:red;"></div>""")
+        'style_some   - test(<.div(^.color :=? some("red")      ), """<div style="color:red"></div>""")
         'style_none   - test(<.div(^.color :=? none("red")      ), """<div></div>""")
         'tagMod_some  - test(<.div(some(tagMod     ).whenDefined), """<div class="ho"></div>""")
         'tagMod_none  - test(<.div(none(tagMod     ).whenDefined), """<div></div>""")
@@ -162,7 +162,7 @@ object PrefixedTest extends TestSuite {
         def none[A](a: A): Maybe[A] = Maybe.empty
         'attr_some    - test(<.div(^.cls   :=? some("hi")       ), """<div class="hi"></div>""")
         'attr_none    - test(<.div(^.cls   :=? none("h1")       ), """<div></div>""")
-        'style_some   - test(<.div(^.color :=? some("red")      ), """<div style="color:red;"></div>""")
+        'style_some   - test(<.div(^.color :=? some("red")      ), """<div style="color:red"></div>""")
         'style_none   - test(<.div(^.color :=? none("red")      ), """<div></div>""")
         'tagMod_some  - test(<.div(some(tagMod     ).whenDefined), """<div class="ho"></div>""")
         'tagMod_none  - test(<.div(none(tagMod     ).whenDefined), """<div></div>""")
@@ -184,7 +184,7 @@ object PrefixedTest extends TestSuite {
           """<span class="great">ok</span>""")
         'styles - test(
           <.span((^.color := "red").when(true), (^.color := "black").when(false), "ok"),
-          """<span style="color:red;">ok</span>""")
+          """<span style="color:red">ok</span>""")
       }
       'unless - {
         'tags - test(
@@ -195,7 +195,7 @@ object PrefixedTest extends TestSuite {
           """<span class="great">ok</span>""")
         'styles - test(
           <.span((^.color := "red").unless(false), (^.color := "black").unless(true), "ok"),
-          """<span style="color:red;">ok</span>""")
+          """<span style="color:red">ok</span>""")
       }
     }
 
@@ -213,29 +213,29 @@ object PrefixedTest extends TestSuite {
     'styles - {
       'named - test(
         <.div(^.backgroundColor := "red", ^.marginTop := "10px", "!"),
-        """<div style="background-color:red;margin-top:10px;">!</div>""")
+        """<div style="background-color:red;margin-top:10px">!</div>""")
 
       'direct - test(
         <.div(^.style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), "!"),
-        """<div style="color:black;margin-left:1em;">!</div>""")
+        """<div style="color:black;margin-left:1em">!</div>""")
 
       'namedAndDirect - test(
         <.div(^.backgroundColor := "red", ^.style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), "!"),
-        """<div style="background-color:red;color:black;margin-left:1em;">!</div>""")
+        """<div style="background-color:red;color:black;margin-left:1em">!</div>""")
 
       'directAndNamed - test(
         <.div(^.style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), ^.backgroundColor := "red", "!"),
-        """<div style="color:black;margin-left:1em;background-color:red;">!</div>""")
+        """<div style="color:black;margin-left:1em;background-color:red">!</div>""")
     }
 
     'noImplicitUnit - assertTypeMismatch(compileError("""val x: TagMod = ()"""))
 
     'numericStyleUnits - {
-    //'zero - test(<.div(^.marginTop := 0.em),    """<div style="margin-top:0;"></div>""")
-      'px   - test(<.div(^.marginTop := 2.px),    """<div style="margin-top:2px;"></div>""")
-    //'ex   - test(<.div(^.marginTop := 2.3f.ex), """<div style="margin-top:2.3ex;"></div>""")
-      'em   - test(<.div(^.marginTop := 2.7.em),  """<div style="margin-top:2.7em;"></div>""")
-      'rem  - test(<.div(^.marginTop := 2L.rem),  """<div style="margin-top:2rem;"></div>""")
+    //'zero - test(<.div(^.marginTop := 0.em),    """<div style="margin-top:0"></div>""")
+      'px   - test(<.div(^.marginTop := 2.px),    """<div style="margin-top:2px"></div>""")
+    //'ex   - test(<.div(^.marginTop := 2.3f.ex), """<div style="margin-top:2.3ex"></div>""")
+      'em   - test(<.div(^.marginTop := 2.7.em),  """<div style="margin-top:2.7em"></div>""")
+      'rem  - test(<.div(^.marginTop := 2L.rem),  """<div style="margin-top:2rem"></div>""")
       'str  - assertContains(compileError("""<.div(^.marginTop := "hehe".em)""").msg, "not a member of String")
     }
 
@@ -246,7 +246,7 @@ object PrefixedTest extends TestSuite {
 
       'mixingAttributesStylesAndChildren - test(
         <.div(^.id := "cow", ^.float.left, <.p("i am a cow")),
-        """<div id="cow" style="float:left;"><p>i am a cow</p></div>""")
+        """<div id="cow" style="float:left"><p>i am a cow</p></div>""")
 
       'applyChaining - test(
         <.a(^.tabIndex := 1, ^.cls := "lol")(^.href := "boo", ^.alt := "g"),

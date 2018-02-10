@@ -15,7 +15,6 @@ object RawComponentEs6PTest extends TestSuite {
 
   case class BasicProps(name: String)
 
-  @ScalaJSDefined
   class RawComp(ctorProps: Box[BasicProps]) extends raw.ReactComponentEs6[Box[BasicProps], Box[Unit]] {
     override def render() =
       raw.React.createElement("div", null, "Hello ", this.props.unbox.name)
@@ -185,7 +184,6 @@ object RawComponentEs6STest extends TestSuite {
   implicit val equalState: Equal[State] = Equal.equalA
   implicit val equalState2: Equal[State2] = Equal.equalA
 
-  @ScalaJSDefined
   class RawComp(ctorProps: Box[Unit]) extends raw.ReactComponentEs6[Box[Unit], Box[State]] {
     this.state = Box(State(123, State2(400, 7)))
     override def render() = {
