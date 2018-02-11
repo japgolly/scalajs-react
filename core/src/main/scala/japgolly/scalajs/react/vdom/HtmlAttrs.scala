@@ -219,7 +219,7 @@ trait HtmlAttrs {
     final def valueText = VdomAttr("aria-valuetext")
   }
 
-  final def async = VdomAttr("async")
+  final def async = VdomAttr[Boolean]("async")
 
   final def autoCapitalize = VdomAttr("autoCapitalize")
 
@@ -323,7 +323,7 @@ trait HtmlAttrs {
 
   final def contextMenu = VdomAttr("contextMenu")
 
-  final def controls = VdomAttr("controls")
+  final def controls = VdomAttr[Boolean]("controls")
 
   final def coords = VdomAttr("coords")
 
@@ -333,11 +333,11 @@ trait HtmlAttrs {
 
   final def dateTime = VdomAttr("dateTime")
 
-  final def default = VdomAttr("default")
+  final def default = VdomAttr[Boolean]("default")
 
   final def defaultValue = VdomAttr("defaultValue")
 
-  final def defer = VdomAttr("defer")
+  final def defer = VdomAttr[Boolean]("defer")
 
   final def dir = VdomAttr("dir")
 
@@ -369,13 +369,15 @@ trait HtmlAttrs {
 
   final def formMethod = VdomAttr("formMethod")
 
-  final def formNoValidate = VdomAttr("formNoValidate")
+  final def formNoValidate = VdomAttr[Boolean]("formNoValidate")
 
   final def formTarget = VdomAttr("formTarget")
 
   final def frameBorder = VdomAttr("frameBorder")
 
   final def headers = VdomAttr("headers")
+
+  final def hidden = VdomAttr[Boolean]("hidden")
 
   /**
     * For use in &lt;meter&gt; tags.
@@ -436,7 +438,7 @@ trait HtmlAttrs {
 
   final def itemProp = VdomAttr("itemProp")
 
-  final def itemScope = VdomAttr("itemScope")
+  final def itemScope = VdomAttr[Boolean]("itemScope")
 
   final def itemType = VdomAttr("itemType")
 
@@ -464,7 +466,7 @@ trait HtmlAttrs {
 
   final def list = VdomAttr("list")
 
-  final def loop = VdomAttr("loop")
+  final def loop = VdomAttr[Boolean]("loop")
 
   /**
     * For use in &lt;meter&gt; tags.
@@ -525,9 +527,9 @@ trait HtmlAttrs {
 
   final def minLength = VdomAttr("minLength")
 
-  final def multiple = VdomAttr("multiple")
+  final def multiple = VdomAttr[Boolean]("multiple")
 
-  final def muted = VdomAttr("muted")
+  final def muted = VdomAttr[Boolean]("muted")
 
   /**
     * On form elements (input etc.):
@@ -541,7 +543,7 @@ trait HtmlAttrs {
     */
   final def name = VdomAttr[String]("name")
 
-  final def noValidate = VdomAttr("noValidate")
+  final def noValidate = VdomAttr[Boolean]("noValidate")
 
   /** For &lt;script&gt; and &lt;style&gt;elements. */
   final def nonce = VdomAttr("nonce")
@@ -910,7 +912,7 @@ trait HtmlAttrs {
 
   final def onWheelCapture = Attr.Event.wheel("onWheelCapture")
 
-  final def open = VdomAttr("open")
+  final def open = VdomAttr[Boolean]("open")
 
   /**
     * For use in &lt;meter&gt; tags.
@@ -963,7 +965,7 @@ trait HtmlAttrs {
   final def results = VdomAttr("results")
 
   /** For &lt;ol&gt; elements. */
-  final def reversed = VdomAttr("reversed")
+  final def reversed = VdomAttr[Boolean]("reversed")
 
   /**
     * The attribute describes the role(s) the current element plays in the
@@ -999,15 +1001,15 @@ trait HtmlAttrs {
     * If this attribute is present, then the style applies only to its parent element.
     * If absent, the style applies to the whole document.
     */
-  final def scoped = VdomAttr("scoped")
+  final def scoped = VdomAttr[Boolean]("scoped")
 
   final def scrolling = VdomAttr("scrolling")
 
-  final def seamless = VdomAttr("seamless")
+  final def seamless = VdomAttr[Boolean]("seamless")
 
   final def security = VdomAttr("security")
 
-  final def selected = VdomAttr("selected")
+  final def selected = VdomAttr[Boolean]("selected")
 
   final def shape = VdomAttr("shape")
 

@@ -66,8 +66,8 @@ object UnprefixedTest extends TestSuite {
         'float     - test(div(aa := 321f),        s"""<div $as="321"></div>""")
         'double    - test(div(aa := 12.3),        s"""<div $as="12.3"></div>""")
         'string    - test(div(aa := "yo"),        s"""<div $as="yo"></div>""")
-        'booleanT  - test(div(aa := true),        s"""<div $as="true"></div>""")
-        'booleanF  - test(div(aa := false),       s"""<div $as="false"></div>""")
+//        'booleanT  - test(div(aa := true),        s"""<div $as="true"></div>""")
+//        'booleanF  - test(div(aa := false),       s"""<div $as="false"></div>""")
       }
       'boolean - {
         't - test(div(disabled := true), """<div disabled=""></div>""")
