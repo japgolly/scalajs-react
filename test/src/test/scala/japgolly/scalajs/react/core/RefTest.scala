@@ -74,7 +74,7 @@ object RefTest extends TestSuite {
   }
 
   object TestJs {
-    val InnerJs = JsComponentSTest.Component
+    val InnerJs = JsComponentEs6STest.Component
 
     def testRef(): Unit = {
       class Backend {

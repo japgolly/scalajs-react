@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core.vdom
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.core.JsComponentPTest
+import japgolly.scalajs.react.core.JsComponentEs6PTest
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.all._
 import org.scalajs.dom.raw.HTMLInputElement
@@ -14,7 +14,7 @@ object UnprefixedTest extends TestSuite {
   lazy val CB = ScalaComponent.builder[Unit]("CB").render_C(c => span(c)).build
   lazy val H1 = ScalaComponent.builder[String]("H").render_P(p => h1(p)).build
 
-  def jsComp = JsComponentPTest.Component(JsComponentPTest.JsProps("yo"))
+  def jsComp = JsComponentEs6PTest.Component(JsComponentEs6PTest.JsProps("yo"))
 
   lazy val tagMod     : TagMod      = cls := "ho"
   lazy val vdomNode   : VdomNode    = H1("cool")

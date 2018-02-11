@@ -8,6 +8,11 @@ import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 
+abstract class JsComponentTest extends TestSuite {
+  final val H1: raw.ReactElement =
+    raw.React.createElement("h1", null, "Huge")
+}
+
 object JsComponentEs6PTest extends JsComponentTest {
 //  @JSName("ES6_P")
 //  @js.native

@@ -230,7 +230,6 @@ object ScalajsReact {
         monocleLib("macro") % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
-        (ProvidedJS / "component-es3.js" dependsOn ReactDom.dev) % Test,
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
         (ProvidedJS / "component-fn.js"  dependsOn ReactDom.dev) % Test),
       addCompilerPlugin(macroParadisePlugin))
