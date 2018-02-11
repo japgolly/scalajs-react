@@ -44,6 +44,7 @@ object CallbackOptionExample {
 }
 ```
 
+Here is another example: [Refs online demo](https://japgolly.github.io/scalajs-react/#examples/refs).
 
 ## Refs to Scala components
 
