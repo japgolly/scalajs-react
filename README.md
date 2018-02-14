@@ -50,6 +50,8 @@ Includes a router, testing utils, performance utils, more.
   * [chandu0101 / scalajs-react-components](https://github.com/chandu0101/scalajs-react-components)
   * [payalabs / scalajs-react-bridge](https://github.com/payalabs/scalajs-react-bridge) - Boilterplate free use of JS components 
   * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
+  * [cquiroz / scalajs-react-virtualized](https://github.com/cquiroz/scalajs-react-virtualized) - Facade for react-virtualized
+  * [cquiroz / scalajs-react-clipboard](https://github.com/cquiroz/scalajs-react-clipboard) - Facade for react-copy-to-clipboard
   * [diode](https://github.com/suzaku-io/diode) - library for managing application state, influenced by Flux and Elm
 
 * Open Source Projects, which are using [scalajs-react](https://github.com/japgolly/scalajs-react)
