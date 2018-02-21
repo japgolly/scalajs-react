@@ -9,13 +9,12 @@ import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils}
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
-import scala.scalajs.js.annotation.ScalaJSDefined
 
 object RawComponentEs6PTest extends TestSuite {
 
   case class BasicProps(name: String)
 
-  class RawComp(ctorProps: Box[BasicProps]) extends raw.ReactComponentEs6[Box[BasicProps], Box[Unit]] {
+  class RawComp(ctorProps: Box[BasicProps]) extends raw.React.Component[Box[BasicProps], Box[Unit]] {
     override def render() =
       raw.React.createElement("div", null, "Hello ", this.props.unbox.name)
   }
@@ -184,7 +183,7 @@ object RawComponentEs6STest extends TestSuite {
   implicit val equalState: Equal[State] = Equal.equalA
   implicit val equalState2: Equal[State2] = Equal.equalA
 
-  class RawComp(ctorProps: Box[Unit]) extends raw.ReactComponentEs6[Box[Unit], Box[State]] {
+  class RawComp(ctorProps: Box[Unit]) extends raw.React.Component[Box[Unit], Box[State]] {
     this.state = Box(State(123, State2(400, 7)))
     override def render() = {
       val s = this.state.unbox

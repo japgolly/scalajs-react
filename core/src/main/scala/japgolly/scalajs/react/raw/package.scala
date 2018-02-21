@@ -6,7 +6,7 @@ import scalajs.js.|
 
 package object raw {
 
-  type Undefined = js.UndefOr[Nothing]
+  type Void = Unit
 
   type JsNumber = Byte | Short | Int | Float | Double
 
@@ -25,7 +25,7 @@ package object raw {
 
   type ReactNode = ReactElement | ReactFragment | ReactText
 
-  type ReactEmpty = Boolean | Undefined | Null
+  type ReactEmpty = Boolean | Void | Null
 
   type ReactNodeList = ReactNode | ReactEmpty
 

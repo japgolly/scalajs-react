@@ -210,7 +210,7 @@ object ViaReactComponent {
   }
 
   private val ReactComponent: js.Object =
-    js.constructorOf[raw.ReactComponentEs6[js.Object, js.Object]].asInstanceOf[js.Object]
+    js.constructorOf[raw.React.Component[js.Object, js.Object]].asInstanceOf[js.Object]
 
   private val isMounted: Method =
     Method("isMounted", (() => js.undefined): js.Function)
