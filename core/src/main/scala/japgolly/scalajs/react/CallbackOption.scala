@@ -168,10 +168,6 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def widen[B >: A]: CallbackOption[B] =
     new CallbackOption(cbfn)
 
-  @deprecated("Use .toCallback instead of .get.void, or .asCallback instead of .get", "1.0.1")
-  def get: CallbackTo[Option[A]] =
-    asCallback
-
   def getOrElse[AA >: A](default: => AA): CallbackTo[AA] =
     asCallback.map(_ getOrElse default)
 
@@ -180,10 +176,6 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
 
   def toCallback(implicit ev: A <:< Unit): Callback =
     asCallback.void
-
-  @deprecated("Use .asCallback.map(_.isDefined)", "1.0.1")
-  def toBoolCB: CallbackTo[Boolean] =
-    asCallback.map(_.isDefined)
 
   def unary_!(implicit ev: A <:< Unit): CallbackOption[Unit] =
     CallbackOption(asCallback.map {
