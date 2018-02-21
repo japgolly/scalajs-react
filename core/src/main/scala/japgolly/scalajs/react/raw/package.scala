@@ -10,10 +10,6 @@ package object raw {
 
   type JsNumber = Byte | Short | Int | Float | Double
 
-  type Props = js.Object | Null
-
-  type State = js.Object | Null
-
   type Key = String | Boolean | JsNumber | Null
 
   // Deprecated by React
@@ -48,10 +44,8 @@ package object raw {
     def ref: Ref
   }
 
-  type ReactCtor = ReactClassUntyped | ReactFunctionalComponent
-
   // function(props, context, updater)
-  type ReactCtorAfterUse = js.Function3[Props, js.Any, js.Any, js.Any] with HasDisplayName
+  type ReactCtorAfterUse = js.Function3[js.Object, js.Any, js.Any, js.Any] with HasDisplayName
 
   @js.native
   trait ReactComponentElement extends ReactElement {
@@ -71,7 +65,7 @@ package object raw {
 //  def emptyReactNodeList: ReactNodeList =
 //    js.undefined
 
-  type ReactClass[P <: js.Object, S <: js.Object] = js.Function1[Props, ReactComponent[P, S]] with HasDisplayName
+  type ReactClass[P <: js.Object, S <: js.Object] = js.Function1[P, ReactComponent[P, S]] with HasDisplayName
   type ReactClassUntyped = ReactClass[_ <: js.Object, _ <: js.Object]
 
   @js.native
@@ -120,8 +114,6 @@ package object raw {
   }
 
   type ReactComponentUntyped = ReactComponent[_ <: js.Object, _ <: js.Object]
-
-  type ReactFunctionalComponent = js.Function1[Props, ReactElement]
 
   @js.native
   trait ReactComponentSpec[P <: js.Object, S <: js.Object] extends js.Object {

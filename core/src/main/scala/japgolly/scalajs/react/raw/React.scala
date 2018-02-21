@@ -57,20 +57,18 @@ trait React extends js.Object {
 
   def createClass[P <: js.Object, S <: js.Object](spec: ReactComponentSpec[P, S]): ReactClass[P, S] = js.native
 
-//  def createFactory[P,S,B,N <: TopNode](t: ReactClass[P,S,B,N]): ReactComponentCU[P,S,B,N] = js.native
-//  def createFactory[P <: js.Any, S <: js.Any, N <: TopNode](t: JsComponentType[P, S, N]): JsComponentC[P, S, N] = js.native
+  def createElement[Props <: js.Object](`type`: String                                        ): ReactDOMElement = js.native
+  def createElement[Props <: js.Object](`type`: String, props: Props                          ): ReactDOMElement = js.native
+  def createElement[Props <: js.Object](`type`: String, props: Props, children: ReactNodeList*): ReactDOMElement = js.native
 
-  def createElement(`type`: String                                        ): ReactDOMElement = js.native
-  def createElement(`type`: String, props: Props                          ): ReactDOMElement = js.native
-  def createElement(`type`: String, props: Props, children: ReactNodeList*): ReactDOMElement = js.native
-
-  def createElement(`type`: ReactCtor                                        ): ReactComponentElement = js.native
-  def createElement(`type`: ReactCtor, props: Props                          ): ReactComponentElement = js.native
-  def createElement(`type`: ReactCtor, props: Props, children: ReactNodeList*): ReactComponentElement = js.native
-
-  //  /** Verifies the object is a ReactElement. */
-//  def isValidElement(o: JAny): Boolean = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props]                                        ): ReactComponentElement = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                          ): ReactComponentElement = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: ReactNodeList*): ReactComponentElement = js.native
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   val Children: React.Children = js.native
+
+  final type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, ReactElement]
+
+  final type ComponentType[Props <: js.Object] = ReactClass[Props, _ <: js.Object] | React.StatelessFunctionalComponent[Props]
 }

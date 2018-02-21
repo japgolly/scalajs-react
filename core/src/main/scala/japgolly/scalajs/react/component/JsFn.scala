@@ -4,7 +4,8 @@ import scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
 
-object JsFn extends JsBaseComponentTemplate[RAW.ReactFunctionalComponent] {
+// TODO Allow Props type propagation
+object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalComponent[_ <: js.Object]] {
 
   type Component[P <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentRoot[P, CT, Unmounted[P]]
   type Unmounted[P <: js.Object]                               = UnmountedRoot[P]
@@ -16,13 +17,13 @@ object JsFn extends JsBaseComponentTemplate[RAW.ReactFunctionalComponent] {
   }
 
   def force[P <: js.Object, C <: Children](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] = {
-    val rc = raw.asInstanceOf[RAW.ReactFunctionalComponent]
+    val rc = raw.asInstanceOf[RAW.React.StatelessFunctionalComponent[P]]
     componentRoot[P, s.CT, Unmounted[P]](rc, s.pf.rmap(s.summon(rc))(unmountedRoot))(s.pf)
   }
 
   private def staticDisplayName = "<FnComponent>"
 
-  override protected def rawComponentDisplayName: RAW.ReactFunctionalComponent => String =
+  override protected def rawComponentDisplayName: RAW.React.StatelessFunctionalComponent[_ <: js.Object] => String =
     _ => staticDisplayName
 
   // ===================================================================================================================

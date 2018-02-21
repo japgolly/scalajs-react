@@ -16,7 +16,7 @@ object ScalaFn {
       (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] = {
 
     val jsRender = render.andThen(_.rawElement): js.Function1[Box[P] with raw.PropsWithChildren, raw.ReactElement]
-    val rawComponent = jsRender.asInstanceOf[raw.ReactFunctionalComponent]
+    val rawComponent = jsRender.asInstanceOf[raw.React.StatelessFunctionalComponent[Box[P]]]
     JsFn[Box[P], C](rawComponent)(s)
       .cmapCtorProps[P](Box(_))
       .mapUnmounted(_.mapUnmountedProps(_.unbox))
