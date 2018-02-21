@@ -37,10 +37,9 @@ object ExamplesJs extends ExampleCollection {
   case object Todo         extends Example(TodoExample.title, "todo",          TodoExample        .content)
   case object Refs         extends Example("Refs",            "refs",          RefsExample        .content)
   case object ProductTable extends Example("Product Table",   "product-table", ProductTableExample.content)
-  case object Animation    extends Example("Animation",       "animation",     AnimationExample   .content)
 
   override val values = Vector[Example](
-    Hello, Timer, Todo, Refs, ProductTable, Animation
+    Hello, Timer, Todo, Refs, ProductTable
   )
 }
 
