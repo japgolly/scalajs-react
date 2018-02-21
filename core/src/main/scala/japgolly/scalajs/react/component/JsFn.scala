@@ -4,8 +4,7 @@ import scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
 
-// TODO Allow Props type propagation
-object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalComponent[_ <: js.Object]] {
+object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalComponent] {
 
   type Component[P <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentRoot[P, CT, Unmounted[P]]
   type Unmounted[P <: js.Object]                               = UnmountedRoot[P]

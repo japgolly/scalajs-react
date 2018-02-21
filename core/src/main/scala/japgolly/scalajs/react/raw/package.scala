@@ -66,6 +66,7 @@ package object raw {
 //    js.undefined
 
   type ReactClass[P <: js.Object, S <: js.Object] = js.Function1[P, ReactComponent[P, S]] with HasDisplayName
+  type ReactClassP[P <: js.Object] = ReactClass[P, _ <: js.Object]
   type ReactClassUntyped = ReactClass[_ <: js.Object, _ <: js.Object]
 
   @js.native

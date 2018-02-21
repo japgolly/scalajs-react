@@ -4,7 +4,7 @@ import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
 
-object Js extends JsBaseComponentTemplate[RAW.ReactClassUntyped] {
+object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
 
   def apply[P <: js.Object, C <: Children, S <: js.Object](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
     InspectRaw.assertIsComponent(raw, "JsComponent")
