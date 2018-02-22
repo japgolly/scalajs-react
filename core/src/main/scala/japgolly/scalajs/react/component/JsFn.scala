@@ -28,7 +28,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
   // ===================================================================================================================
 
   sealed trait UnmountedSimple[P, M] extends Generic.UnmountedSimple[P, M] {
-    override final type Raw = RAW.ReactComponentElement
+    override type Raw <: RAW.ReactComponentElement[_ <: js.Object]
     override final def displayName = staticDisplayName
 
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
@@ -46,6 +46,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
   sealed trait UnmountedWithRoot[P1, M1, P0 <: js.Object]
       extends UnmountedSimple[P1, M1] with Generic.UnmountedWithRoot[P1, M1, P0, Mounted] {
+    override final type Raw = RAW.ReactComponentElement[P0]
     override final type Root = UnmountedRoot[P0]
     override def mapUnmountedProps[P2](f: P1 => P2): UnmountedWithRoot[P2, M1, P0]
     override def mapMounted[M2](f: M1 => M2): UnmountedWithRoot[P1, M2, P0]
@@ -55,7 +56,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
   private val constUnit: Any => Unit = _ => ()
 
-  def unmountedRoot[P <: js.Object](r: RAW.ReactComponentElement): UnmountedRoot[P] =
+  def unmountedRoot[P <: js.Object](r: RAW.ReactComponentElement[P]): UnmountedRoot[P] =
     new UnmountedRoot[P] {
       override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identityFn)
       override def mapMounted[M2](f: Mounted => M2) = mappedU(this)(identityFn, f)

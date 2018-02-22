@@ -190,7 +190,7 @@ object RawComponentEs6STest extends TestSuite {
       raw.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3)
     }
     def inc(): Unit =
-      modState((s: State) => Box(s.unbox.copy(s.unbox.num1 + 1)))
+      modState((s: State, _) => Box(s.unbox.copy(s.unbox.num1 + 1)))
   }
   val RawCompCtor = js.constructorOf[RawComp]
   RawCompCtor.displayName = "State, no Props"

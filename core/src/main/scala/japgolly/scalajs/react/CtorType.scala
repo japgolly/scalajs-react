@@ -201,7 +201,7 @@ object CtorType {
 
   sealed trait Summoner[P <: js.Object, C <: ChildrenArg] {
     type CT[-p, +u] <: CtorType[p, u]
-    final type Out = CT[P, raw.ReactComponentElement]
+    final type Out = CT[P, raw.ReactComponentElement[P]]
     val summon: raw.React.ComponentType[P] => Out
     implicit val pf: Profunctor[CT]
     final def aux: Summoner.Aux[P, C, CT] = this
@@ -212,7 +212,7 @@ object CtorType {
       Summoner[P, C] {type CT[-p, +u] = T[p, u]}
 
     def apply[P <: js.Object, C <: ChildrenArg, T[-p, +u] <: CtorType[p, u]]
-        (f: raw.React.ComponentType[P] => T[P, raw.ReactComponentElement])
+        (f: raw.React.ComponentType[P] => T[P, raw.ReactComponentElement[P]])
         (implicit p: Profunctor[T]): Aux[P, C, T] =
       new Summoner[P, C] {
         override type CT[-p, +u] = T[p, u]
@@ -222,28 +222,28 @@ object CtorType {
 
     implicit def summonN[P <: js.Object](implicit s: Singleton[P]) =
       Summoner[P, ChildrenArg.None, Nullary](rc =>
-        new Nullary[P, raw.ReactComponentElement](
+        new Nullary[P, raw.ReactComponentElement[P]](
           raw.React.createElement(rc, s.value),
           m => raw.React.createElement[P](rc, m.applyAndCast[P](s.mutableObj())),
           noMod))
 
     implicit def summonC[P <: js.Object](implicit s: Singleton[P]) =
       Summoner[P, ChildrenArg.Varargs, Children](rc =>
-        new Children[P, raw.ReactComponentElement]((mm, c) => {
+        new Children[P, raw.ReactComponentElement[P]]((mm, c) => {
           val p = mm.fold(s.value)(_.applyAndCast[P](s.mutableObj()))
           raw.React.createElement[P](rc, p, formatChildren(c): _*)
         }, noMod))
 
     implicit def summonPC[P <: js.Object](implicit w: Singleton.Not[P]) =
       Summoner[P, ChildrenArg.Varargs, PropsAndChildren](rc =>
-        new PropsAndChildren[P, raw.ReactComponentElement]((p, mm, c) => {
+        new PropsAndChildren[P, raw.ReactComponentElement[P]]((p, mm, c) => {
           val p2 = mm.fold(p)(_.applyAndCast[P](prepareForMutation(p)))
           raw.React.createElement[P](rc, p2, formatChildren(c): _*)
         }, noMod))
 
     implicit def summonP[P <: js.Object](implicit w: Singleton.Not[P]) =
       Summoner[P, ChildrenArg.None, Props](rc =>
-        new Props[P, raw.ReactComponentElement]((p, mm) => {
+        new Props[P, raw.ReactComponentElement[P]]((p, mm) => {
             val p2 = mm.fold(p)(_.applyAndCast[P](prepareForMutation(p)))
             raw.React.createElement[P](rc, p2)
           }, noMod))

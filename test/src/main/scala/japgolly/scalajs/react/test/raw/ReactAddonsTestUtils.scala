@@ -15,7 +15,7 @@ trait ReactAddonsTestUtils extends js.Object {
   val Simulate: Simulate = js.native
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
-  def renderIntoDocument(element: ReactElement): ReactComponentUntyped = js.native
+  def renderIntoDocument(element: ReactElement): React.ComponentUntyped = js.native
 
   /**
    * Pass a mocked component module to this method to augment it with useful methods that allow it to be used as a dummy
@@ -24,7 +24,7 @@ trait ReactAddonsTestUtils extends js.Object {
    */
   def mockComponent[P <: js.Object, S <: js.Object](c: ReactClass[P, S], mockTagName: String = js.native): ReactClass[P, S] = js.native
 
-  type Mounted = ReactComponentUntyped
+  type Mounted = React.ComponentUntyped
 
   /** Returns true if instance is an instance of a React componentClass. */
   def isComponentOfType(instance: ReactElement, c: ReactClassUntyped): Boolean = js.native

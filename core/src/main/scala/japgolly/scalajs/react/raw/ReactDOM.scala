@@ -15,9 +15,9 @@ trait ReactDOM extends js.Object {
 
   def render(element  : ReactElement,
              container: Container,
-             callback : js.Function0[Unit] = js.native): ReactComponentUntyped = js.native
+             callback : js.Function0[Unit] = js.native): React.ComponentUntyped = js.native
 
   def unmountComponentAtNode(container: dom.Node): Boolean = js.native
 
-  def findDOMNode(component: ReactComponentUntyped): dom.Element = js.native
+  def findDOMNode(component: React.ComponentUntyped): dom.Element = js.native
 }

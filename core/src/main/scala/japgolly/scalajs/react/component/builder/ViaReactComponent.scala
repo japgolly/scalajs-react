@@ -212,9 +212,6 @@ object ViaReactComponent {
   private val ReactComponent: js.Object =
     js.constructorOf[raw.React.Component[js.Object, js.Object]].asInstanceOf[js.Object]
 
-  private val isMounted: Method =
-    Method("isMounted", (() => js.undefined): js.Function)
-
   // ===================================================================================================================
 
   def apply[P, C <: Children, S, B](builder: Builder.Step4[P, C, S, B]): raw.ReactClass[Box[P], Box[S]] = {
@@ -246,7 +243,7 @@ object ViaReactComponent {
     _inherits(MyComponent, ReactComponent)
 
     val methods: js.Array[Method] =
-      js.Array(isMounted)
+      js.Array()
 
     def add[O](k: String, v: js.Any): Unit = methods.push(Method(k, v))
     def add0[O](k: String, f: This => O): Unit = add(k, f: js.ThisFunction0[This, O])

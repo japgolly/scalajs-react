@@ -15,11 +15,9 @@ object ReactTestUtils {
   type Unmounted[M] = GenericComponent.Unmounted[_, M]
   type Mounted      = GenericComponent.MountedRaw
 
-  private type RawM = japgolly.scalajs.react.raw.ReactComponentUntyped
-  type MountedOutput   = JsComponent.Mounted[js.Object, js.Object]
+  private type RawM = japgolly.scalajs.react.raw.React.ComponentUntyped
+  type MountedOutput = JsComponent.Mounted[_ <: js.Object, _ <: js.Object]
   private def wrapMO(r: RawM): MountedOutput = JsComponent.mounted(r)
-//  type MountedOutput   = japgolly.scalajs.react.raw.ReactComponent
-//  private def wrapMO(r: RawM): MountedOutput = r
 
   type CompType = GenericComponent.ComponentRaw {type Raw <: japgolly.scalajs.react.raw.ReactClassUntyped }
 

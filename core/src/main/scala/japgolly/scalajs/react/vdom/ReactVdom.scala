@@ -19,7 +19,7 @@ object VdomNode {
 // =====================================================================================================================
 
 final class VdomElement(val rawElement: Raw.ReactElement) extends VdomNode(rawElement) {
-  def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Raw.ReactComponentUntyped =
+  def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Raw.React.ComponentUntyped =
     Raw.ReactDOM.render(rawElement, container, callback.toJsFn)
 }
 

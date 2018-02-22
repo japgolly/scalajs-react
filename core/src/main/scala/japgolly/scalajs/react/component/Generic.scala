@@ -64,7 +64,7 @@ object Generic {
     def props: Props
     def propsChildren: PropsChildren
 
-    val mountRaw: RAW.ReactComponentUntyped => M
+    val mountRaw: RAW.React.ComponentUntyped => M // TODO Do better
 
     def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): Mounted =
       mountRaw(RAW.ReactDOM.render(raw, container, callback.toJsFn))
@@ -87,7 +87,7 @@ object Generic {
   type MountedImpure[P, S] = MountedSimple[Effect.Id, P, S]
 
   trait MountedRaw {
-    type Raw <: RAW.ReactComponentUntyped
+    type Raw <: RAW.React.ComponentUntyped // TODO Do better
     val raw: Raw
     def displayName: String
   }
@@ -99,9 +99,6 @@ object Generic {
     override type WithMappedState[S2] <: MountedSimple[F, P, S2]
              type WithMappedProps[P2] <: MountedSimple[F, P2, S]
     def mapProps[P2](f: P => P2): WithMappedProps[P2]
-
-    /** Not all components support this; ES6 classes don't. */
-    def isMounted: F[Option[Boolean]]
 
     def getDOMNode: F[dom.Element]
     def props: F[Props]

@@ -35,7 +35,7 @@ object Scala {
   type JsUnmounted[P, S, B]                               = Js.UnmountedWithFacade[Box[P], Box[S], Vars[P, S, B]]
   type JsMounted  [P, S, B]                               = Js.MountedWithFacade  [Box[P], Box[S], Vars[P, S, B]]
 
-  type RawMounted[P, S, B] = Js.RawMounted with Vars[P, S, B]
+  type RawMounted[P, S, B] = Js.RawMounted[Box[P], Box[S]] with Vars[P, S, B]
 
   @js.native
   trait Vars[P, S, B] extends js.Object {
@@ -85,7 +85,6 @@ object Scala {
       override def root          = this
       override val js            = x
       override val raw           = x.raw
-      override def isMounted     = x.isMounted
       override def props         = x.props.unbox
       override def propsChildren = x.propsChildren
       override def state         = x.state.unbox

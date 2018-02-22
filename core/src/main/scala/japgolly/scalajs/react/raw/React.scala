@@ -31,7 +31,14 @@ object React extends React {
 
   //  @JSImport("react", "Component", "React.Component")
   @js.native
-  abstract class Component[P <: js.Object, S <: js.Object](ctorProps: P = js.native) extends ReactComponent[P, S] {
+  abstract class Component[P <: js.Object, S <: js.Object](ctorProps: P = js.native) extends js.Object {
+    final type Props = P with PropsWithChildren
+    final type State = S
+
+    final def props: Props = js.native
+    var state: State = js.native
+
+    final val constructor: Constructor[P] = js.native
 
     def componentWillMount       ()                                  : Unit    = js.native
     def componentWillUnmount     ()                                  : Unit    = js.native
@@ -41,29 +48,37 @@ object React extends React {
     def componentDidUpdate       (prevProps: Props, prevState: State): Unit    = js.native
     def shouldComponentUpdate    (nextProps: Props, nextState: State): Boolean = js.native
 
-    // These are all defined in the super class:
-    //  def props: Props = js.native
-    //  var state: State = js.native
-    //  def render(): ReactElement
-    //  override def forceUpdate(callback: js.Function0[Unit] = js.native): Unit = js.native
-    //  override def replaceState(newState: State, callback: js.Function0[Unit] = js.native): Unit = js.native
-    //  override def setState(partialState: js.Object, callback: js.Function0[Unit] = js.native): Unit = js.native
-    //  @JSName("setState") override def modState(fn: js.Function1[State, js.Object], callback: js.Function0[Unit] = js.native): Unit = js.native
+    // abstract def render(): ReactElement // TODO Fails. Scala.JS bug?
+    def render(): ReactElement = js.native
+
+    final def forceUpdate(callback: js.Function0[Unit] = js.native): Unit = js.native
+
+    final def setState(partialState: S, callback: js.Function0[Unit] = js.native): Unit = js.native
+
+    @JSName("setState")
+    final def modState(updateFn: js.Function2[S, P, S], callback: js.Function0[Unit] = js.native): Unit = js.native
+
+//    final def setState[SS >: S <: js.Object](partialState: SS, callback: js.Function0[Unit] = js.native): Unit = js.native
+//
+//    @JSName("setState")
+//    final def modState[SS >: S <: js.Object](updateFn: js.Function2[S, P, SS], callback: js.Function0[Unit] = js.native): Unit = js.native
   }
+
+  type ComponentUntyped = Component[_ <: js.Object, _ <: js.Object]
+
+  type Constructor[P <: js.Object] = js.Function1[P, js.Any] with HasDisplayName
 }
 
 @js.native
 trait React extends js.Object {
 
-  def createClass[P <: js.Object, S <: js.Object](spec: ReactComponentSpec[P, S]): ReactClass[P, S] = js.native
-
   def createElement[Props <: js.Object](`type`: String                                        ): ReactDOMElement = js.native
   def createElement[Props <: js.Object](`type`: String, props: Props                          ): ReactDOMElement = js.native
   def createElement[Props <: js.Object](`type`: String, props: Props, children: ReactNodeList*): ReactDOMElement = js.native
 
-  def createElement[Props <: js.Object](`type`: ComponentType[Props]                                        ): ReactComponentElement = js.native
-  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                          ): ReactComponentElement = js.native
-  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: ReactNodeList*): ReactComponentElement = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props]                                        ): ReactComponentElement[Props] = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                          ): ReactComponentElement[Props] = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: ReactNodeList*): ReactComponentElement[Props] = js.native
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   val Children: React.Children = js.native
