@@ -145,7 +145,7 @@ trait TestUtil
     assertRender(u.raw, expected)
   def assertRender(e: japgolly.scalajs.react.vdom.VdomElement, expected: String): Unit =
     assertRender(e.rawElement, expected)
-  def assertRender(e: japgolly.scalajs.react.raw.ReactElement, expected: String): Unit = {
+  def assertRender(e: japgolly.scalajs.react.raw.React.Element, expected: String): Unit = {
     val rendered: String = ReactDOMServer.raw.renderToStaticMarkup(e)
     assertEq(rendered, expected)
   }

@@ -113,7 +113,7 @@ object Builder {
   }
 
   object ToRawReactElement {
-    type BuildFn = (String, js.Object, js.Array[RawChild]) => raw.ReactElement
+    type BuildFn = (String, js.Object, js.Array[RawChild]) => raw.React.Element
 
     val build: BuildFn =
       if (developmentMode)
@@ -161,7 +161,7 @@ object Builder {
                 ref        = null,
                 props      = props,
                 _owner     = null)
-                .asInstanceOf[raw.ReactElement]
+                .asInstanceOf[raw.React.Element]
 
   //         org.scalajs.dom.console.log("VDOM: ", output)
 

@@ -101,7 +101,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
     def addFacade[T <: js.Object]: MountedSimple[F, P, S, R with T]
     // def getDefaultProps: Props
     // def getInitialState: js.Object | Null
-    // def render(): ReactElement
+    // def render(): React.Element
   }
 
   sealed trait MountedWithRoot[F[_], P1, S1, R <: RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object]

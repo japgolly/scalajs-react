@@ -3,34 +3,34 @@ package japgolly.scalajs.react.vdom
 import japgolly.scalajs.react.{Callback, raw => Raw}
 import scala.scalajs.js
 
-sealed class VdomNode(val rawNode: Raw.ReactNode) extends TagMod {
+sealed class VdomNode(val rawNode: Raw.React.Node) extends TagMod {
   override def applyTo(b: Builder): Unit =
     b.appendChild(rawNode)
 }
 
 object VdomNode {
-  def apply(n: Raw.ReactNode): VdomNode =
+  def apply(n: Raw.React.Node): VdomNode =
     new VdomNode(n)
 
   def cast(n: Any): VdomNode =
-    new VdomNode(n.asInstanceOf[Raw.ReactNode])
+    new VdomNode(n.asInstanceOf[Raw.React.Node])
 }
 
 // =====================================================================================================================
 
-final class VdomElement(val rawElement: Raw.ReactElement) extends VdomNode(rawElement) {
+final class VdomElement(val rawElement: Raw.React.Element) extends VdomNode(rawElement) {
   def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Raw.React.ComponentUntyped =
     Raw.ReactDOM.render(rawElement, container, callback.toJsFn)
 }
 
 object VdomElement {
-  def apply(n: Raw.ReactElement): VdomElement =
+  def apply(n: Raw.React.Element): VdomElement =
     new VdomElement(n)
 }
 
 // =====================================================================================================================
 
-final class VdomArray(val rawArray: js.Array[Raw.ReactNode]) extends VdomNode(rawArray.asInstanceOf[Raw.ReactNode]) {
+final class VdomArray(val rawArray: js.Array[Raw.React.Node]) extends VdomNode(rawArray.asInstanceOf[Raw.React.Node]) {
 
   def +=(n: VdomNode): this.type = {
     rawArray push n.rawNode

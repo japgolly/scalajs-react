@@ -13,7 +13,7 @@ trait ReactDOM extends js.Object {
 
   final type Container = dom.Element
 
-  def render(element  : ReactElement,
+  def render(element  : React.Element,
              container: Container,
              callback : js.Function0[Unit] = js.native): React.ComponentUntyped = js.native
 

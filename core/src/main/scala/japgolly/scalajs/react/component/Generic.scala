@@ -46,7 +46,7 @@ object Generic {
   type Unmounted[P, M] = UnmountedSimple[P, M]
 
   trait UnmountedRaw {
-    type Raw <: RAW.ReactElement
+    type Raw <: RAW.React.Element
     val raw: Raw
     def displayName: String
   }

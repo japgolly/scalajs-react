@@ -92,7 +92,7 @@ trait ImplicitsForVdomNode {
   implicit def vdomNodeFromDouble       (v: Double)           : VdomNode = VdomNode.cast(v)
   implicit def vdomNodeFromFloat        (v: Float)            : VdomNode = VdomNode.cast(v)
   implicit def vdomNodeFromString       (v: String)           : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromReactNode    (v: raw.ReactNode)    : VdomNode = VdomNode(v)
+  implicit def vdomNodeFromReactNode    (v: raw.React.Node)    : VdomNode = VdomNode(v)
   implicit def vdomNodeFromReactNodeList(v: raw.ReactNodeList): VdomNode = VdomNode.cast(v)
   implicit def vdomNodeFromPropsChildren(v: PropsChildren)    : VdomNode = VdomNode.cast(v.raw)
 
@@ -124,9 +124,9 @@ object Implicits extends Implicits
 // =====================================================================================================================
 
 object ImplicitsFromRaw {
-  implicit def vdomElementFromRawReactElement(e: raw.ReactElement): VdomElement =
+  implicit def vdomElementFromRawReactElement(e: raw.React.Element): VdomElement =
     VdomElement(e)
 
-  implicit def vdomNodeFromRawReactNode(e: raw.ReactNode): VdomNode =
+  implicit def vdomNodeFromRawReactNode(e: raw.React.Node): VdomNode =
     VdomNode(e)
 }

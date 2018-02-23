@@ -15,7 +15,7 @@ trait ReactAddonsTestUtils extends js.Object {
   val Simulate: Simulate = js.native
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
-  def renderIntoDocument(element: ReactElement): React.ComponentUntyped = js.native
+  def renderIntoDocument(element: React.Element): React.ComponentUntyped = js.native
 
   /**
    * Pass a mocked component module to this method to augment it with useful methods that allow it to be used as a dummy
@@ -27,16 +27,16 @@ trait ReactAddonsTestUtils extends js.Object {
   type Mounted = React.ComponentUntyped
 
   /** Returns true if instance is an instance of a React componentClass. */
-  def isComponentOfType(instance: ReactElement, c: ReactClassUntyped): Boolean = js.native
+  def isComponentOfType(instance: React.Element, c: ReactClassUntyped): Boolean = js.native
 
   /** Returns true if instance is a DOM component (such as a &lt;div&gt; or &lt;span&gt;). */
-  def isDOMComponent(instance: ReactElement): Boolean = js.native
+  def isDOMComponent(instance: React.Element): Boolean = js.native
 
   /** Returns true if instance is a composite component (created with React.createClass()) */
-  def isCompositeComponent(instance: ReactElement): Boolean = js.native
+  def isCompositeComponent(instance: React.Element): Boolean = js.native
 
   /** The combination of [[isComponentOfType()]] and [[isCompositeComponent()]]. */
-  def isCompositeComponentWithType(instance: ReactElement, c: ReactClassUntyped): Boolean = js.native
+  def isCompositeComponentWithType(instance: React.Element, c: ReactClassUntyped): Boolean = js.native
 
   /**
    * Traverse all components in tree and accumulate all components where test(component) is true.

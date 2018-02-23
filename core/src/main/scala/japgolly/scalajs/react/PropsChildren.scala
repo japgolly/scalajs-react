@@ -27,7 +27,7 @@ final class PropsChildren private[PropsChildren](private val self: js.Any) exten
 //    def forEach(c: PropsChildren, fn: MapFn): Unit = js.native
 
   /** Return the only child in children. Throws otherwise. */
-  def only(): Raw.ReactNode =
+  def only(): Raw.React.Node =
     Raw.React.Children.only(raw)
 
   /** Return the total number of components in children, equal to the number of times that a callback passed to map or forEach would be invoked. */
@@ -40,17 +40,17 @@ final class PropsChildren private[PropsChildren](private val self: js.Any) exten
   @inline def nonEmpty: Boolean =
     !isEmpty
 
-  def iterator: Iterator[Raw.ReactNode] =
+  def iterator: Iterator[Raw.React.Node] =
     toJsArray.iterator
 
   /** Return the children opaque data structure as a flat array with keys assigned to each child. Useful if you want to manipulate collections of children in your render methods, especially if you want to reorder or slice this.props.children before passing it down. */
-  def toJsArray: js.Array[Raw.ReactNode] =
+  def toJsArray: js.Array[Raw.React.Node] =
     Raw.React.Children.toArray(raw)
 
-  def toList: List[Raw.ReactNode] =
+  def toList: List[Raw.React.Node] =
     iterator.toList
 
-  def toVector: Vector[Raw.ReactNode] =
+  def toVector: Vector[Raw.React.Node] =
     iterator.toVector
 }
 

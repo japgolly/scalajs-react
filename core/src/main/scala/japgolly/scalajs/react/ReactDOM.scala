@@ -24,7 +24,7 @@ object ReactDOMServer {
   def raw = japgolly.scalajs.react.raw.ReactDOMServer
 
   /**
-    * Render a ReactElement to its initial HTML. This should only be used on the server. React will return an HTML
+    * Render a React.Element to its initial HTML. This should only be used on the server. React will return an HTML
     * string. You can use this method to generate HTML on the server and send the markup down on the initial request for
     * faster page loads and to allow search engines to crawl your pages for SEO purposes.
     *

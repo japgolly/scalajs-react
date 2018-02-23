@@ -15,7 +15,7 @@ object ScalaFn {
       (render: Box[P] with raw.PropsWithChildren => VdomElement)
       (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] = {
 
-    val jsRender = render.andThen(_.rawElement): js.Function1[Box[P] with raw.PropsWithChildren, raw.ReactElement]
+    val jsRender = render.andThen(_.rawElement): js.Function1[Box[P] with raw.PropsWithChildren, raw.React.Element]
     val rawComponent = jsRender.asInstanceOf[raw.React.StatelessFunctionalComponent[Box[P]]]
     JsFn[Box[P], C](rawComponent)(s)
       .cmapCtorProps[P](Box(_))

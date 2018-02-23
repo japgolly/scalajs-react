@@ -19,11 +19,9 @@ package object raw {
 
   type ReactText = String | JsNumber
 
-  type ReactNode = ReactElement | ReactFragment | ReactText
-
   type ReactEmpty = Boolean | Void | Null
 
-  type ReactNodeList = ReactNode | ReactEmpty
+  type ReactNodeList = React.Node | ReactEmpty
 
   type PropsChildren = ReactNodeList
 
@@ -32,12 +30,8 @@ package object raw {
     val children: PropsChildren
   }
 
-  /** ReactComponentElement | ReactDOMElement */
   @js.native
-  trait ReactElement extends js.Object
-
-  @js.native
-  trait ReactDOMElement extends ReactElement {
+  trait ReactDOMElement extends React.Element {
     def `type`: String
     def props: PropsWithChildren
     def key: Key
@@ -45,7 +39,7 @@ package object raw {
   }
 
   @js.native
-  trait ReactComponentElement[P <: js.Object] extends ReactElement {
+  trait ReactComponentElement[P <: js.Object] extends React.Element {
     def `type`: React.Constructor[P]
     def props: P with PropsWithChildren
     def key: Key
@@ -53,10 +47,10 @@ package object raw {
   }
 
   // Type aliases can't be recursive
-  // type ReactFragment = js.Array[ReactNode | ReactEmpty]
+  // type ReactFragment = js.Array[React.Node | ReactEmpty]
   @js.native
   trait ReactFragment extends js.Any
-  implicit def ReactFragment[A](a: A)(implicit w: A => js.Array[ReactNode | ReactEmpty]): ReactFragment =
+  implicit def ReactFragment[A](a: A)(implicit w: A => js.Array[React.Node | ReactEmpty]): ReactFragment =
     w(a).asInstanceOf[ReactFragment]
 
 //  def emptyReactNodeList: ReactNodeList =
