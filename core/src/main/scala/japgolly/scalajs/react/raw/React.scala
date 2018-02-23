@@ -8,6 +8,15 @@ import scalajs.js.annotation._
 @js.native
 object React extends React {
 
+  // TODO: React.ChildrenArray<T>
+  // TODO: React.ElementType
+  // TODO: React.Ref           <typeof Component>
+  // TODO: React.ElementProps  <typeof Component>
+  // TODO: React.ElementConfig <typeof Component>
+  // TODO: React.ElementRef    <typeof Component>
+  // TODO: React.Children
+  // TODO: Clean up raw: {,re}move ReactClass etc
+
   @js.native
   trait Children extends js.Object {
 
@@ -66,13 +75,9 @@ object React extends React {
 
   type ComponentUntyped = Component[_ <: js.Object, _ <: js.Object]
 
-  type Constructor[P <: js.Object] = js.Function1[P, js.Any] with HasDisplayName
-
   type ComponentType[Props <: js.Object] = ReactClass[Props, _ <: js.Object] | React.StatelessFunctionalComponent[Props]
 
-  type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, React.Element]
-
-  type Node = React.Element | ReactFragment | ReactText
+  type Constructor[P <: js.Object] = js.Function1[P, js.Any] with HasDisplayName
 
   /** A React element is the type for the value of a DOM tag, or the return type of React.createElement(). */
   @js.native
@@ -80,12 +85,9 @@ object React extends React {
 
   type Key = String | Boolean | JsNumber | Null
 
-  // TODO: React.ChildrenArray<T>
-  // TODO: React.ElementType
-  // TODO: React.Ref           <typeof Component>
-  // TODO: React.ElementProps  <typeof Component>
-  // TODO: React.ElementConfig <typeof Component>
-  // TODO: React.ElementRef    <typeof Component>
+  type Node = React.Element | ReactFragment | ReactText
+
+  type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, React.Element]
 }
 
 @js.native
