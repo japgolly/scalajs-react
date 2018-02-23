@@ -44,20 +44,20 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
-    override type Raw <: RAW.ReactComponentElement[_ <: js.Object]
+    override type Raw <: RAW.React.ComponentElement[_ <: js.Object]
     override final def displayName = readDisplayName(raw.`type`)
   }
 
   sealed trait UnmountedWithRoot[P1, M1, P0 <: js.Object, M0] extends UnmountedSimple[P1, M1] with Generic.UnmountedWithRoot[P1, M1, P0, M0] {
     override final type Root = UnmountedRoot[P0, M0]
-    override final type Raw = RAW.ReactComponentElement[P0]
+    override final type Raw = RAW.React.ComponentElement[P0]
     override def mapUnmountedProps[P2](f: P1 => P2): UnmountedWithRoot[P2, M1, P0, M0]
     override def mapMounted[M2](f: M1 => M2): UnmountedWithRoot[P1, M2, P0, M0]
   }
 
   type UnmountedRoot[P <: js.Object, M] = UnmountedWithRoot[P, M, P, M]
 
-  def unmountedRoot[P <: js.Object, S <: js.Object, M](r: RAW.ReactComponentElement[P], m: RAW.React.Component[P, S] => M): UnmountedRoot[P, M] =
+  def unmountedRoot[P <: js.Object, S <: js.Object, M](r: RAW.React.ComponentElement[P], m: RAW.React.Component[P, S] => M): UnmountedRoot[P, M] =
     new UnmountedRoot[P, M] {
       override def root                              = this
       override val raw                               = r
@@ -164,7 +164,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
   def component[P <: js.Object, C <: Children, S <: js.Object](rc: RAW.ReactClass[P, S])(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
     componentRoot[P, s.CT, Unmounted[P, S]](rc, s.pf.rmap(s.summon(rc))(unmounted))(s.pf)
 
-  def unmounted[P <: js.Object, S <: js.Object](r: RAW.ReactComponentElement[P]): Unmounted[P, S] =
+  def unmounted[P <: js.Object, S <: js.Object](r: RAW.React.ComponentElement[P]): Unmounted[P, S] =
     unmountedRoot(r, mounted)
 
   def mounted[P <: js.Object, S <: js.Object](r: RawMounted[P, S]): Mounted[P, S] =

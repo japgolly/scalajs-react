@@ -72,11 +72,29 @@ object React extends React {
 //    final def modState[SS >: S <: js.Object](updateFn: js.Function2[S, P, SS], callback: js.Function0[Unit] = js.native): Unit = js.native
   }
 
+  /** A `React.Element` that is known to be a component */
+  @js.native
+  trait ComponentElement[P <: js.Object] extends React.Element {
+    def `type`: React.Constructor[P]
+    def props: P with PropsWithChildren
+    def key: Key
+    def ref: Ref
+  }
+
   type ComponentUntyped = Component[_ <: js.Object, _ <: js.Object]
 
   type ComponentType[Props <: js.Object] = ReactClass[Props, _ <: js.Object] | StatelessFunctionalComponent[Props]
 
   type Constructor[P <: js.Object] = js.Function1[P, js.Any] with HasDisplayName
+
+  /** A `React.Element` that is known to be DOM */
+  @js.native
+  trait DomElement extends React.Element {
+    def `type`: String
+    def props: PropsWithChildren
+    def key: Key
+    def ref: Ref
+  }
 
   /** A React element is the type for the value of a DOM tag, or the return type of React.createElement(). */
   @js.native
@@ -95,13 +113,13 @@ object React extends React {
 trait React extends js.Object {
   import React._
 
-  def createElement[Props <: js.Object](`type`: String                               ): ReactDOMElement = js.native
-  def createElement[Props <: js.Object](`type`: String, props: Props                 ): ReactDOMElement = js.native
-  def createElement[Props <: js.Object](`type`: String, props: Props, children: Node*): ReactDOMElement = js.native
+  def createElement[Props <: js.Object](`type`: String                               ): DomElement = js.native
+  def createElement[Props <: js.Object](`type`: String, props: Props                 ): DomElement = js.native
+  def createElement[Props <: js.Object](`type`: String, props: Props, children: Node*): DomElement = js.native
 
-  def createElement[Props <: js.Object](`type`: ComponentType[Props]                               ): ReactComponentElement[Props] = js.native
-  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                 ): ReactComponentElement[Props] = js.native
-  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: Node*): ReactComponentElement[Props] = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props]                               ): ComponentElement[Props] = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                 ): ComponentElement[Props] = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: Node*): ComponentElement[Props] = js.native
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   val Children: React.Children = js.native

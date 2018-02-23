@@ -39,22 +39,6 @@ package object raw {
   type RefFn = js.Function1[js.Any, Unit]
 
 
-  @js.native
-  trait ReactDOMElement extends React.Element {
-    def `type`: String
-    def props: PropsWithChildren
-    def key: Key
-    def ref: Ref
-  }
-
-  @js.native
-  trait ReactComponentElement[P <: js.Object] extends React.Element {
-    def `type`: React.Constructor[P]
-    def props: P with PropsWithChildren
-    def key: Key
-    def ref: Ref
-  }
-
   // Type aliases can't be recursive
   // type ReactFragment = js.Array[React.Node | ReactEmpty]
 //  @js.native
