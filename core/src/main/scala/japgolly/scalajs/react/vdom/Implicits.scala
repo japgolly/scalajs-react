@@ -95,6 +95,9 @@ trait ImplicitsForVdomNode {
   implicit def vdomNodeFromPropsChildren(v: PropsChildren) : VdomNode = VdomNode.cast(v.raw)
   implicit def vdomNodeFromRawReactNode (v: raw.React.Node): VdomNode = VdomNode(v)
 
+  implicit def vdomNodeFromOption[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => VdomNode): VdomNode =
+    O.fold(o, VdomNode.empty)(f)
+
   implicit def vdomSeqExtForTO[A](as: TraversableOnce[A]) = new TraversableOnceExt[A](as)
   implicit def vdomSeqExtForSA[A](as: Array          [A]) = new TraversableOnceExt[A](as)
   implicit def vdomSeqExtForJA[A](as: js.Array       [A]) = new TraversableOnceExt[A](as)
