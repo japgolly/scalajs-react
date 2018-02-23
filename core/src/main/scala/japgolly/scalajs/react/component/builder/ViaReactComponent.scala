@@ -250,7 +250,7 @@ object ViaReactComponent {
     def add1[I, O](k: String, f: (This, I) => O): Unit = add(k, f: js.ThisFunction1[This, I, O])
     def add2[I, J, O](k: String, f: (This, I, J) => O): Unit = add(k, f: js.ThisFunction2[This, I, J, O])
 
-    add0("render", _this => renderFn(new RenderScope(_this)).rawElement)
+    add0("render", _this => renderFn(new RenderScope(_this)).rawNode)
 
     for (f <- builder.lifecycle.componentWillMount)
       add0("componentWillMount", _this => f(new ComponentWillMount(_this)).runNow())

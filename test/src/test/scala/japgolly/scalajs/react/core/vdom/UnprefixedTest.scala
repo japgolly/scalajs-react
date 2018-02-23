@@ -24,38 +24,51 @@ object UnprefixedTest extends TestSuite {
 
   def checkbox(check: Boolean) = input.checkbox(checked := check, readOnly := true)
 
-  def test(subj: VdomElement, exp: String): Unit = {
+  def test(subj: VdomNode, exp: String): Unit = {
     val comp = ScalaComponent.static("tmp")(subj)
     assertRender(comp(), exp)
   }
 
   val tests = Tests {
-    'void      - test(br,                                       """<br/>""")
-    'short     - test(div(45: Short),                           """<div>45</div>""")
-    'byte      - test(div(50: Byte),                            """<div>50</div>""")
-    'int       - test(div(666),                                 """<div>666</div>""")
-    'long      - test(div(123L),                                """<div>123</div>""")
-    'double    - test(div(12.3),                                """<div>12.3</div>""")
-    'string    - test(div("yo"),                                """<div>yo</div>""")
+    'outer {
+      // New in React 16
+      'byte      - test(50: Byte,  """50""")
+      'short     - test(45: Short, """45""")
+      'int       - test(666,       """666""")
+      'long      - test(123L,      """123""")
+      'double    - test(12.3,      """12.3""")
+      'string    - test("yo",      """yo""")
+    }
 
-    'vdomNode  - test(div(vdomNode),                            """<div><h1>cool</h1></div>""")
-    'vdomTag   - test(div(vdomTag),                             """<div><span></span></div>""")
-    'vdomEl    - test(div(vdomElement),                         """<div><p></p></div>""")
-    'tagMod    - test(div(tagMod),                              """<div class="ho"></div>""")
-    'tagHtml   - test(div(span),                                """<div><span></span></div>""")
-    'tagHtmlM  - test(div(span(size := 3)),                     """<div><span size="3"></span></div>""")
-    'compScala - test(div(H1("a")),                             """<div><h1>a</h1></div>""")
-    'compJS    - test(div(jsComp),                              """<div><div>Hello yo</div></div>""")
+    'void - test(br, """<br/>""")
 
-    'checkboxT  - test(checkbox(true),                          """<input type="checkbox" checked="" readonly=""/>""")
-    'checkboxF  - test(checkbox(false),                         """<input type="checkbox" readonly=""/>""")
-    'aria       - test(div(aria.label := "ow", "a"),            """<div aria-label="ow">a</div>""")
-    'attrs      - test(div(rowSpan := 1, colSpan := 3),         """<div rowspan="1" colSpan="3"></div>""")
-    'styleObj   - test(div(style := jsObject),                  """<div style="a:b"></div>""")
-    'styleDict  - test(div(style := js.Dictionary("x" -> "y")), """<div style="x:y"></div>""")
-    'styleAttrs - test(div(color := "red", cursor.auto),        """<div style="color:red;cursor:auto"></div>""")
+    'inner {
+      'byte      - test(div(50: Byte),        """<div>50</div>""")
+      'short     - test(div(45: Short),       """<div>45</div>""")
+      'int       - test(div(666),             """<div>666</div>""")
+      'long      - test(div(123L),            """<div>123</div>""")
+      'double    - test(div(12.3),            """<div>12.3</div>""")
+      'string    - test(div("yo"),            """<div>yo</div>""")
+      'vdomNode  - test(div(vdomNode),        """<div><h1>cool</h1></div>""")
+      'vdomTag   - test(div(vdomTag),         """<div><span></span></div>""")
+      'vdomEl    - test(div(vdomElement),     """<div><p></p></div>""")
+      'tagMod    - test(div(tagMod),          """<div class="ho"></div>""")
+      'tagHtml   - test(div(span),            """<div><span></span></div>""")
+      'tagHtmlM  - test(div(span(size := 3)), """<div><span size="3"></span></div>""")
+      'compScala - test(div(H1("a")),         """<div><h1>a</h1></div>""")
+      'compJS    - test(div(jsComp),          """<div><div>Hello yo</div></div>""")
+    }
 
-    'attr - {
+    'checkboxT  - test(checkbox(true),  """<input type="checkbox" checked="" readonly=""/>""")
+    'checkboxF  - test(checkbox(false), """<input type="checkbox" readonly=""/>""")
+
+     'attr - {
+      'aria       - test(div(aria.label := "ow", "a"),            """<div aria-label="ow">a</div>""")
+      'attrs      - test(div(rowSpan := 1, colSpan := 3),         """<div rowspan="1" colSpan="3"></div>""")
+      'styleObj   - test(div(style := jsObject),                  """<div style="a:b"></div>""")
+      'styleDict  - test(div(style := js.Dictionary("x" -> "y")), """<div style="x:y"></div>""")
+      'styleAttrs - test(div(color := "red", cursor.auto),        """<div style="color:red;cursor:auto"></div>""")
+
       'any - {
         def aa: VdomAttr[Any] = profile
         def as = "profile"
