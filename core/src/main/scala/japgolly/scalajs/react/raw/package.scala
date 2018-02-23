@@ -1,6 +1,5 @@
 package japgolly.scalajs.react
 
-import scala.scalajs.js.annotation.JSName
 import scalajs.js
 import scalajs.js.|
 
@@ -9,8 +8,6 @@ package object raw {
   type Void = Unit
 
   type JsNumber = Byte | Short | Int | Float | Double
-
-  type Key = String | Boolean | JsNumber | Null
 
   // Deprecated by React
   type Ref = String | Null

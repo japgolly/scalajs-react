@@ -14,7 +14,7 @@ trait ImplicitsForVdomAttr1 {
   implicit lazy val vdomAttrVtInnerHtml: ValueType[String, InnerHtmlAttr] =
     ValueType[String, InnerHtmlAttr]((b, html) => b(js.Dynamic.literal("__html" -> html)))
 
-  implicit def vdomAttrVtKey[A](implicit k: A => raw.Key): ValueType[A, Attr.Key] =
+  implicit def vdomAttrVtKey[A](implicit k: A => raw.React.Key): ValueType[A, Attr.Key] =
     ValueType((b, a) => b(k(a).asInstanceOf[js.Any]))
 
   implicit val vdomAttrVtKeyL: ValueType[Long, Attr.Key] =

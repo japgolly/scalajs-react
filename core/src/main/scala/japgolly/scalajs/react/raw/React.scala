@@ -68,15 +68,24 @@ object React extends React {
 
   type Constructor[P <: js.Object] = js.Function1[P, js.Any] with HasDisplayName
 
-  type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, React.Element]
-
   type ComponentType[Props <: js.Object] = ReactClass[Props, _ <: js.Object] | React.StatelessFunctionalComponent[Props]
+
+  type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, React.Element]
 
   type Node = React.Element | ReactFragment | ReactText
 
   /** A React element is the type for the value of a DOM tag, or the return type of React.createElement(). */
   @js.native
   trait Element extends js.Object
+
+  type Key = String | Boolean | JsNumber | Null
+
+  // TODO: React.ChildrenArray<T>
+  // TODO: React.ElementType
+  // TODO: React.Ref           <typeof Component>
+  // TODO: React.ElementProps  <typeof Component>
+  // TODO: React.ElementConfig <typeof Component>
+  // TODO: React.ElementRef    <typeof Component>
 }
 
 @js.native
