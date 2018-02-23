@@ -12,6 +12,23 @@ object VdomTest extends TestSuite {
 
   override def tests = Tests {
 
+    'returnTypes {
+      def test(subj: VdomNode, exp: String): Unit = {
+        val comp = ScalaComponent.static("tmp")(subj)
+        assertRender(comp(), exp)
+      }
+
+      'byte      - test(50: Byte,  """50""")
+      'short     - test(45: Short, """45""")
+      'int       - test(666,       """666""")
+      'long      - test(123L,      """123""")
+      'double    - test(12.3,      """12.3""")
+      'string    - test("yo",      """yo""")
+
+      'booleanF  - compileError("""test(false, "")""")
+      'booleanT  - compileError("""test(true, "")""")
+    }
+
     'tagModToJs - {
       'childrenAsVdomNodes - {
         val vdom = TagMod("hehe", 123, <.em(456L), C())

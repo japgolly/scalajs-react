@@ -28,7 +28,6 @@ object PrefixedTest extends TestSuite {
   }
 
   val tests = Tests {
-
     'void - test(<.br, """<br/>""")
 
     'inner {

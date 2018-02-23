@@ -30,16 +30,6 @@ object UnprefixedTest extends TestSuite {
   }
 
   val tests = Tests {
-    'outer {
-      // New in React 16
-      'byte      - test(50: Byte,  """50""")
-      'short     - test(45: Short, """45""")
-      'int       - test(666,       """666""")
-      'long      - test(123L,      """123""")
-      'double    - test(12.3,      """12.3""")
-      'string    - test("yo",      """yo""")
-    }
-
     'void - test(br, """<br/>""")
 
     'inner {
