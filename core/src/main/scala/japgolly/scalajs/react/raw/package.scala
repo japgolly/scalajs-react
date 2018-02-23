@@ -3,29 +3,41 @@ package japgolly.scalajs.react
 import scalajs.js
 import scalajs.js.|
 
+/** See https://flow.org/en/docs/react/types */
 package object raw {
 
   type Void = Unit
 
   type JsNumber = Byte | Short | Int | Float | Double
 
-  // Deprecated by React
-  type Ref = String | Null
+  type Empty = Void | Null | Boolean
 
-  type RefFn = js.Function1[js.Any, Unit]
+  val recursiveTypeAliases: RecursiveTypeAliases = RecursiveTypeAliases
+  type ChildrenArray[A] = A | recursiveTypeAliases.ChildrenArray[A]
 
-  type ReactText = String | JsNumber
-
-  type ReactEmpty = Boolean | Void | Null
-
-  type ReactNodeList = React.Node | ReactEmpty
-
-  type PropsChildren = ReactNodeList
+  type PropsChildren = React.Node
 
   @js.native
   trait PropsWithChildren extends js.Object {
     val children: PropsChildren
   }
+
+
+
+
+
+
+
+
+
+
+
+
+  // Deprecated by React
+  type Ref = String | Null
+
+  type RefFn = js.Function1[js.Any, Unit]
+
 
   @js.native
   trait ReactDOMElement extends React.Element {
@@ -45,10 +57,10 @@ package object raw {
 
   // Type aliases can't be recursive
   // type ReactFragment = js.Array[React.Node | ReactEmpty]
-  @js.native
-  trait ReactFragment extends js.Any
-  implicit def ReactFragment[A](a: A)(implicit w: A => js.Array[React.Node | ReactEmpty]): ReactFragment =
-    w(a).asInstanceOf[ReactFragment]
+//  @js.native
+//  trait ReactFragment extends js.Any
+//  implicit def ReactFragment[A](a: A)(implicit w: A => js.Array[React.Node | ReactEmpty]): ReactFragment =
+//    w(a).asInstanceOf[ReactFragment]
 
 //  def emptyReactNodeList: ReactNodeList =
 //    js.undefined

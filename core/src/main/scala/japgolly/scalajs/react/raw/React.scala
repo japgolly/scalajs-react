@@ -8,8 +8,7 @@ import scalajs.js.annotation._
 @js.native
 object React extends React {
 
-  // TODO: React.ChildrenArray<T>
-  // TODO: React.ElementType
+  // TODO: React.Key
   // TODO: React.Ref           <typeof Component>
   // TODO: React.ElementProps  <typeof Component>
   // TODO: React.ElementConfig <typeof Component>
@@ -75,7 +74,7 @@ object React extends React {
 
   type ComponentUntyped = Component[_ <: js.Object, _ <: js.Object]
 
-  type ComponentType[Props <: js.Object] = ReactClass[Props, _ <: js.Object] | React.StatelessFunctionalComponent[Props]
+  type ComponentType[Props <: js.Object] = ReactClass[Props, _ <: js.Object] | StatelessFunctionalComponent[Props]
 
   type Constructor[P <: js.Object] = js.Function1[P, js.Any] with HasDisplayName
 
@@ -83,24 +82,26 @@ object React extends React {
   @js.native
   trait Element extends js.Object
 
+  type ElementType = String | ComponentType[_ <: js.Object]
+
   type Key = String | Boolean | JsNumber | Null
 
-  type Node = React.Element | ReactFragment | ReactText
+  type Node = ChildrenArray[Empty | String | JsNumber | Element]
 
-  type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, React.Element]
+  type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, Node]
 }
 
 @js.native
 trait React extends js.Object {
   import React._
 
-  def createElement[Props <: js.Object](`type`: String                                        ): ReactDOMElement = js.native
-  def createElement[Props <: js.Object](`type`: String, props: Props                          ): ReactDOMElement = js.native
-  def createElement[Props <: js.Object](`type`: String, props: Props, children: ReactNodeList*): ReactDOMElement = js.native
+  def createElement[Props <: js.Object](`type`: String                               ): ReactDOMElement = js.native
+  def createElement[Props <: js.Object](`type`: String, props: Props                 ): ReactDOMElement = js.native
+  def createElement[Props <: js.Object](`type`: String, props: Props, children: Node*): ReactDOMElement = js.native
 
-  def createElement[Props <: js.Object](`type`: ComponentType[Props]                                        ): ReactComponentElement[Props] = js.native
-  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                          ): ReactComponentElement[Props] = js.native
-  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: ReactNodeList*): ReactComponentElement[Props] = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props]                               ): ReactComponentElement[Props] = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                 ): ReactComponentElement[Props] = js.native
+  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: Node*): ReactComponentElement[Props] = js.native
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   val Children: React.Children = js.native

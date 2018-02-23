@@ -26,7 +26,7 @@ trait Builder {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 object Builder {
-  type RawChild = raw.ReactNodeList
+  type RawChild = raw.React.Node
 
   def setObjectKeyValue(o: js.Object, k: String, v: js.Any): Unit =
     o.asInstanceOf[js.Dynamic].updateDynamic(k)(v)

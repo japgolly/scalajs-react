@@ -26,7 +26,6 @@ trait TestUtil
   implicit val equalKey: Equal[Key] = Equal.equalA
 
   // TODO erm... not really. Only allow in raw testing
-  implicit val equalReactNodeList: Equal[japgolly.scalajs.react.raw.ReactNodeList] = Equal.equalA
   implicit val equalRawRef       : Equal[japgolly.scalajs.react.raw.Ref          ] = Equal.equalA
 
   implicit def jsUndefOrEqual[A](implicit e: Equal[A]): Equal[js.UndefOr[A]] =

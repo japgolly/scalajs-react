@@ -254,11 +254,11 @@ object CtorType {
     private def prepareForMutation(o: js.Object): js.Object =
       if (o.isInstanceOf[js.Object]) o else new js.Object
 
-    def formatChildren(c: ChildrenArgs): Seq[raw.ReactNodeList] =
+    def formatChildren(c: ChildrenArgs): Seq[raw.React.Node] =
       if (c.isEmpty)
         Nil
       else
-        c.map(_.rawNode: raw.ReactNodeList)
+        c.map(_.rawNode)
   }
 }
 

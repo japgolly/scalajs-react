@@ -85,16 +85,15 @@ object ImplicitsForVdomNode {
 trait ImplicitsForVdomNode {
   import ImplicitsForVdomNode._
 
-  implicit def vdomNodeFromLong         (v: Long)             : VdomNode = VdomNode.cast(v.toString)
-  implicit def vdomNodeFromInt          (v: Int)              : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromShort        (v: Short)            : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromByte         (v: Byte)             : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromDouble       (v: Double)           : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromFloat        (v: Float)            : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromString       (v: String)           : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromReactNode    (v: raw.React.Node)    : VdomNode = VdomNode(v)
-  implicit def vdomNodeFromReactNodeList(v: raw.ReactNodeList): VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromPropsChildren(v: PropsChildren)    : VdomNode = VdomNode.cast(v.raw)
+  implicit def vdomNodeFromByte         (v: Byte)          : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromShort        (v: Short)         : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromInt          (v: Int)           : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromLong         (v: Long)          : VdomNode = VdomNode.cast(v.toString)
+  implicit def vdomNodeFromFloat        (v: Float)         : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromDouble       (v: Double)        : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromString       (v: String)        : VdomNode = VdomNode.cast(v)
+  implicit def vdomNodeFromPropsChildren(v: PropsChildren) : VdomNode = VdomNode.cast(v.raw)
+  implicit def vdomNodeFromRawReactNode (v: raw.React.Node): VdomNode = VdomNode(v)
 
   implicit def vdomSeqExtForTO[A](as: TraversableOnce[A]) = new TraversableOnceExt[A](as)
   implicit def vdomSeqExtForSA[A](as: Array          [A]) = new TraversableOnceExt[A](as)
