@@ -24,7 +24,7 @@ abstract class Attr[-U](final val name: String) {
   def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod
 
   final def :=?[O[_], A](oa: O[A])(implicit O: OptionLike[O], t: ValueType[A, U]): TagMod =
-    O.fold(oa, TagMod.Empty)(:=(_))
+    O.fold(oa, TagMod.empty)(:=(_))
 }
 
 @implicitNotFound("You are passing a CallbackTo[${A}] to a DOM event handler which is most likely a mistake."
@@ -94,7 +94,7 @@ object Attr {
   }
 
   private[vdom] object Dud extends Attr[Any]("") {
-    override def :=[A](a: A)(implicit t: ValueType[A, Any]) = TagMod.Empty
+    override def :=[A](a: A)(implicit t: ValueType[A, Any]) = TagMod.empty
   }
 
   private[vdom] object ClassName extends Attr[String]("class") {

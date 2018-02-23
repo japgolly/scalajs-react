@@ -14,6 +14,10 @@ object VdomNode {
 
   def cast(n: Any): VdomNode =
     new VdomNode(n.asInstanceOf[Raw.React.Node])
+
+  private[vdom] val empty: VdomNode =
+    apply(null)
+
 }
 
 // =====================================================================================================================

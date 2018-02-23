@@ -52,7 +52,7 @@ trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
 object ImplicitsForTagMod {
   final class OptionExt[O[_], A](o: O[A])(implicit O: OptionLike[O]) {
     def whenDefined(implicit f: A => TagMod): TagMod =
-      O.fold(o, TagMod.Empty)(f)
+      O.fold(o, TagMod.empty)(f)
   }
 }
 

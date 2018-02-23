@@ -24,6 +24,7 @@ object VdomTest extends TestSuite {
       'long      - test(123L,      """123""")
       'double    - test(12.3,      """12.3""")
       'string    - test("yo",      """yo""")
+      'empty     - test(EmptyVdom, "")
 
       'booleanF  - compileError("""test(false, "")""")
       'booleanT  - compileError("""test(true, "")""")
