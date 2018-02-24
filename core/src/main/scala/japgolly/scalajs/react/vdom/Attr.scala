@@ -108,7 +108,10 @@ object Attr {
   }
 
   sealed trait Key
-  val Key = apply[Key]("key")
+  private[vdom] object Key extends Attr[Key]("key") {
+    override def :=[A](a: A)(implicit t: ValueType[A, Key]): TagMod =
+      TagMod.fn(b => t.fn(b.setKey, a))
+  }
 
   object Ref extends Attr[raw.RefFn]("ref") {
     override def :=[A](a: A)(implicit t: ValueType[A, raw.RefFn]) =
