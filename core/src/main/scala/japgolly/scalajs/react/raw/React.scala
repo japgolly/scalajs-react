@@ -8,7 +8,6 @@ import scalajs.js.annotation._
 @js.native
 object React extends React {
 
-  // TODO: React.Key
   // TODO: React.Ref           <typeof Component>
   // TODO: React.ElementProps  <typeof Component>
   // TODO: React.ElementConfig <typeof Component>
@@ -77,8 +76,6 @@ object React extends React {
   trait ComponentElement[P <: js.Object] extends React.Element {
     def `type`: React.Constructor[P]
     def props: P with PropsWithChildren
-    def key: Key
-    def ref: Ref
   }
 
   type ComponentUntyped = Component[_ <: js.Object, _ <: js.Object]
@@ -92,17 +89,18 @@ object React extends React {
   trait DomElement extends React.Element {
     def `type`: String
     def props: PropsWithChildren
-    def key: Key
-    def ref: Ref
   }
 
   /** A React element is the type for the value of a DOM tag, or the return type of React.createElement(). */
   @js.native
-  trait Element extends js.Object
+  trait Element extends js.Object {
+    def key: Key | Null
+    def ref: Ref
+  }
 
   type ElementType = String | ComponentType[_ <: js.Object]
 
-  type Key = String | Boolean | JsNumber | Null
+  type Key = String | JsNumber
 
   type Node = ChildrenArray[Empty | String | JsNumber | Element]
 

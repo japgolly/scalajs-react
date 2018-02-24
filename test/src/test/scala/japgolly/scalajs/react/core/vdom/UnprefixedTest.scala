@@ -283,18 +283,20 @@ object UnprefixedTest extends TestSuite {
 
     'key - {
       def t(m: TagMod) = test(span(m, "1"), "<span>1</span>")
-      val obj = new AnyRef
-      'str  - t(key := "1")
-      'bool - t(key := false)
-      'int  - t(key := 3)
-      'long - t(key := 3L)
-      'shrt - t(key := 3.toShort)
-      'flt  - t(key := 3.4f)
-      'dbl  - t(key := 3.4)
-      'byte - t(key := 3.toByte)
-      'unit - compileError(" key := (())  ")
-      'obj  - compileError(" key := obj   ")
-      'key  - compileError(" key := key ")
+      val anyref = new AnyRef
+      val jsObject = js.Object()
+      'string   - t(key := "1")
+      'byte     - t(key := 3.toByte)
+      'short    - t(key := 3.toShort)
+      'int      - t(key := 3)
+      'long     - t(key := 3L)
+      'float    - t(key := 3.4f)
+      'double   - t(key := 3.4)
+      'unit     - compileError(" key := (())     ")
+      'boolean  - compileError(" key := false    ")
+      'anyref   - compileError(" key := anyref   ")
+      'jsObject - compileError(" key := jsObject ")
+      'key      - compileError(" key := key      ")
     }
 
     'anchorToNewWindow - {

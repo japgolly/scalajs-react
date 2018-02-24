@@ -27,6 +27,9 @@ sealed abstract class CtorType[-P, +U] {
 
   final def withKey(k: Key): This[P, U] =
     withRawProp("key", k.asInstanceOf[js.Any])
+
+  final def withKey(k: Long): This[P, U] =
+    withKey(k.toString)
 }
 
 object CtorType {

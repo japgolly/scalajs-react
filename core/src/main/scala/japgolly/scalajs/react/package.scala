@@ -3,13 +3,11 @@ package japgolly.scalajs
 import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js
-import scala.scalajs.js.|
 import japgolly.scalajs.react.internal.Effect
 
 package object react extends ReactEventTypes {
 
-  // Same as raw.Key except it's non-null
-  type Key = String | Boolean | raw.JsNumber
+  type Key = raw.React.Key
 
   type Callback = CallbackTo[Unit]
 
