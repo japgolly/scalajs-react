@@ -57,7 +57,7 @@ package object react extends ReactEventTypes {
       domCast
 
     def domToHtml: Option[html.Element] =
-      n.toOption.flatMap(_.domToHtml)
+      n.right.toOption.flatMap(_.domToHtml)
 
     def asElement: dom.Element =
       n match {
