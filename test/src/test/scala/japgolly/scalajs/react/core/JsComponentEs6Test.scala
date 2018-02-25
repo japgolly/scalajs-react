@@ -50,7 +50,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode
+          val n = mounted.getDOMNode.asElement
           assertOuterHTML(n, "<div>Hello Bob</div>")
           // assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.props.name, "Bob")
@@ -69,7 +69,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode
+          val n = mounted.getDOMNode.asElement
           assertOuterHTML(n, "<div>Hello Bob</div>")
           // assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.props.name, "Bob")
@@ -108,7 +108,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode
+          val n = mounted.getDOMNode.asElement
           assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
           // assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.props.name, "X")
@@ -120,7 +120,7 @@ object JsComponentEs6PTest extends JsComponentTest {
 
       'withKey - {
         ReactTestUtils.withNewBodyElement { mountNode =>
-          val n = C.withKey("k")(JsProps("X"))(H1).renderIntoDOM(mountNode).getDOMNode
+          val n = C.withKey("k")(JsProps("X"))(H1).renderIntoDOM(mountNode).getDOMNode.asElement
           assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
         }
       }
@@ -171,7 +171,7 @@ object JsComponentEs6STest extends JsComponentTest {
         assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode
+          val n = mounted.getDOMNode.asElement
 
           assertOuterHTML(n, "<div>State = 123 + 500</div>")
           // assertEq(mounted.isMounted, yesItsMounted)
@@ -210,7 +210,7 @@ object JsComponentEs6STest extends JsComponentTest {
 
       'withKey - {
         ReactTestUtils.withNewBodyElement { mountNode =>
-          val n = Component.withKey("k")().renderIntoDOM(mountNode).getDOMNode
+          val n = Component.withKey("k")().renderIntoDOM(mountNode).getDOMNode.asElement
           assertOuterHTML(n, "<div>State = 123 + 500</div>")
         }
       }
@@ -240,7 +240,7 @@ object JsComponentEs6STest extends JsComponentTest {
         assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode
+          val n = mounted.getDOMNode.asElement
 
           assertOuterHTML(n, "<div>State = 123 + 500<h1>Huge</h1></div>")
           // assertEq(mounted.isMounted, yesItsMounted)
@@ -253,7 +253,7 @@ object JsComponentEs6STest extends JsComponentTest {
 
       'withKey - {
         ReactTestUtils.withNewBodyElement { mountNode =>
-          val n = C.withKey("k")(H1).renderIntoDOM(mountNode).getDOMNode
+          val n = C.withKey("k")(H1).renderIntoDOM(mountNode).getDOMNode.asElement
           assertOuterHTML(n, "<div>State = 123 + 500<h1>Huge</h1></div>")
         }
       }

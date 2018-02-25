@@ -24,7 +24,7 @@ object RefTest extends TestSuite {
     val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
     ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = C().renderIntoDOM(mountNode)
-      assertEq(mounted.getDOMNode.querySelector("input").getAttribute(attr), V)
+      assertEq(mounted.getDOMNode.asElement.querySelector("input").getAttribute(attr), V)
     }
   }
 
@@ -38,7 +38,7 @@ object RefTest extends TestSuite {
     val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
     ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = C().renderIntoDOM(mountNode)
-      assertEq(mounted.getDOMNode.querySelector("circle").getAttribute(attr), V)
+      assertEq(mounted.getDOMNode.asElement.querySelector("circle").getAttribute(attr), V)
     }
   }
 

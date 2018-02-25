@@ -4,6 +4,7 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js
 import japgolly.scalajs.react.internal.Effect
+import japgolly.scalajs.react.component.Generic.MountedDomNode
 
 package object react extends ReactEventTypes {
 
@@ -44,6 +45,30 @@ package object react extends ReactEventTypes {
       n match {
         case e: html.Element => Some(e)
         case _               => None
+      }
+  }
+
+  @inline implicit final class ReactExt_MountedDomNode(private val n: MountedDomNode) extends AnyVal {
+
+    def domCast[N <: dom.raw.Node]: N =
+      asElement.domCast[N]
+
+    @inline def domAsHtml: html.Element =
+      domCast
+
+    def domToHtml: Option[html.Element] =
+      n.toOption.flatMap(_.domToHtml)
+
+    def asElement: dom.Element =
+      n match {
+        case Right(e) => e
+        case Left(t)  => sys error s"Expected a dom.Element; got $t"
+      }
+
+    def asText: dom.Text =
+      n match {
+        case Left(t)  => t
+        case Right(e) => sys error s"Expected a dom.Text; got $e"
       }
   }
 

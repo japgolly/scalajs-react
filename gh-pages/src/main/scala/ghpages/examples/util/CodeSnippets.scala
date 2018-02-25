@@ -22,8 +22,8 @@ object CodeSnippets {
     apply("scala")
 
   def installSyntaxHighlighting[P, C <: Children, S, B]: ScalaComponent.Config[P, C, S, B] = _
-    .componentDidMount ($ => applySyntaxHighlighting($.getDOMNode))
-    .componentDidUpdate($ => applySyntaxHighlighting($.getDOMNode))
+    .componentDidMount (_.getDOMNode.fold(_ => Callback.empty, applySyntaxHighlighting))
+    .componentDidUpdate(_.getDOMNode.fold(_ => Callback.empty, applySyntaxHighlighting))
 
   private def applySyntaxHighlighting(root: Element) = Callback {
     val nodeList = root.querySelectorAll("pre code").toArray

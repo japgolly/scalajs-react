@@ -6,6 +6,7 @@ import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom
 import japgolly.scalajs.react.{raw => RAW}
 import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, Key, PropsChildren, StateAccess}
+import scala.scalajs.js.|
 
 object Generic {
 
@@ -82,6 +83,15 @@ object Generic {
 
   // ===================================================================================================================
 
+  type MountedDomNode = Either[dom.Text, dom.Element]
+
+  /** null is not supported. This is called only when it is known that a component is mounted */
+  private[react] def MountedDomNode(i: RAW.ReactDOM.FindDomNodeResult): MountedDomNode =
+    (i: Any) match {
+      case e: dom.Element => Right(e)
+      case t: dom.Text    => Left(t)
+    }
+
   type Mounted[F[_], P, S] = MountedSimple[F, P, S]
   type MountedPure  [P, S] = MountedSimple[CallbackTo, P, S]
   type MountedImpure[P, S] = MountedSimple[Effect.Id, P, S]
@@ -100,7 +110,7 @@ object Generic {
              type WithMappedProps[P2] <: MountedSimple[F, P2, S]
     def mapProps[P2](f: P => P2): WithMappedProps[P2]
 
-    def getDOMNode: F[dom.Element]
+    def getDOMNode: F[MountedDomNode]
     def props: F[Props]
     def propsChildren: F[PropsChildren]
 

@@ -3,6 +3,7 @@ package japgolly.scalajs.react.component
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
+import org.scalajs.dom
 
 object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
 
@@ -65,7 +66,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
       override val vdomElement                       = vdom.VdomElement(raw)
       override def key                               = jsNullToOption(raw.key)
       override def ref                               = jsNullToOption(raw.ref)
-      override def props                             = raw.props.asInstanceOf[P]
+      override def props                             = raw.props
       override def propsChildren                     = PropsChildren.fromRawProps(raw.props)
       override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identityFn)
       override def mapMounted[M2](f: M => M2)        = mappedU(this)(identityFn, f)
@@ -125,10 +126,10 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
       override implicit def F    = Effect.idInstance
       override def root          = this
       override val raw           = r
-      override def props         = raw.props.asInstanceOf[P]
+      override def props         = raw.props
       override def propsChildren = PropsChildren.fromRawProps(raw.props)
-      override def state         = raw.state.asInstanceOf[S]
-      override def getDOMNode    = RAW.ReactDOM.findDOMNode(raw)
+      override def state         = raw.state
+      override def getDOMNode    = Generic.MountedDomNode(RAW.ReactDOM.findDOMNode(raw))
 
       override def setState(state: S, callback: Callback = Callback.empty): Unit =
         raw.setState(state, callback.toJsFn)
