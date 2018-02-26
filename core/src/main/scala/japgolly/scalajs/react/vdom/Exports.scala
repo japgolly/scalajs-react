@@ -22,7 +22,7 @@ abstract class Exports {
   final type VdomElement = japgolly.scalajs.react.vdom.VdomElement
   final val VdomElement = japgolly.scalajs.react.vdom.VdomElement
 
-  final val VdomFragment = japgolly.scalajs.react.vdom.VdomFragment
+  final val ReactFragment = japgolly.scalajs.react.vdom.ReactFragment
 
   final type VdomTagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.TagOf[N]
   final type VdomTag = VdomTagOf[TopNode]
