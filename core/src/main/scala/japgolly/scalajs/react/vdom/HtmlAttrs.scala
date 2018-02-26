@@ -548,6 +548,20 @@ trait HtmlAttrs {
   /** For &lt;script&gt; and &lt;style&gt;elements. */
   final def nonce = VdomAttr("nonce")
 
+  /** 'on' attribute for amp tags.
+    *
+    * The on attribute is used to install event handlers on elements. The events that are supported depend on the element.
+    *
+    * The value for the syntax is a simple domain specific language of the form:
+    *
+    * {{{
+    *   eventName:targetId[.methodName[(arg1=value, arg2=value)]]
+    * }}}
+    *
+    * @see https://www.ampproject.org/docs/reference/spec#on
+    */
+  final def on = VdomAttr("on")
+
   final def onAbort = Attr.Event.base("onAbort")
 
   final def onAbortCapture = Attr.Event.base("onAbortCapture")
