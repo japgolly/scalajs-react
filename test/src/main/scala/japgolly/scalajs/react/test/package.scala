@@ -16,6 +16,6 @@ package object test {
 
   implicit final class ReactTestExt_MountedId(private val c: GenericComponent.MountedImpure[_, _]) extends AnyVal {
     def outerHtmlScrubbed(): String =
-      ReactTestUtils.removeReactInternals(c.getDOMNode.asElement.outerHTML)
+      c.getDOMNode.fold(_.textContent, e => ReactTestUtils.removeReactInternals(e.outerHTML))
   }
 }
