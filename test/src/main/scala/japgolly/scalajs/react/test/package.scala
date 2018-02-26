@@ -4,7 +4,7 @@ import japgolly.scalajs.react.component.Generic.MountedDomNode
 
 package object test {
 
-  val Simulate = japgolly.scalajs.react.test.raw.ReactAddonsTestUtils.Simulate
+  val Simulate = japgolly.scalajs.react.test.raw.ReactTestUtils.Simulate
 
   type ReactOrDomNode = japgolly.scalajs.react.test.raw.ReactOrDomNode
 
