@@ -8,11 +8,17 @@ object ReactDOM {
   def unmountComponentAtNode(container: dom.Node): Boolean =
     raw.unmountComponentAtNode(container)
 
+  sealed trait NotAllowed
+
   @deprecated("Use .renderIntoDOM on unmounted components.", "")
-  def render(element  : Nothing,
-             container: Nothing,
-             callback : Any = null): Null = null
+  def render(element  : NotAllowed,
+             container: NotAllowed,
+             callback : NotAllowed = null): Null = null
 
   @deprecated("Use .getDOMNode on mounted components.", "")
-  def findDOMNode(comonent: Nothing): Null = null
+  def findDOMNode(comonent: NotAllowed): Null = null
+
+  @deprecated("Import vdom and use ReactPortal()", "")
+  def createPortal(child: NotAllowed, container: NotAllowed): Null = null
+
 }
