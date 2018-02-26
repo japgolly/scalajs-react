@@ -111,6 +111,8 @@ object React extends React {
 trait React extends js.Object {
   import React._
 
+  def createElement(`type`: js.Symbol, props: js.Object, children: Node*): Element = js.native
+
   def createElement[Props <: js.Object](`type`: String                               ): DomElement = js.native
   def createElement[Props <: js.Object](`type`: String, props: Props                 ): DomElement = js.native
   def createElement[Props <: js.Object](`type`: String, props: Props, children: Node*): DomElement = js.native
@@ -121,4 +123,6 @@ trait React extends js.Object {
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   val Children: React.Children = js.native
+
+  val Fragment: js.Symbol = js.native
 }

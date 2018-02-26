@@ -17,7 +17,7 @@ object InspectRaw {
       case s: String    => '"' + s + "\". Strings are no longer supported; either create a facade or use js.Dynamic. See docs for detail."
       case o: js.Object => JsUtil.inspectObject(o)
       case ()           => a.toString
-      case _            => s"$a (type=${js.typeOf(a)})"
+      case _            => s"${a.toString} (type=${js.typeOf(a)})"
     }
 
   @elidable(elidable.ASSERTION)
