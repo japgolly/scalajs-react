@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.core.vdom
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
@@ -43,6 +44,19 @@ object VdomTest extends TestSuite {
         val expect = "<span>hehe123<em>456</em><br/></span>"
         assertRender(<.span(vdom), expect)
         assertRender(Span(vdom.toJs.childrenAsVdomNodes: _*), expect)
+      }
+    }
+
+    'portal - {
+      ReactTestUtils.withNewBodyElement { portalTarget =>
+        val comp = ScalaComponent.static("tmp")(
+          <.div("Here we go...",
+            ReactPortal(<.div("NICE"), portalTarget)))
+        ReactTestUtils.withRenderedIntoBody(comp()) { m =>
+          val compHtml = m.outerHtmlScrubbed()
+          val portalHtml = ReactTestUtils.removeReactInternals(portalTarget.innerHTML)
+          assertEq((compHtml, portalHtml), ("<div>Here we go...</div>", "<div>NICE</div>"))
+        }
       }
     }
 

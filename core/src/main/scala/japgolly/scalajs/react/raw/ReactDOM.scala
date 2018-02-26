@@ -28,4 +28,6 @@ trait ReactDOM extends js.Object {
   final type FindDomNodeResult = dom.Element | dom.Text | Null
 
   def findDOMNode(componentOrElement: dom.Element | React.ComponentUntyped): FindDomNodeResult = js.native
+
+  def createPortal(child: React.Node, container: Container): React.Node = js.native
 }

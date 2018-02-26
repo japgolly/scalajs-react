@@ -24,6 +24,8 @@ abstract class Exports {
 
   final val ReactFragment = japgolly.scalajs.react.vdom.ReactFragment
 
+  final val ReactPortal = japgolly.scalajs.react.vdom.ReactPortal
+
   final type VdomTagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.TagOf[N]
   final type VdomTag = VdomTagOf[TopNode]
 
