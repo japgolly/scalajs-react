@@ -1,5 +1,7 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.internal.identityFn
+import scala.collection.generic.CanBuildFrom
 import scala.scalajs.js
 import scala.util.Try
 
@@ -28,6 +30,45 @@ object CallbackKleisli {
 
   def split[A, B, C, D](fst: CallbackKleisli[A, B], snd: CallbackKleisli[C, D]): CallbackKleisli[(A, C), (B, D)] =
     CallbackKleisli(x => fst.run(x._1) zip snd.run(x._2))
+
+  /** Tail-recursive callback. Uses constant stack space.
+    *
+    * Based on Phil Freeman's work on stack safety in PureScript, described in
+    * [[http://functorial.com/stack-safety-for-free/index.pdf Stack Safety for
+    * Free]].
+    */
+  def tailrec[A, S, B](s: S)(f: S => CallbackKleisli[A, Either[S, B]]): CallbackKleisli[A, B] =
+    apply(a => CallbackTo.tailrec(s)(f(_).run(a)))
+
+  def liftTraverse[A, B, C](f: B => CallbackKleisli[A, C]): LiftTraverseDsl[A, B, C] =
+    new LiftTraverseDsl(f)
+
+  final class LiftTraverseDsl[A, B, C](private val f: B => CallbackKleisli[A, C]) extends AnyVal {
+    private def trans[D](g: CallbackTo.LiftTraverseDsl[B, C] => CallbackTo[D]): CallbackKleisli[A, D] =
+      CallbackKleisli(a => g(CallbackTo.liftTraverse(f.andThen(_ apply a))))
+
+    def id: CallbackKleisli[A, B => C] =
+      trans(_.id)
+
+    /** Anything traversable by the Scala stdlib definition */
+    def std[T[X] <: TraversableOnce[X]](implicit cbf: CanBuildFrom[T[B], C, T[C]]): CallbackKleisli[A, T[B] => T[C]] =
+      trans(_.std[T])
+
+    def option: CallbackKleisli[A, Option[B] => Option[C]] =
+      trans(_.option)
+  }
+
+  def traverse[T[X] <: TraversableOnce[X], A, B, C](tb: => T[B])(f: B => CallbackKleisli[A, C])(implicit cbf: CanBuildFrom[T[B], C, T[C]]): CallbackKleisli[A, T[C]] =
+    liftTraverse(f).std[T](cbf).map(_(tb))
+
+  def sequence[T[X] <: TraversableOnce[X], A, B](tcb: => T[CallbackKleisli[A, B]])(implicit cbf: CanBuildFrom[T[CallbackKleisli[A, B]], B, T[B]]): CallbackKleisli[A, T[B]] =
+    traverse(tcb)(identityFn)(cbf)
+
+  def traverseOption[A, B, C](oa: => Option[B])(f: B => CallbackKleisli[A, C]): CallbackKleisli[A, Option[C]] =
+    liftTraverse(f).option.map(_(oa))
+
+  def sequenceOption[A, B](oca: => Option[CallbackKleisli[A, B]]): CallbackKleisli[A, Option[B]] =
+    traverseOption(oca)(identityFn)
 }
 
 // =====================================================================================================================
@@ -142,7 +183,7 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
     * When the callback result becomes available, perform a given side-effect with it.
     */
   def tap(t: B => Any): CallbackKleisli[A, B] =
-    flatTap(b => CallbackKleisli.constValue(t(b)))
+    flatTap(b => CallbackKleisli.const(Callback(t(b))))
 
   /** Alias for `tap`. */
   @inline def <|(t: B => Any): CallbackKleisli[A, B] =
