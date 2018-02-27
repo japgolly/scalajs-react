@@ -159,7 +159,7 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
     flatTap(_ => next)
 
   def toJsFn: js.Function1[A, B] =
-    run(_).runNow()
+    (a: A) => run(a).runNow()
 
   def =<<(a: CallbackTo[A]): CallbackTo[B] =
     a >>= run
