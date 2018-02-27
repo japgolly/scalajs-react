@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.internal
 
-import scalaz.{Equal, Monad, ~>}
+import scalaz.{Equal, Kleisli, Monad, ~>}
 import scalaz.effect.IO
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
@@ -18,6 +18,11 @@ object ScalazReactExt {
     def flattenIO[B](implicit ev: A =:= IO[B]): CallbackTo[B] =
       //_c.flatMap(a => ev(a).toCallback)
       c.map(_.unsafePerformIO())
+  }
+
+  final class CallbackKleisliOps[A, B](private val k: A => CallbackTo[B]) extends AnyVal {
+    def toScalazKleisli: Kleisli[CallbackTo, A, B] =
+      Kleisli(k)
   }
 
   final class MA[M[_], A](private val m: M[A]) extends AnyVal {
@@ -54,5 +59,6 @@ trait ScalazReactExt {
   implicit final def ScalazReactExt_Reusability(a: Reusability.type) = new ReusabilityOps(a)
   implicit final def ScalazReactExt_Listenable(a: Listenable.type) = new ListenableOps(a)
   implicit final def ScalazReactExt_CallbackTo[A](a: CallbackTo[A]) = new CallbackToOps(a.underlyingRepr)
+  implicit final def ScalazReactExt_CallbackKleisli[A, B](k: CallbackKleisli[A, B]) = new CallbackKleisliOps(k.run)
   implicit final def ScalazReactExt_MA[M[_], A](a: M[A]) = new MA(a)
 }

@@ -18,6 +18,8 @@ The Cats & Scalaz modules contain typeclass instances for it.
 There's also `CallbackOption` which is a callback & option monad stack.
 Check out the online [`CallbackOption` example](https://japgolly.github.io/scalajs-react/#examples/callback-option).
 
+There's also `CallbackKleisli` which is the `ReaderT CallbackTo` monad stack.
+
 Scalaz
 ======
 
