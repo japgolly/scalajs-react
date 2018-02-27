@@ -34,6 +34,9 @@ object CallbackKleisli {
 
 /** `A => CallbackTo[B]` aka `Kleisli[CallbackTo, A, B]` aka `ReaderT[A, CallbackTo, B]`.
   *
+  * Never heard of Kleisli? Basically, a "Kleisli triple" is a function with the shape `A => M[B]`.
+  * In this case, the `M` is hard-coded to `CallbackTo`.
+  *
   * Hardcoded to `CallbackTo` for the same reasons as [[CallbackOption]] and for the same reasons that [[CallbackTo]]
   * exists.
   *
