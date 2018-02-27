@@ -709,6 +709,12 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     b => bc.map(_(b))
   }
 
+  def asKleisli[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): CallbackKleisli[B, C] =
+    CallbackKleisli(distFn)
+
+  def toKleisli[B]: CallbackKleisli[B, A] =
+    CallbackKleisli const this
+
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean ops
 
