@@ -103,6 +103,9 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
   def map[C](f: B => C): CallbackKleisli[A, C] =
     mapCB(_ map f)
 
+  @inline def dimap[C, D](f: C => A, g: B => D): CallbackKleisli[C, D] =
+    contramap(f).map(g)
+
   /** Alias for `map`. */
   @inline def |>[C](f: B => C): CallbackKleisli[A, C] =
     map(f)
@@ -222,4 +225,10 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
 
   @inline def andThen[C](next: CallbackKleisli[B, C]): CallbackKleisli[A, C] =
     this >=> next
+
+  def strongL[R]: CallbackKleisli[(A, R), (B, R)] =
+    CallbackKleisli(ac => run(ac._1).map((_, ac._2)))
+
+  def strongR[L]: CallbackKleisli[(L, A), (L, B)] =
+    CallbackKleisli(ac => run(ac._2).map((ac._1, _)))
 }

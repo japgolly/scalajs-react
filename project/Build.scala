@@ -14,6 +14,7 @@ object ScalajsReact {
     val Scalaz72      = "7.2.18"
     val MTest         = "0.5.3"
     val MacroParadise = "2.1.1"
+    val KindProjector = "0.9.6"
     val SizzleJs      = "2.3.0"
     val Nyaya         = "0.8.1"
     val Cats          = "1.0.1"
@@ -147,6 +148,9 @@ object ScalajsReact {
   def macroParadisePlugin =
     compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.full)
 
+  def kindProjector =
+    compilerPlugin("org.spire-math" %% "kind-projector" % Ver.KindProjector cross CrossVersion.binary)
+
   def hasNoTests: Project => Project =
     _.settings(
       fastOptJS     in Test := Attributed(artifactPath.in(fastOptJS).in(Test).value)(AttributeMap.empty),
@@ -228,7 +232,8 @@ object ScalajsReact {
       .configure(commonSettings, publicationSettings, extModuleName(shortName), hasNoTests)
       .dependsOn(core, extra)
       .settings(
-        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version)
+        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version,
+        addCompilerPlugin(kindProjector))
   }
 
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
@@ -241,7 +246,9 @@ object ScalajsReact {
   lazy val cats = project
     .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
     .dependsOn(core, extra)
-    .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % Ver.Cats)
+    .settings(
+      libraryDependencies += "org.typelevel" %%% "cats-core" % Ver.Cats,
+      addCompilerPlugin(kindProjector))
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
