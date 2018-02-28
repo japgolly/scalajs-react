@@ -45,10 +45,12 @@ object AjaxExample {
 
   final class Backend($: BackendScope[Unit, State]) {
 
+    // =================================================================================================================
     // This is the heart of this demo.
     // Notice that it's all pure functions. There are no side-effects.
     private def submit(req: Request): Callback = {
 
+      // Here is the AJAX request and response logic
       val ajax = Ajax(req.method, req.url)
         .setRequestContentTypeJsonUtf8
         .send(req.body)
@@ -60,11 +62,12 @@ object AjaxExample {
           }
         }
 
-      for {
-        _ <- $.modState(_.copy(async = Some(InFlight(req))))
-        _ <- ajax.asCallback
-      } yield ()
+      // Here we return a single Callback for event handlers
+      $.modState(
+        _.copy(async = Some(InFlight(req))), // First, the state management
+        ajax.asCallback)                     // Then after the state change has been applied, execute the AJAX
     }
+    // =================================================================================================================
 
     def render(s: State): VdomElement = {
 
