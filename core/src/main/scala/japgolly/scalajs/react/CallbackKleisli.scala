@@ -69,6 +69,21 @@ object CallbackKleisli {
 
   def sequenceOption[A, B](oca: => Option[CallbackKleisli[A, B]]): CallbackKleisli[A, Option[B]] =
     traverseOption(oca)(identityFn)
+
+  trait CurryWitness[A, B] {
+    type X
+    type Y
+    def apply(c: CallbackKleisli[A, B]): CallbackKleisli[(X, Y), B]
+  }
+  object CurryWitness {
+    type Aux[A, B, _X, _Y] = CurryWitness[A, B] { type X = _X; type Y = _Y }
+    implicit def instance[A, B, C]: Aux[(A, B), C, A, B] =
+      new CurryWitness[(A, B), C] {
+        override type X = A
+        override type Y = B
+        override def apply(c: CallbackKleisli[(A, B), C]) = c
+      }
+  }
 }
 
 // =====================================================================================================================
@@ -93,6 +108,9 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
 
   def narrow[C <: A]: CallbackKleisli[C, B] =
     CallbackKleisli(run)
+
+  def contramapCB[C](f: C => CallbackTo[A]): CallbackKleisli[C, B] =
+    CallbackKleisli(f(_) >>= run)
 
   def contramap[C](f: C => A): CallbackKleisli[C, B] =
     CallbackKleisli(run compose f)
@@ -131,6 +149,10 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
   /** Sequence a [[CallbackKleisli]] to run before this, discarding any value produced by it. */
   @inline def <<[C](prev: CallbackKleisli[A, C]): CallbackKleisli[A, B] =
     prev >> this
+
+  /** Convenient version of `<<` that accepts an Option */
+  def <<?[C](prev: Option[CallbackKleisli[A, C]]): CallbackKleisli[A, B] =
+    prev.fold(this)(_ >> this)
 
   def zip[C](cb: CallbackKleisli[A, C]): CallbackKleisli[A, (B, C)] =
     for {
@@ -231,4 +253,9 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
 
   def strongR[L]: CallbackKleisli[(L, A), (L, B)] =
     CallbackKleisli(ac => run(ac._2).map((ac._1, _)))
+
+  def curry(implicit w: CallbackKleisli.CurryWitness[A, B]): w.X => CallbackKleisli[w.Y, B] = {
+    val self = w(this)
+    x => self.contramap((x, _))
+  }
 }
