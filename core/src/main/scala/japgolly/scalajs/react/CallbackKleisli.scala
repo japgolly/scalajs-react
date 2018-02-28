@@ -94,6 +94,9 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
   def narrow[C <: A]: CallbackKleisli[C, B] =
     CallbackKleisli(run)
 
+  def contramapCB[C](f: C => CallbackTo[A]): CallbackKleisli[C, B] =
+    CallbackKleisli(f(_) >>= run)
+
   def contramap[C](f: C => A): CallbackKleisli[C, B] =
     CallbackKleisli(run compose f)
 
@@ -131,6 +134,10 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
   /** Sequence a [[CallbackKleisli]] to run before this, discarding any value produced by it. */
   @inline def <<[C](prev: CallbackKleisli[A, C]): CallbackKleisli[A, B] =
     prev >> this
+
+  /** Convenient version of `<<` that accepts an Option */
+  def <<?[C](prev: Option[CallbackKleisli[A, C]]): CallbackKleisli[A, B] =
+    prev.fold(this)(_ >> this)
 
   def zip[C](cb: CallbackKleisli[A, C]): CallbackKleisli[A, (B, C)] =
     for {
