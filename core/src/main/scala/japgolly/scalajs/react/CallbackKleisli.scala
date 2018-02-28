@@ -69,21 +69,6 @@ object CallbackKleisli {
 
   def sequenceOption[A, B](oca: => Option[CallbackKleisli[A, B]]): CallbackKleisli[A, Option[B]] =
     traverseOption(oca)(identityFn)
-
-  trait CurryWitness[A, B] {
-    type X
-    type Y
-    def apply(c: CallbackKleisli[A, B]): CallbackKleisli[(X, Y), B]
-  }
-  object CurryWitness {
-    type Aux[A, B, _X, _Y] = CurryWitness[A, B] { type X = _X; type Y = _Y }
-    implicit def instance[A, B, C]: Aux[(A, B), C, A, B] =
-      new CurryWitness[(A, B), C] {
-        override type X = A
-        override type Y = B
-        override def apply(c: CallbackKleisli[(A, B), C]) = c
-      }
-  }
 }
 
 // =====================================================================================================================
@@ -253,9 +238,4 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
 
   def strongR[L]: CallbackKleisli[(L, A), (L, B)] =
     CallbackKleisli(ac => run(ac._2).map((ac._1, _)))
-
-  def curry(implicit w: CallbackKleisli.CurryWitness[A, B]): w.X => CallbackKleisli[w.Y, B] = {
-    val self = w(this)
-    x => self.contramap((x, _))
-  }
 }

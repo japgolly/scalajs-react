@@ -108,7 +108,7 @@ object Ajax {
       def registerE[E](cb: Option[CallbackKleisli[(XMLHttpRequest, E), Unit]])
                       (set: (XMLHttpRequest, js.Function1[E, Unit]) => Unit): Ajax[Unit] =
         cb match {
-          case Some(k) => CallbackKleisli.lift(xhr => set(xhr, k.curry.apply(xhr).toJsFn))
+          case Some(k) => CallbackKleisli.lift(xhr => set(xhr, k.contramap[E]((xhr, _)).toJsFn))
           case None    => CallbackKleisli.unit
         }
 
