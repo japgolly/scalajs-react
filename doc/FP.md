@@ -42,9 +42,9 @@ Monocle
 
 ```scala
 libraryDependencies ++= Seq(
-    "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "1.1.1",
-    "com.github.julien-truffaut" %%%  "monocle-core"  % "1.4.0",
-    "com.github.julien-truffaut" %%%  "monocle-macro" % "1.4.0"
+    "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "1.2.0-SNAPSHOT",
+    "com.github.julien-truffaut" %%%  "monocle-core"  % "1.5.0",
+    "com.github.julien-truffaut" %%%  "monocle-macro" % "1.5.0"
 )
 
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
@@ -54,6 +54,20 @@ A module with a extensions for [Monocle](https://github.com/julien-truffaut/Mono
 
 There's one example online that demonstrates Monocle usage:
 [`ExternalVar` example](https://japgolly.github.io/scalajs-react/#examples/external-var).
+
+Monocle-cats
+============
+
+```scala
+libraryDependencies ++= Seq(
+    "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % "1.2.0-SNAPSHOT",
+    "com.github.julien-truffaut" %%%  "monocle-core"  % "1.5.0-cats",
+    "com.github.julien-truffaut" %%%  "monocle-macro" % "1.5.0-cats"
+)
+
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+
+Same as the `ext-monocle` module but using the cats variant of monocle
 
 Cats
 ====

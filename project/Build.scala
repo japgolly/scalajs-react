@@ -160,7 +160,7 @@ object ScalajsReact {
       testOnly      in Test := (),
       testQuick     in Test := ())
 
-  def monocleLib(name: String, cats: Boolean = false) =
+  def monocleLib(name: String, cats: Boolean) =
     "com.github.julien-truffaut" %%%! s"monocle-$name" % {if (cats) Ver.MonocleCats else Ver.Monocle}
 
   // ==============================================================================================
@@ -200,14 +200,13 @@ object ScalajsReact {
     .dependsOn(scalaz72 % "test->compile")
     .dependsOn(monocleScalaz % "test->compile")
     .dependsOn(cats % "test->compile")
-    .dependsOn(monocleCats % "test->compile")
     .settings(
       name := "test",
       libraryDependencies ++= Seq(
         "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
-        monocleLib("macro") % Test),
+        monocleLib("macro", false) % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
@@ -241,9 +240,10 @@ object ScalajsReact {
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
   lazy val monocleScalaz = project
+    .in(file("monocle"))
     .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
     .dependsOn(core, extra, scalaz72)
-    .settings(libraryDependencies += monocleLib("core"))
+    .settings(libraryDependencies += monocleLib("core", false))
 
   lazy val cats = project
     .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
@@ -254,9 +254,13 @@ object ScalajsReact {
 
   lazy val monocleCats = project
     .in(file("monocle-cats"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
+    .configure(commonSettings, publicationSettings, extModuleName("monocle-cats"), hasNoTests)
     .dependsOn(core, extra, cats)
-    .settings(libraryDependencies += monocleLib("core", true))
+    .settings(
+      // Share the internal source code files with this module
+      unmanagedSourceDirectories in Compile += (sourceDirectory in (monocleScalaz, Compile)).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
+      libraryDependencies += monocleLib("core", true)
+    )
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
@@ -266,7 +270,7 @@ object ScalajsReact {
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
-      libraryDependencies += monocleLib("macro"),
+      libraryDependencies += monocleLib("macro", false),
       addCompilerPlugin(macroParadisePlugin),
       emitSourceMaps := false,
       scalaJSUseMainModuleInitializer := true,
