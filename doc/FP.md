@@ -42,9 +42,9 @@ Monocle
 
 ```scala
 libraryDependencies ++= Seq(
-    "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "1.2.0-SNAPSHOT",
-    "com.github.julien-truffaut" %%%  "monocle-core"  % "1.5.0",
-    "com.github.julien-truffaut" %%%  "monocle-macro" % "1.5.0"
+    "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "1.1.1",
+    "com.github.julien-truffaut" %%%  "monocle-core"  % "1.4.0",
+    "com.github.julien-truffaut" %%%  "monocle-macro" % "1.4.0"
 )
 
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
