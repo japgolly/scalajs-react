@@ -125,7 +125,7 @@ object ScalaComponentPTest extends TestSuite {
         def incUnmountCount = Callback(willUnmountCount += 1)
       }
 
-      val Comp = ScalaComponent.builder[Props]("")
+      val Inner = ScalaComponent.builder[Props]("")
         .stateless
         .backend(new Backend(_))
         .render_P(p => raw.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
@@ -139,6 +139,15 @@ object ScalaComponentPTest extends TestSuite {
         .componentDidUpdate(x => x.backend.didUpdate(x.prevProps, x.currentProps))
         .componentWillUnmount(_.backend.incUnmountCount)
         .componentWillReceiveProps(x => x.backend.receive(x.currentProps, x.nextProps))
+        .build
+
+      val Comp = ScalaComponent.builder[Props]("")
+          .initialState[Option[String]](None) // error message
+          .render_PS((p, s) => s match {
+            case None    => Inner(p).vdomElement
+            case Some(e) => raw.React.createElement("div", null, "Error: " + e)
+          })
+        .componentDidCatch($ => $.setState(Some($.error.message.replaceFirst("'.+' *", ""))))
         .build
 
       ReactTestUtils.withNewBodyElement { mountNode =>
@@ -158,6 +167,9 @@ object ScalaComponentPTest extends TestSuite {
         assertUpdates(Props(0, 3, 0))
 
         assertEq("willUnmountCount", willUnmountCount, 0)
+        mounted = Comp(null).renderIntoDOM(mountNode)
+        assertOuterHTML(mounted.getDOMNode.asElement, "<div>Error: Cannot read property of null</div>")
+        assertEq("willUnmountCount", willUnmountCount, 1)
       }
 
       assertMountCount(1)

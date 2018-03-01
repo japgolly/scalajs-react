@@ -47,12 +47,13 @@ object React extends React {
 
     final val constructor: Constructor[P] = js.native
 
+    def componentDidCatch        (error: Error, info: ErrorInfo)     : Unit    = js.native
+    def componentDidMount        ()                                  : Unit    = js.native
+    def componentDidUpdate       (prevProps: Props, prevState: State): Unit    = js.native
     def componentWillMount       ()                                  : Unit    = js.native
     def componentWillUnmount     ()                                  : Unit    = js.native
-    def componentDidMount        ()                                  : Unit    = js.native
     def componentWillReceiveProps(nextProps: Props)                  : Unit    = js.native
     def componentWillUpdate      (nextProps: Props, nextState: State): Unit    = js.native
-    def componentDidUpdate       (prevProps: Props, prevState: State): Unit    = js.native
     def shouldComponentUpdate    (nextProps: Props, nextState: State): Boolean = js.native
 
     // abstract def render(): React.Element // TODO Fails. Scala.JS bug?
@@ -100,6 +101,20 @@ object React extends React {
 
   type ElementType = String | ComponentType[_ <: js.Object]
 
+  @js.native
+  trait Error extends js.Object {
+    val fileName    : String = js.native
+    val lineNumber  : Int    = js.native
+    val columnNumber: Int    = js.native
+    val message     : String = js.native
+    val stack       : String = js.native
+  }
+
+  @js.native
+  trait ErrorInfo extends js.Object {
+    val componentStack: String = js.native
+  }
+
   type Key = String | JsNumber
 
   type Node = ChildrenArray[Empty | String | JsNumber | Element]
@@ -120,6 +135,8 @@ trait React extends js.Object {
   def createElement[Props <: js.Object](`type`: ComponentType[Props]                               ): ComponentElement[Props] = js.native
   def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                 ): ComponentElement[Props] = js.native
   def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: Node*): ComponentElement[Props] = js.native
+
+  val version: String = js.native
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   val Children: React.Children = js.native

@@ -252,8 +252,9 @@ object ViaReactComponent {
 
     add0("render", _this => renderFn(new RenderScope(_this)).rawNode)
 
-    for (f <- builder.lifecycle.componentWillMount)
-      add0("componentWillMount", _this => f(new ComponentWillMount(_this)).runNow())
+    for (f <- builder.lifecycle.componentDidCatch)
+      add2("componentDidCatch",
+        (_this: This, e: raw.React.Error, i: raw.React.ErrorInfo) => f(new ComponentDidCatch(_this, e, i)).runNow())
 
     for (f <- builder.lifecycle.componentDidMount)
       add0("componentDidMount", _this => f(new ComponentDidMount(_this)).runNow())
@@ -262,13 +263,8 @@ object ViaReactComponent {
       add2("componentDidUpdate",
         (_this: This, p: Box[P], s: Box[S]) => f(new ComponentDidUpdate(_this, p.unbox, s.unbox)).runNow())
 
-    for (f <- builder.lifecycle.componentWillUpdate)
-      add2("componentWillUpdate",
-        (_this: This, p: Box[P], s: Box[S]) => f(new ComponentWillUpdate(_this, p.unbox, s.unbox)).runNow())
-
-    for (f <- builder.lifecycle.shouldComponentUpdate)
-      add2("shouldComponentUpdate",
-        (_this: This, p: Box[P], s: Box[S]) => f(new ShouldComponentUpdate(_this, p.unbox, s.unbox)).runNow())
+    for (f <- builder.lifecycle.componentWillMount)
+      add0("componentWillMount", _this => f(new ComponentWillMount(_this)).runNow())
 
     for (f <- builder.lifecycle.componentWillReceiveProps)
       add1("componentWillReceiveProps",
@@ -293,6 +289,14 @@ object ViaReactComponent {
     //   })
     for (f <- builder.lifecycle.componentWillUnmount)
       add0("componentWillUnmount", _this => f(new ComponentWillUnmount(_this)).runNow())
+
+    for (f <- builder.lifecycle.componentWillUpdate)
+      add2("componentWillUpdate",
+        (_this: This, p: Box[P], s: Box[S]) => f(new ComponentWillUpdate(_this, p.unbox, s.unbox)).runNow())
+
+    for (f <- builder.lifecycle.shouldComponentUpdate)
+      add2("shouldComponentUpdate",
+        (_this: This, p: Box[P], s: Box[S]) => f(new ShouldComponentUpdate(_this, p.unbox, s.unbox)).runNow())
 
     _createClass(MyComponent, methods)
 

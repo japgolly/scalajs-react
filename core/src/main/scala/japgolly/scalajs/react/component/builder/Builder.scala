@@ -220,6 +220,16 @@ object Builder {
       fs.foldLeft(this)((s, f) => f(s))
 
     /**
+      * Error boundaries are React components that catch errors anywhere in their child component tree, log those errors,
+      * and display a fallback UI instead of the component tree that crashed. Error boundaries catch errors during
+      * rendering, in lifecycle methods, and in constructors of the whole tree below them.
+      *
+      * Note: "CHILD COMPONENT TREE". Components cannot catch errors in themselves, only their children.
+      */
+    def componentDidCatch(f: ComponentDidCatchFn[P, S, B]): This =
+      lcAppend(Lifecycle.componentDidCatch)(f)
+
+    /**
      * Invoked once, only on the client (not on the server), immediately after the initial rendering occurs. At this point
      * in the lifecycle, the component has a DOM representation which you can access via `ReactDOM.findDOMNode(this)`.
      * The `componentDidMount()` method of child components is invoked before that of parent components.
@@ -324,6 +334,7 @@ object Builder {
     def shouldComponentUpdatePure(f: ShouldComponentUpdate[P, S, B] => Boolean): This =
       shouldComponentUpdate($ => CallbackTo(f($)))
 
+    def componentDidCatchConst        (cb: Callback           ): This = componentDidCatch         (_ => cb)
     def componentDidMountConst        (cb: Callback           ): This = componentDidMount         (_ => cb)
     def componentDidUpdateConst       (cb: Callback           ): This = componentDidUpdate        (_ => cb)
     def componentWillMountConst       (cb: Callback           ): This = componentWillMount        (_ => cb)
