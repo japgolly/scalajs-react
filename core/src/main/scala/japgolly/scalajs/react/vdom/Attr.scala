@@ -5,7 +5,7 @@ import scala.annotation.implicitNotFound
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import japgolly.scalajs.react.internal.OptionLike
-import japgolly.scalajs.react.{Callback, CallbackTo}
+import japgolly.scalajs.react.{Callback, CallbackTo, Ref => RefObj}
 import japgolly.scalajs.react.raw
 import Attr.ValueType
 
@@ -113,13 +113,11 @@ object Attr {
       TagMod.fn(b => t.fn(b.setKey, a))
   }
 
-  object Ref extends Attr[raw.RefFn]("ref") {
-    override def :=[A](a: A)(implicit t: ValueType[A, raw.RefFn]) =
+  object Ref extends Attr[raw.RefFn[_ <: TopNode]]("ref") {
+    override def :=[A](a: A)(implicit t: ValueType[A, raw.RefFn[_ <: TopNode]]) =
       t(name, a)
-    private[vdom] def tag[N <: TopNode](f: N => Unit): TagMod =
-      :=(f: js.Function1[N, Unit])(ValueType.direct)
-    def apply(f: js.Any => Unit): TagMod =
-      :=(f: js.Function1[js.Any, Unit])(ValueType.direct)
+    private[vdom] def apply[N <: TopNode](r: RefObj[N, _]): TagMod =
+      :=(r.rawSetFn)(ValueType.direct)
   }
 
 //  implicit val ordering: Ordering[ReactAttr[Nothing]] =

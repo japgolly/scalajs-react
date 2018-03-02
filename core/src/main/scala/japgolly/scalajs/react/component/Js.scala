@@ -3,7 +3,6 @@ package japgolly.scalajs.react.component
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
-import org.scalajs.dom
 
 object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
 
@@ -215,30 +214,5 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
       self.mapUnmounted(_.zoomState(get)(set))
     def mapMounted[M2](f: MountedMapped[F, P1, S1, R, P0, S0] => M2) =
       self.mapUnmounted(_ mapMounted f)
-  }
-
-  // ===================================================================================================================
-
-  def mutableRefTo
-      [F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
-      (c: ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0])
-      : MutableRef[F, P1, S1, CT1, R, P0, S0, CT0] =
-    new MutableRef(c)
-
-  final class MutableRef
-      [F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
-      (c: ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0]) {
-
-    var value: MountedWithRawType[P0, S0, R] = null
-
-    private def refSet: RAW.RefFn =
-      (i: js.Any) => value =
-        if (i == null) null else {
-          val r = i.asInstanceOf[Js.RawMounted[P0, S0] with R]
-          mounted[P0, S0](r).withRawType[R]
-        }
-
-    val component: CT1[P1, UnmountedMapped[F, P1, S1, R, P0, S0]] =
-      CtorType.hackBackToSelf(c.ctor)(c.ctor.withRawProp("ref", refSet))
   }
 }

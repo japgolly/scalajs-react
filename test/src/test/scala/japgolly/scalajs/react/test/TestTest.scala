@@ -19,12 +19,12 @@ object TestTest extends TestSuite {
   lazy val B = ScalaComponent.builder[Unit]("B").renderStatic(<.p(^.cls := "BB", "hehehe")).build
   lazy val rab = ReactTestUtils.renderIntoDocument(A(B()))
 
-  var inputRef: HTMLInputElement = _
+  val inputRef = Ref[HTMLInputElement]
 
   lazy val IC = ScalaComponent.builder[Unit]("IC").initialState(true).renderS(($,s) => {
     val ch = (_: ReactEvent) => $.modState(x => !x)
     <.label(
-      <.input.checkbox(^.checked := s, ^.onClick ==> ch).ref(inputRef = _),
+      <.input.checkbox(^.checked := s, ^.onClick ==> ch).withRef(inputRef),
       <.span(s"s = $s")
     )
   }).build
@@ -78,7 +78,7 @@ object TestTest extends TestSuite {
         val c = ReactTestUtils.renderIntoDocument(IC())
         val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
         val a = s.getDOMNode.asElement.innerHTML
-        Simulate.click(inputRef)
+        Simulate.click(inputRef.unsafeGet())
         val b = s.getDOMNode.asElement.innerHTML
         assert(a != b)
       }
@@ -88,7 +88,7 @@ object TestTest extends TestSuite {
           val IDC = ScalaComponent.builder[Unit]("IC").initialState(true).render($ => {
             val ch = (e: E[dom.Node]) => $.modState(x => !x)
             <.label(
-              <.input.text(^.value := $.state, eventType ==> ch).ref(inputRef = _),
+              <.input.text(^.value := $.state, eventType ==> ch).withRef(inputRef),
               <.span(s"s = ${$.state}")
             )
           }).build
@@ -97,7 +97,7 @@ object TestTest extends TestSuite {
           val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
 
           val a = s.getDOMNode.asElement.innerHTML
-          simF(inputRef)
+          simF(inputRef.unsafeGet())
           val b = s.getDOMNode.asElement.innerHTML
 
           assert(a != b)
@@ -161,12 +161,12 @@ object TestTest extends TestSuite {
           def e(s: String) = Callback(events :+= s)
           def chg(ev: ReactEventFromInput) =
             e("change") >> T.setState(ev.target.value)
-          <.input.text(^.value := T.state, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur")).ref(inputRef = _)
+          <.input.text(^.value := T.state, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur")).withRef(inputRef)
         }).build
         val c = ReactTestUtils.renderIntoDocument(C())
-        Simulation.focusChangeBlur("good") run inputRef
+        Simulation.focusChangeBlur("good") run inputRef.unsafeGet()
         assertEq(events, Vector("focus", "change", "blur"))
-        assertEq(inputRef.value, "good")
+        assertEq(inputRef.unsafeGet().value, "good")
       }
       'targetByName - {
         val c = ReactTestUtils.renderIntoDocument(IC())
@@ -202,10 +202,10 @@ object TestTest extends TestSuite {
         // assert(m.isMounted == yesItsMounted)
 
         // Benefits of body over detached
-        inputRef.focus()
-        assert(document.activeElement == inputRef)
-        inputRef.blur()
-        assert(document.activeElement != inputRef)
+        inputRef.unsafeGet().focus()
+        assert(document.activeElement == inputRef.unsafeGet())
+        inputRef.unsafeGet().blur()
+        assert(document.activeElement != inputRef.unsafeGet())
       }
       val body2 = inspectBody()
       // assert(m.isMounted == nopeNotMounted)
@@ -242,10 +242,10 @@ object TestTest extends TestSuite {
       // assert(m.isMounted == yesItsMounted)
 
       // Benefits of body over detached
-      inputRef.focus()
-      assert(document.activeElement == inputRef)
-      inputRef.blur()
-      assert(document.activeElement != inputRef)
+      inputRef.unsafeGet().focus()
+      assert(document.activeElement == inputRef.unsafeGet())
+      inputRef.unsafeGet().blur()
+      assert(document.activeElement != inputRef.unsafeGet())
 
       promise.success(())
 

@@ -22,32 +22,10 @@ package object raw {
     val children: PropsChildren
   }
 
-
-
-
-
-
-
-
-
-
-
-
-  // Deprecated by React
+  // Not deprecated by React after all: https://twitter.com/dan_abramov/status/958658387352477697
   type Ref = String | Null
 
-  type RefFn = js.Function1[js.Any, Unit]
-
-
-  // Type aliases can't be recursive
-  // type ReactFragment = js.Array[React.Node | ReactEmpty]
-//  @js.native
-//  trait ReactFragment extends js.Any
-//  implicit def ReactFragment[A](a: A)(implicit w: A => js.Array[React.Node | ReactEmpty]): ReactFragment =
-//    w(a).asInstanceOf[ReactFragment]
-
-//  def emptyReactNodeList: ReactNodeList =
-//    js.undefined
+  type RefFn[A] = js.Function1[A | Null, Unit]
 
   type ReactClass[P <: js.Object, S <: js.Object] = js.Function1[P, React.Component[P, S]] with HasDisplayName
   type ReactClassP[P <: js.Object] = ReactClass[P, _ <: js.Object]

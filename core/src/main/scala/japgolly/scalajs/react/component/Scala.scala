@@ -117,21 +117,4 @@ object Scala {
 
   def mountRaw[P, S, B](x: RawMounted[P, S, B]): MountedImpure[P, S, B] =
     mountedRoot(Js.mountedRoot(x))
-
-  // ===================================================================================================================
-
-  def mutableRefTo[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: Component[P, S, B, CT]): MutableRef[P, S, B, CT] =
-    new MutableRef(c)
-
-  final class MutableRef[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: Component[P, S, B, CT]) {
-
-    var value: MountedImpure[P, S, B] = null
-
-    private def refSet: raw.RefFn =
-      (i: js.Any) => value =
-        if (i == null) null else i.asInstanceOf[RawMounted[P, S, B]].mountedImpure
-
-    val component: CT[P, Unmounted[P, S, B]] =
-      CtorType.hackBackToSelf(c.ctor)(c.ctor.withRawProp("ref", refSet))
-  }
 }

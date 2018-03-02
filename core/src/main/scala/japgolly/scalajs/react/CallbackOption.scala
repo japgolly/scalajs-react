@@ -199,6 +199,9 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def flatMapOption[B](f: A => Option[B]): CallbackOption[B] =
     CallbackOption(asCallback.map(_ flatMap f))
 
+  def flatMapCB[B](f: A => CallbackTo[B]): CallbackOption[B] =
+    flatMap(a => CallbackOption.liftCallback(f(a)))
+
   def flatMap[B](f: A => CallbackOption[B]): CallbackOption[B] =
     CallbackOption(asCallback flatMap {
       case Some(a) => f(a).asCallback

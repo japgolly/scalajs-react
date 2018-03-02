@@ -1,13 +1,17 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.{Callback, raw => Raw}
+import japgolly.scalajs.react.{Callback, Ref, raw => Raw}
 
 class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                                          final protected val modifiers: List[Seq[TagMod]],
                                          final val namespace: Namespace) extends TagMod {
 
-  def ref(f: N => Unit): TagOf[N] =
-    apply(Attr.Ref.tag(f))
+  @deprecated("Use .withRef instead", "1.2.0")
+  def ref[NN >: N <: TopNode](r: Ref[NN, _]): TagOf[NN] =
+    (this: TagOf[NN])(Attr.Ref(r))
+
+  def withRef[NN >: N <: TopNode](r: Ref[NN, _]): TagOf[NN] =
+    (this: TagOf[NN])(Attr.Ref(r))
 
   override def apply(xs: TagMod*): TagOf[N] =
     copy(modifiers = xs :: modifiers)
