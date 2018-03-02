@@ -14,11 +14,11 @@ trait ReactDOM extends js.Object {
 
   final type Container = dom.Element | dom.raw.Document
 
-  def render(element  : React.Element,
-             container: Container,
-             callback : js.Function0[Unit] = js.native): React.ComponentUntyped = js.native
+  final def render(element  : React.Element,
+                   container: Container,
+                   callback : js.Function0[Unit] = js.native): React.ComponentUntyped = js.native
 
-  def unmountComponentAtNode(container: dom.Node): Boolean = js.native
+  final def unmountComponentAtNode(container: dom.Node): Boolean = js.native
 
   // ==========================================================================
   //
@@ -27,7 +27,7 @@ trait ReactDOM extends js.Object {
   // ==========================================================================
   final type FindDomNodeResult = dom.Element | dom.Text | Null
 
-  def findDOMNode(componentOrElement: dom.Element | React.ComponentUntyped): FindDomNodeResult = js.native
+  final def findDOMNode(componentOrElement: dom.Element | React.ComponentUntyped): FindDomNodeResult = js.native
 
-  def createPortal(child: React.Node, container: Container): React.Node = js.native
+  final def createPortal(child: React.Node, container: Container): React.Node = js.native
 }

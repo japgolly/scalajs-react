@@ -126,20 +126,20 @@ object React extends React {
 trait React extends js.Object {
   import React._
 
-  def createElement(`type`: js.Symbol, props: js.Object, children: Node*): Element = js.native
+  final def createElement(`type`: js.Symbol, props: js.Object, children: Node*): Element = js.native
 
-  def createElement[Props <: js.Object](`type`: String                               ): DomElement = js.native
-  def createElement[Props <: js.Object](`type`: String, props: Props                 ): DomElement = js.native
-  def createElement[Props <: js.Object](`type`: String, props: Props, children: Node*): DomElement = js.native
+  final def createElement[Props <: js.Object](`type`: String                               ): DomElement = js.native
+  final def createElement[Props <: js.Object](`type`: String, props: Props                 ): DomElement = js.native
+  final def createElement[Props <: js.Object](`type`: String, props: Props, children: Node*): DomElement = js.native
 
-  def createElement[Props <: js.Object](`type`: ComponentType[Props]                               ): ComponentElement[Props] = js.native
-  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                 ): ComponentElement[Props] = js.native
-  def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: Node*): ComponentElement[Props] = js.native
+  final def createElement[Props <: js.Object](`type`: ComponentType[Props]                               ): ComponentElement[Props] = js.native
+  final def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                 ): ComponentElement[Props] = js.native
+  final def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: Node*): ComponentElement[Props] = js.native
 
-  val version: String = js.native
+  final val version: String = js.native
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
-  val Children: React.Children = js.native
+  final val Children: React.Children = js.native
 
-  val Fragment: js.Symbol = js.native
+  final val Fragment: js.Symbol = js.native
 }
