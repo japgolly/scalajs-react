@@ -18,14 +18,17 @@ trait ReactDOM extends js.Object {
                    container: Container,
                    callback : js.Function0[Unit] = js.native): React.ComponentUntyped = js.native
 
+  final def hydrate(element  : React.Element,
+                    container: Container,
+                    callback : js.Function0[Unit] = js.native): React.ComponentUntyped = js.native
+
   final def unmountComponentAtNode(container: dom.Node): Boolean = js.native
 
   // ==========================================================================
-  //
   // NOTE: Ensure that Generic.MountedDomNode is kept up-to-date with this type
   //
-  // ==========================================================================
   final type FindDomNodeResult = dom.Element | dom.Text | Null
+  // ==========================================================================
 
   final def findDOMNode(componentOrElement: dom.Element | React.ComponentUntyped): FindDomNodeResult = js.native
 
