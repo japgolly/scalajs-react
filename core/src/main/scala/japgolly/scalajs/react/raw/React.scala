@@ -8,10 +8,8 @@ import scalajs.js.annotation._
 @js.native
 object React extends React {
 
-  // TODO: React.Ref           <typeof Component>
   // TODO: React.ElementProps  <typeof Component>
   // TODO: React.ElementConfig <typeof Component>
-  // TODO: React.ElementRef    <typeof Component>
   // TODO: Clean up raw: {,re}move ReactClass etc
 
   @js.native
@@ -103,6 +101,10 @@ object React extends React {
     def ref: Ref
   }
 
+  /** A React element is the type for the value of a DOM tag, or the return type of React.createElement(). */
+  @js.native
+  trait ElementRef extends js.Any
+
   type ElementType = String | ComponentType[_ <: js.Object]
 
   @js.native
@@ -122,6 +124,12 @@ object React extends React {
   type Key = String | JsNumber
 
   type Node = ChildrenArray[Empty | String | JsNumber | Element]
+
+  type Ref = RefNonNull | Null
+
+  type RefNonNull = String | RefFn[ElementRef]
+
+  type RefFn[A] = js.Function1[A | Null, Unit]
 
   type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, Node]
 }

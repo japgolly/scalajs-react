@@ -61,7 +61,7 @@ object Generic {
 
     def vdomElement: vdom.VdomElement
     def key: Option[Key]
-    def ref: Option[String]
+    def ref: Option[RefPropValue]
     def props: Props
     def propsChildren: PropsChildren
 
@@ -80,6 +80,8 @@ object Generic {
   }
 
   type UnmountedRoot[P, M] = UnmountedWithRoot[P, M, P, M]
+
+  type RefPropValue = RAW.React.RefNonNull
 
   // ===================================================================================================================
 

@@ -113,8 +113,8 @@ object Attr {
       TagMod.fn(b => t.fn(b.setKey, a))
   }
 
-  object Ref extends Attr[raw.RefFn[_ <: TopNode]]("ref") {
-    override def :=[A](a: A)(implicit t: ValueType[A, raw.RefFn[_ <: TopNode]]) =
+  object Ref extends Attr[raw.React.RefFn[_ <: TopNode]]("ref") {
+    override def :=[A](a: A)(implicit t: ValueType[A, raw.React.RefFn[_ <: TopNode]]) =
       t(name, a)
     private[vdom] def apply[N <: TopNode](r: RefObj[N, _]): TagMod =
       :=(r.rawSetFn)(ValueType.direct)

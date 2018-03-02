@@ -9,7 +9,7 @@ trait Ref[I, O] { self =>
   val get: CallbackOption[O]
   val set: CallbackKleisli[Option[I], Unit]
 
-  final lazy val rawSetFn: raw.RefFn[I] =
+  final lazy val rawSetFn: raw.React.RefFn[I] =
     set.contramap[I | Null](jsNullToOption).toJsFn
 
   def contramap[A](f: A => I): Ref[A, O] =

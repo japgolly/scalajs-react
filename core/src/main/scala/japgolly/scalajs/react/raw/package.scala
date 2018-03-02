@@ -22,11 +22,6 @@ package object raw {
     val children: PropsChildren
   }
 
-  // Not deprecated by React after all: https://twitter.com/dan_abramov/status/958658387352477697
-  type Ref = String | Null
-
-  type RefFn[A] = js.Function1[A | Null, Unit]
-
   type ReactClass[P <: js.Object, S <: js.Object] = js.Function1[P, React.Component[P, S]] with HasDisplayName
   type ReactClassP[P <: js.Object] = ReactClass[P, _ <: js.Object]
   type ReactClassUntyped = ReactClass[_ <: js.Object, _ <: js.Object]
