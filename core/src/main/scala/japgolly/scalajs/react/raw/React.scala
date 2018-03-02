@@ -12,27 +12,31 @@ object React extends React {
   // TODO: React.ElementProps  <typeof Component>
   // TODO: React.ElementConfig <typeof Component>
   // TODO: React.ElementRef    <typeof Component>
-  // TODO: React.Children
   // TODO: Clean up raw: {,re}move ReactClass etc
 
   @js.native
   trait Children extends js.Object {
 
-    final type MapFn = js.Function1[React.Node, js.Any] | js.Function2[React.Node, Int, js.Any]
+    final type MapFn[A] = js.Function1[React.Node, A] | js.Function2[React.Node, Int, A]
 
-    /** Invoke fn on every immediate child contained within children with this set to context. If children is a nested object or array it will be traversed: fn will never be passed the container objects. If children is null or undefined returns null or undefined rather than an empty object. */
-    def map(c: PropsChildren, fn: MapFn): js.UndefOr[js.Object] = js.native
+    /** Invokes a function on every immediate child contained within children with this set to thisArg. If children is a keyed fragment or array it will be traversed: the function will never be passed the container objects. If children is null or undefined, returns null or undefined rather than an array. */
+    def map[A](c: js.UndefOr[PropsChildren | Null], fn: MapFn[A]): js.UndefOr[Null | js.Array[A]] = js.native
 
-    /** Like React.Children.map() but does not return an object. */
-    def forEach(c: PropsChildren, fn: MapFn): Unit = js.native
+    /** Like React.Children.map() but does not return an array. */
+    def forEach(c: js.UndefOr[PropsChildren | Null], fn: MapFn[_]): Unit = js.native
 
-    /** Return the only child in children. Throws otherwise. */
+    /** Verifies that children has only one child (a React element) and returns it. Otherwise this method throws an error.
+      *
+      * Note: React.Children.only() does not accept the return value of React.Children.map() because it is an array rather than a React element. */
     def only(c: PropsChildren): React.Node = js.native
 
-    /** Return the total number of components in children, equal to the number of times that a callback passed to map or forEach would be invoked. */
+    /** Returns the total number of components in children, equal to the number of times that a callback passed to map or forEach would be invoked. */
     def count(c: PropsChildren): Int = js.native
 
-    /** Return the children opaque data structure as a flat array with keys assigned to each child. Useful if you want to manipulate collections of children in your render methods, especially if you want to reorder or slice this.props.children before passing it down. */
+    /** Returns the children opaque data structure as a flat array with keys assigned to each child. Useful if you want to manipulate collections of children in your render methods, especially if you want to reorder or slice this.props.children before passing it down.
+      *
+      * Note: React.Children.toArray() changes keys to preserve the semantics of nested arrays when flattening lists of children. That is, toArray prefixes each key in the returned array so that each element’s key is scoped to the input array containing it.
+      */
     def toArray(c: PropsChildren): js.Array[React.Node] = js.native
   }
 
