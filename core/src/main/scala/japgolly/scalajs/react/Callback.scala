@@ -580,6 +580,10 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   @inline def toScalaFn: () => A =
     f
 
+  /** The underlying representation of this value-class */
+  @inline def underlyingRepr: () => A =
+    f
+
   def toJsFn: JFn0[A] =
     f
 
@@ -704,6 +708,12 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     val bc = ev(this)
     b => bc.map(_(b))
   }
+
+  def asKleisli[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): CallbackKleisli[B, C] =
+    CallbackKleisli(distFn)
+
+  def toKleisli[B]: CallbackKleisli[B, A] =
+    CallbackKleisli const this
 
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean ops

@@ -662,4 +662,4 @@ There are also unit tests available in the
 [japgolly.scalajs.react.extra.router](../test/src/test/scala/japgolly/scalajs/react/extra/router)
 package.
 
-[This] (https://github.com/chandu0101/scalajs-react-template) simple example [demonstrates](http://chandu0101.github.io/scalajs-react-template/) routing as well.
+[This](https://github.com/chandu0101/scalajs-react-template) simple example [demonstrates](http://chandu0101.github.io/scalajs-react-template/) routing as well.

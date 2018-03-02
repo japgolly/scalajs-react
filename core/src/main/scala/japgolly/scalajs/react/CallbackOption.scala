@@ -165,6 +165,10 @@ object CallbackOption {
 final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal {
   import CallbackOption.someUnit
 
+  /** The underlying representation of this value-class */
+  @inline def underlyingRepr: () => Option[A] =
+    cbfn
+
   def widen[B >: A]: CallbackOption[B] =
     new CallbackOption(cbfn)
 

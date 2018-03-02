@@ -6,17 +6,19 @@ import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin, ScalaJSBundlerPlugin.autoI
 object ScalajsReact {
 
   object Ver {
-    val Scala211      = "2.11.11"
+    val Scala211      = "2.11.12"
     val Scala212      = "2.12.4"
     val ScalaJsDom    = "0.9.4"
     val ReactJs       = "16.2.0"
-    val Monocle       = "1.4.0"
+    val Monocle       = "1.5.0"
     val Scalaz72      = "7.2.19"
     val MTest         = "0.6.3"
+    val MonocleCats   = "1.5.0-cats"
     val MacroParadise = "2.1.1"
+    val KindProjector = "0.9.6"
     val SizzleJs      = "2.3.0"
     val Nyaya         = "0.8.1"
-    val Cats          = "1.0.0-RC1"
+    val Cats          = "1.0.1"
   }
 
   type PE = Project => Project
@@ -173,6 +175,9 @@ object ScalajsReact {
   def macroParadisePlugin =
     compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.full)
 
+  def kindProjector =
+    compilerPlugin("org.spire-math" %% "kind-projector" % Ver.KindProjector cross CrossVersion.binary)
+
   def hasNoTests: Project => Project =
     _.settings(
       fastOptJS     in Test := Attributed(artifactPath.in(fastOptJS).in(Test).value)(AttributeMap.empty),
@@ -181,13 +186,13 @@ object ScalajsReact {
       testOnly      in Test := (),
       testQuick     in Test := ())
 
-  def monocleLib(name: String) =
-    "com.github.julien-truffaut" %%%! s"monocle-$name" % Ver.Monocle
+  def monocleLib(name: String, cats: Boolean) =
+    "com.github.julien-truffaut" %%%! s"monocle-$name" % {if (cats) Ver.MonocleCats else Ver.Monocle}
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .settings(name := "scalajs-react")
-    .aggregate(core, extra, scalaz72, monocle, cats, test, /*testModule,*/ ghpagesMacros, ghpages)
+    .aggregate(core, extra, scalaz72, monocleScalaz, cats, monocleCats, test, /*testModule,*/ ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -219,7 +224,7 @@ object ScalajsReact {
     .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test))
     .dependsOn(core, extra)
     .dependsOn(scalaz72 % "test->compile")
-    .dependsOn(monocle % "test->compile")
+    .dependsOn(monocleScalaz % "test->compile")
     .dependsOn(cats % "test->compile")
     .settings(
       name := "test",
@@ -227,7 +232,7 @@ object ScalajsReact {
         "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
-        monocleLib("macro") % Test),
+        monocleLib("macro", false) % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
@@ -253,30 +258,44 @@ object ScalajsReact {
       .configure(commonSettings, publicationSettings, extModuleName(shortName), hasNoTests)
       .dependsOn(core, extra)
       .settings(
-        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version)
+        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version,
+        addCompilerPlugin(kindProjector))
   }
 
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
-  lazy val monocle = project
+  lazy val monocleScalaz = project
+    .in(file("monocle"))
     .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
     .dependsOn(core, extra, scalaz72)
-    .settings(libraryDependencies += monocleLib("core"))
+    .settings(libraryDependencies += monocleLib("core", false))
 
   lazy val cats = project
     .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
     .dependsOn(core, extra)
-    .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % Ver.Cats)
+    .settings(
+      libraryDependencies += "org.typelevel" %%% "cats-core" % Ver.Cats,
+      addCompilerPlugin(kindProjector))
+
+  lazy val monocleCats = project
+    .in(file("monocle-cats"))
+    .configure(commonSettings, publicationSettings, extModuleName("monocle-cats"), hasNoTests)
+    .dependsOn(core, extra, cats)
+    .settings(
+      // Share the internal source code files with this module
+      unmanagedSourceDirectories in Compile += (sourceDirectory in (monocleScalaz, Compile)).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
+      libraryDependencies += monocleLib("core", true)
+    )
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
-    .dependsOn(core, extra, monocle, ghpagesMacros)
+    .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
-      libraryDependencies += monocleLib("macro"),
+      libraryDependencies += monocleLib("macro", false),
       addCompilerPlugin(macroParadisePlugin),
       emitSourceMaps := false,
       scalaJSUseMainModuleInitializer := true,
