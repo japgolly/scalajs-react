@@ -135,13 +135,14 @@ object DefaultReusabilityOverlay {
                   frame1: CSSStyleDeclaration => Unit,
                   frame2: CSSStyleDeclaration => Unit): Comp => Callback =
     $ => Callback {
-      val n = $.getDOMNode
-      before(n.style)
-      window.requestAnimationFrame{(_: Double) =>
-        frame1(n.style)
-        window.requestAnimationFrame((_: Double) =>
-          frame2(n.style)
-        )
+      $.getDOMNode.right.foreach { n =>
+        before(n.style)
+        window.requestAnimationFrame{(_: Double) =>
+          frame1(n.style)
+          window.requestAnimationFrame((_: Double) =>
+            frame2(n.style)
+          )
+        }
       }
     }
 
@@ -211,21 +212,22 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     Callback(overlay foreach f)
 
   val updatePosition = withNodes { n =>
-    val d = $.getDOMNode
-    val ds = d.getBoundingClientRect()
-    val ns = n.outer.getBoundingClientRect()
+    $.getDOMNode.right.foreach { d =>
+      val ds = d.getBoundingClientRect()
+      val ns = n.outer.getBoundingClientRect()
 
-    var y = window.pageYOffset + ds.top
-    var x = ds.left
+      var y = window.pageYOffset + ds.top
+      var x = ds.left
 
-    if (d.tagName == "TABLE") {
-      y -= ns.height
-      x -= ns.width
-    } else if (d.tagName == "TR")
-      x -= ns.width
+      if (d.tagName == "TABLE") {
+        y -= ns.height
+        x -= ns.width
+      } else if (d.tagName == "TR")
+        x -= ns.width
 
-    n.outer.style.top  = y.toString + "px"
-    n.outer.style.left = x.toString + "px"
+      n.outer.style.top  = y.toString + "px"
+      n.outer.style.left = x.toString + "px"
+    }
   }
 
   val updateContent = withNodes { n =>

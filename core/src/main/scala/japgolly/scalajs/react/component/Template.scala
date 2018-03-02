@@ -42,7 +42,6 @@ object Template {
     override type WithMappedState[S3] = Mapped[F, P2, S3]
 
     override implicit def F    = ft.to
-    override def isMounted     = ft apply from.isMounted
     override def getDOMNode    = ft apply from.getDOMNode
     override def propsChildren = ft apply from.propsChildren
     override def props         = ft apply mp(from.props)

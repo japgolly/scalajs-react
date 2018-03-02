@@ -27,6 +27,9 @@ sealed abstract class CtorType[-P, +U] {
 
   final def withKey(k: Key): This[P, U] =
     withRawProp("key", k.asInstanceOf[js.Any])
+
+  final def withKey(k: Long): This[P, U] =
+    withKey(k.toString)
 }
 
 object CtorType {
@@ -39,9 +42,9 @@ object CtorType {
   @inline private def noMod: MaybeMod = js.undefined
 
   private final case class Mod(mod: ModFn) extends AnyVal {
-    def apply(o: js.Object): js.Object = {
+    def applyAndCast[P <: js.Object](o: js.Object): P = {
       mod(o)
-      o
+      o.asInstanceOf[P]
     }
     def >>(f: ModFn): Mod =
       Mod(o => {mod(o); f(o)})
@@ -201,8 +204,8 @@ object CtorType {
 
   sealed trait Summoner[P <: js.Object, C <: ChildrenArg] {
     type CT[-p, +u] <: CtorType[p, u]
-    final type Out = CT[P, raw.ReactComponentElement]
-    val summon: raw.ReactCtor => Out
+    final type Out = CT[P, raw.React.ComponentElement[P]]
+    val summon: raw.React.ComponentType[P] => Out
     implicit val pf: Profunctor[CT]
     final def aux: Summoner.Aux[P, C, CT] = this
   }
@@ -212,7 +215,7 @@ object CtorType {
       Summoner[P, C] {type CT[-p, +u] = T[p, u]}
 
     def apply[P <: js.Object, C <: ChildrenArg, T[-p, +u] <: CtorType[p, u]]
-        (f: raw.ReactCtor => T[P, raw.ReactComponentElement])
+        (f: raw.React.ComponentType[P] => T[P, raw.React.ComponentElement[P]])
         (implicit p: Profunctor[T]): Aux[P, C, T] =
       new Summoner[P, C] {
         override type CT[-p, +u] = T[p, u]
@@ -222,30 +225,30 @@ object CtorType {
 
     implicit def summonN[P <: js.Object](implicit s: Singleton[P]) =
       Summoner[P, ChildrenArg.None, Nullary](rc =>
-        new Nullary[P, raw.ReactComponentElement](
+        new Nullary[P, raw.React.ComponentElement[P]](
           raw.React.createElement(rc, s.value),
-          m => raw.React.createElement(rc, m(s.mutableObj())),
+          m => raw.React.createElement[P](rc, m.applyAndCast[P](s.mutableObj())),
           noMod))
 
     implicit def summonC[P <: js.Object](implicit s: Singleton[P]) =
       Summoner[P, ChildrenArg.Varargs, Children](rc =>
-        new Children[P, raw.ReactComponentElement]((mm, c) => {
-          val p = mm.fold[js.Object](s.value)(m => m(s.mutableObj()))
-          raw.React.createElement(rc, p, formatChildren(c): _*)
+        new Children[P, raw.React.ComponentElement[P]]((mm, c) => {
+          val p = mm.fold(s.value)(_.applyAndCast[P](s.mutableObj()))
+          raw.React.createElement[P](rc, p, formatChildren(c): _*)
         }, noMod))
 
     implicit def summonPC[P <: js.Object](implicit w: Singleton.Not[P]) =
       Summoner[P, ChildrenArg.Varargs, PropsAndChildren](rc =>
-        new PropsAndChildren[P, raw.ReactComponentElement]((p, mm, c) => {
-          val p2 = mm.fold[js.Object](p)(m => m(prepareForMutation(p)))
-          raw.React.createElement(rc, p2, formatChildren(c): _*)
+        new PropsAndChildren[P, raw.React.ComponentElement[P]]((p, mm, c) => {
+          val p2 = mm.fold(p)(_.applyAndCast[P](prepareForMutation(p)))
+          raw.React.createElement[P](rc, p2, formatChildren(c): _*)
         }, noMod))
 
     implicit def summonP[P <: js.Object](implicit w: Singleton.Not[P]) =
       Summoner[P, ChildrenArg.None, Props](rc =>
-        new Props[P, raw.ReactComponentElement]((p, mm) => {
-            val p2 = mm.fold[js.Object](p)(m => m(prepareForMutation(p)))
-            raw.React.createElement(rc, p2)
+        new Props[P, raw.React.ComponentElement[P]]((p, mm) => {
+            val p2 = mm.fold(p)(_.applyAndCast[P](prepareForMutation(p)))
+            raw.React.createElement[P](rc, p2)
           }, noMod))
 
     // This could be used to defensively-copy user-provided props before applying modifications (i.e. setting key/ref).
@@ -254,11 +257,11 @@ object CtorType {
     private def prepareForMutation(o: js.Object): js.Object =
       if (o.isInstanceOf[js.Object]) o else new js.Object
 
-    def formatChildren(c: ChildrenArgs): Seq[raw.ReactNodeList] =
+    def formatChildren(c: ChildrenArgs): Seq[raw.React.Node] =
       if (c.isEmpty)
         Nil
       else
-        c.map(_.rawNode: raw.ReactNodeList)
+        c.map(_.rawNode)
   }
 }
 

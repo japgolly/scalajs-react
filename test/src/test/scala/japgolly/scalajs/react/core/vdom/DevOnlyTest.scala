@@ -37,7 +37,7 @@ object DevOnlyTest extends TestSuite {
     'style - testStyle()
     def testStyle() =
       test(div(VdomStyle.devOnly("devonly-test") := "!DEVONLY-TEST!", 123))(
-        """<div style="devonly-test:!DEVONLY-TEST!;">123</div>""",
+        """<div style="devonly-test:!DEVONLY-TEST!">123</div>""",
         "<div>123</div>")
 
   }

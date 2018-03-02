@@ -9,11 +9,11 @@ object ScalajsReact {
     val Scala211      = "2.11.12"
     val Scala212      = "2.12.4"
     val ScalaJsDom    = "0.9.4"
-    val ReactJs       = "15.6.1"
+    val ReactJs       = "16.2.0"
     val Monocle       = "1.5.0"
+    val Scalaz72      = "7.2.19"
+    val MTest         = "0.6.3"
     val MonocleCats   = "1.5.0-cats"
-    val Scalaz72      = "7.2.18"
-    val MTest         = "0.5.3"
     val MacroParadise = "2.1.1"
     val KindProjector = "0.9.6"
     val SizzleJs      = "2.3.0"
@@ -33,7 +33,8 @@ object ScalajsReact {
         crossScalaVersions := Seq(Ver.Scala211, Ver.Scala212),
         scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
                                 "-language:postfixOps", "-language:implicitConversions",
-                                "-language:higherKinds", "-language:existentials")
+                                "-language:higherKinds", "-language:existentials",
+                                "-P:scalajs:sjsDefinedByDefault")
                                 ++ byScalaVersion {
                                   case (2, 12) => Seq("-opt:l:method")
                                   // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
@@ -106,30 +107,55 @@ object ScalajsReact {
         jsEnv                 := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv,
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
-        testFrameworks        += new TestFramework("utest.runner.Framework"))
+        testFrameworks        += new TestFramework("NonStupidTestFramework"))
 
-  def addReactJsDependencies(scope: Configuration): PE =
+  // META-INF/resources/webjars/react/16.2.0/umd/react.development.js
+  // META-INF/resources/webjars/react/16.2.0/umd/react.production.min.js
+  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom-server.browser.development.js
+  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom-server.browser.production.min.js
+  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom-test-utils.development.js
+  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom-test-utils.production.min.js
+  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom.development.js
+  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom.production.min.js
+  case class ReactArtifact(filename: String) {
+    val dev = s"umd/$filename.development.js"
+    val prod = s"umd/$filename.production.min.js"
+  }
+  val React             = ReactArtifact("react")
+  val ReactDom          = ReactArtifact("react-dom")
+  val ReactDomServer    = ReactArtifact("react-dom-server.browser")
+  val ReactDomTestUtils = ReactArtifact("react-dom-test-utils")
+
+  def addReactJsDependencies(scope: Configuration): PE = {
     _.settings(
       jsDependencies ++= Seq(
 
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /        "react-with-addons.js"
-          minified "react-with-addons.min.js"
+        "org.webjars.npm" % "react" % Ver.ReactJs % scope
+          /        React.dev
+          minified React.prod
           commonJSName "React",
 
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /         "react-dom.js"
-          minified  "react-dom.min.js"
-          dependsOn "react-with-addons.js"
+        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+          /         ReactDom.dev
+          minified  ReactDom.prod
+          dependsOn React.dev
           commonJSName "ReactDOM",
 
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /         "react-dom-server.js"
-          minified  "react-dom-server.min.js"
-          dependsOn "react-dom.js"
+        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+          /         ReactDomTestUtils.dev
+          minified  ReactDomTestUtils.prod
+          dependsOn ReactDom.dev
+          commonJSName "ReactTestUtils",
+
+        "org.webjars.npm" % "react" % Ver.ReactJs % scope
+          /         ReactDomServer.dev
+          minified  ReactDomServer.prod
+          dependsOn ReactDom.dev
           commonJSName "ReactDOMServer"),
 
       skip in packageJSDependencies := false)
+
+  }
 
   def addCommandAliases(m: (String, String)*) = {
     val s = m.map(p => addCommandAlias(p._1, p._2)).reduce(_ ++ _)
@@ -209,9 +235,8 @@ object ScalajsReact {
         monocleLib("macro", false) % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
-        (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
-        (ProvidedJS / "component-es6.js" dependsOn "react-dom.js") % Test,
-        (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test),
+        (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
+        (ProvidedJS / "component-fn.js"  dependsOn ReactDom.dev) % Test),
       addCompilerPlugin(macroParadisePlugin))
 
   /*

@@ -6,6 +6,7 @@ import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom
 import japgolly.scalajs.react.{raw => RAW}
 import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, Key, PropsChildren, StateAccess}
+import scala.scalajs.js.|
 
 object Generic {
 
@@ -46,7 +47,7 @@ object Generic {
   type Unmounted[P, M] = UnmountedSimple[P, M]
 
   trait UnmountedRaw {
-    type Raw <: RAW.ReactElement
+    type Raw <: RAW.React.Element
     val raw: Raw
     def displayName: String
   }
@@ -64,7 +65,7 @@ object Generic {
     def props: Props
     def propsChildren: PropsChildren
 
-    val mountRaw: RAW.ReactComponentUntyped => M
+    val mountRaw: RAW.React.ComponentUntyped => M // TODO Do better
 
     def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): Mounted =
       mountRaw(RAW.ReactDOM.render(raw, container, callback.toJsFn))
@@ -82,12 +83,21 @@ object Generic {
 
   // ===================================================================================================================
 
+  type MountedDomNode = Either[dom.Text, dom.Element]
+
+  /** null is not supported. This is called only when it is known that a component is mounted */
+  private[react] def MountedDomNode(i: RAW.ReactDOM.FindDomNodeResult): MountedDomNode =
+    (i: Any) match {
+      case e: dom.Element => Right(e)
+      case t: dom.Text    => Left(t)
+    }
+
   type Mounted[F[_], P, S] = MountedSimple[F, P, S]
   type MountedPure  [P, S] = MountedSimple[CallbackTo, P, S]
   type MountedImpure[P, S] = MountedSimple[Effect.Id, P, S]
 
   trait MountedRaw {
-    type Raw <: RAW.ReactComponentUntyped
+    type Raw <: RAW.React.ComponentUntyped // TODO Do better
     val raw: Raw
     def displayName: String
   }
@@ -100,10 +110,7 @@ object Generic {
              type WithMappedProps[P2] <: MountedSimple[F, P2, S]
     def mapProps[P2](f: P => P2): WithMappedProps[P2]
 
-    /** Not all components support this; ES6 classes don't. */
-    def isMounted: F[Option[Boolean]]
-
-    def getDOMNode: F[dom.Element]
+    def getDOMNode: F[MountedDomNode]
     def props: F[Props]
     def propsChildren: F[PropsChildren]
 

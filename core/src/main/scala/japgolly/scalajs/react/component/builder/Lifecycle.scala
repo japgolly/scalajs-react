@@ -1,9 +1,10 @@
 package japgolly.scalajs.react.component.builder
 
-import org.scalajs.dom
 import japgolly.scalajs.react.{Callback, CallbackTo, PropsChildren}
+import japgolly.scalajs.react.component.Generic.MountedDomNode
 import japgolly.scalajs.react.component.Scala._
 import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.raw.React
 import Lifecycle._
 
 final case class Lifecycle[P, S, B](
@@ -13,7 +14,8 @@ final case class Lifecycle[P, S, B](
   componentWillReceiveProps: Option[ComponentWillReceivePropsFn[P, S, B]],
   componentWillUnmount     : Option[ComponentWillUnmountFn     [P, S, B]],
   componentWillUpdate      : Option[ComponentWillUpdateFn      [P, S, B]],
-  shouldComponentUpdate    : Option[ShouldComponentUpdateFn    [P, S, B]]) {
+  shouldComponentUpdate    : Option[ShouldComponentUpdateFn    [P, S, B]],
+  componentDidCatch        : Option[ComponentDidCatchFn        [P, S, B]]) {
 
   type This = Lifecycle[P, S, B]
 
@@ -23,7 +25,7 @@ final case class Lifecycle[P, S, B](
 
 object Lifecycle {
   def empty[P, S, B]: Lifecycle[P, S, B] =
-    new Lifecycle(None, None, None, None, None, None, None)
+    new Lifecycle(None, None, None, None, None, None, None, None)
 
   sealed trait Base[P, S, B] extends Any {
     def raw: RawMounted[P, S, B]
@@ -62,6 +64,22 @@ object Lifecycle {
 
   // ===================================================================================================================
 
+  def componentDidCatch[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentDidCatch)(n => _.copy(componentDidCatch = n))
+
+  type ComponentDidCatchFn[P, S, B] = ComponentDidCatch[P, S, B] => Callback
+
+  final class ComponentDidCatch[P, S, B](val raw: RawMounted[P, S, B], val error: React.Error, val info: React.ErrorInfo)
+      extends StateRW[P, S, B] with ForceUpdate[P, S, B] {
+
+    override def toString = wrapTostring(s"ComponentDidCatch($error)")
+
+    def props        : P              = mountedImpure.props
+    def propsChildren: PropsChildren  = mountedImpure.propsChildren
+    def getDOMNode   : MountedDomNode = mountedImpure.getDOMNode
+  }
+
+  // ===================================================================================================================
+
   def componentDidMount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentDidMount)(n => _.copy(componentDidMount = n))
 
   type ComponentDidMountFn[P, S, B] = ComponentDidMount[P, S, B] => Callback
@@ -71,9 +89,9 @@ object Lifecycle {
 
     override def toString = wrapTostring(s"ComponentDidMount(props: $props, state: $state)")
 
-    def props        : P                = mountedImpure.props
-    def propsChildren: PropsChildren    = mountedImpure.propsChildren
-    def getDOMNode   : dom.Element      = mountedImpure.getDOMNode
+    def props        : P              = mountedImpure.props
+    def propsChildren: PropsChildren  = mountedImpure.propsChildren
+    def getDOMNode   : MountedDomNode = mountedImpure.getDOMNode
   }
 
   // ===================================================================================================================
@@ -87,10 +105,10 @@ object Lifecycle {
 
     override def toString = wrapTostring(s"ComponentDidUpdate(props: $prevProps → $currentProps, state: $prevState → $currentState)")
 
-    def propsChildren: PropsChildren = mountedImpure.propsChildren
-    def currentProps : P             = mountedImpure.props
-    def currentState : S             = mountedImpure.state
-    def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
+    def propsChildren: PropsChildren  = mountedImpure.propsChildren
+    def currentProps : P              = mountedImpure.props
+    def currentState : S              = mountedImpure.state
+    def getDOMNode   : MountedDomNode = mountedImpure.getDOMNode
   }
 
   // ===================================================================================================================
@@ -125,10 +143,10 @@ object Lifecycle {
 
     override def toString = wrapTostring(s"ComponentWillUnmount(props: $props, state: $state)")
 
-    def props        : P             = mountedImpure.props
-    def propsChildren: PropsChildren = mountedImpure.propsChildren
-    def state        : S             = mountedImpure.state
-    def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
+    def props        : P              = mountedImpure.props
+    def propsChildren: PropsChildren  = mountedImpure.propsChildren
+    def state        : S              = mountedImpure.state
+    def getDOMNode   : MountedDomNode = mountedImpure.getDOMNode
 
     @deprecated("setState prohibited within the componentWillUnmount callback.", "")
     def setState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
@@ -151,9 +169,9 @@ object Lifecycle {
 
     override def toString = wrapTostring(s"ComponentWillReceiveProps(props: $currentProps → $nextProps, state: $state)")
 
-    def propsChildren: PropsChildren = mountedImpure.propsChildren
-    def currentProps : P             = mountedImpure.props
-    def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
+    def propsChildren: PropsChildren  = mountedImpure.propsChildren
+    def currentProps : P              = mountedImpure.props
+    def getDOMNode   : MountedDomNode = mountedImpure.getDOMNode
   }
 
   // ===================================================================================================================
@@ -167,10 +185,10 @@ object Lifecycle {
 
     override def toString = wrapTostring(s"ComponentWillUpdate(props: $currentProps → $nextProps, state: $currentState → $nextState)")
 
-    def propsChildren: PropsChildren = mountedImpure.propsChildren
-    def currentProps : P             = mountedImpure.props
-    def currentState : S             = mountedImpure.state
-    def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
+    def propsChildren: PropsChildren  = mountedImpure.propsChildren
+    def currentProps : P              = mountedImpure.props
+    def currentState : S              = mountedImpure.state
+    def getDOMNode   : MountedDomNode = mountedImpure.getDOMNode
 
     @deprecated("setState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
     def setState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
@@ -193,10 +211,10 @@ object Lifecycle {
 
     override def toString = wrapTostring(s"ShouldComponentUpdate(props: $currentProps → $nextProps, state: $currentState → $nextState)")
 
-    def propsChildren: PropsChildren = mountedImpure.propsChildren
-    def currentProps : P             = mountedImpure.props
-    def currentState : S             = mountedImpure.state
-    def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
+    def propsChildren: PropsChildren  = mountedImpure.propsChildren
+    def currentProps : P              = mountedImpure.props
+    def currentState : S              = mountedImpure.state
+    def getDOMNode   : MountedDomNode = mountedImpure.getDOMNode
 
     def cmpProps(cmp: (P, P) => Boolean): Boolean = cmp(currentProps, nextProps)
     def cmpState(cmp: (S, S) => Boolean): Boolean = cmp(currentState, nextState)
@@ -218,9 +236,9 @@ object Lifecycle {
 
     override def toString = wrapTostring(s"Render(props: $props, state: $state)")
 
-    def props        : P             = mountedImpure.props
-    def propsChildren: PropsChildren = mountedImpure.propsChildren
-    def getDOMNode   : dom.Element   = mountedImpure.getDOMNode
+    def props        : P              = mountedImpure.props
+    def propsChildren: PropsChildren  = mountedImpure.propsChildren
+    def getDOMNode   : MountedDomNode = mountedImpure.getDOMNode
   }
 
 }

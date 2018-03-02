@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core.vdom
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.core.JsComponentPTest
+import japgolly.scalajs.react.core.JsComponentEs6PTest
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.all._
 import org.scalajs.dom.raw.HTMLInputElement
@@ -14,7 +14,7 @@ object UnprefixedTest extends TestSuite {
   lazy val CB = ScalaComponent.builder[Unit]("CB").render_C(c => span(c)).build
   lazy val H1 = ScalaComponent.builder[String]("H").render_P(p => h1(p)).build
 
-  def jsComp = JsComponentPTest.Component(JsComponentPTest.JsProps("yo"))
+  def jsComp = JsComponentEs6PTest.Component(JsComponentEs6PTest.JsProps("yo"))
 
   lazy val tagMod     : TagMod      = cls := "ho"
   lazy val vdomNode   : VdomNode    = H1("cool")
@@ -24,38 +24,41 @@ object UnprefixedTest extends TestSuite {
 
   def checkbox(check: Boolean) = input.checkbox(checked := check, readOnly := true)
 
-  def test(subj: VdomElement, exp: String): Unit = {
+  def test(subj: VdomNode, exp: String): Unit = {
     val comp = ScalaComponent.static("tmp")(subj)
     assertRender(comp(), exp)
   }
 
   val tests = Tests {
-    'void      - test(br,                                       """<br/>""")
-    'short     - test(div(45: Short),                           """<div>45</div>""")
-    'byte      - test(div(50: Byte),                            """<div>50</div>""")
-    'int       - test(div(666),                                 """<div>666</div>""")
-    'long      - test(div(123L),                                """<div>123</div>""")
-    'double    - test(div(12.3),                                """<div>12.3</div>""")
-    'string    - test(div("yo"),                                """<div>yo</div>""")
+    'void - test(br, """<br/>""")
 
-    'vdomNode  - test(div(vdomNode),                            """<div><h1>cool</h1></div>""")
-    'vdomTag   - test(div(vdomTag),                             """<div><span></span></div>""")
-    'vdomEl    - test(div(vdomElement),                         """<div><p></p></div>""")
-    'tagMod    - test(div(tagMod),                              """<div class="ho"></div>""")
-    'tagHtml   - test(div(span),                                """<div><span></span></div>""")
-    'tagHtmlM  - test(div(span(size := 3)),                     """<div><span size="3"></span></div>""")
-    'compScala - test(div(H1("a")),                             """<div><h1>a</h1></div>""")
-    'compJS    - test(div(jsComp),                              """<div><div>Hello yo</div></div>""")
+    'inner {
+      'byte      - test(div(50: Byte),        """<div>50</div>""")
+      'short     - test(div(45: Short),       """<div>45</div>""")
+      'int       - test(div(666),             """<div>666</div>""")
+      'long      - test(div(123L),            """<div>123</div>""")
+      'double    - test(div(12.3),            """<div>12.3</div>""")
+      'string    - test(div("yo"),            """<div>yo</div>""")
+      'vdomNode  - test(div(vdomNode),        """<div><h1>cool</h1></div>""")
+      'vdomTag   - test(div(vdomTag),         """<div><span></span></div>""")
+      'vdomEl    - test(div(vdomElement),     """<div><p></p></div>""")
+      'tagMod    - test(div(tagMod),          """<div class="ho"></div>""")
+      'tagHtml   - test(div(span),            """<div><span></span></div>""")
+      'tagHtmlM  - test(div(span(size := 3)), """<div><span size="3"></span></div>""")
+      'compScala - test(div(H1("a")),         """<div><h1>a</h1></div>""")
+      'compJS    - test(div(jsComp),          """<div><div>Hello yo</div></div>""")
+    }
 
-    'checkboxT  - test(checkbox(true),                          """<input type="checkbox" checked="" readonly=""/>""")
-    'checkboxF  - test(checkbox(false),                         """<input type="checkbox" readonly=""/>""")
-    'aria       - test(div(aria.label := "ow", "a"),            """<div aria-label="ow">a</div>""")
-    'attrs      - test(div(rowSpan := 1, colSpan := 3),         """<div rowspan="1" colspan="3"></div>""")
-    'styleObj   - test(div(style := jsObject),                  """<div style="a:b;"></div>""")
-    'styleDict  - test(div(style := js.Dictionary("x" -> "y")), """<div style="x:y;"></div>""")
-    'styleAttrs - test(div(color := "red", cursor.auto),        """<div style="color:red;cursor:auto;"></div>""")
+    'checkboxT  - test(checkbox(true),  """<input type="checkbox" checked="" readonly=""/>""")
+    'checkboxF  - test(checkbox(false), """<input type="checkbox" readonly=""/>""")
 
-    'attr - {
+     'attr - {
+      'aria       - test(div(aria.label := "ow", "a"),            """<div aria-label="ow">a</div>""")
+      'attrs      - test(div(rowSpan := 1, colSpan := 3),         """<div rowspan="1" colSpan="3"></div>""")
+      'styleObj   - test(div(style := jsObject),                  """<div style="a:b"></div>""")
+      'styleDict  - test(div(style := js.Dictionary("x" -> "y")), """<div style="x:y"></div>""")
+      'styleAttrs - test(div(color := "red", cursor.auto),        """<div style="color:red;cursor:auto"></div>""")
+
       'any - {
         def aa: VdomAttr[Any] = profile
         def as = "profile"
@@ -66,8 +69,8 @@ object UnprefixedTest extends TestSuite {
         'float     - test(div(aa := 321f),        s"""<div $as="321"></div>""")
         'double    - test(div(aa := 12.3),        s"""<div $as="12.3"></div>""")
         'string    - test(div(aa := "yo"),        s"""<div $as="yo"></div>""")
-        'booleanT  - test(div(aa := true),        s"""<div $as="true"></div>""")
-        'booleanF  - test(div(aa := false),       s"""<div $as="false"></div>""")
+//        'booleanT  - test(div(aa := true),        s"""<div $as="true"></div>""")
+//        'booleanF  - test(div(aa := false),       s"""<div $as="false"></div>""")
       }
       'boolean - {
         't - test(div(disabled := true), """<div disabled=""></div>""")
@@ -126,7 +129,7 @@ object UnprefixedTest extends TestSuite {
         def none[A](a: A): Option[A] = None
         'attr_some    - test(div(cls   :=? some("hi")         ), """<div class="hi"></div>""")
         'attr_none    - test(div(cls   :=? none("h1")         ), """<div></div>""")
-        'style_some   - test(div(color :=? some("red")        ), """<div style="color:red;"></div>""")
+        'style_some   - test(div(color :=? some("red")        ), """<div style="color:red"></div>""")
         'style_none   - test(div(color :=? none("red")        ), """<div></div>""")
         'tagMod_some  - test(div(some(tagMod     ).whenDefined), """<div class="ho"></div>""")
         'tagMod_none  - test(div(none(tagMod     ).whenDefined), """<div></div>""")
@@ -144,7 +147,7 @@ object UnprefixedTest extends TestSuite {
         def none[A](a: A): js.UndefOr[A] = js.undefined
         'attr_some    - test(div(cls   :=? some("hi")         ), """<div class="hi"></div>""")
         'attr_none    - test(div(cls   :=? none("h1")         ), """<div></div>""")
-        'style_some   - test(div(color :=? some("red")        ), """<div style="color:red;"></div>""")
+        'style_some   - test(div(color :=? some("red")        ), """<div style="color:red"></div>""")
         'style_none   - test(div(color :=? none("red")        ), """<div></div>""")
         'tagMod_some  - test(div(some(tagMod     ).whenDefined), """<div class="ho"></div>""")
         'tagMod_none  - test(div(none(tagMod     ).whenDefined), """<div></div>""")
@@ -164,7 +167,7 @@ object UnprefixedTest extends TestSuite {
         def none[A](a: A): Maybe[A] = Maybe.empty
         'attr_some    - test(div(cls   :=? some("hi")         ), """<div class="hi"></div>""")
         'attr_none    - test(div(cls   :=? none("h1")         ), """<div></div>""")
-        'style_some   - test(div(color :=? some("red")        ), """<div style="color:red;"></div>""")
+        'style_some   - test(div(color :=? some("red")        ), """<div style="color:red"></div>""")
         'style_none   - test(div(color :=? none("red")        ), """<div></div>""")
         'tagMod_some  - test(div(some(tagMod     ).whenDefined), """<div class="ho"></div>""")
         'tagMod_none  - test(div(none(tagMod     ).whenDefined), """<div></div>""")
@@ -186,7 +189,7 @@ object UnprefixedTest extends TestSuite {
           """<span class="great">ok</span>""")
         'styles - test(
           span((color := "red").when(true), (color := "black").when(false), "ok"),
-          """<span style="color:red;">ok</span>""")
+          """<span style="color:red">ok</span>""")
       }
       'unless - {
         'tags - test(
@@ -197,7 +200,7 @@ object UnprefixedTest extends TestSuite {
           """<span class="great">ok</span>""")
         'styles - test(
           span((color := "red").unless(false), (color := "black").unless(true), "ok"),
-          """<span style="color:red;">ok</span>""")
+          """<span style="color:red">ok</span>""")
       }
     }
 
@@ -215,29 +218,29 @@ object UnprefixedTest extends TestSuite {
     'styles - {
       'named - test(
         div(backgroundColor := "red", marginTop := "10px", "!"),
-        """<div style="background-color:red;margin-top:10px;">!</div>""")
+        """<div style="background-color:red;margin-top:10px">!</div>""")
 
       'direct - test(
         div(style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), "!"),
-        """<div style="color:black;margin-left:1em;">!</div>""")
+        """<div style="color:black;margin-left:1em">!</div>""")
 
       'namedAndDirect - test(
         div(backgroundColor := "red", style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), "!"),
-        """<div style="background-color:red;color:black;margin-left:1em;">!</div>""")
+        """<div style="background-color:red;color:black;margin-left:1em">!</div>""")
 
       'directAndNamed - test(
         div(style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), backgroundColor := "red", "!"),
-        """<div style="color:black;margin-left:1em;background-color:red;">!</div>""")
+        """<div style="color:black;margin-left:1em;background-color:red">!</div>""")
     }
 
     'noImplicitUnit - assertTypeMismatch(compileError("""val x: TagMod = ()"""))
 
     'numericStyleUnits - {
-    //'zero - test(div(marginTop := 0.em),    """<div style="margin-top:0;"></div>""")
-      'px   - test(div(marginTop := 2.px),    """<div style="margin-top:2px;"></div>""")
-    //'ex   - test(div(marginTop := 2.3f.ex), """<div style="margin-top:2.3ex;"></div>""")
-      'em   - test(div(marginTop := 2.7.em),  """<div style="margin-top:2.7em;"></div>""")
-      'rem  - test(div(marginTop := 2L.rem),  """<div style="margin-top:2rem;"></div>""")
+    //'zero - test(div(marginTop := 0.em),    """<div style="margin-top:0"></div>""")
+      'px   - test(div(marginTop := 2.px),    """<div style="margin-top:2px"></div>""")
+    //'ex   - test(div(marginTop := 2.3f.ex), """<div style="margin-top:2.3ex"></div>""")
+      'em   - test(div(marginTop := 2.7.em),  """<div style="margin-top:2.7em"></div>""")
+      'rem  - test(div(marginTop := 2L.rem),  """<div style="margin-top:2rem"></div>""")
       'str  - assertContains(compileError("""div(marginTop := "hehe".em)""").msg, "not a member of String")
     }
 
@@ -248,7 +251,7 @@ object UnprefixedTest extends TestSuite {
 
       'mixingAttributesStylesAndChildren - test(
         div(id := "cow", float.left, p("i am a cow")),
-        """<div id="cow" style="float:left;"><p>i am a cow</p></div>""")
+        """<div id="cow" style="float:left"><p>i am a cow</p></div>""")
 
       'applyChaining - test(
         a(tabIndex := 1, cls := "lol")(href := "boo", alt := "g"),
@@ -280,18 +283,20 @@ object UnprefixedTest extends TestSuite {
 
     'key - {
       def t(m: TagMod) = test(span(m, "1"), "<span>1</span>")
-      val obj = new AnyRef
-      'str  - t(key := "1")
-      'bool - t(key := false)
-      'int  - t(key := 3)
-      'long - t(key := 3L)
-      'shrt - t(key := 3.toShort)
-      'flt  - t(key := 3.4f)
-      'dbl  - t(key := 3.4)
-      'byte - t(key := 3.toByte)
-      'unit - compileError(" key := (())  ")
-      'obj  - compileError(" key := obj   ")
-      'key  - compileError(" key := key ")
+      val anyref = new AnyRef
+      val jsObject = js.Object()
+      'string   - t(key := "1")
+      'byte     - t(key := 3.toByte)
+      'short    - t(key := 3.toShort)
+      'int      - t(key := 3)
+      'long     - t(key := 3L)
+      'float    - t(key := 3.4f)
+      'double   - t(key := 3.4)
+      'unit     - compileError(" key := (())     ")
+      'boolean  - compileError(" key := false    ")
+      'anyref   - compileError(" key := anyref   ")
+      'jsObject - compileError(" key := jsObject ")
+      'key      - compileError(" key := key      ")
     }
 
     'anchorToNewWindow - {

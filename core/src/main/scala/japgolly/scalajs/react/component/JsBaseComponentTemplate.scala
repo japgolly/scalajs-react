@@ -4,18 +4,18 @@ import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.CtorType
 
-trait JsBaseComponentTemplate[RawComponent <: js.Any] {
+trait JsBaseComponentTemplate[RawComponent[_ <: js.Object] <: js.Any] {
 
-  protected def rawComponentDisplayName: RawComponent => String
+  protected def rawComponentDisplayName: RawComponent[_ <: js.Object] => String
 
   // Difference between this and its Generic counterpart:
   // - P0 has an upper bound of js.Object.
   // - Raw type specified
 
   sealed trait ComponentSimple[P, CT[-p, +u] <: CtorType[p, u], U] extends Generic.ComponentSimple[P, CT, U] {
-    override final type Raw = RawComponent
     override final def displayName = rawComponentDisplayName(raw)
 
+    override type Raw <: RawComponent[_ <: js.Object]
     override def cmapCtorProps[P2](f: P2 => P): ComponentSimple[P2, CT, U]
     override def mapUnmounted[U2](f: U => U2): ComponentSimple[P, CT, U2]
     override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT[P, U] => CT2[P, U])(implicit pf: Profunctor[CT2]): ComponentSimple[P, CT2, U]
@@ -26,6 +26,7 @@ trait JsBaseComponentTemplate[RawComponent <: js.Any] {
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
       extends ComponentSimple[P1, CT1, U1] with Generic.ComponentWithRoot[P1, CT1, U1, P0, CT0, U0] {
 
+    override final type Raw = RawComponent[P0]
     override final type Root = ComponentRoot[P0, CT0, U0]
 
     override def cmapCtorProps[P2](f: P2 => P1): ComponentWithRoot[P2, CT1, U1, P0, CT0, U0]
@@ -36,7 +37,7 @@ trait JsBaseComponentTemplate[RawComponent <: js.Any] {
   final type ComponentRoot[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U] =
     ComponentWithRoot[P, CT, U, P, CT, U]
 
-  final def componentRoot[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U](rc: RawComponent, c: CT[P, U])
+  final def componentRoot[P <: js.Object, CT[-p, +u] <: CtorType[p, u], U](rc: RawComponent[P], c: CT[P, U])
                                                                           (implicit pf: Profunctor[CT]): ComponentRoot[P, CT, U] =
     new ComponentRoot[P, CT, U] {
       override def root = this

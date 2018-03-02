@@ -8,6 +8,7 @@ import scala.concurrent.Promise
 import scalajs.concurrent.JSExecutionContext.Implicits.queue
 import utest._
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.component.Generic.MountedDomNode
 import japgolly.scalajs.react.raw.SyntheticEvent
 import japgolly.scalajs.react.vdom.html_<^._
 import TestUtil._
@@ -18,12 +19,12 @@ object TestTest extends TestSuite {
   lazy val B = ScalaComponent.builder[Unit]("B").renderStatic(<.p(^.cls := "BB", "hehehe")).build
   lazy val rab = ReactTestUtils.renderIntoDocument(A(B()))
 
-  var inputRef: HTMLInputElement = _
+  val inputRef = Ref[HTMLInputElement]
 
   lazy val IC = ScalaComponent.builder[Unit]("IC").initialState(true).renderS(($,s) => {
     val ch = (_: ReactEvent) => $.modState(x => !x)
     <.label(
-      <.input.checkbox(^.checked := s, ^.onClick ==> ch).ref(inputRef = _),
+      <.input.checkbox(^.checked := s, ^.onClick ==> ch).withRef(inputRef),
       <.span(s"s = $s")
     )
   }).build
@@ -47,18 +48,18 @@ object TestTest extends TestSuite {
 
     'findRenderedDOMComponentWithClass - {
       val x = ReactTestUtils.findRenderedDOMComponentWithClass(rab, "BB")
-      val n = x.getDOMNode
+      val n = x.getDOMNode.asElement
       assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
     'findRenderedComponentWithType - {
-      val n = ReactTestUtils.findRenderedComponentWithType(rab, B).getDOMNode
+      val n = ReactTestUtils.findRenderedComponentWithType(rab, B).getDOMNode.asElement
       assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
     'renderIntoDocument - {
       def test(c: GenericComponent.MountedRaw, exp: String): Unit =
-        assertOuterHTML(ReactDOM.raw.findDOMNode(c.raw), exp)
+        assertOuterHTML(MountedDomNode(ReactDOM.raw.findDOMNode(c.raw)).asElement, exp)
 
       'plainElement - {
         val re: VdomElement = <.div("Good")
@@ -76,9 +77,9 @@ object TestTest extends TestSuite {
       'click - {
         val c = ReactTestUtils.renderIntoDocument(IC())
         val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
-        val a = s.getDOMNode.innerHTML
-        Simulate.click(inputRef)
-        val b = s.getDOMNode.innerHTML
+        val a = s.getDOMNode.asElement.innerHTML
+        Simulate.click(inputRef.unsafeGet())
+        val b = s.getDOMNode.asElement.innerHTML
         assert(a != b)
       }
 
@@ -87,7 +88,7 @@ object TestTest extends TestSuite {
           val IDC = ScalaComponent.builder[Unit]("IC").initialState(true).render($ => {
             val ch = (e: E[dom.Node]) => $.modState(x => !x)
             <.label(
-              <.input.text(^.value := $.state, eventType ==> ch).ref(inputRef = _),
+              <.input.text(^.value := $.state, eventType ==> ch).withRef(inputRef),
               <.span(s"s = ${$.state}")
             )
           }).build
@@ -95,9 +96,9 @@ object TestTest extends TestSuite {
           val c = ReactTestUtils.renderIntoDocument(IDC())
           val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
 
-          val a = s.getDOMNode.innerHTML
-          simF(inputRef)
-          val b = s.getDOMNode.innerHTML
+          val a = s.getDOMNode.asElement.innerHTML
+          simF(inputRef.unsafeGet())
+          val b = s.getDOMNode.asElement.innerHTML
 
           assert(a != b)
         }
@@ -160,19 +161,19 @@ object TestTest extends TestSuite {
           def e(s: String) = Callback(events :+= s)
           def chg(ev: ReactEventFromInput) =
             e("change") >> T.setState(ev.target.value)
-          <.input.text(^.value := T.state, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur")).ref(inputRef = _)
+          <.input.text(^.value := T.state, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur")).withRef(inputRef)
         }).build
         val c = ReactTestUtils.renderIntoDocument(C())
-        Simulation.focusChangeBlur("good") run inputRef
+        Simulation.focusChangeBlur("good") run inputRef.unsafeGet()
         assertEq(events, Vector("focus", "change", "blur"))
-        assertEq(inputRef.value, "good")
+        assertEq(inputRef.unsafeGet().value, "good")
       }
       'targetByName - {
         val c = ReactTestUtils.renderIntoDocument(IC())
         var count = 0
         def tgt = {
           count += 1
-          Sizzle("input", c.getDOMNode).sole()
+          Sizzle("input", c.getDOMNode.asElement).sole()
         }
         Simulation.focusChangeBlur("-") run tgt
         assert(count == 3)
@@ -183,7 +184,7 @@ object TestTest extends TestSuite {
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       ReactTestUtils.withRenderedIntoDocument(IC()) { mm =>
         m = mm
-        val n = m.getDOMNode
+        val n = m.getDOMNode.asElement
         assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
         // assert(m.isMounted == yesItsMounted)
       }
@@ -196,15 +197,15 @@ object TestTest extends TestSuite {
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       ReactTestUtils.withRenderedIntoBody(IC()) { mm =>
         m = mm
-        val n = m.getDOMNode
+        val n = m.getDOMNode.asElement
         assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
         // assert(m.isMounted == yesItsMounted)
 
         // Benefits of body over detached
-        inputRef.focus()
-        assert(document.activeElement == inputRef)
-        inputRef.blur()
-        assert(document.activeElement != inputRef)
+        inputRef.unsafeGet().focus()
+        assert(document.activeElement == inputRef.unsafeGet())
+        inputRef.unsafeGet().blur()
+        assert(document.activeElement != inputRef.unsafeGet())
       }
       val body2 = inspectBody()
       // assert(m.isMounted == nopeNotMounted)
@@ -218,7 +219,7 @@ object TestTest extends TestSuite {
         m = mm
         promise.future
       }
-      val n = m.getDOMNode
+      val n = m.getDOMNode.asElement
       assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
       // assert(m.isMounted == yesItsMounted)
 
@@ -236,15 +237,15 @@ object TestTest extends TestSuite {
         m = mm
         promise.future
       }
-      val n = m.getDOMNode
+      val n = m.getDOMNode.asElement
       assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
       // assert(m.isMounted == yesItsMounted)
 
       // Benefits of body over detached
-      inputRef.focus()
-      assert(document.activeElement == inputRef)
-      inputRef.blur()
-      assert(document.activeElement != inputRef)
+      inputRef.unsafeGet().focus()
+      assert(document.activeElement == inputRef.unsafeGet())
+      inputRef.unsafeGet().blur()
+      assert(document.activeElement != inputRef.unsafeGet())
 
       promise.success(())
 
@@ -257,18 +258,18 @@ object TestTest extends TestSuite {
 
     'modifyProps - {
       ReactTestUtils.withRenderedIntoDocument(CP("start")) { m =>
-        assertRendered(m.getDOMNode, "<div>none → start</div>")
+        assertRendered(m.getDOMNode.asElement, "<div>none → start</div>")
         ReactTestUtils.modifyProps(CP, m)(_ + "ed")
-        assertRendered(m.getDOMNode, "<div>start → started</div>")
+        assertRendered(m.getDOMNode.asElement, "<div>start → started</div>")
         ReactTestUtils.replaceProps(CP, m)("done!")
-        assertRendered(m.getDOMNode, "<div>started → done!</div>")
+        assertRendered(m.getDOMNode.asElement, "<div>started → done!</div>")
       }
     }
 
     'removeReactInternals - {
       val c = ScalaComponent.static("")(<.div(<.br, "hello", <.hr))
       ReactTestUtils.withRenderedIntoDocument(c()) { m =>
-        val orig = m.getDOMNode.outerHTML
+        val orig = m.getDOMNode.asElement.outerHTML
         val after = ReactTestUtils.removeReactInternals(orig)
         assertEq("<div><br>hello<hr></div>", after)
         s"$orig  →  $after"

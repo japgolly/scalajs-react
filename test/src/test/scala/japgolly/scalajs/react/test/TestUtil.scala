@@ -24,51 +24,88 @@ trait TestUtil
 
   implicit val equalNull: Equal[Null] = Equal.equalA
   implicit val equalKey: Equal[Key] = Equal.equalA
-  implicit val equalRawKey: Equal[japgolly.scalajs.react.raw.Key] = Equal.equalA
 
   // TODO erm... not really. Only allow in raw testing
-  implicit val equalReactNodeList: Equal[japgolly.scalajs.react.raw.ReactNodeList] = Equal.equalA
   implicit val equalRawRef       : Equal[japgolly.scalajs.react.raw.Ref          ] = Equal.equalA
-  implicit val equalState        : Equal[japgolly.scalajs.react.raw.State        ] = Equal.equalA
 
   implicit def jsUndefOrEqual[A](implicit e: Equal[A]): Equal[js.UndefOr[A]] =
     Equal.equal[js.UndefOr[A]]((a, b) =>
       if (a.isEmpty) b.isEmpty else b.exists(e.equal(a.get, _)))
 
   def assertEq[A: Equal](actual: A, expect: A): Unit =
-    assertEq(null, actual, expect)
+    assertEqO(None, actual, expect)
 
   def assertEq[A: Equal](name: => String, actual: A, expect: A): Unit =
+    assertEqO(Some(name), actual, expect)
+
+  private def lead(s: String) = s"$RED_B$s$RESET "
+  private def failureStart(name: Option[String], leadSize: Int): Unit = {
+    println()
+    name.foreach(n => println(lead(">" * leadSize) + BOLD + YELLOW + n + RESET))
+  }
+
+  def assertEqO[A: Equal](name: => Option[String], actual: A, expect: A): Unit =
     if (actual ≠ expect) {
-      println()
-      Option(name).foreach(n => println(s">>>>>>> $n"))
+      failureStart(name, 7)
 
       val toString: Any => String = {
         case s: Stream[_] => s.force.toString() // SI-9266
         case a            => a.toString
       }
 
-      var as = toString(actual)
-      var es = toString(expect)
+      val as = toString(actual)
+      val es = toString(expect)
+      val ss = as :: es :: Nil
       var pre = "["
       var post = "]"
-      if ((as + es) contains "\n") {
+      val htChars = ss.flatMap(s => s.headOption :: s.lastOption :: Nil)
+      if (htChars.forall(_.exists(c => !Character.isWhitespace(c)))) {
+        pre = ""
+        post = ""
+      }
+      if (ss.exists(_ contains "\n")) {
         pre = "↙[\n"
       }
-      println(s"expect: $pre$BOLD$BLUE$es$RESET$post")
-      println(s"actual: $pre$BOLD$RED$as$RESET$post")
+      println(lead("expect:") + pre + BOLD + GREEN + es + RESET + post)
+      println(lead("actual:") + pre + BOLD + RED + as + RESET + post)
       println()
-      val f = new AssertionError(s"$es ≠ $as")
-      f.setStackTrace(Array.empty)
-      throw f
+      fail(s"assertEq${name.fold("")("(" + _ + ")")} failed.")
     }
 
-  def fail(msg: String, clearStackTrace: Boolean = true): Nothing = {
-    val t = new AssertionError(msg)
+  def assertMultiline(actual: String, expect: String): Unit =
+    if (actual != expect) {
+      println()
+      val AE = List(actual, expect).map(_.split("\n"))
+      val List(as, es) = AE
+      val lim = as.length max es.length
+      val List(maxA,_) = AE.map(x => (0 #:: x.map(_.length).toStream).max)
+      val maxL = lim.toString.length
+      println("A|E")
+      val fmt = s"%s%${maxL}d: %-${maxA}s |%s| %s$RESET\n"
+      def removeWhitespace(s: String) = s.filterNot(_.isWhitespace)
+      for (i <- 0 until lim) {
+        val List(a, e) = AE.map(s => if (i >= s.length) "" else s(i))
+        val ok = a == e
+        val cmp = if (ok) " " else if (removeWhitespace(a) == removeWhitespace(e)) "≈" else "≠"
+        val col = if (ok) BOLD + BLACK else WHITE
+        printf(fmt, col, i + 1, a, cmp, e)
+      }
+      println()
+      fail("assertMultiline failed.")
+    }
+
+  def fail(msg: String, clearStackTrace: Boolean = true): Nothing =
+    _fail(colourMultiline(msg, BOLD + MAGENTA), clearStackTrace)
+
+  def _fail(msg: String, clearStackTrace: Boolean = true): Nothing = {
+    val e = new AssertionError(msg)
     if (clearStackTrace)
-      t.setStackTrace(Array.empty)
-    throw t
+      e.setStackTrace(Array.empty)
+    throw e
   }
+
+  private def colourMultiline(text: String, colour: String): String =
+    colour + text.replace("\n", "\n" + colour) + RESET
 
   implicit class AnyTestExt[A](a: A) {
 
@@ -106,7 +143,7 @@ trait TestUtil
     assertRender(u.raw, expected)
   def assertRender(e: japgolly.scalajs.react.vdom.VdomElement, expected: String): Unit =
     assertRender(e.rawElement, expected)
-  def assertRender(e: japgolly.scalajs.react.raw.ReactElement, expected: String): Unit = {
+  def assertRender(e: japgolly.scalajs.react.raw.React.Element, expected: String): Unit = {
     val rendered: String = ReactDOMServer.raw.renderToStaticMarkup(e)
     assertEq(rendered, expected)
   }

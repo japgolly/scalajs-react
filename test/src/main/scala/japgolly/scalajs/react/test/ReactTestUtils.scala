@@ -5,23 +5,22 @@ import org.scalajs.dom.html.Element
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.raw.{ReactDOM => RawReactDOM}
+import japgolly.scalajs.react.component.Generic.MountedDomNode
+import japgolly.scalajs.react.raw.{ReactDOM => RawReactDOM, React => RawReact}
 import japgolly.scalajs.react.vdom.TopNode
 
 object ReactTestUtils {
 
-  def raw = japgolly.scalajs.react.test.raw.ReactAddonsTestUtils
+  def raw = japgolly.scalajs.react.test.raw.ReactTestUtils
 
   type Unmounted[M] = GenericComponent.Unmounted[_, M]
   type Mounted      = GenericComponent.MountedRaw
 
-  private type RawM = japgolly.scalajs.react.raw.ReactComponentUntyped
-  type MountedOutput   = JsComponent.Mounted[js.Object, js.Object]
+  private type RawM = japgolly.scalajs.react.raw.React.ComponentUntyped
+  type MountedOutput = JsComponent.Mounted[_ <: js.Object, _ <: js.Object]
   private def wrapMO(r: RawM): MountedOutput = JsComponent.mounted(r)
-//  type MountedOutput   = japgolly.scalajs.react.raw.ReactComponent
-//  private def wrapMO(r: RawM): MountedOutput = r
 
-  type CompType = GenericComponent.ComponentRaw {type Raw = japgolly.scalajs.react.raw.ReactClassUntyped }
+  type CompType = GenericComponent.ComponentRaw {type Raw <: japgolly.scalajs.react.raw.ReactClassUntyped }
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
   def renderIntoDocument[M](unmounted: Unmounted[M]): M = {
@@ -99,6 +98,9 @@ object ReactTestUtils {
       removeNewBodyElement(e)
   }
 
+  private def mountedElement(m: RawReact.ComponentUntyped) =
+    MountedDomNode(RawReactDOM findDOMNode m).asElement
+
   /** Renders a component then unmounts and cleans up after use.
     *
     * @param intoBody Whether to use [[renderIntoBody()]] or [[ReactTestUtils.renderIntoDocument()]].
@@ -113,7 +115,7 @@ object ReactTestUtils {
     * then unmounts and cleans up after use.
     */
   def withRenderedIntoDocument[M, A](u: Unmounted[M])(f: M => A): A =
-    _withRenderedIntoDocument(raw.renderIntoDocument(u.raw))(RawReactDOM.findDOMNode, f compose u.mountRaw)
+    _withRenderedIntoDocument(raw.renderIntoDocument(u.raw))(mountedElement, f compose u.mountRaw)
 
   private def _withRenderedIntoDocument[A, B](a: A)(n: A => TopNode, use: A => B): B = {
     try
@@ -128,7 +130,7 @@ object ReactTestUtils {
     * Unlike [[ReactTestUtils.renderIntoDocument()]], this allows DOM focus to work.
     */
   def withRenderedIntoBody[M, A](u: Unmounted[M])(f: M => A): A =
-    _withRenderedIntoBody(RawReactDOM.render(u.raw, _))(RawReactDOM.findDOMNode, f compose u.mountRaw)
+    _withRenderedIntoBody(RawReactDOM.render(u.raw, _))(mountedElement, f compose u.mountRaw)
 
   /** Renders a component into the document body via [[ReactDOM.render()]].
     *
@@ -170,7 +172,7 @@ object ReactTestUtils {
     * and asynchronously waits for the Future to complete before unmounting.
     */
   def withRenderedIntoDocumentAsync[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    _withRenderedIntoDocumentAsync(raw.renderIntoDocument(u.raw))(RawReactDOM.findDOMNode, f compose u.mountRaw)
+    _withRenderedIntoDocumentAsync(raw.renderIntoDocument(u.raw))(mountedElement, f compose u.mountRaw)
 
   private def _withRenderedIntoDocumentAsync[A, B](a: A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] =
     attemptFuture(use(a)).andThen { case _ => ReactDOM unmountComponentAtNode n(a).parentNode }
@@ -179,7 +181,7 @@ object ReactTestUtils {
     * and asynchronously waits for the Future to complete before unmounting.
     */
   def withRenderedIntoBodyAsync[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    _withRenderedIntoBodyAsync(RawReactDOM.render(u.raw, _))(RawReactDOM.findDOMNode, f compose u.mountRaw)
+    _withRenderedIntoBodyAsync(RawReactDOM.render(u.raw, _))(mountedElement, f compose u.mountRaw)
 
   private def _withRenderedIntoBodyAsync[A, B](render: Element => A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] =
     withNewBodyElementAsync { parent =>
@@ -191,7 +193,7 @@ object ReactTestUtils {
 
   def modifyProps[P, U <: GenericComponent.Unmounted[P, M], M <: GenericComponent.MountedImpure[P, _]]
       (c: GenericComponent[P, CtorType.Props, U], m: M)(f: P => P): M = {
-    val container = m.getDOMNode.parentNode
+    val container = m.getDOMNode.asElement.parentNode
     val p2 = f(m.props)
     c(p2).renderIntoDOM(container.domCast[org.scalajs.dom.raw.Element])
   }

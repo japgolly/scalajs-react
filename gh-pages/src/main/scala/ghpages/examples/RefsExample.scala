@@ -59,13 +59,13 @@ object RefsExample {
 
   class Backend($: BackendScope[Unit, String]) {
 
-    var theInput: html.Input = _
+    val inputRef = Ref[html.Input]
 
     def handleChange(e: ReactEventFromInput) =
       $.setState(e.target.value)
 
     def clearAndFocusInput() =
-      $.setState("", Callback(theInput.focus()))
+      $.setState("", inputRef.foreach(_.focus()))
 
     def render(state: String) =
       <.div(
@@ -75,7 +75,7 @@ object RefsExample {
         <.input(
           ^.value     := state,
           ^.onChange ==> handleChange)
-          .ref(theInput = _)
+          .withRef(inputRef)
       )
   }
 
