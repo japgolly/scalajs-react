@@ -4,7 +4,7 @@ import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
 
-object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
+object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
 
   def apply[P <: js.Object, C <: Children, S <: js.Object](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
     InspectRaw.assertIsComponent(raw, "JsComponent")
@@ -12,7 +12,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
   }
 
   def force[P <: js.Object, C <: Children, S <: js.Object](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
-    val rc = raw.asInstanceOf[RAW.ReactClass[P, S]]
+    val rc = raw.asInstanceOf[RAW.React.ComponentClass[P, S]]
     component[P, C, S](rc)(s)
   }
 
@@ -35,7 +35,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
   private def readDisplayName(a: RAW.HasDisplayName): String =
     a.displayName.getOrElse("")
 
-  override protected val rawComponentDisplayName: RAW.ReactClassUntyped => String =
+  override protected val rawComponentDisplayName: RAW.React.ComponentClassUntyped => String =
     readDisplayName
 
   // ===================================================================================================================
@@ -161,7 +161,7 @@ object Js extends JsBaseComponentTemplate[RAW.ReactClassP] {
 
   // ===================================================================================================================
 
-  def component[P <: js.Object, C <: Children, S <: js.Object](rc: RAW.ReactClass[P, S])(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
+  def component[P <: js.Object, C <: Children, S <: js.Object](rc: RAW.React.ComponentClass[P, S])(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
     componentRoot[P, s.CT, Unmounted[P, S]](rc, s.pf.rmap(s.summon(rc))(unmounted))(s.pf)
 
   def unmounted[P <: js.Object, S <: js.Object](r: RAW.React.ComponentElement[P]): Unmounted[P, S] =

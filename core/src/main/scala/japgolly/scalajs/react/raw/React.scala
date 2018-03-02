@@ -8,10 +8,6 @@ import scalajs.js.annotation._
 @js.native
 object React extends React {
 
-  // TODO: React.ElementProps  <typeof Component>
-  // TODO: React.ElementConfig <typeof Component>
-  // TODO: Clean up raw: {,re}move ReactClass etc
-
   @js.native
   trait Children extends js.Object {
 
@@ -74,6 +70,11 @@ object React extends React {
 //    final def modState[SS >: S <: js.Object](updateFn: js.Function2[S, P, SS], callback: js.Function0[Unit] = js.native): Unit = js.native
   }
 
+  /** `Class[React.Component[P, S]]` */
+  type ComponentClass [P <: js.Object, S <: js.Object] = js.Function1[P, React.Component[P, S]] with HasDisplayName
+  type ComponentClassP[P <: js.Object]                 = ComponentClass[P, _ <: js.Object]
+  type ComponentClassUntyped                           = ComponentClass[_ <: js.Object, _ <: js.Object]
+
   /** A `React.Element` that is known to be a component */
   @js.native
   trait ComponentElement[P <: js.Object] extends React.Element {
@@ -83,7 +84,7 @@ object React extends React {
 
   type ComponentUntyped = Component[_ <: js.Object, _ <: js.Object]
 
-  type ComponentType[Props <: js.Object] = ReactClass[Props, _ <: js.Object] | StatelessFunctionalComponent[Props]
+  type ComponentType[Props <: js.Object] = ComponentClass[Props, _ <: js.Object] | StatelessFunctionalComponent[Props]
 
   type Constructor[P <: js.Object] = js.Function1[P, js.Any] with HasDisplayName
 

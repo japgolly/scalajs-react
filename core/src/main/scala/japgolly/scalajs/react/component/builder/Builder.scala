@@ -350,14 +350,14 @@ object Builder {
       */
     def build(implicit ctorType: CtorType.Summoner[Box[P], C]): Scala.Component[P, S, B, ctorType.CT] = {
       val c = ViaReactComponent(this)
-      fromReactClass(c)(ctorType)
+      fromReactComponentClass(c)(ctorType)
     }
   }
 
   // ===================================================================================================================
 
-  def fromReactClass[P, C <: Children, S, B](rc: raw.ReactClass[Box[P], Box[S]])
-                                            (implicit ctorType: CtorType.Summoner[Box[P], C]): Scala.Component[P, S, B, ctorType.CT] =
+  def fromReactComponentClass[P, C <: Children, S, B](rc: raw.React.ComponentClass[Box[P], Box[S]])
+                                                    (implicit ctorType: CtorType.Summoner[Box[P], C]): Scala.Component[P, S, B, ctorType.CT] =
     Js.component[Box[P], C, Box[S]](rc)(ctorType)
       .addFacade[Vars[P, S, B]]
       .cmapCtorProps[P](Box(_))

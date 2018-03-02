@@ -22,12 +22,12 @@ trait ReactTestUtils extends js.Object {
    * React component. Instead of rendering as usual, the component will become a simple &lt;div&gt; (or other tag if
    * mockTagName is provided) containing any provided children.
    */
-  final def mockComponent[P <: js.Object, S <: js.Object](c: ReactClass[P, S], mockTagName: String = js.native): ReactClass[P, S] = js.native
+  final def mockComponent[P <: js.Object, S <: js.Object](c: React.ComponentClass[P, S], mockTagName: String = js.native): React.ComponentClass[P, S] = js.native
 
   final type Mounted = React.ComponentUntyped
 
   /** Returns true if instance is an instance of a React componentClass. */
-  final def isComponentOfType(instance: React.Element, c: ReactClassUntyped): Boolean = js.native
+  final def isComponentOfType(instance: React.Element, c: React.ComponentClassUntyped): Boolean = js.native
 
   /** Returns true if instance is a DOM component (such as a &lt;div&gt; or &lt;span&gt;). */
   final def isDOMComponent(instance: React.Element): Boolean = js.native
@@ -36,7 +36,7 @@ trait ReactTestUtils extends js.Object {
   final def isCompositeComponent(instance: React.Element): Boolean = js.native
 
   /** The combination of [[isComponentOfType()]] and [[isCompositeComponent()]]. */
-  final def isCompositeComponentWithType(instance: React.Element, c: ReactClassUntyped): Boolean = js.native
+  final def isCompositeComponentWithType(instance: React.Element, c: React.ComponentClassUntyped): Boolean = js.native
 
   /**
    * Traverse all components in tree and accumulate all components where test(component) is true.
@@ -69,11 +69,11 @@ trait ReactTestUtils extends js.Object {
   final def findRenderedDOMComponentWithTag(tree: Mounted, tagName: String): Mounted = js.native
 
   /** Finds all instances of components with type equal to componentClass. */
-  final def scryRenderedComponentsWithType(tree: Mounted, c: ReactClassUntyped): js.Array[Mounted] = js.native
+  final def scryRenderedComponentsWithType(tree: Mounted, c: React.ComponentClassUntyped): js.Array[Mounted] = js.native
 
   /**
    * Same as [[scryRenderedComponentsWithType()]] but expects there to be one result and returns that one result, or throws
    * exception if there is any other number of matches besides one.
    */
-  final def findRenderedComponentWithType(tree: Mounted, c: ReactClassUntyped): Mounted = js.native
+  final def findRenderedComponentWithType(tree: Mounted, c: React.ComponentClassUntyped): Mounted = js.native
 }

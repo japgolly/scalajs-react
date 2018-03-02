@@ -214,7 +214,7 @@ object ViaReactComponent {
 
   // ===================================================================================================================
 
-  def apply[P, C <: Children, S, B](builder: Builder.Step4[P, C, S, B]): raw.ReactClass[Box[P], Box[S]] = {
+  def apply[P, C <: Children, S, B](builder: Builder.Step4[P, C, S, B]): raw.React.ComponentClass[Box[P], Box[S]] = {
     val initStateFn = builder.initStateFn
     val backendFn = builder.backendFn
     val renderFn = builder.renderFn
@@ -303,6 +303,6 @@ object ViaReactComponent {
     for (n <- Option(builder.name))
       MyComponent.asInstanceOf[js.Dynamic].displayName = n
 
-    MyComponent.asInstanceOf[raw.ReactClass[Box[P], Box[S]]]
+    MyComponent.asInstanceOf[raw.React.ComponentClass[Box[P], Box[S]]]
   }
 }
