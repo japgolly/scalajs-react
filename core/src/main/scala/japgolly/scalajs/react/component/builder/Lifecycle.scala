@@ -36,18 +36,20 @@ object Lifecycle {
   }
 
   sealed trait StateW[P, S, B] extends Any with Base[P, S, B] with StateAccess.Write[CallbackTo, S] {
-    final override def setState(newState: S, cb: Callback = Callback.empty): Callback =
-      mountedPure.setState(newState, cb)
+    /** @param callback Executed after state is changed. */
+    final override def setState(newState: S, callback: Callback): Callback =
+      mountedPure.setState(newState, callback)
 
-    final override def modState(mod: S => S, cb: Callback = Callback.empty): Callback =
-      mountedPure.modState(mod, cb)
+    /** @param callback Executed after state is changed. */
+    final override def modState(mod: S => S, callback: Callback): Callback =
+      mountedPure.modState(mod, callback)
 
-    /** @param callback Executed regardless of whether state changes. */
-    final override def setStateOption(newState: Option[S], callback: Callback = Callback.empty): Callback =
+    /** @param callback Executed regardless of whether state is changed. */
+    final override def setStateOption(newState: Option[S], callback: Callback): Callback =
       mountedPure.setStateOption(newState, callback)
 
-    /** @param callback Executed regardless of whether state changes. */
-    final override def modStateOption(mod: S => Option[S], callback: Callback = Callback.empty): Callback =
+    /** @param callback Executed regardless of whether state is changed. */
+    final override def modStateOption(mod: S => Option[S], callback: Callback): Callback =
       mountedPure.modStateOption(mod, callback)
   }
 

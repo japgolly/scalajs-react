@@ -90,16 +90,16 @@ object Scala {
       override def state         = x.state.unbox
       override def getDOMNode    = x.getDOMNode
 
-      override def setState(newState: S, callback: Callback = Callback.empty) =
+      override def setState(newState: S, callback: Callback) =
         x.setState(Box(newState), callback)
 
-      override def modState(mod: S => S, callback: Callback = Callback.empty) =
+      override def modState(mod: S => S, callback: Callback) =
         x.modState(s => Box(mod(s.unbox)), callback)
 
-      override def setStateOption(o: Option[S], callback: Callback = Callback.empty) =
+      override def setStateOption(o: Option[S], callback: Callback) =
         x.setStateOption(o.map(Box.apply), callback)
 
-      override def modStateOption(mod: S => Option[S], callback: Callback = Callback.empty) =
+      override def modStateOption(mod: S => Option[S], callback: Callback) =
         x.modStateOption(box => mod(box.unbox).map(Box.apply), callback)
 
       override def forceUpdate(callback: Callback) =

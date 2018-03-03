@@ -33,27 +33,47 @@ object StateAccess {
   /** Various methods to modify a component's state. */
   trait Write[F[_], State] extends Any {
 
-    def setState(newState: State, callback: Callback = Callback.empty): F[Unit]
+    // Abstract
 
-    def modState(mod: State => State, callback: Callback = Callback.empty): F[Unit]
+    /** @param callback Executed after state is changed. */
+    def setState(newState: State, callback: Callback): F[Unit]
 
-    /** @param callback Executed regardless of whether state changes. */
-    def setStateOption(newState: Option[State], callback: Callback = Callback.empty): F[Unit]
+    /** @param callback Executed after state is changed. */
+    def modState(mod: State => State, callback: Callback): F[Unit]
 
-    /** @param callback Executed regardless of whether state changes. */
-    def modStateOption(mod: State => Option[State], callback: Callback = Callback.empty): F[Unit]
+    /** @param callback Executed regardless of whether state is changed. */
+    def setStateOption(newState: Option[State], callback: Callback): F[Unit]
 
+    /** @param callback Executed regardless of whether state is changed. */
+    def modStateOption(mod: State => Option[State], callback: Callback): F[Unit]
+
+    // Concrete
+
+    final def setState(newState: State): F[Unit] =
+      setState(newState, Callback.empty)
+
+    final def modState(mod: State => State): F[Unit] =
+      modState(mod, Callback.empty)
+
+    final def setStateOption(newState: Option[State]): F[Unit] =
+      setStateOption(newState, Callback.empty)
+
+    final def modStateOption(mod: State => Option[State]): F[Unit] =
+      modStateOption(mod, Callback.empty)
+
+    /** @param callback Executed after state is changed. */
     final def setStateFn[I](f: I => State, callback: Callback = Callback.empty): I => F[Unit] =
       i => setState(f(i), callback)
 
+    /** @param callback Executed after state is changed. */
     final def modStateFn[I](f: I => State => State, callback: Callback = Callback.empty): I => F[Unit] =
       i => modState(f(i), callback)
 
-    /** @param callback Executed regardless of whether state changes. */
+    /** @param callback Executed regardless of whether state is changed. */
     final def setStateOptionFn[I](f: I => Option[State], callback: Callback = Callback.empty): I => F[Unit] =
       i => setStateOption(f(i), callback)
 
-    /** @param callback Executed regardless of whether state changes. */
+    /** @param callback Executed regardless of whether state is changed. */
     final def modStateOptionFn[I](f: I => State => Option[State], callback: Callback = Callback.empty): I => F[Unit] =
       i => modStateOption(f(i), callback)
   }
@@ -73,16 +93,16 @@ object StateAccess {
 
       override def state = stateFn
 
-      override def setState(newState: State, callback: Callback = Callback.empty) =
+      override def setState(newState: State, callback: Callback) =
         setStateOption(Some(newState), callback)
 
-      override def modState(mod: State => State, callback: Callback = Callback.empty) =
+      override def modState(mod: State => State, callback: Callback) =
         modStateOption(mod.andThen(Some(_)), callback)
 
-      override def setStateOption(newState: Option[State], callback: Callback = Callback.empty) =
+      override def setStateOption(newState: Option[State], callback: Callback) =
         setItFn(newState, callback)
 
-      override def modStateOption(mod: State => Option[State], callback: Callback = Callback.empty) =
+      override def modStateOption(mod: State => Option[State], callback: Callback) =
         modItFn(mod, callback)
 
       override def xmapState[S2](f: S => S2)(g: S2 => S) =
