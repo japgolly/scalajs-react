@@ -59,10 +59,10 @@ object React extends React {
 
     final def forceUpdate(callback: js.Function0[Unit] = js.native): Unit = js.native
 
-    final def setState(partialState: S, callback: js.Function0[Unit] = js.native): Unit = js.native
+    final def setState(partialState: S | Null, callback: js.Function0[Unit] = js.native): Unit = js.native
 
     @JSName("setState")
-    final def modState(updateFn: js.Function2[S, P, S], callback: js.Function0[Unit] = js.native): Unit = js.native
+    final def modState(updateFn: js.Function2[S, P, S | Null], callback: js.Function0[Unit] = js.native): Unit = js.native
 
 //    final def setState[SS >: S <: js.Object](partialState: SS, callback: js.Function0[Unit] = js.native): Unit = js.native
 //

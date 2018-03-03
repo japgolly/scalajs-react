@@ -29,10 +29,10 @@ object MonocleExtComponent {
 
   final class StateWritableCB[I, S](private val i: I)(implicit sa: StateAccessor.WritePure[I, S]) {
     def modStateL[A, B](l: PLens[S, S, A, B])(f: A => B, cb: Callback = Callback.empty): Callback =
-      sa.modStateCB(i)(l.modify(f), cb)
+      sa(i).modState(l.modify(f), cb)
 
     def setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B, cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): Callback =
-      sa.modStateCB(i)(L.set(l)(b), cb)
+      sa(i).modState(L.set(l)(b), cb)
 
     def setStateFnL[L[_, _, _, _], B](l: L[S, S, _, B], cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): B => Callback =
       setStateL(l)(_, cb)

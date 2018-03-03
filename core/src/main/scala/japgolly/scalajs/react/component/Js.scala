@@ -3,6 +3,7 @@ package japgolly.scalajs.react.component
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
+import scala.scalajs.js.|
 
 object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
 
@@ -135,9 +136,15 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
 
       override def modState(mod: S => S, callback: Callback = Callback.empty): Unit = {
         val jsFn1 = mod: js.Function1[S, S]
-        val jsFn2 = jsFn1.asInstanceOf[js.Function2[S, P, S]]
+        val jsFn2 = jsFn1.asInstanceOf[js.Function2[S, P, S | Null]]
         raw.modState(jsFn2, callback.toJsFn)
       }
+
+      override def setStateOption(state: Option[S], callback: Callback = Callback.empty): Unit =
+        setState(state getOrElse null.asInstanceOf[S], callback)
+
+      override def modStateOption(mod: S => Option[S], callback: Callback = Callback.empty): Unit =
+        modState(mod.andThen(_ getOrElse null.asInstanceOf[S]), callback)
 
       override def forceUpdate(callback: Callback): Unit =
         raw.forceUpdate(callback.toJsFn)

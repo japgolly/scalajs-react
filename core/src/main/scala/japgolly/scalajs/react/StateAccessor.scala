@@ -1,11 +1,15 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.Effect
+import japgolly.scalajs.react.internal.{Effect, identityFn}
 import ScalaComponent.Lifecycle
 import StateAccessor._
 
 /**
   * Type-classes that provide read and/or write access to state.
+  *
+  * The syntax is a little wonky for technical reasons.
+  * For read access, it's `typeclass.state(i): F[S]`.
+  * For write access, it's `typeclass(i).setState(...): F[Unit]`.
   */
 object StateAccessor extends StateAccessorImplicits {
 
@@ -14,18 +18,8 @@ object StateAccessor extends StateAccessorImplicits {
   }
 
   trait Write[-I, F[_], S] {
-    val setStateCB: I => (S, Callback) => F[Unit]
-    val modStateCB: I => ((S => S), Callback) => F[Unit]
-
-    final def setState(i: I): S => F[Unit] = {
-      val f = setStateCB(i)
-      f(_, Callback.empty)
-    }
-
-    final def modState(i: I): (S => S) => F[Unit] = {
-      val f = modStateCB(i)
-      f(_, Callback.empty)
-    }
+    val write: I => StateAccess.Write[F, S]
+    @inline final def apply(i: I) = write(i)
   }
 
   type ReadWrite[-I, R[_], W[_], S] = Read[I, R, S] with Write[I, W, S]
@@ -52,16 +46,14 @@ trait StateAccessorImplicits2 {
     type I = StateAccess[F, S]
     new Read[I, F, S] with Write[I, F, S] {
       override val state = (_: I).state
-      override val setStateCB = (i: I) => i.setState(_, _)
-      override val modStateCB = (i: I) => i.modState(_, _)
+      override val write = identityFn[I]
     }
   }
 
   private def newScalaLifecycleStateW[S]: WritePure[Lifecycle.StateW[_, S, _], S] = {
     type I = Lifecycle.StateW[_, S, _]
     new Write[I, CallbackTo, S] {
-      override val setStateCB = (i: I) => i.setState(_, _)
-      override val modStateCB = (i: I) => i.modState(_, _)
+      override val write = identityFn[I]
     }
   }
   private[this] lazy val scalaLifecycleStateWInstance = newScalaLifecycleStateW[Any]
@@ -78,8 +70,7 @@ trait StateAccessorImplicits1 extends StateAccessorImplicits2 {
     type I = Lifecycle.StateRW[_, S, _]
     new Read[I, CallbackTo, S] with Write[I, CallbackTo, S] {
       override val state = (i: I) => CallbackTo(i.state)
-      override val setStateCB = (i: I) => i.setState(_, _)
-      override val modStateCB = (i: I) => i.modState(_, _)
+      override val write = identityFn[I]
     }
   }
   private[this] lazy val scalaLifecycleStateRWCBInstance = newScalaLifecycleStateRWCB[Any]
@@ -95,8 +86,7 @@ trait StateAccessorImplicits extends StateAccessorImplicits1 {
     type I = Lifecycle.StateRW[_, S, _]
     new Read[I, Effect.Id, S] with Write[I, CallbackTo, S] {
       override val state = (_: I).state
-      override val setStateCB = (i: I) => i.setState(_, _)
-      override val modStateCB = (i: I) => i.modState(_, _)
+      override val write = identityFn[I]
     }
   }
   private[this] lazy val scalaLifecycleStateRWInstance = newScalaLifecycleStateRW[Any]

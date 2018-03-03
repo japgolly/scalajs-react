@@ -96,6 +96,12 @@ object Scala {
       override def modState(mod: S => S, callback: Callback = Callback.empty) =
         x.modState(s => Box(mod(s.unbox)), callback)
 
+      override def setStateOption(o: Option[S], callback: Callback = Callback.empty) =
+        x.setStateOption(o.map(Box.apply), callback)
+
+      override def modStateOption(mod: S => Option[S], callback: Callback = Callback.empty) =
+        x.modStateOption(box => mod(box.unbox).map(Box.apply), callback)
+
       override def forceUpdate(callback: Callback) =
         x.forceUpdate(callback)
 

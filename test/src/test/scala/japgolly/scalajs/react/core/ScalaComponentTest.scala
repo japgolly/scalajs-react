@@ -1,6 +1,5 @@
 package japgolly.scalajs.react.core
 
-import scalajs.js
 import utest._
 import scalaz.Equal
 import japgolly.scalajs.react._
@@ -203,6 +202,8 @@ object ScalaComponentSTest extends TestSuite {
   override def tests = Tests {
 
     'main - {
+      var callCount = 0
+      val incCallCount = Callback(callCount += 1)
       val unmounted = Component()
       assert(unmounted.propsChildren.isEmpty)
       assertEq(unmounted.key, None)
@@ -210,34 +211,60 @@ object ScalaComponentSTest extends TestSuite {
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode.asElement
-
-        assertOuterHTML(n, "<div>State = 123 + 400 + 7</div>")
-        assertEq(mounted.propsChildren.count, 0)
-        assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(123, State2(400, 7)))
         val b = mounted.backend
+        var s = State(123, State2(400, 7))
+        var cc = 0
 
-        mounted.setState(State(666, State2(500, 7)))
-        assertOuterHTML(n, "<div>State = 666 + 500 + 7</div>")
-        assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(666, State2(500, 7)))
-        assert(mounted.backend eq b)
+        def test(children: Int = 0, incCallCount: Boolean = false): Unit = {
+          if (incCallCount) cc += 1
+          assertOuterHTML(n, s"<div>State = ${s.num1} + ${s.s2.num2} + ${s.s2.num3}</div>")
+          assertEq(mounted.state, s)
+          assertEq("propsChildren.count", mounted.propsChildren.count, children)
+          assertEq("propsChildren.isEmpty", mounted.propsChildren.isEmpty, children == 0)
+          assertEq("callCount", callCount, cc)
+          assert(mounted.backend eq b)
+        }
+
+        test()
+
+        s = State(66, State2(50, 77))
+        mounted.setState(s, incCallCount)
+        test(incCallCount = true)
+
+        s = State(100, State2(300, 11))
+        mounted.setStateOption(Some(s), incCallCount)
+        test(incCallCount = true)
+
+        mounted.setStateOption(None, incCallCount)
+        test(incCallCount = true) // If this ever fails (i.e. React stops calling cb on setState(null, cb)),
+                                  // then change the logic in StateAccess.apply & ReactTestVar
+
+        s = State(88, s.s2)
+        mounted.modState(_.copy(88), incCallCount)
+        test(incCallCount = true)
+
+        s = State(828, s.s2)
+        mounted.modStateOption(x => Some(x.copy(828)), incCallCount)
+        test(incCallCount = true)
+
+        mounted.modStateOption(_ => None, incCallCount)
+        test(incCallCount = true)
+
+        s = State(666, State2(500, 7))
+        mounted.setState(s)
+        test()
 
         mounted.backend.inc.runNow()
-        assertOuterHTML(n, "<div>State = 667 + 500 + 7</div>")
-        assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(667, State2(500, 7)))
-        assert(mounted.backend eq b)
+        s = State(667, State2(500, 7))
+        test()
 
         val zoomed = mounted
           .zoomState(_.s2)(n => _.copy(s2 = n))
           .zoomState(_.num2)(n => _.copy(num2 = n))
         assertEq(zoomed.state, 500)
         zoomed.modState(_ + 1)
-        assertOuterHTML(n, "<div>State = 667 + 501 + 7</div>")
-        assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(667, State2(501, 7)))
-        assert(mounted.backend eq b)
+        s = State(667, State2(501, 7))
+        test()
       }
     }
 

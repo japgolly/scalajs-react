@@ -151,10 +151,16 @@ object Reusable {
     final class StateAccessWriteOps[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]) {
 
       def mod: (S => S) ~=> Callback =
-        Reusable.fn(t modState i)
+        Reusable.fn(t.write(i).modState(_))
+
+      def modOption: (S => Option[S]) ~=> Callback =
+        Reusable.fn(t.write(i).modStateOption(_))
 
       def set: S ~=> Callback =
-        Reusable.fn(t setState i)
+        Reusable.fn(t.write(i).setState(_))
+
+      def setOption: Option[S] ~=> Callback =
+        Reusable.fn(t.write(i).setStateOption(_))
     }
   }
 
