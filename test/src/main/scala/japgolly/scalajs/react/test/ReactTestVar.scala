@@ -81,7 +81,7 @@ class ReactTestVar[A](val initialValue: A) {
 
   lazy val stateAccess: StateAccessPure[A] =
     StateAccess(CallbackTo(value()))(
-      (oa, cb) => oa.fold(Callback.empty)(a => Callback(setValue(a))) >> cb,
+      (oa, cb) => cb <<? oa.map(a => Callback(setValue(a))),
       (fo, cb) => Callback(modValueOption(fo)) >> cb)
 }
 

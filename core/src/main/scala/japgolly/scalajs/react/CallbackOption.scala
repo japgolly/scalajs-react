@@ -235,6 +235,10 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def <<[B](prev: CallbackOption[B]): CallbackOption[A] =
     prev >> this
 
+  /** Convenient version of `<<` that accepts an Option */
+  def <<?[B](prev: Option[CallbackOption[B]]): CallbackOption[A] =
+    prev.fold(this)(_ >> this)
+
   /**
    * Alias for `>>`.
    *
