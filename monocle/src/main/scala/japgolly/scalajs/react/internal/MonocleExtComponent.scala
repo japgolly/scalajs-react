@@ -20,8 +20,17 @@ object MonocleExtComponent {
     def modStateL[A, B](l: PLens[S, S, A, B])(f: A => B, cb: Callback = Callback.empty): F[Unit] =
       self.modState(l.modify(f), cb)
 
+    def modStateOptionL[A, B](l: PLens[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty): F[Unit] =
+      self.modStateOption(s => f(l get s).map(l.set(_)(s)), cb)
+
     def setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B, cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): F[Unit] =
       self.modState(L.set(l)(b), cb)
+
+    def setStateOptionL[L[_, _, _, _], B](l: L[S, S, _, B])(o: Option[B], cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): F[Unit] =
+      o match {
+        case Some(b) => setStateL(l)(b, cb)
+        case None    => self.setStateOption(None, cb)
+      }
 
     def setStateFnL[L[_, _, _, _], B](l: L[S, S, _, B], cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): B => F[Unit] =
       setStateL(l)(_, cb)
@@ -29,10 +38,19 @@ object MonocleExtComponent {
 
   final class StateWritableCB[I, S](private val i: I)(implicit sa: StateAccessor.WritePure[I, S]) {
     def modStateL[A, B](l: PLens[S, S, A, B])(f: A => B, cb: Callback = Callback.empty): Callback =
-      sa.modStateCB(i)(l.modify(f), cb)
+      sa(i).modState(l.modify(f), cb)
+
+    def modStateOptionL[A, B](l: PLens[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty): Callback =
+      sa(i).modStateOption(s => f(l get s).map(l.set(_)(s)), cb)
 
     def setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B, cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): Callback =
-      sa.modStateCB(i)(L.set(l)(b), cb)
+      sa(i).modState(L.set(l)(b), cb)
+
+    def setStateOptionL[L[_, _, _, _], B](l: L[S, S, _, B])(o: Option[B], cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): Callback =
+      o match {
+        case Some(b) => setStateL(l)(b, cb)
+        case None    => sa(i).setStateOption(None, cb)
+      }
 
     def setStateFnL[L[_, _, _, _], B](l: L[S, S, _, B], cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): B => Callback =
       setStateL(l)(_, cb)

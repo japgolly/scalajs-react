@@ -9,6 +9,7 @@ import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils}
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
+import scala.scalajs.js.|
 
 object RawComponentEs6PTest extends TestSuite {
 
@@ -190,7 +191,7 @@ object RawComponentEs6STest extends TestSuite {
       raw.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3)
     }
     def inc(): Unit =
-      modState((s: State, _: Box[Unit]) => Box(s.unbox.copy(s.unbox.num1 + 1)))
+      modState((s: State, _: Props) => Box(s.unbox.copy(s.unbox.num1 + 1)): State | Null)
   }
   val RawCompCtor = js.constructorOf[RawComp]
   RawCompCtor.displayName = "State, no Props"

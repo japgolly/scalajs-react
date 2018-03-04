@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.component.builder
 
-import japgolly.scalajs.react.{Callback, CallbackTo, PropsChildren}
+import japgolly.scalajs.react.{Callback, CallbackTo, PropsChildren, StateAccess}
 import japgolly.scalajs.react.component.Generic.MountedDomNode
 import japgolly.scalajs.react.component.Scala._
 import japgolly.scalajs.react.internal._
@@ -35,15 +35,30 @@ object Lifecycle {
     final def mountedPure  : MountedPure[P, S, B]   = raw.mountedPure
   }
 
-  sealed trait StateW[P, S, B] extends Any with Base[P, S, B] {
-    final def setState(newState: S, cb: Callback = Callback.empty): Callback = mountedPure.setState(newState, cb)
-    final def modState(mod: S => S, cb: Callback = Callback.empty): Callback = mountedPure.modState(mod, cb)
+  sealed trait StateW[P, S, B] extends Any with Base[P, S, B] with StateAccess.WriteWithProps[CallbackTo, P, S] {
+    /** @param callback Executed after state is changed. */
+    final override def setState(newState: S, callback: Callback): Callback =
+      mountedPure.setState(newState, callback)
 
-    final def setStateFn[I](f: I => S, callback: Callback = Callback.empty): I => Callback =
-      i => setState(f(i), callback)
+    /** @param callback Executed after state is changed. */
+    final override def modState(mod: S => S, callback: Callback): Callback =
+      mountedPure.modState(mod, callback)
 
-    final def modStateFn[I](f: I => S => S, callback: Callback = Callback.empty): I => Callback =
-      i => modState(f(i), callback)
+    /** @param callback Executed after state is changed. */
+    final override def modState(mod: (S, P) => S, callback: Callback): Callback =
+      mountedPure.modState(mod, callback)
+
+    /** @param callback Executed regardless of whether state is changed. */
+    final override def setStateOption(newState: Option[S], callback: Callback): Callback =
+      mountedPure.setStateOption(newState, callback)
+
+    /** @param callback Executed regardless of whether state is changed. */
+    final override def modStateOption(mod: S => Option[S], callback: Callback): Callback =
+      mountedPure.modStateOption(mod, callback)
+
+    /** @param callback Executed regardless of whether state is changed. */
+    final override def modStateOption(mod: (S, P) => Option[S], callback: Callback): Callback =
+      mountedPure.modStateOption(mod, callback)
   }
 
   sealed trait StateRW[P, S, B] extends Any with StateW[P, S, B] {

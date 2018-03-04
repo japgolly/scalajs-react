@@ -51,6 +51,9 @@ class ReactTestVar[A](val initialValue: A) {
   def modValue(f: A => A): Unit =
     setValue(f(value()))
 
+  def modValueOption(f: A => Option[A]): Unit =
+    f(value()).foreach(setValue)
+
   def value(): A =
     _value
 
@@ -78,8 +81,8 @@ class ReactTestVar[A](val initialValue: A) {
 
   lazy val stateAccess: StateAccessPure[A] =
     StateAccess(CallbackTo(value()))(
-      (a, cb) => Callback(setValue(a)) >> cb,
-      (f, cb) => Callback(modValue(f)) >> cb)
+      (oa, cb) => cb <<? oa.map(a => Callback(setValue(a))),
+      (fo, cb) => Callback(modValueOption(fo)) >> cb)
 }
 
 object ReactTestVar {

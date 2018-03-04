@@ -3,6 +3,7 @@ package japgolly.scalajs.react.component
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
+import scala.scalajs.js.|
 
 object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
 
@@ -130,14 +131,29 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
       override def state         = raw.state
       override def getDOMNode    = Generic.MountedDomNode(RAW.ReactDOM.findDOMNode(raw))
 
-      override def setState(state: S, callback: Callback = Callback.empty): Unit =
+      override def setState(state: S, callback: Callback): Unit =
         raw.setState(state, callback.toJsFn)
 
-      override def modState(mod: S => S, callback: Callback = Callback.empty): Unit = {
+      override def modState(mod: S => S, callback: Callback): Unit = {
         val jsFn1 = mod: js.Function1[S, S]
-        val jsFn2 = jsFn1.asInstanceOf[js.Function2[S, P, S]]
+        val jsFn2 = jsFn1.asInstanceOf[js.Function2[S, P, S | Null]]
         raw.modState(jsFn2, callback.toJsFn)
       }
+
+      override def modState(mod: (S, P) => S, callback: Callback): Unit = {
+        val jsFn1 = mod: js.Function2[S, P, S]
+        val jsFn2 = jsFn1.asInstanceOf[js.Function2[S, P, S | Null]]
+        raw.modState(jsFn2, callback.toJsFn)
+      }
+
+      override def setStateOption(state: Option[S], callback: Callback): Unit =
+        setState(state getOrElse null.asInstanceOf[S], callback)
+
+      override def modStateOption(mod: S => Option[S], callback: Callback): Unit =
+        modState(mod(_) getOrElse null.asInstanceOf[S], callback)
+
+      override def modStateOption(mod: (S, P) => Option[S], callback: Callback): Unit =
+        modState(mod(_, _) getOrElse null.asInstanceOf[S], callback)
 
       override def forceUpdate(callback: Callback): Unit =
         raw.forceUpdate(callback.toJsFn)

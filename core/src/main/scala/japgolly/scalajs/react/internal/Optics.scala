@@ -33,18 +33,20 @@ object Iso {
 
 final class Lens[A, B](val get: A => B, val set: B => A => A) {
 
+  def setO(o: Option[B]): A => Option[A] =
+    o.fold[A => Option[A]](_ => None)(set(_).andThen(Some.apply))
+
   val mod: (B => B) => A => A =
     f => a => set(f(get(a)))(a)
 
-  def -->[C](next: Lens[B, C]): Lens[A, C] = {
-    val nextSet = next.set
-    Lens(next.get compose get)(mod compose nextSet)
-  }
+  def modO(f: B => Option[B]): A => Option[A] =
+    a => f(get(a)).map(set(_)(a))
 
-  def -->[C](next: Iso[B, C]): Lens[A, C] = {
-    val nextSet = next.set
-    Lens(next.get compose get)(set compose nextSet)
-  }
+  def -->[C](next: Lens[B, C]): Lens[A, C] =
+    Lens(next.get compose get)(mod compose next.set)
+
+  def -->[C](next: Iso[B, C]): Lens[A, C] =
+    Lens(next.get compose get)(set compose next.set)
 }
 
 object Lens {

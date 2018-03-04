@@ -232,7 +232,7 @@ object CatsReactState {
           CallbackTo.liftTraverse[SA, B] { xa =>
             val s2: StateAndCallbacks[S] = xa._1
             val a : A                    = xa._2
-            def c : Callback             = fToCb(sa.setStateCB(si)(s2.state, s2.cb))
+            def c : Callback             = fToCb(sa(si).setState(s2.state, s2.cb))
             val cb: CallbackTo[B]        = conclude(s1, s2.state, a, c)
             cb
           }.id.map(M.map(msa))
@@ -247,7 +247,7 @@ object CatsReactState {
 
     def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): Out[Unit] =
       stateCB.flatMap(s1 =>
-        F(s1, f(s1), Callback.empty, s => fToCb(sa.setStateCB(si)(s, cb))))
+        F(s1, f(s1), Callback.empty, s => fToCb(sa(si).setState(s, cb))))
 
     def modStateFnF[I](f: I => S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): I => Out[Unit] =
       i => modStateF(f(i), cb)

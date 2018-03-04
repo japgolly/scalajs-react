@@ -11,24 +11,16 @@ import japgolly.scalajs.react.internal.{Effect, Lens}
   * @tparam F The type of effect when accessing state.
   * @tparam S State type.
   */
-trait StateAccess[F[_], S] {
+trait StateAccess[F[_], S] extends StateAccess.Write[F, S] {
   final type State = S
 
   protected implicit def F: Effect[F]
 
+  def state: F[State]
+
   type WithMappedState[S2] <: StateAccess[F, S2]
   def xmapState[S2](f: S => S2)(g: S2 => S): WithMappedState[S2]
   def zoomState[S2](get: S => S2)(set: S2 => S => S): WithMappedState[S2]
-
-  def state: F[State]
-  def setState(newState: State, callback: Callback = Callback.empty): F[Unit]
-  def modState(mod: State => State, callback: Callback = Callback.empty): F[Unit]
-
-  final def setStateFn[I](f: I => State, callback: Callback = Callback.empty): I => F[Unit] =
-    i => setState(f(i), callback)
-
-  final def modStateFn[I](f: I => State => State, callback: Callback = Callback.empty): I => F[Unit] =
-    i => modState(f(i), callback)
 
   type WithEffect[F2[_]] <: StateAccess[F2, S]
   def withEffect[F2[_]](implicit t: Effect.Trans[F, F2]): WithEffect[F2]
@@ -38,10 +30,78 @@ trait StateAccess[F[_], S] {
 
 object StateAccess {
 
+  /** Various methods to modify a component's state. */
+  trait Write[F[_], S] extends Any {
+
+    // Abstract
+
+    /** @param callback Executed after state is changed. */
+    def setState(newState: S, callback: Callback): F[Unit]
+
+    /** @param callback Executed after state is changed. */
+    def modState(mod: S => S, callback: Callback): F[Unit]
+
+    /** @param callback Executed regardless of whether state is changed. */
+    def setStateOption(newState: Option[S], callback: Callback): F[Unit]
+
+    /** @param callback Executed regardless of whether state is changed. */
+    def modStateOption(mod: S => Option[S], callback: Callback): F[Unit]
+
+    // Concrete
+
+    final def setState(newState: S): F[Unit] =
+      setState(newState, Callback.empty)
+
+    final def modState(mod: S => S): F[Unit] =
+      modState(mod, Callback.empty)
+
+    final def setStateOption(newState: Option[S]): F[Unit] =
+      setStateOption(newState, Callback.empty)
+
+    final def modStateOption(mod: S => Option[S]): F[Unit] =
+      modStateOption(mod, Callback.empty)
+
+    /** @param callback Executed after state is changed. */
+    final def setStateFn[I](f: I => S, callback: Callback = Callback.empty): I => F[Unit] =
+      i => setState(f(i), callback)
+
+    /** @param callback Executed after state is changed. */
+    final def modStateFn[I](f: I => S => S, callback: Callback = Callback.empty): I => F[Unit] =
+      i => modState(f(i), callback)
+
+    /** @param callback Executed regardless of whether state is changed. */
+    final def setStateOptionFn[I](f: I => Option[S], callback: Callback = Callback.empty): I => F[Unit] =
+      i => setStateOption(f(i), callback)
+
+    /** @param callback Executed regardless of whether state is changed. */
+    final def modStateOptionFn[I](f: I => S => Option[S], callback: Callback = Callback.empty): I => F[Unit] =
+      i => modStateOption(f(i), callback)
+  }
+
+  // ===================================================================================================================
+
+  /** Various methods to modify a component's state. */
+  trait WriteWithProps[F[_], P, S] extends Any with Write[F, S] {
+
+    /** @param callback Executed after state is changed. */
+    def modState(mod: (S, P) => S, callback: Callback): F[Unit]
+
+    /** @param callback Executed regardless of whether state is changed. */
+    def modStateOption(mod: (S, P) => Option[S], callback: Callback): F[Unit]
+
+    final def modState(mod: (S, P) => S): F[Unit] =
+      modState(mod, Callback.empty)
+
+    final def modStateOption(mod: (S, P) => Option[S]): F[Unit] =
+      modStateOption(mod, Callback.empty)
+  }
+
+  // ===================================================================================================================
+
   /** For testing. */
   def apply[F[_], S](stateFn: => F[S])
-                    (setItFn: (S, Callback) => F[Unit],
-                     modItFn: ((S => S), Callback) => F[Unit])
+                    (setItFn: (Option[S], Callback) => F[Unit],
+                     modItFn: ((S => Option[S]), Callback) => F[Unit])
                     (implicit FF: Effect[F]): StateAccess[F, S] =
     new StateAccess[F, S] {
       override type WithEffect[F2[_]] = StateAccess[F2, S]
@@ -51,25 +111,31 @@ object StateAccess {
 
       override def state = stateFn
 
-      override def setState(newState: State, callback: Callback = Callback.empty) =
+      override def setState(newState: State, callback: Callback) =
+        setStateOption(Some(newState), callback)
+
+      override def modState(mod: State => State, callback: Callback) =
+        modStateOption(mod.andThen(Some(_)), callback)
+
+      override def setStateOption(newState: Option[State], callback: Callback) =
         setItFn(newState, callback)
 
-      override def modState(mod: State => State, callback: Callback = Callback.empty) =
+      override def modStateOption(mod: State => Option[State], callback: Callback) =
         modItFn(mod, callback)
 
       override def xmapState[S2](f: S => S2)(g: S2 => S) =
         apply(
           F.map(stateFn)(f))(
-          (s, c) => setItFn(g(s), c),
-          (m, c) => modItFn(g compose m compose f, c))(
+          (s, c) => setItFn(s map g, c),
+          (m, c) => modItFn(s => m(f(s)) map g, c))(
           FF)
 
       override def zoomState[S2](get: S => S2)(set: S2 => S => S) = {
         val l = Lens(get)(set)
         apply(
           F.map(stateFn)(get))(
-          (s, c) => modItFn(l set s, c),
-          (m, c) => modItFn(l mod m, c))(
+          (s, c) => modItFn(l setO s, c),
+          (m, c) => modItFn(l modO m, c))(
           FF)
       }
 

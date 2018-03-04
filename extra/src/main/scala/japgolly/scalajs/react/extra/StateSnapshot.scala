@@ -63,7 +63,7 @@ object StateSnapshot {
 
     /** This is meant to be called once and reused so that the setState callback stays the same. */
     def prepareVia[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]): FromSetStateFn[S] =
-      prepare(t.setState(i))
+      prepare(t(i).setState)
 
     def xmap[S, T](get: S => T)(set: T => S): FromLens[S, T] =
       new FromLens(Iso(get)(set).toLens)
@@ -82,7 +82,7 @@ object StateSnapshot {
 
       /** This is meant to be called once and reused so that the setState callback stays the same. */
       def prepareVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): FromLensSetStateFn[S, T] =
-        prepare(t.modState(i))
+        prepare(t(i).modState)
 
       def xmap[U](get: T => U)(set: U => T): FromLens[S, U] =
         new FromLens(l --> Iso(get)(set))
@@ -143,7 +143,7 @@ object StateSnapshot {
         new StateSnapshot(value, Reusable.fn(set), Reusability.never)
 
       def setStateVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): StateSnapshot[S] =
-        apply(t.setState(i))
+        apply(t(i).setState)
     }
 
     final class FromLensValue[S, T](l: Lens[S, T], value: T) {
@@ -151,7 +151,7 @@ object StateSnapshot {
         StateSnapshot(value)(modify compose l.set)
 
       def setStateVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): StateSnapshot[T] =
-        apply(t.modState(i))
+        apply(t(i).modState)
     }
   }
 

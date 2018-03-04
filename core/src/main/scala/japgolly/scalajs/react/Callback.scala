@@ -451,6 +451,10 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   @inline def <<[B](runBefore: CallbackTo[B]): CallbackTo[A] =
     runBefore >> this
 
+  /** Convenient version of `<<` that accepts an Option */
+  def <<?[B](prev: Option[CallbackTo[B]]): CallbackTo[A] =
+    prev.fold(this)(_ >> this)
+
   def zip[B](cb: CallbackTo[B]): CallbackTo[(A, B)] =
     for {
       a <- this
