@@ -104,7 +104,7 @@ object Generic {
     def displayName: String
   }
 
-  trait MountedSimple[F[_], P, S] extends MountedRaw with StateAccess[F, S] {
+  trait MountedSimple[F[_], P, S] extends MountedRaw with StateAccess[F, S] with StateAccess.WriteWithProps[F, P, S] {
     final type Props = P
 
     override type WithEffect[F2[_]]   <: MountedSimple[F2, P, S]

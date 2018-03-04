@@ -187,16 +187,16 @@ object ScalaComponentSTest extends TestSuite {
   implicit val equalState: Equal[State] = Equal.equalA
   implicit val equalState2: Equal[State2] = Equal.equalA
 
-  class Backend($: BackendScope[Unit, State]) {
+  class Backend($: BackendScope[Int, State]) {
     val inc: Callback =
       $.modState(s => s.copy(s.num1 + 1))
   }
 
   val Component =
-    ScalaComponent.builder[Unit]("State, no Props")
+    ScalaComponent.builder[Int]("")
       .initialState(State(123, State2(400, 7)))
       .backend(new Backend(_))
-      .render_S(s => raw.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3))
+      .render_PS((p, s) => raw.React.createElement("div", null, "Props = ", p, ". State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3))
       .build
 
   override def tests = Tests {
@@ -204,7 +204,8 @@ object ScalaComponentSTest extends TestSuite {
     'main - {
       var callCount = 0
       val incCallCount = Callback(callCount += 1)
-      val unmounted = Component()
+      val p = 9000
+      val unmounted = Component(p)
       assert(unmounted.propsChildren.isEmpty)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
@@ -217,7 +218,7 @@ object ScalaComponentSTest extends TestSuite {
 
         def test(children: Int = 0, incCallCount: Boolean = false): Unit = {
           if (incCallCount) cc += 1
-          assertOuterHTML(n, s"<div>State = ${s.num1} + ${s.s2.num2} + ${s.s2.num3}</div>")
+          assertOuterHTML(n, s"<div>Props = $p. State = ${s.num1} + ${s.s2.num2} + ${s.s2.num3}</div>")
           assertEq(mounted.state, s)
           assertEq("propsChildren.count", mounted.propsChildren.count, children)
           assertEq("propsChildren.isEmpty", mounted.propsChildren.isEmpty, children == 0)
@@ -243,8 +244,16 @@ object ScalaComponentSTest extends TestSuite {
         mounted.modState(_.copy(88), incCallCount)
         test(incCallCount = true)
 
+        s = State(9088, s.s2)
+        mounted.modState((s, p) => s.copy(s.num1 + p), incCallCount)
+        test(incCallCount = true)
+
         s = State(828, s.s2)
         mounted.modStateOption(x => Some(x.copy(828)), incCallCount)
+        test(incCallCount = true)
+
+        s = State(9828, s.s2)
+        mounted.modStateOption((s, p) => Some(s.copy(p + 828)), incCallCount)
         test(incCallCount = true)
 
         mounted.modStateOption(_ => None, incCallCount)
@@ -268,8 +277,15 @@ object ScalaComponentSTest extends TestSuite {
       }
     }
 
-    'ctorReuse -
+    'ctorReuse - {
+      val Component =
+        ScalaComponent.builder[Unit]("")
+          .initialState(123)
+          .render_S(s => raw.React.createElement("div", null, s))
+          .build
+
       assert(Component() eq Component())
+    }
 
   }
 }

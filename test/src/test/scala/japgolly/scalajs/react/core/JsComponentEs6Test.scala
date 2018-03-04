@@ -201,7 +201,7 @@ object JsComponentEs6STest extends JsComponentTest {
           test(incCallCount = true)
 
           s = JsState(88, s.num2)
-          mounted.modState(setNum1(88), incCallCount)
+          mounted.modState(setNum1(88)(_), incCallCount)
           test(incCallCount = true)
 
           s = JsState(828, s.num2)

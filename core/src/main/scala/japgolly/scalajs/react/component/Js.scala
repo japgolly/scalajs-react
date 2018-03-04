@@ -140,11 +140,20 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
         raw.modState(jsFn2, callback.toJsFn)
       }
 
+      override def modState(mod: (S, P) => S, callback: Callback): Unit = {
+        val jsFn1 = mod: js.Function2[S, P, S]
+        val jsFn2 = jsFn1.asInstanceOf[js.Function2[S, P, S | Null]]
+        raw.modState(jsFn2, callback.toJsFn)
+      }
+
       override def setStateOption(state: Option[S], callback: Callback): Unit =
         setState(state getOrElse null.asInstanceOf[S], callback)
 
       override def modStateOption(mod: S => Option[S], callback: Callback): Unit =
-        modState(mod.andThen(_ getOrElse null.asInstanceOf[S]), callback)
+        modState(mod(_) getOrElse null.asInstanceOf[S], callback)
+
+      override def modStateOption(mod: (S, P) => Option[S], callback: Callback): Unit =
+        modState(mod(_, _) getOrElse null.asInstanceOf[S], callback)
 
       override def forceUpdate(callback: Callback): Unit =
         raw.forceUpdate(callback.toJsFn)

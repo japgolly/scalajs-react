@@ -80,6 +80,24 @@ object StateAccess {
 
   // ===================================================================================================================
 
+  /** Various methods to modify a component's state. */
+  trait WriteWithProps[F[_], P, S] extends Any with Write[F, S] {
+
+    /** @param callback Executed after state is changed. */
+    def modState(mod: (S, P) => S, callback: Callback): F[Unit]
+
+    /** @param callback Executed regardless of whether state is changed. */
+    def modStateOption(mod: (S, P) => Option[S], callback: Callback): F[Unit]
+
+    final def modState(mod: (S, P) => S): F[Unit] =
+      modState(mod, Callback.empty)
+
+    final def modStateOption(mod: (S, P) => Option[S]): F[Unit] =
+      modStateOption(mod, Callback.empty)
+  }
+
+  // ===================================================================================================================
+
   /** For testing. */
   def apply[F[_], S](stateFn: => F[S])
                     (setItFn: (Option[S], Callback) => F[Unit],

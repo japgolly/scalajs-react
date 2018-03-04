@@ -56,11 +56,17 @@ object Template {
     override def modState(f: State => State, callback: Callback) =
       ft apply from.modState(ls mod f, callback)
 
+    override def modState(f: (State, Props) => State, callback: Callback) =
+      ft apply from.modState((s1, p1) => ls.set(f(ls.get(s1), mp(p1)))(s1), callback)
+
     override def setStateOption(o: Option[State], callback: Callback) =
       o.fold(ft apply from.setStateOption(None, callback))(setState(_, callback))
 
     override def modStateOption(f: State => Option[State], callback: Callback) =
       ft apply from.modStateOption(ls modO f, callback)
+
+    override def modStateOption(f: (State, Props) => Option[State], callback: Callback) =
+      ft apply from.modStateOption((s1, p1) => f(ls.get(s1), mp(p1)).map(ls.set(_)(s1)), callback)
 
     override def mapProps[P3](f: P2 => P3) =
       mapped(f compose mp, ls)
