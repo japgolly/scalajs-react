@@ -17,7 +17,7 @@ object ScalaFn {
 
     val jsRender = render.andThen(_.rawElement): js.Function1[Box[P] with raw.PropsWithChildren, raw.React.Element]
     val rawComponent = jsRender.asInstanceOf[raw.React.StatelessFunctionalComponent[Box[P]]]
-    JsFn[Box[P], C](rawComponent)(s)
+    JsFn.force[Box[P], C](rawComponent)(s)
       .cmapCtorProps[P](Box(_))
       .mapUnmounted(_.mapUnmountedProps(_.unbox))
   }

@@ -19,6 +19,7 @@ object ScalajsReact {
     val ScalaJsDom    = "0.9.4"
     val Scalaz72      = "7.2.20"
     val SizzleJs      = "2.3.0"
+    val Sourcecode    = "0.1.4"
   }
 
   type PE = Project => Project
@@ -213,7 +214,8 @@ object ScalajsReact {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom))
+        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
+        "com.lihaoyi" %%% "sourcecode" % Ver.Sourcecode))
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
