@@ -131,7 +131,7 @@ object JsComponentEs6PTest extends JsComponentTest {
 
 
 object JsComponentEs6STest extends JsComponentTest {
-//  @JSName("ES6_S")
+//  @JSGlobal("ES6_S")
 //  @js.native
 //  object RawComp extends js.Object
   lazy val RawComp = js.eval("ES6_S") // https://github.com/scala-js/scala-js/issues/2800

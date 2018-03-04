@@ -1,7 +1,9 @@
 package japgolly.scalajs.react.component
 
+import org.scalajs.dom.console
 import scala.annotation.elidable
 import scala.scalajs.js
+import scala.util.Try
 import japgolly.scalajs.react.internal.JsUtil
 
 object InspectRaw {
@@ -12,19 +14,51 @@ object InspectRaw {
       case _              => false
     }
 
-  def invalidComponentDesc(a: js.Any): String =
-    a.asInstanceOf[Any] match {
-      case s: String    => '"' + s + "\". Strings are no longer supported; either create a facade or use js.Dynamic. See docs for detail."
-      case o: js.Object => JsUtil.inspectObject(o)
-      case ()           => a.toString
-      case _            => s"${a.toString} (type=${js.typeOf(a)})"
-    }
-
   @elidable(elidable.ASSERTION)
   @inline
-  def assertIsComponent(aa: => js.Any, name: => String): Unit = {
+  def assertIsComponent(aa: => js.Any, name: => String, where: sourcecode.FullName, line: sourcecode.Line): Unit = {
     val a = aa
-    assert(isComponent(a), s"Invalid $name: ${invalidComponentDesc(a)}")
+    if (!isComponent(a)) {
+
+      def invalidComponentDesc(a: js.Any): String =
+        (a: Any) match {
+          case s: String    => '"' + s.replace("\n", "\\n") + '"' // doesn't need to be perfect
+          case o: js.Object => JsUtil.inspectObject(o)
+          case ()           => a.toString
+          case _            => s"${a.toString}: ${js.typeOf(a)}"
+        }
+
+      val solution: String = (a: Any) match {
+        case _: String =>
+          """
+            |String arguments are no longer supported. Either:
+            |  * create a JS facade using @JSImport / @JSGlobal
+            |  * grab the JS value using js.Dynamic
+            |
+            |See https://github.com/japgolly/scalajs-react/blob/master/doc/INTEROP.md"
+          """.stripMargin
+        case _ =>
+          """
+            |Make sure that
+            |  * your @JSImport / @JSGlobal annotations have the correct values
+            |  * the JS that you're referencing has been loaded into the JS environment
+          """.stripMargin
+      }
+
+      val errMsg =
+        s"""
+           |
+           |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+           |Invalid $name! You've called $name(${invalidComponentDesc(a)})
+           |Source: ${where.value} (line #${line.value})
+           |
+           |${solution.trim}
+           |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+           |
+         """.stripMargin
+      Try(console.error(errMsg))
+      throw new AssertionError(errMsg)
+    }
   }
 
 }

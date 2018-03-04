@@ -10,8 +10,10 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
   type Unmounted[P <: js.Object]                               = UnmountedRoot[P]
   type Mounted                                                 = Unit
 
-  def apply[P <: js.Object, C <: Children](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] = {
-    InspectRaw.assertIsComponent(raw, "JsFnComponent")
+  def apply[P <: js.Object, C <: Children]
+           (raw: js.Any)
+           (implicit s: CtorType.Summoner[P, C], where: sourcecode.FullName, line: sourcecode.Line): Component[P, s.CT] = {
+    InspectRaw.assertIsComponent(raw, "JsFnComponent", where, line)
     force[P, C](raw)(s)
   }
 
