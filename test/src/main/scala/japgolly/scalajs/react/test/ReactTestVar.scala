@@ -7,7 +7,7 @@ import japgolly.scalajs.react.extra._
   * Houses a variable and provides React-like access to it.
   *
   * Provides mock-like instances of the following:
-  * - [[ReusableFn]]
+  * - [[Reusable]] functions
   * - [[StateAccess]]
   * - [[StateSnapshot]]
   * - [[StateSnapshot]] with [[Reusability]]
@@ -70,18 +70,21 @@ class ReactTestVar[A](val initialValue: A) {
   def history(): Vector[A] =
     _history
 
+  val setStateOptionCBFn: Reusable[(Option[A], Callback) => Callback] =
+    Reusable.byRef((oa, cb) => cb <<? oa.map(a => Callback(setValue(a))))
+
   val setStateFn: A ~=> Callback =
-    Reusable.fn(a => Callback(setValue(a)))
+    setStateOptionCBFn.map(f => (a: A) => f(Some(a), Callback.empty))
 
   def stateSnapshot(): StateSnapshot[A] =
-    StateSnapshot(value())(setStateFn)
+    StateSnapshot(value())(setStateOptionCBFn)
 
   def stateSnapshotWithReuse()(implicit r: Reusability[A]): StateSnapshot[A] =
-    StateSnapshot.withReuse(value())(setStateFn)
+    StateSnapshot.withReuse(value())(setStateOptionCBFn)
 
   lazy val stateAccess: StateAccessPure[A] =
     StateAccess(CallbackTo(value()))(
-      (oa, cb) => cb <<? oa.map(a => Callback(setValue(a))),
+      setStateOptionCBFn,
       (fo, cb) => Callback(modValueOption(fo)) >> cb)
 }
 

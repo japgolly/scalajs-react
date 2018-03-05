@@ -83,13 +83,17 @@ object ReuseExample {
   }
 
   class Backend($: BackendScope[Unit, State]) {
-    val changeFn   = Reusable.fn((i: Int)              => $.modState(_.changeNumberOfInputs(i)))
-    val setInputFn = Reusable.fn((i: Int, value: Long) => $.modState(_.setInput(i, value)))
+    val changeFn = Reusable.fn((i: Int) => $.modState(_.changeNumberOfInputs(i)))
+
+    val setInputFn = Reusable.fn { (i: Int, setStateArgs: (Option[Long], Callback)) =>
+      val (value, cb) = setStateArgs
+      $.modStateOption(s => value.map(s.setInput(i, _)), cb)
+    }
 
     def render(s: State) = {
       def inputEditor(index: Int) = {
         val value = s.inputs(index)
-        val rvar = StateSnapshot.withReuse(value)(setInputFn(index))
+        val rvar = StateSnapshot.withReuse(value).tupled(setInputFn(index))
         InputEditor.withKey(index)(rvar)
       }
 
