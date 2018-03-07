@@ -222,6 +222,7 @@ object ScalajsReact {
     .dependsOn(cats % "test->compile")
     .settings(
       name := "test",
+      scalacOptions in Test -= "-deprecation",
       libraryDependencies ++= Seq(
         "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
