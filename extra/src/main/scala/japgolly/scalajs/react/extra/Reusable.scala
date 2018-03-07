@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import scala.reflect.ClassTag
-import japgolly.scalajs.react.{Callback, CallbackOption, CallbackTo, StateAccessor}
+import japgolly.scalajs.react._
 
 /**
   * A value that has been explicitly paired with a (potentially ad-hoc) [[Reusability]] instance.
@@ -150,6 +150,12 @@ object Reusable {
     def state[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]) = new StateAccessWriteOps(i)(t)
     final class StateAccessWriteOps[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]) {
 
+      def setStateFn: Reusable[SetStateFnPure[S]] =
+        Reusable.byRef(t(i).toSetStateFn)
+
+      def modStateFn: Reusable[ModStateFnPure[S]] =
+        Reusable.byRef(t(i).toModStateFn)
+
       def mod: (S => S) ~=> Callback =
         Reusable.fn(t(i).modState)
 
@@ -161,6 +167,18 @@ object Reusable {
 
       def setOption: Option[S] ~=> Callback =
         Reusable.fn(t(i).setStateOption)
+
+      def modCB: Reusable[((S => S), Callback) => Callback] =
+        Reusable.byRef(t(i).modState)
+
+      def modOptionCB: Reusable[((S => Option[S]), Callback) => Callback] =
+        Reusable.byRef(t(i).modStateOption)
+
+      def setCB: Reusable[(S, Callback) => Callback] =
+        Reusable.byRef(t(i).setState)
+
+      def setOptionCB: Reusable[(Option[S], Callback) => Callback] =
+        Reusable.byRef(t(i).setStateOption)
     }
   }
 

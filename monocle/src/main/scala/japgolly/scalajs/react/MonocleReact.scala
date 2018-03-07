@@ -13,6 +13,11 @@ object MonocleReact extends MonocleExtComponent with MonocleExtStateSnapshot {
       ReactS.zoom[M, S, T, A](s, l.get, (a, b) => l.set(b)(a))
   }
 
+  implicit final class MonocleReactExt_ModStateFn[F[_], S](private val self: ModStateFn[F, S]) extends AnyVal {
+    def xmapL[T](l: Iso[S, T]): ModStateFn[F, T] =
+      self.xmap(l.get)(l.reverseGet)
+  }
+
   implicit final class MonocleReactExt_RouteCommon[R[X] <: RouteCommon[R, X], A](private val r: RouteCommon[R, A]) extends AnyVal {
     def pmapL[B](l: Prism[A, B]): R[B] =
       r.pmap(l.getOption)(l.reverseGet)

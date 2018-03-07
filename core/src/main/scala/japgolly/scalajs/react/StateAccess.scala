@@ -30,71 +30,81 @@ trait StateAccess[F[_], S] extends StateAccess.Write[F, S] {
 
 object StateAccess {
 
-  /** Various methods to modify a component's state. */
-  trait Write[F[_], S] extends Any {
-
-    // Abstract
-
-    /** @param callback Executed after state is changed. */
-    def setState(newState: S, callback: Callback): F[Unit]
-
-    /** @param callback Executed after state is changed. */
-    def modState(mod: S => S, callback: Callback): F[Unit]
-
-    /** @param callback Executed regardless of whether state is changed. */
-    def setStateOption(newState: Option[S], callback: Callback): F[Unit]
-
-    /** @param callback Executed regardless of whether state is changed. */
-    def modStateOption(mod: S => Option[S], callback: Callback): F[Unit]
-
-    // Concrete
+  trait SetState[F[_], S] extends Any {
 
     final def setState(newState: S): F[Unit] =
       setState(newState, Callback.empty)
 
-    final def modState(mod: S => S): F[Unit] =
-      modState(mod, Callback.empty)
+    /** @param callback Executed after state is changed. */
+    def setState(newState: S, callback: Callback): F[Unit] =
+      setStateOption(Some(newState))
 
     final def setStateOption(newState: Option[S]): F[Unit] =
       setStateOption(newState, Callback.empty)
 
-    final def modStateOption(mod: S => Option[S]): F[Unit] =
-      modStateOption(mod, Callback.empty)
+    /** @param callback Executed regardless of whether state is changed. */
+    def setStateOption(newState: Option[S], callback: Callback): F[Unit]
 
-    /** @param callback Executed after state is changed. */
+    @deprecated("Create a function yourself. If you're using this in Reusable.fn(…), use Reusable.fn.state(this.zoom…).set instead", "1.2.0")
     final def setStateFn[I](f: I => S, callback: Callback = Callback.empty): I => F[Unit] =
       i => setState(f(i), callback)
 
-    /** @param callback Executed after state is changed. */
-    final def modStateFn[I](f: I => S => S, callback: Callback = Callback.empty): I => F[Unit] =
-      i => modState(f(i), callback)
-
-    /** @param callback Executed regardless of whether state is changed. */
+    @deprecated("Create a function yourself. If you're using this in Reusable.fn(…), use Reusable.fn.state(this.zoom…).setOption instead", "1.2.0")
     final def setStateOptionFn[I](f: I => Option[S], callback: Callback = Callback.empty): I => F[Unit] =
       i => setStateOption(f(i), callback)
 
-    /** @param callback Executed regardless of whether state is changed. */
-    final def modStateOptionFn[I](f: I => S => Option[S], callback: Callback = Callback.empty): I => F[Unit] =
-      i => modStateOption(f(i), callback)
+    def toSetStateFn: SetStateFn[F, S] =
+      SetStateFn(setStateOption)
   }
 
-  // ===================================================================================================================
+  trait ModState[F[_], S] extends Any {
 
-  /** Various methods to modify a component's state. */
-  trait WriteWithProps[F[_], P, S] extends Any with Write[F, S] {
+    final def modState(mod: S => S): F[Unit] =
+      modState(mod, Callback.empty)
 
     /** @param callback Executed after state is changed. */
-    def modState(mod: (S, P) => S, callback: Callback): F[Unit]
+    def modState(mod: S => S, callback: Callback): F[Unit] =
+      modStateOption(mod.andThen(Some(_)), callback)
+
+    final def modStateOption(mod: S => Option[S]): F[Unit] =
+      modStateOption(mod, Callback.empty)
 
     /** @param callback Executed regardless of whether state is changed. */
-    def modStateOption(mod: (S, P) => Option[S], callback: Callback): F[Unit]
+    def modStateOption(mod: S => Option[S], callback: Callback): F[Unit]
+
+    @deprecated("Create a function yourself. If you're using this in Reusable.fn(…), use Reusable.fn.state(this.zoom…).mod instead", "1.2.0")
+    final def modStateFn[I](f: I => S => S, callback: Callback = Callback.empty): I => F[Unit] =
+      i => modState(f(i), callback)
+
+    @deprecated("Create a function yourself. If you're using this in Reusable.fn(…), use Reusable.fn.state(this.zoom…).modOption instead", "1.2.0")
+    final def modStateOptionFn[I](f: I => S => Option[S], callback: Callback = Callback.empty): I => F[Unit] =
+      i => modStateOption(f(i), callback)
+
+    def toModStateFn: ModStateFn[F, S] =
+      ModStateFn(modStateOption)
+  }
+
+  trait ModStateWithProps[F[_], P, S] extends Any {
 
     final def modState(mod: (S, P) => S): F[Unit] =
       modState(mod, Callback.empty)
 
+    /** @param callback Executed after state is changed. */
+    def modState(mod: (S, P) => S, callback: Callback): F[Unit] =
+      modStateOption((s, p) => Some(mod(s, p)), callback)
+
     final def modStateOption(mod: (S, P) => Option[S]): F[Unit] =
       modStateOption(mod, Callback.empty)
+
+    /** @param callback Executed regardless of whether state is changed. */
+    def modStateOption(mod: (S, P) => Option[S], callback: Callback): F[Unit]
   }
+
+  // ===================================================================================================================
+
+  trait Write[F[_], S] extends Any with SetState[F, S] with ModState[F, S]
+
+  trait WriteWithProps[F[_], P, S] extends Any with Write[F, S] with ModStateWithProps[F, P, S]
 
   // ===================================================================================================================
 
@@ -110,12 +120,6 @@ object StateAccess {
       override protected implicit def F = FF
 
       override def state = stateFn
-
-      override def setState(newState: State, callback: Callback) =
-        setStateOption(Some(newState), callback)
-
-      override def modState(mod: State => State, callback: Callback) =
-        modStateOption(mod.andThen(Some(_)), callback)
 
       override def setStateOption(newState: Option[State], callback: Callback) =
         setItFn(newState, callback)
