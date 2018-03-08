@@ -340,4 +340,34 @@ object Px {
 
   def apply22[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,Z](pa:Px[A], pb:Px[B], pc:Px[C], pd:Px[D], pe:Px[E], pf:Px[F], pg:Px[G], ph:Px[H], pi:Px[I], pj:Px[J], pk:Px[K], pl:Px[L], pm:Px[M], pn:Px[N], po:Px[O], pp:Px[P], pq:Px[Q], pr:Px[R], ps:Px[S], pt:Px[T], pu:Px[U], pv:Px[V])(z:(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V)⇒Z): Px[Z] =
     for {a←pa;b←pb;c←pc;d←pd;e←pe;f←pf;g←pg;h←ph;i←pi;j←pj;k←pk;l←pl;m←pm;n←pn;o←po;p←pp;q←pq;r←pr;s←ps;t←pt;u←pu;v←pv} yield z(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v)
+
+  // ===================================================================================================================
+
+  trait ManualCollection {
+    def add[A](px: Px.ThunkM[A]): px.type
+    val refreshCB: Callback
+
+    final def addAll(pxs: Px.ThunkM[_]*): Unit =
+      pxs.foreach(add(_))
+
+    final def refresh(): Unit =
+      refreshCB.runNow()
+  }
+
+  object ManualCollection {
+    def apply(initial: Px.ThunkM[_]*): ManualCollection =
+      new ManualCollection {
+
+        var pxs = initial.toList
+
+        override def add[A](px: Px.ThunkM[A]): px.type = {
+          pxs ::= px
+          px
+        }
+
+        override val refreshCB: Callback =
+          Callback(Px.refresh(pxs: _*))
+      }
+  }
+
 }
