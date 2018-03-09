@@ -12,10 +12,10 @@ trait Listenable[A] {
   /**
    * Register a listener.
    *
-   * @param f The listener. A procedure that receives data of type A.
+   * @param listener The listener/consumer. A procedure that receives data of type A.
    * @return A procedure to unregister the given listener.
    */
-  def register(f: A => Callback): CallbackTo[Callback]
+  def register(listener: A => Callback): CallbackTo[Callback]
 }
 
 object Listenable {
