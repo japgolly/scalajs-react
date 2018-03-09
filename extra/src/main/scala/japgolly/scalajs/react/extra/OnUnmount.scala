@@ -9,10 +9,10 @@ import japgolly.scalajs.react._
  */
 trait OnUnmount {
   private var unmountProcs: List[Callback] = Nil
-  final def unmount: Callback = Callback {
-    unmountProcs foreach (_.runNow())
-    unmountProcs = Nil
-  }
+
+  final def unmount: Callback =
+    Callback.sequence(unmountProcs) >> Callback(unmountProcs = Nil)
+
   final def onUnmount(f: Callback): Callback =
     Callback(unmountProcs ::= f)
 }
