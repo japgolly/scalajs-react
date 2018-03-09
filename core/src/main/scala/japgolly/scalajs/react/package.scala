@@ -3,7 +3,7 @@ package japgolly.scalajs
 import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js
-import japgolly.scalajs.react.internal.Effect
+import japgolly.scalajs.react.internal.Effect.Id
 import japgolly.scalajs.react.component.Generic.MountedDomNode
 
 package object react extends ReactEventTypes {
@@ -13,7 +13,13 @@ package object react extends ReactEventTypes {
   type Callback = CallbackTo[Unit]
 
   type StateAccessPure[S] = StateAccess[CallbackTo, S]
-  type StateAccessImpure[S] = StateAccess[Effect.Id, S]
+  type StateAccessImpure[S] = StateAccess[Id, S]
+
+  type SetStateFnPure[S] = SetStateFn[CallbackTo, S]
+  type SetStateFnImpure[S] = SetStateFn[Id, S]
+
+  type ModStateFnPure[S] = ModStateFn[CallbackTo, S]
+  type ModStateFnImpure[S] = ModStateFn[Id, S]
 
   val GenericComponent = component.Generic
   type GenericComponent[P, CT[-p, +u] <: CtorType[p, u], U] = GenericComponent.ComponentSimple[P, CT, U]

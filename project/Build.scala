@@ -110,14 +110,6 @@ object ScalajsReact {
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
         testFrameworks        += new TestFramework("NonStupidTestFramework"))
 
-  // META-INF/resources/webjars/react/16.2.0/umd/react.development.js
-  // META-INF/resources/webjars/react/16.2.0/umd/react.production.min.js
-  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom-server.browser.development.js
-  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom-server.browser.production.min.js
-  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom-test-utils.development.js
-  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom-test-utils.production.min.js
-  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom.development.js
-  // META-INF/resources/webjars/react-dom/16.2.0/umd/react-dom.production.min.js
   case class ReactArtifact(filename: String) {
     val dev = s"umd/$filename.development.js"
     val prod = s"umd/$filename.production.min.js"
@@ -132,26 +124,26 @@ object ScalajsReact {
       jsDependencies ++= Seq(
 
         "org.webjars.npm" % "react" % Ver.ReactJs % scope
-          /        React.dev
-          minified React.prod
+          /        "umd/react.development.js"
+          minified "umd/react.production.min.js"
           commonJSName "React",
 
         "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
-          /         ReactDom.dev
-          minified  ReactDom.prod
-          dependsOn React.dev
+          /         "umd/react-dom.development.js"
+          minified  "umd/react-dom.production.min.js"
+          dependsOn "umd/react.development.js"
           commonJSName "ReactDOM",
 
         "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
-          /         ReactDomTestUtils.dev
-          minified  ReactDomTestUtils.prod
-          dependsOn ReactDom.dev
+          /         "umd/react-dom-test-utils.development.js"
+          minified  "umd/react-dom-test-utils.production.min.js"
+          dependsOn "umd/react-dom.development.js"
           commonJSName "ReactTestUtils",
 
-        "org.webjars.npm" % "react" % Ver.ReactJs % scope
-          /         ReactDomServer.dev
-          minified  ReactDomServer.prod
-          dependsOn ReactDom.dev
+        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+          /         "umd/react-dom-server.browser.development.js"
+          minified  "umd/react-dom-server.browser.production.min.js"
+          dependsOn "umd/react-dom.development.js"
           commonJSName "ReactDOMServer"),
 
       skip in packageJSDependencies := false)
@@ -230,6 +222,7 @@ object ScalajsReact {
     .dependsOn(cats % "test->compile")
     .settings(
       name := "test",
+      scalacOptions in Test -= "-deprecation",
       libraryDependencies ++= Seq(
         "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,

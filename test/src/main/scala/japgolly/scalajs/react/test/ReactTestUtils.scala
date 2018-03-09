@@ -5,8 +5,7 @@ import org.scalajs.dom.html.Element
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.component.Generic.MountedDomNode
-import japgolly.scalajs.react.raw.{ReactDOM => RawReactDOM, React => RawReact}
+import japgolly.scalajs.react.raw.{React => RawReact, ReactDOM => RawReactDOM}
 import japgolly.scalajs.react.vdom.TopNode
 
 object ReactTestUtils {
@@ -99,7 +98,7 @@ object ReactTestUtils {
   }
 
   private def mountedElement(m: RawReact.ComponentUntyped) =
-    MountedDomNode(RawReactDOM findDOMNode m).asElement
+    ReactDOM.findDOMNode(m).asElement
 
   /** Renders a component then unmounts and cleans up after use.
     *

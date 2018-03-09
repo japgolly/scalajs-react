@@ -9,14 +9,6 @@ final class StateSnapshot[S](val value: S,
 
   override def toString = s"StateSnapshot($value)"
 
-  /** @param callback Executed after state is changed. */
-  override def setState(newState: S, callback: Callback): Callback =
-    underlyingSetFn(Some(newState), callback)
-
-  /** @param callback Executed after state is changed. */
-  override def modState(mod: S => S, callback: Callback): Callback =
-    setState(mod(value), callback)
-
   /** @param callback Executed regardless of whether state is changed. */
   override def setStateOption(newState: Option[S], callback: Callback): Callback =
     underlyingSetFn(newState, callback)

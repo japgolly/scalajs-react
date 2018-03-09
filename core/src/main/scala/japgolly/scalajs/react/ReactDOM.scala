@@ -1,9 +1,16 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.component.Generic.MountedDomNode
+import japgolly.scalajs.react.{raw => Raw}
 import org.scalajs.dom
+import scala.scalajs.js.|
 
 object ReactDOM {
-  def raw = japgolly.scalajs.react.raw.ReactDOM
+  def raw = Raw.ReactDOM
+
+  /** For mounted components, use .getDOMNode */
+  def findDOMNode(componentOrElement: dom.Element | Raw.React.ComponentUntyped): MountedDomNode =
+    MountedDomNode(raw.findDOMNode(componentOrElement))
 
   def unmountComponentAtNode(container: dom.Node): Boolean =
     raw.unmountComponentAtNode(container)
@@ -21,9 +28,6 @@ object ReactDOM {
   def render(element  : NotAllowed,
              container: NotAllowed,
              callback : NotAllowed = null): Null = null
-
-  @deprecated("Use .getDOMNode on mounted components.", "")
-  def findDOMNode(comonent: NotAllowed): Null = null
 
   @deprecated("Import vdom and use ReactPortal()", "")
   def createPortal(child: NotAllowed, container: NotAllowed): Null = null
