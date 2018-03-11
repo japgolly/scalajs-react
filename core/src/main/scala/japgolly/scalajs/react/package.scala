@@ -76,6 +76,12 @@ package object react extends ReactEventTypes {
         case Left(t)  => t
         case Right(e) => sys error s"Expected a dom.Text; got $e"
       }
+
+    def toElement: Option[dom.Element] =
+      n.right.toOption
+
+    def toText: Option[dom.Text] =
+      n.left.toOption
   }
 
   @inline implicit final class ReactExt_OptionCallback(private val o: Option[Callback]) extends AnyVal {
