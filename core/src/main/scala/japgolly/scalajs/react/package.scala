@@ -4,7 +4,6 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js
 import japgolly.scalajs.react.internal.Effect.Id
-import japgolly.scalajs.react.component.Generic.MountedDomNode
 
 package object react extends ReactEventTypes {
 
@@ -54,7 +53,7 @@ package object react extends ReactEventTypes {
       }
   }
 
-  @inline implicit final class ReactExt_MountedDomNode(private val n: MountedDomNode) extends AnyVal {
+  @inline implicit final class ReactExt_MountedDomNode(private val n: GenericComponent.MountedDomNode) extends AnyVal {
 
     def domCast[N <: dom.raw.Node]: N =
       asElement.domCast[N]
@@ -82,6 +81,9 @@ package object react extends ReactEventTypes {
 
     def toText: Option[dom.Text] =
       n.left.toOption
+
+    def rawDomNode: japgolly.scalajs.react.raw.ReactDOM.DomNode =
+      n.fold(a => a, a => a)
   }
 
   @inline implicit final class ReactExt_OptionCallback(private val o: Option[Callback]) extends AnyVal {

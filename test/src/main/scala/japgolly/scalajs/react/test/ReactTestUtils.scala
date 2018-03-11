@@ -98,7 +98,7 @@ object ReactTestUtils {
   }
 
   private def mountedElement(m: RawReact.ComponentUntyped) =
-    ReactDOM.findDOMNode(m).asElement
+    ReactDOM.findDOMNode(m).get.asElement
 
   /** Renders a component then unmounts and cleans up after use.
     *

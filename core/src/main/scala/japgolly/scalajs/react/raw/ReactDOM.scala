@@ -27,10 +27,10 @@ trait ReactDOM extends js.Object {
   // ==========================================================================
   // NOTE: Ensure that Generic.MountedDomNode is kept up-to-date with this type
   //
-  final type FindDomNodeResult = dom.Element | dom.Text | Null
+  final type DomNode = dom.Element | dom.Text
   // ==========================================================================
 
-  final def findDOMNode(componentOrElement: dom.Element | React.ComponentUntyped): FindDomNodeResult = js.native
+  final def findDOMNode(componentOrElement: dom.Element | React.ComponentUntyped): DomNode | Null = js.native
 
   final def createPortal(child: React.Node, container: Container): React.Node = js.native
 }

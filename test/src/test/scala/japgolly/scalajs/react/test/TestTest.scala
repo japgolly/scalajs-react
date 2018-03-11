@@ -59,7 +59,7 @@ object TestTest extends TestSuite {
 
     'renderIntoDocument - {
       def test(c: GenericComponent.MountedRaw, exp: String): Unit =
-        assertOuterHTML(MountedDomNode(ReactDOM.raw.findDOMNode(c.raw)).asElement, exp)
+        assertOuterHTML(ReactDOM.findDOMNode(c.raw).get.asElement, exp)
 
       'plainElement - {
         val re: VdomElement = <.div("Good")

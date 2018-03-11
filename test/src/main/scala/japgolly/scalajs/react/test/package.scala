@@ -1,7 +1,5 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.component.Generic.MountedDomNode
-
 package object test {
 
   val Simulate = japgolly.scalajs.react.test.raw.ReactTestUtils.Simulate
@@ -9,7 +7,7 @@ package object test {
   type ReactOrDomNode = japgolly.scalajs.react.test.raw.ReactOrDomNode
 
   implicit def reactOrDomNodeFromMounted(m: GenericComponent.MountedRaw): ReactOrDomNode =
-    MountedDomNode(ReactDOM.raw.findDOMNode(m.raw)).asElement
+    ReactDOM.findDOMNode(m.raw).get.rawDomNode
 
   implicit def reactOrDomNodeFromVRE(m: vdom.VdomElement): ReactOrDomNode =
     m.rawElement

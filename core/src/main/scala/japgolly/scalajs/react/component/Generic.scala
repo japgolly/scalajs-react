@@ -87,12 +87,19 @@ object Generic {
 
   type MountedDomNode = Either[dom.Text, dom.Element]
 
-  /** null is not supported. This is called only when it is known that a component is mounted */
-  private[react] def MountedDomNode(i: RAW.ReactDOM.FindDomNodeResult): MountedDomNode =
-    (i: Any) match {
-      case e: dom.Element => Right(e)
-      case t: dom.Text    => Left(t)
-    }
+  object MountedDomNode {
+    def apply(i: RAW.ReactDOM.DomNode): MountedDomNode =
+      (i: Any) match {
+        case e: dom.Element => Right(e)
+        case t: dom.Text => Left(t)
+      }
+
+    def nullable(i: RAW.ReactDOM.DomNode | Null): Option[MountedDomNode] =
+      jsNullToOption(i).map(apply)
+
+    def force(i: RAW.ReactDOM.DomNode | Null): MountedDomNode =
+      apply(i.asInstanceOf[RAW.ReactDOM.DomNode])
+  }
 
   type Mounted[F[_], P, S] = MountedSimple[F, P, S]
   type MountedPure  [P, S] = MountedSimple[CallbackTo, P, S]
