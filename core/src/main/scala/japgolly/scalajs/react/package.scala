@@ -20,6 +20,9 @@ package object react extends ReactEventTypes {
   type ModStateFnPure[S] = ModStateFn[CallbackTo, S]
   type ModStateFnImpure[S] = ModStateFn[Id, S]
 
+  type ModStateWithPropsFnPure[P, S] = ModStateWithPropsFn[CallbackTo, P, S]
+  type ModStateWithPropsFnImpure[P, S] = ModStateWithPropsFn[Id, P, S]
+
   val GenericComponent = component.Generic
   type GenericComponent[P, CT[-p, +u] <: CtorType[p, u], U] = GenericComponent.ComponentSimple[P, CT, U]
 

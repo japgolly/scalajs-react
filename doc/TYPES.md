@@ -304,16 +304,20 @@ Secondly, there are the following classes that
 * require a single function for construction
 * extend Scala functions
 * extend an appropriate `StateAccess` trait
-* are great to pass around components
+* allows call-site to choose the set/mod-state variation they need (eg. `setState(s)` vs `setState(Option(s), cb)`)
 
 ```scala
 SetStateFn[F, S]
 ModStateFn[F, S]
+ModStateWithPropsFn[F, P, S]
+
 // And aliases:
 SetStateFnPure[S]
 SetStateFnImpure[S]
 ModStateFnPure[S]
 ModStateFnImpure[S]
+ModStateWithPropsFnPure[P, S]
+ModStateWithPropsFnImpure[P, S]
 ```
 
 # Events

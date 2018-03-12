@@ -98,6 +98,9 @@ object StateAccess {
 
     /** @param callback Executed regardless of whether state is changed. */
     def modStateOption(mod: (S, P) => Option[S], callback: Callback): F[Unit]
+
+    def toModStateWithPropsFn: ModStateWithPropsFn[F, P, S] =
+      ModStateWithPropsFn(modStateOption)
   }
 
   // ===================================================================================================================

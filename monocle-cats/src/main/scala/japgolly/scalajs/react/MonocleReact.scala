@@ -14,8 +14,13 @@ object MonocleReact extends MonocleExtComponent with MonocleExtStateSnapshot {
   }
 
   implicit final class MonocleReactExt_ModStateFn[F[_], S](private val self: ModStateFn[F, S]) extends AnyVal {
-    def xmapL[T](l: Iso[S, T]): ModStateFn[F, T] =
-      self.xmap(l.get)(l.reverseGet)
+    def xmapStateL[T](l: Iso[S, T]): ModStateFn[F, T] =
+      self.xmapState(l.get)(l.reverseGet)
+  }
+
+  implicit final class MonocleReactExt_ModStateWithPropsFn[F[_], P, S](private val self: ModStateWithPropsFn[F, P, S]) extends AnyVal {
+    def xmapStateL[T](l: Iso[S, T]): ModStateWithPropsFn[F, P, T] =
+      self.xmapState(l.get)(l.reverseGet)
   }
 
   implicit final class MonocleReactExt_RouteCommon[R[X] <: RouteCommon[R, X], A](private val r: RouteCommon[R, A]) extends AnyVal {
