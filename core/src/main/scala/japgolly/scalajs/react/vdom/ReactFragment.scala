@@ -5,11 +5,21 @@ import scala.scalajs.js
 
 object ReactFragment {
 
-  /** Elements keys are optional. */
+  /** Unlike [[VdomArray]],
+    *
+    * - This is immutable.
+    * - Elements may, but needn't have keys.
+    * - The result can be assigned a key.
+    */
   def apply(ns: VdomNode*): VdomElement =
     create(null, ns: _*)
 
-  /** Elements keys are optional. */
+  /** Unlike [[VdomArray]],
+    *
+    * - This is immutable.
+    * - Elements may, but needn't have keys.
+    * - The result can be assigned a key.
+    */
   def withKey(key: Key)(ns: VdomNode*): VdomElement = {
     val jsKey: Raw.React.Key = key
     val props = js.Dynamic.literal("key" -> jsKey.asInstanceOf[js.Any])

@@ -26,40 +26,17 @@ Setup
 
     ```scala
     // scalajs-react test module
-    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "1.1.1" % "test"
+    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "1.2.0" % Test
 
     // React JS itself.
     // NOTE: Requires react-with-addons.js instead of just react.js
-    jsDependencies ++= Seq(
+    jsDependencies +=
 
-      "org.webjars.bower" % "react" % "15.6.1" % "test"
-        /        "react-with-addons.js"
-        minified "react-with-addons.min.js"
-        commonJSName "React",
-
-      "org.webjars.bower" % "react" % "15.6.1" % "test"
-        /         "react-dom.js"
-        minified  "react-dom.min.js"
-        dependsOn "react-with-addons.js"
-        commonJSName "ReactDOM",
-
-      "org.webjars.bower" % "react" % "15.6.1" % "test"
-        /         "react-dom-server.js"
-        minified  "react-dom-server.min.js"
-        dependsOn "react-dom.js"
-        commonJSName "ReactDOMServer"),
-
-    // Indicate that unit tests will access the DOM
-    requiresDOM := true
-
-    // Compile tests to JS using fast-optimisation
-    scalaJSStage in Test := FastOptStage
-    ```
-
-3. To [workaround](https://github.com/scala-js/scala-js/issues/1555) a [PhantomJS bug](https://github.com/ariya/phantomjs/issues/13112) that causes tests to crash if they write to stderr, copy [`PhantomJS2Env.scala`](https://github.com/japgolly/scalajs-react/blob/v1.0.0-RC1/project/PhantomJS2Env.scala) to your `project` directory and add this to SBT:
-
-    ```scala
-    jsEnv in Test := new PhantomJS2Env(scalaJSPhantomJSClassLoader.value)
+      "org.webjars.npm" % "react-dom" % "16.2.0" % Test
+        /         "umd/react-dom-test-utils.development.js"
+        minified  "umd/react-dom-test-utils.production.min.js"
+        dependsOn "umd/react-dom.development.js"
+        commonJSName "ReactTestUtils"
     ```
 
 

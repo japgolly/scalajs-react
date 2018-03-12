@@ -23,7 +23,7 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.1.1"
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.2.0"
   ```
 
 3. Add React to your build.
@@ -38,11 +38,11 @@ Setup
 
       enablePlugins(ScalaJSBundlerPlugin)
 
-      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.1.1"
+      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.2.0"
 
       npmDependencies in Compile ++= Seq(
-        "react" -> "15.6.1",
-        "react-dom" -> "15.6.1")
+        "react" -> "16.2.0",
+        "react-dom" -> "16.2.0")
     ```
 
     If you're using old-school `jsDependencies`, add something akin to:
@@ -51,22 +51,22 @@ Setup
     // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
     jsDependencies ++= Seq(
 
-      "org.webjars.bower" % "react" % "15.6.1"
-        /        "react-with-addons.js"
-        minified "react-with-addons.min.js"
+      "org.webjars.npm" % "react" % "16.2.0"
+        /        "umd/react.development.js"
+        minified "umd/react.production.min.js"
         commonJSName "React",
 
-      "org.webjars.bower" % "react" % "15.6.1"
-        /         "react-dom.js"
-        minified  "react-dom.min.js"
-        dependsOn "react-with-addons.js"
+      "org.webjars.npm" % "react-dom" % "16.2.0"
+        /         "umd/react-dom.development.js"
+        minified  "umd/react-dom.production.min.js"
+        dependsOn "umd/react.development.js"
         commonJSName "ReactDOM",
 
-      "org.webjars.bower" % "react" % "15.6.1"
-        /         "react-dom-server.js"
-        minified  "react-dom-server.min.js"
-        dependsOn "react-dom.js"
-        commonJSName "ReactDOMServer")
+      "org.webjars.npm" % "react-dom" % "16.2.0"
+        /         "umd/react-dom-server.browser.development.js"
+        minified  "umd/react-dom-server.browser.production.min.js"
+        dependsOn "umd/react-dom.development.js"
+        commonJSName "ReactDOMServer"),
     ```
 
 [See here](IDE.md) for tips on configuring your IDE.
@@ -273,7 +273,12 @@ NoArgs().renderIntoDOM(document.body)
 React Extensions
 ================
 
-* Where `setState(State)` is applicable, you can also run `modState(State => State)`.
+* Where `setState(State)` is applicable, you can also run:
+  * `modState(State => State)`
+  * `modState((State, Props) => State)`
+  * `setStateOption(Option[State])`
+  * `modStateOption(State => Option[State])`
+  * `modStateOption((State, Props) => Option[State])`
 
 * React has a [classSet addon](https://facebook.github.io/react/docs/class-name-manipulation.html)
   for specifying multiple optional class attributes. The same mechanism is applicable with this library is as follows:
@@ -332,7 +337,7 @@ Gotchas
 
 * `table(tr(...))` will appear to work fine at first then crash later. React needs `table(tbody(tr(...)))`.
 
-* React's `setState` is asynchronous; it doesn't apply invocations of `this.setState` until the end of `render` or the current callback. Calling `.state` after `.setState` will return the initial, original value, i.e.
+* React's `setState` functions are asynchronous; they don't apply invocations of `this.setState` until the end of `render` or the current callback. Calling `.state` after `.setState` will return the initial, original value, i.e.
 
   ```scala
   val s1 = $.state
