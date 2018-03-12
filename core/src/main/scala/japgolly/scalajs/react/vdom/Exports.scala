@@ -22,6 +22,10 @@ abstract class Exports {
   final type VdomElement = japgolly.scalajs.react.vdom.VdomElement
   final val VdomElement = japgolly.scalajs.react.vdom.VdomElement
 
+  final val ReactFragment = japgolly.scalajs.react.vdom.ReactFragment
+
+  final val ReactPortal = japgolly.scalajs.react.vdom.ReactPortal
+
   final type VdomTagOf[+N <: TopNode] = japgolly.scalajs.react.vdom.TagOf[N]
   final type VdomTag = VdomTagOf[TopNode]
 
@@ -38,7 +42,7 @@ abstract class Exports {
   /** Tag modification. Apply it to a [[VdomTag]]. */
   final type TagMod = japgolly.scalajs.react.vdom.TagMod
   final val TagMod = japgolly.scalajs.react.vdom.TagMod
-  final val EmptyVdom = japgolly.scalajs.react.vdom.TagMod.Empty
+  final val EmptyVdom = japgolly.scalajs.react.vdom.VdomNode.empty
 
   final type VdomAttr[-U] = japgolly.scalajs.react.vdom.Attr[U]
   final val VdomAttr = japgolly.scalajs.react.vdom.Attr

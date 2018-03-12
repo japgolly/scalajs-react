@@ -8,6 +8,11 @@ import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 
+abstract class JsComponentTest extends TestSuite {
+  final val H1: raw.React.Element =
+    raw.React.createElement("h1", null, "Huge")
+}
+
 object JsComponentEs6PTest extends JsComponentTest {
 //  @JSName("ES6_P")
 //  @js.native
@@ -45,7 +50,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode
+          val n = mounted.getDOMNode.asElement
           assertOuterHTML(n, "<div>Hello Bob</div>")
           // assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.props.name, "Bob")
@@ -64,7 +69,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode
+          val n = mounted.getDOMNode.asElement
           assertOuterHTML(n, "<div>Hello Bob</div>")
           // assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.props.name, "Bob")
@@ -103,7 +108,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode
+          val n = mounted.getDOMNode.asElement
           assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
           // assertEq(mounted.isMounted, yesItsMounted)
           assertEq(mounted.props.name, "X")
@@ -115,7 +120,7 @@ object JsComponentEs6PTest extends JsComponentTest {
 
       'withKey - {
         ReactTestUtils.withNewBodyElement { mountNode =>
-          val n = C.withKey("k")(JsProps("X"))(H1).renderIntoDOM(mountNode).getDOMNode
+          val n = C.withKey("k")(JsProps("X"))(H1).renderIntoDOM(mountNode).getDOMNode.asElement
           assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
         }
       }
@@ -126,7 +131,7 @@ object JsComponentEs6PTest extends JsComponentTest {
 
 
 object JsComponentEs6STest extends JsComponentTest {
-//  @JSName("ES6_S")
+//  @JSGlobal("ES6_S")
 //  @js.native
 //  object RawComp extends js.Object
   lazy val RawComp = js.eval("ES6_S") // https://github.com/scala-js/scala-js/issues/2800
@@ -159,6 +164,9 @@ object JsComponentEs6STest extends JsComponentTest {
 
     'noChildren - {
       'main - {
+        def setNum1(n: Int)(s: JsState): JsState = JsState(n, s.num2)
+        var callCount = 0
+        val incCallCount = Callback(callCount += 1)
         val unmounted = Component()
         assertEq(unmounted.propsChildren.count, 0)
         assertEq(unmounted.propsChildren.isEmpty, true)
@@ -166,37 +174,56 @@ object JsComponentEs6STest extends JsComponentTest {
         assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode
+          val n = mounted.getDOMNode.asElement
+          var s = JsState(123, 500)
+          var cc = 0
 
-          assertOuterHTML(n, "<div>State = 123 + 500</div>")
-          // assertEq(mounted.isMounted, yesItsMounted)
-          assertEq(mounted.propsChildren.count, 0)
-          assertEq(mounted.propsChildren.isEmpty, true)
-          assertEq(mounted.state.num1, 123)
-          assertEq(mounted.state.num2, 500)
+          def test(children: Int = 0, incCallCount: Boolean = false): Unit = {
+            if (incCallCount) cc += 1
+            assertOuterHTML(n, s"<div>State = ${s.num1} + ${s.num2}</div>")
+            assertEq((mounted.state.num1, mounted.state.num2), (s.num1, s.num2))
+            assertEq("propsChildren.count", mounted.propsChildren.count, children)
+            assertEq("propsChildren.isEmpty", mounted.propsChildren.isEmpty, children == 0)
+            assertEq("callCount", callCount, cc)
+          }
 
-          mounted.setState(JsState1(666))
-          assertOuterHTML(n, "<div>State = 666 + 500</div>")
-          // assertEq(mounted.isMounted, yesItsMounted)
-          assertEq(mounted.propsChildren.isEmpty, true)
-          assertEq(mounted.state.num1, 666)
-          assertEq(mounted.state.num2, 500)
+          test()
+
+          s = JsState(50, s.num2)
+          mounted.setState(JsState1(50), incCallCount)
+          test(incCallCount = true)
+
+          s = JsState(300, 11)
+          mounted.setStateOption(Some(s), incCallCount)
+          test(incCallCount = true)
+
+          mounted.setStateOption(None, incCallCount)
+          test(incCallCount = true)
+
+          s = JsState(88, s.num2)
+          mounted.modState(setNum1(88)(_), incCallCount)
+          test(incCallCount = true)
+
+          s = JsState(828, s.num2)
+          mounted.modStateOption(x => Some(setNum1(828)(x)), incCallCount)
+          test(incCallCount = true)
+
+          mounted.modStateOption(_ => None, incCallCount)
+          test(incCallCount = true)
+
+          s = JsState(666, 500)
+          mounted.setState(s)
+          test()
 
           mounted.raw.inc()
-          assertOuterHTML(n, "<div>State = 667 + 500</div>")
-          // assertEq(mounted.isMounted, yesItsMounted)
-          assertEq(mounted.propsChildren.isEmpty, true)
-          assertEq(mounted.state.num1, 667)
-          assertEq(mounted.state.num2, 500)
+          s = JsState(667, s.num2)
+          test()
 
           val zoomed = mounted.zoomState(_.num2)(n => s => JsState(s.num1, n))
           assertEq(zoomed.state, 500)
           zoomed.modState(_ + 1)
-          assertOuterHTML(n, "<div>State = 667 + 501</div>")
-          // assertEq(mounted.isMounted, yesItsMounted)
-          assertEq(mounted.propsChildren.isEmpty, true)
-          assertEq(mounted.state.num1, 667)
-          assertEq(mounted.state.num2, 501)
+          s = JsState(s.num1, 501)
+          test()
         }
       }
 
@@ -205,7 +232,7 @@ object JsComponentEs6STest extends JsComponentTest {
 
       'withKey - {
         ReactTestUtils.withNewBodyElement { mountNode =>
-          val n = Component.withKey("k")().renderIntoDOM(mountNode).getDOMNode
+          val n = Component.withKey("k")().renderIntoDOM(mountNode).getDOMNode.asElement
           assertOuterHTML(n, "<div>State = 123 + 500</div>")
         }
       }
@@ -235,7 +262,7 @@ object JsComponentEs6STest extends JsComponentTest {
         assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode
+          val n = mounted.getDOMNode.asElement
 
           assertOuterHTML(n, "<div>State = 123 + 500<h1>Huge</h1></div>")
           // assertEq(mounted.isMounted, yesItsMounted)
@@ -248,7 +275,7 @@ object JsComponentEs6STest extends JsComponentTest {
 
       'withKey - {
         ReactTestUtils.withNewBodyElement { mountNode =>
-          val n = C.withKey("k")(H1).renderIntoDOM(mountNode).getDOMNode
+          val n = C.withKey("k")(H1).renderIntoDOM(mountNode).getDOMNode.asElement
           assertOuterHTML(n, "<div>State = 123 + 500<h1>Huge</h1></div>")
         }
       }

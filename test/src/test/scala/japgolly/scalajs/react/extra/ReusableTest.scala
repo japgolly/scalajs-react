@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.extra
 
+import japgolly.scalajs.react.Callback
 import utest._
 
 object ReusableTest extends TestSuite {
@@ -61,6 +62,17 @@ object ReusableTest extends TestSuite {
       assertNotReusable(f2, g1, g2, f1)
       assertNotReusable(g1, g2, f1, f2)
       assertNotReusable(g2, f1, f2, g1)
+    }
+
+    'callback {
+      val a = Callback(0)
+      val b = Callback(0)
+      val fa = Reusable.callbackByRef(a)
+      val fb = Reusable.callbackByRef(b)
+      assertReusable(fa, fa)
+      assertReusable(fb, fb)
+      assertNotReusable(fa, fb)
+      assertNotReusable(fb, fa)
     }
 
   }

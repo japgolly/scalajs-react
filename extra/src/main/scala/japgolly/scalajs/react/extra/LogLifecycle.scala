@@ -31,4 +31,11 @@ object LogLifecycle {
   def verbose[P, C <: Children, S, B]: ScalaComponent.Config[P, C, S, B] =
     custom(componentName => lc =>
       Callback.log(s"[$componentName] $lc", lc.raw))
+
+  /** Warning: Consumes and ignores errors. */
+  def errors[P, C <: Children, S, B]: ScalaComponent.Config[P, C, S, B] =
+    b => {
+      val prefix = s"[${b.name}] Error occurred: "
+      b.componentDidCatch($ => Callback.log(prefix, $.error, $.info))
+    }
 }

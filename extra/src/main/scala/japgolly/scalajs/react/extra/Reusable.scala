@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import scala.reflect.ClassTag
-import japgolly.scalajs.react.{Callback, StateAccessor}
+import japgolly.scalajs.react._
 
 /**
   * A value that has been explicitly paired with a (potentially ad-hoc) [[Reusability]] instance.
@@ -78,6 +78,15 @@ object Reusable {
       case _         => false
     })
 
+  /** Compare by reference through an isomorphism. Reuse if both values are the same instance. */
+  def byRefIso[A, B <: AnyRef](a: A)(iso: A => B): Reusable[A] = {
+    val b = iso(a)
+    new Reusable[A](() => a, b, _.root match {
+      case x: AnyRef => b eq x
+      case _         => false
+    })
+  }
+
   /** Compare using universal equality (Scala's == operator). */
   def by_==[A](a: A): Reusable[A] =
     root(a, a == _.root)
@@ -100,6 +109,12 @@ object Reusable {
     reusabilityInstance.narrow
 
   // ===================================================================================================================
+
+  def callbackByRef[A](c: CallbackTo[A]): Reusable[CallbackTo[A]] =
+    byRefIso(c)(_.underlyingRepr)
+
+  def callbackOptionByRef[A](c: CallbackOption[A]): Reusable[CallbackOption[A]] =
+    byRefIso(c)(_.underlyingRepr)
 
   /**
    * A function that facilitates stability and reuse.
@@ -135,11 +150,35 @@ object Reusable {
     def state[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]) = new StateAccessWriteOps(i)(t)
     final class StateAccessWriteOps[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]) {
 
+      def setStateFn: Reusable[SetStateFnPure[S]] =
+        Reusable.byRef(t(i).toSetStateFn)
+
+      def modStateFn: Reusable[ModStateFnPure[S]] =
+        Reusable.byRef(t(i).toModStateFn)
+
       def mod: (S => S) ~=> Callback =
-        Reusable.fn(t modState i)
+        Reusable.fn(t(i).modState)
+
+      def modOption: (S => Option[S]) ~=> Callback =
+        Reusable.fn(t(i).modStateOption)
 
       def set: S ~=> Callback =
-        Reusable.fn(t setState i)
+        Reusable.fn(t(i).setState)
+
+      def setOption: Option[S] ~=> Callback =
+        Reusable.fn(t(i).setStateOption)
+
+      def modCB: Reusable[((S => S), Callback) => Callback] =
+        Reusable.byRef(t(i).modState)
+
+      def modOptionCB: Reusable[((S => Option[S]), Callback) => Callback] =
+        Reusable.byRef(t(i).modStateOption)
+
+      def setCB: Reusable[(S, Callback) => Callback] =
+        Reusable.byRef(t(i).setState)
+
+      def setOptionCB: Reusable[(Option[S], Callback) => Callback] =
+        Reusable.byRef(t(i).setStateOption)
     }
   }
 

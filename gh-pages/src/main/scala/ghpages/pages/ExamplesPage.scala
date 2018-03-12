@@ -37,10 +37,9 @@ object ExamplesJs extends ExampleCollection {
   case object Todo         extends Example(TodoExample.title, "todo",          TodoExample        .content)
   case object Refs         extends Example("Refs",            "refs",          RefsExample        .content)
   case object ProductTable extends Example("Product Table",   "product-table", ProductTableExample.content)
-  case object Animation    extends Example("Animation",       "animation",     AnimationExample   .content)
 
   override val values = Vector[Example](
-    Hello, Timer, Todo, Refs, ProductTable, Animation
+    Hello, Timer, Todo, Refs, ProductTable
   )
 }
 
@@ -54,8 +53,9 @@ object ExamplesScala extends ExampleCollection {
   case object CallbackOpt   extends Example("CallbackOption",     "callback-option",   CallbackOptionExample  .content)
   case object WebSockets    extends Example("WebSockets",         "websockets",        WebSocketsExample      .content)
   case object Checkbox3     extends Example("Tri-state Checkbox", "tristate-checkbox", TriStateCheckboxExample.content)
+  case object Ajax          extends Example("AJAX",               "ajax",              AjaxExample            .content)
 
   override val values = Vector[Example](
-    EventListen, CallbackOpt, StateSnapshot, Reuse, StateMonad, Touch, WebSockets, Checkbox3
+    EventListen, CallbackOpt, StateSnapshot, Reuse, StateMonad, Touch, WebSockets, Checkbox3, Ajax
   ).sortBy(_.title)
 }

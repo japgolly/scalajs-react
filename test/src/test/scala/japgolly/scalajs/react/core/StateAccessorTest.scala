@@ -11,7 +11,7 @@ object StateAccessorTest extends TestSuite {
   override def tests = Tests {
 
     'writePure - {
-      def use[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]): S => Callback = t.setState(i)(_)
+      def use[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]): S => Callback = t(i).setState(_)
                        test[Render        ](use(_)).expect[S => Callback]
                        test[Backend       ](use(_)).expect[S => Callback]
                        test[ScalaMountedCB](use(_)).expect[S => Callback]
@@ -22,7 +22,7 @@ object StateAccessorTest extends TestSuite {
     }
 
     'readIdWritePure - {
-      def use[I, S](i: I)(implicit t: StateAccessor.ReadImpureWritePure[I, S]): CallbackTo[S] = t.setState(i)(t.state(i)).ret(t state i)
+      def use[I, S](i: I)(implicit t: StateAccessor.ReadImpureWritePure[I, S]): CallbackTo[S] = t(i).setState(t.state(i)).ret(t state i)
                        test[Render        ](use(_)).expect[CallbackTo[S]]
       compileError(""" test[StateAccessP  ](use(_)) """)
       compileError(""" test[StateAccessI  ](use(_)) """)

@@ -210,14 +210,11 @@ object ViaReactComponent {
   }
 
   private val ReactComponent: js.Object =
-    js.constructorOf[raw.ReactComponentEs6[js.Object, js.Object]].asInstanceOf[js.Object]
-
-  private val isMounted: Method =
-    Method("isMounted", (() => js.undefined): js.Function)
+    js.constructorOf[raw.React.Component[js.Object, js.Object]].asInstanceOf[js.Object]
 
   // ===================================================================================================================
 
-  def apply[P, C <: Children, S, B](builder: Builder.Step4[P, C, S, B]): raw.ReactClass[Box[P], Box[S]] = {
+  def apply[P, C <: Children, S, B](builder: Builder.Step4[P, C, S, B]): raw.React.ComponentClass[Box[P], Box[S]] = {
     val initStateFn = builder.initStateFn
     val backendFn = builder.backendFn
     val renderFn = builder.renderFn
@@ -246,17 +243,18 @@ object ViaReactComponent {
     _inherits(MyComponent, ReactComponent)
 
     val methods: js.Array[Method] =
-      js.Array(isMounted)
+      js.Array()
 
     def add[O](k: String, v: js.Any): Unit = methods.push(Method(k, v))
     def add0[O](k: String, f: This => O): Unit = add(k, f: js.ThisFunction0[This, O])
     def add1[I, O](k: String, f: (This, I) => O): Unit = add(k, f: js.ThisFunction1[This, I, O])
     def add2[I, J, O](k: String, f: (This, I, J) => O): Unit = add(k, f: js.ThisFunction2[This, I, J, O])
 
-    add0("render", _this => renderFn(new RenderScope(_this)).rawElement)
+    add0("render", _this => renderFn(new RenderScope(_this)).rawNode)
 
-    for (f <- builder.lifecycle.componentWillMount)
-      add0("componentWillMount", _this => f(new ComponentWillMount(_this)).runNow())
+    for (f <- builder.lifecycle.componentDidCatch)
+      add2("componentDidCatch",
+        (_this: This, e: raw.React.Error, i: raw.React.ErrorInfo) => f(new ComponentDidCatch(_this, e, i)).runNow())
 
     for (f <- builder.lifecycle.componentDidMount)
       add0("componentDidMount", _this => f(new ComponentDidMount(_this)).runNow())
@@ -265,13 +263,8 @@ object ViaReactComponent {
       add2("componentDidUpdate",
         (_this: This, p: Box[P], s: Box[S]) => f(new ComponentDidUpdate(_this, p.unbox, s.unbox)).runNow())
 
-    for (f <- builder.lifecycle.componentWillUpdate)
-      add2("componentWillUpdate",
-        (_this: This, p: Box[P], s: Box[S]) => f(new ComponentWillUpdate(_this, p.unbox, s.unbox)).runNow())
-
-    for (f <- builder.lifecycle.shouldComponentUpdate)
-      add2("shouldComponentUpdate",
-        (_this: This, p: Box[P], s: Box[S]) => f(new ShouldComponentUpdate(_this, p.unbox, s.unbox)).runNow())
+    for (f <- builder.lifecycle.componentWillMount)
+      add0("componentWillMount", _this => f(new ComponentWillMount(_this)).runNow())
 
     for (f <- builder.lifecycle.componentWillReceiveProps)
       add1("componentWillReceiveProps",
@@ -297,11 +290,19 @@ object ViaReactComponent {
     for (f <- builder.lifecycle.componentWillUnmount)
       add0("componentWillUnmount", _this => f(new ComponentWillUnmount(_this)).runNow())
 
+    for (f <- builder.lifecycle.componentWillUpdate)
+      add2("componentWillUpdate",
+        (_this: This, p: Box[P], s: Box[S]) => f(new ComponentWillUpdate(_this, p.unbox, s.unbox)).runNow())
+
+    for (f <- builder.lifecycle.shouldComponentUpdate)
+      add2("shouldComponentUpdate",
+        (_this: This, p: Box[P], s: Box[S]) => f(new ShouldComponentUpdate(_this, p.unbox, s.unbox)).runNow())
+
     _createClass(MyComponent, methods)
 
     for (n <- Option(builder.name))
       MyComponent.asInstanceOf[js.Dynamic].displayName = n
 
-    MyComponent.asInstanceOf[raw.ReactClass[Box[P], Box[S]]]
+    MyComponent.asInstanceOf[raw.React.ComponentClass[Box[P], Box[S]]]
   }
 }

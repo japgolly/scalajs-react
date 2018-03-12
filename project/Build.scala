@@ -6,17 +6,20 @@ import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin, ScalaJSBundlerPlugin.autoI
 object ScalajsReact {
 
   object Ver {
-    val Scala211      = "2.11.11"
-    val Scala212      = "2.12.3"
-    val ScalaJsDom    = "0.9.3"
-    val ReactJs       = "15.6.1"
-    val Monocle       = "1.4.0"
-    val Scalaz72      = "7.2.14"
-    val MTest         = "0.5.3"
+    val Cats          = "1.0.1"
+    val KindProjector = "0.9.6"
     val MacroParadise = "2.1.1"
-    val SizzleJs      = "2.3.0"
+    val Monocle       = "1.5.0"
+    val MonocleCats   = "1.5.0-cats"
+    val MTest         = "0.6.3"
     val Nyaya         = "0.8.1"
-    val Cats          = "1.0.0-MF"
+    val ReactJs       = "16.2.0"
+    val Scala211      = "2.11.12"
+    val Scala212      = "2.12.4"
+    val ScalaJsDom    = "0.9.4"
+    val Scalaz72      = "7.2.20"
+    val SizzleJs      = "2.3.0"
+    val Sourcecode    = "0.1.4"
   }
 
   type PE = Project => Project
@@ -31,7 +34,8 @@ object ScalajsReact {
         crossScalaVersions := Seq(Ver.Scala211, Ver.Scala212),
         scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
                                 "-language:postfixOps", "-language:implicitConversions",
-                                "-language:higherKinds", "-language:existentials")
+                                "-language:higherKinds", "-language:existentials",
+                                "-P:scalajs:sjsDefinedByDefault")
                                 ++ byScalaVersion {
                                   case (2, 12) => Seq("-opt:l:method")
                                   // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
@@ -104,30 +108,47 @@ object ScalajsReact {
         jsEnv                 := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv,
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
-        testFrameworks        += new TestFramework("utest.runner.Framework"))
+        testFrameworks        += new TestFramework("NonStupidTestFramework"))
 
-  def addReactJsDependencies(scope: Configuration): PE =
+  case class ReactArtifact(filename: String) {
+    val dev = s"umd/$filename.development.js"
+    val prod = s"umd/$filename.production.min.js"
+  }
+  val React             = ReactArtifact("react")
+  val ReactDom          = ReactArtifact("react-dom")
+  val ReactDomServer    = ReactArtifact("react-dom-server.browser")
+  val ReactDomTestUtils = ReactArtifact("react-dom-test-utils")
+
+  def addReactJsDependencies(scope: Configuration): PE = {
     _.settings(
       jsDependencies ++= Seq(
 
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /        "react-with-addons.js"
-          minified "react-with-addons.min.js"
+        "org.webjars.npm" % "react" % Ver.ReactJs % scope
+          /        "umd/react.development.js"
+          minified "umd/react.production.min.js"
           commonJSName "React",
 
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /         "react-dom.js"
-          minified  "react-dom.min.js"
-          dependsOn "react-with-addons.js"
+        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+          /         "umd/react-dom.development.js"
+          minified  "umd/react-dom.production.min.js"
+          dependsOn "umd/react.development.js"
           commonJSName "ReactDOM",
 
-        "org.webjars.bower" % "react" % Ver.ReactJs % scope
-          /         "react-dom-server.js"
-          minified  "react-dom-server.min.js"
-          dependsOn "react-dom.js"
+        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+          /         "umd/react-dom-test-utils.development.js"
+          minified  "umd/react-dom-test-utils.production.min.js"
+          dependsOn "umd/react-dom.development.js"
+          commonJSName "ReactTestUtils",
+
+        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+          /         "umd/react-dom-server.browser.development.js"
+          minified  "umd/react-dom-server.browser.production.min.js"
+          dependsOn "umd/react-dom.development.js"
           commonJSName "ReactDOMServer"),
 
       skip in packageJSDependencies := false)
+
+  }
 
   def addCommandAliases(m: (String, String)*) = {
     val s = m.map(p => addCommandAlias(p._1, p._2)).reduce(_ ++ _)
@@ -147,6 +168,9 @@ object ScalajsReact {
   def macroParadisePlugin =
     compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.full)
 
+  def kindProjector =
+    compilerPlugin("org.spire-math" %% "kind-projector" % Ver.KindProjector cross CrossVersion.binary)
+
   def hasNoTests: Project => Project =
     _.settings(
       fastOptJS     in Test := Attributed(artifactPath.in(fastOptJS).in(Test).value)(AttributeMap.empty),
@@ -155,13 +179,13 @@ object ScalajsReact {
       testOnly      in Test := (),
       testQuick     in Test := ())
 
-  def monocleLib(name: String) =
-    "com.github.julien-truffaut" %%%! s"monocle-$name" % Ver.Monocle
+  def monocleLib(name: String, cats: Boolean) =
+    "com.github.julien-truffaut" %%%! s"monocle-$name" % {if (cats) Ver.MonocleCats else Ver.Monocle}
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .settings(name := "scalajs-react")
-    .aggregate(core, extra, scalaz72, monocle, cats, test, /*testModule,*/ ghpagesMacros, ghpages)
+    .aggregate(core, extra, scalaz72, monocleScalaz, cats, monocleCats, test, /*testModule,*/ ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
       "/"   -> "project root",
       "L"   -> "root/publishLocal",
@@ -182,7 +206,8 @@ object ScalajsReact {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom))
+        "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
+        "com.lihaoyi" %%% "sourcecode" % Ver.Sourcecode))
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
@@ -193,20 +218,20 @@ object ScalajsReact {
     .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test))
     .dependsOn(core, extra)
     .dependsOn(scalaz72 % "test->compile")
-    .dependsOn(monocle % "test->compile")
+    .dependsOn(monocleScalaz % "test->compile")
     .dependsOn(cats % "test->compile")
     .settings(
       name := "test",
+      scalacOptions in Test -= "-deprecation",
       libraryDependencies ++= Seq(
         "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
-        monocleLib("macro") % Test),
+        monocleLib("macro", false) % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
-        (ProvidedJS / "component-es3.js" dependsOn "react-dom.js") % Test,
-        (ProvidedJS / "component-es6.js" dependsOn "react-dom.js") % Test,
-        (ProvidedJS / "component-fn.js" dependsOn "react-dom.js") % Test),
+        (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
+        (ProvidedJS / "component-fn.js"  dependsOn ReactDom.dev) % Test),
       addCompilerPlugin(macroParadisePlugin))
 
   /*
@@ -228,30 +253,44 @@ object ScalajsReact {
       .configure(commonSettings, publicationSettings, extModuleName(shortName), hasNoTests)
       .dependsOn(core, extra)
       .settings(
-        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version)
+        libraryDependencies += "org.scalaz" %%% "scalaz-effect" % version,
+        addCompilerPlugin(kindProjector))
   }
 
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
-  lazy val monocle = project
+  lazy val monocleScalaz = project
+    .in(file("monocle"))
     .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
     .dependsOn(core, extra, scalaz72)
-    .settings(libraryDependencies += monocleLib("core"))
+    .settings(libraryDependencies += monocleLib("core", false))
 
   lazy val cats = project
     .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
     .dependsOn(core, extra)
-    .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % Ver.Cats)
+    .settings(
+      libraryDependencies += "org.typelevel" %%% "cats-core" % Ver.Cats,
+      addCompilerPlugin(kindProjector))
+
+  lazy val monocleCats = project
+    .in(file("monocle-cats"))
+    .configure(commonSettings, publicationSettings, extModuleName("monocle-cats"), hasNoTests)
+    .dependsOn(core, extra, cats)
+    .settings(
+      // Share the internal source code files with this module
+      unmanagedSourceDirectories in Compile += (sourceDirectory in (monocleScalaz, Compile)).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
+      libraryDependencies += monocleLib("core", true)
+    )
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
-    .dependsOn(core, extra, monocle, ghpagesMacros)
+    .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
-      libraryDependencies += monocleLib("macro"),
+      libraryDependencies += monocleLib("macro", false),
       addCompilerPlugin(macroParadisePlugin),
       emitSourceMaps := false,
       scalaJSUseMainModuleInitializer := true,

@@ -17,7 +17,7 @@ trait TagMod {
   def applyTo(b: Builder): Unit
 
   final def when(condition: Boolean): TagMod =
-    if (condition) this else TagMod.Empty
+    if (condition) this else TagMod.empty
 
   final def unless(condition: Boolean): TagMod =
     when(!condition)
@@ -53,7 +53,7 @@ object TagMod {
     val v = t.toVector
     v.length match {
       case 1 => v.head
-      case 0 => Empty
+      case 0 => empty
       case _ => Composite(v)
     }
   }
@@ -66,9 +66,8 @@ object TagMod {
       Composite(mods ++ ms)
   }
 
-  private[vdom] val Empty: TagMod =
+  val empty: TagMod =
     new TagMod {
-      override def toString = "EmptyVdom"
       override def applyTo(b: Builder) = ()
       override def apply(ms: TagMod*) = TagMod.fromTraversableOnce(ms)
     }
@@ -77,17 +76,17 @@ object TagMod {
     if (developmentMode)
       m
     else
-      Empty
+      empty
 
   def when(cond: Boolean)(t: => TagMod): TagMod =
-    if (cond) t else Empty
+    if (cond) t else empty
 
   @inline def unless(cond: Boolean)(t: => TagMod): TagMod =
     when(!cond)(t)
 
   def intercalate(as: TraversableOnce[TagMod], sep: TagMod): TagMod =
     if (as.isEmpty)
-      Empty
+      empty
     else {
       val it = as.toIterator
       val first = it.next()

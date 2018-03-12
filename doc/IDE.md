@@ -29,7 +29,7 @@ object $NAME$ {
   }
 
   //implicit val reusabilityProps: Reusability[Props] =
-  //  Reusability.caseClass
+  //  Reusability.derive
 
   final class Backend($: BackendScope[Props, Unit]) {
     def render(p: Props): VdomElement =
@@ -65,7 +65,7 @@ object $NAME$ {
   }
 
   //implicit val reusabilityProps: Reusability[Props] =
-  //  Reusability.caseClass
+  //  Reusability.derive
 
   final case class State()
 
@@ -74,7 +74,7 @@ object $NAME$ {
       State()
 
     //implicit val reusability: Reusability[State] =
-    //  Reusability.caseClass
+    //  Reusability.derive
   }
 
   final class Backend($: BackendScope[Props, Unit]) {

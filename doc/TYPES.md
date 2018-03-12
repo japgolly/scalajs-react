@@ -1,5 +1,8 @@
 # Types
 
+You barely need to know any of these in order to use scalajs-react.
+This is here as an optional reference.
+
 - [Components](#components)
   - [Stages](#stages)
   - [Behaviour](#behaviour)
@@ -9,8 +12,14 @@
   - [Scala components](#scala-components)
   - [Scala functional components](#scala-functional-components)
   - [Roots](#roots)
+- [State](#state)
+  - [`StateAccess`](#stateaccess)
+  - [`StateAccessor`](#stateaccessor)
+  - [{Set,Mod}State abstractions](#setmodstate-abstractions)
 - [Events](#events)
 - [VDOM](#vdom)
+
+
 
 # Components
 
@@ -88,38 +97,6 @@ You only need to specify these when you want to explicitly declare the types of 
   GenericComponent.MountedRaw
   ```
 
-* `StateAccess` -
-  Access to mutable state.
-  All mounted components extend this.
-  Useful for passing around R/W access to one component's state (or state subset) to a child component.
-  Lifecycle scopes (eg. `componentDidUpdate`) do *not* extend this.
-
-  ```scala
-  StateAccess[F, S]
-  StateAccessPure[S]
-  StateAccessImpure[S]
-  ```
-
-* `StateAccessor` -
-  Typeclass for pure and/or impure, read- and/or write-access to mutable state.
-  Useful in library methods that do something with mutable state.
-  Unless `StateAccess`, lifecycle scopes (eg. `componentDidUpdate`) are supported via this method.
-  See [extra/StateSnapshot.scala](../extra/src/main/scala/japgolly/scalajs/react/extra/StateSnapshot.scala) for an example.
-
-  ```scala
-  StateAccessor.Read[I, F, S]
-  StateAccessor.ReadPure[I, S]
-  StateAccessor.ReadImpure[I, S]
-  StateAccessor.Write[I, F, S]
-  StateAccessor.WritePure[I, S]
-  StateAccessor.WriteImpure[I, S]
-  StateAccessor.ReadWrite[I, F, F, S]
-  StateAccessor.ReadWritePure[I, S]
-  StateAccessor.ReadWriteImpure[I, S]
-  StateAccessor.ReadImpureWritePure[I, S]
-  StateAccessor.ReadPureWriteImpure[I, S]
-  ```
-
 
 ### JS components
 
@@ -156,7 +133,7 @@ You only need to specify these when you want to explicitly declare the types of 
 * Raw types. I don't imagine library users would need to use this but just in case, there is also:
 
 ```scala
-  JsComponent.RawMounted // the type of the raw JS mounted value without additional facades.
+  JsComponent.RawMounted[P, S] // the type of the raw JS mounted value without additional facades.
   JsComponent.ComponentWithRawType[P, S, R, CT]
   JsComponent.UnmountedWithRawType[P, S, R]
   JsComponent.MountedWithRawType[P, S, R]
@@ -271,6 +248,77 @@ But if you need them, they're there, and they are as follows:
   ScalaComponent.MountedWithRoot[…]
   ```
 
+# State
+
+There are a number of abstraction over state functionality constituents.
+In the following types `F` is the effect type which is nearly always
+`CallbackTo` for pure code, and `Id` where `type Id[A] = A` for impure usage.
+
+### `StateAccess`
+
+Read- and write- access to mutable state.
+All mounted components extend this.
+Useful for passing around R/W access to one component's state (or state subset), to a child component.
+Lifecycle scopes (eg. `componentDidUpdate`) do *not* extend this as in some cases, `.state` would be ambiguous.
+
+```scala
+StateAccess[F, S]
+StateAccessPure[S]
+StateAccessImpure[S]
+```
+
+### `StateAccessor`
+
+Typeclass for pure and/or impure, read- and/or write-access to mutable state.
+Useful in library methods that do something with mutable state.
+Unless `StateAccess`, lifecycle scopes (eg. `componentDidUpdate`) are supported via this method.
+See [extra/StateSnapshot.scala](../extra/src/main/scala/japgolly/scalajs/react/extra/StateSnapshot.scala) for an example.
+
+```scala
+StateAccessor.Read[I, F, S]
+StateAccessor.ReadPure[I, S]
+StateAccessor.ReadImpure[I, S]
+StateAccessor.Write[I, F, S]
+StateAccessor.WritePure[I, S]
+StateAccessor.WriteImpure[I, S]
+StateAccessor.ReadWrite[I, F, F, S]
+StateAccessor.ReadWritePure[I, S]
+StateAccessor.ReadWriteImpure[I, S]
+StateAccessor.ReadImpureWritePure[I, S]
+StateAccessor.ReadPureWriteImpure[I, S]
+```
+
+### {Set,Mod}State abstractions
+
+Firstly, `StateAccess` extends the following subtypes which can be used in isolation:
+
+```scala
+StateAccess.SetState[F, S]
+StateAccess.ModState[F, S]
+StateAccess.ModStateWithProps[F, P, S]
+StateAccess.Write[F, S] // SetState & ModState
+StateAccess.WriteWithProps[F, P, S] // Write & ModStateWithProps
+```
+
+Secondly, there are the following classes that
+* require a single function for construction
+* extend Scala functions
+* extend an appropriate `StateAccess` trait
+* allows call-site to choose the set/mod-state variation they need (eg. `setState(s)` vs `setState(Option(s), cb)`)
+
+```scala
+SetStateFn[F, S]
+ModStateFn[F, S]
+ModStateWithPropsFn[F, P, S]
+
+// And aliases:
+SetStateFnPure[S]
+SetStateFnImpure[S]
+ModStateFnPure[S]
+ModStateFnImpure[S]
+ModStateWithPropsFnPure[P, S]
+ModStateWithPropsFnImpure[P, S]
+```
 
 # Events
 

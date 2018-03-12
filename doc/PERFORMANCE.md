@@ -7,10 +7,10 @@ The strategy is simple: avoid work where possible.
 These utilities help you avoid work in two ways.
 
 1. By making components' `shouldComponentUpdate` fns both easy to create, and accurate (safe). If it compiles, the logic in `shouldComponentUpdate` will be what you expect.
-2. By allowing you to cache your own arbitrary data, and build on it in a way such that derivative data is also cached effeciently.
+2. By allowing you to cache your own arbitrary data, and build on it in a way such that derivative data is also cached efficiently.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.1.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.2.0"
 ```
 
 ### Contents
@@ -33,7 +33,6 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.1.0"
   - [Initial instances](#initial-instances)
   - [Derivative instances](#derivative-instances)
   - [`Px` doesn't have `Reusability`](#px-doesnt-have-reusability)
-- [`ReactAddons.Perf`](#reactaddonsperf)
 
 
 `Reusability`
@@ -56,7 +55,7 @@ in many cases it is sufficient to check only the ID field, the update-date, or t
 When building your component, pass in `Reusability.shouldComponentUpdate` to `.configure` on the component builder.
 
 It will not compile until it knows how to compare the reusability of your props and state.
-Out-of-the-box, it knows how to compare Scala primatives, `String`s, `Option`, `Either`, Scala tuples, `js.UndefOr`,
+Out-of-the-box, it knows how to compare Scala primitives, `String`s, `Option`, `Either`, Scala tuples, `js.UndefOr`,
 Scala and JS `Date`s, `UUID`s, `Set`s, `List`s, `Vector`s,
 and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it how. Use one of the following methods:
 
@@ -64,8 +63,8 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.by_==` uses universal equality (ie. `a1 == a2`).
 * `Reusability.byRef` uses reference equality (ie. `a1 eq a2`).
 * `Reusability.byRefOr_==` uses reference equality and if different, tries universal equality.
-* `Reusability.caseClass` for case classes of your own.
-* `Reusability.caseClassDebug` as above, but shows you the code that the macro generates.
+* `Reusability.derive` for ADTs of your own.
+* `Reusability.deriveDebug` as above, but shows you the code that the macro generates.
 * `Reusability.caseClassExcept` for case classes of your own where you want to exclude some fields.
 * `Reusability.caseClassExceptDebug` as above, but shows you the code that the macro generates.
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
@@ -90,7 +89,7 @@ case class Picture(id: Long, url: String, title: String)
 case class Props(name: String, age: Option[Int], pic: Picture)
 
 implicit val picReuse   = Reusability.by((_: Picture).id)  // ← only check id
-implicit val propsReuse = Reusability.caseClass[Props]     // ← check all fields
+implicit val propsReuse = Reusability.derive[Props]        // ← check all fields
 
 val component = ScalaComponent.builder[Props]("Demo")
   .render_P(p =>
@@ -108,6 +107,13 @@ Alternatively, `picReuse` could be written using `caseClassExcept` as follows.
 ```scala
 // Not natural in this case but demonstrates how to use caseClassExcept
 implicit val picReuse = Reusability.caseClassExcept[Picture]('url, 'title)
+```
+
+You can peek into reusability calculation by wrapping it with a logger:
+
+```scala
+implicit val loggedPicReuse =
+    Reusability.caseClassExcept[Picture]('url, 'title).logNonReusable
 ```
 
 #### Monitoring
@@ -128,6 +134,9 @@ Usage:
 // Log to console
 .configure(Reusability.shouldComponentUpdateAndLog("MyComponent"))
 ```
+
+You can also call `.logNonReusable` on any reusability instance to get a new reusability which emits a warning
+about non-reusability to aid quick debugging.
 
 
 `Reusable`
@@ -150,6 +159,8 @@ To create a `Reusable` value, use one of the following methods:
 * `Reusable.by_==` uses universal equality (ie. `a1 == a2`).
 * `Reusable.byRef` uses reference equality (ie. `a1 eq a2`).
 * `Reusable.byRefOr_==` uses reference equality and if different, tries universal equality.
+* `Reusable.callback{,Option}ByRef` uses reference equality over `Callback` and `CallbackOption`
+* `Reusable.byRefIso` - Compare by reference through an isomorphism
 * `Reusable.{always,never,const(bool)}` for a hard-coded reusability decision.
 
 #### Mapping without affecting reusability
@@ -232,7 +243,7 @@ class Backend(bs: BackendScope[_, State]) {
 
 case class PersonEditorProps(name: String, update: String ~=> Callback)   // ← Notice the ~=>
 
-implicit val propsReuse = Reusability.caseClass[PersonEditorProps]
+implicit val propsReuse = Reusability.derive[PersonEditorProps]
 
 val personEditor = ScalaComponent.builder[PersonEditorProps]("PersonEditor")
   .render_P(p =>
@@ -510,9 +521,3 @@ class Component1Backend {
     Component2(Component2Props(px))  // .value() called implicitly
 }
 ```
-
-`ReactAddons.Perf`
-==================
-React addons come with performance tools. See https://facebook.github.io/react/docs/perf.html.
-
-Access via `ReactAddons.Perf`.

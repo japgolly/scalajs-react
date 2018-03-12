@@ -10,8 +10,9 @@ import japgolly.scalajs.react.extra._
 
 trait ScalazReactInstances {
 
-  implicit final lazy val reactCallbackScalazInstance: Monad[CallbackTo] with BindRec[CallbackTo] =
-    new Monad[CallbackTo] with BindRec[CallbackTo] {
+  implicit final lazy val reactCallbackScalazInstance: MonadError[CallbackTo, Throwable] with BindRec[CallbackTo] with Distributive[CallbackTo] =
+    new MonadError[CallbackTo, Throwable] with BindRec[CallbackTo] with Distributive[CallbackTo] {
+
       override def point[A](a: => A): CallbackTo[A] =
         CallbackTo(a)
 
@@ -22,19 +23,23 @@ trait ScalazReactInstances {
         fa map f
 
       override def tailrecM[A, B](f: A => CallbackTo[A \/ B])(a: A): CallbackTo[B] =
-        CallbackTo {
-          @tailrec
-          def go(a: A): B =
-            f(a).runNow() match {
-              case -\/(n) => go(n)
-              case \/-(b) => b
-            }
-          go(a)
+        CallbackTo.tailrec(a)(f.andThen(_.map(_.toEither)))
+
+      override def distributeImpl[G[_], A, B](ga: G[A])(f: A => CallbackTo[B])(implicit G: Functor[G]): CallbackTo[G[B]] =
+        CallbackTo.liftTraverse(f).id.map(G.map(ga))
+
+      override def raiseError[A](e: Throwable): CallbackTo[A] =
+        CallbackTo(throw e)
+
+      override def handleError[A](fa: CallbackTo[A])(f: Throwable => CallbackTo[A]): CallbackTo[A] =
+        fa.attempt.flatMap {
+          case Right(a) => CallbackTo pure a
+          case Left(t)  => f(t)
         }
     }
 
-  implicit final lazy val reactCallbackOptionScalazInstance: Monad[CallbackOption] with BindRec[CallbackOption] =
-    new Monad[CallbackOption] with BindRec[CallbackOption] {
+  implicit final lazy val reactCallbackOptionScalazInstance: MonadPlus[CallbackOption] with BindRec[CallbackOption] =
+    new MonadPlus[CallbackOption] with BindRec[CallbackOption] {
       override def point[A](a: => A): CallbackOption[A] =
         CallbackOption.liftValue(a)
 
@@ -45,16 +50,77 @@ trait ScalazReactInstances {
         fa map f
 
       override def tailrecM[A, B](f: A => CallbackOption[A \/ B])(a: A): CallbackOption[B] =
-        CallbackOption.liftOption {
-          @tailrec
-          def go(a: A): Option[B] =
-            f(a).asCallback.runNow() match {
-              case Some(-\/(n)) => go(n)
-              case Some(\/-(b)) => Some(b)
-              case None         => None
-            }
-          go(a)
-        }
+        CallbackOption.tailrec(a)(f.andThen(_.map(_.toEither)))
+
+      override def empty[A]: CallbackOption[A] =
+        CallbackOption.fail
+
+      override def plus[A](a: CallbackOption[A], b: => CallbackOption[A]): CallbackOption[A] =
+        a orElse b
+    }
+
+  implicit lazy val reactCallbackKleisliScalazInstance: Arrow[CallbackKleisli] with Choice[CallbackKleisli] =
+    new Arrow[CallbackKleisli] with Choice[CallbackKleisli] {
+      override def arr[A, B](f: A => B): CallbackKleisli[A, B] =
+        CallbackKleisli.lift(f)
+
+      override def choice[A, B, C](f: => CallbackKleisli[A, C], g: => CallbackKleisli[B, C]): CallbackKleisli[A \/ B, C] =
+        CallbackKleisli.choice(f, g).contramap(_.toEither)
+
+      override def compose[A, B, C](f: CallbackKleisli[B, C], g: CallbackKleisli[A, B]): CallbackKleisli[A, C] =
+        g >=> f
+
+      override def first[A, B, C](f: CallbackKleisli[A, B]): CallbackKleisli[(A, C), (B, C)] =
+        f.strongL
+
+      override def second[A, B, C](f: CallbackKleisli[A, B]): CallbackKleisli[(C, A), (C, B)] =
+        f.strongR
+
+      override def id[A]: CallbackKleisli[A, A] =
+        CallbackKleisli.ask
+
+      override def split[A, B, C, D](f: CallbackKleisli[A, B], g: CallbackKleisli[C, D]): CallbackKleisli[(A, C), (B, D)] =
+        CallbackKleisli.split(f, g)
+
+      override def dimap[A, B, C, D](fab: CallbackKleisli[A, B])(f: C => A)(g: B => D) =
+        fab.dimap(f, g)
+
+      override def mapfst[A, B, C](f: CallbackKleisli[A, B])(g: C => A): CallbackKleisli[C, B] =
+        f.contramap(g)
+
+      override def mapsnd[A, B, C](f: CallbackKleisli[A, B])(g: B => C): CallbackKleisli[A, C] =
+        f.map(g)
+    }
+
+  implicit def reactCallbackKleisliAScalazInstance[A]: MonadError[CallbackKleisli[A, ?], Throwable] with MonadReader[CallbackKleisli[A, ?], A] with BindRec[CallbackKleisli[A, ?]] with Distributive[CallbackKleisli[A, ?]] =
+    new MonadError[CallbackKleisli[A, ?], Throwable] with MonadReader[CallbackKleisli[A, ?], A] with BindRec[CallbackKleisli[A, ?]] with Distributive[CallbackKleisli[A, ?]] {
+
+      override def point[B](b: => B): CallbackKleisli[A, B] =
+        CallbackKleisli const reactCallbackScalazInstance.point(b)
+
+      override def bind[B, C](fa: CallbackKleisli[A, B])(f: B => CallbackKleisli[A, C]): CallbackKleisli[A, C] =
+        fa >>= f
+
+      override def map[B, C](fa: CallbackKleisli[A, B])(f: B => C): CallbackKleisli[A, C] =
+        fa map f
+
+      override def tailrecM[S, B](f: S => CallbackKleisli[A, S \/ B])(s: S): CallbackKleisli[A, B] =
+        CallbackKleisli.tailrec(s)(f.andThen(_.map(_.toEither)))
+
+      override def distributeImpl[G[_], B, C](ga: G[B])(f: B => CallbackKleisli[A, C])(implicit G: Functor[G]): CallbackKleisli[A, G[C]] =
+        CallbackKleisli.liftTraverse(f).id.map(G.map(ga))
+
+      override def raiseError[B](e: Throwable): CallbackKleisli[A, B] =
+        CallbackKleisli const reactCallbackScalazInstance.raiseError(e)
+
+      override def handleError[B](fb: CallbackKleisli[A, B])(f: Throwable => CallbackKleisli[A, B]): CallbackKleisli[A, B] =
+        CallbackKleisli(a => reactCallbackScalazInstance.handleError(fb(a))(f.andThen(_(a))))
+
+      override def ask: CallbackKleisli[A, A] =
+        CallbackKleisli.ask
+
+      override def local[B](f: A => A)(fa: CallbackKleisli[A, B]): CallbackKleisli[A, B] =
+        fa.contramap(f)
     }
 
   implicit final lazy val maybeReactInstance: OptionLike[Maybe] = new OptionLike[Maybe] {

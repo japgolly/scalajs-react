@@ -6,6 +6,7 @@ import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom
 import japgolly.scalajs.react.{raw => RAW}
 import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, Key, PropsChildren, StateAccess}
+import scala.scalajs.js.|
 
 object Generic {
 
@@ -46,7 +47,7 @@ object Generic {
   type Unmounted[P, M] = UnmountedSimple[P, M]
 
   trait UnmountedRaw {
-    type Raw <: RAW.ReactElement
+    type Raw <: RAW.React.Element
     val raw: Raw
     def displayName: String
   }
@@ -60,11 +61,11 @@ object Generic {
 
     def vdomElement: vdom.VdomElement
     def key: Option[Key]
-    def ref: Option[String]
+    def ref: Option[RefPropValue]
     def props: Props
     def propsChildren: PropsChildren
 
-    val mountRaw: RAW.ReactComponentUntyped => M
+    val mountRaw: RAW.React.ComponentUntyped => M // TODO Do better
 
     def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): Mounted =
       mountRaw(RAW.ReactDOM.render(raw, container, callback.toJsFn))
@@ -80,19 +81,37 @@ object Generic {
 
   type UnmountedRoot[P, M] = UnmountedWithRoot[P, M, P, M]
 
+  type RefPropValue = RAW.React.RefNonNull
+
   // ===================================================================================================================
+
+  type MountedDomNode = Either[dom.Text, dom.Element]
+
+  object MountedDomNode {
+    def apply(i: RAW.ReactDOM.DomNode): MountedDomNode =
+      (i: Any) match {
+        case e: dom.Element => Right(e)
+        case t: dom.Text => Left(t)
+      }
+
+    def nullable(i: RAW.ReactDOM.DomNode | Null): Option[MountedDomNode] =
+      jsNullToOption(i).map(apply)
+
+    def force(i: RAW.ReactDOM.DomNode | Null): MountedDomNode =
+      apply(i.asInstanceOf[RAW.ReactDOM.DomNode])
+  }
 
   type Mounted[F[_], P, S] = MountedSimple[F, P, S]
   type MountedPure  [P, S] = MountedSimple[CallbackTo, P, S]
   type MountedImpure[P, S] = MountedSimple[Effect.Id, P, S]
 
   trait MountedRaw {
-    type Raw <: RAW.ReactComponentUntyped
+    type Raw <: RAW.React.ComponentUntyped // TODO Do better
     val raw: Raw
     def displayName: String
   }
 
-  trait MountedSimple[F[_], P, S] extends MountedRaw with StateAccess[F, S] {
+  trait MountedSimple[F[_], P, S] extends MountedRaw with StateAccess[F, S] with StateAccess.WriteWithProps[F, P, S] {
     final type Props = P
 
     override type WithEffect[F2[_]]   <: MountedSimple[F2, P, S]
@@ -100,10 +119,7 @@ object Generic {
              type WithMappedProps[P2] <: MountedSimple[F, P2, S]
     def mapProps[P2](f: P => P2): WithMappedProps[P2]
 
-    /** Not all components support this; ES6 classes don't. */
-    def isMounted: F[Option[Boolean]]
-
-    def getDOMNode: F[dom.Element]
+    def getDOMNode: F[MountedDomNode]
     def props: F[Props]
     def propsChildren: F[PropsChildren]
 

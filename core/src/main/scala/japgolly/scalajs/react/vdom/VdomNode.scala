@@ -3,34 +3,42 @@ package japgolly.scalajs.react.vdom
 import japgolly.scalajs.react.{Callback, raw => Raw}
 import scala.scalajs.js
 
-sealed class VdomNode(val rawNode: Raw.ReactNode) extends TagMod {
+sealed class VdomNode(val rawNode: Raw.React.Node) extends TagMod {
   override def applyTo(b: Builder): Unit =
     b.appendChild(rawNode)
 }
 
 object VdomNode {
-  def apply(n: Raw.ReactNode): VdomNode =
+  def apply(n: Raw.React.Node): VdomNode =
     new VdomNode(n)
 
   def cast(n: Any): VdomNode =
-    new VdomNode(n.asInstanceOf[Raw.ReactNode])
+    new VdomNode(n.asInstanceOf[Raw.React.Node])
+
+  private[vdom] val empty: VdomNode =
+    apply(null)
+
 }
 
 // =====================================================================================================================
 
-final class VdomElement(val rawElement: Raw.ReactElement) extends VdomNode(rawElement) {
-  def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Raw.ReactComponentUntyped =
+final class VdomElement(val rawElement: Raw.React.Element) extends VdomNode(rawElement) {
+  def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Raw.React.ComponentUntyped =
     Raw.ReactDOM.render(rawElement, container, callback.toJsFn)
 }
 
 object VdomElement {
-  def apply(n: Raw.ReactElement): VdomElement =
+  def apply(n: Raw.React.Element): VdomElement =
     new VdomElement(n)
 }
 
 // =====================================================================================================================
 
-final class VdomArray(val rawArray: js.Array[Raw.ReactNode]) extends VdomNode(rawArray.asInstanceOf[Raw.ReactNode]) {
+/** This is mutable so don't let it escape a local pure function.
+  * Elements must have keys.
+  * VdomArray itself cannot be assigned a key.
+  */
+final class VdomArray(val rawArray: js.Array[Raw.React.Node]) extends VdomNode(rawArray.asInstanceOf[Raw.React.Node]) {
 
   def +=(n: VdomNode): this.type = {
     rawArray push n.rawNode
@@ -48,6 +56,7 @@ object VdomArray {
   def empty(): VdomArray =
     new VdomArray(new js.Array)
 
+  /** Elements must have keys. Array itself cannot. */
   def apply(ns: VdomNode*): VdomArray =
     empty() ++= ns
 }

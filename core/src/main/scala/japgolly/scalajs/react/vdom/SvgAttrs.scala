@@ -461,6 +461,8 @@ trait SvgAttrs {
 
   final def paintOrder = VdomAttr("paintOrder")
 
+  final def pathAttr = VdomAttr("path")
+
   final def pathLength = VdomAttr("pathLength")
 
   final def patternContentUnits = VdomAttr("patternContentUnits")

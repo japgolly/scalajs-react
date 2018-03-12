@@ -4,20 +4,25 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.{Iso, Lens}
 
 final class StateSnapshot[S](val value: S,
-                             val setState: S ~=> Callback,
-                             private[StateSnapshot] val reusability: Reusability[S]) {
+                             val underlyingSetFn: Reusable[StateSnapshot.SetFn[S]],
+                             private[StateSnapshot] val reusability: Reusability[S]) extends StateAccess.Write[CallbackTo, S] {
 
   override def toString = s"StateSnapshot($value)"
 
-  def modState(f: S => S): Callback =
-    setState.value(f(value))
+  /** @param callback Executed regardless of whether state is changed. */
+  override def setStateOption(newState: Option[S], callback: Callback): Callback =
+    underlyingSetFn(newState, callback)
+
+  /** @param callback Executed regardless of whether state is changed. */
+  override def modStateOption(mod: S => Option[S], callback: Callback): Callback =
+    setStateOption(mod(value), callback)
 
   /** THIS WILL VOID REUSABILITY.
     *
     * The resulting `StateSnapshot[T]` will not be reusable.
     */
   def xmapState[T](f: S => T)(g: T => S): StateSnapshot[T] =
-    StateSnapshot(f(value))(setState.value compose g)
+    StateSnapshot(f(value))((ot, cb) => underlyingSetFn.value(ot map g, cb))
 
   /** THIS WILL VOID REUSABILITY.
     *
@@ -32,19 +37,31 @@ final class StateSnapshot[S](val value: S,
 
 object StateSnapshot {
 
+  type SetFn[-S] = (Option[S], Callback) => Callback
+  type ModFn[S] = (S => Option[S], Callback) => Callback
+
+  type TupledSetFn[-S] = ((Option[S], Callback)) => Callback
+  type TupledModFn[S] = ((S => Option[S], Callback)) => Callback
+
+  private def reusableSetFn[S](f: SetFn[S]): Reusable[SetFn[S]] =
+    Reusable.byRef(f)
+
+  private def untuple[A,B,C](f: ((A, B)) => C): (A, B) => C =
+    (a, b) => f((a, b))
+
   final class InstanceMethodsWithReuse[S](self: StateSnapshot[S]) { // not AnyVal, nominal for Monocle ext
-    import self.{value, setState}
+    import self.{value, underlyingSetFn}
 
     def xmapState[T](iso: Reusable[(S => T, T => S)]): StateSnapshot[T] =
       new StateSnapshot[T](
         iso._1(value),
-        Reusable.ap(setState, iso)((f, g) => f compose g._2),
+        Reusable.ap(underlyingSetFn, iso)((f, g) => (ot, cb) => f(ot map g._2, cb)),
         self.reusability.contramap(iso._2))
 
     def zoomState[T](lens: Reusable[(S => T, T => S => S)]): StateSnapshot[T] =
       new StateSnapshot[T](
         lens._1(value),
-        Reusable.ap(setState, lens)((f, g) => (t: T) => f(g._2(t)(value))),
+        Reusable.ap(underlyingSetFn, lens)((f, g) => (ot, cb) => f(ot.map(g._2(_)(value)), cb)),
         self.reusability.contramap(lens._2(_)(value)))
   }
 
@@ -58,12 +75,16 @@ object StateSnapshot {
       new FromValue(value)
 
     /** This is meant to be called once and reused so that the setState callback stays the same. */
-    def prepare[S](f: S => Callback): FromSetStateFn[S] =
-      new FromSetStateFn(Reusable.fn(f))
+    def prepare[S](f: SetFn[S]): FromSetStateFn[S] =
+      new FromSetStateFn(reusableSetFn(f))
+
+    /** This is meant to be called once and reused so that the setState callback stays the same. */
+    def prepareTupled[S](f: TupledSetFn[S]): FromSetStateFn[S] =
+      prepare(untuple(f))
 
     /** This is meant to be called once and reused so that the setState callback stays the same. */
     def prepareVia[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]): FromSetStateFn[S] =
-      prepare(t.setState(i))
+      prepare(t(i).setStateOption)
 
     def xmap[S, T](get: S => T)(set: T => S): FromLens[S, T] =
       new FromLens(Iso(get)(set).toLens)
@@ -77,12 +98,16 @@ object StateSnapshot {
       // def apply(value: S) = new FromLensValue(l, l get value)
 
       /** This is meant to be called once and reused so that the setState callback stays the same. */
-      def prepare(modify: (S => S) => Callback): FromLensSetStateFn[S, T] =
-        new FromLensSetStateFn(l, Reusable.fn(modify compose l.set))
+      def prepare(modify: ModFn[S]): FromLensSetStateFn[S, T] =
+        new FromLensSetStateFn[S, T](l, reusableSetFn((ot, cb) => modify(l setO ot, cb)))
+
+      /** This is meant to be called once and reused so that the setState callback stays the same. */
+      def prepareTupled(modify: TupledModFn[S]): FromLensSetStateFn[S, T] =
+        prepare(untuple(modify))
 
       /** This is meant to be called once and reused so that the setState callback stays the same. */
       def prepareVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): FromLensSetStateFn[S, T] =
-        prepare(t.modState(i))
+        prepare(t(i).modStateOption)
 
       def xmap[U](get: T => U)(set: U => T): FromLens[S, U] =
         new FromLens(l --> Iso(get)(set))
@@ -92,16 +117,19 @@ object StateSnapshot {
     }
 
     final class FromValue[S](private val value: S) extends AnyVal {
-      def apply(set: S ~=> Callback)(implicit r: Reusability[S]): StateSnapshot[S] =
+      def apply(set: Reusable[SetFn[S]])(implicit r: Reusability[S]): StateSnapshot[S] =
         new StateSnapshot(value, set, r)
+
+      def tupled(set: Reusable[TupledSetFn[S]])(implicit r: Reusability[S]): StateSnapshot[S] =
+        apply(set.map(untuple))
     }
 
-    final class FromSetStateFn[S](private val set: S ~=> Callback) extends AnyVal {
+    final class FromSetStateFn[S](private val set: Reusable[SetFn[S]]) extends AnyVal {
       def apply(value: S)(implicit r: Reusability[S]): StateSnapshot[S] =
         withReuse(value)(set)(r)
     }
 
-    final class FromLensSetStateFn[S, T](l: Lens[S, T], set: T ~=> Callback) {
+    final class FromLensSetStateFn[S, T](l: Lens[S, T], set: Reusable[SetFn[T]]) {
       def apply(value: S)(implicit r: Reusability[T]): StateSnapshot[T] =
         withReuse(l get value)(set)(r)
     }
@@ -139,29 +167,35 @@ object StateSnapshot {
     }
 
     final class FromValue[S](private val value: S) extends AnyVal {
-      def apply(set: S => Callback): StateSnapshot[S] =
-        new StateSnapshot(value, Reusable.fn(set), Reusability.never)
+      def apply(set: SetFn[S]): StateSnapshot[S] =
+        new StateSnapshot(value, reusableSetFn(set), Reusability.never)
+
+      def tupled(set: TupledSetFn[S]): StateSnapshot[S] =
+        apply(untuple(set))
 
       def setStateVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): StateSnapshot[S] =
-        apply(t.setState(i))
+        apply(t(i).setStateOption)
     }
 
     final class FromLensValue[S, T](l: Lens[S, T], value: T) {
-      def apply(modify: (S => S) => Callback): StateSnapshot[T] =
-        StateSnapshot(value)(modify compose l.set)
+      def apply(modify: ModFn[S]): StateSnapshot[T] =
+        StateSnapshot(value)((ot, cb) => modify(l setO ot, cb))
+
+      def tupled(modify: TupledModFn[S]): StateSnapshot[T] =
+        apply(untuple(modify))
 
       def setStateVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): StateSnapshot[T] =
-        apply(t.modState(i))
+        apply(t(i).modStateOption)
     }
   }
 
   // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 
   private[this] val reusabilityInstance: Reusability[StateSnapshot[Any]] = {
-    val f = implicitly[Reusability[Any ~=> Callback]] // Safe to reuse
+    val f = implicitly[Reusability[Reusable[SetFn[Any]]]] // Safe to reuse
     Reusability((x, y) =>
       (x eq y) ||
-        (f.test(x.setState, y.setState)
+        (f.test(x.underlyingSetFn, y.underlyingSetFn)
           && x.reusability.test(x.value, y.value)
           && y.reusability.test(x.value, y.value)))
   }

@@ -204,36 +204,50 @@ object CatsReactState {
 
     private def stateCB: CallbackTo[S] = fToCb(sa.state(si))
 
-    private def run[M[_], A, B](st: => ReactST[M, S, A], f: (S, S, A, => Callback) => CallbackTo[B])(implicit M: M ~> CallbackTo, N: Monad[M]): CallbackTo[B] =
-      stateCB.flatMap { s1 =>
-        val runCB: CallbackTo[(StateAndCallbacks[S], A)] = M(st run StateAndCallbacks(s1))
-        runCB.flatMap { x2 =>
-          val s2 : StateAndCallbacks[S] = x2._1
-          val a  : A                    = x2._2
-          def cb : Callback             = fToCb(sa.setStateCB(si)(s2.state, s2.cb))
-          val res: CallbackTo[B]        = f(s1, s2.state, a, cb)
-          res
-        }
-      }
+    private def run[M[_], A, B](st: => ReactST[M, S, A], conclude: (S, S, A, => Callback) => CallbackTo[B])
+                               (implicit M: FlatMap[M], trans: M ~> CallbackTo): CallbackTo[B] =
+      runM[M, A, B](st, conclude).flatMap(trans(_))
 
-    def runState[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): Out[A] =
-      run[M, A, A](st, (s1, s2, a, cb) => cb.map(_ => a))
+    def runState[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: FlatMap[M]): Out[A] =
+      run[M, A, A](st, (_, _, a, cb) => cb.map(_ => a))
 
-    def runStateFn[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M]): I => Out[A] =
+    def runStateFn[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: FlatMap[M]): I => Out[A] =
       i => runState(f(i))
 
     def runStateFn[I, M[_], A](f: I => ReactST[M, S, A], cb: I => Callback)(implicit M: M ~> CallbackTo, N: Monad[M]): I => Out[A] =
-      i => runState(f(i).addCallback(cb(i)))
+      i => runState(f(i) addCallback cb(i))
 
-    def runStateF[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): Out[A] =
+    def runStateF[M[_], A](st: => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: FlatMap[M], F: ChangeFilter[S]): Out[A] =
       run[M, A, A](st, (s1, s2, a, cb) => F(s1, s2, CallbackTo pure a, _ => cb.map(_ => a)))
 
-    def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]): I => Out[A] =
+    def runStateFnF[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: M ~> CallbackTo, N: FlatMap[M], F: ChangeFilter[S]): I => Out[A] =
       i => runStateF(f(i))
+
+    private def runM[M[_], A, B](st: => ReactST[M, S, A], conclude: (S, S, A, => Callback) => CallbackTo[B])
+                                (implicit M: FlatMap[M]): CallbackTo[M[B]] =
+      stateCB.flatMap { s1 =>
+        type SA = (StateAndCallbacks[S], A)
+        val runCM: CallbackTo[M[SA]] = CallbackTo(st run ReactS.StateAndCallbacks(s1))
+        runCM.flatMap { msa =>
+          CallbackTo.liftTraverse[SA, B] { xa =>
+            val s2: StateAndCallbacks[S] = xa._1
+            val a : A                    = xa._2
+            def c : Callback             = fToCb(sa(si).setState(s2.state, s2.cb))
+            val cb: CallbackTo[B]        = conclude(s1, s2.state, a, c)
+            cb
+          }.id.map(M.map(msa))
+        }
+      }
+
+    def runStateM[M[_], A](st: => ReactST[M, S, A])(implicit M: FlatMap[M]): Out[M[A]] =
+      runM[M, A, A](st, (_, _, a, cb) => cb.map(_ => a))
+
+    def runStateFnM[I, M[_], A](f: I => ReactST[M, S, A])(implicit M: FlatMap[M]): I => Out[M[A]] =
+      i => runStateM[M, A](f(i))
 
     def modStateF(f: S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): Out[Unit] =
       stateCB.flatMap(s1 =>
-        F(s1, f(s1), Callback.empty, s => fToCb(sa.setStateCB(si)(s, cb))))
+        F(s1, f(s1), Callback.empty, s => fToCb(sa(si).setState(s, cb))))
 
     def modStateFnF[I](f: I => S => S, cb: Callback = Callback.empty)(implicit F: ChangeFilter[S]): I => Out[Unit] =
       i => modStateF(f(i), cb)

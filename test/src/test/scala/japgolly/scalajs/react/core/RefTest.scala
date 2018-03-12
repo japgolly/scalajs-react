@@ -12,33 +12,30 @@ object RefTest extends TestSuite {
   val attr = "data-ah"
   val V = "!"
 
-  // Prevent type-inference of A
-  def PTI[A](a: A)(f: A => Unit) = f(a)
-
   def testHtmlTag(): Unit = {
     class Backend {
-      var input: html.Input = _
-      def addDataAttr = Callback { input.setAttribute(attr, V) }
-      def render = <.div(<.input.text(^.defaultValue := "2").ref(PTI(_)(input = _)))
+      val input = Ref[html.Input]
+      def addDataAttr = input.foreach(_.setAttribute(attr, V))
+      def render = <.div(<.input.text(^.defaultValue := "2").withRef(input))
     }
     val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
     ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = C().renderIntoDOM(mountNode)
-      assertEq(mounted.getDOMNode.querySelector("input").getAttribute(attr), V)
+      assertEq(mounted.getDOMNode.asElement.querySelector("input").getAttribute(attr), V)
     }
   }
 
   def testSvgTag(): Unit = {
     import japgolly.scalajs.react.vdom.svg_<^._
     class Backend {
-      var circle: svg.Circle = _
-      def addDataAttr = Callback { circle.setAttribute(attr, V) }
-      def render = <.svg(<.circle().ref(circle = _))
+      val circle = Ref[svg.Circle]
+      def addDataAttr = circle.foreach(_.setAttribute(attr, V))
+      def render = <.svg(<.circle().withRef(circle))
     }
     val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
     ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = C().renderIntoDOM(mountNode)
-      assertEq(mounted.getDOMNode.querySelector("circle").getAttribute(attr), V)
+      assertEq(mounted.getDOMNode.asElement.querySelector("circle").getAttribute(attr), V)
     }
   }
 
@@ -50,53 +47,53 @@ object RefTest extends TestSuite {
 
     def testRef(): Unit = {
       class Backend {
-        val ref = ScalaComponent.mutableRefTo(InnerScala.C)
+        val ref = Ref.toScalaComponent(InnerScala.C)
         def render = <.div(ref.component(123))
       }
       val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
-        assertEq(mounted.backend.ref.value.backend.secret, 666)
+        assertEq(mounted.backend.ref.unsafeGet().backend.secret, 666)
       }
     }
 
     def testRefAndKey(): Unit = {
       class Backend {
-        val ref = ScalaComponent.mutableRefTo(InnerScala.C)
+        val ref = Ref.toScalaComponent(InnerScala.C)
         def render = <.div(ref.component.withKey(555555555)(123))
       }
       val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
-        assertEq(mounted.backend.ref.value.backend.secret, 666)
+        assertEq(mounted.backend.ref.unsafeGet().backend.secret, 666)
       }
     }
   }
 
   object TestJs {
-    val InnerJs = JsComponentSTest.Component
+    val InnerJs = JsComponentEs6STest.Component
 
     def testRef(): Unit = {
       class Backend {
-        val ref = JsComponent.mutableRefTo(InnerJs)
+        val ref = Ref.toJsComponent(InnerJs)
         def render = <.div(ref.component())
       }
       val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
-        mounted.backend.ref.value.raw.inc() // compilation and evaluation without error is test enough
+        mounted.backend.ref.unsafeGet().raw.inc() // compilation and evaluation without error is test enough
       }
     }
 
     def testRefAndKey(): Unit = {
       class Backend {
-        val ref = JsComponent.mutableRefTo(InnerJs)
+        val ref = Ref.toJsComponent(InnerJs)
         def render = <.div(ref.component.withKey(555555555)())
       }
       val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
-        mounted.backend.ref.value.raw.inc() // compilation and evaluation without error is test enough
+        mounted.backend.ref.unsafeGet().raw.inc() // compilation and evaluation without error is test enough
       }
     }
   }

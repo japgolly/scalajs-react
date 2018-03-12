@@ -42,7 +42,6 @@ object Template {
     override type WithMappedState[S3] = Mapped[F, P2, S3]
 
     override implicit def F    = ft.to
-    override def isMounted     = ft apply from.isMounted
     override def getDOMNode    = ft apply from.getDOMNode
     override def propsChildren = ft apply from.propsChildren
     override def props         = ft apply mp(from.props)
@@ -51,11 +50,23 @@ object Template {
     override def forceUpdate(callback: Callback) =
       ft apply from.forceUpdate(callback)
 
-    override def setState(s: State, callback: Callback = Callback.empty) =
+    override def setState(s: State, callback: Callback) =
       ft apply from.modState(ls set s, callback)
 
-    override def modState(f: State => State, callback: Callback = Callback.empty) =
+    override def modState(f: State => State, callback: Callback) =
       ft apply from.modState(ls mod f, callback)
+
+    override def modState(f: (State, Props) => State, callback: Callback) =
+      ft apply from.modState((s1, p1) => ls.set(f(ls.get(s1), mp(p1)))(s1), callback)
+
+    override def setStateOption(o: Option[State], callback: Callback) =
+      o.fold(ft apply from.setStateOption(None, callback))(setState(_, callback))
+
+    override def modStateOption(f: State => Option[State], callback: Callback) =
+      ft apply from.modStateOption(ls modO f, callback)
+
+    override def modStateOption(f: (State, Props) => Option[State], callback: Callback) =
+      ft apply from.modStateOption((s1, p1) => f(ls.get(s1), mp(p1)).map(ls.set(_)(s1)), callback)
 
     override def mapProps[P3](f: P2 => P3) =
       mapped(f compose mp, ls)

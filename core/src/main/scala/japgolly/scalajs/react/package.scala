@@ -3,18 +3,25 @@ package japgolly.scalajs
 import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js
-import scala.scalajs.js.|
-import japgolly.scalajs.react.internal.Effect
+import japgolly.scalajs.react.internal.Effect.Id
 
 package object react extends ReactEventTypes {
 
-  // Same as raw.Key except it's non-null
-  type Key = String | Boolean | raw.JsNumber
+  type Key = raw.React.Key
 
   type Callback = CallbackTo[Unit]
 
   type StateAccessPure[S] = StateAccess[CallbackTo, S]
-  type StateAccessImpure[S] = StateAccess[Effect.Id, S]
+  type StateAccessImpure[S] = StateAccess[Id, S]
+
+  type SetStateFnPure[S] = SetStateFn[CallbackTo, S]
+  type SetStateFnImpure[S] = SetStateFn[Id, S]
+
+  type ModStateFnPure[S] = ModStateFn[CallbackTo, S]
+  type ModStateFnImpure[S] = ModStateFn[Id, S]
+
+  type ModStateWithPropsFnPure[P, S] = ModStateWithPropsFn[CallbackTo, P, S]
+  type ModStateWithPropsFnImpure[P, S] = ModStateWithPropsFn[Id, P, S]
 
   val GenericComponent = component.Generic
   type GenericComponent[P, CT[-p, +u] <: CtorType[p, u], U] = GenericComponent.ComponentSimple[P, CT, U]
@@ -47,6 +54,39 @@ package object react extends ReactEventTypes {
         case e: html.Element => Some(e)
         case _               => None
       }
+  }
+
+  @inline implicit final class ReactExt_MountedDomNode(private val n: GenericComponent.MountedDomNode) extends AnyVal {
+
+    def domCast[N <: dom.raw.Node]: N =
+      asElement.domCast[N]
+
+    @inline def domAsHtml: html.Element =
+      domCast
+
+    def domToHtml: Option[html.Element] =
+      n.right.toOption.flatMap(_.domToHtml)
+
+    def asElement: dom.Element =
+      n match {
+        case Right(e) => e
+        case Left(t)  => sys error s"Expected a dom.Element; got $t"
+      }
+
+    def asText: dom.Text =
+      n match {
+        case Left(t)  => t
+        case Right(e) => sys error s"Expected a dom.Text; got $e"
+      }
+
+    def toElement: Option[dom.Element] =
+      n.right.toOption
+
+    def toText: Option[dom.Text] =
+      n.left.toOption
+
+    def rawDomNode: japgolly.scalajs.react.raw.ReactDOM.DomNode =
+      n.fold(a => a, a => a)
   }
 
   @inline implicit final class ReactExt_OptionCallback(private val o: Option[Callback]) extends AnyVal {

@@ -165,12 +165,12 @@ object CallbackOption {
 final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal {
   import CallbackOption.someUnit
 
+  /** The underlying representation of this value-class */
+  @inline def underlyingRepr: () => Option[A] =
+    cbfn
+
   def widen[B >: A]: CallbackOption[B] =
     new CallbackOption(cbfn)
-
-  @deprecated("Use .toCallback instead of .get.void, or .asCallback instead of .get", "1.0.1")
-  def get: CallbackTo[Option[A]] =
-    asCallback
 
   def getOrElse[AA >: A](default: => AA): CallbackTo[AA] =
     asCallback.map(_ getOrElse default)
@@ -180,10 +180,6 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
 
   def toCallback(implicit ev: A <:< Unit): Callback =
     asCallback.void
-
-  @deprecated("Use .asCallback.map(_.isDefined)", "1.0.1")
-  def toBoolCB: CallbackTo[Boolean] =
-    asCallback.map(_.isDefined)
 
   def unary_!(implicit ev: A <:< Unit): CallbackOption[Unit] =
     CallbackOption(asCallback.map {
@@ -202,6 +198,9 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
 
   def flatMapOption[B](f: A => Option[B]): CallbackOption[B] =
     CallbackOption(asCallback.map(_ flatMap f))
+
+  def flatMapCB[B](f: A => CallbackTo[B]): CallbackOption[B] =
+    flatMap(a => CallbackOption.liftCallback(f(a)))
 
   def flatMap[B](f: A => CallbackOption[B]): CallbackOption[B] =
     CallbackOption(asCallback flatMap {
@@ -235,6 +234,10 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
    */
   def <<[B](prev: CallbackOption[B]): CallbackOption[A] =
     prev >> this
+
+  /** Convenient version of `<<` that accepts an Option */
+  def <<?[B](prev: Option[CallbackOption[B]]): CallbackOption[A] =
+    prev.fold(this)(_ >> this)
 
   /**
    * Alias for `>>`.

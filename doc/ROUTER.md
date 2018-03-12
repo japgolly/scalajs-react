@@ -6,7 +6,7 @@ Included is a router (in the orbit of Single-Page Applications) that is written 
 The package is `japgolly.scalajs.react.extra.router`.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.1.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.2.0"
 ```
 
 ## Contents
@@ -662,4 +662,4 @@ There are also unit tests available in the
 [japgolly.scalajs.react.extra.router](../test/src/test/scala/japgolly/scalajs/react/extra/router)
 package.
 
-[This] (https://github.com/chandu0101/scalajs-react-template) simple example [demonstrates](http://chandu0101.github.io/scalajs-react-template/) routing as well.
+[This](https://github.com/chandu0101/scalajs-react-template) simple example [demonstrates](http://chandu0101.github.io/scalajs-react-template/) routing as well.

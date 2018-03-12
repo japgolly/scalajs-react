@@ -3,14 +3,14 @@ package japgolly.scalajs.react.component
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, raw}
-import japgolly.scalajs.react.vdom.VdomElement
+import japgolly.scalajs.react.vdom.VdomNode
 
 object Scala {
 
   val builder = japgolly.scalajs.react.component.builder.EntryPoint
 
   /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
-  def static(name: String)(content: VdomElement): Component[Unit, Unit, Unit, CtorType.Nullary] =
+  def static(name: String)(content: VdomNode): Component[Unit, Unit, Unit, CtorType.Nullary] =
     builder.static(name)(content).build
 
   val Lifecycle = japgolly.scalajs.react.component.builder.Lifecycle
@@ -35,7 +35,7 @@ object Scala {
   type JsUnmounted[P, S, B]                               = Js.UnmountedWithFacade[Box[P], Box[S], Vars[P, S, B]]
   type JsMounted  [P, S, B]                               = Js.MountedWithFacade  [Box[P], Box[S], Vars[P, S, B]]
 
-  type RawMounted[P, S, B] = Js.RawMounted with Vars[P, S, B]
+  type RawMounted[P, S, B] = Js.RawMounted[Box[P], Box[S]] with Vars[P, S, B]
 
   @js.native
   trait Vars[P, S, B] extends js.Object {
@@ -85,17 +85,28 @@ object Scala {
       override def root          = this
       override val js            = x
       override val raw           = x.raw
-      override def isMounted     = x.isMounted
       override def props         = x.props.unbox
       override def propsChildren = x.propsChildren
       override def state         = x.state.unbox
       override def getDOMNode    = x.getDOMNode
 
-      override def setState(newState: S, callback: Callback = Callback.empty) =
+      override def setState(newState: S, callback: Callback) =
         x.setState(Box(newState), callback)
 
-      override def modState(mod: S => S, callback: Callback = Callback.empty) =
+      override def modState(mod: S => S, callback: Callback) =
         x.modState(s => Box(mod(s.unbox)), callback)
+
+      override def modState(mod: (S, P) => S, callback: Callback) =
+        x.modState((s, p) => Box(mod(s.unbox, p.unbox)), callback)
+
+      override def setStateOption(o: Option[S], callback: Callback) =
+        x.setStateOption(o.map(Box.apply), callback)
+
+      override def modStateOption(mod: S => Option[S], callback: Callback) =
+        x.modStateOption(s => mod(s.unbox).map(Box.apply), callback)
+
+      override def modStateOption(mod: (S, P) => Option[S], callback: Callback) =
+        x.modStateOption((s, p) => mod(s.unbox, p.unbox).map(Box.apply), callback)
 
       override def forceUpdate(callback: Callback) =
         x.forceUpdate(callback)
@@ -118,21 +129,4 @@ object Scala {
 
   def mountRaw[P, S, B](x: RawMounted[P, S, B]): MountedImpure[P, S, B] =
     mountedRoot(Js.mountedRoot(x))
-
-  // ===================================================================================================================
-
-  def mutableRefTo[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: Component[P, S, B, CT]): MutableRef[P, S, B, CT] =
-    new MutableRef(c)
-
-  final class MutableRef[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: Component[P, S, B, CT]) {
-
-    var value: MountedImpure[P, S, B] = null
-
-    private def refSet: raw.RefFn =
-      (i: js.Any) => value =
-        if (i == null) null else i.asInstanceOf[RawMounted[P, S, B]].mountedImpure
-
-    val component: CT[P, Unmounted[P, S, B]] =
-      CtorType.hackBackToSelf(c.ctor)(c.ctor.withRawProp("ref", refSet))
-  }
 }

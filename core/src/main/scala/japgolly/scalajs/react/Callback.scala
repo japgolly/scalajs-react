@@ -272,6 +272,44 @@ object CallbackTo {
       w
     }
 
+  /** Displays a dialog with an optional message prompting the user to input some text.
+    *
+    * @return Some string comprising the text entered by the user, or None.
+    */
+  def prompt: CallbackTo[Option[String]] =
+    apply(Option(window.prompt()))
+
+  /** Displays a dialog with an optional message prompting the user to input some text.
+    *
+    * @param message a string of text to display to the user. This parameter is optional and can be omitted if there is nothing to show in the prompt window.
+    * @return Some string comprising the text entered by the user, or None.
+    */
+  def prompt(message: String): CallbackTo[Option[String]] =
+    apply(Option(window.prompt(message)))
+
+  /** Displays a dialog with an optional message prompting the user to input some text.
+    *
+    * @param message a string of text to display to the user. This parameter is optional and can be omitted if there is nothing to show in the prompt window.
+    * @param default a string containing the default value displayed in the text input field. It is an optional parameter. Note that in Internet Explorer 7 and 8, if you do not provide this parameter, the string "undefined" is the default value.
+    * @return Some string comprising the text entered by the user, or None.
+    */
+  def prompt(message: String, default: String): CallbackTo[Option[String]] =
+    apply(Option(window.prompt(message, default)))
+
+  /** Displays a modal dialog with a message and two buttons, OK and Cancel.
+    *
+    * @param message a string to be displayed in the dialog.
+    * @return A boolean value indicating whether OK or Cancel was selected (true means OK).
+    */
+  def confirm(message: String): CallbackTo[Boolean] =
+    apply(window.confirm(message))
+
+  def retryUntilRight[L, R](attempt: CallbackTo[Either[L, R]])(onLeft: L => Callback): CallbackTo[R] =
+    tailrec[Unit, R](())(_ => attempt.flatMap {
+      case Left(e)  => onLeft(e).map(_ => Left(()))
+      case Right(a) => CallbackTo pure Right(a)
+    })
+
   /**
    * Serves as a temporary placeholder for a callback until you supply a real implementation.
    *
@@ -413,6 +451,10 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   @inline def <<[B](runBefore: CallbackTo[B]): CallbackTo[A] =
     runBefore >> this
 
+  /** Convenient version of `<<` that accepts an Option */
+  def <<?[B](prev: Option[CallbackTo[B]]): CallbackTo[A] =
+    prev.fold(this)(_ >> this)
+
   def zip[B](cb: CallbackTo[B]): CallbackTo[(A, B)] =
     for {
       a <- this
@@ -542,6 +584,10 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   @inline def toScalaFn: () => A =
     f
 
+  /** The underlying representation of this value-class */
+  @inline def underlyingRepr: () => A =
+    f
+
   def toJsFn: JFn0[A] =
     f
 
@@ -651,17 +697,27 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def logDuration: CallbackTo[A] =
     logDuration("Callback")
 
-  def asCBO[B](implicit ev:  CallbackTo[A] <:< CallbackTo[Option[B]]): CallbackOption[B] =
+  def asCBO[B](implicit ev: CallbackTo[A] <:< CallbackTo[Option[B]]): CallbackOption[B] =
     CallbackOption(ev(this))
 
   def toCBO: CallbackOption[A] =
     CallbackOption liftCallback this
+
+  /** Returns a [[CallbackOption]] that requires the boolean value therein to be true. */
+  def requireCBO(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackOption[Unit] =
+    ev(this).toCBO.flatMap(CallbackOption.require(_))
 
   /** Function distribution. See `CallbackTo.liftTraverse(f).id` for the dual. */
   def distFn[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): B => CallbackTo[C] = {
     val bc = ev(this)
     b => bc.map(_(b))
   }
+
+  def asKleisli[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): CallbackKleisli[B, C] =
+    CallbackKleisli(distFn)
+
+  def toKleisli[B]: CallbackKleisli[B, A] =
+    CallbackKleisli const this
 
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean ops

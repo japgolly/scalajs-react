@@ -56,10 +56,10 @@ object CallbackOptionExample {
     (pos + steps * MoveDist) min (max - InnerSize) max 0
 
   class Backend($: BackendScope[Unit, State]) {
-    private var outerRef: html.Element = _
+    private val outerRef = Ref[html.Element]
 
     def init: Callback =
-      Callback(outerRef.focus())
+      outerRef.foreach(_.focus())
 
     def move(dx: Int, dy: Int): Callback =
       $.modState(s => s.copy(
@@ -93,7 +93,7 @@ object CallbackOptionExample {
     }
 
     def render(s: State) =
-      OuterDiv.ref(outerRef = _)(
+      OuterDiv.withRef(outerRef)(
         ^.onKeyDown ==> handleKey,
         InnerDiv(
           ^.left := s.x.px,
