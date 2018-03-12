@@ -12,11 +12,11 @@ This document describes how to do the same within scalajs-react.
 
 ## Refs to VDOM tags
 
-1. Create a variable in which to store the DOM reference.
-  Its type should be whatever the DOM's type is (wrap it in `Option` for additional safety if desired.)
-  The recommended place to store this is inside a component Backend, as a `private var`.
-2. On your [`VdomTag`](TYPES.md), call `.ref(vdomTag => Unit)` on it and provide a function that updates your variable.
-3. To access the DOM from callbacks, just access the variable.
+1. Create a `Ref` in which to store the DOM reference.
+  Its type should be whatever the DOM's type.
+  Store this inside a component Backend, as a `private val`.
+2. On your [`VdomTag`](TYPES.md), call `.withRef(ref)` and pass it your reference.
+3. To access the DOM from callbacks, call `.get` or `.foreach`.
 
 Example (excerpts from [CallbackOption online demo](https://japgolly.github.io/scalajs-react/#examples/callback-option)):
 ```scala
@@ -24,16 +24,16 @@ object CallbackOptionExample {
 
   class Backend($: BackendScope[Unit, State]) {
 
-    // Prepare a variable
-    private var outerRef: html.Element = _
+    // Create the reference
+    private val outerRef = Ref[html.Element]
 
     // Wire it up from VDOM
     def render(s: State) =
-      OuterDiv.ref(outerRef = _)(...)
+      OuterDiv.withRef(outerRef)(...)
 
     // Use it
     def init: Callback =
-      Callback(outerRef.focus())
+      outerRef.foreach(_.focus())
   }
 
   val Main = ScalaComponent.builder[Unit]("CallbackOption example")
@@ -48,28 +48,30 @@ Here is another example: [Refs online demo](https://japgolly.github.io/scalajs-r
 
 ## Refs to Scala components
 
-1. Call `ScalaComponent.mutableRefTo(comp)` to create a reference variable.
-  This is mutable and should *not* be shared.
-  The recommended place to store this is inside a component Backend, as a `private val`.
+1. Call `Ref.toScalaComponent(comp)` to create a reference. Store this inside a component Backend, as a `private val`.
 2. Instead of using the component directly to instantiate it, call `.component` on the ref you created.
 3. To access the DOM from callbacks, call `.value` on the ref.
 
 Example:
 ```scala
-val Double = ScalaComponent.builder[Int]("Doubler")
+val DoubleComp = ScalaComponent.builder[Int]("Doubler")
   .render_P(i => <.p(s"$i + $i = ${i << 1}"))
   .build
 
 class Backend {
 
   // Create a mutable reference
-  private val ref = ScalaComponent.mutableRefTo(Double)
+  private val ref = Ref.toScalaComponent(DoubleComp)
 
   // Wire it up from VDOM
   def render = <.div(ref.component(123))
 
-  // Use it
-  def onMount = Callback.log("DOM HTML: ", ref.value.getDOMNode.outerHTML)
+  // Use it from a lifecycle callback
+  def onMount: Callback =
+    ref
+      .get
+      .map(_.getDOMNode.asElement.outerHTML)
+      .flatMapCB(Callback.log("DOM HTML: ", _))
 }
 
 val Exapmle = ScalaComponent.builder[Unit]("Example")
@@ -81,7 +83,7 @@ val Exapmle = ScalaComponent.builder[Unit]("Example")
 ## Refs to JS components
 
 Same as with Scala components;
-just change `ScalaComponent.mutableRefTo` to `JsComponent.mutableRefTo`.
+just change `Ref.toScalaComponent` to `Ref.toJsComponent`.
 
 ## Refs to functional components
 

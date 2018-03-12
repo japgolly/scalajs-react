@@ -34,7 +34,10 @@ object VdomElement {
 
 // =====================================================================================================================
 
-/** Elements must have keys. Array itself cannot. */
+/** This is mutable so don't let it escape a local pure function.
+  * Elements must have keys.
+  * VdomArray itself cannot be assigned a key.
+  */
 final class VdomArray(val rawArray: js.Array[Raw.React.Node]) extends VdomNode(rawArray.asInstanceOf[Raw.React.Node]) {
 
   def +=(n: VdomNode): this.type = {

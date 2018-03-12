@@ -43,11 +43,11 @@ Monocle
 ```scala
 libraryDependencies ++= Seq(
     "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "1.2.0",
-    "com.github.julien-truffaut" %%%  "monocle-core"  % "1.4.0",
-    "com.github.julien-truffaut" %%%  "monocle-macro" % "1.4.0"
+    "com.github.julien-truffaut" %%%  "monocle-core"  % "1.5.0",
+    "com.github.julien-truffaut" %%%  "monocle-macro" % "1.5.0"
 )
 
-addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
 ```
 
 A module with a extensions for [Monocle](https://github.com/julien-truffaut/Monocle) also exists under `ext-monocle`.
@@ -65,7 +65,7 @@ libraryDependencies ++= Seq(
     "com.github.julien-truffaut" %%%  "monocle-macro" % "1.5.0-cats"
 )
 
-addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
 
 Same as the `ext-monocle` module but using the cats variant of monocle
 
