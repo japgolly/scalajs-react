@@ -195,17 +195,18 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     // Create
     val tmp = document.createElement("div").domAsHtml
     document.body.appendChild(tmp)
-    raw.ReactDOM.render(options.template.template.rawElement, tmp)
-    val outer = tmp.firstChild
-    document.body.replaceChild(outer, tmp)
+    options.template.template.renderIntoDOM(tmp, Callback {
+      val outer = tmp.firstChild
+      document.body.replaceChild(outer, tmp)
 
-    // Customise
-    outer.addEventListener("click", onClick.toJsFn1)
+      // Customise
+      outer.addEventListener("click", onClick.toJsFn1)
 
-    // Store
-    val good = options.template good outer
-    val bad = options.template bad outer
-    overlay = Some(Nodes(outer, good, bad))
+      // Store
+      val good = options.template good outer
+      val bad  = options.template bad outer
+      overlay  = Some(Nodes(outer, good, bad))
+    })
   }
 
   def withNodes(f: Nodes => Unit): Callback =
