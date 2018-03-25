@@ -2507,24 +2507,34 @@ trait HtmlStyles {
   /**
     * Aligns the content inside a grid item along the row axis (as opposed to
     * align-self which aligns along the column axis). This value applies to the
-    * content inside a single grid item. Possible values:
-    *   * start - aligns the content to the left end of the grid area
-    *   * end - aligns the content to the right end of the grid area
-    *   * center - aligns the content in the center of the grid area
-    *   * stretch - fills the whole width of the grid area (this is the default)
+    * content inside a single grid item.
     */
-  final def justifySelf = Style[String]("justify-self")
+  object justifySelf extends Style[String]("justifySelf") {
+    /** Aligns the content to the left end of the grid area */
+    final def start = this := "start"
+    /** Aligns the content to the right end of the grid area */
+    final def end = this := "end"
+    /** Aligns the content in the center of the grid area */
+    final def center = this := "center"
+    /** Fills the whole width of the grid area (this is the default) */
+    final def stretch = this := "stretch"
+  }
 
   /**
     * Aligns the content inside a grid item along the column axis (as opposed to
     * justify-self which aligns along the row axis). This value applies to the
-    * content inside a single grid item. Possible values:
-    *   * start - aligns the content to the top of the grid area
-    *   * end - aligns the content to the bottom of the grid area
-    *   * center - aligns the content in the center of the grid area
-    *   * stretch - fills the whole height of the grid area (this is the default)
+    * content inside a single grid item.
     */
-  final def alignSelf = Style[String]("align-self")
+  object alignSelfGrid extends Style[String]("alignSelf") {
+    /** Aligns the content to the top of the grid area */
+    final def start = this := "start"
+    /** Aligns the content to the bottom of the grid area */
+    final def end = this := "end"
+    /** Aligns the content in the center of the grid area */
+    final def center = this := "center"
+    /** Fills the whole height of the grid area (this is the default)*/
+    final def stretch = this := "stretch"
+  }
 
   /**
     * Specifies the size of the grid lines. You can think of it like setting the
@@ -2547,11 +2557,16 @@ trait HtmlStyles {
   /**
     * Aligns the content inside a grid item along the row axis (as opposed to
     * align-items which aligns along the column axis). This value applies to all
-    * grid items inside the container. Possible values:
-    *   * start - aligns the content to the left end of the grid area
-    *   * end - aligns the content to the right end of the grid area
-    *   * center - aligns the content in the center of the grid area
-    *   * stretch - fills the whole width of the grid area (this is the default)
+    * grid items inside the container.
     */
-  final def justifyItems = Style[String]("justify-items")
+  object justifyItems extends Style[String]("justifyItems") {
+    /** Aligns the content to the left end of the grid area */
+    final def start = this := "start"
+    /** Aligns the content to the right end of the grid area */
+    final def end = this := "end"
+    /** Aligns the content in the center of the grid area */
+    final def center = this := "center"
+    /** Fills the whole width of the grid area (this is the default) */
+    final def stretch = this := "stretch"
+  }
 }
