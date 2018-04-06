@@ -2157,8 +2157,13 @@ trait HtmlStyles {
   }
 
   /**
-   * The align-self CSS property aligns flex items of the current flex line overriding the align-items value. If any
-   * of the flex item's cross-axis margin is set to auto, then align-self is ignored.
+   * In flexbox layouts the align-self CSS property aligns flex items of the
+   * current flex line overriding the align-items value. If any of the flex
+   * item's cross-axis margin is set to auto, then align-self is ignored.
+   *
+   * For grid layouts, aligns the content inside a grid item along the column
+   * axis (as opposed to justify-self which aligns along the row axis). This
+   * value applies to the content inside a single grid item.
    */
   object alignSelf extends Style[String]("alignSelf") {
     /** Computes to parent's align-items value or stretch if the element has no parent. */
@@ -2171,8 +2176,10 @@ trait HtmlStyles {
     final def flexEnd = this := "flex-end"
 
     /**
-     * The flex item's margin box is centered within the line on the cross-axis. If the cross-size of the item is
-     * larger than the flex container, it will overflow equally in both directions.
+     * In flexbox layouts the flex item's margin box is centered within the line on the cross-axis. If the
+     * cross-size of the item is larger than the flex container, it will overflow equally in both directions.
+     *
+     * For grids it aligns the content in the center of the grid area.
      */
     final def center = this := "center"
 
@@ -2183,10 +2190,22 @@ trait HtmlStyles {
     final def baseline = this := "baseline"
 
     /**
-     * Flex items are stretched such as the cross-size of the item's margin box is the same as the line while
-     * respecting width and height constraints.
+     * In flexbox layouts flex items are stretched such as the cross-size of the item's margin box is the
+     * same as the line while respecting width and height constraints.
+     *
+     * For grid layouts fills the whole height of the grid area (this is the default for them).
      */
     final def stretch = this := "stretch"
+
+    /**
+     * For grid layouts, aligns the content to the top of the grid area.
+     */
+    final def start = this := "start"
+
+    /**
+     * For grid layouts, aligns the content to the bottom of the grid area
+     */
+    final def end = this := "end"
   }
 
   /**
@@ -2397,11 +2416,6 @@ trait HtmlStyles {
   }
 
   /**
-    * Grid documentation credits to Chris Coyier and a team of swell people putting
-    * together wonderful css-tricks.com website.
-    */
-
-  /**
     * Defines the columns of the grid with a space-separated list of values. Must
     * be in the form of `<track-size> ... | <line-name> <track-size> ...`. The
     * values represent the track size, and the space between them represents the
@@ -2517,22 +2531,6 @@ trait HtmlStyles {
     /** Aligns the content in the center of the grid area */
     final def center = this := "center"
     /** Fills the whole width of the grid area (this is the default) */
-    final def stretch = this := "stretch"
-  }
-
-  /**
-    * Aligns the content inside a grid item along the column axis (as opposed to
-    * justify-self which aligns along the row axis). This value applies to the
-    * content inside a single grid item.
-    */
-  object alignSelfGrid extends Style[String]("alignSelf") {
-    /** Aligns the content to the top of the grid area */
-    final def start = this := "start"
-    /** Aligns the content to the bottom of the grid area */
-    final def end = this := "end"
-    /** Aligns the content in the center of the grid area */
-    final def center = this := "center"
-    /** Fills the whole height of the grid area (this is the default)*/
     final def stretch = this := "stretch"
   }
 
