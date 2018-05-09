@@ -98,7 +98,10 @@ object Ajax {
     def onTimeout(f: XMLHttpRequest => Callback): Step2 =
       copy(ontimeout = Some(CallbackKleisli(f) <<? ontimeout))
 
-    def onProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 =
+    @deprecated("Use .onDownloadProgress instead", "1.2.1")
+    def onProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 = onDownloadProgress(f)
+
+    def onDownloadProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 =
       copy(onprogress = Some(CallbackKleisli(f.tupled) <<? onprogress))
 
     def onUploadProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 =
