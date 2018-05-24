@@ -24,6 +24,7 @@ object Router {
       .componentDidUpdate  (i => cfg.postRenderFn(Some(i.prevState.page), i.currentState.page))
       .configure(
         EventListener.install("popstate", _ => lgc.ctl.refresh, _ => dom.window),
+        EventListener.install("hashchange", _ => lgc.ctl.refresh, _ => dom.window),
         Listenable.listenToUnit(_ => lgc, $ => lgc.syncToWindowUrl.flatMap($.setState(_))))
 
   def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
