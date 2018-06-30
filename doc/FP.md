@@ -24,7 +24,7 @@ Scalaz
 ======
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz72" % "1.2.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz72" % "1.2.1"
 ```
 
 Included is a Scalaz module that facilitates a more functional and pure approach to React integration.
@@ -42,7 +42,7 @@ Monocle
 
 ```scala
 libraryDependencies ++= Seq(
-    "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "1.2.0",
+    "com.github.japgolly.scalajs-react" %%% "ext-monocle" % "1.2.1",
     "com.github.julien-truffaut" %%%  "monocle-core"  % "1.5.0",
     "com.github.julien-truffaut" %%%  "monocle-macro" % "1.5.0"
 )
@@ -60,7 +60,7 @@ Monocle-cats
 
 ```scala
 libraryDependencies ++= Seq(
-    "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % "1.2.0",
+    "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % "1.2.1",
     "com.github.julien-truffaut" %%%  "monocle-core"  % "1.5.0-cats",
     "com.github.julien-truffaut" %%%  "monocle-macro" % "1.5.0-cats"
 )
@@ -73,7 +73,7 @@ Cats
 ====
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-cats" % "1.2.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-cats" % "1.2.1"
 ```
 
 There's a Cats module now too. It's pretty much that same as the Scalaz module but without
