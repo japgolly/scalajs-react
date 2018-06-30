@@ -1,23 +1,27 @@
 import sbt._, Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
-import org.scalajs.sbtplugin.ScalaJSPlugin, ScalaJSPlugin.autoImport._
-import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin, ScalaJSBundlerPlugin.autoImport._
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
+import org.scalajs.sbtplugin.ScalaJSPlugin
+import org.scalajs.sbtplugin.ScalaJSCrossVersion
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.{crossProject => _, CrossType => _, _}
+import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
+import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 
 object ScalajsReact {
 
   object Ver {
     val Cats          = "1.1.0"
-    val KindProjector = "0.9.6"
+    val KindProjector = "0.9.7"
     val MacroParadise = "2.1.1"
     val Monocle       = "1.5.0"
     val MonocleCats   = "1.5.1-cats"
-    val MTest         = "0.6.3"
+    val MTest         = "0.6.4"
     val Nyaya         = "0.8.1"
     val ReactJs       = "16.2.0"
     val Scala211      = "2.11.12"
-    val Scala212      = "2.12.4"
-    val ScalaJsDom    = "0.9.4"
-    val Scalaz72      = "7.2.20"
+    val Scala212      = "2.12.6"
+    val ScalaJsDom    = "0.9.6"
+    val Scalaz72      = "7.2.25"
     val SizzleJs      = "2.3.0"
     val Sourcecode    = "0.1.4"
   }
@@ -180,7 +184,7 @@ object ScalajsReact {
       testQuick     in Test := ())
 
   def monocleLib(name: String, cats: Boolean) =
-    "com.github.julien-truffaut" %%%! s"monocle-$name" % {if (cats) Ver.MonocleCats else Ver.Monocle}
+    "com.github.julien-truffaut" %% s"monocle-$name" % {if (cats) Ver.MonocleCats else Ver.Monocle} cross ScalaJSCrossVersion.binary
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
