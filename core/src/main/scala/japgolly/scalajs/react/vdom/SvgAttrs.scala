@@ -455,6 +455,8 @@ trait SvgAttrs {
 
   final def operator = VdomAttr("operator")
 
+  final def orient = VdomAttr("orient")
+
   final def order = VdomAttr("order")
 
   final def overflow = VdomAttr("overflow")
@@ -490,6 +492,10 @@ trait SvgAttrs {
   final def r = VdomAttr("r")
 
   final def radius = VdomAttr("radius")
+
+  final def refX = VdomAttr("refX")
+
+  final def refY = VdomAttr("refY")
 
   final def repeatCount = VdomAttr("repeatCount")
 
