@@ -24,8 +24,15 @@ object Router {
       .componentDidUpdate  (i => cfg.postRenderFn(Some(i.prevState.page), i.currentState.page))
       .configure(
         EventListener.install("popstate", _ => lgc.ctl.refresh, _ => dom.window),
-        EventListener.install("hashchange", _ => lgc.ctl.refresh, _ => dom.window),
         Listenable.listenToUnit(_ => lgc, $ => lgc.syncToWindowUrl.flatMap($.setState(_))))
+    .configure(
+      if (isIE11())
+        EventListener.install("hashchange", _ => lgc.ctl.refresh, _ => dom.window)
+      else
+        identityFn)
+
+  private def isIE11(): Boolean =
+    dom.window.navigator.userAgent.indexOf("Trident") != -1
 
   def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfig[Page]): (Router[Page], RouterLogic[Page]) = {
     val l = new RouterLogic(baseUrl, cfg)
