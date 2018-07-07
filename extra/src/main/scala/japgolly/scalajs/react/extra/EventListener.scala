@@ -10,7 +10,7 @@ object EventListener {
   def apply[E <: Event] = new OfEventType[E](true)
 
   def defaultTarget[P, S, B]: ScalaComponent.MountedImpure[P, S, B] => EventTarget =
-    _.getDOMNode.asElement
+    _.getDOMNode.asMounted().node
 
   final class OfEventType[E <: Event](private val _unused: Boolean) extends AnyVal {
 

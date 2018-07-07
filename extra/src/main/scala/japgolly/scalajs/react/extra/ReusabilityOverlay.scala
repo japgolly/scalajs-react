@@ -135,7 +135,7 @@ object DefaultReusabilityOverlay {
                   frame1: CSSStyleDeclaration => Unit,
                   frame2: CSSStyleDeclaration => Unit): Comp => Callback =
     $ => Callback {
-      $.getDOMNode.right.foreach { n =>
+      $.getDOMNode.mounted.map(_.node).foreach { n =>
         before(n.style)
         window.requestAnimationFrame{(_: Double) =>
           frame1(n.style)
@@ -213,7 +213,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     Callback(overlay foreach f)
 
   val updatePosition = withNodes { n =>
-    $.getDOMNode.right.foreach { d =>
+    $.getDOMNode.mounted.map(_.node).foreach { d =>
       val ds = d.getBoundingClientRect()
       val ns = n.outer.getBoundingClientRect()
 
