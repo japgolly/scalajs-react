@@ -75,9 +75,10 @@ object TriStateCheckbox {
   private def updateDom($: ScalaComponent.MountedImpure[_, _, _], nextProps: Props): Callback = {
     val s = nextProps.state
     Callback {
-      val d = $.getDOMNode.domCast[Input]
-      d.checked       = s == Checked
-      d.indeterminate = s == Indeterminate
+      $.getDOMNode.toElement.map(_.domCast[Input]).foreach { d =>
+        d.checked       = s == Checked
+        d.indeterminate = s == Indeterminate
+      }
     }
   }
 

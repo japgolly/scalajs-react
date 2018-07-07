@@ -22,7 +22,7 @@ object EventListenerTest extends TestSuite {
     def dispatch(name: String) = {
       val e = document.createEvent("Event")
       e.initEvent(name, true, true)
-      c.getDOMNode.asElement dispatchEvent e
+      c.getDOMNode.asMounted().asElement() dispatchEvent e
     }
 
     assertEq(c.state, 0)
