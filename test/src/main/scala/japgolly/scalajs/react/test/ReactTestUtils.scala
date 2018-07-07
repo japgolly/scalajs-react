@@ -192,7 +192,7 @@ object ReactTestUtils {
 
   def modifyProps[P, U <: GenericComponent.Unmounted[P, M], M <: GenericComponent.MountedImpure[P, _]]
       (c: GenericComponent[P, CtorType.Props, U], m: M)(f: P => P): M = {
-    val container = m.getDOMNode.asElement.parentNode
+    val container = m.getDOMNode.asMounted().node.parentNode
     val p2 = f(m.props)
     c(p2).renderIntoDOM(container.domCast[org.scalajs.dom.raw.Element])
   }

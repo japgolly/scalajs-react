@@ -2,7 +2,7 @@ package japgolly.scalajs.react.component
 
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
+import japgolly.scalajs.react.{Callback, Children, CtorType, ComponentDom, PropsChildren, vdom, raw => RAW}
 import scala.scalajs.js.|
 
 object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
@@ -131,7 +131,7 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
       override def props         = raw.props
       override def propsChildren = PropsChildren.fromRawProps(raw.props)
       override def state         = raw.state
-      override def getDOMNode    = Generic.MountedDomNode.force(RAW.ReactDOM.findDOMNode(raw))
+      override def getDOMNode    = ComponentDom(RAW.ReactDOM.findDOMNode(raw))
 
       override def setState(state: S, callback: Callback): Unit =
         raw.setState(state, callback.toJsFn)

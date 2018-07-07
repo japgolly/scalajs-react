@@ -56,39 +56,6 @@ package object react extends ReactEventTypes {
       }
   }
 
-  @inline implicit final class ReactExt_MountedDomNode(private val n: GenericComponent.MountedDomNode) extends AnyVal {
-
-    def domCast[N <: dom.raw.Node]: N =
-      asElement.domCast[N]
-
-    @inline def domAsHtml: html.Element =
-      domCast
-
-    def domToHtml: Option[html.Element] =
-      n.right.toOption.flatMap(_.domToHtml)
-
-    def asElement: dom.Element =
-      n match {
-        case Right(e) => e
-        case Left(t)  => sys error s"Expected a dom.Element; got $t"
-      }
-
-    def asText: dom.Text =
-      n match {
-        case Left(t)  => t
-        case Right(e) => sys error s"Expected a dom.Text; got $e"
-      }
-
-    def toElement: Option[dom.Element] =
-      n.right.toOption
-
-    def toText: Option[dom.Text] =
-      n.left.toOption
-
-    def rawDomNode: japgolly.scalajs.react.raw.ReactDOM.DomNode =
-      n.fold(a => a, a => a)
-  }
-
   @inline implicit final class ReactExt_OptionCallback(private val o: Option[Callback]) extends AnyVal {
     /** Convenience for `.getOrElse(Callback.empty)` */
     @inline def getOrEmpty: Callback =

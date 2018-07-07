@@ -59,7 +59,7 @@ object MiscTest extends TestSuite {
         ).build
 
       val c = ReactTestUtils.renderIntoDocument(s())
-      val sel = c.getDOMNode.domCast[html.Select]
+      val sel = c.getDOMNode.asMounted().domCast[html.Select]
       val options = sel.options.asInstanceOf[js.Array[html.Option]] // https://github.com/scala-js/scala-js-dom/pull/107
       val selectedOptions = options filter (_.selected) map (_.value)
       assert(selectedOptions.toSet == Set("a", "c"))
