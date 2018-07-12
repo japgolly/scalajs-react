@@ -152,7 +152,7 @@ trait React extends js.Object {
   final def createContext[A <: js.Any](defaultValue: A): React.Context[A] = js.native
 
   /** React.createContext(...).Consumer */
-  final def createElement[A <: js.Any](contextConsumer: ComponentClass[Null, Null], props: Null, childrenFn: A => Node): Element = js.native
+  final def createElement[A <: js.Any](contextConsumer: ComponentClass[Null, Null], props: Null, childrenFn: js.Function1[A, Node]): Element = js.native
 
   final def createElement(`type`: js.Symbol, props: js.Object, children: Node*): Element = js.native
 
