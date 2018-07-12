@@ -10,33 +10,29 @@ object React {
 
   /** Create a new context.
     *
-    * Feel free to safely cast the return type to `Context[A]` if you don't care about what the JS type that gets used
-    * under-the-hood from React, is.
+    * If you'd like to retain type information about the JS type used under-the-hood with React,
+    * use `React.Context(defaultValue)` instead.
     *
     * @since 1.3.0 / React 16.3.0
     */
-  def createContext[A](defaultValue: A)(implicit jsRepr: JsRepr[A]): Context.WithRawValue[A, jsRepr.J] = {
-    type R = jsRepr.type
-    val _jsRepr: R = jsRepr
-    new Context[A] {
-      override type RawValue = _jsRepr.J
-      override val jsRepr: R = _jsRepr
-      override val raw       = Raw.React.createContext(jsRepr.toJs(defaultValue))
-      override def toString  = s"Context($defaultValue)"
-      override def hashCode  = defaultValue.##
-    }
-  }
+  def createContext[A](defaultValue: A)(implicit jsRepr: JsRepr[A]): Context[A] =
+    Context(defaultValue)
 
-  /** React Context API.
+  /** React Context.
     *
     * See https://reactjs.org/docs/context.html
+    *
+    * @since 1.3.0 / React 16.3.0
     */
   sealed trait Context[A] { ctx =>
 
+    /** Scala values are converted to JS values and back using this. */
     val jsRepr: JsRepr[A]
 
+    /** The raw JS type that React sees. */
     type RawValue = jsRepr.J
 
+    /** The underlying JS `React.Context`. */
     val raw: Raw.React.Context[RawValue]
 
     /** Allows Consumers to subscribe to context changes.
@@ -46,18 +42,23 @@ object React {
       *
       * Caveat:
       *
-      * The React Context API "uses reference identity to determine when to re-render"
-      * (see https://reactjs.org/docs/context.html#caveats).
+      * The React Context API uses `Object.is` to determine equality
+      * (see https://reactjs.org/docs/context.html#caveats). This affects
       *
-      * To handle this properly within scalajs-react, you should not worry about reference identity of the value
-      * argument to this function, but instead aim for reference identity of this function's return value.
+      * scalajs-react will use plain JS values without translation where possible (eg. booleans, ints, strings)
+      * in which case, universal equality is used by React (eg. true == true, 123 == 123, "hello" == "hello").
+      * For these types of contexts, feel free to call `context.provide(value)(children)` the same way you would in
+      * React JS.
       *
+      * Non-JS values (eg. case classes) are boxed into JS objects in which case, React will use referential equality
+      * meaning that you need to hold on to and reuse the boxed instance. Seeing as you're not doing the boxing
+      * yourself, what you should hold on to and reuse is the result of `.provide()` before you apply children.
       * For example, instead of:
       *
       * {{{
       *   class Backend {
       *     def render(p: Props) =
-      *       context.provide(X)(<.div("hello"))
+      *       context.provide(X(...))(<.div("hello"))
       *   }
       * }}}
       *
@@ -65,7 +66,7 @@ object React {
       *
       * {{{
       *   class Backend {
-      *     private val contextX = context.provide(X)
+      *     private val contextX = context.provide(X(...))
 
       *     def render(p: Props) =
       *       contextX(<.div("hello"))
@@ -115,6 +116,18 @@ object React {
 
   object Context {
     type WithRawValue[A, J <: js.Any] = Context[A] { type RawValue = J }
+
+    def apply[A](defaultValue: A)(implicit jsRepr: JsRepr[A]): WithRawValue[A, jsRepr.J] = {
+      type R = jsRepr.type
+      val _jsRepr: R = jsRepr
+      new Context[A] {
+        override type RawValue = _jsRepr.J
+        override val jsRepr: R = _jsRepr
+        override val raw       = Raw.React.createContext(jsRepr.toJs(defaultValue))
+        override def toString  = s"Context($defaultValue)"
+        override def hashCode  = defaultValue.##
+      }
+    }
 
     sealed trait Provided[A] {
       val value: A
