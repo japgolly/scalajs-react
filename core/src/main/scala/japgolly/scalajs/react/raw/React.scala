@@ -133,11 +133,26 @@ object React extends React {
   type RefFn[A] = js.Function1[A | Null, Unit]
 
   type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, Node]
+
+  trait ValueProps[A <: js.Any] extends js.Object {
+    val value: A
+  }
+
+  @js.native
+  trait Context[A <: js.Any] extends js.Object {
+    val Provider: ComponentClass[ValueProps[A], Null] = js.native
+    val Consumer: ComponentClass[Null, Null]          = js.native
+  }
 }
 
 @js.native
 trait React extends js.Object {
   import React._
+
+  final def createContext[A <: js.Any](defaultValue: A): React.Context[A] = js.native
+
+  /** React.createContext(...).Consumer */
+  final def createElement[A <: js.Any](contextConsumer: ComponentClass[Null, Null], props: Null, childrenFn: A => Node): Element = js.native
 
   final def createElement(`type`: js.Symbol, props: js.Object, children: Node*): Element = js.native
 
