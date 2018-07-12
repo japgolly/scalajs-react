@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.Box
+import japgolly.scalajs.react.internal.JsRepr
 import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
 import japgolly.scalajs.react.{raw => Raw}
 import scala.scalajs.js
@@ -8,15 +8,36 @@ import scala.scalajs.js
 object React {
   def raw = Raw.React
 
-  def createContext[A](defaultValue: A): Context[A] =
-    Context(Raw.React.createContext(Box(defaultValue)))
+  /** Create a new context.
+    *
+    * Feel free to safely cast the return type to `Context[A]` if you don't care about what the JS type that gets used
+    * under-the-hood from React, is.
+    *
+    * @since 1.3.0 / React 16.3.0
+    */
+  def createContext[A](defaultValue: A)(implicit jsRepr: JsRepr[A]): Context.WithRawValue[A, jsRepr.J] = {
+    type R = jsRepr.type
+    val _jsRepr: R = jsRepr
+    new Context[A] {
+      override type RawValue = _jsRepr.J
+      override val jsRepr: R = _jsRepr
+      override val raw       = Raw.React.createContext(jsRepr.toJs(defaultValue))
+      override def toString  = s"Context($defaultValue)"
+      override def hashCode  = defaultValue.##
+    }
+  }
 
   /** React Context API.
     *
     * See https://reactjs.org/docs/context.html
     */
-  final case class Context[A](raw: Raw.React.Context[Context.RawValue[A]]) {
-    type RawValue = Context.RawValue[A]
+  sealed trait Context[A] { ctx =>
+
+    val jsRepr: JsRepr[A]
+
+    type RawValue = jsRepr.J
+
+    val raw: Raw.React.Context[RawValue]
 
     /** Allows Consumers to subscribe to context changes.
       * Accepts a value prop to be passed to Consumers that are descendants of this Provider.
@@ -57,6 +78,8 @@ object React {
       val a = value
       new Context.Provided[A] {
         override val value = a
+        override type RawValue = ctx.RawValue
+        override val rawValue = jsRepr.toJs(a)
 
         private type Props = Raw.React.ValueProps[RawValue]
         private val props: Props = new Props {
@@ -84,21 +107,20 @@ object React {
       */
     def consume(f: A => VdomNode): VdomElement = {
       val childFn: js.Function1[RawValue, Raw.React.Node] =
-        (b: RawValue) => f(b.unbox).rawNode
+        (rawValue: RawValue) => f(jsRepr.fromJs(rawValue)).rawNode
       val e = Raw.React.createElement(raw.Consumer, null, childFn)
       VdomElement(e)
     }
   }
 
   object Context {
-    type RawValue[+A] = Box[A]
+    type WithRawValue[A, J <: js.Any] = Context[A] { type RawValue = J }
 
     sealed trait Provided[A] {
       val value: A
+      type RawValue <: js.Any
+      val rawValue: RawValue
       def apply(children: VdomNode*): VdomElement
-
-      final type RawValue = Context.RawValue[A]
-      final val rawValue: RawValue = Box(value)
     }
   }
 
