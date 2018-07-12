@@ -12,14 +12,12 @@ trait JsRepr[A] {
 
   final def unsafeFromJs(u: js.Any): A =
     fromJs(unsafeCastJs(u))
+
+  final def xmap[B](f: A => B)(g: B => A): JsRepr[B] =
+    JsRepr(toJs compose g)(f compose unsafeFromJs)
 }
 
-trait JsReprLowPri {
-  implicit def box[A]: JsRepr.Of[A, Box[A]] =
-    JsRepr(Box.apply[A])(_.unbox)
-}
-
-object JsRepr extends JsReprLowPri {
+object JsRepr extends JsReprHighPri {
   type Of[A, JJ <: js.Any] = JsRepr[A] { type J = JJ }
 
   def apply[A, J <: js.Any](toJs: A => J)(fromJs: J => A): Of[A, J] = {
@@ -33,14 +31,26 @@ object JsRepr extends JsReprLowPri {
     }
   }
 
-  def identity[A](implicit f: A => js.Any): JsRepr.Of[A, js.Any with A] =
-    JsRepr((_: A).asInstanceOf[js.Any with A])(identityFn)
-//  def identity[A](implicit f: A => js.Any): JsRepr.Of[A, js.Any] =
-//    JsRepr(f)(_.asInstanceOf[A])
+  def id[A](implicit f: A => js.Any): JsRepr[A] =
+    apply(f)(_.asInstanceOf[A])
+}
 
-  implicit def boolean = //: JsRepr.Of[Int, Int] =
-    identity[Boolean]
+trait JsReprHighPri extends JsReprMedPri {
+  implicit def unit   : JsRepr[Unit   ] = JsRepr.id
+  implicit def boolean: JsRepr[Boolean] = JsRepr.id
+  implicit def byte   : JsRepr[Byte   ] = JsRepr.id
+  implicit def short  : JsRepr[Short  ] = JsRepr.id
+  implicit def int    : JsRepr[Int    ] = JsRepr.id
+  implicit def long   : JsRepr[Long   ] = double.xmap(_.toLong)(_.toDouble)
+  implicit def float  : JsRepr[Float  ] = JsRepr.id
+  implicit def double : JsRepr[Double ] = JsRepr.id
+  implicit def string : JsRepr[String ] = JsRepr.id
+}
 
-  implicit def int = //: JsRepr.Of[Int, Int] =
-    identity[Int]
+trait JsReprMedPri extends JsReprLowPri {
+  implicit def jsAny[J <: js.Any]: JsRepr[J] = JsRepr.id
+}
+
+trait JsReprLowPri {
+  implicit def box[A]: JsRepr[A] = JsRepr(Box.apply[A])(_.unbox)
 }
