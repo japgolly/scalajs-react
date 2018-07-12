@@ -112,7 +112,7 @@ object ScalajsReact {
         jsEnv                 := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv,
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
-        testFrameworks        += new TestFramework("NonStupidTestFramework"))
+        testFrameworks        += new TestFramework("utest.runner.Framework"))
 
   case class ReactArtifact(filename: String) {
     val dev = s"umd/$filename.development.js"
