@@ -22,6 +22,43 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
     componentRoot[P, s.CT, Unmounted[P]](rc, s.pf.rmap(s.summon(rc))(unmountedRoot))(s.pf)
   }
 
+  def fromFn[P <: js.Object, C <: Children](render: P with RAW.PropsWithChildren => RAW.React.Element)
+                                           (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
+    fromJsFn[P, C](render)(s)
+
+  def fromJsFn[P <: js.Object, C <: Children](render: js.Function1[P with RAW.PropsWithChildren, RAW.React.Element])
+                                             (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
+    JsFn.force[P, C](render)(s)
+
+  /** Create JS functional components from Scala. */
+  object fromScala {
+    import japgolly.scalajs.react.vdom._
+
+    type UnusedObject = Box[Unit]
+
+    def const(render: VdomElement)
+             (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] = {
+      val rawElement = render.rawElement
+      JsFn.fromFn[UnusedObject, Children.None](_ => rawElement)(s)
+    }
+
+    def byName(render: => VdomElement)
+              (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
+      JsFn.fromFn[UnusedObject, Children.None](_ => render.rawElement)(s)
+
+    def apply[P <: js.Object](render: P => VdomElement)
+                             (implicit s: CtorType.Summoner[P, Children.None]): Component[P, s.CT] =
+      JsFn.fromFn[P, Children.None](render(_).rawElement)(s)
+
+    def withChildren[P <: js.Object](render: (P, PropsChildren) => VdomElement)
+                                    (implicit s: CtorType.Summoner[P, Children.Varargs]): Component[P, s.CT] =
+      JsFn.fromFn[P, Children.Varargs](p => render(p, PropsChildren(p.children)).rawElement)(s)
+
+    def justChildren(render: PropsChildren => VdomElement)
+                    (implicit s: CtorType.Summoner[UnusedObject, Children.Varargs]): Component[UnusedObject, s.CT] =
+      JsFn.fromFn[UnusedObject, Children.Varargs](p => render(PropsChildren(p.children)).rawElement)(s)
+  }
+
   private def staticDisplayName = "<FnComponent>"
 
   override protected def rawComponentDisplayName: RAW.React.StatelessFunctionalComponent[_ <: js.Object] => String =
