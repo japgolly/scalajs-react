@@ -34,7 +34,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
     def generic[P <: js.Object, C <: Children](render: P with RAW.PropsWithChildren => VdomElement)
                                               (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
-      fromJsFn[P, C](render(_).rawElement)(s)
+      fromJsFn[P, C]((p: P with RAW.PropsWithChildren) => render(p).rawElement)(s)
 
     def const(render: VdomElement)
              (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
