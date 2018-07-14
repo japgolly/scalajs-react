@@ -18,7 +18,15 @@ object Children {
 sealed abstract class CtorType[-P, +U] {
   type This[-P, +U] <: CtorType[P, U]
 
+  type ChildrenType <: Children
+
   def applyGeneric(props: P)(children: ChildArg*): U
+
+  // This should really be on Children but I don't want to deal with types -> terms right now
+  def liftChildren(r: raw.PropsChildren): ChildrenArgs = {
+    import japgolly.scalajs.react.vdom.Implicits._
+    (PropsChildren(r): vdom.VdomNode) :: Nil
+  }
 
   def addMod(f: ModFn): This[P, U]
 
@@ -64,6 +72,7 @@ object CtorType {
                                        private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
 
     override type This[-P, +U] = PropsAndChildren[P, U]
+    override type ChildrenType = Children.Varargs
 
     override def applyGeneric(props: P)(children: ChildArg*): U =
       apply(props)(children: _*)
@@ -89,9 +98,13 @@ object CtorType {
                             private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
 
     override type This[-P, +U] = Props[P, U]
+    override type ChildrenType = Children.None
 
     override def applyGeneric(props: P)(children: ChildArg*): U =
       apply(props)
+
+    override def liftChildren(r: raw.PropsChildren): ChildrenArgs =
+      Nil
 
     def apply(props: P): U =
       construct(props, mods)
@@ -111,6 +124,7 @@ object CtorType {
                                private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
 
     override type This[-P, +U] = Children[P, U]
+    override type ChildrenType = Children.Varargs
 
     override def applyGeneric(props: P)(children: ChildArg*): U =
       apply(children: _*)
@@ -131,9 +145,13 @@ object CtorType {
                               private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
 
     override type This[-P, +U] = Nullary[P, U]
+    override type ChildrenType = Children.None
 
     override def applyGeneric(props: P)(children: ChildArg*): U =
       apply()
+
+    override def liftChildren(r: raw.PropsChildren): ChildrenArgs =
+      Nil
 
     def apply(): U =
       mods.fold(unmodified)(construct)

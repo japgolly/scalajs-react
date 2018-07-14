@@ -6,6 +6,7 @@ import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.vdom.html_<^._
 
 object JsFnComponentTest extends TestSuite {
   @JSGlobal("FnComp")
@@ -73,7 +74,6 @@ object JsFnComponentTest extends TestSuite {
     }
 
     'fromScala {
-      import japgolly.scalajs.react.vdom.html_<^._
 
       'const {
         val c = JsFnComponent.fromScala.const(<.div("ah"))
@@ -102,5 +102,32 @@ object JsFnComponentTest extends TestSuite {
 
     }
 
+    'toComponent {
+
+      'nullary {
+        val s = ScalaComponent.static("")(<.div("ah"))
+        val c = JsFnComponent.toComponent(s)
+        assertRender(c(), "<div>ah</div>")
+      }
+
+      'props {
+        val s = ScalaComponent.builder[String]("").render_P(<.div(_)).build
+        val c = JsFnComponent.toComponent(s.cmapCtorProps[JsProps](_.name))
+        assertRender(c(JsProps("hi")), "<div>hi</div>")
+      }
+
+      'withChildren {
+        val s = ScalaComponent.builder[String]("").render_PC((p, c) => <.div(c, p)).build
+        val c = JsFnComponent.toComponent(s.cmapCtorProps[JsProps](_.name))
+        assertRender(c(JsProps("hi"))("name: "), "<div>name: hi</div>")
+      }
+
+      'justChildren {
+        val s = ScalaComponent.builder[Unit]("").render_C(<.div(_)).build
+        val c = JsFnComponent.toComponent(s)
+        assertRender(c("ok"), "<div>ok</div>")
+      }
+
+    }
   }
 }

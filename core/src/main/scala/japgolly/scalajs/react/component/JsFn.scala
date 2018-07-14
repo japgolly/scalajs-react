@@ -1,8 +1,9 @@
 package japgolly.scalajs.react.component
 
-import scalajs.js
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
+import scala.annotation.implicitNotFound
+import scalajs.js
 
 object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalComponent] {
 
@@ -26,11 +27,12 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
                                              (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
     JsFn.force[P, C](render)(s)
 
+  /** Type used when creating a JsFnComponent that ignores its props */
+  type UnusedObject = Box[Unit]
+
   /** Create JS functional components from Scala. */
   object fromScala {
     import japgolly.scalajs.react.vdom._
-
-    type UnusedObject = Box[Unit]
 
     def generic[P <: js.Object, C <: Children](render: P with RAW.PropsWithChildren => VdomElement)
                                               (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
@@ -61,6 +63,56 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
   override protected def rawComponentDisplayName: RAW.React.StatelessFunctionalComponent[_ <: js.Object] => String =
     _ => staticDisplayName
+
+  // ===================================================================================================================
+
+  /** Create a new JS component that calls a given component argument.
+    *
+    * The target component's props either need to be a subtype of js.Object or a known singleton like Unit or Null.
+    */
+  def toComponent[P, CT[-p, +u] <: CtorType[p, u], U]
+                 (component: Generic.ComponentSimple[P, CT, U])
+                 (implicit ct: ToRawCtor[P, component.ctor.ChildrenType],
+                           re: ToRawReactElement[U])
+                 : Component[ct.JS, ct.cts.CT] = {
+    val c = component.ctor
+    fromJsFn[ct.JS, component.ctor.ChildrenType]((p: ct.JS with RAW.PropsWithChildren) =>
+      re.run(c.applyGeneric(ct(p))(c.liftChildren(p.children): _*))
+    )(ct.cts)
+  }
+
+  @implicitNotFound("Don't know how to convert ${P} into a JS object. Try adding .cmapCtorProps to your component.")
+  trait ToRawCtor[P, C <: Children] {
+    type JS <: js.Object
+    def apply(js: JS): P
+    val cts: CtorType.Summoner[JS, C]
+  }
+  object ToRawCtor {
+    type Aux[J <: js.Object, Scala, C <: Children, CTS <: CtorType.Summoner[J, C]] =
+      ToRawCtor[Scala, C] { type JS = J; val cts: CTS }
+
+    implicit def id[J <: js.Object, C <: Children](implicit s: CtorType.Summoner[J, C]): Aux[J, J, C, s.type] =
+      new ToRawCtor[J, C] {
+        override type JS = J
+        override def apply(j: J) = j
+        override val cts: s.type = s
+      }
+
+    implicit def singleton[P, C <: Children](implicit p: Singleton[P], s: CtorType.Summoner[UnusedObject, C]): Aux[UnusedObject, P, C, s.type] =
+      new ToRawCtor[P, C] {
+        override type JS = UnusedObject
+        override def apply(j: UnusedObject) = p.value
+        override val cts: s.type = s
+      }
+  }
+
+  @implicitNotFound("Don't know how to convert unmounted value into a React.Element. Try adding .mapUnmounted to your component.")
+  final case class ToRawReactElement[-A](run: A => RAW.React.Element) extends AnyVal
+  object ToRawReactElement {
+    implicit def id: ToRawReactElement[RAW.React.Element] = apply(identityFn)
+    implicit def fromVdom: ToRawReactElement[vdom.VdomElement] = apply(_.rawElement)
+    implicit def fromUnmounted[P, M]: ToRawReactElement[Generic.UnmountedSimple[P, M]] = apply(_.vdomElement.rawElement)
+  }
 
   // ===================================================================================================================
 
