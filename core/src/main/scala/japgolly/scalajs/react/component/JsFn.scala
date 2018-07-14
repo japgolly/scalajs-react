@@ -22,10 +22,6 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
     componentRoot[P, s.CT, Unmounted[P]](rc, s.pf.rmap(s.summon(rc))(unmountedRoot))(s.pf)
   }
 
-  def fromFn[P <: js.Object, C <: Children](render: P with RAW.PropsWithChildren => RAW.React.Element)
-                                           (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
-    fromJsFn[P, C](render)(s)
-
   def fromJsFn[P <: js.Object, C <: Children](render: js.Function1[P with RAW.PropsWithChildren, RAW.React.Element])
                                              (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
     JsFn.force[P, C](render)(s)
@@ -36,27 +32,29 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
     type UnusedObject = Box[Unit]
 
+    def generic[P <: js.Object, C <: Children](render: P with RAW.PropsWithChildren => VdomElement)
+                                              (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
+      fromJsFn[P, C](render(_).rawElement)(s)
+
     def const(render: VdomElement)
-             (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] = {
-      val rawElement = render.rawElement
-      JsFn.fromFn[UnusedObject, Children.None](_ => rawElement)(s)
-    }
+             (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
+      generic[UnusedObject, Children.None](_ => render)(s)
 
     def byName(render: => VdomElement)
               (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
-      JsFn.fromFn[UnusedObject, Children.None](_ => render.rawElement)(s)
+      generic[UnusedObject, Children.None](_ => render)(s)
 
     def apply[P <: js.Object](render: P => VdomElement)
                              (implicit s: CtorType.Summoner[P, Children.None]): Component[P, s.CT] =
-      JsFn.fromFn[P, Children.None](render(_).rawElement)(s)
+      generic[P, Children.None](render)(s)
 
     def withChildren[P <: js.Object](render: (P, PropsChildren) => VdomElement)
                                     (implicit s: CtorType.Summoner[P, Children.Varargs]): Component[P, s.CT] =
-      JsFn.fromFn[P, Children.Varargs](p => render(p, PropsChildren(p.children)).rawElement)(s)
+      generic[P, Children.Varargs](p => render(p, PropsChildren(p.children)))(s)
 
     def justChildren(render: PropsChildren => VdomElement)
                     (implicit s: CtorType.Summoner[UnusedObject, Children.Varargs]): Component[UnusedObject, s.CT] =
-      JsFn.fromFn[UnusedObject, Children.Varargs](p => render(PropsChildren(p.children)).rawElement)(s)
+      generic[UnusedObject, Children.Varargs](p => render(PropsChildren(p.children)))(s)
   }
 
   private def staticDisplayName = "<FnComponent>"
