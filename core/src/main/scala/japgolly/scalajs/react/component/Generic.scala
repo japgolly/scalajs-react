@@ -29,6 +29,16 @@ object Generic {
 
     val ctor: CT[P, U]
     implicit def ctorPF: Profunctor[CT]
+
+
+    /** Create a new JS component that wraps this component and its mappings.
+      *
+      * The props either need to be a subtype of js.Object, or a known singleton like Unit or Null.
+      */
+    final def toJsComponent(implicit c: JsFn.ToRawCtor[P, ctor.ChildrenType], r: JsFn.ToRawReactElement[U]): JsFn.Component[c.JS, c.cts.CT] =
+      JsFn.fromJsFn[c.JS, ctor.ChildrenType]((p: c.JS with RAW.PropsWithChildren) =>
+        r.run(ctor.applyGeneric(c(p))(ctor.liftChildren(p.children): _*))
+      )(c.cts)
   }
 
   trait ComponentWithRoot[P1, CT1[-p, +u] <: CtorType[p, u], U1, P0, CT0[-p, +u] <: CtorType[p, u], U0] extends ComponentSimple[P1, CT1, U1] {

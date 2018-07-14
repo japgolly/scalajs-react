@@ -106,25 +106,25 @@ object JsFnComponentTest extends TestSuite {
 
       'nullary {
         val s = ScalaComponent.static("")(<.div("ah"))
-        val c = JsFnComponent.toComponent(s)
+        val c = s.toJsComponent
         assertRender(c(), "<div>ah</div>")
       }
 
       'props {
         val s = ScalaComponent.builder[String]("").render_P(<.div(_)).build
-        val c = JsFnComponent.toComponent(s.cmapCtorProps[JsProps](_.name))
+        val c = s.cmapCtorProps[JsProps](_.name).toJsComponent
         assertRender(c(JsProps("hi")), "<div>hi</div>")
       }
 
       'withChildren {
         val s = ScalaComponent.builder[String]("").render_PC((p, c) => <.div(c, p)).build
-        val c = JsFnComponent.toComponent(s.cmapCtorProps[JsProps](_.name))
+        val c = s.cmapCtorProps[JsProps](_.name).toJsComponent
         assertRender(c(JsProps("hi"))("name: "), "<div>name: hi</div>")
       }
 
       'justChildren {
         val s = ScalaComponent.builder[Unit]("").render_C(<.div(_)).build
-        val c = JsFnComponent.toComponent(s)
+        val c = s.toJsComponent
         assertRender(c("ok"), "<div>ok</div>")
       }
 

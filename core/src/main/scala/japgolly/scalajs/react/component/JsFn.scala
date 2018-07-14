@@ -66,21 +66,6 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
   // ===================================================================================================================
 
-  /** Create a new JS component that calls a given component argument.
-    *
-    * The target component's props either need to be a subtype of js.Object or a known singleton like Unit or Null.
-    */
-  def toComponent[P, CT[-p, +u] <: CtorType[p, u], U]
-                 (component: Generic.ComponentSimple[P, CT, U])
-                 (implicit ct: ToRawCtor[P, component.ctor.ChildrenType],
-                           re: ToRawReactElement[U])
-                 : Component[ct.JS, ct.cts.CT] = {
-    val c = component.ctor
-    fromJsFn[ct.JS, component.ctor.ChildrenType]((p: ct.JS with RAW.PropsWithChildren) =>
-      re.run(c.applyGeneric(ct(p))(c.liftChildren(p.children): _*))
-    )(ct.cts)
-  }
-
   @implicitNotFound("Don't know how to convert ${P} into a JS object. Try adding .cmapCtorProps to your component.")
   trait ToRawCtor[P, C <: Children] {
     type JS <: js.Object
