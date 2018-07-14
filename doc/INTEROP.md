@@ -136,7 +136,7 @@ class MyJsComponent extends React.Component {
 ## Using Scala components from JSX
 
 JSX is a little different than JS as it gets transpiled from code like
-`<Blah msg="abc" />` to `React.createElement(Blah, { msg: "abc" });`.
+`<Blah msg="abc" />` to `React.createElement(Blah, { msg: "abc" })`.
 To make that work nicely we actually want to create a new JS component and expose it.
 
 1. Create a JS object representation of your component's props.
