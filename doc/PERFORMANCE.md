@@ -10,7 +10,7 @@ These utilities help you avoid work in two ways.
 2. By allowing you to cache your own arbitrary data, and build on it in a way such that derivative data is also cached efficiently.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.2.1"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.2.2"
 ```
 
 ### Contents
