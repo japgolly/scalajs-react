@@ -180,7 +180,7 @@ x.runNow()
 Working with `Callback`/`CallbackTo` might seem odd if you're not used to capturing effects with monads, but it's a transferable skill with applications outside of `Callback` itself.
 
 If you'd like to learn more about this approach, see *How to declare an imperative* by Philip Wadler.
-<br>A summary is available here: https://www.dcc.fc.up.pt/~pbv/aulas/tapf/slides/imperative.html
+<br>A summary is available here: http://www.dcc.fc.up.pt/~pbv/aulas/tapf/handouts/imperative.html
 
 A direct example of how *this* connects to *that*, is the **Equational reasoning** example.
 <br>Say we have a callback that prints "ha" twice to display "haha".
