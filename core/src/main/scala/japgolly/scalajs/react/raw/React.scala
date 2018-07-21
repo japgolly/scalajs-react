@@ -170,4 +170,6 @@ trait React extends js.Object {
   final val Children: React.Children = js.native
 
   final val Fragment: js.Symbol = js.native
+
+  final val StrictMode: js.Symbol = js.native
 }

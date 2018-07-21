@@ -1,6 +1,7 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.JsRepr
+import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
 import japgolly.scalajs.react.{raw => Raw}
 
 object React {
@@ -21,4 +22,14 @@ object React {
 
   val Fragment    = feature.ReactFragment
 
+  /** StrictMode is a tool for highlighting potential problems in an application.
+    * Like Fragment, StrictMode does not render any visible UI.
+    * It activates additional checks and warnings for its descendants.
+    *
+    * Strict mode checks are run in development mode only; they do not impact the production build.
+    *
+    * @since 1.3.0 / React 16.3.0
+    */
+  def StrictMode(ns: VdomNode*): VdomElement =
+    VdomElement(Raw.React.createElement(Raw.React.StrictMode, null, ns.map(_.rawNode): _*))
 }
