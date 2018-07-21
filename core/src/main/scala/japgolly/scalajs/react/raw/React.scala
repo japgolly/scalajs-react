@@ -156,9 +156,9 @@ trait React extends js.Object {
 
   final def createElement(`type`: js.Symbol, props: js.Object, children: Node*): Element = js.native
 
-  final def createElement[Props <: js.Object](`type`: String                               ): DomElement = js.native
-  final def createElement[Props <: js.Object](`type`: String, props: Props                 ): DomElement = js.native
-  final def createElement[Props <: js.Object](`type`: String, props: Props, children: Node*): DomElement = js.native
+  final def createElement(`type`: String                                   ): DomElement = js.native
+  final def createElement(`type`: String, props: js.Object                 ): DomElement = js.native
+  final def createElement(`type`: String, props: js.Object, children: Node*): DomElement = js.native
 
   final def createElement[Props <: js.Object](`type`: ComponentType[Props]                               ): ComponentElement[Props] = js.native
   final def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                 ): ComponentElement[Props] = js.native
