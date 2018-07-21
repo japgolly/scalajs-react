@@ -22,7 +22,8 @@ abstract class Exports {
   final type VdomElement = japgolly.scalajs.react.vdom.VdomElement
   final val VdomElement = japgolly.scalajs.react.vdom.VdomElement
 
-  final val ReactFragment = japgolly.scalajs.react.vdom.ReactFragment
+  @deprecated("Use React.Fragment", "1.3.0")
+  final val ReactFragment = japgolly.scalajs.react.feature.ReactFragment
 
   final val ReactPortal = japgolly.scalajs.react.vdom.ReactPortal
 

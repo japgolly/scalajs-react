@@ -19,4 +19,6 @@ object React {
   type Context[A] = feature.Context[A]
   val Context     = feature.Context
 
+  val Fragment    = feature.ReactFragment
+
 }
