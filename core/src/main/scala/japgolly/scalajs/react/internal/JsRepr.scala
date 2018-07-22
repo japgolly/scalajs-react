@@ -36,7 +36,7 @@ object JsRepr extends JsReprHighPri {
 }
 
 trait JsReprHighPri extends JsReprMedPri {
-  implicit def unit   : JsRepr[Unit   ] = JsRepr.id
+  implicit val unit   : JsRepr[Unit   ] = JsRepr.id
   implicit def boolean: JsRepr[Boolean] = JsRepr.id
   implicit def byte   : JsRepr[Byte   ] = JsRepr.id
   implicit def short  : JsRepr[Short  ] = JsRepr.id

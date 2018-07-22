@@ -78,7 +78,7 @@ object ScalaComponentPTest extends TestSuite {
       }
     }
 
-    'lifecycle - {
+    'lifecycle1 - {
       case class Props(a: Int, b: Int, c: Int) {
         def -(x: Props) = Props(
           this.a - x.a,
@@ -174,6 +174,31 @@ object ScalaComponentPTest extends TestSuite {
       assertMountCount(1)
       assertEq("willUnmountCount", willUnmountCount, 1)
       assertEq("recievedPropDeltas", recievedPropDeltas, Vector(Props(0, 0, 5), Props(0, 3, 0)))
+    }
+
+    'lifecycle2 - {
+      type Props = Int
+      var snapshots = Vector.empty[String]
+
+      val Comp = ScalaComponent.builder[Props]("")
+        .initialState(0)
+        .noBackend
+        .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
+        .getDerivedStateFromProps(p => Some(p + 100))
+        .getSnapshotBeforeUpdatePure($ => s"${$.prevProps} -> ${$.currentProps}")
+        .componentDidUpdate($ => Callback(snapshots :+= $.snapshot))
+        .build
+
+      ReactTestUtils.withNewBodyElement { mountNode =>
+        var mounted = Comp(10).renderIntoDOM(mountNode)
+        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=10 s=110</div>")
+        assertEq(snapshots, Vector())
+
+        mounted = Comp(20).renderIntoDOM(mountNode)
+        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=20 s=120</div>")
+        assertEq(snapshots, Vector("10 -> 20"))
+      }
+
     }
   }
 }
