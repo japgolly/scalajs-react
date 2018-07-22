@@ -16,8 +16,7 @@ final case class Lifecycle[P, S, B, SS](
       componentWillUpdate      : Option[ComponentWillUpdateFn      [P, S, B]],
       getDerivedStateFromProps : Option[GetDerivedStateFromPropsFn [P, S]],
       getSnapshotBeforeUpdate  : Option[GetSnapshotBeforeUpdateFn  [P, S, B, SS]],
-      shouldComponentUpdate    : Option[ShouldComponentUpdateFn    [P, S, B]],
-    ) {
+      shouldComponentUpdate    : Option[ShouldComponentUpdateFn    [P, S, B]]) {
 
   type This = Lifecycle[P, S, B, SS]
 
@@ -39,9 +38,7 @@ final case class Lifecycle[P, S, B, SS](
       componentWillUpdate       = componentWillUpdate      ,
       getDerivedStateFromProps  = getDerivedStateFromProps ,
       getSnapshotBeforeUpdate   = getSnapshotBeforeUpdate  ,
-      shouldComponentUpdate     = shouldComponentUpdate    ,
-    )
-
+      shouldComponentUpdate     = shouldComponentUpdate    )
 }
 
 object Lifecycle {
