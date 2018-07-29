@@ -6,25 +6,46 @@ import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.raw.React
 import Lifecycle._
 
-final case class Lifecycle[P, S, B](
-  componentDidMount        : Option[ComponentDidMountFn        [P, S, B]],
-  componentDidUpdate       : Option[ComponentDidUpdateFn       [P, S, B]],
-  componentWillMount       : Option[ComponentWillMountFn       [P, S, B]],
-  componentWillReceiveProps: Option[ComponentWillReceivePropsFn[P, S, B]],
-  componentWillUnmount     : Option[ComponentWillUnmountFn     [P, S, B]],
-  componentWillUpdate      : Option[ComponentWillUpdateFn      [P, S, B]],
-  shouldComponentUpdate    : Option[ShouldComponentUpdateFn    [P, S, B]],
-  componentDidCatch        : Option[ComponentDidCatchFn        [P, S, B]]) {
+final case class Lifecycle[P, S, B, SS](
+      componentDidCatch        : Option[ComponentDidCatchFn        [P, S, B]],
+      componentDidMount        : Option[ComponentDidMountFn        [P, S, B]],
+      componentDidUpdate       : Option[ComponentDidUpdateFn       [P, S, B, SS]],
+      componentWillMount       : Option[ComponentWillMountFn       [P, S, B]],
+      componentWillReceiveProps: Option[ComponentWillReceivePropsFn[P, S, B]],
+      componentWillUnmount     : Option[ComponentWillUnmountFn     [P, S, B]],
+      componentWillUpdate      : Option[ComponentWillUpdateFn      [P, S, B]],
+      getDerivedStateFromProps : Option[GetDerivedStateFromPropsFn [P, S]],
+      getSnapshotBeforeUpdate  : Option[GetSnapshotBeforeUpdateFn  [P, S, B, SS]],
+      shouldComponentUpdate    : Option[ShouldComponentUpdateFn    [P, S, B]]) {
 
-  type This = Lifecycle[P, S, B]
+  type This = Lifecycle[P, S, B, SS]
 
-  def append[I, O](lens: Lens[Lifecycle[P, S, B], Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
+  def append[I, O](lens: Lens[Lifecycle[P, S, B, SS], Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
     lens.mod(o => Some(o.fold(g)(f => i => s.append(f(i), g(i)))))(this)
+
+  def append2[I1, I2, O](lens: Lens[Lifecycle[P, S, B, SS], Option[(I1, I2) => O]])(g: (I1, I2) => O)(implicit s: Semigroup[O]): This =
+    lens.mod(o => Some(o.fold(g)(f => (i1, i2) => s.append(f(i1, i2), g(i1, i2)))))(this)
+
+  def resetSnapshot[SS2](componentDidUpdate     : Option[ComponentDidUpdateFn     [P, S, B, SS2]],
+                         getSnapshotBeforeUpdate: Option[GetSnapshotBeforeUpdateFn[P, S, B, SS2]]): Lifecycle[P, S, B, SS2] =
+    Lifecycle(
+      componentDidCatch         = componentDidCatch        ,
+      componentDidMount         = componentDidMount        ,
+      componentDidUpdate        = componentDidUpdate       ,
+      componentWillMount        = componentWillMount       ,
+      componentWillReceiveProps = componentWillReceiveProps,
+      componentWillUnmount      = componentWillUnmount     ,
+      componentWillUpdate       = componentWillUpdate      ,
+      getDerivedStateFromProps  = getDerivedStateFromProps ,
+      getSnapshotBeforeUpdate   = getSnapshotBeforeUpdate  ,
+      shouldComponentUpdate     = shouldComponentUpdate    )
 }
 
 object Lifecycle {
-  def empty[P, S, B]: Lifecycle[P, S, B] =
-    new Lifecycle(None, None, None, None, None, None, None, None)
+  type NoSnapshot = Unit
+
+  def empty[P, S, B]: Lifecycle[P, S, B, NoSnapshot] =
+    new Lifecycle(None, None, None, None, None, None, None, None, None, None)
 
   sealed trait Base[P, S, B] extends Any {
     def raw: RawMounted[P, S, B]
@@ -78,7 +99,7 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentDidCatch[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentDidCatch)(n => _.copy(componentDidCatch = n))
+  def componentDidCatch[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentDidCatch)(n => _.copy(componentDidCatch = n))
 
   type ComponentDidCatchFn[P, S, B] = ComponentDidCatch[P, S, B] => Callback
 
@@ -94,7 +115,7 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentDidMount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentDidMount)(n => _.copy(componentDidMount = n))
+  def componentDidMount[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentDidMount)(n => _.copy(componentDidMount = n))
 
   type ComponentDidMountFn[P, S, B] = ComponentDidMount[P, S, B] => Callback
 
@@ -110,11 +131,12 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentDidUpdate[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentDidUpdate)(n => _.copy(componentDidUpdate = n))
+  def componentDidUpdate[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentDidUpdate)(n => _.copy(componentDidUpdate = n))
 
-  type ComponentDidUpdateFn[P, S, B] = ComponentDidUpdate[P, S, B] => Callback
+  type ComponentDidUpdateFn[P, S, B, SS] = ComponentDidUpdate[P, S, B, SS] => Callback
 
-  final class ComponentDidUpdate[P, S, B](val raw: RawMounted[P, S, B], val prevProps: P, val prevState: S)
+  final class ComponentDidUpdate[P, S, B, SS](val raw: RawMounted[P, S, B],
+                                              val prevProps: P, val prevState: S, val snapshot: SS)
       extends StateW[P, S, B] with ForceUpdate[P, S, B] {
 
     override def toString = wrapTostring(s"ComponentDidUpdate(props: $prevProps → $currentProps, state: $prevState → $currentState)")
@@ -127,7 +149,7 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentWillMount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentWillMount)(n => _.copy(componentWillMount = n))
+  def componentWillMount[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentWillMount)(n => _.copy(componentWillMount = n))
 
   type ComponentWillMountFn[P, S, B] = ComponentWillMount[P, S, B] => Callback
 
@@ -140,7 +162,7 @@ object Lifecycle {
     def propsChildren: PropsChildren = mountedImpure.propsChildren
 
     @deprecated("forceUpdate prohibited within the componentWillMount callback.", "")
-    def forceUpdate(prohibited: Nothing = ???): Nothing = ???
+    def forceUpdate(nope: NotAllowed) = NotAllowed.body
 
     // Nope
     // def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
@@ -148,7 +170,7 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentWillUnmount[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentWillUnmount)(n => _.copy(componentWillUnmount = n))
+  def componentWillUnmount[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentWillUnmount)(n => _.copy(componentWillUnmount = n))
 
   type ComponentWillUnmountFn[P, S, B] = ComponentWillUnmount[P, S, B] => Callback
 
@@ -163,18 +185,18 @@ object Lifecycle {
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
 
     @deprecated("setState prohibited within the componentWillUnmount callback.", "")
-    def setState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
+    def setState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
 
     @deprecated("modState prohibited within the componentWillUnmount callback.", "")
-    def modState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
+    def modState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
 
     @deprecated("forceUpdate prohibited within the componentWillUnmount callback.", "")
-    def forceUpdate(prohibited: Nothing = ???): Nothing = ???
+    def forceUpdate(nope: NotAllowed) = NotAllowed.body
   }
 
   // ===================================================================================================================
 
-  def componentWillReceiveProps[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentWillReceiveProps)(n => _.copy(componentWillReceiveProps = n))
+  def componentWillReceiveProps[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentWillReceiveProps)(n => _.copy(componentWillReceiveProps = n))
 
   type ComponentWillReceivePropsFn[P, S, B] = ComponentWillReceiveProps[P, S, B] => Callback
 
@@ -190,7 +212,7 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentWillUpdate[P, S, B] = Lens((_: Lifecycle[P, S, B]).componentWillUpdate)(n => _.copy(componentWillUpdate = n))
+  def componentWillUpdate[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentWillUpdate)(n => _.copy(componentWillUpdate = n))
 
   type ComponentWillUpdateFn[P, S, B] = ComponentWillUpdate[P, S, B] => Callback
 
@@ -205,18 +227,53 @@ object Lifecycle {
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
 
     @deprecated("setState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-    def setState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
+    def setState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
 
     @deprecated("modState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-    def modState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
+    def modState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
 
     @deprecated("forceUpdate prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-    def forceUpdate(prohibited: Nothing = ???): Nothing = ???
+    def forceUpdate(nope: NotAllowed) = NotAllowed.body
   }
 
   // ===================================================================================================================
 
-  def shouldComponentUpdate[P, S, B] = Lens((_: Lifecycle[P, S, B]).shouldComponentUpdate)(n => _.copy(shouldComponentUpdate = n))
+  def getDerivedStateFromProps[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).getDerivedStateFromProps)(n => _.copy(getDerivedStateFromProps = n))
+
+  type GetDerivedStateFromPropsFn[P, S] = (P, S) => Option[S]
+
+  // ===================================================================================================================
+
+  def getSnapshotBeforeUpdate[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).getSnapshotBeforeUpdate)(n => _.copy(getSnapshotBeforeUpdate = n))
+
+  type GetSnapshotBeforeUpdateFn[P, S, B, SS] = GetSnapshotBeforeUpdate[P, S, B] => CallbackTo[SS]
+
+  final class GetSnapshotBeforeUpdate[P, S, B](val raw: RawMounted[P, S, B], val prevProps: P, val prevState: S)
+      extends Base[P, S, B] {
+
+    override def toString = wrapTostring(s"GetSnapshotBeforeUpdate(props: $prevProps → $currentProps, state: $prevState → $currentState)")
+
+    def propsChildren: PropsChildren        = mountedImpure.propsChildren
+    def currentProps : P                    = mountedImpure.props
+    def currentState : S                    = mountedImpure.state
+    def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
+
+    def cmpProps(cmp: (P, P) => Boolean): Boolean = cmp(currentProps, prevProps)
+    def cmpState(cmp: (S, S) => Boolean): Boolean = cmp(currentState, prevState)
+
+    @deprecated("setState prohibited within the getSnapshotBeforeUpdate callback.", "")
+    def setState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
+
+    @deprecated("modState prohibited within the getSnapshotBeforeUpdate callback.", "")
+    def modState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
+
+    @deprecated("forceUpdate prohibited within the getSnapshotBeforeUpdate callback.", "")
+    def forceUpdate(nope: NotAllowed) = NotAllowed.body
+  }
+
+  // ===================================================================================================================
+
+  def shouldComponentUpdate[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).shouldComponentUpdate)(n => _.copy(shouldComponentUpdate = n))
 
   type ShouldComponentUpdateFn[P, S, B] = ShouldComponentUpdate[P, S, B] => CallbackTo[Boolean]
 
@@ -234,13 +291,13 @@ object Lifecycle {
     def cmpState(cmp: (S, S) => Boolean): Boolean = cmp(currentState, nextState)
 
     @deprecated("setState prohibited within the shouldComponentUpdate callback.", "")
-    def setState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
+    def setState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
 
     @deprecated("modState prohibited within the shouldComponentUpdate callback.", "")
-    def modState(prohibited: Nothing, cb: Callback = ???): Nothing = ???
+    def modState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
 
     @deprecated("forceUpdate prohibited within the shouldComponentUpdate callback.", "")
-    def forceUpdate(prohibited: Nothing = ???): Nothing = ???
+    def forceUpdate(nope: NotAllowed) = NotAllowed.body
   }
 
   // ===================================================================================================================

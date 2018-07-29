@@ -195,5 +195,10 @@ object MiscTest extends TestSuite {
     }
     */
 
+    'strictMode -
+      assertRender(
+        React.StrictMode(CA(<.h2("nice"), <.h3("good"))),
+        "<div><h2>nice</h2><h3>good</h3></div>")
+
   }
 }

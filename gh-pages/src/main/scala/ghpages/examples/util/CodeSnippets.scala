@@ -21,7 +21,7 @@ object CodeSnippets {
   val scala: String => VdomTag =
     apply("scala")
 
-  def installSyntaxHighlighting[P, C <: Children, S, B]: ScalaComponent.Config[P, C, S, B] = _
+  def installSyntaxHighlighting[P, C <: Children, S, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, UpdateSnapshot.Some[U#Value]] = _
     .componentDidMount (_.getDOMNode.toElement.fold(Callback.empty)(applySyntaxHighlighting))
     .componentDidUpdate(_.getDOMNode.toElement.fold(Callback.empty)(applySyntaxHighlighting))
 

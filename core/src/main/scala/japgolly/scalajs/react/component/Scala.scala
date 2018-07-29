@@ -2,7 +2,7 @@ package japgolly.scalajs.react.component
 
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, raw}
+import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, UpdateSnapshot}
 import japgolly.scalajs.react.vdom.VdomNode
 
 object Scala {
@@ -15,8 +15,12 @@ object Scala {
 
   val Lifecycle = japgolly.scalajs.react.component.builder.Lifecycle
 
-  type Config[P, C <: Children, S, B] =
-    japgolly.scalajs.react.component.builder.Builder.Config[P, C, S, B]
+  /** This is terrible and repulsive but Scala doesn't allow anything less repulsive.
+    * We'll keep this correctly modelling the reality for now and soon see if maybe we can use macros to
+    * simplify it's creation (and avoid the need to use this explicitly).
+    */
+  type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
+    japgolly.scalajs.react.component.builder.Builder.Config[P, C, S, B, US, US2]
 
   // ===================================================================================================================
 

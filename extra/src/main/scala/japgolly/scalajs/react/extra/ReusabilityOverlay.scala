@@ -18,7 +18,8 @@ object ReusabilityOverlay {
 
   private val key = "reusabilityOverlay"
 
-  def install[P: Reusability, C <: Children, S: Reusability, B](newOverlay: ScalaComponent.MountedImpure[P, S, B] => ReusabilityOverlay): ScalaComponent.Config[P, C, S, B] = {
+  def install[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]
+      (newOverlay: ScalaComponent.MountedImpure[P, S, B] => ReusabilityOverlay): ScalaComponent.Config[P, C, S, B, U, U] = {
 
     // Store the overlay stats on each instance
     def get(raw: ScalaComponent.RawMounted[P, S, B]): ReusabilityOverlay = {
@@ -30,7 +31,7 @@ object ReusabilityOverlay {
       }(_.unbox)
     }
 
-    Reusability.shouldComponentUpdateAnd[P, C, S, B] { r =>
+    Reusability.shouldComponentUpdateAnd[P, C, S, B, U] { r =>
       val overlay = get(r.mounted.js.raw)
       if (r.update) {
         def fmt(update: Boolean, name: String, va: Any, vb: Any) =

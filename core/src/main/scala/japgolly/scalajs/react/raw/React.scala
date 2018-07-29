@@ -132,22 +132,44 @@ object React extends React {
 
   type RefFn[A] = js.Function1[A | Null, Unit]
 
+  @js.native
+  trait RefHandle[A] extends js.Object {
+    var current: A
+  }
+
   type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, Node]
+
+  trait ValueProps[A <: js.Any] extends js.Object {
+    val value: A
+  }
+
+  @js.native
+  trait Context[A <: js.Any] extends js.Object {
+    val Provider: ComponentClass[ValueProps[A], Null] = js.native
+    val Consumer: ComponentClass[Null, Null]          = js.native
+  }
 }
 
 @js.native
 trait React extends js.Object {
   import React._
 
+  final def createContext[A <: js.Any](defaultValue: A): React.Context[A] = js.native
+
+  /** React.createContext(...).Consumer */
+  final def createElement[A <: js.Any](contextConsumer: ComponentClass[Null, Null], props: Null, childrenFn: js.Function1[A, Node]): Element = js.native
+
   final def createElement(`type`: js.Symbol, props: js.Object, children: Node*): Element = js.native
 
-  final def createElement[Props <: js.Object](`type`: String                               ): DomElement = js.native
-  final def createElement[Props <: js.Object](`type`: String, props: Props                 ): DomElement = js.native
-  final def createElement[Props <: js.Object](`type`: String, props: Props, children: Node*): DomElement = js.native
+  final def createElement(`type`: String                                   ): DomElement = js.native
+  final def createElement(`type`: String, props: js.Object                 ): DomElement = js.native
+  final def createElement(`type`: String, props: js.Object, children: Node*): DomElement = js.native
 
   final def createElement[Props <: js.Object](`type`: ComponentType[Props]                               ): ComponentElement[Props] = js.native
   final def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                 ): ComponentElement[Props] = js.native
   final def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: Node*): ComponentElement[Props] = js.native
+
+  final def createRef(): RefHandle[js.Any] = js.native
 
   final val version: String = js.native
 
@@ -155,4 +177,6 @@ trait React extends js.Object {
   final val Children: React.Children = js.native
 
   final val Fragment: js.Symbol = js.native
+
+  final val StrictMode: js.Symbol = js.native
 }
