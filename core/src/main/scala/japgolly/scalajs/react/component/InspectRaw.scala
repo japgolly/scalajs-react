@@ -3,22 +3,28 @@ package japgolly.scalajs.react.component
 import org.scalajs.dom.console
 import scala.annotation.elidable
 import scala.scalajs.js
-import scala.util.Try
 import japgolly.scalajs.react.internal.JsUtil
 
 object InspectRaw {
 
-  def isComponent(a: js.Any): Boolean =
-    a match {
+  @elidable(elidable.ASSERTION)
+  def assertValidJsComponent(input: js.Any, where: sourcecode.FullName, line: sourcecode.Line): Unit =
+    assertValid(input, "JsComponent", where, line) {
       case _: js.Function => true
+      case o: js.Object   => List("$$typeof", "type").exists(js.Object.hasProperty(o, _))
       case _              => false
     }
 
   @elidable(elidable.ASSERTION)
-  @inline
-  def assertIsComponent(aa: => js.Any, name: => String, where: sourcecode.FullName, line: sourcecode.Line): Unit = {
-    val a = aa
-    if (!isComponent(a)) {
+  def assertValidJsFn(input: js.Any, where: sourcecode.FullName, line: sourcecode.Line): Unit =
+    assertValid(input, "JsFnComponent", where, line) {
+      case _: js.Function => true
+      case _              => false
+    }
+
+  private def assertValid(input: js.Any, name: String, where: sourcecode.FullName, line: sourcecode.Line)
+                         (isValid: js.Any => Boolean): Unit =
+    if (!isValid(input)) {
 
       def invalidComponentDesc(a: js.Any): String =
         (a: Any) match {
@@ -28,7 +34,7 @@ object InspectRaw {
           case _            => s"${a.toString}: ${js.typeOf(a)}"
         }
 
-      val solution: String = (a: Any) match {
+      val solution: String = (input: Any) match {
         case _: String =>
           """
             |String arguments are no longer supported. Either:
@@ -49,16 +55,19 @@ object InspectRaw {
         s"""
            |
            |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-           |Invalid $name! You've called $name(${invalidComponentDesc(a)})
+           |Invalid $name! You've called $name(${invalidComponentDesc(input)})
            |Source: ${where.value} (line #${line.value})
            |
            |${solution.trim}
+           |
+           |If you believe this error message is wrong, please raise a scalajs-react issue
+           |and use $name.force as a workaround.
            |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
            |
          """.stripMargin
-      Try(console.error(errMsg))
+
+      try console.error(errMsg) catch {case _: Throwable => }
       throw new AssertionError(errMsg)
     }
-  }
 
 }
