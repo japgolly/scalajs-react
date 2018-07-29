@@ -87,6 +87,7 @@ object Attr {
     @inline def focus      (name: String) = apply[raw.SyntheticFocusEvent      ](name)
     @inline def keyboard   (name: String) = apply[raw.SyntheticKeyboardEvent   ](name)
     @inline def mouse      (name: String) = apply[raw.SyntheticMouseEvent      ](name)
+    @inline def pointer    (name: String) = apply[raw.SyntheticPointerEvent    ](name)
     @inline def touch      (name: String) = apply[raw.SyntheticTouchEvent      ](name)
     @inline def transition (name: String) = apply[raw.SyntheticTransitionEvent ](name)
     @inline def ui         (name: String) = apply[raw.SyntheticUIEvent         ](name)
