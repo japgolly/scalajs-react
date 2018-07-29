@@ -148,6 +148,15 @@ object React extends React {
     val Provider: ComponentClass[ValueProps[A], Null] = js.native
     val Consumer: ComponentClass[Null, Null]          = js.native
   }
+
+  @js.native
+  trait ForwardRef extends js.Any
+
+  @js.native
+  trait ForwardRefComponent[P <: js.Object] extends js.Object {
+    val `$$typeof`: js.Symbol = js.native
+    val render: js.Function2[P, ForwardRef, Node] = js.native
+  }
 }
 
 @js.native
@@ -170,6 +179,8 @@ trait React extends js.Object {
   final def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: Node*): ComponentElement[Props] = js.native
 
   final def createRef(): RefHandle[js.Any] = js.native
+
+  final def forwardRef[Props <: js.Object](f: js.Function2[Props, ForwardRef, Node]): ForwardRefComponent[Props] = js.native
 
   final val version: String = js.native
 
