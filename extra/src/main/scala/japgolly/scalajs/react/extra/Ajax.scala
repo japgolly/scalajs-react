@@ -1,7 +1,9 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react.{Callback, CallbackKleisli, CallbackTo}
+import org.scalajs.dom.ext.AjaxException
 import org.scalajs.dom.{ProgressEvent, XMLHttpRequest}
+
 import scala.scalajs.js
 
 /** Purely-functional AJAX that runs a [[Callback]], and accepts XHR-callbacks as [[Callback]] instances.
@@ -91,6 +93,23 @@ object Ajax {
 
     def onComplete(f: XMLHttpRequest => Callback): Step2 =
       _onReadyStateChange(CallbackKleisli(f).when_(_.readyState == XMLHttpRequest.DONE))
+
+    private def _onCompleteHandle(success: XMLHttpRequest => Boolean)(f: Either[AjaxException, XMLHttpRequest] => Callback): Step2 =
+      onComplete(xhr => f(
+        if (success(xhr))
+          Right(xhr)
+        else
+          Left(AjaxException(xhr))
+      ))
+
+    def onCompleteHandleStatusFn(success: Int => Boolean)(f: Either[AjaxException, XMLHttpRequest] => Callback): Step2 =
+      _onCompleteHandle(xhr => success(xhr.status))(f)
+
+    def onCompleteHandleStatusIs(success: Int)(f: Either[AjaxException, XMLHttpRequest] => Callback): Step2 =
+      onCompleteHandleStatusFn(_ == success)(f)
+
+    def onCompleteHandle(f: Either[AjaxException, XMLHttpRequest] => Callback): Step2 =
+      onCompleteHandleStatusFn(s => (s >= 200 && s < 300) || s == 304)(f)
 
     def withTimeout(millis: Double, f: XMLHttpRequest => Callback): Step2 =
       copy(
