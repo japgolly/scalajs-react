@@ -17,11 +17,11 @@ object ScalajsReact {
     val MonocleCats   = "1.5.1-cats"
     val MTest         = "0.6.4"
     val Nyaya         = "0.8.1"
-    val ReactJs       = "16.4.1"
+    val ReactJs       = "16.4.2"
     val Scala211      = "2.11.12"
     val Scala212      = "2.12.6"
     val ScalaJsDom    = "0.9.6"
-    val Scalaz72      = "7.2.25"
+    val Scalaz72      = "7.2.26"
     val SizzleJs      = "2.3.0"
     val Sourcecode    = "0.1.4"
   }
@@ -249,7 +249,7 @@ object ScalajsReact {
         "react"                             -> Ver.ReactJs,
         "react-dom"                         -> Ver.ReactJs,
         "react-addons-perf"                 -> "15.5.0-rc.2",
-        "react-addons-css-transition-group" -> "16.4.1"))
+        "react-addons-css-transition-group" -> "16.4.2"))
   */
 
   def scalazModule(name: String, version: String) = {
