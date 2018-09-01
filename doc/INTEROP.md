@@ -165,7 +165,7 @@ object Example {
   @JSExportTopLevel("MyScalaComponent")
   val myJsComponent =
     myScalaComponent
-      .cmapCtorProps[JsProps](_.name) // Change props from Scala to JS
+      .cmapCtorProps[JsProps](_.name) // Change props from JS to Scala
       .toJsComponent // Create a new, real JS component
       .raw // Leave the nice Scala wrappers behind and obtain the underlying JS value
 }
