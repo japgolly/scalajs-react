@@ -54,8 +54,8 @@ object React extends React {
     def componentWillUpdate      (nextProps: Props, nextState: State): Unit    = js.native
     def shouldComponentUpdate    (nextProps: Props, nextState: State): Boolean = js.native
 
-    // abstract def render(): React.Element // TODO Fails. Scala.JS bug?
-    def render(): React.Element = js.native
+    // abstract def render(): React.Node // TODO Fails. Scala.JS bug?
+    def render(): React.Node = js.native
 
     final def forceUpdate(callback: js.Function0[Unit] = js.native): Unit = js.native
 
@@ -98,6 +98,8 @@ object React extends React {
   /** A React element is the type for the value of a DOM tag, or the return type of React.createElement(). */
   @js.native
   trait Element extends js.Object {
+    // def `type`: ElementType
+    // def props: React$ElementProps<ElementType>,
     def key: Key | Null
     def ref: Ref
   }
@@ -150,12 +152,12 @@ object React extends React {
   }
 
   @js.native
-  trait ForwardRef extends js.Any
+  trait ForwardedRef extends js.Any
 
   @js.native
   trait ForwardRefComponent[P <: js.Object] extends js.Object {
     val `$$typeof`: js.Symbol = js.native
-    val render: js.Function2[P, ForwardRef, Node] = js.native
+    val render: js.Function2[P, ForwardedRef, Node] = js.native
   }
 }
 
@@ -180,7 +182,7 @@ trait React extends js.Object {
 
   final def createRef(): RefHandle[js.Any] = js.native
 
-  final def forwardRef[Props <: js.Object](f: js.Function2[Props, ForwardRef, Node]): ForwardRefComponent[Props] = js.native
+  final def forwardRef[Props <: js.Object](f: js.Function2[Props, ForwardedRef, Node]): ForwardRefComponent[Props] = js.native
 
   final val version: String = js.native
 
