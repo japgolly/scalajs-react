@@ -15,7 +15,7 @@ object ScalajsReact {
     val MacroParadise = "2.1.1"
     val Monocle       = "1.5.0"
     val MonocleCats   = "1.5.1-cats"
-    val MTest         = "0.6.4"
+    val MTest         = "0.6.5"
     val Nyaya         = "0.8.1"
     val ReactJs       = "16.4.2"
     val Scala211      = "2.11.12"
