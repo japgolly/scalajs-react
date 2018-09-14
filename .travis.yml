@@ -14,7 +14,7 @@ install:
   - nvm use 7
   - export NODE_PATH="$(npm config get prefix)"/lib/node_modules
   - npm install
-  - npm install jsdom source-map-support
+  - npm install jsdom@11 source-map-support
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test:fastOptJS test:fullOptJS
