@@ -192,4 +192,15 @@ trait ScalazReactInstances {
     }
   }
 
+  implicit final lazy val reactRefFnScalazInstance: Profunctor[Ref.Fn] =
+    new Profunctor[Ref.Fn] {
+      override def lmap[A, B, C](f: Ref.Fn[A, B])(m: C => A) = f.contramap(m)
+      override def rmap[A, B, C](f: Ref.Fn[A, B])(m: B => C) = f.map(m)
+    }
+
+  implicit final def reactRefFullScalazInstance[X]: Profunctor[Ref.Full[?, X, ?]] =
+    new Profunctor[Ref.Full[?, X, ?]] {
+      override def lmap[A, B, C](f: Ref.Full[A, X, B])(m: C => A) = f.contramap(m)
+      override def rmap[A, B, C](f: Ref.Full[A, X, B])(m: B => C) = f.map(m)
+    }
 }

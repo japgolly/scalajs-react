@@ -5,7 +5,7 @@ import scala.annotation.implicitNotFound
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import japgolly.scalajs.react.internal.OptionLike
-import japgolly.scalajs.react.{Callback, CallbackTo, Ref => RefObj}
+import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.raw
 import Attr.ValueType
 
@@ -117,7 +117,7 @@ object Attr {
   object Ref extends Attr[raw.React.RefFn[_ <: TopNode]]("ref") {
     override def :=[A](a: A)(implicit t: ValueType[A, raw.React.RefFn[_ <: TopNode]]) =
       t(name, a)
-    private[vdom] def apply[N <: TopNode](r: RefObj[N, _]): TagMod =
+    private[vdom] def apply[N <: TopNode](r: japgolly.scalajs.react.Ref.Set[N]): TagMod =
       :=(r.rawSetFn)(ValueType.direct)
   }
 

@@ -7,8 +7,6 @@ import japgolly.scalajs.react._
 
 object InferenceUtil {
 
-  def assertCompiles(a: => Any) = ()
-
   def test[A] = new {
     def apply[B](f: A => B) = new {
       def expect[C](implicit ev: B =:= C): Unit = ()

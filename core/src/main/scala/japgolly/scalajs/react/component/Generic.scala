@@ -63,13 +63,14 @@ object Generic {
   trait UnmountedSimple[P, M] extends UnmountedRaw {
     final type Props = P
     final type Mounted = M
+    type Ref
 
     def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
     def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
     def vdomElement: vdom.VdomElement
     def key: Option[Key]
-    def ref: Option[RefPropValue]
+    def ref: Option[Ref]
     def props: Props
     def propsChildren: PropsChildren
 
@@ -88,8 +89,6 @@ object Generic {
   }
 
   type UnmountedRoot[P, M] = UnmountedWithRoot[P, M, P, M]
-
-  type RefPropValue = RAW.React.RefNonNull
 
   // ===================================================================================================================
 
