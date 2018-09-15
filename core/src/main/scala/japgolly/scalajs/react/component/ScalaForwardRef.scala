@@ -35,7 +35,8 @@ object ReactForwardRefInternals {
       create((b, r) => render(PropsChildren(b.children), r))
   }
 
-  final class ToJsComponent[P0 <: js.Object, S0 <: js.Object, RM <: Js.RawMounted[P0, S0]] private[component] (private val u: Unit) extends AnyVal with Dsl {
+  // extends AnyVal with Dsl makes scalac 2.11 explode
+  final class ToJsComponent[P0 <: js.Object, S0 <: js.Object, RM <: Js.RawMounted[P0, S0]] private[component] (private val u: Unit) extends /*AnyVal with*/ Dsl {
     override protected type R = Ref.ToJsComponent[P0, S0, RM]
     override protected type RefValue = RM
 
@@ -47,7 +48,8 @@ object ReactForwardRefInternals {
       ))))
   }
 
-  final class ToScalaComponent[P2, S, B] private[component] (private val u: Unit) extends AnyVal with Dsl {
+  // extends AnyVal with Dsl makes scalac 2.11 explode
+  final class ToScalaComponent[P2, S, B] private[component] (private val u: Unit) extends /*AnyVal with*/ Dsl {
     override protected type R = Ref.ToScalaComponent[P2, S, B]
     override protected type RefValue = Scala.RawMounted[P2, S, B]
 
