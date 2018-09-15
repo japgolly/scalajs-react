@@ -160,7 +160,7 @@ object ScalaComponentPTest extends TestSuite {
           })
         .componentDidCatch($ => $.setState(Some($.error.message.replaceFirst("'.+' *", ""))))
         .build
-
+try {
       ReactTestUtils.withNewBodyElement { mountNode =>
         assertMountCount(0)
 println("A" * 30)
@@ -190,6 +190,12 @@ println("E" * 30)
       assertMountCount(1)
       assertEq("willUnmountCount", willUnmountCount, 1)
       assertEq("recievedPropDeltas", recievedPropDeltas, Vector(Props(0, 0, 5), Props(0, 3, 0)))
+    }
+      catch {
+        case t: Throwable =>
+          println("!"*80)
+          t.printStackTrace()
+      }
     }
 
     'lifecycle2 - {
