@@ -25,6 +25,13 @@ object React {
 
   val Fragment    = feature.ReactFragment
 
+  /** Ref forwarding is an opt-in feature that lets some components take a ref they receive,
+    * and pass it further down (in other words, "forward" it) to a child.
+    *
+    * See https://reactjs.org/docs/forwarding-refs.html
+    */
+  @inline def forwardRef = component.ReactForwardRef
+
   /** StrictMode is a tool for highlighting potential problems in an application.
     * Like Fragment, StrictMode does not render any visible UI.
     * It activates additional checks and warnings for its descendants.

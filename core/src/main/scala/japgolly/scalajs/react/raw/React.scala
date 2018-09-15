@@ -84,7 +84,10 @@ object React extends React {
 
   type ComponentUntyped = Component[_ <: js.Object, _ <: js.Object]
 
-  type ComponentType[Props <: js.Object] = ComponentClass[Props, _ <: js.Object] | StatelessFunctionalComponent[Props]
+  type ComponentType[Props <: js.Object] =
+    ComponentClass[Props, _ <: js.Object] |
+    ForwardRefComponent[Props, _] |
+    StatelessFunctionalComponent[Props]
 
   type Constructor[P <: js.Object] = js.Function1[P, js.Any] with HasDisplayName
 
@@ -101,7 +104,7 @@ object React extends React {
     // def `type`: ElementType
     // def props: React$ElementProps<ElementType>,
     def key: Key | Null
-    def ref: Ref
+    def ref: Ref | Null
   }
 
   /** A React element is the type for the value of a DOM tag, or the return type of React.createElement(). */
@@ -128,15 +131,13 @@ object React extends React {
 
   type Node = ChildrenArray[Empty | String | JsNumber | Element]
 
-  type Ref = RefNonNull | Null
-
-  type RefNonNull = String | RefFn[ElementRef]
+  type Ref = RefFn[ElementRef] | RefHandle[Any]
 
   type RefFn[A] = js.Function1[A | Null, Unit]
 
   @js.native
   trait RefHandle[A] extends js.Object {
-    var current: A
+    var current: A | Null
   }
 
   type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, Node]
@@ -151,13 +152,13 @@ object React extends React {
     val Consumer: ComponentClass[Null, Null]          = js.native
   }
 
-  @js.native
-  trait ForwardedRef extends js.Any
+  type ForwardedRef[A] = RefHandle[A] | Null
 
   @js.native
-  trait ForwardRefComponent[P <: js.Object] extends js.Object {
+  trait ForwardRefComponent[P <: js.Object, R] extends js.Object {
     val `$$typeof`: js.Symbol = js.native
-    val render: js.Function2[P, ForwardedRef, Node] = js.native
+    val render: js.Function2[P, ForwardedRef[R], Node] = js.native
+    def props: P with PropsWithChildren
   }
 }
 
@@ -180,9 +181,9 @@ trait React extends js.Object {
   final def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                 ): ComponentElement[Props] = js.native
   final def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: Node*): ComponentElement[Props] = js.native
 
-  final def createRef(): RefHandle[js.Any] = js.native
+  final def createRef[A](): RefHandle[A] = js.native
 
-  final def forwardRef[Props <: js.Object](f: js.Function2[Props, ForwardedRef, Node]): ForwardRefComponent[Props] = js.native
+  final def forwardRef[P <: js.Object, R](f: js.Function2[P with PropsWithChildren, ForwardedRef[R], Node]): ForwardRefComponent[P, R] = js.native
 
   final val version: String = js.native
 

@@ -103,6 +103,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
   sealed trait UnmountedSimple[P, M] extends Generic.UnmountedSimple[P, M] {
     override type Raw <: RAW.React.ComponentElement[_ <: js.Object]
+    override final type Ref = Nothing
     override final def displayName = staticDisplayName
 
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]

@@ -22,7 +22,23 @@ object InspectRaw {
       case _              => false
     }
 
+  @elidable(elidable.ASSERTION)
+  def assertValidJsForwardRefComponent(input: js.Any, where: sourcecode.FullName, line: sourcecode.Line): Unit =
+    assertValid(input, "JsForwardRefComponent", where, line)(typeSymbolIs("react.forward_ref"))
+
+  private def typeSymbolIs(expect: String): js.Any => Boolean = {
+    case o: js.Object =>
+      val t = o.asInstanceOf[js.Dynamic].selectDynamic("$$typeof").asInstanceOf[js.Any]
+      js.Symbol.forKey(expect) == t
+    case _ => false
+  }
+
   private def assertValid(input: js.Any, name: String, where: sourcecode.FullName, line: sourcecode.Line)
+                         (isValid: js.Any => Boolean): Unit =
+    assertValid(input, name, name, s"$name.force", where, line)(isValid)
+
+  private def assertValid(input: js.Any, name: String, thisMethod: String, forceMethod: String,
+                          where: sourcecode.FullName, line: sourcecode.Line)
                          (isValid: js.Any => Boolean): Unit =
     if (!isValid(input)) {
 
@@ -55,13 +71,13 @@ object InspectRaw {
         s"""
            |
            |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-           |Invalid $name! You've called $name(${invalidComponentDesc(input)})
+           |Invalid $name! You've called $thisMethod(${invalidComponentDesc(input)})
            |Source: ${where.value} (line #${line.value})
            |
            |${solution.trim}
            |
            |If you believe this error message is wrong, please raise a scalajs-react issue
-           |and use $name.force as a workaround.
+           |and use $forceMethod as a workaround.
            |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
            |
          """.stripMargin
