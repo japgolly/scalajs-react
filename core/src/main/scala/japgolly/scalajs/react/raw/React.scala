@@ -170,16 +170,20 @@ trait React extends js.Object {
 
   /** React.createContext(...).Consumer */
   final def createElement[A <: js.Any](contextConsumer: ComponentClass[Null, Null], props: Null, childrenFn: js.Function1[A, Node]): Element = js.native
-
   final def createElement(`type`: js.Symbol, props: js.Object, children: Node*): Element = js.native
-
   final def createElement(`type`: String                                   ): DomElement = js.native
   final def createElement(`type`: String, props: js.Object                 ): DomElement = js.native
   final def createElement(`type`: String, props: js.Object, children: Node*): DomElement = js.native
+  final def createElement[P <: js.Object](`type`: ComponentType[P]                           ): ComponentElement[P] = js.native
+  final def createElement[P <: js.Object](`type`: ComponentType[P], props: P                 ): ComponentElement[P] = js.native
+  final def createElement[P <: js.Object](`type`: ComponentType[P], props: P, children: Node*): ComponentElement[P] = js.native
 
-  final def createElement[Props <: js.Object](`type`: ComponentType[Props]                               ): ComponentElement[Props] = js.native
-  final def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props                 ): ComponentElement[Props] = js.native
-  final def createElement[Props <: js.Object](`type`: ComponentType[Props], props: Props, children: Node*): ComponentElement[Props] = js.native
+  final def cloneElement(element: DomElement                                   ): DomElement = js.native
+  final def cloneElement(element: DomElement, props: js.Object                 ): DomElement = js.native
+  final def cloneElement(element: DomElement, props: js.Object, children: Node*): DomElement = js.native
+  final def cloneElement[P <: js.Object](element: ComponentElement[P]                           ): ComponentElement[P] = js.native
+  final def cloneElement[P <: js.Object](element: ComponentElement[P], props: P                 ): ComponentElement[P] = js.native
+  final def cloneElement[P <: js.Object](element: ComponentElement[P], props: P, children: Node*): ComponentElement[P] = js.native
 
   final def createRef[A](): RefHandle[A] = js.native
 
