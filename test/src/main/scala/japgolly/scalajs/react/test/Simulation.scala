@@ -35,7 +35,7 @@ object Simulation {
   def compositionEnd     = Simulation(Simulate.compositionEnd    (_))
   def compositionStart   = Simulation(Simulate.compositionStart  (_))
   def compositionUpdate  = Simulation(Simulate.compositionUpdate (_))
-  def contextMenu        = Simulation(Simulate.contextMenu       (_))
+  def contextMenu        = Simulation(Simulate.contextMenu       (_, SimEvent.Mouse()))
   def copy               = Simulation(Simulate.copy              (_))
   def cut                = Simulation(Simulate.cut               (_))
   def doubleClick        = Simulation(Simulate.doubleClick       (_, SimEvent.Mouse()))
