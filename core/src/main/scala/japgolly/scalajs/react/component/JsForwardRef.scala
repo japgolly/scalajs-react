@@ -2,6 +2,7 @@ package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.{raw => Raw, _}
 import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import scala.scalajs.js
 
 object JsForwardRef {

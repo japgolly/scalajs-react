@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
 import scala.annotation.implicitNotFound
 import scalajs.js

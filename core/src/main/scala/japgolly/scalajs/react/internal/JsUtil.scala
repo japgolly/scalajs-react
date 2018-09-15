@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.internal
 
 import scala.scalajs.js
+import scala.scalajs.js.|
 
 object JsUtil {
 
@@ -44,4 +45,13 @@ object JsUtil {
     as.foreach(array push _)
     array
   }
+
+  def jsNullToOption[A](an: A | Null): Option[A] =
+    Option(an.asInstanceOf[A])
+
+  def optionToJsNull[A](oa: Option[A]): A | Null =
+    oa match {
+      case Some(a) => a
+      case None    => null
+    }
 }

@@ -2,6 +2,7 @@ package japgolly.scalajs.react.component
 
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import japgolly.scalajs.react.{Callback, Children, CtorType, ComponentDom, PropsChildren, vdom, raw => RAW}
 import scala.scalajs.js.|
 
