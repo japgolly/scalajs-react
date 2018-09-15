@@ -369,6 +369,8 @@ trait SvgAttrs {
 
   final def floodOpacity = VdomAttr("floodOpacity")
 
+  final def focusable = VdomAttr("focusable")
+
   final def fontFamily = VdomAttr("fontFamily")
 
   final def fontSize = VdomAttr("fontSize")

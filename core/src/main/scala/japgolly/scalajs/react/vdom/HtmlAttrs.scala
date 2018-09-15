@@ -543,6 +543,8 @@ trait HtmlAttrs {
     */
   final def name = VdomAttr[String]("name")
 
+  final def noModule = VdomAttr[Boolean]("noModule")
+
   final def noValidate = VdomAttr[Boolean]("noValidate")
 
   /** For &lt;script&gt; and &lt;style&gt;elements. */
@@ -1036,6 +1038,8 @@ trait HtmlAttrs {
     * email; otherwise it is ignored.
     */
   final def placeholder = VdomAttr("placeholder")
+
+  final def playsInline = VdomAttr[Boolean]("playsInline")
 
   final def poster = VdomAttr("poster")
 
