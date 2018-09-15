@@ -543,6 +543,8 @@ trait HtmlAttrs {
     */
   final def name = VdomAttr[String]("name")
 
+  final def noModule = VdomAttr[Boolean]("noModule")
+
   final def noValidate = VdomAttr[Boolean]("noValidate")
 
   /** For &lt;script&gt; and &lt;style&gt;elements. */
@@ -577,6 +579,10 @@ trait HtmlAttrs {
   final def onAnimationStart = Attr.Event.animation("onAnimationStart")
 
   final def onAnimationStartCapture = Attr.Event.animation("onAnimationStartCapture")
+
+  final def onAuxClick = Attr.Event.mouse("onAuxClick")
+
+  final def onAuxClickCapture = Attr.Event("onAuxClickCapture")
 
   final def onBeforeInput = Attr.Event.base("onBeforeInput")
 
@@ -1036,6 +1042,8 @@ trait HtmlAttrs {
     * email; otherwise it is ignored.
     */
   final def placeholder = VdomAttr("placeholder")
+
+  final def playsInline = VdomAttr[Boolean]("playsInline")
 
   final def poster = VdomAttr("poster")
 

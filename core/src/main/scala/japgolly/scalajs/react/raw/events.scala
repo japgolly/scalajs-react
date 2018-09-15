@@ -180,6 +180,9 @@ trait SyntheticMouseEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[
   val relatedTarget: dom.EventTarget = js.native
 
   def getModifierState(keyArg: String): Boolean = js.native
+
+  /** @since React 16.5 */ val movementX: Long = js.native
+  /** @since React 16.5 */ val movementY: Long = js.native
 }
 
 /** https://github.com/facebook/react/blob/master/packages/react-dom/src/events/SyntheticPointerEvent.js */
@@ -194,6 +197,24 @@ trait SyntheticPointerEvent[+DOMEventTarget <: dom.Node] extends SyntheticMouseE
   val tiltY      : Double  = js.native
   val pointerType: String  = js.native
   val isPrimary  : Boolean = js.native
+
+  /** The normalized tangential pressure (also known as barrel pressure), typically set by an additional control
+    * (e.g. a finger wheel on an airbrush stylus), of the pointer input in the range of [-1,1],
+    * where 0 is the neutral position of the control.
+    * Note that some hardware may only support positive values in the range of [0,1].
+    * For hardware that does not support tangential pressure, the value MUST be 0.
+    *
+    * @since React 16.5
+    */
+  val tangentialPressure: Double = js.native
+
+  /** The clockwise rotation (in degrees, in the range of [0,359])
+    * of a transducer (e.g. pen stylus) around its own major axis.
+    * For devices that do not report twist, the value MUST be 0.
+    *
+    * @since React 16.5
+    */
+  val twist: Int = js.native
 }
 
 /** https://github.com/facebook/react/blob/master/packages/react-dom/src/events/SyntheticTouchEvent.js */

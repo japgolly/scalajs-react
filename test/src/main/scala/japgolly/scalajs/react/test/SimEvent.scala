@@ -203,6 +203,8 @@ object SimEvent {
                    clientY         : Double  = 0,
                    pageX           : Double  = 0,
                    pageY           : Double  = 0,
+                   movementX       : Long    = 0,
+                   movementY       : Long    = 0,
                    altKey          : Boolean = false,
                    ctrlKey         : Boolean = false,
                    metaKey         : Boolean = false,
@@ -230,6 +232,8 @@ object SimEvent {
     val clientY         : Double
     val pageX           : Double
     val pageY           : Double
+    val movementX       : Long
+    val movementY       : Long
     val altKey          : Boolean
     val ctrlKey         : Boolean
     val metaKey         : Boolean
@@ -248,6 +252,8 @@ object SimEvent {
       o.clientY          = clientY
       o.pageX            = pageX
       o.pageY            = pageY
+      o.movementX        = movementX
+      o.movementY        = movementY
       o.altKey           = altKey
       o.ctrlKey          = ctrlKey
       o.metaKey          = metaKey
@@ -257,6 +263,7 @@ object SimEvent {
       o.defaultPrevented = defaultPrevented
     }
 
+    def simulateAuxClick   (t: ReactOrDomNode) = Simulate.auxClick   (t, toJs)
     def simulateClick      (t: ReactOrDomNode) = Simulate.click      (t, toJs)
     def simulateContextMenu(t: ReactOrDomNode) = Simulate.contextMenu(t, toJs)
     def simulateDoubleClick(t: ReactOrDomNode) = Simulate.doubleClick(t, toJs)
@@ -277,6 +284,7 @@ object SimEvent {
     def simulateMouseUp    (t: ReactOrDomNode) = Simulate.mouseUp    (t, toJs)
     def simulateWheel      (t: ReactOrDomNode) = Simulate.wheel      (t, toJs)
 
+    def simulationAuxClick    = Simulation.auxClick   (toJs)
     def simulationClick       = Simulation.click      (toJs)
     def simulationContextMenu = Simulation.contextMenu(toJs)
     def simulationDoubleClick = Simulation.doubleClick(toJs)
@@ -304,27 +312,31 @@ object SimEvent {
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  case class Pointer(screenX         : Double  = 0,
-                     screenY         : Double  = 0,
-                     clientX         : Double  = 0,
-                     clientY         : Double  = 0,
-                     pageX           : Double  = 0,
-                     pageY           : Double  = 0,
-                     altKey          : Boolean = false,
-                     ctrlKey         : Boolean = false,
-                     metaKey         : Boolean = false,
-                     shiftKey        : Boolean = false,
-                     button          : Int     = 0,
-                     buttons         : Int     = 0,
-                     defaultPrevented: Boolean = false,
-                     pointerId       : Double  = 0,
-                     width           : Double  = 0,
-                     height          : Double  = 0,
-                     pressure        : Double  = 0,
-                     tiltX           : Double  = 0,
-                     tiltY           : Double  = 0,
-                     pointerType     : String  = "",
-                     isPrimary       : Boolean = false) extends MouseLike {
+  case class Pointer(screenX           : Double  = 0,
+                     screenY           : Double  = 0,
+                     clientX           : Double  = 0,
+                     clientY           : Double  = 0,
+                     pageX             : Double  = 0,
+                     pageY             : Double  = 0,
+                     movementX         : Long    = 0,
+                     movementY         : Long    = 0,
+                     altKey            : Boolean = false,
+                     ctrlKey           : Boolean = false,
+                     metaKey           : Boolean = false,
+                     shiftKey          : Boolean = false,
+                     button            : Int     = 0,
+                     buttons           : Int     = 0,
+                     defaultPrevented  : Boolean = false,
+                     pointerId         : Double  = 0,
+                     width             : Double  = 0,
+                     height            : Double  = 0,
+                     pressure          : Double  = 0,
+                     tiltX             : Double  = 0,
+                     tiltY             : Double  = 0,
+                     pointerType       : String  = "",
+                     isPrimary         : Boolean = false,
+                     tangentialPressure: Double  = 0,
+                     twist             : Int     = 0) extends MouseLike {
 
     def alt   = copy(altKey   = true)
     def ctrl  = copy(ctrlKey  = true)
@@ -335,14 +347,16 @@ object SimEvent {
       val obj = js.Object()
       val o = obj.asInstanceOf[Dynamic]
       setMouseAttributes(obj)
-      o.pointerId   = pointerId
-      o.width       = width
-      o.height      = height
-      o.pressure    = pressure
-      o.tiltX       = tiltX
-      o.tiltY       = tiltY
-      o.pointerType = pointerType
-      o.isPrimary   = isPrimary
+      o.pointerId          = pointerId
+      o.width              = width
+      o.height             = height
+      o.pressure           = pressure
+      o.tiltX              = tiltX
+      o.tiltY              = tiltY
+      o.pointerType        = pointerType
+      o.isPrimary          = isPrimary
+      o.tangentialPressure = tangentialPressure
+      o.twist              = twist
       obj
     }
 
@@ -354,6 +368,8 @@ object SimEvent {
         clientY          = clientY,
         pageX            = pageX,
         pageY            = pageY,
+        movementX        = movementX,
+        movementY        = movementY,
         altKey           = altKey,
         ctrlKey          = ctrlKey,
         metaKey          = metaKey,

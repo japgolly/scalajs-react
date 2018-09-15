@@ -156,6 +156,7 @@ object React extends React {
 
   @js.native
   trait ForwardRefComponent[P <: js.Object, R] extends js.Object {
+    var displayName: js.UndefOr[String] = js.native
     val `$$typeof`: js.Symbol = js.native
     val render: js.Function2[P, ForwardedRef[R], Node] = js.native
     def props: P with PropsWithChildren
