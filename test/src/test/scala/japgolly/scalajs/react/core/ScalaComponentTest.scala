@@ -144,8 +144,8 @@ object ScalaComponentPTest extends TestSuite {
           println("="*80)
           println(s"React.version = ${React.version}")
           println(s"x = ${inspectValue(x)}")
-          println(s"x.currentProps = ${inspectValue(x.currentProps)}")
-          println(s"x.nextProps = ${inspectValue(x.nextProps)}")
+//          println(s"x.currentProps = ${inspectValue(x.currentProps)}")
+//          println(s"x.nextProps = ${inspectValue(x.nextProps)}")
           println()
 
           x.backend.receive(x.currentProps, x.nextProps)
@@ -163,25 +163,29 @@ object ScalaComponentPTest extends TestSuite {
 
       ReactTestUtils.withNewBodyElement { mountNode =>
         assertMountCount(0)
-
+println("A" * 30)
         var mounted = Comp(Props(1, 2, 3)).renderIntoDOM(mountNode)
         assertMountCount(1)
         assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>1 2 3</div>")
         assertUpdates()
-
+println("B" * 30)
         mounted = Comp(Props(1, 2, 8)).renderIntoDOM(mountNode)
         assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>1 2 3</div>")
         assertUpdates()
-
+        println("A" * 30)
+println("C" * 30)
         mounted = Comp(Props(1, 5, 8)).renderIntoDOM(mountNode)
         assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>1 5 8</div>")
         assertUpdates(Props(0, 3, 0))
-
+println("D" * 30)
         assertEq("willUnmountCount", willUnmountCount, 0)
         mounted = Comp(null).renderIntoDOM(mountNode)
+println("X" * 30)
         assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
         assertEq("willUnmountCount", willUnmountCount, 1)
+println("Y" * 30)
       }
+println("E" * 30)
 
       assertMountCount(1)
       assertEq("willUnmountCount", willUnmountCount, 1)
