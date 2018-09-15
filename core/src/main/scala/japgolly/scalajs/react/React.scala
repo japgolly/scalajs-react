@@ -5,7 +5,10 @@ import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
 import japgolly.scalajs.react.{raw => Raw}
 
 object React {
-  def raw = Raw.React
+  @inline def raw = Raw.React
+
+  @inline def version: String =
+    raw.version
 
   /** Create a new context.
     *

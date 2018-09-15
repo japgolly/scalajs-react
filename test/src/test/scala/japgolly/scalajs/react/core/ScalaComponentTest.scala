@@ -137,7 +137,19 @@ object ScalaComponentPTest extends TestSuite {
         .componentWillUpdate(x => x.backend.willUpdate(x.currentProps, x.nextProps))
         .componentDidUpdate(x => x.backend.didUpdate(x.prevProps, x.currentProps))
         .componentWillUnmount(_.backend.incUnmountCount)
-        .componentWillReceiveProps(x => x.backend.receive(x.currentProps, x.nextProps))
+        .componentWillReceiveProps(x => {
+
+          import japgolly.scalajs.react.internal.JsUtil.inspectValue
+          println()
+          println("="*80)
+          println(s"React.version = ${React.version}")
+          println(s"x = ${inspectValue(x)}")
+          println(s"x.currentProps = ${inspectValue(x.currentProps)}")
+          println(s"x.nextProps = ${inspectValue(x.nextProps)}")
+          println()
+
+          x.backend.receive(x.currentProps, x.nextProps)
+        })
         .build
 
       val Comp = ScalaComponent.builder[Props]("")
