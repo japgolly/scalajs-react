@@ -6,10 +6,12 @@ import scala.scalajs.js
 import scalaz.Equal
 import utest._
 import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.internal.JsUtil
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import MonocleReact._
+import scala.util.Try
 
 object MiscTest extends TestSuite {
 
@@ -200,5 +202,13 @@ object MiscTest extends TestSuite {
         React.StrictMode(CA(<.h2("nice"), <.h3("good"))),
         "<div><h2>nice</h2><h3>good</h3></div>")
 
+    'symbolShouldntCrashToString - {
+      for (s <- List(js.Symbol.search, js.Symbol.forKey("ah"))) {
+        JsUtil.inspectValue(s)
+        JsUtil.safeToString(s)
+        Try(JsComponent[Null, Children.None, Null](s))
+        Try(JsFnComponent[Null, Children.None](s))
+      }
+    }
   }
 }

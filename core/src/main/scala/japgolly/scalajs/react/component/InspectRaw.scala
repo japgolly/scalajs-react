@@ -42,14 +42,6 @@ object InspectRaw {
                          (isValid: js.Any => Boolean): Unit =
     if (!isValid(input)) {
 
-      def invalidComponentDesc(a: js.Any): String =
-        (a: Any) match {
-          case s: String    => '"' + s.replace("\n", "\\n") + '"' // doesn't need to be perfect
-          case o: js.Object => JsUtil.inspectObject(o)
-          case ()           => a.toString
-          case _            => s"${a.toString}: ${js.typeOf(a)}"
-        }
-
       val solution: String = (input: Any) match {
         case _: String =>
           """
@@ -71,7 +63,7 @@ object InspectRaw {
         s"""
            |
            |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-           |Invalid $name! You've called $thisMethod(${invalidComponentDesc(input)})
+           |Invalid $name! You've called $thisMethod(${JsUtil.inspectValue(input)})
            |Source: ${where.value} (line #${line.value})
            |
            |${solution.trim}
