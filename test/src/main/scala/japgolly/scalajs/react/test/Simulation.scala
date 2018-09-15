@@ -28,6 +28,7 @@ object Simulation {
   // Don't use default arguments - they force parentheses on to caller.
   // Eg. Simulation.blur >> Simulation.focus becomes Simulation.blur() >> Simulation.focus(). Yuk.
 
+  def auxClick           = Simulation(Simulate.auxClick          (_, SimEvent.Mouse()))
   def beforeInput        = Simulation(Simulate.beforeInput       (_))
   def blur               = Simulation(Simulate.blur              (_))
   def change             = Simulation(Simulate.change            (_))
@@ -82,6 +83,7 @@ object Simulation {
   def touchStart         = Simulation(Simulate.touchStart        (_))
   def wheel              = Simulation(Simulate.wheel             (_))
 
+  def auxClick          (eventData: js.Object) = Simulation(Simulate.auxClick          (_, eventData))
   def beforeInput       (eventData: js.Object) = Simulation(Simulate.beforeInput       (_, eventData))
   def blur              (eventData: js.Object) = Simulation(Simulate.blur              (_, eventData))
   def change            (eventData: js.Object) = Simulation(Simulate.change            (_, eventData))

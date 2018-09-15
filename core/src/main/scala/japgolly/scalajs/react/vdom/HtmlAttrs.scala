@@ -580,6 +580,10 @@ trait HtmlAttrs {
 
   final def onAnimationStartCapture = Attr.Event.animation("onAnimationStartCapture")
 
+  final def onAuxClick = Attr.Event.mouse("onAuxClick")
+
+  final def onAuxClickCapture = Attr.Event("onAuxClickCapture")
+
   final def onBeforeInput = Attr.Event.base("onBeforeInput")
 
   /**

@@ -4,6 +4,7 @@ import scala.scalajs.js
 
 @js.native
 trait Simulate extends js.Object {
+  def auxClick          (t: ReactOrDomNode, eventData: js.Object = js.native): Unit = js.native
   def beforeInput       (t: ReactOrDomNode, eventData: js.Object = js.native): Unit = js.native
   def blur              (t: ReactOrDomNode, eventData: js.Object = js.native): Unit = js.native
   def change            (t: ReactOrDomNode, eventData: js.Object = js.native): Unit = js.native

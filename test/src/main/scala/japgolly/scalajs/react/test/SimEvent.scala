@@ -257,6 +257,7 @@ object SimEvent {
       o.defaultPrevented = defaultPrevented
     }
 
+    def simulateAuxClick   (t: ReactOrDomNode) = Simulate.auxClick   (t, toJs)
     def simulateClick      (t: ReactOrDomNode) = Simulate.click      (t, toJs)
     def simulateContextMenu(t: ReactOrDomNode) = Simulate.contextMenu(t, toJs)
     def simulateDoubleClick(t: ReactOrDomNode) = Simulate.doubleClick(t, toJs)
@@ -277,6 +278,7 @@ object SimEvent {
     def simulateMouseUp    (t: ReactOrDomNode) = Simulate.mouseUp    (t, toJs)
     def simulateWheel      (t: ReactOrDomNode) = Simulate.wheel      (t, toJs)
 
+    def simulationAuxClick    = Simulation.auxClick   (toJs)
     def simulationClick       = Simulation.click      (toJs)
     def simulationContextMenu = Simulation.contextMenu(toJs)
     def simulationDoubleClick = Simulation.doubleClick(toJs)

@@ -102,6 +102,7 @@ object TestTest extends TestSuite {
           assert(a != b)
         }
 
+        'onAuxClick           - test(^.onAuxClick,           Simulate.auxClick(_))
         'onBeforeInput        - test(^.onBeforeInput,        Simulate.beforeInput(_))
         'onBlur               - test(^.onBlur,               Simulate.blur(_))
         'onChange             - test(^.onChange,             Simulate.change(_))
