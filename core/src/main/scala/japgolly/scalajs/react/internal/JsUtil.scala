@@ -38,7 +38,7 @@ object JsUtil {
     a match {
       case s: String    => js.JSON.stringify(s)
       case o: js.Object => inspectObject(o)
-      case () | null    => a.toString
+      case () | null    => "" + a
       case JsSymbol(s)  => symbolToString(s)
       case _            => s"${safeToString(a)}: ${js.typeOf(a.asInstanceOf[js.Any])}"
     }
