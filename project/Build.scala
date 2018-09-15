@@ -10,7 +10,7 @@ import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 object ScalajsReact {
 
   object Ver {
-    val Cats          = "1.2.0"
+    val Cats          = "1.4.0"
     val KindProjector = "0.9.7"
     val MacroParadise = "2.1.1"
     val Monocle       = "1.5.0"
