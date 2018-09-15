@@ -29,10 +29,14 @@ object JsForwardRef {
 
   // ===================================================================================================================
 
-  private def staticDisplayName = "<ForwardRefComponent>"
+  // Aligned to https://github.com/facebook/react/pull/13615/files
+  private def staticDisplayName = "ForwardRef"
 
   private def rawComponentDisplayName: Raw.React.ForwardRefComponent[_ <: js.Object, _] => String =
-    _ => staticDisplayName
+    _.displayName.toOption match {
+      case Some(n) => s"ForwardRef($n)"
+      case None    => staticDisplayName
+    }
 
   sealed trait ComponentSimple[P, R, CT[-p, +u] <: CtorType[p, u], U] extends Generic.ComponentSimple[P, CT, U] {
     override final def displayName = rawComponentDisplayName(raw)

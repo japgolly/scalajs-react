@@ -1,7 +1,3 @@
-* If a `ForwardRef` component defines a `displayName`, use it in warnings. ([@probablyup](https://github.com/probablyup) in [#13615](https://github.com/facebook/react/issues/13615))
-
-## 16.5.0 (September 5, 2018)
-
 * Add support for React DevTools Profiler ([@bvaughn](https://github.com/bvaughn) in [#13058](https://github.com/facebook/react/issues/13058))
 * Add `onAuxClick` event for browsers that support it ([@jquense](https://github.com/jquense) in [#11571](https://github.com/facebook/react/issues/11571))
 * Add `movementX` and `movementY` fields to mouse events ([@jasonwilliams](https://github.com/jasonwilliams) in [#9018](https://github.com/facebook/react/issues/9018))
