@@ -180,6 +180,9 @@ trait SyntheticMouseEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[
   val relatedTarget: dom.EventTarget = js.native
 
   def getModifierState(keyArg: String): Boolean = js.native
+
+  /** @since React 16.5 */ val movementX: Long = js.native
+  /** @since React 16.5 */ val movementY: Long = js.native
 }
 
 /** https://github.com/facebook/react/blob/master/packages/react-dom/src/events/SyntheticPointerEvent.js */

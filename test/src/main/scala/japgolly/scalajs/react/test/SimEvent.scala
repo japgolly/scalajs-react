@@ -203,6 +203,8 @@ object SimEvent {
                    clientY         : Double  = 0,
                    pageX           : Double  = 0,
                    pageY           : Double  = 0,
+                   movementX       : Long    = 0,
+                   movementY       : Long    = 0,
                    altKey          : Boolean = false,
                    ctrlKey         : Boolean = false,
                    metaKey         : Boolean = false,
@@ -230,6 +232,8 @@ object SimEvent {
     val clientY         : Double
     val pageX           : Double
     val pageY           : Double
+    val movementX       : Long
+    val movementY       : Long
     val altKey          : Boolean
     val ctrlKey         : Boolean
     val metaKey         : Boolean
@@ -248,6 +252,8 @@ object SimEvent {
       o.clientY          = clientY
       o.pageX            = pageX
       o.pageY            = pageY
+      o.movementX        = movementX
+      o.movementY        = movementY
       o.altKey           = altKey
       o.ctrlKey          = ctrlKey
       o.metaKey          = metaKey
@@ -312,6 +318,8 @@ object SimEvent {
                      clientY           : Double  = 0,
                      pageX             : Double  = 0,
                      pageY             : Double  = 0,
+                     movementX         : Long    = 0,
+                     movementY         : Long    = 0,
                      altKey            : Boolean = false,
                      ctrlKey           : Boolean = false,
                      metaKey           : Boolean = false,
@@ -360,6 +368,8 @@ object SimEvent {
         clientY          = clientY,
         pageX            = pageX,
         pageY            = pageY,
+        movementX        = movementX,
+        movementY        = movementY,
         altKey           = altKey,
         ctrlKey          = ctrlKey,
         metaKey          = metaKey,
