@@ -62,11 +62,9 @@ object TriStateCheckbox {
    */
   def eventHandlers(onChange: Callback): TagMod = {
     def handleKey(e: ReactKeyboardEventFromHtml): Callback =
-      CallbackOption.asEventDefault(e,
-        CallbackOption.keyCodeSwitch(e) {
-          case KeyCode.Space => onChange
-        }
-      )
+      CallbackOption.keyCodeSwitch(e) {
+        case KeyCode.Space => onChange
+      }.asEventDefault(e)
     TagMod(
       ^.onClick   --> onChange,
       ^.onKeyDown ==> handleKey)

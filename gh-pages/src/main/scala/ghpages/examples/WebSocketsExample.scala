@@ -40,11 +40,9 @@ object WebSocketsExample {
           yield sendMessage(ws, s.message)
 
       def sendOnEnter(e: ReactKeyboardEvent): Callback =
-        CallbackOption.asEventDefault(e,
-          CallbackOption.keyCodeSwitch(e) {
-            case KeyCode.Enter => send.getOrEmpty
-          }
-        )
+        CallbackOption.keyCodeSwitch(e) {
+          case KeyCode.Enter => send.getOrEmpty
+        }.asEventDefault(e)
 
       <.div(
         <.h3("Type a message and get an echo:"),
