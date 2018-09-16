@@ -186,7 +186,7 @@ object RefTest extends TestSuite {
 
       def children() = assertRender(Forwarder(<.br, <.hr), "<div><button class=\"fancy\"><br/><hr/></button></div>")
 
-      def ref() =
+      def refC() =
         assertRefUsage[html.Button](
           Forwarder.withRef(_)("ok"), _.outerHTML)(
           "<button class=\"fancy\">ok</button>", "<div>" + _ + "</div>")
@@ -213,6 +213,16 @@ object RefTest extends TestSuite {
         val ref = Ref[html.Button]
         assertEq(Forwarder.withRef(ref)().ref.map(_.raw), Some(ref.raw))
       }
+
+      private val Forwarder2 = React.forwardRef[Int, html.Span]((i, r) =>
+        <.div(<.span.withRef(r)(s"${i}² = ${i * i}")))
+
+      def unary() = assertRender(Forwarder2(3), "<div><span>3² = 9</span></div>")
+
+      def refP() =
+        assertRefUsage[html.Span](
+          Forwarder2.withRef(_)(3), _.outerHTML)(
+          "<span>3² = 9</span>", "<div>" + _ + "</div>")
     }
 
     object ScalaToScala {
@@ -352,8 +362,10 @@ object RefTest extends TestSuite {
       'scalaToVdom - {
         import TestRefForwarding.ScalaToVdom._
         'nullary   - nullary()
+        'unary     - unary()
         'children  - children()
-        'ref       - ref()
+        'refP      - refP()
+        'refC      - refC()
         'wideRef   - wideRef()
         'narrowRef - narrowRef()
         'scalaRef  - scalaRef()
