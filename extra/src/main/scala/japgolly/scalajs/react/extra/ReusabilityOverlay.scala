@@ -18,7 +18,8 @@ object ReusabilityOverlay {
 
   private val key = "reusabilityOverlay"
 
-  def install[P: Reusability, C <: Children, S: Reusability, B](newOverlay: ScalaComponent.MountedImpure[P, S, B] => ReusabilityOverlay): ScalaComponent.Config[P, C, S, B] = {
+  def install[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]
+      (newOverlay: ScalaComponent.MountedImpure[P, S, B] => ReusabilityOverlay): ScalaComponent.Config[P, C, S, B, U, U] = {
 
     // Store the overlay stats on each instance
     def get(raw: ScalaComponent.RawMounted[P, S, B]): ReusabilityOverlay = {
@@ -30,7 +31,7 @@ object ReusabilityOverlay {
       }(_.unbox)
     }
 
-    Reusability.shouldComponentUpdateAnd[P, C, S, B] { r =>
+    Reusability.shouldComponentUpdateAnd[P, C, S, B, U] { r =>
       val overlay = get(r.mounted.js.raw)
       if (r.update) {
         def fmt(update: Boolean, name: String, va: Any, vb: Any) =
@@ -135,7 +136,7 @@ object DefaultReusabilityOverlay {
                   frame1: CSSStyleDeclaration => Unit,
                   frame2: CSSStyleDeclaration => Unit): Comp => Callback =
     $ => Callback {
-      $.getDOMNode.right.foreach { n =>
+      $.getDOMNode.mounted.map(_.node).foreach { n =>
         before(n.style)
         window.requestAnimationFrame{(_: Double) =>
           frame1(n.style)
@@ -213,7 +214,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     Callback(overlay foreach f)
 
   val updatePosition = withNodes { n =>
-    $.getDOMNode.right.foreach { d =>
+    $.getDOMNode.mounted.map(_.node).foreach { d =>
       val ds = d.getBoundingClientRect()
       val ns = n.outer.getBoundingClientRect()
 

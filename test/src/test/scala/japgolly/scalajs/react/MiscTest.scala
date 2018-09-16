@@ -6,10 +6,12 @@ import scala.scalajs.js
 import scalaz.Equal
 import utest._
 import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.internal.JsUtil
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import MonocleReact._
+import scala.util.Try
 
 object MiscTest extends TestSuite {
 
@@ -59,7 +61,7 @@ object MiscTest extends TestSuite {
         ).build
 
       val c = ReactTestUtils.renderIntoDocument(s())
-      val sel = c.getDOMNode.domCast[html.Select]
+      val sel = c.getDOMNode.asMounted().domCast[html.Select]
       val options = sel.options.asInstanceOf[js.Array[html.Option]] // https://github.com/scala-js/scala-js-dom/pull/107
       val selectedOptions = options filter (_.selected) map (_.value)
       assert(selectedOptions.toSet == Set("a", "c"))
@@ -195,5 +197,18 @@ object MiscTest extends TestSuite {
     }
     */
 
+    'strictMode -
+      assertRender(
+        React.StrictMode(CA(<.h2("nice"), <.h3("good"))),
+        "<div><h2>nice</h2><h3>good</h3></div>")
+
+    'symbolShouldntCrashToString - {
+      for (s <- List(js.Symbol.search, js.Symbol.forKey("ah"))) {
+        JsUtil.inspectValue(s)
+        JsUtil.safeToString(s)
+        Try(JsComponent[Null, Children.None, Null](s))
+        Try(JsFnComponent[Null, Children.None](s))
+      }
+    }
   }
 }

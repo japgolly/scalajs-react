@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
 import scala.annotation.implicitNotFound
 import scalajs.js
@@ -14,7 +15,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
   def apply[P <: js.Object, C <: Children]
            (raw: js.Any)
            (implicit s: CtorType.Summoner[P, C], where: sourcecode.FullName, line: sourcecode.Line): Component[P, s.CT] = {
-    InspectRaw.assertIsComponent(raw, "JsFnComponent", where, line)
+    InspectRaw.assertValidJsFn(raw, where, line)
     force[P, C](raw)(s)
   }
 
@@ -103,6 +104,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
   sealed trait UnmountedSimple[P, M] extends Generic.UnmountedSimple[P, M] {
     override type Raw <: RAW.React.ComponentElement[_ <: js.Object]
+    override final type Ref = Nothing
     override final def displayName = staticDisplayName
 
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]

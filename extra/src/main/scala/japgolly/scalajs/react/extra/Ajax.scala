@@ -39,11 +39,14 @@ object Ajax {
     def and(f: XMLHttpRequest => Unit): Step1 =
       new Step1(init >> CallbackKleisli.lift(f))
 
+    def setRequestHeader(header: String, value: String): Step1 =
+      and(_.setRequestHeader(header, value))
+
     def setRequestContentTypeJson: Step1 =
-      and(_.setRequestHeader("Content-Type", "application/json"))
+      setRequestHeader("Content-Type", "application/json")
 
     def setRequestContentTypeJson(charset: String): Step1 =
-      and(_.setRequestHeader("Content-Type", "application/json;charset=" + charset))
+      setRequestHeader("Content-Type", "application/json;charset=" + charset)
 
     def setRequestContentTypeJsonUtf8: Step1 =
       setRequestContentTypeJson("UTF-8")

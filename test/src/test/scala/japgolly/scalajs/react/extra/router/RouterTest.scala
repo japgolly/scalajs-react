@@ -78,7 +78,7 @@ object RouterTest extends TestSuite {
       val base = RouterTestHelp.localBaseUrl_/
       val router = Router(base, MyPage.config.logToConsole)
       val c = ReactTestUtils.renderIntoDocument(router())
-      def node = c.getDOMNode.asElement
+      def node = c.getDOMNode.asMounted().asElement()
       def html = node.outerHTML
 
       def testView(routeSuffix: String, p: MyPage): Unit = {

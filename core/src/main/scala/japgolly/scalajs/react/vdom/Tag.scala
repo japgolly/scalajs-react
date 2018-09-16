@@ -7,11 +7,14 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                                          final val namespace: Namespace) extends TagMod {
 
   @deprecated("Use .withRef instead", "1.2.0")
-  def ref[NN >: N <: TopNode](r: Ref[NN, _]): TagOf[NN] =
+  def ref[NN >: N <: TopNode](r: Ref.Set[NN]): TagOf[NN] =
     (this: TagOf[NN])(Attr.Ref(r))
 
-  def withRef[NN >: N <: TopNode](r: Ref[NN, _]): TagOf[NN] =
-    (this: TagOf[NN])(Attr.Ref(r))
+  def withRef[NN >: N <: TopNode, R](ref: TagOf.RefArg[NN]): TagOf[NN] =
+    ref.value match {
+      case Some(r) => this(Attr.Ref(r))
+      case None    => this
+    }
 
   override def apply(xs: TagMod*): TagOf[N] =
     copy(modifiers = xs :: modifiers)
@@ -62,6 +65,14 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
 
   def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty) =
     render.renderIntoDOM(container, callback)
+}
+
+object TagOf {
+  final case class RefArg[N <: TopNode](value: Option[Ref.Set[N]]) extends AnyVal
+  object RefArg {
+    implicit def set[N <: TopNode](r: Ref.Set[N]): RefArg[N] = apply(Some(r))
+    implicit def option[N <: TopNode](o: Option[Ref.Set[N]]): RefArg[N] = apply(o)
+  }
 }
 
 // =====================================================================================================================

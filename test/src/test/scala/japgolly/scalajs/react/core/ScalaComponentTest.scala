@@ -45,7 +45,7 @@ object ScalaComponentPTest extends TestSuite {
       assertEq(unmounted.ref, None)
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
-        val n = mounted.getDOMNode.asElement
+        val n = mounted.getDOMNode.asMounted().asElement()
         assertOuterHTML(n, "<div>Hello Bob</div>")
         assertEq(mounted.props.name, "Bob")
         assertEq(mounted.propsChildren.count, 0)
@@ -60,7 +60,7 @@ object ScalaComponentPTest extends TestSuite {
         val u = BasicComponent.withKey("k")(BasicProps("Bob"))
         assertEq(u.key, Option[Key]("k"))
         val m = u.renderIntoDOM(mountNode)
-        assertOuterHTML(m.getDOMNode.asElement, "<div>Hello Bob</div>")
+        assertOuterHTML(m.getDOMNode.asMounted().asElement(), "<div>Hello Bob</div>")
       }
     }
 
@@ -73,12 +73,12 @@ object ScalaComponentPTest extends TestSuite {
       assertEq(unmounted.props.name, "hello!")
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
-        val n = mounted.getDOMNode.asElement
+        val n = mounted.getDOMNode.asMounted().asElement()
         assertOuterHTML(n, "<div>Hello hello!</div>")
       }
     }
 
-    'lifecycle - {
+    'lifecycle1 - {
       case class Props(a: Int, b: Int, c: Int) {
         def -(x: Props) = Props(
           this.a - x.a,
@@ -154,26 +154,51 @@ object ScalaComponentPTest extends TestSuite {
 
         var mounted = Comp(Props(1, 2, 3)).renderIntoDOM(mountNode)
         assertMountCount(1)
-        assertOuterHTML(mounted.getDOMNode.asElement, "<div>1 2 3</div>")
+        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>1 2 3</div>")
         assertUpdates()
 
         mounted = Comp(Props(1, 2, 8)).renderIntoDOM(mountNode)
-        assertOuterHTML(mounted.getDOMNode.asElement, "<div>1 2 3</div>")
+        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>1 2 3</div>")
         assertUpdates()
 
         mounted = Comp(Props(1, 5, 8)).renderIntoDOM(mountNode)
-        assertOuterHTML(mounted.getDOMNode.asElement, "<div>1 5 8</div>")
+        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>1 5 8</div>")
         assertUpdates(Props(0, 3, 0))
 
         assertEq("willUnmountCount", willUnmountCount, 0)
         mounted = Comp(null).renderIntoDOM(mountNode)
-        assertOuterHTML(mounted.getDOMNode.asElement, "<div>Error: Cannot read property of null</div>")
+        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
         assertEq("willUnmountCount", willUnmountCount, 1)
       }
 
       assertMountCount(1)
       assertEq("willUnmountCount", willUnmountCount, 1)
       assertEq("recievedPropDeltas", recievedPropDeltas, Vector(Props(0, 0, 5), Props(0, 3, 0)))
+    }
+
+    'lifecycle2 - {
+      type Props = Int
+      var snapshots = Vector.empty[String]
+
+      val Comp = ScalaComponent.builder[Props]("")
+        .initialState(0)
+        .noBackend
+        .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
+        .getDerivedStateFromProps(p => Some(p + 100))
+        .getSnapshotBeforeUpdatePure($ => s"${$.prevProps} -> ${$.currentProps}")
+        .componentDidUpdate($ => Callback(snapshots :+= $.snapshot))
+        .build
+
+      ReactTestUtils.withNewBodyElement { mountNode =>
+        var mounted = Comp(10).renderIntoDOM(mountNode)
+        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=10 s=110</div>")
+        assertEq(snapshots, Vector())
+
+        mounted = Comp(20).renderIntoDOM(mountNode)
+        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=20 s=120</div>")
+        assertEq(snapshots, Vector("10 -> 20"))
+      }
+
     }
   }
 }
@@ -211,7 +236,7 @@ object ScalaComponentSTest extends TestSuite {
       assertEq(unmounted.ref, None)
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
-        val n = mounted.getDOMNode.asElement
+        val n = mounted.getDOMNode.asMounted().asElement()
         val b = mounted.backend
         var s = State(123, State2(400, 7))
         var cc = 0

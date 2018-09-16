@@ -9,6 +9,8 @@ This document describes how to do the same within scalajs-react.
 - [Refs to Scala components](#refs-to-scala-components)
 - [Refs to JS components](#refs-to-js-components)
 - [Refs to functional components](#refs-to-functional-components)
+- [Forwarding refs](#forwarding-refs)
+
 
 ## Refs to VDOM tags
 
@@ -48,9 +50,15 @@ Here is another example: [Refs online demo](https://japgolly.github.io/scalajs-r
 
 ## Refs to Scala components
 
-1. Call `Ref.toScalaComponent(comp)` to create a reference. Store this inside a component Backend, as a `private val`.
-2. Instead of using the component directly to instantiate it, call `.component` on the ref you created.
-3. To access the DOM from callbacks, call `.value` on the ref.
+1. Create a ref. You've got two ways to do this:
+  * Call `Ref.toScalaComponent(C)` where `C` is the target Scala component.
+  * Call `Ref.toScalaComponent[P, S, B]` and explicitly specify the expected types. So `P` = props, `S` = state, `B` = backend.
+2. Store the ref inside a component Backend, as a `private val`.
+3. Use the ref in your render function.
+  * `C.withRef(ref)(props)` where `C` is the Scala component.
+  * Alternatively, if you specified the component to create the ref, you can avoid respecifying it again and use
+    `ref.component(props)`
+4. To access the DOM from callbacks, call `.value` on the ref.
 
 Example:
 ```scala
@@ -64,7 +72,8 @@ class Backend {
   private val ref = Ref.toScalaComponent(DoubleComp)
 
   // Wire it up from VDOM
-  def render = <.div(ref.component(123))
+  def render = <.div(DoubleComp.withRef(ref)(123))
+               // Alternatively: <.div(ref.component(123))
 
   // Use it from a lifecycle callback
   def onMount: Callback =
@@ -80,12 +89,46 @@ val Exapmle = ScalaComponent.builder[Unit]("Example")
   .build
 ```
 
+
 ## Refs to JS components
 
-Same as with Scala components;
-just change `Ref.toScalaComponent` to `Ref.toJsComponent`.
+Same as with Scala components; except instead of `Ref.toScalaComponent` use one of these...
+
+* `Ref.toJsComponent(C)` where `C` is a `JsComponent` instance
+* `Ref.toJsComponent[P,S]` where `P` = props, `S` = state
+* `Ref.toJsComponentWithMountedFacade[P,S,F]` where `P` = props, `S` = state, `F` = facade with additional methods on mounted component
+
 
 ## Refs to functional components
 
 This is not supported by React.
 As such, there is no mechanism by which to do so from scalajs-react.
+
+
+## Forwarding refs
+
+Create a ref-forwarding component by calling `React.forwardRef`,
+or wrap a JS one as described in [the interoperability doc](INTEROP.md).
+
+Next, use it as a normal component,
+specifying `.withRef` before providing the props to forward a ref,
+or just by providing props if you don't want to specify a ref.
+
+```scala
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+
+object Foo {
+  val Component = ScalaComponent.builder[Int]("Foo")
+    .render_P(p => <.h1(s"$p = $p !"))
+    .build
+}
+
+object Bar {
+  val Component = React.forwardRef.toScalaComponent(Foo.Component)[String](
+    (label, ref) =>
+      <.div(label, Foo.Component.withRef(ref)(123))
+  )
+}
+```
+

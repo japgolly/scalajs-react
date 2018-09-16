@@ -62,11 +62,9 @@ object TriStateCheckbox {
    */
   def eventHandlers(onChange: Callback): TagMod = {
     def handleKey(e: ReactKeyboardEventFromHtml): Callback =
-      CallbackOption.asEventDefault(e,
-        CallbackOption.keyCodeSwitch(e) {
-          case KeyCode.Space => onChange
-        }
-      )
+      CallbackOption.keyCodeSwitch(e) {
+        case KeyCode.Space => onChange
+      }.asEventDefault(e)
     TagMod(
       ^.onClick   --> onChange,
       ^.onKeyDown ==> handleKey)
@@ -75,9 +73,10 @@ object TriStateCheckbox {
   private def updateDom($: ScalaComponent.MountedImpure[_, _, _], nextProps: Props): Callback = {
     val s = nextProps.state
     Callback {
-      val d = $.getDOMNode.domCast[Input]
-      d.checked       = s == Checked
-      d.indeterminate = s == Indeterminate
+      $.getDOMNode.toElement.map(_.domCast[Input]).foreach { d =>
+        d.checked       = s == Checked
+        d.indeterminate = s == Indeterminate
+      }
     }
   }
 

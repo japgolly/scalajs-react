@@ -59,6 +59,33 @@ object ScalaBuilderTest extends TestSuite {
       }
 
     }
+
+    'updateSnapshot - {
+      def start = ScalaComponent.builder[P]("").render_P(???)
+      def int = (_: Any) => CallbackTo(2)
+
+      'badAccess {
+        def test(c: CompileError) = {
+          val msg = c.msg.toLowerCase
+          assertContains(msg, "getsnapshotbeforeupdate")
+          assertContains(msg, "componentdidupdate")
+          c.msg
+        }
+        'SS - test(compileError("start.getSnapshotBeforeUpdate(int).getSnapshotBeforeUpdate(int)"))
+        'US - test(compileError("start.componentDidUpdate(???).getSnapshotBeforeUpdate(int)"))
+      }
+
+      'type {
+        'U - assertCompiles(start
+          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit])))
+
+        'SU - assertCompiles(start
+          .getSnapshotBeforeUpdate(int)
+          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
+          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int])))
+      }
+    }
   }
 }
 

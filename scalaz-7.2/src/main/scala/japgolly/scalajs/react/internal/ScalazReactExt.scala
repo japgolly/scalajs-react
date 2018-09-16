@@ -44,13 +44,17 @@ object ScalazReactExt {
   final class ListenableOps(private val ε: Listenable.type) extends AnyVal {
     import ScalazReact.ReactST
 
-    def listenWithStateMonad[P, C <: Children, S, B <: OnUnmount, M[_], A](listenable: P => Listenable[A],
-                                                                           listener: A => ReactST[M, S, Unit])(implicit M: M ~> CallbackTo, N: Monad[M]) =
-      Listenable.listen[P, C, S, B, A](listenable, $ => a => $.runState(listener(a)))
+    def listenWithStateMonad[P, C <: Children, S, B <: OnUnmount, U <: UpdateSnapshot, M[_], A]
+        (listenable: P => Listenable[A],
+         listener: A => ReactST[M, S, Unit])
+        (implicit M: M ~> CallbackTo, N: Monad[M]) =
+      Listenable.listen[P, C, S, B, U, A](listenable, $ => a => $.runState(listener(a)))
 
-    def listenWithStateMonadF[P, C <: Children, S, B <: OnUnmount, M[_], A](listenable: P => Listenable[A],
-                                                                            listener: A => ReactST[M, S, Unit])(implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]) =
-      Listenable.listen[P, C, S, B, A](listenable, $ => a => $.runStateF(listener(a)))
+    def listenWithStateMonadF[P, C <: Children, S, B <: OnUnmount, U <: UpdateSnapshot, M[_], A]
+        (listenable: P => Listenable[A],
+         listener: A => ReactST[M, S, Unit])
+        (implicit M: M ~> CallbackTo, N: Monad[M], F: ChangeFilter[S]) =
+      Listenable.listen[P, C, S, B, U, A](listenable, $ => a => $.runStateF(listener(a)))
   }
 
 }

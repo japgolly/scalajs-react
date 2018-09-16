@@ -3,9 +3,7 @@ package japgolly.scalajs.react.component
 import org.scalajs.dom
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.vdom
-import japgolly.scalajs.react.{raw => RAW}
-import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, Key, PropsChildren, StateAccess}
+import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, ComponentDom, Key, PropsChildren, StateAccess, vdom, raw => RAW}
 import scala.scalajs.js.|
 
 object Generic {
@@ -65,13 +63,14 @@ object Generic {
   trait UnmountedSimple[P, M] extends UnmountedRaw {
     final type Props = P
     final type Mounted = M
+    type Ref
 
     def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
     def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
     def vdomElement: vdom.VdomElement
     def key: Option[Key]
-    def ref: Option[RefPropValue]
+    def ref: Option[Ref]
     def props: Props
     def propsChildren: PropsChildren
 
@@ -91,25 +90,7 @@ object Generic {
 
   type UnmountedRoot[P, M] = UnmountedWithRoot[P, M, P, M]
 
-  type RefPropValue = RAW.React.RefNonNull
-
   // ===================================================================================================================
-
-  type MountedDomNode = Either[dom.Text, dom.Element]
-
-  object MountedDomNode {
-    def apply(i: RAW.ReactDOM.DomNode): MountedDomNode =
-      (i: Any) match {
-        case e: dom.Element => Right(e)
-        case t: dom.Text => Left(t)
-      }
-
-    def nullable(i: RAW.ReactDOM.DomNode | Null): Option[MountedDomNode] =
-      jsNullToOption(i).map(apply)
-
-    def force(i: RAW.ReactDOM.DomNode | Null): MountedDomNode =
-      apply(i.asInstanceOf[RAW.ReactDOM.DomNode])
-  }
 
   type Mounted[F[_], P, S] = MountedSimple[F, P, S]
   type MountedPure  [P, S] = MountedSimple[CallbackTo, P, S]
@@ -129,7 +110,7 @@ object Generic {
              type WithMappedProps[P2] <: MountedSimple[F, P2, S]
     def mapProps[P2](f: P => P2): WithMappedProps[P2]
 
-    def getDOMNode: F[MountedDomNode]
+    def getDOMNode: F[ComponentDom]
     def props: F[Props]
     def propsChildren: F[PropsChildren]
 

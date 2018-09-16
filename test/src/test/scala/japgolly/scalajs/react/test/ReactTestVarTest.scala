@@ -77,10 +77,10 @@ object ReactTestVarTest extends TestSuite {
       val v = ReactTestVar(1)
       ReactTestUtils.withRenderedIntoDocument(c(v.stateAccess)) { m =>
         v.onUpdate(m.forceUpdate)
-        assertRendered(m.getDOMNode.asElement, "<div>1</div>")
-        Simulate.click(m.getDOMNode.asElement)
+        assertRendered(m.getDOMNode.asMounted().asElement(), "<div>1</div>")
+        Simulate.click(m.getDOMNode.asMounted().asElement())
         assertEq(v.value(), 2)
-        assertRendered(m.getDOMNode.asElement, "<div>2</div>")
+        assertRendered(m.getDOMNode.asMounted().asElement(), "<div>2</div>")
       }
     }
   }

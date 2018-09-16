@@ -10,7 +10,7 @@ object EventListener {
   def apply[E <: Event] = new OfEventType[E](true)
 
   def defaultTarget[P, S, B]: ScalaComponent.MountedImpure[P, S, B] => EventTarget =
-    _.getDOMNode.asElement
+    _.getDOMNode.asMounted().node
 
   final class OfEventType[E <: Event](private val _unused: Boolean) extends AnyVal {
 
@@ -26,11 +26,12 @@ object EventListener {
      *                   Events which are bubbling upward through the tree will not trigger a listener designated to use
      *                   capture.
      */
-    def install[P, C <: Children, S, B <: OnUnmount](eventType : String,
-                                                     listener  : ScalaComponent.MountedPure[P, S, B] => E => Callback,
-                                                     target    : ScalaComponent.MountedImpure[P, S, B] => EventTarget = defaultTarget[P, S, B],
-                                                     useCapture: Boolean = false) =
-      OnUnmount.install[P, C, S, B] andThen (_.componentDidMount { $ =>
+    def install[P, C <: Children, S, B <: OnUnmount, U <: UpdateSnapshot]
+        (eventType : String,
+         listener  : ScalaComponent.MountedPure[P, S, B] => E => Callback,
+         target    : ScalaComponent.MountedImpure[P, S, B] => EventTarget = defaultTarget[P, S, B],
+         useCapture: Boolean = false) =
+      OnUnmount.install[P, C, S, B, U] andThen (_.componentDidMount { $ =>
         val et = target($.mountedImpure)
         val fe = listener($.mountedPure)
         val f: js.Function1[E, Unit] = (e: E) => fe(e).runNow()
@@ -42,11 +43,12 @@ object EventListener {
   } //end class
 
   /** See [[OfEventType.install()]]. */
-  def install[P, C <: Children, S, B <: OnUnmount](eventType : String,
-                                                   listener  : ScalaComponent.MountedPure[P, S, B] => Callback,
-                                                   target    : ScalaComponent.MountedImpure[P, S, B] => EventTarget = defaultTarget[P, S, B],
-                                                   useCapture: Boolean = false) =
-    EventListener[Event].install[P, C, S, B](
+  def install[P, C <: Children, S, B <: OnUnmount, U <: UpdateSnapshot]
+      (eventType : String,
+       listener  : ScalaComponent.MountedPure[P, S, B] => Callback,
+       target    : ScalaComponent.MountedImpure[P, S, B] => EventTarget = defaultTarget[P, S, B],
+       useCapture: Boolean = false) =
+    EventListener[Event].install[P, C, S, B, U](
       eventType,
       $ => { val cb = listener($); _ => cb },
       target, useCapture)

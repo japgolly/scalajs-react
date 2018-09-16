@@ -41,8 +41,8 @@ Setup
       libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.2.3"
 
       npmDependencies in Compile ++= Seq(
-        "react" -> "16.2.0",
-        "react-dom" -> "16.2.0")
+        "react" -> "16.5.1",
+        "react-dom" -> "16.5.1")
     ```
 
     If you're using old-school `jsDependencies`, add something akin to:
@@ -51,18 +51,18 @@ Setup
     // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
     jsDependencies ++= Seq(
 
-      "org.webjars.npm" % "react" % "16.2.0"
+      "org.webjars.npm" % "react" % "16.5.1"
         /        "umd/react.development.js"
         minified "umd/react.production.min.js"
         commonJSName "React",
 
-      "org.webjars.npm" % "react-dom" % "16.2.0"
+      "org.webjars.npm" % "react-dom" % "16.5.1"
         /         "umd/react-dom.development.js"
         minified  "umd/react-dom.production.min.js"
         dependsOn "umd/react.development.js"
         commonJSName "ReactDOM",
 
-      "org.webjars.npm" % "react-dom" % "16.2.0"
+      "org.webjars.npm" % "react-dom" % "16.5.1"
         /         "umd/react-dom-server.browser.development.js"
         minified  "umd/react-dom-server.browser.production.min.js"
         dependsOn "umd/react-dom.development.js"
@@ -330,6 +330,33 @@ React Extensions
     button(onclick --> incrementCounter(f), "+")
   }
   ```
+
+* The `.getDOMNode` callback can sometimes execute when unmounted which is an increasingly annoying bug to track down.
+  Since React 16 with its new burn-it-all-down error handling approach, an occurance of this can be fatal.
+  In order to properly model the reality of the callback and ensure compile-time safety,
+  rather than just getting back a VDOM reference, the return type is an ADT like this:
+
+  ```
+                  ComponentDom
+                        ↑
+               ComponentDom.Mounted
+                  ↑            ↑
+  ComponentDom.Element      ComponentDom.Text
+  ```
+
+  Calling `.getDOMNode` from without lifecycle callbacks, returns a `ComponentDom.Mounted`.
+  Calling `.getDOMNode` on a mounted component instance or a `BackendScope` now returns `ComponentDom`
+  which may or may not be mounted.
+  Jump into the `ComponentDom` source to see the available methods but in most cases you'll use one of the following:
+
+  ```scala
+  trait ComponentDom {
+    def mounted  : Option[ComponentDom.Mounted]
+    def toElement: Option[dom.Element]
+    def toText   : Option[dom.Text]
+  ```
+
+  In unit tests you'll typically use `asMounted().asElement()` or `asMounted().asText()` for inspection.
 
 
 Gotchas

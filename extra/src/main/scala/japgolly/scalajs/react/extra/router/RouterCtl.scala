@@ -21,7 +21,7 @@ abstract class RouterCtl[A] {
     pathFor(target).abs(baseUrl)
 
   final def setEH(target: A): ReactEvent => Callback =
-    e => CallbackOption.asEventDefault(e, set(target))
+    e => set(target).asEventDefault(e).void
 
   final def setOnClick(target: A): TagMod =
     ^.onClick ==> setEH(target)

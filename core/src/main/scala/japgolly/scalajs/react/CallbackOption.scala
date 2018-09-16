@@ -138,12 +138,9 @@ object CallbackOption {
    * 1) It only executes if `e.defaultPrevented` is `false`.
    * 2) It sets `e.preventDefault` on successful completion.
    */
+  @deprecated("Use callback.asEventDefault(e) instead", "1.3.0")
   def asEventDefault[A](e: ReactEvent, co: CallbackOption[A]): CallbackOption[A] =
-    for {
-      _ <- unless(e.defaultPrevented)
-      a <- co
-      _ <- e.preventDefaultCB.toCBO
-    } yield a
+    co.asEventDefault(e)
 
   @inline implicit def callbackOptionCovariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
     c.widen
@@ -311,4 +308,12 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
 
   def ||[B](b: CallbackOption[B]): CallbackOption[Unit] =
     void | b.void
+
+  /** Wraps this so that:
+    *
+    * 1) It only executes if `e.defaultPrevented` is `false`.
+    * 2) It sets `e.preventDefault` on successful completion.
+    */
+  def asEventDefault(e: ReactEvent): CallbackOption[A] =
+    (this <* e.preventDefaultCB.toCBO).unless(e.defaultPrevented)
 }

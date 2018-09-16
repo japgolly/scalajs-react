@@ -4,6 +4,7 @@ Firstly, it's recommended you read [TYPES.md](TYPES.md).
 
 - [Using JS components in Scala](#using-js-components-in-scala)
 - [Using JS functional components in Scala](#using-js-functional-components-in-scala)
+- [Using JS ref-forwarding components in Scala](#using-js-ref-forwarding-components-in-scala)
 - [Using Scala components from JS](#using-scala-components-from-js)
 - [Using Scala components from JSX](#using-scala-components-from-jsx)
 
@@ -90,6 +91,36 @@ Pretty much the same as above, just without state and a mounted-facade.
 2. Create the component by calling `JsFnComponent[Props, Children](x)` where x is:
   * a `String` which is the name of the component.
   * an instance of `js.Dynamic`.
+
+
+## Using JS ref-forwarding components in Scala
+
+Pretty much the same as `JsComponent`, just that you also specify the ref type
+(i.e. the value of the reference value when the component sets it).
+
+1. Determine your types.
+  * **Props** - Create a standard Scala.JS facade for the component's props object if it exists. Use `Null` otherwise.
+  * **Children** - Determine whether the component uses `.props.children` and choose either `Children.None` or `Children.Varargs` accordingly.
+  * **Ref target** - Determine the type of value that a forwarded reference would provide. Usually this will be some HTML DOM.
+2. Create the component by calling `JsForwardRefComponent[Props, Children, Ref](x)` where x is:
+  * a `String` which is the name of the component.
+  * an instance of `js.Dynamic`.
+
+```scala
+import japgolly.scalajs.react._
+import org.scalajs.dom.html
+import scala.scalajs.js
+import scala.scalajs.js.annotation._
+
+object FancyButton {
+
+  @JSGlobal("FancyButton")
+  @js.native
+  private object RawComp extends js.Object
+
+  val Component = JsForwardRefComponent[Null, Children.Varargs, html.Button](RawComp)
+}
+```
 
 
 ## Using Scala components from JS

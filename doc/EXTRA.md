@@ -15,7 +15,6 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.2.3"
 - Component Mixins:
   - [Broadcaster and Listenable](#broadcaster-and-listenable)
   - [EventListener](#eventlistener)
-  - [LogLifecycle](#loglifecycle)
   - [OnUnmount](#onunmount)
   - [TimerSupport](#timersupport)
 
@@ -100,41 +99,6 @@ EventListener
 
 A live demo with accompanying code is available here:<br>
 https://japgolly.github.io/scalajs-react/#examples/event-listener
-
-
-LogLifecycle
-============
-This will cause logging to occur at React component lifecycle stages.
-
-##### Usage
-```scala
-val component = ScalaComponent.builder[...]
-  ...
-  .configure(LogLifecycle.short)   // Logs the component name and stage
-  .configure(LogLifecycle.default) // Logs the component name, stage and the props/state
-  .configure(LogLifecycle.verbose) // Logs everything in the world
-  ...
-```
-
-##### Example output
-```
-[DragAndDrop Demo] componentWillMount
-  Constructor {props: Object, _owner: Constructor, _lifeCycleState: "MOUNTED", _pendingCallbacks: null, _currentElement: ReactElement…}
-
-[DragAndDrop Demo] componentDidMount
-  Constructor {props: Object, _owner: Constructor, _lifeCycleState: "MOUNTED", _pendingCallbacks: null, _currentElement: ReactElement…}
-
-[DragAndDrop Demo] componentWillUpdate
-  Constructor {props: Object, _owner: Constructor, _lifeCycleState: "MOUNTED", _pendingCallbacks: null, _currentElement: ReactElement…}
-  Props: List(Item(10,Ten), Item(20,Two Zero), Item(30,Firty), Item(40,Thorty), Item(50,Fipty))
-  State: ParentState(List(Item(10,Ten), Item(20,Two Zero), Item(30,Firty), Item(40,Thorty), Item(50,Fipty)),Started(Item(50,Fipty)),0)
-
-[DragAndDrop Demo] componentDidUpdate
-  Constructor {props: Object, _owner: Constructor, _lifeCycleState: "MOUNTED", _pendingCallbacks: null, _currentElement: ReactElement…}
-  Props: List(Item(10,Ten), Item(20,Two Zero), Item(30,Firty), Item(40,Thorty), Item(50,Fipty))
-  State: ParentState(List(Item(10,Ten), Item(20,Two Zero), Item(30,Firty), Item(40,Thorty), Item(50,Fipty)),Inactive,0)
-```
-
 
 OnUnmount
 =========

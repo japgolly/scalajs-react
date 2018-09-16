@@ -79,6 +79,7 @@ object SimEvent {
     def simulateKeyUp         (t: ReactOrDomNode): Unit = Simulate.keyUp   (t, this)
     def simulateKeyDownUp     (t: ReactOrDomNode): Unit = {simulateKeyDown(t); simulateKeyUp(t)}
     def simulateKeyDownPressUp(t: ReactOrDomNode): Unit = {simulateKeyDown(t); simulateKeyPress(t); simulateKeyUp(t)}
+
     def simulationKeyDown        = Simulation.keyDown(this)
     def simulationKeyPress       = Simulation.keyPress(this)
     def simulationKeyUp          = Simulation.keyUp(this)
@@ -202,13 +203,15 @@ object SimEvent {
                    clientY         : Double  = 0,
                    pageX           : Double  = 0,
                    pageY           : Double  = 0,
+                   movementX       : Long    = 0,
+                   movementY       : Long    = 0,
                    altKey          : Boolean = false,
                    ctrlKey         : Boolean = false,
                    metaKey         : Boolean = false,
                    shiftKey        : Boolean = false,
                    button          : Int     = 0,
                    buttons         : Int     = 0,
-                   defaultPrevented: Boolean = false) {
+                   defaultPrevented: Boolean = false) extends MouseLike {
 
     def alt   = copy(altKey   = true)
     def ctrl  = copy(ctrlKey  = true)
@@ -216,57 +219,191 @@ object SimEvent {
     def shift = copy(shiftKey = true)
 
     def toJs: js.Object = {
-      val o = Dynamic.literal()
-      o.updateDynamic("screenX"         )(screenX         )
-      o.updateDynamic("screenY"         )(screenY         )
-      o.updateDynamic("clientX"         )(clientX         )
-      o.updateDynamic("clientY"         )(clientY         )
-      o.updateDynamic("pageX"           )(pageX           )
-      o.updateDynamic("pageY"           )(pageY           )
-      o.updateDynamic("altKey"          )(altKey          )
-      o.updateDynamic("ctrlKey"         )(ctrlKey         )
-      o.updateDynamic("metaKey"         )(metaKey         )
-      o.updateDynamic("shiftKey"        )(shiftKey        )
-      o.updateDynamic("button"          )(button          )
-      o.updateDynamic("buttons"         )(buttons         )
-      o.updateDynamic("defaultPrevented")(defaultPrevented)
+      val o = js.Object()
+      setMouseAttributes(o)
       o
     }
-    def simulateDrag      (t: ReactOrDomNode) = Simulate.drag      (t, this)
-    def simulateDragEnd   (t: ReactOrDomNode) = Simulate.dragEnd   (t, this)
-    def simulateDragEnter (t: ReactOrDomNode) = Simulate.dragEnter (t, this)
-    def simulateDragExit  (t: ReactOrDomNode) = Simulate.dragExit  (t, this)
-    def simulateDragLeave (t: ReactOrDomNode) = Simulate.dragLeave (t, this)
-    def simulateDragOver  (t: ReactOrDomNode) = Simulate.dragOver  (t, this)
-    def simulateDragStart (t: ReactOrDomNode) = Simulate.dragStart (t, this)
-    def simulateDrop      (t: ReactOrDomNode) = Simulate.drop      (t, this)
-    def simulateMouseDown (t: ReactOrDomNode) = Simulate.mouseDown (t, this)
-    def simulateMouseEnter(t: ReactOrDomNode) = Simulate.mouseEnter(t, this)
-    def simulateMouseLeave(t: ReactOrDomNode) = Simulate.mouseLeave(t, this)
-    def simulateMouseMove (t: ReactOrDomNode) = Simulate.mouseMove (t, this)
-    def simulateMouseOut  (t: ReactOrDomNode) = Simulate.mouseOut  (t, this)
-    def simulateMouseOver (t: ReactOrDomNode) = Simulate.mouseOver (t, this)
-    def simulateMouseUp   (t: ReactOrDomNode) = Simulate.mouseUp   (t, this)
-    def simulateWheel     (t: ReactOrDomNode) = Simulate.wheel     (t, this)
-    def simulationDrag       = Simulation.drag      (this)
-    def simulationDragEnd    = Simulation.dragEnd   (this)
-    def simulationDragEnter  = Simulation.dragEnter (this)
-    def simulationDragExit   = Simulation.dragExit  (this)
-    def simulationDragLeave  = Simulation.dragLeave (this)
-    def simulationDragOver   = Simulation.dragOver  (this)
-    def simulationDragStart  = Simulation.dragStart (this)
-    def simulationMouseDown  = Simulation.mouseDown (this)
-    def simulationMouseEnter = Simulation.mouseEnter(this)
-    def simulationMouseLeave = Simulation.mouseLeave(this)
-    def simulationMouseMove  = Simulation.mouseMove (this)
-    def simulationMouseOut   = Simulation.mouseOut  (this)
-    def simulationMouseOver  = Simulation.mouseOver (this)
-    def simulationMouseUp    = Simulation.mouseUp   (this)
-    def simulationWheel      = Simulation.wheel     (this)
+  }
+
+  trait MouseLike {
+    val screenX         : Double
+    val screenY         : Double
+    val clientX         : Double
+    val clientY         : Double
+    val pageX           : Double
+    val pageY           : Double
+    val movementX       : Long
+    val movementY       : Long
+    val altKey          : Boolean
+    val ctrlKey         : Boolean
+    val metaKey         : Boolean
+    val shiftKey        : Boolean
+    val button          : Int
+    val buttons         : Int
+    val defaultPrevented: Boolean
+
+    def toJs: js.Object
+
+    def setMouseAttributes(obj: js.Object): Unit = {
+      val o = obj.asInstanceOf[Dynamic]
+      o.screenX          = screenX
+      o.screenY          = screenY
+      o.clientX          = clientX
+      o.clientY          = clientY
+      o.pageX            = pageX
+      o.pageY            = pageY
+      o.movementX        = movementX
+      o.movementY        = movementY
+      o.altKey           = altKey
+      o.ctrlKey          = ctrlKey
+      o.metaKey          = metaKey
+      o.shiftKey         = shiftKey
+      o.button           = button
+      o.buttons          = buttons
+      o.defaultPrevented = defaultPrevented
+    }
+
+    def simulateAuxClick   (t: ReactOrDomNode) = Simulate.auxClick   (t, toJs)
+    def simulateClick      (t: ReactOrDomNode) = Simulate.click      (t, toJs)
+    def simulateContextMenu(t: ReactOrDomNode) = Simulate.contextMenu(t, toJs)
+    def simulateDoubleClick(t: ReactOrDomNode) = Simulate.doubleClick(t, toJs)
+    def simulateDrag       (t: ReactOrDomNode) = Simulate.drag       (t, toJs)
+    def simulateDragEnd    (t: ReactOrDomNode) = Simulate.dragEnd    (t, toJs)
+    def simulateDragEnter  (t: ReactOrDomNode) = Simulate.dragEnter  (t, toJs)
+    def simulateDragExit   (t: ReactOrDomNode) = Simulate.dragExit   (t, toJs)
+    def simulateDragLeave  (t: ReactOrDomNode) = Simulate.dragLeave  (t, toJs)
+    def simulateDragOver   (t: ReactOrDomNode) = Simulate.dragOver   (t, toJs)
+    def simulateDragStart  (t: ReactOrDomNode) = Simulate.dragStart  (t, toJs)
+    def simulateDrop       (t: ReactOrDomNode) = Simulate.drop       (t, toJs)
+    def simulateMouseDown  (t: ReactOrDomNode) = Simulate.mouseDown  (t, toJs)
+    def simulateMouseEnter (t: ReactOrDomNode) = Simulate.mouseEnter (t, toJs)
+    def simulateMouseLeave (t: ReactOrDomNode) = Simulate.mouseLeave (t, toJs)
+    def simulateMouseMove  (t: ReactOrDomNode) = Simulate.mouseMove  (t, toJs)
+    def simulateMouseOut   (t: ReactOrDomNode) = Simulate.mouseOut   (t, toJs)
+    def simulateMouseOver  (t: ReactOrDomNode) = Simulate.mouseOver  (t, toJs)
+    def simulateMouseUp    (t: ReactOrDomNode) = Simulate.mouseUp    (t, toJs)
+    def simulateWheel      (t: ReactOrDomNode) = Simulate.wheel      (t, toJs)
+
+    def simulationAuxClick    = Simulation.auxClick   (toJs)
+    def simulationClick       = Simulation.click      (toJs)
+    def simulationContextMenu = Simulation.contextMenu(toJs)
+    def simulationDoubleClick = Simulation.doubleClick(toJs)
+    def simulationDrag        = Simulation.drag       (toJs)
+    def simulationDragEnd     = Simulation.dragEnd    (toJs)
+    def simulationDragEnter   = Simulation.dragEnter  (toJs)
+    def simulationDragExit    = Simulation.dragExit   (toJs)
+    def simulationDragLeave   = Simulation.dragLeave  (toJs)
+    def simulationDragOver    = Simulation.dragOver   (toJs)
+    def simulationDragStart   = Simulation.dragStart  (toJs)
+    def simulationDrop        = Simulation.drop       (toJs)
+    def simulationMouseDown   = Simulation.mouseDown  (toJs)
+    def simulationMouseEnter  = Simulation.mouseEnter (toJs)
+    def simulationMouseLeave  = Simulation.mouseLeave (toJs)
+    def simulationMouseMove   = Simulation.mouseMove  (toJs)
+    def simulationMouseOut    = Simulation.mouseOut   (toJs)
+    def simulationMouseOver   = Simulation.mouseOver  (toJs)
+    def simulationMouseUp     = Simulation.mouseUp    (toJs)
+    def simulationWheel       = Simulation.wheel      (toJs)
   }
 
   object Mouse {
     implicit def autoToJsObject(d: Mouse): js.Object = d.toJs
+  }
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  case class Pointer(screenX           : Double  = 0,
+                     screenY           : Double  = 0,
+                     clientX           : Double  = 0,
+                     clientY           : Double  = 0,
+                     pageX             : Double  = 0,
+                     pageY             : Double  = 0,
+                     movementX         : Long    = 0,
+                     movementY         : Long    = 0,
+                     altKey            : Boolean = false,
+                     ctrlKey           : Boolean = false,
+                     metaKey           : Boolean = false,
+                     shiftKey          : Boolean = false,
+                     button            : Int     = 0,
+                     buttons           : Int     = 0,
+                     defaultPrevented  : Boolean = false,
+                     pointerId         : Double  = 0,
+                     width             : Double  = 0,
+                     height            : Double  = 0,
+                     pressure          : Double  = 0,
+                     tiltX             : Double  = 0,
+                     tiltY             : Double  = 0,
+                     pointerType       : String  = "",
+                     isPrimary         : Boolean = false,
+                     tangentialPressure: Double  = 0,
+                     twist             : Int     = 0) extends MouseLike {
+
+    def alt   = copy(altKey   = true)
+    def ctrl  = copy(ctrlKey  = true)
+    def meta  = copy(metaKey  = true)
+    def shift = copy(shiftKey = true)
+
+    def toJs: js.Object = {
+      val obj = js.Object()
+      val o = obj.asInstanceOf[Dynamic]
+      setMouseAttributes(obj)
+      o.pointerId          = pointerId
+      o.width              = width
+      o.height             = height
+      o.pressure           = pressure
+      o.tiltX              = tiltX
+      o.tiltY              = tiltY
+      o.pointerType        = pointerType
+      o.isPrimary          = isPrimary
+      o.tangentialPressure = tangentialPressure
+      o.twist              = twist
+      obj
+    }
+
+    def toMouseEvent: Mouse =
+      Mouse(
+        screenX          = screenX,
+        screenY          = screenY,
+        clientX          = clientX,
+        clientY          = clientY,
+        pageX            = pageX,
+        pageY            = pageY,
+        movementX        = movementX,
+        movementY        = movementY,
+        altKey           = altKey,
+        ctrlKey          = ctrlKey,
+        metaKey          = metaKey,
+        shiftKey         = shiftKey,
+        button           = button,
+        buttons          = buttons,
+        defaultPrevented = defaultPrevented)
+
+    def simulateGotPointerCapture (t: ReactOrDomNode) = Simulate.gotPointerCapture (t, toJs)
+    def simulateLostPointerCapture(t: ReactOrDomNode) = Simulate.lostPointerCapture(t, toJs)
+    def simulatePointerCancel     (t: ReactOrDomNode) = Simulate.pointerCancel     (t, toJs)
+    def simulatePointerDown       (t: ReactOrDomNode) = Simulate.pointerDown       (t, toJs)
+    def simulatePointerEnter      (t: ReactOrDomNode) = Simulate.pointerEnter      (t, toJs)
+    def simulatePointerLeave      (t: ReactOrDomNode) = Simulate.pointerLeave      (t, toJs)
+    def simulatePointerMove       (t: ReactOrDomNode) = Simulate.pointerMove       (t, toJs)
+    def simulatePointerOut        (t: ReactOrDomNode) = Simulate.pointerOut        (t, toJs)
+    def simulatePointerOver       (t: ReactOrDomNode) = Simulate.pointerOver       (t, toJs)
+    def simulatePointerUp         (t: ReactOrDomNode) = Simulate.pointerUp         (t, toJs)
+
+    def simulationGotPointerCapture  = Simulation.gotPointerCapture (toJs)
+    def simulationLostPointerCapture = Simulation.lostPointerCapture(toJs)
+    def simulationPointerCancel      = Simulation.pointerCancel     (toJs)
+    def simulationPointerDown        = Simulation.pointerDown       (toJs)
+    def simulationPointerEnter       = Simulation.pointerEnter      (toJs)
+    def simulationPointerLeave       = Simulation.pointerLeave      (toJs)
+    def simulationPointerMove        = Simulation.pointerMove       (toJs)
+    def simulationPointerOut         = Simulation.pointerOut        (toJs)
+    def simulationPointerOver        = Simulation.pointerOver       (toJs)
+    def simulationPointerUp          = Simulation.pointerUp         (toJs)
+  }
+
+  object Pointer {
+    implicit def autoToJsObject(d: Pointer): js.Object = d.toJs
+    implicit def autoToMouse(d: Pointer): Mouse = d.toMouseEvent
   }
 
 }

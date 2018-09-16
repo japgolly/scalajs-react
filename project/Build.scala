@@ -10,18 +10,18 @@ import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 object ScalajsReact {
 
   object Ver {
-    val Cats          = "1.1.0"
+    val Cats          = "1.4.0"
     val KindProjector = "0.9.7"
     val MacroParadise = "2.1.1"
     val Monocle       = "1.5.0"
     val MonocleCats   = "1.5.1-cats"
-    val MTest         = "0.6.4"
+    val MTest         = "0.6.5"
     val Nyaya         = "0.8.1"
-    val ReactJs       = "16.2.0"
+    val ReactJs       = "16.5.1"
     val Scala211      = "2.11.12"
     val Scala212      = "2.12.6"
     val ScalaJsDom    = "0.9.6"
-    val Scalaz72      = "7.2.25"
+    val Scalaz72      = "7.2.26"
     val SizzleJs      = "2.3.0"
     val Sourcecode    = "0.1.4"
   }
@@ -236,7 +236,8 @@ object ScalajsReact {
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
-        (ProvidedJS / "component-fn.js"  dependsOn ReactDom.dev) % Test),
+        (ProvidedJS / "component-fn.js" dependsOn ReactDom.dev) % Test,
+        (ProvidedJS / "forward-ref.js"  dependsOn ReactDom.dev) % Test),
       addCompilerPlugin(macroParadisePlugin))
 
   /*
@@ -249,7 +250,7 @@ object ScalajsReact {
         "react"                             -> Ver.ReactJs,
         "react-dom"                         -> Ver.ReactJs,
         "react-addons-perf"                 -> "15.5.0-rc.2",
-        "react-addons-css-transition-group" -> "15.5.2"))
+        "react-addons-css-transition-group" -> "16.5.1"))
   */
 
   def scalazModule(name: String, version: String) = {
