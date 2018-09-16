@@ -331,6 +331,33 @@ React Extensions
   }
   ```
 
+* The `.getDOMNode` callback can sometimes execute when unmounted which is an increasingly annoying bug to track down.
+  Since React 16 with its new burn-it-all-down error handling approach, an occurance of this can be fatal.
+  In order to properly model the reality of the callback and ensure compile-time safety,
+  rather than just getting back a VDOM reference, the return type is an ADT like this:
+
+  ```
+                  ComponentDom
+                        ↑
+               ComponentDom.Mounted
+                  ↑            ↑
+  ComponentDom.Element      ComponentDom.Text
+  ```
+
+  Calling `.getDOMNode` from without lifecycle callbacks, returns a `ComponentDom.Mounted`.
+  Calling `.getDOMNode` on a mounted component instance or a `BackendScope` now returns `ComponentDom`
+  which may or may not be mounted.
+  Jump into the `ComponentDom` source to see the available methods but in most cases you'll use one of the following:
+
+  ```scala
+  trait ComponentDom {
+    def mounted  : Option[ComponentDom.Mounted]
+    def toElement: Option[dom.Element]
+    def toText   : Option[dom.Text]
+  ```
+
+  In unit tests you'll typically use `asMounted().asElement()` or `asMounted().asText()` for inspection.
+
 
 Gotchas
 =======
