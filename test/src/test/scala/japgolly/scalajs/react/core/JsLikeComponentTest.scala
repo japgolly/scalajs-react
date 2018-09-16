@@ -11,6 +11,8 @@ object JsLikeComponentTest extends TestSuite {
   def RawJs6b = JsComponentEs6STest.RawComp // unary ctor
   def RawJsFn = JsFnComponentTest.RawComp
 
+  def RawForwardRefComp = raw.React.forwardRef((_: js.Object, _: raw.React.ForwardedRef[_]) => null)
+
   def assertNoError[A](a: => A): Unit = {
     a
     ()
@@ -28,6 +30,7 @@ object JsLikeComponentTest extends TestSuite {
       // 'fn - expectErrorContaining("a raw JsFnComponent")(JsComponent[Null, Children.None, Null](RawJsFn))
       'es60 - assertNoError(JsComponent[Null, Children.None, Null](RawJs6a))
       'es61 - assertNoError(JsComponent[Null, Children.None, Null](RawJs6b))
+      'fwdRef - assertNoError(JsComponent[js.Object, Children.None, Null](RawForwardRefComp))
     }
 
     'jsFn - {

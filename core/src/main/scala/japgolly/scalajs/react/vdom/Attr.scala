@@ -5,7 +5,7 @@ import scala.annotation.implicitNotFound
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import japgolly.scalajs.react.internal.OptionLike
-import japgolly.scalajs.react.{Callback, CallbackTo, Ref => RefObj}
+import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.raw
 import Attr.ValueType
 
@@ -87,6 +87,7 @@ object Attr {
     @inline def focus      (name: String) = apply[raw.SyntheticFocusEvent      ](name)
     @inline def keyboard   (name: String) = apply[raw.SyntheticKeyboardEvent   ](name)
     @inline def mouse      (name: String) = apply[raw.SyntheticMouseEvent      ](name)
+    @inline def pointer    (name: String) = apply[raw.SyntheticPointerEvent    ](name)
     @inline def touch      (name: String) = apply[raw.SyntheticTouchEvent      ](name)
     @inline def transition (name: String) = apply[raw.SyntheticTransitionEvent ](name)
     @inline def ui         (name: String) = apply[raw.SyntheticUIEvent         ](name)
@@ -116,7 +117,7 @@ object Attr {
   object Ref extends Attr[raw.React.RefFn[_ <: TopNode]]("ref") {
     override def :=[A](a: A)(implicit t: ValueType[A, raw.React.RefFn[_ <: TopNode]]) =
       t(name, a)
-    private[vdom] def apply[N <: TopNode](r: RefObj[N, _]): TagMod =
+    private[vdom] def apply[N <: TopNode](r: japgolly.scalajs.react.Ref.Set[N]): TagMod =
       :=(r.rawSetFn)(ValueType.direct)
   }
 

@@ -33,12 +33,18 @@ package object react extends ReactEventTypes {
   val JsFnComponent = component.JsFn
   type JsFnComponent[P <: js.Object, CT[-p, +u] <: CtorType[p, u]] = JsFnComponent.Component[P, CT]
 
+  val JsForwardRefComponent = component.JsForwardRef
+  type JsForwardRefComponent[P <: js.Object, R, CT[-p, +u] <: CtorType[p, u]] = JsForwardRefComponent.Component[P, R, CT]
+
   val ScalaComponent = component.Scala
   type ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = ScalaComponent.Component[P, S, B, CT]
   type BackendScope[P, S] = ScalaComponent.BackendScope[P, S]
 
   val ScalaFnComponent = component.ScalaFn
   type ScalaFnComponent[P, CT[-p, +u] <: CtorType[p, u]] = ScalaFnComponent.Component[P, CT]
+
+  val ScalaForwardRefComponent = component.ScalaForwardRef
+  type ScalaForwardRefComponent[P, R, CT[-p, +u] <: CtorType[p, u]] = ScalaForwardRefComponent.Component[P, R, CT]
 
   /** Extensions to plain old DOM. */
   @inline implicit final class ReactExt_DomNode(private val n: dom.raw.Node) extends AnyVal {
@@ -56,42 +62,22 @@ package object react extends ReactEventTypes {
       }
   }
 
-  @inline implicit final class ReactExt_MountedDomNode(private val n: GenericComponent.MountedDomNode) extends AnyVal {
-
-    def domCast[N <: dom.raw.Node]: N =
-      asElement.domCast[N]
-
-    @inline def domAsHtml: html.Element =
-      domCast
-
-    def domToHtml: Option[html.Element] =
-      n.right.toOption.flatMap(_.domToHtml)
-
-    def asElement: dom.Element =
-      n match {
-        case Right(e) => e
-        case Left(t)  => sys error s"Expected a dom.Element; got $t"
-      }
-
-    def asText: dom.Text =
-      n match {
-        case Left(t)  => t
-        case Right(e) => sys error s"Expected a dom.Text; got $e"
-      }
-
-    def toElement: Option[dom.Element] =
-      n.right.toOption
-
-    def toText: Option[dom.Text] =
-      n.left.toOption
-
-    def rawDomNode: japgolly.scalajs.react.raw.ReactDOM.DomNode =
-      n.fold(a => a, a => a)
-  }
-
   @inline implicit final class ReactExt_OptionCallback(private val o: Option[Callback]) extends AnyVal {
     /** Convenience for `.getOrElse(Callback.empty)` */
     @inline def getOrEmpty: Callback =
        o.getOrElse(Callback.empty)
+  }
+
+  // I am NOT happy about this here... but it will do for now.
+
+  implicit final class ReactExt_ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](private val self: ScalaComponent.Component[P, S, B, CT]) extends AnyVal {
+    def withRef(ref: Ref.Handle[ScalaComponent.RawMounted[P, S, B]]): ScalaComponent.Component[P, S, B, CT] =
+      self.mapCtorType(ct => CtorType.hackBackToSelf(ct)(ct.withRawProp("ref", ref.raw)))(self.ctorPF)
+
+    def withRef(r: Option[Ref.Handle[ScalaComponent.RawMounted[P, S, B]]]): ScalaComponent.Component[P, S, B, CT] =
+      r match {
+        case None    => self
+        case Some(h) => withRef(h)
+      }
   }
 }

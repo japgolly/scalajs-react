@@ -543,6 +543,8 @@ trait HtmlAttrs {
     */
   final def name = VdomAttr[String]("name")
 
+  final def noModule = VdomAttr[Boolean]("noModule")
+
   final def noValidate = VdomAttr[Boolean]("noValidate")
 
   /** For &lt;script&gt; and &lt;style&gt;elements. */
@@ -577,6 +579,10 @@ trait HtmlAttrs {
   final def onAnimationStart = Attr.Event.animation("onAnimationStart")
 
   final def onAnimationStartCapture = Attr.Event.animation("onAnimationStartCapture")
+
+  final def onAuxClick = Attr.Event.mouse("onAuxClick")
+
+  final def onAuxClickCapture = Attr.Event("onAuxClickCapture")
 
   final def onBeforeInput = Attr.Event.base("onBeforeInput")
 
@@ -822,6 +828,100 @@ trait HtmlAttrs {
 
   final def onPlayingCapture = Attr.Event.base("onPlayingCapture")
 
+  /** A user agent MUST fire a pointer event named gotpointercapture when an element receives pointer capture. This event is fired at the element that is receiving pointer capture. Subsequent events for that pointer will be fired at this element.
+    *
+    * @since 1.3.0 / React 16.4.0
+    */
+  final def onGotPointerCapture = Attr.Event.pointer("onGotPointerCapture")
+
+  /** A user agent MUST fire a pointer event named lostpointercapture after pointer capture is released for a pointer. This event MUST be fired prior to any subsequent events for the pointer after capture was released. This event is fired at the element from which pointer capture was removed. Subsequent events for the pointer follow normal hit testing mechanisms (out of scope for this specification) for determining the event target.
+    *
+    * @since 1.3.0 / React 16.4.0
+    */
+  final def onLostPointerCapture = Attr.Event.pointer("onLostPointerCapture")
+
+  /** A user agent MUST fire a pointer event named pointercancel in the following circumstances:
+    *
+    *   - The user agent has determined that a pointer is unlikely to continue to produce events (for example, because of a hardware event).
+    *
+    *   - After having fired the pointerdown event, if the pointer is subsequently used to manipulate the page viewport (e.g. panning or zooming).
+    *     NOTE: User agents can trigger panning or zooming through multiple pointer types (such as touch and pen), and therefore the start of a pan or zoom action may result in the cancellation of various pointers, including pointers with different pointer types.
+    *
+    *   - Immediately before drag operation starts [HTML], for the pointer that caused the drag operation.
+    *     NOTE: If the start of the drag operation is prevented through any means (e.g. through calling preventDefault on the dragstart event) there will be no pointercancel event.
+    *
+    * After firing the pointercancel event, a user agent MUST also fire a pointer event named pointerout followed by firing a pointer event named pointerleave.
+    *
+    * NOTE: This section is non-normative. Examples of scenarios in which a user agent might determine that a pointer is unlikely to continue to produce events include:
+    *   - A device's screen orientation is changed while a pointer is active.
+    *   - The user inputs a greater number of simultaneous pointers than is supported by the device.
+    *   - The user agent interprets the input as accidental (for example, the hardware supports palm rejection).
+    *   - The user agent interprets the input as a pan or zoom gesture.
+    * Methods for changing the device's screen orientation, recognizing accidental input, or using a pointer to manipulate the viewport (e.g. panning or zooming) are out of scope for this specification.
+    *
+    * @since 1.3.0 / React 16.4.0
+    */
+  final def onPointerCancel = Attr.Event.pointer("onPointerCancel")
+
+  /** A user agent MUST fire a pointer event named pointerdown when a pointer enters the active buttons state. For mouse, this is when the device transitions from no buttons depressed to at least one button depressed. For touch, this is when physical contact is made with the digitizer. For pen, this is when the pen either makes physical contact with the digitizer without any button depressed, or transitions from no buttons depressed to at least one button depressed while hovering.
+    *
+    * NOTE: For mouse (or other multi-button pointer devices), this means pointerdown and pointerup are not fired for all of the same circumstances as mousedown and mouseup. See chorded buttons for more information.
+    *
+    * For input devices that do not support hover, a user agent MUST also fire a pointer event named pointerover followed by a pointer event named pointerenter prior to dispatching the pointerdown event.
+    *
+    * NOTE: Authors can prevent the firing of certain compatibility mouse events by canceling the pointerdown event (if the isPrimary property is true). This sets the PREVENT MOUSE EVENT flag on the pointer. Note, however, that this does not prevent the mouseover, mouseenter, mouseout, or mouseleave events from firing.
+    *
+    * @since 1.3.0 / React 16.4.0
+    */
+  final def onPointerDown = Attr.Event.pointer("onPointerDown")
+
+  /** A user agent MUST fire a pointer event named pointerenter when a pointing device is moved into the hit test boundaries of an element or one of its descendants, including as a result of a pointerdown event from a device that does not support hover (see pointerdown). Note that setPointerCapture or releasePointerCapture might have changed the hit test target and while a pointer is captured it is considered to be always inside the boundaries of the capturing element for the purpose of firing boundary events. This event type is similar to pointerover, but differs in that it does not bubble.
+    *
+    * @since 1.3.0 / React 16.4.0
+    */
+  final def onPointerEnter = Attr.Event.pointer("onPointerEnter")
+
+  /** A user agent MUST fire a pointer event named pointerleave when a pointing device is moved out of the hit test boundaries of an element and all of its descendants, including as a result of a pointerup and pointercancel events from a device that does not support hover (see pointerup and pointercancel). Note that setPointerCapture or releasePointerCapture might have changed the hit test target and while a pointer is captured it is considered to be always inside the boundaries of the capturing element for the purpose of firing boundary events. User agents MUST also fire a pointer event named pointerleave when a pen stylus leaves hover range detectable by the digitizer. This event type is similar to pointerout, but differs in that it does not bubble and that it MUST not be fired until the pointing device has left the boundaries of the element and the boundaries of all of its descendants.
+    *
+    * NOTE: There are similarities between this event type, the mouseleave event described in [UIEVENTS], and the CSS :hover pseudo-class described in [CSS21]. See also the pointerenter event.
+    *
+    * @since 1.3.0 / React 16.4.0
+    */
+  final def onPointerLeave = Attr.Event.pointer("onPointerLeave")
+
+  /** A user agent MUST fire a pointer event named pointermove when a pointer changes coordinates. Additionally, when a pointer changes button state, pressure, tangential pressure, tilt, twist, or contact geometry (e.g. width and height) and the circumstances produce no other pointer events defined in this specification then a user agent MUST fire a pointer event named pointermove.
+    *
+    * @since 1.3.0 / React 16.4.0
+    */
+  final def onPointerMove = Attr.Event.pointer("onPointerMove")
+
+  /** A user agent MUST fire a pointer event named pointerout when any of the following occurs:
+    *
+    *   - A pointing device is moved out of the hit test boundaries of an element. Note that setPointerCapture or releasePointerCapture might have changed the hit test target and while a pointer is captured it is considered to be always inside the boundaries of the capturing element for the purpose of firing boundary events.
+    *   - After firing the pointerup event for a device that does not support hover (see pointerup).
+    *   - After firing the pointercancel event (see pointercancel).
+    *   - When a pen stylus leaves the hover range detectable by the digitizer.
+    *
+    * @since 1.3.0 / React 16.4.0
+    */
+  final def onPointerOut = Attr.Event.pointer("onPointerOut")
+
+  /** A user agent MUST fire a pointer event named pointerover when a pointing device is moved into the hit test boundaries of an element. Note that setPointerCapture or releasePointerCapture might have changed the hit test target and while a pointer is captured it is considered to be always inside the boundaries of the capturing element for the purpose of firing boundary events. A user agent MUST also fire this event prior to firing a pointerdown event for devices that do not support hover (see pointerdown).
+    *
+    * @since 1.3.0 / React 16.4.0
+    */
+  final def onPointerOver = Attr.Event.pointer("onPointerOver")
+
+  /** A user agent MUST fire a pointer event named pointerup when a pointer leaves the active buttons state. For mouse, this is when the device transitions from at least one button depressed to no buttons depressed. For touch, this is when physical contact is removed from the digitizer. For pen, this is when the pen is removed from the physical contact with the digitizer while no button is depressed, or transitions from at least one button depressed to no buttons depressed while hovering.
+    *
+    * For input devices that do not support hover, a user agent MUST also fire a pointer event named pointerout followed by a pointer event named pointerleave after dispatching the pointerup event.
+    *
+    * NOTE: For mouse (or other multi-button pointer devices), this means pointerdown and pointerup are not fired for all of the same circumstances as mousedown and mouseup. See chorded buttons for more information.
+    *
+    * @since 1.3.0 / React 16.4.0
+    */
+  final def onPointerUp = Attr.Event.pointer("onPointerUp")
+
   final def onProgress = Attr.Event.base("onProgress")
 
   final def onProgressCapture = Attr.Event.base("onProgressCapture")
@@ -942,6 +1042,8 @@ trait HtmlAttrs {
     * email; otherwise it is ignored.
     */
   final def placeholder = VdomAttr("placeholder")
+
+  final def playsInline = VdomAttr[Boolean]("playsInline")
 
   final def poster = VdomAttr("poster")
 

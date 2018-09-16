@@ -25,7 +25,7 @@ trait ReactDOM extends js.Object {
   final def unmountComponentAtNode(container: dom.Node): Boolean = js.native
 
   // ==========================================================================
-  // NOTE: Ensure that Generic.MountedDomNode is kept up-to-date with this type
+  // NOTE: Ensure that DomNode is kept up-to-date with this type
   //
   final type DomNode = dom.Element | dom.Text
   // ==========================================================================

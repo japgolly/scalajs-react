@@ -53,6 +53,6 @@ trait TimerSupport extends OnUnmount {
 }
 
 object TimerSupport {
-  @inline def install[P, C <: Children, S, B <: TimerSupport]: ScalaComponent.Config[P, C, S, B] =
+  @inline def install[P, C <: Children, S, B <: TimerSupport, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] =
     OnUnmount.install
 }

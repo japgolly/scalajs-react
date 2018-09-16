@@ -129,7 +129,13 @@ abstract class MacroUtils {
 
     def go(t: Type): Unit = {
       val tb = ensureValidAdtBase(t)
-      val subclasses = tb.knownDirectSubclasses
+      val subclasses = tb.knownDirectSubclasses.toArray
+
+      // Sort for output determinism
+      java.util.Arrays.sort(subclasses, new java.util.Comparator[Symbol] {
+        override def compare(a: Symbol, b: Symbol) =
+          a.fullName.compareTo(b.fullName)
+      })
 
       // abstract first because their children may also be considered knownDirectSubclasses
       for (sub <- subclasses) {
@@ -406,9 +412,16 @@ abstract class MacroUtils {
     tryInferImplicit(t) getOrElse fail(s"Implicit not found: $t")
 
   implicit val liftInit = Liftable[Init](i => q"..${i.stmts}")
-  class Init {
+
+  class Init(freshNameFn: Int => String) {
     var seen = Map.empty[String, TermName]
     var stmts: Vector[Tree] = Vector.empty
+
+    private var vars = 0
+    def newName(): String = {
+      vars += 1
+      freshNameFn(vars)
+    }
 
     def +=(t: Tree): Unit =
       stmts :+= t
@@ -422,7 +435,7 @@ abstract class MacroUtils {
       val k = value.toString()
       seen.get(k) match {
         case None =>
-          val v = TermName(c.freshName())
+          val v = TermName(newName())
           this += q"val $v = $value"
           seen = seen.updated(k, v)
           v
@@ -432,12 +445,6 @@ abstract class MacroUtils {
 
     def wrap(body: Tree): Tree =
       q"..$this; $body"
-  }
-
-  def Init(stmts: Tree*): Init = {
-    val i = new Init
-    stmts foreach (i += _)
-    i
   }
 
   def LitNil = Ident(c.mirror staticModule "scala.collection.immutable.Nil")

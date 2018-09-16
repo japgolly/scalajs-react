@@ -113,4 +113,15 @@ trait CatsReactInstances {
     case _                                => false
   }
 
+  implicit final lazy val reactRefFnCatsInstance: Profunctor[Ref.Fn] =
+    new Profunctor[Ref.Fn] {
+      override def lmap[A, B, C](f: Ref.Fn[A, B])(m: C => A) = f.contramap(m)
+      override def rmap[A, B, C](f: Ref.Fn[A, B])(m: B => C) = f.map(m)
+    }
+
+  implicit final def reactRefFullCatsInstance[X]: Profunctor[Ref.Full[?, X, ?]] =
+    new Profunctor[Ref.Full[?, X, ?]] {
+      override def lmap[A, B, C](f: Ref.Full[A, X, B])(m: C => A) = f.contramap(m)
+      override def rmap[A, B, C](f: Ref.Full[A, X, B])(m: B => C) = f.map(m)
+    }
 }

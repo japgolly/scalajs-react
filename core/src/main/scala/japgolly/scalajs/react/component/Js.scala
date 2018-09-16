@@ -2,7 +2,8 @@ package japgolly.scalajs.react.component
 
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
+import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
+import japgolly.scalajs.react.{Callback, Children, CtorType, ComponentDom, PropsChildren, vdom, raw => RAW}
 import scala.scalajs.js.|
 
 object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
@@ -10,7 +11,7 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
   def apply[P <: js.Object, C <: Children, S <: js.Object]
            (raw: js.Any)
            (implicit s: CtorType.Summoner[P, C], where: sourcecode.FullName, line: sourcecode.Line): Component[P, S, s.CT] = {
-    InspectRaw.assertIsComponent(raw, "JsComponent", where, line)
+    InspectRaw.assertValidJsComponent(raw, where, line)
     force[P, C, S](raw)(s)
   }
 
@@ -48,6 +49,7 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
     override type Raw <: RAW.React.ComponentElement[_ <: js.Object]
+    override final type Ref = RAW.React.Ref
     override final def displayName = readDisplayName(raw.`type`)
   }
 
@@ -131,7 +133,7 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
       override def props         = raw.props
       override def propsChildren = PropsChildren.fromRawProps(raw.props)
       override def state         = raw.state
-      override def getDOMNode    = Generic.MountedDomNode.force(RAW.ReactDOM.findDOMNode(raw))
+      override def getDOMNode    = ComponentDom(RAW.ReactDOM.findDOMNode(raw))
 
       override def setState(state: S, callback: Callback): Unit =
         raw.setState(state, callback.toJsFn)
@@ -206,7 +208,12 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
   implicit def toJsUnmountedOpsI[P1, S1, R <: RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object](x: UnmountedMapped[Effect.Id, P1, S1, R, P0, S0]): JsUnmountedOps[Effect.Id, P1, S1, R, P0, S0] = new JsUnmountedOps(x)
   implicit def toJsComponentOpsI[P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]](x: ComponentMapped[Effect.Id, P1, S1, CT1, R, P0, S0, CT0]): JsComponentOps[Effect.Id, P1, S1, CT1, R, P0, S0, CT0] = new JsComponentOps(x)
 
-  final class JsUnmountedOps[F[_], P1, S1, R <: RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object](private val self: UnmountedMapped[F, P1, S1, R, P0, S0]) extends AnyVal {
+  final class JsUnmountedOps[
+      F[_],
+      P1, S1,
+      R <: RawMounted[P0, S0],
+      P0 <: js.Object, S0 <: js.Object](private val self: UnmountedMapped[F, P1, S1, R, P0, S0]) extends AnyVal {
+
     def withRawType[R2 <: RawMounted[P0, S0]]: UnmountedMapped[F, P1, S1, R2, P0, S0] =
       self.asInstanceOf[UnmountedMapped[F, P1, S1, R2, P0, S0]]
     def addFacade[T <: js.Object]: UnmountedMapped[F, P1, S1, R with T, P0, S0] =
@@ -219,7 +226,13 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
       self.mapMounted(_.zoomState(get)(set))
   }
 
-  final class JsComponentOps[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]](private val self: ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0]) extends AnyVal {
+  final class JsComponentOps[
+      F[_],
+      P1, S1, CT1[-p, +u] <: CtorType[p, u],
+      R <: RawMounted[P0, S0],
+      P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
+      (private val self: ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0]) extends AnyVal {
+
     def withRawType[R2 <: RawMounted[P0, S0]]: ComponentMapped[F, P1, S1, CT1, R2, P0, S0, CT0] =
       self.asInstanceOf[ComponentMapped[F, P1, S1, CT1, R2, P0, S0, CT0]]
     def addFacade[T <: js.Object]: ComponentMapped[F, P1, S1, CT1, R with T, P0, S0, CT0] =
@@ -232,5 +245,16 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
       self.mapUnmounted(_.zoomState(get)(set))
     def mapMounted[M2](f: MountedMapped[F, P1, S1, R, P0, S0] => M2) =
       self.mapUnmounted(_ mapMounted f)
+
+    import japgolly.scalajs.react.Ref
+
+    def withRef(ref: Ref.Handle[R]): ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0] =
+      self.mapCtorType(ct => CtorType.hackBackToSelf(ct)(ct.withRawProp("ref", ref.raw)))(self.ctorPF)
+
+    def withRef(r: Option[Ref.Handle[R]]): ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0] =
+      r match {
+        case None    => self
+        case Some(h) => withRef(h)
+      }
   }
 }

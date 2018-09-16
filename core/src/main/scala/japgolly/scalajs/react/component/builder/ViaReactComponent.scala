@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.component.builder
 
 import scalajs.js
-import japgolly.scalajs.react.{Children, raw}
+import japgolly.scalajs.react.{Children, UpdateSnapshot, raw}
 import japgolly.scalajs.react.component.{Js, Scala}
-import japgolly.scalajs.react.internal.Box
+import japgolly.scalajs.react.internal.{Box, JsRepr}
 import Lifecycle._
 import Scala._
 
@@ -145,18 +145,17 @@ object ViaReactComponent {
   private def Method(_key: String, _value: js.Any): Method =
     js.Dynamic.literal(key = _key, value = _value).asInstanceOf[Method]
 
-  private def _defineProperties(target: js.Object, props: js.Array[Method]): Unit = {
+  private def _defineProperties(target: js.Object, props: js.Array[Method]): Unit =
     for (p <- props) {
       // p.enumerable ||= false
       p.configurable = true
       if (js.Object.hasProperty(p, "value")) p.writable = true
       js.Object.defineProperty(target, p.key, p)
     }
-  }
 
-  private def _createClass(c: js.Object, protoProps: js.Array[Method] /*, staticProps: js.Array[Method]*/): Unit = {
+  private def _createClass(c: js.Object, protoProps: js.Array[Method], staticProps: js.Array[Method]): Unit = {
     _defineProperties(c.asInstanceOf[js.Dynamic].prototype.asInstanceOf[js.Object], protoProps)
-    // _defineProperties(c, staticProps)
+    _defineProperties(c, staticProps)
   }
 
   // function _classCallCheck(instance, Constructor) {
@@ -212,9 +211,31 @@ object ViaReactComponent {
   private val ReactComponent: js.Object =
     js.constructorOf[raw.React.Component[js.Object, js.Object]].asInstanceOf[js.Object]
 
+  private final class ProtoProps[This](val methods: js.Array[Method] = js.Array()) extends AnyVal {
+    def add[O](k: String, v: js.Any): Unit = methods.push(Method(k, v))
+    def add0[O](k: String, f: This => O): Unit = add(k, f: js.ThisFunction0[This, O])
+    def add1[A, O](k: String, f: (This, A) => O): Unit = add(k, f: js.ThisFunction1[This, A, O])
+    def add2[A, B, O](k: String, f: (This, A, B) => O): Unit = add(k, f: js.ThisFunction2[This, A, B, O])
+    def add3[A, B, C, O](k: String, f: (This, A, B, C) => O): Unit = add(k, f: js.ThisFunction3[This, A, B, C, O])
+  }
+
+  private final class StaticProps(val methods: js.Array[Method] = js.Array()) extends AnyVal {
+    def add[O](k: String, v: js.Any): Unit = methods.push(Method(k, v))
+    def add2[A, B, O](k: String, f: (A, B) => O): Unit = add(k, f: js.Function2[A, B, O])
+  }
+
+  private def boxStateOrNull[S](o: Option[S]): Box[S] =
+    o match {
+      case None     => null
+      case Some(s2) => Box(s2)
+    }
+
   // ===================================================================================================================
 
-  def apply[P, C <: Children, S, B](builder: Builder.Step4[P, C, S, B]): raw.React.ComponentClass[Box[P], Box[S]] = {
+  def apply[P, C <: Children, S, B, US <: UpdateSnapshot]
+      (builder: Builder.Step4[P, C, S, B, US])
+      (implicit snapshotJs: JsRepr[builder.SnapshotValue]): raw.React.ComponentClass[Box[P], Box[S]] = {
+
     val initStateFn = builder.initStateFn
     val backendFn = builder.backendFn
     val renderFn = builder.renderFn
@@ -242,32 +263,30 @@ object ViaReactComponent {
 
     _inherits(MyComponent, ReactComponent)
 
-    val methods: js.Array[Method] =
-      js.Array()
+    val protoProps = new ProtoProps[This]()
+    val staticProps = new StaticProps()
 
-    def add[O](k: String, v: js.Any): Unit = methods.push(Method(k, v))
-    def add0[O](k: String, f: This => O): Unit = add(k, f: js.ThisFunction0[This, O])
-    def add1[I, O](k: String, f: (This, I) => O): Unit = add(k, f: js.ThisFunction1[This, I, O])
-    def add2[I, J, O](k: String, f: (This, I, J) => O): Unit = add(k, f: js.ThisFunction2[This, I, J, O])
-
-    add0("render", _this => renderFn(new RenderScope(_this)).rawNode)
+    protoProps.add0("render", _this => renderFn(new RenderScope(_this)).rawNode)
 
     for (f <- builder.lifecycle.componentDidCatch)
-      add2("componentDidCatch",
+      protoProps.add2("componentDidCatch",
         (_this: This, e: raw.React.Error, i: raw.React.ErrorInfo) => f(new ComponentDidCatch(_this, e, i)).runNow())
 
     for (f <- builder.lifecycle.componentDidMount)
-      add0("componentDidMount", _this => f(new ComponentDidMount(_this)).runNow())
+      protoProps.add0("componentDidMount",
+        _this => f(new ComponentDidMount(_this)).runNow())
 
     for (f <- builder.lifecycle.componentDidUpdate)
-      add2("componentDidUpdate",
-        (_this: This, p: Box[P], s: Box[S]) => f(new ComponentDidUpdate(_this, p.unbox, s.unbox)).runNow())
+      protoProps.add3("componentDidUpdate",
+        (_this: This, p: Box[P], s: Box[S], ss: js.Any) =>
+          f(new ComponentDidUpdate(_this, p.unbox, s.unbox, snapshotJs.unsafeFromJs(ss))).runNow())
 
     for (f <- builder.lifecycle.componentWillMount)
-      add0("componentWillMount", _this => f(new ComponentWillMount(_this)).runNow())
+      protoProps.add0("componentWillMount",
+        _this => f(new ComponentWillMount(_this)).runNow())
 
     for (f <- builder.lifecycle.componentWillReceiveProps)
-      add1("componentWillReceiveProps",
+      protoProps.add1("componentWillReceiveProps",
         (_this: This, p: Box[P]) => f(new ComponentWillReceiveProps(_this, p.unbox)).runNow())
 
     // I don't know that this teardown is necessary. It should be fine without...
@@ -288,20 +307,29 @@ object ViaReactComponent {
     //     }
     //   })
     for (f <- builder.lifecycle.componentWillUnmount)
-      add0("componentWillUnmount", _this => f(new ComponentWillUnmount(_this)).runNow())
+      protoProps.add0("componentWillUnmount", _this => f(new ComponentWillUnmount(_this)).runNow())
 
     for (f <- builder.lifecycle.componentWillUpdate)
-      add2("componentWillUpdate",
+      protoProps.add2("componentWillUpdate",
         (_this: This, p: Box[P], s: Box[S]) => f(new ComponentWillUpdate(_this, p.unbox, s.unbox)).runNow())
 
+    for (f <- builder.lifecycle.getDerivedStateFromProps)
+      staticProps.add2("getDerivedStateFromProps",
+        (p: Box[P], s: Box[S]) => boxStateOrNull(f(p.unbox, s.unbox)))
+
+    for (f <- builder.lifecycle.getSnapshotBeforeUpdate)
+      protoProps.add2("getSnapshotBeforeUpdate",
+        (_this: This, p: Box[P], s: Box[S]) =>
+          snapshotJs.toJs(f(new GetSnapshotBeforeUpdate(_this, p.unbox, s.unbox)).runNow()))
+
     for (f <- builder.lifecycle.shouldComponentUpdate)
-      add2("shouldComponentUpdate",
+      protoProps.add2("shouldComponentUpdate",
         (_this: This, p: Box[P], s: Box[S]) => f(new ShouldComponentUpdate(_this, p.unbox, s.unbox)).runNow())
 
-    _createClass(MyComponent, methods)
-
     for (n <- Option(builder.name))
-      MyComponent.asInstanceOf[js.Dynamic].displayName = n
+      staticProps.add("displayName", n)
+
+    _createClass(MyComponent, protoProps.methods, staticProps.methods)
 
     MyComponent.asInstanceOf[raw.React.ComponentClass[Box[P], Box[S]]]
   }

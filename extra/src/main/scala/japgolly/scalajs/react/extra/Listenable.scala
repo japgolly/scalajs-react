@@ -20,14 +20,14 @@ trait Listenable[A] {
 
 object Listenable {
 
-  def listen[P, C <: Children, S, B <: OnUnmount, A](
+  def listen[P, C <: Children, S, B <: OnUnmount, U <: UpdateSnapshot, A](
       listenable: P => Listenable[A],
-      makeListener: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => A => Callback): ScalaComponent.Config[P, C, S, B] =
-    OnUnmount.install[P, C, S, B] andThen (_.componentDidMount($ =>
-      listenable($.props).register(makeListener($)) >>= $.backend.onUnmount))
+      makeListener: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => A => Callback): ScalaComponent.Config[P, C, S, B, U, U] =
+    OnUnmount.install[P, C, S, B, U] andThen (
+      _.componentDidMount($ => listenable($.props).register(makeListener($)) >>= $.backend.onUnmount))
 
-  def listenToUnit[P, C <: Children, S, B <: OnUnmount](
+  def listenToUnit[P, C <: Children, S, B <: OnUnmount, U <: UpdateSnapshot](
       listenable: P => Listenable[Unit],
-      makeListener: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B] =
-    listen[P, C, S, B, Unit](listenable, $ => _ => makeListener($))
+      makeListener: ScalaComponent.Lifecycle.ComponentDidMount[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B, U, U] =
+    listen[P, C, S, B, U, Unit](listenable, $ => _ => makeListener($))
 }

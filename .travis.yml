@@ -3,21 +3,21 @@ sudo: false
 
 scala:
   - 2.11.12
-  - 2.12.4
+  - 2.12.6
 
 jdk:
   - oraclejdk8
 
 install:
   - . $HOME/.nvm/nvm.sh
-  - nvm install 7
-  - nvm use 7
+  - nvm install 10
+  - nvm use 10
   - export NODE_PATH="$(npm config get prefix)"/lib/node_modules
   - npm install
-  - npm install jsdom source-map-support
+  - npm install jsdom@11 source-map-support
 
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION test:fastOptJS test:fullOptJS
+  #- sbt ++$TRAVIS_SCALA_VERSION test:fastOptJS test:fullOptJS
   - sbt ++$TRAVIS_SCALA_VERSION 'set parallelExecution in ThisBuild := false' test
   - sbt ++$TRAVIS_SCALA_VERSION 'set parallelExecution in ThisBuild := false' 'set scalaJSStage in ThisBuild := FullOptStage' test
   - bin/checkDevOnly $TRAVIS_SCALA_VERSION

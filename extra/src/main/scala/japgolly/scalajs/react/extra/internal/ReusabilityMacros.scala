@@ -34,8 +34,7 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
 
   private def implSumType[T: c.WeakTypeTag](debug: Boolean, derive: Boolean): c.Expr[Reusability[T]] = {
     val T     = weakTypeOf[T]
-
-    val init = new Init
+    val init  = new Init("i$" + _)
     val bind1 = TermName("bound1")
     val bind2 = TermName("bound2")
 
@@ -86,7 +85,7 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
           q"$Reusability.by[$T,$t](_.$n)"
 
         case _ =>
-          val init = new Init
+          val init  = new Init("i$" + _)
           var tests = Vector.empty[Tree]
 
           val memo = collection.mutable.HashMap.empty[Type, TermName]

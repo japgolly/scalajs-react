@@ -39,11 +39,14 @@ object Ajax {
     def and(f: XMLHttpRequest => Unit): Step1 =
       new Step1(init >> CallbackKleisli.lift(f))
 
+    def setRequestHeader(header: String, value: String): Step1 =
+      and(_.setRequestHeader(header, value))
+
     def setRequestContentTypeJson: Step1 =
-      and(_.setRequestHeader("Content-Type", "application/json"))
+      setRequestHeader("Content-Type", "application/json")
 
     def setRequestContentTypeJson(charset: String): Step1 =
-      and(_.setRequestHeader("Content-Type", "application/json;charset=" + charset))
+      setRequestHeader("Content-Type", "application/json;charset=" + charset)
 
     def setRequestContentTypeJsonUtf8: Step1 =
       setRequestContentTypeJson("UTF-8")
@@ -51,12 +54,12 @@ object Ajax {
     def send: Step2 =
       new Step2(
         init >> CallbackKleisli.lift(_.send()),
-        None, None, None)
+        None, None, None, None)
 
     def send(requestBody: js.Any): Step2 =
       new Step2(
         init >> CallbackKleisli.lift(_.send(requestBody)),
-        None, None, None)
+        None, None, None, None)
   }
 
   // ===================================================================================================================
@@ -65,17 +68,20 @@ object Ajax {
   final class Step2(begin: Ajax[Unit],
                     onreadystatechange: Option[Ajax[Unit]],
                     ontimeout: Option[Ajax[Unit]],
-                    onprogress: Option[CallbackKleisli[(XMLHttpRequest, ProgressEvent), Unit]]) {
+                    onprogress: Option[CallbackKleisli[(XMLHttpRequest, ProgressEvent), Unit]],
+                    onuploadprogress: Option[CallbackKleisli[(XMLHttpRequest, ProgressEvent), Unit]]) {
 
     private def copy(begin: Ajax[Unit] = begin,
                      onreadystatechange: Option[Ajax[Unit]] = onreadystatechange,
                      ontimeout: Option[Ajax[Unit]] = ontimeout,
-                     onprogress: Option[CallbackKleisli[(XMLHttpRequest, ProgressEvent), Unit]] = onprogress): Step2 =
+                     onprogress: Option[CallbackKleisli[(XMLHttpRequest, ProgressEvent), Unit]] = onprogress,
+                     onuploadprogress: Option[CallbackKleisli[(XMLHttpRequest, ProgressEvent), Unit]] = onuploadprogress): Step2 =
       new Step2(
         begin = begin,
         onreadystatechange = onreadystatechange,
         ontimeout = ontimeout,
-        onprogress = onprogress)
+        onprogress = onprogress,
+        onuploadprogress = onuploadprogress)
 
     def onReadyStateChange(f: XMLHttpRequest => Callback): Step2 =
       _onReadyStateChange(CallbackKleisli(f))
@@ -95,8 +101,14 @@ object Ajax {
     def onTimeout(f: XMLHttpRequest => Callback): Step2 =
       copy(ontimeout = Some(CallbackKleisli(f) <<? ontimeout))
 
-    def onProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 =
+    @deprecated("Use .onDownloadProgress instead", "1.2.1")
+    def onProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 = onDownloadProgress(f)
+
+    def onDownloadProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 =
       copy(onprogress = Some(CallbackKleisli(f.tupled) <<? onprogress))
+
+    def onUploadProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 =
+      copy(onuploadprogress = Some(CallbackKleisli(f.tupled) <<? onuploadprogress))
 
     lazy val asCallback: Callback = {
       def register_(cb: Option[Ajax[Unit]])(set: (XMLHttpRequest, js.Function1[Any, Unit]) => Unit): Ajax[Unit] =
@@ -116,6 +128,7 @@ object Ajax {
         register_(onreadystatechange)(_.onreadystatechange = _) >>
         register_(ontimeout)(_.ontimeout = _) >>
         registerE(onprogress)(_.onprogress = _) >>
+        registerE(onuploadprogress)(_.upload.onprogress = _) >>
         begin).run
     }
   }
