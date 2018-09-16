@@ -22,11 +22,11 @@ object ScalaFn {
       .mapUnmounted(_.mapUnmountedProps(_.unbox))
   }
 
-  def apply[P](render: P => VdomElement): Component[P, CtorType.Props] =
-    create(b => render(b.unbox))
+  def apply[P](render: P => VdomElement)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+    create[P, Children.None, s.CT](b => render(b.unbox))(s)
 
-  def withChildren[P](render: (P, PropsChildren) => VdomElement): Component[P, CtorType.PropsAndChildren] =
-    create(b => render(b.unbox, PropsChildren(b.children)))
+  def withChildren[P](render: (P, PropsChildren) => VdomElement)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+    create[P, Children.Varargs, s.CT](b => render(b.unbox, PropsChildren(b.children)))(s)
 
   def justChildren(render: PropsChildren => VdomElement): Component[Unit, CtorType.Children] =
     create(b => render(PropsChildren(b.children)))

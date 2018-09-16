@@ -28,9 +28,9 @@ object ContextTest extends TestSuite {
     'usageFn {
       val ctx = React.createContext(123)
       val consumer = ScalaFnComponent[Unit](_ => <.h4(ctx.consume("i = " + _)))
-      val provider = ScalaFnComponent[Int](i => <.pre(ctx.provide(i)(consumer(())))) // TODO (()) should be ()
+      val provider = ScalaFnComponent[Int](i => <.pre(ctx.provide(i)(consumer())))
 
-      'default  - assertRender(consumer(()), "<h4>i = 123</h4>")
+      'default  - assertRender(consumer(), "<h4>i = 123</h4>")
       'provided - assertRender(provider(88), "<pre><h4>i = 88</h4></pre>")
     }
 
