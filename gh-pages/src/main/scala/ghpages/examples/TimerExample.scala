@@ -75,5 +75,7 @@ object TimerExample {
     .componentWillUnmount(_.backend.clear)
     .build
 
+  ReactDOM.render(Timer(), mountNode)
+  
   // EXAMPLE:END
 }
