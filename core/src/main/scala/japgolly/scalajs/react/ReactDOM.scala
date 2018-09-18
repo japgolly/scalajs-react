@@ -10,7 +10,7 @@ object ReactDOM {
 
   /** For mounted components, use .getDOMNode */
   def findDOMNode(componentOrElement: dom.Element | Raw.React.ComponentUntyped): Option[ComponentDom.Mounted] =
-    ComponentDom(raw.findDOMNode(componentOrElement)).mounted
+    ComponentDom.findDOMNode(componentOrElement).mounted
 
   def unmountComponentAtNode(container: dom.Node): Boolean =
     raw.unmountComponentAtNode(container)

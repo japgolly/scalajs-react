@@ -337,9 +337,9 @@ React Extensions
   rather than just getting back a VDOM reference, the return type is an ADT like this:
 
   ```
-                  ComponentDom
-                        ↑
-               ComponentDom.Mounted
+                                   ComponentDom
+                                    ↑        ↑
+                 ComponentDom.Mounted        ComponentDom.Unmounted
                   ↑            ↑
   ComponentDom.Element      ComponentDom.Text
   ```

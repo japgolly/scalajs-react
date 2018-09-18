@@ -149,7 +149,7 @@ object ScalaComponentPTest extends TestSuite {
         .componentDidCatch($ => $.setState(Some($.error.message.replaceFirst("'.+' *", ""))))
         .build
 
-      ReactTestUtils.withNewBodyElement { mountNode =>
+      val staleDomNodeCallback = ReactTestUtils.withNewBodyElement { mountNode =>
         assertMountCount(0)
 
         var mounted = Comp(Props(1, 2, 3)).renderIntoDOM(mountNode)
@@ -169,11 +169,15 @@ object ScalaComponentPTest extends TestSuite {
         mounted = Comp(null).renderIntoDOM(mountNode)
         assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
         assertEq("willUnmountCount", willUnmountCount, 1)
+
+        mounted.withEffectsPure.getDOMNode
       }
 
       assertMountCount(1)
       assertEq("willUnmountCount", willUnmountCount, 1)
-      assertEq("recievedPropDeltas", recievedPropDeltas, Vector(Props(0, 0, 5), Props(0, 3, 0)))
+      assertEq("receivedPropDeltas", recievedPropDeltas, Vector(Props(0, 0, 5), Props(0, 3, 0)))
+
+      assert(staleDomNodeCallback.runNow().mounted.isEmpty)
     }
 
     'lifecycle2 - {

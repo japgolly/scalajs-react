@@ -133,7 +133,7 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
       override def props         = raw.props
       override def propsChildren = PropsChildren.fromRawProps(raw.props)
       override def state         = raw.state
-      override def getDOMNode    = ComponentDom(RAW.ReactDOM.findDOMNode(raw))
+      override def getDOMNode    = ComponentDom.findDOMNode(raw)
 
       override def setState(state: S, callback: Callback): Unit =
         raw.setState(state, callback.toJsFn)
