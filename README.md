@@ -11,7 +11,7 @@ Provides (opt-in) support for pure functional programming, with additional modul
 [Cats](https://github.com/typelevel/cats),
 and [Monocle](https://github.com/julien-truffaut/Monocle) (scalaz or cats based monocle).
 
-Comes utility modules [`extra`](extra/) and [`test`](test/), helpful for React in Scala(.js), rather than React in JS.
+Comes with utility modules [`extra`](extra/) and [`test`](test/), helpful for React in Scala(.js), rather than React in JS.
 Includes a router, testing utils, performance utils, more.
 
 ##### Contents
