@@ -10,20 +10,20 @@ import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 object ScalajsReact {
 
   object Ver {
-    val Cats          = "1.4.0"
-    val KindProjector = "0.9.7"
+    val Cats          = "1.5.0"
+    val KindProjector = "0.9.9"
     val MacroParadise = "2.1.1"
     val Monocle       = "1.5.0"
     val MonocleCats   = "1.5.1-cats"
-    val MTest         = "0.6.5"
+    val MTest         = "0.6.6"
     val Nyaya         = "0.8.1"
     val ReactJs       = "16.5.1"
     val Scala211      = "2.11.12"
-    val Scala212      = "2.12.6"
+    val Scala212      = "2.12.8"
     val ScalaJsDom    = "0.9.6"
-    val Scalaz72      = "7.2.26"
+    val Scalaz72      = "7.2.27"
     val SizzleJs      = "2.3.0"
-    val Sourcecode    = "0.1.4"
+    val Sourcecode    = "0.1.5"
   }
 
   type PE = Project => Project
