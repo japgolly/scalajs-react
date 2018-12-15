@@ -28,7 +28,7 @@ object ScalajsReact {
 
   type PE = Project => Project
 
-  def byScalaVersion[A](f: PartialFunction[(Int, Int), Seq[A]]): Def.Initialize[Seq[A]] =
+  def byScalaVersion[A](f: PartialFunction[(Long, Long), Seq[A]]): Def.Initialize[Seq[A]] =
     Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
 
   def commonSettings: PE =
@@ -45,17 +45,17 @@ object ScalajsReact {
                                   // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
                                 }.value,
         //scalacOptions    += "-Xlog-implicits",
+        incOptions         := incOptions.value.withLogRecompileOnMacro(false),
         updateOptions      := updateOptions.value.withCachedResolution(true),
-        incOptions         := incOptions.value.withNameHashing(true).withLogRecompileOnMacro(false),
         triggeredMessage   := Watched.clearWhenTriggered)
 
   def preventPublication: PE =
     _.settings(
       publishTo := Some(Resolver.file("Unused transient repository", target.value / "fakepublish")),
       publishArtifact := false,
-      publishLocal := (),
-      publishLocalSigned := (),       // doesn't work
-      publishSigned := (),            // doesn't work
+      publishLocal := {},
+      publishLocalSigned := {},       // doesn't work
+      publishSigned := {},            // doesn't work
       packagedArtifacts := Map.empty) // doesn't work - https://github.com/sbt/sbt-pgp/issues/42
 
   def publicationSettings: PE =
@@ -180,9 +180,9 @@ object ScalajsReact {
     _.settings(
       fastOptJS     in Test := Attributed(artifactPath.in(fastOptJS).in(Test).value)(AttributeMap.empty),
       fullOptJS     in Test := Attributed(artifactPath.in(fullOptJS).in(Test).value)(AttributeMap.empty),
-      sbt.Keys.test in Test := (),
-      testOnly      in Test := (),
-      testQuick     in Test := ())
+      sbt.Keys.test in Test := {},
+      testOnly      in Test := {},
+      testQuick     in Test := {})
 
   def monocleLib(name: String, cats: Boolean) =
     "com.github.julien-truffaut" %% s"monocle-$name" % {if (cats) Ver.MonocleCats else Ver.Monocle} cross ScalaJSCrossVersion.binary
