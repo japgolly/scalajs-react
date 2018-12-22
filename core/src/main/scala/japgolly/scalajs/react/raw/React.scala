@@ -161,6 +161,16 @@ object React extends React {
     val render: js.Function2[P, ForwardedRef[R], Node] = js.native
     def props: P with PropsWithChildren
   }
+
+  @js.native
+  trait Lazy extends js.Object
+
+  @js.native
+  trait LazyResult extends js.Object {
+    val default: UnderlyingLazyResult = js.native
+  }
+
+  type UnderlyingLazyResult = Node // | Component[_ <: js.Object, _ <: js.Object]
 }
 
 @js.native
@@ -189,6 +199,8 @@ trait React extends js.Object {
   final def createRef[A](): RefHandle[A] = js.native
 
   final def forwardRef[P <: js.Object, R](f: js.Function2[P with PropsWithChildren, ForwardedRef[R], Node]): ForwardRefComponent[P, R] = js.native
+
+  final def `lazy`(f: js.Function0[js.Promise[LazyResult]]): Lazy = js.native
 
   final val version: String = js.native
 
