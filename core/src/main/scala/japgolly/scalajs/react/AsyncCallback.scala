@@ -6,6 +6,49 @@ import scala.scalajs.js
 import scala.scalajs.js.{Thenable, |}
 import scala.scalajs.js.timers.setTimeout
 
+object AsyncCallback {
+  private[AsyncCallback] val defaultCompleteWith: Either[Throwable, Any] => Callback =
+    _ => Callback.empty
+
+  private def tryE[A](a: => A): Either[Throwable, A] =
+    try Right(a)
+    catch {case t: Throwable => Left(t) }
+
+  def point[A](a: => A): AsyncCallback[A] =
+    AsyncCallback(_(tryE(a)))
+
+  def pure[A](a: A): AsyncCallback[A] = {
+    val r = Right(a)
+    AsyncCallback(_(r))
+  }
+
+  def fromFuture[A](fa: => Future[A])(implicit ec: ExecutionContext): AsyncCallback[A] =
+    AsyncCallback(f => Callback {
+      fa.onComplete {
+        case scala.util.Success(a) => f(Right(a)).runNow()
+        case scala.util.Failure(e) => f(Left(e)).runNow()
+      }
+    })
+
+  def fromCallbackToFuture[A](c: CallbackTo[Future[A]])(implicit ec: ExecutionContext): AsyncCallback[A] =
+    c.asAsyncCallback.flatMap(fromFuture(_))
+
+  def fromJsPromise[A](pa: => js.Thenable[A]): AsyncCallback[A] =
+    AsyncCallback(f => Callback {
+      def complete(e: Either[Throwable, A]): Thenable[Unit] = f(e).asAsyncCallback.asCallbackToJsPromise.runNow()
+      type R = Unit | Thenable[Unit]
+      val ok: A   => R = a => complete(Right(a))
+      val ko: Any => R = e => complete(Left(e match {
+        case t: Throwable => t
+        case a            => js.JavaScriptException(e)
+      }))
+      pa.`then`[Unit](ok, ko: js.Function1[Any, R])
+    })
+
+  def fromCallbackToJsPromise[A](c: CallbackTo[js.Promise[A]]): AsyncCallback[A] =
+    c.asAsyncCallback.flatMap(fromJsPromise(_))
+}
+
 final case class AsyncCallback[+A](completeWith: (Either[Throwable, A] => Callback) => Callback) {
 
   def map[B](f: A => B): AsyncCallback[B] =
@@ -88,47 +131,4 @@ final case class AsyncCallback[+A](completeWith: (Either[Throwable, A] => Callba
         completeWith(ea => Callback(ea.fold(fail, respond(_))))
       })
     }
-}
-
-object AsyncCallback {
-  private[AsyncCallback] val defaultCompleteWith: Either[Throwable, Any] => Callback =
-    _ => Callback.empty
-
-  private def tryE[A](a: => A): Either[Throwable, A] =
-    try Right(a)
-    catch {case t: Throwable => Left(t) }
-
-  def point[A](a: => A): AsyncCallback[A] =
-    AsyncCallback(_(tryE(a)))
-
-  def pure[A](a: A): AsyncCallback[A] = {
-    val r = Right(a)
-    AsyncCallback(_(r))
-  }
-
-  def fromFuture[A](fa: => Future[A])(implicit ec: ExecutionContext): AsyncCallback[A] =
-    AsyncCallback(f => Callback {
-      fa.onComplete {
-        case scala.util.Success(a) => f(Right(a)).runNow()
-        case scala.util.Failure(e) => f(Left(e)).runNow()
-      }
-    })
-
-  def fromCallbackToFuture[A](c: CallbackTo[Future[A]])(implicit ec: ExecutionContext): AsyncCallback[A] =
-    c.asAsyncCallback.flatMap(fromFuture(_))
-
-  def fromJsPromise[A](pa: => js.Thenable[A]): AsyncCallback[A] =
-    AsyncCallback(f => Callback {
-      def complete(e: Either[Throwable, A]): Thenable[Unit] = f(e).asAsyncCallback.asCallbackToJsPromise.runNow()
-      type R = Unit | Thenable[Unit]
-      val ok: A   => R = a => complete(Right(a))
-      val ko: Any => R = e => complete(Left(e match {
-        case t: Throwable => t
-        case a            => js.JavaScriptException(e)
-      }))
-      pa.`then`[Unit](ok, ko: js.Function1[Any, R])
-    })
-
-  def fromCallbackToJsPromise[A](c: CallbackTo[js.Promise[A]]): AsyncCallback[A] =
-    c.asAsyncCallback.flatMap(fromJsPromise(_))
 }
