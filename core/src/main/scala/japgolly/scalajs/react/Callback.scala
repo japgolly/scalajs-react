@@ -630,6 +630,9 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def logResult: CallbackTo[A] =
     logResult(_.toString)
 
+  def asAsyncCallback: AsyncCallback[A] =
+    AsyncCallback(attempt.flatMap)
+
   /**
    * Run asynchronously.
    */

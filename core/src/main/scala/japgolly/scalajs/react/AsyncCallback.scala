@@ -1,8 +1,13 @@
 package japgolly.scalajs.react
 
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
+import scala.scalajs.js
+import scala.scalajs.js.{Thenable, |}
+import scala.scalajs.js.timers.setTimeout
 
 final case class AsyncCallback[+A](completeWith: (Either[Throwable, A] => Callback) => Callback) {
+
   def map[B](f: A => B): AsyncCallback[B] =
     AsyncCallback(g => completeWith(e => g(e.map(f))))
 
@@ -11,9 +16,6 @@ final case class AsyncCallback[+A](completeWith: (Either[Throwable, A] => Callba
       case Right(a) => f(a).completeWith(g)
       case Left(e)  => g(Left(e))
     })
-
-  def toCallback: Callback =
-    completeWith(AsyncCallback.defaultCompleteWith)
 
   def attempt: AsyncCallback[Either[Throwable, A]] =
     AsyncCallback(f => completeWith(e => f(Right(e))))
@@ -54,6 +56,38 @@ final case class AsyncCallback[+A](completeWith: (Either[Throwable, A] => Callba
         that.completeWith(e => respond(e.map(Right(_))))
       }.flatten
     )
+
+  def delay(dur: FiniteDuration): AsyncCallback[A] =
+    delayMs(dur.toMillis.toDouble)
+
+  def delayMs(milliseconds: Double): AsyncCallback[A] =
+    AsyncCallback(f => Callback {
+      setTimeout(milliseconds) {
+        completeWith(f).runNow()
+      }
+    })
+
+  def toCallback: Callback =
+    completeWith(AsyncCallback.defaultCompleteWith)
+
+  def asCallbackToFuture[B >: A]: CallbackTo[Future[B]] =
+    CallbackTo {
+      val p = scala.concurrent.Promise[B]()
+      completeWith(ea => Callback(ea.fold(p.failure, p.success)))
+      p.future
+    }
+
+  def asCallbackToJsPromise[B >: A]: CallbackTo[js.Promise[B]] =
+    CallbackTo {
+      new js.Promise[B]((respond, reject) => {
+        def fail(t: Throwable) =
+          reject(t match {
+            case js.JavaScriptException(e) => e
+            case e                         => e
+          })
+        completeWith(ea => Callback(ea.fold(fail, respond(_))))
+      })
+    }
 }
 
 object AsyncCallback {
@@ -72,9 +106,6 @@ object AsyncCallback {
     AsyncCallback(_(r))
   }
 
-  def fromCallback[A](c: CallbackTo[A]): AsyncCallback[A] =
-    AsyncCallback(c.attempt.flatMap)
-
   def fromFuture[A](fa: => Future[A])(implicit ec: ExecutionContext): AsyncCallback[A] =
     AsyncCallback(f => Callback {
       fa.onComplete {
@@ -84,5 +115,20 @@ object AsyncCallback {
     })
 
   def fromCallbackToFuture[A](c: CallbackTo[Future[A]])(implicit ec: ExecutionContext): AsyncCallback[A] =
-    fromCallback(c).flatMap(fromFuture(_))
+    c.asAsyncCallback.flatMap(fromFuture(_))
+
+  def fromJsPromise[A](pa: => js.Thenable[A]): AsyncCallback[A] =
+    AsyncCallback(f => Callback {
+      def complete(e: Either[Throwable, A]): Thenable[Unit] = f(e).asAsyncCallback.asCallbackToJsPromise.runNow()
+      type R = Unit | Thenable[Unit]
+      val ok: A   => R = a => complete(Right(a))
+      val ko: Any => R = e => complete(Left(e match {
+        case t: Throwable => t
+        case a            => js.JavaScriptException(e)
+      }))
+      pa.`then`[Unit](ok, ko: js.Function1[Any, R])
+    })
+
+  def fromCallbackToJsPromise[A](c: CallbackTo[js.Promise[A]]): AsyncCallback[A] =
+    c.asAsyncCallback.flatMap(fromJsPromise(_))
 }
