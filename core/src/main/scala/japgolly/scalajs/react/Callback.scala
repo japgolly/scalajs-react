@@ -333,15 +333,16 @@ object CallbackTo {
     Callback.todoImpl(Some(() => reason)) >> CallbackTo(result)
 
   final class ReactExt_CallbackToFuture[A](private val _c: () => Future[A]) extends AnyVal {
-    private def c = new CallbackTo(_c)
+    private def c: CallbackTo[Future[A]] = new CallbackTo(_c)
 
     /**
      * Turns a `CallbackTo[Future[A]]` into a `Future[A]`.
      *
      * WARNING: This will trigger the execution of the [[Callback]].
      */
+    @deprecated("Use AsyncCallback.fromCallbackToFuture(...).unsafeToFuture()", "1.4.0")
     def toFlatFuture(implicit ec: ExecutionContext): Future[A] =
-      c.toFuture.flatMap(identityFn)
+      AsyncCallback.fromCallbackToFuture(c).unsafeToFuture()
   }
 
   @inline implicit def callbackCovariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =
@@ -630,38 +631,34 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def logResult: CallbackTo[A] =
     logResult(_.toString)
 
+  /** Turns this into an [[AsyncCallback]] that runs whenever/wherever it's called;
+    * `setTimeout` isn't used.
+    *
+    * In order words, `this.toAsyncCallback.toCallback` == `this`.
+    */
   def asAsyncCallback: AsyncCallback[A] =
     AsyncCallback(attempt.flatMap)
 
-  /**
-   * Run asynchronously.
-   */
-  def async: CallbackTo[Future[A]] =
+  /** Schedules this to run asynchronously (i.e. uses a `setTimeout`).
+    *
+    * Exceptions will be handled by the [[AsyncCallback]] such that
+    * `this.async.toCallback` will never throw an exception.
+    */
+  def async: AsyncCallback[A] =
     delayMs(0)
 
-  /**
-   * Run asynchronously after a delay of a given duration.
-   */
-  def delay(startIn: FiniteDuration): CallbackTo[Future[A]] =
+  /** Run asynchronously after a delay of a given duration. */
+  def delay(startIn: FiniteDuration): AsyncCallback[A] =
     delayMs(startIn.toMillis.toDouble)
 
-  /**
-   * Run asynchronously after a `startInMilliseconds` ms delay.
-   */
-  def delayMs(startInMilliseconds: Double): CallbackTo[Future[A]] =
-    CallbackTo {
-      val p = Promise[A]()
-      val cb = this.attempt.map[Unit] {
-        case Right(a) => p.success(a)
-        case Left(e)  => p.failure(e)
-      }
-      RawTimers.setTimeout(cb.toJsFn, startInMilliseconds)
-      p.future
-    }
+  /** Run asynchronously after a `startInMilliseconds` ms delay. */
+  def delayMs(startInMilliseconds: Double): AsyncCallback[A] =
+    asAsyncCallback.delayMs(startInMilliseconds)
 
   /**
    * Schedules an instance of this callback to run asynchronously.
    */
+  @deprecated("Use .asAsyncCallback.unsafeToFuture()", "1.4.0")
   def toFuture(implicit ec: ExecutionContext): Future[A] =
     Future(runNow())
 

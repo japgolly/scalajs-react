@@ -10,6 +10,9 @@ object AsyncCallback {
   private[AsyncCallback] val defaultCompleteWith: Either[Throwable, Any] => Callback =
     _ => Callback.empty
 
+  def apply[A](f: (Either[Throwable, A] => Callback) => Callback): AsyncCallback[A] =
+    new AsyncCallback(f)
+
   private def tryE[A](a: => A): Either[Throwable, A] =
     try Right(a)
     catch {case t: Throwable => Left(t) }
@@ -49,7 +52,12 @@ object AsyncCallback {
     c.asAsyncCallback.flatMap(fromJsPromise(_))
 }
 
-final case class AsyncCallback[+A](completeWith: (Either[Throwable, A] => Callback) => Callback) {
+final class AsyncCallback[+A] private[AsyncCallback] (
+      private[AsyncCallback] val completeWith: (Either[Throwable, A] => Callback) => Callback
+    ) extends AnyVal {
+
+  def toCallback: Callback =
+    completeWith(AsyncCallback.defaultCompleteWith)
 
   def map[B](f: A => B): AsyncCallback[B] =
     AsyncCallback(g => completeWith(e => g(e.map(f))))
@@ -110,9 +118,6 @@ final case class AsyncCallback[+A](completeWith: (Either[Throwable, A] => Callba
       }
     })
 
-  def toCallback: Callback =
-    completeWith(AsyncCallback.defaultCompleteWith)
-
   def asCallbackToFuture[B >: A]: CallbackTo[Future[B]] =
     CallbackTo {
       val p = scala.concurrent.Promise[B]()
@@ -131,4 +136,10 @@ final case class AsyncCallback[+A](completeWith: (Either[Throwable, A] => Callba
         completeWith(ea => Callback(ea.fold(fail, respond(_))))
       })
     }
+
+  def unsafeToFuture[B >: A](): Future[B] =
+    asCallbackToFuture[B].runNow()
+
+  def unsafeToJsPromise[B >: A](): js.Promise[B] =
+    asCallbackToJsPromise[B].runNow()
 }
