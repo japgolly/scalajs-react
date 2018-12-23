@@ -13,6 +13,12 @@ object AsyncCallback {
   def apply[A](f: (Either[Throwable, A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(f)
 
+  def first[A](f: (Either[Throwable, A] => Callback) => Callback): AsyncCallback[A] =
+    new AsyncCallback(g => {
+      var first = true
+      f(ea => Callback.when(first)(Callback{first = false} >> g(ea)))
+    })
+
   private def tryE[A](a: => A): Either[Throwable, A] =
     try Right(a)
     catch {case t: Throwable => Left(t) }
@@ -68,8 +74,33 @@ final class AsyncCallback[+A] private[AsyncCallback] (
       case Left(e)  => g(Left(e))
     })
 
+  def flatten[B](implicit ev: AsyncCallback[A] <:< AsyncCallback[AsyncCallback[B]]): AsyncCallback[B] =
+    ev(this).flatMap(identity)
+
   def attempt: AsyncCallback[Either[Throwable, A]] =
     AsyncCallback(f => completeWith(e => f(Right(e))))
+
+  /** Sequence the argument a callback to run after this, discarding any value produced by this. */
+  def >>[B](runNext: AsyncCallback[B]): AsyncCallback[B] =
+    flatMap(_ => runNext)
+
+  /**
+    * Alias for `>>`.
+    *
+    * Where `>>` is often associated with Monads, `*>` is often associated with Applicatives.
+    */
+  @inline def *>[B](runNext: AsyncCallback[B]): AsyncCallback[B] =
+    >>(runNext)
+
+  /**
+   * Sequence a callback to run before this, discarding any value produced by it.
+   */
+  @inline def <<[B](runBefore: AsyncCallback[B]): AsyncCallback[A] =
+    runBefore >> this
+
+  /** Convenient version of `<<` that accepts an Option */
+  def <<?[B](prev: Option[AsyncCallback[B]]): AsyncCallback[A] =
+    prev.fold(this)(_ >> this)
 
   def zip[B](that: AsyncCallback[B]): AsyncCallback[(A, B)] =
     AsyncCallback(f => CallbackTo {
@@ -96,17 +127,9 @@ final class AsyncCallback[+A] private[AsyncCallback] (
     }.flatten)
 
   def race[B](that: AsyncCallback[B]): AsyncCallback[Either[A, B]] =
-    AsyncCallback(f =>
-      CallbackTo {
-        var called = false
-
-        def respond(r: Either[Throwable, Either[A, B]]): Callback =
-          Callback.unless(called)(Callback {called = true} >> f(r))
-
-        this.completeWith(e => respond(e.map(Left(_)))) >>
-        that.completeWith(e => respond(e.map(Right(_))))
-      }.flatten
-    )
+    AsyncCallback.first(f =>
+      this.completeWith(e => f(e.map(Left(_)))) >>
+      that.completeWith(e => f(e.map(Right(_)))))
 
   def delay(dur: FiniteDuration): AsyncCallback[A] =
     delayMs(dur.toMillis.toDouble)
@@ -142,4 +165,19 @@ final class AsyncCallback[+A] private[AsyncCallback] (
 
   def unsafeToJsPromise[B >: A](): js.Promise[B] =
     asCallbackToJsPromise[B].runNow()
+
+  def handleError[B >: A](f: Throwable => AsyncCallback[B]): AsyncCallback[B] =
+    AsyncCallback(g => completeWith {
+      case r@ Right(_) => g(r)
+      case Left(t)     => f(t).completeWith(g)
+    })
+
+  def handleErrorPartially[B >: A](f: PartialFunction[Throwable, AsyncCallback[B]]): AsyncCallback[B] =
+    AsyncCallback(g => completeWith {
+      case r@ Right(_) => g(r)
+      case l@ Left(t)  => f.lift(t) match {
+        case Some(n) => n.completeWith(g)
+        case None    => g(l)
+      }
+    })
 }
