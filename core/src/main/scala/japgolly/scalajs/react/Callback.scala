@@ -518,13 +518,13 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def attemptTry: CallbackTo[Try[A]] =
     CallbackTo(Try(f()))
 
-  def handleError[B >: A](f: Throwable => CallbackTo[B]): CallbackTo[B] =
-    CallbackTo[B](
+  def handleError(f: Throwable => CallbackTo[A]): CallbackTo[A] =
+    CallbackTo[A](
       try runNow()
       catch { case t: Throwable => f(t).runNow() })
 
-  def handleErrorPartially[B >: A](f: PartialFunction[Throwable, CallbackTo[B]]): CallbackTo[B] =
-    CallbackTo[B](
+  def maybeHandleError(f: PartialFunction[Throwable, CallbackTo[A]]): CallbackTo[A] =
+    CallbackTo[A](
       try runNow()
       catch {
         case t: Throwable => f.lift(t) match {

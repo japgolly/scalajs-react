@@ -56,17 +56,27 @@ object AsyncCallback {
 
   def fromCallbackToJsPromise[A](c: CallbackTo[js.Promise[A]]): AsyncCallback[A] =
     c.asAsyncCallback.flatMap(fromJsPromise(_))
+
+  @inline implicit def asynCallbackCovariance[A, B >: A](c: AsyncCallback[A]): AsyncCallback[B] =
+    c.widen
 }
 
-final class AsyncCallback[+A] private[AsyncCallback] (
+final class AsyncCallback[A] private[AsyncCallback] (
       private[AsyncCallback] val completeWith: (Either[Throwable, A] => Callback) => Callback
     ) extends AnyVal {
 
   def toCallback: Callback =
     completeWith(AsyncCallback.defaultCompleteWith)
 
+  def widen[B >: A]: AsyncCallback[B] =
+    new AsyncCallback(completeWith)
+
   def map[B](f: A => B): AsyncCallback[B] =
     AsyncCallback(g => completeWith(e => g(e.map(f))))
+
+  /** Alias for `map`. */
+  @inline def |>[B](f: A => B): AsyncCallback[B] =
+    map(f)
 
   def flatMap[B](f: A => AsyncCallback[B]): AsyncCallback[B] =
     AsyncCallback(g => completeWith {
@@ -74,27 +84,25 @@ final class AsyncCallback[+A] private[AsyncCallback] (
       case Left(e)  => g(Left(e))
     })
 
-  def flatten[B](implicit ev: AsyncCallback[A] <:< AsyncCallback[AsyncCallback[B]]): AsyncCallback[B] =
-    ev(this).flatMap(identity)
+  /** Alias for `flatMap`. */
+  @inline def >>=[B](g: A => AsyncCallback[B]): AsyncCallback[B] =
+    flatMap(g)
 
-  def attempt: AsyncCallback[Either[Throwable, A]] =
-    AsyncCallback(f => completeWith(e => f(Right(e))))
+  def flatten[B](implicit ev: AsyncCallback[A] =:= AsyncCallback[AsyncCallback[B]]): AsyncCallback[B] =
+    ev(this).flatMap(identity)
 
   /** Sequence the argument a callback to run after this, discarding any value produced by this. */
   def >>[B](runNext: AsyncCallback[B]): AsyncCallback[B] =
     flatMap(_ => runNext)
 
-  /**
-    * Alias for `>>`.
+  /** Alias for `>>`.
     *
     * Where `>>` is often associated with Monads, `*>` is often associated with Applicatives.
     */
   @inline def *>[B](runNext: AsyncCallback[B]): AsyncCallback[B] =
     >>(runNext)
 
-  /**
-   * Sequence a callback to run before this, discarding any value produced by it.
-   */
+  /** Sequence a callback to run before this, discarding any value produced by it. */
   @inline def <<[B](runBefore: AsyncCallback[B]): AsyncCallback[A] =
     runBefore >> this
 
@@ -126,10 +134,118 @@ final class AsyncCallback[+A] private[AsyncCallback] (
       that.completeWith(e => Callback {rb = Some(e)} >> respond)
     }.flatten)
 
-  def race[B](that: AsyncCallback[B]): AsyncCallback[Either[A, B]] =
-    AsyncCallback.first(f =>
-      this.completeWith(e => f(e.map(Left(_)))) >>
-      that.completeWith(e => f(e.map(Right(_)))))
+  /** Discard the callback's return value, return a given value instead.
+    *
+    * `ret`, short for `return`.
+    */
+  def ret[B](b: B): AsyncCallback[B] =
+    map(_ => b)
+
+  /** Discard the value produced by this callback. */
+  def void: AsyncCallback[Unit] =
+    map(_ => ())
+
+  /** Discard the value produced by this callback.
+    *
+    * This method allows you to be explicit about the type you're discarding (which may change in future).
+    */
+  @inline def voidExplicit[B](implicit ev: A <:< B): AsyncCallback[Unit] =
+    void
+
+  /** Conditional execution of this callback.
+    *
+    * @param cond The condition required to be `true` for this callback to execute.
+    * @return `Some` result of the callback executed, else `None`.
+    */
+  def when(cond: => Boolean): AsyncCallback[Option[A]] =
+    AsyncCallback(f => if (cond) completeWith(ea => f(ea.map(Some(_)))) else f(Right(None)))
+
+  /** Conditional execution of this callback.
+    * Reverse of [[when()]].
+    *
+    * @param cond The condition required to be `false` for this callback to execute.
+    * @return `Some` result of the callback executed, else `None`.
+    */
+  def unless(cond: => Boolean): AsyncCallback[Option[A]] =
+    when(!cond)
+
+  /** Conditional execution of this callback.
+    * Discards the result.
+    *
+    * @param cond The condition required to be `true` for this callback to execute.
+    */
+  def when_(cond: => Boolean): AsyncCallback[Unit] =
+    when(cond).void
+
+  /** Conditional execution of this callback.
+    * Discards the result.
+    * Reverse of [[when_()]].
+    *
+    * @param cond The condition required to be `false` for the callback to execute.
+    */
+  def unless_(cond: => Boolean): AsyncCallback[Unit] =
+    when_(!cond)
+
+  /** Wraps this callback in a try-catch and returns either the result or the exception if one occurs. */
+  def attempt: AsyncCallback[Either[Throwable, A]] =
+    AsyncCallback(f => completeWith(e => f(Right(e))))
+
+  def handleError(f: Throwable => AsyncCallback[A]): AsyncCallback[A] =
+    AsyncCallback(g => completeWith {
+      case r@ Right(_) => g(r)
+      case Left(t)     => f(t).completeWith(g)
+    })
+
+  def maybeHandleError(f: PartialFunction[Throwable, AsyncCallback[A]]): AsyncCallback[A] =
+    AsyncCallback(g => completeWith {
+      case r@ Right(_) => g(r)
+      case l@ Left(t)  => f.lift(t) match {
+        case Some(n) => n.completeWith(g)
+        case None    => g(l)
+      }
+    })
+
+  /** When the callback result becomes available, perform a given side-effect with it. */
+  def tap(t: A => Any): AsyncCallback[A] =
+    flatTap(a => AsyncCallback.point(t(a)))
+
+  /** Alias for `tap`. */
+  @inline def <|(t: A => Any): AsyncCallback[A] =
+    tap(t)
+
+  def flatTap[B](t: A => AsyncCallback[B]): AsyncCallback[A] =
+    for {
+      a <- this
+      _ <- t(a)
+    } yield a
+
+  /** Sequence actions, discarding the value of the second argument. */
+  def <*[B](next: AsyncCallback[B]): AsyncCallback[A] =
+    flatTap(_ => next)
+
+  /** Log to the console before this callback starts, and after it completes.
+    *
+    * Does not change the result.
+    */
+  def logAround(message: js.Any, optionalParams: js.Any*): AsyncCallback[A] = {
+    def log(prefix: String) = Callback.log(prefix + message.toString, optionalParams: _*).asAsyncCallback
+    log("→  Starting: ") *> this <* log(" ← Finished: ")
+  }
+
+  /** Logs the result of this callback as it completes. */
+  def logResult(msg: A => String): AsyncCallback[A] =
+    flatTap(a => Callback.log(msg(a)).asAsyncCallback)
+
+  /** Logs the result of this callback as it completes.
+    *
+    * @param name Prefix to appear the log output.
+    */
+  def logResult(name: String): AsyncCallback[A] =
+    logResult(a => s"$name: $a")
+
+  /** Logs the result of this callback as it completes. */
+  def logResult: AsyncCallback[A] =
+    logResult(_.toString)
 
   def delay(dur: FiniteDuration): AsyncCallback[A] =
     delayMs(dur.toMillis.toDouble)
@@ -141,16 +257,21 @@ final class AsyncCallback[+A] private[AsyncCallback] (
       }
     })
 
-  def asCallbackToFuture[B >: A]: CallbackTo[Future[B]] =
+  def race[B](that: AsyncCallback[B]): AsyncCallback[Either[A, B]] =
+    AsyncCallback.first(f =>
+      this.completeWith(e => f(e.map(Left(_)))) >>
+      that.completeWith(e => f(e.map(Right(_)))))
+
+  def asCallbackToFuture: CallbackTo[Future[A]] =
     CallbackTo {
-      val p = scala.concurrent.Promise[B]()
+      val p = scala.concurrent.Promise[A]()
       completeWith(ea => Callback(ea.fold(p.failure, p.success)))
       p.future
     }
 
-  def asCallbackToJsPromise[B >: A]: CallbackTo[js.Promise[B]] =
+  def asCallbackToJsPromise: CallbackTo[js.Promise[A]] =
     CallbackTo {
-      new js.Promise[B]((respond, reject) => {
+      new js.Promise[A]((respond, reject) => {
         def fail(t: Throwable) =
           reject(t match {
             case js.JavaScriptException(e) => e
@@ -160,24 +281,10 @@ final class AsyncCallback[+A] private[AsyncCallback] (
       })
     }
 
-  def unsafeToFuture[B >: A](): Future[B] =
-    asCallbackToFuture[B].runNow()
+  def unsafeToFuture(): Future[A] =
+    asCallbackToFuture.runNow()
 
-  def unsafeToJsPromise[B >: A](): js.Promise[B] =
-    asCallbackToJsPromise[B].runNow()
+  def unsafeToJsPromise(): js.Promise[A] =
+    asCallbackToJsPromise.runNow()
 
-  def handleError[B >: A](f: Throwable => AsyncCallback[B]): AsyncCallback[B] =
-    AsyncCallback(g => completeWith {
-      case r@ Right(_) => g(r)
-      case Left(t)     => f(t).completeWith(g)
-    })
-
-  def handleErrorPartially[B >: A](f: PartialFunction[Throwable, AsyncCallback[B]]): AsyncCallback[B] =
-    AsyncCallback(g => completeWith {
-      case r@ Right(_) => g(r)
-      case l@ Left(t)  => f.lift(t) match {
-        case Some(n) => n.completeWith(g)
-        case None    => g(l)
-      }
-    })
 }
