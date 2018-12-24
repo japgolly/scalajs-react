@@ -3,7 +3,7 @@ Callback
 
 The `Callback` class encapsulates logic and side-effects that are meant to be *executable by React*, when/if React chooses to execute it. Examples are React responding to the user clicking a button, or React unmounting a component.
 
-There's also a this blog post with a great introduction to typed side-effects:
+There's also this blog post with a great introduction to typed side-effects:
 http://typelevel.org/blog/2017/05/02/io-monad-for-cats.html
 
 **WARNING**: *If you're new to scalajs-react and typed effects (or just functional programming in general), then it's important you read this because if you incorrectly mix this with imperative-style code that performs side-effects, you'll likely have runtime bugs where data goes stale and/or changes go undetected.*
@@ -25,7 +25,7 @@ Introduction
 
 A callback is a procedure that is:
 * Executable by React when/if it chooses (usually an event handler or React lifecycle method.
-* Executed asychronously by React.
+* Executed asynchronously by React.
 * Repeatable. It can be run more than once.
 * Pure (does nothing) when you create an instance. If you create a `Callback` but never run it, no action or effects should occur.
 
@@ -107,7 +107,7 @@ When you want to compose multiple `Callback` instances, there are many ways depe
 * *(Most-common)* `.flatMap` and/or for-comprehensions. Same as using Scala's `Future`.
 * *(Most-common)* `>>`. This operator composes callbacks sequentially. i.e. `a >> b >> c` will create a new callback which will execute `a` first, then `b` second, and finally `c` third.
 * If you want to compose more than two callbacks, or don't know how many you'll have at runtime, there is `Callback.sequence` and `Callback.traverse`.
-* Monadic and applicative ops that'd you'd expect coming from languages like Haskell are there (`*>`, `<*`, `>>`, `<<`, `>>=`, etc). They're baked in rather than typeclass-provided.
+* Monadic and applicative ops that you'd expect coming from languages like Haskell are there (`*>`, `<*`, `>>`, `<<`, `>>=`, etc). They're baked in rather than typeclass-provided.
 
 The `>>` operator deserves a special mention as it's commonly useful.
 It's used to fuse two callbacks together sequentially.

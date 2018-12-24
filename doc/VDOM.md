@@ -283,7 +283,7 @@ val customAttr    = VdomAttr("customAttr")
 val customStyle   = VdomStyle("customStyle")
 val customHtmlTag = HtmlTag("customTag")
 
-customTag(customAttr := "hello", customStyle := "123", "bye")
+customHtmlTag(customAttr := "hello", customStyle := "123", "bye")
 ```
 ↳ produces ↴
 ```html
