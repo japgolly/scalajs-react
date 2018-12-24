@@ -400,26 +400,21 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def map[B](g: A => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
     new CallbackTo(() => g(f()))
 
-  /**
-   * Alias for `map`.
-   */
+  /** Alias for `map`. */
   @inline def |>[B](g: A => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
     map(g)
 
   def flatMap[B](g: A => CallbackTo[B]): CallbackTo[B] =
     new CallbackTo(() => g(f()).f())
 
-  /**
-   * Alias for `flatMap`.
-   */
+  /** Alias for `flatMap`. */
   @inline def >>=[B](g: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(g)
 
-  /**
-   * Same as `flatMap` and `>>=`, but allows arguments to appear in reverse order.
-   *
-   * i.e. `f >>= g` is the same as `g =<<: f`
-   */
+  /** Same as `flatMap` and `>>=`, but allows arguments to appear in reverse order.
+    *
+    * i.e. `f >>= g` is the same as `g =<<: f`
+    */
   @inline def =<<:[B](g: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(g)
 
@@ -429,26 +424,21 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def flatMap2[X, Y, Z](f: (X, Y) => CallbackTo[Z])(implicit ev: A <:< (X, Y)): CallbackTo[Z] =
     flatMap(f tupled _)
 
-  /**
-   * Sequence a callback to run after this, discarding any value produced by this.
-   */
+  /** Sequence a callback to run after this, discarding any value produced by this. */
   def >>[B](runNext: CallbackTo[B]): CallbackTo[B] =
     if (isEmpty_?)
       runNext
     else
       new CallbackTo(() => {f(); runNext.f()})
 
-  /**
-   * Alias for `>>`.
-   *
-   * Where `>>` is often associated with Monads, `*>` is often associated with Applicatives.
-   */
+  /** Alias for `>>`.
+    *
+    * Where `>>` is often associated with Monads, `*>` is often associated with Applicatives.
+    */
   @inline def *>[B](runNext: CallbackTo[B]): CallbackTo[B] =
     >>(runNext)
 
-  /**
-   * Sequence a callback to run before this, discarding any value produced by it.
-   */
+  /** Sequence a callback to run before this, discarding any value produced by it. */
   @inline def <<[B](runBefore: CallbackTo[B]): CallbackTo[A] =
     runBefore >> this
 
@@ -462,80 +452,69 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
       b <- cb
     } yield (a, b)
 
-  /**
-   * Discard the callback's return value, return a given value instead.
-   *
-   * `ret`, short for `return`.
-   */
+  /** Discard the callback's return value, return a given value instead.
+    *
+    * `ret`, short for `return`.
+    */
   def ret[B](b: B): CallbackTo[B] =
     this >> CallbackTo.pure(b)
 
-  /**
-   * Discard the value produced by this callback.
-   */
+  /** Discard the value produced by this callback. */
   def void: Callback =
     this >> Callback.empty
 
-  /**
-   * Discard the value produced by this callback.
-   *
-   * This method allows you to be explicit about the type you're discarding (which may change in future).
-   */
+  /** Discard the value produced by this callback.
+    *
+    * This method allows you to be explicit about the type you're discarding (which may change in future).
+    */
   @inline def voidExplicit[B](implicit ev: A <:< B): Callback =
     void
 
-  /**
-   * Conditional execution of this callback.
-   *
-   * @param cond The condition required to be `true` for this callback to execute.
-   * @return `Some` result of the callback executed, else `None`.
-   */
+  /** Conditional execution of this callback.
+    *
+    * @param cond The condition required to be `true` for this callback to execute.
+    * @return `Some` result of the callback executed, else `None`.
+    */
   def when(cond: => Boolean): CallbackTo[Option[A]] =
     CallbackTo(if (cond) Some(f()) else None)
 
-  /**
-   * Conditional execution of this callback.
-   * Reverse of [[when()]].
-   *
-   * @param cond The condition required to be `false` for this callback to execute.
-   * @return `Some` result of the callback executed, else `None`.
-   */
+  /** Conditional execution of this callback.
+    * Reverse of [[when()]].
+    *
+    * @param cond The condition required to be `false` for this callback to execute.
+    * @return `Some` result of the callback executed, else `None`.
+    */
   def unless(cond: => Boolean): CallbackTo[Option[A]] =
     when(!cond)
 
-  /**
-   * Conditional execution of this callback.
-   * Discards the result.
-   *
-   * @param cond The condition required to be `true` for this callback to execute.
-   */
+  /** Conditional execution of this callback.
+    * Discards the result.
+    *
+    * @param cond The condition required to be `true` for this callback to execute.
+    */
   def when_(cond: => Boolean): Callback =
     when(cond).void
 
-  /**
-   * Conditional execution of this callback.
-   * Discards the result.
-   * Reverse of [[when_()]].
-   *
-   * @param cond The condition required to be `false` for the callback to execute.
-   */
+  /** Conditional execution of this callback.
+    * Discards the result.
+    * Reverse of [[when_()]].
+    *
+    * @param cond The condition required to be `false` for the callback to execute.
+    */
   def unless_(cond: => Boolean): Callback =
     when_(!cond)
 
-  /**
-   * Wraps this callback in a try-catch and returns either the result or the exception if one occurs.
-   */
+  /** Wraps this callback in a try-catch and returns either the result or the exception if one occurs. */
   def attempt: CallbackTo[Either[Throwable, A]] =
     CallbackTo(
       try Right(f())
       catch { case t: Throwable => Left(t) }
     )
 
-  /**
-   * Wraps this callback in a scala `Try` with catches what it considers non-fatal errors.
-   *
-   * Use [[attempt]] to catch everything.
-   */
+  /** Wraps this callback in a scala `Try` with catches what it considers non-fatal errors.
+    *
+    * Use [[attempt]] to catch everything.
+    */
   def attemptTry: CallbackTo[Try[A]] =
     CallbackTo(Try(f()))
 
@@ -554,34 +533,25 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
         }
       })
 
-  /**
-   * Convenience-method to run additional code after this callback.
-   */
+  /** Convenience-method to run additional code after this callback. */
   def thenRun[B](runNext: => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
     this >> CallbackTo(runNext)
 
-  /**
-   * Convenience-method to run additional code before this callback.
-   */
+  /** Convenience-method to run additional code before this callback. */
   def precedeWith(runFirst: => Unit): CallbackTo[A] =
     this << Callback(runFirst)
 
-  /**
-   * Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
-   * current callback completes, be it in error or success.
-   */
+  /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+    * current callback completes, be it in error or success.
+    */
   def finallyRun[B](runFinally: CallbackTo[B]): CallbackTo[A] =
     CallbackTo(try f() finally runFinally.runNow())
 
-  /**
-   * When the callback result becomes available, perform a given side-effect with it.
-   */
+  /** When the callback result becomes available, perform a given side-effect with it. */
   def tap(t: A => Any): CallbackTo[A] =
     flatTap(a => CallbackTo(t(a)))
 
-  /**
-   * Alias for `tap`.
-   */
+  /** Alias for `tap`. */
   @inline def <|(t: A => Any): CallbackTo[A] =
     tap(t)
 
@@ -591,9 +561,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
       _ <- t(a)
     } yield a
 
-  /**
-   * Sequence actions, discarding the value of the second argument.
-   */
+  /** Sequence actions, discarding the value of the second argument. */
   def <*[B](next: CallbackTo[B]): CallbackTo[A] =
     flatTap(_ => next)
 
@@ -616,33 +584,27 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def isEmpty_? : Boolean =
     f eq Callback.empty.f
 
-  /**
-   * Log to the console before this callback starts, and after it completes.
-   *
-   * Does not change the result.
-   */
+  /** Log to the console before this callback starts, and after it completes.
+    *
+    * Does not change the result.
+    */
   def logAround(message: js.Any, optionalParams: js.Any*): CallbackTo[A] = {
     def log(prefix: String) = Callback.log(prefix + message.toString, optionalParams: _*)
     log("→  Starting: ") *> this <* log(" ← Finished: ")
   }
 
-  /**
-   * Logs the result of this callback as it completes.
-   */
+  /** Logs the result of this callback as it completes. */
   def logResult(msg: A => String): CallbackTo[A] =
     flatTap(a => Callback.log(msg(a)))
 
-  /**
-   * Logs the result of this callback as it completes.
-   *
-   * @param name Prefix to appear the log output.
-   */
+  /** Logs the result of this callback as it completes.
+    *
+    * @param name Prefix to appear the log output.
+    */
   def logResult(name: String): CallbackTo[A] =
     logResult(a => s"$name: $a")
 
-  /**
-   * Logs the result of this callback as it completes.
-   */
+  /** Logs the result of this callback as it completes. */
   def logResult: CallbackTo[A] =
     logResult(_.toString)
 
@@ -677,9 +639,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def toFuture(implicit ec: ExecutionContext): Future[A] =
     Future(runNow())
 
-  /**
-   * Record the duration of this callback's execution.
-   */
+  /** Record the duration of this callback's execution. */
   def withDuration[B](f: (A, FiniteDuration) => CallbackTo[B]): CallbackTo[B] = {
     def nowMS: Long = System.currentTimeMillis()
     CallbackTo {
@@ -691,9 +651,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     }
   }
 
-  /**
-   * Log the duration of this callback's execution.
-   */
+  /** Log the duration of this callback's execution. */
   def logDuration(fmt: FiniteDuration => String): CallbackTo[A] =
     withDuration((a, d) =>
       Callback.log(fmt(d)) ret a)
