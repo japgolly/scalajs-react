@@ -31,6 +31,19 @@ object AsyncCallback {
     AsyncCallback(_(r))
   }
 
+  /** Callback that isn't created until the first time it is used, after which it is reused. */
+  def lazily[A](f: => AsyncCallback[A]): AsyncCallback[A] = {
+    lazy val g = f
+    byName(g)
+  }
+
+  /** Callback that is recreated each time it is used.
+    *
+    * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
+    */
+  def byName[A](f: => AsyncCallback[A]): AsyncCallback[A] =
+    point(f).flatten
+
   def fromFuture[A](fa: => Future[A])(implicit ec: ExecutionContext): AsyncCallback[A] =
     AsyncCallback(f => Callback {
       fa.onComplete {
