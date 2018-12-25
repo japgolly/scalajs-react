@@ -181,29 +181,25 @@ object CallbackTo {
   def pure[A](a: A): CallbackTo[A] =
     new CallbackTo(() => a)
 
-  /**
-   * Callback that isn't created until the first time it is used, after which it is reused.
-   */
+  /** Callback that isn't created until the first time it is used, after which it is reused. */
   def lazily[A](f: => CallbackTo[A]): CallbackTo[A] = {
     lazy val g = f
     byName(g)
   }
 
-  /**
-   * Callback that is recreated each time it is used.
-   *
-   * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
-   */
+  /** Callback that is recreated each time it is used.
+    *
+    * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
+    */
   def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     CallbackTo(f.runNow())
 
-  /**
-   * Tail-recursive callback. Uses constant stack space.
-   *
-   * Based on Phil Freeman's work on stack safety in PureScript, described in
-   * [[http://functorial.com/stack-safety-for-free/index.pdf Stack Safety for
-   * Free]].
-   */
+  /** Tail-recursive callback. Uses constant stack space.
+    *
+    * Based on Phil Freeman's work on stack safety in PureScript, described in
+    * [[http://functorial.com/stack-safety-for-free/index.pdf Stack Safety for
+    * Free]].
+    */
   def tailrec[A, B](a: A)(f: A => CallbackTo[Either[A, B]]): CallbackTo[B] =
     CallbackTo {
       @tailrec
