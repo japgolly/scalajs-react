@@ -107,9 +107,6 @@ final class AsyncCallback[A] private[AsyncCallback] (
       private[AsyncCallback] val completeWith: (Either[Throwable, A] => Callback) => Callback
     ) extends AnyVal {
 
-  def toCallback: Callback =
-    completeWith(AsyncCallback.defaultCompleteWith)
-
   def widen[B >: A]: AsyncCallback[B] =
     new AsyncCallback(completeWith)
 
@@ -137,12 +134,6 @@ final class AsyncCallback[A] private[AsyncCallback] (
   def >>[B](runNext: AsyncCallback[B]): AsyncCallback[B] =
     flatMap(_ => runNext)
 
-  /** Start both this and the given callback at once and when both have completed successfully,
-    * discard the value produced by this.
-    */
-  def *>[B](next: AsyncCallback[B]): AsyncCallback[B] =
-    zipWith(next)((_, b) => b)
-
   /** Sequence a callback to run before this, discarding any value produced by it. */
   @inline def <<[B](runBefore: AsyncCallback[B]): AsyncCallback[A] =
     runBefore >> this
@@ -150,6 +141,20 @@ final class AsyncCallback[A] private[AsyncCallback] (
   /** Convenient version of `<<` that accepts an Option */
   def <<?[B](prev: Option[AsyncCallback[B]]): AsyncCallback[A] =
     prev.fold(this)(_ >> this)
+
+  /** When the callback result becomes available, perform a given side-effect with it. */
+  def tap(t: A => Any): AsyncCallback[A] =
+    flatTap(a => AsyncCallback.point(t(a)))
+
+  /** Alias for `tap`. */
+  @inline def <|(t: A => Any): AsyncCallback[A] =
+    tap(t)
+
+  def flatTap[B](t: A => AsyncCallback[B]): AsyncCallback[A] =
+    for {
+      a <- this
+      _ <- t(a)
+    } yield a
 
   def zip[B](that: AsyncCallback[B]): AsyncCallback[(A, B)] =
     zipWith(that)((_, _))
@@ -178,6 +183,18 @@ final class AsyncCallback[A] private[AsyncCallback] (
       that.completeWith(e => Callback {rb = Some(e)} >> respond)
     }.flatten)
 
+  /** Start both this and the given callback at once and when both have completed successfully,
+    * discard the value produced by this.
+    */
+  def *>[B](next: AsyncCallback[B]): AsyncCallback[B] =
+    zipWith(next)((_, b) => b)
+
+  /** Start both this and the given callback at once and when both have completed successfully,
+    * discard the value produced by the given callback.
+    */
+  def <*[B](next: AsyncCallback[B]): AsyncCallback[A] =
+    zipWith(next)((a, _) => a)
+
   /** Discard the callback's return value, return a given value instead.
     *
     * `ret`, short for `return`.
@@ -195,6 +212,25 @@ final class AsyncCallback[A] private[AsyncCallback] (
     */
   @inline def voidExplicit[B](implicit ev: A <:< B): AsyncCallback[Unit] =
     void
+
+  /** Wraps this callback in a try-catch and returns either the result or the exception if one occurs. */
+  def attempt: AsyncCallback[Either[Throwable, A]] =
+    AsyncCallback(f => completeWith(e => f(Right(e))))
+
+  def handleError(f: Throwable => AsyncCallback[A]): AsyncCallback[A] =
+    AsyncCallback(g => completeWith {
+      case r@ Right(_) => g(r)
+      case Left(t)     => f(t).completeWith(g)
+    })
+
+  def maybeHandleError(f: PartialFunction[Throwable, AsyncCallback[A]]): AsyncCallback[A] =
+    AsyncCallback(g => completeWith {
+      case r@ Right(_) => g(r)
+      case l@ Left(t)  => f.lift(t) match {
+        case Some(n) => n.completeWith(g)
+        case None    => g(l)
+      }
+    })
 
   /** Conditional execution of this callback.
     *
@@ -229,45 +265,6 @@ final class AsyncCallback[A] private[AsyncCallback] (
     */
   def unless_(cond: => Boolean): AsyncCallback[Unit] =
     when_(!cond)
-
-  /** Wraps this callback in a try-catch and returns either the result or the exception if one occurs. */
-  def attempt: AsyncCallback[Either[Throwable, A]] =
-    AsyncCallback(f => completeWith(e => f(Right(e))))
-
-  def handleError(f: Throwable => AsyncCallback[A]): AsyncCallback[A] =
-    AsyncCallback(g => completeWith {
-      case r@ Right(_) => g(r)
-      case Left(t)     => f(t).completeWith(g)
-    })
-
-  def maybeHandleError(f: PartialFunction[Throwable, AsyncCallback[A]]): AsyncCallback[A] =
-    AsyncCallback(g => completeWith {
-      case r@ Right(_) => g(r)
-      case l@ Left(t)  => f.lift(t) match {
-        case Some(n) => n.completeWith(g)
-        case None    => g(l)
-      }
-    })
-
-  /** When the callback result becomes available, perform a given side-effect with it. */
-  def tap(t: A => Any): AsyncCallback[A] =
-    flatTap(a => AsyncCallback.point(t(a)))
-
-  /** Alias for `tap`. */
-  @inline def <|(t: A => Any): AsyncCallback[A] =
-    tap(t)
-
-  def flatTap[B](t: A => AsyncCallback[B]): AsyncCallback[A] =
-    for {
-      a <- this
-      _ <- t(a)
-    } yield a
-
-  /** Start both this and the given callback at once and when both have completed successfully,
-    * discard the value produced by the given callback.
-    */
-  def <*[B](next: AsyncCallback[B]): AsyncCallback[A] =
-    zipWith(next)((a, _) => a)
 
   /** Log to the console before this callback starts, and after it completes.
     *
@@ -310,6 +307,9 @@ final class AsyncCallback[A] private[AsyncCallback] (
     AsyncCallback.first(f =>
       this.completeWith(e => f(e.map(Left(_)))) >>
       that.completeWith(e => f(e.map(Right(_)))))
+
+  def toCallback: Callback =
+    completeWith(AsyncCallback.defaultCompleteWith)
 
   def asCallbackToFuture: CallbackTo[Future[A]] =
     CallbackTo {
