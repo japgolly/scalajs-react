@@ -74,6 +74,35 @@ object AsyncCallback {
     c.widen
 }
 
+/** Pure asynchronous callback.
+  *
+  * You can think of this as being similar to using `Future` - you can use it in for-comprehensions the same way -
+  * except `AsyncCallback` is pure and doesn't need an `ExecutionContext`.
+  *
+  * When combining instances, it's good to know which methods are sequential and which are parallel
+  * (or at least concurrent).
+  *
+  * The following methods are sequential:
+  * - [[>>=()]] / [[flatMap()]]
+  * - [[>>()]]
+  * - [[<<()]]
+  * - [[flatTap()]]
+  *
+  * The following methods are effectively parallel:
+  * - [[*>()]]
+  * - [[<*()]]
+  * - [[race()]]
+  * - [[zip()]] & [[zipWith()]]
+  *
+  * In order to actually run this, or get it into a shape in which in can be run, use one of the following:
+  * - [[toCallback]] <-- most common
+  * - [[asCallbackToFuture]]
+  * - [[asCallbackToJsPromise]]
+  * - [[unsafeToFuture()]]
+  * - [[unsafeToJsPromise()]]
+  *
+  * @tparam A The type of data asynchronously produced on success.
+  */
 final class AsyncCallback[A] private[AsyncCallback] (
       private[AsyncCallback] val completeWith: (Either[Throwable, A] => Callback) => Callback
     ) extends AnyVal {
@@ -108,12 +137,11 @@ final class AsyncCallback[A] private[AsyncCallback] (
   def >>[B](runNext: AsyncCallback[B]): AsyncCallback[B] =
     flatMap(_ => runNext)
 
-  /** Alias for `>>`.
-    *
-    * Where `>>` is often associated with Monads, `*>` is often associated with Applicatives.
+  /** Start both this and the given callback at once and when both have completed successfully,
+    * discard the value produced by this.
     */
-  @inline def *>[B](runNext: AsyncCallback[B]): AsyncCallback[B] =
-    >>(runNext)
+  def *>[B](next: AsyncCallback[B]): AsyncCallback[B] =
+    zipWith(next)((_, b) => b)
 
   /** Sequence a callback to run before this, discarding any value produced by it. */
   @inline def <<[B](runBefore: AsyncCallback[B]): AsyncCallback[A] =
@@ -124,22 +152,25 @@ final class AsyncCallback[A] private[AsyncCallback] (
     prev.fold(this)(_ >> this)
 
   def zip[B](that: AsyncCallback[B]): AsyncCallback[(A, B)] =
-    AsyncCallback(f => CallbackTo {
+    zipWith(that)((_, _))
+
+  def zipWith[B, C](that: AsyncCallback[B])(f: (A, B) => C): AsyncCallback[C] =
+    AsyncCallback(cc => CallbackTo {
       var ra: Option[Either[Throwable, A]] = None
       var rb: Option[Either[Throwable, B]] = None
-      var r: Option[Either[Throwable, (A, B)]] = None
+      var r: Option[Either[Throwable, C]] = None
 
       val respond = Callback {
         if (r.isEmpty) {
           (ra, rb) match {
-            case (Some(Right(a)), Some(Right(b))) => r = Some(Right(a, b))
+            case (Some(Right(a)), Some(Right(b))) => r = Some(Right(f(a, b)))
             case (Some(Left(e)) , _             ) => r = Some(Left(e))
             case (_             , Some(Left(e)) ) => r = Some(Left(e))
             case (Some(Right(_)), None          )
                | (None          , Some(Right(_)))
                | (None          , None          ) => ()
           }
-          r.foreach(f(_).runNow())
+          r.foreach(cc(_).runNow())
         }
       }
 
@@ -232,9 +263,11 @@ final class AsyncCallback[A] private[AsyncCallback] (
       _ <- t(a)
     } yield a
 
-  /** Sequence actions, discarding the value of the second argument. */
+  /** Start both this and the given callback at once and when both have completed successfully,
+    * discard the value produced by the given callback.
+    */
   def <*[B](next: AsyncCallback[B]): AsyncCallback[A] =
-    flatTap(_ => next)
+    zipWith(next)((a, _) => a)
 
   /** Log to the console before this callback starts, and after it completes.
     *
@@ -270,6 +303,9 @@ final class AsyncCallback[A] private[AsyncCallback] (
       }
     })
 
+  /** Start both this and the given callback at once use the first result to become available,
+    * regardless of whether it's a success or failure.
+    */
   def race[B](that: AsyncCallback[B]): AsyncCallback[Either[A, B]] =
     AsyncCallback.first(f =>
       this.completeWith(e => f(e.map(Left(_)))) >>
