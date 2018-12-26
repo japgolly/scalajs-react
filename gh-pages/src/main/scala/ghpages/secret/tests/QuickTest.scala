@@ -106,7 +106,7 @@ object QuickTest {
         case Status.NotStarted => ^.color := "#666"
         case Status.InProgress => ^.color := "#007ba8"
         case Status.Pass       => ^.color := "#080"
-        case Status.Fail(_)    => ^.color := "#900"
+        case Status.Fail(_)    => ^.color := "#c00"
       }
 
       val status = t.status match {
@@ -126,9 +126,10 @@ object QuickTest {
       <.table(
         ^.borderCollapse.collapse,
         <.thead(
-          <.th("Name"),
-          <.th("Runs"),
-          <.th("Result / Status")),
+          <.tr(
+            <.th("Name"),
+            <.th("Runs"),
+            <.th("Result / Status"))),
         <.tbody(
           s.tests.valuesIterator.toTagMod(renderTest)))
     }
