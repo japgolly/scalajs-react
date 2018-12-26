@@ -4,11 +4,10 @@ import org.scalajs.dom.{console, window}
 import org.scalajs.dom.raw.Window
 import scala.annotation.{implicitNotFound, tailrec}
 import scala.collection.generic.CanBuildFrom
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
 import scala.scalajs.js.{UndefOr, undefined, Function0 => JFn0, Function1 => JFn1}
-import scala.scalajs.js.timers.RawTimers
 import scala.util.{Failure, Success, Try}
 import japgolly.scalajs.react.internal.identityFn
 import CallbackTo.MapGuard
@@ -40,6 +39,9 @@ object Callback {
   /** A callback that does nothing. */
   val empty: Callback =
     CallbackTo.pure(())
+
+  def error(t: Throwable): Callback =
+    CallbackTo.error(t)
 
   /**
    * Callback that isn't created until the first time it is used, after which it is reused.
@@ -180,6 +182,9 @@ object CallbackTo {
 
   def pure[A](a: A): CallbackTo[A] =
     new CallbackTo(() => a)
+
+  def error[A](t: Throwable): CallbackTo[A] =
+    CallbackTo(throw t)
 
   /** Callback that isn't created until the first time it is used, after which it is reused. */
   def lazily[A](f: => CallbackTo[A]): CallbackTo[A] = {

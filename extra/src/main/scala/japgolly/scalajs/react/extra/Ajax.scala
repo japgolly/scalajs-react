@@ -1,9 +1,8 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.{Callback, CallbackKleisli, CallbackTo}
+import japgolly.scalajs.react.{AsyncCallback, Callback, CallbackKleisli, CallbackTo}
 import org.scalajs.dom.ext.AjaxException
 import org.scalajs.dom.{ProgressEvent, XMLHttpRequest}
-
 import scala.scalajs.js
 
 /** Purely-functional AJAX that runs a [[Callback]], and accepts XHR-callbacks as [[Callback]] instances.
@@ -19,6 +18,10 @@ object Ajax {
 //    val resp = Option(xhr.responseText).map(_.trim).filter(_.nonEmpty).map("Response: " + _)
     s"[${xhr.status}] Response: ${xhr.responseText}"
   }
+
+  /** Generic HTTP code validation */
+  def isStatusSuccessful(status: Int): Boolean =
+    (status >= 200 && status < 300) || status == 304
 
   // ===================================================================================================================
   // Step 1
@@ -85,32 +88,6 @@ object Ajax {
         onprogress = onprogress,
         onuploadprogress = onuploadprogress)
 
-    def onReadyStateChange(f: XMLHttpRequest => Callback): Step2 =
-      _onReadyStateChange(CallbackKleisli(f))
-
-    private def _onReadyStateChange(f: Ajax[Unit]): Step2 =
-      copy(onreadystatechange = Some(f <<? onreadystatechange))
-
-    def onComplete(f: XMLHttpRequest => Callback): Step2 =
-      _onReadyStateChange(CallbackKleisli(f).when_(_.readyState == XMLHttpRequest.DONE))
-
-    private def _onCompleteHandle(success: XMLHttpRequest => Boolean)(f: Either[AjaxException, XMLHttpRequest] => Callback): Step2 =
-      onComplete(xhr => f(
-        if (success(xhr))
-          Right(xhr)
-        else
-          Left(AjaxException(xhr))
-      ))
-
-    def onCompleteHandleStatusFn(success: Int => Boolean)(f: Either[AjaxException, XMLHttpRequest] => Callback): Step2 =
-      _onCompleteHandle(xhr => success(xhr.status))(f)
-
-    def onCompleteHandleStatusIs(success: Int)(f: Either[AjaxException, XMLHttpRequest] => Callback): Step2 =
-      onCompleteHandleStatusFn(_ == success)(f)
-
-    def onCompleteHandle(f: Either[AjaxException, XMLHttpRequest] => Callback): Step2 =
-      onCompleteHandleStatusFn(s => (s >= 200 && s < 300) || s == 304)(f)
-
     def withTimeout(millis: Double, f: XMLHttpRequest => Callback): Step2 =
       copy(
         begin = begin << CallbackKleisli.lift(_.timeout = millis),
@@ -129,27 +106,105 @@ object Ajax {
     def onUploadProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 =
       copy(onuploadprogress = Some(CallbackKleisli(f.tupled) <<? onuploadprogress))
 
-    lazy val asCallback: Callback = {
-      def register_(cb: Option[Ajax[Unit]])(set: (XMLHttpRequest, js.Function1[Any, Unit]) => Unit): Ajax[Unit] =
-        cb match {
-          case Some(k) => CallbackKleisli.lift(xhr => set(xhr, Callback.byName(k(xhr)).toJsFn1))
-          case None    => CallbackKleisli.unit
-        }
+    // ================================================================================================================
+    // ================================================================================================================
 
-      def registerE[E](cb: Option[CallbackKleisli[(XMLHttpRequest, E), Unit]])
-                      (set: (XMLHttpRequest, js.Function1[E, Unit]) => Unit): Ajax[Unit] =
-        cb match {
-          case Some(k) => CallbackKleisli.lift(xhr => set(xhr, k.contramap[E]((xhr, _)).toJsFn))
-          case None    => CallbackKleisli.unit
-        }
+    private def _onReadyStateChange(f: Ajax[Unit]): Step2 =
+      copy(onreadystatechange = Some(f <<? onreadystatechange))
 
+    def onReadyStateChange(f: XMLHttpRequest => Callback): Step2 =
+      _onReadyStateChange(CallbackKleisli(f))
+
+    private def onCompleteKliesli(f: XMLHttpRequest => Callback): Ajax[Unit] =
+      CallbackKleisli(f).when_(_.readyState == XMLHttpRequest.DONE)
+
+    def onComplete(f: XMLHttpRequest => Callback): Step2 =
+      _onReadyStateChange(onCompleteKliesli(f))
+
+    private def _onCompleteHandle(success: XMLHttpRequest => Boolean): (Either[AjaxException, XMLHttpRequest] => Callback) => Step2 =
+      f => onComplete(xhr =>
+        f(
+          if (success(xhr))
+            Right(xhr)
+          else
+            Left(AjaxException(xhr))))
+
+    def onCompleteHandleStatusFn(isValidStatus: Int => Boolean): (Either[AjaxException, XMLHttpRequest] => Callback) => Step2 =
+      _onCompleteHandle(xhr => isValidStatus(xhr.status))
+
+    def onCompleteHandleStatusIs(expectedStatus: Int): (Either[AjaxException, XMLHttpRequest] => Callback) => Step2 =
+      onCompleteHandleStatusFn(_ == expectedStatus)
+
+    def onCompleteHandle: (Either[AjaxException, XMLHttpRequest] => Callback) => Step2 =
+      onCompleteHandleStatusFn(isStatusSuccessful)
+
+    // ================================================================================================================
+    // ================================================================================================================
+
+    def validateResponse(isValid: XMLHttpRequest => Boolean): (AjaxException => Callback) => Step2 =
+      onFailure => onComplete(xhr =>
+        Callback.unless(isValid(xhr))(onFailure(AjaxException(xhr))))
+
+    def validateStatus(isValidStatus: Int => Boolean): (AjaxException => Callback) => Step2 =
+      validateResponse(xhr => isValidStatus(xhr.status))
+
+    def validateStatusIs(expectedStatus: Int): (AjaxException => Callback) => Step2 =
+      validateStatus(_ == expectedStatus)
+
+    def validateSuccessful: (AjaxException => Callback) => Step2 =
+      validateStatus(isStatusSuccessful)
+
+    // ================================================================================================================
+    // ================================================================================================================
+
+    private def registerU(k: Ajax[Unit])(set: (XMLHttpRequest, js.Function1[Any, Unit]) => Unit): Ajax[Unit] =
+      CallbackKleisli.lift(xhr => set(xhr, Callback.byName(k(xhr)).toJsFn1))
+
+    private def register_(cb: Option[Ajax[Unit]])(set: (XMLHttpRequest, js.Function1[Any, Unit]) => Unit): Ajax[Unit] =
+      cb match {
+        case Some(k) => registerU(k)(set)
+        case None    => CallbackKleisli.unit
+      }
+
+    private def registerE[E](cb: Option[CallbackKleisli[(XMLHttpRequest, E), Unit]])
+                    (set: (XMLHttpRequest, js.Function1[E, Unit]) => Unit): Ajax[Unit] =
+      cb match {
+        case Some(k) => CallbackKleisli.lift(xhr => set(xhr, k.contramap[E]((xhr, _)).toJsFn))
+        case None    => CallbackKleisli.unit
+      }
+
+    private def registerSecondaryCallbacks: Ajax[Unit] = (
+      register_(ontimeout)(_.ontimeout = _) >>
+      registerE(onprogress)(_.onprogress = _) >>
+      registerE(onuploadprogress)(_.upload.onprogress = _))
+
+    lazy val asCallback: Callback =
       newXHR >>= (
         register_(onreadystatechange)(_.onreadystatechange = _) >>
-        register_(ontimeout)(_.ontimeout = _) >>
-        registerE(onprogress)(_.onprogress = _) >>
-        registerE(onuploadprogress)(_.upload.onprogress = _) >>
+        registerSecondaryCallbacks >>
         begin).run
-    }
+
+    lazy val asAsyncCallback: AsyncCallback[XMLHttpRequest] =
+      AsyncCallback.first { cc =>
+
+        val fail: Throwable => Callback =
+          t => cc(Left(t))
+
+        val onreadystatechange: Ajax[Unit] =
+          (onCompleteKliesli(xhr => cc(Right(xhr))) <<? this.onreadystatechange)
+            .mapCB(_.handleError(fail))
+
+        val onerror: Ajax[Unit] =
+          CallbackKleisli(xhr => cc(Left(AjaxException(xhr))))
+
+        val start: Ajax[Unit] =
+          registerU(onreadystatechange)(_.onreadystatechange = _) >>
+          registerU(onerror)(_.onerror = _) >>
+          registerSecondaryCallbacks >>
+          begin
+
+        (newXHR >>= start.run).handleError(fail)
+      }
   }
 
   private val newXHR = CallbackTo(new XMLHttpRequest())
