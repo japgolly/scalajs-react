@@ -411,7 +411,8 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     *
     * i.e. `f >>= g` is the same as `g =<<: f`
     */
-  @inline def =<<:[B](g: A => CallbackTo[B]): CallbackTo[B] =
+  @deprecated("Flip the args and use >>= or flatMap", "1.4.0")
+  def =<<:[B](g: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(g)
 
   def flatten[B](implicit ev: A => CallbackTo[B]): CallbackTo[B] =
