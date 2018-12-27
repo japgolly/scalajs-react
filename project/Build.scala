@@ -126,6 +126,7 @@ object ScalajsReact {
   def addReactJsDependencies(scope: Configuration): PE = {
     _.settings(
       dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2", // https://github.com/webjars/webjars/issues/1789
+      dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.12.0-alpha.3",
       jsDependencies ++= Seq(
 
         "org.webjars.npm" % "react" % Ver.ReactJs % scope
