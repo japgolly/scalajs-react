@@ -4,8 +4,11 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.Ajax
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.XMLHttpRequest
+import scala.util.Random
 import scalaz.Equal
+import scalaz.std.anyVal._
 import scalaz.std.option._
+import scalaz.std.list._
 import scalaz.std.string._
 import scalaz.std.vector._
 import scalaz.syntax.equal._
@@ -78,6 +81,13 @@ object AsyncTest {
       .add("ajax (ok *> ko)")(testCmp {
         val t = (get2 *> get0).map(xhrToText).attempt.map(_.toOption)
         t -> None
+      })
+
+      .add("traverse")(testCmp {
+        val r = new Random()
+        val is = (1 to 10).toList
+        val t = AsyncCallback.traverse(is)(i => AsyncCallback.pure(i * 100).delayMs(r.nextInt(64)))
+        t -> is.map(_ * 100)
       })
 
       .result()

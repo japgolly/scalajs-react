@@ -1,5 +1,7 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.internal.identityFn
+import scala.collection.generic.CanBuildFrom
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
@@ -43,6 +45,35 @@ object AsyncCallback {
     */
   def byName[A](f: => AsyncCallback[A]): AsyncCallback[A] =
     point(f).flatten
+
+  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: CanBuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
+    AsyncCallback.byName {
+      val as = ta.toVector
+      if (as.isEmpty)
+        AsyncCallback.pure(cbf().result())
+      else {
+        val discard = (_: Any, _: Any) => ()
+        val bs = new js.Array[B](as.length)
+        as
+          .indices
+          .iterator
+          .map(i => f(as(i)).map(b => bs(i) = b))
+          .reduce(_.zipWith(_)(discard))
+          .map(_ => bs.to(cbf))
+      }
+    }
+
+  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[AsyncCallback[A]])(implicit cbf: CanBuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
+    traverse(tca)(identityFn)(cbf)
+
+  def traverseOption[A, B](oa: => Option[A])(f: A => AsyncCallback[B]): AsyncCallback[Option[B]] =
+    AsyncCallback.point(oa).flatMap {
+      case Some(a) => f(a).map(Some(_))
+      case None    => AsyncCallback.pure(None)
+    }
+
+  def sequenceOption[A](oca: => Option[AsyncCallback[A]]): AsyncCallback[Option[A]] =
+    traverseOption(oca)(identityFn)
 
   def fromFuture[A](fa: => Future[A])(implicit ec: ExecutionContext): AsyncCallback[A] =
     AsyncCallback(f => Callback {
@@ -103,9 +134,7 @@ object AsyncCallback {
   *
   * @tparam A The type of data asynchronously produced on success.
   */
-final class AsyncCallback[A] private[AsyncCallback] (
-      private[AsyncCallback] val completeWith: (Either[Throwable, A] => Callback) => Callback
-    ) extends AnyVal {
+final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Either[Throwable, A] => Callback) => Callback) extends AnyVal {
 
   def widen[B >: A]: AsyncCallback[B] =
     new AsyncCallback(completeWith)
@@ -128,7 +157,7 @@ final class AsyncCallback[A] private[AsyncCallback] (
     flatMap(g)
 
   def flatten[B](implicit ev: AsyncCallback[A] =:= AsyncCallback[AsyncCallback[B]]): AsyncCallback[B] =
-    ev(this).flatMap(identity)
+    ev(this).flatMap(identityFn)
 
   /** Sequence the argument a callback to run after this, discarding any value produced by this. */
   def >>[B](runNext: AsyncCallback[B]): AsyncCallback[B] =
@@ -299,6 +328,12 @@ final class AsyncCallback[A] private[AsyncCallback] (
         completeWith(f).runNow()
       }
     })
+
+  /** Function distribution. See `AsyncCallback.liftTraverse(f).id` for the dual. */
+  def distFn[B, C](implicit ev: AsyncCallback[A] <:< AsyncCallback[B => C]): B => AsyncCallback[C] = {
+    val bc = ev(this)
+    b => bc.map(_(b))
+  }
 
   /** Start both this and the given callback at once use the first result to become available,
     * regardless of whether it's a success or failure.
