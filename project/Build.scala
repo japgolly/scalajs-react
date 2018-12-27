@@ -291,11 +291,13 @@ object ScalajsReact {
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
+    .settings(crossScalaVersions := Seq(Ver.Scala212))
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
+      crossScalaVersions := Seq(Ver.Scala212),
       libraryDependencies += monocleLib("macro", false),
       addCompilerPlugin(macroParadisePlugin),
       emitSourceMaps := false,
