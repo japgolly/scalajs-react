@@ -237,15 +237,27 @@ object CallbackTo {
       CallbackTo(_.map(f(_).runNow()))
   }
 
+  /** Traverse stdlib T over CallbackTo.
+    * Distribute CallbackTo over stdlib T.
+    */
   def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])(implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
     liftTraverse(f).std[T](cbf).map(_(ta))
 
+  /** Sequence stdlib T over CallbackTo.
+    * Co-sequence CallbackTo over stdlib T.
+    */
   def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])(implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
     traverse(tca)(identityFn)(cbf)
 
+  /** Traverse Option over CallbackTo.
+    * Distribute CallbackTo over Option.
+    */
   def traverseOption[A, B](oa: => Option[A])(f: A => CallbackTo[B]): CallbackTo[Option[B]] =
     liftTraverse(f).option.map(_(oa))
 
+  /** Sequence Option over CallbackTo.
+    * Co-sequence CallbackTo over Option.
+    */
   def sequenceOption[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
     traverseOption(oca)(identityFn)
 

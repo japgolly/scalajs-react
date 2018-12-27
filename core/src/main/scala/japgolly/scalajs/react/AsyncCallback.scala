@@ -46,6 +46,9 @@ object AsyncCallback {
   def byName[A](f: => AsyncCallback[A]): AsyncCallback[A] =
     point(f).flatten
 
+  /** Traverse stdlib T over AsyncCallback.
+    * Distribute AsyncCallback over stdlib T.
+    */
   def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: CanBuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
     AsyncCallback.byName {
       val as = ta.toVector
@@ -63,15 +66,24 @@ object AsyncCallback {
       }
     }
 
+  /** Sequence stdlib T over AsyncCallback.
+    * Co-sequence AsyncCallback over stdlib T.
+    */
   def sequence[T[X] <: TraversableOnce[X], A](tca: => T[AsyncCallback[A]])(implicit cbf: CanBuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
     traverse(tca)(identityFn)(cbf)
 
+  /** Traverse Option over AsyncCallback.
+    * Distribute AsyncCallback over Option.
+    */
   def traverseOption[A, B](oa: => Option[A])(f: A => AsyncCallback[B]): AsyncCallback[Option[B]] =
     AsyncCallback.point(oa).flatMap {
       case Some(a) => f(a).map(Some(_))
       case None    => AsyncCallback.pure(None)
     }
 
+  /** Sequence Option over AsyncCallback.
+    * Co-sequence AsyncCallback over Option.
+    */
   def sequenceOption[A](oca: => Option[AsyncCallback[A]]): AsyncCallback[Option[A]] =
     traverseOption(oca)(identityFn)
 
