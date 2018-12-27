@@ -9,7 +9,7 @@ import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
 import scala.scalajs.js.{UndefOr, undefined, Function0 => JFn0, Function1 => JFn1}
 import scala.util.{Failure, Success, Try}
-import japgolly.scalajs.react.internal.identityFn
+import japgolly.scalajs.react.internal.{catchAll, identityFn}
 import CallbackTo.MapGuard
 
 /**
@@ -512,12 +512,8 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
       catch { case t: Throwable => Left(t) }
     )
 
-  /** Wraps this callback in a scala `Try` which catches what it considers non-fatal errors.
-    *
-    * Use [[attempt]] to catch everything.
-    */
   def attemptTry: CallbackTo[Try[A]] =
-    CallbackTo(Try(f()))
+    CallbackTo(catchAll(f()))
 
   def handleError(f: Throwable => CallbackTo[A]): CallbackTo[A] =
     CallbackTo[A](
@@ -632,7 +628,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     * In order words, `this.toAsyncCallback.toCallback` == `this`.
     */
   def asAsyncCallback: AsyncCallback[A] =
-    AsyncCallback(attempt.flatMap)
+    AsyncCallback(attemptTry.flatMap)
 
   /** Schedules this to run asynchronously (i.e. uses a `setTimeout`).
     *

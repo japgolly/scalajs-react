@@ -4,6 +4,7 @@ import japgolly.scalajs.react.{AsyncCallback, Callback, CallbackKleisli, Callbac
 import org.scalajs.dom.ext.AjaxException
 import org.scalajs.dom.{ProgressEvent, XMLHttpRequest}
 import scala.scalajs.js
+import scala.util.{Failure, Success}
 
 /** Purely-functional AJAX that runs a [[Callback]], and accepts XHR-callbacks as [[Callback]] instances.
   *
@@ -188,14 +189,14 @@ object Ajax {
       AsyncCallback.first { cc =>
 
         val fail: Throwable => Callback =
-          t => cc(Left(t))
+          t => cc(Failure(t))
 
         val onreadystatechange: Ajax[Unit] =
-          (onCompleteKliesli(xhr => cc(Right(xhr))) <<? this.onreadystatechange)
+          (onCompleteKliesli(xhr => cc(Success(xhr))) <<? this.onreadystatechange)
             .mapCB(_.handleError(fail))
 
         val onerror: Ajax[Unit] =
-          CallbackKleisli(xhr => cc(Left(AjaxException(xhr))))
+          CallbackKleisli(xhr => fail(AjaxException(xhr)))
 
         val start: Ajax[Unit] =
           registerU(onreadystatechange)(_.onreadystatechange = _) >>

@@ -1,35 +1,32 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.identityFn
+import japgolly.scalajs.react.internal.{catchAll, identityFn}
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.{Thenable, |}
 import scala.scalajs.js.timers.setTimeout
+import scala.util.{Failure, Success, Try}
 
 object AsyncCallback {
-  private[AsyncCallback] val defaultCompleteWith: Either[Throwable, Any] => Callback =
+  private[AsyncCallback] val defaultCompleteWith: Try[Any] => Callback =
     _ => Callback.empty
 
-  def apply[A](f: (Either[Throwable, A] => Callback) => Callback): AsyncCallback[A] =
+  def apply[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(f)
 
-  def first[A](f: (Either[Throwable, A] => Callback) => Callback): AsyncCallback[A] =
+  def first[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(g => {
       var first = true
       f(ea => Callback.when(first)(Callback{first = false} >> g(ea)))
     })
 
-  private def tryE[A](a: => A): Either[Throwable, A] =
-    try Right(a)
-    catch {case t: Throwable => Left(t) }
-
   def point[A](a: => A): AsyncCallback[A] =
-    AsyncCallback(_(tryE(a)))
+    AsyncCallback(_(catchAll(a)))
 
   def pure[A](a: A): AsyncCallback[A] = {
-    val r = Right(a)
+    val r = Success(a)
     AsyncCallback(_(r))
   }
 
@@ -89,10 +86,7 @@ object AsyncCallback {
 
   def fromFuture[A](fa: => Future[A])(implicit ec: ExecutionContext): AsyncCallback[A] =
     AsyncCallback(f => Callback {
-      fa.onComplete {
-        case scala.util.Success(a) => f(Right(a)).runNow()
-        case scala.util.Failure(e) => f(Left(e)).runNow()
-      }
+      fa.onComplete(f(_).runNow())
     })
 
   def fromCallbackToFuture[A](c: CallbackTo[Future[A]])(implicit ec: ExecutionContext): AsyncCallback[A] =
@@ -100,10 +94,10 @@ object AsyncCallback {
 
   def fromJsPromise[A](pa: => js.Thenable[A]): AsyncCallback[A] =
     AsyncCallback(f => Callback {
-      def complete(e: Either[Throwable, A]): Thenable[Unit] = f(e).asAsyncCallback.asCallbackToJsPromise.runNow()
+      def complete(e: Try[A]): Thenable[Unit] = f(e).asAsyncCallback.asCallbackToJsPromise.runNow()
       type R = Unit | Thenable[Unit]
-      val ok: A   => R = a => complete(Right(a))
-      val ko: Any => R = e => complete(Left(e match {
+      val ok: A   => R = a => complete(Success(a))
+      val ko: Any => R = e => complete(Failure(e match {
         case t: Throwable => t
         case a            => js.JavaScriptException(e)
       }))
@@ -146,7 +140,7 @@ object AsyncCallback {
   *
   * @tparam A The type of data asynchronously produced on success.
   */
-final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Either[Throwable, A] => Callback) => Callback) extends AnyVal {
+final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal {
 
   def widen[B >: A]: AsyncCallback[B] =
     new AsyncCallback(completeWith)
@@ -160,8 +154,8 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Either[T
 
   def flatMap[B](f: A => AsyncCallback[B]): AsyncCallback[B] =
     AsyncCallback(g => completeWith {
-      case Right(a) => f(a).completeWith(g)
-      case Left(e)  => g(Left(e))
+      case Success(a) => f(a).completeWith(g)
+      case Failure(e) => g(Failure(e))
     })
 
   /** Alias for `flatMap`. */
@@ -202,19 +196,19 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Either[T
 
   def zipWith[B, C](that: AsyncCallback[B])(f: (A, B) => C): AsyncCallback[C] =
     AsyncCallback(cc => CallbackTo {
-      var ra: Option[Either[Throwable, A]] = None
-      var rb: Option[Either[Throwable, B]] = None
-      var r: Option[Either[Throwable, C]] = None
+      var ra: Option[Try[A]] = None
+      var rb: Option[Try[B]] = None
+      var r: Option[Try[C]] = None
 
       val respond = Callback {
         if (r.isEmpty) {
           (ra, rb) match {
-            case (Some(Right(a)), Some(Right(b))) => r = Some(Right(f(a, b)))
-            case (Some(Left(e)) , _             ) => r = Some(Left(e))
-            case (_             , Some(Left(e)) ) => r = Some(Left(e))
-            case (Some(Right(_)), None          )
-               | (None          , Some(Right(_)))
-               | (None          , None          ) => ()
+            case (Some(Success(a)), Some(Success(b))) => r = Some(Success(f(a, b)))
+            case (Some(Failure(e)), _               ) => r = Some(Failure(e))
+            case (_               , Some(Failure(e))) => r = Some(Failure(e))
+            case (Some(Success(_)), None            )
+               | (None            , Some(Success(_)))
+               | (None            , None            ) => ()
           }
           r.foreach(cc(_).runNow())
         }
@@ -256,18 +250,24 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Either[T
 
   /** Wraps this callback in a try-catch and returns either the result or the exception if one occurs. */
   def attempt: AsyncCallback[Either[Throwable, A]] =
-    AsyncCallback(f => completeWith(e => f(Right(e))))
+    AsyncCallback(f => completeWith(e => f(Success(e match {
+      case Success(a) => Right(a)
+      case Failure(t) => Left(t)
+    }))))
+
+  def attemptTry: AsyncCallback[Try[A]] =
+    AsyncCallback(f => completeWith(e => f(Success(e))))
 
   def handleError(f: Throwable => AsyncCallback[A]): AsyncCallback[A] =
     AsyncCallback(g => completeWith {
-      case r@ Right(_) => g(r)
-      case Left(t)     => f(t).completeWith(g)
+      case r@ Success(_) => g(r)
+      case Failure(t)    => f(t).completeWith(g)
     })
 
   def maybeHandleError(f: PartialFunction[Throwable, AsyncCallback[A]]): AsyncCallback[A] =
     AsyncCallback(g => completeWith {
-      case r@ Right(_) => g(r)
-      case l@ Left(t)  => f.lift(t) match {
+      case r@ Success(_) => g(r)
+      case l@ Failure(t) => f.lift(t) match {
         case Some(n) => n.completeWith(g)
         case None    => g(l)
       }
@@ -279,7 +279,7 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Either[T
     * @return `Some` result of the callback executed, else `None`.
     */
   def when(cond: => Boolean): AsyncCallback[Option[A]] =
-    AsyncCallback(f => if (cond) completeWith(ea => f(ea.map(Some(_)))) else f(Right(None)))
+    AsyncCallback(f => if (cond) completeWith(ea => f(ea.map(Some(_)))) else f(Success(None)))
 
   /** Conditional execution of this callback.
     * Reverse of [[when()]].
@@ -361,19 +361,22 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Either[T
   def asCallbackToFuture: CallbackTo[Future[A]] =
     CallbackTo {
       val p = scala.concurrent.Promise[A]()
-      completeWith(ea => Callback(ea.fold(p.failure, p.success)))
+      completeWith(t => Callback(p.complete(t)))
       p.future
     }
 
   def asCallbackToJsPromise: CallbackTo[js.Promise[A]] =
     CallbackTo {
-      new js.Promise[A]((respond, reject) => {
+      new js.Promise[A]((respond: js.Function1[A | Thenable[A], _], reject: js.Function1[Any, _]) => {
         def fail(t: Throwable) =
           reject(t match {
             case js.JavaScriptException(e) => e
             case e                         => e
           })
-        completeWith(ea => Callback(ea.fold(fail, respond(_))))
+        completeWith(t => Callback(t match {
+          case Success(a) => respond(a)
+          case Failure(e) => fail(e)
+        }))
       })
     }
 
