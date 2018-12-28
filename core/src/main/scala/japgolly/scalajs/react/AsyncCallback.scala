@@ -361,7 +361,7 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def asCallbackToFuture: CallbackTo[Future[A]] =
     CallbackTo {
       val p = scala.concurrent.Promise[A]()
-      completeWith(t => Callback(p.complete(t)))
+      completeWith(t => Callback(p.complete(t))).runNow()
       p.future
     }
 
@@ -376,7 +376,7 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
         completeWith(t => Callback(t match {
           case Success(a) => respond(a)
           case Failure(e) => fail(e)
-        }))
+        })).runNow()
       })
     }
 
