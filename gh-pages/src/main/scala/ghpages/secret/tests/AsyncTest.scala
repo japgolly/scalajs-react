@@ -90,9 +90,16 @@ object AsyncTest {
         t -> is.map(_ * 100)
       })
 
-      .add("toJsPromise")(testCmp {
+      .add("jsPromise")(testCmp {
         val a = AsyncCallback.pure(123).delayMs(20)
         val t = AsyncCallback.fromJsPromise(a.unsafeToJsPromise())
+        t -> 123
+      })
+
+      .add("future")(testCmp {
+        import scala.concurrent.ExecutionContext.Implicits.global
+        val a = AsyncCallback.pure(123).delayMs(20)
+        val t = AsyncCallback.fromFuture(a.unsafeToFuture())
         t -> 123
       })
 
