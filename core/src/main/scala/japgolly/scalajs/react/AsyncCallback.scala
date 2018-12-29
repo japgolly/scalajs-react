@@ -294,7 +294,7 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
         result.getOrElse {
           val first = attemptTry.flatMap(t => AsyncCallback.byName(set(AsyncCallback.const(t))))
           val promise = first.unsafeToJsPromise()
-          set(AsyncCallback.fromJsPromise(promise))
+          result getOrElse set(AsyncCallback.fromJsPromise(promise))
         }
       }
     }
