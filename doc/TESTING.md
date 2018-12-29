@@ -32,7 +32,7 @@ Setup
     // NOTE: Requires react-with-addons.js instead of just react.js
     jsDependencies +=
 
-      "org.webjars.npm" % "react-dom" % "16.6.3" % Test
+      "org.webjars.npm" % "react-dom" % "16.7.0" % Test
         /         "umd/react-dom-test-utils.development.js"
         minified  "umd/react-dom-test-utils.production.min.js"
         dependsOn "umd/react-dom.development.js"
