@@ -123,15 +123,15 @@ object AsyncTest {
       .add("memo")(testCmp {
         var count = 0
         val getCount = AsyncCallback.point(count)
-        val incCount = AsyncCallback.point(count += 1)
-        val m = incCount.delayMs(400).memo()
+        val incCount = AsyncCallback.point(count += 1).delayMs(400)
+        def m = incCount.memo
         // start 1
         // start 2
         // complete 1
         // complete 2
         // start 3
         // complete 3
-        val t = (m *> m) >> m >> getCount
+        val t = (m *> m) >> m.memo >> getCount
         t -> 1
       })
 
