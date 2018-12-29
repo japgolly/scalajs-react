@@ -163,14 +163,14 @@ object React extends React {
   }
 
   @js.native
-  trait Lazy extends js.Object
+  trait Lazy[P <: js.Object] extends js.Object
 
   @js.native
-  trait LazyResult extends js.Object {
-    val default: UnderlyingLazyResult = js.native
+  trait LazyResult[P <: js.Object] extends js.Object {
+    val default: LazyResultValue[P] = js.native
   }
 
-  type UnderlyingLazyResult = Node // | Component[_ <: js.Object, _ <: js.Object]
+  type LazyResultValue[P <: js.Object] = ComponentType[P]
 }
 
 @js.native
@@ -181,10 +181,16 @@ trait React extends js.Object {
 
   /** React.createContext(...).Consumer */
   final def createElement[A <: js.Any](contextConsumer: ComponentClass[Null, Null], props: Null, childrenFn: js.Function1[A, Node]): Element = js.native
+
+  final def createElement(s: Suspense.type, props: SuspenseProps, children: Node*): Element = js.native
+  final def createElement[P <: js.Object](l: Lazy[P], props: P, children: Node*): Element = js.native
+
   final def createElement(`type`: js.Symbol, props: js.Object, children: Node*): Element = js.native
+
   final def createElement(`type`: String                                   ): DomElement = js.native
   final def createElement(`type`: String, props: js.Object                 ): DomElement = js.native
   final def createElement(`type`: String, props: js.Object, children: Node*): DomElement = js.native
+
   final def createElement[P <: js.Object](`type`: ComponentType[P]                           ): ComponentElement[P] = js.native
   final def createElement[P <: js.Object](`type`: ComponentType[P], props: P                 ): ComponentElement[P] = js.native
   final def createElement[P <: js.Object](`type`: ComponentType[P], props: P, children: Node*): ComponentElement[P] = js.native
@@ -192,6 +198,7 @@ trait React extends js.Object {
   final def cloneElement(element: DomElement                                   ): DomElement = js.native
   final def cloneElement(element: DomElement, props: js.Object                 ): DomElement = js.native
   final def cloneElement(element: DomElement, props: js.Object, children: Node*): DomElement = js.native
+
   final def cloneElement[P <: js.Object](element: ComponentElement[P]                           ): ComponentElement[P] = js.native
   final def cloneElement[P <: js.Object](element: ComponentElement[P], props: P                 ): ComponentElement[P] = js.native
   final def cloneElement[P <: js.Object](element: ComponentElement[P], props: P, children: Node*): ComponentElement[P] = js.native
@@ -200,7 +207,7 @@ trait React extends js.Object {
 
   final def forwardRef[P <: js.Object, R](f: js.Function2[P with PropsWithChildren, ForwardedRef[R], Node]): ForwardRefComponent[P, R] = js.native
 
-  final def `lazy`(f: js.Function0[js.Promise[LazyResult]]): Lazy = js.native
+  final def `lazy`[P <: js.Object](f: js.Function0[js.Promise[LazyResult[P]]]): Lazy[P] = js.native
 
   final val version: String = js.native
 

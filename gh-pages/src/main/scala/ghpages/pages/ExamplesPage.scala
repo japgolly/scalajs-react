@@ -54,8 +54,9 @@ object ExamplesScala extends ExampleCollection {
   case object WebSockets    extends Example("WebSockets",         "websockets",        WebSocketsExample      .content)
   case object Checkbox3     extends Example("Tri-state Checkbox", "tristate-checkbox", TriStateCheckboxExample.content)
   case object Ajax          extends Example("AJAX",               "ajax",              AjaxExample            .content)
+  case object Suspense      extends Example("Suspense",           "suspense",          SuspenseExample        .content)
 
   override val values = Vector[Example](
-    EventListen, CallbackOpt, StateSnapshot, Reuse, StateMonad, Touch, WebSockets, Checkbox3, Ajax
+    EventListen, CallbackOpt, StateSnapshot, Reuse, StateMonad, Touch, WebSockets, Checkbox3, Ajax, Suspense
   ).sortBy(_.title)
 }
