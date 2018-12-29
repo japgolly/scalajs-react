@@ -7,9 +7,11 @@ import org.scalajs.dom.XMLHttpRequest
 import scala.util.Random
 import scalaz.Equal
 import scalaz.std.anyVal._
-import scalaz.std.option._
+import scalaz.std.either._
 import scalaz.std.list._
+import scalaz.std.option._
 import scalaz.std.string._
+import scalaz.std.tuple._
 import scalaz.std.vector._
 import scalaz.syntax.equal._
 
@@ -38,6 +40,8 @@ object AsyncTest {
     val id = idRegex.findFirstIn(xhr.responseText).get.replace("\"", "")
     s"[${xhr.status}] $id"
   }
+
+  private implicit val equalThrowable: Equal[Throwable] = Equal.equalRef
 
   val TestSuite: TestSuite =
     TestSuiteBuilder()
@@ -90,10 +94,23 @@ object AsyncTest {
         t -> is.map(_ * 100)
       })
 
-      .add("jsPromise")(testCmp {
+      .add("jsPromise: to & from")(testCmp {
         val a = AsyncCallback.pure(123).delayMs(20)
         val t = AsyncCallback.fromJsPromise(a.unsafeToJsPromise())
         t -> 123
+      })
+
+      .add("jsPromise: from fixed ok")(testCmp {
+        val p = AsyncCallback.pure(123).unsafeToJsPromise()
+        val t1,t2 = AsyncCallback.fromJsPromise(p)
+        t1.zip(t2) -> (123, 123)
+      })
+
+      .add("jsPromise: from fixed ko")(testCmp {
+        val e = new RuntimeException("AH")
+        val p = AsyncCallback.error[Int](e).unsafeToJsPromise()
+        val t1,t2 = AsyncCallback.fromJsPromise(p).attempt
+        t1.zip(t2) -> (Left(e), Left(e))
       })
 
       .add("future")(testCmp {
@@ -101,6 +118,21 @@ object AsyncTest {
         val a = AsyncCallback.pure(123).delayMs(20)
         val t = AsyncCallback.fromFuture(a.unsafeToFuture())
         t -> 123
+      })
+
+      .add("memo")(testCmp {
+        var count = 0
+        val getCount = AsyncCallback.point(count)
+        val incCount = AsyncCallback.point(count += 1)
+        val m = incCount.delayMs(400).memo()
+        // start 1
+        // start 2
+        // complete 1
+        // complete 2
+        // start 3
+        // complete 3
+        val t = (m *> m) >> m >> getCount
+        t -> 1
       })
 
       .result()

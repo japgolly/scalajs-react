@@ -25,10 +25,14 @@ object AsyncCallback {
   def point[A](a: => A): AsyncCallback[A] =
     AsyncCallback(_(catchAll(a)))
 
-  def pure[A](a: A): AsyncCallback[A] = {
-    val r = Success(a)
-    AsyncCallback(_(r))
-  }
+  def pure[A](a: A): AsyncCallback[A] =
+    const(Success(a))
+
+  def error[A](t: Throwable): AsyncCallback[A] =
+    const(Failure(t))
+
+  def const[A](t: Try[A]): AsyncCallback[A] =
+    AsyncCallback(_(t))
 
   /** Callback that isn't created until the first time it is used, after which it is reused. */
   def lazily[A](f: => AsyncCallback[A]): AsyncCallback[A] = {
@@ -272,6 +276,19 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
         case None    => g(l)
       }
     })
+
+  def memo(): AsyncCallback[A] = {
+    var result: Option[AsyncCallback[A]] = None
+    def set(r: AsyncCallback[A]) = {result = Some(r); r}
+
+    AsyncCallback.byName {
+      result.getOrElse {
+        val first = attemptTry.flatMap(t => AsyncCallback.byName(set(AsyncCallback.const(t))))
+        val promise = first.unsafeToJsPromise()
+        set(AsyncCallback.fromJsPromise(promise))
+      }
+    }
+  }
 
   /** Conditional execution of this callback.
     *
