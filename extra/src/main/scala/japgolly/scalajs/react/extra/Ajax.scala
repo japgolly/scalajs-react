@@ -109,9 +109,6 @@ object Ajax {
     def onUploadProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 =
       copy(onuploadprogress = Some(CallbackKleisli(f.tupled) <<? onuploadprogress))
 
-    // ================================================================================================================
-    // ================================================================================================================
-
     private def _onReadyStateChange(f: Ajax[Unit]): Step2 =
       copy(onreadystatechange = Some(f <<? onreadystatechange))
 
@@ -123,26 +120,6 @@ object Ajax {
 
     def onComplete(f: XMLHttpRequest => Callback): Step2 =
       _onReadyStateChange(onCompleteKliesli(f))
-
-    private def _onCompleteHandle(success: XMLHttpRequest => Boolean): (Either[AjaxException, XMLHttpRequest] => Callback) => Step2 =
-      f => onComplete(xhr =>
-        f(
-          if (success(xhr))
-            Right(xhr)
-          else
-            Left(AjaxException(xhr))))
-
-    def onCompleteHandleStatusFn(isValidStatus: Int => Boolean): (Either[AjaxException, XMLHttpRequest] => Callback) => Step2 =
-      _onCompleteHandle(xhr => isValidStatus(xhr.status))
-
-    def onCompleteHandleStatusIs(expectedStatus: Int): (Either[AjaxException, XMLHttpRequest] => Callback) => Step2 =
-      onCompleteHandleStatusFn(_ == expectedStatus)
-
-    def onCompleteHandle: (Either[AjaxException, XMLHttpRequest] => Callback) => Step2 =
-      onCompleteHandleStatusFn(isStatusSuccessful)
-
-    // ================================================================================================================
-    // ================================================================================================================
 
     def validateResponse(isValid: XMLHttpRequest => Boolean): (AjaxException => Callback) => Step2 =
       onFailure => onComplete(xhr =>
@@ -156,9 +133,6 @@ object Ajax {
 
     def validateStatusIsSuccessful: (AjaxException => Callback) => Step2 =
       validateStatus(isStatusSuccessful)
-
-    // ================================================================================================================
-    // ================================================================================================================
 
     private def registerU(k: Ajax[Unit])(set: (XMLHttpRequest, js.Function1[Any, Unit]) => Unit): Ajax[Unit] =
       CallbackKleisli.lift(xhr => set(xhr, Callback.byName(k(xhr)).toJsFn1))
