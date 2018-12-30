@@ -155,13 +155,13 @@ object Ajax {
       registerE(onprogress)(_.onprogress = _) >>
       registerE(onuploadprogress)(_.upload.onprogress = _))
 
-    lazy val asCallback: Callback =
+    def asCallback: Callback =
       newXHR >>= (
         register_(onreadystatechange)(_.onreadystatechange = _) >>
         registerSecondaryCallbacks >>
         begin).run
 
-    lazy val asAsyncCallback: AsyncCallback[XMLHttpRequest] =
+    def asAsyncCallback: AsyncCallback[XMLHttpRequest] =
       AsyncCallback.first { cc =>
 
         val fail: Throwable => Callback =
