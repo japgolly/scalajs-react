@@ -4,9 +4,6 @@ import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import scala.scalajs.js
-import scala.scalajs.js.JSON
-import scala.scalajs.js.annotation.JSName
 
 object AjaxExample2 {
 
@@ -16,6 +13,9 @@ object AjaxExample2 {
 
   // EXAMPLE:START
   import japgolly.scalajs.react.extra.Ajax
+  import scala.scalajs.js
+  import scala.scalajs.js.JSON
+  import scala.scalajs.js.annotation.JSName
 
   def login: AsyncCallback[Unit] =
     Ajax("POST", "https://reqres.in/api/login")
