@@ -26,8 +26,10 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.3.1"
 `japgolly.scalajs.react.extra.Ajax` is a helper for AJAX that is purely-functional
 in that it runs a `Callback`, and accepts XHR-callbacks as `Callback` instances.
 
-A live demo with accompanying code is available here:<br>
-[https://japgolly.github.io/scalajs-react/#examples/ajax](https://japgolly.github.io/scalajs-react/#examples/ajax)
+Live demos with accompanying code are available here:
+
+* [https://japgolly.github.io/scalajs-react/#examples/ajax-1](https://japgolly.github.io/scalajs-react/#examples/ajax-1)
+* [https://japgolly.github.io/scalajs-react/#examples/ajax-2](https://japgolly.github.io/scalajs-react/#examples/ajax-2)
 
 
 `StateSnapshot`

@@ -28,7 +28,7 @@ object AsyncTest {
     Ajax("GET", s"https://reqres.in/api/users/$userId")
       .setRequestContentTypeJsonUtf8
       .send
-      .validateSuccessful(Callback.error)
+      .validateStatusIsSuccessful(Callback.error)
       .asAsyncCallback
 
   private val get0 = getUser(0)

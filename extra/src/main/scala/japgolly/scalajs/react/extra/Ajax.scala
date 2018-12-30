@@ -8,7 +8,9 @@ import scala.util.{Failure, Success}
 
 /** Purely-functional AJAX that runs a [[Callback]], and accepts XHR-callbacks as [[Callback]] instances.
   *
-  * See https://japgolly.github.io/scalajs-react/#examples/ajax for a demo
+  * For a demo, see
+  *   - https://japgolly.github.io/scalajs-react/#examples/ajax-1
+  *   - https://japgolly.github.io/scalajs-react/#examples/ajax-2
   */
 object Ajax {
 
@@ -152,7 +154,7 @@ object Ajax {
     def validateStatusIs(expectedStatus: Int): (AjaxException => Callback) => Step2 =
       validateStatus(_ == expectedStatus)
 
-    def validateSuccessful: (AjaxException => Callback) => Step2 =
+    def validateStatusIsSuccessful: (AjaxException => Callback) => Step2 =
       validateStatus(isStatusSuccessful)
 
     // ================================================================================================================
