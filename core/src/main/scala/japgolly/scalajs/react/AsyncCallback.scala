@@ -155,7 +155,7 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     new AsyncCallback(completeWith)
 
   def map[B](f: A => B): AsyncCallback[B] =
-    AsyncCallback(g => completeWith(e => g(e.map(f))))
+    AsyncCallback(g => completeWith(e => g(e.flatMap(a => catchAll(f(a))))))
 
   /** Alias for `map`. */
   @inline def |>[B](f: A => B): AsyncCallback[B] =
@@ -163,7 +163,10 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
 
   def flatMap[B](f: A => AsyncCallback[B]): AsyncCallback[B] =
     AsyncCallback(g => completeWith {
-      case Success(a) => f(a).completeWith(g)
+      case Success(a) => catchAll(f(a)) match {
+        case Success(next) => next.completeWith(g)
+        case Failure(e)    => g(Failure(e))
+      }
       case Failure(e) => g(Failure(e))
     })
 
@@ -212,7 +215,7 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
       val respond = Callback {
         if (r.isEmpty) {
           (ra, rb) match {
-            case (Some(Success(a)), Some(Success(b))) => r = Some(Success(f(a, b)))
+            case (Some(Success(a)), Some(Success(b))) => r = Some(catchAll(f(a, b)))
             case (Some(Failure(e)), _               ) => r = Some(Failure(e))
             case (_               , Some(Failure(e))) => r = Some(Failure(e))
             case (Some(Success(_)), None            )
