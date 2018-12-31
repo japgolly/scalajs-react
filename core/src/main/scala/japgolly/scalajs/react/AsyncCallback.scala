@@ -147,6 +147,8 @@ object AsyncCallback {
   * - [[unsafeToFuture()]]
   * - [[unsafeToJsPromise()]]
   *
+  * A good example is the [Ajax 2 demo](https://japgolly.github.io/scalajs-react/#examples/ajax-2).
+  *
   * @tparam A The type of data asynchronously produced on success.
   */
 final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal {

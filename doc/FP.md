@@ -1,24 +1,75 @@
-*I've neglected to document this portion as well as I'd like.*
+*I've not documented this side of things as well as I'd like.*
 
 *For now, please just browse the source (it's not massive) and follow the types.*
 
-Callback
+Built-in Constructs
 ========
 
-Included is a type `CallbackTo[A]` which captures effects designated for use in React callbacks.
-`Callback` is `CallbackTo[Unit]` with a different companion object, full of different goodies that all return `Unit`.
- <br>*(See also [USAGE.md](USAGE.md).)*
+When you use scalajs-react, ideally all of your code should be functionally pure,
+and very strongly-typed. The library expects it. In order to facilitate it,
+be precise as to React's exact requirements,
+and have dependency free core (important option for JS size minimisation),
+there are a number of constructs provided out-of-the-box and woven in to the foundations.
 
-It is roughly equivalent to `IO`/`Task` in Scalaz, Haskell's `IO` monad, etc.
+### Callback(To)
 
-Living in the `core` module with no FP dependencies,
-many ops normally provided via typeclasses (eg. `<*`, `>>=`, etc.) are built-in directly.
-The Cats & Scalaz modules contain typeclass instances for it.
+Firstly, there is a type `CallbackTo[A]` that represents a repeatable,
+typically side-effecting, synchronous procedure that returns an `A` on successful completion.
+It's generally on par with various implementations of the `IO` monad.
+It's used in all places that React expects to be provided an impure procedure (a callback).
 
-There's also `CallbackOption` which is a callback & option monad stack.
+`Callback` is actually a type alias to `CallbackTo[Unit]` because it's so common.
+It also comes with it's own, different companion object, full of different goodies that all return `Unit`.
+
+Many ops that are normally provided via typeclasses (eg. `<*`, `>>=`, etc.) are just built-in directly.
+If you use the Cats or Scalaz modules there are typeclass instances for it.
+Things like `Traverse F` over `Callback{,To}` etc can be found in the companion objects.
+
+See [CALLBACK.md](CALLBACK.md) for a tutorial.
+
+
+### AsyncCallback
+
+`AsyncCallback` is a pure asynchronous callback.
+
+You can think of this as being similar to using `Future` - you can use it in for-comprehensions the same way -
+except `AsyncCallback` is pure and doesn't need an `ExecutionContext`.
+
+When combining instances, it's good to know which methods are sequential and which are parallel
+(or at least concurrent).
+
+The following methods are sequential:
+- `>>=` / `flatMap`
+- `>>` & `<<`
+- `flatTap`
+
+The following methods are effectively parallel:
+- `*>` & `<*`
+- `race`
+- `zip` & `zipWith`
+
+In order to actually run this, or get it into a shape in which in can be run, use one of the following:
+- `toCallback` <-- most common
+- `asCallbackToFuture`
+- `asCallbackToJsPromise`
+- `unsafeToFuture()`
+- `unsafeToJsPromise()`
+
+Like `Callback` et al, many ops that are normally provided via typeclasses are built-in directly.
+Things like `Traverse F` over `AsyncCallback` etc can be found in the companion object.
+
+A good example is the [Ajax 2 demo](https://japgolly.github.io/scalajs-react/#examples/ajax-2).
+
+### CallbackOption
+
+`CallbackOption` exists and is a callback & option monad stack aka `A => CallbackTo[Option[B]]`.
+
 Check out the online [`CallbackOption` example](https://japgolly.github.io/scalajs-react/#examples/callback-option).
 
-There's also `CallbackKleisli` which is the `ReaderT CallbackTo` monad stack.
+### CallbackKleisli
+
+`CallbackKleisli` exists and is equivalent to a `Kleisli[CallbackTo, A B]` aka `A => CallbackTo[B]`.
+
 
 Scalaz
 ======
@@ -36,6 +87,18 @@ Also included are `runStateF` methods which use a `ChangeFilter` typeclass to co
 
 There's only one example at the moment:
 [State monad example](https://japgolly.github.io/scalajs-react/#examples/state-monad).
+
+
+Cats
+====
+
+```scala
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-cats" % "1.3.1"
+```
+
+There's a Cats module now too. It's pretty much that same as the Scalaz module but without
+any `IO` stuff.
+
 
 Monocle
 =======
@@ -66,15 +129,6 @@ libraryDependencies ++= Seq(
 )
 
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
-
-Same as the `ext-monocle` module but using the cats variant of monocle
-
-Cats
-====
-
-```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-cats" % "1.3.1"
 ```
 
-There's a Cats module now too. It's pretty much that same as the Scalaz module but without
-any `IO` stuff.
+Same as the `ext-monocle` module but using the cats variant of monocle
