@@ -115,11 +115,11 @@ object Ajax {
     def onReadyStateChange(f: XMLHttpRequest => Callback): Step2 =
       _onReadyStateChange(CallbackKleisli(f))
 
-    private def onCompleteKliesli(f: XMLHttpRequest => Callback): Ajax[Unit] =
+    private def onCompleteKleisli(f: XMLHttpRequest => Callback): Ajax[Unit] =
       CallbackKleisli(f).when_(_.readyState == XMLHttpRequest.DONE)
 
     def onComplete(f: XMLHttpRequest => Callback): Step2 =
-      _onReadyStateChange(onCompleteKliesli(f))
+      _onReadyStateChange(onCompleteKleisli(f))
 
     def validateResponse(isValid: XMLHttpRequest => Boolean): (AjaxException => Callback) => Step2 =
       onFailure => onComplete(xhr =>
@@ -168,7 +168,7 @@ object Ajax {
           t => cc(Failure(t))
 
         val onreadystatechange: Ajax[Unit] =
-          (onCompleteKliesli(xhr => cc(Success(xhr))) <<? this.onreadystatechange)
+          (onCompleteKleisli(xhr => cc(Success(xhr))) <<? this.onreadystatechange)
             .mapCB(_.handleError(fail))
 
         val onerror: Ajax[Unit] =
