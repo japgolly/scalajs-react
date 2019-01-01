@@ -130,15 +130,14 @@ object AsyncCallback {
   *
   * The following methods are sequential:
   * - [[>>=()]] / [[flatMap()]]
-  * - [[>>()]]
-  * - [[<<()]]
+  * - [[>>()]] & [[<<()]]
   * - [[flatTap()]]
   *
   * The following methods are effectively parallel:
-  * - [[*>()]]
-  * - [[<*()]]
+  * - [[*>()]] & [[<*()]]
   * - [[race()]]
   * - [[zip()]] & [[zipWith()]]
+  * - `AsyncCallback.traverse` et al
   *
   * In order to actually run this, or get it into a shape in which in can be run, use one of the following:
   * - [[toCallback]] <-- most common
