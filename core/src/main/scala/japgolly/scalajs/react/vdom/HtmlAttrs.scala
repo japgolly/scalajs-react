@@ -291,18 +291,18 @@ trait HtmlAttrs {
   private def classSetImpl(z: TagMod, ps: Seq[(String, Boolean)]): TagMod =
     ps.foldLeft(z)((q, p) =>
       if (p._2)
-        q(cls := p._1)
+        q ~ (cls := p._1)
       else
         q)
 
   final def classSet(ps: (String, Boolean)*): TagMod =
-    classSetImpl(EmptyVdom, ps)
+    classSetImpl(TagMod.empty, ps)
 
   final def classSet1(a: String, ps: (String, Boolean)*): TagMod =
     classSetImpl(cls := a, ps)
 
   final def classSetM(ps: Map[String, Boolean]): TagMod =
-    classSetImpl(EmptyVdom, ps.toSeq)
+    classSetImpl(TagMod.empty, ps.toSeq)
 
   final def classSet1M(a: String, ps: Map[String, Boolean]): TagMod =
     classSetImpl(cls := a, ps.toSeq)

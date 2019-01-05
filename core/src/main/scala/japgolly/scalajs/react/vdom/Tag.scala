@@ -1,10 +1,10 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.{Callback, Ref, raw => Raw}
+import japgolly.scalajs.react.{Ref, raw => Raw}
 
 class TagOf[+N <: TopNode] private[vdom](final val tag: String,
-                                         final protected val modifiers: List[Seq[TagMod]],
-                                         final val namespace: Namespace) extends TagMod {
+                                         final protected val modifiers: List[Seq[VdomNodeOrTagMod]],
+                                         final val namespace: Namespace) extends VdomElement {
 
   @deprecated("Use .withRef instead", "1.2.0")
   def ref[NN >: N <: TopNode](r: Ref.Set[NN]): TagOf[NN] =
@@ -16,21 +16,22 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
       case None    => this
     }
 
-  override def apply(xs: TagMod*): TagOf[N] =
+  def apply(xs: VdomNodeOrTagMod*): TagOf[N] =
     copy(modifiers = xs :: modifiers)
 
   protected def copy(tag: String = this.tag,
-                     modifiers: List[Seq[TagMod]] = this.modifiers,
+                     modifiers: List[Seq[VdomNodeOrTagMod]] = this.modifiers,
                      namespace: Namespace = this.namespace): TagOf[N] =
     new TagOf(tag, modifiers, namespace)
 
-  /**
-    * Walks the [[modifiers]] to apply them to a particular [[Builder]].
-    * Super sketchy/procedural for max performance.
-    */
-  private[this] def build(b: Builder): Unit = {
+  @deprecated("Tags now extend VdomElement. Calling .render does nothing.", "1.4.0")
+  def render: VdomElement = this
+
+  override lazy val rawElement: Raw.React.Element = {
+    val b = new Builder.ToRawReactElement()
+
     var current = modifiers
-    val arr = new Array[Seq[TagMod]](modifiers.length)
+    val arr = new Array[Seq[VdomNodeOrTagMod]](modifiers.length)
 
     var i = 0
     while (current != Nil) {
@@ -49,22 +50,19 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
         i += 1
       }
     }
-  }
 
-  lazy val render: VdomElement = {
-    val b = new Builder.ToVdomElement()
-    build(b)
     b.render(tag)
   }
 
-  override def toString =
-    render.toString
-
   override def applyTo(b: Builder): Unit =
-    b.appendChild(render.rawElement)
+    b.appendChild(rawElement)
 
-  def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty) =
-    render.renderIntoDOM(container, callback)
+  override def toString =
+    if (modifiers.isEmpty)
+      s"<$tag />"
+    else
+      s"<$tag>…</$tag>"
+
 }
 
 object TagOf {

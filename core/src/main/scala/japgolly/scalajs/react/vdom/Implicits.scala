@@ -106,9 +106,6 @@ trait ImplicitsForVdomNode {
 // =====================================================================================================================
 
 trait ImplicitsForVdomElement {
-  implicit def vdomElementFromTag[A](a: A)(implicit f: A => VdomTag): VdomElement =
-    f(a).render
-
   implicit def vdomElementFromComponent(u: Generic.UnmountedWithRoot[_, _, _, _]): VdomElement =
     u.vdomElement
 }

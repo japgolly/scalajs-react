@@ -43,6 +43,7 @@ abstract class Exports {
   /** Tag modification. Apply it to a [[VdomTag]]. */
   final type TagMod = japgolly.scalajs.react.vdom.TagMod
   final val TagMod = japgolly.scalajs.react.vdom.TagMod
+
   final val EmptyVdom = japgolly.scalajs.react.vdom.VdomNode.empty
 
   final type VdomAttr[-U] = japgolly.scalajs.react.vdom.Attr[U]
