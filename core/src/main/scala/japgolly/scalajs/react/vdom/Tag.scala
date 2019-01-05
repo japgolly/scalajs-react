@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.{Ref, raw => Raw}
+import scala.scalajs.js
 
 class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                                          final protected val modifiers: List[Seq[TagMod]],
@@ -30,25 +31,16 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
   override lazy val rawElement: Raw.React.Element = {
     val b = new Builder.ToRawReactElement()
 
+    val arr = new js.Array[Seq[TagMod]]
     var current = modifiers
-    val arr = new Array[Seq[TagMod]](modifiers.length)
-
-    var i = 0
     while (current != Nil) {
-      arr(i) = current.head
+      arr.push(current.head)
       current = current.tail
-      i += 1
     }
-
     var j = arr.length
     while (j > 0) {
       j -= 1
-      val frag = arr(j)
-      var i = 0
-      while (i < frag.length) {
-        frag(i).applyTo(b)
-        i += 1
-      }
+      arr(j).foreach(_.applyTo(b))
     }
 
     b.render(tag)
