@@ -8,16 +8,18 @@ import scala.scalajs.LinkingInfo.developmentMode
  * which will add itself to the node's attributes but not appear in the final
  * `children` list.
  */
-trait TagMod extends TagArg {
+trait TagMod {
+
+  /** Applies this modifier to the specified [[Builder]], such that when
+    * rendering is complete the effect of adding this modifier can be seen.
+    */
+  def applyTo(b: Builder): Unit
 
   final def when(condition: Boolean): TagMod =
     if (condition) this else TagMod.empty
 
   final def unless(condition: Boolean): TagMod =
     when(!condition)
-
-  def ~(next: TagArg): TagMod =
-    TagMod.Composite(Vector.empty[TagArg] :+ this :+ next)
 
   /**
     * Converts this VDOM and all its potential children into raw JS values.
@@ -42,33 +44,18 @@ object TagMod {
   def apply(ms: TagMod*): TagMod =
     fromTraversableOnce(ms)
 
-  def one(t: TagArg): TagMod =
-    t match {
-      case m: TagMod => m
-      case _         => Composite(Vector.empty[TagArg] :+ t)
-    }
-
-  def fromTraversableOnce(t: TraversableOnce[TagArg]): TagMod = {
+  def fromTraversableOnce(t: TraversableOnce[TagMod]): TagMod = {
     val v = t.toVector
     v.length match {
-      case 1 => one(v.head)
+      case 1 => v.head
       case 0 => empty
       case _ => Composite(v)
     }
   }
 
-  final case class Composite(mods: Vector[TagArg]) extends TagMod {
-    override def applyTo(b: Builder): Unit =
-      mods.foreach(_ applyTo b)
-
-    override def ~(next: TagArg) =
-      Composite(mods :+ next)
-  }
-
   val empty: TagMod =
     new TagMod {
       override def applyTo(b: Builder) = ()
-      override def ~(m: TagArg) = one(m)
     }
 
   def devOnly(m: => TagMod): TagMod =
@@ -101,4 +88,12 @@ object TagMod {
         Composite(b.result())
       }
     }
+
+  // ===================================================================================================================
+
+  final case class Composite(mods: Vector[TagMod]) extends TagMod {
+    override def applyTo(b: Builder): Unit =
+      mods.foreach(_ applyTo b)
+  }
+
 }

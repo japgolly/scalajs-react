@@ -291,7 +291,7 @@ trait HtmlAttrs {
   private def classSetImpl(z: TagMod, ps: Seq[(String, Boolean)]): TagMod =
     ps.foldLeft(z)((q, p) =>
       if (p._2)
-        q ~ (cls := p._1)
+        TagMod(q, cls := p._1)
       else
         q)
 
@@ -313,6 +313,7 @@ trait HtmlAttrs {
     * default value is 20 (HTML5).
     */
   final def cols = VdomAttr("cols")
+
   /**
     * This attribute gives the value associated with the http-equiv or name
     * attribute, depending of the context.

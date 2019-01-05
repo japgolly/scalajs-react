@@ -3,7 +3,7 @@ package japgolly.scalajs.react.vdom
 import japgolly.scalajs.react.{Ref, raw => Raw}
 
 class TagOf[+N <: TopNode] private[vdom](final val tag: String,
-                                         final protected val modifiers: List[Seq[TagArg]],
+                                         final protected val modifiers: List[Seq[TagMod]],
                                          final val namespace: Namespace) extends VdomElement {
 
   @deprecated("Use .withRef instead", "1.2.0")
@@ -16,11 +16,11 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
       case None    => this
     }
 
-  def apply(xs: TagArg*): TagOf[N] =
+  def apply(xs: TagMod*): TagOf[N] =
     copy(modifiers = xs :: modifiers)
 
   protected def copy(tag: String = this.tag,
-                     modifiers: List[Seq[TagArg]] = this.modifiers,
+                     modifiers: List[Seq[TagMod]] = this.modifiers,
                      namespace: Namespace = this.namespace): TagOf[N] =
     new TagOf(tag, modifiers, namespace)
 
@@ -31,7 +31,7 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
     val b = new Builder.ToRawReactElement()
 
     var current = modifiers
-    val arr = new Array[Seq[TagArg]](modifiers.length)
+    val arr = new Array[Seq[TagMod]](modifiers.length)
 
     var i = 0
     while (current != Nil) {
@@ -76,7 +76,7 @@ object TagOf {
 // =====================================================================================================================
 
 final case class HtmlTagOf[+N <: HtmlTopNode](name: String) extends AnyVal {
-  def apply(xs: TagArg*): TagOf[N] =
+  def apply(xs: TagMod*): TagOf[N] =
     new TagOf(name, xs :: Nil, Namespace.Html)
 }
 
@@ -88,7 +88,7 @@ object HtmlTagOf {
 // =====================================================================================================================
 
 final case class SvgTagOf[+N <: SvgTopNode](name: String) extends AnyVal {
-  def apply(xs: TagArg*): TagOf[N] =
+  def apply(xs: TagMod*): TagOf[N] =
     new TagOf(name, xs :: Nil, Namespace.Svg)
 }
 

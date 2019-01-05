@@ -207,7 +207,9 @@ object UnprefixedTest extends TestSuite {
     'tagModComposition - {
       val a: TagMod = cls := "hehe"
       val b: TagMod = h3("Good")
-      val c = a(b)
+      compileError("a(b)")
+      compileError("a ~ b")
+      val c = TagMod(a, b)
       test(div(c), """<div class="hehe"><h3>Good</h3></div>""")
     }
 
