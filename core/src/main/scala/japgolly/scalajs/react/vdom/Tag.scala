@@ -76,7 +76,7 @@ object TagOf {
 // =====================================================================================================================
 
 final case class HtmlTagOf[+N <: HtmlTopNode](name: String) extends AnyVal {
-  def apply(xs: TagMod*): TagOf[N] =
+  def apply(xs: VdomNodeOrTagMod*): TagOf[N] =
     new TagOf(name, xs :: Nil, Namespace.Html)
 }
 
@@ -88,7 +88,7 @@ object HtmlTagOf {
 // =====================================================================================================================
 
 final case class SvgTagOf[+N <: SvgTopNode](name: String) extends AnyVal {
-  def apply(xs: TagMod*): TagOf[N] =
+  def apply(xs: VdomNodeOrTagMod*): TagOf[N] =
     new TagOf(name, xs :: Nil, Namespace.Svg)
 }
 
