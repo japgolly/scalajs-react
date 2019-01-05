@@ -2,7 +2,7 @@ package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.{raw => Raw}
 
-trait VdomNode extends VdomNodeOrTagMod {
+trait VdomNode extends TagArg {
   def rawNode: Raw.React.Node
 
   override def applyTo(b: Builder): Unit =

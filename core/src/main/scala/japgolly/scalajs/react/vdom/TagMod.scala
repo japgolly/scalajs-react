@@ -8,7 +8,7 @@ import scala.scalajs.LinkingInfo.developmentMode
  * which will add itself to the node's attributes but not appear in the final
  * `children` list.
  */
-trait TagMod extends VdomNodeOrTagMod {
+trait TagMod extends TagArg {
 
   final def when(condition: Boolean): TagMod =
     if (condition) this else TagMod.empty
@@ -16,8 +16,8 @@ trait TagMod extends VdomNodeOrTagMod {
   final def unless(condition: Boolean): TagMod =
     when(!condition)
 
-  def ~(next: VdomNodeOrTagMod): TagMod =
-    TagMod.Composite(Vector.empty[VdomNodeOrTagMod] :+ this :+ next)
+  def ~(next: TagArg): TagMod =
+    TagMod.Composite(Vector.empty[TagArg] :+ this :+ next)
 
   /**
     * Converts this VDOM and all its potential children into raw JS values.
@@ -42,13 +42,13 @@ object TagMod {
   def apply(ms: TagMod*): TagMod =
     fromTraversableOnce(ms)
 
-  def one(t: VdomNodeOrTagMod): TagMod =
+  def one(t: TagArg): TagMod =
     t match {
       case m: TagMod => m
-      case _         => Composite(Vector.empty[VdomNodeOrTagMod] :+ t)
+      case _         => Composite(Vector.empty[TagArg] :+ t)
     }
 
-  def fromTraversableOnce(t: TraversableOnce[VdomNodeOrTagMod]): TagMod = {
+  def fromTraversableOnce(t: TraversableOnce[TagArg]): TagMod = {
     val v = t.toVector
     v.length match {
       case 1 => one(v.head)
@@ -57,18 +57,18 @@ object TagMod {
     }
   }
 
-  final case class Composite(mods: Vector[VdomNodeOrTagMod]) extends TagMod {
+  final case class Composite(mods: Vector[TagArg]) extends TagMod {
     override def applyTo(b: Builder): Unit =
       mods.foreach(_ applyTo b)
 
-    override def ~(next: VdomNodeOrTagMod) =
+    override def ~(next: TagArg) =
       Composite(mods :+ next)
   }
 
   val empty: TagMod =
     new TagMod {
       override def applyTo(b: Builder) = ()
-      override def ~(m: VdomNodeOrTagMod) = one(m)
+      override def ~(m: TagArg) = one(m)
     }
 
   def devOnly(m: => TagMod): TagMod =
