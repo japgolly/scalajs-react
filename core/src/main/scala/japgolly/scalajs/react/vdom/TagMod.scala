@@ -36,6 +36,12 @@ trait TagMod {
 }
 
 object TagMod {
+
+  val empty: TagMod =
+    new TagMod {
+      override def applyTo(b: Builder) = ()
+    }
+
   def fn(f: Builder => Unit): TagMod =
     new TagMod {
       override def applyTo(b: Builder): Unit = f(b)
@@ -53,10 +59,10 @@ object TagMod {
     }
   }
 
-  val empty: TagMod =
-    new TagMod {
-      override def applyTo(b: Builder) = ()
-    }
+  final case class Composite(mods: Vector[TagMod]) extends TagMod {
+    override def applyTo(b: Builder): Unit =
+      mods.foreach(_ applyTo b)
+  }
 
   def devOnly(m: => TagMod): TagMod =
     if (developmentMode)
@@ -88,12 +94,4 @@ object TagMod {
         Composite(b.result())
       }
     }
-
-  // ===================================================================================================================
-
-  final case class Composite(mods: Vector[TagMod]) extends TagMod {
-    override def applyTo(b: Builder): Unit =
-      mods.foreach(_ applyTo b)
-  }
-
 }
