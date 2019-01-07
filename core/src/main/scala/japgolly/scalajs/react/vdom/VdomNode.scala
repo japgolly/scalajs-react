@@ -7,9 +7,6 @@ trait VdomNode extends TagMod {
 
   override def applyTo(b: Builder): Unit =
     b.appendChild(rawNode)
-
-  def ~(next: VdomNode): VdomNode =
-    VdomFragment.two(this, next)
 }
 
 object VdomNode {
