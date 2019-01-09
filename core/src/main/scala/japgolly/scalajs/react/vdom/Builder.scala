@@ -114,10 +114,16 @@ object Builder {
 
   class ToVdomElement extends ToJs {
     def render(tag: String): VdomElement = {
+      val r = (new ToRawReactElement).render(tag)
+      VdomElement(r)
+    }
+  }
+
+  class ToRawReactElement extends ToJs {
+    def render(tag: String): raw.React.Element = {
       addClassNameToProps()
       addStyleToProps()
-      val e = ToRawReactElement.build(tag, props, key, children)
-      VdomElement(e)
+      ToRawReactElement.build(tag, props, key, children)
     }
   }
 

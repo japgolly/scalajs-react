@@ -58,7 +58,13 @@ object Generic {
     type Raw <: RAW.React.Element
     val raw: Raw
     def displayName: String
+
+    final def vdomElement: vdom.VdomElement =
+      vdom.VdomElement(raw)
   }
+
+  implicit def unmountedRawToVdomElement(u: UnmountedRaw): vdom.VdomElement =
+    u.vdomElement
 
   trait UnmountedSimple[P, M] extends UnmountedRaw {
     final type Props = P
@@ -68,7 +74,6 @@ object Generic {
     def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
     def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
-    def vdomElement: vdom.VdomElement
     def key: Option[Key]
     def ref: Option[Ref]
     def props: Props

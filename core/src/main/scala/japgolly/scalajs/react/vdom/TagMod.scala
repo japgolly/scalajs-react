@@ -10,10 +10,9 @@ import scala.scalajs.LinkingInfo.developmentMode
  */
 trait TagMod {
 
-  /**
-   * Applies this modifier to the specified [[Builder]], such that when
-   * rendering is complete the effect of adding this modifier can be seen.
-   */
+  /** Applies this modifier to the specified [[Builder]], such that when
+    * rendering is complete the effect of adding this modifier can be seen.
+    */
   def applyTo(b: Builder): Unit
 
   final def when(condition: Boolean): TagMod =
@@ -21,9 +20,6 @@ trait TagMod {
 
   final def unless(condition: Boolean): TagMod =
     when(!condition)
-
-  def apply(ms: TagMod*): TagMod =
-    TagMod.Composite((Vector.newBuilder[TagMod] += this ++= ms).result())
 
   /**
     * Converts this VDOM and all its potential children into raw JS values.
@@ -40,10 +36,15 @@ trait TagMod {
 }
 
 object TagMod {
+
+  val empty: TagMod =
+    new TagMod {
+      override def applyTo(b: Builder) = ()
+    }
+
   def fn(f: Builder => Unit): TagMod =
     new TagMod {
-      override def applyTo(b: Builder): Unit =
-        f(b)
+      override def applyTo(b: Builder): Unit = f(b)
     }
 
   def apply(ms: TagMod*): TagMod =
@@ -61,16 +62,7 @@ object TagMod {
   final case class Composite(mods: Vector[TagMod]) extends TagMod {
     override def applyTo(b: Builder): Unit =
       mods.foreach(_ applyTo b)
-
-    override def apply(ms: TagMod*) =
-      Composite(mods ++ ms)
   }
-
-  val empty: TagMod =
-    new TagMod {
-      override def applyTo(b: Builder) = ()
-      override def apply(ms: TagMod*) = TagMod.fromTraversableOnce(ms)
-    }
 
   def devOnly(m: => TagMod): TagMod =
     if (developmentMode)
@@ -83,23 +75,4 @@ object TagMod {
 
   @inline def unless(cond: Boolean)(t: => TagMod): TagMod =
     when(!cond)(t)
-
-  def intercalate(as: TraversableOnce[TagMod], sep: TagMod): TagMod =
-    if (as.isEmpty)
-      empty
-    else {
-      val it = as.toIterator
-      val first = it.next()
-      if (it.isEmpty)
-        first
-      else {
-        val b = Vector.newBuilder[TagMod]
-        b += first
-        for (a <- it) {
-          b += sep
-          b += a
-        }
-        Composite(b.result())
-      }
-    }
 }

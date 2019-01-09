@@ -148,7 +148,6 @@ object JsForwardRef {
       override def root          = this
       override val raw           = r
       override val mountRaw      = constUnit
-      override val vdomElement   = vdom.VdomElement(raw)
       override def key           = jsNullToOption(raw.key)
       override def ref           = jsNullToOption(raw.ref).map(r => Ref.fromJs(r.asInstanceOf[Raw.React.RefHandle[R]]))
       override def props         = raw.props.asInstanceOf[P]
@@ -161,7 +160,6 @@ object JsForwardRef {
       override def root          = from.root
       override val raw           = from.raw
       override val mountRaw      = mm compose from.mountRaw
-      override def vdomElement   = from.vdomElement
       override def key           = from.key
       override def ref           = from.ref
       override def props         = mp(from.props)
