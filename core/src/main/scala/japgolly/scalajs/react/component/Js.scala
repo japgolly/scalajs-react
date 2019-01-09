@@ -67,7 +67,6 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
       override def root                              = this
       override val raw                               = r
       override val mountRaw                          = m.asInstanceOf[RAW.React.ComponentUntyped => M] // TODO Do better
-      override val vdomElement                       = vdom.VdomElement(raw)
       override def key                               = jsNullToOption(raw.key)
       override def ref                               = jsNullToOption(raw.ref)
       override def props                             = raw.props
@@ -83,7 +82,6 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
       override def root                               = from.root
       override def props                              = mp(from.props)
       override val raw                                = from.raw
-      override def vdomElement                        = from.vdomElement
       override def key                                = from.key
       override def ref                                = from.ref
       override def propsChildren                      = from.propsChildren
