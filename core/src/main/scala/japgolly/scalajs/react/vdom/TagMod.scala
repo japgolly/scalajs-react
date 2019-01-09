@@ -75,23 +75,4 @@ object TagMod {
 
   @inline def unless(cond: Boolean)(t: => TagMod): TagMod =
     when(!cond)(t)
-
-  def intercalate(as: TraversableOnce[TagMod], sep: TagMod): TagMod =
-    if (as.isEmpty)
-      empty
-    else {
-      val it = as.toIterator
-      val first = it.next()
-      if (it.isEmpty)
-        first
-      else {
-        val b = Vector.newBuilder[TagMod]
-        b += first
-        for (a <- it) {
-          b += sep
-          b += a
-        }
-        Composite(b.result())
-      }
-    }
 }

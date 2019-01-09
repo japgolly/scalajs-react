@@ -110,12 +110,21 @@ object PrefixedTest extends TestSuite {
 
       'mix - test(<.div(TagMod(vdomNode, <.br, vdomElement)), "<div><h1>cool</h1><br/><p></p></div>")
 
-      'mkVdomTag - {
-        'sep0 - test(<.div(List[TagMod]()       .mkTagMod(" | ")), "<div></div>")
-        'sep1 - test(<.div(List(<.p)            .mkTagMod(" | ")), "<div><p></p></div>")
-        'sep2 - test(<.div(List(<.p, <.br)      .mkTagMod(" | ")), "<div><p></p> | <br/></div>")
-        'sep3 - test(<.div(List(<.p, <.br, <.hr).mkTagMod(" | ")), "<div><p></p> | <br/> | <hr/></div>")
-        'sep4 - test(<.div((1 to 4)             .mkTagMod(<.br) ), "<div>1<br/>2<br/>3<br/>4</div>")
+      'mkTagMod - {
+        'sep0 - test(<.div(List[TagMod]()       .mkTagMod(" | "))              , "<div></div>")
+        'sep1 - test(<.div(List(<.p)            .mkTagMod(" | "))              , "<div><p></p></div>")
+        'sep2 - test(<.div(List(<.p, <.br)      .mkTagMod(" | "))              , "<div><p></p> | <br/></div>")
+        'sep3 - test(<.div(List(<.p, <.br, <.hr).mkTagMod(" | "))              , "<div><p></p> | <br/> | <hr/></div>")
+        'sep4 - test(<.div((1 to 4)             .mkTagMod(<.br) )              , "<div>1<br/>2<br/>3<br/>4</div>")
+        'all  - test(<.div(List(<.p, <.br, <.hr).mkTagMod(" [ ", " | ", " ] ")), "<div> [ <p></p> | <br/> | <hr/> ] </div>")
+      }
+      'mkReactFragment - {
+        'sep0 - test(List[VdomNode]()     .mkReactFragment(" | ")              , "")
+        'sep1 - test(List(<.p)            .mkReactFragment(" | ")              , "<p></p>")
+        'sep2 - test(List(<.p, <.br)      .mkReactFragment(" | ")              , "<p></p> | <br/>")
+        'sep3 - test(List(<.p, <.br, <.hr).mkReactFragment(" | ")              , "<p></p> | <br/> | <hr/>")
+        'sep4 - test((1 to 4)             .mkReactFragment(<.br)               , "1<br/>2<br/>3<br/>4")
+        'all  - test(List(<.p, <.br, <.hr).mkReactFragment(" [ ", " | ", " ] "), " [ <p></p> | <br/> | <hr/> ] ")
       }
     }
 

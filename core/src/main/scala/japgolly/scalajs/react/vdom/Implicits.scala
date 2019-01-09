@@ -2,9 +2,9 @@ package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.{PropsChildren, raw}
 import japgolly.scalajs.react.component.Generic
-import japgolly.scalajs.react.internal.OptionLike
+import japgolly.scalajs.react.feature.ReactFragment
+import japgolly.scalajs.react.internal._
 import scala.scalajs.js
-import Exports.VdomTag
 
 // =====================================================================================================================
 
@@ -64,15 +64,37 @@ trait ImplicitsForTagMod {
 // =====================================================================================================================
 
 object ImplicitsForVdomNode {
+
   final class TraversableOnceExt[A](private val as: TraversableOnce[A]) extends AnyVal {
 
     /** Like `.mkString(String)` in Scala stdlib. */
-    def mkTagMod(sep: TagMod)(implicit f: A => TagMod): TagMod =
-      TagMod.intercalate(as.toIterator.map(f), sep)
+    def mkReactFragment(sep: VdomNode)(implicit f: A => VdomNode): VdomElement =
+      mkReactFragment(VdomNode.empty, sep, VdomNode.empty)
 
     /** Like `.mkString(String, String, String)` in Scala stdlib. */
-    def mkTagMod(start: TagMod, sep: TagMod, end: TagMod)(implicit f: A => TagMod): TagMod =
-      TagMod.Composite(Vector.empty :+ start :+ mkTagMod(sep) :+ end)
+    def mkReactFragment(start: VdomNode, sep: VdomNode, end: VdomNode)(implicit f: A => VdomNode): VdomElement = {
+      val b = List.newBuilder[VdomNode]
+      if (start ne VdomNode.empty) b += start
+      intercalateInto(b, as.toIterator.map(f), sep)
+      if (end ne VdomNode.empty) b += end
+      ReactFragment(b.result(): _*)
+    }
+
+    /** Like `.mkString(String)` in Scala stdlib. */
+    def mkTagMod(sep: TagMod)(implicit f: A => TagMod): TagMod =
+      mkTagMod(VdomNode.empty, sep, VdomNode.empty)
+
+    /** Like `.mkString(String, String, String)` in Scala stdlib. */
+    def mkTagMod(start: TagMod, sep: TagMod, end: TagMod)(implicit f: A => TagMod): TagMod = {
+      val b = Vector.newBuilder[TagMod]
+      if (start ne VdomNode.empty) b += start
+      intercalateInto(b, as.toIterator.map(f), sep)
+      if (end ne VdomNode.empty) b += end
+      TagMod.fromTraversableOnce(b.result())
+    }
+
+    def toReactFragment(implicit f: A => VdomNode): VdomElement =
+      ReactFragment(as.toIterator.map(f).toList: _*)
 
     def toTagMod(implicit f: A => TagMod): TagMod =
       TagMod.fromTraversableOnce(as.toIterator.map(f))
