@@ -127,18 +127,10 @@ trait ImplicitsForVdomNode {
 
 // =====================================================================================================================
 
-trait ImplicitsForVdomElement {
-  implicit def vdomElementFromComponent(u: Generic.UnmountedWithRoot[_, _, _, _]): VdomElement =
-    u.vdomElement
-}
-
-// =====================================================================================================================
-
 trait Implicits
   extends ImplicitsForTagMod
      with ImplicitsForVdomAttr
      with ImplicitsForVdomNode
-     with ImplicitsForVdomElement
 
 object Implicits extends Implicits
 

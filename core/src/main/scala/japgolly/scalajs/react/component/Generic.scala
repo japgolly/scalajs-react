@@ -63,6 +63,9 @@ object Generic {
       vdom.VdomElement(raw)
   }
 
+  implicit def unmountedRawToVdomElement(u: UnmountedRaw): vdom.VdomElement =
+    u.vdomElement
+
   trait UnmountedSimple[P, M] extends UnmountedRaw {
     final type Props = P
     final type Mounted = M
