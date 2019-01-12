@@ -1,10 +1,9 @@
 package japgolly.scalajs.react.component
 
-import org.scalajs.dom
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, ComponentDom, Key, PropsChildren, StateAccess, vdom, raw => RAW}
-import scala.scalajs.js.|
+import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, ComponentDom, Key, PropsChildren, StateAccess, vdom}
+import japgolly.scalajs.react.{raw => RAW}
 
 object Generic {
 
@@ -15,6 +14,7 @@ object Generic {
     type Raw <: js.Any
     val raw: Raw
     def displayName: String
+    def mapRaw(f: Raw => Raw): ComponentRaw
   }
 
   trait ComponentSimple[P, CT[-p, +u] <: CtorType[p, u], U] extends ComponentRaw {
@@ -28,6 +28,7 @@ object Generic {
     val ctor: CT[P, U]
     implicit def ctorPF: Profunctor[CT]
 
+    override def mapRaw(f: Raw => Raw): ComponentSimple[P, CT, U]
 
     /** Create a new JS component that wraps this component and its mappings.
       *
@@ -43,6 +44,7 @@ object Generic {
     type Root <: ComponentRoot[P0, CT0, U0]
     def root: Root
 
+    override def mapRaw(f: Raw => Raw): ComponentWithRoot[P1, CT1, U1, P0, CT0, U0]
     override def cmapCtorProps[P2](f: P2 => P1): ComponentWithRoot[P2, CT1, U1, P0, CT0, U0]
     override def mapUnmounted[U2](f: U1 => U2): ComponentWithRoot[P1, CT1, U2, P0, CT0, U0]
     override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): ComponentWithRoot[P1, CT2, U1, P0, CT0, U0]
