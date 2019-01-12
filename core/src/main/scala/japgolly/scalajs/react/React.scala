@@ -34,6 +34,21 @@ object React {
     */
   @inline def forwardRef = component.ReactForwardRef
 
+  /** Class components can bail out from rendering when their input props are the same using shouldComponentUpdate.
+    * Now you can do the same with function components by wrapping them in React.memo.
+    *
+    * @since 1.4.0 / React 16.6.0
+    */
+  def memo[P, CT[-p, +u] <: CtorType[p, u]](c: ScalaFnComponent[P, CT])
+                                           (implicit r: Reusability[P],
+                                            s: CtorType.Summoner[Box[P], c.ctor.ChildrenType])
+      : GenericComponent[P, s.CT, JsComponent.Unmounted[Box[P], Null]] = {
+    val r2 = implicitly[Reusability[Box[P]]]
+    val c2 = Raw.React.memo(c.raw, r2.test)
+    JsComponent.force[Box[P], c.ctor.ChildrenType, Null](c2)
+      .cmapCtorProps[P](Box(_))
+  }
+
   /** StrictMode is a tool for highlighting potential problems in an application.
     * Like Fragment, StrictMode does not render any visible UI.
     * It activates additional checks and warnings for its descendants.

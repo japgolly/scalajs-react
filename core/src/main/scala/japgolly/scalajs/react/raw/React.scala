@@ -211,7 +211,7 @@ trait React extends js.Object {
   final def `lazy`[P <: js.Object](f: js.Function0[js.Promise[LazyResult[P]]]): Lazy[P] = js.native
 
   /** @since 16.6.0 */
-  final def memo[P <: js.Object, A](f: js.Function1[P, A], areEqual: js.Function2[P, P, Boolean] = js.native): js.Function1[P, A] = js.native
+  final def memo[P <: js.Object, A](f: js.Function1[P, A], areEqual: js.Function2[P, P, Boolean] = js.native): js.Object = js.native
 
   final val version: String = js.native
 
