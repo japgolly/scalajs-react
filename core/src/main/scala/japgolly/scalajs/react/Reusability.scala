@@ -1,13 +1,11 @@
-package japgolly.scalajs.react.extra
+package japgolly.scalajs.react
 
-import scala.annotation.tailrec
-import scala.reflect.ClassTag
+import japgolly.scalajs.react.internal.{OptionLike, ReusabilityMacros}
 import java.util.{Date, UUID}
 import org.scalajs.dom.console
+import scala.annotation.tailrec
+import scala.reflect.ClassTag
 import scala.scalajs.js.{Date => JsDate}
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra.internal.ReusabilityMacros
-import japgolly.scalajs.react.internal.OptionLike
 
 /**
  * Tests whether one instance can be used in place of another.
@@ -320,9 +318,6 @@ object Reusability {
 
   def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](name: String): ScalaComponent.Config[P, C, S, B, U, U] =
     shouldComponentUpdateAnd(_ log name)
-
-  def shouldComponentUpdateWithOverlay[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] =
-    ReusabilityOverlay.install(DefaultReusabilityOverlay.defaults)
 
   final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[P, S, B]) {
     def mounted       = self.mountedImpure

@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.extra.router
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra.Reusability
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html
 

@@ -1,7 +1,6 @@
-package japgolly.scalajs.react.extra
+package japgolly.scalajs.react
 
 import scala.reflect.ClassTag
-import japgolly.scalajs.react._
 
 /**
   * A value that has been explicitly paired with a (potentially ad-hoc) [[Reusability]] instance.
