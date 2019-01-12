@@ -207,7 +207,11 @@ trait React extends js.Object {
 
   final def forwardRef[P <: js.Object, R](f: js.Function2[P with PropsWithChildren, ForwardedRef[R], Node]): ForwardRefComponent[P, R] = js.native
 
+  /** @since 16.6.0 */
   final def `lazy`[P <: js.Object](f: js.Function0[js.Promise[LazyResult[P]]]): Lazy[P] = js.native
+
+  /** @since 16.6.0 */
+  final def memo[P <: js.Object, A](f: js.Function1[P, A], areEqual: js.Function2[P, P, Boolean] = js.native): js.Function1[P, A] = js.native
 
   final val version: String = js.native
 
