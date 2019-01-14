@@ -372,9 +372,6 @@ object CallbackTo {
 
   @inline implicit def MapGuard[A]: MapGuard[A] =
     null.asInstanceOf[MapGuard[A]]
-
-  private[CallbackTo] val memoMap =
-    internal.WeakMap().castK[Function0, CallbackTo]
 }
 
 // =====================================================================================================================
@@ -536,11 +533,19 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   /** Return a version of this callback that will only execute once, and reuse the result for all
     * other invocations.
     */
-  def memo: CallbackTo[A] =
-    CallbackTo.memoMap.getOrSet(f) {
-      lazy val t = attemptTry.runNow()
-      CallbackTo(t.get)
+  def memo(): CallbackTo[A] = {
+    var result: Option[Try[A]] = None
+    val self = attemptTry
+    CallbackTo {
+      val t: Try[A] =
+        result.getOrElse {
+          val t = self.runNow()
+          result = Some(t)
+          t
+        }
+      t.get
     }
+  }
 
   /** Conditional execution of this callback.
     *

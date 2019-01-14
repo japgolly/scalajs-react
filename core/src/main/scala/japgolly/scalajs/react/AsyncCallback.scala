@@ -113,11 +113,6 @@ object AsyncCallback {
 
   @inline implicit def asynCallbackCovariance[A, B >: A](c: AsyncCallback[A]): AsyncCallback[B] =
     c.widen
-
-  private[AsyncCallback] val memoMap = {
-    type Fn[A] = (Try[A] => Callback) => Callback
-    internal.WeakMap().castK[Fn, AsyncCallback]
-  }
 }
 
 /** Pure asynchronous callback.
@@ -289,19 +284,17 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   /** Return a version of this callback that will only execute once, and reuse the result for all
     * other invocations.
     */
-  def memo: AsyncCallback[A] =
-    AsyncCallback.memoMap.getOrSet(completeWith) {
-      var result: Option[AsyncCallback[A]] = None
-      def set(r: AsyncCallback[A]) = {result = Some(r); r}
-
-      AsyncCallback.byName {
-        result.getOrElse {
-          val first = attemptTry.flatMap(t => AsyncCallback.byName(set(AsyncCallback.const(t))))
-          val promise = first.unsafeToJsPromise()
-          result getOrElse set(AsyncCallback.fromJsPromise(promise))
-        }
+  def memo(): AsyncCallback[A] = {
+    var result: Option[AsyncCallback[A]] = None
+    def set(r: AsyncCallback[A]) = {result = Some(r); r}
+    AsyncCallback.byName {
+      result.getOrElse {
+        val first = attemptTry.flatMap(t => AsyncCallback.byName(set(AsyncCallback.const(t))))
+        val promise = first.unsafeToJsPromise()
+        result getOrElse set(AsyncCallback.fromJsPromise(promise))
       }
     }
+  }
 
   /** Conditional execution of this callback.
     *

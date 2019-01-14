@@ -124,14 +124,14 @@ object AsyncTest {
         var count = 0
         val getCount = AsyncCallback.point(count)
         val incCount = AsyncCallback.point(count += 1).delayMs(400)
-        def m = incCount.memo
+        val m = incCount.memo()
         // start 1
         // start 2
         // complete 1
         // complete 2
         // start 3
         // complete 3
-        val t = (m *> m) >> m.memo >> getCount
+        val t = (m *> m) >> m.memo() >> getCount
         t -> 1
       })
 
