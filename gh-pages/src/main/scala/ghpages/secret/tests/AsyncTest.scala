@@ -108,7 +108,7 @@ object AsyncTest {
 
       .add("jsPromise: from fixed ko")(testCmp {
         val e = new RuntimeException("AH")
-        val p = AsyncCallback.error[Int](e).unsafeToJsPromise()
+        val p = AsyncCallback.throwException[Int](e).unsafeToJsPromise()
         val t1,t2 = AsyncCallback.fromJsPromise(p).attempt
         t1.zip(t2) -> (Left(e), Left(e))
       })

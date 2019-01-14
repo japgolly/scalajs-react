@@ -28,7 +28,7 @@ object AsyncCallback {
   def pure[A](a: A): AsyncCallback[A] =
     const(Success(a))
 
-  def error[A](t: Throwable): AsyncCallback[A] =
+  def throwException[A](t: Throwable): AsyncCallback[A] =
     const(Failure(t))
 
   def const[A](t: Try[A]): AsyncCallback[A] =

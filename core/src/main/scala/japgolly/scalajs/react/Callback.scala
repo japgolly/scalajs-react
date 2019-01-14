@@ -41,7 +41,7 @@ object Callback {
     CallbackTo.pure(())
 
   def error(t: Throwable): Callback =
-    CallbackTo.error(t)
+    CallbackTo.throwException(t)
 
   /**
    * Callback that isn't created until the first time it is used, after which it is reused.
@@ -183,7 +183,7 @@ object CallbackTo {
   def pure[A](a: A): CallbackTo[A] =
     new CallbackTo(() => a)
 
-  def error[A](t: Throwable): CallbackTo[A] =
+  def throwException[A](t: Throwable): CallbackTo[A] =
     CallbackTo(throw t)
 
   /** Callback that isn't created until the first time it is used, after which it is reused. */
