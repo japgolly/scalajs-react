@@ -113,6 +113,15 @@ object AsyncCallback {
 
   @inline implicit def asynCallbackCovariance[A, B >: A](c: AsyncCallback[A]): AsyncCallback[B] =
     c.widen
+
+  /** Not literally tail-recursive because AsyncCallback is continuation-based, but this utility in this shape may still
+    * be useful.
+    */
+  def tailrec[A, B](a: A)(f: A => AsyncCallback[Either[A, B]]): AsyncCallback[B] =
+    f(a).flatMap {
+      case Left(a2) => tailrec(a2)(f)
+      case Right(b) => pure(b)
+    }
 }
 
 /** Pure asynchronous callback.

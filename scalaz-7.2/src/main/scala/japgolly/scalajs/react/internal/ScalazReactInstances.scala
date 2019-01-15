@@ -38,6 +38,40 @@ trait ScalazReactInstances {
         }
     }
 
+  implicit final lazy val reactAsyncCallbackScalazInstance: MonadError[AsyncCallback, Throwable] with BindRec[AsyncCallback] =
+    new MonadError[AsyncCallback, Throwable] with BindRec[AsyncCallback] {
+
+      override def point[A](a: => A): AsyncCallback[A] =
+        AsyncCallback.point(a)
+
+      override def ap[A, B](fa: => AsyncCallback[A])(f: => AsyncCallback[A => B]) =
+        f.zipWith(fa)(_(_))
+
+      override def ap2[A, B, C](fa: => AsyncCallback[A], fb: => AsyncCallback[B])(f: AsyncCallback[(A, B) => C]) =
+        f.zipWith(fa.zip(fb))(_.tupled(_))
+
+      override def apply2[A, B, C](fa: => AsyncCallback[A], fb: => AsyncCallback[B])(f: (A, B) => C) =
+        fa.zipWith(fb)(f)
+
+      override def bind[A, B](fa: AsyncCallback[A])(f: A => AsyncCallback[B]): AsyncCallback[B] =
+        fa >>= f
+
+      override def map[A, B](fa : AsyncCallback[A])(f : A => B): AsyncCallback[B] =
+        fa map f
+
+      override def tailrecM[A, B](f: A => AsyncCallback[A \/ B])(a: A): AsyncCallback[B] =
+        AsyncCallback.tailrec(a)(f.andThen(_.map(_.toEither)))
+
+      override def raiseError[A](e: Throwable): AsyncCallback[A] =
+        AsyncCallback.throwException(e)
+
+      override def handleError[A](fa: AsyncCallback[A])(f: Throwable => AsyncCallback[A]): AsyncCallback[A] =
+        fa.attempt.flatMap {
+          case Right(a) => AsyncCallback pure a
+          case Left(t)  => f(t)
+        }
+    }
+
   implicit final lazy val reactCallbackOptionScalazInstance: MonadPlus[CallbackOption] with BindRec[CallbackOption] =
     new MonadPlus[CallbackOption] with BindRec[CallbackOption] {
       override def point[A](a: => A): CallbackOption[A] =
