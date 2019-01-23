@@ -97,7 +97,7 @@ trait HtmlAttrs {
       * Identifies the next element (or elements) in an alternate reading order of content which, at the user's discretion, allows assistive technology to override the general default of reading in document source order.
       */
     final def flowTo = VdomAttr("aria-flowto")
-
+    
     /**
       * Indicates an element's "grabbed" state in a drag-and-drop operation.
       */
@@ -362,6 +362,11 @@ trait HtmlAttrs {
     * elements.
     */
   final def `for` = VdomAttr("htmlFor")
+    
+  /**
+    * Allows association of an input to a non-ancestoral form.
+    */
+  final def form = VdomAttr("form")
 
   final def formAction = VdomAttr("formAction")
 
