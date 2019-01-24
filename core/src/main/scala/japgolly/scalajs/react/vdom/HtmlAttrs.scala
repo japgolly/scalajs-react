@@ -363,6 +363,11 @@ trait HtmlAttrs {
     * elements.
     */
   final def `for` = VdomAttr("htmlFor")
+    
+  /**
+    * Allows association of an input to a non-ancestoral form.
+    */
+  final def formId = VdomAttr("form")
 
   final def formAction = VdomAttr("formAction")
 
