@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{catchAll, identityFn}
+import japgolly.scalajs.react.internal.{catchAll, identityFn, newJsPromise}
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
@@ -15,6 +15,21 @@ object AsyncCallback {
 
   def apply[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(f)
+
+  def init[A, B](f: (Try[B] => Callback) => CallbackTo[A]): CallbackTo[(A, AsyncCallback[B])] =
+    for {
+      (ac, c) <- promise[B]
+      a       <- f(c)
+    } yield (a, ac)
+
+  /** Create an AsyncCallback and separately provide the completion function.
+    *
+    * This is like Scala's promise, not the JS promise which is more like Scala's Future.
+    */
+  def promise[A]: CallbackTo[(AsyncCallback[A], Try[A] => Callback)] =
+    for {
+      (p, pc) <- newJsPromise[A]
+    } yield (fromJsPromise(p), pc)
 
   def first[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(g => {
@@ -398,19 +413,10 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     }
 
   def asCallbackToJsPromise: CallbackTo[js.Promise[A]] =
-    CallbackTo {
-      new js.Promise[A]((respond: js.Function1[A | Thenable[A], _], reject: js.Function1[Any, _]) => {
-        def fail(t: Throwable) =
-          reject(t match {
-            case js.JavaScriptException(e) => e
-            case e                         => e
-          })
-        completeWith(t => Callback(t match {
-          case Success(a) => respond(a)
-          case Failure(e) => fail(e)
-        })).runNow()
-      })
-    }
+    for {
+      (p, pc) <- newJsPromise[A]
+      _       <- completeWith(pc)
+    } yield p
 
   def unsafeToFuture(): Future[A] =
     asCallbackToFuture.runNow()
