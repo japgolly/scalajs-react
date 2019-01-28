@@ -22,14 +22,13 @@ script:
   - sbt ++$TRAVIS_SCALA_VERSION 'set parallelExecution in ThisBuild := false' 'set scalaJSStage in ThisBuild := FullOptStage' test
   - bin/checkDevOnly $TRAVIS_SCALA_VERSION
 
-# Taken from https://github.com/typelevel/cats/blob/master/.travis.yml
 before_cache:
-  - find $HOME/.sbt -name "*.lock" -type f -delete
+  - rm -f $HOME/.ivy2/.sbt.ivy.lock
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -type f -delete
+  - find $HOME/.sbt -name "*.lock" -type f -delete
 cache:
   directories:
-    - $HOME/.sbt/0.13/dependency
-    - $HOME/.sbt/boot/scala*
-    - $HOME/.sbt/launchers
+    - $HOME/.coursier
     - $HOME/.ivy2/cache
+    - $HOME/.sbt
 

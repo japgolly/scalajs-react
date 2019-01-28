@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.extra
 
 import utest._
-import japgolly.scalajs.react.Callback
-import StateSnapshot.{SetFn, ModFn}
+import japgolly.scalajs.react._
+import StateSnapshot.{ModFn, SetFn}
 
 object StateSnapshotTest extends TestSuite {
 

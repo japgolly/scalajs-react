@@ -18,6 +18,9 @@ object ReusabilityOverlay {
 
   private val key = "reusabilityOverlay"
 
+  def install[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] =
+    install(DefaultReusabilityOverlay.defaults)
+
   def install[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]
       (newOverlay: ScalaComponent.MountedImpure[P, S, B] => ReusabilityOverlay): ScalaComponent.Config[P, C, S, B, U, U] = {
 

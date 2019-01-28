@@ -291,18 +291,18 @@ trait HtmlAttrs {
   private def classSetImpl(z: TagMod, ps: Seq[(String, Boolean)]): TagMod =
     ps.foldLeft(z)((q, p) =>
       if (p._2)
-        q(cls := p._1)
+        TagMod(q, cls := p._1)
       else
         q)
 
   final def classSet(ps: (String, Boolean)*): TagMod =
-    classSetImpl(EmptyVdom, ps)
+    classSetImpl(TagMod.empty, ps)
 
   final def classSet1(a: String, ps: (String, Boolean)*): TagMod =
     classSetImpl(cls := a, ps)
 
   final def classSetM(ps: Map[String, Boolean]): TagMod =
-    classSetImpl(EmptyVdom, ps.toSeq)
+    classSetImpl(TagMod.empty, ps.toSeq)
 
   final def classSet1M(a: String, ps: Map[String, Boolean]): TagMod =
     classSetImpl(cls := a, ps.toSeq)
@@ -313,6 +313,7 @@ trait HtmlAttrs {
     * default value is 20 (HTML5).
     */
   final def cols = VdomAttr("cols")
+
   /**
     * This attribute gives the value associated with the http-equiv or name
     * attribute, depending of the context.
@@ -362,6 +363,11 @@ trait HtmlAttrs {
     * elements.
     */
   final def `for` = VdomAttr("htmlFor")
+    
+  /**
+    * Allows association of an input to a non-ancestoral form.
+    */
+  final def formId = VdomAttr("form")
 
   final def formAction = VdomAttr("formAction")
 

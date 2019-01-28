@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.extra
+package japgolly.scalajs.react.core
 
 import nyaya.gen._
 import nyaya.prop._

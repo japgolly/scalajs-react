@@ -47,6 +47,14 @@ object VdomTest extends TestSuite {
       }
     }
 
+    'noTagModOnElements {
+      // https://github.com/japgolly/scalajs-react/issues/508
+      val a: VdomElement = <.a
+      val attr = ^.href := "#"
+      <.a(attr)
+      compileError("a(attr)")
+    }
+
     'portal - {
       ReactTestUtils.withNewBodyElement { portalTarget =>
         val comp = ScalaComponent.static("tmp")(
