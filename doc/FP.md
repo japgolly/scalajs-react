@@ -137,8 +137,8 @@ It's the same as `ext-monocle` module but uses the Cats variant of Monocle.
 ```scala
 libraryDependencies ++= Seq(
     "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % "1.3.1",
-    "com.github.julien-truffaut"        %%%  "monocle-core"    % "1.5.0-cats",
-    "com.github.julien-truffaut"        %%%  "monocle-macro"   % "1.5.0-cats"
+    "com.github.julien-truffaut"        %%% "monocle-core"     % "1.5.0-cats",
+    "com.github.julien-truffaut"        %%% "monocle-macro"    % "1.5.0-cats"
 )
 
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
