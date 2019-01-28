@@ -4,7 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.Ajax
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.XMLHttpRequest
-import scala.util.Random
+import scala.util.{Random, Success}
 import scalaz.Equal
 import scalaz.std.anyVal._
 import scalaz.std.either._
@@ -134,6 +134,17 @@ object AsyncTest {
         val t = (m *> m) >> m.memo() >> getCount
         t -> 1
       })
+
+    .add("init")(testCmp {
+      val x = AsyncCallback.init[Boolean, Int] { f =>
+        f(Success(123)).delayMs(500).toCallback.ret(true)
+      }
+      val y = for {
+        (b, ac) <- x.asAsyncCallback
+        i       <- ac
+      } yield (b, i)
+      y -> ((true, 123))
+    })
 
       .result()
 
