@@ -1,6 +1,7 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.NotAllowed
+import japgolly.scalajs.react.vdom.VdomElement
 import japgolly.scalajs.react.{raw => Raw}
 import org.scalajs.dom
 import scala.scalajs.js.|
@@ -10,7 +11,12 @@ object ReactDOM {
 
   /** For mounted components, use .getDOMNode */
   def findDOMNode(componentOrElement: dom.Element | Raw.React.ComponentUntyped): Option[ComponentDom.Mounted] =
-    ComponentDom(raw.findDOMNode(componentOrElement)).mounted
+    ComponentDom.findDOMNode(componentOrElement).mounted
+
+  def hydrate(element  : VdomElement,
+              container: Raw.ReactDOM.Container,
+              callback: Callback = Callback.empty): Raw.React.ComponentUntyped =
+    Raw.ReactDOM.hydrate(element.rawElement, container, callback.toJsFn)
 
   def unmountComponentAtNode(container: dom.Node): Boolean =
     raw.unmountComponentAtNode(container)

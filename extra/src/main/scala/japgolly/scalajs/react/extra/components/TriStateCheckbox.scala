@@ -2,7 +2,6 @@ package japgolly.scalajs.react.extra.components
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.extra._
 import org.scalajs.dom.ext.KeyCode
 import org.scalajs.dom.html.Input
 

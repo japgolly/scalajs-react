@@ -25,11 +25,12 @@ trait ReactDOM extends js.Object {
   final def unmountComponentAtNode(container: dom.Node): Boolean = js.native
 
   // ==========================================================================
-  // NOTE: Ensure that DomNode is kept up-to-date with this type
+  // NOTE: Ensure that ComponentDom is kept up-to-date with this type
   //
   final type DomNode = dom.Element | dom.Text
   // ==========================================================================
 
+  @throws[js.JavaScriptException]("if arg isn't a React component or its unmounted")
   final def findDOMNode(componentOrElement: dom.Element | React.ComponentUntyped): DomNode | Null = js.native
 
   final def createPortal(child: React.Node, container: Container): React.Node = js.native

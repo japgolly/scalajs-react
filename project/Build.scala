@@ -10,25 +10,26 @@ import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 object ScalajsReact {
 
   object Ver {
-    val Cats          = "1.4.0"
-    val KindProjector = "0.9.7"
-    val MacroParadise = "2.1.1"
-    val Monocle       = "1.5.0"
-    val MonocleCats   = "1.5.1-cats"
-    val MTest         = "0.6.5"
-    val Nyaya         = "0.8.1"
-    val ReactJs       = "16.5.1"
-    val Scala211      = "2.11.12"
-    val Scala212      = "2.12.6"
-    val ScalaJsDom    = "0.9.6"
-    val Scalaz72      = "7.2.26"
-    val SizzleJs      = "2.3.0"
-    val Sourcecode    = "0.1.4"
+    val BetterMonadicFor = "0.3.0-M4"
+    val Cats             = "1.5.0"
+    val KindProjector    = "0.9.9"
+    val MacroParadise    = "2.1.1"
+    val Monocle          = "1.5.0"
+    val MonocleCats      = "1.5.1-cats"
+    val MTest            = "0.6.6"
+    val Nyaya            = "0.8.1"
+    val ReactJs          = "16.7.0"
+    val Scala211         = "2.11.12"
+    val Scala212         = "2.12.8"
+    val ScalaJsDom       = "0.9.6"
+    val Scalaz72         = "7.2.27"
+    val SizzleJs         = "2.3.0"
+    val Sourcecode       = "0.1.5"
   }
 
   type PE = Project => Project
 
-  def byScalaVersion[A](f: PartialFunction[(Int, Int), Seq[A]]): Def.Initialize[Seq[A]] =
+  def byScalaVersion[A](f: PartialFunction[(Long, Long), Seq[A]]): Def.Initialize[Seq[A]] =
     Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
 
   def commonSettings: PE =
@@ -45,17 +46,18 @@ object ScalajsReact {
                                   // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
                                 }.value,
         //scalacOptions    += "-Xlog-implicits",
+        incOptions         := incOptions.value.withLogRecompileOnMacro(false),
         updateOptions      := updateOptions.value.withCachedResolution(true),
-        incOptions         := incOptions.value.withNameHashing(true).withLogRecompileOnMacro(false),
-        triggeredMessage   := Watched.clearWhenTriggered)
+        triggeredMessage   := Watched.clearWhenTriggered,
+        addCompilerPlugin("com.olegpy" %% "better-monadic-for" % Ver.BetterMonadicFor))
 
   def preventPublication: PE =
     _.settings(
       publishTo := Some(Resolver.file("Unused transient repository", target.value / "fakepublish")),
       publishArtifact := false,
-      publishLocal := (),
-      publishLocalSigned := (),       // doesn't work
-      publishSigned := (),            // doesn't work
+      publishLocal := {},
+      publishLocalSigned := {},       // doesn't work
+      publishSigned := {},            // doesn't work
       packagedArtifacts := Map.empty) // doesn't work - https://github.com/sbt/sbt-pgp/issues/42
 
   def publicationSettings: PE =
@@ -126,6 +128,7 @@ object ScalajsReact {
   def addReactJsDependencies(scope: Configuration): PE = {
     _.settings(
       dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2", // https://github.com/webjars/webjars/issues/1789
+      dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.12.0-alpha.3",
       jsDependencies ++= Seq(
 
         "org.webjars.npm" % "react" % Ver.ReactJs % scope
@@ -180,9 +183,9 @@ object ScalajsReact {
     _.settings(
       fastOptJS     in Test := Attributed(artifactPath.in(fastOptJS).in(Test).value)(AttributeMap.empty),
       fullOptJS     in Test := Attributed(artifactPath.in(fullOptJS).in(Test).value)(AttributeMap.empty),
-      sbt.Keys.test in Test := (),
-      testOnly      in Test := (),
-      testQuick     in Test := ())
+      sbt.Keys.test in Test := {},
+      testOnly      in Test := {},
+      testQuick     in Test := {})
 
   def monocleLib(name: String, cats: Boolean) =
     "com.github.julien-truffaut" %% s"monocle-$name" % {if (cats) Ver.MonocleCats else Ver.Monocle} cross ScalaJSCrossVersion.binary
@@ -250,7 +253,7 @@ object ScalajsReact {
         "react"                             -> Ver.ReactJs,
         "react-dom"                         -> Ver.ReactJs,
         "react-addons-perf"                 -> "15.5.0-rc.2",
-        "react-addons-css-transition-group" -> "16.5.1"))
+        "react-addons-css-transition-group" -> "16.7.0"))
   */
 
   def scalazModule(name: String, version: String) = {
@@ -291,11 +294,13 @@ object ScalajsReact {
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
+    .settings(crossScalaVersions := Seq(Ver.Scala212))
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
+      crossScalaVersions := Seq(Ver.Scala212),
       libraryDependencies += monocleLib("macro", false),
       addCompilerPlugin(macroParadisePlugin),
       emitSourceMaps := false,

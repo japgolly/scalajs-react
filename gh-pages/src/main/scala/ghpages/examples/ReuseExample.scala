@@ -12,7 +12,7 @@ object ReuseExample {
   lazy val main = addIntro(topLevelComponent.withKey(_)(), _(
     ^.marginBottom := "2.4em",
     "The colourful overlays here are provided by ",
-    <.code("Reusability.shouldComponentUpdateWithOverlay"),
+    <.code("ReusabilityOverlay.install"),
     " and demonstrate how many updates are prevented vs rendered in each component.",
     <.br,
     "Hover for more info. Click one to print detail to the JS console."))
@@ -26,7 +26,7 @@ object ReuseExample {
     .render_P(sum =>
       <.h1(
         "The sum of all inputs is", <.br, sum))
-    .configure(Reusability.shouldComponentUpdateWithOverlay)
+    .configure(ReusabilityOverlay.install)
     .build
 
   case class InputControl(current: Int, change: Int ~=> Callback)
@@ -39,7 +39,7 @@ object ReuseExample {
         <.span(^.padding := "0 1ex", p.current),
         <.button("+1", ^.onClick --> p.change(1)))
     )
-    .configure(Reusability.shouldComponentUpdateWithOverlay)
+    .configure(ReusabilityOverlay.install)
     .build
 
   val numberRegex = "^-?\\d+$".r
@@ -54,7 +54,7 @@ object ReuseExample {
         ^.value       := v.value.toString,
         ^.onChange  ==>? update)
     }
-    .configure(Reusability.shouldComponentUpdateWithOverlay)
+    .configure(ReusabilityOverlay.install)
     .build
 
   // ---------------------------------------------------------------------------------------------------------

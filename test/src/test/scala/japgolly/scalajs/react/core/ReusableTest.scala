@@ -1,6 +1,6 @@
-package japgolly.scalajs.react.extra
+package japgolly.scalajs.react.core
 
-import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react._
 import utest._
 
 object ReusableTest extends TestSuite {

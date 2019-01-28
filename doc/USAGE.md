@@ -23,7 +23,7 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.3.0"
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.4.0"
   ```
 
 3. Add React to your build.
@@ -38,11 +38,11 @@ Setup
 
       enablePlugins(ScalaJSBundlerPlugin)
 
-      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.3.0"
+      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.4.0"
 
       npmDependencies in Compile ++= Seq(
-        "react" -> "16.5.1",
-        "react-dom" -> "16.5.1")
+        "react" -> "16.7.0",
+        "react-dom" -> "16.7.0")
     ```
 
     If you're using old-school `jsDependencies`, add something akin to:
@@ -51,18 +51,18 @@ Setup
     // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
     jsDependencies ++= Seq(
 
-      "org.webjars.npm" % "react" % "16.5.1"
+      "org.webjars.npm" % "react" % "16.7.0"
         /        "umd/react.development.js"
         minified "umd/react.production.min.js"
         commonJSName "React",
 
-      "org.webjars.npm" % "react-dom" % "16.5.1"
+      "org.webjars.npm" % "react-dom" % "16.7.0"
         /         "umd/react-dom.development.js"
         minified  "umd/react-dom.production.min.js"
         dependsOn "umd/react.development.js"
         commonJSName "ReactDOM",
 
-      "org.webjars.npm" % "react-dom" % "16.5.1"
+      "org.webjars.npm" % "react-dom" % "16.7.0"
         /         "umd/react-dom-server.browser.development.js"
         minified  "umd/react-dom-server.browser.production.min.js"
         dependsOn "umd/react-dom.development.js"
@@ -337,9 +337,9 @@ React Extensions
   rather than just getting back a VDOM reference, the return type is an ADT like this:
 
   ```
-                  ComponentDom
-                        ↑
-               ComponentDom.Mounted
+                                   ComponentDom
+                                    ↑        ↑
+                 ComponentDom.Mounted        ComponentDom.Unmounted
                   ↑            ↑
   ComponentDom.Element      ComponentDom.Text
   ```

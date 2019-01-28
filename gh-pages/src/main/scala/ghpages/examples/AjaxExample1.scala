@@ -5,7 +5,7 @@ import ghpages.examples.util.SingleSide
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 
-object AjaxExample {
+object AjaxExample1 {
 
   def content = SingleSide.Content(source, Main())
 

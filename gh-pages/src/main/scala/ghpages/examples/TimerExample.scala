@@ -42,7 +42,12 @@ object TimerExample {
       |ReactDOM.render(React.createElement(Timer), mountNode);
       |""".stripMargin
 
-  val source = GhPagesMacros.exampleSource
+  val source =
+    s"""
+      |${GhPagesMacros.exampleSource}
+      |
+      |Timer().renderIntoDOM(mountNode)
+      |""".stripMargin
 
   // EXAMPLE:START
 

@@ -12,6 +12,7 @@ object GhPages {
   case object Home          extends Page
   case class Eg(e: Example) extends Page
   case object Doco          extends Page
+  case object AsyncTests    extends Page
 
   val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
     import dsl._
@@ -21,8 +22,9 @@ object GhPages {
         .prefixPath_/("#examples").pmap[Page](Eg) { case Eg(e) => e }
 
     (trimSlashes
-    | staticRoute(root,   Home) ~> render(HomePage.component())
-    | staticRoute("#doc", Doco) ~> render(DocoPage.component())
+    | staticRoute(root,          Home)       ~> render(HomePage.component())
+    | staticRoute("#doc",        Doco)       ~> render(DocoPage.component())
+    | staticRoute("#test/async", AsyncTests) ~> render(secret.tests.AsyncTest.Component())
     | exampleRoutes
     )
       .notFound(redirectToPage(Home)(Redirect.Replace))

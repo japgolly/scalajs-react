@@ -1,8 +1,7 @@
-package japgolly.scalajs.react.extra.internal
+package japgolly.scalajs.react.internal
 
 import scala.reflect.macros.blackbox.Context
-import japgolly.scalajs.react.extra.Reusability
-import japgolly.scalajs.react.internal.MacroUtils
+import japgolly.scalajs.react.Reusability
 
 class ReusabilityMacros(val c: Context) extends MacroUtils {
   import c.universe._
@@ -27,10 +26,10 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  private val Reusability = q"_root_.japgolly.scalajs.react.extra.Reusability"
+  private val Reusability = q"_root_.japgolly.scalajs.react.Reusability"
 
   private def ReusabilityA(t: Type): Type =
-    appliedType(c.typeOf[japgolly.scalajs.react.extra.Reusability[_]], t)
+    appliedType(c.typeOf[japgolly.scalajs.react.Reusability[_]], t)
 
   private def implSumType[T: c.WeakTypeTag](debug: Boolean, derive: Boolean): c.Expr[Reusability[T]] = {
     val T     = weakTypeOf[T]
