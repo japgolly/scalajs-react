@@ -275,6 +275,13 @@ if (someCondition)
   array)
 ```
 
+* **Flatten a Scala collection into a `ReactFragment`**.
+
+  There are various ways to do this:
+  * Call `.toReactFragment` on your collection.
+  * Call `.mkReactFragment(sep)` on your collection which is like `.mkString(sep)` in Scala stdlib.
+  * Call `.mkReactFragment(start,sep,end)` on your collection which is like `.mkString(start,sep,end)` in Scala stdlib.
+
 
 ## Custom VDOM
 
@@ -337,7 +344,8 @@ val element: VdomElement = tag2
 | Conditional <br> Values | `tagMod.when(condition)` <br> `tagMod.unless(condition)` <br> `Option[tagMod].whenDefined` <br> `TagMod.empty` | `TagMod` |
 | Conditional <br> Attributes | `vdomAttr :=? Option[value]` <br> `eventHandler -->? Option[callback]` <br> `eventHandler ==>? Option[event => callback]` | `TagMod` |
 | Composition | `vdomTag(tagMod*)` | `VdomTag` |
-| Composition | `TagMod(tagMod*)` <br> `tagMod(tagMod*)` | `TagMod` |
+| Composition | `TagMod(tagMod*)` | `TagMod` |
 | Collections <br> (keyed array) | `Seq[A].toVdomArray(A => vdomNode)` <br> `Seq[vdomNode].toVdomArray` <br> `VdomArray(vdomNode*)` <br> `VdomArray.empty() += … ++= …` | `VdomArray` |
 | Collections <br> (fragment) | `ReactFragment(VdomNode*)` | `VdomElement` |
+| Collections <br> (flatten) | `Seq[A].mkReactFragment(...)` <br> `Seq[A].toReactFragment(A => vdomNode)` <br> `Seq[vdomNode].toReactFragment` | `ReactFragment` |
 | Collections <br> (flatten) | `Seq[A].mkTagMod(...)` <br> `Seq[A].toTagMod(A => tagMod)` <br> `Seq[tagMod].toTagMod` <br> `TagMod(tagMod*)` | `TagMod` |

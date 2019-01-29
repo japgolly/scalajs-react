@@ -92,7 +92,7 @@ Utilities once you have a `Callback`
 
 `Callback` instances come with a bunch of useful utility methods:
 * `.attempt` to catch any error in the callback and handle it.
-* `.async`/`.delay(n)` to run asynchronously and return a `Future`.
+* `.async`/`.delay(n)` to run asynchronously.
 * `.logResult` to print the callback result before returning it.
 * `.logDuration` to measure and log how long the callback takes.
 * `.map` (as you would expect) to transform the result.
@@ -233,10 +233,8 @@ Manual Execution
 As is stressed above, `Callback`s are meant to be executed by React at a time and frequency of its choosing.
 
 There are scenarios in which you may want to execute a callback manually:
-* Working with an external service.
-  * In an AJAX callback.
-  * In a websocket callback.
-* In a unit test.
+* Working with an external service (eg. a websocket callback)
+* In a unit test
 
 There are two ways to go about this:
 
@@ -315,43 +313,33 @@ Common Mistakes
   then wrap the construction in `Callback.byName` and continue to pass around `Callback` instead of `() => Callback`.
 
 
-  Callbacks and Futures
-  =====================
+Callbacks and Futures
+=====================
 
-  There are a number of conversions available to convert between `Callback` and `Future`.
+When working with Scala `Future`s (or JS `Promise`s), `AsyncCallback` should be used.
 
-  | Input                      | Method                 | Output                  |
-  | -------------------------- | ---------------------- | ----------------------- |
-  | `CallbackTo[A]`            | `cb.toFuture`          | `Future[A]`             |
-  | `CallbackTo[Future[A]]`    | `cb.toFlatFuture`      | `Future[A]`             |
-  | `=> Future[A]`             | `CallbackTo(f)`        | `CallbackTo[Future[A]]` |
-  | `=> Future[CallbackTo[A]]` | `CallbackTo.future(f)` | `CallbackTo[Future[A]]` |
-  | `=> Future[CallbackTo[A]]` | `Callback.future(f)`   | `Callback`              |
+There are a number of conversions available to convert between `Callback` and `Future`.
 
-  If you're looking for ways to block (eg. turning a `Callback[Future[A]]` into a `Callback[A]`),
-  it is not supported by Scala.JS (See [#1996](https://github.com/scala-js/scala-js/issues/1996)).
+| Input                      | Method                 | Output                  |
+| -------------------------- | ---------------------- | ----------------------- |
+| `=> Future[A]`             | `AsyncCallback.fromFuture(f)`        | `AsyncCallback[A]` |
+| `AsyncCallback[A]`            | `cb.unsafeToFuture()`          | `Future[A]`             |
+| `CallbackTo[A]`            | `cb.asAsyncCallback`          | `AsyncCallback[A]`             |
 
-  **NOTE:** It's important that when going from `Future` to `Callback`, you're aware of when the `Future` is instantiated.
+If you're looking for ways to block (eg. turning a `Future[A]` or `AsyncCallback[A]` into a `Callback[A]`),
+it is not supported by Scala.JS (See [#1996](https://github.com/scala-js/scala-js/issues/1996)).
 
-  ```scala
-  def queryServer: Future[Data] = ???
+**NOTE:** It's important that when going from `Future` to `AsyncCallback`, you're aware of when the `Future` is instantiated. You should capture the initiation of the `Future`, not just the resulting value.
 
-  def updateComponent: Future[Callback] =
-    queryServer.map($ setState _)
+```scala
+def queryServer: Future[Data] = ???
 
-  // This is GOOD because the callback wraps the updateComponent *function*, not an instance.
-  Callback.future(updateComponent)
+// This is GOOD because the callback wraps the queryServer *function*, not an instance.
+AsyncCallback.fromFuture(queryServer)
 
-  // This is BAD because the callback wraps a single instance of updateComponent.
-  // 1) The server will be contacted immediately instead of when the callback executes.
-  // 2) If the callback is executed more than once, the future and old result will be reused.
-  val f = updateComponent
-  Callback.future(f)
-
-  // This is GOOD too because the future is created inside the callback.
-  Callback.future {
-    val f = updateComponent
-    f.onComplete(???)
-    f
-  }
-  ```
+// This is BAD because the callback wraps a single instance of queryServer.
+// 1) The server will be contacted immediately instead of when the callback executes.
+// 2) If the callback is executed more than once, the future and old result will be reused.
+val f = queryServer
+AsyncCallback.fromFuture(f)
+```
