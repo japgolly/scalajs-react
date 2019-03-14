@@ -3,7 +3,7 @@ package japgolly.scalajs.react.raw
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
-@JSImport("react", JSImport.Namespace, "React.Suspense")
+@JSImport("react", "Suspense", "React.Suspense")
 @js.native
 object Suspense extends js.Any
 
