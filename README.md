@@ -48,7 +48,7 @@ Includes a router, testing utils, performance utils, more.
   * [test-state](https://github.com/japgolly/test-state/) - Integration/Functional/Property testing for scalajs-react.
   * [scalajs-benchmark](https://github.com/japgolly/scalajs-benchmark/)
   * [chandu0101 / scalajs-react-components](https://github.com/chandu0101/scalajs-react-components)
-  * [payalabs / scalajs-react-bridge](https://github.com/payalabs/scalajs-react-bridge) - Boilterplate free use of JS components
+  * [payalabs / scalajs-react-bridge](https://github.com/payalabs/scalajs-react-bridge) - Boilerplate free use of JS components
   * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
   * [cquiroz / scalajs-react-virtualized](https://github.com/cquiroz/scalajs-react-virtualized) - Facade for react-virtualized
   * [cquiroz / scalajs-react-clipboard](https://github.com/cquiroz/scalajs-react-clipboard) - Facade for react-copy-to-clipboard
