@@ -32,10 +32,10 @@ object AsyncCallback {
     } yield (fromJsPromise(p), pc)
 
   def first[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
-    new AsyncCallback(g => {
+    new AsyncCallback(g => CallbackTo {
       var first = true
       f(ea => Callback.when(first)(Callback{first = false} >> g(ea)))
-    })
+    }.flatten)
 
   def point[A](a: => A): AsyncCallback[A] =
     AsyncCallback(_(catchAll(a)))

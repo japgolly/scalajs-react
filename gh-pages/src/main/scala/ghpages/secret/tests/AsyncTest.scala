@@ -4,7 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.Ajax
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.XMLHttpRequest
-import scala.util.{Random, Success}
+import scala.util.{Random, Success, Try}
 import scalaz.Equal
 import scalaz.std.anyVal._
 import scalaz.std.either._
@@ -19,9 +19,31 @@ object AsyncTest {
   import AsyncCallback.point
   import QuickTest.{Status, TestSuite, TestSuiteBuilder}
 
+  def cmpFn[A: Equal](expect: A): A => Status.Result =
+    a => if (a === expect) Status.Pass else Status.Fail(s"Actual: $a. Expect: $expect.")
+
   def testCmp[A: Equal](x: (AsyncCallback[A], A)) = {
     val (body, expect) = x
-    body.map(a => if (a === expect) Status.Pass else Status.Fail(s"Actual: $a. Expect: $expect."))
+    body.map(cmpFn(expect))
+  }
+
+  def testCmp2[A: Equal](body: AsyncCallback[A], expect1: A, prep2: () => Unit, expect2: A) = {
+    var complete  = null: Try[A] => Callback
+    val subjectCB = body.attemptTry.flatMap(complete(_).asAsyncCallback).toCallback
+
+    def run(expect: A): AsyncCallback[Status.Result] =
+      for {
+        (p, f) <- AsyncCallback.promise[A].asAsyncCallback
+        _      <- AsyncCallback.point{complete = f}
+        _      <- subjectCB.asAsyncCallback
+        a      <- p
+      } yield cmpFn(expect).apply(a)
+
+    for {
+      s1 <- run(expect1)
+      _  <- AsyncCallback.point(prep2())
+      s2 <- run(expect2)
+    } yield s1 && s2
   }
 
   private def getUser(userId: Int) =
@@ -66,6 +88,19 @@ object AsyncTest {
         val t = go("a", 20).race(go("b", 10)) >> point(logs :+= "|") >> point(logs).delayMs(30)
         t -> "a b b2 | a2".split(" ").toVector
       })
+
+      .add("race (3)") {
+        var logs = Vector.empty[String]
+        def go(n: String, d: => Double) = point{logs :+= n; Callback(logs :+= s"${n}2").delayMs(d)}.flatten
+        var da      = 10
+        var db      = 20
+        val t       = go("a", da).race(go("b", db)) >> point(logs :+= "|") >> point(logs).delayMs(30)
+        val expect1 = "a b a2 | b2".split(" ").toVector
+        val expect2 = "a b b2 | a2".split(" ").toVector
+        val prep2   = () => {da = 20; db = 10; logs = Vector.empty[String]}
+
+        testCmp2(t, expect1, prep2, expect2)
+      }
 
       .add("ajax (ok *> ok)")(testCmp {
         val t = (get1 *> get2).map(xhrToText)

@@ -20,13 +20,17 @@ object AsyncCallbackTest extends TestSuite {
       'async {
         val cb = log("async").async.toCallback >> log("post")
         cb.runNow()
-        log.logs ==> Vector("post")
+        log.logs ==> Vector("post") // "async" will be scheduled by JS sometime after this test
+        cb.runNow()
+        log.logs ==> Vector("post", "post")
       }
 
       'asAsyncCallback {
         val cb = log("async").asAsyncCallback.toCallback >> log("post")
         cb.runNow()
         log.logs ==> Vector("async", "post")
+        cb.runNow()
+        log.logs ==> Vector("async", "post", "async", "post")
       }
     }
 
