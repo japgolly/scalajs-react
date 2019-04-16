@@ -194,8 +194,8 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   @inline def >>=[B](g: A => AsyncCallback[B]): AsyncCallback[B] =
     flatMap(g)
 
-  def flatten[B](implicit ev: AsyncCallback[A] =:= AsyncCallback[AsyncCallback[B]]): AsyncCallback[B] =
-    ev(this).flatMap(identityFn)
+  def flatten[B](implicit ev: A => AsyncCallback[B]): AsyncCallback[B] =
+    flatMap(ev)
 
   /** Sequence the argument a callback to run after this, discarding any value produced by this. */
   def >>[B](runNext: AsyncCallback[B]): AsyncCallback[B] =
