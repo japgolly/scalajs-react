@@ -105,7 +105,11 @@ object AsyncCallback {
 
   def fromFuture[A](fa: => Future[A])(implicit ec: ExecutionContext): AsyncCallback[A] =
     AsyncCallback(f => Callback {
-      fa.onComplete(f(_).runNow())
+      val future = fa
+      future.value match {
+        case Some(value) => f(value).runNow()
+        case None => future.onComplete(f(_).runNow())
+      }
     })
 
   def fromCallbackToFuture[A](c: CallbackTo[Future[A]])(implicit ec: ExecutionContext): AsyncCallback[A] =
