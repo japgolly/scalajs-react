@@ -2,6 +2,8 @@ package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react.{AsyncCallback, Callback}
 import utest._
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object AsyncCallbackTest extends TestSuite {
 
@@ -31,6 +33,21 @@ object AsyncCallbackTest extends TestSuite {
         log.logs ==> Vector("async", "post")
         cb.runNow()
         log.logs ==> Vector("async", "post", "async", "post")
+      }
+    }
+
+    'AsyncCallback {
+      'fromFuture {
+        "should be sync if the Future has already completed" - {
+          var hasRun = false
+          val cb = AsyncCallback.fromFuture(Future.successful(()))
+          cb.completeWith(_ => Callback {
+            hasRun = true
+          }).runNow()
+          hasRun ==> true
+          val future = cb.asCallbackToFuture.runNow()
+          future.isCompleted ==> true
+        }
       }
     }
 
