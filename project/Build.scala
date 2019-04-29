@@ -12,7 +12,7 @@ object ScalajsReact {
   object Ver {
     val BetterMonadicFor = "0.3.0-M4"
     val Cats             = "1.5.0"
-    val KindProjector    = "0.9.9"
+    val KindProjector    = "0.9.10"
     val MacroParadise    = "2.1.1"
     val Monocle          = "1.5.0"
     val MonocleCats      = "1.5.1-cats"
