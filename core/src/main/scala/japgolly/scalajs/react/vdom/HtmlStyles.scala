@@ -2394,8 +2394,6 @@ trait HtmlStyles {
     final def `bidi-override` = this := "bidi-override"
   }
 
-
-
   /**
    * The word-break CSS property is used to specify how (or if) to break lines
    * within words.
@@ -2421,7 +2419,7 @@ trait HtmlStyles {
     * values represent the track size, and the space between them represents the
     * grid line. Tracks can have arbitrary names of your choosing.
     */
-  final def gridTemplateColumns = Style[String]("grid-template-columns")
+  final def gridTemplateColumns = Style[String]("gridTemplateColumns")
 
   /**
     * Defines the rows of the grid with a space-separated list of values. Must
@@ -2429,7 +2427,7 @@ trait HtmlStyles {
     * values represent the track size, and the space between them represents the
     * grid line. Tracks can have arbitrary names of your choosing.
     */
-  final def gridTemplateRows = Style[String]("grid-template-rows")
+  final def gridTemplateRows = Style[String]("gridTemplateRows")
 
   /**
     * Determines a grid item's location within the grid by referring to specific
@@ -2440,7 +2438,7 @@ trait HtmlStyles {
     *   * span <name> - the item will span across until it hits the next line with the provided name
     *   * auto - indicates auto-placement, an automatic span, or a default span of one
     */
-  final def gridColumnStart = Style[String]("grid-column-start")
+  final def gridColumnStart = Style[String]("gridColumnStart")
 
   /**
     * Determines a grid item's location within the grid by referring to specific
@@ -2453,7 +2451,7 @@ trait HtmlStyles {
     *                   the provided name
     *   * auto - indicates auto-placement, an automatic span, or a default span of one
     */
-  final def gridColumnEnd = Style[String]("grid-column-end")
+  final def gridColumnEnd = Style[String]("gridColumnEnd")
 
   /**
     * Determines a grid item's location within the grid by referring to specific
@@ -2464,7 +2462,7 @@ trait HtmlStyles {
     *   * span <name> - the item will span across until it hits the next line with the provided name
     *   * auto - indicates auto-placement, an automatic span, or a default span of one
     */
-  final def gridRowStart = Style[String]("grid-row-start")
+  final def gridRowStart = Style[String]("gridRowStart")
 
   /**
     * Determines a grid item's location within the grid by referring to specific
@@ -2477,7 +2475,7 @@ trait HtmlStyles {
     *                   the provided name
     *   * auto - indicates auto-placement, an automatic span, or a default span of one
     */
-  final def gridRowEnd = Style[String]("grid-row-end")
+  final def gridRowEnd = Style[String]("gridRowEnd")
 
   /**
     * Shorthand for grid-column-start + grid-column-end. Must have a value of
@@ -2485,7 +2483,7 @@ trait HtmlStyles {
     * <start-line> / <end-line> - each one accepts all the same values as the
     * longhand version, including span.
     */
-  final def gridColumn = Style[String]("grid-column")
+  final def gridColumn = Style[String]("gridColumn")
 
   /**
     * Shorthand for grid-row-start + grid-row-end. Must have a value of
@@ -2493,7 +2491,7 @@ trait HtmlStyles {
     * <start-line> / <end-line> - each one accepts all the same values as the
     * longhand version, including span.
     */
-  final def gridRow = Style[String]("grid-row")
+  final def gridRow = Style[String]("gridRow")
 
   /**
     * Gives an item a name so that it can be referenced by a template created with
@@ -2504,7 +2502,7 @@ trait HtmlStyles {
     *   * <name> - a name of your choosing
     *   * <row-start> / <column-start> / <row-end> / <column-end> - can be numbers or names
     */
-  final def gridArea = Style[String]("grid-area")
+  final def gridArea = Style[String]("gridArea")
 
   /**
     * Defines a grid template by referencing the names of the grid areas which are
@@ -2516,14 +2514,32 @@ trait HtmlStyles {
     *   * . - a period signifies an empty grid cell
     *   * none - no grid areas are defined
     */
-  final def gridTemplateAreas = Style[String]("grid-template-areas")
+  final def gridTemplateAreas = Style[String]("gridTemplateAreas")
+
+  /**
+    * Specifies the size of the grid lines. You can think of it like setting the
+    * width of the gutters between the columns. Must have a simple size value.
+    */
+  final def gridColumnGap = Style[String]("gridColumnGap")
+
+  /**
+    * Specifies the size of the grid lines. You can think of it like setting the
+    * width of the gutters between the rows. Must have a simple size value.
+    */
+  final def gridRowGap = Style[String]("gridRowGap")
+
+  /**
+    * A shorthand for grid-row-gap and grid-column-gap. Must have two values of
+    * `<grid-row-gap> <grid-column-gap>`.
+    */
+  final def gridGap = Style[String]("gridGap")
 
   /**
     * Aligns the content inside a grid item along the row axis (as opposed to
-    * align-self which aligns along the column axis). This value applies to the
-    * content inside a single grid item.
+    * align-items which aligns along the column axis). This value applies to all
+    * grid items inside the container.
     */
-  object justifySelf extends Style[String]("justifySelf") {
+  object justifyItems extends Style[String]("justifyItems") {
     /** Aligns the content to the left end of the grid area */
     final def start = this := "start"
     /** Aligns the content to the right end of the grid area */
@@ -2535,29 +2551,11 @@ trait HtmlStyles {
   }
 
   /**
-    * Specifies the size of the grid lines. You can think of it like setting the
-    * width of the gutters between the columns. Must have a simple size value.
-    */
-  final def gridColumnGap = Style[String]("grid-column-gap")
-
-  /**
-    * Specifies the size of the grid lines. You can think of it like setting the
-    * width of the gutters between the rows. Must have a simple size value.
-    */
-  final def gridRowGap = Style[String]("grid-row-gap")
-
-  /**
-    * A shorthand for grid-row-gap and grid-column-gap. Must have two values of
-    * `<grid-row-gap> <grid-column-gap>`.
-    */
-  final def gridGap = Style[String]("grid-gap")
-
-  /**
     * Aligns the content inside a grid item along the row axis (as opposed to
-    * align-items which aligns along the column axis). This value applies to all
-    * grid items inside the container.
+    * align-self which aligns along the column axis). This value applies to the
+    * content inside a single grid item.
     */
-  object justifyItems extends Style[String]("justifyItems") {
+  object justifySelf extends Style[String]("justifySelf") {
     /** Aligns the content to the left end of the grid area */
     final def start = this := "start"
     /** Aligns the content to the right end of the grid area */
