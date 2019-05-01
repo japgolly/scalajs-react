@@ -62,6 +62,10 @@ object AsyncCallback {
   def byName[A](f: => AsyncCallback[A]): AsyncCallback[A] =
     point(f).flatten
 
+  @deprecated("Use c.asAsyncCallback", "")
+  def fromCallback[A](c: CallbackTo[A]): AsyncCallback[A] =
+    c.asAsyncCallback
+
   /** Traverse stdlib T over AsyncCallback.
     * Distribute AsyncCallback over stdlib T.
     */
