@@ -131,14 +131,18 @@ object Builder {
     // type, props, key, children
     type BuildFn = (String, js.Object, js.UndefOr[js.Any], js.Array[RawChild]) => raw.React.Element
 
-    val build: BuildFn =
-      if (developmentMode)
+    val build: BuildFn = {
 
-        // Development mode
+      val unoptimised: BuildFn =
         (tag, props, key, children) => {
           key.foreach(setObjectKeyValue(props, "key", _))
           raw.React.createElement(tag, props, children: _*)
         }
+
+      if (developmentMode)
+
+      // Development mode
+        unoptimised
 
       else {
         // Production mode
@@ -163,7 +167,7 @@ object Builder {
           // From packages/babel-plugin-transform-react-inline-elements/test/fixtures/inline-elements/ref-deopt
           val ref = props.asInstanceOf[js.Dynamic].ref.asInstanceOf[js.UndefOr[js.Any]]
           if (ref.isDefined)
-            raw.React.createElement(tag, props, children: _*)
+            unoptimised(tag, props, key, children)
 
           else {
             // From packages/babel-helpers/src/helpers.js # jsx()
@@ -190,5 +194,6 @@ object Builder {
           }
         }
       }
+    }
   }
 }
