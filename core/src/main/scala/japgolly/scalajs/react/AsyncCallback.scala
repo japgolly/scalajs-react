@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{catchAll, identityFn, newJsPromise}
+import japgolly.scalajs.react.internal.{catchAll, identityFn, newJsPromise, SyncPromise}
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,8 +28,8 @@ object AsyncCallback {
     */
   def promise[A]: CallbackTo[(AsyncCallback[A], Try[A] => Callback)] =
     for {
-      (p, pc) <- newJsPromise[A]
-    } yield (fromJsPromise(p), pc)
+      p <- SyncPromise[A]
+    } yield (AsyncCallback(p.onComplete), p.complete)
 
   def first[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(g => CallbackTo {
@@ -134,7 +134,7 @@ object AsyncCallback {
   def fromCallbackToJsPromise[A](c: CallbackTo[js.Promise[A]]): AsyncCallback[A] =
     c.asAsyncCallback.flatMap(fromJsPromise(_))
 
-  @inline implicit def asynCallbackCovariance[A, B >: A](c: AsyncCallback[A]): AsyncCallback[B] =
+  @inline implicit def asyncCallbackCovariance[A, B >: A](c: AsyncCallback[A]): AsyncCallback[B] =
     c.widen
 
   /** Not literally tail-recursive because AsyncCallback is continuation-based, but this utility in this shape may still

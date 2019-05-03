@@ -4,6 +4,7 @@ import japgolly.scalajs.react.{AsyncCallback, Callback}
 import utest._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Success
 
 object AsyncCallbackTest extends TestSuite {
 
@@ -48,6 +49,26 @@ object AsyncCallbackTest extends TestSuite {
           val future = cb.asCallbackToFuture.runNow()
           future.isCompleted ==> true
         }
+      }
+
+      'promise {
+        val (ac, complete) = AsyncCallback.promise[Int].runNow()
+        var r1,r2,r3 = 0
+        ac.map(i => r1 = i).toCallback.runNow()
+        r1 ==> 0
+        complete(Success(666)).runNow()
+        r1 ==> 666
+        r2 ==> 0
+        r1 = 123
+        ac.map(i => r2 = i).toCallback.runNow()
+        r1 ==> 123
+        r2 ==> 666
+        r3 ==> 0
+        r2 = 123
+        ac.map(i => r3 = i).toCallback.runNow()
+        r1 ==> 123
+        r2 ==> 123
+        r3 ==> 666
       }
     }
 
