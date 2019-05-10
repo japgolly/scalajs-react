@@ -546,7 +546,7 @@ trait HtmlAttrs {
     */
   final def max = VdomAttr("max")
 
-  final def maxLength = VdomAttr("maxLength")
+  final def maxLength = VdomAttr[Int]("maxLength")
 
   /**
     * This attribute specifies the media which the linked resource applies to.
@@ -583,7 +583,7 @@ trait HtmlAttrs {
     */
   final def min = VdomAttr("min")
 
-  final def minLength = VdomAttr("minLength")
+  final def minLength = VdomAttr[Int]("minLength")
 
   final def multiple = VdomAttr[Boolean]("multiple")
 
