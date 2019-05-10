@@ -31,8 +31,8 @@ Includes a router, testing utils, performance utils, more.
   - [Other](doc/EXTRA.md)
 - [Testing](doc/TESTING.md)
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/)
-- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.12/1.4.1) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.12/1.4.1) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/1.4.1) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/1.4.1) | [monocle-cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle-cats_sjs0.6_2.12/1.4.1) | [cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-cats_sjs0.6_2.12/1.4.1) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/1.4.1)
-- [Changelogs](doc/changelog) — [**v1.4.1** (Latest)](doc/changelog/1.4.1.md)
+- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.12/1.4.2) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.12/1.4.2) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/1.4.2) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/1.4.2) | [monocle-cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle-cats_sjs0.6_2.12/1.4.2) | [cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-cats_sjs0.6_2.12/1.4.2) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/1.4.2)
+- [Changelogs](doc/changelog) — [**v1.4.2** (Latest)](doc/changelog/1.4.2.md)
 
 
 ##### External Resources
