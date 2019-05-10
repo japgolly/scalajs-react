@@ -223,17 +223,69 @@ trait HtmlAttrs {
 
   final def autoCapitalize = VdomAttr("autoCapitalize")
 
-  /**
-    * This attribute indicates whether the value of the control can be
+  /** This attribute indicates whether the value of the control can be
     * automatically completed by the browser. This attribute is ignored if the
     * value of the type attribute is hidden, checkbox, radio, file, or a button
     * type (button, submit, reset, image).
-    *
-    * Possible values are "off" and "on"
     */
-  object autoComplete extends VdomAttr.Generic("autoComplete") {
-    def on  = this := "on"
-    def off = this := "off"
+  final object autoComplete extends VdomAttr.Generic("autoComplete") {
+    def additionalName      = this := "additional-name"
+    def addressLevel1       = this := "address-level1"
+    def addressLevel2       = this := "address-level2"
+    def addressLevel3       = this := "address-level3"
+    def addressLevel4       = this := "address-level4"
+    def addressLine1        = this := "address-line1"
+    def addressLine2        = this := "address-line2"
+    def addressLine3        = this := "address-line3"
+    def bday                = this := "bday"
+    def bdayDay             = this := "bday-day"
+    def bdayMonth           = this := "bday-month"
+    def bdayYear            = this := "bday-year"
+    def ccAdditionalName    = this := "cc-additional-name"
+    def ccCsc               = this := "cc-csc"
+    def ccExp               = this := "cc-exp"
+    def ccExpMonth          = this := "cc-exp-month"
+    def ccExpYear           = this := "cc-exp-year"
+    def ccFamilyName        = this := "cc-family-name"
+    def ccGivenName         = this := "cc-given-name"
+    def ccName              = this := "cc-name"
+    def ccNumber            = this := "cc-number"
+    def ccType              = this := "cc-type"
+    def country             = this := "country"
+    def countryName         = this := "country-name"
+    def currentPassword     = this := "current-password"
+    def email               = this := "email"
+    def familyName          = this := "family-name"
+    def givenName           = this := "given-name"
+    def honorificPrefix     = this := "honorific-prefix"
+    def honorificSuffix     = this := "honorific-suffix"
+    def impp                = this := "impp"
+    def language            = this := "language"
+    def name                = this := "name"
+    def newPassword         = this := "new-password"
+    def nickname            = this := "nickname"
+    def off                 = this := "off"
+    def on                  = this := "on"
+    def oneTimeCode         = this := "one-time-code"
+    def organization        = this := "organization"
+    def organizationTitle   = this := "organization-title"
+    def photo               = this := "photo"
+    def postalCode          = this := "postal-code"
+    def sex                 = this := "sex"
+    def streetAddress       = this := "street-address"
+    def tel                 = this := "tel"
+    def telAreaCode         = this := "tel-area-code"
+    def telCountryCode      = this := "tel-country-code"
+    def telExtension        = this := "tel-extension"
+    def telLocal            = this := "tel-local"
+    def telLocalPrefix      = this := "tel-local-prefix"
+    def telLocalSuffix      = this := "tel-local-suffix"
+    def telNational         = this := "tel-national"
+    def transactionAmount   = this := "transaction-amount"
+    def transactionCurrency = this := "transaction-currency"
+    def url                 = this := "url"
+    def username            = this := "username"
+    def usernameEmail       = this := "username email"
   }
 
   final def autoCorrect = VdomAttr[Boolean]("autoCorrect")
@@ -494,7 +546,7 @@ trait HtmlAttrs {
     */
   final def max = VdomAttr("max")
 
-  final def maxLength = VdomAttr("maxLength")
+  final def maxLength = VdomAttr[Int]("maxLength")
 
   /**
     * This attribute specifies the media which the linked resource applies to.
@@ -531,7 +583,7 @@ trait HtmlAttrs {
     */
   final def min = VdomAttr("min")
 
-  final def minLength = VdomAttr("minLength")
+  final def minLength = VdomAttr[Int]("minLength")
 
   final def multiple = VdomAttr[Boolean]("multiple")
 
@@ -1040,6 +1092,13 @@ trait HtmlAttrs {
     * @see https://css-tricks.com/html5-meter-element/
     */
   final def optimum = VdomAttr("optimum")
+
+  /** The pattern attribute specifies a regular expression against which the control’s value, or, when the multiple
+    * attribute applies and is set, the control’s values, are to be checked.
+    *
+    * @see https://www.w3.org/TR/html5/sec-forms.html#the-pattern-attribute
+    */
+  final def pattern = VdomAttr[String]("pattern")
 
   /**
     * A hint to the user of what can be entered in the control. The placeholder
