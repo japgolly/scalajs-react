@@ -1093,6 +1093,13 @@ trait HtmlAttrs {
     */
   final def optimum = VdomAttr("optimum")
 
+  /** The pattern attribute specifies a regular expression against which the control’s value, or, when the multiple
+    * attribute applies and is set, the control’s values, are to be checked.
+    *
+    * @see https://www.w3.org/TR/html5/sec-forms.html#the-pattern-attribute
+    */
+  final def pattern = VdomAttr[String]("pattern")
+
   /**
     * A hint to the user of what can be entered in the control. The placeholder
     * text must not contain carriage returns or line-feeds. This attribute
