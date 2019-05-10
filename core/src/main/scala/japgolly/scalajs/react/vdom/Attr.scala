@@ -12,12 +12,12 @@ import Attr.ValueType
 /**
   * @tparam U Underlying type of the value required by this attribute.
   */
-abstract class Attr[-U](final val name: String) {
-  override final def toString = s"VdomAttr{name=$name}"
+abstract class Attr[-U](final val attrName: String) {
+  override final def toString = s"VdomAttr{name=$attrName}"
 
-  override def hashCode = name.##
+  override def hashCode = attrName.##
   override def equals(any: Any) = any match {
-    case that: Attr[_] => this.name == that.name
+    case that: Attr[_] => this.attrName == that.attrName
     case _                  => false
   }
 
@@ -51,9 +51,9 @@ object Attr {
     else
       Dud
 
-  class Generic[-U](name: String) extends Attr[U](name) {
+  class Generic[-U](attrName: String) extends Attr[U](attrName) {
     override def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod =
-      t(name, a)
+      t(attrName, a)
   }
 
   final class Event[E[+x <: dom.Node] <: raw.SyntheticEvent[x]](name: String)
@@ -116,7 +116,7 @@ object Attr {
 
   object Ref extends Attr[raw.React.RefFn[_ <: TopNode]]("ref") {
     override def :=[A](a: A)(implicit t: ValueType[A, raw.React.RefFn[_ <: TopNode]]) =
-      t(name, a)
+      t(attrName, a)
     private[vdom] def apply[N <: TopNode](r: japgolly.scalajs.react.Ref.Set[N]): TagMod =
       :=(r.rawSetFn)(ValueType.direct)
   }
