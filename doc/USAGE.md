@@ -69,6 +69,12 @@ Setup
         commonJSName "ReactDOMServer"),
     ```
 
+If you see the error related to `js-tokens` (such as `org.webjars.npm#js-tokens;[3.0.0,4),[4.0.0,5): not found`), then add the following line to `build.sbt`:
+
+```
+dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2"
+```
+
 [See here](IDE.md) for tips on configuring your IDE.
 
 
