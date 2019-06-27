@@ -12,7 +12,7 @@ object ScalajsReact {
   object Ver {
     val BetterMonadicFor = "0.3.0"
     val Cats             = "1.6.0"
-    val KindProjector    = "0.9.10"
+    val KindProjector    = "0.10.3"
     val MacroParadise    = "2.1.1"
     val Monocle          = "1.5.0"
     val MonocleCats      = "1.5.1-cats"
@@ -177,7 +177,7 @@ object ScalajsReact {
     compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.full)
 
   def kindProjector =
-    compilerPlugin("org.spire-math" %% "kind-projector" % Ver.KindProjector cross CrossVersion.binary)
+    compilerPlugin("org.typelevel" %% "kind-projector" % Ver.KindProjector cross CrossVersion.binary)
 
   def hasNoTests: Project => Project =
     _.settings(
