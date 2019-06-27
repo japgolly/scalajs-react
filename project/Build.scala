@@ -11,7 +11,7 @@ object ScalajsReact {
 
   object Ver {
     val BetterMonadicFor = "0.3.0"
-    val Cats             = "1.6.0"
+    val Cats             = "1.6.1"
     val KindProjector    = "0.10.3"
     val MacroParadise    = "2.1.1"
     val Monocle          = "1.5.0"
@@ -24,7 +24,7 @@ object ScalajsReact {
     val ScalaJsDom       = "0.9.7"
     val Scalaz72         = "7.2.27"
     val SizzleJs         = "2.3.0"
-    val Sourcecode       = "0.1.6"
+    val Sourcecode       = "0.1.7"
   }
 
   type PE = Project => Project
