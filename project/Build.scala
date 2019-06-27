@@ -11,16 +11,16 @@ object ScalajsReact {
 
   object Ver {
     val BetterMonadicFor = "0.3.0"
-    val Cats             = "1.6.1"
+    val Cats             = "2.0.0-M4"
     val KindProjector    = "0.10.3"
     val MacroParadise    = "2.1.1"
-    val Monocle          = "1.5.0"
-    val MonocleCats      = "1.5.1-cats"
-    val MTest            = "0.6.6"
+    val Monocle          = "1.6.0-RC1"
+    val MonocleCats      = "1.6.0-RC1"
+    val MTest            = "0.7.1"
     val Nyaya            = "0.8.1"
     val ReactJs          = "16.7.0"
-    val Scala211         = "2.11.12"
     val Scala212         = "2.12.8"
+    val Scala213         = "2.13.0"
     val ScalaJsDom       = "0.9.7"
     val Scalaz72         = "7.2.27"
     val SizzleJs         = "2.3.0"
@@ -35,8 +35,8 @@ object ScalajsReact {
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin)
       .settings(
-        scalaVersion       := Ver.Scala212,
-        crossScalaVersions := Seq(Ver.Scala211, Ver.Scala212),
+        scalaVersion       := Ver.Scala213,
+        crossScalaVersions := Seq(Ver.Scala212, Ver.Scala213),
         scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
                                 "-language:postfixOps", "-language:implicitConversions",
                                 "-language:higherKinds", "-language:existentials",
@@ -173,6 +173,21 @@ object ScalajsReact {
         "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
         "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"))
 
+  /**
+   * Scala 2.13 do not need the paradise compiler plugin
+   * @see [[https://stackoverflow.com/questions/54392266/using-macro-paradise-and-cross-compiling-with-2-12-2-13]]
+   */
+  def compileWithMacroParadise: Command = Command.command("compileWithMacroParadise") { state =>
+    import Project._
+    val extractedState = extract(state)
+    val stateWithMacroParadise = CrossVersion.partialVersion(extractedState.get(scalaVersion)) match {
+      case Some((2, 13)) => extractedState.appendWithSession(Seq(Compile / scalacOptions += "-Ymacro-annotations"), state)
+      case _ => extractedState.appendWithSession(addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full), state)
+    }
+    val (stateAfterCompileWithMacroParadise, _) = extract(stateWithMacroParadise).runTask(Compile / compile, stateWithMacroParadise)
+    stateAfterCompileWithMacroParadise
+  }
+
   def macroParadisePlugin =
     compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.full)
 
@@ -241,7 +256,8 @@ object ScalajsReact {
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
         (ProvidedJS / "component-fn.js" dependsOn ReactDom.dev) % Test,
         (ProvidedJS / "forward-ref.js"  dependsOn ReactDom.dev) % Test),
-      addCompilerPlugin(macroParadisePlugin))
+      commands ++= Seq(compileWithMacroParadise),
+    )
 
   /*
   lazy val testModule = project.in(file("test-module"))
@@ -302,9 +318,12 @@ object ScalajsReact {
     .settings(
       crossScalaVersions := Seq(Ver.Scala212),
       libraryDependencies += monocleLib("macro", false),
-      addCompilerPlugin(macroParadisePlugin),
       emitSourceMaps := false,
       scalaJSUseMainModuleInitializer := true,
       mainClass in Compile := Some("ghpages.GhPages"),
-      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
+      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"),
+      commands ++= Seq(compileWithMacroParadise),
+    )
+
+  addCommandAlias("compile", "compileWithMacroParadise")
 }
