@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import scala.collection.generic.CanBuildFrom
+import scala.collection.Factory
 import scala.collection.mutable.Builder
 import scala.scalajs.js
 import scala.scalajs.js.{Thenable, |}
@@ -21,8 +21,8 @@ package object internal {
     try Success(a)
     catch {case t: Throwable => Failure(t) }
 
-  def intercalateTo[F[_], A](as: Iterator[A], sep: A)(implicit cbf: CanBuildFrom[Nothing, A, F[A]]): F[A] = {
-    val b = cbf.apply()
+  def intercalateTo[F[_], A](as: Iterator[A], sep: A)(implicit cbf: Factory[A, F[A]]): F[A] = {
+    val b = cbf.newBuilder
     intercalateInto(b, as, sep)
     b.result()
   }

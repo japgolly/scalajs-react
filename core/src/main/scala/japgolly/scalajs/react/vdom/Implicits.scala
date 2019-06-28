@@ -65,7 +65,7 @@ trait ImplicitsForTagMod {
 
 object ImplicitsForVdomNode {
 
-  final class TraversableOnceExt[A](private val as: TraversableOnce[A]) extends AnyVal {
+  final class TraversableOnceExt[A](private val as: IterableOnce[A]) extends AnyVal {
 
     /** Like `.mkString(String)` in Scala stdlib. */
     def mkReactFragment(sep: VdomNode)(implicit f: A => VdomNode): VdomElement =
@@ -75,7 +75,7 @@ object ImplicitsForVdomNode {
     def mkReactFragment(start: VdomNode, sep: VdomNode, end: VdomNode)(implicit f: A => VdomNode): VdomElement = {
       val b = List.newBuilder[VdomNode]
       if (start ne VdomNode.empty) b += start
-      intercalateInto(b, as.toIterator.map(f), sep)
+      intercalateInto(b, as.iterator.map(f), sep)
       if (end ne VdomNode.empty) b += end
       ReactFragment(b.result(): _*)
     }
@@ -88,16 +88,16 @@ object ImplicitsForVdomNode {
     def mkTagMod(start: TagMod, sep: TagMod, end: TagMod)(implicit f: A => TagMod): TagMod = {
       val b = Vector.newBuilder[TagMod]
       if (start ne VdomNode.empty) b += start
-      intercalateInto(b, as.toIterator.map(f), sep)
+      intercalateInto(b, as.iterator.map(f), sep)
       if (end ne VdomNode.empty) b += end
       TagMod.fromTraversableOnce(b.result())
     }
 
     def toReactFragment(implicit f: A => VdomNode): VdomElement =
-      ReactFragment(as.toIterator.map(f).toList: _*)
+      ReactFragment(as.iterator.map(f).toList: _*)
 
     def toTagMod(implicit f: A => TagMod): TagMod =
-      TagMod.fromTraversableOnce(as.toIterator.map(f))
+      TagMod.fromTraversableOnce(as.iterator.map(f))
 
     def toVdomArray(implicit f: A => VdomNode): VdomArray =
       VdomArray.empty() ++= as
@@ -120,7 +120,7 @@ trait ImplicitsForVdomNode {
   implicit def vdomNodeFromOption[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => VdomNode): VdomNode =
     O.fold(o, VdomNode.empty)(f)
 
-  implicit def vdomSeqExtForTO[A](as: TraversableOnce[A]) = new TraversableOnceExt[A](as)
+  implicit def vdomSeqExtForTO[A](as: IterableOnce[A]) = new TraversableOnceExt[A](as)
   implicit def vdomSeqExtForSA[A](as: Array          [A]) = new TraversableOnceExt[A](as)
   implicit def vdomSeqExtForJA[A](as: js.Array       [A]) = new TraversableOnceExt[A](as)
 }

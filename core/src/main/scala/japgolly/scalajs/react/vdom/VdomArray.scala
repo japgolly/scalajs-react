@@ -16,8 +16,8 @@ final class VdomArray(val rawArray: js.Array[Raw.React.Node]) extends VdomNode {
     this
   }
 
-  def ++=[A](as: TraversableOnce[A])(implicit f: A => VdomNode): this.type = {
-    for (a <- as)
+  def ++=[A](as: IterableOnce[A])(implicit f: A => VdomNode): this.type = {
+    for (a <- as.iterator)
       rawArray push f(a).rawNode
     this
   }

@@ -114,7 +114,7 @@ abstract class MacroUtils {
 
   final def crawlADT[A](tpe    : Type,
                         attempt: ClassSymbol => Option[A],
-                        giveUp : ClassSymbol => TraversableOnce[A]): Vector[A] = {
+                        giveUp : ClassSymbol => IterableOnce[A]): Vector[A] = {
     var seen = Set.empty[Type]
     val results = Vector.newBuilder[A]
 
@@ -454,11 +454,11 @@ abstract class MacroUtils {
     c.Expr[T => T](q"(t: $T) => t")
   }
 
-  def deterministicOrderT(ts: TraversableOnce[Type]): Vector[Type] =
-    ts.toVector.sortBy(_.typeSymbol.fullName)
+  def deterministicOrderT(ts: IterableOnce[Type]): Vector[Type] =
+    ts.iterator.to(Vector).sortBy(_.typeSymbol.fullName)
 
-  def deterministicOrderC(ts: TraversableOnce[ClassSymbol]): Vector[ClassSymbol] =
-    ts.toVector.sortBy(_.fullName)
+  def deterministicOrderC(ts: IterableOnce[ClassSymbol]): Vector[ClassSymbol] =
+    ts.iterator.to(Vector).sortBy(_.fullName)
 
 
   final def replaceMacroMethod(newMethod: String) =

@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.{catchAll, identityFn, newJsPromise, SyncPromise}
-import scala.collection.generic.CanBuildFrom
+import scala.collection.compat._
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
@@ -69,11 +69,11 @@ object AsyncCallback {
   /** Traverse stdlib T over AsyncCallback.
     * Distribute AsyncCallback over stdlib T.
     */
-  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: CanBuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
+  def traverse[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
     AsyncCallback.byName {
       val as = ta.toVector
       if (as.isEmpty)
-        AsyncCallback.pure(cbf().result())
+        AsyncCallback.pure(cbf.newBuilder(ta).result())
       else {
         val discard = (_: Any, _: Any) => ()
         val bs = new js.Array[B](as.length)
@@ -82,14 +82,14 @@ object AsyncCallback {
           .iterator
           .map(i => f(as(i)).map(b => bs(i) = b))
           .reduce(_.zipWith(_)(discard))
-          .map(_ => bs.to(cbf))
+          .map(_ => cbf.fromSpecific(ta)(bs))
       }
     }
 
   /** Sequence stdlib T over AsyncCallback.
     * Co-sequence AsyncCallback over stdlib T.
     */
-  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[AsyncCallback[A]])(implicit cbf: CanBuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
+  def sequence[T[X] <: Iterable[X], A](tca: => T[AsyncCallback[A]])(implicit cbf: BuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
     traverse(tca)(identityFn)(cbf)
 
   /** Traverse Option over AsyncCallback.

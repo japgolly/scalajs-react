@@ -11,16 +11,17 @@ object ScalajsReact {
 
   object Ver {
     val BetterMonadicFor = "0.3.0"
-    val Cats             = "2.0.0-M4"
+    val Cats             = "2.0.0-M4" //FIXME
     val KindProjector    = "0.10.3"
     val MacroParadise    = "2.1.1"
-    val Monocle          = "1.6.0-RC1"
-    val MonocleCats      = "1.6.0-RC1"
+    val Monocle          = "1.6.0-RC1" //FIXME
+    val MonocleCats      = "1.6.0-RC1" //FIXME
     val MTest            = "0.7.1"
-    val Nyaya            = "0.8.1"
+    val Nyaya            = "0.9.0-SNAPSHOT" //FIXME
     val ReactJs          = "16.7.0"
     val Scala212         = "2.12.8"
     val Scala213         = "2.13.0"
+    val ScalaCollCompat  = "2.1.1"
     val ScalaJsDom       = "0.9.7"
     val Scalaz72         = "7.2.27"
     val SizzleJs         = "2.3.0"
@@ -49,6 +50,7 @@ object ScalajsReact {
         incOptions         := incOptions.value.withLogRecompileOnMacro(false),
         updateOptions      := updateOptions.value.withCachedResolution(true),
         triggeredMessage   := Watched.clearWhenTriggered,
+        libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
         addCompilerPlugin("com.olegpy" %% "better-monadic-for" % Ver.BetterMonadicFor))
 
   def preventPublication: PE =
