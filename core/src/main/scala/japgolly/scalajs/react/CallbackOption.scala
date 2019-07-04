@@ -73,7 +73,7 @@ object CallbackOption {
                                                 (implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
     liftOption {
       val it = ta.iterator
-      val r = cbf(ta)
+      val r = cbf.newBuilder(ta)
       @tailrec
       def go: Option[T[B]] =
         if (it.hasNext)

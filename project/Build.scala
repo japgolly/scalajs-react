@@ -11,19 +11,19 @@ object ScalajsReact {
 
   object Ver {
     val BetterMonadicFor = "0.3.0"
-    val Cats             = "2.0.0-M4" //FIXME
+    val Cats             = "2.0.0-M4"
     val KindProjector    = "0.10.3"
     val MacroParadise    = "2.1.1"
     val Monocle          = "1.6.0-RC1" //FIXME
     val MonocleCats      = "1.6.0-RC1" //FIXME
     val MTest            = "0.7.1"
-    val Nyaya            = "0.9.0-SNAPSHOT" //FIXME
+    val Nyaya            = "0.9.0-RC1"
     val ReactJs          = "16.7.0"
     val Scala212         = "2.12.8"
     val Scala213         = "2.13.0"
     val ScalaCollCompat  = "2.1.1"
     val ScalaJsDom       = "0.9.7"
-    val Scalaz72         = "7.2.27"
+    val Scalaz72         = "7.2.28"
     val SizzleJs         = "2.3.0"
     val Sourcecode       = "0.1.7"
   }
@@ -44,6 +44,7 @@ object ScalajsReact {
                                 "-P:scalajs:sjsDefinedByDefault")
                                 ++ byScalaVersion {
                                   case (2, 12) => Seq("-opt:l:method")
+                                  case (2, 13) => Seq("-Ymacro-annotations")
                                   // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
                                 }.value,
         //scalacOptions    += "-Xlog-implicits",
@@ -184,6 +185,7 @@ object ScalajsReact {
     val extractedState = extract(state)
     val stateWithMacroParadise = CrossVersion.partialVersion(extractedState.get(scalaVersion)) match {
       case Some((2, 13)) => extractedState.appendWithSession(Seq(Compile / scalacOptions += "-Ymacro-annotations"), state)
+      //FIXME I added -Ymacro-annotations on commonSettings for scala version 2.13
       case _ => extractedState.appendWithSession(addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full), state)
     }
     val (stateAfterCompileWithMacroParadise, _) = extract(stateWithMacroParadise).runTask(Compile / compile, stateWithMacroParadise)

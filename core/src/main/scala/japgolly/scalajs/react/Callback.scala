@@ -4,6 +4,7 @@ import org.scalajs.dom.{console, window}
 import org.scalajs.dom.raw.Window
 
 import scala.annotation.{implicitNotFound, tailrec}
+import scala.collection.BuildFrom
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
@@ -11,8 +12,6 @@ import scala.scalajs.js.{UndefOr, undefined, Function0 => JFn0, Function1 => JFn
 import scala.util.{Failure, Success, Try}
 import japgolly.scalajs.react.internal.{catchAll, identityFn}
 import CallbackTo.MapGuard
-
-import scala.collection.BuildFrom
 
 /**
  * A callback with no return value. Equivalent to `() => Unit`.
@@ -230,7 +229,7 @@ object CallbackTo {
     /** Anything traversable by the Scala stdlib definition */
     def std[T[X] <: IterableOnce[X]](implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackTo[T[A] => T[B]] =
       CallbackTo { ta =>
-        val r = cbf(ta)
+        val r = cbf.newBuilder(ta)
         ta.iterator.foreach(a => r += f(a).runNow())
         r.result()
       }

@@ -69,9 +69,9 @@ object AsyncCallback {
   /** Traverse stdlib T over AsyncCallback.
     * Distribute AsyncCallback over stdlib T.
     */
-  def traverse[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
+  def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
     AsyncCallback.byName {
-      val as = ta.toVector
+      val as = ta.iterator.to(Vector)
       if (as.isEmpty)
         AsyncCallback.pure(cbf.newBuilder(ta).result())
       else {
@@ -89,7 +89,7 @@ object AsyncCallback {
   /** Sequence stdlib T over AsyncCallback.
     * Co-sequence AsyncCallback over stdlib T.
     */
-  def sequence[T[X] <: Iterable[X], A](tca: => T[AsyncCallback[A]])(implicit cbf: BuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
+  def sequence[T[X] <: IterableOnce[X], A](tca: => T[AsyncCallback[A]])(implicit cbf: BuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
     traverse(tca)(identityFn)(cbf)
 
   /** Traverse Option over AsyncCallback.
