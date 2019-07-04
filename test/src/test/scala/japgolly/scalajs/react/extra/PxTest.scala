@@ -69,7 +69,7 @@ object PxTest extends TestSuite {
         lastRevs = n
       }
 
-      def test(a: String, b: String, c: String)(expectedChanges: Symbol*): Unit = {
+      def test(a: String, b: String, c: String)(expectedChanges: String*): Unit = {
         var tests = Vector.empty[() => Unit]
         def t(t: => Unit): Unit = tests :+= (() => t)
 
@@ -89,16 +89,16 @@ object PxTest extends TestSuite {
       test("a", "b", "c")()
 
       xa.set("A")
-      test("A", "b", "c")('xa, 'xab, 'xabbc)
+      test("A", "b", "c")("xa", "xab", "xabbc")
 
       vb = "B"
-      test("A", "B", "c")('xb, 'xab, 'xbc, 'xabbc)
+      test("A", "B", "c")("xb", "xab", "xbc", "xabb")
 
       vc = "C"
       test("A", "B", "c")()
 
       xc.refresh()
-      test("A", "B", "C")('xc, 'xbc, 'xabbc)
+      test("A", "B", "C")("xc", "xbc", "xabb")
 
       xa.set("A")
       xc.refresh()
