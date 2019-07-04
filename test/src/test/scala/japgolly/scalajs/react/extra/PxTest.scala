@@ -61,7 +61,7 @@ object PxTest extends TestSuite {
         "xabbc" -> (xabbc.rev + 1000 * rabbc))
 
       var lastRevs = revs
-      def assertChanges(expectedChanges: Symbol*): Unit =  {
+      def assertChanges(expectedChanges: String*): Unit =  {
         val n = revs
         def f(m: Map[String, Int]) = m.toList.toSet
         val changed = (f(lastRevs) -- f(n)).map(_._1)
