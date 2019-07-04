@@ -21,8 +21,8 @@ object ContextTest extends TestSuite {
       val consumer = ScalaComponent.builder[Unit]("").render_P(_ => <.h4(ctx.consume("x = " + _))).build
       val provider = ScalaComponent.builder[X]("").render_P(i => <.pre(ctx.provide(i)(consumer()))).build
 
-      'default  - assertRender(consumer(), "<h4>x = X(5)</h4>")
-      'provided - assertRender(provider(X(5000)), "<pre><h4>x = X(5000)</h4></pre>")
+      "default"  - assertRender(consumer(), "<h4>x = X(5)</h4>")
+      "provided" - assertRender(provider(X(5000)), "<pre><h4>x = X(5000)</h4></pre>")
     }
 
     'usageFn {
@@ -30,8 +30,8 @@ object ContextTest extends TestSuite {
       val consumer = ScalaFnComponent[Unit](_ => <.h4(ctx.consume("i = " + _)))
       val provider = ScalaFnComponent[Int](i => <.pre(ctx.provide(i)(consumer())))
 
-      'default  - assertRender(consumer(), "<h4>i = 123</h4>")
-      'provided - assertRender(provider(88), "<pre><h4>i = 88</h4></pre>")
+      "default"  - assertRender(consumer(), "<h4>i = 123</h4>")
+      "provided" - assertRender(provider(88), "<pre><h4>i = 88</h4></pre>")
     }
 
     'refEq {
@@ -40,19 +40,19 @@ object ContextTest extends TestSuite {
         assert(actual == expect)
       }
 
-      'int - {
+      "int" - {
         val ctx = React.createContext(123)
         test(ctx.provide(3))(ctx.provide(3))
         test(ctx.provide(3))(ctx.provide(4), false)
       }
 
-      'str - {
+      "str" - {
         val ctx = React.createContext("argh")
         test(ctx.provide("3a"))(ctx.provide("3a"))
         test(ctx.provide("3a"))(ctx.provide("4a"), false)
       }
 
-      'caseClass - {
+      "caseClass" - {
         val ctx = React.createContext(X())
         val p = ctx.provide(X())
         test(p)(p)

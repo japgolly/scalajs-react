@@ -56,7 +56,7 @@ object ReusableFnTest extends TestSuite {
 
   override def tests = Tests {
 
-    'fn1 - {
+    "fn1" - {
       import Fs._
       val f = Reusable.fn((i: Int) => i + 1)
       val g = Reusable.fn((i: Int) => i + 10)
@@ -64,7 +64,7 @@ object ReusableFnTest extends TestSuite {
       assert(f(5) == 6)
     }
 
-    'fn2 - {
+    "fn2" - {
       import Fs._
       val f = Reusable.fn((a: Int, b: Int) => a + b)
       val g = Reusable.fn((a: Int, b: Int) => a * b)
@@ -72,7 +72,7 @@ object ReusableFnTest extends TestSuite {
       assert(f(1)(2) == 3)
     }
 
-    'fn3 - {
+    "fn3" - {
       import Fs._
       val f = Reusable.fn((a: Int, b: Int, c: Int) => a + b + c)
       val g = Reusable.fn((a: Int, b: Int, c: Int) => a * b * c)
@@ -80,29 +80,29 @@ object ReusableFnTest extends TestSuite {
       assert(f(1)(2)(3) == 6)
     }
 
-    'state - {
+    "state" - {
       import InferenceUtil._
       test[BackendScope[P, S]]($ => Reusable.fn.state($).set).expect[S ~=> Callback]
       test[BackendScope[P, S]]($ => Reusable.fn.state($).mod).expect[(S => S) ~=> Callback]
     }
 
-    'variance - {
+    "variance" - {
       import InferenceUtil._
 
-      'fn1 - {
-        'i - {
+      "fn1" - {
+        "i" - {
           compileError("test[Medium  => Int].usableAs[Big  => Int]")
           compileError("test[Medium ~=> Int].usableAs[Big ~=> Int]")
                         test[Medium  => Int].usableAs[Small  => Int]
                         test[Medium ~=> Int].usableAs[Small ~=> Int]
         }
-        'o - {
+        "o" - {
           compileError("test[Int  => Medium].usableAs[Int  => Small]")
           compileError("test[Int ~=> Medium].usableAs[Int ~=> Small]")
                         test[Int  => Medium].usableAs[Int  => Big]
                         test[Int ~=> Medium].usableAs[Int ~=> Big]
         }
-        'run - {
+        "run" - {
           import AIs._
 
           def fai(add: Int): A ~=> I =
@@ -119,26 +119,26 @@ object ReusableFnTest extends TestSuite {
         }
       }
 
-      'fn2 - {
-        'i1 - {
+      "fn2" - {
+        "i1" - {
           compileError("test[Medium  => (Int  => Int)].usableAs[Big    => (Int  => Int)]")
           compileError("test[Medium ~=> (Int ~=> Int)].usableAs[Big   ~=> (Int ~=> Int)]")
                         test[Medium  => (Int  => Int)].usableAs[Small  => (Int  => Int)]
                         test[Medium ~=> (Int ~=> Int)].usableAs[Small ~=> (Int ~=> Int)]
         }
-        'i2 - {
+        "i2" - {
           compileError("test[Int  => (Medium  => Int)].usableAs[Int  => (Big    => Int)]")
           compileError("test[Int ~=> (Medium ~=> Int)].usableAs[Int ~=> (Big   ~=> Int)]")
                         test[Int  => (Medium  => Int)].usableAs[Int  => (Small  => Int)]
                         test[Int ~=> (Medium ~=> Int)].usableAs[Int ~=> (Small ~=> Int)]
         }
-        'o - {
+        "o" - {
           compileError("test[Int  => (Int  => Medium)].usableAs[Int  => (Int  => Small)]")
           compileError("test[Int ~=> (Int ~=> Medium)].usableAs[Int ~=> (Int ~=> Small)]")
                         test[Int  => (Int  => Medium)].usableAs[Int  => (Int  => Big  )]
                         test[Int ~=> (Int ~=> Medium)].usableAs[Int ~=> (Int ~=> Big  )]
         }
-        'run - {
+        "run" - {
           import AIs._
 
           def faai(add: Int): A ~=> (A ~=> I) =

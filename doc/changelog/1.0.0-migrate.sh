@@ -1,6 +1,6 @@
 #!/bin/bash
 
-find . -name '*.scala' -type f -exec perl -pi -e '
+find . -name "*.scala'" -type f -exec perl -pi -e '
   undef $/;
   use Regexp::Common;
   $x= "(){"."}";

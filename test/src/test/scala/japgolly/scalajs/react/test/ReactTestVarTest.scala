@@ -11,7 +11,7 @@ object ReactTestVarTest extends TestSuite {
 
     val v = ReactTestVar(3)
 
-    'stateSnapshot - {
+    "stateSnapshot" - {
       val t = v.stateSnapshot()
       assertEq(t.value, 3)
       t.setState(7).runNow()
@@ -20,7 +20,7 @@ object ReactTestVarTest extends TestSuite {
       assertEq(v.value(), 9)
     }
 
-    'stateSnapshotWithReuse - {
+    "stateSnapshotWithReuse" - {
       val t = v.stateSnapshotWithReuse()
       assertEq(t.value, 3)
       t.setState(9).runNow()
@@ -29,7 +29,7 @@ object ReactTestVarTest extends TestSuite {
       assertEq(v.value(), 7)
     }
 
-    'stateAccess - {
+    "stateAccess" - {
       val $ = v.stateAccess.withEffectsImpure
       assertEq($.state, 3)
       $.setState(14)
@@ -42,7 +42,7 @@ object ReactTestVarTest extends TestSuite {
       assertEq(called, 1)
     }
 
-    'reset - {
+    "reset" - {
       v.setValue(666)
       assertEq(v.value(), 666)
       assertEq(v.initialValue, 3)
@@ -52,7 +52,7 @@ object ReactTestVarTest extends TestSuite {
       assertEq(v.value(), 3)
     }
 
-    'history - {
+    "history" - {
       assertEq(v.history(), Vector(3))
       v.setValue(5)
       assertEq(v.history(), Vector(3, 5))
@@ -70,7 +70,7 @@ object ReactTestVarTest extends TestSuite {
       assertEq(v.history(), Vector(3, 3))
     }
 
-    'mockParentComponent - {
+    "mockParentComponent" - {
       val c = ScalaComponent.builder[StateAccessPure[Int]]("")
         .render_P(parent => <.div(parent.state.runNow(), ^.onClick --> parent.modState(_ + 1)))
         .build

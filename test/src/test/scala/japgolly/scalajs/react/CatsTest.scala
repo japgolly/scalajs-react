@@ -23,7 +23,7 @@ object CatsTest extends TestSuite {
 
   val tests = Tests {
 
-    'inference - {
+    "inference" - {
       import japgolly.scalajs.react.test.InferenceUtil._
 
       implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
@@ -39,7 +39,7 @@ object CatsTest extends TestSuite {
       "ScalaMountedCB"      - test[ScalaComponent.MountedPure  [U, S, U]](_.runState(reactSId)       ).expect[CallbackTo[Int]]
     }
 
-    'runState - {
+    "runState" - {
       val c = ReactTestUtils.renderIntoDocument(SI())
       assertEq(c.state, 123)
       val f = (_: Int) * 2

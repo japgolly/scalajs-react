@@ -22,7 +22,7 @@ object BroadcasterTest extends TestSuite {
   override def tests = Tests {
     val b = new B
 
-    'component - {
+    "component" - {
       val c = ReactTestUtils.renderIntoDocument(C(b))
       assert(c.state == Vector())
       b.broadcast(2).runNow()
@@ -31,7 +31,7 @@ object BroadcasterTest extends TestSuite {
       assert(c.state == Vector(2, 7))
     }
 
-    'unregister - {
+    "unregister" - {
       var i1 = 0
       var i2 = 0
       val u1 = b.register(j => Callback(i1 += j)).runNow()

@@ -19,27 +19,27 @@ object VdomTest extends TestSuite {
         assertRender(comp(), exp)
       }
 
-      'byte      - test(50: Byte,                                        "50")
-      'short     - test(45: Short,                                       "45")
-      'int       - test(666,                                             "666")
-      'long      - test(123L,                                            "123")
-      'double    - test(12.3,                                            "12.3")
-      'string    - test("yo",                                            "yo")
-      'empty     - test(EmptyVdom,                                       "")
-      'optionN   - test(Option.empty[Int],                               "")
-      'optionS   - test(Option(13),                                      "13")
-      'optionSN  - test(Option(Option.empty[Int]),                       "")
-      'optionSS  - test(Option(Option(13)),                              "13")
-      'vdomArray - test(VdomArray("hehe", <.div(^.key := 1, "one")),     "hehe<div>one</div>") // needs keys apparently
-      'fragment  - test(React.Fragment("hehe", <.div("one")),            "hehe<div>one</div>") // keys not required
-      'fragmentK - test(React.Fragment.withKey(1)("hehe", <.div("one")), "hehe<div>one</div>") // keyABLE
+      "byte"      - test(50: Byte,                                        "50")
+      "short"     - test(45: Short,                                       "45")
+      "int"       - test(666,                                             "666")
+      "long"      - test(123L,                                            "123")
+      "double"    - test(12.3,                                            "12.3")
+      "string"    - test("yo",                                            "yo")
+      "empty"     - test(EmptyVdom,                                       "")
+      "optionN"   - test(Option.empty[Int],                               "")
+      "optionS"   - test(Option(13),                                      "13")
+      "optionSN"  - test(Option(Option.empty[Int]),                       "")
+      "optionSS"  - test(Option(Option(13)),                              "13")
+      "vdomArray" - test(VdomArray("hehe", <.div(^.key := 1, "one")),     "hehe<div>one</div>") // needs keys apparently
+      "fragment"  - test(React.Fragment("hehe", <.div("one")),            "hehe<div>one</div>") // keys not required
+      "fragmentK" - test(React.Fragment.withKey(1)("hehe", <.div("one")), "hehe<div>one</div>") // keyABLE
 
-      'booleanF  - compileError("""test(false, "")""")
-      'booleanT  - compileError("""test(true, "")""")
+      "booleanF"  - compileError("""test(false, "")""")
+      "booleanT"  - compileError("""test(true, "")""")
     }
 
-    'tagModToJs - {
-      'childrenAsVdomNodes - {
+    "tagModToJs" - {
+      "childrenAsVdomNodes" - {
         val vdom = TagMod("hehe", 123, <.em(456L), C())
         val expect = "<span>hehe123<em>456</em><br/></span>"
         assertRender(<.span(vdom), expect)
@@ -55,7 +55,7 @@ object VdomTest extends TestSuite {
       compileError("a(attr)")
     }
 
-    'portal - {
+    "portal" - {
       ReactTestUtils.withNewBodyElement { portalTarget =>
         val comp = ScalaComponent.static("tmp")(
           <.div("Here we go...",

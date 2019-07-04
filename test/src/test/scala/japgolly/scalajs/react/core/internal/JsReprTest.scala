@@ -23,19 +23,19 @@ object JsReprTest extends TestSuite {
         assert(a == roundTrip)
       }
 
-      'unit      - test((), ())
-      'boolean   - test(true, true)
-      'byte      - test(3.toByte, 3.toByte)
-      'short     - test(7.toShort, 7.toShort)
-      'int       - test(11, 11)
-      'longMin   - test(Long.MinValue, Long.MinValue)
-      'longMax   - test(Long.MaxValue, Long.MaxValue)
-      'float     - test(14.3f, 14.3f)
-      'double    - test(3.6, 3.6)
-      'string    - test("heh", "heh")
-      'jsAny     - test(jsObj.asInstanceOf[js.Any], jsObj.asInstanceOf[js.Any])
-      'jsObject  - test(jsObj, jsObj)
-      'caseClass - test(X(3), Box(X(3)))
+      "unit"      - test((), ())
+      "boolean"   - test(true, true)
+      "byte"      - test(3.toByte, 3.toByte)
+      "short"     - test(7.toShort, 7.toShort)
+      "int"       - test(11, 11)
+      "longMin"   - test(Long.MinValue, Long.MinValue)
+      "longMax"   - test(Long.MaxValue, Long.MaxValue)
+      "float"     - test(14.3f, 14.3f)
+      "double"    - test(3.6, 3.6)
+      "string"    - test("heh", "heh")
+      "jsAny"     - test(jsObj.asInstanceOf[js.Any], jsObj.asInstanceOf[js.Any])
+      "jsObject"  - test(jsObj, jsObj)
+      "caseClass" - test(X(3), Box(X(3)))
     }
 
   }
