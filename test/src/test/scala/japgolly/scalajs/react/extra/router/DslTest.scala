@@ -4,7 +4,7 @@ import java.util.UUID
 import monocle._
 import scala.util.Try
 import scalaz.Equal
-import utest._
+import utest.{test => _, _}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import MonocleReact._

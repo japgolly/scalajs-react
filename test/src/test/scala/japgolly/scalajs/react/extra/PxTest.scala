@@ -52,7 +52,7 @@ object PxTest extends TestSuite {
       val xbc   = for {b <- xb; c <- xc} yield {rbc += 1; b + c}
       val xabbc = for {ab <- xab; bc <- xbc} yield {rabbc += 1; ab + " " + bc}
 
-      def revs = Map[Symbol, Int](
+      def revs = Map[String, Int](
         "xa"    -> xa.rev,
         "xb"    -> xb.rev,
         "xc"    -> xc.rev,
@@ -63,7 +63,7 @@ object PxTest extends TestSuite {
       var lastRevs = revs
       def assertChanges(expectedChanges: Symbol*): Unit =  {
         val n = revs
-        def f(m: Map[Symbol, Int]) = m.toList.toSet
+        def f(m: Map[String, Int]) = m.toList.toSet
         val changed = (f(lastRevs) -- f(n)).map(_._1)
         assertEq("assertChanges", changed, expectedChanges.toSet)
         lastRevs = n
