@@ -92,13 +92,13 @@ object PxTest extends TestSuite {
       test("A", "b", "c")("xa", "xab", "xabbc")
 
       vb = "B"
-      test("A", "B", "c")("xb", "xab", "xbc", "xabb")
+      test("A", "B", "c")("xb", "xab", "xbc", "xabbc")
 
       vc = "C"
       test("A", "B", "c")()
 
       xc.refresh()
-      test("A", "B", "C")("xc", "xbc", "xabb")
+      test("A", "B", "C")("xc", "xbc", "xabbc")
 
       xa.set("A")
       xc.refresh()
