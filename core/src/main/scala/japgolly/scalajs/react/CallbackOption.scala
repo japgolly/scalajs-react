@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import japgolly.scalajs.react.internal.{OptionLike, identityFn}
 import CallbackTo.MapGuard
 
-import scala.collection.BuildFrom
+import scala.collection.compat._
 
 // TODO Document CallbackOption
 

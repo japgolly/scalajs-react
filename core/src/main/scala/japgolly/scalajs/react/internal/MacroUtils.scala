@@ -3,6 +3,7 @@ package japgolly.scalajs.react.internal
 // Copied from https://raw.githubusercontent.com/japgolly/microlibs-scala/master/macro-utils/shared/src/main/scala/japgolly/microlibs/macro_utils/MacroUtils.scala
 
 import scala.annotation.tailrec
+import scala.collection.compat._
 
 object MacroUtils {
   sealed trait FindSubClasses

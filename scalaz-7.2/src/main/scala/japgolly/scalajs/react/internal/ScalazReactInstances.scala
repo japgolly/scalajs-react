@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.internal
 
 import scala.annotation.tailrec
-import scalaz.{Optional => _, _}
+import scala.collection.compat._
+import scalaz.{Optional => _, Profunctor => _, _}
 import scalaz.Isomorphism.<~>
 import scalaz.effect.IO
 import Scalaz.Id
@@ -228,13 +229,13 @@ trait ScalazReactInstances {
 
   implicit final lazy val reactRefFnScalazInstance: Profunctor[Ref.Fn] =
     new Profunctor[Ref.Fn] {
-      override def mapfst[A, B, C](f: Ref.Fn[A, B])(m: C => A) = f.contramap(m)
-      override def mapsnd[A, B, C](f: Ref.Fn[A, B])(m: B => C) = f.map(m)
+      override def lmap[A, B, C](f: Ref.Fn[A, B])(m: C => A) = f.contramap(m)
+      override def rmap[A, B, C](f: Ref.Fn[A, B])(m: B => C) = f.map(m)
     }
 
   implicit final def reactRefFullScalazInstance[X]: Profunctor[Ref.Full[?, X, ?]] =
     new Profunctor[Ref.Full[?, X, ?]] {
-      override def mapfst[A, B, C](f: Ref.Full[A, X, B])(m: C => A) = f.contramap(m)
-      override def mapsnd[A, B, C](f: Ref.Full[A, X, B])(m: B => C) = f.map(m)
+      override def lmap[A, B, C](f: Ref.Full[A, X, B])(m: C => A) = f.contramap(m)
+      override def rmap[A, B, C](f: Ref.Full[A, X, B])(m: B => C) = f.map(m)
     }
 }

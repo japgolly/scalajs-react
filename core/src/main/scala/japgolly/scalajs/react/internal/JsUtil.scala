@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.internal
 
+import scala.collection.compat._
 import scala.scalajs.js
 import scala.scalajs.js.|
 

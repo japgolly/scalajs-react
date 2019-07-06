@@ -4,7 +4,7 @@ import org.scalajs.dom.{console, window}
 import org.scalajs.dom.raw.Window
 
 import scala.annotation.{implicitNotFound, tailrec}
-import scala.collection.BuildFrom
+import scala.collection.compat._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js

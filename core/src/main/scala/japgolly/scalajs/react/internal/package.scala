@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import scala.collection.Factory
+import scala.collection.compat._
 import scala.collection.mutable.Builder
 import scala.scalajs.js
 import scala.scalajs.js.{Thenable, |}
