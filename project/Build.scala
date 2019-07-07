@@ -176,20 +176,15 @@ object ScalajsReact {
         "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
         "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"))
 
-  /**
-   * Scala 2.13 do not need the paradise compiler plugin
-   * @see [[https://stackoverflow.com/questions/54392266/using-macro-paradise-and-cross-compiling-with-2-12-2-13]]
-   */
-  def compileWithMacroParadise: Command = Command.command("compileWithMacroParadise") { state =>
-    import Project._
-    val extractedState = extract(state)
-    val stateWithMacroParadise = CrossVersion.partialVersion(extractedState.get(scalaVersion)) match {
-      case Some((2, 13)) => extractedState.appendWithSession(Seq(Compile / scalacOptions += "-Ymacro-annotations"), state)
-      //FIXME I added -Ymacro-annotations on commonSettings for scala version 2.13
-      case _ => extractedState.appendWithSession(addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full), state)
+  def paradisePlugin = Def.setting{
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, v)) if v <= 12 =>
+        Seq(compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.patch))
+      case _ =>
+        // if scala 2.13.0-M4 or later, macro annotations merged into scala-reflect
+        // https://github.com/scala/scala/pull/6606
+        Nil
     }
-    val (stateAfterCompileWithMacroParadise, _) = extract(stateWithMacroParadise).runTask(Compile / compile, stateWithMacroParadise)
-    stateAfterCompileWithMacroParadise
   }
 
   def macroParadisePlugin =
@@ -260,7 +255,7 @@ object ScalajsReact {
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
         (ProvidedJS / "component-fn.js" dependsOn ReactDom.dev) % Test,
         (ProvidedJS / "forward-ref.js"  dependsOn ReactDom.dev) % Test),
-      commands ++= Seq(compileWithMacroParadise),
+      libraryDependencies ++= paradisePlugin.value,
     )
 
   /*
@@ -326,8 +321,7 @@ object ScalajsReact {
       scalaJSUseMainModuleInitializer := true,
       mainClass in Compile := Some("ghpages.GhPages"),
       artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"),
-      commands ++= Seq(compileWithMacroParadise),
+      libraryDependencies ++= paradisePlugin.value,
     )
 
-  addCommandAlias("compile", "compileWithMacroParadise")
 }
