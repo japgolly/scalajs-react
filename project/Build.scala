@@ -14,7 +14,7 @@ object ScalajsReact {
     val Cats             = "1.6.1"
     val KindProjector    = "0.10.3"
     val MacroParadise    = "2.1.1"
-    val Monocle          = "1.5.0"
+    val Monocle          = "1.6.0"
     val MonocleCats      = "1.5.1-cats"
     val MTest            = "0.6.6"
     val Nyaya            = "0.8.1"
