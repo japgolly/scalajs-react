@@ -75,18 +75,40 @@ object ScalaBuilderTest extends TestSuite {
         "US" - test(compileError("start.componentDidUpdate(???).getSnapshotBeforeUpdate(int)"))
       }
 
-//      'type {
-//        "U" - assertCompiles(start
-//          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
-//          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit])))
-//        //FIXME ScalaBuilderTest.scala:81:56: cyclic aliasing or subtyping involving type SnapshotValue
-//
+      'type {
+        "U" - {
+          // ========================================================================================================================================================================
+          import japgolly.scalajs.react.component.builder.Builder.Step4
+          import japgolly.scalajs.react.test.InferenceUtil
+
+          // This doesn't compile in either 2.12 or 2.13
+          val x1: Step4[InferenceUtil.P,Children.None,Unit,Unit,UpdateSnapshot.None                  ] = start
+          val x2: Step4[InferenceUtil.P,Children.None,Unit,Unit,UpdateSnapshot.Some[x1.SnapshotValue]] = x1.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+          val x3: Step4[InferenceUtil.P,Children.None,Unit,Unit,UpdateSnapshot.Some[x1.SnapshotValue]] = x2.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+          implicitly[x1.SnapshotValue =:= Unit]
+
+          // This compiles in both 2.12 and 2.13, we've just unalised y1.SnapshotValue to Unit
+          val y1: Step4[InferenceUtil.P,Children.None,Unit,Unit,UpdateSnapshot.None      ] = start
+          val y2: Step4[InferenceUtil.P,Children.None,Unit,Unit,UpdateSnapshot.Some[Unit]] = y1.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+          val y3: Step4[InferenceUtil.P,Children.None,Unit,Unit,UpdateSnapshot.Some[Unit]] = y2.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+          implicitly[y1.SnapshotValue =:= Unit]
+
+          // If we let type inference do its thing on the following block...
+          //   - on Scala 2.13.0 it infers the types in the first case above, and fails to compile
+          //   - on Scala 2.12.8 it infers the types in the second case above, and compiles
+          start
+            .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+            .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+          // ========================================================================================================================================================================
+          ()
+        }
+
 //        "SU" - assertCompiles(start
 //          .getSnapshotBeforeUpdate(int)
 //          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
 //          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int])))
 //        //FIXME ScalaBuilderTest.scala:86:56: cyclic aliasing or subtyping involving type SnapshotValue
-//      }
+      }
     }
   }
 }
