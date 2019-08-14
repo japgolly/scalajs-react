@@ -76,7 +76,19 @@ object ScalaBuilderTest extends TestSuite {
         "US" - test(compileError("start.componentDidUpdate(???).getSnapshotBeforeUpdate(int)"))
       }
 
-//      "type" - {
+      "type" - { // FIXME see https://github.com/scala/bug/issues/11660
+        "U" - assertCompiles {
+          val aux = start.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+          aux.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+        }
+
+        "SU" - assertCompiles {
+          val aux = start
+            .getSnapshotBeforeUpdate(int)
+            .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
+          aux.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
+        }
+
 //        "U" - assertCompiles(start
 //          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
 //          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit])))
@@ -87,7 +99,7 @@ object ScalaBuilderTest extends TestSuite {
 //          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
 //          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int])))
 //        //FIXME ScalaBuilderTest.scala:86:56: cyclic aliasing or subtyping involving type SnapshotValue
-//      }
+      }
     }
   }
 }
