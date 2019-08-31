@@ -45,35 +45,35 @@ object TestTest extends TestSuite {
 
   val tests = Tests {
 
-    'findRenderedDOMComponentWithClass - {
+    "findRenderedDOMComponentWithClass" - {
       val x = ReactTestUtils.findRenderedDOMComponentWithClass(rab, "BB")
       val n = x.getDOMNode.asMounted().asElement()
       assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
-    'findRenderedComponentWithType - {
+    "findRenderedComponentWithType" - {
       val n = ReactTestUtils.findRenderedComponentWithType(rab, B).getDOMNode.asMounted().asElement()
       assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
-    'renderIntoDocument - {
+    "renderIntoDocument" - {
       def test(c: GenericComponent.MountedRaw, exp: String): Unit =
         assertOuterHTML(ReactDOM.findDOMNode(c.raw).get.asElement, exp)
 
-      'plainElement - {
+      "plainElement" - {
         val re: VdomElement = <.div("Good")
         val c = ReactTestUtils.renderIntoDocument(re)
         test(c, """<div>Good</div>""")
       }
 
-      'scalaComponent - {
+      "scalaComponent" - {
         val c = ReactTestUtils.renderIntoDocument(B())
         test(c, """<p class="BB">hehehe</p>""")
       }
     }
 
-    'Simulate - {
-      'click - {
+    "Simulate" - {
+      "click" - {
         val c = ReactTestUtils.renderIntoDocument(IC())
         val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
         val a = s.getDOMNode.asMounted().asElement().innerHTML
@@ -82,7 +82,7 @@ object TestTest extends TestSuite {
         assert(a != b)
       }
 
-      'eventTypes - {
+      "eventTypes" - {
         def test[E[+x <: dom.Node] <: SyntheticEvent[x]](eventType: VdomAttr.Event[E], simF: ReactOrDomNode ⇒ Unit) = {
           val IDC = ScalaComponent.builder[Unit]("IC").initialState(true).render($ => {
             val ch = (e: E[dom.Node]) => $.modState(x => !x)
@@ -102,70 +102,70 @@ object TestTest extends TestSuite {
           assert(a != b)
         }
 
-        'onAuxClick           - test(^.onAuxClick,           Simulate.auxClick(_))
-        'onBeforeInput        - test(^.onBeforeInput,        Simulate.beforeInput(_))
-        'onBlur               - test(^.onBlur,               Simulate.blur(_))
-        'onChange             - test(^.onChange,             Simulate.change(_))
-        'onClick              - test(^.onClick,              Simulate.click(_))
-        'onCompositionEnd     - test(^.onCompositionEnd,     Simulate.compositionEnd(_))
-        'onCompositionStart   - test(^.onCompositionStart,   Simulate.compositionStart(_))
-        'onCompositionUpdate  - test(^.onCompositionUpdate,  Simulate.compositionUpdate(_))
-        'onContextMenu        - test(^.onContextMenu,        Simulate.contextMenu(_))
-        'onCopy               - test(^.onCopy,               Simulate.copy(_))
-        'onCut                - test(^.onCut,                Simulate.cut(_))
-        'onDblClick           - test(^.onDblClick,           Simulate.doubleClick(_))
-        'onDragEnd            - test(^.onDragEnd,            Simulate.dragEnd(_))
-        'onDragEnter          - test(^.onDragEnter,          Simulate.dragEnter(_))
-        'onDragExit           - test(^.onDragExit,           Simulate.dragExit(_))
-        'onDragLeave          - test(^.onDragLeave,          Simulate.dragLeave(_))
-        'onDragOver           - test(^.onDragOver,           Simulate.dragOver(_))
-        'onDragStart          - test(^.onDragStart,          Simulate.dragStart(_))
-        'onDrag               - test(^.onDrag,               Simulate.drag(_))
-        'onDrop               - test(^.onDrop,               Simulate.drop(_))
-        'onError              - test(^.onError,              Simulate.error(_))
-        'onFocus              - test(^.onFocus,              Simulate.focus(_))
-        'onGotPointerCapture  - test(^.onGotPointerCapture,  Simulate.gotPointerCapture(_))
-        'onInput              - test(^.onInput,              Simulate.input(_))
-        'onKeyDown            - test(^.onKeyDown,            Simulate.keyDown(_))
-        'onKeyPress           - test(^.onKeyPress,           Simulate.keyPress(_))
-        'onKeyUp              - test(^.onKeyUp,              Simulate.keyUp(_))
-        'onLoad               - test(^.onLoad,               Simulate.load(_))
-        'onLostPointerCapture - test(^.onLostPointerCapture, Simulate.lostPointerCapture(_))
-        'onMouseDown          - test(^.onMouseDown,          Simulate.mouseDown(_))
-        'onMouseEnter         - test(^.onMouseEnter,         Simulate.mouseEnter(_))
-        'onMouseLeave         - test(^.onMouseLeave,         Simulate.mouseLeave(_))
-        'onMouseMove          - test(^.onMouseMove,          Simulate.mouseMove(_))
-        'onMouseOut           - test(^.onMouseOut,           Simulate.mouseOut(_))
-        'onMouseOver          - test(^.onMouseOver,          Simulate.mouseOver(_))
-        'onMouseUp            - test(^.onMouseUp,            Simulate.mouseUp(_))
-        'onPaste              - test(^.onPaste,              Simulate.paste(_))
-        'onPointerCancel      - test(^.onPointerCancel,      Simulate.pointerCancel(_))
-        'onPointerDown        - test(^.onPointerDown,        Simulate.pointerDown(_))
-        'onPointerEnter       - test(^.onPointerEnter,       Simulate.pointerEnter(_))
-        'onPointerLeave       - test(^.onPointerLeave,       Simulate.pointerLeave(_))
-        'onPointerMove        - test(^.onPointerMove,        Simulate.pointerMove(_))
-        'onPointerOut         - test(^.onPointerOut,         Simulate.pointerOut(_))
-        'onPointerOver        - test(^.onPointerOver,        Simulate.pointerOver(_))
-        'onPointerUp          - test(^.onPointerUp,          Simulate.pointerUp(_))
-        'onReset              - test(^.onReset,              Simulate.reset(_))
-        'onScroll             - test(^.onScroll,             Simulate.scroll(_))
-        'onSelect             - test(^.onSelect,             Simulate.select(_))
-        'onSubmit             - test(^.onSubmit,             Simulate.submit(_))
-        'onTouchCancel        - test(^.onTouchCancel,        Simulate.touchCancel(_))
-        'onTouchEnd           - test(^.onTouchEnd,           Simulate.touchEnd(_))
-        'onTouchMove          - test(^.onTouchMove,          Simulate.touchMove(_))
-        'onTouchStart         - test(^.onTouchStart,         Simulate.touchStart(_))
-        'onWheel              - test(^.onWheel,              Simulate.wheel(_))
+        "onAuxClick"           - test(^.onAuxClick,           Simulate.auxClick(_))
+        "onBeforeInput"        - test(^.onBeforeInput,        Simulate.beforeInput(_))
+        "onBlur"               - test(^.onBlur,               Simulate.blur(_))
+        "onChange"             - test(^.onChange,             Simulate.change(_))
+        "onClick"              - test(^.onClick,              Simulate.click(_))
+        "onCompositionEnd"     - test(^.onCompositionEnd,     Simulate.compositionEnd(_))
+        "onCompositionStart"   - test(^.onCompositionStart,   Simulate.compositionStart(_))
+        "onCompositionUpdate"  - test(^.onCompositionUpdate,  Simulate.compositionUpdate(_))
+        "onContextMenu"        - test(^.onContextMenu,        Simulate.contextMenu(_))
+        "onCopy"               - test(^.onCopy,               Simulate.copy(_))
+        "onCut"                - test(^.onCut,                Simulate.cut(_))
+        "onDblClick"           - test(^.onDblClick,           Simulate.doubleClick(_))
+        "onDragEnd"            - test(^.onDragEnd,            Simulate.dragEnd(_))
+        "onDragEnter"          - test(^.onDragEnter,          Simulate.dragEnter(_))
+        "onDragExit"           - test(^.onDragExit,           Simulate.dragExit(_))
+        "onDragLeave"          - test(^.onDragLeave,          Simulate.dragLeave(_))
+        "onDragOver"           - test(^.onDragOver,           Simulate.dragOver(_))
+        "onDragStart"          - test(^.onDragStart,          Simulate.dragStart(_))
+        "onDrag"               - test(^.onDrag,               Simulate.drag(_))
+        "onDrop"               - test(^.onDrop,               Simulate.drop(_))
+        "onError"              - test(^.onError,              Simulate.error(_))
+        "onFocus"              - test(^.onFocus,              Simulate.focus(_))
+        "onGotPointerCapture"  - test(^.onGotPointerCapture,  Simulate.gotPointerCapture(_))
+        "onInput"              - test(^.onInput,              Simulate.input(_))
+        "onKeyDown"            - test(^.onKeyDown,            Simulate.keyDown(_))
+        "onKeyPress"           - test(^.onKeyPress,           Simulate.keyPress(_))
+        "onKeyUp"              - test(^.onKeyUp,              Simulate.keyUp(_))
+        "onLoad"               - test(^.onLoad,               Simulate.load(_))
+        "onLostPointerCapture" - test(^.onLostPointerCapture, Simulate.lostPointerCapture(_))
+        "onMouseDown"          - test(^.onMouseDown,          Simulate.mouseDown(_))
+        "onMouseEnter"         - test(^.onMouseEnter,         Simulate.mouseEnter(_))
+        "onMouseLeave"         - test(^.onMouseLeave,         Simulate.mouseLeave(_))
+        "onMouseMove"          - test(^.onMouseMove,          Simulate.mouseMove(_))
+        "onMouseOut"           - test(^.onMouseOut,           Simulate.mouseOut(_))
+        "onMouseOver"          - test(^.onMouseOver,          Simulate.mouseOver(_))
+        "onMouseUp"            - test(^.onMouseUp,            Simulate.mouseUp(_))
+        "onPaste"              - test(^.onPaste,              Simulate.paste(_))
+        "onPointerCancel"      - test(^.onPointerCancel,      Simulate.pointerCancel(_))
+        "onPointerDown"        - test(^.onPointerDown,        Simulate.pointerDown(_))
+        "onPointerEnter"       - test(^.onPointerEnter,       Simulate.pointerEnter(_))
+        "onPointerLeave"       - test(^.onPointerLeave,       Simulate.pointerLeave(_))
+        "onPointerMove"        - test(^.onPointerMove,        Simulate.pointerMove(_))
+        "onPointerOut"         - test(^.onPointerOut,         Simulate.pointerOut(_))
+        "onPointerOver"        - test(^.onPointerOver,        Simulate.pointerOver(_))
+        "onPointerUp"          - test(^.onPointerUp,          Simulate.pointerUp(_))
+        "onReset"              - test(^.onReset,              Simulate.reset(_))
+        "onScroll"             - test(^.onScroll,             Simulate.scroll(_))
+        "onSelect"             - test(^.onSelect,             Simulate.select(_))
+        "onSubmit"             - test(^.onSubmit,             Simulate.submit(_))
+        "onTouchCancel"        - test(^.onTouchCancel,        Simulate.touchCancel(_))
+        "onTouchEnd"           - test(^.onTouchEnd,           Simulate.touchEnd(_))
+        "onTouchMove"          - test(^.onTouchMove,          Simulate.touchMove(_))
+        "onTouchStart"         - test(^.onTouchStart,         Simulate.touchStart(_))
+        "onWheel"              - test(^.onWheel,              Simulate.wheel(_))
       }
 
-      'change - {
+      "change" - {
         val c = ReactTestUtils.renderIntoDocument(IT())
         SimEvent.Change("hehe").simulate(c)
         val t = c.getDOMNode.asMounted().domCast[HTMLInputElement].value
         assertEq(t, "HEHE")
       }
 
-      'focusChangeBlur - {
+      "focusChangeBlur" - {
         var events = Vector.empty[String]
         val C = ScalaComponent.builder[Unit]("C").initialState("ey").render(T => {
           def e(s: String) = Callback(events :+= s)
@@ -178,7 +178,7 @@ object TestTest extends TestSuite {
         assertEq(events, Vector("focus", "change", "blur"))
         assertEq(inputRef.unsafeGet().value, "good")
       }
-      'targetByName - {
+      "targetByName" - {
         val c = ReactTestUtils.renderIntoDocument(IC())
         var count = 0
         def tgt = {
@@ -190,7 +190,7 @@ object TestTest extends TestSuite {
       }
     }
 
-    'withRenderedIntoDocument - {
+    "withRenderedIntoDocument" - {
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       ReactTestUtils.withRenderedIntoDocument(IC()) { mm =>
         m = mm
@@ -201,7 +201,7 @@ object TestTest extends TestSuite {
       // assert(m.isMounted == nopeNotMounted)
     }
 
-    'withRenderedIntoBody - {
+    "withRenderedIntoBody" - {
       def inspectBody() = document.body.childElementCount
       val body1 = inspectBody()
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
@@ -222,7 +222,7 @@ object TestTest extends TestSuite {
       assert(body1 == body2)
     }
 
-    'withRenderedIntoDocumentAsync - {
+    "withRenderedIntoDocumentAsync" - {
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
       ReactTestUtils.withRenderedIntoDocumentAsync(IC()) { mm =>
@@ -238,7 +238,7 @@ object TestTest extends TestSuite {
       promise.future //.map(_ => assert(m.isMounted == nopeNotMounted))
     }
 
-    'withRenderedIntoBodyAsync - {
+    "withRenderedIntoBodyAsync" - {
       def inspectBody() = document.body.childElementCount
       val body1 = inspectBody()
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
@@ -266,7 +266,7 @@ object TestTest extends TestSuite {
       }
     }
 
-    'modifyProps - {
+    "modifyProps" - {
       ReactTestUtils.withRenderedIntoDocument(CP("start")) { m =>
         assertRendered(m.getDOMNode.asMounted().asElement(), "<div>none → start</div>")
         ReactTestUtils.modifyProps(CP, m)(_ + "ed")
@@ -276,7 +276,7 @@ object TestTest extends TestSuite {
       }
     }
 
-    'removeReactInternals - {
+    "removeReactInternals" - {
       val c = ScalaComponent.static("")(<.div(<.br, "hello", <.hr))
       ReactTestUtils.withRenderedIntoDocument(c()) { m =>
         val orig = m.getDOMNode.asMounted().asElement().outerHTML

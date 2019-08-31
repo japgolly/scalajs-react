@@ -21,7 +21,7 @@ object ScalaComponentPTest extends TestSuite {
 
   override def tests = Tests {
 
-    'displayName - {
+    "displayName" - {
       assertEq(BasicComponent.displayName, "HelloMessage")
 //      ReactTestUtils.withRenderedIntoDocument(BasicComponent(BasicProps("X"))) { m =>
 //        println(inspectObject(m.raw))
@@ -29,14 +29,14 @@ object ScalaComponentPTest extends TestSuite {
 //      }
     }
 
-    'types - {
+    "types" - {
       import InferenceUtil._
       import ScalaComponent._
-      'cu - test[Component[P, S, B, CtorType.Nullary]](_.ctor()).expect[Unmounted[P, S, B]]
-      'um - test[Unmounted[P, S, B]](_.renderIntoDOM(null)).expect[MountedImpure[P, S, B]]
+      "cu" - test[Component[P, S, B, CtorType.Nullary]](_.ctor()).expect[Unmounted[P, S, B]]
+      "um" - test[Unmounted[P, S, B]](_.renderIntoDOM(null)).expect[MountedImpure[P, S, B]]
     }
 
-    'basic - {
+    "basic" - {
       val unmounted = BasicComponent(BasicProps("Bob"))
       assertEq(unmounted.props.name, "Bob")
       assertEq(unmounted.propsChildren.count, 0)
@@ -55,7 +55,7 @@ object ScalaComponentPTest extends TestSuite {
       }
     }
 
-    'withKey - {
+    "withKey" - {
       ReactTestUtils.withNewBodyElement { mountNode =>
         val u = BasicComponent.withKey("k")(BasicProps("Bob"))
         assertEq(u.key, Option[Key]("k"))
@@ -64,10 +64,10 @@ object ScalaComponentPTest extends TestSuite {
       }
     }
 
-    'ctorReuse -
+    "ctorReuse" -
       assert(BasicComponent(BasicProps("a")) ne BasicComponent(BasicProps("b")))
 
-    'ctorMap - {
+    "ctorMap" - {
       val c2 = BasicComponent.mapCtorType(_ withProps BasicProps("hello!"))
       val unmounted = c2()
       assertEq(unmounted.props.name, "hello!")
@@ -78,7 +78,7 @@ object ScalaComponentPTest extends TestSuite {
       }
     }
 
-    'lifecycle1 - {
+    "lifecycle1" - {
       case class Props(a: Int, b: Int, c: Int) {
         def -(x: Props) = Props(
           this.a - x.a,
@@ -180,7 +180,7 @@ object ScalaComponentPTest extends TestSuite {
       assert(staleDomNodeCallback.runNow().mounted.isEmpty)
     }
 
-    'lifecycle2 - {
+    "lifecycle2" - {
       type Props = Int
       var snapshots = Vector.empty[String]
 
@@ -230,7 +230,7 @@ object ScalaComponentSTest extends TestSuite {
 
   override def tests = Tests {
 
-    'main - {
+    "main" - {
       var callCount = 0
       val incCallCount = Callback(callCount += 1)
       val p = 9000
@@ -306,7 +306,7 @@ object ScalaComponentSTest extends TestSuite {
       }
     }
 
-    'ctorReuse - {
+    "ctorReuse" - {
       val Component =
         ScalaComponent.builder[Unit]("")
           .initialState(123)

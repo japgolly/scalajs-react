@@ -11,18 +11,19 @@ object ScalajsReact {
 
   object Ver {
     val BetterMonadicFor = "0.3.1"
-    val Cats             = "1.6.1"
+    val Cats             = "2.0.0-RC1"
     val KindProjector    = "0.10.3"
     val MacroParadise    = "2.1.1"
-    val Monocle          = "1.5.0"
-    val MonocleCats      = "1.5.1-cats"
-    val MTest            = "0.6.6"
-    val Nyaya            = "0.8.1"
+    val Monocle          = "1.6.0"
+    val MonocleCats      = "1.6.0"
+    val MTest            = "0.7.1"
+    val Nyaya            = "0.9.0-RC1"
     val ReactJs          = "16.7.0"
-    val Scala211         = "2.11.12"
     val Scala212         = "2.12.8"
+    val Scala213         = "2.13.0"
+    val ScalaCollCompat  = "2.1.1"
     val ScalaJsDom       = "0.9.7"
-    val Scalaz72         = "7.2.27"
+    val Scalaz72         = "7.2.28"
     val SizzleJs         = "2.3.0"
     val Sourcecode       = "0.1.7"
   }
@@ -35,20 +36,22 @@ object ScalajsReact {
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin)
       .settings(
-        scalaVersion       := Ver.Scala212,
-        crossScalaVersions := Seq(Ver.Scala211, Ver.Scala212),
+        scalaVersion       := Ver.Scala213,
+        crossScalaVersions := Seq(Ver.Scala212, Ver.Scala213),
         scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
                                 "-language:postfixOps", "-language:implicitConversions",
                                 "-language:higherKinds", "-language:existentials",
                                 "-P:scalajs:sjsDefinedByDefault")
                                 ++ byScalaVersion {
                                   case (2, 12) => Seq("-opt:l:method")
+                                  case (2, 13) => Seq("-Ymacro-annotations")
                                   // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
                                 }.value,
         //scalacOptions    += "-Xlog-implicits",
         incOptions         := incOptions.value.withLogRecompileOnMacro(false),
         updateOptions      := updateOptions.value.withCachedResolution(true),
         triggeredMessage   := Watched.clearWhenTriggered,
+        libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
         addCompilerPlugin("com.olegpy" %% "better-monadic-for" % Ver.BetterMonadicFor))
 
   def preventPublication: PE =
@@ -173,6 +176,17 @@ object ScalajsReact {
         "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
         "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"))
 
+  def paradisePlugin = Def.setting{
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, v)) if v <= 12 =>
+        Seq(compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.patch))
+      case _ =>
+        // if scala 2.13.0-M4 or later, macro annotations merged into scala-reflect
+        // https://github.com/scala/scala/pull/6606
+        Nil
+    }
+  }
+
   def macroParadisePlugin =
     compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.full)
 
@@ -241,7 +255,8 @@ object ScalajsReact {
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
         (ProvidedJS / "component-fn.js" dependsOn ReactDom.dev) % Test,
         (ProvidedJS / "forward-ref.js"  dependsOn ReactDom.dev) % Test),
-      addCompilerPlugin(macroParadisePlugin))
+      libraryDependencies ++= paradisePlugin.value,
+    )
 
   /*
   lazy val testModule = project.in(file("test-module"))
@@ -302,9 +317,11 @@ object ScalajsReact {
     .settings(
       crossScalaVersions := Seq(Ver.Scala212),
       libraryDependencies += monocleLib("macro", false),
-      addCompilerPlugin(macroParadisePlugin),
       emitSourceMaps := false,
       scalaJSUseMainModuleInitializer := true,
       mainClass in Compile := Some("ghpages.GhPages"),
-      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
+      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"),
+      libraryDependencies ++= paradisePlugin.value,
+    )
+
 }

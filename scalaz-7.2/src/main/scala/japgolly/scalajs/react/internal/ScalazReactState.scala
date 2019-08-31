@@ -69,16 +69,16 @@ object ScalazReactState {
     def ret      [S,A](a: A)                  : ReactS[S,A]    = retM[Id, S, A](a)
     def set      [S]  (s: S)                  : ReactS[S,Unit] = mod((_: S) => s)
 
-    def applyT    [M[_],S,A](f: S => (S, A))         (implicit M: Monad      [M]): ReactST[M,S,A]    = applyM(s ⇒ M point f(s))
+    def applyT    [M[_],S,A](f: S => (S, A))         (implicit M: Monad      [M]): ReactST[M,S,A]    = applyM(s => M point f(s))
     def callbackM [M[_],S,A](ma: M[A], c: Callback)  (implicit M: Monad      [M]): ReactST[M,S,A]    = callbacksM(ma, _ => c)
     def callbackT [M[_],S,A](a: A, c: Callback)      (implicit M: Monad      [M]): ReactST[M,S,A]    = callbackM(M point a, c)
     def callbacksT[M[_],S,A](a: A, c: S => Callback) (implicit M: Monad      [M]): ReactST[M,S,A]    = callbacksM(M point a, c)
     def getT      [M[_],S]                           (implicit M: Applicative[M]): ReactST[M,S,S]    = get.lift[M]
-    def getsT     [M[_],S,A](f: S => A)              (implicit M: Monad      [M]): ReactST[M,S,A]    = getsM(s ⇒ M point f(s))
-    def liftR     [M[_],S,A](f: S ⇒ ReactST[M, S, A])(implicit M: Monad      [M]): ReactST[M,S,A]    = getT[M,S] flatMap f
-    def modT      [M[_],S]  (f: S => S)              (implicit M: Monad      [M]): ReactST[M,S,Unit] = modM(s ⇒ M point f(s))
-    def retM      [M[_],S,A](ma: M[A])               (implicit M: Monad      [M]): ReactST[M,S,A]    = getsM[M,S,A](_ ⇒ ma)
-    def setM      [M[_],S]  (ms: M[S])               (implicit M: Monad      [M]): ReactST[M,S,Unit] = modM((_: S) ⇒ ms)
+    def getsT     [M[_],S,A](f: S => A)              (implicit M: Monad      [M]): ReactST[M,S,A]    = getsM(s => M point f(s))
+    def liftR     [M[_],S,A](f: S => ReactST[M, S, A])(implicit M: Monad      [M]): ReactST[M,S,A]    = getT[M,S] flatMap f
+    def modT      [M[_],S]  (f: S => S)              (implicit M: Monad      [M]): ReactST[M,S,Unit] = modM(s => M point f(s))
+    def retM      [M[_],S,A](ma: M[A])               (implicit M: Monad      [M]): ReactST[M,S,A]    = getsM[M,S,A](_ => ma)
+    def setM      [M[_],S]  (ms: M[S])               (implicit M: Monad      [M]): ReactST[M,S,Unit] = modM((_: S) => ms)
     def setT      [M[_],S]  (s: S)                   (implicit M: Monad      [M]): ReactST[M,S,Unit] = setM(M point s)
 
     def applyM[M[_], S, A](f: S => M[(S, A)])(implicit F: Monad[M]): ReactST[M, S, A] =

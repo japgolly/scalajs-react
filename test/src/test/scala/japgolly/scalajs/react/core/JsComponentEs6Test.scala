@@ -32,16 +32,16 @@ object JsComponentEs6PTest extends JsComponentTest {
 
   override def tests = Tests {
 
-    'unspecifiedDisplayName - {
+    "unspecifiedDisplayName" - {
       def n = ""
       def p = JsProps("Bob")
-      'c - assertEq(Component.displayName, n)
-      'u - assertEq(Component(p).displayName, n)
-      'm - assertEq(ReactTestUtils.withRenderedIntoDocument(Component(p))(_.displayName), n)
+      "c" - assertEq(Component.displayName, n)
+      "u" - assertEq(Component(p).displayName, n)
+      "m" - assertEq(ReactTestUtils.withRenderedIntoDocument(Component(p))(_.displayName), n)
     }
 
-    'noChildren - {
-      'main - {
+    "noChildren" - {
+      "main" - {
         val unmounted = Component(JsProps("Bob"))
         assertEq(unmounted.props.name, "Bob")
         assertEq(unmounted.propsChildren.count, 0)
@@ -60,7 +60,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         }
       }
 
-      'withKey - {
+      "withKey" - {
         val unmounted = Component.withKey("hehe")(JsProps("Bob"))
         assertEq(unmounted.props.name, "Bob")
         assertEq(unmounted.propsChildren.count, 0)
@@ -79,14 +79,14 @@ object JsComponentEs6PTest extends JsComponentTest {
         }
       }
 
-      'ctorReuse -
+      "ctorReuse" -
         assert(Component(JsProps("a")) ne Component(JsProps("b")))
     }
 
-    'children - {
+    "children" - {
       val C = JsComponent[JsProps, Children.Varargs, Null](RawComp)
 
-      'ctors - {
+      "ctors" - {
         val p = JsProps("x")
         def test(u: JsComponent.Unmounted[JsProps, Null]) = ()
         compileError(""" test(C())         """)
@@ -99,7 +99,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         test(C(p)(H1, H1))
       }
 
-      'use - {
+      "use" - {
         val unmounted = C(JsProps("X"))(H1)
         assertEq(unmounted.props.name, "X")
         assertEq(unmounted.propsChildren.count, 1)
@@ -118,7 +118,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         }
       }
 
-      'withKey - {
+      "withKey" - {
         ReactTestUtils.withNewBodyElement { mountNode =>
           val n = C.withKey("k")(JsProps("X"))(H1).renderIntoDOM(mountNode).getDOMNode.asMounted().asElement()
           assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
@@ -155,15 +155,15 @@ object JsComponentEs6STest extends JsComponentTest {
     def JsState(num1: Int, num2: Int): JsState =
       js.Dynamic.literal("num1" -> num1, "num2" -> num2).asInstanceOf[JsState]
 
-    'displayName - {
+    "displayName" - {
       def n = "Statey"
-      'c - assertEq(Component.displayName, n)
-      'u - assertEq(Component().displayName, n)
-      'm - assertEq(ReactTestUtils.withRenderedIntoDocument(Component())(_.displayName), n)
+      "c" - assertEq(Component.displayName, n)
+      "u" - assertEq(Component().displayName, n)
+      "m" - assertEq(ReactTestUtils.withRenderedIntoDocument(Component())(_.displayName), n)
     }
 
-    'noChildren - {
-      'main - {
+    "noChildren" - {
+      "main" - {
         def setNum1(n: Int)(s: JsState): JsState = JsState(n, s.num2)
         var callCount = 0
         val incCallCount = Callback(callCount += 1)
@@ -227,10 +227,10 @@ object JsComponentEs6STest extends JsComponentTest {
         }
       }
 
-      'ctorReuse -
+      "ctorReuse" -
         assert(Component() eq Component())
 
-      'withKey - {
+      "withKey" - {
         ReactTestUtils.withNewBodyElement { mountNode =>
           val n = Component.withKey("k")().renderIntoDOM(mountNode).getDOMNode.asMounted().asElement()
           assertOuterHTML(n, "<div>State = 123 + 500</div>")
@@ -238,10 +238,10 @@ object JsComponentEs6STest extends JsComponentTest {
       }
     }
 
-    'children - {
+    "children" - {
       val C = JsComponent[Null, Children.Varargs, JsState](RawComp).addFacade[JsMethods]
 
-      'ctors - {
+      "ctors" - {
         def test(u: JsComponent.UnmountedWithFacade[Null, JsState, JsMethods]) = ()
         compileError(""" test(C()())           """)
         compileError(""" test(C()(H1))         """)
@@ -254,7 +254,7 @@ object JsComponentEs6STest extends JsComponentTest {
         test(C(H1, H1))
       }
 
-      'use - {
+      "use" - {
         val unmounted = C(H1)
         assertEq(unmounted.propsChildren.count, 1)
         assertEq(unmounted.propsChildren.isEmpty, false)
@@ -273,7 +273,7 @@ object JsComponentEs6STest extends JsComponentTest {
         }
       }
 
-      'withKey - {
+      "withKey" - {
         ReactTestUtils.withNewBodyElement { mountNode =>
           val n = C.withKey("k")(H1).renderIntoDOM(mountNode).getDOMNode.asMounted().asElement()
           assertOuterHTML(n, "<div>State = 123 + 500<h1>Huge</h1></div>")

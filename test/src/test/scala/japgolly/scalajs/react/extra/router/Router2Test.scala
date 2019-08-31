@@ -160,7 +160,7 @@ object Router2Test extends TestSuite {
       r
     }
 
-    'addCondition - {
+    "addCondition" - {
       assertContains(html, ">Home</span>") // not at link cos current page
       assertContains(html, "Private page", false) // not logged in
 
@@ -179,14 +179,14 @@ object Router2Test extends TestSuite {
       assertContains(html, "Private page", false) // not logged in
     }
 
-    'notFoundLazyRedirect - {
+    "notFoundLazyRedirect" - {
       def r = sim.run(lgc syncToPath Path("what"))
       assertEq(r.page,  PublicHome)
       isUserLoggedIn = true
       assertEq(r.page,  PrivatePage1)
     }
 
-    'lazyRender - {
+    "lazyRender" - {
       isUserLoggedIn = true
       ctl.set(PrivatePage2).runNow()
       assertContains(html, secret)
@@ -195,54 +195,54 @@ object Router2Test extends TestSuite {
       assertContains(html, secret)
     }
 
-    'detectErrors - {
+    "detectErrors" - {
       var es = config.detectErrors(PublicHome, PrivatePage1, PrivatePage2, UserProfilePage(1))
       assertEq(es, Vector.empty)
       es = config.detectErrors(SomethingElse)
       assert(es.nonEmpty)
     }
 
-    'routesPerNestedPageType - {
+    "routesPerNestedPageType" - {
       assertEq("E1", ctl.pathFor(E(E1)).value, "e/1")
       assertEq("E2", ctl.pathFor(E(E2)).value, "e/2")
       val es = config.detectErrors(E(E1), E(E2))
       assertEq(es, Vector.empty)
     }
 
-    'pageEquality -
+    "pageEquality" -
       assert(innerPageEq eq pageEq)
 
-    'nestedModule - {
-      'detectErrors - {
+    "nestedModule" - {
+      "detectErrors" - {
         val es = config.detectErrors(NestedModule(ModuleRoot), NestedModule(Module1), NestedModule(Module2(666)))
         assertEq(es, Vector.empty)
       }
-      'origPathNotAvail - {
+      "origPathNotAvail" - {
         val r = sim.run(lgc syncToPath Path("one"))
         assertEq(r.page,  PublicHome)
         assertEq(sim.currentUrl, Path.root.abs)
       }
-      'slashNop - {
+      "slashNop" - {
         // prefixPath_/ only adds a / when rhs is empty
         assertSyncRedirects("module/", "")
         ()
       }
-      'nestedStaticPath - {
+      "nestedStaticPath" - {
         val r = syncNoRedirect("module/one")
         assertEq(r.page,  NestedModule(Module1))
         assertContains(htmlFor(r), "Module #1")
       }
-      'nestedDynamicPath - {
+      "nestedDynamicPath" - {
         val r = syncNoRedirect("module/two/123")
         assertEq(r.page,  NestedModule(Module2(123)))
         assertContains(htmlFor(r), "Module #2 @ 123")
       }
-      'nestedDynamicPathUuid - {
+      "nestedDynamicPathUuid" - {
         val r = syncNoRedirect("module/three/12345678-1234-1234-1234-123456789012")
         assertEq(r.page,  NestedModule(Module3(UUID fromString "12345678-1234-1234-1234-123456789012")))
         assertContains(htmlFor(r), "Module #3 @ 12345678-1234-1234-1234-123456789012")
       }
-      'routerLinks - {
+      "routerLinks" - {
         assertEq(ctl.pathFor(NestedModule(ModuleRoot)).value, "module")
         assertEq(ctl.pathFor(NestedModule(Module1)).value, "module/one")
         assertEq(ctl.pathFor(NestedModule(Module2(666))).value, "module/two/666")
@@ -252,7 +252,7 @@ object Router2Test extends TestSuite {
       }
     }
 
-    'onSet - {
+    "onSet" - {
       var i = 0
       val ctl2 = ctl.onSet(Callback(i += 1) >> _)
       isUserLoggedIn = true
@@ -262,7 +262,7 @@ object Router2Test extends TestSuite {
       assertEq(i, 1)
     }
 
-    'setRespectRouteCondition - {
+    "setRespectRouteCondition" - {
       // Make sure we're not starting on PublicHome cos that's were we expect to be redirected
       ctl.set(NestedModule(ModuleRoot)).runNow()
       assertEq(currentPage(), Some(NestedModule(ModuleRoot)))
@@ -274,32 +274,32 @@ object Router2Test extends TestSuite {
       assert(!html.contains(secret))
     }
 
-    'prism - {
-      'buildUrl - {
+    "prism" - {
+      "buildUrl" - {
         assertEq(ctl.pathFor(Code1("HEH")).value, "code1/HEH")
       }
-      'exact - {
+      "exact" - {
         val r = syncNoRedirect("code1/OMG")
         assertEq(r.page, Code1("OMG"))
         assertContains(htmlFor(r), "OMG")
       }
-      'tolerant - {
+      "tolerant" - {
         val r = syncNoRedirect("code1/yay")
         assertEq(r.page, Code1("YAY"))
         assertContains(htmlFor(r), "YAY")
       }
     }
 
-    'prismWithRedirect - {
-      'buildUrl - {
+    "prismWithRedirect" - {
+      "buildUrl" - {
         assertEq(ctl.pathFor(Code2("HEH")).value, "code2/HEH")
       }
-      'exact - {
+      "exact" - {
         val r = syncNoRedirect("code2/OMG")
         assertEq(r.page, Code2("OMG"))
         assertContains(htmlFor(r), "OMG")
       }
-      'redirect - {
+      "redirect" - {
         assertSyncRedirects("code2/yay", "code2/YAY")
         ()
       }

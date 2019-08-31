@@ -21,69 +21,84 @@ object ScalaBuilderTest extends TestSuite {
   // 6 = ScalaComponent.build#Builder
 
   override def tests = Tests {
-    'defaults - {
+    "defaults" - {
       import ScalaComponent.builder
-      'autoSB - testExpr(builder[P]("")                     .render_P(???).build).expect[ScalaComponent[P, Unit, Unit, CtorType.Props]]
-      'autoB  - testExpr(builder[P]("").initialState[S](???).render_P(???).build).expect[ScalaComponent[P, S   , Unit, CtorType.Props]]
-      'autoS  - testExpr(builder[P]("").backend[B](???)     .render_P(???).build).expect[ScalaComponent[P, Unit, B   , CtorType.Props]]
+      "autoSB" - testExpr(builder[P]("")                     .render_P(???).build).expect[ScalaComponent[P, Unit, Unit, CtorType.Props]]
+      "autoB"  - testExpr(builder[P]("").initialState[S](???).render_P(???).build).expect[ScalaComponent[P, S   , Unit, CtorType.Props]]
+      "autoS"  - testExpr(builder[P]("").backend[B](???)     .render_P(???).build).expect[ScalaComponent[P, Unit, B   , CtorType.Props]]
     }
 
-    'renderBackend - {
+    "renderBackend" - {
       import BackendMacroTestData._
-      'success - {
-        'val                  - assertRender(Val.C(), "<div>hehe1</div>")
-        'noArgs               - assertRender(NoArgs.C(), "<div>hehe2</div>")
-        'aliasesToSameType    - assertRender(AliasesToSameType.C(7), "<div>4</div>")
-        'typeAliasP           - assertRender(TypeAliasP.C(9), "<div>9</div>")
-        'typeAliasS           - assertRender(TypeAliasS.C(), "<div>9</div>")
-        'typeAliasesInMethod  - assertRender(TypeAliasesInMethod.C(Props(7)), "<div>4</div>")
-        'typeAliasesInBackend - assertRender(TypeAliasesInBackend.C(Props(7)), "<div>4</div>")
-        'subtypes             - assertRender(Subtypes.C(Vector(1,8)), "<div>9</div>")
-        'paramNamesFull       - assertRender(ParamNamesFull.C(7), "<div>4</div>")
-        'paramNamesShort      - assertRender(ParamNamesShort.C(7), "<div>4</div>")
-        'useChildren          - assertRender(UseChildren.C(<.br), "<div><br/></div>")
-        'usePropsAndChildren  - assertRender(UsePropsAndChildren.C(1)(<.br), "<div>1<br/></div>")
+      "success" - {
+        "val"                  - assertRender(Val.C(), "<div>hehe1</div>")
+        "noArgs"               - assertRender(NoArgs.C(), "<div>hehe2</div>")
+        "aliasesToSameType"    - assertRender(AliasesToSameType.C(7), "<div>4</div>")
+        "typeAliasP"           - assertRender(TypeAliasP.C(9), "<div>9</div>")
+        "typeAliasS"           - assertRender(TypeAliasS.C(), "<div>9</div>")
+        "typeAliasesInMethod"  - assertRender(TypeAliasesInMethod.C(Props(7)), "<div>4</div>")
+        "typeAliasesInBackend" - assertRender(TypeAliasesInBackend.C(Props(7)), "<div>4</div>")
+        "subtypes"             - assertRender(Subtypes.C(Vector(1,8)), "<div>9</div>")
+        "paramNamesFull"       - assertRender(ParamNamesFull.C(7), "<div>4</div>")
+        "paramNamesShort"      - assertRender(ParamNamesShort.C(7), "<div>4</div>")
+        "useChildren"          - assertRender(UseChildren.C(<.br), "<div><br/></div>")
+        "usePropsAndChildren"  - assertRender(UsePropsAndChildren.C(1)(<.br), "<div>1<br/></div>")
       }
 
-      'failure - {
-        'ambiguousType - assertContains(
+      "failure" - {
+        "ambiguousType" - assertContains(
           compileError("AmbiguousType.x.renderBackend").msg, "what: Int")
 
-        'useChildrenWithoutSpecifying - assertContains(
+        "useChildrenWithoutSpecifying" - assertContains(
           compileError("UseChildrenWithoutSpecifying.x.renderBackend").msg,
           "Use renderBackendWithChildren instead")
 
-        'specifyChildrenWithoutUsing - assertContains(
+        "specifyChildrenWithoutUsing" - assertContains(
           compileError("SpecifyChildrenWithoutUsing.x.renderBackendWithChildren").msg,
           "Use renderBackend instead")
       }
 
     }
 
-    'updateSnapshot - {
+
+    "updateSnapshot" - {
       def start = ScalaComponent.builder[P]("").render_P(???)
       def int = (_: Any) => CallbackTo(2)
 
-      'badAccess {
+      "badAccess" - {
         def test(c: CompileError) = {
           val msg = c.msg.toLowerCase
           assertContains(msg, "getsnapshotbeforeupdate")
           assertContains(msg, "componentdidupdate")
           c.msg
         }
-        'SS - test(compileError("start.getSnapshotBeforeUpdate(int).getSnapshotBeforeUpdate(int)"))
-        'US - test(compileError("start.componentDidUpdate(???).getSnapshotBeforeUpdate(int)"))
+        "SS" - test(compileError("start.getSnapshotBeforeUpdate(int).getSnapshotBeforeUpdate(int)"))
+        "US" - test(compileError("start.componentDidUpdate(???).getSnapshotBeforeUpdate(int)"))
       }
 
-      'type {
-        'U - assertCompiles(start
-          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
-          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit])))
+      "type" - { // FIXME see https://github.com/scala/bug/issues/11660
+        "U" - assertCompiles {
+          val aux = start.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+          aux.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+        }
 
-        'SU - assertCompiles(start
-          .getSnapshotBeforeUpdate(int)
-          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
-          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int])))
+        "SU" - assertCompiles {
+          val aux = start
+            .getSnapshotBeforeUpdate(int)
+            .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
+          aux.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
+        }
+
+//        "U" - assertCompiles(start
+//          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
+//          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit])))
+//        //FIXME ScalaBuilderTest.scala:81:56: cyclic aliasing or subtyping involving type SnapshotValue
+//
+//        "SU" - assertCompiles(start
+//          .getSnapshotBeforeUpdate(int)
+//          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
+//          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int])))
+//        //FIXME ScalaBuilderTest.scala:86:56: cyclic aliasing or subtyping involving type SnapshotValue
       }
     }
   }

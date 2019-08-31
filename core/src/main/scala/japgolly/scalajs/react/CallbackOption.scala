@@ -1,9 +1,10 @@
 package japgolly.scalajs.react
 
 import scala.annotation.tailrec
-import scala.collection.generic.CanBuildFrom
 import japgolly.scalajs.react.internal.{OptionLike, identityFn}
 import CallbackTo.MapGuard
+
+import scala.collection.compat._
 
 // TODO Document CallbackOption
 
@@ -68,11 +69,11 @@ object CallbackOption {
       go(a)
     }
 
-  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
-                                                (implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
+  def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
+                                                (implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
     liftOption {
-      val it = ta.toIterator
-      val r = cbf(ta)
+      val it = ta.iterator
+      val r = cbf.newBuilder(ta)
       @tailrec
       def go: Option[T[B]] =
         if (it.hasNext)
@@ -85,8 +86,8 @@ object CallbackOption {
       go
     }
 
-  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackOption[A]])
-                                             (implicit cbf: CanBuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
+  def sequence[T[X] <: IterableOnce[X], A](tca: => T[CallbackOption[A]])
+                                             (implicit cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
     traverse(tca)(identityFn)
 
   /**

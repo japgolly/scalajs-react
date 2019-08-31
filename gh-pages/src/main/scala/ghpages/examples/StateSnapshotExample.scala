@@ -2,8 +2,10 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.html_<^._, MonocleReact._
+import japgolly.scalajs.react._, vdom.html_<^._
+import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.extra.StateSnapshot
+
 
 object StateSnapshotExample {
 

@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.internal
 
+import scala.collection.compat._
 import scala.scalajs.js
 import scala.scalajs.js.|
 
@@ -78,9 +79,9 @@ object JsUtil {
     array
   }
 
-  def jsArrayFromTraversable[A](as: TraversableOnce[A]): js.Array[A] = {
+  def jsArrayFromTraversable[A](as: IterableOnce[A]): js.Array[A] = {
     val array = new js.Array[A]
-    as.foreach(array push _)
+    as.iterator.foreach(array push _)
     array
   }
 

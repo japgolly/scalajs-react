@@ -110,37 +110,37 @@ object ReusabilityTest extends TestSuite {
 
   override def tests = Tests {
 
-    'macros - {
+    "macros" - {
       def test[A](a: A, b: A, expect: Boolean)(implicit r: Reusability[A]) =
         assert(r.test(a, b) == expect)
 
-      'caseClass - {
-        'cc0 - {
+      "caseClass" - {
+        "cc0" - {
           implicit val r = Reusability.derive[CC0]
           test(CC0(), CC0(), true)
         }
-        'cc1 - {
+        "cc1" - {
           implicit val r = Reusability.derive[CC1]
           test(CC1(2), CC1(2), true)
           test(CC1(2), CC1(3), false)
         }
-        'cc2 - {
+        "cc2" - {
           implicit val r = Reusability.derive[CC2]
           test(CC2(3,"a"), CC2(3,"a"), true)
           test(CC2(3,"a"), CC2(3,"b"), false)
           test(CC2(3,"a"), CC2(4,"a"), false)
         }
 
-        'cct0 - {
+        "cct0" - {
           implicit val r = Reusability.derive[CCT0[Int]]
           test(CCT0[Int](), CCT0[Int](), true)
         }
-        'cct1 - {
+        "cct1" - {
           implicit val r = Reusability.derive[CCT1[Int]]
           test(CCT1(2), CCT1(2), true)
           test(CCT1(2), CCT1(3), false)
         }
-        'cct2 - {
+        "cct2" - {
           implicit val r = Reusability.derive[CCT2[String]]
           test(CCT2(3,"a"), CCT2(3,"a"), true)
           test(CCT2(3,"a"), CCT2(3,"b"), false)
@@ -148,7 +148,7 @@ object ReusabilityTest extends TestSuite {
         }
       }
 
-      'caseClassExcept - {
+      "caseClassExcept" - {
         "1/1" - {
           implicit val r = Reusability.caseClassExcept[CC1]('i)
           test(CC1(2), CC1(2), true)
@@ -178,18 +178,18 @@ object ReusabilityTest extends TestSuite {
            test(CC4(1, 2, 3, 4), CC4(1, 2, 3, 0), false)
          }
 
-        'notFound - {
+        "notFound" - {
           val e = compileError(""" Reusability.caseClassExcept[CC1]('x) """)
           assert(e.msg contains "Not found")
         }
 
-        'dups - {
+        "dups" - {
           val e = compileError(""" Reusability.caseClassExcept[CC1]('i, 'i) """)
           assert(e.msg contains "Duplicate")
         }
       }
 
-      'sealedTrait - {
+      "sealedTrait" - {
         import X._
         'all {
           implicit val r = Reusability.derive[X]
@@ -220,7 +220,7 @@ object ReusabilityTest extends TestSuite {
         }
       }
 
-      'sealedClass - {
+      "sealedClass" - {
         import Y._
         'all {
           implicit val r = Reusability.derive[Y]
@@ -252,40 +252,40 @@ object ReusabilityTest extends TestSuite {
       }
     }
 
-    'logNonReusable - {
+    "logNonReusable" - {
       val logSink = new {
         var messages = List.empty[String]
         def log(s: String): Unit = messages = messages :+ s
       }
 
-      'nonReusable - {
+      "nonReusable" - {
         Reusability.never.logNonReusable(log = logSink.log).test(0, 0)
         assert(logSink.messages == List("Non-reusability:\n- 0\n- 0"))
       }
 
-      'reusable - {
+      "reusable" - {
         Reusability.always.logNonReusable(log = logSink.log).test(0, 0)
         assert(logSink.messages == List.empty)
       }
 
-      'formatting - {
+      "formatting" - {
         Reusability.never.logNonReusable(log = logSink.log, fmt = (_, x, y) => s"$x, $y").test(0, 0)
         assert(logSink.messages == List("0, 0"))
       }
 
-      'title - {
+      "title" - {
         Reusability.never.logNonReusable(log = logSink.log, title = "Sidebar:").test(0, 0)
         assert(logSink.messages == List("Sidebar:\n- 0\n- 0"))
       }
 
-      'show - {
+      "show" - {
         Reusability.never[Int].logNonReusable(log = logSink.log, show = v => s"Value is $v").test(0, 0)
         assert(logSink.messages == List("Non-reusability:\n- Value is 0\n- Value is 0"))
       }
     }
 
-    'shouldComponentUpdate - {
-      'reusableState - {
+    "shouldComponentUpdate" - {
+      "reusableState" - {
         import SampleComponent1._
 
         val pic1a = Picture(1, "asdf", "qer")
@@ -312,7 +312,7 @@ object ReusabilityTest extends TestSuite {
         test(update, Props("!", Some(5), pic2))
       }
 
-      'reusableProps - {
+      "reusableProps" - {
         import SampleComponent2._
         val data1: M = Map(1 -> "One", 2 -> "Two", 3 -> "Three")
         val data2: M = Map(1 -> "One", 2 -> "Two", 3 -> "33333")
@@ -325,7 +325,7 @@ object ReusabilityTest extends TestSuite {
       }
     }
 
-    'uuid - {
+    "uuid" - {
       import java.util.UUID
       val value = UUID.randomUUID.toString
 
@@ -333,7 +333,7 @@ object ReusabilityTest extends TestSuite {
       assert(!(UUID.fromString(value) ~=~ UUID.randomUUID))
     }
 
-    'jsDate - {
+    "jsDate" - {
       import scala.scalajs.js.Date
       val now = System.currentTimeMillis
       val date1 = new Date(now)
@@ -343,7 +343,7 @@ object ReusabilityTest extends TestSuite {
       assert(!(date1 ~=~ new Date(now + 1)))
     }
 
-    'javaDate - {
+    "javaDate" - {
       import java.util.Date
       val now = System.currentTimeMillis
       val date1 = new Date(now)
@@ -353,7 +353,7 @@ object ReusabilityTest extends TestSuite {
       assert(!(date1 ~=~ new Date(now + 1)))
     }
 
-    'doubleWithTolerance - {
+    "doubleWithTolerance" - {
       implicit val r = Reusability.double(0.2)
       assert(1.2.toDouble ~=~ 1.0.toDouble)
       assert(0.8.toDouble ~=~ 1.0.toDouble)
@@ -362,7 +362,7 @@ object ReusabilityTest extends TestSuite {
       assert(!(1.3.toDouble ~=~ 1.0.toDouble))
     }
 
-    'floatWithTolerance - {
+    "floatWithTolerance" - {
       implicit val r = Reusability.float(0.2f)
       assert(0.9f ~=~ 1.0f)
       assert(1.0f ~=~ 1.0f)
@@ -372,18 +372,18 @@ object ReusabilityTest extends TestSuite {
       assert(!(1.3f ~=~ 1.0f))
     }
 
-    'option - {
+    "option" - {
       def test(vs: Option[Boolean]*) =
         for {a <- vs; b <- vs}
           assert((a ~=~ b) == (a == b))
       test(None, Some(true), Some(false))
     }
 
-    'vector - testCollection(_.toVector)
-    'list   - testCollection(_.toList)
-    'set    - testCollection(_.toSet)
+    "vector" - testCollection(_.toVector)
+    "list"   - testCollection(_.toList)
+    "set"    - testCollection(_.toSet)
 
-    'map - {
+    "map" - {
       val r = Reusability.map[Int, Int]
       val data = Gen.chooseInt(8).mapTo(Gen.chooseInt(8)).pair
       data mustSatisfy Prop.equal("Reusability matches equality")(r.test.tupled, i => i._1 == i._2)

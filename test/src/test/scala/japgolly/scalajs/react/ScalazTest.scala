@@ -23,7 +23,7 @@ object ScalazTest extends TestSuite {
 
   val tests = Tests {
 
-    'inference - {
+    "inference" - {
       import japgolly.scalajs.react.test.InferenceUtil._
 
       implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
@@ -38,7 +38,7 @@ object ScalazTest extends TestSuite {
       "ScalaMountedCB"      - test[ScalaComponent.MountedPure  [U, S, U]](_.runState(reactSIO)       ).expect[CallbackTo[Int]]
     }
 
-    'runState - {
+    "runState" - {
       val c = ReactTestUtils.renderIntoDocument(SI())
       assertEq(c.state, 123)
       val double = ReactS.mod((_: Int) * 2)
@@ -46,7 +46,7 @@ object ScalazTest extends TestSuite {
       assertEq(c.state, 123 * 2)
     }
 
-    'runStateM - {
+    "runStateM" - {
       implicit val futureInstance: Monad[Future] = new Monad[Future] {
         override def bind[A, B](fa: Future[A])(f: A => Future[B]) = fa flatMap f
         override def point[A](a: => A) = Future(a)

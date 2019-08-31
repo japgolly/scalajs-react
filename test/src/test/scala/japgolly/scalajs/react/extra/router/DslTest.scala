@@ -4,7 +4,7 @@ import java.util.UUID
 import monocle._
 import scala.util.Try
 import scalaz.Equal
-import utest._
+import utest.{test => _, _}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import MonocleReact._
@@ -70,7 +70,7 @@ object DslTest extends TestSuite {
 
   override def tests = Tests {
 
-    'route - {
+    "route" - {
       import StaticDsl.Route
       import noPageDsl._
 
@@ -101,35 +101,35 @@ object DslTest extends TestSuite {
                              UUID fromString "87654321-4321-4321-4321-210987654321",
                              UUID fromString "abcdef12-abcd-ef12-12ab-abcdef123456")
 
-      'root -
+      "root" -
         testU(root)("")("/", " ", "ah")
 
-      'lit -
+      "lit" -
         testU("a/b.c")("a/b.c")("a/b.cc", "aa/b.c", "ab.c", "abc", "a/b..c", "a//b.c", "a/b_c")
 
-      'int -
+      "int" -
         testS(int)(ints: _*)("", "a3", "3a", "3/", "/3", "3.5")
 
-      'long -
+      "long" -
         testS(long)(longs: _*)("", "a3", "3a", "3/", "/3", "3.5")
 
-      'string -
+      "string" -
         testS(string("[0-9a-fA-F]+"))("7", "321", "0BeeF")("", "g", "beam", "-9")
 
-      'uuid -
+      "uuid" -
         testS(uuid)(uuids: _*)("12345678-1234-1234-1234-12345678901", "x12345678-1234-1234-1234-123456789012",
                                "12345678-1234-1234-1234-123456789012/", "/12345678-1234-1234-1234-123456789012",
                                "g2345678-1234-1234-1234-123456789012", "G2345678-1234-1234-1234-123456789012",
                                "12345678-g234-1234-1234-123456789012", "12345678-G234-1234-1234-123456789012",
                                "12345678-1234-1234-1234-g23456789012", "12345678-1234-1234-1234-G23456789012")
 
-      '_to_ -
+      "_to_" -
         testU("a" / "b")("a/b")("", "ab", "a//b", "/a/b", "a/b/")
 
-      'Ato_ -
+      "Ato_" -
         test[Int](int / "x")(_.toString + "/x", ints: _*)("x", "/x", "3", "3/", "3x", "/3", "3/xx", "x/3")
 
-      '_toA -
+      "_toA" -
         test[Int]("x" / int)("x/" + _.toString, ints: _*)("x", "x/", "3", "/3", "x3", "3/", "xx/3", "3/x")
 
       '*** {
@@ -137,10 +137,10 @@ object DslTest extends TestSuite {
         test[(String, Int)](string("[a-z]+") ~ int)(t => t._1 + t._2, List("a", "zz", "qwefsda").zip(ints): _*)("d 3", "3d", "d/3", "Z3")
       }
 
-      'T3 -
+      "T3" -
         test[(Int, Int, Int)](int / int / int)(t => t._1 + "/" + t._2 + "/" + t._3, ints3: _*)("3/3", "3/a/3", "a/3/3", "4/4/a")
 
-      'T45678 - {
+      "T45678" - {
         val s1 = string("[ab]")
         val s2 = string("[cd]")
         val s3 = string("[ef]")
@@ -165,25 +165,25 @@ object DslTest extends TestSuite {
         test(s1/s2/s3/s4/s5/s6/s7/s8)({case (a,b,c,d,e,f,g,h) => s"$a/$b/$c/$d/$e/$f/$g/$h"}, data: _*)("c/c/e/g/i/k/m/o", "c/a/e/g/i/k/m/o", "acegikmo")
       }
 
-      'filter -
+      "filter" -
         testS(int.filter(_ > 99))(100, 666, 1000)("99", "0", "-100")
 
-      'xmap -
+      "xmap" -
         test((int / string("[a-z]+")).caseClass[IntStr])(v => v.i + "/" + v.s,
           IntStr(0, "yay"), IntStr(100, "cool"))("0/", "/yay", "yar")
 
-      'pmapL -
+      "pmapL" -
         test(string(".+").pmapL(stringMin5))(_.toString,
           6, 9, 16, 100)("-3", "0", "4", "x", "")
 
-      'caseClass0 -
+      "caseClass0" -
         test("hello".caseClass[CC0])(_ => "hello", CC0())()
 
-      'option - {
-        'basic -
+      "option" - {
+        "basic" -
           testM(int.option)("" -> None, "3" -> Some(3))("asd")
 
-        'combo - {
+        "combo" - {
           testM("yar:" ~ int.option)("yar:" -> None, "yar:22" -> Some(22))("", "3")
           testM(("yar:" ~ int).option)("" -> None, "yar:7" -> Some(7))("yar:", "3")
           testM("a" / int.option / "b" / int.option / "c")(
@@ -198,7 +198,7 @@ object DslTest extends TestSuite {
           "a/x/7/y/1" -> (Some(7), Some(1)))("")
         }
 
-        'parseDefault - {
+        "parseDefault" - {
           val r: Route[String] = "data" ~ ("." ~ string("[a-z0-9]+")).option.parseDefault("xz")
           testM(r)("data.zip" -> "zip")("data.")
           assertEq(r parse Path("data.xz"), Some("xz"))
@@ -206,7 +206,7 @@ object DslTest extends TestSuite {
           assertEq(r pathFor "xz", Path("data.xz"))
         }
 
-        'withDefault - {
+        "withDefault" - {
           val r: Route[String] = "data" ~ ("." ~ string("[a-z0-9]+")).option.withDefault("xz")
           testM(r)("data.zip" -> "zip")("data.")
           assertEq(r parse Path("data.xz"), Some("xz"))
@@ -216,11 +216,11 @@ object DslTest extends TestSuite {
       }
     }
 
-    'rules - {
+    "rules" - {
       import PageSet._, dsl._
       implicit def redirectMethod = Redirect.Push
 
-      'staticRoute - {
+      "staticRoute" - {
         staticRoute("abc", Obj1) ~> render (reactTag)
         staticRoute("abc", Obj1) ~> render (reactElement)
         staticRoute("abc", Obj1) ~> render (compCConst())
@@ -233,7 +233,7 @@ object DslTest extends TestSuite {
         ()
       }
 
-      'dynamicRoute - {
+      "dynamicRoute" - {
         dynamicRouteCT(routeCCi) ~> render (reactTag)
         dynamicRouteCT(routeCCi) ~> render (reactElement)
         dynamicRouteCT(routeCCi) ~> render (compCConst())

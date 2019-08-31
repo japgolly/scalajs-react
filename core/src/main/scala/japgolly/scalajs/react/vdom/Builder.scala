@@ -72,7 +72,7 @@ object Builder {
       setObjectKeyValue(props, _, _)
 
     override val addClassName: js.Any => Unit =
-      n => nonEmptyClassName = nonEmptyClassName.fold(n)(_ + " " + n)
+      n => nonEmptyClassName = nonEmptyClassName.fold(n)(_.toString + " " + n)
 
     override val addStyle: (String, js.Any) => Unit =
       setObjectKeyValue(styles, _, _)
@@ -136,7 +136,7 @@ object Builder {
       val unoptimised: BuildFn =
         (tag, props, key, children) => {
           key.foreach(setObjectKeyValue(props, "key", _))
-          raw.React.createElement(tag, props, children: _*)
+          raw.React.createElement(tag, props, children.toSeq: _*)
         }
 
       if (developmentMode)

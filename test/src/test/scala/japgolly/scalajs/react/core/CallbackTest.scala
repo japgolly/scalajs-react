@@ -16,7 +16,7 @@ object CallbackTest extends TestSuite {
     }
 
     /*
-    'future - {
+    "future" - {
       val X = ScalaComponent.builder[Unit]("X")
         .initialState(1)
         .render_S(s => <.div("state = ", s))
@@ -24,7 +24,7 @@ object CallbackTest extends TestSuite {
 
       val x = ReactTestUtils renderIntoDocument X()
 
-      'direct - {
+      "direct" - {
         var i = 10
         val ff = x.future.modState(_ + 1, Callback(i -= 7))
         val f: Future[Unit] = ff
@@ -34,7 +34,7 @@ object CallbackTest extends TestSuite {
         }
       }
 
-      'callback - {
+      "callback" - {
         var i = 90
         val cbb = x.accessCB.future.modState(_ + 1, Callback(i -= 5))
         val cb: CallbackTo[Future[Unit]] = cbb

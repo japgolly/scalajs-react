@@ -3,6 +3,7 @@ package japgolly.scalajs.react.internal
 // Copied from https://raw.githubusercontent.com/japgolly/microlibs-scala/master/macro-utils/shared/src/main/scala/japgolly/microlibs/macro_utils/MacroUtils.scala
 
 import scala.annotation.tailrec
+import scala.collection.compat._
 
 object MacroUtils {
   sealed trait FindSubClasses
@@ -114,7 +115,7 @@ abstract class MacroUtils {
 
   final def crawlADT[A](tpe    : Type,
                         attempt: ClassSymbol => Option[A],
-                        giveUp : ClassSymbol => TraversableOnce[A]): Vector[A] = {
+                        giveUp : ClassSymbol => IterableOnce[A]): Vector[A] = {
     var seen = Set.empty[Type]
     val results = Vector.newBuilder[A]
 
@@ -312,7 +313,7 @@ abstract class MacroUtils {
       case Expr(Apply(TypeApply(Select(Apply(_, List(Apply(_, List(Literal(Constant(k: String)))))), _), _), List(v@Literal(Constant(_: String))))) =>
         (k, v)
       case x =>
-        fail(s"""Expected 'k -> "v", got: $x\n${showRaw(x)}""")
+        fail(s"""Expected "k" -> "v", got: $x\n${showRaw(x)}""")
     }
 
   final def readMacroArg_tToLitFn[T, V: scala.reflect.Manifest](e: c.Expr[T => V]): List[(Either[Select, Type], Literal)] =
@@ -454,11 +455,11 @@ abstract class MacroUtils {
     c.Expr[T => T](q"(t: $T) => t")
   }
 
-  def deterministicOrderT(ts: TraversableOnce[Type]): Vector[Type] =
-    ts.toVector.sortBy(_.typeSymbol.fullName)
+  def deterministicOrderT(ts: IterableOnce[Type]): Vector[Type] =
+    ts.iterator.to(Vector).sortBy(_.typeSymbol.fullName)
 
-  def deterministicOrderC(ts: TraversableOnce[ClassSymbol]): Vector[ClassSymbol] =
-    ts.toVector.sortBy(_.fullName)
+  def deterministicOrderC(ts: IterableOnce[ClassSymbol]): Vector[ClassSymbol] =
+    ts.iterator.to(Vector).sortBy(_.fullName)
 
 
   final def replaceMacroMethod(newMethod: String) =

@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.internal
 
 import scala.annotation.tailrec
-import scalaz.{Optional => _, _}
+import scala.collection.compat._
+import scalaz.{Optional => _, Profunctor => _, _}
 import scalaz.Isomorphism.<~>
 import scalaz.effect.IO
 import Scalaz.Id

@@ -19,10 +19,10 @@ for (i <- (2 to 22)) {
   val ac = as mkString ","
 
   def args = (0 until i).map(j => s"p${('a'+j).toChar}:Px[${('A'+j).toChar}]") mkString ", "
-  def exts = as.map(a => s"$a←p$a") mkString ";"
+  def exts = as.map(a => s"$a<-p$a") mkString ";"
 
   ra :+= s"""
-           |  def apply$i[$Ac,Z]($args)(z:($Ac)⇒Z): Px[Z] =
+           |  def apply$i[$Ac,Z]($args)(z:($Ac)=>Z): Px[Z] =
            |    for {$exts} yield z($ac)
          """.stripMargin
 }
