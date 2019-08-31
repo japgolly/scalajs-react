@@ -11,7 +11,7 @@ object ScalajsReact {
 
   object Ver {
     val BetterMonadicFor = "0.3.1"
-    val Cats             = "2.0.0-RC1"
+    val Cats             = "2.0.0-RC2"
     val KindProjector    = "0.10.3"
     val MacroParadise    = "2.1.1"
     val Monocle          = "1.6.0"
@@ -21,7 +21,7 @@ object ScalajsReact {
     val ReactJs          = "16.7.0"
     val Scala212         = "2.12.8"
     val Scala213         = "2.13.0"
-    val ScalaCollCompat  = "2.1.1"
+    val ScalaCollCompat  = "2.1.2"
     val ScalaJsDom       = "0.9.7"
     val Scalaz72         = "7.2.28"
     val SizzleJs         = "2.3.0"
