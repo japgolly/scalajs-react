@@ -11,17 +11,17 @@ object ScalajsReact {
 
   object Ver {
     val BetterMonadicFor = "0.3.1"
-    val Cats             = "2.0.0-RC1"
+    val Cats             = "2.0.0-RC2"
     val KindProjector    = "0.10.3"
     val MacroParadise    = "2.1.1"
-    val Monocle          = "1.6.0"
-    val MonocleCats      = "1.6.0"
+    val MonocleCats      = "2.0.0-RC1"
+    val MonocleScalaz    = "1.6.0"
     val MTest            = "0.7.1"
     val Nyaya            = "0.9.0-RC1"
     val ReactJs          = "16.7.0"
     val Scala212         = "2.12.8"
     val Scala213         = "2.13.0"
-    val ScalaCollCompat  = "2.1.1"
+    val ScalaCollCompat  = "2.1.2"
     val ScalaJsDom       = "0.9.7"
     val Scalaz72         = "7.2.28"
     val SizzleJs         = "2.3.0"
@@ -51,7 +51,6 @@ object ScalajsReact {
         incOptions         := incOptions.value.withLogRecompileOnMacro(false),
         updateOptions      := updateOptions.value.withCachedResolution(true),
         triggeredMessage   := Watched.clearWhenTriggered,
-        libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
         addCompilerPlugin("com.olegpy" %% "better-monadic-for" % Ver.BetterMonadicFor))
 
   def preventPublication: PE =
@@ -187,9 +186,6 @@ object ScalajsReact {
     }
   }
 
-  def macroParadisePlugin =
-    compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.full)
-
   def kindProjector =
     compilerPlugin("org.typelevel" %% "kind-projector" % Ver.KindProjector cross CrossVersion.binary)
 
@@ -201,26 +197,15 @@ object ScalajsReact {
       testOnly      in Test := {},
       testQuick     in Test := {})
 
-  def monocleLib(name: String, cats: Boolean) =
-    "com.github.julien-truffaut" %% s"monocle-$name" % {if (cats) Ver.MonocleCats else Ver.Monocle} cross ScalaJSCrossVersion.binary
-
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .settings(name := "scalajs-react")
-    .aggregate(core, extra, scalaz72, monocleScalaz, cats, monocleCats, test, /*testModule,*/ ghpagesMacros, ghpages)
-    .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
-      "/"   -> "project root",
-      "L"   -> "root/publishLocal",
-      "C"   -> "root/clean",
-      "T"   -> ";root/clean;root/test",
-      "c"   -> "compile",
-      "tc"  -> "test:compile",
-      "t"   -> "test",
-      "tq"  -> "testQuick",
-      "to"  -> "test-only",
-      "cc"  -> ";clean;compile",
-      "ctc" -> ";clean;test:compile",
-      "ct"  -> ";clean;test"))
+    .aggregate(
+      core, extra, test, /*testModule,*/
+      cats, scalaz72,
+      monocle, monocleCats, monocleScalaz,
+      ghpagesMacros, ghpages)
+    .configure(commonSettings, preventPublication, hasNoTests)
 
   // ==============================================================================================
   lazy val core = project
@@ -228,6 +213,7 @@ object ScalajsReact {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
+        "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
         "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
         "com.lihaoyi" %%% "sourcecode" % Ver.Sourcecode))
 
@@ -249,7 +235,7 @@ object ScalajsReact {
         "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
-        monocleLib("macro", false) % Test),
+        "com.github.julien-truffaut" %%% "monocle-macro" % Ver.MonocleScalaz % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
@@ -283,11 +269,19 @@ object ScalajsReact {
 
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
-  lazy val monocleScalaz = project
+  lazy val monocle = project
     .in(file("monocle"))
     .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
     .dependsOn(core, extra, scalaz72)
-    .settings(libraryDependencies += monocleLib("core", false))
+    .settings(
+      libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.MonocleScalaz)
+
+  lazy val monocleScalaz = project
+    .in(file("monocle-scalaz"))
+    .configure(commonSettings, publicationSettings, extModuleName("monocle-scalaz"), hasNoTests)
+    .dependsOn(core, extra, scalaz72)
+    .settings(
+      libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.MonocleScalaz)
 
   lazy val cats = project
     .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
@@ -303,20 +297,21 @@ object ScalajsReact {
     .settings(
       // Share the internal source code files with this module
       unmanagedSourceDirectories in Compile += (sourceDirectory in (monocleScalaz, Compile)).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
-      libraryDependencies += monocleLib("core", true)
-    )
+      libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.MonocleCats)
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
-    .settings(crossScalaVersions := Seq(Ver.Scala212))
+    .settings(
+      libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
+      crossScalaVersions := Seq(Ver.Scala212))
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
       crossScalaVersions := Seq(Ver.Scala212),
-      libraryDependencies += monocleLib("macro", false),
+      libraryDependencies += "com.github.julien-truffaut" %%% "monocle-macro" % Ver.MonocleScalaz,
       emitSourceMaps := false,
       scalaJSUseMainModuleInitializer := true,
       mainClass in Compile := Some("ghpages.GhPages"),

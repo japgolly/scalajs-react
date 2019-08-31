@@ -313,7 +313,7 @@ abstract class MacroUtils {
       case Expr(Apply(TypeApply(Select(Apply(_, List(Apply(_, List(Literal(Constant(k: String)))))), _), _), List(v@Literal(Constant(_: String))))) =>
         (k, v)
       case x =>
-        fail(s"""Expected "k" -> "v", got: $x\n${showRaw(x)}""")
+        fail(s"""Expected 'k -> "v", got: $x\n${showRaw(x)}""")
     }
 
   final def readMacroArg_tToLitFn[T, V: scala.reflect.Manifest](e: c.Expr[T => V]): List[(Either[Select, Type], Literal)] =
