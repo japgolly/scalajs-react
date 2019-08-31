@@ -10,7 +10,7 @@ import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 object ScalajsReact {
 
   object Ver {
-    val BetterMonadicFor = "0.3.0"
+    val BetterMonadicFor = "0.3.1"
     val Cats             = "1.6.1"
     val KindProjector    = "0.10.3"
     val MacroParadise    = "2.1.1"
