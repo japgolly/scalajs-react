@@ -51,7 +51,6 @@ object ScalajsReact {
         incOptions         := incOptions.value.withLogRecompileOnMacro(false),
         updateOptions      := updateOptions.value.withCachedResolution(true),
         triggeredMessage   := Watched.clearWhenTriggered,
-        libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
         addCompilerPlugin("com.olegpy" %% "better-monadic-for" % Ver.BetterMonadicFor))
 
   def preventPublication: PE =
@@ -187,9 +186,6 @@ object ScalajsReact {
     }
   }
 
-  def macroParadisePlugin =
-    compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.full)
-
   def kindProjector =
     compilerPlugin("org.typelevel" %% "kind-projector" % Ver.KindProjector cross CrossVersion.binary)
 
@@ -228,6 +224,7 @@ object ScalajsReact {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
+        "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
         "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
         "com.lihaoyi" %%% "sourcecode" % Ver.Sourcecode))
 
@@ -309,7 +306,9 @@ object ScalajsReact {
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
-    .settings(crossScalaVersions := Seq(Ver.Scala212))
+    .settings(
+      libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
+      crossScalaVersions := Seq(Ver.Scala212))
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
