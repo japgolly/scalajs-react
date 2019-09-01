@@ -31,6 +31,12 @@ final class Reusable[+A] private[Reusable](lazyValue: () => A,
     new Reusable[B](() => b, root, isReusable)
   }
 
+  def withValue[B](b: B): Reusable[B] =
+    new Reusable[B](() => b, root, isReusable)
+
+  def withLazyValue[B](b: => B): Reusable[B] =
+    map(_ => b)
+
   /** Create a new `Reusable[B]` that is reusable so long as this `Reusable[A]` and the `Reusable[A => B]` are. */
   def ap[B](rf: Reusable[A => B]): Reusable[B] =
     Reusable.ap(this, rf)((a, f) => f(a))
