@@ -2,7 +2,6 @@ import sbt._
 import sbt.Keys._
 import org.openqa.selenium.remote.DesiredCapabilities
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import org.scalajs.sbtplugin.cross.CrossProject
 import org.scalajs.sbtplugin.{ScalaJSPluginInternal => I}
 import org.scalajs.jsenv.selenium._
 
@@ -84,11 +83,4 @@ object InBrowserTesting {
         (test in ConfigFirefox).value
         (test in ConfigChrome ).value
       })
-
-  def jvm: Project => Project =
-    _.settings(
-      testAll := (test in Test).value)
-
-  def cross: CrossProject => CrossProject =
-    _.jvmConfigure(jvm).jsConfigure(js)
 }
