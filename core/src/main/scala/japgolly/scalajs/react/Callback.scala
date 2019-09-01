@@ -721,6 +721,14 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def toKleisli[B]: CallbackKleisli[B, A] =
     CallbackKleisli const this
 
+  /** Wraps this so that:
+    *
+    * 1) It only executes if `e.defaultPrevented` is `false`.
+    * 2) It sets `e.preventDefault` on successful completion.
+    */
+  def asEventDefault(e: ReactEvent): CallbackTo[Option[A]] =
+    (this <* e.preventDefaultCB).unless(e.defaultPrevented)
+
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean ops
 
@@ -749,12 +757,4 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    */
   def !(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
     ev(this).map(!_)
-
-  /** Wraps this so that:
-    *
-    * 1) It only executes if `e.defaultPrevented` is `false`.
-    * 2) It sets `e.preventDefault` on successful completion.
-    */
-  def asEventDefault(e: ReactEvent): CallbackTo[Option[A]] =
-    (this <* e.preventDefaultCB).unless(e.defaultPrevented)
 }
