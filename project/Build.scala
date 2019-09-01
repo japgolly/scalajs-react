@@ -43,7 +43,8 @@ object ScalajsReact {
     "-language:implicitConversions",
     "-language:higherKinds",
     "-language:existentials",
-    "-opt:l:method",
+    "-opt:l:inline",
+    "-opt-inline-from:japgolly.scalajs.react.**",
     "-P:scalajs:sjsDefinedByDefault")
 
   def commonSettings: PE =
