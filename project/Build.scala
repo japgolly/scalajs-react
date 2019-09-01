@@ -1,8 +1,11 @@
-import sbt._, Keys._
+import sbt._
+import sbt.Keys._
+import com.typesafe.sbt.pgp.PgpKeys
 import com.typesafe.sbt.pgp.PgpKeys._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.{crossProject => _, CrossType => _, _}
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.{CrossType => _, crossProject => _, _}
+import sbtrelease.ReleasePlugin.autoImport._
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 
@@ -32,24 +35,34 @@ object ScalajsReact {
   def byScalaVersion[A](f: PartialFunction[(Long, Long), Seq[A]]): Def.Initialize[Seq[A]] =
     Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
 
+  def scalacFlags = Seq(
+    "-deprecation",
+    "-unchecked",
+    "-feature",
+    "-language:postfixOps",
+    "-language:implicitConversions",
+    "-language:higherKinds",
+    "-language:existentials",
+    "-opt:l:method",
+    "-P:scalajs:sjsDefinedByDefault")
+
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin)
       .settings(
-        scalaVersion       := Ver.Scala213,
-        crossScalaVersions := Seq(Ver.Scala212, Ver.Scala213),
-        scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
-                                "-language:postfixOps", "-language:implicitConversions",
-                                "-language:higherKinds", "-language:existentials",
-                                "-P:scalajs:sjsDefinedByDefault")
-                                ++ byScalaVersion {
-                                  case (2, 12) => Seq("-opt:l:method")
-                                  case (2, 13) => Seq("-Ymacro-annotations")
-                                  // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
-                                }.value,
-        //scalacOptions    += "-Xlog-implicits",
-        incOptions         := incOptions.value.withLogRecompileOnMacro(false),
-        updateOptions      := updateOptions.value.withCachedResolution(true),
-        triggeredMessage   := Watched.clearWhenTriggered,
+        scalaVersion                  := Ver.Scala213,
+        crossScalaVersions            := Seq(Ver.Scala212, Ver.Scala213),
+        scalacOptions                ++= scalacFlags,
+        scalacOptions                ++= byScalaVersion {
+                                           case (2, 12) => Nil
+                                           case (2, 13) => Seq("-Ymacro-annotations")
+                                         }.value,
+        //scalacOptions               += "-Xlog-implicits",
+        incOptions                    := incOptions.value.withLogRecompileOnMacro(false),
+        updateOptions                 := updateOptions.value.withCachedResolution(true),
+        triggeredMessage              := Watched.clearWhenTriggered,
+        releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+        releaseTagComment             := s"v${(version in ThisBuild).value}",
+        releaseVcsSign                := true,
         addCompilerPlugin("com.olegpy" %% "better-monadic-for" % Ver.BetterMonadicFor))
 
   def preventPublication: PE =
