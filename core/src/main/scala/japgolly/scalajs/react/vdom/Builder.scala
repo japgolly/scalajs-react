@@ -133,67 +133,25 @@ object Builder {
 
     val build: BuildFn = {
 
-      val unoptimised: BuildFn =
-        (tag, props, key, children) => {
-          key.foreach(setObjectKeyValue(props, "key", _))
-          raw.React.createElement(tag, props, children.toSeq: _*)
-        }
+      // This used to copy what Babel's transform-react-inline-elements plugin does, but I found a case that broke
+      // that I couldn't fix. As a result, it's all gone. We now have the slightly slower, but safer, uniform method
+      // that's used in both fastOptJS and fullOptJS.
 
-      if (developmentMode)
+      // The issue: (top-level) <Main><div><A/><B/><C/></div></Main>
+      // I would continually get this warning: Each child in a list should have a unique "key" prop.
+      // There were no array children, keys aren't needed. What really makes this weird and let to me giving up is that
+      // if you keep the optimised code as is, but then just call
+      //     raw.React.createElement(tag, js.Object(), children.toSeq: _*)
+      // and throw away the result, the warning would disappear (!). There seems to be some mutation going on somewhere
+      // that I can't find. I've inspected all the data I've got access to, looked through React code itself; I can't
+      // find where this mutation is occurring. If it's this hard to track down, I don't want scalajs-react being
+      // brittle. I don't want it to break when React upgrade their internals. Frustratedly, in to the bin it all goes.
 
-      // Development mode
-        unoptimised
-
-      else {
-        // Production mode
-        // https://babeljs.io/docs/plugins/transform-react-inline-elements/
-        // Taken from Babel @ 960fa66c9ef013e247311144332756cdfc9d51bc
-
-        // To check for new changes:
-        // before=960fa66c9ef013e247311144332756cdfc9d51bc
-        // after=master
-        // git diff -M -w -b $before..$after -- packages/babel-helpers/src/helpers.js
-        // git diff -M -w -b $before..$after -- packages/babel-plugin-transform-react-inline-elements/test/fixtures/inline-elements
-
-        val REACT_ELEMENT_TYPE: js.Any =
-          try
-            js.Dynamic.global.Symbol.`for`("react.element")
-          catch {
-            case _: Throwable => 0xeac7
-          }
-
-        (tag, props, key, children) => {
-
-          // From packages/babel-plugin-transform-react-inline-elements/test/fixtures/inline-elements/ref-deopt
-          val ref = props.asInstanceOf[js.Dynamic].ref.asInstanceOf[js.UndefOr[js.Any]]
-          if (ref.isDefined)
-            unoptimised(tag, props, key, children)
-
-          else {
-            // From packages/babel-helpers/src/helpers.js # jsx()
-
-            val clen = children.length
-            if (clen != 0) {
-              val c = if (clen == 1) children(0) else children
-              setObjectKeyValue(props, "children", c.asInstanceOf[js.Any])
-            }
-
-            val output =
-              js.Dynamic.literal(
-                `$$typeof` = REACT_ELEMENT_TYPE,
-                `type`     = tag,
-                key        = key.fold(null: js.Any)("" + _),
-                ref        = null,
-                props      = props,
-                _owner     = null)
-                .asInstanceOf[raw.React.Element]
-
-            // org.scalajs.dom.console.log("VDOM: ", output)
-
-            output
-          }
-        }
+      (tag, props, key, children) => {
+        key.foreach(setObjectKeyValue(props, "key", _))
+        raw.React.createElement(tag, props, children.toSeq: _*)
       }
+
     }
   }
 }
