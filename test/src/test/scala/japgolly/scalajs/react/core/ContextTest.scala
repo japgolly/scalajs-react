@@ -15,7 +15,7 @@ object ContextTest extends TestSuite {
 
   override def tests = Tests {
 
-    'usage {
+    "usage" - {
       case class X(i: Int)
       val ctx = React.createContext(X(5))
       val consumer = ScalaComponent.builder[Unit]("").render_P(_ => <.h4(ctx.consume("x = " + _))).build
@@ -25,7 +25,7 @@ object ContextTest extends TestSuite {
       "provided" - assertRender(provider(X(5000)), "<pre><h4>x = X(5000)</h4></pre>")
     }
 
-    'usageFn {
+    "usageFn" - {
       val ctx = React.createContext(123)
       val consumer = ScalaFnComponent[Unit](_ => <.h4(ctx.consume("i = " + _)))
       val provider = ScalaFnComponent[Int](i => <.pre(ctx.provide(i)(consumer())))
@@ -34,7 +34,7 @@ object ContextTest extends TestSuite {
       "provided" - assertRender(provider(88), "<pre><h4>i = 88</h4></pre>")
     }
 
-    'refEq {
+    "refEq" - {
       def test[A](a: React.Context.Provided[A])(b: React.Context.Provided[A], expect: Boolean = true): Unit = {
         val actual = ObjectIs(a.rawValue, b.rawValue)
         assert(actual == expect)

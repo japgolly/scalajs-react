@@ -13,7 +13,7 @@ object VdomTest extends TestSuite {
 
   override def tests = Tests {
 
-    'returnTypes {
+    "returnTypes" - {
       def test(subj: VdomNode, exp: String): Unit = {
         val comp = ScalaComponent.static("tmp")(subj)
         assertRender(comp(), exp)
@@ -47,7 +47,7 @@ object VdomTest extends TestSuite {
       }
     }
 
-    'noTagModOnElements {
+    "noTagModOnElements" - {
       // https://github.com/japgolly/scalajs-react/issues/508
       val a: VdomElement = <.a
       val attr = ^.href := "#"

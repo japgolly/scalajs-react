@@ -12,7 +12,7 @@ object JsReprTest extends TestSuite {
 
   override def tests = Tests {
 
-    'implicits {
+    "implicits" - {
       def test[A](a: A, expect: js.Any)(implicit j: JsRepr[A]): Unit = {
 
         val fromExpected = j.unsafeFromJs(expect)

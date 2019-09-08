@@ -191,7 +191,7 @@ object ReusabilityTest extends TestSuite {
 
       "sealedTrait" - {
         import X._
-        'all {
+        "all" - {
           implicit val r = Reusability.derive[X]
           test[X](X1    , X1    , true)
           test[X](X2()  , X1    , false)
@@ -203,7 +203,7 @@ object ReusabilityTest extends TestSuite {
           test[X](X3a(2), X3b   , false)
           test[X](X3b   , X3b   , true)
         }
-        'reuseMid {
+        "reuseMid" - {
           implicit val r = {
             implicit val x3 = Reusability.always[X3]
             Reusability.derive[X]
@@ -222,7 +222,7 @@ object ReusabilityTest extends TestSuite {
 
       "sealedClass" - {
         import Y._
-        'all {
+        "all" - {
           implicit val r = Reusability.derive[Y]
           test[Y](Y1    , Y1    , true)
           test[Y](Y2()  , Y1    , false)
@@ -234,7 +234,7 @@ object ReusabilityTest extends TestSuite {
           test[Y](Y3a(2), Y3b   , false)
           test[Y](Y3b   , Y3b   , true)
         }
-        'reuseMid {
+        "reuseMid" - {
           implicit val r = {
             implicit val y3 = Reusability.always[Y3]
             Reusability.derive[Y]

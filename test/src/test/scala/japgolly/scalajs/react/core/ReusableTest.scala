@@ -64,7 +64,7 @@ object ReusableTest extends TestSuite {
       assertNotReusable(g2, f1, f2, g1)
     }
 
-    'callback {
+    "callback" - {
       val a = Callback(0)
       val b = Callback(0)
       val fa = Reusable.callbackByRef(a)

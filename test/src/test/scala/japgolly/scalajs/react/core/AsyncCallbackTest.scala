@@ -17,10 +17,10 @@ object AsyncCallbackTest extends TestSuite {
 
   override def tests = Tests {
 
-    'Callback {
+    "Callback" - {
       val log = Log()
 
-      'async {
+      "async" - {
         val cb = log("async").async.toCallback >> log("post")
         cb.runNow()
         log.logs ==> Vector("post") // "async" will be scheduled by JS sometime after this test
@@ -28,7 +28,7 @@ object AsyncCallbackTest extends TestSuite {
         log.logs ==> Vector("post", "post")
       }
 
-      'asAsyncCallback {
+      "asAsyncCallback" - {
         val cb = log("async").asAsyncCallback.toCallback >> log("post")
         cb.runNow()
         log.logs ==> Vector("async", "post")
@@ -37,8 +37,8 @@ object AsyncCallbackTest extends TestSuite {
       }
     }
 
-    'AsyncCallback {
-      'fromFuture {
+    "AsyncCallback" - {
+      "fromFuture" - {
         "should be sync if the Future has already completed" - {
           var hasRun = false
           val cb = AsyncCallback.fromFuture(Future.successful(()))
@@ -51,7 +51,7 @@ object AsyncCallbackTest extends TestSuite {
         }
       }
 
-      'promise {
+      "promise" - {
         val (ac, complete) = AsyncCallback.promise[Int].runNow()
         var r1,r2,r3 = 0
         ac.map(i => r1 = i).toCallback.runNow()

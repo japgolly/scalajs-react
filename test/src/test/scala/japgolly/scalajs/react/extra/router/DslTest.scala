@@ -132,7 +132,7 @@ object DslTest extends TestSuite {
       "_toA" -
         test[Int]("x" / int)("x/" + _.toString, ints: _*)("x", "x/", "3", "/3", "x3", "3/", "xx/3", "3/x")
 
-      '*** {
+      "***" - {
         test[(Int, Int)](int / int)(t => t._1 + "/" + t._2, ints2: _*)("3", "123", "3//3")
         test[(String, Int)](string("[a-z]+") ~ int)(t => t._1 + t._2, List("a", "zz", "qwefsda").zip(ints): _*)("d 3", "3d", "d/3", "Z3")
       }

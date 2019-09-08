@@ -30,7 +30,7 @@ object PrefixedTest extends TestSuite {
   val tests = Tests {
     "void" - test(<.br, """<br/>""")
 
-    'inner {
+    "inner" - {
       "byte"      - test(<.div(50: Byte),            """<div>50</div>""")
       "short"     - test(<.div(45: Short),           """<div>45</div>""")
       "int"       - test(<.div(666),                 """<div>666</div>""")

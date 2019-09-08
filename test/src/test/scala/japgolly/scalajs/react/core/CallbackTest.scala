@@ -7,7 +7,7 @@ object CallbackTest extends TestSuite {
 
   override def tests = Tests {
 
-    'memo {
+    "memo" - {
       var count = 0
       val inc = Callback(count += 1)
       val c = inc.memo()
