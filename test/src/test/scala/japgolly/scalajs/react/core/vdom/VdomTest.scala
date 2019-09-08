@@ -36,6 +36,16 @@ object VdomTest extends TestSuite {
 
       "booleanF"  - compileError("""test(false, "")""")
       "booleanT"  - compileError("""test(true, "")""")
+
+      "unionAttr" - {
+        // JsNumber Byte | Short | Int | Float | Double
+        "1/5" - test(<.div(^.aria.valueMax := (3.toByte  )), """<div aria-valuemax="3"></div>""")
+        "2/5" - test(<.div(^.aria.valueMax := (3.toShort )), """<div aria-valuemax="3"></div>""")
+        "3/5" - test(<.div(^.aria.valueMax := (3.toInt   )), """<div aria-valuemax="3"></div>""")
+        "4/5" - test(<.div(^.aria.valueMax := (3.toFloat )), """<div aria-valuemax="3"></div>""")
+        "5/5" - test(<.div(^.aria.valueMax := (3.toDouble)), """<div aria-valuemax="3"></div>""")
+        "fail" - compileError(""" ^.aria.valueMax := "asdf" """)
+      }
     }
 
     "tagModToJs" - {
