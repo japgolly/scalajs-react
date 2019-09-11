@@ -17,7 +17,7 @@ object ScalajsReact {
     val KindProjector    = "0.10.3"
     val MacroParadise    = "2.1.1"
     val MonocleCats      = "2.0.0-RC1"
-    val MonocleScalaz    = "1.6.0"
+    val MonocleScalaz    = "2.0.0"
     val MTest            = "0.7.1"
     val Nyaya            = "0.9.0-RC1"
     val ReactJs          = "16.7.0"
