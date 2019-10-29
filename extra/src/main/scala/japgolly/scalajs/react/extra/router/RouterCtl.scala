@@ -14,7 +14,10 @@ abstract class RouterCtl[A] {
   def byPath: RouterCtl[Path]
   def refresh: Callback
   def pathFor(target: A): Path
-  def set(target: A): Callback
+  def set(target: A, method: Redirect.Method): Callback
+
+  final def set(target: A): Callback =
+    set(target, Redirect.Push)
 
   final def urlFor(target: A): AbsUrl =
     pathFor(target).abs(baseUrl)
@@ -70,18 +73,18 @@ object RouterCtl {
     reuse.asInstanceOf[Reusability[RouterCtl[A]]]
 
   case class Contramap[A, B](u: RouterCtl[A], f: B => A) extends RouterCtl[B] {
-    override def baseUrl       = u.baseUrl
-    override def byPath        = u.byPath
-    override def refresh       = u.refresh
-    override def pathFor(b: B) = u pathFor f(b)
-    override def set(b: B)     = u set f(b)
+    override def baseUrl                       = u.baseUrl
+    override def byPath                        = u.byPath
+    override def refresh                       = u.refresh
+    override def pathFor(b: B)                 = u pathFor f(b)
+    override def set(b: B, m: Redirect.Method) = u.set(f(b), m)
   }
 
   case class ModCB[A](u: RouterCtl[A], f: (A, Callback) => Callback) extends RouterCtl[A] {
-    override def baseUrl       = u.baseUrl
-    override def byPath        = u.byPath
-    override def refresh       = u.refresh
-    override def pathFor(a: A) = u pathFor a
-    override def set(a: A)     = f(a, u set a)
+    override def baseUrl                       = u.baseUrl
+    override def byPath                        = u.byPath
+    override def refresh                       = u.refresh
+    override def pathFor(a: A)                 = u pathFor a
+    override def set(a: A, m: Redirect.Method) = f(a, u.set(a, m))
   }
 }

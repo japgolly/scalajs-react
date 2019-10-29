@@ -18,6 +18,13 @@ sealed abstract class RouteCmd[A] {
 
 object RouteCmd {
 
+  def setUrl(url: AbsUrl, method: Redirect.Method): RouteCmd[Unit] =
+    method match {
+      case Redirect.Push    => PushState        (url)
+      case Redirect.Replace => ReplaceState     (url)
+      case Redirect.Force   => SetWindowLocation(url)
+    }
+
   /**
    * Pushes the given data onto the session history stack with the specified title and, if provided, URL.
    */

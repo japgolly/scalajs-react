@@ -104,15 +104,6 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     log(s"Parsed $path to $parsed.") >> cmd
   }
 
-  def redirectCmd(p: Path, m: Redirect.Method): RouteCmd[Unit] = {
-    val url = p.abs
-    m match {
-      case Redirect.Push    => PushState        (url)
-      case Redirect.Replace => ReplaceState     (url)
-      case Redirect.Force   => SetWindowLocation(url)
-    }
-  }
-
   def resolve(page: Page, action: Action): RouteCmd[Resolution] =
     cmdOrPure(resolveAction(action).map(r => Resolution(page, () => r(ctl))))
 
@@ -128,7 +119,7 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
 
   def redirectToPath(path: Path, method: Redirect.Method): RouteCmd[Resolution] =
     log(s"Redirecting to ${path.abs} via $method.") >>
-      redirectCmd(path, method) >> syncToUrl(path.abs)
+      RouteCmd.setUrl(path.abs, method) >> syncToUrl(path.abs)
 
   private def cmdOrPure[A](e: Either[RouteCmd[A], A]): RouteCmd[A] =
     e.fold(identityFn, Return(_))
@@ -165,17 +156,17 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
   def render(r: Resolution): VdomElement =
     cfg.renderFn(ctl, r)
 
-  def setPath(path: Path): RouteCmd[Unit] =
-    log(s"Set route to $path.") >>
-      PushState(path.abs) >> BroadcastSync
+  def setPath(path: Path, method: Redirect.Method): RouteCmd[Unit] =
+    log(s"Set route to $path (method=$method)") >>
+      RouteCmd.setUrl(path.abs, method) >> BroadcastSync
 
   val ctlByPath: RouterCtl[Path] =
     new RouterCtl[Path] {
-      override def baseUrl             = impbaseurl
-      override def byPath              = this
-      override val refresh             = interpret(BroadcastSync)
-      override def pathFor(path: Path) = path
-      override def set(path: Path)     = interpret(setPath(path))
+      override def baseUrl                          = impbaseurl
+      override def byPath                           = this
+      override val refresh                          = interpret(BroadcastSync)
+      override def pathFor(path: Path)              = path
+      override def set(p: Path, m: Redirect.Method) = interpret(setPath(p, m))
     }
 
   val ctl: RouterCtl[Page] =
