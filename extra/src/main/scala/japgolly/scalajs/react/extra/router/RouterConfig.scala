@@ -3,11 +3,11 @@ package japgolly.scalajs.react.extra.router
 import org.scalajs.dom
 import scala.annotation.elidable
 import scala.util.{Failure, Success, Try}
-import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.vdom.VdomElement
 import RouterConfig.{Logger, Parsed}
 
-case class RouterConfig[Page](parse       : Path => Parsed[Page],
+case class RouterConfig[Page](parse       : Path => CallbackTo[Parsed[Page]],
                               path        : Page => Path,
                               action      : (Path, Page) => Action[Page],
                               renderFn    : (RouterCtl[Page], Resolution[Page]) => VdomElement,
