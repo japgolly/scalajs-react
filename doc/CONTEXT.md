@@ -98,8 +98,6 @@ object AboutPage  {
     .renderBackend[Backend]
     .build
 
-  // EXAMPLE:END
-
   def apply(): Unmounted[Unit, State, Backend] = component()
 }
 ```
