@@ -14,18 +14,18 @@ object ScalajsReact {
   object Ver {
     val BetterMonadicFor = "0.3.1"
     val Cats             = "2.0.0"
-    val KindProjector    = "0.10.3"
+    val KindProjector    = "0.11.0"
     val MacroParadise    = "2.1.1"
-    val MonocleCats      = "2.0.0-RC1"
+    val MonocleCats      = "2.0.0"
     val MonocleScalaz    = "1.6.0"
     val MTest            = "0.7.1"
     val Nyaya            = "0.9.0-RC1"
     val ReactJs          = "16.7.0"
-    val Scala212         = "2.12.8"
-    val Scala213         = "2.13.0"
+    val Scala212         = "2.12.10"
+    val Scala213         = "2.13.1"
     val ScalaCollCompat  = "2.1.2"
     val ScalaJsDom       = "0.9.7"
-    val Scalaz72         = "7.2.28"
+    val Scalaz72         = "7.2.29"
     val SizzleJs         = "2.3.0"
     val Sourcecode       = "0.1.8"
   }
@@ -60,7 +60,6 @@ object ScalajsReact {
         //scalacOptions               += "-Xlog-implicits",
         incOptions                    := incOptions.value.withLogRecompileOnMacro(false),
         updateOptions                 := updateOptions.value.withCachedResolution(true),
-        triggeredMessage              := Watched.clearWhenTriggered,
         releasePublishArtifactsAction := PgpKeys.publishSigned.value,
         releaseTagComment             := s"v${(version in ThisBuild).value}",
         releaseVcsSign                := true,
@@ -200,7 +199,7 @@ object ScalajsReact {
   }
 
   def kindProjector =
-    compilerPlugin("org.typelevel" %% "kind-projector" % Ver.KindProjector cross CrossVersion.binary)
+    compilerPlugin("org.typelevel" %% "kind-projector" % Ver.KindProjector cross CrossVersion.full)
 
   def hasNoTests: Project => Project =
     _.settings(
