@@ -18,11 +18,11 @@ sealed abstract class RouteCmd[A] {
 
 object RouteCmd {
 
-  def setUrl(url: AbsUrl, method: Redirect.Method): RouteCmd[Unit] =
-    method match {
-      case Redirect.Push    => PushState        (url)
-      case Redirect.Replace => ReplaceState     (url)
-      case Redirect.Force   => SetWindowLocation(url)
+  def setRoute(url: AbsUrl, via: SetRouteVia): RouteCmd[Unit] =
+    via match {
+      case SetRouteVia.HistoryPush    => PushState        (url)
+      case SetRouteVia.HistoryReplace => ReplaceState     (url)
+      case SetRouteVia.WindowLocation => SetWindowLocation(url)
     }
 
   /**
