@@ -19,8 +19,9 @@ Includes a router, testing utils, performance utils, more.
 - [Usage & Getting Started](doc/USAGE.md)
   - [VDOM](doc/VDOM.md)
   - [Refs](doc/REFS.md)
-  - [The `Callback` class](doc/CALLBACK.md)
   - [IDE support](doc/IDE.md)
+  - [The `Callback` class](doc/CALLBACK.md)
+  - [React Context] (doc/CONTEXT.md)
 - Delving deeper
   - [Types](doc/TYPES.md)
   - [Interoperability](doc/INTEROP.md)
