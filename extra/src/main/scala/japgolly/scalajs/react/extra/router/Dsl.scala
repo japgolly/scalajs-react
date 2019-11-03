@@ -316,7 +316,7 @@ object StaticDsl {
 
     /** See [[autoCorrect()]]. */
     def autoCorrect: Rule[Page] =
-      autoCorrect(Redirect.Replace)
+      autoCorrect(SetRouteVia.HistoryReplace)
 
     /**
      * When a route matches a page, compare its [[Path]] to what the route would generate for the same page and if they
@@ -326,14 +326,14 @@ object StaticDsl {
      * `/issue/DEV-23`, this would automatically redirect `/issue/dev-23` to `/issue/DEV-23`, and process
      * `/issue/DEV-23` normally using its associated action.
      */
-    def autoCorrect(redirectMethod: Redirect.Method): Rule[Page] =
+    def autoCorrect(redirectVia: SetRouteVia): Rule[Page] =
       new Rule(parse, path,
         (actualPath, page) =>
           path(page).flatMap(expectedPath =>
             if (expectedPath == actualPath)
               action(actualPath, page)
             else
-              Some(RedirectToPath(expectedPath, redirectMethod))
+              Some(RedirectToPath(expectedPath, redirectVia))
           )
       )
 
@@ -543,13 +543,13 @@ final class RouterConfigDsl[Page] {
   def dynRenderR[P <: Page, A](g: (P, RouterCtl[Page]) => A)(implicit ev: A => VdomElement): P => Renderer =
     p => Renderer(r => g(p, r))
 
-  def redirectToPage(page: Page)(implicit method: Redirect.Method): RedirectToPage[Page] =
-    RedirectToPage[Page](page, method)
+  def redirectToPage(page: Page)(implicit via: SetRouteVia): RedirectToPage[Page] =
+    RedirectToPage[Page](page, via)
 
-  def redirectToPath(path: Path)(implicit method: Redirect.Method): RedirectToPath[Page] =
-    RedirectToPath[Page](path, method)
+  def redirectToPath(path: Path)(implicit via: SetRouteVia): RedirectToPath[Page] =
+    RedirectToPath[Page](path, via)
 
-  def redirectToPath(path: String)(implicit method: Redirect.Method): RedirectToPath[Page] =
+  def redirectToPath(path: String)(implicit via: SetRouteVia): RedirectToPath[Page] =
     redirectToPath(Path(path))
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -629,24 +629,24 @@ final class RouterConfigDsl[Page] {
     * e.g. `a/b?c=1` to `a/b`
     */
   def removeQuery: Rule =
-    rewritePathR("^(.*?)\\?.*$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+    rewritePathR("^(.*?)\\?.*$".r, m => redirectToPath(m group 1)(SetRouteVia.HistoryReplace))
 
   /**
    * A rule that uses a replace-state redirect to remove trailing slashes from route URLs.
    */
   def removeTrailingSlashes: Rule =
-    rewritePathR("^(.*?)/+$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+    rewritePathR("^(.*?)/+$".r, m => redirectToPath(m group 1)(SetRouteVia.HistoryReplace))
 
   /**
    * A rule that uses a replace-state redirect to remove leading slashes from route URLs.
    */
   def removeLeadingSlashes: Rule =
-    rewritePathR("^/+(.*)$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+    rewritePathR("^/+(.*)$".r, m => redirectToPath(m group 1)(SetRouteVia.HistoryReplace))
 
   /**
    * A rule that uses a replace-state redirect to remove leading and trailing slashes from route URLs.
    */
   def trimSlashes: Rule = (
-    rewritePathR("^/*(.*?)/+$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+    rewritePathR("^/*(.*?)/+$".r, m => redirectToPath(m group 1)(SetRouteVia.HistoryReplace))
     | removeLeadingSlashes)
 }

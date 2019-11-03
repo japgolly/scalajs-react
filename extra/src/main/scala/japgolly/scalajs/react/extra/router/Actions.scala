@@ -20,12 +20,16 @@ sealed trait Redirect[P] extends Action[P] {
 }
 
 object Redirect {
+
+  @deprecated("Use SetRouteVia", "1.5.0")
   sealed trait Method
 
   /** The current URL will not be recorded in history. User can't hit ''Back'' button to reach it. */
+  @deprecated("Use SetRouteVia.HistoryReplace", "1.5.0")
   case object Replace extends Method
 
   /** The current URL will be recorded in history. User can hit ''Back'' button to reach it. */
+  @deprecated("Use SetRouteVia.HistoryPush", "1.5.0")
   case object Push extends Method
 
   /** `window.location.href` will be programmatically set to the new URL.
@@ -33,15 +37,27 @@ object Redirect {
     *
     * The current URL will be recorded in history. User can hit ''Back'' button to reach it.
     */
+  @deprecated("Use SetRouteVia.WindowLocation", "1.5.0")
   case object Force extends Method
+
+  implicit def autoMigrateMethodToSetRouteVia(m: Method): SetRouteVia = {
+    @deprecated("", "")
+    @inline def ignoreThisAndTheAboveWarning: SetRouteVia =
+      m match {
+        case Replace => SetRouteVia.HistoryReplace
+        case Push    => SetRouteVia.HistoryPush
+        case Force   => SetRouteVia.WindowLocation
+      }
+    ignoreThisAndTheAboveWarning
+  }
 }
 
-final case class RedirectToPage[P](page: P, method: Redirect.Method) extends Redirect[P] {
+final case class RedirectToPage[P](page: P, via: SetRouteVia) extends Redirect[P] {
   override def map[A](f: P => A): RedirectToPage[A] =
-    RedirectToPage(f(page), method)
+    RedirectToPage(f(page), via)
 }
 
-final case class RedirectToPath[P](path: Path, method: Redirect.Method) extends Redirect[P] {
+final case class RedirectToPath[P](path: Path, via: SetRouteVia) extends Redirect[P] {
   override def map[A](f: P => A): RedirectToPath[A] =
-    RedirectToPath(path, method)
+    RedirectToPath(path, via)
 }

@@ -218,7 +218,7 @@ object DslTest extends TestSuite {
 
     "rules" - {
       import PageSet._, dsl._
-      implicit def redirectMethod = Redirect.Push
+      implicit def redirectMethod = SetRouteVia.HistoryPush
 
       "staticRoute" - {
         staticRoute("abc", Obj1) ~> render (reactTag)

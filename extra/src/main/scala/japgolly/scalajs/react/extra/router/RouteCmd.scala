@@ -18,6 +18,13 @@ sealed abstract class RouteCmd[A] {
 
 object RouteCmd {
 
+  def setRoute(url: AbsUrl, via: SetRouteVia): RouteCmd[Unit] =
+    via match {
+      case SetRouteVia.HistoryPush    => PushState        (url)
+      case SetRouteVia.HistoryReplace => ReplaceState     (url)
+      case SetRouteVia.WindowLocation => SetWindowLocation(url)
+    }
+
   /**
    * Pushes the given data onto the session history stack with the specified title and, if provided, URL.
    */
