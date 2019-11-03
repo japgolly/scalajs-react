@@ -21,7 +21,7 @@ Includes a router, testing utils, performance utils, more.
   - [Refs](doc/REFS.md)
   - [IDE support](doc/IDE.md)
   - [The `Callback` class](doc/CALLBACK.md)
-  - [React Context] (doc/CONTEXT.md)
+  - [React Context](doc/CONTEXT.md)
 - Delving deeper
   - [Types](doc/TYPES.md)
   - [Interoperability](doc/INTEROP.md)
