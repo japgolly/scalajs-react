@@ -13,30 +13,30 @@ abstract class RouterCtl[A] {
   def baseUrl: BaseUrl
   def byPath: RouterCtl[Path]
   def refresh: Callback
-  def pathFor(target: A): Path
-  def set(target: A, via: SetRouteVia): Callback
+  def pathFor(route: A): Path
+  def set(route: A, via: SetRouteVia): Callback
 
-  final def set(target: A): Callback =
-    set(target, SetRouteVia.HistoryPush)
+  final def set(route: A): Callback =
+    set(route, SetRouteVia.HistoryPush)
 
-  final def urlFor(target: A): AbsUrl =
-    pathFor(target).abs(baseUrl)
+  final def urlFor(route: A): AbsUrl =
+    pathFor(route).abs(baseUrl)
 
-  final def setEH(target: A): ReactEvent => Callback =
-    e => set(target).asEventDefault(e).void
+  final def setEH(route: A): ReactEvent => Callback =
+    e => set(route).asEventDefault(e).void
 
-  final def setOnClick(target: A): TagMod =
-    ^.onClick ==> setEH(target)
+  final def setOnClick(route: A): TagMod =
+    ^.onClick ==> setEH(route)
 
-  final def setOnLinkClick(target: A): TagMod = {
+  final def setOnLinkClick(route: A): TagMod = {
     def go(e: ReactMouseEvent): Callback =
       CallbackOption.unless(ReactMouseEvent targetsNewTab_? e) >>
-        setEH(target)(e)
+        setEH(route)(e)
     ^.onClick ==> go
   }
 
-  final def link(target: A): VdomTagOf[html.Anchor] =
-    <.a(^.href := urlFor(target).value, setOnLinkClick(target))
+  final def link(route: A): VdomTagOf[html.Anchor] =
+    <.a(^.href := urlFor(route).value, setOnLinkClick(route))
 
   final def contramap[B](f: B => A): RouterCtl[B] =
     new RouterCtl.Contramap(this, f)
