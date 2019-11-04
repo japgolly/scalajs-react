@@ -66,7 +66,8 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
    for {
      url <- CallbackTo(AbsUrl.fromWindow)
      _   <- logger(s"Syncing to $url.")
-     res <- interpret(syncToUrl(url))
+     cmd <- syncToUrl(url)
+     res <- interpret(cmd)
      _   <- logger(s"Resolved to page ${res.page}.")
      _   <- logger("")
    } yield res
@@ -74,16 +75,16 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
 //  val syncToWindowUrlS: ReactST[IO, Resolution, Unit] =
 //    ReactS.setM(syncToWindowUrl) //addCallbackS onSync
 
-  def syncToUrl(url: AbsUrl): RouteCmd[Resolution] =
+  def syncToUrl(url: AbsUrl): CallbackTo[RouteCmd[Resolution]] =
     parseUrl(url) match {
       case Some(path) => syncToPath(path)
       case None       => wrongBase(url)
     }
 
-  def wrongBase(wrongUrl: AbsUrl): RouteCmd[Resolution] = {
+  def wrongBase(wrongUrl: AbsUrl): CallbackTo[RouteCmd[Resolution]] = {
     val root = Path.root
-    log(s"Wrong base: $wrongUrl is outside of ${root.abs}.") >>
-      redirectToPath(root, SetRouteVia.HistoryPush)
+    redirectToPath(root, SetRouteVia.HistoryPush).map(
+      log(s"Wrong base: $wrongUrl is outside of ${root.abs}.") >> _)
   }
 
   def parseUrl(url: AbsUrl): Option[Path] =
@@ -92,34 +93,44 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     else
       None
 
-  def syncToPath(path: Path): RouteCmd[Resolution] = {
-    val parsed = cfg.parse(path)
-    val cmd = parsed match {
-      case Right(page) =>
-        val action = cfg.action(path, page)
-        log(s"Action for page $page at $path is $action.") >> resolve(page, action)
-      case Left(r) =>
-        redirect(r)
+  def syncToPath(path: Path): CallbackTo[RouteCmd[Resolution]] =
+    for {
+      parsed <- cfg.rules.parse(path)
+      cmd    <- parsed match {
+                  case Right(page) => resolveActionForPage(path, page)
+                  case Left(r)     => redirect(r)
+                }
+    } yield log(s"Parsed $path to $parsed.") >> cmd
+
+  def resolveActionForPage(path: Path, page: Page): CallbackTo[RouteCmd[Resolution]] =
+    for {
+      action <- cfg.rules.action(path, page)
+      cmd    <- resolveAction(page, action)
+    } yield log(s"Action for page $page at $path is $action.") >> cmd
+
+  def resolveAction(page: Page, action: Action): CallbackTo[RouteCmd[Resolution]] =
+    for {
+      a <- resolveAction(action)
+    } yield cmdOrPure(a.map(r => Resolution(page, () => r(ctl))))
+
+  def resolveAction(a: Action): CallbackTo[Either[RouteCmd[Resolution], Renderer]] =
+    a match {
+      case r: Renderer => CallbackTo pure Right(r)
+      case r: Redirect => redirect(r).map(Left(_))
     }
-    log(s"Parsed $path to $parsed.") >> cmd
-  }
 
-  def resolve(page: Page, action: Action): RouteCmd[Resolution] =
-    cmdOrPure(resolveAction(action).map(r => Resolution(page, () => r(ctl))))
+  def redirect(r: Redirect): CallbackTo[RouteCmd[Resolution]] =
+    r match {
+      case RedirectToPage(page, m) => redirectToPath(cfg.rules.path(page), m)
+      case RedirectToPath(path, m) => redirectToPath(path, m)
+    }
 
-  def resolveAction(a: Action): Either[RouteCmd[Resolution], Renderer] = a match {
-    case r: Renderer => Right(r)
-    case r: Redirect => Left(redirect(r))
-  }
-
-  def redirect(r: Redirect): RouteCmd[Resolution] = r match {
-    case RedirectToPage(page, m) => redirectToPath(cfg path page, m)
-    case RedirectToPath(path, m) => redirectToPath(path, m)
-  }
-
-  def redirectToPath(path: Path, via: SetRouteVia): RouteCmd[Resolution] =
-    log(s"Redirecting to ${path.abs} via $via.") >>
-      RouteCmd.setRoute(path.abs, via) >> syncToUrl(path.abs)
+  def redirectToPath(path: Path, via: SetRouteVia): CallbackTo[RouteCmd[Resolution]] =
+    for {
+      syncCmd <- syncToUrl(path.abs)
+    } yield
+      log(s"Redirecting to ${path.abs} via $via.") >>
+        RouteCmd.setRoute(path.abs, via) >> syncCmd
 
   private def cmdOrPure[A](e: Either[RouteCmd[A], A]): RouteCmd[A] =
     e.fold(identityFn, Return(_))
@@ -170,5 +181,5 @@ final class RouterLogic[Page](val baseUrl: BaseUrl, cfg: RouterConfig[Page]) ext
     }
 
   val ctl: RouterCtl[Page] =
-    ctlByPath contramap cfg.path
+    ctlByPath contramap cfg.rules.path
 }

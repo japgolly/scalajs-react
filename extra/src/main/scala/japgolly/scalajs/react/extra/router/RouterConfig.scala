@@ -5,11 +5,9 @@ import scala.annotation.elidable
 import scala.util.{Failure, Success, Try}
 import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.vdom.VdomElement
-import RouterConfig.{Logger, Parsed}
+import RouterConfig.Logger
 
-case class RouterConfig[Page](parse       : Path => CallbackTo[Parsed[Page]],
-                              path        : Page => Path,
-                              action      : (Path, Page) => Action[Page],
+case class RouterConfig[Page](rules       : RoutingRules[Page],
                               renderFn    : (RouterCtl[Page], Resolution[Page]) => VdomElement,
                               postRenderFn: (Option[Page], Page) => Callback,
                               logger      : Logger) {
@@ -79,7 +77,11 @@ case class RouterConfig[Page](parse       : Path => CallbackTo[Parsed[Page]],
       dom.console.error(msg)
       val el: VdomElement =
         <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
-      RouterConfig.withDefaults(_ => Right(page1), _ => Path.root, (_, _) => Renderer(_ => el))
+      val newRules = RoutingRules[Page](
+        _ => CallbackTo pure Right(page1),
+        _ => Path.root,
+        (_, _) => CallbackTo pure Renderer(_ => el))
+      RouterConfig.withDefaults(newRules)
     }
   }
 
@@ -98,18 +100,18 @@ case class RouterConfig[Page](parse       : Path => CallbackTo[Parsed[Page]],
       def error(msg: String): Unit = errors :+= s"Page $page: $msg"
 
       // page -> path
-      Try(path(page)) match {
+      Try(rules.path(page)) match {
         case Failure(f) => error(s"Path missing. ${f.getMessage}")
         case Success(path) =>
 
           // path -> page
-          parse(path) match {
-            case Left(r) => error(s"Parsing its path $path leads to a redirect. Cannot verify that this is intended and not a 404.")
+          rules.parse(path).runNow() match {
+            case Left(r)  => error(s"Parsing its path $path leads to a redirect. Cannot verify that this is intended and not a 404.")
             case Right(q) => if (q != page) error(s"Parsing its path $path leads to a different page: $q")
           }
 
           // page -> action
-          Try(action(path, page)) match {
+          Try(rules.action(path, page)) match {
             case Failure(f) => error(s"Action missing. ${f.getMessage}")
             case Success(a) => ()
           }
@@ -143,8 +145,6 @@ object RouterConfig {
     (_, _) => cb
   }
 
-  def withDefaults[Page](parse : Path         => Parsed[Page],
-                         path  : Page         => Path,
-                         action: (Path, Page) => Action[Page]): RouterConfig[Page] =
-    RouterConfig(parse, path, action, defaultRenderFn, defaultPostRenderFn, defaultLogger)
+  def withDefaults[Page](rules: RoutingRules[Page]): RouterConfig[Page] =
+    RouterConfig(rules, defaultRenderFn, defaultPostRenderFn, defaultLogger)
 }
