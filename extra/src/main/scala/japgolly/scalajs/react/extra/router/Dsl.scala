@@ -288,7 +288,7 @@ object RouterConfigDsl {
     def buildConfig(f: RouterConfigDsl[Page] => RouterConfig[Page]): RouterConfig[Page] =
       use(f)
 
-    def buildRule(f: RouterConfigDsl[Page] => Rule[Page]): Rule[Page] =
+    def buildRule(f: RouterConfigDsl[Page] => RoutingRule[Page]): RoutingRule[Page] =
       use(f)
   }
 }
@@ -372,9 +372,9 @@ final class RouterConfigDsl[Page] {
   // -------------------------------------------------------------------------------------------------------------------
   // Rule building DSL
 
-  type Rule = japgolly.scalajs.react.extra.router.Rule[Page]
-  type Rules = japgolly.scalajs.react.extra.router.Rule.WithFallback[Page]
-  def emptyRule: Rule = Rule.empty
+  type Rule = japgolly.scalajs.react.extra.router.RoutingRule[Page]
+  type Rules = japgolly.scalajs.react.extra.router.RoutingRule.WithFallback[Page]
+  def emptyRule: Rule = RoutingRule.empty
 
   implicit def _auto_parsed_from_redirect(r: Redirect): Parsed = Left(r)
   implicit def _auto_parsed_from_page    (p: Page)    : Parsed = Right(p)
@@ -412,7 +412,7 @@ final class RouterConfigDsl[Page] {
   def dynamicRouteF[P <: Page](r: Route[P])(op: Page => Option[P]): DynamicRouteB[Page, P, Rule] = {
     def onPage[A](f: P => A)(page: Page): Option[A] =
       op(page) map f
-    new DynamicRouteB(a => Rule.Atom(r.parse, onPage(r.pathFor), (_, p) => onPage(a)(p)))
+    new DynamicRouteB(a => RoutingRule.Atom(r.parse, onPage(r.pathFor), (_, p) => onPage(a)(p)))
   }
 
   def dynamicRouteCT[P <: Page](r: Route[P])(implicit ct: ClassTag[P]): DynamicRouteB[Page, P, Rule] =
@@ -428,7 +428,7 @@ final class RouterConfigDsl[Page] {
     rewritePathF(pf.lift)
 
   def rewritePathF(f: Path => Option[Redirect]): Rule =
-    Rule parseOnly f
+    RoutingRule parseOnly f
 
   def rewritePathR(r: Pattern, f: Matcher => Option[Redirect]): Rule =
     rewritePathF { p =>

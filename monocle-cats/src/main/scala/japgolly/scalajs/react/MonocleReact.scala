@@ -3,7 +3,8 @@ package japgolly.scalajs.react
 import monocle._
 import cats.Monad
 import japgolly.scalajs.react.internal.{MonocleExtComponent, MonocleExtStateSnapshot}
-import japgolly.scalajs.react.extra.router.StaticDsl.{RouteCommon, Rule}
+import japgolly.scalajs.react.extra.router.StaticDsl.RouteCommon
+import japgolly.scalajs.react.extra.router.RoutingRule
 import CatsReact._
 
 object MonocleReact extends MonocleExtComponent with MonocleExtStateSnapshot {
@@ -31,11 +32,11 @@ object MonocleReact extends MonocleExtComponent with MonocleExtStateSnapshot {
       r.xmap(l.get)(l.reverseGet)
   }
 
-  implicit final class MonocleReactExt_RouterRule[Page](private val r: Rule[Page]) extends AnyVal {
-    def xmapL[A](l: Iso[Page, A]): Rule[A] =
+  implicit final class MonocleReactExt_RouterRule[Page](private val r: RoutingRule[Page]) extends AnyVal {
+    def xmapL[A](l: Iso[Page, A]): RoutingRule[A] =
       r.xmap(l.get)(l.reverseGet)
 
-    def pmapL[W](l: Prism[W, Page]): Rule[W] =
+    def pmapL[W](l: Prism[W, Page]): RoutingRule[W] =
       r.pmapF(l.reverseGet)(l.getOption)
   }
 

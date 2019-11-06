@@ -219,11 +219,11 @@ trait ScalazReactInstances {
   implicit final def routerEqualPath   : Equal[router.Path]    = Equal.equalA
   implicit final def routerEqualAbsUrl : Equal[router.AbsUrl]  = Equal.equalA
 
-  implicit final def routerRuleMonoid[P]: Monoid[router.StaticDsl.Rule[P]] = {
-    import router.StaticDsl.Rule
-    new Monoid[Rule[P]] {
-      override def zero = Rule.empty
-      override def append(a: Rule[P], b: => Rule[P]) = a | b
+  implicit final def routerRuleMonoid[P]: Monoid[router.RoutingRule[P]] = {
+    import router.RoutingRule
+    new Monoid[RoutingRule[P]] {
+      override def zero = RoutingRule.empty
+      override def append(a: RoutingRule[P], b: => RoutingRule[P]) = a | b
     }
   }
 

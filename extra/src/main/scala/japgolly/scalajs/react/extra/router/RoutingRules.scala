@@ -9,39 +9,48 @@ final case class RoutingRules[Page](parse: Path => CallbackTo[Parsed[Page]],
 
 object RoutingRules {
 
-  def fromRule[Page](rule          : Rule[Page],
+  def fromRule[Page](rule          : RoutingRule[Page],
                      fallbackPath  : Page => Path,
                      fallbackAction: (Path, Page) => Action[Page],
-                     whenNotFound  : Path => Parsed[Page]): RoutingRules[Page] = {
+                     whenNotFound  : Path => CallbackTo[Parsed[Page]]): RoutingRules[Page] = {
 
-    def prepareParseFn(rule: Rule[Page]): Path => CallbackTo[Option[Parsed[Page]]] =
+    def prepareParseFn(rule: RoutingRule[Page]): Path => CallbackTo[Option[Parsed[Page]]] =
       rule match {
-        case r: Rule.Atom       [Page] => r.parse.andThen(CallbackTo.pure)
-        case r: Rule.AutoCorrect[Page] => prepareParseFn(r.underlying)
-        case r: Rule.Or         [Page] => prepareParseFn(r.lhs) || prepareParseFn(r.rhs)
-        case r: Rule.Conditional[Page] =>
+        case r: RoutingRule.Atom        [Page] => r.parse.andThen(CallbackTo.pure)
+        case r: RoutingRule.AutoCorrect [Page] => prepareParseFn(r.underlying)
+        case r: RoutingRule.Or          [Page] => prepareParseFn(r.lhs) || prepareParseFn(r.rhs)
+
+        case r: RoutingRule.Conditional[Page] =>
+          val onOk = prepareParseFn(r.underlying)
+          p => r.condition.flatMap(ok => if (ok) onOk(p) else CallbackTo.pure(None))
+
+        case r: RoutingRule.ConditionalP[Page] =>
           val parse = prepareParseFn(r.underlying)
-//          p => r.condition(p).flatMap(ok => if (ok) onOk(p) else CallbackTo.pure(None))
           parse(_).flatMap {
-            case Some(x) => xxx
-            case None => xxx
+            case ok@ Some(Right(page)) =>
+              r.condition(page).map {
+                case true  => ok
+                case false => None
+              }
+            case other => CallbackTo.pure(other)
           }
       }
 
-    def preparePathFn(rule: Rule[Page]): Page => Option[Path] =
+    def preparePathFn(rule: RoutingRule[Page]): Page => Option[Path] =
       rule match {
-        case r: Rule.Atom       [Page] => r.path
-        case r: Rule.Conditional[Page] => preparePathFn(r.underlying)
-        case r: Rule.AutoCorrect[Page] => preparePathFn(r.underlying)
-        case r: Rule.Or         [Page] => preparePathFn(r.lhs) || preparePathFn(r.rhs)
+        case r: RoutingRule.Atom        [Page] => r.path
+        case r: RoutingRule.Conditional [Page] => preparePathFn(r.underlying)
+        case r: RoutingRule.ConditionalP[Page] => preparePathFn(r.underlying)
+        case r: RoutingRule.AutoCorrect [Page] => preparePathFn(r.underlying)
+        case r: RoutingRule.Or          [Page] => preparePathFn(r.lhs) || preparePathFn(r.rhs)
       }
 
-    def prepareActionFn(rule: Rule[Page]): (Path, Page) => CallbackTo[Option[Action[Page]]] =
+    def prepareActionFn(rule: RoutingRule[Page]): (Path, Page) => CallbackTo[Option[Action[Page]]] =
       rule match {
-        case r: Rule.Atom       [Page] => (path, page) => CallbackTo.pure(r.action(path, page))
-        case r: Rule.Or         [Page] => prepareActionFn(r.lhs) || prepareActionFn(r.rhs)
+        case r: RoutingRule.Atom       [Page] => (path, page) => CallbackTo.pure(r.action(path, page))
+        case r: RoutingRule.Or         [Page] => prepareActionFn(r.lhs) || prepareActionFn(r.rhs)
 
-        case r: Rule.AutoCorrect[Page] =>
+        case r: RoutingRule.AutoCorrect[Page] =>
           val path = preparePathFn(r.underlying)
           val action = prepareActionFn(r.underlying)
           (actualPath, page) =>
@@ -55,18 +64,28 @@ object RoutingRules {
                 CallbackTo.pure(None)
             }
 
-        case r: Rule.Conditional[Page] =>
+        case r: RoutingRule.Conditional[Page] =>
+          prepareActionFn(RoutingRule.ConditionalP(_ => r.condition, r.underlying, r.otherwise))
+
+        case r: RoutingRule.ConditionalP[Page] =>
           val onOk = prepareActionFn(r.underlying)
           (path, page) =>
-            r.condition(page).flatMap {
-              case true  => onOk(path, page)
-              case false => CallbackTo.pure(r.otherwise(page))
+            onOk(path, page).flatMap {
+              case ok@ Some(_) =>
+                r.condition(page) map {
+                  case true  => ok
+                  case false => r.otherwise(page)
+                }
+              case None => CallbackTo.pure(None)
             }
       }
 
     val parse: Path => CallbackTo[Parsed[Page]] = {
       val attempt = prepareParseFn(rule)
-      p => attempt(p).map(_.getOrElse(whenNotFound(p)))
+      p => attempt(p).flatMap {
+        case Some(r) => CallbackTo.pure(r)
+        case None    => whenNotFound(p)
+      }
     }
 
     val path: Page => Path =
@@ -76,6 +95,8 @@ object RoutingRules {
       val attempt = prepareActionFn(rule)
       (path, page) => attempt(path, page).map(_.getOrElse(fallbackAction(path, page)))
     }
+
+    println(rule)
 
     apply(parse, path, action)
   }

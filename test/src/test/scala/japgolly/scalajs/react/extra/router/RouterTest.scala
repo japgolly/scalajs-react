@@ -122,7 +122,7 @@ object RouterTest extends TestSuite {
       "syncToUrl" - {
         def runh[P](r: RouterLogic[P], start: AbsUrl) = {
           val s = SimHistory(start)
-          val a = s.run(r.syncToUrl(s.startUrl))
+          val a = s.run(r.syncToUrl(s.startUrl).runNow())
           assertEq(s.broadcasts, Vector.empty) // this is sync(), not set()
           (s, a)
         }

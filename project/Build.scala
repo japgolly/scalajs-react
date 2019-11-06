@@ -251,8 +251,9 @@ object ScalajsReact {
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
-        (ProvidedJS / "component-fn.js" dependsOn ReactDom.dev) % Test,
-        (ProvidedJS / "forward-ref.js"  dependsOn ReactDom.dev) % Test),
+        (ProvidedJS / "component-fn.js"  dependsOn ReactDom.dev) % Test,
+        (ProvidedJS / "forward-ref.js"   dependsOn ReactDom.dev) % Test,
+        (ProvidedJS / "polyfill.js"      dependsOn ReactDom.dev) % Test),
       libraryDependencies ++= paradisePlugin.value,
     )
 
