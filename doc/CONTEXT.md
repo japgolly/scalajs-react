@@ -52,7 +52,7 @@ object Content {
         .and(_.withCredentials = true)
         .send
         .asAsyncCallback
-        .map { xhr ⇒
+        .flatMap { xhr ⇒
           try {
             import model.ModelPickler._
             import upickle.default._
