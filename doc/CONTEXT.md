@@ -58,7 +58,8 @@ object Content {
             import upickle.default._
             val user = Option(read[User](xhr.responseText))
             //This should cause a cascade rendering all the way down the component stack
-            $.modState(s => s.copy(myGlobalState = s.myGlobalState.copy(user = user)))  
+            $.modState(s => s.copy(myGlobalState = s.myGlobalState.copy(user = user)))
+              .asAsyncCallback
           } catch {
             case e: InvalidData ⇒
               dom.console.error(e.msg + ":" + e.data)
