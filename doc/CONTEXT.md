@@ -47,10 +47,11 @@ object Content {
         <.div(AppRouter.router())
       }
 
-    //Note, I'm not showing an implicit conversion from Future[Callback] to Callback, don't be surprised
-    def refresh(s: State): Future[CallbackTo[Unit]] =
-      Ajax
-        .get(s"localhost:8000/whoami", withCredentials = true)
+    def refresh(s: State) =
+      Ajax.get(s"https://localhost:8000/whoami")
+        .and(_.withCredentials = true)
+        .send
+        .asAsyncCallback
         .map { xhr ⇒
           try {
             import model.ModelPickler._
@@ -64,6 +65,7 @@ object Content {
               throw e
           }
         }
+        .completeWith(_.get)
   }
 
   private val component = ScalaComponent
@@ -101,3 +103,7 @@ object AboutPage  {
   def apply(): Unmounted[Unit, State, Backend] = component()
 }
 ```
+
+One additional note: Other parts of the documentation suggest that your router should always be your top level component. While in general that is true,
+I though that moving the provider to a higher level component delineated the responsibilities better, you are welcome to collapse them into a single 
+component. 
