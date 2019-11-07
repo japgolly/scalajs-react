@@ -65,7 +65,7 @@ object Content {
               throw e
           }
         }
-        .completeWith(_.get)
+        .toCallback
   }
 
   private val component = ScalaComponent
