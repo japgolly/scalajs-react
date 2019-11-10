@@ -55,7 +55,7 @@ trait CatsReactInstances {
       AsyncCallback.tailrec(a)(f)
 
     override def raiseError[A](e: Throwable): AsyncCallback[A] =
-      AsyncCallback(throw e)
+      AsyncCallback.throwException(e)
 
     override def handleErrorWith[A](fa: AsyncCallback[A])(f: Throwable => AsyncCallback[A]): AsyncCallback[A] =
       fa.attempt.flatMap {
