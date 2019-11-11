@@ -12,22 +12,25 @@ import sbtrelease.ReleasePlugin.autoImport._
 object ScalajsReact {
 
   object Ver {
-    val BetterMonadicFor = "0.3.1"
-    val Cats             = "2.0.0"
-    val KindProjector    = "0.11.0"
-    val MacroParadise    = "2.1.1"
-    val MonocleCats      = "2.0.0"
-    val MonocleScalaz    = "1.6.0"
-    val MTest            = "0.7.1"
-    val Nyaya            = "0.9.0"
-    val ReactJs          = "16.7.0"
-    val Scala212         = "2.12.10"
-    val Scala213         = "2.13.1"
-    val ScalaCollCompat  = "2.1.3"
-    val ScalaJsDom       = "0.9.8"
-    val Scalaz72         = "7.2.30"
-    val SizzleJs         = "2.3.0"
-    val Sourcecode       = "0.2.0"
+    val BetterMonadicFor      = "0.3.1"
+    val Cats                  = "2.0.0"
+    val CatsTestkitScalaTest  = "1.0.0-RC1"
+    val DisciplineScalaTest   = "1.0.0-RC1"
+    val KindProjector         = "0.11.0"
+    val MacroParadise         = "2.1.1"
+    val MonocleCats           = "2.0.0"
+    val MonocleScalaz         = "1.6.0"
+    val MTest                 = "0.7.1"
+    val Nyaya                 = "0.9.0"
+    val ReactJs               = "16.7.0"
+    val Scala212              = "2.12.10"
+    val Scala213              = "2.13.1"
+    val ScalaCollCompat       = "2.1.3"
+    val ScalaJsDom            = "0.9.8"
+    val ScalaTest             = "3.1.0-RC2"
+    val Scalaz72              = "7.2.30"
+    val SizzleJs              = "2.3.0"
+    val Sourcecode            = "0.2.0"
   }
 
   type PE = Project => Project
@@ -214,7 +217,7 @@ object ScalajsReact {
     .settings(name := "scalajs-react")
     .aggregate(
       core, extra, test, /*testModule,*/
-      cats, scalaz72,
+      cats, catsEffects, scalaz72,
       monocle, monocleCats, monocleScalaz,
       ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests)
@@ -311,6 +314,21 @@ object ScalajsReact {
       // Share the internal source code files with this module
       unmanagedSourceDirectories in Compile += (sourceDirectory in (monocleScalaz, Compile)).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
       libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.MonocleCats)
+
+  lazy val catsEffects = project
+    .in(file("cats-effects"))
+    .configure(commonSettings, publicationSettings, extModuleName("cats-effects"))
+    .dependsOn(core, cats)
+    .settings(
+      libraryDependencies ++= Seq(
+        "org.typelevel" %%% "cats-core" % Ver.Cats,
+        "org.typelevel" %%% "cats-effect" % Ver.Cats,
+        "org.typelevel" %%% "cats-effect-laws" % Ver.Cats % "test",
+        "org.typelevel" %%% "cats-testkit" % Ver.Cats % "test",
+        "org.typelevel" %%% "cats-testkit-scalatest" % Ver.CatsTestkitScalaTest % "test",
+        "org.scalatest" %%% "scalatest" % Ver.ScalaTest % "test",
+        "org.typelevel" %%% "discipline-scalatest" % Ver.DisciplineScalaTest % "test"
+    ))
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
