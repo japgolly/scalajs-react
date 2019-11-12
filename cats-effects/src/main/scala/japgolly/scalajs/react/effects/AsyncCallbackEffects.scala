@@ -20,8 +20,10 @@ trait AsyncCallbackEffects {
   trait AsyncCallbackBracket extends Bracket[AsyncCallback, Throwable] {
     override def bracketCase[A, B](acquire: AsyncCallback[A])(use: A => AsyncCallback[B])(release: (A, ExitCase[Throwable]) => AsyncCallback[Unit]): AsyncCallback[B] =
       acquire.flatMap { a =>
-        handleErrorWith(use(a))(t => release(a, ExitCase.Error(t)).flatMap(_ => raiseError(t)))
-          .flatMap(b => release(a, ExitCase.Completed).map(_ => b))
+        use(a).attempt.flatMap {
+          case Right(b) => release(a, ExitCase.Completed).ret(b)
+          case Left(e)  => release(a, ExitCase.Error(e)) >> AsyncCallback.throwException(e)
+        }
       }
     override def pure[A](x: A): AsyncCallback[A] = asyncCallbackMonadError.pure(x)
     override def flatMap[A, B](fa: AsyncCallback[A])(f: A => AsyncCallback[B]): AsyncCallback[B] = asyncCallbackMonadError.flatMap(fa)(f)
