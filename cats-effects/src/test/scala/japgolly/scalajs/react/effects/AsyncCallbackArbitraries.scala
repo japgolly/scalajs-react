@@ -23,7 +23,6 @@ trait AsyncCallbackArbitraries extends CallbackToArbitraries {
       1 -> genApply[A].map(_.asAsyncCallback),
       1 -> genFail[A].map(_.asAsyncCallback),
       1 -> genAsync[A],
-//      1 -> genAsyncF[A], // Not really sure how to generate an AsyncCallback here
       1 -> genNestedAsync[A],
       1 -> getMapOne[A],
       1 -> getMapTwo[A],
