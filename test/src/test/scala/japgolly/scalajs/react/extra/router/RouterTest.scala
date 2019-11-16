@@ -4,7 +4,8 @@ import org.scalajs.dom._
 import scalaz._
 import scalaz.effect.IO
 import sizzle.Sizzle
-import japgolly.scalajs.react._, vdom.html_<^._
+import japgolly.scalajs.react._
+import vdom.html_<^._
 import japgolly.scalajs.react.test._
 import utest._
 import TestUtil._
@@ -18,6 +19,7 @@ object RouterTest extends TestSuite {
     case object Hello extends MyPage
     case class Greet(name: String) extends MyPage
     case class Person(id: Long) extends MyPage
+    case class QueryParamPage(queryParams: Map[String, String]) extends MyPage
 
     implicit def equality = Equal.equalA[MyPage]
 
@@ -28,7 +30,10 @@ object RouterTest extends TestSuite {
           <.p("This is the root page. Click on a link below to view routes within this page."),
           <.div(r.link(Hello)("The 'hello' route", ^.cls := "hello")),
           <.div(r.link(Greet("bob"))("Greet('bob')", ^.cls := "n1")),
-          <.div(r.link(Greet("crap"))("Greet('crap')", ^.cls := "n2")))
+          <.div(r.link(Greet("crap"))("Greet('crap')", ^.cls := "n2")),
+          <.div(r.link(
+            QueryParamPage(Map("a" -> "123", "b" -> "456", "c"-> "Hello bob!"))
+          )("""QueryParamPage(Map("a" -> "123", "b" -> "456", "c"-> "Hello bob!"))""", ^.cls := "queryParam")))
       ).build
 
     val HelloComponent =
@@ -42,6 +47,12 @@ object RouterTest extends TestSuite {
       .render_P(p => <.h3(s"Person #${p.id} Details..."))
       .build
 
+    val QueryParamComponent = ScalaComponent.builder[Map[String, String]]("Component with QueryParams")
+      .render_P(p =>
+        <.div(<.h3("Component with some QueryParams"), p.map( tuple => <.div(<.span(tuple._1), <.span(tuple._2))).toVdomArray) )
+      .build
+
+
     val config = RouterConfigDsl[MyPage].buildConfig { dsl =>
       import dsl._
       (removeTrailingSlashes
@@ -50,6 +61,8 @@ object RouterTest extends TestSuite {
       | staticRedirect("/hey")                                      ~> redirectToPage(Hello)(Redirect.Replace)
       | dynamicRouteCT("/name" / string("[a-z]+").caseClass[Greet]) ~> dynRender(g => NameComponent(g.name))
       | dynamicRouteCT("/person" / long.caseClass[Person])          ~> dynRender(PersonComponent(_))
+      | dynamicRouteCT(("/queryParams" ~ queryToMap).caseClass[QueryParamPage]) ~>
+        dynRender(p => QueryParamComponent(p.queryParams))
       )
         .notFound(redirectToPage(Root)(Redirect.Replace))
         .renderWith((ctl, res) =>
@@ -74,7 +87,7 @@ object RouterTest extends TestSuite {
   override val tests = Tests {
 
     "sim" - {
-      import MyPage.{Root, Hello, Greet, Person}
+      import MyPage.{Root, Hello, Greet, Person, QueryParamPage}
       val base = RouterTestHelp.localBaseUrl_/
       val router = Router(base, MyPage.config.logToConsole)
       val c = ReactTestUtils.renderIntoDocument(router())
@@ -82,8 +95,8 @@ object RouterTest extends TestSuite {
       def html = node.outerHTML
 
       def testView(routeSuffix: String, p: MyPage): Unit = {
-        assertEq(window.location.href, base.+(routeSuffix).value)
         val h = html
+        assertEq(window.location.href, base.+(routeSuffix).value)
         assertContains(h, "Router Demo",  p == Root)
         assertContains(h, """>Back<""",   p != Root)
         assertContains(h, "Hello there",  p == Hello)
@@ -92,11 +105,16 @@ object RouterTest extends TestSuite {
       def assertRoot()         = testView("",          Root)
       def assertRouteHello()   = testView("/hello",    Hello)
       def assertRouteNameBob() = testView("/name/bob", Greet("bob"))
+      def assertRouteQueryParam() = testView("/queryParams?a=123&b=456&c=Hello%20bob!",
+        QueryParamPage(Map("a" -> "123", "b" -> "456", "c"-> "Hello bob!")))
 
-      def click(css: String): Unit = Simulation.click run Sizzle(css, node).sole
+      def click(css: String): Unit = {
+        Simulation.click run Sizzle(css, node).sole
+      }
       def clickBack()    = click("a.back")
       def clickHello()   = click("a.hello")
       def clickNameBob() = click("a.n1")
+      def clickQueryParam()    = click("a.queryParam")
 
       try {
         assertRoot()
@@ -104,6 +122,7 @@ object RouterTest extends TestSuite {
         clickBack();    assertRoot()
         clickNameBob(); assertRouteNameBob()
         clickBack();    assertRoot()
+        clickQueryParam(); assertRouteQueryParam()
       } finally {
         ReactDOM unmountComponentAtNode node
       }
