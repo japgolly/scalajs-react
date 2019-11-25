@@ -106,7 +106,7 @@ object RouterTest extends TestSuite {
       def assertRouteHello()   = testView("/hello",    Hello)
       def assertRouteNameBob() = testView("/name/bob", Greet("bob"))
 
-      def assertRouteQueryParam() = testView("/queryParams?a=123&b=456&c=Hello%20bob!",
+      def assertRouteQueryParam() = testView("/queryParams?a=123&b=456&c=Hello+bob%21",
         QueryParamPage(Map("a" -> "123", "b" -> "456", "c"-> "Hello bob!")))
 
       def click(css: String): Unit = {
