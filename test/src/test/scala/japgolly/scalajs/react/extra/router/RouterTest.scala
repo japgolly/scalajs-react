@@ -105,23 +105,24 @@ object RouterTest extends TestSuite {
       def assertRoot()         = testView("",          Root)
       def assertRouteHello()   = testView("/hello",    Hello)
       def assertRouteNameBob() = testView("/name/bob", Greet("bob"))
+
       def assertRouteQueryParam() = testView("/queryParams?a=123&b=456&c=Hello%20bob!",
         QueryParamPage(Map("a" -> "123", "b" -> "456", "c"-> "Hello bob!")))
 
       def click(css: String): Unit = {
         Simulation.click run Sizzle(css, node).sole
       }
-      def clickBack()    = click("a.back")
-      def clickHello()   = click("a.hello")
-      def clickNameBob() = click("a.n1")
-      def clickQueryParam()    = click("a.queryParam")
+      def clickBack()       = click("a.back")
+      def clickHello()      = click("a.hello")
+      def clickNameBob()    = click("a.n1")
+      def clickQueryParam() = click("a.queryParam")
 
       try {
         assertRoot()
-        clickHello();   assertRouteHello()
-        clickBack();    assertRoot()
-        clickNameBob(); assertRouteNameBob()
-        clickBack();    assertRoot()
+        clickHello();      assertRouteHello()
+        clickBack();       assertRoot()
+        clickNameBob();    assertRouteNameBob()
+        clickBack();       assertRoot()
         clickQueryParam(); assertRouteQueryParam()
       } finally {
         ReactDOM unmountComponentAtNode node

@@ -24,6 +24,7 @@ trait TestUtil
 
   implicit val equalNull: Equal[Null] = Equal.equalA
   implicit val equalKey: Equal[Key] = Equal.equalA
+  implicit val equalStringMap: Equal[Map[String, String]] = Equal.equalA
 
   // TODO erm... not really. Only allow in raw testing
   implicit val equalRawRef: Equal[japgolly.scalajs.react.raw.React.Ref] = Equal.equalRef
