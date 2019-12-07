@@ -24,7 +24,7 @@ object ScalajsReact {
     val Scala212         = "2.12.10"
     val Scala213         = "2.13.1"
     val ScalaCollCompat  = "2.1.2"
-    val ScalaJsDom       = "0.9.7"
+    val ScalaJsDom       = "0.9.8"
     val Scalaz72         = "7.2.29"
     val SizzleJs         = "2.3.0"
     val Sourcecode       = "0.1.8"
