@@ -632,7 +632,7 @@ trait HtmlTags {
   /**
     * A header cell in a table.
     */
-  final def th = HtmlTagOf[*.TableHeaderCell]("th")
+  final def th = HtmlTagOf[*.TableCell]("th")
 
   /**
     * The table headers.
