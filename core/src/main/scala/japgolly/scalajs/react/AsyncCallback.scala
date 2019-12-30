@@ -406,6 +406,15 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
         }
       })
 
+  /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+    * current callback completes, be it in error or success.
+    */
+  def finallyRun[B](runFinally: AsyncCallback[B]): AsyncCallback[A] =
+    attempt.flatMap {
+      case Right(a) => runFinally.ret(a)
+      case Left(e)  => runFinally.attempt >> AsyncCallback.throwException(e)
+    }
+
   /** Function distribution. See `AsyncCallback.liftTraverse(f).id` for the dual. */
   def distFn[B, C](implicit ev: AsyncCallback[A] <:< AsyncCallback[B => C]): B => AsyncCallback[C] = {
     val bc = ev(this)
