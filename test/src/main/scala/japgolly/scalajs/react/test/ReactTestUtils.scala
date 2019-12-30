@@ -164,6 +164,22 @@ object ReactTestUtils {
   def withRenderedIntoBodyAsync[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
     withRenderedIntoBodyFuture(u)(f)
 
+  def withNewBodyElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
+    AsyncCallback.point(newBodyElement())
+      .flatMap(e => use(e)
+        .finallyRun(AsyncCallback.point(removeNewBodyElement(e))))
+
+  /** Renders a component into the document body via [[ReactDOM.render()]],
+    * and asynchronously waits for the AsyncCallback to complete before unmounting.
+    */
+  def withRenderedIntoBodyAsyncCallback[M, A](u: Unmounted[M])(f: M => AsyncCallback[A]): AsyncCallback[A] =
+    _withRenderedIntoBodyAsyncCallback(RawReactDOM.render(u.raw, _))(mountedElement, f compose u.mountRaw)
+
+  private def _withRenderedIntoBodyAsyncCallback[A, B](render: Element => A)(n: A => TopNode, use: A => AsyncCallback[B]): AsyncCallback[B] =
+    withNewBodyElementAsyncCallback(parent =>
+      AsyncCallback.point(render(parent))
+        .flatMap(a => use(a).finallyRun(AsyncCallback.point(ReactDOM unmountComponentAtNode n(a).parentNode))))
+
   // ===================================================================================================================
   // Render into document
 
@@ -227,6 +243,22 @@ object ReactTestUtils {
   def withRenderedIntoDocumentAsync[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
     withRenderedIntoDocumentFuture(u)(f)
 
+  def withNewDocumentElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
+    AsyncCallback.point(newDocumentElement())
+      .flatMap(e => use(e)
+        .finallyRun(AsyncCallback.point(removeNewDocumentElement(e))))
+
+  /** Renders a component into the document body via [[ReactDOM.render()]],
+    * and asynchronously waits for the AsyncCallback to complete before unmounting.
+    */
+  def withRenderedIntoDocumentAsyncCallback[M, A](u: Unmounted[M])(f: M => AsyncCallback[A]): AsyncCallback[A] =
+    _withRenderedIntoDocumentAsyncCallback(RawReactDOM.render(u.raw, _))(mountedElement, f compose u.mountRaw)
+
+  private def _withRenderedIntoDocumentAsyncCallback[A, B](render: Element => A)(n: A => TopNode, use: A => AsyncCallback[B]): AsyncCallback[B] =
+    withNewDocumentElementAsyncCallback(parent =>
+      AsyncCallback.point(render(parent))
+        .flatMap(a => use(a).finallyRun(AsyncCallback.point(ReactDOM unmountComponentAtNode n(a).parentNode))))
+
   // ===================================================================================================================
   // Render into body/document
 
@@ -257,6 +289,16 @@ object ReactTestUtils {
   @deprecated("Use withRenderedFuture", "1.5.0")
   def withRenderedAsync[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
     withRenderedFuture(u, intoBody)(f)
+
+  /** Renders a component then unmounts and cleans up after use.
+    *
+    * @param intoBody Whether to use [[renderIntoBodyAsyncCallback()]] or [[renderIntoDocumentAsyncCallback()]].
+    */
+  def withRenderedAsyncCallback[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => AsyncCallback[A]): AsyncCallback[A] =
+    if (intoBody)
+      withRenderedIntoBodyAsyncCallback(u)(f)
+    else
+      withRenderedIntoDocumentAsyncCallback(u)(f)
 
   // ===================================================================================================================
 
