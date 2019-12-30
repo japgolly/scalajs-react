@@ -173,6 +173,8 @@ and is automatically converted to a finalised `Route` when used.
 
 * `RouteB[UUID]` - Use DSL `uuid`.
 
+* `RouteB[Map[String, String]` - Use DSL `queryToMap`, useful in capturing query parameters of the standard url form (http://www.myexample.com/index.html?param1=abc&param2=123)
+
 * Composition
   * `a ~ b` concatenates `a` to `b`.
     <br>Example: `"abc" ~ "def"` is the same as `"abcdef"`.
