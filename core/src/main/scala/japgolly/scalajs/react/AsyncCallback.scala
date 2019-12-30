@@ -397,11 +397,14 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     delayMs(dur.toMillis.toDouble)
 
   def delayMs(milliseconds: Double): AsyncCallback[A] =
-    AsyncCallback(f => Callback {
-      setTimeout(milliseconds) {
-        completeWith(f).runNow()
-      }
-    })
+    if (milliseconds <= 0)
+      this
+    else
+      AsyncCallback(f => Callback {
+        setTimeout(milliseconds) {
+          completeWith(f).runNow()
+        }
+      })
 
   /** Function distribution. See `AsyncCallback.liftTraverse(f).id` for the dual. */
   def distFn[B, C](implicit ev: AsyncCallback[A] <:< AsyncCallback[B => C]): B => AsyncCallback[C] = {
