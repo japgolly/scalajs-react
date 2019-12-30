@@ -37,6 +37,10 @@ object AsyncCallback {
       f(ea => Callback.when(first)(Callback{first = false} >> g(ea)))
     }.flatten)
 
+  /** AsyncCallback that never completes. */
+  def never[A]: AsyncCallback[A] =
+    apply(_ => Callback.empty)
+
   def point[A](a: => A): AsyncCallback[A] =
     AsyncCallback(_(catchAll(a)))
 
