@@ -53,6 +53,9 @@ object AsyncCallback {
   def const[A](t: Try[A]): AsyncCallback[A] =
     AsyncCallback(_(t))
 
+  val unit: AsyncCallback[Unit] =
+    pure(())
+
   /** Callback that isn't created until the first time it is used, after which it is reused. */
   def lazily[A](f: => AsyncCallback[A]): AsyncCallback[A] = {
     lazy val g = f
