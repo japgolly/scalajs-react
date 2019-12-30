@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.test
 
-import org.scalajs.dom.document
+import org.scalajs.dom.{console, document}
 import org.scalajs.dom.html.Element
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
@@ -150,6 +150,32 @@ object ReactTestUtils {
 
   // ===================================================================================================================
   // Render into document
+
+  def newDocumentElement(): Element = {
+    document.createElement("div").domAsHtml
+  }
+
+  def removeNewDocumentElement(e: Element): Unit = {
+    try {
+      // This DOM is detached so the best we can do (for memory) is remove its children
+      while (e.hasChildNodes()) {
+        val c = e.childNodes(0)
+        ReactDOM unmountComponentAtNode c // Doesn't matter if no component mounted here
+        e.removeChild(c)
+      }
+    } catch {
+      case t: Throwable =>
+        console.warn(s"Failed to unmount newDocumentElement: $t")
+    }
+  }
+
+  def withNewDocumentElement[A](use: Element => A): A = {
+    val e = newDocumentElement()
+    try
+      use(e)
+    finally
+      removeNewDocumentElement(e)
+  }
 
   /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
     * then unmounts and cleans up after use.
