@@ -42,7 +42,7 @@ object AsyncCallback {
     apply(_ => Callback.empty)
 
   def point[A](a: => A): AsyncCallback[A] =
-    AsyncCallback(_(catchAll(a)))
+    AsyncCallback(f => CallbackTo(catchAll(a)).flatMap(f))
 
   def pure[A](a: A): AsyncCallback[A] =
     const(Success(a))
