@@ -663,7 +663,7 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     * `this.async.toCallback` will never throw an exception.
     */
   def async: AsyncCallback[A] =
-    delayMs(0)
+    delayMs(1)
 
   /** Run asynchronously after a delay of a given duration. */
   def delay(startIn: FiniteDuration): AsyncCallback[A] =
