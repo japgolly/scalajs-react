@@ -206,6 +206,11 @@ object ReactTestUtils {
       ReactDOM unmountComponentAtNode n(a).parentNode
   }
 
+  def withNewDocumentElementFuture[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] = {
+    val e = newDocumentElement()
+    attemptFuture(use(e)).andThen { case _ => removeNewDocumentElement(e) }
+  }
+
   /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
     * and asynchronously waits for the Future to complete before unmounting.
     */
