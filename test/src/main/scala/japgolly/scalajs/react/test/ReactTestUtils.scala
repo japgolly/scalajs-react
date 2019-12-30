@@ -95,8 +95,13 @@ object ReactTestUtils {
   }
 
   def removeNewBodyElement(e: Element): Unit = {
-    ReactDOM unmountComponentAtNode e // Doesn't matter if no component mounted here
-    document.body.removeChild(e)
+    try {
+      ReactDOM unmountComponentAtNode e // Doesn't matter if no component mounted here
+      document.body.removeChild(e)
+    } catch {
+      case t: Throwable =>
+        console.warn(s"Failed to unmount newBodyElement: $t")
+    }
   }
 
   def withNewBodyElement[A](use: Element => A): A = {
