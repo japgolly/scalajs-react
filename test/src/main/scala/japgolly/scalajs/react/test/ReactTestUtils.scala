@@ -77,6 +77,16 @@ object ReactTestUtils {
     wrapMO(raw.findRenderedComponentWithType(tree.raw, c.raw))
 
   // ===================================================================================================================
+  // Private helpers
+
+  private def mountedElement(m: RawReact.ComponentUntyped) =
+    ReactDOM.findDOMNode(m).get.asElement()
+
+  private def attemptFuture[A](f: => Future[A]): Future[A] =
+    try f catch { case err: Exception => Future.failed(err) }
+
+  // ===================================================================================================================
+  // Render into body
 
   def newBodyElement(): Element = {
     val cont = document.createElement("div").domAsHtml
@@ -95,32 +105,6 @@ object ReactTestUtils {
       use(e)
     finally
       removeNewBodyElement(e)
-  }
-
-  private def mountedElement(m: RawReact.ComponentUntyped) =
-    ReactDOM.findDOMNode(m).get.asElement
-
-  /** Renders a component then unmounts and cleans up after use.
-    *
-    * @param intoBody Whether to use [[renderIntoBody()]] or [[ReactTestUtils.renderIntoDocument()]].
-    */
-  def withRendered[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => A): A =
-    if (intoBody)
-      withRenderedIntoBody(u)(f)
-    else
-      withRenderedIntoDocument(u)(f)
-
-  /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
-    * then unmounts and cleans up after use.
-    */
-  def withRenderedIntoDocument[M, A](u: Unmounted[M])(f: M => A): A =
-    _withRenderedIntoDocument(raw.renderIntoDocument(u.raw))(mountedElement, f compose u.mountRaw)
-
-  private def _withRenderedIntoDocument[A, B](a: A)(n: A => TopNode, use: A => B): B = {
-    try
-      use(a)
-    finally
-      ReactDOM unmountComponentAtNode n(a).parentNode
   }
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
@@ -147,34 +131,10 @@ object ReactTestUtils {
         ReactDOM unmountComponentAtNode n(a).parentNode
     }
 
-  // -------------------------------------------------------------------------------------------------------------------
-
-  private def attemptFuture[A](f: => Future[A]): Future[A] =
-    try f catch { case err: Exception => Future.failed(err) }
-
   def withNewBodyElementAsync[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     val e = newBodyElement()
     attemptFuture(use(e)).andThen { case _ => removeNewBodyElement(e) }
   }
-
-  /** Renders a component then unmounts and cleans up after use.
-    *
-    * @param intoBody Whether to use [[renderIntoBodyAsync()]] or [[renderIntoDocumentAsync()]].
-    */
-  def withRenderedAsync[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    if (intoBody)
-      withRenderedIntoBodyAsync(u)(f)
-    else
-      withRenderedIntoDocumentAsync(u)(f)
-
-  /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
-    * and asynchronously waits for the Future to complete before unmounting.
-    */
-  def withRenderedIntoDocumentAsync[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    _withRenderedIntoDocumentAsync(raw.renderIntoDocument(u.raw))(mountedElement, f compose u.mountRaw)
-
-  private def _withRenderedIntoDocumentAsync[A, B](a: A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] =
-    attemptFuture(use(a)).andThen { case _ => ReactDOM unmountComponentAtNode n(a).parentNode }
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * and asynchronously waits for the Future to complete before unmounting.
@@ -187,6 +147,54 @@ object ReactTestUtils {
       val a = render(parent)
       attemptFuture(use(a)).andThen { case _ => ReactDOM unmountComponentAtNode n(a).parentNode }
     }
+
+  // ===================================================================================================================
+  // Render into document
+
+  /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
+    * then unmounts and cleans up after use.
+    */
+  def withRenderedIntoDocument[M, A](u: Unmounted[M])(f: M => A): A =
+    _withRenderedIntoDocument(raw.renderIntoDocument(u.raw))(mountedElement, f compose u.mountRaw)
+
+  private def _withRenderedIntoDocument[A, B](a: A)(n: A => TopNode, use: A => B): B = {
+    try
+      use(a)
+    finally
+      ReactDOM unmountComponentAtNode n(a).parentNode
+  }
+
+  /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
+    * and asynchronously waits for the Future to complete before unmounting.
+    */
+  def withRenderedIntoDocumentAsync[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
+    _withRenderedIntoDocumentAsync(raw.renderIntoDocument(u.raw))(mountedElement, f compose u.mountRaw)
+
+  private def _withRenderedIntoDocumentAsync[A, B](a: A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] =
+    attemptFuture(use(a)).andThen { case _ => ReactDOM unmountComponentAtNode n(a).parentNode }
+
+  // ===================================================================================================================
+  // Render into body/document
+
+  /** Renders a component then unmounts and cleans up after use.
+    *
+    * @param intoBody Whether to use [[renderIntoBody()]] or [[ReactTestUtils.renderIntoDocument()]].
+    */
+  def withRendered[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => A): A =
+    if (intoBody)
+      withRenderedIntoBody(u)(f)
+    else
+      withRenderedIntoDocument(u)(f)
+
+  /** Renders a component then unmounts and cleans up after use.
+    *
+    * @param intoBody Whether to use [[renderIntoBodyAsync()]] or [[renderIntoDocumentAsync()]].
+    */
+  def withRenderedAsync[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
+    if (intoBody)
+      withRenderedIntoBodyAsync(u)(f)
+    else
+      withRenderedIntoDocumentAsync(u)(f)
 
   // ===================================================================================================================
 
