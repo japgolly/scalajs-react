@@ -37,8 +37,12 @@ object AsyncCallback {
       f(ea => Callback.when(first)(Callback{first = false} >> g(ea)))
     }.flatten)
 
+  /** AsyncCallback that never completes. */
+  def never[A]: AsyncCallback[A] =
+    apply(_ => Callback.empty)
+
   def point[A](a: => A): AsyncCallback[A] =
-    AsyncCallback(_(catchAll(a)))
+    AsyncCallback(f => CallbackTo(catchAll(a)).flatMap(f))
 
   def pure[A](a: A): AsyncCallback[A] =
     const(Success(a))
@@ -48,6 +52,9 @@ object AsyncCallback {
 
   def const[A](t: Try[A]): AsyncCallback[A] =
     AsyncCallback(_(t))
+
+  val unit: AsyncCallback[Unit] =
+    pure(())
 
   /** Callback that isn't created until the first time it is used, after which it is reused. */
   def lazily[A](f: => AsyncCallback[A]): AsyncCallback[A] = {
@@ -390,11 +397,23 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     delayMs(dur.toMillis.toDouble)
 
   def delayMs(milliseconds: Double): AsyncCallback[A] =
-    AsyncCallback(f => Callback {
-      setTimeout(milliseconds) {
-        completeWith(f).runNow()
-      }
-    })
+    if (milliseconds <= 0)
+      this
+    else
+      AsyncCallback(f => Callback {
+        setTimeout(milliseconds) {
+          completeWith(f).runNow()
+        }
+      })
+
+  /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+    * current callback completes, be it in error or success.
+    */
+  def finallyRun[B](runFinally: AsyncCallback[B]): AsyncCallback[A] =
+    attempt.flatMap {
+      case Right(a) => runFinally.ret(a)
+      case Left(e)  => runFinally.attempt >> AsyncCallback.throwException(e)
+    }
 
   /** Function distribution. See `AsyncCallback.liftTraverse(f).id` for the dual. */
   def distFn[B, C](implicit ev: AsyncCallback[A] <:< AsyncCallback[B => C]): B => AsyncCallback[C] = {

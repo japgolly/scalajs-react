@@ -74,17 +74,20 @@ object DslTest extends TestSuite {
       import StaticDsl.Route
       import noPageDsl._
 
-      def test[A: Equal](r: Route[A])(toStr: A => String, good: A*)(bad: String*): Unit =
-        testM(r)(good.map(a => (toStr(a), a)): _*)(bad: _*)
+      def test[A: Equal](r: Route[A])(toPath: A => String, good: A*)(bad: String*): Unit =
+        testM(r)(good.map(a => (toPath(a), a)): _*)(bad: _*)
+
+      def testOk[A: Equal](r: Route[A])(path: String, a: A, rebuild: String = null): Unit = {
+        val p = Path(path)
+        assertEq(s"Parse good $p with $r", r parse p, Some(a))
+        assertEq(s"Path for ($a) with $r", r pathFor a, Option(rebuild).fold(p)(Path(_)))
+      }
 
       def testM[A: Equal](r: Route[A])(good: (String, A)*)(bad: String*): Unit = {
         for (p <- bad)
           assertEq(s"Parse bad Path($p) with $r", r parse Path(p), None)
-        for ((s, a) <- good) {
-          val p = Path(s)
-          assertEq(s"Parse good $p with $r", r parse p, Some(a))
-          assertEq(s"Path for ($a) with $r", r pathFor a, p)
-        }
+        for ((s, a) <- good)
+          testOk(r)(s, a)
       }
 
       def testS[A: Equal](r: Route[A])(good: A*)(bad: String*): Unit =
@@ -213,6 +216,24 @@ object DslTest extends TestSuite {
           assertEq(r parse Path("data"),    Some("xz"))
           assertEq(r pathFor "xz", Path("data"))
         }
+      }
+
+      "queryToMap" - {
+        val q = queryToMap
+        testM(q)(
+          "" -> Map.empty,
+          "?a" -> Map("a" -> ""),
+          "?a=123" -> Map("a" -> "123"),
+          "?a&b" -> Map("a" -> "", "b" -> ""),
+          "?a=123&b=456" -> Map("a" -> "123", "b" -> "456"),
+          "?a=%26&b+b=4+5+6" -> Map("a" -> "&", "b b" -> "4 5 6"),
+          "?%28a%29=%21%27" -> Map("(a)" -> "!'"),
+        )()
+        testOk(q)("?", Map.empty, "")
+        testOk(q)("?a=", Map("a" -> ""), "?a")
+        testOk(q)("?a=%20", Map("a" -> " "), "?a=+")
+        testOk(q)("?a=&b=", Map("a" -> "", "b" -> ""), "?a&b")
+        testOk(q)("?%50", Map("P" -> ""), "?P")
       }
     }
 

@@ -70,6 +70,23 @@ object AsyncCallbackTest extends TestSuite {
         r2 ==> 123
         r3 ==> 666
       }
+
+      "toCallback purity" - {
+
+        def test(f: (=> Unit) => AsyncCallback[Unit]): Unit = {
+          var runs = 0
+          val a = f{ runs += 1 }
+          runs ==> 0
+          val c = a.toCallback
+          runs ==> 0
+          c.runNow()
+          runs ==> 1
+          c.runNow()
+          runs ==> 2
+        }
+
+        "point" - test(AsyncCallback.point(_))
+      }
     }
 
   }

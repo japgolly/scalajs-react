@@ -2,8 +2,10 @@ package japgolly.scalajs.react.extra.router
 
 import java.util.UUID
 import java.util.regex.{Pattern, Matcher}
+import org.scalajs.dom.window.console
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
+import scala.scalajs.js.URIUtils._
 import japgolly.scalajs.react.CallbackTo
 import japgolly.scalajs.react.extra.internal.RouterMacros
 import japgolly.scalajs.react.internal.identityFn
@@ -435,6 +437,74 @@ final class RouterConfigDsl[Page] {
       val m = r.matcher(p.value)
       if (m.matches) f(m) else None
     }
+
+  /** Captures the query portion of the URL to a param map.
+    *
+    * Note that this is not a strict capture, URLs without a query string will still be accepted,
+    * and the parameter map will simply by empty.
+    */
+  lazy val queryToMap: RouteB[Map[String, String]] = {
+    type A = Map[String, String]
+
+    val queryRegex = """(\?[^#]*)?"""
+
+    val kvRegex = "^([^=]+)(?:=(.*))?$".r
+
+    def decode(str: String): String =
+      decodeURIComponent(str.replace('+', ' '))
+
+    val needingEncoding = """[~!'()]|%[02]0""".r
+
+    def encode(str: String): String =
+      needingEncoding.replaceAllIn(encodeURIComponent(str), m =>
+        m.group(0) match {
+          case "%20" => "+"
+          case "!"   => "%21"
+          case "'"   => "%27"
+          case "("   => "%28"
+          case ")"   => "%29"
+          case "~"   => "%7E"
+          case "%00" => (0: Char).toString
+        }
+      )
+
+
+    val parse: (Int => String) => Option[A] =
+      _(0) match {
+        case null => Some(Map.empty)
+        case q =>
+          q
+            .tail
+            .split("&")
+            .iterator
+            .filter(_.nonEmpty)
+            .map {
+              case kvRegex(k, null) => Some(decode(k) -> "")
+              case kvRegex(k, v)    => Some(decode(k) -> decode(v))
+              case x =>
+                console.warn(s"Unable to parse query string pair: $x")
+                None
+            }
+            .foldLeft(Option(Map.empty: A)) {
+              case (Some(m), Some(kv)) => Some(m + kv)
+              case _                   => None
+            }
+      }
+
+    val build: A => String =
+      m =>
+        if (m.isEmpty)
+          ""
+        else
+          m.iterator
+            .map {
+              case (k, "") => encode(k)
+              case (k, v)  => s"${encode(k)}=${encode(v)}"
+            }
+            .mkString("?", "&", "")
+
+    new RouteB[Map[String, String]](queryRegex, 1, parse, build)
+  }
 
   // -------------------------------------------------------------------------------------------------------------------
   // Utilities
