@@ -73,20 +73,27 @@ case class RouterConfig[Page](rules       : RoutingRules[Page],
 
   @elidable(elidable.ASSERTION)
   private def _verify(page1: Page, pages: Page*): RouterConfig[Page] = {
-    val errors = detectErrors(page1 +: pages: _*)
+    val errors = detectErrors(page1 +: pages: _*).runNow()
     if (errors.isEmpty)
       this
     else {
       import japgolly.scalajs.react.vdom.html_<^._
+      import StaticOrDynamic.Helpers.static
       val es = errors.sorted.map(e => s"\n  - $e") mkString ""
       val msg = s"${errors.size} RouterConfig errors detected:$es"
       dom.console.error(msg)
+
       val el: VdomElement =
         <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
+
       val newRules = RoutingRules[Page](
-        _ => CallbackTo pure Right(page1),
-        _ => Path.root,
-        (_, _) => CallbackTo pure Renderer(_ => el))
+        parseMulti     = _ => static[Option[RouterConfig.Parsed[Page]]](Some(Right(page1))) :: Nil,
+        path           = _ => Path.root,
+        actionMulti    = (_, _) => Nil,
+        fallbackAction = (_, _) => Renderer(_ => el),
+        whenNotFound   = _ => CallbackTo.pure(Right(page1)),
+      )
+
       RouterConfig.withDefaults(newRules)
     }
   }
@@ -98,41 +105,57 @@ case class RouterConfig[Page](rules       : RoutingRules[Page],
     *
     * @return Error messages (or an empty collection if no errors are detected).
     */
-  def detectErrors(pages: Page*): Vector[String] =
-    Option(_detectErrors(pages: _*)) getOrElse Vector.empty
+  def detectErrors(pages: Page*): CallbackTo[Vector[String]] =
+    Option(_detectErrors(pages: _*)) getOrElse CallbackTo.pure(Vector.empty)
 
   @elidable(elidable.ASSERTION)
-  private def _detectErrors(pages: Page*): Vector[String] = {
+  private def _detectErrors(pages: Page*): CallbackTo[Vector[String]] = CallbackTo {
+    import RoutingRules.SharedLogic._
+
     var errors = Vector.empty[String]
-    var paths = Set.empty[Path]
 
-    // page -> path
-    for (page <- pages)
+    for (page <- pages) {
+      def fail(msg: String): Unit =
+        errors :+= s"Routing config failure at page $page: $msg"
+
+      // page -> path
       Try(rules.path(page)) match {
-        case Success(p) => paths += p
-        case Failure(f) => errors :+= s"Runtime exception occurred generating path for page $page: ${f.getMessage}"
+        case Failure(f) =>
+          fail(s"Runtime exception occurred generating path: ${f.getMessage}")
+
+        case Success(path) =>
+
+          // path -> page
+          rules.parse(path).attemptTry.runNow() match {
+            case Success(Right(q)) =>
+              if (q != page) errors :+= s"Parsing its path /${path.value} leads to a different page: $q"
+
+            case Success(Left(r)) =>
+              val to: String = r match {
+                case RedirectToPage(page, _) => s"page $page"
+                case RedirectToPath(path, _) => s"path /${path.value}"
+              }
+              fail(s"Parsing its path /${path.value} leads to a redirect to $to. Cannot verify that this is intended and not a 404.")
+
+            case Failure(f: RoutingRules.Exception) =>
+              fail(f.getMessage)
+
+            case Failure(f) =>
+              fail(s"Runtime exception occurred parsing path /${path.value}: ${f.getMessage}")
+          }
+
+          // page -> action
+          rules.action(path, page).attemptTry.runNow() match {
+            case Success(_) => ()
+
+            case Failure(f: RoutingRules.Exception) =>
+              fail(f.getMessage)
+
+            case Failure(f) =>
+              fail(s"Runtime exception occurred generating action for path /${path.value}: ${f.getMessage}")
+          }
       }
-
-    for (path <- paths) {
-
-      rules.parse(path)
-
-
     }
-
-//          // path -> page
-//          rules.parse(path).runNow() match {
-//            case Left(r)  => error(s"Parsing its path $path leads to a redirect. Cannot verify that this is intended and not a 404.")
-//            case Right(q) => if (q != page) error(s"Parsing its path $path leads to a different page: $q")
-//          }
-//
-//          // page -> action
-//          Try(rules.action(path, page)) match {
-//            case Failure(f) => error(s"Action missing. ${f.getMessage}")
-//            case Success(a) => ()
-//          }
-//      }
-//    }
 
     errors
   }

@@ -197,16 +197,21 @@ object Router2Test extends TestSuite {
     }
 
     "detectErrors" - {
-      var es = config.detectErrors(PublicHome, PrivatePage1, PrivatePage2, UserProfilePage(1))
+      var es = config.detectErrors(PublicHome).runNow()
       assertEq(es, Vector.empty)
-      es = config.detectErrors(SomethingElse)
+
+      isUserLoggedIn = true
+      es = config.detectErrors(PublicHome, PrivatePage1, PrivatePage2, UserProfilePage(1)).runNow()
+      assertEq(es, Vector.empty)
+
+      es = config.detectErrors(SomethingElse).runNow()
       assert(es.nonEmpty)
     }
 
     "routesPerNestedPageType" - {
       assertEq("E1", ctl.pathFor(E(E1)).value, "e/1")
       assertEq("E2", ctl.pathFor(E(E2)).value, "e/2")
-      val es = config.detectErrors(E(E1), E(E2))
+      val es = config.detectErrors(E(E1), E(E2)).runNow()
       assertEq(es, Vector.empty)
     }
 
@@ -215,7 +220,7 @@ object Router2Test extends TestSuite {
 
     "nestedModule" - {
       "detectErrors" - {
-        val es = config.detectErrors(NestedModule(ModuleRoot), NestedModule(Module1), NestedModule(Module2(666)))
+        val es = config.detectErrors(NestedModule(ModuleRoot), NestedModule(Module1), NestedModule(Module2(666))).runNow()
         assertEq(es, Vector.empty)
       }
       "origPathNotAvail" - {
