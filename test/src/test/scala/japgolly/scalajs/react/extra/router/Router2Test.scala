@@ -100,7 +100,7 @@ object Router2Test extends TestSuite {
         | staticRoute("private-1", PrivatePage1) ~> render(<.h1("Private #1"))
         | staticRoute("private-2", PrivatePage2) ~> render(<.h1("Private #2: ", secret))
         )
-        .addCondition(CallbackTo(isUserLoggedIn))(page => redirectToPage(PublicHome)(Redirect.Push))
+        .addCondition(CallbackTo(isUserLoggedIn))(_ => redirectToPage(PublicHome)(SetRouteVia.HistoryPush))
 
       val ePages = (emptyRule
         | staticRoute("e/1", E(E1)) ~> render(renderE(E(E1)))
@@ -120,7 +120,7 @@ object Router2Test extends TestSuite {
       | code1
       | privatePages // Keep this in between code1 & code2. It tests .addCondition wrt prisms.
       | code2.autoCorrect
-      ) .notFound(redirectToPage(if (isUserLoggedIn) PublicHome else PrivatePage1)(Redirect.Replace))
+      ) .notFoundDynamic(_ => CallbackTo(redirectToPage(if (isUserLoggedIn) PrivatePage1 else PublicHome)(SetRouteVia.HistoryReplace)))
         .renderWith((ctl, res) =>
           <.div(
             nav(NavProps(res.page, ctl)),
@@ -143,20 +143,21 @@ object Router2Test extends TestSuite {
     val sim = SimHistory(base.abs)
     val r = ReactTestUtils.renderIntoDocument(router())
     def html = r.getDOMNode.asMounted().asElement().outerHTML
-    def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.parse(_).right.toOption)
+    def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.rules.parse(_).runNow().right.toOption)
     isUserLoggedIn = false
 
     def syncNoRedirect(path: Path) = {
       sim.reset(path.abs)
-      val r = sim.run(lgc syncToPath path)
-      assertEq(sim.history, path.abs :: Nil)
+      val c = lgc.syncToPath(path).runNow()
+      val r = sim.run(c)
+      assertEq("history (latest <-> oldest)", sim.history, path.abs :: Nil)
       r
     }
 
     def assertSyncRedirects(path: Path, expectTo: Path) = {
       sim.reset(path.abs)
-      val r = sim.run(lgc syncToPath path)
-      assertEq(sim.currentUrl, expectTo.abs)
+      val r = sim.run(lgc.syncToPath(path).runNow())
+      assertEq("currentUrl", sim.currentUrl, expectTo.abs)
       r
     }
 
@@ -180,7 +181,7 @@ object Router2Test extends TestSuite {
     }
 
     "notFoundLazyRedirect" - {
-      def r = sim.run(lgc syncToPath Path("what"))
+      def r = sim.run(lgc.syncToPath(Path("what")).runNow())
       assertEq(r.page,  PublicHome)
       isUserLoggedIn = true
       assertEq(r.page,  PrivatePage1)
@@ -196,16 +197,21 @@ object Router2Test extends TestSuite {
     }
 
     "detectErrors" - {
-      var es = config.detectErrors(PublicHome, PrivatePage1, PrivatePage2, UserProfilePage(1))
+      var es = config.detectErrors(PublicHome).runNow()
       assertEq(es, Vector.empty)
-      es = config.detectErrors(SomethingElse)
+
+      isUserLoggedIn = true
+      es = config.detectErrors(PublicHome, PrivatePage1, PrivatePage2, UserProfilePage(1)).runNow()
+      assertEq(es, Vector.empty)
+
+      es = config.detectErrors(SomethingElse).runNow()
       assert(es.nonEmpty)
     }
 
     "routesPerNestedPageType" - {
       assertEq("E1", ctl.pathFor(E(E1)).value, "e/1")
       assertEq("E2", ctl.pathFor(E(E2)).value, "e/2")
-      val es = config.detectErrors(E(E1), E(E2))
+      val es = config.detectErrors(E(E1), E(E2)).runNow()
       assertEq(es, Vector.empty)
     }
 
@@ -214,11 +220,11 @@ object Router2Test extends TestSuite {
 
     "nestedModule" - {
       "detectErrors" - {
-        val es = config.detectErrors(NestedModule(ModuleRoot), NestedModule(Module1), NestedModule(Module2(666)))
+        val es = config.detectErrors(NestedModule(ModuleRoot), NestedModule(Module1), NestedModule(Module2(666))).runNow()
         assertEq(es, Vector.empty)
       }
       "origPathNotAvail" - {
-        val r = sim.run(lgc syncToPath Path("one"))
+        val r = sim.run(lgc.syncToPath(Path("one")).runNow())
         assertEq(r.page,  PublicHome)
         assertEq(sim.currentUrl, Path.root.abs)
       }

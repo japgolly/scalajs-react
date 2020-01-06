@@ -35,6 +35,7 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.4.2"
 
 Features
 ========
+
 * Type-safety.
   * Use your own types to uniquely identify routes and their parameters.
   * Link URLs are guaranteed to be valid.
@@ -96,6 +97,7 @@ Creating a `RouterConfig`
 =========================
 
 First, you'll want to create a data representation of your pages. For example:
+
 ```scala
 sealed trait MyPages
 case object Home                      extends MyPages
@@ -105,6 +107,7 @@ case class ProductInfo(id: ProductId) extends MyPages
 ```
 
 Next, you'll want to call `RouterConfigDsl.buildConfig` and use the provided DSL.
+
 ```scala
 import japgolly.scalajs.react.extra.router._
 
@@ -204,6 +207,7 @@ and is automatically converted to a finalised `Route` when used.
   * `.const(A)` changes a `RouteB[Unit]` into a `RouteB[A]` by assigning a constant value (not used in route parsing or generation).
 
 Examples:
+
 ```scala
 // Static routes
 val r: Route[Unit] = root
@@ -261,6 +265,7 @@ Syntax:
 | `dynamicRedirect` | `[A](Route[A])` | A dynamic path not associated with a page. Any `A` extracted by the route may then be used to determine the redirect target. |
 
 Example: This creates a route in the format of `item/<id>`.
+
 ```scala
 case class ItemPage(id: Int) extends MyPage
 
@@ -287,6 +292,7 @@ Once `.notFound()` is called you will have a `RouterConfig`.
 Rules can no longer be added, but different (optional) configuration becomes available.
 
 **Example:**
+
 ```scala
 val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
   import dsl._
@@ -298,6 +304,7 @@ val routerConfig = RouterConfigDsl[Page].buildConfig { dsl =>
   ) .notFound(redirectToPage(Home)(Redirect.Replace))
 }
 ```
+
 (The use of `emptyRule` is just for nice formatting.)
 
 If you'd like to see what's happening, you can call `.logToConsole` on your config and to have the routing engine log what it does to the JS console. Add it anytime between `.notFound()` and its use in creating a `Router`.
@@ -308,6 +315,7 @@ A tradeoff in safety has been made to purchase many new features in the redesign
 Namely, it's possible to accidently forget a route for a page type.
 
 Consider this example:
+
 ```scala
 sealed trait MyPages
 case object Page1                     extends MyPages
@@ -334,6 +342,7 @@ If any errors are detected they are displayed both on screen and in the console.
 There is also a `detectErrors` method which is more appropriate for unit-testing.
 
 Amending the above example, we get:
+
 ```scala
 val config = RouterConfigDsl[MyPages].buildConfig { dsl =>
   import dsl._
@@ -400,6 +409,7 @@ They can be composed with other rules via `|` as usual.
 | `rewritePathR` | `Pattern, Matcher => Option[Redirect]` | Match a `Path` against regex and if it matches, use the match result to optionally redirect. |
 
 Example: This would remove leading dots.
+
 ```scala
 rewritePathR("^\\.+(.*)$".r, m => Some(redirectToPath(m group 1)(Redirect.Replace)))
 ```
@@ -419,6 +429,7 @@ There are cases in which you may want to create a route that
 ##### Example scenario
 
 You may be creating an issue tracker that has URLs for each ticket like:
+
 ```
 /issue/DEV-4
 /issue/DEV-42
@@ -426,6 +437,7 @@ You may be creating an issue tracker that has URLs for each ticket like:
 ```
 
 You also want to accept imperfections such as:
+
 ```
 /issue/DEV-004
 /issue/DEV42
@@ -433,6 +445,7 @@ You also want to accept imperfections such as:
 ```
 
 When an imperfect URL is parsed you want to auto-correct it like:
+
 ```
 /issue/DEV-004     → /issue/DEV-4
 /issue/DEV42       → /issue/DEV-42
@@ -499,6 +512,21 @@ val cfg = RouterConfigDsl[Page].buildConfig { dsl =>
 When you have a `Rule`, you can call `addCondition` on it to evaluate a condition every time it is used.
 When the condition is met, the route is usable; when unmet, a fallback behaviour can be actioned or the router can continue processing other rules as if the conditional one didn't exist.
 
+When using conditional routes, it's important to understand some details and take care:
+
+* conditional routes are selected over unconditional routes.
+  e.g. you can have two routes at path `/`, one for logged in users (i.e. conditional) and one for public access (i.e. unconditional);
+  in which case the conditional route has first priority with the unconditonal route being the fallback.
+
+* conditional routes must be unambiguous and not conflict.
+  eg. if you have route A with condition A, and route B with condition B, both at the same path;
+  the conditions must be disjoint. If conditions A and B are ever true at the same time, it will result in a runtime exception (yuk).
+
+* because of the chance of runtime exceptions, it's more important to test your routing config.
+  There is a `.verify(pages*)` method on `RouterCfg`s that you can use.
+  I suggest writing a unit test in which you modify state to create all possible route conditions, and when in each condition call `.verify` with the relevant pages.
+  It's a good idea to do this even with unconditional routes, it's just even more important with conditions.
+
 ```scala
 /**
  * Prevent this rule from functioning unless some condition holds.
@@ -512,6 +540,7 @@ def addCondition(cond: CallbackTo[Boolean])(condUnmet: Page => Option[Action[Pag
 ```
 
 Example:
+
 ```scala
 def grantPrivateAccess: CallbackB =
   ???
@@ -603,6 +632,7 @@ Routes can be created and used as modules. This is how:
 2. Have components that need a `RouterCtl` use a `RouterCtl[InnerPage]` as normal - this will continue to work correctly regardless of whether `InnerPage` is nested or not.
 
 ##### Nesting
+
 All of this happens in the method in which you build your `RouterConfig[OuterPage]`.
 
 1. Call one of the `pmap` methods ([prism](https://github.com/julien-truffaut/Monocle/blob/master/core/src/main/scala/monocle/Prism.scala)-map) on the `InnerPage` rule in order to bridge the inner & outer page types.

@@ -13,9 +13,25 @@ package object router {
     def | (g: A => B)        : A => B         = a => f(a) getOrElse g(a)
   }
 
+  private[router] implicit class CallbackToOptionFnExt[A, B](private val f: A => CallbackTo[Option[B]]) extends AnyVal {
+    def ||(g: A => CallbackTo[Option[B]]): A => CallbackTo[Option[B]] =
+      a => f(a).flatMap {
+        case s@ Some(_) => CallbackTo.pure(s)
+        case None       => g(a)
+      }
+  }
+
   private[router] implicit class OptionFn2Ext[A, B, C](private val f: (A, B) => Option[C]) extends AnyVal {
     def ||(g: (A, B) => Option[C]): (A, B) => Option[C] = (a, b) => f(a, b) orElse g(a, b)
     def | (g: (A, B) => C)        : (A, B) => C         = (a, b) => f(a, b) getOrElse g(a, b)
+  }
+
+  private[router] implicit class CallbackToOptionFn2Ext[A, B, C](private val f: (A, B) => CallbackTo[Option[C]]) extends AnyVal {
+    def ||(g: (A, B) => CallbackTo[Option[C]]): (A, B) => CallbackTo[Option[C]] =
+      (a, b) => f(a, b).flatMap {
+        case s@ Some(_) => CallbackTo.pure(s)
+        case None       => g(a, b)
+      }
   }
 
   private[router] implicit class SaneEitherMethods[A, B](private val e: Either[A, B]) extends AnyVal {
