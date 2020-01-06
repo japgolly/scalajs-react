@@ -7,7 +7,8 @@ import scala.reflect.ClassTag
 /** A single routing rule. Intended to be composed with other [[RoutingRule]]s.
   * When all rules are composed, this is turned into a [[RoutingRule.WithFallback]] instance.
   *
-  * @tparam Page  The type of legal pages.
+  * @tparam Page The type of legal pages. Most commonly, a sealed trait that you've created, where all subclasses
+  *              represent a page in your SPA.
   */
 sealed trait RoutingRule[Page] {
 
@@ -121,9 +122,9 @@ object RoutingRule {
     * @param path   Attempt to determine the path for some page.
     * @param action Attempt to determine the action when a route resolves to some page.
     */
-  final case class Atom[Page](parse        : Path         => Option[Parsed[Page]],
-                              path         : Page         => Option[Path],
-                              action       : (Path, Page) => Option[Action[Page]]) extends RoutingRule[Page] {
+  final case class Atom[Page](parse : Path         => Option[Parsed[Page]],
+                              path  : Page         => Option[Path],
+                              action: (Path, Page) => Option[Action[Page]]) extends RoutingRule[Page] {
 
     override def xmap[A](f: Page => A)(g: A => Page): RoutingRule[A] =
       Atom[A](
@@ -242,14 +243,5 @@ object RoutingRule {
       RouterConfig.withDefaults(rules)
     }
   }
-
-  //    /** Create routing rules all at once, with compiler proof that all `Page`s will have a `Path` and `Action`
-  //      * associated.
-  //      *
-  //      * The trade-off here is that care will need to be taken to ensure that path-parsing aligns with paths
-  //      * generated for pages. It is recommended that you call [[RouterConfig.verify]] as a sanity-check.
-  //      */
-  //    def apply[Page](toPage: Path => Option[Parsed[Page]], fromPage: Page => (Path, Action[Page])) =
-  //      new Rules[Page](toPage, fromPage(_)._1, (_, p) => fromPage(p)._2)
 
 }

@@ -57,11 +57,17 @@ case class RouterConfig[Page](rules       : RoutingRules[Page],
     onPostRender((_, page) =>
       f(page).fold(Callback.empty)(title => Callback(dom.document.title = title)))
 
-  /**
-   * Verify that the page arguments provided, don't encounter any route config errors.
-   *
-   * Note: Requires that `Page#equals()` be sensible.
-   */
+  /** Asserts that the page arguments provided, don't encounter any route config errors.
+    *
+    * If any errors are detected, the Router will be replaced with a new dummy router that displays the error messages.
+    *
+    * If you want direct, programmatic access to the errors themselves, use [[detectErrors()]] instead.
+    *
+    * Note: Requires that `Page#equals()` be sensible.
+    * Note: If `elidable.ASSERTION` is elided, this always returns `this`.
+    *
+    * @return In the event that errors are detected, a new [[RouterConfig]] that displays them; else this unmodified.
+    */
   def verify(page1: Page, pages: Page*): RouterConfig[Page] =
     Option(_verify(page1, pages: _*)) getOrElse this
 
@@ -85,38 +91,49 @@ case class RouterConfig[Page](rules       : RoutingRules[Page],
     }
   }
 
-  /**
-   * Check specified pages for possible route config errors.
-   *
-   * Note: Requires that `Page#equals()` be sensible.
-   */
+  /** Check specified pages for possible route config errors, and returns any detected.
+    *
+    * Note: Requires that `Page#equals()` be sensible.
+    * Note: If `elidable.ASSERTION` is elided, this always returns an empty collection.
+    *
+    * @return Error messages (or an empty collection if no errors are detected).
+    */
   def detectErrors(pages: Page*): Vector[String] =
     Option(_detectErrors(pages: _*)) getOrElse Vector.empty
 
   @elidable(elidable.ASSERTION)
   private def _detectErrors(pages: Page*): Vector[String] = {
     var errors = Vector.empty[String]
-    for (page <- pages) {
-      def error(msg: String): Unit = errors :+= s"Page $page: $msg"
+    var paths = Set.empty[Path]
 
-      // page -> path
+    // page -> path
+    for (page <- pages)
       Try(rules.path(page)) match {
-        case Failure(f) => error(s"Path missing. ${f.getMessage}")
-        case Success(path) =>
-
-          // path -> page
-          rules.parse(path).runNow() match {
-            case Left(r)  => error(s"Parsing its path $path leads to a redirect. Cannot verify that this is intended and not a 404.")
-            case Right(q) => if (q != page) error(s"Parsing its path $path leads to a different page: $q")
-          }
-
-          // page -> action
-          Try(rules.action(path, page)) match {
-            case Failure(f) => error(s"Action missing. ${f.getMessage}")
-            case Success(a) => ()
-          }
+        case Success(p) => paths += p
+        case Failure(f) => errors :+= s"Runtime exception occurred generating path for page $page: ${f.getMessage}"
       }
+
+    for (path <- paths) {
+
+      rules.parse(path)
+
+
     }
+
+//          // path -> page
+//          rules.parse(path).runNow() match {
+//            case Left(r)  => error(s"Parsing its path $path leads to a redirect. Cannot verify that this is intended and not a 404.")
+//            case Right(q) => if (q != page) error(s"Parsing its path $path leads to a different page: $q")
+//          }
+//
+//          // page -> action
+//          Try(rules.action(path, page)) match {
+//            case Failure(f) => error(s"Action missing. ${f.getMessage}")
+//            case Success(a) => ()
+//          }
+//      }
+//    }
+
     errors
   }
 }
