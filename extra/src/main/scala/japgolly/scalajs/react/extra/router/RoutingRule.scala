@@ -75,26 +75,84 @@ sealed trait RoutingRule[Page] {
   }
 
   /** Prevent this rule from functioning unless some condition holds.
-    * When the condition doesn't hold, an alternative action may be performed.
+    * When the condition doesn't hold, an optional fallback action may be performed.
     *
-    * @param condUnmet Response when rule matches but condition doesn't hold.
+    * @param condition Callback that requested page and returns true if the page should be rendered.
+    * @param fallback  Response when rule matches but condition doesn't hold.
     *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
     *                  route-not-found fallback behaviour.
     */
-  final def addCondition(cond: CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): RoutingRule[Page] =
-    RoutingRule.Conditional(cond, this, condUnmet)
+  final def addConditionWithOptionalFallback(condition: CallbackTo[Boolean], fallback: Page => Option[Action[Page]]): RoutingRule[Page] =
+    RoutingRule.Conditional(condition, this, fallback)
 
   /** Prevent this rule from functioning unless some condition holds, passes in the page
     * requested as part of the context.
-    * When the condition doesn't hold, an alternative action may be performed.
+    * When the condition doesn't hold, an optional fallback action may be performed.
     *
-    * @param cond Function that takes the requested page and returns true if the page should be rendered.
-    * @param condUnmet Response when rule matches but condition doesn't hold.
+    * @param condition Function that takes the requested page and returns true if the page should be rendered.
+    * @param fallback  Response when rule matches but condition doesn't hold.
     *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
     *                  route-not-found fallback behaviour.
     */
-  final def addCondition(cond: Page => CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): RoutingRule[Page] =
-    RoutingRule.ConditionalP(cond, this, condUnmet)
+  final def addConditionWithOptionalFallback(condition: Page => CallbackTo[Boolean], fallback: Page => Option[Action[Page]]): RoutingRule[Page] =
+    RoutingRule.ConditionalP(condition, this, fallback)
+
+  /** Prevent this rule from functioning unless some condition holds.
+    * When the condition doesn't hold, an optional fallback action may be performed.
+    *
+    * @param condition Callback that requested page and returns true if the page should be rendered.
+    * @param fallback  Response when rule matches but condition doesn't hold.
+    *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
+    *                  route-not-found fallback behaviour.
+    */
+  final def addConditionWithOptionalFallback(condition: CallbackTo[Boolean], fallback: Option[Action[Page]]): RoutingRule[Page] =
+    RoutingRule.Conditional(condition, this, _ => fallback)
+
+  /** Prevent this rule from functioning unless some condition holds, passes in the page
+    * requested as part of the context.
+    * When the condition doesn't hold, an optional fallback action may be performed.
+    *
+    * @param condition Function that takes the requested page and returns true if the page should be rendered.
+    * @param fallback  Response when rule matches but condition doesn't hold.
+    *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
+    *                  route-not-found fallback behaviour.
+    */
+  final def addConditionWithOptionalFallback(condition: Page => CallbackTo[Boolean], fallback: Option[Action[Page]]): RoutingRule[Page] =
+    addConditionWithOptionalFallback(condition, _ => fallback)
+
+  /** Prevent this rule from functioning unless some condition holds.
+    * When the condition doesn't hold, a fallback action is performed.
+    *
+    * @param condition Callback that requested page and returns true if the page should be rendered.
+    * @param fallback  Response when rule matches but condition doesn't hold.
+    */
+  final def addConditionWithFallback(condition: CallbackTo[Boolean], fallback: Action[Page]): RoutingRule[Page] =
+    addConditionWithOptionalFallback(condition, _ => Some(fallback))
+
+  /** Prevent this rule from functioning unless some condition holds, passes in the page
+    * requested as part of the context.
+    * When the condition doesn't hold, a fallback action is performed.
+    *
+    * @param condition Function that takes the requested page and returns true if the page should be rendered.
+    * @param fallback  Response when rule matches but condition doesn't hold.
+    */
+  final def addConditionWithFallback(condition: Page => CallbackTo[Boolean], fallback: Action[Page]): RoutingRule[Page] =
+    addConditionWithOptionalFallback(condition, _ => Some(fallback))
+
+  /** Prevent this rule from functioning unless some condition holds.
+    *
+    * @param condition Callback that requested page and returns true if the page should be rendered.
+    */
+  final def addCondition(condition: CallbackTo[Boolean]): RoutingRule[Page] =
+    addConditionWithOptionalFallback(condition, _ => None)
+
+  /** Prevent this rule from functioning unless some condition holds, passes in the page
+    * requested as part of the context.
+    *
+    * @param condition Function that takes the requested page and returns true if the page should be rendered.
+    */
+  final def addCondition(condition: Page => CallbackTo[Boolean]): RoutingRule[Page] =
+    addConditionWithOptionalFallback(condition, _ => None)
 
   /** Specify behaviour when a `Page` doesn't have an associated `Path` or `Action`. */
   final def fallback(fallbackPath  : Page => Path,

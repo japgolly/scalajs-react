@@ -527,17 +527,17 @@ When using conditional routes, it's important to understand some details and tak
   I suggest writing a unit test in which you modify state to create all possible route conditions, and when in each condition call `.verify` with the relevant pages.
   It's a good idea to do this even with unconditional routes, it's just even more important with conditions.
 
-```scala
-/**
- * Prevent this rule from functioning unless some condition holds.
- * When the condition doesn't hold, an alternative action may be performed.
- *
- * @param condUnmet Response when rule matches but condition doesn't hold.
- *                  If response is `None` it will be as if this rule doesn't exist and will likely end
- *                  in the route-not-found fallback behaviour.
- */
-def addCondition(cond: CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page]
-```
+    ```scala
+    def addCondition                    (condition: CallbackTo[Boolean])
+    def addConditionWithFallback        (condition: CallbackTo[Boolean], fallback:                Action[Page])
+    def addConditionWithOptionalFallback(condition: CallbackTo[Boolean], fallback:         Option[Action[Page]]
+    def addConditionWithOptionalFallback(condition: CallbackTo[Boolean], fallback: Page => Option[Action[Page]]
+
+    def addCondition                    (condition: Page => CallbackTo[Boolean])
+    def addConditionWithFallback        (condition: Page => CallbackTo[Boolean], fallback:                Action[Page])
+    def addConditionWithOptionalFallback(condition: Page => CallbackTo[Boolean], fallback:         Option[Action[Page]]
+    def addConditionWithOptionalFallback(condition: Page => CallbackTo[Boolean], fallback: Page => Option[Action[Page]]
+    ```
 
 Example:
 

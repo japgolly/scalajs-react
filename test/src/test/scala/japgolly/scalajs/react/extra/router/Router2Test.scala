@@ -100,7 +100,7 @@ object Router2Test extends TestSuite {
         | staticRoute("private-1", PrivatePage1) ~> render(<.h1("Private #1"))
         | staticRoute("private-2", PrivatePage2) ~> render(<.h1("Private #2: ", secret))
         )
-        .addCondition(CallbackTo(isUserLoggedIn))(_ => redirectToPage(PublicHome)(SetRouteVia.HistoryPush))
+        .addConditionWithFallback(CallbackTo(isUserLoggedIn), redirectToPage(PublicHome)(SetRouteVia.HistoryPush))
 
       val ePages = (emptyRule
         | staticRoute("e/1", E(E1)) ~> render(renderE(E(E1)))
@@ -309,6 +309,19 @@ object Router2Test extends TestSuite {
         assertSyncRedirects("code2/yay", "code2/YAY")
         ()
       }
+    }
+
+    "addCondition" - {
+      def test(f: RoutingRule[Int] => Any): Unit = ()
+
+      "c"  - test(_.addCondition(CallbackTo(true)))
+      "ca" - test(_.addConditionWithFallback(CallbackTo(true), RedirectToPath[Int](null, null)))
+      "co" - test(_.addConditionWithOptionalFallback(CallbackTo(true), None))
+      "cf" - test(_.addConditionWithOptionalFallback(CallbackTo(true), _ => None))
+      "f"  - test(_.addCondition(i => CallbackTo(i == 0)))
+      "fa" - test(_.addConditionWithFallback(i => CallbackTo(i == 0), RedirectToPath[Int](null, null)))
+      "fo" - test(_.addConditionWithOptionalFallback(i => CallbackTo(i == 0), None))
+      "ff" - test(_.addConditionWithOptionalFallback(i => CallbackTo(i == 0), _ => None))
     }
   }
 }
