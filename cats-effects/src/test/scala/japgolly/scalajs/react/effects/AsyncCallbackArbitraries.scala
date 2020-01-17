@@ -12,7 +12,7 @@ trait AsyncCallbackArbitraries extends CallbackToArbitraries {
 
   implicit val arbitraryCallback: Arbitrary[Callback] = Arbitrary(genCallback)
 
-  implicit val cogenCallback: Cogen[Callback] = Cogen(_ => 0L)
+  implicit val cogenCallback: Cogen[Callback] = Cogen[Unit].contramap(_.runNow())
 
   implicit def catsEffectLawsArbitraryForAsyncCallback[A: Arbitrary: Cogen]: Arbitrary[AsyncCallback[A]] =
     Arbitrary(Gen.delay(genAsyncCallback[A]))
