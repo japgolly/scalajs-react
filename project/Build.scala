@@ -27,7 +27,7 @@ object ScalajsReact {
     val ScalaJsDom       = "0.9.8"
     val Scalaz72         = "7.2.30"
     val SizzleJs         = "2.3.0"
-    val Sourcecode       = "0.1.9"
+    val Sourcecode       = "0.2.0"
   }
 
   type PE = Project => Project
