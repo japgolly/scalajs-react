@@ -44,6 +44,9 @@ object Router2Test extends TestSuite {
     case object PublicHome              extends MyPage2
     case object PrivatePage1            extends MyPage2
     case object PrivatePage2            extends MyPage2
+    case object PrivatePage3            extends MyPage2
+    case object PrivatePage4            extends MyPage2
+    case object AccessDenied            extends MyPage2
     case class UserProfilePage(id: Int) extends MyPage2
     case class NestedModule(m: Module)  extends MyPage2
     case object SomethingElse           extends MyPage2
@@ -95,12 +98,22 @@ object Router2Test extends TestSuite {
 
       innerPageEq = implicitly[Equal[MyPage2]]
 
-      val privatePages = (emptyRule
+      val privatePages12 = (emptyRule
         | dynamicRouteCT("user" / int.caseClass[UserProfilePage]) ~> dynRender(userProfilePage(_))
         | staticRoute("private-1", PrivatePage1) ~> render(<.h1("Private #1"))
         | staticRoute("private-2", PrivatePage2) ~> render(<.h1("Private #2: ", secret))
         )
         .addConditionWithFallback(CallbackTo(isUserLoggedIn), redirectToPage(PublicHome)(SetRouteVia.HistoryPush))
+
+      val privatePage3 = (emptyRule
+        | staticRoute("private-3", PrivatePage3) ~> render(<.h1("Private #3"))
+        )
+        .addConditionWithFallback(CallbackTo(isUserLoggedIn), redirectToPage(AccessDenied)(SetRouteVia.HistoryReplace))
+
+      val privatePage4 = (emptyRule
+        | staticRoute("private-4", PrivatePage4) ~> render(<.h1("Private #4"))
+        )
+        .addConditionWithFallback(_ => CallbackTo(isUserLoggedIn), redirectToPage(AccessDenied)(SetRouteVia.HistoryReplace))
 
       val ePages = (emptyRule
         | staticRoute("e/1", E(E1)) ~> render(renderE(E(E1)))
@@ -115,11 +128,14 @@ object Router2Test extends TestSuite {
 
       ( emptyRule // removeTrailingSlashes
       | staticRoute(root, PublicHome) ~> render(<.h1("HOME"))
+      | staticRoute("denied", AccessDenied) ~> render(<.h1("AccessDenied"))
       | nestedModule
       | ePages
       | code1
-      | privatePages // Keep this in between code1 & code2. It tests .addCondition wrt prisms.
+      | privatePages12 // Keep this in between code1 & code2. It tests .addCondition wrt prisms.
       | code2.autoCorrect
+      | privatePage3
+      | privatePage4
       ) .notFoundDynamic(_ => CallbackTo(redirectToPage(if (isUserLoggedIn) PrivatePage1 else PublicHome)(SetRouteVia.HistoryReplace)))
         .renderWith((ctl, res) =>
           <.div(
@@ -159,25 +175,6 @@ object Router2Test extends TestSuite {
       val r = sim.run(lgc.syncToPath(path).runNow())
       assertEq("currentUrl", sim.currentUrl, expectTo.abs)
       r
-    }
-
-    "addCondition" - {
-      assertContains(html, ">Home</span>") // not at link cos current page
-      assertContains(html, "Private page", false) // not logged in
-
-      isUserLoggedIn = true
-      r.forceUpdate
-      assertContains(html, ">Home</span>") // not at link cos current page
-      assertContains(html, "Private page", true) // logged in
-
-      ctl.set(PrivatePage1).runNow()
-      assertContains(html, ">Home</a>") // link cos not on current page
-      assertContains(html, "Private #1")
-
-      isUserLoggedIn = false
-      ctl.refresh.runNow()
-      assertContains(html, ">Home</span>") // not at link cos current page
-      assertContains(html, "Private page", false) // not logged in
     }
 
     "notFoundLazyRedirect" - {
@@ -312,16 +309,58 @@ object Router2Test extends TestSuite {
     }
 
     "addCondition" - {
-      def test(f: RoutingRule[Int] => Any): Unit = ()
+      "1" - {
+        assertContains(html, ">Home</span>") // not at link cos current page
+        assertContains(html, "Private page", false) // not logged in
 
-      "c"  - test(_.addCondition(CallbackTo(true)))
-      "ca" - test(_.addConditionWithFallback(CallbackTo(true), RedirectToPath[Int](null, null)))
-      "co" - test(_.addConditionWithOptionalFallback(CallbackTo(true), None))
-      "cf" - test(_.addConditionWithOptionalFallback(CallbackTo(true), _ => None))
-      "f"  - test(_.addCondition(i => CallbackTo(i == 0)))
-      "fa" - test(_.addConditionWithFallback(i => CallbackTo(i == 0), RedirectToPath[Int](null, null)))
-      "fo" - test(_.addConditionWithOptionalFallback(i => CallbackTo(i == 0), None))
-      "ff" - test(_.addConditionWithOptionalFallback(i => CallbackTo(i == 0), _ => None))
+        isUserLoggedIn = true
+        r.forceUpdate
+        assertContains(html, ">Home</span>") // not at link cos current page
+        assertContains(html, "Private page", true) // logged in
+
+        ctl.set(PrivatePage1).runNow()
+        assertContains(html, ">Home</a>") // link cos not on current page
+        assertContains(html, "Private #1")
+
+        isUserLoggedIn = false
+        ctl.refresh.runNow()
+        assertContains(html, ">Home</span>") // not at link cos current page
+        assertContains(html, "Private page", false) // not logged in
+      }
+
+      "3" - {
+        isUserLoggedIn = true
+        ctl.set(PrivatePage3).runNow()
+        assertContains(html, "Private #3")
+
+        isUserLoggedIn = false
+        ctl.refresh.runNow()
+        assertContains(html, "AccessDenied")
+      }
+
+      "4" - {
+        isUserLoggedIn = true
+        ctl.set(PrivatePage4).runNow()
+        assertContains(html, "Private #4")
+
+        isUserLoggedIn = false
+        ctl.refresh.runNow()
+        assertContains(html, "AccessDenied")
+      }
+
+      "overloads" - {
+        def test(f: RoutingRule[Int] => Any): Unit = ()
+
+        "c"  - test(_.addCondition(CallbackTo(true)))
+        "ca" - test(_.addConditionWithFallback(CallbackTo(true), RedirectToPath[Int](null, null)))
+        "co" - test(_.addConditionWithOptionalFallback(CallbackTo(true), None))
+        "cf" - test(_.addConditionWithOptionalFallback(CallbackTo(true), _ => None))
+        "f"  - test(_.addCondition(i => CallbackTo(i == 0)))
+        "fa" - test(_.addConditionWithFallback(i => CallbackTo(i == 0), RedirectToPath[Int](null, null)))
+        "fo" - test(_.addConditionWithOptionalFallback(i => CallbackTo(i == 0), None))
+        "ff" - test(_.addConditionWithOptionalFallback(i => CallbackTo(i == 0), _ => None))
+      }
     }
+
   }
 }

@@ -87,30 +87,12 @@ object RoutingRules {
           p => y(p).reverse_:::(x(p))
 
         case r: RoutingRule.Conditional[Page] =>
-          val underlying = prepareParseFn(r.underlying)
-          p =>
-            underlying(p).map(u =>
-              dynamic(
-                for {
-                  c <- r.condition
-                  o <- u.merge
-                } yield if (c) o else None
-              )
-            )
+          // Page condition is checked in prepareActionFn
+          prepareParseFn(r.underlying)
 
         case r: RoutingRule.ConditionalP[Page] =>
-          val underlying = prepareParseFn(r.underlying)
-          p =>
-            dynamic {
-              SharedLogic.selectParsed(p, underlying).flatMap {
-                case ok@Some(Right(page)) =>
-                  r.condition(page).map {
-                    case true  => ok
-                    case false => None
-                  }
-                case other => CallbackTo.pure(other)
-              }
-            } :: Nil
+          // Page condition is checked in prepareActionFn
+          prepareParseFn(r.underlying)
       }
 
     def preparePathFn(rule: RoutingRule[Page]): Page => Option[Path] =
