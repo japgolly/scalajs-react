@@ -7,35 +7,38 @@ import org.scalajs.dom.html
 /**
  * Router controller. A client API to the router.
  *
- * @tparam A A data type that indicates a route that can be navigated to.
+ * @tparam Route A data type that indicates a route that can be navigated to.
  */
-abstract class RouterCtl[A] {
+abstract class RouterCtl[Route] {
   def baseUrl: BaseUrl
   def byPath: RouterCtl[Path]
   def refresh: Callback
-  def pathFor(target: A): Path
-  def set(target: A): Callback
+  def pathFor(route: Route): Path
+  def set(route: Route, via: SetRouteVia): Callback
 
-  final def urlFor(target: A): AbsUrl =
-    pathFor(target).abs(baseUrl)
+  final def set(route: Route): Callback =
+    set(route, SetRouteVia.HistoryPush)
 
-  final def setEH(target: A): ReactEvent => Callback =
-    e => set(target).asEventDefault(e).void
+  final def urlFor(route: Route): AbsUrl =
+    pathFor(route).abs(baseUrl)
 
-  final def setOnClick(target: A): TagMod =
-    ^.onClick ==> setEH(target)
+  final def setEH(route: Route): ReactEvent => Callback =
+    e => set(route).asEventDefault(e).void
 
-  final def setOnLinkClick(target: A): TagMod = {
+  final def setOnClick(route: Route): TagMod =
+    ^.onClick ==> setEH(route)
+
+  final def setOnLinkClick(route: Route): TagMod = {
     def go(e: ReactMouseEvent): Callback =
       CallbackOption.unless(ReactMouseEvent targetsNewTab_? e) >>
-        setEH(target)(e)
+        setEH(route)(e)
     ^.onClick ==> go
   }
 
-  final def link(target: A): VdomTagOf[html.Anchor] =
-    <.a(^.href := urlFor(target).value, setOnLinkClick(target))
+  final def link(route: Route): VdomTagOf[html.Anchor] =
+    <.a(^.href := urlFor(route).value, setOnLinkClick(route))
 
-  final def contramap[B](f: B => A): RouterCtl[B] =
+  final def contramap[B](f: B => Route): RouterCtl[B] =
     new RouterCtl.Contramap(this, f)
 
   /**
@@ -43,7 +46,7 @@ abstract class RouterCtl[A] {
    *
    * For example, this can be used to set a component's state immediately before setting a new route.
    */
-  final def onSet(f: (A, Callback) => Callback): RouterCtl[A] =
+  final def onSet(f: (Route, Callback) => Callback): RouterCtl[Route] =
     new RouterCtl.ModCB(this, f)
 
   /**
@@ -51,10 +54,10 @@ abstract class RouterCtl[A] {
    *
    * For example, this can be used to set a component's state immediately before setting a new route.
    */
-  final def onSet(f: Callback => Callback): RouterCtl[A] =
+  final def onSet(f: Callback => Callback): RouterCtl[Route] =
     onSet((_, cb) => f(cb))
 
-  final def narrow[B <: A]: RouterCtl[B] =
+  final def narrow[B <: Route]: RouterCtl[B] =
     contramap(b => b)
 }
 
@@ -70,18 +73,18 @@ object RouterCtl {
     reuse.asInstanceOf[Reusability[RouterCtl[A]]]
 
   case class Contramap[A, B](u: RouterCtl[A], f: B => A) extends RouterCtl[B] {
-    override def baseUrl       = u.baseUrl
-    override def byPath        = u.byPath
-    override def refresh       = u.refresh
-    override def pathFor(b: B) = u pathFor f(b)
-    override def set(b: B)     = u set f(b)
+    override def baseUrl                   = u.baseUrl
+    override def byPath                    = u.byPath
+    override def refresh                   = u.refresh
+    override def pathFor(b: B)             = u pathFor f(b)
+    override def set(b: B, v: SetRouteVia) = u.set(f(b), v)
   }
 
   case class ModCB[A](u: RouterCtl[A], f: (A, Callback) => Callback) extends RouterCtl[A] {
-    override def baseUrl       = u.baseUrl
-    override def byPath        = u.byPath
-    override def refresh       = u.refresh
-    override def pathFor(a: A) = u pathFor a
-    override def set(a: A)     = f(a, u set a)
+    override def baseUrl                   = u.baseUrl
+    override def byPath                    = u.byPath
+    override def refresh                   = u.refresh
+    override def pathFor(a: A)             = u pathFor a
+    override def set(a: A, v: SetRouteVia) = f(a, u.set(a, v))
   }
 }

@@ -23,7 +23,7 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.4.0"
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.5.0"
   ```
 
 3. Add React to your build.
@@ -38,7 +38,7 @@ Setup
 
       enablePlugins(ScalaJSBundlerPlugin)
 
-      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.4.0"
+      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.5.0"
 
       npmDependencies in Compile ++= Seq(
         "react" -> "16.7.0",
@@ -68,6 +68,12 @@ Setup
         dependsOn "umd/react-dom.development.js"
         commonJSName "ReactDOMServer"),
     ```
+
+If you see the error related to `js-tokens` (such as `org.webjars.npm#js-tokens;[3.0.0,4),[4.0.0,5): not found`), then add the following line to `build.sbt`:
+
+```
+dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2"
+```
 
 [See here](IDE.md) for tips on configuring your IDE.
 

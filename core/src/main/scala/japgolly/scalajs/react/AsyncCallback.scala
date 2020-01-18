@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{catchAll, identityFn, newJsPromise}
-import scala.collection.generic.CanBuildFrom
+import japgolly.scalajs.react.internal.{catchAll, identityFn, newJsPromise, SyncPromise}
+import scala.collection.compat._
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
@@ -28,17 +28,21 @@ object AsyncCallback {
     */
   def promise[A]: CallbackTo[(AsyncCallback[A], Try[A] => Callback)] =
     for {
-      (p, pc) <- newJsPromise[A]
-    } yield (fromJsPromise(p), pc)
+      p <- SyncPromise[A]
+    } yield (AsyncCallback(p.onComplete), p.complete)
 
   def first[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
-    new AsyncCallback(g => {
+    new AsyncCallback(g => CallbackTo {
       var first = true
       f(ea => Callback.when(first)(Callback{first = false} >> g(ea)))
-    })
+    }.flatten)
+
+  /** AsyncCallback that never completes. */
+  def never[A]: AsyncCallback[A] =
+    apply(_ => Callback.empty)
 
   def point[A](a: => A): AsyncCallback[A] =
-    AsyncCallback(_(catchAll(a)))
+    AsyncCallback(f => CallbackTo(catchAll(a)).flatMap(f))
 
   def pure[A](a: A): AsyncCallback[A] =
     const(Success(a))
@@ -48,6 +52,9 @@ object AsyncCallback {
 
   def const[A](t: Try[A]): AsyncCallback[A] =
     AsyncCallback(_(t))
+
+  val unit: AsyncCallback[Unit] =
+    pure(())
 
   /** Callback that isn't created until the first time it is used, after which it is reused. */
   def lazily[A](f: => AsyncCallback[A]): AsyncCallback[A] = {
@@ -62,14 +69,18 @@ object AsyncCallback {
   def byName[A](f: => AsyncCallback[A]): AsyncCallback[A] =
     point(f).flatten
 
+  @deprecated("Use c.asAsyncCallback", "")
+  def fromCallback[A](c: CallbackTo[A]): AsyncCallback[A] =
+    c.asAsyncCallback
+
   /** Traverse stdlib T over AsyncCallback.
     * Distribute AsyncCallback over stdlib T.
     */
-  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: CanBuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
+  def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
     AsyncCallback.byName {
-      val as = ta.toVector
+      val as = ta.iterator.to(Vector)
       if (as.isEmpty)
-        AsyncCallback.pure(cbf().result())
+        AsyncCallback.pure(cbf.newBuilder(ta).result())
       else {
         val discard = (_: Any, _: Any) => ()
         val bs = new js.Array[B](as.length)
@@ -78,14 +89,14 @@ object AsyncCallback {
           .iterator
           .map(i => f(as(i)).map(b => bs(i) = b))
           .reduce(_.zipWith(_)(discard))
-          .map(_ => bs.to(cbf))
+          .map(_ => cbf.fromSpecific(ta)(bs))
       }
     }
 
   /** Sequence stdlib T over AsyncCallback.
     * Co-sequence AsyncCallback over stdlib T.
     */
-  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[AsyncCallback[A]])(implicit cbf: CanBuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
+  def sequence[T[X] <: IterableOnce[X], A](tca: => T[AsyncCallback[A]])(implicit cbf: BuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
     traverse(tca)(identityFn)(cbf)
 
   /** Traverse Option over AsyncCallback.
@@ -105,7 +116,11 @@ object AsyncCallback {
 
   def fromFuture[A](fa: => Future[A])(implicit ec: ExecutionContext): AsyncCallback[A] =
     AsyncCallback(f => Callback {
-      fa.onComplete(f(_).runNow())
+      val future = fa
+      future.value match {
+        case Some(value) => f(value).runNow()
+        case None => future.onComplete(f(_).runNow())
+      }
     })
 
   def fromCallbackToFuture[A](c: CallbackTo[Future[A]])(implicit ec: ExecutionContext): AsyncCallback[A] =
@@ -126,7 +141,7 @@ object AsyncCallback {
   def fromCallbackToJsPromise[A](c: CallbackTo[js.Promise[A]]): AsyncCallback[A] =
     c.asAsyncCallback.flatMap(fromJsPromise(_))
 
-  @inline implicit def asynCallbackCovariance[A, B >: A](c: AsyncCallback[A]): AsyncCallback[B] =
+  @inline implicit def asyncCallbackCovariance[A, B >: A](c: AsyncCallback[A]): AsyncCallback[B] =
     c.widen
 
   /** Not literally tail-recursive because AsyncCallback is continuation-based, but this utility in this shape may still
@@ -194,8 +209,8 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   @inline def >>=[B](g: A => AsyncCallback[B]): AsyncCallback[B] =
     flatMap(g)
 
-  def flatten[B](implicit ev: AsyncCallback[A] =:= AsyncCallback[AsyncCallback[B]]): AsyncCallback[B] =
-    ev(this).flatMap(identityFn)
+  def flatten[B](implicit ev: A => AsyncCallback[B]): AsyncCallback[B] =
+    flatMap(ev)
 
   /** Sequence the argument a callback to run after this, discarding any value produced by this. */
   def >>[B](runNext: AsyncCallback[B]): AsyncCallback[B] =
@@ -382,11 +397,23 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     delayMs(dur.toMillis.toDouble)
 
   def delayMs(milliseconds: Double): AsyncCallback[A] =
-    AsyncCallback(f => Callback {
-      setTimeout(milliseconds) {
-        completeWith(f).runNow()
-      }
-    })
+    if (milliseconds <= 0)
+      this
+    else
+      AsyncCallback(f => Callback {
+        setTimeout(milliseconds) {
+          completeWith(f).runNow()
+        }
+      })
+
+  /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+    * current callback completes, be it in error or success.
+    */
+  def finallyRun[B](runFinally: AsyncCallback[B]): AsyncCallback[A] =
+    attempt.flatMap {
+      case Right(a) => runFinally.ret(a)
+      case Left(e)  => runFinally.attempt >> AsyncCallback.throwException(e)
+    }
 
   /** Function distribution. See `AsyncCallback.liftTraverse(f).id` for the dual. */
   def distFn[B, C](implicit ev: AsyncCallback[A] <:< AsyncCallback[B => C]): B => AsyncCallback[C] = {

@@ -1,4 +1,3 @@
-version      in ThisBuild := "1.4.1-SNAPSHOT"
 organization in ThisBuild := "com.github.japgolly.scalajs-react"
 homepage     in ThisBuild := Some(url("https://github.com/japgolly/scalajs-react"))
 licenses     in ThisBuild := ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")) :: Nil
@@ -8,6 +7,7 @@ val root          = ScalajsReact.root
 val core          = ScalajsReact.core
 val extra         = ScalajsReact.extra
 val scalaz72      = ScalajsReact.scalaz72
+val monocle       = ScalajsReact.monocle
 val monocleScalaz = ScalajsReact.monocleScalaz
 val monocleCats   = ScalajsReact.monocleCats
 val cats          = ScalajsReact.cats

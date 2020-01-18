@@ -32,7 +32,7 @@ object TriStateCheckboxExample {
   case class Item(id: Int, name: String)
 
   case class Props(items: List[Item]) {
-    val ids : Set[Int] = items.map(_.id)(collection.breakOut)
+    val ids : Set[Int] = items.map(_.id).toSet
     val size: Int      = items.size
   }
 

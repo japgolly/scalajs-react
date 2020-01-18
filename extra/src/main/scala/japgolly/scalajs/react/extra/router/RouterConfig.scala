@@ -3,13 +3,11 @@ package japgolly.scalajs.react.extra.router
 import org.scalajs.dom
 import scala.annotation.elidable
 import scala.util.{Failure, Success, Try}
-import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.vdom.VdomElement
-import RouterConfig.{Logger, Parsed}
+import RouterConfig.Logger
 
-case class RouterConfig[Page](parse       : Path => Parsed[Page],
-                              path        : Page => Path,
-                              action      : (Path, Page) => Action[Page],
+case class RouterConfig[Page](rules       : RoutingRules[Page],
                               renderFn    : (RouterCtl[Page], Resolution[Page]) => VdomElement,
                               postRenderFn: (Option[Page], Page) => Callback,
                               logger      : Logger) {
@@ -59,62 +57,106 @@ case class RouterConfig[Page](parse       : Path => Parsed[Page],
     onPostRender((_, page) =>
       f(page).fold(Callback.empty)(title => Callback(dom.document.title = title)))
 
-  /**
-   * Verify that the page arguments provided, don't encounter any route config errors.
-   *
-   * Note: Requires that `Page#equals()` be sensible.
-   */
+  /** Asserts that the page arguments provided, don't encounter any route config errors.
+    *
+    * If any errors are detected, the Router will be replaced with a new dummy router that displays the error messages.
+    *
+    * If you want direct, programmatic access to the errors themselves, use [[detectErrors()]] instead.
+    *
+    * Note: Requires that `Page#equals()` be sensible.
+    * Note: If `elidable.ASSERTION` is elided, this always returns `this`.
+    *
+    * @return In the event that errors are detected, a new [[RouterConfig]] that displays them; else this unmodified.
+    */
   def verify(page1: Page, pages: Page*): RouterConfig[Page] =
     Option(_verify(page1, pages: _*)) getOrElse this
 
   @elidable(elidable.ASSERTION)
   private def _verify(page1: Page, pages: Page*): RouterConfig[Page] = {
-    val errors = detectErrors(page1 +: pages: _*)
+    val errors = detectErrors(page1 +: pages: _*).runNow()
     if (errors.isEmpty)
       this
     else {
       import japgolly.scalajs.react.vdom.html_<^._
+      import StaticOrDynamic.Helpers.static
       val es = errors.sorted.map(e => s"\n  - $e") mkString ""
       val msg = s"${errors.size} RouterConfig errors detected:$es"
       dom.console.error(msg)
+
       val el: VdomElement =
         <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
-      RouterConfig.withDefaults(_ => Right(page1), _ => Path.root, (_, _) => Renderer(_ => el))
+
+      val newRules = RoutingRules[Page](
+        parseMulti     = _ => static[Option[RouterConfig.Parsed[Page]]](Some(Right(page1))) :: Nil,
+        path           = _ => Path.root,
+        actionMulti    = (_, _) => Nil,
+        fallbackAction = (_, _) => Renderer(_ => el),
+        whenNotFound   = _ => CallbackTo.pure(Right(page1)),
+      )
+
+      RouterConfig.withDefaults(newRules)
     }
   }
 
-  /**
-   * Check specified pages for possible route config errors.
-   *
-   * Note: Requires that `Page#equals()` be sensible.
-   */
-  def detectErrors(pages: Page*): Vector[String] =
-    Option(_detectErrors(pages: _*)) getOrElse Vector.empty
+  /** Check specified pages for possible route config errors, and returns any detected.
+    *
+    * Note: Requires that `Page#equals()` be sensible.
+    * Note: If `elidable.ASSERTION` is elided, this always returns an empty collection.
+    *
+    * @return Error messages (or an empty collection if no errors are detected).
+    */
+  def detectErrors(pages: Page*): CallbackTo[Vector[String]] =
+    Option(_detectErrors(pages: _*)) getOrElse CallbackTo.pure(Vector.empty)
 
   @elidable(elidable.ASSERTION)
-  private def _detectErrors(pages: Page*): Vector[String] = {
+  private def _detectErrors(pages: Page*): CallbackTo[Vector[String]] = CallbackTo {
+    import RoutingRules.SharedLogic._
+
     var errors = Vector.empty[String]
+
     for (page <- pages) {
-      def error(msg: String): Unit = errors :+= s"Page $page: $msg"
+      def fail(msg: String): Unit =
+        errors :+= s"Routing config failure at page $page: $msg"
 
       // page -> path
-      Try(path(page)) match {
-        case Failure(f) => error(s"Path missing. ${f.getMessage}")
+      Try(rules.path(page)) match {
+        case Failure(f) =>
+          fail(s"Runtime exception occurred generating path: ${f.getMessage}")
+
         case Success(path) =>
 
           // path -> page
-          parse(path) match {
-            case Left(r) => error(s"Parsing its path $path leads to a redirect. Cannot verify that this is intended and not a 404.")
-            case Right(q) => if (q != page) error(s"Parsing its path $path leads to a different page: $q")
+          rules.parse(path).attemptTry.runNow() match {
+            case Success(Right(q)) =>
+              if (q != page) errors :+= s"Parsing its path /${path.value} leads to a different page: $q"
+
+            case Success(Left(r)) =>
+              val to: String = r match {
+                case RedirectToPage(page, _) => s"page $page"
+                case RedirectToPath(path, _) => s"path /${path.value}"
+              }
+              fail(s"Parsing its path /${path.value} leads to a redirect to $to. Cannot verify that this is intended and not a 404.")
+
+            case Failure(f: RoutingRules.Exception) =>
+              fail(f.getMessage)
+
+            case Failure(f) =>
+              fail(s"Runtime exception occurred parsing path /${path.value}: ${f.getMessage}")
           }
 
           // page -> action
-          Try(action(path, page)) match {
-            case Failure(f) => error(s"Action missing. ${f.getMessage}")
-            case Success(a) => ()
+          rules.action(path, page).attemptTry.runNow() match {
+            case Success(_) => ()
+
+            case Failure(f: RoutingRules.Exception) =>
+              fail(f.getMessage)
+
+            case Failure(f) =>
+              fail(s"Runtime exception occurred generating action for path /${path.value}: ${f.getMessage}")
           }
       }
     }
+
     errors
   }
 }
@@ -143,8 +185,6 @@ object RouterConfig {
     (_, _) => cb
   }
 
-  def withDefaults[Page](parse : Path         => Parsed[Page],
-                         path  : Page         => Path,
-                         action: (Path, Page) => Action[Page]): RouterConfig[Page] =
-    RouterConfig(parse, path, action, defaultRenderFn, defaultPostRenderFn, defaultLogger)
+  def withDefaults[Page](rules: RoutingRules[Page]): RouterConfig[Page] =
+    RouterConfig(rules, defaultRenderFn, defaultPostRenderFn, defaultLogger)
 }

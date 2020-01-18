@@ -332,60 +332,60 @@ object RefTest extends TestSuite {
 
   override def tests = Tests {
 
-    'empty - {
+    "empty" - {
       assertEq[Option[Unit]](Ref[Unit].get.asCallback.runNow(), None)
     }
-    'htmlTag - testHtmlTag()
-    'svgTag  - testSvgTag()
-    'scalaComponent - {
+    "htmlTag" - testHtmlTag()
+    "svgTag"  - testSvgTag()
+    "scalaComponent" - {
       import TestScala._
-      'refViaComp - refViaComp()
-      'refViaRef  - refViaRef()
-      'refAndKey  - refAndKey()
+      "refViaComp" - refViaComp()
+      "refViaRef"  - refViaRef()
+      "refAndKey"  - refAndKey()
     }
-    'jsComponent - {
+    "jsComponent" - {
       import TestJs._
-      'refViaComp - refViaComp()
-      'refViaRef  - refViaRef()
-      'refAndKey  - refAndKey()
+      "refViaComp" - refViaComp()
+      "refViaRef"  - refViaRef()
+      "refAndKey"  - refAndKey()
     }
-    'forward - {
-      'jsToVdom - {
+    "forward" - {
+      "jsToVdom" - {
         import TestRefForwarding.JsToVdom._
-        'nullary   - nullary()
-        'children  - children()
-        'ref       - ref()
-        'wideRef   - wideRef()
-        'narrowRef - narrowRef()
-        'scalaRef  - scalaRef()
+        "nullary"   - nullary()
+        "children"  - children()
+        "ref"       - ref()
+        "wideRef"   - wideRef()
+        "narrowRef" - narrowRef()
+        "scalaRef"  - scalaRef()
       }
-      'scalaToVdom - {
+      "scalaToVdom" - {
         import TestRefForwarding.ScalaToVdom._
-        'nullary   - nullary()
-        'unary     - unary()
-        'children  - children()
-        'refP      - refP()
-        'refC      - refC()
-        'wideRef   - wideRef()
-        'narrowRef - narrowRef()
-        'scalaRef  - scalaRef()
-        'unmounted - unmounted()
+        "nullary"   - nullary()
+        "unary"     - unary()
+        "children"  - children()
+        "refP"      - refP()
+        "refC"      - refC()
+        "wideRef"   - wideRef()
+        "narrowRef" - narrowRef()
+        "scalaRef"  - scalaRef()
+        "unmounted" - unmounted()
       }
-      'scalaToScala - {
+      "scalaToScala" - {
         import TestRefForwarding.ScalaToScala._
-        'withoutRef - withoutRef()
-        'withRef    - withRef()
-        'withRef2   - withRef2()
-        'mappedRef  - mappedRef()
-        'wrongScala - wrongScala()
-        'vdomRef    - vdomRef()
+        "withoutRef" - withoutRef()
+        "withRef"    - withRef()
+        "withRef2"   - withRef2()
+        "mappedRef"  - mappedRef()
+        "wrongScala" - wrongScala()
+        "vdomRef"    - vdomRef()
       }
-      'scalaToJs - {
+      "scalaToJs" - {
         import TestRefForwarding.ScalaToJs._
-        'withoutRef - withoutRef()
-        'withRef    - withRef()
-        'wrongJs    - wrongJs()
-        'vdomRef    - vdomRef()
+        "withoutRef" - withoutRef()
+        "withRef"    - withRef()
+        "wrongJs"    - wrongJs()
+        "vdomRef"    - vdomRef()
       }
     }
   }

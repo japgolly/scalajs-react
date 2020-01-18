@@ -20,7 +20,7 @@ object AjaxExample2 {
   def login: AsyncCallback[Unit] =
     Ajax("POST", "https://reqres.in/api/login")
       .setRequestContentTypeJsonUtf8
-      .send("""{ "email": "peter@klaven", "password": "cityslicka" }""")
+      .send("""{ "email": "eve.holt@reqres.in", "password": "cityslicka" }""")
       .validateStatusIsSuccessful(Callback.error) // Ensure (status >= 200 && status < 300) || status == 304
       .asAsyncCallback
       .void

@@ -2,11 +2,11 @@ language: scala
 sudo: false
 
 scala:
-  - 2.11.12
-  - 2.12.8
+  - 2.13.1
+  - 2.12.10
 
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 install:
   - . $HOME/.nvm/nvm.sh

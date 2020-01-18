@@ -44,6 +44,9 @@ object Router2Test extends TestSuite {
     case object PublicHome              extends MyPage2
     case object PrivatePage1            extends MyPage2
     case object PrivatePage2            extends MyPage2
+    case object PrivatePage3            extends MyPage2
+    case object PrivatePage4            extends MyPage2
+    case object AccessDenied            extends MyPage2
     case class UserProfilePage(id: Int) extends MyPage2
     case class NestedModule(m: Module)  extends MyPage2
     case object SomethingElse           extends MyPage2
@@ -95,12 +98,22 @@ object Router2Test extends TestSuite {
 
       innerPageEq = implicitly[Equal[MyPage2]]
 
-      val privatePages = (emptyRule
+      val privatePages12 = (emptyRule
         | dynamicRouteCT("user" / int.caseClass[UserProfilePage]) ~> dynRender(userProfilePage(_))
         | staticRoute("private-1", PrivatePage1) ~> render(<.h1("Private #1"))
         | staticRoute("private-2", PrivatePage2) ~> render(<.h1("Private #2: ", secret))
         )
-        .addCondition(CallbackTo(isUserLoggedIn))(page => redirectToPage(PublicHome)(Redirect.Push))
+        .addConditionWithFallback(CallbackTo(isUserLoggedIn), redirectToPage(PublicHome)(SetRouteVia.HistoryPush))
+
+      val privatePage3 = (emptyRule
+        | staticRoute("private-3", PrivatePage3) ~> render(<.h1("Private #3"))
+        )
+        .addConditionWithFallback(CallbackTo(isUserLoggedIn), redirectToPage(AccessDenied)(SetRouteVia.HistoryReplace))
+
+      val privatePage4 = (emptyRule
+        | staticRoute("private-4", PrivatePage4) ~> render(<.h1("Private #4"))
+        )
+        .addConditionWithFallback(_ => CallbackTo(isUserLoggedIn), redirectToPage(AccessDenied)(SetRouteVia.HistoryReplace))
 
       val ePages = (emptyRule
         | staticRoute("e/1", E(E1)) ~> render(renderE(E(E1)))
@@ -115,12 +128,15 @@ object Router2Test extends TestSuite {
 
       ( emptyRule // removeTrailingSlashes
       | staticRoute(root, PublicHome) ~> render(<.h1("HOME"))
+      | staticRoute("denied", AccessDenied) ~> render(<.h1("AccessDenied"))
       | nestedModule
       | ePages
       | code1
-      | privatePages // Keep this in between code1 & code2. It tests .addCondition wrt prisms.
+      | privatePages12 // Keep this in between code1 & code2. It tests .addCondition wrt prisms.
       | code2.autoCorrect
-      ) .notFound(redirectToPage(if (isUserLoggedIn) PublicHome else PrivatePage1)(Redirect.Replace))
+      | privatePage3
+      | privatePage4
+      ) .notFoundDynamic(_ => CallbackTo(redirectToPage(if (isUserLoggedIn) PrivatePage1 else PublicHome)(SetRouteVia.HistoryReplace)))
         .renderWith((ctl, res) =>
           <.div(
             nav(NavProps(res.page, ctl)),
@@ -143,50 +159,32 @@ object Router2Test extends TestSuite {
     val sim = SimHistory(base.abs)
     val r = ReactTestUtils.renderIntoDocument(router())
     def html = r.getDOMNode.asMounted().asElement().outerHTML
-    def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.parse(_).right.toOption)
+    def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.rules.parse(_).runNow().right.toOption)
     isUserLoggedIn = false
 
     def syncNoRedirect(path: Path) = {
       sim.reset(path.abs)
-      val r = sim.run(lgc syncToPath path)
-      assertEq(sim.history, path.abs :: Nil)
+      val c = lgc.syncToPath(path).runNow()
+      val r = sim.run(c)
+      assertEq("history (latest <-> oldest)", sim.history, path.abs :: Nil)
       r
     }
 
     def assertSyncRedirects(path: Path, expectTo: Path) = {
       sim.reset(path.abs)
-      val r = sim.run(lgc syncToPath path)
-      assertEq(sim.currentUrl, expectTo.abs)
+      val r = sim.run(lgc.syncToPath(path).runNow())
+      assertEq("currentUrl", sim.currentUrl, expectTo.abs)
       r
     }
 
-    'addCondition - {
-      assertContains(html, ">Home</span>") // not at link cos current page
-      assertContains(html, "Private page", false) // not logged in
-
-      isUserLoggedIn = true
-      r.forceUpdate
-      assertContains(html, ">Home</span>") // not at link cos current page
-      assertContains(html, "Private page", true) // logged in
-
-      ctl.set(PrivatePage1).runNow()
-      assertContains(html, ">Home</a>") // link cos not on current page
-      assertContains(html, "Private #1")
-
-      isUserLoggedIn = false
-      ctl.refresh.runNow()
-      assertContains(html, ">Home</span>") // not at link cos current page
-      assertContains(html, "Private page", false) // not logged in
-    }
-
-    'notFoundLazyRedirect - {
-      def r = sim.run(lgc syncToPath Path("what"))
+    "notFoundLazyRedirect" - {
+      def r = sim.run(lgc.syncToPath(Path("what")).runNow())
       assertEq(r.page,  PublicHome)
       isUserLoggedIn = true
       assertEq(r.page,  PrivatePage1)
     }
 
-    'lazyRender - {
+    "lazyRender" - {
       isUserLoggedIn = true
       ctl.set(PrivatePage2).runNow()
       assertContains(html, secret)
@@ -195,54 +193,59 @@ object Router2Test extends TestSuite {
       assertContains(html, secret)
     }
 
-    'detectErrors - {
-      var es = config.detectErrors(PublicHome, PrivatePage1, PrivatePage2, UserProfilePage(1))
+    "detectErrors" - {
+      var es = config.detectErrors(PublicHome).runNow()
       assertEq(es, Vector.empty)
-      es = config.detectErrors(SomethingElse)
+
+      isUserLoggedIn = true
+      es = config.detectErrors(PublicHome, PrivatePage1, PrivatePage2, UserProfilePage(1)).runNow()
+      assertEq(es, Vector.empty)
+
+      es = config.detectErrors(SomethingElse).runNow()
       assert(es.nonEmpty)
     }
 
-    'routesPerNestedPageType - {
+    "routesPerNestedPageType" - {
       assertEq("E1", ctl.pathFor(E(E1)).value, "e/1")
       assertEq("E2", ctl.pathFor(E(E2)).value, "e/2")
-      val es = config.detectErrors(E(E1), E(E2))
+      val es = config.detectErrors(E(E1), E(E2)).runNow()
       assertEq(es, Vector.empty)
     }
 
-    'pageEquality -
+    "pageEquality" -
       assert(innerPageEq eq pageEq)
 
-    'nestedModule - {
-      'detectErrors - {
-        val es = config.detectErrors(NestedModule(ModuleRoot), NestedModule(Module1), NestedModule(Module2(666)))
+    "nestedModule" - {
+      "detectErrors" - {
+        val es = config.detectErrors(NestedModule(ModuleRoot), NestedModule(Module1), NestedModule(Module2(666))).runNow()
         assertEq(es, Vector.empty)
       }
-      'origPathNotAvail - {
-        val r = sim.run(lgc syncToPath Path("one"))
+      "origPathNotAvail" - {
+        val r = sim.run(lgc.syncToPath(Path("one")).runNow())
         assertEq(r.page,  PublicHome)
         assertEq(sim.currentUrl, Path.root.abs)
       }
-      'slashNop - {
+      "slashNop" - {
         // prefixPath_/ only adds a / when rhs is empty
         assertSyncRedirects("module/", "")
         ()
       }
-      'nestedStaticPath - {
+      "nestedStaticPath" - {
         val r = syncNoRedirect("module/one")
         assertEq(r.page,  NestedModule(Module1))
         assertContains(htmlFor(r), "Module #1")
       }
-      'nestedDynamicPath - {
+      "nestedDynamicPath" - {
         val r = syncNoRedirect("module/two/123")
         assertEq(r.page,  NestedModule(Module2(123)))
         assertContains(htmlFor(r), "Module #2 @ 123")
       }
-      'nestedDynamicPathUuid - {
+      "nestedDynamicPathUuid" - {
         val r = syncNoRedirect("module/three/12345678-1234-1234-1234-123456789012")
         assertEq(r.page,  NestedModule(Module3(UUID fromString "12345678-1234-1234-1234-123456789012")))
         assertContains(htmlFor(r), "Module #3 @ 12345678-1234-1234-1234-123456789012")
       }
-      'routerLinks - {
+      "routerLinks" - {
         assertEq(ctl.pathFor(NestedModule(ModuleRoot)).value, "module")
         assertEq(ctl.pathFor(NestedModule(Module1)).value, "module/one")
         assertEq(ctl.pathFor(NestedModule(Module2(666))).value, "module/two/666")
@@ -252,7 +255,7 @@ object Router2Test extends TestSuite {
       }
     }
 
-    'onSet - {
+    "onSet" - {
       var i = 0
       val ctl2 = ctl.onSet(Callback(i += 1) >> _)
       isUserLoggedIn = true
@@ -262,7 +265,7 @@ object Router2Test extends TestSuite {
       assertEq(i, 1)
     }
 
-    'setRespectRouteCondition - {
+    "setRespectRouteCondition" - {
       // Make sure we're not starting on PublicHome cos that's were we expect to be redirected
       ctl.set(NestedModule(ModuleRoot)).runNow()
       assertEq(currentPage(), Some(NestedModule(ModuleRoot)))
@@ -274,35 +277,90 @@ object Router2Test extends TestSuite {
       assert(!html.contains(secret))
     }
 
-    'prism - {
-      'buildUrl - {
+    "prism" - {
+      "buildUrl" - {
         assertEq(ctl.pathFor(Code1("HEH")).value, "code1/HEH")
       }
-      'exact - {
+      "exact" - {
         val r = syncNoRedirect("code1/OMG")
         assertEq(r.page, Code1("OMG"))
         assertContains(htmlFor(r), "OMG")
       }
-      'tolerant - {
+      "tolerant" - {
         val r = syncNoRedirect("code1/yay")
         assertEq(r.page, Code1("YAY"))
         assertContains(htmlFor(r), "YAY")
       }
     }
 
-    'prismWithRedirect - {
-      'buildUrl - {
+    "prismWithRedirect" - {
+      "buildUrl" - {
         assertEq(ctl.pathFor(Code2("HEH")).value, "code2/HEH")
       }
-      'exact - {
+      "exact" - {
         val r = syncNoRedirect("code2/OMG")
         assertEq(r.page, Code2("OMG"))
         assertContains(htmlFor(r), "OMG")
       }
-      'redirect - {
+      "redirect" - {
         assertSyncRedirects("code2/yay", "code2/YAY")
         ()
       }
     }
+
+    "addCondition" - {
+      "1" - {
+        assertContains(html, ">Home</span>") // not at link cos current page
+        assertContains(html, "Private page", false) // not logged in
+
+        isUserLoggedIn = true
+        r.forceUpdate
+        assertContains(html, ">Home</span>") // not at link cos current page
+        assertContains(html, "Private page", true) // logged in
+
+        ctl.set(PrivatePage1).runNow()
+        assertContains(html, ">Home</a>") // link cos not on current page
+        assertContains(html, "Private #1")
+
+        isUserLoggedIn = false
+        ctl.refresh.runNow()
+        assertContains(html, ">Home</span>") // not at link cos current page
+        assertContains(html, "Private page", false) // not logged in
+      }
+
+      "3" - {
+        isUserLoggedIn = true
+        ctl.set(PrivatePage3).runNow()
+        assertContains(html, "Private #3")
+
+        isUserLoggedIn = false
+        ctl.refresh.runNow()
+        assertContains(html, "AccessDenied")
+      }
+
+      "4" - {
+        isUserLoggedIn = true
+        ctl.set(PrivatePage4).runNow()
+        assertContains(html, "Private #4")
+
+        isUserLoggedIn = false
+        ctl.refresh.runNow()
+        assertContains(html, "AccessDenied")
+      }
+
+      "overloads" - {
+        def test(f: RoutingRule[Int] => Any): Unit = ()
+
+        "c"  - test(_.addCondition(CallbackTo(true)))
+        "ca" - test(_.addConditionWithFallback(CallbackTo(true), RedirectToPath[Int](null, null)))
+        "co" - test(_.addConditionWithOptionalFallback(CallbackTo(true), None))
+        "cf" - test(_.addConditionWithOptionalFallback(CallbackTo(true), _ => None))
+        "f"  - test(_.addCondition(i => CallbackTo(i == 0)))
+        "fa" - test(_.addConditionWithFallback(i => CallbackTo(i == 0), RedirectToPath[Int](null, null)))
+        "fo" - test(_.addConditionWithOptionalFallback(i => CallbackTo(i == 0), None))
+        "ff" - test(_.addConditionWithOptionalFallback(i => CallbackTo(i == 0), _ => None))
+      }
+    }
+
   }
 }

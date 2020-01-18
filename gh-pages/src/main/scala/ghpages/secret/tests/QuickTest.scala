@@ -11,9 +11,15 @@ object QuickTest {
     case object NotStarted extends Status
     case object InProgress extends Status
 
-    sealed trait Result extends Status
-    case object Pass extends Result
-    final case class Fail(error: String) extends Result
+    sealed trait Result extends Status {
+      def &&(r: => Result): Result
+    }
+    case object Pass extends Result {
+      override def &&(r: => Result) = r
+    }
+    final case class Fail(error: String) extends Result {
+      override def &&(r: => Result) = this
+    }
   }
 
   final case class Test(name: String,

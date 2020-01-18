@@ -27,7 +27,7 @@ object GhPages {
     | staticRoute("#test/async", AsyncTests) ~> render(secret.tests.AsyncTest.Component())
     | exampleRoutes
     )
-      .notFound(redirectToPage(Home)(Redirect.Replace))
+      .notFound(redirectToPage(Home)(SetRouteVia.HistoryReplace))
       .renderWith(layout)
       .verify(Home, Eg(ExamplesJs.Hello), Eg(ExamplesScala.EventListen), Doco)
   }

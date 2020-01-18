@@ -1,30 +1,33 @@
-import sbt._, Keys._
+import sbt._
+import sbt.Keys._
+import com.typesafe.sbt.pgp.PgpKeys
 import com.typesafe.sbt.pgp.PgpKeys._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin
-import org.scalajs.sbtplugin.ScalaJSCrossVersion
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.{crossProject => _, CrossType => _, _}
-import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
-import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.{CrossType => _, crossProject => _, _}
+import sbtrelease.ReleasePlugin.autoImport._
+//import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
+//import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 
 object ScalajsReact {
 
   object Ver {
-    val BetterMonadicFor = "0.3.0-M4"
-    val Cats             = "1.5.0"
-    val KindProjector    = "0.9.9"
+    val BetterMonadicFor = "0.3.1"
+    val Cats             = "2.0.0"
+    val KindProjector    = "0.11.0"
     val MacroParadise    = "2.1.1"
-    val Monocle          = "1.5.0"
-    val MonocleCats      = "1.5.1-cats"
-    val MTest            = "0.6.6"
-    val Nyaya            = "0.8.1"
+    val MonocleCats      = "2.0.0"
+    val MonocleScalaz    = "1.6.0"
+    val MTest            = "0.7.1"
+    val Nyaya            = "0.9.0"
     val ReactJs          = "16.7.0"
-    val Scala211         = "2.11.12"
-    val Scala212         = "2.12.8"
-    val ScalaJsDom       = "0.9.6"
-    val Scalaz72         = "7.2.27"
+    val Scala212         = "2.12.10"
+    val Scala213         = "2.13.1"
+    val ScalaCollCompat  = "2.1.3"
+    val ScalaJsDom       = "0.9.8"
+    val Scalaz72         = "7.2.30"
     val SizzleJs         = "2.3.0"
-    val Sourcecode       = "0.1.5"
+    val Sourcecode       = "0.2.0"
   }
 
   type PE = Project => Project
@@ -32,23 +35,34 @@ object ScalajsReact {
   def byScalaVersion[A](f: PartialFunction[(Long, Long), Seq[A]]): Def.Initialize[Seq[A]] =
     Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
 
+  def scalacFlags = Seq(
+    "-deprecation",
+    "-unchecked",
+    "-feature",
+    "-language:postfixOps",
+    "-language:implicitConversions",
+    "-language:higherKinds",
+    "-language:existentials",
+    "-opt:l:inline",
+    "-opt-inline-from:japgolly.scalajs.react.**",
+    "-P:scalajs:sjsDefinedByDefault")
+
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin)
       .settings(
-        scalaVersion       := Ver.Scala212,
-        crossScalaVersions := Seq(Ver.Scala211, Ver.Scala212),
-        scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
-                                "-language:postfixOps", "-language:implicitConversions",
-                                "-language:higherKinds", "-language:existentials",
-                                "-P:scalajs:sjsDefinedByDefault")
-                                ++ byScalaVersion {
-                                  case (2, 12) => Seq("-opt:l:method")
-                                  // case (2, 12) => Seq("-opt:l:project", "-opt-warnings:at-inline-failed")
-                                }.value,
-        //scalacOptions    += "-Xlog-implicits",
-        incOptions         := incOptions.value.withLogRecompileOnMacro(false),
-        updateOptions      := updateOptions.value.withCachedResolution(true),
-        triggeredMessage   := Watched.clearWhenTriggered,
+        scalaVersion                  := Ver.Scala213,
+        crossScalaVersions            := Seq(Ver.Scala212, Ver.Scala213),
+        scalacOptions                ++= scalacFlags,
+        scalacOptions                ++= byScalaVersion {
+                                           case (2, 12) => Nil
+                                           case (2, 13) => Seq("-Ymacro-annotations")
+                                         }.value,
+        //scalacOptions               += "-Xlog-implicits",
+        incOptions                    := incOptions.value.withLogRecompileOnMacro(false),
+        updateOptions                 := updateOptions.value.withCachedResolution(true),
+        releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+        releaseTagComment             := s"v${(version in ThisBuild).value}",
+        releaseVcsSign                := true,
         addCompilerPlugin("com.olegpy" %% "better-monadic-for" % Ver.BetterMonadicFor))
 
   def preventPublication: PE =
@@ -173,11 +187,19 @@ object ScalajsReact {
         "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
         "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"))
 
-  def macroParadisePlugin =
-    compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.full)
+  def paradisePlugin = Def.setting{
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, v)) if v <= 12 =>
+        Seq(compilerPlugin("org.scalamacros" % "paradise" % Ver.MacroParadise cross CrossVersion.patch))
+      case _ =>
+        // if scala 2.13.0-M4 or later, macro annotations merged into scala-reflect
+        // https://github.com/scala/scala/pull/6606
+        Nil
+    }
+  }
 
   def kindProjector =
-    compilerPlugin("org.spire-math" %% "kind-projector" % Ver.KindProjector cross CrossVersion.binary)
+    compilerPlugin("org.typelevel" %% "kind-projector" % Ver.KindProjector cross CrossVersion.full)
 
   def hasNoTests: Project => Project =
     _.settings(
@@ -187,26 +209,15 @@ object ScalajsReact {
       testOnly      in Test := {},
       testQuick     in Test := {})
 
-  def monocleLib(name: String, cats: Boolean) =
-    "com.github.julien-truffaut" %% s"monocle-$name" % {if (cats) Ver.MonocleCats else Ver.Monocle} cross ScalaJSCrossVersion.binary
-
   // ==============================================================================================
   lazy val root = Project("root", file("."))
     .settings(name := "scalajs-react")
-    .aggregate(core, extra, scalaz72, monocleScalaz, cats, monocleCats, test, /*testModule,*/ ghpagesMacros, ghpages)
-    .configure(commonSettings, preventPublication, hasNoTests, addCommandAliases(
-      "/"   -> "project root",
-      "L"   -> "root/publishLocal",
-      "C"   -> "root/clean",
-      "T"   -> ";root/clean;root/test",
-      "c"   -> "compile",
-      "tc"  -> "test:compile",
-      "t"   -> "test",
-      "tq"  -> "testQuick",
-      "to"  -> "test-only",
-      "cc"  -> ";clean;compile",
-      "ctc" -> ";clean;test:compile",
-      "ct"  -> ";clean;test"))
+    .aggregate(
+      core, extra, test, /*testModule,*/
+      cats, scalaz72,
+      monocle, monocleCats, monocleScalaz,
+      ghpagesMacros, ghpages)
+    .configure(commonSettings, preventPublication, hasNoTests)
 
   // ==============================================================================================
   lazy val core = project
@@ -214,6 +225,7 @@ object ScalajsReact {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
+        "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
         "org.scala-js" %%% "scalajs-dom" % Ver.ScalaJsDom,
         "com.lihaoyi" %%% "sourcecode" % Ver.Sourcecode))
 
@@ -235,13 +247,15 @@ object ScalajsReact {
         "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
         "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
-        monocleLib("macro", false) % Test),
+        "com.github.julien-truffaut" %%% "monocle-macro" % Ver.MonocleScalaz % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
-        (ProvidedJS / "component-fn.js" dependsOn ReactDom.dev) % Test,
-        (ProvidedJS / "forward-ref.js"  dependsOn ReactDom.dev) % Test),
-      addCompilerPlugin(macroParadisePlugin))
+        (ProvidedJS / "component-fn.js"  dependsOn ReactDom.dev) % Test,
+        (ProvidedJS / "forward-ref.js"   dependsOn ReactDom.dev) % Test,
+        (ProvidedJS / "polyfill.js"      dependsOn ReactDom.dev) % Test),
+      libraryDependencies ++= paradisePlugin.value,
+    )
 
   /*
   lazy val testModule = project.in(file("test-module"))
@@ -268,11 +282,19 @@ object ScalajsReact {
 
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
 
-  lazy val monocleScalaz = project
+  lazy val monocle = project
     .in(file("monocle"))
     .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
     .dependsOn(core, extra, scalaz72)
-    .settings(libraryDependencies += monocleLib("core", false))
+    .settings(
+      libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.MonocleScalaz)
+
+  lazy val monocleScalaz = project
+    .in(file("monocle-scalaz"))
+    .configure(commonSettings, publicationSettings, extModuleName("monocle-scalaz"), hasNoTests)
+    .dependsOn(core, extra, scalaz72)
+    .settings(
+      libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.MonocleScalaz)
 
   lazy val cats = project
     .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
@@ -288,23 +310,26 @@ object ScalajsReact {
     .settings(
       // Share the internal source code files with this module
       unmanagedSourceDirectories in Compile += (sourceDirectory in (monocleScalaz, Compile)).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
-      libraryDependencies += monocleLib("core", true)
-    )
+      libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.MonocleCats)
 
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
-    .settings(crossScalaVersions := Seq(Ver.Scala212))
+    .settings(
+      libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
+      crossScalaVersions := Seq(Ver.Scala212))
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
       crossScalaVersions := Seq(Ver.Scala212),
-      libraryDependencies += monocleLib("macro", false),
-      addCompilerPlugin(macroParadisePlugin),
+      libraryDependencies += "com.github.julien-truffaut" %%% "monocle-macro" % Ver.MonocleScalaz,
       emitSourceMaps := false,
       scalaJSUseMainModuleInitializer := true,
       mainClass in Compile := Some("ghpages.GhPages"),
-      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
+      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"),
+      libraryDependencies ++= paradisePlugin.value,
+    )
+
 }

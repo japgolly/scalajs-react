@@ -31,28 +31,28 @@ object MiscTest extends TestSuite {
 
   override def tests = Tests {
 
-    'children - {
-      'argsToComponents - {
+    "children" - {
+      "argsToComponents" - {
 
-        'listOfScalatags - assertRender(
+        "listOfScalatags" - assertRender(
           CA(<.h1("nice"), <.h2("good")),
           "<div><h1>nice</h1><h2>good</h2></div>")
 
-        'listOfReactComponents - assertRender(
+        "listOfReactComponents" - assertRender(
           CA(CB(<.h1("nice")), CB(<.h2("good"))),
           "<div><span><h1>nice</h1></span><span><h2>good</h2></span></div>")
       }
 
-      'rendersGivenChildren - {
-        'none - assertRender(CA(), "<div></div>")
-        'one - assertRender(CA(<.h1("yay")), "<div><h1>yay</h1></div>")
-        'two - assertRender(CA(<.h1("yay"), <.h3("good")), "<div><h1>yay</h1><h3>good</h3></div>")
-        'nested - assertRender(CA(CB(<.h1("nice"))), "<div><span><h1>nice</h1></span></div>")
+      "rendersGivenChildren" - {
+        "none" - assertRender(CA(), "<div></div>")
+        "one" - assertRender(CA(<.h1("yay")), "<div><h1>yay</h1></div>")
+        "two" - assertRender(CA(<.h1("yay"), <.h3("good")), "<div><h1>yay</h1><h3>good</h3></div>")
+        "nested" - assertRender(CA(CB(<.h1("nice"))), "<div><span><h1>nice</h1></span></div>")
       }
 
     }
 
-    'selectWithMultipleValues - {
+    "selectWithMultipleValues" - {
       val s = ScalaComponent.builder[Unit]("s").renderStatic(
           <.select(^.multiple := true, ^.value := js.Array("a", "c"))(
             <.option(^.value := "a")("a"),
@@ -67,7 +67,7 @@ object MiscTest extends TestSuite {
       assert(selectedOptions.toSet == Set("a", "c"))
     }
 
-    'renderScopeZoomState - {
+    "renderScopeZoomState" - {
       case class SI(s: String, i: Int)
       val C = ScalaComponent.builder[SI]("C").initialStateFromProps(p => p).render { $ =>
         val f = $.mountedImpure.zoomState(_.i)(b => _.copy(i = b))
@@ -76,8 +76,8 @@ object MiscTest extends TestSuite {
       assertRender(C(SI("Me",7)), "<div>Me/21</div>")
     }
 
-    'multiModState - {
-      'simple - {
+    "multiModState" - {
+      "simple" - {
         val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(3)
           .render { $ =>
@@ -92,7 +92,7 @@ object MiscTest extends TestSuite {
         assertEq(c.state, 11)
       }
 
-      'zoomState - {
+      "zoomState" - {
         val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(StrInt("yay", 3))
           .render { $ =>
@@ -111,7 +111,7 @@ object MiscTest extends TestSuite {
         assertEq(c.state, StrInt("oh", 108))
       }
 
-      'zoomStateL - {
+      "zoomStateL" - {
         val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(StrInt("yay", 3))
           .render { $ =>
@@ -130,7 +130,7 @@ object MiscTest extends TestSuite {
         assertEq(c.state, StrInt("oh", 108))
       }
 
-      'zoomStateL2 - {
+      "zoomStateL2" - {
         val C = ScalaComponent.builder[Unit]("multiModState")
           .initialState(StrIntWrap(StrInt("yay", 3)))
           .render { $ =>
@@ -150,24 +150,24 @@ object MiscTest extends TestSuite {
       }
     }
 
-    'domExt - {
+    "domExt" - {
       import org.scalajs.dom.raw._
       import InferenceUtil._
-      'domCast   - test[Node](_.domCast[HTMLInputElement]).expect[HTMLInputElement]
-      'domAsHtml - test[Node](_.domAsHtml).expect[HTMLElement]
-      'domToHtml - {
+      "domCast"   - test[Node](_.domCast[HTMLInputElement]).expect[HTMLInputElement]
+      "domAsHtml" - test[Node](_.domAsHtml).expect[HTMLElement]
+      "domToHtml" - {
         import org.scalajs.dom._
         val input = document.createElement("input")
         assert(input.domToHtml == Option(input.asInstanceOf[HTMLElement]))
       }
     }
 
-    'strictMode -
+    "strictMode" -
       assertRender(
         React.StrictMode(CA(<.h2("nice"), <.h3("good"))),
         "<div><h2>nice</h2><h3>good</h3></div>")
 
-    'symbolShouldntCrashToString - {
+    "symbolShouldntCrashToString" - {
       for (s <- List(js.Symbol.search, js.Symbol.forKey("ah"))) {
         JsUtil.inspectValue(s)
         JsUtil.safeToString(s)

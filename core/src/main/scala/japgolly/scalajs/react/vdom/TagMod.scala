@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.vdom
 
+import scala.collection.compat._
 import scala.scalajs.LinkingInfo.developmentMode
 
 /**
@@ -50,8 +51,8 @@ object TagMod {
   def apply(ms: TagMod*): TagMod =
     fromTraversableOnce(ms)
 
-  def fromTraversableOnce(t: TraversableOnce[TagMod]): TagMod = {
-    val v = t.toVector
+  def fromTraversableOnce(t: IterableOnce[TagMod]): TagMod = {
+    val v = t.iterator.to(Vector)
     v.length match {
       case 1 => v.head
       case 0 => empty

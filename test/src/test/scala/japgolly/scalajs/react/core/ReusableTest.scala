@@ -17,26 +17,26 @@ object ReusableTest extends TestSuite {
 
   override def tests = Tests {
 
-    'refl - assertReusable(oneIsh, oneIsh)
+    "refl" - assertReusable(oneIsh, oneIsh)
 
-    'simple - {
+    "simple" - {
       assertReusable(oneIsh, nIsh(4))
       assertNotReusable(oneIsh, nIsh(400))
     }
 
-    'symmetric - {
+    "symmetric" - {
       assertNotReusable(oneIsh, n(2))
       assertNotReusable(n(2), oneIsh)
     }
 
-    'differentTypes - assertNotReusable(oneIsh, Reusable.implicitly("hi").map(_.length))
+    "differentTypes" - assertNotReusable(oneIsh, Reusable.implicitly("hi").map(_.length))
 
-    'map - {
+    "map" - {
       "doesn't affect reusability" - {
         assertReusable(oneIsh.map(_ + 99999), nIsh(1))
         assertNotReusable(oneIsh, nIsh(99999).map(_ => 1))
       }
-      'lazy - {
+      "lazy" - {
         var set = 0
         val x = oneIsh.map(_ => {set += 1; set})
         assert(set == 0)
@@ -47,7 +47,7 @@ object ReusableTest extends TestSuite {
       }
     }
 
-    'ap - {
+    "ap" - {
       val f = Reusable.fn((_: Int) => 5)
       val g = Reusable.fn((_: Int) => 6)
       def f1 = n(1) ap f
@@ -64,7 +64,7 @@ object ReusableTest extends TestSuite {
       assertNotReusable(g2, f1, f2, g1)
     }
 
-    'callback {
+    "callback" - {
       val a = Callback(0)
       val b = Callback(0)
       val fa = Reusable.callbackByRef(a)

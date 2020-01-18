@@ -24,7 +24,7 @@ trait Broadcaster[A] extends Listenable[A] {
   override def register(listener: A => Callback) = CallbackTo {
     val record = (listener, ())
     _listeners ::= record
-    Callback(_listeners = _listeners.filter(_ ne record))
+    Callback({_listeners = _listeners.filter(_ ne record)})
   }
 
   protected def broadcast(a: A): Callback =

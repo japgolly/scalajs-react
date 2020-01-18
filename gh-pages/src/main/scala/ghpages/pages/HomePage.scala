@@ -32,6 +32,8 @@ object HomePage {
 
         p(
           "Provides (opt-in) support for pure functional programming, using ",
+          <.a(^.href := "https://github.com/typelevel/cats", "Cats"),
+          ", ",
           <.a(^.href := "https://github.com/scalaz/scalaz", "Scalaz"),
           " and ",
           <.a(^.href := "https://github.com/julien-truffaut/Monocle", "Monocle"),

@@ -2,8 +2,10 @@ package japgolly.scalajs.react.extra.router
 
 import java.util.UUID
 import java.util.regex.{Pattern, Matcher}
+import org.scalajs.dom.window.console
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
+import scala.scalajs.js.URIUtils._
 import japgolly.scalajs.react.CallbackTo
 import japgolly.scalajs.react.extra.internal.RouterMacros
 import japgolly.scalajs.react.internal.identityFn
@@ -257,189 +259,6 @@ object StaticDsl {
 
   // ===================================================================================================================
 
-  object Rule {
-    def parseOnly[Page](parse: Path => Option[Parsed[Page]]) =
-      new Rule[Page](parse, _ => None, (_, _) => None)
-
-    def empty[P]: Rule[P] =
-      Rule(_ => None, _ => None, (_, _) => None)
-  }
-
-  /**
-   * A single routing rule. Intended to be composed with other [[Rule]]s.
-   * When all rules are composed, this is turned into a [[Rules]] instance.
-   *
-   * @param parse  Attempt to parse a given path.
-   * @param path   Attempt to determine the path for some page.
-   * @param action Attempt to determine the action when a route resolves to some page.
-   * @tparam Page  The type of legal pages.
-   */
-  final case class Rule[Page](parse : Path         => Option[Parsed[Page]],
-                              path  : Page         => Option[Path],
-                              action: (Path, Page) => Option[Action[Page]]) {
-
-    /**
-     * Compose rules.
-     */
-    def |(that: Rule[Page]): Rule[Page] =
-      new Rule[Page](
-        parse  || that.parse,
-        path   || that.path,
-        (u, p) => (if (path(p).isDefined) action else that.action)(u, p))
-
-    def xmap[A](f: Page => A)(g: A => Page): Rule[A] =
-      new Rule[A](
-        p => parse(p).map(_.bimap(_ map f, f)),
-        path compose g,
-        (u, p) => action(u, g(p)).map(_ map f))
-
-    def pmap[W](f: Page => W)(pf: PartialFunction[W, Page]): Rule[W] =
-      pmapF(f)(pf.lift)
-
-    def pmapCT[W](f: Page => W)(implicit ct: ClassTag[Page]): Rule[W] =
-      pmapF(f)(ct.unapply)
-
-    def pmapF[W](f: Page => W)(g: W => Option[Page]): Rule[W] =
-      new Rule[W](
-        parse(_) map (_.bimap(_ map f, f)),
-        g(_) flatMap path,
-        (path, w) => g(w) flatMap (action(path, _)) map (_ map f))
-
-    def widen[W >: Page](pf: PartialFunction[W, Page]): Rule[W] =
-      widenF(pf.lift)
-
-    def widenCT[W >: Page](implicit ct: ClassTag[Page]): Rule[W] =
-      widenF(ct.unapply)
-
-    def widenF[W >: Page](f: W => Option[Page]): Rule[W] =
-      pmapF[W](p => p)(f)
-
-    /** See [[autoCorrect()]]. */
-    def autoCorrect: Rule[Page] =
-      autoCorrect(Redirect.Replace)
-
-    /**
-     * When a route matches a page, compare its [[Path]] to what the route would generate for the same page and if they
-     * differ, redirect to the generated one.
-     *
-     * Example: If a route matches `/issue/dev-23` and returns a `Page("DEV", 23)` for which the generate path would be
-     * `/issue/DEV-23`, this would automatically redirect `/issue/dev-23` to `/issue/DEV-23`, and process
-     * `/issue/DEV-23` normally using its associated action.
-     */
-    def autoCorrect(redirectMethod: Redirect.Method): Rule[Page] =
-      new Rule(parse, path,
-        (actualPath, page) =>
-          path(page).flatMap(expectedPath =>
-            if (expectedPath == actualPath)
-              action(actualPath, page)
-            else
-              Some(RedirectToPath(expectedPath, redirectMethod))
-          )
-      )
-
-    /**
-     * Modify the path(es) generated and parsed by this rule.
-     */
-    def modPath(add: Path => Path, remove: Path => Option[Path]): Rule[Page] =
-      new Rule(
-        remove(_) flatMap parse,
-        path(_) map add,
-        action)
-
-    /**
-     * Add a prefix to the path(es) generated and parsed by this rule.
-     */
-    def prefixPath(prefix: String): Rule[Page] =
-      modPath(
-        p => Path(prefix + p.value),
-        _ removePrefix prefix)
-
-    /**
-     * Add a prefix to the path(es) generated and parsed by this rule.
-     *
-     * Unlike [[prefixPath()]] when the suffix is non-empty, a slash is added between prefix and suffix.
-     */
-    def prefixPath_/(prefix: String): Rule[Page] = {
-      val pre = Path(prefix)
-      modPath(
-        p => if (p.isEmpty) pre else pre / p,
-        p => if (p.value == prefix) Some(Path.root) else p.removePrefix(prefix + "/"))
-    }
-
-    /**
-     * Prevent this rule from functioning unless some condition holds.
-     * When the condition doesn't hold, an alternative action may be performed.
-     *
-     * @param condUnmet Response when rule matches but condition doesn't hold.
-     *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
-     *                  route-not-found fallback behaviour.
-     */
-    def addCondition(cond: CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
-      addCondition(_ => cond)(condUnmet)
-
-    /**
-      * Prevent this rule from functioning unless some condition holds, passes in the page
-      * requested as part of the context.
-      * When the condition doesn't hold, an alternative action may be performed.
-      *
-      * @param cond Function that takes the requested page and returns true if the page should be rendered.
-      * @param condUnmet Response when rule matches but condition doesn't hold.
-      *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
-      *                  route-not-found fallback behaviour.
-      */
-    def addCondition(cond: Page => CallbackTo[Boolean])(condUnmet: Page => Option[Action[Page]]): Rule[Page] =
-      new Rule[Page](parse, path,
-        (u, p) => if (cond(p).runNow()) action(u, p) else condUnmet(p))
-
-    /**
-     * Specify behaviour when a `Page` doesn't have an associated `Path` or `Action`.
-     */
-    def fallback(fp: Page => Path, fa: (Path, Page) => Action[Page]): Rules[Page] =
-      new Rules[Page](parse, path | fp, action | fa)
-
-    /**
-     * When a `Page` doesn't have an associated  `Path` or `Action`, throw a runtime error.
-     *
-     * This is the trade-off for keeping the parsing and generation of known `Page`s in sync - compiler proof of
-     * `Page` exhaustiveness is sacrificed.
-     *
-     * It is recommended that you call [[RouterConfig.verify]] as a sanity-check.
-     */
-    def noFallback: Rules[Page] =
-      fallback(
-        page         => sys error s"Unspecified path for page $page.",
-        (path, page) => sys error s"Unspecified action for page $page at $path.")
-  }
-
-  object Rules {
-
-    /**
-     * Create routing rules all at once, with compiler proof that all `Page`s will have a `Path` and `Action`
-     * associated.
-     *
-     * The trade-off here is that care will need to be taken to ensure that path-parsing aligns with paths
-     * generated for pages. It is recommended that you call [[RouterConfig.verify]] as a sanity-check.
-     */
-    def apply[Page](toPage: Path => Option[Parsed[Page]], fromPage: Page => (Path, Action[Page])) =
-      new Rules[Page](toPage, fromPage(_)._1, (_, p) => fromPage(p)._2)
-  }
-
-  /**
-   * Exhaustive routing rules. For all `Page`s there are `Path`s and `Action`s.
-   */
-  final case class Rules[Page](parse : Path         => Option[Parsed[Page]],
-                               path  : Page         => Path,
-                               action: (Path, Page) => Action[Page]) {
-
-    /**
-     * Specify a catch-all response to unmatched/invalid routes.
-     */
-    def notFound(f: Path => Parsed[Page]): RouterConfig[Page] =
-      RouterConfig.withDefaults(parse | f, path, action)
-  }
-
-  // ===================================================================================================================
-
   final class DynamicRouteB[Page, P <: Page, O](private val f: (P => Action[Page]) => O) extends AnyVal {
     def ~>(g: P => Action[Page]): O = f(g)
   }
@@ -471,7 +290,7 @@ object RouterConfigDsl {
     def buildConfig(f: RouterConfigDsl[Page] => RouterConfig[Page]): RouterConfig[Page] =
       use(f)
 
-    def buildRule(f: RouterConfigDsl[Page] => StaticDsl.Rule[Page]): StaticDsl.Rule[Page] =
+    def buildRule(f: RouterConfigDsl[Page] => RoutingRule[Page]): RoutingRule[Page] =
       use(f)
   }
 }
@@ -482,7 +301,7 @@ object RouterConfigDsl {
  * Instead creating an instance of this yourself, use [[RouterConfigDsl.apply]].
  */
 final class RouterConfigDsl[Page] {
-  import StaticDsl.{Rule => _, Rules => _, _}
+  import StaticDsl._
 
   type Action   = japgolly.scalajs.react.extra.router.Action[Page]
   type Renderer = japgolly.scalajs.react.extra.router.Renderer[Page]
@@ -524,55 +343,54 @@ final class RouterConfigDsl[Page] {
 
   implicit def _auto_routeB_from_str(l: String) = RouteB.literal(l)
   implicit def _auto_routeB_from_path(p: Path) = RouteB.literal(p.value)
-  implicit def _auto_route_from_routeB[A, R <% RouteB[A]](r: R) = r.route
+  implicit def _auto_route_from_routeB[A, R](r: R)(implicit ev: R => RouteB[A]) = r.route
 
   // -------------------------------------------------------------------------------------------------------------------
   // Action DSL
 
   implicit def _auto_someAction[A <: Action](a: A): Option[A] = Some(a)
 
-  def render[A <% VdomElement](a: => A): Renderer =
+  def render[A](a: => A)(implicit ev: A => VdomElement): Renderer =
     Renderer(_ => a)
 
-  def renderR[A <% VdomElement](g: RouterCtl[Page] => A): Renderer =
+  def renderR[A](g: RouterCtl[Page] => A)(implicit ev: A => VdomElement): Renderer =
     Renderer(g(_))
 
-  def dynRender[P <: Page, A <% VdomElement](g: P => A): P => Renderer =
+  def dynRender[P <: Page, A](g: P => A)(implicit ev: A => VdomElement): P => Renderer =
     p => Renderer(_ => g(p))
 
-  def dynRenderR[P <: Page, A <% VdomElement](g: (P, RouterCtl[Page]) => A): P => Renderer =
+  def dynRenderR[P <: Page, A](g: (P, RouterCtl[Page]) => A)(implicit ev: A => VdomElement): P => Renderer =
     p => Renderer(r => g(p, r))
 
-  def redirectToPage(page: Page)(implicit method: Redirect.Method): RedirectToPage[Page] =
-    RedirectToPage[Page](page, method)
+  def redirectToPage(page: Page)(implicit via: SetRouteVia): RedirectToPage[Page] =
+    RedirectToPage[Page](page, via)
 
-  def redirectToPath(path: Path)(implicit method: Redirect.Method): RedirectToPath[Page] =
-    RedirectToPath[Page](path, method)
+  def redirectToPath(path: Path)(implicit via: SetRouteVia): RedirectToPath[Page] =
+    RedirectToPath[Page](path, via)
 
-  def redirectToPath(path: String)(implicit method: Redirect.Method): RedirectToPath[Page] =
+  def redirectToPath(path: String)(implicit via: SetRouteVia): RedirectToPath[Page] =
     redirectToPath(Path(path))
 
   // -------------------------------------------------------------------------------------------------------------------
   // Rule building DSL
 
-  type Rule = StaticDsl.Rule[Page]
-  type Rules = StaticDsl.Rules[Page]
-  def Rule = StaticDsl.Rule
-  def emptyRule: Rule = Rule.empty
+  type Rule = japgolly.scalajs.react.extra.router.RoutingRule[Page]
+  type Rules = japgolly.scalajs.react.extra.router.RoutingRule.WithFallback[Page]
+  def emptyRule: Rule = RoutingRule.empty
 
   implicit def _auto_parsed_from_redirect(r: Redirect): Parsed = Left(r)
   implicit def _auto_parsed_from_page    (p: Page)    : Parsed = Right(p)
 
-  implicit def _auto_parsedO_from_parsed [A <% Parsed](p: A)        : Option[Parsed] = Some(p)
-  implicit def _auto_parsedO_from_parsedO[A <% Parsed](o: Option[A]): Option[Parsed] = o.map(a => a)
+  implicit def _auto_parsedO_from_parsed [A](p: A)        (implicit ev: A => Parsed): Option[Parsed] = Some(p)
+  implicit def _auto_parsedO_from_parsedO[A](o: Option[A])(implicit ev: A => Parsed): Option[Parsed] = o.map(a => a)
 
-  implicit def _auto_notFound_from_parsed [A <% Parsed](a: A)        : Path => Parsed = _ => a
-  implicit def _auto_notFound_from_parsedF[A <% Parsed](f: Path => A): Path => Parsed = f(_)
+  implicit def _auto_notFound_from_parsed [A](a: A)        (implicit ev: A => Parsed): Path => Parsed = _ => a
+  implicit def _auto_notFound_from_parsedF[A](f: Path => A)(implicit ev: A => Parsed): Path => Parsed = f(_)
 
-  implicit def _auto_routeParser_from_parsed  [A <% Parsed](a: A)                : Path => Option[Parsed] = _ => Some(a)
-  implicit def _auto_routeParser_from_parsedF [A <% Parsed](f: Path => A)        : Path => Option[Parsed] = p => Some(f(p))
-  implicit def _auto_routeParser_from_parsedO [A <% Parsed](o: Option[A])        : Path => Option[Parsed] = _ => o.map(a => a)
-  implicit def _auto_routeParser_from_parsedFO[A <% Parsed](f: Path => Option[A]): Path => Option[Parsed] = f(_).map(a => a)
+  implicit def _auto_routeParser_from_parsed  [A](a: A)                (implicit ev: A => Parsed): Path => Option[Parsed] = _ => Some(a)
+  implicit def _auto_routeParser_from_parsedF [A](f: Path => A)        (implicit ev: A => Parsed): Path => Option[Parsed] = p => Some(f(p))
+  implicit def _auto_routeParser_from_parsedO [A](o: Option[A])        (implicit ev: A => Parsed): Path => Option[Parsed] = _ => o.map(a => a)
+  implicit def _auto_routeParser_from_parsedFO[A](f: Path => Option[A])(implicit ev: A => Parsed): Path => Option[Parsed] = f(_).map(a => a)
 
   // allows dynamicRoute ~~> X to not care if X is (Action) or (P => Action)
   implicit def _auto_pToAction_from_action(a: => Action): Page => Action = _ => a
@@ -596,7 +414,7 @@ final class RouterConfigDsl[Page] {
   def dynamicRouteF[P <: Page](r: Route[P])(op: Page => Option[P]): DynamicRouteB[Page, P, Rule] = {
     def onPage[A](f: P => A)(page: Page): Option[A] =
       op(page) map f
-    new DynamicRouteB(a => Rule(r.parse, onPage(r.pathFor), (_, p) => onPage(a)(p)))
+    new DynamicRouteB(a => RoutingRule.Atom(r.parse, onPage(r.pathFor), (_, p) => onPage(a)(p)))
   }
 
   def dynamicRouteCT[P <: Page](r: Route[P])(implicit ct: ClassTag[P]): DynamicRouteB[Page, P, Rule] =
@@ -612,13 +430,81 @@ final class RouterConfigDsl[Page] {
     rewritePathF(pf.lift)
 
   def rewritePathF(f: Path => Option[Redirect]): Rule =
-    Rule parseOnly f
+    RoutingRule parseOnly f
 
   def rewritePathR(r: Pattern, f: Matcher => Option[Redirect]): Rule =
     rewritePathF { p =>
       val m = r.matcher(p.value)
       if (m.matches) f(m) else None
     }
+
+  /** Captures the query portion of the URL to a param map.
+    *
+    * Note that this is not a strict capture, URLs without a query string will still be accepted,
+    * and the parameter map will simply by empty.
+    */
+  lazy val queryToMap: RouteB[Map[String, String]] = {
+    type A = Map[String, String]
+
+    val queryRegex = """(\?[^#]*)?"""
+
+    val kvRegex = "^([^=]+)(?:=(.*))?$".r
+
+    def decode(str: String): String =
+      decodeURIComponent(str.replace('+', ' '))
+
+    val needingEncoding = """[~!'()]|%[02]0""".r
+
+    def encode(str: String): String =
+      needingEncoding.replaceAllIn(encodeURIComponent(str), m =>
+        m.group(0) match {
+          case "%20" => "+"
+          case "!"   => "%21"
+          case "'"   => "%27"
+          case "("   => "%28"
+          case ")"   => "%29"
+          case "~"   => "%7E"
+          case "%00" => (0: Char).toString
+        }
+      )
+
+
+    val parse: (Int => String) => Option[A] =
+      _(0) match {
+        case null => Some(Map.empty)
+        case q =>
+          q
+            .tail
+            .split("&")
+            .iterator
+            .filter(_.nonEmpty)
+            .map {
+              case kvRegex(k, null) => Some(decode(k) -> "")
+              case kvRegex(k, v)    => Some(decode(k) -> decode(v))
+              case x =>
+                console.warn(s"Unable to parse query string pair: $x")
+                None
+            }
+            .foldLeft(Option(Map.empty: A)) {
+              case (Some(m), Some(kv)) => Some(m + kv)
+              case _                   => None
+            }
+      }
+
+    val build: A => String =
+      m =>
+        if (m.isEmpty)
+          ""
+        else
+          m.iterator
+            .map {
+              case (k, "") => encode(k)
+              case (k, v)  => s"${encode(k)}=${encode(v)}"
+            }
+            .mkString("?", "&", "")
+
+    new RouteB[Map[String, String]](queryRegex, 1, parse, build)
+  }
 
   // -------------------------------------------------------------------------------------------------------------------
   // Utilities
@@ -629,24 +515,24 @@ final class RouterConfigDsl[Page] {
     * e.g. `a/b?c=1` to `a/b`
     */
   def removeQuery: Rule =
-    rewritePathR("^(.*?)\\?.*$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+    rewritePathR("^(.*?)\\?.*$".r, m => redirectToPath(m group 1)(SetRouteVia.HistoryReplace))
 
   /**
    * A rule that uses a replace-state redirect to remove trailing slashes from route URLs.
    */
   def removeTrailingSlashes: Rule =
-    rewritePathR("^(.*?)/+$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+    rewritePathR("^(.*?)/+$".r, m => redirectToPath(m group 1)(SetRouteVia.HistoryReplace))
 
   /**
    * A rule that uses a replace-state redirect to remove leading slashes from route URLs.
    */
   def removeLeadingSlashes: Rule =
-    rewritePathR("^/+(.*)$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+    rewritePathR("^/+(.*)$".r, m => redirectToPath(m group 1)(SetRouteVia.HistoryReplace))
 
   /**
    * A rule that uses a replace-state redirect to remove leading and trailing slashes from route URLs.
    */
   def trimSlashes: Rule = (
-    rewritePathR("^/*(.*?)/+$".r, m => redirectToPath(m group 1)(Redirect.Replace))
+    rewritePathR("^/*(.*?)/+$".r, m => redirectToPath(m group 1)(SetRouteVia.HistoryReplace))
     | removeLeadingSlashes)
 }

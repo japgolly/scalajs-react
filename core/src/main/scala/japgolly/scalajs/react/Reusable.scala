@@ -31,6 +31,12 @@ final class Reusable[+A] private[Reusable](lazyValue: () => A,
     new Reusable[B](() => b, root, isReusable)
   }
 
+  def withValue[B](b: B): Reusable[B] =
+    new Reusable[B](() => b, root, isReusable)
+
+  def withLazyValue[B](b: => B): Reusable[B] =
+    map(_ => b)
+
   /** Create a new `Reusable[B]` that is reusable so long as this `Reusable[A]` and the `Reusable[A => B]` are. */
   def ap[B](rf: Reusable[A => B]): Reusable[B] =
     Reusable.ap(this, rf)((a, f) => f(a))
@@ -114,6 +120,47 @@ object Reusable {
 
   def callbackOptionByRef[A](c: CallbackOption[A]): Reusable[CallbackOption[A]] =
     byRefIso(c)(_.underlyingRepr)
+
+  /** Convenience methods that help you create `I => Reusable[O]` functions.
+    *
+    * The reason this is more convenient than the underlying methods is that this makes it easier to create and share a
+    * single [[Reusability]] instance at the function definition site, before it's used.
+    *
+    * Also note, that it's important that the functions you provide are pure. If you don't always return the same output
+    * given the same input, then you can expect different outputs to be discarded or "lost".
+    *
+    * @since 1.5.0
+    */
+  object fnOutput {
+
+    def implicitly[I: ClassTag : Reusability, O](f: I => O): I => Reusable[O] =
+      Reusable.implicitly(_).map(f)
+
+    def explicitly[I: ClassTag, O](r: Reusability[I])(f: I => O): I => Reusable[O] =
+      Reusable.explicitly(_)(r).map(f)
+
+    /** Use constant reusability (i.e. always-reuse or never-reuse) */
+    def const[I, O](f: I => O, isReusable: Boolean): I => Reusable[O] =
+      Reusable.const(_, isReusable).map(f)
+
+    def always[I, O](f: I => O): I => Reusable[O] =
+      const(f, true)
+
+    def never[I, O](f: I => O): I => Reusable[O] =
+      const(f, false)
+
+    /** Compare by reference. Reuse if both values are the same instance. */
+    def byRef[I <: AnyRef, O](f: I => O): I => Reusable[O] =
+      Reusable.byRef(_).map(f)
+
+    /** Compare using universal equality (Scala's == operator). */
+    def by_==[I, O](f: I => O): I => Reusable[O] =
+      Reusable.by_==(_).map(f)
+
+    /** Compare by reference and if different, compare using universal equality (Scala's == operator). */
+    def byRefOr_==[I <: AnyRef, O](f: I => O): I => Reusable[O] =
+      Reusable.byRefOr_==(_).map(f)
+  }
 
   /**
    * A function that facilitates stability and reuse.

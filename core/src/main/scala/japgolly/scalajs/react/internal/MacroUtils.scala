@@ -3,6 +3,7 @@ package japgolly.scalajs.react.internal
 // Copied from https://raw.githubusercontent.com/japgolly/microlibs-scala/master/macro-utils/shared/src/main/scala/japgolly/microlibs/macro_utils/MacroUtils.scala
 
 import scala.annotation.tailrec
+import scala.collection.compat._
 
 object MacroUtils {
   sealed trait FindSubClasses
@@ -14,6 +15,7 @@ object MacroUtils {
 abstract class MacroUtils {
   val c: scala.reflect.macros.blackbox.Context
   import c.universe._
+  import c.internal._
   import MacroUtils.FindSubClasses
 
   sealed trait TypeOrTree
@@ -114,7 +116,7 @@ abstract class MacroUtils {
 
   final def crawlADT[A](tpe    : Type,
                         attempt: ClassSymbol => Option[A],
-                        giveUp : ClassSymbol => TraversableOnce[A]): Vector[A] = {
+                        giveUp : ClassSymbol => IterableOnce[A]): Vector[A] = {
     var seen = Set.empty[Type]
     val results = Vector.newBuilder[A]
 
@@ -172,7 +174,7 @@ abstract class MacroUtils {
    * - Type must be sealed.
    * - Type must be abstract or a trait.
    */
-  final def findConcreteTypes(tpe: Type, f: FindSubClasses): Set[ClassSymbol] = {
+  final def findConcreteTypes(tpe: Type, f: FindSubClasses): Vector[ClassSymbol] = {
      val sym = ensureValidAdtBase(tpe)
 
     def findSubClasses(p: ClassSymbol): Set[ClassSymbol] = {
@@ -193,20 +195,22 @@ abstract class MacroUtils {
       }
     }
 
-    findSubClasses(sym)
+    val set = findSubClasses(sym)
+
+    deterministicOrderC(set)
   }
 
-  final def findConcreteTypesNE(tpe: Type, f: FindSubClasses): Set[ClassSymbol] = {
+  final def findConcreteTypesNE(tpe: Type, f: FindSubClasses): Vector[ClassSymbol] = {
     val r = findConcreteTypes(tpe, f)
     if (r.isEmpty)
       fail(s"Unable to find concrete types for ${tpe.typeSymbol.name}.")
     r
   }
 
-  final def findConcreteAdtTypes(tpe: Type, f: FindSubClasses): Set[Type] =
+  final def findConcreteAdtTypes(tpe: Type, f: FindSubClasses): Vector[Type] =
     findConcreteTypes(tpe, f) map (determineAdtType(tpe, _))
 
-  final def findConcreteAdtTypesNE(tpe: Type, f: FindSubClasses): Set[Type] =
+  final def findConcreteAdtTypesNE(tpe: Type, f: FindSubClasses): Vector[Type] =
     findConcreteTypesNE(tpe, f) map (determineAdtType(tpe, _))
 
   /**
@@ -216,34 +220,25 @@ abstract class MacroUtils {
    * @param t The subclass.
    */
   final def determineAdtType(T: Type, t: ClassSymbol): Type = {
-    val t2 =
-      if (t.typeParams.isEmpty)
-        t.toType
-      else if (t.isCaseClass)
-        caseClassTypeCtorToType(T, t)
-      else
-        t.toType
+    val t2 = propagateTypeParams(T, t)
     require(t2 <:< T, s"$t2 is not a subtype of $T")
     t2
   }
 
-  /**
-   * Turns a case class type constructor into a type.
-   *
-   * Eg. caseClassTypeCtorToType(Option[Int], Some[_]) → Some[Int]
-   *
-   * Actually this doesn't work with type variance :(
-   */
-  private def caseClassTypeCtorToType(baseTrait: Type, caseclass: ClassSymbol): Type = {
-    val companion = caseclass.companion
-    val apply = companion.typeSignature.member(TermName("apply"))
-    if (apply == NoSymbol)
-      fail(s"Don't know how to turn $caseclass into a real type of $baseTrait; it's generic and its companion has no `apply` method.")
-
-    val matchArgs = apply.asMethod.paramLists.flatten.map { arg => pq"_" }
-    val name = TermName(c.freshName("x"))
-    c.typecheck(q"""(??? : $baseTrait) match {case $name@$companion(..$matchArgs) => $name }""").tpe
-  }
+  /** propagateTypeParams(Either[Int, Long], Right) -> Right[Long] */
+  def propagateTypeParams(root0: Type, child: ClassSymbol): Type = {
+    val root = root0.dealias
+    // Thank you Jon Pretty!
+    // https://github.com/propensive/magnolia/blob/6d05a4b61b19b003d68505e2384d964ae3397e69/core/shared/src/main/scala/magnolia.scala#L411-L420
+    val subType     = child.asType.toType // FIXME: Broken for path dependent types
+    val typeParams  = child.asType.typeParams
+    val typeArgs    = thisType(child).baseType(root.typeSymbol).typeArgs
+    val mapping     = typeArgs.map(_.typeSymbol).iterator.zip(root.typeArgs.iterator).toMap
+    val newTypeArgs = typeParams.map(mapping.withDefault(_.asType.toType))
+    val applied     = appliedType(subType.typeConstructor, newTypeArgs)
+    val result      = existentialAbstraction(typeParams, applied)
+    result
+}
 
   final def flattenBlocks(trees: List[Tree]): Vector[Tree] = {
     @tailrec def go(acc: Vector[Tree], ts: List[Tree]): Vector[Tree] =
@@ -454,11 +449,11 @@ abstract class MacroUtils {
     c.Expr[T => T](q"(t: $T) => t")
   }
 
-  def deterministicOrderT(ts: TraversableOnce[Type]): Vector[Type] =
-    ts.toVector.sortBy(_.typeSymbol.fullName)
+  def deterministicOrderT(ts: IterableOnce[Type]): Vector[Type] =
+    ts.iterator.to(Vector).sortBy(_.typeSymbol.fullName)
 
-  def deterministicOrderC(ts: TraversableOnce[ClassSymbol]): Vector[ClassSymbol] =
-    ts.toVector.sortBy(_.fullName)
+  def deterministicOrderC(ts: IterableOnce[ClassSymbol]): Vector[ClassSymbol] =
+    ts.iterator.to(Vector).sortBy(_.fullName)
 
 
   final def replaceMacroMethod(newMethod: String) =

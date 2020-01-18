@@ -25,13 +25,13 @@ object JsFnComponentTest extends TestSuite {
 
   override def tests = Tests {
 
-//    'displayName - {
+//    "displayName" - {
 //      println(Component.raw)
 //      println(internal.JsUtil inspectObject Component.raw)
 //    }
 
-    'noChildren - {
-      'main - {
+    "noChildren" - {
+      "main" - {
         val unmounted = Component(JsProps("Bob"))
         assertEq(unmounted.props.name, "Bob")
         assertEq(unmounted.propsChildren.count, 0)
@@ -50,7 +50,7 @@ object JsFnComponentTest extends TestSuite {
         }
       }
 
-      'key - {
+      "key" - {
         val unmounted = Component.withKey("hehe")(JsProps("Bob"))
         assertEq(unmounted.props.name, "Bob")
         assertEq(unmounted.propsChildren.count, 0)
@@ -69,60 +69,60 @@ object JsFnComponentTest extends TestSuite {
         }
       }
 
-      'ctorReuse -
+      "ctorReuse" -
         assert(Component(JsProps("a")) ne Component(JsProps("b")))
     }
 
-    'fromScala {
+    "fromScala" - {
 
-      'const {
+      "const" - {
         val c = JsFnComponent.fromScala.const(<.div("ah"))
         assertRender(c(), "<div>ah</div>")
       }
 
-      'byName {
+      "byName" - {
         val c = JsFnComponent.fromScala.byName(<.div("ah"))
         assertRender(c(), "<div>ah</div>")
       }
 
-      'apply {
+      "apply" - {
         val c = JsFnComponent.fromScala[JsProps](p => <.div(p.name))
         assertRender(c(JsProps("hi")), "<div>hi</div>")
       }
 
-      'withChildren {
+      "withChildren" - {
         val c = JsFnComponent.fromScala.withChildren[JsProps]((p, c) => <.div(c, p.name))
         assertRender(c(JsProps("hi"))("name: "), "<div>name: hi</div>")
       }
 
-      'justChildren {
+      "justChildren" - {
         val c = JsFnComponent.fromScala.justChildren(c => <.div(c))
         assertRender(c("ok"), "<div>ok</div>")
       }
 
     }
 
-    'toComponent {
+    "toComponent" - {
 
-      'nullary {
+      "nullary" - {
         val s = ScalaComponent.static("")(<.div("ah"))
         val c = s.toJsComponent
         assertRender(c(), "<div>ah</div>")
       }
 
-      'props {
+      "props" - {
         val s = ScalaComponent.builder[String]("").render_P(<.div(_)).build
         val c = s.cmapCtorProps[JsProps](_.name).toJsComponent
         assertRender(c(JsProps("hi")), "<div>hi</div>")
       }
 
-      'withChildren {
+      "withChildren" - {
         val s = ScalaComponent.builder[String]("").render_PC((p, c) => <.div(c, p)).build
         val c = s.cmapCtorProps[JsProps](_.name).toJsComponent
         assertRender(c(JsProps("hi"))("name: "), "<div>name: hi</div>")
       }
 
-      'justChildren {
+      "justChildren" - {
         val s = ScalaComponent.builder[Unit]("").render_C(<.div(_)).build
         val c = s.toJsComponent
         assertRender(c("ok"), "<div>ok</div>")

@@ -35,7 +35,7 @@ object PxTest extends TestSuite {
   type AddCC = Int => Int
 
   override def tests = Tests {
-    'big - {
+    "big" - {
       val xa = Px("a").withReuse.manualUpdate
 
       var vb = "b"
@@ -52,24 +52,24 @@ object PxTest extends TestSuite {
       val xbc   = for {b <- xb; c <- xc} yield {rbc += 1; b + c}
       val xabbc = for {ab <- xab; bc <- xbc} yield {rabbc += 1; ab + " " + bc}
 
-      def revs = Map[Symbol, Int](
-        'xa    -> xa.rev,
-        'xb    -> xb.rev,
-        'xc    -> xc.rev,
-        'xab   -> (xab  .rev + 1000 * rab),
-        'xbc   -> (xbc  .rev + 1000 * rbc),
-        'xabbc -> (xabbc.rev + 1000 * rabbc))
+      def revs = Map[String, Int](
+        "xa"    -> xa.rev,
+        "xb"    -> xb.rev,
+        "xc"    -> xc.rev,
+        "xab"   -> (xab  .rev + 1000 * rab),
+        "xbc"   -> (xbc  .rev + 1000 * rbc),
+        "xabbc" -> (xabbc.rev + 1000 * rabbc))
 
       var lastRevs = revs
-      def assertChanges(expectedChanges: Symbol*): Unit =  {
+      def assertChanges(expectedChanges: String*): Unit =  {
         val n = revs
-        def f(m: Map[Symbol, Int]) = m.toList.toSet
+        def f(m: Map[String, Int]) = m.toList.toSet
         val changed = (f(lastRevs) -- f(n)).map(_._1)
         assertEq("assertChanges", changed, expectedChanges.toSet)
         lastRevs = n
       }
 
-      def test(a: String, b: String, c: String)(expectedChanges: Symbol*): Unit = {
+      def test(a: String, b: String, c: String)(expectedChanges: String*): Unit = {
         var tests = Vector.empty[() => Unit]
         def t(t: => Unit): Unit = tests :+= (() => t)
 
@@ -89,23 +89,23 @@ object PxTest extends TestSuite {
       test("a", "b", "c")()
 
       xa.set("A")
-      test("A", "b", "c")('xa, 'xab, 'xabbc)
+      test("A", "b", "c")("xa", "xab", "xabbc")
 
       vb = "B"
-      test("A", "B", "c")('xb, 'xab, 'xbc, 'xabbc)
+      test("A", "B", "c")("xb", "xab", "xbc", "xabbc")
 
       vc = "C"
       test("A", "B", "c")()
 
       xc.refresh()
-      test("A", "B", "C")('xc, 'xbc, 'xabbc)
+      test("A", "B", "C")("xc", "xbc", "xabbc")
 
       xa.set("A")
       xc.refresh()
       test("A", "B", "C")()
     }
 
-    'map - {
+    "map" - {
       val add0 = addFn(0)
       val add5 = addFn(5)
       val px3 = Px(3).withReuse.manualUpdate
@@ -122,7 +122,7 @@ object PxTest extends TestSuite {
       px3.set(0); test(5, 3, 3)
     }
 
-    'mapReuse - {
+    "mapReuse" - {
       val even = TraceFn((_: Int) & 254)
       val add5 = addFn(5)
       val px4 = Px(4).withReuse.manualUpdate
@@ -140,19 +140,19 @@ object PxTest extends TestSuite {
       px4.set(5); test(9, 4, 3)
     }
 
-    'extract - {
-      'bad - {
+    "extract" - {
+      "bad" - {
         val px: Px[Int] = Px(3).withReuse.manualUpdate
         assert(compileError("px.extract").msg contains "with functions, not Int")
       }
-      'fn0 - {
+      "fn0" - {
         var i = () => 30
         val fn = Px(i).withoutReuse.autoRefresh.extract
         assertEq(fn(), 30)
         i = () => 4
         assertEq(fn(), 4)
       }
-      'fn1 - {
+      "fn1" - {
         var i = 30
         val px = Px(i).withReuse.autoRefresh.map(a => (b: Int) => a - b)
         val fn = px.extract
@@ -160,14 +160,14 @@ object PxTest extends TestSuite {
         i = 20
         assertEq(fn(7), 13)
       }
-      'fn2 - {
+      "fn2" - {
         var i = 30
         val fn = Px(i).withReuse.autoRefresh.map(a => (b: Int, c: Int) => a - b - c).extract
         assertEq(fn(7, 3), 20)
         i = 20
         assertEq(fn(3, 7), 10)
       }
-      'dealias - {
+      "dealias" - {
         val add: AddCC = _ + 8
         val fn = Px(add).withoutReuse.autoRefresh.extract
         assertEq(fn(3), 11)

@@ -3,13 +3,15 @@ package japgolly.scalajs.react
 import org.scalajs.dom.{console, window}
 import org.scalajs.dom.raw.Window
 import scala.annotation.{implicitNotFound, tailrec}
-import scala.collection.generic.CanBuildFrom
+import scala.collection.compat._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.scalajs.js
 import scala.scalajs.js.{UndefOr, undefined, Function0 => JFn0, Function1 => JFn1}
+import scala.scalajs.js.timers.{RawTimers, SetIntervalHandle, SetTimeoutHandle}
 import scala.util.{Failure, Success, Try}
 import japgolly.scalajs.react.internal.{catchAll, identityFn}
+import java.time.Duration
 import CallbackTo.MapGuard
 
 /**
@@ -99,12 +101,12 @@ object Callback {
   def unless(cond: Boolean)(c: => Callback): Callback =
     when(!cond)(c)
 
-  def traverse[T[X] <: TraversableOnce[X], A](ta: => T[A])(f: A => Callback): Callback =
+  def traverse[T[X] <: IterableOnce[X], A](ta: => T[A])(f: A => Callback): Callback =
     Callback(
-      ta.foreach(a =>
+      ta.iterator.foreach(a =>
         f(a).runNow()))
 
-  def sequence[T[X] <: TraversableOnce[X]](tca: => T[Callback]): Callback =
+  def sequence[T[X] <: IterableOnce[X]](tca: => T[Callback]): Callback =
     traverse(tca)(identityFn)
 
   def traverseOption[A](oa: => Option[A])(f: A => Callback): Callback =
@@ -169,6 +171,14 @@ object Callback {
 
   private[react] def todoImpl(reason: Option[() => String]): Callback =
     byName(warn("TODO" + reason.fold("")(": " + _())))
+
+  final class SetIntervalResult(val handle: SetIntervalHandle) {
+    val cancel: Callback = Callback { RawTimers.clearInterval(handle) }
+  }
+
+  final class SetTimeoutResult(val handle: SetTimeoutHandle) {
+    val cancel: Callback = Callback { RawTimers.clearTimeout(handle) }
+  }
 }
 
 // =====================================================================================================================
@@ -226,10 +236,10 @@ object CallbackTo {
       CallbackTo(f(_).runNow())
 
     /** Anything traversable by the Scala stdlib definition */
-    def std[T[X] <: TraversableOnce[X]](implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[A] => T[B]] =
+    def std[T[X] <: IterableOnce[X]](implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackTo[T[A] => T[B]] =
       CallbackTo { ta =>
-        val r = cbf(ta)
-        ta.foreach(a => r += f(a).runNow())
+        val r = cbf.newBuilder(ta)
+        ta.iterator.foreach(a => r += f(a).runNow())
         r.result()
       }
 
@@ -240,13 +250,13 @@ object CallbackTo {
   /** Traverse stdlib T over CallbackTo.
     * Distribute CallbackTo over stdlib T.
     */
-  def traverse[T[X] <: TraversableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])(implicit cbf: CanBuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
+  def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])(implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
     liftTraverse(f).std[T](cbf).map(_(ta))
 
   /** Sequence stdlib T over CallbackTo.
     * Co-sequence CallbackTo over stdlib T.
     */
-  def sequence[T[X] <: TraversableOnce[X], A](tca: => T[CallbackTo[A]])(implicit cbf: CanBuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
+  def sequence[T[X] <: IterableOnce[X], A](tca: => T[CallbackTo[A]])(implicit cbf: BuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
     traverse(tca)(identityFn)(cbf)
 
   /** Traverse Option over CallbackTo.
@@ -389,7 +399,7 @@ object CallbackTo {
  *
  * @since 0.10.0
  */
-final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) extends AnyVal {
+final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) extends AnyVal { self =>
 
   /**
     * Executes this callback, on the current thread, right now, blocking until complete.
@@ -535,11 +545,11 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     */
   def memo(): CallbackTo[A] = {
     var result: Option[Try[A]] = None
-    val self = attemptTry
+    val real = attemptTry
     CallbackTo {
       val t: Try[A] =
         result.getOrElse {
-          val t = self.runNow()
+          val t = real.runNow()
           result = Some(t)
           t
         }
@@ -653,10 +663,14 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
     * `this.async.toCallback` will never throw an exception.
     */
   def async: AsyncCallback[A] =
-    delayMs(0)
+    delayMs(1)
 
   /** Run asynchronously after a delay of a given duration. */
   def delay(startIn: FiniteDuration): AsyncCallback[A] =
+    delayMs(startIn.toMillis.toDouble)
+
+  /** Run asynchronously after a delay of a given duration. */
+  def delay(startIn: Duration): AsyncCallback[A] =
     delayMs(startIn.toMillis.toDouble)
 
   /** Run asynchronously after a `startInMilliseconds` ms delay. */
@@ -720,6 +734,52 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
   def toKleisli[B]: CallbackKleisli[B, A] =
     CallbackKleisli const this
 
+  /** Wraps this so that:
+    *
+    * 1) It only executes if `e.defaultPrevented` is `false`.
+    * 2) It sets `e.preventDefault` on successful completion.
+    */
+  def asEventDefault(e: ReactEvent): CallbackTo[Option[A]] =
+    (this <* e.preventDefaultCB).unless(e.defaultPrevented)
+
+  /** Schedule this callback for repeated execution every `interval` milliseconds.
+    *
+    * @param interval duration in milliseconds between executions
+    * @return A means to cancel the interval.
+    */
+  def setIntervalMs(interval: Double): CallbackTo[Callback.SetIntervalResult] = {
+    val underlying = self.toJsFn
+    CallbackTo {
+      val handle = RawTimers.setInterval(underlying, interval)
+      new Callback.SetIntervalResult(handle)
+    }
+  }
+
+  def setInterval(interval: FiniteDuration): CallbackTo[Callback.SetIntervalResult] =
+    setIntervalMs(interval.toMillis.toDouble)
+
+  def setInterval(interval: Duration): CallbackTo[Callback.SetIntervalResult] =
+    setIntervalMs(interval.toMillis.toDouble)
+
+  /** Schedule this callback for execution in `interval` milliseconds.
+    *
+    * @param interval duration in milliseconds to wait
+    * @return A means to cancel the timeout.
+    */
+  def setTimeoutMs(interval: Double): CallbackTo[Callback.SetTimeoutResult] = {
+    val underlying = self.toJsFn
+    CallbackTo {
+      val handle = RawTimers.setTimeout(underlying, interval)
+      new Callback.SetTimeoutResult(handle)
+    }
+  }
+
+  def setTimeout(interval: FiniteDuration): CallbackTo[Callback.SetTimeoutResult] =
+    setTimeoutMs(interval.toMillis.toDouble)
+
+  def setTimeout(interval: Duration): CallbackTo[Callback.SetTimeoutResult] =
+    setTimeoutMs(interval.toMillis.toDouble)
+
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean ops
 
@@ -748,12 +808,4 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val f: () => A) ex
    */
   def !(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
     ev(this).map(!_)
-
-  /** Wraps this so that:
-    *
-    * 1) It only executes if `e.defaultPrevented` is `false`.
-    * 2) It sets `e.preventDefault` on successful completion.
-    */
-  def asEventDefault(e: ReactEvent): CallbackTo[Option[A]] =
-    (this <* e.preventDefaultCB).unless(e.defaultPrevented)
 }

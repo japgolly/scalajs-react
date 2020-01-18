@@ -1,6 +1,8 @@
 package japgolly.scalajs.react.vdom
 
+import japgolly.scalajs.react.raw.JsNumber
 import scala.scalajs.js
+import scala.scalajs.js.|
 import PackageBase._
 
 object HtmlAttrs extends HtmlAttrs
@@ -46,194 +48,544 @@ trait HtmlAttrs {
     /**
       * Identifies the currently active descendant of a composite widget.
       */
-    final def activeDescendant = VdomAttr("aria-activedescendant")
+    def activeDescendant = VdomAttr[String]("aria-activedescendant")
 
     /**
       * Indicates whether assistive technologies will present all, or only parts of, the changed region based on the change notifications defined by the aria-relevant attribute. See related aria-relevant.
       */
-    final def atomic = VdomAttr("aria-atomic")
+    def atomic = VdomAttr[Boolean]("aria-atomic")
 
     /**
       * Indicates whether user input completion suggestions are provided.
       */
-    final def autoComplete = VdomAttr("aria-autocomplete")
+    object autoComplete extends Attr.Generic[String]("aria-autocomplete") {
+      /** When a user is providing input, text suggesting one way to complete the provided input may be dynamically inserted after the caret. */
+      def inline = this := "inline"
+
+      /** When a user is providing input, an element containing a collection of values that could complete the provided input may be displayed. */
+      def list = this := "list"
+
+      /** When a user is providing input, an element containing a collection of values that could complete the provided input may be displayed. If displayed, one value in the collection is automatically selected, and the text needed to complete the automatically selected value appears after the caret in the input. */
+      def both = this := "both"
+
+      /** (default)	When a user is providing input, an automatic suggestion that attempts to predict how the user intends to complete the input is not displayed. */
+      def none = this := "none"
+    }
 
     /**
       * Indicates whether an element, and its subtree, are currently being updated.
       */
-    final def busy = VdomAttr("aria-busy")
+    def busy = VdomAttr[Boolean]("aria-busy")
 
     /**
       * Indicates the current "checked" state of checkboxes, radio buttons, and other widgets. See related aria-pressed and aria-selected.
       */
-    final def checked = VdomAttr("aria-checked")
+    object checked extends Attr.Generic[String | Boolean]("aria-checked") {
+      def `false` = this := false
+      def `true`  = this := true
+      def mixed   = this := "mixed"
+    }
+
+    /** Defines the total number of columns in a table, grid, or treegrid. See related aria-colindex.
+      *
+      * If all of the columns are present in the DOM, it is not necessary to set this attribute as the user agent can automatically calculate the total number of columns. However, if only a portion of the columns is present in the DOM at a given moment, this attribute is needed to provide an explicit indication of the number of columns in the full table.
+      *
+      * Authors MUST set the value of aria-colcount to an integer equal to the number of columns in the full table. If the total number of columns is unknown, authors MUST set the value of aria-colcount to -1 to indicate that the value should not be calculated by the user agent.
+      */
+    def colCount = VdomAttr[Int]("aria-colcount")
+
+    /** Defines an element's column index or position with respect to the total number of columns within a table, grid, or treegrid. See related aria-colcount and aria-colspan.
+      *
+      * If all of the columns are present in the DOM, it is not necessary to set this attribute as the user agent can automatically calculate the column index of each cell or gridcell. However, if only a portion of the columns is present in the DOM at a given moment, this attribute is needed to provide an explicit indication of the column of each cell or gridcell with respect to the full table.
+      *
+      * Authors MUST set the value for aria-colindex to an integer greater than or equal to 1, greater than the aria-colindex value of any previous elements within the same row, and less than or equal to the number of columns in the full table. For a cell or gridcell which spans multiple columns, authors MUST set the value of aria-colindex to the start of the span.
+      *
+      * If the set of columns which is present in the DOM is contiguous, and if there are no cells which span more than one row or column in that set, then authors MAY place aria-colindex on each row, setting the value to the index of the first column of the set. Otherwise, authors SHOULD place aria-colindex on all of the children or owned elements of each row.
+      */
+    def colIndex = VdomAttr[Int]("aria-colindex")
+
+    /** Defines the number of columns spanned by a cell or gridcell within a table, grid, or treegrid. See related aria-colindex and aria-rowspan.
+      *
+      * This attribute is intended for cells and gridcells which are not contained in a native table. When defining the column span of cells or gridcells in a native table, authors SHOULD use the host language's attribute instead of aria-colspan. If aria-colspan is used on an element for which the host language provides an equivalent attribute, user agents MUST ignore the value of aria-colspan and instead expose the value of the host language's attribute to assistive technologies.
+      *
+      * Authors MUST set the value of aria-colspan to an integer greater than or equal to 1 and less than the value which would cause the cell or gridcell to overlap the next cell or gridcell in the same row.
+      */
+    def colSpan = VdomAttr[Int]("aria-colspan")
 
     /**
       * Identifies the element (or elements) whose contents or presence are controlled by the current element. See related aria-owns.
       */
-    final def controls = VdomAttr("aria-controls")
+    def controls = VdomAttr("aria-controls")
+
+    /** Indicates the element that represents the current item within a container or set of related elements.
+      *
+      * The aria-current attribute is an enumerated type. Any value not included in the list of allowed values SHOULD be treated by assistive technologies as if the value true had been provided. If the attribute is not present or its value is an empty string or undefined, the default value of false applies and the aria-current state MUST NOT be exposed by user agents or assistive technologies.
+      *
+      * The aria-current attribute is used when an element within a set of related elements is visually styled to indicate it is the current item in the set. For example:
+      *
+      * A page token used to indicate a link within a set of pagination links, where the link is visually styled to represent the currently-displayed page.
+      * A step token used to indicate a link within a step indicator for a step-based process, where the link is visually styled to represent the current step.
+      * A location token used to indicate the image that is visually highlighted as the current component of a flow chart.
+      * A date token used to indicate the current date within a calendar.
+      * A time token used to indicate the current time within a timetable.
+      * Authors SHOULD only mark one element in a set of elements as current with aria-current.
+      *
+      * Authors SHOULD NOT use the aria-current attribute as a substitute for aria-selected in widgets where aria-selected has the same meaning. For example, in a tablist, aria-selected is used on a tab to indicate the currently-displayed tabpanel.
+      */
+    object current extends Attr.Generic[String | Boolean]("aria-current") {
+      /** Represents the current page within a set of pages. */
+      def page = this := "page"
+
+      /** Represents the current step within a process. */
+      def step = this := "step"
+
+      /** Represents the current location within an environment or context. */
+      def location = this := "location"
+
+      /** Represents the current date within a collection of dates. */
+      def date = this := "date"
+
+      /** Represents the current time within a set of times. */
+      def time = this := "time"
+
+      /** Represents the current item within a set. */
+      def `true` = this := true
+
+      /** (default)	Does not represent the current item within a set. */
+      def `false` = this := false
+    }
 
     /**
       * Identifies the element (or elements) that describes the object. See related aria-labelledby.
       */
-    final def describedBy = VdomAttr("aria-describedby")
+    def describedBy = VdomAttr("aria-describedby")
+
+    /** Identifies the element that provides a detailed, extended description for the object. See related aria-describedby.
+      *
+      * The aria-details attribute references a single element that provides more detailed information than would normally be provided by aria-describedby. It enables assistive technologies to make users aware of the availability of an extended description as well as navigate to it. Authors SHOULD ensure the element referenced by aria-details is visible to all users.
+      *
+      * Unlike elements referenced by aria-describedby, the element referenced by aria-details is not used in either the Accessible Name Computation or the Accessible Description Computation as defined in the Accessible Name and Description specification [accname-aam-1.1]. Thus, the content of an element referenced by aria-details is not flattened to a string when presented to assistive technology users. This makes aria-details particularly useful when converting the information to a string would cause a loss of information or make the extended description more difficult to understand.
+      *
+      * In some user agents, multiple reference relationships for descriptive information are not supported by the accessibility API. In such cases, if both aria-describedby and aria-details are provided on an element, aria-details takes precedence.
+      */
+    def details = VdomAttr[String]("aria-details")
 
     /**
       * Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable. See related aria-hidden and aria-readonly.
       */
-    final def disabled = VdomAttr("aria-disabled")
+    def disabled = VdomAttr[Boolean]("aria-disabled")
 
     /**
       * Indicates what functions can be performed when the dragged object is released on the drop target. This allows assistive technologies to convey the possible drag options available to users, including whether a pop-up menu of choices is provided by the application. Typically, drop effect functions can only be provided once an object has been grabbed for a drag operation as the drop effect functions available are dependent on the object being dragged.
       */
-    final def dropEffect = VdomAttr("aria-dropeffect")
+    def dropEffect = VdomAttr[String]("aria-dropeffect")
+
+    /** Identifies the element that provides an error message for the object. See related aria-invalid and aria-describedby.
+      *
+      * The aria-errormessage attribute references another element that contains custom error message text. Authors MUST use aria-invalid in conjunction with aria-errormessage. Initially, the object is in a valid state and either has aria-invalid set to false or no aria-invalid attribute, and the element referenced by aria-errormessage is not applicable. If the user enters an invalid value for the object, aria-invalid is set to true to indicate that aria-errormessage is now pertinent. When aria-errormessage is pertinent, authors MUST ensure the content is not hidden and is included in a container that exposes the content to the user as it is expected that the assistive technology user will navigate to the content in order to access it.
+      *
+      * Authors MAY use live regions for the error message element applying either an aria-live property or using one of the live region roles, for example, alert. A live region scenario is when an error message is displayed to users only after they have provided invalid information. The message describes what is wrong and advises users as to what is required.
+      */
+    def errorMessage = VdomAttr[String]("aria-errormessage")
 
     /**
       * Indicates whether the element, or another grouping element it controls, is currently expanded or collapsed.
       */
-    final def expanded = VdomAttr("aria-expanded")
+    def expanded = VdomAttr[Boolean]("aria-expanded")
 
     /**
       * Identifies the next element (or elements) in an alternate reading order of content which, at the user's discretion, allows assistive technology to override the general default of reading in document source order.
       */
-    final def flowTo = VdomAttr("aria-flowto")
+    def flowTo = VdomAttr("aria-flowto")
 
     /**
       * Indicates an element's "grabbed" state in a drag-and-drop operation.
       */
-    final def grabbed = VdomAttr("aria-grabbed")
+    def grabbed = VdomAttr[Boolean]("aria-grabbed")
 
-    /**
-      * Indicates that the element has a popup context menu or sub-level menu.
+    /** Indicates the availability and type of interactive popup element, such as menu or dialog, that can be triggered by an element.
+      *
+      * A popup element usually appears as a block of content that is on top of other content. Authors MUST ensure that the role of the element that serves as the container for the popup content is menu, listbox, tree, grid, or dialog, and that the value of aria-haspopup matches the role of the popup container.
+      *
+      * For the popup element to be keyboard accessible, authors SHOULD ensure that the element that can trigger the popup is focusable, that there is a keyboard mechanism for opening the popup, and that the popup element manages focus of all its descendants as described in Managing Focus.
+      *
+      * The aria-haspopup property is an enumerated type. User agents MUST treat any value of aria-haspopup that is not included in the list of allowed values, including an empty string, as if the value false had been provided. To provide backward compatibility with ARIA 1.0 content, user agents MUST treat an aria-haspopup value of true as equivalent to a value of menu.
+      *
+      * Assistive technologies SHOULD NOT expose the aria-haspopup property if it has a value of false.
       */
-    final def hasPopup = VdomAttr("aria-haspopup")
+    object haspopup extends Attr.Generic[String | Boolean]("aria-haspopup") {
+      /** (default)	Indicates the element does not have a popup. */
+      def `false` = this := false
+
+      /** Indicates the popup is a menu. */
+      def `true` = this := true
+
+      /** Indicates the popup is a menu. */
+      def menu = this := "menu"
+
+      /** Indicates the popup is a listbox. */
+      def listbox = this := "listbox"
+
+      /** Indicates the popup is a tree. */
+      def tree = this := "tree"
+
+      /** Indicates the popup is a grid. */
+      def grid = this := "grid"
+
+      /** Indicates the popup is a dialog. */
+      def dialog = this := "dialog"
+    }
 
     /**
       * Indicates that the element and all of its descendants are not visible or perceivable to any user as implemented by the author. See related aria-disabled.
       */
-    final def hidden = VdomAttr("aria-hidden")
+    def hidden = VdomAttr[Boolean]("aria-hidden")
 
-    /**
-      * Indicates the entered value does not conform to the format expected by the application.
+    /** Indicates the entered value does not conform to the format expected by the application. See related aria-errormessage.
+      *
+      * If the value is computed to be invalid or out-of-range, the application author SHOULD set this attribute to true. User agents SHOULD inform the user of the error. Application authors SHOULD provide suggestions for corrections if they are known.
+      *
+      * When the user attempts to submit data involving a field for which aria-required is true, authors MAY use the aria-invalid attribute to signal there is an error. However, if the user has not attempted to submit the form, authors SHOULD NOT set the aria-invalid attribute on required widgets simply because the user has not yet entered data.
+      *
+      * For future expansion, the aria-invalid attribute is an enumerated type. Any value not recognized in the list of allowed values MUST be treated by user agents as if the value true had been provided. If the attribute is not present, or its value is false, or its value is an empty string, the default value of false applies.
       */
-    final def invalid = VdomAttr("aria-invalid")
+    object invalid extends Attr.Generic[String | Boolean]("aria-invalid") {
+      /** (default)	There are no detected errors in the value. */
+      def `false` = this := false
+
+      /** The value entered by the user has failed validation. */
+      def `true` = this := true
+
+      /** A grammatical error was detected. */
+      def grammar = this := "grammar"
+
+      /** A spelling error was detected. */
+      def spelling = this := "spelling"
+    }
+
+    /** Indicates keyboard shortcuts that an author has implemented to activate or give focus to an element.
+      *
+      * The value of the aria-keyshortcuts attribute is a space-delimited list of keyboard shortcuts that can be pressed to activate a command or textbox widget. The keys defined in the shortcuts represent the physical keys pressed and not the actual characters generated. Each keyboard shortcut consists of one or more tokens delimited by the plus sign ("+") representing zero or more modifier keys and exactly one non-modifier key that must be pressed simultaneously to activate the given shortcut.
+      *
+      * Authors MUST specify modifier keys exactly according to the UI Events KeyboardEvent key Values spec [uievents-key] - for example, "Alt", "Control", "Shift", "Meta", or "AltGraph". Note that Meta corresponds to the Command key, and Alt to the Option key, on Apple computers.
+      *
+      * The valid names for non-modifier keys are any printable character such as "A", "B", "1", "2", "$", "Plus" for a plus sign, "Space" for the spacebar, or the names of any other non-modifier key specified in the UI Events KeyboardEvent key Values spec [uievents-key] - for example, "Enter", "Tab", "ArrowRight", "PageDown", "Escape", or "F1". The use of "Space" for the spacebar is an exception to the UI Events KeyboardEvent key Values spec [uievents-key] as the space or spacebar key is encoded as ' ' and would be treated as a whitespace character.
+      *
+      * Authors MUST ensure modifier keys come first when they are part of a keyboard shortcut. Authors MUST ensure that required non-modifier keys come last when they are part of a shortcut. The order of the modifier keys is not otherwise significant, so "Alt+Shift+T" and "Shift+Alt+T" are equivalent, but "T+Shift+Alt" is not valid because all of the modifier keys don't come first, and "Alt" is not valid because it doesn't include at least one non-modifier key.
+      *
+      * When specifying an alphabetic key, both the uppercase and lowercase variants are considered equivalent: "a" and "A" are the same.
+      *
+      * When implementing keyboard shortcuts authors should consider the keyboards they intend to support to avoid unintended results. Keyboard designs vary significantly based on the device used and the languages supported. For example, many modifier keys are used in conjunction with other keys to create common punctuation symbols, create number characters, swap keyboard sides on bilingual keyboards to switch languages, and perform a number of other functions.
+      *
+      * For many supported keyboards, authors can prevent conflicts by avoiding keys other than ASCII letters, as number characters and common punctuation often require modifiers. Here, the keyboard shortcut entered does not equate to the key generated. For example, in French keyboard layouts, the number characters are not available until you press the Control key, so a keyboard shortcut defined as "Control+2" would be ambiguous as this is how one would type the "2" character on a French keyboard.
+      *
+      * If the character used is determined by a modifier key, the author MUST specify the actual key used to generate the character, that is generated by the key, and not the resulting character. This convention enables the assistive technology to accurately convey what keys must be used to generate the shortcut. For example, on most U.S. English keyboards, the percent sign "%" can be input by pressing Shift+5. The correct way to specify this shortcut is "Shift+5". It is incorrect to specify "%" or "Shift+%". However, note that on some international keyboards the percent sign may be an unmodified key, in which case "%" and "Shift+%" could be correct on those keyboards.
+      *
+      * If the key that needs to be specified is illegal in the host language or would cause a string to be terminated, authors MUST use the string escaping sequence of the host language to specify it. For example, the double-quote character can be encoded as "Shift+&#39;" in HTML.
+      *
+      * Examples of valid keyboard shortcuts include:
+      *
+      *   - "A"
+      *   - "Shift+Space"
+      *   - "Control+Alt+."
+      *   - "Control+Shift+&#39;"
+      *   - "Alt+Shift+P Control+F"
+      *   - "Meta+C Meta+Shift+C"
+      *
+      * User agents MUST NOT change keyboard behavior in response to the aria-keyshortcuts attribute. Authors MUST handle scripted keyboard events to process aria-keyshortcuts. The aria-keyshortcuts attribute exposes the existence of these shortcuts so that assistive technologies can communicate this information to users.
+      *
+      * Authors SHOULD provide a way to expose keyboard shortcuts so that all users may discover them, such as through the use of a tooltip. Authors MUST ensure that aria-keyshortcuts applied to disabled elements are unavailable.
+      *
+      * Authors SHOULD avoid implementing shortcut keys that inhibit operating system, user agent, or assistive technology functionality. This requires the author to carefully consider both which keys to assign and the contexts and conditions in which the keys are available to the user. For guidance, see the keyboard shortcuts section of the WAI-ARIA Authoring Practices Guide [wai-aria-practices-1.1].
+      */
+    def keyShortcuts = VdomAttr[String]("aria-keyshortcuts")
 
     /**
       * Defines a string value that labels the current element. See related aria-labelledby.
       */
-    final def label = VdomAttr("aria-label")
+    def label = VdomAttr[String]("aria-label")
 
     /**
       * Identifies the element (or elements) that labels the current element. See related aria-label and aria-describedby.
       */
-    final def labelledBy = VdomAttr("aria-labelledby")
+    def labelledBy = VdomAttr[String]("aria-labelledby")
 
-    /**
-      * Defines the hierarchical level of an element within a structure.
+    /** Defines the hierarchical level of an element within a structure.
+      *
+      * This can be applied inside trees to tree items, to headings inside a document, to nested grids, nested tablists and to other structural items that may appear inside a container or participate in an ownership hierarchy. The value for aria-level is an integer greater than or equal to 1.
+      *
+      * Levels increase with depth. If the DOM ancestry does not accurately represent the level, authors SHOULD explicitly define the aria-level attribute.
+      *
+      * This attribute is applied to elements that act as leaf nodes within the orientation of the set, for example, on elements with role treeitem rather than elements with role group. This means that multiple elements in a set may have the same value for this attribute. Although it would be less repetitive to provide a single value on the container, restricting this to leaf nodes ensures that there is a single way for assistive technologies to use the attribute.
+      *
+      * If the DOM ancestry accurately represents the level, the user agent can calculate the level of an item from the document structure. This attribute can be used to provide an explicit indication of the level when that is not possible to calculate from the document structure or the aria-owns attribute. User agent support for automatic calculation of level may vary; authors SHOULD test with user agents and assistive technologies to determine whether this attribute is needed. If the author intends for the user agent to calculate the level, the author SHOULD omit this attribute.
       */
-    final def level = VdomAttr("aria-level")
+    def level = VdomAttr[Int]("aria-level")
 
-    /**
-      * Indicates that an element will be updated, and describes the types of updates the user agents, assistive technologies, and user can expect from the live region.
+    /** Indicates that an element will be updated, and describes the types of updates the user agents, assistive technologies, and user can expect from the live region.
+      *
+      * The values of this attribute are expressed in degrees of importance. When regions are specified as polite, assistive technologies will notify users of updates but generally do not interrupt the current task, and updates take low priority. When regions are specified as assertive, assistive technologies will immediately notify the user, and could potentially clear the speech queue of previous updates.
+      *
+      * Politeness levels are essentially an ordering mechanism for updates and serve as a strong suggestion to user agents or assistive technologies. The value may be overridden by user agents, assistive technologies, or the user. For example, if assistive technologies can determine that a change occurred in response to a key press or a mouse click, the assistive technologies may present that change immediately even if the value of the aria-live attribute states otherwise.
+      *
+      * Since different users have different needs, it is up to the user to tweak his or her assistive technologies' response to a live region with a certain politeness level from the commonly defined baseline. Assistive technologies may choose to implement increasing and decreasing levels of granularity so that the user can exercise control over queues and interruptions.
+      *
+      * When the property is not set on an object that needs to send updates, the politeness level is the value of the nearest ancestor that sets the aria-live attribute.
+      *
+      * The aria-live attribute is the primary determination for the order of presentation of changes to live regions. Implementations will also consider the default level of politeness in a role when the aria-live attribute is not set in the ancestor chain (e.g., log changes are polite by default). Items which are assertive will be presented immediately, followed by polite items. User agents or assistive technologies MAY choose to clear queued changes when an assertive change occurs. (e.g., changes in an assertive region may remove all currently queued changes)
+      *
+      * When live regions are marked as polite, assistive technologies SHOULD announce updates at the next graceful opportunity, such as at the end of speaking the current sentence or when the user pauses typing. When live regions are marked as assertive, assistive technologies SHOULD notify the user immediately. Because an interruption may disorient users or cause them to not complete their current task, authors SHOULD NOT use the assertive value unless the interruption is imperative.
       */
-    final def live = VdomAttr("aria-live")
+    object live extends Attr.Generic[String]("aria-live") {
+
+      /** (Default) Indicates that updates to the region should not be presented to the user unless the used is currently focused on that region. */
+      def off = this := "off"
+
+      /** Indicates that updates to the region have the highest priority and should be presented the user immediately. */
+      def assertive = this := "assertive"
+
+      /** Indicates that updates to the region should be presented at the next graceful opportunity, such as at the end of speaking the current sentence or when the user pauses typing. */
+      def polite = this := "polite"
+    }
+
+    /** Indicates whether an element is modal when displayed.
+      *
+      * The aria-modal attribute is used to indicate that the presence of a "modal" element precludes usage of other content on the page. For example, when a modal dialog is displayed, it is expected that the user's interaction is limited to the contents of the dialog, until the modal dialog loses focus or is no longer displayed.
+      *
+      * When a modal element is displayed, assistive technologies SHOULD navigate to the element unless focus has explicitly been set elsewhere. Assistive technologies MAY limit navigation to the modal element's contents. If focus moves to an element outside the modal element, assistive technologies SHOULD NOT limit navigation to the modal element.
+      *
+      * When a modal element is displayed, authors MUST ensure the interface can be controlled using only descendants of the modal element. In other words, if a modal dialog has a close button, the button should be a descendant of the dialog. When a modal element is displayed, authors SHOULD mark all other contents as inert (such as "inert subtrees" in HTML) if the ability to do so exists in the host language.
+      */
+    def modal = VdomAttr[Boolean]("aria-modal")
 
     /**
       * Indicates whether a text box accepts multiple lines of input or only a single line.
       */
-    final def multiline = VdomAttr("aria-multiline")
+    def multiline = VdomAttr[Boolean]("aria-multiline")
 
     /**
       * Indicates that the user may select more than one item from the current selectable descendants.
       */
-    final def multiselectable = VdomAttr("aria-multiselectable")
+    def multiselectable = VdomAttr[Boolean]("aria-multiselectable")
 
     /**
       * Indicates whether the element and orientation is horizontal or vertical.
       */
-    final def orientation = VdomAttr("aria-orientation")
+    object orientation extends Attr.Generic[String]("aria-orientation") {
+      def horizontal = this := "horizontal"
+      def vertical   = this := "vertical"
+    }
 
     /**
       * Identifies an element (or elements) in order to define a visual, functional, or contextual parent/child relationship between DOM elements where the DOM hierarchy cannot be used to represent the relationship. See related aria-controls.
       */
-    final def owns = VdomAttr("aria-owns")
+    def owns = VdomAttr("aria-owns")
+
+    /** Defines a short hint (a word or short phrase) intended to aid the user with data entry when the control has no value. A hint could be a sample value or a brief description of the expected format.
+      *
+      * Authors SHOULD NOT use aria-placeholder instead of a label as their purposes are different: The label indicates what kind of information is expected. The placeholder text is a hint about the expected value. See related aria-labelledby and aria-label.
+      *
+      * Authors SHOULD present this hint to the user by displaying the hint text at any time the control's value is the empty string. This includes cases where the control first receives focus, and when users remove a previously-entered value.
+      */
+    def placeholder = VdomAttr[String]("aria-placeholder")
 
     /**
       * Defines an element's number or position in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-setsize.
       */
-    final def posInSet = VdomAttr("aria-posinset")
+    def posInSet = VdomAttr[Int]("aria-posinset")
 
     /**
       * Indicates the current "pressed" state of toggle buttons. See related aria-checked and aria-selected.
       */
-    final def pressed = VdomAttr("aria-pressed")
+    object pressed extends Attr.Generic[String | Boolean]("aria-pressed") {
+      def `false` = this := false
+      def `true`  = this := true
+      def mixed   = this := "mixed"
+    }
 
     /**
       * Indicates that the element is not editable, but is otherwise operable. See related aria-disabled.
       */
-    final def readonly = VdomAttr("aria-readonly")
+    def readonly = VdomAttr[Boolean]("aria-readonly")
 
-    /**
-      * Indicates what user agent change notifications (additions, removals, etc.) assistive technologies will receive within a live region. See related aria-atomic.
+    /** aria-relevant is an optional attribute of live regions. This is a suggestion to assistive technologies, but assistive technologies are not required to present changes of all the relevant types.
+      *
+      * When aria-relevant is not defined, an element's value is inherited from the nearest ancestor with a defined value. Although the value is a token list, inherited values are not additive; the value provided on a descendant element completely overrides any inherited value from an ancestor element.
+      *
+      * When text changes are denoted as relevant, user agents MUST monitor any descendant node change that affects the text alternative computation of the live region as if the accessible name were determined from contents (nameFrom: contents). For example, a text change would be triggered if the HTML alt attribute of a contained image changed. However, no change would be triggered if there was a text change to a node outside the live region, even if that node was referenced (via aria-labelledby) by an element contained in the live region.
       */
-    final def relevant = VdomAttr("aria-relevant")
+    object relevant extends Attr.Generic[String]("aria-relevant") {
+
+      /** Element nodes are added to the accessibility tree within the live region. */
+      def additions = this := "additions"
+
+      /** Equivalent to the combination of values, "additions text". */
+      def additionsText = this := "additions text"
+
+      /** Equivalent to the combination of all values, "additions removals text". */
+      def all = this := "all"
+
+      /** Text content, a text alternative, or an element node within the live region is removed from the accessibility tree. */
+      def removals = this := "removals"
+
+      /** Text content or a text alternative is added to any descendant in the accessibility tree of the live region. */
+      def text = this := "text"
+    }
 
     /**
       * Indicates that user input is required on the element before a form may be submitted.
       */
-    final def required = VdomAttr("aria-required")
+    def required = VdomAttr[Boolean]("aria-required")
+
+    /** Defines a human-readable, author-localized description for the role of an element.
+      *
+      * Some assistive technologies, such as screen readers, present the role of an element as part of the user experience. Such assistive technologies typically localize the name of the role, and they may customize it as well. Users of these assistive technologies depend on the presentation of the role name, such as "region," "button," or "slider," for an understanding of the purpose of the element and, if it is a widget, how to interact with it.
+      *
+      * The aria-roledescription property gives authors the ability to override how assistive technologies localize and express the name of a role. Thus inappropriately using aria-roledescription may inhibit users' ability to understand or interact with an element. Authors SHOULD limit use of aria-roledescription to clarifying the purpose of non-interactive container roles like group or region, or to providing a more specific description of a widget.
+      */
+    def roleDescription = VdomAttr[String]("aria-roledescription")
+
+    /** Defines the total number of rows in a table, grid, or treegrid. See related aria-rowindex.
+      *
+      * If all of the rows are present in the DOM, it is not necessary to set this attribute as the user agent can automatically calculate the total number of rows. However, if only a portion of the rows is present in the DOM at a given moment, this attribute is needed to provide an explicit indication of the number of rows in the full table.
+      *
+      * Authors MUST set the value of aria-rowcount to an integer equal to the number of rows in the full table. If the total number of rows is unknown, authors MUST set the value of aria-rowcount to -1 to indicate that the value should not be calculated by the user agent.
+      */
+    def rowCount = VdomAttr[String]("aria-rowcount")
+
+    /** Defines an element's row index or position with respect to the total number of rows within a table, grid, or treegrid. See related aria-rowcount and aria-rowspan.
+      *
+      * If all of the rows are present in the DOM, it is not necessary to set this attribute as the user agent can automatically calculate the index of each row. However, if only a portion of the rows is present in the DOM at a given moment, this attribute is needed to provide an explicit indication of each row's position with respect to the full table.
+      *
+      * Authors MUST set the value for aria-rowindex to an integer greater than or equal to 1, greater than the aria-rowindex value of any previous rows, and less than or equal to the number of rows in the full table. For a cell or gridcell which spans multiple rows, authors MUST set the value of aria-rowindex to the start of the span.
+      *
+      * Authors SHOULD place aria-rowindex on each row. Authors MAY also place aria-rowindex on all of the children or owned elements of each row.
+      */
+    def rowIndex = VdomAttr[Int]("aria-rowindex")
+
+    /** Defines the number of rows spanned by a cell or gridcell within a table, grid, or treegrid. See related aria-rowindex and aria-colspan.
+      *
+      * This attribute is intended for cells and gridcells which are not contained in a native table. When defining the row span of cells or gridcells in a native table, authors SHOULD use the host language's attribute instead of aria-rowspan. If aria-rowspan is used on an element for which the host language provides an equivalent attribute, user agents MUST ignore the value of aria-rowspan and instead expose the value of the host language's attribute to assistive technologies.
+      *
+      * Authors MUST set the value of aria-rowspan to an integer greater than or equal to 0 and less than the value which would cause the cell or gridcell to overlap the next cell or gridcell in the same column. Setting the value to 0 indicates that the cell or gridcell is to span all the remaining rows in the row group.
+      */
+    def rowSpan = VdomAttr[Int]("aria-rowspan")
 
     /**
       * Indicates the current "selected" state of various widgets. See related aria-checked and aria-pressed.
       */
-    final def selected = VdomAttr("aria-selected")
+    def selected = VdomAttr[Boolean]("aria-selected")
 
     /**
       * Defines the number of items in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM. See related aria-posinset.
       */
-    final def setSize = VdomAttr("aria-setsize")
+    def setSize = VdomAttr[Int]("aria-setsize")
 
     /**
       * Indicates if items in a table or grid are sorted in ascending or descending order.
       */
-    final def sort = VdomAttr("aria-sort")
+    object sort extends Attr.Generic[String]("aria-sort") {
+      /** Items are sorted in ascending order by this column. */
+      def ascending = this := "ascending"
+
+      /** Items are sorted in descending order by this column. */
+      def descending = this := "descending"
+
+      /** (default)	There is no defined sort applied to the column. */
+      def none = this := "none"
+
+      /** A sort algorithm other than ascending or descending has been applied. */
+      def other = this := "other"
+    }
 
     /**
       * Defines the maximum allowed value for a range widget.
       */
-    final def valueMax = VdomAttr("aria-valuemax")
+    def valueMax = VdomAttr[JsNumber]("aria-valuemax")
 
     /**
       * Defines the minimum allowed value for a range widget.
       */
-    final def valueMin = VdomAttr("aria-valuemin")
+    def valueMin = VdomAttr[JsNumber]("aria-valuemin")
 
     /**
       * Defines the current value for a range widget. See related aria-valuetext.
       */
-    final def valueNow = VdomAttr("aria-valuenow")
+    def valueNow = VdomAttr[JsNumber]("aria-valuenow")
 
     /**
       * Defines the human readable text alternative of aria-valuenow for a range widget.
       */
-    final def valueText = VdomAttr("aria-valuetext")
+    def valueText = VdomAttr[String]("aria-valuetext")
   }
 
   final def async = VdomAttr[Boolean]("async")
 
   final def autoCapitalize = VdomAttr("autoCapitalize")
 
-  /**
-    * This attribute indicates whether the value of the control can be
+  /** This attribute indicates whether the value of the control can be
     * automatically completed by the browser. This attribute is ignored if the
     * value of the type attribute is hidden, checkbox, radio, file, or a button
     * type (button, submit, reset, image).
-    *
-    * Possible values are "off" and "on"
     */
-  object autoComplete extends VdomAttr.Generic("autoComplete") {
-    def on  = this := "on"
-    def off = this := "off"
+  final object autoComplete extends VdomAttr.Generic("autoComplete") {
+    def additionalName      = this := "additional-name"
+    def addressLevel1       = this := "address-level1"
+    def addressLevel2       = this := "address-level2"
+    def addressLevel3       = this := "address-level3"
+    def addressLevel4       = this := "address-level4"
+    def addressLine1        = this := "address-line1"
+    def addressLine2        = this := "address-line2"
+    def addressLine3        = this := "address-line3"
+    def bday                = this := "bday"
+    def bdayDay             = this := "bday-day"
+    def bdayMonth           = this := "bday-month"
+    def bdayYear            = this := "bday-year"
+    def ccAdditionalName    = this := "cc-additional-name"
+    def ccCsc               = this := "cc-csc"
+    def ccExp               = this := "cc-exp"
+    def ccExpMonth          = this := "cc-exp-month"
+    def ccExpYear           = this := "cc-exp-year"
+    def ccFamilyName        = this := "cc-family-name"
+    def ccGivenName         = this := "cc-given-name"
+    def ccName              = this := "cc-name"
+    def ccNumber            = this := "cc-number"
+    def ccType              = this := "cc-type"
+    def country             = this := "country"
+    def countryName         = this := "country-name"
+    def currentPassword     = this := "current-password"
+    def email               = this := "email"
+    def familyName          = this := "family-name"
+    def givenName           = this := "given-name"
+    def honorificPrefix     = this := "honorific-prefix"
+    def honorificSuffix     = this := "honorific-suffix"
+    def impp                = this := "impp"
+    def language            = this := "language"
+    def name                = this := "name"
+    def newPassword         = this := "new-password"
+    def nickname            = this := "nickname"
+    def off                 = this := "off"
+    def on                  = this := "on"
+    def oneTimeCode         = this := "one-time-code"
+    def organization        = this := "organization"
+    def organizationTitle   = this := "organization-title"
+    def photo               = this := "photo"
+    def postalCode          = this := "postal-code"
+    def sex                 = this := "sex"
+    def streetAddress       = this := "street-address"
+    def tel                 = this := "tel"
+    def telAreaCode         = this := "tel-area-code"
+    def telCountryCode      = this := "tel-country-code"
+    def telExtension        = this := "tel-extension"
+    def telLocal            = this := "tel-local"
+    def telLocalPrefix      = this := "tel-local-prefix"
+    def telLocalSuffix      = this := "tel-local-suffix"
+    def telNational         = this := "tel-national"
+    def transactionAmount   = this := "transaction-amount"
+    def transactionCurrency = this := "transaction-currency"
+    def url                 = this := "url"
+    def username            = this := "username"
+    def usernameEmail       = this := "username email"
   }
 
   final def autoCorrect = VdomAttr[Boolean]("autoCorrect")
@@ -494,7 +846,7 @@ trait HtmlAttrs {
     */
   final def max = VdomAttr("max")
 
-  final def maxLength = VdomAttr("maxLength")
+  final def maxLength = VdomAttr[Int]("maxLength")
 
   /**
     * This attribute specifies the media which the linked resource applies to.
@@ -531,7 +883,7 @@ trait HtmlAttrs {
     */
   final def min = VdomAttr("min")
 
-  final def minLength = VdomAttr("minLength")
+  final def minLength = VdomAttr[Int]("minLength")
 
   final def multiple = VdomAttr[Boolean]("multiple")
 
@@ -1041,6 +1393,13 @@ trait HtmlAttrs {
     */
   final def optimum = VdomAttr("optimum")
 
+  /** The pattern attribute specifies a regular expression against which the control’s value, or, when the multiple
+    * attribute applies and is set, the control’s values, are to be checked.
+    *
+    * @see https://www.w3.org/TR/html5/sec-forms.html#the-pattern-attribute
+    */
+  final def pattern = VdomAttr[String]("pattern")
+
   /**
     * A hint to the user of what can be entered in the control. The placeholder
     * text must not contain carriage returns or line-feeds. This attribute
@@ -1102,9 +1461,254 @@ trait HtmlAttrs {
     * semantics, such as p, rather than layering semantics on semantically
     * neutral elements, such as div role="paragraph".
     *
-    * @see http://www.w3.org/TR/role-attribute/#s_role_module_attributes
+    * @see https://www.w3.org/TR/wai-aria-1.1/#role_definitions
     */
-  final def role = VdomAttr[String]("role")
+  object role extends Attr.Generic[String]("role") {
+
+    /** A type of live region with important, and usually time-sensitive, information. See related alertdialog and status. */
+    def alert = this := "alert"
+
+    /** A type of dialog that contains an alert message, where initial focus goes to an element within the dialog. See related alert and dialog. */
+    def alertdialog = this := "alertdialog"
+
+    /** A structure containing one or more focusable elements requiring user input, such as keyboard or gesture events, that do not follow a standard interaction pattern supported by a widget role. */
+    def application = this := "application"
+
+    /** A section of a page that consists of a composition that forms an independent part of a document, page, or site. */
+    def article = this := "article"
+
+    /** A region that contains mostly site-oriented content, rather than page-specific content. */
+    def banner = this := "banner"
+
+    /** An input that allows for user-triggered actions when clicked or pressed. See related link. */
+    def button = this := "button"
+
+    /** A cell in a tabular container. See related gridcell. */
+    def cell = this := "cell"
+
+    /** A checkable input that has three possible values: true, false, or mixed. */
+    def checkbox = this := "checkbox"
+
+    /** A cell containing header information for a column. */
+    def columnheader = this := "columnheader"
+
+    /** A composite widget containing a single-line textbox and another element, such as a listbox or grid, that can dynamically pop up to help the user set the value of the textbox. */
+    def combobox = this := "combobox"
+
+    /** A form of widget that performs an action but does not receive input data. */
+    def command = this := "command"
+
+    /** A supporting section of the document, designed to be complementary to the main content at a similar level in the DOM hierarchy, but remains meaningful when separated from the main content. */
+    def complementary = this := "complementary"
+
+    /** A widget that may contain navigable descendants or owned children. */
+    def composite = this := "composite"
+
+    /** A large perceivable region that contains information about the parent document. */
+    def contentinfo = this := "contentinfo"
+
+    /** A definition of a term or concept. See related term. */
+    def definition = this := "definition"
+
+    /** A dialog is a descendant window of the primary window of a web application. For HTML pages, the primary application window is the entire web document, i.e., the body element. */
+    def dialog = this := "dialog"
+
+    /** A list of references to members of a group, such as a static table of contents. */
+    def directory = this := "directory"
+
+    /** An element containing content that assistive technology users may want to browse in a reading mode. */
+    def document = this := "document"
+
+    /** A scrollable list of articles where scrolling may cause articles to be added to or removed from either end of the list. */
+    def feed = this := "feed"
+
+    /** A perceivable section of content that typically contains a graphical document, images, code snippets, or example text. The parts of a figure MAY be user-navigable. */
+    def figure = this := "figure"
+
+    /** A landmark region that contains a collection of items and objects that, as a whole, combine to create a form. See related search. */
+    def form = this := "form"
+
+    /** A composite widget containing a collection of one or more rows with one or more cells where some or all cells in the grid are focusable by using methods of two-dimensional navigation, such as directional arrow keys. */
+    def grid = this := "grid"
+
+    /** A cell in a grid or treegrid. */
+    def gridcell = this := "gridcell"
+
+    /** A set of user interface objects which are not intended to be included in a page summary or table of contents by assistive technologies. */
+    def group = this := "group"
+
+    /** A heading for a section of the page. */
+    def heading = this := "heading"
+
+    /** A container for a collection of elements that form an image. */
+    def img = this := "img"
+
+    /** A generic type of widget that allows user input. */
+    def input = this := "input"
+
+    /** A perceivable section containing content that is relevant to a specific, author-specified purpose and sufficiently important that users will likely want to be able to navigate to the section easily and to have it listed in a summary of the page. Such a page summary could be generated dynamically by a user agent or assistive technology. */
+    def landmark = this := "landmark"
+
+    /** An interactive reference to an internal or external resource that, when activated, causes the user agent to navigate to that resource. See related button. */
+    def link = this := "link"
+
+    /** A section containing listitem elements. See related listbox. */
+    def list = this := "list"
+
+    /** A widget that allows the user to select one or more items from a list of choices. See related combobox and list. */
+    def listbox = this := "listbox"
+
+    /** A single item in a list or directory. */
+    def listitem = this := "listitem"
+
+    /** A type of live region where new information is added in meaningful order and old information may disappear. See related marquee. */
+    def log = this := "log"
+
+    /** The main content of a document. */
+    def main = this := "main"
+
+    /** A type of live region where non-essential information changes frequently. See related log. */
+    def marquee = this := "marquee"
+
+    /** Content that represents a mathematical expression. */
+    def math = this := "math"
+
+    /** A type of widget that offers a list of choices to the user. */
+    def menu = this := "menu"
+
+    /** A presentation of menu that usually remains visible and is usually presented horizontally. */
+    def menubar = this := "menubar"
+
+    /** An option in a set of choices contained by a menu or menubar. */
+    def menuitem = this := "menuitem"
+
+    /** A menuitem with a checkable state whose possible values are true, false, or mixed. */
+    def menuitemcheckbox = this := "menuitemcheckbox"
+
+    /** A checkable menuitem in a set of elements with the same role, only one of which can be checked at a time. */
+    def menuitemradio = this := "menuitemradio"
+
+    /** A collection of navigational elements (usually links) for navigating the document or related documents. */
+    def navigation = this := "navigation"
+
+    /** An element whose implicit native role semantics will not be mapped to the accessibility API. See synonym presentation. */
+    def none = this := "none"
+
+    /** A section whose content is parenthetic or ancillary to the main content of the resource. */
+    def note = this := "note"
+
+    /** A selectable item in a select list. */
+    def option = this := "option"
+
+    /** An element whose implicit native role semantics will not be mapped to the accessibility API. See synonym none. */
+    def presentation = this := "presentation"
+
+    /** An element that displays the progress status for tasks that take a long time. */
+    def progressbar = this := "progressbar"
+
+    /** A checkable input in a group of elements with the same role, only one of which can be checked at a time. */
+    def radio = this := "radio"
+
+    /** A group of radio buttons. */
+    def radiogroup = this := "radiogroup"
+
+    /** An input representing a range of values that can be set by the user. */
+    def range = this := "range"
+
+    /** A perceivable section containing content that is relevant to a specific, author-specified purpose and sufficiently important that users will likely want to be able to navigate to the section easily and to have it listed in a summary of the page. Such a page summary could be generated dynamically by a user agent or assistive technology. */
+    def region = this := "region"
+
+    /** The base role from which all other roles in this taxonomy inherit. */
+    def roletype = this := "roletype"
+
+    /** A row of cells in a tabular container. */
+    def row = this := "row"
+
+    /** A structure containing one or more row elements in a tabular container. */
+    def rowgroup = this := "rowgroup"
+
+    /** A cell containing header information for a row in a grid. */
+    def rowheader = this := "rowheader"
+
+    /** A graphical object that controls the scrolling of content within a viewing area, regardless of whether the content is fully displayed within the viewing area. */
+    def scrollbar = this := "scrollbar"
+
+    /** A landmark region that contains a collection of items and objects that, as a whole, combine to create a search facility. See related form and searchbox. */
+    def search = this := "search"
+
+    /** A type of textbox intended for specifying search criteria. See related textbox and search. */
+    def searchbox = this := "searchbox"
+
+    /** A renderable structural containment unit in a document or application. */
+    def section = this := "section"
+
+    /** A structure that labels or summarizes the topic of its related section. */
+    def sectionhead = this := "sectionhead"
+
+    /** A form widget that allows the user to make selections from a set of choices. */
+    def select = this := "select"
+
+    /** A divider that separates and distinguishes sections of content or groups of menuitems. */
+    def separator = this := "separator"
+
+    /** A user input where the user selects a value from within a given range. */
+    def slider = this := "slider"
+
+    /** A form of range that expects the user to select from among discrete choices. */
+    def spinbutton = this := "spinbutton"
+
+    /** A type of live region whose content is advisory information for the user but is not important enough to justify an alert, often but not necessarily presented as a status bar. */
+    def status = this := "status"
+
+    /** A document structural element. */
+    def structure = this := "structure"
+
+    /** A type of checkbox that represents on/off values, as opposed to checked/unchecked values. See related checkbox. */
+    def switch = this := "switch"
+
+    /** A grouping label providing a mechanism for selecting the tab content that is to be rendered to the user. */
+    def tab = this := "tab"
+
+    /** A section containing data arranged in rows and columns. See related grid. */
+    def table = this := "table"
+
+    /** A list of tab elements, which are references to tabpanel elements. */
+    def tablist = this := "tablist"
+
+    /** A container for the resources associated with a tab, where each tab is contained in a tablist. */
+    def tabpanel = this := "tabpanel"
+
+    /** A word or phrase with a corresponding definition. See related definition. */
+    def term = this := "term"
+
+    /** A type of input that allows free-form text as its value. */
+    def textbox = this := "textbox"
+
+    /** A type of live region containing a numerical counter which indicates an amount of elapsed time from a start point, or the time remaining until an end point. */
+    def timer = this := "timer"
+
+    /** A collection of commonly used function buttons or controls represented in compact visual form. */
+    def toolbar = this := "toolbar"
+
+    /** A contextual popup that displays a description for an element. */
+    def tooltip = this := "tooltip"
+
+    /** A type of list that may contain sub-level nested groups that can be collapsed and expanded. */
+    def tree = this := "tree"
+
+    /** A grid whose rows can be expanded and collapsed in the same manner as for a tree. */
+    def treegrid = this := "treegrid"
+
+    /** An option item of a tree. This is an element within a tree that may be expanded or collapsed if it contains a sub-level group of tree item elements. */
+    def treeitem = this := "treeitem"
+
+    /** An interactive component of a graphical user interface (GUI). */
+    def widget = this := "widget"
+
+    /** A browser or application window. */
+    def window = this := "window"
+
+  }
 
   final def rowSpan = VdomAttr[Int]("rowSpan")
 
