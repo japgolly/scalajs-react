@@ -87,4 +87,13 @@ package object react extends ReactEventTypes {
     @inline def ~=~(a: A)(implicit r: Reusability[A]): Boolean = r.test(self, a)
     @inline def ~/~(a: A)(implicit r: Reusability[A]): Boolean = !r.test(self, a)
   }
+
+  val preventDefault: ReactEvent => Callback =
+    _.preventDefaultCB
+
+  val stopPropagation: ReactEvent => Callback =
+    _.stopPropagationCB
+
+  val preventDefaultAndStopPropagation: ReactEvent => Callback =
+    e => e.preventDefaultCB >> e.stopPropagationCB
 }
