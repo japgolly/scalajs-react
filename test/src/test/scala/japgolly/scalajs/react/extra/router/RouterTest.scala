@@ -2,10 +2,9 @@ package japgolly.scalajs.react.extra.router
 
 import org.scalajs.dom._
 import scalaz._
-import scalaz.effect.IO
 import sizzle.Sizzle
 import japgolly.scalajs.react._
-import vdom.html_<^._
+import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.test._
 import utest._
 import TestUtil._
@@ -52,19 +51,24 @@ object RouterTest extends TestSuite {
         <.div(<.h3("Component with some QueryParams"), p.map( tuple => <.div(<.span(tuple._1), <.span(tuple._2))).toVdomArray) )
       .build
 
-
     val config = RouterConfigDsl[MyPage].buildConfig { dsl =>
       import dsl._
-      (removeTrailingSlashes
-      | staticRoute(root,     Root)                                 ~> renderR(RootComponent(_))
-      | staticRoute("/hello", Hello)                                ~> render (HelloComponent())
-      | staticRedirect("/hey")                                      ~> redirectToPage(Hello)(Redirect.Replace)
+      ( removeTrailingSlashes
+
+      | staticRoute(root, Root) ~> renderR(RootComponent(_))
+
+      | staticRoute("/hello", Hello) ~> render(HelloComponent())
+
+      | staticRedirect("/hey") ~> redirectToPage(Hello)(SetRouteVia.HistoryReplace)
+
       | dynamicRouteCT("/name" / string("[a-z]+").caseClass[Greet]) ~> dynRender(g => NameComponent(g.name))
-      | dynamicRouteCT("/person" / long.caseClass[Person])          ~> dynRender(PersonComponent(_))
+
+      | dynamicRouteCT("/person" / long.caseClass[Person]) ~> dynRender(PersonComponent(_))
+
       | dynamicRouteCT(("/queryParams" ~ queryToMap).caseClass[QueryParamPage]) ~>
-        dynRender(p => QueryParamComponent(p.queryParams))
+          dynRender(p => QueryParamComponent(p.queryParams))
       )
-        .notFound(redirectToPage(Root)(Redirect.Replace))
+        .notFound(redirectToPage(Root)(SetRouteVia.HistoryReplace))
         .renderWith((ctl, res) =>
           if (res.page == Root)
             res.render()
@@ -87,7 +91,7 @@ object RouterTest extends TestSuite {
   override val tests = Tests {
 
     "sim" - {
-      import MyPage.{Root, Hello, Greet, Person, QueryParamPage}
+      import MyPage.{Root, Hello, Greet, QueryParamPage}
       val base = RouterTestHelp.localBaseUrl_/
       val router = Router(base, MyPage.config.logToConsole)
       val c = ReactTestUtils.renderIntoDocument(router())
