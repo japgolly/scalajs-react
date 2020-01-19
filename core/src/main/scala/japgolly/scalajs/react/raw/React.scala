@@ -114,15 +114,6 @@ object React extends React {
   type ElementType = String | ComponentType[_ <: js.Object]
 
   @js.native
-  trait Error extends js.Object {
-    val fileName    : String = js.native
-    val lineNumber  : Int    = js.native
-    val columnNumber: Int    = js.native
-    val message     : String = js.native
-    val stack       : String = js.native
-  }
-
-  @js.native
   trait ErrorInfo extends js.Object {
     val componentStack: String = js.native
   }

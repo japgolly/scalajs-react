@@ -270,7 +270,7 @@ object ViaReactComponent {
 
     for (f <- builder.lifecycle.componentDidCatch)
       protoProps.add2("componentDidCatch",
-        (_this: This, e: raw.React.Error, i: raw.React.ErrorInfo) => f(new ComponentDidCatch(_this, e, i)).runNow())
+        (_this: This, e: js.Any, i: raw.React.ErrorInfo) => f(new ComponentDidCatch(_this, e, i)).runNow())
 
     for (f <- builder.lifecycle.componentDidMount)
       protoProps.add0("componentDidMount",
