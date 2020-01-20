@@ -11,6 +11,7 @@ val monocle       = ScalajsReact.monocle
 val monocleScalaz = ScalajsReact.monocleScalaz
 val monocleCats   = ScalajsReact.monocleCats
 val cats          = ScalajsReact.cats
+val catsEffect    = ScalajsReact.catsEffect
 val test          = ScalajsReact.test
 //val testModule    = ScalajsReact.testModule // Too damn buggy
 val ghpagesMacros = ScalajsReact.ghpagesMacros
