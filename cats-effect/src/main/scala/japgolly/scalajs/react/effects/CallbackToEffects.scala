@@ -4,18 +4,13 @@ import cats.effect.{Bracket, ExitCase, Sync}
 import cats.{Defer, MonadError}
 import japgolly.scalajs.react.{AsyncCallback, CallbackTo, CatsReact}
 
-trait CallbackToEffects {
+object CallbackToEffects {
   private val callbackToMonadError: MonadError[CallbackTo, Throwable] =
     CatsReact.reactCallbackCatsInstance
 
-  trait CallbackToDefer extends Defer[CallbackTo] {
-    override def defer[A](fa: => CallbackTo[A]): CallbackTo[A] =
-      CallbackTo.byName(fa)
-  }
+  implicit object CallbackToSync extends Sync[CallbackTo] {
 
-  implicit val callbackToDefer: Defer[CallbackTo] = new CallbackToDefer {}
-
-  trait CallbackToBracket extends Bracket[CallbackTo, Throwable] {
+    // Bracket[CallbackTo, Throwable] 
     override def bracketCase[A, B](acquire: CallbackTo[A])(use: A => CallbackTo[B])(release: (A, ExitCase[Throwable]) => CallbackTo[Unit]): CallbackTo[B] =
       acquire.flatMap { a =>
         use(a).attempt.flatMap {
@@ -28,16 +23,9 @@ trait CallbackToEffects {
     override def tailRecM[A, B](a: A)(f: A => CallbackTo[Either[A, B]]): CallbackTo[B] = callbackToMonadError.tailRecM(a)(f)
     override def raiseError[A](e: Throwable): CallbackTo[A] = callbackToMonadError.raiseError(e)
     override def handleErrorWith[A](fa: CallbackTo[A])(f: Throwable => CallbackTo[A]): CallbackTo[A] = callbackToMonadError.handleErrorWith(fa)(f)
-  }
 
-  implicit val callbackToBracket: Bracket[CallbackTo, Throwable] = new CallbackToBracket {}
-
-  trait CallbackToSync extends CallbackToBracket with CallbackToDefer with Sync[CallbackTo] {
+    // Sync[CallbackTo]
     override def suspend[A](thunk: => CallbackTo[A]): CallbackTo[A] =
       CallbackTo.byName(thunk)
   }
-
-  implicit val callbackToSync: Sync[CallbackTo] = new CallbackToSync {}
 }
-
-object CallbackToEffects extends CallbackToEffects

@@ -217,7 +217,7 @@ object ScalajsReact {
     .settings(name := "scalajs-react")
     .aggregate(
       core, extra, test, /*testModule,*/
-      cats, catsEffects, scalaz72,
+      cats, catsEffect, scalaz72,
       monocle, monocleCats, monocleScalaz,
       ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests)
@@ -315,19 +315,19 @@ object ScalajsReact {
       unmanagedSourceDirectories in Compile += (sourceDirectory in (monocleScalaz, Compile)).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
       libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.MonocleCats)
 
-  lazy val catsEffects = project
-    .in(file("cats-effects"))
-    .configure(commonSettings, publicationSettings, extModuleName("cats-effects"))
+  lazy val catsEffect = project
+    .in(file("cats-effect"))
+    .configure(commonSettings, publicationSettings, extModuleName("cats-effect"))
     .dependsOn(core, cats)
     .settings(
       libraryDependencies ++= Seq(
         "org.typelevel" %%% "cats-core" % Ver.Cats,
         "org.typelevel" %%% "cats-effect" % Ver.Cats,
-        "org.typelevel" %%% "cats-effect-laws" % Ver.Cats % "test",
-        "org.typelevel" %%% "cats-testkit" % Ver.Cats % "test",
-        "org.typelevel" %%% "cats-testkit-scalatest" % Ver.CatsTestkitScalaTest % "test",
-        "org.scalatest" %%% "scalatest" % Ver.ScalaTest % "test",
-        "org.typelevel" %%% "discipline-scalatest" % Ver.DisciplineScalaTest % "test"
+        "org.typelevel" %%% "cats-effect-laws" % Ver.Cats % Test,
+        "org.typelevel" %%% "cats-testkit" % Ver.Cats % Test,
+        "org.typelevel" %%% "cats-testkit-scalatest" % Ver.CatsTestkitScalaTest % Test,
+        "org.scalatest" %%% "scalatest" % Ver.ScalaTest % Test,
+        "org.typelevel" %%% "discipline-scalatest" % Ver.DisciplineScalaTest % Test
     ))
 
   // ==============================================================================================
