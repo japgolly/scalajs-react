@@ -202,7 +202,7 @@ There are two ways of attaching event handlers to your virtual DOM.
 
 ## Collections
 
-You have are few ways of using collections of VDOM:
+You have a few ways of using collections of VDOM:
 
 * **VdomArray** - An array of VDOM nodes.
 
