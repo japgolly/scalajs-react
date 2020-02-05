@@ -87,6 +87,13 @@ object AsyncCallbackTest extends TestSuite {
 
         "point" - test(AsyncCallback.point(_))
       }
+
+      "stackSafety" - {
+        import japgolly.scalajs.react.CatsReact._
+        type F[A] = AsyncCallback[A]
+        "nestedFlatMapsInTailrecLoop"    - StackSafety.nestedFlatMapsInTailrecLoop[F]
+        "nestedFlatMapsInNonTailrecLoop" - StackSafety.nestedFlatMapsInNonTailrecLoop[F]
+      }
     }
 
   }

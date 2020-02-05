@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.core
 
-import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.{Callback, CallbackTo}
 import utest._
 
 object CallbackTest extends TestSuite {
@@ -50,5 +50,11 @@ object CallbackTest extends TestSuite {
     }
     */
 
+    "stackSafety" - {
+      import japgolly.scalajs.react.CatsReact._
+      type F[A] = CallbackTo[A]
+      "nestedFlatMapsInTailrecLoop"    - StackSafety.nestedFlatMapsInTailrecLoop[F]
+      "nestedFlatMapsInNonTailrecLoop" - StackSafety.nestedFlatMapsInNonTailrecLoop[F]
+    }
   }
 }
