@@ -49,6 +49,9 @@ object Trampoline {
           stack.push(t.f.asInstanceOf[Any => Trampoline[Any]])
           next = t.from
 
+        case t: Suspend[_] =>
+          next = t.suspension()
+
         case t: Pure[_] =>
           if (stack.isEmpty)
             return t.value.asInstanceOf[A]
@@ -62,9 +65,6 @@ object Trampoline {
             return t.value().asInstanceOf[A]
           else
             next = stack.pop()(t.value())
-
-        case t: Suspend[_] =>
-          next = t.suspension()
       }
     }
     null.asInstanceOf[A]
