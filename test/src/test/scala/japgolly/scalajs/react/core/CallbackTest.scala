@@ -1,11 +1,17 @@
 package japgolly.scalajs.react.core
 
-import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.{Callback, CallbackTo}
 import utest._
 
 object CallbackTest extends TestSuite {
 
   override def tests = Tests {
+
+    "attempt" - {
+      val t = new RuntimeException("fake error")
+      val a = CallbackTo.throwException(t).attempt.runNow()
+      a ==> Left(t)
+    }
 
     "memo" - {
       var count = 0
@@ -50,5 +56,11 @@ object CallbackTest extends TestSuite {
     }
     */
 
+    "stackSafety" - {
+      import japgolly.scalajs.react.CatsReact._
+      type F[A] = CallbackTo[A]
+      "nestedFlatMapsInTailrecLoop"    - StackSafety.nestedFlatMapsInTailrecLoop[F]
+      "nestedFlatMapsInNonTailrecLoop" - StackSafety.nestedFlatMapsInNonTailrecLoop[F]
+    }
   }
 }

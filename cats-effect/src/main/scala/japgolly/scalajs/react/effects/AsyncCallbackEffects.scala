@@ -1,10 +1,9 @@
 package japgolly.scalajs.react.effects
 
-import cats.effect.{Async, Bracket, Effect, ExitCase, IO, LiftIO, Sync, SyncIO}
-import cats.{Defer, MonadError}
+import cats.MonadError
+import cats.effect.{Effect, ExitCase, IO, SyncIO}
 import japgolly.scalajs.react.{AsyncCallback, Callback, CatsReact}
-
-import scala.util.{Either, Failure, Success}
+import scala.util.Either
 
 object AsyncCallbackEffects {
   private val asyncCallbackMonadError: MonadError[AsyncCallback, Throwable] =
@@ -33,7 +32,7 @@ object AsyncCallbackEffects {
     // LiftIO[AsyncCallback]
     override def liftIO[A](ioa: IO[A]): AsyncCallback[A] = {
       AsyncCallback(cb =>
-        Callback(ioa.unsafeRunAsync(e => e.fold(t => cb(Failure(t)), a => cb(Success(a)))))
+        Callback(ioa.unsafeRunAsync(e => cb(e.toTry)))
       )
     }
 

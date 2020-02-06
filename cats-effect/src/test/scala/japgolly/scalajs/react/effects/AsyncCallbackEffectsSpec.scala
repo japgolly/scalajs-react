@@ -1,13 +1,12 @@
 package japgolly.scalajs.react.effects
 
 import cats.effect.laws.discipline.EffectTests
+import cats.effect.laws.discipline.arbitrary._
 import cats.effect.laws.util.{TestContext, TestInstances}
 import cats.kernel.Eq
 import cats.tests.CatsSuite
 import japgolly.scalajs.react.effects.AsyncCallbackEffects._
 import japgolly.scalajs.react.AsyncCallback
-
-import cats.effect.laws.discipline.arbitrary._
 
 final class AsyncCallbackEffectsSpec extends CatsSuite with TestInstances with AsyncCallbackArbitraries {
   implicit val ec: TestContext = TestContext()
