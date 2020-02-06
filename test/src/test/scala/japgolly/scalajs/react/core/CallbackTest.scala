@@ -7,6 +7,12 @@ object CallbackTest extends TestSuite {
 
   override def tests = Tests {
 
+    "attempt" - {
+      val t = new RuntimeException("fake error")
+      val a = CallbackTo.throwException(t).attempt.runNow()
+      a ==> Left(t)
+    }
+
     "memo" - {
       var count = 0
       val inc = Callback(count += 1)

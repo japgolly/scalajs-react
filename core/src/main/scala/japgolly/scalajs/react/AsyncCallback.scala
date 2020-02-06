@@ -190,20 +190,25 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     new AsyncCallback(completeWith)
 
   def map[B](f: A => B): AsyncCallback[B] =
-    AsyncCallback(g => completeWith(e => g(e.flatMap(a => catchAll(f(a))))))
+    flatMap(f.andThen(AsyncCallback.pure))
 
   /** Alias for `map`. */
   @inline def |>[B](f: A => B): AsyncCallback[B] =
     map(f)
 
   def flatMap[B](f: A => AsyncCallback[B]): AsyncCallback[B] =
-    AsyncCallback(g => completeWith {
-      case Success(a) => catchAll(f(a)) match {
-        case Success(next) => next.completeWith(g)
-        case Failure(e)    => g(Failure(e))
+    AsyncCallback { g =>
+      Callback.byName {
+        completeWith {
+          case Success(a) =>
+            catchAll(f(a)) match {
+              case Success(next) => Callback.byName(next.completeWith(g))
+              case Failure(e)    => g(Failure(e))
+            }
+          case Failure(e) => g(Failure(e))
+        }
       }
-      case Failure(e) => g(Failure(e))
-    })
+    }
 
   /** Alias for `flatMap`. */
   @inline def >>=[B](g: A => AsyncCallback[B]): AsyncCallback[B] =
