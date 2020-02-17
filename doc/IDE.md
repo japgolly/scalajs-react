@@ -20,7 +20,6 @@ It's a new page and a little bereft so please don't hesitate to contribute!
 ```scala
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.extra._
 
 object $NAME$ {
 
@@ -32,7 +31,7 @@ object $NAME$ {
   //  Reusability.derive
 
   final class Backend($: BackendScope[Props, Unit]) {
-    def render(p: Props): VdomElement =
+    def render(p: Props): VdomNode =
       <.div
   }
 
@@ -56,7 +55,6 @@ top of the page/SPA component tree and provided through the props.
 ```scala
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.extra._
 
 object $NAME$ {
 
@@ -78,7 +76,7 @@ object $NAME$ {
   }
 
   final class Backend($: BackendScope[Props, Unit]) {
-    def render(p: Props): VdomElement =
+    def render(p: Props): VdomNode =
       <.div
   }
 
