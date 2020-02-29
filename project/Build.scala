@@ -13,9 +13,9 @@ object ScalajsReact {
 
   object Ver {
     val BetterMonadicFor      = "0.3.1"
-    val Cats                  = "2.0.0"
-    val CatsTestkitScalaTest  = "1.0.0-RC1"
-    val DisciplineScalaTest   = "1.0.1"
+    val Cats                  = "2.1.1"
+    val CatsTestkitScalaTest  = "1.0.1"
+    val DisciplineScalaTest   = "1.0.0-RC1"
     val KindProjector         = "0.11.0"
     val MacroParadise         = "2.1.1"
     val MonocleCats           = "2.0.1"
@@ -25,12 +25,12 @@ object ScalajsReact {
     val ReactJs               = "16.7.0"
     val Scala212              = "2.12.10"
     val Scala213              = "2.13.1"
-    val ScalaCollCompat       = "2.1.3"
+    val ScalaCollCompat       = "2.1.4"
     val ScalaJsDom            = "0.9.8"
-    val ScalaTest             = "3.1.0"
+    val ScalaTest             = "3.1.1"
     val Scalaz72              = "7.2.30"
     val SizzleJs              = "2.3.0"
-    val Sourcecode            = "0.2.0"
+    val Sourcecode            = "0.2.1"
   }
 
   type PE = Project => Project

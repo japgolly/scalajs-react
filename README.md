@@ -53,6 +53,7 @@ Includes a router, testing utils, performance utils, more.
   * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
   * [cquiroz / scalajs-react-virtualized](https://github.com/cquiroz/scalajs-react-virtualized) - Facade for react-virtualized
   * [cquiroz / scalajs-react-clipboard](https://github.com/cquiroz/scalajs-react-clipboard) - Facade for react-copy-to-clipboard
+  * [kinoplan / scalajs-react-material-ui](https://github.com/kinoplan/scalajs-react-material-ui) - Material-UI components (+ Full Demo)
   * [diode](https://github.com/suzaku-io/diode) - library for managing application state, influenced by Flux and Elm
 
 * Open Source Projects, which are using [scalajs-react](https://github.com/japgolly/scalajs-react)
