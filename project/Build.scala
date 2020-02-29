@@ -15,7 +15,7 @@ object ScalajsReact {
     val BetterMonadicFor      = "0.3.1"
     val Cats                  = "2.1.1"
     val CatsTestkitScalaTest  = "1.0.1"
-    val DisciplineScalaTest   = "1.0.0-RC1"
+    val DisciplineScalaTest   = "1.0.1"
     val KindProjector         = "0.11.0"
     val MacroParadise         = "2.1.1"
     val MonocleCats           = "2.0.1"
