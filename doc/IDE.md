@@ -54,6 +54,7 @@ top of the page/SPA component tree and provided through the props.
 
 ```scala
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.vdom.html_<^._
 
 object $NAME$ {
@@ -76,8 +77,10 @@ object $NAME$ {
   }
 
   final class Backend($: BackendScope[Props, Unit]) {
-    def render(p: Props): VdomNode =
+    def render(p: Props): VdomNode = {
+      val s = p.state.value
       <.div
+    }
   }
 
   val Component = ScalaComponent.builder[Props]("$NAME$")
