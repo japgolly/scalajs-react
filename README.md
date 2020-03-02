@@ -44,6 +44,7 @@ Includes a router, testing utils, performance utils, more.
   * [TodoMVC example](http://todomvc.com/examples/scalajs-react)
   * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
   * [Scala.js, React and ScalaCSS Boilerplate](https://github.com/shashkovdanil/scalajs-react-boilerplate)
+  * ['Intro to React' tutorial transposed into scala.js](https://github.com/MrCurtis/ScalaJSReactTutorial)
 
 * Libraries
   * [test-state](https://github.com/japgolly/test-state/) - Integration/Functional/Property testing for scalajs-react.
