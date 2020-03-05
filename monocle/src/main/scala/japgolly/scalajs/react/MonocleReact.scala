@@ -7,7 +7,7 @@ import japgolly.scalajs.react.extra.router.StaticDsl.RouteCommon
 import japgolly.scalajs.react.extra.router.RoutingRule
 import ScalazReact._
 
-@deprecated("The scalajs-react ext-monocle module is deprecated in favour of either ext-monocle-cats or ext-monocle-scalaz. As Monocle v2.0 onwards will support Cats only, ext-monocle-cats will be maintained to support the latest Monocle version, where as ext-monocle-scalaz will remain on 1.6.0, the last Scalaz-based Monocle release.", "1.5.0")
+@deprecated("The scalajs-react ext-monocle module is deprecated in favour of either ext-monocle-cats or ext-monocle-scalaz. As Monocle v2.0 onwards will support Cats only, ext-monocle-cats will be maintained to support the latest Monocle version, where as ext-monocle-scalaz will remain on 2.0.4, the last Scalaz-based Monocle release.", "1.5.0")
 object MonocleReact extends MonocleExtComponent with MonocleExtStateSnapshot {
 
   implicit final class MonocleReactExt_ReactST[M[_], S, A](private val s: ReactST[M, S, A]) extends AnyVal {
