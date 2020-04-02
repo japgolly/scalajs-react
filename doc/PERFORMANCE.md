@@ -80,6 +80,8 @@ If you're using the Scalaz module, you also gain:
 * `Reusability.byEqual` uses a Scalaz `Equal` typeclass.
 * `Reusability.byRefOrEqual` uses reference equality and if different, tries using a Scalaz `Equal` typeclass.
 
+If you're using the cats module you also have similar methods, but with the suffix `byEq` and using the equivalent
+`Eq` typeclass.
 
 #### Example
 The following component will only re-render when one of the following change:
