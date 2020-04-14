@@ -1,12 +1,24 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.VdomElement
 
 package object router {
 
-  type Router [P] = ScalaComponent              [Unit, Resolution[P], OnUnmount.Backend, CtorType.Nullary]
-  type RouterU[P] = ScalaComponent.Unmounted    [Unit, Resolution[P], OnUnmount.Backend]
-  type RouterM[P] = ScalaComponent.MountedImpure[Unit, Resolution[P], OnUnmount.Backend]
+  type RouterP[P, Props] = ScalaComponent              [Props, ResolutionP[P, Props], OnUnmount.Backend, CtorType.Props]
+  type RouterU[P, Props] = ScalaComponent.Unmounted    [Props, ResolutionP[P, Props], OnUnmount.Backend]
+  type RouterM[P, Props] = ScalaComponent.MountedImpure[Props, ResolutionP[P, Props], OnUnmount.Backend]
+
+  // START: Compatibility with contextless Router API
+  type Router [P]        = ScalaComponent              [Unit, ResolutionP[P, Unit], OnUnmount.Backend, CtorType.Nullary]
+
+  type RouterConfig[P] = RouterConfigP[P, Unit]
+  type Resolution[P]   = ResolutionP[P, Unit]
+
+  implicit class ResolutionOps[P](resolution: Resolution[P]) {
+    def render(): VdomElement = resolution.renderP(())
+  }
+  // END
 
   private[router] implicit class OptionFnExt[A, B](private val f: A => Option[B]) extends AnyVal {
     def ||(g: A => Option[B]): A => Option[B] = a => f(a) orElse g(a)

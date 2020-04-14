@@ -7,45 +7,57 @@ import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.vdom.VdomElement
 import RouterConfig.Logger
 
-case class RouterConfig[Page](rules       : RoutingRules[Page],
-                              renderFn    : (RouterCtl[Page], Resolution[Page]) => VdomElement,
-                              postRenderFn: (Option[Page], Page) => Callback,
-                              logger      : Logger) {
+case class RouterConfigP[Page, Props](rules       : RoutingRules[Page],
+                                      renderFn    : (RouterCtl[Page], ResolutionP[Page, Props]) => Props => VdomElement,
+                                      postRenderFn: (Option[Page], Page, Props) => Callback,
+                                      logger      : Logger) {
 
-  def logWith(l: Logger): RouterConfig[Page] =
+  def logWith(l: Logger): RouterConfigP[Page, Props] =
     copy(logger = l)
 
-  def logToConsole: RouterConfig[Page] =
+  def logToConsole: RouterConfigP[Page, Props] =
     logWith(RouterConfig.consoleLogger)
 
   /**
    * Specify how to render a page once it's resolved. This function will be applied to all renderable pages.
    */
-  def renderWith(f: (RouterCtl[Page], Resolution[Page]) => VdomElement): RouterConfig[Page] =
+  def renderWithP(f: (RouterCtl[Page], ResolutionP[Page, Props]) => Props => VdomElement): RouterConfigP[Page, Props] =
     copy(renderFn = f)
+
+  def renderWith(f: (RouterCtl[Page], ResolutionP[Page, Props]) => VdomElement): RouterConfigP[Page, Props] =
+    copy(renderFn = (ctl, ctx) => _ => f(ctl, ctx))
 
   /**
    * Specify (entirely) what to do after the router renders.
    *
    * @param f Given the previous page and the current page that just rendered, return a callback.
    */
-  def setPostRender(f: (Option[Page], Page) => Callback): RouterConfig[Page] =
+  def setPostRenderP(f: (Option[Page], Page, Props) => Callback): RouterConfigP[Page, Props] =
     copy(postRenderFn = f)
+
+  def setPostRender(f: (Option[Page], Page) => Callback): RouterConfigP[Page, Props] =
+    setPostRenderP((previous, current, _) => f(previous, current))
 
   /**
    * Add an procedure to be performed after the router renders.
    *
    * @param f Given the previous page and the current page that just rendered, return a callback.
    */
-  def onPostRender(f: (Option[Page], Page) => Callback): RouterConfig[Page] =
-    setPostRender((a, b) => this.postRenderFn(a, b) >> f(a, b))
+  def onPostRenderP(f: (Option[Page], Page, Props) => Callback): RouterConfigP[Page, Props] =
+    setPostRenderP((a, b, c) => this.postRenderFn(a, b, c) >> f(a, b, c))
+
+  def onPostRender(f: (Option[Page], Page) => Callback): RouterConfigP[Page, Props] =
+    onPostRenderP((previous, current, _) => f(previous, current))
 
   /**
    * Change the document title after the router renders.
    *
    * @param f Given the current page that just rendered, return a new title.
    */
-  def setTitle(f: Page => String): RouterConfig[Page] =
+  def setTitleP(f: (Page, Props) => String): RouterConfigP[Page, Props] =
+    setTitleOptionP((p, c) => Some(f(p, c)))
+
+  def setTitle(f: Page => String): RouterConfigP[Page, Props] =
     setTitleOption(p => Some(f(p)))
 
   /**
@@ -53,9 +65,12 @@ case class RouterConfig[Page](rules       : RoutingRules[Page],
    *
    * @param f Given the current page that just rendered, return potential new title.
    */
-  def setTitleOption(f: Page => Option[String]): RouterConfig[Page] =
-    onPostRender((_, page) =>
-      f(page).fold(Callback.empty)(title => Callback(dom.document.title = title)))
+  def setTitleOptionP(f: (Page, Props) => Option[String]): RouterConfigP[Page, Props] =
+    onPostRenderP((_, page, c) =>
+      f(page, c).fold(Callback.empty)(title => Callback(dom.document.title = title)))
+
+  def setTitleOption(f: Page => Option[String]): RouterConfigP[Page, Props] =   
+    setTitleOptionP((page, _) => f(page))
 
   /** Asserts that the page arguments provided, don't encounter any route config errors.
     *
@@ -68,11 +83,11 @@ case class RouterConfig[Page](rules       : RoutingRules[Page],
     *
     * @return In the event that errors are detected, a new [[RouterConfig]] that displays them; else this unmodified.
     */
-  def verify(page1: Page, pages: Page*): RouterConfig[Page] =
+  def verify(page1: Page, pages: Page*): RouterConfigP[Page, Props] =
     Option(_verify(page1, pages: _*)) getOrElse this
 
   @elidable(elidable.ASSERTION)
-  private def _verify(page1: Page, pages: Page*): RouterConfig[Page] = {
+  private def _verify(page1: Page, pages: Page*): RouterConfigP[Page, Props] = {
     val errors = detectErrors(page1 +: pages: _*).runNow()
     if (errors.isEmpty)
       this
@@ -83,8 +98,8 @@ case class RouterConfig[Page](rules       : RoutingRules[Page],
       val msg = s"${errors.size} RouterConfig errors detected:$es"
       dom.console.error(msg)
 
-      val el: VdomElement =
-        <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
+      val el: Props => VdomElement =
+        _ => <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
 
       val newRules = RoutingRules[Page](
         parseMulti     = _ => static[Option[RouterConfig.Parsed[Page]]](Some(Right(page1))) :: Nil,
@@ -177,14 +192,14 @@ object RouterConfig {
   def defaultLogger: Logger =
     nopLogger
 
-  def defaultRenderFn[Page]: (RouterCtl[Page], Resolution[Page]) => VdomElement =
-    (_, r) => r.render()
+  def defaultRenderFn[Page, C]: (RouterCtl[Page], ResolutionP[Page, C]) => C => VdomElement =
+    (_, r) => r.renderP
 
-  def defaultPostRenderFn[Page]: (Option[Page], Page) => Callback = {
+  def defaultPostRenderFn[Page, C]: (Option[Page], Page, C) => Callback = {
     val cb = Callback(dom.window.scrollTo(0, 0))
-    (_, _) => cb
+    (_, _, _) => cb
   }
 
-  def withDefaults[Page](rules: RoutingRules[Page]): RouterConfig[Page] =
-    RouterConfig(rules, defaultRenderFn, defaultPostRenderFn, defaultLogger)
+  def withDefaults[Page, C](rules: RoutingRules[Page]): RouterConfigP[Page, C] =
+    RouterConfigP(rules, defaultRenderFn, defaultPostRenderFn, defaultLogger)
 }

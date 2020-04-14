@@ -220,11 +220,11 @@ trait ScalazReactInstances {
   implicit final def routerEqualPath   : Equal[router.Path]    = Equal.equalA
   implicit final def routerEqualAbsUrl : Equal[router.AbsUrl]  = Equal.equalA
 
-  implicit final def routerRuleMonoid[P]: Monoid[router.RoutingRule[P]] = {
+  implicit final def routerRuleMonoid[P, Props]: Monoid[router.RoutingRule[P, Props]] = {
     import router.RoutingRule
-    new Monoid[RoutingRule[P]] {
+    new Monoid[RoutingRule[P, Props]] {
       override def zero = RoutingRule.empty
-      override def append(a: RoutingRule[P], b: => RoutingRule[P]) = a | b
+      override def append(a: RoutingRule[P, Props], b: => RoutingRule[P, Props]) = a | b
     }
   }
 

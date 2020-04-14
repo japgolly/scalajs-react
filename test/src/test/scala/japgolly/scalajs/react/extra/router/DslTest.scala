@@ -13,7 +13,7 @@ import test.TestUtil._
 
 object DslTest extends TestSuite {
 
-  val noPageDsl = new RouterConfigDsl[Nothing]
+  val noPageDsl = new RouterConfigDsl[Nothing, Unit]
 
   sealed trait PageSet
   object PageSet {
@@ -24,7 +24,7 @@ object DslTest extends TestSuite {
     case class CCl(l: Long) extends PageSet
     case class CCu(u: UUID) extends PageSet
 
-    val dsl = new RouterConfigDsl[PageSet]
+    val dsl = new RouterConfigDsl[PageSet, Unit]
 
     import dsl._
     val routeCCi = "cci" / int.caseClass[CCi]

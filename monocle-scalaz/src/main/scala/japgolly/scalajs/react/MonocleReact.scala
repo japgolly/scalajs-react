@@ -32,11 +32,11 @@ object MonocleReact extends MonocleExtComponent with MonocleExtStateSnapshot {
       r.xmap(l.get)(l.reverseGet)
   }
 
-  implicit final class MonocleReactExt_RouterRule[Page](private val r: RoutingRule[Page]) extends AnyVal {
-    def xmapL[A](l: Iso[Page, A]): RoutingRule[A] =
+  implicit final class MonocleReactExt_RouterRule[Page, Props](private val r: RoutingRule[Page, Props]) extends AnyVal {
+    def xmapL[A](l: Iso[Page, A]): RoutingRule[A, Props] =
       r.xmap(l.get)(l.reverseGet)
 
-    def pmapL[W](l: Prism[W, Page]): RoutingRule[W] =
+    def pmapL[W](l: Prism[W, Page]): RoutingRule[W, Props] =
       r.pmapF(l.reverseGet)(l.getOption)
   }
 

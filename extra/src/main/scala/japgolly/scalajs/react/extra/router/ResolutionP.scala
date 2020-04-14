@@ -8,4 +8,4 @@ import japgolly.scalajs.react.vdom.VdomElement
  * @param page Data representation (or command) of what will be drawn.
  * @param render The render function provided by the rules and logic in [[RouterConfig]].
  */
-final case class Resolution[P](page: P, render: () => VdomElement)
+final case class ResolutionP[P, Props](page: P, renderP: Props => VdomElement)
