@@ -5,12 +5,14 @@ import japgolly.scalajs.react.vdom.VdomElement
 
 package object router {
 
-  type RouterP[P, Props] = ScalaComponent              [Props, ResolutionP[P, Props], OnUnmount.Backend, CtorType.Props]
-  type RouterU[P, Props] = ScalaComponent.Unmounted    [Props, ResolutionP[P, Props], OnUnmount.Backend]
-  type RouterM[P, Props] = ScalaComponent.MountedImpure[Props, ResolutionP[P, Props], OnUnmount.Backend]
+  type RouterP[P, Props]  = ScalaComponent              [Props, ResolutionP[P, Props], OnUnmount.Backend, CtorType.Props]
+  type RouterPU[P, Props] = ScalaComponent.Unmounted    [Props, ResolutionP[P, Props], OnUnmount.Backend]
+  type RouterPM[P, Props] = ScalaComponent.MountedImpure[Props, ResolutionP[P, Props], OnUnmount.Backend]
 
   // START: Compatibility with contextless Router API
-  type Router [P]        = ScalaComponent              [Unit, ResolutionP[P, Unit], OnUnmount.Backend, CtorType.Nullary]
+  type Router [P]         = ScalaComponent              [Unit, ResolutionP[P, Unit], OnUnmount.Backend, CtorType.Nullary]
+  type RouterU[P]         = ScalaComponent.Unmounted    [Unit, ResolutionP[P, Unit], OnUnmount.Backend]
+  type RouterM[P]         = ScalaComponent.MountedImpure[Unit, ResolutionP[P, Unit], OnUnmount.Backend]
 
   type RouterConfig[P] = RouterConfigP[P, Unit]
   type Resolution[P]   = ResolutionP[P, Unit]
