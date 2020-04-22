@@ -10,7 +10,29 @@ import japgolly.scalajs.react.vdom.VdomElement
 object Router {
 
   def apply[Page](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Unit]): Router[Page] =
-    componentUnbuilt[Page, Unit](baseUrl, cfg).build
+    componentUnbuilt[Page](baseUrl, cfg).build
+
+  def componentUnbuilt[Page](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Unit]) =
+    componentUnbuiltC[Page](cfg, new RouterLogic(baseUrl, cfg))
+
+  def componentUnbuiltC[Page](cfg: RouterConfigP[Page, Unit], lgc: RouterLogic[Page, Unit]) =
+    RouterP.componentUnbuiltC(cfg, lgc)
+
+  def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Unit]): (Router[Page], RouterLogic[Page, Unit]) = {
+    val l = new RouterLogic[Page, Unit](baseUrl, cfg)
+    val r = componentUnbuiltC[Page](cfg, l).build
+    (r, l)
+  }
+
+  def componentAndCtl[Page](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Unit]): (Router[Page], RouterCtl[Page]) = {
+    val (r, l) = componentAndLogic[Page](baseUrl, cfg)
+    (r, l.ctl)
+  }
+}
+
+object RouterP {
+  def apply[Page, Props](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Props]): RouterP[Page, Props] =
+    componentUnbuilt[Page, Props](baseUrl, cfg).build
 
   def componentUnbuilt[Page, Props](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Props]) =
     componentUnbuiltC[Page, Props](cfg, new RouterLogic(baseUrl, cfg))
@@ -29,28 +51,9 @@ object Router {
   private def isIE11(): Boolean =
     dom.window.navigator.userAgent.indexOf("Trident") != -1
 
-  def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Unit]): (Router[Page], RouterLogic[Page, Unit]) = {
-    val l = new RouterLogic[Page, Unit](baseUrl, cfg)
-    val r = componentUnbuiltC[Page, Unit](cfg, l).build
-    (r, l)
-  }
-
-  def componentAndCtl[Page](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Unit]): (Router[Page], RouterCtl[Page]) = {
-    val (r, l) = componentAndLogic[Page](baseUrl, cfg)
-    (r, l.ctl)
-  }
-}
-
-object RouterP {
-  def apply[Page, Props](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Props]): RouterP[Page, Props] =
-    Router.componentUnbuilt[Page, Props](baseUrl, cfg).build
-
-  def componentUnbuilt[Page, Props](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Props]) =
-    Router.componentUnbuiltC[Page, Props](baseUrl, cfg, new RouterLogic(baseUrl, cfg))
-
   def componentAndLogic[Page, Props](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Props]): (RouterP[Page, Props], RouterLogic[Page, Props]) = {
     val l = new RouterLogic[Page, Props](baseUrl, cfg)
-    val r = Router.componentUnbuiltC[Page, Props](baseUrl, cfg, l).build
+    val r = componentUnbuiltC[Page, Props](cfg, l).build
     (r, l)
   }
 
