@@ -37,7 +37,7 @@ object StateAccess {
 
     /** @param callback Executed after state is changed. */
     def setState(newState: S, callback: Callback): F[Unit] =
-      setStateOption(Some(newState))
+      setStateOption(Some(newState), callback)
 
     final def setStateOption(newState: Option[S]): F[Unit] =
       setStateOption(newState, Callback.empty)
