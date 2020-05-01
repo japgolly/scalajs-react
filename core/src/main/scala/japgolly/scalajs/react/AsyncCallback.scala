@@ -456,4 +456,6 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def unsafeToJsPromise(): js.Promise[A] =
     asCallbackToJsPromise.runNow()
 
+  def runNow(): Unit =
+    toCallback.runNow()
 }
