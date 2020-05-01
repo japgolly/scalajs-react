@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
+import scala.annotation.nowarn
 import utest._
-
 import scala.runtime.AbstractFunction1
 
 object PxTest extends TestSuite {
@@ -142,7 +142,7 @@ object PxTest extends TestSuite {
 
     "extract" - {
       "bad" - {
-        val px: Px[Int] = Px(3).withReuse.manualUpdate
+        @nowarn("cat=unused") val px: Px[Int] = Px(3).withReuse.manualUpdate
         assert(compileError("px.extract").msg contains "with functions, not Int")
       }
       "fn0" - {

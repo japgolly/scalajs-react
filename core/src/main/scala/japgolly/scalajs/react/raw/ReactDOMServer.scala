@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.raw
 
+import scala.annotation.nowarn
 import scalajs.js
 import scalajs.js.annotation._
 
@@ -8,6 +9,7 @@ import scalajs.js.annotation._
 object ReactDOMServer extends ReactDOMServer
 
 @js.native
+@nowarn("cat=unused")
 trait ReactDOMServer extends js.Object {
 
   /**

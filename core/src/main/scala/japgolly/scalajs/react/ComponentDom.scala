@@ -72,7 +72,7 @@ object ComponentDom {
   def findDOMNode(a: dom.Element | Raw.React.ComponentUntyped): ComponentDom = {
     val b: Raw.ReactDOM.DomNode | Null =
       try Raw.ReactDOM.findDOMNode(a)
-      catch {case t: Throwable => null}
+      catch {case _: Throwable => null}
     apply(b)
   }
 

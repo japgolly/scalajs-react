@@ -3,6 +3,7 @@ package japgolly.scalajs.react.extra
 import utest._
 import japgolly.scalajs.react._
 import StateSnapshot.{ModFn, SetFn}
+import scala.annotation.nowarn
 
 object StateSnapshotTest extends TestSuite {
 
@@ -63,7 +64,7 @@ object StateSnapshotTest extends TestSuite {
         implicit def rs: Reusability[S] = ???
         "apply_apply" - test[Reusable[SetFn[S]]](SS(S)(_)).expect[StateSnapshot[S]]
         "zoom" - {
-          def rs = ??? // shadow
+          @nowarn("cat=unused") def rs = ??? // shadow
           implicit def rt: Reusability[T] = ???
           def z = SS.zoom[S, T](???)(???)
           "prepareVia" - {

@@ -5,6 +5,7 @@ import japgolly.scalajs.react.vdom.VdomElement
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Ref, raw}
 import scala.scalajs.js
 import ScalaForwardRef._
+import scala.annotation.nowarn
 
 object ScalaForwardRef {
   type Component[P, R, CT[-p, +u] <: CtorType[p, u]] = JsForwardRef.ComponentWithRoot[P, R, CT, Unmounted[P, R], Box[P], CT, JsForwardRef.Unmounted[Box[P], R]]
@@ -92,13 +93,13 @@ object ReactForwardRef { outer =>
 
   // ===================================================================================================================
 
-  @inline def toJsComponent[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: Js.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]](c: Js.ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0]): ToJsComponent[P0, S0, R] =
+  @inline def toJsComponent[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: Js.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]](@nowarn("cat=unused") c: Js.ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0]): ToJsComponent[P0, S0, R] =
     toJsComponent[P0, S0, R]
 
   def toJsComponent[P <: js.Object, S <: js.Object, R <: Js.RawMounted[P, S]]: ToJsComponent[P, S, R] =
     new ToJsComponent(())
 
-  @inline def toScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: Scala.Component[P, S, B, CT]): ToScalaComponent[P, S, B] =
+  @inline def toScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](@nowarn("cat=unused") c: Scala.Component[P, S, B, CT]): ToScalaComponent[P, S, B] =
     toScalaComponent[P, S, B]
 
   def toScalaComponent[P, S, B]: ToScalaComponent[P, S, B] =

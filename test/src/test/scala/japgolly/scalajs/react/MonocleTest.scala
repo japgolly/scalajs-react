@@ -6,7 +6,7 @@ import utest._
 import extra._
 import ScalazReact._
 import MonocleReact._
-
+import scala.annotation.nowarn
 import scalaz.{Monad, ~>}
 
 object MonocleTest extends TestSuite {
@@ -16,6 +16,7 @@ object MonocleTest extends TestSuite {
 
   @Lenses case class Poly[A](oa: Option[A])
 
+  @nowarn("cat=unused")
   private class ScopeTest[A](s: StateAccessPure[A]) {
     // Testing:
     // [error] private value s escapes its defining scope as part of type ScopeTest.this.s.WithMappedState[Int]

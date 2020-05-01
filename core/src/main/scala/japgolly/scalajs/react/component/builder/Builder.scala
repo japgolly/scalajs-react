@@ -6,6 +6,7 @@ import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomNode
 import Scala.{BackendScope, Vars}
 import Lifecycle._
+import scala.annotation.nowarn
 
 object Builder {
 
@@ -222,7 +223,7 @@ object Builder {
                      initStateFn: InitStateFn [P, S]    = this.initStateFn,
                      backendFn  : NewBackendFn[P, S, B] = this.backendFn,
                      renderFn   : RenderFn    [P, S, B] = this.renderFn,
-                     lifecycle  : Lifecycle_            = this.lifecycle): This =
+                     lifecycle  : Lifecycle_): This =
       new Step4(name, initStateFn, backendFn, renderFn, lifecycle)
 
     private def setLC[US2 <: UpdateSnapshot](lc: Lifecycle[P, S, B, US2#Value]): Step4[P, C, S, B, US2] =
@@ -373,6 +374,7 @@ object Builder {
       * This use case is not common, but it may occur in UIs like a chat thread that need to handle scroll position in a
       * special way.
       */
+    @nowarn("cat=unused")
     def getSnapshotBeforeUpdate[A](f: GetSnapshotBeforeUpdateFn[P, S, B, A])
                                   (implicit ev: UpdateSnapshot.SafetyProof[US]): Step4[P, C, S, B, UpdateSnapshot.Some[A]] =
       setLC[UpdateSnapshot.Some[A]](lifecycle.resetSnapshot(None, Some(f)))

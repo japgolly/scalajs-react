@@ -4,11 +4,11 @@ import nyaya.gen._
 import nyaya.prop._
 import nyaya.test.PropTest._
 import utest._
-
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+import scala.annotation.nowarn
 
 object ReusabilityTest extends TestSuite {
 
@@ -205,7 +205,7 @@ object ReusabilityTest extends TestSuite {
         }
         "reuseMid" - {
           implicit val r = {
-            implicit val x3 = Reusability.always[X3]
+            @nowarn("cat=unused") implicit val x3 = Reusability.always[X3]
             Reusability.derive[X]
           }
           test[X](X1    , X1    , true)
@@ -236,7 +236,7 @@ object ReusabilityTest extends TestSuite {
         }
         "reuseMid" - {
           implicit val r = {
-            implicit val y3 = Reusability.always[Y3]
+            @nowarn("cat=unused") implicit val y3 = Reusability.always[Y3]
             Reusability.derive[Y]
           }
           test[Y](Y1    , Y1    , true)
@@ -336,11 +336,11 @@ object ReusabilityTest extends TestSuite {
     "jsDate" - {
       import scala.scalajs.js.Date
       val now = System.currentTimeMillis
-      val date1 = new Date(now)
-      val date2 = new Date(now)
+      val date1 = new Date(now.toDouble)
+      val date2 = new Date(now.toDouble)
 
       assert(date1 ~=~ date2)
-      assert(!(date1 ~=~ new Date(now + 1)))
+      assert(!(date1 ~=~ new Date(now.toDouble + 1)))
     }
 
     "javaDate" - {

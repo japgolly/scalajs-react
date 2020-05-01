@@ -7,21 +7,21 @@ import japgolly.scalajs.react.vdom.html_<^._
 
 object ReactAttrTest extends TestSuite {
 
-  val anything = VdomAttr[Any]("")
-  val intOnly = ^.colSpan
-  val stringOnly = ^.href
-  val style = ^.style
-  val mouse = ^.onMouseDown
-  val focus = ^.onFocus
+  private val anything = VdomAttr[Any]("")
+  private val intOnly = ^.colSpan
+  private val stringOnly = ^.href
+  private val style = ^.style
+  private val mouse = ^.onMouseDown
+  private val focus = ^.onFocus
 
-  def jsObj: js.Object = new js.Object()
-  def jsDict: js.Dictionary[String] = js.Dictionary.empty
-  def unit = ()
-  def callback = Callback.empty
-  def anyEH: ReactEvent => Callback = _ => callback
-  def mouseEH: ReactMouseEvent => Callback = _ => callback
-  def focusEH: ReactFocusEvent => Callback = _ => callback
-  def mouseInputEH: ReactMouseEventFromInput => Callback = _ => callback
+  private def jsObj: js.Object = new js.Object()
+  private def jsDict: js.Dictionary[String] = js.Dictionary.empty
+  private val unit = ()
+  private def callback = Callback.empty
+  private def anyEH: ReactEvent => Callback = _ => callback
+  private def mouseEH: ReactMouseEvent => Callback = _ => callback
+  private def focusEH: ReactFocusEvent => Callback = _ => callback
+  private def mouseInputEH: ReactMouseEventFromInput => Callback = _ => callback
 
   override def tests = Tests {
 

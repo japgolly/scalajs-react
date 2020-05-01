@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.raw
 
 import org.scalajs.dom
+import scala.annotation.nowarn
 import scala.scalajs.js.|
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
@@ -10,6 +11,7 @@ import scala.scalajs.js.annotation._
 object ReactDOM extends ReactDOM
 
 @js.native
+@nowarn("cat=unused")
 trait ReactDOM extends js.Object {
 
   final type Container = dom.Element | dom.raw.Document

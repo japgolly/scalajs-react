@@ -28,7 +28,7 @@ object JsUtil {
     try
       s.asInstanceOf[js.Dynamic].applyDynamic("toString")().asInstanceOf[String]
     catch {
-      case t: Throwable =>
+      case _: Throwable =>
         js.Symbol.keyFor(s).toOption match {
           case Some(k) => s"Symbol($k)"
           case None    => "Symbol(?)"

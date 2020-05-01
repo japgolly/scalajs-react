@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra.router
 
 import japgolly.scalajs.react.vdom.VdomElement
+import scala.annotation.nowarn
 
 // If we don't extend Product with Serializable here, a method that returns both a Renderer[P] and a Redirect[P] will
 // be type-inferred to "Product with Serializable with Action[P]" which breaks the Renderable & Actionable implicits.
@@ -40,16 +41,13 @@ object Redirect {
   @deprecated("Use SetRouteVia.WindowLocation", "1.5.0")
   case object Force extends Method
 
-  implicit def autoMigrateMethodToSetRouteVia(m: Method): SetRouteVia = {
-    @deprecated("", "")
-    @inline def ignoreThisAndTheAboveWarning: SetRouteVia =
-      m match {
-        case Replace => SetRouteVia.HistoryReplace
-        case Push    => SetRouteVia.HistoryPush
-        case Force   => SetRouteVia.WindowLocation
-      }
-    ignoreThisAndTheAboveWarning
-  }
+  @nowarn
+  implicit def autoMigrateMethodToSetRouteVia(m: Method): SetRouteVia =
+    m match {
+      case Replace => SetRouteVia.HistoryReplace
+      case Push    => SetRouteVia.HistoryPush
+      case Force   => SetRouteVia.WindowLocation
+    }
 }
 
 final case class RedirectToPage[P](page: P, via: SetRouteVia) extends Redirect[P] {

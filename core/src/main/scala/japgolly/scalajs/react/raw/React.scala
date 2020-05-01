@@ -1,11 +1,13 @@
 package japgolly.scalajs.react.raw
 
+import scala.annotation.nowarn
 import scalajs.js
 import scalajs.js.|
 import scalajs.js.annotation._
 
 @JSImport("react", JSImport.Namespace, "React")
 @js.native
+@nowarn("cat=unused")
 object React extends React {
 
   @js.native
@@ -165,6 +167,7 @@ object React extends React {
 }
 
 @js.native
+@nowarn("cat=unused")
 trait React extends js.Object {
   import React._
 

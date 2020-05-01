@@ -74,7 +74,7 @@ final class ModStateWithPropsFn[F[_], P, S](underlyingFn: ((S, P) => Option[S], 
     this
 
   def toModStateFn: ModStateFn[F, S] =
-    ModStateFn((f, cb) => underlyingFn((s, p) => f(s), cb))
+    ModStateFn((f, cb) => underlyingFn((s, _) => f(s), cb))
 
   def toSetStateFn: SetStateFn[F, S] =
     SetStateFn((s, cb) => underlyingFn((_, _) => s, cb))

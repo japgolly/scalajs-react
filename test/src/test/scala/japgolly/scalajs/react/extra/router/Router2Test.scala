@@ -11,6 +11,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import MonocleReact._
 import ScalazReact._
 import TestUtil._
+import scala.annotation.nowarn
 
 object Router2Test extends TestSuite {
 
@@ -57,7 +58,7 @@ object Router2Test extends TestSuite {
     sealed trait En
     case object E1 extends En
     case object E2 extends En
-    def renderE(e: E) = <.div()
+    @nowarn("cat=unused") def renderE(e: E) = <.div()
 
     implicit val pageEq: Equal[MyPage2] = Equal.equalA
 
@@ -159,7 +160,7 @@ object Router2Test extends TestSuite {
     val sim = SimHistory(base.abs)
     val r = ReactTestUtils.renderIntoDocument(router())
     def html = r.getDOMNode.asMounted().asElement().outerHTML
-    def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.rules.parse(_).runNow().right.toOption)
+    def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.rules.parse(_).runNow().toOption)
     isUserLoggedIn = false
 
     def syncNoRedirect(path: Path) = {
@@ -349,7 +350,7 @@ object Router2Test extends TestSuite {
       }
 
       "overloads" - {
-        def test(f: RoutingRule[Int] => Any): Unit = ()
+        @nowarn("cat=unused") def test(f: RoutingRule[Int] => Any): Unit = ()
 
         "c"  - test(_.addCondition(CallbackTo(true)))
         "ca" - test(_.addConditionWithFallback(CallbackTo(true), RedirectToPath[Int](null, null)))

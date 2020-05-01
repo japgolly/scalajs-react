@@ -53,7 +53,7 @@ object DslTest extends TestSuite {
       compCConst()
 
     case class CompX(title: String, page: PageSet, router: RouterCtl[PageSet])
-    val compX = ScalaComponent.builder[CompX]("X").render_P(p => <.div()).build
+    val compX = ScalaComponent.builder[CompX]("X").render_P(_ => <.div()).build
   }
 
 
@@ -136,12 +136,12 @@ object DslTest extends TestSuite {
         test[Int]("x" / int)("x/" + _.toString, ints: _*)("x", "x/", "3", "/3", "x3", "3/", "xx/3", "3/x")
 
       "***" - {
-        test[(Int, Int)](int / int)(t => t._1 + "/" + t._2, ints2: _*)("3", "123", "3//3")
+        test[(Int, Int)](int / int)(t => s"${t._1}/${t._2}", ints2: _*)("3", "123", "3//3")
         test[(String, Int)](string("[a-z]+") ~ int)(t => t._1 + t._2, List("a", "zz", "qwefsda").zip(ints): _*)("d 3", "3d", "d/3", "Z3")
       }
 
       "T3" -
-        test[(Int, Int, Int)](int / int / int)(t => t._1 + "/" + t._2 + "/" + t._3, ints3: _*)("3/3", "3/a/3", "a/3/3", "4/4/a")
+        test[(Int, Int, Int)](int / int / int)(t => s"${t._1}/${t._2}/${t._3}", ints3: _*)("3/3", "3/a/3", "a/3/3", "4/4/a")
 
       "T45678" - {
         val s1 = string("[ab]")
@@ -172,7 +172,7 @@ object DslTest extends TestSuite {
         testS(int.filter(_ > 99))(100, 666, 1000)("99", "0", "-100")
 
       "xmap" -
-        test((int / string("[a-z]+")).caseClass[IntStr])(v => v.i + "/" + v.s,
+        test((int / string("[a-z]+")).caseClass[IntStr])(v => s"${v.i}/${v.s}",
           IntStr(0, "yay"), IntStr(100, "cool"))("0/", "/yay", "yar")
 
       "pmapL" -

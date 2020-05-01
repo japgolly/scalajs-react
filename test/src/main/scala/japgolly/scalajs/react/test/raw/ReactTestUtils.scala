@@ -3,6 +3,7 @@ package japgolly.scalajs.react.test.raw
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import japgolly.scalajs.react.raw._
+import scala.annotation.nowarn
 
 /** https://facebook.github.io/react/docs/test-utils.html */
 @JSImport("react-dom/test-utils", JSImport.Namespace, "ReactTestUtils")
@@ -10,6 +11,7 @@ import japgolly.scalajs.react.raw._
 object ReactTestUtils extends ReactTestUtils
 
 @js.native
+@nowarn("cat=unused")
 trait ReactTestUtils extends js.Object {
 
   final val Simulate: Simulate = js.native

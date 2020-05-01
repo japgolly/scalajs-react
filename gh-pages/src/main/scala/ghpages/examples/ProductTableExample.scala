@@ -166,7 +166,7 @@ object ProductTableExample {
       e.extract(_.target.value)(value =>
         $.modState(_.copy(filterText = value)))
 
-    def onCheckBox(e: ReactEvent) =
+    def onCheckBox =
       $.modState(s => s.copy(inStockOnly = !s.inStockOnly))
   }
 
@@ -212,7 +212,7 @@ object ProductTableExample {
           ^.onChange   ==> b.onTextChange),
         <.p(
           <.input.checkbox(
-            ^.onClick ==> b.onCheckBox),
+            ^.onClick --> b.onCheckBox),
           "Only show products in stock"))
     }
     .build

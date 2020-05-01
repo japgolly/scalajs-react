@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import org.scalajs.dom
-import scala.annotation.implicitNotFound
+import scala.annotation.{implicitNotFound, nowarn}
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import japgolly.scalajs.react.internal.OptionLike
@@ -157,6 +157,7 @@ object Attr {
     def byImplicit[A, U](implicit f: A => js.Any): ValueType[A, U] =
       apply((b, a) => b(f(a)))
 
+    @nowarn("cat=unused")
     implicit def byUnion[A, B, C](implicit f: A => (B | C)): ValueType[A, B | C] =
       apply((b, a) => b(a.asInstanceOf[js.Any]))
 

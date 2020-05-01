@@ -27,7 +27,7 @@ class RouterMacros (val c: Context) extends MacroUtils {
           q"$const[$T]($applyFn())"
 
         case param :: Nil =>
-          val (n, t) = nameAndType(T, param)
+          val (n, _) = nameAndType(T, param)
           q"$xmap[$T]($applyFn)(_.$n)"
 
         case _ =>
@@ -36,7 +36,7 @@ class RouterMacros (val c: Context) extends MacroUtils {
           var index     = 0
           for (p <- params) {
             index += 1
-            val (n, t) = nameAndType(T, p)
+            val (n, _) = nameAndType(T, p)
             val tn = TermName("_" + index)
             fromTuple :+= q"t.$tn"
             toTuple   :+= q"c.$n"

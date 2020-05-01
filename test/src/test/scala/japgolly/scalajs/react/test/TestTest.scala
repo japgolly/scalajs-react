@@ -11,6 +11,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.raw.SyntheticEvent
 import japgolly.scalajs.react.vdom.html_<^._
 import TestUtil._
+import scala.annotation.nowarn
 
 object TestTest extends TestSuite {
 
@@ -83,9 +84,9 @@ object TestTest extends TestSuite {
       }
 
       "eventTypes" - {
-        def test[E[+x <: dom.Node] <: SyntheticEvent[x]](eventType: VdomAttr.Event[E], simF: ReactOrDomNode ⇒ Unit) = {
+        def test[E[+x <: dom.Node] <: SyntheticEvent[x]](eventType: VdomAttr.Event[E], simF: ReactOrDomNode => Unit) = {
           val IDC = ScalaComponent.builder[Unit]("IC").initialState(true).render($ => {
-            val ch = (e: E[dom.Node]) => $.modState(x => !x)
+            @nowarn("cat=unused") val ch = (e: E[dom.Node]) => $.modState(x => !x)
             <.label(
               <.input.text(^.value := $.state, eventType ==> ch).withRef(inputRef),
               <.span(s"s = ${$.state}")
@@ -173,7 +174,7 @@ object TestTest extends TestSuite {
             e("change") >> T.setState(ev.target.value)
           <.input.text(^.value := T.state, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur")).withRef(inputRef)
         }).build
-        val c = ReactTestUtils.renderIntoDocument(C())
+        ReactTestUtils.renderIntoDocument(C())
         Simulation.focusChangeBlur("good") run inputRef.unsafeGet()
         assertEq(events, Vector("focus", "change", "blur"))
         assertEq(inputRef.unsafeGet().value, "good")
@@ -225,7 +226,7 @@ object TestTest extends TestSuite {
     "withRenderedIntoDocumentAsync" - {
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
-      ReactTestUtils.withRenderedIntoDocumentAsync(IC()) { mm =>
+      ReactTestUtils.withRenderedIntoDocumentFuture(IC()) { mm =>
         m = mm
         promise.future
       }
@@ -243,7 +244,7 @@ object TestTest extends TestSuite {
       val body1 = inspectBody()
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
-      val future = ReactTestUtils.withRenderedIntoBodyAsync(IC()) { mm =>
+      val future = ReactTestUtils.withRenderedIntoBodyFuture(IC()) { mm =>
         m = mm
         promise.future
       }

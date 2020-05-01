@@ -5,6 +5,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test.InferenceUtil._
+import scala.annotation.nowarn
 
 object ScalaBuilderTest extends TestSuite {
 
@@ -104,6 +105,7 @@ object ScalaBuilderTest extends TestSuite {
   }
 }
 
+@nowarn("cat=unused")
 object BackendMacroTestData {
   case class Props(a: Int)
   case class State(a: Int)
@@ -165,7 +167,7 @@ object BackendMacroTestData {
 
   object Subtypes {
     class Backend($: BackendScope[Vector[Int], Unit]) {
-      def render(zxc: Traversable[Int]) = <.div(zxc.sum)
+      def render(zxc: Iterable[Int]) = <.div(zxc.sum)
     }
     val C = ScalaComponent.builder[Vector[Int]]("").renderBackend[Backend].build
   }

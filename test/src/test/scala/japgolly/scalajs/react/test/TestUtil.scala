@@ -1,6 +1,5 @@
 package japgolly.scalajs.react.test
 
-import org.scalajs.dom.{document, html}
 import scala.io.AnsiColor._
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -9,6 +8,7 @@ import scalaz.syntax.equal._
 import utest.CompileError
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.PackageBase._
+import scala.annotation.nowarn
 
 object TestUtil extends TestUtil
 
@@ -81,7 +81,7 @@ trait TestUtil
       val AE = List(actual, expect).map(_.split("\n"))
       val List(as, es) = AE
       val lim = as.length max es.length
-      val List(maxA,_) = AE.map(x => (0 #:: x.map(_.length).toStream).max)
+      val List(maxA,_) = AE.map(x => (0 +: x.map(_.length)).max)
       val maxL = lim.toString.length
       println("A|E")
       val fmt = s"%s%${maxL}d: %-${maxA}s |%s| %s$RESET\n"
@@ -194,6 +194,7 @@ trait TestUtil
     err
   }
 
+  @nowarn("cat=unused")
   def assertCompiles[A](a: => A): Unit = ()
 }
 

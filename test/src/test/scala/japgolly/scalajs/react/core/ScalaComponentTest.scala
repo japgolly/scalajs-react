@@ -115,7 +115,7 @@ object ScalaComponentPTest extends TestSuite {
 
       var willUnmountCount = 0
 
-      class Backend($: BackendScope[Props, Unit]) {
+      class Backend {
         def willMount = Callback { mountCountBeforeMountB += mountCountB; willMountCountB += 1 }
         def incMountCount = Callback(mountCountB += 1)
         def willUpdate(cur: Props, next: Props) = Callback(willUpdates :+= next - cur)
@@ -126,7 +126,7 @@ object ScalaComponentPTest extends TestSuite {
 
       val Inner = ScalaComponent.builder[Props]("")
         .stateless
-        .backend(new Backend(_))
+        .backend(_ => new Backend)
         .render_P(p => raw.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
         .shouldComponentUpdatePure(_.cmpProps(_.a != _.a)) // update if .a differs
         .shouldComponentUpdatePure(_.cmpProps(_.b != _.b)) // update if .b differs

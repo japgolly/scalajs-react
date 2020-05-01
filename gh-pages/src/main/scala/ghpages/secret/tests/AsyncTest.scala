@@ -138,14 +138,14 @@ object AsyncTest {
       .add("jsPromise: from fixed ok")(testCmp {
         val p = AsyncCallback.pure(123).unsafeToJsPromise()
         val t1,t2 = AsyncCallback.fromJsPromise(p)
-        t1.zip(t2) -> (123, 123)
+        t1.zip(t2) -> ((123, 123))
       })
 
       .add("jsPromise: from fixed ko")(testCmp {
         val e = new RuntimeException("AH")
         val p = AsyncCallback.throwException[Int](e).unsafeToJsPromise()
         val t1,t2 = AsyncCallback.fromJsPromise(p).attempt
-        t1.zip(t2) -> (Left(e), Left(e))
+        t1.zip(t2) -> ((Left(e), Left(e)))
       })
 
       .add("future")(testCmp {

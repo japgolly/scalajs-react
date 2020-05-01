@@ -133,7 +133,7 @@ object AsyncCallback {
       val ok: A   => R = a => complete(Success(a))
       val ko: Any => R = e => complete(Failure(e match {
         case t: Throwable => t
-        case a            => js.JavaScriptException(e)
+        case _            => js.JavaScriptException(e)
       }))
       pa.`then`[Unit](ok, ko: js.Function1[Any, R])
     })

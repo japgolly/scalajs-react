@@ -5,6 +5,7 @@ import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.{html, svg}
+import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import utest._
@@ -165,13 +166,13 @@ object RefTest extends TestSuite {
       def wideRef() = assertCompiles(Forwarder.withRef(Ref[html.Element])("ok"))
 
       def narrowRef() = {
-        def X = JsForwardRefComponent[Null, Children.Varargs, html.Element](???)
+        @nowarn def X = JsForwardRefComponent[Null, Children.Varargs, html.Element](???)
         compileError(""" X.withRef(Ref[html.Button])("ok") """)
         ()
       }
 
       def scalaRef() = {
-        def ref = Ref.toScalaComponent(TestScala.InnerScala.C)
+        @nowarn def ref = Ref.toScalaComponent(TestScala.InnerScala.C)
         compileError(""" Forwarder.withRef(ref)("ok") """)
         ()
       }
@@ -197,13 +198,13 @@ object RefTest extends TestSuite {
       }
 
       def narrowRef() = {
-        def X = React.forwardRef[String, html.Element]((s, r) => <.div(<.button.withRef(r)(s)))
+        @nowarn def X = React.forwardRef[String, html.Element]((s, r) => <.div(<.button.withRef(r)(s)))
         compileError(""" X.withRef(Ref[html.Button])("ok") """)
         ()
       }
 
       def scalaRef() = {
-        def ref = Ref.toScalaComponent(TestScala.InnerScala.C)
+        @nowarn def ref = Ref.toScalaComponent(TestScala.InnerScala.C)
         compileError(""" Forwarder.withRef(ref)("ok") """)
         ()
       }
@@ -240,7 +241,7 @@ object RefTest extends TestSuite {
       def withRef() = {
         class Backend {
           val ref = Ref.toScalaComponent(InnerScala)
-          def render = Forwarder.withRef(ref)("noice")
+          @nowarn def render = Forwarder.withRef(ref)("noice")
         }
         val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
         ReactTestUtils.withNewBodyElement { mountNode =>
@@ -253,7 +254,7 @@ object RefTest extends TestSuite {
       def withRef2() = {
         class Backend {
           val ref = Ref.toScalaComponent[Int, Unit, InnerScalaBackend]
-          def render = Forwarder.withRef(ref)("noice")
+          @nowarn def render = Forwarder.withRef(ref)("noice")
         }
         val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
         ReactTestUtils.withNewBodyElement { mountNode =>
@@ -266,7 +267,7 @@ object RefTest extends TestSuite {
       def mappedRef() = {
         class Backend {
           val ref = Ref.toScalaComponent(InnerScala).map(_.backend.gimmeHtmlNow())
-          def render = Forwarder.withRef(ref)("noice")
+          @nowarn def render = Forwarder.withRef(ref)("noice")
         }
         val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
         ReactTestUtils.withNewBodyElement { mountNode =>
@@ -278,13 +279,13 @@ object RefTest extends TestSuite {
 
       def wrongScala() = {
         def Scala2 = ScalaComponent.builder[Int]("Scala2").renderStatic(<.div).build
-        def ref = Ref.toScalaComponent(Scala2)
+        @nowarn def ref = Ref.toScalaComponent(Scala2)
         compileError(""" Forwarder.withRef(ref)("nah mate") """)
         ()
       }
 
       def vdomRef() = {
-        def ref = Ref[html.Button]
+        @nowarn def ref = Ref[html.Button]
         compileError(""" Forwarder.withRef(ref)("nah mate") """)
         ()
       }
@@ -314,16 +315,13 @@ object RefTest extends TestSuite {
       }
 
       def wrongJs() = {
-        type P = JsComponentEs6PTest.JsProps
-        type S = Null
-        type R = JsComponent.RawMounted[P, S]
-        def ref = Ref.toJsComponent(JsComponentEs6PTest.Component)
+        @nowarn def ref = Ref.toJsComponent(JsComponentEs6PTest.Component)
         compileError(""" Forwarder.withRef(ref)("nah mate") """)
         ()
       }
 
       def vdomRef() = {
-        def ref = Ref[html.Button]
+        @nowarn def ref = Ref[html.Button]
         compileError(""" Forwarder.withRef(ref)("nah mate") """)
         ()
       }
