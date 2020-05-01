@@ -45,14 +45,6 @@ object StateAccess {
     /** @param callback Executed regardless of whether state is changed. */
     def setStateOption(newState: Option[S], callback: Callback): F[Unit]
 
-    @deprecated("Create a function yourself. If you're using this in Reusable.fn(…), use Reusable.fn.state(this.zoom…).set instead", "1.2.0")
-    final def setStateFn[I](f: I => S, callback: Callback = Callback.empty): I => F[Unit] =
-      i => setState(f(i), callback)
-
-    @deprecated("Create a function yourself. If you're using this in Reusable.fn(…), use Reusable.fn.state(this.zoom…).setOption instead", "1.2.0")
-    final def setStateOptionFn[I](f: I => Option[S], callback: Callback = Callback.empty): I => F[Unit] =
-      i => setStateOption(f(i), callback)
-
     def toSetStateFn: SetStateFn[F, S] =
       SetStateFn(setStateOption)
   }
@@ -71,14 +63,6 @@ object StateAccess {
 
     /** @param callback Executed regardless of whether state is changed. */
     def modStateOption(mod: S => Option[S], callback: Callback): F[Unit]
-
-    @deprecated("Create a function yourself. If you're using this in Reusable.fn(…), use Reusable.fn.state(this.zoom…).mod instead", "1.2.0")
-    final def modStateFn[I](f: I => S => S, callback: Callback = Callback.empty): I => F[Unit] =
-      i => modState(f(i), callback)
-
-    @deprecated("Create a function yourself. If you're using this in Reusable.fn(…), use Reusable.fn.state(this.zoom…).modOption instead", "1.2.0")
-    final def modStateOptionFn[I](f: I => S => Option[S], callback: Callback = Callback.empty): I => F[Unit] =
-      i => modStateOption(f(i), callback)
 
     def toModStateFn: ModStateFn[F, S] =
       ModStateFn(modStateOption)

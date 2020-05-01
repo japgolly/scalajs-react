@@ -129,16 +129,6 @@ object CallbackOption {
       b  <- cb.toCBO
     } yield b
 
-  /**
-   * Wraps a `CallbackOption[A]` so that:
-   *
-   * 1) It only executes if `e.defaultPrevented` is `false`.
-   * 2) It sets `e.preventDefault` on successful completion.
-   */
-  @deprecated("Use callback.asEventDefault(e) instead", "1.3.0")
-  def asEventDefault[A](e: ReactEvent, co: CallbackOption[A]): CallbackOption[A] =
-    co.asEventDefault(e)
-
   @inline implicit def callbackOptionCovariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
     c.widen
 }

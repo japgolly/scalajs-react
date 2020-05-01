@@ -357,19 +357,6 @@ object CallbackTo {
   def TODO[A](result: => A, reason: => String): CallbackTo[A] =
     Callback.todoImpl(Some(() => reason)) >> CallbackTo(result)
 
-  final class ReactExt_CallbackToFuture[A](private val t: Trampoline[Future[A]]) extends AnyVal {
-    private def self: CallbackTo[Future[A]] = new CallbackTo(t)
-
-    /**
-     * Turns a `CallbackTo[Future[A]]` into a `Future[A]`.
-     *
-     * WARNING: This will trigger the execution of the [[Callback]].
-     */
-    @deprecated("Use AsyncCallback.fromCallbackToFuture(...).unsafeToFuture()", "1.4.0")
-    def toFlatFuture(implicit ec: ExecutionContext): Future[A] =
-      AsyncCallback.fromCallbackToFuture(self).unsafeToFuture()
-  }
-
   @inline implicit def callbackCovariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =
     c.widen
 
@@ -434,14 +421,6 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val trampoline: Tr
 
   /** Alias for `flatMap`. */
   @inline def >>=[B](f: A => CallbackTo[B]): CallbackTo[B] =
-    flatMap(f)
-
-  /** Same as `flatMap` and `>>=`, but allows arguments to appear in reverse order.
-    *
-    * i.e. `f >>= g` is the same as `g =<<: f`
-    */
-  @deprecated("Flip the args and use >>= or flatMap", "1.4.0")
-  def =<<:[B](f: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(f)
 
   def flatten[B](implicit ev: A => CallbackTo[B]): CallbackTo[B] =
@@ -678,13 +657,6 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val trampoline: Tr
   /** Run asynchronously after a `startInMilliseconds` ms delay. */
   def delayMs(startInMilliseconds: Double): AsyncCallback[A] =
     asAsyncCallback.delayMs(startInMilliseconds)
-
-  /**
-   * Schedules an instance of this callback to run asynchronously.
-   */
-  @deprecated("Use .asAsyncCallback.unsafeToFuture()", "1.4.0")
-  def toFuture(implicit ec: ExecutionContext): Future[A] =
-    Future(runNow())
 
   /** Record the duration of this callback's execution. */
   def withDuration[B](f: (A, FiniteDuration) => CallbackTo[B]): CallbackTo[B] = {

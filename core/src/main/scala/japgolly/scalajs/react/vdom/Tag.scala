@@ -7,10 +7,6 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                                          final protected val modifiers: List[Seq[TagMod]],
                                          final val namespace: Namespace) extends VdomElement {
 
-  @deprecated("Use .withRef instead", "1.2.0")
-  def ref[NN >: N <: TopNode](r: Ref.Set[NN]): TagOf[NN] =
-    (this: TagOf[NN])(Attr.Ref(r))
-
   def withRef[NN >: N <: TopNode, R](ref: TagOf.RefArg[NN]): TagOf[NN] =
     ref.value match {
       case Some(r) => this(Attr.Ref(r))
@@ -24,9 +20,6 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                      modifiers: List[Seq[TagMod]] = this.modifiers,
                      namespace: Namespace = this.namespace): TagOf[N] =
     new TagOf(tag, modifiers, namespace)
-
-  @deprecated("Tags now extend VdomElement. Calling .render does nothing.", "1.4.0")
-  def render: VdomElement = this
 
   override lazy val rawElement: Raw.React.Element = {
     val b = new Builder.ToRawReactElement()
