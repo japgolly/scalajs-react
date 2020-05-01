@@ -16,11 +16,11 @@ trait ReactDOM extends js.Object {
 
   final type Container = dom.Element | dom.raw.Document
 
-  final def render(element  : React.Element,
+  final def render(element  : React.Node,
                    container: Container,
                    callback : js.Function0[Unit] = js.native): React.ComponentUntyped = js.native
 
-  final def hydrate(element  : React.Element,
+  final def hydrate(element  : React.Node,
                     container: Container,
                     callback : js.Function0[Unit] = js.native): React.ComponentUntyped = js.native
 
