@@ -154,7 +154,7 @@ trait HtmlTags {
   /**
     * Represents the definition of the terms immediately listed before it.
     */
-  final def dd = HtmlTagOf[*.DD]("dd")
+  final def dd = HtmlTagOf[*.Element]("dd")
 
   /**
     * Defines a remofinal def from the document.
@@ -186,7 +186,7 @@ trait HtmlTags {
   /**
     * Represents a term defined by the next dd
     */
-  final def dt = HtmlTagOf[*.DT]("dt")
+  final def dt = HtmlTagOf[*.Element]("dt")
 
   /**
     * Represents emphasized text.

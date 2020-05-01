@@ -14,19 +14,20 @@ object ScalajsReact {
   object Ver {
     val BetterMonadicFor      = "0.3.1"
     val Cats                  = "2.1.1"
+    val CatsEffect            = "2.1.3"
     val CatsTestkitScalaTest  = "1.0.1"
-    val DisciplineScalaTest   = "1.0.0-RC1"
+    val DisciplineScalaTest   = "1.0.1"
     val KindProjector         = "0.11.0"
     val MacroParadise         = "2.1.1"
-    val MonocleCats           = "2.0.1"
+    val MonocleCats           = "2.0.4"
     val MonocleScalaz         = "1.6.3"
     val MTest                 = "0.7.1"
     val Nyaya                 = "0.9.2"
     val ReactJs               = "16.7.0"
-    val Scala212              = "2.12.10"
-    val Scala213              = "2.13.1"
+    val Scala212              = "2.12.11"
+    val Scala213              = "2.13.2"
     val ScalaCollCompat       = "2.1.6"
-    val ScalaJsDom            = "0.9.8"
+    val ScalaJsDom            = "1.0.0"
     val ScalaTest             = "3.1.1"
     val Scalaz72              = "7.2.30"
     val SizzleJs              = "2.3.0"
@@ -321,13 +322,13 @@ object ScalajsReact {
     .dependsOn(core, cats)
     .settings(
       libraryDependencies ++= Seq(
-        "org.typelevel" %%% "cats-core" % Ver.Cats,
-        "org.typelevel" %%% "cats-effect" % Ver.Cats,
-        "org.typelevel" %%% "cats-effect-laws" % Ver.Cats % Test,
-        "org.typelevel" %%% "cats-testkit" % Ver.Cats % Test,
+        "org.typelevel" %%% "cats-core"              % Ver.Cats,
+        "org.typelevel" %%% "cats-effect"            % Ver.CatsEffect,
+        "org.typelevel" %%% "cats-effect-laws"       % Ver.CatsEffect           % Test,
+        "org.typelevel" %%% "cats-testkit"           % Ver.Cats                 % Test,
         "org.typelevel" %%% "cats-testkit-scalatest" % Ver.CatsTestkitScalaTest % Test,
-        "org.scalatest" %%% "scalatest" % Ver.ScalaTest % Test,
-        "org.typelevel" %%% "discipline-scalatest" % Ver.DisciplineScalaTest % Test
+        "org.scalatest" %%% "scalatest"              % Ver.ScalaTest            % Test,
+        "org.typelevel" %%% "discipline-scalatest"   % Ver.DisciplineScalaTest  % Test
     ))
 
   // ==============================================================================================
