@@ -165,6 +165,8 @@ object ScalajsReact {
     _.configure(InBrowserTesting.js)
       .settings(
         jsEnv                 := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv,
+//        jsEnv                 := new org.scalajs.jsenv.selenium.SeleniumJSEnv(new org.openqa.selenium.firefox.FirefoxOptions()),
+//        jsEnv                 := new org.scalajs.jsenv.selenium.SeleniumJSEnv(new org.openqa.selenium.chrome.ChromeOptions()),
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
         testFrameworks        += new TestFramework("utest.runner.Framework"))

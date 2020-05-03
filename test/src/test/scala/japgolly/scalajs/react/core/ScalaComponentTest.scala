@@ -166,11 +166,12 @@ object ScalaComponentPTest extends TestSuite {
         assertUpdates(Props(0, 3, 0))
 
         assertEq("willUnmountCount", willUnmountCount, 0)
-        // Disabled due to https://github.com/scala-js/scala-js/issues/4029
-        // Tested manually by calling this from :/js-sandbox
-//        mounted = Comp(null).renderIntoDOM(mountNode)
-//        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
-//        assertEq("willUnmountCount", willUnmountCount, 1)
+        val comp = Comp(null)
+        println("OK HERE WE GO.........")
+        mounted = comp.renderIntoDOM(mountNode) // <---------------------------- TROUBLE
+        println("WOW IT WORKED!")
+        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
+        assertEq("willUnmountCount", willUnmountCount, 1)
 
         mounted.withEffectsPure.getDOMNode
       }
