@@ -98,6 +98,11 @@ object ReusabilityTest extends TestSuite {
     case object Y3b extends Y3
   }
 
+  private final case class P[A](aye: A)
+  private object P {
+    implicit def reusability[A: Reusability]: Reusability[P[A]] = Reusability.derive
+  }
+
   val collectionData = {
     val a = Vector(3,1,2,3,2,1)
     (for (l <- 0 to a.length) yield a.combinations(l).toSet).reduce(_ ++ _)
@@ -145,6 +150,10 @@ object ReusabilityTest extends TestSuite {
           test(CCT2(3,"a"), CCT2(3,"a"), true)
           test(CCT2(3,"a"), CCT2(3,"b"), false)
           test(CCT2(3,"a"), CCT2(4,"a"), false)
+        }
+        "p" - {
+          implicitly[Reusability[P[Int]]]
+          ()
         }
       }
 
