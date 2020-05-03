@@ -7,10 +7,10 @@ trait JsRepr[A] {
   val toJs: A => J
   val fromJs: J => A
 
-  final def unsafeCastJs(u: js.Any): J =
+  final def unsafeCastJs(u: Any): J =
     u.asInstanceOf[J]
 
-  final def unsafeFromJs(u: js.Any): A =
+  final def unsafeFromJs(u: Any): A =
     fromJs(unsafeCastJs(u))
 
   final def xmap[B](f: A => B)(g: B => A): JsRepr[B] =

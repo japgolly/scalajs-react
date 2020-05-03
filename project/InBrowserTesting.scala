@@ -13,6 +13,8 @@ object InBrowserTesting {
   val ConfigChrome  = config("chrome")
 
   private def browserConfig(cfg: Configuration, env: SeleniumJSEnv): Project => Project =
+    identity // Disabled for now. Needs to be re-done for Scala.JS 1.0.
+/*
     _.settings(
       inConfig(cfg)(
         Defaults.testSettings ++
@@ -72,8 +74,11 @@ object InBrowserTesting {
 
           // In-browser settings
           jsEnv := env)))
+*/
 
   def js: Project => Project =
+    identity // Disabled for now. Needs to be re-done for Scala.JS 1.0.
+/*
     _.configure(
       browserConfig(ConfigFirefox, new SeleniumJSEnv(DesiredCapabilities.firefox())),
       browserConfig(ConfigChrome, new SeleniumJSEnv(DesiredCapabilities.chrome())))
@@ -83,4 +88,5 @@ object InBrowserTesting {
         (test in ConfigFirefox).value
         (test in ConfigChrome ).value
       })
+*/
 }

@@ -10,7 +10,7 @@ import scala.scalajs.js.Dynamic
 object SimEvent {
 
   case class Change(value           : String              = "",
-                    checked         : js.UndefOr[Boolean] = js.undefined,
+                    checked         : js.UndefOr[Boolean] = (),
                     defaultPrevented: Boolean             = false) {
     def toJs: js.Object = {
       val target = Dynamic.literal(
@@ -252,8 +252,8 @@ object SimEvent {
       o.clientY          = clientY
       o.pageX            = pageX
       o.pageY            = pageY
-      o.movementX        = movementX
-      o.movementY        = movementY
+      o.movementX        = movementX.toDouble
+      o.movementY        = movementY.toDouble
       o.altKey           = altKey
       o.ctrlKey          = ctrlKey
       o.metaKey          = metaKey

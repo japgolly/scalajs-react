@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
 import scala.scalajs.js
-import scala.scalajs.runtime.StackTrace
+import scala.scalajs.js.JavaScriptException
 
 /** The data captured by React when it catches an error for the `componentDidCatch` event.
   *
@@ -28,7 +28,11 @@ final case class ReactCaughtError(rawError: js.Any, rawInfo: raw.React.ErrorInfo
     js.typeOf(rawError)
 
   def stackTraceElements: Array[StackTraceElement] =
-    StackTrace.extract(dynError)
+    (rawError: Any) match {
+      case e: JavaScriptException => e.getStackTrace
+      case t: Throwable           => t.getStackTrace
+      case _                      => Array.empty
+    }
 
   def stack: String =
     stackTraceElements.iterator.map(_.toString).filter(_.nonEmpty).mkString("\n")
