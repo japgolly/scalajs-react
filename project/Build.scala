@@ -41,7 +41,7 @@ object ScalajsReact {
   def byScalaVersion[A](f: PartialFunction[(Long, Long), Seq[A]]): Def.Initialize[Seq[A]] =
     Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
 
-  def scalacFlags = Seq(
+  def scalacFlags: Seq[String] = Seq(
     "-deprecation",
     "-feature",
     "-language:postfixOps",
@@ -52,7 +52,8 @@ object ScalajsReact {
     "-opt-inline-from:japgolly.scalajs.react.**",
     "-unchecked",                                    // Enable additional warnings where generated code depends on assumptions.
     "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
-    "-Ypatmat-exhaust-depth", "off")
+    "-Ypatmat-exhaust-depth", "off") ++
+    (if (scalaJSVersion.startsWith("0.")) Seq("-P:scalajs:sjsDefinedByDefault") else Nil)
 
   def scalac213Flags = Seq(
     "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings

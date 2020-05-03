@@ -8,6 +8,10 @@ scala:
 jdk:
   - openjdk8
 
+env:
+  - SCALAJS_VERSION=
+  - SCALAJS_VERSION=0.6.32
+
 install:
   - . $HOME/.nvm/nvm.sh
   - nvm install 10

@@ -48,7 +48,7 @@ object CtorType {
   type ModFn = js.Object => Unit
 
   private type MaybeMod = js.UndefOr[Mod]
-  @inline private def noMod: MaybeMod = ()
+  @inline private def noMod: MaybeMod = js.undefined: js.UndefOr[Mod]
 
   private final case class Mod(mod: ModFn) extends AnyVal {
     def applyAndCast[P <: js.Object](o: js.Object): P = {

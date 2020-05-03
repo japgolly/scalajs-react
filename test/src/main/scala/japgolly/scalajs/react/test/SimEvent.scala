@@ -10,7 +10,7 @@ import scala.scalajs.js.Dynamic
 object SimEvent {
 
   case class Change(value           : String              = "",
-                    checked         : js.UndefOr[Boolean] = (),
+                    checked         : js.UndefOr[Boolean] = js.undefined,
                     defaultPrevented: Boolean             = false) {
     def toJs: js.Object = {
       val target = Dynamic.literal(
