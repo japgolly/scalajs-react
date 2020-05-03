@@ -18,10 +18,10 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
   def debugCaseClass[T: c.WeakTypeTag]: c.Expr[Reusability[T]] =
     implCaseClass[T](Nil, true)
 
-  def quietCaseClassExcept[T: c.WeakTypeTag](field1: c.Expr[scala.Symbol], fieldN: c.Expr[scala.Symbol]*): c.Expr[Reusability[T]] =
+  def quietCaseClassExcept[T: c.WeakTypeTag](field1: c.Expr[String], fieldN: c.Expr[String]*): c.Expr[Reusability[T]] =
     implCaseClass[T](field1 :: fieldN.toList, false)
 
-  def debugCaseClassExcept[T: c.WeakTypeTag](field1: c.Expr[scala.Symbol], fieldN: c.Expr[scala.Symbol]*): c.Expr[Reusability[T]] =
+  def debugCaseClassExcept[T: c.WeakTypeTag](field1: c.Expr[String], fieldN: c.Expr[String]*): c.Expr[Reusability[T]] =
     implCaseClass[T](field1 :: fieldN.toList, true)
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -71,7 +71,7 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
     c.Expr[Reusability[T]](impl)
   }
 
-  private def implCaseClass[T: c.WeakTypeTag](exclusions: Seq[c.Expr[scala.Symbol]], debug: Boolean): c.Expr[Reusability[T]] = {
+  private def implCaseClass[T: c.WeakTypeTag](exclusions: Seq[c.Expr[String]], debug: Boolean): c.Expr[Reusability[T]] = {
     val T              = caseClassType[T]
     val fieldsAndTypes = primaryConstructorParamsExcluding(T, exclusions)
 

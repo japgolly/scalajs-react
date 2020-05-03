@@ -150,27 +150,27 @@ object ReusabilityTest extends TestSuite {
 
       "caseClassExcept" - {
         "1/1" - {
-          implicit val r = Reusability.caseClassExcept[CC1]('i)
+          implicit val r = Reusability.caseClassExcept[CC1]("i")
           test(CC1(2), CC1(2), true)
           test(CC1(2), CC1(3), true)
         }
 
         "1st of 2" - {
-          implicit val r = Reusability.caseClassExcept[CC2]('i)
+          implicit val r = Reusability.caseClassExcept[CC2]("i")
           test(CC2(3,"a"), CC2(3,"a"), true)
           test(CC2(3,"a"), CC2(3,"b"), false)
           test(CC2(3,"a"), CC2(4,"a"), true)
         }
 
         "2nd of 2" - {
-          implicit val r = Reusability.caseClassExcept[CC2]('n)
+          implicit val r = Reusability.caseClassExcept[CC2]("n")
           test(CC2(3,"a"), CC2(3,"a"), true)
           test(CC2(3,"a"), CC2(3,"b"), true)
           test(CC2(3,"a"), CC2(4,"a"), false)
         }
 
          "2/4" - {
-           implicit val r = Reusability.caseClassExcept[CC4]('a, 'c)
+           implicit val r = Reusability.caseClassExcept[CC4]("a", "c")
            test(CC4(1, 2, 3, 4), CC4(1, 2, 3, 4), true)
            test(CC4(1, 2, 3, 4), CC4(0, 2, 3, 4), true)
            test(CC4(1, 2, 3, 4), CC4(1, 0, 3, 4), false)
@@ -179,12 +179,12 @@ object ReusabilityTest extends TestSuite {
          }
 
         "notFound" - {
-          val e = compileError(""" Reusability.caseClassExcept[CC1]('x) """)
+          val e = compileError(""" Reusability.caseClassExcept[CC1]("x") """)
           assert(e.msg contains "Not found")
         }
 
         "dups" - {
-          val e = compileError(""" Reusability.caseClassExcept[CC1]('i, 'i) """)
+          val e = compileError(""" Reusability.caseClassExcept[CC1]("i", "i") """)
           assert(e.msg contains "Duplicate")
         }
       }

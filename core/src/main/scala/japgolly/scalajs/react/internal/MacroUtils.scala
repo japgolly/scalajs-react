@@ -286,12 +286,6 @@ abstract class MacroUtils {
       case _ => fail(s"Expected a literal string, got: ${showRaw(e)}")
     }
 
-  final def readMacroArg_symbol(e: c.Expr[scala.Symbol]): String =
-    e match {
-      case Expr(Apply(_, List(Literal(Constant(n: String))))) => n
-      case _ => fail(s"Expected a symbol, got: ${showRaw(e)}")
-    }
-
   final def readMacroArg_stringString(e: c.Expr[(String, String)]): (String, Literal) =
     e match {
       // "k" -> "v"
@@ -299,15 +293,6 @@ abstract class MacroUtils {
         (k, v)
       case x =>
         fail(s"""Expected "k" -> "v", got: $x\n${showRaw(x)}""")
-    }
-
-  final def readMacroArg_symbolString(e: c.Expr[(scala.Symbol, String)]): (String, Literal) =
-    e match {
-      // 'k -> "v"
-      case Expr(Apply(TypeApply(Select(Apply(_, List(Apply(_, List(Literal(Constant(k: String)))))), _), _), List(v@Literal(Constant(_: String))))) =>
-        (k, v)
-      case x =>
-        fail(s"""Expected 'k -> "v", got: $x\n${showRaw(x)}""")
     }
 
   final def readMacroArg_tToLitFn[T, V: scala.reflect.Manifest](e: c.Expr[T => V]): List[(Either[Select, Type], Literal)] =
@@ -495,9 +480,9 @@ abstract class MacroUtils {
       b.result()
     }
 
-  final def primaryConstructorParamsExcluding(t: Type, exclusions: Seq[c.Expr[scala.Symbol]]): List[(TermName, Type)] =
+  final def primaryConstructorParamsExcluding(t: Type, exclusions: Seq[c.Expr[String]]): List[(TermName, Type)] =
     excludeNamedParams(
-      exclusions.map(readMacroArg_symbol),
+      exclusions.map(readMacroArg_string),
       primaryConstructorParams(t).map(nameAndType(t, _)))
 
   def showUnorderedTypes(ts: Set[Type]): String =
