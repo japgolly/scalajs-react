@@ -168,8 +168,15 @@ object ScalaComponentPTest extends TestSuite {
         assertEq("willUnmountCount", willUnmountCount, 0)
         val comp = Comp(null)
         println("OK HERE WE GO.........")
-        mounted = comp.renderIntoDOM(mountNode) // <---------------------------- TROUBLE
-        println("WOW IT WORKED!")
+        try {
+          mounted = comp.renderIntoDOM(mountNode) // <---------------------------- TROUBLE
+          println("WOW IT WORKED!")
+        } catch {
+          case e: Throwable =>
+            println("=" * 100)
+            e.printStackTrace()
+            println("=" * 100)
+        }
         assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
         assertEq("willUnmountCount", willUnmountCount, 1)
 
