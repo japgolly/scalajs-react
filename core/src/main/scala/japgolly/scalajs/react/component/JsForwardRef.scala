@@ -48,6 +48,7 @@ object JsForwardRef {
     override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT[P, U] => CT2[P, U])(implicit pf: Profunctor[CT2]): ComponentSimple[P, R, CT2, U]
 
     def withRef[RR >: R](ref: Ref.Handle[RR]): Generic.ComponentSimple[P, CT, U]
+    def withOptionalRef[O[_], RR >: R](optionalRef: O[Ref.Handle[RR]])(implicit o: OptionLike[O]): Generic.ComponentSimple[P, CT, U]
   }
 
   sealed trait ComponentWithRoot[
@@ -64,6 +65,7 @@ object JsForwardRef {
     override def mapCtorType[CT2[-p, +u] <: CtorType[p, u]](f: CT1[P1, U1] => CT2[P1, U1])(implicit pf: Profunctor[CT2]): ComponentWithRoot[P1, R, CT2, U1, P0, CT0, U0]
 
     override def withRef[RR >: R](ref: Ref.Handle[RR]): Generic.ComponentWithRoot[P1, CT1, U1, P0, CT0, U0]
+    override def withOptionalRef[O[_], RR >: R](optionalRef: O[Ref.Handle[RR]])(implicit o: OptionLike[O]): Generic.ComponentWithRoot[P1, CT1, U1, P0, CT0, U0]
   }
 
   final type ComponentRoot[P <: js.Object, R, CT[-p, +u] <: CtorType[p, u], U] =
@@ -84,6 +86,9 @@ object JsForwardRef {
 
       override def withRef[RR >: R](ref: Ref.Handle[RR]) =
         componentRoot(rc, setRef(c, ref))(pf)
+
+      override def withOptionalRef[O[_], RR >: R](optionalRef: O[Ref.Handle[RR]])(implicit o: OptionLike[O]) =
+        o.fold(optionalRef, componentRoot(rc, c)(pf))(withRef)
     }
 
   private def setRef[CT[-p, +u] <: CtorType[p, u], P, U](c: CT[P, U], ref: Ref.Handle[_]): CT[P, U] =
@@ -109,6 +114,11 @@ object JsForwardRef {
 
       override def withRef[RR >: R](ref: Ref.Handle[RR]) =
         from.withRef(ref).mapCtorType(mc)(pf).mapUnmounted(mu).cmapCtorProps(cp)
+
+      override def withOptionalRef[O[_], RR >: R](optionalRef: O[Ref.Handle[RR]])(implicit o: OptionLike[O]) = {
+        @inline def self: Generic.ComponentWithRoot[P2, CT2, U2, P0, CT0, U0] = this
+        o.fold(optionalRef, self)(withRef)
+      }
     }
 
 

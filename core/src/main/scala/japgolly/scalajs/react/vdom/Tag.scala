@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.vdom
 
+import japgolly.scalajs.react.internal.OptionLike
 import japgolly.scalajs.react.{Ref, raw => Raw}
 import scala.scalajs.js
 
@@ -12,6 +13,9 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
       case Some(r) => this(Attr.Ref(r))
       case None    => this
     }
+
+  def withOptionalRef[O[_], NN >: N <: TopNode, R](optionalRef: O[_ <: Ref.Set[NN]])(implicit o: OptionLike[O]): TagOf[NN] =
+    o.fold(optionalRef, this: TagOf[NN])(withRef(_))
 
   def apply(xs: TagMod*): TagOf[N] =
     copy(modifiers = xs :: modifiers)
@@ -54,6 +58,8 @@ object TagOf {
   final case class RefArg[N <: TopNode](value: Option[Ref.Set[N]]) extends AnyVal
   object RefArg {
     implicit def set[N <: TopNode](r: Ref.Set[N]): RefArg[N] = apply(Some(r))
+
+    @deprecated("Use .withOptionalRef", "1.7.0")
     implicit def option[N <: TopNode](o: Option[Ref.Set[N]]): RefArg[N] = apply(o)
   }
 }

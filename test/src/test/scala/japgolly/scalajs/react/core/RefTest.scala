@@ -181,7 +181,7 @@ object RefTest extends TestSuite {
     object ScalaToVdom {
 
       private val Forwarder = React.forwardRef.justChildren[html.Button]((c, r) =>
-        <.div(<.button.withRef(r)(^.cls := "fancy", c)))
+        <.div(<.button.withOptionalRef(r)(^.cls := "fancy", c)))
 
       def nullary() = assertRender(Forwarder(), "<div><button class=\"fancy\"></button></div>")
 
