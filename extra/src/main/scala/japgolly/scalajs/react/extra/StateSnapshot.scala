@@ -49,6 +49,9 @@ object StateSnapshot {
   private def untuple[A,B,C](f: ((A, B)) => C): (A, B) => C =
     (a, b) => f((a, b))
 
+  private lazy val setFnReadOnly: Reusable[SetFn[Any]] =
+    reusableSetFn[Any]((_, cb) => cb)
+
   final class InstanceMethodsWithReuse[S](self: StateSnapshot[S]) { // not AnyVal, nominal for Monocle ext
     import self.{value, underlyingSetFn}
 
@@ -122,6 +125,9 @@ object StateSnapshot {
 
       def tupled(set: Reusable[TupledSetFn[S]])(implicit r: Reusability[S]): StateSnapshot[S] =
         apply(set.map(untuple))
+
+      def readOnly(implicit r: Reusability[S]): StateSnapshot[S] =
+        apply(setFnReadOnly)
     }
 
     final class FromSetStateFn[S](private val set: Reusable[SetFn[S]]) extends AnyVal {
@@ -175,6 +181,9 @@ object StateSnapshot {
 
       def setStateVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): StateSnapshot[S] =
         apply(t(i).setStateOption)
+
+      def readOnly: StateSnapshot[S] =
+        apply(setFnReadOnly)
     }
 
     final class FromLensValue[S, T](l: Lens[S, T], value: T) {
