@@ -17,7 +17,7 @@ trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends js.Object {
   val isTrusted       : Boolean        = js.native
   val nativeEvent     : dom.Event      = js.native
   val target          : DOMEventTarget = js.native
-  val timeStamp       : js.Date        = js.native
+  val timeStamp       : Double         = js.native
 
   /**
    * Stops the default action of an element from happening.
@@ -31,6 +31,8 @@ trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends js.Object {
   def stopPropagation(): Unit = js.native
 
   def isPropagationStopped(): Boolean = js.native
+  def isDefaultPrevented(): Boolean = js.native
+  def isPersistent(): Boolean = js.native
 
   @JSName("type") val eventType: String = js.native
 
