@@ -78,10 +78,14 @@ package object react extends ReactEventTypes {
     def withRef(ref: Ref.Handle[ScalaComponent.RawMounted[P, S, B]]): ScalaComponent.Component[P, S, B, CT] =
       self.mapCtorType(ct => CtorType.hackBackToSelf(ct)(ct.withRawProp("ref", ref.raw)))(self.ctorPF)
 
+    @deprecated("Use .withOptionalRef", "1.7.0")
     def withRef(r: Option[Ref.Handle[ScalaComponent.RawMounted[P, S, B]]]): ScalaComponent.Component[P, S, B, CT] =
-      r match {
+      withOptionalRef(r)
+
+    def withOptionalRef(optionalRef: Option[Ref.Handle[ScalaComponent.RawMounted[P, S, B]]]): ScalaComponent.Component[P, S, B, CT] =
+      optionalRef match {
         case None    => self
-        case Some(h) => withRef(h)
+        case Some(r) => withRef(r)
       }
   }
 

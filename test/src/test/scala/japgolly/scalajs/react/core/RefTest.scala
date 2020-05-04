@@ -181,7 +181,7 @@ object RefTest extends TestSuite {
     object ScalaToVdom {
 
       private val Forwarder = React.forwardRef.justChildren[html.Button]((c, r) =>
-        <.div(<.button.withRef(r)(^.cls := "fancy", c)))
+        <.div(<.button.withOptionalRef(r)(^.cls := "fancy", c)))
 
       def nullary() = assertRender(Forwarder(), "<div><button class=\"fancy\"></button></div>")
 
@@ -216,7 +216,7 @@ object RefTest extends TestSuite {
       }
 
       private val Forwarder2 = React.forwardRef[Int, html.Span]((i, r) =>
-        <.div(<.span.withRef(r)(s"${i}² = ${i * i}")))
+        <.div(<.span.withOptionalRef(r)(s"${i}² = ${i * i}")))
 
       def unary() = assertRender(Forwarder2(3), "<div><span>3² = 9</span></div>")
 
@@ -234,7 +234,7 @@ object RefTest extends TestSuite {
       private lazy val InnerScala = ScalaComponent.builder[Int]("Scala").renderBackend[InnerScalaBackend].build
 
       private lazy val Forwarder = React.forwardRef.toScalaComponent(InnerScala)[String]((label, ref) =>
-        <.div(label, InnerScala.withRef(ref)(123)))
+        <.div(label, InnerScala.withOptionalRef(ref)(123)))
 
       def withoutRef() = assertRender(Forwarder("hey"), "<div>hey<h1>Scala123</h1></div>")
 
@@ -295,7 +295,7 @@ object RefTest extends TestSuite {
       val InnerJs = JsComponentEs6STest.Component
 
       private lazy val Forwarder = React.forwardRef.toJsComponent(InnerJs)[String]((label, ref) =>
-        <.div(label, InnerJs.withRef(ref)()))
+        <.div(label, InnerJs.withOptionalRef(ref)()))
 
       def withoutRef() = assertRender(Forwarder("hey"), "<div>hey<div>State = 123 + 500</div></div>")
 

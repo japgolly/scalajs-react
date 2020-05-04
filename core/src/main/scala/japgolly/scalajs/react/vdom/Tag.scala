@@ -13,6 +13,12 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
       case None    => this
     }
 
+  def withOptionalRef[NN >: N <: TopNode, R](optionalRef: Option[Ref.Set[NN]]): TagOf[NN] =
+    optionalRef match {
+      case None    => this
+      case Some(r) => withRef(r)
+    }
+
   def apply(xs: TagMod*): TagOf[N] =
     copy(modifiers = xs :: modifiers)
 
@@ -54,6 +60,8 @@ object TagOf {
   final case class RefArg[N <: TopNode](value: Option[Ref.Set[N]]) extends AnyVal
   object RefArg {
     implicit def set[N <: TopNode](r: Ref.Set[N]): RefArg[N] = apply(Some(r))
+
+    @deprecated("Use .withOptionalRef", "1.7.0")
     implicit def option[N <: TopNode](o: Option[Ref.Set[N]]): RefArg[N] = apply(o)
   }
 }
