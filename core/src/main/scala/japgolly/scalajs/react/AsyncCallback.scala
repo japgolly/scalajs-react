@@ -456,6 +456,32 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def unsafeToJsPromise(): js.Promise[A] =
     asCallbackToJsPromise.runNow()
 
+  /** Returns a synchronous [[Callback]] that when run, returns the result on the [[Right]] if this [[AsyncCallback]]
+    * is actually synchronous, else returns a new [[AsyncCallback]] on the [[Left]] that waits for the async computation
+    * to complete.
+    */
+  def sync: CallbackTo[Either[AsyncCallback[A], A]] =
+    CallbackTo {
+      var result = Option.empty[A]
+      val promise = tap(a => result = Some(a)).asCallbackToJsPromise.runNow()
+      result match {
+        case Some(a) => Right(a)
+        case None    => Left(AsyncCallback.fromJsPromise(promise))
+      }
+    }
+
   def runNow(): Unit =
     toCallback.runNow()
+
+  /** THIS IS VERY CONVENIENT IN UNIT TESTS BUT DO NOT RUN THIS IN PRODUCTION CODE.
+    *
+    * Executes this now, expecting and returning a synchronous result.
+    * If there are any asynchronous computations this will throw an exception.
+    */
+  def unsafeRunNowSync(): A =
+    sync.runNow() match {
+      case Right(a) => a
+      case Left(_)  => throw new RuntimeException(
+        "AsyncCallback#unsafeRunNowSync() failed! The AsyncCallback contains at least one asynchronous computation.")
+    }
 }

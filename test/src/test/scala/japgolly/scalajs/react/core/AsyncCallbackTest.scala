@@ -94,6 +94,19 @@ object AsyncCallbackTest extends TestSuite {
         "nestedFlatMapsInTailrecLoop"    - StackSafety.nestedFlatMapsInTailrecLoop[F]
         "nestedFlatMapsInNonTailrecLoop" - StackSafety.nestedFlatMapsInNonTailrecLoop[F]
       }
+
+      "sync" - {
+        "sync" - {
+          val a = AsyncCallback.pure(123)
+          val r = a.sync.runNow()
+          r ==> Right(123)
+          a.unsafeRunNowSync() ==> 123
+        }
+        "async" - {
+          val r = AsyncCallback.pure(123).delayMs(1).sync.runNow()
+          r.isLeft ==> true
+        }
+      }
     }
 
   }
