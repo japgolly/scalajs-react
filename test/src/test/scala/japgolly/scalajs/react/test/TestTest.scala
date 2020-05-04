@@ -2,7 +2,7 @@ package japgolly.scalajs.react.test
 
 import sizzle.Sizzle
 import org.scalajs.dom
-import org.scalajs.dom.document
+import org.scalajs.dom.{Event, document}
 import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
 import scala.concurrent.Promise
 import scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -12,6 +12,8 @@ import japgolly.scalajs.react.raw.SyntheticEvent
 import japgolly.scalajs.react.vdom.html_<^._
 import TestUtil._
 import scala.annotation.nowarn
+import scala.scalajs.js
+import scalaz.Equal
 
 object TestTest extends TestSuite {
 
@@ -59,7 +61,7 @@ object TestTest extends TestSuite {
 
     "renderIntoDocument" - {
       def test(c: GenericComponent.MountedRaw, exp: String): Unit =
-        assertOuterHTML(ReactDOM.findDOMNode(c.raw).get.asElement, exp)
+        assertOuterHTML(ReactDOM.findDOMNode(c.raw).get.asElement(), exp)
 
       "plainElement" - {
         val re: VdomElement = <.div("Good")
@@ -157,6 +159,29 @@ object TestTest extends TestSuite {
         "onTouchMove"          - test(^.onTouchMove,          Simulate.touchMove(_))
         "onTouchStart"         - test(^.onTouchStart,         Simulate.touchStart(_))
         "onWheel"              - test(^.onWheel,              Simulate.wheel(_))
+      }
+
+      "withDefaultEventData" - {
+        val x = Simulate.withDefaultEventData(js.Dynamic.literal("bubbles" -> true)).asInstanceOf[js.Dynamic]
+        x.bubbles ==> true
+        x.defaultPrevented ==> false
+      }
+
+      "eventDefaults" - {
+        var ok = false
+        val c = ScalaComponent.builder[Unit]("").render_P { _ =>
+          def onClick(e: ReactEvent) = {
+            // Make sure these don't throw
+            e.defaultPrevented
+            e.isDefaultPrevented()
+            Callback { ok = true }
+          }
+          <.div(^.onClick ==> onClick)
+        }.build
+        ReactTestUtils.withRenderedIntoDocument(c()) { m =>
+          Simulate.click(m)
+        }
+        assertEq(ok, true)
       }
 
       "change" - {

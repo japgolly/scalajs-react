@@ -140,9 +140,9 @@ object Simulation {
 
   // Helpers for common scenarios
 
-  def focusSimBlur(s: Simulation) =
+  def focusSimBlur(s: Simulation): Simulation =
     focus >> s >> blur
 
-  def focusChangeBlur(newValue: String) =
+  def focusChangeBlur(newValue: String): Simulation =
     focusSimBlur(SimEvent.Change(value = newValue).simulation)
 }
