@@ -86,6 +86,7 @@ object Attr {
     @inline def composition(name: String) = apply[raw.SyntheticCompositionEvent](name)
     @inline def drag       (name: String) = apply[raw.SyntheticDragEvent       ](name)
     @inline def focus      (name: String) = apply[raw.SyntheticFocusEvent      ](name)
+    @inline def form       (name: String) = apply[raw.SyntheticFormEvent       ](name)
     @inline def keyboard   (name: String) = apply[raw.SyntheticKeyboardEvent   ](name)
     @inline def mouse      (name: String) = apply[raw.SyntheticMouseEvent      ](name)
     @inline def pointer    (name: String) = apply[raw.SyntheticPointerEvent    ](name)

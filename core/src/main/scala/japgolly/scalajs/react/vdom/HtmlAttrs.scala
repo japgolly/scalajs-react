@@ -961,7 +961,7 @@ trait HtmlAttrs {
     * The change event is fired for input, select, and textarea elements
     * when a change to the element's value is committed by the user.
     */
-  final val onChange = Attr.Event.base("onChange")
+  final val onChange = Attr.Event.form("onChange")
 
   /**
     * The click event is raised when the user clicks on an element. The click
@@ -1066,13 +1066,13 @@ trait HtmlAttrs {
 
   final def onFocusCapture = Attr.Event.focus("onFocusCapture")
 
-  final def onInput = Attr.Event.base("onInput")
+  final def onInput = Attr.Event.form("onInput")
 
-  final def onInputCapture = Attr.Event.base("onInputCapture")
+  final def onInputCapture = Attr.Event.form("onInputCapture")
 
-  final def onInvalid = Attr.Event.base("onInvalid")
+  final def onInvalid = Attr.Event.form("onInvalid")
 
-  final def onInvalidCapture = Attr.Event.base("onInvalidCapture")
+  final def onInvalidCapture = Attr.Event.form("onInvalidCapture")
 
   /**
     * The keydown event is raised when the user presses a keyboard key.
@@ -1291,9 +1291,9 @@ trait HtmlAttrs {
   /**
     * The reset event is fired when a form is reset.
     */
-  final def onReset = Attr.Event.base("onReset")
+  final def onReset = Attr.Event.form("onReset")
 
-  final def onResetCapture = Attr.Event.base("onResetCapture")
+  final def onResetCapture = Attr.Event.form("onResetCapture")
 
   /**
     * Specifies the function to be called when the window is scrolled.
@@ -1324,9 +1324,9 @@ trait HtmlAttrs {
     * The submit event is raised when the user clicks a submit button in a form
     * (<input type="submit"/>).
     */
-  final def onSubmit = Attr.Event.base("onSubmit")
+  final def onSubmit = Attr.Event.form("onSubmit")
 
-  final def onSubmitCapture = Attr.Event.base("onSubmitCapture")
+  final def onSubmitCapture = Attr.Event.form("onSubmitCapture")
 
   final def onSuspend = Attr.Event.base("onSuspend")
 
