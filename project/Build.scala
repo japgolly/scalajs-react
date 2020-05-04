@@ -81,7 +81,6 @@ object ScalajsReact {
     "-Xlint:stars-align",                            // In a pattern, a sequence wildcard `_*` should match all of a repeated parameter.
     "-Xlint:valpattern",                             // Enable pattern checks in val definitions.
     "-Xmixin-force-forwarders:false",                // Only generate mixin forwarders required for program correctness.
-    "-Xno-forwarders",                               // Do not generate static forwarders in mirror classes.
     "-Yjar-compression-level", "9",                  // compression level to use when writing jar files
     "-Ymacro-annotations"                            // Enable support for macro annotations, formerly in macro paradise.
   )
