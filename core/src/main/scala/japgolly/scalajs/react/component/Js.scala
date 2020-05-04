@@ -9,13 +9,13 @@ import scala.scalajs.js.|
 object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
 
   def apply[P <: js.Object, C <: Children, S <: js.Object]
-           (raw: js.Any)
+           (raw: Any)
            (implicit s: CtorType.Summoner[P, C], where: sourcecode.FullName, line: sourcecode.Line): Component[P, S, s.CT] = {
     InspectRaw.assertValidJsComponent(raw, where, line)
     force[P, C, S](raw)(s)
   }
 
-  def force[P <: js.Object, C <: Children, S <: js.Object](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
+  def force[P <: js.Object, C <: Children, S <: js.Object](raw: Any)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
     val rc = raw.asInstanceOf[RAW.React.ComponentClass[P, S]]
     component[P, C, S](rc)(s)
   }

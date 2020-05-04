@@ -32,7 +32,7 @@ trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
   implicit      val vdomAttrVtBoolean : Simple[Boolean  ] = byImplicit
   implicit      val vdomAttrVtString  : Simple[String   ] = string
   implicit      val vdomAttrVtInt     : Simple[Int      ] = byImplicit
-  implicit lazy val vdomAttrVtLong    : Simple[Long     ] = byImplicit
+  implicit lazy val vdomAttrVtLong    : Simple[Long     ] = byImplicit(_.toDouble)
   implicit lazy val vdomAttrVtFloat   : Simple[Float    ] = byImplicit
   implicit lazy val vdomAttrVtDouble  : Simple[Double   ] = byImplicit
   implicit lazy val vdomAttrVtShort   : Simple[Short    ] = byImplicit

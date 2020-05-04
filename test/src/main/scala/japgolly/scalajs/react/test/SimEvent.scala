@@ -252,8 +252,8 @@ object SimEvent {
       o.clientY          = clientY
       o.pageX            = pageX
       o.pageY            = pageY
-      o.movementX        = movementX
-      o.movementY        = movementY
+      o.movementX        = movementX.toDouble
+      o.movementY        = movementY.toDouble
       o.altKey           = altKey
       o.ctrlKey          = ctrlKey
       o.metaKey          = metaKey

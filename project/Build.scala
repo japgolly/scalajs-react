@@ -4,7 +4,9 @@ import com.typesafe.sbt.pgp.PgpKeys
 import com.typesafe.sbt.pgp.PgpKeys._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.{CrossType => _, crossProject => _, _}
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin
+import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
@@ -21,7 +23,7 @@ object ScalajsReact {
     val MacroParadise         = "2.1.1"
     val MonocleCats           = "2.0.4"
     val MonocleScalaz         = "1.6.3"
-    val MTest                 = "0.7.1"
+    val MTest                 = "0.7.4"
     val Nyaya                 = "0.9.2"
     val ReactJs               = "16.7.0"
     val Scala212              = "2.12.11"
@@ -39,7 +41,7 @@ object ScalajsReact {
   def byScalaVersion[A](f: PartialFunction[(Long, Long), Seq[A]]): Def.Initialize[Seq[A]] =
     Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
 
-  def scalacFlags = Seq(
+  def scalacFlags: Seq[String] = Seq(
     "-deprecation",
     "-feature",
     "-language:postfixOps",
@@ -50,8 +52,8 @@ object ScalajsReact {
     "-opt-inline-from:japgolly.scalajs.react.**",
     "-unchecked",                                    // Enable additional warnings where generated code depends on assumptions.
     "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
-    "-Ypatmat-exhaust-depth", "off",
-    "-P:scalajs:sjsDefinedByDefault")
+    "-Ypatmat-exhaust-depth", "off") ++
+    (if (scalaJSVersion.startsWith("0.")) Seq("-P:scalajs:sjsDefinedByDefault") else Nil)
 
   def scalac213Flags = Seq(
     "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings
@@ -79,7 +81,6 @@ object ScalajsReact {
     "-Xlint:stars-align",                            // In a pattern, a sequence wildcard `_*` should match all of a repeated parameter.
     "-Xlint:valpattern",                             // Enable pattern checks in val definitions.
     "-Xmixin-force-forwarders:false",                // Only generate mixin forwarders required for program correctness.
-    "-Xno-forwarders",                               // Do not generate static forwarders in mirror classes.
     "-Yjar-compression-level", "9",                  // compression level to use when writing jar files
     "-Ymacro-annotations"                            // Enable support for macro annotations, formerly in macro paradise.
   )
@@ -177,36 +178,36 @@ object ScalajsReact {
   val ReactDomTestUtils = ReactArtifact("react-dom-test-utils")
 
   def addReactJsDependencies(scope: Configuration): PE = {
-    _.settings(
-      dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2", // https://github.com/webjars/webjars/issues/1789
-      dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.12.0-alpha.3",
-      jsDependencies ++= Seq(
+    _.enablePlugins(JSDependenciesPlugin)
+      .settings(
+        dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2", // https://github.com/webjars/webjars/issues/1789
+        dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.12.0-alpha.3",
+        jsDependencies ++= Seq(
 
-        "org.webjars.npm" % "react" % Ver.ReactJs % scope
-          /        "umd/react.development.js"
-          minified "umd/react.production.min.js"
-          commonJSName "React",
+          "org.webjars.npm" % "react" % Ver.ReactJs % scope
+            /        "umd/react.development.js"
+            minified "umd/react.production.min.js"
+            commonJSName "React",
 
-        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
-          /         "umd/react-dom.development.js"
-          minified  "umd/react-dom.production.min.js"
-          dependsOn "umd/react.development.js"
-          commonJSName "ReactDOM",
+          "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+            /         "umd/react-dom.development.js"
+            minified  "umd/react-dom.production.min.js"
+            dependsOn "umd/react.development.js"
+            commonJSName "ReactDOM",
 
-        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
-          /         "umd/react-dom-test-utils.development.js"
-          minified  "umd/react-dom-test-utils.production.min.js"
-          dependsOn "umd/react-dom.development.js"
-          commonJSName "ReactTestUtils",
+          "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+            /         "umd/react-dom-test-utils.development.js"
+            minified  "umd/react-dom-test-utils.production.min.js"
+            dependsOn "umd/react-dom.development.js"
+            commonJSName "ReactTestUtils",
 
-        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
-          /         "umd/react-dom-server.browser.development.js"
-          minified  "umd/react-dom-server.browser.production.min.js"
-          dependsOn "umd/react-dom.development.js"
-          commonJSName "ReactDOMServer"),
+          "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+            /         "umd/react-dom-server.browser.development.js"
+            minified  "umd/react-dom-server.browser.production.min.js"
+            dependsOn "umd/react-dom.development.js"
+            commonJSName "ReactDOMServer"),
 
-      skip in packageJSDependencies := false)
-
+        skip in packageJSDependencies := false)
   }
 
   def addCommandAliases(m: (String, String)*) = {
@@ -380,7 +381,7 @@ object ScalajsReact {
     .settings(
       crossScalaVersions := Seq(Ver.Scala212),
       libraryDependencies += "com.github.julien-truffaut" %%% "monocle-macro" % Ver.MonocleScalaz,
-      emitSourceMaps := false,
+      scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       scalaJSUseMainModuleInitializer := true,
       mainClass in Compile := Some("ghpages.GhPages"),
       artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"),

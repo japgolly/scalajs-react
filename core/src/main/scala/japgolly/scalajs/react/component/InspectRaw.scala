@@ -8,7 +8,7 @@ import japgolly.scalajs.react.internal.JsUtil
 object InspectRaw {
 
   @elidable(elidable.ASSERTION)
-  def assertValidJsComponent(input: js.Any, where: sourcecode.FullName, line: sourcecode.Line): Unit =
+  def assertValidJsComponent(input: Any, where: sourcecode.FullName, line: sourcecode.Line): Unit =
     assertValid(input, "JsComponent", where, line) {
       case _: js.Function => true
       case o: js.Object   => List("$$typeof", "type").exists(js.Object.hasProperty(o, _))
@@ -16,30 +16,30 @@ object InspectRaw {
     }
 
   @elidable(elidable.ASSERTION)
-  def assertValidJsFn(input: js.Any, where: sourcecode.FullName, line: sourcecode.Line): Unit =
+  def assertValidJsFn(input: Any, where: sourcecode.FullName, line: sourcecode.Line): Unit =
     assertValid(input, "JsFnComponent", where, line) {
       case _: js.Function => true
       case _              => false
     }
 
   @elidable(elidable.ASSERTION)
-  def assertValidJsForwardRefComponent(input: js.Any, where: sourcecode.FullName, line: sourcecode.Line): Unit =
+  def assertValidJsForwardRefComponent(input: Any, where: sourcecode.FullName, line: sourcecode.Line): Unit =
     assertValid(input, "JsForwardRefComponent", where, line)(typeSymbolIs("react.forward_ref"))
 
-  private def typeSymbolIs(expect: String): js.Any => Boolean = {
+  private def typeSymbolIs(expect: String): Any => Boolean = {
     case o: js.Object =>
-      val t = o.asInstanceOf[js.Dynamic].selectDynamic("$$typeof").asInstanceOf[js.Any]
+      val t = o.asInstanceOf[js.Dynamic].selectDynamic("$$typeof").asInstanceOf[Any]
       js.Symbol.forKey(expect) == t
     case _ => false
   }
 
-  private def assertValid(input: js.Any, name: String, where: sourcecode.FullName, line: sourcecode.Line)
-                         (isValid: js.Any => Boolean): Unit =
+  private def assertValid(input: Any, name: String, where: sourcecode.FullName, line: sourcecode.Line)
+                         (isValid: Any => Boolean): Unit =
     assertValid(input, name, name, s"$name.force", where, line)(isValid)
 
-  private def assertValid(input: js.Any, name: String, thisMethod: String, forceMethod: String,
+  private def assertValid(input: Any, name: String, thisMethod: String, forceMethod: String,
                           where: sourcecode.FullName, line: sourcecode.Line)
-                         (isValid: js.Any => Boolean): Unit =
+                         (isValid: Any => Boolean): Unit =
     if (!isValid(input)) {
 
       val solution: String = (input: Any) match {
