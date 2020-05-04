@@ -3,6 +3,7 @@ package japgolly.scalajs.react.component
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomElement
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Ref, raw}
+import japgolly.scalajs.react.scalajsReactRawPropsChildrenToJsUndef
 import scala.scalajs.js
 import ScalaForwardRef._
 import scala.annotation.nowarn

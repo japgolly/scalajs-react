@@ -46,6 +46,10 @@ package object react extends ReactEventTypes {
   val ScalaForwardRefComponent = component.ScalaForwardRef
   type ScalaForwardRefComponent[P, R, CT[-p, +u] <: CtorType[p, u]] = ScalaForwardRefComponent.Component[P, R, CT]
 
+  // Required for Scala 2.12 & ScalaJS 1.0
+  @inline implicit def scalajsReactRawPropsChildrenToJsUndef(r: raw.PropsChildren): js.UndefOr[raw.PropsChildren] =
+    r.asInstanceOf[js.UndefOr[raw.PropsChildren]]
+
   /** Extensions to plain old DOM. */
   @inline implicit final class ReactExt_DomNode(private val n: dom.raw.Node) extends AnyVal {
 
