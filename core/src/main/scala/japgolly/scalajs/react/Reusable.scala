@@ -44,6 +44,14 @@ final class Reusable[+A] private[Reusable](lazyValue: () => A,
   /** Create a `Reusable[(A, B)]` that is reusable so long as this `Reusable[A]` and the `Reusable[B]` are. */
   def tuple[B](rb: Reusable[B]): Reusable[(A, B)] =
     Reusable.ap(this, rb)((_, _))
+
+  /** Combine reusability of this and the argument, and return the value of this. */
+  def <*[B](fb: Reusable[B]): Reusable[A] =
+    Reusable.ap(this, fb)((a, _) => a)
+
+  /** Combine reusability of this and the argument, and return the value of the argument. */
+  def *>[B](fb: Reusable[B]): Reusable[B] =
+    Reusable.ap(this, fb)((_, b) => b)
 }
 
 object Reusable {
