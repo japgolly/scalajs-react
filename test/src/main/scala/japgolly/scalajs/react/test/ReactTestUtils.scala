@@ -7,6 +7,7 @@ import scala.scalajs.js
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.raw.{React => RawReact, ReactDOM => RawReactDOM}
 import japgolly.scalajs.react.vdom.TopNode
+import org.scalajs.dom
 
 object ReactTestUtils {
 
@@ -85,6 +86,20 @@ object ReactTestUtils {
   private def attemptFuture[A](f: => Future[A]): Future[A] =
     try f catch { case err: Exception => Future.failed(err) }
 
+  private def warnOnError(prefix: String)(a: => Any): Unit =
+    try {
+      a
+      ()
+    } catch {
+      case t: Throwable =>
+        console.warn(s"$prefix: $t")
+    }
+
+  private def unmount(container: dom.Node): Unit =
+    warnOnError("Failed to unmount component") {
+      ReactDOM.unmountComponentAtNode(container)
+    }
+
   // ===================================================================================================================
   // Render into body
 
@@ -94,15 +109,11 @@ object ReactTestUtils {
     cont
   }
 
-  def removeNewBodyElement(e: Element): Unit = {
-    try {
+  def removeNewBodyElement(e: Element): Unit =
+    warnOnError("Failed to unmount newBodyElement") {
       ReactDOM unmountComponentAtNode e // Doesn't matter if no component mounted here
       document.body.removeChild(e)
-    } catch {
-      case t: Throwable =>
-        console.warn(s"Failed to unmount newBodyElement: $t")
     }
-  }
 
   def withNewBodyElement[A](use: Element => A): A = {
     val e = newBodyElement()
@@ -133,7 +144,7 @@ object ReactTestUtils {
       try
         use(a)
       finally
-        ReactDOM unmountComponentAtNode n(a).parentNode
+        unmount(n(a).parentNode)
     }
 
   def withNewBodyElementFuture[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] = {
@@ -150,7 +161,7 @@ object ReactTestUtils {
   private def _withRenderedIntoBodyFuture[A, B](render: Element => A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] =
     withNewBodyElementFuture { parent =>
       val a = render(parent)
-      attemptFuture(use(a)).andThen { case _ => ReactDOM unmountComponentAtNode n(a).parentNode }
+      attemptFuture(use(a)).andThen { case _ => unmount(n(a).parentNode) }
     }
 
   @deprecated("Use withNewBodyElementFuture", "1.5.0")
@@ -178,7 +189,7 @@ object ReactTestUtils {
   private def _withRenderedIntoBodyAsyncCallback[A, B](render: Element => A)(n: A => TopNode, use: A => AsyncCallback[B]): AsyncCallback[B] =
     withNewBodyElementAsyncCallback(parent =>
       AsyncCallback.point(render(parent))
-        .flatMap(a => use(a).finallyRun(AsyncCallback.point(ReactDOM unmountComponentAtNode n(a).parentNode))))
+        .flatMap(a => use(a).finallyRun(AsyncCallback.point(unmount(n(a).parentNode)))))
 
   // ===================================================================================================================
   // Render into document
@@ -187,19 +198,15 @@ object ReactTestUtils {
     document.createElement("div").domAsHtml
   }
 
-  def removeNewDocumentElement(e: Element): Unit = {
-    try {
+  def removeNewDocumentElement(e: Element): Unit =
+    warnOnError("Failed to unmount newDocumentElement") {
       // This DOM is detached so the best we can do (for memory) is remove its children
       while (e.hasChildNodes()) {
         val c = e.childNodes(0)
-        ReactDOM unmountComponentAtNode c // Doesn't matter if no component mounted here
+        unmount(c) // Doesn't matter if no component mounted here
         e.removeChild(c)
       }
-    } catch {
-      case t: Throwable =>
-        console.warn(s"Failed to unmount newDocumentElement: $t")
     }
-  }
 
   def withNewDocumentElement[A](use: Element => A): A = {
     val e = newDocumentElement()
@@ -219,7 +226,7 @@ object ReactTestUtils {
     try
       use(a)
     finally
-      ReactDOM unmountComponentAtNode n(a).parentNode
+      unmount(n(a).parentNode)
   }
 
   def withNewDocumentElementFuture[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] = {
@@ -234,7 +241,7 @@ object ReactTestUtils {
     _withRenderedIntoDocumentFuture(raw.renderIntoDocument(u.raw))(mountedElement, f compose u.mountRaw)
 
   private def _withRenderedIntoDocumentFuture[A, B](a: A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] =
-    attemptFuture(use(a)).andThen { case _ => ReactDOM unmountComponentAtNode n(a).parentNode }
+    attemptFuture(use(a)).andThen { case _ => unmount(n(a).parentNode) }
 
   /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
     * and asynchronously waits for the Future to complete before unmounting.
@@ -257,7 +264,7 @@ object ReactTestUtils {
   private def _withRenderedIntoDocumentAsyncCallback[A, B](render: Element => A)(n: A => TopNode, use: A => AsyncCallback[B]): AsyncCallback[B] =
     withNewDocumentElementAsyncCallback(parent =>
       AsyncCallback.point(render(parent))
-        .flatMap(a => use(a).finallyRun(AsyncCallback.point(ReactDOM unmountComponentAtNode n(a).parentNode))))
+        .flatMap(a => use(a).finallyRun(AsyncCallback.point(unmount(n(a).parentNode)))))
 
   // ===================================================================================================================
   // Render into body/document
