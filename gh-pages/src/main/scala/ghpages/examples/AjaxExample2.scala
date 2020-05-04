@@ -80,7 +80,7 @@ object AjaxExample2 {
   }
 
   def onError(error: Throwable): AsyncCallback[VdomElement] =
-    AsyncCallback.point {
+    AsyncCallback.delay {
       error.printStackTrace()
       <.div(^.color.red, ^.fontSize := "120%",
         <.div("An error occurred."),

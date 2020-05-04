@@ -85,7 +85,7 @@ object AsyncCallbackTest extends TestSuite {
           runs ==> 2
         }
 
-        "point" - test(AsyncCallback.point(_))
+        "delay" - test(AsyncCallback.delay(_))
       }
 
       "stackSafety" - {

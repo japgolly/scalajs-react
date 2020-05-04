@@ -43,7 +43,7 @@ trait ScalazReactInstances {
     new MonadError[AsyncCallback, Throwable] with BindRec[AsyncCallback] {
 
       override def point[A](a: => A): AsyncCallback[A] =
-        AsyncCallback.point(a)
+        AsyncCallback.delay(a)
 
       override def ap[A, B](fa: => AsyncCallback[A])(f: => AsyncCallback[A => B]) =
         f.zipWith(fa)(_(_))

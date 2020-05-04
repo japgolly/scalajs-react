@@ -176,9 +176,9 @@ object ReactTestUtils {
     withRenderedIntoBodyFuture(u)(f)
 
   def withNewBodyElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
-    AsyncCallback.point(newBodyElement())
+    AsyncCallback.delay(newBodyElement())
       .flatMap(e => use(e)
-        .finallyRun(AsyncCallback.point(removeNewBodyElement(e))))
+        .finallyRun(AsyncCallback.delay(removeNewBodyElement(e))))
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * and asynchronously waits for the AsyncCallback to complete before unmounting.
@@ -188,8 +188,8 @@ object ReactTestUtils {
 
   private def _withRenderedIntoBodyAsyncCallback[A, B](render: Element => A)(n: A => TopNode, use: A => AsyncCallback[B]): AsyncCallback[B] =
     withNewBodyElementAsyncCallback(parent =>
-      AsyncCallback.point(render(parent))
-        .flatMap(a => use(a).finallyRun(AsyncCallback.point(unmount(n(a).parentNode)))))
+      AsyncCallback.delay(render(parent))
+        .flatMap(a => use(a).finallyRun(AsyncCallback.delay(unmount(n(a).parentNode)))))
 
   // ===================================================================================================================
   // Render into document
@@ -251,9 +251,9 @@ object ReactTestUtils {
     withRenderedIntoDocumentFuture(u)(f)
 
   def withNewDocumentElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
-    AsyncCallback.point(newDocumentElement())
+    AsyncCallback.delay(newDocumentElement())
       .flatMap(e => use(e)
-        .finallyRun(AsyncCallback.point(removeNewDocumentElement(e))))
+        .finallyRun(AsyncCallback.delay(removeNewDocumentElement(e))))
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * and asynchronously waits for the AsyncCallback to complete before unmounting.
@@ -263,8 +263,8 @@ object ReactTestUtils {
 
   private def _withRenderedIntoDocumentAsyncCallback[A, B](render: Element => A)(n: A => TopNode, use: A => AsyncCallback[B]): AsyncCallback[B] =
     withNewDocumentElementAsyncCallback(parent =>
-      AsyncCallback.point(render(parent))
-        .flatMap(a => use(a).finallyRun(AsyncCallback.point(unmount(n(a).parentNode)))))
+      AsyncCallback.delay(render(parent))
+        .flatMap(a => use(a).finallyRun(AsyncCallback.delay(unmount(n(a).parentNode)))))
 
   // ===================================================================================================================
   // Render into body/document

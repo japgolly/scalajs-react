@@ -41,7 +41,11 @@ object AsyncCallback {
   def never[A]: AsyncCallback[A] =
     apply(_ => Callback.empty)
 
+  @deprecated("Use AsyncCallback.delay", "1.7.0")
   def point[A](a: => A): AsyncCallback[A] =
+    delay(a)
+
+  def delay[A](a: => A): AsyncCallback[A] =
     AsyncCallback(f => CallbackTo(catchAll(a)).flatMap(f))
 
   def pure[A](a: A): AsyncCallback[A] =
@@ -67,7 +71,7 @@ object AsyncCallback {
     * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
     */
   def byName[A](f: => AsyncCallback[A]): AsyncCallback[A] =
-    point(f).flatten
+    delay(f).flatten
 
   @deprecated("Use c.asAsyncCallback", "")
   def fromCallback[A](c: CallbackTo[A]): AsyncCallback[A] =
@@ -103,7 +107,7 @@ object AsyncCallback {
     * Distribute AsyncCallback over Option.
     */
   def traverseOption[A, B](oa: => Option[A])(f: A => AsyncCallback[B]): AsyncCallback[Option[B]] =
-    AsyncCallback.point(oa).flatMap {
+    AsyncCallback.delay(oa).flatMap {
       case Some(a) => f(a).map(Some(_))
       case None    => AsyncCallback.pure(None)
     }
@@ -231,7 +235,7 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
 
   /** When the callback result becomes available, perform a given side-effect with it. */
   def tap(t: A => Any): AsyncCallback[A] =
-    flatTap(a => AsyncCallback.point(t(a)))
+    flatTap(a => AsyncCallback.delay(t(a)))
 
   /** Alias for `tap`. */
   @inline def <|(t: A => Any): AsyncCallback[A] =
