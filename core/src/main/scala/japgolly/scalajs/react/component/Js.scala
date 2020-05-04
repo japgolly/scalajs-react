@@ -251,12 +251,12 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
 
     @deprecated("Use .withOptionalRef", "1.7.0")
     def withRef(r: Option[Ref.Handle[R]]): ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0] =
-      r match {
-        case None    => self
-        case Some(h) => withRef(h)
-      }
+      withOptionalRef(r)
 
-    def withOptionalRef[O[_]](optionalRef: O[Ref.Handle[R]])(implicit o: OptionLike[O]): ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0] =
-      o.fold(optionalRef, self)(withRef)
+    def withOptionalRef(optionalRef: Option[Ref.Handle[R]]): ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0] =
+      optionalRef match {
+        case None    => self
+        case Some(r) => withRef(r)
+      }
   }
 }

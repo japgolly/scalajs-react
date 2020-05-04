@@ -4,7 +4,6 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js
 import japgolly.scalajs.react.internal.Effect.Id
-import japgolly.scalajs.react.internal.OptionLike
 
 package object react extends ReactEventTypes {
 
@@ -81,13 +80,13 @@ package object react extends ReactEventTypes {
 
     @deprecated("Use .withOptionalRef", "1.7.0")
     def withRef(r: Option[Ref.Handle[ScalaComponent.RawMounted[P, S, B]]]): ScalaComponent.Component[P, S, B, CT] =
-      r match {
-        case None    => self
-        case Some(h) => withRef(h)
-      }
+      withOptionalRef(r)
 
-    def withOptionalRef[O[_]](optionalRef: O[Ref.Handle[ScalaComponent.RawMounted[P, S, B]]])(implicit o: OptionLike[O]): ScalaComponent.Component[P, S, B, CT] =
-      o.fold(optionalRef, self)(withRef)
+    def withOptionalRef(optionalRef: Option[Ref.Handle[ScalaComponent.RawMounted[P, S, B]]]): ScalaComponent.Component[P, S, B, CT] =
+      optionalRef match {
+        case None    => self
+        case Some(r) => withRef(r)
+      }
   }
 
   type ~=>[-A, +B] = Reusable[A => B]
