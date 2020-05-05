@@ -28,15 +28,28 @@ abstract class RouterCtl[Route] {
   final def setOnClick(route: Route): TagMod =
     ^.onClick ==> setEH(route)
 
-  final def setOnLinkClick(route: Route): TagMod = {
-    def go(e: ReactMouseEvent): Callback =
+  final def onLinkClick(route: Route): ReactMouseEvent => CallbackOption[Unit] =
+    e =>
       CallbackOption.unless(ReactMouseEvent targetsNewTab_? e) >>
         setEH(route)(e)
-    ^.onClick ==> go
-  }
+
+  final def setOnLinkClick(route: Route): TagMod =
+    ^.onClick ==> onLinkClick(route).andThen(_.toCallback)
 
   final def link(route: Route): VdomTagOf[html.Anchor] =
     <.a(^.href := urlFor(route).value, setOnLinkClick(route))
+
+  @deprecated("Use .onSetRun(callback).setOnClick(route)", "forever")
+  final def setOnClick(route: Route, callback: Callback): TagMod =
+    onSetRun(callback).setOnClick(route)
+
+  @deprecated("Use .onSetRun(callback).setOnLinkClick(route)", "forever")
+  final def setOnLinkClick(route: Route, callback: Callback): TagMod =
+    onSetRun(callback).setOnLinkClick(route)
+
+  @deprecated("Use .onSetRun(callback).link(route)", "forever")
+  final def link(route: Route, callback: Callback): VdomTagOf[html.Anchor] =
+    onSetRun(callback).link(route)
 
   final def contramap[B](f: B => Route): RouterCtl[B] =
     new RouterCtl.Contramap(this, f)
@@ -56,6 +69,10 @@ abstract class RouterCtl[Route] {
    */
   final def onSet(f: Callback => Callback): RouterCtl[Route] =
     onSet((_, cb) => f(cb))
+
+  /** Return a new version of this that executes the specified callback after setting new routes. */
+  final def onSetRun(f: Callback): RouterCtl[Route] =
+    onSet(_ >> f)
 
   final def narrow[B <: Route]: RouterCtl[B] =
     contramap(b => b)
