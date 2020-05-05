@@ -30,6 +30,7 @@ object ScalajsReact {
     val Scala213              = "2.13.2"
     val ScalaCollCompat       = "2.1.6"
     val ScalaJsDom            = "1.0.0"
+    val ScalaJsTime           = "1.0.0"
     val ScalaTest             = "3.1.1"
     val Scalaz72              = "7.2.30"
     val SizzleJs              = "2.3.0"
@@ -285,10 +286,11 @@ object ScalajsReact {
         "-Xlint:adapted-args"
       ),
       libraryDependencies ++= Seq(
-        "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
-        "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
-        "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
-        "com.github.julien-truffaut" %%% "monocle-macro" % Ver.MonocleScalaz % Test),
+        "com.github.japgolly.nyaya"  %%% "nyaya-prop"        % Ver.Nyaya         % Test,
+        "com.github.japgolly.nyaya"  %%% "nyaya-gen"         % Ver.Nyaya         % Test,
+        "com.github.japgolly.nyaya"  %%% "nyaya-test"        % Ver.Nyaya         % Test,
+        "com.github.julien-truffaut" %%% "monocle-macro"     % Ver.MonocleScalaz % Test,
+        "org.scala-js"               %%% "scalajs-java-time" % Ver.ScalaJsTime   % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,

@@ -214,5 +214,10 @@ trait React extends js.Object {
 
   final val Fragment: js.Symbol = js.native
 
+  final val Profiler: js.Symbol = js.native
+
   final val StrictMode: js.Symbol = js.native
+
+  @JSName("__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED")
+  final val SecretInternals: SecretInternals = js.native
 }
