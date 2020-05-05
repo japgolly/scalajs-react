@@ -488,4 +488,25 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
       case Left(_)  => throw new RuntimeException(
         "AsyncCallback#unsafeRunNowSync() failed! The AsyncCallback contains at least one asynchronous computation.")
     }
+
+  def flatMapSync[B](f: A => CallbackTo[B]): AsyncCallback[B] =
+    flatMap(f.andThen(_.asAsyncCallback))
+
+  def flattenSync[B](implicit ev: A => CallbackTo[B]): AsyncCallback[B] =
+    flatten(ev.andThen(_.asAsyncCallback))
+
+  def flatTapSync[B](t: A => CallbackTo[B]): AsyncCallback[A] =
+    flatTap(t.andThen(_.asAsyncCallback))
+
+  def handleErrorSync(f: Throwable => CallbackTo[A]): AsyncCallback[A] =
+    handleError(f.andThen(_.asAsyncCallback))
+
+  def maybeHandleErrorSync(f: PartialFunction[Throwable, CallbackTo[A]]): AsyncCallback[A] =
+    maybeHandleError(f.andThen(_.asAsyncCallback))
+
+  /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+    * current callback completes, be it in error or success.
+    */
+  @inline def finallyRunSync[B](runFinally: CallbackTo[B]): AsyncCallback[A] =
+    finallyRun(runFinally.asAsyncCallback)
 }
