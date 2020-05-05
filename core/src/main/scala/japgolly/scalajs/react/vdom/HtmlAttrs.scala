@@ -692,6 +692,8 @@ trait HtmlAttrs {
 
   final def defer = VdomAttr[Boolean]("defer")
 
+  final def disablePictureInPicture = VdomAttr[Boolean]("disablePictureInPicture")
+
   final def dir = VdomAttr("dir")
 
   /**
