@@ -11,7 +11,7 @@ import org.scalajs.dom
 
 object ReactTestUtils {
 
-  def raw = japgolly.scalajs.react.test.raw.ReactTestUtils
+  @inline def raw = japgolly.scalajs.react.test.raw.ReactTestUtils
 
   type Unmounted[M] = GenericComponent.Unmounted[_, M]
   type Mounted      = GenericComponent.MountedRaw
@@ -21,6 +21,22 @@ object ReactTestUtils {
   private def wrapMO(r: RawM): MountedOutput = JsComponent.mounted(r)
 
   type CompType = GenericComponent.ComponentRaw {type Raw <: japgolly.scalajs.react.raw.React.ComponentClassUntyped }
+
+  /** When writing UI tests, tasks like rendering, user events, or data fetching can be considered as “units” of
+    * interaction with a user interface. React provides a helper called act() that makes sure all updates related to
+    * these "units" have been processed and applied to the DOM before you make any assertions:
+    *
+    * {{{
+    *   act {
+    *     // render components
+    *   }
+    *   // make assertions
+    * }}}
+    *
+    * This helps make your tests run closer to what real users would experience when using your application.
+    */
+  def act(body: => Any): Unit =
+    raw.act(Callback(body).toJsFn)
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
   def renderIntoDocument[M](unmounted: Unmounted[M]): M = {

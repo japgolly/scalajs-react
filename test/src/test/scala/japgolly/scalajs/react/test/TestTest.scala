@@ -311,5 +311,14 @@ object TestTest extends TestSuite {
         s"$orig  →  $after"
       }
     }
+
+    "act" - {
+      // Just making sure the facade and types align
+      var called = false
+      ReactTestUtils.act {
+        called = true
+      }
+      assertEq(called, true)
+    }
   }
 }
