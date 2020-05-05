@@ -8,6 +8,7 @@ import scala.scalajs.js.|
 
 object ReactDOM {
   def raw = Raw.ReactDOM
+  def version = Raw.ReactDOM.version
 
   /** For mounted components, use .getDOMNode */
   def findDOMNode(componentOrElement: dom.Element | Raw.React.ComponentUntyped): Option[ComponentDom.Mounted] =

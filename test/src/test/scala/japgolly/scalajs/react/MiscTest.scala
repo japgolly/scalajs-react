@@ -31,6 +31,11 @@ object MiscTest extends TestSuite {
 
   override def tests = Tests {
 
+    "version" - {
+      assertEq(React.version, ReactDOM.version)
+      assertEq(React.version, ReactDOMServer.version)
+    }
+
     "children" - {
       "argsToComponents" - {
 
