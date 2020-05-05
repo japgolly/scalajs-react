@@ -716,6 +716,14 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val trampoline: Tr
   def asEventDefault(e: ReactEvent): CallbackTo[Option[A]] =
     (this <* e.preventDefaultCB).unless(e.defaultPrevented)
 
+  /** Schedule for repeated execution every `interval`. */
+  def setInterval(interval: Duration): CallbackTo[Callback.SetIntervalResult] =
+    setIntervalMs(interval.toMillis.toDouble)
+
+  /** Schedule for repeated execution every `interval`. */
+  def setInterval(interval: FiniteDuration): CallbackTo[Callback.SetIntervalResult] =
+    setIntervalMs(interval.toMillis.toDouble)
+
   /** Schedule this callback for repeated execution every `interval` milliseconds.
     *
     * @param interval duration in milliseconds between executions
@@ -729,13 +737,27 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val trampoline: Tr
     }
   }
 
-  def setInterval(interval: FiniteDuration): CallbackTo[Callback.SetIntervalResult] =
-    setIntervalMs(interval.toMillis.toDouble)
+  /** Schedule this callback for execution in `interval`.
+    *
+    * Note: in most cases [[delay()]] is a better alternative.
+    *
+    * @return A means to cancel the timeout.
+    */
+  def setTimeout(interval: Duration): CallbackTo[Callback.SetTimeoutResult] =
+    setTimeoutMs(interval.toMillis.toDouble)
 
-  def setInterval(interval: Duration): CallbackTo[Callback.SetIntervalResult] =
-    setIntervalMs(interval.toMillis.toDouble)
+  /** Schedule this callback for execution in `interval`.
+    *
+    * Note: in most cases [[delay()]] is a better alternative.
+    *
+    * @return A means to cancel the timeout.
+    */
+  def setTimeout(interval: FiniteDuration): CallbackTo[Callback.SetTimeoutResult] =
+    setTimeoutMs(interval.toMillis.toDouble)
 
   /** Schedule this callback for execution in `interval` milliseconds.
+    *
+    * Note: in most cases [[delayMs()]] is a better alternative.
     *
     * @param interval duration in milliseconds to wait
     * @return A means to cancel the timeout.
@@ -747,12 +769,6 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val trampoline: Tr
       new Callback.SetTimeoutResult(handle)
     }
   }
-
-  def setTimeout(interval: FiniteDuration): CallbackTo[Callback.SetTimeoutResult] =
-    setTimeoutMs(interval.toMillis.toDouble)
-
-  def setTimeout(interval: Duration): CallbackTo[Callback.SetTimeoutResult] =
-    setTimeoutMs(interval.toMillis.toDouble)
 
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean ops

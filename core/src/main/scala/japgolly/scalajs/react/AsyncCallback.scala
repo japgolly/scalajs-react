@@ -1,12 +1,13 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{catchAll, identityFn, newJsPromise, SyncPromise}
+import japgolly.scalajs.react.internal.{SyncPromise, catchAll, identityFn, newJsPromise}
+import java.time.Duration
 import scala.collection.compat._
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.{Thenable, |}
-import scala.scalajs.js.timers.setTimeout
+import scala.scalajs.js.timers
 import scala.util.{Failure, Success, Try}
 
 object AsyncCallback {
@@ -402,6 +403,9 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def logResult: AsyncCallback[A] =
     logResult(_.toString)
 
+  def delay(dur: Duration): AsyncCallback[A] =
+    delayMs(dur.toMillis.toDouble)
+
   def delay(dur: FiniteDuration): AsyncCallback[A] =
     delayMs(dur.toMillis.toDouble)
 
@@ -410,10 +414,43 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
       this
     else
       AsyncCallback(f => Callback {
-        setTimeout(milliseconds) {
+        timers.setTimeout(milliseconds) {
           completeWith(f).runNow()
         }
       })
+
+  /** Schedule for repeated execution every `dur`. */
+  @inline def setInterval(dur: Duration): CallbackTo[Callback.SetIntervalResult] =
+    toCallback.setInterval(dur)
+
+  /** Schedule for repeated execution every `dur`. */
+  @inline def setInterval(dur: FiniteDuration): CallbackTo[Callback.SetIntervalResult] =
+    toCallback.setInterval(dur)
+
+  /** Schedule for repeated execution every x milliseconds. */
+  @inline def setIntervalMs(milliseconds: Double): CallbackTo[Callback.SetIntervalResult] =
+    toCallback.setIntervalMs(milliseconds)
+
+  /** Schedule for execution after `dur`.
+    *
+    * Note: it most cases [[delay()]] is a better alternative.
+    */
+  @inline def setTimeout(dur: Duration): CallbackTo[Callback.SetTimeoutResult] =
+    toCallback.setTimeout(dur)
+
+  /** Schedule for execution after `dur`.
+    *
+    * Note: it most cases [[delay()]] is a better alternative.
+    */
+  @inline def setTimeout(dur: FiniteDuration): CallbackTo[Callback.SetTimeoutResult] =
+    toCallback.setTimeout(dur)
+
+  /** Schedule for execution after x milliseconds.
+    *
+    * Note: it most cases [[delayMs()]] is a better alternative.
+    */
+  @inline def setTimeoutMs(milliseconds: Double): CallbackTo[Callback.SetTimeoutResult] =
+    toCallback.setTimeoutMs(milliseconds)
 
   /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
     * current callback completes, be it in error or success.
