@@ -11,14 +11,18 @@ import scala.annotation.nowarn
 object Builder {
 
   type InitStateFn [-P, +S]  = Box[P] => Box[S]
+  type InitStateArg[-P, +S]  = Either[P => S, InitStateFn[P, S]]
   type NewBackendFn[P, S, B] = BackendScope[P, S] => B
   type RenderFn    [P, S, B] = RenderScope[P, S, B] => VdomNode
 
   type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
     Step4[P, C, S, B, US] => Step4[P, C, S, B, US2]
 
-  private val InitStateUnit: InitStateFn[Any, Unit] =
+  private[builder] val InitStateFn: InitStateFn[Any, Unit] =
     _ => Box.Unit
+
+  private[this] val InitStateUnit: InitStateArg[Any, Unit] =
+    Right(InitStateFn)
 
   // ===================================================================================================================
 
@@ -40,11 +44,36 @@ object Builder {
     // Dealiases type aliases :(
     // type Next[S] = Step2[P, S]
 
+    /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
+      * subsequent updates. It should return Some to update the state, or None to update nothing.
+      *
+      * This method exists for rare use cases where the state depends on changes in props over time.
+      * For example, it might be handy for implementing a Transition component that compares its previous and next
+      * children to decide which of them to animate in and out.
+      *
+      * Deriving state leads to verbose code and makes your components difficult to think about.
+      * Make sure you’re familiar with simpler alternatives:
+      *
+      *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
+      *     props, use componentDidUpdate lifecycle instead.
+      *
+      *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
+      *
+      *   - If you want to “reset” some state when a prop changes, consider either making a component fully controlled
+      *     or fully uncontrolled with a key instead.
+      *
+      * Note that this method is fired on every render, regardless of the cause.
+      * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
+      * not as a result of a local setState.
+      */
+    def getDerivedStateFromProps[S](f: P => S): Step2[P, S] =
+      new Step2(name, Left(f))
+
     def initialState[S](s: => S): Step2[P, S] =
-      new Step2(name, _ => Box(s))
+      new Step2(name, Right(_ => Box(s)))
 
     def initialStateFromProps[S](f: P => S): Step2[P, S] =
-      new Step2(name, p => Box(f(p.unbox)))
+      new Step2(name, Right(p => Box(f(p.unbox))))
 
     def initialStateCallback[S](cb: CallbackTo[S]): Step2[P, S] =
       initialState(cb.runNow())
@@ -70,12 +99,12 @@ object Builder {
     * If you have an unhealthy fear of macros you can ignore then and do it all manually too; the macros don't have any
     * special privileges.
     */
-  final class Step2[P, S](name: String, initStateFn: InitStateFn[P, S]) {
+  final class Step2[P, S](name: String, initStateArg: InitStateArg[P, S]) {
     // Dealiases type aliases :(
     // type Next[B] = Step3[P, S, B]
 
     def backend[B](f: NewBackendFn[P, S, B]): Step3[P, S, B] =
-      new Step3(name, initStateFn, f)
+      new Step3(name, initStateArg, f)
 
     def noBackend: Step3[P, S, Unit] =
       backend(_ => ())
@@ -107,7 +136,7 @@ object Builder {
 
   /** You're on step 3/4 on the way to building a component.
     *
-    * Here you specify your component's render function. For convenience there are a plethoria of methods you can call
+    * Here you specify your component's render function. For convenience there are a plethora of methods you can call
     * that all do the same thing but accept the argument in different shapes; the suffixes in method names refer to the
     * argument type(s). This means you choose the method that provides the types that you need, rather than having to
     * manually specify the types for all arguments including stuff you don't need.
@@ -117,14 +146,20 @@ object Builder {
     * `.renderBackendWithChildren` methods which will use a macro to inspect your backend's render method and provide
     * everything it needs automatically.
     */
-  final class Step3[P, S, B](name: String, initStateFn: InitStateFn[P, S], backendFn: NewBackendFn[P, S, B]) {
+  final class Step3[P, S, B](name: String, initStateArg: InitStateArg[P, S], backendFn: NewBackendFn[P, S, B]) {
     // Dealiases type aliases :(
     // type Next[C <: Children] = Step4[P, C, S, B]
 
     type $ = RenderScope[P, S, B]
 
-    def renderWith[C <: Children](r: RenderFn[P, S, B]): Step4[P, C, S, B, UpdateSnapshot.None] =
-      new Step4[P, C, S, B, UpdateSnapshot.None](name, initStateFn, backendFn, r, Lifecycle.empty)
+    def renderWith[C <: Children](r: RenderFn[P, S, B]): Step4[P, C, S, B, UpdateSnapshot.None] = {
+      var lc = Lifecycle.empty[P, S, B]
+      initStateArg match {
+        case Left(f) => lc = lc.copy(getDerivedStateFromProps = Some((p, _) => Some(f(p))))
+        case _ => ()
+      }
+      new Step4[P, C, S, B, UpdateSnapshot.None](name, initStateArg, backendFn, r, lc)
+    }
 
     // No args
 
@@ -208,10 +243,10 @@ object Builder {
     */
   final class Step4[P, C <: Children, S, B, US <: UpdateSnapshot](
       val name: String,
-      private[builder] val initStateFn: InitStateFn[P, S],
-      private[builder] val backendFn  : NewBackendFn[P, S, B],
-      private[builder] val renderFn   : RenderFn[P, S, B],
-      private[builder] val lifecycle  : Lifecycle[P, S, B, US#Value]) {
+      private[builder] val initStateArg: InitStateArg[P, S],
+      private[builder] val backendFn   : NewBackendFn[P, S, B],
+      private[builder] val renderFn    : RenderFn[P, S, B],
+      private[builder] val lifecycle   : Lifecycle[P, S, B, US#Value]) {
 
     type This = Step4[P, C, S, B, US]
 
@@ -219,15 +254,15 @@ object Builder {
 
     private type Lifecycle_ = Lifecycle[P, S, B, SnapshotValue]
 
-    private def copy(name       : String                = this.name,
-                     initStateFn: InitStateFn [P, S]    = this.initStateFn,
-                     backendFn  : NewBackendFn[P, S, B] = this.backendFn,
-                     renderFn   : RenderFn    [P, S, B] = this.renderFn,
-                     lifecycle  : Lifecycle_): This =
-      new Step4(name, initStateFn, backendFn, renderFn, lifecycle)
+    private def copy(name        : String                = this.name,
+                     initStateArg: InitStateArg [P, S]   = this.initStateArg,
+                     backendFn   : NewBackendFn[P, S, B] = this.backendFn,
+                     renderFn    : RenderFn    [P, S, B] = this.renderFn,
+                     lifecycle   : Lifecycle_): This =
+      new Step4(name, initStateArg, backendFn, renderFn, lifecycle)
 
     private def setLC[US2 <: UpdateSnapshot](lc: Lifecycle[P, S, B, US2#Value]): Step4[P, C, S, B, US2] =
-      new Step4(name, initStateFn, backendFn, renderFn, lc)
+      new Step4(name, initStateArg, backendFn, renderFn, lc)
 
     private def lcAppend[I, O](lens: Lens[Lifecycle_, Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
       copy(lifecycle = lifecycle.append(lens)(g)(s))

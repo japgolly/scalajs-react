@@ -236,9 +236,14 @@ object ViaReactComponent {
       (builder: Builder.Step4[P, C, S, B, US])
       (implicit snapshotJs: JsRepr[builder.SnapshotValue]): raw.React.ComponentClass[Box[P], Box[S]] = {
 
-    val initStateFn = builder.initStateFn
     val backendFn = builder.backendFn
     val renderFn = builder.renderFn
+
+    val initStateFn: Box[P] => Box[S] =
+      builder.initStateArg match {
+        case Right(f) => f
+        case Left(_)  => Builder.InitStateFn.asInstanceOf[Box[P] => Box[S]]
+      }
 
     type This = RawMounted[P, S, B]
     var MyComponent: js.ThisFunction1[This, Box[P], This] = null
