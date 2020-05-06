@@ -213,8 +213,8 @@ object ScalaComponentPTest extends TestSuite {
         .initialState(0)
         .noBackend
         .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
-        .getDerivedStateFromPropsOption(p => Option.when(p > 100)(p - 100))
-        .getDerivedStateFromPropsOption((_, s) => Option.when((s & 1) == 0)(s >> 1))
+        .getDerivedStateFromPropsOption(p => if (p > 100) Some(p - 100) else None)
+        .getDerivedStateFromPropsOption((_, s) => if ((s & 1) == 0) Some(s >> 1) else None)
         .build
 
       ReactTestUtils.withNewBodyElement { mountNode =>

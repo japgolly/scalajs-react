@@ -375,14 +375,12 @@ object ScalajsReact {
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
     .settings(
-      libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
-      crossScalaVersions := Seq(Ver.Scala212))
+      libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat)
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
-      crossScalaVersions := Seq(Ver.Scala213),
       libraryDependencies += "com.github.julien-truffaut" %%% "monocle-macro" % Ver.MonocleScalaz,
       scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       scalaJSUseMainModuleInitializer := true,
