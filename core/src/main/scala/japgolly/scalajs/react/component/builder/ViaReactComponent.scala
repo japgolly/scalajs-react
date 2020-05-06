@@ -230,6 +230,9 @@ object ViaReactComponent {
       case Some(s2) => Box(s2)
     }
 
+  private[this] val anyToBoxUnit: Any => Box[Unit] =
+    _ => Box.Unit
+
   // ===================================================================================================================
 
   def apply[P, C <: Children, S, B, US <: UpdateSnapshot]
@@ -239,10 +242,11 @@ object ViaReactComponent {
     val backendFn = builder.backendFn
     val renderFn = builder.renderFn
 
-    val initStateFn: Box[P] => Box[S] =
-      builder.initStateArg match {
-        case Right(f) => f
-        case Left(_)  => Builder.InitStateFn.asInstanceOf[Box[P] => Box[S]]
+    val initStateFn: Box[P] => Box[_] =
+      builder.initState match {
+        case InitState.InitialState(f)             => f
+        case InitState.DerivedFromPropsAndState(f) => bp => Box(f(bp.unbox, None))
+        case _                                     => anyToBoxUnit
       }
 
     type This = RawMounted[P, S, B]

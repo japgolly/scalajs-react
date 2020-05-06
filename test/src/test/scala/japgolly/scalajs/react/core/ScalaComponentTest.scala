@@ -257,6 +257,30 @@ object ScalaComponentPTest extends TestSuite {
           assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-6 s=3</div>")
         }
       }
+
+      "early2" - {
+        val Comp = ScalaComponent.builder[Int]("")
+          .getDerivedStateFromPropsAndState[Int]((p, os) => os.fold(0)(_ => -p))
+          .noBackend
+          .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
+          .getDerivedStateFromPropsOption((_, s) => if (s > 100) Some(s - 100) else None)
+          .getDerivedStateFromPropsOption((_, s) => if ((s & 1) == 0) Some(s >> 1) else None)
+          .build
+
+        ReactTestUtils.withNewBodyElement { mountNode =>
+          var mounted = Comp(-108).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-108 s=4</div>")
+
+          mounted = Comp(-103).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-103 s=3</div>")
+
+          mounted = Comp(-204).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-204 s=52</div>")
+
+          mounted = Comp(-6).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-6 s=3</div>")
+        }
+      }
     }
   }
 }
