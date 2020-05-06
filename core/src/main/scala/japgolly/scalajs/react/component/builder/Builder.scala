@@ -44,14 +44,14 @@ object Builder {
       * children to decide which of them to animate in and out.
       *
       * Deriving state leads to verbose code and makes your components difficult to think about.
-      * Make sure you’re familiar with simpler alternatives:
+      * Make sure you're familiar with simpler alternatives:
       *
       *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
       *     props, use componentDidUpdate lifecycle instead.
       *
       *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
       *
-      *   - If you want to “reset” some state when a prop changes, consider either making a component fully controlled
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
       *     or fully uncontrolled with a key instead.
       *
       * Note that this method is fired on every render, regardless of the cause.
@@ -69,14 +69,14 @@ object Builder {
       * children to decide which of them to animate in and out.
       *
       * Deriving state leads to verbose code and makes your components difficult to think about.
-      * Make sure you’re familiar with simpler alternatives:
+      * Make sure you're familiar with simpler alternatives:
       *
       *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
       *     props, use componentDidUpdate lifecycle instead.
       *
       *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
       *
-      *   - If you want to “reset” some state when a prop changes, consider either making a component fully controlled
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
       *     or fully uncontrolled with a key instead.
       *
       * Note that this method is fired on every render, regardless of the cause.
@@ -384,14 +384,14 @@ object Builder {
       * children to decide which of them to animate in and out.
       *
       * Deriving state leads to verbose code and makes your components difficult to think about.
-      * Make sure you’re familiar with simpler alternatives:
+      * Make sure you're familiar with simpler alternatives:
       *
       *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
       *     props, use componentDidUpdate lifecycle instead.
       *
       *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
       *
-      *   - If you want to “reset” some state when a prop changes, consider either making a component fully controlled
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
       *     or fully uncontrolled with a key instead.
       *
       * Note that this method is fired on every render, regardless of the cause.
@@ -409,14 +409,14 @@ object Builder {
       * children to decide which of them to animate in and out.
       *
       * Deriving state leads to verbose code and makes your components difficult to think about.
-      * Make sure you’re familiar with simpler alternatives:
+      * Make sure you're familiar with simpler alternatives:
       *
       *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
       *     props, use componentDidUpdate lifecycle instead.
       *
       *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
       *
-      *   - If you want to “reset” some state when a prop changes, consider either making a component fully controlled
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
       *     or fully uncontrolled with a key instead.
       *
       * Note that this method is fired on every render, regardless of the cause.
@@ -434,14 +434,14 @@ object Builder {
       * children to decide which of them to animate in and out.
       *
       * Deriving state leads to verbose code and makes your components difficult to think about.
-      * Make sure you’re familiar with simpler alternatives:
+      * Make sure you're familiar with simpler alternatives:
       *
       *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
       *     props, use componentDidUpdate lifecycle instead.
       *
       *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
       *
-      *   - If you want to “reset” some state when a prop changes, consider either making a component fully controlled
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
       *     or fully uncontrolled with a key instead.
       *
       * Note that this method is fired on every render, regardless of the cause.
@@ -471,14 +471,14 @@ object Builder {
       * children to decide which of them to animate in and out.
       *
       * Deriving state leads to verbose code and makes your components difficult to think about.
-      * Make sure you’re familiar with simpler alternatives:
+      * Make sure you're familiar with simpler alternatives:
       *
       *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
       *     props, use componentDidUpdate lifecycle instead.
       *
       *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
       *
-      *   - If you want to “reset” some state when a prop changes, consider either making a component fully controlled
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
       *     or fully uncontrolled with a key instead.
       *
       * Note that this method is fired on every render, regardless of the cause.

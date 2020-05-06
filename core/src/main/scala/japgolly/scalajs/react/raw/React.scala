@@ -31,7 +31,7 @@ object React extends React {
 
     /** Returns the children opaque data structure as a flat array with keys assigned to each child. Useful if you want to manipulate collections of children in your render methods, especially if you want to reorder or slice this.props.children before passing it down.
       *
-      * Note: React.Children.toArray() changes keys to preserve the semantics of nested arrays when flattening lists of children. That is, toArray prefixes each key in the returned array so that each element’s key is scoped to the input array containing it.
+      * Note: React.Children.toArray() changes keys to preserve the semantics of nested arrays when flattening lists of children. That is, toArray prefixes each key in the returned array so that each element's key is scoped to the input array containing it.
       */
     def toArray(c: PropsChildren): js.Array[React.Node] = js.native
   }
