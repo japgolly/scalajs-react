@@ -20,27 +20,33 @@ object JsLikeComponentTest extends TestSuite {
 
   val o = js.Dynamic.literal("hello" -> 123)
 
+  private def testAssertionFires[A](errFrag: String)(a: => A): String =
+    if (CI.full)
+      ""
+    else
+      expectErrorContaining(errFrag)(a)
+
   override def tests = Tests {
 
     "js" - {
-      "undefined" - expectErrorContaining("undefined")(JsComponent[Null, Children.None, Null](js.undefined))
-      "string" - expectErrorContaining("tring")(JsComponent[Null, Children.None, Null]("what"))
-      "num" - expectErrorContaining("123")(JsComponent[Null, Children.None, Null](123))
-      "obj" - expectErrorContaining("hello")(JsComponent[Null, Children.None, Null](o))
-      // "fn" - expectErrorContaining("a raw JsFnComponent")(JsComponent[Null, Children.None, Null](RawJsFn))
+      "undefined" - testAssertionFires("undefined")(JsComponent[Null, Children.None, Null](js.undefined))
+      "string" - testAssertionFires("tring")(JsComponent[Null, Children.None, Null]("what"))
+      "num" - testAssertionFires("123")(JsComponent[Null, Children.None, Null](123))
+      "obj" - testAssertionFires("hello")(JsComponent[Null, Children.None, Null](o))
+      // "fn" - testAssertionFires("a raw JsFnComponent")(JsComponent[Null, Children.None, Null](RawJsFn))
       "es60" - assertNoError(JsComponent[Null, Children.None, Null](RawJs6a))
       "es61" - assertNoError(JsComponent[Null, Children.None, Null](RawJs6b))
       "fwdRef" - assertNoError(JsComponent[js.Object, Children.None, Null](RawForwardRefComp))
     }
 
     "jsFn" - {
-      "undefined" - expectErrorContaining("undefined")(JsFnComponent[Null, Children.None](js.undefined))
-      "string" - expectErrorContaining("tring")(JsFnComponent[Null, Children.None]("what"))
-      "num" - expectErrorContaining("123")(JsFnComponent[Null, Children.None](123))
-      "obj" - expectErrorContaining("hello")(JsFnComponent[Null, Children.None](o))
+      "undefined" - testAssertionFires("undefined")(JsFnComponent[Null, Children.None](js.undefined))
+      "string" - testAssertionFires("tring")(JsFnComponent[Null, Children.None]("what"))
+      "num" - testAssertionFires("123")(JsFnComponent[Null, Children.None](123))
+      "obj" - testAssertionFires("hello")(JsFnComponent[Null, Children.None](o))
       "fn" - assertNoError(JsFnComponent[Null, Children.None](RawJsFn))
-      // "es60" - expectErrorContaining("a raw JsComponent")(JsFnComponent[Null, Children.None](RawJs6a))
-      // "es61" - expectErrorContaining("a raw JsComponent")(JsFnComponent[Null, Children.None](RawJs6b))
+      // "es60" - testAssertionFires("a raw JsComponent")(JsFnComponent[Null, Children.None](RawJs6a))
+      // "es61" - testAssertionFires("a raw JsComponent")(JsFnComponent[Null, Children.None](RawJs6b))
     }
 
   }

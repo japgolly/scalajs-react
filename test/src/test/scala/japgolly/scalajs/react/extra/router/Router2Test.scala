@@ -203,7 +203,10 @@ object Router2Test extends TestSuite {
       assertEq(es, Vector.empty)
 
       es = config.detectErrors(SomethingElse).runNow()
-      assert(es.nonEmpty)
+      if (CI.full)
+        assert(es.isEmpty) // elided
+      else
+        assert(es.nonEmpty)
     }
 
     "routesPerNestedPageType" - {
