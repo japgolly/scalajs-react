@@ -190,7 +190,7 @@ object ScalaComponentPTest extends TestSuite {
         .initialState(0)
         .noBackend
         .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
-        .getDerivedStateFromProps(p => Some(p + 100))
+        .getDerivedStateFromProps(_ + 100)
         .getSnapshotBeforeUpdatePure($ => s"${$.prevProps} -> ${$.currentProps}")
         .componentDidUpdate($ => Callback(snapshots :+= $.snapshot))
         .build

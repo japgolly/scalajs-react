@@ -339,7 +339,57 @@ object Builder {
       * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
       * not as a result of a local setState.
       */
-    def getDerivedStateFromProps(f: (P, S) => Option[S]): This =
+    def getDerivedStateFromProps(f: (P, S) => S): This =
+      getDerivedStateFromPropsOption((p, s) => Some(f(p, s)))
+
+    /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
+      * subsequent updates. It should return Some to update the state, or None to update nothing.
+      *
+      * This method exists for rare use cases where the state depends on changes in props over time.
+      * For example, it might be handy for implementing a Transition component that compares its previous and next
+      * children to decide which of them to animate in and out.
+      *
+      * Deriving state leads to verbose code and makes your components difficult to think about.
+      * Make sure you’re familiar with simpler alternatives:
+      *
+      *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
+      *     props, use componentDidUpdate lifecycle instead.
+      *
+      *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
+      *
+      *   - If you want to “reset” some state when a prop changes, consider either making a component fully controlled
+      *     or fully uncontrolled with a key instead.
+      *
+      * Note that this method is fired on every render, regardless of the cause.
+      * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
+      * not as a result of a local setState.
+      */
+    def getDerivedStateFromProps(f: P => S): This =
+      getDerivedStateFromProps((p, _) => f(p))
+
+    /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
+      * subsequent updates. It should return Some to update the state, or None to update nothing.
+      *
+      * This method exists for rare use cases where the state depends on changes in props over time.
+      * For example, it might be handy for implementing a Transition component that compares its previous and next
+      * children to decide which of them to animate in and out.
+      *
+      * Deriving state leads to verbose code and makes your components difficult to think about.
+      * Make sure you’re familiar with simpler alternatives:
+      *
+      *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
+      *     props, use componentDidUpdate lifecycle instead.
+      *
+      *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
+      *
+      *   - If you want to “reset” some state when a prop changes, consider either making a component fully controlled
+      *     or fully uncontrolled with a key instead.
+      *
+      * Note that this method is fired on every render, regardless of the cause.
+      * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
+      * not as a result of a local setState.
+      */
+    def getDerivedStateFromPropsOption(f: (P, S) => Option[S]): This =
       lcAppend2(Lifecycle.getDerivedStateFromProps)(f)(Semigroup.optionFirst)
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
@@ -364,8 +414,8 @@ object Builder {
       * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
       * not as a result of a local setState.
       */
-    def getDerivedStateFromProps(f: P => Option[S]): This =
-      getDerivedStateFromProps((p, _) => f(p))
+    def getDerivedStateFromPropsOption(f: P => Option[S]): This =
+      getDerivedStateFromPropsOption((p, _) => f(p))
 
     /** getSnapshotBeforeUpdate() is invoked right before the most recently rendered output is committed to e.g. the
       * DOM. It enables your component to capture some information from the DOM (e.g. scroll position) before it is
