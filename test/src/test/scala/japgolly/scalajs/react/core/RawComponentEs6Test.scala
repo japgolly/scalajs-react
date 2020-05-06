@@ -12,6 +12,7 @@ import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.annotation.nowarn
 import scala.scalajs.js.|
 
+@nowarn("cat=deprecation")
 object RawComponentEs6PTest extends TestSuite {
 
   case class BasicProps(name: String)

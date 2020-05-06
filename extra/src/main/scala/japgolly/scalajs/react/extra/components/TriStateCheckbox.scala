@@ -82,7 +82,7 @@ object TriStateCheckbox {
   val Component = ScalaComponent.builder[Props]("TriStateCheckbox")
     .render(i => render(i.mountedPure))
     .componentDidMount(i => updateDom(i.mountedImpure, i.props))
-    .componentWillReceiveProps(i => updateDom(i.mountedImpure, i.nextProps))
+    .componentDidUpdate(i => updateDom(i.mountedImpure, i.currentProps))
     .configure(Reusability.shouldComponentUpdate)
     .build
 }

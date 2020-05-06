@@ -40,6 +40,7 @@ object TestTest extends TestSuite {
     var prev = "none"
     def render(p: String) = <.div(s"$prev → $p")
   }
+  @nowarn("cat=deprecation")
   val CP = ScalaComponent.builder[String]("asd")
     .backend(_ => new CP)
     .renderBackend

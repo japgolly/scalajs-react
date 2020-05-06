@@ -276,6 +276,9 @@ object Builder {
      * If you call `setState` within this method, `render()` will see the updated state and will be executed only once
      * despite the state change.
      */
+    @deprecated(
+      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount",
+      "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillMount(f: ComponentWillMountFn[P, S, B]): This =
       lcAppend(Lifecycle.componentWillMount)(f)
 
@@ -290,6 +293,9 @@ object Builder {
      * change, but the opposite is not true. If you need to perform operations in response to a state change, use
      * `componentWillUpdate`.
      */
+    @deprecated(
+      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops",
+      "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillReceiveProps(f: ComponentWillReceivePropsFn[P, S, B]): This =
       lcAppend(Lifecycle.componentWillReceiveProps)(f)
 
@@ -311,6 +317,9 @@ object Builder {
      * Note: You *cannot* use `this.setState()` in this method. If you need to update state in response to a prop change,
      * use `componentWillReceiveProps` instead.
      */
+    @deprecated(
+      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate",
+      "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillUpdate(f: ComponentWillUpdateFn[P, S, B]): This =
       lcAppend(Lifecycle.componentWillUpdate)(f)
 
@@ -494,12 +503,24 @@ object Builder {
     def componentDidCatchConst        (cb: Callback           ): This = componentDidCatch         (_ => cb)
     def componentDidMountConst        (cb: Callback           ): This = componentDidMount         (_ => cb)
     def componentDidUpdateConst       (cb: Callback           )       = componentDidUpdate        (_ => cb)
-    def componentWillMountConst       (cb: Callback           ): This = componentWillMount        (_ => cb)
-    def componentWillReceivePropsConst(cb: Callback           ): This = componentWillReceiveProps (_ => cb)
     def componentWillUnmountConst     (cb: Callback           ): This = componentWillUnmount      (_ => cb)
-    def componentWillUpdateConst      (cb: Callback           ): This = componentWillUpdate       (_ => cb)
     def shouldComponentUpdateConst    (cb: CallbackTo[Boolean]): This = shouldComponentUpdate     (_ => cb)
     def shouldComponentUpdateConst    (b : Boolean            ): This = shouldComponentUpdateConst(CallbackTo pure b)
+
+    @deprecated(
+      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount",
+      "scalajs-react 1.7.0 / React 16.9.0")
+    def componentWillMountConst(cb: Callback): This = componentWillMount(_ => cb)
+
+    @deprecated(
+      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops",
+      "scalajs-react 1.7.0 / React 16.9.0")
+    def componentWillReceivePropsConst(cb: Callback): This = componentWillReceiveProps(_ => cb)
+
+    @deprecated(
+      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate",
+      "scalajs-react 1.7.0 / React 16.9.0")
+    def componentWillUpdateConst(cb: Callback): This = componentWillUpdate(_ => cb)
 
     /** This is the end of the road for this component builder.
       *

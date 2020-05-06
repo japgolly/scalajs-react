@@ -7,7 +7,9 @@ import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils}
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
+import scala.annotation.nowarn
 
+@nowarn("cat=deprecation")
 object ScalaComponentPTest extends TestSuite {
 
   case class BasicProps(name: String)
