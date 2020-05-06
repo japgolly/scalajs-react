@@ -24,9 +24,6 @@ final case class Lifecycle[P, S, B, SS](
   def append[I, O](lens: Lens[Lifecycle[P, S, B, SS], Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
     lens.mod(o => Some(o.fold(g)(f => i => s.append(f(i), g(i)))))(this)
 
-  def append2[I1, I2, O](lens: Lens[Lifecycle[P, S, B, SS], Option[(I1, I2) => O]])(g: (I1, I2) => O)(implicit s: Semigroup[O]): This =
-    lens.mod(o => Some(o.fold(g)(f => (i1, i2) => s.append(f(i1, i2), g(i1, i2)))))(this)
-
   def resetSnapshot[SS2](componentDidUpdate     : Option[ComponentDidUpdateFn     [P, S, B, SS2]],
                          getSnapshotBeforeUpdate: Option[GetSnapshotBeforeUpdateFn[P, S, B, SS2]]): Lifecycle[P, S, B, SS2] =
     Lifecycle(

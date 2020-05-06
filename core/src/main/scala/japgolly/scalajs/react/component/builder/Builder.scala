@@ -232,9 +232,6 @@ object Builder {
     private def lcAppend[I, O](lens: Lens[Lifecycle_, Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
       copy(lifecycle = lifecycle.append(lens)(g)(s))
 
-    private def lcAppend2[I1, I2, O](lens: Lens[Lifecycle_, Option[(I1, I2) => O]])(g: (I1, I2) => O)(implicit s: Semigroup[O]): This =
-      copy(lifecycle = lifecycle.append2(lens)(g)(s))
-
     @inline def configure[US2 <: UpdateSnapshot](f: Config[P, C, S, B, US, US2]): Step4[P, C, S, B, US2] =
       f(this)
 
@@ -389,8 +386,20 @@ object Builder {
       * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
       * not as a result of a local setState.
       */
-    def getDerivedStateFromPropsOption(f: (P, S) => Option[S]): This =
-      lcAppend2(Lifecycle.getDerivedStateFromProps)(f)(Semigroup.optionFirst)
+    def getDerivedStateFromPropsOption(f: (P, S) => Option[S]): This = {
+      val update: Lifecycle_ => Lifecycle_ =
+        Lifecycle.getDerivedStateFromProps.mod {
+          case None => Some(f)
+          case Some(prev) =>
+            Some { (p, s1) =>
+              prev(p, s1) match {
+                case ss2@ Some(s2) => f(p, s2).orElse(ss2)
+                case None          => f(p, s1)
+              }
+            }
+        }
+      copy(lifecycle = update(lifecycle))
+    }
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
       * subsequent updates. It should return Some to update the state, or None to update nothing.
