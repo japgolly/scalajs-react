@@ -320,5 +320,18 @@ object TestTest extends TestSuite {
       }
       assertEq(called, true)
     }
+
+    // Disabled due to https://github.com/scala-js/scala-js-env-jsdom-nodejs/issues/44
+//    "actAsync" - {
+//      // Just making sure the facade and types align
+//      var called = false
+//      ReactTestUtils.actAsync {
+//        AsyncCallback.delay {
+//          called = true
+//        }
+//      }.tap { _ =>
+//        assertEq(called, true)
+//      }.unsafeToFuture()
+//    }
   }
 }

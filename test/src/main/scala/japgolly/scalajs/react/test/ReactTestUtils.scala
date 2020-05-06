@@ -35,8 +35,26 @@ object ReactTestUtils {
     *
     * This helps make your tests run closer to what real users would experience when using your application.
     */
-  def act(body: => Any): Unit =
+  def act(body: => Any): Unit = {
     raw.act(Callback(body).toJsFn)
+    ()
+  }
+
+  /** When writing UI tests, tasks like rendering, user events, or data fetching can be considered as “units” of
+    * interaction with a user interface. React provides a helper called act() that makes sure all updates related to
+    * these "units" have been processed and applied to the DOM before you make any assertions:
+    *
+    * {{{
+    *   await act(async () => {
+    *     // render components
+    *   });
+    *   // make assertions
+    * }}}
+    *
+    * This helps make your tests run closer to what real users would experience when using your application.
+    */
+  def actAsync[A](body: AsyncCallback[A]): AsyncCallback[Unit] =
+    AsyncCallback.fromJsPromise(raw.actAsync(body.asCallbackToJsPromise.toJsFn))
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
   def renderIntoDocument[M](unmounted: Unmounted[M]): M = {
