@@ -40,6 +40,7 @@ object TestTest extends TestSuite {
     var prev = "none"
     def render(p: String) = <.div(s"$prev → $p")
   }
+  @nowarn("cat=deprecation")
   val CP = ScalaComponent.builder[String]("asd")
     .backend(_ => new CP)
     .renderBackend
@@ -311,5 +312,27 @@ object TestTest extends TestSuite {
         s"$orig  →  $after"
       }
     }
+
+    "act" - {
+      // Just making sure the facade and types align
+      var called = false
+      ReactTestUtils.act {
+        called = true
+      }
+      assertEq(called, true)
+    }
+
+    // Disabled due to https://github.com/scala-js/scala-js-env-jsdom-nodejs/issues/44
+//    "actAsync" - {
+//      // Just making sure the facade and types align
+//      var called = false
+//      ReactTestUtils.actAsync {
+//        AsyncCallback.delay {
+//          called = true
+//        }
+//      }.tap { _ =>
+//        assertEq(called, true)
+//      }.unsafeToFuture()
+//    }
   }
 }

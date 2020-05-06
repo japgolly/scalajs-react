@@ -14,6 +14,8 @@ object ReactDOM extends ReactDOM
 @nowarn("cat=unused")
 trait ReactDOM extends js.Object {
 
+  val version: String = js.native
+
   final type Container = dom.Element | dom.raw.Document
 
   final def render(element  : React.Node,

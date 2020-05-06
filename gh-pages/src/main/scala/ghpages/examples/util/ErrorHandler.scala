@@ -16,7 +16,7 @@ object ErrorHandler {
   val component = ScalaComponent.builder[Props]("ErrorHandler")
     .initialState[Option[VdomNode]](None)
     .render_PS((p, s) => s getOrElse p.render())
-    .componentWillReceiveProps(_ setState None)
+    .getDerivedStateFromProps(_ => None)
     .componentDidCatch($ => $.props.onError($.error).flatMap(n => $.setState(Some(n))))
     .build
 }

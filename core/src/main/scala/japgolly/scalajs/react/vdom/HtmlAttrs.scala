@@ -692,6 +692,8 @@ trait HtmlAttrs {
 
   final def defer = VdomAttr[Boolean]("defer")
 
+  final def disablePictureInPicture = VdomAttr[Boolean]("disablePictureInPicture")
+
   final def dir = VdomAttr("dir")
 
   /**
@@ -1393,8 +1395,8 @@ trait HtmlAttrs {
     */
   final def optimum = VdomAttr("optimum")
 
-  /** The pattern attribute specifies a regular expression against which the control’s value, or, when the multiple
-    * attribute applies and is set, the control’s values, are to be checked.
+  /** The pattern attribute specifies a regular expression against which the control's value, or, when the multiple
+    * attribute applies and is set, the control's values, are to be checked.
     *
     * @see https://www.w3.org/TR/html5/sec-forms.html#the-pattern-attribute
     */

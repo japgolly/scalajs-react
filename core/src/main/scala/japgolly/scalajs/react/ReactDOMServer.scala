@@ -4,6 +4,7 @@ import japgolly.scalajs.react.vdom.VdomNode
 
 object ReactDOMServer {
   def raw = japgolly.scalajs.react.raw.ReactDOMServer
+  def version = japgolly.scalajs.react.raw.ReactDOMServer.version
 
   /**
     * Render a React.Element to its initial HTML. This should only be used on the server. React will return an HTML

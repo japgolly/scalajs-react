@@ -230,15 +230,24 @@ object ViaReactComponent {
       case Some(s2) => Box(s2)
     }
 
+  private[this] val anyToBoxUnit: Any => Box[Unit] =
+    _ => Box.Unit
+
   // ===================================================================================================================
 
   def apply[P, C <: Children, S, B, US <: UpdateSnapshot]
       (builder: Builder.Step4[P, C, S, B, US])
       (implicit snapshotJs: JsRepr[builder.SnapshotValue]): raw.React.ComponentClass[Box[P], Box[S]] = {
 
-    val initStateFn = builder.initStateFn
     val backendFn = builder.backendFn
     val renderFn = builder.renderFn
+
+    val initStateFn: Box[P] => Box[_] =
+      builder.initState match {
+        case InitState.InitialState(f)             => f
+        case InitState.DerivedFromPropsAndState(f) => bp => Box(f(bp.unbox, None))
+        case _                                     => anyToBoxUnit
+      }
 
     type This = RawMounted[P, S, B]
     var MyComponent: js.ThisFunction1[This, Box[P], This] = null

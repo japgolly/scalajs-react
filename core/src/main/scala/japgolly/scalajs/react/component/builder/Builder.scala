@@ -10,15 +10,11 @@ import scala.annotation.nowarn
 
 object Builder {
 
-  type InitStateFn [-P, +S]  = Box[P] => Box[S]
   type NewBackendFn[P, S, B] = BackendScope[P, S] => B
   type RenderFn    [P, S, B] = RenderScope[P, S, B] => VdomNode
 
   type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
     Step4[P, C, S, B, US] => Step4[P, C, S, B, US2]
-
-  private val InitStateUnit: InitStateFn[Any, Unit] =
-    _ => Box.Unit
 
   // ===================================================================================================================
 
@@ -40,11 +36,64 @@ object Builder {
     // Dealiases type aliases :(
     // type Next[S] = Step2[P, S]
 
+    /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
+      * subsequent updates.
+      *
+      * This method exists for rare use cases where the state depends on changes in props over time.
+      * For example, it might be handy for implementing a Transition component that compares its previous and next
+      * children to decide which of them to animate in and out.
+      *
+      * Deriving state leads to verbose code and makes your components difficult to think about.
+      * Make sure you're familiar with simpler alternatives:
+      *
+      *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
+      *     props, use componentDidUpdate lifecycle instead.
+      *
+      *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
+      *
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
+      *     or fully uncontrolled with a key instead.
+      *
+      * Note that this method is fired on every render, regardless of the cause.
+      * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
+      * not as a result of a local setState.
+      */
+    def getDerivedStateFromProps[S](f: P => S): Step2[P, S] =
+      new Step2(name, InitState.DerivedFromProps(f))
+
+    /** This is called twice when a component is first rendered. Once with state set to `None` and then again by React
+      * with state set to `Some`.
+      *
+      * getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
+      * subsequent updates.
+      *
+      * This method exists for rare use cases where the state depends on changes in props over time.
+      * For example, it might be handy for implementing a Transition component that compares its previous and next
+      * children to decide which of them to animate in and out.
+      *
+      * Deriving state leads to verbose code and makes your components difficult to think about.
+      * Make sure you're familiar with simpler alternatives:
+      *
+      *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
+      *     props, use componentDidUpdate lifecycle instead.
+      *
+      *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
+      *
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
+      *     or fully uncontrolled with a key instead.
+      *
+      * Note that this method is fired on every render, regardless of the cause.
+      * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
+      * not as a result of a local setState.
+      */
+    def getDerivedStateFromPropsAndState[S](f: (P, Option[S]) => S): Step2[P, S] =
+      new Step2(name, InitState.DerivedFromPropsAndState(f))
+
     def initialState[S](s: => S): Step2[P, S] =
-      new Step2(name, _ => Box(s))
+      new Step2(name, InitState.InitialState(_ => Box(s)))
 
     def initialStateFromProps[S](f: P => S): Step2[P, S] =
-      new Step2(name, p => Box(f(p.unbox)))
+      new Step2(name, InitState.InitialState(p => Box(f(p.unbox))))
 
     def initialStateCallback[S](cb: CallbackTo[S]): Step2[P, S] =
       initialState(cb.runNow())
@@ -53,7 +102,7 @@ object Builder {
       initialStateFromProps(f(_).runNow())
 
     def stateless: Step2[P, Unit] =
-      new Step2(name, InitStateUnit)
+      new Step2(name, InitState.Stateless)
   }
 
   // ===================================================================================================================
@@ -70,12 +119,12 @@ object Builder {
     * If you have an unhealthy fear of macros you can ignore then and do it all manually too; the macros don't have any
     * special privileges.
     */
-  final class Step2[P, S](name: String, initStateFn: InitStateFn[P, S]) {
+  final class Step2[P, S](name: String, initState: InitState[P, S]) {
     // Dealiases type aliases :(
     // type Next[B] = Step3[P, S, B]
 
     def backend[B](f: NewBackendFn[P, S, B]): Step3[P, S, B] =
-      new Step3(name, initStateFn, f)
+      new Step3(name, initState, f)
 
     def noBackend: Step3[P, S, Unit] =
       backend(_ => ())
@@ -107,7 +156,7 @@ object Builder {
 
   /** You're on step 3/4 on the way to building a component.
     *
-    * Here you specify your component's render function. For convenience there are a plethoria of methods you can call
+    * Here you specify your component's render function. For convenience there are a plethora of methods you can call
     * that all do the same thing but accept the argument in different shapes; the suffixes in method names refer to the
     * argument type(s). This means you choose the method that provides the types that you need, rather than having to
     * manually specify the types for all arguments including stuff you don't need.
@@ -117,14 +166,21 @@ object Builder {
     * `.renderBackendWithChildren` methods which will use a macro to inspect your backend's render method and provide
     * everything it needs automatically.
     */
-  final class Step3[P, S, B](name: String, initStateFn: InitStateFn[P, S], backendFn: NewBackendFn[P, S, B]) {
+  final class Step3[P, S, B](name: String, initState: InitState[P, S], backendFn: NewBackendFn[P, S, B]) {
     // Dealiases type aliases :(
     // type Next[C <: Children] = Step4[P, C, S, B]
 
     type $ = RenderScope[P, S, B]
 
-    def renderWith[C <: Children](r: RenderFn[P, S, B]): Step4[P, C, S, B, UpdateSnapshot.None] =
-      new Step4[P, C, S, B, UpdateSnapshot.None](name, initStateFn, backendFn, r, Lifecycle.empty)
+    def renderWith[C <: Children](r: RenderFn[P, S, B]): Step4[P, C, S, B, UpdateSnapshot.None] = {
+      var lc = Lifecycle.empty[P, S, B]
+      initState match {
+        case InitState.DerivedFromProps        (f) => lc = lc.copy(getDerivedStateFromProps = Some((p, _) => Some(f(p))))
+        case InitState.DerivedFromPropsAndState(f) => lc = lc.copy(getDerivedStateFromProps = Some((p, s) => Some(f(p, Some(s)))))
+        case _                                     => ()
+      }
+      new Step4[P, C, S, B, UpdateSnapshot.None](name, initState, backendFn, r, lc)
+    }
 
     // No args
 
@@ -208,10 +264,10 @@ object Builder {
     */
   final class Step4[P, C <: Children, S, B, US <: UpdateSnapshot](
       val name: String,
-      private[builder] val initStateFn: InitStateFn[P, S],
-      private[builder] val backendFn  : NewBackendFn[P, S, B],
-      private[builder] val renderFn   : RenderFn[P, S, B],
-      private[builder] val lifecycle  : Lifecycle[P, S, B, US#Value]) {
+      private[builder] val initState: InitState[P, S],
+      private[builder] val backendFn: NewBackendFn[P, S, B],
+      private[builder] val renderFn : RenderFn[P, S, B],
+      private[builder] val lifecycle: Lifecycle[P, S, B, US#Value]) {
 
     type This = Step4[P, C, S, B, US]
 
@@ -219,21 +275,18 @@ object Builder {
 
     private type Lifecycle_ = Lifecycle[P, S, B, SnapshotValue]
 
-    private def copy(name       : String                = this.name,
-                     initStateFn: InitStateFn [P, S]    = this.initStateFn,
-                     backendFn  : NewBackendFn[P, S, B] = this.backendFn,
-                     renderFn   : RenderFn    [P, S, B] = this.renderFn,
-                     lifecycle  : Lifecycle_): This =
-      new Step4(name, initStateFn, backendFn, renderFn, lifecycle)
+    private def copy(name     : String                = this.name,
+                     initState: InitState [P, S]      = this.initState,
+                     backendFn: NewBackendFn[P, S, B] = this.backendFn,
+                     renderFn : RenderFn    [P, S, B] = this.renderFn,
+                     lifecycle: Lifecycle_): This =
+      new Step4(name, initState, backendFn, renderFn, lifecycle)
 
     private def setLC[US2 <: UpdateSnapshot](lc: Lifecycle[P, S, B, US2#Value]): Step4[P, C, S, B, US2] =
-      new Step4(name, initStateFn, backendFn, renderFn, lc)
+      new Step4(name, initState, backendFn, renderFn, lc)
 
     private def lcAppend[I, O](lens: Lens[Lifecycle_, Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
       copy(lifecycle = lifecycle.append(lens)(g)(s))
-
-    private def lcAppend2[I1, I2, O](lens: Lens[Lifecycle_, Option[(I1, I2) => O]])(g: (I1, I2) => O)(implicit s: Semigroup[O]): This =
-      copy(lifecycle = lifecycle.append2(lens)(g)(s))
 
     @inline def configure[US2 <: UpdateSnapshot](f: Config[P, C, S, B, US, US2]): Step4[P, C, S, B, US2] =
       f(this)
@@ -279,6 +332,9 @@ object Builder {
      * If you call `setState` within this method, `render()` will see the updated state and will be executed only once
      * despite the state change.
      */
+    @deprecated(
+      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount",
+      "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillMount(f: ComponentWillMountFn[P, S, B]): This =
       lcAppend(Lifecycle.componentWillMount)(f)
 
@@ -293,6 +349,9 @@ object Builder {
      * change, but the opposite is not true. If you need to perform operations in response to a state change, use
      * `componentWillUpdate`.
      */
+    @deprecated(
+      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops",
+      "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillReceiveProps(f: ComponentWillReceivePropsFn[P, S, B]): This =
       lcAppend(Lifecycle.componentWillReceiveProps)(f)
 
@@ -314,33 +373,61 @@ object Builder {
      * Note: You *cannot* use `this.setState()` in this method. If you need to update state in response to a prop change,
      * use `componentWillReceiveProps` instead.
      */
+    @deprecated(
+      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate",
+      "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillUpdate(f: ComponentWillUpdateFn[P, S, B]): This =
       lcAppend(Lifecycle.componentWillUpdate)(f)
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
-      * subsequent updates. It should return Some to update the state, or None to update nothing.
+      * subsequent updates.
       *
       * This method exists for rare use cases where the state depends on changes in props over time.
       * For example, it might be handy for implementing a Transition component that compares its previous and next
       * children to decide which of them to animate in and out.
       *
       * Deriving state leads to verbose code and makes your components difficult to think about.
-      * Make sure you’re familiar with simpler alternatives:
+      * Make sure you're familiar with simpler alternatives:
       *
       *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
       *     props, use componentDidUpdate lifecycle instead.
       *
       *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
       *
-      *   - If you want to “reset” some state when a prop changes, consider either making a component fully controlled
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
       *     or fully uncontrolled with a key instead.
       *
       * Note that this method is fired on every render, regardless of the cause.
       * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
       * not as a result of a local setState.
       */
-    def getDerivedStateFromProps(f: (P, S) => Option[S]): This =
-      lcAppend2(Lifecycle.getDerivedStateFromProps)(f)(Semigroup.optionFirst)
+    def getDerivedStateFromProps(f: (P, S) => S): This =
+      getDerivedStateFromPropsOption((p, s) => Some(f(p, s)))
+
+    /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
+      * subsequent updates.
+      *
+      * This method exists for rare use cases where the state depends on changes in props over time.
+      * For example, it might be handy for implementing a Transition component that compares its previous and next
+      * children to decide which of them to animate in and out.
+      *
+      * Deriving state leads to verbose code and makes your components difficult to think about.
+      * Make sure you're familiar with simpler alternatives:
+      *
+      *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
+      *     props, use componentDidUpdate lifecycle instead.
+      *
+      *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
+      *
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
+      *     or fully uncontrolled with a key instead.
+      *
+      * Note that this method is fired on every render, regardless of the cause.
+      * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
+      * not as a result of a local setState.
+      */
+    def getDerivedStateFromProps(f: P => S): This =
+      getDerivedStateFromProps((p, _) => f(p))
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
       * subsequent updates. It should return Some to update the state, or None to update nothing.
@@ -350,22 +437,59 @@ object Builder {
       * children to decide which of them to animate in and out.
       *
       * Deriving state leads to verbose code and makes your components difficult to think about.
-      * Make sure you’re familiar with simpler alternatives:
+      * Make sure you're familiar with simpler alternatives:
       *
       *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
       *     props, use componentDidUpdate lifecycle instead.
       *
       *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
       *
-      *   - If you want to “reset” some state when a prop changes, consider either making a component fully controlled
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
       *     or fully uncontrolled with a key instead.
       *
       * Note that this method is fired on every render, regardless of the cause.
       * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
       * not as a result of a local setState.
       */
-    def getDerivedStateFromProps(f: P => Option[S]): This =
-      getDerivedStateFromProps((p, _) => f(p))
+    def getDerivedStateFromPropsOption(f: (P, S) => Option[S]): This = {
+      val update: Lifecycle_ => Lifecycle_ =
+        Lifecycle.getDerivedStateFromProps.mod {
+          case None => Some(f)
+          case Some(prev) =>
+            Some { (p, s1) =>
+              prev(p, s1) match {
+                case ss2@ Some(s2) => f(p, s2).orElse(ss2)
+                case None          => f(p, s1)
+              }
+            }
+        }
+      copy(lifecycle = update(lifecycle))
+    }
+
+    /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
+      * subsequent updates. It should return Some to update the state, or None to update nothing.
+      *
+      * This method exists for rare use cases where the state depends on changes in props over time.
+      * For example, it might be handy for implementing a Transition component that compares its previous and next
+      * children to decide which of them to animate in and out.
+      *
+      * Deriving state leads to verbose code and makes your components difficult to think about.
+      * Make sure you're familiar with simpler alternatives:
+      *
+      *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
+      *     props, use componentDidUpdate lifecycle instead.
+      *
+      *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
+      *
+      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
+      *     or fully uncontrolled with a key instead.
+      *
+      * Note that this method is fired on every render, regardless of the cause.
+      * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
+      * not as a result of a local setState.
+      */
+    def getDerivedStateFromPropsOption(f: P => Option[S]): This =
+      getDerivedStateFromPropsOption((p, _) => f(p))
 
     /** getSnapshotBeforeUpdate() is invoked right before the most recently rendered output is committed to e.g. the
       * DOM. It enables your component to capture some information from the DOM (e.g. scroll position) before it is
@@ -435,12 +559,24 @@ object Builder {
     def componentDidCatchConst        (cb: Callback           ): This = componentDidCatch         (_ => cb)
     def componentDidMountConst        (cb: Callback           ): This = componentDidMount         (_ => cb)
     def componentDidUpdateConst       (cb: Callback           )       = componentDidUpdate        (_ => cb)
-    def componentWillMountConst       (cb: Callback           ): This = componentWillMount        (_ => cb)
-    def componentWillReceivePropsConst(cb: Callback           ): This = componentWillReceiveProps (_ => cb)
     def componentWillUnmountConst     (cb: Callback           ): This = componentWillUnmount      (_ => cb)
-    def componentWillUpdateConst      (cb: Callback           ): This = componentWillUpdate       (_ => cb)
     def shouldComponentUpdateConst    (cb: CallbackTo[Boolean]): This = shouldComponentUpdate     (_ => cb)
     def shouldComponentUpdateConst    (b : Boolean            ): This = shouldComponentUpdateConst(CallbackTo pure b)
+
+    @deprecated(
+      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount",
+      "scalajs-react 1.7.0 / React 16.9.0")
+    def componentWillMountConst(cb: Callback): This = componentWillMount(_ => cb)
+
+    @deprecated(
+      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops",
+      "scalajs-react 1.7.0 / React 16.9.0")
+    def componentWillReceivePropsConst(cb: Callback): This = componentWillReceiveProps(_ => cb)
+
+    @deprecated(
+      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate",
+      "scalajs-react 1.7.0 / React 16.9.0")
+    def componentWillUpdateConst(cb: Callback): This = componentWillUpdate(_ => cb)
 
     /** This is the end of the road for this component builder.
       *

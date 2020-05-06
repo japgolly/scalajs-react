@@ -39,7 +39,7 @@ trait TestUtil
     assertEqO(None, actual, expect)
 
   def assertEq[A: Equal](name: => String, actual: A, expect: A): Unit =
-    assertEqO(Some(name), actual, expect)
+    assertEqO(Option(name), actual, expect)
 
   private def lead(s: String) = s"$RED_B$s$RESET "
   private def failureStart(name: Option[String], leadSize: Int): Unit = {

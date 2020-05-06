@@ -5,6 +5,7 @@ import com.typesafe.sbt.pgp.PgpKeys._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
@@ -25,11 +26,12 @@ object ScalajsReact {
     val MonocleScalaz         = "1.6.3"
     val MTest                 = "0.7.4"
     val Nyaya                 = "0.9.2"
-    val ReactJs               = "16.7.0"
+    val ReactJs               = "16.13.1"
     val Scala212              = "2.12.11"
     val Scala213              = "2.13.2"
     val ScalaCollCompat       = "2.1.6"
     val ScalaJsDom            = "1.0.0"
+    val ScalaJsTime           = "1.0.0"
     val ScalaTest             = "3.1.1"
     val Scalaz72              = "7.2.30"
     val SizzleJs              = "2.3.0"
@@ -163,7 +165,7 @@ object ScalajsReact {
   def utestSettings: PE =
     _.configure(InBrowserTesting.js)
       .settings(
-        jsEnv                 := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv,
+        jsEnv                 := new JSDOMNodeJSEnv(JSDOMNodeJSEnv.Config().withArgs("--experimental-worker" :: Nil)),
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
         testFrameworks        += new TestFramework("utest.runner.Framework"))
@@ -285,10 +287,11 @@ object ScalajsReact {
         "-Xlint:adapted-args"
       ),
       libraryDependencies ++= Seq(
-        "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
-        "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
-        "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
-        "com.github.julien-truffaut" %%% "monocle-macro" % Ver.MonocleScalaz % Test),
+        "com.github.japgolly.nyaya"  %%% "nyaya-prop"        % Ver.Nyaya         % Test,
+        "com.github.japgolly.nyaya"  %%% "nyaya-gen"         % Ver.Nyaya         % Test,
+        "com.github.japgolly.nyaya"  %%% "nyaya-test"        % Ver.Nyaya         % Test,
+        "com.github.julien-truffaut" %%% "monocle-macro"     % Ver.MonocleScalaz % Test,
+        "org.scala-js"               %%% "scalajs-java-time" % Ver.ScalaJsTime   % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
@@ -372,14 +375,12 @@ object ScalajsReact {
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
     .settings(
-      libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
-      crossScalaVersions := Seq(Ver.Scala212))
+      libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat)
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
-      crossScalaVersions := Seq(Ver.Scala213),
       libraryDependencies += "com.github.julien-truffaut" %%% "monocle-macro" % Ver.MonocleScalaz,
       scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       scalaJSUseMainModuleInitializer := true,

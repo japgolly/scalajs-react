@@ -7,7 +7,9 @@ import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils}
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
+import scala.annotation.nowarn
 
+@nowarn("cat=deprecation")
 object ScalaComponentPTest extends TestSuite {
 
   case class BasicProps(name: String)
@@ -190,7 +192,7 @@ object ScalaComponentPTest extends TestSuite {
         .initialState(0)
         .noBackend
         .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
-        .getDerivedStateFromProps(p => Some(p + 100))
+        .getDerivedStateFromProps(_ + 100)
         .getSnapshotBeforeUpdatePure($ => s"${$.prevProps} -> ${$.currentProps}")
         .componentDidUpdate($ => Callback(snapshots :+= $.snapshot))
         .build
@@ -204,7 +206,81 @@ object ScalaComponentPTest extends TestSuite {
         assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=20 s=120</div>")
         assertEq(snapshots, Vector("10 -> 20"))
       }
+    }
 
+    "getDerivedStateFromProps" - {
+
+      "multiple" - {
+        val Comp = ScalaComponent.builder[Int]("")
+          .initialState(0)
+          .noBackend
+          .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
+          .getDerivedStateFromPropsOption(p => if (p > 100) Some(p - 100) else None)
+          .getDerivedStateFromPropsOption((_, s) => if ((s & 1) == 0) Some(s >> 1) else None)
+          .build
+
+        ReactTestUtils.withNewBodyElement { mountNode =>
+          var mounted = Comp(108).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=108 s=4</div>")
+
+          mounted = Comp(103).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=103 s=3</div>")
+
+          mounted = Comp(204).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=204 s=52</div>")
+
+          mounted = Comp(6).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=6 s=26</div>")
+        }
+      }
+
+      "early" - {
+        val Comp = ScalaComponent.builder[Int]("")
+          .getDerivedStateFromProps(-_)
+          .noBackend
+          .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
+          .getDerivedStateFromPropsOption((_, s) => if (s > 100) Some(s - 100) else None)
+          .getDerivedStateFromPropsOption((_, s) => if ((s & 1) == 0) Some(s >> 1) else None)
+          .build
+
+        ReactTestUtils.withNewBodyElement { mountNode =>
+          var mounted = Comp(-108).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-108 s=4</div>")
+
+          mounted = Comp(-103).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-103 s=3</div>")
+
+          mounted = Comp(-204).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-204 s=52</div>")
+
+          mounted = Comp(-6).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-6 s=3</div>")
+        }
+      }
+
+      "early2" - {
+        val Comp = ScalaComponent.builder[Int]("")
+          .getDerivedStateFromPropsAndState[Int]((p, os) => os.fold(0)(_ => -p))
+          .noBackend
+          .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
+          .getDerivedStateFromPropsOption((_, s) => if (s > 100) Some(s - 100) else None)
+          .getDerivedStateFromPropsOption((_, s) => if ((s & 1) == 0) Some(s >> 1) else None)
+          .build
+
+        ReactTestUtils.withNewBodyElement { mountNode =>
+          var mounted = Comp(-108).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-108 s=4</div>")
+
+          mounted = Comp(-103).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-103 s=3</div>")
+
+          mounted = Comp(-204).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-204 s=52</div>")
+
+          mounted = Comp(-6).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-6 s=3</div>")
+        }
+      }
     }
   }
 }
