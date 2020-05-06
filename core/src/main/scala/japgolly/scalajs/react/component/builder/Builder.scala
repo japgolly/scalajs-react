@@ -37,7 +37,7 @@ object Builder {
     // type Next[S] = Step2[P, S]
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
-      * subsequent updates. It should return Some to update the state, or None to update nothing.
+      * subsequent updates.
       *
       * This method exists for rare use cases where the state depends on changes in props over time.
       * For example, it might be handy for implementing a Transition component that compares its previous and next
@@ -61,8 +61,11 @@ object Builder {
     def getDerivedStateFromProps[S](f: P => S): Step2[P, S] =
       new Step2(name, InitState.DerivedFromProps(f))
 
-    /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
-      * subsequent updates. It should return Some to update the state, or None to update nothing.
+    /** This is called twice when a component is first rendered. Once with state set to `None` and then again by React
+      * with state set to `Some`.
+      *
+      * getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
+      * subsequent updates.
       *
       * This method exists for rare use cases where the state depends on changes in props over time.
       * For example, it might be handy for implementing a Transition component that compares its previous and next
@@ -377,7 +380,7 @@ object Builder {
       lcAppend(Lifecycle.componentWillUpdate)(f)
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
-      * subsequent updates. It should return Some to update the state, or None to update nothing.
+      * subsequent updates.
       *
       * This method exists for rare use cases where the state depends on changes in props over time.
       * For example, it might be handy for implementing a Transition component that compares its previous and next
@@ -402,7 +405,7 @@ object Builder {
       getDerivedStateFromPropsOption((p, s) => Some(f(p, s)))
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
-      * subsequent updates. It should return Some to update the state, or None to update nothing.
+      * subsequent updates.
       *
       * This method exists for rare use cases where the state depends on changes in props over time.
       * For example, it might be handy for implementing a Transition component that compares its previous and next
