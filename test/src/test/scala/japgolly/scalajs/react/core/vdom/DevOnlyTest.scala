@@ -6,7 +6,7 @@ import japgolly.scalajs.react.vdom.all._
 import scala.scalajs.LinkingInfo.developmentMode
 import utest._
 
-// Also checked with bin/checkDevOnly via Travis CI
+// Also checked with bin/test-elision via Travis CI
 object DevOnlyTest extends TestSuite {
 
   val tests = Tests {
