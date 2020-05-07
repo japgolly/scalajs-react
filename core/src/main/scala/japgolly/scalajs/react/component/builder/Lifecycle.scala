@@ -46,6 +46,9 @@ object Lifecycle {
     new Lifecycle(None, None, None, None, None, None, None, None, None, None)
 
   sealed trait Base[P, S, B] extends Any {
+
+    protected implicit def F: Effect[CallbackTo] = Effect.callbackInstance
+
     def raw: RawMounted[P, S, B]
 
     final def backend      : B                      = raw.backend

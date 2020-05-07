@@ -157,6 +157,16 @@ object AsyncCallback {
       case Left(a2) => tailrec(a2)(f)
       case Right(b) => pure(b)
     }
+
+  private lazy val tryUnit: Try[Unit] =
+    Try(())
+
+  def viaCallback(onCompletion: Callback => Callback): AsyncCallback[Unit] =
+    for {
+      p <- SyncPromise[Unit].asAsyncCallback
+      _ <- onCompletion(p.complete(tryUnit)).asAsyncCallback
+      _ <- AsyncCallback(p.onComplete)
+    } yield ()
 }
 
 /** Pure asynchronous callback.

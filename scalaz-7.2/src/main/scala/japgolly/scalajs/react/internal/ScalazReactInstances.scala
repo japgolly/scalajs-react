@@ -173,6 +173,7 @@ trait ScalazReactInstances {
     override def map    [A, B](a: IO[A])(f: A => B)     = a map f
     override def flatMap[A, B](a: IO[A])(f: A => IO[B]) = a flatMap f
     override def extract[A]   (a: => IO[A])             = () => a.unsafePerformIO()
+    override def toCallback[A](a: => IO[A])             = CallbackTo(a.unsafePerformIO())
   }
 
   implicit final lazy val effectTransEndoIo       = Effect.Trans.id[IO]

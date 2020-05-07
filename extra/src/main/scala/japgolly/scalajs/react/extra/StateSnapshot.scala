@@ -1,11 +1,14 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.internal.{Iso, Lens}
+import japgolly.scalajs.react.internal.{Effect, Iso, Lens}
 
 final class StateSnapshot[S](val value: S,
                              val underlyingSetFn: Reusable[StateSnapshot.SetFn[S]],
                              private[StateSnapshot] val reusability: Reusability[S]) extends StateAccess.Write[CallbackTo, S] {
+
+  override protected implicit def F: Effect[CallbackTo] =
+    Effect.callbackInstance
 
   override def toString = s"StateSnapshot($value)"
 
