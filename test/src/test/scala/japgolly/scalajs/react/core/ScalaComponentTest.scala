@@ -4,7 +4,7 @@ import utest._
 import scalaz.Equal
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.JsUtil.inspectObject
-import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils}
+import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils, Simulate}
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.annotation.nowarn
@@ -280,6 +280,37 @@ object ScalaComponentPTest extends TestSuite {
           mounted = Comp(-6).renderIntoDOM(mountNode)
           assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-6 s=3</div>")
         }
+      }
+    }
+
+    "asyncSetState" - {
+      import japgolly.scalajs.react.vdom.html_<^._
+
+      var results = Vector.empty[Int]
+
+      final class Backend($: BackendScope[Unit, Int]) {
+
+        val onClick =
+          for {
+            _ <- $.modStateAsync(_ + 1)
+            s <- $.state.asAsyncCallback
+          } yield results :+= s
+
+        def render(s: Int): VdomNode =
+          <.div(s, ^.onClick --> onClick.toCallback)
+      }
+
+      val Component = ScalaComponent.builder[Unit]("")
+        .initialState(0)
+        .renderBackend[Backend]
+        .build
+
+      ReactTestUtils.withNewBodyElement { mountNode =>
+        val mounted = Component().renderIntoDOM(mountNode)
+        assertEq(results, Vector())
+
+        Simulate.click(mounted.getDOMNode.toHtml.get)
+        assertEq(results, Vector(1))
       }
     }
   }

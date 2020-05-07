@@ -14,8 +14,6 @@ import japgolly.scalajs.react.internal.{Effect, Lens}
 trait StateAccess[F[_], S] extends StateAccess.Write[F, S] {
   final type State = S
 
-  protected implicit def F: Effect[F]
-
   def state: F[State]
 
   type WithMappedState[S2] <: StateAccess[F, S2]
@@ -30,7 +28,14 @@ trait StateAccess[F[_], S] extends StateAccess.Write[F, S] {
 
 object StateAccess {
 
-  trait SetState[F[_], S] extends Any {
+  trait Base[F[_]] extends Any {
+    protected implicit def F: Effect[F]
+
+    final protected def async(f: Callback => F[Unit]): AsyncCallback[Unit] =
+      AsyncCallback.viaCallback(cb => F.toCallback(f(cb)))
+  }
+
+  trait SetState[F[_], S] extends Any with Base[F] {
 
     final def setState(newState: S): F[Unit] =
       setState(newState, Callback.empty)
@@ -47,9 +52,15 @@ object StateAccess {
 
     def toSetStateFn: SetStateFn[F, S] =
       SetStateFn(setStateOption)
+
+    final def setStateAsync(newState: S): AsyncCallback[Unit] =
+      async(setState(newState, _))
+
+    final def setStateOptionAsync(newState: Option[S]): AsyncCallback[Unit] =
+      async(setStateOption(newState, _))
   }
 
-  trait ModState[F[_], S] extends Any {
+  trait ModState[F[_], S] extends Any with Base[F] {
 
     final def modState(mod: S => S): F[Unit] =
       modState(mod, Callback.empty)
@@ -66,9 +77,15 @@ object StateAccess {
 
     def toModStateFn: ModStateFn[F, S] =
       ModStateFn(modStateOption)
+
+    final def modStateAsync(mod: S => S): AsyncCallback[Unit] =
+      async(modState(mod, _))
+
+    final def modStateOptionAsync(mod: S => Option[S]): AsyncCallback[Unit] =
+      async(modStateOption(mod, _))
   }
 
-  trait ModStateWithProps[F[_], P, S] extends Any {
+  trait ModStateWithProps[F[_], P, S] extends Any with Base[F] {
 
     final def modState(mod: (S, P) => S): F[Unit] =
       modState(mod, Callback.empty)
@@ -85,6 +102,12 @@ object StateAccess {
 
     def toModStateWithPropsFn: ModStateWithPropsFn[F, P, S] =
       ModStateWithPropsFn(modStateOption)
+
+    final def modStateAsync(mod: (S, P) => S): AsyncCallback[Unit] =
+      async(modState(mod, _))
+
+    final def modStateOptionAsync(mod: (S, P) => Option[S]): AsyncCallback[Unit] =
+      async(modStateOption(mod, _))
   }
 
   // ===================================================================================================================
