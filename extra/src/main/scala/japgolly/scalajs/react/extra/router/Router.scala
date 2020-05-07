@@ -9,39 +9,39 @@ import japgolly.scalajs.react.vdom.VdomElement
 
 object Router {
 
-  def apply[Page](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Unit]): Router[Page] =
+  def apply[Page](baseUrl: BaseUrl, cfg: RouterWithPropsConfig[Page, Unit]): Router[Page] =
     componentUnbuilt[Page](baseUrl, cfg).build
 
-  def componentUnbuilt[Page](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Unit]) =
+  def componentUnbuilt[Page](baseUrl: BaseUrl, cfg: RouterWithPropsConfig[Page, Unit]) =
     componentUnbuiltC[Page](cfg, new RouterLogic(baseUrl, cfg))
 
-  def componentUnbuiltC[Page](cfg: RouterConfigP[Page, Unit], lgc: RouterLogic[Page, Unit]) =
-    RouterP.componentUnbuiltC(cfg, lgc)
+  def componentUnbuiltC[Page](cfg: RouterWithPropsConfig[Page, Unit], lgc: RouterLogic[Page, Unit]) =
+    RouterWithProps.componentUnbuiltC(cfg, lgc)
 
-  def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Unit]): (Router[Page], RouterLogic[Page, Unit]) = {
+  def componentAndLogic[Page](baseUrl: BaseUrl, cfg: RouterWithPropsConfig[Page, Unit]): (Router[Page], RouterLogic[Page, Unit]) = {
     val l = new RouterLogic[Page, Unit](baseUrl, cfg)
     val r = componentUnbuiltC[Page](cfg, l).build
     (r, l)
   }
 
-  def componentAndCtl[Page](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Unit]): (Router[Page], RouterCtl[Page]) = {
+  def componentAndCtl[Page](baseUrl: BaseUrl, cfg: RouterWithPropsConfig[Page, Unit]): (Router[Page], RouterCtl[Page]) = {
     val (r, l) = componentAndLogic[Page](baseUrl, cfg)
     (r, l.ctl)
   }
 }
 
-object RouterP {
-  def apply[Page, Props](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Props]): RouterP[Page, Props] =
+object RouterWithProps {
+  def apply[Page, Props](baseUrl: BaseUrl, cfg: RouterWithPropsConfig[Page, Props]): RouterWithProps[Page, Props] =
     componentUnbuilt[Page, Props](baseUrl, cfg).build
 
-  def componentUnbuilt[Page, Props](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Props]) =
+  def componentUnbuilt[Page, Props](baseUrl: BaseUrl, cfg: RouterWithPropsConfig[Page, Props]) =
     componentUnbuiltC[Page, Props](cfg, new RouterLogic(baseUrl, cfg))
 
-  def componentUnbuiltC[Page, Props](cfg: RouterConfigP[Page, Props], lgc: RouterLogic[Page, Props]) =
+  def componentUnbuiltC[Page, Props](cfg: RouterWithPropsConfig[Page, Props], lgc: RouterLogic[Page, Props]) =
     ScalaComponent.builder[Props]("Router")
       .initialStateCallback   (lgc.syncToWindowUrl)
       .backend                (_ => new OnUnmount.Backend)
-      .render                 ($ => lgc.render($.state)($.props))
+      .render                 ($ => lgc.render($.state, $.props))
       .componentDidMount      ($ => cfg.postRenderFn(None, $.state.page, $.props))
       .componentDidUpdate     (i => cfg.postRenderFn(Some(i.prevState.page), i.currentState.page, i.currentProps))
       .configure              (Listenable.listenToUnit(_ => lgc, $ => lgc.syncToWindowUrl.flatMap($.setState(_))))
@@ -51,13 +51,13 @@ object RouterP {
   private def isIE11(): Boolean =
     dom.window.navigator.userAgent.indexOf("Trident") != -1
 
-  def componentAndLogic[Page, Props](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Props]): (RouterP[Page, Props], RouterLogic[Page, Props]) = {
+  def componentAndLogic[Page, Props](baseUrl: BaseUrl, cfg: RouterWithPropsConfig[Page, Props]): (RouterWithProps[Page, Props], RouterLogic[Page, Props]) = {
     val l = new RouterLogic[Page, Props](baseUrl, cfg)
     val r = componentUnbuiltC[Page, Props](cfg, l).build
     (r, l)
   }
 
-  def componentAndCtl[Page, Props](baseUrl: BaseUrl, cfg: RouterConfigP[Page, Props]): (RouterP[Page, Props], RouterCtl[Page]) = {
+  def componentAndCtl[Page, Props](baseUrl: BaseUrl, cfg: RouterWithPropsConfig[Page, Props]): (RouterWithProps[Page, Props], RouterCtl[Page]) = {
     val (r, l) = componentAndLogic[Page, Props](baseUrl, cfg)
     (r, l.ctl)
   }    
@@ -69,12 +69,12 @@ object RouterP {
  * @param baseUrl The prefix of all routes in a set.
  * @tparam Page Routing rules context. Prevents different routing rule sets being mixed up.
  */
-final class RouterLogic[Page, Props](val baseUrl: BaseUrl, cfg: RouterConfigP[Page, Props]) extends Broadcaster[Unit] {
+final class RouterLogic[Page, Props](val baseUrl: BaseUrl, cfg: RouterWithPropsConfig[Page, Props]) extends Broadcaster[Unit] {
 
   type Action     = router.Action[Page]
   type Renderer   = router.Renderer[Page, Props]
   type Redirect   = router.Redirect[Page]
-  type Resolution = router.ResolutionP[Page, Props]
+  type Resolution = router.ResolutionWithProps[Page, Props]
 
   import RouteCmd._
   import dom.window
@@ -133,7 +133,7 @@ final class RouterLogic[Page, Props](val baseUrl: BaseUrl, cfg: RouterConfigP[Pa
   def resolveAction(page: Page, action: Action): CallbackTo[RouteCmd[Resolution]] =
     for {
       a <- resolveAction(action)
-    } yield cmdOrPure(a.map(r => ResolutionP(page, r(ctl))))
+    } yield cmdOrPure(a.map(r => ResolutionWithProps(page, r(ctl))))
 
   def resolveAction(a: Action): CallbackTo[Either[RouteCmd[Resolution], Renderer]] =
     a match {
@@ -186,8 +186,8 @@ final class RouterLogic[Page, Props](val baseUrl: BaseUrl, cfg: RouterConfigP[Pa
     }
   }
 
-  def render(r: Resolution): Props => VdomElement =
-    cfg.renderFn(ctl, r)
+  def render(r: Resolution, props: Props): VdomElement =
+    cfg.renderFn(ctl, r)(props)
 
   def setPath(path: Path, via: SetRouteVia): RouteCmd[Unit] =
     log(s"Set route to $path via $via") >>

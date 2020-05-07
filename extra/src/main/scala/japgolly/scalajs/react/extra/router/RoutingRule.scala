@@ -292,11 +292,11 @@ object RoutingRule {
                                              fallbackAction: (Path, Page) => Action[Page]) {
 
     /** Specify a catch-all response to unmatched/invalid routes. */
-    def notFound(whenNotFound: Path => Parsed[Page]): RouterConfigP[Page, Props] =
+    def notFound(whenNotFound: Path => Parsed[Page]): RouterWithPropsConfig[Page, Props] =
       notFoundDynamic(whenNotFound.andThen(CallbackTo.pure))
 
     /** Specify a catch-all response to unmatched/invalid routes. */
-    def notFoundDynamic(whenNotFound: Path => CallbackTo[Parsed[Page]]): RouterConfigP[Page, Props] = {
+    def notFoundDynamic(whenNotFound: Path => CallbackTo[Parsed[Page]]): RouterWithPropsConfig[Page, Props] = {
       val rules = RoutingRules.fromRule(rule, fallbackPath, fallbackAction, whenNotFound)
       RouterConfig.withDefaults(rules)
     }

@@ -5,21 +5,17 @@ import japgolly.scalajs.react.vdom.VdomElement
 
 package object router {
 
-  type RouterP[P, Props]  = ScalaComponent              [Props, ResolutionP[P, Props], OnUnmount.Backend, CtorType.Props]
-  type RouterPU[P, Props] = ScalaComponent.Unmounted    [Props, ResolutionP[P, Props], OnUnmount.Backend]
-  type RouterPM[P, Props] = ScalaComponent.MountedImpure[Props, ResolutionP[P, Props], OnUnmount.Backend]
+  type RouterWithProps [P, Props] = ScalaComponent              [Props, ResolutionWithProps[P, Props], OnUnmount.Backend, CtorType.Props]
+  type RouterWithPropsU[P, Props] = ScalaComponent.Unmounted    [Props, ResolutionWithProps[P, Props], OnUnmount.Backend]
+  type RouterWithPropsM[P, Props] = ScalaComponent.MountedImpure[Props, ResolutionWithProps[P, Props], OnUnmount.Backend]
 
-  // START: Compatibility with contextless Router API
-  type Router [P]         = ScalaComponent              [Unit, ResolutionP[P, Unit], OnUnmount.Backend, CtorType.Nullary]
-  type RouterU[P]         = ScalaComponent.Unmounted    [Unit, ResolutionP[P, Unit], OnUnmount.Backend]
-  type RouterM[P]         = ScalaComponent.MountedImpure[Unit, ResolutionP[P, Unit], OnUnmount.Backend]
+  // START: Compatibility with no-props Router API
+  type RouterConfig[P] = RouterWithPropsConfig[P, Unit]
+  type Resolution[P]   = ResolutionWithProps[P, Unit]
 
-  type RouterConfig[P] = RouterConfigP[P, Unit]
-  type Resolution[P]   = ResolutionP[P, Unit]
-
-  implicit class ResolutionOps[P](resolution: Resolution[P]) {
-    def render(): VdomElement = resolution.renderP(())
-  }
+  type Router [P]      = ScalaComponent              [Unit, Resolution[P], OnUnmount.Backend, CtorType.Nullary]
+  type RouterU[P]      = ScalaComponent.Unmounted    [Unit, Resolution[P], OnUnmount.Backend]
+  type RouterM[P]      = ScalaComponent.MountedImpure[Unit, Resolution[P], OnUnmount.Backend]
   // END
 
   private[router] implicit class OptionFnExt[A, B](private val f: A => Option[B]) extends AnyVal {

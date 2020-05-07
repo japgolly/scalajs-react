@@ -287,7 +287,7 @@ object RouterConfigDsl {
     def use[A](f: RouterConfigDsl[Page, Props] => A): A =
       f(new RouterConfigDsl)
 
-    def buildConfig(f: RouterConfigDsl[Page, Props] => RouterConfigP[Page, Props]): RouterConfigP[Page, Props] =
+    def buildConfig(f: RouterConfigDsl[Page, Props] => RouterWithPropsConfig[Page, Props]): RouterWithPropsConfig[Page, Props] =
       use(f)
 
     def buildRule(f: RouterConfigDsl[Page, Props] => RoutingRule[Page, Props]): RoutingRule[Page, Props] =
@@ -295,7 +295,7 @@ object RouterConfigDsl {
   }
 }
 
-object RouterConfigDslP {
+object RouterWithPropsConfigDsl {
   def apply[Page, Props] =
     new RouterConfigDsl.BuildInterface[Page, Props]
 }

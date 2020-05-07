@@ -22,7 +22,7 @@ object RouterP2Test extends TestSuite {
   case class Module3(u: UUID) extends Module
 
   object Module {
-    val routes = RouterConfigDslP[Module, Ctx].buildRule { dsl =>
+    val routes = RouterWithPropsConfigDsl[Module, Ctx].buildRule { dsl =>
       import dsl._
 
       def moduleRoot(ctl: RouterCtl[Module]) =
@@ -94,7 +94,7 @@ object RouterP2Test extends TestSuite {
     val code1Prism = Prism[String, Code1](alphaOnly.findFirstIn(_).map(s => Code1(s.toUpperCase)))(_.code)
     val code2Prism = Prism[String, Code2](alphaOnly.findFirstIn(_).map(s => Code2(s.toUpperCase)))(_.code)
 
-    val config = RouterConfigDslP[MyPage2, Ctx].buildConfig { dsl =>
+    val config = RouterWithPropsConfigDsl[MyPage2, Ctx].buildConfig { dsl =>
       import dsl._
 
       innerPageEq = implicitly[Equal[MyPage2]]
@@ -156,7 +156,7 @@ object RouterP2Test extends TestSuite {
   override val tests = Tests {
     import MyPage2._
     implicit val base = RouterTestHelp.localBaseUrl_/
-    val (router, lgc) = RouterP.componentAndLogic(base, config)
+    val (router, lgc) = RouterWithProps.componentAndLogic(base, config)
     val ctl = lgc.ctl
     val ctx = new Ctx(42)
 
@@ -166,7 +166,7 @@ object RouterP2Test extends TestSuite {
     def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.rules.parse(_).runNow().right.toOption)
     isUserLoggedIn = false
 
-    def htmlFor(r: ResolutionP[_, Ctx]) = ReactDOMServer.renderToStaticMarkup(r.renderP(ctx))
+    def htmlFor(r: ResolutionWithProps[_, Ctx]) = ReactDOMServer.renderToStaticMarkup(r.renderP(ctx))
 
     def syncNoRedirect(path: Path) = {
       sim.reset(path.abs)

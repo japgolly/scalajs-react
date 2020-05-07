@@ -30,7 +30,7 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.6.0"
   - [Setting page title](#setting-page-title)
   - [Post-render callback](#post-render-callback)
   - [Nested routes (modules)](#nested-routes-modules)
-  - [Pass-through poperties](#pass-through-properties)
+  - [Pass-through properties](#pass-through-properties)
 - [Examples](#examples)
 
 
@@ -683,8 +683,8 @@ If we imagine `BaseUrl` to be `http://www.example.com/` then the sitemap for `Ou
 Sometimes you don't want your `Router` to be the top-level component. In these cases, it's possible to configure the `Router` component to receive `Props`, which will be optionally forwarded to children components, the layout function, post-render functions, etc. A typical usage case for this setup is if you have a wrapping component that manages the application state.
 
 To achieve this:
- * Write the router configuration within a `RouterConfigDslP[Page, Props].buildConfig` (instead of a `RouterConfigDsl[Page].buildConfig`).
- * Create the router by invoking `RouterC(baseUrl, routerConfig)` (instead of `Router(baseUrl, routerConfig)`). The resulting component will accept `Props` as component properties and pass them through wherever your configuration instructs it to.
+ * Write the router configuration within a `RouterWithPropsConfigDsl[Page, Props].buildConfig` (instead of a `RouterConfigDsl[Page].buildConfig`).
+ * Create the router by invoking `RouterWithProps(baseUrl, routerConfig)` (instead of `Router(baseUrl, routerConfig)`). The resulting component will accept `Props` as component properties and pass them through wherever your configuration instructs it to.
 
 ##### Actions
 
@@ -703,20 +703,20 @@ Additionally, the following configurations functions are available in addition t
 
 | Function | Args |
 |----------|------|
-| `renderWithP` | `(RouterCtl[Page], ResolutionP[Page, Props]) => Props => VdomElement)` |
+| `renderWithP` | `(RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement)` |
 | `setPostRenderP` | `(Option[Page], Page, Props) => Callback)` |
 | `onPostRenderP` | `(Option[Page], Page, Props) => Callback)` |
 | `setTitleP` | `(Page, Props) => String)` |
 | `setTitleOptionP` | `(Page, Props) => Option[String])` |
 
-As can be seen, `renderWithP` now provides a `ResolutionP[Page, Props]` (instead of a `Resolution[Page]`). It provides a `renderP` function which takes `Props` as parameters.
+As can be seen, `renderWithP` now provides a `ResolutionWithProps[Page, Props]` (instead of a `Resolution[Page]`), which in turn provides a `renderP` function which takes `Props` as parameters.
 
 Example:
 
 ```scala
 case class AppState(loggedUser: String, ...)
 
-val routerConfig = RouterConfigDslP[Page, AppState].buildConfig { dsl =>
+val routerConfig = RouterWithPropsConfigDsl[Page, AppState].buildConfig { dsl =>
   import dsl._
 
   (emptyRule
@@ -726,15 +726,14 @@ val routerConfig = RouterConfigDslP[Page, AppState].buildConfig { dsl =>
   ) .notFound(redirectToPage(Home)(Redirect.Replace))
     .renderWithP( (ctl, r) => appState =>
       <.div(s"Welcome ${appState.loggedUser}")(
-        r.renderP(props)
+        r.renderP(appState)
       )
     )
 }
 
-val RouterComponent = RouterC(baseUrl, routerConfig)
+val RouterComponent = RouterWithProps(baseUrl, routerConfig)
 
 RouterComponent(appState)
-
 ```
 
 

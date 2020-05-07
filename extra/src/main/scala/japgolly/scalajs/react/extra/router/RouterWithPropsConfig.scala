@@ -7,24 +7,24 @@ import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.vdom.VdomElement
 import RouterConfig.Logger
 
-case class RouterConfigP[Page, Props](rules       : RoutingRules[Page],
-                                      renderFn    : (RouterCtl[Page], ResolutionP[Page, Props]) => Props => VdomElement,
-                                      postRenderFn: (Option[Page], Page, Props) => Callback,
-                                      logger      : Logger) {
+case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
+                                              renderFn    : (RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement,
+                                              postRenderFn: (Option[Page], Page, Props) => Callback,
+                                              logger      : Logger) {
 
-  def logWith(l: Logger): RouterConfigP[Page, Props] =
+  def logWith(l: Logger): RouterWithPropsConfig[Page, Props] =
     copy(logger = l)
 
-  def logToConsole: RouterConfigP[Page, Props] =
+  def logToConsole: RouterWithPropsConfig[Page, Props] =
     logWith(RouterConfig.consoleLogger)
 
   /**
    * Specify how to render a page once it's resolved. This function will be applied to all renderable pages.
    */
-  def renderWithP(f: (RouterCtl[Page], ResolutionP[Page, Props]) => Props => VdomElement): RouterConfigP[Page, Props] =
+  def renderWithP(f: (RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement): RouterWithPropsConfig[Page, Props] =
     copy(renderFn = f)
 
-  def renderWith(f: (RouterCtl[Page], ResolutionP[Page, Props]) => VdomElement): RouterConfigP[Page, Props] =
+  def renderWith(f: (RouterCtl[Page], ResolutionWithProps[Page, Props]) => VdomElement): RouterWithPropsConfig[Page, Props] =
     copy(renderFn = (ctl, ctx) => _ => f(ctl, ctx))
 
   /**
@@ -32,10 +32,10 @@ case class RouterConfigP[Page, Props](rules       : RoutingRules[Page],
    *
    * @param f Given the previous page and the current page that just rendered, return a callback.
    */
-  def setPostRenderP(f: (Option[Page], Page, Props) => Callback): RouterConfigP[Page, Props] =
+  def setPostRenderP(f: (Option[Page], Page, Props) => Callback): RouterWithPropsConfig[Page, Props] =
     copy(postRenderFn = f)
 
-  def setPostRender(f: (Option[Page], Page) => Callback): RouterConfigP[Page, Props] =
+  def setPostRender(f: (Option[Page], Page) => Callback): RouterWithPropsConfig[Page, Props] =
     setPostRenderP((previous, current, _) => f(previous, current))
 
   /**
@@ -43,10 +43,10 @@ case class RouterConfigP[Page, Props](rules       : RoutingRules[Page],
    *
    * @param f Given the previous page and the current page that just rendered, return a callback.
    */
-  def onPostRenderP(f: (Option[Page], Page, Props) => Callback): RouterConfigP[Page, Props] =
+  def onPostRenderP(f: (Option[Page], Page, Props) => Callback): RouterWithPropsConfig[Page, Props] =
     setPostRenderP((a, b, c) => this.postRenderFn(a, b, c) >> f(a, b, c))
 
-  def onPostRender(f: (Option[Page], Page) => Callback): RouterConfigP[Page, Props] =
+  def onPostRender(f: (Option[Page], Page) => Callback): RouterWithPropsConfig[Page, Props] =
     onPostRenderP((previous, current, _) => f(previous, current))
 
   /**
@@ -54,10 +54,10 @@ case class RouterConfigP[Page, Props](rules       : RoutingRules[Page],
    *
    * @param f Given the current page that just rendered, return a new title.
    */
-  def setTitleP(f: (Page, Props) => String): RouterConfigP[Page, Props] =
+  def setTitleP(f: (Page, Props) => String): RouterWithPropsConfig[Page, Props] =
     setTitleOptionP((p, c) => Some(f(p, c)))
 
-  def setTitle(f: Page => String): RouterConfigP[Page, Props] =
+  def setTitle(f: Page => String): RouterWithPropsConfig[Page, Props] =
     setTitleOption(p => Some(f(p)))
 
   /**
@@ -65,11 +65,11 @@ case class RouterConfigP[Page, Props](rules       : RoutingRules[Page],
    *
    * @param f Given the current page that just rendered, return potential new title.
    */
-  def setTitleOptionP(f: (Page, Props) => Option[String]): RouterConfigP[Page, Props] =
+  def setTitleOptionP(f: (Page, Props) => Option[String]): RouterWithPropsConfig[Page, Props] =
     onPostRenderP((_, page, c) =>
       f(page, c).fold(Callback.empty)(title => Callback(dom.document.title = title)))
 
-  def setTitleOption(f: Page => Option[String]): RouterConfigP[Page, Props] =   
+  def setTitleOption(f: Page => Option[String]): RouterWithPropsConfig[Page, Props] =   
     setTitleOptionP((page, _) => f(page))
 
   /** Asserts that the page arguments provided, don't encounter any route config errors.
@@ -83,11 +83,11 @@ case class RouterConfigP[Page, Props](rules       : RoutingRules[Page],
     *
     * @return In the event that errors are detected, a new [[RouterConfig]] that displays them; else this unmodified.
     */
-  def verify(page1: Page, pages: Page*): RouterConfigP[Page, Props] =
+  def verify(page1: Page, pages: Page*): RouterWithPropsConfig[Page, Props] =
     Option(_verify(page1, pages: _*)) getOrElse this
 
   @elidable(elidable.ASSERTION)
-  private def _verify(page1: Page, pages: Page*): RouterConfigP[Page, Props] = {
+  private def _verify(page1: Page, pages: Page*): RouterWithPropsConfig[Page, Props] = {
     val errors = detectErrors(page1 +: pages: _*).runNow()
     if (errors.isEmpty)
       this
@@ -98,14 +98,14 @@ case class RouterConfigP[Page, Props](rules       : RoutingRules[Page],
       val msg = s"${errors.size} RouterConfig errors detected:$es"
       dom.console.error(msg)
 
-      val el: Props => VdomElement =
-        _ => <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
+      val el: VdomElement =
+        <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
 
       val newRules = RoutingRules[Page](
         parseMulti     = _ => static[Option[RouterConfig.Parsed[Page]]](Some(Right(page1))) :: Nil,
         path           = _ => Path.root,
         actionMulti    = (_, _) => Nil,
-        fallbackAction = (_, _) => Renderer(_ => el),
+        fallbackAction = (_, _) => Renderer(_ => (_: Props) => el),
         whenNotFound   = _ => CallbackTo.pure(Right(page1)),
       )
 
@@ -192,7 +192,7 @@ object RouterConfig {
   def defaultLogger: Logger =
     nopLogger
 
-  def defaultRenderFn[Page, C]: (RouterCtl[Page], ResolutionP[Page, C]) => C => VdomElement =
+  def defaultRenderFn[Page, C]: (RouterCtl[Page], ResolutionWithProps[Page, C]) => C => VdomElement =
     (_, r) => r.renderP
 
   def defaultPostRenderFn[Page, C]: (Option[Page], Page, C) => Callback = {
@@ -200,6 +200,6 @@ object RouterConfig {
     (_, _, _) => cb
   }
 
-  def withDefaults[Page, C](rules: RoutingRules[Page]): RouterConfigP[Page, C] =
-    RouterConfigP(rules, defaultRenderFn, defaultPostRenderFn, defaultLogger)
+  def withDefaults[Page, C](rules: RoutingRules[Page]): RouterWithPropsConfig[Page, C] =
+    RouterWithPropsConfig(rules, defaultRenderFn, defaultPostRenderFn, defaultLogger)
 }
