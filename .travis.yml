@@ -35,7 +35,7 @@ install:
 script:
   - sbt -DCI=fast ++$TRAVIS_SCALA_VERSION test
   - sbt -DCI=full ++$TRAVIS_SCALA_VERSION test
-  - bin/checkDevOnly $TRAVIS_SCALA_VERSION
+  - bin/test-elision $TRAVIS_SCALA_VERSION
 
 before_cache:
   - rm -f $HOME/.ivy2/.sbt.ivy.lock

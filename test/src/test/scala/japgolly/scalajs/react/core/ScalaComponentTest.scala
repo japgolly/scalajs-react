@@ -23,7 +23,7 @@ object ScalaComponentPTest extends TestSuite {
 
   override def tests = Tests {
 
-    "displayName" - {
+    "displayName" - CI.unlessFull {
       assertEq(BasicComponent.displayName, "HelloMessage")
 //      ReactTestUtils.withRenderedIntoDocument(BasicComponent(BasicProps("X"))) { m =>
 //        println(inspectObject(m.raw))
