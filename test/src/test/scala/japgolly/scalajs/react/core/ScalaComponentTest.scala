@@ -3,6 +3,7 @@ package japgolly.scalajs.react.core
 import utest._
 import scalaz.Equal
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.internal.CompileTimeInfo
 import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils, Simulate}
 import japgolly.scalajs.react.test.TestUtil._
@@ -168,10 +169,12 @@ object ScalaComponentPTest extends TestSuite {
         assertUpdates(Props(0, 3, 0))
 
         assertEq("willUnmountCount", willUnmountCount, 0)
-        mounted = Comp(null).renderIntoDOM(mountNode)
-        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
-        assertEq("willUnmountCount", willUnmountCount, 1)
-
+        // The Node JsEnv in Scala.JS 0.6.x catches React errors when it shouldn't
+        if (CompileTimeInfo.envVar("SCALAJS_VERSION").forall(!_.startsWith("0."))) {
+          mounted = Comp(null).renderIntoDOM(mountNode)
+          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
+          assertEq("willUnmountCount", willUnmountCount, 1)
+        }
         mounted.withEffectsPure.getDOMNode
       }
 
