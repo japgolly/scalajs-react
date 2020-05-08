@@ -86,6 +86,8 @@ object CallbackKleisli {
   */
 final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
 
+  @inline def underlyingRepr = run
+
   @inline def apply(a: A): CallbackTo[B] =
     run(a)
 

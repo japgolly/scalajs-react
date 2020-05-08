@@ -78,6 +78,18 @@ object Reusability {
   def byRef[A <: AnyRef]: Reusability[A] =
     new Reusability((a, b) => a eq b)
 
+  def callbackByRef[A]: Reusability[CallbackTo[A]] =
+    by((_: CallbackTo[A]).underlyingRepr)(byRef)
+
+  def callbackOptionByRef[A]: Reusability[CallbackOption[A]] =
+    by((_: CallbackOption[A]).underlyingRepr)(byRef)
+
+  def callbackKleisliByRef[A, B]: Reusability[CallbackKleisli[A, B]] =
+    by((_: CallbackKleisli[A, B]).underlyingRepr)(byRef)
+
+  def asyncCallbackByRef[A]: Reusability[AsyncCallback[A]] =
+    by((_: AsyncCallback[A]).underlyingRepr)(byRef)
+
   /** Compare using universal equality (Scala's == operator). */
   def by_==[A]: Reusability[A] =
     new Reusability((a, b) => a == b)

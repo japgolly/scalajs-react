@@ -201,6 +201,8 @@ object AsyncCallback {
   */
 final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal {
 
+  @inline def underlyingRepr = completeWith
+
   def widen[B >: A]: AsyncCallback[B] =
     new AsyncCallback(completeWith)
 
