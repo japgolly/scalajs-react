@@ -12,9 +12,22 @@ object ElisionTest extends TestSuite {
   private val Static =
     ScalaComponent.builder.static("COMP_NAMES_ARE_ELIDABLE")(<.div).build
 
+  private object reusabilityOverride extends ScalaJsReactDevConfig.ReusabilityOverride {
+    override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
+      Reusability.shouldComponentUpdateAnd(_ => Callback.log("REUSABILITY_OVERRIDE_TEST"))
+  }
+
+
   override def tests = Tests {
     "normal" - s"[${Normal.raw.displayName}]"
     "static" - s"[${Static.raw.displayName}]"
+
+    "reusabilityOverride" - {
+      ScalaJsReactDevConfig.overrideReusability(reusabilityOverride)
+      val x = ScalaComponent.builder[Int]("").render_P(<.div(_)).configure(Reusability.shouldComponentUpdate).build
+      ScalaJsReactDevConfig.removeReusabilityOverride()
+      x
+    }
   }
 
 }

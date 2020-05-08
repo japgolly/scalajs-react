@@ -5,6 +5,7 @@ import java.util.{Date, UUID}
 import org.scalajs.dom.console
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
+import scala.scalajs.LinkingInfo.productionMode
 import scala.scalajs.js.{Date => JsDate}
 
 /**
@@ -308,9 +309,20 @@ object Reusability {
 
   // ===================================================================================================================
 
-  def shouldComponentUpdate[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] =
-    _.shouldComponentUpdatePure(i =>
-      (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
+  def shouldComponentUpdate[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] = {
+    val default: ScalaComponent.Config[P, C, S, B, U, U] =
+      _.shouldComponentUpdatePure(i =>
+        (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
+
+    if (productionMode)
+      default
+    else
+      ScalaJsReactDevConfig.reusabilityOverride match {
+        case Some(o) => o.apply
+        case None    => default
+      }
+  }
+
 
   def shouldComponentUpdateAnd[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B, U, U] =
     _.shouldComponentUpdate { i =>
