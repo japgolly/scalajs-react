@@ -24,51 +24,74 @@ case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
   def renderWithP(f: (RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement): RouterWithPropsConfig[Page, Props] =
     copy(renderFn = f)
 
+  /**
+   * Specify how to render a page once it's resolved. This function will be applied to all renderable pages.
+   */
   def renderWith(f: (RouterCtl[Page], ResolutionWithProps[Page, Props]) => VdomElement): RouterWithPropsConfig[Page, Props] =
     copy(renderFn = (ctl, ctx) => _ => f(ctl, ctx))
 
   /**
    * Specify (entirely) what to do after the router renders.
    *
-   * @param f Given the previous page and the current page that just rendered, return a callback.
+   * @param f Given the previous page, the current page that just rendered and props, return a callback.
    */
   def setPostRenderP(f: (Option[Page], Page, Props) => Callback): RouterWithPropsConfig[Page, Props] =
     copy(postRenderFn = f)
 
+  /**
+   * Specify (entirely) what to do after the router renders.
+   *
+   * @param f Given the previous page and the current page that just rendered, return a callback.
+   */
   def setPostRender(f: (Option[Page], Page) => Callback): RouterWithPropsConfig[Page, Props] =
     setPostRenderP((previous, current, _) => f(previous, current))
 
   /**
    * Add an procedure to be performed after the router renders.
    *
-   * @param f Given the previous page and the current page that just rendered, return a callback.
+   * @param f Given the previous page, the current page that just rendered and props, return a callback.
    */
   def onPostRenderP(f: (Option[Page], Page, Props) => Callback): RouterWithPropsConfig[Page, Props] =
     setPostRenderP((a, b, c) => this.postRenderFn(a, b, c) >> f(a, b, c))
 
+  /**
+   * Add an procedure to be performed after the router renders.
+   *
+   * @param f Given the previous page and the current page that just rendered, return a callback.
+   */
   def onPostRender(f: (Option[Page], Page) => Callback): RouterWithPropsConfig[Page, Props] =
     onPostRenderP((previous, current, _) => f(previous, current))
 
   /**
    * Change the document title after the router renders.
    *
-   * @param f Given the current page that just rendered, return a new title.
+   * @param f Given the current page that just rendered and props, return a new title.
    */
   def setTitleP(f: (Page, Props) => String): RouterWithPropsConfig[Page, Props] =
     setTitleOptionP((p, c) => Some(f(p, c)))
 
+  /**
+   * Change the document title after the router renders.
+   *
+   * @param f Given the current page that just rendered, return a new title.
+   */
   def setTitle(f: Page => String): RouterWithPropsConfig[Page, Props] =
     setTitleOption(p => Some(f(p)))
 
   /**
    * Change the document title after the router renders.
    *
-   * @param f Given the current page that just rendered, return potential new title.
+   * @param f Given the current page that just rendered and props, return potential new title.
    */
   def setTitleOptionP(f: (Page, Props) => Option[String]): RouterWithPropsConfig[Page, Props] =
     onPostRenderP((_, page, c) =>
       f(page, c).fold(Callback.empty)(title => Callback(dom.document.title = title)))
 
+  /**
+   * Change the document title after the router renders.
+   *
+   * @param f Given the current page that just rendered, return potential new title.
+   */
   def setTitleOption(f: Page => Option[String]): RouterWithPropsConfig[Page, Props] =   
     setTitleOptionP((page, _) => f(page))
 
