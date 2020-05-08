@@ -20,4 +20,7 @@ object VdomNode {
 
   private[vdom] val empty: VdomNode =
     apply(null)
+
+  def static(vdom: VdomNode): VdomNode =
+    japgolly.scalajs.react.ScalaComponent.static("")(vdom)()
 }
