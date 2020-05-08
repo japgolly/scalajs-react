@@ -24,7 +24,7 @@ object ScalaComponentPTest extends TestSuite {
 
   override def tests = Tests {
 
-    "displayName" - CI.unlessFull {
+    "displayName" - TestEnv.unlessFullCI {
       assertEq(BasicComponent.displayName, "HelloMessage")
 //      ReactTestUtils.withRenderedIntoDocument(BasicComponent(BasicProps("X"))) { m =>
 //        println(inspectObject(m.raw))
@@ -170,7 +170,7 @@ object ScalaComponentPTest extends TestSuite {
 
         assertEq("willUnmountCount", willUnmountCount, 0)
         // The Node JsEnv in Scala.JS 0.6.x catches React errors when it shouldn't
-        if (CompileTimeInfo.envVar("SCALAJS_VERSION").forall(!_.startsWith("0."))) {
+        if (TestEnv.scalaJs1) {
           mounted = Comp(null).renderIntoDOM(mountNode)
           assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
           assertEq("willUnmountCount", willUnmountCount, 1)

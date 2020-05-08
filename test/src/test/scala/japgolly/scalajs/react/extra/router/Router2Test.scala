@@ -203,7 +203,7 @@ object Router2Test extends TestSuite {
       assertEq(es, Vector.empty)
 
       es = config.detectErrors(SomethingElse).runNow()
-      if (CI.full)
+      if (TestEnv.fullCI)
         assert(es.isEmpty) // elided
       else
         assert(es.nonEmpty)
