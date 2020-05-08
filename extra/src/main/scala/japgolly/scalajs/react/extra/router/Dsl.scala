@@ -281,18 +281,23 @@ object StaticDsl {
 
 object RouterConfigDsl {
   def apply[Page] =
-    new BuildInterface[Page]
+    new BuildInterface[Page, Unit]
 
-  class BuildInterface[Page] {
-    def use[A](f: RouterConfigDsl[Page] => A): A =
+  class BuildInterface[Page, Props] {
+    def use[A](f: RouterConfigDsl[Page, Props] => A): A =
       f(new RouterConfigDsl)
 
-    def buildConfig(f: RouterConfigDsl[Page] => RouterConfig[Page]): RouterConfig[Page] =
+    def buildConfig(f: RouterConfigDsl[Page, Props] => RouterWithPropsConfig[Page, Props]): RouterWithPropsConfig[Page, Props] =
       use(f)
 
-    def buildRule(f: RouterConfigDsl[Page] => RoutingRule[Page]): RoutingRule[Page] =
+    def buildRule(f: RouterConfigDsl[Page, Props] => RoutingRule[Page, Props]): RoutingRule[Page, Props] =
       use(f)
   }
+}
+
+object RouterWithPropsConfigDsl {
+  def apply[Page, Props] =
+    new RouterConfigDsl.BuildInterface[Page, Props]
 }
 
 /**
@@ -300,11 +305,11 @@ object RouterConfigDsl {
  *
  * Instead creating an instance of this yourself, use [[RouterConfigDsl.apply]].
  */
-final class RouterConfigDsl[Page] {
+final class RouterConfigDsl[Page, Props] {
   import StaticDsl._
 
   type Action   = japgolly.scalajs.react.extra.router.Action[Page]
-  type Renderer = japgolly.scalajs.react.extra.router.Renderer[Page]
+  type Renderer = japgolly.scalajs.react.extra.router.Renderer[Page, Props]
   type Redirect = japgolly.scalajs.react.extra.router.Redirect[Page]
   type Parsed   = RouterConfig.Parsed[Page]
 
@@ -351,16 +356,28 @@ final class RouterConfigDsl[Page] {
   implicit def _auto_someAction[A <: Action](a: A): Option[A] = Some(a)
 
   def render[A](a: => A)(implicit ev: A => VdomElement): Renderer =
-    Renderer(_ => a)
+    Renderer(_ => _ => a)
 
   def renderR[A](g: RouterCtl[Page] => A)(implicit ev: A => VdomElement): Renderer =
-    Renderer(g(_))
+    Renderer(r => _ => g(r))
+
+  def renderP[A](g: Props => A)(implicit ev: A => VdomElement): Renderer =
+    Renderer(_ => props => g(props))
+
+  def renderRP[A](g: (RouterCtl[Page], Props) => A)(implicit ev: A => VdomElement): Renderer =
+    Renderer(r => props => g(r, props))
 
   def dynRender[P <: Page, A](g: P => A)(implicit ev: A => VdomElement): P => Renderer =
-    p => Renderer(_ => g(p))
+    p => Renderer(_ => _ => g(p))
 
   def dynRenderR[P <: Page, A](g: (P, RouterCtl[Page]) => A)(implicit ev: A => VdomElement): P => Renderer =
-    p => Renderer(r => g(p, r))
+    p => Renderer(r => _ => g(p, r))
+
+  def dynRenderP[P <: Page, A](g: (P, Props) => A)(implicit ev: A => VdomElement): P => Renderer =
+    p => Renderer(_ => props => g(p, props))
+
+  def dynRenderRP[P <: Page, A](g: (P, RouterCtl[Page], Props) => A)(implicit ev: A => VdomElement): P => Renderer =
+    p => Renderer(r => props => g(p, r, props))
 
   def redirectToPage(page: Page)(implicit via: SetRouteVia): RedirectToPage[Page] =
     RedirectToPage[Page](page, via)
@@ -374,8 +391,8 @@ final class RouterConfigDsl[Page] {
   // -------------------------------------------------------------------------------------------------------------------
   // Rule building DSL
 
-  type Rule = japgolly.scalajs.react.extra.router.RoutingRule[Page]
-  type Rules = japgolly.scalajs.react.extra.router.RoutingRule.WithFallback[Page]
+  type Rule = japgolly.scalajs.react.extra.router.RoutingRule[Page, Props]
+  type Rules = japgolly.scalajs.react.extra.router.RoutingRule.WithFallback[Page, Props]
   def emptyRule: Rule = RoutingRule.empty
 
   implicit def _auto_parsed_from_redirect(r: Redirect): Parsed = Left(r)

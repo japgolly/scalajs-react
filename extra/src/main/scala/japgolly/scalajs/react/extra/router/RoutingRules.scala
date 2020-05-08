@@ -68,53 +68,53 @@ object RoutingRules {
     }
   }
 
-  def fromRule[Page](rule          : RoutingRule[Page],
-                     fallbackPath  : Page => Path,
-                     fallbackAction: (Path, Page) => Action[Page],
-                     whenNotFound  : Path => CallbackTo[Parsed[Page]]): RoutingRules[Page] = {
+  def fromRule[Page, Props](rule          : RoutingRule[Page, Props],
+                            fallbackPath  : Page => Path,
+                            fallbackAction: (Path, Page) => Action[Page],
+                            whenNotFound  : Path => CallbackTo[Parsed[Page]]): RoutingRules[Page] = {
 
-    def prepareParseFn(rule: RoutingRule[Page]): Path => List[StaticOrDynamic[Option[Parsed[Page]]]] =
+    def prepareParseFn(rule: RoutingRule[Page, Props]): Path => List[StaticOrDynamic[Option[Parsed[Page]]]] =
       rule match {
-        case r: RoutingRule.Atom[Page] =>
+        case r: RoutingRule.Atom[Page, Props] =>
           p => static(r.parse(p)) :: Nil
 
-        case r: RoutingRule.AutoCorrect[Page] =>
+        case r: RoutingRule.AutoCorrect[Page, Props] =>
           prepareParseFn(r.underlying)
 
-        case r: RoutingRule.Or[Page] =>
+        case r: RoutingRule.Or[Page, Props] =>
           val x = prepareParseFn(r.lhs)
           val y = prepareParseFn(r.rhs)
           p => y(p).reverse_:::(x(p))
 
-        case r: RoutingRule.Conditional[Page] =>
+        case r: RoutingRule.Conditional[Page, Props] =>
           // Page condition is checked in prepareActionFn
           prepareParseFn(r.underlying)
 
-        case r: RoutingRule.ConditionalP[Page] =>
+        case r: RoutingRule.ConditionalP[Page, Props] =>
           // Page condition is checked in prepareActionFn
           prepareParseFn(r.underlying)
       }
 
-    def preparePathFn(rule: RoutingRule[Page]): Page => Option[Path] =
+    def preparePathFn(rule: RoutingRule[Page, Props]): Page => Option[Path] =
       rule match {
-        case r: RoutingRule.Atom        [Page] => r.path
-        case r: RoutingRule.Conditional [Page] => preparePathFn(r.underlying)
-        case r: RoutingRule.ConditionalP[Page] => preparePathFn(r.underlying)
-        case r: RoutingRule.AutoCorrect [Page] => preparePathFn(r.underlying)
-        case r: RoutingRule.Or          [Page] => preparePathFn(r.lhs) || preparePathFn(r.rhs)
+        case r: RoutingRule.Atom        [Page, Props] => r.path
+        case r: RoutingRule.Conditional [Page, Props] => preparePathFn(r.underlying)
+        case r: RoutingRule.ConditionalP[Page, Props] => preparePathFn(r.underlying)
+        case r: RoutingRule.AutoCorrect [Page, Props] => preparePathFn(r.underlying)
+        case r: RoutingRule.Or          [Page, Props] => preparePathFn(r.lhs) || preparePathFn(r.rhs)
       }
 
-    def prepareActionFn(rule: RoutingRule[Page]): (Path, Page) => List[StaticOrDynamic[Option[Action[Page]]]] =
+    def prepareActionFn(rule: RoutingRule[Page, Props]): (Path, Page) => List[StaticOrDynamic[Option[Action[Page]]]] =
       rule match {
-        case r: RoutingRule.Atom[Page] =>
+        case r: RoutingRule.Atom[Page, Props] =>
           (path, page) => static(r.action(path, page)) :: Nil
 
-        case r: RoutingRule.Or[Page] =>
+        case r: RoutingRule.Or[Page, Props] =>
           val x = prepareActionFn(r.lhs)
           val y = prepareActionFn(r.rhs)
           (path, page) => y(path, page).reverse_:::(x(path, page))
 
-        case r: RoutingRule.AutoCorrect[Page] =>
+        case r: RoutingRule.AutoCorrect[Page, Props] =>
           val path = preparePathFn(r.underlying)
           val action = prepareActionFn(r.underlying)
           (actualPath, page) =>
@@ -128,10 +128,10 @@ object RoutingRules {
                 Nil
             }
 
-        case r: RoutingRule.Conditional[Page] =>
+        case r: RoutingRule.Conditional[Page, Props] =>
           prepareActionFn(RoutingRule.ConditionalP(_ => r.condition, r.underlying, r.otherwise))
 
-        case r: RoutingRule.ConditionalP[Page] =>
+        case r: RoutingRule.ConditionalP[Page, Props] =>
           val underlying = prepareActionFn(r.underlying)
           (path, page) =>
             dynamic[Option[Action[Page]]] {

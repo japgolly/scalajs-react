@@ -1,12 +1,22 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.VdomElement
 
 package object router {
 
-  type Router [P] = ScalaComponent              [Unit, Resolution[P], OnUnmount.Backend, CtorType.Nullary]
-  type RouterU[P] = ScalaComponent.Unmounted    [Unit, Resolution[P], OnUnmount.Backend]
-  type RouterM[P] = ScalaComponent.MountedImpure[Unit, Resolution[P], OnUnmount.Backend]
+  type RouterWithProps [P, Props] = ScalaComponent              [Props, ResolutionWithProps[P, Props], OnUnmount.Backend, CtorType.Props]
+  type RouterWithPropsU[P, Props] = ScalaComponent.Unmounted    [Props, ResolutionWithProps[P, Props], OnUnmount.Backend]
+  type RouterWithPropsM[P, Props] = ScalaComponent.MountedImpure[Props, ResolutionWithProps[P, Props], OnUnmount.Backend]
+
+  // START: Compatibility with no-props Router API
+  type RouterConfig[P] = RouterWithPropsConfig[P, Unit]
+  type Resolution[P]   = ResolutionWithProps[P, Unit]
+
+  type Router [P]      = ScalaComponent              [Unit, Resolution[P], OnUnmount.Backend, CtorType.Nullary]
+  type RouterU[P]      = ScalaComponent.Unmounted    [Unit, Resolution[P], OnUnmount.Backend]
+  type RouterM[P]      = ScalaComponent.MountedImpure[Unit, Resolution[P], OnUnmount.Backend]
+  // END
 
   private[router] implicit class OptionFnExt[A, B](private val f: A => Option[B]) extends AnyVal {
     def ||(g: A => Option[B]): A => Option[B] = a => f(a) orElse g(a)

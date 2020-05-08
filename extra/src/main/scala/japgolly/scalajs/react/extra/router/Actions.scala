@@ -9,10 +9,10 @@ sealed trait Action[P] extends Product with Serializable {
   def map[A](f: P => A): Action[A]
 }
 
-final case class Renderer[P](f: RouterCtl[P] => VdomElement) extends Action[P] {
-  def apply(ctl: RouterCtl[P]) = f(ctl)
+final case class Renderer[P, Props](f: RouterCtl[P] => Props => VdomElement) extends Action[P] {
+  def apply(ctl: RouterCtl[P]): Props => VdomElement = f(ctl)
 
-  override def map[A](g: P => A): Renderer[A] =
+  override def map[A](g: P => A): Renderer[A, Props] =
     Renderer(r => f(r contramap g))
 }
 

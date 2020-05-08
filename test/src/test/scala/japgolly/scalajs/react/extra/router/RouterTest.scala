@@ -144,14 +144,14 @@ object RouterTest extends TestSuite {
       }
 
       "syncToUrl" - {
-        def runh[P](r: RouterLogic[P], start: AbsUrl) = {
+        def runh[P](r: RouterLogic[P, Unit], start: AbsUrl) = {
           val s = SimHistory(start)
           val a = s.run(r.syncToUrl(s.startUrl).runNow())
           assertEq(s.broadcasts, Vector.empty) // this is sync(), not set()
           (s, a)
         }
 
-        def testh[P: Equal](r: RouterLogic[P], start: AbsUrl)(expectPrevHistory: AbsUrl => List[AbsUrl], expectPage: P, expectPath: String): Unit = {
+        def testh[P: Equal](r: RouterLogic[P, Unit], start: AbsUrl)(expectPrevHistory: AbsUrl => List[AbsUrl], expectPage: P, expectPath: String): Unit = {
           val (s, res) = runh(r, start)
           assertEq(s.history, Path(expectPath).abs :: expectPrevHistory(start))
           assertEq(res.page, expectPage)
