@@ -1,13 +1,16 @@
 import sbt._
 import sbt.Keys._
+import com.typesafe.sbt.GitPlugin.autoImport._
 import com.typesafe.sbt.pgp.PgpKeys
 import com.typesafe.sbt.pgp.PgpKeys._
+import mdoc.MdocPlugin
+import mdoc.MdocPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
-import org.scalajs.sbtplugin.ScalaJSPlugin
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
+import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
+import org.scalajs.sbtplugin.ScalaJSPlugin
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
@@ -256,7 +259,7 @@ object ScalajsReact {
       core, extra, test, /*testModule,*/
       cats, catsEffect, scalaz72,
       monocle, monocleCats, monocleScalaz,
-      ghpagesMacros, ghpages)
+      ghpagesMacros, ghpages, mdoc)
     .configure(commonSettings, preventPublication, hasNoTests)
 
   // ==============================================================================================
@@ -388,5 +391,25 @@ object ScalajsReact {
       artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"),
       libraryDependencies ++= paradisePlugin.value,
     )
+
+  // ==============================================================================================
+  lazy val mdoc = project
+    .in(file(".mdoc"))
+    .configure(preventPublication)
+    .enablePlugins(MdocPlugin)
+    .settings(
+      mdocJS := Some(extra),
+      mdocIn := baseDirectory.in(ThisBuild).value / "mdoc",
+      mdocOut := baseDirectory.in(ThisBuild).value / "doc",
+      mdocVariables := Map(
+        "VERSION" -> advertiseVersion(version.value, git.gitDescribedVersion.value)
+      )
+    )
+
+    def advertiseVersion(currentVer: String, gitVer: Option[String]) =
+    if (!currentVer.contains("SNAPSHOT"))
+      currentVer
+    else
+      gitVer.fold(currentVer)(_.takeWhile(_ != '-'))
 
 }

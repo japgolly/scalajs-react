@@ -16,3 +16,4 @@ val test          = ScalajsReact.test
 //val testModule    = ScalajsReact.testModule // Too damn buggy
 val ghpagesMacros = ScalajsReact.ghpagesMacros
 val ghpages       = ScalajsReact.ghpages
+val mdoc          = ScalajsReact.mdoc
