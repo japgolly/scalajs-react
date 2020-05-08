@@ -43,7 +43,7 @@ trait ScalazReactInstances {
     new MonadError[AsyncCallback, Throwable] with BindRec[AsyncCallback] {
 
       override def point[A](a: => A): AsyncCallback[A] =
-        AsyncCallback.point(a)
+        AsyncCallback.delay(a)
 
       override def ap[A, B](fa: => AsyncCallback[A])(f: => AsyncCallback[A => B]) =
         f.zipWith(fa)(_(_))
@@ -173,6 +173,7 @@ trait ScalazReactInstances {
     override def map    [A, B](a: IO[A])(f: A => B)     = a map f
     override def flatMap[A, B](a: IO[A])(f: A => IO[B]) = a flatMap f
     override def extract[A]   (a: => IO[A])             = () => a.unsafePerformIO()
+    override def toCallback[A](a: => IO[A])             = CallbackTo(a.unsafePerformIO())
   }
 
   implicit final lazy val effectTransEndoIo       = Effect.Trans.id[IO]
@@ -219,11 +220,11 @@ trait ScalazReactInstances {
   implicit final def routerEqualPath   : Equal[router.Path]    = Equal.equalA
   implicit final def routerEqualAbsUrl : Equal[router.AbsUrl]  = Equal.equalA
 
-  implicit final def routerRuleMonoid[P]: Monoid[router.RoutingRule[P]] = {
+  implicit final def routerRuleMonoid[P, Props]: Monoid[router.RoutingRule[P, Props]] = {
     import router.RoutingRule
-    new Monoid[RoutingRule[P]] {
+    new Monoid[RoutingRule[P, Props]] {
       override def zero = RoutingRule.empty
-      override def append(a: RoutingRule[P], b: => RoutingRule[P]) = a | b
+      override def append(a: RoutingRule[P, Props], b: => RoutingRule[P, Props]) = a | b
     }
   }
 

@@ -9,12 +9,15 @@ import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils}
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
+import scala.annotation.nowarn
 import scala.scalajs.js.|
 
+@nowarn("cat=deprecation")
 object RawComponentEs6PTest extends TestSuite {
 
   case class BasicProps(name: String)
 
+  @nowarn("cat=unused")
   class RawComp(ctorProps: Box[BasicProps]) extends raw.React.Component[Box[BasicProps], Box[Unit]] {
     override def render() =
       raw.React.createElement("div", null, "Hello ", this.props.unbox.name)
@@ -124,7 +127,7 @@ object RawComponentEs6PTest extends TestSuite {
 
       var willUnmountCount = 0
 
-      class Backend($: BackendScope[Props, Unit]) {
+      class Backend {
         def willMount = Callback { mountCountBeforeMountB += mountCountB; willMountCountB += 1 }
         def incMountCount = Callback(mountCountB += 1)
         def willUpdate(cur: Props, next: Props) = Callback(willUpdates :+= next - cur)
@@ -135,7 +138,7 @@ object RawComponentEs6PTest extends TestSuite {
 
       val Comp = ScalaComponent.builder[Props]("")
         .stateless
-        .backend(new Backend(_))
+        .backend(_ => new Backend)
         .render_P(p => raw.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
         .shouldComponentUpdatePure(_.cmpProps(_.a != _.a)) // update if .a differs
         .shouldComponentUpdatePure(_.cmpProps(_.b != _.b)) // update if .b differs
@@ -184,6 +187,7 @@ object RawComponentEs6STest extends TestSuite {
   implicit val equalState: Equal[State] = Equal.equalA
   implicit val equalState2: Equal[State2] = Equal.equalA
 
+  @nowarn("cat=unused")
   class RawComp(ctorProps: Box[Unit]) extends raw.React.Component[Box[Unit], Box[State]] {
     this.state = Box(State(123, State2(400, 7)))
     override def render() = {

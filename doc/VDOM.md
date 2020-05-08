@@ -202,7 +202,7 @@ There are two ways of attaching event handlers to your virtual DOM.
 
 ## Collections
 
-You have are few ways of using collections of VDOM:
+You have a few ways of using collections of VDOM:
 
 * **VdomArray** - An array of VDOM nodes.
 
@@ -336,8 +336,8 @@ val element: VdomElement = tag2
 
 | Category | Expressions | Result Type |
 |-------|------|-------------|
-| Values | Some component <br> `VdomTag` <br> `raw.ReactElement` | `VdomElement` |
-| Values | Numbers <br> `String` <br> `PropsChildren` <br> `VdomArray` <br> `VdomElement` <br> `EmptyVdom` <br> `raw.ReactNode` | `VdomNode` |
+| Values | Some component <br> `VdomTag` <br> `raw.ReactElement` <br> `VdomElement.static(VdomElement)` | `VdomElement` |
+| Values | Numbers <br> `String` <br> `PropsChildren` <br> `VdomArray` <br> `VdomElement` <br> `EmptyVdom` <br> `raw.ReactNode` <br> `VdomNode.static(VdomNode)` | `VdomNode` |
 | Values | `VdomNode` <br> `TagMod.empty` | `TagMod` |
 | Attributes | `vdomAttr := value` <br> `eventHandler --> callback` <br> `eventHandler ==> (event => callback)` | `TagMod` |
 | Conditional <br> Values | `Option[vdomNode]` <br> `js.UndefOr[vdomNode]` <br> `EmptyVdom` | `VdomNode` |

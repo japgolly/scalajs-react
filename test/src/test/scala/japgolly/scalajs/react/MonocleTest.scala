@@ -6,7 +6,7 @@ import utest._
 import extra._
 import ScalazReact._
 import MonocleReact._
-
+import scala.annotation.nowarn
 import scalaz.{Monad, ~>}
 
 object MonocleTest extends TestSuite {
@@ -16,6 +16,7 @@ object MonocleTest extends TestSuite {
 
   @Lenses case class Poly[A](oa: Option[A])
 
+  @nowarn("cat=unused")
   private class ScopeTest[A](s: StateAccessPure[A]) {
     // Testing:
     // [error] private value s escapes its defining scope as part of type ScopeTest.this.s.WithMappedState[Int]
@@ -41,19 +42,8 @@ object MonocleTest extends TestSuite {
         "ReactS"            - test[ReactST[M, S, A]    ](_ zoomL      lensTS ).expect  [ReactST[M, T, A]]
       }
 
-      "setStateFnL" - {
-        "RenderScope"       - test[Render              ](_ setStateFnL lensST ).expect[T => Callback]
-        "StateAccessPure"   - test[StateAccessPure[S]  ](_ setStateFnL lensST ).expect[T => Callback]
-        "BackendScope"      - test[Backend             ](_ setStateFnL lensST ).expect[T => Callback]
-        "ScalaMountedCB"    - test[ScalaMountedCB      ](_ setStateFnL lensST ).expect[T => Callback]
-        "StateAccessImpure" - test[StateAccessImpure[S]](_ setStateFnL lensST ).expect[T => Unit]
-        "JsMounted"         - test[JsMounted           ](_ setStateFnL lensJST).expect[T => Unit]
-        "ScalaMountedId"    - test[ScalaMountedId      ](_ setStateFnL lensST ).expect[T => Unit]
-      }
-
       "poly" - {
-        "zoomStateL"  - test[BackendScope[P, Poly[S]]](_ zoomStateL  Poly.oa[S]).expect_<[StateAccessPure[Option[S]]]
-        "setStateFnL" - test[BackendScope[P, Poly[S]]](_ setStateFnL Poly.oa[S]).expect[Option[S] => Callback]
+        "zoomStateL" - test[BackendScope[P, Poly[S]]](_ zoomStateL  Poly.oa[S]).expect_<[StateAccessPure[Option[S]]]
       }
 
       "stateSnapshot" - {

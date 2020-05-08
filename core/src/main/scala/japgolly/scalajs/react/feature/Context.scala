@@ -87,7 +87,7 @@ sealed trait Context[A] { ctx =>
     * context above in the tree. If there is no Provider for this context above, the value argument will be equal to
     * the defaultValue that was passed to createContext().
     *
-    * All Consumers that are descendants of a Provider will re-render whenever the Provider’s value prop changes.
+    * All Consumers that are descendants of a Provider will re-render whenever the Provider's value prop changes.
     * The propagation from Provider to its descendant Consumers is not subject to the shouldComponentUpdate method,
     * so the Consumer is updated even when an ancestor component bails out of the update.
     *

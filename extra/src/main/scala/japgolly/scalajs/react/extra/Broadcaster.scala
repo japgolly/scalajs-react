@@ -14,10 +14,6 @@ trait Broadcaster[A] extends Listenable[A] {
     */
   private var _listeners = List.empty[(A => Callback, Unit)]
 
-  @deprecated("Use listenerIterator", "1.2.0")
-  protected final def listeners: List[A => Callback] =
-    _listeners.map(_._1)
-
   protected final def listenerIterator: Iterator[A => Callback] =
     _listeners.iterator.map(_._1)
 

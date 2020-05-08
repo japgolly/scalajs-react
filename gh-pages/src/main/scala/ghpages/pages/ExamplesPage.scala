@@ -45,19 +45,31 @@ object ExamplesJs extends ExampleCollection {
 
 
 object ExamplesScala extends ExampleCollection {
-  case object StateMonad    extends Example("State monads",       "state-monad",       StateMonadExample      .content)
-  case object Touch         extends Example("Touch events",       "touch-events",      TouchExample           .content)
-  case object StateSnapshot extends Example("StateSnapshot",      "state-snapshot",    StateSnapshotExample   .content)
-  case object Reuse         extends Example("Reusability",        "reusability",       ReuseExample           .content)
-  case object EventListen   extends Example("EventListener",      "event-listener",    EventListenerExample   .content)
-  case object CallbackOpt   extends Example("CallbackOption",     "callback-option",   CallbackOptionExample  .content)
-  case object WebSockets    extends Example("WebSockets",         "websockets",        WebSocketsExample      .content)
-  case object Checkbox3     extends Example("Tri-state Checkbox", "tristate-checkbox", TriStateCheckboxExample.content)
-  case object Ajax1         extends Example("AJAX (1)",           "ajax-1",            AjaxExample1           .content)
-  case object Ajax2         extends Example("AJAX (2)",           "ajax-2",            AjaxExample2           .content)
-  case object Suspense      extends Example("Suspense",           "suspense",          SuspenseExample        .content)
+  case object StateMonad     extends Example("State monads",       "state-monad",       StateMonadExample      .content)
+  case object Touch          extends Example("Touch events",       "touch-events",      TouchExample           .content)
+  case object StateSnapshot1 extends Example("StateSnapshot (1)",  "state-snapshot-1",  StateSnapshotExample1  .content)
+  case object StateSnapshot2 extends Example("StateSnapshot (2)",  "state-snapshot-2",  StateSnapshotExample2  .content)
+  case object Reuse          extends Example("Reusability",        "reusability",       ReuseExample           .content)
+  case object EventListen    extends Example("EventListener",      "event-listener",    EventListenerExample   .content)
+  case object CallbackOpt    extends Example("CallbackOption",     "callback-option",   CallbackOptionExample  .content)
+  case object WebSockets     extends Example("WebSockets",         "websockets",        WebSocketsExample      .content)
+  case object Checkbox3      extends Example("Tri-state Checkbox", "tristate-checkbox", TriStateCheckboxExample.content)
+  case object Ajax1          extends Example("AJAX (1)",           "ajax-1",            AjaxExample1           .content)
+  case object Ajax2          extends Example("AJAX (2)",           "ajax-2",            AjaxExample2           .content)
+  case object Suspense       extends Example("Suspense",           "suspense",          SuspenseExample        .content)
 
   override val values = Vector[Example](
-    EventListen, CallbackOpt, StateSnapshot, Reuse, StateMonad, Touch, WebSockets, Checkbox3, Ajax1, Ajax2, Suspense
+    EventListen,
+    CallbackOpt,
+    StateSnapshot1,
+    StateSnapshot2,
+    Reuse,
+    StateMonad,
+    Touch,
+    WebSockets,
+    Checkbox3,
+    Ajax1,
+    Ajax2,
+    Suspense
   ).sortBy(_.title)
 }

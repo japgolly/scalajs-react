@@ -13,7 +13,7 @@ object JsReprTest extends TestSuite {
   override def tests = Tests {
 
     "implicits" - {
-      def test[A](a: A, expect: js.Any)(implicit j: JsRepr[A]): Unit = {
+      def test[A](a: A, expect: Any)(implicit j: JsRepr[A]): Unit = {
 
         val fromExpected = j.unsafeFromJs(expect)
         assert(a == fromExpected)
@@ -28,8 +28,8 @@ object JsReprTest extends TestSuite {
       "byte"      - test(3.toByte, 3.toByte)
       "short"     - test(7.toShort, 7.toShort)
       "int"       - test(11, 11)
-      "longMin"   - test(Long.MinValue, Long.MinValue)
-      "longMax"   - test(Long.MaxValue, Long.MaxValue)
+      "longMin"   - test(Long.MinValue.toDouble, Long.MinValue.toDouble)
+      "longMax"   - test(Long.MaxValue.toDouble, Long.MaxValue.toDouble)
       "float"     - test(14.3f, 14.3f)
       "double"    - test(3.6, 3.6)
       "string"    - test("heh", "heh")

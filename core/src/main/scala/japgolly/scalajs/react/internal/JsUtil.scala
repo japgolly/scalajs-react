@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.internal
 
+import java.time.Duration
 import scala.collection.compat._
 import scala.scalajs.js
 import scala.scalajs.js.|
@@ -28,7 +29,7 @@ object JsUtil {
     try
       s.asInstanceOf[js.Dynamic].applyDynamic("toString")().asInstanceOf[String]
     catch {
-      case t: Throwable =>
+      case _: Throwable =>
         js.Symbol.keyFor(s).toOption match {
           case Some(k) => s"Symbol($k)"
           case None    => "Symbol(?)"
@@ -93,4 +94,7 @@ object JsUtil {
       case Some(a) => a
       case None    => null
     }
+
+  def durationFromDOMHighResTimeStamp(ms: Double): Duration =
+    Duration.ofNanos((ms * 1000000).toLong)
 }

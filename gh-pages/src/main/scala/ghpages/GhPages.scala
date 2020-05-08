@@ -64,7 +64,7 @@ object GhPages {
         BaseUrl.fromWindowOrigin / "scalajs-react/"
     }
 
-  def main(): Unit = {
+  def main(args: Array[String]): Unit = {
     val container = dom.document.getElementById("root")
     dom.console.info("Router logging is enabled. Enjoy!")
     val router = Router(baseUrl, routerConfig.logToConsole)

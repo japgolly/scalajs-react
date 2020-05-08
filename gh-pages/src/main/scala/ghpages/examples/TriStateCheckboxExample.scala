@@ -86,16 +86,16 @@ object TriStateCheckboxExample {
 
       <.div(allRow)(p.items.map(itemRow): _*)
     }
-
-    // When an item is removed from props, remove it from state as well.
-    def onPropsChange(newProps: Props): Callback =
-      $.modState(_ intersect newProps.ids)
   }
+
+  // When an item is removed from props, remove it from state as well.
+  private def removeOutOfScopeState(props: Props, state: State): State =
+    state intersect props.ids
 
   val App = ScalaComponent.builder[Props]("TriStateCheckboxExample")
     .initialState[State](Set.empty)
     .renderBackend[Backend]
-    .componentWillReceiveProps(i => i.backend.onPropsChange(i.nextProps))
+    .getDerivedStateFromProps(removeOutOfScopeState _)
     .build
 
   // EXAMPLE:END

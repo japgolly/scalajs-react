@@ -6,7 +6,7 @@ Included is a router (in the orbit of Single-Page Applications) that is written 
 The package is `japgolly.scalajs.react.extra.router`.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.5.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.6.0"
 ```
 
 ## Contents
@@ -30,6 +30,7 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.5.0"
   - [Setting page title](#setting-page-title)
   - [Post-render callback](#post-render-callback)
   - [Nested routes (modules)](#nested-routes-modules)
+  - [Pass-through properties](#pass-through-properties)
 - [Examples](#examples)
 
 
@@ -56,6 +57,7 @@ Features
 * Uses HTML5 History API.
 * Callback for route changes.
 * Routing logic is easily unit-testable.
+* Optional pass-through properties (allowing, for example, passing global state to child components).
 
 
 Caution
@@ -554,17 +556,12 @@ val privatePages = (emptyRule
 
 ### Rendering with a layout
 
-Once you have a `RouterConfig`, you can call `.renderWith` on it to supply your own render function that will be invoked each time a route is rendered. It takes a function in the shape: `(RouterCtl[Page], Resolution[Page]) => VdomElement` where a `Resolution` is:
+Once you have a `RouterConfig`, you can call `.renderWith` on it to supply your own render function that will be invoked each time a route is rendered. It takes a function in the shape: `(RouterCtl[Page], Resolution[Page]) => VdomElement` where a `Resolution` provides:
 
-```scala
-/**
- * Result of the router resolving a URL and reaching a conclusion about what to render.
- *
- * @param page Data representation (or command) of what will be drawn.
- * @param render The render function provided by the rules and logic in [[RouterConfig]].
- */
-final case class Resolution[P](page: P, render: () => VdomElement)
-```
+| Member | Type | Description |
+|--------|------|-------------|
+| `page` | `Page` | Data representation (or command) of what will be drawn. |
+| `render` | `() => VdomElement` | The render function provided by the rules and logic in `RouterConfig` |
 
 Thus using the given `RouterCtl` and `Resolution` you can wrap the page in a layout, link to other pages, highlight the current page, etc.
 
@@ -680,6 +677,65 @@ If we imagine `BaseUrl` to be `http://www.example.com/` then the sitemap for `Ou
 | `http://www.example.com/#login` | `Login` |
 | `http://www.example.com/#module` | `Nest(ModuleRoot)` |
 | `http://www.example.com/#module/detail` | `Nest(ModuleDetail)` |
+
+### Pass-through properties
+
+Sometimes you don't want your `Router` to be the top-level component. In these cases, it's possible to configure the `Router` component to receive `Props`, which will be optionally forwarded to children components, the layout function, post-render functions, etc. A typical usage case for this setup is if you have a wrapping component that manages the application state.
+
+To achieve this:
+ * Write the router configuration within a `RouterWithPropsConfigDsl[Page, Props].buildConfig` (instead of a `RouterConfigDsl[Page].buildConfig`).
+ * Create the router by invoking `RouterWithProps(baseUrl, routerConfig)` (instead of `Router(baseUrl, routerConfig)`). The resulting component will accept `Props` as component properties and pass them through wherever your configuration instructs it to.
+
+##### Actions
+
+In the configuration DSL you can use the following in addition to the regular actions:
+
+| DSL | Args |
+|-----|------|
+| `renderP` | `Props => VdomElement` |
+| `renderRP` | `(RouterCtl, Props) => VdomElement` |
+| `dynRenderP` | `(Page, Props) => VdomElement` |
+| `dynRenderRP` | `(Page, RouterCtl, Props) => VdomElement` |
+
+##### Configuration
+
+Additionally, the following configurations functions are available in addition to the regular ones:
+
+| Function | Args |
+|----------|------|
+| `renderWithP` | `(RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement)` |
+| `setPostRenderP` | `(Option[Page], Page, Props) => Callback)` |
+| `onPostRenderP` | `(Option[Page], Page, Props) => Callback)` |
+| `setTitleP` | `(Page, Props) => String)` |
+| `setTitleOptionP` | `(Page, Props) => Option[String])` |
+
+As can be seen, `renderWithP` now provides a `ResolutionWithProps[Page, Props]` (instead of a `Resolution[Page]`), which in turn provides a `renderP` function which takes `Props` as parameters.
+
+Example:
+
+```scala
+case class AppState(loggedUser: String, ...)
+
+val routerConfig = RouterWithPropsConfigDsl[Page, AppState].buildConfig { dsl =>
+  import dsl._
+
+  (emptyRule
+  | staticRoute(root,     Home)  ~> renderP(appState => HomePage.component(appState))
+  | staticRoute("#hello", Hello) ~> renderP(appState => <.div(s"Hello again ${appState.loggedUser}!"))
+  | staticRedirect("#hey")       ~> redirectToPage(Hello)(Redirect.Replace)
+  ) .notFound(redirectToPage(Home)(Redirect.Replace))
+    .renderWithP( (ctl, r) => appState =>
+      <.div(s"Welcome ${appState.loggedUser}")(
+        r.renderP(appState)
+      )
+    )
+}
+
+val RouterComponent = RouterWithProps(baseUrl, routerConfig)
+
+RouterComponent(appState)
+```
+
 
 Examples
 ========

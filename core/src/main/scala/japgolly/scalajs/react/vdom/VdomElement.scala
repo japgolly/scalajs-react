@@ -17,4 +17,7 @@ object VdomElement {
     new VdomElement {
       override def rawElement = n
     }
+
+  def static(vdom: VdomElement): VdomElement =
+    japgolly.scalajs.react.ScalaComponent.static("")(vdom)()
 }

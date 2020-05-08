@@ -24,9 +24,6 @@ abstract class Exports {
   final type HtmlTagOf[+N <: HtmlTopNode]   = japgolly.scalajs.react.vdom.HtmlTagOf[N]
   final val  HtmlTagOf                      = japgolly.scalajs.react.vdom.HtmlTagOf
 
-  @deprecated("Use React.Fragment", "1.3.0")
-  final val ReactFragment                   = japgolly.scalajs.react.feature.ReactFragment
-
   final val ReactPortal                     = japgolly.scalajs.react.vdom.ReactPortal
 
   @inline

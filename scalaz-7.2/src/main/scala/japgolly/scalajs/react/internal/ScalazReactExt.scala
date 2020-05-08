@@ -9,15 +9,14 @@ import ScalazReact.{ChangeFilter, ScalazReactExt_StateAccessCB}
 
 object ScalazReactExt {
 
-  final class CallbackToOps[A](private val _c: () => A) extends AnyVal {
-    private def c = CallbackTo lift _c
+  final class CallbackToOps[A](private val t: Trampoline[A]) extends AnyVal {
+    private def self = new CallbackTo(t)
 
     def toIO: IO[A] =
-      IO(_c())
+      IO(self.runNow())
 
     def flattenIO[B](implicit ev: A =:= IO[B]): CallbackTo[B] =
-      //_c.flatMap(a => ev(a).toCallback)
-      c.map(_.unsafePerformIO())
+      self.map(_.unsafePerformIO())
   }
 
   final class CallbackKleisliOps[A, B](private val k: A => CallbackTo[B]) extends AnyVal {

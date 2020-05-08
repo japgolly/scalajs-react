@@ -3,6 +3,7 @@ package japgolly.scalajs.react.test.raw
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import japgolly.scalajs.react.raw._
+import scala.annotation.nowarn
 
 /** https://facebook.github.io/react/docs/test-utils.html */
 @JSImport("react-dom/test-utils", JSImport.Namespace, "ReactTestUtils")
@@ -10,9 +11,41 @@ import japgolly.scalajs.react.raw._
 object ReactTestUtils extends ReactTestUtils
 
 @js.native
+@nowarn("cat=unused")
 trait ReactTestUtils extends js.Object {
 
   final val Simulate: Simulate = js.native
+
+  /** When writing UI tests, tasks like rendering, user events, or data fetching can be considered as "units" of
+    * interaction with a user interface. React provides a helper called act() that makes sure all updates related to
+    * these "units" have been processed and applied to the DOM before you make any assertions:
+    *
+    * {{{
+    *   act(() => {
+    *     // render components
+    *   });
+    *   // make assertions
+    * }}}
+    *
+    * This helps make your tests run closer to what real users would experience when using your application.
+    */
+  final def act(body: js.Function0[Any]): js.Thenable[Unit] = js.native
+
+  /** When writing UI tests, tasks like rendering, user events, or data fetching can be considered as "units" of
+    * interaction with a user interface. React provides a helper called act() that makes sure all updates related to
+    * these "units" have been processed and applied to the DOM before you make any assertions:
+    *
+    * {{{
+    *   await act(async () => {
+    *     // render components
+    *   });
+    *   // make assertions
+    * }}}
+    *
+    * This helps make your tests run closer to what real users would experience when using your application.
+    */
+  @JSName("act")
+  final def actAsync(body: js.Function0[js.Thenable[Any]]): js.Thenable[Unit] = js.native
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
   final def renderIntoDocument(element: React.Element): React.ComponentUntyped = js.native

@@ -1,12 +1,13 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{catchAll, identityFn, newJsPromise, SyncPromise}
+import japgolly.scalajs.react.internal.{SyncPromise, catchAll, identityFn, newJsPromise}
+import java.time.Duration
 import scala.collection.compat._
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.{Thenable, |}
-import scala.scalajs.js.timers.setTimeout
+import scala.scalajs.js.timers
 import scala.util.{Failure, Success, Try}
 
 object AsyncCallback {
@@ -41,7 +42,11 @@ object AsyncCallback {
   def never[A]: AsyncCallback[A] =
     apply(_ => Callback.empty)
 
+  @deprecated("Use AsyncCallback.delay", "1.7.0")
   def point[A](a: => A): AsyncCallback[A] =
+    delay(a)
+
+  def delay[A](a: => A): AsyncCallback[A] =
     AsyncCallback(f => CallbackTo(catchAll(a)).flatMap(f))
 
   def pure[A](a: A): AsyncCallback[A] =
@@ -67,7 +72,7 @@ object AsyncCallback {
     * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
     */
   def byName[A](f: => AsyncCallback[A]): AsyncCallback[A] =
-    point(f).flatten
+    delay(f).flatten
 
   @deprecated("Use c.asAsyncCallback", "")
   def fromCallback[A](c: CallbackTo[A]): AsyncCallback[A] =
@@ -103,7 +108,7 @@ object AsyncCallback {
     * Distribute AsyncCallback over Option.
     */
   def traverseOption[A, B](oa: => Option[A])(f: A => AsyncCallback[B]): AsyncCallback[Option[B]] =
-    AsyncCallback.point(oa).flatMap {
+    AsyncCallback.delay(oa).flatMap {
       case Some(a) => f(a).map(Some(_))
       case None    => AsyncCallback.pure(None)
     }
@@ -133,7 +138,7 @@ object AsyncCallback {
       val ok: A   => R = a => complete(Success(a))
       val ko: Any => R = e => complete(Failure(e match {
         case t: Throwable => t
-        case a            => js.JavaScriptException(e)
+        case _            => js.JavaScriptException(e)
       }))
       pa.`then`[Unit](ok, ko: js.Function1[Any, R])
     })
@@ -152,6 +157,16 @@ object AsyncCallback {
       case Left(a2) => tailrec(a2)(f)
       case Right(b) => pure(b)
     }
+
+  private lazy val tryUnit: Try[Unit] =
+    Try(())
+
+  def viaCallback(onCompletion: Callback => Callback): AsyncCallback[Unit] =
+    for {
+      p <- SyncPromise[Unit].asAsyncCallback
+      _ <- onCompletion(p.complete(tryUnit)).asAsyncCallback
+      _ <- AsyncCallback(p.onComplete)
+    } yield ()
 }
 
 /** Pure asynchronous callback.
@@ -190,20 +205,25 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     new AsyncCallback(completeWith)
 
   def map[B](f: A => B): AsyncCallback[B] =
-    AsyncCallback(g => completeWith(e => g(e.flatMap(a => catchAll(f(a))))))
+    flatMap(f.andThen(AsyncCallback.pure))
 
   /** Alias for `map`. */
   @inline def |>[B](f: A => B): AsyncCallback[B] =
     map(f)
 
   def flatMap[B](f: A => AsyncCallback[B]): AsyncCallback[B] =
-    AsyncCallback(g => completeWith {
-      case Success(a) => catchAll(f(a)) match {
-        case Success(next) => next.completeWith(g)
-        case Failure(e)    => g(Failure(e))
+    AsyncCallback { g =>
+      Callback.byName {
+        completeWith {
+          case Success(a) =>
+            catchAll(f(a)) match {
+              case Success(next) => Callback.byName(next.completeWith(g))
+              case Failure(e)    => g(Failure(e))
+            }
+          case Failure(e) => g(Failure(e))
+        }
       }
-      case Failure(e) => g(Failure(e))
-    })
+    }
 
   /** Alias for `flatMap`. */
   @inline def >>=[B](g: A => AsyncCallback[B]): AsyncCallback[B] =
@@ -226,7 +246,7 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
 
   /** When the callback result becomes available, perform a given side-effect with it. */
   def tap(t: A => Any): AsyncCallback[A] =
-    flatTap(a => AsyncCallback.point(t(a)))
+    flatTap(a => AsyncCallback.delay(t(a)))
 
   /** Alias for `tap`. */
   @inline def <|(t: A => Any): AsyncCallback[A] =
@@ -393,6 +413,9 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def logResult: AsyncCallback[A] =
     logResult(_.toString)
 
+  def delay(dur: Duration): AsyncCallback[A] =
+    delayMs(dur.toMillis.toDouble)
+
   def delay(dur: FiniteDuration): AsyncCallback[A] =
     delayMs(dur.toMillis.toDouble)
 
@@ -401,10 +424,43 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
       this
     else
       AsyncCallback(f => Callback {
-        setTimeout(milliseconds) {
+        timers.setTimeout(milliseconds) {
           completeWith(f).runNow()
         }
       })
+
+  /** Schedule for repeated execution every `dur`. */
+  @inline def setInterval(dur: Duration): CallbackTo[Callback.SetIntervalResult] =
+    toCallback.setInterval(dur)
+
+  /** Schedule for repeated execution every `dur`. */
+  @inline def setInterval(dur: FiniteDuration): CallbackTo[Callback.SetIntervalResult] =
+    toCallback.setInterval(dur)
+
+  /** Schedule for repeated execution every x milliseconds. */
+  @inline def setIntervalMs(milliseconds: Double): CallbackTo[Callback.SetIntervalResult] =
+    toCallback.setIntervalMs(milliseconds)
+
+  /** Schedule for execution after `dur`.
+    *
+    * Note: it most cases [[delay()]] is a better alternative.
+    */
+  @inline def setTimeout(dur: Duration): CallbackTo[Callback.SetTimeoutResult] =
+    toCallback.setTimeout(dur)
+
+  /** Schedule for execution after `dur`.
+    *
+    * Note: it most cases [[delay()]] is a better alternative.
+    */
+  @inline def setTimeout(dur: FiniteDuration): CallbackTo[Callback.SetTimeoutResult] =
+    toCallback.setTimeout(dur)
+
+  /** Schedule for execution after x milliseconds.
+    *
+    * Note: it most cases [[delayMs()]] is a better alternative.
+    */
+  @inline def setTimeoutMs(milliseconds: Double): CallbackTo[Callback.SetTimeoutResult] =
+    toCallback.setTimeoutMs(milliseconds)
 
   /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
     * current callback completes, be it in error or success.
@@ -435,7 +491,7 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def asCallbackToFuture: CallbackTo[Future[A]] =
     CallbackTo {
       val p = scala.concurrent.Promise[A]()
-      completeWith(t => Callback(p.complete(t))).runNow()
+      completeWith(t => Callback(p.tryComplete(t))).runNow()
       p.future
     }
 
@@ -451,4 +507,53 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def unsafeToJsPromise(): js.Promise[A] =
     asCallbackToJsPromise.runNow()
 
+  /** Returns a synchronous [[Callback]] that when run, returns the result on the [[Right]] if this [[AsyncCallback]]
+    * is actually synchronous, else returns a new [[AsyncCallback]] on the [[Left]] that waits for the async computation
+    * to complete.
+    */
+  def sync: CallbackTo[Either[AsyncCallback[A], A]] =
+    CallbackTo {
+      var result = Option.empty[A]
+      val promise = tap(a => result = Some(a)).asCallbackToJsPromise.runNow()
+      result match {
+        case Some(a) => Right(a)
+        case None    => Left(AsyncCallback.fromJsPromise(promise))
+      }
+    }
+
+  def runNow(): Unit =
+    toCallback.runNow()
+
+  /** THIS IS VERY CONVENIENT IN UNIT TESTS BUT DO NOT RUN THIS IN PRODUCTION CODE.
+    *
+    * Executes this now, expecting and returning a synchronous result.
+    * If there are any asynchronous computations this will throw an exception.
+    */
+  def unsafeRunNowSync(): A =
+    sync.runNow() match {
+      case Right(a) => a
+      case Left(_)  => throw new RuntimeException(
+        "AsyncCallback#unsafeRunNowSync() failed! The AsyncCallback contains at least one asynchronous computation.")
+    }
+
+  def flatMapSync[B](f: A => CallbackTo[B]): AsyncCallback[B] =
+    flatMap(f.andThen(_.asAsyncCallback))
+
+  def flattenSync[B](implicit ev: A => CallbackTo[B]): AsyncCallback[B] =
+    flatten(ev.andThen(_.asAsyncCallback))
+
+  def flatTapSync[B](t: A => CallbackTo[B]): AsyncCallback[A] =
+    flatTap(t.andThen(_.asAsyncCallback))
+
+  def handleErrorSync(f: Throwable => CallbackTo[A]): AsyncCallback[A] =
+    handleError(f.andThen(_.asAsyncCallback))
+
+  def maybeHandleErrorSync(f: PartialFunction[Throwable, CallbackTo[A]]): AsyncCallback[A] =
+    maybeHandleError(f.andThen(_.asAsyncCallback))
+
+  /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+    * current callback completes, be it in error or success.
+    */
+  @inline def finallyRunSync[B](runFinally: CallbackTo[B]): AsyncCallback[A] =
+    finallyRun(runFinally.asAsyncCallback)
 }

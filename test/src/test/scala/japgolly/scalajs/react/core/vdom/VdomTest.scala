@@ -4,6 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+import scala.annotation.nowarn
 import utest._
 
 object VdomTest extends TestSuite {
@@ -59,7 +60,7 @@ object VdomTest extends TestSuite {
 
     "noTagModOnElements" - {
       // https://github.com/japgolly/scalajs-react/issues/508
-      val a: VdomElement = <.a
+      @nowarn("cat=unused") val a: VdomElement = <.a
       val attr = ^.href := "#"
       <.a(attr)
       compileError("a(attr)")

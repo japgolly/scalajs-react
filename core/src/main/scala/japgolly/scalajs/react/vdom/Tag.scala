@@ -7,14 +7,16 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                                          final protected val modifiers: List[Seq[TagMod]],
                                          final val namespace: Namespace) extends VdomElement {
 
-  @deprecated("Use .withRef instead", "1.2.0")
-  def ref[NN >: N <: TopNode](r: Ref.Set[NN]): TagOf[NN] =
-    (this: TagOf[NN])(Attr.Ref(r))
-
   def withRef[NN >: N <: TopNode, R](ref: TagOf.RefArg[NN]): TagOf[NN] =
     ref.value match {
       case Some(r) => this(Attr.Ref(r))
       case None    => this
+    }
+
+  def withOptionalRef[NN >: N <: TopNode, R](optionalRef: Option[Ref.Set[NN]]): TagOf[NN] =
+    optionalRef match {
+      case None    => this
+      case Some(r) => withRef(r)
     }
 
   def apply(xs: TagMod*): TagOf[N] =
@@ -24,9 +26,6 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                      modifiers: List[Seq[TagMod]] = this.modifiers,
                      namespace: Namespace = this.namespace): TagOf[N] =
     new TagOf(tag, modifiers, namespace)
-
-  @deprecated("Tags now extend VdomElement. Calling .render does nothing.", "1.4.0")
-  def render: VdomElement = this
 
   override lazy val rawElement: Raw.React.Element = {
     val b = new Builder.ToRawReactElement()
@@ -61,6 +60,8 @@ object TagOf {
   final case class RefArg[N <: TopNode](value: Option[Ref.Set[N]]) extends AnyVal
   object RefArg {
     implicit def set[N <: TopNode](r: Ref.Set[N]): RefArg[N] = apply(Some(r))
+
+    @deprecated("Use .withOptionalRef", "1.7.0")
     implicit def option[N <: TopNode](o: Option[Ref.Set[N]]): RefArg[N] = apply(o)
   }
 }

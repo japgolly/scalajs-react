@@ -4,11 +4,11 @@ import nyaya.gen._
 import nyaya.prop._
 import nyaya.test.PropTest._
 import utest._
-
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+import scala.annotation.nowarn
 
 object ReusabilityTest extends TestSuite {
 
@@ -98,6 +98,11 @@ object ReusabilityTest extends TestSuite {
     case object Y3b extends Y3
   }
 
+  private final case class P[A](aye: A)
+  private object P {
+    implicit def reusability[A: Reusability]: Reusability[P[A]] = Reusability.derive
+  }
+
   val collectionData = {
     val a = Vector(3,1,2,3,2,1)
     (for (l <- 0 to a.length) yield a.combinations(l).toSet).reduce(_ ++ _)
@@ -146,31 +151,35 @@ object ReusabilityTest extends TestSuite {
           test(CCT2(3,"a"), CCT2(3,"b"), false)
           test(CCT2(3,"a"), CCT2(4,"a"), false)
         }
+        "p" - {
+          implicitly[Reusability[P[Int]]]
+          ()
+        }
       }
 
       "caseClassExcept" - {
         "1/1" - {
-          implicit val r = Reusability.caseClassExcept[CC1]('i)
+          implicit val r = Reusability.caseClassExcept[CC1]("i")
           test(CC1(2), CC1(2), true)
           test(CC1(2), CC1(3), true)
         }
 
         "1st of 2" - {
-          implicit val r = Reusability.caseClassExcept[CC2]('i)
+          implicit val r = Reusability.caseClassExcept[CC2]("i")
           test(CC2(3,"a"), CC2(3,"a"), true)
           test(CC2(3,"a"), CC2(3,"b"), false)
           test(CC2(3,"a"), CC2(4,"a"), true)
         }
 
         "2nd of 2" - {
-          implicit val r = Reusability.caseClassExcept[CC2]('n)
+          implicit val r = Reusability.caseClassExcept[CC2]("n")
           test(CC2(3,"a"), CC2(3,"a"), true)
           test(CC2(3,"a"), CC2(3,"b"), true)
           test(CC2(3,"a"), CC2(4,"a"), false)
         }
 
          "2/4" - {
-           implicit val r = Reusability.caseClassExcept[CC4]('a, 'c)
+           implicit val r = Reusability.caseClassExcept[CC4]("a", "c")
            test(CC4(1, 2, 3, 4), CC4(1, 2, 3, 4), true)
            test(CC4(1, 2, 3, 4), CC4(0, 2, 3, 4), true)
            test(CC4(1, 2, 3, 4), CC4(1, 0, 3, 4), false)
@@ -179,12 +188,12 @@ object ReusabilityTest extends TestSuite {
          }
 
         "notFound" - {
-          val e = compileError(""" Reusability.caseClassExcept[CC1]('x) """)
+          val e = compileError(""" Reusability.caseClassExcept[CC1]("x") """)
           assert(e.msg contains "Not found")
         }
 
         "dups" - {
-          val e = compileError(""" Reusability.caseClassExcept[CC1]('i, 'i) """)
+          val e = compileError(""" Reusability.caseClassExcept[CC1]("i", "i") """)
           assert(e.msg contains "Duplicate")
         }
       }
@@ -205,7 +214,7 @@ object ReusabilityTest extends TestSuite {
         }
         "reuseMid" - {
           implicit val r = {
-            implicit val x3 = Reusability.always[X3]
+            @nowarn("cat=unused") implicit val x3 = Reusability.always[X3]
             Reusability.derive[X]
           }
           test[X](X1    , X1    , true)
@@ -236,7 +245,7 @@ object ReusabilityTest extends TestSuite {
         }
         "reuseMid" - {
           implicit val r = {
-            implicit val y3 = Reusability.always[Y3]
+            @nowarn("cat=unused") implicit val y3 = Reusability.always[Y3]
             Reusability.derive[Y]
           }
           test[Y](Y1    , Y1    , true)
@@ -336,11 +345,11 @@ object ReusabilityTest extends TestSuite {
     "jsDate" - {
       import scala.scalajs.js.Date
       val now = System.currentTimeMillis
-      val date1 = new Date(now)
-      val date2 = new Date(now)
+      val date1 = new Date(now.toDouble)
+      val date2 = new Date(now.toDouble)
 
       assert(date1 ~=~ date2)
-      assert(!(date1 ~=~ new Date(now + 1)))
+      assert(!(date1 ~=~ new Date(now.toDouble + 1)))
     }
 
     "javaDate" - {

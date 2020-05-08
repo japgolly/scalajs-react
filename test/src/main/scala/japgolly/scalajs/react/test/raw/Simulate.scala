@@ -1,8 +1,10 @@
 package japgolly.scalajs.react.test.raw
 
+import scala.annotation.nowarn
 import scala.scalajs.js
 
 @js.native
+@nowarn("cat=unused")
 trait Simulate extends js.Object {
   def auxClick          (t: ReactOrDomNode, eventData: js.Object = js.native): Unit = js.native
   def beforeInput       (t: ReactOrDomNode, eventData: js.Object = js.native): Unit = js.native

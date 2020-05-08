@@ -85,7 +85,27 @@ object AsyncCallbackTest extends TestSuite {
           runs ==> 2
         }
 
-        "point" - test(AsyncCallback.point(_))
+        "delay" - test(AsyncCallback.delay(_))
+      }
+
+      "stackSafety" - {
+        import japgolly.scalajs.react.CatsReact._
+        type F[A] = AsyncCallback[A]
+        "nestedFlatMapsInTailrecLoop"    - StackSafety.nestedFlatMapsInTailrecLoop[F]
+        "nestedFlatMapsInNonTailrecLoop" - StackSafety.nestedFlatMapsInNonTailrecLoop[F]
+      }
+
+      "sync" - {
+        "sync" - {
+          val a = AsyncCallback.pure(123)
+          val r = a.sync.runNow()
+          r ==> Right(123)
+          a.unsafeRunNowSync() ==> 123
+        }
+        "async" - {
+          val r = AsyncCallback.pure(123).delayMs(1).sync.runNow()
+          r.isLeft ==> true
+        }
       }
     }
 

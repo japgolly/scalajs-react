@@ -20,7 +20,7 @@ Firstly, it's recommended you read [TYPES.md](TYPES.md).
   * **Mounted Facade** - Create a standard Scala.JS facade for the component's mounted instance if it contains additional API.
 2. Get a reference to the target component. Either:
   ```scala
-  @JSName("Blah")                // If you're not using modules
+  @JSGlobal("Blah")              // If you're not using modules
   @JSImport("./blah.js", "Blah") // If you're using modules
   @js.native
   object BlahJs extends js.Object
@@ -46,7 +46,7 @@ import scalajs.js
  */
 object ReactCollapse {
 
-  @JSName("ReactCollapse")
+  @JSGlobal("ReactCollapse")
   @js.native
   object RawComponent extends js.Object
 

@@ -3,24 +3,32 @@ package japgolly.scalajs.react.internal
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.Reusable
 import japgolly.scalajs.react.extra.StateSnapshot
+import scala.annotation.nowarn
 
 trait MonocleExtStateSnapshot {
   import MonocleExtStateSnapshot._
 
-  final implicit def MonocleReactExt_StateSnapshotNR(x: StateSnapshot.type) = new ObjectWithoutReuse(StateSnapshot)
-  final implicit def MonocleReactExt_StateSnapshotWR(x: StateSnapshot.withReuse.type) = new ObjectWithReuse(StateSnapshot.withReuse)
-  final implicit def MonocleReactExt_StateSnapshot[A](x: StateSnapshot[A]) = new Instance(x)
-  final implicit def MonocleReactExt_StateSnapshotWR[A](x: StateSnapshot.InstanceMethodsWithReuse[A]) = new InstanceWithReuse(x)
+  final implicit def MonocleReactExt_StateSnapshotNR(@nowarn("cat=unused") x: StateSnapshot.type) =
+    new ObjectWithoutReuse(StateSnapshot)
+
+  final implicit def MonocleReactExt_StateSnapshotWR(@nowarn("cat=unused") x: StateSnapshot.withReuse.type) =
+    new ObjectWithReuse(StateSnapshot.withReuse)
+
+  final implicit def MonocleReactExt_StateSnapshot[A](x: StateSnapshot[A]) =
+    new Instance(x)
+
+  final implicit def MonocleReactExt_StateSnapshotWR[A](x: StateSnapshot.InstanceMethodsWithReuse[A]) =
+    new InstanceWithReuse(x)
 }
 
 object MonocleExtStateSnapshot {
 
-  final class ObjectWithoutReuse(private val ε: StateSnapshot.type) extends AnyVal {
+  final class ObjectWithoutReuse(@nowarn("cat=unused") private val ε: StateSnapshot.type) extends AnyVal {
     def zoomL[S, T](lens: monocle.Lens[S, T]) =
       StateSnapshot.zoom(lens.get)(lens.set)
   }
 
-  final class ObjectWithReuse(private val ε: StateSnapshot.withReuse.type) extends AnyVal {
+  final class ObjectWithReuse(@nowarn("cat=unused") private val ε: StateSnapshot.withReuse.type) extends AnyVal {
     def zoomL[S, T](lens: monocle.Lens[S, T]) =
       StateSnapshot.withReuse.zoom(lens.get)(lens.set)
   }

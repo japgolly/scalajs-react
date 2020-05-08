@@ -21,7 +21,7 @@ object AjaxExample2 {
     Ajax("POST", "https://reqres.in/api/login")
       .setRequestContentTypeJsonUtf8
       .send("""{ "email": "eve.holt@reqres.in", "password": "cityslicka" }""")
-      .validateStatusIsSuccessful(Callback.error) // Ensure (status >= 200 && status < 300) || status == 304
+      .validateStatusIsSuccessful(Callback.throwException) // Ensure (status >= 200 && status < 300) || status == 304
       .asAsyncCallback
       .void
 
@@ -42,7 +42,7 @@ object AjaxExample2 {
     Ajax("GET", s"https://reqres.in/api/users/$userId")
       .setRequestContentTypeJsonUtf8
       .send
-      .validateStatusIs(200)(Callback.error)
+      .validateStatusIs(200)(Callback.throwException)
       .asAsyncCallback
       .map(xhr => JSON.parse(xhr.responseText).asInstanceOf[UserAjaxResponse]) // You'd normally be safer than this
       .map(_.data)                                                             // outside of a quick demo.
@@ -80,7 +80,7 @@ object AjaxExample2 {
   }
 
   def onError(error: Throwable): AsyncCallback[VdomElement] =
-    AsyncCallback.point {
+    AsyncCallback.delay {
       error.printStackTrace()
       <.div(^.color.red, ^.fontSize := "120%",
         <.div("An error occurred."),

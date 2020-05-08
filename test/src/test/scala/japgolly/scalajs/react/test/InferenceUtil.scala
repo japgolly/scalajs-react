@@ -2,9 +2,10 @@ package japgolly.scalajs.react.test
 
 import scala.reflect.ClassTag
 import scala.scalajs.js
-import scalaz.{Monad, ~>}
 import japgolly.scalajs.react._
+import scala.annotation.nowarn
 
+@nowarn("cat=unused")
 object InferenceUtil {
 
   def test[A] = new {
@@ -27,8 +28,8 @@ object InferenceUtil {
   }
 
   trait Big
-  trait Medium <: Big
-  trait Small <: Medium
+  trait Medium extends Big
+  trait Small extends Medium
 
   trait M[A]
   trait P

@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import org.scalajs.dom
-import scala.annotation.implicitNotFound
+import scala.annotation.{implicitNotFound, nowarn}
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import japgolly.scalajs.react.internal.OptionLike
@@ -86,6 +86,7 @@ object Attr {
     @inline def composition(name: String) = apply[raw.SyntheticCompositionEvent](name)
     @inline def drag       (name: String) = apply[raw.SyntheticDragEvent       ](name)
     @inline def focus      (name: String) = apply[raw.SyntheticFocusEvent      ](name)
+    @inline def form       (name: String) = apply[raw.SyntheticFormEvent       ](name)
     @inline def keyboard   (name: String) = apply[raw.SyntheticKeyboardEvent   ](name)
     @inline def mouse      (name: String) = apply[raw.SyntheticMouseEvent      ](name)
     @inline def pointer    (name: String) = apply[raw.SyntheticPointerEvent    ](name)
@@ -157,6 +158,7 @@ object Attr {
     def byImplicit[A, U](implicit f: A => js.Any): ValueType[A, U] =
       apply((b, a) => b(f(a)))
 
+    @nowarn("cat=unused")
     implicit def byUnion[A, B, C](implicit f: A => (B | C)): ValueType[A, B | C] =
       apply((b, a) => b(a.asInstanceOf[js.Any]))
 

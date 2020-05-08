@@ -31,10 +31,6 @@ object MonocleExtComponent {
         case Some(b) => setStateL(l)(b, cb)
         case None    => self.setStateOption(None, cb)
       }
-
-    @deprecated("Create a function yourself. If you're using this in Reusable.fn(…), use Reusable.fn.state(this.zoom…).set instead", "1.2.0")
-    def setStateFnL[L[_, _, _, _], B](l: L[S, S, _, B], cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): B => F[Unit] =
-      setStateL(l)(_, cb)
   }
 
   final class StateWritableCB[I, S](private val i: I)(implicit sa: StateAccessor.WritePure[I, S]) {
@@ -52,9 +48,5 @@ object MonocleExtComponent {
         case Some(b) => setStateL(l)(b, cb)
         case None    => sa(i).setStateOption(None, cb)
       }
-
-    @deprecated("Create a function yourself. If you're using this in Reusable.fn(…), use Reusable.fn.state(this.zoom…).set instead", "1.2.0")
-    def setStateFnL[L[_, _, _, _], B](l: L[S, S, _, B], cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): B => Callback =
-      setStateL(l)(_, cb)
   }
 }

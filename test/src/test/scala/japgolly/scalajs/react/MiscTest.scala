@@ -11,6 +11,7 @@ import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import MonocleReact._
+import java.time.Duration
 import scala.util.Try
 
 object MiscTest extends TestSuite {
@@ -30,6 +31,11 @@ object MiscTest extends TestSuite {
     _.getOrEmpty
 
   override def tests = Tests {
+
+    "version" - {
+      assertEq(React.version, ReactDOM.version)
+      assertEq(React.version, ReactDOMServer.version)
+    }
 
     "children" - {
       "argsToComponents" - {
@@ -174,6 +180,35 @@ object MiscTest extends TestSuite {
         Try(JsComponent[Null, Children.None, Null](s))
         Try(JsFnComponent[Null, Children.None](s))
       }
+    }
+
+    "Profiler" - {
+      import React.Profiler.OnRenderData
+      var results = Vector.empty[OnRenderData]
+      val comp = ScalaComponent.builder[Int]("")
+        .render_P(i =>
+          React.Profiler("blah", d => Callback { results :+= d })(
+            <.div("i = ", i)
+          )
+        ).build
+      React.Profiler.unstable_trace("poop") {
+        ReactTestUtils.withRenderedIntoDocument(comp(234)) { mounted =>
+          assertOuterHTML(mounted.getDOMNode.toHtml.get, "<div>i = 234</div>")
+        }
+      }
+      assertEq(results.length, 1)
+      val r = results.head
+      assertEq(r.id, "blah")
+      assertEq(r.phase, "mount")
+      assertEq(r.phaseIsMount, true)
+      assertEq(r.phaseIsUpdate, false)
+      assertEq(r.interactions.length, 1)
+      val i = r.interactions.head
+      assertEq(i.name, "poop")
+    }
+
+    "durationFromDOMHighResTimeStamp" - {
+      assertEq(JsUtil.durationFromDOMHighResTimeStamp(3), Duration.ofMillis(3))(Equal.equalA)
     }
   }
 }

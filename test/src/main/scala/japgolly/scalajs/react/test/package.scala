@@ -2,8 +2,6 @@ package japgolly.scalajs.react
 
 package object test {
 
-  val Simulate = japgolly.scalajs.react.test.raw.ReactTestUtils.Simulate
-
   type ReactOrDomNode = japgolly.scalajs.react.test.raw.ReactOrDomNode
 
   implicit def reactOrDomNodeFromMounted(m: GenericComponent.MountedRaw): ReactOrDomNode =

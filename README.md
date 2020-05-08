@@ -32,8 +32,8 @@ Includes a router, testing utils, performance utils, more.
   - [Other](doc/EXTRA.md)
 - [Testing](doc/TESTING.md)
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/)
-- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.12/1.5.0) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.12/1.5.0) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/1.5.0) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/1.5.0) | [monocle-cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle-cats_sjs0.6_2.12/1.5.0) | [cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-cats_sjs0.6_2.12/1.5.0) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/1.5.0)
-- [Changelogs](doc/changelog) — [**v1.5.0** (Latest)](doc/changelog/1.5.0.md)
+- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.12/1.6.0) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.12/1.6.0) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/1.6.0) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/1.6.0) | [monocle-cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle-cats_sjs0.6_2.12/1.6.0) | [cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-cats_sjs0.6_2.12/1.6.0) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/1.6.0)
+- [Changelogs](doc/changelog) — [**v1.6.0** (Latest)](doc/changelog/1.6.0.md)
 
 
 ##### External Resources
@@ -44,6 +44,7 @@ Includes a router, testing utils, performance utils, more.
   * [TodoMVC example](http://todomvc.com/examples/scalajs-react)
   * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
   * [Scala.js, React and ScalaCSS Boilerplate](https://github.com/shashkovdanil/scalajs-react-boilerplate)
+  * ['Intro to React' tutorial transposed into scala.js](https://github.com/MrCurtis/ScalaJSReactTutorial)
 
 * Libraries
   * [test-state](https://github.com/japgolly/test-state/) - Integration/Functional/Property testing for scalajs-react.
@@ -53,6 +54,7 @@ Includes a router, testing utils, performance utils, more.
   * [payalabs / scalajs-react-mdl](https://github.com/payalabs/scalajs-react-mdl) - (Material Design Lite components)
   * [cquiroz / scalajs-react-virtualized](https://github.com/cquiroz/scalajs-react-virtualized) - Facade for react-virtualized
   * [cquiroz / scalajs-react-clipboard](https://github.com/cquiroz/scalajs-react-clipboard) - Facade for react-copy-to-clipboard
+  * [kinoplan / scalajs-react-material-ui](https://github.com/kinoplan/scalajs-react-material-ui) - Material-UI components (+ Full Demo)
   * [diode](https://github.com/suzaku-io/diode) - library for managing application state, influenced by Flux and Elm
 
 * Open Source Projects, which are using [scalajs-react](https://github.com/japgolly/scalajs-react)

@@ -21,43 +21,6 @@ sealed trait ComponentDom {
 
   final def toNode: Option[dom.Node] =
     mounted.map(_.node)
-
-  @deprecated("Either use .toHtml, or call .mounted and safely handle None before .asHtml()", "1.3.0")
-  final def domAsHtml: html.Element =
-    asMounted().asHtml()
-
-  @deprecated("Use .toHtml", "1.3.0")
-  def domToHtml: Option[html.Element] =
-    toHtml
-
-  @deprecated("Call .mounted and safely handle None before .raw", "1.3.0")
-  def rawDomNode: Raw.ReactDOM.DomNode =
-    asMounted().raw
-
-  @deprecated("Use .toText", "1.3.0")
-  final def left = toText
-
-  @deprecated("Use .toElement", "1.3.0")
-  final def right = toElement
-
-  // These are commented out because the deprecation cascades to usages of the implementations in ComponentDom.Mounted
-  // which is not what I want. Those versions are fine.
-
-  //  @deprecated("Either use .toElement, or call .mounted and safely handle None before .asElement", "1.3.0")
-  //  def asElement(): dom.Element =
-  //    asMounted().asElement()
-  //
-  //  @deprecated("Either use .toText, or call .mounted and safely handle None before .asText", "1.3.0")
-  //  def asText(): dom.Text =
-  //    asMounted().asText()
-  //
-  //  @deprecated("Call .mounted and safely handle None before .domCast", "1.3.0")
-  //  def domCast[N <: dom.raw.Node]: N =
-  //    asMounted().domCast[N]
-  //
-  //  @deprecated("Call .mounted and safely handle None before .fold", "1.3.0")
-  //  def fold[A](text: dom.Text => A, element: dom.Element => A): A =
-  //    asMounted().fold(text, element)
 }
 
 object ComponentDom {
@@ -72,7 +35,7 @@ object ComponentDom {
   def findDOMNode(a: dom.Element | Raw.React.ComponentUntyped): ComponentDom = {
     val b: Raw.ReactDOM.DomNode | Null =
       try Raw.ReactDOM.findDOMNode(a)
-      catch {case t: Throwable => null}
+      catch {case _: Throwable => null}
     apply(b)
   }
 
@@ -85,9 +48,6 @@ object ComponentDom {
 
     def node: dom.Node
     def raw: Raw.ReactDOM.DomNode
-
-    @deprecated("Use .raw", "1.3.0")
-    final override def rawDomNode: Raw.ReactDOM.DomNode = raw
 
     /** unsafe! may throw an exception */
     final def asElement(): dom.Element =

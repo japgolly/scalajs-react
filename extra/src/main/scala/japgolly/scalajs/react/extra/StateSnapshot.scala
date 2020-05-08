@@ -1,11 +1,14 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.internal.{Iso, Lens}
+import japgolly.scalajs.react.internal.{Effect, Iso, Lens}
 
 final class StateSnapshot[S](val value: S,
                              val underlyingSetFn: Reusable[StateSnapshot.SetFn[S]],
                              private[StateSnapshot] val reusability: Reusability[S]) extends StateAccess.Write[CallbackTo, S] {
+
+  override protected implicit def F: Effect[CallbackTo] =
+    Effect.callbackInstance
 
   override def toString = s"StateSnapshot($value)"
 
@@ -48,6 +51,9 @@ object StateSnapshot {
 
   private def untuple[A,B,C](f: ((A, B)) => C): (A, B) => C =
     (a, b) => f((a, b))
+
+  private lazy val setFnReadOnly: Reusable[SetFn[Any]] =
+    reusableSetFn[Any]((_, cb) => cb)
 
   final class InstanceMethodsWithReuse[S](self: StateSnapshot[S]) { // not AnyVal, nominal for Monocle ext
     import self.{value, underlyingSetFn}
@@ -109,6 +115,12 @@ object StateSnapshot {
       def prepareVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): FromLensSetStateFn[S, T] =
         prepare(t(i).modStateOption)
 
+      def prepareViaProps[P, I]($: GenericComponent.MountedPure[P, _])(f: P => I)(implicit t: I => StateAccess.ModState[CallbackTo, S]): FromLensSetStateFn[S, T] =
+        prepareViaCallback($.props.map(f))
+
+      def prepareViaCallback[I](cb: CallbackTo[I])(implicit t: I => StateAccess.ModState[CallbackTo, S]): FromLensSetStateFn[S, T] =
+        prepare((f, k) => cb.flatMap(t(_).modStateOption(f, k)))
+
       def xmap[U](get: T => U)(set: U => T): FromLens[S, U] =
         new FromLens(l --> Iso(get)(set))
 
@@ -122,6 +134,9 @@ object StateSnapshot {
 
       def tupled(set: Reusable[TupledSetFn[S]])(implicit r: Reusability[S]): StateSnapshot[S] =
         apply(set.map(untuple))
+
+      def readOnly(implicit r: Reusability[S]): StateSnapshot[S] =
+        apply(setFnReadOnly)
     }
 
     final class FromSetStateFn[S](private val set: Reusable[SetFn[S]]) extends AnyVal {
@@ -175,6 +190,9 @@ object StateSnapshot {
 
       def setStateVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): StateSnapshot[S] =
         apply(t(i).setStateOption)
+
+      def readOnly: StateSnapshot[S] =
+        apply(setFnReadOnly)
     }
 
     final class FromLensValue[S, T](l: Lens[S, T], value: T) {

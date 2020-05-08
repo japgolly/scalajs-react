@@ -26,13 +26,13 @@ Setup
 
     ```scala
     // scalajs-react test module
-    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "1.5.0" % Test
+    libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "1.6.0" % Test
 
     // React JS itself.
     // NOTE: Requires react-with-addons.js instead of just react.js
     jsDependencies +=
 
-      "org.webjars.npm" % "react-dom" % "16.7.0" % Test
+      "org.webjars.npm" % "react-dom" % "16.13.1" % Test
         /         "umd/react-dom-test-utils.development.js"
         minified  "umd/react-dom-test-utils.production.min.js"
         dependsOn "umd/react-dom.development.js"

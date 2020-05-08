@@ -2,7 +2,7 @@ package japgolly.scalajs.react.test
 
 import sizzle.Sizzle
 import org.scalajs.dom
-import org.scalajs.dom.document
+import org.scalajs.dom.{Event, document}
 import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
 import scala.concurrent.Promise
 import scalajs.concurrent.JSExecutionContext.Implicits.queue
@@ -11,6 +11,9 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.raw.SyntheticEvent
 import japgolly.scalajs.react.vdom.html_<^._
 import TestUtil._
+import scala.annotation.nowarn
+import scala.scalajs.js
+import scalaz.Equal
 
 object TestTest extends TestSuite {
 
@@ -37,6 +40,7 @@ object TestTest extends TestSuite {
     var prev = "none"
     def render(p: String) = <.div(s"$prev → $p")
   }
+  @nowarn("cat=deprecation")
   val CP = ScalaComponent.builder[String]("asd")
     .backend(_ => new CP)
     .renderBackend
@@ -58,7 +62,7 @@ object TestTest extends TestSuite {
 
     "renderIntoDocument" - {
       def test(c: GenericComponent.MountedRaw, exp: String): Unit =
-        assertOuterHTML(ReactDOM.findDOMNode(c.raw).get.asElement, exp)
+        assertOuterHTML(ReactDOM.findDOMNode(c.raw).get.asElement(), exp)
 
       "plainElement" - {
         val re: VdomElement = <.div("Good")
@@ -83,9 +87,9 @@ object TestTest extends TestSuite {
       }
 
       "eventTypes" - {
-        def test[E[+x <: dom.Node] <: SyntheticEvent[x]](eventType: VdomAttr.Event[E], simF: ReactOrDomNode ⇒ Unit) = {
+        def test[E[+x <: dom.Node] <: SyntheticEvent[x]](eventType: VdomAttr.Event[E], simF: ReactOrDomNode => Unit) = {
           val IDC = ScalaComponent.builder[Unit]("IC").initialState(true).render($ => {
-            val ch = (e: E[dom.Node]) => $.modState(x => !x)
+            @nowarn("cat=unused") val ch = (e: E[dom.Node]) => $.modState(x => !x)
             <.label(
               <.input.text(^.value := $.state, eventType ==> ch).withRef(inputRef),
               <.span(s"s = ${$.state}")
@@ -158,6 +162,29 @@ object TestTest extends TestSuite {
         "onWheel"              - test(^.onWheel,              Simulate.wheel(_))
       }
 
+      "withDefaultEventData" - {
+        val x = Simulate.withDefaultEventData(js.Dynamic.literal("bubbles" -> true)).asInstanceOf[js.Dynamic]
+        x.bubbles ==> true
+        x.defaultPrevented ==> false
+      }
+
+      "eventDefaults" - {
+        var ok = false
+        val c = ScalaComponent.builder[Unit]("").render_P { _ =>
+          def onClick(e: ReactEvent) = {
+            // Make sure these don't throw
+            e.defaultPrevented
+            e.isDefaultPrevented()
+            Callback { ok = true }
+          }
+          <.div(^.onClick ==> onClick)
+        }.build
+        ReactTestUtils.withRenderedIntoDocument(c()) { m =>
+          Simulate.click(m)
+        }
+        assertEq(ok, true)
+      }
+
       "change" - {
         val c = ReactTestUtils.renderIntoDocument(IT())
         SimEvent.Change("hehe").simulate(c)
@@ -173,7 +200,7 @@ object TestTest extends TestSuite {
             e("change") >> T.setState(ev.target.value)
           <.input.text(^.value := T.state, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur")).withRef(inputRef)
         }).build
-        val c = ReactTestUtils.renderIntoDocument(C())
+        ReactTestUtils.renderIntoDocument(C())
         Simulation.focusChangeBlur("good") run inputRef.unsafeGet()
         assertEq(events, Vector("focus", "change", "blur"))
         assertEq(inputRef.unsafeGet().value, "good")
@@ -225,7 +252,7 @@ object TestTest extends TestSuite {
     "withRenderedIntoDocumentAsync" - {
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
-      ReactTestUtils.withRenderedIntoDocumentAsync(IC()) { mm =>
+      ReactTestUtils.withRenderedIntoDocumentFuture(IC()) { mm =>
         m = mm
         promise.future
       }
@@ -243,7 +270,7 @@ object TestTest extends TestSuite {
       val body1 = inspectBody()
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
-      val future = ReactTestUtils.withRenderedIntoBodyAsync(IC()) { mm =>
+      val future = ReactTestUtils.withRenderedIntoBodyFuture(IC()) { mm =>
         m = mm
         promise.future
       }
@@ -285,5 +312,27 @@ object TestTest extends TestSuite {
         s"$orig  →  $after"
       }
     }
+
+    "act" - {
+      // Just making sure the facade and types align
+      var called = false
+      ReactTestUtils.act {
+        called = true
+      }
+      assertEq(called, true)
+    }
+
+    // Disabled due to https://github.com/scala-js/scala-js-env-jsdom-nodejs/issues/44
+//    "actAsync" - {
+//      // Just making sure the facade and types align
+//      var called = false
+//      ReactTestUtils.actAsync {
+//        AsyncCallback.delay {
+//          called = true
+//        }
+//      }.tap { _ =>
+//        assertEq(called, true)
+//      }.unsafeToFuture()
+//    }
   }
 }

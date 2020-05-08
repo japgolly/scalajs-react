@@ -1,9 +1,10 @@
 package japgolly.scalajs.react.component.builder
 
-import japgolly.scalajs.react.{Callback, CallbackTo, ComponentDom, PropsChildren, StateAccess}
+import japgolly.scalajs.react.{Callback, CallbackTo, ComponentDom, PropsChildren, ReactCaughtError, StateAccess}
 import japgolly.scalajs.react.component.Scala._
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.raw.React
+import scala.scalajs.js
 import Lifecycle._
 
 final case class Lifecycle[P, S, B, SS](
@@ -22,9 +23,6 @@ final case class Lifecycle[P, S, B, SS](
 
   def append[I, O](lens: Lens[Lifecycle[P, S, B, SS], Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
     lens.mod(o => Some(o.fold(g)(f => i => s.append(f(i), g(i)))))(this)
-
-  def append2[I1, I2, O](lens: Lens[Lifecycle[P, S, B, SS], Option[(I1, I2) => O]])(g: (I1, I2) => O)(implicit s: Semigroup[O]): This =
-    lens.mod(o => Some(o.fold(g)(f => (i1, i2) => s.append(f(i1, i2), g(i1, i2)))))(this)
 
   def resetSnapshot[SS2](componentDidUpdate     : Option[ComponentDidUpdateFn     [P, S, B, SS2]],
                          getSnapshotBeforeUpdate: Option[GetSnapshotBeforeUpdateFn[P, S, B, SS2]]): Lifecycle[P, S, B, SS2] =
@@ -48,6 +46,9 @@ object Lifecycle {
     new Lifecycle(None, None, None, None, None, None, None, None, None, None)
 
   sealed trait Base[P, S, B] extends Any {
+
+    protected implicit def F: Effect[CallbackTo] = Effect.callbackInstance
+
     def raw: RawMounted[P, S, B]
 
     final def backend      : B                      = raw.backend
@@ -103,10 +104,12 @@ object Lifecycle {
 
   type ComponentDidCatchFn[P, S, B] = ComponentDidCatch[P, S, B] => Callback
 
-  final class ComponentDidCatch[P, S, B](val raw: RawMounted[P, S, B], val error: React.Error, val info: React.ErrorInfo)
+  final class ComponentDidCatch[P, S, B](val raw: RawMounted[P, S, B], rawError: js.Any, rawInfo: React.ErrorInfo)
       extends StateRW[P, S, B] with ForceUpdate[P, S, B] {
 
-    override def toString = wrapTostring(s"ComponentDidCatch($error)")
+    val error = ReactCaughtError(rawError, rawInfo)
+
+    override def toString = wrapTostring(s"ComponentDidCatch(${error.rawErrorString})")
 
     def props        : P                    = mountedImpure.props
     def propsChildren: PropsChildren        = mountedImpure.propsChildren

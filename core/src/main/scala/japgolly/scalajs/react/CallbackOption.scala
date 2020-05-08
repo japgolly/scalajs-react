@@ -1,10 +1,10 @@
 package japgolly.scalajs.react
 
-import scala.annotation.tailrec
+import org.scalajs.dom.{document, html}
 import japgolly.scalajs.react.internal.{OptionLike, identityFn}
-import CallbackTo.MapGuard
-
+import scala.annotation.tailrec
 import scala.collection.compat._
+import CallbackTo.MapGuard
 
 // TODO Document CallbackOption
 
@@ -129,18 +129,16 @@ object CallbackOption {
       b  <- cb.toCBO
     } yield b
 
-  /**
-   * Wraps a `CallbackOption[A]` so that:
-   *
-   * 1) It only executes if `e.defaultPrevented` is `false`.
-   * 2) It sets `e.preventDefault` on successful completion.
-   */
-  @deprecated("Use callback.asEventDefault(e) instead", "1.3.0")
-  def asEventDefault[A](e: ReactEvent, co: CallbackOption[A]): CallbackOption[A] =
-    co.asEventDefault(e)
-
   @inline implicit def callbackOptionCovariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
     c.widen
+
+  /** Returns the currently focused HTML element (if there is one). */
+  lazy val activeHtmlElement: CallbackOption[html.Element] =
+    liftOption(
+      Option(document.activeElement)
+        .flatMap(_.domToHtml)
+        .filterNot(_ eq document.body))
+
 }
 
 // =====================================================================================================================

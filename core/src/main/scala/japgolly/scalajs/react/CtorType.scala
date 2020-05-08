@@ -3,6 +3,7 @@ package japgolly.scalajs.react
 import scala.scalajs.js
 import japgolly.scalajs.react.internal._
 import CtorType._
+import scala.annotation.nowarn
 
 /** Describes how a component uses `.props.children`. */
 sealed trait Children
@@ -47,7 +48,7 @@ object CtorType {
   type ModFn = js.Object => Unit
 
   private type MaybeMod = js.UndefOr[Mod]
-  @inline private def noMod: MaybeMod = js.undefined
+  @inline private def noMod: MaybeMod = js.undefined: js.UndefOr[Mod]
 
   private final case class Mod(mod: ModFn) extends AnyVal {
     def applyAndCast[P <: js.Object](o: js.Object): P = {
@@ -255,6 +256,7 @@ object CtorType {
           raw.React.createElement[P](rc, p, formatChildren(c): _*)
         }, noMod))
 
+    @nowarn("cat=unused")
     implicit def summonPC[P <: js.Object](implicit w: Singleton.Not[P]) =
       Summoner[P, ChildrenArg.Varargs, PropsAndChildren](rc =>
         new PropsAndChildren[P, raw.React.ComponentElement[P]]((p, mm, c) => {
@@ -262,6 +264,7 @@ object CtorType {
           raw.React.createElement[P](rc, p2, formatChildren(c): _*)
         }, noMod))
 
+    @nowarn("cat=unused")
     implicit def summonP[P <: js.Object](implicit w: Singleton.Not[P]) =
       Summoner[P, ChildrenArg.None, Props](rc =>
         new Props[P, raw.React.ComponentElement[P]]((p, mm) => {

@@ -1,11 +1,13 @@
 package japgolly.scalajs.react.raw
 
+import scala.annotation.nowarn
 import scalajs.js
 import scalajs.js.|
 import scalajs.js.annotation._
 
 @JSImport("react", JSImport.Namespace, "React")
 @js.native
+@nowarn("cat=unused")
 object React extends React {
 
   @js.native
@@ -29,7 +31,7 @@ object React extends React {
 
     /** Returns the children opaque data structure as a flat array with keys assigned to each child. Useful if you want to manipulate collections of children in your render methods, especially if you want to reorder or slice this.props.children before passing it down.
       *
-      * Note: React.Children.toArray() changes keys to preserve the semantics of nested arrays when flattening lists of children. That is, toArray prefixes each key in the returned array so that each element’s key is scoped to the input array containing it.
+      * Note: React.Children.toArray() changes keys to preserve the semantics of nested arrays when flattening lists of children. That is, toArray prefixes each key in the returned array so that each element's key is scoped to the input array containing it.
       */
     def toArray(c: PropsChildren): js.Array[React.Node] = js.native
   }
@@ -114,15 +116,6 @@ object React extends React {
   type ElementType = String | ComponentType[_ <: js.Object]
 
   @js.native
-  trait Error extends js.Object {
-    val fileName    : String = js.native
-    val lineNumber  : Int    = js.native
-    val columnNumber: Int    = js.native
-    val message     : String = js.native
-    val stack       : String = js.native
-  }
-
-  @js.native
   trait ErrorInfo extends js.Object {
     val componentStack: String = js.native
   }
@@ -174,6 +167,7 @@ object React extends React {
 }
 
 @js.native
+@nowarn("cat=unused")
 trait React extends js.Object {
   import React._
 
@@ -220,5 +214,10 @@ trait React extends js.Object {
 
   final val Fragment: js.Symbol = js.native
 
+  final val Profiler: js.Symbol = js.native
+
   final val StrictMode: js.Symbol = js.native
+
+  @JSName("__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED")
+  final val SecretInternals: SecretInternals = js.native
 }

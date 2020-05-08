@@ -7,6 +7,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
+import scala.annotation.nowarn
 
 abstract class JsComponentTest extends TestSuite {
   final val H1: raw.React.Element =
@@ -88,7 +89,7 @@ object JsComponentEs6PTest extends JsComponentTest {
 
       "ctors" - {
         val p = JsProps("x")
-        def test(u: JsComponent.Unmounted[JsProps, Null]) = ()
+        def test(@nowarn("cat=unused") u: JsComponent.Unmounted[JsProps, Null]) = ()
         compileError(""" test(C())         """)
         compileError(""" test(C()())       """)
         compileError(""" test(C()(H1))     """)
@@ -242,7 +243,7 @@ object JsComponentEs6STest extends JsComponentTest {
       val C = JsComponent[Null, Children.Varargs, JsState](RawComp).addFacade[JsMethods]
 
       "ctors" - {
-        def test(u: JsComponent.UnmountedWithFacade[Null, JsState, JsMethods]) = ()
+        def test(@nowarn("cat=unused") u: JsComponent.UnmountedWithFacade[Null, JsState, JsMethods]) = ()
         compileError(""" test(C()())           """)
         compileError(""" test(C()(H1))         """)
         compileError(""" test(C()(H1, H1))     """)

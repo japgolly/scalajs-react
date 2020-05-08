@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra
 
-import org.scalajs.dom.document
+import org.scalajs.dom._
+import org.scalajs.dom.raw.EventInit
 import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
@@ -20,8 +21,10 @@ object EventListenerTest extends TestSuite {
     val c = ReactTestUtils.renderIntoDocument(C())
 
     def dispatch(name: String) = {
-      val e = document.createEvent("Event")
-      e.initEvent(name, true, true)
+      val args: EventInit = new EventInit{}
+      args.bubbles = true
+      args.cancelable = true
+      val e = new Event(name, args)
       c.getDOMNode.asMounted().asElement() dispatchEvent e
     }
 

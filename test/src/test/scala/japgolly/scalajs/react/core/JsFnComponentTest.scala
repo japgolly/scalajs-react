@@ -39,7 +39,7 @@ object JsFnComponentTest extends TestSuite {
         assertEq(unmounted.key, None)
 //        assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
-          val mounted = unmounted.renderIntoDOM(mountNode)
+          unmounted.renderIntoDOM(mountNode)
           val n = mountNode
           assertOuterHTML(n, "<div><div>Hello Bob</div></div>")
 //          assertEq(mounted.isMounted, true)
@@ -58,7 +58,7 @@ object JsFnComponentTest extends TestSuite {
         assertEq(unmounted.key, Some("hehe": Key))
 //        assertEq(unmounted.ref, None)
         ReactTestUtils.withNewBodyElement { mountNode =>
-          val mounted = unmounted.renderIntoDOM(mountNode)
+          unmounted.renderIntoDOM(mountNode)
           val n = mountNode
           assertOuterHTML(n, "<div><div>Hello Bob</div></div>")
 //          assertEq(mounted.isMounted, true)

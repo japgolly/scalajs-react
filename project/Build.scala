@@ -4,7 +4,10 @@ import com.typesafe.sbt.pgp.PgpKeys
 import com.typesafe.sbt.pgp.PgpKeys._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.{CrossType => _, crossProject => _, _}
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
+import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin
+import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
@@ -12,22 +15,27 @@ import sbtrelease.ReleasePlugin.autoImport._
 object ScalajsReact {
 
   object Ver {
-    val BetterMonadicFor = "0.3.1"
-    val Cats             = "2.0.0"
-    val KindProjector    = "0.11.0"
-    val MacroParadise    = "2.1.1"
-    val MonocleCats      = "2.0.0"
-    val MonocleScalaz    = "1.6.0"
-    val MTest            = "0.7.1"
-    val Nyaya            = "0.9.0"
-    val ReactJs          = "16.7.0"
-    val Scala212         = "2.12.10"
-    val Scala213         = "2.13.1"
-    val ScalaCollCompat  = "2.1.3"
-    val ScalaJsDom       = "0.9.8"
-    val Scalaz72         = "7.2.30"
-    val SizzleJs         = "2.3.0"
-    val Sourcecode       = "0.2.0"
+    val BetterMonadicFor      = "0.3.1"
+    val Cats                  = "2.1.1"
+    val CatsEffect            = "2.1.3"
+    val CatsTestkitScalaTest  = "1.0.1"
+    val DisciplineScalaTest   = "1.0.1"
+    val KindProjector         = "0.11.0"
+    val MacroParadise         = "2.1.1"
+    val MonocleCats           = "2.0.4"
+    val MonocleScalaz         = "1.6.3"
+    val MTest                 = "0.7.4"
+    val Nyaya                 = "0.9.2"
+    val ReactJs               = "16.13.1"
+    val Scala212              = "2.12.11"
+    val Scala213              = "2.13.2"
+    val ScalaCollCompat       = "2.1.6"
+    val ScalaJsDom            = "1.0.0"
+    val ScalaJsTime           = "1.0.0"
+    val ScalaTest             = "3.1.1"
+    val Scalaz72              = "7.2.30"
+    val SizzleJs              = "2.3.0"
+    val Sourcecode            = "0.2.1"
   }
 
   type PE = Project => Project
@@ -35,9 +43,8 @@ object ScalajsReact {
   def byScalaVersion[A](f: PartialFunction[(Long, Long), Seq[A]]): Def.Initialize[Seq[A]] =
     Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
 
-  def scalacFlags = Seq(
+  def scalacFlags: Seq[String] = Seq(
     "-deprecation",
-    "-unchecked",
     "-feature",
     "-language:postfixOps",
     "-language:implicitConversions",
@@ -45,7 +52,40 @@ object ScalajsReact {
     "-language:existentials",
     "-opt:l:inline",
     "-opt-inline-from:japgolly.scalajs.react.**",
-    "-P:scalajs:sjsDefinedByDefault")
+    "-unchecked",                                    // Enable additional warnings where generated code depends on assumptions.
+    "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
+    "-Ypatmat-exhaust-depth", "off") ++
+    (if (scalaJSVersion.startsWith("0.")) Seq("-P:scalajs:sjsDefinedByDefault") else Nil)
+
+  def scalac213Flags = Seq(
+    "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings
+    "-Wunused:explicits",                            // Warn if an explicit parameter is unused.
+    "-Wunused:implicits",                            // Warn if an implicit parameter is unused.
+    "-Wunused:imports",                              // Warn if an import selector is not referenced.
+    "-Wunused:locals",                               // Warn if a local definition is unused.
+    "-Wunused:patvars",                              // Warn if a variable bound in a pattern is unused.
+    "-Wunused:privates",                             // Warn if a private member is unused.
+    "-Xlint:adapted-args",                           // An argument list was modified to match the receiver.
+    "-Xlint:constant",                               // Evaluation of a constant arithmetic expression resulted in an error.
+    "-Xlint:delayedinit-select",                     // Selecting member of DelayedInit.
+    "-Xlint:deprecation",                            // Enable -deprecation and also check @deprecated annotations.
+    "-Xlint:eta-zero",                               // Usage `f` of parameterless `def f()` resulted in eta-expansion, not empty application `f()`.
+    "-Xlint:implicit-not-found",                     // Check @implicitNotFound and @implicitAmbiguous messages.
+    "-Xlint:inaccessible",                           // Warn about inaccessible types in method signatures.
+    "-Xlint:infer-any",                              // A type argument was inferred as Any.
+    "-Xlint:missing-interpolator",                   // A string literal appears to be missing an interpolator id.
+    "-Xlint:nonlocal-return",                        // A return statement used an exception for flow control.
+    "-Xlint:nullary-override",                       // Non-nullary `def f()` overrides nullary `def f`.
+    "-Xlint:nullary-unit",                           // `def f: Unit` looks like an accessor; add parens to look side-effecting.
+    "-Xlint:option-implicit",                        // Option.apply used an implicit view.
+    "-Xlint:poly-implicit-overload",                 // Parameterized overloaded implicit methods are not visible as view bounds.
+    "-Xlint:private-shadow",                         // A private field (or class parameter) shadows a superclass field.
+    "-Xlint:stars-align",                            // In a pattern, a sequence wildcard `_*` should match all of a repeated parameter.
+    "-Xlint:valpattern",                             // Enable pattern checks in val definitions.
+    "-Xmixin-force-forwarders:false",                // Only generate mixin forwarders required for program correctness.
+    "-Yjar-compression-level", "9",                  // compression level to use when writing jar files
+    "-Ymacro-annotations"                            // Enable support for macro annotations, formerly in macro paradise.
+  )
 
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin)
@@ -55,7 +95,7 @@ object ScalajsReact {
         scalacOptions                ++= scalacFlags,
         scalacOptions                ++= byScalaVersion {
                                            case (2, 12) => Nil
-                                           case (2, 13) => Seq("-Ymacro-annotations")
+                                           case (2, 13) => scalac213Flags
                                          }.value,
         //scalacOptions               += "-Xlog-implicits",
         incOptions                    := incOptions.value.withLogRecompileOnMacro(false),
@@ -125,7 +165,7 @@ object ScalajsReact {
   def utestSettings: PE =
     _.configure(InBrowserTesting.js)
       .settings(
-        jsEnv                 := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv,
+        jsEnv                 := new JSDOMNodeJSEnv,
         scalacOptions in Test += "-language:reflectiveCalls",
         libraryDependencies   += "com.lihaoyi" %%% "utest" % Ver.MTest % "test",
         testFrameworks        += new TestFramework("utest.runner.Framework"))
@@ -140,36 +180,36 @@ object ScalajsReact {
   val ReactDomTestUtils = ReactArtifact("react-dom-test-utils")
 
   def addReactJsDependencies(scope: Configuration): PE = {
-    _.settings(
-      dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2", // https://github.com/webjars/webjars/issues/1789
-      dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.12.0-alpha.3",
-      jsDependencies ++= Seq(
+    _.enablePlugins(JSDependenciesPlugin)
+      .settings(
+        dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2", // https://github.com/webjars/webjars/issues/1789
+        dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.12.0-alpha.3",
+        jsDependencies ++= Seq(
 
-        "org.webjars.npm" % "react" % Ver.ReactJs % scope
-          /        "umd/react.development.js"
-          minified "umd/react.production.min.js"
-          commonJSName "React",
+          "org.webjars.npm" % "react" % Ver.ReactJs % scope
+            /        "umd/react.development.js"
+            minified "umd/react.production.min.js"
+            commonJSName "React",
 
-        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
-          /         "umd/react-dom.development.js"
-          minified  "umd/react-dom.production.min.js"
-          dependsOn "umd/react.development.js"
-          commonJSName "ReactDOM",
+          "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+            /         "umd/react-dom.development.js"
+            minified  "umd/react-dom.production.min.js"
+            dependsOn "umd/react.development.js"
+            commonJSName "ReactDOM",
 
-        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
-          /         "umd/react-dom-test-utils.development.js"
-          minified  "umd/react-dom-test-utils.production.min.js"
-          dependsOn "umd/react-dom.development.js"
-          commonJSName "ReactTestUtils",
+          "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+            /         "umd/react-dom-test-utils.development.js"
+            minified  "umd/react-dom-test-utils.production.min.js"
+            dependsOn "umd/react-dom.development.js"
+            commonJSName "ReactTestUtils",
 
-        "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
-          /         "umd/react-dom-server.browser.development.js"
-          minified  "umd/react-dom-server.browser.production.min.js"
-          dependsOn "umd/react-dom.development.js"
-          commonJSName "ReactDOMServer"),
+          "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+            /         "umd/react-dom-server.browser.development.js"
+            minified  "umd/react-dom-server.browser.production.min.js"
+            dependsOn "umd/react-dom.development.js"
+            commonJSName "ReactDOMServer"),
 
-      skip in packageJSDependencies := false)
-
+        skip in packageJSDependencies := false)
   }
 
   def addCommandAliases(m: (String, String)*) = {
@@ -214,7 +254,7 @@ object ScalajsReact {
     .settings(name := "scalajs-react")
     .aggregate(
       core, extra, test, /*testModule,*/
-      cats, scalaz72,
+      cats, catsEffect, scalaz72,
       monocle, monocleCats, monocleScalaz,
       ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests)
@@ -242,12 +282,16 @@ object ScalajsReact {
     .dependsOn(cats % "test->compile")
     .settings(
       name := "test",
-      scalacOptions in Test -= "-deprecation",
+      scalacOptions in Test --= Seq(
+        "-deprecation",
+        "-Xlint:adapted-args"
+      ),
       libraryDependencies ++= Seq(
-        "com.github.japgolly.nyaya" %%% "nyaya-prop" % Ver.Nyaya % Test,
-        "com.github.japgolly.nyaya" %%% "nyaya-gen"  % Ver.Nyaya % Test,
-        "com.github.japgolly.nyaya" %%% "nyaya-test" % Ver.Nyaya % Test,
-        "com.github.julien-truffaut" %%% "monocle-macro" % Ver.MonocleScalaz % Test),
+        "com.github.japgolly.nyaya"  %%% "nyaya-prop"        % Ver.Nyaya         % Test,
+        "com.github.japgolly.nyaya"  %%% "nyaya-gen"         % Ver.Nyaya         % Test,
+        "com.github.japgolly.nyaya"  %%% "nyaya-test"        % Ver.Nyaya         % Test,
+        "com.github.julien-truffaut" %%% "monocle-macro"     % Ver.MonocleScalaz % Test,
+        "org.scala-js"               %%% "scalajs-java-time" % Ver.ScalaJsTime   % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,
@@ -312,20 +356,33 @@ object ScalajsReact {
       unmanagedSourceDirectories in Compile += (sourceDirectory in (monocleScalaz, Compile)).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
       libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.MonocleCats)
 
+  lazy val catsEffect = project
+    .in(file("cats-effect"))
+    .configure(commonSettings, publicationSettings, extModuleName("cats-effect"))
+    .dependsOn(core, cats)
+    .settings(
+      libraryDependencies ++= Seq(
+        "org.typelevel" %%% "cats-core"              % Ver.Cats,
+        "org.typelevel" %%% "cats-effect"            % Ver.CatsEffect,
+        "org.typelevel" %%% "cats-effect-laws"       % Ver.CatsEffect           % Test,
+        "org.typelevel" %%% "cats-testkit"           % Ver.Cats                 % Test,
+        "org.typelevel" %%% "cats-testkit-scalatest" % Ver.CatsTestkitScalaTest % Test,
+        "org.scalatest" %%% "scalatest"              % Ver.ScalaTest            % Test,
+        "org.typelevel" %%% "discipline-scalatest"   % Ver.DisciplineScalaTest  % Test
+    ))
+
   // ==============================================================================================
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
     .settings(
-      libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat,
-      crossScalaVersions := Seq(Ver.Scala212))
+      libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat)
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
-      crossScalaVersions := Seq(Ver.Scala212),
       libraryDependencies += "com.github.julien-truffaut" %%% "monocle-macro" % Ver.MonocleScalaz,
-      emitSourceMaps := false,
+      scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       scalaJSUseMainModuleInitializer := true,
       mainClass in Compile := Some("ghpages.GhPages"),
       artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"),

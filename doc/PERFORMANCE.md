@@ -13,7 +13,7 @@ These utilities help you avoid work in two ways.
 the other utilities are part of the `extra` module.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.5.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.6.0"
 ```
 
 ### Contents
@@ -36,6 +36,7 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.5.0"
   - [Initial instances](#initial-instances)
   - [Derivative instances](#derivative-instances)
   - [`Px` doesn't have `Reusability`](#px-doesnt-have-reusability)
+- [`React.Profiler`](#react-profiler)
 
 
 `Reusability`
@@ -80,6 +81,8 @@ If you're using the Scalaz module, you also gain:
 * `Reusability.byEqual` uses a Scalaz `Equal` typeclass.
 * `Reusability.byRefOrEqual` uses reference equality and if different, tries using a Scalaz `Equal` typeclass.
 
+If you're using the cats module you also have similar methods, but with the suffix `byEq` and using the equivalent
+`Eq` typeclass.
 
 #### Example
 The following component will only re-render when one of the following change:
@@ -524,3 +527,74 @@ class Component1Backend {
     Component2(Component2Props(px))  // .value() called implicitly
 }
 ```
+
+
+`React.Profiler`
+================
+
+React provides `React.Profiler` as a tool for you to (manually) measure selected parts of your application.
+From [the official doc](https://reactjs.org/docs/profiler.html):
+
+> The `Profiler` measures how often a React application renders and what the "cost" of rendering is.
+> Its purpose is to help identify parts of an application that are slow and may benefit from optimizations such as memoization.
+>
+> Note:
+> Profiling adds some additional overhead, so it is disabled in the production build.
+> To opt into production profiling, React provides a special production build with profiling enabled.
+> Read more about how to use this build at [fb.me/react-profiling](https://fb.me/react-profiling)
+
+Using `React.Profiler` in scalajs-react is mostly the same as using it in plain JS.
+For example, let's say you wanted to profile the following:
+
+```scala
+def render =
+  App(
+    Navigation(navProps),
+    Main(mainProps)
+  )
+```
+
+You could profile `Navigation` and `Main` like this:
+
+```scala
+private def onRender(data: React.Profiler.OnRenderData) = Callback {
+  println(s"${data.id} took ${data.actualDuration.toMillis} ms")
+}
+
+def render =
+  App(
+    React.Profiler("Navigation", onRender)(
+      Navigation(navProps)
+    ),
+    React.Profiler("Main", onRender)(
+      Main(mainProps)
+    )
+  )
+```
+
+#### Experimental API
+
+Some additional unstable React Profiler API has been exposed in the scalajs-react facade.
+Note that the methods below may be changed without warning:
+
+* `React.Profiler.unstable_trace(name)(body)` - Executes the given body in a "zone" that is detected by the Profiler and returned to you in the
+  `interactions` value of the callback.
+
+  Example:
+
+  ```scala
+  def onRed =
+    React.Profiler.unstable_trace("Red") {
+      doExpensiveThing()
+    }
+
+  def onBlue =
+    React.Profiler.unstable_trace("Blue") {
+      doExpensiveThing()
+    }
+
+  private def onRender(data: React.Profiler.OnRenderData) = Callback {
+    if (data.interactions.exists(_.name == "Red"))
+      println(s"Red path ${data.id} took ${data.actualDuration.toMillis} ms")
+  }
+  ```

@@ -1,10 +1,13 @@
 package japgolly.scalajs.react
 
 import scala.runtime.AbstractFunction2
-import japgolly.scalajs.react.internal.identityFn
+import japgolly.scalajs.react.internal.{Effect, identityFn}
 
 final class SetStateFn[F[_], S](underlyingFn: (Option[S], Callback) => F[Unit])
+                               (implicit FF: Effect[F])
     extends AbstractFunction2[Option[S], Callback, F[Unit]] with StateAccess.SetState[F, S] {
+
+  override protected implicit def F = FF
 
   override def apply(newState: Option[S], callback: Callback): F[Unit] =
     underlyingFn(newState, callback)
@@ -17,21 +20,24 @@ final class SetStateFn[F[_], S](underlyingFn: (Option[S], Callback) => F[Unit])
     this
 
   def contramap[A](f: A => S): SetStateFn[F, A] =
-    SetStateFn((a, cb) => underlyingFn(a map f, cb))
+    SetStateFn[F, A]((a, cb) => underlyingFn(a map f, cb))(FF)
 
   def narrow[A <: S]: SetStateFn[F, A] =
     contramap(identityFn)
 }
 
 object SetStateFn {
-  def apply[F[_], S](f: (Option[S], Callback) => F[Unit]): SetStateFn[F, S] =
+  def apply[F[_]: Effect, S](f: (Option[S], Callback) => F[Unit]): SetStateFn[F, S] =
     new SetStateFn(f)
 }
 
 // =====================================================================================================================
 
 final class ModStateFn[F[_], S](underlyingFn: (S => Option[S], Callback) => F[Unit])
+                               (implicit FF: Effect[F])
     extends AbstractFunction2[S => Option[S], Callback, F[Unit]] with StateAccess.ModState[F, S] {
+
+  override protected implicit def F = FF
 
   override def apply(f: S => Option[S], callback: Callback): F[Unit] =
     underlyingFn(f, callback)
@@ -44,24 +50,27 @@ final class ModStateFn[F[_], S](underlyingFn: (S => Option[S], Callback) => F[Un
     this
 
   def toModStateWithPropsFn[P](p: P): ModStateWithPropsFn[F, P, S] =
-    ModStateWithPropsFn((f, cb) => underlyingFn(f(_, p), cb))
+    ModStateWithPropsFn[F, P, S]((f, cb) => underlyingFn(f(_, p), cb))(FF)
 
   def toSetStateFn: SetStateFn[F, S] =
-    SetStateFn((s, cb) => underlyingFn(_ => s, cb))
+    SetStateFn[F, S]((s, cb) => underlyingFn(_ => s, cb))(FF)
 
   def xmapState[A](f: S => A)(g: A => S): ModStateFn[F, A] =
-    ModStateFn((m, cb) => underlyingFn(s => m(f(s)) map g, cb))
+    ModStateFn[F, A]((m, cb) => underlyingFn(s => m(f(s)) map g, cb))(FF)
 }
 
 object ModStateFn {
-  def apply[F[_], S](f: (S => Option[S], Callback) => F[Unit]): ModStateFn[F, S] =
+  def apply[F[_]: Effect, S](f: (S => Option[S], Callback) => F[Unit]): ModStateFn[F, S] =
     new ModStateFn(f)
 }
 
 // =====================================================================================================================
 
 final class ModStateWithPropsFn[F[_], P, S](underlyingFn: ((S, P) => Option[S], Callback) => F[Unit])
+                                           (implicit FF: Effect[F])
     extends AbstractFunction2[(S, P) => Option[S], Callback, F[Unit]] with StateAccess.ModStateWithProps[F, P, S] {
+
+  override protected implicit def F = FF
 
   override def apply(f: (S, P) => Option[S], callback: Callback): F[Unit] =
     underlyingFn(f, callback)
@@ -74,22 +83,22 @@ final class ModStateWithPropsFn[F[_], P, S](underlyingFn: ((S, P) => Option[S], 
     this
 
   def toModStateFn: ModStateFn[F, S] =
-    ModStateFn((f, cb) => underlyingFn((s, p) => f(s), cb))
+    ModStateFn[F, S]((f, cb) => underlyingFn((s, _) => f(s), cb))(FF)
 
   def toSetStateFn: SetStateFn[F, S] =
-    SetStateFn((s, cb) => underlyingFn((_, _) => s, cb))
+    SetStateFn[F, S]((s, cb) => underlyingFn((_, _) => s, cb))(FF)
 
   def mapProps[A](f: P => A): ModStateWithPropsFn[F, A, S] =
-    ModStateWithPropsFn((m, cb) => underlyingFn((s, p) => m(s, f(p)), cb))
+    ModStateWithPropsFn[F, A, S]((m, cb) => underlyingFn((s, p) => m(s, f(p)), cb))(FF)
 
   def widenProps[A >: P]: ModStateWithPropsFn[F, A, S] =
     mapProps(identityFn)
 
   def xmapState[A](f: S => A)(g: A => S): ModStateWithPropsFn[F, P, A] =
-    ModStateWithPropsFn((m, cb) => underlyingFn((s, p) => m(f(s), p) map g, cb))
+    ModStateWithPropsFn[F, P, A]((m, cb) => underlyingFn((s, p) => m(f(s), p) map g, cb))(FF)
 }
 
 object ModStateWithPropsFn {
-  def apply[F[_], P, S](f: ((S, P) => Option[S], Callback) => F[Unit]): ModStateWithPropsFn[F, P, S] =
+  def apply[F[_]: Effect, P, S](f: ((S, P) => Option[S], Callback) => F[Unit]): ModStateWithPropsFn[F, P, S] =
     new ModStateWithPropsFn(f)
 }

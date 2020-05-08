@@ -12,3 +12,7 @@ target
 .*.swn
 .bloop
 .metals
+metals.sbt
+node_modules/
+.vscode
+package-lock.json

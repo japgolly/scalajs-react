@@ -4,11 +4,12 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.core.JsComponentEs6PTest
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.all._
-import org.scalajs.dom.raw.HTMLInputElement
+import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.{Array => JArray}
 import utest._
 
+@nowarn("msg=Stream.+is.deprecated")
 object UnprefixedTest extends TestSuite {
   lazy val CA = ScalaComponent.builder[Unit]("CA").render_C(c => div(c)).build
   lazy val CB = ScalaComponent.builder[Unit]("CB").render_C(c => span(c)).build
@@ -135,7 +136,7 @@ object UnprefixedTest extends TestSuite {
     "optional" - {
       "option" - {
         def some[A](a: A): Option[A] = Some(a)
-        def none[A](a: A): Option[A] = None
+        @nowarn("cat=unused") def none[A](a: A): Option[A] = None
         "attr_some"    - test(div(cls   :=? some("hi")         ), """<div class="hi"></div>""")
         "attr_none"    - test(div(cls   :=? none("h1")         ), """<div></div>""")
         "style_some"   - test(div(color :=? some("red")        ), """<div style="color:red"></div>""")
@@ -153,7 +154,7 @@ object UnprefixedTest extends TestSuite {
       }
       "jsUndefOr" - {
         def some[A](a: A): js.UndefOr[A] = a
-        def none[A](a: A): js.UndefOr[A] = js.undefined
+        @nowarn("cat=unused") def none[A](a: A): js.UndefOr[A] = js.undefined
         "attr_some"    - test(div(cls   :=? some("hi")         ), """<div class="hi"></div>""")
         "attr_none"    - test(div(cls   :=? none("h1")         ), """<div></div>""")
         "style_some"   - test(div(color :=? some("red")        ), """<div style="color:red"></div>""")
@@ -173,7 +174,7 @@ object UnprefixedTest extends TestSuite {
         import ScalazReact._
         import scalaz.Maybe
         def some[A](a: A): Maybe[A] = Maybe.Just(a)
-        def none[A](a: A): Maybe[A] = Maybe.empty
+        @nowarn("cat=unused") def none[A](a: A): Maybe[A] = Maybe.empty
         "attr_some"    - test(div(cls   :=? some("hi")         ), """<div class="hi"></div>""")
         "attr_none"    - test(div(cls   :=? none("h1")         ), """<div></div>""")
         "style_some"   - test(div(color :=? some("red")        ), """<div style="color:red"></div>""")
@@ -293,8 +294,8 @@ object UnprefixedTest extends TestSuite {
 
     "key" - {
       def t(m: TagMod) = test(span(m, "1"), "<span>1</span>")
-      val anyref = new AnyRef
-      val jsObject = js.Object()
+      @nowarn("cat=unused") val anyref = new AnyRef
+      @nowarn("cat=unused") val jsObject = js.Object()
       "string"   - t(key := "1")
       "byte"     - t(key := 3.toByte)
       "short"    - t(key := 3.toShort)

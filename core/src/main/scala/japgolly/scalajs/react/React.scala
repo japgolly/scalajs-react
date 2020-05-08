@@ -19,9 +19,6 @@ object React {
   def createContext[A](defaultValue: A)(implicit jsRepr: JsRepr[A]): Context[A] =
     Context(defaultValue)(jsRepr)
 
-  @deprecated("Use Ref. For details see https://github.com/japgolly/scalajs-react/blob/master/doc/REFS.md", "1.3.0 / React 16.3.0")
-  def createRef(notAllowed: NotAllowed) = NotAllowed.body
-
   type Context[A] = feature.Context[A]
   val  Context    = feature.Context
 
@@ -48,6 +45,8 @@ object React {
     JsComponent.force[Box[P], c.ctor.ChildrenType, Null](c2)
       .cmapCtorProps[P](Box(_))
   }
+
+  val Profiler = feature.Profiler
 
   /** StrictMode is a tool for highlighting potential problems in an application.
     * Like Fragment, StrictMode does not render any visible UI.

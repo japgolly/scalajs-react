@@ -2,8 +2,11 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
-import japgolly.scalajs.react._, vdom.html_<^._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+import scala.annotation.nowarn
 
+@nowarn("cat=unused")
 object WebSocketsExample {
 
   def content = SingleSide.Content(source, main())

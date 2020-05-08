@@ -230,15 +230,24 @@ object ViaReactComponent {
       case Some(s2) => Box(s2)
     }
 
+  private[this] val anyToBoxUnit: Any => Box[Unit] =
+    _ => Box.Unit
+
   // ===================================================================================================================
 
   def apply[P, C <: Children, S, B, US <: UpdateSnapshot]
       (builder: Builder.Step4[P, C, S, B, US])
       (implicit snapshotJs: JsRepr[builder.SnapshotValue]): raw.React.ComponentClass[Box[P], Box[S]] = {
 
-    val initStateFn = builder.initStateFn
     val backendFn = builder.backendFn
     val renderFn = builder.renderFn
+
+    val initStateFn: Box[P] => Box[_] =
+      builder.initState match {
+        case InitState.InitialState(f)             => f
+        case InitState.DerivedFromPropsAndState(f) => bp => Box(f(bp.unbox, None))
+        case _                                     => anyToBoxUnit
+      }
 
     type This = RawMounted[P, S, B]
     var MyComponent: js.ThisFunction1[This, Box[P], This] = null
@@ -270,7 +279,7 @@ object ViaReactComponent {
 
     for (f <- builder.lifecycle.componentDidCatch)
       protoProps.add2("componentDidCatch",
-        (_this: This, e: raw.React.Error, i: raw.React.ErrorInfo) => f(new ComponentDidCatch(_this, e, i)).runNow())
+        (_this: This, e: js.Any, i: raw.React.ErrorInfo) => f(new ComponentDidCatch(_this, e, i)).runNow())
 
     for (f <- builder.lifecycle.componentDidMount)
       protoProps.add0("componentDidMount",
