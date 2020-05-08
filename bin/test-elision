@@ -6,6 +6,7 @@ case $# in
     set -euo pipefail
     "$0" "$1" DEVONLY
     "$0" "$1" COMP_NAMES_ARE_ELIDABLE
+    "$0" "$1" REUSABILITY_OVERRIDE_TEST
     exit 0
     ;;
   2)
