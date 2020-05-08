@@ -24,7 +24,9 @@ object ElisionTest extends TestSuite {
 
     "reusabilityOverride" - {
       ScalaJsReactDevConfig.overrideReusability(reusabilityOverride)
-      ScalaComponent.builder[Int]("").render_P(<.div(_)).configure(Reusability.shouldComponentUpdate).build
+      val x = ScalaComponent.builder[Int]("").render_P(<.div(_)).configure(Reusability.shouldComponentUpdate).build
+      ScalaJsReactDevConfig.removeReusabilityOverride()
+      x
     }
   }
 
