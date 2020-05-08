@@ -7,7 +7,7 @@ import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.extra.StateSnapshot
 
 
-object StateSnapshotExample {
+object StateSnapshotExample1 {
 
   def content = SingleSide.Content(source, Main())
 
