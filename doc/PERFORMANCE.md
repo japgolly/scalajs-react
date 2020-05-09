@@ -161,6 +161,8 @@ You can also call `ScalaJsReactDevConfig.overrideReusability` yourself and provi
 `Reusable`
 ==========
 
+*Note: if the following doesn't make much sense to you, try watching this talk: https://www.youtube.com/watch?v=9RvWDDZK3D8 which builds up to `Reusable` and its purpose*
+
 There are a cases when you cannot universally define reusability for all inhabitants of a type,
 but you can for values that you produce. Enter: `Reusable[A]`
 
