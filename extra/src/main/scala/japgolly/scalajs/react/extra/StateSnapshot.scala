@@ -35,6 +35,13 @@ final class StateSnapshot[S](val value: S,
   def zoomState[T](f: S => T)(g: T => S => S): StateSnapshot[T] =
     xmapState(f)(g(_)(value))
 
+  /** THIS WILL VOID REUSABILITY.
+    *
+    * The resulting `StateSnapshot[T]` will not be reusable.
+    */
+  def zoomStateOption[T](f: S => Option[T])(g: T => S => S): Option[StateSnapshot[T]] =
+    f(value).map(t => StateSnapshot(t)((ot, cb) => underlyingSetFn.value(ot.map(g(_)(value)), cb)))
+
   def withReuse: StateSnapshot.InstanceMethodsWithReuse[S] =
     new StateSnapshot.InstanceMethodsWithReuse(this)
 
@@ -92,6 +99,14 @@ object StateSnapshot {
         lens._1(value),
         Reusable.ap(underlyingSetFn, lens)((f, g) => (ot, cb) => f(ot.map(g._2(_)(value)), cb)),
         self.reusability.contramap(lens._2(_)(value)))
+
+    def zoomStateOption[T](optional: Reusable[(S => Option[T], T => S => S)]): Option[StateSnapshot[T]] =
+      optional._1(value).map { t =>
+        new StateSnapshot[T](
+          t,
+          Reusable.ap(underlyingSetFn, optional)((f, g) => (ot, cb) => f(ot.map(g._2(_)(value)), cb)),
+          self.reusability.contramap(optional._2(_)(value)))
+      }
   }
 
   // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
