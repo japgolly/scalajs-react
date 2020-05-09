@@ -141,12 +141,46 @@ trait SyntheticKeyboardEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEve
   /** See org.scalajs.dom.extensions.KeyValue */
   val key: String = js.native
 
-  /** printable keys (letters, numbers, symbols) */
+  /** Non-standard.
+    * This feature is non-standard and is not on a standards track. Do not use it on production sites facing the Web: it
+    * will not work for every user. There may also be large incompatibilities between implementations and the behavior
+    * may change in the future.
+    *
+    * Deprecated. This feature is no longer recommended.
+    * Though some browsers might still support it, it may have already been removed from the relevant web standards, may
+    * be in the process of being dropped, or may only be kept for compatibility purposes. Avoid using it, and update
+    * existing code if possible; see the compatibility table at the bottom of this page to guide your decision. Be aware
+    * that this feature may cease to work at any time.
+    *
+    * The charCode read-only property of the KeyboardEvent interface returns the Unicode value of a character key
+    * pressed during a keypress event.
+    */
+  @deprecated("Use .key instead. See https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/charCode", "1.7.0")
   val charCode: Int = js.native
 
-  /** non-printable keys (modifiers, arrow keys, tab, esc) */
+  /** Deprecated. This feature is no longer recommended.
+    * Though some browsers might still support it, it may have already been removed from the relevant web standards, may
+    * be in the process of being dropped, or may only be kept for compatibility purposes. Avoid using it, and update
+    * existing code if possible; see the compatibility table at the bottom of this page to guide your decision. Be aware
+    * that this feature may cease to work at any time.
+    *
+    * The deprecated KeyboardEvent.keyCode read-only property represents a system and implementation dependent numerical
+    * code identifying the unmodified value of the pressed key. This is usually the decimal ASCII (RFC 20) or Windows
+    * 1252 code corresponding to the key. If the key can't be identified, this value is 0.
+    */
+  @deprecated("See https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode", "1.7.0")
   val keyCode: Int = js.native
 
+  /** Deprecated. This feature is no longer recommended.
+    * Though some browsers might still support it, it may have already been removed from the relevant web standards, may
+    * be in the process of being dropped, or may only be kept for compatibility purposes. Avoid using it, and update
+    * existing code if possible; see the compatibility table at the bottom of this page to guide your decision. Be aware
+    * that this feature may cease to work at any time.
+    *
+    * The which read-only property of the KeyboardEvent interface returns the numeric keyCode of the key pressed, or the
+    * character code (charCode) for an alphanumeric key pressed.
+    */
+  @deprecated("See https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/which", "1.7.0")
   val which: Int = js.native
 }
 

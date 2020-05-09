@@ -108,6 +108,15 @@ object CallbackOption {
   implicit def fromCallback(c: Callback): CallbackOption[Unit] =
     c.toCBO
 
+  def keySwitch[A](e       : ReactKeyboardEvent,
+                   altKey  : Boolean = false,
+                   ctrlKey : Boolean = false,
+                   metaKey : Boolean = false,
+                   shiftKey: Boolean = false)
+                  (switch  : PartialFunction[String, CallbackTo[A]]): CallbackOption[A] =
+    keyEventSwitch(e, e.key, altKey, ctrlKey, metaKey, shiftKey)(switch)
+
+  @deprecated("Use .keySwitch instead. keyCode is officially deprecated.", "1.7.0")
   def keyCodeSwitch[A](e       : ReactKeyboardEvent,
                        altKey  : Boolean = false,
                        ctrlKey : Boolean = false,
