@@ -2,6 +2,7 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.{Effect, Iso, Lens}
+import scala.reflect.ClassTag
 
 final class StateSnapshot[S](val value: S,
                              val underlyingSetFn: Reusable[StateSnapshot.SetFn[S]],
@@ -36,6 +37,28 @@ final class StateSnapshot[S](val value: S,
 
   def withReuse: StateSnapshot.InstanceMethodsWithReuse[S] =
     new StateSnapshot.InstanceMethodsWithReuse(this)
+
+  /** @return `None` if `value: S` isn't `value: T` as well. */
+  def narrowOption[T <: S: ClassTag]: Option[StateSnapshot[T]] =
+    value match {
+      case b: T => Some(StateSnapshot(b)(setStateOption(_, _)))
+      case _    => None
+    }
+
+  /** Unsafe because writes may be dropped.
+    *
+    * Eg. if you widen a `StateSnapshot[Banana]` into `StateSnapshot[Food]`, calling `setState(banana2)` will work
+    * but `setState(pasta)` will be silently ignored.
+    */
+  def unsafeWiden[T >: S](implicit ct: ClassTag[S]): StateSnapshot[T] =
+    StateSnapshot[T](value) { (ob, cb) =>
+      val oa: Option[S] =
+        ob match {
+          case Some(s: S) => Some(s)
+          case _          => None
+        }
+      setStateOption(oa, cb)
+    }
 }
 
 object StateSnapshot {
