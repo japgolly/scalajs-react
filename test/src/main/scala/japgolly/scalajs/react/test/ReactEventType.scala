@@ -82,6 +82,7 @@ object ReactEventType {
         repeat   = false,
         locale   = "",
         key      = "Unidentified",
+        code     = "",
         charCode = 0,
         keyCode  = 0,
         which    = 0,
