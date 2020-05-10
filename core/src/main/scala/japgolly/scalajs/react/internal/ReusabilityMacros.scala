@@ -19,7 +19,7 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
     )
 
   def deriveDebugWithArgs[T: c.WeakTypeTag](logNonReuse: c.Expr[Boolean],
-                                            logCode  : c.Expr[Boolean]): c.Expr[Reusability[T]] =
+                                            logCode    : c.Expr[Boolean]): c.Expr[Reusability[T]] =
     deriveImpl[T](
       logNonReuse = readMacroArg_boolean(logNonReuse),
       logCode     = readMacroArg_boolean(logCode),
