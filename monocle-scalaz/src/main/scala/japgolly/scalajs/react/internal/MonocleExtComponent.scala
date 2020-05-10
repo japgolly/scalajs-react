@@ -17,11 +17,11 @@ object MonocleExtComponent {
     def zoomStateL[T](l: Lens[S, T]): self.WithMappedState[T] =
       self.zoomState(l.get)(l.set)
 
-    def modStateL[A, B](l: PLens[S, S, A, B])(f: A => B, cb: Callback = Callback.empty): F[Unit] =
-      self.modState(l.modify(f), cb)
+    def modStateL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => B, cb: Callback = Callback.empty)(implicit L: MonocleModifier[L]): F[Unit] =
+      self.modState(L.modify(l)(f), cb)
 
-    def modStateOptionL[A, B](l: PLens[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty): F[Unit] =
-      self.modStateOption(s => f(l get s).map(l.set(_)(s)), cb)
+    def modStateOptionL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty)(implicit L: MonocleOptionalModifier[L]): F[Unit] =
+      self.modStateOption(L.modifyOption(l)(f), cb)
 
     def setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B, cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): F[Unit] =
       self.modState(L.set(l)(b), cb)
@@ -34,11 +34,11 @@ object MonocleExtComponent {
   }
 
   final class StateWritableCB[I, S](private val i: I)(implicit sa: StateAccessor.WritePure[I, S]) {
-    def modStateL[A, B](l: PLens[S, S, A, B])(f: A => B, cb: Callback = Callback.empty): Callback =
-      sa(i).modState(l.modify(f), cb)
+    def modStateL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => B, cb: Callback = Callback.empty)(implicit L: MonocleModifier[L]): Callback =
+      sa(i).modState(L.modify(l)(f), cb)
 
-    def modStateOptionL[A, B](l: PLens[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty): Callback =
-      sa(i).modStateOption(s => f(l get s).map(l.set(_)(s)), cb)
+    def modStateOptionL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty)(implicit L: MonocleOptionalModifier[L]): Callback =
+      sa(i).modStateOption(L.modifyOption(l)(f), cb)
 
     def setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B, cb: Callback = Callback.empty)(implicit L: MonocleSetter[L]): Callback =
       sa(i).modState(L.set(l)(b), cb)
