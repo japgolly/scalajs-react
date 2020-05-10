@@ -216,7 +216,7 @@ object ReusabilityTest extends TestSuite {
           testAll()
         }
         "allDebug" - {
-          implicit val r = Reusability.deriveDebug[X](true, true)
+          implicit val r = Reusability.deriveDebug[X](true, false)
           testAll()
         }
         "reuseMid" - {
