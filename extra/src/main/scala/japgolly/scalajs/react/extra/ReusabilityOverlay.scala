@@ -85,8 +85,8 @@ object DefaultReusabilityOverlay {
   /** When you're in dev-mode (i.e. `fastOptJS`), this overrides [[Reusability.shouldComponentUpdate]] to use overlays.
     */
   def overrideGloballyInDev(options: Options = defaults): Unit =
-    ScalaJsReactDevConfig.overrideReusability(
-      new ScalaJsReactDevConfig.ReusabilityOverride {
+    ScalaJsReactConfig.DevOnly.overrideReusability(
+      new ScalaJsReactConfig.DevOnly.ReusabilityOverride {
         override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
           ReusabilityOverlay.install(options)
       }

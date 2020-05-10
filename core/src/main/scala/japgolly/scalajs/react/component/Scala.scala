@@ -13,6 +13,12 @@ object Scala {
   def static(name: => String)(content: VdomNode): Component[Unit, Unit, Unit, CtorType.Nullary] =
     builder.static(name)(content).build
 
+  /** Partially builds a component that always displays the same content, never needs to be redrawn, never needs vdom diffing.
+    * The builder is returned and can be customised futher before finally being built.
+    */
+  def static(content: VdomNode)(implicit name: AutoComponentName): Component[Unit, Unit, Unit, CtorType.Nullary] =
+    builder.static(content)(name).build
+
   val Lifecycle = japgolly.scalajs.react.component.builder.Lifecycle
 
   /** This is terrible and repulsive but Scala doesn't allow anything less repulsive.

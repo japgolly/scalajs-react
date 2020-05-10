@@ -3,8 +3,6 @@ package japgolly.scalajs.react.core
 import utest._
 import scalaz.Equal
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.internal.CompileTimeInfo
-import japgolly.scalajs.react.internal.JsUtil.inspectObject
 import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils, Simulate}
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
@@ -13,9 +11,9 @@ import scala.annotation.nowarn
 @nowarn("cat=deprecation")
 object ScalaComponentPTest extends TestSuite {
 
-  case class BasicProps(name: String)
+  private case class BasicProps(name: String)
 
-  val BasicComponent =
+  private val BasicComponent =
     ScalaComponent.builder[BasicProps]("HelloMessage")
       .stateless
       .noBackend

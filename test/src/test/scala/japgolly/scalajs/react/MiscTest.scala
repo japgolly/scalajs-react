@@ -210,5 +210,16 @@ object MiscTest extends TestSuite {
     "durationFromDOMHighResTimeStamp" - {
       assertEq(JsUtil.durationFromDOMHighResTimeStamp(3), Duration.ofMillis(3))(Equal.equalA)
     }
+
+    "static" - {
+      "named" - {
+        val r = ScalaComponent.static("asdf")(<.div("hehe"))
+        assertRender(r(), "<div>hehe</div>")
+      }
+      "auto" - {
+        val r = ScalaComponent.static(<.div("hehe"))
+        assertRender(r(), "<div>hehe</div>")
+      }
+    }
   }
 }

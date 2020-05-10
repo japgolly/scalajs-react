@@ -1,3 +1,5 @@
+import org.scalajs.linker.interface.Semantics
+
 val CI = Option(System.getProperty("CI", "")).map(_.trim.toLowerCase).filter(_.nonEmpty)
 
 ThisBuild / parallelExecution := CI.isEmpty
@@ -13,5 +15,12 @@ ThisBuild / scalaJSStage := {
   CI match {
     case Some("full") => FullOptStage
     case _            => FastOptStage
+  }
+}
+
+ThisBuild / fullOptJS / scalaJSLinkerConfig ~= {
+  CI match {
+    case Some("full") => _.withSemantics(_.withRuntimeClassNameMapper(Semantics.RuntimeClassNameMapper.discardAll()))
+    case _            => identity
   }
 }
