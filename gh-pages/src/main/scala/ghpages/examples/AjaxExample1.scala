@@ -125,7 +125,7 @@ object AjaxExample1 {
     val PostKO = Request("POST", "https://reqres.in/api/login","""{ "email": "peter@klaven" }""")
   }
 
-  val Main = ScalaComponent.builder[Unit]("AjaxExample")
+  val Main = ScalaComponent.builder[Unit]
     .initialState(State(None, None))
     .renderBackend[Backend]
     .build

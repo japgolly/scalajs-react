@@ -13,7 +13,7 @@ object StateSnapshotExample2 {
     import japgolly.scalajs.react._
     import japgolly.scalajs.react.vdom.html_<^._
 
-    ScalaComponent.static("StateSnapshotExample2")(
+    ScalaComponent.static(
       <.div(
         <.p(
           <.code("StateSnapshot"), " is [an immediate value] and [a means of modifying it], that you can pass around.",
@@ -60,7 +60,7 @@ object StateSnapshotExample2 {
   import japgolly.scalajs.react.extra._
   import monocle.macros.Lenses
 
-  val IntEditor = ScalaComponent.builder[StateSnapshot[Int]]("IntEditor")
+  val IntEditor = ScalaComponent.builder[StateSnapshot[Int]]
     .render_P { stateSnapshot =>
       <.span(
         ^.paddingLeft := "6ex", // leave some space for ReusabilityOverlay
@@ -73,7 +73,7 @@ object StateSnapshotExample2 {
 
   // -----------------------------------------------------------------------------------------------------------------
 
-  val TextEditor = ScalaComponent.builder[StateSnapshot[String]]("TextEditor")
+  val TextEditor = ScalaComponent.builder[StateSnapshot[String]]
     .render_P { stateSnapshot =>
       <.span(
         ^.paddingLeft := "6ex", // leave some space for ReusabilityOverlay
@@ -135,7 +135,7 @@ object StateSnapshotExample2 {
       }
     }
 
-    val Comp = ScalaComponent.builder[Props]("MiddleComponent")
+    val Comp = ScalaComponent.builder[Props]
       .renderBackend[Backend]
       .configure(Reusability.shouldComponentUpdate)
       .build
@@ -155,7 +155,7 @@ object StateSnapshotExample2 {
       }
     }
 
-    val Comp = ScalaComponent.builder[Unit]("TopComponent")
+    val Comp = ScalaComponent.builder[Unit]
       .initialState(Data(123, "hello"))
       .renderBackend[Backend]
       .build

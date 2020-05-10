@@ -22,7 +22,7 @@ object ReuseExample {
   // EXAMPLE:START
   // Reusable stateless components
 
-  val showSum = ScalaComponent.builder[Long]("Show sum")
+  val showSum = ScalaComponent.builder[Long]
     .render_P(sum =>
       <.h1(
         "The sum of all inputs is", <.br, sum))
@@ -32,7 +32,7 @@ object ReuseExample {
   case class InputControl(current: Int, change: Int ~=> Callback)
   implicit val inputControlReuse = Reusability.derive[InputControl]
 
-  val inputControl = ScalaComponent.builder[InputControl]("InputControl")
+  val inputControl = ScalaComponent.builder[InputControl]
     .render_P(p =>
       <.div(^.paddingLeft := "4ex",
         <.button("-1", ^.onClick --> p.change(-1)),
@@ -44,7 +44,7 @@ object ReuseExample {
 
   val numberRegex = "^-?\\d+$".r
 
-  val InputEditor = ScalaComponent.builder[StateSnapshot[Long]]("Input editor")
+  val InputEditor = ScalaComponent.builder[StateSnapshot[Long]]
     .render_P { v =>
       def update = (ev: ReactEventFromInput) => numberRegex.findFirstIn(ev.target.value).map(v setState _.toLong)
       <.input.text(
@@ -60,7 +60,7 @@ object ReuseExample {
   // ---------------------------------------------------------------------------------------------------------
   // Top-level stateful component
 
-  val topLevelComponent = ScalaComponent.builder[Unit]("Reusability example")
+  val topLevelComponent = ScalaComponent.builder[Unit]
     .initialState(State(Vector(30, 0, 2, 0, 10)))
     .renderBackend[Backend]
     .build

@@ -170,11 +170,11 @@ object ProductTableExample {
       $.modState(s => s.copy(inStockOnly = !s.inStockOnly))
   }
 
-  val ProductCategoryRow = ScalaComponent.builder[String]("ProductCategoryRow")
+  val ProductCategoryRow = ScalaComponent.builder[String]
     .render_P(category => <.tr(<.th(^.colSpan := 2, category)))
     .build
 
-  val ProductRow = ScalaComponent.builder[Product]("ProductRow")
+  val ProductRow = ScalaComponent.builder[Product]
     .render_P(p =>
       <.tr(
         <.td(<.span(^.color.red.unless(p.stocked), p.name)),
@@ -186,7 +186,7 @@ object ProductTableExample {
     p.name.contains(s.filterText) &&
     (!s.inStockOnly || p.stocked)
 
-  val ProductTable = ScalaComponent.builder[(List[Product], State)]("ProductTable")
+  val ProductTable = ScalaComponent.builder[(List[Product], State)]
     .render_P { case (products, state) =>
       val rows = products.filter(productFilter(state))
                  .groupBy(_.category).toList
@@ -203,7 +203,7 @@ object ProductTableExample {
     }
     .build
 
-  val SearchBar = ScalaComponent.builder[(State, Backend)]("SearchBar")
+  val SearchBar = ScalaComponent.builder[(State, Backend)]
     .render_P { case (s, b) =>
       <.form(
         <.input.text(
@@ -217,7 +217,7 @@ object ProductTableExample {
     }
     .build
 
-  val FilterableProductTable = ScalaComponent.builder[List[Product]]("FilterableProductTable")
+  val FilterableProductTable = ScalaComponent.builder[List[Product]]
     .initialState(State("", false))
     .backend(new Backend(_))
     .renderPS(($, p, s) =>

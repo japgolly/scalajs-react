@@ -31,7 +31,7 @@ object HelloMessageExample {
 
   // EXAMPLE:START
 
-  val HelloMessage = ScalaComponent.builder[String]("HelloMessage")
+  val HelloMessage = ScalaComponent.builder[String]
     .render($ => <.div("Hello ", $.props))
     .build
 
