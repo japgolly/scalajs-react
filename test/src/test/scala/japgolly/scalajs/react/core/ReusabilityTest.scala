@@ -200,8 +200,7 @@ object ReusabilityTest extends TestSuite {
 
       "sealedTrait" - {
         import X._
-        "all" - {
-          implicit val r = Reusability.derive[X]
+        def testAll()(implicit r: Reusability[X]): Unit = {
           test[X](X1    , X1    , true)
           test[X](X2()  , X1    , false)
           test[X](X1    , X2()  , false)
@@ -211,6 +210,14 @@ object ReusabilityTest extends TestSuite {
           test[X](X3a(2), X3a(1), false)
           test[X](X3a(2), X3b   , false)
           test[X](X3b   , X3b   , true)
+        }
+        "all" - {
+          implicit val r = Reusability.derive[X]
+          testAll()
+        }
+        "allDebug" - {
+          implicit val r = Reusability.deriveDebug[X](true, true)
+          testAll()
         }
         "reuseMid" - {
           implicit val r = {
