@@ -142,7 +142,7 @@ object WebSocketsExample {
     }
   }
 
-  val WebSocketsApp = ScalaComponent.builder[Unit]("WebSocketsApp")
+  val WebSocketsApp = ScalaComponent.builder[Unit]
     .initialState(State(None, Vector.empty, ""))
     .renderBackend[Backend]
     .componentDidMount(_.backend.start)

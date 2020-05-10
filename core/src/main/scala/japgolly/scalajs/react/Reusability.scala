@@ -340,7 +340,7 @@ object Reusability {
     if (productionMode)
       default
     else
-      ScalaJsReactDevConfig.reusabilityOverride match {
+      ScalaJsReactConfig.DevOnly.reusabilityOverride match {
         case Some(o) => o.apply
         case None    => default
       }

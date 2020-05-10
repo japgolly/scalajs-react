@@ -13,7 +13,7 @@ object ErrorHandler {
 
   final case class Props(render: () => VdomNode, onError: ReactCaughtError => CallbackTo[VdomNode])
 
-  val component = ScalaComponent.builder[Props]("ErrorHandler")
+  val component = ScalaComponent.builder[Props]
     .initialState[Option[VdomNode]](None)
     .render_PS((p, s) => s getOrElse p.render())
     .getDerivedStateFromProps(_ => None)

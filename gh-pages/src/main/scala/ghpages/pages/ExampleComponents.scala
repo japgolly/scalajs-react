@@ -12,7 +12,7 @@ object ExampleComponents {
 
   implicit val propsReuse = Reusability.derive[Props]
 
-  val menu = ScalaComponent.builder[Props]("Example menu")
+  val menu = ScalaComponent.builder[Props]
     .render_P { p =>
       def menuItem(e: Example) = {
         val active = e == p.current
@@ -33,14 +33,14 @@ object ExampleComponents {
         ^.color := "#c00",
         s"ERROR: ${e.message}\n${e.stack}"))
 
-  val body = ScalaComponent.builder[Example]("Example body")
+  val body = ScalaComponent.builder[Example]
     .render_P(eg =>
       <.div(
         ^.cls := "col-md-10",
         errorHandler(eg.render())))
     .build
 
-  val component = ScalaComponent.builder[Props]("Examples")
+  val component = ScalaComponent.builder[Props]
     .render_P(p =>
       <.div(^.cls := "row",
         menu(p),

@@ -92,7 +92,7 @@ object TriStateCheckboxExample {
   private def removeOutOfScopeState(props: Props, state: State): State =
     state intersect props.ids
 
-  val App = ScalaComponent.builder[Props]("TriStateCheckboxExample")
+  val App = ScalaComponent.builder[Props]
     .initialState[State](Set.empty)
     .renderBackend[Backend]
     .getDerivedStateFromProps(removeOutOfScopeState _)
