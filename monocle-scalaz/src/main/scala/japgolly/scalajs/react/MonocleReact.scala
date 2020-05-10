@@ -1,13 +1,26 @@
 package japgolly.scalajs.react
 
 import monocle._
-import scalaz.Monad
+import scalaz.{Applicative, Functor, Monad}
 import japgolly.scalajs.react.internal.{MonocleExtComponent, MonocleExtStateSnapshot}
 import japgolly.scalajs.react.extra.router.StaticDsl.RouteCommon
 import japgolly.scalajs.react.extra.router.RoutingRule
 import ScalazReact._
 
 object MonocleReact extends MonocleExtComponent with MonocleExtStateSnapshot {
+
+  // Not using the Scalaz instance because it brings many other typeclasses into the output JS
+  private[react] implicit lazy val functorOption: Functor[Option] =
+    new Functor[Option] {
+      override def map[A, B](fa: Option[A])(f: A => B) = fa.map(f)
+    }
+
+  // Not using the Scalaz instance because it brings many other typeclasses into the output JS
+  private[react] implicit lazy val applicativeOption: Applicative[Option] =
+    new Applicative[Option] {
+      override def point[A](a: => A) = Option(a)
+      override def ap[A, B](fa: => Option[A])(ff: => Option[A => B]) = fa.flatMap(a => ff.map(_(a)))
+    }
 
   implicit final class MonocleReactExt_ReactST[M[_], S, A](private val s: ReactST[M, S, A]) extends AnyVal {
     def zoomL[T](l: Lens[T, S])(implicit M: Monad[M]): ReactST[M, T, A] =
