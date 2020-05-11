@@ -17,7 +17,7 @@ object StateMonadExample {
 
   // EXAMPLE:START
 
-  val TodoList = ScalaComponent.builder[List[String]]("TodoList")
+  val TodoList = ScalaComponent.builder[List[String]]
     .render_P(items =>
       <.ul(items.map(<.li(_)): _*))
     .build
@@ -37,7 +37,7 @@ object StateMonadExample {
     ST.mod(s => State(s.items :+ s.text, "")).liftCB      // Here we lift a pure state modification into a shape that
   )                                                       //   allows composition with Callback effects.
 
-  val TodoApp = ScalaComponent.builder[Unit]("TodoApp")
+  val TodoApp = ScalaComponent.builder[Unit]
     .initialState(State(Nil, ""))
     .renderS(($, s) =>
       <.div(

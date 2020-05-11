@@ -23,7 +23,7 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.6.0"
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.7.0"
   ```
 
 3. Add React to your build.
@@ -38,7 +38,7 @@ Setup
 
       enablePlugins(ScalaJSBundlerPlugin)
 
-      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.6.0"
+      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.7.0"
 
       npmDependencies in Compile ++= Seq(
         "react" -> "16.13.1",
@@ -108,8 +108,8 @@ You throw types and functions at it, call `build` and when it compiles you will 
 
     case class Props(/* TODO */)
 
-    val myComponent =
-      ScalaComponent.builder[Props]("MyComponent")
+    val Component =
+      ScalaComponent.builder[Props]
         |
   }
   ```
@@ -141,7 +141,7 @@ You throw types and functions at it, call `build` and when it compiles you will 
 Example with props:
 ```scala
 val Hello =
-  ScalaComponent.builder[String]("Hello")
+  ScalaComponent.builder[String]
     .render_P(name => <.div("Hello there ", name))
     .build
 
@@ -152,7 +152,7 @@ Hello("Draconus")
 Example without props:
 ```scala
 val NoArgs =
-  ScalaComponent.builder[Unit]("No args")
+  ScalaComponent.builder[Unit]
     .renderStatic(<.div("Hello!"))
     .build
 
@@ -192,7 +192,7 @@ class Backend(bs: BackendScope[Unit, State]) {
   }
 }
 
-val Example = ScalaComponent.builder[Unit]("Example")
+val Example = ScalaComponent.builder[Unit]
   .initialState(Vector("hello", "world"))
   .backend(new Backend(_))
   .render(_.backend.render)
@@ -208,7 +208,7 @@ class Backend(bs: BackendScope[Unit, State]) {
       <.ol(s.toTagMod(i => <.li(i))))
 }
 
-val Example = ScalaComponent.builder[Unit]("Example")
+val Example = ScalaComponent.builder[Unit]
   .initialState(Vector("hello", "world"))
   .renderBackend[Backend]  // ← Use Backend class and backend.render
   .build
@@ -216,7 +216,7 @@ val Example = ScalaComponent.builder[Unit]("Example")
 
 You can also create a backend yourself and still use `.renderBackend`:
 ```scala
-val Example = ScalaComponent.builder[Unit]("Example")
+val Example = ScalaComponent.builder[Unit]
   .initialState(Vector("hello", "world"))
   .backend(new Backend(_)) // ← Fine! Do it yourself!
   .renderBackend           // ← Use backend.render
@@ -232,10 +232,10 @@ To create an instance, you call the constructor.
 
 ```scala
 val NoArgs =
-  ScalaComponent.static("No args")(<.div("Hello!"))
+  ScalaComponent.static(<.div("Hello!"))
 
 val Hello =
-  ScalaComponent.builder[String]("Hello")
+  ScalaComponent.builder[String]
     .render_P(name => <.div("Hello there ", name))
     .build
 

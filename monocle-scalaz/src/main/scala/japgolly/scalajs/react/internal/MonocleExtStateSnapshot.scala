@@ -40,19 +40,26 @@ object MonocleExtStateSnapshot {
     def modStateL[B](l: monocle.Lens[A, B])(f: B => B): Callback =
       self.setState(l.modify(f)(self.value))
 
-  /** THIS WILL VOID REUSABILITY.
-    *
-    * The resulting `StateSnapshot[T]` will not be reusable.
-    */
-  def xmapStateL[B](iso: monocle.Iso[A, B]): StateSnapshot[B] =
-    self.xmapState(iso.get)(iso.reverseGet)
+    /** THIS WILL VOID REUSABILITY.
+      *
+      * The resulting `StateSnapshot[T]` will not be reusable.
+      */
+    def xmapStateL[B](iso: monocle.Iso[A, B]): StateSnapshot[B] =
+      self.xmapState(iso.get)(iso.reverseGet)
 
-  /** THIS WILL VOID REUSABILITY.
-    *
-    * The resulting `StateSnapshot[T]` will not be reusable.
-    */
-  def zoomStateL[B](lens: monocle.Lens[A, B]): StateSnapshot[B] =
-    self.zoomState(lens.get)(lens.set)
+    /** THIS WILL VOID REUSABILITY.
+      *
+      * The resulting `StateSnapshot[T]` will not be reusable.
+      */
+    def zoomStateL[B](lens: monocle.Lens[A, B]): StateSnapshot[B] =
+      self.zoomState(lens.get)(lens.set)
+
+    /** THIS WILL VOID REUSABILITY.
+      *
+      * The resulting `StateSnapshot[T]` will not be reusable.
+      */
+    def zoomStateO[B](o: monocle.Optional[A, B]): Option[StateSnapshot[B]] =
+      self.zoomStateOption(o.getOption)(o.set)
   }
 
   final class InstanceWithReuse[A](private val self: StateSnapshot.InstanceMethodsWithReuse[A]) extends AnyVal {
@@ -61,5 +68,8 @@ object MonocleExtStateSnapshot {
 
     def zoomStateL[B](lens: Reusable[monocle.Lens[A, B]]): StateSnapshot[B] =
       self.zoomState(lens.map(l => (l.get, l.set)))
+
+    def zoomStateO[B](optional: Reusable[monocle.Optional[A, B]]): Option[StateSnapshot[B]] =
+      self.zoomStateOption(optional.map(o => (o.getOption, o.set)))
   }
 }

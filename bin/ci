@@ -1,0 +1,21 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+if [ -z "${CI:-}" ]; then
+  # Running locally instead of on Travis
+  [ -z "${TRAVIS_SCALA_VERSION:-}" ] && TRAVIS_SCALA_VERSION="$(egrep 'scala: *2.13' .travis.yml | head -1 | sed 's/.*: *//')"
+fi
+
+# Enable Scala.JS-version-specific CI-only settings
+SCALAJS_SHORT_VER=${SCALAJS_VERSION:-1.0}
+SCALAJS_SHORT_VER=${SCALAJS_SHORT_VER:0:3}
+sed -i "/START Scala.JS $SCALAJS_SHORT_VER/,/END Scala.JS $SCALAJS_SHORT_VER/s!^//!!" ci.sbt
+
+rm -rf */target/scala-*/{,test-}classes
+sbt -DCI=fast ++$TRAVIS_SCALA_VERSION test
+
+rm -rf */target/scala-*/{,test-}classes
+sbt -DCI=full ++$TRAVIS_SCALA_VERSION test
+
+bin/test-elision $TRAVIS_SCALA_VERSION

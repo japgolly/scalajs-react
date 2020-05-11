@@ -33,10 +33,7 @@ install:
   - npm install jsdom source-map-support
 
 script:
-  - sbt -DCI=fast ++$TRAVIS_SCALA_VERSION test
-  - rm -rf */target/scala-*/{,test-}classes
-  - sbt -DCI=full ++$TRAVIS_SCALA_VERSION test
-  - bin/test-elision $TRAVIS_SCALA_VERSION
+  - bin/ci
 
 before_cache:
   - rm -f $HOME/.ivy2/.sbt.ivy.lock

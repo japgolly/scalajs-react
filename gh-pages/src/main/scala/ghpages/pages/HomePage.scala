@@ -10,7 +10,7 @@ object HomePage {
   private val p =
     <.p(^.margin := "1.3em 0")
 
-  val component = ScalaComponent.static("Home")(
+  val component = ScalaComponent.static(
     <.div(
       <.h1(
         <.a(

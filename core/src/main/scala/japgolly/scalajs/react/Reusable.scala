@@ -129,6 +129,12 @@ object Reusable {
   def callbackOptionByRef[A](c: CallbackOption[A]): Reusable[CallbackOption[A]] =
     byRefIso(c)(_.underlyingRepr)
 
+  def callbackKleisliByRef[A, B](c: CallbackKleisli[A, B]): Reusable[CallbackKleisli[A, B]] =
+    byRefIso(c)(_.underlyingRepr)
+
+  def asyncCallbackByRef[A](c: AsyncCallback[A]): Reusable[AsyncCallback[A]] =
+    byRefIso(c)(_.underlyingRepr)
+
   /** Convenience methods that help you create `I => Reusable[O]` functions.
     *
     * The reason this is more convenient than the underlying methods is that this makes it easier to create and share a

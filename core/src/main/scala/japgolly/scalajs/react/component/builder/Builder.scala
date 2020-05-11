@@ -333,7 +333,7 @@ object Builder {
      * despite the state change.
      */
     @deprecated(
-      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount",
+      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillMount(f: ComponentWillMountFn[P, S, B]): This =
       lcAppend(Lifecycle.componentWillMount)(f)
@@ -350,7 +350,7 @@ object Builder {
      * `componentWillUpdate`.
      */
     @deprecated(
-      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops",
+      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillReceiveProps(f: ComponentWillReceivePropsFn[P, S, B]): This =
       lcAppend(Lifecycle.componentWillReceiveProps)(f)
@@ -374,7 +374,7 @@ object Builder {
      * use `componentWillReceiveProps` instead.
      */
     @deprecated(
-      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate",
+      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillUpdate(f: ComponentWillUpdateFn[P, S, B]): This =
       lcAppend(Lifecycle.componentWillUpdate)(f)
@@ -564,17 +564,17 @@ object Builder {
     def shouldComponentUpdateConst    (b : Boolean            ): This = shouldComponentUpdateConst(CallbackTo pure b)
 
     @deprecated(
-      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount",
+      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillMountConst(cb: Callback): This = componentWillMount(_ => cb)
 
     @deprecated(
-      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops",
+      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillReceivePropsConst(cb: Callback): This = componentWillReceiveProps(_ => cb)
 
     @deprecated(
-      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate",
+      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
     def componentWillUpdateConst(cb: Callback): This = componentWillUpdate(_ => cb)
 

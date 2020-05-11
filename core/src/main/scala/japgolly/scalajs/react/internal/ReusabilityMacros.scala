@@ -6,32 +6,90 @@ import japgolly.scalajs.react.Reusability
 class ReusabilityMacros(val c: Context) extends MacroUtils {
   import c.universe._
 
-  def quietDerive[T: c.WeakTypeTag]: c.Expr[Reusability[T]] =
-    implDerive[T](false)
+  def derive[T: c.WeakTypeTag]: c.Expr[Reusability[T]] =
+    deriveImpl[T](
+      logNonReuse = false,
+      logCode     = false,
+    )
 
-  def debugDerive[T: c.WeakTypeTag]: c.Expr[Reusability[T]] =
-    implDerive[T](true)
+  def deriveDebug[T: c.WeakTypeTag]: c.Expr[Reusability[T]] =
+    deriveImpl[T](
+      logNonReuse = true,
+      logCode     = true,
+    )
 
-  def quietCaseClass[T: c.WeakTypeTag]: c.Expr[Reusability[T]] =
-    implCaseClass[T](Nil, false)
+  def deriveDebugWithArgs[T: c.WeakTypeTag](logNonReuse: c.Expr[Boolean],
+                                            logCode    : c.Expr[Boolean]): c.Expr[Reusability[T]] =
+    deriveImpl[T](
+      logNonReuse = readMacroArg_boolean(logNonReuse),
+      logCode     = readMacroArg_boolean(logCode),
+    )
 
-  def debugCaseClass[T: c.WeakTypeTag]: c.Expr[Reusability[T]] =
-    implCaseClass[T](Nil, true)
+  def caseClassExcept[T: c.WeakTypeTag](field1: c.Expr[String], fieldN: c.Expr[String]*): c.Expr[Reusability[T]] =
+    caseClassImpl[T](
+      logNonReuse  = false,
+      logCode      = false,
+      exclusions   = field1 :: fieldN.toList,
+    )
 
-  def quietCaseClassExcept[T: c.WeakTypeTag](field1: c.Expr[String], fieldN: c.Expr[String]*): c.Expr[Reusability[T]] =
-    implCaseClass[T](field1 :: fieldN.toList, false)
+  def caseClassExceptDebug[T: c.WeakTypeTag](field1: c.Expr[String], fieldN: c.Expr[String]*): c.Expr[Reusability[T]] =
+    caseClassImpl[T](
+      logNonReuse = true,
+      logCode     = true,
+      exclusions  = field1 :: fieldN.toList,
+    )
 
-  def debugCaseClassExcept[T: c.WeakTypeTag](field1: c.Expr[String], fieldN: c.Expr[String]*): c.Expr[Reusability[T]] =
-    implCaseClass[T](field1 :: fieldN.toList, true)
+  def caseClassExceptDebugWithArgs[T: c.WeakTypeTag](logNonReuse: c.Expr[Boolean],
+                                                     logCode    : c.Expr[Boolean])
+                                                    (field1: c.Expr[String], fieldN: c.Expr[String]*): c.Expr[Reusability[T]] =
+    caseClassImpl[T](
+      logNonReuse = readMacroArg_boolean(logNonReuse),
+      logCode     = readMacroArg_boolean(logCode),
+      exclusions  = field1 :: fieldN.toList,
+    )
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ===================================================================================================================
 
   private val Reusability = q"_root_.japgolly.scalajs.react.Reusability"
 
   private def ReusabilityA(t: Type): Type =
     appliedType(c.typeOf[japgolly.scalajs.react.Reusability[_]], t)
 
-  private def implSumType[T: c.WeakTypeTag](debug: Boolean, derive: Boolean): c.Expr[Reusability[T]] = {
+  private def printCode(typ: Type, tree: Tree): Unit =
+    println(s"Generated Reusability[$typ]:\n${showCode(tree)}\n")
+
+  private val nop: Tree = q"()"
+
+  private def nonReuseHeader(t: Type) =
+    s"Instance of $t not-reusable for the following reasons:\n"
+
+  private def nonReuseDesc(desc: String, a: Tree, b: Tree) = {
+    val msg1 = desc + "\n  A: "
+    val msg2 = "\n  B: "
+    q""""  " + ($msg1 + $a + $msg2 + $b).replace("\n", "\n  ")"""
+  }
+
+  private def deriveImpl[T: c.WeakTypeTag](logNonReuse: Boolean,
+                                           logCode    : Boolean): c.Expr[Reusability[T]] = {
+
+    val T = weakTypeOf[T]
+    if (T.dealias.typeSymbol.isAbstract)
+      sumTypeImpl(
+        derive      = true,
+        logCode     = logCode,
+        logNonReuse = logNonReuse,
+      )
+    else
+      caseClassImpl(
+        logCode     = logCode,
+        logNonReuse = logNonReuse,
+        exclusions  = Nil,
+      )
+  }
+
+  private def sumTypeImpl[T: c.WeakTypeTag](derive     : Boolean,
+                                            logCode    : Boolean,
+                                            logNonReuse: Boolean): c.Expr[Reusability[T]] = {
     val T     = weakTypeOf[T]
     val init  = new Init("i$" + _)
     val bind1 = TermName("bound1")
@@ -42,8 +100,15 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
       if (showCode(impl) contains ".Reusability.always[") // Hilarious (ab)use of meta-programming!
         cq"_: $t => y.isInstanceOf[$t]"
       else {
-        val instance = init.valDef(impl)
-        cq"$bind1: $t => y match { case $bind2: $t => $instance.test($bind1,$bind2); case _ => false }"
+        val instance    = init.valDef(impl)
+        val test        = q"$instance.test($bind1,$bind2)"
+        var onWrongType = nop
+        if (logNonReuse) {
+          val header = nonReuseHeader(T)
+          val msg = nonReuseDesc(s"values have different types", q"x", q"y")
+          onWrongType = q"""println($header + $msg)"""
+        }
+        cq"$bind1: $t => y match { case $bind2: $t => $test; case _ => $onWrongType; false }"
       }
     }
 
@@ -51,7 +116,7 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
       tryInferImplicit(ReusabilityA(t)).map(mkCase(t, _))
 
     def deriveSubType(t: Type): CaseDef = {
-      val impl = implDerive(false)(c.WeakTypeTag(t)).tree
+      val impl = deriveImpl(logCode = logCode, logNonReuse = logNonReuse)(c.WeakTypeTag(t)).tree
       mkCase(t, impl)
     }
 
@@ -67,11 +132,15 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
     val impl: Tree =
       init.wrap(q"$Reusability[$T]((x,y) => x match { case ..$cases })")
 
-    if (debug) println("\n" + showCode(impl) + "\n")
+    if (logCode)
+      printCode(T, impl)
+
     c.Expr[Reusability[T]](impl)
   }
 
-  private def implCaseClass[T: c.WeakTypeTag](exclusions: Seq[c.Expr[String]], debug: Boolean): c.Expr[Reusability[T]] = {
+  private def caseClassImpl[T: c.WeakTypeTag](logNonReuse: Boolean,
+                                              logCode    : Boolean,
+                                              exclusions : Seq[c.Expr[String]]): c.Expr[Reusability[T]] = {
     val T              = caseClassType[T]
     val fieldsAndTypes = primaryConstructorParamsExcluding(T, exclusions)
 
@@ -80,7 +149,7 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
         case Nil =>
           q"$Reusability.always[$T]"
 
-        case (n, t) :: Nil =>
+        case (n, t) :: Nil if !logNonReuse =>
           q"$Reusability.by[$T,$t](_.$n)"
 
         case _ =>
@@ -90,22 +159,38 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
           val memo = collection.mutable.HashMap.empty[Type, TermName]
           for ((n, t) <- fieldsAndTypes) {
             val fp = memo.getOrElseUpdate(t, init.valImp(ReusabilityA(t)))
-            tests :+= q"$fp.test(a.$n, b.$n)"
+
+            val test = q"$fp.test(a.$n, b.$n)"
+            val body =
+              if (logNonReuse) {
+                val msg = nonReuseDesc(s".${n.decodedName} values not reusable", q"a.$n", q"b.$n")
+                q"if (!$test) failures ::= ($msg)"
+              } else
+                test
+            tests :+= body
           }
 
-          val testExpr = tests.reduce((a,b) => q"$a && $b")
-          init.wrap(q"$Reusability[$T]((a,b) => $testExpr)")
+          if (logNonReuse) {
+            val start   = q"var failures = _root_.scala.List.empty[String]"
+            val testAll = tests.reduce((a,b) => q"$a; $b")
+            val header  = nonReuseHeader(T)
+            val output  = q"""failures.sorted.mkString($header, "\n", "")"""
+            val logRes  = q"if (failures.nonEmpty) println($output)"
+            init.wrap(q"""$Reusability[$T]((a,b) => {
+                $start
+                $testAll
+                $logRes
+                failures.isEmpty
+              })""")
+          } else {
+            val testExpr = tests.reduce((a,b) => q"$a && $b")
+            init.wrap(q"$Reusability[$T]((a,b) => $testExpr)")
+          }
       }
 
-    if (debug) println("\n" + showCode(impl) + "\n")
-    c.Expr[Reusability[T]](impl)
-  }
+    if (logCode)
+      printCode(T, impl)
 
-  private def implDerive[T: c.WeakTypeTag](debug: Boolean): c.Expr[Reusability[T]] = {
-    val T = weakTypeOf[T]
-    if (T.dealias.typeSymbol.isAbstract)
-      implSumType(debug, true)
-    else
-      implCaseClass(Nil, debug)
+    c.Expr[Reusability[T]](impl)
   }
 }

@@ -162,19 +162,25 @@ object TestTest extends TestSuite {
         "onWheel"              - test(^.onWheel,              Simulate.wheel(_))
       }
 
-      "withDefaultEventData" - {
-        val x = Simulate.withDefaultEventData(js.Dynamic.literal("bubbles" -> true)).asInstanceOf[js.Dynamic]
-        x.bubbles ==> true
-        x.defaultPrevented ==> false
-      }
-
       "eventDefaults" - {
         var ok = false
         val c = ScalaComponent.builder[Unit]("").render_P { _ =>
-          def onClick(e: ReactEvent) = {
+          def onClick(e: ReactMouseEvent) = {
             // Make sure these don't throw
             e.defaultPrevented
             e.isDefaultPrevented()
+            locally(e.screenX)
+            locally(e.screenY)
+            locally(e.clientX)
+            locally(e.clientY)
+            locally(e.pageX)
+            locally(e.pageY)
+            locally(e.altKey)
+            locally(e.ctrlKey)
+            locally(e.metaKey)
+            locally(e.shiftKey)
+            locally(e.button)
+            locally(e.buttons)
             Callback { ok = true }
           }
           <.div(^.onClick ==> onClick)

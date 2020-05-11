@@ -2,6 +2,7 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.{Effect, Iso, Lens}
+import scala.reflect.ClassTag
 
 final class StateSnapshot[S](val value: S,
                              val underlyingSetFn: Reusable[StateSnapshot.SetFn[S]],
@@ -34,8 +35,37 @@ final class StateSnapshot[S](val value: S,
   def zoomState[T](f: S => T)(g: T => S => S): StateSnapshot[T] =
     xmapState(f)(g(_)(value))
 
+  /** THIS WILL VOID REUSABILITY.
+    *
+    * The resulting `StateSnapshot[T]` will not be reusable.
+    */
+  def zoomStateOption[T](f: S => Option[T])(g: T => S => S): Option[StateSnapshot[T]] =
+    f(value).map(t => StateSnapshot(t)((ot, cb) => underlyingSetFn.value(ot.map(g(_)(value)), cb)))
+
   def withReuse: StateSnapshot.InstanceMethodsWithReuse[S] =
     new StateSnapshot.InstanceMethodsWithReuse(this)
+
+  /** @return `None` if `value: S` isn't `value: T` as well. */
+  def narrowOption[T <: S: ClassTag]: Option[StateSnapshot[T]] =
+    value match {
+      case b: T => Some(StateSnapshot(b)(setStateOption(_, _)))
+      case _    => None
+    }
+
+  /** Unsafe because writes may be dropped.
+    *
+    * Eg. if you widen a `StateSnapshot[Banana]` into `StateSnapshot[Food]`, calling `setState(banana2)` will work
+    * but `setState(pasta)` will be silently ignored.
+    */
+  def unsafeWiden[T >: S](implicit ct: ClassTag[S]): StateSnapshot[T] =
+    StateSnapshot[T](value) { (ob, cb) =>
+      val oa: Option[S] =
+        ob match {
+          case Some(s: S) => Some(s)
+          case _          => None
+        }
+      setStateOption(oa, cb)
+    }
 }
 
 object StateSnapshot {
@@ -69,6 +99,14 @@ object StateSnapshot {
         lens._1(value),
         Reusable.ap(underlyingSetFn, lens)((f, g) => (ot, cb) => f(ot.map(g._2(_)(value)), cb)),
         self.reusability.contramap(lens._2(_)(value)))
+
+    def zoomStateOption[T](optional: Reusable[(S => Option[T], T => S => S)]): Option[StateSnapshot[T]] =
+      optional._1(value).map { t =>
+        new StateSnapshot[T](
+          t,
+          Reusable.ap(underlyingSetFn, optional)((f, g) => (ot, cb) => f(ot.map(g._2(_)(value)), cb)),
+          self.reusability.contramap(optional._2(_)(value)))
+      }
   }
 
   // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████

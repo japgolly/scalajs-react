@@ -141,7 +141,7 @@ object QuickTest {
     }
   }
 
-  val Component = ScalaComponent.builder[Props]("AsyncTest")
+  val Component = ScalaComponent.builder[Props]
     .initialStateFromProps(p => init(p.testSuite))
     .renderBackend[Backend]
     .componentDidMount(_.backend.startTests)

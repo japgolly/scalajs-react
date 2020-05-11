@@ -13,7 +13,7 @@ These utilities help you avoid work in two ways.
 the other utilities are part of the `extra` module.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.6.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.7.0"
 ```
 
 ### Contents
@@ -21,7 +21,9 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.6.0"
 - [`Reusability`](#reusability)
   - [Usage](#usage)
   - [Example](#example)
+  - [Deriving instances with debug info](#deriving-instances-with-debug-info)
   - [Monitoring](#monitoring)
+  - [Global Monitoring](#global-monitoring)
 - [`Reusable`](#reusable)
   - [Usage](#usage-1)
   - [Mapping without affecting reusability](#mapping-without-affecting-reusability)
@@ -36,7 +38,7 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.6.0"
   - [Initial instances](#initial-instances)
   - [Derivative instances](#derivative-instances)
   - [`Px` doesn't have `Reusability`](#px-doesnt-have-reusability)
-- [`React.Profiler`](#react-profiler)
+- [`React.Profiler`](#reactprofiler)
 
 
 `Reusability`
@@ -68,9 +70,9 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.byRef` uses reference equality (ie. `a1 eq a2`).
 * `Reusability.byRefOr_==` uses reference equality and if different, tries universal equality.
 * `Reusability.derive` for ADTs of your own.
-* `Reusability.deriveDebug` as above, but shows you the code that the macro generates.
+* `Reusability.deriveDebug` as above, but with info useful for debugging (see below)
 * `Reusability.caseClassExcept` for case classes of your own where you want to exclude some fields.
-* `Reusability.caseClassExceptDebug` as above, but shows you the code that the macro generates.
+* `Reusability.caseClassExceptDebug` as above, but with info useful for debugging (see below)
 * `Reusability.by(A => B)` to use a subset (`B`) of the subject data (`A`).
 * `Reusability.byIterator` uses an `Iterable`'s iterator to check each element in order.
 * `Reusability.indexedSeq` uses `.length` and `.apply(index)` to check each element in order.
@@ -122,6 +124,57 @@ implicit val loggedPicReuse =
     Reusability.caseClassExcept[Picture]('url, 'title).logNonReusable
 ```
 
+#### Deriving instances with debug info
+
+There are debug versions of the derivation macros:
+
+  * `Reusability.deriveDebug`
+  * `Reusability.caseClassExceptDebug`
+
+Both methods accept the following parameters:
+
+  * `logNonReuse: Boolean` - logs to the console details about when/why reusability fails (example below)
+  * `logCode: Boolean` - prints the generated code to the screen during compilation so you can see exactly what's generated. If you're a macros=tinfoil-time guy/gal you could run this once and copy/paste the generated implementation into your codebase.
+
+Unfortunately Scala doesn't accept named or default arguments so you can't call them like this:
+
+```scala
+// Scala doesn't allow this unfortunately
+implicit val reusability: Reusability[Person] =
+  Reusability.deriveDebug[Person](logCode = true)
+```
+
+We just have to have an annoying little syntax degradation:
+
+```scala
+// Ok: no args means logNonReuse & logCode are both true
+implicit val reusability: Reusability[Person] =
+  Reusability.deriveDebug[Person]
+
+// Ok: here we specify logNonReuse=false & logCode=true
+implicit val reusability: Reusability[Person] =
+  Reusability.deriveDebug[Person](false, true)
+
+// Even without arguments, Scala will reject this :(
+implicit val reusability: Reusability[Person] =
+  Reusability.deriveDebug[Person](logNonReuse = false, logCode = true)
+```
+
+`logNonReuse` is quite useful so here's an example.
+If you used it to derive an instance for `case class Person(id: Int, name: String, age: Int)`
+  and passed in `Person(1, "Bob", 80)` and `Person(3, "Bob", 60)` you would see this in your console:
+
+  ```txt
+  Instance of japgolly.scalajs.react.example.Person not-reusable for the following reasons:
+    .id values not reusable
+      A: 1
+      B: 3
+    .age values not reusable
+      A: 80
+      B: 60
+  ```
+
+
 #### Monitoring
 
 There exist two mixins, out-of-the-box, to help you monitor reusability. Use them instead of `shouldComponentUpdate`.
@@ -145,8 +198,22 @@ You can also call `.logNonReusable` on any reusability instance to get a new reu
 about non-reusability to aid quick debugging.
 
 
+#### Global Monitoring
+
+If you're in dev-mode (i.e. you're using `fastOptJS` and not `fullOptJS`) you can also install some kind of monitoring globally.
+The `ScalaJsReactDevConfig.reusabilityOverride` settings allows you to override the behaviour of `Reusability.shouldComponentUpdate`.
+Because it only affects `fastOptJS`, it's removed at compile-time from `fullOptJS`.
+
+The most common use case is that during development you can call `ReusabilityOverlay.overrideGloballyInDev()` at the start of your JS `main` method
+which will provide a little GUI around all components with `Reusability.shouldComponentUpdate` that shows you went `Reusability` prevented updates,
+when it re-rendered, and why (either by hovering over the overlay, or clicking it to get a full log in the console).
+You can also call `ScalaJsReactDevConfig.overrideReusability` yourself and provide your own implementation if desirable.
+
+
 `Reusable`
 ==========
+
+*Note: if the following doesn't make much sense to you, try watching this talk: https://www.youtube.com/watch?v=9RvWDDZK3D8 which builds up to `Reusable` and its purpose*
 
 There are a cases when you cannot universally define reusability for all inhabitants of a type,
 but you can for values that you produce. Enter: `Reusable[A]`

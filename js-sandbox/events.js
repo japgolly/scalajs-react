@@ -20,6 +20,10 @@ class Comp extends React.Component {
     })
   }
 
+  onMouseEvent(e) {
+    console.log(`${e.type} : ${e.detail}`)
+  }
+
   profilerCallback(
     id, // the "id" prop of the Profiler tree that has just committed
     phase, // either "mount" (if the tree just mounted) or "update" (if it re-rendered)
@@ -44,7 +48,12 @@ class Comp extends React.Component {
 
   render() {
     return trace("hahaasfha", performance.now(), () => {
-      const input = React.createElement("input", { value: this.state.value, onChange: this.onChange.bind(this) })
+      const input = React.createElement("input", {
+        value: this.state.value,
+        onChange: this.onChange.bind(this),
+        onMouseDown: this.onMouseEvent.bind(this),
+        onMouseUp: this.onMouseEvent.bind(this),
+      })
       const prof = React.createElement(React.Profiler, {id: "boop", onRender: this.profilerCallback}, input)
       return prof;
       })

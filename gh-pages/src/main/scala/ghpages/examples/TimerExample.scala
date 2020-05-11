@@ -73,7 +73,7 @@ object TimerExample {
       <.div("Seconds elapsed: ", s.secondsElapsed)
   }
 
-  val Timer = ScalaComponent.builder[Unit]("Timer")
+  val Timer = ScalaComponent.builder[Unit]
     .initialState(State(0))
     .renderBackend[Backend]
     .componentDidMount(_.backend.start)
