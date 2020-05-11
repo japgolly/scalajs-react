@@ -23,7 +23,7 @@ Setup
 
   ```scala
   // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.6.0"
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.7.0"
   ```
 
 3. Add React to your build.
@@ -38,7 +38,7 @@ Setup
 
       enablePlugins(ScalaJSBundlerPlugin)
 
-      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.6.0"
+      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.7.0"
 
       npmDependencies in Compile ++= Seq(
         "react" -> "16.13.1",

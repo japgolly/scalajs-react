@@ -76,8 +76,8 @@ Cats and/or Scalaz
 ==================
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-cats"     % "1.6.0"
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz72" % "1.6.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-cats"     % "1.7.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz72" % "1.7.0"
 ```
 
 There are modules available that integrate Cats and/or Scalaz into scalajs-react,
@@ -109,7 +109,7 @@ Monocle
 
 ```scala
 libraryDependencies ++= Seq(
-    "com.github.japgolly.scalajs-react" %%% "ext-monocle"    % "1.6.0",
+    "com.github.japgolly.scalajs-react" %%% "ext-monocle"    % "1.7.0",
     "com.github.julien-truffaut"        %%%  "monocle-core"  % "1.5.0",
     "com.github.julien-truffaut"        %%%  "monocle-macro" % "1.5.0"
 )
@@ -136,7 +136,7 @@ It's the same as `ext-monocle` module but uses the Cats variant of Monocle.
 
 ```scala
 libraryDependencies ++= Seq(
-    "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % "1.6.0",
+    "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % "1.7.0",
     "com.github.julien-truffaut"        %%% "monocle-core"     % "1.5.0-cats",
     "com.github.julien-truffaut"        %%% "monocle-macro"    % "1.5.0-cats"
 )
