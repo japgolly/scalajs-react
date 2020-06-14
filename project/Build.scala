@@ -22,7 +22,7 @@ object ScalajsReact {
     val DisciplineScalaTest   = "1.0.1"
     val KindProjector         = "0.11.0"
     val MacroParadise         = "2.1.1"
-    val MonocleCats           = "2.0.4"
+    val MonocleCats           = "2.0.5"
     val MonocleScalaz         = "1.6.3"
     val MTest                 = "0.7.4"
     val Nyaya                 = "0.9.2"
