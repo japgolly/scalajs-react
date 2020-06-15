@@ -54,7 +54,7 @@ final class Reusability[A](val test: (A, A) => Boolean) extends AnyVal {
     }
 }
 
-object Reusability {
+object Reusability extends ScalaVersionSpecificReusability {
 
   def apply[A](f: (A, A) => Boolean): Reusability[A] =
     new Reusability(f)
