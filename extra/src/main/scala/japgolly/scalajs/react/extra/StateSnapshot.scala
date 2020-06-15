@@ -130,6 +130,12 @@ object StateSnapshot {
     def prepareVia[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]): FromSetStateFn[S] =
       prepare(t(i).setStateOption)
 
+    def prepareViaProps[P, I, S]($: GenericComponent.MountedPure[P, _])(f: P => I)(implicit t: I => StateAccess.SetState[CallbackTo, S]): FromSetStateFn[S] =
+      prepareViaCallback($.props.map(f))
+
+    def prepareViaCallback[I, S](cb: CallbackTo[I])(implicit t: I => StateAccess.SetState[CallbackTo, S]): FromSetStateFn[S] =
+      prepare((os, k) => cb.flatMap(t(_).setStateOption(os, k)))
+
     def xmap[S, T](get: S => T)(set: T => S): FromLens[S, T] =
       new FromLens(Iso(get)(set).toLens)
 
