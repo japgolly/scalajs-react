@@ -332,6 +332,16 @@ object Reusability extends ScalaVersionSpecificReusability {
 
   // ===================================================================================================================
 
+  /** When you're in dev-mode (i.e. `fastOptJS`), this globally disables [[Reusability.shouldComponentUpdate]].
+    */
+  def disableGloballyInDev(): Unit =
+    ScalaJsReactConfig.DevOnly.overrideReusability(
+      new ScalaJsReactConfig.DevOnly.ReusabilityOverride {
+        override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
+          identity
+      }
+    )
+
   def shouldComponentUpdate[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] = {
     val default: ScalaComponent.Config[P, C, S, B, U, U] =
       _.shouldComponentUpdatePure(i =>
@@ -345,7 +355,6 @@ object Reusability extends ScalaVersionSpecificReusability {
         case None    => default
       }
   }
-
 
   def shouldComponentUpdateAnd[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B, U, U] =
     _.shouldComponentUpdate { i =>
