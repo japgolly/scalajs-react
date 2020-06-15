@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.core
 
+import java.time._
 import nyaya.gen._
 import nyaya.prop._
 import nyaya.test.PropTest._
@@ -9,6 +10,7 @@ import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import scala.annotation.nowarn
+import scala.concurrent.{duration => scd}
 
 object ReusabilityTest extends TestSuite {
 
@@ -405,5 +407,66 @@ object ReusabilityTest extends TestSuite {
       data mustSatisfy Prop.equal("Reusability matches equality")(r.test.tupled, i => i._1 == i._2)
     }
 
+    "javaDurationWithTolerance" - {
+      implicit val r = Reusability.javaDuration(Duration.ofSeconds(1))
+      assert(Duration.ofSeconds(8) ~=~ Duration.ofSeconds(8))
+      assert(Duration.ofSeconds(9) ~=~ Duration.ofSeconds(8))
+      assert(Duration.ofSeconds(8) ~=~ Duration.ofSeconds(9))
+      assert(Duration.ofSeconds(9) ~/~ Duration.ofSeconds(7))
+      assert(Duration.ofSeconds(7) ~/~ Duration.ofSeconds(9))
+    }
+
+    "javaDurationWithoutTolerance" - {
+      import Reusability.TemporalImplicitsWithoutTolerance._
+      assert(Duration.ofSeconds(8) ~=~ Duration.ofSeconds(8))
+      assert(Duration.ofSeconds(9) ~/~ Duration.ofSeconds(8))
+      assert(Duration.ofSeconds(8) ~/~ Duration.ofSeconds(9))
+      assert(Duration.ofSeconds(9) ~/~ Duration.ofSeconds(7))
+      assert(Duration.ofSeconds(7) ~/~ Duration.ofSeconds(9))
+    }
+
+    "instantWithTolerance" - {
+      implicit val r = Reusability.instant(Duration.ofSeconds(1))
+      val now = Instant.now()
+      assert(now ~=~ now)
+      assert(now ~=~ Instant.ofEpochSecond(now.getEpochSecond, now.getNano))
+      assert(now ~=~ Instant.now())
+      assert(now ~=~ now.plusSeconds(1))
+      assert(now.plusSeconds(1) ~=~ now)
+      assert(now ~/~ now.plusSeconds(2))
+      assert(now.plusSeconds(2) ~/~ now)
+    }
+
+    "instantWithoutTolerance" - {
+      import Reusability.TemporalImplicitsWithoutTolerance._
+      val now = Instant.now()
+      assert(now ~=~ now)
+      assert(now ~=~ Instant.ofEpochSecond(now.getEpochSecond, now.getNano))
+      assert(now ~/~ Instant.now())
+      assert(now ~/~ now.plusSeconds(1))
+      assert(now.plusSeconds(1) ~/~ now)
+      assert(now ~/~ now.plusSeconds(2))
+      assert(now.plusSeconds(2) ~/~ now)
+    }
+
+    "finiteDurationWithTolerance" - {
+      import scala.concurrent.duration._
+      implicit val r = Reusability.finiteDuration(1.second)
+      assert(8.seconds ~=~ 8.seconds)
+      assert(9.seconds ~=~ 8.seconds)
+      assert(8.seconds ~=~ 9.seconds)
+      assert(9.seconds ~/~ 7.seconds)
+      assert(7.seconds ~/~ 9.seconds)
+    }
+
+    "finiteDurationWithoutTolerance" - {
+      import scala.concurrent.duration._
+      import Reusability.TemporalImplicitsWithoutTolerance._
+      assert(8.seconds ~=~ 8.seconds)
+      assert(9.seconds ~/~ 8.seconds)
+      assert(8.seconds ~/~ 9.seconds)
+      assert(9.seconds ~/~ 7.seconds)
+      assert(7.seconds ~/~ 9.seconds)
+    }
   }
 }
