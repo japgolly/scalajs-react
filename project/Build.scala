@@ -376,7 +376,10 @@ object ScalajsReact {
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
     .settings(
-      libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat)
+      libraryDependencies ++= Seq(
+        "com.lihaoyi" %%% "sourcecode" % Ver.Sourcecode,
+        "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat
+      ))
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)

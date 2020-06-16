@@ -130,8 +130,9 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
       val impl =
         init1.wrap {
           init2.wrap {
-            val allPrep = q"..${preps.valuesIterator.flatMap(_.complete).map(_()).toList}"
-            q"$allPrep; ${finalResult.varName}"
+            type R = c.Expr[Reusability[_]]
+            val allPreps = preps.valuesIterator.flatMap[R](_.complete.map(_())).toList
+            q"..$allPreps; ${finalResult.varName}"
           }
         }
 
