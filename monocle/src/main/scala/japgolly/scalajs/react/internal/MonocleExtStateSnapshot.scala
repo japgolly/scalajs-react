@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.internal
 
 import japgolly.scalajs.react.Callback
-import japgolly.scalajs.react.Reusable
 import japgolly.scalajs.react.extra.StateSnapshot
 import scala.annotation.nowarn
 
@@ -55,11 +54,13 @@ object MonocleExtStateSnapshot {
     self.zoomState(lens.get)(lens.set)
   }
 
+  @nowarn("cat=unused")
   final class InstanceWithReuse[A](private val self: StateSnapshot.InstanceMethodsWithReuse[A]) extends AnyVal {
-    def xmapStateL[B](iso: Reusable[monocle.Iso[A, B]]): StateSnapshot[B] =
-      self.xmapState(iso.map(i => (i.get, i.reverseGet)))
 
-    def zoomStateL[B](lens: Reusable[monocle.Lens[A, B]]): StateSnapshot[B] =
-      self.zoomState(lens.map(l => (l.get, l.set)))
+    @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
+    def xmapStateL(no: NotAllowed) = no.result
+
+    @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
+    def zoomStateL(no: NotAllowed) = no.result
   }
 }

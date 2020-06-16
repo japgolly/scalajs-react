@@ -22,7 +22,7 @@ object ScalajsReact {
     val DisciplineScalaTest   = "1.0.1"
     val KindProjector         = "0.11.0"
     val MacroParadise         = "2.1.1"
-    val MonocleCats           = "2.0.4"
+    val MonocleCats           = "2.0.5"
     val MonocleScalaz         = "1.6.3"
     val MTest                 = "0.7.4"
     val Nyaya                 = "0.9.2"
@@ -59,6 +59,7 @@ object ScalajsReact {
 
   def scalac213Flags = Seq(
     "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings
+    "-Wconf:msg=Reference.to.uninitialized.value:e", // Make uninitialised value calls errors instead of warnings
     "-Wunused:explicits",                            // Warn if an explicit parameter is unused.
     "-Wunused:implicits",                            // Warn if an implicit parameter is unused.
     "-Wunused:imports",                              // Warn if an import selector is not referenced.
@@ -375,7 +376,10 @@ object ScalajsReact {
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
     .settings(
-      libraryDependencies += "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat)
+      libraryDependencies ++= Seq(
+        "com.lihaoyi" %%% "sourcecode" % Ver.Sourcecode,
+        "org.scala-lang.modules" %%% "scala-collection-compat" % Ver.ScalaCollCompat
+      ))
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)

@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.core
 
+import java.time._
 import nyaya.gen._
 import nyaya.prop._
 import nyaya.test.PropTest._
@@ -69,6 +70,27 @@ object ReusabilityTest extends TestSuite {
       }
       .configure(Reusability.shouldComponentUpdate)
       .build
+  }
+
+  object Recursive {
+
+    sealed trait Item[+A]
+
+    object Item {
+      final case class Folder[+Y](name: String, indirect: Vector[Item[Y]], direct: Item[Y]) extends Item[Y]
+      final case class Suite[+Z](bms: Vector[BM[Z]]) extends Item[Z]
+      final case class Blah1[+B](blah: Option[Blah1[B]]) extends Item[B]
+      final case class Blah2[+C](blah: Option[Blah2[C]], i: Int) extends Item[C]
+
+      final case class BM[+W](value: W)
+
+      implicit def reusabilityBM[A: Reusability]: Reusability[BM[A]] =
+        Reusability.derive
+
+      implicit def reusability[H: Reusability]: Reusability[Item[H]] = {
+        Reusability.derive
+      }
+    }
   }
 
   case class CC0()
@@ -266,6 +288,35 @@ object ReusabilityTest extends TestSuite {
           test[Y](Y3b   , Y3b   , true)
         }
       }
+
+      "recursive" - {
+        import Recursive._, Item._
+        def test(a: Item[Int], b: Item[Int]): Unit =
+          assertEq(s"$a cmp $b", actual = a ~=~ b, expect = a == b)
+
+        val values = List[Item[Int]](
+          Blah1(None),
+          Blah2(None, 2),
+          Blah2(None, 1),
+          Blah2(Some(Blah2(None, 1)), 1),
+          Blah2(Some(Blah2(None, 2)), 1),
+          Blah2(Some(Blah2(None, 1)), 2),
+          Suite(Vector.empty),
+          Suite(Vector(BM(1))),
+          Suite(Vector(BM(1), BM(2))),
+          Suite(Vector(BM(2), BM(1))),
+          Folder("hehe", Vector.empty, Blah1(None)),
+          Folder("hehe", Vector.empty, Blah2(None, 1)),
+          Folder("he!he", Vector.empty, Blah1(None)),
+          Folder("hehe", Vector(Blah1(None)), Blah1(None)),
+          Folder("hehe", Vector(Blah1(None), Blah1(None)), Blah1(None)),
+        )
+
+        for {
+          a <- values
+          b <- values
+        } test(a, b)
+      }
     }
 
     "logNonReusable" - {
@@ -405,5 +456,64 @@ object ReusabilityTest extends TestSuite {
       data mustSatisfy Prop.equal("Reusability matches equality")(r.test.tupled, i => i._1 == i._2)
     }
 
+    "javaDurationWithTolerance" - {
+      implicit val r = Reusability.javaDuration(Duration.ofSeconds(1))
+      assert(Duration.ofSeconds(8) ~=~ Duration.ofSeconds(8))
+      assert(Duration.ofSeconds(9) ~=~ Duration.ofSeconds(8))
+      assert(Duration.ofSeconds(8) ~=~ Duration.ofSeconds(9))
+      assert(Duration.ofSeconds(9) ~/~ Duration.ofSeconds(7))
+      assert(Duration.ofSeconds(7) ~/~ Duration.ofSeconds(9))
+    }
+
+    "javaDurationWithoutTolerance" - {
+      import Reusability.TemporalImplicitsWithoutTolerance._
+      assert(Duration.ofSeconds(8) ~=~ Duration.ofSeconds(8))
+      assert(Duration.ofSeconds(9) ~/~ Duration.ofSeconds(8))
+      assert(Duration.ofSeconds(8) ~/~ Duration.ofSeconds(9))
+      assert(Duration.ofSeconds(9) ~/~ Duration.ofSeconds(7))
+      assert(Duration.ofSeconds(7) ~/~ Duration.ofSeconds(9))
+    }
+
+    "instantWithTolerance" - {
+      implicit val r = Reusability.instant(Duration.ofSeconds(1))
+      val now = Instant.now()
+      assert(now ~=~ now)
+      assert(now ~=~ Instant.ofEpochSecond(now.getEpochSecond, now.getNano))
+      assert(now ~=~ now.plusSeconds(1))
+      assert(now.plusSeconds(1) ~=~ now)
+      assert(now ~/~ now.plusSeconds(2))
+      assert(now.plusSeconds(2) ~/~ now)
+    }
+
+    "instantWithoutTolerance" - {
+      import Reusability.TemporalImplicitsWithoutTolerance._
+      val now = Instant.now()
+      assert(now ~=~ now)
+      assert(now ~=~ Instant.ofEpochSecond(now.getEpochSecond, now.getNano))
+      assert(now ~/~ now.plusSeconds(1))
+      assert(now.plusSeconds(1) ~/~ now)
+      assert(now ~/~ now.plusSeconds(2))
+      assert(now.plusSeconds(2) ~/~ now)
+    }
+
+    "finiteDurationWithTolerance" - {
+      import scala.concurrent.duration._
+      implicit val r = Reusability.finiteDuration(1.second)
+      assert(8.seconds ~=~ 8.seconds)
+      assert(9.seconds ~=~ 8.seconds)
+      assert(8.seconds ~=~ 9.seconds)
+      assert(9.seconds ~/~ 7.seconds)
+      assert(7.seconds ~/~ 9.seconds)
+    }
+
+    "finiteDurationWithoutTolerance" - {
+      import scala.concurrent.duration._
+      import Reusability.TemporalImplicitsWithoutTolerance._
+      assert(8.seconds ~=~ 8.seconds)
+      assert(9.seconds ~/~ 8.seconds)
+      assert(8.seconds ~/~ 9.seconds)
+      assert(9.seconds ~/~ 7.seconds)
+      assert(7.seconds ~/~ 9.seconds)
+    }
   }
 }

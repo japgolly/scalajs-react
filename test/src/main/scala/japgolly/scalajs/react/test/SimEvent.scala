@@ -37,6 +37,7 @@ object SimEvent {
                       metaKey         : Boolean = false,
                       shiftKey        : Boolean = false,
                       repeat          : Boolean = false,
+                      code            : String  = "",
                       locale          : String  = "",
                       keyCode         : Int     = 0,
                       charCode        : Int     = 0,
@@ -67,6 +68,7 @@ object SimEvent {
       o.updateDynamic("metaKey"         )(metaKey         )
       o.updateDynamic("shiftKey"        )(shiftKey        )
       o.updateDynamic("repeat"          )(repeat          )
+      o.updateDynamic("code"            )(code            )
       o.updateDynamic("locale"          )(locale          )
       o.updateDynamic("keyCode"         )(keyCode         )
       o.updateDynamic("charCode"        )(charCode        )

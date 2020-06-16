@@ -22,10 +22,11 @@ object StateSnapshotExample2 {
           " This example demonstrates how to do just that. Stateless, decoupled components all the way down."),
         <.br,
         <.div(
-          "This demonstrates two ways of accomplishing this:",
+          "There are two steps to accomplish this:",
           <.ol(
-            <.li("Create Reusable lenses and call ", <.code(".withReuse.zoomL(lens)")),
-            <.li("Prepare a reusable setter using ", <.code("StateSnapshot.withReuse.zoomL.prepareViaProps")))),
+            <.li("Prepare a reusable setter using ", <.code("StateSnapshot.withReuse.zoomL.prepareViaProps")),
+            <.li("Call ", <.code(".apply"), " to create instances from a larger composite"),
+          )),
         <.br,
         <.div(
           "This example contains:",
@@ -89,16 +90,8 @@ object StateSnapshotExample2 {
   @Lenses
   final case class Data(int: Int, str: String)
 
-  object Data {
-    implicit val reusability: Reusability[Data] = Reusability.derive
-
-    // Here we wrap the lenses in Reusable.byRef so that React can compare setState/modState functions and know when its
-    // it's got the same lens as a previous render. This is required to make [Method 1] work with Reusability
-    object reusableLens {
-      val int = Reusable.byRef(Data.int)
-      val str = Reusable.byRef(Data.str)
-    }
-  }
+  implicit val reusabilityData: Reusability[Data] =
+    Reusability.derive
 
   // -----------------------------------------------------------------------------------------------------------------
 
@@ -113,20 +106,15 @@ object StateSnapshotExample2 {
 
     final class Backend($: BackendScope[Props, Unit]) {
 
-      // Method 2: StateSnapshot.withReuse.zoomL.prepareViaProps
-      // Notice that we're using a normal lens here instead of a Reusable[lens]
-      private val ssStrFn =
-        StateSnapshot.withReuse.zoomL(Data.str).prepareViaProps($)(_.ss)
+      // Step 1: Prepare reusable setters
+      private val ssIntFn = StateSnapshot.withReuse.zoomL(Data.int).prepareViaProps($)(_.ss)
+      private val ssStrFn = StateSnapshot.withReuse.zoomL(Data.str).prepareViaProps($)(_.ss)
 
       def render(p: Props): VdomElement = {
 
-        // Method 1: ss.withReuse.zoomStateL
-        val ssI: StateSnapshot[Int] =
-          p.ss.withReuse.zoomStateL(Data.reusableLens.int)
-
-        // Method 2: StateSnapshot.withReuse.zoomL.prepareViaProps
-        val ssS: StateSnapshot[String] =
-          ssStrFn(p.ss.value)
+        // Step 2: Create smaller instances from the larger composite
+        val ssI: StateSnapshot[Int]    = ssIntFn(p.ss.value)
+        val ssS: StateSnapshot[String] = ssStrFn(p.ss.value)
 
         <.div(
           <.h3(p.name),

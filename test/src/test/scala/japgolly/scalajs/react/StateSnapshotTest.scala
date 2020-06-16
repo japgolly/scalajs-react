@@ -6,6 +6,7 @@ import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
 import monocle.macros.Lenses
+import scalaz.Equal
 import utest._
 
 object StateSnapshotTest extends TestSuite {
@@ -44,12 +45,8 @@ object StateSnapshotTest extends TestSuite {
     final case class X(int: Int, str: String)
 
     object X {
+      implicit def equal: Equal[X] = Equal.equalA
       implicit val reusability: Reusability[X] = Reusability.derive
-
-      object reusableLens {
-        val int = Reusable.byRef(X.int)
-        val str = Reusable.byRef(X.str)
-      }
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -67,19 +64,18 @@ object StateSnapshotTest extends TestSuite {
 
       final class Backend($: BackendScope[Props, Unit]) {
 
-        // Method 2: StateSnapshot.withReuse.zoomL.prepareViaProps
-        // Notice that we're using a normal lens here instead of a Reusable[lens]
+        private val ssIntFn =
+          StateSnapshot.withReuse.zoomL(X.int).prepareViaProps($)(_.ss)
+
         private val ssStrFn =
           StateSnapshot.withReuse.zoomL(X.str).prepareViaProps($)(_.ss)
 
         def render(p: Props): VdomElement = {
           renders += 1
 
-          // Method 1: ss.withReuse.zoomStateL
           val ssI: StateSnapshot[Int] =
-            p.ss.withReuse.zoomStateL(X.reusableLens.int)
+            ssIntFn(p.ss.value)
 
-          // Method 2: StateSnapshot.withReuse.zoomL.prepareViaProps
           val ssS: StateSnapshot[String] =
             ssStrFn(p.ss.value)
 
@@ -126,17 +122,26 @@ object StateSnapshotTest extends TestSuite {
       def dom() = mounted.getDOMNode.asMounted().asElement()
       def intDom() = dom().querySelector("span")
       def strDom() = dom().querySelector("strong")
+      def values() = mounted.state -> counts()
 
       assertOuterHTML(dom(), "<div><h3>Demo</h3><span>0</span><strong>yo</strong></div>")
-      assertEq(counts(), (1, 1, 1))
+      assertEq(values(), X(0, "yo") -> (1, 1, 1))
 
       Simulate click intDom()
       assertOuterHTML(dom(), "<div><h3>Demo</h3><span>1</span><strong>yo</strong></div>")
-      assertEq(counts(), (2, 2, 1)) // notice that StrComp didn't re-render
+      assertEq(values(), X(1, "yo") -> (2, 2, 1)) // notice that StrComp didn't re-render
 
       Simulate click strDom()
       assertOuterHTML(dom(), "<div><h3>Demo</h3><span>1</span><strong>yo!</strong></div>")
-      assertEq(counts(), (3, 2, 2)) // notice that IntComp didn't re-render
+      assertEq(values(), X(1, "yo!") -> (3, 2, 2)) // notice that IntComp didn't re-render
+
+      Simulate click intDom()
+      assertOuterHTML(dom(), "<div><h3>Demo</h3><span>2</span><strong>yo!</strong></div>")
+      assertEq(values(), X(2, "yo!") -> (4, 3, 2)) // notice that StrComp didn't re-render
+
+      Simulate click strDom()
+      assertOuterHTML(dom(), "<div><h3>Demo</h3><span>2</span><strong>yo!!</strong></div>")
+      assertEq(values(), X(2, "yo!!") -> (5, 3, 3)) // notice that IntComp didn't re-render
     }
 
   }

@@ -41,19 +41,17 @@ object TriStateCheckbox {
   case object Unchecked     extends Determinate
   case object Indeterminate extends State
 
-  final case class Props(state: State, setNextState: Callback) {
-    def render = Component(this)
+  final case class Props(state       : State,
+                         setNextState: Callback,
+                         disabled    : Boolean = false) {
+    @inline def render: VdomElement = Component(this)
   }
 
-  implicit def reusabilityState: Reusability[State] =
-    Reusability.by_==
-
-  implicit def reusabilityProps: Reusability[Props] =
-    Reusability.by(_.state) // .setNextState is never accessed outside of a Callback
-
-  private def render($: ScalaComponent.MountedPure[Props, Unit, Unit]) = {
-    val setNext = $.props.flatMap(_.setNextState) // Only access .setNextState inside the Callback for Reusability
-    <.input.checkbox(eventHandlers(setNext))
+  private def render($: ScalaComponent.MountedPure[Props, Unit, Unit], p: Props) = {
+    val setNext = $.props.flatMap(p => p.setNextState.unless_(p.disabled)) // Only access .setNextState inside the Callback for Reusability
+    <.input.checkbox(
+      ^.disabled := p.disabled,
+      TagMod.unless(p.disabled)(eventHandlers(setNext)))
   }
 
   /**
@@ -79,8 +77,14 @@ object TriStateCheckbox {
     }
   }
 
+  implicit val reusabilityState: Reusability[State] =
+    Reusability.by_==
+
+  implicit val reusabilityProps: Reusability[Props] =
+    Reusability.caseClassExcept("setNextState") // .setNextState is never accessed outside of a Callback
+
   val Component = ScalaComponent.builder[Props]("TriStateCheckbox")
-    .render(i => render(i.mountedPure))
+    .render(i => render(i.mountedPure, i.props))
     .componentDidMount(i => updateDom(i.mountedImpure, i.props))
     .componentDidUpdate(i => updateDom(i.mountedImpure, i.currentProps))
     .configure(Reusability.shouldComponentUpdate)

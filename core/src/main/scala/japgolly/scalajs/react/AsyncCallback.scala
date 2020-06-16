@@ -32,6 +32,14 @@ object AsyncCallback {
       p <- SyncPromise[A]
     } yield (AsyncCallback(p.onComplete), p.complete)
 
+  final case class Barrier(waitForCompletion: AsyncCallback[Unit], complete: Callback)
+
+  /** A synchronisation aid that allows you to wait for another async process to complete. */
+  lazy val barrier: CallbackTo[Barrier] =
+    for {
+      (promise, complete) <- promise[Unit]
+    } yield Barrier(promise, complete(tryUnit))
+
   def first[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(g => CallbackTo {
       var first = true

@@ -31,6 +31,21 @@ object MonocleExtComponent {
         case Some(b) => setStateL(l)(b, cb)
         case None    => self.setStateOption(None, cb)
       }
+
+    def modStateAsyncL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => B)(implicit L: MonocleModifier[L]): AsyncCallback[Unit] =
+      self.modStateAsync(L.modify(l)(f))
+
+    def modStateOptionAsyncL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => Option[B])(implicit L: MonocleOptionalModifier[L]): AsyncCallback[Unit] =
+      self.modStateOptionAsync(L.modifyOption(l)(f))
+
+    def setStateAsyncL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B)(implicit L: MonocleSetter[L]): AsyncCallback[Unit] =
+      self.modStateAsync(L.set(l)(b))
+
+    def setStateOptionAsyncL[L[_, _, _, _], B](l: L[S, S, _, B])(o: Option[B])(implicit L: MonocleSetter[L]): AsyncCallback[Unit] =
+      o match {
+        case Some(b) => setStateAsyncL(l)(b)
+        case None    => self.setStateOptionAsync(None)
+      }
   }
 
   final class StateWritableCB[I, S](private val i: I)(implicit sa: StateAccessor.WritePure[I, S]) {
@@ -47,6 +62,21 @@ object MonocleExtComponent {
       o match {
         case Some(b) => setStateL(l)(b, cb)
         case None    => sa(i).setStateOption(None, cb)
+      }
+
+    def modStateAsyncL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => B)(implicit L: MonocleModifier[L]): AsyncCallback[Unit] =
+      sa(i).modStateAsync(L.modify(l)(f))
+
+    def modStateOptionAsyncL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => Option[B])(implicit L: MonocleOptionalModifier[L]): AsyncCallback[Unit] =
+      sa(i).modStateOptionAsync(L.modifyOption(l)(f))
+
+    def setStateAsyncL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B)(implicit L: MonocleSetter[L]): AsyncCallback[Unit] =
+      sa(i).modStateAsync(L.set(l)(b))
+
+    def setStateOptionAsyncL[L[_, _, _, _], B](l: L[S, S, _, B])(o: Option[B])(implicit L: MonocleSetter[L]): AsyncCallback[Unit] =
+      o match {
+        case Some(b) => setStateAsyncL(l)(b)
+        case None    => sa(i).setStateOptionAsync(None)
       }
   }
 }

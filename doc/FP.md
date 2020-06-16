@@ -3,7 +3,7 @@
 *For now, please just browse the source (it's not massive) and follow the types.*
 
 Built-in Constructs
-========
+===================
 
 When you use scalajs-react, ideally all of your code should be functionally pure,
 and very strongly-typed. The library expects it. In order to facilitate it,
@@ -72,6 +72,22 @@ Check out the online [`CallbackOption` example](https://japgolly.github.io/scala
 `CallbackKleisli` exists and is equivalent to a `Kleisli[CallbackTo, A B]` aka `A => CallbackTo[B]`.
 
 
+`StateSnapshot[S]`
+==================
+
+**This is important!**
+
+Just as we don't like state in our FP code, we shouldn't like stateful components in our scalajs-react FP code.
+Stateful components are problematic and rely on runtime guarantees to work as expected; if you're on this page
+you likely also want to switch out runtime guarantees for compile-time guarantees.
+
+Enter: `StateSnapshot`!
+
+Detailed doc for `StateSnapshot` doesn't exist yet (pls help!) but I think the best way to see how to handle
+state in an FP-manner is to read https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2
+which demonstrates the recommended way of handling state in scalajs-react.
+
+
 Cats and/or Scalaz
 ==================
 
@@ -109,15 +125,14 @@ Monocle
 
 ```scala
 libraryDependencies ++= Seq(
-    "com.github.japgolly.scalajs-react" %%% "ext-monocle"    % "1.7.0",
-    "com.github.julien-truffaut"        %%%  "monocle-core"  % "1.5.0",
-    "com.github.julien-truffaut"        %%%  "monocle-macro" % "1.5.0"
+    "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % "1.7.0",
+    "com.github.julien-truffaut"        %%% "monocle-core"     % "2.0.4",
+    "com.github.julien-truffaut"        %%% "monocle-macro"    % "2.0.4"
 )
 
+// If you're on Scala 2.12
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
 ```
-
-A module with a extensions for [Monocle](https://github.com/julien-truffaut/Monocle) also exists under `ext-monocle`.
 
 There's one example online that demonstrates Monocle usage:
 [`ExternalVar` example](https://japgolly.github.io/scalajs-react/#examples/external-var).
@@ -129,17 +144,18 @@ and use optics to glue all the layers together.
 On very large codebases especially, this approach scales very, very well.
 
 
-### Monocle-cats
+### Monocle-scalaz
 
-There's also the Cats version of Monocle.
-It's the same as `ext-monocle` module but uses the Cats variant of Monocle.
+There's also the Scalaz version of Monocle.
+It's the same as `ext-monocle-cats` module but uses the older Scalaz variant of Monocle.
 
 ```scala
 libraryDependencies ++= Seq(
-    "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % "1.7.0",
-    "com.github.julien-truffaut"        %%% "monocle-core"     % "1.5.0-cats",
-    "com.github.julien-truffaut"        %%% "monocle-macro"    % "1.5.0-cats"
+    "com.github.japgolly.scalajs-react" %%% "ext-monocle-scalaz" % "1.7.0",
+    "com.github.julien-truffaut"        %%% "monocle-core"       % "1.6.3",
+    "com.github.julien-truffaut"        %%% "monocle-macro"      % "1.6.3"
 )
 
+// If you're on Scala 2.12
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
 ```
