@@ -47,11 +47,6 @@ object StateSnapshotTest extends TestSuite {
     object X {
       implicit def equal: Equal[X] = Equal.equalA
       implicit val reusability: Reusability[X] = Reusability.derive
-
-      object reusableLens {
-        val int = Reusable.byRef(X.int)
-        val str = Reusable.byRef(X.str)
-      }
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -69,19 +64,18 @@ object StateSnapshotTest extends TestSuite {
 
       final class Backend($: BackendScope[Props, Unit]) {
 
-        // Method 2: StateSnapshot.withReuse.zoomL.prepareViaProps
-        // Notice that we're using a normal lens here instead of a Reusable[lens]
+        private val ssIntFn =
+          StateSnapshot.withReuse.zoomL(X.int).prepareViaProps($)(_.ss)
+
         private val ssStrFn =
           StateSnapshot.withReuse.zoomL(X.str).prepareViaProps($)(_.ss)
 
         def render(p: Props): VdomElement = {
           renders += 1
 
-          // Method 1: ss.withReuse.zoomStateL
           val ssI: StateSnapshot[Int] =
-            p.ss.withReuse.zoomStateL(X.reusableLens.int)
+            ssIntFn(p.ss.value)
 
-          // Method 2: StateSnapshot.withReuse.zoomL.prepareViaProps
           val ssS: StateSnapshot[String] =
             ssStrFn(p.ss.value)
 

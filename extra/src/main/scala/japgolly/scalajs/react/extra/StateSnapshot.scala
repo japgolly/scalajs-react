@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.internal.{Effect, Iso, Lens}
+import japgolly.scalajs.react.internal.{Effect, Iso, Lens, NotAllowed}
+import scala.annotation.nowarn
 import scala.reflect.ClassTag
 
 final class StateSnapshot[S](val value: S,
@@ -85,28 +86,17 @@ object StateSnapshot {
   private lazy val setFnReadOnly: Reusable[SetFn[Any]] =
     reusableSetFn[Any]((_, cb) => cb)
 
+  @nowarn("cat=unused")
   final class InstanceMethodsWithReuse[S](self: StateSnapshot[S]) { // not AnyVal, nominal for Monocle ext
-    import self.{value, underlyingSetFn}
 
-    def xmapState[T](iso: Reusable[(S => T, T => S)]): StateSnapshot[T] =
-      new StateSnapshot[T](
-        iso._1(value),
-        Reusable.ap(underlyingSetFn, iso)((f, g) => (ot, cb) => f(ot map g._2, cb)),
-        self.reusability.contramap(iso._2))
+    @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
+    def xmapState(no: NotAllowed) = no.result
 
-    def zoomState[T](lens: Reusable[(S => T, T => S => S)]): StateSnapshot[T] =
-      new StateSnapshot[T](
-        lens._1(value),
-        Reusable.ap(underlyingSetFn, lens)((f, g) => (ot, cb) => f(ot.map(g._2(_)(value)), cb)),
-        self.reusability.contramap(lens._2(_)(value)))
+    @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
+    def zoomState(no: NotAllowed) = no.result
 
-    def zoomStateOption[T](optional: Reusable[(S => Option[T], T => S => S)]): Option[StateSnapshot[T]] =
-      optional._1(value).map { t =>
-        new StateSnapshot[T](
-          t,
-          Reusable.ap(underlyingSetFn, optional)((f, g) => (ot, cb) => f(ot.map(g._2(_)(value)), cb)),
-          self.reusability.contramap(optional._2(_)(value)))
-      }
+    @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
+    def zoomStateOption(no: NotAllowed) = no.result
   }
 
   // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
