@@ -5,7 +5,6 @@ import java.time._
 import java.util.{Date, UUID}
 import org.scalajs.dom.console
 import scala.annotation.tailrec
-import scala.concurrent.duration.Deadline
 import scala.concurrent.{duration => scd}
 import scala.reflect.ClassTag
 import scala.scalajs.LinkingInfo.productionMode
@@ -61,6 +60,9 @@ object Reusability extends ScalaVersionSpecificReusability {
 
   def apply[A](f: (A, A) => Boolean): Reusability[A] =
     new Reusability(f)
+
+  def byName[A](f: => Reusability[A]): Reusability[A] =
+    new Reusability((a, b) => f.test(a, b))
 
   private[this] val alwaysInstance: Reusability[Any] =
     apply((_, _) => true)

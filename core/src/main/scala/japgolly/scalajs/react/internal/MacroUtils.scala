@@ -4,6 +4,7 @@ package japgolly.scalajs.react.internal
 
 import scala.annotation.tailrec
 import scala.collection.compat._
+import sourcecode.Line
 
 object MacroUtils {
   sealed trait FindSubClasses
@@ -30,8 +31,8 @@ abstract class MacroUtils {
 
   final def sep = ("_" * 120) + "\n"
 
-  final def fail(msg: String): Nothing =
-    c.abort(c.enclosingPosition, msg)
+  final def fail(msg: String)(implicit filename: sourcecode.FileName,  line: Line): Nothing =
+    c.abort(c.enclosingPosition, s"$msg (${filename.value}:${line.value})")
 
   final def warn(msg: String): Unit =
     c.warning(c.enclosingPosition, msg)
@@ -42,7 +43,7 @@ abstract class MacroUtils {
     t
   }
 
-  final def ensureConcrete(t: Type): Unit = {
+  final def ensureConcrete(t: Type)(implicit filename: sourcecode.FileName,  line: Line): Unit = {
     val sym = t.typeSymbol.asClass
     if (sym.isAbstract)
       fail(s"${sym.name} is abstract which is not allowed.")
@@ -58,13 +59,13 @@ abstract class MacroUtils {
     t
   }
 
-  final def ensureCaseClass(t: Type): Unit = {
+  final def ensureCaseClass(t: Type)(implicit filename: sourcecode.FileName,  line: Line): Unit = {
     val sym = t.typeSymbol.asClass
     if (!sym.isCaseClass)
       fail(s"${sym.name} is not a case class.")
   }
 
-  final def primaryConstructorParams(t: Type): List[Symbol] =
+  final def primaryConstructorParams(t: Type)(implicit filename: sourcecode.FileName,  line: Line): List[Symbol] =
     t.decls
       .collectFirst { case m: MethodSymbol if m.isPrimaryConstructor => m }
       .getOrElse(fail("Unable to discern primary constructor."))
@@ -72,13 +73,13 @@ abstract class MacroUtils {
       .headOption
       .getOrElse(fail("Primary constructor missing paramList."))
 
-  final def primaryConstructorParams_require1(t: Type): Symbol =
+  final def primaryConstructorParams_require1(t: Type)(implicit filename: sourcecode.FileName,  line: Line): Symbol =
     primaryConstructorParams(t) match {
       case p :: Nil => p
       case x        => fail(s"One field expected. ${t.typeSymbol.name} has: $x")
     }
 
-  final def primaryConstructorParams_require2(t: Type): (Symbol, Symbol) =
+  final def primaryConstructorParams_require2(t: Type)(implicit filename: sourcecode.FileName,  line: Line): (Symbol, Symbol) =
     primaryConstructorParams(t) match {
       case a :: b :: Nil => (a, b)
       case x             => fail(s"Two fields expected. ${t.typeSymbol.name} has: $x")
@@ -98,7 +99,7 @@ abstract class MacroUtils {
     (a, A)
   }
 
-  final def ensureValidAdtBase(tpe: Type): ClassSymbol = {
+  final def ensureValidAdtBase(tpe: Type)(implicit filename: sourcecode.FileName,  line: Line): ClassSymbol = {
     tpe.typeConstructor // https://issues.scala-lang.org/browse/SI-7755
     val sym = tpe.typeSymbol.asClass
 
@@ -115,8 +116,8 @@ abstract class MacroUtils {
   }
 
   final def crawlADT[A](tpe    : Type,
-                        attempt: ClassSymbol => Option[A],
-                        giveUp : ClassSymbol => IterableOnce[A]): Vector[A] = {
+                        attempt: Type => Option[A],
+                        giveUp : Type => IterableOnce[A]): Vector[A] = {
     var seen = Set.empty[Type]
     val results = Vector.newBuilder[A]
 
@@ -142,9 +143,9 @@ abstract class MacroUtils {
       // abstract first because their children may also be considered knownDirectSubclasses
       for (sub <- subclasses) {
         val subClass = sub.asClass
-        val subType = sub.asType.toType
+        val subType = propagateTypeParams(tpe, subClass)
         if (firstPass(subClass) && !seen.contains(subType)) {
-          attempt(subClass) match {
+          attempt(subType) match {
             case Some(a) => markAsSeen(subType); results += a
             case None    => go(subType)
           }
@@ -154,12 +155,12 @@ abstract class MacroUtils {
       // second pass: concrete leaves
       for (sub <- subclasses) {
         val subClass = sub.asClass
-        val subType = sub.asType.toType
+        val subType = propagateTypeParams(tpe, subClass)
         if (!firstPass(subClass) && !seen.contains(subType)) {
           markAsSeen(subType)
-          attempt(subClass) match {
+          attempt(subType) match {
             case Some(a) => results += a
-            case None    => results ++= giveUp(subClass)
+            case None    => results ++= giveUp(subType)
           }
         }
       }
@@ -200,7 +201,7 @@ abstract class MacroUtils {
     deterministicOrderC(set)
   }
 
-  final def findConcreteTypesNE(tpe: Type, f: FindSubClasses): Vector[ClassSymbol] = {
+  final def findConcreteTypesNE(tpe: Type, f: FindSubClasses)(implicit filename: sourcecode.FileName,  line: Line): Vector[ClassSymbol] = {
     val r = findConcreteTypes(tpe, f)
     if (r.isEmpty)
       fail(s"Unable to find concrete types for ${tpe.typeSymbol.name}.")
@@ -210,7 +211,7 @@ abstract class MacroUtils {
   final def findConcreteAdtTypes(tpe: Type, f: FindSubClasses): Vector[Type] =
     findConcreteTypes(tpe, f) map (determineAdtType(tpe, _))
 
-  final def findConcreteAdtTypesNE(tpe: Type, f: FindSubClasses): Vector[Type] =
+  final def findConcreteAdtTypesNE(tpe: Type, f: FindSubClasses)(implicit filename: sourcecode.FileName,  line: Line): Vector[Type] =
     findConcreteTypesNE(tpe, f) map (determineAdtType(tpe, _))
 
   /**
@@ -237,6 +238,7 @@ abstract class MacroUtils {
     val newTypeArgs = typeParams.map(mapping.withDefault(_.asType.toType))
     val applied     = appliedType(subType.typeConstructor, newTypeArgs)
     val result      = existentialAbstraction(typeParams, applied)
+    // println(s"[propagation] $root + $child = $result")
     result
 }
 
@@ -388,7 +390,7 @@ abstract class MacroUtils {
       case i         => Some(i)
     }
 
-  final def needInferImplicit(t: Type): Tree =
+  final def needInferImplicit(t: Type)(implicit filename: sourcecode.FileName,  line: Line): Tree =
     tryInferImplicit(t) getOrElse fail(s"Implicit not found: $t")
 
   implicit val liftInit = Liftable[Init](i => q"..${i.stmts}")
@@ -406,21 +408,36 @@ abstract class MacroUtils {
     def +=(t: Tree): Unit =
       stmts :+= t
 
-    def valImp(tot: TypeOrTree): TermName = tot match {
-      case GotType(t) => valDef(needInferImplicit(t))
-      case GotTree(t) => valDef(q"implicitly[$t]")
+    def ++=(ts: IterableOnce[Tree]): Unit =
+      ts.iterator.foreach(this.+=)
+
+    def valImp(tot: TypeOrTree)(implicit filename: sourcecode.FileName,  line: Line): TermName = tot match {
+      case GotType(t) => valDef(t, needInferImplicit(t))
+      case GotTree(t) => valDef(None, q"implicitly[$t]")
     }
 
-    def valDef(value: Tree): TermName = {
+    def valDef(typ: Type, value: Tree): TermName =
+      valDef(Some(typ), value)
+
+    def valDef(typ: Option[Type], value: Tree): TermName = {
       val k = value.toString()
       seen.get(k) match {
         case None =>
           val v = TermName(newName())
-          this += q"val $v = $value"
+          this += (typ match {
+            case Some(t) => q"val $v: $t = $value"
+            case None    => q"val $v = $value"
+          })
           seen = seen.updated(k, v)
           v
         case Some(v) => v
       }
+    }
+
+    def varDef(typ: Type, value: Tree): TermName = {
+      val v = TermName(newName())
+      this += q"var $v: $typ = $value"
+      v
     }
 
     def wrap(body: Tree): Tree =
