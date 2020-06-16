@@ -9,6 +9,7 @@ import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
+import xerial.sbt.Sonatype.autoImport._
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 
@@ -117,13 +118,7 @@ object ScalajsReact {
 
   def publicationSettings: PE =
     _.settings(
-      publishTo := {
-        val nexus = "https://oss.sonatype.org/"
-        if (isSnapshot.value)
-          Some("snapshots" at nexus + "content/repositories/snapshots")
-        else
-          Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-      },
+      publishTo := sonatypePublishToBundle.value,
       pomExtra :=
         <scm>
           <connection>scm:git:github.com/japgolly/scalajs-react</connection>
