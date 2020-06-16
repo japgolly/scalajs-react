@@ -10,7 +10,6 @@ import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import scala.annotation.nowarn
-import scala.concurrent.{duration => scd}
 
 object ReusabilityTest extends TestSuite {
 
@@ -71,6 +70,27 @@ object ReusabilityTest extends TestSuite {
       }
       .configure(Reusability.shouldComponentUpdate)
       .build
+  }
+
+  object Recursive {
+
+    sealed trait Item[+A]
+
+    object Item {
+      final case class Folder[+Y](name: String, indirect: Vector[Item[Y]], direct: Item[Y]) extends Item[Y]
+      final case class Suite[+Z](bms: Vector[BM[Z]]) extends Item[Z]
+      final case class Blah1[+B](blah: Option[Blah1[B]]) extends Item[B]
+      final case class Blah2[+C](blah: Option[Blah2[C]], i: Int) extends Item[C]
+
+      final case class BM[+W](value: W)
+
+      implicit def reusabilityBM[A: Reusability]: Reusability[BM[A]] =
+        Reusability.derive
+
+      implicit def reusability[H: Reusability]: Reusability[Item[H]] = {
+        Reusability.derive
+      }
+    }
   }
 
   case class CC0()
@@ -267,6 +287,35 @@ object ReusabilityTest extends TestSuite {
           test[Y](Y3a(2), Y3b   , true) // magic
           test[Y](Y3b   , Y3b   , true)
         }
+      }
+
+      "recursive" - {
+        import Recursive._, Item._
+        def test(a: Item[Int], b: Item[Int]): Unit =
+          assertEq(s"$a cmp $b", actual = a ~=~ b, expect = a == b)
+
+        val values = List[Item[Int]](
+          Blah1(None),
+          Blah2(None, 2),
+          Blah2(None, 1),
+          Blah2(Some(Blah2(None, 1)), 1),
+          Blah2(Some(Blah2(None, 2)), 1),
+          Blah2(Some(Blah2(None, 1)), 2),
+          Suite(Vector.empty),
+          Suite(Vector(BM(1))),
+          Suite(Vector(BM(1), BM(2))),
+          Suite(Vector(BM(2), BM(1))),
+          Folder("hehe", Vector.empty, Blah1(None)),
+          Folder("hehe", Vector.empty, Blah2(None, 1)),
+          Folder("he!he", Vector.empty, Blah1(None)),
+          Folder("hehe", Vector(Blah1(None)), Blah1(None)),
+          Folder("hehe", Vector(Blah1(None), Blah1(None)), Blah1(None)),
+        )
+
+        for {
+          a <- values
+          b <- values
+        } test(a, b)
       }
     }
 
