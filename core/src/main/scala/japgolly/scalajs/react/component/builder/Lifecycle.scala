@@ -165,7 +165,7 @@ object Lifecycle {
     def propsChildren: PropsChildren = mountedImpure.propsChildren
 
     @deprecated("forceUpdate prohibited within the componentWillMount callback.", "")
-    def forceUpdate(nope: NotAllowed) = NotAllowed.body
+    def forceUpdate(no: NotAllowed) = no.result
 
     // Nope
     // def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
@@ -188,13 +188,13 @@ object Lifecycle {
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
 
     @deprecated("setState prohibited within the componentWillUnmount callback.", "")
-    def setState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
+    def setState(no: NotAllowed, cb: Any = null) = no.result
 
     @deprecated("modState prohibited within the componentWillUnmount callback.", "")
-    def modState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
+    def modState(no: NotAllowed, cb: Any = null) = no.result
 
     @deprecated("forceUpdate prohibited within the componentWillUnmount callback.", "")
-    def forceUpdate(nope: NotAllowed) = NotAllowed.body
+    def forceUpdate(no: NotAllowed) = no.result
   }
 
   // ===================================================================================================================
@@ -230,13 +230,13 @@ object Lifecycle {
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
 
     @deprecated("setState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-    def setState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
+    def setState(no: NotAllowed, cb: Any = null) = no.result
 
     @deprecated("modState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-    def modState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
+    def modState(no: NotAllowed, cb: Any = null) = no.result
 
     @deprecated("forceUpdate prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
-    def forceUpdate(nope: NotAllowed) = NotAllowed.body
+    def forceUpdate(no: NotAllowed) = no.result
   }
 
   // ===================================================================================================================
@@ -265,13 +265,13 @@ object Lifecycle {
     def cmpState(cmp: (S, S) => Boolean): Boolean = cmp(currentState, prevState)
 
     @deprecated("setState prohibited within the getSnapshotBeforeUpdate callback.", "")
-    def setState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
+    def setState(no: NotAllowed, cb: Any = null) = no.result
 
     @deprecated("modState prohibited within the getSnapshotBeforeUpdate callback.", "")
-    def modState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
+    def modState(no: NotAllowed, cb: Any = null) = no.result
 
     @deprecated("forceUpdate prohibited within the getSnapshotBeforeUpdate callback.", "")
-    def forceUpdate(nope: NotAllowed) = NotAllowed.body
+    def forceUpdate(no: NotAllowed) = no.result
   }
 
   // ===================================================================================================================
@@ -294,13 +294,13 @@ object Lifecycle {
     def cmpState(cmp: (S, S) => Boolean): Boolean = cmp(currentState, nextState)
 
     @deprecated("setState prohibited within the shouldComponentUpdate callback.", "")
-    def setState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
+    def setState(no: NotAllowed, cb: Any = null) = no.result
 
     @deprecated("modState prohibited within the shouldComponentUpdate callback.", "")
-    def modState(nope: NotAllowed, cb: Any = null) = NotAllowed.body
+    def modState(no: NotAllowed, cb: Any = null) = no.result
 
     @deprecated("forceUpdate prohibited within the shouldComponentUpdate callback.", "")
-    def forceUpdate(nope: NotAllowed) = NotAllowed.body
+    def forceUpdate(no: NotAllowed) = no.result
   }
 
   // ===================================================================================================================
