@@ -58,6 +58,7 @@ object Builder {
       * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
       * not as a result of a local setState.
       */
+    @deprecated("Use getDerivedStateFromPropsAndState instead. This doesn't just get called when props change, it gets called when state changes too; meaning it gets reset every time you call setState (!)", "1.7.1")
     def getDerivedStateFromProps[S](f: P => S): Step2[P, S] =
       new Step2(name, InitState.DerivedFromProps(f))
 
