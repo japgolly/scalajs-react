@@ -32,9 +32,9 @@ object ReactDOM {
   @deprecated("Use .renderIntoDOM on unmounted components.", "")
   def render(element  : NotAllowed,
              container: Any,
-             callback : Any = null) = NotAllowed.body
+             callback : Any = null) = element.result
 
   @deprecated("Import vdom and use ReactPortal()", "")
-  def createPortal(child: NotAllowed, container: Any) = NotAllowed.body
+  def createPortal(child: NotAllowed, container: Any) = child.result
 
 }
