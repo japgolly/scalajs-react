@@ -65,6 +65,7 @@ object ScalajsReact {
     "-Wunused:implicits",                            // Warn if an implicit parameter is unused.
     "-Wunused:imports",                              // Warn if an import selector is not referenced.
     "-Wunused:locals",                               // Warn if a local definition is unused.
+    "-Wunused:nowarn",                               // Warn if a @nowarn annotation does not suppress any warnings.
     "-Wunused:patvars",                              // Warn if a variable bound in a pattern is unused.
     "-Wunused:privates",                             // Warn if a private member is unused.
     "-Xlint:adapted-args",                           // An argument list was modified to match the receiver.

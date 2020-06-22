@@ -22,12 +22,12 @@ trait MonocleExtStateSnapshot {
 
 object MonocleExtStateSnapshot {
 
-  final class ObjectWithoutReuse(@nowarn("cat=unused") private val ε: StateSnapshot.type) extends AnyVal {
+  final class ObjectWithoutReuse(private val ε: StateSnapshot.type) extends AnyVal {
     def zoomL[S, T](lens: monocle.Lens[S, T]) =
       StateSnapshot.zoom(lens.get)(lens.set)
   }
 
-  final class ObjectWithReuse(@nowarn("cat=unused") private val ε: StateSnapshot.withReuse.type) extends AnyVal {
+  final class ObjectWithReuse(private val ε: StateSnapshot.withReuse.type) extends AnyVal {
     def zoomL[S, T](lens: monocle.Lens[S, T]) =
       StateSnapshot.withReuse.zoom(lens.get)(lens.set)
   }
@@ -61,7 +61,6 @@ object MonocleExtStateSnapshot {
       self.zoomStateOption(o.getOption)(o.set)
   }
 
-  @nowarn("cat=unused")
   final class InstanceWithReuse[A](private val self: StateSnapshot.InstanceMethodsWithReuse[A]) extends AnyVal {
 
     @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
