@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import org.scalajs.dom
-import scala.annotation.{implicitNotFound, nowarn}
+import scala.annotation.{elidable, implicitNotFound, nowarn}
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import japgolly.scalajs.react.internal.OptionLike
@@ -51,6 +51,16 @@ object Attr {
       new Generic(name)
     else
       Dud
+
+  def elidable[A](name: => String): Attr[A] = {
+    @elidable(scala.annotation.elidable.FINEST)
+    def attempt: Attr[A] = new Generic(name)
+    val x = attempt
+    if (x eq null)
+      Dud
+    else
+      x
+  }
 
   class Generic[-U](attrName: String) extends Attr[U](attrName) {
     override def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod =

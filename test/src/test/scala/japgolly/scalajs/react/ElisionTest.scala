@@ -29,9 +29,13 @@ object ElisionTest extends TestSuite {
         .build
   }
 
+  private val attr =
+    VdomAttr.elidable("data-ELIDABLE_VDOM_ATTR")
+
   override def tests = Tests {
     "normal" - s"[${Normal.raw.displayName}]"
     "static" - s"[${Static.raw.displayName}]"
+    "attr"   - ReactDOMServer.renderToStaticMarkup(<.div(attr := 1))
 
     "reusabilityOverride" - {
       ScalaJsReactConfig.DevOnly.overrideReusability(reusabilityOverride)
