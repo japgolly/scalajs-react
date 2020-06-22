@@ -8,6 +8,7 @@ case $# in
       COMP_NAMES_ARE_ELIDABLE
       DEVONLY
       ELIDABLE_AUTO_COMPONENT_NAME
+      ELIDABLE_VDOM_ATTR
       REUSABILITY_OVERRIDE_TEST
     )
     for t in "${terms[@]}"; do
