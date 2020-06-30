@@ -23,6 +23,7 @@ object ScalajsReact {
     val DisciplineScalaTest   = "1.0.1"
     val KindProjector         = "0.11.0"
     val MacroParadise         = "2.1.1"
+    val Microlibs             = "2.3"
     val MonocleCats           = "2.0.5"
     val MonocleScalaz         = "1.6.3"
     val MTest                 = "0.7.4"
@@ -284,11 +285,12 @@ object ScalajsReact {
         "-Xlint:adapted-args"
       ),
       libraryDependencies ++= Seq(
-        "com.github.japgolly.nyaya"  %%% "nyaya-prop"        % Ver.Nyaya         % Test,
-        "com.github.japgolly.nyaya"  %%% "nyaya-gen"         % Ver.Nyaya         % Test,
-        "com.github.japgolly.nyaya"  %%% "nyaya-test"        % Ver.Nyaya         % Test,
-        "com.github.julien-truffaut" %%% "monocle-macro"     % Ver.MonocleScalaz % Test,
-        "org.scala-js"               %%% "scalajs-java-time" % Ver.ScalaJsTime   % Test),
+        "com.github.japgolly.microlibs" %%% "test-util"         % Ver.Microlibs     % Test,
+        "com.github.japgolly.nyaya"     %%% "nyaya-prop"        % Ver.Nyaya         % Test,
+        "com.github.japgolly.nyaya"     %%% "nyaya-gen"         % Ver.Nyaya         % Test,
+        "com.github.japgolly.nyaya"     %%% "nyaya-test"        % Ver.Nyaya         % Test,
+        "com.github.julien-truffaut"    %%% "monocle-macro"     % Ver.MonocleScalaz % Test,
+        "org.scala-js"                  %%% "scalajs-java-time" % Ver.ScalaJsTime   % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,

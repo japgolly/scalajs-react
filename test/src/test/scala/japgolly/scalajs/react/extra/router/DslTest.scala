@@ -58,11 +58,11 @@ object DslTest extends TestSuite {
 
 
   case class IntStr(i: Int, s: String)
-  implicit val intStrEq = Equal.equalA[IntStr]
-  implicit val uuidEq = Equal.equalA[UUID]
+  implicit val intStrEq = UnivEq.force[IntStr]
+  implicit val uuidEq = UnivEq.force[UUID]
 
   case class CC0()
-  implicit val cc0Eq = Equal.equalA[CC0]
+  implicit val cc0Eq = UnivEq.force[CC0]
 
   val stringMin5 = Prism[String, Int](
     s => Try(s.toInt).toOption.filter(_ >= 5))(

@@ -20,7 +20,7 @@ object RouterTest extends TestSuite {
     case class Person(id: Long) extends MyPage
     case class QueryParamPage(queryParams: Map[String, String]) extends MyPage
 
-    implicit def equality = Equal.equalA[MyPage]
+    implicit def equality = UnivEq.force[MyPage]
 
     val RootComponent = ScalaComponent.builder[RouterCtl[MyPage]]("Root")
       .render_P(r =>
@@ -101,10 +101,10 @@ object RouterTest extends TestSuite {
       def testView(routeSuffix: String, p: MyPage): Unit = {
         val h = html
         assertEq(window.location.href, base.+(routeSuffix).value)
-        assertContains(h, "Router Demo",  p == Root)
-        assertContains(h, """>Back<""",   p != Root)
-        assertContains(h, "Hello there",  p == Hello)
-        assertContains(h, "your name is", p match {case Greet(_) => true; case _ => false})
+        assertMaybeContains(h, "Router Demo",  p == Root)
+        assertMaybeContains(h, """>Back<""",   p != Root)
+        assertMaybeContains(h, "Hello there",  p == Hello)
+        assertMaybeContains(h, "your name is", p match {case Greet(_) => true; case _ => false})
       }
       def assertRoot()         = testView("",          Root)
       def assertRouteHello()   = testView("/hello",    Hello)
