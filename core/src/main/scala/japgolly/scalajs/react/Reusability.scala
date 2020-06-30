@@ -8,6 +8,7 @@ import scala.annotation.tailrec
 import scala.concurrent.{duration => scd}
 import scala.reflect.ClassTag
 import scala.scalajs.LinkingInfo.productionMode
+import scala.scalajs.js.timers.{SetIntervalHandle, SetTimeoutHandle}
 import scala.scalajs.js.{Date => JsDate}
 
 /**
@@ -314,6 +315,18 @@ object Reusability extends ScalaVersionSpecificReusability {
 
   implicit def box[A: Reusability]: Reusability[Box[A]] =
     by(_.unbox)
+
+  implicit lazy val setIntervalHandle: Reusability[SetIntervalHandle] =
+    by_==
+
+  implicit lazy val setTimeoutHandle: Reusability[SetTimeoutHandle] =
+    by_==
+
+  implicit lazy val callbackSetIntervalResult: Reusability[Callback.SetIntervalResult] =
+    byRef || by(_.handle)
+
+  implicit lazy val callbackSetTimeoutResult: Reusability[Callback.SetTimeoutResult] =
+    byRef || by(_.handle)
 
   // java.time._
 
