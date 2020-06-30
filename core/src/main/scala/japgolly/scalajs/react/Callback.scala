@@ -10,7 +10,7 @@ import scala.scalajs.js
 import scala.scalajs.js.{UndefOr, undefined, Function0 => JFn0, Function1 => JFn1}
 import scala.scalajs.js.timers.{RawTimers, SetIntervalHandle, SetTimeoutHandle}
 import scala.util.{Failure, Success, Try}
-import japgolly.scalajs.react.internal.{catchAll, identityFn, Trampoline}
+import japgolly.scalajs.react.internal.{RateLimit, Trampoline, catchAll, identityFn}
 import java.time.Duration
 import CallbackTo.MapGuard
 
@@ -571,6 +571,48 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val trampoline: Tr
     */
   def unless_(cond: => Boolean): Callback =
     when_(!cond)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: Duration): CallbackTo[Option[A]] =
+    rateLimitMs(window.toMillis)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: FiniteDuration): CallbackTo[Option[A]] =
+    rateLimitMs(window.toMillis)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: Duration, maxPerWindow: Int): CallbackTo[Option[A]] =
+    rateLimitMs(window.toMillis, maxPerWindow)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: FiniteDuration, maxPerWindow: Int): CallbackTo[Option[A]] =
+    rateLimitMs(window.toMillis, maxPerWindow)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimitMs(windowMs: Long, maxPerWindow: Int = 1): CallbackTo[Option[A]] =
+    if (windowMs <= 0 || maxPerWindow <= 0)
+      CallbackTo.pure(None)
+    else
+      CallbackTo.lift(RateLimit.fn0(
+        run          = toScalaFn,
+        maxPerWindow = maxPerWindow,
+        windowMs = windowMs,
+      ))
 
   /** Log to the console before this callback starts, and after it completes.
     *

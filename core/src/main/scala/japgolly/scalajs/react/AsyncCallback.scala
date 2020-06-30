@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{SyncPromise, catchAll, identityFn, newJsPromise}
+import japgolly.scalajs.react.internal.{RateLimit, SyncPromise, catchAll, identityFn, newJsPromise}
 import java.time.Duration
 import scala.collection.compat._
 import scala.concurrent.duration.FiniteDuration
@@ -398,6 +398,63 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     */
   def unless_(cond: => Boolean): AsyncCallback[Unit] =
     when_(!cond)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: Duration): AsyncCallback[Option[A]] =
+    rateLimitMs(window.toMillis)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: FiniteDuration): AsyncCallback[Option[A]] =
+    rateLimitMs(window.toMillis)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: Duration, maxPerWindow: Int): AsyncCallback[Option[A]] =
+    rateLimitMs(window.toMillis, maxPerWindow)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: FiniteDuration, maxPerWindow: Int): AsyncCallback[Option[A]] =
+    rateLimitMs(window.toMillis, maxPerWindow)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimitMs(windowMs: Long, maxPerWindow: Int = 1): AsyncCallback[Option[A]] =
+    _rateLimitMs(windowMs, maxPerWindow, RateLimit.realClock)
+
+  private[react] def _rateLimitMs(windowMs: Long, maxPerWindow: Int, clock: RateLimit.Clock): AsyncCallback[Option[A]] =
+    if (windowMs <= 0 || maxPerWindow <= 0)
+      AsyncCallback.pure(None)
+    else {
+      val limited =
+        RateLimit.fn(
+          run          = completeWith,
+          windowMs     = windowMs,
+          maxPerWindow = maxPerWindow,
+          clock        = clock,
+        )
+      val miss = Try(None)
+      AsyncCallback { f =>
+        Callback {
+          limited(ta => f(ta.map(Some(_)))) match {
+            case Some(cb) => cb.runNow()
+            case None     => f(miss)
+          }
+        }
+      }
+    }
 
   /** Log to the console before this callback starts, and after it completes.
     *
