@@ -1,5 +1,7 @@
 import ReleaseTransformations._
 
+sonatypeSessionName := s"${name.value} v${version.value} (SJS $scalaJSVersion)"
+
 releaseCrossBuild := true
 
 releaseProcess := Seq[ReleaseStep](
