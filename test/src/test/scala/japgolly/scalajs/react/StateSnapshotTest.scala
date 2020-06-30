@@ -45,7 +45,7 @@ object StateSnapshotTest extends TestSuite {
     final case class X(int: Int, str: String)
 
     object X {
-      implicit def equal: Equal[X] = Equal.equalA
+      implicit def equal: UnivEq[X] = UnivEq.force
       implicit val reusability: Reusability[X] = Reusability.derive
     }
 

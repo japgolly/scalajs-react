@@ -61,7 +61,7 @@ object RouterP2Test extends TestSuite {
     case object E2 extends En
     @nowarn("cat=unused") def renderE(e: E, ctx: Ctx) = <.div(s"${ctx.int}")
 
-    implicit val pageEq: Equal[MyPage2] = Equal.equalA
+    implicit val pageEq: UnivEq[MyPage2] = UnivEq.force
 
     var isUserLoggedIn: Boolean = false
     var secret = "apples"
@@ -89,16 +89,12 @@ object RouterP2Test extends TestSuite {
       }
       .build
 
-    var innerPageEq: Equal[MyPage2] = null
-
     val alphaOnly = "^([a-zA-Z]+)$".r
     val code1Prism = Prism[String, Code1](alphaOnly.findFirstIn(_).map(s => Code1(s.toUpperCase)))(_.code)
     val code2Prism = Prism[String, Code2](alphaOnly.findFirstIn(_).map(s => Code2(s.toUpperCase)))(_.code)
 
     val config = RouterWithPropsConfigDsl[MyPage2, Ctx].buildConfig { dsl =>
       import dsl._
-
-      innerPageEq = implicitly[Equal[MyPage2]]
 
       val privatePages12 = (emptyRule
         | dynamicRouteCT("user" / int.caseClass[UserProfilePage]) ~> dynRenderP(userProfilePage(_, _))
@@ -152,7 +148,7 @@ object RouterP2Test extends TestSuite {
 
   // -------------------------------------------------------------------------------------------------------------------
 
-  implicit def str2path(s: String) = Path(s)  
+  implicit def str2path(s: String) = Path(s)
 
   override val tests = Tests {
     import MyPage2._
@@ -221,9 +217,6 @@ object RouterP2Test extends TestSuite {
       val es = config.detectErrors(E(E1), E(E2)).runNow()
       assertEq(es, Vector.empty)
     }
-
-    "pageEquality" -
-      assert(innerPageEq eq pageEq)
 
     "nestedModule" - {
       "detectErrors" - {
@@ -321,22 +314,22 @@ object RouterP2Test extends TestSuite {
     "addCondition" - {
       "1" - {
         assertContains(html, ">Home (42)</span>") // not at link cos current page
-        assertContains(html, "Private page", false) // not logged in
+        assertNotContains(html, "Private page") // not logged in
 
         isUserLoggedIn = true
         r.forceUpdate
         assertContains(html, ">Home (42)</span>") // not at link cos current page
-        assertContains(html, "Private page", true) // logged in
+        assertContains(html, "Private page") // logged in
 
         ctl.set(PrivatePage1).runNow()
-        assertContains(html, ">Home (42)</a>") // link cos not on current page        
+        assertContains(html, ">Home (42)</a>") // link cos not on current page
 
         assertContains(html, "Private #1 (42)")
 
         isUserLoggedIn = false
         ctl.refresh.runNow()
         assertContains(html, ">Home (42)</span>") // not at link cos current page
-        assertContains(html, "Private page", false) // not logged in
+        assertNotContains(html, "Private page") // not logged in
       }
 
       "3" - {

@@ -21,11 +21,11 @@ object MiscTest extends TestSuite {
 
   @Lenses
   case class StrInt(str: String, int: Int)
-  implicit def equalStrInt: Equal[StrInt] = Equal.equalA
+  implicit def equalStrInt: UnivEq[StrInt] = UnivEq.force
 
   @Lenses
   case class StrIntWrap(strInt: StrInt)
-  implicit def equalStrIntWrap: Equal[StrIntWrap] = Equal.equalA
+  implicit def equalStrIntWrap: UnivEq[StrIntWrap] = UnivEq.force
 
   val witnessOptionCallbackToCallback: Option[Callback] => Callback =
     _.getOrEmpty
@@ -208,7 +208,7 @@ object MiscTest extends TestSuite {
     }
 
     "durationFromDOMHighResTimeStamp" - {
-      assertEq(JsUtil.durationFromDOMHighResTimeStamp(3), Duration.ofMillis(3))(Equal.equalA)
+      assertEq(JsUtil.durationFromDOMHighResTimeStamp(3), Duration.ofMillis(3))
     }
 
     "static" - {
