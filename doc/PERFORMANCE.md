@@ -201,13 +201,13 @@ about non-reusability to aid quick debugging.
 #### Global Monitoring
 
 If you're in dev-mode (i.e. you're using `fastOptJS` and not `fullOptJS`) you can also install some kind of monitoring globally.
-The `ScalaJsReactDevConfig.reusabilityOverride` settings allows you to override the behaviour of `Reusability.shouldComponentUpdate`.
+The `ScalaJsReactConfig.DevOnly.overrideReusability` settings allows you to override the behaviour of `Reusability.shouldComponentUpdate`.
 Because it only affects `fastOptJS`, it's removed at compile-time from `fullOptJS`.
 
 The most common use case is that during development you can call `ReusabilityOverlay.overrideGloballyInDev()` at the start of your JS `main` method
 which will provide a little GUI around all components with `Reusability.shouldComponentUpdate` that shows you went `Reusability` prevented updates,
 when it re-rendered, and why (either by hovering over the overlay, or clicking it to get a full log in the console).
-You can also call `ScalaJsReactDevConfig.overrideReusability` yourself and provide your own implementation if desirable.
+You can also call `ScalaJsReactConfig.DevOnly.overrideReusability` yourself and provide your own implementation if desirable.
 
 
 `Reusable`
