@@ -179,7 +179,7 @@ If you used it to derive an instance for `case class Person(id: Int, name: Strin
 
 There exist two mixins, out-of-the-box, to help you monitor reusability. Use them instead of `shouldComponentUpdate`.
 
-1. `shouldComponentUpdateWithOverlay` - Adds an overlay beside each mounted instance of the component, showing how many updates were prevented and how many were rendered. You can hover over it for some detail, and click it to print more to the JS console. [Live demo](https://japgolly.github.io/scalajs-react/#examples/reusability).
+1. `ReusabilityOverlay.install` - Adds an overlay beside each mounted instance of the component, showing how many updates were prevented and how many were rendered. You can hover over it for some detail, and click it to print more to the JS console. [Live demo](https://japgolly.github.io/scalajs-react/#examples/reusability).
 2. `shouldComponentUpdateAndLog` - Logs each callback evaluation to the console.
 
 Usage:
@@ -188,7 +188,7 @@ Usage:
 .configure(Reusability.shouldComponentUpdate)
 
 // Display stats on screen, clickable for detail
-.configure(Reusability.shouldComponentUpdateWithOverlay)
+.configure(ReusabilityOverlay.install)
 
 // Log to console
 .configure(Reusability.shouldComponentUpdateAndLog("MyComponent"))
