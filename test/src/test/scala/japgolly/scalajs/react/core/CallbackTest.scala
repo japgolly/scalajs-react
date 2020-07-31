@@ -19,7 +19,7 @@ object CallbackTest extends TestSuite {
       var count = 0
       val inc = Callback(count += 1)
       val c = inc.memo()
-      (c >> c.memo >> c).runNow()
+      (c >> c.memo() >> c).runNow()
       assert(count == 1)
     }
 

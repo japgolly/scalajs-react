@@ -287,7 +287,7 @@ object Reusability extends ScalaVersionSpecificReusability {
   @inline implicit def uuid   : Reusability[UUID   ] = by_==
 
   implicit def jsDate: Reusability[JsDate] =
-    apply((x, y) => x.getTime == y.getTime)
+    apply((x, y) => x.getTime() == y.getTime())
 
   @inline implicit def option[A: Reusability]: Reusability[Option[A]] =
     optionLike

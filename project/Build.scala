@@ -30,7 +30,7 @@ object ScalajsReact {
     val Nyaya                 = "0.9.2"
     val ReactJs               = "16.13.1"
     val Scala212              = "2.12.11"
-    val Scala213              = "2.13.2"
+    val Scala213              = "2.13.3"
     val ScalaCollCompat       = "2.1.6"
     val ScalaJsDom            = "1.0.0"
     val ScalaJsTime           = "1.0.0"
@@ -79,7 +79,6 @@ object ScalajsReact {
     "-Xlint:infer-any",                              // A type argument was inferred as Any.
     "-Xlint:missing-interpolator",                   // A string literal appears to be missing an interpolator id.
     "-Xlint:nonlocal-return",                        // A return statement used an exception for flow control.
-    "-Xlint:nullary-override",                       // Non-nullary `def f()` overrides nullary `def f`.
     "-Xlint:nullary-unit",                           // `def f: Unit` looks like an accessor; add parens to look side-effecting.
     "-Xlint:option-implicit",                        // Option.apply used an implicit view.
     "-Xlint:poly-implicit-overload",                 // Parameterized overloaded implicit methods are not visible as view bounds.

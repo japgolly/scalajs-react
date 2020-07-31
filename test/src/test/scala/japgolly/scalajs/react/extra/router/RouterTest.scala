@@ -114,7 +114,7 @@ object RouterTest extends TestSuite {
         QueryParamPage(Map("a" -> "123", "b" -> "456", "c"-> "Hello bob!")))
 
       def click(css: String): Unit = {
-        Simulation.click run Sizzle(css, node).sole
+        Simulation.click run Sizzle(css, node).sole()
       }
       def clickBack()       = click("a.back")
       def clickHello()      = click("a.hello")

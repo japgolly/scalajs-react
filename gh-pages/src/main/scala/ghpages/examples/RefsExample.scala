@@ -64,7 +64,7 @@ object RefsExample {
     def handleChange(e: ReactEventFromInput) =
       $.setState(e.target.value)
 
-    def clearAndFocusInput() =
+    def clearAndFocusInput =
       $.setState("", inputRef.foreach(_.focus()))
 
     def render(state: String) =
