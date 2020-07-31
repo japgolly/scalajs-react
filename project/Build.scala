@@ -9,6 +9,7 @@ import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
+import scalafix.sbt.ScalafixPlugin
 import xerial.sbt.Sonatype.autoImport._
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
@@ -91,7 +92,7 @@ object ScalajsReact {
   )
 
   def commonSettings: PE =
-    _.enablePlugins(ScalaJSPlugin)
+    _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
       .settings(
         scalaVersion                  := Ver.Scala213,
         crossScalaVersions            := Seq(Ver.Scala212, Ver.Scala213),
