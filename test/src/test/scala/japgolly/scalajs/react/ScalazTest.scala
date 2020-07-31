@@ -1,14 +1,14 @@
 package japgolly.scalajs.react
 
-import scala.concurrent.Future
-import scalajs.concurrent.JSExecutionContext.Implicits.queue
-import scalaz.{Applicative, Distributive, Functor, Monad, StateT, Traverse, ~>}
-import scalaz.effect.IO
-import utest._
+import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
-import ScalazReact._
+import scala.concurrent.Future
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+import scalaz.effect.IO
+import scalaz.{Monad, StateT, ~>}
+import utest._
 
 /**
  * Scala's type inference can be pretty weak sometimes.

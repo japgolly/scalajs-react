@@ -1,16 +1,14 @@
 package japgolly.scalajs.react.raw
 
 import japgolly.scalajs.react.internal.JsSet
-import scala.annotation.nowarn
+import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
-import scalajs.js
 
 @js.native
-@nowarn("cat=unused")
 trait Interaction extends js.Object {
-  val __count   : Int    = js.native
-  val id        : Int    = js.native
-  val name      : String = js.native
+  val __count  : Int    = js.native
+  val id       : Int    = js.native
+  val name     : String = js.native
   val timestamp: Double  = js.native
 }
 

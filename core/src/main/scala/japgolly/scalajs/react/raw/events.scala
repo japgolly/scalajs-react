@@ -7,7 +7,6 @@ import scala.scalajs.js.annotation.JSName
 
 /** https://facebook.github.io/react/docs/events.html */
 @js.native
-@nowarn("cat=unused")
 trait SyntheticEvent[+DOMEventTarget <: dom.Node] extends js.Object {
   val bubbles         : Boolean        = js.native
   val cancelable      : Boolean        = js.native

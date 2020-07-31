@@ -1,12 +1,11 @@
 package japgolly.scalajs.react.component
 
+import japgolly.scalajs.react.component.ScalaForwardRef._
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomElement
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Ref, raw}
-import japgolly.scalajs.react.scalajsReactRawPropsChildrenToJsUndef
-import scala.scalajs.js
-import ScalaForwardRef._
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Ref, raw, scalajsReactRawPropsChildrenToJsUndef}
 import scala.annotation.nowarn
+import scala.scalajs.js
 
 object ScalaForwardRef {
   type Component[P, R, CT[-p, +u] <: CtorType[p, u]] = JsForwardRef.ComponentWithRoot[P, R, CT, Unmounted[P, R], Box[P], CT, JsForwardRef.Unmounted[Box[P], R]]

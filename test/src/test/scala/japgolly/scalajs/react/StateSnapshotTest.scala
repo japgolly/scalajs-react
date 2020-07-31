@@ -1,12 +1,11 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.MonocleReact._
-import japgolly.scalajs.react.test._
+import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test._
+import japgolly.scalajs.react.vdom.html_<^._
 import monocle.macros.Lenses
-import scalaz.Equal
 import utest._
 
 object StateSnapshotTest extends TestSuite {
@@ -45,7 +44,7 @@ object StateSnapshotTest extends TestSuite {
     final case class X(int: Int, str: String)
 
     object X {
-      implicit def equal: Equal[X] = Equal.equalA
+      implicit def equal: UnivEq[X] = UnivEq.force
       implicit val reusability: Reusability[X] = Reusability.derive
     }
 

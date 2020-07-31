@@ -9,6 +9,8 @@ import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
+import scalafix.sbt.ScalafixPlugin
+import xerial.sbt.Sonatype.autoImport._
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 
@@ -17,18 +19,19 @@ object ScalajsReact {
   object Ver {
     val BetterMonadicFor      = "0.3.1"
     val Cats                  = "2.1.1"
-    val CatsEffect            = "2.1.3"
+    val CatsEffect            = "2.1.4"
     val CatsTestkitScalaTest  = "1.0.1"
     val DisciplineScalaTest   = "1.0.1"
     val KindProjector         = "0.11.0"
     val MacroParadise         = "2.1.1"
+    val Microlibs             = "2.3"
     val MonocleCats           = "2.0.5"
     val MonocleScalaz         = "1.6.3"
     val MTest                 = "0.7.4"
     val Nyaya                 = "0.9.2"
     val ReactJs               = "16.13.1"
     val Scala212              = "2.12.11"
-    val Scala213              = "2.13.2"
+    val Scala213              = "2.13.3"
     val ScalaCollCompat       = "2.1.6"
     val ScalaJsDom            = "1.0.0"
     val ScalaJsTime           = "1.0.0"
@@ -64,6 +67,7 @@ object ScalajsReact {
     "-Wunused:implicits",                            // Warn if an implicit parameter is unused.
     "-Wunused:imports",                              // Warn if an import selector is not referenced.
     "-Wunused:locals",                               // Warn if a local definition is unused.
+    "-Wunused:nowarn",                               // Warn if a @nowarn annotation does not suppress any warnings.
     "-Wunused:patvars",                              // Warn if a variable bound in a pattern is unused.
     "-Wunused:privates",                             // Warn if a private member is unused.
     "-Xlint:adapted-args",                           // An argument list was modified to match the receiver.
@@ -76,7 +80,6 @@ object ScalajsReact {
     "-Xlint:infer-any",                              // A type argument was inferred as Any.
     "-Xlint:missing-interpolator",                   // A string literal appears to be missing an interpolator id.
     "-Xlint:nonlocal-return",                        // A return statement used an exception for flow control.
-    "-Xlint:nullary-override",                       // Non-nullary `def f()` overrides nullary `def f`.
     "-Xlint:nullary-unit",                           // `def f: Unit` looks like an accessor; add parens to look side-effecting.
     "-Xlint:option-implicit",                        // Option.apply used an implicit view.
     "-Xlint:poly-implicit-overload",                 // Parameterized overloaded implicit methods are not visible as view bounds.
@@ -89,7 +92,7 @@ object ScalajsReact {
   )
 
   def commonSettings: PE =
-    _.enablePlugins(ScalaJSPlugin)
+    _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
       .settings(
         scalaVersion                  := Ver.Scala213,
         crossScalaVersions            := Seq(Ver.Scala212, Ver.Scala213),
@@ -117,13 +120,7 @@ object ScalajsReact {
 
   def publicationSettings: PE =
     _.settings(
-      publishTo := {
-        val nexus = "https://oss.sonatype.org/"
-        if (isSnapshot.value)
-          Some("snapshots" at nexus + "content/repositories/snapshots")
-        else
-          Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-      },
+      publishTo := sonatypePublishToBundle.value,
       pomExtra :=
         <scm>
           <connection>scm:git:github.com/japgolly/scalajs-react</connection>
@@ -288,11 +285,12 @@ object ScalajsReact {
         "-Xlint:adapted-args"
       ),
       libraryDependencies ++= Seq(
-        "com.github.japgolly.nyaya"  %%% "nyaya-prop"        % Ver.Nyaya         % Test,
-        "com.github.japgolly.nyaya"  %%% "nyaya-gen"         % Ver.Nyaya         % Test,
-        "com.github.japgolly.nyaya"  %%% "nyaya-test"        % Ver.Nyaya         % Test,
-        "com.github.julien-truffaut" %%% "monocle-macro"     % Ver.MonocleScalaz % Test,
-        "org.scala-js"               %%% "scalajs-java-time" % Ver.ScalaJsTime   % Test),
+        "com.github.japgolly.microlibs" %%% "test-util"         % Ver.Microlibs     % Test,
+        "com.github.japgolly.nyaya"     %%% "nyaya-prop"        % Ver.Nyaya         % Test,
+        "com.github.japgolly.nyaya"     %%% "nyaya-gen"         % Ver.Nyaya         % Test,
+        "com.github.japgolly.nyaya"     %%% "nyaya-test"        % Ver.Nyaya         % Test,
+        "com.github.julien-truffaut"    %%% "monocle-macro"     % Ver.MonocleScalaz % Test,
+        "org.scala-js"                  %%% "scalajs-java-time" % Ver.ScalaJsTime   % Test),
       jsDependencies ++= Seq(
         "org.webjars.bower" % "sizzle" % Ver.SizzleJs % Test / "sizzle.min.js" commonJSName "Sizzle",
         (ProvidedJS / "component-es6.js" dependsOn ReactDom.dev) % Test,

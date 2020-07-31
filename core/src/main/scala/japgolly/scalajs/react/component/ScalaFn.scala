@@ -1,10 +1,9 @@
 package japgolly.scalajs.react.component
 
-import scala.scalajs.js
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, raw}
-import japgolly.scalajs.react.scalajsReactRawPropsChildrenToJsUndef
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomElement
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, raw, scalajsReactRawPropsChildrenToJsUndef}
+import scala.scalajs.js
 
 object ScalaFn {
 

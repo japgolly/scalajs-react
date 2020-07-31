@@ -1,10 +1,10 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom.{document, html}
+import japgolly.scalajs.react.CallbackTo.MapGuard
 import japgolly.scalajs.react.internal.{OptionLike, identityFn}
+import org.scalajs.dom.{document, html}
 import scala.annotation.tailrec
 import scala.collection.compat._
-import CallbackTo.MapGuard
 
 // TODO Document CallbackOption
 

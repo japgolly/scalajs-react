@@ -1,10 +1,12 @@
 package japgolly.scalajs.react.core
 
+import japgolly.scalajs.react.test.TestTimer
+import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.{AsyncCallback, Callback}
-import utest._
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.Success
+import utest._
 
 object AsyncCallbackTest extends TestSuite {
 
@@ -107,6 +109,35 @@ object AsyncCallbackTest extends TestSuite {
           r.isLeft ==> true
         }
       }
+    }
+
+    "debounce" - {
+      val t = new TestTimer
+      var i = 0
+      val c = AsyncCallback.debounce(100, AsyncCallback.delay(i += 1))(t).toCallback
+
+      c.runNow()
+      assertEq(i, 0)
+      t.progressTimeBy(90)
+      assertEq(i, 0)
+      t.progressTimeBy(20)
+      assertEq(i, 1)
+      t.progressTimeBy(120)
+      assertEq(i, 1)
+
+      c.runNow()
+      c.runNow()
+      t.progressTimeBy(80)
+      c.runNow()
+      t.progressTimeBy(20)
+      assertEq(i, 1)
+      t.progressTimeBy(70)
+      assertEq(i, 1)
+      t.progressTimeBy(20)
+      assertEq(i, 2)
+
+      t.progressTimeBy(2000)
+      assertEq(i, 2)
     }
 
   }

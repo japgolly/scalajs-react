@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.component
 
-import scala.scalajs.js
-import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.CtorType
+import japgolly.scalajs.react.internal._
+import scala.scalajs.js
 
 trait JsBaseComponentTemplate[RawComponent[_ <: js.Object] <: js.Any] {
 

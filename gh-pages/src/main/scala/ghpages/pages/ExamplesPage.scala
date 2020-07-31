@@ -1,10 +1,10 @@
 package ghpages.pages
 
-import japgolly.scalajs.react._, vdom.html_<^._
-import japgolly.scalajs.react.extra._
-import japgolly.scalajs.react.extra.router.{RouterConfigDsl, RouterCtl}
 import ghpages.examples._
 import ghpages.examples.util._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra.router.RouterConfigDsl
+import japgolly.scalajs.react.vdom.html_<^._
 
 abstract class Example(val title: String,
                        val routerPath: String,

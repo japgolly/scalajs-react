@@ -395,7 +395,7 @@ abstract class MacroUtils {
 
   implicit val liftInit = Liftable[Init](i => q"..${i.stmts}")
 
-  class Init(freshNameFn: Int => String) {
+  class Init(freshNameFn: Int => String, lazyVals: Boolean = false) {
     var seen = Map.empty[String, TermName]
     var stmts: Vector[Tree] = Vector.empty
 
@@ -425,8 +425,8 @@ abstract class MacroUtils {
         case None =>
           val v = TermName(newName())
           this += (typ match {
-            case Some(t) => q"val $v: $t = $value"
-            case None    => q"val $v = $value"
+            case Some(t) => if (lazyVals) q"lazy val $v: $t = $value" else q"val $v: $t = $value"
+            case None    => if (lazyVals) q"lazy val $v = $value"     else q"val $v = $value"
           })
           seen = seen.updated(k, v)
           v

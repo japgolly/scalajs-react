@@ -1,11 +1,12 @@
 package ghpages.examples
 
 import ghpages.GhPagesMacros
-import org.scalajs.dom, dom.MouseEvent
 import ghpages.examples.util.SingleSide
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.vdom.html_<^._
+import org.scalajs.dom
+import org.scalajs.dom.MouseEvent
 
 object EventListenerExample {
 

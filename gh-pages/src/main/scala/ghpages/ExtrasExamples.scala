@@ -1,9 +1,11 @@
 package ghpages
 
+import japgolly.scalajs.react.ScalazReact._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.vdom.all._
 import scala.concurrent.duration._
 import scala.scalajs.js
-import japgolly.scalajs.react._, vdom.all._, ScalazReact._
-import japgolly.scalajs.react.extra._
 
 object ExtrasExamples {
 

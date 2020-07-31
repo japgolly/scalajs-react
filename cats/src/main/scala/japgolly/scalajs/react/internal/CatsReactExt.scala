@@ -26,7 +26,6 @@ object CatsReactExt {
   }
 
   final class ListenableOps(private val ε: Listenable.type) extends AnyVal {
-    import CatsReactExt._
     import CatsReactState.{ReactST, ChangeFilter}
     import CatsReact.CatsReactExt_StateAccessCB
 

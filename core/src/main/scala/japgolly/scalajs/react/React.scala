@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{Box, JsRepr, NotAllowed}
+import japgolly.scalajs.react.internal.{Box, JsRepr}
 import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
 import japgolly.scalajs.react.{raw => Raw}
 import scala.scalajs.js

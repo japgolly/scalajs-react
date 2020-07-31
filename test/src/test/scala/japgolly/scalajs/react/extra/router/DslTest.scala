@@ -1,15 +1,15 @@
 package japgolly.scalajs.react.extra.router
 
+import japgolly.scalajs.react.MonocleReact._
+import japgolly.scalajs.react.ScalazReact._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.vdom.html_<^._
 import java.util.UUID
 import monocle._
 import scala.util.Try
 import scalaz.Equal
 import utest.{test => _, _}
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
-import MonocleReact._
-import ScalazReact._
-import test.TestUtil._
 
 object DslTest extends TestSuite {
 
@@ -58,11 +58,11 @@ object DslTest extends TestSuite {
 
 
   case class IntStr(i: Int, s: String)
-  implicit val intStrEq = Equal.equalA[IntStr]
-  implicit val uuidEq = Equal.equalA[UUID]
+  implicit val intStrEq = UnivEq.force[IntStr]
+  implicit val uuidEq = UnivEq.force[UUID]
 
   case class CC0()
-  implicit val cc0Eq = Equal.equalA[CC0]
+  implicit val cc0Eq = UnivEq.force[CC0]
 
   val stringMin5 = Prism[String, Int](
     s => Try(s.toInt).toOption.filter(_ >= 5))(

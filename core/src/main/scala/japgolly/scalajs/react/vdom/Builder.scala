@@ -1,10 +1,9 @@
 package japgolly.scalajs.react.vdom
 
-import scala.scalajs.LinkingInfo.developmentMode
-import scala.scalajs.js
 import japgolly.scalajs.react.internal.JsUtil
 import japgolly.scalajs.react.raw
-import Builder.RawChild
+import japgolly.scalajs.react.vdom.Builder.RawChild
+import scala.scalajs.js
 
 /** Mutable target for immutable VDOM constituents to compose.
   */

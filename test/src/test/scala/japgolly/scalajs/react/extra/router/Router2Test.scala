@@ -1,17 +1,16 @@
 package japgolly.scalajs.react.extra.router
 
+import japgolly.scalajs.react.MonocleReact._
+import japgolly.scalajs.react.ScalazReact._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test._
+import japgolly.scalajs.react.vdom.html_<^._
 import java.util.UUID
 import monocle.Prism
 import org.scalajs.dom
-import scalaz.Equal
-import utest._
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.test._
-import japgolly.scalajs.react.vdom.html_<^._
-import MonocleReact._
-import ScalazReact._
-import TestUtil._
 import scala.annotation.nowarn
+import utest._
 
 object Router2Test extends TestSuite {
 
@@ -60,7 +59,7 @@ object Router2Test extends TestSuite {
     case object E2 extends En
     @nowarn("cat=unused") def renderE(e: E) = <.div()
 
-    implicit val pageEq: Equal[MyPage2] = Equal.equalA
+    implicit val pageEq: UnivEq[MyPage2] = UnivEq.force
 
     var isUserLoggedIn: Boolean = false
     var secret = "apples"
@@ -88,16 +87,12 @@ object Router2Test extends TestSuite {
       }
       .build
 
-    var innerPageEq: Equal[MyPage2] = null
-
     val alphaOnly = "^([a-zA-Z]+)$".r
     val code1Prism = Prism[String, Code1](alphaOnly.findFirstIn(_).map(s => Code1(s.toUpperCase)))(_.code)
     val code2Prism = Prism[String, Code2](alphaOnly.findFirstIn(_).map(s => Code2(s.toUpperCase)))(_.code)
 
     val config = RouterConfigDsl[MyPage2].buildConfig { dsl =>
       import dsl._
-
-      innerPageEq = implicitly[Equal[MyPage2]]
 
       val privatePages12 = (emptyRule
         | dynamicRouteCT("user" / int.caseClass[UserProfilePage]) ~> dynRender(userProfilePage(_))
@@ -216,9 +211,6 @@ object Router2Test extends TestSuite {
       assertEq(es, Vector.empty)
     }
 
-    "pageEquality" -
-      assert(innerPageEq eq pageEq)
-
     "nestedModule" - {
       "detectErrors" - {
         val es = config.detectErrors(NestedModule(ModuleRoot), NestedModule(Module1), NestedModule(Module2(666))).runNow()
@@ -315,12 +307,12 @@ object Router2Test extends TestSuite {
     "addCondition" - {
       "1" - {
         assertContains(html, ">Home</span>") // not at link cos current page
-        assertContains(html, "Private page", false) // not logged in
+        assertNotContains(html, "Private page") // not logged in
 
         isUserLoggedIn = true
         r.forceUpdate
         assertContains(html, ">Home</span>") // not at link cos current page
-        assertContains(html, "Private page", true) // logged in
+        assertContains(html, "Private page") // logged in
 
         ctl.set(PrivatePage1).runNow()
         assertContains(html, ">Home</a>") // link cos not on current page
@@ -329,7 +321,7 @@ object Router2Test extends TestSuite {
         isUserLoggedIn = false
         ctl.refresh.runNow()
         assertContains(html, ">Home</span>") // not at link cos current page
-        assertContains(html, "Private page", false) // not logged in
+        assertNotContains(html, "Private page") // not logged in
       }
 
       "3" - {

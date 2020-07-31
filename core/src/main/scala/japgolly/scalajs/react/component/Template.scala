@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.component
 
-import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.internal._
 
 object Template {
 

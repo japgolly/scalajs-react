@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.test
 
-import scala.reflect.ClassTag
-import scala.scalajs.js
 import japgolly.scalajs.react._
 import scala.annotation.nowarn
+import scala.reflect.ClassTag
+import scala.scalajs.js
 
 @nowarn("cat=unused")
 object InferenceUtil {

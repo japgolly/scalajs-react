@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.component.builder
 
-import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, UpdateSnapshot, raw}
+import japgolly.scalajs.react.component.Scala.{BackendScope, Vars}
+import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.component.{Js, Scala}
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomNode
-import Scala.{BackendScope, Vars}
-import Lifecycle._
+import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, UpdateSnapshot, raw}
 import scala.annotation.nowarn
 
 object Builder {
@@ -58,6 +58,7 @@ object Builder {
       * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
       * not as a result of a local setState.
       */
+    @deprecated("Use getDerivedStateFromPropsAndState instead. This doesn't just get called when props change, it gets called when state changes too; meaning it gets reset every time you call setState (!)", "1.7.1")
     def getDerivedStateFromProps[S](f: P => S): Step2[P, S] =
       new Step2(name, InitState.DerivedFromProps(f))
 

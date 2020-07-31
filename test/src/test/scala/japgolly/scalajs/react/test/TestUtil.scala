@@ -1,114 +1,27 @@
 package japgolly.scalajs.react.test
 
-import scala.io.AnsiColor._
+import japgolly.scalajs.react._
+import scala.annotation.nowarn
 import scala.reflect.ClassTag
 import scala.scalajs.js
 import scalaz.{Equal, Maybe}
-import scalaz.syntax.equal._
+import sourcecode.Line
 import utest.CompileError
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.PackageBase._
-import scala.annotation.nowarn
 
 object TestUtil extends TestUtil
 
 trait TestUtil
-  extends scalaz.std.StringInstances
-     with scalaz.std.StreamInstances
-     with scalaz.std.VectorInstances
-     with scalaz.std.SetInstances
-     with scalaz.std.TupleInstances
+  extends japgolly.microlibs.testutil.TestUtil
+     with scalaz.std.ListInstances
      with scalaz.std.OptionInstances
-     with scalaz.std.AnyValInstances
-     with scalaz.std.ListInstances {
+     with scalaz.std.VectorInstances {
 
-  implicit val equalNull: Equal[Null] = Equal.equalA
-  implicit val equalKey: Equal[Key] = Equal.equalA
-  implicit val equalStringMap: Equal[Map[String, String]] = Equal.equalA
+  implicit def equalKey: UnivEq[Key] = UnivEq.force
 
   // TODO erm... not really. Only allow in raw testing
   implicit val equalRawRef: Equal[japgolly.scalajs.react.raw.React.Ref] = Equal.equalRef
   implicit def equalRawRefHandle[A]: Equal[japgolly.scalajs.react.raw.React.RefHandle[A]] = Equal.equalRef
   implicit def equalRefSimple[A]: Equal[Ref.Simple[A]] = Equal.equalRef
-
-  implicit def jsUndefOrEqual[A](implicit e: Equal[A]): Equal[js.UndefOr[A]] =
-    Equal.equal[js.UndefOr[A]]((a, b) =>
-      if (a.isEmpty) b.isEmpty else b.exists(e.equal(a.get, _)))
-
-  def assertEq[A: Equal](actual: A, expect: A): Unit =
-    assertEqO(None, actual, expect)
-
-  def assertEq[A: Equal](name: => String, actual: A, expect: A): Unit =
-    assertEqO(Option(name), actual, expect)
-
-  private def lead(s: String) = s"$RED_B$s$RESET "
-  private def failureStart(name: Option[String], leadSize: Int): Unit = {
-    println()
-    name.foreach(n => println(lead(">" * leadSize) + BOLD + YELLOW + n + RESET))
-  }
-
-  def assertEqO[A: Equal](name: => Option[String], actual: A, expect: A): Unit =
-    if (actual ≠ expect) {
-      failureStart(name, 7)
-
-      val toString: Any => String = {
-        case s: Stream[_] => s.force.toString() // SI-9266
-        case a            => a.toString
-      }
-
-      val as = toString(actual)
-      val es = toString(expect)
-      val ss = as :: es :: Nil
-      var pre = "["
-      var post = "]"
-      val htChars = ss.flatMap(s => s.headOption :: s.lastOption :: Nil)
-      if (htChars.forall(_.exists(c => !Character.isWhitespace(c)))) {
-        pre = ""
-        post = ""
-      }
-      if (ss.exists(_ contains "\n")) {
-        pre = "↙[\n"
-      }
-      println(lead("expect:") + pre + BOLD + GREEN + es + RESET + post)
-      println(lead("actual:") + pre + BOLD + RED + as + RESET + post)
-      println()
-      fail(s"assertEq${name.fold("")("(" + _ + ")")} failed.")
-    }
-
-  def assertMultiline(actual: String, expect: String): Unit =
-    if (actual != expect) {
-      println()
-      val AE = List(actual, expect).map(_.split("\n"))
-      val List(as, es) = AE
-      val lim = as.length max es.length
-      val List(maxA,_) = AE.map(x => (0 +: x.map(_.length)).max)
-      val maxL = lim.toString.length
-      println("A|E")
-      val fmt = s"%s%${maxL}d: %-${maxA}s |%s| %s$RESET\n"
-      def removeWhitespace(s: String) = s.filterNot(_.isWhitespace)
-      for (i <- 0 until lim) {
-        val List(a, e) = AE.map(s => if (i >= s.length) "" else s(i))
-        val ok = a == e
-        val cmp = if (ok) " " else if (removeWhitespace(a) == removeWhitespace(e)) "≈" else "≠"
-        val col = if (ok) BOLD + BLACK else WHITE
-        printf(fmt, col, i + 1, a, cmp, e)
-      }
-      println()
-      fail("assertMultiline failed.")
-    }
-
-  def fail(msg: String, clearStackTrace: Boolean = true): Nothing =
-    _fail(colourMultiline(msg, BOLD + MAGENTA), clearStackTrace)
-
-  def _fail(msg: String, clearStackTrace: Boolean = true): Nothing = {
-    val e = new AssertionError(msg)
-    if (clearStackTrace)
-      e.setStackTrace(Array.empty)
-    throw e
-  }
-
-  private def colourMultiline(text: String, colour: String): String =
-    colour + text.replace("\n", "\n" + colour) + RESET
 
   implicit class AnyTestExt[A](a: A) {
 
@@ -131,10 +44,16 @@ trait TestUtil
 
   final type TopNode = org.scalajs.dom.Element
 
-  def assertOuterHTML(node: TopNode, expect: String): Unit =
+  def assertMaybeContains(actual: String, substr: String, expect: Boolean)(implicit q: Line): Unit =
+    if (expect)
+      assertContains(actual, substr)
+    else
+      assertNotContains(actual, substr)
+
+  def assertOuterHTML(node: TopNode, expect: String)(implicit l: Line): Unit =
     assertOuterHTML(null, node, expect)
 
-  def assertOuterHTML(name: => String, node: TopNode, expect: String): Unit =
+  def assertOuterHTML(name: => String, node: TopNode, expect: String)(implicit l: Line): Unit =
     assertEq(name, scrubReactHtml(node.outerHTML), expect)
 
   private val reactRubbish = """\s+data-react\S*?\s*?=\s*?".*?"|<!--(?:.|[\r\n])*?-->""".r
@@ -142,31 +61,27 @@ trait TestUtil
   def scrubReactHtml(html: String): String =
     reactRubbish.replaceAllIn(html, "")
 
-  def assertRender(u: GenericComponent.UnmountedRaw, expected: String): Unit =
+  def assertRender(u: GenericComponent.UnmountedRaw, expected: String)(implicit l: Line): Unit =
     assertRender(u.raw, expected)
-  def assertRender(e: japgolly.scalajs.react.vdom.VdomElement, expected: String): Unit =
+
+  def assertRender(e: japgolly.scalajs.react.vdom.VdomElement, expected: String)(implicit l: Line): Unit =
     assertRender(e.rawElement, expected)
-  def assertRender(e: japgolly.scalajs.react.raw.React.Element, expected: String): Unit = {
+
+  def assertRender(e: japgolly.scalajs.react.raw.React.Element, expected: String)(implicit l: Line): Unit = {
     val rendered: String = ReactDOMServer.raw.renderToStaticMarkup(e)
     assertEq(rendered, expected)
   }
 
-  def assertRendered(n: TopNode, expected: String): Unit = {
+  def assertRendered(n: TopNode, expected: String)(implicit l: Line): Unit = {
     val rendered: String = ReactTestUtils.removeReactInternals(n.outerHTML)
     assertEq(rendered, expected)
   }
 
-  def assertContains(value: String, search: String, expect: Boolean = true): Unit =
-    if (value.contains(search) != expect) {
-      println(s"\nValue: $value\nSearch: $search\nExpect: $expect\n")
-      assert(false)
-    }
-
-  def assertTypeMismatch(e: CompileError): Unit =
+  def assertTypeMismatch(e: CompileError)(implicit l: Line): Unit =
     assertContains(e.msg, "type mismatch")
 
   implicit class JsArrayTestExt[A](private val a: js.Array[A]) {
-    def sole(): A =
+    def sole()(implicit l: Line): A =
       a.length match {
         case 1 => a(0)
         case n => fail(s"Expected an array with one element, found $n: ${a.mkString("[", ",", "]")}")

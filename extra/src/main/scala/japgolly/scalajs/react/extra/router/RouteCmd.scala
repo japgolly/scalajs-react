@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.extra.router
 
-import RouteCmd._
+import japgolly.scalajs.react.extra.router.RouteCmd._
 
 sealed abstract class RouteCmd[A] {
 

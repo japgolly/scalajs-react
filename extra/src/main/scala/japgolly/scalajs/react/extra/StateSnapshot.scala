@@ -2,7 +2,6 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.{Effect, Iso, Lens, NotAllowed}
-import scala.annotation.nowarn
 import scala.reflect.ClassTag
 
 final class StateSnapshot[S](val value: S,
@@ -67,6 +66,13 @@ final class StateSnapshot[S](val value: S,
         }
       setStateOption(oa, cb)
     }
+
+  /** THIS WILL VOID REUSABILITY.
+    *
+    * The resulting `StateSnapshot[S]` will not be reusable.
+    */
+  def withValue(s: S): StateSnapshot[S] =
+    StateSnapshot(s)(underlyingSetFn)
 }
 
 object StateSnapshot {
@@ -86,8 +92,10 @@ object StateSnapshot {
   private lazy val setFnReadOnly: Reusable[SetFn[Any]] =
     reusableSetFn[Any]((_, cb) => cb)
 
-  @nowarn("cat=unused")
   final class InstanceMethodsWithReuse[S](self: StateSnapshot[S]) { // not AnyVal, nominal for Monocle ext
+
+    def withValue(s: S)(implicit r: Reusability[S]): StateSnapshot[S] =
+      StateSnapshot.withReuse(s)(self.underlyingSetFn)
 
     @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
     def xmapState(no: NotAllowed) = no.result

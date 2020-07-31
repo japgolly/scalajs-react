@@ -1,9 +1,9 @@
 package japgolly.scalajs
 
+import japgolly.scalajs.react.internal.Effect.Id
 import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js
-import japgolly.scalajs.react.internal.Effect.Id
 
 package object react extends ReactEventTypes {
 

@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.extra
 
-import org.scalajs.dom.raw.EventTarget
-import org.scalajs.dom.Event
-import scala.scalajs.js
 import japgolly.scalajs.react._
+import org.scalajs.dom.Event
+import org.scalajs.dom.raw.EventTarget
+import scala.scalajs.js
 
 object EventListener {
 

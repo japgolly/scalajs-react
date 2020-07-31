@@ -4,7 +4,6 @@ import cats._
 import cats.arrow.{Arrow, Choice}
 import cats.data.Ior
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra._
 
 trait CatsReactInstances {
 

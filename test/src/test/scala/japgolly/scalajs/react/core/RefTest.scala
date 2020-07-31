@@ -241,7 +241,7 @@ object RefTest extends TestSuite {
       def withRef() = {
         class Backend {
           val ref = Ref.toScalaComponent(InnerScala)
-          @nowarn def render = Forwarder.withRef(ref)("noice")
+          def render = Forwarder.withRef(ref)("noice")
         }
         val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
         ReactTestUtils.withNewBodyElement { mountNode =>
@@ -254,7 +254,7 @@ object RefTest extends TestSuite {
       def withRef2() = {
         class Backend {
           val ref = Ref.toScalaComponent[Int, Unit, InnerScalaBackend]
-          @nowarn def render = Forwarder.withRef(ref)("noice")
+          def render = Forwarder.withRef(ref)("noice")
         }
         val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
         ReactTestUtils.withNewBodyElement { mountNode =>
@@ -267,7 +267,7 @@ object RefTest extends TestSuite {
       def mappedRef() = {
         class Backend {
           val ref = Ref.toScalaComponent(InnerScala).map(_.backend.gimmeHtmlNow())
-          @nowarn def render = Forwarder.withRef(ref)("noice")
+          def render = Forwarder.withRef(ref)("noice")
         }
         val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
         ReactTestUtils.withNewBodyElement { mountNode =>

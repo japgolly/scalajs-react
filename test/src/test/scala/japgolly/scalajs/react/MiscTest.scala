@@ -1,18 +1,16 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom.html
-import monocle.macros.Lenses
-import scala.scalajs.js
-import scalaz.Equal
-import utest._
-import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.internal.JsUtil
-import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
-import MonocleReact._
 import java.time.Duration
+import monocle.macros.Lenses
+import org.scalajs.dom.html
+import scala.scalajs.js
 import scala.util.Try
+import utest._
 
 object MiscTest extends TestSuite {
 
@@ -21,11 +19,11 @@ object MiscTest extends TestSuite {
 
   @Lenses
   case class StrInt(str: String, int: Int)
-  implicit def equalStrInt: Equal[StrInt] = Equal.equalA
+  implicit def equalStrInt: UnivEq[StrInt] = UnivEq.force
 
   @Lenses
   case class StrIntWrap(strInt: StrInt)
-  implicit def equalStrIntWrap: Equal[StrIntWrap] = Equal.equalA
+  implicit def equalStrIntWrap: UnivEq[StrIntWrap] = UnivEq.force
 
   val witnessOptionCallbackToCallback: Option[Callback] => Callback =
     _.getOrEmpty
@@ -208,7 +206,7 @@ object MiscTest extends TestSuite {
     }
 
     "durationFromDOMHighResTimeStamp" - {
-      assertEq(JsUtil.durationFromDOMHighResTimeStamp(3), Duration.ofMillis(3))(Equal.equalA)
+      assertEq(JsUtil.durationFromDOMHighResTimeStamp(3), Duration.ofMillis(3))
     }
 
     "static" - {

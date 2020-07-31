@@ -1,13 +1,12 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{SyncPromise, catchAll, identityFn, newJsPromise}
+import japgolly.scalajs.react.internal.{RateLimit, SyncPromise, Timer, catchAll, identityFn, newJsPromise}
 import java.time.Duration
 import scala.collection.compat._
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
-import scala.scalajs.js.{Thenable, |}
-import scala.scalajs.js.timers
+import scala.scalajs.js.{Thenable, timers, |}
 import scala.util.{Failure, Success, Try}
 
 object AsyncCallback {
@@ -175,6 +174,38 @@ object AsyncCallback {
       _ <- onCompletion(p.complete(tryUnit)).asAsyncCallback
       _ <- AsyncCallback(p.onComplete)
     } yield ()
+
+  private[react] def debounce[A](delayMs: Long, self: AsyncCallback[A])(implicit timer: Timer): AsyncCallback[A] =
+    if (delayMs <= 0)
+      self
+    else {
+      val f = _debounce[Unit, A](delayMs, _ => self)
+      byName(f(()))
+    }
+
+  private def _debounce[A, B](delayMs: Long, f: A => AsyncCallback[B])(implicit timer: Timer): A => AsyncCallback[B] = {
+    var prev = Option.empty[timer.Handle]
+    var invocationNum = 0
+
+    a => {
+      invocationNum += 1
+      val (promise, completePromise) = AsyncCallback.promise[B].runNow()
+
+      def run(): Unit = {
+        prev = None
+        val curInvocationNum = invocationNum
+        f(a).tap { b =>
+          if (invocationNum == curInvocationNum)
+            completePromise(Success(b)).runNow()
+        }.toCallback.runNow()
+      }
+
+      prev.foreach(timer.cancel)
+      prev = Some(timer.delay(delayMs)(run()))
+
+      promise
+    }
+  }
 }
 
 /** Pure asynchronous callback.
@@ -398,6 +429,72 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     */
   def unless_(cond: => Boolean): AsyncCallback[Unit] =
     when_(!cond)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: Duration): AsyncCallback[Option[A]] =
+    rateLimitMs(window.toMillis)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: FiniteDuration): AsyncCallback[Option[A]] =
+    rateLimitMs(window.toMillis)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: Duration, maxPerWindow: Int): AsyncCallback[Option[A]] =
+    rateLimitMs(window.toMillis, maxPerWindow)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimit(window: FiniteDuration, maxPerWindow: Int): AsyncCallback[Option[A]] =
+    rateLimitMs(window.toMillis, maxPerWindow)
+
+  /** Limits the number of invocations in a given amount of time.
+    *
+    * @return Some if invocation was allowed, None if rejected/rate-limited
+    */
+  def rateLimitMs(windowMs: Long, maxPerWindow: Int = 1): AsyncCallback[Option[A]] =
+    _rateLimitMs(windowMs, maxPerWindow, RateLimit.realClock)
+
+  private[react] def _rateLimitMs(windowMs: Long, maxPerWindow: Int, clock: RateLimit.Clock): AsyncCallback[Option[A]] =
+    if (windowMs <= 0 || maxPerWindow <= 0)
+      AsyncCallback.pure(None)
+    else {
+      val limited =
+        RateLimit.fn(
+          run          = completeWith,
+          windowMs     = windowMs,
+          maxPerWindow = maxPerWindow,
+          clock        = clock,
+        )
+      val miss = Try(None)
+      AsyncCallback { f =>
+        Callback {
+          limited(ta => f(ta.map(Some(_)))) match {
+            case Some(cb) => cb.runNow()
+            case None     => f(miss)
+          }
+        }
+      }
+    }
+
+  def debounce(delay: Duration): AsyncCallback[A] =
+    debounceMs(delay.toMillis)
+
+  def debounce(delay: FiniteDuration): AsyncCallback[A] =
+    debounceMs(delay.toMillis)
+
+  def debounceMs(delayMs: Long): AsyncCallback[A] =
+    AsyncCallback.debounce(delayMs, this)
 
   /** Log to the console before this callback starts, and after it completes.
     *

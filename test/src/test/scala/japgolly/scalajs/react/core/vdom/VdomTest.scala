@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.core.vdom
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
 import scala.annotation.nowarn
 import utest._

@@ -1,12 +1,11 @@
 package japgolly.scalajs.react.core
 
-import utest._
-import scalaz.Equal
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils, Simulate}
 import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils, Simulate}
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.annotation.nowarn
+import utest._
 
 @nowarn("cat=deprecation")
 object ScalaComponentPTest extends TestSuite {
@@ -86,7 +85,7 @@ object ScalaComponentPTest extends TestSuite {
           this.b - x.b,
           this.c - x.c)
       }
-      implicit def equalProps = Equal.equalA[Props]
+      implicit def equalProps = UnivEq.force[Props]
 
       var mountCountA = 0
       var mountCountB = 0
@@ -321,8 +320,8 @@ object ScalaComponentSTest extends TestSuite {
   case class State(num1: Int, s2: State2)
   case class State2(num2: Int, num3: Int)
 
-  implicit val equalState: Equal[State] = Equal.equalA
-  implicit val equalState2: Equal[State2] = Equal.equalA
+  implicit val equalState: UnivEq[State] = UnivEq.force
+  implicit val equalState2: UnivEq[State2] = UnivEq.force
 
   class Backend($: BackendScope[Int, State]) {
     val inc: Callback =

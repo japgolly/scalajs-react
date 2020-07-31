@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.internal
 
-import scalaz.{Optional => _, _}
-import scalaz.effect.IO
-import Scalaz.Id
-import Leibniz.===
+import japgolly.scalajs.react.ScalazReact.{ScalazReactExt_ReactST, reactCallbackScalazInstance}
 import japgolly.scalajs.react._
-import ScalazReact.{reactCallbackScalazInstance, ScalazReactExt_ReactST}
+import scalaz.Leibniz.===
+import scalaz.Scalaz.Id
+import scalaz.effect.IO
+import scalaz.{Optional => _, _}
 
 trait ScalazReactState1 {
 
