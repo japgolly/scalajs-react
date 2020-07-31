@@ -16,8 +16,18 @@ object ReactDOM {
 
   def hydrate(element  : VdomNode,
               container: Raw.ReactDOM.Container,
-              callback: Callback = Callback.empty): Raw.React.ComponentUntyped =
+              callback : Callback = Callback.empty): Raw.React.ComponentUntyped =
     Raw.ReactDOM.hydrate(element.rawNode, container, callback.toJsFn)
+
+  /** Hydrate the container if is has children, else render into that container.
+    */
+  def hydrateOrRender(element  : VdomNode,
+                      container: dom.Element,
+                      callback : Callback = Callback.empty): Raw.React.ComponentUntyped =
+    if (container.hasChildNodes())
+      hydrate(element, container, callback)
+    else
+      Raw.ReactDOM.render(element.rawNode, container, callback.toJsFn)
 
   def unmountComponentAtNode(container: dom.Node): Boolean =
     raw.unmountComponentAtNode(container)
