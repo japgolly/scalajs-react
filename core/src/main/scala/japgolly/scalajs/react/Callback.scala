@@ -10,7 +10,7 @@ import scala.scalajs.js
 import scala.scalajs.js.{UndefOr, undefined, Function0 => JFn0, Function1 => JFn1}
 import scala.scalajs.js.timers.{RawTimers, SetIntervalHandle, SetTimeoutHandle}
 import scala.util.{Failure, Success, Try}
-import japgolly.scalajs.react.internal.{RateLimit, Trampoline, catchAll, identityFn}
+import japgolly.scalajs.react.internal.{RateLimit, Timer, Trampoline, catchAll, identityFn}
 import java.time.Duration
 import CallbackTo.MapGuard
 
@@ -613,6 +613,31 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val trampoline: Tr
         maxPerWindow = maxPerWindow,
         windowMs = windowMs,
       ))
+
+  def debounce(delay: Duration): Callback =
+    _debounceMs(delay.toMillis)
+
+  def debounce(delay: FiniteDuration): Callback =
+    _debounceMs(delay.toMillis)
+
+  def debounceMs(delayMs: Long): Callback =
+    _debounceMs(delayMs)
+
+  private[react] def _debounceMs(delayMs: Long)(implicit timer: Timer): Callback =
+    if (delayMs <= 0)
+      void
+    else {
+      var prev = Option.empty[timer.Handle]
+
+      CallbackTo {
+        prev.foreach(timer.cancel)
+        val newHandle = timer.delay(delayMs) {
+          prev = None
+          self.runNow()
+        }
+        prev = Some(newHandle)
+      }
+    }
 
   /** Log to the console before this callback starts, and after it completes.
     *
