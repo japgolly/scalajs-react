@@ -85,11 +85,10 @@ object ReusabilityTest extends TestSuite {
 
       final case class BM[+W](value: W)
 
-      implicit def reusabilityBM[A: Reusability]: Reusability[BM[A]] =
-        Reusability.derive
-
-      implicit def reusability[H: Reusability]: Reusability[Item[H]] =
-        Reusability.derive
+      implicit def reusabilityB[A: Reusability]: Reusability[BM    [A]] = Reusability.derive
+      implicit def reusabilityS[A: Reusability]: Reusability[Suite [A]] = Reusability.derive
+      implicit def reusabilityF[A: Reusability]: Reusability[Folder[A]] = Reusability.derive
+      implicit def reusability [A: Reusability]: Reusability[Item  [A]] = Reusability.derive
     }
   }
 
