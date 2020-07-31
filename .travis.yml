@@ -7,12 +7,12 @@ jobs:
     - name: 'Scala 2.12 / Scala.JS 0.6 / Java 8'
       scala: 2.12.11
       jdk: openjdk8
-      env: SCALAJS_VERSION=0.6.32
+      env: SCALAJS_VERSION=0.6.33
 
     - name: 'Scala 2.13 / Scala.JS 0.6 / Java 8'
       scala: 2.13.3
       jdk: openjdk8
-      env: SCALAJS_VERSION=0.6.32
+      env: SCALAJS_VERSION=0.6.33
 
     - name: 'Scala 2.12 / Scala.JS 1.0 / Java 11'
       scala: 2.12.11
