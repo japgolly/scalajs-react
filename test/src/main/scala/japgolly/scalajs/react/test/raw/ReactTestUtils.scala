@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.test.raw
 
-import scala.scalajs.js
-import scala.scalajs.js.annotation._
 import japgolly.scalajs.react.raw._
 import scala.annotation.nowarn
+import scala.scalajs.js
+import scala.scalajs.js.annotation._
 
 /** https://facebook.github.io/react/docs/test-utils.html */
 @JSImport("react-dom/test-utils", JSImport.Namespace, "ReactTestUtils")

@@ -2,7 +2,6 @@ package japgolly.scalajs.react.extra
 
 import scala.annotation.nowarn
 import utest._
-import scala.runtime.AbstractFunction1
 
 object PxTest extends TestSuite {
 

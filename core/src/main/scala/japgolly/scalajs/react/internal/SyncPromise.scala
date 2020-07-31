@@ -1,8 +1,7 @@
 package japgolly.scalajs.react.internal
 
-import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.{Callback, CallbackTo}
 import scala.util.Try
-import japgolly.scalajs.react.CallbackTo
 
 /** Promise that is synchronous once its value has been set. */
 final class SyncPromise[A] {

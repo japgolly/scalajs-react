@@ -1,16 +1,14 @@
 package japgolly.scalajs.react.extra.router
 
-import java.util.UUID
-import java.util.regex.{Pattern, Matcher}
-import org.scalajs.dom.window.console
-import scala.reflect.ClassTag
-import scala.util.matching.Regex
-import scala.scalajs.js.URIUtils._
-import japgolly.scalajs.react.CallbackTo
 import japgolly.scalajs.react.extra.internal.RouterMacros
 import japgolly.scalajs.react.internal.identityFn
 import japgolly.scalajs.react.vdom.VdomElement
-import RouterConfig.Parsed
+import java.util.UUID
+import java.util.regex.{Matcher, Pattern}
+import org.scalajs.dom.window.console
+import scala.reflect.ClassTag
+import scala.scalajs.js.URIUtils._
+import scala.util.matching.Regex
 
 /**
  * This is not meant to be imported by library-users;

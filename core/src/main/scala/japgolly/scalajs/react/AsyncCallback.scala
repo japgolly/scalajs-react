@@ -6,8 +6,7 @@ import scala.collection.compat._
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
-import scala.scalajs.js.{Thenable, |}
-import scala.scalajs.js.timers
+import scala.scalajs.js.{Thenable, timers, |}
 import scala.util.{Failure, Success, Try}
 
 object AsyncCallback {

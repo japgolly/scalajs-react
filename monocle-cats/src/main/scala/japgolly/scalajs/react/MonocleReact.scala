@@ -1,11 +1,11 @@
 package japgolly.scalajs.react
 
-import monocle._
 import cats.{Applicative, Functor, Monad}
-import japgolly.scalajs.react.internal.{MonocleExtComponent, MonocleExtStateSnapshot}
-import japgolly.scalajs.react.extra.router.StaticDsl.RouteCommon
+import japgolly.scalajs.react.CatsReact._
 import japgolly.scalajs.react.extra.router.RoutingRule
-import CatsReact._
+import japgolly.scalajs.react.extra.router.StaticDsl.RouteCommon
+import japgolly.scalajs.react.internal.{MonocleExtComponent, MonocleExtStateSnapshot}
+import monocle._
 
 object MonocleReact extends MonocleExtComponent with MonocleExtStateSnapshot {
 

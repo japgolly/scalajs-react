@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.extra
 
-import utest._
 import japgolly.scalajs.react._
-import StateSnapshot.{ModFn, SetFn}
+import japgolly.scalajs.react.extra.StateSnapshot.{ModFn, SetFn}
 import scala.annotation.nowarn
+import utest._
 
 object StateSnapshotTest extends TestSuite {
 

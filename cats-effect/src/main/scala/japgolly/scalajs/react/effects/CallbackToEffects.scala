@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.effects
 
-import cats.effect.{Bracket, ExitCase, Sync}
-import cats.{Defer, MonadError}
-import japgolly.scalajs.react.{AsyncCallback, CallbackTo, CatsReact}
+import cats.MonadError
+import cats.effect.{ExitCase, Sync}
+import japgolly.scalajs.react.{CallbackTo, CatsReact}
 
 object CallbackToEffects {
   private val callbackToMonadError: MonadError[CallbackTo, Throwable] =

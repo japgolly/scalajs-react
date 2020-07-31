@@ -1,12 +1,12 @@
 package japgolly.scalajs.react.extra
 
-import org.scalajs.dom._
-import org.scalajs.dom.raw.EventInit
-import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+import org.scalajs.dom._
+import org.scalajs.dom.raw.EventInit
+import utest._
 
 object EventListenerTest extends TestSuite {
 

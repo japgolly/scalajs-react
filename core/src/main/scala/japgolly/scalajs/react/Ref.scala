@@ -1,8 +1,8 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.{raw => Raw}
-import japgolly.scalajs.react.internal.{Effect, identityFn}
 import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
+import japgolly.scalajs.react.internal.{Effect, identityFn}
+import japgolly.scalajs.react.{raw => Raw}
 import scala.scalajs.js
 import scala.scalajs.js.|
 

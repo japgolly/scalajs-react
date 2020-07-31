@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import scalajs.js
 import japgolly.scalajs.react.{raw => Raw}
+import scala.scalajs.js
 
 object PropsChildren {
   def apply(c: js.UndefOr[Raw.PropsChildren]): PropsChildren =

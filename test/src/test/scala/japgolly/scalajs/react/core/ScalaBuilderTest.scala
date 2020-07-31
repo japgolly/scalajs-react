@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.core
 
-import utest._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test.InferenceUtil._
+import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.vdom.html_<^._
 import scala.annotation.nowarn
+import utest._
 
 object ScalaBuilderTest extends TestSuite {
 

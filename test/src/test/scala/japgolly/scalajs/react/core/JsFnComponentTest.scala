@@ -1,12 +1,12 @@
 package japgolly.scalajs.react.core
 
-import scalajs.js
-import scalajs.js.annotation._
-import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+import scala.scalajs.js
+import scala.scalajs.js.annotation._
+import utest._
 
 object JsFnComponentTest extends TestSuite {
   @JSGlobal("FnComp")

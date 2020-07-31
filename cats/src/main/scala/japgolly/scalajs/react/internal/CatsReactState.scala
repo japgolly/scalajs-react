@@ -2,10 +2,8 @@ package japgolly.scalajs.react.internal
 
 import cats._
 import cats.data.StateT
-import cats.implicits._
-
+import japgolly.scalajs.react.CatsReact.{CatsReactExt_ReactST, reactCallbackCatsInstance}
 import japgolly.scalajs.react._
-import CatsReact.{reactCallbackCatsInstance, CatsReactExt_ReactST}
 
 /**
   * Created by alonsodomin on 13/03/2017.

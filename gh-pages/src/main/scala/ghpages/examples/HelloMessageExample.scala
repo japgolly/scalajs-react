@@ -1,9 +1,9 @@
 package ghpages.examples
 
 import ghpages.GhPagesMacros
+import ghpages.examples.util.SideBySide
 import japgolly.scalajs.react.ScalaComponent
 import japgolly.scalajs.react.vdom.html_<^._
-import ghpages.examples.util.SideBySide
 
 object HelloMessageExample {
 

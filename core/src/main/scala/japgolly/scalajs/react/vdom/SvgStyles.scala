@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.vdom
 
-import PackageBase._
+import japgolly.scalajs.react.vdom.PackageBase._
 
 object SvgStyles extends SvgStyles
 trait SvgStyles {

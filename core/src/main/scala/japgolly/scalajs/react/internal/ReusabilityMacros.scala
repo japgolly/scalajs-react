@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.internal
 
-import scala.reflect.macros.blackbox.Context
 import japgolly.scalajs.react.Reusability
+import scala.reflect.macros.blackbox.Context
 
 class ReusabilityMacros(val c: Context) extends MacroUtils {
   import c.universe._

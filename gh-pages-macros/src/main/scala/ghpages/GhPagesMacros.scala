@@ -1,8 +1,8 @@
 package ghpages
 
+import japgolly.scalajs.react.internal.MacroUtils
 import java.util.regex.Pattern
 import scala.reflect.macros.blackbox.Context
-import japgolly.scalajs.react.internal.MacroUtils
 
 object GhPagesMacros {
   def exampleSource: String = macro GhPagesMacroImpls.exampleSource

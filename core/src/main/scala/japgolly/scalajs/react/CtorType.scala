@@ -1,9 +1,9 @@
 package japgolly.scalajs.react
 
-import scala.scalajs.js
+import japgolly.scalajs.react.CtorType._
 import japgolly.scalajs.react.internal._
-import CtorType._
 import scala.annotation.nowarn
+import scala.scalajs.js
 
 /** Describes how a component uses `.props.children`. */
 sealed trait Children

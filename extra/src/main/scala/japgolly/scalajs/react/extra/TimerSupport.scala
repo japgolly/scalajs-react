@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.extra
 
-import scala.concurrent.duration.FiniteDuration
-import scala.scalajs.js.{UndefOr, undefined}
-import scala.scalajs.js.timers.{RawTimers, SetTimeoutHandle}
 import japgolly.scalajs.react._
+import scala.concurrent.duration.FiniteDuration
+import scala.scalajs.js.timers.{RawTimers, SetTimeoutHandle}
+import scala.scalajs.js.{UndefOr, undefined}
 
 /**
  * Alternatives to `window.setTimeout`/`window.setInterval` that automatically unregister installed callbacks

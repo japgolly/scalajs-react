@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.extra.router
 
-import org.scalajs.dom
-import scala.scalajs.js
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.internal.identityFn
 import japgolly.scalajs.react.vdom.VdomElement
+import org.scalajs.dom
+import scala.scalajs.js
 
 object Router {
 

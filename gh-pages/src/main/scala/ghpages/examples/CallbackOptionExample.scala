@@ -1,10 +1,10 @@
 package ghpages.examples
 
-import org.scalajs.dom.html
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SingleSide
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+import org.scalajs.dom.html
 
 object CallbackOptionExample {
 

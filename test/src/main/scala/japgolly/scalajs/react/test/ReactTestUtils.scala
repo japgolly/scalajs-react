@@ -1,13 +1,13 @@
 package japgolly.scalajs.react.test
 
-import org.scalajs.dom.{console, document}
-import org.scalajs.dom.html.Element
-import scala.concurrent.{ExecutionContext, Future}
-import scala.scalajs.js
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.raw.{React => RawReact, ReactDOM => RawReactDOM}
 import japgolly.scalajs.react.vdom.TopNode
 import org.scalajs.dom
+import org.scalajs.dom.html.Element
+import org.scalajs.dom.{console, document}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.scalajs.js
 
 object ReactTestUtils {
 

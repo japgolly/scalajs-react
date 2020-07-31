@@ -1,18 +1,18 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom.{console, window}
-import org.scalajs.dom.raw.Window
-import scala.annotation.{implicitNotFound, tailrec}
-import scala.collection.compat._
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
-import scala.scalajs.js
-import scala.scalajs.js.{UndefOr, undefined, Function0 => JFn0, Function1 => JFn1}
-import scala.scalajs.js.timers.{RawTimers, SetIntervalHandle, SetTimeoutHandle}
-import scala.util.{Failure, Success, Try}
+import japgolly.scalajs.react.CallbackTo.MapGuard
 import japgolly.scalajs.react.internal.{RateLimit, Timer, Trampoline, catchAll, identityFn}
 import java.time.Duration
-import CallbackTo.MapGuard
+import org.scalajs.dom.raw.Window
+import org.scalajs.dom.{console, window}
+import scala.annotation.{implicitNotFound, tailrec}
+import scala.collection.compat._
+import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.scalajs.js
+import scala.scalajs.js.timers.{RawTimers, SetIntervalHandle, SetTimeoutHandle}
+import scala.scalajs.js.{Function0 => JFn0, Function1 => JFn1, UndefOr, undefined}
+import scala.util.{Failure, Success, Try}
 
 /**
  * A callback with no return value. Equivalent to `() => Unit`.

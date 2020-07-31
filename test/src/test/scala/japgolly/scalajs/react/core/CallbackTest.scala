@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core
 
-import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test.TestTimer
+import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.{Callback, CallbackTo}
 import utest._
 

@@ -1,14 +1,14 @@
 package japgolly.scalajs.react.extra
 
-import org.scalajs.dom.{console, document, window}
-import org.scalajs.dom.html.Element
-import org.scalajs.dom.raw.{CSSStyleDeclaration, Node}
-import scala.concurrent.duration._
-import scalajs.js
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra.ReusabilityOverlay.Comp
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.vdom.html_<^._
-import ReusabilityOverlay.Comp
+import org.scalajs.dom.html.Element
+import org.scalajs.dom.raw.{CSSStyleDeclaration, Node}
+import org.scalajs.dom.{console, document, window}
+import scala.concurrent.duration._
+import scala.scalajs.js
 
 /**
  * Heavily inspired by https://github.com/redsunsoft/react-render-visualizer

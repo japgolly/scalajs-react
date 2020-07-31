@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.test
 
-import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.extra.{Broadcaster, Px}
+import japgolly.scalajs.react.{Callback, CallbackTo}
 
 class TestBroadcaster[I, A](initialValue: A, f: I => A) extends Broadcaster[I] {
 

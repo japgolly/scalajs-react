@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import scala.runtime.AbstractFunction2
 import japgolly.scalajs.react.internal.{Effect, identityFn}
+import scala.runtime.AbstractFunction2
 
 final class SetStateFn[F[_], S](underlyingFn: (Option[S], Callback) => F[Unit])
                                (implicit FF: Effect[F])

@@ -3,10 +3,10 @@ package japgolly.scalajs.react.core
 import japgolly.scalajs.react.test.TestTimer
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.{AsyncCallback, Callback}
-import utest._
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.Success
+import utest._
 
 object AsyncCallbackTest extends TestSuite {
 

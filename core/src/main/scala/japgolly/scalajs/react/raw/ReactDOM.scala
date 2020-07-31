@@ -2,9 +2,9 @@ package japgolly.scalajs.react.raw
 
 import org.scalajs.dom
 import scala.annotation.nowarn
-import scala.scalajs.js.|
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
+import scala.scalajs.js.|
 
 @JSImport("react-dom", JSImport.Namespace, "ReactDOM")
 @js.native

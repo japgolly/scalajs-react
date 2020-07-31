@@ -1,6 +1,7 @@
 package ghpages.pages
 
-import japgolly.scalajs.react._, vdom.html_<^._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
 
 object DocoPage {
 

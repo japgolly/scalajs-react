@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.raw.JsNumber
+import japgolly.scalajs.react.vdom.PackageBase._
 import scala.scalajs.js
 import scala.scalajs.js.|
-import PackageBase._
 
 object HtmlAttrs extends HtmlAttrs
 trait HtmlAttrs {

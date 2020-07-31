@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.test
 
-import scalajs.js.URIUtils
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router._
-import MockRouterCtl._
+import japgolly.scalajs.react.test.MockRouterCtl._
+import scala.scalajs.js.URIUtils
 
 /**
  * Mock [[RouterCtl]] that does nothing but record events.

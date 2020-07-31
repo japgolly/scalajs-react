@@ -1,8 +1,8 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.ScalaComponent.Lifecycle
+import japgolly.scalajs.react.StateAccessor._
 import japgolly.scalajs.react.internal.{Effect, identityFn}
-import ScalaComponent.Lifecycle
-import StateAccessor._
 
 /**
   * Type-classes that provide read and/or write access to state.

@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.test
 
+import scala.Console._
+import scala.scalajs.js.Dynamic.global
 import scala.util.Try
 import scala.util.control.NonFatal
-import scalajs.js.Dynamic.global
-import Console._
 
 object JsEnvUtils {
 

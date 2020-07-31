@@ -1,9 +1,10 @@
 package ghpages.examples
 
 import ghpages.GhPagesMacros
-import japgolly.scalajs.react._, vdom.html_<^._
-import org.scalajs.dom.html
 import ghpages.examples.util.SideBySide
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+import org.scalajs.dom.html
 
 object RefsExample {
 

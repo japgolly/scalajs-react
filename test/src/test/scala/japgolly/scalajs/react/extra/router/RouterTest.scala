@@ -1,14 +1,14 @@
 package japgolly.scalajs.react.extra.router
 
+import japgolly.scalajs.react.ScalazReact._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test._
+import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom._
 import scalaz._
 import sizzle.Sizzle
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.test._
 import utest._
-import TestUtil._
-import ScalazReact._
 
 object RouterTest extends TestSuite {
 

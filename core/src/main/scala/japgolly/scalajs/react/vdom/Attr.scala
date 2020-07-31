@@ -1,13 +1,12 @@
 package japgolly.scalajs.react.vdom
 
+import japgolly.scalajs.react.internal.OptionLike
+import japgolly.scalajs.react.vdom.Attr.ValueType
+import japgolly.scalajs.react.{Callback, CallbackTo, raw}
 import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound, nowarn}
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
-import japgolly.scalajs.react.internal.OptionLike
-import japgolly.scalajs.react.{Callback, CallbackTo}
-import japgolly.scalajs.react.raw
-import Attr.ValueType
 import scala.scalajs.js.|
 
 /**

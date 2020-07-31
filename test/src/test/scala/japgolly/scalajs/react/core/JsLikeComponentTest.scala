@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.core
 
-import scala.scalajs.js
-import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
+import scala.scalajs.js
+import utest._
 
 object JsLikeComponentTest extends TestSuite {
 

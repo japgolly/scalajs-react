@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.core
 
-import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test._
+import utest._
 
 object ReusableFnTest extends TestSuite {
 

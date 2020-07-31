@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.component.builder
 
-import scalajs.js
-import japgolly.scalajs.react.{Children, UpdateSnapshot, raw}
+import japgolly.scalajs.react.component.Scala._
+import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.component.{Js, Scala}
 import japgolly.scalajs.react.internal.{Box, JsRepr}
-import Lifecycle._
-import Scala._
+import japgolly.scalajs.react.{Children, UpdateSnapshot, raw}
+import scala.scalajs.js
 
 /** Creates an ES6 class extending `React.Component` to create a component from a builder. */
 object ViaReactComponent {

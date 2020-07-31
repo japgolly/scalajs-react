@@ -1,16 +1,14 @@
 package japgolly.scalajs.react.core
 
-import scalajs.js
-import utest._
-import scalaz.Equal
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.Box
-import japgolly.scalajs.react.internal.JsUtil.inspectObject
-import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils}
 import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils}
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.annotation.nowarn
+import scala.scalajs.js
 import scala.scalajs.js.|
+import utest._
 
 @nowarn("cat=deprecation")
 object RawComponentEs6PTest extends TestSuite {
