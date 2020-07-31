@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.component
 
-import scala.scalajs.js
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, UpdateSnapshot}
 import japgolly.scalajs.react.vdom.VdomNode
+import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, UpdateSnapshot}
+import scala.scalajs.js
 
 object Scala {
 

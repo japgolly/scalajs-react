@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.internal
 
-import scala.reflect.macros.blackbox.Context
 import japgolly.scalajs.react.Reusability
+import scala.reflect.macros.blackbox.Context
 
 class ReusabilityMacros(val c: Context) extends MacroUtils {
   import c.universe._
@@ -71,7 +71,7 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
 
   private class Preparations(logCode: Boolean) {
     private val init1  = new Init("a$" + _)
-    private val init2  = new Init("b$" + _)
+    private val init2  = new Init("b$" + _, lazyVals = true)
     private val lazies = List.newBuilder[Tree]
     private var preps  = Map.empty[Type, Prepared[_]]
     private val stable = collection.mutable.HashMap.empty[Type, TermName]

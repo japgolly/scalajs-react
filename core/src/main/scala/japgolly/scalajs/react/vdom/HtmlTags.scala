@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.vdom
 
+import japgolly.scalajs.react.vdom.Exports._
 import org.scalajs.dom.{html => *}
-import Exports._
 
 object HtmlTags extends HtmlTags
 trait HtmlTags {

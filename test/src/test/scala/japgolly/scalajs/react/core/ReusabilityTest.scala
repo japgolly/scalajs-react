@@ -1,15 +1,15 @@
 package japgolly.scalajs.react.core
 
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test._
+import japgolly.scalajs.react.vdom.html_<^._
 import java.time._
 import nyaya.gen._
 import nyaya.prop._
 import nyaya.test.PropTest._
-import utest._
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.test._
-import japgolly.scalajs.react.test.TestUtil._
-import japgolly.scalajs.react.vdom.html_<^._
 import scala.annotation.nowarn
+import utest._
 
 object ReusabilityTest extends TestSuite {
 
@@ -85,11 +85,10 @@ object ReusabilityTest extends TestSuite {
 
       final case class BM[+W](value: W)
 
-      implicit def reusabilityBM[A: Reusability]: Reusability[BM[A]] =
-        Reusability.derive
-
-      implicit def reusability[H: Reusability]: Reusability[Item[H]] =
-        Reusability.derive
+      implicit def reusabilityB[A: Reusability]: Reusability[BM    [A]] = Reusability.derive
+      implicit def reusabilityS[A: Reusability]: Reusability[Suite [A]] = Reusability.derive
+      implicit def reusabilityF[A: Reusability]: Reusability[Folder[A]] = Reusability.derive
+      implicit def reusability [A: Reusability]: Reusability[Item  [A]] = Reusability.derive
     }
   }
 

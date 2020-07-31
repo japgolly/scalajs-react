@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.component
 
-import scala.scalajs.js
-import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
-import japgolly.scalajs.react.{Callback, Children, CtorType, ComponentDom, PropsChildren, vdom, raw => RAW}
+import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.{Callback, Children, ComponentDom, CtorType, PropsChildren, raw => RAW}
+import scala.scalajs.js
 import scala.scalajs.js.|
 
 object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {

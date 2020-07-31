@@ -3,7 +3,6 @@ package japgolly.scalajs.react.effects
 import japgolly.scalajs.react.{AsyncCallback, Callback}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck._
-
 import scala.util.Try
 
 trait AsyncCallbackArbitraries extends CallbackToArbitraries {

@@ -1,9 +1,8 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.{PropsChildren, raw}
-import japgolly.scalajs.react.component.Generic
 import japgolly.scalajs.react.feature.ReactFragment
 import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.{PropsChildren, raw}
 import scala.collection.compat._
 import scala.scalajs.js
 

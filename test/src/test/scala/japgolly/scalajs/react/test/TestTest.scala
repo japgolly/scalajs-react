@@ -1,19 +1,17 @@
 package japgolly.scalajs.react.test
 
-import sizzle.Sizzle
-import org.scalajs.dom
-import org.scalajs.dom.{Event, document}
-import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
-import scala.concurrent.Promise
-import scalajs.concurrent.JSExecutionContext.Implicits.queue
-import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.raw.SyntheticEvent
+import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
-import TestUtil._
+import org.scalajs.dom
+import org.scalajs.dom.document
+import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
 import scala.annotation.nowarn
-import scala.scalajs.js
-import scalaz.Equal
+import scala.concurrent.Promise
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+import sizzle.Sizzle
+import utest._
 
 object TestTest extends TestSuite {
 

@@ -1,11 +1,10 @@
 package japgolly.scalajs.react.component
 
-import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
-import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, vdom, raw => RAW}
-import japgolly.scalajs.react.scalajsReactRawPropsChildrenToJsUndef
+import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, raw => RAW, scalajsReactRawPropsChildrenToJsUndef, vdom}
 import scala.annotation.implicitNotFound
-import scalajs.js
+import scala.scalajs.js
 
 object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalComponent] {
 

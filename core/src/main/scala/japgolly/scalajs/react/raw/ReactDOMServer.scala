@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.raw
 
 import scala.annotation.nowarn
-import scalajs.js
-import scalajs.js.annotation._
+import scala.scalajs.js
+import scala.scalajs.js.annotation._
 
 @JSImport("react-dom/server", JSImport.Namespace, "ReactDOMServer")
 @js.native

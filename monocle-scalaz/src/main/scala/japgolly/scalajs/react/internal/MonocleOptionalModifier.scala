@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.internal
 
-import japgolly.scalajs.react.MonocleReact.{applicativeOption, functorOption}
+import japgolly.scalajs.react.MonocleReact.applicativeOption
 
 /**
   * Provide access to the modify to Option function on any compatible optic.

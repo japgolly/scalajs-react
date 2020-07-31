@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.feature
 
-import japgolly.scalajs.react.{Key, raw => Raw}
 import japgolly.scalajs.react.vdom._
+import japgolly.scalajs.react.{Key, raw => Raw}
 import scala.scalajs.js
 
 object ReactFragment {

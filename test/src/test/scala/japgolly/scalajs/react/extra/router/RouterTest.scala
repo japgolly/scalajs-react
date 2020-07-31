@@ -1,14 +1,14 @@
 package japgolly.scalajs.react.extra.router
 
+import japgolly.scalajs.react.ScalazReact._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test._
+import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom._
 import scalaz._
 import sizzle.Sizzle
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.test._
 import utest._
-import TestUtil._
-import ScalazReact._
 
 object RouterTest extends TestSuite {
 
@@ -114,7 +114,7 @@ object RouterTest extends TestSuite {
         QueryParamPage(Map("a" -> "123", "b" -> "456", "c"-> "Hello bob!")))
 
       def click(css: String): Unit = {
-        Simulation.click run Sizzle(css, node).sole
+        Simulation.click run Sizzle(css, node).sole()
       }
       def clickBack()       = click("a.back")
       def clickHello()      = click("a.hello")

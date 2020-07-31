@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import scalajs.js
-import scalajs.js.|
+import scala.scalajs.js
+import scala.scalajs.js.|
 
 /** See https://flow.org/en/docs/react/types */
 package object raw {

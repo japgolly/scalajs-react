@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.component
 
+import japgolly.scalajs.react.internal.JsUtil
 import org.scalajs.dom.console
 import scala.annotation.elidable
 import scala.scalajs.js
-import japgolly.scalajs.react.internal.JsUtil
 
 object InspectRaw {
 

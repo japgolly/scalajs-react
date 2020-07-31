@@ -1,8 +1,9 @@
 package ghpages.examples
 
 import ghpages.GhPagesMacros
-import japgolly.scalajs.react._, vdom.html_<^._
 import ghpages.examples.util.SideBySide
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
 
 object TodoExample {
 

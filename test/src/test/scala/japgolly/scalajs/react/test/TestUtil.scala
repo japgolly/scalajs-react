@@ -1,12 +1,12 @@
 package japgolly.scalajs.react.test
 
+import japgolly.scalajs.react._
+import scala.annotation.nowarn
 import scala.reflect.ClassTag
 import scala.scalajs.js
 import scalaz.{Equal, Maybe}
-import utest.CompileError
-import japgolly.scalajs.react._
-import scala.annotation.nowarn
 import sourcecode.Line
+import utest.CompileError
 
 object TestUtil extends TestUtil
 

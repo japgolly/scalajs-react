@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.{CallbackTo, Callback}
+import japgolly.scalajs.react.{Callback, CallbackTo}
 
 /**
  * Implementation of `Listener`.

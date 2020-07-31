@@ -1,10 +1,10 @@
 package ghpages
 
-import org.scalajs.dom
-import japgolly.scalajs.react._, vdom.html_<^._, ScalazReact._
-import japgolly.scalajs.react.extra._
+import ghpages.pages._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router._
-import pages._
+import japgolly.scalajs.react.vdom.html_<^._
+import org.scalajs.dom
 
 object GhPages {
 

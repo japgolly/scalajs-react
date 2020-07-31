@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.extra.router
 
+import japgolly.scalajs.react.extra.router.RouterConfig.Logger
+import japgolly.scalajs.react.vdom.VdomElement
+import japgolly.scalajs.react.{Callback, CallbackTo}
 import org.scalajs.dom
 import scala.annotation.elidable
 import scala.util.{Failure, Success, Try}
-import japgolly.scalajs.react.{Callback, CallbackTo}
-import japgolly.scalajs.react.vdom.VdomElement
-import RouterConfig.Logger
 
 case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
                                               renderFn    : (RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement,
@@ -148,7 +148,6 @@ case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
 
   @elidable(elidable.ASSERTION)
   private def _detectErrors(pages: Page*): CallbackTo[Vector[String]] = CallbackTo {
-    import RoutingRules.SharedLogic._
 
     var errors = Vector.empty[String]
 

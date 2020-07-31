@@ -1,13 +1,12 @@
 package japgolly.scalajs.react.core
 
-import scalajs.js
-import scalajs.js.annotation._
-import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.annotation.nowarn
+import scala.scalajs.js
+import utest._
 
 abstract class JsComponentTest extends TestSuite {
   final val H1: raw.React.Element =

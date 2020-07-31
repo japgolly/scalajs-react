@@ -1,10 +1,10 @@
 package japgolly.scalajs.react.core
 
-import utest._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
-import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.vdom.html_<^._
+import utest._
 
 object ScalaFnComponentTest extends TestSuite {
 

@@ -1,9 +1,7 @@
 package japgolly.scalajs.react
 
-import cats.{Monad, Id, ~>}
 import cats.data.StateT
-import cats.implicits._
-
+import cats.{Id, Monad, ~>}
 import japgolly.scalajs.react.CatsReact._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._

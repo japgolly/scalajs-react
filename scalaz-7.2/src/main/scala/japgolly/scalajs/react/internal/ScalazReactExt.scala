@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.internal
 
-import scalaz.{Equal, Kleisli, Monad, ~>}
-import scalaz.effect.IO
+import japgolly.scalajs.react.ScalazReact.{ChangeFilter, ScalazReactExt_StateAccessCB}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
-import ScalazReactExt._
-import ScalazReact.{ChangeFilter, ScalazReactExt_StateAccessCB}
+import japgolly.scalajs.react.internal.ScalazReactExt._
+import scalaz.effect.IO
+import scalaz.{Equal, Kleisli, Monad, ~>}
 
 object ScalazReactExt {
 

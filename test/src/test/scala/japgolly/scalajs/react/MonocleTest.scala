@@ -1,13 +1,12 @@
 package japgolly.scalajs.react
 
-import monocle._
+import japgolly.scalajs.react.MonocleReact._
+import japgolly.scalajs.react.ScalazReact._
+import japgolly.scalajs.react.extra._
 import monocle.macros.Lenses
-import utest._
-import extra._
-import ScalazReact._
-import MonocleReact._
 import scala.annotation.nowarn
 import scalaz.{Monad, ~>}
+import utest._
 
 object MonocleTest extends TestSuite {
   import japgolly.scalajs.react.test.InferenceUtil._

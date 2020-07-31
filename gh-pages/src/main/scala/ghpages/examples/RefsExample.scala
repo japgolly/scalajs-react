@@ -1,9 +1,10 @@
 package ghpages.examples
 
 import ghpages.GhPagesMacros
-import japgolly.scalajs.react._, vdom.html_<^._
-import org.scalajs.dom.html
 import ghpages.examples.util.SideBySide
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+import org.scalajs.dom.html
 
 object RefsExample {
 
@@ -64,7 +65,7 @@ object RefsExample {
     def handleChange(e: ReactEventFromInput) =
       $.setState(e.target.value)
 
-    def clearAndFocusInput() =
+    def clearAndFocusInput =
       $.setState("", inputRef.foreach(_.focus()))
 
     def render(state: String) =

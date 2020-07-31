@@ -1,9 +1,8 @@
 package japgolly.scalajs.react.raw
 
 import japgolly.scalajs.react.internal.JsSet
-import scala.annotation.nowarn
+import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
-import scalajs.js
 
 @js.native
 trait Interaction extends js.Object {

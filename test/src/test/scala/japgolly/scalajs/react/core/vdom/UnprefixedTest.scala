@@ -6,7 +6,6 @@ import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.all._
 import scala.annotation.nowarn
 import scala.scalajs.js
-import scala.scalajs.js.{Array => JArray}
 import utest._
 
 @nowarn("msg=Stream.+is.deprecated")

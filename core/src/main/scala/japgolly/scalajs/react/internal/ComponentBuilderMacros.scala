@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.internal
 
-import scala.reflect.macros.blackbox.Context
 import japgolly.scalajs.react.Children
+import scala.reflect.macros.blackbox.Context
 
 final class ComponentBuilderMacros(val c: Context) extends MacroUtils {
   import c.universe._

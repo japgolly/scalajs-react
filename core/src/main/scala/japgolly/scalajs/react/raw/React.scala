@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.raw
 
 import scala.annotation.nowarn
-import scalajs.js
-import scalajs.js.|
-import scalajs.js.annotation._
+import scala.scalajs.js
+import scala.scalajs.js.annotation._
+import scala.scalajs.js.|
 
 @JSImport("react", JSImport.Namespace, "React")
 @js.native
