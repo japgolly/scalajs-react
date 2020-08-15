@@ -24,7 +24,7 @@ object VdomTest extends TestSuite {
       "short"     - test(45: Short,                                       "45")
       "int"       - test(666,                                             "666")
       "long"      - test(123L,                                            "123")
-      "double"    - test(12.3,                                            "12.3")
+      "double"    - test(12.5,                                            "12.3")
       "string"    - test("yo",                                            "yo")
       "empty"     - test(EmptyVdom,                                       "")
       "optionN"   - test(Option.empty[Int],                               "")
