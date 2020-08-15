@@ -67,15 +67,18 @@ object Attr {
   }
 
   final class Event[E[+x <: dom.Node] <: raw.SyntheticEvent[x]](name: String)
-      extends Generic[js.Function1[E[Nothing], Any]](name) {
+      extends Attr[js.Function1[E[Nothing], Unit]](name) {
 
     type Event = E[Nothing]
+
+    override def :=[A](a: A)(implicit t: ValueType[A, js.Function1[E[Nothing], Unit]]): TagMod =
+      TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Unit]]), a))
 
     def -->[A: DomCallbackResult](callback: => CallbackTo[A]): TagMod =
       ==>(_ => callback)
 
     def ==>[A: DomCallbackResult](eventHandler: Event => CallbackTo[A]): TagMod =
-      :=(((e: Event) => eventHandler(e).runNow()): js.Function1[E[Nothing], Any])(ValueType.direct)
+      :=(((e: Event) => eventHandler(e).runNow()): js.Function1[E[Nothing], Unit])(ValueType.direct)
 
     def -->?[O[_]](callback: => O[Callback])(implicit o: OptionLike[O]): TagMod =
       this --> Callback(o.foreach(callback)(_.runNow()))

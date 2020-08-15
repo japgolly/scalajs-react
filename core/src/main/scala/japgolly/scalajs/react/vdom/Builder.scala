@@ -8,12 +8,13 @@ import scala.scalajs.js
 /** Mutable target for immutable VDOM constituents to compose.
   */
 trait Builder {
-  val addAttr        : (String, js.Any) => Unit
-  val addClassName   : js.Any           => Unit
-  val addStyle       : (String, js.Any) => Unit
-  val addStylesObject: js.Object        => Unit
-  val appendChild    : RawChild         => Unit
-  val setKey         : js.Any           => Unit
+  val addAttr        : (String, js.Any)                     => Unit
+  val addClassName   : js.Any                               => Unit
+  val addEventHandler: (String, js.Function1[js.Any, Unit]) => Unit
+  val addStyle       : (String, js.Any)                     => Unit
+  val addStylesObject: js.Object                            => Unit
+  val appendChild    : RawChild                             => Unit
+  val setKey         : js.Any                               => Unit
 
   final def addStyles(j: js.Any): Unit = {
     // Hack because Attr.ValueType.Fn takes a js.Any => Unit.
@@ -28,13 +29,18 @@ trait Builder {
 object Builder {
   type RawChild = raw.React.Node
 
-  def setObjectKeyValue(o: js.Object, k: String, v: js.Any): Unit =
+  @inline def setObjectKeyValue(o: js.Object, k: String, v: js.Any): Unit =
     o.asInstanceOf[js.Dynamic].updateDynamic(k)(v)
 
-  def nonEmptyObject[O <: js.Object](o: O): js.UndefOr[O] =
+  @inline def modObjectKeyValue[A <: js.Any](o: js.Object, k: String, v: js.UndefOr[A] => A): Unit = {
+    val cur = o.asInstanceOf[js.Dynamic].selectDynamic(k).asInstanceOf[js.UndefOr[A]]
+    o.asInstanceOf[js.Dynamic].updateDynamic(k)(v(cur))
+  }
+
+  @inline def nonEmptyObject[O <: js.Object](o: O): js.UndefOr[O] =
     if (js.Object.keys(o).length == 0) js.undefined else o
 
-  def nonEmptyJsArray[A](as: js.Array[A]): js.UndefOr[js.Array[A]] =
+  @inline def nonEmptyJsArray[A](as: js.Array[A]): js.UndefOr[js.Array[A]] =
     if (as.length == 0) js.undefined else as
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -72,6 +78,12 @@ object Builder {
 
     override val addClassName: js.Any => Unit =
       n => nonEmptyClassName = nonEmptyClassName.fold(n)(_.toString + " " + n)
+
+    override val addEventHandler =
+      (k, g) => modObjectKeyValue[js.Function1[js.Any, Unit]](
+        props,
+        k,
+        c => if (c.isEmpty) g else {val f = c.get; e => {f(e); g(e)}})
 
     override val addStyle: (String, js.Any) => Unit =
       setObjectKeyValue(styles, _, _)
