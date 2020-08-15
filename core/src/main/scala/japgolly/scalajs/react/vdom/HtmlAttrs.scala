@@ -1757,7 +1757,7 @@ trait HtmlAttrs {
     * This enumerated attribute defines whether the element may be checked for
     * spelling errors.
     */
-  final def spellCheck = VdomAttr("spellCheck")
+  final def spellCheck = VdomAttr[Boolean]("spellCheck")
 
   /**
     * If the value of the type attribute is image, this attribute specifies a URI
