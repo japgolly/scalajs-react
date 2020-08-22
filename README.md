@@ -38,11 +38,14 @@ Includes a router, testing utils, performance utils, more.
 
 ##### External Resources
 
-* Templates & Tutorials
+* Tutorials / Blogs
+  * [Scala, React, and SSR](https://blog.shipreq.com/post/scala_react_and_ssr_part_1)
+  * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
+
+* Templates
   * [chandu0101 / scalajs-react-template](https://github.com/chandu0101/scalajs-react-template)
   * [ochrons / scalajs-spa-tutorial](https://github.com/ochrons/scalajs-spa-tutorial)
   * [TodoMVC example](http://todomvc.com/examples/scalajs-react)
-  * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
   * [Scala.js, React and ScalaCSS Boilerplate](https://github.com/shashkovdanil/scalajs-react-boilerplate)
   * ['Intro to React' tutorial transposed into scala.js](https://github.com/MrCurtis/ScalaJSReactTutorial)
 
