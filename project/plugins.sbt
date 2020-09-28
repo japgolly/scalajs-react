@@ -9,7 +9,7 @@ libraryDependencies ++= {
   else
     Seq(
       "org.scala-js" %% "scalajs-env-jsdom-nodejs" % "1.1.0",
-      "org.scala-js" %% "scalajs-env-selenium"     % "1.0.0"
+      "org.scala-js" %% "scalajs-env-selenium"     % "1.1.0"
     )
 }
 
