@@ -1,5 +1,5 @@
 val scalaJSVersion =
-  Option(System.getenv("SCALAJS_VERSION")).filter(_.nonEmpty).getOrElse("1.0.1")
+  Option(System.getenv("SCALAJS_VERSION")).filter(_.nonEmpty).getOrElse("1.3.0")
 
 libraryDependencies ++= {
   if (scalaJSVersion.startsWith("0."))
@@ -24,7 +24,7 @@ addSbtPlugin("org.xerial.sbt"    % "sbt-sonatype"       % "3.9.4")
     Nil
   else
     Seq(
-      addSbtPlugin("org.scala-js" % "sbt-jsdependencies" % "1.0.1")
+      addSbtPlugin("org.scala-js" % "sbt-jsdependencies" % "1.3.0")
     )
 }
 
