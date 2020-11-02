@@ -31,9 +31,15 @@ final class Reusable[+A] private[Reusable](lazyValue: () => A,
     new Reusable[B](() => b, root, isReusable)
   }
 
+  /** WARNING: This does not affect reusability.
+    * Only the initial (pre-mapped) values matter when considering reusability.
+    */
   def withValue[B](b: B): Reusable[B] =
     new Reusable[B](() => b, root, isReusable)
 
+  /** WARNING: This does not affect reusability.
+    * Only the initial (pre-mapped) values matter when considering reusability.
+    */
   def withLazyValue[B](b: => B): Reusable[B] =
     map(_ => b)
 
