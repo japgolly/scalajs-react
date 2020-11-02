@@ -429,6 +429,11 @@ object Reusability extends ScalaVersionSpecificReusability {
 
   // ===================================================================================================================
 
+  object MapImplicits {
+    implicit def reusabilityMap[K, V](implicit rv: Reusability[V]): Reusability[Map[K, V]] =
+      Reusability.byRef || Reusability.map
+  }
+
   object TemporalImplicitsWithoutTolerance {
 
     implicit lazy val reusabilityJavaDuration: Reusability[Duration] =
