@@ -160,4 +160,32 @@ object StateAccess {
           (f, c) => t(modItFn(f, c)))(
           t.to)
     }
+
+  def const[F[_], S](stateFn: => F[S])(implicit FF: Effect[F]): StateAccess[F, S] = {
+    val unit = FF.pure(())
+
+    new StateAccess[F, S] {
+      override type WithEffect[F2[_]] = StateAccess[F2, S]
+      override type WithMappedState[S2] = StateAccess[F, S2]
+
+      override protected implicit def F = FF
+
+      override def state = stateFn
+
+      override def setStateOption(newState: Option[State], callback: Callback) =
+        unit
+
+      override def modStateOption(mod: State => Option[State], callback: Callback) =
+        unit
+
+      override def xmapState[S2](f: S => S2)(g: S2 => S) =
+        const(F.map(stateFn)(f))(FF)
+
+      override def zoomState[S2](get: S => S2)(set: S2 => S => S) =
+        const(F.map(stateFn)(get))(FF)
+
+      override def withEffect[F2[_]](implicit t: Effect.Trans[F, F2]) =
+        const(t(stateFn))(t.to)
+    }
+  }
 }
