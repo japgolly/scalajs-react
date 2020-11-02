@@ -69,7 +69,7 @@ Includes a router, testing utils, performance utils, more.
 ##### Requirements:
 * React ≥ 16
 * Scala ≥ 2.12
-* Scala.JS ≥ 0.6.31
+* Scala.JS ≥ 0.6.31 | 1.2.0
 
 ##### Support:
 If you like what I do
