@@ -1883,7 +1883,8 @@ trait HtmlAttrs {
   /** IE-specific property to prevent user selection */
   final def unselectable = VdomAttr("unselectable")
 
-  final def untypedRef = VdomAttr.Ref
+  /** Don't bother with `:=` on this; call `.apply` instead. */
+  final def untypedRef = VdomAttr.UntypedRef
 
   final def useMap = VdomAttr("useMap")
 

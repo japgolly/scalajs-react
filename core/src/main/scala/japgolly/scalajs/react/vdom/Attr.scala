@@ -135,6 +135,15 @@ object Attr {
       :=(r.rawSetFn)(ValueType.direct)
   }
 
+  object UntypedRef extends Attr[raw.React.RefFn[TopNode]]("ref") {
+    override def :=[A](a: A)(implicit t: ValueType[A, raw.React.RefFn[TopNode]]) =
+      t(attrName, a)
+    def apply(f: (TopNode | Null) => Unit): TagMod = {
+      val jsFn: raw.React.RefFn[TopNode] = f
+      :=(jsFn)(ValueType.direct)
+    }
+  }
+
 //  implicit val ordering: Ordering[ReactAttr[Nothing]] =
 //    Ordering.by((_: ReactAttr[Nothing]).name)
 

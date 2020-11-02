@@ -109,5 +109,26 @@ object VdomTest extends TestSuite {
         assertEq(txt(), "SPACE!")
       }
     }
+
+    "untypedRef" - {
+      var value: AnyRef = null
+      val c =
+        ScalaComponent.builder[Unit]
+          .initialState("init")
+          .noBackend
+          .render_S { s =>
+            <.input(
+              ^.untypedRef(value = _),
+              ^.readOnly := true,
+              ^.value := s)
+          }
+          .build
+
+      ReactTestUtils.withRenderedIntoBody(c()) { _ =>
+        assert(value.isInstanceOf[html.Input])
+      }
+      assert(value eq null)
+    }
+
   }
 }
