@@ -4,6 +4,8 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
+import org.scalajs.dom.ext.KeyCode
+import org.scalajs.dom.html
 import scala.annotation.nowarn
 import utest._
 
@@ -79,5 +81,33 @@ object VdomTest extends TestSuite {
       }
     }
 
+    "multipleEventHandlers" - {
+      val c =
+        ScalaComponent.builder[Unit]
+          .initialState("init")
+          .noBackend
+          .renderS { ($, s) =>
+
+            val eh1: ReactKeyboardEventFromInput => Callback =
+              e => $.setState("enter!").when_(e.keyCode == KeyCode.Enter)
+
+            val eh2: ReactKeyboardEventFromInput => Callback =
+              e => $.setState("SPACE!").when_(e.keyCode == KeyCode.Space)
+
+            <.input(
+              ^.onKeyDown ==> eh1,
+              ^.onKeyDown ==> eh2,
+              ^.readOnly := true,
+              ^.value := s)
+          }
+          .build
+      ReactTestUtils.withRenderedIntoBody(c()) { m =>
+        def txt() = m.getDOMNode.asMounted().domCast[html.Input].value
+        SimEvent.Keyboard.Enter.simulateKeyDown(m)
+        assertEq(txt(), "enter!")
+        SimEvent.Keyboard.Space.simulateKeyDown(m)
+        assertEq(txt(), "SPACE!")
+      }
+    }
   }
 }

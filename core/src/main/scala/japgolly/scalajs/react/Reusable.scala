@@ -31,9 +31,15 @@ final class Reusable[+A] private[Reusable](lazyValue: () => A,
     new Reusable[B](() => b, root, isReusable)
   }
 
+  /** WARNING: This does not affect reusability.
+    * Only the initial (pre-mapped) values matter when considering reusability.
+    */
   def withValue[B](b: B): Reusable[B] =
     new Reusable[B](() => b, root, isReusable)
 
+  /** WARNING: This does not affect reusability.
+    * Only the initial (pre-mapped) values matter when considering reusability.
+    */
   def withLazyValue[B](b: => B): Reusable[B] =
     map(_ => b)
 
@@ -52,6 +58,14 @@ final class Reusable[+A] private[Reusable](lazyValue: () => A,
   /** Combine reusability of this and the argument, and return the value of the argument. */
   def *>[B](fb: Reusable[B]): Reusable[B] =
     Reusable.ap(this, fb)((_, b) => b)
+
+  /** WARNING: This does not affect reusability.
+    * Only the initial (pre-mapped) values matter when considering reusability.
+    */
+  def sequenceOption[B](implicit ev: Reusable[A] <:< Reusable[Option[B]]): Option[Reusable[B]] = {
+    val self = ev(this)
+    self.value.map(withValue)
+  }
 }
 
 object Reusable {
@@ -84,6 +98,9 @@ object Reusable {
   def never[A](a: A): Reusable[A] =
     const(a, false)
 
+  lazy val unit: Reusable[Unit] =
+    root((), _.root.isInstanceOf[Unit])
+
   /** Compare by reference. Reuse if both values are the same instance. */
   def byRef[A <: AnyRef](a: A): Reusable[A] =
     root(a, _.root match {
@@ -115,6 +132,12 @@ object Reusable {
   def ap[A, B, C](ra: Reusable[A], rb: Reusable[B])(f: (A, B) => C): Reusable[C] =
     implicitly((ra, rb)).map(x => f(x._1, x._2))
 
+  def sequenceOption[A](o: Option[Reusable[A]]): Reusable[Option[A]] =
+    o match {
+      case Some(ra) => ra.map(Some(_))
+      case None     => unit.withValue(None)
+    }
+
   private[this] val reusabilityInstance =
     Reusability[Reusable[Any]]((x, y) => x.isReusable(y) && y.isReusable(x))
 
@@ -122,6 +145,9 @@ object Reusable {
     reusabilityInstance.narrow
 
   // ===================================================================================================================
+
+  lazy val emptyCallback: Reusable[Callback] =
+    callbackByRef(Callback.empty)
 
   def callbackByRef[A](c: CallbackTo[A]): Reusable[CallbackTo[A]] =
     byRefIso(c)(_.underlyingRepr)
