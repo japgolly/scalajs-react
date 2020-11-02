@@ -29,7 +29,7 @@ object ScalajsReact {
     val MonocleScalaz         = "1.6.3"
     val MTest                 = "0.7.5"
     val Nyaya                 = "0.9.2"
-    val ReactJs               = "16.13.1"
+    val ReactJs               = "16.14.0"
     val Scala212              = "2.12.11"
     val Scala213              = "2.13.3"
     val ScalaCollCompat       = "2.2.0"
