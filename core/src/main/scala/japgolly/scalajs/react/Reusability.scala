@@ -316,6 +316,9 @@ object Reusability extends ScalaVersionSpecificReusability {
   implicit def box[A: Reusability]: Reusability[Box[A]] =
     by(_.unbox)
 
+  implicit def range: Reusability[Range] =
+    byRefOr_==
+
   implicit lazy val setIntervalHandle: Reusability[SetIntervalHandle] =
     by_==
 
