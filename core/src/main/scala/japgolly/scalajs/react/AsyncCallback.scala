@@ -536,6 +536,33 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
         }
       })
 
+  /** Limit the amount of time you're prepared to wait for a computation.
+    *
+    * Note: there's no built-in concept of cancellation here.
+    * If your procedure doesn't finish in time, this will return `None` when the time limit is reached however, the
+    * underlying procedure will become orphaned and continue to run in the background until complete.
+    */
+  def timeout(limit: Duration): AsyncCallback[Option[A]] =
+    timeoutMs(limit.toMillis.toDouble)
+
+  /** Limit the amount of time you're prepared to wait for a computation.
+    *
+    * Note: there's no built-in concept of cancellation here.
+    * If your procedure doesn't finish in time, this will return `None` when the time limit is reached however, the
+    * underlying procedure will become orphaned and continue to run in the background until complete.
+    */
+  def timeout(limit: FiniteDuration): AsyncCallback[Option[A]] =
+    timeoutMs(limit.toMillis.toDouble)
+
+  /** Limit the amount of time you're prepared to wait for a computation.
+    *
+    * Note: there's no built-in concept of cancellation here.
+    * If your procedure doesn't finish in time, this will return `None` when the time limit is reached however, the
+    * underlying procedure will become orphaned and continue to run in the background until complete.
+    */
+  def timeoutMs(milliseconds: Double): AsyncCallback[Option[A]] =
+    AsyncCallback.unit.delayMs(milliseconds).race(this).map(_.toOption)
+
   /** Schedule for repeated execution every `dur`. */
   @inline def setInterval(dur: Duration): CallbackTo[Callback.SetIntervalResult] =
     toCallback.setInterval(dur)
