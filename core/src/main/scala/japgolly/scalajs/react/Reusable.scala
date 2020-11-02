@@ -123,6 +123,9 @@ object Reusable {
 
   // ===================================================================================================================
 
+  lazy val emptyCallback: Reusable[Callback] =
+    callbackByRef(Callback.empty)
+
   def callbackByRef[A](c: CallbackTo[A]): Reusable[CallbackTo[A]] =
     byRefIso(c)(_.underlyingRepr)
 
