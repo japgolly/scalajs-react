@@ -2,7 +2,7 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.CallbackTo.MapGuard
 import japgolly.scalajs.react.internal.{RateLimit, Timer, Trampoline, catchAll, identityFn}
-import java.time.Duration
+import java.time.{Duration, Instant}
 import org.scalajs.dom.raw.Window
 import org.scalajs.dom.{console, window}
 import scala.annotation.{implicitNotFound, tailrec}
@@ -281,6 +281,15 @@ object CallbackTo {
    */
   def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): CallbackTo[Future[A]] =
     CallbackTo(f.map(_.runNow()))
+
+  lazy val now: CallbackTo[Instant] =
+    apply(Instant.now())
+
+  lazy val currentTimeMillis: CallbackTo[Long] =
+    apply(System.currentTimeMillis())
+
+  lazy val nanoTime: CallbackTo[Long] =
+    apply(System.nanoTime())
 
   /** When executed, opens a new window (tab) to a given URL.
     *
