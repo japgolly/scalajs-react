@@ -33,7 +33,7 @@ object ScalajsReact {
     val Scala212              = "2.12.11"
     val Scala213              = "2.13.3"
     val ScalaCollCompat       = "2.1.6"
-    val ScalaJsDom            = "1.0.0"
+    val ScalaJsDom            = "1.1.0"
     val ScalaJsTime           = "1.0.0"
     val ScalaTest             = "3.1.2"
     val Scalaz72              = "7.2.30"
