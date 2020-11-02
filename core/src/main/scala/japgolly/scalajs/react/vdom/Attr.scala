@@ -183,6 +183,9 @@ object Attr {
     implicit def byUnion[A, B, C](implicit f: A => (B | C)): ValueType[A, B | C] =
       apply((b, a) => b(a.asInstanceOf[js.Any]))
 
+    implicit lazy val untypedRef: ValueType[japgolly.scalajs.react.Ref.Set[_ <: TopNode], raw.React.RefFn[TopNode]] =
+      apply((f, a) => f(a.rawSetFn))
+
 //    def array[A](implicit f: A => js.Any): Simple[js.Array[A]] =
 //      map(_ map f)
 //

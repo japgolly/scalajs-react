@@ -111,23 +111,45 @@ object VdomTest extends TestSuite {
     }
 
     "untypedRef" - {
-      var value: AnyRef = null
-      val c =
-        ScalaComponent.builder[Unit]
-          .initialState("init")
-          .noBackend
-          .render_S { s =>
-            <.input(
-              ^.untypedRef(value = _),
-              ^.readOnly := true,
-              ^.value := s)
-          }
-          .build
+      "fn" - {
+        var value: AnyRef = null
+        val c =
+          ScalaComponent.builder[Unit]
+            .initialState("init")
+            .noBackend
+            .render_S { s =>
+              <.input(
+                ^.untypedRef(value = _),
+                ^.readOnly := true,
+                ^.value := s)
+            }
+            .build
 
-      ReactTestUtils.withRenderedIntoBody(c()) { _ =>
-        assert(value.isInstanceOf[html.Input])
+        ReactTestUtils.withRenderedIntoBody(c()) { _ =>
+          assert(value.isInstanceOf[html.Input])
+        }
+        assert(value eq null)
       }
-      assert(value eq null)
+
+      "ref" - {
+        val ref = Ref.toVdom[html.Input]
+        val c =
+          ScalaComponent.builder[Unit]
+            .initialState("init")
+            .noBackend
+            .render_S { s =>
+              <.input(
+                ^.untypedRef := ref,
+                ^.readOnly := true,
+                ^.value := s)
+            }
+            .build
+
+        ReactTestUtils.withRenderedIntoBody(c()) { _ =>
+          assert(ref.get.asCallback.runNow().isDefined)
+        }
+        assert(ref.get.asCallback.runNow().isEmpty)
+      }
     }
 
   }

@@ -3,6 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import japgolly.scalajs.react.internal.{Effect, identityFn}
 import japgolly.scalajs.react.{raw => Raw}
+import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.|
 
@@ -12,7 +13,7 @@ object Ref {
     newMechanism[A]
 
   def fromJs[A](raw: Raw.React.RefHandle[A]): Simple[A] =
-    Full(raw, identityFn, identityFn)
+    Full(raw, identityFn, Some(_))
 
   def forwardedFromJs[A](f: raw.React.ForwardedRef[A]): Option[Simple[A]] =
     jsNullToOption(f).map(fromJs)
@@ -47,6 +48,10 @@ object Ref {
     val get: CallbackOption[A]
 
     def map[B](f: A => B): Get[B]
+
+    def mapOption[B](f: A => Option[B]): Get[B]
+
+    def narrowOption[B <: A](implicit ct: ClassTag[B]): Get[B]
 
     def widen[B >: A]: Get[B]
 
@@ -92,9 +97,13 @@ object Ref {
     override def narrow[X <: I]: Full[X, A, O]
     override def map[X](f: O => X): Full[I, A, X]
     override def widen[X >: O]: Full[I, A, X]
+    override def mapOption[B](f: O => Option[B]): Full[I, A, B]
+
+    final override def narrowOption[B <: O](implicit ct: ClassTag[B]): Full[I, A, B] =
+      mapOption(ct.unapply)
   }
 
-  def Full[I, A, O](_raw: Raw.React.RefHandle[A], l: I => A, r: A => O): Full[I, A, O] =
+  def Full[I, A, O](_raw: Raw.React.RefHandle[A], l: I => A, r: A => Option[O]): Full[I, A, O] =
     new Full[I, A, O] {
 
       override val raw = _raw
@@ -106,7 +115,7 @@ object Ref {
         }))
 
       override val get: CallbackOption[O] =
-        CallbackOption(CallbackTo(jsNullToOption(raw.current).map(r)))
+        CallbackOption(CallbackTo(jsNullToOption(raw.current).flatMap(r)))
 
       override def contramap[X](f: X => I): Full[X, A, O] =
         Full(raw, l compose f, r)
@@ -115,10 +124,13 @@ object Ref {
         Full[X, A, O](raw, l, r)
 
       override def map[X](f: O => X): Full[I, A, X] =
-        Full(raw, l, f compose r)
+        Full(raw, l, r.andThen(_.map(f)))
 
       override def widen[X >: O]: Full[I, A, X] =
         Full[I, A, X](raw, l, r)
+
+      override def mapOption[B](f: O => Option[B]): Full[I, A, B] =
+        Full(raw, l, r.andThen(_.flatMap(f)))
     }
 
   // ===================================================================================================================
@@ -133,6 +145,9 @@ object Ref {
 
     override def map[A](f: O => A): ToComponent[I, R, A, C] =
       ToComponent(ref.map(f), component)
+
+    override def mapOption[B](f: O => Option[B]): Full[I, R, B] =
+      ToComponent(ref.mapOption(f), component)
 
     override def widen[A >: O]: ToComponent[I, R, A, C] =
       map[A](o => o)
@@ -209,4 +224,11 @@ object Ref {
                       : WithScalaComponent[P, S, B, CT] =
     ToComponent.inject(c, toScalaComponent[P, S, B])
 
+  /** For use with the `untypedRef` vdom attribute. */
+  def toAnyVdom(): Simple[vdom.TopNode] =
+    apply
+
+  /** For use with the `untypedRef` vdom attribute. */
+  def toVdom[N <: vdom.TopNode : ClassTag]: Full[vdom.TopNode, vdom.TopNode, N] =
+    toAnyVdom().narrowOption[N]
 }
