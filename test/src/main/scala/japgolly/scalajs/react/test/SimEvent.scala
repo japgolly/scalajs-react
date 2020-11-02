@@ -12,14 +12,33 @@ object SimEvent {
   case class Change(value           : String              = "",
                     checked         : js.UndefOr[Boolean] = js.undefined,
                     defaultPrevented: Boolean             = false) {
-    def toJs: js.Object = {
-      val target = Dynamic.literal(
-        "value"            -> value,
-        "checked"          -> checked,
-        "defaultPrevented" -> defaultPrevented)
-      val o = Dynamic.literal("target" -> target)
-      o
+
+    def assign(tgt: Dynamic, readOnlyProperties: Boolean = false): tgt.type = {
+      val innerTgt: Dynamic = {
+        (tgt.target: Any) match {
+          case null | () =>
+            tgt.target = Dynamic.literal()
+            tgt.target
+          case other =>
+            other.asInstanceOf[Dynamic]
+        }
+      }
+      assignTarget(innerTgt)
+      if (readOnlyProperties) {
+        tgt.defaultPrevented = defaultPrevented
+      }
+      tgt
     }
+
+    def assignTarget(tgt: Dynamic): tgt.type = {
+      tgt.value   = value
+      tgt.checked = checked
+      tgt
+    }
+
+    def toJs: js.Object =
+      assign(Dynamic.literal(), readOnlyProperties = true)
+
     def simulate(t: ReactOrDomNode) = Simulate.change(t, this)
     def simulation = Simulation.change(this)
   }
@@ -59,23 +78,28 @@ object SimEvent {
       s
     }
 
-    def toJs: js.Object = {
-      val o = Dynamic.literal()
-      o.updateDynamic("key"             )(key             )
-      o.updateDynamic("location"        )(location        )
-      o.updateDynamic("altKey"          )(altKey          )
-      o.updateDynamic("ctrlKey"         )(ctrlKey         )
-      o.updateDynamic("metaKey"         )(metaKey         )
-      o.updateDynamic("shiftKey"        )(shiftKey        )
-      o.updateDynamic("repeat"          )(repeat          )
-      o.updateDynamic("code"            )(code            )
-      o.updateDynamic("locale"          )(locale          )
-      o.updateDynamic("keyCode"         )(keyCode         )
-      o.updateDynamic("charCode"        )(charCode        )
-      o.updateDynamic("which"           )(which           )
-      o.updateDynamic("defaultPrevented")(defaultPrevented)
-      o
+    def assign(tgt: Dynamic, readOnlyProperties: Boolean = false): tgt.type = {
+      tgt.key      = key
+      tgt.location = location
+      tgt.altKey   = altKey
+      tgt.ctrlKey  = ctrlKey
+      tgt.metaKey  = metaKey
+      tgt.shiftKey = shiftKey
+      tgt.repeat   = repeat
+      tgt.code     = code
+      tgt.locale   = locale
+      tgt.keyCode  = keyCode
+      tgt.charCode = charCode
+      tgt.which    = which
+      if (readOnlyProperties) {
+        tgt.defaultPrevented = defaultPrevented
+      }
+      tgt
     }
+
+    def toJs: js.Object =
+      assign(Dynamic.literal(), readOnlyProperties = true)
+
     def simulateKeyDown       (t: ReactOrDomNode): Unit = Simulate.keyDown (t, this)
     def simulateKeyPress      (t: ReactOrDomNode): Unit = Simulate.keyPress(t, this)
     def simulateKeyUp         (t: ReactOrDomNode): Unit = Simulate.keyUp   (t, this)
@@ -220,11 +244,8 @@ object SimEvent {
     def meta  = copy(metaKey  = true)
     def shift = copy(shiftKey = true)
 
-    def toJs: js.Object = {
-      val o = js.Object()
-      setMouseAttributes(o)
-      o
-    }
+    def toJs: js.Object =
+      assign(Dynamic.literal(), readOnlyProperties = true)
   }
 
   trait MouseLike {
@@ -246,23 +267,30 @@ object SimEvent {
 
     def toJs: js.Object
 
-    def setMouseAttributes(obj: js.Object): Unit = {
-      val o = obj.asInstanceOf[Dynamic]
-      o.screenX          = screenX
-      o.screenY          = screenY
-      o.clientX          = clientX
-      o.clientY          = clientY
-      o.pageX            = pageX
-      o.pageY            = pageY
-      o.movementX        = movementX.toDouble
-      o.movementY        = movementY.toDouble
-      o.altKey           = altKey
-      o.ctrlKey          = ctrlKey
-      o.metaKey          = metaKey
-      o.shiftKey         = shiftKey
-      o.button           = button
-      o.buttons          = buttons
-      o.defaultPrevented = defaultPrevented
+    @deprecated("Use assign", "1.7.6")
+    def setMouseAttributes(obj: js.Object): Unit =
+      assign(obj.asInstanceOf[Dynamic], readOnlyProperties = true)
+
+    def assign(tgt: Dynamic, readOnlyProperties: Boolean = false): tgt.type = {
+      tgt.screenX          = screenX
+      tgt.screenY          = screenY
+      tgt.clientX          = clientX
+      tgt.clientY          = clientY
+      tgt.pageX            = pageX
+      tgt.pageY            = pageY
+      tgt.movementX        = movementX.toDouble
+      tgt.movementY        = movementY.toDouble
+      tgt.altKey           = altKey
+      tgt.ctrlKey          = ctrlKey
+      tgt.metaKey          = metaKey
+      tgt.shiftKey         = shiftKey
+      tgt.button           = button
+      tgt.buttons          = buttons
+      tgt.defaultPrevented = defaultPrevented
+      if (readOnlyProperties) {
+        tgt.defaultPrevented = defaultPrevented
+      }
+      tgt
     }
 
     def simulateAuxClick   (t: ReactOrDomNode) = Simulate.auxClick   (t, toJs)
@@ -345,22 +373,23 @@ object SimEvent {
     def meta  = copy(metaKey  = true)
     def shift = copy(shiftKey = true)
 
-    def toJs: js.Object = {
-      val obj = js.Object()
-      val o = obj.asInstanceOf[Dynamic]
-      setMouseAttributes(obj)
-      o.pointerId          = pointerId
-      o.width              = width
-      o.height             = height
-      o.pressure           = pressure
-      o.tiltX              = tiltX
-      o.tiltY              = tiltY
-      o.pointerType        = pointerType
-      o.isPrimary          = isPrimary
-      o.tangentialPressure = tangentialPressure
-      o.twist              = twist
-      obj
+    override def assign(tgt: Dynamic, readOnlyProperties: Boolean = false): tgt.type = {
+      super.assign(tgt, readOnlyProperties = readOnlyProperties)
+      tgt.pointerId          = pointerId
+      tgt.width              = width
+      tgt.height             = height
+      tgt.pressure           = pressure
+      tgt.tiltX              = tiltX
+      tgt.tiltY              = tiltY
+      tgt.pointerType        = pointerType
+      tgt.isPrimary          = isPrimary
+      tgt.tangentialPressure = tangentialPressure
+      tgt.twist              = twist
+      tgt
     }
+
+    def toJs: js.Object =
+      assign(Dynamic.literal(), readOnlyProperties = true)
 
     def toMouseEvent: Mouse =
       Mouse(
