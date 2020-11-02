@@ -431,34 +431,34 @@ object Reusability extends ScalaVersionSpecificReusability {
 
   object TemporalImplicitsWithoutTolerance {
 
-    implicit lazy val javaDuration: Reusability[Duration] =
+    implicit lazy val reusabilityJavaDuration: Reusability[Duration] =
       byRefOr_==
 
-    implicit lazy val instant: Reusability[Instant] =
+    implicit lazy val reusabilityInstant: Reusability[Instant] =
       byRefOr_==
 
-    implicit lazy val localDateTime: Reusability[LocalDateTime] =
+    implicit lazy val reusabilityLocalDateTime: Reusability[LocalDateTime] =
       byRefOr_==
 
-    implicit lazy val localDate: Reusability[LocalDate] =
+    implicit lazy val reusabilityLocalDate: Reusability[LocalDate] =
       byRefOr_==
 
-    implicit lazy val offsetDateTime: Reusability[OffsetDateTime] =
+    implicit lazy val reusabilityOffsetDateTime: Reusability[OffsetDateTime] =
       byRefOr_==
 
-    implicit lazy val offsetTime: Reusability[OffsetTime] =
+    implicit lazy val reusabilityOffsetTime: Reusability[OffsetTime] =
       byRefOr_==
 
-    implicit lazy val zonedDateTime: Reusability[ZonedDateTime] =
+    implicit lazy val reusabilityZonedDateTime: Reusability[ZonedDateTime] =
       byRefOr_==
 
-    implicit lazy val scalaDuration: Reusability[scd.Duration] =
+    implicit lazy val reusabilityScalaDuration: Reusability[scd.Duration] =
       byRefOr_==
 
-    implicit lazy val finiteDuration: Reusability[scd.FiniteDuration] =
+    implicit lazy val reusabilityFiniteDuration: Reusability[scd.FiniteDuration] =
       byRefOr_==
 
-    implicit lazy val deadline: Reusability[scd.Deadline] =
+    implicit lazy val reusabilityDeadline: Reusability[scd.Deadline] =
       byRefOr_==
   }
 
