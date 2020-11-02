@@ -31,6 +31,12 @@ final class Reusability[A](val test: (A, A) => Boolean) extends AnyVal {
   def narrow[B <: A]: Reusability[B] =
     new Reusability[B](test)
 
+  def unsafeWiden[B >: A]: Reusability[B] =
+    unsafeSubst[B]
+
+  def unsafeSubst[B]: Reusability[B] =
+    new Reusability[B](test.asInstanceOf[(B, B) => Boolean])
+
   def testNot: (A, A) => Boolean =
     !test(_, _)
 
