@@ -22,7 +22,7 @@ object ScalajsReact {
     val CatsEffect            = "2.1.4"
     val CatsTestkitScalaTest  = "1.0.1"
     val DisciplineScalaTest   = "1.0.1"
-    val KindProjector         = "0.11.0"
+    val KindProjector         = "0.11.1"
     val MacroParadise         = "2.1.1"
     val Microlibs             = "2.5"
     val MonocleCats           = "2.0.5"
