@@ -171,6 +171,43 @@ object AsyncCallback {
   def sequenceOption[A](oca: => Option[AsyncCallback[A]]): AsyncCallback[Option[A]] =
     traverseOption(oca)(identityFn)
 
+  /** Same as [[traverse()]] except avoids combining return values. */
+  def traverse_[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B]): AsyncCallback[Unit] =
+    AsyncCallback.byName {
+      val as = new js.Array[A]
+      for (a <- ta.iterator)
+        as.push(a)
+
+      as.length match {
+        case 0 => AsyncCallback.unit
+        case 1 => AsyncCallback.byName(f(as(0))).void
+        case n =>
+          val latch = countDownLatch(n).runNow()
+
+          for (a <- as)
+            AsyncCallback.byName(f(a))
+              .finallyRunSync(latch.countDown)
+              .runNow()
+
+          latch.await
+      }
+    }
+
+  /** Same as [[sequence()]] except avoids combining return values. */
+  def sequence_[T[X] <: IterableOnce[X], A](tca: => T[AsyncCallback[A]]): AsyncCallback[Unit] =
+    traverse_(tca)(identityFn)
+
+  /** Same as [[traverseOption()]] except avoids combining return values. */
+  def traverseOption_[A, B](oa: => Option[A])(f: A => AsyncCallback[B]): AsyncCallback[Unit] =
+    AsyncCallback.delay(oa).flatMap {
+      case Some(a) => f(a).void
+      case None    => AsyncCallback.unit
+    }
+
+  /** Same as [[sequenceOption()]] except avoids combining return values. */
+  def sequenceOption_[A](oca: => Option[AsyncCallback[A]]): AsyncCallback[Unit] =
+    traverseOption_(oca)(identityFn)
+
   def fromFuture[A](fa: => Future[A])(implicit ec: ExecutionContext): AsyncCallback[A] =
     AsyncCallback(f => Callback {
       val future = fa
