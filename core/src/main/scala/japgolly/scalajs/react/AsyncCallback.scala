@@ -31,59 +31,6 @@ object AsyncCallback {
       p <- SyncPromise[A]
     } yield (AsyncCallback(p.onComplete), p.complete)
 
-  final class Barrier(val await: AsyncCallback[Unit], completePromise: Callback) {
-
-    private var _complete = false
-
-    def complete: Callback =
-      completePromise.finallyRun(Callback { _complete = true })
-
-    def isComplete: CallbackTo[Boolean] =
-      CallbackTo(_complete)
-
-    @inline
-    @deprecated("Use .await", "1.7.7")
-    def waitForCompletion: AsyncCallback[Unit] =
-      await
-  }
-
-  /** A synchronisation aid that allows you to wait for another async process to complete. */
-  lazy val barrier: CallbackTo[Barrier] =
-    for {
-      (promise, complete) <- promise[Unit]
-    } yield new Barrier(promise, complete(tryUnit))
-
-  final class CountDownLatch(count: Int, barrier: Barrier) {
-    private var _pending = count.max(0)
-
-    /** Decrements the count of the latch, releasing all waiting computations if the count reaches zero. */
-    val countDown: Callback =
-      Callback {
-        if (_pending > 0) {
-          _pending -= 1
-          if (_pending == 0) {
-            barrier.complete.runNow()
-          }
-        }
-      }
-
-    def await: AsyncCallback[Unit] =
-      barrier.await
-
-    def isComplete: CallbackTo[Boolean] =
-      barrier.isComplete
-
-    def pending: CallbackTo[Int] =
-      CallbackTo(_pending)
-  }
-
-  /** A synchronization aid that allows you to wait until a set of async processes completes. */
-  def countDownLatch(count: Int): CallbackTo[CountDownLatch] =
-    for {
-      b <- barrier
-      _ <- b.complete.when_(count <= 0)
-    } yield new CountDownLatch(count, b)
-
   def first[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(g => CallbackTo {
       var first = true
@@ -313,14 +260,76 @@ object AsyncCallback {
     }
   }
 
-  final case class Forked[A](await: AsyncCallback[A], isComplete: CallbackTo[Boolean])
-
   def awaitAll(as: AsyncCallback[_]*): AsyncCallback[Unit] =
     if (as.isEmpty)
       unit
     else
       sequence_(as.iterator.asInstanceOf[Iterator[AsyncCallback[Any]]])
+
+  // ===================================================================================================================
+
+  final case class Forked[A](await: AsyncCallback[A], isComplete: CallbackTo[Boolean])
+
+  // ===================================================================================================================
+
+  final class Barrier(val await: AsyncCallback[Unit], completePromise: Callback) {
+
+    private var _complete = false
+
+    def complete: Callback =
+      completePromise.finallyRun(Callback { _complete = true })
+
+    def isComplete: CallbackTo[Boolean] =
+      CallbackTo(_complete)
+
+    @inline
+    @deprecated("Use .await", "1.7.7")
+    def waitForCompletion: AsyncCallback[Unit] =
+      await
+  }
+
+  /** A synchronisation aid that allows you to wait for another async process to complete. */
+  lazy val barrier: CallbackTo[Barrier] =
+    for {
+      (promise, complete) <- promise[Unit]
+    } yield new Barrier(promise, complete(tryUnit))
+
+  // ===================================================================================================================
+
+  final class CountDownLatch(count: Int, barrier: Barrier) {
+    private var _pending = count.max(0)
+
+    /** Decrements the count of the latch, releasing all waiting computations if the count reaches zero. */
+    val countDown: Callback =
+      Callback {
+        if (_pending > 0) {
+          _pending -= 1
+          if (_pending == 0) {
+            barrier.complete.runNow()
+          }
+        }
+      }
+
+    def await: AsyncCallback[Unit] =
+      barrier.await
+
+    def isComplete: CallbackTo[Boolean] =
+      barrier.isComplete
+
+    def pending: CallbackTo[Int] =
+      CallbackTo(_pending)
+  }
+
+  /** A synchronization aid that allows you to wait until a set of async processes completes. */
+  def countDownLatch(count: Int): CallbackTo[CountDownLatch] =
+    for {
+      b <- barrier
+      _ <- b.complete.when_(count <= 0)
+    } yield new CountDownLatch(count, b)
+
 }
+
+// █████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 
 /** Pure asynchronous callback.
   *
