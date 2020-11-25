@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.internal.{RateLimit, SyncPromise, Timer, catchAll, identityFn, newJsPromise}
 import java.time.Duration
 import scala.collection.compat._
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.{Thenable, timers, |}
@@ -826,4 +826,30 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def fork_ : Callback =
     delayMs(1).toCallback
 
+  /** Record the duration of this callback's execution. */
+  def withDuration[B](f: (A, FiniteDuration) => AsyncCallback[B]): AsyncCallback[B] = {
+    val nowMS: AsyncCallback[Long] = CallbackTo.currentTimeMillis.asAsyncCallback
+    for {
+      s <- nowMS
+      a <- self
+      e <- nowMS
+      b <- f(a, FiniteDuration(e - s, MILLISECONDS))
+    } yield b
+  }
+
+  /** Log the duration of this callback's execution. */
+  def logDuration(fmt: FiniteDuration => String): AsyncCallback[A] =
+    withDuration((a, d) =>
+      Callback.log(fmt(d)).asAsyncCallback ret a)
+
+  /** Log the duration of this callback's execution.
+    *
+    * @param name Prefix to appear the log output.
+    */
+  def logDuration(name: String): AsyncCallback[A] =
+    logDuration(d => s"$name completed in $d.")
+
+  /** Log the duration of this callback's execution. */
+  def logDuration: AsyncCallback[A] =
+    logDuration("AsyncCallback")
 }
