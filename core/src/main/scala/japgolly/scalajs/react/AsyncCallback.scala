@@ -53,6 +53,37 @@ object AsyncCallback {
       (promise, complete) <- promise[Unit]
     } yield new Barrier(promise, complete(tryUnit))
 
+  final class CountDownLatch(count: Int, barrier: Barrier) {
+    private var _pending = count.max(0)
+
+    /** Decrements the count of the latch, releasing all waiting computations if the count reaches zero. */
+    val countDown: Callback =
+      Callback {
+        if (_pending > 0) {
+          _pending -= 1
+          if (_pending == 0) {
+            barrier.complete.runNow()
+          }
+        }
+      }
+
+    def await: AsyncCallback[Unit] =
+      barrier.await
+
+    def isComplete: CallbackTo[Boolean] =
+      barrier.isComplete
+
+    def pending: CallbackTo[Int] =
+      CallbackTo(_pending)
+  }
+
+  /** A synchronization aid that allows you to wait until a set of async processes completes. */
+  def countDownLatch(count: Int): CallbackTo[CountDownLatch] =
+    for {
+      b <- barrier
+      _ <- b.complete.when_(count <= 0)
+    } yield new CountDownLatch(count, b)
+
   def first[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(g => CallbackTo {
       var first = true

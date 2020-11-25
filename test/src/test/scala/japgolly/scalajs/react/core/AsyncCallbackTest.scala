@@ -164,5 +164,44 @@ object AsyncCallbackTest extends TestSuite {
       } yield ()
     }
 
+    "countDownLatch" - {
+      "3" - asyncTest {
+        var t = 0
+        var completedAt = -1
+        for {
+          b <- AsyncCallback.barrier.asAsyncCallback
+          l <- AsyncCallback.countDownLatch(3).asAsyncCallback
+          _ <- l.await.flatMapSync(_ => {completedAt = t; b.complete}).fork_.asAsyncCallback
+          _ <- l.pending.asAsyncCallback.tap(assertEq(_, 3))
+          _ <- l.isComplete.asAsyncCallback.tap(assertEq(_, false))
+
+          _ <- l.countDown.asAsyncCallback
+          _ <- l.pending.asAsyncCallback.tap(assertEq(_, 2))
+          _ <- l.isComplete.asAsyncCallback.tap(assertEq(_, false))
+
+          _ <- l.countDown.asAsyncCallback
+          _ <- l.pending.asAsyncCallback.tap(assertEq(_, 1))
+          _ <- l.isComplete.asAsyncCallback.tap(assertEq(_, false))
+
+          _ <- AsyncCallback.delay { t = 5 }
+          _ <- l.countDown.asAsyncCallback
+          _ <- l.pending.asAsyncCallback.tap(assertEq(_, 0))
+          _ <- l.isComplete.asAsyncCallback.tap(assertEq(_, true))
+          _ <- l.await.map(_ => completedAt = t).fork_.asAsyncCallback
+          _ <- b.await
+
+        } yield assertEq(completedAt, 5)
+      }
+
+      "0" - asyncTest {
+        for {
+          l <- AsyncCallback.countDownLatch(0).asAsyncCallback
+          _ <- l.pending.asAsyncCallback.tap(assertEq(_, 0))
+          _ <- l.isComplete.asAsyncCallback.tap(assertEq(_, true))
+          _ <- l.await
+        } yield ()
+      }
+    }
+
   }
 }
