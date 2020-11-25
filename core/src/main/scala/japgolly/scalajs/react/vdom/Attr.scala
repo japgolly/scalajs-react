@@ -67,15 +67,18 @@ object Attr {
   }
 
   final class Event[E[+x <: dom.Node] <: raw.SyntheticEvent[x]](name: String)
-      extends Generic[js.Function1[E[Nothing], Any]](name) {
+      extends Attr[js.Function1[E[Nothing], Unit]](name) {
 
     type Event = E[Nothing]
+
+    override def :=[A](a: A)(implicit t: ValueType[A, js.Function1[E[Nothing], Unit]]): TagMod =
+      TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Unit]]), a))
 
     def -->[A: DomCallbackResult](callback: => CallbackTo[A]): TagMod =
       ==>(_ => callback)
 
     def ==>[A: DomCallbackResult](eventHandler: Event => CallbackTo[A]): TagMod =
-      :=(((e: Event) => eventHandler(e).runNow()): js.Function1[E[Nothing], Any])(ValueType.direct)
+      :=(((e: Event) => eventHandler(e).runNow()): js.Function1[E[Nothing], Unit])(ValueType.direct)
 
     def -->?[O[_]](callback: => O[Callback])(implicit o: OptionLike[O]): TagMod =
       this --> Callback(o.foreach(callback)(_.runNow()))
@@ -132,6 +135,15 @@ object Attr {
       :=(r.rawSetFn)(ValueType.direct)
   }
 
+  object UntypedRef extends Attr[raw.React.RefFn[TopNode]]("ref") {
+    override def :=[A](a: A)(implicit t: ValueType[A, raw.React.RefFn[TopNode]]) =
+      t(attrName, a)
+    def apply(f: (TopNode | Null) => Unit): TagMod = {
+      val jsFn: raw.React.RefFn[TopNode] = f
+      :=(jsFn)(ValueType.direct)
+    }
+  }
+
 //  implicit val ordering: Ordering[ReactAttr[Nothing]] =
 //    Ordering.by((_: ReactAttr[Nothing]).name)
 
@@ -170,6 +182,9 @@ object Attr {
     @nowarn("cat=unused")
     implicit def byUnion[A, B, C](implicit f: A => (B | C)): ValueType[A, B | C] =
       apply((b, a) => b(a.asInstanceOf[js.Any]))
+
+    implicit lazy val untypedRef: ValueType[japgolly.scalajs.react.Ref.Set[_ <: TopNode], raw.React.RefFn[TopNode]] =
+      apply((f, a) => f(a.rawSetFn))
 
 //    def array[A](implicit f: A => js.Any): Simple[js.Array[A]] =
 //      map(_ map f)

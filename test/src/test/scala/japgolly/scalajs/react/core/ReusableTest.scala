@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.core
 
+import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react._
 import utest._
 
@@ -12,6 +13,7 @@ object ReusableTest extends TestSuite {
     (b1 :: bn.toList).foreach(b => assert(a ~/~ b))
 
   def n(i: Int) = Reusable.implicitly(i)
+  def no(i: Option[Int]) = Reusable.implicitly(i)
   def nIsh(n: Int) = Reusable(n)((x, y) => Math.abs(x - y) < 10)
   val oneIsh = nIsh(1)
 
@@ -75,5 +77,31 @@ object ReusableTest extends TestSuite {
       assertNotReusable(fb, fa)
     }
 
+    "sequenceOption" - {
+      "or" - {
+        def test(a: Option[Reusable[Int]], b: Option[Reusable[Int]]) = {
+          val same = a.map(_.value) == b.map(_.value)
+          val x = Reusable.sequenceOption(a)
+          val y = Reusable.sequenceOption(b)
+          assertEq(x ~=~ y, same)
+        }
+        "nn" - test(None, None)
+        "n1" - test(None, Some(n(1)))
+        "11" - test(Some(n(1)), Some(n(1)))
+        "12" - test(Some(n(1)), Some(n(2)))
+      }
+      "ro" - {
+        def test(a: Reusable[Option[Int]], b: Reusable[Option[Int]]) = {
+          val same = a.value == b.value
+          val x = Reusable.sequenceOption(a.sequenceOption)
+          val y = Reusable.sequenceOption(b.sequenceOption)
+          assertEq(x ~=~ y, same)
+        }
+        "nn" - test(no(None), no(None))
+        "n1" - test(no(None), no(Some(1)))
+        "11" - test(no(Some(1)), no(Some(1)))
+        "12" - test(no(Some(1)), no(Some(2)))
+      }
+    }
   }
 }

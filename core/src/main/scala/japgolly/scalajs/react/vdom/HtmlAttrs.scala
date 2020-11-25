@@ -1757,7 +1757,7 @@ trait HtmlAttrs {
     * This enumerated attribute defines whether the element may be checked for
     * spelling errors.
     */
-  final def spellCheck = VdomAttr("spellCheck")
+  final def spellCheck = VdomAttr[Boolean]("spellCheck")
 
   /**
     * If the value of the type attribute is image, this attribute specifies a URI
@@ -1883,7 +1883,8 @@ trait HtmlAttrs {
   /** IE-specific property to prevent user selection */
   final def unselectable = VdomAttr("unselectable")
 
-  final def untypedRef = VdomAttr.Ref
+  /** Don't bother with `:=` on this; call `.apply` instead. */
+  final def untypedRef = VdomAttr.UntypedRef
 
   final def useMap = VdomAttr("useMap")
 

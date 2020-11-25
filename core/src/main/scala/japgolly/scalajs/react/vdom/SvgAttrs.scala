@@ -569,7 +569,8 @@ trait SvgAttrs {
 
   final def `type` = VdomAttr("type")
 
-  final def untypedRef = VdomAttr.Ref
+  /** Don't bother with `:=` on this; call `.apply` instead. */
+  final def untypedRef = VdomAttr.UntypedRef
 
   final def values = VdomAttr("values")
 
