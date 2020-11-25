@@ -10,7 +10,7 @@ object CallbackToEffects {
 
   implicit object CallbackToSync extends Sync[CallbackTo] {
 
-    // Bracket[CallbackTo, Throwable] 
+    // Bracket[CallbackTo, Throwable]
     override def bracketCase[A, B](acquire: CallbackTo[A])(use: A => CallbackTo[B])(release: (A, ExitCase[Throwable]) => CallbackTo[Unit]): CallbackTo[B] =
       acquire.flatMap { a =>
         use(a).attempt.flatMap {

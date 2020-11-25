@@ -68,7 +68,7 @@ trait HtmlAttrs {
       /** When a user is providing input, an element containing a collection of values that could complete the provided input may be displayed. If displayed, one value in the collection is automatically selected, and the text needed to complete the automatically selected value appears after the caret in the input. */
       def both = this := "both"
 
-      /** (default)	When a user is providing input, an automatic suggestion that attempts to predict how the user intends to complete the input is not displayed. */
+      /** (default) When a user is providing input, an automatic suggestion that attempts to predict how the user intends to complete the input is not displayed. */
       def none = this := "none"
     }
 
@@ -151,7 +151,7 @@ trait HtmlAttrs {
       /** Represents the current item within a set. */
       def `true` = this := true
 
-      /** (default)	Does not represent the current item within a set. */
+      /** (default) Does not represent the current item within a set. */
       def `false` = this := false
     }
 
@@ -214,7 +214,7 @@ trait HtmlAttrs {
       * Assistive technologies SHOULD NOT expose the aria-haspopup property if it has a value of false.
       */
     object haspopup extends Attr.Generic[String | Boolean]("aria-haspopup") {
-      /** (default)	Indicates the element does not have a popup. */
+      /** (default) Indicates the element does not have a popup. */
       def `false` = this := false
 
       /** Indicates the popup is a menu. */
@@ -250,7 +250,7 @@ trait HtmlAttrs {
       * For future expansion, the aria-invalid attribute is an enumerated type. Any value not recognized in the list of allowed values MUST be treated by user agents as if the value true had been provided. If the attribute is not present, or its value is false, or its value is an empty string, the default value of false applies.
       */
     object invalid extends Attr.Generic[String | Boolean]("aria-invalid") {
-      /** (default)	There are no detected errors in the value. */
+      /** (default) There are no detected errors in the value. */
       def `false` = this := false
 
       /** The value entered by the user has failed validation. */
@@ -491,7 +491,7 @@ trait HtmlAttrs {
       /** Items are sorted in descending order by this column. */
       def descending = this := "descending"
 
-      /** (default)	There is no defined sort applied to the column. */
+      /** (default) There is no defined sort applied to the column. */
       def none = this := "none"
 
       /** A sort algorithm other than ascending or descending has been applied. */
@@ -717,7 +717,7 @@ trait HtmlAttrs {
     * elements.
     */
   final def `for` = VdomAttr("htmlFor")
-    
+
   /**
     * Allows association of an input to a non-ancestoral form.
     */

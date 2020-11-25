@@ -11,7 +11,7 @@ trait SvgAttrs {
     * If the attribute is not specified, the effect is as if the attribute
     * were set to the value of the ascent attribute.
     *
-    * Value 	<number>
+    * Value   <number>
     */
   final def accentHeight = VdomAttr("accentHeight")
 
@@ -21,7 +21,7 @@ trait SvgAttrs {
     * accumulating with each iteration. This attribute said to the animation if the value is added to
     * the previous animated attribute's value on each iteration.
     *
-    * Value 	none | sum
+    * Value   none | sum
     */
   final def accumulate = VdomAttr("accumulate")
 
@@ -32,7 +32,7 @@ trait SvgAttrs {
     * attribute said to the animation if their values are added to the
     * original animated attribute's value.
     *
-    * Value 	replace | sum
+    * Value   replace | sum
     */
   final def additive = VdomAttr("additive")
 
@@ -47,7 +47,7 @@ trait SvgAttrs {
     * can be used as a property directly inside a CSS stylesheet, see css
     * alignment-baseline for further information.
     *
-    * Value: 	auto | baseline | before-edge | text-before-edge | middle | central | after-edge |
+    * Value:   auto | baseline | before-edge | text-before-edge | middle | central | after-edge |
     * text-after-edge | ideographic | alphabetic | hanging | mathematical | inherit
     */
   final def alignmentBaseline = VdomAttr("alignmentBaseline")
@@ -58,7 +58,7 @@ trait SvgAttrs {
     * the effect is as if the attribute were set to the vert-origin-y value
     * for the corresponding font.
     *
-    * Value 	<number>
+    * Value   <number>
     */
   final def ascent = VdomAttr("ascent")
 
@@ -66,7 +66,7 @@ trait SvgAttrs {
     * This attribute indicates the name of the attribute in the parent element
     * that is going to be changed during an animation.
     *
-    * Value 	<attributeName>
+    * Value   <attributeName>
     */
   final def attributeName = VdomAttr("attributeName")
 
@@ -74,7 +74,7 @@ trait SvgAttrs {
     * This attribute specifies the namespace in which the target attribute
     * and its associated values are defined.
     *
-    * Value 	CSS | XML | auto
+    * Value   CSS | XML | auto
     */
   final def attributeType = VdomAttr("attributeType")
 
@@ -84,7 +84,7 @@ trait SvgAttrs {
     * If the attribute is not specified, then the effect is as if a
     * value of 0 were specified.
     *
-    * Value 	<number>
+    * Value   <number>
     */
   final def azimuth = VdomAttr("azimuth")
 
@@ -98,7 +98,7 @@ trait SvgAttrs {
     * If the attribute is not specified, then the effect is as if a value
     * of 0 were specified.
     *
-    * Value 	<number-optional-number>
+    * Value   <number-optional-number>
     */
   final def baseFrequency = VdomAttr("baseFrequency")
 
@@ -109,7 +109,7 @@ trait SvgAttrs {
     * As a presentation attribute, it also can be used as a property directly
     * inside a CSS stylesheet, see css baseline-shift for further information.
     *
-    * Value 	auto | baseline | sup | sub | <percentage> | <length> | inherit
+    * Value   auto | baseline | sup | sub | <percentage> | <length> | inherit
     */
   final def baselineShift = VdomAttr("baselineShift")
 
@@ -121,7 +121,7 @@ trait SvgAttrs {
     * <offset-value>, <syncbase-value>, <event-value>, <repeat-value>, <accessKey-value>,
     * <wallclock-sync-value> or the keyword indefinite.
     *
-    * Value 	<begin-value-list>
+    * Value   <begin-value-list>
     */
   final def begin = VdomAttr("begin")
 
@@ -132,7 +132,7 @@ trait SvgAttrs {
     * representation of values that would otherwise be clamped to 0 or 1.
     * If bias is not specified, then the effect is as if a value of 0 were specified.
     *
-    * Value 	<number>
+    * Value   <number>
     */
   final def bias = VdomAttr("bias")
 
@@ -141,7 +141,7 @@ trait SvgAttrs {
     * mode is linear, however if the attribute does not support linear interpolation
     * (e.g. for strings), the calcMode attribute is ignored and discrete interpolation is used.
     *
-    * Value 	discrete | linear | paced | spline
+    * Value   discrete | linear | paced | spline
     */
   final def calcMode = VdomAttr("calcMode")
 
@@ -155,7 +155,7 @@ trait SvgAttrs {
     * -For general usage by the browser.
     * The class can be used to style SVG content using CSS.
     *
-    * Value 	<list-of-class-names>
+    * Value   <list-of-class-names>
     */
   final def `class` = VdomAttr("class")
 
@@ -167,7 +167,7 @@ trait SvgAttrs {
     * As a presentation attribute, it also can be used as a property directly inside a
     * CSS stylesheet, see css clip for further information.
     *
-    * Value 	auto | <shape> | inherit
+    * Value   auto | <shape> | inherit
     */
   final def clip = VdomAttr("clip")
 
@@ -175,7 +175,7 @@ trait SvgAttrs {
     * The clip-path attribute bind the element is applied to with a given <clippath> element
     * As a presentation attribute, it also can be used as a property directly inside a CSS stylesheet
     *
-    * Value 	<FuncIRI> | none | inherit
+    * Value   <FuncIRI> | none | inherit
     */
   final def clipPath = VdomAttr("clipPath")
 
@@ -188,7 +188,7 @@ trait SvgAttrs {
     * maskContentUnits to objectBoundingBox, percentage values will be calculated as
     * if the value of the attribute were userSpaceOnUse.
     *
-    * Value 	userSpaceOnUse | objectBoundingBox
+    * Value   userSpaceOnUse | objectBoundingBox
     */
   final def clipPathUnits = VdomAttr("clipPathUnits")
 
@@ -197,7 +197,7 @@ trait SvgAttrs {
     * <clippath> element. The clip-rule attribute basically works as the fill-rule attribute,
     * except that it applies to <clippath> definitions.
     *
-    * Value 	nonezero | evenodd | inherit
+    * Value   nonezero | evenodd | inherit
     */
   final def clipRule = VdomAttr("clipRule")
 
@@ -207,7 +207,7 @@ trait SvgAttrs {
     * As a presentation attribute, it also can be used as a property directly inside a CSS
     * stylesheet, see css color for further information.
     *
-    * Value 	<color> | inherit
+    * Value   <color> | inherit
     */
   final def color = VdomAttr("color")
 
@@ -224,7 +224,7 @@ trait SvgAttrs {
     * As a presentation attribute, it also can be used as a property directly inside a CSS
     * stylesheet, see css color-interpolation for further information
     *
-    * Value 	auto | sRGB | linearRGB | inherit
+    * Value   auto | sRGB | linearRGB | inherit
     */
   final def colorInterpolation = VdomAttr("colorInterpolation")
 
@@ -238,7 +238,7 @@ trait SvgAttrs {
     * As a presentation attribute, it also can be used as a property directly inside a
     * CSS stylesheet, see css color-interpolation-filters for further information
     *
-    * Value 	auto | sRGB | linearRGB | inherit
+    * Value   auto | sRGB | linearRGB | inherit
     */
   final def colorInterpolationFilters = VdomAttr("colorInterpolationFilters")
 
@@ -248,7 +248,7 @@ trait SvgAttrs {
     * also can be used as a property directly inside a CSS stylesheet, see css color-profile
     * for further information.
     *
-    * Value 	auto | sRGB | <name> | <IRI> | inherit
+    * Value   auto | sRGB | <name> | <IRI> | inherit
     */
   final def colorProfile = VdomAttr("colorProfile")
 
@@ -263,7 +263,7 @@ trait SvgAttrs {
     * As a presentation attribute, it also can be used as a property directly inside
     * a CSS stylesheet, see css color-rendering for further information
     *
-    * Value 	auto | optimizeSpeed | optimizeQuality | inherit
+    * Value   auto | optimizeSpeed | optimizeQuality | inherit
     */
   final def colorRendering = VdomAttr("colorRendering")
 
@@ -275,7 +275,7 @@ trait SvgAttrs {
     * specify their own scripting language. The value content-type specifies a media type,
     * per MIME Part Two: Media Types [RFC2046]. The default value is application/ecmascript
     *
-    * Value 	<content-type>
+    * Value   <content-type>
     */
   final def contentScriptType = VdomAttr("contentScriptType")
 
@@ -284,7 +284,7 @@ trait SvgAttrs {
     * The contentStyleType is specified on the <svg> element. By default, if it's not defined,
     * the value is text/css
     *
-    * Value 	<content-type>
+    * Value   <content-type>
     */
   final def contentStyleType = VdomAttr("contentStyleType")
 
@@ -295,7 +295,7 @@ trait SvgAttrs {
     * <funciri> notation. As a presentation attribute, it also can be used as a property
     * directly inside a CSS stylesheet, see css cursor for further information.
     *
-    * Value 	 auto | crosshair | default | pointer | move | e-resize |
+    * Value    auto | crosshair | default | pointer | move | e-resize |
     * ne-resize | nw-resize | n-resize | se-resize | sw-resize | s-resize | w-resize| text |
     * wait | help | inherit
     */
@@ -310,7 +310,7 @@ trait SvgAttrs {
     * of this largest (i.e., outermost) circle. If the attribute is not specified, the effect
     * is as if a value of 50% were specified
     *
-    * Value 	<coordinate>
+    * Value   <coordinate>
     */
   final def cx = VdomAttr("cx")
 
@@ -323,7 +323,7 @@ trait SvgAttrs {
     * of this largest (i.e., outermost) circle. If the attribute is not specified, the effect
     * is as if a value of 50% were specified
     *
-    * Value 	<coordinate>
+    * Value   <coordinate>
     */
   final def cy = VdomAttr("cy")
 

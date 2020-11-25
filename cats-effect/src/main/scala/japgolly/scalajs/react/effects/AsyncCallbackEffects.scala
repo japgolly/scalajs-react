@@ -10,7 +10,7 @@ object AsyncCallbackEffects {
     CatsReact.reactAsyncCallbackCatsInstance
 
   implicit object AsyncCallbackEffect extends Effect[AsyncCallback] {
-    
+
     // Bracket[AsyncCallback, Throwable]
     override def bracketCase[A, B](acquire: AsyncCallback[A])(use: A => AsyncCallback[B])(release: (A, ExitCase[Throwable]) => AsyncCallback[Unit]): AsyncCallback[B] =
       acquire.flatMap { a =>
