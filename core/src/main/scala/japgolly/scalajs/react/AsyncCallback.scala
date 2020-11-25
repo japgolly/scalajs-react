@@ -31,7 +31,13 @@ object AsyncCallback {
       p <- SyncPromise[A]
     } yield (AsyncCallback(p.onComplete), p.complete)
 
-  final case class Barrier(waitForCompletion: AsyncCallback[Unit], complete: Callback)
+  final case class Barrier(await: AsyncCallback[Unit], complete: Callback) {
+
+    @inline
+    @deprecated("Use .await", "1.7.7")
+    def waitForCompletion: AsyncCallback[Unit] =
+      await
+  }
 
   /** A synchronisation aid that allows you to wait for another async process to complete. */
   lazy val barrier: CallbackTo[Barrier] =
