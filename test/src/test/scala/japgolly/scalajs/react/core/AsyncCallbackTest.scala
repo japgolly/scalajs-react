@@ -236,5 +236,16 @@ object AsyncCallbackTest extends TestSuite {
       }
     }
 
+    "mutex" - asyncTest {
+      for {
+        mutex <- AsyncCallback.mutex.asAsyncCallback
+        b     <- AsyncCallback.barrier.asAsyncCallback
+        _     <- mutex(b.await).fork_.asAsyncCallback // mutex start
+        t     <- mutex(AsyncCallback.unit).timeoutMs(500).delayMs(1)
+        _     <- b.complete.asAsyncCallback // mutex end
+        _     <- mutex(AsyncCallback.unit)
+      } yield assert(t.isEmpty)
+    }
+
   }
 }

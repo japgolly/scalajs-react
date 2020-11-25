@@ -327,6 +327,44 @@ object AsyncCallback {
       _ <- b.complete.when_(count <= 0)
     } yield new CountDownLatch(count, b)
 
+  // ===================================================================================================================
+
+  final class Mutex private[AsyncCallback]() {
+
+    private var mutex: Option[Barrier] =
+      None
+
+    private val release: Callback =
+      CallbackTo {
+        val old = mutex
+        mutex = None
+        old
+      }.flatMap(Callback.traverseOption(_)(_.complete))
+
+    /** Wrap a [[AsyncCallback]] so that it executes in the mutex.
+      *
+      * Note: THIS IS NOT RE-ENTRANT. Calling this from within the mutex will block.
+      */
+    def apply[A](ac: AsyncCallback[A]): AsyncCallback[A] =
+      byName {
+
+        mutex match {
+          case None =>
+            // Mutex empty
+            val b = barrier.runNow()
+            mutex = Some(b)
+            ac.finallyRunSync(release)
+
+          case Some(b) =>
+            // Mutex in use
+            b.await >> apply(ac)
+        }
+      }
+  }
+
+  /** Creates a new (non-reentrant) mutex. */
+  def mutex: CallbackTo[Mutex] =
+    CallbackTo(new Mutex)
 }
 
 // █████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
