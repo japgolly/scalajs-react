@@ -17,6 +17,15 @@ object AsyncCallbackTest extends TestSuite {
     def apply(s: String) = Callback { this += s }
   }
 
+  private final val asyncTestTimeout = 2000
+
+  private def asyncTest[A](ac: AsyncCallback[A]): Future[A] = {
+    ac.timeoutMs(asyncTestTimeout).map {
+      case Some(a) => a
+      case None    => fail(s"Async test timed out after ${asyncTestTimeout / 1000} sec.")
+    }.unsafeToFuture()
+  }
+
   override def tests = Tests {
 
     "fromCallback" - {
@@ -142,6 +151,17 @@ object AsyncCallbackTest extends TestSuite {
 
       t.progressTimeBy(2000)
       assertEq(i, 2)
+    }
+
+    "fork" - asyncTest {
+      for {
+        (task, completeTask) <- AsyncCallback.promise[Int].asAsyncCallback
+        forked               <- task.fork.asAsyncCallback
+        _                    <- forked.isComplete.asAsyncCallback.tap(assertEq(_, false))
+        _                    <- completeTask(Success(123)).asAsyncCallback
+        _                    <- forked.await.tap(assertEq(_, 123))
+        _                    <- forked.isComplete.asAsyncCallback.tap(assertEq(_, true))
+      } yield ()
     }
 
   }

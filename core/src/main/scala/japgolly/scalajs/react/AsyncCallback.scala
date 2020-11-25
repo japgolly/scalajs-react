@@ -220,6 +220,8 @@ object AsyncCallback {
       promise
     }
   }
+
+  final case class Forked[A](await: AsyncCallback[A], isComplete: CallbackTo[Boolean])
 }
 
 /** Pure asynchronous callback.
@@ -252,7 +254,7 @@ object AsyncCallback {
   *
   * @tparam A The type of data asynchronously produced on success.
   */
-final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal {
+final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal { self =>
 
   @inline def underlyingRepr = completeWith
 
@@ -704,4 +706,26 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     */
   @inline def finallyRunSync[B](runFinally: CallbackTo[B]): AsyncCallback[A] =
     finallyRun(runFinally.asAsyncCallback)
+
+  /** Runs this async computation in the background.
+    *
+    * Returns the ability for you to await/join the forked computation.
+    */
+  def fork: CallbackTo[AsyncCallback.Forked[A]] =
+    AsyncCallback.promise[A].flatMap { case (promise, completePromise) =>
+      var _complete    = false
+      val isComplete   = CallbackTo(_complete)
+      val markComplete = CallbackTo { _complete = true }
+      val runInBg      = self.attemptTry.finallyRunSync(markComplete).flatMapSync(completePromise).fork_
+      val forked       = AsyncCallback.Forked(promise, isComplete)
+      runInBg.ret(forked)
+    }
+
+  /** Runs this async computation in the background.
+    *
+    * Unlike [[fork]] this returns nothing, meaning this is like fire-and-forget.
+    */
+  def fork_ : Callback =
+    delayMs(1).toCallback
+
 }
