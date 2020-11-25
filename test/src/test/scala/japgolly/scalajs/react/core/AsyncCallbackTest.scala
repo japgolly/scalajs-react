@@ -153,15 +153,24 @@ object AsyncCallbackTest extends TestSuite {
       assertEq(i, 2)
     }
 
-    "fork" - asyncTest {
-      for {
-        (task, completeTask) <- AsyncCallback.promise[Int].asAsyncCallback
-        forked               <- task.fork.asAsyncCallback
-        _                    <- forked.isComplete.asAsyncCallback.tap(assertEq(_, false))
-        _                    <- completeTask(Success(123)).asAsyncCallback
-        _                    <- forked.await.tap(assertEq(_, 123))
-        _                    <- forked.isComplete.asAsyncCallback.tap(assertEq(_, true))
-      } yield ()
+    "fork" - {
+      "ok" - asyncTest {
+        for {
+          (task, completeTask) <- AsyncCallback.promise[Int].asAsyncCallback
+          forked               <- task.fork.asAsyncCallback
+          _                    <- forked.isComplete.asAsyncCallback.tap(assertEq(_, false))
+          _                    <- completeTask(Success(123)).asAsyncCallback
+          _                    <- forked.await.tap(assertEq(_, 123))
+          _                    <- forked.isComplete.asAsyncCallback.tap(assertEq(_, true))
+        } yield ()
+      }
+
+      "ko" - asyncTest {
+        for {
+          f <- AsyncCallback.throwException[Int](new RuntimeException("argh")).delayMs(1).fork.asAsyncCallback
+          t <- f.await.attemptTry
+        } yield assert(t.isFailure)
+      }
     }
 
     "countDownLatch" - {
