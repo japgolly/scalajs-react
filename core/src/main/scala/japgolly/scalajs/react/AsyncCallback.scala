@@ -31,7 +31,15 @@ object AsyncCallback {
       p <- SyncPromise[A]
     } yield (AsyncCallback(p.onComplete), p.complete)
 
-  final case class Barrier(await: AsyncCallback[Unit], complete: Callback) {
+  final class Barrier(val await: AsyncCallback[Unit], completePromise: Callback) {
+
+    private var _complete = false
+
+    def complete: Callback =
+      completePromise.finallyRun(Callback { _complete = true })
+
+    def isComplete: CallbackTo[Boolean] =
+      CallbackTo(_complete)
 
     @inline
     @deprecated("Use .await", "1.7.7")
@@ -43,7 +51,7 @@ object AsyncCallback {
   lazy val barrier: CallbackTo[Barrier] =
     for {
       (promise, complete) <- promise[Unit]
-    } yield Barrier(promise, complete(tryUnit))
+    } yield new Barrier(promise, complete(tryUnit))
 
   def first[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(g => CallbackTo {

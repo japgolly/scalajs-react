@@ -108,6 +108,13 @@ object AsyncCallbackTest extends TestSuite {
       }
     }
 
+    "barrier" - {
+      val b = AsyncCallback.barrier.runNow()
+      assertEq(b.isComplete.runNow(), false)
+      b.complete.runNow()
+      assertEq(b.isComplete.runNow(), true)
+    }
+
     "debounce" - {
       val t = new TestTimer
       var i = 0
