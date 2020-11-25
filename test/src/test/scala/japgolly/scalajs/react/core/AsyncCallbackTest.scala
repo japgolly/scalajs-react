@@ -203,5 +203,29 @@ object AsyncCallbackTest extends TestSuite {
       }
     }
 
+    "awaitAll" - {
+      "ok" - asyncTest {
+        for {
+          b1 <- AsyncCallback.barrier.asAsyncCallback
+          b2 <- AsyncCallback.barrier.asAsyncCallback
+          f  <- AsyncCallback.awaitAll(b1.await.ret(1), b2.await.ret("a")).fork.asAsyncCallback
+          _  <- f.isComplete.asAsyncCallback.tap(assertEq(_, false))
+          _  <- b1.complete.asAsyncCallback
+          _  <- f.isComplete.asAsyncCallback.tap(assertEq(_, false))
+          _  <- b2.complete.asAsyncCallback
+          _  <- f.await
+          _  <- f.isComplete.asAsyncCallback.tap(assertEq(_, true))
+        } yield ()
+      }
+
+      "ko" - asyncTest {
+        val b1 = AsyncCallback.unit
+        val b2 = AsyncCallback.throwException(new RuntimeException("yep")).delayMs(1)
+        for {
+          t <- AsyncCallback.awaitAll(b1, b2).attemptTry
+        } yield assert(t.isFailure)
+      }
+    }
+
   }
 }

@@ -104,8 +104,22 @@ object AsyncCallback {
   def pure[A](a: A): AsyncCallback[A] =
     const(Success(a))
 
-  def throwException[A](t: Throwable): AsyncCallback[A] =
-    const(Failure(t))
+  def throwException[A](t: => Throwable): AsyncCallback[A] =
+    const {
+      try
+        Failure(t)
+      catch {
+        case t2: Throwable => Failure(t2)
+      }
+    }
+
+  def throwExceptionWhenDefined(o: => Option[Throwable]): AsyncCallback[Unit] =
+    byName {
+      o match {
+        case None    => unit
+        case Some(t) => throwException(t)
+      }
+    }
 
   def const[A](t: Try[A]): AsyncCallback[A] =
     AsyncCallback(_(t))
@@ -182,14 +196,24 @@ object AsyncCallback {
         case 0 => AsyncCallback.unit
         case 1 => AsyncCallback.byName(f(as(0))).void
         case n =>
+          var error = Option.empty[Throwable]
           val latch = countDownLatch(n).runNow()
+
+          def onTaskComplete(r: Try[B]): Callback =
+            Callback {
+              r match {
+                case Success(_) =>
+                case Failure(e) => error = Some(e)
+              }
+            } >> latch.countDown
 
           for (a <- as)
             AsyncCallback.byName(f(a))
-              .finallyRunSync(latch.countDown)
+              .attemptTry
+              .flatMapSync(onTaskComplete)
               .runNow()
 
-          latch.await
+          latch.await >> throwExceptionWhenDefined(error)
       }
     }
 
@@ -290,6 +314,12 @@ object AsyncCallback {
   }
 
   final case class Forked[A](await: AsyncCallback[A], isComplete: CallbackTo[Boolean])
+
+  def awaitAll(as: AsyncCallback[_]*): AsyncCallback[Unit] =
+    if (as.isEmpty)
+      unit
+    else
+      sequence_(as.iterator.asInstanceOf[Iterator[AsyncCallback[Any]]])
 }
 
 /** Pure asynchronous callback.
