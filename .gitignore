@@ -16,3 +16,5 @@ metals.sbt
 node_modules/
 .vscode
 package-lock.json
+.bsp
+
