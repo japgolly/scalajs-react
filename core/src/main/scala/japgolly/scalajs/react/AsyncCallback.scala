@@ -365,6 +365,88 @@ object AsyncCallback {
   /** Creates a new (non-reentrant) mutex. */
   def mutex: CallbackTo[Mutex] =
     CallbackTo(new Mutex)
+
+  // ===================================================================================================================
+
+  final class ReadWriteMutex private[AsyncCallback]() {
+
+    // Whether it's a read or write mutex is determined by readers being > 0 or not
+    private var mutex: Option[AsyncCallback.Barrier] =
+      None
+
+    private var readers =
+      0
+
+    private val releaseMutex: Callback =
+      CallbackTo {
+        if (readers == 0) {
+          val old = mutex
+          mutex = None
+          old
+        } else
+          None
+      }.flatMap(Callback.traverseOption(_)(_.complete))
+
+    private val releaseReader: Callback =
+      CallbackTo {
+        readers -= 1
+      } >> releaseMutex
+
+    /** Wrap a [[AsyncCallback]] so that it executes in the write-mutex.
+      * There can only be one writer active at one time.
+      *
+      * Note: THIS IS NOT RE-ENTRANT. Calling this from within the read or write mutex will block.
+      */
+    def write[A](ac: AsyncCallback[A]): AsyncCallback[A] =
+      AsyncCallback.byName {
+
+        mutex match {
+          case None =>
+            // Mutex empty
+            val b = AsyncCallback.barrier.runNow()
+            mutex = Some(b)
+            ac.finallyRunSync(releaseMutex)
+
+          case Some(b) =>
+            // Mutex in use
+            b.await >> write(ac)
+        }
+      }
+
+    /** Wrap a [[AsyncCallback]] so that it executes in the read-mutex.
+      * There can be many readers active at one time.
+      *
+      * Note: Calling this from within the write-mutex will block.
+      */
+    def read[A](ac: AsyncCallback[A]): AsyncCallback[A] =
+      AsyncCallback.byName {
+
+        mutex match {
+          case None =>
+            // Mutex empty
+            val b = AsyncCallback.barrier.runNow()
+            mutex = Some(b)
+            assert(readers == 0)
+            readers = 1
+            ac.finallyRunSync(releaseReader)
+
+          case Some(b) =>
+            if (readers > 0) {
+              // Read-mutex in use
+              readers += 1
+              ac.finallyRunSync(releaseReader)
+
+            } else {
+              // Write-mutex in use
+              b.await >> read(ac)
+            }
+        }
+      }
+  }
+
+  /** Creates a new (non-reentrant) read/write mutex. */
+  def readWriteMutex: CallbackTo[ReadWriteMutex] =
+    CallbackTo(new ReadWriteMutex)
 }
 
 // █████████████████████████████████████████████████████████████████████████████████████████████████████████████████████

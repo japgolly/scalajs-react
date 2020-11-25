@@ -6,6 +6,7 @@ import japgolly.scalajs.react.{AsyncCallback, Callback}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Success
+import sourcecode.Line
 import utest._
 
 object AsyncCallbackTest extends TestSuite {
@@ -25,6 +26,22 @@ object AsyncCallbackTest extends TestSuite {
       case None    => fail(s"Async test timed out after ${asyncTestTimeout / 1000} sec.")
     }.unsafeToFuture()
   }
+
+  private def assertMutexRejection(mutex: AsyncCallback[Unit] => AsyncCallback[Unit])(implicit l: Line): AsyncCallback[Unit] =
+    mutex(AsyncCallback.unit).timeoutMs(500).delayMs(1).map(o => assertEq(o.isDefined, false))
+
+  private def testInMutex(mutex: AsyncCallback[Unit] => AsyncCallback[Unit])
+                         (test: AsyncCallback[Any]): AsyncCallback[Unit] =
+    for {
+      b <- AsyncCallback.barrier.asAsyncCallback
+      _ <- mutex(b.await).fork_.asAsyncCallback // mutex start
+      _ <- test
+      _ <- b.complete.asAsyncCallback // mutex end
+      _ <- mutex(AsyncCallback.unit)
+    } yield ()
+
+  private def testWriteMutex(mutex: AsyncCallback[Unit] => AsyncCallback[Unit]): AsyncCallback[Unit] =
+    testInMutex(mutex)(assertMutexRejection(mutex))
 
   override def tests = Tests {
 
@@ -239,12 +256,29 @@ object AsyncCallbackTest extends TestSuite {
     "mutex" - asyncTest {
       for {
         mutex <- AsyncCallback.mutex.asAsyncCallback
-        b     <- AsyncCallback.barrier.asAsyncCallback
-        _     <- mutex(b.await).fork_.asAsyncCallback // mutex start
-        t     <- mutex(AsyncCallback.unit).timeoutMs(500).delayMs(1)
-        _     <- b.complete.asAsyncCallback // mutex end
-        _     <- mutex(AsyncCallback.unit)
-      } yield assert(t.isEmpty)
+        _     <- testWriteMutex(mutex(_))
+      } yield ()
+    }
+
+    "readWriteMutex" - asyncTest {
+      for {
+        mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
+
+        _     <- testWriteMutex(mutex.write) // confirm write blocks writes
+
+        b1    <- AsyncCallback.barrier.asAsyncCallback
+        b2    <- AsyncCallback.barrier.asAsyncCallback
+        l     <- AsyncCallback.countDownLatch(2).asAsyncCallback
+        _     <- mutex.read(l.countDown.asAsyncCallback >> b1.await).fork_.asAsyncCallback // read mutex enter
+        _     <- mutex.read(l.countDown.asAsyncCallback >> b2.await).fork_.asAsyncCallback // read mutex enter
+        _     <- l.await // confirm we've got two readers in the mutex at the same time
+        _     <- assertMutexRejection(mutex.write) // confirm we can't use the write mutex
+        _     <- b1.complete.asAsyncCallback // read mutex exit
+        _     <- b2.complete.asAsyncCallback // read mutex exit
+
+        _     <- testInMutex(mutex.write)(assertMutexRejection(mutex.read)) // confirm write blocks reads
+
+      } yield ()
     }
 
   }
