@@ -281,5 +281,21 @@ object AsyncCallbackTest extends TestSuite {
       } yield ()
     }
 
+    "ref" - asyncTest {
+      for {
+        ref <- AsyncCallback.ref[Int].asAsyncCallback
+        g1  <- ref.get.fork.asAsyncCallback
+        _   <- ref.getIfAvailable.asAsyncCallback.tap(assertEq(_, None))
+        _   <- ref.setIfUnset(123)
+        _   <- ref.getIfAvailable.asAsyncCallback.tap(assertEq(_, Some(123)))
+        _   <- ref.setIfUnset(456)
+        _   <- ref.getIfAvailable.asAsyncCallback.tap(assertEq(_, Some(123)))
+        _   <- g1.await.tap(assertEq(_, 123))
+        _   <- ref.set(987)
+        _   <- ref.getIfAvailable.asAsyncCallback.tap(assertEq(_, Some(987)))
+        _   <- ref.get.tap(assertEq(_, 987))
+      } yield ()
+    }
+
   }
 }

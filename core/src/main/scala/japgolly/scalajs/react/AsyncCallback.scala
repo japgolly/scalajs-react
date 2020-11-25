@@ -447,6 +447,92 @@ object AsyncCallback {
   /** Creates a new (non-reentrant) read/write mutex. */
   def readWriteMutex: CallbackTo[ReadWriteMutex] =
     CallbackTo(new ReadWriteMutex)
+
+  // ===================================================================================================================
+
+  final class Ref[A] private[AsyncCallback](atomicReads: Boolean, atomicWrites: Boolean) {
+
+    private val mutex       = readWriteMutex.runNow()
+    private val initialised = barrier.runNow()
+    private var _value: A   = _
+
+    private val markInitialised =
+      initialised.complete.asAsyncCallback
+
+    /** If this hasn't been set yet, it will block until it is set. */
+    val get: AsyncCallback[A] = {
+      var readValue: AsyncCallback[A] =
+        AsyncCallback.delay(_value)
+
+      if (atomicReads)
+        readValue = mutex.read(readValue)
+
+      initialised.await >> readValue
+    }
+
+    /** Synchronously return whatever value is currently stored. (Ignores atomicity). */
+    lazy val getIfAvailable: CallbackTo[Option[A]] =
+      initialised.isComplete.map {
+        case true  => Some(_value)
+        case false => None
+      }
+
+    private def inWriteMutex[B](a: AsyncCallback[B]): AsyncCallback[B] =
+      if (atomicWrites)
+        mutex.write(a)
+      else
+        a
+
+    // This must only be called within the write mutex
+    private def setWithinMutex(c: AsyncCallback[A]): AsyncCallback[Unit] =
+      for {
+        a <- c
+        _ <- AsyncCallback.delay { _value = a }
+        _ <- markInitialised
+      } yield ()
+
+    def set(a: => A): AsyncCallback[Unit] =
+      setAsync(AsyncCallback.delay(a))
+
+    def setSync(c: CallbackTo[A]): AsyncCallback[Unit] =
+      setAsync(c.asAsyncCallback)
+
+    def setAsync(c: AsyncCallback[A]): AsyncCallback[Unit] =
+      inWriteMutex(setWithinMutex(c))
+
+    /** Returns whether or not the value was set. */
+    def setIfUnset(a: => A): AsyncCallback[Boolean] =
+      setIfUnsetAsync(AsyncCallback.delay(a))
+
+    /** Returns whether or not the value was set. */
+    def setIfUnsetSync(c: CallbackTo[A]): AsyncCallback[Boolean] =
+      setIfUnsetAsync(c.asAsyncCallback)
+
+    /** Returns whether or not the value was set. */
+    def setIfUnsetAsync(c: AsyncCallback[A]): AsyncCallback[Boolean] =
+      initialised.isComplete.asAsyncCallback.flatMap {
+        case true => AsyncCallback.pure(false)
+        case false =>
+          inWriteMutex {
+            AsyncCallback.byName {
+              if (initialised.isComplete.runNow())
+                AsyncCallback.pure(false)
+              else
+                setWithinMutex(c).ret(true)
+            }
+          }
+      }
+  }
+
+  @inline def ref[A]: CallbackTo[Ref[A]] =
+    ref()
+
+  def ref[A](allowStaleReads: Boolean = false,
+             atomicWrites   : Boolean = true): CallbackTo[Ref[A]] =
+    CallbackTo(new Ref(
+      atomicReads   = atomicWrites && !allowStaleReads,
+      atomicWrites  = atomicWrites,
+    ))
 }
 
 // █████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
