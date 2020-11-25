@@ -13,11 +13,11 @@ libraryDependencies ++= {
     )
 }
 
-addSbtPlugin("ch.epfl.scala"     % "sbt-scalafix"       % "0.9.21")
+addSbtPlugin("ch.epfl.scala"     % "sbt-scalafix"       % "0.9.23")
 addSbtPlugin("org.scala-js"      % "sbt-scalajs"        % scalaJSVersion)
 addSbtPlugin("com.jsuereth"      % "sbt-pgp"            % "1.1.2-1")
 addSbtPlugin("com.github.gseitz" % "sbt-release"        % "1.0.13")
-addSbtPlugin("org.xerial.sbt"    % "sbt-sonatype"       % "3.9.4")
+addSbtPlugin("org.xerial.sbt"    % "sbt-sonatype"       % "3.9.5")
 
 {
   if (scalaJSVersion.startsWith("0."))
