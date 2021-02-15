@@ -16,7 +16,6 @@ trait Builder {
   val addStylesObject: js.Object                            => Unit
   val appendChild    : RawChild                             => Unit
   val setKey         : js.Any                               => Unit
-
   def addRefFn[A]    : RawRefFn[A]                          => Unit
 
   final def addStyles(j: js.Any): Unit = {
@@ -26,8 +25,11 @@ trait Builder {
     addStylesObject(obj)
   }
 
+  // NOTE: This method isn't used internally. It is intended for advanced usage.
+  // Eg: facades for components that implement the "child function" pattern.
   def addAttrsObject(o:  js.Object, except: Set[String] = Set.empty): Unit =
-    for ((k, v) <- JsUtil.objectIterator(o) if !except.contains(k)) addAttr(k, v)
+    for ((k, v) <- JsUtil.objectIterator(o) if !except.contains(k))
+      addAttr(k, v)
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
