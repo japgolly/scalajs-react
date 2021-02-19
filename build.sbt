@@ -10,6 +10,7 @@ val extra         = ScalajsReact.extra
 val scalaz72      = ScalajsReact.scalaz72
 val monocleScalaz = ScalajsReact.monocleScalaz
 val monocleCats   = ScalajsReact.monocleCats
+val monocle3Cats  = ScalajsReact.monocle3Cats
 val cats          = ScalajsReact.cats
 val catsEffect    = ScalajsReact.catsEffect
 val test          = ScalajsReact.test
