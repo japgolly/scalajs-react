@@ -31,7 +31,7 @@ object ScalajsReact {
     val Nyaya                 = "0.9.2"
     val ReactJs               = "16.14.0"
     val Scala212              = "2.12.11"
-    val Scala213              = "2.13.3"
+    val Scala213              = "2.13.5"
     val ScalaCollCompat       = "2.2.0"
     val ScalaJsDom            = "1.1.0"
     val ScalaJsTime           = "1.0.0"
