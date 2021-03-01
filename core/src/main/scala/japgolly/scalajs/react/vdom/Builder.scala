@@ -27,8 +27,8 @@ trait Builder {
 
   // NOTE: This method isn't used internally. It is intended for advanced usage.
   // Eg: facades for components that implement the "child function" pattern.
-  def addAttrsObject(o:  js.Object, except: Set[String] = Set.empty): Unit =
-    for ((k, v) <- JsUtil.objectIterator(o) if !except.contains(k))
+  def addAttrsObject(o: js.Object, allowAttr: String => Boolean = _ => true): Unit =
+    for ((k, v) <- JsUtil.objectIterator(o) if allowAttr(k))
       addAttr(k, v)
 }
 
