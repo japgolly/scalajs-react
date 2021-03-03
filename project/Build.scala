@@ -165,7 +165,7 @@ object ScalajsReact {
     .aggregate(
       core, extra, test, /*testModule,*/
       cats, catsEffect, scalaz72,
-      monocle, monocleCats, monocle3Cats, monocleScalaz,
+      monocleCats, monocle3, monocleScalaz,
       ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests)
 
@@ -247,14 +247,12 @@ object ScalajsReact {
           Dep.Cats.value,
           Dep.KindProjector))
 
-  lazy val monocle3Cats = project
-    .in(file("monocle3-cats"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle3-cats"), hasNoTests)
+  lazy val monocle3 = project
+    .in(file("monocle3"))
+    .configure(commonSettings, publicationSettings, extModuleName("monocle3"), hasNoTests)
     .dependsOn(core, extra, cats)
     .settings(
-      // Share the internal source code files with this module
-      unmanagedSourceDirectories in Compile += (sourceDirectory in (monocleScalaz, Compile)).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
-      libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.Monocle3Cats)
+      libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.Monocle3)
 
   lazy val monocleCats = project
     .in(file("monocle-cats"))
