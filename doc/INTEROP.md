@@ -80,6 +80,46 @@ object ReactCollapse {
 }
 ```
 
+Example for `.addFacade[F]`.
+```javascript
+// The JavaScript
+class AddFacadeExample extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { num1: 123, num2: 500 };
+  }
+
+  // method that needs to be accessible on the component
+  inc() {
+    this.setState({ num1: this.state.num1 + 1 });
+  }
+
+  render() {
+    return React.createElement("div", null, "State = ", this.state.num1, " + ", this.state.num2, this.props.children);
+  }
+}
+```
+```scala
+// The Scala facade
+object AddFacadeExample {
+  @JSGlobal("AddFacadeExample")
+  @js.native
+  object RawComponent extends js.Object
+
+  @js.native
+  trait JsState extends js.Object {
+    val num1: Int
+    val num2: Int
+  }
+
+  @js.native
+  trait JsMethods extends js.Object {
+    def inc(): Unit = js.native
+  }
+
+  val component = JsComponent[Null, Children.None, JsState](RawComponent).addFacade[JsMethods]
+}
+```
 
 ## Using JS functional components in Scala
 
