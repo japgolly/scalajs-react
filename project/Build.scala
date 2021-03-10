@@ -57,8 +57,7 @@ object ScalajsReact {
     "-opt-inline-from:japgolly.scalajs.react.**",
     "-unchecked",                                    // Enable additional warnings where generated code depends on assumptions.
     "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
-    "-Ypatmat-exhaust-depth", "off") ++
-    (if (scalaJSVersion.startsWith("0.")) Seq("-P:scalajs:sjsDefinedByDefault") else Nil)
+    "-Ypatmat-exhaust-depth", "off")
 
   def scalac213Flags = Seq(
     "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings
