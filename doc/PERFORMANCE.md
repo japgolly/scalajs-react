@@ -13,7 +13,7 @@ These utilities help you avoid work in two ways.
 the other utilities are part of the `extra` module.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.7.6"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "1.7.7"
 ```
 
 ### Contents

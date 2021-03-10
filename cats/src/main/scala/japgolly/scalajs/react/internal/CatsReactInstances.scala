@@ -109,8 +109,8 @@ trait CatsReactInstances {
         f.map(g)
     }
 
-  implicit def reactCallbackKleisliACatsInstance[A]: MonadError[CallbackKleisli[A, ?], Throwable] =
-    new MonadError[CallbackKleisli[A, ?], Throwable] {
+  implicit def reactCallbackKleisliACatsInstance[A]: MonadError[CallbackKleisli[A, *], Throwable] =
+    new MonadError[CallbackKleisli[A, *], Throwable] {
 
       override def pure[B](b: B): CallbackKleisli[A, B] =
         CallbackKleisli const reactCallbackCatsInstance.pure(b)
@@ -152,8 +152,8 @@ trait CatsReactInstances {
       override def rmap[A, B, C](f: Ref.Fn[A, B])(m: B => C) = f.map(m)
     }
 
-  implicit final def reactRefFullCatsInstance[X]: Profunctor[Ref.Full[?, X, ?]] =
-    new Profunctor[Ref.Full[?, X, ?]] {
+  implicit final def reactRefFullCatsInstance[X]: Profunctor[Ref.Full[*, X, *]] =
+    new Profunctor[Ref.Full[*, X, *]] {
       override def lmap[A, B, C](f: Ref.Full[A, X, B])(m: C => A) = f.contramap(m)
       override def rmap[A, B, C](f: Ref.Full[A, X, B])(m: B => C) = f.map(m)
     }

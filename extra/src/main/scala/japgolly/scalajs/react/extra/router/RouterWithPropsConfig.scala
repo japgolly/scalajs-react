@@ -92,7 +92,7 @@ case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
    *
    * @param f Given the current page that just rendered, return potential new title.
    */
-  def setTitleOption(f: Page => Option[String]): RouterWithPropsConfig[Page, Props] =   
+  def setTitleOption(f: Page => Option[String]): RouterWithPropsConfig[Page, Props] =
     setTitleOptionP((page, _) => f(page))
 
   /** Asserts that the page arguments provided, don't encounter any route config errors.

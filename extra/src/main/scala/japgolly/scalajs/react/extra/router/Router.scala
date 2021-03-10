@@ -60,7 +60,7 @@ object RouterWithProps {
   def componentAndCtl[Page, Props](baseUrl: BaseUrl, cfg: RouterWithPropsConfig[Page, Props]): (RouterWithProps[Page, Props], RouterCtl[Page]) = {
     val (r, l) = componentAndLogic[Page, Props](baseUrl, cfg)
     (r, l.ctl)
-  }    
+  }
 }
 
 /**

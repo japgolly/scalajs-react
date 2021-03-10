@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.internal.{RateLimit, SyncPromise, Timer, catchAll, identityFn, newJsPromise}
 import java.time.Duration
 import scala.collection.compat._
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.{Thenable, timers, |}
@@ -31,14 +31,6 @@ object AsyncCallback {
       p <- SyncPromise[A]
     } yield (AsyncCallback(p.onComplete), p.complete)
 
-  final case class Barrier(waitForCompletion: AsyncCallback[Unit], complete: Callback)
-
-  /** A synchronisation aid that allows you to wait for another async process to complete. */
-  lazy val barrier: CallbackTo[Barrier] =
-    for {
-      (promise, complete) <- promise[Unit]
-    } yield Barrier(promise, complete(tryUnit))
-
   def first[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(g => CallbackTo {
       var first = true
@@ -59,8 +51,22 @@ object AsyncCallback {
   def pure[A](a: A): AsyncCallback[A] =
     const(Success(a))
 
-  def throwException[A](t: Throwable): AsyncCallback[A] =
-    const(Failure(t))
+  def throwException[A](t: => Throwable): AsyncCallback[A] =
+    const {
+      try
+        Failure(t)
+      catch {
+        case t2: Throwable => Failure(t2)
+      }
+    }
+
+  def throwExceptionWhenDefined(o: => Option[Throwable]): AsyncCallback[Unit] =
+    byName {
+      o match {
+        case None    => unit
+        case Some(t) => throwException(t)
+      }
+    }
 
   def const[A](t: Try[A]): AsyncCallback[A] =
     AsyncCallback(_(t))
@@ -125,6 +131,53 @@ object AsyncCallback {
     */
   def sequenceOption[A](oca: => Option[AsyncCallback[A]]): AsyncCallback[Option[A]] =
     traverseOption(oca)(identityFn)
+
+  /** Same as [[traverse()]] except avoids combining return values. */
+  def traverse_[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B]): AsyncCallback[Unit] =
+    AsyncCallback.byName {
+      val as = new js.Array[A]
+      for (a <- ta.iterator)
+        as.push(a)
+
+      as.length match {
+        case 0 => AsyncCallback.unit
+        case 1 => AsyncCallback.byName(f(as(0))).void
+        case n =>
+          var error = Option.empty[Throwable]
+          val latch = countDownLatch(n).runNow()
+
+          def onTaskComplete(r: Try[B]): Callback =
+            Callback {
+              r match {
+                case Success(_) =>
+                case Failure(e) => error = Some(e)
+              }
+            } >> latch.countDown
+
+          for (a <- as)
+            AsyncCallback.byName(f(a))
+              .attemptTry
+              .flatMapSync(onTaskComplete)
+              .runNow()
+
+          latch.await >> throwExceptionWhenDefined(error)
+      }
+    }
+
+  /** Same as [[sequence()]] except avoids combining return values. */
+  def sequence_[T[X] <: IterableOnce[X], A](tca: => T[AsyncCallback[A]]): AsyncCallback[Unit] =
+    traverse_(tca)(identityFn)
+
+  /** Same as [[traverseOption()]] except avoids combining return values. */
+  def traverseOption_[A, B](oa: => Option[A])(f: A => AsyncCallback[B]): AsyncCallback[Unit] =
+    AsyncCallback.delay(oa).flatMap {
+      case Some(a) => f(a).void
+      case None    => AsyncCallback.unit
+    }
+
+  /** Same as [[sequenceOption()]] except avoids combining return values. */
+  def sequenceOption_[A](oca: => Option[AsyncCallback[A]]): AsyncCallback[Unit] =
+    traverseOption_(oca)(identityFn)
 
   def fromFuture[A](fa: => Future[A])(implicit ec: ExecutionContext): AsyncCallback[A] =
     AsyncCallback(f => Callback {
@@ -206,7 +259,283 @@ object AsyncCallback {
       promise
     }
   }
+
+  def awaitAll(as: AsyncCallback[_]*): AsyncCallback[Unit] =
+    if (as.isEmpty)
+      unit
+    else
+      sequence_(as.iterator.asInstanceOf[Iterator[AsyncCallback[Any]]])
+
+  // ===================================================================================================================
+
+  final case class Forked[A](await: AsyncCallback[A], isComplete: CallbackTo[Boolean])
+
+  // ===================================================================================================================
+
+  final class Barrier(val await: AsyncCallback[Unit], completePromise: Callback) {
+
+    private var _complete = false
+
+    def complete: Callback =
+      completePromise.finallyRun(Callback { _complete = true })
+
+    def isComplete: CallbackTo[Boolean] =
+      CallbackTo(_complete)
+
+    @inline
+    @deprecated("Use .await", "1.7.7")
+    def waitForCompletion: AsyncCallback[Unit] =
+      await
+  }
+
+  /** A synchronisation aid that allows you to wait for another async process to complete. */
+  lazy val barrier: CallbackTo[Barrier] =
+    for {
+      (promise, complete) <- promise[Unit]
+    } yield new Barrier(promise, complete(tryUnit))
+
+  // ===================================================================================================================
+
+  final class CountDownLatch(count: Int, barrier: Barrier) {
+    private var _pending = count.max(0)
+
+    /** Decrements the count of the latch, releasing all waiting computations if the count reaches zero. */
+    val countDown: Callback =
+      Callback {
+        if (_pending > 0) {
+          _pending -= 1
+          if (_pending == 0) {
+            barrier.complete.runNow()
+          }
+        }
+      }
+
+    def await: AsyncCallback[Unit] =
+      barrier.await
+
+    def isComplete: CallbackTo[Boolean] =
+      barrier.isComplete
+
+    def pending: CallbackTo[Int] =
+      CallbackTo(_pending)
+  }
+
+  /** A synchronization aid that allows you to wait until a set of async processes completes. */
+  def countDownLatch(count: Int): CallbackTo[CountDownLatch] =
+    for {
+      b <- barrier
+      _ <- b.complete.when_(count <= 0)
+    } yield new CountDownLatch(count, b)
+
+  // ===================================================================================================================
+
+  final class Mutex private[AsyncCallback]() {
+
+    private var mutex: Option[Barrier] =
+      None
+
+    private val release: Callback =
+      CallbackTo {
+        val old = mutex
+        mutex = None
+        old
+      }.flatMap(Callback.traverseOption(_)(_.complete))
+
+    /** Wrap a [[AsyncCallback]] so that it executes in the mutex.
+      *
+      * Note: THIS IS NOT RE-ENTRANT. Calling this from within the mutex will block.
+      */
+    def apply[A](ac: AsyncCallback[A]): AsyncCallback[A] =
+      byName {
+
+        mutex match {
+          case None =>
+            // Mutex empty
+            val b = barrier.runNow()
+            mutex = Some(b)
+            ac.finallyRunSync(release)
+
+          case Some(b) =>
+            // Mutex in use
+            b.await >> apply(ac)
+        }
+      }
+  }
+
+  /** Creates a new (non-reentrant) mutex. */
+  def mutex: CallbackTo[Mutex] =
+    CallbackTo(new Mutex)
+
+  // ===================================================================================================================
+
+  final class ReadWriteMutex private[AsyncCallback]() {
+
+    // Whether it's a read or write mutex is determined by readers being > 0 or not
+    private var mutex: Option[AsyncCallback.Barrier] =
+      None
+
+    private var readers =
+      0
+
+    private val releaseMutex: Callback =
+      CallbackTo {
+        if (readers == 0) {
+          val old = mutex
+          mutex = None
+          old
+        } else
+          None
+      }.flatMap(Callback.traverseOption(_)(_.complete))
+
+    private val releaseReader: Callback =
+      CallbackTo {
+        readers -= 1
+      } >> releaseMutex
+
+    /** Wrap a [[AsyncCallback]] so that it executes in the write-mutex.
+      * There can only be one writer active at one time.
+      *
+      * Note: THIS IS NOT RE-ENTRANT. Calling this from within the read or write mutex will block.
+      */
+    def write[A](ac: AsyncCallback[A]): AsyncCallback[A] =
+      AsyncCallback.byName {
+
+        mutex match {
+          case None =>
+            // Mutex empty
+            val b = AsyncCallback.barrier.runNow()
+            mutex = Some(b)
+            ac.finallyRunSync(releaseMutex)
+
+          case Some(b) =>
+            // Mutex in use
+            b.await >> write(ac)
+        }
+      }
+
+    /** Wrap a [[AsyncCallback]] so that it executes in the read-mutex.
+      * There can be many readers active at one time.
+      *
+      * Note: Calling this from within the write-mutex will block.
+      */
+    def read[A](ac: AsyncCallback[A]): AsyncCallback[A] =
+      AsyncCallback.byName {
+
+        mutex match {
+          case None =>
+            // Mutex empty
+            val b = AsyncCallback.barrier.runNow()
+            mutex = Some(b)
+            assert(readers == 0)
+            readers = 1
+            ac.finallyRunSync(releaseReader)
+
+          case Some(b) =>
+            if (readers > 0) {
+              // Read-mutex in use
+              readers += 1
+              ac.finallyRunSync(releaseReader)
+
+            } else {
+              // Write-mutex in use
+              b.await >> read(ac)
+            }
+        }
+      }
+  }
+
+  /** Creates a new (non-reentrant) read/write mutex. */
+  def readWriteMutex: CallbackTo[ReadWriteMutex] =
+    CallbackTo(new ReadWriteMutex)
+
+  // ===================================================================================================================
+
+  final class Ref[A] private[AsyncCallback](atomicReads: Boolean, atomicWrites: Boolean) {
+
+    private val mutex       = readWriteMutex.runNow()
+    private val initialised = barrier.runNow()
+    private var _value: A   = _
+
+    private val markInitialised =
+      initialised.complete.asAsyncCallback
+
+    /** If this hasn't been set yet, it will block until it is set. */
+    val get: AsyncCallback[A] = {
+      var readValue: AsyncCallback[A] =
+        AsyncCallback.delay(_value)
+
+      if (atomicReads)
+        readValue = mutex.read(readValue)
+
+      initialised.await >> readValue
+    }
+
+    /** Synchronously return whatever value is currently stored. (Ignores atomicity). */
+    lazy val getIfAvailable: CallbackTo[Option[A]] =
+      initialised.isComplete.map {
+        case true  => Some(_value)
+        case false => None
+      }
+
+    private def inWriteMutex[B](a: AsyncCallback[B]): AsyncCallback[B] =
+      if (atomicWrites)
+        mutex.write(a)
+      else
+        a
+
+    // This must only be called within the write mutex
+    private def setWithinMutex(c: AsyncCallback[A]): AsyncCallback[Unit] =
+      for {
+        a <- c
+        _ <- AsyncCallback.delay { _value = a }
+        _ <- markInitialised
+      } yield ()
+
+    def set(a: => A): AsyncCallback[Unit] =
+      setAsync(AsyncCallback.delay(a))
+
+    def setSync(c: CallbackTo[A]): AsyncCallback[Unit] =
+      setAsync(c.asAsyncCallback)
+
+    def setAsync(c: AsyncCallback[A]): AsyncCallback[Unit] =
+      inWriteMutex(setWithinMutex(c))
+
+    /** Returns whether or not the value was set. */
+    def setIfUnset(a: => A): AsyncCallback[Boolean] =
+      setIfUnsetAsync(AsyncCallback.delay(a))
+
+    /** Returns whether or not the value was set. */
+    def setIfUnsetSync(c: CallbackTo[A]): AsyncCallback[Boolean] =
+      setIfUnsetAsync(c.asAsyncCallback)
+
+    /** Returns whether or not the value was set. */
+    def setIfUnsetAsync(c: AsyncCallback[A]): AsyncCallback[Boolean] =
+      initialised.isComplete.asAsyncCallback.flatMap {
+        case true => AsyncCallback.pure(false)
+        case false =>
+          inWriteMutex {
+            AsyncCallback.byName {
+              if (initialised.isComplete.runNow())
+                AsyncCallback.pure(false)
+              else
+                setWithinMutex(c).ret(true)
+            }
+          }
+      }
+  }
+
+  @inline def ref[A]: CallbackTo[Ref[A]] =
+    ref()
+
+  def ref[A](allowStaleReads: Boolean = false,
+             atomicWrites   : Boolean = true): CallbackTo[Ref[A]] =
+    CallbackTo(new Ref(
+      atomicReads   = atomicWrites && !allowStaleReads,
+      atomicWrites  = atomicWrites,
+    ))
 }
+
+// █████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 
 /** Pure asynchronous callback.
   *
@@ -238,7 +567,7 @@ object AsyncCallback {
   *
   * @tparam A The type of data asynchronously produced on success.
   */
-final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal {
+final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal { self =>
 
   @inline def underlyingRepr = completeWith
 
@@ -690,4 +1019,52 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     */
   @inline def finallyRunSync[B](runFinally: CallbackTo[B]): AsyncCallback[A] =
     finallyRun(runFinally.asAsyncCallback)
+
+  /** Runs this async computation in the background.
+    *
+    * Returns the ability for you to await/join the forked computation.
+    */
+  def fork: CallbackTo[AsyncCallback.Forked[A]] =
+    AsyncCallback.promise[A].flatMap { case (promise, completePromise) =>
+      var _complete    = false
+      val isComplete   = CallbackTo(_complete)
+      val markComplete = CallbackTo { _complete = true }
+      val runInBg      = self.attemptTry.finallyRunSync(markComplete).flatMapSync(completePromise).fork_
+      val forked       = AsyncCallback.Forked(promise, isComplete)
+      runInBg.ret(forked)
+    }
+
+  /** Runs this async computation in the background.
+    *
+    * Unlike [[fork]] this returns nothing, meaning this is like fire-and-forget.
+    */
+  def fork_ : Callback =
+    delayMs(1).toCallback
+
+  /** Record the duration of this callback's execution. */
+  def withDuration[B](f: (A, FiniteDuration) => AsyncCallback[B]): AsyncCallback[B] = {
+    val nowMS: AsyncCallback[Long] = CallbackTo.currentTimeMillis.asAsyncCallback
+    for {
+      s <- nowMS
+      a <- self
+      e <- nowMS
+      b <- f(a, FiniteDuration(e - s, MILLISECONDS))
+    } yield b
+  }
+
+  /** Log the duration of this callback's execution. */
+  def logDuration(fmt: FiniteDuration => String): AsyncCallback[A] =
+    withDuration((a, d) =>
+      Callback.log(fmt(d)).asAsyncCallback ret a)
+
+  /** Log the duration of this callback's execution.
+    *
+    * @param name Prefix to appear the log output.
+    */
+  def logDuration(name: String): AsyncCallback[A] =
+    logDuration(d => s"$name completed in $d.")
+
+  /** Log the duration of this callback's execution. */
+  def logDuration: AsyncCallback[A] =
+    logDuration("AsyncCallback")
 }
