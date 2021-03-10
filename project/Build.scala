@@ -1,7 +1,7 @@
 import sbt._
 import sbt.Keys._
-import com.typesafe.sbt.pgp.PgpKeys
-import com.typesafe.sbt.pgp.PgpKeys._
+import com.jsuereth.sbtpgp.PgpKeys
+import com.jsuereth.sbtpgp.PgpKeys._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
@@ -18,27 +18,27 @@ object ScalajsReact {
 
   object Ver {
     val BetterMonadicFor      = "0.3.1"
-    val Cats                  = "2.1.1"
-    val CatsEffect            = "2.1.4"
-    val CatsTestkitScalaTest  = "1.0.1"
-    val DisciplineScalaTest   = "1.0.1"
+    val Cats                  = "2.4.2"
+    val CatsEffect            = "2.3.3"
+    val CatsTestkitScalaTest  = "2.1.2"
+    val DisciplineScalaTest   = "2.1.2"
     val KindProjector         = "0.11.3"
     val MacroParadise         = "2.1.1"
     val Microlibs             = "2.5"
-    val MonocleCats           = "2.0.5"
+    val MonocleCats           = "2.1.0"
     val MonocleScalaz         = "1.6.3"
-    val MTest                 = "0.7.5"
+    val MTest                 = "0.7.7"
     val Nyaya                 = "0.9.2"
     val ReactJs               = "16.14.0"
-    val Scala212              = "2.12.11"
-    val Scala213              = "2.13.3"
-    val ScalaCollCompat       = "2.2.0"
+    val Scala212              = "2.12.13"
+    val Scala213              = "2.13.5"
+    val ScalaCollCompat       = "2.4.2"
     val ScalaJsDom            = "1.1.0"
     val ScalaJsTime           = "1.0.0"
-    val ScalaTest             = "3.1.4"
-    val Scalaz72              = "7.2.30"
+    val ScalaTest             = "3.2.6"
+    val Scalaz72              = "7.2.31"
     val SizzleJs              = "2.3.0"
-    val Sourcecode            = "0.2.1"
+    val Sourcecode            = "0.2.4"
   }
 
   type PE = Project => Project

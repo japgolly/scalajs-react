@@ -124,8 +124,8 @@ trait ScalazReactInstances {
         f.map(g)
     }
 
-  implicit def reactCallbackKleisliAScalazInstance[A]: MonadError[CallbackKleisli[A, ?], Throwable] with MonadReader[CallbackKleisli[A, ?], A] with BindRec[CallbackKleisli[A, ?]] with Distributive[CallbackKleisli[A, ?]] =
-    new MonadError[CallbackKleisli[A, ?], Throwable] with MonadReader[CallbackKleisli[A, ?], A] with BindRec[CallbackKleisli[A, ?]] with Distributive[CallbackKleisli[A, ?]] {
+  implicit def reactCallbackKleisliAScalazInstance[A]: MonadError[CallbackKleisli[A, *], Throwable] with MonadReader[CallbackKleisli[A, *], A] with BindRec[CallbackKleisli[A, *]] with Distributive[CallbackKleisli[A, *]] =
+    new MonadError[CallbackKleisli[A, *], Throwable] with MonadReader[CallbackKleisli[A, *], A] with BindRec[CallbackKleisli[A, *]] with Distributive[CallbackKleisli[A, *]] {
 
       override def point[B](b: => B): CallbackKleisli[A, B] =
         CallbackKleisli const reactCallbackScalazInstance.point(b)
@@ -231,8 +231,8 @@ trait ScalazReactInstances {
       override def rmap[A, B, C](f: Ref.Fn[A, B])(m: B => C) = f.map(m)
     }
 
-  implicit final def reactRefFullScalazInstance[X]: Profunctor[Ref.Full[?, X, ?]] =
-    new Profunctor[Ref.Full[?, X, ?]] {
+  implicit final def reactRefFullScalazInstance[X]: Profunctor[Ref.Full[*, X, *]] =
+    new Profunctor[Ref.Full[*, X, *]] {
       override def lmap[A, B, C](f: Ref.Full[A, X, B])(m: C => A) = f.contramap(m)
       override def rmap[A, B, C](f: Ref.Full[A, X, B])(m: B => C) = f.map(m)
     }

@@ -2,7 +2,7 @@ ThisBuild / scalacOptions += "-Yrangepos"
 
 ThisBuild / semanticdbEnabled := true
 
-ThisBuild / semanticdbVersion := "4.3.20"
+ThisBuild / semanticdbVersion := "4.4.10"
 
 ThisBuild / scalafixScalaBinaryVersion := "2.13"
 
