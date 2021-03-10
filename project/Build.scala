@@ -28,8 +28,8 @@ object ScalajsReact {
     val MonocleCats           = "2.1.0"
     val MonocleScalaz         = "1.6.3"
     val MTest                 = "0.7.7"
-    val Nyaya                 = "0.9.2"
-    val ReactJs               = "17.0.1"
+    val Nyaya                 = "0.10.0-RC1"
+    val ReactJs               = "16.14.0"
     val Scala212              = "2.12.13"
     val Scala213              = "2.13.5"
     val ScalaCollCompat       = "2.4.2"
@@ -57,8 +57,7 @@ object ScalajsReact {
     "-opt-inline-from:japgolly.scalajs.react.**",
     "-unchecked",                                    // Enable additional warnings where generated code depends on assumptions.
     "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
-    "-Ypatmat-exhaust-depth", "off") ++
-    (if (scalaJSVersion.startsWith("0.")) Seq("-P:scalajs:sjsDefinedByDefault") else Nil)
+    "-Ypatmat-exhaust-depth", "off")
 
   def scalac213Flags = Seq(
     "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings
@@ -253,7 +252,7 @@ object ScalajsReact {
     .aggregate(
       core, extra, test, /*testModule,*/
       cats, catsEffect, scalaz72,
-      monocle, monocleCats, monocleScalaz,
+      monocleCats, monocleScalaz,
       ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests)
 
@@ -324,13 +323,6 @@ object ScalajsReact {
   }
 
   lazy val scalaz72 = scalazModule("scalaz-7.2", Ver.Scalaz72)
-
-  lazy val monocle = project
-    .in(file("monocle"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle"), hasNoTests)
-    .dependsOn(core, extra, scalaz72)
-    .settings(
-      libraryDependencies += "com.github.julien-truffaut" %%% "monocle-core" % Ver.MonocleScalaz)
 
   lazy val monocleScalaz = project
     .in(file("monocle-scalaz"))
