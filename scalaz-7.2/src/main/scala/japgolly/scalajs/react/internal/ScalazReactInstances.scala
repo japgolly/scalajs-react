@@ -20,7 +20,7 @@ trait ScalazReactInstances {
       override def map[A, B](fa : CallbackTo[A])(f : A => B): CallbackTo[B] =
         fa map f
 
-      override def tailrecM[A, B](f: A => CallbackTo[A \/ B])(a: A): CallbackTo[B] =
+      override def tailrecM[A, B](a: A)(f: A => CallbackTo[A \/ B]): CallbackTo[B] =
         CallbackTo.tailrec(a)(f.andThen(_.map(_.toEither)))
 
       override def distributeImpl[G[_], A, B](ga: G[A])(f: A => CallbackTo[B])(implicit G: Functor[G]): CallbackTo[G[B]] =
@@ -57,7 +57,7 @@ trait ScalazReactInstances {
       override def map[A, B](fa : AsyncCallback[A])(f : A => B): AsyncCallback[B] =
         fa map f
 
-      override def tailrecM[A, B](f: A => AsyncCallback[A \/ B])(a: A): AsyncCallback[B] =
+      override def tailrecM[A, B](a: A)(f: A => AsyncCallback[A \/ B]): AsyncCallback[B] =
         AsyncCallback.tailrec(a)(f.andThen(_.map(_.toEither)))
 
       override def raiseError[A](e: Throwable): AsyncCallback[A] =
@@ -81,7 +81,7 @@ trait ScalazReactInstances {
       override def map[A, B](fa : CallbackOption[A])(f : A => B): CallbackOption[B] =
         fa map f
 
-      override def tailrecM[A, B](f: A => CallbackOption[A \/ B])(a: A): CallbackOption[B] =
+      override def tailrecM[A, B](a: A)(f: A => CallbackOption[A \/ B]): CallbackOption[B] =
         CallbackOption.tailrec(a)(f.andThen(_.map(_.toEither)))
 
       override def empty[A]: CallbackOption[A] =
@@ -136,7 +136,7 @@ trait ScalazReactInstances {
       override def map[B, C](fa: CallbackKleisli[A, B])(f: B => C): CallbackKleisli[A, C] =
         fa map f
 
-      override def tailrecM[S, B](f: S => CallbackKleisli[A, S \/ B])(s: S): CallbackKleisli[A, B] =
+      override def tailrecM[S, B](s: S)(f: S => CallbackKleisli[A, S \/ B]): CallbackKleisli[A, B] =
         CallbackKleisli.tailrec(s)(f.andThen(_.map(_.toEither)))
 
       override def distributeImpl[G[_], B, C](ga: G[B])(f: B => CallbackKleisli[A, C])(implicit G: Functor[G]): CallbackKleisli[A, G[C]] =
