@@ -31,8 +31,8 @@ set -uo pipefail
 
 scalaVersion=${1:0:4}
 term="$2"
-fast=test/target/scala-$scalaVersion/test-test-fastopt.js
-full=test/target/scala-$scalaVersion/test-test-opt.js
+fast=test/target/scala-$scalaVersion/test-test-fastopt/main.js
+full=test/target/scala-$scalaVersion/test-test-opt/main.js
 grep="fgrep --color=always $term"
 
 failFast=

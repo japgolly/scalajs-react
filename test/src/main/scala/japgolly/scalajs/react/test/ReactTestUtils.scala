@@ -198,17 +198,6 @@ object ReactTestUtils {
       attemptFuture(use(a)).andThen { case _ => unmount(n(a).parentNode) }
     }
 
-  @deprecated("Use withNewBodyElementFuture", "1.5.0")
-  def withNewBodyElementAsync[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    withNewBodyElementFuture(use)
-
-  /** Renders a component into the document body via [[ReactDOM.render()]],
-    * and asynchronously waits for the Future to complete before unmounting.
-    */
-  @deprecated("Use withRenderedIntoBodyFuture", "1.5.0")
-  def withRenderedIntoBodyAsync[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    withRenderedIntoBodyFuture(u)(f)
-
   def withNewBodyElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
     AsyncCallback.delay(newBodyElement())
       .flatMap(e => use(e)
@@ -277,13 +266,6 @@ object ReactTestUtils {
   private def _withRenderedIntoDocumentFuture[A, B](a: A)(n: A => TopNode, use: A => Future[B])(implicit ec: ExecutionContext): Future[B] =
     attemptFuture(use(a)).andThen { case _ => unmount(n(a).parentNode) }
 
-  /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
-    * and asynchronously waits for the Future to complete before unmounting.
-    */
-  @deprecated("Use withRenderedIntoDocumentFuture", "1.5.0")
-  def withRenderedIntoDocumentAsync[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    withRenderedIntoDocumentFuture(u)(f)
-
   def withNewDocumentElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
     AsyncCallback.delay(newDocumentElement())
       .flatMap(e => use(e)
@@ -322,14 +304,6 @@ object ReactTestUtils {
       withRenderedIntoBodyFuture(u)(f)
     else
       withRenderedIntoDocumentFuture(u)(f)
-
-  /** Renders a component then unmounts and cleans up after use.
-    *
-    * @param intoBody Whether to use [[renderIntoBodyAsync()]] or [[renderIntoDocumentAsync()]].
-    */
-  @deprecated("Use withRenderedFuture", "1.5.0")
-  def withRenderedAsync[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
-    withRenderedFuture(u, intoBody)(f)
 
   /** Renders a component then unmounts and cleans up after use.
     *
