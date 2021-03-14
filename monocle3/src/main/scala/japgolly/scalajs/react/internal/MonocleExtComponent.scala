@@ -17,31 +17,31 @@ object MonocleExtComponent {
     def zoomStateL[T](l: Lens[S, T]): self.WithMappedState[T] =
       self.zoomState(l.get)(l.replace)
 
-    def modStateL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => B, cb: Callback = Callback.empty)(implicit L: MonocleModifier[L]): F[Unit] =
-      self.modState(L.modify(l)(f), cb)
+    def modStateL[A, B](L: PSetter[S, S, A, B])(f: A => B, cb: Callback = Callback.empty): F[Unit] =
+      self.modState(L.modify(f), cb)
 
-    def modStateOptionL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty)(implicit L: MonocleOptionalModifier[L]): F[Unit] =
-      self.modStateOption(L.modifyOption(l)(f), cb)
+    def modStateOptionL[A, B](l: PTraversal[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty): F[Unit] =
+      self.modStateOption(l.modifyA(f), cb)
 
-    def setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B, cb: Callback = Callback.empty)(implicit L: MonocleReplacer[L]): F[Unit] =
-      self.modState(L.replace(l)(b), cb)
+    def setStateL[B](l: PSetter[S, S, _, B])(b: B, cb: Callback = Callback.empty): F[Unit] =
+      self.modState(l.replace(b), cb)
 
-    def setStateOptionL[L[_, _, _, _], B](l: L[S, S, _, B])(o: Option[B], cb: Callback = Callback.empty)(implicit L: MonocleReplacer[L]): F[Unit] =
+    def setStateOptionL[ B](l: PSetter[S, S, _, B])(o: Option[B], cb: Callback = Callback.empty): F[Unit] =
       o match {
         case Some(b) => setStateL(l)(b, cb)
         case None    => self.setStateOption(None, cb)
       }
 
-    def modStateAsyncL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => B)(implicit L: MonocleModifier[L]): AsyncCallback[Unit] =
-      self.modStateAsync(L.modify(l)(f))
+    def modStateAsyncL[A, B](l: PSetter[S, S, A, B])(f: A => B): AsyncCallback[Unit] =
+      self.modStateAsync(l.modify(f))
 
-    def modStateOptionAsyncL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => Option[B])(implicit L: MonocleOptionalModifier[L]): AsyncCallback[Unit] =
-      self.modStateOptionAsync(L.modifyOption(l)(f))
+    def modStateOptionAsyncL[A, B](l: PTraversal[S, S, A, B])(f: A => Option[B]): AsyncCallback[Unit] =
+      self.modStateOptionAsync(l.modifyA(f))
 
-    def setStateAsyncL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B)(implicit L: MonocleReplacer[L]): AsyncCallback[Unit] =
-      self.modStateAsync(L.replace(l)(b))
+    def setStateAsyncL[B](l: PSetter[S, S, _, B])(b: B): AsyncCallback[Unit] =
+      self.modStateAsync(l.replace(b))
 
-    def setStateOptionAsyncL[L[_, _, _, _], B](l: L[S, S, _, B])(o: Option[B])(implicit L: MonocleReplacer[L]): AsyncCallback[Unit] =
+    def setStateOptionAsyncL[B](l: PSetter[S, S, _, B])(o: Option[B]): AsyncCallback[Unit] =
       o match {
         case Some(b) => setStateAsyncL(l)(b)
         case None    => self.setStateOptionAsync(None)
@@ -49,31 +49,31 @@ object MonocleExtComponent {
   }
 
   final class StateWritableCB[I, S](private val i: I)(implicit sa: StateAccessor.WritePure[I, S]) {
-    def modStateL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => B, cb: Callback = Callback.empty)(implicit L: MonocleModifier[L]): Callback =
-      sa(i).modState(L.modify(l)(f), cb)
+    def modStateL[A, B](l: PLens[S, S, A, B])(f: A => B, cb: Callback = Callback.empty): Callback =
+      sa(i).modState(l.modify(f), cb)
 
-    def modStateOptionL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty)(implicit L: MonocleOptionalModifier[L]): Callback =
-      sa(i).modStateOption(L.modifyOption(l)(f), cb)
+    def modStateOptionL[A, B](l: PTraversal[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty): Callback =
+      sa(i).modStateOption(l.modifyA(f), cb)
 
-    def setStateL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B, cb: Callback = Callback.empty)(implicit L: MonocleReplacer[L]): Callback =
-      sa(i).modState(L.replace(l)(b), cb)
+    def setStateL[B](l: PSetter[S, S, _, B])(b: B, cb: Callback = Callback.empty): Callback =
+      sa(i).modState(l.replace(b), cb)
 
-    def setStateOptionL[L[_, _, _, _], B](l: L[S, S, _, B])(o: Option[B], cb: Callback = Callback.empty)(implicit L: MonocleReplacer[L]): Callback =
+    def setStateOptionL[B](l: PSetter[S, S, _, B])(o: Option[B], cb: Callback = Callback.empty): Callback =
       o match {
         case Some(b) => setStateL(l)(b, cb)
         case None    => sa(i).setStateOption(None, cb)
       }
 
-    def modStateAsyncL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => B)(implicit L: MonocleModifier[L]): AsyncCallback[Unit] =
-      sa(i).modStateAsync(L.modify(l)(f))
+    def modStateAsyncL[A, B](l: PSetter[S, S, A, B])(f: A => B): AsyncCallback[Unit] =
+      sa(i).modStateAsync(l.modify(f))
 
-    def modStateOptionAsyncL[L[_, _, _, _], A, B](l: L[S, S, A, B])(f: A => Option[B])(implicit L: MonocleOptionalModifier[L]): AsyncCallback[Unit] =
-      sa(i).modStateOptionAsync(L.modifyOption(l)(f))
+    def modStateOptionAsyncL[A, B](l: PTraversal[S, S, A, B])(f: A => Option[B]): AsyncCallback[Unit] =
+      sa(i).modStateOptionAsync(l.modifyA(f))
 
-    def setStateAsyncL[L[_, _, _, _], B](l: L[S, S, _, B])(b: B)(implicit L: MonocleReplacer[L]): AsyncCallback[Unit] =
-      sa(i).modStateAsync(L.replace(l)(b))
+    def setStateAsyncL[B](l: PSetter[S, S, _, B])(b: B): AsyncCallback[Unit] =
+      sa(i).modStateAsync(l.replace(b))
 
-    def setStateOptionAsyncL[L[_, _, _, _], B](l: L[S, S, _, B])(o: Option[B])(implicit L: MonocleReplacer[L]): AsyncCallback[Unit] =
+    def setStateOptionAsyncL[B](l: PSetter[S, S, _, B])(o: Option[B]): AsyncCallback[Unit] =
       o match {
         case Some(b) => setStateAsyncL(l)(b)
         case None    => sa(i).setStateOptionAsync(None)
