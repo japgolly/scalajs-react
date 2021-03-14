@@ -12,6 +12,7 @@ object Dependencies {
     val Cats                  = "2.4.2"
     val CatsEffect            = "2.3.3"
     val MonocleCats           = "2.1.0"
+    val Monocle3              = "3.0.0-M3"
     val MonocleScalaz         = "1.6.3"
     val Scala212              = "2.12.13"
     val Scala213              = "2.13.5"
@@ -44,6 +45,7 @@ object Dependencies {
     val DisciplineScalaTest  = Def.setting("org.typelevel"                 %%% "discipline-scalatest"    % Ver.DisciplineScalaTest)
     val MicrolibsTestUtil    = Def.setting("com.github.japgolly.microlibs" %%% "test-util"               % Ver.Microlibs)
     val MonocleCats          = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.MonocleCats)
+    val Monocle3             = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.Monocle3)
     val MonocleScalaz        = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.MonocleScalaz)
     val MonocleScalazMacro   = Def.setting("com.github.julien-truffaut"    %%% "monocle-macro"           % Ver.MonocleScalaz)
     val MTest                = Def.setting("com.lihaoyi"                   %%% "utest"                   % Ver.MTest)
