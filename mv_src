@@ -1,0 +1,76 @@
+#!/bin/bash
+
+set -euo pipefail
+shopt -s extglob
+
+function show_usage() {
+  echo "Usage: $0 [OPTION]... [MODE] [FILE]..."
+  echo ""
+  echo "  Options:"
+  echo "    -n  -- Dry run"
+  echo "    -g  -- Do a `git mv` instead of a `mv`"
+  echo
+  echo "  Mode:"
+  echo "    2  -- Target Scala 2.x"
+  echo "    3  -- Target Scala 3.x"
+  echo "    s  -- Target Scala x.x"
+}
+
+# Parse args
+files=()
+dry=0
+mv=mv
+mode=
+for a in "$@"; do
+  if [ -z "${mode:-}" ]; then
+    # Haven't seen mode yet
+    case "$a" in
+      -n) dry=1 ;;
+      -g) mv="git mv" ;;
+      2) mode=scala-2 ;;
+      3) mode=scala-3 ;;
+      s) mode=scala ;;
+      *)
+        echo "Unknown arg: $a" >&2
+        show_usage
+        exit 1
+        ;;
+    esac
+  else
+    # Everything after mode is a filename
+    files+=("$a")
+  fi
+done
+
+# Validate args
+if [ -z "${mode:-}" -o -z "${files[*]}" ]; then
+  show_usage
+  exit 1
+fi
+
+function run() {
+  echo "$@"
+  [ $dry -eq 0 ] && "$@"
+}
+
+# Do it
+declare -A dirsMade
+for from in "${files[@]}"; do
+  from_pre="${from%%/scala?(-+([0-9.]))/*}"
+  from_post="${from#*/scala?(-+([0-9.]))/}"
+  if [ "$from_pre" = "$from" -o "$from_post" = "$from" ]; then
+    echo "Unable to split: $from" >&2
+    exit 1
+  fi
+  to="$from_pre/$mode/$from_post"
+  if [ "$from" = "$to" ]; then
+    echo "Nothing to do for: $from" >&2
+  else
+    dir="${to%/*}"
+    if [ ! -e "$dir" -a -z "${dirsMade["$dir"]:-}" ]; then
+      run mkdir -p "$dir"
+      dirsMade["$dir"]=1
+    fi
+    run $mv "$from" "$to"
+  fi
+done
