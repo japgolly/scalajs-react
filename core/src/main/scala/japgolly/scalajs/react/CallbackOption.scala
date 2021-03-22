@@ -15,13 +15,13 @@ object CallbackOption {
     new CallbackOption(cb.toScalaFn)
 
   def pass: CallbackOption[Unit] =
-    CallbackOption(CallbackTo pure someUnit)
+    CallbackOption(CallbackTo.pure(someUnit))
 
   def fail[A]: CallbackOption[A] =
-    CallbackOption(CallbackTo pure[Option[A]] None)
+    CallbackOption(CallbackTo.pure[Option[A]](None))
 
   def pure[A](a: A): CallbackOption[A] =
-    CallbackOption(CallbackTo pure[Option[A]] Some(a))
+    CallbackOption(CallbackTo.pure[Option[A]](Some(a)))
 
   def liftValue[A](a: => A): CallbackOption[A] =
     liftOption(Some(a))
@@ -33,7 +33,7 @@ object CallbackOption {
     liftOption(O toOption oa)
 
   def liftCallback[A](cb: CallbackTo[A]): CallbackOption[A] =
-    CallbackOption(cb map[Option[A]] Some.apply)
+    CallbackOption(cb.map[Option[A]](Some.apply))
 
   def liftOptionCallback[A](oc: => Option[CallbackTo[A]]): CallbackOption[A] =
     CallbackOption(CallbackTo sequenceOption oc)
@@ -197,7 +197,7 @@ final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal 
   def flatMap[B](f: A => CallbackOption[B]): CallbackOption[B] =
     CallbackOption(asCallback flatMap {
       case Some(a) => f(a).asCallback
-      case None    => CallbackTo pure[Option[B]] None
+      case None    => CallbackTo.pure[Option[B]](None)
     })
 
   /**

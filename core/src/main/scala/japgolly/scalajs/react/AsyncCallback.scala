@@ -17,10 +17,16 @@ object AsyncCallback {
     new AsyncCallback(f)
 
   def init[A, B](f: (Try[B] => Callback) => CallbackTo[A]): CallbackTo[(A, AsyncCallback[B])] =
-    for {
-      (ac, c) <- promise[B]
-      a       <- f(c)
-    } yield (a, ac)
+    promise[B].flatMap { case (ac, c) =>
+      f(c).map { a =>
+        (a, ac)
+      }
+    }
+    // TODO: bm4 currently unavailable with Scala 3
+    // for {
+    //   (ac, c) <- promise[B]
+    //   a       <- f(c)
+    // } yield (a, ac)
 
   /** Create an AsyncCallback and separately provide the completion function.
     *
@@ -290,9 +296,13 @@ object AsyncCallback {
 
   /** A synchronisation aid that allows you to wait for another async process to complete. */
   lazy val barrier: CallbackTo[Barrier] =
-    for {
-      (promise, complete) <- promise[Unit]
-    } yield new Barrier(promise, complete(tryUnit))
+    promise[Unit].map { case (promise, complete) =>
+      new Barrier(promise, complete(tryUnit))
+    }
+    // TODO: bm4 currently unavailable with Scala 3
+    // for {
+    //   (promise, complete) <- promise[Unit]
+    // } yield new Barrier(promise, complete(tryUnit))
 
   // ===================================================================================================================
 
@@ -959,10 +969,16 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     }
 
   def asCallbackToJsPromise: CallbackTo[js.Promise[A]] =
-    for {
-      (p, pc) <- newJsPromise[A]
-      _       <- completeWith(pc)
-    } yield p
+    newJsPromise[A].flatMap { case (p, pc) =>
+      completeWith(pc).map { _ =>
+        p
+      }
+    }
+    // TODO: bm4 currently unavailable with Scala 3
+    // for {
+    //   (p, pc) <- newJsPromise[A]
+    //   _       <- completeWith(pc)
+    // } yield p
 
   def unsafeToFuture(): Future[A] =
     asCallbackToFuture.runNow()

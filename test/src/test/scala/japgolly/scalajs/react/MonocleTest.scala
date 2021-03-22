@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react.extra._
-import monocle.macros.Lenses
+import monocle._
 import scala.annotation.nowarn
 import scalaz.{Monad, ~>}
 import utest._
@@ -13,7 +13,11 @@ object MonocleTest extends TestSuite {
 
   implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
 
-  @Lenses case class Poly[A](oa: Option[A])
+  case class Poly[A](oa: Option[A])
+
+  object Poly {
+    def oa[A] = Lens[Poly[A], Option[A]](_.oa)(oa => _ => Poly(oa))
+  }
 
   @nowarn("cat=unused")
   private class ScopeTest[A](s: StateAccessPure[A]) {

@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.internal
 
+import japgolly.microlibs.macro_utils.MacroUtils
 import japgolly.scalajs.react.Reusability
 import scala.reflect.macros.blackbox.Context
 
@@ -224,8 +225,8 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
     val nonRecursiveCases: Map[Type, CaseDef] =
       crawlADT[(Type, CaseDef)](
         A,
-        s => tryInferImplicit(ReusabilityA(s)).map(i => s -> mkCase(s, Right(i))),
-        s => if (derive) {
+        (_, s) => tryInferImplicit(ReusabilityA(s)).map(i => s -> mkCase(s, Right(i))),
+        (_, s) => if (derive) {
           prepareToDeriveSubType(s)
           Nil
         } else
@@ -237,8 +238,8 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
       val cases: Vector[CaseDef] =
         crawlADT[CaseDef](
           A,
-          nonRecursiveCases.get,
-          s => if (derive) {
+          (_, s) => nonRecursiveCases.get(s),
+          (_, s) => if (derive) {
             val name = preparations.need(s)
             mkCase(s, Left(name)) :: Nil
           } else

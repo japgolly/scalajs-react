@@ -243,16 +243,16 @@ object Reusable {
         Reusable.byRef(t(i).toModStateFn)
 
       def mod: (S => S) ~=> Callback =
-        Reusable.fn(t(i).modState)
+        Reusable.fn(t(i).modState(_))
 
       def modOption: (S => Option[S]) ~=> Callback =
-        Reusable.fn(t(i).modStateOption)
+        Reusable.fn(t(i).modStateOption(_))
 
       def set: S ~=> Callback =
-        Reusable.fn(t(i).setState)
+        Reusable.fn(t(i).setState(_))
 
       def setOption: Option[S] ~=> Callback =
-        Reusable.fn(t(i).setStateOption)
+        Reusable.fn(t(i).setStateOption(_))
 
       def modCB: Reusable[((S => S), Callback) => Callback] =
         Reusable.byRef(t(i).modState)

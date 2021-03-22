@@ -69,7 +69,7 @@ object ScalajsReact {
   )
 
   def scalac3Flags = Seq(
-    "-source", "3.0-migration",
+    "-source:3.0-migration",
     "-Ykind-projector",
   )
 
@@ -124,6 +124,7 @@ object ScalajsReact {
   def definesMacros: Project => Project =
     _.settings(
       scalacOptions       ++= (if (isDotty.value) Nil else Seq("-language:experimental.macros")),
+      libraryDependencies  += Dep.MicrolibsMacroUtils.value,
       libraryDependencies ++= (if (isDotty.value) Nil else Seq(Dep.ScalaReflect.value, Dep.ScalaCompiler.value % Provided)),
     )
 

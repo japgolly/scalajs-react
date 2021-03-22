@@ -33,9 +33,9 @@ abstract class Attr[-U](final val attrName: String) {
 sealed trait DomCallbackResult[A]
 object DomCallbackResult {
   def force[A] = null.asInstanceOf[DomCallbackResult[A]]
-  @inline implicit def unit = force[Unit]
-  @inline implicit def boolean = force[Boolean]
-  @inline implicit def undefOrBoolean = force[js.UndefOr[Boolean]]
+  @inline implicit def unit           : DomCallbackResult[Unit               ] = force[Unit]
+  @inline implicit def boolean        : DomCallbackResult[Boolean            ] = force[Boolean]
+  @inline implicit def undefOrBoolean : DomCallbackResult[js.UndefOr[Boolean]] = force[js.UndefOr[Boolean]]
 }
 
 sealed trait InnerHtmlAttr

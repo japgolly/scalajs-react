@@ -21,7 +21,7 @@ trait ImplicitsForVdomAttr1 {
     ValueType((b, a) => b(a.toString))
 
   // 90% case so reuse
-  implicit val vdomAttrVtKeyS = vdomAttrVtKey[String]
+  implicit val vdomAttrVtKeyS: ValueType[String, Attr.Key] = vdomAttrVtKey[String]
 }
 
 trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
@@ -120,9 +120,9 @@ trait ImplicitsForVdomNode {
   implicit def vdomNodeFromOption[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => VdomNode): VdomNode =
     O.fold(o, VdomNode.empty)(f)
 
-  implicit def vdomSeqExtForTO[A](as: IterableOnce[A]) = new TraversableOnceExt[A](as)
-  implicit def vdomSeqExtForSA[A](as: Array          [A]) = new TraversableOnceExt[A](as)
-  implicit def vdomSeqExtForJA[A](as: js.Array       [A]) = new TraversableOnceExt[A](as)
+  implicit def vdomSeqExtForTO[A](as: IterableOnce[A]): TraversableOnceExt[A] = new TraversableOnceExt[A](as)
+  implicit def vdomSeqExtForSA[A](as: Array       [A]): TraversableOnceExt[A] = new TraversableOnceExt[A](as)
+  implicit def vdomSeqExtForJA[A](as: js.Array    [A]): TraversableOnceExt[A] = new TraversableOnceExt[A](as)
 }
 
 // =====================================================================================================================

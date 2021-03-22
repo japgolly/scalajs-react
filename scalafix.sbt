@@ -1,4 +1,9 @@
-ThisBuild / scalacOptions += "-Yrangepos"
+ThisBuild / scalacOptions ++= {
+  if (!isDotty.value)
+    "-Yrangepos" :: Nil
+  else
+    Nil
+}
 
 ThisBuild / semanticdbEnabled := true
 

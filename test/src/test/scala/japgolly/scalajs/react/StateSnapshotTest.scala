@@ -5,7 +5,7 @@ import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
-import monocle.macros.Lenses
+import monocle._
 import utest._
 
 object StateSnapshotTest extends TestSuite {
@@ -40,10 +40,11 @@ object StateSnapshotTest extends TestSuite {
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    @Lenses
     final case class X(int: Int, str: String)
 
     object X {
+      val int = Lens[X, Int   ](_.int)(x => _.copy(int = x))
+      val str = Lens[X, String](_.str)(x => _.copy(str = x))
       implicit def equal: UnivEq[X] = UnivEq.force
       implicit val reusability: Reusability[X] = Reusability.derive
     }

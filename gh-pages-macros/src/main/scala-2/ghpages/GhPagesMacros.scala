@@ -1,6 +1,6 @@
 package ghpages
 
-import japgolly.scalajs.react.internal.MacroUtils
+import japgolly.microlibs.macro_utils.MacroUtils
 import java.util.regex.Pattern
 import scala.reflect.macros.blackbox.Context
 

@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.internal
 
+import japgolly.microlibs.macro_utils.MacroUtils
 import scala.reflect.macros.blackbox.Context
 
 object CompileTimeInfo {

@@ -15,10 +15,14 @@ object StateSnapshotExample1 {
   val source = GhPagesMacros.exampleSource
 
   // EXAMPLE:START
-  import monocle.macros._
+  import monocle._
 
-  @Lenses
   case class Name(firstName: String, surname: String)
+
+  object Name {
+    val firstName = Lens[Name, String](_.firstName)(x => _.copy(firstName = x))
+    val surname   = Lens[Name, String](_.surname  )(x => _.copy(surname   = x))
+  }
 
   val NameChanger = ScalaComponent.builder[StateSnapshot[String]]
     .render_P { stateSnapshot =>

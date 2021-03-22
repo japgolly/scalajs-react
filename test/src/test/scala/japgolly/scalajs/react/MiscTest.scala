@@ -6,7 +6,7 @@ import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
 import java.time.Duration
-import monocle.macros.Lenses
+import monocle._
 import org.scalajs.dom.html
 import scala.scalajs.js
 import scala.util.Try
@@ -17,12 +17,17 @@ object MiscTest extends TestSuite {
   lazy val CA = ScalaComponent.builder[Unit]("CA").render_C(c => <.div(c)).build
   lazy val CB = ScalaComponent.builder[Unit]("CB").render_C(c => <.span(c)).build
 
-  @Lenses
   case class StrInt(str: String, int: Int)
+  object StrInt {
+    val str = Lens[StrInt, String](_.str)(x => _.copy(str = x))
+    val int = Lens[StrInt, Int   ](_.int)(x => _.copy(int = x))
+  }
   implicit def equalStrInt: UnivEq[StrInt] = UnivEq.force
 
-  @Lenses
   case class StrIntWrap(strInt: StrInt)
+  object StrIntWrap {
+    val strInt = Lens[StrIntWrap, StrInt](_.strInt)(x => _.copy(strInt = x))
+  }
   implicit def equalStrIntWrap: UnivEq[StrIntWrap] = UnivEq.force
 
   val witnessOptionCallbackToCallback: Option[Callback] => Callback =

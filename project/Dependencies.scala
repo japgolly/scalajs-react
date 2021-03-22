@@ -12,6 +12,7 @@ object Dependencies {
     // Externally observable
     val Cats                  = "2.4.2"
     val CatsEffect            = "2.4.0"
+    val Microlibs             = "2.6-RC2" // (macro-utils only)
     val MonocleCats           = "2.1.0"
     val Monocle3              = "3.0.0-M3"
     val MonocleScalaz         = "1.6.3"
@@ -29,7 +30,6 @@ object Dependencies {
     val DisciplineScalaTest   = "2.1.2"
     val KindProjector         = "0.11.3"
     val MacroParadise         = "2.1.1"
-    val Microlibs             = "2.6-RC1"
     val MTest                 = "0.7.7"
     val Nyaya                 = "0.10.0-RC1"
     val ReactJs               = "16.14.0"
@@ -47,6 +47,7 @@ object Dependencies {
  // val CatsTestkitScalaTest = Def.setting("org.typelevel"                 %%% "cats-testkit-scalatest"  % Ver.CatsTestkitScalaTest withDottyCompat scalaVersion.value)
 // TODO: https://github.com/typelevel/discipline-scalatest/issues/169
  // val DisciplineScalaTest  = Def.setting("org.typelevel"                 %%% "discipline-scalatest"    % Ver.DisciplineScalaTest withDottyCompat scalaVersion.value)
+    val MicrolibsMacroUtils  = Def.setting("com.github.japgolly.microlibs" %%% "macro-utils"             % Ver.Microlibs)
     val MicrolibsTestUtil    = Def.setting("com.github.japgolly.microlibs" %%% "test-util"               % Ver.Microlibs)
 // TODO:
 // [error] Modules were resolved with conflicting cross-version suffixes in ProjectRef(uri("file:/home/golly/projects/public/scalajs-react/"), "monocleCats"):

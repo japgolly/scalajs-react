@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.extra.internal
 
-import japgolly.scalajs.react.internal.MacroUtils
+import japgolly.microlibs.macro_utils.MacroUtils
 import scala.reflect.macros.blackbox.Context
 
 class PxMacros(val c: Context) extends MacroUtils {

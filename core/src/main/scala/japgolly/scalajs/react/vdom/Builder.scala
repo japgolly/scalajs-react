@@ -77,7 +77,7 @@ object Builder {
       setObjectKeyValue(props, _, _)
 
     override val addClassName: js.Any => Unit =
-      n => nonEmptyClassName = nonEmptyClassName.fold(n)(_.toString + " " + n)
+      n => nonEmptyClassName = nonEmptyClassName.fold[js.Any](n)(_.toString + " " + n)
 
     override val addEventHandler =
       (k, g) => modObjectKeyValue[js.Function1[js.Any, Unit]](
