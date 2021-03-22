@@ -1,5 +1,6 @@
 import sbt._
 import sbt.Keys._
+import dotty.tools.sbtplugin.DottyPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
@@ -16,6 +17,7 @@ object Dependencies {
     val MonocleScalaz         = "1.6.3"
     val Scala212              = "2.12.13"
     val Scala213              = "2.13.5"
+    val Scala3                = "3.0.0-RC1"
     val ScalaCollCompat       = "2.4.2"
     val ScalaJsDom            = "1.1.0"
     val Scalaz72              = "7.2.31"
@@ -27,7 +29,7 @@ object Dependencies {
     val DisciplineScalaTest   = "2.1.2"
     val KindProjector         = "0.11.3"
     val MacroParadise         = "2.1.1"
-    val Microlibs             = "2.5"
+    val Microlibs             = "2.6-RC1"
     val MTest                 = "0.7.7"
     val Nyaya                 = "0.10.0-RC1"
     val ReactJs               = "16.14.0"
@@ -41,24 +43,30 @@ object Dependencies {
     val CatsEffect           = Def.setting("org.typelevel"                 %%% "cats-effect"             % Ver.CatsEffect)
     val CatsEffectLaws       = Def.setting("org.typelevel"                 %%% "cats-effect-laws"        % Ver.CatsEffect)
     val CatsTestkit          = Def.setting("org.typelevel"                 %%% "cats-testkit"            % Ver.Cats)
-    val CatsTestkitScalaTest = Def.setting("org.typelevel"                 %%% "cats-testkit-scalatest"  % Ver.CatsTestkitScalaTest)
-    val DisciplineScalaTest  = Def.setting("org.typelevel"                 %%% "discipline-scalatest"    % Ver.DisciplineScalaTest)
+// TODO: https://github.com/typelevel/cats-testkit-scalatest/issues/128
+ // val CatsTestkitScalaTest = Def.setting("org.typelevel"                 %%% "cats-testkit-scalatest"  % Ver.CatsTestkitScalaTest withDottyCompat scalaVersion.value)
+// TODO: https://github.com/typelevel/discipline-scalatest/issues/169
+ // val DisciplineScalaTest  = Def.setting("org.typelevel"                 %%% "discipline-scalatest"    % Ver.DisciplineScalaTest withDottyCompat scalaVersion.value)
     val MicrolibsTestUtil    = Def.setting("com.github.japgolly.microlibs" %%% "test-util"               % Ver.Microlibs)
-    val MonocleCats          = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.MonocleCats)
+// TODO:
+// [error] Modules were resolved with conflicting cross-version suffixes in ProjectRef(uri("file:/home/golly/projects/public/scalajs-react/"), "monocleCats"):
+// [error]    org.typelevel:cats-kernel_sjs1 _3.0.0-RC1, _2.13
+// [error]    org.typelevel:cats-core_sjs1 _3.0.0-RC1, _2.13
+ // val MonocleCats          = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.MonocleCats withDottyCompat scalaVersion.value)
     val Monocle3             = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.Monocle3)
-    val MonocleScalaz        = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.MonocleScalaz)
-    val MonocleScalazMacro   = Def.setting("com.github.julien-truffaut"    %%% "monocle-macro"           % Ver.MonocleScalaz)
+    val MonocleScalaz        = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.MonocleScalaz withDottyCompat scalaVersion.value)
     val MTest                = Def.setting("com.lihaoyi"                   %%% "utest"                   % Ver.MTest)
     val NyayaGen             = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-gen"               % Ver.Nyaya)
     val NyayaProp            = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-prop"              % Ver.Nyaya)
     val NyayaTest            = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-test"              % Ver.Nyaya)
     val ScalaCollCompat      = Def.setting("org.scala-lang.modules"        %%% "scala-collection-compat" % Ver.ScalaCollCompat)
     val ScalaCompiler        = Def.setting("org.scala-lang"                  % "scala-compiler"          % scalaVersion.value)
-    val ScalaJsDom           = Def.setting("org.scala-js"                  %%% "scalajs-dom"             % Ver.ScalaJsDom)
-    val ScalaJsJavaTime      = Def.setting("org.scala-js"                  %%% "scalajs-java-time"       % Ver.ScalaJsJavaTime)
+    val ScalaJsDom           = Def.setting("org.scala-js"                  %%% "scalajs-dom"             % Ver.ScalaJsDom withDottyCompat scalaVersion.value)
+    val ScalaJsJavaTime      = Def.setting("org.scala-js"                  %%% "scalajs-java-time"       % Ver.ScalaJsJavaTime withDottyCompat scalaVersion.value)
     val ScalaReflect         = Def.setting("org.scala-lang"                  % "scala-reflect"           % scalaVersion.value)
-    val ScalaTest            = Def.setting("org.scalatest"                 %%% "scalatest"               % Ver.ScalaTest)
-    val ScalazEffect72       = Def.setting("org.scalaz"                    %%% "scalaz-effect"           % Ver.Scalaz72)
+// TODO: https://github.com/scalatest/scalatest/issues/1982
+ // val ScalaTest            = Def.setting("org.scalatest"                 %%% "scalatest"               % Ver.ScalaTest withDottyCompat scalaVersion.value)
+    val ScalazEffect72       = Def.setting("org.scalaz"                    %%% "scalaz-effect"           % Ver.Scalaz72 withDottyCompat scalaVersion.value)
     val Sourcecode           = Def.setting("com.lihaoyi"                   %%% "sourcecode"              % Ver.Sourcecode)
 
     // Compiler plugins
