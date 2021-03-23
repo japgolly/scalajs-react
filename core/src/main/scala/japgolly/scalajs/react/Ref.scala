@@ -115,7 +115,7 @@ object Ref {
         }))
 
       override val get: CallbackOption[O] =
-        CallbackOption(CallbackTo(jsNullToOption(raw.current).flatMap(r)))
+        CallbackTo(jsNullToOption(raw.current).flatMap(r)).asCBO
 
       override def contramap[X](f: X => I): Full[X, A, O] =
         Full(raw, l compose f, r)

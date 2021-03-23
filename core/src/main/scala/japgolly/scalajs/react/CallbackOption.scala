@@ -11,44 +11,66 @@ import scala.collection.compat._
 object CallbackOption {
   private[CallbackOption] val someUnit: Option[Unit] = Some(())
 
-  def apply[A](cb: CallbackTo[Option[A]]): CallbackOption[A] =
-    new CallbackOption(cb.toScalaFn)
+  @deprecated("Use callback.asCBO", "1.8.0")
+  def apply[A](callback: CallbackTo[Option[A]]): CallbackOption[A] =
+    callback.asCBO
 
   def pass: CallbackOption[Unit] =
-    CallbackOption(CallbackTo pure someUnit)
+    CallbackTo.pure(someUnit).asCBO
 
   def fail[A]: CallbackOption[A] =
-    CallbackOption(CallbackTo pure[Option[A]] None)
+    CallbackTo.pure[Option[A]](None).asCBO
 
   def pure[A](a: A): CallbackOption[A] =
-    CallbackOption(CallbackTo pure[Option[A]] Some(a))
+    CallbackTo.pure[Option[A]](Some(a)).asCBO
 
+  def delay[A](a: => A): CallbackOption[A] =
+    option(Some(a))
+
+  def option[A](oa: => Option[A]): CallbackOption[A] =
+    CallbackTo(oa).asCBO
+
+  def maybe[O[_], A](oa: => O[A])(implicit O: OptionLike[O]): CallbackOption[A] =
+    option(O toOption oa)
+
+  def optionCallback[A](oc: => Option[CallbackTo[A]]): CallbackOption[A] =
+    CallbackTo.sequenceOption(oc).asCBO
+
+  def maybeCallback[O[_], A](oa: => O[CallbackTo[A]])(implicit O: OptionLike[O]): CallbackOption[A] =
+    optionCallback(O toOption oa)
+
+  @deprecated("Use CallbackOption.delay", "1.8.0")
   def liftValue[A](a: => A): CallbackOption[A] =
-    liftOption(Some(a))
+    delay(a)
 
+  @deprecated("Use CallbackOption.option", "1.8.0")
   def liftOption[A](oa: => Option[A]): CallbackOption[A] =
-    CallbackOption(CallbackTo(oa))
+    option(oa)
 
+  @deprecated("Use CallbackOption.maybe", "1.8.0")
   def liftOptionLike[O[_], A](oa: => O[A])(implicit O: OptionLike[O]): CallbackOption[A] =
-    liftOption(O toOption oa)
+    maybe(oa)
 
-  def liftCallback[A](cb: CallbackTo[A]): CallbackOption[A] =
-    CallbackOption(cb map[Option[A]] Some.apply)
+  @deprecated("Use callback.toCBO", "1.8.0")
+  def liftCallback[A](callback: CallbackTo[A]): CallbackOption[A] =
+    callback.toCBO
 
+  @deprecated("Use CallbackOption.optionCallback", "1.8.0")
   def liftOptionCallback[A](oc: => Option[CallbackTo[A]]): CallbackOption[A] =
-    CallbackOption(CallbackTo sequenceOption oc)
+    optionCallback(oc)
 
+  @deprecated("Use CallbackOption.maybeCallback", "1.8.0")
   def liftOptionLikeCallback[O[_], A](oa: => O[CallbackTo[A]])(implicit O: OptionLike[O]): CallbackOption[A] =
-    liftOptionCallback(O toOption oa)
+    maybeCallback(oa)
 
   def require(condition: => Boolean): CallbackOption[Unit] =
-    CallbackOption(CallbackTo(if (condition) someUnit else None))
+    CallbackTo(if (condition) someUnit else None).asCBO
 
   def unless(condition: => Boolean): CallbackOption[Unit] =
     require(!condition)
 
   def matchPF[A, B](a: => A)(pf: PartialFunction[A, B]): CallbackOption[B] =
-    liftOption(pf lift a)
+    option(pf lift a)
 
   /**
    * Tail-recursive callback. Uses constant stack space.
@@ -58,7 +80,7 @@ object CallbackOption {
    * Free]].
    */
   def tailrec[A, B](a: A)(f: A => CallbackOption[Either[A, B]]): CallbackOption[B] =
-    CallbackOption.liftOption {
+    option {
       @tailrec
       def go(a: A): Option[B] =
         f(a).asCallback.runNow() match {
@@ -71,7 +93,7 @@ object CallbackOption {
 
   def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
                                                 (implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
-    liftOption {
+    option {
       val it = ta.iterator
       val r = cbf.newBuilder(ta)
       @tailrec
@@ -94,7 +116,7 @@ object CallbackOption {
    * NOTE: Technically a proper, lawful traversal should return `CallbackOption[Option[B]]`.
    */
   def traverseOption[A, B](oa: => Option[A])(f: A => CallbackOption[B]): CallbackOption[B] =
-    liftOption(oa.map(f(_).asCallback).flatMap(_.runNow()))
+    option(oa.map(f(_).asCallback).flatMap(_.runNow()))
 
   /**
    * NOTE: Technically a proper, lawful sequence should return `CallbackOption[Option[A]]`.
@@ -131,7 +153,7 @@ object CallbackOption {
 
   /** Returns the currently focused HTML element (if there is one). */
   lazy val activeHtmlElement: CallbackOption[html.Element] =
-    liftOption(
+    option(
       Option(document.activeElement)
         .flatMap(_.domToHtml)
         .filterNot(_ eq document.body))
@@ -151,7 +173,7 @@ object CallbackOption {
  *
  * For a more generic (i.e. beyond Option) or comprehensive monad transformer use Scalaz or similar.
  */
-final class CallbackOption[+A](private val cbfn: () => Option[A]) extends AnyVal {
+final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends AnyVal {
   import CallbackOption.someUnit
 
   /** The underlying representation of this value-class */
@@ -168,13 +190,13 @@ final class CallbackOption[+A](private val cbfn: () => Option[A]) extends AnyVal
     asCallback.void
 
   def unary_!(implicit ev: A <:< Unit): CallbackOption[Unit] =
-    CallbackOption(asCallback.map {
+    asCallback.map {
       case None    => someUnit
       case Some(_) => None
-    })
+    }.asCBO
 
   def map[B](f: A => B)(implicit ev: MapGuard[B]): CallbackOption[ev.Out] =
-    CallbackOption(asCallback.map(_ map f))
+    asCallback.map(_ map f).asCBO
 
   /**
    * Alias for `map`.
@@ -183,16 +205,16 @@ final class CallbackOption[+A](private val cbfn: () => Option[A]) extends AnyVal
     map(f)
 
   def flatMapOption[B](f: A => Option[B]): CallbackOption[B] =
-    CallbackOption(asCallback.map(_ flatMap f))
+    asCallback.map(_ flatMap f).asCBO
 
   def flatMapCB[B](f: A => CallbackTo[B]): CallbackOption[B] =
-    flatMap(a => CallbackOption.liftCallback(f(a)))
+    flatMap(f(_).toCBO)
 
   def flatMap[B](f: A => CallbackOption[B]): CallbackOption[B] =
-    CallbackOption(asCallback flatMap {
+    asCallback.flatMap {
       case Some(a) => f(a).asCallback
       case None    => CallbackTo pure[Option[B]] None
-    })
+    }.asCBO
 
   /**
    * Alias for `flatMap`.
@@ -201,10 +223,10 @@ final class CallbackOption[+A](private val cbfn: () => Option[A]) extends AnyVal
     flatMap(f)
 
   def filter(condition: A => Boolean): CallbackOption[A] =
-    CallbackOption(asCallback.map(_ filter condition))
+    asCallback.map(_ filter condition).asCBO
 
   def filterNot(condition: A => Boolean): CallbackOption[A] =
-    CallbackOption(asCallback.map(_ filterNot condition))
+    asCallback.map(_ filterNot condition).asCBO
 
   def withFilter(condition: A => Boolean): CallbackOption[A] =
     filter(condition)
@@ -281,10 +303,10 @@ final class CallbackOption[+A](private val cbfn: () => Option[A]) extends AnyVal
     when(!cond)
 
   def orElse[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =
-    CallbackOption(asCallback flatMap {
+    asCallback.flatMap {
       case a@ Some(_) => CallbackTo pure (a: Option[AA])
       case None       => tryNext.asCallback
-    })
+    }.asCBO
 
   /**
    * Alias for `orElse`.

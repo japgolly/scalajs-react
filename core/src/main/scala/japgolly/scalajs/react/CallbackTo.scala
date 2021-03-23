@@ -611,10 +611,10 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     logDuration("Callback")
 
   def asCBO[B](implicit ev: CallbackTo[A] <:< CallbackTo[Option[B]]): CallbackOption[B] =
-    CallbackOption(ev(this))
+    new CallbackOption(ev(this).toScalaFn)
 
   def toCBO: CallbackOption[A] =
-    CallbackOption liftCallback this
+    map[Option[A]](Some(_)).asCBO
 
   /** Returns a [[CallbackOption]] that requires the boolean value therein to be true. */
   def requireCBO(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackOption[Unit] =

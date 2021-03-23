@@ -73,7 +73,7 @@ trait ScalazReactInstances {
   implicit final lazy val reactCallbackOptionScalazInstance: MonadPlus[CallbackOption] with BindRec[CallbackOption] =
     new MonadPlus[CallbackOption] with BindRec[CallbackOption] {
       override def point[A](a: => A): CallbackOption[A] =
-        CallbackOption.liftValue(a)
+        CallbackOption.delay(a)
 
       override def bind[A, B](fa: CallbackOption[A])(f: A => CallbackOption[B]): CallbackOption[B] =
         fa >>= f
