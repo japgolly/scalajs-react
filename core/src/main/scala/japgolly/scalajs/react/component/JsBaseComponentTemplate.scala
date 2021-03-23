@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.CtorType
+import japgolly.scalajs.react.internal.Profunctor.Ops._
 import japgolly.scalajs.react.internal._
 import scala.scalajs.js
 

@@ -1,6 +1,7 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{RateLimit, SyncPromise, Timer, catchAll, identityFn, newJsPromise}
+import japgolly.scalajs.react.internal.Util.{catchAll, newJsPromise}
+import japgolly.scalajs.react.internal.{RateLimit, SyncPromise, Timer, identityFn}
 import java.time.Duration
 import scala.collection.compat._
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}

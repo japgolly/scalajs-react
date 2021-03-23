@@ -75,7 +75,7 @@ object ImplicitsForVdomNode {
     def mkReactFragment(start: VdomNode, sep: VdomNode, end: VdomNode)(implicit f: A => VdomNode): VdomElement = {
       val b = List.newBuilder[VdomNode]
       if (start ne VdomNode.empty) b += start
-      intercalateInto(b, as.iterator.map(f), sep)
+      Util.intercalateInto(b, as.iterator.map(f), sep)
       if (end ne VdomNode.empty) b += end
       ReactFragment(b.result(): _*)
     }
@@ -88,7 +88,7 @@ object ImplicitsForVdomNode {
     def mkTagMod(start: TagMod, sep: TagMod, end: TagMod)(implicit f: A => TagMod): TagMod = {
       val b = Vector.newBuilder[TagMod]
       if (start ne VdomNode.empty) b += start
-      intercalateInto(b, as.iterator.map(f), sep)
+      Util.intercalateInto(b, as.iterator.map(f), sep)
       if (end ne VdomNode.empty) b += end
       TagMod.fromTraversableOnce(b.result())
     }
