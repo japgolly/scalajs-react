@@ -1,6 +1,5 @@
 package japgolly.scalajs.react.raw
 
-import japgolly.scalajs.react.internal.JsSet
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
 
@@ -15,13 +14,13 @@ trait Interaction extends js.Object {
 object Profiler {
 
   type OnRender = js.Function7[
-    String,             // id:             the "id" prop of the Profiler tree that has just committed
-    String,             // phase:          either "mount" (if the tree just mounted) or "update" (if it re-rendered)
-    Double,             // actualDuration: time spent rendering the committed update
-    Double,             // baseDuration:   estimated time to render the entire subtree without memoization
-    Double,             // startTime:      when React began rendering this update
-    Double,             // commitTime:     when React committed this update
-    JsSet[Interaction], // interactions:   Set of interactions belonging to this update
+    String,              // id:             the "id" prop of the Profiler tree that has just committed
+    String,              // phase:          either "mount" (if the tree just mounted) or "update" (if it re-rendered)
+    Double,              // actualDuration: time spent rendering the committed update
+    Double,              // baseDuration:   estimated time to render the entire subtree without memoization
+    Double,              // startTime:      when React began rendering this update
+    Double,              // commitTime:     when React committed this update
+    js.Set[Interaction], // interactions:   Set of interactions belonging to this update
     Unit
   ]
 
