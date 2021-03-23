@@ -1,7 +1,8 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.CallbackTo.MapGuard
-import japgolly.scalajs.react.internal.{RateLimit, Timer, Trampoline, catchAll, identityFn}
+import japgolly.scalajs.react.internal.Util.catchAll
+import japgolly.scalajs.react.internal.{RateLimit, Timer, Trampoline, identityFn}
 import java.time.{Duration, Instant}
 import org.scalajs.dom.raw.Window
 import org.scalajs.dom.{console, window}
