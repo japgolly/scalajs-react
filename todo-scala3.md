@@ -30,7 +30,6 @@ core/src/main/scala-2/japgolly/scalajs/react/feature/ReactFragment.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/CompileTimeInfo.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/Effect.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/JsRepr.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/JsSet.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/JsUtil.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/NotAllowed.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/Optics.scala
