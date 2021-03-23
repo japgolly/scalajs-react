@@ -29,7 +29,6 @@ core/src/main/scala-2/japgolly/scalajs/react/feature/ReactFragment.scala
 
 core/src/main/scala-2/japgolly/scalajs/react/internal/CompileTimeInfo.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/Effect.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/package.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/Semigroup.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/SyncPromise.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/Util.scala
