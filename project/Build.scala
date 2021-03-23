@@ -1,24 +1,18 @@
 import sbt._
 import sbt.Keys._
 import com.jsuereth.sbtpgp.PgpKeys
-import com.jsuereth.sbtpgp.PgpKeys._
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
 import scalafix.sbt.ScalafixPlugin
-import xerial.sbt.Sonatype.autoImport._
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
 //import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 
 object ScalajsReact {
   import Dependencies._
-
-  type PE = Project => Project
-
-  def byScalaVersion[A](f: PartialFunction[(Long, Long), Seq[A]]): Def.Initialize[Seq[A]] =
-    Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
+  import Lib._
 
   def scalacFlags: Seq[String] = Seq(
     "-deprecation",
@@ -81,41 +75,6 @@ object ScalajsReact {
         releaseTagComment             := s"v${(version in ThisBuild).value}",
         releaseVcsSign                := true,
         libraryDependencies           += Dep.BetterMonadicFor)
-
-  def preventPublication: PE =
-    _.settings(
-      publishTo := Some(Resolver.file("Unused transient repository", target.value / "fakepublish")),
-      publishArtifact := false,
-      publishLocal := {},
-      publishLocalSigned := {},       // doesn't work
-      publishSigned := {},            // doesn't work
-      packagedArtifacts := Map.empty) // doesn't work - https://github.com/sbt/sbt-pgp/issues/42
-
-  def publicationSettings: PE =
-    _.settings(
-      publishTo := sonatypePublishToBundle.value,
-      pomExtra :=
-        <scm>
-          <connection>scm:git:github.com/japgolly/scalajs-react</connection>
-          <developerConnection>scm:git:git@github.com:japgolly/scalajs-react.git</developerConnection>
-          <url>github.com:japgolly/scalajs-react.git</url>
-        </scm>
-        <developers>
-          <developer>
-            <id>japgolly</id>
-            <name>David Barri</name>
-          </developer>
-        </developers>)
-    .configure(sourceMapsToGithub)
-
-  def sourceMapsToGithub: PE =
-    p => p.settings(
-      scalacOptions ++= (if (isSnapshot.value) Seq.empty else Seq({
-        val a = p.base.toURI.toString.replaceFirst("[^/]+/?$", "")
-        val g = "https://raw.githubusercontent.com/japgolly/scalajs-react"
-        s"-P:scalajs:mapSourceURI:$a->$g/v${version.value}/"
-      }))
-    )
 
   /*
   lazy val yarnOnPath: Boolean =
