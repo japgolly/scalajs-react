@@ -1,24 +1,15 @@
 import sbt._
 import sbt.Keys._
 import com.jsuereth.sbtpgp.PgpKeys
-import com.jsuereth.sbtpgp.PgpKeys._
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
 import scalafix.sbt.ScalafixPlugin
-import xerial.sbt.Sonatype.autoImport._
-//import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
-//import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 
 object ScalajsReact {
   import Dependencies._
-
-  type PE = Project => Project
-
-  def byScalaVersion[A](f: PartialFunction[(Long, Long), Seq[A]]): Def.Initialize[Seq[A]] =
-    Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
+  import Lib._
 
   def scalacFlags: Seq[String] = Seq(
     "-deprecation",
@@ -80,96 +71,30 @@ object ScalajsReact {
         releasePublishArtifactsAction := PgpKeys.publishSigned.value,
         releaseTagComment             := s"v${(version in ThisBuild).value}",
         releaseVcsSign                := true,
+        disable                       := false,
         libraryDependencies           += Dep.BetterMonadicFor)
 
-  def preventPublication: PE =
-    _.settings(
-      publishTo := Some(Resolver.file("Unused transient repository", target.value / "fakepublish")),
-      publishArtifact := false,
-      publishLocal := {},
-      publishLocalSigned := {},       // doesn't work
-      publishSigned := {},            // doesn't work
-      packagedArtifacts := Map.empty) // doesn't work - https://github.com/sbt/sbt-pgp/issues/42
-
-  def publicationSettings: PE =
-    _.settings(
-      publishTo := sonatypePublishToBundle.value,
-      pomExtra :=
-        <scm>
-          <connection>scm:git:github.com/japgolly/scalajs-react</connection>
-          <developerConnection>scm:git:git@github.com:japgolly/scalajs-react.git</developerConnection>
-          <url>github.com:japgolly/scalajs-react.git</url>
-        </scm>
-        <developers>
-          <developer>
-            <id>japgolly</id>
-            <name>David Barri</name>
-          </developer>
-        </developers>)
-    .configure(sourceMapsToGithub)
-
-  def sourceMapsToGithub: PE =
-    p => p.settings(
-      scalacOptions ++= (if (isSnapshot.value) Seq.empty else Seq({
-        val a = p.base.toURI.toString.replaceFirst("[^/]+/?$", "")
-        val g = "https://raw.githubusercontent.com/japgolly/scalajs-react"
-        s"-P:scalajs:mapSourceURI:$a->$g/v${version.value}/"
-      }))
-    )
-
-  /*
-  lazy val yarnOnPath: Boolean =
-    try {
-      Process("yarn --version").!!
-      true
-    } catch {
-      case t: Throwable => false
-    }
-
-  def useScalaJsBundler: PE =
-    _.enablePlugins(ScalaJSBundlerPlugin)
-      .settings(
-        // useYarn := yarnOnPath,
-        version in webpack := "2.6.1")
-  */
-
-  def utestSettings: PE =
-    _.configure(InBrowserTesting.js)
-      .settings(
-        jsEnv                 := new JSDOMNodeJSEnv,
-        scalacOptions in Test += "-language:reflectiveCalls",
-        libraryDependencies   += Dep.MTest.value % Test,
-        testFrameworks        += new TestFramework("utest.runner.Framework"))
-
-  def extModuleName(shortName: String): PE =
-    _.settings(name := s"ext-$shortName")
-
-  def definesMacros: Project => Project =
-    _.settings(
-      scalacOptions += "-language:experimental.macros",
-      libraryDependencies ++= Seq(
-        Dep.ScalaReflect.value,
-        Dep.ScalaCompiler.value % Provided))
-
-  def hasNoTests: Project => Project =
-    _.settings(
-      fastOptJS     in Test := Attributed(artifactPath.in(fastOptJS).in(Test).value)(AttributeMap.empty),
-      fullOptJS     in Test := Attributed(artifactPath.in(fullOptJS).in(Test).value)(AttributeMap.empty),
-      sbt.Keys.test in Test := { (Test / compile).value; () },
-      testOnly      in Test := { (Test / compile).value; () },
-      testQuick     in Test := { (Test / compile).value; () })
-
   // ==============================================================================================
+
   lazy val root = Project("root", file("."))
     .settings(name := "scalajs-react")
-    .aggregate(
-      core, extra, test, /*testModule,*/
-      cats, catsEffect, scalaz72,
-      monocleCats, monocle3, monocleScalaz,
-      ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests)
+    .aggregate(
+      core,
+      extra,
+      test,
+      // testModule,
+      scalaz72,
+      cats,
+      catsEffect,
+      monocleScalaz,
+      monocleCats,
+      monocle3,
+      ghpagesMacros,
+      ghpages)
 
   // ==============================================================================================
+
   lazy val core = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .settings(
@@ -223,14 +148,16 @@ object ScalajsReact {
         "react-addons-css-transition-group" -> "16.7.0"))
   */
 
-  lazy val scalaz72 =
-    Project("scalaz72", file("scalaz-7.2"))
-      .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
-      .dependsOn(core, extra)
-      .settings(
-        libraryDependencies ++= Seq(
-          Dep.ScalazEffect72.value,
-          Dep.KindProjector))
+  // ===================================================================================================================
+
+  lazy val scalaz72 = project
+    .in(file("scalaz-7.2"))
+    .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
+    .dependsOn(core, extra)
+    .settings(
+      libraryDependencies ++= Seq(
+        Dep.ScalazEffect72.value,
+        Dep.KindProjector))
 
   lazy val monocleScalaz = project
     .in(file("monocle-scalaz"))
@@ -246,13 +173,6 @@ object ScalajsReact {
         libraryDependencies ++= Seq(
           Dep.Cats.value,
           Dep.KindProjector))
-
-  lazy val monocle3 = project
-    .in(file("monocle3"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle3"), hasNoTests)
-    .dependsOn(core, extra, cats)
-    .settings(
-      libraryDependencies += Dep.Monocle3.value)
 
   lazy val monocleCats = project
     .in(file("monocle-cats"))
@@ -277,7 +197,17 @@ object ScalajsReact {
         Dep.ScalaTest           .value % Test,
         Dep.DisciplineScalaTest .value % Test))
 
-  // ==============================================================================================
+  lazy val monocle3 = project
+    .in(file("monocle3"))
+    .configure(commonSettings, publicationSettings, extModuleName("monocle3"), hasNoTests)
+    .dependsOn(core, extra, cats)
+    .settings(
+      disable := scalaVersion.value.startsWith("2.12"),
+      libraryDependencies += Dep.Monocle3.value)
+    .configure(conditionallyDisable) // keep this last
+
+  // ===================================================================================================================
+
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
     .settings(
