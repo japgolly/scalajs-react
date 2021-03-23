@@ -132,7 +132,7 @@ object Ajax {
       validateStatus(isStatusSuccessful)
 
     private def registerU(k: Ajax[Unit])(set: (XMLHttpRequest, js.Function1[Any, Unit]) => Unit): Ajax[Unit] =
-      CallbackKleisli.lift(xhr => set(xhr, Callback.byName(k(xhr)).toJsFn1))
+      CallbackKleisli.lift(xhr => set(xhr, Callback.suspend(k(xhr)).toJsFn1))
 
     private def register_(cb: Option[Ajax[Unit]])(set: (XMLHttpRequest, js.Function1[Any, Unit]) => Unit): Ajax[Unit] =
       cb match {

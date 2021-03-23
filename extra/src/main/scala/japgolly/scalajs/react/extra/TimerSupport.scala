@@ -37,7 +37,7 @@ trait TimerSupport extends OnUnmount {
 
   /** Provides `setInterval`-like behavior insuring that the time between calls of `f` is *at least* the `timeout`. */
   final def setGuaranteedIntervalMs(f: Callback, intervalInMilliseconds: Double): Callback= {
-    val reschedule = Callback byName setGuaranteedIntervalMs(f, intervalInMilliseconds)
+    val reschedule = Callback suspend setGuaranteedIntervalMs(f, intervalInMilliseconds)
     setTimeoutMs(f finallyRun reschedule, intervalInMilliseconds)
   }
 

@@ -68,8 +68,12 @@ object Reusability extends ScalaVersionSpecificReusability {
   def apply[A](f: (A, A) => Boolean): Reusability[A] =
     new Reusability(f)
 
-  def byName[A](f: => Reusability[A]): Reusability[A] =
+  def suspend[A](f: => Reusability[A]): Reusability[A] =
     new Reusability((a, b) => f.test(a, b))
+
+  @deprecated("Use Reusability.suspend", "1.8.0")
+  def byName[A](f: => Reusability[A]): Reusability[A] =
+    suspend(f)
 
   private[this] val alwaysInstance: Reusability[Any] =
     apply((_, _) => true)

@@ -93,7 +93,7 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
       val typ = weakTypeOf[A]
       val ra = ReusabilityA(typ)
       val prep = init1.varDef(ra, q"new Reusability(null)")
-      lazies += q"""implicit lazy val ${TermName("_" + prep.decodedName)}: $ra = $Reusability.byName($prep)"""
+      lazies += q"""implicit lazy val ${TermName("_" + prep.decodedName)}: $ra = $Reusability.suspend($prep)"""
       lazy val completed: c.Expr[Reusability[A]] = {
         val inner = complete
         val impl = q"$prep = $inner"

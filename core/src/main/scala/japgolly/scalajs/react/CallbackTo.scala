@@ -31,15 +31,20 @@ object CallbackTo {
   /** Callback that isn't created until the first time it is used, after which it is reused. */
   def lazily[A](f: => CallbackTo[A]): CallbackTo[A] = {
     lazy val g = f
-    byName(g)
+    suspend(g)
   }
+
+  /** Callback that is recreated each time it is used. */
+  def suspend[A](f: => CallbackTo[A]): CallbackTo[A] =
+    new CallbackTo(Trampoline.suspend(() => f.trampoline))
 
   /** Callback that is recreated each time it is used.
     *
     * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
     */
+  @deprecated("Use CallbackTo.suspend", "1.8.0")
   def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
-    new CallbackTo(Trampoline.suspend(() => f.trampoline))
+    suspend(f)
 
   /** Tail-recursive callback. Uses constant stack space.
     *
