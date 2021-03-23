@@ -7,8 +7,9 @@ function show_usage() {
   echo "Usage: $0 [OPTION]... [MODE] [FILE]..."
   echo ""
   echo "  Options:"
-  echo "    -n  -- Dry run"
+  echo "    -c  -- Copy instead of mv"
   echo "    -g  -- Do a `git mv` instead of a `mv`"
+  echo "    -n  -- Dry run"
   echo
   echo "  Mode:"
   echo "    2  -- Target Scala 2.x"
@@ -27,6 +28,7 @@ for a in "$@"; do
     case "$a" in
       -n) dry=1 ;;
       -g) mv="git mv" ;;
+      -c) mv=cp ;;
       2) mode=scala-2 ;;
       3) mode=scala-3 ;;
       s) mode=scala ;;

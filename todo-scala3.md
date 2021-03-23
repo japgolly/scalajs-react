@@ -29,19 +29,9 @@ core/src/main/scala-2/japgolly/scalajs/react/feature/ReactFragment.scala
 
 core/src/main/scala-2/japgolly/scalajs/react/internal/CompileTimeInfo.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/Effect.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/JsRepr.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/JsUtil.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/NotAllowed.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/Optics.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/OptionLike.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/package.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/Profunctor.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/RateLimit.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/Semigroup.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/Singleton.scala
 core/src/main/scala-2/japgolly/scalajs/react/internal/SyncPromise.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/Timer.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/Trampoline.scala
 
 core/src/main/scala-2/japgolly/scalajs/react/raw/events.scala
 core/src/main/scala-2/japgolly/scalajs/react/raw/package.scala
@@ -110,3 +100,9 @@ Finally
 =======
 * Remove `mv_src`
 * Remove `reuse`
+* Remove `copy3`
+
+Later
+=====
+* Remove runtime footprint
+  * JsRepr
