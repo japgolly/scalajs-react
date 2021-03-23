@@ -3,12 +3,9 @@ import sbt.Keys._
 import com.jsuereth.sbtpgp.PgpKeys
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
 import scalafix.sbt.ScalafixPlugin
-//import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
-//import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 
 object ScalajsReact {
   import Dependencies._
@@ -76,59 +73,27 @@ object ScalajsReact {
         releaseVcsSign                := true,
         libraryDependencies           += Dep.BetterMonadicFor)
 
-  /*
-  lazy val yarnOnPath: Boolean =
-    try {
-      Process("yarn --version").!!
-      true
-    } catch {
-      case t: Throwable => false
-    }
-
-  def useScalaJsBundler: PE =
-    _.enablePlugins(ScalaJSBundlerPlugin)
-      .settings(
-        // useYarn := yarnOnPath,
-        version in webpack := "2.6.1")
-  */
-
-  def utestSettings: PE =
-    _.configure(InBrowserTesting.js)
-      .settings(
-        jsEnv                 := new JSDOMNodeJSEnv,
-        scalacOptions in Test += "-language:reflectiveCalls",
-        libraryDependencies   += Dep.MTest.value % Test,
-        testFrameworks        += new TestFramework("utest.runner.Framework"))
-
-  def extModuleName(shortName: String): PE =
-    _.settings(name := s"ext-$shortName")
-
-  def definesMacros: Project => Project =
-    _.settings(
-      scalacOptions += "-language:experimental.macros",
-      libraryDependencies ++= Seq(
-        Dep.ScalaReflect.value,
-        Dep.ScalaCompiler.value % Provided))
-
-  def hasNoTests: Project => Project =
-    _.settings(
-      fastOptJS     in Test := Attributed(artifactPath.in(fastOptJS).in(Test).value)(AttributeMap.empty),
-      fullOptJS     in Test := Attributed(artifactPath.in(fullOptJS).in(Test).value)(AttributeMap.empty),
-      sbt.Keys.test in Test := { (Test / compile).value; () },
-      testOnly      in Test := { (Test / compile).value; () },
-      testQuick     in Test := { (Test / compile).value; () })
-
   // ==============================================================================================
+
   lazy val root = Project("root", file("."))
     .settings(name := "scalajs-react")
-    .aggregate(
-      core, extra, test, /*testModule,*/
-      cats, catsEffect, scalaz72,
-      monocleCats, monocle3, monocleScalaz,
-      ghpagesMacros, ghpages)
     .configure(commonSettings, preventPublication, hasNoTests)
+    .aggregate(
+      core,
+      extra,
+      test,
+      // testModule,
+      scalaz72,
+      cats,
+      catsEffect,
+      monocleScalaz,
+      monocleCats,
+      monocle3,
+      ghpagesMacros,
+      ghpages)
 
   // ==============================================================================================
+
   lazy val core = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .settings(
@@ -182,14 +147,16 @@ object ScalajsReact {
         "react-addons-css-transition-group" -> "16.7.0"))
   */
 
-  lazy val scalaz72 =
-    Project("scalaz72", file("scalaz-7.2"))
-      .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
-      .dependsOn(core, extra)
-      .settings(
-        libraryDependencies ++= Seq(
-          Dep.ScalazEffect72.value,
-          Dep.KindProjector))
+  // ===================================================================================================================
+
+  lazy val scalaz72 = project
+    .in(file("scalaz-7.2"))
+    .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
+    .dependsOn(core, extra)
+    .settings(
+      libraryDependencies ++= Seq(
+        Dep.ScalazEffect72.value,
+        Dep.KindProjector))
 
   lazy val monocleScalaz = project
     .in(file("monocle-scalaz"))
@@ -205,13 +172,6 @@ object ScalajsReact {
         libraryDependencies ++= Seq(
           Dep.Cats.value,
           Dep.KindProjector))
-
-  lazy val monocle3 = project
-    .in(file("monocle3"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle3"), hasNoTests)
-    .dependsOn(core, extra, cats)
-    .settings(
-      libraryDependencies += Dep.Monocle3.value)
 
   lazy val monocleCats = project
     .in(file("monocle-cats"))
@@ -236,7 +196,15 @@ object ScalajsReact {
         Dep.ScalaTest           .value % Test,
         Dep.DisciplineScalaTest .value % Test))
 
-  // ==============================================================================================
+  lazy val monocle3 = project
+    .in(file("monocle3"))
+    .configure(commonSettings, publicationSettings, extModuleName("monocle3"), hasNoTests)
+    .dependsOn(core, extra, cats)
+    .settings(
+      libraryDependencies += Dep.Monocle3.value)
+
+  // ===================================================================================================================
+
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
     .settings(
