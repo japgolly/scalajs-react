@@ -12,7 +12,7 @@ import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.timers.{RawTimers, SetIntervalHandle, SetTimeoutHandle}
-import scala.scalajs.js.{Function0 => JFn0, Function1 => JFn1, UndefOr, undefined}
+import scala.scalajs.js.{Function0 => JFn0, Function1 => JFn1, Thenable, UndefOr, undefined, |}
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -282,6 +282,22 @@ object CallbackTo {
    */
   def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): CallbackTo[Future[A]] =
     CallbackTo(f.map(_.runNow()))
+
+  def newJsPromise[A]: CallbackTo[(js.Promise[A], Try[A] => Callback)] = CallbackTo {
+    var complete: Try[A] => Callback = null
+    val p = new js.Promise[A]((respond: js.Function1[A | Thenable[A], _], reject: js.Function1[Any, _]) => {
+      def fail(t: Throwable) =
+        reject(t match {
+          case js.JavaScriptException(e) => e
+          case e                         => e
+        })
+      complete = {
+        case Success(a) => Callback(respond(a))
+        case Failure(e) => Callback(fail(e))
+      }
+    })
+    (p, complete)
+  }
 
   lazy val now: CallbackTo[Instant] =
     apply(Instant.now())
