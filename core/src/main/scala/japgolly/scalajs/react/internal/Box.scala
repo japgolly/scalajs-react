@@ -15,4 +15,3 @@ object Box {
   val Unit: Box[Unit] =
     Box(())
 }
-

@@ -50,7 +50,7 @@ fi
 
 function run() {
   echo "$@"
-  [ $dry -eq 0 ] && "$@"
+  [ $dry -eq 1 ] || "$@"
 }
 
 # Do it
