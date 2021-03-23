@@ -155,9 +155,9 @@ object ScalajsReact {
     _.settings(
       fastOptJS     in Test := Attributed(artifactPath.in(fastOptJS).in(Test).value)(AttributeMap.empty),
       fullOptJS     in Test := Attributed(artifactPath.in(fullOptJS).in(Test).value)(AttributeMap.empty),
-      sbt.Keys.test in Test := {},
-      testOnly      in Test := {},
-      testQuick     in Test := {})
+      sbt.Keys.test in Test := { (Test / compile).value; () },
+      testOnly      in Test := { (Test / compile).value; () },
+      testQuick     in Test := { (Test / compile).value; () })
 
   // ==============================================================================================
   lazy val root = Project("root", file("."))
