@@ -91,7 +91,7 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
     run(a)
 
   def widen[C >: B]: CallbackKleisli[A, C] =
-    CallbackKleisli(run(_).widen[C])
+    CallbackKleisli[A, C](run(_))
 
   def narrow[C <: A]: CallbackKleisli[C, B] =
     CallbackKleisli(run)

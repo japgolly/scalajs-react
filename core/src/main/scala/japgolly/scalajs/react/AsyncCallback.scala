@@ -207,9 +207,6 @@ object AsyncCallback {
   def fromCallbackToJsPromise[A](c: CallbackTo[js.Promise[A]]): AsyncCallback[A] =
     c.asAsyncCallback.flatMap(fromJsPromise(_))
 
-  @inline implicit def asyncCallbackCovariance[A, B >: A](c: AsyncCallback[A]): AsyncCallback[B] =
-    c.widen
-
   /** Not literally tail-recursive because AsyncCallback is continuation-based, but this utility in this shape may still
     * be useful.
     */
@@ -269,7 +266,7 @@ object AsyncCallback {
 
   // ===================================================================================================================
 
-  final case class Forked[A](await: AsyncCallback[A], isComplete: CallbackTo[Boolean])
+  final case class Forked[+A](await: AsyncCallback[A], isComplete: CallbackTo[Boolean])
 
   // ===================================================================================================================
 
@@ -568,12 +565,9 @@ object AsyncCallback {
   *
   * @tparam A The type of data asynchronously produced on success.
   */
-final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal { self =>
+final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal { self =>
 
   @inline def underlyingRepr = completeWith
-
-  def widen[B >: A]: AsyncCallback[B] =
-    new AsyncCallback(completeWith)
 
   def map[B](f: A => B): AsyncCallback[B] =
     flatMap(f.andThen(AsyncCallback.pure))
@@ -696,13 +690,13 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def attemptTry: AsyncCallback[Try[A]] =
     AsyncCallback(f => completeWith(e => f(Success(e))))
 
-  def handleError(f: Throwable => AsyncCallback[A]): AsyncCallback[A] =
+  def handleError[AA >: A](f: Throwable => AsyncCallback[AA]): AsyncCallback[AA] =
     AsyncCallback(g => completeWith {
       case r@ Success(_) => g(r)
       case Failure(t)    => f(t).completeWith(g)
     })
 
-  def maybeHandleError(f: PartialFunction[Throwable, AsyncCallback[A]]): AsyncCallback[A] =
+  def maybeHandleError[AA >: A](f: PartialFunction[Throwable, AsyncCallback[AA]]): AsyncCallback[AA] =
     AsyncCallback(g => completeWith {
       case r@ Success(_) => g(r)
       case l@ Failure(t) => f.lift(t) match {
@@ -1009,10 +1003,10 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def flatTapSync[B](t: A => CallbackTo[B]): AsyncCallback[A] =
     flatTap(t.andThen(_.asAsyncCallback))
 
-  def handleErrorSync(f: Throwable => CallbackTo[A]): AsyncCallback[A] =
+  def handleErrorSync[AA >: A](f: Throwable => CallbackTo[AA]): AsyncCallback[AA] =
     handleError(f.andThen(_.asAsyncCallback))
 
-  def maybeHandleErrorSync(f: PartialFunction[Throwable, CallbackTo[A]]): AsyncCallback[A] =
+  def maybeHandleErrorSync[AA >: A](f: PartialFunction[Throwable, CallbackTo[AA]]): AsyncCallback[AA] =
     maybeHandleError(f.andThen(_.asAsyncCallback))
 
   /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the

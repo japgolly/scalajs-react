@@ -212,9 +212,6 @@ object CallbackTo {
   def TODO[A](result: => A, reason: => String): CallbackTo[A] =
     Callback.todoImpl(Some(() => reason)) >> CallbackTo(result)
 
-  @inline implicit def callbackCovariance[A, B >: A](c: CallbackTo[A]): CallbackTo[B] =
-    c.widen
-
   /**
    * Prevents `scalac` discarding the result of a map function when the final result is `Callback`.
    *
@@ -226,6 +223,14 @@ object CallbackTo {
 
   @inline implicit def MapGuard[A]: MapGuard[A] =
     null.asInstanceOf[MapGuard[A]]
+
+  implicit def VarianceOps[A](c: CallbackTo[A]): VarianceOps[A] =
+    new VarianceOps(c.trampoline)
+
+  final class VarianceOps[A](private val trampoline: Trampoline[A]) extends AnyVal {
+    def toKleisli[B]: CallbackKleisli[B, A] =
+      CallbackKleisli.const(new CallbackTo(trampoline))
+  }
 }
 
 // =====================================================================================================================
@@ -243,7 +248,7 @@ object CallbackTo {
  *
  * @since 0.10.0
  */
-final class CallbackTo[A] private[react] (private[CallbackTo] val trampoline: Trampoline[A]) extends AnyVal { self =>
+final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: Trampoline[A]) extends AnyVal { self =>
 
   /**
     * Executes this callback, on the current thread, right now, blocking until complete.
@@ -260,9 +265,6 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val trampoline: Tr
     */
   @inline def runNow(): A =
     trampoline.run
-
-  def widen[B >: A]: CallbackTo[B] =
-    new CallbackTo(trampoline)
 
   def map[B](f: A => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
     new CallbackTo(trampoline.map(f))
@@ -361,13 +363,13 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val trampoline: Tr
   def attemptTry: CallbackTo[Try[A]] =
     CallbackTo(catchAll(runNow()))
 
-  def handleError(f: Throwable => CallbackTo[A]): CallbackTo[A] =
-    CallbackTo[A](
+  def handleError[AA >: A](f: Throwable => CallbackTo[AA]): CallbackTo[AA] =
+    CallbackTo[AA](
       try runNow()
       catch { case t: Throwable => f(t).runNow() })
 
-  def maybeHandleError(f: PartialFunction[Throwable, CallbackTo[A]]): CallbackTo[A] =
-    CallbackTo[A](
+  def maybeHandleError[AA >: A](f: PartialFunction[Throwable, CallbackTo[AA]]): CallbackTo[AA] =
+    CallbackTo[AA](
       try runNow()
       catch {
         case t: Throwable => f.lift(t) match {
@@ -626,9 +628,6 @@ final class CallbackTo[A] private[react] (private[CallbackTo] val trampoline: Tr
 
   def asKleisli[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): CallbackKleisli[B, C] =
     CallbackKleisli(distFn)
-
-  def toKleisli[B]: CallbackKleisli[B, A] =
-    CallbackKleisli const this
 
   /** Wraps this so that:
     *

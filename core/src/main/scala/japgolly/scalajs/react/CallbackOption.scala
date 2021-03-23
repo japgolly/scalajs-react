@@ -129,9 +129,6 @@ object CallbackOption {
       b  <- cb.toCBO
     } yield b
 
-  @inline implicit def callbackOptionCovariance[A, B >: A](c: CallbackOption[A]): CallbackOption[B] =
-    c.widen
-
   /** Returns the currently focused HTML element (if there is one). */
   lazy val activeHtmlElement: CallbackOption[html.Element] =
     liftOption(
@@ -154,15 +151,12 @@ object CallbackOption {
  *
  * For a more generic (i.e. beyond Option) or comprehensive monad transformer use Scalaz or similar.
  */
-final class CallbackOption[A](private val cbfn: () => Option[A]) extends AnyVal {
+final class CallbackOption[+A](private val cbfn: () => Option[A]) extends AnyVal {
   import CallbackOption.someUnit
 
   /** The underlying representation of this value-class */
   @inline def underlyingRepr: () => Option[A] =
     cbfn
-
-  def widen[B >: A]: CallbackOption[B] =
-    new CallbackOption(cbfn)
 
   def getOrElse[AA >: A](default: => AA): CallbackTo[AA] =
     asCallback.map(_ getOrElse default)
