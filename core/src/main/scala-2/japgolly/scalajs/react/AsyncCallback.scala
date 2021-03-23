@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.Util.{catchAll, newJsPromise}
+import japgolly.scalajs.react.internal.Util.catchAll
 import japgolly.scalajs.react.internal.{RateLimit, SyncPromise, Timer, identityFn}
 import java.time.Duration
 import scala.collection.compat._
@@ -970,14 +970,14 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
     }
 
   def asCallbackToJsPromise: CallbackTo[js.Promise[A]] =
-    newJsPromise[A].flatMap { case (p, pc) =>
+    CallbackTo.newJsPromise[A].flatMap { case (p, pc) =>
       completeWith(pc).map { _ =>
         p
       }
     }
     // TODO: bm4 currently unavailable with Scala 3
     // for {
-    //   (p, pc) <- newJsPromise[A]
+    //   (p, pc) <- CallbackTo.newJsPromise[A]
     //   _       <- completeWith(pc)
     // } yield p
 

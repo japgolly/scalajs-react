@@ -5,6 +5,7 @@ core/src/main/scala-2/japgolly/scalajs/react/AsyncCallback.scala
 core/src/main/scala-2/japgolly/scalajs/react/Callback.scala
 core/src/main/scala-2/japgolly/scalajs/react/CallbackKleisli.scala
 core/src/main/scala-2/japgolly/scalajs/react/CallbackOption.scala
+core/src/main/scala-2/japgolly/scalajs/react/CallbackTo.scala
 core/src/main/scala-2/japgolly/scalajs/react/ComponentDom.scala
 core/src/main/scala-2/japgolly/scalajs/react/CtorType.scala
 core/src/main/scala-2/japgolly/scalajs/react/events.scala

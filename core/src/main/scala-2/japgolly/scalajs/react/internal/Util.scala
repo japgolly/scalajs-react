@@ -1,10 +1,7 @@
 package japgolly.scalajs.react.internal
 
-import japgolly.scalajs.react.{Callback, CallbackTo}
 import scala.collection.compat._
 import scala.collection.mutable.Builder
-import scala.scalajs.js
-import scala.scalajs.js.{Thenable, |}
 import scala.util.{Failure, Success, Try}
 
 object Util {
@@ -28,22 +25,6 @@ object Util {
         b += a
       }
     }
-  }
-
-  def newJsPromise[A]: CallbackTo[(js.Promise[A], Try[A] => Callback)] = CallbackTo {
-    var complete: Try[A] => Callback = null
-    val p = new js.Promise[A]((respond: js.Function1[A | Thenable[A], _], reject: js.Function1[Any, _]) => {
-      def fail(t: Throwable) =
-        reject(t match {
-          case js.JavaScriptException(e) => e
-          case e                         => e
-        })
-      complete = {
-        case Success(a) => Callback(respond(a))
-        case Failure(e) => Callback(fail(e))
-      }
-    })
-    (p, complete)
   }
 
 }
