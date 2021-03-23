@@ -26,6 +26,6 @@ object CallbackToEffects {
 
     // Sync[CallbackTo]
     override def suspend[A](thunk: => CallbackTo[A]): CallbackTo[A] =
-      CallbackTo.byName(thunk)
+      CallbackTo.suspend(thunk)
   }
 }

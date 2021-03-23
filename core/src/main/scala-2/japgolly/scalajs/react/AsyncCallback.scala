@@ -84,15 +84,23 @@ object AsyncCallback {
   /** Callback that isn't created until the first time it is used, after which it is reused. */
   def lazily[A](f: => AsyncCallback[A]): AsyncCallback[A] = {
     lazy val g = f
-    byName(g)
+    suspend(g)
   }
 
   /** Callback that is recreated each time it is used.
     *
     * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
     */
-  def byName[A](f: => AsyncCallback[A]): AsyncCallback[A] =
+  def suspend[A](f: => AsyncCallback[A]): AsyncCallback[A] =
     delay(f).flatten
+
+  /** Callback that is recreated each time it is used.
+    *
+    * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
+    */
+  @deprecated("Use AsyncCallback.suspend", "1.8.0")
+  def byName[A](f: => AsyncCallback[A]): AsyncCallback[A] =
+    suspend(f)
 
   @deprecated("Use c.asAsyncCallback", "")
   def fromCallback[A](c: CallbackTo[A]): AsyncCallback[A] =
@@ -102,7 +110,7 @@ object AsyncCallback {
     * Distribute AsyncCallback over stdlib T.
     */
   def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
-    AsyncCallback.byName {
+    AsyncCallback.suspend {
       val as = ta.iterator.to(Vector)
       if (as.isEmpty)
         AsyncCallback.pure(cbf.newBuilder(ta).result())
@@ -141,14 +149,14 @@ object AsyncCallback {
 
   /** Same as [[traverse()]] except avoids combining return values. */
   def traverse_[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B]): AsyncCallback[Unit] =
-    AsyncCallback.byName {
+    AsyncCallback.suspend {
       val as = new js.Array[A]
       for (a <- ta.iterator)
         as.push(a)
 
       as.length match {
         case 0 => AsyncCallback.unit
-        case 1 => AsyncCallback.byName(f(as(0))).void
+        case 1 => AsyncCallback.suspend(f(as(0))).void
         case n =>
           var error = Option.empty[Throwable]
           val latch = countDownLatch(n).runNow()
@@ -162,7 +170,7 @@ object AsyncCallback {
             } >> latch.countDown
 
           for (a <- as)
-            AsyncCallback.byName(f(a))
+            AsyncCallback.suspend(f(a))
               .attemptTry
               .flatMapSync(onTaskComplete)
               .runNow()
@@ -212,9 +220,6 @@ object AsyncCallback {
 
   def fromCallbackToJsPromise[A](c: CallbackTo[js.Promise[A]]): AsyncCallback[A] =
     c.asAsyncCallback.flatMap(fromJsPromise(_))
-
-  @inline implicit def asyncCallbackCovariance[A, B >: A](c: AsyncCallback[A]): AsyncCallback[B] =
-    c.widen
 
   /** Not literally tail-recursive because AsyncCallback is continuation-based, but this utility in this shape may still
     * be useful.
@@ -275,7 +280,7 @@ object AsyncCallback {
 
   // ===================================================================================================================
 
-  final case class Forked[A](await: AsyncCallback[A], isComplete: CallbackTo[Boolean])
+  final case class Forked[+A](await: AsyncCallback[A], isComplete: CallbackTo[Boolean])
 
   // ===================================================================================================================
 
@@ -409,7 +414,7 @@ object AsyncCallback {
       * Note: THIS IS NOT RE-ENTRANT. Calling this from within the read or write mutex will block.
       */
     def write[A](ac: AsyncCallback[A]): AsyncCallback[A] =
-      AsyncCallback.byName {
+      AsyncCallback.suspend {
 
         mutex match {
           case None =>
@@ -430,7 +435,7 @@ object AsyncCallback {
       * Note: Calling this from within the write-mutex will block.
       */
     def read[A](ac: AsyncCallback[A]): AsyncCallback[A] =
-      AsyncCallback.byName {
+      AsyncCallback.suspend {
 
         mutex match {
           case None =>
@@ -525,7 +530,7 @@ object AsyncCallback {
         case true => AsyncCallback.pure(false)
         case false =>
           inWriteMutex {
-            AsyncCallback.byName {
+            AsyncCallback.suspend {
               if (initialised.isComplete.runNow())
                 AsyncCallback.pure(false)
               else
@@ -578,12 +583,9 @@ object AsyncCallback {
   *
   * @tparam A The type of data asynchronously produced on success.
   */
-final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal { self =>
+final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal { self =>
 
   @inline def underlyingRepr = completeWith
-
-  def widen[B >: A]: AsyncCallback[B] =
-    new AsyncCallback(completeWith)
 
   def map[B](f: A => B): AsyncCallback[B] =
     flatMap(f.andThen(AsyncCallback.pure))
@@ -594,11 +596,11 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
 
   def flatMap[B](f: A => AsyncCallback[B]): AsyncCallback[B] =
     AsyncCallback { g =>
-      Callback.byName {
+      Callback.suspend {
         completeWith {
           case Success(a) =>
             catchAll(f(a)) match {
-              case Success(next) => Callback.byName(next.completeWith(g))
+              case Success(next) => Callback.suspend(next.completeWith(g))
               case Failure(e)    => g(Failure(e))
             }
           case Failure(e) => g(Failure(e))
@@ -706,13 +708,13 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def attemptTry: AsyncCallback[Try[A]] =
     AsyncCallback(f => completeWith(e => f(Success(e))))
 
-  def handleError(f: Throwable => AsyncCallback[A]): AsyncCallback[A] =
+  def handleError[AA >: A](f: Throwable => AsyncCallback[AA]): AsyncCallback[AA] =
     AsyncCallback(g => completeWith {
       case r@ Success(_) => g(r)
       case Failure(t)    => f(t).completeWith(g)
     })
 
-  def maybeHandleError(f: PartialFunction[Throwable, AsyncCallback[A]]): AsyncCallback[A] =
+  def maybeHandleError[AA >: A](f: PartialFunction[Throwable, AsyncCallback[AA]]): AsyncCallback[AA] =
     AsyncCallback(g => completeWith {
       case r@ Success(_) => g(r)
       case l@ Failure(t) => f.lift(t) match {
@@ -727,9 +729,9 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def memo(): AsyncCallback[A] = {
     var result: Option[AsyncCallback[A]] = None
     def set(r: AsyncCallback[A]) = {result = Some(r); r}
-    AsyncCallback.byName {
+    AsyncCallback.suspend {
       result.getOrElse {
-        val first = attemptTry.flatMap(t => AsyncCallback.byName(set(AsyncCallback.const(t))))
+        val first = attemptTry.flatMap(t => AsyncCallback.suspend(set(AsyncCallback.const(t))))
         val promise = first.unsafeToJsPromise()
         result getOrElse set(AsyncCallback.fromJsPromise(promise))
       }
@@ -1025,10 +1027,10 @@ final class AsyncCallback[A] private[AsyncCallback] (val completeWith: (Try[A] =
   def flatTapSync[B](t: A => CallbackTo[B]): AsyncCallback[A] =
     flatTap(t.andThen(_.asAsyncCallback))
 
-  def handleErrorSync(f: Throwable => CallbackTo[A]): AsyncCallback[A] =
+  def handleErrorSync[AA >: A](f: Throwable => CallbackTo[AA]): AsyncCallback[AA] =
     handleError(f.andThen(_.asAsyncCallback))
 
-  def maybeHandleErrorSync(f: PartialFunction[Throwable, CallbackTo[A]]): AsyncCallback[A] =
+  def maybeHandleErrorSync[AA >: A](f: PartialFunction[Throwable, CallbackTo[AA]]): AsyncCallback[AA] =
     maybeHandleError(f.andThen(_.asAsyncCallback))
 
   /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the

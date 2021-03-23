@@ -27,7 +27,7 @@ object AsyncCallbackEffects {
 
     // Sync[AsyncCallback]
     override def suspend[A](thunk: => AsyncCallback[A]): AsyncCallback[A] =
-      AsyncCallback.byName(thunk)
+      AsyncCallback.suspend(thunk)
 
     // LiftIO[AsyncCallback]
     override def liftIO[A](ioa: IO[A]): AsyncCallback[A] = {

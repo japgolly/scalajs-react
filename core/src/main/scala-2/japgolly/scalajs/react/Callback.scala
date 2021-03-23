@@ -50,13 +50,17 @@ object Callback {
   @inline def lazily(f: => Callback): Callback =
     CallbackTo.lazily(f)
 
-  /**
-   * Callback that is recreated each time it is used.
-   *
-   * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
-   */
+  /** Callback that is recreated each time it is used. */
+  @inline def suspend(f: => Callback): Callback =
+    CallbackTo.suspend(f)
+
+  /** Callback that is recreated each time it is used.
+    *
+    * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
+    */
+  @deprecated("Use Callback.suspend", "1.8.0")
   @inline def byName(f: => Callback): Callback =
-    CallbackTo.byName(f)
+    suspend(f)
 
   /**
    * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.
@@ -167,7 +171,7 @@ object Callback {
     todoImpl(Some(() => reason))
 
   private[react] def todoImpl(reason: Option[() => String]): Callback =
-    byName(warn("TODO" + reason.fold("")(": " + _())))
+    suspend(warn("TODO" + reason.fold("")(": " + _())))
 
   final class SetIntervalResult(val handle: SetIntervalHandle) {
     val cancel: Callback = Callback { RawTimers.clearInterval(handle) }

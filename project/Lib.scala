@@ -2,10 +2,13 @@ import sbt._
 import Keys._
 import com.jsuereth.sbtpgp.PgpKeys._
 import dotty.tools.sbtplugin.DottyPlugin.autoImport._
-import org.scalajs.sbtplugin.ScalaJSPlugin._
+import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import xerial.sbt.Sonatype.autoImport._
 
 object Lib {
+  import Dependencies.Dep
+
   type PE = Project => Project
 
   val ghProject = "scalajs-react"
@@ -48,15 +51,66 @@ object Lib {
     )
 
   def preventPublication: PE =
-    _.settings(
-      skip in publish    := true,
-      publish            := (()),
-      publishLocal       := (()),
-      publishSigned      := (()),
-      publishLocalSigned := (()),
-      publishArtifact    := false,
-      publishTo          := Some(Resolver.file("Unused transient repository", target.value / "fakepublish")),
-      packagedArtifacts  := Map.empty)
-    // .disablePlugins(plugins.IvyPlugin)
+    _.settings(publish / skip := true)
 
+  def utestSettings: PE =
+    _.configure(InBrowserTesting.js)
+      .settings(
+        jsEnv                 := new JSDOMNodeJSEnv,
+        scalacOptions in Test += "-language:reflectiveCalls",
+        libraryDependencies   += Dep.MTest.value % Test,
+        testFrameworks        += new TestFramework("utest.runner.Framework"))
+
+  def extModuleName(shortName: String): PE =
+    _.settings(name := s"ext-$shortName")
+
+  def definesMacros: Project => Project =
+    _.settings(
+      scalacOptions       ++= (if (isDotty.value) Nil else Seq("-language:experimental.macros")),
+      libraryDependencies  += Dep.MicrolibsMacroUtils.value,
+      libraryDependencies ++= (if (isDotty.value) Nil else Seq(Dep.ScalaReflect.value, Dep.ScalaCompiler.value % Provided)),
+    )
+
+  def hasNoTests: Project => Project =
+    _.settings(
+      fastOptJS     in Test := Attributed(artifactPath.in(fastOptJS).in(Test).value)(AttributeMap.empty),
+      fullOptJS     in Test := Attributed(artifactPath.in(fullOptJS).in(Test).value)(AttributeMap.empty),
+      sbt.Keys.test in Test := { (Test / compile).value; () },
+      testOnly      in Test := { (Test / compile).value; () },
+      testQuick     in Test := { (Test / compile).value; () })
+
+  /*
+  lazy val yarnOnPath: Boolean =
+    try {
+      Process("yarn --version").!!
+      true
+    } catch {
+      case t: Throwable => false
+    }
+
+  def useScalaJsBundler: PE =
+    _.enablePlugins(ScalaJSBundlerPlugin)
+      .settings(
+        // useYarn := yarnOnPath,
+        version in webpack := "2.6.1")
+  */
+
+  val disable = settingKey[Boolean]("Disable project?")
+
+  def conditionallyDisable: Project => Project = {
+
+    def clearWhenDisabled[A](key: SettingKey[Seq[A]]) =
+      Def.setting[Seq[A]] {
+        val disabled = disable.value
+        val as = key.value
+        if (disabled) Nil else as
+      }
+
+    _.settings(
+      libraryDependencies := clearWhenDisabled(libraryDependencies).value,
+      Compile / unmanagedSourceDirectories := clearWhenDisabled(Compile / unmanagedSourceDirectories).value,
+      Test / unmanagedSourceDirectories := clearWhenDisabled(Test / unmanagedSourceDirectories).value,
+      publish / skip := ((publish / skip).value || disable.value),
+    )
+  }
 }

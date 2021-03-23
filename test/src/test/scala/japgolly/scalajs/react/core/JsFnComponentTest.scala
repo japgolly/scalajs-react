@@ -80,8 +80,8 @@ object JsFnComponentTest extends TestSuite {
         assertRender(c(), "<div>ah</div>")
       }
 
-      "byName" - {
-        val c = JsFnComponent.fromScala.byName(<.div("ah"))
+      "delay" - {
+        val c = JsFnComponent.fromScala.delay(<.div("ah"))
         assertRender(c(), "<div>ah</div>")
       }
 

@@ -43,9 +43,14 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
              (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
       generic[UnusedObject, Children.None](_ => render)(s)
 
-    def byName(render: => VdomElement)
+    def delay(render: => VdomElement)
               (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
       generic[UnusedObject, Children.None](_ => render)(s)
+
+    @deprecated("Use .delay", "1.8.0")
+    def byName(render: => VdomElement)
+              (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
+      delay(render)(s)
 
     def apply[P <: js.Object](render: P => VdomElement)
                              (implicit s: CtorType.Summoner[P, Children.None]): Component[P, s.CT] =

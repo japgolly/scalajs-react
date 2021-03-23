@@ -3,7 +3,6 @@ package japgolly.scalajs.react.internal
 import japgolly.microlibs.macro_utils.MacroUtils
 import scala.annotation.elidable
 import scala.reflect.macros.blackbox.Context
-import sourcecode.Util
 
 trait AutoComponentName {
   def value: String
@@ -32,7 +31,7 @@ final class AutoComponentNameMacros(val c: Context) extends MacroUtils {
       owner.fullName.trim
         .split("\\.", -1)
         .iterator
-        .filterNot(Util.isSyntheticName)
+        .filterNot(sourcecode.Util.isSyntheticName)
         .map(_.stripSuffix("$"))
         .mkString(".")
 

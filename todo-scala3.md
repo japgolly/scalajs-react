@@ -92,8 +92,9 @@ Blocked
     * https://github.com/typelevel/cats-testkit-scalatest/issues/128
     * https://github.com/typelevel/discipline-scalatest/issues/169
   to
-    * Re-enable module: monocleCats
     * Re-enable module: catsEffect
+    * Re-enable module: monocle3
+    * Re-enable module: monocleCats
 
 * Resolve: `TODO: bm4 currently unavailable with Scala 3`
 

@@ -39,7 +39,7 @@ object QuickTest {
     private var m: TestSuite = Map.empty
 
     def add(name: String)(tf: => AsyncCallback[Status.Result]): this.type = {
-      m = m.updated(name, AsyncCallback.byName(tf))
+      m = m.updated(name, AsyncCallback.suspend(tf))
       this
     }
 
