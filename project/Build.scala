@@ -71,6 +71,7 @@ object ScalajsReact {
         releasePublishArtifactsAction := PgpKeys.publishSigned.value,
         releaseTagComment             := s"v${(version in ThisBuild).value}",
         releaseVcsSign                := true,
+        disable                       := false,
         libraryDependencies           += Dep.BetterMonadicFor)
 
   // ==============================================================================================
@@ -201,7 +202,9 @@ object ScalajsReact {
     .configure(commonSettings, publicationSettings, extModuleName("monocle3"), hasNoTests)
     .dependsOn(core, extra, cats)
     .settings(
+      disable := scalaVersion.value.startsWith("2.12"),
       libraryDependencies += Dep.Monocle3.value)
+    .configure(conditionallyDisable) // keep this last
 
   // ===================================================================================================================
 

@@ -44,16 +44,7 @@ object Lib {
     )
 
   def preventPublication: PE =
-    _.settings(
-      skip in publish    := true,
-      publish            := (()),
-      publishLocal       := (()),
-      publishSigned      := (()),
-      publishLocalSigned := (()),
-      publishArtifact    := false,
-      publishTo          := Some(Resolver.file("Unused transient repository", target.value / "fakepublish")),
-      packagedArtifacts  := Map.empty)
-    // .disablePlugins(plugins.IvyPlugin)
+    _.settings(publish / skip := true)
 
   def utestSettings: PE =
     _.configure(InBrowserTesting.js)
@@ -97,4 +88,22 @@ object Lib {
         version in webpack := "2.6.1")
   */
 
+  val disable = settingKey[Boolean]("Disable project?")
+
+  def conditionallyDisable: Project => Project = {
+
+    def clearWhenDisabled[A](key: SettingKey[Seq[A]]) =
+      Def.setting[Seq[A]] {
+        val disabled = disable.value
+        val as = key.value
+        if (disabled) Nil else as
+      }
+
+    _.settings(
+      libraryDependencies := clearWhenDisabled(libraryDependencies).value,
+      Compile / unmanagedSourceDirectories := clearWhenDisabled(Compile / unmanagedSourceDirectories).value,
+      Test / unmanagedSourceDirectories := clearWhenDisabled(Test / unmanagedSourceDirectories).value,
+      publish / skip := ((publish / skip).value || disable.value),
+    )
+  }
 }
