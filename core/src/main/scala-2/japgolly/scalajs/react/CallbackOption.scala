@@ -92,10 +92,11 @@ object CallbackOption {
     }
 
   def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
-                                                (implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
+                                             (implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
     option {
-      val it = ta.iterator
-      val r = cbf.newBuilder(ta)
+      val _ta = ta
+      val it = _ta.iterator
+      val r = cbf.newBuilder(_ta)
       @tailrec
       def go: Option[T[B]] =
         if (it.hasNext)
@@ -109,7 +110,7 @@ object CallbackOption {
     }
 
   def sequence[T[X] <: IterableOnce[X], A](tca: => T[CallbackOption[A]])
-                                             (implicit cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
+                                          (implicit cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
     traverse(tca)(identityFn)
 
   /**
