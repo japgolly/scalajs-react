@@ -105,9 +105,10 @@ object AsyncCallback {
     */
   def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
     AsyncCallback.suspend {
-      val as = ta.iterator.to(Vector)
+      val _ta = ta
+      val as = _ta.iterator.to(Vector)
       if (as.isEmpty)
-        AsyncCallback.pure(cbf.newBuilder(ta).result())
+        AsyncCallback.pure(cbf.newBuilder(_ta).result())
       else {
         val discard = (_: Any, _: Any) => ()
         val bs = new js.Array[B](as.length)
@@ -116,7 +117,7 @@ object AsyncCallback {
           .iterator
           .map(i => f(as(i)).map(b => bs(i) = b))
           .reduce(_.zipWith(_)(discard))
-          .map(_ => cbf.fromSpecific(ta)(bs))
+          .map(_ => cbf.fromSpecific(_ta)(bs))
       }
     }
 
