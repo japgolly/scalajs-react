@@ -8,7 +8,7 @@ import scala.scalajs.js
 
 // =====================================================================================================================
 
-trait ImplicitsForVdomAttr1 {
+trait ImplicitsForVdomAttr1 extends CssUnitsOps {
   import Attr.ValueType
 
   implicit lazy val vdomAttrVtInnerHtml: ValueType[String, InnerHtmlAttr] =
@@ -42,9 +42,6 @@ trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
 
   // For attributes that aren't typed yet
   @inline implicit def vdomAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
-
-  implicit def vdomAttrVtCssUnits[N: Numeric](n: N): CssUnits =
-    new CssUnits(n)
 }
 
 // =====================================================================================================================

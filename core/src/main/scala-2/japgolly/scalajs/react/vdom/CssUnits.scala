@@ -1,5 +1,10 @@
 package japgolly.scalajs.react.vdom
 
+trait CssUnitsOps {
+  @inline final implicit def vdomAttrVtCssUnits[N: Numeric](n: N): CssUnits =
+    new CssUnits(n)
+}
+
 /**
  * Extends numbers to provide a bunch of useful methods, allowing you to write
  * CSS-lengths in a nice syntax without resorting to strings.

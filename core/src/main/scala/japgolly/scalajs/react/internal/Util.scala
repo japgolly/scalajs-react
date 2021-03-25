@@ -16,7 +16,7 @@ object Util {
     b.result()
   }
 
-  def intercalateInto[A](b: Builder[A, _], it: Iterator[A], sep: A): Unit = {
+  def intercalateInto[A](b: Builder[A, _], it: Iterator[A], sep: A): Unit =
     if (it.hasNext) {
       val first = it.next()
       b += first
@@ -25,6 +25,5 @@ object Util {
         b += a
       }
     }
-  }
 
 }

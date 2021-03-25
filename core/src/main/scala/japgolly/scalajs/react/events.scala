@@ -79,9 +79,9 @@ trait ReactEventTypes {
   final type          ReactUIEventFromTextArea =          ReactUIEventFrom[html.TextArea]
   final type       ReactWheelEventFromTextArea =       ReactWheelEventFrom[html.TextArea]
 
-  implicit def toReactExt_DomEvent                         (e: dom.Event                ): ReactExt_DomEvent              = new ReactExt_DomEvent(e)
-  implicit def toReactExt_ReactEvent[E <: ReactEvent]      (e: E                        ): ReactExt_ReactEvent[E]         = new ReactExt_ReactEvent(e)
-  implicit def toReactExt_ReactKeyboardEvent[N <: dom.Node](e: ReactKeyboardEventFrom[N]): ReactExt_ReactKeyboardEvent[N] = new ReactExt_ReactKeyboardEvent(e)
+  @inline final implicit def toReactExt_DomEvent                         (e: dom.Event                ): ReactExt_DomEvent              = new ReactExt_DomEvent(e)
+  @inline final implicit def toReactExt_ReactEvent[E <: ReactEvent]      (e: E                        ): ReactExt_ReactEvent[E]         = new ReactExt_ReactEvent(e)
+  @inline final implicit def toReactExt_ReactKeyboardEvent[N <: dom.Node](e: ReactKeyboardEventFrom[N]): ReactExt_ReactKeyboardEvent[N] = new ReactExt_ReactKeyboardEvent(e)
 }
 
 final class ReactExt_DomEvent(private val e: dom.Event) extends AnyVal {

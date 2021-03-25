@@ -5,7 +5,7 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js
 
-package object react extends ReactEventTypes {
+package object react extends ReactEventTypes with ReactExtensions {
 
   type Key = raw.React.Key
 
@@ -50,51 +50,7 @@ package object react extends ReactEventTypes {
   @inline implicit def scalajsReactRawPropsChildrenToJsUndef(r: raw.PropsChildren): js.UndefOr[raw.PropsChildren] =
     r.asInstanceOf[js.UndefOr[raw.PropsChildren]]
 
-  /** Extensions to plain old DOM. */
-  @inline implicit final class ReactExt_DomNode(private val n: dom.raw.Node) extends AnyVal {
-
-    @inline def domCast[N <: dom.raw.Node]: N =
-      n.asInstanceOf[N]
-
-    @inline def domAsHtml: html.Element =
-      domCast
-
-    def domToHtml: Option[html.Element] =
-      n match {
-        case e: html.Element => Some(e)
-        case _               => None
-      }
-  }
-
-  @inline implicit final class ReactExt_OptionCallback(private val o: Option[Callback]) extends AnyVal {
-    /** Convenience for `.getOrElse(Callback.empty)` */
-    @inline def getOrEmpty: Callback =
-       o.getOrElse(Callback.empty)
-  }
-
-  // I am NOT happy about this here... but it will do for now.
-
-  implicit final class ReactExt_ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](private val self: ScalaComponent.Component[P, S, B, CT]) extends AnyVal {
-    def withRef(ref: Ref.Handle[ScalaComponent.RawMounted[P, S, B]]): ScalaComponent.Component[P, S, B, CT] =
-      self.mapCtorType(ct => CtorType.hackBackToSelf(ct)(ct.withRawProp("ref", ref.raw)))(self.ctorPF)
-
-    @deprecated("Use .withOptionalRef", "1.7.0")
-    def withRef(r: Option[Ref.Handle[ScalaComponent.RawMounted[P, S, B]]]): ScalaComponent.Component[P, S, B, CT] =
-      withOptionalRef(r)
-
-    def withOptionalRef(optionalRef: Option[Ref.Handle[ScalaComponent.RawMounted[P, S, B]]]): ScalaComponent.Component[P, S, B, CT] =
-      optionalRef match {
-        case None    => self
-        case Some(r) => withRef(r)
-      }
-  }
-
   type ~=>[-A, +B] = Reusable[A => B]
-
-  implicit final class ReactExtrasExt_Any[A](private val self: A) extends AnyVal {
-    @inline def ~=~(a: A)(implicit r: Reusability[A]): Boolean = r.test(self, a)
-    @inline def ~/~(a: A)(implicit r: Reusability[A]): Boolean = !r.test(self, a)
-  }
 
   val preventDefault: ReactEvent => Callback =
     _.preventDefaultCB

@@ -2,17 +2,11 @@ Port
 ====
 
 core/src/main/scala-2/japgolly/scalajs/react/AsyncCallback.scala
-core/src/main/scala-2/japgolly/scalajs/react/Callback.scala
 core/src/main/scala-2/japgolly/scalajs/react/CallbackKleisli.scala
 core/src/main/scala-2/japgolly/scalajs/react/CallbackOption.scala
-core/src/main/scala-2/japgolly/scalajs/react/CallbackTo.scala
-core/src/main/scala-2/japgolly/scalajs/react/ComponentDom.scala
 core/src/main/scala-2/japgolly/scalajs/react/CtorType.scala
-core/src/main/scala-2/japgolly/scalajs/react/events.scala
-core/src/main/scala-2/japgolly/scalajs/react/package.scala
 core/src/main/scala-2/japgolly/scalajs/react/PropsChildren.scala
 core/src/main/scala-2/japgolly/scalajs/react/React.scala
-core/src/main/scala-2/japgolly/scalajs/react/ReactCaughtError.scala
 core/src/main/scala-2/japgolly/scalajs/react/ReactDOM.scala
 core/src/main/scala-2/japgolly/scalajs/react/ReactDOMServer.scala
 core/src/main/scala-2/japgolly/scalajs/react/Ref.scala
@@ -29,24 +23,9 @@ core/src/main/scala-2/japgolly/scalajs/react/feature/Profiler.scala
 core/src/main/scala-2/japgolly/scalajs/react/feature/ReactFragment.scala
 
 core/src/main/scala-2/japgolly/scalajs/react/internal/CompileTimeInfo.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/Effect.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/Semigroup.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/SyncPromise.scala
-core/src/main/scala-2/japgolly/scalajs/react/internal/Util.scala
-
-core/src/main/scala-2/japgolly/scalajs/react/raw/events.scala
-core/src/main/scala-2/japgolly/scalajs/react/raw/package.scala
-core/src/main/scala-2/japgolly/scalajs/react/raw/Profiler.scala
-core/src/main/scala-2/japgolly/scalajs/react/raw/React.scala
-core/src/main/scala-2/japgolly/scalajs/react/raw/ReactDOM.scala
-core/src/main/scala-2/japgolly/scalajs/react/raw/ReactDOMServer.scala
-core/src/main/scala-2/japgolly/scalajs/react/raw/RecursiveTypeAliases.scala
-core/src/main/scala-2/japgolly/scalajs/react/raw/SecretInternals.scala
-core/src/main/scala-2/japgolly/scalajs/react/raw/Suspense.scala
 
 core/src/main/scala-2/japgolly/scalajs/react/vdom/Attr.scala
 core/src/main/scala-2/japgolly/scalajs/react/vdom/Builder.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/CssUnits.scala
 core/src/main/scala-2/japgolly/scalajs/react/vdom/Escaping.scala
 core/src/main/scala-2/japgolly/scalajs/react/vdom/Exports.scala
 core/src/main/scala-2/japgolly/scalajs/react/vdom/HtmlAttrs.scala
@@ -103,8 +82,14 @@ Finally
 * Remove `mv_src`
 * Remove `reuse`
 * Remove `copy3`
+* Remove `delete-shit`
 
 Later
 =====
+* Replace microlibs' macro-utils with compile-time, make erased versions of `<:<` & `=:=`, and use here
 * Remove runtime footprint
   * JsRepr
+* Ensure everything in scala-3's xxx is covered
+  * `react/package.scala`
+  * `ReactExtensions`
+* Move `CompileTimeTestUtil` into microlibs

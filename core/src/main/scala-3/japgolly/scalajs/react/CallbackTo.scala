@@ -10,22 +10,24 @@ import scala.annotation.tailrec
 import scala.collection.compat._
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.`3.0`
 import scala.scalajs.js
 import scala.scalajs.js.timers.RawTimers
 import scala.scalajs.js.{Function0 => JFn0, Function1 => JFn1, Thenable, UndefOr, undefined, |}
 import scala.util.{Failure, Success, Try}
 
 object CallbackTo {
-  @inline def apply[A](f: => A): CallbackTo[A] =
+
+  inline def apply[A](inline f: A): CallbackTo[A] =
     lift(() => f)
 
-  def lift[A](f: () => A): CallbackTo[A] =
+  inline def lift[A](f: () => A): CallbackTo[A] =
     new CallbackTo(Trampoline.delay(f))
 
-  def pure[A](a: A): CallbackTo[A] =
+  inline def pure[A](a: A): CallbackTo[A] =
     new CallbackTo(Trampoline.pure(a))
 
-  def throwException[A](t: Throwable): CallbackTo[A] =
+  inline def throwException[A](t: Throwable): CallbackTo[A] =
     CallbackTo(throw t)
 
   /** Callback that isn't created until the first time it is used, after which it is reused. */
@@ -63,13 +65,13 @@ object CallbackTo {
       go(a)
     }
 
-  def liftTraverse[A, B](f: A => CallbackTo[B]): LiftTraverseDsl[A, B] =
+  inline def liftTraverse[A, B](f: A => CallbackTo[B]): LiftTraverseDsl[A, B] =
     new LiftTraverseDsl(f)
 
   final class LiftTraverseDsl[A, B](private val f: A => CallbackTo[B]) extends AnyVal {
 
     /** See [[CallbackTo.distFn]] for the dual. */
-    def id: CallbackTo[A => B] =
+    inline def id: CallbackTo[A => B] =
       CallbackTo(f(_).runNow())
 
     /** Anything traversable by the Scala stdlib definition */
@@ -93,7 +95,7 @@ object CallbackTo {
   /** Sequence stdlib T over CallbackTo.
     * Co-sequence CallbackTo over stdlib T.
     */
-  def sequence[T[X] <: IterableOnce[X], A](tca: => T[CallbackTo[A]])(implicit cbf: BuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
+  inline def sequence[T[X] <: IterableOnce[X], A](inline tca: T[CallbackTo[A]])(implicit cbf: BuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
     traverse(tca)(identityFn)(cbf)
 
   /** Traverse Option over CallbackTo.
@@ -105,7 +107,7 @@ object CallbackTo {
   /** Sequence Option over CallbackTo.
     * Co-sequence CallbackTo over Option.
     */
-  def sequenceOption[A](oca: => Option[CallbackTo[A]]): CallbackTo[Option[A]] =
+  inline def sequenceOption[A](inline oca: Option[CallbackTo[A]]): CallbackTo[Option[A]] =
     traverseOption(oca)(identityFn)
 
   /**
@@ -114,7 +116,7 @@ object CallbackTo {
    * WARNING: Futures are scheduled to run as soon as they're created. Ensure that the argument you provide creates a
    * new [[Future]]; don't reference an existing one.
    */
-  def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): CallbackTo[Future[A]] =
+  inline def future[A](f: Future[CallbackTo[A]])(implicit ec: ExecutionContext): CallbackTo[Future[A]] =
     CallbackTo(f.map(_.runNow()))
 
   def newJsPromise[A]: CallbackTo[(js.Promise[A], Try[A] => Callback)] = CallbackTo {
@@ -226,16 +228,40 @@ object CallbackTo {
    */
   sealed trait MapGuard[A] { type Out = A }
 
-  @inline implicit def MapGuard[A]: MapGuard[A] =
-    null.asInstanceOf[MapGuard[A]]
+  erased given MapGuard[A]: MapGuard[A] =
+    compiletime.erasedValue
 
-  implicit def VarianceOps[A](c: CallbackTo[A]): VarianceOps[A] =
-    new VarianceOps(c.trampoline)
+  // TODO: [3]
+//   implicit def VarianceOps[A](c: CallbackTo[A]): VarianceOps[A] =
+//     new VarianceOps(c.trampoline)
 
-  final class VarianceOps[A](private val trampoline: Trampoline[A]) extends AnyVal {
-    def toKleisli[B]: CallbackKleisli[B, A] =
-      CallbackKleisli.const(new CallbackTo(trampoline))
+//   final class VarianceOps[A](private val trampoline: Trampoline[A]) extends AnyVal {
+//     def toKleisli[B]: CallbackKleisli[B, A] =
+//       CallbackKleisli.const(new CallbackTo(trampoline))
+//   }
+
+  // -------------------------------------------------------------------------------------------------------------------
+  // Boolean ops
+
+  extension (self: CallbackTo[Boolean]) {
+
+    /** Creates a new callback that returns `true` when both this and the given callback return `true`. */
+    def &&(b: CallbackTo[Boolean]): CallbackTo[Boolean] =
+      self.map(_ && b.runNow())
+
+    /** Creates a new callback that returns `true` when either this or the given callback return `true`. */
+    def ||(b: CallbackTo[Boolean]): CallbackTo[Boolean] =
+      self.map(_ || b.runNow())
+
+    /** Negates the callback result (so long as it's boolean). */
+    inline def ! : CallbackTo[Boolean] =
+      self.map(!_)
+
+    /** Negates the callback result (so long as it's boolean). */
+    inline def unary_! : CallbackTo[Boolean] =
+      self.map(!_)
   }
+
 }
 
 // =====================================================================================================================
@@ -253,7 +279,7 @@ object CallbackTo {
  *
  * @since 0.10.0
  */
-final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: Trampoline[A]) extends AnyVal { self =>
+final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampoline: Trampoline[A]) extends AnyVal { self =>
 
   /**
     * Executes this callback, on the current thread, right now, blocking until complete.
@@ -268,27 +294,28 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     * While it's technically safe to call [[CallbackTo#runNow]] inside the body of another [[Callback]], it's better
     * to just use combinators like [[CallbackTo#flatMap]] or even a Scala for-comprehension.
     */
-  @inline def runNow(): A =
+  inline def runNow(): A =
     trampoline.run
 
-  def map[B](f: A => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
+  // TODO: [3] inline after https://github.com/lampepfl/dotty/issues/11864
+  def map[B](f: A => B)(using erased ev: MapGuard[B]): CallbackTo[ev.Out] =
     new CallbackTo(trampoline.map(f))
 
   /** Alias for `map`. */
-  @inline def |>[B](f: A => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
+  inline def |>[B](inline f: A => B)(using erased ev: MapGuard[B]): CallbackTo[ev.Out] =
     map(f)
 
-  def flatMap[B](f: A => CallbackTo[B]): CallbackTo[B] =
+  inline def flatMap[B](f: A => CallbackTo[B]): CallbackTo[B] =
     new CallbackTo(trampoline.flatMap(f(_).trampoline))
 
   /** Alias for `flatMap`. */
-  @inline def >>=[B](f: A => CallbackTo[B]): CallbackTo[B] =
+  inline def >>=[B](inline f: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(f)
 
-  def flatten[B](implicit ev: A => CallbackTo[B]): CallbackTo[B] =
+  inline def flatten[B](implicit ev: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(ev)
 
-  def flatMap2[X, Y, Z](f: (X, Y) => CallbackTo[Z])(implicit ev: A <:< (X, Y)): CallbackTo[Z] =
+  inline def flatMap2[X, Y, Z](f: (X, Y) => CallbackTo[Z])(implicit ev: A <:< (X, Y)): CallbackTo[Z] =
     flatMap(f tupled _)
 
   /** Sequence a callback to run after this, discarding any value produced by this. */
@@ -299,7 +326,7 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
       flatMap(_ => runNext)
 
   /** Sequence a callback to run before this, discarding any value produced by it. */
-  @inline def <<[B](runBefore: CallbackTo[B]): CallbackTo[A] =
+  inline def <<[B](runBefore: CallbackTo[B]): CallbackTo[A] =
     runBefore >> this
 
   /** Convenient version of `<<` that accepts an Option */
@@ -311,7 +338,7 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     flatTap(a => CallbackTo(t(a)))
 
   /** Alias for `tap`. */
-  @inline def <|(t: A => Any): CallbackTo[A] =
+  inline def <|(t: A => Any): CallbackTo[A] =
     tap(t)
 
   def flatTap[B](t: A => CallbackTo[B]): CallbackTo[A] =
@@ -333,7 +360,7 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     *
     * Where `>>` is often associated with Monads, `*>` is often associated with Applicatives.
     */
-  @inline def *>[B](runNext: CallbackTo[B]): CallbackTo[B] =
+  inline def *>[B](inline runNext: CallbackTo[B]): CallbackTo[B] =
     >>(runNext)
 
   /** Sequence actions, discarding the value of the second argument. */
@@ -355,7 +382,7 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     *
     * This method allows you to be explicit about the type you're discarding (which may change in future).
     */
-  @inline def voidExplicit[B](implicit ev: A <:< B): Callback =
+  inline def voidExplicit[B](using erased A <:< B): Callback =
     void
 
   /** Wraps this callback in a try-catch and returns either the result or the exception if one occurs. */
@@ -405,7 +432,7 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     * @param cond The condition required to be `true` for this callback to execute.
     * @return `Some` result of the callback executed, else `None`.
     */
-  def when(cond: => Boolean): CallbackTo[Option[A]] =
+  inline def when(inline cond: Boolean): CallbackTo[Option[A]] =
     CallbackTo(if (cond) Some(runNow()) else None)
 
   /** Conditional execution of this callback.
@@ -414,7 +441,7 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     * @param cond The condition required to be `false` for this callback to execute.
     * @return `Some` result of the callback executed, else `None`.
     */
-  def unless(cond: => Boolean): CallbackTo[Option[A]] =
+  inline def unless(inline cond: Boolean): CallbackTo[Option[A]] =
     when(!cond)
 
   /** Conditional execution of this callback.
@@ -422,8 +449,11 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     *
     * @param cond The condition required to be `true` for this callback to execute.
     */
-  def when_(cond: => Boolean): Callback =
-    when(cond).void
+  inline def when_(inline cond: Boolean): Callback =
+    CallbackTo {
+      if (cond) runNow()
+      ()
+    }
 
   /** Conditional execution of this callback.
     * Discards the result.
@@ -431,42 +461,42 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     *
     * @param cond The condition required to be `false` for the callback to execute.
     */
-  def unless_(cond: => Boolean): Callback =
+  inline def unless_(inline cond: Boolean): Callback =
     when_(!cond)
 
   /** Limits the number of invocations in a given amount of time.
     *
     * @return Some if invocation was allowed, None if rejected/rate-limited
     */
-  def rateLimit(window: Duration): CallbackTo[Option[A]] =
+  inline def rateLimit(inline window: Duration): CallbackTo[Option[A]] =
     rateLimitMs(window.toMillis)
 
   /** Limits the number of invocations in a given amount of time.
     *
     * @return Some if invocation was allowed, None if rejected/rate-limited
     */
-  def rateLimit(window: FiniteDuration): CallbackTo[Option[A]] =
+  inline def rateLimit(inline window: FiniteDuration): CallbackTo[Option[A]] =
     rateLimitMs(window.toMillis)
 
   /** Limits the number of invocations in a given amount of time.
     *
     * @return Some if invocation was allowed, None if rejected/rate-limited
     */
-  def rateLimit(window: Duration, maxPerWindow: Int): CallbackTo[Option[A]] =
+  inline def rateLimit(inline window: Duration, inline maxPerWindow: Int): CallbackTo[Option[A]] =
     rateLimitMs(window.toMillis, maxPerWindow)
 
   /** Limits the number of invocations in a given amount of time.
     *
     * @return Some if invocation was allowed, None if rejected/rate-limited
     */
-  def rateLimit(window: FiniteDuration, maxPerWindow: Int): CallbackTo[Option[A]] =
+  inline def rateLimit(inline window: FiniteDuration, inline maxPerWindow: Int): CallbackTo[Option[A]] =
     rateLimitMs(window.toMillis, maxPerWindow)
 
   /** Limits the number of invocations in a given amount of time.
     *
     * @return Some if invocation was allowed, None if rejected/rate-limited
     */
-  def rateLimitMs(windowMs: Long, maxPerWindow: Int = 1): CallbackTo[Option[A]] =
+  inline def rateLimitMs(windowMs: Long, maxPerWindow: Int = 1): CallbackTo[Option[A]] =
     if (windowMs <= 0 || maxPerWindow <= 0)
       CallbackTo.pure(None)
     else
@@ -476,39 +506,42 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
         windowMs = windowMs,
       ))
 
-  def debounce(delay: Duration): Callback =
+  inline def debounce(inline delay: Duration): Callback =
     _debounceMs(delay.toMillis)
 
-  def debounce(delay: FiniteDuration): Callback =
+  inline def debounce(inline delay: FiniteDuration): Callback =
     _debounceMs(delay.toMillis)
 
-  def debounceMs(delayMs: Long): Callback =
+  inline def debounceMs(inline delayMs: Long): Callback =
     _debounceMs(delayMs)
 
-  private[react] def _debounceMs(delayMs: Long)(implicit timer: Timer): Callback =
+  private[react] inline def _debounceMs(delayMs: Long): Callback =
     if (delayMs <= 0)
       void
-    else {
-      var prev = Option.empty[timer.Handle]
+    else
+      __debounceMs(delayMs)
 
-      CallbackTo {
-        prev.foreach(timer.cancel)
-        val newHandle = timer.delay(delayMs) {
-          prev = None
-          self.runNow()
-        }
-        prev = Some(newHandle)
+  private[react] def __debounceMs(delayMs: Long)(implicit timer: Timer): Callback = {
+    var prev = Option.empty[timer.Handle]
+    CallbackTo {
+      prev.foreach(timer.cancel)
+      val newHandle = timer.delay(delayMs) {
+        prev = None
+        self.runNow()
       }
+      prev = Some(newHandle)
     }
+  }
 
   /** Log to the console before this callback starts, and after it completes.
     *
     * Does not change the result.
     */
-  def logAround(message: js.Any, optionalParams: js.Any*): CallbackTo[A] = {
-    def log(prefix: String) = Callback.log(prefix + message.toString, optionalParams: _*)
-    log("→  Starting: ") *> this <* log(" ← Finished: ")
-  }
+  // TODO: [3] https://github.com/lampepfl/dotty/issues/11866
+  // def logAround(message: js.Any, optionalParams: js.Any*): CallbackTo[A] = {
+  //   def log(prefix: String) = Callback.log(prefix + message.toString, optionalParams: _*)
+  //   log("→  Starting: ") *> self <* log(" ← Finished: ")
+  // }
 
   /** Logs the result of this callback as it completes. */
   def logResult(msg: A => String): CallbackTo[A] =
@@ -527,11 +560,11 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
 
 
   /** Convenience-method to run additional code after this callback. */
-  def thenRun[B](runNext: => B)(implicit ev: MapGuard[B]): CallbackTo[ev.Out] =
+  inline def thenRun[B](inline runNext: B)(using erased ev: MapGuard[B]): CallbackTo[ev.Out] =
     this >> CallbackTo(runNext)
 
   /** Convenience-method to run additional code before this callback. */
-  def precedeWith(runFirst: => Unit): CallbackTo[A] =
+  inline def precedeWith(inline runFirst: Unit): CallbackTo[A] =
     this << Callback(runFirst)
 
   /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
@@ -540,52 +573,54 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
   def finallyRun[B](runFinally: CallbackTo[B]): CallbackTo[A] =
     CallbackTo(try runNow() finally runFinally.runNow())
 
-  @inline def toScalaFn: () => A =
+  inline def toScalaFn: () => A =
     () => runNow()
 
   /** The underlying representation of this value-class */
-  def underlyingRepr: Trampoline[A] =
+  inline def underlyingRepr: Trampoline[A] =
     trampoline
 
-  def toJsFn: JFn0[A] =
+  inline def toJsFn: JFn0[A] =
     toScalaFn
 
-  def toJsFn1: JFn1[Any, A] =
+  inline def toJsFn1: JFn1[Any, A] =
     (_: Any) => runNow()
 
-  def toJsCallback: UndefOr[JFn0[A]] =
-    if (isEmpty_?) undefined else toJsFn
+  // TODO: https://github.com/lampepfl/dotty/issues/11865
+  // def toJsCallback: UndefOr[JFn0[A]] =
+  //   if (isEmpty_?) undefined else toJsFn
 
-  def isEmpty_? : Boolean =
+  inline def isEmpty_? : Boolean =
     trampoline eq Callback.empty.trampoline
 
-  /** Turns this into an [[AsyncCallback]] that runs whenever/wherever it's called;
-    * `setTimeout` isn't used.
-    *
-    * In order words, `this.toAsyncCallback.toCallback` == `this`.
-    */
-  def asAsyncCallback: AsyncCallback[A] =
-    AsyncCallback(attemptTry.flatMap)
+  // TODO: [3]
+//   /** Turns this into an [[AsyncCallback]] that runs whenever/wherever it's called;
+//     * `setTimeout` isn't used.
+//     *
+//     * In order words, `this.toAsyncCallback.toCallback` == `this`.
+//     */
+//   def asAsyncCallback: AsyncCallback[A] =
+//     AsyncCallback(attemptTry.flatMap)
 
-  /** Schedules this to run asynchronously (i.e. uses a `setTimeout`).
-    *
-    * Exceptions will be handled by the [[AsyncCallback]] such that
-    * `this.async.toCallback` will never throw an exception.
-    */
-  def async: AsyncCallback[A] =
-    delayMs(1)
+//   /** Schedules this to run asynchronously (i.e. uses a `setTimeout`).
+//     *
+//     * Exceptions will be handled by the [[AsyncCallback]] such that
+//     * `this.async.toCallback` will never throw an exception.
+//     */
+//   def async: AsyncCallback[A] =
+//     delayMs(1)
 
-  /** Run asynchronously after a delay of a given duration. */
-  def delay(startIn: FiniteDuration): AsyncCallback[A] =
-    delayMs(startIn.toMillis.toDouble)
+//   /** Run asynchronously after a delay of a given duration. */
+//   def delay(startIn: FiniteDuration): AsyncCallback[A] =
+//     delayMs(startIn.toMillis.toDouble)
 
-  /** Run asynchronously after a delay of a given duration. */
-  def delay(startIn: Duration): AsyncCallback[A] =
-    delayMs(startIn.toMillis.toDouble)
+//   /** Run asynchronously after a delay of a given duration. */
+//   def delay(startIn: Duration): AsyncCallback[A] =
+//     delayMs(startIn.toMillis.toDouble)
 
-  /** Run asynchronously after a `startInMilliseconds` ms delay. */
-  def delayMs(startInMilliseconds: Double): AsyncCallback[A] =
-    asAsyncCallback.delayMs(startInMilliseconds)
+//   /** Run asynchronously after a `startInMilliseconds` ms delay. */
+//   def delayMs(startInMilliseconds: Double): AsyncCallback[A] =
+//     asAsyncCallback.delayMs(startInMilliseconds)
 
   /** Record the duration of this callback's execution. */
   def withDuration[B](f: (A, FiniteDuration) => CallbackTo[B]): CallbackTo[B] = {
@@ -615,15 +650,16 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
   def logDuration: CallbackTo[A] =
     logDuration("Callback")
 
-  def asCBO[B](implicit ev: CallbackTo[A] <:< CallbackTo[Option[B]]): CallbackOption[B] =
-    new CallbackOption(ev(this).toScalaFn)
+  // TODO: [3]
+//   def asCBO[B](implicit ev: CallbackTo[A] <:< CallbackTo[Option[B]]): CallbackOption[B] =
+//     new CallbackOption(ev(this).toScalaFn)
 
-  def toCBO: CallbackOption[A] =
-    map[Option[A]](Some(_)).asCBO
+//   def toCBO: CallbackOption[A] =
+//     map[Option[A]](Some(_)).asCBO
 
-  /** Returns a [[CallbackOption]] that requires the boolean value therein to be true. */
-  def requireCBO(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackOption[Unit] =
-    ev(this).toCBO.flatMap(CallbackOption.require(_))
+//   /** Returns a [[CallbackOption]] that requires the boolean value therein to be true. */
+//   def requireCBO(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackOption[Unit] =
+//     ev(this).toCBO.flatMap(CallbackOption.require(_))
 
   /** Function distribution. See `CallbackTo.liftTraverse(f).id` for the dual. */
   def distFn[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): B => CallbackTo[C] = {
@@ -631,23 +667,24 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     b => bc.map(_(b))
   }
 
-  def asKleisli[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): CallbackKleisli[B, C] =
-    CallbackKleisli(distFn)
+  // TODO: [3]
+//   def asKleisli[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): CallbackKleisli[B, C] =
+//     CallbackKleisli(distFn)
 
-  /** Wraps this so that:
-    *
-    * 1) It only executes if `e.defaultPrevented` is `false`.
-    * 2) It sets `e.preventDefault` on successful completion.
-    */
-  def asEventDefault(e: ReactEvent): CallbackTo[Option[A]] =
-    (this <* e.preventDefaultCB).unless(e.defaultPrevented)
+//   /** Wraps this so that:
+//     *
+//     * 1) It only executes if `e.defaultPrevented` is `false`.
+//     * 2) It sets `e.preventDefault` on successful completion.
+//     */
+//   def asEventDefault(e: ReactEvent): CallbackTo[Option[A]] =
+//     (this <* e.preventDefaultCB).unless(e.defaultPrevented)
 
   /** Schedule for repeated execution every `interval`. */
-  def setInterval(interval: Duration): CallbackTo[Callback.SetIntervalResult] =
+  inline def setInterval(inline interval: Duration): CallbackTo[Callback.SetIntervalResult] =
     setIntervalMs(interval.toMillis.toDouble)
 
   /** Schedule for repeated execution every `interval`. */
-  def setInterval(interval: FiniteDuration): CallbackTo[Callback.SetIntervalResult] =
+  inline def setInterval(inline interval: FiniteDuration): CallbackTo[Callback.SetIntervalResult] =
     setIntervalMs(interval.toMillis.toDouble)
 
   /** Schedule this callback for repeated execution every `interval` milliseconds.
@@ -669,7 +706,7 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     *
     * @return A means to cancel the timeout.
     */
-  def setTimeout(interval: Duration): CallbackTo[Callback.SetTimeoutResult] =
+  inline def setTimeout(inline interval: Duration): CallbackTo[Callback.SetTimeoutResult] =
     setTimeoutMs(interval.toMillis.toDouble)
 
   /** Schedule this callback for execution in `interval`.
@@ -678,7 +715,7 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     *
     * @return A means to cancel the timeout.
     */
-  def setTimeout(interval: FiniteDuration): CallbackTo[Callback.SetTimeoutResult] =
+  inline def setTimeout(inline interval: FiniteDuration): CallbackTo[Callback.SetTimeoutResult] =
     setTimeoutMs(interval.toMillis.toDouble)
 
   /** Schedule this callback for execution in `interval` milliseconds.
@@ -696,34 +733,4 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     }
   }
 
-  // -------------------------------------------------------------------------------------------------------------------
-  // Boolean ops
-
-  private def bool2(b: CallbackTo[Boolean])
-                   (op: (() => Boolean, () => Boolean) => Boolean)
-                   (implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] = {
-    val x = ev(this).toScalaFn
-    val y = b.toScalaFn
-    CallbackTo(op(x, y))
-  }
-
-  /**
-   * Creates a new callback that returns `true` when both this and the given callback return `true`.
-   */
-  def &&(b: CallbackTo[Boolean])(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
-    bool2(b)(_() && _())
-
-  /**
-   * Creates a new callback that returns `true` when either this or the given callback return `true`.
-   */
-  def ||(b: CallbackTo[Boolean])(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
-    bool2(b)(_() || _())
-
-  /** Negates the callback result (so long as it's boolean). */
-  def !(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
-    ev(this).map(!_)
-
-  /** Negates the callback result (so long as it's boolean). */
-  def unary_!(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
-    ev(this).map(!_)
 }

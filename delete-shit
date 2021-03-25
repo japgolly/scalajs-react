@@ -1,0 +1,3 @@
+#!/bin/bash
+cd "$(dirname "$0")" || exit 1
+find . -name '*.semanticdb' | fgrep /src/ | egrep -v '/target/|/\.' | xargs rm -vf

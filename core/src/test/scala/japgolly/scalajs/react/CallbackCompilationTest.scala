@@ -1,6 +1,8 @@
 package japgolly.scalajs.react
 
-object CallbackCompilationTest {
+trait CallbackCompilationTest {
+
+  def bool: Boolean
 
   // ===================================================================================================================
   sealed trait TestAsyncCallback {
@@ -16,6 +18,9 @@ object CallbackCompilationTest {
 
     i.handleError(_ => CallbackTo(1))
     c.toKleisli[Int]
+    i.when(bool)
+    i.unless(bool)
+    Callback.when(bool)(c)
   }
 
   // ===================================================================================================================
