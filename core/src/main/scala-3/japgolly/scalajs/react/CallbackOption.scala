@@ -5,6 +5,7 @@ import japgolly.scalajs.react.internal.{OptionLike, identityFn}
 import org.scalajs.dom.{document, html}
 import scala.annotation.tailrec
 import scala.collection.compat._
+import scala.language.`3.0`
 
 // TODO Document CallbackOption
 
@@ -16,24 +17,24 @@ object CallbackOption {
     callback.asCBO
 
   def pass: CallbackOption[Unit] =
-    CallbackTo.pure(someUnit).asCBO
+    option(someUnit)
 
-  def fail[A]: CallbackOption[A] =
-    CallbackTo.pure[Option[A]](None).asCBO
+  inline def fail[A]: CallbackOption[A] =
+    option(None)
 
   def pure[A](a: A): CallbackOption[A] =
-    CallbackTo.pure[Option[A]](Some(a)).asCBO
-
-  def delay[A](a: => A): CallbackOption[A] =
     option(Some(a))
 
-  def option[A](oa: => Option[A]): CallbackOption[A] =
-    CallbackTo(oa).asCBO
+  inline def delay[A](inline a: A): CallbackOption[A] =
+    option(Some(a))
 
-  def maybe[O[_], A](oa: => O[A])(implicit O: OptionLike[O]): CallbackOption[A] =
+  inline def option[A](inline oa: Option[A]): CallbackOption[A] =
+    new CallbackOption(() => oa)
+
+  def maybe[O[_], A](oa: => O[A])(using O: OptionLike[O]): CallbackOption[A] =
     option(O toOption oa)
 
-  def optionCallback[A](oc: => Option[CallbackTo[A]]): CallbackOption[A] =
+  inline def optionCallback[A](inline oc: Option[CallbackTo[A]]): CallbackOption[A] =
     CallbackTo.sequenceOption(oc).asCBO
 
   def maybeCallback[O[_], A](oa: => O[CallbackTo[A]])(implicit O: OptionLike[O]): CallbackOption[A] =
@@ -63,13 +64,13 @@ object CallbackOption {
   def liftOptionLikeCallback[O[_], A](oa: => O[CallbackTo[A]])(implicit O: OptionLike[O]): CallbackOption[A] =
     maybeCallback(oa)
 
-  def require(condition: => Boolean): CallbackOption[Unit] =
+  inline def require(inline condition: Boolean): CallbackOption[Unit] =
     CallbackTo(if (condition) someUnit else None).asCBO
 
-  def unless(condition: => Boolean): CallbackOption[Unit] =
+  inline def unless(inline condition: Boolean): CallbackOption[Unit] =
     require(!condition)
 
-  def matchPF[A, B](a: => A)(pf: PartialFunction[A, B]): CallbackOption[B] =
+  inline def matchPF[A, B](inline a: A)(pf: PartialFunction[A, B]): CallbackOption[B] =
     option(pf lift a)
 
   /**
@@ -92,7 +93,7 @@ object CallbackOption {
     }
 
   def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
-                                             (implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
+                                             (using cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
     option {
       val _ta = ta
       val it = _ta.iterator
@@ -110,7 +111,7 @@ object CallbackOption {
     }
 
   def sequence[T[X] <: IterableOnce[X], A](tca: => T[CallbackOption[A]])
-                                          (implicit cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
+                                          (using cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
     traverse(tca)(identityFn)
 
   /**
@@ -125,18 +126,18 @@ object CallbackOption {
   def sequenceOption[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] =
     traverseOption(oca)(identityFn)
 
-  implicit def toCallback(co: CallbackOption[Unit]): Callback =
-    co.toCallback
+  inline given toCallback: Conversion[CallbackOption[Unit], Callback] =
+    _.toCallback
 
-  implicit def fromCallback(c: Callback): CallbackOption[Unit] =
-    c.toCBO
+  inline given fromCallback: Conversion[Callback, CallbackOption[Unit]] =
+    _.toCBO
 
-  def keyCodeSwitch[A](e       : ReactKeyboardEvent,
-                       altKey  : Boolean = false,
-                       ctrlKey : Boolean = false,
-                       metaKey : Boolean = false,
-                       shiftKey: Boolean = false)
-                      (switch  : PartialFunction[Int, CallbackTo[A]]): CallbackOption[A] =
+  inline def keyCodeSwitch[A](e              : ReactKeyboardEvent,
+                              inline altKey  : Boolean = false,
+                              inline ctrlKey : Boolean = false,
+                              inline metaKey : Boolean = false,
+                              inline shiftKey: Boolean = false)
+                             (switch         : PartialFunction[Int, CallbackTo[A]]): CallbackOption[A] =
     keyEventSwitch(e, e.keyCode, altKey, ctrlKey, metaKey, shiftKey)(switch)
 
   def keyEventSwitch[A, B](e       : ReactKeyboardEvent,
@@ -159,6 +160,18 @@ object CallbackOption {
         .flatMap(_.domToHtml)
         .filterNot(_ eq document.body))
 
+  extension (self: CallbackOption[Unit]) {
+
+    inline def toCallback: Callback =
+      Callback(self.cbfn())
+
+    def unary_! : CallbackOption[Unit] =
+      self.asCallback.map {
+        case None    => someUnit
+        case Some(_) => None
+      }.asCBO
+  }
+
 }
 
 // =====================================================================================================================
@@ -178,7 +191,7 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
   import CallbackOption.someUnit
 
   /** The underlying representation of this value-class */
-  @inline def underlyingRepr: () => Option[A] =
+  inline def underlyingRepr: () => Option[A] =
     cbfn
 
   def getOrElse[AA >: A](default: => AA): CallbackTo[AA] =
@@ -187,22 +200,13 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
   def asCallback: CallbackTo[Option[A]] =
     CallbackTo lift cbfn
 
-  def toCallback(implicit ev: A <:< Unit): Callback =
-    Callback(self.cbfn())
-
-  def unary_!(implicit ev: A <:< Unit): CallbackOption[Unit] =
-    asCallback.map {
-      case None    => someUnit
-      case Some(_) => None
-    }.asCBO
-
-  def map[B](f: A => B)(implicit ev: MapGuard[B]): CallbackOption[ev.Out] =
+  def map[B](f: A => B)(using erased ev: MapGuard[B]): CallbackOption[ev.Out] =
     new CallbackOption(() => cbfn().map(f))
 
   /**
    * Alias for `map`.
    */
-  @inline def |>[B](f: A => B)(implicit ev: MapGuard[B]): CallbackOption[ev.Out] =
+  inline def |>[B](f: A => B)(implicit ev: MapGuard[B]): CallbackOption[ev.Out] =
     map(f)
 
   def flatMapOption[B](f: A => Option[B]): CallbackOption[B] =
@@ -220,16 +224,16 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
   /**
    * Alias for `flatMap`.
    */
-  @inline def >>=[B](f: A => CallbackOption[B]): CallbackOption[B] =
+  inline def >>=[B](f: A => CallbackOption[B]): CallbackOption[B] =
     flatMap(f)
 
   def filter(condition: A => Boolean): CallbackOption[A] =
     new CallbackOption(() => cbfn().filter(condition))
 
-  def filterNot(condition: A => Boolean): CallbackOption[A] =
-    new CallbackOption(() => cbfn().filterNot(condition))
+  inline def filterNot(inline condition: A => Boolean): CallbackOption[A] =
+    filter(!condition(_))
 
-  @inline def withFilter(condition: A => Boolean): CallbackOption[A] =
+  inline def withFilter(inline condition: A => Boolean): CallbackOption[A] =
     filter(condition)
 
   /**
@@ -241,7 +245,7 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
   /**
    * Sequence a callback to run before this, discarding any value produced by it.
    */
-  @inline def <<[B](prev: CallbackOption[B]): CallbackOption[A] =
+  inline def <<[B](prev: CallbackOption[B]): CallbackOption[A] =
     prev >> this
 
   /** Convenient version of `<<` that accepts an Option */
@@ -253,7 +257,7 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
    *
    * Where `>>` is often associated with Monads, `*>` is often associated with Applicatives.
    */
-  @inline def *>[B](next: CallbackOption[B]): CallbackOption[B] =
+  inline def *>[B](next: CallbackOption[B]): CallbackOption[B] =
     this >> next
 
   /**
@@ -282,7 +286,7 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
    *
    * This method allows you to be explicit about the type you're discarding (which may change in future).
    */
-  @inline def voidExplicit[B](implicit ev: A <:< B): CallbackOption[Unit] =
+  inline def voidExplicit[B](using erased ev: A <:< B): CallbackOption[Unit] =
     void
 
   /**
@@ -290,7 +294,7 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
    *
    * @param cond The condition required to be `true` for this callback to execute.
    */
-  def when(cond: => Boolean): CallbackOption[A] =
+  inline def when(inline cond: Boolean): CallbackOption[A] =
     new CallbackOption[A](() => if (cond) cbfn() else None)
 
   /**
@@ -300,7 +304,7 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
    * @param cond The condition required to be `false` for this callback to execute.
    * @return `Some` result of the callback executed, else `None`.
    */
-  @inline def unless(cond: => Boolean): CallbackOption[A] =
+  inline def unless(inline cond: Boolean): CallbackOption[A] =
     when(!cond)
 
   def orElse[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =
@@ -309,13 +313,13 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
   /**
    * Alias for `orElse`.
    */
-  @inline def |[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =
+  inline def |[AA >: A](inline tryNext: CallbackOption[AA]): CallbackOption[AA] =
     orElse(tryNext)
 
-  @inline def &&[B](b: CallbackOption[B]): CallbackOption[Unit] =
+  inline def &&[B](b: CallbackOption[B]): CallbackOption[Unit] =
     this >> b.void
 
-  @inline def ||[B](b: CallbackOption[B]): CallbackOption[Unit] =
+  inline def ||[B](b: CallbackOption[B]): CallbackOption[Unit] =
     void | b.void
 
   /** Wraps this so that:

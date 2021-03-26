@@ -6,6 +6,7 @@ import java.time.Duration
 import scala.collection.compat._
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.`3.0`
 import scala.scalajs.js
 import scala.scalajs.js.{Thenable, timers, |}
 import scala.util.{Failure, Success, Try}
@@ -14,7 +15,7 @@ object AsyncCallback {
   private[AsyncCallback] val defaultCompleteWith: Try[Any] => Callback =
     _ => Callback.empty
 
-  def apply[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
+  inline def apply[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(f)
 
   def init[A, B](f: (Try[B] => Callback) => CallbackTo[A]): CallbackTo[(A, AsyncCallback[B])] =
@@ -75,7 +76,7 @@ object AsyncCallback {
       }
     }
 
-  def const[A](t: Try[A]): AsyncCallback[A] =
+  inline def const[A](t: Try[A]): AsyncCallback[A] =
     AsyncCallback(_(t))
 
   val unit: AsyncCallback[Unit] =
@@ -109,7 +110,7 @@ object AsyncCallback {
   /** Traverse stdlib T over AsyncCallback.
     * Distribute AsyncCallback over stdlib T.
     */
-  def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
+  def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(using cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
     AsyncCallback.suspend {
       val _ta = ta
       val as = _ta.iterator.to(Vector)
@@ -130,8 +131,8 @@ object AsyncCallback {
   /** Sequence stdlib T over AsyncCallback.
     * Co-sequence AsyncCallback over stdlib T.
     */
-  def sequence[T[X] <: IterableOnce[X], A](tca: => T[AsyncCallback[A]])(implicit cbf: BuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
-    traverse(tca)(identityFn)(cbf)
+  def sequence[T[X] <: IterableOnce[X], A](tca: => T[AsyncCallback[A]])(using cbf: BuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
+    traverse(tca)(identityFn)
 
   /** Traverse Option over AsyncCallback.
     * Distribute AsyncCallback over Option.
@@ -195,7 +196,7 @@ object AsyncCallback {
   def sequenceOption_[A](oca: => Option[AsyncCallback[A]]): AsyncCallback[Unit] =
     traverseOption_(oca)(identityFn)
 
-  def fromFuture[A](fa: => Future[A])(implicit ec: ExecutionContext): AsyncCallback[A] =
+  def fromFuture[A](fa: => Future[A])(using ec: ExecutionContext): AsyncCallback[A] =
     AsyncCallback(f => Callback {
       val future = fa
       future.value match {
@@ -204,7 +205,7 @@ object AsyncCallback {
       }
     })
 
-  def fromCallbackToFuture[A](c: CallbackTo[Future[A]])(implicit ec: ExecutionContext): AsyncCallback[A] =
+  def fromCallbackToFuture[A](c: CallbackTo[Future[A]])(using ec: ExecutionContext): AsyncCallback[A] =
     c.asAsyncCallback.flatMap(fromFuture(_))
 
   def fromJsPromise[A](pa: => js.Thenable[A]): AsyncCallback[A] =
@@ -241,7 +242,7 @@ object AsyncCallback {
       _ <- AsyncCallback(p.onComplete)
     } yield ()
 
-  private[react] def debounce[A](delayMs: Long, self: AsyncCallback[A])(implicit timer: Timer): AsyncCallback[A] =
+  private[react] inline def debounce[A](inline delayMs: Long, inline self: AsyncCallback[A])(using timer: Timer): AsyncCallback[A] =
     if (delayMs <= 0)
       self
     else {
@@ -249,7 +250,7 @@ object AsyncCallback {
       suspend(f(()))
     }
 
-  private def _debounce[A, B](delayMs: Long, f: A => AsyncCallback[B])(implicit timer: Timer): A => AsyncCallback[B] = {
+  private inline def _debounce[A, B](inline delayMs: Long, inline f: A => AsyncCallback[B])(using timer: Timer): A => AsyncCallback[B] = {
     var prev = Option.empty[timer.Handle]
     var invocationNum = 0
 
@@ -295,9 +296,8 @@ object AsyncCallback {
     def isComplete: CallbackTo[Boolean] =
       CallbackTo(_complete)
 
-    @inline
     @deprecated("Use .await", "1.7.7")
-    def waitForCompletion: AsyncCallback[Unit] =
+    inline def waitForCompletion: AsyncCallback[Unit] =
       await
   }
 
@@ -327,10 +327,10 @@ object AsyncCallback {
         }
       }
 
-    @inline def await: AsyncCallback[Unit] =
+    inline def await: AsyncCallback[Unit] =
       barrier.await
 
-    @inline def isComplete: CallbackTo[Boolean] =
+    inline def isComplete: CallbackTo[Boolean] =
       barrier.isComplete
 
     def pending: CallbackTo[Int] =
@@ -541,7 +541,7 @@ object AsyncCallback {
       }
   }
 
-  @inline def ref[A]: CallbackTo[Ref[A]] =
+  inline def ref[A]: CallbackTo[Ref[A]] =
     ref()
 
   def ref[A](allowStaleReads: Boolean = false,
@@ -550,6 +550,14 @@ object AsyncCallback {
       atomicReads   = atomicWrites && !allowStaleReads,
       atomicWrites  = atomicWrites,
     ))
+
+  // ===================================================================================================================
+
+  extension [A, B](self: AsyncCallback[A => B]) {
+    /** Function distribution. See `AsyncCallback.liftTraverse(f).id` for the dual. */
+    def distFn: A => AsyncCallback[B] =
+      a => self.map(_(a))
+  }
 }
 
 // █████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
@@ -584,15 +592,15 @@ object AsyncCallback {
   *
   * @tparam A The type of data asynchronously produced on success.
   */
-final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] => Callback) => Callback) extends AnyVal { self =>
+final class AsyncCallback[+A](val completeWith: (Try[A] => Callback) => Callback) extends AnyVal { self =>
 
-  @inline def underlyingRepr = completeWith
+  inline def underlyingRepr = completeWith
 
   def map[B](f: A => B): AsyncCallback[B] =
     flatMap(a => AsyncCallback.pure(f(a)))
 
   /** Alias for `map`. */
-  @inline def |>[B](f: A => B): AsyncCallback[B] =
+  inline def |>[B](f: A => B): AsyncCallback[B] =
     map(f)
 
   def flatMap[B](f: A => AsyncCallback[B]): AsyncCallback[B] =
@@ -610,10 +618,10 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
     }
 
   /** Alias for `flatMap`. */
-  @inline def >>=[B](g: A => AsyncCallback[B]): AsyncCallback[B] =
+  inline def >>=[B](inline g: A => AsyncCallback[B]): AsyncCallback[B] =
     flatMap(g)
 
-  def flatten[B](implicit ev: A => AsyncCallback[B]): AsyncCallback[B] =
+  def flatten[B](using ev: A => AsyncCallback[B]): AsyncCallback[B] =
     flatMap(ev)
 
   /** Sequence the argument a callback to run after this, discarding any value produced by this. */
@@ -621,7 +629,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
     flatMap(_ => runNext)
 
   /** Sequence a callback to run before this, discarding any value produced by it. */
-  @inline def <<[B](runBefore: AsyncCallback[B]): AsyncCallback[A] =
+  inline def <<[B](runBefore: AsyncCallback[B]): AsyncCallback[A] =
     runBefore >> this
 
   /** Convenient version of `<<` that accepts an Option */
@@ -633,7 +641,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
     flatTap(a => AsyncCallback.delay(t(a)))
 
   /** Alias for `tap`. */
-  @inline def <|(t: A => Any): AsyncCallback[A] =
+  inline def <|(t: A => Any): AsyncCallback[A] =
     tap(t)
 
   def flatTap[B](t: A => AsyncCallback[B]): AsyncCallback[A] =
@@ -696,7 +704,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
     *
     * This method allows you to be explicit about the type you're discarding (which may change in future).
     */
-  @inline def voidExplicit[B](implicit ev: A <:< B): AsyncCallback[Unit] =
+  inline def voidExplicit[B](using erased A <:< B): AsyncCallback[Unit] =
     void
 
   /** Wraps this callback in a try-catch and returns either the result or the exception if one occurs. */
@@ -753,7 +761,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
     * @param cond The condition required to be `false` for this callback to execute.
     * @return `Some` result of the callback executed, else `None`.
     */
-  def unless(cond: => Boolean): AsyncCallback[Option[A]] =
+  inline def unless(inline cond: Boolean): AsyncCallback[Option[A]] =
     when(!cond)
 
   /** Conditional execution of this callback.
@@ -761,7 +769,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
     *
     * @param cond The condition required to be `true` for this callback to execute.
     */
-  def when_(cond: => Boolean): AsyncCallback[Unit] =
+  inline def when_(inline cond: Boolean): AsyncCallback[Unit] =
     when(cond).void
 
   /** Conditional execution of this callback.
@@ -770,35 +778,35 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
     *
     * @param cond The condition required to be `false` for the callback to execute.
     */
-  def unless_(cond: => Boolean): AsyncCallback[Unit] =
+  inline def unless_(inline cond: Boolean): AsyncCallback[Unit] =
     when_(!cond)
 
   /** Limits the number of invocations in a given amount of time.
     *
     * @return Some if invocation was allowed, None if rejected/rate-limited
     */
-  def rateLimit(window: Duration): AsyncCallback[Option[A]] =
+  inline def rateLimit(inline window: Duration): AsyncCallback[Option[A]] =
     rateLimitMs(window.toMillis)
 
   /** Limits the number of invocations in a given amount of time.
     *
     * @return Some if invocation was allowed, None if rejected/rate-limited
     */
-  def rateLimit(window: FiniteDuration): AsyncCallback[Option[A]] =
+  inline def rateLimit(inline window: FiniteDuration): AsyncCallback[Option[A]] =
     rateLimitMs(window.toMillis)
 
   /** Limits the number of invocations in a given amount of time.
     *
     * @return Some if invocation was allowed, None if rejected/rate-limited
     */
-  def rateLimit(window: Duration, maxPerWindow: Int): AsyncCallback[Option[A]] =
+  inline def rateLimit(inline window: Duration, inline maxPerWindow: Int): AsyncCallback[Option[A]] =
     rateLimitMs(window.toMillis, maxPerWindow)
 
   /** Limits the number of invocations in a given amount of time.
     *
     * @return Some if invocation was allowed, None if rejected/rate-limited
     */
-  def rateLimit(window: FiniteDuration, maxPerWindow: Int): AsyncCallback[Option[A]] =
+  inline def rateLimit(inline window: FiniteDuration, inline maxPerWindow: Int): AsyncCallback[Option[A]] =
     rateLimitMs(window.toMillis, maxPerWindow)
 
   /** Limits the number of invocations in a given amount of time.
@@ -808,7 +816,9 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
   def rateLimitMs(windowMs: Long, maxPerWindow: Int = 1): AsyncCallback[Option[A]] =
     _rateLimitMs(windowMs, maxPerWindow, RateLimit.realClock)
 
-  private[react] def _rateLimitMs(windowMs: Long, maxPerWindow: Int, clock: RateLimit.Clock): AsyncCallback[Option[A]] =
+  private[react] inline def _rateLimitMs(inline windowMs: Long,
+                                         inline maxPerWindow: Int,
+                                         inline clock: RateLimit.Clock): AsyncCallback[Option[A]] =
     if (windowMs <= 0 || maxPerWindow <= 0)
       AsyncCallback.pure(None)
     else {
@@ -830,10 +840,10 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
       }
     }
 
-  def debounce(delay: Duration): AsyncCallback[A] =
+  inline def debounce(inline delay: Duration): AsyncCallback[A] =
     debounceMs(delay.toMillis)
 
-  def debounce(delay: FiniteDuration): AsyncCallback[A] =
+  inline def debounce(inline delay: FiniteDuration): AsyncCallback[A] =
     debounceMs(delay.toMillis)
 
   def debounceMs(delayMs: Long): AsyncCallback[A] =
@@ -907,36 +917,36 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
     AsyncCallback.unit.delayMs(milliseconds).race(this).map(_.toOption)
 
   /** Schedule for repeated execution every `dur`. */
-  @inline def setInterval(dur: Duration): CallbackTo[Callback.SetIntervalResult] =
+  inline def setInterval(inline dur: Duration): CallbackTo[Callback.SetIntervalResult] =
     toCallback.setInterval(dur)
 
   /** Schedule for repeated execution every `dur`. */
-  @inline def setInterval(dur: FiniteDuration): CallbackTo[Callback.SetIntervalResult] =
+  inline def setInterval(inline dur: FiniteDuration): CallbackTo[Callback.SetIntervalResult] =
     toCallback.setInterval(dur)
 
   /** Schedule for repeated execution every x milliseconds. */
-  @inline def setIntervalMs(milliseconds: Double): CallbackTo[Callback.SetIntervalResult] =
+  inline def setIntervalMs(inline milliseconds: Double): CallbackTo[Callback.SetIntervalResult] =
     toCallback.setIntervalMs(milliseconds)
 
   /** Schedule for execution after `dur`.
     *
     * Note: it most cases [[delay()]] is a better alternative.
     */
-  @inline def setTimeout(dur: Duration): CallbackTo[Callback.SetTimeoutResult] =
+  inline def setTimeout(inline dur: Duration): CallbackTo[Callback.SetTimeoutResult] =
     toCallback.setTimeout(dur)
 
   /** Schedule for execution after `dur`.
     *
     * Note: it most cases [[delay()]] is a better alternative.
     */
-  @inline def setTimeout(dur: FiniteDuration): CallbackTo[Callback.SetTimeoutResult] =
+  inline def setTimeout(inline dur: FiniteDuration): CallbackTo[Callback.SetTimeoutResult] =
     toCallback.setTimeout(dur)
 
   /** Schedule for execution after x milliseconds.
     *
     * Note: it most cases [[delayMs()]] is a better alternative.
     */
-  @inline def setTimeoutMs(milliseconds: Double): CallbackTo[Callback.SetTimeoutResult] =
+  inline def setTimeoutMs(inline milliseconds: Double): CallbackTo[Callback.SetTimeoutResult] =
     toCallback.setTimeoutMs(milliseconds)
 
   /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
@@ -947,12 +957,6 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
       case Right(a) => runFinally.ret(a)
       case Left(e)  => runFinally.attempt >> AsyncCallback.throwException(e)
     }
-
-  /** Function distribution. See `AsyncCallback.liftTraverse(f).id` for the dual. */
-  def distFn[B, C](implicit ev: AsyncCallback[A] <:< AsyncCallback[B => C]): B => AsyncCallback[C] = {
-    val bc = ev(this)
-    b => bc.map(_(b))
-  }
 
   /** Start both this and the given callback at once use the first result to become available,
     * regardless of whether it's a success or failure.
@@ -1022,8 +1026,8 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
   def flatMapSync[B](f: A => CallbackTo[B]): AsyncCallback[B] =
     flatMap(f(_).asAsyncCallback)
 
-  def flattenSync[B](implicit ev: A => CallbackTo[B]): AsyncCallback[B] =
-    flatten(ev(_).asAsyncCallback)
+  def flattenSync[B](using ev: A => CallbackTo[B]): AsyncCallback[B] =
+    flatten(using ev(_).asAsyncCallback)
 
   def flatTapSync[B](t: A => CallbackTo[B]): AsyncCallback[A] =
     flatTap(t(_).asAsyncCallback)
@@ -1037,7 +1041,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
   /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
     * current callback completes, be it in error or success.
     */
-  @inline def finallyRunSync[B](runFinally: CallbackTo[B]): AsyncCallback[A] =
+  inline def finallyRunSync[B](runFinally: CallbackTo[B]): AsyncCallback[A] =
     finallyRun(runFinally.asAsyncCallback)
 
   /** Runs this async computation in the background.
@@ -1058,7 +1062,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
     *
     * Unlike [[fork]] this returns nothing, meaning this is like fire-and-forget.
     */
-  def fork_ : Callback =
+  inline def fork_ : Callback =
     delayMs(1).toCallback
 
   /** Record the duration of this callback's execution. */

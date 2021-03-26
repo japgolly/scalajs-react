@@ -106,19 +106,20 @@ object Builder {
     def addStyleToProps(): Unit =
       nonEmptyStyles.foreach(setObjectKeyValue(props, "style", _))
 
-    def childrenAsVdomNodes: List[VdomNode] = {
-      import Implicits._
-      var i = children.length
-      var nodes = List.empty[VdomNode]
-      while (i > 0) {
-        i -= 1
-        nodes ::= children(i)
-      }
-      nodes
-    }
+      // TODO: [3]
+    // def childrenAsVdomNodes: List[VdomNode] = {
+    //   import Implicits._
+    //   var i = children.length
+    //   var nodes = List.empty[VdomNode]
+    //   while (i > 0) {
+    //     i -= 1
+    //     nodes ::= children(i)
+    //   }
+    //   nodes
+    // }
 
-    def nonEmptyChildrenAsVdomNodes: js.UndefOr[List[VdomNode]] =
-      if (children.length == 0) js.undefined else childrenAsVdomNodes
+    // def nonEmptyChildrenAsVdomNodes: js.UndefOr[List[VdomNode]] =
+    //   if (children.length == 0) js.undefined else childrenAsVdomNodes
   }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

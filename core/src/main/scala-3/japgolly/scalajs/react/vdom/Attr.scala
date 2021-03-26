@@ -5,6 +5,8 @@ import japgolly.scalajs.react.vdom.Attr.ValueType
 import japgolly.scalajs.react.{Callback, CallbackTo, raw}
 import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound, nowarn}
+import scala.compiletime.erasedValue
+import scala.language.`3.0`
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import scala.scalajs.js.|
@@ -32,22 +34,22 @@ abstract class Attr[-U](final val attrName: String) {
   + "\n  If the result is necessary, please raise an issue and use `vdom.DomCallbackResult.force` in the meantime.")
 sealed trait DomCallbackResult[A]
 object DomCallbackResult {
-  def force[A] = null.asInstanceOf[DomCallbackResult[A]]
-  @inline implicit def unit           : DomCallbackResult[Unit               ] = force[Unit]
-  @inline implicit def boolean        : DomCallbackResult[Boolean            ] = force[Boolean]
-  @inline implicit def undefOrBoolean : DomCallbackResult[js.UndefOr[Boolean]] = force[js.UndefOr[Boolean]]
+  erased def force[A]: DomCallbackResult[A] = erasedValue
+  erased given unit           : DomCallbackResult[Unit               ] = erasedValue
+  erased given boolean        : DomCallbackResult[Boolean            ] = erasedValue
+  erased given undefOrBoolean : DomCallbackResult[js.UndefOr[Boolean]] = erasedValue
 }
 
 sealed trait InnerHtmlAttr
 
 object Attr {
 
-  def apply[A](name: String): Attr[A] =
+  inline def apply[A](inline name: String): Attr[A] =
     new Generic[A](name)
 
-  def devOnly[A](name: => String): Attr[A] =
+  inline def devOnly[A](inline name: String): Attr[A] =
     if (developmentMode)
-      new Generic(name)
+      apply(name)
     else
       Dud
 
@@ -74,10 +76,10 @@ object Attr {
     override def :=[A](a: A)(implicit t: ValueType[A, js.Function1[E[Nothing], Unit]]): TagMod =
       TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Unit]]), a))
 
-    def -->[A: DomCallbackResult](callback: => CallbackTo[A]): TagMod =
+    def -->[A](callback: => CallbackTo[A])(using erased DomCallbackResult[A]): TagMod =
       ==>(_ => callback)
 
-    def ==>[A: DomCallbackResult](eventHandler: Event => CallbackTo[A]): TagMod =
+    def ==>[A](eventHandler: Event => CallbackTo[A])(using erased DomCallbackResult[A]): TagMod =
       :=(((e: Event) => eventHandler(e).runNow()): js.Function1[E[Nothing], Unit])(ValueType.direct)
 
     def -->?[O[_]](callback: => O[Callback])(implicit o: OptionLike[O]): TagMod =
@@ -89,23 +91,23 @@ object Attr {
 
   object Event {
 
-    def apply[E[+x <: dom.Node] <: raw.SyntheticEvent[x]](name: String): Event[E] =
+    inline def apply[E[+x <: dom.Node] <: raw.SyntheticEvent[x]](name: String): Event[E] =
       new Event(name)
 
-    @inline def animation  (name: String) = apply[raw.SyntheticAnimationEvent  ](name)
-    @inline def base       (name: String) = apply[raw.SyntheticEvent           ](name)
-    @inline def clipboard  (name: String) = apply[raw.SyntheticClipboardEvent  ](name)
-    @inline def composition(name: String) = apply[raw.SyntheticCompositionEvent](name)
-    @inline def drag       (name: String) = apply[raw.SyntheticDragEvent       ](name)
-    @inline def focus      (name: String) = apply[raw.SyntheticFocusEvent      ](name)
-    @inline def form       (name: String) = apply[raw.SyntheticFormEvent       ](name)
-    @inline def keyboard   (name: String) = apply[raw.SyntheticKeyboardEvent   ](name)
-    @inline def mouse      (name: String) = apply[raw.SyntheticMouseEvent      ](name)
-    @inline def pointer    (name: String) = apply[raw.SyntheticPointerEvent    ](name)
-    @inline def touch      (name: String) = apply[raw.SyntheticTouchEvent      ](name)
-    @inline def transition (name: String) = apply[raw.SyntheticTransitionEvent ](name)
-    @inline def ui         (name: String) = apply[raw.SyntheticUIEvent         ](name)
-    @inline def wheel      (name: String) = apply[raw.SyntheticWheelEvent      ](name)
+    inline def animation  (name: String) = apply[raw.SyntheticAnimationEvent  ](name)
+    inline def base       (name: String) = apply[raw.SyntheticEvent           ](name)
+    inline def clipboard  (name: String) = apply[raw.SyntheticClipboardEvent  ](name)
+    inline def composition(name: String) = apply[raw.SyntheticCompositionEvent](name)
+    inline def drag       (name: String) = apply[raw.SyntheticDragEvent       ](name)
+    inline def focus      (name: String) = apply[raw.SyntheticFocusEvent      ](name)
+    inline def form       (name: String) = apply[raw.SyntheticFormEvent       ](name)
+    inline def keyboard   (name: String) = apply[raw.SyntheticKeyboardEvent   ](name)
+    inline def mouse      (name: String) = apply[raw.SyntheticMouseEvent      ](name)
+    inline def pointer    (name: String) = apply[raw.SyntheticPointerEvent    ](name)
+    inline def touch      (name: String) = apply[raw.SyntheticTouchEvent      ](name)
+    inline def transition (name: String) = apply[raw.SyntheticTransitionEvent ](name)
+    inline def ui         (name: String) = apply[raw.SyntheticUIEvent         ](name)
+    inline def wheel      (name: String) = apply[raw.SyntheticWheelEvent      ](name)
   }
 
   private[vdom] object Dud extends Attr[Any]("") {

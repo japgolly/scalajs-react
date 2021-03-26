@@ -15,12 +15,13 @@ object VdomNode {
       override def rawNode = n
     }
 
-  def cast(n: Any): VdomNode =
+  @inline def cast(n: Any): VdomNode =
     apply(n.asInstanceOf[Raw.React.Node])
 
   private[vdom] val empty: VdomNode =
     apply(null)
 
-  def static(vdom: VdomNode): VdomNode =
-    japgolly.scalajs.react.ScalaComponent.static("")(vdom)()
+  // TODO: [3] re-enable
+  // def static(vdom: VdomNode): VdomNode =
+  //   japgolly.scalajs.react.ScalaComponent.static("")(vdom)()
 }

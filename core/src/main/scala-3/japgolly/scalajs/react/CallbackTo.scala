@@ -231,17 +231,8 @@ object CallbackTo {
   erased given MapGuard[A]: MapGuard[A] =
     compiletime.erasedValue
 
-  // TODO: [3]
-//   implicit def VarianceOps[A](c: CallbackTo[A]): VarianceOps[A] =
-//     new VarianceOps(c.trampoline)
-
-//   final class VarianceOps[A](private val trampoline: Trampoline[A]) extends AnyVal {
-//     def toKleisli[B]: CallbackKleisli[B, A] =
-//       CallbackKleisli.const(new CallbackTo(trampoline))
-//   }
-
   // -------------------------------------------------------------------------------------------------------------------
-  // Boolean ops
+  // Additional ops
 
   extension (self: CallbackTo[Boolean]) {
 
@@ -260,11 +251,46 @@ object CallbackTo {
     /** Negates the callback result (so long as it's boolean). */
     inline def unary_! : CallbackTo[Boolean] =
       self.map(!_)
+
+    /** Returns a [[CallbackOption]] that requires the boolean value therein to be true. */
+    def requireCBO: CallbackOption[Unit] =
+      self.toCBO.flatMap(CallbackOption.require(_))
+  }
+
+  // Required because of variance
+  extension [A](self: CallbackTo[A]) {
+
+    def toKleisli[B]: CallbackKleisli[B, A] =
+      CallbackKleisli.const(self)
+  }
+
+  extension [A](self: CallbackTo[Option[A]]) {
+
+    // TODO: [3] Make inline after https://github.com/lampepfl/dotty/issues/11894
+    def asCBO: CallbackOption[A] =
+      new CallbackOption(self.toScalaFn)
+  }
+
+  extension [A, B](self: CallbackTo[A => B]) {
+
+    /** Function distribution. See `CallbackTo.liftTraverse(f).id` for the dual. */
+    def distFn: A => CallbackTo[B] =
+      a => self.map(_(a))
+
+    def asKleisli: CallbackKleisli[A, B] =
+      CallbackKleisli(distFn)
+
+  }
+
+  extension [A, B](self: CallbackTo[(A, B)]) {
+
+    inline def flatMap2[C](f: (A, B) => CallbackTo[C]): CallbackTo[C] =
+      self.flatMap(f.tupled)
   }
 
 }
 
-// =====================================================================================================================
+// █████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 
 /**
  * A function to be executed later, usually by scalajs-react in response to some kind of event.
@@ -312,11 +338,8 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
   inline def >>=[B](inline f: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(f)
 
-  inline def flatten[B](implicit ev: A => CallbackTo[B]): CallbackTo[B] =
+  inline def flatten[B](using ev: A => CallbackTo[B]): CallbackTo[B] =
     flatMap(ev)
-
-  inline def flatMap2[X, Y, Z](f: (X, Y) => CallbackTo[Z])(implicit ev: A <:< (X, Y)): CallbackTo[Z] =
-    flatMap(f tupled _)
 
   /** Sequence a callback to run after this, discarding any value produced by this. */
   def >>[B](runNext: CallbackTo[B]): CallbackTo[B] =
@@ -593,34 +616,33 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
   inline def isEmpty_? : Boolean =
     trampoline eq Callback.empty.trampoline
 
-  // TODO: [3]
-//   /** Turns this into an [[AsyncCallback]] that runs whenever/wherever it's called;
-//     * `setTimeout` isn't used.
-//     *
-//     * In order words, `this.toAsyncCallback.toCallback` == `this`.
-//     */
-//   def asAsyncCallback: AsyncCallback[A] =
-//     AsyncCallback(attemptTry.flatMap)
+  /** Turns this into an [[AsyncCallback]] that runs whenever/wherever it's called;
+    * `setTimeout` isn't used.
+    *
+    * In order words, `this.toAsyncCallback.toCallback` == `this`.
+    */
+  def asAsyncCallback: AsyncCallback[A] =
+    AsyncCallback(attemptTry.flatMap(_))
 
-//   /** Schedules this to run asynchronously (i.e. uses a `setTimeout`).
-//     *
-//     * Exceptions will be handled by the [[AsyncCallback]] such that
-//     * `this.async.toCallback` will never throw an exception.
-//     */
-//   def async: AsyncCallback[A] =
-//     delayMs(1)
+  /** Schedules this to run asynchronously (i.e. uses a `setTimeout`).
+    *
+    * Exceptions will be handled by the [[AsyncCallback]] such that
+    * `this.async.toCallback` will never throw an exception.
+    */
+  inline def async: AsyncCallback[A] =
+    delayMs(1)
 
-//   /** Run asynchronously after a delay of a given duration. */
-//   def delay(startIn: FiniteDuration): AsyncCallback[A] =
-//     delayMs(startIn.toMillis.toDouble)
+  /** Run asynchronously after a delay of a given duration. */
+  inline def delay(inline startIn: FiniteDuration): AsyncCallback[A] =
+    asAsyncCallback.delay(startIn)
 
-//   /** Run asynchronously after a delay of a given duration. */
-//   def delay(startIn: Duration): AsyncCallback[A] =
-//     delayMs(startIn.toMillis.toDouble)
+  /** Run asynchronously after a delay of a given duration. */
+  inline def delay(inline startIn: Duration): AsyncCallback[A] =
+    asAsyncCallback.delay(startIn)
 
-//   /** Run asynchronously after a `startInMilliseconds` ms delay. */
-//   def delayMs(startInMilliseconds: Double): AsyncCallback[A] =
-//     asAsyncCallback.delayMs(startInMilliseconds)
+  /** Run asynchronously after a `startInMilliseconds` ms delay. */
+  inline def delayMs(inline startInMilliseconds: Double): AsyncCallback[A] =
+    asAsyncCallback.delayMs(startInMilliseconds)
 
   /** Record the duration of this callback's execution. */
   def withDuration[B](f: (A, FiniteDuration) => CallbackTo[B]): CallbackTo[B] = {
@@ -650,41 +672,23 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
   def logDuration: CallbackTo[A] =
     logDuration("Callback")
 
-  // TODO: [3]
-//   def asCBO[B](implicit ev: CallbackTo[A] <:< CallbackTo[Option[B]]): CallbackOption[B] =
-//     new CallbackOption(ev(this).toScalaFn)
+  def toCBO: CallbackOption[A] =
+    map[Option[A]](Some(_)).asCBO
 
-//   def toCBO: CallbackOption[A] =
-//     map[Option[A]](Some(_)).asCBO
-
-//   /** Returns a [[CallbackOption]] that requires the boolean value therein to be true. */
-//   def requireCBO(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackOption[Unit] =
-//     ev(this).toCBO.flatMap(CallbackOption.require(_))
-
-  /** Function distribution. See `CallbackTo.liftTraverse(f).id` for the dual. */
-  def distFn[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): B => CallbackTo[C] = {
-    val bc = ev(this)
-    b => bc.map(_(b))
-  }
-
-  // TODO: [3]
-//   def asKleisli[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): CallbackKleisli[B, C] =
-//     CallbackKleisli(distFn)
-
-//   /** Wraps this so that:
-//     *
-//     * 1) It only executes if `e.defaultPrevented` is `false`.
-//     * 2) It sets `e.preventDefault` on successful completion.
-//     */
-//   def asEventDefault(e: ReactEvent): CallbackTo[Option[A]] =
-//     (this <* e.preventDefaultCB).unless(e.defaultPrevented)
+  /** Wraps this so that:
+    *
+    * 1) It only executes if `e.defaultPrevented` is `false`.
+    * 2) It sets `e.preventDefault` on successful completion.
+    */
+  def asEventDefault(e: ReactEvent): CallbackTo[Option[A]] =
+    (this <* e.preventDefaultCB).unless(e.defaultPrevented)
 
   /** Schedule for repeated execution every `interval`. */
-  inline def setInterval(inline interval: Duration): CallbackTo[Callback.SetIntervalResult] =
+  def setInterval(interval: Duration): CallbackTo[Callback.SetIntervalResult] =
     setIntervalMs(interval.toMillis.toDouble)
 
   /** Schedule for repeated execution every `interval`. */
-  inline def setInterval(inline interval: FiniteDuration): CallbackTo[Callback.SetIntervalResult] =
+  def setInterval(interval: FiniteDuration): CallbackTo[Callback.SetIntervalResult] =
     setIntervalMs(interval.toMillis.toDouble)
 
   /** Schedule this callback for repeated execution every `interval` milliseconds.
@@ -706,7 +710,7 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
     *
     * @return A means to cancel the timeout.
     */
-  inline def setTimeout(inline interval: Duration): CallbackTo[Callback.SetTimeoutResult] =
+  def setTimeout(interval: Duration): CallbackTo[Callback.SetTimeoutResult] =
     setTimeoutMs(interval.toMillis.toDouble)
 
   /** Schedule this callback for execution in `interval`.
@@ -715,7 +719,7 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
     *
     * @return A means to cancel the timeout.
     */
-  inline def setTimeout(inline interval: FiniteDuration): CallbackTo[Callback.SetTimeoutResult] =
+  def setTimeout(interval: FiniteDuration): CallbackTo[Callback.SetTimeoutResult] =
     setTimeoutMs(interval.toMillis.toDouble)
 
   /** Schedule this callback for execution in `interval` milliseconds.

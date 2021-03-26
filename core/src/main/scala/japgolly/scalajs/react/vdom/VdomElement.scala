@@ -8,7 +8,7 @@ trait VdomElement extends VdomNode {
 
   def rawElement: Raw.React.Element
 
-  def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Raw.React.ComponentUntyped =
+  @inline final def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Raw.React.ComponentUntyped =
     Raw.ReactDOM.render(rawElement, container, callback.toJsFn)
 }
 
@@ -18,6 +18,7 @@ object VdomElement {
       override def rawElement = n
     }
 
-  def static(vdom: VdomElement): VdomElement =
-    japgolly.scalajs.react.ScalaComponent.static("")(vdom)()
+  // TODO: [3] re-enable
+  // def static(vdom: VdomElement): VdomElement =
+  //   japgolly.scalajs.react.ScalaComponent.static("")(vdom)()
 }
