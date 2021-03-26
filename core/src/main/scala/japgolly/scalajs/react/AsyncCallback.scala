@@ -62,7 +62,7 @@ object AsyncCallback {
     }
 
   def throwExceptionWhenDefined(o: => Option[Throwable]): AsyncCallback[Unit] =
-    byName {
+    suspend {
       o match {
         case None    => unit
         case Some(t) => throwException(t)
@@ -240,7 +240,7 @@ object AsyncCallback {
       self
     else {
       val f = _debounce[Unit, A](delayMs, _ => self)
-      byName(f(()))
+      suspend(f(()))
     }
 
   private def _debounce[A, B](delayMs: Long, f: A => AsyncCallback[B])(implicit timer: Timer): A => AsyncCallback[B] = {
@@ -353,7 +353,7 @@ object AsyncCallback {
       * Note: THIS IS NOT RE-ENTRANT. Calling this from within the mutex will block.
       */
     def apply[A](ac: AsyncCallback[A]): AsyncCallback[A] =
-      byName {
+      suspend {
 
         mutex match {
           case None =>
