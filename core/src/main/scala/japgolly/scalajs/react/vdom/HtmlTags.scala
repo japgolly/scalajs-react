@@ -9,7 +9,7 @@ trait HtmlTags {
   /**
     * Represents a hyperlink, linking to another resource.
     */
-  object a extends TagOf[*.Anchor]("a", Nil, Namespace.Html) {
+  object a extends TagOf[*.Anchor]("a", Nil) {
 
     /** A link to open a new window (tab) to a given URL.
       *
@@ -299,7 +299,7 @@ trait HtmlTags {
     * The HTML element &lt;input&gt; is used to create interactive controls for web-based forms in order to accept data
     * from the user. How an &lt;input&gt; works varies considerably depending on the value of its type attribute.
     */
-  object input extends TagOf[*.Input]("input", Nil, Namespace.Html) {
+  object input extends TagOf[*.Input]("input", Nil) {
 
     private[this] val `type` = VdomAttr[String]("type")
 
