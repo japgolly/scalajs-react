@@ -6,6 +6,9 @@ import scala.scalajs.js
 class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                                          final protected val modifiers: List[Seq[TagMod]]) extends VdomElement {
 
+  def this(tag: String) =
+    this(tag, Nil)
+
   def withRef[NN >: N <: TopNode, R](ref: TagOf.RefArg[NN]): TagOf[NN] =
     ref.value match {
       case Some(r) => this(Attr.Ref(r))
