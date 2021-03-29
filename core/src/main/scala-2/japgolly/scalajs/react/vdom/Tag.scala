@@ -4,8 +4,10 @@ import japgolly.scalajs.react.{Ref, raw => Raw}
 import scala.scalajs.js
 
 class TagOf[+N <: TopNode] private[vdom](final val tag: String,
-                                         final protected val modifiers: List[Seq[TagMod]],
-                                         final val namespace: Namespace) extends VdomElement {
+                                         final protected val modifiers: List[Seq[TagMod]]) extends VdomElement {
+
+  def this(tag: String) =
+    this(tag, Nil)
 
   def withRef[NN >: N <: TopNode, R](ref: TagOf.RefArg[NN]): TagOf[NN] =
     ref.value match {
@@ -22,10 +24,10 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
   def apply(xs: TagMod*): TagOf[N] =
     copy(modifiers = xs :: modifiers)
 
-  protected def copy(tag: String = this.tag,
+  protected def copy(tag      : String            = this.tag,
                      modifiers: List[Seq[TagMod]] = this.modifiers,
-                     namespace: Namespace = this.namespace): TagOf[N] =
-    new TagOf(tag, modifiers, namespace)
+                    ): TagOf[N] =
+    new TagOf(tag, modifiers)
 
   override lazy val rawElement: Raw.React.Element = {
     val b = new Builder.ToRawReactElement()
@@ -70,23 +72,23 @@ object TagOf {
 
 final case class HtmlTagOf[+N <: HtmlTopNode](name: String) extends AnyVal {
   def apply(xs: TagMod*): TagOf[N] =
-    new TagOf(name, xs :: Nil, Namespace.Html)
+    new TagOf(name, xs :: Nil)
 }
 
 object HtmlTagOf {
   implicit def autoToTag[N <: HtmlTopNode](t: HtmlTagOf[N]): TagOf[N] =
-    new TagOf[N](t.name, Nil, Namespace.Html)
+    new TagOf[N](t.name, Nil)
 }
 
 // =====================================================================================================================
 
 final case class SvgTagOf[+N <: SvgTopNode](name: String) extends AnyVal {
   def apply(xs: TagMod*): TagOf[N] =
-    new TagOf(name, xs :: Nil, Namespace.Svg)
+    new TagOf(name, xs :: Nil)
 }
 
 object SvgTagOf {
   implicit def autoToTag[N <: SvgTopNode](t: SvgTagOf[N]): TagOf[N] =
-    new TagOf[N](t.name, Nil, Namespace.Svg)
+    new TagOf[N](t.name, Nil)
 }
 
