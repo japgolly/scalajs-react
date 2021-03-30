@@ -3,7 +3,7 @@ libraryDependencies ++= Seq(
   "org.scala-js" %% "scalajs-env-selenium"     % "1.1.0")
 
 addSbtPlugin("ch.epfl.lamp"   % "sbt-dotty"          % "0.5.3")
-addSbtPlugin("ch.epfl.scala"  % "sbt-scalafix"       % "0.9.26")
+addSbtPlugin("ch.epfl.scala"  % "sbt-scalafix"       % "0.9.27")
 addSbtPlugin("com.github.sbt" % "sbt-pgp"            % "2.1.2")
 addSbtPlugin("com.github.sbt" % "sbt-release"        % "1.0.15")
 addSbtPlugin("org.scala-js"   % "sbt-jsdependencies" % "1.0.2")

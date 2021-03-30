@@ -10,8 +10,8 @@ object Dependencies {
   object Ver {
 
     // Externally observable
-    val Cats                  = "2.4.2"
-    val CatsEffect            = "2.4.0"
+    val Cats                  = "2.5.0"
+    val CatsEffect            = "2.4.1"
     val Microlibs             = "2.6-RC2" // (macro-utils only)
     val MonocleCats           = "2.1.0"
     val Monocle3              = "3.0.0-M3"
@@ -19,7 +19,7 @@ object Dependencies {
     val Scala212              = "2.12.13"
     val Scala213              = "2.13.5"
     val Scala3                = "3.0.0-RC1"
-    val ScalaCollCompat       = "2.4.2"
+    val ScalaCollCompat       = "2.4.3"
     val ScalaJsDom            = "1.1.0"
     val Scalaz72              = "7.2.31"
     val Sourcecode            = "0.2.4"

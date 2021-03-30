@@ -20,10 +20,8 @@ object JsLikeComponentTest extends TestSuite {
 
   val o = js.Dynamic.literal("hello" -> 123)
 
-  private def testAssertionFires[A](errFrag: String)(a: => A): String =
-    if (TestEnv.fullCI)
-      ""
-    else
+  private def testAssertionFires[A](errFrag: String)(a: => A): Unit =
+    if (!TestEnv.fullCI)
       expectErrorContaining(errFrag)(a)
 
   override def tests = Tests {
