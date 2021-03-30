@@ -14,7 +14,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
   def apply[P <: js.Object, C <: Children]
            (raw: js.Any)
-           (implicit s: CtorType.Summoner[P, C], where: sourcecode.FullName, line: sourcecode.Line): Component[P, s.CT] = {
+           (implicit s: CtorType.Summoner[P, C], where: sourcecode.File, line: sourcecode.Line): Component[P, s.CT] = {
     InspectRaw.assertValidJsFn(raw, where, line)
     force[P, C](raw)(s)
   }

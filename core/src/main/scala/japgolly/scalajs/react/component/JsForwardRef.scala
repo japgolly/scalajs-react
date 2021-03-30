@@ -14,7 +14,7 @@ object JsForwardRef {
 
   def apply[P <: js.Object, C <: Children, R]
            (raw: js.Any)
-           (implicit s: CtorType.Summoner[P, C], where: sourcecode.FullName, line: sourcecode.Line): Component[P, R, s.CT] = {
+           (implicit s: CtorType.Summoner[P, C], where: sourcecode.File, line: sourcecode.Line): Component[P, R, s.CT] = {
     InspectRaw.assertValidJsForwardRefComponent(raw, where, line)
     force[P, C, R](raw)(s)
   }
