@@ -17,7 +17,7 @@ import scala.scalajs.js.|
 abstract class Attr[-U](final val attrName: String) {
   override final def toString = s"VdomAttr{name=$attrName}"
 
-  override def hashCode = attrName.##
+  override def hashCode = attrName.hashCode
   override def equals(any: Any) = any match {
     case that: Attr[_] => this.attrName == that.attrName
     case _             => false
@@ -29,6 +29,7 @@ abstract class Attr[-U](final val attrName: String) {
     O.fold(oa, TagMod.empty)(:=(_))
 }
 
+// TODO: [3] Make erased class
 @implicitNotFound("You are passing a CallbackTo[${A}] to a DOM event handler which is most likely a mistake."
   + "\n  If the result is irrelevant, add `.void`."
   + "\n  If the result is necessary, please raise an issue and use `vdom.DomCallbackResult.force` in the meantime.")
@@ -76,10 +77,12 @@ object Attr {
     override def :=[A](a: A)(implicit t: ValueType[A, js.Function1[E[Nothing], Unit]]): TagMod =
       TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Unit]]), a))
 
-    def -->[A](callback: => CallbackTo[A])(using erased DomCallbackResult[A]): TagMod =
+    // TODO: [3] Remove `ev: `
+    def -->[A](callback: => CallbackTo[A])(using erased ev: DomCallbackResult[A]): TagMod =
       ==>(_ => callback)
 
-    def ==>[A](eventHandler: Event => CallbackTo[A])(using erased DomCallbackResult[A]): TagMod =
+    // TODO: [3] Remove `ev: `
+    def ==>[A](eventHandler: Event => CallbackTo[A])(using erased ev: DomCallbackResult[A]): TagMod =
       :=(((e: Event) => eventHandler(e).runNow()): js.Function1[E[Nothing], Unit])(ValueType.direct)
 
     def -->?[O[_]](callback: => O[Callback])(implicit o: OptionLike[O]): TagMod =
@@ -130,12 +133,8 @@ object Attr {
       TagMod.fn(b => t.fn(b.setKey, a))
   }
 
-  object Ref extends Attr[raw.React.RefFn[_ <: TopNode]]("ref") {
-    override def :=[A](a: A)(implicit t: ValueType[A, raw.React.RefFn[_ <: TopNode]]) =
-      t(attrName, a)
-    private[vdom] def apply[N <: TopNode](r: japgolly.scalajs.react.Ref.Set[N]): TagMod =
-      :=(r.rawSetFn)(ValueType.direct)
-  }
+  def ref[N <: TopNode](r: japgolly.scalajs.react.Ref.Set[N]): TagMod =
+    ValueType.direct("ref", r.rawSetFn)
 
   object UntypedRef extends Attr[raw.React.RefFn[TopNode]]("ref") {
     override def :=[A](a: A)(implicit t: ValueType[A, raw.React.RefFn[TopNode]]) =
@@ -169,7 +168,7 @@ object Attr {
 
     type Fn[-A] = (js.Any => Unit, A) => Unit
 
-    def apply[A, U](fn: Fn[A]): ValueType[A, U] =
+    inline def apply[A, U](fn: Fn[A]): ValueType[A, U] =
       new ValueType(fn)
 
     val direct: ValueType[js.Any, Nothing] =

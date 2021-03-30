@@ -15,7 +15,7 @@ import scala.scalajs.js.|
 abstract class Attr[-U](final val attrName: String) {
   override final def toString = s"VdomAttr{name=$attrName}"
 
-  override def hashCode = attrName.##
+  override def hashCode = attrName.hashCode
   override def equals(any: Any) = any match {
     case that: Attr[_] => this.attrName == that.attrName
     case _             => false
@@ -128,12 +128,8 @@ object Attr {
       TagMod.fn(b => t.fn(b.setKey, a))
   }
 
-  object Ref extends Attr[raw.React.RefFn[_ <: TopNode]]("ref") {
-    override def :=[A](a: A)(implicit t: ValueType[A, raw.React.RefFn[_ <: TopNode]]) =
-      t(attrName, a)
-    private[vdom] def apply[N <: TopNode](r: japgolly.scalajs.react.Ref.Set[N]): TagMod =
-      :=(r.rawSetFn)(ValueType.direct)
-  }
+  def ref[N <: TopNode](r: japgolly.scalajs.react.Ref.Set[N]): TagMod =
+    ValueType.direct("ref", r.rawSetFn)
 
   object UntypedRef extends Attr[raw.React.RefFn[TopNode]]("ref") {
     override def :=[A](a: A)(implicit t: ValueType[A, raw.React.RefFn[TopNode]]) =

@@ -18,7 +18,7 @@ object VdomElement {
       override def rawElement = n
     }
 
-  // TODO: [3] re-enable
+  // TODO: [3] re-enable after ScalaComponent
   // def static(vdom: VdomElement): VdomElement =
   //   japgolly.scalajs.react.ScalaComponent.static("")(vdom)()
 }

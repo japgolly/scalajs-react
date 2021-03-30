@@ -8,7 +8,7 @@ files="$(fgrep /src/ todo-scala3.md | fgrep "$1")"
 for f in $files; do
   echo
   echo "Reusing: $f"
-  ./mv_src -g s "$f"
+  ./mv_src s "$f"
   perl -pi -e 's!'"$f"'\n!!' todo-scala3.md
 done
 echo

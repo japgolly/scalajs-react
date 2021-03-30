@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-trait CallbackCompilationTest {
+trait CompilationTest {
 
   def bool: Boolean
 
@@ -29,4 +29,9 @@ trait CallbackCompilationTest {
 
     x.when(_ > 3)
   }
+
+  // ===================================================================================================================
+  // Misc
+
+  PropsChildren(())
 }

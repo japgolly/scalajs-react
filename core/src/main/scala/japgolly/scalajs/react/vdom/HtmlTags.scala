@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.vdom.Exports._
+import japgolly.scalajs.react.vdom.VdomCreation._
 import org.scalajs.dom.{html => H}
 
 object HtmlTags extends HtmlTags
@@ -9,7 +10,7 @@ trait HtmlTags {
   /**
     * Represents a hyperlink, linking to another resource.
     */
-  object a extends TagOf[*.Anchor]("a") {
+  object a extends TagOf[H.Anchor]("a") {
 
     /** A link to open a new window (tab) to a given URL.
       *
@@ -299,7 +300,7 @@ trait HtmlTags {
     * The HTML element &lt;input&gt; is used to create interactive controls for web-based forms in order to accept data
     * from the user. How an &lt;input&gt; works varies considerably depending on the value of its type attribute.
     */
-  object input extends TagOf[*.Input]("input") {
+  object input extends TagOf[H.Input]("input") {
 
     private[this] val `type` = VdomAttr[String]("type")
 

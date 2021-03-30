@@ -25,8 +25,8 @@ sealed abstract class CtorType[-P, +U] {
 
   // This should really be on Children but I don't want to deal with types -> terms right now
   def liftChildren(r: raw.PropsChildren): ChildrenArgs = {
-    import japgolly.scalajs.react.vdom.Implicits._
-    (PropsChildren(r): vdom.VdomNode) :: Nil
+    import japgolly.scalajs.react.vdom.Implicits.vdomNodeFromPropsChildren
+    vdomNodeFromPropsChildren(PropsChildren(r)) :: Nil
   }
 
   def addMod(f: ModFn): This[P, U]

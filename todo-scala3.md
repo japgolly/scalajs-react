@@ -1,8 +1,6 @@
 Port
 ====
 
-core/src/main/scala-2/japgolly/scalajs/react/CtorType.scala
-core/src/main/scala-2/japgolly/scalajs/react/PropsChildren.scala
 core/src/main/scala-2/japgolly/scalajs/react/React.scala
 core/src/main/scala-2/japgolly/scalajs/react/ReactDOM.scala
 core/src/main/scala-2/japgolly/scalajs/react/ReactDOMServer.scala
@@ -10,33 +8,13 @@ core/src/main/scala-2/japgolly/scalajs/react/Ref.scala
 core/src/main/scala-2/japgolly/scalajs/react/Reusability.scala
 core/src/main/scala-2/japgolly/scalajs/react/Reusable.scala
 core/src/main/scala-2/japgolly/scalajs/react/ScalaJsReactConfig.scala
-core/src/main/scala-2/japgolly/scalajs/react/SetStateFns.scala
-core/src/main/scala-2/japgolly/scalajs/react/StateAccess.scala
 core/src/main/scala-2/japgolly/scalajs/react/StateAccessor.scala
 core/src/main/scala-2/japgolly/scalajs/react/UpdateSnapshot.scala
 
-core/src/main/scala-2/japgolly/scalajs/react/feature/Context.scala
-core/src/main/scala-2/japgolly/scalajs/react/feature/Profiler.scala
-core/src/main/scala-2/japgolly/scalajs/react/feature/ReactFragment.scala
-
 core/src/main/scala-2/japgolly/scalajs/react/internal/CompileTimeInfo.scala
-
-core/src/main/scala-2/japgolly/scalajs/react/vdom/Exports.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/HtmlAttrs.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/HtmlStyles.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/HtmlTags.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/Implicits.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/Packages.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/ReactPortal.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/Style.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/SvgAttrs.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/SvgStyles.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/SvgTags.scala
-core/src/main/scala-2/japgolly/scalajs/react/vdom/Tag.scala
 
 core/src/main/scala-2/japgolly/scalajs/react/component/builder/Builder.scala
 core/src/main/scala-2/japgolly/scalajs/react/component/builder/EntryPoint.scala
-core/src/main/scala-2/japgolly/scalajs/react/component/builder/InitState.scala
 core/src/main/scala-2/japgolly/scalajs/react/component/builder/Lifecycle.scala
 core/src/main/scala-2/japgolly/scalajs/react/component/builder/ViaReactComponent.scala
 
@@ -78,6 +56,7 @@ Later
 * Remove runtime footprint
   * JsRepr
   * OptionLike for Option
+  * Component builder
 * Ensure everything in scala-3's xxx is covered
   * `react/package.scala`
   * `ReactExtensions`
