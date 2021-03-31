@@ -96,7 +96,7 @@ object JsForwardRef {
     }
 
   private def setRef[CT[-p, +u] <: CtorType[p, u], P, U](c: CT[P, U], ref: Ref.Handle[_]): CT[P, U] =
-    CtorType.hackBackToSelf(c)(c.withRawProp("ref", ref.raw))
+    CtorType.hackBackToSelf[CT, P, U](c)(c.withRawProp("ref", ref.raw))
 
   protected final def mappedC[R,
       P2, CT2[-p, +u] <: CtorType[p, u], U2,
@@ -126,7 +126,6 @@ object JsForwardRef {
         }
     }
 
-
   // ===================================================================================================================
 
   sealed trait UnmountedSimple[P, R, M] extends Generic.UnmountedSimple[P, M] {
@@ -137,7 +136,7 @@ object JsForwardRef {
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, R, M]
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, R, M2]
 
-    override final def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted = {
+    override final def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): this.Mounted = {
       val result = Raw.ReactDOM.render(raw, container, callback.toJsFn)
 
       // Protect against future React change.
@@ -162,7 +161,7 @@ object JsForwardRef {
   def unmountedRoot[P <: js.Object, R](r: Raw.React.ComponentElement[P]): UnmountedRoot[P, R] =
     new UnmountedRoot[P, R] {
       override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identityFn)
-      override def mapMounted[M2](f: Mounted => M2) = mappedU(this)(identityFn, f)
+      override def mapMounted[M2](f: this.Mounted => M2) = mappedU(this)(identityFn, f)
 
       override def root          = this
       override val raw           = r

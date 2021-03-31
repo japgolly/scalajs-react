@@ -183,7 +183,7 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
     componentRoot[P, s.CT, Unmounted[P, S]](rc, s.pf.rmap(s.summon(rc))(unmounted))(s.pf)
 
   def unmounted[P <: js.Object, S <: js.Object](r: RAW.React.ComponentElement[P]): Unmounted[P, S] =
-    unmountedRoot(r, mounted)
+    unmountedRoot(r, mounted[P, S])
 
   def mounted[P <: js.Object, S <: js.Object](r: RawMounted[P, S]): Mounted[P, S] =
     mountedRoot(r)
@@ -247,7 +247,11 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
     import japgolly.scalajs.react.Ref
 
     def withRef(ref: Ref.Handle[R]): ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0] =
-      self.mapCtorType(ct => CtorType.hackBackToSelf(ct)(ct.withRawProp("ref", ref.raw)))(self.ctorPF)
+      self.mapCtorType(ct =>
+        CtorType.hackBackToSelf[CT1,P1,UnmountedMapped[F,P1,S1,R,P0,S0]](ct)(
+          ct.withRawProp("ref", ref.raw)
+        )
+      )(self.ctorPF)
 
     @deprecated("Use .withOptionalRef", "1.7.0")
     def withRef(r: Option[Ref.Handle[R]]): ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0] =

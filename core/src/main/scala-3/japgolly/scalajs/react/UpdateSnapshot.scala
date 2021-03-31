@@ -1,6 +1,8 @@
 package japgolly.scalajs.react
 
 import scala.annotation.implicitNotFound
+import scala.compiletime.erasedValue
+import scala.language.`3.0`
 
 sealed trait UpdateSnapshot {
   type Value
@@ -18,8 +20,8 @@ object UpdateSnapshot {
 
   @implicitNotFound("You can only specify getSnapshotBeforeUpdate once, and it has to be before " +
     "you specify componentDidUpdate, otherwise the snapshot type could become inconsistent.")
-  sealed trait SafetyProof[U <: UpdateSnapshot]
+  type SafetyProof[U <: UpdateSnapshot]
 
-  implicit def safetyProof[U <: UpdateSnapshot](implicit ev: U =:= UpdateSnapshot.None): SafetyProof[U] =
-    null.asInstanceOf[SafetyProof[U]]
+  erased given safetyProof[U <: UpdateSnapshot](using erased U =:= UpdateSnapshot.None): SafetyProof[U] =
+    erasedValue
 }

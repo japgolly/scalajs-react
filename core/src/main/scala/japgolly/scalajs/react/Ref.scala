@@ -162,7 +162,7 @@ object Ref {
       new ToComponent(ref, c)
 
     def inject[I, R, O, CT[-p, +u] <: CtorType[p, u], P, U](c: CT[P, U], ref: Full[I, R, O]): ToComponent[I, R, O, CT[P, U]] =
-      apply(ref, CtorType.hackBackToSelf(c)(c.withRawProp("ref", ref.rawSetFn)))
+      apply(ref, CtorType.hackBackToSelf[CT, P, U](c)(c.withRawProp("ref", ref.rawSetFn)))
   }
 
   // ===================================================================================================================

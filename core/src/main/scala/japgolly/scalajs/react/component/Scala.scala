@@ -7,24 +7,25 @@ import scala.scalajs.js
 
 object Scala {
 
-  val builder = japgolly.scalajs.react.component.builder.EntryPoint
+  // TODO: [3] restore Scala.{builder,static,etc}
+  // val builder = japgolly.scalajs.react.component.builder.EntryPoint
 
-  /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
-  def static(name: => String)(content: VdomNode): Component[Unit, Unit, Unit, CtorType.Nullary] =
-    builder.static(name)(content).build
+  // /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
+  // def static(name: => String)(content: VdomNode): Component[Unit, Unit, Unit, CtorType.Nullary] =
+  //   builder.static(name)(content).build
 
-  /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
-  def static(content: VdomNode)(implicit name: AutoComponentName): Component[Unit, Unit, Unit, CtorType.Nullary] =
-    builder.static(content)(name).build
+  // /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
+  // def static(content: VdomNode)(implicit name: AutoComponentName): Component[Unit, Unit, Unit, CtorType.Nullary] =
+  //   builder.static(content)(name).build
 
-  val Lifecycle = japgolly.scalajs.react.component.builder.Lifecycle
+  // val Lifecycle = japgolly.scalajs.react.component.builder.Lifecycle
 
-  /** This is terrible and repulsive but Scala doesn't allow anything less repulsive.
-    * We'll keep this correctly modelling the reality for now and soon see if maybe we can use macros to
-    * simplify it's creation (and avoid the need to use this explicitly).
-    */
-  type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
-    japgolly.scalajs.react.component.builder.Builder.Config[P, C, S, B, US, US2]
+  // /** This is terrible and repulsive but Scala doesn't allow anything less repulsive.
+  //   * We'll keep this correctly modelling the reality for now and soon see if maybe we can use macros to
+  //   * simplify it's creation (and avoid the need to use this explicitly).
+  //   */
+  // type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
+  //   japgolly.scalajs.react.component.builder.Builder.Config[P, C, S, B, US, US2]
 
   // ===================================================================================================================
 

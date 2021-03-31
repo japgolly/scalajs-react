@@ -63,7 +63,7 @@ object CtorType {
     mods.fold(Mod(f))(_ >> f)
 
   // How do I prove this? (without sealing and pattern matching)
-  @inline def hackBackToSelf[CT[-p, +u] <: CtorType[p, u], P2, U2](c: CT[_, _])(t: c.This[P2, U2]): CT[P2, U2] =
+  @inline def hackBackToSelf[CT[-p, +u] <: CtorType[p, u], P2, U2](c: CT[Nothing, Any])(t: c.This[P2, U2]): CT[P2, U2] =
     t.asInstanceOf[CT[P2, U2]]
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

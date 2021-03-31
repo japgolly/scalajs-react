@@ -115,7 +115,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
-    override final def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): Mounted = {
+    override final def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): this.Mounted = {
       val result = RAW.ReactDOM.render(raw, container, callback.toJsFn)
 
       // Protect against future React change.
@@ -140,7 +140,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
   def unmountedRoot[P <: js.Object](r: RAW.React.ComponentElement[P]): UnmountedRoot[P] =
     new UnmountedRoot[P] {
       override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identityFn)
-      override def mapMounted[M2](f: Mounted => M2) = mappedU(this)(identityFn, f)
+      override def mapMounted[M2](f: this.Mounted => M2) = mappedU(this)(identityFn, f)
 
       override def root          = this
       override val raw           = r
