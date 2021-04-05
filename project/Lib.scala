@@ -1,7 +1,6 @@
 import sbt._
 import Keys._
 import com.jsuereth.sbtpgp.PgpKeys._
-import dotty.tools.sbtplugin.DottyPlugin.autoImport._
 import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import xerial.sbt.Sonatype.autoImport._
@@ -36,15 +35,14 @@ object Lib {
   def sourceMapsToGithub(ghProject: String): PE =
     p => p.settings(
       scalacOptions ++= {
-        val _isDotty    = isDotty.value
-        val _isSnapshot = isSnapshot.value
-        val ver         = version.value
-        if (_isSnapshot)
+        val isDotty = scalaVersion.value startsWith "3"
+        val ver     = version.value
+        if (isSnapshot.value)
           Nil
         else {
           val a = p.base.toURI.toString.replaceFirst("[^/]+/?$", "")
           val g = s"https://raw.githubusercontent.com/japgolly/$ghProject"
-          val flag = if (_isDotty) "-scalajs-mapSourceURI" else "-P:scalajs:mapSourceURI"
+          val flag = if (isDotty) "-scalajs-mapSourceURI" else "-P:scalajs:mapSourceURI"
           s"$flag:$a->$g/v$ver/" :: Nil
         }
       }
@@ -66,9 +64,9 @@ object Lib {
 
   def definesMacros: Project => Project =
     _.settings(
-      scalacOptions       ++= (if (isDotty.value) Nil else Seq("-language:experimental.macros")),
+      scalacOptions       ++= (if (scalaVersion.value startsWith "3") Nil else Seq("-language:experimental.macros")),
+      libraryDependencies ++= (if (scalaVersion.value startsWith "3") Nil else Seq(Dep.ScalaReflect.value, Dep.ScalaCompiler.value % Provided)),
       libraryDependencies  += Dep.MicrolibsMacroUtils.value,
-      libraryDependencies ++= (if (isDotty.value) Nil else Seq(Dep.ScalaReflect.value, Dep.ScalaCompiler.value % Provided)),
     )
 
   def hasNoTests: Project => Project =

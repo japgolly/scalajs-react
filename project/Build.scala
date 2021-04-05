@@ -2,7 +2,6 @@ import sbt._
 import sbt.Keys._
 import com.jsuereth.sbtpgp.PgpKeys
 import com.jsuereth.sbtpgp.PgpKeys._
-import dotty.tools.sbtplugin.DottyPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
@@ -88,7 +87,7 @@ object ScalajsReact {
         releasePublishArtifactsAction := PgpKeys.publishSigned.value,
         releaseTagComment             := s"v${(ThisBuild / version).value}",
         releaseVcsSign                := true,
-        libraryDependencies          ++= Seq(Dep.BetterMonadicFor, Dep.KindProjector).filterNot(_ => isDotty.value),
+        libraryDependencies          ++= Seq(Dep.BetterMonadicFor, Dep.KindProjector).filter(_ => scalaVersion.value startsWith "2"),
         disable                       := false,
       )
 

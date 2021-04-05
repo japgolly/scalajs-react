@@ -1,5 +1,5 @@
 ThisBuild / scalacOptions ++= {
-  if (!isDotty.value)
+  if (scalaVersion.value startsWith "2")
     "-Yrangepos" :: Nil
   else
     Nil
