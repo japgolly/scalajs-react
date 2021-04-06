@@ -56,10 +56,10 @@ object Lib {
   def utestSettings: PE =
     _.configure(InBrowserTesting.js)
       .settings(
-        jsEnv                 := new JSDOMNodeJSEnv,
-        scalacOptions in Test += "-language:reflectiveCalls",
-        libraryDependencies   += Dep.MTest.value % Test,
-        testFrameworks        += new TestFramework("utest.runner.Framework"))
+        jsEnv                := new JSDOMNodeJSEnv,
+        Test / scalacOptions += "-language:reflectiveCalls",
+        libraryDependencies  += Dep.MTest.value % Test,
+        testFrameworks       += new TestFramework("utest.runner.Framework"))
 
   def extModuleName(shortName: String): PE =
     _.settings(name := s"ext-$shortName")
@@ -73,11 +73,11 @@ object Lib {
 
   def hasNoTests: Project => Project =
     _.settings(
-      fastOptJS     in Test := Attributed(artifactPath.in(fastOptJS).in(Test).value)(AttributeMap.empty),
-      fullOptJS     in Test := Attributed(artifactPath.in(fullOptJS).in(Test).value)(AttributeMap.empty),
-      sbt.Keys.test in Test := { (Test / compile).value; () },
-      testOnly      in Test := { (Test / compile).value; () },
-      testQuick     in Test := { (Test / compile).value; () })
+      Test / fastOptJS     := Attributed((Test / fastOptJS / artifactPath).value)(AttributeMap.empty),
+      Test / fullOptJS     := Attributed((Test / fullOptJS / artifactPath).value)(AttributeMap.empty),
+      Test / sbt.Keys.test := { (Test / compile).value; () },
+      Test / testOnly      := { (Test / compile).value; () },
+      Test / testQuick     := { (Test / compile).value; () })
 
   /*
   lazy val yarnOnPath: Boolean =

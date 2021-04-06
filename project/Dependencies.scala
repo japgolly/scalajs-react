@@ -14,7 +14,7 @@ object Dependencies {
     val CatsEffect            = "2.4.1"
     val Microlibs             = "2.6-RC2" // (macro-utils only)
     val MonocleCats           = "2.1.0"
-    val Monocle3              = "3.0.0-M3"
+    val Monocle3              = "3.0.0-M4"
     val MonocleScalaz         = "1.6.3"
     val Scala212              = "2.12.13"
     val Scala213              = "2.13.5"
@@ -22,19 +22,19 @@ object Dependencies {
     val ScalaCollCompat       = "2.4.3"
     val ScalaJsDom            = "1.1.0"
     val Scalaz72              = "7.2.31"
-    val Sourcecode            = "0.2.4"
+    val Sourcecode            = "0.2.5"
 
     // Internal
     val BetterMonadicFor      = "0.3.1"
-    val CatsTestkitScalaTest  = "2.1.2"
-    val DisciplineScalaTest   = "2.1.2"
+    val CatsTestkitScalaTest  = "2.1.3"
+    val DisciplineScalaTest   = "2.1.3"
     val KindProjector         = "0.11.3"
     val MacroParadise         = "2.1.1"
-    val MTest                 = "0.7.7"
+    val MTest                 = "0.7.8"
     val Nyaya                 = "0.10.0-RC1"
     val ReactJs               = "16.14.0"
     val ScalaJsJavaTime       = "1.0.0"
-    val ScalaTest             = "3.2.6"
+    val ScalaTest             = "3.2.7"
     val SizzleJs              = "2.3.0"
   }
 
@@ -119,7 +119,7 @@ object Dependencies {
             dependsOn "umd/react-dom.development.js"
             commonJSName "ReactDOMServer"),
 
-        skip in packageJSDependencies := false)
+        packageJSDependencies / skip := false)
 
   def addMacroParadise: Project => Project =
     _.settings(libraryDependencies ++= {
