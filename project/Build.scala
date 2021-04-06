@@ -69,7 +69,7 @@ object ScalajsReact {
         incOptions                    := incOptions.value.withLogRecompileOnMacro(false),
         updateOptions                 := updateOptions.value.withCachedResolution(true),
         releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-        releaseTagComment             := s"v${(version in ThisBuild).value}",
+        releaseTagComment             := s"v${(ThisBuild / version).value}",
         releaseVcsSign                := true,
         disable                       := false,
         libraryDependencies           += Dep.BetterMonadicFor)
@@ -117,7 +117,7 @@ object ScalajsReact {
     .dependsOn(cats % "test->compile")
     .settings(
       name := "test",
-      scalacOptions in Test --= Seq(
+      Test / scalacOptions --= Seq(
         "-deprecation",
         "-Xlint:adapted-args"
       ),
@@ -180,7 +180,7 @@ object ScalajsReact {
     .dependsOn(core, extra, cats)
     .settings(
       // Share the internal source code files with this module
-      unmanagedSourceDirectories in Compile += (sourceDirectory in (monocleScalaz, Compile)).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
+      Compile / unmanagedSourceDirectories += (monocleScalaz / Compile / sourceDirectory).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
       libraryDependencies += Dep.MonocleCats.value)
 
   lazy val catsEffect = project
@@ -222,7 +222,7 @@ object ScalajsReact {
       libraryDependencies += Dep.MonocleScalazMacro.value,
       scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       scalaJSUseMainModuleInitializer := true,
-      mainClass in Compile := Some("ghpages.GhPages"),
-      artifactPath in (Compile, fullOptJS) := file("gh-pages/res/ghpages.js"))
+      Compile / mainClass := Some("ghpages.GhPages"),
+      Compile / fullOptJS / artifactPath := file("gh-pages/res/ghpages.js"))
 
 }

@@ -110,7 +110,7 @@ object Dependencies {
             dependsOn "umd/react-dom.development.js"
             commonJSName "ReactDOMServer"),
 
-        skip in packageJSDependencies := false)
+        packageJSDependencies / skip := false)
 
   def addMacroParadise: Project => Project =
     _.settings(libraryDependencies ++= {
