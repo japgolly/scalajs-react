@@ -98,18 +98,18 @@ object ScalajsReact {
     .configure(commonSettings, preventPublication, hasNoTests)
     .aggregate(
       core,
-      extra,
-      test,
-      // testModule,
-      scalaz72,
-      cats,
-      // catsEffect,
-      monocleScalaz,
-      // monocleCats,
-      monocle3,
-      ghpagesMacros,
-      ghpages)
-
+//      extra,
+//      test,
+//      // testModule,
+//      scalaz72,
+//      cats,
+//      // catsEffect,
+//      monocleScalaz,
+//      // monocleCats,
+//      monocle3,
+//      ghpagesMacros,
+//      ghpages)
+    )
   // ==============================================================================================
 
   lazy val core = project
@@ -120,7 +120,7 @@ object ScalajsReact {
         Dep.ScalaCollCompat.value,
         Dep.ScalaJsDom.value,
         Dep.Sourcecode.value))
-
+/*
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .dependsOn(core)
@@ -151,7 +151,7 @@ object ScalajsReact {
         (ProvidedJS / "component-fn.js"  dependsOn Dep.ReactDom.dev) % Test,
         (ProvidedJS / "forward-ref.js"   dependsOn Dep.ReactDom.dev) % Test,
         (ProvidedJS / "polyfill.js"      dependsOn Dep.ReactDom.dev) % Test))
-
+*/
   /*
   lazy val testModule = project.in(file("test-module"))
     .configure(commonSettings, useScalaJsBundler, preventPublication, utestSettings)
@@ -164,7 +164,7 @@ object ScalajsReact {
         "react-addons-perf"                 -> "15.5.0-rc.2",
         "react-addons-css-transition-group" -> "16.7.0"))
   */
-
+/*
   lazy val scalaz72 = project
     .in(file("scalaz-7.2"))
     .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
@@ -235,5 +235,5 @@ object ScalajsReact {
       scalaJSUseMainModuleInitializer := true,
       Compile / mainClass := Some("ghpages.GhPages"),
       Compile / fullOptJS / artifactPath := file("gh-pages/res/ghpages.js"))
-
+*/
 }

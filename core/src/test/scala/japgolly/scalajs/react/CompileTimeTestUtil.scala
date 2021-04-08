@@ -24,4 +24,33 @@ object CompileTimeTestUtil {
     }
   }
 
+  inline def showCode[A](inline a: A): A =
+    ${ showCodeImpl('a) }
+
+  private def showCodeImpl[A](a: Expr[A])(using Quotes): Expr[A] = {
+    import quotes.reflect.*
+    val sep = "="*120
+    println(sep)
+    try
+      println(a.asTerm.show)
+    catch {
+      case t: Throwable =>
+        println(t.getMessage)
+    }
+    println(sep)
+    a
+  }
+
+  inline def showTasty[A](inline a: A): A =
+    ${ showTastyImpl('a) }
+
+  private def showTastyImpl[A](a: Expr[A])(using Quotes): Expr[A] = {
+    import quotes.reflect.*
+    val sep = "="*120
+    println(sep)
+    println(a.asTerm)
+    println(sep)
+    a
+  }
+
 }

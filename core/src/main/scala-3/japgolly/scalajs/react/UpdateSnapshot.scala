@@ -4,19 +4,18 @@ import scala.annotation.implicitNotFound
 import scala.compiletime.erasedValue
 import scala.language.`3.0`
 
-sealed trait UpdateSnapshot {
-  type Value
-}
+sealed trait UpdateSnapshot
 
 object UpdateSnapshot {
 
-  sealed trait None extends UpdateSnapshot {
-    override final type Value = Unit
-  }
+  sealed trait None extends UpdateSnapshot
+  sealed trait Some[A] extends UpdateSnapshot
 
-  sealed trait Some[A] extends UpdateSnapshot {
-    override final type Value = A
-  }
+  type Value[U <: UpdateSnapshot] =
+    U match {
+      case None    => Unit
+      case Some[a] => a
+    }
 
   @implicitNotFound("You can only specify getSnapshotBeforeUpdate once, and it has to be before " +
     "you specify componentDidUpdate, otherwise the snapshot type could become inconsistent.")

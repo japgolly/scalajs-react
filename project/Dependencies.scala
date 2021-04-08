@@ -21,7 +21,7 @@ object Dependencies {
     val ScalaCollCompat       = "2.4.3"
     val ScalaJsDom            = "1.1.0"
     val Scalaz72              = "7.2.31"
-    val Sourcecode            = "0.2.5"
+    val Sourcecode            = "0.2.4" // TODO: 0.2.5
 
     // Internal
     val BetterMonadicFor      = "0.3.1"
@@ -29,7 +29,7 @@ object Dependencies {
     val DisciplineScalaTest   = "2.1.3"
     val KindProjector         = "0.11.3"
     val MacroParadise         = "2.1.1"
-    val MTest                 = "0.7.8"
+    val MTest                 = "0.7.7" // TODO: 0.7.8
     val Nyaya                 = "0.10.0-RC1"
     val ReactJs               = "16.14.0"
     val ScalaJsJavaTime       = "1.0.0"

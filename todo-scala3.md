@@ -9,7 +9,6 @@ core/src/main/scala-2/japgolly/scalajs/react/Reusable.scala
 core/src/main/scala-2/japgolly/scalajs/react/ScalaJsReactConfig.scala
 core/src/main/scala-2/japgolly/scalajs/react/StateAccessor.scala
 
-core/src/main/scala-2/japgolly/scalajs/react/component/builder/Builder.scala
 core/src/main/scala-2/japgolly/scalajs/react/component/builder/EntryPoint.scala
 core/src/main/scala-2/japgolly/scalajs/react/component/builder/ViaReactComponent.scala
 
@@ -48,3 +47,4 @@ Later
 * Move into microlibs
   * `CompileTimeTestUtil`
   * `CompileTimeInfo` and rename
+* Can comp-builder endo-fns be greatly simplified using the new polymorphic fns?
