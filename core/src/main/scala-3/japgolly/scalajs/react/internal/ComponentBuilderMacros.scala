@@ -17,7 +17,10 @@ object ComponentBuilderMacros {
   import japgolly.scalajs.react.PropsChildren
   import japgolly.scalajs.react.component.Scala.BackendScope
 
-  // TODO: type  = BackendScope[P, S] => B
+  // ===================================================================================================================
+
+  inline def newBackendFn[P, S, B]: NewBackendFn[P, S, B] =
+    ${ newBackendFnImpl[P, S, B] }
 
   private def newBackendFnImpl[P: Type, S: Type, B: Type](using Quotes): Expr[NewBackendFn[P, S, B]] = {
 
@@ -52,10 +55,28 @@ object ComponentBuilderMacros {
     '{ input => ${ lambdaBody('input) } }
   }
 
-  inline def newBackendFn[P, S, B]: NewBackendFn[P, S, B] =
-    ${ newBackendFnImpl[P, S, B] }
-
   // ===================================================================================================================
+
+  def renderBackendFnImpl[P: Type, S: Type, B: Type](allowChildren: Boolean)(using Quotes): Expr[RenderFn[P, S, B]] =
+    renderBackendFnImpl[P, S, B](allowChildren, renderParams[P, S, B])
+
+  inline def renderBackendFn[P, S, B]: RenderFn[P, S, B] =
+    ${ renderBackendFnImpl[P, S, B](allowChildren = false) }
+
+  inline def renderBackendWithChildrenFn[P, S, B]: RenderFn[P, S, B] =
+    ${ renderBackendFnImpl[P, S, B](allowChildren = true) }
+
+  private def renderParams[P: Type, S: Type, B: Type](using Quotes): List[RenderParam[P, S, B, ?]] =
+    new RenderParam[P, S, B, P](i => '{$i.props})("p", "props") ::
+    new RenderParam[P, S, B, S](i => '{$i.state})("s", "state") ::
+    Nil
+
+//  def renderBackendSP[P: Type, Q: Type, S: Type, B: Type]: Tree =
+//    _renderBackend[B](
+//      new RenderParam[P]("props.static") ()             ::
+//      new RenderParam[Q]("props.dynamic")("p", "props") ::
+//      new RenderParam[S]("state")        ("s", "state") ::
+//      Nil)
 
   private final class RenderParam[P, S, B, T: Type](val select: Quotes ?=> Expr[RenderScope[P, S, B]] => Expr[T])(_names: String*) {
     def spec    (using q: Quotes): q.reflect.TypeRepr = q.reflect.TypeRepr.of[T]
@@ -180,25 +201,4 @@ object ComponentBuilderMacros {
 
     '{ input => ${ lambdaBody('input) } }
   }
-
-  private def renderParams[P: Type, S: Type, B: Type](using Quotes): List[RenderParam[P, S, B, ?]] =
-    new RenderParam[P, S, B, P](i => '{$i.props})("p", "props") ::
-    new RenderParam[P, S, B, S](i => '{$i.state})("s", "state") ::
-    Nil
-
-  def renderBackendFnImpl[P: Type, S: Type, B: Type](allowChildren: Boolean)(using Quotes): Expr[RenderFn[P, S, B]] =
-    renderBackendFnImpl[P, S, B](allowChildren, renderParams[P, S, B])
-
-  inline def renderBackendFn[P, S, B]: RenderFn[P, S, B] =
-    ${ renderBackendFnImpl[P, S, B](allowChildren = false) }
-
-  inline def renderBackendWithChildrenFn[P, S, B]: RenderFn[P, S, B] =
-    ${ renderBackendFnImpl[P, S, B](allowChildren = true) }
-
-//  def renderBackendSP[P: Type, Q: Type, S: Type, B: Type]: Tree =
-//    _renderBackend[B](
-//      new RenderParam[P]("props.static") ()             ::
-//      new RenderParam[Q]("props.dynamic")("p", "props") ::
-//      new RenderParam[S]("state")        ("s", "state") ::
-//      Nil)
 }

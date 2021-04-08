@@ -12,19 +12,37 @@ core/src/main/scala-2/japgolly/scalajs/react/StateAccessor.scala
 core/src/main/scala-2/japgolly/scalajs/react/component/builder/EntryPoint.scala
 core/src/main/scala-2/japgolly/scalajs/react/component/builder/ViaReactComponent.scala
 
-Blocked
-=======
+Soon
+====
+* Ridiculous circular dependencies between CBM, Builder, and core stuff
+* Fix vdom conversions
+* RC2 (?)
 
-* Waiting on
-    * https://github.com/scalatest/scalatest/issues/1982
-    * https://github.com/typelevel/cats-testkit-scalatest/issues/128
-    * https://github.com/typelevel/discipline-scalatest/issues/169
-  to
-    * Re-enable module: catsEffect
-    * Re-enable module: monocle3
-    * Re-enable module: monocleCats
+Later
+=====
 
-* Resolve: `TODO: bm4 currently unavailable with Scala 3`
+* Microlibs!
+  * Rename `macro-utils` to `compile-time`
+  * Move into it and rename:
+    * `CompileTimeTestUtil`
+    * `CompileTimeInfo`
+    * `NewMacroUtils`
+  * Make erased versions of `<:<` & `=:=` and use here
+
+* Remove runtime footprint
+  * JsRepr
+  * OptionLike for Option
+  * Component builder
+  * sourcecode
+
+* Ensure everything in scala-3's xxx is covered
+  * `react/package.scala`
+  * `ReactExtensions`
+
+* Can comp-builder endo-fns be greatly simplified using the new polymorphic fns?
+
+* Ensure we have all the edge-cases for the builder macros tested.
+  See f7f158dc8c999dcbd4935e9900f8411f8170af15
 
 Finally
 =======
@@ -32,19 +50,3 @@ Finally
 * Remove `reuse`
 * Remove `copy3`
 * Remove `delete-shit`
-
-Later
-=====
-* Replace microlibs' macro-utils with compile-time, make erased versions of `<:<` & `=:=`, and use here
-* Remove runtime footprint
-  * JsRepr
-  * OptionLike for Option
-  * Component builder
-  * sourcecode
-* Ensure everything in scala-3's xxx is covered
-  * `react/package.scala`
-  * `ReactExtensions`
-* Move into microlibs
-  * `CompileTimeTestUtil`
-  * `CompileTimeInfo` and rename
-* Can comp-builder endo-fns be greatly simplified using the new polymorphic fns?

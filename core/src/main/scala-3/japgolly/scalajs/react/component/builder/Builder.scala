@@ -34,6 +34,7 @@ object Builder {
     * If your component is to be stateless, you can skip this step or explicitly use `.stateless`.
     */
   final class Step1[P](name: String) {
+    type Next[S] = Step2[P, S]
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
       * subsequent updates.
@@ -86,22 +87,22 @@ object Builder {
       * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
       * not as a result of a local setState.
       */
-    def getDerivedStateFromPropsAndState[S](f: (P, Option[S]) => S): Step2[P, S] =
+    def getDerivedStateFromPropsAndState[S](f: (P, Option[S]) => S): Next[S] =
       new Step2(name, InitState.DerivedFromPropsAndState(f))
 
-    def initialState[S](s: => S): Step2[P, S] =
+    def initialState[S](s: => S): Next[S] =
       new Step2(name, InitState.InitialState(_ => Box(s)))
 
-    def initialStateFromProps[S](f: P => S): Step2[P, S] =
+    def initialStateFromProps[S](f: P => S): Next[S] =
       new Step2(name, InitState.InitialState(p => Box(f(p.unbox))))
 
-    def initialStateCallback[S](cb: CallbackTo[S]): Step2[P, S] =
+    def initialStateCallback[S](cb: CallbackTo[S]): Next[S] =
       initialState(cb.runNow())
 
-    def initialStateCallbackFromProps[S](f: P => CallbackTo[S]): Step2[P, S] =
+    def initialStateCallbackFromProps[S](f: P => CallbackTo[S]): Next[S] =
       initialStateFromProps(f(_).runNow())
 
-    def stateless: Step2[P, Unit] =
+    def stateless: Next[Unit] =
       new Step2(name, InitState.stateless)
   }
 
@@ -120,11 +121,12 @@ object Builder {
     * special privileges.
     */
   final class Step2[P, S](name: String, initState: InitState[P, S]) {
+    type Next[B] = Step3[P, S, B]
 
-    def backend[B](f: NewBackendFn[P, S, B]): Step3[P, S, B] =
+    def backend[B](f: NewBackendFn[P, S, B]): Next[B] =
       new Step3(name, initState, f)
 
-    def noBackend: Step3[P, S, Unit] =
+    def noBackend: Next[Unit] =
       backend(_ => ())
 
     /**
@@ -165,10 +167,11 @@ object Builder {
     * everything it needs automatically.
     */
   final class Step3[P, S, B](name: String, initState: InitState[P, S], backendFn: NewBackendFn[P, S, B]) {
+    type Next[C <: Children, US <: UpdateSnapshot] = Step4[P, C, S, B, US]
 
     type $ = RenderScope[P, S, B]
 
-    def renderWith[C <: Children](r: RenderFn[P, S, B]): Step4[P, C, S, B, UpdateSnapshot.None] = {
+    def renderWith[C <: Children](r: RenderFn[P, S, B]): Next[C, UpdateSnapshot.None] = {
       var lc = Lifecycle.empty[P, S, B]
       initState match {
         case InitState.DerivedFromProps        (f) => lc = lc.copy(getDerivedStateFromProps = Some((p, _) => Some(f(p))))
@@ -180,73 +183,73 @@ object Builder {
 
     // No args
 
-    def renderStatic(r: VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def renderStatic(r: VdomNode): Next[Children.None, UpdateSnapshot.None] =
       renderWith(_ => r)
 
-    def render_(r: => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def render_(r: => VdomNode): Next[Children.None, UpdateSnapshot.None] =
       renderWith(_ => r)
 
     // No children
 
-    def render(r: RenderFn[P, S, B]): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def render(r: RenderFn[P, S, B]): Next[Children.None, UpdateSnapshot.None] =
       renderWith(r)
 
-    def renderPS(r: ($, P, S) => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def renderPS(r: ($, P, S) => VdomNode): Next[Children.None, UpdateSnapshot.None] =
        renderWith($ => r($, $.props, $.state))
 
-    def renderP(r: ($, P) => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def renderP(r: ($, P) => VdomNode): Next[Children.None, UpdateSnapshot.None] =
       renderWith($ => r($, $.props))
 
-    def renderS(r: ($, S) => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def renderS(r: ($, S) => VdomNode): Next[Children.None, UpdateSnapshot.None] =
       renderWith($ => r($, $.state))
 
-    def render_PS(r: (P, S) => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def render_PS(r: (P, S) => VdomNode): Next[Children.None, UpdateSnapshot.None] =
       renderWith($ => r($.props, $.state))
 
-    def render_P(r: P => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def render_P(r: P => VdomNode): Next[Children.None, UpdateSnapshot.None] =
       renderWith($ => r($.props))
 
-    def render_S(r: S => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def render_S(r: S => VdomNode): Next[Children.None, UpdateSnapshot.None] =
       renderWith($ => r($.state))
 
     // Has children
 
-    def renderPCS(r: ($, P, PropsChildren, S) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    def renderPCS(r: ($, P, PropsChildren, S) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
       renderWith($ => r($, $.props, $.propsChildren, $.state))
 
-    def renderPC(r: ($, P, PropsChildren) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    def renderPC(r: ($, P, PropsChildren) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
       renderWith($ => r($, $.props, $.propsChildren))
 
-    def renderCS(r: ($, PropsChildren, S) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    def renderCS(r: ($, PropsChildren, S) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
       renderWith($ => r($, $.propsChildren, $.state))
 
-    def renderC(r: ($, PropsChildren) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    def renderC(r: ($, PropsChildren) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
       renderWith($ => r($, $.propsChildren))
 
-    def render_PCS(r: (P, PropsChildren, S) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    def render_PCS(r: (P, PropsChildren, S) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
       renderWith($ => r($.props, $.propsChildren, $.state))
 
-    def render_PC(r: (P, PropsChildren) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    def render_PC(r: (P, PropsChildren) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
       renderWith($ => r($.props, $.propsChildren))
 
-    def render_CS(r: (PropsChildren, S) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    def render_CS(r: (PropsChildren, S) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
       renderWith($ => r($.propsChildren, $.state))
 
-    def render_C(r: PropsChildren => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    def render_C(r: PropsChildren => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
       renderWith($ => r($.propsChildren))
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props and state
      * where needed.
      */
-    inline def renderBackend: Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    inline def renderBackend: Next[Children.None, UpdateSnapshot.None] =
       renderWith(ComponentBuilderMacros.renderBackendFn)
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props, state, and
      * propsChildren where needed.
      */
-    inline def renderBackendWithChildren: Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    inline def renderBackendWithChildren: Next[Children.Varargs, UpdateSnapshot.None] =
       renderWith(ComponentBuilderMacros.renderBackendWithChildrenFn)
   }
 

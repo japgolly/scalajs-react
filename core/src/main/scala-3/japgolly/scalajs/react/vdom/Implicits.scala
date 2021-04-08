@@ -107,11 +107,7 @@ trait ImplicitsForVdomNode {
 
   inline given vdomNodeFromByte         : Conversion[Byte          , VdomNode] = v => VdomNode.cast(v)
   inline given vdomNodeFromShort        : Conversion[Short         , VdomNode] = v => VdomNode.cast(v)
-  // inline given vdomNodeFromInt          : Conversion[Int           , VdomNode] = v => VdomNode.cast(v)
-
-  inline implicit def vdomNodeFromInt          (v: Int)           : VdomNode = VdomNode.cast(v)
-
-
+  inline given vdomNodeFromInt          : Conversion[Int           , VdomNode] = v => VdomNode.cast(v)
   inline given vdomNodeFromLong         : Conversion[Long          , VdomNode] = v => VdomNode.cast(v.toString)
   inline given vdomNodeFromFloat        : Conversion[Float         , VdomNode] = v => VdomNode.cast(v)
   inline given vdomNodeFromDouble       : Conversion[Double        , VdomNode] = v => VdomNode.cast(v)
