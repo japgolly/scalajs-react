@@ -4,7 +4,6 @@ import japgolly.scalajs.react.feature.ReactFragment
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{PropsChildren, raw}
 import scala.collection.compat._
-import scala.language.`3.0`
 import scala.scalajs.js
 
 // =====================================================================================================================
@@ -39,10 +38,10 @@ trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
   implicit lazy val vdomAttrVtByte    : Simple[Byte     ] = byImplicit
   implicit      val vdomAttrVtJsObject: Simple[js.Object] = direct
 
-  inline given vdomAttrVtJsDictionary[A]: ValueType[js.Dictionary[A], js.Object] = byImplicit
+  @inline implicit def vdomAttrVtJsDictionary[A]: ValueType[js.Dictionary[A], js.Object] = byImplicit
 
   // For attributes that aren't typed yet
-  inline implicit def vdomAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
+  @inline implicit def vdomAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
 }
 
 // =====================================================================================================================
@@ -55,7 +54,7 @@ object ImplicitsForTagMod {
 }
 
 trait ImplicitsForTagMod {
-  implicit def vdomOptionExt[O[_], A](o: O[A])(implicit O: OptionLike[O]): ImplicitsForTagMod.OptionExt[O, A] =
+  @inline implicit def vdomOptionExt[O[_], A](o: O[A])(implicit O: OptionLike[O]): ImplicitsForTagMod.OptionExt[O, A] =
     new ImplicitsForTagMod.OptionExt(o)
 }
 
@@ -105,22 +104,22 @@ object ImplicitsForVdomNode {
 trait ImplicitsForVdomNode {
   import ImplicitsForVdomNode._
 
-  inline given vdomNodeFromByte         : Conversion[Byte          , VdomNode] = v => VdomNode.cast(v)
-  inline given vdomNodeFromShort        : Conversion[Short         , VdomNode] = v => VdomNode.cast(v)
-  inline given vdomNodeFromInt          : Conversion[Int           , VdomNode] = v => VdomNode.cast(v)
-  inline given vdomNodeFromLong         : Conversion[Long          , VdomNode] = v => VdomNode.cast(v.toString)
-  inline given vdomNodeFromFloat        : Conversion[Float         , VdomNode] = v => VdomNode.cast(v)
-  inline given vdomNodeFromDouble       : Conversion[Double        , VdomNode] = v => VdomNode.cast(v)
-  inline given vdomNodeFromString       : Conversion[String        , VdomNode] = v => VdomNode.cast(v)
-  inline given vdomNodeFromPropsChildren: Conversion[PropsChildren , VdomNode] = v => VdomNode.cast(v.raw)
-  inline given vdomNodeFromRawReactNode : Conversion[raw.React.Node, VdomNode] = v => VdomNode(v)
+  @inline implicit def vdomNodeFromByte         (v: Byte)          : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromShort        (v: Short)         : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromInt          (v: Int)           : VdomNode = VdomNode.cast(v)
+          implicit def vdomNodeFromLong         (v: Long)          : VdomNode = VdomNode.cast(v.toString)
+  @inline implicit def vdomNodeFromFloat        (v: Float)         : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromDouble       (v: Double)        : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromString       (v: String)        : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromPropsChildren(v: PropsChildren) : VdomNode = VdomNode.cast(v.raw)
+  @inline implicit def vdomNodeFromRawReactNode (v: raw.React.Node): VdomNode = VdomNode(v)
 
   implicit def vdomNodeFromOption[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => VdomNode): VdomNode =
     O.fold(o, VdomNode.empty)(f)
 
-  inline given vdomSeqExtForTO[A]: Conversion[IterableOnce[A], TraversableOnceExt[A]] = new TraversableOnceExt[A](_)
-  inline given vdomSeqExtForSA[A]: Conversion[Array       [A], TraversableOnceExt[A]] = new TraversableOnceExt[A](_)
-  inline given vdomSeqExtForJA[A]: Conversion[js.Array    [A], TraversableOnceExt[A]] = new TraversableOnceExt[A](_)
+  @inline implicit def vdomSeqExtForTO[A](as: IterableOnce[A]): TraversableOnceExt[A] = new TraversableOnceExt[A](as)
+  @inline implicit def vdomSeqExtForSA[A](as: Array       [A]): TraversableOnceExt[A] = new TraversableOnceExt[A](as)
+  @inline implicit def vdomSeqExtForJA[A](as: js.Array    [A]): TraversableOnceExt[A] = new TraversableOnceExt[A](as)
 }
 
 // =====================================================================================================================
@@ -135,6 +134,9 @@ object Implicits extends Implicits
 // =====================================================================================================================
 
 object ImplicitsFromRaw {
-  inline given vdomElementFromRawReactElement: Conversion[raw.React.Element, VdomElement] = VdomElement.apply
-  inline given vdomNodeFromRawReactNode      : Conversion[raw.React.Node   , VdomNode   ] = VdomNode.apply
+  @inline implicit def vdomElementFromRawReactElement(e: raw.React.Element): VdomElement =
+    VdomElement(e)
+
+  @inline implicit def vdomNodeFromRawReactNode(e: raw.React.Node): VdomNode =
+    VdomNode(e)
 }

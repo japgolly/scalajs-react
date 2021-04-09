@@ -2,12 +2,12 @@ package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.internal.JsUtil
 import japgolly.scalajs.react.raw
-import japgolly.scalajs.react.vdom.Builder.RawChild
+import japgolly.scalajs.react.vdom.VdomBuilder.RawChild
 import scala.scalajs.js
 
 /** Mutable target for immutable VDOM constituents to compose.
   */
-trait Builder {
+trait VdomBuilder {
   val addAttr        : (String, js.Any)                     => Unit
   val addClassName   : js.Any                               => Unit
   val addEventHandler: (String, js.Function1[js.Any, Unit]) => Unit
@@ -26,7 +26,7 @@ trait Builder {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-object Builder {
+object VdomBuilder {
   type RawChild = raw.React.Node
 
   @inline def setObjectKeyValue(o: js.Object, k: String, v: js.Any): Unit =
@@ -57,7 +57,7 @@ object Builder {
     *
     * There are convenience methods to (mutably) add className and styles to props.
     */
-  trait ToJs extends Builder {
+  trait ToJs extends VdomBuilder {
     // Exposing vars here is acceptable because:
     // 1. The contents are all mutable anyway and a defensive-copy cost isn't worth it
     // 2. None of this is visible by default in the main public API

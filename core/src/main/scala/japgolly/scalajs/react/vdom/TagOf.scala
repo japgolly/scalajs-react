@@ -30,7 +30,7 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
     new TagOf(tag, modifiers)
 
   override lazy val rawElement: Raw.React.Element = {
-    val b = new Builder.ToRawReactElement()
+    val b = new VdomBuilder.ToRawReactElement()
 
     val arr = new js.Array[Seq[TagMod]]
     var current = modifiers
@@ -47,7 +47,7 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
     b.render(tag)
   }
 
-  override def applyTo(b: Builder): Unit =
+  override def applyTo(b: VdomBuilder): Unit =
     b.appendChild(rawElement)
 
   override def toString =

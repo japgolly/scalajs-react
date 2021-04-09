@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.CallbackTo.MapGuard
 import japgolly.scalajs.react.internal.{OptionLike, identityFn}
 import org.scalajs.dom.{document, html}
-import scala.annotation.tailrec
+import scala.annotation.*
 import scala.collection.compat._
 import scala.language.`3.0`
 
@@ -126,11 +126,11 @@ object CallbackOption {
   def sequenceOption[A](oca: => Option[CallbackOption[A]]): CallbackOption[A] =
     traverseOption(oca)(identityFn)
 
-  inline given toCallback: Conversion[CallbackOption[Unit], Callback] =
-    _.toCallback
+  inline implicit def toCallback(c: CallbackOption[Unit]): Callback =
+    c.toCallback
 
-  inline given fromCallback: Conversion[Callback, CallbackOption[Unit]] =
-    _.toCBO
+  inline implicit def fromCallback(c: Callback): CallbackOption[Unit] =
+    c.toCBO
 
   inline def keyCodeSwitch[A](e              : ReactKeyboardEvent,
                               inline altKey  : Boolean = false,
@@ -162,6 +162,7 @@ object CallbackOption {
 
   extension (self: CallbackOption[Unit]) {
 
+    @targetName("ext_toCallback")
     inline def toCallback: Callback =
       Callback(self.cbfn())
 

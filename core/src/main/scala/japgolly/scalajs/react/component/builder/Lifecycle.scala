@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.component.builder
 
-import japgolly.scalajs.react.component.Scala._
+import japgolly.scalajs.react.component.Scala.{RawMounted, MountedPure, MountedImpure}
 import japgolly.scalajs.react.component.builder.Lifecycle._
-import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.internal.{Effect, Lens, NotAllowed, Semigroup}
 import japgolly.scalajs.react.raw.React
 import japgolly.scalajs.react.{Callback, CallbackTo, ComponentDom, PropsChildren, ReactCaughtError, StateAccess}
 import scala.scalajs.js

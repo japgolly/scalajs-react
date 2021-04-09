@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import japgolly.scalajs.react.internal.{Effect, identityFn}
+import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 import japgolly.scalajs.react.{raw => Raw}
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -220,7 +221,7 @@ object Ref {
       CT[P, ScalaComponent.Unmounted[P, S, B]]]
 
   def toScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]]
-                      (c: ScalaComponent[P, S, B, CT])
+                      (c: ScalaComponent.Component[P, S, B, CT])
                       : WithScalaComponent[P, S, B, CT] =
     ToComponent.inject(c, toScalaComponent[P, S, B])
 

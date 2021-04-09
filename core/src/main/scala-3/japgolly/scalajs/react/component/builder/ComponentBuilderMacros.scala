@@ -1,21 +1,22 @@
-package japgolly.scalajs.react.internal
+package japgolly.scalajs.react.component.builder
 
-import japgolly.microlibs.macro_utils.MacroUtils
+import japgolly.microlibs.macro_utils.MacroUtils.fail
+import japgolly.microlibs.macro_utils.MacroUtils.Ops._
+import japgolly.scalajs.react.{Children, PropsChildren}
+import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
+import japgolly.scalajs.react.component.Scala.BackendScope
+import japgolly.scalajs.react.internal.NewMacroUtils
+import japgolly.scalajs.react.internal.NewMacroUtils.failNoStack
+import japgolly.scalajs.react.internal.NewMacroUtils.Extensions._
 import japgolly.scalajs.react.vdom.VdomNode
 import scala.language.`3.0`
 import scala.quoted.*
 
 object ComponentBuilderMacros {
-  import NewMacroUtils.Extensions._
-  import NewMacroUtils.failNoStack
-  import MacroUtils.Ops._
-  import MacroUtils.fail
-  import japgolly.scalajs.react.component.builder.Builder.RenderFn
-  import japgolly.scalajs.react.component.builder.Builder.NewBackendFn
-  import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
-  import japgolly.scalajs.react.Children
-  import japgolly.scalajs.react.PropsChildren
-  import japgolly.scalajs.react.component.Scala.BackendScope
+
+  // These are defined in here instead of in ComponentBuilder to avoid a circular dependency
+  type NewBackendFn[P, S, B] = BackendScope[P, S] => B
+  type RenderFn    [P, S, B] = RenderScope[P, S, B] => VdomNode
 
   // ===================================================================================================================
 

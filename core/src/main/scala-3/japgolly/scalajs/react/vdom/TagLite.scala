@@ -17,8 +17,8 @@ trait TagLite[T <: TopNode] {
       new TagOf(self, xs :: Nil)
   }
 
-  @inline given [N <: SvgTopNode]: Conversion[SvgTagOf[N], TagOf[N]] =
-    t => new TagOf[N](t.name)
+  @inline implicit def toTagOf[N <: SvgTopNode](t: SvgTagOf[N]): TagOf[N] =
+    new TagOf[N](t.name)
 }
 
 // =====================================================================================================================

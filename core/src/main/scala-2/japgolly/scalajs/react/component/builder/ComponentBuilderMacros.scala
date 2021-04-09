@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.internal
+package japgolly.scalajs.react.component.builder
 
 import japgolly.microlibs.macro_utils.MacroUtils
 import japgolly.scalajs.react.Children

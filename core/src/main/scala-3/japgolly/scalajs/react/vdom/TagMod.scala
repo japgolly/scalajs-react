@@ -11,10 +11,10 @@ import scala.scalajs.LinkingInfo.developmentMode
  */
 trait TagMod {
 
-  /** Applies this modifier to the specified [[Builder]], such that when
+  /** Applies this modifier to the specified [[VdomBuilder]], such that when
     * rendering is complete the effect of adding this modifier can be seen.
     */
-  def applyTo(b: Builder): Unit
+  def applyTo(b: VdomBuilder): Unit
 
   final def when(condition: Boolean): TagMod =
     if (condition) this else TagMod.empty
@@ -29,8 +29,8 @@ trait TagMod {
     *
     * Do not use this unless you know what you're doing (and you're doing something very funky)!
     */
-  final def toJs: Builder.ToJs = {
-    val t = new Builder.ToJs {}
+  final def toJs: VdomBuilder.ToJs = {
+    val t = new VdomBuilder.ToJs {}
     applyTo(t)
     t
   }
@@ -40,12 +40,12 @@ object TagMod {
 
   val empty: TagMod =
     new TagMod {
-      override def applyTo(b: Builder) = ()
+      override def applyTo(b: VdomBuilder) = ()
     }
 
-  def fn(f: Builder => Unit): TagMod =
+  def fn(f: VdomBuilder => Unit): TagMod =
     new TagMod {
-      override def applyTo(b: Builder): Unit = f(b)
+      override def applyTo(b: VdomBuilder): Unit = f(b)
     }
 
   inline def apply(ms: TagMod*): TagMod =
@@ -61,7 +61,7 @@ object TagMod {
   }
 
   final case class Composite(mods: IArray[TagMod]) extends TagMod {
-    override def applyTo(b: Builder): Unit =
+    override def applyTo(b: VdomBuilder): Unit =
       mods.foreach(_ applyTo b)
   }
 

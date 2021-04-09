@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.component.builder
 
-import japgolly.scalajs.react.component.builder.Builder._
+import japgolly.scalajs.react.component.builder.ComponentBuilder._
 import japgolly.scalajs.react.internal.AutoComponentName
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, ScalaJsReactConfig, UpdateSnapshot}

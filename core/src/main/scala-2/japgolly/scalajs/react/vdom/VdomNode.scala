@@ -5,7 +5,7 @@ import japgolly.scalajs.react.{raw => Raw}
 trait VdomNode extends TagMod {
   def rawNode: Raw.React.Node
 
-  override def applyTo(b: Builder): Unit =
+  override def applyTo(b: VdomBuilder): Unit =
     b.appendChild(rawNode)
 }
 

@@ -2,20 +2,14 @@ Port
 ====
 
 core/src/main/scala-2/japgolly/scalajs/react/React.scala
-core/src/main/scala-2/japgolly/scalajs/react/ReactDOM.scala
-core/src/main/scala-2/japgolly/scalajs/react/ReactDOMServer.scala
 core/src/main/scala-2/japgolly/scalajs/react/Reusability.scala
 core/src/main/scala-2/japgolly/scalajs/react/Reusable.scala
 core/src/main/scala-2/japgolly/scalajs/react/ScalaJsReactConfig.scala
-core/src/main/scala-2/japgolly/scalajs/react/StateAccessor.scala
 
 core/src/main/scala-2/japgolly/scalajs/react/component/builder/EntryPoint.scala
-core/src/main/scala-2/japgolly/scalajs/react/component/builder/ViaReactComponent.scala
 
 Soon
 ====
-* Ridiculous circular dependencies between CBM, Builder, and core stuff
-* Fix vdom conversions
 * RC2 (?)
 
 Later
@@ -27,6 +21,8 @@ Later
     * `CompileTimeTestUtil`
     * `CompileTimeInfo`
     * `NewMacroUtils`
+    * `Ops` => `Extensions`
+  * Maybe define an export package = `{obj Utils, Extensions._, fail*}`
   * Make erased versions of `<:<` & `=:=` and use here
 
 * Remove runtime footprint

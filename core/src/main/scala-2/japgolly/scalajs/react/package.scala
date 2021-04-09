@@ -58,6 +58,6 @@ package object react extends ReactEventTypes with ReactExtensions {
   val stopPropagation: ReactEvent => Callback =
     _.stopPropagationCB
 
-  val preventDefaultAndStopPropagation: ReactEvent => Callback =
+  lazy val preventDefaultAndStopPropagation: ReactEvent => Callback =
     e => e.preventDefaultCB >> e.stopPropagationCB
 }
