@@ -150,6 +150,7 @@ object NewMacroUtils { // TODO: Move into microlibs
 
     def generateArgs(clauses: List[ParamClause]): Unit =
       clauses.foreach {
+        // TODO: c.isImplicit || c.isGiven
         case c: TermParamClause => termArgs = termArgs ::: c.params.map(generateTermArg(_, isImplicit = c.isImplicit)) :: Nil
         case c: TypeParamClause => typeArgs = typeArgs ::: c.params.map(generateTypeArg)
       }
