@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.vdom
 
+import japgolly.scalajs.react.internal.NewMacroUtils.Extensions._
 import scala.language.`3.0`
 import scala.quoted.*
 
@@ -13,13 +14,8 @@ object CssUnits {
     n.asTerm match {
       case Inlined(_, _, Literal(c)) =>
         val v = c.value
-        if (v == 0)
-          '{"0"}
-        else {
-          val l = Literal(StringConstant(v.toString + suffix.valueOrError))
-          val i = Inlined(None, Nil, l)
-          i.asExprOf[String]
-        }
+        val s = if v == 0 then "0" else v.toString + suffix.valueOrError
+        Expr.inlineConstStr(s)
 
       case _ =>
         '{ ${n}.toString + $suffix }

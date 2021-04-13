@@ -18,6 +18,21 @@ object NewMacroUtils { // TODO: Move into microlibs
           case isf: ImplicitSearchFailure => report.throwError(isf.explanation)
         }
       }
+
+      def inlineTermOf[A](using Type[A])(using q: Quotes)(t: q.reflect.Term): Expr[A] = {
+        import quotes.reflect.*
+        Inlined(None, Nil, t).asExprOf[A]
+      }
+
+      // TODO: add all primatives
+      def inlineConstStr(s: String)(using Quotes): Expr[String] =
+        inlineConstStrOrNull(s)
+
+      def inlineConstStrOrNull(s: String | Null)(using Quotes): Expr[String | Null] = {
+        import quotes.reflect.*
+        val const = if s == null then NullConstant() else StringConstant(s)
+        Expr.inlineTermOf[String | Null](Literal(const))
+      }
     }
 
     extension [A](self: Type[A]) {
@@ -265,11 +280,8 @@ object NewMacroUtils { // TODO: Move into microlibs
 
     def getOrNull(key: Expr[String])(using Quotes): Expr[String | Null] = {
       import quotes.reflect.*
-      val const = _getOrNull(key.valueOrError) match {
-        case null => NullConstant()
-        case v    => StringConstant(v)
-      }
-      Inlined(None, Nil, Literal(const)).asExprOf[String | Null]
+      val value = _getOrNull(key.valueOrError)
+      Expr.inlineConstStrOrNull(value)
     }
 
     transparent inline def get(inline key: String): Option[String] =
@@ -311,7 +323,7 @@ object NewMacroUtils { // TODO: Move into microlibs
       val tpe = ref.tpe
 
       if tpe <:< TypeRepr.of[A] then
-        Right(Inlined(None, Nil, ref).asExprOf[A])
+        Right(Expr.inlineTermOf[A](ref))
       else if !tpe.exists then
         Left("doesn't exist")
       else

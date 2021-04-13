@@ -22,7 +22,7 @@ object ScalaJsReactConfig {
     }
   }
 
-  private inline val KeyConfigClass  = "japgolly.scalajs.react.config.class"
+  private inline def KeyConfigClass  = "japgolly.scalajs.react.config.class"
   private inline def KeyCompNameAuto = "japgolly.scalajs.react.compname.auto"
   private inline def KeyCompNameAll  = "japgolly.scalajs.react.compname.all"
   // TODO: ^^ s/def/val/ after RC1

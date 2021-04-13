@@ -5,7 +5,6 @@ core/src/main/scala-2/japgolly/scalajs/react/React.scala
 core/src/main/scala-2/japgolly/scalajs/react/Reusability.scala
 core/src/main/scala-2/japgolly/scalajs/react/Reusable.scala
 
-core/src/main/scala-2/japgolly/scalajs/react/component/builder/EntryPoint.scala
 
 Soon
 ====
@@ -32,6 +31,10 @@ Later
   * Sync scala2 version to scala3 version
   * Add a proper doc/guide
   * Read from scalac flags
+
+* Component names
+  * Test dynamic component names (will `inline` arg prevent?)
+  * Add/review/improve name elision tests
 
 * Remove runtime footprint
   * JsRepr
