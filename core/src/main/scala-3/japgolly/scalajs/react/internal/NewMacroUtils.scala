@@ -32,6 +32,11 @@ object NewMacroUtils { // TODO: Move into microlibs
       def asTypeTree: q.reflect.TypeTree =
         q.reflect.TypeTree.of(using self.asType)
 
+      def exists: Boolean = {
+        import q.reflect.*
+        self <:< TypeRepr.of[AnyRef] || self <:< TypeRepr.of[AnyVal]
+      }
+
       @targetName("summon_TypeRepr")
       def summon: Option[Expr[?]] =
         self.asType match {
@@ -74,6 +79,21 @@ object NewMacroUtils { // TODO: Move into microlibs
 
       def needType(f: q.reflect.Symbol => String): q.reflect.TypeRepr =
         self.getType.getOrElse(fail(s"Unable to determine type of ${f(self)}"))
+
+      /** Oldest returned first */
+      def ownerPath: List[q.reflect.Symbol] = {
+        import q.reflect.*
+        def loop(s: Symbol, acc: List[Symbol]): List[Symbol] =
+          if s.isNoSymbol then
+            acc
+          else
+            loop(s.maybeOwner, s :: acc)
+        if self.isNoSymbol then
+          self :: Nil
+        else
+          loop(self, Nil)
+      }
+
     } // Symbol
   }
 
@@ -186,4 +206,126 @@ object NewMacroUtils { // TODO: Move into microlibs
     result.asExprOf[A]
   }
 
+  object CompileTimeString {
+
+    transparent inline def replaceFirst(str: String, regex: String, repl: String): String =
+      ${ replaceFirst('str, 'regex, 'repl) }
+
+    def replaceFirst(str: Expr[String], regex: Expr[String], repl: Expr[String])(using Quotes): Expr[String] =
+      (str.value, regex.value, repl.value) match {
+        case (Some(n), Some(r), Some(p)) => Expr(n.replaceFirst(r, p))
+        case _                           => '{ $str.replaceFirst($regex, $repl) }
+      }
+
+    transparent inline def replaceAll(str: String, regex: String, repl: String): String =
+      ${ replaceAll('str, 'regex, 'repl) }
+
+    def replaceAll(str: Expr[String], regex: Expr[String], repl: Expr[String])(using Quotes): Expr[String] =
+      (str.value, regex.value, repl.value) match {
+        case (Some(n), Some(r), Some(p)) => Expr(n.replaceAll(r, p))
+        case _                           => '{ $str.replaceAll($regex, $repl) }
+      }
+
+    transparent inline def trim(str: String): String =
+      ${ trim('str) }
+
+    def trim(str: Expr[String])(using Quotes): Expr[String] =
+      str.value match {
+        case Some(s) => Expr(s.trim)
+        case None    => '{ $str.trim }
+      }
+
+    transparent inline def toLowerCase(str: String): String =
+      ${ toLowerCase('str) }
+
+    def toLowerCase(str: Expr[String])(using Quotes): Expr[String] =
+      str.value match {
+        case Some(s) => Expr(s.toLowerCase)
+        case None    => '{ $str.toLowerCase }
+      }
+
+    transparent inline def toUpperCase(str: String): String =
+      ${ toUpperCase('str) }
+
+    def toUpperCase(str: Expr[String])(using Quotes): Expr[String] =
+      str.value match {
+        case Some(s) => Expr(s.toUpperCase)
+        case None    => '{ $str.toUpperCase }
+      }
+  }
+
+  object CompileTimeConfig {
+
+    private def _getOrNull(key: String)(using Quotes): String | Null =
+      // TODO: [3] Read compile-time env
+      System.getProperty(key, null)
+
+    transparent inline def getOrNull(inline key: String): String | Null =
+      ${ getOrNull('key) }
+
+    def getOrNull(key: Expr[String])(using Quotes): Expr[String | Null] = {
+      import quotes.reflect.*
+      val const = _getOrNull(key.valueOrError) match {
+        case null => NullConstant()
+        case v    => StringConstant(v)
+      }
+      Inlined(None, Nil, Literal(const)).asExprOf[String | Null]
+    }
+
+    transparent inline def get(inline key: String): Option[String] =
+      inline getOrNull(key) match {
+        case null => None
+        case v    => Some[v.type](v)
+      }
+
+    transparent inline def getTrimLowerCaseNonBlank(inline key: String): Option[String] =
+      inline get(key) match {
+        case None => None
+        case Some(v) => inline CompileTimeString.trim(CompileTimeString.toLowerCase(v)) match {
+          case "" => None
+          case v2 => Some[v2.type](v2)
+        }
+      }
+
+    transparent inline def getNonBlank(inline key: String): Option[String] =
+      inline get(key) match {
+        case None     => None
+        case Some("") => None
+        case Some(v)  => Some[v.type](v)
+      }
+
+    def apply[A: Type](key: String, fallback: Expr[A])(using Quotes): Expr[A] =
+      _getOrNull(key) match {
+        case null => fallback
+        case v => forValue(v) match {
+          case Right(expr) => expr
+          case Left(err)   => fail(s"Invalid config: $key: '$v'\n$v $err.")
+        }
+      }
+
+    def forValue[A: Type](value: String)(using Quotes): Either[String, Expr[A]] = {
+      import quotes.reflect.*
+
+      val mod = Symbol.requiredModule(value)
+      val ref = Ref(mod)
+      val tpe = ref.tpe
+
+      if tpe <:< TypeRepr.of[A] then
+        Right(Inlined(None, Nil, ref).asExprOf[A])
+      else if !tpe.exists then
+        Left("doesn't exist")
+      else
+        Left("isn't an instance of " + Type.show[A])
+    }
+
+  }
+
+  inline def inlineWarn(inline warning: String): Unit =
+    ${ warn('warning) }
+
+  private def warn(warning: Expr[String])(using Quotes): Expr[Unit] = {
+    import quotes.reflect.*
+    report.warning(warning.valueOrError)
+    '{()}
+  }
 }
