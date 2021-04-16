@@ -13,13 +13,15 @@ object React extends React {
   @js.native
   trait Children extends js.Object {
 
-    final type MapFn[A] = js.Function1[React.Node, A] | js.Function2[React.Node, Int, A]
+    // final type MapFn[+A] = js.Function1[React.Node, A] | js.Function2[React.Node, Int, A]
+    // TODO: ^^ fixed in nightlies
+    final type MapFn[+A] = js.Function1[React.Node, A @annotation.unchecked.uncheckedVariance] | js.Function2[React.Node, Int, A @annotation.unchecked.uncheckedVariance]
 
     /** Invokes a function on every immediate child contained within children with this set to thisArg. If children is a keyed fragment or array it will be traversed: the function will never be passed the container objects. If children is null or undefined, returns null or undefined rather than an array. */
     def map[A](c: js.UndefOr[PropsChildren | Null], fn: MapFn[A]): js.UndefOr[Null | js.Array[A]] = js.native
 
     /** Like React.Children.map() but does not return an array. */
-    def forEach(c: js.UndefOr[PropsChildren | Null], fn: MapFn[_]): Unit = js.native
+    def forEach(c: js.UndefOr[PropsChildren | Null], fn: MapFn[Any]): Unit = js.native
 
     /** Verifies that children has only one child (a React element) and returns it. Otherwise this method throws an error.
       *
@@ -75,9 +77,13 @@ object React extends React {
   }
 
   /** `Class[React.Component[P, S]]` */
+  // TODO: https://github.com/lampepfl/dotty/issues/12115
+  // type ComponentClass [P <: js.Object, S <: js.Object] = js.Function1[P, React.Component[P, S]] with HasDisplayName
+  // type ComponentClassP[P <: js.Object]                 = ComponentClass[P, _ <: js.Object]
+  // type ComponentClassUntyped                           = ComponentClass[_ <: js.Object, _ <: js.Object]
   type ComponentClass [P <: js.Object, S <: js.Object] = js.Function1[P, React.Component[P, S]] with HasDisplayName
-  type ComponentClassP[P <: js.Object]                 = ComponentClass[P, _ <: js.Object]
-  type ComponentClassUntyped                           = ComponentClass[_ <: js.Object, _ <: js.Object]
+  type ComponentClassP[P <: js.Object]                 = js.Function1[P, React.Component[P, _ <: js.Object]] with HasDisplayName
+  type ComponentClassUntyped                           = js.Function1[_ <: js.Object, React.Component[_ <: js.Object, _ <: js.Object]] with HasDisplayName
 
   /** A `React.Element` that is known to be a component */
   @js.native
@@ -88,8 +94,9 @@ object React extends React {
 
   type ComponentUntyped = Component[_ <: js.Object, _ <: js.Object]
 
+  // TODO https://github.com/lampepfl/dotty/issues/12115
   type ComponentType[Props <: js.Object] =
-    ComponentClass[Props, _ <: js.Object] |
+    (js.Function1[Props, React.Component[Props, _ <: js.Object]] with HasDisplayName) | // TODO: ComponentClass[Props, _ <: js.Object] |
     ForwardRefComponent[Props, _] |
     StatelessFunctionalComponent[Props]
 
@@ -115,7 +122,13 @@ object React extends React {
   @js.native
   trait ElementRef extends js.Any
 
-  type ElementType = String | ComponentType[_ <: js.Object]
+  // https://github.com/lampepfl/dotty/issues/12115
+  // TODO: type ElementType = String | ComponentType[_ <: js.Object]
+  type ElementType =
+    String |
+    (js.Function1[_ <: js.Object, React.Component[_ <: js.Object, _ <: js.Object]] with HasDisplayName) |
+    ForwardRefComponent[_ <: js.Object, _] |
+    StatelessFunctionalComponent[_ <: js.Object]
 
   @js.native
   trait ErrorInfo extends js.Object {

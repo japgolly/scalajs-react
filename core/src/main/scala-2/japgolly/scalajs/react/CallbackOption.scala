@@ -188,7 +188,7 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
     CallbackTo lift cbfn
 
   def toCallback(implicit ev: A <:< Unit): Callback =
-    Callback(self.cbfn())
+    Callback(cbfn())
 
   def unary_!(implicit ev: A <:< Unit): CallbackOption[Unit] =
     asCallback.map {

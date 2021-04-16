@@ -1,15 +1,17 @@
 Port
 ====
 
-core/src/main/scala-2/japgolly/scalajs/react/React.scala
 
 
 Soon
 ====
+
 * RC3
 
 Later
 =====
+
+* Resolve TODOs
 
 * Microlibs!
   * Rename `macro-utils` to `compile-time`
@@ -40,10 +42,6 @@ Later
   * OptionLike for Option
   * Component builder
   * sourcecode
-
-* Ensure everything in scala-3's xxx is covered
-  * `react/package.scala`
-  * `ReactExtensions`
 
 * Test Scala3 Reusability macro newness
 

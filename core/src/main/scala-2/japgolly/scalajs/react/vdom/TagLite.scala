@@ -1,8 +1,5 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.{Ref, raw => Raw}
-import scala.scalajs.js
-
 final case class HtmlTagOf[+N <: HtmlTopNode](name: String) extends AnyVal {
   def apply(xs: TagMod*): TagOf[N] =
     new TagOf(name, xs :: Nil)

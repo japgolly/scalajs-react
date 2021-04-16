@@ -99,7 +99,3 @@ object ScalaJsReactConfig {
   // TODO: move into tests
   private class ProofThatDefaultsAreComplete extends Defaults
 }
-
-// TODO: delete below and document everything above
-object ScalaComponent { type Config[P, C <: Children, S, B, U <: UpdateSnapshot, X <: UpdateSnapshot] = japgolly.scalajs.react.component.builder.ComponentBuilder.Config[P, C, S, B, U, X] }
-//     // Overriding behaviour of Reusability.shouldComponentUpdate

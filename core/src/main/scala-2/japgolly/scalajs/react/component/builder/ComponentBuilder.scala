@@ -101,7 +101,7 @@ object ComponentBuilder {
       initialStateFromProps(f(_).runNow())
 
     def stateless: Step2[P, Unit] =
-      new Step2(name, InitState.Stateless)
+      new Step2(name, InitState.stateless)
   }
 
   // ===================================================================================================================

@@ -1,8 +1,6 @@
 package japgolly.scalajs
 
 import japgolly.scalajs.react.internal.Effect.Id
-import org.scalajs.dom
-import org.scalajs.dom.html
 import scala.scalajs.js
 
 package object react extends ReactEventTypes with ReactExtensions {
@@ -36,9 +34,8 @@ package object react extends ReactEventTypes with ReactExtensions {
   val JsForwardRefComponent = component.JsForwardRef
   type JsForwardRefComponent[P <: js.Object, R, CT[-p, +u] <: CtorType[p, u]] = JsForwardRefComponent.Component[P, R, CT]
 
-  val ScalaComponent = component.Scala
-  type ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = ScalaComponent.Component[P, S, B, CT]
-  type BackendScope[P, S] = ScalaComponent.BackendScope[P, S]
+  type ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = component.Scala.Component[P, S, B, CT]
+  type BackendScope[P, S] = component.Scala.BackendScope[P, S]
 
   val ScalaFnComponent = component.ScalaFn
   type ScalaFnComponent[P, CT[-p, +u] <: CtorType[p, u]] = ScalaFnComponent.Component[P, CT]

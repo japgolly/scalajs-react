@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.internal
+package japgolly.scalajs.react.component.builder
 
 import japgolly.microlibs.macro_utils.MacroUtils
 import scala.annotation.elidable
@@ -36,7 +36,7 @@ final class AutoComponentNameMacros(val c: Context) extends MacroUtils {
         .mkString(".")
 
     val impl =
-      q"_root_.japgolly.scalajs.react.internal.AutoComponentName($name)"
+      q"_root_.japgolly.scalajs.react.component.builder.AutoComponentName($name)"
 
     c.Expr[AutoComponentName](impl)
   }

@@ -33,7 +33,7 @@ object EntryPoint {
 
   // ===================================================================================================================
 
-  private[builder] transparent inline def autoNameFull: String =
+  private[react] transparent inline def autoNameFull: String =
     ${ autoNameFullExpr }
 
   private def autoNameFullExpr(using Quotes): Expr[String] = {
