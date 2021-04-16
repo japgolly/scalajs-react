@@ -2,13 +2,11 @@ Port
 ====
 
 core/src/main/scala-2/japgolly/scalajs/react/React.scala
-core/src/main/scala-2/japgolly/scalajs/react/Reusability.scala
-core/src/main/scala-2/japgolly/scalajs/react/Reusable.scala
 
 
 Soon
 ====
-* RC2 (?)
+* RC3
 
 Later
 =====
@@ -26,6 +24,7 @@ Later
   * Add inline string -> int
 
 * ScalaJsReactConfig
+  * Enable in Reusability
   * Make scala2 use macros (i.e. bugfix)
   * Add tests that new ver works as expected
   * Sync scala2 version to scala3 version
@@ -45,6 +44,8 @@ Later
 * Ensure everything in scala-3's xxx is covered
   * `react/package.scala`
   * `ReactExtensions`
+
+* Test Scala3 Reusability macro newness
 
 * Can comp-builder endo-fns be greatly simplified using the new polymorphic fns?
 

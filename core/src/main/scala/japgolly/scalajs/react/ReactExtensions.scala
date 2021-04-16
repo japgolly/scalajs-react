@@ -15,8 +15,8 @@ trait ReactExtensions {
   // @inline final implicit def ReactExt_ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: ScalaComponent.Component[P, S, B, CT]): ReactExt_ScalaComponent[P, S, B, CT] =
   //   new ReactExt_ScalaComponent(c)
 
-  // @inline final implicit def ReactExtrasExt_Any[A](a: A): ReactExtrasExt_Any[A] =
-  //   new ReactExtrasExt_Any(a)
+  @inline final implicit def ReactExtrasExt_Any[A](a: A): ReactExtrasExt_Any[A] =
+    new ReactExtrasExt_Any(a)
 }
 
 object ReactExtensions {
@@ -60,9 +60,9 @@ object ReactExtensions {
   //     }
   // }
 
-  // implicit final class ReactExtrasExt_Any[A](private val self: A) extends AnyVal {
-  //   @inline def ~=~(a: A)(implicit r: Reusability[A]): Boolean = r.test(self, a)
-  //   @inline def ~/~(a: A)(implicit r: Reusability[A]): Boolean = !r.test(self, a)
-  // }
+  implicit final class ReactExtrasExt_Any[A](private val self: A) extends AnyVal {
+    @inline def ~=~(a: A)(implicit r: Reusability[A]): Boolean = r.test(self, a)
+    @inline def ~/~(a: A)(implicit r: Reusability[A]): Boolean = !r.test(self, a)
+  }
 
 }

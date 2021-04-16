@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{Box, OptionLike, ReusabilityMacros}
+import japgolly.scalajs.react.internal.{Box, OptionLike}
 import java.time._
 import java.util.{Date, UUID}
 import org.scalajs.dom.console
@@ -63,9 +63,9 @@ final class Reusability[A](val test: (A, A) => Boolean) extends AnyVal {
     }
 }
 
-object Reusability extends ScalaVersionSpecificReusability {
+object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusability {
 
-  def apply[A](f: (A, A) => Boolean): Reusability[A] =
+  @inline def apply[A](f: (A, A) => Boolean): Reusability[A] =
     new Reusability(f)
 
   def suspend[A](f: => Reusability[A]): Reusability[A] =
@@ -139,55 +139,6 @@ object Reusability extends ScalaVersionSpecificReusability {
   def indexedSeq[S[X] <: IndexedSeq[X], A: Reusability]: Reusability[S[A]] =
     apply((x, y) =>
       (x.length == y.length) && x.indices.forall(i => x(i) ~=~ y(i)))
-
-  /** Generate an instance for A.
-    *
-    * If A is a sealed trait or sealed abstract class, Reusability is determined by sub-class reusability (which will
-    * be derived when it doesn't exist).
-    *
-    * If A is a case class, Reusability is determined by each field's Reusability.
-    */
-  def derive[A]: Reusability[A] =
-    macro ReusabilityMacros.derive[A]
-
-  /** Same as [[derive]] but with all debugging options enabled. */
-  def deriveDebug[A]: Reusability[A] =
-    macro ReusabilityMacros.deriveDebug[A]
-
-  /** Same as [[derive]] but with debugging options.
-    *
-    * @param logNonReuse Log to the console when and why non-reusable values are detected
-    * @param logCode Log to generated Scala code to the screen on compilation.
-    */
-  def deriveDebug[A](logNonReuse: Boolean, logCode: Boolean): Reusability[A] =
-    macro ReusabilityMacros.deriveDebugWithArgs[A]
-
-  /** Generate an instance for a case class by comparing each case field except those specified.
-    *
-    * Example:
-    * ```
-    * case class Picture(id: Long, url: String, title: String)
-    *
-    * implicit val picReuse = Reusability.caseClassExcept[Picture]("url", "title")
-    * ```
-    *
-    * @tparam A The case class type.
-    */
-  def caseClassExcept[A](field1: String, fieldN: String*): Reusability[A] =
-    macro ReusabilityMacros.caseClassExcept[A]
-
-  /** Same as [[caseClassExcept]] but with all debugging options enabled. */
-  def caseClassExceptDebug[A](field1: String, fieldN: String*): Reusability[A] =
-    macro ReusabilityMacros.caseClassExceptDebug[A]
-
-  /** Same as [[caseClassExcept]] but with debugging options.
-    *
-    * @param logNonReuse Log to the console when and why non-reusable values are detected
-    * @param logCode Log to generated Scala code to the screen on compilation.
-    */
-  def caseClassExceptDebug[A](logNonReuse: Boolean, logCode: Boolean)
-                             (field1: String, fieldN: String*): Reusability[A] =
-    macro ReusabilityMacros.caseClassExceptDebugWithArgs[A]
 
   def double(tolerance: Double): Reusability[Double] =
     apply((x, y) => (x - y).abs <= tolerance)
@@ -479,59 +430,60 @@ object Reusability extends ScalaVersionSpecificReusability {
 
   // ===================================================================================================================
 
-  /** When you're in dev-mode (i.e. `fastOptJS`), this globally disables [[Reusability.shouldComponentUpdate]].
-    */
-  def disableGloballyInDev(): Unit =
-    ScalaJsReactConfig.DevOnly.overrideReusability(
-      new ScalaJsReactConfig.DevOnly.ReusabilityOverride {
-        override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
-          identity
-      }
-    )
+  // TODO: config
+  // /** When you're in dev-mode (i.e. `fastOptJS`), this globally disables [[Reusability.shouldComponentUpdate]].
+  //   */
+  // def disableGloballyInDev(): Unit =
+  //   ScalaJsReactConfig.DevOnly.overrideReusability(
+  //     new ScalaJsReactConfig.DevOnly.ReusabilityOverride {
+  //       override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
+  //         identity
+  //     }
+  //   )
 
-  def shouldComponentUpdate[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] = {
-    val default: ScalaComponent.Config[P, C, S, B, U, U] =
-      _.shouldComponentUpdatePure(i =>
-        (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
+  // def shouldComponentUpdate[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] = {
+  //   val default: ScalaComponent.Config[P, C, S, B, U, U] =
+  //     _.shouldComponentUpdatePure(i =>
+  //       (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
 
-    if (productionMode)
-      default
-    else
-      ScalaJsReactConfig.DevOnly.reusabilityOverride match {
-        case Some(o) => o.apply
-        case None    => default
-      }
-  }
+  //   if (productionMode)
+  //     default
+  //   else
+  //     ScalaJsReactConfig.DevOnly.reusabilityOverride match {
+  //       case Some(o) => o.apply
+  //       case None    => default
+  //     }
+  // }
 
-  def shouldComponentUpdateAnd[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B, U, U] =
-    _.shouldComponentUpdate { i =>
-      val r = ShouldComponentUpdateResult(i)
-      f(r).map(_ => r.update)
-    }
+  // def shouldComponentUpdateAnd[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B, U, U] =
+  //   _.shouldComponentUpdate { i =>
+  //     val r = ShouldComponentUpdateResult(i)
+  //     f(r).map(_ => r.update)
+  //   }
 
-  def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](name: String): ScalaComponent.Config[P, C, S, B, U, U] =
-    shouldComponentUpdateAnd(_ log name)
+  // def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](name: String): ScalaComponent.Config[P, C, S, B, U, U] =
+  //   shouldComponentUpdateAnd(_ log name)
 
-  final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[P, S, B]) {
-    def mounted       = self.mountedImpure
-    def backend       = self.backend
-    def propsChildren = self.propsChildren
-    def currentProps  = self.currentProps
-    def currentState  = self.currentState
-    def nextProps     = self.nextProps
-    def nextState     = self.nextState
-    def getDOMNode    = self.getDOMNode
+  // final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[P, S, B]) {
+  //   def mounted       = self.mountedImpure
+  //   def backend       = self.backend
+  //   def propsChildren = self.propsChildren
+  //   def currentProps  = self.currentProps
+  //   def currentState  = self.currentState
+  //   def nextProps     = self.nextProps
+  //   def nextState     = self.nextState
+  //   def getDOMNode    = self.getDOMNode
 
-    val updateProps: Boolean = currentProps ~/~ nextProps
-    val updateState: Boolean = currentState ~/~ nextState
-    val update     : Boolean = updateProps || updateState
+  //   val updateProps: Boolean = currentProps ~/~ nextProps
+  //   val updateState: Boolean = currentState ~/~ nextState
+  //   val update     : Boolean = updateProps || updateState
 
-    def log(name: String): Callback =
-      Callback.log(
-        s"""
-           |s"$name.shouldComponentUpdate = $update
-           |  Props: $updateProps. [$currentProps] ⇒ [$nextProps]
-           |  State: $updateState. [$currentState] ⇒ [$nextState]
-         """.stripMargin)
-  }
+  //   def log(name: String): Callback =
+  //     Callback.log(
+  //       s"""
+  //          |s"$name.shouldComponentUpdate = $update
+  //          |  Props: $updateProps. [$currentProps] ⇒ [$nextProps]
+  //          |  State: $updateState. [$currentState] ⇒ [$nextState]
+  //        """.stripMargin)
+  // }
 }

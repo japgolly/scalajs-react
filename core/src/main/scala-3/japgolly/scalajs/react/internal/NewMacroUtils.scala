@@ -3,7 +3,9 @@ package japgolly.scalajs.react.internal
 import scala.annotation.targetName
 import scala.language.`3.0`
 import scala.compiletime.*
+import scala.deriving.*
 import scala.quoted.*
+import japgolly.microlibs.macro_utils.MacroUtils
 import japgolly.microlibs.macro_utils.MacroUtils.fail
 
 object NewMacroUtils { // TODO: Move into microlibs
@@ -339,5 +341,40 @@ object NewMacroUtils { // TODO: Move into microlibs
     import quotes.reflect.*
     report.warning(warning.valueOrError)
     '{()}
+  }
+
+  trait Field extends MacroUtils.Field {
+    val name: String
+  }
+
+  def mirrorFields[A: Type, B](m: Expr[Mirror.Of[A]])(using Quotes): List[Field] = {
+    import quotes.reflect.*
+
+    def go[Ls: Type, Ts: Type](idx: Int): List[Field] =
+      (Type.of[Ls], Type.of[Ts]) match {
+        case ('[l *: ll], '[t *: tt]) =>
+          val t = Type.of[t]
+          val _name = TypeRepr.of[l] match {
+            case ConstantType(StringConstant(n)) => n
+          }
+          val f: Field = new Field {
+            override val idx                = idx
+            override val name               = _name
+            override type Name              = l
+            override type Type              = t
+            override implicit val fieldType = t
+          }
+          f :: go[ll, tt](idx + 1)
+
+        case ('[EmptyTuple], _) =>
+          Nil
+      }
+
+    m match {
+      case '{ $m: Mirror.ProductOf[A] { type MirroredElemLabels = ls; type MirroredElemTypes = ts }} =>
+        go[ls, ts](0)
+      case '{ $m: Mirror.SumOf[A] { type MirroredElemLabels = ls; type MirroredElemTypes = ts }} =>
+        go[ls, ts](0)
+    }
   }
 }

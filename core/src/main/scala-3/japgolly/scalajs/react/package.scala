@@ -21,6 +21,7 @@ package object react extends ReactEventTypes, ReactExtensions {
   type ModStateWithPropsFnPure[P, S] = ModStateWithPropsFn[CallbackTo, P, S]
   type ModStateWithPropsFnImpure[P, S] = ModStateWithPropsFn[Id, P, S]
 
+  // TODO: [3] package exports
   // val GenericComponent = component.Generic
   // type GenericComponent[P, CT[-p, +u] <: CtorType[p, u], U] = GenericComponent.ComponentSimple[P, CT, U]
 
@@ -48,8 +49,7 @@ package object react extends ReactEventTypes, ReactExtensions {
   private[react] inline def scalajsReactRawPropsChildrenToJsUndef(r: raw.PropsChildren): js.UndefOr[raw.PropsChildren] =
     r.asInstanceOf[js.UndefOr[raw.PropsChildren]]
 
-  // TODO: [3] package exports
-  // type ~=>[-A, +B] = Reusable[A => B]
+  type ~=>[-A, +B] = Reusable[A => B]
 
   val preventDefault: ReactEvent => Callback =
     _.preventDefaultCB
