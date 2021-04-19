@@ -21,7 +21,6 @@ object VdomNode {
   private[vdom] val empty: VdomNode =
     apply(null)
 
-  // TODO: [3] re-enable after ScalaComponent
-  // def static(vdom: VdomNode): VdomNode =
-  //   japgolly.scalajs.react.ScalaComponent.static("")(vdom)()
+  def static(vdom: VdomNode): VdomNode =
+    japgolly.scalajs.react.ScalaComponent.static("")(vdom)()
 }

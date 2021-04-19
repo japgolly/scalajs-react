@@ -1,8 +1,7 @@
 package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, CallbackTo, ComponentDom, CtorType, Key, PropsChildren, StateAccess}
-import japgolly.scalajs.react.{raw => RAW, vdom}
+import japgolly.scalajs.react.{Callback, CallbackTo, ComponentDom, CtorType, Key, PropsChildren, StateAccess, raw => RAW, vdom}
 import scala.scalajs.js
 
 object Generic {

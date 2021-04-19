@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.component.builder.Lifecycle
 import japgolly.scalajs.react.StateAccessor._
+import japgolly.scalajs.react.component.builder.Lifecycle
 import japgolly.scalajs.react.internal.{Effect, identityFn}
 
 /**

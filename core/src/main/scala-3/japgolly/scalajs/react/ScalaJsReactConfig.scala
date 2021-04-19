@@ -6,7 +6,7 @@ import japgolly.scalajs.react.internal.NewMacroUtils.{CompileTimeConfig, Compile
 trait ScalaJsReactConfig {
   def automaticComponentName(name: String): String
   def modifyComponentName(name: => String): String
-  def reusabilityOverride: ScalaJsReactConfig.ReusabilityOverride | Null
+  def reusabilityOverride: ScalaJsReactConfig.ReusabilityOverride
 }
 
 object ScalaJsReactConfig {
@@ -16,7 +16,14 @@ object ScalaJsReactConfig {
   }
 
   object ReusabilityOverride {
-    def identity: ReusabilityOverride = new ReusabilityOverride {
+
+    val default: ReusabilityOverride = new ReusabilityOverride {
+      override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
+        _.shouldComponentUpdatePure(i => (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
+    }
+
+    /** Don't configure shouldComponentUpdate */
+    def ignore: ReusabilityOverride = new ReusabilityOverride {
       override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
         internal.identityFn
     }
@@ -32,7 +39,7 @@ object ScalaJsReactConfig {
 
   object Defaults extends ScalaJsReactConfig {
     import Util.ComponentName.*
-    import scala.scalajs.LinkingInfo.productionMode
+    import scala.scalajs.LinkingInfo.developmentMode
 
     override transparent inline def automaticComponentName(name: String) =
       inline CompileTimeConfig.getTrimLowerCaseNonBlank(KeyCompNameAuto) match {
@@ -54,11 +61,17 @@ object ScalaJsReactConfig {
           name
       }
 
-    private[react] var reusabilityOverrideVar: ReusabilityOverride | Null =
-      null
+    private[react] var reusabilityOverrideInDev: ReusabilityOverride =
+      if developmentMode then
+        ReusabilityOverride.default
+      else
+        null
 
-    override inline def reusabilityOverride: ReusabilityOverride | Null =
-      if productionMode then null else reusabilityOverrideVar
+    override inline def reusabilityOverride: ReusabilityOverride =
+      if developmentMode then
+        reusabilityOverrideInDev
+      else
+        ReusabilityOverride.default
 
     // /** Calls to [[Reusability.shouldComponentUpdate]] can be overridden to use the provided logic.
     //   *
@@ -67,21 +80,18 @@ object ScalaJsReactConfig {
     //   * - `ReusabilityOverlay.overrideGloballyInDev()`
     //   * - `Reusability.disableGloballyInDev()`
     //   */
-    inline def unsafeOverrideReusability(inline f: ReusabilityOverride): Unit =
-      if productionMode then () else reusabilityOverrideVar = f
+    inline def unsafeOverrideReusabilityInDev(inline f: ReusabilityOverride): Unit =
+      if developmentMode then
+        reusabilityOverrideInDev = f
+      else
+        ()
   }
 
   // TODO doc
   trait Defaults extends ScalaJsReactConfig {
-
-    override def automaticComponentName(name: String): String =
-      Defaults.automaticComponentName(name)
-
-    override def modifyComponentName(name: => String): String =
-      Defaults.modifyComponentName(name)
-
-    override def reusabilityOverride: ReusabilityOverride =
-      Defaults.reusabilityOverride
+    override def automaticComponentName(name: String)    = Defaults.automaticComponentName(name)
+    override def modifyComponentName   (name: => String) = Defaults.modifyComponentName(name)
+    override def reusabilityOverride                     = Defaults.reusabilityOverride
   }
 
   object Util {

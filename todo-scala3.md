@@ -1,6 +1,26 @@
 Port
 ====
 
+extra/src/main/scala-2/japgolly/scalajs/react/extra/internal/PxMacros.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/internal/RouterMacros.scala
+
+extra/src/main/scala-2/japgolly/scalajs/react/extra/Px.scala
+
+extra/src/main/scala-2/japgolly/scalajs/react/extra/components/TriStateCheckbox.scala
+
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/Actions.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/Dsl.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/package.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/ResolutionWithProps.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/RouteCmd.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/RouterCtl.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/Router.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/RouterWithPropsConfig.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/RoutingRule.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/RoutingRules.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/SetRouteVia.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/StaticOrDynamic.scala
+extra/src/main/scala-2/japgolly/scalajs/react/extra/router/Urls.scala
 
 
 Soon
@@ -26,12 +46,13 @@ Later
   * Add inline string -> int
 
 * ScalaJsReactConfig
-  * Enable in Reusability
   * Make scala2 use macros (i.e. bugfix)
   * Add tests that new ver works as expected
   * Sync scala2 version to scala3 version
   * Add a proper doc/guide
   * Read from scalac flags
+  * Replace assertWarn in extra
+  * Add ReusabilityOverride instance to ReusabilityOverlay that wraps the `install` methods, and simplify ReusabilityOverlayMacros
 
 * Component names
   * Test dynamic component names (will `inline` arg prevent?)

@@ -6,7 +6,7 @@ sonatypeProfileName      :=  "com.github.japgolly"
 
 val root          = ScalajsReact.root
 val core          = ScalajsReact.core
-//val extra         = ScalajsReact.extra
+val extra         = ScalajsReact.extra
 //val scalaz72      = ScalajsReact.scalaz72
 //val monocleScalaz = ScalajsReact.monocleScalaz
 // val monocleCats   = ScalajsReact.monocleCats

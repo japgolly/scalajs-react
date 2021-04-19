@@ -7,7 +7,6 @@ import org.scalajs.dom.console
 import scala.annotation.tailrec
 import scala.concurrent.{duration => scd}
 import scala.reflect.ClassTag
-import scala.scalajs.LinkingInfo.productionMode
 import scala.scalajs.js.timers.{SetIntervalHandle, SetTimeoutHandle}
 import scala.scalajs.js.{Date => JsDate}
 
@@ -430,60 +429,35 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
 
   // ===================================================================================================================
 
-  // TODO: config
-  // /** When you're in dev-mode (i.e. `fastOptJS`), this globally disables [[Reusability.shouldComponentUpdate]].
-  //   */
-  // def disableGloballyInDev(): Unit =
-  //   ScalaJsReactConfig.DevOnly.overrideReusability(
-  //     new ScalaJsReactConfig.DevOnly.ReusabilityOverride {
-  //       override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
-  //         identity
-  //     }
-  //   )
+  def shouldComponentUpdateAnd[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B, U, U] =
+    _.shouldComponentUpdate { i =>
+      val r = ShouldComponentUpdateResult(i)
+      f(r).map(_ => r.update)
+    }
 
-  // def shouldComponentUpdate[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] = {
-  //   val default: ScalaComponent.Config[P, C, S, B, U, U] =
-  //     _.shouldComponentUpdatePure(i =>
-  //       (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
+  def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](name: String): ScalaComponent.Config[P, C, S, B, U, U] =
+    shouldComponentUpdateAnd(_ log name)
 
-  //   if (productionMode)
-  //     default
-  //   else
-  //     ScalaJsReactConfig.DevOnly.reusabilityOverride match {
-  //       case Some(o) => o.apply
-  //       case None    => default
-  //     }
-  // }
+  final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[P, S, B]) {
+    def mounted       = self.mountedImpure
+    def backend       = self.backend
+    def propsChildren = self.propsChildren
+    def currentProps  = self.currentProps
+    def currentState  = self.currentState
+    def nextProps     = self.nextProps
+    def nextState     = self.nextState
+    def getDOMNode    = self.getDOMNode
 
-  // def shouldComponentUpdateAnd[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B, U, U] =
-  //   _.shouldComponentUpdate { i =>
-  //     val r = ShouldComponentUpdateResult(i)
-  //     f(r).map(_ => r.update)
-  //   }
+    val updateProps: Boolean = currentProps ~/~ nextProps
+    val updateState: Boolean = currentState ~/~ nextState
+    val update     : Boolean = updateProps || updateState
 
-  // def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](name: String): ScalaComponent.Config[P, C, S, B, U, U] =
-  //   shouldComponentUpdateAnd(_ log name)
-
-  // final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[P, S, B]) {
-  //   def mounted       = self.mountedImpure
-  //   def backend       = self.backend
-  //   def propsChildren = self.propsChildren
-  //   def currentProps  = self.currentProps
-  //   def currentState  = self.currentState
-  //   def nextProps     = self.nextProps
-  //   def nextState     = self.nextState
-  //   def getDOMNode    = self.getDOMNode
-
-  //   val updateProps: Boolean = currentProps ~/~ nextProps
-  //   val updateState: Boolean = currentState ~/~ nextState
-  //   val update     : Boolean = updateProps || updateState
-
-  //   def log(name: String): Callback =
-  //     Callback.log(
-  //       s"""
-  //          |s"$name.shouldComponentUpdate = $update
-  //          |  Props: $updateProps. [$currentProps] ⇒ [$nextProps]
-  //          |  State: $updateState. [$currentState] ⇒ [$nextState]
-  //        """.stripMargin)
-  // }
+    def log(name: String): Callback =
+      Callback.log(
+        s"""
+           |s"$name.shouldComponentUpdate = $update
+           |  Props: $updateProps. [$currentProps] ⇒ [$nextProps]
+           |  State: $updateState. [$currentState] ⇒ [$nextState]
+         """.stripMargin)
+  }
 }

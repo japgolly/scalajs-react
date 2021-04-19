@@ -98,7 +98,7 @@ object ScalajsReact {
     .configure(commonSettings, preventPublication, hasNoTests)
     .aggregate(
       core,
-//      extra,
+      extra,
 //      test,
 //      // testModule,
 //      scalaz72,
@@ -120,12 +120,12 @@ object ScalajsReact {
         Dep.ScalaCollCompat.value,
         Dep.ScalaJsDom.value,
         Dep.Sourcecode.value))
-/*
+
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .dependsOn(core)
     .settings(name := "extra")
-
+/*
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test), addMacroParadise)
     .dependsOn(core, extra)
