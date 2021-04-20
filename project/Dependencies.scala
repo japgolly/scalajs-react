@@ -29,7 +29,7 @@ object Dependencies {
     val MacroParadise         = "2.1.1"
     val Microlibs             = "2.5"
     val MTest                 = "0.7.8"
-    val Nyaya                 = "0.10.0-RC1"
+    val Nyaya                 = "0.10.0-RC2"
     val ReactJs               = "16.14.0"
     val ScalaJsJavaTime       = "1.0.0"
     val ScalaTest             = "3.2.7"
