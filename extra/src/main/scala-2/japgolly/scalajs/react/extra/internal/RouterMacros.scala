@@ -4,6 +4,8 @@ import japgolly.microlibs.macro_utils.MacroUtils
 import japgolly.scalajs.react.extra.router.StaticDsl.{Route, RouteB}
 import scala.reflect.macros.blackbox.Context
 
+// This is here in .internal because users are expected to import router._ and it's
+// better if this isn't visible and imported with the rest of the package.
 class RouterMacros (val c: Context) extends MacroUtils {
   import c.universe._
 

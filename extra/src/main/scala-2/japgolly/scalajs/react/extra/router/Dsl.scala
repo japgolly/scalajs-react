@@ -19,6 +19,7 @@ object StaticDsl {
   private val regexEscape1 = """([-()\[\]{}+?*.$\^|,:#<!\\])""".r
   private val regexEscape2 = """\x08""".r
 
+  // TODO: Replace with Pattern.quote after Scala.JS 1.6.x
   /**
    * Pattern.quote doesn't work in Scala.JS.
    *
