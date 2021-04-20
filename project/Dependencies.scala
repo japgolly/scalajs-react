@@ -32,7 +32,7 @@ object Dependencies {
     val Nyaya                 = "0.10.0-RC1"
     val ReactJs               = "16.14.0"
     val ScalaJsJavaTime       = "1.0.0"
-    val ScalaTest             = "3.2.7"
+    val ScalaTest             = "3.2.8"
     val SizzleJs              = "2.3.0"
   }
 
