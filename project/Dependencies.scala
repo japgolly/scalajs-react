@@ -11,17 +11,17 @@ object Dependencies {
     // Externally observable
     val Cats                  = "2.5.0"
     val CatsEffect            = "2.4.1"
-    val Microlibs             = "2.6-RC2" // (macro-utils only)
+    val Microlibs             = "2.6-RC3" // (macro-utils only)
     val MonocleCats           = "2.1.0"
     val Monocle3              = "3.0.0-M4"
     val MonocleScalaz         = "1.6.3"
     val Scala212              = "2.12.13"
     val Scala213              = "2.13.5"
-    val Scala3                = "3.0.0-RC1"
+    val Scala3                = "3.0.0-RC3"
     val ScalaCollCompat       = "2.4.3"
     val ScalaJsDom            = "1.1.0"
     val Scalaz72              = "7.2.31"
-    val Sourcecode            = "0.2.4" // TODO: 0.2.5
+    val Sourcecode            = "0.2.6"
 
     // Internal
     val BetterMonadicFor      = "0.3.1"
@@ -29,8 +29,8 @@ object Dependencies {
     val DisciplineScalaTest   = "2.1.3"
     val KindProjector         = "0.11.3"
     val MacroParadise         = "2.1.1"
-    val MTest                 = "0.7.7" // TODO: 0.7.8
-    val Nyaya                 = "0.10.0-RC1"
+    val MTest                 = "0.7.9"
+    val Nyaya                 = "0.10.0-RC2"
     val ReactJs               = "16.14.0"
     val ScalaJsJavaTime       = "1.0.0"
     val ScalaTest             = "3.2.7"

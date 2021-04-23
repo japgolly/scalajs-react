@@ -29,13 +29,13 @@ object ScalaJsReactConfig {
     }
   }
 
-  private inline def KeyConfigClass  = "japgolly.scalajs.react.config.class"
-  private inline def KeyCompNameAuto = "japgolly.scalajs.react.compname.auto"
-  private inline def KeyCompNameAll  = "japgolly.scalajs.react.compname.all"
-  // TODO: ^^ s/def/val/ after RC1
+  private inline val KeyConfigClass  = "japgolly.scalajs.react.config.class"
+  private inline val KeyCompNameAuto = "japgolly.scalajs.react.compname.auto"
+  private inline val KeyCompNameAll  = "japgolly.scalajs.react.compname.all"
 
   transparent inline def Instance: ScalaJsReactConfig =
-    ${ CompileTimeConfig[ScalaJsReactConfig](KeyConfigClass, 'Defaults) }
+    // TODO: ${ CompileTimeConfig[ScalaJsReactConfig](KeyConfigClass, 'Defaults) }
+    ${ CompileTimeConfig[ScalaJsReactConfig]("japgolly.scalajs.react.config.class", 'Defaults) }
 
   object Defaults extends ScalaJsReactConfig {
     import Util.ComponentName.*

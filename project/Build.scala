@@ -65,7 +65,6 @@ object ScalajsReact {
 
   def scalac3Flags = Seq(
     "-source:3.0-migration",
-    "-Yerased-terms",
     "-Ykind-projector",
   )
 
