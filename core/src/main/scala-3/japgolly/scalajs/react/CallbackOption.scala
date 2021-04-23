@@ -201,13 +201,16 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
   def asCallback: CallbackTo[Option[A]] =
     CallbackTo lift cbfn
 
-  def map[B](f: A => B)(using erased ev: MapGuard[B]): CallbackOption[ev.Out] =
+  inline def map[B](f: A => B)(using inline ev: MapGuard[B]): CallbackOption[ev.Out] =
+    unsafeMap(f)
+
+  private[react] def unsafeMap[B](f: A => B): CallbackOption[B] =
     new CallbackOption(() => cbfn().map(f))
 
   /**
    * Alias for `map`.
    */
-  inline def |>[B](f: A => B)(implicit ev: MapGuard[B]): CallbackOption[ev.Out] =
+  inline def |>[B](f: A => B)(using inline ev: MapGuard[B]): CallbackOption[ev.Out] =
     map(f)
 
   def flatMapOption[B](f: A => Option[B]): CallbackOption[B] =
@@ -287,7 +290,7 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
    *
    * This method allows you to be explicit about the type you're discarding (which may change in future).
    */
-  inline def voidExplicit[B](using erased ev: A <:< B): CallbackOption[Unit] =
+  inline def voidExplicit[B](using inline ev: A <:< B): CallbackOption[Unit] =
     void
 
   /**

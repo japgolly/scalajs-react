@@ -4,12 +4,11 @@ import japgolly.scalajs.react.internal.{Trampoline, identityFn}
 import org.scalajs.dom.{console, window}
 import scala.annotation.implicitNotFound
 import scala.collection.compat._
-import scala.compiletime.erasedValue
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.`3.0`
 import scala.scalajs.js
 import scala.scalajs.js.timers.{RawTimers, SetIntervalHandle, SetTimeoutHandle}
-import scala.util.{Failure, Success}
+import scala.util.{Failure, NotGiven, Success}
 
 type Callback = CallbackTo[Unit]
 
@@ -25,14 +24,12 @@ object Callback {
   object ResultGuard {
     final class Proof[A] private[Callback]()
     object Proof {
-      erased given preventCallback1[A]: Proof[CallbackTo[A]] = erasedValue
-      erased given preventCallback2[A]: Proof[CallbackTo[A]] = erasedValue
-      erased given allowAnythingElse[A]: Proof[A] = erasedValue
+      inline given legal[A](using inline ev: NotGiven[A <:< CallbackTo[?]]): Proof[A] = null
     }
-    erased given apply[A](using erased Proof[A]): ResultGuard[A] = erasedValue
+    inline given apply[A](using inline ev: Proof[A]): ResultGuard[A] = null
   }
 
-  inline def apply[A](inline f: A)(using erased ResultGuard[A]): Callback =
+  inline def apply[A](inline f: A)(using inline ev: ResultGuard[A]): Callback =
     CallbackTo { f; () }
 
   inline def lift(f: () => Unit): Callback =

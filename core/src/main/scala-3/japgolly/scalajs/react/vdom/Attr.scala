@@ -5,7 +5,6 @@ import japgolly.scalajs.react.vdom.Attr.ValueType
 import japgolly.scalajs.react.{Callback, CallbackTo, raw}
 import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound, nowarn}
-import scala.compiletime.erasedValue
 import scala.language.`3.0`
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
@@ -35,10 +34,10 @@ abstract class Attr[-U](final val attrName: String) {
   + "\n  If the result is necessary, please raise an issue and use `vdom.DomCallbackResult.force` in the meantime.")
 sealed trait DomCallbackResult[A]
 object DomCallbackResult {
-  erased def force[A]: DomCallbackResult[A] = erasedValue
-  erased given unit           : DomCallbackResult[Unit               ] = erasedValue
-  erased given boolean        : DomCallbackResult[Boolean            ] = erasedValue
-  erased given undefOrBoolean : DomCallbackResult[js.UndefOr[Boolean]] = erasedValue
+  inline def force[A]: DomCallbackResult[A] = null
+  inline given unit           : DomCallbackResult[Unit               ] = null
+  inline given boolean        : DomCallbackResult[Boolean            ] = null
+  inline given undefOrBoolean : DomCallbackResult[js.UndefOr[Boolean]] = null
 }
 
 sealed trait InnerHtmlAttr
@@ -77,12 +76,13 @@ object Attr {
     override def :=[A](a: A)(implicit t: ValueType[A, js.Function1[E[Nothing], Unit]]): TagMod =
       TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Unit]]), a))
 
-    // TODO: [3] Remove `ev: `
-    def -->[A](callback: => CallbackTo[A])(using erased ev: DomCallbackResult[A]): TagMod =
+    inline def -->[A](callback: => CallbackTo[A])(using inline ev: DomCallbackResult[A]): TagMod =
       ==>(_ => callback)
 
-    // TODO: [3] Remove `ev: `
-    def ==>[A](eventHandler: Event => CallbackTo[A])(using erased ev: DomCallbackResult[A]): TagMod =
+    inline def ==>[A](eventHandler: Event => CallbackTo[A])(using inline ev: DomCallbackResult[A]): TagMod =
+      unsafe_==>[A](eventHandler)
+
+    private[react] def unsafe_==>[A](eventHandler: Event => CallbackTo[A]): TagMod =
       :=(((e: Event) => eventHandler(e).runNow()): js.Function1[E[Nothing], Unit])(ValueType.direct)
 
     def -->?[O[_]](callback: => O[Callback])(implicit o: OptionLike[O]): TagMod =

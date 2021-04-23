@@ -704,7 +704,7 @@ final class AsyncCallback[+A](val completeWith: (Try[A] => Callback) => Callback
     *
     * This method allows you to be explicit about the type you're discarding (which may change in future).
     */
-  inline def voidExplicit[B](using erased A <:< B): AsyncCallback[Unit] =
+  inline def voidExplicit[B](using inline ev: A <:< B): AsyncCallback[Unit] =
     void
 
   /** Wraps this callback in a try-catch and returns either the result or the exception if one occurs. */

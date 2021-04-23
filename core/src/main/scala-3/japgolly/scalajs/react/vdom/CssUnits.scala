@@ -26,7 +26,7 @@ object CssUnits {
 trait CssUnitsOps {
   import CssUnits.addSuffix
 
-  extension [N](n: N)(using erased Numeric[N]) {
+  extension [N](n: N)(using inline ev: Numeric[N]) {
 
     /**
      * Relative to the viewing device. For screen display, typically one device

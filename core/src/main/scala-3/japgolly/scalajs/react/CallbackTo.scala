@@ -228,8 +228,8 @@ object CallbackTo {
    */
   sealed trait MapGuard[A] { type Out = A }
 
-  erased given MapGuard[A]: MapGuard[A] =
-    compiletime.erasedValue
+  inline given MapGuard[A]: MapGuard[A] =
+    null
 
   // -------------------------------------------------------------------------------------------------------------------
   // Additional ops
@@ -323,12 +323,11 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
   inline def runNow(): A =
     trampoline.run
 
-  // TODO: [3] inline after https://github.com/lampepfl/dotty/issues/11864
-  def map[B](f: A => B)(using erased ev: MapGuard[B]): CallbackTo[ev.Out] =
+  inline def map[B](f: A => B)(using inline ev: MapGuard[B]): CallbackTo[ev.Out] =
     new CallbackTo(trampoline.map(f))
 
   /** Alias for `map`. */
-  inline def |>[B](inline f: A => B)(using erased ev: MapGuard[B]): CallbackTo[ev.Out] =
+  inline def |>[B](inline f: A => B)(using inline ev: MapGuard[B]): CallbackTo[ev.Out] =
     map(f)
 
   inline def flatMap[B](f: A => CallbackTo[B]): CallbackTo[B] =
@@ -405,7 +404,7 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
     *
     * This method allows you to be explicit about the type you're discarding (which may change in future).
     */
-  inline def voidExplicit[B](using erased A <:< B): Callback =
+  inline def voidExplicit[B](using inline ev: A <:< B): Callback =
     void
 
   /** Wraps this callback in a try-catch and returns either the result or the exception if one occurs. */
@@ -583,7 +582,7 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
 
 
   /** Convenience-method to run additional code after this callback. */
-  inline def thenRun[B](inline runNext: B)(using erased ev: MapGuard[B]): CallbackTo[ev.Out] =
+  inline def thenRun[B](inline runNext: B)(using inline ev: MapGuard[B]): CallbackTo[ev.Out] =
     this >> CallbackTo(runNext)
 
   /** Convenience-method to run additional code before this callback. */
