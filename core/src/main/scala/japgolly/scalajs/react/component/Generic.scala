@@ -8,6 +8,11 @@ object Generic {
 
   @inline implicit def toComponentCtor[P, CT[-p, +u] <: CtorType[p, u], U](c: ComponentSimple[P, CT, U]): CT[P, U] =
     c.ctor
+  // TODO: Remove after https://github.com/lampepfl/dotty/issues/12216
+  @inline implicit def toComponentCtorC [P, U](c: ComponentSimple[P, CtorType.Children        , U]): CtorType.Children        [P, U] = c.ctor
+  @inline implicit def toComponentCtorN [P, U](c: ComponentSimple[P, CtorType.Nullary         , U]): CtorType.Nullary         [P, U] = c.ctor
+  @inline implicit def toComponentCtorP [P, U](c: ComponentSimple[P, CtorType.Props           , U]): CtorType.Props           [P, U] = c.ctor
+  @inline implicit def toComponentCtorPC[P, U](c: ComponentSimple[P, CtorType.PropsAndChildren, U]): CtorType.PropsAndChildren[P, U] = c.ctor
 
   trait ComponentRaw {
     type Raw <: js.Any

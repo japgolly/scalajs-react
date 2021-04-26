@@ -6,6 +6,7 @@ import scala.compiletime.*
 import scala.deriving.*
 import scala.quoted.*
 import japgolly.microlibs.macro_utils.MacroUtils
+import japgolly.microlibs.macro_utils.MacroUtils.Ops.*
 import japgolly.microlibs.macro_utils.MacroUtils.fail
 
 object NewMacroUtils { // TODO: Move into microlibs
@@ -35,6 +36,12 @@ object NewMacroUtils { // TODO: Move into microlibs
         val const = if s == null then NullConstant() else StringConstant(s)
         Expr.inlineTermOf[String | Null](Literal(const))
       }
+
+      // def productToTuple[P](using m: Mirror.ProductOf[P]): Expr[P => m.MirroredElemTypes] =
+      //   1
+
+      // def tupleToProduct[P](using m: Mirror.ProductOf[P]): Expr[m.MirroredElemTypes => P] =
+      //   1
     }
 
     extension [A](self: Type[A]) {
@@ -344,10 +351,15 @@ object NewMacroUtils { // TODO: Move into microlibs
   }
 
   trait Field extends MacroUtils.Field {
+    override def toString = name
+
     val name: String
+
+    final def typeRepr(using q: Quotes): q.reflect.TypeRepr =
+      q.reflect.TypeRepr.of(using fieldType)
   }
 
-  def mirrorFields[A: Type, B](m: Expr[Mirror.Of[A]])(using Quotes): List[Field] = {
+  def mirrorFields[A: Type](m: Expr[Mirror.Of[A]])(using Quotes): List[Field] = {
     import quotes.reflect.*
 
     def go[Ls: Type, Ts: Type](idx: Int): List[Field] =
@@ -376,5 +388,79 @@ object NewMacroUtils { // TODO: Move into microlibs
       case '{ $m: Mirror.SumOf[A] { type MirroredElemLabels = ls; type MirroredElemTypes = ts }} =>
         go[ls, ts](0)
     }
+  }
+
+  def show[A](e: Expr[A])(using Quotes): Expr[A] = {
+    println(e.show)
+    e
+  }
+
+  import MacroUtils.FieldLookup
+  import MacroUtils.{mapByFieldTypes, needGiven} // TODO: remove
+
+  def withCachedGivensPowerMode[F[_], A](using q: Quotes)
+                                        (summonMap: Map[q.reflect.TypeRepr, Expr[F[Any]]])
+                                        (use: FieldLookup[F] => Expr[A])
+                                        (using Type[F], Type[A]): Expr[A] = {
+    import quotes.reflect.*
+
+    val summons = summonMap.toArray
+    val terms = summons.iterator.map(_._2.asTerm).toList
+
+    ValDef.let(Symbol.spliceOwner, terms) { refs =>
+      val lookupFn: FieldLookup[F] =
+        f => {
+          def fieldType = TypeRepr.of(using f.fieldType)
+          val i = summons.indexWhere(_._1 == fieldType)
+          if i < 0 then {
+            val t = Type.show[F[f.Type]]
+            fail(s"Failed to find given $t in cache")
+          }
+          refs(i).asExprOf[F[f.Type]]
+        }
+      use(lookupFn).asTerm
+    }.asExprOf[A]
+  }
+
+  def withCachedGivens[F[_]: Type, A: Type](fields: IterableOnce[Field])
+                                           (use: FieldLookup[F] => Expr[A])
+                                           (using Quotes): Expr[A] = {
+    val summonMap = mapBySpecifiedFieldTypes(fields)(f => needGiven[F[f.Type]].asFAny)
+    withCachedGivensPowerMode(summonMap)(use)
+  }
+
+  def withCachedGivens[A: Type, F[_]: Type, B: Type](m: Expr[Mirror.Of[A]])
+                                                    (use: FieldLookup[F] => Expr[B])
+                                                    (using Quotes): Expr[B] = {
+    import quotes.reflect.*
+
+    Expr.summon[Mirror.Of[A]] match {
+
+      case Some('{ $m: Mirror.ProductOf[A] { type MirroredElemTypes = types } }) =>
+        withCachedGivens(mirrorFields(m))(use)
+
+      case Some('{ $m: Mirror.SumOf[A] { type MirroredElemTypes = types } }) =>
+        val summonMap = mapByFieldTypes[types, Expr[F[Any]]]([t] => (t: Type[t]) ?=> needGiven[F[t]].asFAny)
+        withCachedGivensPowerMode(summonMap)(use)
+
+      case _ =>
+        fail(s"Mirror not found for ${Type.show[A]}")
+    }
+  }
+
+  def mapBySpecifiedFieldTypes[B](fields: IterableOnce[Field])(f: Field => B)(using q: Quotes): Map[q.reflect.TypeRepr, B] = {
+    import quotes.reflect.*
+
+    var map = Map.empty[TypeRepr, B]
+
+    for (field <- fields.iterator) {
+      val t = field.typeRepr
+      if !map.contains(t) then {
+        val b = f(field)
+        map = map.updated(t, b)
+      }
+    }
+
+    map
   }
 }

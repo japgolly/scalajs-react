@@ -22,11 +22,11 @@ object ComponentBuilder {
   inline implicit def defaultToNoState[P](b: Step1[P]): Step2[P, Unit] =
     b.stateless
 
-  inline implicit def defaultToNoBackend[X, P, S](x: X)(implicit inline ev: X => Step2[P, S]): Step3[P, S, Unit] =
-    inline x match {
-      case y: Step2[P, S] => y.noBackend
-      case _              => ev(x).noBackend
-    }
+  inline implicit def defaultToNoBackend1[P](b: Step1[P]): Step3[P, Unit, Unit] =
+    b.stateless.noBackend
+
+  inline implicit def defaultToNoBackend2[P, S](b: Step2[P, S]): Step3[P, S, Unit] =
+    b.noBackend
 
   // ===================================================================================================================
 

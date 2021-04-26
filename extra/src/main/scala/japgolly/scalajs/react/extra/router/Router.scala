@@ -137,7 +137,7 @@ final class RouterLogic[Page, Props](val baseUrl: BaseUrl, cfg: RouterWithPropsC
 
   def resolveAction(a: Action): CallbackTo[Either[RouteCmd[Resolution], Renderer]] =
     a match {
-      case r: Renderer => CallbackTo pure Right(r)
+      case r: Renderer => CallbackTo.pure(Right(r))
       case r: Redirect => redirect(r).map(Left(_))
     }
 

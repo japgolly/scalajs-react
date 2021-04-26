@@ -1,18 +1,6 @@
 Port
 ====
 
-extra/src/main/scala-2/japgolly/scalajs/react/extra/internal/RouterMacros.scala
-
-extra/src/main/scala-2/japgolly/scalajs/react/extra/components/TriStateCheckbox.scala
-
-extra/src/main/scala-2/japgolly/scalajs/react/extra/router/Actions.scala
-extra/src/main/scala-2/japgolly/scalajs/react/extra/router/Dsl.scala
-extra/src/main/scala-2/japgolly/scalajs/react/extra/router/package.scala
-extra/src/main/scala-2/japgolly/scalajs/react/extra/router/ResolutionWithProps.scala
-extra/src/main/scala-2/japgolly/scalajs/react/extra/router/Router.scala
-extra/src/main/scala-2/japgolly/scalajs/react/extra/router/RouterWithPropsConfig.scala
-extra/src/main/scala-2/japgolly/scalajs/react/extra/router/RoutingRule.scala
-extra/src/main/scala-2/japgolly/scalajs/react/extra/router/RoutingRules.scala
 
 
 Soon
@@ -58,6 +46,7 @@ Later
 
 * Test Scala3 Reusability macro newness
 * Test Scala3 Callback ResultGuard Proof
+* Test Scala3 Router Macro failure cases (might need to manually report errors if auto-error isn't clear)
 
 * Can comp-builder endo-fns be greatly simplified using the new polymorphic fns?
 

@@ -150,6 +150,9 @@ object ReusabilityMacros {
     def log(msg: => Any) = if logCode then println(msg)
     log("="*120)
     log(s"Beginning derivation of Reusability[${Type.show[A]}]")
+    log(s"Field exclusions: ${fieldExclusions.size}")
+    if fieldExclusions.nonEmpty then
+      log(fieldExclusions.toArray.sortInPlace.iterator.map("  - " + _).mkString("\n"))
 
     type Clause = MacroUtils.Fn2Clause[A, A, Boolean]
 
@@ -160,19 +163,23 @@ object ReusabilityMacros {
 
       // Product
       case Some('{ $m: Mirror.ProductOf[A] { type MirroredElemTypes = types } }) =>
-        result = MacroUtils.withCachedGivens[A, Reusability, Reusability[A]](m) { lookup =>
+
+        var fields = NewMacroUtils.mirrorFields(m)
+
+        if fieldExclusions.nonEmpty then
+          fields = fields.filter { f =>
+            val exclude = fieldExclusions.contains(f.name)
+            if exclude then invalidFieldExclusions -= f.name
+            !exclude
+          }
+
+        result = NewMacroUtils.withCachedGivens[Reusability, Reusability[A]](fields) { lookup =>
 
           val clauses =
-            NewMacroUtils.mirrorFields(m)
-              .filter { f =>
-                val exclude = fieldExclusions.contains(f.name)
-                if exclude then invalidFieldExclusions -= f.name
-                !exclude
-              }
-              .map[Clause](f => (x, y) => {
-                val r = lookup(f)
-                '{ $r.test(${f.onProduct(x)}, ${f.onProduct(y)}) }
-              })
+            fields.map[Clause](f => (x, y) => {
+              val r = lookup(f)
+              '{ $r.test(${f.onProduct(x)}, ${f.onProduct(y)}) }
+            })
 
           MacroUtils.mergeFn2s(
             fs    = clauses,

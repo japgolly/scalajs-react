@@ -293,7 +293,7 @@ object RoutingRule {
 
     /** Specify a catch-all response to unmatched/invalid routes. */
     def notFound(whenNotFound: Path => Parsed[Page]): RouterWithPropsConfig[Page, Props] =
-      notFoundDynamic(whenNotFound.andThen(CallbackTo.pure))
+      notFoundDynamic(whenNotFound.andThen(CallbackTo.pure(_)))
 
     /** Specify a catch-all response to unmatched/invalid routes. */
     def notFoundDynamic(whenNotFound: Path => CallbackTo[Parsed[Page]]): RouterWithPropsConfig[Page, Props] = {

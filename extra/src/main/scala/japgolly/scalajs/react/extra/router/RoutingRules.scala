@@ -168,7 +168,7 @@ object RoutingRules {
       path           = fromPage(_)._1,
       actionMulti    = (_, p) => static(Option(fromPage(p)._2)) :: Nil,
       fallbackAction = (_, _) => RedirectToPath(Path.root, SetRouteVia.HistoryPush), // won't happen
-      whenNotFound   = notFound.andThen(CallbackTo.pure))
+      whenNotFound   = notFound.andThen(CallbackTo.pure(_)))
 
   /** Create routing rules all at once, with compiler proof that all `Page`s will have a `Path` and `Action`
     * associated.
@@ -184,5 +184,5 @@ object RoutingRules {
       path           = fromPage(_)._1,
       actionMulti    = (_, p) => dynamic(fromPage(p)._2.map(Option(_))) :: Nil,
       fallbackAction = (_, _) => RedirectToPath(Path.root, SetRouteVia.HistoryPush), // won't happen
-      whenNotFound   = notFound.andThen(CallbackTo.pure))
+      whenNotFound   = notFound.andThen(CallbackTo.pure(_)))
 }
