@@ -173,11 +173,11 @@ trait ScalazReactInstances {
     override def toCallback[A](a: => IO[A])             = CallbackTo(a.unsafePerformIO())
   }
 
-  implicit final lazy val effectTransEndoIo       = Effect.Trans.id[IO]
-  implicit final lazy val effectTransIdToIo       = Effect.Trans[Effect.Id, IO]
-  implicit final lazy val effectTransCallbackToIo = Effect.Trans[CallbackTo, IO]
-  implicit final lazy val effectTransIoToId       = Effect.Trans[IO, Effect.Id]
-  implicit final lazy val effectTransIoToCallback = Effect.Trans[IO, CallbackTo]
+  implicit final lazy val effectTransEndoIo      : Effect.Trans[IO, IO]         = Effect.Trans.id[IO]
+  implicit final lazy val effectTransIdToIo      : Effect.Trans[Effect.Id, IO]  = Effect.Trans[Effect.Id, IO]
+  implicit final lazy val effectTransCallbackToIo: Effect.Trans[CallbackTo, IO] = Effect.Trans[CallbackTo, IO]
+  implicit final lazy val effectTransIoToId      : Effect.Trans[IO, Effect.Id]  = Effect.Trans[IO, Effect.Id]
+  implicit final lazy val effectTransIoToCallback: Effect.Trans[IO, CallbackTo] = Effect.Trans[IO, CallbackTo]
 
   implicit final lazy val scalazIdToReactCallback: (Scalaz.Id ~> CallbackTo) =
     new (Scalaz.Id ~> CallbackTo) { override def apply[A](a: A) = CallbackTo(a) }

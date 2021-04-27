@@ -9,78 +9,71 @@ object Dependencies {
   object Ver {
 
     // Externally observable
-    val Cats                  = "2.5.0"
-    val CatsEffect            = "2.4.1"
-    val Microlibs             = "2.6-RC3" // (macro-utils only)
-    val MonocleCats           = "2.1.0"
-    val Monocle3              = "3.0.0-M4"
-    val MonocleScalaz         = "1.6.3"
-    val Scala212              = "2.12.13"
-    val Scala213              = "2.13.5"
-    val Scala3                = "3.0.0-RC3"
-    val ScalaCollCompat       = "2.4.3"
-    val ScalaJsDom            = "1.1.0"
-    val Scalaz72              = "7.2.31"
-    val Sourcecode            = "0.2.6"
+    val cats                  = "2.6.0"
+    val catsEffect            = "2.5.0"
+    val microlibs             = "2.6-RC3" // (macro-utils only)
+    val monocleCats           = "2.1.0"
+    val monocle3              = "3.0.0-M5"
+    val monocleScalaz         = "1.6.3"
+    val scala212              = "2.12.13"
+    val scala213              = "2.13.5"
+    val scala3                = "3.0.0-RC3"
+    val scalaCollCompat       = "2.4.3"
+    val scalaJsDom            = "1.1.0"
+    val scalaz72              = "7.2.31"
+    val sourcecode            = "0.2.6"
 
     // Internal
-    val BetterMonadicFor      = "0.3.1"
-    val CatsTestkitScalaTest  = "2.1.3"
-    val DisciplineScalaTest   = "2.1.3"
-    val KindProjector         = "0.11.3"
-    val MacroParadise         = "2.1.1"
-    val MTest                 = "0.7.9"
-    val Nyaya                 = "0.10.0-RC2"
-    val ReactJs               = "16.14.0"
-    val ScalaJsJavaTime       = "1.0.0"
-    val ScalaTest             = "3.2.7"
-    val SizzleJs              = "2.3.0"
+    val betterMonadicFor      = "0.3.1"
+    val catsTestkitScalaTest  = "2.1.4"
+    val disciplineScalaTest   = "2.1.4"
+    val kindProjector         = "0.11.3"
+    val macroParadise         = "2.1.1"
+    val nyaya                 = "0.10.0-RC2"
+    val reactJs               = "16.14.0"
+    val scalaJsJavaTime       = "1.0.0"
+    val scalaTest             = "3.2.8"
+    val sizzleJs              = "2.3.0"
+    val utest                 = "0.7.9"
   }
 
   object Dep {
-    val Cats                 = Def.setting("org.typelevel"                 %%% "cats-core"               % Ver.Cats)
-    val CatsEffect           = Def.setting("org.typelevel"                 %%% "cats-effect"             % Ver.CatsEffect)
-    val CatsEffectLaws       = Def.setting("org.typelevel"                 %%% "cats-effect-laws"        % Ver.CatsEffect)
-    val CatsTestkit          = Def.setting("org.typelevel"                 %%% "cats-testkit"            % Ver.Cats)
-// TODO: https://github.com/typelevel/cats-testkit-scalatest/issues/128
- // val CatsTestkitScalaTest = Def.setting("org.typelevel"                 %%% "cats-testkit-scalatest"  % Ver.CatsTestkitScalaTest cross CrossVersion.for3Use2_13)
-// TODO: https://github.com/typelevel/discipline-scalatest/issues/169
- // val DisciplineScalaTest  = Def.setting("org.typelevel"                 %%% "discipline-scalatest"    % Ver.DisciplineScalaTest cross CrossVersion.for3Use2_13)
-    val MicrolibsMacroUtils  = Def.setting("com.github.japgolly.microlibs" %%% "macro-utils"             % Ver.Microlibs)
-    val MicrolibsTestUtil    = Def.setting("com.github.japgolly.microlibs" %%% "test-util"               % Ver.Microlibs)
-// TODO:
-// [error] Modules were resolved with conflicting cross-version suffixes in ProjectRef(uri("file:/home/golly/projects/public/scalajs-react/"), "monocleCats"):
-// [error]    org.typelevel:cats-kernel_sjs1 _3.0.0-RC1, _2.13
-// [error]    org.typelevel:cats-core_sjs1 _3.0.0-RC1, _2.13
- // val MonocleCats          = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.MonocleCats cross CrossVersion.for3Use2_13)
-    val Monocle3             = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.Monocle3)
-    val MonocleScalaz        = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.MonocleScalaz cross CrossVersion.for3Use2_13)
-    val MTest                = Def.setting("com.lihaoyi"                   %%% "utest"                   % Ver.MTest)
-    val NyayaGen             = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-gen"               % Ver.Nyaya)
-    val NyayaProp            = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-prop"              % Ver.Nyaya)
-    val NyayaTest            = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-test"              % Ver.Nyaya)
-    val ScalaCollCompat      = Def.setting("org.scala-lang.modules"        %%% "scala-collection-compat" % Ver.ScalaCollCompat)
-    val ScalaCompiler        = Def.setting("org.scala-lang"                  % "scala-compiler"          % scalaVersion.value)
-    val ScalaJsDom           = Def.setting("org.scala-js"                  %%% "scalajs-dom"             % Ver.ScalaJsDom cross CrossVersion.for3Use2_13)
-    val ScalaJsJavaTime      = Def.setting("org.scala-js"                  %%% "scalajs-java-time"       % Ver.ScalaJsJavaTime cross CrossVersion.for3Use2_13)
-    val ScalaReflect         = Def.setting("org.scala-lang"                  % "scala-reflect"           % scalaVersion.value)
-// TODO: https://github.com/scalatest/scalatest/issues/1982
- // val ScalaTest            = Def.setting("org.scalatest"                 %%% "scalatest"               % Ver.ScalaTest cross CrossVersion.for3Use2_13)
-    val ScalazEffect72       = Def.setting("org.scalaz"                    %%% "scalaz-effect"           % Ver.Scalaz72 cross CrossVersion.for3Use2_13)
-    val Sourcecode           = Def.setting("com.lihaoyi"                   %%% "sourcecode"              % Ver.Sourcecode)
+    val cats                 = Def.setting("org.typelevel"                 %%% "cats-core"               % Ver.cats)
+    val catsEffect           = Def.setting("org.typelevel"                 %%% "cats-effect"             % Ver.catsEffect)
+    val catsEffectLaws       = Def.setting("org.typelevel"                 %%% "cats-effect-laws"        % Ver.catsEffect)
+    val catsTestkit          = Def.setting("org.typelevel"                 %%% "cats-testkit"            % Ver.cats)
+    val catsTestkitScalaTest = Def.setting("org.typelevel"                 %%% "cats-testkit-scalatest"  % Ver.catsTestkitScalaTest)
+    val disciplineScalaTest  = Def.setting("org.typelevel"                 %%% "discipline-scalatest"    % Ver.disciplineScalaTest)
+    val microlibsMacroUtils  = Def.setting("com.github.japgolly.microlibs" %%% "macro-utils"             % Ver.microlibs)
+    val microlibsTestUtil    = Def.setting("com.github.japgolly.microlibs" %%% "test-util"               % Ver.microlibs)
+    val monocleCats          = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocleCats cross CrossVersion.for3Use2_13)
+    val monocle3             = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocle3)
+    val monocleScalaz        = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocleScalaz cross CrossVersion.for3Use2_13)
+    val nyayaGen             = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-gen"               % Ver.nyaya)
+    val nyayaProp            = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-prop"              % Ver.nyaya)
+    val nyayaTest            = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-test"              % Ver.nyaya)
+    val scalaCollCompat      = Def.setting("org.scala-lang.modules"        %%% "scala-collection-compat" % Ver.scalaCollCompat)
+    val scalaCompiler        = Def.setting("org.scala-lang"                  % "scala-compiler"          % scalaVersion.value)
+    val scalaJsDom           = Def.setting("org.scala-js"                  %%% "scalajs-dom"             % Ver.scalaJsDom cross CrossVersion.for3Use2_13)
+    val scalaJsJavaTime      = Def.setting("org.scala-js"                  %%% "scalajs-java-time"       % Ver.scalaJsJavaTime cross CrossVersion.for3Use2_13)
+    val scalaReflect         = Def.setting("org.scala-lang"                  % "scala-reflect"           % scalaVersion.value)
+    val scalaTest            = Def.setting("org.scalatest"                 %%% "scalatest"               % Ver.scalaTest)
+    val scalazEffect72       = Def.setting("org.scalaz"                    %%% "scalaz-effect"           % Ver.scalaz72 cross CrossVersion.for3Use2_13)
+    val sourcecode           = Def.setting("com.lihaoyi"                   %%% "sourcecode"              % Ver.sourcecode)
+    val utest                = Def.setting("com.lihaoyi"                   %%% "utest"                   % Ver.utest)
 
     // Compiler plugins
-    val BetterMonadicFor = compilerPlugin("com.olegpy"     %% "better-monadic-for" % Ver.BetterMonadicFor)
-    val KindProjector    = compilerPlugin("org.typelevel"  %% "kind-projector"     % Ver.KindProjector cross CrossVersion.full)
-    val MacroParadise    = compilerPlugin("org.scalamacros" % "paradise"           % Ver.MacroParadise cross CrossVersion.patch)
+    val betterMonadicFor = compilerPlugin("com.olegpy"     %% "better-monadic-for" % Ver.betterMonadicFor)
+    val kindProjector    = compilerPlugin("org.typelevel"  %% "kind-projector"     % Ver.kindProjector cross CrossVersion.full)
+    val macroParadise    = compilerPlugin("org.scalamacros" % "paradise"           % Ver.macroParadise cross CrossVersion.patch)
 
-    def SizzleJs(scope: Configuration) =
-      Def.setting("org.webjars.bower" % "sizzle" % Ver.SizzleJs % scope / "sizzle.min.js" commonJSName "Sizzle")
+    def sizzleJs(scope: Configuration) =
+      Def.setting("org.webjars.bower" % "sizzle" % Ver.sizzleJs % scope / "sizzle.min.js" commonJSName "Sizzle")
 
-    val React             = ReactArtifact("react")
-    val ReactDom          = ReactArtifact("react-dom")
-    val ReactDomServer    = ReactArtifact("react-dom-server.browser")
-    val ReactDomTestUtils = ReactArtifact("react-dom-test-utils")
+    val react             = ReactArtifact("react")
+    val reactDom          = ReactArtifact("react-dom")
+    val reactDomServer    = ReactArtifact("react-dom-server.browser")
+    val reactDoutestUtils = ReactArtifact("react-dom-test-utils")
   }
 
   final case class ReactArtifact(filename: String) {
@@ -95,24 +88,24 @@ object Dependencies {
         dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.12.0-alpha.3",
         jsDependencies ++= Seq(
 
-          "org.webjars.npm" % "react" % Ver.ReactJs % scope
+          "org.webjars.npm" % "react" % Ver.reactJs % scope
             /        "umd/react.development.js"
             minified "umd/react.production.min.js"
             commonJSName "React",
 
-          "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+          "org.webjars.npm" % "react-dom" % Ver.reactJs % scope
             /         "umd/react-dom.development.js"
             minified  "umd/react-dom.production.min.js"
             dependsOn "umd/react.development.js"
             commonJSName "ReactDOM",
 
-          "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+          "org.webjars.npm" % "react-dom" % Ver.reactJs % scope
             /         "umd/react-dom-test-utils.development.js"
             minified  "umd/react-dom-test-utils.production.min.js"
             dependsOn "umd/react-dom.development.js"
             commonJSName "ReactTestUtils",
 
-          "org.webjars.npm" % "react-dom" % Ver.ReactJs % scope
+          "org.webjars.npm" % "react-dom" % Ver.reactJs % scope
             /         "umd/react-dom-server.browser.development.js"
             minified  "umd/react-dom-server.browser.production.min.js"
             dependsOn "umd/react-dom.development.js"
@@ -124,7 +117,7 @@ object Dependencies {
     _.settings(libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, v)) if v <= 12 =>
-          Dep.MacroParadise :: Nil
+          Dep.macroParadise :: Nil
         case _ =>
           // if scala 2.13.0-M4 or later, macro annotations merged into scala-reflect
           // https://github.com/scala/scala/pull/6606

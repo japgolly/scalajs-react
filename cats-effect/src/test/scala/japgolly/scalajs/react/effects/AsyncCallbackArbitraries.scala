@@ -29,7 +29,7 @@ trait AsyncCallbackArbitraries extends CallbackToArbitraries {
     )
 
   def genAsync[A: Arbitrary]: Gen[AsyncCallback[A]] =
-    arbitrary[(Try[A] => Callback) => Callback].map(AsyncCallback.apply)
+    arbitrary[(Try[A] => Callback) => Callback].map(AsyncCallback(_))
 
   def genNestedAsync[A: Arbitrary: Cogen]: Gen[AsyncCallback[A]] =
     arbitrary[(Try[AsyncCallback[A]] => Callback) => Callback]

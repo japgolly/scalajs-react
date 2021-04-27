@@ -7,16 +7,16 @@ import scala.annotation.nowarn
 trait MonocleExtStateSnapshot {
   import MonocleExtStateSnapshot._
 
-  final implicit def MonocleReactExt_StateSnapshotNR(@nowarn("cat=unused") x: StateSnapshot.type) =
+  final implicit def MonocleReactExt_StateSnapshotNR(@nowarn("cat=unused") x: StateSnapshot.type): ObjectWithoutReuse =
     new ObjectWithoutReuse(StateSnapshot)
 
-  final implicit def MonocleReactExt_StateSnapshotWR(@nowarn("cat=unused") x: StateSnapshot.withReuse.type) =
+  final implicit def MonocleReactExt_StateSnapshotWR(@nowarn("cat=unused") x: StateSnapshot.withReuse.type): ObjectWithReuse =
     new ObjectWithReuse(StateSnapshot.withReuse)
 
-  final implicit def MonocleReactExt_StateSnapshot[A](x: StateSnapshot[A]) =
+  final implicit def MonocleReactExt_StateSnapshot[A](x: StateSnapshot[A]): Instance[A] =
     new Instance(x)
 
-  final implicit def MonocleReactExt_StateSnapshotWR[A](x: StateSnapshot.InstanceMethodsWithReuse[A]) =
+  final implicit def MonocleReactExt_StateSnapshotWR[A](x: StateSnapshot.InstanceMethodsWithReuse[A]): InstanceWithReuse[A] =
     new InstanceWithReuse(x)
 }
 

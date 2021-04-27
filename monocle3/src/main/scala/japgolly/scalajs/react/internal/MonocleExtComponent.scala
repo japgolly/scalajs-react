@@ -3,10 +3,13 @@ package japgolly.scalajs.react.internal
 import japgolly.scalajs.react._
 
 trait MonocleExtComponentLowPriorityImplicits {
-  implicit final def MonocleReactExt_StateWritableCB[I, S](i: I)(implicit sa: StateAccessor.WritePure[I, S]) = new MonocleExtComponent.StateWritableCB[I, S](i)(sa)
+  implicit final def MonocleReactExt_StateWritableCB[I, S](i: I)(implicit sa: StateAccessor.WritePure[I, S]): MonocleExtComponent.StateWritableCB[I, S] =
+    new MonocleExtComponent.StateWritableCB[I, S](i)(sa)
 }
+
 trait MonocleExtComponent extends MonocleExtComponentLowPriorityImplicits {
-  implicit final def MonocleReactExt_StateAccess[F[_], S](m: StateAccess[F, S]) = new MonocleExtComponent.StateAcc[F, S, m.type](m)
+  implicit final def MonocleReactExt_StateAccess[F[_], S](m: StateAccess[F, S]): MonocleExtComponent.StateAcc[F, S, m.type] =
+    new MonocleExtComponent.StateAcc[F, S, m.type](m)
 }
 
 object MonocleExtComponent {

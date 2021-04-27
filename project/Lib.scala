@@ -4,9 +4,9 @@ import com.jsuereth.sbtpgp.PgpKeys._
 import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import xerial.sbt.Sonatype.autoImport._
+import Dependencies._
 
 object Lib {
-  import Dependencies.Dep
 
   type PE = Project => Project
 
@@ -56,7 +56,7 @@ object Lib {
       .settings(
         jsEnv                := new JSDOMNodeJSEnv,
         Test / scalacOptions += "-language:reflectiveCalls",
-        libraryDependencies  += Dep.MTest.value % Test,
+        libraryDependencies  += Dep.utest.value % Test,
         testFrameworks       += new TestFramework("utest.runner.Framework"))
 
   def extModuleName(shortName: String): PE =
@@ -65,8 +65,8 @@ object Lib {
   def definesMacros: Project => Project =
     _.settings(
       scalacOptions       ++= (if (scalaVersion.value startsWith "3") Nil else Seq("-language:experimental.macros")),
-      libraryDependencies ++= (if (scalaVersion.value startsWith "3") Nil else Seq(Dep.ScalaReflect.value, Dep.ScalaCompiler.value % Provided)),
-      libraryDependencies  += Dep.MicrolibsMacroUtils.value,
+      libraryDependencies ++= (if (scalaVersion.value startsWith "3") Nil else Seq(Dep.scalaReflect.value, Dep.scalaCompiler.value % Provided)),
+      libraryDependencies  += Dep.microlibsMacroUtils.value,
     )
 
   def hasNoTests: Project => Project =
