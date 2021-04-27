@@ -52,6 +52,8 @@ Later
 * Undo the commit after 12c6a3ee31eaac2b848494c44332f3fc8da30400
   than reverts all the erased stuff
 
+* Re-enable elision tests in bin/ci
+
 Finally
 =======
 * Remove `mv_src`

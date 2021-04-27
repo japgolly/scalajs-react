@@ -18,4 +18,5 @@ sbt -DCI=fast ++$TRAVIS_SCALA_VERSION test
 rm -rf */target/scala-*/{,test-}classes
 sbt -DCI=full ++$TRAVIS_SCALA_VERSION test
 
-bin/test-elision $TRAVIS_SCALA_VERSION
+# sleep 1
+# bin/test-elision $TRAVIS_SCALA_VERSION
