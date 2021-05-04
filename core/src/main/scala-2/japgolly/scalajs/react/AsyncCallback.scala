@@ -1087,4 +1087,9 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
   /** Log the duration of this callback's execution. */
   def logDuration: AsyncCallback[A] =
     logDuration("AsyncCallback")
+
+  def withFilter(f: A => Boolean): AsyncCallback[A] =
+    map[A](a => if (f(a)) a else
+      // This is what scala.Future does
+      throw new NoSuchElementException("AsyncCallback.withFilter predicate is not satisfied"))
 }

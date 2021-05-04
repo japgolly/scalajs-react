@@ -162,8 +162,8 @@ object MiscTest extends TestSuite {
     "domExt" - {
       import org.scalajs.dom.raw._
       import InferenceUtil._
-      "domCast"   - test[Node](_.domCast[HTMLInputElement]).expect[HTMLInputElement]
-      "domAsHtml" - test[Node](_.domAsHtml).expect[HTMLElement]
+      "domCast"   - assertType[Node](_.domCast[HTMLInputElement]).is[HTMLInputElement]
+      "domAsHtml" - assertType[Node](_.domAsHtml).is[HTMLElement]
       "domToHtml" - {
         import org.scalajs.dom._
         val input = document.createElement("input")
@@ -180,8 +180,11 @@ object MiscTest extends TestSuite {
       for (s <- List(js.Symbol.search, js.Symbol.forKey("ah"))) {
         JsUtil.inspectValue(s)
         JsUtil.safeToString(s)
-        Try(JsComponent[Null, Children.None, Null](s))
-        Try(JsFnComponent[Null, Children.None](s))
+        // TODO: https://github.com/lampepfl/dotty/issues/12247
+        // Try(JsComponent[Null, Children.None, Null](s))
+        // Try(JsFnComponent[Null, Children.None](s))
+        def t1 = JsComponent[Null, Children.None, Null](s); Try(t1)
+        def t2 = JsFnComponent[Null, Children.None](s); Try(t2)
       }
     }
 

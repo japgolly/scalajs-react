@@ -101,18 +101,17 @@ object ImplicitsForVdomNode {
   }
 }
 
-trait ImplicitsForVdomNode {
+trait ImplicitsForVdomNode extends VdomNodeScalaSpecificImplicits {
   import ImplicitsForVdomNode._
 
-  @inline implicit def vdomNodeFromByte         (v: Byte)          : VdomNode = VdomNode.cast(v)
-  @inline implicit def vdomNodeFromShort        (v: Short)         : VdomNode = VdomNode.cast(v)
-  @inline implicit def vdomNodeFromInt          (v: Int)           : VdomNode = VdomNode.cast(v)
-          implicit def vdomNodeFromLong         (v: Long)          : VdomNode = VdomNode.cast(v.toString)
-  @inline implicit def vdomNodeFromFloat        (v: Float)         : VdomNode = VdomNode.cast(v)
-  @inline implicit def vdomNodeFromDouble       (v: Double)        : VdomNode = VdomNode.cast(v)
-  @inline implicit def vdomNodeFromString       (v: String)        : VdomNode = VdomNode.cast(v)
-  @inline implicit def vdomNodeFromPropsChildren(v: PropsChildren) : VdomNode = VdomNode.cast(v.raw)
-  @inline implicit def vdomNodeFromRawReactNode (v: raw.React.Node): VdomNode = VdomNode(v)
+  @inline implicit def vdomNodeFromByte         (v: Byte)         : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromShort        (v: Short)        : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromInt          (v: Int)          : VdomNode = VdomNode.cast(v)
+          implicit def vdomNodeFromLong         (v: Long)         : VdomNode = VdomNode.cast(v.toString)
+  @inline implicit def vdomNodeFromFloat        (v: Float)        : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromDouble       (v: Double)       : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromString       (v: String)       : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromPropsChildren(v: PropsChildren): VdomNode = VdomNode.cast(v.raw)
 
   implicit def vdomNodeFromOption[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => VdomNode): VdomNode =
     O.fold(o, VdomNode.empty)(f)

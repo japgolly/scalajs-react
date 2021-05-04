@@ -32,7 +32,8 @@ object SimEvent {
 
     def assignTarget(tgt: Dynamic): tgt.type = {
       tgt.value   = value
-      tgt.checked = checked
+      // tgt.checked = checked
+      tgt.checked = checked.asInstanceOf[js.Any] // TODO: https://github.com/lampepfl/dotty/issues/12234
       tgt
     }
 

@@ -12,46 +12,46 @@ object StateAccessorTest extends TestSuite {
 
     "writePure" - {
       def use[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]): S => Callback = t(i).setState(_)
-                       test[Render        ](use(_)).expect[S => Callback]
-                       test[Backend       ](use(_)).expect[S => Callback]
-                       test[ScalaMountedCB](use(_)).expect[S => Callback]
-                       test[StateAccessP  ](use(_)).expect[S => Callback]
-      compileError(""" test[JsMounted     ](use(_)) """)
-      compileError(""" test[ScalaMountedId](use(_)) """)
-      compileError(""" test[StateAccessI  ](use(_)) """)
+                       assertType[Render        ](use(_)).is[S => Callback]
+                       assertType[Backend       ](use(_)).is[S => Callback]
+                       assertType[ScalaMountedCB](use(_)).is[S => Callback]
+                       assertType[StateAccessP  ](use(_)).is[S => Callback]
+      compileError(""" assertType[JsMounted     ](use(_)) """)
+      compileError(""" assertType[ScalaMountedId](use(_)) """)
+      compileError(""" assertType[StateAccessI  ](use(_)) """)
     }
 
     "readIdWritePure" - {
       def use[I, S](i: I)(implicit t: StateAccessor.ReadImpureWritePure[I, S]): CallbackTo[S] = t(i).setState(t.state(i)).ret(t state i)
-                       test[Render        ](use(_)).expect[CallbackTo[S]]
-      compileError(""" test[StateAccessP  ](use(_)) """)
-      compileError(""" test[StateAccessI  ](use(_)) """)
-      compileError(""" test[Backend       ](use(_)) """)
-      compileError(""" test[ScalaMountedCB](use(_)) """)
-      compileError(""" test[JsMounted     ](use(_)) """)
-      compileError(""" test[ScalaMountedId](use(_)) """)
+                       assertType[Render        ](use(_)).is[CallbackTo[S]]
+      compileError(""" assertType[StateAccessP  ](use(_)) """)
+      compileError(""" assertType[StateAccessI  ](use(_)) """)
+      compileError(""" assertType[Backend       ](use(_)) """)
+      compileError(""" assertType[ScalaMountedCB](use(_)) """)
+      compileError(""" assertType[JsMounted     ](use(_)) """)
+      compileError(""" assertType[ScalaMountedId](use(_)) """)
     }
 
     "readCBWritePure" - {
       def use[I, S](i: I)(implicit sa: StateAccessor.ReadWritePure[I, S]): CallbackTo[S] = sa.state(i)
-                       test[Backend       ](use(_)).expect[CallbackTo[S]]
-                       test[ScalaMountedCB](use(_)).expect[CallbackTo[S]]
-                       test[Render        ](use(_)).expect[CallbackTo[S]] // coercion
-                       test[StateAccessP  ](use(_)).expect[CallbackTo[S]] // coercion
-      compileError(""" test[JsMounted     ](use(_)) """)
-      compileError(""" test[ScalaMountedId](use(_)) """)
-      compileError(""" test[StateAccessI  ](use(_)) """)
+                       assertType[Backend       ](use(_)).is[CallbackTo[S]]
+                       assertType[ScalaMountedCB](use(_)).is[CallbackTo[S]]
+                       assertType[Render        ](use(_)).is[CallbackTo[S]] // coercion
+                       assertType[StateAccessP  ](use(_)).is[CallbackTo[S]] // coercion
+      compileError(""" assertType[JsMounted     ](use(_)) """)
+      compileError(""" assertType[ScalaMountedId](use(_)) """)
+      compileError(""" assertType[StateAccessI  ](use(_)) """)
     }
 
     "readIdWriteImpure" - {
       def use[I, S](i: I)(implicit sa: StateAccessor.ReadWriteImpure[I, S]): S = sa.state(i)
-      compileError(""" test[Backend       ](use(_)) """)
-      compileError(""" test[ScalaMountedCB](use(_)) """)
-      compileError(""" test[Render        ](use(_)) """)
-      compileError(""" test[StateAccessP  ](use(_)) """)
-                       test[JsMounted     ](use(_)).expect[J]
-                       test[ScalaMountedId](use(_)).expect[S]
-                       test[StateAccessI  ](use(_)).expect[S]
+      compileError(""" assertType[Backend       ](use(_)) """)
+      compileError(""" assertType[ScalaMountedCB](use(_)) """)
+      compileError(""" assertType[Render        ](use(_)) """)
+      compileError(""" assertType[StateAccessP  ](use(_)) """)
+                       assertType[JsMounted     ](use(_)).is[J]
+                       assertType[ScalaMountedId](use(_)).is[S]
+                       assertType[StateAccessI  ](use(_)).is[S]
     }
   }
 }

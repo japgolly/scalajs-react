@@ -529,21 +529,21 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
       ))
 
   inline def debounce(inline delay: Duration): Callback =
-    _debounceMs(delay.toMillis)
+    __debounceMs(delay.toMillis)
 
   inline def debounce(inline delay: FiniteDuration): Callback =
-    _debounceMs(delay.toMillis)
+    __debounceMs(delay.toMillis)
 
   inline def debounceMs(inline delayMs: Long): Callback =
-    _debounceMs(delayMs)
+    __debounceMs(delayMs)
 
-  private[react] inline def _debounceMs(delayMs: Long): Callback =
+  private[react] inline def __debounceMs(delayMs: Long): Callback =
     if (delayMs <= 0)
       void
     else
-      __debounceMs(delayMs)
+      _debounceMs(delayMs)
 
-  private[react] def __debounceMs(delayMs: Long)(implicit timer: Timer): Callback = {
+  private[react] def _debounceMs(delayMs: Long)(implicit timer: Timer): Callback = {
     var prev = Option.empty[timer.Handle]
     CallbackTo {
       prev.foreach(timer.cancel)
@@ -736,4 +736,8 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
     }
   }
 
+  def withFilter(f: A => Boolean): CallbackTo[A] =
+    map[A](a => if f(a) then a else
+      // This is what scala.Future does
+      throw new NoSuchElementException("CallbackTo.withFilter predicate is not satisfied"))
 }

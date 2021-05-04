@@ -242,7 +242,7 @@ object AsyncCallback {
       _ <- AsyncCallback(p.onComplete)
     } yield ()
 
-  private[react] inline def debounce[A](inline delayMs: Long, inline self: AsyncCallback[A])(using timer: Timer): AsyncCallback[A] =
+  private[react] inline def debounce[A](inline delayMs: Long, inline self: AsyncCallback[A])(implicit timer: Timer): AsyncCallback[A] =
     if (delayMs <= 0)
       self
     else {
@@ -1091,4 +1091,9 @@ final class AsyncCallback[+A](val completeWith: (Try[A] => Callback) => Callback
   /** Log the duration of this callback's execution. */
   def logDuration: AsyncCallback[A] =
     logDuration("AsyncCallback")
+
+  def withFilter(f: A => Boolean): AsyncCallback[A] =
+    map[A](a => if f(a) then a else
+      // This is what scala.Future does
+      throw new NoSuchElementException("AsyncCallback.withFilter predicate is not satisfied"))
 }

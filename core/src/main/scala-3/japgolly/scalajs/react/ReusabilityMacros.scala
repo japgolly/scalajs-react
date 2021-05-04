@@ -129,9 +129,8 @@ object ReusabilityMacros {
                 )
                (using Quotes, Type[A]): Expr[Reusability[A]] = {
 
-    // TODO: https://github.com/lampepfl/dotty/issues/11835
-    val logNonReuse = _logNonReuse.value.getOrElse(false)
-    val logCode     = _logCode    .value.getOrElse(false)
+    val logNonReuse = _logNonReuse.valueOrError
+    val logCode     = _logCode    .valueOrError
 
     val fieldExclusions: Set[String] = {
       var s = Set.empty[String]
@@ -147,7 +146,7 @@ object ReusabilityMacros {
     var invalidFieldExclusions = fieldExclusions
 
     var result: Expr[Reusability[A]] = null
-    def log(msg: => Any) = if logCode then println(msg)
+    def log(msg: => Any) = if logCode then println(msg) //catch {case t: Throwable => t.printStackTrace}
     log("="*120)
     log(s"Beginning derivation of Reusability[${Type.show[A]}]")
     log(s"Field exclusions: ${fieldExclusions.size}")

@@ -126,8 +126,8 @@ object ComponentBuilderMacros {
       }
 
       inline def tryPropsChildren(t: TypeRepr) = Option.when(t =:= PropsChildren)(getPropsChildren())
-      inline def byExactTypeAlias(t: TypeRepr) = attempt(_.spec == t)
-      inline def byExactType     (t: TypeRepr) = attempt(_.dealised == t)
+      inline def byExactTypeAlias(t: TypeRepr) = attempt(_.spec.typeSymbol == t.typeSymbol)
+      inline def byExactType     (t: TypeRepr) = attempt(_.dealised.typeSymbol == t.typeSymbol)
       inline def bySubType       (t: TypeRepr) = attempt(_.dealised <:< t)
       inline def byName          (s: Symbol)   = attempt(_.names contains s.name.toString)
 
@@ -143,7 +143,15 @@ object ComponentBuilderMacros {
           byExactType(ptd)     orElse
           bySubType(ptd)       orElse
           byName(p)            getOrElse
-          fail(s"Don't know what to feed (${p.name}: ${pt.show}) in ${Type.show[B]}.render.\n${p.tree}")
+          fail {
+            var paramType = pt.show
+            // Remove the "scala." prefix for types directly under scala.
+            // This is primarily to make cross-compiled tests pass but it's also a bit nicer
+            // for users too.
+            if paramType.startsWith("scala.") && paramType.indexOf('.', 6) == -1 then
+              paramType = paramType.drop(6)
+            s"Don't know what to feed (${p.name}: $paramType) in ${Type.show[B]}.render"
+          }
         )
       }
 
@@ -169,9 +177,6 @@ object ComponentBuilderMacros {
 
     val renderType = renderMethod.needType(s"${Type.show[B]}.render")
 
-    if !(renderType <:< TypeRepr.of[VdomNode]) then
-      fail(s"${Type.show[B]}.render has a return type of ${renderType.show}.\nYou need to explicitly set the return type to VdomNode.")
-
     val params: Option[List[Symbol]] = {
       val paramSymss = renderMethod.paramSymss
 
@@ -186,20 +191,20 @@ object ComponentBuilderMacros {
     }
 
     def lambdaBody(input: Expr[Input]): Expr[VdomNode] = {
-      val render = Select('{ $input.backend }.asTerm, renderMethod)
-      val result: Tree =
-        params match {
-          case None =>
-            assertChildrenTypeMatches(false)
-            render
-          case Some(params) =>
-            val args = generateArguments(input, params)
-            Apply(render, args)
-
-        }
-      result.asExprOf[VdomNode]
+      var render: Term = Select('{ $input.backend }.asTerm, renderMethod)
+      params match {
+        case None =>
+          assertChildrenTypeMatches(false)
+        case Some(params) =>
+          val args = generateArguments(input, params)
+          render = Apply(render, args)
+      }
+      render = render.implicitlyConvertToOrError[VdomNode]
+      render.asExprOf[VdomNode]
     }
 
-    '{ input => ${ lambdaBody('input) } }
+    val result: Expr[RenderFn[P, S, B]] = '{ input => ${ lambdaBody('input) } }
+    // println(result.show)
+    result
   }
 }

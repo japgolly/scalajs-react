@@ -1,8 +1,19 @@
 Port
 ====
 
-* test
-* ghpages
+test/src/test/scala-2/japgolly/scalajs/react/core/ReusabilityTest.scala
+test/src/test/scala-2/japgolly/scalajs/react/core/ReusableFnTest.scala
+test/src/test/scala-2/japgolly/scalajs/react/core/vdom/DevOnlyTest.scala
+test/src/test/scala-2/japgolly/scalajs/react/ElisionTest.scala
+test/src/test/scala-2/japgolly/scalajs/react/extra/router/DslTest.scala
+test/src/test/scala-2/japgolly/scalajs/react/extra/router/Router2Test.scala
+test/src/test/scala-2/japgolly/scalajs/react/extra/router/RouterP2Test.scala
+test/src/test/scala-2/japgolly/scalajs/react/extra/router/RouterTestHelp.scala
+test/src/test/scala-2/japgolly/scalajs/react/extra/router/RouterTest.scala
+test/src/test/scala-2/japgolly/scalajs/react/extra/router/SimHistory.scala
+
+ghpages
+
 
 Later
 =====
@@ -14,12 +25,14 @@ Later
   * Move into it and rename:
     * `CompileTimeTestUtil`
     * `CompileTimeInfo`
+    * `InferenceUtil`
     * `NewMacroUtils`
     * `Ops` => `Extensions`
   * Maybe define an export package = `{obj Utils, Extensions._, fail*}`
   * Make erased versions of `<:<` & `=:=` and use here
   * Add inline string fns
   * Add inline string -> int
+  * assertContains: make a variant that accepts multiple legal substrs
 
 * ScalaJsReactConfig
   * Make scala2 use macros (i.e. bugfix)
@@ -43,6 +56,8 @@ Later
 * Test Scala3 Reusability macro newness
 * Test Scala3 Callback ResultGuard Proof
 * Test Scala3 Router Macro failure cases (might need to manually report errors if auto-error isn't clear)
+* Move out the compile time tests in core/3
+* Run the AsyncTests in gh-pages
 
 * Can comp-builder endo-fns be greatly simplified using the new polymorphic fns?
 
@@ -53,6 +68,8 @@ Later
   than reverts all the erased stuff
 
 * Re-enable elision tests in bin/ci
+
+* Reusability macros generating boxed code, hopefully fixed on Scala 3 master -- check!
 
 Finally
 =======

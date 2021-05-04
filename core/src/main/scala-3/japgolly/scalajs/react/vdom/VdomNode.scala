@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.{raw => Raw}
+import scala.util.NotGiven
 
 trait VdomNode extends TagMod {
   def rawNode: Raw.React.Node
@@ -24,4 +25,12 @@ object VdomNode {
 
   inline def static(vdom: VdomNode): VdomNode =
     japgolly.scalajs.react.ScalaComponent.static("")(vdom).ctor()
+}
+
+trait VdomNodeScalaSpecificImplicits {
+  inline implicit def vdomNodeFromRawReactNode(v: Raw.React.Node)(using
+      inline evU: NotGiven[v.type <:< Unit],
+      inline evB: NotGiven[v.type <:< Boolean],
+    ): VdomNode =
+    VdomNode(v)
 }

@@ -84,6 +84,8 @@ object TriStateCheckbox {
     Reusability.caseClassExcept("setNextState") // .setNextState is never accessed outside of a Callback
 
   val Component = ScalaComponent.builder[Props]("TriStateCheckbox")
+    .stateless
+    .noBackend
     .render(i => render(i.mountedPure, i.props))
     .componentDidMount(i => updateDom(i.mountedImpure, i.props))
     .componentDidUpdate(i => updateDom(i.mountedImpure, i.currentProps))

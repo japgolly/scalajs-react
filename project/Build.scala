@@ -66,6 +66,7 @@ object ScalajsReact {
   def scalac3Flags = Seq(
     "-source:3.0-migration",
     "-Ykind-projector",
+    // "-Xprint:all",
   )
 
   def commonSettings: PE =
@@ -87,6 +88,7 @@ object ScalajsReact {
         releaseVcsSign                := true,
         libraryDependencies          ++= Seq(Dep.betterMonadicFor, Dep.kindProjector).filter(_ => scalaVersion.value startsWith "2"),
         disable                       := false,
+        dependencyOverrides          ++= globalDependencyOverrides.value,
       )
 
   // ==============================================================================================
@@ -100,8 +102,8 @@ object ScalajsReact {
     .aggregate(
       core,
       extra,
-//      test,
-//      // testModule,
+      test,
+      // testModule,
       scalaz72,
       cats,
       catsEffect,
@@ -127,7 +129,7 @@ object ScalajsReact {
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .dependsOn(core)
     .settings(name := "extra")
-/*
+
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test), addMacroParadise)
     .dependsOn(core, extra)
@@ -153,7 +155,7 @@ object ScalajsReact {
         (ProvidedJS / "component-fn.js"  dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "polyfill.js"      dependsOn Dep.reactDom.dev) % Test))
-*/
+
   /*
   lazy val testModule = project.in(file("test-module"))
     .configure(commonSettings, useScalaJsBundler, preventPublication, utestSettings)

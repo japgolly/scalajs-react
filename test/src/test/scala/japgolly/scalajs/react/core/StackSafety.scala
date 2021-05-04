@@ -18,8 +18,8 @@ object StackSafety {
   }
 
   object Eval {
-    implicit val evalCallback      = Eval[CallbackTo](_.runNow())
-    implicit val evalAsyncCallback = evalCallback.contraTrans[AsyncCallback](_.toCallback)
+    implicit val evalCallback: Eval[CallbackTo] = Eval[CallbackTo](_.runNow())
+    implicit val evalAsyncCallback: Eval[AsyncCallback] = evalCallback.contraTrans[AsyncCallback](_.toCallback)
   }
 
   private def n = 50000

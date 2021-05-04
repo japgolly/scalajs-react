@@ -19,14 +19,14 @@ object ComponentBuilder {
 
   // ===================================================================================================================
 
-  inline implicit def defaultToNoState[P](b: Step1[P]): Step2[P, Unit] =
-    b.stateless
+  inline given defaultToNoState[P]: Conversion[Step1[P], Step2[P, Unit]] =
+    _.stateless
 
-  inline implicit def defaultToNoBackend1[P](b: Step1[P]): Step3[P, Unit, Unit] =
-    b.stateless.noBackend
-
-  inline implicit def defaultToNoBackend2[P, S](b: Step2[P, S]): Step3[P, S, Unit] =
-    b.noBackend
+  inline given defaultToNoBackend[X, P, S](using inline ev: X => Step2[P, S]): Conversion[X, Step3[P, S, Unit]] =
+    x => inline x match {
+      case y: Step2[P, S] => y.noBackend
+      case _              => ev(x).noBackend
+    }
 
   // ===================================================================================================================
 

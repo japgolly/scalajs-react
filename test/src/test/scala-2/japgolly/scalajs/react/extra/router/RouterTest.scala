@@ -20,7 +20,7 @@ object RouterTest extends TestSuite {
     case class Person(id: Long) extends MyPage
     case class QueryParamPage(queryParams: Map[String, String]) extends MyPage
 
-    implicit def equality = UnivEq.force[MyPage]
+    implicit def equality: UnivEq[MyPage] = UnivEq.force
 
     val RootComponent = ScalaComponent.builder[RouterCtl[MyPage]]("Root")
       .render_P(r =>

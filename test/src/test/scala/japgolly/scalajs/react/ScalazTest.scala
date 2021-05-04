@@ -30,12 +30,12 @@ object ScalazTest extends TestSuite {
 
       val reactSIO: ReactST[IO, S, Int] = ReactS retM IO(3)
 
-      "runState(s.liftS)"   - test[StateT[M,S,A]                        ](s => bs.runState(s.liftS)  ).expect[CallbackTo[A]]
-      "runStateFn(f.liftS)" - test[B => StateT[M,S,A]                   ](s => bs.runStateFn(s.liftS)).expect[B => CallbackTo[A]]
-      "BackendScope"        - test[BackendScope[Unit, S]                ](_.runState(reactSIO)       ).expect[CallbackTo[Int]]
-      "RenderScope"         - test[Render                               ](_.runState(reactSIO)       ).expect[CallbackTo[Int]]
-      "ScalaMountedId"      - test[ScalaComponent.MountedImpure[U, S, U]](_.runState(reactSIO)       ).expect[Int]
-      "ScalaMountedCB"      - test[ScalaComponent.MountedPure  [U, S, U]](_.runState(reactSIO)       ).expect[CallbackTo[Int]]
+      "runState(s.liftS)"   - assertType[StateT[M,S,A]                        ](s => bs.runState(s.liftS)  ).is[CallbackTo[A]]
+      "runStateFn(f.liftS)" - assertType[B => StateT[M,S,A]                   ](s => bs.runStateFn(s.liftS)).is[B => CallbackTo[A]]
+      "BackendScope"        - assertType[BackendScope[Unit, S]                ](_.runState(reactSIO)       ).is[CallbackTo[Int]]
+      "RenderScope"         - assertType[Render                               ](_.runState(reactSIO)       ).is[CallbackTo[Int]]
+      "ScalaMountedId"      - assertType[ScalaComponent.MountedImpure[U, S, U]](_.runState(reactSIO)       ).is[Int]
+      "ScalaMountedCB"      - assertType[ScalaComponent.MountedPure  [U, S, U]](_.runState(reactSIO)       ).is[CallbackTo[Int]]
     }
 
     "runState" - {

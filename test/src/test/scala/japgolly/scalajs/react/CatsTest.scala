@@ -24,17 +24,19 @@ object CatsTest extends TestSuite {
     "inference" - {
       import japgolly.scalajs.react.test.InferenceUtil._
 
+      assertType[Int].is[Int]
+
       implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
 
       val retVal: Id[Int] = 3
       val reactSId: ReactST[Id, S, Int] = ReactS retM retVal
 
-      "runState(s.liftS)"   - test[StateT[M,S,A]                        ](s => bs.runState(s.liftS)  ).expect[CallbackTo[A]]
-      "runStateFn(f.liftS)" - test[B => StateT[M,S,A]                   ](s => bs.runStateFn(s.liftS)).expect[B => CallbackTo[A]]
-      "BackendScope"        - test[BackendScope[Unit, S]                ](_.runState(reactSId)       ).expect[CallbackTo[Int]]
-      "RenderScope"         - test[Render                               ](_.runState(reactSId)       ).expect[CallbackTo[Int]]
-      "ScalaMountedId"      - test[ScalaComponent.MountedImpure[U, S, U]](_.runState(reactSId)       ).expect[Int]
-      "ScalaMountedCB"      - test[ScalaComponent.MountedPure  [U, S, U]](_.runState(reactSId)       ).expect[CallbackTo[Int]]
+      "runState(s.liftS)"   - assertType[StateT[M,S,A]                        ](s => bs.runState(s.liftS)  ).is[CallbackTo[A]]
+      "runStateFn(f.liftS)" - assertType[B => StateT[M,S,A]                   ](s => bs.runStateFn(s.liftS)).is[B => CallbackTo[A]]
+      "BackendScope"        - assertType[BackendScope[Unit, S]                ](_.runState(reactSId)       ).is[CallbackTo[Int]]
+      "RenderScope"         - assertType[Render                               ](_.runState(reactSId)       ).is[CallbackTo[Int]]
+      "ScalaMountedId"      - assertType[ScalaComponent.MountedImpure[U, S, U]](_.runState(reactSId)       ).is[Int]
+      "ScalaMountedCB"      - assertType[ScalaComponent.MountedPure  [U, S, U]](_.runState(reactSId)       ).is[CallbackTo[Int]]
     }
 
     "runState" - {

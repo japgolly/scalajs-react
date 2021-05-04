@@ -52,6 +52,30 @@ object NewMacroUtils { // TODO: Move into microlibs
         Expr.summonOrError[A](using self)
     }
 
+    extension (using q: Quotes)(self: q.reflect.Term) {
+      def implicitlyConvertTo[B](using Type[B]): Option[q.reflect.Term] = {
+        import quotes.reflect.*
+        if self.tpe <:< TypeRepr.of[B] then
+          Some(self)
+        else
+          self.tpe.asType match {
+            case '[t] =>
+              Expr.summon[t => B].map { i =>
+                val e = self.asExprOf[t]
+                Expr.betaReduce('{ $i($e) }).asTerm
+              }
+          }
+      }
+
+      def implicitlyConvertToOrError[B](using Type[B]): q.reflect.Term =
+        self.implicitlyConvertTo[B].getOrElse {
+          val a = self.tpe.show
+          val msg = s"Can't convert $a to ${Type.show[B]}"
+          import quotes.reflect.*
+          report.throwError(msg, Position.ofMacroExpansion)
+        }
+    }
+
     extension (using q: Quotes)(self: q.reflect.TypeRepr) {
       def asTypeTree: q.reflect.TypeTree =
         q.reflect.TypeTree.of(using self.asType)
@@ -369,8 +393,9 @@ object NewMacroUtils { // TODO: Move into microlibs
           val _name = TypeRepr.of[l] match {
             case ConstantType(StringConstant(n)) => n
           }
+          val _idx = idx
           val f: Field = new Field {
-            override val idx                = idx
+            override val idx                = _idx
             override val name               = _name
             override type Name              = l
             override type Type              = t

@@ -34,6 +34,7 @@ object Dependencies {
     val scalaJsJavaTime       = "1.0.0"
     val scalaTest             = "3.2.8"
     val sizzleJs              = "2.3.0"
+    val univEq                = "1.4.0-RC4"
     val utest                 = "0.7.9"
   }
 
@@ -60,6 +61,8 @@ object Dependencies {
     val scalaTest            = Def.setting("org.scalatest"                 %%% "scalatest"               % Ver.scalaTest)
     val scalazEffect72       = Def.setting("org.scalaz"                    %%% "scalaz-effect"           % Ver.scalaz72 cross CrossVersion.for3Use2_13)
     val sourcecode           = Def.setting("com.lihaoyi"                   %%% "sourcecode"              % Ver.sourcecode)
+    val univEq               = Def.setting("com.github.japgolly.univeq"    %%% "univeq"                  % Ver.univEq)
+    val univEqScalaz         = Def.setting("com.github.japgolly.univeq"    %%% "univeq-scalaz"           % Ver.univEq)
     val utest                = Def.setting("com.lihaoyi"                   %%% "utest"                   % Ver.utest)
 
     // Compiler plugins
@@ -80,6 +83,11 @@ object Dependencies {
     val dev = s"umd/$filename.development.js"
     val prod = s"umd/$filename.production.min.js"
   }
+
+  def globalDependencyOverrides = Def.setting(Seq(
+    Dep.univEq.value,
+    Dep.univEqScalaz.value,
+  ))
 
   def addReactJsDependencies(scope: Configuration): Project => Project =
     _.enablePlugins(JSDependenciesPlugin)

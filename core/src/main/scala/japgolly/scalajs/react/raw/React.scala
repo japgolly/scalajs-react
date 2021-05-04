@@ -40,9 +40,7 @@ object React extends React {
 
   //  @JSImport("react", "Component", "React.Component")
   @js.native
-  // TODO: [3] https://github.com/lampepfl/dotty/issues/11888
-  // abstract class Component[P <: js.Object, S <: js.Object](ctorProps: P = js.native) extends js.Object {
-  abstract class Component[P <: js.Object, S <: js.Object](ctorProps: P) extends js.Object {
+  abstract class Component[P <: js.Object, S <: js.Object](ctorProps: P = js.native) extends js.Object {
     final type Props = P with PropsWithChildren
     final type State = S
 

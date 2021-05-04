@@ -11,7 +11,8 @@ import utest._
 object MonocleTest extends TestSuite {
   import japgolly.scalajs.react.test.InferenceUtil._
 
-  implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
+  implicit val mMonad: Monad[M] with (M ~> CallbackTo) =
+    null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
 
   case class Poly[A](oa: Option[A])
 
@@ -35,28 +36,28 @@ object MonocleTest extends TestSuite {
       def lensJST: monocle.Lens[JS, T] = null
 
       "zoom" - {
-      //"RenderScope"       - test[Render              ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
-        "StateAccessPure"   - test[StateAccessPure[S]  ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
-        "BackendScope"      - test[Backend             ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
-        "ScalaMountedCB"    - test[ScalaMountedCB      ](_ zoomStateL lensST ).expect_<[StateAccessPure[T]]
-        "StateAccessImpure" - test[StateAccessImpure[S]](_ zoomStateL lensST ).expect_<[StateAccessImpure[T]]
-        "JsMounted"         - test[JsMounted           ](_ zoomStateL lensJST).expect_<[StateAccessImpure[T]]
-        "ScalaMountedId"    - test[ScalaMountedId      ](_ zoomStateL lensST ).expect_<[StateAccessImpure[T]]
-        "ReactS"            - test[ReactST[M, S, A]    ](_ zoomL      lensTS ).expect  [ReactST[M, T, A]]
+      //"RenderScope"       - assertType[Render              ](_ zoomStateL lensST ).is_<[StateAccessPure[T]]
+        "StateAccessPure"   - assertType[StateAccessPure[S]  ](_ zoomStateL lensST ).is_<[StateAccessPure[T]]
+        "BackendScope"      - assertType[Backend             ](_ zoomStateL lensST ).is_<[StateAccessPure[T]]
+        "ScalaMountedCB"    - assertType[ScalaMountedCB      ](_ zoomStateL lensST ).is_<[StateAccessPure[T]]
+        "StateAccessImpure" - assertType[StateAccessImpure[S]](_ zoomStateL lensST ).is_<[StateAccessImpure[T]]
+        "JsMounted"         - assertType[JsMounted           ](_ zoomStateL lensJST).is_<[StateAccessImpure[T]]
+        "ScalaMountedId"    - assertType[ScalaMountedId      ](_ zoomStateL lensST ).is_<[StateAccessImpure[T]]
+        "ReactS"            - assertType[ReactST[M, S, A]    ](_ zoomL      lensTS ).is  [ReactST[M, T, A]]
       }
 
       "poly" - {
-        "zoomStateL" - test[BackendScope[P, Poly[S]]](_ zoomStateL  Poly.oa[S]).expect_<[StateAccessPure[Option[S]]]
+        "zoomStateL" - assertType[BackendScope[P, Poly[S]]](_ zoomStateL  Poly.oa[S]).is_<[StateAccessPure[Option[S]]]
       }
 
       "stateSnapshot" - {
-        "oneOff"   - test[Render](StateSnapshot.zoomL(lensST).of(_)).expect[StateSnapshot[T]]
+        "oneOff"   - assertType[Render](StateSnapshot.zoomL(lensST).of(_)).is[StateSnapshot[T]]
         "prepared" - {
-          test[Render] { $ =>
+          assertType[Render] { $ =>
             val p = StateSnapshot.withReuse.zoomL(lensST).prepareVia($)
             implicit def rt: Reusability[T] = ???
             p(S)
-          }.expect[StateSnapshot[T]]
+          }.is[StateSnapshot[T]]
         }
       }
 

@@ -696,6 +696,11 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     }
   }
 
+  def withFilter(f: A => Boolean): CallbackTo[A] =
+    map[A](a => if (f(a)) a else
+      // This is what scala.Future does
+      throw new NoSuchElementException("CallbackTo.withFilter predicate is not satisfied"))
+
   // -------------------------------------------------------------------------------------------------------------------
   // Boolean ops
 

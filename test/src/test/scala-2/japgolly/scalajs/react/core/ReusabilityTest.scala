@@ -17,8 +17,8 @@ object ReusabilityTest extends TestSuite {
     case class Picture(id: Long, url: String, title: String)
     case class Props(name: String, age: Option[Int], pic: Picture)
 
-    implicit val picReuse   = Reusability.by((_: Picture).id)
-    implicit val propsReuse = Reusability.derive[Props]
+    implicit val picReuse  : Reusability[Picture] = Reusability.by((_: Picture).id)
+    implicit val propsReuse: Reusability[Props]   = Reusability.derive[Props]
 
     var renderCount = 0
 
@@ -58,7 +58,7 @@ object ReusabilityTest extends TestSuite {
     }
 
     case class InnerProps(name: String, update: String ~=> Callback)
-    implicit val propsReuse = Reusability.derive[InnerProps]
+    implicit val propsReuse: Reusability[InnerProps] = Reusability.derive[InnerProps]
 
     val innerComponent = ScalaComponent.builder[InnerProps]("PersonEditor")
       .renderP { (_, p) =>

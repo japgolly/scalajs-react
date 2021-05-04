@@ -12,7 +12,8 @@ import org.scalajs.dom
 import scala.annotation.nowarn
 import utest._
 
-object Router2Test extends TestSuite {
+object RouterP2Test extends TestSuite {
+  class Ctx(val int: Int) extends AnyVal
 
   sealed trait Module
   case object ModuleRoot extends Module
@@ -21,7 +22,7 @@ object Router2Test extends TestSuite {
   case class Module3(u: UUID) extends Module
 
   object Module {
-    val routes = RouterConfigDsl[Module].buildRule { dsl =>
+    val routes = RouterWithPropsConfigDsl[Module, Ctx].buildRule { dsl =>
       import dsl._
 
       def moduleRoot(ctl: RouterCtl[Module]) =
@@ -32,9 +33,9 @@ object Router2Test extends TestSuite {
 
       (emptyRule
         | staticRoute(root, ModuleRoot) ~> renderR(moduleRoot)
-        | staticRoute("one", Module1) ~> render(<.h3("Module #1"))
-        | dynamicRouteCT("two" / int.caseClass[Module2]) ~> dynRender(m => <.h3(s"Module #2 @ ${m.i}"))
-        | dynamicRouteCT("three" / uuid.caseClass[Module3]) ~> dynRender(m => <.h3(s"Module #3 @ ${m.u}"))
+        | staticRoute("one", Module1) ~> renderP(c => <.h3(s"Module #1 (${c.int})"))
+        | dynamicRouteCT("two" / int.caseClass[Module2]) ~> dynRenderP((m, c) => <.h3(s"Module #2 @ ${m.i} (${c.int})"))
+        | dynamicRouteCT("three" / uuid.caseClass[Module3]) ~> dynRenderP((m, c) => <.h3(s"Module #3 @ ${m.u} (${c.int})"))
         )
     }
   }
@@ -57,7 +58,7 @@ object Router2Test extends TestSuite {
     sealed trait En
     case object E1 extends En
     case object E2 extends En
-    @nowarn("cat=unused") def renderE(e: E) = <.div()
+    @nowarn("cat=unused") def renderE(e: E, ctx: Ctx) = <.div(s"${ctx.int}")
 
     implicit val pageEq: UnivEq[MyPage2] = UnivEq.force
 
@@ -65,11 +66,11 @@ object Router2Test extends TestSuite {
     var secret = "apples"
 
     val userProfilePage =
-      ScalaComponent.builder[UserProfilePage]("User profile")
-        .render_P(p => <.div(s"Hello user #${p.id}"))
+      ScalaComponent.builder[(UserProfilePage, Ctx)]("User profile")
+        .render_P(p => <.div(s"Hello user #${p._1.id} - Today's number is ${p._2.int}"))
         .build
 
-    case class NavProps(curPage: MyPage2, ctl: RouterCtl[MyPage2])
+    case class NavProps(curPage: MyPage2, ctl: RouterCtl[MyPage2], ctx: Ctx)
     val nav = ScalaComponent.builder[NavProps]("NavBar")
       .render_P { i =>
         def item(p: MyPage2, name: String) =
@@ -78,7 +79,7 @@ object Router2Test extends TestSuite {
           else
             i.ctl.link(p)(name)
         <.div(
-          item(PublicHome, "Home"),
+          item(PublicHome, s"Home (${i.ctx.int})"),
           VdomArray(
             item(PrivatePage1, "Private page #1"),
             item(PrivatePage2, "Private page #2"))
@@ -91,36 +92,36 @@ object Router2Test extends TestSuite {
     val code1Prism = Prism[String, Code1](alphaOnly.findFirstIn(_).map(s => Code1(s.toUpperCase)))(_.code)
     val code2Prism = Prism[String, Code2](alphaOnly.findFirstIn(_).map(s => Code2(s.toUpperCase)))(_.code)
 
-    val config = RouterConfigDsl[MyPage2].buildConfig { dsl =>
+    val config = RouterWithPropsConfigDsl[MyPage2, Ctx].buildConfig { dsl =>
       import dsl._
 
       val privatePages12 = (emptyRule
-        | dynamicRouteCT("user" / int.caseClass[UserProfilePage]) ~> dynRender(userProfilePage(_))
-        | staticRoute("private-1", PrivatePage1) ~> render(<.h1("Private #1"))
-        | staticRoute("private-2", PrivatePage2) ~> render(<.h1("Private #2: ", secret))
+        | dynamicRouteCT("user" / int.caseClass[UserProfilePage]) ~> dynRenderP(userProfilePage(_, _))
+        | staticRoute("private-1", PrivatePage1) ~> renderP(c => <.h1(s"Private #1 (${c.int})"))
+        | staticRoute("private-2", PrivatePage2) ~> renderP(c => <.h1(s"Private #2 (${c.int}): ", secret))
         )
         .addConditionWithFallback(CallbackTo(isUserLoggedIn), redirectToPage(PublicHome)(SetRouteVia.HistoryPush))
 
       val privatePage3 = (emptyRule
-        | staticRoute("private-3", PrivatePage3) ~> render(<.h1("Private #3"))
+        | staticRoute("private-3", PrivatePage3) ~> renderP(c => <.h1(s"Private #3 (${c.int})"))
         )
         .addConditionWithFallback(CallbackTo(isUserLoggedIn), redirectToPage(AccessDenied)(SetRouteVia.HistoryReplace))
 
       val privatePage4 = (emptyRule
-        | staticRoute("private-4", PrivatePage4) ~> render(<.h1("Private #4"))
+        | staticRoute("private-4", PrivatePage4) ~> renderP(c => <.h1(s"Private #4 (${c.int})"))
         )
         .addConditionWithFallback(_ => CallbackTo(isUserLoggedIn), redirectToPage(AccessDenied)(SetRouteVia.HistoryReplace))
 
       val ePages = (emptyRule
-        | staticRoute("e/1", E(E1)) ~> render(renderE(E(E1)))
-        | staticRoute("e/2", E(E2)) ~> render(renderE(E(E2)))
+        | staticRoute("e/1", E(E1)) ~> renderP(c => renderE(E(E1), c))
+        | staticRoute("e/2", E(E2)) ~> renderP(c => renderE(E(E2), c))
         )
 
       val nestedModule =
-        Module.routes.prefixPath_/("module").pmap[MyPage2](NestedModule){ case NestedModule(m) => m }
+        Module.routes.prefixPath_/("module").pmap[MyPage2](NestedModule.apply){ case NestedModule(m) => m }
 
       val code1 = dynamicRouteCT("code1" / remainingPath.pmapL(code1Prism)) ~> dynRender(c => <.div(c.code))
-      val code2 = dynamicRouteCT("code2" / remainingPath.pmapL(code2Prism)) ~> dynRender(c => <.div(c.code))
+      val code2 = dynamicRouteCT("code2" / remainingPath.pmapL(code2Prism)) ~> dynRenderP((c, ctx) => <.div(c.code, ctx.int))
 
       ( emptyRule // removeTrailingSlashes
       | staticRoute(root, PublicHome) ~> render(<.h1("HOME"))
@@ -133,30 +134,35 @@ object Router2Test extends TestSuite {
       | privatePage3
       | privatePage4
       ) .notFoundDynamic(_ => CallbackTo(redirectToPage(if (isUserLoggedIn) PrivatePage1 else PublicHome)(SetRouteVia.HistoryReplace)))
-        .renderWith((ctl, res) =>
-          <.div(
-            nav(NavProps(res.page, ctl)),
-            res.render()))
+        .renderWithP((ctl, res) =>
+          ctx =>
+            <.div(
+              nav(NavProps(res.page, ctl, ctx)),
+              res.renderP(ctx)
+            )
+        )
         .logToConsole
     }
   }
 
   // -------------------------------------------------------------------------------------------------------------------
 
-  implicit def str2path(s: String) = Path(s)
-  def htmlFor(r: Resolution[_]) = ReactDOMServer.renderToStaticMarkup(r.render())
+  implicit def str2path(s: String): Path = Path(s)
 
   override val tests = Tests {
     import MyPage2._
     implicit val base = RouterTestHelp.localBaseUrl_/
-    val (router, lgc) = Router.componentAndLogic(base, config)
+    val (router, lgc) = RouterWithProps.componentAndLogic(base, config)
     val ctl = lgc.ctl
+    val ctx = new Ctx(42)
 
     val sim = SimHistory(base.abs)
-    val r = ReactTestUtils.renderIntoDocument(router())
+    val r = ReactTestUtils.renderIntoDocument(router(ctx))
     def html = r.getDOMNode.asMounted().asElement().outerHTML
     def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.rules.parse(_).runNow().toOption)
     isUserLoggedIn = false
+
+    def htmlFor(r: ResolutionWithProps[_, Ctx]) = ReactDOMServer.renderToStaticMarkup(r.renderP(ctx))
 
     def syncNoRedirect(path: Path) = {
       sim.reset(path.abs)
@@ -229,17 +235,17 @@ object Router2Test extends TestSuite {
       "nestedStaticPath" - {
         val r = syncNoRedirect("module/one")
         assertEq(r.page,  NestedModule(Module1))
-        assertContains(htmlFor(r), "Module #1")
+        assertContains(htmlFor(r), "Module #1 (42)")
       }
       "nestedDynamicPath" - {
         val r = syncNoRedirect("module/two/123")
         assertEq(r.page,  NestedModule(Module2(123)))
-        assertContains(htmlFor(r), "Module #2 @ 123")
+        assertContains(htmlFor(r), "Module #2 @ 123 (42)")
       }
       "nestedDynamicPathUuid" - {
         val r = syncNoRedirect("module/three/12345678-1234-1234-1234-123456789012")
         assertEq(r.page,  NestedModule(Module3(UUID fromString "12345678-1234-1234-1234-123456789012")))
-        assertContains(htmlFor(r), "Module #3 @ 12345678-1234-1234-1234-123456789012")
+        assertContains(htmlFor(r), "Module #3 @ 12345678-1234-1234-1234-123456789012 (42)")
       }
       "routerLinks" - {
         assertEq(ctl.pathFor(NestedModule(ModuleRoot)).value, "module")
@@ -306,28 +312,29 @@ object Router2Test extends TestSuite {
 
     "addCondition" - {
       "1" - {
-        assertContains(html, ">Home</span>") // not at link cos current page
+        assertContains(html, ">Home (42)</span>") // not at link cos current page
         assertNotContains(html, "Private page") // not logged in
 
         isUserLoggedIn = true
         r.forceUpdate
-        assertContains(html, ">Home</span>") // not at link cos current page
+        assertContains(html, ">Home (42)</span>") // not at link cos current page
         assertContains(html, "Private page") // logged in
 
         ctl.set(PrivatePage1).runNow()
-        assertContains(html, ">Home</a>") // link cos not on current page
-        assertContains(html, "Private #1")
+        assertContains(html, ">Home (42)</a>") // link cos not on current page
+
+        assertContains(html, "Private #1 (42)")
 
         isUserLoggedIn = false
         ctl.refresh.runNow()
-        assertContains(html, ">Home</span>") // not at link cos current page
+        assertContains(html, ">Home (42)</span>") // not at link cos current page
         assertNotContains(html, "Private page") // not logged in
       }
 
       "3" - {
         isUserLoggedIn = true
         ctl.set(PrivatePage3).runNow()
-        assertContains(html, "Private #3")
+        assertContains(html, "Private #3 (42)")
 
         isUserLoggedIn = false
         ctl.refresh.runNow()
@@ -337,7 +344,7 @@ object Router2Test extends TestSuite {
       "4" - {
         isUserLoggedIn = true
         ctl.set(PrivatePage4).runNow()
-        assertContains(html, "Private #4")
+        assertContains(html, "Private #4 (42)")
 
         isUserLoggedIn = false
         ctl.refresh.runNow()

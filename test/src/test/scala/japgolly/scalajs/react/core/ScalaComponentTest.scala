@@ -32,8 +32,8 @@ object ScalaComponentPTest extends TestSuite {
     "types" - {
       import InferenceUtil._
       import ScalaComponent._
-      "cu" - test[Component[P, S, B, CtorType.Nullary]](_.ctor()).expect[Unmounted[P, S, B]]
-      "um" - test[Unmounted[P, S, B]](_.renderIntoDOM(null)).expect[MountedImpure[P, S, B]]
+      "cu" - assertType[Component[P, S, B, CtorType.Nullary]](_.ctor()).is[Unmounted[P, S, B]]
+      "um" - assertType[Unmounted[P, S, B]](_.renderIntoDOM(null)).is[MountedImpure[P, S, B]]
     }
 
     "basic" - {
@@ -85,7 +85,7 @@ object ScalaComponentPTest extends TestSuite {
           this.b - x.b,
           this.c - x.c)
       }
-      implicit def equalProps = UnivEq.force[Props]
+      implicit def equalProps: UnivEq[Props] = UnivEq.force
 
       var mountCountA = 0
       var mountCountB = 0

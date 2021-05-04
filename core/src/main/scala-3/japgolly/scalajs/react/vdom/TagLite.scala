@@ -2,14 +2,13 @@ package japgolly.scalajs.react.vdom
 
 import scala.language.`3.0`
 
-trait TagLite[T <: TopNode] {
-  final opaque type Tag[+N <: T] = String
+trait TagLite[Top <: TopNode] {
+  final opaque type Tag[+N <: Top] = String
 
-  @inline def apply[N <: T](name: String): Tag[N] =
+  @inline def apply[N <: Top](name: String): Tag[N] =
     name
 
-  extension [N <: T](self: Tag[N]) {
-
+  extension [N <: Top](self: Tag[N]) {
     @inline def name: String =
       self
 
@@ -17,7 +16,7 @@ trait TagLite[T <: TopNode] {
       new TagOf(self, xs :: Nil)
   }
 
-  @inline implicit def toTagOf[N <: SvgTopNode](t: SvgTagOf[N]): TagOf[N] =
+  @inline implicit def toTagOf[N <: Top](t: Tag[N]): TagOf[N] =
     new TagOf[N](t.name)
 }
 

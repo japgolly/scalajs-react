@@ -2,29 +2,20 @@ package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
 import scala.annotation.nowarn
-import scala.reflect.ClassTag
 import scala.scalajs.js
 
 @nowarn("cat=unused")
 object InferenceUtil {
 
-  def test[A] = new {
-    def apply[B](f: A => B) = new {
-      def expect[C](implicit ev: B =:= C): Unit = ()
-      def expect_<[C](implicit ev: B <:< C): Unit = ()
-      def expect_>[C](implicit ev: C <:< B): Unit = ()
-    }
-    def expect_<[C](implicit ev: A <:< C): Unit = ()
-    def expect_>[C](implicit ev: C <:< A): Unit = ()
-    def usableAs[B](implicit ev: A => B): Unit = ()
-  }
+  def assertType[A] = new TestDsl[A]
+  def assertTypeOf[A](a: => A) = assertType[A]
 
-  def testExpr[A](a: => A)(implicit t: ClassTag[A]) = new {
-    override def toString = t.toString()
-    def expect[C](implicit ev: A =:= C): Unit = ()
-    def expect_<[C](implicit ev: A <:< C): Unit = ()
-    def expect_>[C](implicit ev: C <:< A): Unit = ()
-    def usableAs[B](implicit ev: A => B): Unit = ()
+  class TestDsl[A] {
+    def apply[B](f: A => B) = assertType[B]
+    def is  [B](implicit ev: A =:= B): Unit = ()
+    def is_<[B](implicit ev: A <:< B): Unit = ()
+    def is_>[B](implicit ev: B <:< A): Unit = ()
+    def isImplicitly[B](implicit ev: A => B): Unit = ()
   }
 
   trait Big

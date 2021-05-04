@@ -24,3 +24,9 @@ object VdomNode {
   def static(vdom: VdomNode): VdomNode =
     japgolly.scalajs.react.ScalaComponent.static("")(vdom)()
 }
+
+trait VdomNodeScalaSpecificImplicits {
+  // I have no idea why I don't need to prevent Unit or Boolean here, but the tests say its fine /shrug
+  @inline implicit def vdomNodeFromRawReactNode(v: Raw.React.Node): VdomNode =
+    VdomNode(v)
+}

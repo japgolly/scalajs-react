@@ -38,7 +38,7 @@ object ReusableFnTest extends TestSuite {
     sealed trait A { def i: Int }
     case class I(i: Int) extends A
     case object O extends A  { override def i = 0 }
-    implicit def reuseA = Reusability.by_==[A]
+    implicit def reuseA: Reusability[A] = Reusability.by_==[A]
 
     type F1 = I ~=> A // ← from A ~=> I
     type F2 = I ~=> F1
@@ -82,8 +82,8 @@ object ReusableFnTest extends TestSuite {
 
     "state" - {
       import InferenceUtil._
-      test[BackendScope[P, S]]($ => Reusable.fn.state($).set).expect[S ~=> Callback]
-      test[BackendScope[P, S]]($ => Reusable.fn.state($).mod).expect[(S => S) ~=> Callback]
+      assertType[BackendScope[P, S]]($ => Reusable.fn.state($).set).is[S ~=> Callback]
+      assertType[BackendScope[P, S]]($ => Reusable.fn.state($).mod).is[(S => S) ~=> Callback]
     }
 
     "variance" - {
@@ -91,16 +91,16 @@ object ReusableFnTest extends TestSuite {
 
       "fn1" - {
         "i" - {
-          compileError("test[Medium  => Int].usableAs[Big  => Int]")
-          compileError("test[Medium ~=> Int].usableAs[Big ~=> Int]")
-                        test[Medium  => Int].usableAs[Small  => Int]
-                        test[Medium ~=> Int].usableAs[Small ~=> Int]
+          compileError("assertType[Medium  => Int].isImplicitly[Big  => Int]")
+          compileError("assertType[Medium ~=> Int].isImplicitly[Big ~=> Int]")
+                        assertType[Medium  => Int].isImplicitly[Small  => Int]
+                        assertType[Medium ~=> Int].isImplicitly[Small ~=> Int]
         }
         "o" - {
-          compileError("test[Int  => Medium].usableAs[Int  => Small]")
-          compileError("test[Int ~=> Medium].usableAs[Int ~=> Small]")
-                        test[Int  => Medium].usableAs[Int  => Big]
-                        test[Int ~=> Medium].usableAs[Int ~=> Big]
+          compileError("assertType[Int  => Medium].isImplicitly[Int  => Small]")
+          compileError("assertType[Int ~=> Medium].isImplicitly[Int ~=> Small]")
+                        assertType[Int  => Medium].isImplicitly[Int  => Big]
+                        assertType[Int ~=> Medium].isImplicitly[Int ~=> Big]
         }
         "run" - {
           import AIs._
@@ -121,22 +121,22 @@ object ReusableFnTest extends TestSuite {
 
       "fn2" - {
         "i1" - {
-          compileError("test[Medium  => (Int  => Int)].usableAs[Big    => (Int  => Int)]")
-          compileError("test[Medium ~=> (Int ~=> Int)].usableAs[Big   ~=> (Int ~=> Int)]")
-                        test[Medium  => (Int  => Int)].usableAs[Small  => (Int  => Int)]
-                        test[Medium ~=> (Int ~=> Int)].usableAs[Small ~=> (Int ~=> Int)]
+          compileError("assertType[Medium  => (Int  => Int)].isImplicitly[Big    => (Int  => Int)]")
+          compileError("assertType[Medium ~=> (Int ~=> Int)].isImplicitly[Big   ~=> (Int ~=> Int)]")
+                        assertType[Medium  => (Int  => Int)].isImplicitly[Small  => (Int  => Int)]
+                        assertType[Medium ~=> (Int ~=> Int)].isImplicitly[Small ~=> (Int ~=> Int)]
         }
         "i2" - {
-          compileError("test[Int  => (Medium  => Int)].usableAs[Int  => (Big    => Int)]")
-          compileError("test[Int ~=> (Medium ~=> Int)].usableAs[Int ~=> (Big   ~=> Int)]")
-                        test[Int  => (Medium  => Int)].usableAs[Int  => (Small  => Int)]
-                        test[Int ~=> (Medium ~=> Int)].usableAs[Int ~=> (Small ~=> Int)]
+          compileError("assertType[Int  => (Medium  => Int)].isImplicitly[Int  => (Big    => Int)]")
+          compileError("assertType[Int ~=> (Medium ~=> Int)].isImplicitly[Int ~=> (Big   ~=> Int)]")
+                        assertType[Int  => (Medium  => Int)].isImplicitly[Int  => (Small  => Int)]
+                        assertType[Int ~=> (Medium ~=> Int)].isImplicitly[Int ~=> (Small ~=> Int)]
         }
         "o" - {
-          compileError("test[Int  => (Int  => Medium)].usableAs[Int  => (Int  => Small)]")
-          compileError("test[Int ~=> (Int ~=> Medium)].usableAs[Int ~=> (Int ~=> Small)]")
-                        test[Int  => (Int  => Medium)].usableAs[Int  => (Int  => Big  )]
-                        test[Int ~=> (Int ~=> Medium)].usableAs[Int ~=> (Int ~=> Big  )]
+          compileError("assertType[Int  => (Int  => Medium)].isImplicitly[Int  => (Int  => Small)]")
+          compileError("assertType[Int ~=> (Int ~=> Medium)].isImplicitly[Int ~=> (Int ~=> Small)]")
+                        assertType[Int  => (Int  => Medium)].isImplicitly[Int  => (Int  => Big  )]
+                        assertType[Int ~=> (Int ~=> Medium)].isImplicitly[Int ~=> (Int ~=> Big  )]
         }
         "run" - {
           import AIs._

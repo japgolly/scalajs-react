@@ -77,8 +77,11 @@ trait TestUtil
     assertEq(rendered, expected)
   }
 
-  def assertTypeMismatch(e: CompileError)(implicit l: Line): Unit =
-    assertContains(e.msg, "type mismatch")
+  def assertTypeMismatch(e: CompileError)(implicit l: Line): Unit = {
+    // TODO: Replace after microilbs update
+    if (!e.msg.contains("Required:"))
+      assertContains(e.msg, "type mismatch")
+  }
 
   implicit class JsArrayTestExt[A](private val a: js.Array[A]) {
     def sole()(implicit l: Line): A =
