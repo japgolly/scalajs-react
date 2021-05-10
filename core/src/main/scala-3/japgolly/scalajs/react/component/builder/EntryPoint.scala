@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.component.builder
 
+import japgolly.microlibs.compiletime.MacroEnv.*
 import japgolly.scalajs.react.component.builder.ComponentBuilder._
-import japgolly.scalajs.react.internal.NewMacroUtils.Extensions._
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, ScalaJsReactConfig, UpdateSnapshot}
 import scala.quoted.*
@@ -64,7 +64,7 @@ object EntryPoint {
 
     // println(s"owner = [${owner.fullName}], name = [$name]")
 
-    Expr.inlineConstStr(name)
+    Expr.inlineConst(name)
   }
 
 }

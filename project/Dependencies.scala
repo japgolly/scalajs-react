@@ -11,7 +11,7 @@ object Dependencies {
     // Externally observable
     val cats                  = "2.6.0"
     val catsEffect            = "2.5.0"
-    val microlibs             = "2.6-RC3" // (macro-utils only)
+    val microlibs             = "2.6-RC6"
     val monocleCats           = "2.1.0"
     val monocle3              = "3.0.0-M5"
     val monocleScalaz         = "1.6.3"
@@ -45,7 +45,7 @@ object Dependencies {
     val catsTestkit          = Def.setting("org.typelevel"                 %%% "cats-testkit"            % Ver.cats)
     val catsTestkitScalaTest = Def.setting("org.typelevel"                 %%% "cats-testkit-scalatest"  % Ver.catsTestkitScalaTest)
     val disciplineScalaTest  = Def.setting("org.typelevel"                 %%% "discipline-scalatest"    % Ver.disciplineScalaTest)
-    val microlibsMacroUtils  = Def.setting("com.github.japgolly.microlibs" %%% "macro-utils"             % Ver.microlibs)
+    val microlibsCompileTime = Def.setting("com.github.japgolly.microlibs" %%% "compile-time"            % Ver.microlibs)
     val microlibsTestUtil    = Def.setting("com.github.japgolly.microlibs" %%% "test-util"               % Ver.microlibs)
     val monocleCats          = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocleCats cross CrossVersion.for3Use2_13)
     val monocle3             = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocle3)

@@ -1,10 +1,11 @@
 package japgolly.scalajs.react.core
 
+import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
 import utest.{test => _, _}
 
 object StateAccessorTest extends TestSuite {
-  import test.InferenceUtil._
+  import test.InferenceHelpers._
 
   type J = JS
 

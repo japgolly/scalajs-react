@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.extra.internal
 
-import japgolly.microlibs.macro_utils.MacroUtils
+import japgolly.microlibs.compiletime.MacroUtils
 import japgolly.scalajs.react.extra.router.StaticDsl.{Route, RouteB}
 import scala.reflect.macros.blackbox.Context
 

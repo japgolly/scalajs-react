@@ -1,6 +1,6 @@
 package ghpages
 
-import japgolly.microlibs.macro_utils.MacroUtils.fail
+import japgolly.microlibs.compiletime.MacroEnv.fail
 import java.util.regex.Pattern
 import scala.quoted.*
 

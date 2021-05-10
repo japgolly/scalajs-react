@@ -23,7 +23,7 @@ object StateSnapshotTest extends TestSuite {
       "diff" - assertNotReusable(make, make)
 
       "inference" - {
-        import japgolly.scalajs.react.test.InferenceUtil._
+        import japgolly.scalajs.react.test.InferenceHelpers._
         "of" - {
                            assertType[Render        ](StateSnapshot.of(_)).is[StateSnapshot[S]]
           compileError(""" assertType[StateAccessP  ](StateSnapshot.of(_)) """) // lack safe read
@@ -64,7 +64,7 @@ object StateSnapshotTest extends TestSuite {
       "diffSet" - assertNotReusable(make, StateSnapshot.withReuse(1)(warn))
 
       "inference" - {
-        import japgolly.scalajs.react.test.InferenceUtil._
+        import japgolly.scalajs.react.test.InferenceHelpers._
         def SS = StateSnapshot.withReuse
         implicit def rs: Reusability[S] = ???
         "apply_apply" - assertType[Reusable[SetFn[S]]](SS(S)(_)).is[StateSnapshot[S]]

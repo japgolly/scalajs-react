@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react.extra._
@@ -9,7 +10,7 @@ import scalaz.{Monad, ~>}
 import utest._
 
 object MonocleTest extends TestSuite {
-  import japgolly.scalajs.react.test.InferenceUtil._
+  import japgolly.scalajs.react.test.InferenceHelpers._
 
   implicit val mMonad: Monad[M] with (M ~> CallbackTo) =
     null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]

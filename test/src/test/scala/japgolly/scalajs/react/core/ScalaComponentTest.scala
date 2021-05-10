@@ -2,7 +2,7 @@ package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
-import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils, Simulate}
+import japgolly.scalajs.react.test.{InferenceHelpers, ReactTestUtils, Simulate}
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.annotation.nowarn
 import utest._
@@ -30,7 +30,7 @@ object ScalaComponentPTest extends TestSuite {
     }
 
     "types" - {
-      import InferenceUtil._
+      import InferenceHelpers._
       import ScalaComponent._
       "cu" - assertType[Component[P, S, B, CtorType.Nullary]](_.ctor()).is[Unmounted[P, S, B]]
       "um" - assertType[Unmounted[P, S, B]](_.renderIntoDOM(null)).is[MountedImpure[P, S, B]]

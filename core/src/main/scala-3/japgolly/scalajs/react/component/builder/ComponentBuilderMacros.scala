@@ -1,13 +1,9 @@
 package japgolly.scalajs.react.component.builder
 
-import japgolly.microlibs.macro_utils.MacroUtils.fail
-import japgolly.microlibs.macro_utils.MacroUtils.Ops._
+import japgolly.microlibs.compiletime.MacroEnv.*
 import japgolly.scalajs.react.{Children, PropsChildren}
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.component.Scala.BackendScope
-import japgolly.scalajs.react.internal.NewMacroUtils
-import japgolly.scalajs.react.internal.NewMacroUtils.failNoStack
-import japgolly.scalajs.react.internal.NewMacroUtils.Extensions._
 import japgolly.scalajs.react.vdom.VdomNode
 import scala.language.`3.0`
 import scala.quoted.*
@@ -41,7 +37,7 @@ object ComponentBuilderMacros {
     }
 
     def lambdaBody(input: Expr[Input]): Expr[B] = {
-      NewMacroUtils.newInstanceOf[B](
+      MacroUtils.NewInstance.of[B](
         findTermArg = Some { (valDef, fail) =>
           import quotes.reflect.*
           val t = valDef.tpt.tpe.dealias

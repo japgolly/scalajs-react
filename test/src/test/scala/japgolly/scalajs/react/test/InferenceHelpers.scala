@@ -1,22 +1,9 @@
 package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
-import scala.annotation.nowarn
 import scala.scalajs.js
 
-@nowarn("cat=unused")
-object InferenceUtil {
-
-  def assertType[A] = new TestDsl[A]
-  def assertTypeOf[A](a: => A) = assertType[A]
-
-  class TestDsl[A] {
-    def apply[B](f: A => B) = assertType[B]
-    def is  [B](implicit ev: A =:= B): Unit = ()
-    def is_<[B](implicit ev: A <:< B): Unit = ()
-    def is_>[B](implicit ev: B <:< A): Unit = ()
-    def isImplicitly[B](implicit ev: A => B): Unit = ()
-  }
+object InferenceHelpers {
 
   trait Big
   trait Medium extends Big

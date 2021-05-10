@@ -1,10 +1,12 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.CompileTimeInfo
+import japgolly.microlibs.compiletime.CompileTimeInfo
 
 object TestEnv {
+
   private val ciValue =
-    CompileTimeInfo.sysPropOrEnvVar("CI").map(_.trim.toLowerCase).filter(_.nonEmpty)
+    (CompileTimeInfo.sysPropOrEnvVar("CI"): Option[String]) // TODO: Fix in microlibs
+      .map(_.trim.toLowerCase).filter(_.nonEmpty)
 
   def inCI: Boolean =
     ciValue.isDefined
@@ -17,7 +19,8 @@ object TestEnv {
       body
 
   val scalaJs1: Boolean =
-    CompileTimeInfo.envVar("SCALAJS_VERSION").forall(_.startsWith("1."))
+    (CompileTimeInfo.envVar("SCALAJS_VERSION"): Option[String]) // TODO: Fix in microlibs
+      .forall(_.startsWith("1."))
 
   def scalaJs06: Boolean =
     !scalaJs1

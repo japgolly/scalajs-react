@@ -24,7 +24,7 @@ object ScalazTest extends TestSuite {
   val tests = Tests {
 
     "inference" - {
-      import japgolly.scalajs.react.test.InferenceUtil._
+      import japgolly.scalajs.react.test.InferenceHelpers._
 
       implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
 

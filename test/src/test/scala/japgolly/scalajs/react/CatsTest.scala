@@ -22,7 +22,7 @@ object CatsTest extends TestSuite {
   val tests = Tests {
 
     "inference" - {
-      import japgolly.scalajs.react.test.InferenceUtil._
+      import japgolly.scalajs.react.test.InferenceHelpers._
 
       assertType[Int].is[Int]
 

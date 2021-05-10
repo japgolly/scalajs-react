@@ -66,7 +66,7 @@ object Lib {
     _.settings(
       scalacOptions       ++= (if (scalaVersion.value startsWith "3") Nil else Seq("-language:experimental.macros")),
       libraryDependencies ++= (if (scalaVersion.value startsWith "3") Nil else Seq(Dep.scalaReflect.value, Dep.scalaCompiler.value % Provided)),
-      libraryDependencies  += Dep.microlibsMacroUtils.value,
+      libraryDependencies  += Dep.microlibsCompileTime.value,
     )
 
   def hasNoTests: Project => Project =

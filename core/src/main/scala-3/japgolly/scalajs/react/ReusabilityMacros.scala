@@ -1,7 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.microlibs.macro_utils.MacroUtils
-import japgolly.scalajs.react.internal.NewMacroUtils
+import japgolly.microlibs.compiletime.MacroEnv.*
 import japgolly.scalajs.react.Reusability
 import scala.compiletime.*
 import scala.deriving.*
@@ -161,9 +160,9 @@ object ReusabilityMacros {
     Expr.summon[Mirror.Of[A]] match {
 
       // Product
-      case Some('{ $m: Mirror.ProductOf[A] { type MirroredElemTypes = types } }) =>
+      case Some('{ $m: Mirror.ProductOf[A] }) =>
 
-        var fields = NewMacroUtils.mirrorFields(m)
+        var fields = Fields.fromMirror(m)
 
         if fieldExclusions.nonEmpty then
           fields = fields.filter { f =>
@@ -172,11 +171,11 @@ object ReusabilityMacros {
             !exclude
           }
 
-        result = NewMacroUtils.withCachedGivens[Reusability, Reusability[A]](fields) { lookup =>
+        result = MacroUtils.CachedGivens[Reusability].fields(fields).summonGivens().use { ctx =>
 
           val clauses =
             fields.map[Clause](f => (x, y) => {
-              val r = lookup(f)
+              val r = ctx.lookup(f).expr
               '{ $r.test(${f.onProduct(x)}, ${f.onProduct(y)}) }
             })
 
@@ -189,11 +188,11 @@ object ReusabilityMacros {
         }
 
       // Sum
-      case Some('{ $m: Mirror.SumOf[A] { type MirroredElemTypes = types } }) =>
-        result = MacroUtils.buidTypeClassForSum[Reusability, A](m) { b =>
+      case Some('{ $m: Mirror.SumOf[A] }) =>
+        result = MacroUtils.CachedGivens[Reusability].mirror(m).summonGivens().forSumType(m) { f =>
           newInstance { (x, y) => '{
-              val o = ${b.ordinal(x)}
-              (o == ${b.ordinal(y)}) && ${b.tc('o)}.test($x, $y)
+              val o = ${f.ordinalOf(x)}
+              (o == ${f.ordinalOf(y)}) && ${f.typeclassForOrd('o)}.test($x, $y)
             }
           }
         }

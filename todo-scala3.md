@@ -21,18 +21,9 @@ Later
 * Resolve TODOs
 
 * Microlibs!
-  * Rename `macro-utils` to `compile-time`
-  * Move into it and rename:
-    * `CompileTimeTestUtil`
-    * `CompileTimeInfo`
-    * `InferenceUtil`
-    * `NewMacroUtils`
-    * `Ops` => `Extensions`
-  * Maybe define an export package = `{obj Utils, Extensions._, fail*}`
+  * Delete `CompileTimeTestUtil`
+  * Fix TODOs in `TestEnv`
   * Make erased versions of `<:<` & `=:=` and use here
-  * Add inline string fns
-  * Add inline string -> int
-  * assertContains: make a variant that accepts multiple legal substrs
 
 * ScalaJsReactConfig
   * Make scala2 use macros (i.e. bugfix)

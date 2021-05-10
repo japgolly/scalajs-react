@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.component.builder
 
-import japgolly.microlibs.macro_utils.MacroUtils
+import japgolly.microlibs.compiletime.MacroUtils
 import scala.annotation.elidable
 import scala.reflect.macros.blackbox.Context
 

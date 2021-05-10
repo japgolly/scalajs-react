@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.internal.NewMacroUtils.Extensions._
+import japgolly.microlibs.compiletime.MacroEnv.*
 import scala.language.`3.0`
 import scala.quoted.*
 
@@ -15,7 +15,7 @@ object CssUnits {
       case Inlined(_, _, Literal(c)) =>
         val v = c.value
         val s = if v == 0 then "0" else v.toString + suffix.valueOrError
-        Expr.inlineConstStr(s)
+        Expr.inlineConst(s)
 
       case _ =>
         '{ ${n}.toString + $suffix }

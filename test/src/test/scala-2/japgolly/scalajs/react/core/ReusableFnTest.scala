@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.core
 
+import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test._
 import utest._
@@ -81,13 +82,13 @@ object ReusableFnTest extends TestSuite {
     }
 
     "state" - {
-      import InferenceUtil._
+      import InferenceHelpers._
       assertType[BackendScope[P, S]]($ => Reusable.fn.state($).set).is[S ~=> Callback]
       assertType[BackendScope[P, S]]($ => Reusable.fn.state($).mod).is[(S => S) ~=> Callback]
     }
 
     "variance" - {
-      import InferenceUtil._
+      import InferenceHelpers._
 
       "fn1" - {
         "i" - {

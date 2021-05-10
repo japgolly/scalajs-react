@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.NewMacroUtils
-import japgolly.scalajs.react.internal.NewMacroUtils.{CompileTimeConfig, CompileTimeString}
+import japgolly.microlibs.compiletime.*
+import japgolly.scalajs.react.internal.CompileTimeConfig
 
 trait ScalaJsReactConfig {
   def automaticComponentName(name: String): String
@@ -34,8 +34,7 @@ object ScalaJsReactConfig {
   private inline val KeyCompNameAll  = "japgolly.scalajs.react.compname.all"
 
   transparent inline def Instance: ScalaJsReactConfig =
-    // TODO: ${ CompileTimeConfig[ScalaJsReactConfig](KeyConfigClass, 'Defaults) }
-    ${ CompileTimeConfig[ScalaJsReactConfig]("japgolly.scalajs.react.config.class", 'Defaults) }
+    CompileTimeConfig.getOrUseModule[ScalaJsReactConfig](KeyConfigClass, Defaults)
 
   object Defaults extends ScalaJsReactConfig {
     import Util.ComponentName.*
@@ -48,7 +47,7 @@ object ScalaJsReactConfig {
         case Some("full")  => stripComponentSuffix(name)
         case None          => stripComponentSuffix(name)
         case Some(x)       =>
-          NewMacroUtils.inlineWarn(s"Invalid value for $KeyCompNameAuto: $x.\nValid values are: full | short | blank.")
+          InlineUtils.warn(s"Invalid value for $KeyCompNameAuto: $x.\nValid values are: full | short | blank.")
           stripComponentSuffix(name)
       }
 
@@ -57,7 +56,7 @@ object ScalaJsReactConfig {
         case Some("blank") => ""
         case None          => name
         case Some(x)       =>
-          NewMacroUtils.inlineWarn(s"Invalid value for $KeyCompNameAll: $x.\nValid values are: blank.")
+          InlineUtils.warn(s"Invalid value for $KeyCompNameAll: $x.\nValid values are: blank.")
           name
       }
 
@@ -96,7 +95,7 @@ object ScalaJsReactConfig {
 
   object Util {
     object ComponentName {
-      import CompileTimeString.*
+      import InlineUtils.*
 
       transparent inline def stripComponentSuffix(name: String): String =
         replaceFirst(name, "(?i)\\.?comp(?:onent)?$", "")
