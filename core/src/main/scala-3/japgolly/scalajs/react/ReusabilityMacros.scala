@@ -131,7 +131,7 @@ object ReusabilityMacros {
     val logNonReuse = _logNonReuse.valueOrError
     val logCode     = _logCode    .valueOrError
 
-    val fieldExclusions: Set[String] = {
+    val fieldExclusions = {
       var s = Set.empty[String]
       if _excludeFields != null then
         s ++= _excludeFields.valueOrError.split(',').iterator.map(_.trim).filter(_.nonEmpty)
@@ -139,83 +139,308 @@ object ReusabilityMacros {
         s += _except1.valueOrError
       if _exceptN != null then
         s ++= _exceptN.valueOrError
-      s
+      FieldExclusions(s)
     }
 
-    var invalidFieldExclusions = fieldExclusions
+    val result =
+      Preparations(logCode = logCode) { preparations =>
+        deriveInner[A](
+          preparations    = preparations,
+          fieldExclusions = fieldExclusions,
+          logNonReuse     = logNonReuse,
+        )
+      }
 
-    var result: Expr[Reusability[A]] = null
-    def log(msg: => Any) = if logCode then println(msg) //catch {case t: Throwable => t.printStackTrace}
-    log("="*120)
-    log(s"Beginning derivation of Reusability[${Type.show[A]}]")
-    log(s"Field exclusions: ${fieldExclusions.size}")
-    if fieldExclusions.nonEmpty then
-      log(fieldExclusions.toArray.sortInPlace.iterator.map("  - " + _).mkString("\n"))
+    fieldExclusions.failUnused[A]()
 
-    type Clause = MacroUtils.Fn2Clause[A, A, Boolean]
+    result
+  }
 
-    def newInstance(f: Clause): Quotes ?=> Expr[Reusability[A]] =
-      '{ new Reusability[A]((x, y) => ${f('x, 'y)}) }
+  private object FieldExclusions {
+    val empty = new FieldExclusions(Set.empty)
+  }
 
-    Expr.summon[Mirror.Of[A]] match {
+  private class FieldExclusions(exclusions: Set[String]) {
+    private var unused = exclusions
 
-      // Product
-      case Some('{ $m: Mirror.ProductOf[A] }) =>
+    def nonEmpty = exclusions.nonEmpty
 
-        var fields = Fields.fromMirror(m)
+    def apply(fs: List[Field]): List[Field] =
+      if nonEmpty
+      then fs.filter(filter)
+      else fs
 
-        if fieldExclusions.nonEmpty then
-          fields = fields.filter { f =>
-            val exclude = fieldExclusions.contains(f.name)
-            if exclude then invalidFieldExclusions -= f.name
-            !exclude
-          }
+    val filter: Field => Boolean =
+      f => {
+        val exclude = exclusions.contains(f.name)
+        if exclude then unused -= f.name
+        !exclude
+      }
 
-        result = MacroUtils.CachedGivens[Reusability].fields(fields).summonGivens().use { ctx =>
+    def failUnused[A]()(using Quotes, Type[A]): Unit =
+      if unused.nonEmpty then {
+        val fs = unused.toList.sorted.map("\"" + _ + "\"").mkString(", ")
+        val err = s"Failed to derive a Reusability instance for ${Type.show[A]}: Specified fields $fs don't exist."
+        quotes.reflect.report.throwError(err)
+      }
+  }
 
-          val clauses =
-            fields.map[Clause](f => (x, y) => {
-              val r = ctx.lookup(f).expr
-              '{ $r.test(${f.onProduct(x)}, ${f.onProduct(y)}) }
-            })
+  private class Preparations(logCode: Boolean)(using q: Quotes) {
+    import q.reflect.*
 
-          MacroUtils.mergeFn2s(
-            fs    = clauses,
-            empty = Left(Expr(true)),
-            merge = (x, y) => '{ $x && $y },
-            outer = newInstance,
-          )
-        }
+    private val init1  = Init("a" + _)
+    private val init2  = Init("b" + _, Flags.Lazy)
+    private val lazies = List.newBuilder[Statement]
+    private var preps  = Map.empty[TypeRepr, Prepared[_]]
+    private val stable = collection.mutable.HashMap.empty[TypeRepr, Expr[Reusability[Any]]]
 
-      // Sum
-      case Some('{ $m: Mirror.SumOf[A] }) =>
-        result = MacroUtils.CachedGivens[Reusability].mirror(m).summonGivens().forSumType(m) { f =>
-          newInstance { (x, y) => '{
-              val o = ${f.ordinalOf(x)}
-              (o == ${f.ordinalOf(y)}) && ${f.typeclassForOrd('o)}.test($x, $y)
-            }
-          }
-        }
+    private def normalise[A](using t: Type[A]): TypeRepr =
+      TypeRepr.of[A].dealias
 
-      case _ =>
+    def addNow[A: Type](expr: Expr[Reusability[A]]): Prepared[A] = {
+      val vd = init1.valDef(expr, extraFlags = Flags.Implicit)
+      val p  = Prepared[A](Type.of[A], vd.ref, None)
+      preps  = preps.updated(normalise[A], p)
+      p
     }
 
-    if result == null then {
-      val err = s"Don't know how to derive a Reusability instance for ${Type.show[A]}: Mirror not found."
-      log(err)
-      log("="*120)
-      quotes.reflect.report.throwError(err)
-    } else if invalidFieldExclusions.nonEmpty then {
-      val fs = invalidFieldExclusions.toList.sorted.map("\"" + _ + "\"").mkString(", ")
-      val err = s"Failed to derive a Reusability instance for ${Type.show[A]}: Specified fields $fs don't exist."
-      log(err)
-      log("="*120)
-      quotes.reflect.report.throwError(err)
-    } else {
-      log(result.show)
-      log("="*120)
+    def addDeferred[A: Type](complete: => Expr[Reusability[A]]): Prepared[A] = {
+      import Flags.*
+      val name    = init1.newName()
+      val theVar  = init1.valDef('{new Reusability[A](null)}, name = name, extraFlags = Mutable)
+      val theVal  = init1.valDef('{Reusability.suspend(${theVar.ref})}, name = s"_$name", extraFlags = Implicit | Lazy, onInit = false)
+      lazies     += theVal.valDef
+      lazy val ac = theVar.assign(complete)
+      val p       = Prepared[A](Type.of[A], theVar.ref, Some(() => ac))
+      preps       = preps.updated(normalise[A], p)
+      p
+    }
+
+    /** @param typ Just `A`, not `Reusable[A]` */
+    def get[A](using t: Type[A]): Option[Prepared[A]] = {
+      val t = normalise[A]
+      preps.get(t).map(_.subst[A])
+    }
+
+    /** @param typ Just `A`, not `Reusable[A]` */
+    def need[A](using t: Type[A]): Prepared[A] =
+      get[A].getOrElse(throw new IllegalStateException(s"Prepared type for ${normalise[A].show} not found!"))
+
+    def getOrSummonLater[A](using t: Type[A]): Expr[Reusability[A]] =
+      get[A] match {
+        case Some(p) => p.varRef
+        case None    => Expr.summonLater[Reusability[A]]
+      }
+
+    def getStablisedImplicitInstance[A: Type]: Expr[Reusability[A]] = {
+      def target: Expr[Reusability[A]] =
+        get[A] match {
+          case Some(p) => p.varRef
+          case None    => init2.valDef(Expr.summonLater[Reusability[A]]).ref
+        }
+      stable
+        .getOrElseUpdate(TypeRepr.of[A], target.asExprOfFAny)
+        .asExprOfF[A]
+    }
+
+    def stabliseInstance[A: Type](e: Expr[Reusability[A]]): Expr[Reusability[A]] =
+      init2.valDef(e).ref
+
+    def result[A: Type](finalResult: Prepared[A]): Expr[Reusability[A]] = {
+      init1 ++= lazies.result()
+      val result: Expr[Reusability[A]] =
+        init1.wrapExpr {
+          init2.wrapExpr {
+            val allPreps = preps.valuesIterator.flatMap(_.complete.map(_())).toList
+            Expr.block(allPreps, finalResult.varRef)
+          }
+        }
+      if (logCode)
+        println(s"\nDerived ${result.showType}:\n${result.show.replace(".apply(","(").replace("scala.", "")}\n")
       result
     }
+  }
+
+  private object Preparations {
+    def apply[A: Type](logCode: Boolean)(f: Preparations => Prepared[A])(using Quotes): Expr[Reusability[A]] = {
+      val preparations = new Preparations(logCode)
+      val prepared     = f(preparations)
+      preparations.result(prepared)
+    }
+  }
+
+  /** @param typ Just `A`, not `Reusable[A]` */
+  private case class Prepared[A](typ: Type[A], varRef: Expr[Reusability[A]], complete: Option[() => Expr[Unit]]) {
+    def subst[B] = this.asInstanceOf[Prepared[B]]
+  }
+
+  // ===================================================================================================================
+
+  private def deriveInner[A: Type](preparations   : Preparations,
+                                   fieldExclusions: FieldExclusions,
+                                   logNonReuse    : Boolean,
+                                  )(using Quotes): Prepared[A] =
+    Expr.summonOrError[Mirror.Of[A]] match {
+
+      case '{ $m: Mirror.ProductOf[A] } =>
+        deriveInnerCaseClass[A](
+          preparations    = preparations,
+          fieldExclusions = fieldExclusions,
+          fields          = Fields.fromMirror(m),
+          logNonReuse     = logNonReuse,
+        )
+
+      case '{ $m: Mirror.SumOf[A] } =>
+        deriveInnerSumType[A](
+          preparations = preparations,
+          mirror       = m,
+          derive       = true,
+          logNonReuse  = logNonReuse,
+        )
+    }
+
+  private def deriveInnerSumType[A: Type](preparations: Preparations,
+                                          mirror      : Expr[Mirror.SumOf[A]],
+                                          derive      : Boolean,
+                                          logNonReuse : Boolean,
+                                         )(using Quotes): Prepared[A] = {
+
+    type Test = (A, A) => Boolean
+
+    def mkTest[B: Type](e: Expr[Reusability[B]], stablise: Boolean): Expr[Test] = {
+      val instance =
+        if stablise
+        then preparations.stabliseInstance(Expr.summonLater[Reusability[B]])
+        else e
+      '{ (a: A, b: A) => $instance.test(a.asInstanceOf[B], b.asInstanceOf[B]) }
+    }
+
+
+    val fields            = Fields.fromMirror(mirror)
+    val fieldCount        = fields.size
+    val nonRecursiveCases = Array.fill[Option[Expr[Test]]](fieldCount)(None)
+
+    for (f <- fields) {
+      import f.{Type => F, typeInstance}
+      Expr.summon[Reusability[F]] match {
+        case Some(rf) =>
+          val test = mkTest[F](rf, stablise = true)
+          nonRecursiveCases(f.idx) = Some(test)
+        case None =>
+          if derive then
+            deriveInner[F](
+              preparations    = preparations,
+              fieldExclusions = FieldExclusions.empty,
+              logNonReuse     = logNonReuse,
+            )
+          else {
+            Expr.summonOrError[Reusability[F]]
+            ???
+          }
+      }
+    }
+
+    preparations.addDeferred[A] {
+
+      val tests = Array.fill[Expr[Test]](fieldCount)(null)
+
+      for (f <- fields) {
+        import f.{Type => F, idx => i, typeInstance}
+        val test: Expr[Test] =
+          nonRecursiveCases(i).getOrElse {
+            if derive then {
+              val p = preparations.need[F]
+              mkTest[F](p.varRef, stablise = false)
+            } else {
+              Expr.summonOrError[Reusability[F]]
+              ???
+            }
+          }
+        tests(i) = test
+      }
+
+      val testArray = MacroUtils.mkArrayExpr(tests.toIndexedSeq)
+
+      '{
+        val m = $mirror
+        val tests = $testArray
+        Reusability[A] { (a, b) =>
+          val o = m.ordinal(a)
+          (o == m.ordinal(b)) && tests(o)(a, b)
+        }
+      }
+    }
+  }
+
+  private def deriveInnerCaseClass[A: Type](preparations   : Preparations,
+                                            fields         : List[Field],
+                                            fieldExclusions: FieldExclusions,
+                                            logNonReuse    : Boolean,
+                                           )(using Quotes): Prepared[A] =
+    fieldExclusions(fields) match {
+
+      case Nil =>
+        preparations.addNow[A] {
+          '{ Reusability.always[A] }
+        }
+
+      case f :: Nil if !logNonReuse =>
+        import f.{Type => F, typeInstance}
+        preparations.addDeferred[A] {
+          val imp = preparations.getOrSummonLater[F]
+          '{ Reusability.by[A, F](a => ${f.onProduct('a)})($imp) }
+        }
+
+      case filteredFields =>
+        preparations.addDeferred[A] {
+          import quotes.reflect.*
+
+          var tests                = Vector.empty[Expr[(A, A) => Boolean]]
+          var testsLoggingNonReuse = Vector.empty[Expr[(A, A) => Unit]]
+          val failures             = typedValDef[List[String]]("failures", Flags.Mutable)('{Nil})
+
+          for (f <- filteredFields) {
+            import f.{Type => F, typeInstance}
+            val fp = preparations.getStablisedImplicitInstance[F]
+
+            val test = '{ (a: A, b: A) => $fp.test(${f.onProduct('a)}, ${f.onProduct('b)}) }
+            tests :+= test
+
+            if logNonReuse then
+              testsLoggingNonReuse :+= '{ (a: A, b: A) =>
+                if !${test('a, 'b)} then
+                  ${failures.modify(fs => '{ $fs :+ ${nonReuseDesc(s".${f.name} values not reusable", 'a, 'b)}})}
+              }
+          }
+
+          if logNonReuse then {
+            val header = nonReuseHeader[A]
+            '{
+              Reusability[A]((a, b) =>
+                ${ failures.use(f => '{
+                  ${ testsLoggingNonReuse.iterator.map(_('a, 'b)).reduce((x, y) => '{$x; $y}) }
+                  if $f.nonEmpty then
+                    println($f.sorted.mkString($header, "\n", ""))
+                  $f.isEmpty
+                })}
+              )
+            }
+          } else
+            '{
+              Reusability[A]((a, b) =>
+                ${ tests.iterator.map(_('a, 'b)).reduce((x, y) => '{$x && $y}) }
+              )
+            }
+        }
+    }
+
+  private def nonReuseHeader[A: Type](using Quotes): Expr[String] =
+    Expr.inlineConst(s"Instance of ${Type.show[A]} not-reusable for the following reasons:\n")
+
+  private def nonReuseDesc[A: Type](desc: String, a: Expr[A], b: Expr[A])(using Quotes): Expr[String] = {
+    val msg1 = Expr.inlineConst(desc + "\n  A: ")
+    val msg2 = Expr.inlineConst("\n  B: ")
+    '{ "  " + ($msg1 + $a + $msg2 + $b).replace("\n", "\n  ") }
   }
 
 }
