@@ -9,7 +9,7 @@ import scala.language.`3.0`
 
 trait ReusabilityMacros {
 
-  inline def derived[A]: Reusability[A] =
+  transparent inline def derived[A]: Reusability[A] =
     derive[A]
 
   /** Generate an instance for A.
@@ -19,8 +19,12 @@ trait ReusabilityMacros {
     *
     * If A is a case class, Reusability is determined by each field's Reusability.
     */
-  inline def derive[A]: Reusability[A] =
-    derive()
+  transparent inline def derive[A]: Reusability[A] =
+    derive(
+      logNonReuse   = false, // TODO: https://github.com/lampepfl/dotty/issues/11835
+      logCode       = false, // TODO: https://github.com/lampepfl/dotty/issues/11835
+      excludeFields = "", // TODO: https://github.com/lampepfl/dotty/issues/11835
+    )
 
   /** Generate an instance for A.
     *
@@ -32,10 +36,10 @@ trait ReusabilityMacros {
     * @param logNonReuse Log to the console when and why non-reusable values are detected
     * @param logCode Log to generated Scala code to the screen on compilation.
     */
-  inline def derive[A](inline logNonReuse  : Boolean = false,
-                       inline logCode      : Boolean = false,
-                       inline excludeFields: String  = "",
-                      ): Reusability[A] =
+  transparent inline def derive[A](inline logNonReuse  : Boolean = false,
+                                   inline logCode      : Boolean = false,
+                                   inline excludeFields: String  = "",
+                                  ): Reusability[A] =
     ${
       ReusabilityMacros.derive[A](
         _logNonReuse   = 'logNonReuse,
@@ -47,19 +51,24 @@ trait ReusabilityMacros {
     }
 
   /** Same as [[derive]] but with all debugging options enabled. */
-  inline def deriveDebug[A]: Reusability[A] =
-    derive(logNonReuse = true, logCode = true)
+  transparent inline def deriveDebug[A]: Reusability[A] =
+    derive(
+      logNonReuse = true,
+      logCode = true,
+      excludeFields = "", // TODO: https://github.com/lampepfl/dotty/issues/11835
+    )
 
   /** Same as [[derive]] but with debugging options.
     *
     * @param logNonReuse Log to the console when and why non-reusable values are detected
     * @param logCode Log to generated Scala code to the screen on compilation.
     */
-  inline def deriveDebug[A](inline logNonReuse: Boolean,
-                            inline logCode    : Boolean): Reusability[A] =
+  transparent inline def deriveDebug[A](inline logNonReuse: Boolean,
+                                        inline logCode    : Boolean): Reusability[A] =
     derive(
       logNonReuse = logNonReuse,
       logCode     = logCode,
+      excludeFields = "", // TODO: https://github.com/lampepfl/dotty/issues/11835
     )
 
   /** Generate an instance for a case class by comparing each case field except those specified.
@@ -73,7 +82,7 @@ trait ReusabilityMacros {
     *
     * @tparam A The case class type.
     */
-  inline def caseClassExcept[A](inline field1: String, inline fieldN: String*): Reusability[A] =
+  transparent inline def caseClassExcept[A](inline field1: String, inline fieldN: String*): Reusability[A] =
     ${
       ReusabilityMacros.derive[A](
         _logNonReuse   = 'false,
@@ -85,7 +94,7 @@ trait ReusabilityMacros {
     }
 
   /** Same as [[caseClassExcept]] but with all debugging options enabled. */
-  inline def caseClassExceptDebug[A](inline field1: String, inline fieldN: String*): Reusability[A] =
+  transparent inline def caseClassExceptDebug[A](inline field1: String, inline fieldN: String*): Reusability[A] =
     ${
       ReusabilityMacros.derive[A](
         _logNonReuse   = 'true,
@@ -101,9 +110,9 @@ trait ReusabilityMacros {
     * @param logNonReuse Log to the console when and why non-reusable values are detected
     * @param logCode Log to generated Scala code to the screen on compilation.
     */
-  inline def caseClassExceptDebug[A](inline logNonReuse: Boolean,
-                                     inline logCode: Boolean)
-                                    (inline field1: String, inline fieldN: String*): Reusability[A] =
+  transparent inline def caseClassExceptDebug[A](inline logNonReuse: Boolean,
+                                                 inline logCode: Boolean)
+                                                (inline field1: String, inline fieldN: String*): Reusability[A] =
     ${
       ReusabilityMacros.derive[A](
         _logNonReuse   = 'logNonReuse,
@@ -125,21 +134,21 @@ object ReusabilityMacros {
                 _excludeFields: Null | Expr[String],
                 _except1      : Null | Expr[String],
                 _exceptN      : Null | Expr[Seq[String]],
-                )
-               (using Quotes, Type[A]): Expr[Reusability[A]] = {
+               )(using Quotes, Type[A]): Expr[Reusability[A]] = {
 
     val logNonReuse = _logNonReuse.valueOrError
     val logCode     = _logCode    .valueOrError
 
     val fieldExclusions = {
-      var s = Set.empty[String]
-      if _excludeFields != null then
-        s ++= _excludeFields.valueOrError.split(',').iterator.map(_.trim).filter(_.nonEmpty)
+      var l: List[String] =
+        if _excludeFields == null
+        then Nil
+        else _excludeFields.valueOrError.split(',').iterator.map(_.trim).filter(_.nonEmpty).toList
       if _except1 != null then
-        s += _except1.valueOrError
+        l ::= _except1.valueOrError
       if _exceptN != null then
-        s ++= _exceptN.valueOrError
-      FieldExclusions(s)
+        l :::= _exceptN.valueOrError.toList
+      FieldExclusions.fromList(l)
     }
 
     val result =
@@ -158,6 +167,15 @@ object ReusabilityMacros {
 
   private object FieldExclusions {
     val empty = new FieldExclusions(Set.empty)
+
+    def fromList(es: List[String])(using Quotes): FieldExclusions = {
+      var set = Set.empty[String]
+      for (e <- es)
+        if set.contains(e)
+        then quotes.reflect.report.throwError(s"Duplicate field specified: \"$e\"")
+        else set += e
+      new FieldExclusions(set)
+    }
   }
 
   private class FieldExclusions(exclusions: Set[String]) {
@@ -179,8 +197,12 @@ object ReusabilityMacros {
 
     def failUnused[A]()(using Quotes, Type[A]): Unit =
       if unused.nonEmpty then {
-        val fs = unused.toList.sorted.map("\"" + _ + "\"").mkString(", ")
-        val err = s"Failed to derive a Reusability instance for ${Type.show[A]}: Specified fields $fs don't exist."
+        val fs = unused.toList.sorted.map("\"" + _ + "\"")
+        val subErr =
+          if fs.size == 1
+          then s"Specified field ${fs.head} doesn't exist."
+          else s"Specified fields ${fs.mkString(", ")} don't exist."
+        val err = s"Failed to derive a Reusability instance for ${Type.show[A]}: $subErr"
         quotes.reflect.report.throwError(err)
       }
   }

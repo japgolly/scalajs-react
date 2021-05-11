@@ -91,10 +91,10 @@ final class ComponentBuilderMacros(val c: Context) extends MacroUtils {
         val ptd = pt.dealias
         args :+= (
           isPropsChildren(pt)  orElse
+          byName(p)            orElse
           byExactTypeAlias(pt) orElse
           byExactType(ptd)     orElse
-          bySubType(ptd)       orElse
-          byName(p)            getOrElse
+          bySubType(ptd)       getOrElse
           fail(s"Don't know what to feed (${p.name}: ${p.info}) in $B.$render."))
       }
 

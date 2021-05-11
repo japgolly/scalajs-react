@@ -108,6 +108,20 @@ object ComponentBuilderMacros {
         '{ $input.propsChildren }.asTerm
       }
 
+      inline val debug = false
+
+      inline def debugPrn(inline msg: String): Unit =
+        inline if (debug) println(msg)
+
+      if (debug) {
+        println()
+        println("RenderParams:")
+        for (p <- rps) {
+          println(s"  - ${p.names.mkString("/")} : ${p.spec.show}")
+        }
+        println()
+      }
+
       def attempt(test: RenderParam[P, S, B, _] => Boolean): Option[Term] = {
         val it = rps.iterator.filter(test)
         if (it.isEmpty)
@@ -121,24 +135,42 @@ object ComponentBuilderMacros {
         }
       }
 
-      inline def tryPropsChildren(t: TypeRepr) = Option.when(t =:= PropsChildren)(getPropsChildren())
-      inline def byExactTypeAlias(t: TypeRepr) = attempt(_.spec.typeSymbol == t.typeSymbol)
-      inline def byExactType     (t: TypeRepr) = attempt(_.dealised.typeSymbol == t.typeSymbol)
-      inline def bySubType       (t: TypeRepr) = attempt(_.dealised <:< t)
-      inline def byName          (s: Symbol)   = attempt(_.names contains s.name.toString)
+      inline def tryPropsChildren(t: TypeRepr) =
+        Option.when(t =:= PropsChildren)(getPropsChildren())
+
+      inline def byExactTypeAlias(t: TypeRepr) = {
+        if (debug) {
+          debugPrn("  byExactTypeAlias:")
+          for (p <- rps) {
+            val a = p.spec.typeSymbol
+            val b = t.typeSymbol
+            debugPrn(s"    - ${p.names.mkString("/")}: T($b) == RP($a) ? ${a == b} .... ${p.spec =:= t} ${p.spec.dealias =:= t} ${p.spec =:= t.dealias}")
+          }
+        }
+        attempt(_.spec.typeSymbol == t.typeSymbol)
+      }
+
+      inline def byExactType(t: TypeRepr) =
+        attempt(_.dealised.typeSymbol == t.typeSymbol)
+
+      inline def bySubType(t: TypeRepr) =
+        attempt(_.dealised <:< t)
+
+      inline def byName(s: Symbol)   =
+        attempt(_.names contains s.name.toString)
 
       val args = params.map[Term] { p =>
         val pt = p.needType(s"${Type.show[B]}.render param ${p.name}")
         val ptd = pt.dealias
 
-        // println(s"${Type.of[B]}.render(${p.name}: ${pt.show}) -- ${p.tree}")
+        debugPrn(s"\n${Type.show[B]}.render(${p.name}: ${pt.show}) -- ${p.tree}")
 
         (
           tryPropsChildren(pt) orElse
+          byName(p)            orElse
           byExactTypeAlias(pt) orElse
           byExactType(ptd)     orElse
-          bySubType(ptd)       orElse
-          byName(p)            getOrElse
+          bySubType(ptd)       getOrElse
           fail {
             var paramType = pt.show
             // Remove the "scala." prefix for types directly under scala.
@@ -150,6 +182,7 @@ object ComponentBuilderMacros {
           }
         )
       }
+      debugPrn("")
 
       assertChildrenTypeMatches(childrenUsed)
 

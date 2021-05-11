@@ -34,11 +34,17 @@ sealed abstract class CtorType[-P, +U] {
   final def withRawProp(name: String, value: js.Any): This[P, U] =
     addMod(_.asInstanceOf[js.Dynamic].updateDynamic(name)(value))
 
-  final def withKey(k: Key): This[P, U] =
-    withRawProp("key", k.asInstanceOf[js.Any])
-
-  final def withKey(k: Long): This[P, U] =
-    withKey(k.toString)
+  // TODO: https://github.com/lampepfl/dotty/issues/12265
+  // final def withKey(k: Key): This[P, U] =
+  //   withRawProp("key", k.asInstanceOf[js.Any])
+  // final def withKey(k: Long): This[P, U] =
+  //   withKey(k.toString)
+  import scala.scalajs.js.|
+  final def withKey(k: Key | Long): This[P, U] =
+    withRawProp("key", (k: Any) match {
+      case l: Long => l.toString
+      case _       => k.asInstanceOf[js.Any]
+    })
 }
 
 object CtorType {
