@@ -168,7 +168,7 @@ object React extends React {
 
 @js.native
 @nowarn("cat=unused")
-trait React extends js.Object {
+trait React extends Hooks {
   import React._
 
   final def createContext[A <: js.Any](defaultValue: A): React.Context[A] = js.native
