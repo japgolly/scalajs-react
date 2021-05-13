@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra.internal.{LazyVar, PxMacros}
+import japgolly.scalajs.react.internal.LazyVar
+import japgolly.scalajs.react.extra.internal.PxMacros
 
 /**
  * A mechanism for caching data with dependencies.

@@ -32,12 +32,12 @@
     [a, b],
   );
   useCallback(fn, deps) is equivalent to useMemo(() => fn, deps)
-
-* memoizedValue
-  const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
   Might be a good idea to return a `Reusable[Callback]`
   Might also be a good idea to safety a `Reusable[Callback]` to a JS-component expecting stable callbacks (eg. react-table)
   `Reusable[A]`?
+
+* memoizedValue
+  const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
 
 * const refContainer = useRef(initialValue?)
   JS version of `Box[A]` with `.current`

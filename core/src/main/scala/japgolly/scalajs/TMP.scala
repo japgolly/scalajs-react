@@ -1,9 +1,9 @@
 package japgolly.scalajs
 
 import japgolly.scalajs.react.{raw => Raw, _}
-import japgolly.scalajs.react.internal.Box
+import japgolly.scalajs.react.internal.{Box, LazyVar}
 import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.console
+// import org.scalajs.dom.console
 import scala.scalajs.js
 import scala.scalajs.js.|
 
@@ -90,28 +90,59 @@ trait HooksDsl {
 
   // TODO: Clarify the sig in doc
   def useEffect[A](e: CallbackTo[A])(implicit x: UseEffectParam[A]): Unit = ???
+  def useEffectOnMount[A](e: CallbackTo[A])(implicit x: UseEffectParam[A]): Unit = ???
+  def useEffect[A, D](e: CallbackTo[A], deps: D)(implicit x: UseEffectParam[A], r: Reusability[D]): Unit = ???
 
-  // TODO: rename to something clearer
-  final case class HookDep(raw: js.Any)
+  // TODO: Deprecate and defer to a method on Callback itself?
+  def useCallback(c: Callback): Reusable[Callback] =
+    Reusable.callbackByRef(
+      Callback.fromJsFn(
+        Raw.React.useCallback(
+          c.toJsFn)))
 
-  def useEffectWithDeps1[A](e: CallbackTo[A])(deps: HookDep*)(implicit x: UseEffectParam[A]): Unit = ???
-  def useEffectWithDeps2[A](e: CallbackTo[A])(deps: js.Any*)(implicit x: UseEffectParam[A]): Unit = ???
+  def useCallback[D](callback: Callback, deps: D)(implicit reuse: Reusability[D]): Reusable[Callback] = {
+    // TODO: Use generic ver later
+    val prev = useState(deps)
+    val callback2 = callback
+      .finallyRun(prev.setState(deps))
+      .unless_(reuse.test(prev.state, deps))
+    useCallback(callback2)
+  }
 
-  /*
-  def useEffect(e: Callback): Unit = ???
-  def useEffect(e: CallbackTo[Callback]): Unit = ???
-  */
+  def useMemo[A, D](a: => A, deps: D)(implicit reuse: Reusability[D]): A = {
+    val currentA = useStateLazily(a)
+    val prev = useState(deps)
+    val a2 = CallbackTo {
+      if (reuse.test(prev.state, deps)) {
+        currentA.state
+      } else {
+        val newValue = a // keep first in case of failure
+        prev.setState(deps).runNow()
+        currentA.setState(newValue).runNow()
+        newValue
+      }
+    }
+    Raw.React.useMemo(a2.toJsFn)
 
-  // def useEffect(effect: js.Function0[js.UndefOr[js.Function0[Any]]],
-  //               // deps  : js.UndefOr[HookDeps] = js.native
-  //               ): Unit = js.native
+    // val ref = new LazyVar(() => a)
+    // val prev = useState(deps)
+    // val a2 = CallbackTo {
+    //   if (reuse.test(prev.state, deps)) {
+    //     ref.get()
+    //   } else {
+    //     prev.setState(deps).runNow()
+    //     val newValue = a
+    //     ref.set(newValue)
+    //     newValue
+    //   }
+    // }
+    // Raw.React.useMemo(a2.toJsFn)
+  }
 
-  // What do we need for hook deps?
-  //   * need to know that "hook dep comparison semantics" are what users expect
-
-  // TODO: Put in doc somewhere: hook dependencies are compared using Object.is
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
-  // Objects specifically, are compared by reference.
+  // TODO: Consider use Xxxx(deps)(body) for nice Scala usage. Example:
+  // $.useMemo(deps) {
+  //   asdfklajshflkajhsdf
+  // }
 
 } // HooksDsl
 
@@ -146,11 +177,8 @@ object Test {
 
   val myComponentWithProps = ScalaFnComponent2.withHooks[Props] { (props, $) =>
 
-    val effect = Callback {
-      console.log("")
-    }
-
-    // $.useEffectWithDeps1()
+    val effect = Callback.log("New name is ", props.name)
+    $.useEffect(effect, props.name)
 
     <.div(s"Hello ${props.name}! I see that you're ${props.age} yrs old.")
   }

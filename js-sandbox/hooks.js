@@ -1,8 +1,12 @@
 const useState = React.useState
 
+var invocations =
+
 function Example() {
   // Declare a new state variable, which we'll call "count"
   const [count, setCount] = useState(0);
+
+  const useMemo
 
   console.log(`State = ${count}`)
 

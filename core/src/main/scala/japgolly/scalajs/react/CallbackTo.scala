@@ -28,6 +28,9 @@ object CallbackTo {
   def throwException[A](t: Throwable): CallbackTo[A] =
     CallbackTo(throw t)
 
+  def fromJsFn[A](f: js.Function0[A]): CallbackTo[A] =
+    apply(f())
+
   /** Callback that isn't created until the first time it is used, after which it is reused. */
   def lazily[A](f: => CallbackTo[A]): CallbackTo[A] = {
     lazy val g = f
