@@ -1,18 +1,15 @@
 const useState = React.useState
 
-var invocations =
-
 function Example() {
   // Declare a new state variable, which we'll call "count"
   const [count, setCount] = useState(0);
-
-  const useMemo
 
   console.log(`State = ${count}`)
 
   return React.createElement("button"
   // , null,
-  ,{ onClick: () => setCount(s => (s + 1)) },
+  // ,{ onClick: () => setCount(s => (s + 1)) },
+  ,{ onClick: () => setCount(s => s) }, // returning s is how to abort a modState
   "YOOOOOOOOOOOOOOOOOOOOOOOOOO!")
 }
 

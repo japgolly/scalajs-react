@@ -14,12 +14,13 @@ trait Hooks extends js.Object {
 
   final type HookDeps = js.UndefOr[js.Array[js.Any]] | Null
 
-  // TODO: Need to Box S in case user's S is a function
-  final type UseState[S] = js.Tuple2[S, js.Function1[S | js.Function1[S, S], Unit]]
+  final type UseStateSetter[S] = js.Function1[S | js.Function1[S, S], Unit]
+  final type UseState[S] = js.Tuple2[S, UseStateSetter[S]]
 
   final def useState[S](initial: S | js.Function0[S]): UseState[S] = js.native
 
-  final def useEffect(effect: js.Function0[js.UndefOr[js.Function0[Any]]],
+  final type UseEffectArg = js.Function0[js.UndefOr[js.Function0[Any]]]
+  final def useEffect(effect: UseEffectArg,
                       deps  : js.UndefOr[HookDeps] = js.native): Unit = js.native
 
   final def useLayoutEffect(effect: js.Function0[js.UndefOr[js.Function0[Any]]],

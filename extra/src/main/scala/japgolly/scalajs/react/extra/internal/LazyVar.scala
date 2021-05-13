@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.internal
+package japgolly.scalajs.react.extra.internal
 
 final class LazyVar[A](initArg: () => A) {
 
