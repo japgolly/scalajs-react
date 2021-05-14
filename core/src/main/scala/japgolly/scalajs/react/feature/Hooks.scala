@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.feature
 
 import japgolly.scalajs.react.{raw => Raw, React => _, _}
-import japgolly.scalajs.react.internal.Box
+import japgolly.scalajs.react.internal.{Box, OptionLike}
 import scala.annotation.implicitNotFound
 import scala.scalajs.js
 
@@ -28,8 +28,14 @@ object Hooks {
       implicit val unit: EffectArg[Unit] =
         apply(_.toJsFn)
 
+      def byCallback[A](f: A => js.UndefOr[js.Function0[Any]]): EffectArg[A] =
+        apply(_.map(f).toJsFn)
+
       implicit val callback: EffectArg[Callback] =
-        apply(_.map(_.toJsFn).toJsFn)
+        byCallback(_.toJsFn)
+
+      implicit def optionalCallback[O[_]](implicit O: OptionLike[O]): EffectArg[O[Callback]] =
+        byCallback(O.toJsUndefOr(_).map(_.toJsFn))
     }
   }
 
