@@ -26,9 +26,9 @@ trait Hooks extends js.Object {
   final def useLayoutEffect(effect: js.Function0[js.UndefOr[js.Function0[Any]]],
                             deps  : js.UndefOr[HookDeps] = js.native): Unit = js.native
 
-  final def useContext[A <: js.Any](ctx: React.Context[A]): React.Context[A] = js.native
+  final def useContext[A <: js.Any](ctx: React.Context[A]): A = js.native
 
-  final type UseReducer[S, A] = js.Tuple2[S, js.Function1[A, Unit]]
+  final type UseReducer[+S, -A] = js.Tuple2[S, js.Function1[A, Unit]]
   final def useReducer[   S, A](reducer: js.Function2[S, A, S], initialArg: S                          ): UseReducer[S, A] = js.native
   final def useReducer[I, S, A](reducer: js.Function2[S, A, S], initialArg: I, init: js.Function1[I, S]): UseReducer[S, A] = js.native
 
