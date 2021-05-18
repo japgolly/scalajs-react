@@ -19,7 +19,7 @@ object Dependencies {
     val ScalaCollCompat       = "2.4.3"
     val ScalaJsDom            = "1.1.0"
     val Scalaz72              = "7.2.31"
-    val Sourcecode            = "0.2.5"
+    val Sourcecode            = "0.2.7"
 
     // Internal
     val BetterMonadicFor      = "0.3.1"
