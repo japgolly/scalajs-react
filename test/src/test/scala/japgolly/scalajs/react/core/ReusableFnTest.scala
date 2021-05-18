@@ -3,7 +3,7 @@ package japgolly.scalajs.react.core
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test._
-import utest._
+import utest.{assert => _, _}
 
 object ReusableFnTest extends TestSuite {
 

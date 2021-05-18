@@ -1,15 +1,8 @@
 Port
 ====
 
-test/src/test/scala-2/japgolly/scalajs/react/core/ReusableFnTest.scala
 test/src/test/scala-2/japgolly/scalajs/react/core/vdom/DevOnlyTest.scala
 test/src/test/scala-2/japgolly/scalajs/react/ElisionTest.scala
-test/src/test/scala-2/japgolly/scalajs/react/extra/router/DslTest.scala
-test/src/test/scala-2/japgolly/scalajs/react/extra/router/Router2Test.scala
-test/src/test/scala-2/japgolly/scalajs/react/extra/router/RouterP2Test.scala
-test/src/test/scala-2/japgolly/scalajs/react/extra/router/RouterTestHelp.scala
-test/src/test/scala-2/japgolly/scalajs/react/extra/router/RouterTest.scala
-test/src/test/scala-2/japgolly/scalajs/react/extra/router/SimHistory.scala
 
 ghpages
 

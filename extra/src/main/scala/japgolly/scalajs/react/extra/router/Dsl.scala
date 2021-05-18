@@ -132,8 +132,9 @@ object StaticDsl {
     final def mapInput[B >: A](f: B => A): R[B] =
       xmap[B](x => x)(f)
 
-    final def const[B](b: B)(implicit ev: A =:= Unit, ev2: Unit =:= A): R[B] =
-      xmap(_ => b)(_ => ())
+    import japgolly.scalajs.react.internal.ValueOfCompat.ValueOf
+    final def const[B](b: B)(implicit ev: ValueOf[A]): R[B] =
+      xmap(_ => b)(_ => ev.value)
   }
 
   /**
