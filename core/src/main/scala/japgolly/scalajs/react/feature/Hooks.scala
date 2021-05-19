@@ -53,7 +53,20 @@ object Hooks {
     def useState[S](initialState: => S): UseState[S] = {
       // Boxing is required because React's useState uses reflection to distinguish between {set,mod}State.
       val initialStateFn: js.Function0[Box[S]] = () => Box(initialState)
-      UseState[Box[S]](Raw.React.useState(initialStateFn))
+      val orig = Raw.React.useState[Box[S]](initialStateFn)
+      val originalSetState = Reusable.byRef(orig._2)
+      // TODO: use useEffect for StateSnapshot
+      UseState[Box[S]](originalSetState, orig)
+        .xmap(_.unbox)(Box.apply)
+    }
+
+    def useStateSnapshot[S](initialState: => S)(): StateSnapshot[S] = {
+      // Boxing is required because React's useState uses reflection to distinguish between {set,mod}State.
+      val initialStateFn: js.Function0[Box[S]] = () => Box(initialState)
+      val orig = Raw.React.useState[Box[S]](initialStateFn)
+      val originalSetState = Reusable.byRef(orig._2)
+      // TODO: use useEffect for StateSnapshot
+      UseState[Box[S]](originalSetState, orig)
         .xmap(_.unbox)(Box.apply)
     }
 
@@ -245,20 +258,31 @@ object Hooks {
   // ===================================================================================================================
 
   // TODO: Integrate with StateSnapshot and friends
-  final case class UseState[S](raw: Raw.React.UseState[S]) {
+  final case class UseState[S](originalSetState: Reusable[Raw.React.UseStateSetter[_]], raw: Raw.React.UseState[S]) {
 
     @inline def state: S =
       raw._1
 
-    def setState(s: S): Callback =
-      Callback(raw._2(s))
+    def setState(s: S): Reusable[Callback] =
+      originalSetState.withValue(Callback(raw._2(s)))
 
-    def modState(f: S => S): Callback =
-      Callback(modStateRaw(f))
+    def modState(f: S => S): Reusable[Callback] =
+      originalSetState.withValue(Callback(modStateRaw(f)))
+
+    /** TODO: No reusability here */
+    // TODO: Hooks uses (S => Callback) instead of ((Option[S], Callback) => Callback)
+    // def stateSnapshot: StateSnapshot[S] =
+    //   StateSnapshot(state).
+
+    // object withReuse {
+    //   def stateSnapshot(implicit r: Reusability[S]): StateSnapshot[S] =
+    //     StateSnapshot(state).
+    // }
 
     @inline private def modStateRaw(f: js.Function1[S, S]): Unit =
       raw._2(f)
 
+    /** WARNING: This does not affect the setState callback reusability. */
     private def newSetStateJs[T](givenValue: T => Unit,
                                  givenFn   : js.Function1[T, T] => Unit,
                                 ): Raw.React.UseStateSetter[T] =
@@ -272,14 +296,16 @@ object Hooks {
         }
       }
 
+    /** WARNING: This does not affect the setState callback reusability. */
     def xmap[T](f: S => T)(g: T => S): UseState[T] = {
       val newSetState = newSetStateJs[T](
         givenValue = t => raw._2(g(t)),
         givenFn    = m => raw._2((s => g(m(f(s)))): js.Function1[S, S]),
       )
-      UseState(js.Tuple2(f(state), newSetState))
+      UseState(originalSetState, js.Tuple2(f(state), newSetState))
     }
 
+    /** WARNING: This does not affect the setState callback reusability. */
     def withReusability(implicit r: Reusability[S]): UseState[S] = {
       val givenValue: S => Unit = next =>
         if (r.updateNeeded(state, next))
@@ -296,7 +322,7 @@ object Hooks {
 
       val newSetState = newSetStateJs(givenValue, givenFn)
 
-      UseState(js.Tuple2(state, newSetState))
+      UseState(originalSetState, js.Tuple2(state, newSetState))
     }
   }
 
