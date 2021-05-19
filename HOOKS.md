@@ -1,43 +1,24 @@
-* const [count, setCount] = useState(0)
-  Multiple uses from the same render probably legal, maybe common
+TODO
+=========================================================================================
 
-  const [state, setState] = useState(() => {
-    const initialState = someExpensiveComputation(props);
-    return initialState;
-  });
+* Consider PropsChildren in hooks component builder
+* useReducer dispatch callbacks are Reusable.byRef
+* useRef[A](f: js.Function0[A], deps: js.UndefOr[HookDeps] = js.native): HookRef[A] = js.native
+* useCallback can accept fns with params
+* useImperativeHandle
+* Add useStateSnapshot as custom hook
+* Tests
+* Add documentation with examples
+* Document tradeoffs
+  * why not just (HookDsl.useXxx(...) => Unit) calls?
+  * why DslMulti instead of Dsl{1,2,...}
+* Weave `act` into all the `ReactTestUtils.{with,}render...` stuff?
+* Changelog
+* gh-pages demo
 
 
-* useEffect -- componentDidMount, componentDidUpdate, and componentWillUnmount
-  useEffect(() => { ??? });
-  useEffect(
-    () => {
-      const subscription = props.source.subscribe();
-      return () => { subscription.unsubscribe(); };
-    },
-    [props.source], // like shouldComponentUpdate for hooks
-  );
-  - For mount/unmount, pass an empty array ([]) as a second argument
-
-* const value = useContext(MyContext);
-  the value returned from React.createContext
-
-* const [state, dispatch] = useReducer(reducer, initialArg?, init?);
-  reducer :: (state, action) => newState
-  dispatch :: js.Object / js.Any
-  The initial state will be set to `init(initialArg)`
-
-* useCallback
-  const memoizedCallback = useCallback(
-    () => { doSomething(a, b); },
-    [a, b],
-  );
-  useCallback(fn, deps) is equivalent to useMemo(() => fn, deps)
-  Might be a good idea to return a `Reusable[Callback]`
-  Might also be a good idea to safety a `Reusable[Callback]` to a JS-component expecting stable callbacks (eg. react-table)
-  `Reusable[A]`?
-
-* memoizedValue
-  const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+Old Notes
+=========================================================================================
 
 * const refContainer = useRef(initialValue?)
   JS version of `Box[A]` with `.current`
@@ -59,21 +40,5 @@
 
 * useImperativeHandle(ref, createHandle, [deps])
 
-* useDebugValue(value, fn?)
-  useDebugValue(date, date => date.toDateString())
-
 * custom hooks
   * compose existing hooks
-
-* useLayoutEffect
-  same signature as useEffect
-
------------------------------------------------------------------
-
-* Weave `act` into all the `ReactTestUtils.{with,}render...` stuff?
-
-* Rules
-  * Only call Hooks at the top level. Don’t call Hooks inside loops, conditions, or nested functions.
-  * Only call Hooks from React function components.
-
-
