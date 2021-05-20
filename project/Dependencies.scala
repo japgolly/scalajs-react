@@ -12,7 +12,7 @@ object Dependencies {
     val Cats                  = "2.5.0"
     val CatsEffect            = "2.5.1"
     val MonocleCats           = "2.1.0"
-    val Monocle3              = "3.0.0-M5"
+    val Monocle3              = "3.0.0-M6"
     val MonocleScalaz         = "1.6.3"
     val Scala212              = "2.12.13"
     val Scala213              = "2.13.5"
