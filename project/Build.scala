@@ -95,6 +95,8 @@ object ScalajsReact {
 
   // ==============================================================================================
 
+  lazy val genHooks = TaskKey[Unit]("genHooks")
+
   lazy val core = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .settings(
@@ -102,7 +104,10 @@ object ScalajsReact {
       libraryDependencies ++= Seq(
         Dep.ScalaCollCompat.value,
         Dep.ScalaJsDom.value,
-        Dep.Sourcecode.value))
+        Dep.Sourcecode.value,
+      ),
+      genHooks := GenHooks(sourceDirectory.value / "main" / "scala"),
+    )
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
