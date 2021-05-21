@@ -24,7 +24,7 @@ object Dependencies {
     // Internal
     val BetterMonadicFor      = "0.3.1"
     val CatsTestkitScalaTest  = "2.1.3"
-    val DisciplineScalaTest   = "2.1.3"
+    val DisciplineScalaTest   = "2.1.5"
     val KindProjector         = "0.13.0"
     val MacroParadise         = "2.1.1"
     val Microlibs             = "2.5"
