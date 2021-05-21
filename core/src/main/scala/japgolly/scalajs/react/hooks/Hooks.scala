@@ -25,7 +25,7 @@ object Hooks {
       byCallback(_.toJsFn)
 
     implicit def optionalCallback[O[_]](implicit O: OptionLike[O]): EffectArg[O[Callback]] =
-      byCallback(O.toJsUndefOr(_).map(_.toJsFn))
+      byCallback(O.unsafeToJs(_).map(_.toJsFn))
   }
 
   // ===================================================================================================================
