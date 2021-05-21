@@ -1,6 +1,6 @@
 package example
 
-import japgolly.scalajs.react._
+// import japgolly.scalajs.react._
 import japgolly.scalajs.react.hooks._
 import japgolly.scalajs.react.vdom.html_<^._
 
@@ -11,10 +11,27 @@ object Example1 {
 
   // final case class Blah2[P, H1, H2](props: P, hook1: H1, hook2: H2)
 
-  val component = HookComponentBuilder[P]
+  val component1a = HookComponentBuilder[P]
     .useState(_.propsInt)
     .useState((p, s1) => p.propsInt + s1.state)
-    // .render()
+    .render($ => <.div(
+      <.div(s"p.propsInt = ${$.props.propsInt}"),
+      <.div(s"s1 = ${$.hook1.state}"),
+      <.div(s"s2 = ${$.hook2.state}"),
+      <.button("Inc S1", ^.onClick --> $.hook1.modState(_ + 1)),
+      <.button("Inc S2", ^.onClick --> $.hook2.modState(_ + 1)),
+    ))
+
+  val component1b = HookComponentBuilder[P]
+    .useState(_.propsInt)
+    .useState((p, s1) => p.propsInt + s1.state)
+    .render((p, s1, s2) => <.div(
+      <.div(s"p.propsInt = ${p.propsInt}"),
+      <.div(s"s1 = ${s1.state}"),
+      <.div(s"s2 = ${s2.state}"),
+      <.button("Inc S1", ^.onClick --> s1.modState(_ + 1)),
+      <.button("Inc S2", ^.onClick --> s2.modState(_ + 1)),
+    ))
 
   //   .useEffect(Callback.log("HELLO!"))
   //   .useEffect($ => Callback.log(s"Props = ${$.props}, state = ${$.hook1.state}"))
