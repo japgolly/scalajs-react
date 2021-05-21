@@ -9,10 +9,10 @@ object Dependencies {
   object Ver {
 
     // Externally observable
-    val Cats                  = "2.5.0"
-    val CatsEffect            = "3.1.1"
+    val Cats                  = "2.6.1"
+    val CatsEffect            = "2.5.1"
     val MonocleCats           = "2.1.0"
-    val Monocle3              = "3.0.0-M5"
+    val Monocle3              = "3.0.0-M6"
     val MonocleScalaz         = "1.6.3"
     val Scala212              = "2.12.13"
     val Scala213              = "2.13.5"
@@ -24,12 +24,12 @@ object Dependencies {
     // Internal
     val BetterMonadicFor      = "0.3.1"
     val CatsTestkitScalaTest  = "2.1.3"
-    val DisciplineScalaTest   = "2.1.3"
+    val DisciplineScalaTest   = "2.1.5"
     val KindProjector         = "0.13.0"
     val MacroParadise         = "2.1.1"
     val Microlibs             = "2.5"
     val MTest                 = "0.7.8"
-    val Nyaya                 = "0.10.0-RC1"
+    val Nyaya                 = "0.10.0"
     val ReactJs               = "16.14.0"
     val ScalaJsJavaTime       = "1.0.0"
     val ScalaTest             = "3.2.9"
