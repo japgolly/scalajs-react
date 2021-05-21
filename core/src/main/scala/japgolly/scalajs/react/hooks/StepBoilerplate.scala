@@ -52,7 +52,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx2 = HookCtx(ctx1.props, ctx1.hook1, h2)
               render(ctx2)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P2[P, H1, H2], HookCtxFn.P2[P, H1, H2]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply1(f)
     }
@@ -74,7 +74,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx3 = HookCtx(ctx2.props, ctx2.hook1, ctx2.hook2, h3)
               render(ctx3)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P3[P, H1, H2, H3], HookCtxFn.P3[P, H1, H2, H3]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply2(f)
     }
@@ -96,7 +96,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx4 = HookCtx(ctx3.props, ctx3.hook1, ctx3.hook2, ctx3.hook3, h4)
               render(ctx4)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P4[P, H1, H2, H3, H4], HookCtxFn.P4[P, H1, H2, H3, H4]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply3(f)
     }
@@ -118,7 +118,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx5 = HookCtx(ctx4.props, ctx4.hook1, ctx4.hook2, ctx4.hook3, ctx4.hook4, h5)
               render(ctx5)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P5[P, H1, H2, H3, H4, H5], HookCtxFn.P5[P, H1, H2, H3, H4, H5]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply4(f)
     }
@@ -140,7 +140,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx6 = HookCtx(ctx5.props, ctx5.hook1, ctx5.hook2, ctx5.hook3, ctx5.hook4, ctx5.hook5, h6)
               render(ctx6)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.P6[P, H1, H2, H3, H4, H5, H6]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply5(f)
     }
@@ -162,7 +162,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx7 = HookCtx(ctx6.props, ctx6.hook1, ctx6.hook2, ctx6.hook3, ctx6.hook4, ctx6.hook5, ctx6.hook6, h7)
               render(ctx7)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.P7[P, H1, H2, H3, H4, H5, H6, H7]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply6(f)
     }
@@ -184,7 +184,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx8 = HookCtx(ctx7.props, ctx7.hook1, ctx7.hook2, ctx7.hook3, ctx7.hook4, ctx7.hook5, ctx7.hook6, ctx7.hook7, h8)
               render(ctx8)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.P8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply7(f)
     }
@@ -206,7 +206,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx9 = HookCtx(ctx8.props, ctx8.hook1, ctx8.hook2, ctx8.hook3, ctx8.hook4, ctx8.hook5, ctx8.hook6, ctx8.hook7, ctx8.hook8, h9)
               render(ctx9)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply8(f)
     }
@@ -228,7 +228,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx10 = HookCtx(ctx9.props, ctx9.hook1, ctx9.hook2, ctx9.hook3, ctx9.hook4, ctx9.hook5, ctx9.hook6, ctx9.hook7, ctx9.hook8, ctx9.hook9, h10)
               render(ctx10)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply9(f)
     }
@@ -250,7 +250,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx11 = HookCtx(ctx10.props, ctx10.hook1, ctx10.hook2, ctx10.hook3, ctx10.hook4, ctx10.hook5, ctx10.hook6, ctx10.hook7, ctx10.hook8, ctx10.hook9, ctx10.hook10, h11)
               render(ctx11)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply10(f)
     }
@@ -272,7 +272,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx12 = HookCtx(ctx11.props, ctx11.hook1, ctx11.hook2, ctx11.hook3, ctx11.hook4, ctx11.hook5, ctx11.hook6, ctx11.hook7, ctx11.hook8, ctx11.hook9, ctx11.hook10, ctx11.hook11, h12)
               render(ctx12)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply11(f)
     }
@@ -294,7 +294,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx13 = HookCtx(ctx12.props, ctx12.hook1, ctx12.hook2, ctx12.hook3, ctx12.hook4, ctx12.hook5, ctx12.hook6, ctx12.hook7, ctx12.hook8, ctx12.hook9, ctx12.hook10, ctx12.hook11, ctx12.hook12, h13)
               render(ctx13)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply12(f)
     }
@@ -316,7 +316,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx14 = HookCtx(ctx13.props, ctx13.hook1, ctx13.hook2, ctx13.hook3, ctx13.hook4, ctx13.hook5, ctx13.hook6, ctx13.hook7, ctx13.hook8, ctx13.hook9, ctx13.hook10, ctx13.hook11, ctx13.hook12, ctx13.hook13, h14)
               render(ctx14)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply13(f)
     }
@@ -338,7 +338,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx15 = HookCtx(ctx14.props, ctx14.hook1, ctx14.hook2, ctx14.hook3, ctx14.hook4, ctx14.hook5, ctx14.hook6, ctx14.hook7, ctx14.hook8, ctx14.hook9, ctx14.hook10, ctx14.hook11, ctx14.hook12, ctx14.hook13, ctx14.hook14, h15)
               render(ctx15)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply14(f)
     }
@@ -360,7 +360,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx16 = HookCtx(ctx15.props, ctx15.hook1, ctx15.hook2, ctx15.hook3, ctx15.hook4, ctx15.hook5, ctx15.hook6, ctx15.hook7, ctx15.hook8, ctx15.hook9, ctx15.hook10, ctx15.hook11, ctx15.hook12, ctx15.hook13, ctx15.hook14, ctx15.hook15, h16)
               render(ctx16)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply15(f)
     }
@@ -382,7 +382,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx17 = HookCtx(ctx16.props, ctx16.hook1, ctx16.hook2, ctx16.hook3, ctx16.hook4, ctx16.hook5, ctx16.hook6, ctx16.hook7, ctx16.hook8, ctx16.hook9, ctx16.hook10, ctx16.hook11, ctx16.hook12, ctx16.hook13, ctx16.hook14, ctx16.hook15, ctx16.hook16, h17)
               render(ctx17)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply16(f)
     }
@@ -404,7 +404,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx18 = HookCtx(ctx17.props, ctx17.hook1, ctx17.hook2, ctx17.hook3, ctx17.hook4, ctx17.hook5, ctx17.hook6, ctx17.hook7, ctx17.hook8, ctx17.hook9, ctx17.hook10, ctx17.hook11, ctx17.hook12, ctx17.hook13, ctx17.hook14, ctx17.hook15, ctx17.hook16, ctx17.hook17, h18)
               render(ctx18)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply17(f)
     }
@@ -426,7 +426,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx19 = HookCtx(ctx18.props, ctx18.hook1, ctx18.hook2, ctx18.hook3, ctx18.hook4, ctx18.hook5, ctx18.hook6, ctx18.hook7, ctx18.hook8, ctx18.hook9, ctx18.hook10, ctx18.hook11, ctx18.hook12, ctx18.hook13, ctx18.hook14, ctx18.hook15, ctx18.hook16, ctx18.hook17, ctx18.hook18, h19)
               render(ctx19)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply18(f)
     }
@@ -448,7 +448,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx20 = HookCtx(ctx19.props, ctx19.hook1, ctx19.hook2, ctx19.hook3, ctx19.hook4, ctx19.hook5, ctx19.hook6, ctx19.hook7, ctx19.hook8, ctx19.hook9, ctx19.hook10, ctx19.hook11, ctx19.hook12, ctx19.hook13, ctx19.hook14, ctx19.hook15, ctx19.hook16, ctx19.hook17, ctx19.hook18, ctx19.hook19, h20)
               render(ctx20)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply19(f)
     }
@@ -470,7 +470,7 @@ trait StepMultiPInstances { self: StepMultiP.type =>
               val ctx21 = HookCtx(ctx20.props, ctx20.hook1, ctx20.hook2, ctx20.hook3, ctx20.hook4, ctx20.hook5, ctx20.hook6, ctx20.hook7, ctx20.hook8, ctx20.hook9, ctx20.hook10, ctx20.hook11, ctx20.hook12, ctx20.hook13, ctx20.hook14, ctx20.hook15, ctx20.hook16, ctx20.hook17, ctx20.hook18, ctx20.hook19, ctx20.hook20, h21)
               render(ctx21)
             }
-          new DslMultiP(renderNext)
+          new DslMultiP[P, HookCtx.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21], HookCtxFn.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply20(f)
     }
@@ -520,7 +520,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx2 = HookCtx.withChildren(ctx1.props, ctx1.propsChildren, ctx1.hook1, h2)
               render(ctx2)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC2[P, H1, H2], HookCtxFn.PC2[P, H1, H2]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply1(f)
     }
@@ -542,7 +542,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx3 = HookCtx.withChildren(ctx2.props, ctx2.propsChildren, ctx2.hook1, ctx2.hook2, h3)
               render(ctx3)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC3[P, H1, H2, H3], HookCtxFn.PC3[P, H1, H2, H3]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply2(f)
     }
@@ -564,7 +564,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx4 = HookCtx.withChildren(ctx3.props, ctx3.propsChildren, ctx3.hook1, ctx3.hook2, ctx3.hook3, h4)
               render(ctx4)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC4[P, H1, H2, H3, H4], HookCtxFn.PC4[P, H1, H2, H3, H4]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply3(f)
     }
@@ -586,7 +586,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx5 = HookCtx.withChildren(ctx4.props, ctx4.propsChildren, ctx4.hook1, ctx4.hook2, ctx4.hook3, ctx4.hook4, h5)
               render(ctx5)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC5[P, H1, H2, H3, H4, H5], HookCtxFn.PC5[P, H1, H2, H3, H4, H5]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply4(f)
     }
@@ -608,7 +608,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx6 = HookCtx.withChildren(ctx5.props, ctx5.propsChildren, ctx5.hook1, ctx5.hook2, ctx5.hook3, ctx5.hook4, ctx5.hook5, h6)
               render(ctx6)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.PC6[P, H1, H2, H3, H4, H5, H6]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply5(f)
     }
@@ -630,7 +630,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx7 = HookCtx.withChildren(ctx6.props, ctx6.propsChildren, ctx6.hook1, ctx6.hook2, ctx6.hook3, ctx6.hook4, ctx6.hook5, ctx6.hook6, h7)
               render(ctx7)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.PC7[P, H1, H2, H3, H4, H5, H6, H7]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply6(f)
     }
@@ -652,7 +652,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx8 = HookCtx.withChildren(ctx7.props, ctx7.propsChildren, ctx7.hook1, ctx7.hook2, ctx7.hook3, ctx7.hook4, ctx7.hook5, ctx7.hook6, ctx7.hook7, h8)
               render(ctx8)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply7(f)
     }
@@ -674,7 +674,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx9 = HookCtx.withChildren(ctx8.props, ctx8.propsChildren, ctx8.hook1, ctx8.hook2, ctx8.hook3, ctx8.hook4, ctx8.hook5, ctx8.hook6, ctx8.hook7, ctx8.hook8, h9)
               render(ctx9)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply8(f)
     }
@@ -696,7 +696,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx10 = HookCtx.withChildren(ctx9.props, ctx9.propsChildren, ctx9.hook1, ctx9.hook2, ctx9.hook3, ctx9.hook4, ctx9.hook5, ctx9.hook6, ctx9.hook7, ctx9.hook8, ctx9.hook9, h10)
               render(ctx10)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply9(f)
     }
@@ -718,7 +718,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx11 = HookCtx.withChildren(ctx10.props, ctx10.propsChildren, ctx10.hook1, ctx10.hook2, ctx10.hook3, ctx10.hook4, ctx10.hook5, ctx10.hook6, ctx10.hook7, ctx10.hook8, ctx10.hook9, ctx10.hook10, h11)
               render(ctx11)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply10(f)
     }
@@ -740,7 +740,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx12 = HookCtx.withChildren(ctx11.props, ctx11.propsChildren, ctx11.hook1, ctx11.hook2, ctx11.hook3, ctx11.hook4, ctx11.hook5, ctx11.hook6, ctx11.hook7, ctx11.hook8, ctx11.hook9, ctx11.hook10, ctx11.hook11, h12)
               render(ctx12)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply11(f)
     }
@@ -762,7 +762,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx13 = HookCtx.withChildren(ctx12.props, ctx12.propsChildren, ctx12.hook1, ctx12.hook2, ctx12.hook3, ctx12.hook4, ctx12.hook5, ctx12.hook6, ctx12.hook7, ctx12.hook8, ctx12.hook9, ctx12.hook10, ctx12.hook11, ctx12.hook12, h13)
               render(ctx13)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply12(f)
     }
@@ -784,7 +784,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx14 = HookCtx.withChildren(ctx13.props, ctx13.propsChildren, ctx13.hook1, ctx13.hook2, ctx13.hook3, ctx13.hook4, ctx13.hook5, ctx13.hook6, ctx13.hook7, ctx13.hook8, ctx13.hook9, ctx13.hook10, ctx13.hook11, ctx13.hook12, ctx13.hook13, h14)
               render(ctx14)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply13(f)
     }
@@ -806,7 +806,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx15 = HookCtx.withChildren(ctx14.props, ctx14.propsChildren, ctx14.hook1, ctx14.hook2, ctx14.hook3, ctx14.hook4, ctx14.hook5, ctx14.hook6, ctx14.hook7, ctx14.hook8, ctx14.hook9, ctx14.hook10, ctx14.hook11, ctx14.hook12, ctx14.hook13, ctx14.hook14, h15)
               render(ctx15)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply14(f)
     }
@@ -828,7 +828,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx16 = HookCtx.withChildren(ctx15.props, ctx15.propsChildren, ctx15.hook1, ctx15.hook2, ctx15.hook3, ctx15.hook4, ctx15.hook5, ctx15.hook6, ctx15.hook7, ctx15.hook8, ctx15.hook9, ctx15.hook10, ctx15.hook11, ctx15.hook12, ctx15.hook13, ctx15.hook14, ctx15.hook15, h16)
               render(ctx16)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply15(f)
     }
@@ -850,7 +850,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx17 = HookCtx.withChildren(ctx16.props, ctx16.propsChildren, ctx16.hook1, ctx16.hook2, ctx16.hook3, ctx16.hook4, ctx16.hook5, ctx16.hook6, ctx16.hook7, ctx16.hook8, ctx16.hook9, ctx16.hook10, ctx16.hook11, ctx16.hook12, ctx16.hook13, ctx16.hook14, ctx16.hook15, ctx16.hook16, h17)
               render(ctx17)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply16(f)
     }
@@ -872,7 +872,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx18 = HookCtx.withChildren(ctx17.props, ctx17.propsChildren, ctx17.hook1, ctx17.hook2, ctx17.hook3, ctx17.hook4, ctx17.hook5, ctx17.hook6, ctx17.hook7, ctx17.hook8, ctx17.hook9, ctx17.hook10, ctx17.hook11, ctx17.hook12, ctx17.hook13, ctx17.hook14, ctx17.hook15, ctx17.hook16, ctx17.hook17, h18)
               render(ctx18)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply17(f)
     }
@@ -894,7 +894,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx19 = HookCtx.withChildren(ctx18.props, ctx18.propsChildren, ctx18.hook1, ctx18.hook2, ctx18.hook3, ctx18.hook4, ctx18.hook5, ctx18.hook6, ctx18.hook7, ctx18.hook8, ctx18.hook9, ctx18.hook10, ctx18.hook11, ctx18.hook12, ctx18.hook13, ctx18.hook14, ctx18.hook15, ctx18.hook16, ctx18.hook17, ctx18.hook18, h19)
               render(ctx19)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply18(f)
     }
@@ -916,7 +916,7 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
               val ctx20 = HookCtx.withChildren(ctx19.props, ctx19.propsChildren, ctx19.hook1, ctx19.hook2, ctx19.hook3, ctx19.hook4, ctx19.hook5, ctx19.hook6, ctx19.hook7, ctx19.hook8, ctx19.hook9, ctx19.hook10, ctx19.hook11, ctx19.hook12, ctx19.hook13, ctx19.hook14, ctx19.hook15, ctx19.hook16, ctx19.hook17, ctx19.hook18, ctx19.hook19, h20)
               render(ctx20)
             }
-          new DslMultiPC(renderNext)
+          new DslMultiPC[P, HookCtx.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply19(f)
     }

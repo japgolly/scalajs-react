@@ -26,7 +26,7 @@ final class StepFirstP[P] extends StepBase {
         val h1 = hook1(p)
         f(HookCtx(p, h1))
       })
-    new DslMultiP(render)
+    new DslMultiP[P, HookCtx.P1[P, H1], HookCtxFn.P1[P, H1]#Fn](render)
   }
 }
 
@@ -61,7 +61,7 @@ final class StepFirstPC[P] extends StepBase {
         val h1 = hook1(HookCtx.withChildren(p, pc))
         f(HookCtx.withChildren(p, pc, h1))
       })
-    new DslMultiPC(render)
+    new DslMultiPC[P, HookCtx.PC1[P, H1], HookCtxFn.PC1[P, H1]#Fn](render)
   }
 }
 

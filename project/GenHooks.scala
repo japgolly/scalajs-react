@@ -78,7 +78,7 @@ object GenHooks {
              |              val ctx$n = HookCtx(ctx$s.props, $preCtxArgs, h$n)
              |              render(ctx$n)
              |            }
-             |          new DslMultiP(renderNext)
+             |          new DslMultiP[P, HookCtx.P$n[P, $Hns], HookCtxFn.P$n[P, $Hns]#Fn](renderNext)
              |        }
              |      override def squash[A] = f => _.apply$s(f)
              |    }
@@ -104,7 +104,7 @@ object GenHooks {
                |              val ctx$n = HookCtx.withChildren(ctx$s.props, ctx$s.propsChildren, $preCtxArgs, h$n)
                |              render(ctx$n)
                |            }
-               |          new DslMultiPC(renderNext)
+               |          new DslMultiPC[P, HookCtx.PC$n[P, $Hns], HookCtxFn.PC$n[P, $Hns]#Fn](renderNext)
                |        }
                |      override def squash[A] = f => _.apply$s(f)
                |    }
