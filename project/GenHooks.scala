@@ -9,11 +9,16 @@ object GenHooks {
     println()
     println("Generating hooks boilerplate in: " + dir.getAbsolutePath)
 
-    val hookCtx_apply = List.newBuilder[String]
-    val hookCtx_Ps    = List.newBuilder[String]
-    val hookCtxFns    = List.newBuilder[String]
-    val dslAtSteps    = List.newBuilder[String]
-    val stepMultis    = List.newBuilder[String]
+    val hookCtxCtorsP  = List.newBuilder[String]
+    val hookCtxCtorsPC = List.newBuilder[String]
+    val hookCtxsP      = List.newBuilder[String]
+    val hookCtxsPC     = List.newBuilder[String]
+    val hookCtxFnsP    = List.newBuilder[String]
+    val hookCtxFnsPC   = List.newBuilder[String]
+    val dslAtStepsP    = List.newBuilder[String]
+    val dslAtStepsPC   = List.newBuilder[String]
+    val stepMultisP    = List.newBuilder[String]
+    val stepMultisPC   = List.newBuilder[String]
 
     for (n <- 1 to 21) {
       val preHns       = (1 until n).map("H" + _).mkString(", ")
@@ -25,46 +30,86 @@ object GenHooks {
       val ctxSuperArgs = (1 until n).map(i => s", hook$i").mkString
       val ctxToStr     = (1 to n).map(i => s",\\n  hook$i = !hook$i").mkString
 
-      hookCtx_apply += s"  def apply[P, $Hns](props: P, $hookParams): P$n[P, $Hns] =\n    new P$n(props, $hookArgs)"
+      hookCtxCtorsP += s"  def apply[P, $Hns](props: P, $hookParams): P$n[P, $Hns] =\n    new P$n(props, $hookArgs)"
 
-      hookCtx_Ps +=
+      hookCtxsP +=
         s"""  class P$n[+P, $coHns](props: P, $ctxParams) extends P${n-1}(props$ctxSuperArgs) {
            |    override def toString = s"HookCtx(\\n  props = !props$ctxToStr)"
            |    def apply$n[A](f: (P, $Hns) => A): A = f(props, $hookArgs)
            |  }
            |""".stripMargin.replace('!', '$')
 
-      hookCtxFns += s"  sealed trait P$n[P, $Hns] extends HookCtxFn { override type Fn[A] = (P, $Hns) => A }"
+      hookCtxFnsP += s"  sealed trait P$n[P, $Hns] extends HookCtxFn { override type Fn[A] = (P, $Hns) => A }"
+
+      if (n <= 20) {
+        hookCtxCtorsPC += s"    def apply[P, $Hns](props: P, propsChildren: PropsChildren, $hookParams): PC$n[P, $Hns] =\n      new PC$n(props, propsChildren, $hookArgs)"
+
+        hookCtxsPC +=
+          s"""  class PC$n[+P, $coHns](props: P, propsChildren: PropsChildren, $ctxParams) extends PC${n-1}(props, propsChildren$ctxSuperArgs) {
+             |    override def toString = s"HookCtx.withChildren(\\n  props = !props,\\n  propsChildren = !propsChildren$ctxToStr)"
+             |    def apply$n[A](f: (P, PropsChildren, $Hns) => A): A = f(props, propsChildren, $hookArgs)
+             |  }
+             |""".stripMargin.replace('!', '$')
+
+        hookCtxFnsPC += s"  sealed trait PC$n[P, $Hns] extends HookCtxFn { override type Fn[A] = (P, PropsChildren, $Hns) => A }"
+      }
 
       if (n != 1) {
         val s = n - 1
 
-        dslAtSteps += s"  sealed trait AtStep$s[P, $preHns] { type Next[H$n] = DslMulti[P, HookCtx.P$n[P, $Hns], HookCtxFn.P$n[P, $Hns]#Fn] }"
-
         val preCtxArgs = (1 until n).map(i => s"ctx$s.hook$i").mkString(", ")
-        stepMultis +=
+
+        dslAtStepsP += s"  sealed trait AtStep$s[P, $preHns] { type Next[H$n] = DslMultiP[P, HookCtx.P$n[P, $Hns], HookCtxFn.P$n[P, $Hns]#Fn] }"
+        stepMultisP +=
           s"""  type AtStep$s[P, $preHns] = To[
              |    P,
              |    HookCtx.P$s[P, $preHns],
              |    HookCtxFn.P$s[P, $preHns]#Fn,
-             |    DslMulti.AtStep$s[P, $preHns]#Next]
+             |    DslMultiP.AtStep$s[P, $preHns]#Next]
              |
              |  implicit def atStep$s[P, $preHns]: AtStep$s[P, $preHns] =
-             |    new StepMulti[P, HookCtx.P$s[P, $preHns], HookCtxFn.P$s[P, $preHns]#Fn] {
-             |      override type Next[H$n] = DslMulti.AtStep$s[P, $preHns]#Next[H$n]
+             |    new StepMultiP[P, HookCtx.P$s[P, $preHns], HookCtxFn.P$s[P, $preHns]#Fn] {
+             |      override type Next[H$n] = DslMultiP.AtStep$s[P, $preHns]#Next[H$n]
              |      override def next[H$n] =
              |        (renderPrev, initNextHook) => {
-             |          val renderNext: RenderFn[P, HookCtx.P$n[P, $Hns]] =
+             |          val renderNext: RenderFnP[P, HookCtx.P$n[P, $Hns]] =
              |            render => renderPrev { ctx$s =>
              |              val h$n = initNextHook(ctx$s)
              |              val ctx$n = HookCtx(ctx$s.props, $preCtxArgs, h$n)
              |              render(ctx$n)
              |            }
-             |          new DslMulti(renderNext)
+             |          new DslMultiP(renderNext)
              |        }
              |      override def squash[A] = f => _.apply$s(f)
              |    }
              |""".stripMargin
+
+        if (n <= 20) {
+          dslAtStepsPC += s"  sealed trait AtStep$s[P, $preHns] { type Next[H$n] = DslMultiPC[P, HookCtx.PC$n[P, $Hns], HookCtxFn.PC$n[P, $Hns]#Fn] }"
+          stepMultisPC +=
+            s"""  type AtStep$s[P, $preHns] = To[
+               |    P,
+               |    HookCtx.PC$s[P, $preHns],
+               |    HookCtxFn.PC$s[P, $preHns]#Fn,
+               |    DslMultiPC.AtStep$s[P, $preHns]#Next]
+               |
+               |  implicit def atStep$s[P, $preHns]: AtStep$s[P, $preHns] =
+               |    new StepMultiPC[P, HookCtx.PC$s[P, $preHns], HookCtxFn.PC$s[P, $preHns]#Fn] {
+               |      override type Next[H$n] = DslMultiPC.AtStep$s[P, $preHns]#Next[H$n]
+               |      override def next[H$n] =
+               |        (renderPrev, initNextHook) => {
+               |          val renderNext: RenderFnPC[P, HookCtx.PC$n[P, $Hns]] =
+               |            render => renderPrev { ctx$s =>
+               |              val h$n = initNextHook(ctx$s)
+               |              val ctx$n = HookCtx.withChildren(ctx$s.props, ctx$s.propsChildren, $preCtxArgs, h$n)
+               |              render(ctx$n)
+               |            }
+               |          new DslMultiPC(renderNext)
+               |        }
+               |      override def squash[A] = f => _.apply$s(f)
+               |    }
+               |""".stripMargin
+        }
       }
     }
 
@@ -90,13 +135,25 @@ object GenHooks {
     save("HookCtx.scala")(
       s"""$header
          |
+         |import japgolly.scalajs.react.PropsChildren
+         |
          |object HookCtx {
          |
-         |${hookCtx_apply.result().mkString("\n\n")}
+         |${hookCtxCtorsP.result().mkString("\n\n")}
          |
          |  abstract class P0[+P](final val props: P)
          |
-         |${hookCtx_Ps.result().mkString("\n")}
+         |${hookCtxsP.result().mkString("\n")}
+         |  object withChildren {
+         |
+         |    def apply[P](props: P, propsChildren: PropsChildren): PC0[P] =
+         |      new PC0(props, propsChildren)
+         |${hookCtxCtorsPC.result().mkString("\n\n")}
+         |  }
+         |
+         |  class PC0[+P](final val props: P, final val propsChildren: PropsChildren)
+         |
+         |${hookCtxsPC.result().mkString("\n")}
          |}
          |""".stripMargin
     )
@@ -104,11 +161,15 @@ object GenHooks {
     save("HookCtxFn.scala")(
       s"""$header
          |
+         |import japgolly.scalajs.react.PropsChildren
+         |
          |// Note: these are never instantiated. They're just here to serve as type lambdas in Scala 2.
          |sealed trait HookCtxFn { type Fn[A] }
          |
          |object HookCtxFn {
-         |${hookCtxFns.result().mkString("\n")}
+         |${hookCtxFnsP.result().mkString("\n")}
+         |
+         |${hookCtxFnsPC.result().mkString("\n")}
          |}
          |""".stripMargin
     )
@@ -118,13 +179,24 @@ object GenHooks {
          |
          |import HookComponentBuilder._
          |
-         |trait DslMultiSteps { self: DslMulti.type =>
-         |${dslAtSteps.result().mkString("\n")}
+         |trait DslMultiPSteps { self: DslMultiP.type =>
+         |${dslAtStepsP.result().mkString("\n")}
          |}
          |
-         |trait StepMultiInstances { self: StepMulti.type =>
+         |trait StepMultiPInstances { self: StepMultiP.type =>
          |
-         |${stepMultis.result().mkString("\n")}
+         |${stepMultisP.result().mkString("\n")}
+         |}
+         |
+         |// =====================================================================================================================
+         |
+         |trait DslMultiPCSteps { self: DslMultiPC.type =>
+         |${dslAtStepsPC.result().mkString("\n")}
+         |}
+         |
+         |trait StepMultiPCInstances { self: StepMultiPC.type =>
+         |
+         |${stepMultisPC.result().mkString("\n")}
          |}
          |""".stripMargin
     )
