@@ -9,7 +9,7 @@ object Dependencies {
   object Ver {
 
     // Externally observable
-    val Cats                  = "2.5.0"
+    val Cats                  = "2.6.1"
     val CatsEffect            = "2.5.1"
     val MonocleCats           = "2.1.0"
     val Monocle3              = "3.0.0-M6"
