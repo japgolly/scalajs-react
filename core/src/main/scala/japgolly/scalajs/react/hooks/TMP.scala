@@ -64,6 +64,8 @@ object Example1 {
     .useLayoutEffectOnMount(Callback.empty)
     .useLayoutEffectOnMount($ => Callback.log($.props.propsInt))
 
+    .custom(customHook1(123))
+    .custom(ctx => customHook1(ctx.hook1.value))
 
 
 

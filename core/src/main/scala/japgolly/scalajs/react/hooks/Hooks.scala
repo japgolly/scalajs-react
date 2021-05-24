@@ -189,4 +189,27 @@ object Hooks {
       ctx.jsRepr.fromJs(rawValue)
     }
   }
+
+  // ===================================================================================================================
+
+  final class UseMemo[+A](val hook: CustomHook[Unit, A]) extends AnyVal
+
+  object UseMemo {
+    def apply[A, D](create: => A, deps: D)(implicit r: Reusability[D]): UseMemo[A] = {
+      val hook = CustomHook.builder[Unit]
+        .useState(_ => 0)
+        .useState(_ => deps)
+        .buildReturning { (_, prevRev, prevDeps) =>
+          var rev = prevRev.value
+          if (r.updateNeeded(prevDeps.value, deps)) {
+            rev += 1
+            prevRev.setState(rev).runNow()
+            prevDeps.setState(deps).runNow()
+          }
+
+          Raw.React.useMemo(() => create, js.Array[js.Any](rev))
+        }
+      new UseMemo(hook)
+    }
+  }
 }

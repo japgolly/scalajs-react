@@ -9,32 +9,6 @@ object Hooks {
 
   // ===================================================================================================================
 
-    /** Returns a memoized value.
-      *
-      * Pass a “create” function and any dependencies. useMemo will only recompute the memoized value when one
-      * of the dependencies has changed. This optimization helps to avoid expensive calculations on every render.
-      *
-      * Remember that the function passed to useMemo runs during rendering. Don’t do anything there that you wouldn’t
-      * normally do while rendering. For example, side effects belong in [[useEffect]], not useMemo.
-      *
-      * @see https://reactjs.org/docs/hooks-reference.html#usememo
-      */
-    def useMemo[A, D](create: => A, deps: D)(implicit r: Reusability[D]): A = {
-      val prevRev  = useState(0)
-      val prevDeps = useState(deps)
-
-      var rev = prevRev.state
-      if (r.updateNeeded(prevDeps.state, deps)) {
-        rev += 1
-        prevRev.setState(rev).runNow()
-        prevDeps.setState(deps).runNow()
-      }
-
-      Raw.React.useMemo(() => create, js.Array[js.Any](rev))
-    }
-
-  // ===================================================================================================================
-
     /** Returns a memoized callback.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback

@@ -269,6 +269,32 @@ object Api {
       */
     final def useContext[A](f: Ctx => Context[A])(implicit step: Step): step.Next[A] =
       next(ctx => UseContext.unsafeCreate(f(ctx)))
+
+    /** Returns a memoized value.
+      *
+      * Pass a “create” function and any dependencies. useMemo will only recompute the memoized value when one
+      * of the dependencies has changed. This optimization helps to avoid expensive calculations on every render.
+      *
+      * Remember that the function passed to useMemo runs during rendering. Don’t do anything there that you wouldn’t
+      * normally do while rendering. For example, side effects belong in [[useEffect]], not useMemo.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usememo
+      */
+    final def useMemo[A, D](create: => A, deps: D)(implicit r: Reusability[D], step: Step): step.Next[A] =
+      custom(UseMemo(create, deps).hook)
+
+    /** Returns a memoized value.
+      *
+      * Pass a “create” function and any dependencies. useMemo will only recompute the memoized value when one
+      * of the dependencies has changed. This optimization helps to avoid expensive calculations on every render.
+      *
+      * Remember that the function passed to useMemo runs during rendering. Don’t do anything there that you wouldn’t
+      * normally do while rendering. For example, side effects belong in [[useEffect]], not useMemo.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usememo
+      */
+    final def useMemo[A](f: Ctx => UseMemo.type => UseMemo[A])(implicit step: Step): step.Next[A] =
+      custom((ctx: Ctx) => f(ctx)(UseMemo).hook)
   }
 
   // ===================================================================================================================
@@ -390,6 +416,19 @@ object Api {
       */
     final def useContext[A](f: CtxFn[Context[A]])(implicit step: Step): step.Next[A] =
       useContext(step.squash(f)(_))
+
+    /** Returns a memoized value.
+      *
+      * Pass a “create” function and any dependencies. useMemo will only recompute the memoized value when one
+      * of the dependencies has changed. This optimization helps to avoid expensive calculations on every render.
+      *
+      * Remember that the function passed to useMemo runs during rendering. Don’t do anything there that you wouldn’t
+      * normally do while rendering. For example, side effects belong in [[useEffect]], not useMemo.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usememo
+      */
+    final def useMemo[A](f: CtxFn[UseMemo.type => UseMemo[A]])(implicit step: Step): step.Next[A] =
+      useMemo(step.squash(f)(_))
   }
 
   // ===================================================================================================================
