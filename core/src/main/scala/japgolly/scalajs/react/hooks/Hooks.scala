@@ -83,34 +83,41 @@ object Hooks {
 
   object UseReducer {
     def unsafeCreate[S, A](reducer: (S, A) => S, initialArg: S): UseReducer[S, A] =
-      UseReducer(Raw.React.useReducer[S, A](reducer, initialArg))
+      _unsafeCreate(Raw.React.useReducer[S, A](reducer, initialArg))
 
     def unsafeCreate[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): UseReducer[S, A] =
-      UseReducer(Raw.React.useReducer[I, S, A](reducer, initialArg, init))
+      _unsafeCreate(Raw.React.useReducer[I, S, A](reducer, initialArg, init))
+
+    private def _unsafeCreate[S, A](originalResult: Raw.React.UseReducer[S, A]): UseReducer[S, A] = {
+      val originalDispatch = Reusable.byRef(originalResult._2)
+      UseReducer(originalResult)(originalDispatch)
+    }
   }
 
   // TODO: Integrate with StateSnapshot and friends?
-  final case class UseReducer[S, A](raw: Raw.React.UseReducer[S, A]) {
+  final case class UseReducer[S, A](raw: Raw.React.UseReducer[S, A])(originalDispatch: Reusable[Raw.React.UseReducerDispatch[_]]) {
 
     @inline def value: S =
       raw._1
 
-    def dispatch(a: A): Callback =
-      Callback(raw._2(a))
+    def dispatch(a: A): Reusable[Callback] =
+      originalDispatch.withValue(Callback(raw._2(a)))
 
+    /** WARNING: This does not affect the dispatch callback reusability. */
     def map[T](f: S => T): UseReducer[T, A] =
-      UseReducer(js.Tuple2(f(value), raw._2))
+      UseReducer(js.Tuple2(f(value), raw._2))(originalDispatch)
 
+    /** WARNING: This does not affect the dispatch callback reusability. */
     def contramap[B](f: B => A): UseReducer[S, B] = {
       val newDispatch: js.Function1[B, Unit] = b => raw._2(f(b))
-      UseReducer(js.Tuple2(value, newDispatch))
+      UseReducer(js.Tuple2(value, newDispatch))(originalDispatch)
     }
 
     @inline def widen[T >: S]: UseReducer[T, A] =
-      UseReducer(raw)
+      UseReducer[T, A](raw)(originalDispatch)
 
     @inline def narrow[B <: A]: UseReducer[S, B] =
-      UseReducer(raw)
+      UseReducer[S, B](raw)(originalDispatch)
   }
 
   // ===================================================================================================================

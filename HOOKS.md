@@ -1,7 +1,6 @@
 TODO
 =========================================================================================
 
-* useReducer dispatch callbacks are Reusable.byRef
 * useContext
 * useCallback can accept fns with params
 * useMemo
