@@ -2,9 +2,13 @@ TODO
 =========================================================================================
 
 * useReducer dispatch callbacks are Reusable.byRef
-* useRef[A](f: js.Function0[A], deps: js.UndefOr[HookDeps] = js.native): HookRef[A] = js.native
+* useContext
 * useCallback can accept fns with params
-* useImperativeHandle
+* useMemo
+* useRef[A](f: js.Function0[A], deps: js.UndefOr[HookDeps] = js.native): HookRef[A] = js.native
+* useImperativeHandle(ref, createHandle, [deps])
+* useDebugValue
+
 * Add useStateSnapshot as custom hook
 * Tests
 * Add documentation with examples
@@ -36,5 +40,3 @@ Old Notes
     );
   }
   ```
-
-* useImperativeHandle(ref, createHandle, [deps])
