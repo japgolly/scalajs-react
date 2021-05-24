@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.feature.Context
-import japgolly.scalajs.react.hooks.Hooks._
-import japgolly.scalajs.react.{CallbackTo, Reusability}
+import japgolly.scalajs.react.hooks.Hooks.{UseCallbackArg, UseMemo, _}
+import japgolly.scalajs.react.{Callback, CallbackTo, Reusability, Reusable, raw => Raw}
 
 object Api {
 
@@ -24,7 +24,7 @@ object Api {
   // ===================================================================================================================
   // API 1: X / (Ctx => X)
 
-  trait Primary[Ctx, _Step <: Step] {
+  trait Primary[Ctx, _Step <: Step] extends UseCallbackExtraApi[Ctx, _Step] {
     final type Step = _Step
 
     protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H]
@@ -295,6 +295,35 @@ object Api {
       */
     final def useMemo[A](f: Ctx => UseMemo.type => UseMemo[A])(implicit step: Step): step.Next[A] =
       custom((ctx: Ctx) => f(ctx)(UseMemo).hook)
+
+    /** Returns a memoized callback.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usecallback
+      */
+    final def useCallback(callback: Callback)(implicit step: Step): step.Next[Reusable[Callback]] =
+      useCallback((_: Ctx) => (_: UseCallbackInline)(callback))
+
+    /** Returns a memoized callback.
+      *
+      * Pass an inline callback and dependencies. useCallback will return a memoized version of the callback that only
+      * changes if one of the dependencies has changed. This is useful when passing callbacks to optimized child
+      * components that rely on reference equality to prevent unnecessary renders.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usecallback
+      */
+    final def useCallback[D](callback: Callback, deps: D)(implicit r: Reusability[D], step: Step): step.Next[Reusable[Callback]] =
+      useCallback((_: Ctx) => (_: UseCallbackInline)(callback, deps))
+
+    /** Returns a memoized callback.
+      *
+      * Pass an inline callback and dependencies. useCallback will return a memoized version of the callback that only
+      * changes if one of the dependencies has changed. This is useful when passing callbacks to optimized child
+      * components that rely on reference equality to prevent unnecessary renders.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usecallback
+      */
+    final def useCallback[A](f: Ctx => UseCallbackInline => HookCreated[Reusable[A]])(implicit step: Step): step.Next[Reusable[A]] =
+      next(f(_)(new UseCallbackInline).result)
   }
 
   // ===================================================================================================================
@@ -429,6 +458,17 @@ object Api {
       */
     final def useMemo[A](f: CtxFn[UseMemo.type => UseMemo[A]])(implicit step: Step): step.Next[A] =
       useMemo(step.squash(f)(_))
+
+    /** Returns a memoized callback.
+      *
+      * Pass an inline callback and dependencies. useCallback will return a memoized version of the callback that only
+      * changes if one of the dependencies has changed. This is useful when passing callbacks to optimized child
+      * components that rely on reference equality to prevent unnecessary renders.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usecallback
+      */
+    final def useCallback[A](f: CtxFn[UseCallbackInline => HookCreated[Reusable[A]]])(implicit step: Step): step.Next[Reusable[A]] =
+      useCallback(step.squash(f)(_))
   }
 
   // ===================================================================================================================
@@ -436,7 +476,7 @@ object Api {
 
   final class HookCreated[A] private[Api] (val result: A)
 
-  sealed trait Inline {
+  trait Inline {
     private var calls = 0
     protected def wrap[A](a: A): HookCreated[A] = {
       if (calls > 0)
@@ -468,6 +508,27 @@ object Api {
 
     def apply[A, D](effect: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): HookCreated[Unit] =
       wrap(ReusableEffect.useLayoutEffect(effect, deps).unsafeInit(()))
+  }
+
+  final class UseCallbackInline extends Inline {
+
+    /** Returns a memoized callback.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usecallback
+      */
+    def apply[A](callback: A)(implicit a: UseCallbackArg[A]): HookCreated[Reusable[A]] =
+      wrap(a.fromJs(Raw.React.useCallback(a.toJs(callback))))
+
+    /** Returns a memoized callback.
+      *
+      * Pass an inline callback and dependencies. useCallback will return a memoized version of the callback that only
+      * changes if one of the dependencies has changed. This is useful when passing callbacks to optimized child
+      * components that rely on reference equality to prevent unnecessary renders.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usecallback
+      */
+    def apply[A, D](callback: => A, deps: D)(implicit a: UseCallbackArg[A], r: Reusability[D]): HookCreated[Reusable[A]] =
+      apply(UseMemo(callback, deps).hook.unsafeInit(()))
   }
 
 }

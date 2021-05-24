@@ -1,7 +1,8 @@
 TODO
 =========================================================================================
 
-* useCallback can accept fns with params
+* Sort all hooks
+* Add useReusableCallbackFn that calls Reusable.fn? (with better name obviously)
 * useRef[A](f: js.Function0[A], deps: js.UndefOr[HookDeps] = js.native): HookRef[A] = js.native
 * useImperativeHandle(ref, createHandle, [deps])
 * useDebugValue

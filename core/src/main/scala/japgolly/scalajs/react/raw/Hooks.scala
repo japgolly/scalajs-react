@@ -33,7 +33,7 @@ trait Hooks extends js.Object {
   final def useReducer[   S, A](reducer: js.Function2[S, A, S], initialArg: S                          ): UseReducer[S, A] = js.native
   final def useReducer[I, S, A](reducer: js.Function2[S, A, S], initialArg: I, init: js.Function1[I, S]): UseReducer[S, A] = js.native
 
-  final def useCallback(callback: js.Function0[Unit], deps: js.UndefOr[HookDeps] = js.native): js.Function0[Unit] = js.native
+  final def useCallback[F <: js.Function](callback: F, deps: js.UndefOr[HookDeps] = js.native): F = js.native
 
   final def useMemo[A](f: js.Function0[A], deps: js.UndefOr[HookDeps] = js.native): A = js.native
 

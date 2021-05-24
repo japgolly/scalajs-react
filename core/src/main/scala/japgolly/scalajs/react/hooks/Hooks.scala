@@ -2,7 +2,7 @@ package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.internal.{Box, OptionLike}
-import japgolly.scalajs.react.{React => _, raw => Raw, _}
+import japgolly.scalajs.react.{Callback, React => _, Reusability, Reusable, raw => Raw, _}
 import scala.annotation.implicitNotFound
 import scala.scalajs.js
 
@@ -164,7 +164,7 @@ object Hooks {
     private val noEffect: Raw.React.UseEffectArg =
       () => ()
 
-    private def apply[A, D](e: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): CustomHook[Unit, Raw.React.UseEffectArg] =
+    def prepare[A, D](e: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): CustomHook[Unit, Raw.React.UseEffectArg] =
       CustomHook.builder[Unit]
         .useState(_ => deps)
         .buildReturning { (_, prevDeps) =>
@@ -175,10 +175,10 @@ object Hooks {
         }
 
     def useEffect[A, D](e: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
-      apply(e, deps).map(Raw.React.useEffect(_))
+      prepare(e, deps).map(Raw.React.useEffect(_))
 
     def useLayoutEffect[A, D](e: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
-      apply(e, deps).map(Raw.React.useLayoutEffect(_))
+      prepare(e, deps).map(Raw.React.useLayoutEffect(_))
   }
 
   // ===================================================================================================================
@@ -212,4 +212,28 @@ object Hooks {
       new UseMemo(hook)
     }
   }
+
+  // ===================================================================================================================
+
+  trait UseCallbackArg[S] {
+    type J <: js.Function
+    def toJs: S => J
+    def fromJs: J => Reusable[S]
+  }
+
+  object UseCallbackArg extends UseCallbackArgInstances {
+
+    def apply[S, F <: js.Function](f: S => F)(g: F => Reusable[S]): UseCallbackArg[S] =
+      new UseCallbackArg[S] {
+        override type J = F
+        override def toJs = f
+        override def fromJs = g
+      }
+
+    implicit def c: UseCallbackArg[Callback] =
+      apply[Callback, js.Function0[Unit]](
+        _.toJsFn)(
+        f => Reusable.byRef(f).withValue(Callback.fromJsFn(f)))
+  }
+
 }

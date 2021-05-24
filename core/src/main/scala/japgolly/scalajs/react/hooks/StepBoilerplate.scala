@@ -8,8 +8,8 @@ package japgolly.scalajs.react.hooks
 // DO NOT MANUALLY EDIT
 // DO NOT MANUALLY EDIT
 
-import HookComponentBuilder._
-import CustomHook.{Builder => Custom}
+import japgolly.scalajs.react.hooks.CustomHook.{Builder => Custom}
+import japgolly.scalajs.react.hooks.HookComponentBuilder._
 
 trait ComponentP_SubsequentDsl { self: ComponentP.Subsequent.type =>
   sealed trait AtStep1[P, H1] { type Next[H2] = ComponentP.Subsequent[P, HookCtx.P2[P, H1, H2], HookCtxFn.P2[P, H1, H2]#Fn] }

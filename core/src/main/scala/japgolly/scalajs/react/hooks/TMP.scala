@@ -67,6 +67,16 @@ object Example1 {
     .custom(customHook1(123))
     .custom(ctx => customHook1(ctx.hook1.value))
 
+    .useCallback(Callback.empty)
+    .useCallback(Callback.empty, 123)
+    .useCallback($ => _(Callback.log($.props.propsInt)))
+    .useCallback($ => _(Callback.log($.props.propsInt), $.props.propsInt))
+
+  HookComponentBuilder[P]
+    .useCallback(_ => _((i: Int) => Callback.log(i)))
+    .useCallback($ => _((i: Int) => Callback.log(i), $.props.propsInt))
+    .useCallback1((i: Int) => Callback.log(i))
+
 
 
 

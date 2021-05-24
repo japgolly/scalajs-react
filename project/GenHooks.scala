@@ -9,22 +9,27 @@ object GenHooks {
     println()
     println("Generating hooks boilerplate in: " + dir.getAbsolutePath)
 
-    val hookCtxCtorsI  = List.newBuilder[String]
-    val hookCtxCtorsP  = List.newBuilder[String]
-    val hookCtxCtorsPC = List.newBuilder[String]
-    val hookCtxsI      = List.newBuilder[String]
-    val hookCtxsP      = List.newBuilder[String]
-    val hookCtxsPC     = List.newBuilder[String]
-    val hookCtxFnsP    = List.newBuilder[String]
-    val hookCtxFnsPC   = List.newBuilder[String]
-    val dslAtStepsI    = List.newBuilder[String]
-    val dslAtStepsP    = List.newBuilder[String]
-    val dslAtStepsPC   = List.newBuilder[String]
-    val stepMultisI    = List.newBuilder[String]
-    val stepMultisP    = List.newBuilder[String]
-    val stepMultisPC   = List.newBuilder[String]
+    val hookCtxCtorsI   = List.newBuilder[String]
+    val hookCtxCtorsP   = List.newBuilder[String]
+    val hookCtxCtorsPC  = List.newBuilder[String]
+    val hookCtxsI       = List.newBuilder[String]
+    val hookCtxsP       = List.newBuilder[String]
+    val hookCtxsPC      = List.newBuilder[String]
+    val hookCtxFnsP     = List.newBuilder[String]
+    val hookCtxFnsPC    = List.newBuilder[String]
+    val dslAtStepsI     = List.newBuilder[String]
+    val dslAtStepsP     = List.newBuilder[String]
+    val dslAtStepsPC    = List.newBuilder[String]
+    val stepMultisI     = List.newBuilder[String]
+    val stepMultisP     = List.newBuilder[String]
+    val stepMultisPC    = List.newBuilder[String]
+    val useCallbackApis = List.newBuilder[String]
+    val useCallbackArgs = List.newBuilder[String]
 
-    for (n <- 1 to 21) {
+    for (n <- 1 to 22) {
+      val As           = (1 to n).map('A' + _ - 1).map(_.toChar).mkString(", ")
+      val as           = (1 to n).map('a' + _ - 1).map(_.toChar).mkString(", ")
+      val _s           = (1 to n).map(_ => '_').mkString(", ")
       val preHns       = (1 until n).map("H" + _).mkString(", ")
       val Hns          = (1 to n).map("H" + _).mkString(", ")
       val coHns        = (1 to n).map("+H" + _).mkString(", ")
@@ -34,40 +39,69 @@ object GenHooks {
       val ctxSuperArgs = (1 until n).map(i => s", hook$i").mkString
       val ctxToStr     = (1 to n).map(i => s",\\n  hook$i = !hook$i").mkString
 
-      hookCtxCtorsI += s"    def apply[I, $Hns](input: I, $hookParams): I$n[I, $Hns] =\n      new I$n(input, $hookArgs)"
+      useCallbackArgs +=
+        s"""  implicit def c$n[$As]: UseCallbackArg[($As) => Callback] =
+           |    UseCallbackArg[($As) => Callback, js.Function$n[$As, Unit]](
+           |      f => f(${_s}).runNow())(
+           |      z => Reusable.byRef(z).withValue(($as) => Callback(z($as))))
+           |""".stripMargin
 
-      hookCtxCtorsP += s"  def apply[P, $Hns](props: P, $hookParams): P$n[P, $Hns] =\n    new P$n(props, $hookArgs)"
+      useCallbackApis +=
+        s"""  /** Returns a memoized callback.
+           |    *
+           |    * @see https://reactjs.org/docs/hooks-reference.html#usecallback
+           |    */
+           |  @inline final def useCallback$n[$As](f: ($As) => Callback)(implicit step: Step): step.Next[Reusable[($As) => Callback]] =
+           |    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+           |
+           |  /** Returns a memoized callback.
+           |    *
+           |    * Pass an inline callback and dependencies. useCallback will return a memoized version of the callback that only
+           |    * changes if one of the dependencies has changed. This is useful when passing callbacks to optimized child
+           |    * components that rely on reference equality to prevent unnecessary renders.
+           |    *
+           |    * @see https://reactjs.org/docs/hooks-reference.html#usecallback
+           |    */
+           |  @inline final def useCallback$n[$As, Z](f: ($As) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[($As) => Callback]] =
+           |    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+           |""".stripMargin
 
-      hookCtxsI +=
-        s"""  class I$n[+I, $coHns](input: I, $ctxParams) extends I${n-1}(input$ctxSuperArgs) {
-           |    override def toString = s"HookCtx.withInput(\\n  input = !input$ctxToStr)"
-           |    def apply$n[A](f: (I, $Hns) => A): A = f(input, $hookArgs)
-           |  }
-           |""".stripMargin.replace('!', '$')
+      if (n <= 21) {
+        hookCtxCtorsI += s"    def apply[I, $Hns](input: I, $hookParams): I$n[I, $Hns] =\n      new I$n(input, $hookArgs)"
 
-      hookCtxsP +=
-        s"""  class P$n[+P, $coHns](props: P, $ctxParams) extends P${n-1}(props$ctxSuperArgs) {
-           |    override def toString = s"HookCtx(\\n  props = !props$ctxToStr)"
-           |    def apply$n[A](f: (P, $Hns) => A): A = f(props, $hookArgs)
-           |  }
-           |""".stripMargin.replace('!', '$')
+        hookCtxCtorsP += s"  def apply[P, $Hns](props: P, $hookParams): P$n[P, $Hns] =\n    new P$n(props, $hookArgs)"
 
-      hookCtxFnsP += s"  sealed trait P$n[P, $Hns] extends HookCtxFn { override type Fn[A] = (P, $Hns) => A }"
-
-      if (n <= 20) {
-        hookCtxCtorsPC += s"    def apply[P, $Hns](props: P, propsChildren: PropsChildren, $hookParams): PC$n[P, $Hns] =\n      new PC$n(props, propsChildren, $hookArgs)"
-
-        hookCtxsPC +=
-          s"""  class PC$n[+P, $coHns](props: P, propsChildren: PropsChildren, $ctxParams) extends PC${n-1}(props, propsChildren$ctxSuperArgs) {
-             |    override def toString = s"HookCtx.withChildren(\\n  props = !props,\\n  propsChildren = !propsChildren$ctxToStr)"
-             |    def apply$n[A](f: (P, PropsChildren, $Hns) => A): A = f(props, propsChildren, $hookArgs)
+        hookCtxsI +=
+          s"""  class I$n[+I, $coHns](input: I, $ctxParams) extends I${n-1}(input$ctxSuperArgs) {
+             |    override def toString = s"HookCtx.withInput(\\n  input = !input$ctxToStr)"
+             |    def apply$n[A](f: (I, $Hns) => A): A = f(input, $hookArgs)
              |  }
              |""".stripMargin.replace('!', '$')
 
-        hookCtxFnsPC += s"  sealed trait PC$n[P, $Hns] extends HookCtxFn { override type Fn[A] = (P, PropsChildren, $Hns) => A }"
+        hookCtxsP +=
+          s"""  class P$n[+P, $coHns](props: P, $ctxParams) extends P${n-1}(props$ctxSuperArgs) {
+             |    override def toString = s"HookCtx(\\n  props = !props$ctxToStr)"
+             |    def apply$n[A](f: (P, $Hns) => A): A = f(props, $hookArgs)
+             |  }
+             |""".stripMargin.replace('!', '$')
+
+        hookCtxFnsP += s"  sealed trait P$n[P, $Hns] extends HookCtxFn { override type Fn[A] = (P, $Hns) => A }"
+
+        if (n <= 20) {
+          hookCtxCtorsPC += s"    def apply[P, $Hns](props: P, propsChildren: PropsChildren, $hookParams): PC$n[P, $Hns] =\n      new PC$n(props, propsChildren, $hookArgs)"
+
+          hookCtxsPC +=
+            s"""  class PC$n[+P, $coHns](props: P, propsChildren: PropsChildren, $ctxParams) extends PC${n-1}(props, propsChildren$ctxSuperArgs) {
+               |    override def toString = s"HookCtx.withChildren(\\n  props = !props,\\n  propsChildren = !propsChildren$ctxToStr)"
+               |    def apply$n[A](f: (P, PropsChildren, $Hns) => A): A = f(props, propsChildren, $hookArgs)
+               |  }
+               |""".stripMargin.replace('!', '$')
+
+          hookCtxFnsPC += s"  sealed trait PC$n[P, $Hns] extends HookCtxFn { override type Fn[A] = (P, PropsChildren, $Hns) => A }"
+        }
       }
 
-      if (n != 1) {
+      if (n != 1 && n <= 21) {
         val s = n - 1
 
         val preCtxArgs = (1 until n).map(i => s"ctx$s.hook$i").mkString(", ")
@@ -236,8 +270,8 @@ object GenHooks {
     save("StepBoilerplate.scala")(
       s"""$header
          |
-         |import HookComponentBuilder._
-         |import CustomHook.{Builder => Custom}
+         |import japgolly.scalajs.react.hooks.CustomHook.{Builder => Custom}
+         |import japgolly.scalajs.react.hooks.HookComponentBuilder._
          |
          |trait ComponentP_SubsequentDsl { self: ComponentP.Subsequent.type =>
          |${dslAtStepsP.result().mkString("\n")}
@@ -268,6 +302,28 @@ object GenHooks {
          |trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
          |
          |${stepMultisI.result().mkString("\n")}
+         |}
+         |""".stripMargin
+    )
+
+    save("UseCallbackBoilerplate.scala")(
+      s"""$header
+         |
+         |import japgolly.scalajs.react.hooks.Hooks.UseCallbackArg
+         |import japgolly.scalajs.react.{Callback, Reusability, Reusable}
+         |import scala.scalajs.js
+         |
+         |trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] =>
+         |  import Api.UseCallbackInline
+         |
+         |${useCallbackApis.result().mkString("\n\n")}
+         |}
+         |
+         |// =====================================================================================================================
+         |
+         |trait UseCallbackArgInstances {
+         |
+         |${useCallbackArgs.result().mkString("\n\n")}
          |}
          |""".stripMargin
     )
