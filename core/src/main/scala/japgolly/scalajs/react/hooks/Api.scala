@@ -37,20 +37,20 @@ object Api {
     final def custom[O](hook: Ctx => CustomHook[Unit, O])(implicit step: Step): step.Next[O] =
       next(hook(_).unsafeInit(()))
 
-    /** Create a new `lazy val` on each render. */
-    final def newLazyVal[A](f: Ctx => A)(implicit step: Step): step.Next[() => A] =
+    /** Create a new local `lazy val` on each render. */
+    final def localLazyVal[A](f: Ctx => A)(implicit step: Step): step.Next[() => A] =
       next { ctx =>
         lazy val a: A = f(ctx)
         val result = () => a // TODO: Report Scala bug
         result
       }
 
-    /** Create a new `val` on each render. */
-    final def newVal[A](f: Ctx => A)(implicit step: Step): step.Next[A] =
+    /** Create a new local `val` on each render. */
+    final def localVal[A](f: Ctx => A)(implicit step: Step): step.Next[A] =
       next(f)
 
-    /** Create a new `var` on each render. */
-    final def newVar[A](f: Ctx => A)(implicit step: Step): step.Next[Var[A]] =
+    /** Create a new local `var` on each render. */
+    final def localVar[A](f: Ctx => A)(implicit step: Step): step.Next[Var[A]] =
       next(ctx => new Var(f(ctx)))
 
     /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
@@ -335,17 +335,17 @@ object Api {
     final def custom[O](hook: CtxFn[CustomHook[Unit, O]])(implicit step: Step): step.Next[O] =
       custom(step.squash(hook)(_))
 
-    /** Create a new `lazy val` on each render. */
-    final def newLazyVal[A](f: CtxFn[A])(implicit step: Step): step.Next[() => A] =
-      newLazyVal(step.squash(f)(_))
+    /** Create a new local `lazy val` on each render. */
+    final def localLazyVal[A](f: CtxFn[A])(implicit step: Step): step.Next[() => A] =
+      localLazyVal(step.squash(f)(_))
 
-    /** Create a new `val` on each render. */
-    final def newVal[A](f: CtxFn[A])(implicit step: Step): step.Next[A] =
-      newVal(step.squash(f)(_))
+    /** Create a new local `val` on each render. */
+    final def localVal[A](f: CtxFn[A])(implicit step: Step): step.Next[A] =
+      localVal(step.squash(f)(_))
 
-    /** Create a new `var` on each render. */
-    final def newVar[A](f: CtxFn[A])(implicit step: Step): step.Next[Var[A]] =
-      newVar(step.squash(f)(_))
+    /** Create a new local `var` on each render. */
+    final def localVar[A](f: CtxFn[A])(implicit step: Step): step.Next[Var[A]] =
+      localVar(step.squash(f)(_))
 
     /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
       * It's up to you to ensure you don't vioalte React's hook rules.
