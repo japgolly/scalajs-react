@@ -130,7 +130,7 @@ object React extends React {
 
   @js.native
   trait RefHandle[A] extends js.Object {
-    var current: A | Null
+    var current: A
   }
 
   type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, Node]
@@ -145,7 +145,7 @@ object React extends React {
     val Consumer: ComponentClass[Null, Null]          = js.native
   }
 
-  type ForwardedRef[A] = RefHandle[A] | Null
+  type ForwardedRef[A] = RefHandle[A | Null] | Null
 
   @js.native
   trait ForwardRefComponent[P <: js.Object, R] extends js.Object {

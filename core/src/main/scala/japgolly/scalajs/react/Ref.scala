@@ -12,7 +12,7 @@ object Ref {
   def apply[A]: Simple[A] =
     newMechanism[A]
 
-  def fromJs[A](raw: Raw.React.RefHandle[A]): Simple[A] =
+  def fromJs[A](raw: Raw.React.RefHandle[A | Null]): Simple[A] =
     Full(raw, identityFn, Some(_))
 
   def forwardedFromJs[A](f: raw.React.ForwardedRef[A]): Option[Simple[A]] =
@@ -27,20 +27,20 @@ object Ref {
       // React ≤ 15
       new Mechanism {
         override def apply[A] = {
-          val handle = js.Dynamic.literal("current" -> null).asInstanceOf[Raw.React.RefHandle[A]]
+          val handle = js.Dynamic.literal("current" -> null).asInstanceOf[Raw.React.RefHandle[A | Null]]
           fromJs(handle)
         }
       }
     else
       // React 16+
       new Mechanism {
-        override def apply[A] = fromJs(Raw.React.createRef[A]())
+        override def apply[A] = fromJs(Raw.React.createRef[A | Null]())
       }
 
   type Simple[A] = Full[A, A, A]
 
   trait Handle[A] {
-    val raw: Raw.React.RefHandle[A]
+    val raw: Raw.React.RefHandle[A | Null]
     final def root: Simple[A] = fromJs(raw)
   }
 
@@ -103,7 +103,7 @@ object Ref {
       mapOption(ct.unapply)
   }
 
-  def Full[I, A, O](_raw: Raw.React.RefHandle[A], l: I => A, r: A => Option[O]): Full[I, A, O] =
+  def Full[I, A, O](_raw: Raw.React.RefHandle[A | Null], l: I => A, r: A => Option[O]): Full[I, A, O] =
     new Full[I, A, O] {
 
       override val raw = _raw

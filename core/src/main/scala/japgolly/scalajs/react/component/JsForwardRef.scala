@@ -5,6 +5,7 @@ import japgolly.scalajs.react.internal.Profunctor.Ops._
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{raw => Raw, _}
 import scala.scalajs.js
+import scala.scalajs.js.|
 
 object JsForwardRef {
 
@@ -168,7 +169,7 @@ object JsForwardRef {
       override val raw           = r
       override val mountRaw      = constUnit
       override def key           = jsNullToOption(raw.key)
-      override def ref           = jsNullToOption(raw.ref).map(r => Ref.fromJs(r.asInstanceOf[Raw.React.RefHandle[R]]))
+      override def ref           = jsNullToOption(raw.ref).map(r => Ref.fromJs(r.asInstanceOf[Raw.React.RefHandle[R | Null]]))
       override def props         = raw.props.asInstanceOf[P]
       override def propsChildren = PropsChildren.fromRawProps(raw.props)
     }
