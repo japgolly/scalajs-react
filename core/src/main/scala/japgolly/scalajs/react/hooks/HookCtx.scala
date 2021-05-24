@@ -186,6 +186,7 @@ object HookCtx {
 
     def apply[P](props: P, propsChildren: PropsChildren): PC0[P] =
       new PC0(props, propsChildren)
+
     def apply[P, H1](props: P, propsChildren: PropsChildren, hook1: H1): PC1[P, H1] =
       new PC1(props, propsChildren, hook1)
 

@@ -7,29 +7,6 @@ import scala.scalajs.js
 
 object Hooks {
 
-  @implicitNotFound(
-    "You're attempting to provide a CallbackTo[${A}] to the useEffect family of hooks."
-    + "\n  - To specify a basic effect, provide a Callback (protip: try adding .void to your callback)."
-    + "\n  - To specify an effect and a clean-up effect, provide a CallbackTo[Callback] where the Callback you return is the clean-up effect."
-    + "\nSee https://reactjs.org/docs/hooks-reference.html#useeffect")
-  final case class EffectArg[A](toJs: CallbackTo[A] => Raw.React.UseEffectArg)
-
-  object EffectArg {
-    implicit val unit: EffectArg[Unit] =
-      apply(_.toJsFn)
-
-    def byCallback[A](f: A => js.UndefOr[js.Function0[Any]]): EffectArg[A] =
-      apply(_.map(f).toJsFn)
-
-    implicit val callback: EffectArg[Callback] =
-      byCallback(_.toJsFn)
-
-    implicit def optionalCallback[O[_]](implicit O: OptionLike[O]): EffectArg[O[Callback]] =
-      byCallback(O.unsafeToJs(_).map(_.toJsFn))
-  }
-
-  // ===================================================================================================================
-
   object UseState {
     def unsafeCreate[S](initialState: => S): UseState[S] = {
       // Boxing is required because React's useState uses reflection to distinguish between {set,mod}State.
@@ -45,9 +22,6 @@ object Hooks {
   final case class UseState[S](raw: Raw.React.UseState[S])(originalSetState: Reusable[Raw.React.UseStateSetter[_]]) {
 
     @inline def value: S =
-      raw._1
-
-    @inline def state: S =
       raw._1
 
     def setState(s: S): Reusable[Callback] =
@@ -81,13 +55,13 @@ object Hooks {
         givenValue = t => raw._2(g(t)),
         givenFn    = m => raw._2((s => g(m(f(s)))): js.Function1[S, S]),
       )
-      UseState(js.Tuple2(f(state), newSetState))(originalSetState)
+      UseState(js.Tuple2(f(value), newSetState))(originalSetState)
     }
 
     /** WARNING: This does not affect the setState callback reusability. */
     def withReusability(implicit r: Reusability[S]): UseState[S] = {
       val givenValue: S => Unit = next =>
-        if (r.updateNeeded(state, next))
+        if (r.updateNeeded(value, next))
           raw._2(next)
 
       val givenFn: js.Function1[S, S] => Unit = f =>
@@ -101,27 +75,35 @@ object Hooks {
 
       val newSetState = newSetStateJs(givenValue, givenFn)
 
-      UseState(js.Tuple2(state, newSetState))(originalSetState)
+      UseState(js.Tuple2(value, newSetState))(originalSetState)
     }
   }
 
   // ===================================================================================================================
 
+  object UseReducer {
+    def unsafeCreate[S, A](reducer: (S, A) => S, initialArg: S): UseReducer[S, A] =
+      UseReducer(Raw.React.useReducer[S, A](reducer, initialArg))
+
+    def unsafeCreate[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): UseReducer[S, A] =
+      UseReducer(Raw.React.useReducer[I, S, A](reducer, initialArg, init))
+  }
+
   // TODO: Integrate with StateSnapshot and friends?
   final case class UseReducer[S, A](raw: Raw.React.UseReducer[S, A]) {
 
-    @inline def state: S =
+    @inline def value: S =
       raw._1
 
     def dispatch(a: A): Callback =
       Callback(raw._2(a))
 
     def map[T](f: S => T): UseReducer[T, A] =
-      UseReducer(js.Tuple2(f(state), raw._2))
+      UseReducer(js.Tuple2(f(value), raw._2))
 
     def contramap[B](f: B => A): UseReducer[S, B] = {
       val newDispatch: js.Function1[B, Unit] = b => raw._2(f(b))
-      UseReducer(js.Tuple2(state, newDispatch))
+      UseReducer(js.Tuple2(value, newDispatch))
     }
 
     @inline def widen[T >: S]: UseReducer[T, A] =
@@ -130,5 +112,29 @@ object Hooks {
     @inline def narrow[B <: A]: UseReducer[S, B] =
       UseReducer(raw)
   }
+
+  // ===================================================================================================================
+
+  @implicitNotFound(
+    "You're attempting to provide a CallbackTo[${A}] to the useEffect family of hooks."
+    + "\n  - To specify a basic effect, provide a Callback (protip: try adding .void to your callback)."
+    + "\n  - To specify an effect and a clean-up effect, provide a CallbackTo[Callback] where the Callback you return is the clean-up effect."
+    + "\nSee https://reactjs.org/docs/hooks-reference.html#useeffect")
+  final case class EffectArg[A](toJs: CallbackTo[A] => Raw.React.UseEffectArg)
+
+  object EffectArg {
+    implicit val unit: EffectArg[Unit] =
+      apply(_.toJsFn)
+
+    def byCallback[A](f: A => js.UndefOr[js.Function0[Any]]): EffectArg[A] =
+      apply(_.map(f).toJsFn)
+
+    implicit val callback: EffectArg[Callback] =
+      byCallback(_.toJsFn)
+
+    implicit def optionalCallback[O[_]](implicit O: OptionLike[O]): EffectArg[O[Callback]] =
+      byCallback(O.unsafeToJs(_).map(_.toJsFn))
+  }
+
 
 }

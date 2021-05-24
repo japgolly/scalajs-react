@@ -1,3 +1,4 @@
+/*
 package japgolly.scalajs.react.feature
 
 import japgolly.scalajs.react.{raw => Raw, React => _, _}
@@ -10,57 +11,7 @@ object Hooks {
 
   // ===================================================================================================================
 
-  object Dsl {
-    // TODO: Explain unsafety
-    val unsafeGet: Dsl =
-      new Dsl
-  }
-
   final class Dsl private() {
-    import japgolly.scalajs.react.hooks.Hooks._
-
-    /** Returns a stateful value, and a function to update it.
-      *
-      * During the initial render, the returned state is the same as the value passed as the first argument
-      * (initialState).
-      *
-      * During subsequent re-renders, the first value returned by useState will always be the most recent state after
-      * applying updates.
-      */
-    def useState[S](initialState: => S): UseState[S] = {
-      // Boxing is required because React's useState uses reflection to distinguish between {set,mod}State.
-      val initialStateFn   = (() => Box(initialState)): js.Function0[Box[S]]
-      val originalResult   = Raw.React.useState[Box[S]](initialStateFn)
-      val originalSetState = Reusable.byRef(originalResult._2)
-      UseState[Box[S]](originalResult)(originalSetState)
-        .xmap(_.unbox)(Box.apply)
-    }
-
-    /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
-      * current state paired with a dispatch method.
-      * (If you’re familiar with Redux, you already know how this works.)
-      *
-      * useReducer is usually preferable to useState when you have complex state logic that involves multiple
-      * sub-values or when the next state depends on the previous one. useReducer also lets you optimize performance
-      * for components that trigger deep updates because you can pass dispatch down instead of callbacks.
-      *
-      * @see https://reactjs.org/docs/hooks-reference.html#usereducer
-      */
-    def useReducer[S, A](reducer: (S, A) => S, initialArg: S): UseReducer[S, A] =
-      UseReducer(Raw.React.useReducer[S, A](reducer, initialArg))
-
-    /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
-      * current state paired with a dispatch method.
-      * (If you’re familiar with Redux, you already know how this works.)
-      *
-      * useReducer is usually preferable to useState when you have complex state logic that involves multiple
-      * sub-values or when the next state depends on the previous one. useReducer also lets you optimize performance
-      * for components that trigger deep updates because you can pass dispatch down instead of callbacks.
-      *
-      * @see https://reactjs.org/docs/hooks-reference.html#usereducer
-      */
-    def useReducer[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): UseReducer[S, A] =
-      UseReducer(Raw.React.useReducer[I, S, A](reducer, initialArg, init))
 
     private val noEffect: Raw.React.UseEffectArg =
       () => ()
@@ -224,3 +175,4 @@ object Hooks {
   // ===================================================================================================================
 
 }
+*/

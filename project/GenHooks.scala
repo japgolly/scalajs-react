@@ -148,6 +148,7 @@ object GenHooks {
          |
          |    def apply[P](props: P, propsChildren: PropsChildren): PC0[P] =
          |      new PC0(props, propsChildren)
+         |
          |${hookCtxCtorsPC.result().mkString("\n\n")}
          |  }
          |

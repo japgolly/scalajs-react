@@ -1,7 +1,6 @@
 TODO
 =========================================================================================
 
-* Consider PropsChildren in hooks component builder
 * useReducer dispatch callbacks are Reusable.byRef
 * useRef[A](f: js.Function0[A], deps: js.UndefOr[HookDeps] = js.native): HookRef[A] = js.native
 * useCallback can accept fns with params

@@ -13,22 +13,23 @@ object Example1 {
 
   val component1a = HookComponentBuilder[P]
     .useState(_.propsInt)
-    .useState((p, s1) => p.propsInt + s1.state)
+    .useState((p, s1) => p.propsInt + s1.value)
+    .useReducer($ => _[Int, Int]((s, a) => s + a, $.hook2.value))
     .render($ => <.div(
       <.div(s"p.propsInt = ${$.props.propsInt}"),
-      <.div(s"s1 = ${$.hook1.state}"),
-      <.div(s"s2 = ${$.hook2.state}"),
+      <.div(s"s1 = ${$.hook1.value}"),
+      <.div(s"s2 = ${$.hook2.value}"),
       <.button("Inc S1", ^.onClick --> $.hook1.modState(_ + 1)),
       <.button("Inc S2", ^.onClick --> $.hook2.modState(_ + 1)),
     ))
 
   val component1b = HookComponentBuilder[P]
     .useState(_.propsInt)
-    .useState((p, s1) => p.propsInt + s1.state)
+    .useState((p, s1) => p.propsInt + s1.value)
     .render((p, s1, s2) => <.div(
       <.div(s"p.propsInt = ${p.propsInt}"),
-      <.div(s"s1 = ${s1.state}"),
-      <.div(s"s2 = ${s2.state}"),
+      <.div(s"s1 = ${s1.value}"),
+      <.div(s"s2 = ${s2.value}"),
       <.button("Inc S1", ^.onClick --> s1.modState(_ + 1)),
       <.button("Inc S2", ^.onClick --> s2.modState(_ + 1)),
     ))
