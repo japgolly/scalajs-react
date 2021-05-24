@@ -11,9 +11,13 @@ object Example1 {
 
   // final case class Blah2[P, H1, H2](props: P, hook1: H1, hook2: H2)
 
+  val customHook1 = CustomHook.builder[Int]
+    .useState(identity)
+    .buildReturning(_.hook1)
+
   val component1a = HookComponentBuilder[P]
     .useState(_.propsInt)
-    .useState((p, s1) => p.propsInt + s1.value)
+    .custom((p, s1) => customHook1(p.propsInt + s1.value))
     .useReducer($ => _[Int, Int]((s, a) => s + a, $.hook2.value))
     .render($ => <.div(
       <.div(s"p.propsInt = ${$.props.propsInt}"),
@@ -33,6 +37,17 @@ object Example1 {
       <.button("Inc S1", ^.onClick --> s1.modState(_ + 1)),
       <.button("Inc S2", ^.onClick --> s2.modState(_ + 1)),
     ))
+
+
+
+
+
+
+
+
+
+
+
 
   //   .useEffect(Callback.log("HELLO!"))
   //   .useEffect($ => Callback.log(s"Props = ${$.props}, state = ${$.hook1.state}"))

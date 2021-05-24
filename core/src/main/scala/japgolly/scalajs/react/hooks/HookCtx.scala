@@ -182,6 +182,8 @@ object HookCtx {
     def apply21[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20, hook21)
   }
 
+  // ===================================================================================================================
+
   object withChildren {
 
     def apply[P](props: P, propsChildren: PropsChildren): PC0[P] =
@@ -348,6 +350,185 @@ object HookCtx {
   class PC20[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19, +H20](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, hook19: H19, final val hook20: H20) extends PC19(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19,\n  hook20 = $hook20)"
     def apply20[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20)
+  }
+
+
+  // ===================================================================================================================
+
+  object withInput {
+
+    def apply[I](input: I): I0[I] =
+      new I0(input)
+
+    def apply[I, H1](input: I, hook1: H1): I1[I, H1] =
+      new I1(input, hook1)
+
+    def apply[I, H1, H2](input: I, hook1: H1, hook2: H2): I2[I, H1, H2] =
+      new I2(input, hook1, hook2)
+
+    def apply[I, H1, H2, H3](input: I, hook1: H1, hook2: H2, hook3: H3): I3[I, H1, H2, H3] =
+      new I3(input, hook1, hook2, hook3)
+
+    def apply[I, H1, H2, H3, H4](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4): I4[I, H1, H2, H3, H4] =
+      new I4(input, hook1, hook2, hook3, hook4)
+
+    def apply[I, H1, H2, H3, H4, H5](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5): I5[I, H1, H2, H3, H4, H5] =
+      new I5(input, hook1, hook2, hook3, hook4, hook5)
+
+    def apply[I, H1, H2, H3, H4, H5, H6](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6): I6[I, H1, H2, H3, H4, H5, H6] =
+      new I6(input, hook1, hook2, hook3, hook4, hook5, hook6)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7): I7[I, H1, H2, H3, H4, H5, H6, H7] =
+      new I7(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8): I8[I, H1, H2, H3, H4, H5, H6, H7, H8] =
+      new I8(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9): I9[I, H1, H2, H3, H4, H5, H6, H7, H8, H9] =
+      new I9(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10): I10[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10] =
+      new I10(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11): I11[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11] =
+      new I11(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12): I12[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12] =
+      new I12(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13): I13[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13] =
+      new I13(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14): I14[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14] =
+      new I14(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15): I15[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15] =
+      new I15(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16): I16[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16] =
+      new I16(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17): I17[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17] =
+      new I17(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18): I18[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18] =
+      new I18(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, hook19: H19): I19[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19] =
+      new I19(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, hook19: H19, hook20: H20): I20[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20] =
+      new I20(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20)
+
+    def apply[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, hook19: H19, hook20: H20, hook21: H21): I21[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21] =
+      new I21(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20, hook21)
+  }
+
+  class I0[+I](final val input: I)
+
+  class I1[+I, +H1](input: I, final val hook1: H1) extends I0(input) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1)"
+    def apply1[A](f: (I, H1) => A): A = f(input, hook1)
+  }
+
+  class I2[+I, +H1, +H2](input: I, hook1: H1, final val hook2: H2) extends I1(input, hook1) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2)"
+    def apply2[A](f: (I, H1, H2) => A): A = f(input, hook1, hook2)
+  }
+
+  class I3[+I, +H1, +H2, +H3](input: I, hook1: H1, hook2: H2, final val hook3: H3) extends I2(input, hook1, hook2) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3)"
+    def apply3[A](f: (I, H1, H2, H3) => A): A = f(input, hook1, hook2, hook3)
+  }
+
+  class I4[+I, +H1, +H2, +H3, +H4](input: I, hook1: H1, hook2: H2, hook3: H3, final val hook4: H4) extends I3(input, hook1, hook2, hook3) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4)"
+    def apply4[A](f: (I, H1, H2, H3, H4) => A): A = f(input, hook1, hook2, hook3, hook4)
+  }
+
+  class I5[+I, +H1, +H2, +H3, +H4, +H5](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, final val hook5: H5) extends I4(input, hook1, hook2, hook3, hook4) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5)"
+    def apply5[A](f: (I, H1, H2, H3, H4, H5) => A): A = f(input, hook1, hook2, hook3, hook4, hook5)
+  }
+
+  class I6[+I, +H1, +H2, +H3, +H4, +H5, +H6](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, final val hook6: H6) extends I5(input, hook1, hook2, hook3, hook4, hook5) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6)"
+    def apply6[A](f: (I, H1, H2, H3, H4, H5, H6) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6)
+  }
+
+  class I7[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, final val hook7: H7) extends I6(input, hook1, hook2, hook3, hook4, hook5, hook6) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7)"
+    def apply7[A](f: (I, H1, H2, H3, H4, H5, H6, H7) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7)
+  }
+
+  class I8[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, final val hook8: H8) extends I7(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8)"
+    def apply8[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8)
+  }
+
+  class I9[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, final val hook9: H9) extends I8(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9)"
+    def apply9[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9)
+  }
+
+  class I10[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, final val hook10: H10) extends I9(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10)"
+    def apply10[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10)
+  }
+
+  class I11[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, final val hook11: H11) extends I10(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11)"
+    def apply11[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11)
+  }
+
+  class I12[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, final val hook12: H12) extends I11(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12)"
+    def apply12[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12)
+  }
+
+  class I13[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, final val hook13: H13) extends I12(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13)"
+    def apply13[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13)
+  }
+
+  class I14[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, final val hook14: H14) extends I13(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14)"
+    def apply14[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14)
+  }
+
+  class I15[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, final val hook15: H15) extends I14(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15)"
+    def apply15[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15)
+  }
+
+  class I16[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, final val hook16: H16) extends I15(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16)"
+    def apply16[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16)
+  }
+
+  class I17[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, final val hook17: H17) extends I16(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17)"
+    def apply17[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17)
+  }
+
+  class I18[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, final val hook18: H18) extends I17(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18)"
+    def apply18[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18)
+  }
+
+  class I19[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, final val hook19: H19) extends I18(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19)"
+    def apply19[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19)
+  }
+
+  class I20[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19, +H20](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, hook19: H19, final val hook20: H20) extends I19(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19,\n  hook20 = $hook20)"
+    def apply20[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20)
+  }
+
+  class I21[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19, +H20, +H21](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, hook19: H19, hook20: H20, final val hook21: H21) extends I20(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20) {
+    override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19,\n  hook20 = $hook20,\n  hook21 = $hook21)"
+    def apply21[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20, hook21)
   }
 
 }

@@ -124,7 +124,6 @@ object HookComponentBuilder {
 
     trait SubsequentStep[P, _Ctx, _CtxFn[_]] extends Api.SubsequentStep[_Ctx, _CtxFn] {
       def next[A]: (RenderFn[P, Ctx], Ctx => A) => Next[A]
-      def squash[A]: CtxFn[A] => (Ctx => A)
     }
 
     object SubsequentStep extends ComponentPC_SubsequentSteps {
