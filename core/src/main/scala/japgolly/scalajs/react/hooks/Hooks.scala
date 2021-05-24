@@ -136,5 +136,41 @@ object Hooks {
       byCallback(O.unsafeToJs(_).map(_.toJsFn))
   }
 
+  object UseEffect {
+    def unsafeCreate[A](effect: CallbackTo[A])(implicit a: EffectArg[A]): Unit =
+      Raw.React.useEffect(a.toJs(effect))
+
+    def unsafeCreateOnMount[A](effect: CallbackTo[A])(implicit a: EffectArg[A]): Unit =
+      Raw.React.useEffect(a.toJs(effect), new js.Array[js.Any])
+  }
+
+  object UseLayoutEffect {
+    def unsafeCreate[A](effect: CallbackTo[A])(implicit a: EffectArg[A]): Unit =
+      Raw.React.useLayoutEffect(a.toJs(effect))
+
+    def unsafeCreateOnMount[A](effect: CallbackTo[A])(implicit a: EffectArg[A]): Unit =
+      Raw.React.useLayoutEffect(a.toJs(effect), new js.Array[js.Any])
+  }
+
+  object ReusableEffect {
+    private val noEffect: Raw.React.UseEffectArg =
+      () => ()
+
+    private def apply[A, D](e: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): CustomHook[Unit, Raw.React.UseEffectArg] =
+      CustomHook.builder[Unit]
+        .useState(_ => deps)
+        .buildReturning { (_, prevDeps) =>
+          if (r.updateNeeded(prevDeps.value, deps))
+            a.toJs(e.finallyRun(prevDeps.setState(deps)))
+          else
+            noEffect
+        }
+
+    def useEffect[A, D](e: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
+      apply(e, deps).map(Raw.React.useEffect(_))
+
+    def useLayoutEffect[A, D](e: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
+      apply(e, deps).map(Raw.React.useLayoutEffect(_))
+  }
 
 }

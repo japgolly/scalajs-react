@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.hooks
 
+import japgolly.scalajs.react.{CallbackTo, Reusability}
 import Hooks._
 
 object Api {
@@ -104,8 +105,134 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usereducer
       */
-    final def useReducer[S, A](init: Ctx => UseReducerInline => UseReducer[S, A])(implicit step: Step): step.Next[UseReducer[S, A]] =
-      next(init(_)(new UseReducerInline))
+    final def useReducer[S, A](init: Ctx => UseReducerInline => HookCreated[UseReducer[S, A]])(implicit step: Step): step.Next[UseReducer[S, A]] =
+      next(init(_)(new UseReducerInline).result)
+
+    /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
+      * escape hatch from React’s purely functional world into the imperative world.
+      *
+      * By default, effects run after every completed render.
+      * If you'd only like to execute the effect when your component is mounted, then use [[useEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
+      * the second argument.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useeffect
+      */
+    final def useEffect[A](effect: CallbackTo[A])(implicit a: EffectArg[A], step: Step): step.Next[Unit] =
+      next(_ => UseEffect.unsafeCreate(effect))
+
+    /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
+      * escape hatch from React’s purely functional world into the imperative world.
+      *
+      * This will only execute the effect when values in the second argument, change.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useeffect
+      */
+    final def useEffect[A, D](effect: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D], step: Step): step.Next[Unit] =
+      custom(ReusableEffect.useEffect(effect, deps))
+
+    /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
+      * escape hatch from React’s purely functional world into the imperative world.
+      *
+      * By default, effects run after every completed render.
+      * If you'd only like to execute the effect when your component is mounted, then use [[useEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
+      * the second argument.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useeffect
+      */
+    final def useEffect(init: Ctx => UseEffectInline => HookCreated[Unit])(implicit step: Step): step.Next[Unit] =
+      next(init(_)(new UseEffectInline).result)
+
+    /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
+      * escape hatch from React’s purely functional world into the imperative world.
+      *
+      * This will only execute the effect when your component is mounted.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useeffect
+      */
+    final def useEffectOnMount[A](effect: CallbackTo[A])(implicit a: EffectArg[A], step: Step): step.Next[Unit] =
+      useEffectOnMount((_: Ctx) => effect)
+
+    /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
+      * escape hatch from React’s purely functional world into the imperative world.
+      *
+      * This will only execute the effect when your component is mounted.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useeffect
+      */
+    final def useEffectOnMount[A](effect: Ctx => CallbackTo[A])(implicit a: EffectArg[A], step: Step): step.Next[Unit] =
+      next(ctx => UseEffect.unsafeCreateOnMount(effect(ctx)))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * If you'd only like to execute the effect when your component is mounted, then use [[useLayoutEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
+      * the second argument.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
+      */
+    final def useLayoutEffect[A](effect: CallbackTo[A])(implicit a: EffectArg[A], step: Step): step.Next[Unit] =
+      next(_ => UseLayoutEffect.unsafeCreate(effect))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when values in the second argument, change.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
+      */
+    final def useLayoutEffect[A, D](effect: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D], step: Step): step.Next[Unit] =
+      custom(ReusableEffect.useLayoutEffect(effect, deps))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * If you'd only like to execute the effect when your component is mounted, then use [[useLayoutEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
+      * the second argument.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
+      */
+    final def useLayoutEffect(init: Ctx => UseLayoutEffectInline => HookCreated[Unit])(implicit step: Step): step.Next[Unit] =
+      next(init(_)(new UseLayoutEffectInline).result)
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when your component is mounted.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
+      */
+    final def useLayoutEffectOnMount[A](effect: CallbackTo[A])(implicit a: EffectArg[A], step: Step): step.Next[Unit] =
+      useLayoutEffectOnMount((_: Ctx) => effect)
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when your component is mounted.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
+      */
+    final def useLayoutEffectOnMount[A](effect: Ctx => CallbackTo[A])(implicit a: EffectArg[A], step: Step): step.Next[Unit] =
+      next(ctx => UseLayoutEffect.unsafeCreateOnMount(effect(ctx)))
+
   }
 
   // ===================================================================================================================
@@ -156,20 +283,98 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usereducer
       */
-    final def useReducer[S, A](init: CtxFn[UseReducerInline => UseReducer[S, A]])(implicit step: Step): step.Next[UseReducer[S, A]] =
+    final def useReducer[S, A](init: CtxFn[UseReducerInline => HookCreated[UseReducer[S, A]]])(implicit step: Step): step.Next[UseReducer[S, A]] =
       useReducer(step.squash(init)(_))
+
+    /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
+      * escape hatch from React’s purely functional world into the imperative world.
+      *
+      * By default, effects run after every completed render.
+      * If you'd only like to execute the effect when your component is mounted, then use [[useEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
+      * the second argument.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useeffect
+      */
+    final def useEffect(init: CtxFn[UseEffectInline => HookCreated[Unit]])(implicit step: Step): step.Next[Unit] =
+      useEffect(step.squash(init)(_))
+
+    /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
+      * escape hatch from React’s purely functional world into the imperative world.
+      *
+      * This will only execute the effect when your component is mounted.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useeffect
+      */
+    final def useEffectOnMount[A](effect: CtxFn[CallbackTo[A]])(implicit a: EffectArg[A], step: Step): step.Next[Unit] =
+      useEffectOnMount(step.squash(effect)(_))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * If you'd only like to execute the effect when your component is mounted, then use [[useLayoutEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
+      * the second argument.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
+      */
+    final def useLayoutEffect(init: CtxFn[UseLayoutEffectInline => HookCreated[Unit]])(implicit step: Step): step.Next[Unit] =
+      useLayoutEffect(step.squash(init)(_))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when your component is mounted.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
+      */
+    final def useLayoutEffectOnMount[A](effect: CtxFn[CallbackTo[A]])(implicit a: EffectArg[A], step: Step): step.Next[Unit] =
+      useLayoutEffectOnMount(step.squash(effect)(_))
   }
 
   // ===================================================================================================================
   // Inline API
 
-  final class UseReducerInline {
-    @inline def apply[S, A](reducer: (S, A) => S, initialArg: S): UseReducer[S, A] =
-      UseReducer.unsafeCreate(reducer, initialArg)
+  final class HookCreated[A] private[Api] (val result: A)
 
-    @inline def apply[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): UseReducer[S, A] =
-      UseReducer.unsafeCreate(reducer, initialArg, init)
+  sealed trait Inline {
+    private var calls = 0
+    protected def wrap[A](a: A): HookCreated[A] = {
+      if (calls > 0)
+        throw new RuntimeException("Hook already created.")
+      calls += 1
+      new HookCreated(a)
+    }
   }
 
+  final class UseReducerInline extends Inline {
+    def apply[S, A](reducer: (S, A) => S, initialArg: S): HookCreated[UseReducer[S, A]] =
+      wrap(UseReducer.unsafeCreate(reducer, initialArg))
+
+    def apply[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): HookCreated[UseReducer[S, A]] =
+      wrap(UseReducer.unsafeCreate(reducer, initialArg, init))
+  }
+
+  final class UseEffectInline extends Inline {
+    def apply[A](effect: CallbackTo[A])(implicit a: EffectArg[A]): HookCreated[Unit] =
+      wrap(UseEffect.unsafeCreate(effect))
+
+    def apply[A, D](effect: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): HookCreated[Unit] =
+      wrap(ReusableEffect.useEffect(effect, deps).unsafeInit(()))
+  }
+
+  final class UseLayoutEffectInline extends Inline {
+    def apply[A](effect: CallbackTo[A])(implicit a: EffectArg[A]): HookCreated[Unit] =
+      wrap(UseLayoutEffect.unsafeCreate(effect))
+
+    def apply[A, D](effect: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): HookCreated[Unit] =
+      wrap(ReusableEffect.useLayoutEffect(effect, deps).unsafeInit(()))
+  }
 
 }

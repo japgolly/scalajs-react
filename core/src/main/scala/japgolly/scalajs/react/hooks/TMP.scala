@@ -1,6 +1,6 @@
 package example
 
-// import japgolly.scalajs.react._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.hooks._
 import japgolly.scalajs.react.vdom.html_<^._
 
@@ -41,6 +41,28 @@ object Example1 {
 
 
 
+  HookComponentBuilder[P]
+    .useState(_.propsInt)
+
+    .useEffect(Callback.empty)
+    // .useEffect($ => Callback.log($.props.propsInt))
+    .useEffect($ => _(Callback.log($.props.propsInt)))
+
+    .useEffect(Callback.empty, 1)
+    .useEffect($ => _(Callback.log($.props.propsInt), 1))
+
+    .useEffectOnMount(Callback.empty)
+    .useEffectOnMount($ => Callback.log($.props.propsInt))
+
+    .useLayoutEffect(Callback.empty)
+    // .useLayoutEffect($ => Callback.log($.props.propsInt))
+    .useLayoutEffect($ => _(Callback.log($.props.propsInt)))
+
+    .useLayoutEffect(Callback.empty, 1)
+    .useLayoutEffect($ => _(Callback.log($.props.propsInt), 1))
+
+    .useLayoutEffectOnMount(Callback.empty)
+    .useLayoutEffectOnMount($ => Callback.log($.props.propsInt))
 
 
 
