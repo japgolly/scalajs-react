@@ -14,6 +14,11 @@ object Api {
     def squash[A]: CtxFn[A] => (Ctx => A)
   }
 
+  final class Var[A](initialValue: A) {
+    var value: A =
+      initialValue
+  }
+
   // ===================================================================================================================
   // API 1: X / (Ctx => X)
 
@@ -27,6 +32,22 @@ object Api {
       */
     final def unchecked[A](f: Ctx => A)(implicit step: Step): step.Next[A] =
       next(f)
+
+    /** Create a new `var` on each render. */
+    final def newVar[A](f: Ctx => A)(implicit step: Step): step.Next[Var[A]] =
+      next(ctx => new Var(f(ctx)))
+
+    /** Create a new `val` on each render. */
+    final def newVal[A](f: Ctx => A)(implicit step: Step): step.Next[A] =
+      next(f)
+
+    /** Create a new `lazy val` on each render. */
+    final def newLazyVal[A](f: Ctx => A)(implicit step: Step): step.Next[() => A] =
+      next { ctx =>
+        lazy val a: A = f(ctx)
+        val result = () => a // TODO: Report Scala bug
+        result
+      }
 
     /** Use a custom hook */
     final def custom[I, O](hook: CustomHook[I, O])(implicit step: Step, a: CustomHook.Arg[Ctx, I]): step.Next[O] =
@@ -97,6 +118,18 @@ object Api {
       */
     final def unchecked[A](f: CtxFn[A])(implicit step: Step): step.Next[A] =
       unchecked(step.squash(f)(_))
+
+    /** Create a new `var` on each render. */
+    final def newVar[A](f: CtxFn[A])(implicit step: Step): step.Next[Var[A]] =
+      newVar(step.squash(f)(_))
+
+    /** Create a new `val` on each render. */
+    final def newVal[A](f: CtxFn[A])(implicit step: Step): step.Next[A] =
+      newVal(step.squash(f)(_))
+
+    /** Create a new `lazy val` on each render. */
+    final def newLazyVal[A](f: CtxFn[A])(implicit step: Step): step.Next[() => A] =
+      newLazyVal(step.squash(f)(_))
 
     /** Use a custom hook */
     final def custom[O](hook: CtxFn[CustomHook[Unit, O]])(implicit step: Step): step.Next[O] =
