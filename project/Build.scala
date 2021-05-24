@@ -18,8 +18,9 @@ object ScalajsReact {
     "-language:implicitConversions",
     "-language:higherKinds",
     "-language:existentials",
-    "-opt:l:inline",
-    "-opt-inline-from:japgolly.scalajs.react.**",
+    "-opt:l:method",
+    // "-opt:l:inline",
+    // "-opt-inline-from:japgolly.scalajs.react.**",
     "-unchecked",                                    // Enable additional warnings where generated code depends on assumptions.
     "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
     "-Ypatmat-exhaust-depth", "off")
