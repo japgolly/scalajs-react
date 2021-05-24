@@ -68,7 +68,7 @@ object GenHooks {
              |    ComponentP.Subsequent.AtStep$s[P, $preHns]#Next]
              |
              |  implicit def atStep$s[P, $preHns]: AtStep$s[P, $preHns] =
-             |    new Step.ComponentP.Subsequent[P, HookCtx.P$s[P, $preHns], HookCtxFn.P$s[P, $preHns]#Fn] {
+             |    new ComponentP.SubsequentStep[P, HookCtx.P$s[P, $preHns], HookCtxFn.P$s[P, $preHns]#Fn] {
              |      override type Next[H$n] = ComponentP.Subsequent.AtStep$s[P, $preHns]#Next[H$n]
              |      override def next[H$n] =
              |        (renderPrev, initNextHook) => {
@@ -94,7 +94,7 @@ object GenHooks {
                |    ComponentPC.Subsequent.AtStep$s[P, $preHns]#Next]
                |
                |  implicit def atStep$s[P, $preHns]: AtStep$s[P, $preHns] =
-               |    new Step.ComponentPC.Subsequent[P, HookCtx.PC$s[P, $preHns], HookCtxFn.PC$s[P, $preHns]#Fn] {
+               |    new ComponentPC.SubsequentStep[P, HookCtx.PC$s[P, $preHns], HookCtxFn.PC$s[P, $preHns]#Fn] {
                |      override type Next[H$n] = ComponentPC.Subsequent.AtStep$s[P, $preHns]#Next[H$n]
                |      override def next[H$n] =
                |        (renderPrev, initNextHook) => {
@@ -184,7 +184,7 @@ object GenHooks {
          |${dslAtStepsP.result().mkString("\n")}
          |}
          |
-         |trait ComponentP_SubsequentSteps { self: Step.ComponentP.Subsequent.type =>
+         |trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
          |
          |${stepMultisP.result().mkString("\n")}
          |}
@@ -195,7 +195,7 @@ object GenHooks {
          |${dslAtStepsPC.result().mkString("\n")}
          |}
          |
-         |trait ComponentPC_SubsequentSteps { self: Step.ComponentPC.Subsequent.type =>
+         |trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
          |
          |${stepMultisPC.result().mkString("\n")}
          |}

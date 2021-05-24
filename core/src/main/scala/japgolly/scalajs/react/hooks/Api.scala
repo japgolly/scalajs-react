@@ -4,10 +4,20 @@ import Hooks._
 
 object Api {
 
+  trait Step {
+    type Next[A]
+  }
+
+  trait SubsequentStep[_Ctx, _CtxFn[_]] extends Step {
+    final type Ctx = _Ctx
+    final type CtxFn[A] = _CtxFn[A]
+    def squash[A]: CtxFn[A] => (Ctx => A)
+  }
+
   // ===================================================================================================================
   // API 1: X / (Ctx => X)
 
-  trait Primary[Ctx, _Step <: StepBase] {
+  trait Primary[Ctx, _Step <: Step] {
     final type Step = _Step
 
     protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H]
