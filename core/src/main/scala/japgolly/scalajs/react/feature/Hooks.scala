@@ -62,28 +62,6 @@ object Hooks {
 
   // ===================================================================================================================
 
-    /** Accepts a context object and returns the current context value for that context. The current context value is
-      * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
-      *
-      * When the nearest `<MyContext.Provider>` above the component updates, this Hook will trigger a rerender with the
-      * latest context value passed to that `MyContext` provider. Even if an ancestor uses `React.memo` or
-      * `shouldComponentUpdate`, a rerender will still happen starting at the component itself using `useContext`.
-      *
-      * A component calling `useContext` will always re-render when the context value changes. If re-rendering the
-      * component is expensive, you can optimize it by using memoization.
-      *
-      * `useContext(MyContext)` only lets you read the context and subscribe to its changes. You still need a
-      * `<MyContext.Provider>` above in the tree to provide the value for this context.
-      *
-      * @see https://reactjs.org/docs/hooks-reference.html#usecontext
-      */
-    def useContext[A](ctx: Context[A]): A = {
-      val rawValue = Raw.React.useContext(ctx.raw)
-      ctx.jsRepr.fromJs(rawValue)
-    }
-
-  // ===================================================================================================================
-
     /** Used to display a label for custom hooks in React DevTools.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usedebugvalue

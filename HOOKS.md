@@ -1,7 +1,6 @@
 TODO
 =========================================================================================
 
-* useContext
 * useCallback can accept fns with params
 * useMemo
 * useRef[A](f: js.Function0[A], deps: js.UndefOr[HookDeps] = js.native): HookRef[A] = js.native

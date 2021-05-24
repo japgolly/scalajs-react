@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.hooks
 
-import japgolly.scalajs.react.{raw => Raw, React => _, _}
+import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.internal.{Box, OptionLike}
+import japgolly.scalajs.react.{React => _, raw => Raw, _}
 import scala.annotation.implicitNotFound
 import scala.scalajs.js
 
@@ -180,4 +181,12 @@ object Hooks {
       apply(e, deps).map(Raw.React.useLayoutEffect(_))
   }
 
+  // ===================================================================================================================
+
+  object UseContext {
+    def unsafeCreate[A](ctx: Context[A]): A = {
+      val rawValue = Raw.React.useContext(ctx.raw)
+      ctx.jsRepr.fromJs(rawValue)
+    }
+  }
 }

@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.hooks
 
+import japgolly.scalajs.react.feature.Context
+import japgolly.scalajs.react.hooks.Hooks._
 import japgolly.scalajs.react.{CallbackTo, Reusability}
-import Hooks._
 
 object Api {
 
@@ -233,6 +234,41 @@ object Api {
     final def useLayoutEffectOnMount[A](effect: Ctx => CallbackTo[A])(implicit a: EffectArg[A], step: Step): step.Next[Unit] =
       next(ctx => UseLayoutEffect.unsafeCreateOnMount(effect(ctx)))
 
+    /** Accepts a context object and returns the current context value for that context. The current context value is
+      * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
+      *
+      * When the nearest `<MyContext.Provider>` above the component updates, this Hook will trigger a rerender with the
+      * latest context value passed to that `MyContext` provider. Even if an ancestor uses `React.memo` or
+      * `shouldComponentUpdate`, a rerender will still happen starting at the component itself using `useContext`.
+      *
+      * A component calling `useContext` will always re-render when the context value changes. If re-rendering the
+      * component is expensive, you can optimize it by using memoization.
+      *
+      * `useContext(MyContext)` only lets you read the context and subscribe to its changes. You still need a
+      * `<MyContext.Provider>` above in the tree to provide the value for this context.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usecontext
+      */
+    final def useContext[A](ctx: Context[A])(implicit step: Step): step.Next[A] =
+      useContext((_: Ctx) => ctx)
+
+    /** Accepts a context object and returns the current context value for that context. The current context value is
+      * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
+      *
+      * When the nearest `<MyContext.Provider>` above the component updates, this Hook will trigger a rerender with the
+      * latest context value passed to that `MyContext` provider. Even if an ancestor uses `React.memo` or
+      * `shouldComponentUpdate`, a rerender will still happen starting at the component itself using `useContext`.
+      *
+      * A component calling `useContext` will always re-render when the context value changes. If re-rendering the
+      * component is expensive, you can optimize it by using memoization.
+      *
+      * `useContext(MyContext)` only lets you read the context and subscribe to its changes. You still need a
+      * `<MyContext.Provider>` above in the tree to provide the value for this context.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usecontext
+      */
+    final def useContext[A](f: Ctx => Context[A])(implicit step: Step): step.Next[A] =
+      next(ctx => UseContext.unsafeCreate(f(ctx)))
   }
 
   // ===================================================================================================================
@@ -336,6 +372,24 @@ object Api {
       */
     final def useLayoutEffectOnMount[A](effect: CtxFn[CallbackTo[A]])(implicit a: EffectArg[A], step: Step): step.Next[Unit] =
       useLayoutEffectOnMount(step.squash(effect)(_))
+
+    /** Accepts a context object and returns the current context value for that context. The current context value is
+      * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
+      *
+      * When the nearest `<MyContext.Provider>` above the component updates, this Hook will trigger a rerender with the
+      * latest context value passed to that `MyContext` provider. Even if an ancestor uses `React.memo` or
+      * `shouldComponentUpdate`, a rerender will still happen starting at the component itself using `useContext`.
+      *
+      * A component calling `useContext` will always re-render when the context value changes. If re-rendering the
+      * component is expensive, you can optimize it by using memoization.
+      *
+      * `useContext(MyContext)` only lets you read the context and subscribe to its changes. You still need a
+      * `<MyContext.Provider>` above in the tree to provide the value for this context.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usecontext
+      */
+    final def useContext[A](f: CtxFn[Context[A]])(implicit step: Step): step.Next[A] =
+      useContext(step.squash(f)(_))
   }
 
   // ===================================================================================================================
