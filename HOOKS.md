@@ -38,6 +38,3 @@ Old Notes
   ```
 
 * useImperativeHandle(ref, createHandle, [deps])
-
-* custom hooks
-  * compose existing hooks

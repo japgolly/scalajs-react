@@ -3,8 +3,18 @@ package japgolly.scalajs.react.hooks
 import japgolly.scalajs.react.PropsChildren
 
 final class CustomHook[-I, +O] private[CustomHook] (val unsafeInit: I => O) {
+
   def apply(i: I): CustomHook[Unit, O] =
-    CustomHook.unchecked[Unit, O](_ => unsafeInit(i))
+    CustomHook.unchecked(_ => unsafeInit(i))
+
+  def map[A](f: O => A): CustomHook[I, A] =
+    CustomHook.unchecked(i => f(unsafeInit(i)))
+
+  def contramap[A](f: A => I): CustomHook[A, O] =
+    CustomHook.unchecked(a => unsafeInit(f(a)))
+
+  def ++[I1 <: I, O1 >: O, I2, O2](next: CustomHook[I2, O2])(implicit c: CustomHook.Concat[I1, O1, I2, O2]): CustomHook[c.I, c.O] =
+    c.concat(this, next)
 }
 
 object CustomHook {
@@ -18,6 +28,43 @@ object CustomHook {
     implicit def id      [A, B >: A]: Arg[A, B]                            = apply(a => a)
     implicit def ctxProps[P]        : Arg[HookCtx.P0[P], P]                = apply(_.props)
     implicit def ctxPropsChildren   : Arg[HookCtx.PC0[Any], PropsChildren] = apply(_.propsChildren)
+  }
+
+  // ===================================================================================================================
+
+  trait Concat[I1, O1, I2, O2] {
+    type I
+    type O
+    def concat: (CustomHook[I1, O1], CustomHook[I2, O2]) => CustomHook[I, O]
+  }
+
+  trait Concat0 {
+    implicit def tuple[I1, O1, I2, O2]: Concat.To[I1, O1, I2, O2, (I1, I2), (O1, O2)] =
+      Concat((h1, h2) => unchecked((i: (I1, I2)) => (h1.unsafeInit(i._1), h2.unsafeInit(i._2))))
+  }
+
+  trait Concat1 extends Concat0 {
+    implicit def sameItupleO[I, O1, O2]: Concat.To[I, O1, I, O2, I, (O1, O2)] =
+      Concat((h1, h2) => unchecked((i: I) => (h1.unsafeInit(i), h2.unsafeInit(i))))
+
+    implicit def tupleIunitO[I1, I2]: Concat.To[I1, Unit, I2, Unit, (I1, I2), Unit] =
+      Concat((h1, h2) => unchecked((i: (I1, I2)) => {h1.unsafeInit(i._1); h2.unsafeInit(i._2)}))
+  }
+
+  trait Concat2 extends Concat1 {
+    implicit def sameIunitO[I]: Concat.To[I, Unit, I, Unit, I, Unit] =
+      Concat((h1, h2) => unchecked((i: I) => {h1.unsafeInit(i); h2.unsafeInit(i)}))
+  }
+
+  object Concat extends Concat2 {
+    type To[I1, O1, I2, O2, II, OO] = Concat[I1, O1, I2, O2] { type I = II; type O = OO }
+
+    def apply[I1, O1, I2, O2, II, OO](f: (CustomHook[I1, O1], CustomHook[I2, O2]) => CustomHook[II, OO]): To[I1, O1, I2, O2, II, OO] =
+      new Concat[I1, O1, I2, O2] {
+        override type I = II
+        override type O = OO
+        override def concat = f
+      }
   }
 
   /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
