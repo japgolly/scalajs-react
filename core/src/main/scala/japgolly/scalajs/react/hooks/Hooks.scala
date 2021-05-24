@@ -8,6 +8,159 @@ import scala.scalajs.js
 
 object Hooks {
 
+  trait UseCallbackArg[S] {
+    type J <: js.Function
+    def toJs: S => J
+    def fromJs: J => Reusable[S]
+  }
+
+  object UseCallbackArg extends UseCallbackArgInstances {
+
+    def apply[S, F <: js.Function](f: S => F)(g: F => Reusable[S]): UseCallbackArg[S] =
+      new UseCallbackArg[S] {
+        override type J = F
+        override def toJs = f
+        override def fromJs = g
+      }
+
+    implicit def c: UseCallbackArg[Callback] =
+      apply[Callback, js.Function0[Unit]](
+        _.toJsFn)(
+        f => Reusable.byRef(f).withValue(Callback.fromJsFn(f)))
+  }
+
+  // ===================================================================================================================
+
+  object UseContext {
+    def unsafeCreate[A](ctx: Context[A]): A = {
+      val rawValue = Raw.React.useContext(ctx.raw)
+      ctx.jsRepr.fromJs(rawValue)
+    }
+  }
+
+  // ===================================================================================================================
+
+  @implicitNotFound(
+    "You're attempting to provide a CallbackTo[${A}] to the useEffect family of hooks."
+    + "\n  - To specify a basic effect, provide a Callback (protip: try adding .void to your callback)."
+    + "\n  - To specify an effect and a clean-up effect, provide a CallbackTo[Callback] where the Callback you return is the clean-up effect."
+    + "\nSee https://reactjs.org/docs/hooks-reference.html#useeffect")
+  final case class UseEffectArg[A](toJs: CallbackTo[A] => Raw.React.UseEffectArg)
+
+  object UseEffectArg {
+    implicit val unit: UseEffectArg[Unit] =
+      apply(_.toJsFn)
+
+    def byCallback[A](f: A => js.UndefOr[js.Function0[Any]]): UseEffectArg[A] =
+      apply(_.map(f).toJsFn)
+
+    implicit val callback: UseEffectArg[Callback] =
+      byCallback(_.toJsFn)
+
+    implicit def optionalCallback[O[_]](implicit O: OptionLike[O]): UseEffectArg[O[Callback]] =
+      byCallback(O.unsafeToJs(_).map(_.toJsFn))
+  }
+
+  object UseEffect {
+    def unsafeCreate[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
+      Raw.React.useEffect(a.toJs(effect))
+
+    def unsafeCreateOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
+      Raw.React.useEffect(a.toJs(effect), new js.Array[js.Any])
+
+    def unsafeCreateLayout[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
+      Raw.React.useLayoutEffect(a.toJs(effect))
+
+    def unsafeCreateLayoutOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
+      Raw.React.useLayoutEffect(a.toJs(effect), new js.Array[js.Any])
+  }
+
+  object ReusableEffect {
+    private val noEffect: Raw.React.UseEffectArg =
+      () => ()
+
+    def prepare[A, D](e: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Raw.React.UseEffectArg] =
+      CustomHook.builder[Unit]
+        .useState(_ => deps)
+        .buildReturning { (_, prevDeps) =>
+          if (r.updateNeeded(prevDeps.value, deps))
+            a.toJs(e.finallyRun(prevDeps.setState(deps)))
+          else
+            noEffect
+        }
+
+    def useEffect[A, D](e: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
+      prepare(e, deps).map(Raw.React.useEffect(_))
+
+    def useLayoutEffect[A, D](e: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
+      prepare(e, deps).map(Raw.React.useLayoutEffect(_))
+  }
+
+  // ===================================================================================================================
+
+  final class UseMemo[+A](val hook: CustomHook[Unit, A]) extends AnyVal
+
+  object UseMemo {
+    def apply[A, D](create: => A, deps: D)(implicit r: Reusability[D]): UseMemo[A] = {
+      val hook = CustomHook.builder[Unit]
+        .useState(_ => 0)
+        .useState(_ => deps)
+        .buildReturning { (_, prevRev, prevDeps) =>
+          var rev = prevRev.value
+          if (r.updateNeeded(prevDeps.value, deps)) {
+            rev += 1
+            prevRev.setState(rev).runNow()
+            prevDeps.setState(deps).runNow()
+          }
+
+          Raw.React.useMemo(() => create, js.Array[js.Any](rev))
+        }
+      new UseMemo(hook)
+    }
+  }
+
+  // ===================================================================================================================
+
+  object UseReducer {
+    def unsafeCreate[S, A](reducer: (S, A) => S, initialArg: S): UseReducer[S, A] =
+      _unsafeCreate(Raw.React.useReducer[S, A](reducer, initialArg))
+
+    def unsafeCreate[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): UseReducer[S, A] =
+      _unsafeCreate(Raw.React.useReducer[I, S, A](reducer, initialArg, init))
+
+    private def _unsafeCreate[S, A](originalResult: Raw.React.UseReducer[S, A]): UseReducer[S, A] = {
+      val originalDispatch = Reusable.byRef(originalResult._2)
+      UseReducer(originalResult)(originalDispatch)
+    }
+  }
+
+  final case class UseReducer[S, A](raw: Raw.React.UseReducer[S, A])(originalDispatch: Reusable[Raw.React.UseReducerDispatch[_]]) {
+
+    @inline def value: S =
+      raw._1
+
+    def dispatch(a: A): Reusable[Callback] =
+      originalDispatch.withValue(Callback(raw._2(a)))
+
+    /** WARNING: This does not affect the dispatch callback reusability. */
+    def map[T](f: S => T): UseReducer[T, A] =
+      UseReducer(js.Tuple2(f(value), raw._2))(originalDispatch)
+
+    /** WARNING: This does not affect the dispatch callback reusability. */
+    def contramap[B](f: B => A): UseReducer[S, B] = {
+      val newDispatch: js.Function1[B, Unit] = b => raw._2(f(b))
+      UseReducer(js.Tuple2(value, newDispatch))(originalDispatch)
+    }
+
+    @inline def widen[T >: S]: UseReducer[T, A] =
+      UseReducer[T, A](raw)(originalDispatch)
+
+    @inline def narrow[B <: A]: UseReducer[S, B] =
+      UseReducer[S, B](raw)(originalDispatch)
+  }
+
+  // ===================================================================================================================
+
   object UseState {
     def unsafeCreate[S](initialState: => S): UseState[S] = {
       // Boxing is required because React's useState uses reflection to distinguish between {set,mod}State.
@@ -19,7 +172,6 @@ object Hooks {
     }
   }
 
-  // TODO: Integrate with StateSnapshot and friends
   final case class UseState[S](raw: Raw.React.UseState[S])(originalSetState: Reusable[Raw.React.UseStateSetter[_]]) {
 
     @inline def value: S =
@@ -78,162 +230,6 @@ object Hooks {
 
       UseState(js.Tuple2(value, newSetState))(originalSetState)
     }
-  }
-
-  // ===================================================================================================================
-
-  object UseReducer {
-    def unsafeCreate[S, A](reducer: (S, A) => S, initialArg: S): UseReducer[S, A] =
-      _unsafeCreate(Raw.React.useReducer[S, A](reducer, initialArg))
-
-    def unsafeCreate[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): UseReducer[S, A] =
-      _unsafeCreate(Raw.React.useReducer[I, S, A](reducer, initialArg, init))
-
-    private def _unsafeCreate[S, A](originalResult: Raw.React.UseReducer[S, A]): UseReducer[S, A] = {
-      val originalDispatch = Reusable.byRef(originalResult._2)
-      UseReducer(originalResult)(originalDispatch)
-    }
-  }
-
-  // TODO: Integrate with StateSnapshot and friends?
-  final case class UseReducer[S, A](raw: Raw.React.UseReducer[S, A])(originalDispatch: Reusable[Raw.React.UseReducerDispatch[_]]) {
-
-    @inline def value: S =
-      raw._1
-
-    def dispatch(a: A): Reusable[Callback] =
-      originalDispatch.withValue(Callback(raw._2(a)))
-
-    /** WARNING: This does not affect the dispatch callback reusability. */
-    def map[T](f: S => T): UseReducer[T, A] =
-      UseReducer(js.Tuple2(f(value), raw._2))(originalDispatch)
-
-    /** WARNING: This does not affect the dispatch callback reusability. */
-    def contramap[B](f: B => A): UseReducer[S, B] = {
-      val newDispatch: js.Function1[B, Unit] = b => raw._2(f(b))
-      UseReducer(js.Tuple2(value, newDispatch))(originalDispatch)
-    }
-
-    @inline def widen[T >: S]: UseReducer[T, A] =
-      UseReducer[T, A](raw)(originalDispatch)
-
-    @inline def narrow[B <: A]: UseReducer[S, B] =
-      UseReducer[S, B](raw)(originalDispatch)
-  }
-
-  // ===================================================================================================================
-
-  @implicitNotFound(
-    "You're attempting to provide a CallbackTo[${A}] to the useEffect family of hooks."
-    + "\n  - To specify a basic effect, provide a Callback (protip: try adding .void to your callback)."
-    + "\n  - To specify an effect and a clean-up effect, provide a CallbackTo[Callback] where the Callback you return is the clean-up effect."
-    + "\nSee https://reactjs.org/docs/hooks-reference.html#useeffect")
-  final case class EffectArg[A](toJs: CallbackTo[A] => Raw.React.UseEffectArg)
-
-  object EffectArg {
-    implicit val unit: EffectArg[Unit] =
-      apply(_.toJsFn)
-
-    def byCallback[A](f: A => js.UndefOr[js.Function0[Any]]): EffectArg[A] =
-      apply(_.map(f).toJsFn)
-
-    implicit val callback: EffectArg[Callback] =
-      byCallback(_.toJsFn)
-
-    implicit def optionalCallback[O[_]](implicit O: OptionLike[O]): EffectArg[O[Callback]] =
-      byCallback(O.unsafeToJs(_).map(_.toJsFn))
-  }
-
-  object UseEffect {
-    def unsafeCreate[A](effect: CallbackTo[A])(implicit a: EffectArg[A]): Unit =
-      Raw.React.useEffect(a.toJs(effect))
-
-    def unsafeCreateOnMount[A](effect: CallbackTo[A])(implicit a: EffectArg[A]): Unit =
-      Raw.React.useEffect(a.toJs(effect), new js.Array[js.Any])
-  }
-
-  object UseLayoutEffect {
-    def unsafeCreate[A](effect: CallbackTo[A])(implicit a: EffectArg[A]): Unit =
-      Raw.React.useLayoutEffect(a.toJs(effect))
-
-    def unsafeCreateOnMount[A](effect: CallbackTo[A])(implicit a: EffectArg[A]): Unit =
-      Raw.React.useLayoutEffect(a.toJs(effect), new js.Array[js.Any])
-  }
-
-  object ReusableEffect {
-    private val noEffect: Raw.React.UseEffectArg =
-      () => ()
-
-    def prepare[A, D](e: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): CustomHook[Unit, Raw.React.UseEffectArg] =
-      CustomHook.builder[Unit]
-        .useState(_ => deps)
-        .buildReturning { (_, prevDeps) =>
-          if (r.updateNeeded(prevDeps.value, deps))
-            a.toJs(e.finallyRun(prevDeps.setState(deps)))
-          else
-            noEffect
-        }
-
-    def useEffect[A, D](e: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
-      prepare(e, deps).map(Raw.React.useEffect(_))
-
-    def useLayoutEffect[A, D](e: CallbackTo[A], deps: D)(implicit a: EffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
-      prepare(e, deps).map(Raw.React.useLayoutEffect(_))
-  }
-
-  // ===================================================================================================================
-
-  object UseContext {
-    def unsafeCreate[A](ctx: Context[A]): A = {
-      val rawValue = Raw.React.useContext(ctx.raw)
-      ctx.jsRepr.fromJs(rawValue)
-    }
-  }
-
-  // ===================================================================================================================
-
-  final class UseMemo[+A](val hook: CustomHook[Unit, A]) extends AnyVal
-
-  object UseMemo {
-    def apply[A, D](create: => A, deps: D)(implicit r: Reusability[D]): UseMemo[A] = {
-      val hook = CustomHook.builder[Unit]
-        .useState(_ => 0)
-        .useState(_ => deps)
-        .buildReturning { (_, prevRev, prevDeps) =>
-          var rev = prevRev.value
-          if (r.updateNeeded(prevDeps.value, deps)) {
-            rev += 1
-            prevRev.setState(rev).runNow()
-            prevDeps.setState(deps).runNow()
-          }
-
-          Raw.React.useMemo(() => create, js.Array[js.Any](rev))
-        }
-      new UseMemo(hook)
-    }
-  }
-
-  // ===================================================================================================================
-
-  trait UseCallbackArg[S] {
-    type J <: js.Function
-    def toJs: S => J
-    def fromJs: J => Reusable[S]
-  }
-
-  object UseCallbackArg extends UseCallbackArgInstances {
-
-    def apply[S, F <: js.Function](f: S => F)(g: F => Reusable[S]): UseCallbackArg[S] =
-      new UseCallbackArg[S] {
-        override type J = F
-        override def toJs = f
-        override def fromJs = g
-      }
-
-    implicit def c: UseCallbackArg[Callback] =
-      apply[Callback, js.Function0[Unit]](
-        _.toJsFn)(
-        f => Reusable.byRef(f).withValue(Callback.fromJsFn(f)))
   }
 
 }
