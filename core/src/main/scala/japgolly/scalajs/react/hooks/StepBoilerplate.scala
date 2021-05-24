@@ -10,49 +10,49 @@ package japgolly.scalajs.react.hooks
 
 import HookComponentBuilder._
 
-trait DslMultiPSteps { self: DslMultiP.type =>
-  sealed trait AtStep1[P, H1] { type Next[H2] = DslMultiP[P, HookCtx.P2[P, H1, H2], HookCtxFn.P2[P, H1, H2]#Fn] }
-  sealed trait AtStep2[P, H1, H2] { type Next[H3] = DslMultiP[P, HookCtx.P3[P, H1, H2, H3], HookCtxFn.P3[P, H1, H2, H3]#Fn] }
-  sealed trait AtStep3[P, H1, H2, H3] { type Next[H4] = DslMultiP[P, HookCtx.P4[P, H1, H2, H3, H4], HookCtxFn.P4[P, H1, H2, H3, H4]#Fn] }
-  sealed trait AtStep4[P, H1, H2, H3, H4] { type Next[H5] = DslMultiP[P, HookCtx.P5[P, H1, H2, H3, H4, H5], HookCtxFn.P5[P, H1, H2, H3, H4, H5]#Fn] }
-  sealed trait AtStep5[P, H1, H2, H3, H4, H5] { type Next[H6] = DslMultiP[P, HookCtx.P6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.P6[P, H1, H2, H3, H4, H5, H6]#Fn] }
-  sealed trait AtStep6[P, H1, H2, H3, H4, H5, H6] { type Next[H7] = DslMultiP[P, HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.P7[P, H1, H2, H3, H4, H5, H6, H7]#Fn] }
-  sealed trait AtStep7[P, H1, H2, H3, H4, H5, H6, H7] { type Next[H8] = DslMultiP[P, HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.P8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn] }
-  sealed trait AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8] { type Next[H9] = DslMultiP[P, HookCtx.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn] }
-  sealed trait AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9] { type Next[H10] = DslMultiP[P, HookCtx.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn] }
-  sealed trait AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10] { type Next[H11] = DslMultiP[P, HookCtx.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn] }
-  sealed trait AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11] { type Next[H12] = DslMultiP[P, HookCtx.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn] }
-  sealed trait AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12] { type Next[H13] = DslMultiP[P, HookCtx.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn] }
-  sealed trait AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13] { type Next[H14] = DslMultiP[P, HookCtx.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn] }
-  sealed trait AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14] { type Next[H15] = DslMultiP[P, HookCtx.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn] }
-  sealed trait AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15] { type Next[H16] = DslMultiP[P, HookCtx.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn] }
-  sealed trait AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16] { type Next[H17] = DslMultiP[P, HookCtx.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn] }
-  sealed trait AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17] { type Next[H18] = DslMultiP[P, HookCtx.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn] }
-  sealed trait AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18] { type Next[H19] = DslMultiP[P, HookCtx.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn] }
-  sealed trait AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19] { type Next[H20] = DslMultiP[P, HookCtx.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn] }
-  sealed trait AtStep20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20] { type Next[H21] = DslMultiP[P, HookCtx.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21], HookCtxFn.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21]#Fn] }
+trait ComponentP_SubsequentDsl { self: ComponentP.Subsequent.type =>
+  sealed trait AtStep1[P, H1] { type Next[H2] = ComponentP.Subsequent[P, HookCtx.P2[P, H1, H2], HookCtxFn.P2[P, H1, H2]#Fn] }
+  sealed trait AtStep2[P, H1, H2] { type Next[H3] = ComponentP.Subsequent[P, HookCtx.P3[P, H1, H2, H3], HookCtxFn.P3[P, H1, H2, H3]#Fn] }
+  sealed trait AtStep3[P, H1, H2, H3] { type Next[H4] = ComponentP.Subsequent[P, HookCtx.P4[P, H1, H2, H3, H4], HookCtxFn.P4[P, H1, H2, H3, H4]#Fn] }
+  sealed trait AtStep4[P, H1, H2, H3, H4] { type Next[H5] = ComponentP.Subsequent[P, HookCtx.P5[P, H1, H2, H3, H4, H5], HookCtxFn.P5[P, H1, H2, H3, H4, H5]#Fn] }
+  sealed trait AtStep5[P, H1, H2, H3, H4, H5] { type Next[H6] = ComponentP.Subsequent[P, HookCtx.P6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.P6[P, H1, H2, H3, H4, H5, H6]#Fn] }
+  sealed trait AtStep6[P, H1, H2, H3, H4, H5, H6] { type Next[H7] = ComponentP.Subsequent[P, HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.P7[P, H1, H2, H3, H4, H5, H6, H7]#Fn] }
+  sealed trait AtStep7[P, H1, H2, H3, H4, H5, H6, H7] { type Next[H8] = ComponentP.Subsequent[P, HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.P8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn] }
+  sealed trait AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8] { type Next[H9] = ComponentP.Subsequent[P, HookCtx.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn] }
+  sealed trait AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9] { type Next[H10] = ComponentP.Subsequent[P, HookCtx.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn] }
+  sealed trait AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10] { type Next[H11] = ComponentP.Subsequent[P, HookCtx.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn] }
+  sealed trait AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11] { type Next[H12] = ComponentP.Subsequent[P, HookCtx.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn] }
+  sealed trait AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12] { type Next[H13] = ComponentP.Subsequent[P, HookCtx.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn] }
+  sealed trait AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13] { type Next[H14] = ComponentP.Subsequent[P, HookCtx.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn] }
+  sealed trait AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14] { type Next[H15] = ComponentP.Subsequent[P, HookCtx.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn] }
+  sealed trait AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15] { type Next[H16] = ComponentP.Subsequent[P, HookCtx.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn] }
+  sealed trait AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16] { type Next[H17] = ComponentP.Subsequent[P, HookCtx.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn] }
+  sealed trait AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17] { type Next[H18] = ComponentP.Subsequent[P, HookCtx.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn] }
+  sealed trait AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18] { type Next[H19] = ComponentP.Subsequent[P, HookCtx.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn] }
+  sealed trait AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19] { type Next[H20] = ComponentP.Subsequent[P, HookCtx.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn] }
+  sealed trait AtStep20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20] { type Next[H21] = ComponentP.Subsequent[P, HookCtx.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21], HookCtxFn.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21]#Fn] }
 }
 
-trait StepMultiPInstances { self: StepMultiP.type =>
+trait ComponentP_SubsequentSteps { self: Step.ComponentP.Subsequent.type =>
 
   type AtStep1[P, H1] = To[
     P,
     HookCtx.P1[P, H1],
     HookCtxFn.P1[P, H1]#Fn,
-    DslMultiP.AtStep1[P, H1]#Next]
+    ComponentP.Subsequent.AtStep1[P, H1]#Next]
 
   implicit def atStep1[P, H1]: AtStep1[P, H1] =
-    new StepMultiP[P, HookCtx.P1[P, H1], HookCtxFn.P1[P, H1]#Fn] {
-      override type Next[H2] = DslMultiP.AtStep1[P, H1]#Next[H2]
+    new Step.ComponentP.Subsequent[P, HookCtx.P1[P, H1], HookCtxFn.P1[P, H1]#Fn] {
+      override type Next[H2] = ComponentP.Subsequent.AtStep1[P, H1]#Next[H2]
       override def next[H2] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P2[P, H1, H2]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P2[P, H1, H2]] =
             render => renderPrev { ctx1 =>
               val h2 = initNextHook(ctx1)
               val ctx2 = HookCtx(ctx1.props, ctx1.hook1, h2)
               render(ctx2)
             }
-          new DslMultiP[P, HookCtx.P2[P, H1, H2], HookCtxFn.P2[P, H1, H2]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P2[P, H1, H2], HookCtxFn.P2[P, H1, H2]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply1(f)
     }
@@ -61,20 +61,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P2[P, H1, H2],
     HookCtxFn.P2[P, H1, H2]#Fn,
-    DslMultiP.AtStep2[P, H1, H2]#Next]
+    ComponentP.Subsequent.AtStep2[P, H1, H2]#Next]
 
   implicit def atStep2[P, H1, H2]: AtStep2[P, H1, H2] =
-    new StepMultiP[P, HookCtx.P2[P, H1, H2], HookCtxFn.P2[P, H1, H2]#Fn] {
-      override type Next[H3] = DslMultiP.AtStep2[P, H1, H2]#Next[H3]
+    new Step.ComponentP.Subsequent[P, HookCtx.P2[P, H1, H2], HookCtxFn.P2[P, H1, H2]#Fn] {
+      override type Next[H3] = ComponentP.Subsequent.AtStep2[P, H1, H2]#Next[H3]
       override def next[H3] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P3[P, H1, H2, H3]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P3[P, H1, H2, H3]] =
             render => renderPrev { ctx2 =>
               val h3 = initNextHook(ctx2)
               val ctx3 = HookCtx(ctx2.props, ctx2.hook1, ctx2.hook2, h3)
               render(ctx3)
             }
-          new DslMultiP[P, HookCtx.P3[P, H1, H2, H3], HookCtxFn.P3[P, H1, H2, H3]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P3[P, H1, H2, H3], HookCtxFn.P3[P, H1, H2, H3]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply2(f)
     }
@@ -83,20 +83,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P3[P, H1, H2, H3],
     HookCtxFn.P3[P, H1, H2, H3]#Fn,
-    DslMultiP.AtStep3[P, H1, H2, H3]#Next]
+    ComponentP.Subsequent.AtStep3[P, H1, H2, H3]#Next]
 
   implicit def atStep3[P, H1, H2, H3]: AtStep3[P, H1, H2, H3] =
-    new StepMultiP[P, HookCtx.P3[P, H1, H2, H3], HookCtxFn.P3[P, H1, H2, H3]#Fn] {
-      override type Next[H4] = DslMultiP.AtStep3[P, H1, H2, H3]#Next[H4]
+    new Step.ComponentP.Subsequent[P, HookCtx.P3[P, H1, H2, H3], HookCtxFn.P3[P, H1, H2, H3]#Fn] {
+      override type Next[H4] = ComponentP.Subsequent.AtStep3[P, H1, H2, H3]#Next[H4]
       override def next[H4] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P4[P, H1, H2, H3, H4]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P4[P, H1, H2, H3, H4]] =
             render => renderPrev { ctx3 =>
               val h4 = initNextHook(ctx3)
               val ctx4 = HookCtx(ctx3.props, ctx3.hook1, ctx3.hook2, ctx3.hook3, h4)
               render(ctx4)
             }
-          new DslMultiP[P, HookCtx.P4[P, H1, H2, H3, H4], HookCtxFn.P4[P, H1, H2, H3, H4]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P4[P, H1, H2, H3, H4], HookCtxFn.P4[P, H1, H2, H3, H4]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply3(f)
     }
@@ -105,20 +105,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P4[P, H1, H2, H3, H4],
     HookCtxFn.P4[P, H1, H2, H3, H4]#Fn,
-    DslMultiP.AtStep4[P, H1, H2, H3, H4]#Next]
+    ComponentP.Subsequent.AtStep4[P, H1, H2, H3, H4]#Next]
 
   implicit def atStep4[P, H1, H2, H3, H4]: AtStep4[P, H1, H2, H3, H4] =
-    new StepMultiP[P, HookCtx.P4[P, H1, H2, H3, H4], HookCtxFn.P4[P, H1, H2, H3, H4]#Fn] {
-      override type Next[H5] = DslMultiP.AtStep4[P, H1, H2, H3, H4]#Next[H5]
+    new Step.ComponentP.Subsequent[P, HookCtx.P4[P, H1, H2, H3, H4], HookCtxFn.P4[P, H1, H2, H3, H4]#Fn] {
+      override type Next[H5] = ComponentP.Subsequent.AtStep4[P, H1, H2, H3, H4]#Next[H5]
       override def next[H5] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P5[P, H1, H2, H3, H4, H5]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P5[P, H1, H2, H3, H4, H5]] =
             render => renderPrev { ctx4 =>
               val h5 = initNextHook(ctx4)
               val ctx5 = HookCtx(ctx4.props, ctx4.hook1, ctx4.hook2, ctx4.hook3, ctx4.hook4, h5)
               render(ctx5)
             }
-          new DslMultiP[P, HookCtx.P5[P, H1, H2, H3, H4, H5], HookCtxFn.P5[P, H1, H2, H3, H4, H5]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P5[P, H1, H2, H3, H4, H5], HookCtxFn.P5[P, H1, H2, H3, H4, H5]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply4(f)
     }
@@ -127,20 +127,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P5[P, H1, H2, H3, H4, H5],
     HookCtxFn.P5[P, H1, H2, H3, H4, H5]#Fn,
-    DslMultiP.AtStep5[P, H1, H2, H3, H4, H5]#Next]
+    ComponentP.Subsequent.AtStep5[P, H1, H2, H3, H4, H5]#Next]
 
   implicit def atStep5[P, H1, H2, H3, H4, H5]: AtStep5[P, H1, H2, H3, H4, H5] =
-    new StepMultiP[P, HookCtx.P5[P, H1, H2, H3, H4, H5], HookCtxFn.P5[P, H1, H2, H3, H4, H5]#Fn] {
-      override type Next[H6] = DslMultiP.AtStep5[P, H1, H2, H3, H4, H5]#Next[H6]
+    new Step.ComponentP.Subsequent[P, HookCtx.P5[P, H1, H2, H3, H4, H5], HookCtxFn.P5[P, H1, H2, H3, H4, H5]#Fn] {
+      override type Next[H6] = ComponentP.Subsequent.AtStep5[P, H1, H2, H3, H4, H5]#Next[H6]
       override def next[H6] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P6[P, H1, H2, H3, H4, H5, H6]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P6[P, H1, H2, H3, H4, H5, H6]] =
             render => renderPrev { ctx5 =>
               val h6 = initNextHook(ctx5)
               val ctx6 = HookCtx(ctx5.props, ctx5.hook1, ctx5.hook2, ctx5.hook3, ctx5.hook4, ctx5.hook5, h6)
               render(ctx6)
             }
-          new DslMultiP[P, HookCtx.P6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.P6[P, H1, H2, H3, H4, H5, H6]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.P6[P, H1, H2, H3, H4, H5, H6]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply5(f)
     }
@@ -149,20 +149,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P6[P, H1, H2, H3, H4, H5, H6],
     HookCtxFn.P6[P, H1, H2, H3, H4, H5, H6]#Fn,
-    DslMultiP.AtStep6[P, H1, H2, H3, H4, H5, H6]#Next]
+    ComponentP.Subsequent.AtStep6[P, H1, H2, H3, H4, H5, H6]#Next]
 
   implicit def atStep6[P, H1, H2, H3, H4, H5, H6]: AtStep6[P, H1, H2, H3, H4, H5, H6] =
-    new StepMultiP[P, HookCtx.P6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.P6[P, H1, H2, H3, H4, H5, H6]#Fn] {
-      override type Next[H7] = DslMultiP.AtStep6[P, H1, H2, H3, H4, H5, H6]#Next[H7]
+    new Step.ComponentP.Subsequent[P, HookCtx.P6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.P6[P, H1, H2, H3, H4, H5, H6]#Fn] {
+      override type Next[H7] = ComponentP.Subsequent.AtStep6[P, H1, H2, H3, H4, H5, H6]#Next[H7]
       override def next[H7] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7]] =
             render => renderPrev { ctx6 =>
               val h7 = initNextHook(ctx6)
               val ctx7 = HookCtx(ctx6.props, ctx6.hook1, ctx6.hook2, ctx6.hook3, ctx6.hook4, ctx6.hook5, ctx6.hook6, h7)
               render(ctx7)
             }
-          new DslMultiP[P, HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.P7[P, H1, H2, H3, H4, H5, H6, H7]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.P7[P, H1, H2, H3, H4, H5, H6, H7]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply6(f)
     }
@@ -171,20 +171,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7],
     HookCtxFn.P7[P, H1, H2, H3, H4, H5, H6, H7]#Fn,
-    DslMultiP.AtStep7[P, H1, H2, H3, H4, H5, H6, H7]#Next]
+    ComponentP.Subsequent.AtStep7[P, H1, H2, H3, H4, H5, H6, H7]#Next]
 
   implicit def atStep7[P, H1, H2, H3, H4, H5, H6, H7]: AtStep7[P, H1, H2, H3, H4, H5, H6, H7] =
-    new StepMultiP[P, HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.P7[P, H1, H2, H3, H4, H5, H6, H7]#Fn] {
-      override type Next[H8] = DslMultiP.AtStep7[P, H1, H2, H3, H4, H5, H6, H7]#Next[H8]
+    new Step.ComponentP.Subsequent[P, HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.P7[P, H1, H2, H3, H4, H5, H6, H7]#Fn] {
+      override type Next[H8] = ComponentP.Subsequent.AtStep7[P, H1, H2, H3, H4, H5, H6, H7]#Next[H8]
       override def next[H8] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8]] =
             render => renderPrev { ctx7 =>
               val h8 = initNextHook(ctx7)
               val ctx8 = HookCtx(ctx7.props, ctx7.hook1, ctx7.hook2, ctx7.hook3, ctx7.hook4, ctx7.hook5, ctx7.hook6, ctx7.hook7, h8)
               render(ctx8)
             }
-          new DslMultiP[P, HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.P8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.P8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply7(f)
     }
@@ -193,20 +193,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8],
     HookCtxFn.P8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn,
-    DslMultiP.AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Next]
+    ComponentP.Subsequent.AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Next]
 
   implicit def atStep8[P, H1, H2, H3, H4, H5, H6, H7, H8]: AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8] =
-    new StepMultiP[P, HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.P8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn] {
-      override type Next[H9] = DslMultiP.AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Next[H9]
+    new Step.ComponentP.Subsequent[P, HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.P8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn] {
+      override type Next[H9] = ComponentP.Subsequent.AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Next[H9]
       override def next[H9] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]] =
             render => renderPrev { ctx8 =>
               val h9 = initNextHook(ctx8)
               val ctx9 = HookCtx(ctx8.props, ctx8.hook1, ctx8.hook2, ctx8.hook3, ctx8.hook4, ctx8.hook5, ctx8.hook6, ctx8.hook7, ctx8.hook8, h9)
               render(ctx9)
             }
-          new DslMultiP[P, HookCtx.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply8(f)
     }
@@ -215,20 +215,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9],
     HookCtxFn.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn,
-    DslMultiP.AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Next]
+    ComponentP.Subsequent.AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Next]
 
   implicit def atStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]: AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9] =
-    new StepMultiP[P, HookCtx.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn] {
-      override type Next[H10] = DslMultiP.AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Next[H10]
+    new Step.ComponentP.Subsequent[P, HookCtx.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn] {
+      override type Next[H10] = ComponentP.Subsequent.AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Next[H10]
       override def next[H10] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]] =
             render => renderPrev { ctx9 =>
               val h10 = initNextHook(ctx9)
               val ctx10 = HookCtx(ctx9.props, ctx9.hook1, ctx9.hook2, ctx9.hook3, ctx9.hook4, ctx9.hook5, ctx9.hook6, ctx9.hook7, ctx9.hook8, ctx9.hook9, h10)
               render(ctx10)
             }
-          new DslMultiP[P, HookCtx.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply9(f)
     }
@@ -237,20 +237,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10],
     HookCtxFn.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn,
-    DslMultiP.AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Next]
+    ComponentP.Subsequent.AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Next]
 
   implicit def atStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]: AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10] =
-    new StepMultiP[P, HookCtx.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn] {
-      override type Next[H11] = DslMultiP.AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Next[H11]
+    new Step.ComponentP.Subsequent[P, HookCtx.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn] {
+      override type Next[H11] = ComponentP.Subsequent.AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Next[H11]
       override def next[H11] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]] =
             render => renderPrev { ctx10 =>
               val h11 = initNextHook(ctx10)
               val ctx11 = HookCtx(ctx10.props, ctx10.hook1, ctx10.hook2, ctx10.hook3, ctx10.hook4, ctx10.hook5, ctx10.hook6, ctx10.hook7, ctx10.hook8, ctx10.hook9, ctx10.hook10, h11)
               render(ctx11)
             }
-          new DslMultiP[P, HookCtx.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply10(f)
     }
@@ -259,20 +259,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11],
     HookCtxFn.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn,
-    DslMultiP.AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Next]
+    ComponentP.Subsequent.AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Next]
 
   implicit def atStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]: AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11] =
-    new StepMultiP[P, HookCtx.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn] {
-      override type Next[H12] = DslMultiP.AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Next[H12]
+    new Step.ComponentP.Subsequent[P, HookCtx.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn] {
+      override type Next[H12] = ComponentP.Subsequent.AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Next[H12]
       override def next[H12] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]] =
             render => renderPrev { ctx11 =>
               val h12 = initNextHook(ctx11)
               val ctx12 = HookCtx(ctx11.props, ctx11.hook1, ctx11.hook2, ctx11.hook3, ctx11.hook4, ctx11.hook5, ctx11.hook6, ctx11.hook7, ctx11.hook8, ctx11.hook9, ctx11.hook10, ctx11.hook11, h12)
               render(ctx12)
             }
-          new DslMultiP[P, HookCtx.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply11(f)
     }
@@ -281,20 +281,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12],
     HookCtxFn.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn,
-    DslMultiP.AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Next]
+    ComponentP.Subsequent.AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Next]
 
   implicit def atStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]: AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12] =
-    new StepMultiP[P, HookCtx.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn] {
-      override type Next[H13] = DslMultiP.AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Next[H13]
+    new Step.ComponentP.Subsequent[P, HookCtx.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn] {
+      override type Next[H13] = ComponentP.Subsequent.AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Next[H13]
       override def next[H13] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]] =
             render => renderPrev { ctx12 =>
               val h13 = initNextHook(ctx12)
               val ctx13 = HookCtx(ctx12.props, ctx12.hook1, ctx12.hook2, ctx12.hook3, ctx12.hook4, ctx12.hook5, ctx12.hook6, ctx12.hook7, ctx12.hook8, ctx12.hook9, ctx12.hook10, ctx12.hook11, ctx12.hook12, h13)
               render(ctx13)
             }
-          new DslMultiP[P, HookCtx.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply12(f)
     }
@@ -303,20 +303,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13],
     HookCtxFn.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn,
-    DslMultiP.AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Next]
+    ComponentP.Subsequent.AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Next]
 
   implicit def atStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]: AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13] =
-    new StepMultiP[P, HookCtx.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn] {
-      override type Next[H14] = DslMultiP.AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Next[H14]
+    new Step.ComponentP.Subsequent[P, HookCtx.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn] {
+      override type Next[H14] = ComponentP.Subsequent.AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Next[H14]
       override def next[H14] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]] =
             render => renderPrev { ctx13 =>
               val h14 = initNextHook(ctx13)
               val ctx14 = HookCtx(ctx13.props, ctx13.hook1, ctx13.hook2, ctx13.hook3, ctx13.hook4, ctx13.hook5, ctx13.hook6, ctx13.hook7, ctx13.hook8, ctx13.hook9, ctx13.hook10, ctx13.hook11, ctx13.hook12, ctx13.hook13, h14)
               render(ctx14)
             }
-          new DslMultiP[P, HookCtx.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply13(f)
     }
@@ -325,20 +325,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14],
     HookCtxFn.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn,
-    DslMultiP.AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Next]
+    ComponentP.Subsequent.AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Next]
 
   implicit def atStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]: AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14] =
-    new StepMultiP[P, HookCtx.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn] {
-      override type Next[H15] = DslMultiP.AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Next[H15]
+    new Step.ComponentP.Subsequent[P, HookCtx.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn] {
+      override type Next[H15] = ComponentP.Subsequent.AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Next[H15]
       override def next[H15] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]] =
             render => renderPrev { ctx14 =>
               val h15 = initNextHook(ctx14)
               val ctx15 = HookCtx(ctx14.props, ctx14.hook1, ctx14.hook2, ctx14.hook3, ctx14.hook4, ctx14.hook5, ctx14.hook6, ctx14.hook7, ctx14.hook8, ctx14.hook9, ctx14.hook10, ctx14.hook11, ctx14.hook12, ctx14.hook13, ctx14.hook14, h15)
               render(ctx15)
             }
-          new DslMultiP[P, HookCtx.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply14(f)
     }
@@ -347,20 +347,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15],
     HookCtxFn.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn,
-    DslMultiP.AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Next]
+    ComponentP.Subsequent.AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Next]
 
   implicit def atStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]: AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15] =
-    new StepMultiP[P, HookCtx.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn] {
-      override type Next[H16] = DslMultiP.AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Next[H16]
+    new Step.ComponentP.Subsequent[P, HookCtx.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn] {
+      override type Next[H16] = ComponentP.Subsequent.AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Next[H16]
       override def next[H16] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]] =
             render => renderPrev { ctx15 =>
               val h16 = initNextHook(ctx15)
               val ctx16 = HookCtx(ctx15.props, ctx15.hook1, ctx15.hook2, ctx15.hook3, ctx15.hook4, ctx15.hook5, ctx15.hook6, ctx15.hook7, ctx15.hook8, ctx15.hook9, ctx15.hook10, ctx15.hook11, ctx15.hook12, ctx15.hook13, ctx15.hook14, ctx15.hook15, h16)
               render(ctx16)
             }
-          new DslMultiP[P, HookCtx.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply15(f)
     }
@@ -369,20 +369,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16],
     HookCtxFn.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn,
-    DslMultiP.AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Next]
+    ComponentP.Subsequent.AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Next]
 
   implicit def atStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]: AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16] =
-    new StepMultiP[P, HookCtx.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn] {
-      override type Next[H17] = DslMultiP.AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Next[H17]
+    new Step.ComponentP.Subsequent[P, HookCtx.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn] {
+      override type Next[H17] = ComponentP.Subsequent.AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Next[H17]
       override def next[H17] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]] =
             render => renderPrev { ctx16 =>
               val h17 = initNextHook(ctx16)
               val ctx17 = HookCtx(ctx16.props, ctx16.hook1, ctx16.hook2, ctx16.hook3, ctx16.hook4, ctx16.hook5, ctx16.hook6, ctx16.hook7, ctx16.hook8, ctx16.hook9, ctx16.hook10, ctx16.hook11, ctx16.hook12, ctx16.hook13, ctx16.hook14, ctx16.hook15, ctx16.hook16, h17)
               render(ctx17)
             }
-          new DslMultiP[P, HookCtx.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply16(f)
     }
@@ -391,20 +391,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17],
     HookCtxFn.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn,
-    DslMultiP.AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Next]
+    ComponentP.Subsequent.AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Next]
 
   implicit def atStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]: AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17] =
-    new StepMultiP[P, HookCtx.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn] {
-      override type Next[H18] = DslMultiP.AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Next[H18]
+    new Step.ComponentP.Subsequent[P, HookCtx.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn] {
+      override type Next[H18] = ComponentP.Subsequent.AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Next[H18]
       override def next[H18] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]] =
             render => renderPrev { ctx17 =>
               val h18 = initNextHook(ctx17)
               val ctx18 = HookCtx(ctx17.props, ctx17.hook1, ctx17.hook2, ctx17.hook3, ctx17.hook4, ctx17.hook5, ctx17.hook6, ctx17.hook7, ctx17.hook8, ctx17.hook9, ctx17.hook10, ctx17.hook11, ctx17.hook12, ctx17.hook13, ctx17.hook14, ctx17.hook15, ctx17.hook16, ctx17.hook17, h18)
               render(ctx18)
             }
-          new DslMultiP[P, HookCtx.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply17(f)
     }
@@ -413,20 +413,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18],
     HookCtxFn.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn,
-    DslMultiP.AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Next]
+    ComponentP.Subsequent.AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Next]
 
   implicit def atStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]: AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18] =
-    new StepMultiP[P, HookCtx.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn] {
-      override type Next[H19] = DslMultiP.AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Next[H19]
+    new Step.ComponentP.Subsequent[P, HookCtx.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn] {
+      override type Next[H19] = ComponentP.Subsequent.AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Next[H19]
       override def next[H19] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]] =
             render => renderPrev { ctx18 =>
               val h19 = initNextHook(ctx18)
               val ctx19 = HookCtx(ctx18.props, ctx18.hook1, ctx18.hook2, ctx18.hook3, ctx18.hook4, ctx18.hook5, ctx18.hook6, ctx18.hook7, ctx18.hook8, ctx18.hook9, ctx18.hook10, ctx18.hook11, ctx18.hook12, ctx18.hook13, ctx18.hook14, ctx18.hook15, ctx18.hook16, ctx18.hook17, ctx18.hook18, h19)
               render(ctx19)
             }
-          new DslMultiP[P, HookCtx.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply18(f)
     }
@@ -435,20 +435,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19],
     HookCtxFn.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn,
-    DslMultiP.AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Next]
+    ComponentP.Subsequent.AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Next]
 
   implicit def atStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]: AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19] =
-    new StepMultiP[P, HookCtx.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn] {
-      override type Next[H20] = DslMultiP.AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Next[H20]
+    new Step.ComponentP.Subsequent[P, HookCtx.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn] {
+      override type Next[H20] = ComponentP.Subsequent.AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Next[H20]
       override def next[H20] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]] =
             render => renderPrev { ctx19 =>
               val h20 = initNextHook(ctx19)
               val ctx20 = HookCtx(ctx19.props, ctx19.hook1, ctx19.hook2, ctx19.hook3, ctx19.hook4, ctx19.hook5, ctx19.hook6, ctx19.hook7, ctx19.hook8, ctx19.hook9, ctx19.hook10, ctx19.hook11, ctx19.hook12, ctx19.hook13, ctx19.hook14, ctx19.hook15, ctx19.hook16, ctx19.hook17, ctx19.hook18, ctx19.hook19, h20)
               render(ctx20)
             }
-          new DslMultiP[P, HookCtx.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply19(f)
     }
@@ -457,20 +457,20 @@ trait StepMultiPInstances { self: StepMultiP.type =>
     P,
     HookCtx.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20],
     HookCtxFn.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn,
-    DslMultiP.AtStep20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Next]
+    ComponentP.Subsequent.AtStep20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Next]
 
   implicit def atStep20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]: AtStep20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20] =
-    new StepMultiP[P, HookCtx.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn] {
-      override type Next[H21] = DslMultiP.AtStep20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Next[H21]
+    new Step.ComponentP.Subsequent[P, HookCtx.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn] {
+      override type Next[H21] = ComponentP.Subsequent.AtStep20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Next[H21]
       override def next[H21] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnP[P, HookCtx.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21]] =
+          val renderNext: ComponentP.RenderFn[P, HookCtx.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21]] =
             render => renderPrev { ctx20 =>
               val h21 = initNextHook(ctx20)
               val ctx21 = HookCtx(ctx20.props, ctx20.hook1, ctx20.hook2, ctx20.hook3, ctx20.hook4, ctx20.hook5, ctx20.hook6, ctx20.hook7, ctx20.hook8, ctx20.hook9, ctx20.hook10, ctx20.hook11, ctx20.hook12, ctx20.hook13, ctx20.hook14, ctx20.hook15, ctx20.hook16, ctx20.hook17, ctx20.hook18, ctx20.hook19, ctx20.hook20, h21)
               render(ctx21)
             }
-          new DslMultiP[P, HookCtx.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21], HookCtxFn.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21]#Fn](renderNext)
+          new ComponentP.Subsequent[P, HookCtx.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21], HookCtxFn.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply20(f)
     }
@@ -479,48 +479,48 @@ trait StepMultiPInstances { self: StepMultiP.type =>
 
 // =====================================================================================================================
 
-trait DslMultiPCSteps { self: DslMultiPC.type =>
-  sealed trait AtStep1[P, H1] { type Next[H2] = DslMultiPC[P, HookCtx.PC2[P, H1, H2], HookCtxFn.PC2[P, H1, H2]#Fn] }
-  sealed trait AtStep2[P, H1, H2] { type Next[H3] = DslMultiPC[P, HookCtx.PC3[P, H1, H2, H3], HookCtxFn.PC3[P, H1, H2, H3]#Fn] }
-  sealed trait AtStep3[P, H1, H2, H3] { type Next[H4] = DslMultiPC[P, HookCtx.PC4[P, H1, H2, H3, H4], HookCtxFn.PC4[P, H1, H2, H3, H4]#Fn] }
-  sealed trait AtStep4[P, H1, H2, H3, H4] { type Next[H5] = DslMultiPC[P, HookCtx.PC5[P, H1, H2, H3, H4, H5], HookCtxFn.PC5[P, H1, H2, H3, H4, H5]#Fn] }
-  sealed trait AtStep5[P, H1, H2, H3, H4, H5] { type Next[H6] = DslMultiPC[P, HookCtx.PC6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.PC6[P, H1, H2, H3, H4, H5, H6]#Fn] }
-  sealed trait AtStep6[P, H1, H2, H3, H4, H5, H6] { type Next[H7] = DslMultiPC[P, HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.PC7[P, H1, H2, H3, H4, H5, H6, H7]#Fn] }
-  sealed trait AtStep7[P, H1, H2, H3, H4, H5, H6, H7] { type Next[H8] = DslMultiPC[P, HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn] }
-  sealed trait AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8] { type Next[H9] = DslMultiPC[P, HookCtx.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn] }
-  sealed trait AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9] { type Next[H10] = DslMultiPC[P, HookCtx.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn] }
-  sealed trait AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10] { type Next[H11] = DslMultiPC[P, HookCtx.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn] }
-  sealed trait AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11] { type Next[H12] = DslMultiPC[P, HookCtx.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn] }
-  sealed trait AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12] { type Next[H13] = DslMultiPC[P, HookCtx.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn] }
-  sealed trait AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13] { type Next[H14] = DslMultiPC[P, HookCtx.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn] }
-  sealed trait AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14] { type Next[H15] = DslMultiPC[P, HookCtx.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn] }
-  sealed trait AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15] { type Next[H16] = DslMultiPC[P, HookCtx.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn] }
-  sealed trait AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16] { type Next[H17] = DslMultiPC[P, HookCtx.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn] }
-  sealed trait AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17] { type Next[H18] = DslMultiPC[P, HookCtx.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn] }
-  sealed trait AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18] { type Next[H19] = DslMultiPC[P, HookCtx.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn] }
-  sealed trait AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19] { type Next[H20] = DslMultiPC[P, HookCtx.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn] }
+trait ComponentPC_SubsequentDsl { self: ComponentPC.Subsequent.type =>
+  sealed trait AtStep1[P, H1] { type Next[H2] = ComponentPC.Subsequent[P, HookCtx.PC2[P, H1, H2], HookCtxFn.PC2[P, H1, H2]#Fn] }
+  sealed trait AtStep2[P, H1, H2] { type Next[H3] = ComponentPC.Subsequent[P, HookCtx.PC3[P, H1, H2, H3], HookCtxFn.PC3[P, H1, H2, H3]#Fn] }
+  sealed trait AtStep3[P, H1, H2, H3] { type Next[H4] = ComponentPC.Subsequent[P, HookCtx.PC4[P, H1, H2, H3, H4], HookCtxFn.PC4[P, H1, H2, H3, H4]#Fn] }
+  sealed trait AtStep4[P, H1, H2, H3, H4] { type Next[H5] = ComponentPC.Subsequent[P, HookCtx.PC5[P, H1, H2, H3, H4, H5], HookCtxFn.PC5[P, H1, H2, H3, H4, H5]#Fn] }
+  sealed trait AtStep5[P, H1, H2, H3, H4, H5] { type Next[H6] = ComponentPC.Subsequent[P, HookCtx.PC6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.PC6[P, H1, H2, H3, H4, H5, H6]#Fn] }
+  sealed trait AtStep6[P, H1, H2, H3, H4, H5, H6] { type Next[H7] = ComponentPC.Subsequent[P, HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.PC7[P, H1, H2, H3, H4, H5, H6, H7]#Fn] }
+  sealed trait AtStep7[P, H1, H2, H3, H4, H5, H6, H7] { type Next[H8] = ComponentPC.Subsequent[P, HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn] }
+  sealed trait AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8] { type Next[H9] = ComponentPC.Subsequent[P, HookCtx.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn] }
+  sealed trait AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9] { type Next[H10] = ComponentPC.Subsequent[P, HookCtx.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn] }
+  sealed trait AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10] { type Next[H11] = ComponentPC.Subsequent[P, HookCtx.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn] }
+  sealed trait AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11] { type Next[H12] = ComponentPC.Subsequent[P, HookCtx.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn] }
+  sealed trait AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12] { type Next[H13] = ComponentPC.Subsequent[P, HookCtx.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn] }
+  sealed trait AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13] { type Next[H14] = ComponentPC.Subsequent[P, HookCtx.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn] }
+  sealed trait AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14] { type Next[H15] = ComponentPC.Subsequent[P, HookCtx.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn] }
+  sealed trait AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15] { type Next[H16] = ComponentPC.Subsequent[P, HookCtx.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn] }
+  sealed trait AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16] { type Next[H17] = ComponentPC.Subsequent[P, HookCtx.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn] }
+  sealed trait AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17] { type Next[H18] = ComponentPC.Subsequent[P, HookCtx.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn] }
+  sealed trait AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18] { type Next[H19] = ComponentPC.Subsequent[P, HookCtx.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn] }
+  sealed trait AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19] { type Next[H20] = ComponentPC.Subsequent[P, HookCtx.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn] }
 }
 
-trait StepMultiPCInstances { self: StepMultiPC.type =>
+trait ComponentPC_SubsequentSteps { self: Step.ComponentPC.Subsequent.type =>
 
   type AtStep1[P, H1] = To[
     P,
     HookCtx.PC1[P, H1],
     HookCtxFn.PC1[P, H1]#Fn,
-    DslMultiPC.AtStep1[P, H1]#Next]
+    ComponentPC.Subsequent.AtStep1[P, H1]#Next]
 
   implicit def atStep1[P, H1]: AtStep1[P, H1] =
-    new StepMultiPC[P, HookCtx.PC1[P, H1], HookCtxFn.PC1[P, H1]#Fn] {
-      override type Next[H2] = DslMultiPC.AtStep1[P, H1]#Next[H2]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC1[P, H1], HookCtxFn.PC1[P, H1]#Fn] {
+      override type Next[H2] = ComponentPC.Subsequent.AtStep1[P, H1]#Next[H2]
       override def next[H2] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC2[P, H1, H2]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC2[P, H1, H2]] =
             render => renderPrev { ctx1 =>
               val h2 = initNextHook(ctx1)
               val ctx2 = HookCtx.withChildren(ctx1.props, ctx1.propsChildren, ctx1.hook1, h2)
               render(ctx2)
             }
-          new DslMultiPC[P, HookCtx.PC2[P, H1, H2], HookCtxFn.PC2[P, H1, H2]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC2[P, H1, H2], HookCtxFn.PC2[P, H1, H2]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply1(f)
     }
@@ -529,20 +529,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC2[P, H1, H2],
     HookCtxFn.PC2[P, H1, H2]#Fn,
-    DslMultiPC.AtStep2[P, H1, H2]#Next]
+    ComponentPC.Subsequent.AtStep2[P, H1, H2]#Next]
 
   implicit def atStep2[P, H1, H2]: AtStep2[P, H1, H2] =
-    new StepMultiPC[P, HookCtx.PC2[P, H1, H2], HookCtxFn.PC2[P, H1, H2]#Fn] {
-      override type Next[H3] = DslMultiPC.AtStep2[P, H1, H2]#Next[H3]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC2[P, H1, H2], HookCtxFn.PC2[P, H1, H2]#Fn] {
+      override type Next[H3] = ComponentPC.Subsequent.AtStep2[P, H1, H2]#Next[H3]
       override def next[H3] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC3[P, H1, H2, H3]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC3[P, H1, H2, H3]] =
             render => renderPrev { ctx2 =>
               val h3 = initNextHook(ctx2)
               val ctx3 = HookCtx.withChildren(ctx2.props, ctx2.propsChildren, ctx2.hook1, ctx2.hook2, h3)
               render(ctx3)
             }
-          new DslMultiPC[P, HookCtx.PC3[P, H1, H2, H3], HookCtxFn.PC3[P, H1, H2, H3]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC3[P, H1, H2, H3], HookCtxFn.PC3[P, H1, H2, H3]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply2(f)
     }
@@ -551,20 +551,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC3[P, H1, H2, H3],
     HookCtxFn.PC3[P, H1, H2, H3]#Fn,
-    DslMultiPC.AtStep3[P, H1, H2, H3]#Next]
+    ComponentPC.Subsequent.AtStep3[P, H1, H2, H3]#Next]
 
   implicit def atStep3[P, H1, H2, H3]: AtStep3[P, H1, H2, H3] =
-    new StepMultiPC[P, HookCtx.PC3[P, H1, H2, H3], HookCtxFn.PC3[P, H1, H2, H3]#Fn] {
-      override type Next[H4] = DslMultiPC.AtStep3[P, H1, H2, H3]#Next[H4]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC3[P, H1, H2, H3], HookCtxFn.PC3[P, H1, H2, H3]#Fn] {
+      override type Next[H4] = ComponentPC.Subsequent.AtStep3[P, H1, H2, H3]#Next[H4]
       override def next[H4] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC4[P, H1, H2, H3, H4]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC4[P, H1, H2, H3, H4]] =
             render => renderPrev { ctx3 =>
               val h4 = initNextHook(ctx3)
               val ctx4 = HookCtx.withChildren(ctx3.props, ctx3.propsChildren, ctx3.hook1, ctx3.hook2, ctx3.hook3, h4)
               render(ctx4)
             }
-          new DslMultiPC[P, HookCtx.PC4[P, H1, H2, H3, H4], HookCtxFn.PC4[P, H1, H2, H3, H4]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC4[P, H1, H2, H3, H4], HookCtxFn.PC4[P, H1, H2, H3, H4]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply3(f)
     }
@@ -573,20 +573,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC4[P, H1, H2, H3, H4],
     HookCtxFn.PC4[P, H1, H2, H3, H4]#Fn,
-    DslMultiPC.AtStep4[P, H1, H2, H3, H4]#Next]
+    ComponentPC.Subsequent.AtStep4[P, H1, H2, H3, H4]#Next]
 
   implicit def atStep4[P, H1, H2, H3, H4]: AtStep4[P, H1, H2, H3, H4] =
-    new StepMultiPC[P, HookCtx.PC4[P, H1, H2, H3, H4], HookCtxFn.PC4[P, H1, H2, H3, H4]#Fn] {
-      override type Next[H5] = DslMultiPC.AtStep4[P, H1, H2, H3, H4]#Next[H5]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC4[P, H1, H2, H3, H4], HookCtxFn.PC4[P, H1, H2, H3, H4]#Fn] {
+      override type Next[H5] = ComponentPC.Subsequent.AtStep4[P, H1, H2, H3, H4]#Next[H5]
       override def next[H5] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC5[P, H1, H2, H3, H4, H5]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC5[P, H1, H2, H3, H4, H5]] =
             render => renderPrev { ctx4 =>
               val h5 = initNextHook(ctx4)
               val ctx5 = HookCtx.withChildren(ctx4.props, ctx4.propsChildren, ctx4.hook1, ctx4.hook2, ctx4.hook3, ctx4.hook4, h5)
               render(ctx5)
             }
-          new DslMultiPC[P, HookCtx.PC5[P, H1, H2, H3, H4, H5], HookCtxFn.PC5[P, H1, H2, H3, H4, H5]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC5[P, H1, H2, H3, H4, H5], HookCtxFn.PC5[P, H1, H2, H3, H4, H5]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply4(f)
     }
@@ -595,20 +595,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC5[P, H1, H2, H3, H4, H5],
     HookCtxFn.PC5[P, H1, H2, H3, H4, H5]#Fn,
-    DslMultiPC.AtStep5[P, H1, H2, H3, H4, H5]#Next]
+    ComponentPC.Subsequent.AtStep5[P, H1, H2, H3, H4, H5]#Next]
 
   implicit def atStep5[P, H1, H2, H3, H4, H5]: AtStep5[P, H1, H2, H3, H4, H5] =
-    new StepMultiPC[P, HookCtx.PC5[P, H1, H2, H3, H4, H5], HookCtxFn.PC5[P, H1, H2, H3, H4, H5]#Fn] {
-      override type Next[H6] = DslMultiPC.AtStep5[P, H1, H2, H3, H4, H5]#Next[H6]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC5[P, H1, H2, H3, H4, H5], HookCtxFn.PC5[P, H1, H2, H3, H4, H5]#Fn] {
+      override type Next[H6] = ComponentPC.Subsequent.AtStep5[P, H1, H2, H3, H4, H5]#Next[H6]
       override def next[H6] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC6[P, H1, H2, H3, H4, H5, H6]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC6[P, H1, H2, H3, H4, H5, H6]] =
             render => renderPrev { ctx5 =>
               val h6 = initNextHook(ctx5)
               val ctx6 = HookCtx.withChildren(ctx5.props, ctx5.propsChildren, ctx5.hook1, ctx5.hook2, ctx5.hook3, ctx5.hook4, ctx5.hook5, h6)
               render(ctx6)
             }
-          new DslMultiPC[P, HookCtx.PC6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.PC6[P, H1, H2, H3, H4, H5, H6]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.PC6[P, H1, H2, H3, H4, H5, H6]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply5(f)
     }
@@ -617,20 +617,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC6[P, H1, H2, H3, H4, H5, H6],
     HookCtxFn.PC6[P, H1, H2, H3, H4, H5, H6]#Fn,
-    DslMultiPC.AtStep6[P, H1, H2, H3, H4, H5, H6]#Next]
+    ComponentPC.Subsequent.AtStep6[P, H1, H2, H3, H4, H5, H6]#Next]
 
   implicit def atStep6[P, H1, H2, H3, H4, H5, H6]: AtStep6[P, H1, H2, H3, H4, H5, H6] =
-    new StepMultiPC[P, HookCtx.PC6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.PC6[P, H1, H2, H3, H4, H5, H6]#Fn] {
-      override type Next[H7] = DslMultiPC.AtStep6[P, H1, H2, H3, H4, H5, H6]#Next[H7]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC6[P, H1, H2, H3, H4, H5, H6], HookCtxFn.PC6[P, H1, H2, H3, H4, H5, H6]#Fn] {
+      override type Next[H7] = ComponentPC.Subsequent.AtStep6[P, H1, H2, H3, H4, H5, H6]#Next[H7]
       override def next[H7] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7]] =
             render => renderPrev { ctx6 =>
               val h7 = initNextHook(ctx6)
               val ctx7 = HookCtx.withChildren(ctx6.props, ctx6.propsChildren, ctx6.hook1, ctx6.hook2, ctx6.hook3, ctx6.hook4, ctx6.hook5, ctx6.hook6, h7)
               render(ctx7)
             }
-          new DslMultiPC[P, HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.PC7[P, H1, H2, H3, H4, H5, H6, H7]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.PC7[P, H1, H2, H3, H4, H5, H6, H7]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply6(f)
     }
@@ -639,20 +639,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7],
     HookCtxFn.PC7[P, H1, H2, H3, H4, H5, H6, H7]#Fn,
-    DslMultiPC.AtStep7[P, H1, H2, H3, H4, H5, H6, H7]#Next]
+    ComponentPC.Subsequent.AtStep7[P, H1, H2, H3, H4, H5, H6, H7]#Next]
 
   implicit def atStep7[P, H1, H2, H3, H4, H5, H6, H7]: AtStep7[P, H1, H2, H3, H4, H5, H6, H7] =
-    new StepMultiPC[P, HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.PC7[P, H1, H2, H3, H4, H5, H6, H7]#Fn] {
-      override type Next[H8] = DslMultiPC.AtStep7[P, H1, H2, H3, H4, H5, H6, H7]#Next[H8]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7], HookCtxFn.PC7[P, H1, H2, H3, H4, H5, H6, H7]#Fn] {
+      override type Next[H8] = ComponentPC.Subsequent.AtStep7[P, H1, H2, H3, H4, H5, H6, H7]#Next[H8]
       override def next[H8] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8]] =
             render => renderPrev { ctx7 =>
               val h8 = initNextHook(ctx7)
               val ctx8 = HookCtx.withChildren(ctx7.props, ctx7.propsChildren, ctx7.hook1, ctx7.hook2, ctx7.hook3, ctx7.hook4, ctx7.hook5, ctx7.hook6, ctx7.hook7, h8)
               render(ctx8)
             }
-          new DslMultiPC[P, HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply7(f)
     }
@@ -661,20 +661,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8],
     HookCtxFn.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn,
-    DslMultiPC.AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Next]
+    ComponentPC.Subsequent.AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Next]
 
   implicit def atStep8[P, H1, H2, H3, H4, H5, H6, H7, H8]: AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8] =
-    new StepMultiPC[P, HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn] {
-      override type Next[H9] = DslMultiPC.AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Next[H9]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8], HookCtxFn.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Fn] {
+      override type Next[H9] = ComponentPC.Subsequent.AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8]#Next[H9]
       override def next[H9] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]] =
             render => renderPrev { ctx8 =>
               val h9 = initNextHook(ctx8)
               val ctx9 = HookCtx.withChildren(ctx8.props, ctx8.propsChildren, ctx8.hook1, ctx8.hook2, ctx8.hook3, ctx8.hook4, ctx8.hook5, ctx8.hook6, ctx8.hook7, ctx8.hook8, h9)
               render(ctx9)
             }
-          new DslMultiPC[P, HookCtx.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply8(f)
     }
@@ -683,20 +683,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9],
     HookCtxFn.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn,
-    DslMultiPC.AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Next]
+    ComponentPC.Subsequent.AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Next]
 
   implicit def atStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]: AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9] =
-    new StepMultiPC[P, HookCtx.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn] {
-      override type Next[H10] = DslMultiPC.AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Next[H10]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], HookCtxFn.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Fn] {
+      override type Next[H10] = ComponentPC.Subsequent.AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]#Next[H10]
       override def next[H10] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]] =
             render => renderPrev { ctx9 =>
               val h10 = initNextHook(ctx9)
               val ctx10 = HookCtx.withChildren(ctx9.props, ctx9.propsChildren, ctx9.hook1, ctx9.hook2, ctx9.hook3, ctx9.hook4, ctx9.hook5, ctx9.hook6, ctx9.hook7, ctx9.hook8, ctx9.hook9, h10)
               render(ctx10)
             }
-          new DslMultiPC[P, HookCtx.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply9(f)
     }
@@ -705,20 +705,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10],
     HookCtxFn.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn,
-    DslMultiPC.AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Next]
+    ComponentPC.Subsequent.AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Next]
 
   implicit def atStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]: AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10] =
-    new StepMultiPC[P, HookCtx.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn] {
-      override type Next[H11] = DslMultiPC.AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Next[H11]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], HookCtxFn.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Fn] {
+      override type Next[H11] = ComponentPC.Subsequent.AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]#Next[H11]
       override def next[H11] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]] =
             render => renderPrev { ctx10 =>
               val h11 = initNextHook(ctx10)
               val ctx11 = HookCtx.withChildren(ctx10.props, ctx10.propsChildren, ctx10.hook1, ctx10.hook2, ctx10.hook3, ctx10.hook4, ctx10.hook5, ctx10.hook6, ctx10.hook7, ctx10.hook8, ctx10.hook9, ctx10.hook10, h11)
               render(ctx11)
             }
-          new DslMultiPC[P, HookCtx.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply10(f)
     }
@@ -727,20 +727,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11],
     HookCtxFn.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn,
-    DslMultiPC.AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Next]
+    ComponentPC.Subsequent.AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Next]
 
   implicit def atStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]: AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11] =
-    new StepMultiPC[P, HookCtx.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn] {
-      override type Next[H12] = DslMultiPC.AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Next[H12]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], HookCtxFn.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Fn] {
+      override type Next[H12] = ComponentPC.Subsequent.AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]#Next[H12]
       override def next[H12] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]] =
             render => renderPrev { ctx11 =>
               val h12 = initNextHook(ctx11)
               val ctx12 = HookCtx.withChildren(ctx11.props, ctx11.propsChildren, ctx11.hook1, ctx11.hook2, ctx11.hook3, ctx11.hook4, ctx11.hook5, ctx11.hook6, ctx11.hook7, ctx11.hook8, ctx11.hook9, ctx11.hook10, ctx11.hook11, h12)
               render(ctx12)
             }
-          new DslMultiPC[P, HookCtx.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply11(f)
     }
@@ -749,20 +749,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12],
     HookCtxFn.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn,
-    DslMultiPC.AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Next]
+    ComponentPC.Subsequent.AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Next]
 
   implicit def atStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]: AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12] =
-    new StepMultiPC[P, HookCtx.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn] {
-      override type Next[H13] = DslMultiPC.AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Next[H13]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], HookCtxFn.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Fn] {
+      override type Next[H13] = ComponentPC.Subsequent.AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]#Next[H13]
       override def next[H13] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]] =
             render => renderPrev { ctx12 =>
               val h13 = initNextHook(ctx12)
               val ctx13 = HookCtx.withChildren(ctx12.props, ctx12.propsChildren, ctx12.hook1, ctx12.hook2, ctx12.hook3, ctx12.hook4, ctx12.hook5, ctx12.hook6, ctx12.hook7, ctx12.hook8, ctx12.hook9, ctx12.hook10, ctx12.hook11, ctx12.hook12, h13)
               render(ctx13)
             }
-          new DslMultiPC[P, HookCtx.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply12(f)
     }
@@ -771,20 +771,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13],
     HookCtxFn.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn,
-    DslMultiPC.AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Next]
+    ComponentPC.Subsequent.AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Next]
 
   implicit def atStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]: AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13] =
-    new StepMultiPC[P, HookCtx.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn] {
-      override type Next[H14] = DslMultiPC.AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Next[H14]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], HookCtxFn.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Fn] {
+      override type Next[H14] = ComponentPC.Subsequent.AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]#Next[H14]
       override def next[H14] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]] =
             render => renderPrev { ctx13 =>
               val h14 = initNextHook(ctx13)
               val ctx14 = HookCtx.withChildren(ctx13.props, ctx13.propsChildren, ctx13.hook1, ctx13.hook2, ctx13.hook3, ctx13.hook4, ctx13.hook5, ctx13.hook6, ctx13.hook7, ctx13.hook8, ctx13.hook9, ctx13.hook10, ctx13.hook11, ctx13.hook12, ctx13.hook13, h14)
               render(ctx14)
             }
-          new DslMultiPC[P, HookCtx.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply13(f)
     }
@@ -793,20 +793,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14],
     HookCtxFn.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn,
-    DslMultiPC.AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Next]
+    ComponentPC.Subsequent.AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Next]
 
   implicit def atStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]: AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14] =
-    new StepMultiPC[P, HookCtx.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn] {
-      override type Next[H15] = DslMultiPC.AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Next[H15]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], HookCtxFn.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Fn] {
+      override type Next[H15] = ComponentPC.Subsequent.AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]#Next[H15]
       override def next[H15] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]] =
             render => renderPrev { ctx14 =>
               val h15 = initNextHook(ctx14)
               val ctx15 = HookCtx.withChildren(ctx14.props, ctx14.propsChildren, ctx14.hook1, ctx14.hook2, ctx14.hook3, ctx14.hook4, ctx14.hook5, ctx14.hook6, ctx14.hook7, ctx14.hook8, ctx14.hook9, ctx14.hook10, ctx14.hook11, ctx14.hook12, ctx14.hook13, ctx14.hook14, h15)
               render(ctx15)
             }
-          new DslMultiPC[P, HookCtx.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply14(f)
     }
@@ -815,20 +815,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15],
     HookCtxFn.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn,
-    DslMultiPC.AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Next]
+    ComponentPC.Subsequent.AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Next]
 
   implicit def atStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]: AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15] =
-    new StepMultiPC[P, HookCtx.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn] {
-      override type Next[H16] = DslMultiPC.AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Next[H16]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], HookCtxFn.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Fn] {
+      override type Next[H16] = ComponentPC.Subsequent.AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]#Next[H16]
       override def next[H16] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]] =
             render => renderPrev { ctx15 =>
               val h16 = initNextHook(ctx15)
               val ctx16 = HookCtx.withChildren(ctx15.props, ctx15.propsChildren, ctx15.hook1, ctx15.hook2, ctx15.hook3, ctx15.hook4, ctx15.hook5, ctx15.hook6, ctx15.hook7, ctx15.hook8, ctx15.hook9, ctx15.hook10, ctx15.hook11, ctx15.hook12, ctx15.hook13, ctx15.hook14, ctx15.hook15, h16)
               render(ctx16)
             }
-          new DslMultiPC[P, HookCtx.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply15(f)
     }
@@ -837,20 +837,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16],
     HookCtxFn.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn,
-    DslMultiPC.AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Next]
+    ComponentPC.Subsequent.AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Next]
 
   implicit def atStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]: AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16] =
-    new StepMultiPC[P, HookCtx.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn] {
-      override type Next[H17] = DslMultiPC.AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Next[H17]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], HookCtxFn.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Fn] {
+      override type Next[H17] = ComponentPC.Subsequent.AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]#Next[H17]
       override def next[H17] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]] =
             render => renderPrev { ctx16 =>
               val h17 = initNextHook(ctx16)
               val ctx17 = HookCtx.withChildren(ctx16.props, ctx16.propsChildren, ctx16.hook1, ctx16.hook2, ctx16.hook3, ctx16.hook4, ctx16.hook5, ctx16.hook6, ctx16.hook7, ctx16.hook8, ctx16.hook9, ctx16.hook10, ctx16.hook11, ctx16.hook12, ctx16.hook13, ctx16.hook14, ctx16.hook15, ctx16.hook16, h17)
               render(ctx17)
             }
-          new DslMultiPC[P, HookCtx.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply16(f)
     }
@@ -859,20 +859,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17],
     HookCtxFn.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn,
-    DslMultiPC.AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Next]
+    ComponentPC.Subsequent.AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Next]
 
   implicit def atStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]: AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17] =
-    new StepMultiPC[P, HookCtx.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn] {
-      override type Next[H18] = DslMultiPC.AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Next[H18]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], HookCtxFn.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Fn] {
+      override type Next[H18] = ComponentPC.Subsequent.AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]#Next[H18]
       override def next[H18] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]] =
             render => renderPrev { ctx17 =>
               val h18 = initNextHook(ctx17)
               val ctx18 = HookCtx.withChildren(ctx17.props, ctx17.propsChildren, ctx17.hook1, ctx17.hook2, ctx17.hook3, ctx17.hook4, ctx17.hook5, ctx17.hook6, ctx17.hook7, ctx17.hook8, ctx17.hook9, ctx17.hook10, ctx17.hook11, ctx17.hook12, ctx17.hook13, ctx17.hook14, ctx17.hook15, ctx17.hook16, ctx17.hook17, h18)
               render(ctx18)
             }
-          new DslMultiPC[P, HookCtx.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply17(f)
     }
@@ -881,20 +881,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18],
     HookCtxFn.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn,
-    DslMultiPC.AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Next]
+    ComponentPC.Subsequent.AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Next]
 
   implicit def atStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]: AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18] =
-    new StepMultiPC[P, HookCtx.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn] {
-      override type Next[H19] = DslMultiPC.AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Next[H19]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], HookCtxFn.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Fn] {
+      override type Next[H19] = ComponentPC.Subsequent.AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]#Next[H19]
       override def next[H19] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]] =
             render => renderPrev { ctx18 =>
               val h19 = initNextHook(ctx18)
               val ctx19 = HookCtx.withChildren(ctx18.props, ctx18.propsChildren, ctx18.hook1, ctx18.hook2, ctx18.hook3, ctx18.hook4, ctx18.hook5, ctx18.hook6, ctx18.hook7, ctx18.hook8, ctx18.hook9, ctx18.hook10, ctx18.hook11, ctx18.hook12, ctx18.hook13, ctx18.hook14, ctx18.hook15, ctx18.hook16, ctx18.hook17, ctx18.hook18, h19)
               render(ctx19)
             }
-          new DslMultiPC[P, HookCtx.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply18(f)
     }
@@ -903,20 +903,20 @@ trait StepMultiPCInstances { self: StepMultiPC.type =>
     P,
     HookCtx.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19],
     HookCtxFn.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn,
-    DslMultiPC.AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Next]
+    ComponentPC.Subsequent.AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Next]
 
   implicit def atStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]: AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19] =
-    new StepMultiPC[P, HookCtx.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn] {
-      override type Next[H20] = DslMultiPC.AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Next[H20]
+    new Step.ComponentPC.Subsequent[P, HookCtx.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], HookCtxFn.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Fn] {
+      override type Next[H20] = ComponentPC.Subsequent.AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]#Next[H20]
       override def next[H20] =
         (renderPrev, initNextHook) => {
-          val renderNext: RenderFnPC[P, HookCtx.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]] =
+          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]] =
             render => renderPrev { ctx19 =>
               val h20 = initNextHook(ctx19)
               val ctx20 = HookCtx.withChildren(ctx19.props, ctx19.propsChildren, ctx19.hook1, ctx19.hook2, ctx19.hook3, ctx19.hook4, ctx19.hook5, ctx19.hook6, ctx19.hook7, ctx19.hook8, ctx19.hook9, ctx19.hook10, ctx19.hook11, ctx19.hook12, ctx19.hook13, ctx19.hook14, ctx19.hook15, ctx19.hook16, ctx19.hook17, ctx19.hook18, ctx19.hook19, h20)
               render(ctx20)
             }
-          new DslMultiPC[P, HookCtx.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn](renderNext)
+          new ComponentPC.Subsequent[P, HookCtx.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], HookCtxFn.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]#Fn](renderNext)
         }
       override def squash[A] = f => _.apply19(f)
     }

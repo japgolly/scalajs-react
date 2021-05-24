@@ -248,7 +248,7 @@ object HookCtx {
       new PC20(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20)
   }
 
-  class PC0[+P](final val props: P, final val propsChildren: PropsChildren)
+  class PC0[+P](props: P, final val propsChildren: PropsChildren) extends P0(props)
 
   class PC1[+P, +H1](props: P, propsChildren: PropsChildren, final val hook1: H1) extends PC0(props, propsChildren) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1)"

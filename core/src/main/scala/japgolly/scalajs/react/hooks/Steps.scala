@@ -6,78 +6,80 @@ trait StepBase {
   type Next[A]
 }
 
-trait StepMulti[_Ctx, _CtxFn[_]] extends StepBase {
+trait SubsequentStep[_Ctx, _CtxFn[_]] extends StepBase {
   final type Ctx = _Ctx
   final type CtxFn[A] = _CtxFn[A]
   def squash[A]: CtxFn[A] => (Ctx => A)
 }
 
-// ==========================================================================================================================
-// [P] Step 1
+object Step {
 
-final class StepFirstP[P] extends StepBase {
-  override type Next[H1] =
-    DslMultiP[P, HookCtx.P1[P, H1], HookCtxFn.P1[P, H1]#Fn]
+  // ===================================================================================================================
+  // Component with Props
 
-  def apply[H1](hook1: P => H1): Next[H1] = {
-    type Ctx = HookCtx.P1[P, H1]
-    val render: RenderFnP[P, Ctx] =
-      f => Component((p, _) => {
-        val h1 = hook1(p)
-        f(HookCtx(p, h1))
-      })
-    new DslMultiP[P, HookCtx.P1[P, H1], HookCtxFn.P1[P, H1]#Fn](render)
+  object ComponentP {
+    import HookComponentBuilder.{ComponentP => H}
+
+    final class First[P] extends StepBase {
+      override type Next[H1] =
+        H.Subsequent[P, HookCtx.P1[P, H1], HookCtxFn.P1[P, H1]#Fn]
+
+      def apply[H1](hook1: P => H1): Next[H1] = {
+        type Ctx = HookCtx.P1[P, H1]
+        val render: H.RenderFn[P, Ctx] =
+          f => Component((p, _) => {
+            val h1 = hook1(p)
+            f(HookCtx(p, h1))
+          })
+        new H.Subsequent[P, HookCtx.P1[P, H1], HookCtxFn.P1[P, H1]#Fn](render)
+      }
+    }
+
+    implicit def first[P]: First[P] =
+      new First
+
+    trait Subsequent[P, _Ctx, _CtxFn[_]] extends SubsequentStep[_Ctx, _CtxFn] {
+      def next[A]: (H.RenderFn[P, Ctx], Ctx => A) => Next[A]
+      def squash[A]: CtxFn[A] => (Ctx => A)
+    }
+
+    object Subsequent extends ComponentP_SubsequentSteps {
+      type To[P, Ctx, CtxFn[_], N[_]] = Subsequent[P, Ctx, CtxFn] { type Next[A] = N[A] }
+    }
   }
-}
 
-object StepFirstP {
-  implicit def instance[P]: StepFirstP[P] =
-    new StepFirstP
-}
+  // ===================================================================================================================
+  // Component with Props and PropsChildren
 
-// ==========================================================================================================================
-// [P] Step 2+
+  object ComponentPC {
+    import HookComponentBuilder.{ComponentPC => H}
 
-trait StepMultiP[P, _Ctx, _CtxFn[_]] extends StepMulti[_Ctx, _CtxFn] {
-  def next[A]: (RenderFnP[P, Ctx], Ctx => A) => Next[A]
-  def squash[A]: CtxFn[A] => (Ctx => A)
-}
+    final class First[P] extends StepBase {
+      override type Next[H1] =
+        H.Subsequent[P, HookCtx.PC1[P, H1], HookCtxFn.PC1[P, H1]#Fn]
 
-object StepMultiP extends StepMultiPInstances {
-  type To[P, Ctx, CtxFn[_], N[_]] = StepMultiP[P, Ctx, CtxFn] { type Next[A] = N[A] }
-}
+      def apply[H1](hook1: HookCtx.PC0[P] => H1): Next[H1] = {
+        type Ctx = HookCtx.PC1[P, H1]
+        val render: H.RenderFn[P, Ctx] =
+          f => Component((p, pc) => {
+            val h1 = hook1(HookCtx.withChildren(p, pc))
+            f(HookCtx.withChildren(p, pc, h1))
+          })
+        new H.Subsequent[P, HookCtx.PC1[P, H1], HookCtxFn.PC1[P, H1]#Fn](render)
+      }
+    }
 
-// ==========================================================================================================================
-// [PC] Step 1
+    implicit def first[P]: First[P] =
+      new First
 
-final class StepFirstPC[P] extends StepBase {
-  override type Next[H1] =
-    DslMultiPC[P, HookCtx.PC1[P, H1], HookCtxFn.PC1[P, H1]#Fn]
+    trait Subsequent[P, _Ctx, _CtxFn[_]] extends SubsequentStep[_Ctx, _CtxFn] {
+      def next[A]: (H.RenderFn[P, Ctx], Ctx => A) => Next[A]
+      def squash[A]: CtxFn[A] => (Ctx => A)
+    }
 
-  def apply[H1](hook1: HookCtx.PC0[P] => H1): Next[H1] = {
-    type Ctx = HookCtx.PC1[P, H1]
-    val render: RenderFnPC[P, Ctx] =
-      f => Component((p, pc) => {
-        val h1 = hook1(HookCtx.withChildren(p, pc))
-        f(HookCtx.withChildren(p, pc, h1))
-      })
-    new DslMultiPC[P, HookCtx.PC1[P, H1], HookCtxFn.PC1[P, H1]#Fn](render)
+    object Subsequent extends ComponentPC_SubsequentSteps {
+      type To[P, Ctx, CtxFn[_], N[_]] = Subsequent[P, Ctx, CtxFn] { type Next[A] = N[A] }
+    }
   }
-}
 
-object StepFirstPC {
-  implicit def instance[P]: StepFirstPC[P] =
-    new StepFirstPC
-}
-
-// ==========================================================================================================================
-// [PC] Step 2+
-
-trait StepMultiPC[P, _Ctx, _CtxFn[_]] extends StepMulti[_Ctx, _CtxFn] {
-  def next[A]: (RenderFnPC[P, Ctx], Ctx => A) => Next[A]
-  def squash[A]: CtxFn[A] => (Ctx => A)
-}
-
-object StepMultiPC extends StepMultiPCInstances {
-  type To[P, Ctx, CtxFn[_], N[_]] = StepMultiPC[P, Ctx, CtxFn] { type Next[A] = N[A] }
 }

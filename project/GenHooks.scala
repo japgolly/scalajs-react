@@ -59,52 +59,52 @@ object GenHooks {
 
         val preCtxArgs = (1 until n).map(i => s"ctx$s.hook$i").mkString(", ")
 
-        dslAtStepsP += s"  sealed trait AtStep$s[P, $preHns] { type Next[H$n] = DslMultiP[P, HookCtx.P$n[P, $Hns], HookCtxFn.P$n[P, $Hns]#Fn] }"
+        dslAtStepsP += s"  sealed trait AtStep$s[P, $preHns] { type Next[H$n] = ComponentP.Subsequent[P, HookCtx.P$n[P, $Hns], HookCtxFn.P$n[P, $Hns]#Fn] }"
         stepMultisP +=
           s"""  type AtStep$s[P, $preHns] = To[
              |    P,
              |    HookCtx.P$s[P, $preHns],
              |    HookCtxFn.P$s[P, $preHns]#Fn,
-             |    DslMultiP.AtStep$s[P, $preHns]#Next]
+             |    ComponentP.Subsequent.AtStep$s[P, $preHns]#Next]
              |
              |  implicit def atStep$s[P, $preHns]: AtStep$s[P, $preHns] =
-             |    new StepMultiP[P, HookCtx.P$s[P, $preHns], HookCtxFn.P$s[P, $preHns]#Fn] {
-             |      override type Next[H$n] = DslMultiP.AtStep$s[P, $preHns]#Next[H$n]
+             |    new Step.ComponentP.Subsequent[P, HookCtx.P$s[P, $preHns], HookCtxFn.P$s[P, $preHns]#Fn] {
+             |      override type Next[H$n] = ComponentP.Subsequent.AtStep$s[P, $preHns]#Next[H$n]
              |      override def next[H$n] =
              |        (renderPrev, initNextHook) => {
-             |          val renderNext: RenderFnP[P, HookCtx.P$n[P, $Hns]] =
+             |          val renderNext: ComponentP.RenderFn[P, HookCtx.P$n[P, $Hns]] =
              |            render => renderPrev { ctx$s =>
              |              val h$n = initNextHook(ctx$s)
              |              val ctx$n = HookCtx(ctx$s.props, $preCtxArgs, h$n)
              |              render(ctx$n)
              |            }
-             |          new DslMultiP[P, HookCtx.P$n[P, $Hns], HookCtxFn.P$n[P, $Hns]#Fn](renderNext)
+             |          new ComponentP.Subsequent[P, HookCtx.P$n[P, $Hns], HookCtxFn.P$n[P, $Hns]#Fn](renderNext)
              |        }
              |      override def squash[A] = f => _.apply$s(f)
              |    }
              |""".stripMargin
 
         if (n <= 20) {
-          dslAtStepsPC += s"  sealed trait AtStep$s[P, $preHns] { type Next[H$n] = DslMultiPC[P, HookCtx.PC$n[P, $Hns], HookCtxFn.PC$n[P, $Hns]#Fn] }"
+          dslAtStepsPC += s"  sealed trait AtStep$s[P, $preHns] { type Next[H$n] = ComponentPC.Subsequent[P, HookCtx.PC$n[P, $Hns], HookCtxFn.PC$n[P, $Hns]#Fn] }"
           stepMultisPC +=
             s"""  type AtStep$s[P, $preHns] = To[
                |    P,
                |    HookCtx.PC$s[P, $preHns],
                |    HookCtxFn.PC$s[P, $preHns]#Fn,
-               |    DslMultiPC.AtStep$s[P, $preHns]#Next]
+               |    ComponentPC.Subsequent.AtStep$s[P, $preHns]#Next]
                |
                |  implicit def atStep$s[P, $preHns]: AtStep$s[P, $preHns] =
-               |    new StepMultiPC[P, HookCtx.PC$s[P, $preHns], HookCtxFn.PC$s[P, $preHns]#Fn] {
-               |      override type Next[H$n] = DslMultiPC.AtStep$s[P, $preHns]#Next[H$n]
+               |    new Step.ComponentPC.Subsequent[P, HookCtx.PC$s[P, $preHns], HookCtxFn.PC$s[P, $preHns]#Fn] {
+               |      override type Next[H$n] = ComponentPC.Subsequent.AtStep$s[P, $preHns]#Next[H$n]
                |      override def next[H$n] =
                |        (renderPrev, initNextHook) => {
-               |          val renderNext: RenderFnPC[P, HookCtx.PC$n[P, $Hns]] =
+               |          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC$n[P, $Hns]] =
                |            render => renderPrev { ctx$s =>
                |              val h$n = initNextHook(ctx$s)
                |              val ctx$n = HookCtx.withChildren(ctx$s.props, ctx$s.propsChildren, $preCtxArgs, h$n)
                |              render(ctx$n)
                |            }
-               |          new DslMultiPC[P, HookCtx.PC$n[P, $Hns], HookCtxFn.PC$n[P, $Hns]#Fn](renderNext)
+               |          new ComponentPC.Subsequent[P, HookCtx.PC$n[P, $Hns], HookCtxFn.PC$n[P, $Hns]#Fn](renderNext)
                |        }
                |      override def squash[A] = f => _.apply$s(f)
                |    }
@@ -152,7 +152,7 @@ object GenHooks {
          |${hookCtxCtorsPC.result().mkString("\n\n")}
          |  }
          |
-         |  class PC0[+P](final val props: P, final val propsChildren: PropsChildren)
+         |  class PC0[+P](props: P, final val propsChildren: PropsChildren) extends P0(props)
          |
          |${hookCtxsPC.result().mkString("\n")}
          |}
@@ -180,22 +180,22 @@ object GenHooks {
          |
          |import HookComponentBuilder._
          |
-         |trait DslMultiPSteps { self: DslMultiP.type =>
+         |trait ComponentP_SubsequentDsl { self: ComponentP.Subsequent.type =>
          |${dslAtStepsP.result().mkString("\n")}
          |}
          |
-         |trait StepMultiPInstances { self: StepMultiP.type =>
+         |trait ComponentP_SubsequentSteps { self: Step.ComponentP.Subsequent.type =>
          |
          |${stepMultisP.result().mkString("\n")}
          |}
          |
          |// =====================================================================================================================
          |
-         |trait DslMultiPCSteps { self: DslMultiPC.type =>
+         |trait ComponentPC_SubsequentDsl { self: ComponentPC.Subsequent.type =>
          |${dslAtStepsPC.result().mkString("\n")}
          |}
          |
-         |trait StepMultiPCInstances { self: StepMultiPC.type =>
+         |trait ComponentPC_SubsequentSteps { self: Step.ComponentPC.Subsequent.type =>
          |
          |${stepMultisPC.result().mkString("\n")}
          |}
