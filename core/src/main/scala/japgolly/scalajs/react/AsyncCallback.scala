@@ -267,11 +267,11 @@ object AsyncCallback {
     }
   }
 
-  def awaitAll(as: AsyncCallback[_]*): AsyncCallback[Unit] =
+  def awaitAll(as: AsyncCallback[Any]*): AsyncCallback[Unit] =
     if (as.isEmpty)
       unit
     else
-      sequence_(as.iterator.asInstanceOf[Iterator[AsyncCallback[Any]]])
+      sequence_(as.iterator)
 
   // ===================================================================================================================
 
