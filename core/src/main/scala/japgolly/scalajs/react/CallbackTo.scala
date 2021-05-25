@@ -386,6 +386,22 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
         }
       })
 
+  /** If this completes successfully, discard the result.
+    * If any exception occurs, call `printStackTrace` and continue.
+    *
+    * @since 1.8.0
+    */
+  def reset: Callback =
+    Callback(
+      try {
+        runNow()
+        ()
+      } catch {
+        case t: Throwable =>
+          t.printStackTrace()
+      }
+    )
+
   /** Return a version of this callback that will only execute once, and reuse the result for all
     * other invocations.
     */

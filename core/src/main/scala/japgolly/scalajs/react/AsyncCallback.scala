@@ -699,6 +699,17 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
   def attemptTry: AsyncCallback[Try[A]] =
     AsyncCallback(f => completeWith(e => f(Success(e))))
 
+  /** If this completes successfully, discard the result.
+    * If any exception occurs, call `printStackTrace` and continue.
+    *
+    * @since 1.8.0
+    */
+  def reset: AsyncCallback[Unit] =
+    AsyncCallback(f => completeWith(e => f(Success(e match {
+      case _: Success[A] => ()
+      case Failure(t)    => t.printStackTrace()
+    }))))
+
   def handleError[AA >: A](f: Throwable => AsyncCallback[AA]): AsyncCallback[AA] =
     AsyncCallback(g => completeWith {
       case r@ Success(_) => g(r)

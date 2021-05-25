@@ -121,6 +121,16 @@ object Callback {
   def sequenceOption[A](oca: => Option[Callback]): Callback =
     traverseOption(oca)(identityFn)
 
+  /** Run all given callbacks.
+    *
+    * All results are discarded.
+    * Any exceptions get a `printStackTrace` and are then discarded, and the next callback run.
+    *
+    * @since 1.8.0
+    */
+  def runAll(callbacks: CallbackTo[Any]*): Callback =
+    callbacks.foldLeft(empty)((x, y) => x >> y.reset)
+
   /**
    * Convenience for calling `dom.console.log`.
    */
