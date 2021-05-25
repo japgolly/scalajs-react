@@ -37,15 +37,10 @@ trait Hooks extends js.Object {
 
   final def useMemo[A](f: js.Function0[A], deps: js.UndefOr[HookDeps] = js.native): A = js.native
 
-  final def useRef[A](f: js.Function0[A], deps: js.UndefOr[HookDeps] = js.native): HookRef[A] = js.native
+  final def useRef[A](f: js.Function0[A] | Null): React.RefHandle[A] = js.native
 
   // TODO: useImperativeHandle
 
   final def useDebugValue(desc: js.Any): Unit = js.native
   final def useDebugValue[A](value: A, desc: A => js.Any): Unit = js.native
-}
-
-@js.native
-trait HookRef[+A] extends js.Object {
-  val current: A = js.native
 }

@@ -5,6 +5,7 @@ import japgolly.scalajs.react.internal.{Box, OptionLike}
 import japgolly.scalajs.react.{Callback, React => _, Reusability, Reusable, raw => Raw, _}
 import scala.annotation.implicitNotFound
 import scala.scalajs.js
+import scala.scalajs.js.|
 
 object Hooks {
 
@@ -157,6 +158,16 @@ object Hooks {
 
     @inline def narrow[B <: A]: UseReducer[S, B] =
       UseReducer[S, B](raw)(originalDispatch)
+  }
+
+  // ===================================================================================================================
+
+  object UseRef {
+    def unsafeCreate[A](): Ref.Simple[A] =
+      Ref.fromJs(Raw.React.useRef[A | Null](null))
+
+    def unsafeCreate[A](initialValue: => A): Raw.React.RefHandle[A] =
+      Raw.React.useRef((() => initialValue): js.Function0[A])
   }
 
   // ===================================================================================================================

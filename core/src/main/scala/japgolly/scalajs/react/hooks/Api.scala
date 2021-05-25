@@ -2,7 +2,7 @@ package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks.{UseCallbackArg, UseMemo, _}
-import japgolly.scalajs.react.{CallbackTo, Reusability, Reusable, raw => Raw}
+import japgolly.scalajs.react.{CallbackTo, Ref, Reusability, Reusable, raw => Raw}
 
 object Api {
 
@@ -326,6 +326,18 @@ object Api {
     final def useReducerBy[S, A](init: Ctx => UseReducerInline => HookCreated[UseReducer[S, A]])(implicit step: Step): step.Next[UseReducer[S, A]] =
       next(init(_)(new UseReducerInline).result)
 
+    /** Create a mutable ref that will persist for the full lifetime of the component. */
+    final def useRef[A](implicit step: Step): step.Next[Ref.Simple[A]] =
+      next(_ => UseRef.unsafeCreate[A]())
+
+    /** Create a mutable ref that will persist for the full lifetime of the component. */
+    final def useRef[A](initialValue: => A)(implicit step: Step): step.Next[Raw.React.RefHandle[A]] =
+      useRefBy(_ => initialValue)
+
+    /** Create a mutable ref that will persist for the full lifetime of the component. */
+    final def useRefBy[A](initialValue: Ctx => A)(implicit step: Step): step.Next[Raw.React.RefHandle[A]] =
+      next(ctx => UseRef.unsafeCreate(initialValue(ctx)))
+
     /** Returns a stateful value, and a function to update it.
       *
       * During the initial render, the returned state is the same as the value passed as the first argument
@@ -481,6 +493,10 @@ object Api {
       */
     final def useReducerBy[S, A](init: CtxFn[UseReducerInline => HookCreated[UseReducer[S, A]]])(implicit step: Step): step.Next[UseReducer[S, A]] =
       useReducerBy(step.squash(init)(_))
+
+    /** Create a mutable ref that will persist for the full lifetime of the component. */
+    final def useRefBy[A](f: CtxFn[A])(implicit step: Step): step.Next[Raw.React.RefHandle[A]] =
+      useRefBy(step.squash(f)(_))
 
     /** Returns a stateful value, and a function to update it.
       *

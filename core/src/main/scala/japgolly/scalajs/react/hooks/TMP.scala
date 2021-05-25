@@ -77,6 +77,8 @@ object Example1 {
     .useCallbackBy($ => _((i: Int) => Callback.log(i), $.props.propsInt))
     .useCallback((i: Int) => Callback.log(i))
 
+    .useRef[Int]
+    .useRef(123)
 
 
 
