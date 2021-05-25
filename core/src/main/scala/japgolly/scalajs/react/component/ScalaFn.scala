@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.vdom.VdomElement
+import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, raw, scalajsReactRawPropsChildrenToJsUndef}
 import scala.scalajs.js
 
@@ -12,22 +12,22 @@ object ScalaFn {
   type Mounted                                    = JsFn.Mounted
 
   private def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
-      (render: Box[P] with raw.PropsWithChildren => VdomElement)
+      (render: Box[P] with raw.PropsWithChildren => VdomNode)
       (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] = {
 
-    val jsRender = render.andThen(_.rawElement): js.Function1[Box[P] with raw.PropsWithChildren, raw.React.Element]
+    val jsRender = render.andThen(_.rawNode): js.Function1[Box[P] with raw.PropsWithChildren, raw.React.Node]
     val rawComponent = jsRender.asInstanceOf[raw.React.StatelessFunctionalComponent[Box[P]]]
     JsFn.force[Box[P], C](rawComponent)(s)
       .cmapCtorProps[P](Box(_))
       .mapUnmounted(_.mapUnmountedProps(_.unbox))
   }
 
-  def apply[P](render: P => VdomElement)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+  def apply[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
     create[P, Children.None, s.CT](b => render(b.unbox))(s)
 
-  def withChildren[P](render: (P, PropsChildren) => VdomElement)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+  def withChildren[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
     create[P, Children.Varargs, s.CT](b => render(b.unbox, PropsChildren(b.children)))(s)
 
-  def justChildren(render: PropsChildren => VdomElement): Component[Unit, CtorType.Children] =
+  def justChildren(render: PropsChildren => VdomNode): Component[Unit, CtorType.Children] =
     create(b => render(PropsChildren(b.children)))
 }
