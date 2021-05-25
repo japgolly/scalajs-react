@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.component
 
+import japgolly.scalajs.react.hooks.HookComponentBuilder
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, raw, scalajsReactRawPropsChildrenToJsUndef}
@@ -30,4 +31,7 @@ object ScalaFn {
 
   def justChildren(render: PropsChildren => VdomNode): Component[Unit, CtorType.Children] =
     create(b => render(PropsChildren(b.children)))
+
+  @inline def withHooks[P] =
+    HookComponentBuilder.apply[P]
 }

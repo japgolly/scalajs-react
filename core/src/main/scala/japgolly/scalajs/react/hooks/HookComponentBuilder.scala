@@ -1,11 +1,12 @@
 package japgolly.scalajs.react.hooks
 
+import japgolly.scalajs.react.component.ScalaFn
+import japgolly.scalajs.react.component.ScalaFn.Component
+import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Children, PropsChildren}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren}
 
 object HookComponentBuilder {
-
-  case class Component[-P, C <: Children](value: (P, PropsChildren) => VdomNode) // TODO: Temp
 
   def apply[P]: ComponentP.First[P] =
     new ComponentP.First(_ => ())
@@ -26,11 +27,11 @@ object HookComponentBuilder {
       def withPropsChildren: ComponentPC.First[P] =
         new ComponentPC.First(ctx => init(ctx.props))
 
-      def render(f: P => VdomNode): Component[P, Children.None] =
-        Component((p, _) => f(p))
+      def render(f: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+        ScalaFn(f)
     }
 
-    type RenderFn[-P, +Ctx] = (Ctx => VdomNode) => Component[P, Children.None]
+    type RenderFn[-P, +Ctx] = (Ctx => VdomNode) => P => VdomNode
 
     final class Subsequent[P, Ctx, CtxFn[_]](renderFn: RenderFn[P, Ctx]) extends Api.Secondary[Ctx, CtxFn, SubsequentStep[P, Ctx, CtxFn]] {
 
@@ -40,10 +41,10 @@ object HookComponentBuilder {
       override protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H] =
         step.next[H](renderFn, f)
 
-      def render(f: Ctx => VdomNode): Component[P, Children.None] =
-        renderFn(f)
+      def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+        ScalaFn(renderFn(f))
 
-      def render(f: CtxFn[VdomNode])(implicit step: Step): Component[P, Children.None] =
+      def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
         render(step.squash(f)(_))
     }
 
@@ -62,11 +63,11 @@ object HookComponentBuilder {
       def next[H1](initFirst: P => Unit, hook1: P => H1): Next[H1] = {
         type Ctx = HookCtx.P1[P, H1]
         val render: RenderFn[P, Ctx] =
-          f => Component((p, _) => {
+          f => p => {
             initFirst(p)
             val h1 = hook1(p)
             f(HookCtx(p, h1))
-          })
+          }
         new Subsequent[P, HookCtx.P1[P, H1], HookCtxFn.P1[P, H1]#Fn](render)
       }
     }
@@ -106,14 +107,14 @@ object HookComponentBuilder {
       override protected def next[H](f: HookCtx.PC0[P] => H)(implicit step: Step): step.Next[H] =
         step.next(init, f)
 
-      def render(f: HookCtx.PC0[P] => VdomNode): Component[P, Children.Varargs] =
-        Component((p, pc) => f(HookCtx.withChildren(p, pc)))
+      def render(f: HookCtx.PC0[P] => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+        ScalaFn.withChildren((p, pc) => f(HookCtx.withChildren(p, pc)))
 
-      def render(f: (P, PropsChildren) => VdomNode): Component[P, Children.Varargs] =
-        Component(f)
+      def render(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+        ScalaFn.withChildren(f)
     }
 
-    type RenderFn[-P, +Ctx] = (Ctx => VdomNode) => Component[P, Children.Varargs]
+    type RenderFn[-P, +Ctx] = (Ctx => VdomNode) => (P, PropsChildren) => VdomNode
 
     final class Subsequent[P, Ctx, CtxFn[_]](renderFn: RenderFn[P, Ctx]) extends Api.Secondary[Ctx, CtxFn, SubsequentStep[P, Ctx, CtxFn]] {
 
@@ -123,10 +124,10 @@ object HookComponentBuilder {
       override protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H] =
         step.next[H](renderFn, f)
 
-      def render(f: Ctx => VdomNode): Component[P, Children.Varargs] =
-        renderFn(f)
+      def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+        ScalaFn.withChildren(renderFn(f))
 
-      def render(f: CtxFn[VdomNode])(implicit step: Step): Component[P, Children.Varargs] =
+      def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
         render(step.squash(f)(_))
     }
 
@@ -145,12 +146,12 @@ object HookComponentBuilder {
       def next[H1](initFirst: HookCtx.PC0[P] => Unit, hook1: HookCtx.PC0[P] => H1): Next[H1] = {
         type Ctx = HookCtx.PC1[P, H1]
         val render: RenderFn[P, Ctx] =
-          f => Component((p, pc) => {
+          f => (p, pc) => {
             val ctx0 = HookCtx.withChildren(p, pc)
             initFirst(ctx0)
             val h1 = hook1(ctx0)
             f(HookCtx.withChildren(p, pc, h1))
-          })
+          }
         new Subsequent[P, HookCtx.PC1[P, H1], HookCtxFn.PC1[P, H1]#Fn](render)
       }
     }

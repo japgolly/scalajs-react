@@ -227,9 +227,3 @@ object Example1 {
 //           ^.onClick --> counter.modState(_ + 1))
 //       }
 //   }
-
-// object ScalaFnComponent2 {
-//   @inline def withHooks(f: HooksDsl => VdomNode): ScalaFnComponent2[Unit] =
-//     withHooks[Unit]((_, h) => f(h))
-//   def withHooks[P](f: (P, HooksDsl) => VdomNode): ScalaFnComponent2[P] =
-//     ???
