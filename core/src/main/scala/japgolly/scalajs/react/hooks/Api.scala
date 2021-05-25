@@ -176,8 +176,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffect[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
-      next(_ => UseEffect.unsafeCreate(effect))
+    final def useEffect[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+      self(_ => UseEffect.unsafeCreate(effect))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
@@ -186,8 +186,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffect[A, D](effect: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Next[Unit] =
-      custom(ReusableEffect.useEffect(effect, deps))
+    final def useEffect[A, D](effect: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      custom_(ReusableEffect.useEffect(effect, deps))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
@@ -199,8 +199,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectBy(init: Ctx => UseEffectInline => HookCreated[Unit])(implicit step: Step): step.Next[Unit] =
-      next(init(_)(new UseEffectInline).result)
+    final def useEffectBy(init: Ctx => UseEffectInline => HookCreated[Unit])(implicit step: Step): step.Self =
+      self(init(_)(new UseEffectInline).result)
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
@@ -209,7 +209,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
+    final def useEffectOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
       useEffectOnMountBy(_ => effect)
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
@@ -219,8 +219,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectOnMountBy[A](effect: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
-      next(ctx => UseEffect.unsafeCreateOnMount(effect(ctx)))
+    final def useEffectOnMountBy[A](effect: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+      self(ctx => UseEffect.unsafeCreateOnMount(effect(ctx)))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -234,8 +234,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffect[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
-      next(_ => UseEffect.unsafeCreateLayout(effect))
+    final def useLayoutEffect[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+      self(_ => UseEffect.unsafeCreateLayout(effect))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -247,8 +247,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffect[A, D](effect: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Next[Unit] =
-      custom(ReusableEffect.useLayoutEffect(effect, deps))
+    final def useLayoutEffect[A, D](effect: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      custom_(ReusableEffect.useLayoutEffect(effect, deps))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -262,8 +262,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectBy(init: Ctx => UseLayoutEffectInline => HookCreated[Unit])(implicit step: Step): step.Next[Unit] =
-      next(init(_)(new UseLayoutEffectInline).result)
+    final def useLayoutEffectBy(init: Ctx => UseLayoutEffectInline => HookCreated[Unit])(implicit step: Step): step.Self =
+      self(init(_)(new UseLayoutEffectInline).result)
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -275,7 +275,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
+    final def useLayoutEffectOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
       useLayoutEffectOnMountBy(_ => effect)
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
@@ -288,8 +288,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectOnMountBy[A](effect: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
-      next(ctx => UseEffect.unsafeCreateLayoutOnMount(effect(ctx)))
+    final def useLayoutEffectOnMountBy[A](effect: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+      self(ctx => UseEffect.unsafeCreateLayoutOnMount(effect(ctx)))
 
     /** Returns a memoized value.
       *
@@ -474,7 +474,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectBy(init: CtxFn[UseEffectInline => HookCreated[Unit]])(implicit step: Step): step.Next[Unit] =
+    final def useEffectBy(init: CtxFn[UseEffectInline => HookCreated[Unit]])(implicit step: Step): step.Self =
       useEffectBy(step.squash(init)(_))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
@@ -484,7 +484,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectOnMountBy[A](effect: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
+    final def useEffectOnMountBy[A](effect: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Self =
       useEffectOnMountBy(step.squash(effect)(_))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
@@ -499,7 +499,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectBy(init: CtxFn[UseLayoutEffectInline => HookCreated[Unit]])(implicit step: Step): step.Next[Unit] =
+    final def useLayoutEffectBy(init: CtxFn[UseLayoutEffectInline => HookCreated[Unit]])(implicit step: Step): step.Self =
       useLayoutEffectBy(step.squash(init)(_))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
@@ -512,7 +512,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectOnMountBy[A](effect: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
+    final def useLayoutEffectOnMountBy[A](effect: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Self =
       useLayoutEffectOnMountBy(step.squash(effect)(_))
 
     /** Returns a memoized value.
