@@ -108,7 +108,7 @@ object HookComponentBuilder {
         step.next(init, f)
 
       def render(f: HookCtx.PC0[P] => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
-        ScalaFn.withChildren((p, pc) => f(HookCtx.withChildren(p, pc)))
+        ScalaFn.withChildren((p: P, pc: PropsChildren) => f(HookCtx.withChildren(p, pc)))
 
       def render(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
         ScalaFn.withChildren(f)
