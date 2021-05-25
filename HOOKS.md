@@ -1,8 +1,6 @@
 TODO
 =========================================================================================
 
-* useDebugValue shouldn't consume a hook slot (in the types)
-
 * Add useStateSnapshot as custom hook
 * Tests
 * Add documentation with examples
