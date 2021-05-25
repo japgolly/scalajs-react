@@ -18,6 +18,18 @@ final class CustomHook[-I, +O] private[CustomHook] (val unsafeInit: I => O) {
 }
 
 object CustomHook {
+
+  def apply[I]: Builder.First[I] =
+    new Builder.First(_ => ())
+
+  /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
+    * It's up to you to ensure you don't vioalte React's hook rules.
+    */
+  def unchecked[I, O](f: I => O): CustomHook[I, O] =
+    new CustomHook(f)
+
+  // ===================================================================================================================
+
   final case class Arg[Ctx, I](convert: Ctx => I) extends AnyVal
 
   object Arg {
@@ -67,17 +79,7 @@ object CustomHook {
       }
   }
 
-  /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
-    * It's up to you to ensure you don't vioalte React's hook rules.
-    */
-  def unchecked[I, O](f: I => O): CustomHook[I, O] =
-    new CustomHook(f)
-
-  def builder[I]: Builder.First[I] =
-    new Builder.First(_ => ())
-
   // ===================================================================================================================
-  // Builder with Props
 
   object Builder {
 

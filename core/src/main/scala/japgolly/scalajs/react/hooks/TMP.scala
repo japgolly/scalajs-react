@@ -1,7 +1,6 @@
 package example
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.hooks._
 import japgolly.scalajs.react.vdom.html_<^._
 
 
@@ -11,11 +10,11 @@ object Example1 {
 
   // final case class Blah2[P, H1, H2](props: P, hook1: H1, hook2: H2)
 
-  val customHook1 = CustomHook.builder[Int]
+  val customHook1 = CustomHook[Int]
     .useState(123)
     .buildReturning(_.hook1)
 
-  val component1a = HookComponentBuilder[P]
+  val component1a = ScalaFnComponent.withHooks[P]
     .useStateBy(_.propsInt)
     .custom((p, s1) => customHook1(p.propsInt + s1.value))
     .useReducerBy($ => _[Int, Int]((s, a) => s + a, $.hook2.value))
@@ -27,7 +26,7 @@ object Example1 {
       <.button("Inc S2", ^.onClick --> $.hook2.modState(_ + 1)),
     ))
 
-  val component1b = HookComponentBuilder[P]
+  val component1b = ScalaFnComponent.withHooks[P]
     .useStateBy(_.propsInt)
     .useStateBy((p, s1) => p.propsInt + s1.value)
     .render((p, s1, s2) => <.div(
@@ -41,7 +40,7 @@ object Example1 {
 
 
 
-  HookComponentBuilder[P]
+  ScalaFnComponent.withHooks[P]
     .useStateBy(_.propsInt)
 
     .useEffect(Callback.empty)
@@ -72,7 +71,7 @@ object Example1 {
     .useCallbackBy($ => _(Callback.log($.props.propsInt)))
     .useCallbackBy($ => _(Callback.log($.props.propsInt), $.props.propsInt))
 
-  HookComponentBuilder[P]
+  ScalaFnComponent.withHooks[P]
     .useCallbackBy(_ => _((i: Int) => Callback.log(i)))
     .useCallbackBy($ => _((i: Int) => Callback.log(i), $.props.propsInt))
     .useCallback((i: Int) => Callback.log(i))
