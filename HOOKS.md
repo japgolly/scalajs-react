@@ -1,7 +1,6 @@
 TODO
 =========================================================================================
 
-* useImperativeHandle(ref, createHandle, [deps])
 * useDebugValue
 
 * Add useStateSnapshot as custom hook

@@ -39,7 +39,10 @@ trait Hooks extends js.Object {
 
   final def useRef[A](f: js.Function0[A] | Null): React.RefHandle[A] = js.native
 
-  // TODO: useImperativeHandle
+  final def useImperativeHandle[A](
+    ref   : React.RefHandle[A | Null] | ((A | Null) => Any) | Null | Unit,
+    create: js.Function0[A],
+    deps  : js.UndefOr[HookDeps] = js.native): Unit = js.native
 
   final def useDebugValue(desc: js.Any): Unit = js.native
   final def useDebugValue[A](value: A, desc: A => js.Any): Unit = js.native
