@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.feature.Context
-import japgolly.scalajs.react.internal.{Box, OptionLike}
+import japgolly.scalajs.react.internal.{Box, NotAllowed, OptionLike}
 import japgolly.scalajs.react.{Callback, React => _, Reusability, Reusable, raw => Raw, _}
 import scala.annotation.implicitNotFound
 import scala.scalajs.js
@@ -138,11 +138,11 @@ object Hooks {
 
     private def _unsafeCreate[S, A](originalResult: Raw.React.UseReducer[S, A]): UseReducer[S, A] = {
       val originalDispatch = Reusable.byRef(originalResult._2)
-      UseReducer(originalResult)(originalDispatch)
+      UseReducer(originalResult, originalDispatch)
     }
   }
 
-  final case class UseReducer[S, A](raw: Raw.React.UseReducer[S, A])(originalDispatch: Reusable[Raw.React.UseReducerDispatch[_]]) {
+  final case class UseReducer[S, A](raw: Raw.React.UseReducer[S, A], originalDispatch: Reusable[Raw.React.UseReducerDispatch[_]]) {
 
     @inline def value: S =
       raw._1
@@ -152,19 +152,19 @@ object Hooks {
 
     /** WARNING: This does not affect the dispatch callback reusability. */
     def map[T](f: S => T): UseReducer[T, A] =
-      UseReducer(js.Tuple2(f(value), raw._2))(originalDispatch)
+      UseReducer(js.Tuple2(f(value), raw._2), originalDispatch)
 
     /** WARNING: This does not affect the dispatch callback reusability. */
     def contramap[B](f: B => A): UseReducer[S, B] = {
       val newDispatch: js.Function1[B, Unit] = b => raw._2(f(b))
-      UseReducer(js.Tuple2(value, newDispatch))(originalDispatch)
+      UseReducer(js.Tuple2(value, newDispatch), originalDispatch)
     }
 
     @inline def widen[T >: S]: UseReducer[T, A] =
-      UseReducer[T, A](raw)(originalDispatch)
+      UseReducer[T, A](raw, originalDispatch)
 
     @inline def narrow[B <: A]: UseReducer[S, B] =
-      UseReducer[S, B](raw)(originalDispatch)
+      UseReducer[S, B](raw, originalDispatch)
   }
 
   // ===================================================================================================================
@@ -173,8 +173,8 @@ object Hooks {
     def unsafeCreate[A](): Ref.Simple[A] =
       Ref.fromJs(Raw.React.useRef[A | Null](null))
 
-    def unsafeCreate[A](initialValue: => A): Raw.React.RefHandle[A] =
-      Raw.React.useRef((() => initialValue): js.Function0[A])
+    def unsafeCreate[A](initialValue: => A): Ref.NonEmpty.Simple[A] =
+      Ref.NonEmpty.Simple(Raw.React.useRef((() => initialValue): js.Function0[A]))
   }
 
   // ===================================================================================================================
@@ -185,12 +185,12 @@ object Hooks {
       val initialStateFn   = (() => Box(initialState)): js.Function0[Box[S]]
       val originalResult   = Raw.React.useState[Box[S]](initialStateFn)
       val originalSetState = Reusable.byRef(originalResult._2)
-      UseState[Box[S]](originalResult)(originalSetState)
+      UseState[Box[S]](originalResult, originalSetState)
         .xmap(_.unbox)(Box.apply)
     }
   }
 
-  final case class UseState[S](raw: Raw.React.UseState[S])(originalSetState: Reusable[Raw.React.UseStateSetter[_]]) {
+  final case class UseState[S](raw: Raw.React.UseState[S], originalSetState: Reusable[Raw.React.UseStateSetter[_]]) {
 
     @inline def value: S =
       raw._1
@@ -201,7 +201,9 @@ object Hooks {
     def modState(f: S => S): Reusable[Callback] =
       originalSetState.withValue(Callback(modStateRaw(f)))
 
-    // TODO: Add an unusable stateSnapshot method that points users to useStateSnapshot
+    @deprecated("The useState hook isn't powerful enough to be used as a StateSnapshot. Change your hook to StateSnapshot{,.withReuse}.hook instead.", "always")
+    def stateSnapshot(na: NotAllowed): Nothing =
+      na.result
 
     @inline private def modStateRaw(f: js.Function1[S, S]): Unit =
       raw._2(f)
@@ -226,7 +228,7 @@ object Hooks {
         givenValue = t => raw._2(g(t)),
         givenFn    = m => raw._2((s => g(m(f(s)))): js.Function1[S, S]),
       )
-      UseState(js.Tuple2(f(value), newSetState))(originalSetState)
+      UseState(js.Tuple2(f(value), newSetState), originalSetState)
     }
 
     /** WARNING: This does not affect the setState callback reusability. */
@@ -246,7 +248,7 @@ object Hooks {
 
       val newSetState = newSetStateJs(givenValue, givenFn)
 
-      UseState(js.Tuple2(value, newSetState))(originalSetState)
+      UseState(js.Tuple2(value, newSetState), originalSetState)
     }
   }
 

@@ -361,11 +361,11 @@ object Api {
       next(_ => UseRef.unsafeCreate[A]())
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
-    final def useRef[A](initialValue: => A)(implicit step: Step): step.Next[Raw.React.RefHandle[A]] =
+    final def useRef[A](initialValue: => A)(implicit step: Step): step.Next[Ref.NonEmpty.Simple[A]] =
       useRefBy(_ => initialValue)
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
-    final def useRefBy[A](initialValue: Ctx => A)(implicit step: Step): step.Next[Raw.React.RefHandle[A]] =
+    final def useRefBy[A](initialValue: Ctx => A)(implicit step: Step): step.Next[Ref.NonEmpty.Simple[A]] =
       next(ctx => UseRef.unsafeCreate(initialValue(ctx)))
 
     /** Returns a stateful value, and a function to update it.
@@ -542,7 +542,7 @@ object Api {
       useReducerBy(step.squash(init)(_))
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
-    final def useRefBy[A](f: CtxFn[A])(implicit step: Step): step.Next[Raw.React.RefHandle[A]] =
+    final def useRefBy[A](f: CtxFn[A])(implicit step: Step): step.Next[Ref.NonEmpty.Simple[A]] =
       useRefBy(step.squash(f)(_))
 
     /** Returns a stateful value, and a function to update it.

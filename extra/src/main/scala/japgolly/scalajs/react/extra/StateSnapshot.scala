@@ -116,6 +116,27 @@ object StateSnapshot {
     def apply[S](value: S): FromValue[S] =
       new FromValue(value)
 
+    /** @since 1.8.0 */
+    def hook[S](initialValue: => S)(implicit rs: Reusability[S]): CustomHook[Unit, StateSnapshot[S]] =
+      CustomHook[Unit]
+        .useState(initialValue)
+        .useRef(List.empty[Callback])
+        .useEffectBy { (_, _, delayedCallbacks) => _(
+          delayedCallbacks.get.flatMap(cbs =>
+            Callback.when(cbs.nonEmpty)(
+              Callback.runAll(cbs: _*) >> delayedCallbacks.set(Nil)
+            )
+          )
+        )}
+        .buildReturning { (_, state, delayedCallbacks) =>
+          val setFn: SetFn[S] = (os, cb) =>
+            os match {
+              case Some(s) => delayedCallbacks.mod(cb :: _) >> state.setState(s)
+              case None    => cb
+            }
+          new StateSnapshot[S](state.value, state.originalSetState.withValue(setFn), rs)
+        }
+
     /** This is meant to be called once and reused so that the setState callback stays the same. */
     def prepare[S](f: SetFn[S]): FromSetStateFn[S] =
       new FromSetStateFn(reusableSetFn(f))
@@ -199,6 +220,10 @@ object StateSnapshot {
 
   def apply[S](value: S): FromValue[S] =
     new FromValue(value)
+
+  /** @since 1.8.0 */
+  def hook[S](initialValue: => S): CustomHook[Unit, StateSnapshot[S]] =
+    withReuse.hook(initialValue)(Reusability.never)
 
   def of[I, S](i: I)(implicit t: StateAccessor.ReadImpureWritePure[I, S]): StateSnapshot[S] =
     apply(t.state(i)).setStateVia(i)

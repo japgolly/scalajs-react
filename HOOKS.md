@@ -1,7 +1,7 @@
 TODO
 =========================================================================================
 
-* Add useStateSnapshot as custom hook
+* Mainline Hooks?
 * Tests
 * Add documentation with examples
 * Document tradeoffs
