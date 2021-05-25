@@ -74,17 +74,20 @@ object CustomHook {
     new CustomHook(f)
 
   def builder[I]: Builder.First[I] =
-    new Builder.First
+    new Builder.First(_ => ())
 
   // ===================================================================================================================
   // Builder with Props
 
   object Builder {
 
-    final class First[I] extends Api.Primary[I, FirstStep[I]] {
+    final class First[I](init: I => Unit) extends Api.Primary[I, FirstStep[I]] {
+
+      override protected def self(f: I => Any)(implicit step: Step): step.Self =
+        step.self(init, f)
 
       override protected def next[H](f: I => H)(implicit step: Step): step.Next[H] =
-        step(f)
+        step.next(init, f)
     }
 
     trait BuildFn[-I, +Ctx] {
@@ -93,7 +96,10 @@ object CustomHook {
 
     final class Subsequent[I, Ctx, CtxFn[_]](buildFn: BuildFn[I, Ctx]) extends Api.Secondary[Ctx, CtxFn, SubsequentStep[I, Ctx, CtxFn]] {
 
-      protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H] =
+      override protected def self(f: Ctx => Any)(implicit step: Step): step.Self =
+        step.self(buildFn, f)
+
+      override protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H] =
         step.next[H](buildFn, f)
 
       def build: CustomHook[I, Unit] =
@@ -109,15 +115,22 @@ object CustomHook {
     object Subsequent extends Custom_SubsequentDsl
 
     final class FirstStep[I] extends Api.Step {
-      override type Next[H1] =
-        Subsequent[I, HookCtx.I1[I, H1], HookCtxFn.P1[I, H1]#Fn]
+      override type Self     = First[I]
+      override type Next[H1] = Subsequent[I, HookCtx.I1[I, H1], HookCtxFn.P1[I, H1]#Fn]
 
-      def apply[H1](hook1: I => H1): Next[H1] = {
+      def self(initFirst: I => Unit, f: I => Any): Self =
+        new First[I](i => {
+          initFirst(i)
+          f(i)
+        })
+
+      def next[H1](initFirst: I => Unit, hook1: I => H1): Next[H1] = {
         type Ctx = HookCtx.I1[I, H1]
         val build: BuildFn[I, Ctx] =
           new BuildFn[I, Ctx] {
             override def apply[O](f: Ctx => O) =
               CustomHook.unchecked[I, O] { i =>
+                initFirst(i)
                 val h1 = hook1(i)
                 val ctx = HookCtx.withInput(i, h1)
                 f(ctx)
@@ -131,6 +144,20 @@ object CustomHook {
       new FirstStep
 
     trait SubsequentStep[I, _Ctx, _CtxFn[_]] extends Api.SubsequentStep[_Ctx, _CtxFn] {
+      final type Self = Subsequent[I, Ctx, CtxFn]
+      final def self: (BuildFn[I, Ctx], Ctx => Any) => Self =
+        (buildPrev, initNextHook) => {
+          val buildNext: BuildFn[I, Ctx] =
+            new BuildFn[I, Ctx] {
+              override def apply[O](f: Ctx => O) = {
+                buildPrev { ctx =>
+                  initNextHook(ctx)
+                  f(ctx)
+                }
+              }
+            }
+          new Subsequent[I, Ctx, CtxFn](buildNext)
+        }
       def next[A]: (BuildFn[I, Ctx], Ctx => A) => Next[A]
     }
 

@@ -7,6 +7,7 @@ import japgolly.scalajs.react.{CallbackTo, Ref, Reusability, Reusable, raw => Ra
 object Api {
 
   trait Step {
+    type Self
     type Next[A]
   }
 
@@ -27,6 +28,7 @@ object Api {
   trait Primary[Ctx, _Step <: Step] {
     final type Step = _Step
 
+    protected def self(f: Ctx => Any)(implicit step: Step): step.Self
     protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H]
 
     /** Use a custom hook */
