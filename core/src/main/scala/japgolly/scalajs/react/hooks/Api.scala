@@ -39,6 +39,14 @@ object Api {
     final def custom[O](hook: Ctx => CustomHook[Unit, O])(implicit step: Step): step.Next[O] =
       next(hook(_).unsafeInit(()))
 
+    /** Use a custom hook */
+    final def custom_[I](hook: CustomHook[I, Unit])(implicit step: Step, a: CustomHook.Arg[Ctx, I]): step.Self =
+      self(ctx => hook.unsafeInit(a.convert(ctx)))
+
+    /** Use a custom hook */
+    final def custom_(hook: Ctx => CustomHook[Unit, Unit])(implicit step: Step): step.Self =
+      self(hook(_).unsafeInit(()))
+
     /** Create a new local `lazy val` on each render. */
     final def localLazyVal[A](a: => A)(implicit step: Step): step.Next[() => A] =
       localLazyValBy(_ => a)
@@ -391,6 +399,10 @@ object Api {
     /** Use a custom hook */
     final def custom[O](hook: CtxFn[CustomHook[Unit, O]])(implicit step: Step): step.Next[O] =
       custom(step.squash(hook)(_))
+
+    /** Use a custom hook */
+    final def custom_(hook: CtxFn[CustomHook[Unit, Unit]])(implicit step: Step): step.Self =
+      custom_(step.squash(hook)(_))
 
     /** Create a new local `lazy val` on each render. */
     final def localLazyValBy[A](f: CtxFn[A])(implicit step: Step): step.Next[() => A] =
