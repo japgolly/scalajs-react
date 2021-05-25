@@ -136,6 +136,20 @@ object Api {
     final def useContextBy[A](f: Ctx => Context[A])(implicit step: Step): step.Next[A] =
       next(ctx => UseContext.unsafeCreate(f(ctx)))
 
+    /** Used to display a label for custom hooks in React DevTools.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usedebugvalue
+      */
+    final def useDebugValue(desc: => Any)(implicit step: Step): step.Next[Unit] =
+      useDebugValueBy(_ => desc)
+
+    /** Used to display a label for custom hooks in React DevTools.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usedebugvalue
+      */
+    final def useDebugValueBy(desc: Ctx => Any)(implicit step: Step): step.Next[Unit] =
+      next(ctx => UseDebugValue.unsafeCreate(desc(ctx)))
+
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
       *
@@ -416,6 +430,13 @@ object Api {
       */
     final def useContextBy[A](f: CtxFn[Context[A]])(implicit step: Step): step.Next[A] =
       useContextBy(step.squash(f)(_))
+
+    /** Used to display a label for custom hooks in React DevTools.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usedebugvalue
+      */
+    final def useDebugValueBy(f: CtxFn[Any])(implicit step: Step): step.Next[Unit] =
+      useDebugValueBy(step.squash(f)(_))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.

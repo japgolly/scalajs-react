@@ -41,6 +41,13 @@ object Hooks {
 
   // ===================================================================================================================
 
+  object UseDebugValue {
+    def unsafeCreate(desc: => Any): Unit =
+      Raw.React.useDebugValue[Null](null, _ => desc)
+  }
+
+  // ===================================================================================================================
+
   @implicitNotFound(
     "You're attempting to provide a CallbackTo[${A}] to the useEffect family of hooks."
     + "\n  - To specify a basic effect, provide a Callback (protip: try adding .void to your callback)."

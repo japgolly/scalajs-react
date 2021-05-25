@@ -44,6 +44,6 @@ trait Hooks extends js.Object {
     create: js.Function0[A],
     deps  : js.UndefOr[HookDeps] = js.native): Unit = js.native
 
-  final def useDebugValue(desc: js.Any): Unit = js.native
-  final def useDebugValue[A](value: A, desc: A => js.Any): Unit = js.native
+  final def useDebugValue(desc: Any): Unit = js.native
+  final def useDebugValue[A](value: A, desc: A => Any): Unit = js.native
 }

@@ -7,18 +7,6 @@ import scala.scalajs.js
 
 object Hooks {
 
-  // ===================================================================================================================
-
-    /** Used to display a label for custom hooks in React DevTools.
-      *
-      * @see https://reactjs.org/docs/hooks-reference.html#usedebugvalue
-      */
-    def useDebugValue(desc: => Any): Unit =
-      Raw.React.useDebugValue[Null](null, _ => desc.asInstanceOf[js.Any])
-  }
-
-  // ===================================================================================================================
-
 trait Hooks {
   def useCallback   (c: Callback): Reusable[Callback]
   def useCallback[D](c: Callback, deps: D): Reusable[Callback]
