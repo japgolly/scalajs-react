@@ -12,11 +12,11 @@ object Example1 {
   // final case class Blah2[P, H1, H2](props: P, hook1: H1, hook2: H2)
 
   val customHook1 = CustomHook.builder[Int]
-    .useState(identity)
+    .useState(123)
     .buildReturning(_.hook1)
 
   val component1a = HookComponentBuilder[P]
-    .useState(_.propsInt)
+    .useStateBy(_.propsInt)
     .custom((p, s1) => customHook1(p.propsInt + s1.value))
     .useReducerBy($ => _[Int, Int]((s, a) => s + a, $.hook2.value))
     .render($ => <.div(
@@ -28,8 +28,8 @@ object Example1 {
     ))
 
   val component1b = HookComponentBuilder[P]
-    .useState(_.propsInt)
-    .useState((p, s1) => p.propsInt + s1.value)
+    .useStateBy(_.propsInt)
+    .useStateBy((p, s1) => p.propsInt + s1.value)
     .render((p, s1, s2) => <.div(
       <.div(s"p.propsInt = ${p.propsInt}"),
       <.div(s"s1 = ${s1.value}"),
@@ -42,7 +42,7 @@ object Example1 {
 
 
   HookComponentBuilder[P]
-    .useState(_.propsInt)
+    .useStateBy(_.propsInt)
 
     .useEffect(Callback.empty)
     // .useEffect($ => Callback.log($.props.propsInt))
@@ -52,7 +52,7 @@ object Example1 {
     .useEffectBy($ => _(Callback.log($.props.propsInt), 1))
 
     .useEffectOnMount(Callback.empty)
-    .useEffectOnMount($ => Callback.log($.props.propsInt))
+    .useEffectOnMountBy($ => Callback.log($.props.propsInt))
 
     .useLayoutEffect(Callback.empty)
     // .useLayoutEffect($ => Callback.log($.props.propsInt))
@@ -62,7 +62,7 @@ object Example1 {
     .useLayoutEffectBy($ => _(Callback.log($.props.propsInt), 1))
 
     .useLayoutEffectOnMount(Callback.empty)
-    .useLayoutEffectOnMount($ => Callback.log($.props.propsInt))
+    .useLayoutEffectOnMountBy($ => Callback.log($.props.propsInt))
 
     .custom(customHook1(123))
     .custom(ctx => customHook1(ctx.hook1.value))

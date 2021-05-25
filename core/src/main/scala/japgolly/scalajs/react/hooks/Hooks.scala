@@ -81,7 +81,7 @@ object Hooks {
 
     def prepare[A, D](e: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Raw.React.UseEffectArg] =
       CustomHook.builder[Unit]
-        .useState(_ => deps)
+        .useState(deps)
         .buildReturning { (_, prevDeps) =>
           if (r.updateNeeded(prevDeps.value, deps))
             a.toJs(e.finallyRun(prevDeps.setState(deps)))
@@ -103,8 +103,8 @@ object Hooks {
   object UseMemo {
     def apply[A, D](create: => A, deps: D)(implicit r: Reusability[D]): UseMemo[A] = {
       val hook = CustomHook.builder[Unit]
-        .useState(_ => 0)
-        .useState(_ => deps)
+        .useState(0)
+        .useState(deps)
         .buildReturning { (_, prevRev, prevDeps) =>
           var rev = prevRev.value
           if (r.updateNeeded(prevDeps.value, deps)) {

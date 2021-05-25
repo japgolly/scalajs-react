@@ -38,7 +38,11 @@ object Api {
       next(hook(_).unsafeInit(()))
 
     /** Create a new local `lazy val` on each render. */
-    final def localLazyVal[A](f: Ctx => A)(implicit step: Step): step.Next[() => A] =
+    final def localLazyVal[A](a: => A)(implicit step: Step): step.Next[() => A] =
+      localLazyValBy(_ => a)
+
+    /** Create a new local `lazy val` on each render. */
+    final def localLazyValBy[A](f: Ctx => A)(implicit step: Step): step.Next[() => A] =
       next { ctx =>
         lazy val a: A = f(ctx)
         val result = () => a // TODO: Report Scala bug
@@ -46,11 +50,19 @@ object Api {
       }
 
     /** Create a new local `val` on each render. */
-    final def localVal[A](f: Ctx => A)(implicit step: Step): step.Next[A] =
+    final def localVal[A](a: A)(implicit step: Step): step.Next[A] =
+      next(_ => a)
+
+    /** Create a new local `val` on each render. */
+    final def localValBy[A](f: Ctx => A)(implicit step: Step): step.Next[A] =
       next(f)
 
     /** Create a new local `var` on each render. */
-    final def localVar[A](f: Ctx => A)(implicit step: Step): step.Next[Var[A]] =
+    final def localVar[A](a: => A)(implicit step: Step): step.Next[Var[A]] =
+      localVarBy(_ => a)
+
+    /** Create a new local `var` on each render. */
+    final def localVarBy[A](f: Ctx => A)(implicit step: Step): step.Next[Var[A]] =
       next(ctx => new Var(f(ctx)))
 
     /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
@@ -64,7 +76,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
     final def useCallback[A](callback: A)(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]] =
-      useCallbackBy((_: Ctx) => (_: UseCallbackInline)(callback))
+      useCallbackBy(_ => (_: UseCallbackInline)(callback))
 
     /** Returns a memoized callback.
       *
@@ -75,7 +87,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
     final def useCallback[A, D](callback: A, deps: D)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
-      useCallbackBy((_: Ctx) => (_: UseCallbackInline)(callback, deps))
+      useCallbackBy(_ => (_: UseCallbackInline)(callback, deps))
 
     /** Returns a memoized callback.
       *
@@ -104,7 +116,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#usecontext
       */
     final def useContext[A](ctx: Context[A])(implicit step: Step): step.Next[A] =
-      useContext((_: Ctx) => ctx)
+      useContextBy(_ => ctx)
 
     /** Accepts a context object and returns the current context value for that context. The current context value is
       * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
@@ -121,7 +133,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecontext
       */
-    final def useContext[A](f: Ctx => Context[A])(implicit step: Step): step.Next[A] =
+    final def useContextBy[A](f: Ctx => Context[A])(implicit step: Step): step.Next[A] =
       next(ctx => UseContext.unsafeCreate(f(ctx)))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
@@ -168,7 +180,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
     final def useEffectOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
-      useEffectOnMount((_: Ctx) => effect)
+      useEffectOnMountBy(_ => effect)
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
@@ -177,7 +189,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectOnMount[A](effect: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
+    final def useEffectOnMountBy[A](effect: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
       next(ctx => UseEffect.unsafeCreateOnMount(effect(ctx)))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
@@ -234,7 +246,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
     final def useLayoutEffectOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
-      useLayoutEffectOnMount((_: Ctx) => effect)
+      useLayoutEffectOnMountBy(_ => effect)
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -246,21 +258,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectOnMount[A](effect: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
+    final def useLayoutEffectOnMountBy[A](effect: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
       next(ctx => UseEffect.unsafeCreateLayoutOnMount(effect(ctx)))
-
-    /** Returns a memoized value.
-      *
-      * Pass a “create” function and any dependencies. useMemo will only recompute the memoized value when one
-      * of the dependencies has changed. This optimization helps to avoid expensive calculations on every render.
-      *
-      * Remember that the function passed to useMemo runs during rendering. Don’t do anything there that you wouldn’t
-      * normally do while rendering. For example, side effects belong in [[useEffect]], not useMemo.
-      *
-      * @see https://reactjs.org/docs/hooks-reference.html#usememo
-      */
-    final def useMemo[A](f: Ctx => UseMemo.type => UseMemo[A])(implicit step: Step): step.Next[A] =
-      custom((ctx: Ctx) => f(ctx)(UseMemo).hook)
 
     /** Returns a memoized value.
       *
@@ -274,6 +273,19 @@ object Api {
       */
     final def useMemo[A, D](create: => A, deps: D)(implicit r: Reusability[D], step: Step): step.Next[A] =
       custom(UseMemo(create, deps).hook)
+
+    /** Returns a memoized value.
+      *
+      * Pass a “create” function and any dependencies. useMemo will only recompute the memoized value when one
+      * of the dependencies has changed. This optimization helps to avoid expensive calculations on every render.
+      *
+      * Remember that the function passed to useMemo runs during rendering. Don’t do anything there that you wouldn’t
+      * normally do while rendering. For example, side effects belong in [[useEffect]], not useMemo.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usememo
+      */
+    final def useMemoBy[A](f: Ctx => UseMemo.type => UseMemo[A])(implicit step: Step): step.Next[A] =
+      custom((ctx: Ctx) => f(ctx)(UseMemo).hook)
 
     /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
       * current state paired with a dispatch method.
@@ -322,7 +334,18 @@ object Api {
       * During subsequent re-renders, the first value returned by useState will always be the most recent state after
       * applying updates.
       */
-    final def useState[S](initialState: Ctx => S)(implicit step: Step): step.Next[UseState[S]] =
+    final def useState[S](initialState: => S)(implicit step: Step): step.Next[UseState[S]] =
+      useStateBy(_ => initialState)
+
+    /** Returns a stateful value, and a function to update it.
+      *
+      * During the initial render, the returned state is the same as the value passed as the first argument
+      * (initialState).
+      *
+      * During subsequent re-renders, the first value returned by useState will always be the most recent state after
+      * applying updates.
+      */
+    final def useStateBy[S](initialState: Ctx => S)(implicit step: Step): step.Next[UseState[S]] =
       next(ctx => UseState.unsafeCreate(initialState(ctx)))
   }
 
@@ -336,16 +359,16 @@ object Api {
       custom(step.squash(hook)(_))
 
     /** Create a new local `lazy val` on each render. */
-    final def localLazyVal[A](f: CtxFn[A])(implicit step: Step): step.Next[() => A] =
-      localLazyVal(step.squash(f)(_))
+    final def localLazyValBy[A](f: CtxFn[A])(implicit step: Step): step.Next[() => A] =
+      localLazyValBy(step.squash(f)(_))
 
     /** Create a new local `val` on each render. */
-    final def localVal[A](f: CtxFn[A])(implicit step: Step): step.Next[A] =
-      localVal(step.squash(f)(_))
+    final def localValBy[A](f: CtxFn[A])(implicit step: Step): step.Next[A] =
+      localValBy(step.squash(f)(_))
 
     /** Create a new local `var` on each render. */
-    final def localVar[A](f: CtxFn[A])(implicit step: Step): step.Next[Var[A]] =
-      localVar(step.squash(f)(_))
+    final def localVarBy[A](f: CtxFn[A])(implicit step: Step): step.Next[Var[A]] =
+      localVarBy(step.squash(f)(_))
 
     /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
       * It's up to you to ensure you don't vioalte React's hook rules.
@@ -379,8 +402,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecontext
       */
-    final def useContext[A](f: CtxFn[Context[A]])(implicit step: Step): step.Next[A] =
-      useContext(step.squash(f)(_))
+    final def useContextBy[A](f: CtxFn[Context[A]])(implicit step: Step): step.Next[A] =
+      useContextBy(step.squash(f)(_))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
@@ -402,8 +425,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectOnMount[A](effect: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
-      useEffectOnMount(step.squash(effect)(_))
+    final def useEffectOnMountBy[A](effect: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
+      useEffectOnMountBy(step.squash(effect)(_))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -430,8 +453,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectOnMount[A](effect: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
-      useLayoutEffectOnMount(step.squash(effect)(_))
+    final def useLayoutEffectOnMountBy[A](effect: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Next[Unit] =
+      useLayoutEffectOnMountBy(step.squash(effect)(_))
 
     /** Returns a memoized value.
       *
@@ -443,8 +466,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usememo
       */
-    final def useMemo[A](f: CtxFn[UseMemo.type => UseMemo[A]])(implicit step: Step): step.Next[A] =
-      useMemo(step.squash(f)(_))
+    final def useMemoBy[A](f: CtxFn[UseMemo.type => UseMemo[A]])(implicit step: Step): step.Next[A] =
+      useMemoBy(step.squash(f)(_))
 
     /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
       * current state paired with a dispatch method.
@@ -467,8 +490,8 @@ object Api {
       * During subsequent re-renders, the first value returned by useState will always be the most recent state after
       * applying updates.
       */
-    final def useState[S](initialState: CtxFn[S])(implicit step: Step): step.Next[UseState[S]] =
-      useState(step.squash(initialState)(_))
+    final def useStateBy[S](initialState: CtxFn[S])(implicit step: Step): step.Next[UseState[S]] =
+      useStateBy(step.squash(initialState)(_))
   }
 
   // ===================================================================================================================
