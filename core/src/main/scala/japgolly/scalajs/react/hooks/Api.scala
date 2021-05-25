@@ -64,18 +64,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
     final def useCallback(callback: Callback)(implicit step: Step): step.Next[Reusable[Callback]] =
-      useCallback((_: Ctx) => (_: UseCallbackInline)(callback))
-
-    /** Returns a memoized callback.
-      *
-      * Pass an inline callback and dependencies. useCallback will return a memoized version of the callback that only
-      * changes if one of the dependencies has changed. This is useful when passing callbacks to optimized child
-      * components that rely on reference equality to prevent unnecessary renders.
-      *
-      * @see https://reactjs.org/docs/hooks-reference.html#usecallback
-      */
-    final def useCallback[A](f: Ctx => UseCallbackInline => HookCreated[Reusable[A]])(implicit step: Step): step.Next[Reusable[A]] =
-      next(f(_)(new UseCallbackInline).result)
+      useCallbackBy((_: Ctx) => (_: UseCallbackInline)(callback))
 
     /** Returns a memoized callback.
       *
@@ -86,7 +75,18 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
     final def useCallback[D](callback: Callback, deps: D)(implicit r: Reusability[D], step: Step): step.Next[Reusable[Callback]] =
-      useCallback((_: Ctx) => (_: UseCallbackInline)(callback, deps))
+      useCallbackBy((_: Ctx) => (_: UseCallbackInline)(callback, deps))
+
+    /** Returns a memoized callback.
+      *
+      * Pass an inline callback and dependencies. useCallback will return a memoized version of the callback that only
+      * changes if one of the dependencies has changed. This is useful when passing callbacks to optimized child
+      * components that rely on reference equality to prevent unnecessary renders.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#usecallback
+      */
+    final def useCallbackBy[A](f: Ctx => UseCallbackInline => HookCreated[Reusable[A]])(implicit step: Step): step.Next[Reusable[A]] =
+      next(f(_)(new UseCallbackInline).result)
 
     /** Accepts a context object and returns the current context value for that context. The current context value is
       * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
@@ -140,6 +140,16 @@ object Api {
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
       *
+      * This will only execute the effect when values in the second argument, change.
+      *
+      * @see https://reactjs.org/docs/hooks-reference.html#useeffect
+      */
+    final def useEffect[A, D](effect: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Next[Unit] =
+      custom(ReusableEffect.useEffect(effect, deps))
+
+    /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
+      * escape hatch from React’s purely functional world into the imperative world.
+      *
       * By default, effects run after every completed render.
       * If you'd only like to execute the effect when your component is mounted, then use [[useEffectOnMount]].
       * If you'd only like to execute the effect when certain values have changed, provide those certain values as
@@ -147,18 +157,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffect(init: Ctx => UseEffectInline => HookCreated[Unit])(implicit step: Step): step.Next[Unit] =
+    final def useEffectBy(init: Ctx => UseEffectInline => HookCreated[Unit])(implicit step: Step): step.Next[Unit] =
       next(init(_)(new UseEffectInline).result)
-
-    /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
-      * escape hatch from React’s purely functional world into the imperative world.
-      *
-      * This will only execute the effect when values in the second argument, change.
-      *
-      * @see https://reactjs.org/docs/hooks-reference.html#useeffect
-      */
-    final def useEffect[A, D](effect: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Next[Unit] =
-      custom(ReusableEffect.useEffect(effect, deps))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
@@ -201,14 +201,12 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * If you'd only like to execute the effect when your component is mounted, then use [[useLayoutEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the second argument.
+      * This will only execute the effect when values in the second argument, change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffect(init: Ctx => UseLayoutEffectInline => HookCreated[Unit])(implicit step: Step): step.Next[Unit] =
-      next(init(_)(new UseLayoutEffectInline).result)
+    final def useLayoutEffect[A, D](effect: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Next[Unit] =
+      custom(ReusableEffect.useLayoutEffect(effect, deps))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -216,12 +214,14 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * This will only execute the effect when values in the second argument, change.
+      * If you'd only like to execute the effect when your component is mounted, then use [[useLayoutEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
+      * the second argument.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffect[A, D](effect: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Next[Unit] =
-      custom(ReusableEffect.useLayoutEffect(effect, deps))
+    final def useLayoutEffectBy(init: Ctx => UseLayoutEffectInline => HookCreated[Unit])(implicit step: Step): step.Next[Unit] =
+      next(init(_)(new UseLayoutEffectInline).result)
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -311,7 +311,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usereducer
       */
-    final def useReducer[S, A](init: Ctx => UseReducerInline => HookCreated[UseReducer[S, A]])(implicit step: Step): step.Next[UseReducer[S, A]] =
+    final def useReducerBy[S, A](init: Ctx => UseReducerInline => HookCreated[UseReducer[S, A]])(implicit step: Step): step.Next[UseReducer[S, A]] =
       next(init(_)(new UseReducerInline).result)
 
     /** Returns a stateful value, and a function to update it.
@@ -361,8 +361,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
-    final def useCallback[A](f: CtxFn[UseCallbackInline => HookCreated[Reusable[A]]])(implicit step: Step): step.Next[Reusable[A]] =
-      useCallback(step.squash(f)(_))
+    final def useCallbackBy[A](f: CtxFn[UseCallbackInline => HookCreated[Reusable[A]]])(implicit step: Step): step.Next[Reusable[A]] =
+      useCallbackBy(step.squash(f)(_))
 
     /** Accepts a context object and returns the current context value for that context. The current context value is
       * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
@@ -392,8 +392,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffect(init: CtxFn[UseEffectInline => HookCreated[Unit]])(implicit step: Step): step.Next[Unit] =
-      useEffect(step.squash(init)(_))
+    final def useEffectBy(init: CtxFn[UseEffectInline => HookCreated[Unit]])(implicit step: Step): step.Next[Unit] =
+      useEffectBy(step.squash(init)(_))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
@@ -417,8 +417,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffect(init: CtxFn[UseLayoutEffectInline => HookCreated[Unit]])(implicit step: Step): step.Next[Unit] =
-      useLayoutEffect(step.squash(init)(_))
+    final def useLayoutEffectBy(init: CtxFn[UseLayoutEffectInline => HookCreated[Unit]])(implicit step: Step): step.Next[Unit] =
+      useLayoutEffectBy(step.squash(init)(_))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -456,8 +456,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usereducer
       */
-    final def useReducer[S, A](init: CtxFn[UseReducerInline => HookCreated[UseReducer[S, A]]])(implicit step: Step): step.Next[UseReducer[S, A]] =
-      useReducer(step.squash(init)(_))
+    final def useReducerBy[S, A](init: CtxFn[UseReducerInline => HookCreated[UseReducer[S, A]]])(implicit step: Step): step.Next[UseReducer[S, A]] =
+      useReducerBy(step.squash(init)(_))
 
     /** Returns a stateful value, and a function to update it.
       *

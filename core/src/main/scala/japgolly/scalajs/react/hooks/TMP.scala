@@ -18,7 +18,7 @@ object Example1 {
   val component1a = HookComponentBuilder[P]
     .useState(_.propsInt)
     .custom((p, s1) => customHook1(p.propsInt + s1.value))
-    .useReducer($ => _[Int, Int]((s, a) => s + a, $.hook2.value))
+    .useReducerBy($ => _[Int, Int]((s, a) => s + a, $.hook2.value))
     .render($ => <.div(
       <.div(s"p.propsInt = ${$.props.propsInt}"),
       <.div(s"s1 = ${$.hook1.value}"),
@@ -46,20 +46,20 @@ object Example1 {
 
     .useEffect(Callback.empty)
     // .useEffect($ => Callback.log($.props.propsInt))
-    .useEffect($ => _(Callback.log($.props.propsInt)))
+    .useEffectBy($ => _(Callback.log($.props.propsInt)))
 
     .useEffect(Callback.empty, 1)
-    .useEffect($ => _(Callback.log($.props.propsInt), 1))
+    .useEffectBy($ => _(Callback.log($.props.propsInt), 1))
 
     .useEffectOnMount(Callback.empty)
     .useEffectOnMount($ => Callback.log($.props.propsInt))
 
     .useLayoutEffect(Callback.empty)
     // .useLayoutEffect($ => Callback.log($.props.propsInt))
-    .useLayoutEffect($ => _(Callback.log($.props.propsInt)))
+    .useLayoutEffectBy($ => _(Callback.log($.props.propsInt)))
 
     .useLayoutEffect(Callback.empty, 1)
-    .useLayoutEffect($ => _(Callback.log($.props.propsInt), 1))
+    .useLayoutEffectBy($ => _(Callback.log($.props.propsInt), 1))
 
     .useLayoutEffectOnMount(Callback.empty)
     .useLayoutEffectOnMount($ => Callback.log($.props.propsInt))
@@ -69,12 +69,12 @@ object Example1 {
 
     .useCallback(Callback.empty)
     .useCallback(Callback.empty, 123)
-    .useCallback($ => _(Callback.log($.props.propsInt)))
-    .useCallback($ => _(Callback.log($.props.propsInt), $.props.propsInt))
+    .useCallbackBy($ => _(Callback.log($.props.propsInt)))
+    .useCallbackBy($ => _(Callback.log($.props.propsInt), $.props.propsInt))
 
   HookComponentBuilder[P]
-    .useCallback(_ => _((i: Int) => Callback.log(i)))
-    .useCallback($ => _((i: Int) => Callback.log(i), $.props.propsInt))
+    .useCallbackBy(_ => _((i: Int) => Callback.log(i)))
+    .useCallbackBy($ => _((i: Int) => Callback.log(i), $.props.propsInt))
     .useCallback1((i: Int) => Callback.log(i))
 
 

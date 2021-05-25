@@ -20,7 +20,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback1[A](f: (A) => Callback)(implicit step: Step): step.Next[Reusable[(A) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -31,7 +31,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback1[A, Z](f: (A) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -39,7 +39,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback2[A, B](f: (A, B) => Callback)(implicit step: Step): step.Next[Reusable[(A, B) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -50,7 +50,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback2[A, B, Z](f: (A, B) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -58,7 +58,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback3[A, B, C](f: (A, B, C) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -69,7 +69,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback3[A, B, C, Z](f: (A, B, C) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -77,7 +77,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback4[A, B, C, D](f: (A, B, C, D) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -88,7 +88,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback4[A, B, C, D, Z](f: (A, B, C, D) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -96,7 +96,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback5[A, B, C, D, E](f: (A, B, C, D, E) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -107,7 +107,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback5[A, B, C, D, E, Z](f: (A, B, C, D, E) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -115,7 +115,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback6[A, B, C, D, E, F](f: (A, B, C, D, E, F) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -126,7 +126,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback6[A, B, C, D, E, F, Z](f: (A, B, C, D, E, F) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -134,7 +134,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback7[A, B, C, D, E, F, G](f: (A, B, C, D, E, F, G) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -145,7 +145,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback7[A, B, C, D, E, F, G, Z](f: (A, B, C, D, E, F, G) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -153,7 +153,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback8[A, B, C, D, E, F, G, H](f: (A, B, C, D, E, F, G, H) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -164,7 +164,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback8[A, B, C, D, E, F, G, H, Z](f: (A, B, C, D, E, F, G, H) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -172,7 +172,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback9[A, B, C, D, E, F, G, H, I](f: (A, B, C, D, E, F, G, H, I) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -183,7 +183,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback9[A, B, C, D, E, F, G, H, I, Z](f: (A, B, C, D, E, F, G, H, I) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -191,7 +191,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback10[A, B, C, D, E, F, G, H, I, J](f: (A, B, C, D, E, F, G, H, I, J) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -202,7 +202,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback10[A, B, C, D, E, F, G, H, I, J, Z](f: (A, B, C, D, E, F, G, H, I, J) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -210,7 +210,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback11[A, B, C, D, E, F, G, H, I, J, K](f: (A, B, C, D, E, F, G, H, I, J, K) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -221,7 +221,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback11[A, B, C, D, E, F, G, H, I, J, K, Z](f: (A, B, C, D, E, F, G, H, I, J, K) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -229,7 +229,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback12[A, B, C, D, E, F, G, H, I, J, K, L](f: (A, B, C, D, E, F, G, H, I, J, K, L) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -240,7 +240,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback12[A, B, C, D, E, F, G, H, I, J, K, L, Z](f: (A, B, C, D, E, F, G, H, I, J, K, L) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -248,7 +248,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback13[A, B, C, D, E, F, G, H, I, J, K, L, M](f: (A, B, C, D, E, F, G, H, I, J, K, L, M) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -259,7 +259,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback13[A, B, C, D, E, F, G, H, I, J, K, L, M, Z](f: (A, B, C, D, E, F, G, H, I, J, K, L, M) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -267,7 +267,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback14[A, B, C, D, E, F, G, H, I, J, K, L, M, N](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -278,7 +278,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback14[A, B, C, D, E, F, G, H, I, J, K, L, M, N, Z](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -286,7 +286,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -297,7 +297,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, Z](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -305,7 +305,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -316,7 +316,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Z](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -324,7 +324,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -335,7 +335,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, Z](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -343,7 +343,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -354,7 +354,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, Z](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -362,7 +362,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -373,7 +373,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, Z](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -381,7 +381,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -392,7 +392,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, Z](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -400,7 +400,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -411,7 +411,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, Z](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 
   /** Returns a memoized callback.
@@ -419,7 +419,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) => Callback)(implicit step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
 
   /** Returns a memoized callback.
     *
@@ -430,7 +430,7 @@ trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] 
     * @see https://reactjs.org/docs/hooks-reference.html#usecallback
     */
   @inline final def useCallback22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, Z](f: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) => Callback]] =
-    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
 
 }
 

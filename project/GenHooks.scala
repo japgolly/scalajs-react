@@ -52,7 +52,7 @@ object GenHooks {
            |    * @see https://reactjs.org/docs/hooks-reference.html#usecallback
            |    */
            |  @inline final def useCallback$n[$As](f: ($As) => Callback)(implicit step: Step): step.Next[Reusable[($As) => Callback]] =
-           |    useCallback((_: Ctx) => (_: UseCallbackInline)(f))
+           |    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
            |
            |  /** Returns a memoized callback.
            |    *
@@ -63,7 +63,7 @@ object GenHooks {
            |    * @see https://reactjs.org/docs/hooks-reference.html#usecallback
            |    */
            |  @inline final def useCallback$n[$As, Z](f: ($As) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[($As) => Callback]] =
-           |    useCallback((_: Ctx) => (_: UseCallbackInline)(f, deps))
+           |    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
            |""".stripMargin
 
       if (n <= 21) {
