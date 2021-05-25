@@ -252,4 +252,25 @@ object Hooks {
     }
   }
 
+  // ===================================================================================================================
+
+  final class Var[A](initialValue: A) {
+    override def toString =
+      s"Hooks.Var($value)"
+      // Note: this is not just simply `value` because if a user were to rely on it (and base tests on it), it would
+      // break when changing the Scala.js semantics that wipe out toString bodies.
+
+    var value: A =
+      initialValue
+
+    def get: CallbackTo[A] =
+      CallbackTo(value)
+
+    def set(a: A): Callback =
+      Callback{ value = a }
+
+    def mod(f: A => A): Callback =
+      Callback{ value = f(value) }
+  }
+
 }

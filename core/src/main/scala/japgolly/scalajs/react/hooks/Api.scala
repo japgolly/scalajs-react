@@ -17,11 +17,6 @@ object Api {
     def squash[A]: CtxFn[A] => (Ctx => A)
   }
 
-  final class Var[A](initialValue: A) {
-    var value: A =
-      initialValue
-  }
-
   // ===================================================================================================================
   // API 1: X / (Ctx => X)
 

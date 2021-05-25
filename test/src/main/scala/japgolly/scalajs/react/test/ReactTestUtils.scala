@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.hooks.Hooks
 import japgolly.scalajs.react.raw.{React => RawReact, ReactDOM => RawReactDOM}
 import japgolly.scalajs.react.vdom.TopNode
 import org.scalajs.dom
@@ -35,9 +36,11 @@ object ReactTestUtils {
     *
     * This helps make your tests run closer to what real users would experience when using your application.
     */
-  def act(body: => Any): Unit = {
-    raw.act(Callback(body).toJsFn)
-    ()
+  def act[A](body: => A): A = {
+    var a = Option.empty[A]
+    val cb = Callback{ a = Some(body) }
+    raw.act(cb.toJsFn)
+    a.getOrElse(throw new RuntimeException("React's TestUtils.act didn't seem to complete."))
   }
 
   /** When writing UI tests, tasks like rendering, user events, or data fetching can be considered as "units" of
@@ -53,8 +56,11 @@ object ReactTestUtils {
     *
     * This helps make your tests run closer to what real users would experience when using your application.
     */
-  def actAsync[A](body: AsyncCallback[A]): AsyncCallback[Unit] =
-    AsyncCallback.fromJsPromise(raw.actAsync(body.asCallbackToJsPromise.toJsFn))
+  def actAsync[A](body: AsyncCallback[A]): AsyncCallback[A] =
+    for {
+      ref <- AsyncCallback.delay(new Hooks.Var(Option.empty[A]))
+      _   <- AsyncCallback.fromJsPromise(raw.actAsync(body.flatMapSync(a => ref.set(Some(a))).asCallbackToJsPromise.toJsFn))
+    } yield ref.value.getOrElse(throw new RuntimeException("React's TestUtils.act didn't seem to complete."))
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
   def renderIntoDocument[M](unmounted: Unmounted[M]): M = {
