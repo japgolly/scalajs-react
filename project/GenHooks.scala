@@ -23,7 +23,6 @@ object GenHooks {
     val stepMultisI     = List.newBuilder[String]
     val stepMultisP     = List.newBuilder[String]
     val stepMultisPC    = List.newBuilder[String]
-    val useCallbackApis = List.newBuilder[String]
     val useCallbackArgs = List.newBuilder[String]
 
     for (n <- 1 to 22) {
@@ -44,26 +43,6 @@ object GenHooks {
            |    UseCallbackArg[($As) => Callback, js.Function$n[$As, Unit]](
            |      f => f(${_s}).runNow())(
            |      z => Reusable.byRef(z).withValue(($as) => Callback(z($as))))
-           |""".stripMargin
-
-      useCallbackApis +=
-        s"""  /** Returns a memoized callback.
-           |    *
-           |    * @see https://reactjs.org/docs/hooks-reference.html#usecallback
-           |    */
-           |  @inline final def useCallback$n[$As](f: ($As) => Callback)(implicit step: Step): step.Next[Reusable[($As) => Callback]] =
-           |    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f))
-           |
-           |  /** Returns a memoized callback.
-           |    *
-           |    * Pass an inline callback and dependencies. useCallback will return a memoized version of the callback that only
-           |    * changes if one of the dependencies has changed. This is useful when passing callbacks to optimized child
-           |    * components that rely on reference equality to prevent unnecessary renders.
-           |    *
-           |    * @see https://reactjs.org/docs/hooks-reference.html#usecallback
-           |    */
-           |  @inline final def useCallback$n[$As, Z](f: ($As) => Callback, deps: Z)(implicit r: Reusability[Z], step: Step): step.Next[Reusable[($As) => Callback]] =
-           |    useCallbackBy((_: Ctx) => (_: UseCallbackInline)(f, deps))
            |""".stripMargin
 
       if (n <= 21) {
@@ -310,16 +289,8 @@ object GenHooks {
       s"""$header
          |
          |import japgolly.scalajs.react.hooks.Hooks.UseCallbackArg
-         |import japgolly.scalajs.react.{Callback, Reusability, Reusable}
+         |import japgolly.scalajs.react.{Callback, Reusable}
          |import scala.scalajs.js
-         |
-         |trait UseCallbackExtraApi[Ctx, Step <: Api.Step] { self: Api.Primary[Ctx, Step] =>
-         |  import Api.UseCallbackInline
-         |
-         |${useCallbackApis.result().mkString("\n\n")}
-         |}
-         |
-         |// =====================================================================================================================
          |
          |trait UseCallbackArgInstances {
          |

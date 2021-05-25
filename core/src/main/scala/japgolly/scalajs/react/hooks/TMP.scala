@@ -75,7 +75,7 @@ object Example1 {
   HookComponentBuilder[P]
     .useCallbackBy(_ => _((i: Int) => Callback.log(i)))
     .useCallbackBy($ => _((i: Int) => Callback.log(i), $.props.propsInt))
-    .useCallback1((i: Int) => Callback.log(i))
+    .useCallback((i: Int) => Callback.log(i))
 
 
 

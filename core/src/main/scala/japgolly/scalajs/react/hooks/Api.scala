@@ -2,7 +2,7 @@ package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks.{UseCallbackArg, UseMemo, _}
-import japgolly.scalajs.react.{Callback, CallbackTo, Reusability, Reusable, raw => Raw}
+import japgolly.scalajs.react.{CallbackTo, Reusability, Reusable, raw => Raw}
 
 object Api {
 
@@ -24,7 +24,7 @@ object Api {
   // ===================================================================================================================
   // API 1: X / (Ctx => X)
 
-  trait Primary[Ctx, _Step <: Step] extends UseCallbackExtraApi[Ctx, _Step] {
+  trait Primary[Ctx, _Step <: Step] {
     final type Step = _Step
 
     protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H]
@@ -63,7 +63,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
-    final def useCallback(callback: Callback)(implicit step: Step): step.Next[Reusable[Callback]] =
+    final def useCallback[A](callback: A)(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]] =
       useCallbackBy((_: Ctx) => (_: UseCallbackInline)(callback))
 
     /** Returns a memoized callback.
@@ -74,7 +74,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
-    final def useCallback[D](callback: Callback, deps: D)(implicit r: Reusability[D], step: Step): step.Next[Reusable[Callback]] =
+    final def useCallback[A, D](callback: A, deps: D)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
       useCallbackBy((_: Ctx) => (_: UseCallbackInline)(callback, deps))
 
     /** Returns a memoized callback.
