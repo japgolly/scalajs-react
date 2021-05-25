@@ -73,6 +73,12 @@ object Api {
     final def unchecked[A](f: Ctx => A)(implicit step: Step): step.Next[A] =
       next(f)
 
+    /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
+      * It's up to you to ensure you don't vioalte React's hook rules.
+      */
+    final def unchecked_(f: Ctx => Any)(implicit step: Step): step.Self =
+      self(f)
+
     /** Returns a memoized callback.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
@@ -403,6 +409,12 @@ object Api {
       */
     final def unchecked[A](f: CtxFn[A])(implicit step: Step): step.Next[A] =
       unchecked(step.squash(f)(_))
+
+    /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
+      * It's up to you to ensure you don't vioalte React's hook rules.
+      */
+    final def unchecked_(f: CtxFn[Any])(implicit step: Step): step.Self =
+      unchecked_(step.squash(f)(_))
 
     /** Returns a memoized callback.
       *
