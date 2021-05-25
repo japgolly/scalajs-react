@@ -167,6 +167,7 @@ object Ref {
 
   // ===================================================================================================================
 
+  /** @since 1.8.0 */
   trait NonEmpty[I, R, O] { self =>
     val raw: Raw.React.RefHandle[R]
     def get: CallbackTo[O]

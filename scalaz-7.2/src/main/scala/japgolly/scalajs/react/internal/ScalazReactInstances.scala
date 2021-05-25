@@ -163,7 +163,7 @@ trait ScalazReactInstances {
     override def foreach   [A]   (o: O[A])(f: A => Unit)       = o.cata(f, ())
     override def isEmpty   [A]   (o: O[A])                     = o.isEmpty
     override def toOption  [A]   (o: O[A])                     = o.toOption
-    override def unsafeToJs[A](o: O[A])                     = o.cata(a => a, js.undefined)
+    override def unsafeToJs[A]   (o: O[A])                     = o.cata(a => a, js.undefined)
   }
 
   implicit final lazy val ioReactInstance: Effect[IO] = new Effect[IO] {
