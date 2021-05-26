@@ -3,6 +3,12 @@ TODO
 
 * Tests
 * Documentation
+  * rules
+    * By suffix
+    * WithDeps suffix
+    * _ suffix & hook slots
+    * Ctx/CtxFn
+  * Maybe a table of JS <-> Scala
   * Usage guide with examples
   * tradeoffs
     * why not just (HookDsl.useXxx(...) => Unit) calls?

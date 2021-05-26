@@ -121,13 +121,13 @@ object StateSnapshot {
       CustomHook[Unit]
         .useState(initialValue)
         .useRef(List.empty[Callback])
-        .useEffectBy { (_, _, delayedCallbacks) => _(
+        .useEffectBy { (_, _, delayedCallbacks) =>
           delayedCallbacks.get.flatMap(cbs =>
             Callback.when(cbs.nonEmpty)(
               Callback.runAll(cbs: _*) >> delayedCallbacks.set(Nil)
             )
           )
-        )}
+        }
         .buildReturning { (_, state, delayedCallbacks) =>
           val setFn: SetFn[S] = (os, cb) =>
             os match {
