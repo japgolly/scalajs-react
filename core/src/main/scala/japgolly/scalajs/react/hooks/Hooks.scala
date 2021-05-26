@@ -130,8 +130,8 @@ object Hooks {
   // ===================================================================================================================
 
   object UseReducer {
-    def unsafeCreate[S, A](reducer: (S, A) => S, initialArg: S): UseReducer[S, A] =
-      _unsafeCreate(Raw.React.useReducer[S, A](reducer, initialArg))
+    @inline def unsafeCreate[S, A](reducer: (S, A) => S, initialState: => S): UseReducer[S, A] =
+      unsafeCreate[Null, S, A](reducer, null, _ => initialState)
 
     def unsafeCreate[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): UseReducer[S, A] =
       _unsafeCreate(Raw.React.useReducer[I, S, A](reducer, initialArg, init))

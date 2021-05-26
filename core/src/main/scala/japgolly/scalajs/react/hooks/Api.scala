@@ -364,8 +364,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usereducer
       */
-    final def useReducer[S, A](reducer: (S, A) => S, initialArg: S)(implicit step: Step): step.Next[UseReducer[S, A]] =
-      next(_ => UseReducer.unsafeCreate(reducer, initialArg))
+    final def useReducer[S, A](reducer: (S, A) => S, initialState: => S)(implicit step: Step): step.Next[UseReducer[S, A]] =
+      useReducerBy(_ => reducer, _ => initialState)
 
     /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
       * current state paired with a dispatch method.
@@ -377,21 +377,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usereducer
       */
-    final def useReducer[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S)(implicit step: Step): step.Next[UseReducer[S, A]] =
-      next(_ => UseReducer.unsafeCreate(reducer, initialArg, init))
-
-    /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
-      * current state paired with a dispatch method.
-      * (If you’re familiar with Redux, you already know how this works.)
-      *
-      * useReducer is usually preferable to useState when you have complex state logic that involves multiple
-      * sub-values or when the next state depends on the previous one. useReducer also lets you optimize performance
-      * for components that trigger deep updates because you can pass dispatch down instead of callbacks.
-      *
-      * @see https://reactjs.org/docs/hooks-reference.html#usereducer
-      */
-    final def useReducerBy[S, A](init: Ctx => UseReducerInline => HookCreated[UseReducer[S, A]])(implicit step: Step): step.Next[UseReducer[S, A]] =
-      next(init(_)(new UseReducerInline).result)
+    final def useReducerBy[S, A](reducer: Ctx => (S, A) => S, initialState: Ctx => S)(implicit step: Step): step.Next[UseReducer[S, A]] =
+      next(ctx => UseReducer.unsafeCreate(reducer(ctx), initialState(ctx)))
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
     final def useRef[A](implicit step: Step): step.Next[Ref.Simple[A]] =
@@ -605,8 +592,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usereducer
       */
-    final def useReducerBy[S, A](init: CtxFn[UseReducerInline => HookCreated[UseReducer[S, A]]])(implicit step: Step): step.Next[UseReducer[S, A]] =
-      useReducerBy(step.squash(init)(_))
+    final def useReducerBy[S, A](reducer: CtxFn[(S, A) => S], initialState: CtxFn[S])(implicit step: Step): step.Next[UseReducer[S, A]] =
+      useReducerBy(step.squash(reducer)(_), step.squash(initialState)(_))
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
     final def useRefBy[A](f: CtxFn[A])(implicit step: Step): step.Next[Ref.NonEmpty.Simple[A]] =
@@ -622,50 +609,6 @@ object Api {
       */
     final def useStateBy[S](initialState: CtxFn[S])(implicit step: Step): step.Next[UseState[S]] =
       useStateBy(step.squash(initialState)(_))
-  }
-
-  // ===================================================================================================================
-  // Inline API
-
-  final class HookCreated[A] private[Api] (val result: A)
-
-  trait Inline {
-    private var calls = 0
-    protected def wrap[A](a: A): HookCreated[A] = {
-      if (calls > 0)
-        throw new RuntimeException("Hook already created.")
-      calls += 1
-      new HookCreated(a)
-    }
-  }
-
-  final class UseReducerInline extends Inline {
-
-    /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
-      * current state paired with a dispatch method.
-      * (If you’re familiar with Redux, you already know how this works.)
-      *
-      * useReducer is usually preferable to useState when you have complex state logic that involves multiple
-      * sub-values or when the next state depends on the previous one. useReducer also lets you optimize performance
-      * for components that trigger deep updates because you can pass dispatch down instead of callbacks.
-      *
-      * @see https://reactjs.org/docs/hooks-reference.html#usereducer
-      */
-    def apply[S, A](reducer: (S, A) => S, initialArg: S): HookCreated[UseReducer[S, A]] =
-      wrap(UseReducer.unsafeCreate(reducer, initialArg))
-
-    /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
-      * current state paired with a dispatch method.
-      * (If you’re familiar with Redux, you already know how this works.)
-      *
-      * useReducer is usually preferable to useState when you have complex state logic that involves multiple
-      * sub-values or when the next state depends on the previous one. useReducer also lets you optimize performance
-      * for components that trigger deep updates because you can pass dispatch down instead of callbacks.
-      *
-      * @see https://reactjs.org/docs/hooks-reference.html#usereducer
-      */
-    def apply[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): HookCreated[UseReducer[S, A]] =
-      wrap(UseReducer.unsafeCreate(reducer, initialArg, init))
   }
 
 }
