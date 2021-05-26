@@ -2,12 +2,14 @@ package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.hooks.Hooks
+import japgolly.scalajs.react.internal.JsUtil
 import japgolly.scalajs.react.raw.{React => RawReact, ReactDOM => RawReactDOM}
 import org.scalajs.dom
 import org.scalajs.dom.html.Element
 import org.scalajs.dom.{console, document}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
+import scala.scalajs.js.|
 
 object ReactTestUtils {
 
@@ -18,7 +20,7 @@ object ReactTestUtils {
 
   private type RawM = japgolly.scalajs.react.raw.React.ComponentUntyped
   type MountedOutput = JsComponent.Mounted[_ <: js.Object, _ <: js.Object]
-  private def wrapMO(r: RawM): MountedOutput = JsComponent.mounted(r)
+  private def wrapMO(r: RawM | Null): MountedOutput = if (r == null) null else JsComponent.mounted(JsUtil.notNull(r))
 
   type CompType = GenericComponent.ComponentRaw {type Raw <: japgolly.scalajs.react.raw.React.ComponentClassUntyped }
 
@@ -63,8 +65,8 @@ object ReactTestUtils {
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
   def renderIntoDocument[M](unmounted: Unmounted[M]): M = {
-    val r = act(raw.renderIntoDocument(unmounted.raw))
-    unmounted.mountRaw(r)
+    val c = act(raw.renderIntoDocument(unmounted.raw))
+    unmounted.mountRawOrNull(c)
   }
 
   def renderIntoDocument(e: vdom.VdomElement): MountedOutput =
@@ -75,14 +77,14 @@ object ReactTestUtils {
    * This is not that useful on its own, but it's used as a primitive for other test utils.
    */
   def findAllInRenderedTree(tree: Mounted, test: MountedOutput => Boolean): Vector[MountedOutput] =
-    raw.findAllInRenderedTree(tree.raw, (m: RawM) => test(wrapMO(m))).iterator.map(wrapMO).toVector
+    raw.findAllInRenderedTree(tree.raw, (m: RawM) => test(wrapMO(m))).iterator.map(wrapMO(_)).toVector
 
   /**
    * Finds all instance of components in the rendered tree that are DOM components with the class name
    * matching className.
    */
   def scryRenderedDOMComponentsWithClass(tree: Mounted, className: String): Vector[MountedOutput] =
-    raw.scryRenderedDOMComponentsWithClass(tree.raw, className).iterator.map(wrapMO).toVector
+    raw.scryRenderedDOMComponentsWithClass(tree.raw, className).iterator.map(wrapMO(_)).toVector
 
   /**
    * Like [[scryRenderedDOMComponentsWithClass()]] but expects there to be one result, and returns that one result, or
@@ -96,7 +98,7 @@ object ReactTestUtils {
    * matching tagName.
    */
   def scryRenderedDOMComponentsWithTag(tree: Mounted, tagName: String): Vector[MountedOutput] =
-    raw.scryRenderedDOMComponentsWithTag(tree.raw, tagName).iterator.map(wrapMO).toVector
+    raw.scryRenderedDOMComponentsWithTag(tree.raw, tagName).iterator.map(wrapMO(_)).toVector
 
   /**
    * Like [[scryRenderedDOMComponentsWithTag()]] but expects there to be one result, and returns that one result, or
@@ -107,7 +109,7 @@ object ReactTestUtils {
 
   /** Finds all instances of components with type equal to componentClass. */
   def scryRenderedComponentsWithType(tree: Mounted, c: CompType): Vector[MountedOutput] =
-    raw.scryRenderedComponentsWithType(tree.raw, c.raw).iterator.map(wrapMO).toVector
+    raw.scryRenderedComponentsWithType(tree.raw, c.raw).iterator.map(wrapMO(_)).toVector
 
   /**
    * Same as [[scryRenderedComponentsWithType()]] but expects there to be one result and returns that one result, or throws
@@ -128,11 +130,27 @@ object ReactTestUtils {
     def withParent[A](f: R      => F[A]): F[A] = apply((_, r) => f(r))
   }
 
+  def unmountRawComponent(c: RawReact.ComponentUntyped | Null): Unit = {
+    val p = parentNode(c)
+    if (p != null)
+      unmount(p)
+  }
+
   // ===================================================================================================================
   // Private helpers
 
-  private def mountedElement(m: RawReact.ComponentUntyped) =
-    ReactDOM.findDOMNode(m).get.asElement()
+  private def mountedElement(c: RawReact.ComponentUntyped | Null) =
+    if (c == null) null else ReactDOM.findDOMNode(c).get.asElement()
+
+  private def parentNode(c: RawReact.ComponentUntyped | Null) = {
+    val m = mountedElement(c)
+    if (m == null) null else m.parentNode
+  }
+
+  private def parentElement(c: RawReact.ComponentUntyped | Null) = {
+    val p = parentNode(c)
+    if (p == null) null else p.domCast[Element]
+  }
 
   private def attemptFuture[A](f: => Future[A]): Future[A] =
     try f catch { case err: Exception => Future.failed(err) }
@@ -185,9 +203,9 @@ object ReactTestUtils {
         withNewBodyElement { parent =>
           val c = act(RawReactDOM.render(u.raw, parent))
           try
-            f(u.mountRaw(c), parent)
+            f(u.mountRawOrNull(c), parent)
           finally
-            unmount(mountedElement(c).parentNode)
+            unmountRawComponent(c)
         }
     }
 
@@ -195,8 +213,10 @@ object ReactTestUtils {
     *
     * Unlike [[ReactTestUtils.renderIntoDocument()]], this allows DOM focus to work.
     */
-  def renderIntoBody[M](u: Unmounted[M]): M =
-    u.mountRaw(act(RawReactDOM.render(u.raw, newBodyElement())))
+  def renderIntoBody[M](u: Unmounted[M]): M = {
+    val c = act(RawReactDOM.render(u.raw, newBodyElement()))
+    u.mountRawOrNull(c)
+  }
 
   def withNewBodyElementFuture[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     val e = newBodyElement()
@@ -209,14 +229,13 @@ object ReactTestUtils {
   def withRenderedIntoBodyFuture[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
     withNewBodyElementFuture { parent =>
       val c = act(RawReactDOM.render(u.raw, parent))
-      val m = u.mountRaw(c)
-      attemptFuture(f(m)).andThen { case _ => unmount(mountedElement(c).parentNode) }
+      val m = u.mountRawOrNull(c)
+      attemptFuture(f(m)).andThen { case _ => unmountRawComponent(c) }
     }
 
   def withNewBodyElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
     AsyncCallback.delay(newBodyElement())
-      .flatMap(e => use(e)
-        .finallyRun(AsyncCallback.delay(removeNewBodyElement(e))))
+      .flatMap(e => use(e).finallyRun(AsyncCallback.delay(removeNewBodyElement(e))))
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * and asynchronously waits for the AsyncCallback to complete before unmounting.
@@ -227,7 +246,8 @@ object ReactTestUtils {
         withNewBodyElementAsyncCallback(parent =>
           for {
             c <- AsyncCallback.delay(act(RawReactDOM.render(u.raw, parent)))
-            a <- f(u.mountRaw(c), parent).finallyRun(AsyncCallback.delay(unmount(mountedElement(c).parentNode)))
+            m <- AsyncCallback.pure(u.mountRawOrNull(c))
+            a <- f(m, parent).finallyRun(AsyncCallback.delay(unmountRawComponent(c)))
           } yield a
         )
     }
@@ -263,11 +283,12 @@ object ReactTestUtils {
     new WithRenderedDsl[M, Element] {
       override def apply[A](f: (M, Element) => A): A = {
         val c = act(raw.renderIntoDocument(u.raw))
-        val parent = mountedElement(c).parentNode.domCast[Element]
-        try
-          f(u.mountRaw(c), parent)
-        finally
-          unmount(parent)
+        try {
+          val p = parentElement(c)
+          val m = u.mountRawOrNull(c)
+          f(m, p)
+        } finally
+          unmountRawComponent(c)
       }
   }
 
@@ -281,8 +302,8 @@ object ReactTestUtils {
     */
   def withRenderedIntoDocumentFuture[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     val c = act(raw.renderIntoDocument(u.raw))
-    val m = u.mountRaw(c)
-    attemptFuture(f(m)).andThen { case _ => unmount(mountedElement(c).parentNode) }
+    val m = u.mountRawOrNull(c)
+    attemptFuture(f(m)).andThen { case _ => unmountRawComponent(c) }
   }
 
   def withNewDocumentElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
@@ -298,7 +319,8 @@ object ReactTestUtils {
         withNewDocumentElementAsyncCallback(parent =>
           for {
             c <- AsyncCallback.delay(act(RawReactDOM.render(u.raw, parent)))
-            a <- f(u.mountRaw(c), parent).finallyRun(AsyncCallback.delay(unmount(mountedElement(c).parentNode)))
+            m <- AsyncCallback.pure(u.mountRawOrNull(c))
+            a <- f(m, parent).finallyRun(AsyncCallback.delay(unmountRawComponent(c)))
           } yield a
         )
   }

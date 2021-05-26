@@ -86,6 +86,9 @@ object JsUtil {
     array
   }
 
+  @inline def notNull[A](a: A | Null): A =
+    a.asInstanceOf[A]
+
   def jsNullToOption[A](an: A | Null): Option[A] =
     Option(an.asInstanceOf[A])
 
