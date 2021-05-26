@@ -116,6 +116,18 @@ object ReactTestUtils {
   def findRenderedComponentWithType(tree: Mounted, c: CompType): MountedOutput =
     wrapMO(raw.findRenderedComponentWithType(tree.raw, c.raw))
 
+  trait WithRenderedDsl[M, R] {
+    def apply     [A](f: (M, R) => A): A
+    def apply     [A](f: M      => A): A = apply((m, _) => f(m))
+    def withParent[A](f: R      => A): A = apply((_, r) => f(r))
+  }
+
+  trait WithRenderedDslF[F[_], M, R] {
+    def apply     [A](f: (M, R) => F[A]): F[A]
+    def apply     [A](f: M      => F[A]): F[A] = apply((m, _) => f(m))
+    def withParent[A](f: R      => F[A]): F[A] = apply((_, r) => f(r))
+  }
+
   // ===================================================================================================================
   // Private helpers
 
@@ -167,21 +179,23 @@ object ReactTestUtils {
     *
     * Unlike [[ReactTestUtils.renderIntoDocument()]], this allows DOM focus to work.
     */
-  def withRenderedIntoBody[M, A](u: Unmounted[M])(f: M => A): A =
-    withNewBodyElement { parent =>
-      val c = act(RawReactDOM.render(u.raw, parent))
-      try {
-        val m = u.mountRaw(c)
-        f(m)
-      } finally
-        unmount(mountedElement(c).parentNode)
+  def withRenderedIntoBody[M](u: Unmounted[M]): WithRenderedDsl[M, Element] =
+    new WithRenderedDsl[M, Element] {
+      override def apply[A](f: (M, Element) => A): A =
+        withNewBodyElement { parent =>
+          val c = act(RawReactDOM.render(u.raw, parent))
+          try
+            f(u.mountRaw(c), parent)
+          finally
+            unmount(mountedElement(c).parentNode)
+        }
     }
 
   /** Renders a component into the document body via [[ReactDOM.render()]].
     *
     * Unlike [[ReactTestUtils.renderIntoDocument()]], this allows DOM focus to work.
     */
-  def renderIntoBody[M, A](u: Unmounted[M]): M =
+  def renderIntoBody[M](u: Unmounted[M]): M =
     u.mountRaw(act(RawReactDOM.render(u.raw, newBodyElement())))
 
   def withNewBodyElementFuture[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] = {
@@ -207,14 +221,16 @@ object ReactTestUtils {
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * and asynchronously waits for the AsyncCallback to complete before unmounting.
     */
-  def withRenderedIntoBodyAsyncCallback[M, A](u: Unmounted[M])(f: M => AsyncCallback[A]): AsyncCallback[A] =
-    withNewBodyElementAsyncCallback(parent =>
-      for {
-        c <- AsyncCallback.delay(act(RawReactDOM.render(u.raw, parent)))
-        m <- AsyncCallback.delay(u.mountRaw(c))
-        a <- f(m).finallyRun(AsyncCallback.delay(unmount(mountedElement(c).parentNode)))
-      } yield a
-    )
+  def withRenderedIntoBodyAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[AsyncCallback, M, Element] =
+    new WithRenderedDslF[AsyncCallback, M, Element] {
+      override def apply[A](f: (M, Element) => AsyncCallback[A]): AsyncCallback[A] =
+        withNewBodyElementAsyncCallback(parent =>
+          for {
+            c <- AsyncCallback.delay(act(RawReactDOM.render(u.raw, parent)))
+            a <- f(u.mountRaw(c), parent).finallyRun(AsyncCallback.delay(unmount(mountedElement(c).parentNode)))
+          } yield a
+        )
+    }
 
   // ===================================================================================================================
   // Render into document
@@ -243,13 +259,16 @@ object ReactTestUtils {
   /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
     * then unmounts and cleans up after use.
     */
-  def withRenderedIntoDocument[M, A](u: Unmounted[M])(f: M => A): A = {
-    val c = act(raw.renderIntoDocument(u.raw))
-    val m = u.mountRaw(c)
-    try
-      f(m)
-    finally
-      unmount(mountedElement(c).parentNode)
+  def withRenderedIntoDocument[M](u: Unmounted[M]): WithRenderedDsl[M, Element] =
+    new WithRenderedDsl[M, Element] {
+      override def apply[A](f: (M, Element) => A): A = {
+        val c = act(raw.renderIntoDocument(u.raw))
+        val parent = mountedElement(c).parentNode.domCast[Element]
+        try
+          f(u.mountRaw(c), parent)
+        finally
+          unmount(parent)
+      }
   }
 
   def withNewDocumentElementFuture[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] = {
@@ -273,14 +292,16 @@ object ReactTestUtils {
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * and asynchronously waits for the AsyncCallback to complete before unmounting.
     */
-  def withRenderedIntoDocumentAsyncCallback[M, A](u: Unmounted[M])(f: M => AsyncCallback[A]): AsyncCallback[A] =
-    withNewDocumentElementAsyncCallback(parent =>
-      for {
-        c <- AsyncCallback.delay(act(RawReactDOM.render(u.raw, parent)))
-        m <- AsyncCallback.delay(u.mountRaw(c))
-        a <- f(m).finallyRun(AsyncCallback.delay(unmount(mountedElement(c).parentNode)))
-      } yield a
-    )
+  def withRenderedIntoDocumentAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[AsyncCallback, M, Element] =
+    new WithRenderedDslF[AsyncCallback, M, Element] {
+      override def apply[A](f: (M, Element) => AsyncCallback[A]): AsyncCallback[A] =
+        withNewDocumentElementAsyncCallback(parent =>
+          for {
+            c <- AsyncCallback.delay(act(RawReactDOM.render(u.raw, parent)))
+            a <- f(u.mountRaw(c), parent).finallyRun(AsyncCallback.delay(unmount(mountedElement(c).parentNode)))
+          } yield a
+        )
+  }
 
   // ===================================================================================================================
   // Render into body/document
@@ -289,11 +310,11 @@ object ReactTestUtils {
     *
     * @param intoBody Whether to use [[renderIntoBody()]] or [[ReactTestUtils.renderIntoDocument()]].
     */
-  def withRendered[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => A): A =
+  def withRendered[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDsl[M, Element] =
     if (intoBody)
-      withRenderedIntoBody(u)(f)
+      withRenderedIntoBody(u)
     else
-      withRenderedIntoDocument(u)(f)
+      withRenderedIntoDocument(u)
 
   /** Renders a component then unmounts and cleans up after use.
     *
@@ -309,11 +330,11 @@ object ReactTestUtils {
     *
     * @param intoBody Whether to use [[renderIntoBodyAsyncCallback()]] or [[renderIntoDocumentAsyncCallback()]].
     */
-  def withRenderedAsyncCallback[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => AsyncCallback[A]): AsyncCallback[A] =
+  def withRenderedAsyncCallback[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDslF[AsyncCallback, M, Element] =
     if (intoBody)
-      withRenderedIntoBodyAsyncCallback(u)(f)
+      withRenderedIntoBodyAsyncCallback(u)
     else
-      withRenderedIntoDocumentAsyncCallback(u)(f)
+      withRenderedIntoDocumentAsyncCallback(u)
 
   // ===================================================================================================================
 
