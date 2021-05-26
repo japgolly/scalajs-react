@@ -4,6 +4,7 @@ import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.internal.{Box, NotAllowed, OptionLike}
 import japgolly.scalajs.react.{Callback, React => _, Reusability, Reusable, raw => Raw, _}
 import scala.annotation.implicitNotFound
+import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.|
 
@@ -190,16 +191,30 @@ object Hooks {
     }
   }
 
-  final case class UseState[S](raw: Raw.React.UseState[S], originalSetState: Reusable[Raw.React.UseStateSetter[_]]) {
+  private lazy val internalReuseSafety = Reusable.byRef(new AnyRef)
+
+  final case class UseState[S](raw: Raw.React.UseState[S], originalSetState: Reusable[Raw.React.UseStateSetter[_]]) { self =>
 
     @inline def value: S =
       raw._1
 
-    def setState(s: S): Reusable[Callback] =
-      originalSetState.withValue(Callback(raw._2(s)))
+    def setState: Reusable[S => Callback] =
+      originalSetState.withValue(s => Callback(raw._2(s)))
 
-    def modState(f: S => S): Reusable[Callback] =
-      originalSetState.withValue(Callback(modStateRaw(f)))
+    def modState: Reusable[(S => S) => Callback] =
+      originalSetState.withValue(f => Callback(modStateRaw(f)))
+
+    object withReusableInputs {
+      def setState: Reusable[Reusable[S] => Reusable[Callback]] = {
+        val setR = self.setState
+        Reusable.implicitly((setR, internalReuseSafety)).withValue(_.ap(setR))
+      }
+
+      def modState: Reusable[Reusable[S => S] => Reusable[Callback]] = {
+        val modR = self.modState
+        Reusable.implicitly((modR, internalReuseSafety)).withValue(_.ap(modR))
+      }
+    }
 
     @deprecated("The useState hook isn't powerful enough to be used as a StateSnapshot. Change your hook to StateSnapshot{,.withReuse}.hook instead.", "always")
     def stateSnapshot(na: NotAllowed): Nothing =
@@ -232,24 +247,62 @@ object Hooks {
     }
 
     /** WARNING: This does not affect the setState callback reusability. */
-    def withReusability(implicit r: Reusability[S]): UseState[S] = {
-      val givenValue: S => Unit = next =>
-        if (r.updateNeeded(value, next))
-          raw._2(next)
+    private[Hooks] def withReusability(implicit r: Reusability[S]): UseState[S] = {
 
-      val givenFn: js.Function1[S, S] => Unit = f =>
-        modStateRaw { cur =>
-          val next = f(cur)
-          if (r.updateNeeded(cur, next))
-            next
-          else
-            cur // returning the exact same state as was given is how to abort an update (see hooks.js)
-        }
+      def update(cur: S, next: S): S = {
+        // println(s"$cur => $next? update=${r.updateNeeded(cur, next)}, is=${js.Object.is(cur, cur)}")
+        if (r.updateNeeded(cur, next))
+          next
+        else
+          cur // returning the exact same state as was given is how to abort an update (see hooks.js)
+      }
+
+      val givenValue: S => Unit =
+        next => modStateRaw(update(_, next))
+
+      val givenFn: js.Function1[S, S] => Unit =
+        f => modStateRaw(cur => update(cur,  f(cur)))
 
       val newSetState = newSetStateJs(givenValue, givenFn)
 
       UseState(js.Tuple2(value, newSetState), originalSetState)
     }
+  }
+
+  // ===================================================================================================================
+
+  object UseStateWithReuse {
+    def unsafeCreate[S](initialState: => S)(implicit r: Reusability[S], ct: ClassTag[S]): UseStateWithReuse[S] = {
+      val rr = Reusable.reusabilityInstance(r)
+      val us = UseState.unsafeCreate(initialState).withReusability
+      apply(us, rr)
+    }
+  }
+
+  final case class UseStateWithReuse[S: ClassTag](withoutReuse: UseState[S], reusability: Reusable[Reusability[S]]) {
+
+    @inline def value: S =
+      withoutReuse.value
+
+    def setState: Reusable[S => Reusable[Callback]] =
+      withReusableInputs.setState.map(set => s => set(reusability.reusable(s)))
+
+    /** WARNING: This ignores reusability of the provided function.
+      * It will only work correctly if you always provide the exact same function.
+      *
+      * If you want to be able to provide different functions, use `.withReusableInputs.modState`.
+      *
+      * @param f WARNING: This must be a consistent/stable function.
+      */
+    def modState(f: S => S): Reusable[Callback] =
+      withReusableInputs.modState(internalReuseSafety.withValue(f))
+
+    @inline def withReusableInputs =
+      withoutReuse.withReusableInputs
+
+    @deprecated("The useState hook isn't powerful enough to be used as a StateSnapshot. Change your hook to StateSnapshot{,.withReuse}.hook instead.", "always")
+    def stateSnapshot(na: NotAllowed): Nothing =
+      na.result
   }
 
   // ===================================================================================================================

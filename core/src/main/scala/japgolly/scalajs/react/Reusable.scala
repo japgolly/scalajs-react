@@ -144,6 +144,9 @@ object Reusable {
   implicit def reusableReusability[A]: Reusability[Reusable[A]] =
     reusabilityInstance.narrow
 
+  def reusabilityInstance[A](r: Reusability[A]): Reusable[Reusability[A]] =
+    byRef(r.test).map(new Reusability(_))
+
   // ===================================================================================================================
 
   lazy val emptyCallback: Reusable[Callback] =

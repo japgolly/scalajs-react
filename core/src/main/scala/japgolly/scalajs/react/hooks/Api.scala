@@ -3,6 +3,7 @@ package japgolly.scalajs.react.hooks
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks.{UseCallbackArg, UseMemo, _}
 import japgolly.scalajs.react.{CallbackTo, Ref, Reusability, Reusable, raw => Raw}
+import scala.reflect.ClassTag
 
 object Api {
 
@@ -55,7 +56,7 @@ object Api {
       }
 
     /** Create a new local `val` on each render. */
-    final def localVal[A](a: A)(implicit step: Step): step.Next[A] =
+    final def localVal[A](a: => A)(implicit step: Step): step.Next[A] =
       next(_ => a)
 
     /** Create a new local `val` on each render. */
@@ -116,7 +117,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
-    final def useCallbackWithDeps[A, D](callback: A, deps: D)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
+    final def useCallbackWithDeps[A, D](callback: A, deps: => D)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
       useCallbackWithDepsBy(_ => callback, _ => deps)
 
     /** Returns a memoized callback.
@@ -233,7 +234,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectWithDeps[A, D](effect: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+    final def useEffectWithDeps[A, D](effect: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
       custom_(ReusableEffect.useEffect(effect, deps))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
@@ -312,7 +313,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectWithDeps[A, D](effect: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+    final def useLayoutEffectWithDeps[A, D](effect: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
       custom_(ReusableEffect.useLayoutEffect(effect, deps))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
@@ -338,7 +339,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usememo
       */
-    final def useMemo[A, D](create: => A, deps: D)(implicit r: Reusability[D], step: Step): step.Next[A] =
+    final def useMemo[A, D](create: => A, deps: => D)(implicit r: Reusability[D], step: Step): step.Next[A] =
       custom(UseMemo(create, deps).hook)
 
     /** Returns a memoized value.
@@ -413,6 +414,28 @@ object Api {
       */
     final def useStateBy[S](initialState: Ctx => S)(implicit step: Step): step.Next[UseState[S]] =
       next(ctx => UseState.unsafeCreate(initialState(ctx)))
+
+    /** Returns a stateful value, and a function to update it.
+      *
+      * During the initial render, the returned state is the same as the value passed as the first argument
+      * (initialState).
+      *
+      * During subsequent re-renders, the first value returned by useState will always be the most recent state after
+      * applying updates.
+      */
+    final def useStateWithReuse[S: ClassTag: Reusability](initialState: => S)(implicit step: Step): step.Next[UseStateWithReuse[S]] =
+      useStateWithReuseBy(_ => initialState)
+
+    /** Returns a stateful value, and a function to update it.
+      *
+      * During the initial render, the returned state is the same as the value passed as the first argument
+      * (initialState).
+      *
+      * During subsequent re-renders, the first value returned by useState will always be the most recent state after
+      * applying updates.
+      */
+    final def useStateWithReuseBy[S: ClassTag: Reusability](initialState: Ctx => S)(implicit step: Step): step.Next[UseStateWithReuse[S]] =
+      next(ctx => UseStateWithReuse.unsafeCreate(initialState(ctx)))
   }
 
   // ===================================================================================================================
@@ -609,6 +632,17 @@ object Api {
       */
     final def useStateBy[S](initialState: CtxFn[S])(implicit step: Step): step.Next[UseState[S]] =
       useStateBy(step.squash(initialState)(_))
+
+    /** Returns a stateful value, and a function to update it.
+      *
+      * During the initial render, the returned state is the same as the value passed as the first argument
+      * (initialState).
+      *
+      * During subsequent re-renders, the first value returned by useState will always be the most recent state after
+      * applying updates.
+      */
+    final def useStateWithReuseBy[S: ClassTag: Reusability](initialState: CtxFn[S])(implicit step: Step): step.Next[UseStateWithReuse[S]] =
+      useStateWithReuseBy(step.squash(initialState)(_))
   }
 
 }
