@@ -31,6 +31,20 @@ object Hooks {
         f => Reusable.byRef(f).withValue(Callback.fromJsFn(f)))
   }
 
+  object UseCallback {
+
+    private def create[A](in: A, deps: Raw.React.HookDeps)(implicit a: UseCallbackArg[A]): Reusable[A] =
+      a.fromJs(Raw.React.useCallback(a.toJs(in), deps))
+
+    def apply[A](callback: => A)(implicit a: UseCallbackArg[A]): CustomHook[Unit, Reusable[A]] =
+      CustomHook.delay(create(callback, new js.Array[Any]))
+
+    def apply[A, D](callback: => A, deps: => D)(implicit a: UseCallbackArg[A], r: Reusability[D]): CustomHook[Unit, Reusable[A]] =
+      CustomHook.reusableDeps[D]
+        .apply(() => deps)
+        .map(rev => create(callback, js.Array[Any](rev)))
+  }
+
   // ===================================================================================================================
 
   object UseContext {
@@ -75,57 +89,34 @@ object Hooks {
       Raw.React.useEffect(a.toJs(effect))
 
     def unsafeCreateOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
-      Raw.React.useEffect(a.toJs(effect), new js.Array[js.Any])
+      Raw.React.useEffect(a.toJs(effect), new js.Array[Any])
 
     def unsafeCreateLayout[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
       Raw.React.useLayoutEffect(a.toJs(effect))
 
     def unsafeCreateLayoutOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
-      Raw.React.useLayoutEffect(a.toJs(effect), new js.Array[js.Any])
+      Raw.React.useLayoutEffect(a.toJs(effect), new js.Array[Any])
   }
 
   object ReusableEffect {
-    private val noEffect: Raw.React.UseEffectArg =
-      () => ()
 
-    def prepare[A, D](e: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Raw.React.UseEffectArg] =
-      CustomHook[Unit]
-        .useState(deps)
-        .buildReturning { (_, prevDeps) =>
-          if (r.updateNeeded(prevDeps.value, deps))
-            a.toJs(e.finallyRun(prevDeps.setState(deps)))
-          else
-            noEffect
-        }
+    def useEffect[A, D](e: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
+      CustomHook.reusableDeps[D]
+        .apply(() => deps)
+        .map(rev => Raw.React.useEffect(a.toJs(e), js.Array[Any](rev)))
 
-    def useEffect[A, D](e: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
-      prepare(e, deps).map(Raw.React.useEffect(_))
-
-    def useLayoutEffect[A, D](e: CallbackTo[A], deps: D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
-      prepare(e, deps).map(Raw.React.useLayoutEffect(_))
+    def useLayoutEffect[A, D](e: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
+      CustomHook.reusableDeps[D]
+        .apply(() => deps)
+        .map(rev => Raw.React.useLayoutEffect(a.toJs(e), js.Array[Any](rev)))
   }
 
   // ===================================================================================================================
 
-  final class UseMemo[+A](val hook: CustomHook[Unit, A]) extends AnyVal
-
   object UseMemo {
-    def apply[A, D](create: => A, deps: D)(implicit r: Reusability[D]): UseMemo[A] = {
-      val hook = CustomHook[Unit]
-        .useState(0)
-        .useState(deps)
-        .buildReturning { (_, prevRev, prevDeps) =>
-          var rev = prevRev.value
-          if (r.updateNeeded(prevDeps.value, deps)) {
-            rev += 1
-            prevRev.setState(rev).runNow()
-            prevDeps.setState(deps).runNow()
-          }
-
-          Raw.React.useMemo(() => create, js.Array[js.Any](rev))
-        }
-      new UseMemo(hook)
-    }
+    def apply[A, D](create: => A, deps: => D)(implicit r: Reusability[D]): CustomHook[Unit, Reusable[A]] =
+      CustomHook.reusableByDeps[A, D](rev => Raw.React.useMemo(() => create, js.Array[Any](rev)))
+        .apply(() => deps)
   }
 
   // ===================================================================================================================
@@ -170,12 +161,29 @@ object Hooks {
 
   // ===================================================================================================================
 
+  final case class UseRef[A](raw: Raw.React.RefHandle[A]) {
+    @inline def value: A =
+      raw.current
+
+    /** NOTE: This doesn't force an update-to/redraw-of your component. */
+    @inline def value_=(a: A): Unit =
+      raw.current = a
+
+    /** NOTE: This doesn't force an update-to/redraw-of your component. */
+    def set(a: A): Callback =
+      Callback{ value = a }
+
+    /** NOTE: This doesn't force an update-to/redraw-of your component. */
+    def mod(f: A => A): Callback =
+      Callback{ value = f(value) }
+  }
+
   object UseRef {
     def unsafeCreate[A](): Ref.Simple[A] =
       Ref.fromJs(Raw.React.useRef[A | Null](null))
 
-    def unsafeCreate[A](initialValue: => A): Ref.NonEmpty.Simple[A] =
-      Ref.NonEmpty.Simple(Raw.React.useRef((() => initialValue): js.Function0[A]))
+    def unsafeCreate[A](initialValue: A): UseRef[A] =
+      UseRef(Raw.React.useRef(initialValue))
   }
 
   // ===================================================================================================================
@@ -319,9 +327,11 @@ object Hooks {
     def get: CallbackTo[A] =
       CallbackTo(value)
 
+    /** NOTE: This doesn't force an update-to/redraw-of your component. */
     def set(a: A): Callback =
       Callback{ value = a }
 
+    /** NOTE: This doesn't force an update-to/redraw-of your component. */
     def mod(f: A => A): Callback =
       Callback{ value = f(value) }
   }

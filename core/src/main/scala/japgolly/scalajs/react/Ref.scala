@@ -167,41 +167,41 @@ object Ref {
 
   // ===================================================================================================================
 
-  /** @since 1.8.0 */
-  trait NonEmpty[I, R, O] { self =>
-    val raw: Raw.React.RefHandle[R]
-    def get: CallbackTo[O]
-    def set(i: I): Callback
-    def mod(f: O => I): Callback
+  // /** @since 1.8.0 */
+  // trait NonEmpty[I, R, O] { self =>
+  //   val raw: Raw.React.RefHandle[R]
+  //   def get: CallbackTo[O]
+  //   def set(i: I): Callback
+  //   def mod(f: O => I): Callback
 
-    def contramap[A](f: A => I): NonEmpty[A, R, O] =
-      new NonEmpty[A, R, O] {
-        override val raw   = self.raw
-        def get            = self.get
-        def set(a: A)      = self.set(f(a))
-        def mod(g: O => A) = self.mod(f compose g)
-      }
+  //   def contramap[A](f: A => I): NonEmpty[A, R, O] =
+  //     new NonEmpty[A, R, O] {
+  //       override val raw   = self.raw
+  //       def get            = self.get
+  //       def set(a: A)      = self.set(f(a))
+  //       def mod(g: O => A) = self.mod(f compose g)
+  //     }
 
-    def map[A](f: O => A): NonEmpty[I, R, A] =
-      new NonEmpty[I, R, A] {
-        override val raw   = self.raw
-        def get            = self.get.map(f)
-        def set(i: I)      = self.set(i)
-        def mod(g: A => I) = self.mod(g compose f)
-      }
-  }
+  //   def map[A](f: O => A): NonEmpty[I, R, A] =
+  //     new NonEmpty[I, R, A] {
+  //       override val raw   = self.raw
+  //       def get            = self.get.map(f)
+  //       def set(i: I)      = self.set(i)
+  //       def mod(g: A => I) = self.mod(g compose f)
+  //     }
+  // }
 
-  object NonEmpty {
-    type Simple[A] = NonEmpty[A, A, A]
+  // object NonEmpty {
+  //   type Simple[A] = NonEmpty[A, A, A]
 
-    def Simple[A](r: Raw.React.RefHandle[A]): Simple[A] =
-      new NonEmpty[A, A, A] {
-        override val raw   = r
-        def get            = CallbackTo(raw.current)
-        def set(a: A)      = Callback { raw.current = a }
-        def mod(f: A => A) = Callback { raw.current = f(raw.current) }
-      }
-  }
+  //   def Simple[A](r: Raw.React.RefHandle[A]): Simple[A] =
+  //     new NonEmpty[A, A, A] {
+  //       override val raw   = r
+  //       def get            = CallbackTo(raw.current)
+  //       def set(a: A)      = Callback { raw.current = a }
+  //       def mod(f: A => A) = Callback { raw.current = f(raw.current) }
+  //     }
+  // }
 
   // ===================================================================================================================
 

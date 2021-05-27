@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.hooks
 
-import japgolly.scalajs.react.PropsChildren
+import japgolly.scalajs.react.{PropsChildren, Reusability, Reusable}
 
-final class CustomHook[-I, +O] private[CustomHook] (val unsafeInit: I => O) {
+final class CustomHook[-I, +O] private[CustomHook] (val unsafeInit: I => O) extends AnyVal {
 
   def apply(i: I): CustomHook[Unit, O] =
     CustomHook.unchecked(_ => unsafeInit(i))
@@ -28,16 +28,22 @@ object CustomHook {
   def unchecked[I, O](f: I => O): CustomHook[I, O] =
     new CustomHook(f)
 
+  @inline def delay[O](f: => O): CustomHook[Unit, O] =
+    unchecked(_ => f)
+
   // ===================================================================================================================
 
   final case class Arg[Ctx, I](convert: Ctx => I) extends AnyVal
 
-  object Arg {
+  trait ArgLowPri {
+    implicit def id[A, B >: A]: Arg[A, B] = Arg(a => a)
+  }
+
+  object Arg extends ArgLowPri {
     def const[C, I](i: I): Arg[C, I] =
       apply(_ => i)
 
     implicit def unit    [Ctx]      : Arg[Ctx, Unit]                       = const(())
-    implicit def id      [A, B >: A]: Arg[A, B]                            = apply(a => a)
     implicit def ctxProps[P]        : Arg[HookCtx.P0[P], P]                = apply(_.props)
     implicit def ctxPropsChildren   : Arg[HookCtx.PC0[Any], PropsChildren] = apply(_.propsChildren)
   }
@@ -168,4 +174,30 @@ object CustomHook {
     }
   }
 
+  // ===================================================================================================================
+
+  def reusableDeps[D](implicit r: Reusability[D]): CustomHook[() => D, Int] =
+    CustomHook[() => D]
+      .useState((0, Option.empty[D]))
+      .buildReturning { (getDeps, depsState) =>
+        val rev = depsState.value._1
+        lazy val next = getDeps()
+        val updateNeeded =
+          depsState.value._2 match {
+            case Some(cur) =>
+              // println(s"$cur => $next? update=${r.updateNeeded(cur, next)}}")
+              r.updateNeeded(cur, next)
+            case None =>
+              true
+          }
+        if (updateNeeded) {
+          val newRev = rev + 1
+          depsState.setState((newRev, Some(next))).runNow()
+          newRev
+        } else
+          rev
+      }
+
+  def reusableByDeps[A, D](create: Int => A)(implicit r: Reusability[D]): CustomHook[() => D, Reusable[A]] =
+    reusableDeps[D].map(rev => Reusable.implicitly(rev).withValue(create(rev)))
 }

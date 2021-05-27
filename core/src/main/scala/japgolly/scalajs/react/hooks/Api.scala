@@ -2,7 +2,7 @@ package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks.{UseCallbackArg, UseMemo, _}
-import japgolly.scalajs.react.{CallbackTo, Ref, Reusability, Reusable, raw => Raw}
+import japgolly.scalajs.react.{CallbackTo, Ref, Reusability, Reusable}
 import scala.reflect.ClassTag
 
 object Api {
@@ -107,7 +107,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
     final def useCallbackBy[A](callback: Ctx => A)(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]] =
-      next(ctx => a.fromJs(Raw.React.useCallback(a.toJs(callback(ctx)))))
+      customBy(ctx => UseCallback(callback(ctx)))
 
     /** Returns a memoized callback.
       *
@@ -117,7 +117,7 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
-    final def useCallbackWithDeps[A, D](callback: A, deps: => D)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
+    final def useCallbackWithDeps[A, D](callback: => A, deps: => D)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
       useCallbackWithDepsBy(_ => callback, _ => deps)
 
     /** Returns a memoized callback.
@@ -129,7 +129,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
     final def useCallbackWithDepsBy[A, D](callback: Ctx => A, deps: Ctx => D)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
-      useCallbackBy(ctx => UseMemo(callback(ctx), deps(ctx)).hook.unsafeInit(()))
+      customBy(ctx => UseCallback(callback(ctx), deps(ctx)))
 
     /** Accepts a context object and returns the current context value for that context. The current context value is
       * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
@@ -339,8 +339,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usememo
       */
-    final def useMemo[A, D](create: => A, deps: => D)(implicit r: Reusability[D], step: Step): step.Next[A] =
-      custom(UseMemo(create, deps).hook)
+    final def useMemo[A, D](create: => A, deps: => D)(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]] =
+      useMemoBy(_ => create, _ => deps)
 
     /** Returns a memoized value.
       *
@@ -352,8 +352,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usememo
       */
-    final def useMemoBy[A](f: Ctx => UseMemo.type => UseMemo[A])(implicit step: Step): step.Next[A] =
-      customBy(f(_)(UseMemo).hook)
+    final def useMemoBy[A, D](create: Ctx => A, deps: Ctx => D)(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]] =
+      customBy(ctx => UseMemo(create(ctx), deps(ctx)))
 
     /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
       * current state paired with a dispatch method.
@@ -386,11 +386,11 @@ object Api {
       next(_ => UseRef.unsafeCreate[A]())
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
-    final def useRef[A](initialValue: => A)(implicit step: Step): step.Next[Ref.NonEmpty.Simple[A]] =
+    final def useRef[A](initialValue: => A)(implicit step: Step): step.Next[UseRef[A]] =
       useRefBy(_ => initialValue)
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
-    final def useRefBy[A](initialValue: Ctx => A)(implicit step: Step): step.Next[Ref.NonEmpty.Simple[A]] =
+    final def useRefBy[A](initialValue: Ctx => A)(implicit step: Step): step.Next[UseRef[A]] =
       next(ctx => UseRef.unsafeCreate(initialValue(ctx)))
 
     /** Returns a stateful value, and a function to update it.
@@ -602,8 +602,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usememo
       */
-    final def useMemoBy[A](f: CtxFn[UseMemo.type => UseMemo[A]])(implicit step: Step): step.Next[A] =
-      useMemoBy(step.squash(f)(_))
+    final def useMemoBy[A, D](create: CtxFn[A], deps: CtxFn[D])(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]] =
+      useMemoBy(step.squash(create)(_), step.squash(deps)(_))
 
     /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
       * current state paired with a dispatch method.
@@ -619,7 +619,7 @@ object Api {
       useReducerBy(step.squash(reducer)(_), step.squash(initialState)(_))
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
-    final def useRefBy[A](f: CtxFn[A])(implicit step: Step): step.Next[Ref.NonEmpty.Simple[A]] =
+    final def useRefBy[A](f: CtxFn[A])(implicit step: Step): step.Next[UseRef[A]] =
       useRefBy(step.squash(f)(_))
 
     /** Returns a stateful value, and a function to update it.
@@ -644,5 +644,37 @@ object Api {
     final def useStateWithReuseBy[S: ClassTag: Reusability](initialState: CtxFn[S])(implicit step: Step): step.Next[UseStateWithReuse[S]] =
       useStateWithReuseBy(step.squash(initialState)(_))
   }
+
+  // ===================================================================================================================
+  // Custom extension modules
+
+  trait Ext[Pri[_, _ <: Step],
+            Snd[c, f[_], s <: SubsequentStep[c, f]] <: Pri[c, s]
+           ] {
+
+    final type Primary[Ctx, S <: Step] =
+      Pri[Ctx, S]
+
+    final type Secondary[Ctx, CtxFn[_], S <: SubsequentStep[Ctx, CtxFn]] =
+      Snd[Ctx, CtxFn, S]
+
+    def primary[Ctx, S <: Step]: Api.Primary[Ctx, S] => Primary[Ctx, S]
+    def secondary[Ctx, CtxFn[_], S <: SubsequentStep[Ctx, CtxFn]]: Api.Secondary[Ctx, CtxFn, S] => Secondary[Ctx, CtxFn, S]
+  }
+
+  @inline implicit def extPrimary[Pri[_, _ <: Step],
+                                  Snd[c, f[_], s <: SubsequentStep[c, f]] <: Pri[c, s],
+                                  Ctx,
+                                  S <: Step
+                                ](api: Api.Primary[Ctx, S])(implicit e: Ext[Pri, Snd]): Pri[Ctx, S] =
+    e.primary(api)
+
+  @inline implicit def extSecondary[Pri[_, _ <: Step],
+                                    Snd[c, f[_], s <: SubsequentStep[c, f]] <: Pri[c, s],
+                                    Ctx,
+                                    CtxFn[_],
+                                    S <: SubsequentStep[Ctx, CtxFn]
+                                  ](api: Api.Secondary[Ctx, CtxFn, S])(implicit e: Ext[Pri, Snd]): Snd[Ctx, CtxFn, S] =
+    e.secondary(api)
 
 }

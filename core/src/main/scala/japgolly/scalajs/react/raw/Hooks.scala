@@ -12,7 +12,7 @@ import scala.scalajs.js.|
 @nowarn("cat=unused")
 trait Hooks extends js.Object {
 
-  final type HookDeps = js.UndefOr[js.Array[js.Any]] | Null
+  final type HookDeps = js.UndefOr[js.Array[Any]] | Null
 
   final type UseStateSetter[S] = js.Function1[S | js.Function1[S, S], Unit]
   final type UseState[S] = js.Tuple2[S, UseStateSetter[S]]
@@ -37,7 +37,7 @@ trait Hooks extends js.Object {
 
   final def useMemo[A](f: js.Function0[A], deps: js.UndefOr[HookDeps] = js.native): A = js.native
 
-  final def useRef[A](f: js.Function0[A] | Null): React.RefHandle[A] = js.native
+  final def useRef[A](f: A): React.RefHandle[A] = js.native
 
   final def useImperativeHandle[A](
     ref   : React.RefHandle[A | Null] | ((A | Null) => Any) | Null | Unit,
