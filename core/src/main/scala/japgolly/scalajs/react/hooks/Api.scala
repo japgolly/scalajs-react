@@ -2,7 +2,7 @@ package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks.{UseCallbackArg, UseMemo, _}
-import japgolly.scalajs.react.{CallbackTo, Ref, Reusability, Reusable}
+import japgolly.scalajs.react.{Callback, CallbackTo, Ref, Reusability, Reusable}
 import scala.reflect.ClassTag
 
 object Api {
@@ -246,6 +246,10 @@ object Api {
       */
     final def useEffectWithDepsBy[A, D](effect: Ctx => CallbackTo[A], deps: Ctx => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
       customBy_(ctx => ReusableEffect.useEffect(effect(ctx), deps(ctx)))
+
+    /** When invoked, forces a re-render of your component. */
+    final def useForceUpdate(implicit step: Step): step.Next[Reusable[Callback]] =
+      custom(CustomHook.useForceUpdate)
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed

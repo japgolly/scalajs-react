@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.core
 
+import japgolly.scalajs.react.Hooks.UseEffectArg
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
-import japgolly.scalajs.react.Hooks.UseEffectArg
 import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test._
@@ -643,6 +643,24 @@ object HooksTest extends TestSuite {
 
   } // UseEffectTests
 
+  private def testUseForceUpdate(): Unit = {
+    val counter = new Counter
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useForceUpdate
+      .render { (_, forceUpdate) =>
+        val rev = counter.inc()
+        <.div(
+          rev, ":", ReusableCallbackComponent(forceUpdate)
+        )
+      }
+
+    test(comp()) { t =>
+      t.assertText("1:1")
+      t.clickButton(); t.assertText("2:1")
+      t.clickButton(); t.assertText("3:1")
+    }
+  }
+
   private def testUseMemo(): Unit = {
     val dep1    = new Counter
     val dep2    = new Counter
@@ -1101,6 +1119,7 @@ object HooksTest extends TestSuite {
       "mount" - testOnMount()
       "mountBy" - testOnMountBy()
     }
+    "useForceUpdate" - testUseForceUpdate()
     "useLayoutEffect" - {
       import UseLayoutEffect._
       "const" - testConst()

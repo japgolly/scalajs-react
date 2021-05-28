@@ -209,6 +209,13 @@ object Hooks {
     def setState: Reusable[S => Callback] =
       originalSetState.withValue(s => Callback(raw._2(s)))
 
+    /** WARNING: This ignores reusability of the provided function.
+      * It will only work correctly if you always provide the exact same function.
+      *
+      * If you want to be able to provide different functions, use `.withReusableInputs.modState`.
+      *
+      * @param f WARNING: This must be a consistent/stable function.
+      */
     def modState: Reusable[(S => S) => Callback] =
       originalSetState.withValue(f => Callback(modStateRaw(f)))
 

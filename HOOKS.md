@@ -11,6 +11,7 @@ TODO
   * Maybe a table of JS <-> Scala
   * Usage guide with examples
   * CustomHook.reusableDeps
+  * useForceUpdate
   * Api.Ext
   * tradeoffs
     * why not just (HookDsl.useXxx(...) => Unit) calls?
@@ -18,5 +19,4 @@ TODO
   * changelog
 * gh-pages demo
 
-* Add useForceUpdate
 * useRef to a ScalaComponent?

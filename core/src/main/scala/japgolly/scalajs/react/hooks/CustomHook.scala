@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.hooks
 
-import japgolly.scalajs.react.{PropsChildren, Reusability, Reusable}
+import japgolly.scalajs.react.{Callback, PropsChildren, Reusability, Reusable}
 
 final class CustomHook[-I, +O] private[CustomHook] (val unsafeInit: I => O) extends AnyVal {
 
@@ -209,4 +209,11 @@ object CustomHook {
 
   def reusableByDeps[A, D](create: Int => A)(implicit r: Reusability[D]): CustomHook[() => D, Reusable[A]] =
     reusableDeps[D].map(rev => Reusable.implicitly(rev).withValue(create(rev)))
+
+  lazy val useForceUpdate: CustomHook[Unit, Reusable[Callback]] = {
+    val inc: Int => Int = _ + 1
+    CustomHook[Unit]
+      .useState(0)
+      .buildReturning(_.hook1.modState.map(_(inc)))
+  }
 }
