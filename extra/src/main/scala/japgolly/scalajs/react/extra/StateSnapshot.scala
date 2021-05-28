@@ -284,4 +284,34 @@ object StateSnapshot {
 
   implicit def reusability[S]: Reusability[StateSnapshot[S]] =
     reusabilityInstance.asInstanceOf[Reusability[StateSnapshot[S]]]
+
+  object HookExt {
+
+    sealed class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) {
+      final def useStateSnapshot[S](initialState: => S)(implicit step: Step): step.Next[StateSnapshot[S]] =
+        useStateSnapshotBy(_ => initialState)
+
+      final def useStateSnapshotBy[S](initialState: Ctx => S)(implicit step: Step): step.Next[StateSnapshot[S]] =
+        api.customBy(ctx => StateSnapshot.hook(initialState(ctx)))
+
+      final def useStateSnapshotWithReuse[S](initialState: => S)(implicit r: Reusability[S], step: Step): step.Next[StateSnapshot[S]] =
+        useStateSnapshotWithReuseBy(_ => initialState)
+
+      final def useStateSnapshotWithReuseBy[S](initialState: Ctx => S)(implicit r: Reusability[S], step: Step): step.Next[StateSnapshot[S]] =
+        api.customBy(ctx => StateSnapshot.withReuse.hook(initialState(ctx)))
+    }
+
+    final class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends Primary[Ctx, Step](api) {
+      def useStateSnapshotBy[S](initialState: CtxFn[S])(implicit step: Step): step.Next[StateSnapshot[S]] =
+        useStateSnapshotBy(step.squash(initialState)(_))
+
+      def useStateSnapshotWithReuseBy[S](initialState: CtxFn[S])(implicit r: Reusability[S], step: Step): step.Next[StateSnapshot[S]] =
+        useStateSnapshotWithReuseBy(step.squash(initialState)(_))
+    }
+
+    implicit object HookExt extends HooksApi.Ext[Primary, Secondary] {
+      override def primary[Ctx, S <: HooksApi.Step] = new Primary(_)
+      override def secondary[Ctx, CtxFn[_], S <: HooksApi.SubsequentStep[Ctx,CtxFn]] = new Secondary(_)
+    }
+  }
 }

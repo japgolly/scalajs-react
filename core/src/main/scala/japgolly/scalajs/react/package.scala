@@ -48,6 +48,8 @@ package object react extends ReactEventTypes {
 
   type CustomHook[-I, +O] = hooks.CustomHook[I, O]
   val CustomHook          = hooks.CustomHook
+  val Hooks               = hooks.Hooks
+  val HooksApi            = hooks.Api
 
   // Required for Scala 2.12 & ScalaJS 1.0
   @inline implicit def scalajsReactRawPropsChildrenToJsUndef(r: raw.PropsChildren): js.UndefOr[raw.PropsChildren] =
