@@ -14,7 +14,6 @@ object Dependencies {
     val MonocleCats           = "2.1.0"
     val Monocle3              = "3.0.0-M6"
     val MonocleScalaz         = "1.6.3"
-    val Scala212              = "2.12.13"
     val Scala213              = "2.13.6"
     val ScalaCollCompat       = "2.4.4"
     val ScalaJsDom            = "1.1.0"

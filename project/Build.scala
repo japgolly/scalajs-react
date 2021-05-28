@@ -59,10 +59,9 @@ object ScalajsReact {
     _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
       .settings(
         scalaVersion                  := Ver.Scala213,
-        crossScalaVersions            := Seq(Ver.Scala212, Ver.Scala213),
+        crossScalaVersions            := Seq(Ver.Scala213),
         scalacOptions                ++= scalacFlags,
         scalacOptions                ++= byScalaVersion {
-                                           case (2, 12) => Nil
                                            case (2, 13) => scalac213Flags
                                          }.value,
         //scalacOptions               += "-Xlog-implicits",
