@@ -2,8 +2,7 @@ package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.internal.JsUtil
 import japgolly.scalajs.react.raw
-import japgolly.scalajs.react.vdom.Builder.RawChild
-import japgolly.scalajs.react.vdom.Builder.RawRefFn
+import japgolly.scalajs.react.vdom.Builder.{RawChild, RawRefFn}
 import scala.scalajs.js
 
 /** Mutable target for immutable VDOM constituents to compose.
