@@ -648,25 +648,36 @@ object Api {
   // ===================================================================================================================
   // Custom extension modules
 
-  trait Ext[Pri[_, _ <: Step],
-            Snd[c, f[_], s <: SubsequentStep[c, f]] <: Pri[c, s]
-           ] {
+  trait Ext {
+    type Self = Ext.To[Primary, Secondary]
 
-    final type Primary[Ctx, S <: Step] =
-      Pri[Ctx, S]
+    type Primary[Ctx, S <: Step]
 
-    final type Secondary[Ctx, CtxFn[_], S <: SubsequentStep[Ctx, CtxFn]] =
-      Snd[Ctx, CtxFn, S]
+    type Secondary[Ctx, CtxFn[_], S <: SubsequentStep[Ctx, CtxFn]] <: Primary[Ctx, S]
 
     def primary[Ctx, S <: Step]: Api.Primary[Ctx, S] => Primary[Ctx, S]
+
     def secondary[Ctx, CtxFn[_], S <: SubsequentStep[Ctx, CtxFn]]: Api.Secondary[Ctx, CtxFn, S] => Secondary[Ctx, CtxFn, S]
+  }
+
+  object Ext {
+    type To[Pri[_, _ <: Step], Snd[c, f[_], s <: SubsequentStep[c, f]] <: Pri[c, s]] =
+      Ext {
+        type Primary[Ctx, S <: Step] = Pri[Ctx, S]
+        type Secondary[Ctx, CtxFn[_], S <: SubsequentStep[Ctx, CtxFn]] = Snd[Ctx, CtxFn, S]
+      }
+
+    trait ToTrait[Pri[_, _ <: Step], Snd[c, f[_], s <: SubsequentStep[c, f]] <: Pri[c, s]] extends Ext {
+      final type Primary[Ctx, S <: Step] = Pri[Ctx, S]
+      final type Secondary[Ctx, CtxFn[_], S <: SubsequentStep[Ctx, CtxFn]] = Snd[Ctx, CtxFn, S]
+    }
   }
 
   @inline implicit def extPrimary[Pri[_, _ <: Step],
                                   Snd[c, f[_], s <: SubsequentStep[c, f]] <: Pri[c, s],
                                   Ctx,
                                   S <: Step
-                                ](api: Api.Primary[Ctx, S])(implicit e: Ext[Pri, Snd]): Pri[Ctx, S] =
+                                ](api: Api.Primary[Ctx, S])(implicit e: Ext.To[Pri, Snd]): Pri[Ctx, S] =
     e.primary(api)
 
   @inline implicit def extSecondary[Pri[_, _ <: Step],
@@ -674,7 +685,7 @@ object Api {
                                     Ctx,
                                     CtxFn[_],
                                     S <: SubsequentStep[Ctx, CtxFn]
-                                  ](api: Api.Secondary[Ctx, CtxFn, S])(implicit e: Ext[Pri, Snd]): Snd[Ctx, CtxFn, S] =
+                                  ](api: Api.Secondary[Ctx, CtxFn, S])(implicit e: Ext.To[Pri, Snd]): Snd[Ctx, CtxFn, S] =
     e.secondary(api)
 
 }

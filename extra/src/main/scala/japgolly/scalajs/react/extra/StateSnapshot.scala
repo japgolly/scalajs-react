@@ -285,7 +285,11 @@ object StateSnapshot {
   implicit def reusability[S]: Reusability[StateSnapshot[S]] =
     reusabilityInstance.asInstanceOf[Reusability[StateSnapshot[S]]]
 
-  object HookExt {
+  // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
+
+  object HooksApiExt extends HooksApi.Ext {
+    override def primary[Ctx, S <: HooksApi.Step] = new Primary(_)
+    override def secondary[Ctx, CtxFn[_], S <: HooksApi.SubsequentStep[Ctx, CtxFn]] = new Secondary(_)
 
     sealed class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) {
       final def useStateSnapshot[S](initialState: => S)(implicit step: Step): step.Next[StateSnapshot[S]] =
@@ -307,11 +311,6 @@ object StateSnapshot {
 
       def useStateSnapshotWithReuseBy[S](initialState: CtxFn[S])(implicit r: Reusability[S], step: Step): step.Next[StateSnapshot[S]] =
         useStateSnapshotWithReuseBy(step.squash(initialState)(_))
-    }
-
-    implicit object HookExt extends HooksApi.Ext[Primary, Secondary] {
-      override def primary[Ctx, S <: HooksApi.Step] = new Primary(_)
-      override def secondary[Ctx, CtxFn[_], S <: HooksApi.SubsequentStep[Ctx,CtxFn]] = new Secondary(_)
     }
   }
 }
