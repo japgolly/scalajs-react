@@ -1,7 +1,9 @@
 TODO
 =========================================================================================
 
-* Tests
+* gh-pages demo
+* useRef to a ScalaComponent?
+
 * Documentation
   * rules
     * By suffix
@@ -17,6 +19,3 @@ TODO
     * why not just (HookDsl.useXxx(...) => Unit) calls?
     * why DslMulti instead of Dsl{1,2,...}
   * changelog
-* gh-pages demo
-
-* useRef to a ScalaComponent?
