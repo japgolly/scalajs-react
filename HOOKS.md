@@ -8,7 +8,7 @@ TODO
   * rules
     * By suffix
     * WithDeps suffix
-    * _ suffix & hook slots
+    * hook slots
     * Ctx/CtxFn
   * Maybe a table of JS <-> Scala
   * Usage guide with examples

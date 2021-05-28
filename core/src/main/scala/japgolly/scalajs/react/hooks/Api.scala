@@ -18,6 +18,28 @@ object Api {
     def squash[A]: CtxFn[A] => (Ctx => A)
   }
 
+  trait DynamicNextStep[A] {
+    type Result[S <: Step]
+    def apply[I, S <: Step](i: I)(self: I => S#Self, next: I => S#Next[A]): Result[S]
+  }
+  sealed trait DynamicNextStepLowPri {
+    final type Next[A] = DynamicNextStep[A] { type Result[S <: Step] = S#Next[A] }
+    final implicit def next[A]: Next[A] =
+      new DynamicNextStep[A] {
+        override type Result[S <: Step] = S#Next[A]
+        override def apply[I, S <: Step](i: I)(self: I => S#Self, next: I => S#Next[A]) = next(i)
+      }
+  }
+  object DynamicNextStep extends DynamicNextStepLowPri {
+    type Self[A] = DynamicNextStep[A] { type Result[S <: Step] = S#Self }
+    def self[A]: Self[A] =
+      new DynamicNextStep[A] {
+        override type Result[S <: Step] = S#Self
+        override def apply[I, S <: Step](i: I)(self: I => S#Self, next: I => S#Next[A]) = self(i)
+      }
+    @inline implicit def unit: Self[Unit] = self
+  }
+
   // ===================================================================================================================
   // API 1: X / (Ctx => X)
 
@@ -28,20 +50,12 @@ object Api {
     protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H]
 
     /** Use a custom hook */
-    final def custom[I, O](hook: CustomHook[I, O])(implicit step: Step, a: CustomHook.Arg[Ctx, I]): step.Next[O] =
-      next(ctx => hook.unsafeInit(a.convert(ctx)))
+    final def custom[I, O](hook: CustomHook[I, O])(implicit step: Step, a: CustomHook.Arg[Ctx, I], d: DynamicNextStep[O]): d.Result[step.type] =
+      d((ctx: Ctx) => hook.unsafeInit(a.convert(ctx)))(self(_), next(_))
 
     /** Use a custom hook */
-    final def customBy[O](hook: Ctx => CustomHook[Unit, O])(implicit step: Step): step.Next[O] =
-      next(hook(_).unsafeInit(()))
-
-    /** Use a custom hook */
-    final def custom_[I](hook: CustomHook[I, Unit])(implicit step: Step, a: CustomHook.Arg[Ctx, I]): step.Self =
-      self(ctx => hook.unsafeInit(a.convert(ctx)))
-
-    /** Use a custom hook */
-    final def customBy_(hook: Ctx => CustomHook[Unit, Unit])(implicit step: Step): step.Self =
-      self(hook(_).unsafeInit(()))
+    final def customBy[O](hook: Ctx => CustomHook[Unit, O])(implicit step: Step, d: DynamicNextStep[O]): d.Result[step.type] =
+      d((ctx: Ctx) => hook(ctx).unsafeInit(()))(self(_), next(_))
 
     /** Create a new local `lazy val` on each render. */
     final def localLazyVal[A](a: => A)(implicit step: Step): step.Next[() => A] =
@@ -74,26 +88,14 @@ object Api {
     /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
       * It's up to you to ensure you don't vioalte React's hook rules.
       */
-    final def unchecked[A](f: => A)(implicit step: Step): step.Next[A] =
-      next(_ => f)
+    final def unchecked[A](f: => A)(implicit step: Step, d: DynamicNextStep[A]): d.Result[step.type] =
+      uncheckedBy(_ => f)
 
     /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
       * It's up to you to ensure you don't vioalte React's hook rules.
       */
-    final def unchecked_(f: => Any)(implicit step: Step): step.Self =
-      self(_ => f)
-
-    /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
-      * It's up to you to ensure you don't vioalte React's hook rules.
-      */
-    final def uncheckedBy[A](f: Ctx => A)(implicit step: Step): step.Next[A] =
-      next(f)
-
-    /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
-      * It's up to you to ensure you don't vioalte React's hook rules.
-      */
-    final def uncheckedBy_(f: Ctx => Any)(implicit step: Step): step.Self =
-      self(f)
+    final def uncheckedBy[A](f: Ctx => A)(implicit step: Step, d: DynamicNextStep[A]): d.Result[step.type] =
+      d(f)(self(_), next(_))
 
     /** Returns a memoized callback.
       *
@@ -235,7 +237,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
     final def useEffectWithDeps[A, D](effect: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-      custom_(ReusableEffect.useEffect(effect, deps))
+      custom(ReusableEffect.useEffect(effect, deps))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
@@ -245,7 +247,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
     final def useEffectWithDepsBy[A, D](effect: Ctx => CallbackTo[A], deps: Ctx => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-      customBy_(ctx => ReusableEffect.useEffect(effect(ctx), deps(ctx)))
+      customBy(ctx => ReusableEffect.useEffect(effect(ctx), deps(ctx)))
 
     /** When invoked, forces a re-render of your component. */
     final def useForceUpdate(implicit step: Step): step.Next[Reusable[Callback]] =
@@ -318,7 +320,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
     final def useLayoutEffectWithDeps[A, D](effect: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-      custom_(ReusableEffect.useLayoutEffect(effect, deps))
+      custom(ReusableEffect.useLayoutEffect(effect, deps))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -331,7 +333,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
     final def useLayoutEffectWithDepsBy[A, D](effect: Ctx => CallbackTo[A], deps: Ctx => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-      customBy_(ctx => ReusableEffect.useLayoutEffect(effect(ctx), deps(ctx)))
+      customBy(ctx => ReusableEffect.useLayoutEffect(effect(ctx), deps(ctx)))
 
     /** Returns a memoized value.
       *
@@ -448,12 +450,8 @@ object Api {
   trait Secondary[Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends Primary[Ctx, _Step] {
 
     /** Use a custom hook */
-    final def customBy[O](hook: CtxFn[CustomHook[Unit, O]])(implicit step: Step): step.Next[O] =
+    final def customBy[O](hook: CtxFn[CustomHook[Unit, O]])(implicit step: Step, d: DynamicNextStep[O]): d.Result[step.type] =
       customBy(step.squash(hook)(_))
-
-    /** Use a custom hook */
-    final def customBy_(hook: CtxFn[CustomHook[Unit, Unit]])(implicit step: Step): step.Self =
-      customBy_(step.squash(hook)(_))
 
     /** Create a new local `lazy val` on each render. */
     final def localLazyValBy[A](f: CtxFn[A])(implicit step: Step): step.Next[() => A] =
@@ -470,14 +468,8 @@ object Api {
     /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
       * It's up to you to ensure you don't vioalte React's hook rules.
       */
-    final def uncheckedBy[A](f: CtxFn[A])(implicit step: Step): step.Next[A] =
+    final def uncheckedBy[A](f: CtxFn[A])(implicit step: Step, d: DynamicNextStep[A]): d.Result[step.type] =
       uncheckedBy(step.squash(f)(_))
-
-    /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
-      * It's up to you to ensure you don't vioalte React's hook rules.
-      */
-    final def uncheckedBy_(f: CtxFn[Any])(implicit step: Step): step.Self =
-      uncheckedBy_(step.squash(f)(_))
 
     /** Returns a memoized callback.
       *

@@ -142,12 +142,12 @@ object HooksTest extends TestSuite {
     val hookE = CustomHook[Int].useEffectBy(counter.incCB(_)).build
 
     val comp = ScalaFnComponent.withHooks[PI]
-      .custom_(hookE(10))
+      .custom(hookE(10))
       .custom(hookS(3))
       .customBy((p, _) => hookS(p.pi))
-      .customBy_((p, s, _) => hookE(p.pi + s.value))
+      .customBy((p, s, _) => hookE(p.pi + s.value))
       .customBy($ => hookS($.props.pi + $.hook1.value + 1))
-      .customBy_($ => hookE($.props.pi + $.hook1.value + 1))
+      .customBy($ => hookE($.props.pi + $.hook1.value + 1))
       .render((_, s1, s2, s3) =>
         <.div(
           s"${s1.value}:${s2.value}:${s3.value}",
@@ -233,12 +233,12 @@ object HooksTest extends TestSuite {
     val counterS = new Counter
 
     val comp = ScalaFnComponent.withHooks[PI]
-      .unchecked_(counterE.inc(10))
+      .unchecked{counterE.inc(10); ()}
       .unchecked(counterS.inc(3))
       .uncheckedBy((p, _) => counterS.inc(p.pi))
-      .uncheckedBy_((p, s, _) => counterE.inc(p.pi + s))
+      .uncheckedBy((p, s, _) => {counterE.inc(p.pi + s); ()})
       .uncheckedBy($ => counterS.inc($.props.pi + $.hook1 + 1))
-      .uncheckedBy_($ => counterE.inc($.props.pi + $.hook1 + 1))
+      .uncheckedBy($ => {counterE.inc($.props.pi + $.hook1 + 1); ()})
       .useState(0)
       .render((_, s1, s2, s3, x) =>
         <.div(
