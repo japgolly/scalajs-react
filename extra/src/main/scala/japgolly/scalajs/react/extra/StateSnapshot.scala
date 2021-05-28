@@ -287,10 +287,7 @@ object StateSnapshot {
 
   // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 
-  object HooksApiExt extends HooksApi.Ext {
-    override def primary[Ctx, S <: HooksApi.Step] = new Primary(_)
-    override def secondary[Ctx, CtxFn[_], S <: HooksApi.SubsequentStep[Ctx, CtxFn]] = new Secondary(_)
-
+  object HooksApiExt {
     sealed class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) {
       final def useStateSnapshot[S](initialState: => S)(implicit step: Step): step.Next[StateSnapshot[S]] =
         useStateSnapshotBy(_ => initialState)
@@ -312,5 +309,15 @@ object StateSnapshot {
       def useStateSnapshotWithReuseBy[S](initialState: CtxFn[S])(implicit r: Reusability[S], step: Step): step.Next[StateSnapshot[S]] =
         useStateSnapshotWithReuseBy(step.squash(initialState)(_))
     }
+  }
+
+  trait HooksApiExt {
+    import HooksApiExt._
+
+    implicit def hooksExtUseStateSnapshot1[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
+      new Primary(api)
+
+    implicit def hooksExtUseStateSnapshot2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): Secondary[Ctx, CtxFn, Step] =
+      new Secondary(api)
   }
 }

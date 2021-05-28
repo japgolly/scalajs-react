@@ -440,92 +440,66 @@ object HooksTest extends TestSuite {
   }
 
   private object UseEffect extends UseEffectTests {
-    override protected implicit object apiExt extends HooksApi.Ext.ToTrait[X_UseEffect_Primary, X_UseEffect_Secondary] {
-      private class PrimaryImpl[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
-
+    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) =
+      new Primary(api)
+    override protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) =
+      new Secondary(api)
+    protected class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
         override def X_useEffect[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
           api.useEffect(effect)
-
         override def X_useEffectBy[A](init: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
           api.useEffectBy(init)
-
         override def X_useEffectOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
           api.useEffectOnMount(effect)
-
         override def X_useEffectOnMountBy[A](effect: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
           api.useEffectOnMountBy(effect)
-
         override def X_useEffectWithDeps[A, D](effect: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
           api.useEffectWithDeps(effect, deps)
-
         override def X_useEffectWithDepsBy[A, D](effect: Ctx => CallbackTo[A], deps: Ctx => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
           api.useEffectWithDepsBy(effect, deps)
-      }
-
-      override def primary[Ctx, S <: HooksApi.Step] =
-        api => (new PrimaryImpl(api)): Primary[Ctx, S]
-
-      private class SecondaryImpl[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends PrimaryImpl[Ctx, Step](api) with X_UseEffect_Secondary[Ctx, CtxFn, Step] {
+    }
+    protected class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends Primary(api) with X_UseEffect_Secondary[Ctx, CtxFn, Step] {
         override def X_useEffectBy[A](init: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Self =
           api.useEffectBy(init)
-
         override def X_useEffectOnMountBy[A](effect: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Self =
           api.useEffectOnMountBy(effect)
-
         override def X_useEffectWithDepsBy[A, D](effect: CtxFn[CallbackTo[A]], deps: CtxFn[D])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
           api.useEffectWithDepsBy(effect, deps)
-      }
-
-      override def secondary[Ctx, CtxFn[_], S <: HooksApi.SubsequentStep[Ctx, CtxFn]] =
-        api => (new SecondaryImpl(api)): Secondary[Ctx, CtxFn, S]
     }
   }
 
   private object UseLayoutEffect extends UseEffectTests {
-    override protected implicit object apiExt extends HooksApi.Ext.ToTrait[X_UseEffect_Primary, X_UseEffect_Secondary] {
-      private class PrimaryImpl[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
-
+    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) =
+      new Primary(api)
+    override protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) =
+      new Secondary(api)
+    protected class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
         override def X_useEffect[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
           api.useLayoutEffect(effect)
-
         override def X_useEffectBy[A](init: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
           api.useLayoutEffectBy(init)
-
         override def X_useEffectOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
           api.useLayoutEffectOnMount(effect)
-
         override def X_useEffectOnMountBy[A](effect: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
           api.useLayoutEffectOnMountBy(effect)
-
         override def X_useEffectWithDeps[A, D](effect: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
           api.useLayoutEffectWithDeps(effect, deps)
-
         override def X_useEffectWithDepsBy[A, D](effect: Ctx => CallbackTo[A], deps: Ctx => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
           api.useLayoutEffectWithDepsBy(effect, deps)
-      }
-
-      override def primary[Ctx, S <: HooksApi.Step] =
-        api => (new PrimaryImpl(api)): Primary[Ctx, S]
-
-      private class SecondaryImpl[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends PrimaryImpl[Ctx, Step](api) with X_UseEffect_Secondary[Ctx, CtxFn, Step] {
+    }
+    protected class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends Primary(api) with X_UseEffect_Secondary[Ctx, CtxFn, Step] {
         override def X_useEffectBy[A](init: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Self =
           api.useLayoutEffectBy(init)
-
         override def X_useEffectOnMountBy[A](effect: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Self =
           api.useLayoutEffectOnMountBy(effect)
-
         override def X_useEffectWithDepsBy[A, D](effect: CtxFn[CallbackTo[A]], deps: CtxFn[D])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
           api.useLayoutEffectWithDepsBy(effect, deps)
-      }
-
-      override def secondary[Ctx, CtxFn[_], S <: HooksApi.SubsequentStep[Ctx, CtxFn]] =
-        api => (new SecondaryImpl(api)): Secondary[Ctx, CtxFn, S]
     }
   }
 
   private abstract class UseEffectTests {
-
-    protected implicit val apiExt: HooksApi.Ext.To[X_UseEffect_Primary, X_UseEffect_Secondary]
+    protected implicit def hooksExt1[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]): X_UseEffect_Primary[Ctx, Step]
+    protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): X_UseEffect_Secondary[Ctx, CtxFn, Step]
 
     def testConst(): Unit = {
       val counter1 = new Counter
@@ -631,14 +605,6 @@ object HooksTest extends TestSuite {
       val counter1 = new Counter
       val counter2 = new Counter
       def state() = s"${_state})${counter1.value}:${counter2.value}"
-
-      val x = ScalaFnComponent.withHooks[PI]
-        .X_useEffectWithDepsBy(p => counter1.incCB(p.pi).ret(counter2.incCB(p.pi)), _ => dep1.value)
-        .useState(100)
-        .X_useEffectWithDepsBy((_, s) => counter1.incCB(s.value), (_, _) => dep2.value)
-
-      HooksApi.extSecondary(x)
-      .X_useEffectWithDepsBy($ => counter1.incCB($.hook1.value / 10).ret(counter2.incCB($.hook1.value / 10)), _ => dep3.value)
 
       val comp = ScalaFnComponent.withHooks[PI]
         .X_useEffectWithDepsBy(p => counter1.incCB(p.pi).ret(counter2.incCB(p.pi)), _ => dep1.value)
@@ -1018,8 +984,6 @@ object HooksTest extends TestSuite {
   }
 
   private def testUseStateSnapshot(): Unit = {
-    // import japgolly.scalajs.react.extra._
-
     val comp = ScalaFnComponent.withHooks[PI]
       .useStateSnapshot(100)
     //   .useStateBy((p, s1) => p.pi + s1.value)
