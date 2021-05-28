@@ -128,7 +128,7 @@ object StateSnapshot {
         .buildReturning { (_, state, delayedCallbacks) =>
           val setFn: SetFn[S] = (os, cb) =>
             os match {
-              case Some(s) => delayedCallbacks.mod(cb :: _) >> state.setState(s)
+              case Some(s) => Callback.unless(cb.isEmpty_?)(delayedCallbacks.mod(cb :: _)) >> state.setState(s)
               case None    => cb
             }
           new StateSnapshot[S](state.value, state.originalSetState.withValue(setFn), rs)

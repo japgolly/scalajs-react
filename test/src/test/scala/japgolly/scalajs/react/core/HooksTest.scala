@@ -84,7 +84,6 @@ object HooksTest extends TestSuite {
   }
   private val ReusableSetIntComponent =
     ScalaComponent.builder[Reusable[Int => Callback]]
-      .initialState(1)
       .renderBackend[ReusableSetIntComponent]
       .configure(Reusability.shouldComponentUpdate)
       .build
@@ -101,7 +100,6 @@ object HooksTest extends TestSuite {
   }
   private val ReusableModIntComponent =
     ScalaComponent.builder[Reusable[(Int => Int) => Callback]]
-      .initialState(1)
       .renderBackend[ReusableModIntComponent]
       .configure(Reusability.shouldComponentUpdate)
       .build
@@ -115,8 +113,23 @@ object HooksTest extends TestSuite {
   }
   private val ReusableCallbackComponent =
     ScalaComponent.builder[Reusable[Callback]]
-      .initialState(1)
       .renderBackend[ReusableCallbackComponent]
+      .configure(Reusability.shouldComponentUpdate)
+      .build
+
+  private final class ReusableStateSnapshotComponent {
+    private var renders = 0
+    def render(s: StateSnapshot[Int]) = {
+      renders += 1
+      <.div(s"${s.value}:$renders",
+        <.button(^.onClick --> s.modState(_ + 1)),
+        <.button(^.onClick --> s.modState(_ + 10)),
+      )
+    }
+  }
+  private val ReusableStateSnapshotComponent =
+    ScalaComponent.builder[StateSnapshot[Int]]
+      .renderBackend[ReusableStateSnapshotComponent]
       .configure(Reusability.shouldComponentUpdate)
       .build
 
@@ -984,21 +997,83 @@ object HooksTest extends TestSuite {
   }
 
   private def testUseStateSnapshot(): Unit = {
+    val counter = new Counter
+    var latestS3 = 0
     val comp = ScalaFnComponent.withHooks[PI]
       .useStateSnapshot(100)
-    //   .useStateBy((p, s1) => p.pi + s1.value)
-    //   .useStateBy($ => $.props.pi + $.hook1.value + $.hook2.value)
-    //   .render((p, s1, s2, s3) =>
-    //     <.div(
-    //       <.div(s"P=$p, s1=${s1.value}, s2=${s2.value}, s3=${s3.value}"),
-    //       <.button(^.onClick --> (
-    //         s1.modState(_ + 1) >> s2.modState(-_) >> s3.modState(_ * 10)
-    //       ))))
+      .useStateSnapshotBy((p, s1) => p.pi + s1.value)
+      .useStateSnapshotBy($ => $.props.pi + $.hook1.value + $.hook2.value)
+      .render { (p, s1, s2, s3) =>
+        latestS3 = s3.value
+        <.div(
+          <.button(^.onClick --> (s1.modState(_ + 1) >> s2.modState(-_) >> s3.modState(_ * 10))),
+          <.button(^.onClick --> s3.modState(_ + 1, CallbackTo(latestS3).flatMap(counter.incCB(_)))),
+          <.button(^.onClick --> s3.setStateOption(None, counter.incCB)),
+          s"P=$p",
+          s", S1=${s1.value}:", ReusableSetIntComponent(s1.underlyingSetFn.map(f => (i: Int) => f(Some(i), Callback.empty))),
+          s", S2=${s2.value}:", ReusableSetIntComponent(s1.underlyingSetFn.map(f => (i: Int) => f(Some(i), Callback.empty))),
+          s", S3=${s3.value}:", ReusableSetIntComponent(s1.underlyingSetFn.map(f => (i: Int) => f(Some(i), Callback.empty))),
+        )
+      }
 
-    // test(comp(PI(666))) { t =>
-    //   t.assertText("P=PI(666), s1=100, s2=766, s3=1532")
-    //   t.clickButton(); t.assertText("P=PI(666), s1=101, s2=-766, s3=15320")
-    // }
+    test(comp(PI(666))) { t =>
+      t.assertText("P=PI(666), S1=100:1, S2=766:1, S3=1532:1")
+      t.clickButton(1); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15320:1")
+      t.clickButton(2); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
+      assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
+      t.clickButton(3); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
+      assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
+      t.clickButton(3); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
+      assertEq(counter.value, 15323)
+      t.clickButton(2); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15322:1")
+      assertEq(counter.value, 15323 + 15322)
+      t.clickButton(4); t.assertText("P=PI(666), S1=1:1, S2=-766:1, S3=15322:1")
+      assertEq(counter.value, 15323 + 15322)
+    }
+  }
+
+  private def testUseStateSnapshotWithReuse(): Unit = {
+    type I = Int {type A=1}
+    implicit val I = Reusability.int.contramap((_: I) >> 1)
+    val counter = new Counter
+    var latestS3 = 0
+    val comp = ScalaFnComponent.withHooks[PI]
+      .useStateSnapshotWithReuse(100)
+      .useStateSnapshotWithReuseBy((p, s1) => p.pi + s1.value)
+      .useStateSnapshotWithReuseBy($ => $.props.pi + $.hook1.value + $.hook2.value)
+      .useStateSnapshotWithReuse(330.asInstanceOf[I])
+      .render { (p, s1, s2, s3, s4) =>
+        latestS3 = s3.value
+        <.div(
+          <.button(^.onClick --> (s1.modState(_ + 1) >> s2.modState(-_) >> s3.modState(_ * 10))),
+          <.button(^.onClick --> s3.modState(_ + 1, CallbackTo(latestS3).flatMap(counter.incCB(_)))),
+          <.button(^.onClick --> s3.setStateOption(None, counter.incCB)),
+          s"P=$p",
+          ", S1=", ReusableStateSnapshotComponent(s1), // buttons: 4 & 5
+          ", S2=", ReusableStateSnapshotComponent(s2), // buttons: 6 & 7
+          ", S3=", ReusableStateSnapshotComponent(s3), // buttons: 8 & 9
+          s", S4=", ReusableStateSnapshotComponent(s4.asInstanceOf[StateSnapshot[Int]]), // buttons: 10 & 11
+        )
+      }
+
+    test(comp(PI(666))) { t =>
+      t.assertText("P=PI(666), S1=100:1, S2=766:1, S3=1532:1, S4=330:1")
+      t.clickButton(1); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15320:2, S4=330:1")
+      t.clickButton(2); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+      assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
+      t.clickButton(3); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+      assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
+      t.clickButton(3); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+      assertEq(counter.value, 15323)
+      t.clickButton(2); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15322:4, S4=330:1")
+      assertEq(counter.value, 15323 + 15322)
+      t.clickButton(4); t.assertText("P=PI(666), S1=102:3, S2=-766:2, S3=15322:4, S4=330:1")
+      t.clickButton(4); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=330:1")
+      assertEq(counter.value, 15323 + 15322)
+      t.clickButton(11); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=340:2")
+      t.clickButton(10); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=340:2") // reusability blocks update
+      t.clickButton(11); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=350:3")
+    }
   }
 
   // ===================================================================================================================
@@ -1060,5 +1135,6 @@ object HooksTest extends TestSuite {
       }
     }
     "useStateSnapshot" - testUseStateSnapshot()
+    "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
   }
 }

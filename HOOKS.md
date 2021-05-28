@@ -18,6 +18,5 @@ TODO
   * changelog
 * gh-pages demo
 
-* Add Api.Ext for SS
 * Add useForceUpdate
 * useRef to a ScalaComponent?
