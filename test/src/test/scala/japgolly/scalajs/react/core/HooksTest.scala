@@ -122,6 +122,36 @@ object HooksTest extends TestSuite {
 
   // ===================================================================================================================
 
+  private def testCustom(): Unit = {
+    val counter = new Counter
+
+    val hookS = CustomHook[Int].useStateBy(identity).buildReturning(_.hook1)
+    val hookE = CustomHook[Int].useEffectBy(counter.incCB(_)).build
+
+    val comp = ScalaFnComponent.withHooks[PI]
+      .custom_(hookE(10))
+      .custom(hookS(3))
+      .customBy((p, _) => hookS(p.pi))
+      .customBy_((p, s, _) => hookE(p.pi + s.value))
+      .customBy($ => hookS($.props.pi + $.hook1.value + 1))
+      .customBy_($ => hookE($.props.pi + $.hook1.value + 1))
+      .render((_, s1, s2, s3) =>
+        <.div(
+          s"${s1.value}:${s2.value}:${s3.value}",
+          <.button(^.onClick --> s1.modState(_ + 1))
+        )
+      )
+
+    test(comp(PI(5))) { t =>
+      t.assertText("3:5:9")
+      assertEq(counter.value, 10 + (5+3) + (5+3+1))
+      counter.value = 0
+      t.clickButton()
+      t.assertText("4:5:9")
+      assertEq(counter.value, 10 + (5+4) + (5+4+1))
+    }
+  }
+
   private def testLazyVal(): Unit = {
     val counter = new Counter
     val comp = ScalaFnComponent.withHooks[PI]
@@ -182,6 +212,35 @@ object HooksTest extends TestSuite {
     test(comp(PI(10))) { t =>
       t.assertText("P=PI(10), v1=101, v2=112, v3=113")
       t.clickButton(); t.assertText("P=PI(10), v1=104, v2=115, v3=116")
+    }
+  }
+
+  private def testUnchecked(): Unit = {
+    val counterE = new Counter
+    val counterS = new Counter
+
+    val comp = ScalaFnComponent.withHooks[PI]
+      .unchecked_(counterE.inc(10))
+      .unchecked(counterS.inc(3))
+      .uncheckedBy((p, _) => counterS.inc(p.pi))
+      .uncheckedBy_((p, s, _) => counterE.inc(p.pi + s))
+      .uncheckedBy($ => counterS.inc($.props.pi + $.hook1 + 1))
+      .uncheckedBy_($ => counterE.inc($.props.pi + $.hook1 + 1))
+      .useState(0)
+      .render((_, s1, s2, s3, x) =>
+        <.div(
+          s"$s1:$s2:$s3",
+          <.button(^.onClick --> x.modState(_ + 1))
+        )
+      )
+
+    test(comp(PI(5))) { t =>
+      t.assertText("3:8:17")
+      assertEq(counterE.value, 10 + (5+3) + (5+3+1))
+      counterE.value = 0
+      t.clickButton()
+      t.assertText("20:25:51") // +3 : +5 : +(5+20+1)
+      assertEq(counterE.value, 10 + (5+20) + (5+20+1))
     }
   }
 
@@ -963,6 +1022,7 @@ object HooksTest extends TestSuite {
   // ===================================================================================================================
 
   override def tests = Tests {
+    "custom" - testCustom()
     "localLazyVal" - testLazyVal()
     "localVal" - testVal()
     "localVar" - testVar()
@@ -972,6 +1032,7 @@ object HooksTest extends TestSuite {
       "deps" - testUseCallbackWithDeps()
       "depsBy" - testUseCallbackWithDepsBy()
     }
+    "unchecked" - testUnchecked()
     "useContext" - testUseContext()
     "useDebugValue" - testUseDebugValue()
     "useEffect" - {
@@ -1018,19 +1079,5 @@ object HooksTest extends TestSuite {
     }
   }
 }
-
-// final def custom_[I](hook: CustomHook[I, Unit])(implicit step: Step, a: CustomHook.Arg[Ctx, I]): step.Self =
-// final def custom[I, O](hook: CustomHook[I, O])(implicit step: Step, a: CustomHook.Arg[Ctx, I]): step.Next[O] =
-// final def customBy_(hook: Ctx => CustomHook[Unit, Unit])(implicit step: Step): step.Self =
-// final def customBy_(hook: CtxFn[CustomHook[Unit, Unit]])(implicit step: Step): step.Self =
-// final def customBy[O](hook: Ctx => CustomHook[Unit, O])(implicit step: Step): step.Next[O] =
-// final def customBy[O](hook: CtxFn[CustomHook[Unit, O]])(implicit step: Step): step.Next[O] =
-
-// final def unchecked_(f: => Any)(implicit step: Step): step.Self =
-// final def unchecked[A](f: => A)(implicit step: Step): step.Next[A] =
-// final def uncheckedBy_(f: Ctx => Any)(implicit step: Step): step.Self =
-// final def uncheckedBy_(f: CtxFn[Any])(implicit step: Step): step.Self =
-// final def uncheckedBy[A](f: Ctx => A)(implicit step: Step): step.Next[A] =
-// final def uncheckedBy[A](f: CtxFn[A])(implicit step: Step): step.Next[A] =
 
 // SS hook too

@@ -96,6 +96,15 @@ object CustomHook {
 
       override protected def next[H](f: I => H)(implicit step: Step): step.Next[H] =
         step.next(init, f)
+
+      def build: CustomHook[I, Unit] =
+        CustomHook.unchecked(init)
+
+      def buildReturning[O](f: I => O): CustomHook[I, O] =
+        CustomHook.unchecked[I, O] { i =>
+          init(i)
+          f(i)
+        }
     }
 
     trait BuildFn[-I, +Ctx] {
