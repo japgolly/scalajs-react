@@ -65,6 +65,12 @@ object HooksTest extends TestSuite {
     def incCB(by: Int): Callback = Callback{ inc(by); () }
   }
 
+  private final class Recorder[A] {
+    var values = Vector.empty[A]
+    def add(as: A*): Unit = values ++= as
+    def addCB(as: A*): Callback = {val x = as.toList; Callback(add(x: _*))}
+  }
+
   private final case class PI(pi: Int) {
     def unary_- : PI = PI(-pi)
     def *(n: Int): PI = PI(pi * n)
@@ -135,7 +141,7 @@ object HooksTest extends TestSuite {
 
   // ===================================================================================================================
 
-  private def testCustom(): Unit = {
+  private def testCustomHook(): Unit = {
     val counter = new Counter
 
     val hookS = CustomHook[Int].useStateBy(identity).buildReturning(_.hook1)
@@ -163,6 +169,89 @@ object HooksTest extends TestSuite {
       t.assertText("4:5:9")
       assertEq(counter.value, 10 + (5+4) + (5+4+1))
     }
+  }
+
+  private def testCustomHookComposition(): Unit = {
+
+    locally {
+      import InferenceUtil.{test => t}
+
+      type LL = CustomHook[Long, Long]
+      type II = CustomHook[Int, Int]
+      type IU = CustomHook[Int, Unit]
+      type UI = CustomHook[Unit, Int]
+      type UU = CustomHook[Unit, Unit]
+      type TF = CustomHook[3, 4]
+      type FT = CustomHook[4, 3]
+
+      t[(II, LL)](h => h._1 ++ h._2).expect[CustomHook[(Int, Long), (Int, Long)]]
+      t[(II, TF)](h => h._1 ++ h._2).expect[CustomHook[(Int, 3), (Int, 4)]]
+      t[(II, II)](h => h._1 ++ h._2).expect[CustomHook[Int, (Int, Int)]]
+      t[(II, IU)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
+      t[(II, UI)](h => h._1 ++ h._2).expect[CustomHook[Int, (Int, Int)]]
+      t[(II, UU)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
+
+      t[(IU, LL)](h => h._1 ++ h._2).expect[CustomHook[(Int, Long), Long]]
+      t[(IU, TF)](h => h._1 ++ h._2).expect[CustomHook[(Int, 3), 4]]
+      t[(IU, II)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
+      t[(IU, IU)](h => h._1 ++ h._2).expect[CustomHook[Int, Unit]]
+      t[(IU, UI)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
+      t[(IU, UU)](h => h._1 ++ h._2).expect[CustomHook[Int, Unit]]
+
+      t[(UI, LL)](h => h._1 ++ h._2).expect[CustomHook[Long, (Int, Long)]]
+      t[(UI, TF)](h => h._1 ++ h._2).expect[CustomHook[3, (Int, 4)]]
+      t[(UI, II)](h => h._1 ++ h._2).expect[CustomHook[Int, (Int, Int)]]
+      t[(UI, IU)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
+      t[(UI, UI)](h => h._1 ++ h._2).expect[CustomHook[Unit, (Int, Int)]]
+      t[(UI, UU)](h => h._1 ++ h._2).expect[CustomHook[Unit, Int]]
+
+      t[(UU, LL)](h => h._1 ++ h._2).expect[CustomHook[Long, Long]]
+      t[(UU, TF)](h => h._1 ++ h._2).expect[CustomHook[3, 4]]
+      t[(UU, II)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
+      t[(UU, IU)](h => h._1 ++ h._2).expect[CustomHook[Int, Unit]]
+      t[(UU, UI)](h => h._1 ++ h._2).expect[CustomHook[Unit, Int]]
+      t[(UU, UU)](h => h._1 ++ h._2).expect[CustomHook[Unit, Unit]]
+
+      t[(LL, LL)](h => h._1 ++ h._2).expect[CustomHook[Long, (Long, Long)]]
+      t[(LL, II)](h => h._1 ++ h._2).expect[CustomHook[(Long, Int), (Long, Int)]]
+      t[(LL, IU)](h => h._1 ++ h._2).expect[CustomHook[(Long, Int), Long]]
+      t[(LL, UI)](h => h._1 ++ h._2).expect[CustomHook[Long, (Long, Int)]]
+      t[(LL, UU)](h => h._1 ++ h._2).expect[CustomHook[Long, Long]]
+
+      t[(TF, FT)](h => h._1 ++ h._2).expect[CustomHook[(3, 4), (4, 3)]]
+      t[(TF, II)](h => h._1 ++ h._2).expect[CustomHook[(3, Int), (4, Int)]]
+      t[(TF, IU)](h => h._1 ++ h._2).expect[CustomHook[(3, Int), 4]]
+      t[(TF, LL)](h => h._1 ++ h._2).expect[CustomHook[(3, Long), (4, Long)]]
+      t[(TF, TF)](h => h._1 ++ h._2).expect[CustomHook[3, 4]]
+      t[(TF, UI)](h => h._1 ++ h._2).expect[CustomHook[3, (4, Int)]]
+      t[(TF, UU)](h => h._1 ++ h._2).expect[CustomHook[3, 4]]
+
+      t[(FT, FT)](h => h._1 ++ h._2).expect[CustomHook[4, 3]]
+      t[(FT, II)](h => h._1 ++ h._2).expect[CustomHook[(4, Int), (3, Int)]]
+      t[(FT, IU)](h => h._1 ++ h._2).expect[CustomHook[(4, Int), 3]]
+      t[(FT, LL)](h => h._1 ++ h._2).expect[CustomHook[(4, Long), (3, Long)]]
+      t[(FT, TF)](h => h._1 ++ h._2).expect[CustomHook[(4, 3), (3, 4)]]
+      t[(FT, UI)](h => h._1 ++ h._2).expect[CustomHook[4, (3, Int)]]
+      t[(FT, UU)](h => h._1 ++ h._2).expect[CustomHook[4, 3]]
+    }
+
+    val ints = new Recorder[Int]
+
+    val addII = CustomHook[Int].useEffectBy(ints.addCB(_)).buildReturning(identity)
+    val addI_ = addII.map(_ => ()).contramap[Int](_ * 10)
+    val add_S = CustomHook[Unit].useEffect(ints.addCB(100)).buildReturning(_ => "ah")
+
+    val hook = addII ++ addI_ ++ add_S
+    val _ : CustomHook[Int, (Int, String)] = hook
+
+    val comp = ScalaFnComponent.withHooks[PI]
+      .customBy(p => hook(p.pi))
+      .render((_, h) => h.toString)
+
+    test(comp(PI(3))) { t =>
+      t.assertText("(3,ah)")
+    }
+    assertEq(ints.values, Vector(3, 30, 100))
   }
 
   private def testLazyVal(): Unit = {
@@ -1097,7 +1186,10 @@ object HooksTest extends TestSuite {
   // ===================================================================================================================
 
   override def tests = Tests {
-    "custom" - testCustom()
+    "custom" - {
+      "usage" - testCustomHook()
+      "composition" - testCustomHookComposition()
+    }
     "localLazyVal" - testLazyVal()
     "localVal" - testVal()
     "localVar" - testVar()
