@@ -18,6 +18,7 @@ Includes a router, testing utils, performance utils, more.
 
 - [Usage & Getting Started](doc/USAGE.md)
   - [VDOM](doc/VDOM.md)
+  - [Hooks](doc/HOOKS.md)
   - [Refs](doc/REFS.md)
   - [IDE support](doc/IDE.md)
   - [The `Callback` class](doc/CALLBACK.md)

@@ -1,14 +1,15 @@
 # React Hooks with scalajs-react
 
-* Design
-* Quickstart
-* React hooks in scalajs-react
-* New hooks provided by scalajs-react
-* Hook chaining / dependencies / results
-* Custom hooks
-* Custom hook composition
-* API extensions
-* Escape hatches
+* [Design](HOOKS.md#design)
+* [Quickstart](HOOKS.md#quickstart)
+* [React hooks in scalajs-react](HOOKS.md#react-hooks-in-scalajs-react)
+* [New hooks provided by scalajs-react](HOOKS.md#new-hooks-provided-by-scalajs-react)
+* [Hook chaining / dependencies / results](HOOKS.md#hook-chaining--dependencies--results)
+* [Custom hooks](HOOKS.md#custom-hooks)
+* [Custom hook composition](HOOKS.md#custom-hook-composition)
+* [Using third-party JavaScript hooks](HOOKS.md#using-third-party-javascript-hooks)
+* [API extensions](HOOKS.md#api-extensions)
+* [Escape hatches](HOOKS.md#escape-hatches)
 
 
 # Design
@@ -288,6 +289,23 @@ object Example3 {
   val hooks: CustomHook[(Long, String), (Boolean, Int)] = hook1 ++ hook2
 }
 ```
+
+# Using third-party JavaScript hooks
+
+Using a third-party JavaScript hook is as simple as wrapping it in `CustomHook.unchecked`.
+
+```scala
+// Declare your JS facade as normal. Type should be a subtype of js.Function.
+
+// I is the type of the hook's inputs (use a tuple or case class for multiple args)
+// O is the type of the hook's output (or Unit if none)
+val jsHook = CustomHook.unchecked[I, O](i => JsHookFacade(i))
+```
+
+Then to use it, either...
+
+1) simply call `.custom(jsHook)` from your component
+2) or create an API extension as shown below
 
 # API extensions
 
