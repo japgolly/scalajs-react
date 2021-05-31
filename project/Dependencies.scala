@@ -25,7 +25,6 @@ object Dependencies {
     val CatsTestkitScalaTest  = "2.1.5"
     val DisciplineScalaTest   = "2.1.5"
     val KindProjector         = "0.13.0"
-    val MacroParadise         = "2.1.1"
     val Microlibs             = "2.5"
     val MTest                 = "0.7.10"
     val Nyaya                 = "0.10.0"
@@ -63,7 +62,6 @@ object Dependencies {
     // Compiler plugins
     val BetterMonadicFor = compilerPlugin("com.olegpy"     %% "better-monadic-for" % Ver.BetterMonadicFor)
     val KindProjector    = compilerPlugin("org.typelevel"  %% "kind-projector"     % Ver.KindProjector cross CrossVersion.full)
-    val MacroParadise    = compilerPlugin("org.scalamacros" % "paradise"           % Ver.MacroParadise cross CrossVersion.patch)
 
     def SizzleJs(scope: Configuration) =
       Def.setting("org.webjars.bower" % "sizzle" % Ver.SizzleJs % scope / "sizzle.min.js" commonJSName "Sizzle")
@@ -110,17 +108,4 @@ object Dependencies {
             commonJSName "ReactDOMServer"),
 
         packageJSDependencies / skip := false)
-
-  def addMacroParadise: Project => Project =
-    _.settings(libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, v)) if v <= 12 =>
-          Dep.MacroParadise :: Nil
-        case _ =>
-          // if scala 2.13.0-M4 or later, macro annotations merged into scala-reflect
-          // https://github.com/scala/scala/pull/6606
-          Nil
-      }
-    })
-
 }
