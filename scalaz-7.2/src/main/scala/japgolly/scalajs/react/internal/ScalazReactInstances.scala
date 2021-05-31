@@ -2,6 +2,7 @@ package japgolly.scalajs.react.internal
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
+import scala.scalajs.js
 import scalaz.Isomorphism.<~>
 import scalaz.effect.IO
 import scalaz.{Optional => _, Profunctor => _, _}
@@ -157,20 +158,21 @@ trait ScalazReactInstances {
 
   implicit final lazy val maybeReactInstance: OptionLike[Maybe] = new OptionLike[Maybe] {
     type O[A] = Maybe[A]
-    def map     [A, B](o: O[A])(f: A => B)         : O[B]      = o map f
-    def fold    [A, B](o: O[A], b: => B)(f: A => B): B         = o.cata(f, b)
-    def foreach [A]   (o: O[A])(f: A => Unit)      : Unit      = o.cata(f, ())
-    def isEmpty [A]   (o: O[A])                    : Boolean   = o.isEmpty
-    def toOption[A]   (o: O[A])                    : Option[A] = o.toOption
+    override def map       [A, B](o: O[A])(f: A => B)          = o map f
+    override def fold      [A, B](o: O[A], b: => B)(f: A => B) = o.cata(f, b)
+    override def foreach   [A]   (o: O[A])(f: A => Unit)       = o.cata(f, ())
+    override def isEmpty   [A]   (o: O[A])                     = o.isEmpty
+    override def toOption  [A]   (o: O[A])                     = o.toOption
+    override def unsafeToJs[A]   (o: O[A])                     = o.cata(a => a, js.undefined)
   }
 
   implicit final lazy val ioReactInstance: Effect[IO] = new Effect[IO] {
-    override def point  [A]   (a: => A)                 = IO(a)
-    override def pure   [A]   (a: A)                    = IO(a)
-    override def map    [A, B](a: IO[A])(f: A => B)     = a map f
-    override def flatMap[A, B](a: IO[A])(f: A => IO[B]) = a flatMap f
-    override def extract[A]   (a: => IO[A])             = () => a.unsafePerformIO()
-    override def toCallback[A](a: => IO[A])             = CallbackTo(a.unsafePerformIO())
+    override def point     [A]   (a: => A)                 = IO(a)
+    override def pure      [A]   (a: A)                    = IO(a)
+    override def map       [A, B](a: IO[A])(f: A => B)     = a map f
+    override def flatMap   [A, B](a: IO[A])(f: A => IO[B]) = a flatMap f
+    override def extract   [A]   (a: => IO[A])             = () => a.unsafePerformIO()
+    override def toCallback[A]   (a: => IO[A])             = CallbackTo(a.unsafePerformIO())
   }
 
   implicit final lazy val effectTransEndoIo       = Effect.Trans.id[IO]
