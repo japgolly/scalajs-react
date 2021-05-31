@@ -5,6 +5,7 @@
 * [React hooks in scalajs-react](HOOKS.md#react-hooks-in-scalajs-react)
 * [New hooks provided by scalajs-react](HOOKS.md#new-hooks-provided-by-scalajs-react)
 * [Hook chaining / dependencies / results](HOOKS.md#hook-chaining--dependencies--results)
+* [Hooks and PropsChildren](HOOKS.md#hooks-and-propschildren)
 * [Custom hooks](HOOKS.md#custom-hooks)
 * [Custom hook composition](HOOKS.md#custom-hook-composition)
 * [Using third-party JavaScript hooks](HOOKS.md#using-third-party-javascript-hooks)
@@ -213,6 +214,37 @@ val comp = ScalaFnComponent.withHooks[Int]
   )
 ```
 
+# Hooks and PropsChildren
+
+In order to get access to `PropsChildren`, call `.withPropsChildren` as the first step in your DSL.
+It will then become available...
+
+1) as argument #2 after `props` in multi-arg fns (eg. `.render((props, propsChildren, hook1, hook2, ...) => `)
+2) as `.propsChildren` from context objects (eg. `.render($ => $.propsChildren)`)
+
+Example:
+
+```scala
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+
+object Example {
+  final case class Props(name: String)
+
+  val Component = ScalaFnComponent.withHooks[Props]
+    .withPropsChildren
+    .useState(0)
+    .render((props, propsChildren, counter) =>
+      <.div(
+        <.p(s"Hello ${props.name}."),
+        <.p(s"You clicked ${counter.value} times."),
+        <.button("Click me", ^.onClick --> counter.modState(_ + 1)),
+        <.div(propsChildren)
+      )
+    )
+}
+```
+
 # Custom hooks
 
 A custom hook has the type `CustomHook[I, O]` where
@@ -248,7 +280,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 
 object Example {
   val Component = ScalaFnComponent.withHooks[Unit]
-    .custom(ExampleHook.useTitleCounter)
+    .custom(ExampleHook.useTitleCounter) // <--- usage
     .render((_, count) =>
       <.div(
         <.p(s"You clicked ${count.value} times"),
@@ -256,6 +288,24 @@ object Example {
           ^.onClick --> count.modState(_ + 1),
           "Click me")))
 }
+```
+
+In order to provide the hook directly via `.custom` the input type of the hook must be one of the following...
+* `Unit`
+* same as the `Props` type
+* `PropsChildren`
+
+If the custom hook has any other kind of type, simply provide it to the hook directly.
+Example:
+
+```scala
+  val someCustomHook: CustomHook[Int, Unit] = ???
+
+  final case class Props(someInt: Int)
+
+  val Component = ScalaFnComponent.withHooks[Props]
+    .custom(someCustomHook(123)) // provide a constant Int arg
+    .customBy($ => someCustomHook($.props.someInt)) // or use a dynamic value
 ```
 
 # Custom hook composition
@@ -287,6 +337,12 @@ object Example3 {
   val hook1: CustomHook[Long, Boolean] = ???
   val hook2: CustomHook[String, Int] = ???
   val hooks: CustomHook[(Long, String), (Boolean, Int)] = hook1 ++ hook2
+}
+
+object Example4 {
+  val hook1: CustomHook[Unit, Boolean] = ???
+  val hook2: CustomHook[String, Unit] = ???
+  val hooks: CustomHook[String, Boolean] = hook1 ++ hook2
 }
 ```
 

@@ -2,7 +2,7 @@ package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 import japgolly.scalajs.react.feature.Context
-import japgolly.scalajs.react.hooks.Hooks.{UseCallbackArg, UseMemo, _}
+import japgolly.scalajs.react.hooks.Hooks._
 import japgolly.scalajs.react.vdom.TopNode
 import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, Ref, Reusability, Reusable}
 import scala.reflect.ClassTag
@@ -284,7 +284,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
     final def useLayoutEffectBy[A](init: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
-      self(ctx => UseEffect.unsafeCreate(init(ctx)))
+      self(ctx => UseEffect.unsafeCreateLayout(init(ctx)))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -591,7 +591,7 @@ object Api {
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
     final def useLayoutEffectBy[A](init: CtxFn[CallbackTo[A]])(implicit a: UseEffectArg[A], step: Step): step.Self =
-      useEffectBy(step.squash(init)(_))
+      useLayoutEffectBy(step.squash(init)(_))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed

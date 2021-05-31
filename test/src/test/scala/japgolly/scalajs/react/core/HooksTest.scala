@@ -150,7 +150,7 @@ object HooksTest extends TestSuite {
     val comp = ScalaFnComponent.withHooks[PI]
       .custom(hookE(10))
       .custom(hookS(3))
-      .customBy((p, _) => hookS(p.pi))
+      .custom(hookS.contramap[PI](_.pi))
       .customBy((p, s, _) => hookE(p.pi + s.value))
       .customBy($ => hookS($.props.pi + $.hook1.value + 1))
       .customBy($ => hookE($.props.pi + $.hook1.value + 1))

@@ -45,19 +45,20 @@ object CustomHook {
 
   // ===================================================================================================================
 
-  final case class Arg[Ctx, I](convert: Ctx => I) extends AnyVal
+  final case class Arg[-Ctx, +I](convert: Ctx => I) extends AnyVal
 
   trait ArgLowPri {
-    implicit def id[A, B >: A]: Arg[A, B] = Arg(a => a)
+    implicit def id[A, B >: A]: Arg[A, B] =
+        Arg[A, B](a => a)
   }
 
   object Arg extends ArgLowPri {
     def const[C, I](i: I): Arg[C, I] =
-      apply(_ => i)
+      apply[C, I](_ => i)
 
     implicit def unit    [Ctx]      : Arg[Ctx, Unit]                       = const(())
-    implicit def ctxProps[P]        : Arg[HookCtx.P0[P], P]                = apply(_.props)
-    implicit def ctxPropsChildren   : Arg[HookCtx.PC0[Any], PropsChildren] = apply(_.propsChildren)
+    implicit def ctxProps[P]        : Arg[HookCtx.P0[P], P]                = apply((_: HookCtx.P0[P]).props)
+    implicit def ctxPropsChildren   : Arg[HookCtx.PC0[Any], PropsChildren] = apply((_: HookCtx.PC0[Any]).propsChildren)
   }
 
   // ===================================================================================================================

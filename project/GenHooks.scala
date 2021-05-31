@@ -294,7 +294,7 @@ object GenHooks {
          |
          |trait UseCallbackArgInstances {
          |
-         |${useCallbackArgs.result().mkString("\n\n")}
+         |${useCallbackArgs.result().mkString("\n")}
          |}
          |""".stripMargin
     )
