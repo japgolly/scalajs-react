@@ -1,9 +1,12 @@
 package japgolly.scalajs.react.hooks
 
+import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks.{UseCallbackArg, UseMemo, _}
-import japgolly.scalajs.react.{Callback, CallbackTo, Ref, Reusability, Reusable}
+import japgolly.scalajs.react.vdom.TopNode
+import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, Ref, Reusability, Reusable}
 import scala.reflect.ClassTag
+import scala.scalajs.js
 
 object Api {
 
@@ -388,8 +391,36 @@ object Api {
       next(ctx => UseReducer.unsafeCreate(reducer(ctx), initialState(ctx)))
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
-    final def useRef[A](implicit step: Step): step.Next[Ref.Simple[A]] =
-      next(_ => UseRef.unsafeCreate[A]())
+    final def useRefToAnyVdom(implicit step: Step): step.Next[Ref.ToAnyVdom] =
+      next(_ => UseRef.unsafeCreateToAnyVdom())
+
+    /** Create a mutable ref that will persist for the full lifetime of the component. */
+    final def useRefToVdom[N <: TopNode: ClassTag](implicit step: Step): step.Next[Ref.ToVdom[N]] =
+      next(_ => UseRef.unsafeCreateToVdom[N]())
+
+    /** Create a mutable ref that will persist for the full lifetime of the component. */
+    final def useRefToScalaComponent[P, S, B](implicit step: Step): step.Next[Ref.ToScalaComponent[P, S, B]] =
+      next(_ => UseRef.unsafeCreateToScalaComponent[P, S, B]())
+
+    /** Create a mutable ref that will persist for the full lifetime of the component. */
+    final def useRefToScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]]
+        (c: ScalaComponent.Component[P, S, B, CT])
+        (implicit step: Step): step.Next[Ref.WithScalaComponent[P, S, B, CT]] =
+      next(_ => UseRef.unsafeCreateToScalaComponent(c))
+
+    /** Create a mutable ref that will persist for the full lifetime of the component. */
+    final def useRefToJsComponent[P <: js.Object, S <: js.Object](implicit step: Step): step.Next[Ref.ToJsComponent[P, S, JsComponent.RawMounted[P, S]]] =
+      next(_ => UseRef.unsafeCreateToJsComponent[P, S]())
+
+    /** Create a mutable ref that will persist for the full lifetime of the component. */
+    final def useRefToJsComponentWithMountedFacade[P <: js.Object, S <: js.Object, F <: js.Object](implicit step: Step): step.Next[Ref.ToJsComponent[P, S, JsComponent.RawMounted[P, S] with F]] =
+      next(_ => UseRef.unsafeCreateToJsComponentWithMountedFacade[P, S, F]())
+
+    /** Create a mutable ref that will persist for the full lifetime of the component. */
+    final def useRefToJsComponent[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
+        (a: Ref.WithJsComponentArg[F, P1, S1, CT1, R, P0, S0])(implicit step: Step)
+        : step.Next[Ref.WithJsComponent[F, P1, S1, CT1, R, P0, S0]] =
+      next(_ => UseRef.unsafeCreateToJsComponent(a))
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
     final def useRef[A](initialValue: => A)(implicit step: Step): step.Next[UseRef[A]] =

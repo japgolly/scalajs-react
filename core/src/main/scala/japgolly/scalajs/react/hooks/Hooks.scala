@@ -1,8 +1,10 @@
 package japgolly.scalajs.react.hooks
 
+import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.internal.{Box, NotAllowed, OptionLike}
-import japgolly.scalajs.react.{Callback, React => _, Reusability, Reusable, raw => Raw, _}
+import japgolly.scalajs.react.vdom.TopNode
+import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, React => _, Ref, Reusability, Reusable, raw => Raw}
 import scala.annotation.implicitNotFound
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -179,11 +181,35 @@ object Hooks {
   }
 
   object UseRef {
-    def unsafeCreate[A](): Ref.Simple[A] =
-      Ref.fromJs(Raw.React.useRef[A | Null](null))
-
     def unsafeCreate[A](initialValue: A): UseRef[A] =
       UseRef(Raw.React.useRef(initialValue))
+
+    def unsafeCreateSimple[A](): Ref.Simple[A] =
+      Ref.fromJs(Raw.React.useRef[A | Null](null))
+
+    @inline def unsafeCreateToAnyVdom(): Ref.ToAnyVdom =
+      unsafeCreateSimple()
+
+    def unsafeCreateToVdom[N <: TopNode : ClassTag](): Ref.ToVdom[N] =
+      unsafeCreateToAnyVdom().narrowOption[N]
+
+    def unsafeCreateToScalaComponent[P, S, B](): Ref.ToScalaComponent[P, S, B] =
+      unsafeCreateSimple[ScalaComponent.RawMounted[P, S, B]]()
+        .map(_.mountedImpure)
+
+    def unsafeCreateToScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: ScalaComponent.Component[P, S, B, CT]): Ref.WithScalaComponent[P, S, B, CT] =
+      Ref.ToComponent.inject(c, unsafeCreateToScalaComponent[P, S, B]())
+
+    def unsafeCreateToJsComponent[P <: js.Object, S <: js.Object](): Ref.ToJsComponent[P, S, JsComponent.RawMounted[P, S]] =
+      unsafeCreateSimple[JsComponent.RawMounted[P, S]]().map(JsComponent.mounted[P, S](_))
+
+    def unsafeCreateToJsComponentWithMountedFacade[P <: js.Object, S <: js.Object, F <: js.Object](): Ref.ToJsComponent[P, S, JsComponent.RawMounted[P, S] with F] =
+      unsafeCreateSimple[JsComponent.RawMounted[P, S] with F]().map(JsComponent.mounted[P, S](_).addFacade[F])
+
+    def unsafeCreateToJsComponent[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
+        (a: Ref.WithJsComponentArg[F, P1, S1, CT1, R, P0, S0])
+        : Ref.WithJsComponent[F, P1, S1, CT1, R, P0, S0] =
+      a.wrap(unsafeCreateToJsComponentWithMountedFacade[P0, S0, R]())
   }
 
   // ===================================================================================================================

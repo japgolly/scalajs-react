@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import japgolly.scalajs.react.internal.{Effect, identityFn}
+import japgolly.scalajs.react.vdom.TopNode
 import japgolly.scalajs.react.{raw => Raw}
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -221,22 +222,22 @@ object Ref {
   def toJsComponent[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
       (a: WithJsComponentArg[F, P1, S1, CT1, R, P0, S0])
       : WithJsComponent[F, P1, S1, CT1, R, P0, S0] =
-    a.value
+    a.wrap(toJsComponentWithMountedFacade[P0, S0, R])
 
   // Ridiculous that this is needed but Scala needs explicit help when F=Effect.Id
   final class WithJsComponentArg[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object]
-      (val value: WithJsComponent[F, P1, S1, CT1, R, P0, S0]) extends AnyVal
+      (val wrap: ToJsComponent[P0, S0, JsComponent.RawMounted[P0, S0] with R] => WithJsComponent[F, P1, S1, CT1, R, P0, S0]) extends AnyVal
 
   object WithJsComponentArg {
     implicit def direct[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
         (c: JsComponent.ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0])
         : WithJsComponentArg[F, P1, S1, CT1, R, P0, S0] =
-      new WithJsComponentArg[F, P1, S1, CT1, R, P0, S0](ToComponent.inject(c, toJsComponentWithMountedFacade[P0, S0, R]))
+      new WithJsComponentArg[F, P1, S1, CT1, R, P0, S0](ToComponent.inject(c, _))
 
     implicit def effectId[P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
         (c: JsComponent.ComponentMapped[Effect.Id, P1, S1, CT1, R, P0, S0, CT0])
         : WithJsComponentArg[Effect.Id, P1, S1, CT1, R, P0, S0] =
-      new WithJsComponentArg[Effect.Id, P1, S1, CT1, R, P0, S0](ToComponent.inject(c, toJsComponentWithMountedFacade[P0, S0, R]))
+      new WithJsComponentArg[Effect.Id, P1, S1, CT1, R, P0, S0](ToComponent.inject(c, _))
   }
 
   // ===================================================================================================================
@@ -262,11 +263,17 @@ object Ref {
                       : WithScalaComponent[P, S, B, CT] =
     ToComponent.inject(c, toScalaComponent[P, S, B])
 
-  /** For use with the `untypedRef` vdom attribute. */
-  def toAnyVdom(): Simple[vdom.TopNode] =
-    apply
+  // ===================================================================================================================
+
+  type ToAnyVdom = Simple[TopNode]
 
   /** For use with the `untypedRef` vdom attribute. */
-  def toVdom[N <: vdom.TopNode : ClassTag]: Full[vdom.TopNode, vdom.TopNode, N] =
+  def toAnyVdom(): ToAnyVdom =
+    apply
+
+  type ToVdom[N <: TopNode] = Full[TopNode, TopNode, N]
+
+  /** For use with the `untypedRef` vdom attribute. */
+  def toVdom[N <: TopNode : ClassTag]: ToVdom[N] =
     toAnyVdom().narrowOption[N]
 }

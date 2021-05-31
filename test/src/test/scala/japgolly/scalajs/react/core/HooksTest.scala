@@ -877,7 +877,7 @@ object HooksTest extends TestSuite {
   private def testUseRefVdom(): Unit = {
     var text = "uninitialised"
     val comp = ScalaFnComponent.withHooks[Unit]
-      .useRef[Input]
+      .useRefToVdom[Input]
       .useState("x")
       .render { (_, inputRef, s) =>
 

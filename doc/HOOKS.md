@@ -146,7 +146,7 @@ object Example {
 | `useMemo(() => a, [deps])` | `.useMemo(a, (deps))` |
 | `useReducer(f, s)` | `.useReducer(f, s)` |
 | `useReducer(f, a, i)` | `.useReducer(f, i(a))` |
-| `useRef()` | `.useRef[DomType]` |
+| `useRef()` | `.useRefToAnyVdom` <br> `.useRefToVdom[DomType]` <br> `.useRefToScalaComponent(component)` <br> `.useRefToScalaComponent[P, S, B]` <br> `.useRefToJsComponent(component)` <br> `.useRefToJsComponent[P, S]` <br> `.useRefToJsComponentWithMountedFacade[P, S, F]` |
 | `useRef(initialValue)` | `.useRef(initialValue)` |
 | `useState(initialState)` <br> `useState(() => initialState)` | `.useState(initialState)` |
 | Custom hook <br> `useBlah(i)` | `.custom(useBlah(i))`
