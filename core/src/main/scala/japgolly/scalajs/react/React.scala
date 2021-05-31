@@ -19,6 +19,16 @@ object React {
   def createContext[A](defaultValue: A)(implicit jsRepr: JsRepr[A]): Context[A] =
     Context(defaultValue)(jsRepr)
 
+  /** Create a new context with a displayName.
+    *
+    * If you'd like to retain type information about the JS type used under-the-hood with React,
+    * use `React.Context(displayName, defaultValue)` instead.
+    *
+    * @since 1.8.0 / React 17.0.0
+    */
+  def createContext[A](displayName: String, defaultValue: A)(implicit jsRepr: JsRepr[A]): Context[A] =
+    Context(displayName, defaultValue)(jsRepr)
+
   type Context[A] = feature.Context[A]
   val  Context    = feature.Context
 

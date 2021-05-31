@@ -141,8 +141,9 @@ object React extends React {
 
   @js.native
   trait Context[A <: js.Any] extends js.Object {
-    val Provider: ComponentClass[ValueProps[A], Null] = js.native
-    val Consumer: ComponentClass[Null, Null]          = js.native
+    var displayName: js.UndefOr[String]                  = js.native
+    val Provider   : ComponentClass[ValueProps[A], Null] = js.native
+    val Consumer   : ComponentClass[Null, Null]          = js.native
   }
 
   type ForwardedRef[A] = RefHandle[A | Null] | Null

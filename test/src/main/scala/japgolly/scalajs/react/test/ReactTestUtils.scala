@@ -189,7 +189,7 @@ object ReactTestUtils {
     try
       use(e)
     finally
-      removeNewBodyElement(e)
+      act(removeNewBodyElement(e))
   }
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
@@ -220,7 +220,7 @@ object ReactTestUtils {
 
   def withNewBodyElementFuture[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     val e = newBodyElement()
-    attemptFuture(use(e)).andThen { case _ => removeNewBodyElement(e) }
+    attemptFuture(use(e)).andThen { case _ => act(removeNewBodyElement(e)) }
   }
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
@@ -230,12 +230,12 @@ object ReactTestUtils {
     withNewBodyElementFuture { parent =>
       val c = act(RawReactDOM.render(u.raw, parent))
       val m = u.mountRawOrNull(c)
-      attemptFuture(f(m)).andThen { case _ => unmountRawComponent(c) }
+      attemptFuture(f(m)).andThen { case _ => act(unmountRawComponent(c)) }
     }
 
   def withNewBodyElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
     AsyncCallback.delay(newBodyElement())
-      .flatMap(e => use(e).finallyRun(AsyncCallback.delay(removeNewBodyElement(e))))
+      .flatMap(e => use(e).finallyRun(AsyncCallback.delay(act(removeNewBodyElement(e)))))
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * and asynchronously waits for the AsyncCallback to complete before unmounting.
@@ -247,7 +247,7 @@ object ReactTestUtils {
           for {
             c <- AsyncCallback.delay(act(RawReactDOM.render(u.raw, parent)))
             m <- AsyncCallback.pure(u.mountRawOrNull(c))
-            a <- f(m, parent).finallyRun(AsyncCallback.delay(unmountRawComponent(c)))
+            a <- f(m, parent).finallyRun(AsyncCallback.delay(act(unmountRawComponent(c))))
           } yield a
         )
     }
@@ -273,7 +273,7 @@ object ReactTestUtils {
     try
       use(e)
     finally
-      removeNewDocumentElement(e)
+      act(removeNewDocumentElement(e))
   }
 
   /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
@@ -288,13 +288,13 @@ object ReactTestUtils {
           val m = u.mountRawOrNull(c)
           f(m, p)
         } finally
-          unmountRawComponent(c)
+          act(unmountRawComponent(c))
       }
   }
 
   def withNewDocumentElementFuture[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     val e = newDocumentElement()
-    attemptFuture(use(e)).andThen { case _ => removeNewDocumentElement(e) }
+    attemptFuture(use(e)).andThen { case _ => act(removeNewDocumentElement(e)) }
   }
 
   /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
@@ -303,12 +303,12 @@ object ReactTestUtils {
   def withRenderedIntoDocumentFuture[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     val c = act(raw.renderIntoDocument(u.raw))
     val m = u.mountRawOrNull(c)
-    attemptFuture(f(m)).andThen { case _ => unmountRawComponent(c) }
+    attemptFuture(f(m)).andThen { case _ => act(unmountRawComponent(c)) }
   }
 
   def withNewDocumentElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
     AsyncCallback.delay(newDocumentElement())
-      .flatMap(e => use(e).finallyRun(AsyncCallback.delay(removeNewDocumentElement(e))))
+      .flatMap(e => use(e).finallyRun(AsyncCallback.delay(act(removeNewDocumentElement(e)))))
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * and asynchronously waits for the AsyncCallback to complete before unmounting.
@@ -320,7 +320,7 @@ object ReactTestUtils {
           for {
             c <- AsyncCallback.delay(act(RawReactDOM.render(u.raw, parent)))
             m <- AsyncCallback.pure(u.mountRawOrNull(c))
-            a <- f(m, parent).finallyRun(AsyncCallback.delay(unmountRawComponent(c)))
+            a <- f(m, parent).finallyRun(AsyncCallback.delay(act(unmountRawComponent(c))))
           } yield a
         )
   }
