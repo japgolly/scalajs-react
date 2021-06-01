@@ -125,8 +125,7 @@ object HooksTest extends TestSuite {
 
   private final class ReusableStateSnapshotComponent {
     private var renders = 0
-    def render(p: StateSnapshot[Int]) = {
-      val s = p // TODO: remove
+    def render(s: StateSnapshot[Int]) = {
       renders += 1
       <.div(s"${s.value}:$renders",
         <.button(^.onClick --> s.modState(_ + 1)),

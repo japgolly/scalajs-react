@@ -79,22 +79,35 @@ final class ComponentBuilderMacros(val c: Context) extends MacroUtils {
         }
       }
 
-      def isPropsChildren (t: Type)   = if (t.toString == "japgolly.scalajs.react.PropsChildren") Some(getPropsChildren) else None
-      def byExactTypeAlias(t: Type)   = attempt(_.spec == t)
-      def byExactType     (t: Type)   = attempt(_.dealised == t)
-      def bySubType       (t: Type)   = attempt(_.dealised <:< t)
-      def byName          (s: Symbol) = attempt(_.names contains s.name.toString)
+      def isPropsChildren(t: Type) =
+        Option.when(t.toString == "japgolly.scalajs.react.PropsChildren")(getPropsChildren)
+
+      def byExactTypeAlias(t: Type) =
+        attempt(_.spec == t)
+
+      def byExactType(t: Type) =
+        attempt(_.dealised == t)
+
+      def bySubType(t: Type) =
+        attempt(_.dealised <:< t)
+
+      def byName(s: Symbol) =
+        attempt(_.names.contains(s.name.toString))
+
+      def byNameAndType(s: Symbol, t: Type) =
+        attempt(p => p.names.contains(s.name.toString) && p.dealised <:< t)
 
       var args = Vector.empty[Tree]
       for (p <- params) {
         val pt = p.info
         val ptd = pt.dealias
         args :+= (
-          isPropsChildren(pt)  orElse
-          byName(p)            orElse
-          byExactTypeAlias(pt) orElse
-          byExactType(ptd)     orElse
-          bySubType(ptd)       getOrElse
+          isPropsChildren(pt)   orElse
+          byNameAndType(p, ptd) orElse
+          byExactTypeAlias(pt)  orElse
+          byExactType(ptd)      orElse
+          bySubType(ptd)        orElse
+          byName(p)             getOrElse
           fail(s"Don't know what to feed (${p.name}: ${p.info}) in $B.$render."))
       }
 

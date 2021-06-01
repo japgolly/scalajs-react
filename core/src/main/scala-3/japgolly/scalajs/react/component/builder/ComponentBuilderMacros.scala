@@ -156,8 +156,11 @@ object ComponentBuilderMacros {
       inline def bySubType(t: TypeRepr) =
         attempt(_.dealised <:< t)
 
-      inline def byName(s: Symbol)   =
-        attempt(_.names contains s.name.toString)
+      inline def byName(s: Symbol) =
+        attempt(_.names.contains(s.name.toString))
+
+      inline def byNameAndType(s: Symbol, t: Type) =
+        attempt(p => p.names.contains(s.name.toString) && p.dealised <:< t)
 
       val args = params.map[Term] { p =>
         val pt = p.needType(s"${Type.show[B]}.render param ${p.name}")
@@ -166,11 +169,12 @@ object ComponentBuilderMacros {
         debugPrn(s"\n${Type.show[B]}.render(${p.name}: ${pt.show}) -- ${p.tree}")
 
         (
-          tryPropsChildren(pt) orElse
-          byName(p)            orElse
-          byExactTypeAlias(pt) orElse
-          byExactType(ptd)     orElse
-          bySubType(ptd)       getOrElse
+          isPropsChildren(pt)   orElse
+          byNameAndType(p, ptd) orElse
+          byExactTypeAlias(pt)  orElse
+          byExactType(ptd)      orElse
+          bySubType(ptd)        orElse
+          byName(p)             getOrElse
           fail {
             var paramType = pt.show
             // Remove the "scala." prefix for types directly under scala.
