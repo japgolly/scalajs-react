@@ -22,6 +22,9 @@ sealed trait Context[A] { ctx =>
   /** The underlying JS `React.Context`. */
   val raw: Raw.React.Context[RawValue]
 
+  final def displayName: String =
+    raw.displayName.getOrElse("")
+
   /** Allows Consumers to subscribe to context changes.
     * Accepts a value prop to be passed to Consumers that are descendants of this Provider.
     * One Provider can be connected to many Consumers. Providers can be nested to override values deeper within the
@@ -103,6 +106,12 @@ sealed trait Context[A] { ctx =>
 
 object Context {
   type WithRawValue[A, J <: js.Any] = Context[A] { type RawValue = J }
+
+  def apply[A](displayName: String, defaultValue: A)(implicit jsRepr: JsRepr[A]): WithRawValue[A, jsRepr.J] = {
+    val ctx = apply(defaultValue)
+    ctx.raw.displayName = displayName
+    ctx
+  }
 
   def apply[A](defaultValue: A)(implicit jsRepr: JsRepr[A]): WithRawValue[A, jsRepr.J] = {
     type R = jsRepr.type

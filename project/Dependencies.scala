@@ -28,7 +28,7 @@ object Dependencies {
     val Microlibs             = "2.5"
     val MTest                 = "0.7.10"
     val Nyaya                 = "0.10.0"
-    val ReactJs               = "16.14.0"
+    val ReactJs               = "17.0.2"
     val ScalaJsJavaTime       = "1.0.0"
     val ScalaTest             = "3.2.9"
     val SizzleJs              = "2.3.0"
@@ -80,8 +80,6 @@ object Dependencies {
   def addReactJsDependencies(scope: Configuration): Project => Project =
     _.enablePlugins(JSDependenciesPlugin)
       .settings(
-        dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2", // https://github.com/webjars/webjars/issues/1789
-        dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.12.0-alpha.3",
         jsDependencies ++= Seq(
 
           "org.webjars.npm" % "react" % Ver.ReactJs % scope

@@ -47,4 +47,7 @@ object ReactDOM {
   @deprecated("Import vdom and use ReactPortal()", "")
   def createPortal(child: NotAllowed, container: Any) = child.result
 
+  def flushSync[A](a: CallbackTo[A]): CallbackTo[A] =
+    CallbackTo(Raw.ReactDOM.flushSync(a.toJsFn))
+
 }

@@ -38,4 +38,7 @@ trait ReactDOM extends js.Object {
   final def findDOMNode(componentOrElement: dom.Element | React.ComponentUntyped): DomNode | Null = js.native
 
   final def createPortal(child: React.Node, container: Container): React.Node = js.native
+
+  final def flushSync[R](f: js.Function0[R]): R = js.native
+  final def flushSync[A, R](f: js.Function1[A, R], a: A): R = js.native
 }

@@ -11,32 +11,13 @@ import scala.scalajs.js.|
 object Ref {
 
   def apply[A]: Simple[A] =
-    newMechanism[A]
+    fromJs(Raw.React.createRef[A | Null]())
 
   def fromJs[A](raw: Raw.React.RefHandle[A | Null]): Simple[A] =
     Full(raw, identityFn, Some(_))
 
   def forwardedFromJs[A](f: raw.React.ForwardedRef[A]): Option[Simple[A]] =
     jsNullToOption(f).map(fromJs)
-
-  private trait Mechanism {
-    def apply[A]: Simple[A]
-  }
-
-  private[this] val newMechanism: Mechanism =
-    if (js.isUndefined(Raw.React.asInstanceOf[js.Dynamic].createRef))
-      // React ≤ 15
-      new Mechanism {
-        override def apply[A] = {
-          val handle = js.Dynamic.literal("current" -> null).asInstanceOf[Raw.React.RefHandle[A | Null]]
-          fromJs(handle)
-        }
-      }
-    else
-      // React 16+
-      new Mechanism {
-        override def apply[A] = fromJs(Raw.React.createRef[A | Null]())
-      }
 
   type Simple[A] = Full[A, A, A]
 

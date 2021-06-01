@@ -41,8 +41,8 @@ Setup
       libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.7.7"
 
       npmDependencies in Compile ++= Seq(
-        "react" -> "16.13.1",
-        "react-dom" -> "16.13.1")
+        "react" -> "17.0.2",
+        "react-dom" -> "17.0.2")
     ```
 
     If you're using old-school `jsDependencies`, add something akin to:
@@ -51,29 +51,23 @@ Setup
     // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
     jsDependencies ++= Seq(
 
-      "org.webjars.npm" % "react" % "16.13.1"
+      "org.webjars.npm" % "react" % "17.0.2"
         /        "umd/react.development.js"
         minified "umd/react.production.min.js"
         commonJSName "React",
 
-      "org.webjars.npm" % "react-dom" % "16.13.1"
+      "org.webjars.npm" % "react-dom" % "17.0.2"
         /         "umd/react-dom.development.js"
         minified  "umd/react-dom.production.min.js"
         dependsOn "umd/react.development.js"
         commonJSName "ReactDOM",
 
-      "org.webjars.npm" % "react-dom" % "16.13.1"
+      "org.webjars.npm" % "react-dom" % "17.0.2"
         /         "umd/react-dom-server.browser.development.js"
         minified  "umd/react-dom-server.browser.production.min.js"
         dependsOn "umd/react-dom.development.js"
         commonJSName "ReactDOMServer"),
     ```
-
-If you see the error related to `js-tokens` (such as `org.webjars.npm#js-tokens;[3.0.0,4),[4.0.0,5): not found`), then add the following line to `build.sbt`:
-
-```
-dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2"
-```
 
 [See here](IDE.md) for tips on configuring your IDE.
 

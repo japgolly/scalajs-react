@@ -68,7 +68,7 @@ Includes a router, testing utils, performance utils, more.
   * [scastie](https://github.com/scalacenter/scastie) - An interactive playground for Scala [https://scastie.scala-lang.org](https://scastie.scala-lang.org)
 
 ##### Requirements:
-* React ≥ 16
+* React ≥ 17
 * Scala ≥ 2.13
 * Scala.JS ≥ 1.5
 
