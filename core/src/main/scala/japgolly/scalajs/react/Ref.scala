@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import japgolly.scalajs.react.internal.{Effect, identityFn}
+import japgolly.scalajs.react.vdom.TopNode
 import japgolly.scalajs.react.{raw => Raw}
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -11,37 +12,18 @@ object Ref {
   import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 
   def apply[A]: Simple[A] =
-    newMechanism[A]
+    fromJs(Raw.React.createRef[A | Null]())
 
-  def fromJs[A](raw: Raw.React.RefHandle[A]): Simple[A] =
+  def fromJs[A](raw: Raw.React.RefHandle[A | Null]): Simple[A] =
     Full(raw, identityFn, Some(_))
 
   def forwardedFromJs[A](f: raw.React.ForwardedRef[A]): Option[Simple[A]] =
     jsNullToOption(f).map(fromJs)
 
-  private trait Mechanism {
-    def apply[A]: Simple[A]
-  }
-
-  private[this] val newMechanism: Mechanism =
-    if (js.isUndefined(Raw.React.asInstanceOf[js.Dynamic].createRef))
-      // React ≤ 15
-      new Mechanism {
-        override def apply[A] = {
-          val handle = js.Dynamic.literal("current" -> null).asInstanceOf[Raw.React.RefHandle[A]]
-          fromJs(handle)
-        }
-      }
-    else
-      // React 16+
-      new Mechanism {
-        override def apply[A] = fromJs(Raw.React.createRef[A]())
-      }
-
   type Simple[A] = Full[A, A, A]
 
   trait Handle[A] {
-    val raw: Raw.React.RefHandle[A]
+    val raw: Raw.React.RefHandle[A | Null]
     final def root: Simple[A] = fromJs(raw)
   }
 
@@ -104,7 +86,7 @@ object Ref {
       mapOption(ct.unapply)
   }
 
-  def Full[I, A, O](_raw: Raw.React.RefHandle[A], l: I => A, r: A => Option[O]): Full[I, A, O] =
+  def Full[I, A, O](_raw: Raw.React.RefHandle[A | Null], l: I => A, r: A => Option[O]): Full[I, A, O] =
     new Full[I, A, O] {
 
       override val raw = _raw
@@ -168,6 +150,44 @@ object Ref {
 
   // ===================================================================================================================
 
+  // /** @since 1.8.0 */
+  // trait NonEmpty[I, R, O] { self =>
+  //   val raw: Raw.React.RefHandle[R]
+  //   def get: CallbackTo[O]
+  //   def set(i: I): Callback
+  //   def mod(f: O => I): Callback
+
+  //   def contramap[A](f: A => I): NonEmpty[A, R, O] =
+  //     new NonEmpty[A, R, O] {
+  //       override val raw   = self.raw
+  //       def get            = self.get
+  //       def set(a: A)      = self.set(f(a))
+  //       def mod(g: O => A) = self.mod(f compose g)
+  //     }
+
+  //   def map[A](f: O => A): NonEmpty[I, R, A] =
+  //     new NonEmpty[I, R, A] {
+  //       override val raw   = self.raw
+  //       def get            = self.get.map(f)
+  //       def set(i: I)      = self.set(i)
+  //       def mod(g: A => I) = self.mod(g compose f)
+  //     }
+  // }
+
+  // object NonEmpty {
+  //   type Simple[A] = NonEmpty[A, A, A]
+
+  //   def Simple[A](r: Raw.React.RefHandle[A]): Simple[A] =
+  //     new NonEmpty[A, A, A] {
+  //       override val raw   = r
+  //       def get            = CallbackTo(raw.current)
+  //       def set(a: A)      = Callback { raw.current = a }
+  //       def mod(f: A => A) = Callback { raw.current = f(raw.current) }
+  //     }
+  // }
+
+  // ===================================================================================================================
+
   type ToJsComponent[P <: js.Object, S <: js.Object, R <: JsComponent.RawMounted[P, S]] =
     Ref.Full[R, R, JsComponent.MountedWithRawType[P, S, R]]
 
@@ -184,22 +204,22 @@ object Ref {
   def toJsComponent[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
       (a: WithJsComponentArg[F, P1, S1, CT1, R, P0, S0])
       : WithJsComponent[F, P1, S1, CT1, R, P0, S0] =
-    a.value
+    a.wrap(toJsComponentWithMountedFacade[P0, S0, R])
 
   // Ridiculous that this is needed but Scala needs explicit help when F=Effect.Id
   final class WithJsComponentArg[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object]
-      (val value: WithJsComponent[F, P1, S1, CT1, R, P0, S0]) extends AnyVal
+      (val wrap: ToJsComponent[P0, S0, JsComponent.RawMounted[P0, S0] with R] => WithJsComponent[F, P1, S1, CT1, R, P0, S0]) extends AnyVal
 
   object WithJsComponentArg {
     implicit def direct[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
         (c: JsComponent.ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0])
         : WithJsComponentArg[F, P1, S1, CT1, R, P0, S0] =
-      new WithJsComponentArg[F, P1, S1, CT1, R, P0, S0](ToComponent.inject(c, toJsComponentWithMountedFacade[P0, S0, R]))
+      new WithJsComponentArg[F, P1, S1, CT1, R, P0, S0](ToComponent.inject(c, _))
 
     implicit def effectId[P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
         (c: JsComponent.ComponentMapped[Effect.Id, P1, S1, CT1, R, P0, S0, CT0])
         : WithJsComponentArg[Effect.Id, P1, S1, CT1, R, P0, S0] =
-      new WithJsComponentArg[Effect.Id, P1, S1, CT1, R, P0, S0](ToComponent.inject(c, toJsComponentWithMountedFacade[P0, S0, R]))
+      new WithJsComponentArg[Effect.Id, P1, S1, CT1, R, P0, S0](ToComponent.inject(c, _))
   }
 
   // ===================================================================================================================
@@ -225,11 +245,17 @@ object Ref {
                       : WithScalaComponent[P, S, B, CT] =
     ToComponent.inject(c, toScalaComponent[P, S, B])
 
-  /** For use with the `untypedRef` vdom attribute. */
-  def toAnyVdom(): Simple[vdom.TopNode] =
-    apply
+  // ===================================================================================================================
+
+  type ToAnyVdom = Simple[TopNode]
 
   /** For use with the `untypedRef` vdom attribute. */
-  def toVdom[N <: vdom.TopNode : ClassTag]: Full[vdom.TopNode, vdom.TopNode, N] =
+  def toAnyVdom(): ToAnyVdom =
+    apply
+
+  type ToVdom[N <: TopNode] = Full[TopNode, TopNode, N]
+
+  /** For use with the `untypedRef` vdom attribute. */
+  def toVdom[N <: TopNode : ClassTag]: ToVdom[N] =
     toAnyVdom().narrowOption[N]
 }

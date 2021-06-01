@@ -3,6 +3,7 @@ package japgolly.scalajs.react.component
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, CallbackTo, ComponentDom, CtorType, Key, PropsChildren, StateAccess, raw => RAW, vdom}
 import scala.scalajs.js
+import scala.scalajs.js.|
 
 object Generic {
 
@@ -86,6 +87,9 @@ object Generic {
     def propsChildren: PropsChildren
 
     val mountRaw: RAW.React.ComponentUntyped => M // TODO Do better
+
+    final def mountRawOrNull(c: RAW.React.ComponentUntyped | Null): M =
+      if (c == null) null.asInstanceOf[M] else mountRaw(JsUtil.notNull(c))
 
     def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): Mounted =
       mountRaw(RAW.ReactDOM.render(raw, container, callback.toJsFn))

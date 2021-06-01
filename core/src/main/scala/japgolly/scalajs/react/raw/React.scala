@@ -143,7 +143,7 @@ object React extends React {
 
   @js.native
   trait RefHandle[A] extends js.Object {
-    var current: A | Null
+    var current: A
   }
 
   type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, Node]
@@ -154,11 +154,12 @@ object React extends React {
 
   @js.native
   trait Context[A <: js.Any] extends js.Object {
-    val Provider: ComponentClass[ValueProps[A], Null] = js.native
-    val Consumer: ComponentClass[Null, Null]          = js.native
+    var displayName: js.UndefOr[String]                  = js.native
+    val Provider   : ComponentClass[ValueProps[A], Null] = js.native
+    val Consumer   : ComponentClass[Null, Null]          = js.native
   }
 
-  type ForwardedRef[A] = RefHandle[A] | Null
+  type ForwardedRef[A] = RefHandle[A | Null] | Null
 
   @js.native
   trait ForwardRefComponent[P <: js.Object, R] extends js.Object {
@@ -181,7 +182,7 @@ object React extends React {
 
 @js.native
 @nowarn("cat=unused")
-trait React extends js.Object {
+trait React extends Hooks {
   import React._
 
   final def createContext[A <: js.Any](defaultValue: A): React.Context[A] = js.native

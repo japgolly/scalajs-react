@@ -4,6 +4,7 @@ import japgolly.scalajs.react.raw._
 import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
+import scala.scalajs.js.|
 
 /** https://facebook.github.io/react/docs/test-utils.html */
 @JSImport("react-dom/test-utils", JSImport.Namespace, "ReactTestUtils")
@@ -48,7 +49,7 @@ trait ReactTestUtils extends js.Object {
   final def actAsync(body: js.Function0[js.Thenable[Any]]): js.Thenable[Unit] = js.native
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
-  final def renderIntoDocument(element: React.Element): React.ComponentUntyped = js.native
+  final def renderIntoDocument(element: React.Element): React.ComponentUntyped | Null = js.native
 
   /**
    * Pass a mocked component module to this method to augment it with useful methods that allow it to be used as a dummy

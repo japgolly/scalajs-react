@@ -4,12 +4,9 @@ sudo: false
 jobs:
   include:
 
-    - name: 'Scala 2.12 / Java 11'
-      scala: 2.12.13
-      jdk: openjdk11
 
     - name: 'Scala 2.13 / Java 11'
-      scala: 2.13.5
+      scala: 2.13.6
       jdk: openjdk11
 
     - name: 'Scala 3.0.0-RC3 / Java 11'
@@ -25,7 +22,7 @@ install:
   - npm install jsdom source-map-support
   - |
     # update this only when sbt-the-bash-script needs to be updated
-    export SBT_LAUNCHER=1.5.0
+    export SBT_LAUNCHER=1.5.2
     export SBT_OPTS="-Dfile.encoding=UTF-8"
     curl -L --silent "https://github.com/sbt/sbt/releases/download/v$SBT_LAUNCHER/sbt-$SBT_LAUNCHER.tgz" > $HOME/sbt.tgz
     tar zxf $HOME/sbt.tgz -C $HOME
@@ -44,4 +41,3 @@ cache:
     - $HOME/.coursier
     - $HOME/.ivy2/cache
     - $HOME/.sbt
-

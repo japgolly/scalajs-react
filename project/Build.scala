@@ -19,6 +19,9 @@ object ScalajsReact {
     "-language:implicitConversions",
     "-language:higherKinds",
     "-language:existentials",
+    "-opt:l:method",
+    // "-opt:l:inline",
+    // "-opt-inline-from:japgolly.scalajs.react.**",
     "-unchecked",                                    // Enable additional warnings where generated code depends on assumptions.
     "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
   )
@@ -73,10 +76,10 @@ object ScalajsReact {
     _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
       .settings(
         scalaVersion                  := Ver.scala3,
-        crossScalaVersions            := Seq(Ver.scala212, Ver.scala213, Ver.scala3),
+        crossScalaVersions            := Seq(Ver.scala213, Ver.scala3),
         scalacOptions                ++= scalacCommonFlags,
         scalacOptions                ++= byScalaVersion {
-                                           case (2, 12) => scalac212Flags
+
                                            case (2, 13) => scalac213Flags
                                            case (3, _ ) => scalac3Flags
                                          }.value,
@@ -116,6 +119,8 @@ object ScalajsReact {
 
   // ==============================================================================================
 
+  lazy val genHooks = TaskKey[Unit]("genHooks")
+
   lazy val core = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .settings(
@@ -123,7 +128,10 @@ object ScalajsReact {
       libraryDependencies ++= Seq(
         Dep.scalaCollCompat.value,
         Dep.scalaJsDom.value,
-        Dep.sourcecode.value))
+        Dep.sourcecode.value,
+      ),
+      genHooks := GenHooks(sourceDirectory.value / "main" / "scala"),
+    )
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
@@ -131,7 +139,7 @@ object ScalajsReact {
     .settings(name := "extra")
 
   lazy val test = project
-    .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test), addMacroParadise)
+    .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test))
     .dependsOn(core, extra)
     .dependsOn(scalaz72 % "test->compile")
     .dependsOn(monocleScalaz % "test->compile")
@@ -169,12 +177,14 @@ object ScalajsReact {
         "react-addons-css-transition-group" -> "16.7.0"))
   */
 
+
   lazy val scalaz72 = project
     .in(file("scalaz-7.2"))
     .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
     .dependsOn(core, extra)
     .settings(
       libraryDependencies += Dep.scalazEffect72.value)
+
 
   lazy val monocleScalaz = project
     .in(file("monocle-scalaz"))
@@ -188,6 +198,7 @@ object ScalajsReact {
     .dependsOn(core, extra)
     .settings(
       libraryDependencies += Dep.cats.value)
+
 
   lazy val monocleCats = project
     .in(file("monocle-cats"))
@@ -236,11 +247,12 @@ object ScalajsReact {
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
-    .configure(commonSettings, addReactJsDependencies(Compile), addMacroParadise, preventPublication, hasNoTests)
+    .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
       libraryDependencies += Dep.monocleScalaz.value,
       scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       scalaJSUseMainModuleInitializer := true,
       Compile / mainClass := Some("ghpages.GhPages"),
       Compile / fullOptJS / artifactPath := file("gh-pages/res/ghpages.js"))
+
 }

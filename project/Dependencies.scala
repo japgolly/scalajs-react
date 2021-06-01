@@ -9,33 +9,33 @@ object Dependencies {
   object Ver {
 
     // Externally observable
-    val cats                  = "2.6.0"
-    val catsEffect            = "2.5.0"
+    val cats                  = "2.6.1"
+    val catsEffect            = "2.5.1"
     val microlibs             = "2.6-RC6"
     val monocleCats           = "2.1.0"
-    val monocle3              = "3.0.0-M5"
+    val monocle3              = "3.0.0-M6"
     val monocleScalaz         = "1.6.3"
     val scala212              = "2.12.13"
-    val scala213              = "2.13.5"
+    val scala213              = "2.13.6"
     val scala3                = "3.0.0-RC3"
-    val scalaCollCompat       = "2.4.3"
+    val scalaCollCompat       = "2.4.4"
     val scalaJsDom            = "1.1.0"
-    val scalaz72              = "7.2.31"
-    val sourcecode            = "0.2.6"
+    val scalaz72              = "7.2.32"
+    val sourcecode            = "0.2.7"
 
     // Internal
     val betterMonadicFor      = "0.3.1"
-    val catsTestkitScalaTest  = "2.1.4"
-    val disciplineScalaTest   = "2.1.4"
-    val kindProjector         = "0.11.3"
+    val catsTestkitScalaTest  = "2.1.5"
+    val disciplineScalaTest   = "2.1.5"
+    val kindProjector         = "0.13.0"
     val macroParadise         = "2.1.1"
-    val nyaya                 = "0.10.0-RC2"
-    val reactJs               = "16.14.0"
+    val nyaya                 = "0.10.0"
+    val reactJs               = "17.0.2"
     val scalaJsJavaTime       = "1.0.0"
-    val scalaTest             = "3.2.8"
+    val scalaTest             = "3.2.9"
     val sizzleJs              = "2.3.0"
     val univEq                = "1.4.0-RC4"
-    val utest                 = "0.7.9"
+    val utest                 = "0.7.10"
   }
 
   object Dep {
@@ -68,7 +68,6 @@ object Dependencies {
     // Compiler plugins
     val betterMonadicFor = compilerPlugin("com.olegpy"     %% "better-monadic-for" % Ver.betterMonadicFor)
     val kindProjector    = compilerPlugin("org.typelevel"  %% "kind-projector"     % Ver.kindProjector cross CrossVersion.full)
-    val macroParadise    = compilerPlugin("org.scalamacros" % "paradise"           % Ver.macroParadise cross CrossVersion.patch)
 
     def sizzleJs(scope: Configuration) =
       Def.setting("org.webjars.bower" % "sizzle" % Ver.sizzleJs % scope / "sizzle.min.js" commonJSName "Sizzle")
@@ -92,8 +91,6 @@ object Dependencies {
   def addReactJsDependencies(scope: Configuration): Project => Project =
     _.enablePlugins(JSDependenciesPlugin)
       .settings(
-        dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2", // https://github.com/webjars/webjars/issues/1789
-        dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.12.0-alpha.3",
         jsDependencies ++= Seq(
 
           "org.webjars.npm" % "react" % Ver.reactJs % scope
@@ -120,17 +117,4 @@ object Dependencies {
             commonJSName "ReactDOMServer"),
 
         packageJSDependencies / skip := false)
-
-  def addMacroParadise: Project => Project =
-    _.settings(libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, v)) if v <= 12 =>
-          Dep.macroParadise :: Nil
-        case _ =>
-          // if scala 2.13.0-M4 or later, macro annotations merged into scala-reflect
-          // https://github.com/scala/scala/pull/6606
-          Nil
-      }
-    })
-
 }

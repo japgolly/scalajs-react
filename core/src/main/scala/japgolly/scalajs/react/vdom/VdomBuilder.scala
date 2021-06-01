@@ -2,7 +2,7 @@ package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.internal.JsUtil
 import japgolly.scalajs.react.raw
-import japgolly.scalajs.react.vdom.VdomBuilder.RawChild
+import japgolly.scalajs.react.vdom.VdomBuilder.{RawChild, RawRefFn}
 import scala.scalajs.js
 
 /** Mutable target for immutable VDOM constituents to compose.
@@ -15,6 +15,7 @@ trait VdomBuilder {
   val addStylesObject: js.Object                            => Unit
   val appendChild    : RawChild                             => Unit
   val setKey         : js.Any                               => Unit
+  def addRefFn[A]    : RawRefFn[A]                          => Unit
 
   final def addStyles(j: js.Any): Unit = {
     // Hack because Attr.ValueType.Fn takes a js.Any => Unit.
@@ -22,12 +23,19 @@ trait VdomBuilder {
     val obj = j.asInstanceOf[js.Object]
     addStylesObject(obj)
   }
+
+  // NOTE: This method isn't used internally. It is intended for advanced usage.
+  // Eg: facades for components that implement the "child function" pattern.
+  def addAttrsObject(o: js.Object, allowAttr: String => Boolean = _ => true): Unit =
+    for ((k, v) <- JsUtil.objectIterator(o) if allowAttr(k))
+      addAttr(k, v)
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 object VdomBuilder {
   type RawChild = raw.React.Node
+  type RawRefFn[A] = raw.React.RefFn[A]
 
   @inline def setObjectKeyValue(o: js.Object, k: String, v: js.Any): Unit =
     o.asInstanceOf[js.Dynamic].updateDynamic(k)(v)
@@ -97,6 +105,9 @@ object VdomBuilder {
     override val setKey: js.Any => Unit =
       k => key = k
 
+    override def addRefFn[A]: RawRefFn[A] => Unit =
+      refFn => addAttr("ref", refFn)
+
     def addKeyToProps(): Unit =
       key.foreach(setObjectKeyValue(props, "key", _))
 
@@ -107,6 +118,7 @@ object VdomBuilder {
       nonEmptyStyles.foreach(setObjectKeyValue(props, "style", _))
 
     def childrenAsVdomNodes: List[VdomNode] = {
+
       var i = children.length
       var nodes = List.empty[VdomNode]
       while (i > 0) {

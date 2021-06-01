@@ -24,6 +24,10 @@ import scala.scalajs.js.{Date => JsDate}
  * @since 0.9.0
  */
 final class Reusability[A](val test: (A, A) => Boolean) extends AnyVal {
+
+  @inline def updateNeeded(x: A, y: A): Boolean =
+    !test(x, y)
+
   def contramap[B](f: B => A): Reusability[B] =
     new Reusability((x, y) => test(f(x), f(y)))
 
