@@ -18,14 +18,13 @@ object ScalajsReact {
     "-language:implicitConversions",
     "-language:higherKinds",
     "-language:existentials",
-    "-opt:l:method",
-    // "-opt:l:inline",
-    // "-opt-inline-from:japgolly.scalajs.react.**",
     "-unchecked",                                    // Enable additional warnings where generated code depends on assumptions.
     "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
     "-Ypatmat-exhaust-depth", "off")
 
   def scalac213Flags = Seq(
+    "-opt:l:inline",
+    "-opt-inline-from:japgolly.scalajs.react.**",
     "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings
     "-Wconf:msg=Reference.to.uninitialized.value:e", // Make uninitialised value calls errors instead of warnings
     "-Wunused:explicits",                            // Warn if an explicit parameter is unused.
