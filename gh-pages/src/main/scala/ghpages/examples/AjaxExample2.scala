@@ -21,7 +21,7 @@ object AjaxExample2 {
     Ajax("POST", "https://reqres.in/api/login")
       .setRequestContentTypeJsonUtf8
       .send("""{ "email": "eve.holt@reqres.in", "password": "cityslicka" }""")
-      .validateStatusIsSuccessful(Callback.throwException) // Ensure (status >= 200 && status < 300) || status == 304
+      .validateStatusIsSuccessful(Callback.throwException(_)) // Ensure (status >= 200 && status < 300) || status == 304
       .asAsyncCallback
       .void
 
@@ -42,7 +42,7 @@ object AjaxExample2 {
     Ajax("GET", s"https://reqres.in/api/users/$userId")
       .setRequestContentTypeJsonUtf8
       .send
-      .validateStatusIs(200)(Callback.throwException)
+      .validateStatusIs(200)(Callback.throwException(_))
       .asAsyncCallback
       .map(xhr => JSON.parse(xhr.responseText).asInstanceOf[UserAjaxResponse]) // You'd normally be safer than this
       .map(_.data)                                                             // outside of a quick demo.

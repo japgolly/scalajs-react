@@ -19,7 +19,7 @@ object GhPages {
 
     def exampleRoutes: Rule =
       (ExamplesJs.routes | ExamplesScala.routes)
-        .prefixPath_/("#examples").pmap[Page](Eg) { case Eg(e) => e }
+        .prefixPath_/("#examples").pmap[Page](Eg.apply) { case Eg(e) => e }
 
     (trimSlashes
     | staticRoute(root,          Home)       ~> render(HomePage.component())
