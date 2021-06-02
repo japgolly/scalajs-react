@@ -159,7 +159,7 @@ object ComponentBuilderMacros {
       inline def byName(s: Symbol) =
         attempt(_.names.contains(s.name.toString))
 
-      inline def byNameAndType(s: Symbol, t: Type) =
+      inline def byNameAndType(s: Symbol, t: TypeRepr) =
         attempt(p => p.names.contains(s.name.toString) && p.dealised <:< t)
 
       val args = params.map[Term] { p =>
@@ -169,7 +169,7 @@ object ComponentBuilderMacros {
         debugPrn(s"\n${Type.show[B]}.render(${p.name}: ${pt.show}) -- ${p.tree}")
 
         (
-          isPropsChildren(pt)   orElse
+          tryPropsChildren(pt)  orElse
           byNameAndType(p, ptd) orElse
           byExactTypeAlias(pt)  orElse
           byExactType(ptd)      orElse

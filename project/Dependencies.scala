@@ -9,33 +9,33 @@ object Dependencies {
   object Ver {
 
     // Externally observable
-    val cats                  = "2.6.1"
-    val catsEffect            = "2.5.1"
+    val cats                  = "2.6.0"
+    val catsEffect            = "2.5.0"
     val microlibs             = "2.6-RC6"
     val monocleCats           = "2.1.0"
-    val monocle3              = "3.0.0-M6"
+    val monocle3              = "3.0.0-M5"
     val monocleScalaz         = "1.6.3"
     val scala212              = "2.12.13"
     val scala213              = "2.13.6"
     val scala3                = "3.0.0-RC3"
     val scalaCollCompat       = "2.4.4"
     val scalaJsDom            = "1.1.0"
-    val scalaz72              = "7.2.32"
-    val sourcecode            = "0.2.7"
+    val scalaz72              = "7.2.31"
+    val sourcecode            = "0.2.6"
 
     // Internal
     val betterMonadicFor      = "0.3.1"
-    val catsTestkitScalaTest  = "2.1.5"
-    val disciplineScalaTest   = "2.1.5"
+    val catsTestkitScalaTest  = "2.1.4"
+    val disciplineScalaTest   = "2.1.4"
     val kindProjector         = "0.13.0"
     val macroParadise         = "2.1.1"
-    val nyaya                 = "0.10.0"
+    val nyaya                 = "0.10.0-RC2"
     val reactJs               = "17.0.2"
     val scalaJsJavaTime       = "1.0.0"
-    val scalaTest             = "3.2.9"
+    val scalaTest             = "3.2.8"
     val sizzleJs              = "2.3.0"
     val univEq                = "1.4.0-RC4"
-    val utest                 = "0.7.10"
+    val utest                 = "0.7.9"
   }
 
   object Dep {

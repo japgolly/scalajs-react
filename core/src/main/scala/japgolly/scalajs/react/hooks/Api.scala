@@ -10,35 +10,35 @@ import scala.scalajs.js
 
 object Api {
 
-  trait Step {
+  trait AbstractStep {
     type Self
     type Next[A]
   }
 
-  trait SubsequentStep[_Ctx, _CtxFn[_]] extends Step {
+  trait SubsequentStep[_Ctx, _CtxFn[_]] extends AbstractStep {
     final type Ctx = _Ctx
     final type CtxFn[A] = _CtxFn[A]
     def squash[A]: CtxFn[A] => (Ctx => A)
   }
 
   trait DynamicNextStep[A] {
-    type Result[S <: Step]
-    def apply[I, S <: Step](i: I)(self: I => S#Self, next: I => S#Next[A]): Result[S]
+    type OneOf[S, N]
+    def apply[I](s: AbstractStep, i: I)(self: I => s.Self, next: I => s.Next[A]): OneOf[s.Self, s.Next[A]]
   }
   sealed trait DynamicNextStepLowPri {
-    final type Next[A] = DynamicNextStep[A] { type Result[S <: Step] = S#Next[A] }
+    final type Next[A] = DynamicNextStep[A] { type OneOf[S, N] = N }
     final implicit def next[A]: Next[A] =
       new DynamicNextStep[A] {
-        override type Result[S <: Step] = S#Next[A]
-        override def apply[I, S <: Step](i: I)(self: I => S#Self, next: I => S#Next[A]) = next(i)
+        override type OneOf[S, N] = N
+        override def apply[I](s: AbstractStep, i: I)(self: I => s.Self, next: I => s.Next[A]) = next(i)
       }
   }
   object DynamicNextStep extends DynamicNextStepLowPri {
-    type Self[A] = DynamicNextStep[A] { type Result[S <: Step] = S#Self }
+    type Self[A] = DynamicNextStep[A] { type OneOf[S, N] = S }
     def self[A]: Self[A] =
       new DynamicNextStep[A] {
-        override type Result[S <: Step] = S#Self
-        override def apply[I, S <: Step](i: I)(self: I => S#Self, next: I => S#Next[A]) = self(i)
+        override type OneOf[S, N] = S
+        override def apply[I](s: AbstractStep, i: I)(self: I => s.Self, next: I => s.Next[A]) = self(i)
       }
     @inline implicit def unit: Self[Unit] = self
   }
@@ -46,19 +46,19 @@ object Api {
   // ===================================================================================================================
   // API 1: X / (Ctx => X)
 
-  trait Primary[Ctx, _Step <: Step] {
+  trait Primary[Ctx, _Step <: AbstractStep] {
     final type Step = _Step
 
     protected def self(f: Ctx => Any)(implicit step: Step): step.Self
     protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H]
 
     /** Use a custom hook */
-    final def custom[I, O](hook: CustomHook[I, O])(implicit step: Step, a: CustomHook.Arg[Ctx, I], d: DynamicNextStep[O]): d.Result[step.type] =
-      d((ctx: Ctx) => hook.unsafeInit(a.convert(ctx)))(self(_), next(_))
+    final def custom[I, O](hook: CustomHook[I, O])(implicit step: Step, a: CustomHook.Arg[Ctx, I], d: DynamicNextStep[O]): d.OneOf[step.Self, step.Next[O]] =
+      d(step, (ctx: Ctx) => hook.unsafeInit(a.convert(ctx)))(self(_), next(_))
 
     /** Use a custom hook */
-    final def customBy[O](hook: Ctx => CustomHook[Unit, O])(implicit step: Step, d: DynamicNextStep[O]): d.Result[step.type] =
-      d((ctx: Ctx) => hook(ctx).unsafeInit(()))(self(_), next(_))
+    final def customBy[O](hook: Ctx => CustomHook[Unit, O])(implicit step: Step, d: DynamicNextStep[O]): d.OneOf[step.Self, step.Next[O]] =
+      d(step, (ctx: Ctx) => hook(ctx).unsafeInit(()))(self(_), next(_))
 
     /** Create a new local `lazy val` on each render. */
     final def localLazyVal[A](a: => A)(implicit step: Step): step.Next[() => A] =
@@ -91,14 +91,14 @@ object Api {
     /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
       * It's up to you to ensure you don't vioalte React's hook rules.
       */
-    final def unchecked[A](f: => A)(implicit step: Step, d: DynamicNextStep[A]): d.Result[step.type] =
+    final def unchecked[A](f: => A)(implicit step: Step, d: DynamicNextStep[A]): d.OneOf[step.Self, step.Next[A]] =
       uncheckedBy(_ => f)
 
     /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
       * It's up to you to ensure you don't vioalte React's hook rules.
       */
-    final def uncheckedBy[A](f: Ctx => A)(implicit step: Step, d: DynamicNextStep[A]): d.Result[step.type] =
-      d(f)(self(_), next(_))
+    final def uncheckedBy[A](f: Ctx => A)(implicit step: Step, d: DynamicNextStep[A]): d.OneOf[step.Self, step.Next[A]] =
+      d(step, f)(self(_), next(_))
 
     /** Returns a memoized callback.
       *
@@ -481,7 +481,7 @@ object Api {
   trait Secondary[Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends Primary[Ctx, _Step] {
 
     /** Use a custom hook */
-    final def customBy[O](hook: CtxFn[CustomHook[Unit, O]])(implicit step: Step, d: DynamicNextStep[O]): d.Result[step.type] =
+    final def customBy[O](hook: CtxFn[CustomHook[Unit, O]])(implicit step: Step, d: DynamicNextStep[O]): d.OneOf[step.Self, step.Next[O]] =
       customBy(step.squash(hook)(_))
 
     /** Create a new local `lazy val` on each render. */
@@ -499,7 +499,7 @@ object Api {
     /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
       * It's up to you to ensure you don't vioalte React's hook rules.
       */
-    final def uncheckedBy[A](f: CtxFn[A])(implicit step: Step, d: DynamicNextStep[A]): d.Result[step.type] =
+    final def uncheckedBy[A](f: CtxFn[A])(implicit step: Step, d: DynamicNextStep[A]): d.OneOf[step.Self, step.Next[A]] =
       uncheckedBy(step.squash(f)(_))
 
     /** Returns a memoized callback.

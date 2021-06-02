@@ -214,20 +214,32 @@ object Hooks {
 
   // ===================================================================================================================
 
+  private lazy val internalReuseSafety = Reusable.byRef(new AnyRef)
+
   object UseState {
+    def apply[S, O](r: Raw.React.UseState[S], oss: Reusable[Raw.React.UseStateSetter[O]]): UseState[S] =
+      new UseState[S] {
+        override val raw = r
+        override type OriginalState = O
+        override val originalSetState = oss
+      }
+
     def unsafeCreate[S](initialState: => S): UseState[S] = {
       // Boxing is required because React's useState uses reflection to distinguish between {set,mod}State.
       val initialStateFn   = (() => Box(initialState)): js.Function0[Box[S]]
       val originalResult   = Raw.React.useState[Box[S]](initialStateFn)
       val originalSetState = Reusable.byRef(originalResult._2)
-      UseState[Box[S]](originalResult, originalSetState)
+      UseState(originalResult, originalSetState)
         .xmap(_.unbox)(Box.apply)
     }
   }
 
-  private lazy val internalReuseSafety = Reusable.byRef(new AnyRef)
+  trait UseState[S] { self =>
 
-  final case class UseState[S](raw: Raw.React.UseState[S], originalSetState: Reusable[Raw.React.UseStateSetter[_]]) { self =>
+    val raw: Raw.React.UseState[S]
+
+    type OriginalState
+    val originalSetState: Reusable[Raw.React.UseStateSetter[OriginalState]]
 
     @inline def value: S =
       raw._1

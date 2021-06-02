@@ -79,7 +79,7 @@ final class ComponentBuilderMacros(val c: Context) extends MacroUtils {
         }
       }
 
-      def isPropsChildren(t: Type) =
+      def tryPropsChildren(t: Type) =
         Option.when(t.toString == "japgolly.scalajs.react.PropsChildren")(getPropsChildren)
 
       def byExactTypeAlias(t: Type) =
@@ -102,7 +102,7 @@ final class ComponentBuilderMacros(val c: Context) extends MacroUtils {
         val pt = p.info
         val ptd = pt.dealias
         args :+= (
-          isPropsChildren(pt)   orElse
+          tryPropsChildren(pt)  orElse
           byNameAndType(p, ptd) orElse
           byExactTypeAlias(pt)  orElse
           byExactType(ptd)      orElse

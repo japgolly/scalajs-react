@@ -40,6 +40,11 @@ package object react extends ReactEventTypes, ReactExtensions {
   val ScalaForwardRefComponent = component.ScalaForwardRef
   type ScalaForwardRefComponent[P, R, CT[-p, +u] <: CtorType[p, u]] = ScalaForwardRefComponent.Component[P, R, CT]
 
+  type CustomHook[I, O] = hooks.CustomHook[I, O]
+  val CustomHook        = hooks.CustomHook
+  val Hooks             = hooks.Hooks
+  val HooksApi          = hooks.Api
+
   // Required for cross-building
   private[react] inline def scalajsReactRawPropsChildrenToJsUndef(r: raw.PropsChildren): js.UndefOr[raw.PropsChildren] =
     r.asInstanceOf[js.UndefOr[raw.PropsChildren]]

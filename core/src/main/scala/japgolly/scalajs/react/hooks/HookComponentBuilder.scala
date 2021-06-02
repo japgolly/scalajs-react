@@ -50,9 +50,9 @@ object HookComponentBuilder {
 
     object Subsequent extends ComponentP_SubsequentDsl
 
-    final class FirstStep[P] extends Api.Step {
+    final class FirstStep[P] extends Api.AbstractStep {
       override type Self     = First[P]
-      override type Next[H1] = Subsequent[P, HookCtx.P1[P, H1], HookCtxFn.P1[P, H1]#Fn]
+      override type Next[H1] = Subsequent[P, HookCtx.P1[P, H1], ({ type F[A] = (P, H1) => A})#F]
 
       def self(initFirst: P => Unit, f: P => Any): Self =
         new First[P](p => {
@@ -68,7 +68,7 @@ object HookComponentBuilder {
             val h1 = hook1(p)
             f(HookCtx(p, h1))
           }
-        new Subsequent[P, HookCtx.P1[P, H1], HookCtxFn.P1[P, H1]#Fn](render)
+        new Subsequent[P, HookCtx.P1[P, H1], ({ type F[A] = (P, H1) => A})#F](render)
       }
     }
 
@@ -133,9 +133,9 @@ object HookComponentBuilder {
 
     object Subsequent extends ComponentPC_SubsequentDsl
 
-    final class FirstStep[P] extends Api.Step {
+    final class FirstStep[P] extends Api.AbstractStep {
       override type Self     = First[P]
-      override type Next[H1] = Subsequent[P, HookCtx.PC1[P, H1], HookCtxFn.PC1[P, H1]#Fn]
+      override type Next[H1] = Subsequent[P, HookCtx.PC1[P, H1], ({ type F[A] = (P, PropsChildren, H1) => A})#F]
 
       def self(initFirst: HookCtx.PC0[P] => Unit, f: HookCtx.PC0[P] => Any): Self =
         new First[P](ctx0 => {
@@ -152,7 +152,7 @@ object HookComponentBuilder {
             val h1 = hook1(ctx0)
             f(HookCtx.withChildren(p, pc, h1))
           }
-        new Subsequent[P, HookCtx.PC1[P, H1], HookCtxFn.PC1[P, H1]#Fn](render)
+        new Subsequent[P, HookCtx.PC1[P, H1], ({ type F[A] = (P, PropsChildren, H1) => A})#F](render)
       }
     }
 

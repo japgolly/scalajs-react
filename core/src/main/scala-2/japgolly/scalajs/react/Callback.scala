@@ -44,8 +44,8 @@ object Callback {
   @inline def throwException(t: Throwable): Callback =
     CallbackTo.throwException(t)
 
-  def fromJsFn(f: js.Function0[Unit]): Callback =
-    apply(f())
+  @inline def fromJsFn(f: js.Function0[Unit]): Callback =
+    CallbackTo.fromJsFn(f)
 
   /**
    * Callback that isn't created until the first time it is used, after which it is reused.

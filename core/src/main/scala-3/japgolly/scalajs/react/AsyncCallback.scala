@@ -274,11 +274,11 @@ object AsyncCallback {
     }
   }
 
-  def awaitAll(as: AsyncCallback[_]*): AsyncCallback[Unit] =
+  def awaitAll(as: AsyncCallback[Any]*): AsyncCallback[Unit] =
     if (as.isEmpty)
       unit
     else
-      sequence_(as.iterator.asInstanceOf[Iterator[AsyncCallback[Any]]])
+      sequence_(as.iterator)
 
   // ===================================================================================================================
 
@@ -716,6 +716,17 @@ final class AsyncCallback[+A](val completeWith: (Try[A] => Callback) => Callback
 
   def attemptTry: AsyncCallback[Try[A]] =
     AsyncCallback(f => completeWith(e => f(Success(e))))
+
+  /** If this completes successfully, discard the result.
+    * If any exception occurs, call `printStackTrace` and continue.
+    *
+    * @since 1.8.0
+    */
+  def reset: AsyncCallback[Unit] =
+    AsyncCallback(f => completeWith(e => f(Success(e match {
+      case _: Success[A] => ()
+      case Failure(t)    => t.printStackTrace()
+    }))))
 
   def handleError[AA >: A](f: Throwable => AsyncCallback[AA]): AsyncCallback[AA] =
     AsyncCallback(g => completeWith {

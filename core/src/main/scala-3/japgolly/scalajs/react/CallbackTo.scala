@@ -30,6 +30,9 @@ object CallbackTo {
   inline def throwException[A](t: Throwable): CallbackTo[A] =
     CallbackTo(throw t)
 
+  def fromJsFn[A](f: js.Function0[A]): CallbackTo[A] =
+    apply(f())
+
   /** Callback that isn't created until the first time it is used, after which it is reused. */
   def lazily[A](f: => CallbackTo[A]): CallbackTo[A] = {
     lazy val g = f
@@ -431,6 +434,22 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
           case None    => throw t
         }
       })
+
+  /** If this completes successfully, discard the result.
+    * If any exception occurs, call `printStackTrace` and continue.
+    *
+    * @since 1.8.0
+    */
+  def reset: Callback =
+    Callback(
+      try {
+        runNow()
+        ()
+      } catch {
+        case t: Throwable =>
+          t.printStackTrace()
+      }
+    )
 
   /** Return a version of this callback that will only execute once, and reuse the result for all
     * other invocations.

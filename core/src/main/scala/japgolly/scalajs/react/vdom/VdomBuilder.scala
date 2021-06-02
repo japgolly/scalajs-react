@@ -118,7 +118,6 @@ object VdomBuilder {
       nonEmptyStyles.foreach(setObjectKeyValue(props, "style", _))
 
     def childrenAsVdomNodes: List[VdomNode] = {
-
       var i = children.length
       var nodes = List.empty[VdomNode]
       while (i > 0) {

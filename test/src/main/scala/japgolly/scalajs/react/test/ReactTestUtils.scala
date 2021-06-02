@@ -24,7 +24,8 @@ object ReactTestUtils {
     if (r == null)
       null
     else {
-      val x = JsComponent.mounted(JsUtil.notNull(r))
+      val r2 = JsUtil.notNull[RawM](r) // TODO: WTF??
+      val x = JsComponent.mounted(r2)
       x.asInstanceOf[MountedOutput] // TODO: WTF??
     }
 

@@ -23,12 +23,6 @@ object ScalajsReact {
     "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
   )
 
-  def scalac212Flags = Seq(
-    "-opt:l:inline",
-    "-opt-inline-from:japgolly.scalajs.react.**",
-    "-Ypatmat-exhaust-depth", "off",
-  )
-
   def scalac213Flags = Seq(
     "-opt:l:inline",
     "-opt-inline-from:japgolly.scalajs.react.**",
@@ -76,7 +70,6 @@ object ScalajsReact {
         crossScalaVersions            := Seq(Ver.scala213, Ver.scala3),
         scalacOptions                ++= scalacCommonFlags,
         scalacOptions                ++= byScalaVersion {
-
                                            case (2, 13) => scalac213Flags
                                            case (3, _ ) => scalac3Flags
                                          }.value,
@@ -251,5 +244,4 @@ object ScalajsReact {
       scalaJSUseMainModuleInitializer := true,
       Compile / mainClass := Some("ghpages.GhPages"),
       Compile / fullOptJS / artifactPath := file("gh-pages/res/ghpages.js"))
-
 }
