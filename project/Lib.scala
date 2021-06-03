@@ -93,6 +93,11 @@ object Lib {
         version in webpack := "2.6.1")
   */
 
+  def disableScalaDoc3: PE =
+    _.settings(
+      Compile / doc / sources := { if (scalaVersion.value startsWith "3") Seq.empty else (Compile / doc / sources).value },
+    )
+
   val disable = settingKey[Boolean]("Disable project?")
 
   def conditionallyDisable: Project => Project = {

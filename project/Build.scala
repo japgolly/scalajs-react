@@ -112,7 +112,7 @@ object ScalajsReact {
   lazy val genHooks = TaskKey[Unit]("genHooks")
 
   lazy val core = project
-    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
