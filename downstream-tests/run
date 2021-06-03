@@ -1,0 +1,79 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")" || exit 1
+
+# Tests
+all_tests_values=(
+  ""
+  "-Djapgolly.scalajs.react.compname.auto=blank"
+  "-Djapgolly.scalajs.react.compname.auto=short"
+  "-Djapgolly.scalajs.react.compname.auto=full"
+)
+all_tests_keys=()
+declare -A all_tests
+i=0
+for t in "${all_tests_values[@]}"; do
+  i=$((i+1))
+  all_tests_keys+=($i)
+  all_tests[$i]="$t"
+done
+
+# Parse options
+sbt_cmds=(+clean +test)
+case "${1:-}" in
+  -h|-help|--help)
+    echo "Usage: $0 [-q] [<test number>...]"
+    echo
+    echo "Options:"
+    echo "  -q  --  Quick mode: skips cross-Scala-version testing."
+    echo
+    echo "Tests:"
+    for n in "${all_tests_keys[@]}"; do
+      echo "  $n) ${all_tests[$n]}"
+    done
+    echo
+    exit 0
+    ;;
+  -q)
+    sbt_cmds=(clean test)
+    shift
+    ;;
+  *)
+    ;;
+esac
+
+# Decide which tests to run
+tests=("${all_tests_keys[@]}")
+if [ $# -ne 0 ]; then
+  tests=("$@")
+fi
+
+# Make sure all declared tests actually exist
+all_good=1
+for t in "${tests[@]}"; do
+  if [ "${all_tests[$t]-x}" = x ]; then
+    echo "Invalid test: $t" >&2
+    all_good=0
+  fi
+done
+[ $all_good -eq 1 ] || exit 2
+
+# Declare test runner
+function run {
+  cmd=(sbt $1 "${sbt_cmds[@]}")
+  echo "> ${cmd[@]}"
+  echo
+  "${cmd[@]}"
+}
+
+# Run all tests
+sep="==================================================================================================="
+i=0
+for t in "${tests[@]}"; do
+  i=$((i+1))
+  echo "$sep"
+  echo "[$i/${#tests[@]}] Test #$t"
+  run "${all_tests[$t]}"
+done
+echo "$sep"
+echo "Done. All tests passed."
