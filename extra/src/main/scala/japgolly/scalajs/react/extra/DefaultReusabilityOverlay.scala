@@ -101,8 +101,11 @@ object DefaultReusabilityOverlay extends DefaultReusabilityOverlayMacros {
 
   case class Nodes(outer: Element, good: Element, bad: Element)
 
-  implicit def apply(options: Options): Comp => ReusabilityOverlay =
-    new DefaultReusabilityOverlay(_, options)
+  implicit def apply[P, S, B](options: Options): ScalaComponent.MountedImpure[P, S, B] => ReusabilityOverlay =
+    a => {
+      val b = a.asInstanceOf[Comp]
+      new DefaultReusabilityOverlay(b, options)
+    }
 }
 
 class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Options) extends ReusabilityOverlay with TimerSupport {

@@ -8,7 +8,7 @@ import scala.scalajs.js
  * Heavily inspired by https://github.com/redsunsoft/react-render-visualizer
  */
 object ReusabilityOverlay {
-  type Comp = ScalaComponent.MountedImpure[_, _, _]
+  type Comp = ScalaComponent.MountedImpure[Any, Any, Any]
 
   private val key = "reusabilityOverlay"
 

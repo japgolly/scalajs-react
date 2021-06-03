@@ -26,7 +26,9 @@ object HooksTest extends TestSuite {
   def test[M, A](u: Unmounted[M])(f: Tester => A): A =
     withRenderedIntoBody(u).withParent(root => f(new Tester(root)))
 
-  private class Tester(root: Element) {
+  // TODO: https://github.com/lampepfl/dotty/issues/12663
+  // Should be private
+  class Tester(root: Element) {
 
     def assertText(expect: String)(implicit l: Line): Unit =
       HooksTest.assertText(root, expect)

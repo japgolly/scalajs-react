@@ -179,15 +179,15 @@ object RawComponentEs6PTest extends TestSuite {
 
 object RawComponentEs6STest extends TestSuite {
 
-  case class State(num1: Int, s2: State2)
+  case class State1(num1: Int, s2: State2)
   case class State2(num2: Int, num3: Int)
 
-  implicit val equalState: UnivEq[State] = UnivEq.force
+  implicit val equalState1: UnivEq[State1] = UnivEq.force
   implicit val equalState2: UnivEq[State2] = UnivEq.force
 
   @nowarn("cat=unused")
-  class RawComp(ctorProps: Box[Unit]) extends raw.React.Component[Box[Unit], Box[State]] {
-    this.state = Box(State(123, State2(400, 7)))
+  class RawComp(ctorProps: Box[Unit]) extends raw.React.Component[Box[Unit], Box[State1]] {
+    this.state = Box(State1(123, State2(400, 7)))
     override def render() = {
       val s = this.state.unbox
       raw.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3)
@@ -199,7 +199,7 @@ object RawComponentEs6STest extends TestSuite {
   RawCompCtor.displayName = "State, no Props"
 
   val Component =
-    JsComponent[Box[Unit], Children.None, Box[State]](RawCompCtor)
+    JsComponent[Box[Unit], Children.None, Box[State1]](RawCompCtor)
         .xmapProps(_.unbox)(Box(_))
         .xmapState(_.unbox)(Box(_))
         .withRawType[RawComp]
@@ -215,33 +215,33 @@ object RawComponentEs6STest extends TestSuite {
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode.asMounted().asElement()
 
-        assertOuterHTML(n, "<div>State = 123 + 400 + 7</div>")
+        assertOuterHTML(n, "<div>State1 = 123 + 400 + 7</div>")
         // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.count, 0)
         assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(123, State2(400, 7)))
+        assertEq(mounted.state, State1(123, State2(400, 7)))
 
-        mounted.setState(State(666, State2(500, 7)))
-        assertOuterHTML(n, "<div>State = 666 + 500 + 7</div>")
+        mounted.setState(State1(666, State2(500, 7)))
+        assertOuterHTML(n, "<div>State1 = 666 + 500 + 7</div>")
         // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(666, State2(500, 7)))
+        assertEq(mounted.state, State1(666, State2(500, 7)))
 
         mounted.raw.inc()
-        assertOuterHTML(n, "<div>State = 667 + 500 + 7</div>")
+        assertOuterHTML(n, "<div>State1 = 667 + 500 + 7</div>")
         // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(667, State2(500, 7)))
+        assertEq(mounted.state, State1(667, State2(500, 7)))
 
         val zoomed = mounted
           .zoomState(_.s2)(n => _.copy(s2 = n))
           .zoomState(_.num2)(n => _.copy(num2 = n))
         assertEq(zoomed.state, 500)
         zoomed.modState(_ + 1)
-        assertOuterHTML(n, "<div>State = 667 + 501 + 7</div>")
+        assertOuterHTML(n, "<div>State1 = 667 + 501 + 7</div>")
         // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(667, State2(501, 7)))
+        assertEq(mounted.state, State1(667, State2(501, 7)))
       }
     }
 

@@ -39,8 +39,8 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
   private def readDisplayName(a: RAW.HasDisplayName): String =
     a.displayName.getOrElse("")
 
-  override protected val rawComponentDisplayName: RAW.React.ComponentClassUntyped => String =
-    readDisplayName
+  override protected def rawComponentDisplayName[A <: js.Object](r: RAW.React.ComponentClassP[A]) =
+    readDisplayName(r)
 
   // ===================================================================================================================
 

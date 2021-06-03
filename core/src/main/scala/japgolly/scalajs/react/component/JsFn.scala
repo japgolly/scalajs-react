@@ -67,8 +67,8 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
   private def staticDisplayName = "<FnComponent>"
 
-  override protected def rawComponentDisplayName: RAW.React.StatelessFunctionalComponent[_ <: js.Object] => String =
-    _ => staticDisplayName
+  override protected def rawComponentDisplayName[A <: js.Object](r: RAW.React.StatelessFunctionalComponent[A]) =
+    staticDisplayName
 
   // ===================================================================================================================
 

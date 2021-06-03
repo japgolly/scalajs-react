@@ -6,7 +6,7 @@ package japgolly.scalajs.react.internal
   * @tparam O The optic type.
   */
 trait MonocleSetter[O[_, _, _, _]] {
-  def set[S, B](l: O[S, S, _, B]): B => S => S
+  def set[S, A, B](l: O[S, S, A, B]): B => S => S
 }
 
 object MonocleSetter {
@@ -14,21 +14,21 @@ object MonocleSetter {
   import monocle._
 
   implicit object LensS extends MonocleSetter[PLens] {
-    @inline final override def set[S, B](l: PLens[S, S, _, B]): B => S => S = l.set
+    @inline final override def set[S, A, B](l: PLens[S, S, A, B]): B => S => S = l.set
   }
   implicit object SetterS extends MonocleSetter[PSetter] {
-    @inline final override def set[S, B](l: PSetter[S, S, _, B]): B => S => S = l.set
+    @inline final override def set[S, A, B](l: PSetter[S, S, A, B]): B => S => S = l.set
   }
   implicit object OptionalS extends MonocleSetter[POptional] {
-    @inline final override def set[S, B](l: POptional[S, S, _, B]): B => S => S = l.set
+    @inline final override def set[S, A, B](l: POptional[S, S, A, B]): B => S => S = l.set
   }
   implicit object IsoS extends MonocleSetter[PIso] {
-    @inline final override def set[S, B](l: PIso[S, S, _, B]): B => S => S = l.set
+    @inline final override def set[S, A, B](l: PIso[S, S, A, B]): B => S => S = l.set
   }
   implicit object PrismS extends MonocleSetter[PPrism] {
-    @inline final override def set[S, B](l: PPrism[S, S, _, B]): B => S => S = l.set
+    @inline final override def set[S, A, B](l: PPrism[S, S, A, B]): B => S => S = l.set
   }
   implicit object TraversalS extends MonocleSetter[PTraversal] {
-    @inline final override def set[S, B](l: PTraversal[S, S, _, B]): B => S => S = l.set
+    @inline final override def set[S, A, B](l: PTraversal[S, S, A, B]): B => S => S = l.set
   }
 }

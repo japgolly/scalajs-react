@@ -26,10 +26,10 @@ object MonocleExtComponent {
     def modStateOptionL[A, B](l: PTraversal[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty): F[Unit] =
       self.modStateOption(l.modifyA(f), cb)
 
-    def setStateL[B](l: PSetter[S, S, _, B])(b: B, cb: Callback = Callback.empty): F[Unit] =
+    def setStateL[A, B](l: PSetter[S, S, A, B])(b: B, cb: Callback = Callback.empty): F[Unit] =
       self.modState(l.replace(b), cb)
 
-    def setStateOptionL[ B](l: PSetter[S, S, _, B])(o: Option[B], cb: Callback = Callback.empty): F[Unit] =
+    def setStateOptionL[ A, B](l: PSetter[S, S, A, B])(o: Option[B], cb: Callback = Callback.empty): F[Unit] =
       o match {
         case Some(b) => setStateL(l)(b, cb)
         case None    => self.setStateOption(None, cb)
@@ -41,10 +41,10 @@ object MonocleExtComponent {
     def modStateOptionAsyncL[A, B](l: PTraversal[S, S, A, B])(f: A => Option[B]): AsyncCallback[Unit] =
       self.modStateOptionAsync(l.modifyA(f))
 
-    def setStateAsyncL[B](l: PSetter[S, S, _, B])(b: B): AsyncCallback[Unit] =
+    def setStateAsyncL[A, B](l: PSetter[S, S, A, B])(b: B): AsyncCallback[Unit] =
       self.modStateAsync(l.replace(b))
 
-    def setStateOptionAsyncL[B](l: PSetter[S, S, _, B])(o: Option[B]): AsyncCallback[Unit] =
+    def setStateOptionAsyncL[A, B](l: PSetter[S, S, A, B])(o: Option[B]): AsyncCallback[Unit] =
       o match {
         case Some(b) => setStateAsyncL(l)(b)
         case None    => self.setStateOptionAsync(None)
@@ -58,10 +58,10 @@ object MonocleExtComponent {
     def modStateOptionL[A, B](l: PTraversal[S, S, A, B])(f: A => Option[B], cb: Callback = Callback.empty): Callback =
       sa(i).modStateOption(l.modifyA(f), cb)
 
-    def setStateL[B](l: PSetter[S, S, _, B])(b: B, cb: Callback = Callback.empty): Callback =
+    def setStateL[A, B](l: PSetter[S, S, A, B])(b: B, cb: Callback = Callback.empty): Callback =
       sa(i).modState(l.replace(b), cb)
 
-    def setStateOptionL[B](l: PSetter[S, S, _, B])(o: Option[B], cb: Callback = Callback.empty): Callback =
+    def setStateOptionL[A, B](l: PSetter[S, S, A, B])(o: Option[B], cb: Callback = Callback.empty): Callback =
       o match {
         case Some(b) => setStateL(l)(b, cb)
         case None    => sa(i).setStateOption(None, cb)
@@ -73,10 +73,10 @@ object MonocleExtComponent {
     def modStateOptionAsyncL[A, B](l: PTraversal[S, S, A, B])(f: A => Option[B]): AsyncCallback[Unit] =
       sa(i).modStateOptionAsync(l.modifyA(f))
 
-    def setStateAsyncL[B](l: PSetter[S, S, _, B])(b: B): AsyncCallback[Unit] =
+    def setStateAsyncL[A, B](l: PSetter[S, S, A, B])(b: B): AsyncCallback[Unit] =
       sa(i).modStateAsync(l.replace(b))
 
-    def setStateOptionAsyncL[B](l: PSetter[S, S, _, B])(o: Option[B]): AsyncCallback[Unit] =
+    def setStateOptionAsyncL[A, B](l: PSetter[S, S, A, B])(o: Option[B]): AsyncCallback[Unit] =
       o match {
         case Some(b) => setStateAsyncL(l)(b)
         case None    => sa(i).setStateOptionAsync(None)

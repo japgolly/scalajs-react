@@ -19,7 +19,7 @@ object ReactTestUtils {
   type Mounted      = GenericComponent.MountedRaw
 
   private type RawM = japgolly.scalajs.react.raw.React.ComponentUntyped
-  type MountedOutput = JsComponent.Mounted[_ <: js.Object, _ <: js.Object]
+  type MountedOutput = JsComponent.Mounted[js.Object, js.Object]
   private def wrapMO(r: RawM | Null): MountedOutput =
     if (r == null)
       null

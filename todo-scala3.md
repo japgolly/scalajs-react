@@ -1,7 +1,6 @@
 Port
 ====
 
-test/src/test/scala-2/japgolly/scalajs/react/core/vdom/DevOnlyTest.scala
 test/src/test/scala-2/japgolly/scalajs/react/ElisionTest.scala
 
 ghpages

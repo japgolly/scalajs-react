@@ -324,7 +324,7 @@ final class RouterConfigDsl[Page, Props] {
 
   implicit def _auto_routeB_from_str(l: String): RouteB[Unit] = RouteB.literal(l)
   implicit def _auto_routeB_from_path(p: Path): RouteB[Unit] = RouteB.literal(p.value)
-  implicit def _auto_route_from_routeB[A, R](r: R)(implicit ev: R => RouteB[A]): Route[A] = r.route
+  implicit def _auto_route_from_routeB[A, R](r: R)(implicit ev: R => RouteB[A]): Route[A] = ev(r).route
 
   // -------------------------------------------------------------------------------------------------------------------
   // Action DSL
@@ -332,28 +332,28 @@ final class RouterConfigDsl[Page, Props] {
   implicit def _auto_someAction[A <: Action](a: A): Option[A] = Some(a)
 
   def render[A](a: => A)(implicit ev: A => VdomElement): Renderer =
-    Renderer(_ => _ => a)
+    Renderer(_ => _ => ev(a))
 
   def renderR[A](g: RouterCtl[Page] => A)(implicit ev: A => VdomElement): Renderer =
-    Renderer(r => _ => g(r))
+    Renderer(r => _ => ev(g(r)))
 
   def renderP[A](g: Props => A)(implicit ev: A => VdomElement): Renderer =
-    Renderer(_ => props => g(props))
+    Renderer(_ => props => ev(g(props)))
 
   def renderRP[A](g: (RouterCtl[Page], Props) => A)(implicit ev: A => VdomElement): Renderer =
-    Renderer(r => props => g(r, props))
+    Renderer(r => props => ev(g(r, props)))
 
   def dynRender[P <: Page, A](g: P => A)(implicit ev: A => VdomElement): P => Renderer =
-    p => Renderer(_ => _ => g(p))
+    p => Renderer(_ => _ => ev(g(p)))
 
   def dynRenderR[P <: Page, A](g: (P, RouterCtl[Page]) => A)(implicit ev: A => VdomElement): P => Renderer =
-    p => Renderer(r => _ => g(p, r))
+    p => Renderer(r => _ => ev(g(p, r)))
 
   def dynRenderP[P <: Page, A](g: (P, Props) => A)(implicit ev: A => VdomElement): P => Renderer =
-    p => Renderer(_ => props => g(p, props))
+    p => Renderer(_ => props => ev(g(p, props)))
 
   def dynRenderRP[P <: Page, A](g: (P, RouterCtl[Page], Props) => A)(implicit ev: A => VdomElement): P => Renderer =
-    p => Renderer(r => props => g(p, r, props))
+    p => Renderer(r => props => ev(g(p, r, props)))
 
   def redirectToPage(page: Page)(implicit via: SetRouteVia): RedirectToPage[Page] =
     RedirectToPage[Page](page, via)
@@ -374,16 +374,16 @@ final class RouterConfigDsl[Page, Props] {
   implicit def _auto_parsed_from_redirect(r: Redirect): Parsed = Left(r)
   implicit def _auto_parsed_from_page    (p: Page)    : Parsed = Right(p)
 
-  implicit def _auto_parsedO_from_parsed [A](p: A)        (implicit ev: A => Parsed): Option[Parsed] = Some(p)
-  implicit def _auto_parsedO_from_parsedO[A](o: Option[A])(implicit ev: A => Parsed): Option[Parsed] = o.map(a => a)
+  implicit def _auto_parsedO_from_parsed [A](p: A)        (implicit ev: A => Parsed): Option[Parsed] = Some(ev(p))
+  implicit def _auto_parsedO_from_parsedO[A](o: Option[A])(implicit ev: A => Parsed): Option[Parsed] = o.map(ev)
 
-  implicit def _auto_notFound_from_parsed [A](a: A)        (implicit ev: A => Parsed): Path => Parsed = _ => a
-  implicit def _auto_notFound_from_parsedF[A](f: Path => A)(implicit ev: A => Parsed): Path => Parsed = f(_)
+  implicit def _auto_notFound_from_parsed [A](a: A)        (implicit ev: A => Parsed): Path => Parsed = _ => ev(a)
+  implicit def _auto_notFound_from_parsedF[A](f: Path => A)(implicit ev: A => Parsed): Path => Parsed = p => ev(f(p))
 
-  implicit def _auto_routeParser_from_parsed  [A](a: A)                (implicit ev: A => Parsed): Path => Option[Parsed] = _ => Some(a)
-  implicit def _auto_routeParser_from_parsedF [A](f: Path => A)        (implicit ev: A => Parsed): Path => Option[Parsed] = p => Some(f(p))
-  implicit def _auto_routeParser_from_parsedO [A](o: Option[A])        (implicit ev: A => Parsed): Path => Option[Parsed] = _ => o.map(a => a)
-  implicit def _auto_routeParser_from_parsedFO[A](f: Path => Option[A])(implicit ev: A => Parsed): Path => Option[Parsed] = f(_).map(a => a)
+  implicit def _auto_routeParser_from_parsed  [A](a: A)                (implicit ev: A => Parsed): Path => Option[Parsed] = _ => Some(ev(a))
+  implicit def _auto_routeParser_from_parsedF [A](f: Path => A)        (implicit ev: A => Parsed): Path => Option[Parsed] = p => Some(ev(f(p)))
+  implicit def _auto_routeParser_from_parsedO [A](o: Option[A])        (implicit ev: A => Parsed): Path => Option[Parsed] = _ => o.map(ev)
+  implicit def _auto_routeParser_from_parsedFO[A](f: Path => Option[A])(implicit ev: A => Parsed): Path => Option[Parsed] = f(_).map(ev)
 
   // allows dynamicRoute ~~> X to not care if X is (Action) or (P => Action)
   implicit def _auto_pToAction_from_action(a: => Action): Page => Action = _ => a
