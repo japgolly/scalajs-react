@@ -30,6 +30,6 @@ object RouterConfig {
     (_, _, _) => cb
   }
 
-  def withDefaults[Page, C](rules: RoutingRules[Page]): RouterWithPropsConfig[Page, C] =
+  def withDefaults[Page, C](rules: RoutingRules[Page, C]): RouterWithPropsConfig[Page, C] =
     RouterWithPropsConfig(rules, defaultRenderFn, defaultPostRenderFn, defaultLogger)
 }

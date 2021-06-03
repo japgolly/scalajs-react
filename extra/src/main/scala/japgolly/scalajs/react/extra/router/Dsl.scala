@@ -235,19 +235,19 @@ object StaticDsl {
 
   // ===================================================================================================================
 
-  final class DynamicRouteB[Page, P <: Page, O](private val f: (P => Action[Page]) => O) extends AnyVal {
-    def ~>(g: P => Action[Page]): O = f(g)
+  final class DynamicRouteB[Page, Props, P <: Page, O](private val f: (P => Action[Page, Props]) => O) extends AnyVal {
+    def ~>(g: P => Action[Page, Props]): O = f(g)
   }
 
-  final class StaticRouteB[Page, O](private val f: (=> Action[Page]) => O) extends AnyVal {
-    def ~>(a: => Action[Page]): O = f(a)
+  final class StaticRouteB[Page, Props, O](private val f: (=> Action[Page, Props]) => O) extends AnyVal {
+    def ~>(a: => Action[Page, Props]): O = f(a)
   }
 
-  final class StaticRedirectB[Page, O](private val f: (=> Redirect[Page]) => O) extends AnyVal {
+  final class StaticRedirectB[Page, Props, O](private val f: (=> Redirect[Page]) => O) extends AnyVal {
     def ~>(a: => Redirect[Page]): O = f(a)
   }
 
-  final class DynamicRedirectB[Page, A, O](private val f: (A => Redirect[Page]) => O) extends AnyVal {
+  final class DynamicRedirectB[Page, Props, A, O](private val f: (A => Redirect[Page]) => O) extends AnyVal {
     def ~>(a: A => Redirect[Page]): O = f(a)
   }
 }
@@ -284,7 +284,7 @@ object RouterWithPropsConfigDsl {
 final class RouterConfigDsl[Page, Props] {
   import StaticDsl._
 
-  type Action   = japgolly.scalajs.react.extra.router.Action[Page]
+  type Action   = japgolly.scalajs.react.extra.router.Action[Page, Props]
   type Renderer = japgolly.scalajs.react.extra.router.Renderer[Page, Props]
   type Redirect = japgolly.scalajs.react.extra.router.Redirect[Page]
   type Parsed   = RouterConfig.Parsed[Page]
@@ -396,27 +396,27 @@ final class RouterConfigDsl[Page, Props] {
   /**
    * Note: Requires that `Page#equals()` be sensible.
    */
-  def staticRoute(r: Route[Unit], page: Page): StaticRouteB[Page, Rule] = {
+  def staticRoute(r: Route[Unit], page: Page): StaticRouteB[Page, Props, Rule] = {
     val dyn = dynamicRoute(r const page){ case p if page == p => p }
     new StaticRouteB(a => dyn ~> a)
   }
 
-  def dynamicRoute[P <: Page](r: Route[P])(pf: PartialFunction[Page, P]): DynamicRouteB[Page, P, Rule] =
+  def dynamicRoute[P <: Page](r: Route[P])(pf: PartialFunction[Page, P]): DynamicRouteB[Page, Props, P, Rule] =
     dynamicRouteF(r)(pf.lift)
 
-  def dynamicRouteF[P <: Page](r: Route[P])(op: Page => Option[P]): DynamicRouteB[Page, P, Rule] = {
+  def dynamicRouteF[P <: Page](r: Route[P])(op: Page => Option[P]): DynamicRouteB[Page, Props, P, Rule] = {
     def onPage[A](f: P => A)(page: Page): Option[A] =
       op(page) map f
     new DynamicRouteB(a => RoutingRule.Atom(r.parse, onPage(r.pathFor), (_, p) => onPage(a)(p)))
   }
 
-  def dynamicRouteCT[P <: Page](r: Route[P])(implicit ct: ClassTag[P]): DynamicRouteB[Page, P, Rule] =
+  def dynamicRouteCT[P <: Page](r: Route[P])(implicit ct: ClassTag[P]): DynamicRouteB[Page, Props, P, Rule] =
     dynamicRouteF(r)(ct.unapply)
 
-  def staticRedirect(r: Route[Unit]): StaticRedirectB[Page, Rule] =
+  def staticRedirect(r: Route[Unit]): StaticRedirectB[Page, Props, Rule] =
     new StaticRedirectB(a => rewritePathF(r.parse(_) map (_ => a)))
 
-  def dynamicRedirect[A](r: Route[A]): DynamicRedirectB[Page, A, Rule] =
+  def dynamicRedirect[A](r: Route[A]): DynamicRedirectB[Page, Props, A, Rule] =
     new DynamicRedirectB(f => rewritePathF(r.parse(_) map f))
 
   def rewritePath(pf: PartialFunction[Path, Redirect]): Rule =

@@ -71,7 +71,7 @@ object RouterWithProps {
  */
 final class RouterLogic[Page, Props](val baseUrl: BaseUrl, cfg: RouterWithPropsConfig[Page, Props]) extends Broadcaster[Unit] {
 
-  type Action     = router.Action[Page]
+  type Action     = router.Action[Page, Props]
   type Renderer   = router.Renderer[Page, Props]
   type Redirect   = router.Redirect[Page]
   type Resolution = router.ResolutionWithProps[Page, Props]

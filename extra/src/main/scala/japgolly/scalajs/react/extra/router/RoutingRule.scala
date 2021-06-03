@@ -82,7 +82,7 @@ sealed trait RoutingRule[Page, Props] {
     *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
     *                  route-not-found fallback behaviour.
     */
-  final def addConditionWithOptionalFallback(condition: CallbackTo[Boolean], fallback: Page => Option[Action[Page]]): RoutingRule[Page, Props] =
+  final def addConditionWithOptionalFallback(condition: CallbackTo[Boolean], fallback: Page => Option[Action[Page, Props]]): RoutingRule[Page, Props] =
     RoutingRule.Conditional(condition, this, fallback)
 
   /** Prevent this rule from functioning unless some condition holds, passes in the page
@@ -94,7 +94,7 @@ sealed trait RoutingRule[Page, Props] {
     *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
     *                  route-not-found fallback behaviour.
     */
-  final def addConditionWithOptionalFallback(condition: Page => CallbackTo[Boolean], fallback: Page => Option[Action[Page]]): RoutingRule[Page, Props] =
+  final def addConditionWithOptionalFallback(condition: Page => CallbackTo[Boolean], fallback: Page => Option[Action[Page, Props]]): RoutingRule[Page, Props] =
     RoutingRule.ConditionalP(condition, this, fallback)
 
   /** Prevent this rule from functioning unless some condition holds.
@@ -105,7 +105,7 @@ sealed trait RoutingRule[Page, Props] {
     *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
     *                  route-not-found fallback behaviour.
     */
-  final def addConditionWithOptionalFallback(condition: CallbackTo[Boolean], fallback: Option[Action[Page]]): RoutingRule[Page, Props] =
+  final def addConditionWithOptionalFallback(condition: CallbackTo[Boolean], fallback: Option[Action[Page, Props]]): RoutingRule[Page, Props] =
     RoutingRule.Conditional(condition, this, (_: Page) => fallback)
 
   /** Prevent this rule from functioning unless some condition holds, passes in the page
@@ -117,7 +117,7 @@ sealed trait RoutingRule[Page, Props] {
     *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
     *                  route-not-found fallback behaviour.
     */
-  final def addConditionWithOptionalFallback(condition: Page => CallbackTo[Boolean], fallback: Option[Action[Page]]): RoutingRule[Page, Props] =
+  final def addConditionWithOptionalFallback(condition: Page => CallbackTo[Boolean], fallback: Option[Action[Page, Props]]): RoutingRule[Page, Props] =
     addConditionWithOptionalFallback(condition, (_: Page) => fallback)
 
   /** Prevent this rule from functioning unless some condition holds.
@@ -126,7 +126,7 @@ sealed trait RoutingRule[Page, Props] {
     * @param condition Callback that requested page and returns true if the page should be rendered.
     * @param fallback  Response when rule matches but condition doesn't hold.
     */
-  final def addConditionWithFallback(condition: CallbackTo[Boolean], fallback: Action[Page]): RoutingRule[Page, Props] =
+  final def addConditionWithFallback(condition: CallbackTo[Boolean], fallback: Action[Page, Props]): RoutingRule[Page, Props] =
     addConditionWithOptionalFallback(condition, (_: Page) => Some(fallback))
 
   /** Prevent this rule from functioning unless some condition holds, passes in the page
@@ -136,7 +136,7 @@ sealed trait RoutingRule[Page, Props] {
     * @param condition Function that takes the requested page and returns true if the page should be rendered.
     * @param fallback  Response when rule matches but condition doesn't hold.
     */
-  final def addConditionWithFallback(condition: Page => CallbackTo[Boolean], fallback: Action[Page]): RoutingRule[Page, Props] =
+  final def addConditionWithFallback(condition: Page => CallbackTo[Boolean], fallback: Action[Page, Props]): RoutingRule[Page, Props] =
     addConditionWithOptionalFallback(condition, (_: Page) => Some(fallback))
 
   /** Prevent this rule from functioning unless some condition holds.
@@ -156,7 +156,7 @@ sealed trait RoutingRule[Page, Props] {
 
   /** Specify behaviour when a `Page` doesn't have an associated `Path` or `Action`. */
   final def fallback(fallbackPath  : Page => Path,
-                     fallbackAction: (Path, Page) => Action[Page]): RoutingRule.WithFallback[Page, Props] =
+                     fallbackAction: (Path, Page) => Action[Page, Props]): RoutingRule.WithFallback[Page, Props] =
     RoutingRule.WithFallback(this, fallbackPath, fallbackAction)
 
   /** When a `Page` doesn't have an associated  `Path` or `Action`, throw a runtime error.
@@ -182,7 +182,7 @@ object RoutingRule {
     */
   final case class Atom[Page, Props](parse : Path         => Option[Parsed[Page]],
                                      path  : Page         => Option[Path],
-                                     action: (Path, Page) => Option[Action[Page]]) extends RoutingRule[Page, Props] {
+                                     action: (Path, Page) => Option[Action[Page, Props]]) extends RoutingRule[Page, Props] {
 
     override def xmap[A](f: Page => A)(g: A => Page): RoutingRule[A, Props] =
       Atom[A, Props](
@@ -207,7 +207,7 @@ object RoutingRule {
 
   final case class Conditional[Page, Props](condition : CallbackTo[Boolean],
                                             underlying: RoutingRule[Page, Props],
-                                            otherwise : Page => Option[Action[Page]]) extends RoutingRule[Page, Props] {
+                                            otherwise : Page => Option[Action[Page, Props]]) extends RoutingRule[Page, Props] {
 
     override def xmap[A](f: Page => A)(g: A => Page): RoutingRule[A, Props] =
       Conditional[A, Props](
@@ -229,7 +229,7 @@ object RoutingRule {
 
   final case class ConditionalP[Page, Props](condition : Page => CallbackTo[Boolean],
                                              underlying: RoutingRule[Page, Props],
-                                             otherwise : Page => Option[Action[Page]]) extends RoutingRule[Page, Props] {
+                                             otherwise : Page => Option[Action[Page, Props]]) extends RoutingRule[Page, Props] {
 
     override def xmap[A](f: Page => A)(g: A => Page): RoutingRule[A, Props] =
       ConditionalP[A, Props](
@@ -289,7 +289,7 @@ object RoutingRule {
   /** Exhaustive routing rules. For all `Page`s there are `Path`s and `Action`s. */
   final case class WithFallback[Page, Props](rule          : RoutingRule[Page, Props],
                                              fallbackPath  : Page => Path,
-                                             fallbackAction: (Path, Page) => Action[Page]) {
+                                             fallbackAction: (Path, Page) => Action[Page, Props]) {
 
     /** Specify a catch-all response to unmatched/invalid routes. */
     def notFound(whenNotFound: Path => Parsed[Page]): RouterWithPropsConfig[Page, Props] =

@@ -7,10 +7,11 @@ import org.scalajs.dom
 import scala.annotation.elidable
 import scala.util.{Failure, Success, Try}
 
-case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
-                                              renderFn    : (RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement,
-                                              postRenderFn: (Option[Page], Page, Props) => Callback,
-                                              logger      : Logger) {
+case class RouterWithPropsConfig[Page, Props](
+    rules       : RoutingRules[Page, Props],
+    renderFn    : (RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement,
+    postRenderFn: (Option[Page], Page, Props) => Callback,
+    logger      : Logger) {
 
   def logWith(l: Logger): RouterWithPropsConfig[Page, Props] =
     copy(logger = l)
@@ -124,7 +125,7 @@ case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
       val el: VdomElement =
         <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
 
-      val newRules = RoutingRules[Page](
+      val newRules = RoutingRules[Page, Props](
         parseMulti     = _ => static[Option[RouterConfig.Parsed[Page]]](Some(Right(page1))) :: Nil,
         path           = _ => Path.root,
         actionMulti    = (_, _) => Nil,
