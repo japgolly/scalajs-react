@@ -116,9 +116,10 @@ object ScalajsReact {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
+        Dep.microlibsTypes .value,
         Dep.scalaCollCompat.value,
-        Dep.scalaJsDom.value,
-        Dep.sourcecode.value,
+        Dep.scalaJsDom     .value,
+        Dep.sourcecode     .value,
       ),
       genHooks := GenHooks(sourceDirectory.value / "main" / "scala"),
     )

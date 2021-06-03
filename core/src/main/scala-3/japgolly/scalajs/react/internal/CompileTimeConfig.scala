@@ -9,7 +9,7 @@ object CompileTimeConfig {
   export CompileTimeInfo.{sysPropOrEnvVar => get}
 
   transparent inline def getTrimLowerCaseNonBlank(inline key: String): Option[String] =
-    InlineUtils.trimLowerCaseNonBlank(get(key))
+    TransparentInlineUtils.trimLowerCaseNonBlank(get(key))
 
   inline def getOrUseModule[A](inline key: String, inline fallback: A): A =
     inline get(key) match {

@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.hooks
 
+import japgolly.microlibs.types.NaturalComposition
 import japgolly.scalajs.react.{Callback, PropsChildren, Reusability, Reusable}
 
 final class CustomHook[I, O] private[CustomHook] (val unsafeInit: I => O) extends AnyVal {

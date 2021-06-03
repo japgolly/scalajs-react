@@ -41,8 +41,8 @@ object RawComponentEs6PTest extends TestSuite {
     "types" - {
       import InferenceHelpers._
       import ScalaComponent._
-      "cu" - assertType[Component[P, S, B, CtorType.Nullary]](_.ctor()).is[Unmounted[P, S, B]]
-      "um" - assertType[Unmounted[P, S, B]](_.renderIntoDOM(null)).is[MountedImpure[P, S, B]]
+      "cu" - assertType[Component[P, S, B, CtorType.Nullary]].map(_.ctor()).is[Unmounted[P, S, B]]
+      "um" - assertType[Unmounted[P, S, B]].map(_.renderIntoDOM(null)).is[MountedImpure[P, S, B]]
     }
 
     "basic" - {

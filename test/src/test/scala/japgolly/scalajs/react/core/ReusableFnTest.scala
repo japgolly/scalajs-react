@@ -83,8 +83,8 @@ object ReusableFnTest extends TestSuite {
 
     "state" - {
       import InferenceHelpers._
-      assertType[BackendScope[P, S]]($ => Reusable.fn.state($).set).is[S ~=> Callback]
-      assertType[BackendScope[P, S]]($ => Reusable.fn.state($).mod).is[(S => S) ~=> Callback]
+      assertType[BackendScope[P, S]].map($ => Reusable.fn.state($).set).is[S ~=> Callback]
+      assertType[BackendScope[P, S]].map($ => Reusable.fn.state($).mod).is[(S => S) ~=> Callback]
     }
 
     "variance" - {

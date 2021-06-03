@@ -37,24 +37,24 @@ object MonocleTest extends TestSuite {
       def lensJST: monocle.Lens[JS, T] = null
 
       "zoom" - {
-      //"RenderScope"       - assertType[Render              ](_ zoomStateL lensST ).is_<[StateAccessPure[T]]
-        "StateAccessPure"   - assertType[StateAccessPure[S]  ](_ zoomStateL lensST ).is_<[StateAccessPure[T]]
-        "BackendScope"      - assertType[Backend             ](_ zoomStateL lensST ).is_<[StateAccessPure[T]]
-        "ScalaMountedCB"    - assertType[ScalaMountedCB      ](_ zoomStateL lensST ).is_<[StateAccessPure[T]]
-        "StateAccessImpure" - assertType[StateAccessImpure[S]](_ zoomStateL lensST ).is_<[StateAccessImpure[T]]
-        "JsMounted"         - assertType[JsMounted           ](_ zoomStateL lensJST).is_<[StateAccessImpure[T]]
-        "ScalaMountedId"    - assertType[ScalaMountedId      ](_ zoomStateL lensST ).is_<[StateAccessImpure[T]]
-        "ReactS"            - assertType[ReactST[M, S, A]    ](_ zoomL      lensTS ).is  [ReactST[M, T, A]]
+      //"RenderScope"       - assertType[Render              ].map(_ zoomStateL lensST ).is_<[StateAccessPure[T]]
+        "StateAccessPure"   - assertType[StateAccessPure[S]  ].map(_ zoomStateL lensST ).is_<[StateAccessPure[T]]
+        "BackendScope"      - assertType[Backend             ].map(_ zoomStateL lensST ).is_<[StateAccessPure[T]]
+        "ScalaMountedCB"    - assertType[ScalaMountedCB      ].map(_ zoomStateL lensST ).is_<[StateAccessPure[T]]
+        "StateAccessImpure" - assertType[StateAccessImpure[S]].map(_ zoomStateL lensST ).is_<[StateAccessImpure[T]]
+        "JsMounted"         - assertType[JsMounted           ].map(_ zoomStateL lensJST).is_<[StateAccessImpure[T]]
+        "ScalaMountedId"    - assertType[ScalaMountedId      ].map(_ zoomStateL lensST ).is_<[StateAccessImpure[T]]
+        "ReactS"            - assertType[ReactST[M, S, A]    ].map(_ zoomL      lensTS ).is  [ReactST[M, T, A]]
       }
 
       "poly" - {
-        "zoomStateL" - assertType[BackendScope[P, Poly[S]]](_ zoomStateL  Poly.oa[S]).is_<[StateAccessPure[Option[S]]]
+        "zoomStateL" - assertType[BackendScope[P, Poly[S]]].map(_ zoomStateL  Poly.oa[S]).is_<[StateAccessPure[Option[S]]]
       }
 
       "stateSnapshot" - {
-        "oneOff"   - assertType[Render](StateSnapshot.zoomL(lensST).of(_)).is[StateSnapshot[T]]
+        "oneOff"   - assertType[Render].map(StateSnapshot.zoomL(lensST).of(_)).is[StateSnapshot[T]]
         "prepared" - {
-          assertType[Render] { $ =>
+          assertType[Render].map { $ =>
             val p = StateSnapshot.withReuse.zoomL(lensST).prepareVia($)
             implicit def rt: Reusability[T] = ???
             p(S)

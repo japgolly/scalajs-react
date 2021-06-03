@@ -9,33 +9,31 @@ object Dependencies {
   object Ver {
 
     // Externally observable
-    val cats                  = "2.6.0"
-    val catsEffect            = "2.5.0"
-    val microlibs             = "2.6-RC6"
+    val cats                  = "2.6.1"
+    val catsEffect            = "2.5.1"
+    val microlibs             = "2.6-RC7"
     val monocleCats           = "2.1.0"
-    val monocle3              = "3.0.0-M5"
+    val monocle3              = "3.0.0-M6"
     val monocleScalaz         = "1.6.3"
-    val scala212              = "2.12.13"
     val scala213              = "2.13.6"
-    val scala3                = "3.0.0-RC3"
+    val scala3                = "3.0.0"
     val scalaCollCompat       = "2.4.4"
     val scalaJsDom            = "1.1.0"
-    val scalaz72              = "7.2.31"
-    val sourcecode            = "0.2.6"
+    val scalaz72              = "7.2.32"
+    val sourcecode            = "0.2.7"
 
     // Internal
     val betterMonadicFor      = "0.3.1"
-    val catsTestkitScalaTest  = "2.1.4"
-    val disciplineScalaTest   = "2.1.4"
+    val catsTestkitScalaTest  = "2.1.5"
+    val disciplineScalaTest   = "2.1.5"
     val kindProjector         = "0.13.0"
-    val macroParadise         = "2.1.1"
-    val nyaya                 = "0.10.0-RC2"
+    val nyaya                 = "0.10.0"
     val reactJs               = "17.0.2"
     val scalaJsJavaTime       = "1.0.0"
-    val scalaTest             = "3.2.8"
+    val scalaTest             = "3.2.9"
     val sizzleJs              = "2.3.0"
-    val univEq                = "1.4.0-RC4"
-    val utest                 = "0.7.9"
+    val univEq                = "1.4.0"
+    val utest                 = "0.7.10"
   }
 
   object Dep {
@@ -47,6 +45,7 @@ object Dependencies {
     val disciplineScalaTest  = Def.setting("org.typelevel"                 %%% "discipline-scalatest"    % Ver.disciplineScalaTest)
     val microlibsCompileTime = Def.setting("com.github.japgolly.microlibs" %%% "compile-time"            % Ver.microlibs)
     val microlibsTestUtil    = Def.setting("com.github.japgolly.microlibs" %%% "test-util"               % Ver.microlibs)
+    val microlibsTypes       = Def.setting("com.github.japgolly.microlibs" %%% "types"                   % Ver.microlibs)
     val monocleCats          = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocleCats cross CrossVersion.for3Use2_13)
     val monocle3             = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocle3)
     val monocleScalaz        = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocleScalaz cross CrossVersion.for3Use2_13)

@@ -31,12 +31,12 @@ object CatsTest extends TestSuite {
       val retVal: Id[Int] = 3
       val reactSId: ReactST[Id, S, Int] = ReactS retM retVal
 
-      "runState(s.liftS)"   - assertType[StateT[M,S,A]                        ](s => bs.runState(s.liftS)  ).is[CallbackTo[A]]
-      "runStateFn(f.liftS)" - assertType[B => StateT[M,S,A]                   ](s => bs.runStateFn(s.liftS)).is[B => CallbackTo[A]]
-      "BackendScope"        - assertType[BackendScope[Unit, S]                ](_.runState(reactSId)       ).is[CallbackTo[Int]]
-      "RenderScope"         - assertType[Render                               ](_.runState(reactSId)       ).is[CallbackTo[Int]]
-      "ScalaMountedId"      - assertType[ScalaComponent.MountedImpure[U, S, U]](_.runState(reactSId)       ).is[Int]
-      "ScalaMountedCB"      - assertType[ScalaComponent.MountedPure  [U, S, U]](_.runState(reactSId)       ).is[CallbackTo[Int]]
+      "runState(s.liftS)"   - assertType[StateT[M,S,A]                        ].map(s => bs.runState(s.liftS)  ).is[CallbackTo[A]]
+      "runStateFn(f.liftS)" - assertType[B => StateT[M,S,A]                   ].map(s => bs.runStateFn(s.liftS)).is[B => CallbackTo[A]]
+      "BackendScope"        - assertType[BackendScope[Unit, S]                ].map(_.runState(reactSId)       ).is[CallbackTo[Int]]
+      "RenderScope"         - assertType[Render                               ].map(_.runState(reactSId)       ).is[CallbackTo[Int]]
+      "ScalaMountedId"      - assertType[ScalaComponent.MountedImpure[U, S, U]].map(_.runState(reactSId)       ).is[Int]
+      "ScalaMountedCB"      - assertType[ScalaComponent.MountedPure  [U, S, U]].map(_.runState(reactSId)       ).is[CallbackTo[Int]]
     }
 
     "runState" - {

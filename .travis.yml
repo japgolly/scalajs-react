@@ -21,7 +21,7 @@ install:
   - npm install jsdom source-map-support
   - |
     # update this only when sbt-the-bash-script needs to be updated
-    export SBT_LAUNCHER=1.5.2
+    export SBT_LAUNCHER=1.5.3
     export SBT_OPTS="-Dfile.encoding=UTF-8"
     curl -L --silent "https://github.com/sbt/sbt/releases/download/v$SBT_LAUNCHER/sbt-$SBT_LAUNCHER.tgz" > $HOME/sbt.tgz
     tar zxf $HOME/sbt.tgz -C $HOME

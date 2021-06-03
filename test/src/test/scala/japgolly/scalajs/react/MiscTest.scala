@@ -161,8 +161,8 @@ object MiscTest extends TestSuite {
 
     "domExt" - {
       import org.scalajs.dom.raw._
-      "domCast"   - assertType[Node](_.domCast[HTMLInputElement]).is[HTMLInputElement]
-      "domAsHtml" - assertType[Node](_.domAsHtml).is[HTMLElement]
+      "domCast"   - assertType[Node].map(_.domCast[HTMLInputElement]).is[HTMLInputElement]
+      "domAsHtml" - assertType[Node].map(_.domAsHtml).is[HTMLElement]
       "domToHtml" - {
         import org.scalajs.dom._
         val input = document.createElement("input")
