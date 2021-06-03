@@ -5,7 +5,7 @@ import japgolly.scalajs.react.internal.CompileTimeConfig
 
 trait ScalaJsReactConfig {
   def automaticComponentName(name: String): String
-  def modifyComponentName(name: => String): String
+  def modifyComponentName(name: String): String
   def reusabilityOverride: ScalaJsReactConfig.ReusabilityOverride
 }
 
@@ -29,12 +29,24 @@ object ScalaJsReactConfig {
     }
   }
 
-  private inline val KeyConfigClass  = "japgolly.scalajs.react.config.class"
-  private inline val KeyCompNameAuto = "japgolly.scalajs.react.compname.auto"
-  private inline val KeyCompNameAll  = "japgolly.scalajs.react.compname.all"
+  // ===================================================================================================================
+  // Finally-resolved Instance
 
-  transparent inline def Instance: ScalaJsReactConfig =
-    CompileTimeConfig.getOrUseModule[ScalaJsReactConfig](KeyConfigClass, Defaults)
+  object Instance extends ScalaJsReactConfig {
+    import japgolly.scalajs.react.internal.{ScalaJsReactConfigProxy => P}
+    override transparent inline def automaticComponentName(name: String) = P.automaticComponentName(name)
+    override transparent inline def modifyComponentName   (name: String) = P.modifyComponentName(name)
+    override transparent inline def reusabilityOverride                  = P.reusabilityOverride
+  }
+
+  // ===================================================================================================================
+  // Defaults
+
+  trait Defaults extends ScalaJsReactConfig {
+    override def automaticComponentName(name: String) = Defaults.automaticComponentName(name)
+    override def modifyComponentName   (name: String) = Defaults.modifyComponentName(name)
+    override def reusabilityOverride                  = Defaults.reusabilityOverride
+  }
 
   object Defaults extends ScalaJsReactConfig {
     import Util.ComponentName.*
@@ -51,7 +63,7 @@ object ScalaJsReactConfig {
           stripComponentSuffix(name)
       }
 
-    override transparent inline def modifyComponentName(name: => String): String =
+    override transparent inline def modifyComponentName(name: String): String =
       inline CompileTimeConfig.getTrimLowerCaseNonBlank(KeyCompNameAll) match {
         case Some("blank") => ""
         case None          => name
@@ -86,16 +98,15 @@ object ScalaJsReactConfig {
         ()
   }
 
-  // TODO doc
-  trait Defaults extends ScalaJsReactConfig {
-    override def automaticComponentName(name: String)    = Defaults.automaticComponentName(name)
-    override def modifyComponentName   (name: => String) = Defaults.modifyComponentName(name)
-    override def reusabilityOverride                     = Defaults.reusabilityOverride
-  }
+  // ===================================================================================================================
+
+  inline val KeyConfigClass  = "japgolly.scalajs.react.config.class"
+  inline val KeyCompNameAuto = "japgolly.scalajs.react.compname.auto"
+  inline val KeyCompNameAll  = "japgolly.scalajs.react.compname.all"
 
   object Util {
     object ComponentName {
-      import InlineUtils.*
+      import TransparentInlineUtils.*
 
       transparent inline def stripComponentSuffix(name: String): String =
         replaceFirst(name, "(?i)\\.?comp(?:onent)?$", "")

@@ -8,6 +8,7 @@ all_tests_values=(
   "-Djapgolly.scalajs.react.compname.auto=blank"
   "-Djapgolly.scalajs.react.compname.auto=short"
   "-Djapgolly.scalajs.react.compname.auto=full"
+  "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig"
 )
 all_tests_keys=()
 declare -A all_tests
@@ -60,9 +61,8 @@ done
 
 # Declare test runner
 function run {
-  cmd=(sbt $1 "${sbt_cmds[@]}")
+  cmd=(sbt --warn $1 "${sbt_cmds[@]}")
   echo "> ${cmd[@]}"
-  echo
   "${cmd[@]}"
 }
 

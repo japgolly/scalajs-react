@@ -88,6 +88,7 @@ lazy val js = project
         .withRuntimeClassNameMapper(Semantics.RuntimeClassNameMapper.discardAll())
       )
     },
+    test := {()}, // Prevent needless test/fastOptJS for now
   )
 
 lazy val jvm = project
