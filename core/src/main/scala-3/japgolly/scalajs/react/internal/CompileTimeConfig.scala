@@ -32,11 +32,13 @@ object CompileTimeConfig {
       getModule[A](key).getOrElse(fallback)
     }
 
-    def loadModuleOrError[A: Type](fqcn: Expr[String])(using Quotes): Expr[A] =
-      loadModule(fqcn.valueOrError) match {
+    def loadModuleOrError[A: Type](fqcnExpr: Expr[String])(using Quotes): Expr[A] = {
+      val fqcn = fqcnExpr.valueOrError
+      loadModule(fqcn) match {
         case Right(e) => e
-        case Left(e) => fail(e)
+        case Left(e) => fail(s"$fqcn $e")
       }
+    }
 
     def loadModule[A: Type](fqcn: String)(using Quotes): Either[String, Expr[A]] = {
       import quotes.reflect.*

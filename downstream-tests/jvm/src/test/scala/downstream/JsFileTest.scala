@@ -34,6 +34,10 @@ object JsFileTest extends TestSuite {
   val compnameAuto = Prop.get("japgolly.scalajs.react.compname.auto", "full")
   val cfgClass     = Prop.get("japgolly.scalajs.react.config.class")
 
+  val dsCfg1 = cfgClass.contains("downstream.DownstreamConfig1")
+  val dsCfg2 = cfgClass.contains("downstream.DownstreamConfig2")
+  val dsCfg3 = cfgClass.contains("downstream.DownstreamConfig3")
+
   private def failJsContains(substr: String, expect: Boolean): Nothing = {
     val err =
       if (expect)
@@ -42,20 +46,6 @@ object JsFileTest extends TestSuite {
         s"contains '$substr' but shouldn't."
     fail("JS output " + err)
   }
-
-  // private def assertJsContains(substr: String, expect: Boolean = true)(implicit l: Line): Unit = {
-  //   val actual = content.contains(substr)
-  //   if (actual != expect)
-  //     failJsContains(substr, expect)
-  // }
-
-  // private val strQuotes = "\"'`".toCharArray.map(_.toString)
-
-  // private def assertJsContainsLiteral(substr: String, expect: Boolean = true)(implicit l: Line): Unit = {
-  //   val actual = strQuotes.exists(q => content.contains(q + substr + q))
-  //   if (actual != expect)
-  //     failJsContains(substr, expect)
-  // }
 
   private def assertLegalValue(str: String)(legal: String*)(implicit l: Line): Unit =
     if (!legal.contains(str))
@@ -102,7 +92,7 @@ object JsFileTest extends TestSuite {
   override def tests = Tests {
 
     "carrot" - {
-      val t = if (cfgClass.isDefined) "custom" else compnameAll
+      val t = if (dsCfg1) "custom" else compnameAll
       contentTest(t, "allow,blank,custom")(
         "allow"  -> "\"CarRot!\"",
         "custom" -> "\"CarRot!-MOD\"",
@@ -110,7 +100,7 @@ object JsFileTest extends TestSuite {
     }
 
     "pumpkin" - {
-      val t = if (cfgClass.isDefined) "custom" else if (compnameAll == "blank") "blank" else compnameAuto
+      val t = if (dsCfg1) "custom" else if (compnameAll == "blank") "blank" else compnameAuto
       contentTest(t, "full,short,blank,custom")(
         "short"  -> "\"Pumpkin\"",
         "full"   -> "\"downstream.Pumpkin\"",

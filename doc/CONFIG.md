@@ -17,7 +17,6 @@
   japgolly.scalajs.react.component.names.implicit = full|short|blank
   ```
 
-
 * specify how/where to specify these settings
 * remove elidable
 * document everything
@@ -119,7 +118,7 @@ object Example2 extends ScalaJsReactConfig {
   override transparent inline def modifyComponentName(name: String) =
     ??? // your impl here
 
-  override transparent inline def reusabilityOverride =
+  override val reusabilityOverride =
     ??? // your impl here
 }
 ```

@@ -8,6 +8,10 @@ object Pumpkin {
 
   @JSExportTopLevel("PUMP_KIN")
   val Component = ScalaComponent.builder[String]
-    .render($ => <.div("Hello ", $.props))
+    .render { $ =>
+      Globals.pumpkinRenders += 1
+      <.div("Hello ", $.props)
+    }
+    .configure(Reusability.shouldComponentUpdate)
     .build
 }

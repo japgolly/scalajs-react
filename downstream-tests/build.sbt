@@ -64,9 +64,20 @@ def commonSettings: Project => Project = _
                           }.value,
   )
 
+lazy val cleanTestAll = taskKey[Unit]("cleanTestAll")
+
 lazy val root = Project("root", file("."))
   .configure(commonSettings)
   .aggregate(js, jvm)
+  .settings(
+    cleanTestAll := Def.sequential(
+      jvm / clean,
+      js / clean,
+      (Test / compile),
+      (jvm / Test / test),
+      (js / Test / test),
+    ).value,
+  )
 
 lazy val js = project
   .in(file("js"))
@@ -79,6 +90,7 @@ lazy val js = project
         "com.github.japgolly.scalajs-react" %%% "core" % ver,
         "com.github.japgolly.scalajs-react" %%% "extra" % ver,
         "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        Dep.microlibsCompileTime.value % Test,
         Dep.microlibsTestUtil.value % Test,
         Dep.scalaJsJavaTime.value % Test,
       )
@@ -88,7 +100,6 @@ lazy val js = project
         .withRuntimeClassNameMapper(Semantics.RuntimeClassNameMapper.discardAll())
       )
     },
-    test := {()}, // Prevent needless test/fastOptJS for now
   )
 
 lazy val jvm = project
