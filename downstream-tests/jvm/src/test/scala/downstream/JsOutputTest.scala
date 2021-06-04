@@ -2,13 +2,13 @@ package downstream
 
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.microlibs.testutil.TestUtilInternals._
+import java.io.File
 import scala.Console._
 import scala.io.Source
-import utest._
-import java.io.File
 import sourcecode.Line
+import utest._
 
-object JsFileTest extends TestSuite {
+object JsOutputTest extends TestSuite {
 
   private object Prop {
     def get(property: String): Option[String] = {
@@ -32,11 +32,11 @@ object JsFileTest extends TestSuite {
 
   val compnameAll  = Prop.get("japgolly.scalajs.react.compname.all", "allow")
   val compnameAuto = Prop.get("japgolly.scalajs.react.compname.auto", "full")
-  val cfgClass     = Prop.get("japgolly.scalajs.react.config.class")
+  val configClass  = Prop.get("japgolly.scalajs.react.config.class")
 
-  val dsCfg1 = cfgClass.contains("downstream.DownstreamConfig1")
-  val dsCfg2 = cfgClass.contains("downstream.DownstreamConfig2")
-  val dsCfg3 = cfgClass.contains("downstream.DownstreamConfig3")
+  val dsCfg1 = configClass.contains("downstream.DownstreamConfig1")
+  val dsCfg2 = configClass.contains("downstream.DownstreamConfig2")
+  val dsCfg3 = configClass.contains("downstream.DownstreamConfig3")
 
   private def failJsContains(substr: String, expect: Boolean): Nothing = {
     val err =
@@ -90,6 +90,8 @@ object JsFileTest extends TestSuite {
   }
 
   override def tests = Tests {
+
+    "size" - "%,d bytes".format(content.length)
 
     "carrot" - {
       val t = if (dsCfg1) "custom" else compnameAll

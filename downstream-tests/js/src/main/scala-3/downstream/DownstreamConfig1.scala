@@ -13,7 +13,10 @@ object DownstreamConfig1 extends ScalaJsReactConfig {
   override object reusabilityOverride extends ScalaJsReactConfig.ReusabilityOverride {
     override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] = b => {
       Globals.reusabilityLog.push(b.name)
-      b
+      if (b.name contains "CarRot")
+        ScalaJsReactConfig.ReusabilityOverride.default[P, C, S, B, U].apply(b)
+      else
+        b
     }
   }
 }

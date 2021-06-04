@@ -79,11 +79,16 @@ lazy val root = Project("root", file("."))
     ).value,
   )
 
+val useFullOptJS = System.getProperty("downstream_tests.fullOptJS") != null
+val jsStage      = if (useFullOptJS) FullOptStage else FastOptStage
+val jsOptKey     = if (useFullOptJS) fullOptJS else fastOptJS
+
 lazy val js = project
   .in(file("js"))
   .enablePlugins(ScalaJSPlugin)
   .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
   .settings(
+    scalaJSStage := jsStage,
     libraryDependencies ++= {
       val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
       Seq(
@@ -112,7 +117,7 @@ lazy val jvm = project
     Test / fork := true,
     Test / javaOptions ++= sys.props.iterator.filter(_._1.contains("japgolly")).map(x => s"-D${x._1}=${x._2}").toSeq,
     Test / javaOptions ++= {
-      val jsFile = (js / Compile / fastOptJS).value
+      val jsFile = (js / Compile / jsOptKey).value
       Seq(
         s"-Djs_file=${jsFile.data.absolutePath}",
       )
