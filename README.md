@@ -27,6 +27,7 @@ Includes a router, testing utils, performance utils, more.
   - [Types](doc/TYPES.md)
   - [Interoperability](doc/INTEROP.md)
   - [Functional programming](doc/FP.md)
+  - [Compile-Time Config](doc/CONFIG.md)
 - Scala-only Utilities
   - [Router](doc/ROUTER.md)
   - [Performance Management](doc/PERFORMANCE.md)
