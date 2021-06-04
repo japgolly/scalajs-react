@@ -66,9 +66,10 @@ object ScalaJsReactConfig {
     override transparent inline def modifyComponentName(name: String): String =
       inline CompileTimeConfig.getTrimLowerCaseNonBlank(KeyCompNameAll) match {
         case Some("blank") => ""
+        case Some("allow") => name
         case None          => name
         case Some(x)       =>
-          InlineUtils.warn(s"Invalid value for $KeyCompNameAll: $x.\nValid values are: blank.")
+          InlineUtils.warn(s"Invalid value for $KeyCompNameAll: $x.\nValid values are: allow | blank.")
           name
       }
 

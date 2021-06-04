@@ -5,9 +5,10 @@ cd "$(dirname "$0")" || exit 1
 # Tests
 all_tests_values=(
   ""
-  "-Djapgolly.scalajs.react.compname.auto=blank"
+  "-Djapgolly.scalajs.react.compname.auto=blank -Djapgolly.scalajs.react.compname.all=allow"
   "-Djapgolly.scalajs.react.compname.auto=short"
   "-Djapgolly.scalajs.react.compname.auto=full"
+  "-Djapgolly.scalajs.react.compname.all=blank"
   "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig"
 )
 all_tests_keys=()
