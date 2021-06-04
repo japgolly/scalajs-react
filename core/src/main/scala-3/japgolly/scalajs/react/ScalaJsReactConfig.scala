@@ -85,13 +85,14 @@ object ScalaJsReactConfig {
       else
         ReusabilityOverride.default
 
-    // /** Calls to [[Reusability.shouldComponentUpdate]] can be overridden to use the provided logic.
-    //   *
-    //   * Rather than call this directly yourself, you probably want to call one of the following instead:
-    //   *
-    //   * - `ReusabilityOverlay.overrideGloballyInDev()`
-    //   * - `Reusability.disableGloballyInDev()`
-    //   */
+    /** Calls to [[Reusability.shouldComponentUpdate]] can be overridden to use the provided logic, provided we're in
+      * dev-mode (i.e. fastOptJS instead of fullOptJS).
+      *
+      * Rather than call this directly yourself, you probably want to call one of the following instead:
+      *
+      * - `ReusabilityOverlay.overrideGloballyInDev()`
+      * - `Reusability.disableGloballyInDev()`
+      */
     inline def unsafeOverrideReusabilityInDev(inline f: ReusabilityOverride): Unit =
       if developmentMode then
         reusabilityOverrideInDev = f

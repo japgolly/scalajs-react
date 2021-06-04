@@ -3,8 +3,10 @@ package downstream
 import japgolly.microlibs.compiletime.CompileTimeInfo
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.test.ReactTestUtils._
 import scala.scalajs.LinkingInfo.developmentMode
+import scala.scalajs.js
 import utest._
 
 object RuntimeTests extends TestSuite {
@@ -17,18 +19,16 @@ object RuntimeTests extends TestSuite {
   val dsCfg2 = configClass.contains("downstream.DownstreamConfig2")
   val dsCfg3 = configClass.contains("downstream.DownstreamConfig3")
 
-  val reusabilityDevDisable = CompileTimeInfo.sysProp("downstream_tests.reusability.dev.disable").isDefined
+  import Main.reusabilityDev
 
   // Pre-test initialisation
   locally {
     assert(!Globals.componentInitStarted())
 
-    if (reusabilityDevDisable)
-      Reusability.disableGloballyInDev()
+    // Polyfill window.requestAnimationFrame for ReusabilityOverlay
+    js.Dynamic.global.window.requestAnimationFrame = ((() => 0): js.Function0[Int])
 
-    // Init components
-    Carrot
-    Pumpkin
+    Main.init()
   }
 
   override def tests = Tests {
@@ -37,7 +37,7 @@ object RuntimeTests extends TestSuite {
       Globals.clear()
 
       val expectedReusabilityLog = if (configClass.isEmpty) 0 else 2
-      val reusabilityAllowed     = !(developmentMode && reusabilityDevDisable)
+      val reusabilityAllowed     = !(developmentMode && reusabilityDev.contains("disable"))
 
       val expectedCarrots =
         (configClass.isEmpty, dsCfg1, reusabilityAllowed) match {

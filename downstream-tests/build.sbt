@@ -115,11 +115,13 @@ lazy val jvm = project
       Dep.microlibsTestUtil.value % Test,
     ),
     Test / fork := true,
-    Test / javaOptions ++= sys.props.iterator.filter(_._1.contains("japgolly")).map(x => s"-D${x._1}=${x._2}").toSeq,
-    Test / javaOptions ++= {
+    Test / javaOptions ++=
+      sys.props.iterator
+        .filter(_._1.matches("(downstream_tests|japgolly).*"))
+        .map(x => s"-D${x._1}=${x._2}")
+        .toSeq,
+    Test / javaOptions += {
       val jsFile = (js / Compile / jsOptKey).value
-      Seq(
-        s"-Djs_file=${jsFile.data.absolutePath}",
-      )
+      s"-Djs_file=${jsFile.data.absolutePath}"
     },
   )

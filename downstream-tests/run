@@ -5,14 +5,15 @@ cd "$(dirname "$0")" || exit 1
 # Tests
 all_tests_values=(
   ""
-  "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig1 -Ddownstream_tests.reusability.dev.disable=1"
+  "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig1 -Ddownstream_tests.reusability.dev=disable"
   "-Djapgolly.scalajs.react.compname.auto=blank -Djapgolly.scalajs.react.compname.all=allow"
-  "-Djapgolly.scalajs.react.compname.auto=short -Ddownstream_tests.reusability.dev.disable=1"
-  "-Djapgolly.scalajs.react.compname.auto=full"
+  "-Djapgolly.scalajs.react.compname.auto=short -Ddownstream_tests.reusability.dev=disable"
+  "-Djapgolly.scalajs.react.compname.auto=full -Ddownstream_tests.reusability.dev=overlay"
   "-Djapgolly.scalajs.react.compname.all=blank"
-  "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig2 -Ddownstream_tests.reusability.dev.disable=1"
+  "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig2 -Ddownstream_tests.reusability.dev=disable"
   "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig3"
-  "-Ddownstream_tests.fullOptJS=1 -Ddownstream_tests.reusability.dev.disable=1"
+  "-Ddownstream_tests.fullOptJS -Ddownstream_tests.reusability.dev=disable"
+  "-Ddownstream_tests.fullOptJS -Ddownstream_tests.reusability.dev=overlay"
 )
 all_tests_keys=()
 declare -A all_tests

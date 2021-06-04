@@ -2,41 +2,12 @@ package downstream
 
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.microlibs.testutil.TestUtilInternals._
-import java.io.File
 import scala.Console._
-import scala.io.Source
 import sourcecode.Line
 import utest._
 
 object JsOutputTest extends TestSuite {
-
-  private object Prop {
-    def get(property: String): Option[String] = {
-      val o = Option(System.getProperty(property))
-      println(s"$CYAN$property$RESET = $YELLOW${o.getOrElse("")}$RESET")
-      o
-    }
-
-    def get(property: String, default: String): String =
-      get(property).getOrElse(default)
-
-    def need(property: String): String =
-      get(property).getOrElse(throw new RuntimeException("Property not defined: " + property))
-  }
-
-  val content: String = {
-    val path = Prop.need("js_file")
-    val s = Source.fromFile(new File(path))
-    try s.mkString finally s.close()
-  }
-
-  val compnameAll  = Prop.get("japgolly.scalajs.react.compname.all", "allow")
-  val compnameAuto = Prop.get("japgolly.scalajs.react.compname.auto", "full")
-  val configClass  = Prop.get("japgolly.scalajs.react.config.class")
-
-  val dsCfg1 = configClass.contains("downstream.DownstreamConfig1")
-  val dsCfg2 = configClass.contains("downstream.DownstreamConfig2")
-  val dsCfg3 = configClass.contains("downstream.DownstreamConfig3")
+  import Props._
 
   private def failJsContains(substr: String, expect: Boolean): Nothing = {
     val err =
@@ -50,6 +21,9 @@ object JsOutputTest extends TestSuite {
   private def assertLegalValue(str: String)(legal: String*)(implicit l: Line): Unit =
     if (!legal.contains(str))
       fail(s"Illegal value: '$str'. Legal values are: " + legal.sorted.mkString("", ", ", "."))
+
+  private def contentTest(expect: Boolean, substr: String)(implicit l: Line): Unit =
+    contentTest("a", "a,b")((if (expect) "a" else "b") -> substr)
 
   private def contentTest(prop: String, legalValuesByComma: String)
                          (propValueToSubstr: (String, String)*)
@@ -109,6 +83,11 @@ object JsOutputTest extends TestSuite {
         "custom" -> "\"downstream.Pumpkin-AUTO-MOD\"",
         never    -> "automaticComponentName__T__T"
       )
+    }
+
+    "ReusabilityOverlay" - {
+      val expect = fastOptJS && reusabilityDev.contains("overlay") && configClass.isEmpty
+      contentTest(expect, "ReusabilityOverlay")
     }
 
   }
