@@ -3,7 +3,7 @@ package japgolly.scalajs.react.component
 import japgolly.scalajs.react.hooks.HookComponentBuilder
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, raw, scalajsReactRawPropsChildrenToJsUndef}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, raw}
 import scala.scalajs.js
 
 object ScalaFn {

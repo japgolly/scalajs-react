@@ -2,7 +2,7 @@ package japgolly.scalajs.react.internal
 
 import scala.language.`3.0`
 
-// This can be deleted once Scala 2.12 support is dropped
+// This can be deleted once https://github.com/lampepfl/dotty/issues/12510 is resolved
 object ValueOfCompat {
   // type ValueOf[A] = scala.ValueOf[A]
 

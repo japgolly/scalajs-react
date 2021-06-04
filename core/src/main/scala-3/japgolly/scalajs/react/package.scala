@@ -45,10 +45,6 @@ package object react extends ReactEventTypes, ReactExtensions {
   val Hooks             = hooks.Hooks
   val HooksApi          = hooks.Api
 
-  // Required for cross-building
-  private[react] inline def scalajsReactRawPropsChildrenToJsUndef(r: raw.PropsChildren): js.UndefOr[raw.PropsChildren] =
-    r.asInstanceOf[js.UndefOr[raw.PropsChildren]]
-
   type ~=>[-A, +B] = Reusable[A => B]
 
   val preventDefault: ReactEvent => Callback =
