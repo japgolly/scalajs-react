@@ -2,8 +2,6 @@ package downstream
 
 import japgolly.microlibs.compiletime.CompileTimeInfo
 import japgolly.microlibs.testutil.TestUtil._
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.test.ReactTestUtils._
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
@@ -11,9 +9,9 @@ import utest._
 
 object RuntimeTests extends TestSuite {
 
-  val compNameAuto = CompileTimeInfo.sysProp(ScalaJsReactConfig.KeyCompNameAuto)
-  val compNameAll  = CompileTimeInfo.sysProp(ScalaJsReactConfig.KeyCompNameAll)
-  val configClass  = CompileTimeInfo.sysProp(ScalaJsReactConfig.KeyConfigClass)
+  val compNameAuto = CompileTimeInfo.sysProp("japgolly.scalajs.react.compname.auto")
+  val compNameAll  = CompileTimeInfo.sysProp("japgolly.scalajs.react.compname.all")
+  val configClass  = CompileTimeInfo.sysProp("japgolly.scalajs.react.config.class")
 
   val dsCfg1 = configClass.contains("downstream.DownstreamConfig1")
   val dsCfg2 = configClass.contains("downstream.DownstreamConfig2")

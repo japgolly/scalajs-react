@@ -9,15 +9,6 @@ import utest._
 object JsOutputTest extends TestSuite {
   import Props._
 
-  private def failJsContains(substr: String, expect: Boolean): Nothing = {
-    val err =
-      if (expect)
-        s"is supposed to contain [$substr] but it doesn't."
-      else
-        s"contains '$substr' but shouldn't."
-    fail("JS output " + err)
-  }
-
   private def assertLegalValue(str: String)(legal: String*)(implicit l: Line): Unit =
     if (!legal.contains(str))
       fail(s"Illegal value: '$str'. Legal values are: " + legal.sorted.mkString("", ", ", "."))
@@ -30,7 +21,7 @@ object JsOutputTest extends TestSuite {
                          (implicit l: Line): Unit = {
     System.out.flush()
     System.err.flush()
-    assertLegalValue(prop)(legalValuesByComma.split(','): _*)
+    assertLegalValue(prop)(legalValuesByComma.split(',').toSeq: _*)
     var errors = List.empty[String]
     for ((pv, substr) <- propValueToSubstr) {
       val expect = (pv != null) && prop.matches(pv)

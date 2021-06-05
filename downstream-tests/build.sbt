@@ -68,15 +68,24 @@ lazy val cleanTestAll = taskKey[Unit]("cleanTestAll")
 
 lazy val root = Project("root", file("."))
   .configure(commonSettings)
-  .aggregate(js, jvm)
+  .aggregate(macros, js, jvm)
   .settings(
     cleanTestAll := Def.sequential(
+      macros / clean,
       jvm / clean,
       js / clean,
       (Test / compile),
       (jvm / Test / test),
       (js / Test / test),
     ).value,
+  )
+
+lazy val macros = project
+  .in(file("macros"))
+  .enablePlugins(ScalaJSPlugin)
+  .configure(commonSettings, definesMacros)
+  .settings(
+    libraryDependencies += Dep.microlibsCompileTime.value,
   )
 
 val useFullOptJS = System.getProperty("downstream_tests.fullOptJS") != null
@@ -86,6 +95,7 @@ val jsOptKey     = if (useFullOptJS) fullOptJS else fastOptJS
 lazy val js = project
   .in(file("js"))
   .enablePlugins(ScalaJSPlugin)
+  .dependsOn(macros)
   .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
   .settings(
     scalaJSStage := jsStage,

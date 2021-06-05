@@ -19,8 +19,10 @@ class ScalaJsReactConfigMacros(val c: Context) extends MacroUtils {
 
   private def modStr(expr: c.Expr[String])(f: String => c.Expr[String]): c.Expr[String] =
     expr match {
-      case Literal(Constant(s: String)) => f(s)
-      case _                            => expr
+      case Expr(Literal(Constant(s: String))) => f(s)
+      case _ =>
+        // warn(s"Unable to transform component name:\n  $expr\n  ${showRaw(expr)}")
+        expr
     }
 
   private implicit def lit(s: String): c.Expr[String] =

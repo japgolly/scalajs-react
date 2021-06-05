@@ -4,7 +4,6 @@ import japgolly.microlibs.compiletime.CompileTimeInfo
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import scala.scalajs.js.annotation._
-import scala.scalajs.js.annotation.JSExportAll
 
 @JSExportTopLevel("MAIN")
 object Main {
@@ -19,7 +18,7 @@ object Main {
 
     // Init components (for RuntimeTests)
     // Reference components (for JsOutputTest)
-    List(
+    List[Any](
       Carrot,
       Pumpkin,
     )
