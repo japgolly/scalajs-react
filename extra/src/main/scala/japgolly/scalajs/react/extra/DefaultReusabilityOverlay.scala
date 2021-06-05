@@ -8,7 +8,16 @@ import org.scalajs.dom.raw.{CSSStyleDeclaration, Node}
 import org.scalajs.dom.{console, document, window}
 import scala.concurrent.duration._
 
-object DefaultReusabilityOverlay extends DefaultReusabilityOverlayMacros {
+object DefaultReusabilityOverlay {
+
+  /** When you're in dev-mode (i.e. `fastOptJS`), this overrides [[Reusability.shouldComponentUpdate]] to use overlays. */
+  def overrideGloballyInDev(options: Options = defaults): Unit =
+    ScalaJsReactConfig.Defaults.unsafeOverrideReusabilityInDev(
+      new ScalaJsReactConfig.ReusabilityOverride {
+        override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
+          ReusabilityOverlay.install(options)
+      }
+    )
 
   lazy val defaults = Options(
     template             = ShowGoodAndBadCounts,

@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.vdom
 
+import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
 import japgolly.scalajs.react.{Callback, raw => Raw}
 
 trait VdomElement extends VdomNode {
@@ -18,6 +19,6 @@ object VdomElement {
       override def rawElement = n
     }
 
-  @inline def static(vdom: VdomElement): VdomElement =
-    japgolly.scalajs.react.ScalaComponent.static("")(vdom).ctor()
+  def static(vdom: VdomElement): VdomElement =
+    macro ScalaJsReactConfigMacros.vdomElementStatic
 }

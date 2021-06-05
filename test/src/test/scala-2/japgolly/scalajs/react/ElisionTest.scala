@@ -1,3 +1,4 @@
+/*
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.test.TestUtil._
@@ -52,3 +53,4 @@ object ElisionTest extends TestSuite {
   }
 
 }
+*/

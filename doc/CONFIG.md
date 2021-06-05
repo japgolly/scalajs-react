@@ -22,6 +22,7 @@
 * document everything
 * test everything
 * Port and remove ElisionTest
+* Fix and test downstream with Scala 2.13
 ========================================================================================
 
 
