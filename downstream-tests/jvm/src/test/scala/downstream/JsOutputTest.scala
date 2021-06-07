@@ -29,7 +29,7 @@ object JsOutputTest extends TestSuite {
       val pass   = actual == expect
       val result = if (pass) s"${GREEN}pass$RESET" else s"${RED_B}${WHITE}FAIL$RESET"
       val should = if (expect) "should" else "shouldn't"
-      val strCol = if (expect) BRIGHT_GREEN else BRIGHT_BLACK
+      val strCol = if (expect) (GREEN + BRIGHT_GREEN) else BRIGHT_BLACK
       println(s"[$result] JS $should contain $strCol$substr$RESET")
       if (!pass) errors ::= s"JS $should contain $substr"
     }
