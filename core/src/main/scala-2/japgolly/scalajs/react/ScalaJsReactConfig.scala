@@ -1,64 +1,65 @@
 package japgolly.scalajs.react
 
-import java.util.regex.Pattern
-import scala.annotation.elidable
-import scala.scalajs.LinkingInfo.productionMode
+import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
+import scala.scalajs.LinkingInfo.developmentMode
 
-/** Global scalajs-react config.
-  *
-  * It's a little horrible in that we're using global variables *and* you need to configure them in your `main` method
-  * *before* any data/components are loaded that these settings. But it's a decent trade-off in this case.
-  */
 object ScalaJsReactConfig {
 
-  /** Config that only applies in `fastOptJS`, It is ignored and removed from `fullOptJS`. */
-  object DevOnly {
+  trait ReusabilityOverride {
+    def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U]
+  }
 
-    // ===================================================================================================================
-    // Overriding behaviour of Reusability.shouldComponentUpdate
+  object ReusabilityOverride {
 
-    trait ReusabilityOverride {
-      def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U]
+    val default: ReusabilityOverride = new ReusabilityOverride {
+      override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
+        _.shouldComponentUpdatePure(i => (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
     }
 
-    private[react] var reusabilityOverride: Option[ReusabilityOverride] =
-      None
+    /** Don't configure shouldComponentUpdate */
+    def ignore: ReusabilityOverride = new ReusabilityOverride {
+      override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
+        internal.identityFn
+    }
+  }
 
-    /** Calls to [[Reusability.shouldComponentUpdate]] can be overridden to use the provided logic.
+  // ===================================================================================================================
+
+  // This is here for compatability with the Scala 3 version of scalajs-react
+  @inline def Instance = Defaults
+
+  object Defaults {
+
+    def automaticComponentName(displayName: String): String =
+      macro ScalaJsReactConfigMacros.automaticComponentName
+
+    def modifyComponentName(displayName: String): String =
+      macro ScalaJsReactConfigMacros.modifyComponentName
+
+    private[react] var reusabilityOverrideInDev: ReusabilityOverride =
+      if (developmentMode)
+        ReusabilityOverride.default
+      else
+        null
+
+    @inline def reusabilityOverride: ReusabilityOverride =
+      if (developmentMode)
+        reusabilityOverrideInDev
+      else
+        ReusabilityOverride.default
+
+    /** Calls to [[Reusability.shouldComponentUpdate]] can be overridden to use the provided logic, provided we're in
+      * dev-mode (i.e. fastOptJS instead of fullOptJS).
       *
       * Rather than call this directly yourself, you probably want to call one of the following instead:
       *
       * - `ReusabilityOverlay.overrideGloballyInDev()`
       * - `Reusability.disableGloballyInDev()`
       */
-    def overrideReusability(o: => ReusabilityOverride): Unit =
-      if (productionMode) () else reusabilityOverride = Some(o)
-
-    def removeReusabilityOverride(): Unit =
-      if (productionMode) () else reusabilityOverride = None
+    def overrideReusabilityInDev(f: => ReusabilityOverride): Unit =
+      if (developmentMode)
+        reusabilityOverrideInDev = f
+      else
+        ()
   }
-
-  // ===================================================================================================================
-  // Automatic component names
-
-  private[react] var componentNameModifier: String => String = {
-    @elidable(elidable.INFO)
-    def initialValue: String => String = {
-      val regex = Pattern.compile("\\.?comp(?:onent)?$", Pattern.CASE_INSENSITIVE)
-      regex.matcher(_).replaceFirst("")
-    }
-    initialValue
-  }
-
-  @elidable(elidable.INFO)
-  def componentNameModifierSet(f: String => String): Unit =
-    componentNameModifier = f
-
-  @elidable(elidable.INFO)
-  def componentNameModifierAppend(f: String => String): Unit =
-    componentNameModifier = f compose componentNameModifier
-
-  @elidable(elidable.INFO)
-  def componentNameModifierPrepend(f: String => String): Unit =
-    componentNameModifier = componentNameModifier compose f
 }

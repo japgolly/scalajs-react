@@ -10,6 +10,7 @@ import java.util.UUID
 import monocle.Prism
 import org.scalajs.dom
 import scala.annotation.nowarn
+import scala.scalajs.LinkingInfo.developmentMode
 import utest._
 
 object RouterP2Test extends TestSuite {
@@ -204,10 +205,10 @@ object RouterP2Test extends TestSuite {
       assertEq(es, Vector.empty)
 
       es = config.detectErrors(SomethingElse).runNow()
-      if (TestEnv.fullCI)
-        assert(es.isEmpty) // elided
-      else
+      if (developmentMode)
         assert(es.nonEmpty)
+      else
+        assert(es.isEmpty)
     }
 
     "routesPerNestedPageType" - {

@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.component.builder.AutoComponentName
+import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
 import japgolly.scalajs.react.vdom.VdomNode
 
 object ScalaComponent {
@@ -29,12 +29,12 @@ object ScalaComponent {
   val builder = japgolly.scalajs.react.component.builder.EntryPoint
 
   /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
-  def static(name: => String)(content: VdomNode): Component[Unit, Unit, Unit, CtorType.Nullary] =
-    builder.static(name)(content).build
+  def static(displayName: => String)(content: VdomNode): Component[Unit, Unit, Unit, CtorType.Nullary] =
+    macro ScalaJsReactConfigMacros.componentStaticManual
 
   /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
-  def static(content: VdomNode)(implicit name: AutoComponentName): Component[Unit, Unit, Unit, CtorType.Nullary] =
-    builder.static(content)(name).build
+  def static(content: VdomNode): Component[Unit, Unit, Unit, CtorType.Nullary] =
+    macro ScalaJsReactConfigMacros.componentStaticAuto
 
   val Lifecycle = japgolly.scalajs.react.component.builder.Lifecycle
 

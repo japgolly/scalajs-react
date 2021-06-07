@@ -1,8 +1,6 @@
 Port
 ====
 
-test/src/test/scala-2/japgolly/scalajs/react/ElisionTest.scala
-
 ghpages
 
 
@@ -12,22 +10,8 @@ Later
 * Resolve TODOs
 
 * Microlibs!
-  * Delete `CompileTimeTestUtil`
-  * Fix TODOs in `TestEnv`
+  * Move/Delete `CompileTime{Info,TestUtil}`
   * Make erased versions of `<:<` & `=:=` and use here
-
-* ScalaJsReactConfig
-  * Make scala2 use macros (i.e. bugfix)
-  * Add tests that new ver works as expected
-  * Sync scala2 version to scala3 version
-  * Add a proper doc/guide
-  * Read from scalac flags
-  * Replace assertWarn in extra
-  * Add ReusabilityOverride instance to ReusabilityOverlay that wraps the `install` methods, and simplify ReusabilityOverlayMacros
-
-* Component names
-  * Test dynamic component names (will `inline` arg prevent?)
-  * Add/review/improve name elision tests
 
 * Remove runtime footprint
   * JsRepr
@@ -48,8 +32,6 @@ Later
 
 * Undo the commit after 12c6a3ee31eaac2b848494c44332f3fc8da30400
   than reverts all the erased stuff
-
-* Re-enable elision tests in bin/ci
 
 * Reusability macros generating boxed code, hopefully fixed on Scala 3 master -- check!
 

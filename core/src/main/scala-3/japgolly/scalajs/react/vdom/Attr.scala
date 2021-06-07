@@ -53,15 +53,18 @@ object Attr {
     else
       Dud
 
-  def elidable[A](name: => String): Attr[A] = {
-    @elidable(scala.annotation.elidable.FINEST)
-    def attempt: Attr[A] = new Generic(name)
-    val x = attempt
-    if (x eq null)
-      Dud
-    else
-      x
-  }
+  // TODO: Scala 3 doesn't support elision yet
+  inline def elidable[A](name: String): Attr[A] =
+    new Generic(name)
+  // def elidable[A](name: => String): Attr[A] = {
+  //   @elidable(scala.annotation.elidable.FINEST)
+  //   def attempt: Attr[A] = new Generic(name)
+  //   val x = attempt
+  //   if (x eq null)
+  //     Dud
+  //   else
+  //     x
+  // }
 
   class Generic[-U](attrName: String) extends Attr[U](attrName) {
     override def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod =

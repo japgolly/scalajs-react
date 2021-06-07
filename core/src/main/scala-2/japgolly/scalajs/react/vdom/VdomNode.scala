@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.vdom
 
+import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
 import japgolly.scalajs.react.{raw => Raw}
 
 trait VdomNode extends TagMod {
@@ -22,7 +23,7 @@ object VdomNode {
     apply(null)
 
   def static(vdom: VdomNode): VdomNode =
-    japgolly.scalajs.react.ScalaComponent.static("")(vdom)()
+    macro ScalaJsReactConfigMacros.vdomNodeStatic
 }
 
 trait VdomNodeScalaSpecificImplicits {

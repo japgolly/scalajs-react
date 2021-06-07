@@ -1,0 +1,142 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")" || exit 1
+
+skip2=skip2
+
+# Tests
+all_tests_values=(
+  ""
+  "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig1 -Ddownstream_tests.reusability.dev=disable $skip2"
+  "-Djapgolly.scalajs.react.component.names.implicit=blank -Djapgolly.scalajs.react.component.names.all=allow"
+  "-Djapgolly.scalajs.react.component.names.implicit=short -Ddownstream_tests.reusability.dev=disable"
+  "-Djapgolly.scalajs.react.component.names.implicit=full -Ddownstream_tests.reusability.dev=overlay"
+  "-Djapgolly.scalajs.react.component.names.all=blank"
+  "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig2 -Ddownstream_tests.reusability.dev=disable $skip2"
+  "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig3 $skip2"
+  "-Ddownstream_tests.fullOptJS -Ddownstream_tests.reusability.dev=disable"
+  "-Ddownstream_tests.fullOptJS -Ddownstream_tests.reusability.dev=overlay"
+)
+all_tests_keys=()
+declare -A all_tests
+i=0
+for t in "${all_tests_values[@]}"; do
+  i=$((i+1))
+  all_tests_keys+=($i)
+  all_tests[$i]="$t"
+done
+
+# Parse options
+dryrun=0
+filter=0
+parse=1
+while [ $parse -eq 1 ]; do
+  case "${1:-}" in
+    -h|-help|--help)
+      echo "Usage: $0 [-2 | -3] [<test number>...]"
+      echo
+      echo "Options:"
+      echo "  -2  --  Only run Scala 2 tests."
+      echo "  -3  --  Only run Scala 3 tests."
+      echo "  -n  --  Dry-run."
+      echo
+      echo "Tests:"
+      for n in "${all_tests_keys[@]}"; do
+        echo "  $n) ${all_tests[$n]}"
+      done
+      echo
+      exit 0
+      ;;
+    -2)
+      if [ $filter -eq 3 ]; then
+        filter=0
+      else
+        filter=2
+      fi
+      shift
+      ;;
+    -3)
+      if [ $filter -eq 2 ]; then
+        filter=0
+      else
+        filter=3
+      fi
+      shift
+      ;;
+    -n)
+      dryrun=1
+      shift
+      ;;
+    *)
+      parse=0
+      ;;
+  esac
+done
+
+# Decide which tests to run
+tests=("${all_tests_keys[@]}")
+if [ $# -ne 0 ]; then
+  tests=("$@")
+fi
+
+# Make sure all declared tests actually exist
+all_good=1
+for t in "${tests[@]}"; do
+  if [ "${all_tests[$t]-x}" = x ]; then
+    echo "Invalid test: $t" >&2
+    all_good=0
+  fi
+done
+[ $all_good -eq 1 ] || exit 2
+
+# Get Scala versions
+function get_scala_version {
+  local tmp="$(fgrep " scala$1 " project/Dependencies.scala)"
+  local r='[^"]*"([^"]*)"[^"]*'
+  if [[ "$tmp" =~ $r ]]; then
+    echo "${BASH_REMATCH[1]}"
+  else
+    echo "Unable to determine Scala $1 version" >&2
+    exit 3
+  fi
+}
+scalaVer2="$(get_scala_version 213)"
+
+# Declare test runner
+function run {
+  local args="$1"
+  local s2=1
+  local s3=1
+  if [[ "$args" == *"$skip2"* ]]; then
+    args="${args/$skip2/}"
+    s2=0
+  fi
+  # echo "$filter/$s2/$s3 [$args]"
+  local task=cleanTestAll
+  local sbt_cmds=()
+  if [[ "$filter-$s3" =~ [03]-1 ]]; then
+    sbt_cmds+=( $task )
+  fi
+  if [[ "$filter-$s2" =~ [02]-1 ]]; then
+    sbt_cmds+=( ++$scalaVer2 $task )
+  fi
+  if [ "${#sbt_cmds[@]}" -eq 0 ]; then
+    echo "Skipped."
+  else
+    local cmd=(sbt --warn $args "${sbt_cmds[@]}")
+    echo "> ${cmd[@]}"
+    [ $dryrun -eq 1 ] || "${cmd[@]}"
+  fi
+}
+
+# Run all tests
+sep="==================================================================================================="
+i=0
+for t in "${tests[@]}"; do
+  i=$((i+1))
+  echo "$sep"
+  echo "[$i/${#tests[@]}] Test #$t"
+  run "${all_tests[$t]}"
+done
+echo "$sep"
+echo "Done. All tests passed."
