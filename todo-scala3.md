@@ -1,6 +1,3 @@
-Later
-=====
-
 * Resolve TODOs
 
 * Microlibs!
@@ -30,10 +27,3 @@ Later
 * Reusability macros generating boxed code, hopefully fixed on Scala 3 master -- check!
 
 * Manually run AsyncTest
-
-Finally
-=======
-* Remove `mv_src`
-* Remove `reuse`
-* Remove `copy3`
-* Remove `delete-shit`
