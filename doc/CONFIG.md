@@ -19,7 +19,6 @@
 
 * specify how/where to specify these settings
 * document everything
-* Review and fix CI
 ========================================================================================
 
 

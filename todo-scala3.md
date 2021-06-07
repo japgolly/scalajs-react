@@ -33,8 +33,6 @@ Later
 * Undo the commit after 12c6a3ee31eaac2b848494c44332f3fc8da30400
   than reverts all the erased stuff
 
-* Re-enable elision tests in bin/ci
-
 * Reusability macros generating boxed code, hopefully fixed on Scala 3 master -- check!
 
 * Manually run AsyncTest
