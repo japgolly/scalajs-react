@@ -2,10 +2,12 @@ package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
+import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import utest._
 
 object JsLikeComponentTest extends TestSuite {
+
 
   def RawJs6a = JsComponentEs6PTest.RawComp // nullary ctor
   def RawJs6b = JsComponentEs6STest.RawComp // unary ctor
@@ -20,9 +22,12 @@ object JsLikeComponentTest extends TestSuite {
 
   val o = js.Dynamic.literal("hello" -> 123)
 
-  private def testAssertionFires[A](errFrag: String)(a: => A): Unit =
-    if (!TestEnv.fullCI)
+  private def testAssertionFires[A](errFrag: String)(a: => A): Any =
+    if (developmentMode) {
       expectErrorContaining(errFrag)(a)
+      ()
+    } else
+      "SKIPPED"
 
   override def tests = Tests {
 

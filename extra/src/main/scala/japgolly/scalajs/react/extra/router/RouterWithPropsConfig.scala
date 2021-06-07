@@ -4,7 +4,7 @@ import japgolly.scalajs.react.extra.router.RouterConfig.Logger
 import japgolly.scalajs.react.vdom.VdomElement
 import japgolly.scalajs.react.{Callback, CallbackTo}
 import org.scalajs.dom
-import scala.annotation.elidable
+import scala.scalajs.LinkingInfo.developmentMode
 import scala.util.{Failure, Success, Try}
 
 case class RouterWithPropsConfig[Page, Props](
@@ -103,14 +103,16 @@ case class RouterWithPropsConfig[Page, Props](
     * If you want direct, programmatic access to the errors themselves, use [[detectErrors()]] instead.
     *
     * Note: Requires that `Page#equals()` be sensible.
-    * Note: If `elidable.ASSERTION` is elided, this always returns `this`.
+    * Note: If in production-mode (`fullOptJS`), this always returns `this`.
     *
     * @return In the event that errors are detected, a new [[RouterConfig]] that displays them; else this unmodified.
     */
   def verify(page1: Page, pages: Page*): RouterWithPropsConfig[Page, Props] =
-    Option(_verify(page1, pages: _*)) getOrElse this
+    if (developmentMode)
+      _verify(page1, pages: _*)
+    else
+      this
 
-  @elidable(elidable.ASSERTION)
   private def _verify(page1: Page, pages: Page*): RouterWithPropsConfig[Page, Props] = {
     val errors = detectErrors(page1 +: pages: _*).runNow()
     if (errors.isEmpty)
@@ -140,14 +142,16 @@ case class RouterWithPropsConfig[Page, Props](
   /** Check specified pages for possible route config errors, and returns any detected.
     *
     * Note: Requires that `Page#equals()` be sensible.
-    * Note: If `elidable.ASSERTION` is elided, this always returns an empty collection.
+    * Note: If in production-mode (`fullOptJS`), this always returns an empty collection.
     *
     * @return Error messages (or an empty collection if no errors are detected).
     */
-  def detectErrors(pages: Page*): CallbackTo[Vector[String]] =
-    Option(_detectErrors(pages: _*)) getOrElse CallbackTo.pure(Vector.empty)
+  def detectErrors(pages: Page*): CallbackTo[Seq[String]] =
+    if (developmentMode)
+      _detectErrors(pages: _*)
+    else
+      CallbackTo.pure(Nil)
 
-  @elidable(elidable.ASSERTION)
   private def _detectErrors(pages: Page*): CallbackTo[Vector[String]] = CallbackTo {
 
     var errors = Vector.empty[String]

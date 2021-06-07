@@ -18,11 +18,9 @@
   ```
 
 * specify how/where to specify these settings
-* remove elidable
 * document everything
-* test everything
 * Port and remove ElisionTest
-* Fix and test downstream with Scala 2.13
+* Review and fix CI
 ========================================================================================
 
 
