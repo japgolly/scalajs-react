@@ -100,7 +100,7 @@ function get_scala_version {
     exit 3
   fi
 }
-scalaVer2="$(get_scala_version 213)"
+scalaVer2="$(get_scala_version 2)"
 
 # Declare test runner
 function run {
