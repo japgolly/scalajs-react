@@ -16,7 +16,7 @@ def scalacCommonFlags: Seq[String] = Seq(
   "-unchecked",
 )
 
-def scalac213Flags = Seq(
+def scalac2Flags = Seq(
   "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings
   "-Wconf:msg=Reference.to.uninitialized.value:e", // Make uninitialised value calls errors instead of warnings
   "-Wunused:explicits",                            // Warn if an explicit parameter is unused.
@@ -56,11 +56,11 @@ def commonSettings: Project => Project = _
   .configure(preventPublication)
   .settings(
     scalaVersion       := Ver.scala3,
-    crossScalaVersions := Seq(Ver.scala213, Ver.scala3),
+    crossScalaVersions := Seq(Ver.scala2, Ver.scala3),
     scalacOptions     ++= scalacCommonFlags,
     scalacOptions     ++= byScalaVersion {
-                            case (2, 13) => scalac213Flags
-                            case (3, _ ) => scalac3Flags
+                            case (2, _) => scalac2Flags
+                            case (3, _) => scalac3Flags
                           }.value,
   )
 
