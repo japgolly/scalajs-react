@@ -19,7 +19,6 @@
 
 * specify how/where to specify these settings
 * document everything
-* Port and remove ElisionTest
 * Review and fix CI
 ========================================================================================
 
