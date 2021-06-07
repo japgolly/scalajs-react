@@ -56,7 +56,7 @@ object ScalaJsReactConfig {
       * - `ReusabilityOverlay.overrideGloballyInDev()`
       * - `Reusability.disableGloballyInDev()`
       */
-    def unsafeOverrideReusabilityInDev(f: => ReusabilityOverride): Unit =
+    def overrideReusabilityInDev(f: => ReusabilityOverride): Unit =
       if (developmentMode)
         reusabilityOverrideInDev = f
       else

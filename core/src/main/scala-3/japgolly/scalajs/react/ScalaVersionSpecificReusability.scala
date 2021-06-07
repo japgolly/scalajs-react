@@ -14,7 +14,7 @@ trait ScalaVersionSpecificReusability {
   /** When you're in dev-mode (i.e. `fastOptJS`), this globally disables [[Reusability.shouldComponentUpdate]].
     */
   inline def disableGloballyInDev(): Unit =
-    ScalaJsReactConfig.Defaults.unsafeOverrideReusabilityInDev(
+    ScalaJsReactConfig.Defaults.overrideReusabilityInDev(
       ScalaJsReactConfig.ReusabilityOverride.ignore)
 
   inline def shouldComponentUpdate[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] =

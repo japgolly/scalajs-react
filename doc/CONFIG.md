@@ -1,16 +1,47 @@
-# Compile-Time Config
+# Global Config
 
-* `.component.names.all`
-* `.component.names.implicit`
-* `.config.class`
+* Compile-Time Settings
+  * [Limitations](#compile-time-settings-limitations)
+  * [Usage](#compile-time-settings-usage)
+  * [`.component.names.all`](#componentnamesall)
+  * [`.component.names.implicit`](#componentnamesimplicit)
+  * [`.config.class` *(Scala 3 only)*](#configclass-scala-3-only)
+* Runtime Settings *(development-mode only)*
+  * [Usage](#runtime-settings-usage)
+  * [`Reusability.disableGloballyInDev()`](#reusabilitydisablegloballyindev)
+  * [`ReusabilityOverlay.overrideGloballyInDev()`](#reusabilityoverlayoverridegloballyindev)
+  * [Custom `ReusabilityOverride`](#custom-reusabilityoverride)
 
-========================================================================================
-# TODO
 
-* specify how/where to specify these settings
-* document everything
-========================================================================================
+# Compile-Time Settings: Limitations
 
+There's currently a limitation that components use the compile-time settings available when they're compiled.
+Seems like a pretty obvious way to go so why is it a limitation?
+When you're writing components in your app (which is what the vast majority of us do), then this isn't a limitation
+and it will work the way you expect. On the other hand, if you're writing components in a library, the library author's
+settings are used, and downstream users (currently) don't have a way to recompile it with their own settings.
+This may (and should) change in the future.
+If this is important to you or your organisation, feel free to reach out and sponsor the required work.
+
+# Compile-Time Settings: Usage
+
+Currently, you have to specify compile-time settings to `sbt` directly when you start it.
+
+Examples:
+
+```sh
+# Format:
+sbt \
+ -D<key1>=<value1> \
+ -D<key2>=<value2> \
+ ...
+
+# Use defaults
+sbt
+
+# Clear out all component names
+sbt -Djapgolly.scalajs.react.component.names.all=blank
+```
 
 # `.component.names.all`
 
@@ -73,7 +104,7 @@ Outcomes:
 | `blank` |  |  |  |
 
 
-# `.config.class`
+# `.config.class` *(Scala 3 only)*
 
 Instructs scalajs-react to use a custom instance of `ScalaJsReactConfig` that you've provided.
 
@@ -126,5 +157,89 @@ object CustomConfig extends ScalaJsReactConfig.Defaults {
   // and only the result appears in the output JS.
   override transparent inline def automaticComponentName(name: String) =
     name + " (auto)"
+}
+```
+
+
+# Runtime Settings: Usage
+
+Runtime settings are designed for use in development-mode only (`fastOptJS`).
+They are omitted from production-mode output (`fullOptJS`).
+
+Runtime settings must
+1) be specified in your app's `main` method or equivalent entrypoint
+2) be evaluated before any affected components are created
+
+Example:
+
+```scala
+import japgolly.scalajs.react._
+import org.scalajs.dom
+import scala.scalajs.js.annotation._
+
+object Main {
+
+  @JSExportTopLevel("main")
+  def main() = {
+
+    // Apply runtime settings immediately
+    Reusability.disableGloballyInDev()
+
+    // Start app
+    val container = dom.document.getElementById("root")
+    MyApp().renderIntoDOM(container)
+  }
+}
+```
+
+# `Reusability.disableGloballyInDev()`
+
+*Note: Runtime settings only affect development-mode (`fastOptJS`) and must be applied before any components are created.*
+
+This globally disables `Reusability.shouldComponentUpdate` so that it doesn't nothing.
+
+
+# `ReusabilityOverlay.overrideGloballyInDev()`
+
+*Note: Runtime settings only affect development-mode (`fastOptJS`) and must be applied before any components are created.*
+
+This makes calls to `Reusability.shouldComponentUpdate` also display a little UI overlay for you to inspect/debug
+component updates. You can see a [live example of this in use here](https://japgolly.github.io/scalajs-react/#examples/reusability).
+
+
+# Custom `ReusabilityOverride`
+
+*Note: Runtime settings only affect development-mode (`fastOptJS`) and must be applied before any components are created.*
+
+You can modify the behaviour of `Reusability.shouldComponentUpdate` to apply any custom logic you like
+by creating your own instance of `ScalaJsReactConfig.ReusabilityOverride` and providing to
+`ScalaJsReactConfig.Defaults.overrideReusabilityInDev()`.
+
+Example:
+
+```scala
+import japgolly.scalajs.react._
+import org.scalajs.dom
+import scala.scalajs.js.annotation._
+
+object Main {
+
+  private object logComponents extends ScalaJsReactConfig.ReusabilityOverride {
+    override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] = b => {
+      println("Detected component with Reusability.shouldComponentUpdate: " + b.name)
+      b
+    }
+  }
+
+  @JSExportTopLevel("main")
+  def main() = {
+
+    // Apply runtime settings immediately
+    ScalaJsReactConfig.Defaults.overrideReusabilityInDev(logComponents)
+
+    // Start app
+    val container = dom.document.getElementById("root")
+    MyApp().renderIntoDOM(container)
+  }
 }
 ```
