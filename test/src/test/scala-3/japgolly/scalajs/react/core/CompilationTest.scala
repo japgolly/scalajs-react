@@ -1,6 +1,8 @@
-package japgolly.scalajs.react
+package japgolly.scalajs.react.core
 
-trait CompilationTest {
+import japgolly.scalajs.react._
+
+sealed trait CompilationTest {
 
   def bool: Boolean
 

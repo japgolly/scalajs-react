@@ -6,7 +6,7 @@ import scala.quoted.*
 
 object CssUnits {
 
-  private[vdom] inline def addSuffix(inline n: Any, inline suffix: String): String =
+  inline def addSuffix[N](inline n: N, inline suffix: String)(using inline ev: Numeric[N]): String =
     ${ combine('n, 'suffix) }
 
   private def combine(n: Expr[Any], suffix: Expr[String])(using Quotes): Expr[String] = {
@@ -18,9 +18,12 @@ object CssUnits {
         Expr.inlineConst(s)
 
       case _ =>
-        '{ ${n}.toString + $suffix }
+        '{ combineAtRuntime(${n}.toString, $suffix) }
     }
   }
+
+  def combineAtRuntime(n: String, suffix: String): String =
+    if (n == "0") n else (n + suffix)
 }
 
 trait CssUnitsOps {

@@ -8,6 +8,7 @@ object ScalaComponent {
   import EntryPointHidden._
 
   // TODO: https://github.com/lampepfl/dotty/issues/12111
+  // export Scala.*
   export Scala.{Vars => _, *}
   type Vars[P, S, B] = Scala.Vars[P, S, B]
 

@@ -269,8 +269,7 @@ object CallbackTo {
 
   extension [A](self: CallbackTo[Option[A]]) {
 
-    // TODO: [3] Make inline after https://github.com/lampepfl/dotty/issues/11894
-    def asCBO: CallbackOption[A] =
+    inline def asCBO: CallbackOption[A] =
       new CallbackOption(self.toScalaFn)
   }
 
@@ -578,11 +577,10 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
     *
     * Does not change the result.
     */
-  // TODO: [3] https://github.com/lampepfl/dotty/issues/11866
-  // def logAround(message: js.Any, optionalParams: js.Any*): CallbackTo[A] = {
-  //   def log(prefix: String) = Callback.log(prefix + message.toString, optionalParams: _*)
-  //   log("→  Starting: ") *> self <* log(" ← Finished: ")
-  // }
+  def logAround(message: js.Any, optionalParams: js.Any*): CallbackTo[A] = {
+    def log(prefix: String) = Callback.log(prefix + message.toString, optionalParams: _*)
+    log("→  Starting: ") *> self <* log(" ← Finished: ")
+  }
 
   /** Logs the result of this callback as it completes. */
   def logResult(msg: A => String): CallbackTo[A] =
@@ -627,9 +625,8 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
   inline def toJsFn1: JFn1[Any, A] =
     (_: Any) => runNow()
 
-  // TODO: https://github.com/lampepfl/dotty/issues/11865
-  // def toJsCallback: UndefOr[JFn0[A]] =
-  //   if (isEmpty_?) undefined else toJsFn
+  def toJsCallback: UndefOr[JFn0[A]] =
+    if (isEmpty_?) undefined else toJsFn
 
   inline def isEmpty_? : Boolean =
     trampoline eq Callback.empty.trampoline

@@ -4,7 +4,6 @@ import japgolly.microlibs.compiletime.*
 import japgolly.microlibs.compiletime.MacroEnv.*
 import scala.quoted.*
 
-// TODO: Move into microlibs
 object CompileTimeConfig {
 
   export CompileTimeInfo.{sysPropOrEnvVar => get}

@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.raw
 
 import scala.annotation.nowarn
+import scala.annotation.unchecked.uncheckedVariance
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.|
@@ -13,9 +14,8 @@ object React extends React {
   @js.native
   trait Children extends js.Object {
 
-    // final type MapFn[+A] = js.Function1[React.Node, A] | js.Function2[React.Node, Int, A]
-    // TODO: ^^ fixed in nightlies
-    final type MapFn[+A] = js.Function1[React.Node, A @annotation.unchecked.uncheckedVariance] | js.Function2[React.Node, Int, A @annotation.unchecked.uncheckedVariance]
+    // @uncheckedVariance is used here because Scala 2.13.6 doesn't recognise | as covariant
+    final type MapFn[+A] = js.Function1[React.Node, A @uncheckedVariance] | js.Function2[React.Node, Int, A @uncheckedVariance]
 
     /** Invokes a function on every immediate child contained within children with this set to thisArg. If children is a keyed fragment or array it will be traversed: the function will never be passed the container objects. If children is null or undefined, returns null or undefined rather than an array. */
     def map[A](c: js.UndefOr[PropsChildren | Null], fn: MapFn[A]): js.UndefOr[Null | js.Array[A]] = js.native
