@@ -103,8 +103,8 @@ object ScalaJsReactConfig {
   // ===================================================================================================================
 
   inline val KeyConfigClass  = "japgolly.scalajs.react.config.class"
-  inline val KeyCompNameAuto = "japgolly.scalajs.react.compname.auto"
-  inline val KeyCompNameAll  = "japgolly.scalajs.react.compname.all"
+  inline val KeyCompNameAuto = "japgolly.scalajs.react.component.names.implicit"
+  inline val KeyCompNameAll  = "japgolly.scalajs.react.component.names.all"
 
   object Util {
     object ComponentName {

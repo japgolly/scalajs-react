@@ -1,28 +1,18 @@
 # Compile-Time Config
 
-* `.compname.all`
-* `.compname.auto`
+* `.component.names.all`
+* `.component.names.implicit`
 * `.config.class`
 
 ========================================================================================
 # TODO
-
-* Rename "compname"
-  * "comp-names" ?
-  * "component.names" ?
-* Rename ".auto" to ".implicit" ?
-* Maybe
-  ```
-  japgolly.scalajs.react.component.names          = allow|blank
-  japgolly.scalajs.react.component.names.implicit = full|short|blank
-  ```
 
 * specify how/where to specify these settings
 * document everything
 ========================================================================================
 
 
-# `.compname.all`
+# `.component.names.all`
 
 Specifies the transformation to apply to all component display-names, whether automatically/implicitly specified,
 or explicitly specified when you create the component.
@@ -30,7 +20,7 @@ or explicitly specified when you create the component.
 ### Usage:
 
 ```
-japgolly.scalajs.react.compname.all=allow|blank
+japgolly.scalajs.react.component.names.all=allow|blank
 ```
 
 | Setting | Outcome |
@@ -39,14 +29,14 @@ japgolly.scalajs.react.compname.all=allow|blank
 | `blank` | Clear all component names. Transforms all names into `""`. |
 
 
-# `.compname.auto`
+# `.component.names.implicit`
 
 Determines how implicitly name components that haven't been created with the explicit specification of an display-name.
 
 ### Usage:
 
 ```
-japgolly.scalajs.react.compname.auto=full|short|blank
+japgolly.scalajs.react.component.names.implicit=full|short|blank
 ```
 
 | Setting | Outcome |

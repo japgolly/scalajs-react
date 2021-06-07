@@ -9,8 +9,8 @@ import utest._
 
 object RuntimeTests extends TestSuite {
 
-  val compNameAuto = CompileTimeInfo.sysProp("japgolly.scalajs.react.compname.auto")
-  val compNameAll  = CompileTimeInfo.sysProp("japgolly.scalajs.react.compname.all")
+  val compNameAuto = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.implicit")
+  val compNameAll  = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.all")
   val configClass  = CompileTimeInfo.sysProp("japgolly.scalajs.react.config.class")
 
   val dsCfg1 = configClass.contains("downstream.DownstreamConfig1")

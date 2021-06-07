@@ -29,8 +29,8 @@ object Props {
     try s.mkString finally s.close()
   }
 
-  val compnameAll  = Prop.get("japgolly.scalajs.react.compname.all", "allow")
-  val compnameAuto = Prop.get("japgolly.scalajs.react.compname.auto", "full")
+  val compnameAll  = Prop.get("japgolly.scalajs.react.component.names.all", "allow")
+  val compnameAuto = Prop.get("japgolly.scalajs.react.component.names.implicit", "full")
   val configClass  = Prop.get("japgolly.scalajs.react.config.class")
 
   val dsCfg1 = configClass.contains("downstream.DownstreamConfig1")

@@ -4,8 +4,8 @@ import japgolly.microlibs.compiletime._
 import scala.reflect.macros.blackbox.Context
 
 object ScalaJsReactConfigMacros {
-  final val KeyCompNameAll = "japgolly.scalajs.react.compname.all"
-  final val KeyCompNameAuto = "japgolly.scalajs.react.compname.auto"
+  final val KeyCompNameAll = "japgolly.scalajs.react.component.names.all"
+  final val KeyCompNameAuto = "japgolly.scalajs.react.component.names.implicit"
 }
 
 class ScalaJsReactConfigMacros(val c: Context) extends MacroUtils {
