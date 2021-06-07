@@ -12,7 +12,7 @@ import scala.language.`3.0`
 object CallbackOption {
   private[CallbackOption] val someUnit: Option[Unit] = Some(())
 
-  @deprecated("Use callback.asCBO", "1.8.0")
+  @deprecated("Use callback.asCBO", "2.0.0")
   def apply[A](callback: CallbackTo[Option[A]]): CallbackOption[A] =
     callback.asCBO
 
@@ -40,27 +40,27 @@ object CallbackOption {
   def maybeCallback[O[_], A](oa: => O[CallbackTo[A]])(implicit O: OptionLike[O]): CallbackOption[A] =
     optionCallback(O toOption oa)
 
-  @deprecated("Use CallbackOption.delay", "1.8.0")
+  @deprecated("Use CallbackOption.delay", "2.0.0")
   def liftValue[A](a: => A): CallbackOption[A] =
     delay(a)
 
-  @deprecated("Use CallbackOption.option", "1.8.0")
+  @deprecated("Use CallbackOption.option", "2.0.0")
   def liftOption[A](oa: => Option[A]): CallbackOption[A] =
     option(oa)
 
-  @deprecated("Use CallbackOption.maybe", "1.8.0")
+  @deprecated("Use CallbackOption.maybe", "2.0.0")
   def liftOptionLike[O[_], A](oa: => O[A])(implicit O: OptionLike[O]): CallbackOption[A] =
     maybe(oa)
 
-  @deprecated("Use callback.toCBO", "1.8.0")
+  @deprecated("Use callback.toCBO", "2.0.0")
   def liftCallback[A](callback: CallbackTo[A]): CallbackOption[A] =
     callback.toCBO
 
-  @deprecated("Use CallbackOption.optionCallback", "1.8.0")
+  @deprecated("Use CallbackOption.optionCallback", "2.0.0")
   def liftOptionCallback[A](oc: => Option[CallbackTo[A]]): CallbackOption[A] =
     optionCallback(oc)
 
-  @deprecated("Use CallbackOption.maybeCallback", "1.8.0")
+  @deprecated("Use CallbackOption.maybeCallback", "2.0.0")
   def liftOptionLikeCallback[O[_], A](oa: => O[CallbackTo[A]])(implicit O: OptionLike[O]): CallbackOption[A] =
     maybeCallback(oa)
 

@@ -74,7 +74,7 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
   def suspend[A](f: => Reusability[A]): Reusability[A] =
     new Reusability((a, b) => f.test(a, b))
 
-  @deprecated("Use Reusability.suspend", "1.8.0")
+  @deprecated("Use Reusability.suspend", "2.0.0")
   def byName[A](f: => Reusability[A]): Reusability[A] =
     suspend(f)
 

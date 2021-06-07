@@ -6,7 +6,7 @@ import scala.scalajs.js.|
 
 /** See  https://reactjs.org/docs/hooks-reference.html
   *
-  * @since React 16.8.0 / scalajs-react 1.8.0
+  * @since React 16.8.0 / scalajs-react 2.0.0
   */
 @js.native
 @nowarn("cat=unused")

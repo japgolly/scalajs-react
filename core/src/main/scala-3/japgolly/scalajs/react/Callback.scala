@@ -62,7 +62,7 @@ object Callback {
     *
     * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
     */
-  @deprecated("Use Callback.suspend", "1.8.0")
+  @deprecated("Use Callback.suspend", "2.0.0")
   inline def byName(inline f: Callback): Callback =
     suspend(f)
 
@@ -127,7 +127,7 @@ object Callback {
     * All results are discarded.
     * Any exceptions get a `printStackTrace` and are then discarded, and the next callback run.
     *
-    * @since 1.8.0
+    * @since 2.0.0
     */
   def runAll(callbacks: CallbackTo[Any]*): Callback =
     callbacks.foldLeft(empty)((x, y) => x >> y.reset)

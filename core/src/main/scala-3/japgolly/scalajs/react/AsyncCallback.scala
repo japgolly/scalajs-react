@@ -99,7 +99,7 @@ object AsyncCallback {
     *
     * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
     */
-  @deprecated("Use AsyncCallback.suspend", "1.8.0")
+  @deprecated("Use AsyncCallback.suspend", "2.0.0")
   def byName[A](f: => AsyncCallback[A]): AsyncCallback[A] =
     suspend(f)
 
@@ -720,7 +720,7 @@ final class AsyncCallback[+A](val completeWith: (Try[A] => Callback) => Callback
   /** If this completes successfully, discard the result.
     * If any exception occurs, call `printStackTrace` and continue.
     *
-    * @since 1.8.0
+    * @since 2.0.0
     */
   def reset: AsyncCallback[Unit] =
     AsyncCallback(f => completeWith(e => f(Success(e match {

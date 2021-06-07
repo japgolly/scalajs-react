@@ -47,7 +47,7 @@ object CallbackTo {
     *
     * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
     */
-  @deprecated("Use CallbackTo.suspend", "1.8.0")
+  @deprecated("Use CallbackTo.suspend", "2.0.0")
   def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
     suspend(f)
 
@@ -438,7 +438,7 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
   /** If this completes successfully, discard the result.
     * If any exception occurs, call `printStackTrace` and continue.
     *
-    * @since 1.8.0
+    * @since 2.0.0
     */
   def reset: Callback =
     Callback(

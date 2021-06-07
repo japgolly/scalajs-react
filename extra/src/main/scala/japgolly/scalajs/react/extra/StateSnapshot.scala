@@ -116,7 +116,7 @@ object StateSnapshot {
     def apply[S](value: S): FromValue[S] =
       new FromValue(value)
 
-    /** @since 1.8.0 */
+    /** @since 2.0.0 */
     def hook[S](initialValue: => S)(implicit rs: Reusability[S]): CustomHook[Unit, StateSnapshot[S]] =
       CustomHook[Unit]
         .useState(initialValue)
@@ -218,7 +218,7 @@ object StateSnapshot {
   def apply[S](value: S): FromValue[S] =
     new FromValue(value)
 
-  /** @since 1.8.0 */
+  /** @since 2.0.0 */
   def hook[S](initialValue: => S): CustomHook[Unit, StateSnapshot[S]] =
     withReuse.hook(initialValue)(Reusability.never)
 
