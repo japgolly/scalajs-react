@@ -6,6 +6,8 @@ import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 
+// TODO: Remove [State] from .initialState[State](State(Nil, "")) after Scala 3 bugfix
+
 object StateMonadExample {
 
   def content = SingleSide.Content(source, main())
@@ -40,7 +42,7 @@ object StateMonadExample {
   )                                                       //   allows composition with Callback effects.
 
   val TodoApp = ScalaComponent.builder[Unit]
-    .initialState(State(Nil, ""))
+    .initialState[State](State(Nil, ""))
     .renderS(($, s) =>
       <.div(
         <.h3("TODO"),

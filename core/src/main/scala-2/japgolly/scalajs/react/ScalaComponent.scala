@@ -45,4 +45,7 @@ object ScalaComponent {
   type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
     japgolly.scalajs.react.component.builder.ComponentBuilder.Config[P, C, S, B, US, US2]
 
+  type Builder[P, C <: Children, S, B, US <: UpdateSnapshot] =
+    japgolly.scalajs.react.component.builder.ComponentBuilder.Step4[P, C, S, B, US]
+
 }

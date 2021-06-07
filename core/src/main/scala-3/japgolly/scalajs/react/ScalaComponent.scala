@@ -1,15 +1,17 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.component.Scala
+import japgolly.scalajs.react.component.builder.{EntryPoint, EntryPointHidden}
 import japgolly.scalajs.react.vdom.VdomNode
 
 object ScalaComponent {
+  import EntryPointHidden._
 
   // TODO: https://github.com/lampepfl/dotty/issues/12111
   export Scala.{Vars => _, *}
   type Vars[P, S, B] = Scala.Vars[P, S, B]
 
-  val builder = japgolly.scalajs.react.component.builder.EntryPoint
+  val builder = EntryPoint
 
   /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
   inline def static(inline name: String)(content: VdomNode): Component[Unit, Unit, Unit, CtorType.Nullary] =
@@ -18,7 +20,7 @@ object ScalaComponent {
   /** Create a component that always displays the same content, never needs to be redrawn, never needs vdom diffing. */
   inline def static(content: VdomNode): Component[Unit, Unit, Unit, CtorType.Nullary] =
     static(
-      ScalaJsReactConfig.Instance.automaticComponentName(builder.autoNameFull))(
+      ScalaJsReactConfig.Instance.automaticComponentName(autoNameFull))(
       content)
 
   val Lifecycle = japgolly.scalajs.react.component.builder.Lifecycle
@@ -29,6 +31,9 @@ object ScalaComponent {
     */
   type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
     japgolly.scalajs.react.component.builder.ComponentBuilder.Config[P, C, S, B, US, US2]
+
+  type Builder[P, C <: Children, S, B, US <: UpdateSnapshot] =
+    japgolly.scalajs.react.component.builder.ComponentBuilder.Step4[P, C, S, B, US]
 }
 
 type ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = Scala.Component[P, S, B, CT]

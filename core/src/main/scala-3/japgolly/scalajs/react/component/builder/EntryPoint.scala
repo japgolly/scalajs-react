@@ -7,6 +7,7 @@ import japgolly.scalajs.react.{Children, ScalaJsReactConfig, UpdateSnapshot}
 import scala.quoted.*
 
 object EntryPoint {
+  import EntryPointHidden._
 
   /** Begin creating a component. */
   inline def apply[Props]: Step1[Props] =
@@ -30,13 +31,16 @@ object EntryPoint {
     */
   inline def static(content: VdomNode): Step4[Unit, Children.None, Unit, Unit, UpdateSnapshot.None] =
     static(autoNameFull)(content)
+}
 
-  // ===================================================================================================================
+// =====================================================================================================================
 
-  private[react] transparent inline def autoNameFull: String =
+object EntryPointHidden {
+
+  transparent inline def autoNameFull: String =
     ${ autoNameFullExpr }
 
-  private def autoNameFullExpr(using Quotes): Expr[String] = {
+  def autoNameFullExpr(using Quotes): Expr[String] = {
     import quotes.reflect.*
 
     var owner = Symbol.spliceOwner
@@ -66,5 +70,4 @@ object EntryPoint {
 
     Expr.inlineConst(name)
   }
-
 }

@@ -162,7 +162,7 @@ object ProductTableExample {
 
   case class State(filterText: String, inStockOnly: Boolean)
 
-  class Backend($: BackendScope[_, State])  {
+  class Backend($: BackendScope[List[Product], State])  {
     def onTextChange(e: ReactEventFromInput) =
       e.extract(_.target.value)(value =>
         $.modState(_.copy(filterText = value)))

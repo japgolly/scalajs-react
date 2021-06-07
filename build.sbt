@@ -16,4 +16,4 @@ val catsEffect    = ScalajsReact.catsEffect
 val test          = ScalajsReact.test
 //val testModule    = ScalajsReact.testModule // Too damn buggy
 val ghpagesMacros = ScalajsReact.ghpagesMacros
-// val ghpages       = ScalajsReact.ghpages
+val ghpages       = ScalajsReact.ghpages

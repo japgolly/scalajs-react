@@ -67,7 +67,7 @@ object ScalajsReact {
     _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
       .settings(
         scalaVersion                  := Ver.scala3,
-        crossScalaVersions            := Seq(Ver.scala213, Ver.scala3),
+        crossScalaVersions            := Seq(Ver.scala2, Ver.scala3),
         scalacOptions                ++= scalacCommonFlags,
         scalacOptions                ++= byScalaVersion {
                                            case (2, 13) => scalac213Flags
@@ -104,7 +104,7 @@ object ScalajsReact {
       monocleCats,
       monocle3,
       ghpagesMacros,
-      // ghpages,
+      ghpages,
     )
 
   // ==============================================================================================

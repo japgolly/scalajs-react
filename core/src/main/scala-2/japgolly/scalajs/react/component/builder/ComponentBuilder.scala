@@ -16,7 +16,7 @@ object ComponentBuilder {
   type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
     Step4[P, C, S, B, US] => Step4[P, C, S, B, US2]
 
-  private[react] def static(transformedName: String, vdom: VdomNode) =
+  def static(transformedName: String, vdom: VdomNode) =
     new Step1[Unit](transformedName)
       .renderStatic(vdom)
       .shouldComponentUpdateConst(false)
