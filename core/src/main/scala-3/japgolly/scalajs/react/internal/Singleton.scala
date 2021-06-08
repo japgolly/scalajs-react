@@ -19,5 +19,5 @@ object Singleton {
 
   // TODO: use erased class
   sealed trait Not[A]
-  inline given noSingletonFor[A](using NotGiven[Singleton[A]]): Not[A] = null
+  inline given noSingletonFor[A](using inline ev: NotGiven[Singleton[A]]): Not[A] = null
 }

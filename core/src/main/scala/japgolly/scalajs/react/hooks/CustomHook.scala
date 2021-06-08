@@ -170,7 +170,6 @@ object CustomHook {
     CustomHook[() => D]
       .useState((0, Option.empty[D]))
       .buildReturning { (getDeps, depsState) =>
-
         val rev = depsState.value._1
         lazy val next = getDeps()
         val updateNeeded =

@@ -5,6 +5,7 @@ import java.time._
 import java.util.{Date, UUID}
 import org.scalajs.dom.console
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 import scala.concurrent.{duration => scd}
 import scala.reflect.ClassTag
 import scala.scalajs.js.timers.{SetIntervalHandle, SetTimeoutHandle}
@@ -276,6 +277,9 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
 
   implicit def set[A]: Reusability[Set[A]] =
     byRefOr_== // universal equality must hold for Sets
+
+  implicit def arraySeq[A: Reusability]: Reusability[ArraySeq[A]] =
+    byRef[ArraySeq[A]] || indexedSeq[ArraySeq, A]
 
   implicit def box[A: Reusability]: Reusability[Box[A]] =
     by(_.unbox)

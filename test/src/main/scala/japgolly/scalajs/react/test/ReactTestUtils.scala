@@ -24,9 +24,9 @@ object ReactTestUtils {
     if (r == null)
       null
     else {
-      val r2 = JsUtil.notNull[RawM](r) // TODO: WTF??
+      val r2 = JsUtil.notNull[RawM](r) // TODO: https://github.com/lampepfl/dotty/issues/12739
       val x = JsComponent.mounted(r2)
-      x.asInstanceOf[MountedOutput] // TODO: WTF??
+      x.asInstanceOf[MountedOutput]
     }
 
   type CompType = GenericComponent.ComponentRaw {type Raw <: japgolly.scalajs.react.raw.React.ComponentClassUntyped }

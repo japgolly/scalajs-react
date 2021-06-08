@@ -27,6 +27,8 @@ sealed trait CompilationTest {
     Callback(())
     Callback(123)
     // Callback(Callback.empty)
+    CallbackTo(false) && CallbackTo(true)
+    !CallbackTo(false)
   }
 
   // ===================================================================================================================

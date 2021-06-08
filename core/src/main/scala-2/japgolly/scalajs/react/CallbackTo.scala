@@ -744,6 +744,7 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     bool2(b)(_() || _())
 
   /** Negates the callback result (so long as it's boolean). */
+  @deprecated("Use !cb instead of cb.!", "2.0.0")
   def !(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
     ev(this).map(!_)
 

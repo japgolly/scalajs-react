@@ -24,11 +24,6 @@ object AsyncCallback {
         (a, ac)
       }
     }
-    // TODO: bm4 currently unavailable with Scala 3
-    // for {
-    //   (ac, c) <- promise[B]
-    //   a       <- f(c)
-    // } yield (a, ac)
 
   /** Create an AsyncCallback and separately provide the completion function.
     *
@@ -306,10 +301,6 @@ object AsyncCallback {
     promise[Unit].map { case (promise, complete) =>
       new Barrier(promise, complete(tryUnit))
     }
-    // TODO: bm4 currently unavailable with Scala 3
-    // for {
-    //   (promise, complete) <- promise[Unit]
-    // } yield new Barrier(promise, complete(tryUnit))
 
   // ===================================================================================================================
 
@@ -993,11 +984,6 @@ final class AsyncCallback[+A](val completeWith: (Try[A] => Callback) => Callback
         p
       }
     }
-    // TODO: bm4 currently unavailable with Scala 3
-    // for {
-    //   (p, pc) <- CallbackTo.newJsPromise[A]
-    //   _       <- completeWith(pc)
-    // } yield p
 
   def unsafeToFuture(): Future[A] =
     asCallbackToFuture.runNow()

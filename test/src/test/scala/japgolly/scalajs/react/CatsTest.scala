@@ -24,8 +24,6 @@ object CatsTest extends TestSuite {
     "inference" - {
       import japgolly.scalajs.react.test.InferenceHelpers._
 
-      assertType[Int].is[Int]
-
       implicit val mMonad = null.asInstanceOf[Monad[M] with (M ~> CallbackTo)]
 
       val retVal: Id[Int] = 3

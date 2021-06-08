@@ -238,7 +238,6 @@ object CallbackTo {
   // Additional ops
 
   extension (self: CallbackTo[Boolean]) {
-
     /** Creates a new callback that returns `true` when both this and the given callback return `true`. */
     def &&(b: CallbackTo[Boolean]): CallbackTo[Boolean] =
       self.map(_ && b.runNow())
@@ -248,6 +247,7 @@ object CallbackTo {
       self.map(_ || b.runNow())
 
     /** Negates the callback result (so long as it's boolean). */
+    @deprecated("Use !cb instead of cb.!", "2.0.0")
     inline def ! : CallbackTo[Boolean] =
       self.map(!_)
 
@@ -262,19 +262,16 @@ object CallbackTo {
 
   // Required because of variance
   extension [A](self: CallbackTo[A]) {
-
     def toKleisli[B]: CallbackKleisli[B, A] =
       CallbackKleisli.const(self)
   }
 
   extension [A](self: CallbackTo[Option[A]]) {
-
     inline def asCBO: CallbackOption[A] =
       new CallbackOption(self.toScalaFn)
   }
 
   extension [A, B](self: CallbackTo[A => B]) {
-
     /** Function distribution. See `CallbackTo.liftTraverse(f).id` for the dual. */
     def distFn: A => CallbackTo[B] =
       a => self.map(_(a))
@@ -285,11 +282,9 @@ object CallbackTo {
   }
 
   extension [A, B](self: CallbackTo[(A, B)]) {
-
     inline def flatMap2[C](f: (A, B) => CallbackTo[C]): CallbackTo[C] =
       self.flatMap(f.tupled)
   }
-
 }
 
 // █████████████████████████████████████████████████████████████████████████████████████████████████████████████████████

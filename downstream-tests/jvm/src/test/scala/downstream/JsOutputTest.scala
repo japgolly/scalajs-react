@@ -13,32 +13,18 @@ object JsOutputTest extends TestSuite {
     if (!legal.contains(str))
       fail(s"Illegal value: '$str'. Legal values are: " + legal.sorted.mkString("", ", ", "."))
 
-  private def contentTest(expect: Boolean, substr: String)(implicit l: Line): Unit =
-    contentTest("a", "a,b")((if (expect) "a" else "b") -> substr)
-
   private def contentTest(prop: String, legalValuesByComma: String)
                          (propValueToSubstr: (String, String)*)
                          (implicit l: Line): Unit = {
-    System.out.flush()
-    System.err.flush()
     assertLegalValue(prop)(legalValuesByComma.split(',').toSeq: _*)
-    var errors = List.empty[String]
-    for ((pv, substr) <- propValueToSubstr) {
-      val expect = (pv != null) && prop.matches(pv)
-      val actual = content.contains(substr)
-      val pass   = actual == expect
-      val result = if (pass) s"${GREEN}pass$RESET" else s"${RED_B}${WHITE}FAIL$RESET"
-      val should = if (expect) "should" else "shouldn't"
-      val strCol = if (expect) (GREEN + BRIGHT_GREEN) else BRIGHT_BLACK
-      println(s"[$result] JS $should contain $strCol$substr$RESET")
-      if (!pass) errors ::= s"JS $should contain $substr"
-    }
-    System.out.flush()
-    if (errors.nonEmpty) {
-      for ((_, substr) <- propValueToSubstr)
-        fgrep(substr)
-      fail(errors.sorted.mkString(", "))
-    }
+
+    val expectToSubstr =
+      propValueToSubstr.map { case (pv, substr) =>
+        val expect = (pv != null) && prop.matches(pv)
+        expect -> substr
+      }
+
+    contentTest(expectToSubstr: _*)
   }
 
   private def never: String =
@@ -52,6 +38,27 @@ object JsOutputTest extends TestSuite {
       .filter(_._1.contains(term))
       .map { case (s, l) => s"$GREEN$l:$RESET " + s.replace(term, MAGENTA_B + WHITE + term + RESET) }
       .foreach(println)
+  }
+
+  private def contentTest(expectToSubstr: (Boolean, String)*)(implicit l: Line): Unit = {
+    System.out.flush()
+    System.err.flush()
+    var errors = List.empty[String]
+    for ((expect, substr) <- expectToSubstr) {
+      val actual = content.contains(substr)
+      val pass   = actual == expect
+      val result = if (pass) s"${GREEN}pass$RESET" else s"${RED_B}${WHITE}FAIL$RESET"
+      val should = if (expect) "should" else "shouldn't"
+      val strCol = if (expect) (GREEN + BRIGHT_GREEN) else BRIGHT_BLACK
+      println(s"[$result] JS $should contain $strCol$substr$RESET")
+      if (!pass) errors ::= s"JS $should contain $substr"
+    }
+    System.out.flush()
+    if (errors.nonEmpty) {
+      for ((_, substr) <- expectToSubstr)
+        fgrep(substr)
+      fail(errors.sorted.mkString(", "))
+    }
   }
 
   override def tests = Tests {
@@ -78,8 +85,13 @@ object JsOutputTest extends TestSuite {
 
     "ReusabilityOverlay" - {
       val expect = fastOptJS && reusabilityDev.contains("overlay") && configClass.isEmpty
-      contentTest(expect, "ReusabilityOverlay")
+      contentTest(expect -> "ReusabilityOverlay")
     }
+
+    "devAssertWarn" - contentTest(
+      true      -> "http://some.url",
+      fastOptJS -> "Consider using BaseUrl.fromWindowOrigin",
+    )
 
   }
 }
