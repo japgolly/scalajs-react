@@ -19,7 +19,7 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
     force[P, C](raw)(s)
   }
 
-  def force[P <: js.Object, C <: Children](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] = {
+  def force[P <: js.Object, C <: Children](raw: Any)(implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] = {
     val rc = raw.asInstanceOf[facade.React.StatelessFunctionalComponent[P]]
     componentRoot[P, s.CT, Unmounted[P]](rc, s.pf.rmap(s.summon(rc))(unmountedRoot))(s.pf)
   }

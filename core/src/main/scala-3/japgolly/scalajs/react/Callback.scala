@@ -135,25 +135,25 @@ object Callback {
   /**
    * Convenience for calling `dom.console.log`.
    */
-  inline def log(message: js.Any, optionalParams: js.Any*): Callback =
+  inline def log(message: Any, optionalParams: Any*): Callback =
     Callback(console.log(message, optionalParams: _*))
 
   /**
    * Convenience for calling `dom.console.info`.
    */
-  inline def info(message: js.Any, optionalParams: js.Any*): Callback =
+  inline def info(message: Any, optionalParams: Any*): Callback =
     Callback(console.info(message, optionalParams: _*))
 
   /**
    * Convenience for calling `dom.console.warn`.
    */
-  inline def warn(message: js.Any, optionalParams: js.Any*): Callback =
+  inline def warn(message: Any, optionalParams: Any*): Callback =
     Callback(console.warn(message, optionalParams: _*))
 
   /**
    * Convenience for calling `dom.console.assert`.
    */
-  inline def assert(test: Boolean, message: String, optionalParams: js.Any*): Callback =
+  inline def assert(test: Boolean, message: String, optionalParams: Any*): Callback =
     Callback(console.assert(test, message, optionalParams: _*))
 
   /**

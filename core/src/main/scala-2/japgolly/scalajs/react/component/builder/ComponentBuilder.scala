@@ -3,7 +3,7 @@ package japgolly.scalajs.react.component.builder
 import japgolly.scalajs.react.component.Scala.{BackendScope, Vars}
 import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.component.{Js, Scala}
-import japgolly.scalajs.react.internal.{Box, JsRepr, Lens, Semigroup}
+import japgolly.scalajs.react.internal.{Box, Lens, Semigroup}
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, UpdateSnapshot, facade}
 import scala.annotation.nowarn
@@ -582,8 +582,8 @@ object ComponentBuilder {
       *
       * @return Your brand-new, spanking, ScalaComponent. Mmmmmmmm, new-car smell.
       */
-    def build(implicit ctorType: CtorType.Summoner[Box[P], C], snapshotJs: JsRepr[SnapshotValue]): Scala.Component[P, S, B, ctorType.CT] = {
-      val c = ViaReactComponent(this)(snapshotJs)
+    def build(implicit ctorType: CtorType.Summoner[Box[P], C]): Scala.Component[P, S, B, ctorType.CT] = {
+      val c = ViaReactComponent(this)
       fromReactComponentClass(c)(ctorType)
     }
   }

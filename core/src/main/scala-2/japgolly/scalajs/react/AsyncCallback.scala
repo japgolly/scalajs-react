@@ -845,8 +845,8 @@ final class AsyncCallback[+A] private[AsyncCallback] (val completeWith: (Try[A] 
     *
     * Does not change the result.
     */
-  def logAround(message: js.Any, optionalParams: js.Any*): AsyncCallback[A] = {
-    def log(prefix: String) = Callback.log(prefix + message.toString, optionalParams: _*).asAsyncCallback
+  def logAround(message: Any, optionalParams: Any*): AsyncCallback[A] = {
+    def log(prefix: String) = Callback.log(prefix + message, optionalParams: _*).asAsyncCallback
     log("→  Starting: ") *> this <* log(" ← Finished: ")
   }
 

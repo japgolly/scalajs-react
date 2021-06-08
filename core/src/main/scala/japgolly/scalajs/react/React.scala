@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{Box, JsRepr}
+import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
 import scala.scalajs.js
 
@@ -15,8 +15,8 @@ object React {
     *
     * @since 1.3.0 / React 16.3.0
     */
-  def createContext[A](defaultValue: A)(implicit jsRepr: JsRepr[A]): Context[A] =
-    Context(defaultValue)(jsRepr)
+  def createContext[A](defaultValue: A): Context[A] =
+    Context(defaultValue)
 
   /** Create a new context with a displayName.
     *
@@ -25,8 +25,8 @@ object React {
     *
     * @since 2.0.0 / React 17.0.0
     */
-  def createContext[A](displayName: String, defaultValue: A)(implicit jsRepr: JsRepr[A]): Context[A] =
-    Context(displayName, defaultValue)(jsRepr)
+  def createContext[A](displayName: String, defaultValue: A): Context[A] =
+    Context(displayName, defaultValue)
 
   type Context[A] = feature.Context[A]
   val  Context    = feature.Context

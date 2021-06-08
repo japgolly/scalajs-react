@@ -10,8 +10,8 @@ object ContextTest extends TestSuite {
 
   case class X()
 
-  def ObjectIs(a: js.Any, b: js.Any): Boolean =
-    js.Dynamic.global.Object.is(a, b).asInstanceOf[Boolean]
+  def ObjectIs(a: Any, b: Any): Boolean =
+    js.Dynamic.global.Object.is(a.asInstanceOf[js.Any], b.asInstanceOf[js.Any]).asInstanceOf[Boolean]
 
   override def tests = Tests {
 
@@ -36,7 +36,7 @@ object ContextTest extends TestSuite {
 
     "refEq" - {
       def test[A](a: React.Context.Provided[A])(b: React.Context.Provided[A], expect: Boolean = true): Unit = {
-        val actual = ObjectIs(a.rawValue, b.rawValue)
+        val actual = ObjectIs(a.value, b.value)
         assert(actual == expect)
       }
 

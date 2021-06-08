@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.feature
 
 import japgolly.scalajs.react.facade
-import japgolly.scalajs.react.internal.JsRepr
 import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
 import scala.scalajs.js
 
@@ -13,14 +12,8 @@ import scala.scalajs.js
   */
 sealed trait Context[A] { ctx =>
 
-  /** Scala values are converted to JS values and back using this. */
-  val jsRepr: JsRepr[A]
-
-  /** The raw JS type that React sees. */
-  type RawValue = jsRepr.J
-
   /** The underlying JS `React.Context`. */
-  val raw: facade.React.Context[RawValue]
+  val raw: facade.React.Context[A]
 
   final def displayName: String =
     raw.displayName.getOrElse("")
@@ -69,12 +62,10 @@ sealed trait Context[A] { ctx =>
     val a = value
     new Context.Provided[A] {
       override val value = a
-      override type RawValue = ctx.RawValue
-      override val rawValue = jsRepr.toJs(a)
 
-      private type Props = facade.React.ValueProps[RawValue]
+      private type Props = facade.React.ValueProps[A]
       private val props: Props = new Props {
-        override val value: RawValue = rawValue
+        override val value = a
       }
 
       override def apply(children: VdomNode*): VdomElement = {
@@ -97,29 +88,24 @@ sealed trait Context[A] { ctx =>
     * Changes are determined by comparing the new and old values using referential equality.
     */
   def consume(f: A => VdomNode): VdomElement = {
-    val childFn: js.Function1[RawValue, facade.React.Node] =
-      (rawValue: RawValue) => f(jsRepr.fromJs(rawValue)).rawNode
+    val childFn: js.Function1[A, facade.React.Node] =
+      (a: A) => f(a).rawNode
     val e = facade.React.createElement(raw.Consumer, null, childFn)
     VdomElement(e)
   }
 }
 
 object Context {
-  type WithRawValue[A, J <: js.Any] = Context[A] { type RawValue = J }
 
-  def apply[A](displayName: String, defaultValue: A)(implicit jsRepr: JsRepr[A]): WithRawValue[A, jsRepr.J] = {
+  def apply[A](displayName: String, defaultValue: A): Context[A] = {
     val ctx = apply(defaultValue)
     ctx.raw.displayName = displayName
     ctx
   }
 
-  def apply[A](defaultValue: A)(implicit jsRepr: JsRepr[A]): WithRawValue[A, jsRepr.J] = {
-    type R = jsRepr.type
-    val _jsRepr: R = jsRepr
+  def apply[A](defaultValue: A): Context[A] = {
     new Context[A] {
-      override type RawValue = _jsRepr.J
-      override val jsRepr: R = _jsRepr
-      override val raw       = facade.React.createContext(jsRepr.toJs(defaultValue))
+      override val raw       = facade.React.createContext(defaultValue)
       override def toString  = s"Context($defaultValue)"
       override def hashCode  = defaultValue.##
     }
@@ -127,8 +113,6 @@ object Context {
 
   sealed trait Provided[A] {
     val value: A
-    type RawValue <: js.Any
-    val rawValue: RawValue
     def apply(children: VdomNode*): VdomElement
   }
 }

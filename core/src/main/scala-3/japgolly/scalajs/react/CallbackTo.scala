@@ -572,8 +572,8 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
     *
     * Does not change the result.
     */
-  def logAround(message: js.Any, optionalParams: js.Any*): CallbackTo[A] = {
-    def log(prefix: String) = Callback.log(prefix + message.toString, optionalParams: _*)
+  def logAround(message: Any, optionalParams: Any*): CallbackTo[A] = {
+    def log(prefix: String) = Callback.log(prefix + message, optionalParams: _*)
     log("→  Starting: ") *> self <* log(" ← Finished: ")
   }
 

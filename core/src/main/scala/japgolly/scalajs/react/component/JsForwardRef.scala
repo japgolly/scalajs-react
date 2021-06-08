@@ -20,7 +20,7 @@ object JsForwardRef {
     force[P, C, R](raw)(s)
   }
 
-  def force[P <: js.Object, C <: Children, R](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, R, s.CT] = {
+  def force[P <: js.Object, C <: Children, R](raw: Any)(implicit s: CtorType.Summoner[P, C]): Component[P, R, s.CT] = {
     val rc = raw.asInstanceOf[facade.React.ForwardRefComponent[P, R]]
     componentRoot[P, R, s.CT, Unmounted[P, R]](rc, s.pf.rmap(s.summon(rc))(u => unmountedRoot(u)))(s.pf)
   }

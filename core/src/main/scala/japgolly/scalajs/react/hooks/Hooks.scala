@@ -50,10 +50,8 @@ object Hooks {
   // ===================================================================================================================
 
   object UseContext {
-    def unsafeCreate[A](ctx: Context[A]): A = {
-      val rawValue = facade.React.useContext(ctx.raw)
-      ctx.jsRepr.fromJs(rawValue)
-    }
+    @inline def unsafeCreate[A](ctx: Context[A]): A =
+      facade.React.useContext(ctx.raw)
   }
 
   // ===================================================================================================================

@@ -3,7 +3,7 @@ package japgolly.scalajs.react.component.builder
 import japgolly.scalajs.react.component.Scala._
 import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.component.{Js, Scala}
-import japgolly.scalajs.react.internal.{Box, JsRepr}
+import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.{Children, UpdateSnapshot, facade}
 import scala.scalajs.js
 
@@ -236,8 +236,7 @@ object ViaReactComponent {
   // ===================================================================================================================
 
   def apply[P, C <: Children, S, B, US <: UpdateSnapshot]
-      (builder: ComponentBuilder.Step4[P, C, S, B, US])
-      (implicit snapshotJs: JsRepr[builder.SnapshotValue]): facade.React.ComponentClass[Box[P], Box[S]] = {
+      (builder: ComponentBuilder.Step4[P, C, S, B, US]): facade.React.ComponentClass[Box[P], Box[S]] = {
 
     val backendFn = builder.backendFn
     val renderFn = builder.renderFn
@@ -287,8 +286,8 @@ object ViaReactComponent {
 
     for (f <- builder.lifecycle.componentDidUpdate)
       protoProps.add3("componentDidUpdate",
-        (_this: This, p: Box[P], s: Box[S], ss: js.Any) =>
-          f(new ComponentDidUpdate(_this, p.unbox, s.unbox, snapshotJs.unsafeFromJs(ss))).runNow())
+        (_this: This, p: Box[P], s: Box[S], ss: builder.SnapshotValue) =>
+          f(new ComponentDidUpdate(_this, p.unbox, s.unbox, ss)).runNow())
 
     for (f <- builder.lifecycle.componentWillMount)
       protoProps.add0("componentWillMount",
@@ -329,7 +328,7 @@ object ViaReactComponent {
     for (f <- builder.lifecycle.getSnapshotBeforeUpdate)
       protoProps.add2("getSnapshotBeforeUpdate",
         (_this: This, p: Box[P], s: Box[S]) =>
-          snapshotJs.toJs(f(new GetSnapshotBeforeUpdate(_this, p.unbox, s.unbox)).runNow()))
+          f(new GetSnapshotBeforeUpdate(_this, p.unbox, s.unbox)).runNow())
 
     for (f <- builder.lifecycle.shouldComponentUpdate)
       protoProps.add2("shouldComponentUpdate",
