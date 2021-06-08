@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.raw
+package japgolly.scalajs.react.facade
 
 import org.scalajs.dom
 import scala.annotation.nowarn

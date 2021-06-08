@@ -1,23 +1,23 @@
 package japgolly.scalajs.react.vdom
 
+import japgolly.scalajs.react.facade
 import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
-import japgolly.scalajs.react.{raw => Raw}
 
 trait VdomNode extends TagMod {
-  def rawNode: Raw.React.Node
+  def rawNode: facade.React.Node
 
   override def applyTo(b: VdomBuilder): Unit =
     b.appendChild(rawNode)
 }
 
 object VdomNode {
-  def apply(n: Raw.React.Node): VdomNode =
+  def apply(n: facade.React.Node): VdomNode =
     new VdomNode {
       override def rawNode = n
     }
 
   @inline def cast(n: Any): VdomNode =
-    apply(n.asInstanceOf[Raw.React.Node])
+    apply(n.asInstanceOf[facade.React.Node])
 
   private[vdom] val empty: VdomNode =
     apply(null)
@@ -28,6 +28,6 @@ object VdomNode {
 
 trait VdomNodeScalaSpecificImplicits {
   // I have no idea why I don't need to prevent Unit or Boolean here, but the tests say its fine /shrug
-  @inline implicit def vdomNodeFromRawReactNode(v: Raw.React.Node): VdomNode =
+  @inline implicit def vdomNodeFromRawReactNode(v: facade.React.Node): VdomNode =
     VdomNode(v)
 }

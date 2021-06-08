@@ -3,7 +3,7 @@ package japgolly.scalajs.react.component
 import japgolly.scalajs.react.hooks.HookComponentBuilder
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, raw}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, facade}
 import scala.scalajs.js
 
 object ScalaFn {
@@ -13,11 +13,11 @@ object ScalaFn {
   type Mounted                                    = JsFn.Mounted
 
   private def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
-      (render: Box[P] with raw.PropsWithChildren => VdomNode)
+      (render: Box[P] with facade.PropsWithChildren => VdomNode)
       (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] = {
 
-    val jsRender = render.andThen(_.rawNode): js.Function1[Box[P] with raw.PropsWithChildren, raw.React.Node]
-    val rawComponent = jsRender.asInstanceOf[raw.React.StatelessFunctionalComponent[Box[P]]]
+    val jsRender = render.andThen(_.rawNode): js.Function1[Box[P] with facade.PropsWithChildren, facade.React.Node]
+    val rawComponent = jsRender.asInstanceOf[facade.React.StatelessFunctionalComponent[Box[P]]]
     JsFn.force[Box[P], C](rawComponent)(s)
       .cmapCtorProps[P](Box(_))
       .mapUnmounted(_.mapUnmountedProps(_.unbox))

@@ -93,6 +93,7 @@ object ScalajsReact {
     )
     .configure(commonSettings, preventPublication, hasNoTests)
     .aggregate(
+      facade,
       core,
       extra,
       test,
@@ -111,8 +112,16 @@ object ScalajsReact {
 
   lazy val genHooks = TaskKey[Unit]("genHooks")
 
+  lazy val facade = project
+    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
+    .settings(
+      name := "facade",
+      libraryDependencies += Dep.scalaJsDom.value,
+    )
+
   lazy val core = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
+    .dependsOn(facade)
     .settings(
       name := "core",
       libraryDependencies ++= Seq(

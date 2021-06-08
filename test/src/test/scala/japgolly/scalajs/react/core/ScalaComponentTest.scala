@@ -16,7 +16,7 @@ object ScalaComponentPTest extends TestSuite {
     ScalaComponent.builder[BasicProps]("HelloMessage")
       .stateless
       .noBackend
-      .render_P(p => raw.React.createElement("div", null, "Hello ", p.name))
+      .render_P(p => facade.React.createElement("div", null, "Hello ", p.name))
       .build
 
   override def tests = Tests {
@@ -127,7 +127,7 @@ object ScalaComponentPTest extends TestSuite {
       val Inner = ScalaComponent.builder[Props]("")
         .stateless
         .backend(_ => new Backend)
-        .render_P(p => raw.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
+        .render_P(p => facade.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
         .shouldComponentUpdatePure(_.cmpProps(_.a != _.a)) // update if .a differs
         .shouldComponentUpdatePure(_.cmpProps(_.b != _.b)) // update if .b differs
         .componentDidMount(_ => Callback(mountCountA += 1))
@@ -144,7 +144,7 @@ object ScalaComponentPTest extends TestSuite {
           .initialState[Option[String]](None) // error message
           .render_PS((p, s) => s match {
             case None    => Inner(p).vdomElement
-            case Some(e) => raw.React.createElement("div", null, "Error: " + e)
+            case Some(e) => facade.React.createElement("div", null, "Error: " + e)
           })
         .componentDidCatch($ => $.setState(Some($.error.message.replaceFirst("'.+' *", ""))))
         .build
@@ -186,7 +186,7 @@ object ScalaComponentPTest extends TestSuite {
       val Comp = ScalaComponent.builder[Props]("")
         .initialState(0)
         .noBackend
-        .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
+        .render_PS((p, s) => facade.React.createElement("div", null, s"p=$p s=$s"))
         .getDerivedStateFromProps(_ + 100)
         .getSnapshotBeforeUpdatePure($ => s"${$.prevProps} -> ${$.currentProps}")
         .componentDidUpdate($ => Callback(snapshots :+= $.snapshot))
@@ -209,7 +209,7 @@ object ScalaComponentPTest extends TestSuite {
         val Comp = ScalaComponent.builder[Int]("")
           .initialState(0)
           .noBackend
-          .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
+          .render_PS((p, s) => facade.React.createElement("div", null, s"p=$p s=$s"))
           .getDerivedStateFromPropsOption(p => if (p > 100) Some(p - 100) else None)
           .getDerivedStateFromPropsOption((_, s) => if ((s & 1) == 0) Some(s >> 1) else None)
           .build
@@ -233,7 +233,7 @@ object ScalaComponentPTest extends TestSuite {
         val Comp = ScalaComponent.builder[Int]("")
           .getDerivedStateFromProps(-_)
           .noBackend
-          .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
+          .render_PS((p, s) => facade.React.createElement("div", null, s"p=$p s=$s"))
           .getDerivedStateFromPropsOption((_, s) => if (s > 100) Some(s - 100) else None)
           .getDerivedStateFromPropsOption((_, s) => if ((s & 1) == 0) Some(s >> 1) else None)
           .build
@@ -257,7 +257,7 @@ object ScalaComponentPTest extends TestSuite {
         val Comp = ScalaComponent.builder[Int]("")
           .getDerivedStateFromPropsAndState[Int]((p, os) => os.fold(0)(_ => -p))
           .noBackend
-          .render_PS((p, s) => raw.React.createElement("div", null, s"p=$p s=$s"))
+          .render_PS((p, s) => facade.React.createElement("div", null, s"p=$p s=$s"))
           .getDerivedStateFromPropsOption((_, s) => if (s > 100) Some(s - 100) else None)
           .getDerivedStateFromPropsOption((_, s) => if ((s & 1) == 0) Some(s >> 1) else None)
           .build
@@ -329,7 +329,7 @@ object ScalaComponentSTest extends TestSuite {
     ScalaComponent.builder[Int]("")
       .initialState(State(123, State2(400, 7)))
       .backend(new Backend(_))
-      .render_PS((p, s) => raw.React.createElement("div", null, "Props = ", p, ". State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3))
+      .render_PS((p, s) => facade.React.createElement("div", null, "Props = ", p, ". State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3))
       .build
 
   override def tests = Tests {
@@ -414,7 +414,7 @@ object ScalaComponentSTest extends TestSuite {
       val Component =
         ScalaComponent.builder[Unit]("")
           .initialState(123)
-          .render_S(s => raw.React.createElement("div", null, s))
+          .render_S(s => facade.React.createElement("div", null, s))
           .build
 
       assert(Component() eq Component())

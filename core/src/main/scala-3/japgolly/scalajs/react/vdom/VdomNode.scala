@@ -1,10 +1,10 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.{raw => Raw}
+import japgolly.scalajs.react.facade
 import scala.util.NotGiven
 
 trait VdomNode extends TagMod {
-  def rawNode: Raw.React.Node
+  def rawNode: facade.React.Node
 
   override def applyTo(b: VdomBuilder): Unit =
     b.appendChild(rawNode)
@@ -12,13 +12,13 @@ trait VdomNode extends TagMod {
 
 object VdomNode {
 
-  def apply(n: Raw.React.Node): VdomNode =
+  def apply(n: facade.React.Node): VdomNode =
     new VdomNode {
       override def rawNode = n
     }
 
   inline def cast(inline n: Any): VdomNode =
-    apply(n.asInstanceOf[Raw.React.Node])
+    apply(n.asInstanceOf[facade.React.Node])
 
   private[vdom] val empty: VdomNode =
     apply(null)
@@ -28,7 +28,7 @@ object VdomNode {
 }
 
 trait VdomNodeScalaSpecificImplicits {
-  inline implicit def vdomNodeFromRawReactNode(v: Raw.React.Node)(using
+  inline implicit def vdomNodeFromRawReactNode(v: facade.React.Node)(using
       inline evU: NotGiven[v.type <:< Unit],
       inline evB: NotGiven[v.type <:< Boolean],
     ): VdomNode =

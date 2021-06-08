@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.facade.{React => RawReact, ReactDOM => RawReactDOM}
 import japgolly.scalajs.react.hooks.Hooks
 import japgolly.scalajs.react.internal.JsUtil
-import japgolly.scalajs.react.raw.{React => RawReact, ReactDOM => RawReactDOM}
 import org.scalajs.dom
 import org.scalajs.dom.html.Element
 import org.scalajs.dom.{console, document}
@@ -18,7 +18,7 @@ object ReactTestUtils {
   type Unmounted[M] = GenericComponent.Unmounted[_, M]
   type Mounted      = GenericComponent.MountedRaw
 
-  private type RawM = japgolly.scalajs.react.raw.React.ComponentUntyped
+  private type RawM = japgolly.scalajs.react.facade.React.ComponentUntyped
   type MountedOutput = JsComponent.Mounted[js.Object, js.Object]
   private def wrapMO(r: RawM | Null): MountedOutput =
     if (r == null)
@@ -29,7 +29,7 @@ object ReactTestUtils {
       x.asInstanceOf[MountedOutput]
     }
 
-  type CompType = GenericComponent.ComponentRaw {type Raw <: japgolly.scalajs.react.raw.React.ComponentClassUntyped }
+  type CompType = GenericComponent.ComponentRaw {type Raw <: japgolly.scalajs.react.facade.React.ComponentClassUntyped }
 
   /** When writing UI tests, tasks like rendering, user events, or data fetching can be considered as "units" of
     * interaction with a user interface. React provides a helper called act() that makes sure all updates related to

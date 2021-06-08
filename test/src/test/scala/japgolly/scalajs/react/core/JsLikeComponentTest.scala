@@ -13,7 +13,7 @@ object JsLikeComponentTest extends TestSuite {
   def RawJs6b = JsComponentEs6STest.RawComp // unary ctor
   def RawJsFn = JsFnComponentTest.RawComp
 
-  def RawForwardRefComp = raw.React.forwardRef[js.Object, Any]((_, _) => null)
+  def RawForwardRefComp = facade.React.forwardRef[js.Object, Any]((_, _) => null)
 
   def assertNoError[A](a: => A): Unit = {
     a

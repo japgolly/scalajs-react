@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.test.raw
 
-import japgolly.scalajs.react.raw._
+import japgolly.scalajs.react.facade._
 import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation._

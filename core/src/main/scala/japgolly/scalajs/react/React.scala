@@ -2,12 +2,11 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.{Box, JsRepr}
 import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
-import japgolly.scalajs.react.{raw => Raw}
 import scala.scalajs.js
 
 object React {
-  @inline def raw: Raw.React = Raw.React
-  @inline def version: String = Raw.React.version
+  @inline def raw: facade.React = facade.React
+  @inline def version: String = facade.React.version
 
   /** Create a new context.
     *
@@ -51,7 +50,7 @@ object React {
                                             s: CtorType.Summoner[Box[P], c.ctor.ChildrenType])
       : GenericComponent[P, s.CT, JsComponent.Unmounted[Box[P], Null]] = {
     val r2 = implicitly[Reusability[Box[P]]]
-    val c2 = Raw.React.memo(c.raw, r2.test)
+    val c2 = facade.React.memo(c.raw, r2.test)
     JsComponent.force[Box[P], c.ctor.ChildrenType, Null](c2)
       .cmapCtorProps[P](Box(_))
   }
@@ -67,7 +66,7 @@ object React {
     * @since 1.3.0 / React 16.3.0
     */
   def StrictMode(ns: VdomNode*): VdomElement =
-    VdomElement(Raw.React.createElement(Raw.React.StrictMode, null, ns.map(_.rawNode): _*))
+    VdomElement(facade.React.createElement(facade.React.StrictMode, null, ns.map(_.rawNode): _*))
 
   /** Displays a fallback view until an asynchronous view becomes available.
     *
@@ -79,16 +78,16 @@ object React {
     val lazyBody = asyncBody.map { a =>
       type P         = Box[Unit]
       val comp       = ScalaFnComponent[Unit](_ => ev(a))
-      val lazyValue  = comp.raw.asInstanceOf[Raw.React.LazyResultValue[P]]
-      val lazyResult = js.Dynamic.literal(default = lazyValue.asInstanceOf[js.Any]).asInstanceOf[Raw.React.LazyResult[P]]
+      val lazyValue  = comp.raw.asInstanceOf[facade.React.LazyResultValue[P]]
+      val lazyResult = js.Dynamic.literal(default = lazyValue.asInstanceOf[js.Any]).asInstanceOf[facade.React.LazyResult[P]]
       lazyResult
     }
     val lazyFn = () => lazyBody.unsafeToJsPromise()
-    val lazyC  = Raw.React.`lazy`(lazyFn)
-    val lazyE  = Raw.React.createElement(lazyC, Box.Unit)
+    val lazyC  = facade.React.`lazy`(lazyFn)
+    val lazyE  = facade.React.createElement(lazyC, Box.Unit)
 
-    val suspenseP = js.Dynamic.literal(fallback = fallback.rawNode.asInstanceOf[js.Any]).asInstanceOf[Raw.SuspenseProps]
-    val suspenseE = Raw.React.createElement(Raw.Suspense, suspenseP, lazyE)
+    val suspenseP = js.Dynamic.literal(fallback = fallback.rawNode.asInstanceOf[js.Any]).asInstanceOf[facade.SuspenseProps]
+    val suspenseE = facade.React.createElement(facade.Suspense, suspenseP, lazyE)
 
     VdomElement(suspenseE)
   }

@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.feature
 
+import japgolly.scalajs.react.facade
 import japgolly.scalajs.react.internal.JsRepr
 import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
-import japgolly.scalajs.react.{raw => Raw}
 import scala.scalajs.js
 
 /** React Context.
@@ -20,7 +20,7 @@ sealed trait Context[A] { ctx =>
   type RawValue = jsRepr.J
 
   /** The underlying JS `React.Context`. */
-  val raw: Raw.React.Context[RawValue]
+  val raw: facade.React.Context[RawValue]
 
   final def displayName: String =
     raw.displayName.getOrElse("")
@@ -72,13 +72,13 @@ sealed trait Context[A] { ctx =>
       override type RawValue = ctx.RawValue
       override val rawValue = jsRepr.toJs(a)
 
-      private type Props = Raw.React.ValueProps[RawValue]
+      private type Props = facade.React.ValueProps[RawValue]
       private val props: Props = new Props {
         override val value: RawValue = rawValue
       }
 
       override def apply(children: VdomNode*): VdomElement = {
-        val e = Raw.React.createElement[Props](raw.Provider, props, children.map(_.rawNode): _*)
+        val e = facade.React.createElement[Props](raw.Provider, props, children.map(_.rawNode): _*)
         VdomElement(e)
       }
     }
@@ -97,9 +97,9 @@ sealed trait Context[A] { ctx =>
     * Changes are determined by comparing the new and old values using referential equality.
     */
   def consume(f: A => VdomNode): VdomElement = {
-    val childFn: js.Function1[RawValue, Raw.React.Node] =
+    val childFn: js.Function1[RawValue, facade.React.Node] =
       (rawValue: RawValue) => f(jsRepr.fromJs(rawValue)).rawNode
-    val e = Raw.React.createElement(raw.Consumer, null, childFn)
+    val e = facade.React.createElement(raw.Consumer, null, childFn)
     VdomElement(e)
   }
 }
@@ -119,7 +119,7 @@ object Context {
     new Context[A] {
       override type RawValue = _jsRepr.J
       override val jsRepr: R = _jsRepr
-      override val raw       = Raw.React.createContext(jsRepr.toJs(defaultValue))
+      override val raw       = facade.React.createContext(jsRepr.toJs(defaultValue))
       override def toString  = s"Context($defaultValue)"
       override def hashCode  = defaultValue.##
     }

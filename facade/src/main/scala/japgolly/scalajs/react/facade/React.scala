@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.raw
+package japgolly.scalajs.react.facade
 
 import scala.annotation.nowarn
 import scala.annotation.unchecked.uncheckedVariance

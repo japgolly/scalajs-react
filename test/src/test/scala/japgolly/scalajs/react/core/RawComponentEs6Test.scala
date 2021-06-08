@@ -16,9 +16,9 @@ object RawComponentEs6PTest extends TestSuite {
   case class BasicProps(name: String)
 
   @nowarn("cat=unused")
-  class RawComp(ctorProps: Box[BasicProps]) extends raw.React.Component[Box[BasicProps], Box[Unit]] {
+  class RawComp(ctorProps: Box[BasicProps]) extends facade.React.Component[Box[BasicProps], Box[Unit]] {
     override def render() =
-      raw.React.createElement("div", null, "Hello ", this.props.unbox.name)
+      facade.React.createElement("div", null, "Hello ", this.props.unbox.name)
   }
   val RawCompCtor = js.constructorOf[RawComp]
   RawCompCtor.displayName = "HelloRaw6"
@@ -137,7 +137,7 @@ object RawComponentEs6PTest extends TestSuite {
       val Comp = ScalaComponent.builder[Props]("")
         .stateless
         .backend(_ => new Backend)
-        .render_P(p => raw.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
+        .render_P(p => facade.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
         .shouldComponentUpdatePure(_.cmpProps(_.a != _.a)) // update if .a differs
         .shouldComponentUpdatePure(_.cmpProps(_.b != _.b)) // update if .b differs
         .componentDidMount(_ => Callback(mountCountA += 1))
@@ -186,11 +186,11 @@ object RawComponentEs6STest extends TestSuite {
   implicit val equalState2: UnivEq[State2] = UnivEq.force
 
   @nowarn("cat=unused")
-  class RawComp(ctorProps: Box[Unit]) extends raw.React.Component[Box[Unit], Box[State1]] {
+  class RawComp(ctorProps: Box[Unit]) extends facade.React.Component[Box[Unit], Box[State1]] {
     this.state = Box(State1(123, State2(400, 7)))
     override def render() = {
       val s = this.state.unbox
-      raw.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3)
+      facade.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3)
     }
     def inc(): Unit =
       modState((s: State, _: Props) => Box(s.unbox.copy(s.unbox.num1 + 1)): State | Null)

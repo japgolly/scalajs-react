@@ -5,7 +5,7 @@ import scala.scalajs.js
 
 package object react extends ReactEventTypes with ReactExtensions {
 
-  type Key = raw.React.Key
+  type Key = facade.React.Key
 
   type Callback = CallbackTo[Unit]
 

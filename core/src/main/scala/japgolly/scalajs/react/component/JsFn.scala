@@ -2,11 +2,11 @@ package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, raw => RAW, vdom}
+import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, facade, vdom}
 import scala.annotation.implicitNotFound
 import scala.scalajs.js
 
-object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalComponent] {
+object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComponent] {
 
   type Component[P <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentRoot[P, CT, Unmounted[P]]
   type Unmounted[P <: js.Object]                               = UnmountedRoot[P]
@@ -20,11 +20,11 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
   }
 
   def force[P <: js.Object, C <: Children](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] = {
-    val rc = raw.asInstanceOf[RAW.React.StatelessFunctionalComponent[P]]
+    val rc = raw.asInstanceOf[facade.React.StatelessFunctionalComponent[P]]
     componentRoot[P, s.CT, Unmounted[P]](rc, s.pf.rmap(s.summon(rc))(unmountedRoot))(s.pf)
   }
 
-  def fromJsFn[P <: js.Object, C <: Children](render: js.Function1[P with RAW.PropsWithChildren, RAW.React.Element])
+  def fromJsFn[P <: js.Object, C <: Children](render: js.Function1[P with facade.PropsWithChildren, facade.React.Element])
                                              (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
     JsFn.force[P, C](render)(s)
 
@@ -35,9 +35,9 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
   object fromScala {
     import japgolly.scalajs.react.vdom._
 
-    def generic[P <: js.Object, C <: Children](render: P with RAW.PropsWithChildren => VdomElement)
+    def generic[P <: js.Object, C <: Children](render: P with facade.PropsWithChildren => VdomElement)
                                               (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
-      fromJsFn[P, C]((p: P with RAW.PropsWithChildren) => render(p).rawElement)(s)
+      fromJsFn[P, C]((p: P with facade.PropsWithChildren) => render(p).rawElement)(s)
 
     def const(render: VdomElement)
              (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
@@ -67,7 +67,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
   private def staticDisplayName = "<FnComponent>"
 
-  override protected def rawComponentDisplayName[A <: js.Object](r: RAW.React.StatelessFunctionalComponent[A]) =
+  override protected def rawComponentDisplayName[A <: js.Object](r: facade.React.StatelessFunctionalComponent[A]) =
     staticDisplayName
 
   // ===================================================================================================================
@@ -98,9 +98,9 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
   }
 
   @implicitNotFound("Don't know how to convert unmounted value into a React.Element. Try adding .mapUnmounted to your component.")
-  final case class ToRawReactElement[-A](run: A => RAW.React.Element) extends AnyVal
+  final case class ToRawReactElement[-A](run: A => facade.React.Element) extends AnyVal
   object ToRawReactElement {
-    implicit def id: ToRawReactElement[RAW.React.Element] = apply(identityFn)
+    implicit def id: ToRawReactElement[facade.React.Element] = apply(identityFn)
     implicit def fromVdom: ToRawReactElement[vdom.VdomElement] = apply(_.rawElement)
     implicit def fromUnmounted[P, M]: ToRawReactElement[Generic.UnmountedSimple[P, M]] = apply(_.vdomElement.rawElement)
   }
@@ -108,15 +108,15 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
   // ===================================================================================================================
 
   sealed trait UnmountedSimple[P, M] extends Generic.UnmountedSimple[P, M] {
-    override type Raw <: RAW.React.ComponentElement[_ <: js.Object]
+    override type Raw <: facade.React.ComponentElement[_ <: js.Object]
     override final type Ref = Nothing
     override final def displayName = staticDisplayName
 
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
-    override final def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): this.Mounted = {
-      val result = RAW.ReactDOM.render(raw, container, callback.toJsFn)
+    override final def renderIntoDOM(container: facade.ReactDOM.Container, callback: Callback = Callback.empty): this.Mounted = {
+      val result = facade.ReactDOM.render(raw, container, callback.toJsFn)
 
       // Protect against future React change.
       assert(result eq null, "Expected rendered functional component to return null; not " + result)
@@ -127,7 +127,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
   sealed trait UnmountedWithRoot[P1, M1, P0 <: js.Object]
       extends UnmountedSimple[P1, M1] with Generic.UnmountedWithRoot[P1, M1, P0, Mounted] {
-    override final type Raw = RAW.React.ComponentElement[P0]
+    override final type Raw = facade.React.ComponentElement[P0]
     override final type Root = UnmountedRoot[P0]
     override def mapUnmountedProps[P2](f: P1 => P2): UnmountedWithRoot[P2, M1, P0]
     override def mapMounted[M2](f: M1 => M2): UnmountedWithRoot[P1, M2, P0]
@@ -137,7 +137,7 @@ object JsFn extends JsBaseComponentTemplate[RAW.React.StatelessFunctionalCompone
 
   private val constUnit: Any => Unit = _ => ()
 
-  def unmountedRoot[P <: js.Object](r: RAW.React.ComponentElement[P]): UnmountedRoot[P] =
+  def unmountedRoot[P <: js.Object](r: facade.React.ComponentElement[P]): UnmountedRoot[P] =
     new UnmountedRoot[P] {
       override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identityFn)
       override def mapMounted[M2](f: this.Mounted => M2) = mappedU(this)(identityFn, f)

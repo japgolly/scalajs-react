@@ -3,7 +3,6 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import japgolly.scalajs.react.internal.{Effect, identityFn}
 import japgolly.scalajs.react.vdom.TopNode
-import japgolly.scalajs.react.{raw => Raw}
 import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.|
@@ -12,18 +11,18 @@ object Ref {
   import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 
   def apply[A]: Simple[A] =
-    fromJs(Raw.React.createRef[A | Null]())
+    fromJs(facade.React.createRef[A | Null]())
 
-  def fromJs[A](raw: Raw.React.RefHandle[A | Null]): Simple[A] =
+  def fromJs[A](raw: facade.React.RefHandle[A | Null]): Simple[A] =
     Full(raw, identityFn, Some(_))
 
-  def forwardedFromJs[A](f: raw.React.ForwardedRef[A]): Option[Simple[A]] =
+  def forwardedFromJs[A](f: facade.React.ForwardedRef[A]): Option[Simple[A]] =
     jsNullToOption(f).map(fromJs)
 
   type Simple[A] = Full[A, A, A]
 
   trait Handle[A] {
-    val raw: Raw.React.RefHandle[A | Null]
+    val raw: facade.React.RefHandle[A | Null]
     final def root: Simple[A] = fromJs(raw)
   }
 
@@ -60,7 +59,7 @@ object Ref {
   trait Set[A] {
     val set: CallbackKleisli[Option[A], Unit]
 
-    final lazy val rawSetFn: Raw.React.RefFn[A] =
+    final lazy val rawSetFn: facade.React.RefFn[A] =
       set.contramap[A | Null](jsNullToOption).toJsFn
 
     def contramap[B](f: B => A): Set[B]
@@ -86,7 +85,7 @@ object Ref {
       mapOption(ct.unapply)
   }
 
-  def Full[I, A, O](_raw: Raw.React.RefHandle[A | Null], l: I => A, r: A => Option[O]): Full[I, A, O] =
+  def Full[I, A, O](_raw: facade.React.RefHandle[A | Null], l: I => A, r: A => Option[O]): Full[I, A, O] =
     new Full[I, A, O] {
 
       override val raw = _raw
@@ -152,7 +151,7 @@ object Ref {
 
   // /** @since 2.0.0 */
   // trait NonEmpty[I, R, O] { self =>
-  //   val raw: Raw.React.RefHandle[R]
+  //   val raw: facade.React.RefHandle[R]
   //   def get: CallbackTo[O]
   //   def set(i: I): Callback
   //   def mod(f: O => I): Callback
@@ -177,7 +176,7 @@ object Ref {
   // object NonEmpty {
   //   type Simple[A] = NonEmpty[A, A, A]
 
-  //   def Simple[A](r: Raw.React.RefHandle[A]): Simple[A] =
+  //   def Simple[A](r: facade.React.RefHandle[A]): Simple[A] =
   //     new NonEmpty[A, A, A] {
   //       override val raw   = r
   //       def get            = CallbackTo(raw.current)

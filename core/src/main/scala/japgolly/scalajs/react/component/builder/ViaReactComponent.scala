@@ -4,7 +4,7 @@ import japgolly.scalajs.react.component.Scala._
 import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.component.{Js, Scala}
 import japgolly.scalajs.react.internal.{Box, JsRepr}
-import japgolly.scalajs.react.{Children, UpdateSnapshot, raw}
+import japgolly.scalajs.react.{Children, UpdateSnapshot, facade}
 import scala.scalajs.js
 
 /** Creates an ES6 class extending `React.Component` to create a component from a builder. */
@@ -209,7 +209,7 @@ object ViaReactComponent {
   }
 
   private val ReactComponent: js.Object =
-    js.constructorOf[raw.React.Component[js.Object, js.Object]].asInstanceOf[js.Object]
+    js.constructorOf[facade.React.Component[js.Object, js.Object]].asInstanceOf[js.Object]
 
   private final class ProtoProps[This](val methods: js.Array[Method] = js.Array()) extends AnyVal {
     def add[O](k: String, v: js.Any): Unit = methods.push(Method(k, v))
@@ -237,7 +237,7 @@ object ViaReactComponent {
 
   def apply[P, C <: Children, S, B, US <: UpdateSnapshot]
       (builder: ComponentBuilder.Step4[P, C, S, B, US])
-      (implicit snapshotJs: JsRepr[builder.SnapshotValue]): raw.React.ComponentClass[Box[P], Box[S]] = {
+      (implicit snapshotJs: JsRepr[builder.SnapshotValue]): facade.React.ComponentClass[Box[P], Box[S]] = {
 
     val backendFn = builder.backendFn
     val renderFn = builder.renderFn
@@ -279,7 +279,7 @@ object ViaReactComponent {
 
     for (f <- builder.lifecycle.componentDidCatch)
       protoProps.add2("componentDidCatch",
-        (_this: This, e: js.Any, i: raw.React.ErrorInfo) => f(new ComponentDidCatch(_this, e, i)).runNow())
+        (_this: This, e: js.Any, i: facade.React.ErrorInfo) => f(new ComponentDidCatch(_this, e, i)).runNow())
 
     for (f <- builder.lifecycle.componentDidMount)
       protoProps.add0("componentDidMount",
@@ -340,6 +340,6 @@ object ViaReactComponent {
 
     _createClass(MyComponent, protoProps.methods, staticProps.methods)
 
-    MyComponent.asInstanceOf[raw.React.ComponentClass[Box[P], Box[S]]]
+    MyComponent.asInstanceOf[facade.React.ComponentClass[Box[P], Box[S]]]
   }
 }

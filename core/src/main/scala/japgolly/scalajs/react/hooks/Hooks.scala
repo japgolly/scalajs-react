@@ -4,7 +4,7 @@ import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaCompon
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.internal.{Box, NotAllowed, OptionLike}
 import japgolly.scalajs.react.vdom.TopNode
-import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, React => _, Ref, Reusability, Reusable, raw => Raw}
+import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, Ref, Reusability, Reusable, facade}
 import scala.annotation.implicitNotFound
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -35,8 +35,8 @@ object Hooks {
 
   object UseCallback {
 
-    private def create[A](in: A, deps: Raw.React.HookDeps)(implicit a: UseCallbackArg[A]): Reusable[A] =
-      a.fromJs(Raw.React.useCallback(a.toJs(in), deps))
+    private def create[A](in: A, deps: facade.React.HookDeps)(implicit a: UseCallbackArg[A]): Reusable[A] =
+      a.fromJs(facade.React.useCallback(a.toJs(in), deps))
 
     def apply[A](callback: => A)(implicit a: UseCallbackArg[A]): CustomHook[Unit, Reusable[A]] =
       CustomHook.delay(create(callback, new js.Array[Any]))
@@ -51,7 +51,7 @@ object Hooks {
 
   object UseContext {
     def unsafeCreate[A](ctx: Context[A]): A = {
-      val rawValue = Raw.React.useContext(ctx.raw)
+      val rawValue = facade.React.useContext(ctx.raw)
       ctx.jsRepr.fromJs(rawValue)
     }
   }
@@ -60,7 +60,7 @@ object Hooks {
 
   object UseDebugValue {
     def unsafeCreate(desc: => Any): Unit =
-      Raw.React.useDebugValue[Null](null, _ => desc)
+      facade.React.useDebugValue[Null](null, _ => desc)
   }
 
   // ===================================================================================================================
@@ -70,7 +70,7 @@ object Hooks {
     + "\n  - To specify a basic effect, provide a Callback (protip: try adding .void to your callback)."
     + "\n  - To specify an effect and a clean-up effect, provide a CallbackTo[Callback] where the Callback you return is the clean-up effect."
     + "\nSee https://reactjs.org/docs/hooks-reference.html#useeffect")
-  final case class UseEffectArg[A](toJs: CallbackTo[A] => Raw.React.UseEffectArg)
+  final case class UseEffectArg[A](toJs: CallbackTo[A] => facade.React.UseEffectArg)
 
   object UseEffectArg {
     implicit val unit: UseEffectArg[Unit] =
@@ -88,16 +88,16 @@ object Hooks {
 
   object UseEffect {
     def unsafeCreate[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
-      Raw.React.useEffect(a.toJs(effect))
+      facade.React.useEffect(a.toJs(effect))
 
     def unsafeCreateOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
-      Raw.React.useEffect(a.toJs(effect), new js.Array[Any])
+      facade.React.useEffect(a.toJs(effect), new js.Array[Any])
 
     def unsafeCreateLayout[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
-      Raw.React.useLayoutEffect(a.toJs(effect))
+      facade.React.useLayoutEffect(a.toJs(effect))
 
     def unsafeCreateLayoutOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
-      Raw.React.useLayoutEffect(a.toJs(effect), new js.Array[Any])
+      facade.React.useLayoutEffect(a.toJs(effect), new js.Array[Any])
   }
 
   object ReusableEffect {
@@ -105,19 +105,19 @@ object Hooks {
     def useEffect[A, D](e: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
       CustomHook.reusableDeps[D]
         .apply(() => deps)
-        .map(rev => Raw.React.useEffect(a.toJs(e), js.Array[Any](rev)))
+        .map(rev => facade.React.useEffect(a.toJs(e), js.Array[Any](rev)))
 
     def useLayoutEffect[A, D](e: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
       CustomHook.reusableDeps[D]
         .apply(() => deps)
-        .map(rev => Raw.React.useLayoutEffect(a.toJs(e), js.Array[Any](rev)))
+        .map(rev => facade.React.useLayoutEffect(a.toJs(e), js.Array[Any](rev)))
   }
 
   // ===================================================================================================================
 
   object UseMemo {
     def apply[A, D](create: => A, deps: => D)(implicit r: Reusability[D]): CustomHook[Unit, Reusable[A]] =
-      CustomHook.reusableByDeps[A, D](rev => Raw.React.useMemo(() => create, js.Array[Any](rev)))
+      CustomHook.reusableByDeps[A, D](rev => facade.React.useMemo(() => create, js.Array[Any](rev)))
         .apply(() => deps)
   }
 
@@ -128,15 +128,15 @@ object Hooks {
       unsafeCreate[Null, S, A](reducer, null, _ => initialState)
 
     def unsafeCreate[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): UseReducer[S, A] =
-      _unsafeCreate(Raw.React.useReducer[I, S, A](reducer, initialArg, init))
+      _unsafeCreate(facade.React.useReducer[I, S, A](reducer, initialArg, init))
 
-    private def _unsafeCreate[S, A](originalResult: Raw.React.UseReducer[S, A]): UseReducer[S, A] = {
+    private def _unsafeCreate[S, A](originalResult: facade.React.UseReducer[S, A]): UseReducer[S, A] = {
       val originalDispatch = Reusable.byRef(originalResult._2)
       UseReducer(originalResult, originalDispatch)
     }
   }
 
-  final case class UseReducer[S, A](raw: Raw.React.UseReducer[S, A], originalDispatch: Reusable[Raw.React.UseReducerDispatch[_]]) {
+  final case class UseReducer[S, A](raw: facade.React.UseReducer[S, A], originalDispatch: Reusable[facade.React.UseReducerDispatch[_]]) {
 
     @inline def value: S =
       raw._1
@@ -163,7 +163,7 @@ object Hooks {
 
   // ===================================================================================================================
 
-  final case class UseRef[A](raw: Raw.React.RefHandle[A]) {
+  final case class UseRef[A](raw: facade.React.RefHandle[A]) {
     @inline def value: A =
       raw.current
 
@@ -182,10 +182,10 @@ object Hooks {
 
   object UseRef {
     def unsafeCreate[A](initialValue: A): UseRef[A] =
-      UseRef(Raw.React.useRef(initialValue))
+      UseRef(facade.React.useRef(initialValue))
 
     def unsafeCreateSimple[A](): Ref.Simple[A] =
-      Ref.fromJs(Raw.React.useRef[A | Null](null))
+      Ref.fromJs(facade.React.useRef[A | Null](null))
 
     @inline def unsafeCreateToAnyVdom(): Ref.ToAnyVdom =
       unsafeCreateSimple()
@@ -217,7 +217,7 @@ object Hooks {
   private lazy val internalReuseSafety = Reusable.byRef(new AnyRef)
 
   object UseState {
-    def apply[S, O](r: Raw.React.UseState[S], oss: Reusable[Raw.React.UseStateSetter[O]]): UseState[S] =
+    def apply[S, O](r: facade.React.UseState[S], oss: Reusable[facade.React.UseStateSetter[O]]): UseState[S] =
       new UseState[S] {
         override val raw = r
         override type OriginalState = O
@@ -227,7 +227,7 @@ object Hooks {
     def unsafeCreate[S](initialState: => S): UseState[S] = {
       // Boxing is required because React's useState uses reflection to distinguish between {set,mod}State.
       val initialStateFn   = (() => Box(initialState)): js.Function0[Box[S]]
-      val originalResult   = Raw.React.useState[Box[S]](initialStateFn)
+      val originalResult   = facade.React.useState[Box[S]](initialStateFn)
       val originalSetState = Reusable.byRef(originalResult._2)
       UseState(originalResult, originalSetState)
         .xmap(_.unbox)(Box.apply)
@@ -236,10 +236,10 @@ object Hooks {
 
   trait UseState[S] { self =>
 
-    val raw: Raw.React.UseState[S]
+    val raw: facade.React.UseState[S]
 
     type OriginalState
-    val originalSetState: Reusable[Raw.React.UseStateSetter[OriginalState]]
+    val originalSetState: Reusable[facade.React.UseStateSetter[OriginalState]]
 
     @inline def value: S =
       raw._1
@@ -279,7 +279,7 @@ object Hooks {
     /** WARNING: This does not affect the setState callback reusability. */
     private def newSetStateJs[T](givenValue: T => Unit,
                                  givenFn   : js.Function1[T, T] => Unit,
-                                ): Raw.React.UseStateSetter[T] =
+                                ): facade.React.UseStateSetter[T] =
       tOrFn => {
         if (js.typeOf(tOrFn) == "function") {
           val mod = tOrFn.asInstanceOf[js.Function1[T, T]]

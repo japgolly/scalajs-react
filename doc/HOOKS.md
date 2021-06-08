@@ -572,7 +572,7 @@ Example:
 package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.raw.{React => ReactJsFacade}
+import japgolly.scalajs.react.facade.{React => ReactJsFacade}
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.document
 

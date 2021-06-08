@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.{Ref, raw => Raw}
+import japgolly.scalajs.react.{Ref, facade}
 import scala.scalajs.js
 
 class TagOf[+N <: TopNode] private[vdom](final val tag: String,
@@ -29,7 +29,7 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                     ): TagOf[N] =
     new TagOf(tag, modifiers)
 
-  override lazy val rawElement: Raw.React.Element = {
+  override lazy val rawElement: facade.React.Element = {
     val b = new VdomBuilder.ToRawReactElement()
 
     val arr = new js.Array[Seq[TagMod]]

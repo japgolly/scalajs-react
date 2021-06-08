@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.raw.SyntheticEvent
+import japgolly.scalajs.react.facade.SyntheticEvent
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom

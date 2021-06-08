@@ -2,7 +2,7 @@ package japgolly.scalajs.react.feature
 
 import japgolly.scalajs.react.internal.JsUtil
 import japgolly.scalajs.react.vdom.PackageBase._
-import japgolly.scalajs.react.{Callback, raw}
+import japgolly.scalajs.react.{Callback, facade}
 import java.time.Duration
 import scala.scalajs.js
 
@@ -24,7 +24,7 @@ object Profiler {
     * @since React 16.9.0 / scalajs-react 1.7.0
     */
   def apply(id: String, onRender: OnRenderData => Callback)(children: VdomNode): VdomElement = {
-    val onRenderRaw: raw.Profiler.OnRender =
+    val onRenderRaw: facade.Profiler.OnRender =
       (
         id,
         phase,
@@ -51,8 +51,8 @@ object Profiler {
       "onRender" -> onRenderRaw)
 
     VdomElement(
-      raw.React.createElement(
-        raw.React.Profiler,
+      facade.React.createElement(
+        facade.React.Profiler,
         props,
         children.rawNode))
   }
@@ -72,7 +72,7 @@ object Profiler {
                                 baseDurationMs  : Double,
                                 startTime       : Double,
                                 commitTime      : Double,
-                                rawInteractions : js.Iterable[raw.Interaction],
+                                rawInteractions : js.Iterable[facade.Interaction],
                                ) {
 
     def phaseIsMount: Boolean =
@@ -101,7 +101,7 @@ object Profiler {
                                timestamp: Double)
 
   object Interaction {
-    def fromRaw(r: raw.Interaction): Interaction =
+    def fromRaw(r: facade.Interaction): Interaction =
       apply(
         id        = r.id,
         name      = r.name,
@@ -110,7 +110,7 @@ object Profiler {
   }
 
   @inline private def now(): Double =
-    raw.performance.now()
+    facade.performance.now()
 
   /** CAUTION: Unstable API. React may modify or remove this method without notice or deprecation and so might scalajs-react.
     *
@@ -119,7 +119,7 @@ object Profiler {
     * interaction. Calls to unstable_wrap() will schedule async work within the same zone.
     */
   def unstable_trace[A](name: String)(body: => A): A =
-    raw.React.SecretInternals.SchedulerTracing.unstable_trace(
+    facade.React.SecretInternals.SchedulerTracing.unstable_trace(
       name,
       now(),
       () => body)

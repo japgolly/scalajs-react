@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.vdom
 
+import japgolly.scalajs.react.facade
 import japgolly.scalajs.react.internal.JsUtil
-import japgolly.scalajs.react.raw
 import japgolly.scalajs.react.vdom.VdomBuilder.{RawChild, RawRefFn}
 import scala.scalajs.js
 
@@ -34,8 +34,8 @@ trait VdomBuilder {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 object VdomBuilder {
-  type RawChild = raw.React.Node
-  type RawRefFn[A] = raw.React.RefFn[A]
+  type RawChild = facade.React.Node
+  type RawRefFn[A] = facade.React.RefFn[A]
 
   @inline def setObjectKeyValue(o: js.Object, k: String, v: js.Any): Unit =
     o.asInstanceOf[js.Dynamic].updateDynamic(k)(v)
@@ -141,7 +141,7 @@ object VdomBuilder {
   }
 
   class ToRawReactElement extends ToJs {
-    def render(tag: String): raw.React.Element = {
+    def render(tag: String): facade.React.Element = {
       addClassNameToProps()
       addStyleToProps()
       ToRawReactElement.build(tag, props, key, children)
@@ -150,7 +150,7 @@ object VdomBuilder {
 
   object ToRawReactElement {
     // type, props, key, children
-    type BuildFn = (String, js.Object, js.UndefOr[js.Any], js.Array[RawChild]) => raw.React.Element
+    type BuildFn = (String, js.Object, js.UndefOr[js.Any], js.Array[RawChild]) => facade.React.Element
 
     val build: BuildFn = {
 
@@ -162,7 +162,7 @@ object VdomBuilder {
       // I would continually get this warning: Each child in a list should have a unique "key" prop.
       // There were no array children, keys aren't needed. What really makes this weird and let to me giving up is that
       // if you keep the optimised code as is, but then just call
-      //     raw.React.createElement(tag, js.Object(), children.toSeq: _*)
+      //     facade.React.createElement(tag, js.Object(), children.toSeq: _*)
       // and throw away the result, the warning would disappear (!). There seems to be some mutation going on somewhere
       // that I can't find. I've inspected all the data I've got access to, looked through React code itself; I can't
       // find where this mutation is occurring. If it's this hard to track down, I don't want scalajs-react being
@@ -170,7 +170,7 @@ object VdomBuilder {
 
       (tag, props, key, children) => {
         key.foreach(setObjectKeyValue(props, "key", _))
-        raw.React.createElement(tag, props, children.toSeq: _*)
+        facade.React.createElement(tag, props, children.toSeq: _*)
       }
 
     }

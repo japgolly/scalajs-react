@@ -2,7 +2,7 @@ package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.internal.OptionLike
 import japgolly.scalajs.react.vdom.Attr.ValueType
-import japgolly.scalajs.react.{Callback, CallbackTo, raw}
+import japgolly.scalajs.react.{Callback, CallbackTo, facade}
 import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound, nowarn}
 import scala.language.`3.0`
@@ -71,7 +71,7 @@ object Attr {
       t(attrName, a)
   }
 
-  final class Event[E[+x <: dom.Node] <: raw.SyntheticEvent[x]](name: String)
+  final class Event[E[+x <: dom.Node] <: facade.SyntheticEvent[x]](name: String)
       extends Attr[js.Function1[E[Nothing], Unit]](name) {
 
     type Event = E[Nothing]
@@ -97,23 +97,23 @@ object Attr {
 
   object Event {
 
-    inline def apply[E[+x <: dom.Node] <: raw.SyntheticEvent[x]](name: String): Event[E] =
+    inline def apply[E[+x <: dom.Node] <: facade.SyntheticEvent[x]](name: String): Event[E] =
       new Event(name)
 
-    inline def animation  (name: String) = apply[raw.SyntheticAnimationEvent  ](name)
-    inline def base       (name: String) = apply[raw.SyntheticEvent           ](name)
-    inline def clipboard  (name: String) = apply[raw.SyntheticClipboardEvent  ](name)
-    inline def composition(name: String) = apply[raw.SyntheticCompositionEvent](name)
-    inline def drag       (name: String) = apply[raw.SyntheticDragEvent       ](name)
-    inline def focus      (name: String) = apply[raw.SyntheticFocusEvent      ](name)
-    inline def form       (name: String) = apply[raw.SyntheticFormEvent       ](name)
-    inline def keyboard   (name: String) = apply[raw.SyntheticKeyboardEvent   ](name)
-    inline def mouse      (name: String) = apply[raw.SyntheticMouseEvent      ](name)
-    inline def pointer    (name: String) = apply[raw.SyntheticPointerEvent    ](name)
-    inline def touch      (name: String) = apply[raw.SyntheticTouchEvent      ](name)
-    inline def transition (name: String) = apply[raw.SyntheticTransitionEvent ](name)
-    inline def ui         (name: String) = apply[raw.SyntheticUIEvent         ](name)
-    inline def wheel      (name: String) = apply[raw.SyntheticWheelEvent      ](name)
+    inline def animation  (name: String) = apply[facade.SyntheticAnimationEvent  ](name)
+    inline def base       (name: String) = apply[facade.SyntheticEvent           ](name)
+    inline def clipboard  (name: String) = apply[facade.SyntheticClipboardEvent  ](name)
+    inline def composition(name: String) = apply[facade.SyntheticCompositionEvent](name)
+    inline def drag       (name: String) = apply[facade.SyntheticDragEvent       ](name)
+    inline def focus      (name: String) = apply[facade.SyntheticFocusEvent      ](name)
+    inline def form       (name: String) = apply[facade.SyntheticFormEvent       ](name)
+    inline def keyboard   (name: String) = apply[facade.SyntheticKeyboardEvent   ](name)
+    inline def mouse      (name: String) = apply[facade.SyntheticMouseEvent      ](name)
+    inline def pointer    (name: String) = apply[facade.SyntheticPointerEvent    ](name)
+    inline def touch      (name: String) = apply[facade.SyntheticTouchEvent      ](name)
+    inline def transition (name: String) = apply[facade.SyntheticTransitionEvent ](name)
+    inline def ui         (name: String) = apply[facade.SyntheticUIEvent         ](name)
+    inline def wheel      (name: String) = apply[facade.SyntheticWheelEvent      ](name)
   }
 
   private[vdom] object Dud extends Attr[Any]("") {
@@ -139,11 +139,11 @@ object Attr {
   def ref[N <: TopNode](r: japgolly.scalajs.react.Ref.Set[N]): TagMod =
     ValueType.direct("ref", r.rawSetFn)
 
-  object UntypedRef extends Attr[raw.React.RefFn[TopNode]]("ref") {
-    override def :=[A](a: A)(implicit t: ValueType[A, raw.React.RefFn[TopNode]]) =
+  object UntypedRef extends Attr[facade.React.RefFn[TopNode]]("ref") {
+    override def :=[A](a: A)(implicit t: ValueType[A, facade.React.RefFn[TopNode]]) =
       t(attrName, a)
     def apply(f: (TopNode | Null) => Unit): TagMod = {
-      val jsFn: raw.React.RefFn[TopNode] = f
+      val jsFn: facade.React.RefFn[TopNode] = f
       :=(jsFn)(ValueType.direct)
     }
   }
@@ -187,7 +187,7 @@ object Attr {
     implicit def byUnion[A, B, C](implicit f: A => (B | C)): ValueType[A, B | C] =
       apply((b, a) => b(a.asInstanceOf[js.Any]))
 
-    implicit lazy val untypedRef: ValueType[japgolly.scalajs.react.Ref.Set[_ <: TopNode], raw.React.RefFn[TopNode]] =
+    implicit lazy val untypedRef: ValueType[japgolly.scalajs.react.Ref.Set[_ <: TopNode], facade.React.RefFn[TopNode]] =
       apply((f, a) => f(a.rawSetFn))
 
 //    def array[A](implicit f: A => js.Any): Simple[js.Array[A]] =

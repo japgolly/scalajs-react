@@ -7,7 +7,7 @@ import scala.scalajs.js
 
 package object react extends ReactEventTypes, ReactExtensions {
 
-  type Key = raw.React.Key
+  type Key = facade.React.Key
 
   type StateAccessPure[S] = StateAccess[CallbackTo, S]
   type StateAccessImpure[S] = StateAccess[Id, S]

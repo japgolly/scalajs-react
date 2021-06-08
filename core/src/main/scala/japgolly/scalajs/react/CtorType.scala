@@ -24,7 +24,7 @@ sealed abstract class CtorType[-P, +U] {
   def applyGeneric(props: P)(children: ChildArg*): U
 
   // This should really be on Children but I don't want to deal with types -> terms right now
-  def liftChildren(r: raw.PropsChildren): ChildrenArgs = {
+  def liftChildren(r: facade.PropsChildren): ChildrenArgs = {
     import japgolly.scalajs.react.vdom.Implicits.vdomNodeFromPropsChildren
     vdomNodeFromPropsChildren(PropsChildren(r)) :: Nil
   }
@@ -110,7 +110,7 @@ object CtorType {
     override def applyGeneric(props: P)(children: ChildArg*): U =
       apply(props)
 
-    override def liftChildren(r: raw.PropsChildren): ChildrenArgs =
+    override def liftChildren(r: facade.PropsChildren): ChildrenArgs =
       Nil
 
     def apply(props: P): U =
@@ -157,7 +157,7 @@ object CtorType {
     override def applyGeneric(props: P)(children: ChildArg*): U =
       apply()
 
-    override def liftChildren(r: raw.PropsChildren): ChildrenArgs =
+    override def liftChildren(r: facade.PropsChildren): ChildrenArgs =
       Nil
 
     def apply(): U =
@@ -229,8 +229,8 @@ object CtorType {
 
   sealed trait Summoner[P <: js.Object, C <: ChildrenArg] {
     type CT[-p, +u] <: CtorType[p, u]
-    final type Out = CT[P, raw.React.ComponentElement[P]]
-    val summon: raw.React.ComponentType[P] => Out
+    final type Out = CT[P, facade.React.ComponentElement[P]]
+    val summon: facade.React.ComponentType[P] => Out
     implicit val pf: Profunctor[CT]
     final def aux: Summoner.Aux[P, C, CT] = this
   }
@@ -240,7 +240,7 @@ object CtorType {
       Summoner[P, C] {type CT[-p, +u] = T[p, u]}
 
     def apply[P <: js.Object, C <: ChildrenArg, T[-p, +u] <: CtorType[p, u]]
-        (f: raw.React.ComponentType[P] => T[P, raw.React.ComponentElement[P]])
+        (f: facade.React.ComponentType[P] => T[P, facade.React.ComponentElement[P]])
         (implicit p: Profunctor[T]): Aux[P, C, T] =
       new Summoner[P, C] {
         override type CT[-p, +u] = T[p, u]
@@ -250,32 +250,32 @@ object CtorType {
 
     implicit def summonN[P <: js.Object](implicit s: Singleton[P]): Summoner.Aux[P, ChildrenArg.None, Nullary] =
       Summoner[P, ChildrenArg.None, Nullary](rc =>
-        new Nullary[P, raw.React.ComponentElement[P]](
-          raw.React.createElement(rc, s.value),
-          m => raw.React.createElement[P](rc, m.applyAndCast[P](s.mutableObj())),
+        new Nullary[P, facade.React.ComponentElement[P]](
+          facade.React.createElement(rc, s.value),
+          m => facade.React.createElement[P](rc, m.applyAndCast[P](s.mutableObj())),
           noMod))
 
     implicit def summonC[P <: js.Object](implicit s: Singleton[P]): Summoner.Aux[P, ChildrenArg.Varargs, Children] =
       Summoner[P, ChildrenArg.Varargs, Children](rc =>
-        new Children[P, raw.React.ComponentElement[P]]((mm, c) => {
+        new Children[P, facade.React.ComponentElement[P]]((mm, c) => {
           val p = mm.fold(s.value)(_.applyAndCast[P](s.mutableObj()))
-          raw.React.createElement[P](rc, p, formatChildren(c): _*)
+          facade.React.createElement[P](rc, p, formatChildren(c): _*)
         }, noMod))
 
     @nowarn("cat=unused")
     implicit def summonPC[P <: js.Object](implicit w: Singleton.Not[P]): Summoner.Aux[P, ChildrenArg.Varargs, PropsAndChildren] =
       Summoner[P, ChildrenArg.Varargs, PropsAndChildren](rc =>
-        new PropsAndChildren[P, raw.React.ComponentElement[P]]((p, mm, c) => {
+        new PropsAndChildren[P, facade.React.ComponentElement[P]]((p, mm, c) => {
           val p2 = mm.fold(p)(_.applyAndCast[P](prepareForMutation(p)))
-          raw.React.createElement[P](rc, p2, formatChildren(c): _*)
+          facade.React.createElement[P](rc, p2, formatChildren(c): _*)
         }, noMod))
 
     @nowarn("cat=unused")
     implicit def summonP[P <: js.Object](implicit w: Singleton.Not[P]): Summoner.Aux[P, ChildrenArg.None, Props] =
       Summoner[P, ChildrenArg.None, Props](rc =>
-        new Props[P, raw.React.ComponentElement[P]]((p, mm) => {
+        new Props[P, facade.React.ComponentElement[P]]((p, mm) => {
             val p2 = mm.fold(p)(_.applyAndCast[P](prepareForMutation(p)))
-            raw.React.createElement[P](rc, p2)
+            facade.React.createElement[P](rc, p2)
           }, noMod))
 
     // This could be used to defensively-copy user-provided props before applying modifications (i.e. setting key/ref).
@@ -284,7 +284,7 @@ object CtorType {
     private def prepareForMutation(o: js.Object): js.Object =
       if (o.isInstanceOf[js.Object]) o else new js.Object
 
-    def formatChildren(c: ChildrenArgs): Seq[raw.React.Node] =
+    def formatChildren(c: ChildrenArgs): Seq[facade.React.Node] =
       if (c.isEmpty)
         Nil
       else

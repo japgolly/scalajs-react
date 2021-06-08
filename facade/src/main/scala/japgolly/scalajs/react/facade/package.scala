@@ -4,7 +4,7 @@ import scala.scalajs.js
 import scala.scalajs.js.|
 
 /** See https://flow.org/en/docs/react/types */
-package object raw {
+package object facade {
 
   type Void = Unit
 

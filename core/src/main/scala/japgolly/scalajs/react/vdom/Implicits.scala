@@ -2,7 +2,7 @@ package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.feature.ReactFragment
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{PropsChildren, raw}
+import japgolly.scalajs.react.{PropsChildren, facade}
 import scala.collection.compat._
 import scala.scalajs.js
 
@@ -14,7 +14,7 @@ trait ImplicitsForVdomAttr1 extends CssUnitsOps {
   implicit lazy val vdomAttrVtInnerHtml: ValueType[String, InnerHtmlAttr] =
     ValueType[String, InnerHtmlAttr]((b, html) => b(js.Dynamic.literal("__html" -> html)))
 
-  implicit def vdomAttrVtKey[A](implicit k: A => raw.React.Key): ValueType[A, Attr.Key] =
+  implicit def vdomAttrVtKey[A](implicit k: A => facade.React.Key): ValueType[A, Attr.Key] =
     ValueType((b, a) => b(k(a).asInstanceOf[js.Any]))
 
   implicit val vdomAttrVtKeyL: ValueType[Long, Attr.Key] =
@@ -133,9 +133,9 @@ object Implicits extends Implicits
 // =====================================================================================================================
 
 object ImplicitsFromRaw {
-  @inline implicit def vdomElementFromRawReactElement(e: raw.React.Element): VdomElement =
+  @inline implicit def vdomElementFromRawReactElement(e: facade.React.Element): VdomElement =
     VdomElement(e)
 
-  @inline implicit def vdomNodeFromRawReactNode(e: raw.React.Node): VdomNode =
+  @inline implicit def vdomNodeFromRawReactNode(e: facade.React.Node): VdomNode =
     VdomNode(e)
 }

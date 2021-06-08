@@ -5,7 +5,7 @@ import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.component.{Js, Scala}
 import japgolly.scalajs.react.internal.{Box, JsRepr, Lens, Semigroup}
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, UpdateSnapshot, raw}
+import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, UpdateSnapshot, facade}
 import scala.annotation.nowarn
 import scala.language.`3.0`
 
@@ -592,7 +592,7 @@ object ComponentBuilder {
 
   // ===================================================================================================================
 
-  def fromReactComponentClass[P, C <: Children, S, B](rc: raw.React.ComponentClass[Box[P], Box[S]])
+  def fromReactComponentClass[P, C <: Children, S, B](rc: facade.React.ComponentClass[Box[P], Box[S]])
                                                      (implicit ctorType: CtorType.Summoner[Box[P], C]): Scala.Component[P, S, B, ctorType.CT] =
     Js.component[Box[P], C, Box[S]](rc)(ctorType)
       .addFacade[Vars[P, S, B]]
