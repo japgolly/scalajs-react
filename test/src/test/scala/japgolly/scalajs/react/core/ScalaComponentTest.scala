@@ -2,7 +2,7 @@ package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
-import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils, Simulate}
+import japgolly.scalajs.react.test.{InferenceHelpers, ReactTestUtils, Simulate}
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.annotation.nowarn
 import utest._
@@ -21,7 +21,7 @@ object ScalaComponentPTest extends TestSuite {
 
   override def tests = Tests {
 
-    "displayName" - TestEnv.unlessFullCI {
+    "displayName" - {
       assertEq(BasicComponent.displayName, "HelloMessage")
 //      ReactTestUtils.withRenderedIntoDocument(BasicComponent(BasicProps("X"))) { m =>
 //        println(inspectObject(m.raw))
@@ -30,10 +30,10 @@ object ScalaComponentPTest extends TestSuite {
     }
 
     "types" - {
-      import InferenceUtil._
+      import InferenceHelpers._
       import ScalaComponent._
-      "cu" - test[Component[P, S, B, CtorType.Nullary]](_.ctor()).expect[Unmounted[P, S, B]]
-      "um" - test[Unmounted[P, S, B]](_.renderIntoDOM(null)).expect[MountedImpure[P, S, B]]
+      "cu" - assertType[Component[P, S, B, CtorType.Nullary]].map(_.ctor()).is[Unmounted[P, S, B]]
+      "um" - assertType[Unmounted[P, S, B]].map(_.renderIntoDOM(null)).is[MountedImpure[P, S, B]]
     }
 
     "basic" - {
@@ -85,7 +85,7 @@ object ScalaComponentPTest extends TestSuite {
           this.b - x.b,
           this.c - x.c)
       }
-      implicit def equalProps = UnivEq.force[Props]
+      implicit def equalProps: UnivEq[Props] = UnivEq.force
 
       var mountCountA = 0
       var mountCountB = 0
@@ -166,12 +166,9 @@ object ScalaComponentPTest extends TestSuite {
         assertUpdates(Props(0, 3, 0))
 
         assertEq("willUnmountCount", willUnmountCount, 0)
-        // The Node JsEnv in Scala.JS 0.6.x catches React errors when it shouldn't
-        if (TestEnv.scalaJs1) {
-          mounted = Comp(null).renderIntoDOM(mountNode)
-          assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
-          assertEq("willUnmountCount", willUnmountCount, 1)
-        }
+        mounted = Comp(null).renderIntoDOM(mountNode)
+        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
+        assertEq("willUnmountCount", willUnmountCount, 1)
         mounted.withEffectsPure.getDOMNode
       }
 

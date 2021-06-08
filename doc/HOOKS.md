@@ -382,7 +382,7 @@ object MyCustomHook {
     .buildReturning(name => name)
 
   object HooksApiExt {
-    sealed class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) {
+    sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) {
 
       // TODO: Change hook name, input args/type(s), and output type
       final def useMyCustomHook(name: String)(implicit step: Step): step.Next[String] =
@@ -408,7 +408,7 @@ object MyCustomHook {
     import HooksApiExt._
 
     // TODO: Change hook name so that it won't conflict with other custom hooks
-    implicit def hooksExtMyCustomHook1[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
+    implicit def hooksExtMyCustomHook1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
       new Primary(api)
 
     // TODO: Change hook name so that it won't conflict with other custom hooks
@@ -433,7 +433,7 @@ object MyCustomHook {
     .build
 
   object HooksApiExt {
-    sealed class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) {
+    sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) {
 
       // TODO: Change hook name, input args/type(s), and output type
       final def useMyCustomHook(name: String)(implicit step: Step): step.Self =
@@ -459,7 +459,7 @@ object MyCustomHook {
     import HooksApiExt._
 
     // TODO: Change hook name so that it won't conflict with other custom hooks
-    implicit def hooksExtMyCustomHook1[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
+    implicit def hooksExtMyCustomHook1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
       new Primary(api)
 
     // TODO: Change hook name so that it won't conflict with other custom hooks
@@ -484,7 +484,7 @@ object MyCustomHook {
     .buildReturning(_ => 123)
 
   object HooksApiExt {
-    sealed class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) {
+    sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) {
 
       // TODO: Change hook name, and output type
       final def useMyCustomHook(implicit step: Step): step.Next[Int] =
@@ -496,7 +496,7 @@ object MyCustomHook {
     import HooksApiExt._
 
     // TODO: Change hook name so that it won't conflict with other custom hooks
-    implicit def hooksExtMyCustomHook[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
+    implicit def hooksExtMyCustomHook[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
       new Primary(api)
   }
 
@@ -517,7 +517,7 @@ object MyCustomHook {
     .build
 
   object HooksApiExt {
-    sealed class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) {
+    sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) {
 
       // TODO: Change hook name
       final def useMyCustomHook(implicit step: Step): step.Self =
@@ -529,7 +529,7 @@ object MyCustomHook {
     import HooksApiExt._
 
     // TODO: Change hook name so that it won't conflict with other custom hooks
-    implicit def hooksExtMyCustomHook[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
+    implicit def hooksExtMyCustomHook[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
       new Primary(api)
   }
 

@@ -13,14 +13,14 @@ trait CallbackToArbitraries {
     Gen.frequency(5 -> genPure[A], 5 -> genApply[A], 1 -> genFail[A], 5 -> genBindSuspend[A])
 
   def genPure[A: Arbitrary]: Gen[CallbackTo[A]] =
-    arbitrary[A].map(CallbackTo.pure)
+    arbitrary[A].map(CallbackTo.pure(_))
 
   def genApply[A: Arbitrary]: Gen[CallbackTo[A]] =
     arbitrary[A].map(CallbackTo.apply(_))
 
   def genFail[A]: Gen[CallbackTo[A]] =
-    arbitrary[Throwable].map(CallbackTo.throwException)
+    arbitrary[Throwable].map(CallbackTo.throwException(_))
 
   def genBindSuspend[A: Arbitrary: Cogen]: Gen[CallbackTo[A]] =
-    arbitrary[A].map(CallbackTo.apply(_).flatMap(CallbackTo.pure))
+    arbitrary[A].map(CallbackTo.apply(_).flatMap(CallbackTo.pure(_)))
 }

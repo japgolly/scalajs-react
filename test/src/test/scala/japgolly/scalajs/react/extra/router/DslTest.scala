@@ -58,11 +58,11 @@ object DslTest extends TestSuite {
 
 
   case class IntStr(i: Int, s: String)
-  implicit val intStrEq = UnivEq.force[IntStr]
-  implicit val uuidEq = UnivEq.force[UUID]
+  implicit val intStrEq: UnivEq[IntStr] = UnivEq.force
+  implicit val uuidEq: UnivEq[UUID] = UnivEq.force
 
   case class CC0()
-  implicit val cc0Eq = UnivEq.force[CC0]
+  implicit val cc0Eq: UnivEq[CC0] = UnivEq.force
 
   val stringMin5 = Prism[String, Int](
     s => Try(s.toInt).toOption.filter(_ >= 5))(
@@ -239,7 +239,7 @@ object DslTest extends TestSuite {
 
     "rules" - {
       import PageSet._, dsl._
-      implicit def redirectMethod = SetRouteVia.HistoryPush
+      implicit def redirectMethod: SetRouteVia = SetRouteVia.HistoryPush
 
       "staticRoute" - {
         staticRoute("abc", Obj1) ~> render (reactTag)

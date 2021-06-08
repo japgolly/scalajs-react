@@ -8,7 +8,7 @@ import scala.scalajs.js
 
 // =====================================================================================================================
 
-trait ImplicitsForVdomAttr1 {
+trait ImplicitsForVdomAttr1 extends CssUnitsOps {
   import Attr.ValueType
 
   implicit lazy val vdomAttrVtInnerHtml: ValueType[String, InnerHtmlAttr] =
@@ -21,7 +21,7 @@ trait ImplicitsForVdomAttr1 {
     ValueType((b, a) => b(a.toString))
 
   // 90% case so reuse
-  implicit val vdomAttrVtKeyS = vdomAttrVtKey[String]
+  implicit val vdomAttrVtKeyS: ValueType[String, Attr.Key] = vdomAttrVtKey[String]
 }
 
 trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
@@ -42,9 +42,6 @@ trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
 
   // For attributes that aren't typed yet
   @inline implicit def vdomAttrVtJsAny[A](implicit f: A => js.Any): ValueType[A, Any] = byImplicit
-
-  implicit def vdomAttrVtCssUnits[N: Numeric](n: N): CssUnits =
-    new CssUnits(n)
 }
 
 // =====================================================================================================================
@@ -57,7 +54,7 @@ object ImplicitsForTagMod {
 }
 
 trait ImplicitsForTagMod {
-  implicit def vdomOptionExt[O[_], A](o: O[A])(implicit O: OptionLike[O]): ImplicitsForTagMod.OptionExt[O, A] =
+  @inline implicit def vdomOptionExt[O[_], A](o: O[A])(implicit O: OptionLike[O]): ImplicitsForTagMod.OptionExt[O, A] =
     new ImplicitsForTagMod.OptionExt(o)
 }
 
@@ -104,25 +101,24 @@ object ImplicitsForVdomNode {
   }
 }
 
-trait ImplicitsForVdomNode {
+trait ImplicitsForVdomNode extends VdomNodeScalaSpecificImplicits {
   import ImplicitsForVdomNode._
 
-  implicit def vdomNodeFromByte         (v: Byte)          : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromShort        (v: Short)         : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromInt          (v: Int)           : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromLong         (v: Long)          : VdomNode = VdomNode.cast(v.toString)
-  implicit def vdomNodeFromFloat        (v: Float)         : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromDouble       (v: Double)        : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromString       (v: String)        : VdomNode = VdomNode.cast(v)
-  implicit def vdomNodeFromPropsChildren(v: PropsChildren) : VdomNode = VdomNode.cast(v.raw)
-  implicit def vdomNodeFromRawReactNode (v: raw.React.Node): VdomNode = VdomNode(v)
+  @inline implicit def vdomNodeFromByte         (v: Byte)         : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromShort        (v: Short)        : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromInt          (v: Int)          : VdomNode = VdomNode.cast(v)
+          implicit def vdomNodeFromLong         (v: Long)         : VdomNode = VdomNode.cast(v.toString)
+  @inline implicit def vdomNodeFromFloat        (v: Float)        : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromDouble       (v: Double)       : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromString       (v: String)       : VdomNode = VdomNode.cast(v)
+  @inline implicit def vdomNodeFromPropsChildren(v: PropsChildren): VdomNode = VdomNode.cast(v.raw)
 
   implicit def vdomNodeFromOption[O[_], A](o: O[A])(implicit O: OptionLike[O], f: A => VdomNode): VdomNode =
     O.fold(o, VdomNode.empty)(f)
 
-  implicit def vdomSeqExtForTO[A](as: IterableOnce[A]) = new TraversableOnceExt[A](as)
-  implicit def vdomSeqExtForSA[A](as: Array          [A]) = new TraversableOnceExt[A](as)
-  implicit def vdomSeqExtForJA[A](as: js.Array       [A]) = new TraversableOnceExt[A](as)
+  @inline implicit def vdomSeqExtForTO[A](as: IterableOnce[A]): TraversableOnceExt[A] = new TraversableOnceExt[A](as)
+  @inline implicit def vdomSeqExtForSA[A](as: Array       [A]): TraversableOnceExt[A] = new TraversableOnceExt[A](as)
+  @inline implicit def vdomSeqExtForJA[A](as: js.Array    [A]): TraversableOnceExt[A] = new TraversableOnceExt[A](as)
 }
 
 // =====================================================================================================================
@@ -137,9 +133,9 @@ object Implicits extends Implicits
 // =====================================================================================================================
 
 object ImplicitsFromRaw {
-  implicit def vdomElementFromRawReactElement(e: raw.React.Element): VdomElement =
+  @inline implicit def vdomElementFromRawReactElement(e: raw.React.Element): VdomElement =
     VdomElement(e)
 
-  implicit def vdomNodeFromRawReactNode(e: raw.React.Node): VdomNode =
+  @inline implicit def vdomNodeFromRawReactNode(e: raw.React.Node): VdomNode =
     VdomNode(e)
 }

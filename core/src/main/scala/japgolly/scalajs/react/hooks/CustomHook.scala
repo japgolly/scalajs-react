@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.hooks
 
+import japgolly.microlibs.types.NaturalComposition
 import japgolly.scalajs.react.{Callback, PropsChildren, Reusability, Reusable}
 
 final class CustomHook[I, O] private[CustomHook] (val unsafeInit: I => O) extends AnyVal {
@@ -19,8 +20,12 @@ final class CustomHook[I, O] private[CustomHook] (val unsafeInit: I => O) extend
   def narrow[II <: I]: CustomHook[II, O] =
     contramap[II](i => i)
 
-  def ++[I2, O2](next: CustomHook[I2, O2])
-                (implicit I: NaturalComposition.Split[I, I2], O: NaturalComposition.Merge[O, O2]): CustomHook[I.In, O.Out] =
+  // TODO: https://github.com/lampepfl/dotty/issues/12677
+  // def ++[I2, O2](next: CustomHook[I2, O2])
+  //               (implicit I: NaturalComposition.Split[I, I2], O: NaturalComposition.Merge[O, O2]): CustomHook[I.In, O.Out] =
+  def ++[I2, O2, II, OO](next: CustomHook[I2, O2])(implicit
+                         I: NaturalComposition.Split.To[II, I, I2],
+                         O: NaturalComposition.Merge.To[O, O2, OO]): CustomHook[II, OO] =
     CustomHook.unchecked[I.In, O.Out] { i =>
       val is = I.split(i)
       val o1 = unsafeInit(is._1)
@@ -107,9 +112,9 @@ object CustomHook {
 
     object Subsequent extends Custom_SubsequentDsl
 
-    final class FirstStep[I] extends Api.Step {
+    final class FirstStep[I] extends Api.AbstractStep {
       override type Self     = First[I]
-      override type Next[H1] = Subsequent[I, HookCtx.I1[I, H1], HookCtxFn.P1[I, H1]#Fn]
+      override type Next[H1] = Subsequent[I, HookCtx.I1[I, H1], ({ type F[A] = (I, H1) => A})#F]
 
       def self(initFirst: I => Unit, f: I => Any): Self =
         new First[I](i => {
@@ -129,7 +134,7 @@ object CustomHook {
                 f(ctx)
               }
           }
-        new Subsequent[I, HookCtx.I1[I, H1], HookCtxFn.P1[I, H1]#Fn](build)
+        new Subsequent[I, HookCtx.I1[I, H1], ({ type F[A] = (I, H1) => A})#F](build)
       }
     }
 

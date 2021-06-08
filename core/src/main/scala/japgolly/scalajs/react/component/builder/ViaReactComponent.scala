@@ -236,7 +236,7 @@ object ViaReactComponent {
   // ===================================================================================================================
 
   def apply[P, C <: Children, S, B, US <: UpdateSnapshot]
-      (builder: Builder.Step4[P, C, S, B, US])
+      (builder: ComponentBuilder.Step4[P, C, S, B, US])
       (implicit snapshotJs: JsRepr[builder.SnapshotValue]): raw.React.ComponentClass[Box[P], Box[S]] = {
 
     val backendFn = builder.backendFn

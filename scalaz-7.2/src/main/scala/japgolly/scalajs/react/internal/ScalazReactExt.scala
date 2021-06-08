@@ -59,9 +59,19 @@ object ScalazReactExt {
 }
 
 trait ScalazReactExt {
-  implicit final def ScalazReactExt_Reusability(a: Reusability.type) = new ReusabilityOps(a)
-  implicit final def ScalazReactExt_Listenable(a: Listenable.type) = new ListenableOps(a)
-  implicit final def ScalazReactExt_CallbackTo[A](a: CallbackTo[A]) = new CallbackToOps(a.underlyingRepr)
-  implicit final def ScalazReactExt_CallbackKleisli[A, B](k: CallbackKleisli[A, B]) = new CallbackKleisliOps(k.run)
-  implicit final def ScalazReactExt_MA[M[_], A](a: M[A]) = new MA(a)
+
+  implicit final def ScalazReactExt_Reusability(a: Reusability.type): ReusabilityOps =
+    new ReusabilityOps(a)
+
+  implicit final def ScalazReactExt_Listenable(a: Listenable.type): ListenableOps =
+    new ListenableOps(a)
+
+  implicit final def ScalazReactExt_CallbackTo[A](a: CallbackTo[A]): CallbackToOps[A] =
+    new CallbackToOps(a.underlyingRepr)
+
+  implicit final def ScalazReactExt_CallbackKleisli[A, B](k: CallbackKleisli[A, B]): CallbackKleisliOps[A, B] =
+    new CallbackKleisliOps(k.run)
+
+  implicit final def ScalazReactExt_MA[M[_], A](a: M[A]): MA[M, A] =
+    new MA(a)
 }

@@ -9,7 +9,7 @@ object ErrorHandler {
     f => component(Props(() => f, onError))
 
   def pure(onError: ReactCaughtError => VdomNode): (=> VdomNode) => VdomElement =
-    apply(onError andThen CallbackTo.pure)
+    apply(e => CallbackTo.pure(onError(e)))
 
   final case class Props(render: () => VdomNode, onError: ReactCaughtError => CallbackTo[VdomNode])
 

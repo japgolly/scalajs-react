@@ -47,8 +47,15 @@ object CatsReactExt {
 trait CatsReactExt {
   import CatsReactExt._
 
-  implicit final def CatsReactExt_Reusability(a: Reusability.type) = new ReusabilityOps(a)
-  implicit final def CatsReactExt_Listenable(a: Listenable.type) = new ListenableOps(a)
-  implicit final def CatsReactExt_CallbackKleisli[A, B](k: CallbackKleisli[A, B]) = new CallbackKleisliOps(k.run)
-  implicit final def CatsReactExt_MA[M[_], A](a: M[A]) = new MA(a)
+  implicit final def CatsReactExt_Reusability(a: Reusability.type): ReusabilityOps =
+    new ReusabilityOps(a)
+
+  implicit final def CatsReactExt_Listenable(a: Listenable.type): ListenableOps =
+    new ListenableOps(a)
+
+  implicit final def CatsReactExt_CallbackKleisli[A, B](k: CallbackKleisli[A, B]): CallbackKleisliOps[A, B] =
+    new CallbackKleisliOps(k.run)
+
+  implicit final def CatsReactExt_MA[M[_], A](a: M[A]): MA[M, A] =
+    new MA(a)
 }

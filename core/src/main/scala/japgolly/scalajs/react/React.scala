@@ -24,7 +24,7 @@ object React {
     * If you'd like to retain type information about the JS type used under-the-hood with React,
     * use `React.Context(displayName, defaultValue)` instead.
     *
-    * @since 1.8.0 / React 17.0.0
+    * @since 2.0.0 / React 17.0.0
     */
   def createContext[A](displayName: String, defaultValue: A)(implicit jsRepr: JsRepr[A]): Context[A] =
     Context(displayName, defaultValue)(jsRepr)

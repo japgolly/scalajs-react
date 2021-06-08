@@ -19,8 +19,15 @@ object ReactTestUtils {
   type Mounted      = GenericComponent.MountedRaw
 
   private type RawM = japgolly.scalajs.react.raw.React.ComponentUntyped
-  type MountedOutput = JsComponent.Mounted[_ <: js.Object, _ <: js.Object]
-  private def wrapMO(r: RawM | Null): MountedOutput = if (r == null) null else JsComponent.mounted(JsUtil.notNull(r))
+  type MountedOutput = JsComponent.Mounted[js.Object, js.Object]
+  private def wrapMO(r: RawM | Null): MountedOutput =
+    if (r == null)
+      null
+    else {
+      val r2 = JsUtil.notNull[RawM](r) // TODO: https://github.com/lampepfl/dotty/issues/12739
+      val x = JsComponent.mounted(r2)
+      x.asInstanceOf[MountedOutput]
+    }
 
   type CompType = GenericComponent.ComponentRaw {type Raw <: japgolly.scalajs.react.raw.React.ComponentClassUntyped }
 

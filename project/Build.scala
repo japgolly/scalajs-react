@@ -1,6 +1,7 @@
 import sbt._
 import sbt.Keys._
 import com.jsuereth.sbtpgp.PgpKeys
+import com.jsuereth.sbtpgp.PgpKeys._
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
@@ -11,7 +12,7 @@ object ScalajsReact {
   import Dependencies._
   import Lib._
 
-  def scalacFlags: Seq[String] = Seq(
+  def scalacCommonFlags: Seq[String] = Seq(
     "-deprecation",
     "-feature",
     "-language:postfixOps",
@@ -20,7 +21,7 @@ object ScalajsReact {
     "-language:existentials",
     "-unchecked",                                    // Enable additional warnings where generated code depends on assumptions.
     "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
-    "-Ypatmat-exhaust-depth", "off")
+  )
 
   def scalac213Flags = Seq(
     "-opt:l:inline",
@@ -52,17 +53,25 @@ object ScalajsReact {
     "-Xlint:valpattern",                             // Enable pattern checks in val definitions.
     "-Xmixin-force-forwarders:false",                // Only generate mixin forwarders required for program correctness.
     "-Yjar-compression-level", "9",                  // compression level to use when writing jar files
-    "-Ymacro-annotations"                            // Enable support for macro annotations, formerly in macro paradise.
+    "-Ymacro-annotations",                           // Enable support for macro annotations, formerly in macro paradise.
+    "-Ypatmat-exhaust-depth", "off",
+  )
+
+  def scalac3Flags = Seq(
+    "-source:3.0-migration",
+    "-Ykind-projector",
+    // "-Xprint:all",
   )
 
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
       .settings(
-        scalaVersion                  := Ver.Scala213,
-        crossScalaVersions            := Seq(Ver.Scala213),
-        scalacOptions                ++= scalacFlags,
+        scalaVersion                  := Ver.scala3,
+        crossScalaVersions            := Seq(Ver.scala2, Ver.scala3),
+        scalacOptions                ++= scalacCommonFlags,
         scalacOptions                ++= byScalaVersion {
                                            case (2, 13) => scalac213Flags
+                                           case (3, _ ) => scalac3Flags
                                          }.value,
         //scalacOptions               += "-Xlog-implicits",
         incOptions                    := incOptions.value.withLogRecompileOnMacro(false),
@@ -70,13 +79,18 @@ object ScalajsReact {
         releasePublishArtifactsAction := PgpKeys.publishSigned.value,
         releaseTagComment             := s"v${(ThisBuild / version).value}",
         releaseVcsSign                := true,
+        libraryDependencies          ++= Seq(Dep.betterMonadicFor, Dep.kindProjector).filter(_ => scalaVersion.value startsWith "2"),
         disable                       := false,
-        libraryDependencies           += Dep.BetterMonadicFor)
+        dependencyOverrides          ++= globalDependencyOverrides.value,
+      )
 
   // ==============================================================================================
 
   lazy val root = Project("root", file("."))
-    .settings(name := "scalajs-react")
+    .settings(
+      name := "scalajs-react",
+      crossScalaVersions := Nil,
+    )
     .configure(commonSettings, preventPublication, hasNoTests)
     .aggregate(
       core,
@@ -90,20 +104,22 @@ object ScalajsReact {
       monocleCats,
       monocle3,
       ghpagesMacros,
-      ghpages)
+      ghpages,
+    )
 
   // ==============================================================================================
 
   lazy val genHooks = TaskKey[Unit]("genHooks")
 
   lazy val core = project
-    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        Dep.ScalaCollCompat.value,
-        Dep.ScalaJsDom.value,
-        Dep.Sourcecode.value,
+        Dep.microlibsTypes .value,
+        Dep.scalaCollCompat.value,
+        Dep.scalaJsDom     .value,
+        Dep.sourcecode     .value,
       ),
       genHooks := GenHooks(sourceDirectory.value / "main" / "scala"),
     )
@@ -126,18 +142,18 @@ object ScalajsReact {
         "-Xlint:adapted-args"
       ),
       libraryDependencies ++= Seq(
-        Dep.MicrolibsTestUtil .value % Test,
-        Dep.NyayaProp         .value % Test,
-        Dep.NyayaGen          .value % Test,
-        Dep.NyayaTest         .value % Test,
-        Dep.MonocleScalazMacro.value % Test,
-        Dep.ScalaJsJavaTime   .value % Test),
+        Dep.microlibsTestUtil .value % Test,
+        Dep.nyayaProp         .value % Test,
+        Dep.nyayaGen          .value % Test,
+        Dep.nyayaTest         .value % Test,
+        Dep.monocleScalaz     .value % Test,
+        Dep.scalaJsJavaTime   .value % Test),
       jsDependencies ++= Seq(
-        Dep.SizzleJs(Test).value,
-        (ProvidedJS / "component-es6.js" dependsOn Dep.ReactDom.dev) % Test,
-        (ProvidedJS / "component-fn.js"  dependsOn Dep.ReactDom.dev) % Test,
-        (ProvidedJS / "forward-ref.js"   dependsOn Dep.ReactDom.dev) % Test,
-        (ProvidedJS / "polyfill.js"      dependsOn Dep.ReactDom.dev) % Test))
+        Dep.sizzleJs(Test).value,
+        (ProvidedJS / "component-es6.js" dependsOn Dep.reactDom.dev) % Test,
+        (ProvidedJS / "component-fn.js"  dependsOn Dep.reactDom.dev) % Test,
+        (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
+        (ProvidedJS / "polyfill.js"      dependsOn Dep.reactDom.dev) % Test))
 
   /*
   lazy val testModule = project.in(file("test-module"))
@@ -146,46 +162,46 @@ object ScalajsReact {
     .settings(
       name := "test-module",
       npmDependencies in Test ++= Seq(
-        "react"                             -> Ver.ReactJs,
-        "react-dom"                         -> Ver.ReactJs,
+        "react"                             -> Ver.reactJs,
+        "react-dom"                         -> Ver.reactJs,
         "react-addons-perf"                 -> "15.5.0-rc.2",
         "react-addons-css-transition-group" -> "16.7.0"))
   */
 
-  // ===================================================================================================================
 
   lazy val scalaz72 = project
     .in(file("scalaz-7.2"))
     .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
     .dependsOn(core, extra)
     .settings(
-      libraryDependencies ++= Seq(
-        Dep.ScalazEffect72.value,
-        Dep.KindProjector))
+      libraryDependencies += Dep.scalazEffect72.value)
+
 
   lazy val monocleScalaz = project
     .in(file("monocle-scalaz"))
     .configure(commonSettings, publicationSettings, extModuleName("monocle-scalaz"), hasNoTests)
     .dependsOn(core, extra, scalaz72)
     .settings(
-      libraryDependencies += Dep.MonocleScalaz.value)
+      libraryDependencies += Dep.monocleScalaz.value)
 
   lazy val cats = project
     .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
     .dependsOn(core, extra)
     .settings(
-        libraryDependencies ++= Seq(
-          Dep.Cats.value,
-          Dep.KindProjector))
+      libraryDependencies += Dep.cats.value)
+
 
   lazy val monocleCats = project
     .in(file("monocle-cats"))
     .configure(commonSettings, publicationSettings, extModuleName("monocle-cats"), hasNoTests)
     .dependsOn(core, extra, cats)
     .settings(
+      disable := scalaVersion.value.startsWith("3"),
       // Share the internal source code files with this module
       Compile / unmanagedSourceDirectories += (monocleScalaz / Compile / sourceDirectory).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
-      libraryDependencies += Dep.MonocleCats.value)
+      libraryDependencies += Dep.monocleCats.value,
+    )
+    .configure(conditionallyDisable) // keep this last
 
   lazy val catsEffect = project
     .in(file("cats-effect"))
@@ -193,13 +209,13 @@ object ScalajsReact {
     .dependsOn(core, cats)
     .settings(
       libraryDependencies ++= Seq(
-        Dep.Cats                .value,
-        Dep.CatsEffect          .value,
-        Dep.CatsEffectLaws      .value % Test,
-        Dep.CatsTestkit         .value % Test,
-        Dep.CatsTestkitScalaTest.value % Test,
-        Dep.ScalaTest           .value % Test,
-        Dep.DisciplineScalaTest .value % Test))
+        Dep.cats                .value,
+        Dep.catsEffect          .value,
+        Dep.catsEffectLaws      .value % Test,
+        Dep.catsTestkit         .value % Test,
+        Dep.catsTestkitScalaTest.value % Test,
+        Dep.scalaTest           .value % Test,
+        Dep.disciplineScalaTest .value % Test))
 
   lazy val monocle3 = project
     .in(file("monocle3"))
@@ -207,7 +223,8 @@ object ScalajsReact {
     .dependsOn(core, extra, cats)
     .settings(
       disable := scalaVersion.value.startsWith("2.12"),
-      libraryDependencies += Dep.Monocle3.value)
+      libraryDependencies += Dep.monocle3.value,
+    )
     .configure(conditionallyDisable) // keep this last
 
   // ===================================================================================================================
@@ -216,17 +233,16 @@ object ScalajsReact {
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
     .settings(
       libraryDependencies ++= Seq(
-        Dep.Sourcecode.value,
-        Dep.ScalaCollCompat.value))
+        Dep.sourcecode.value,
+        Dep.scalaCollCompat.value))
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
-      libraryDependencies += Dep.MonocleScalazMacro.value,
+      libraryDependencies += Dep.monocleScalaz.value,
       scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       scalaJSUseMainModuleInitializer := true,
       Compile / mainClass := Some("ghpages.GhPages"),
       Compile / fullOptJS / artifactPath := file("gh-pages/res/ghpages.js"))
-
 }

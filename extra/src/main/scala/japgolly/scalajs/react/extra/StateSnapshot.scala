@@ -116,7 +116,7 @@ object StateSnapshot {
     def apply[S](value: S): FromValue[S] =
       new FromValue(value)
 
-    /** @since 1.8.0 */
+    /** @since 2.0.0 */
     def hook[S](initialValue: => S)(implicit rs: Reusability[S]): CustomHook[Unit, StateSnapshot[S]] =
       CustomHook[Unit]
         .useState(initialValue)
@@ -218,7 +218,7 @@ object StateSnapshot {
   def apply[S](value: S): FromValue[S] =
     new FromValue(value)
 
-  /** @since 1.8.0 */
+  /** @since 2.0.0 */
   def hook[S](initialValue: => S): CustomHook[Unit, StateSnapshot[S]] =
     withReuse.hook(initialValue)(Reusability.never)
 
@@ -288,7 +288,7 @@ object StateSnapshot {
   // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 
   object HooksApiExt {
-    sealed class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) {
+    sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) {
       final def useStateSnapshot[S](initialState: => S)(implicit step: Step): step.Next[StateSnapshot[S]] =
         useStateSnapshotBy(_ => initialState)
 
@@ -314,7 +314,7 @@ object StateSnapshot {
   trait HooksApiExt {
     import HooksApiExt._
 
-    implicit def hooksExtUseStateSnapshot1[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
+    implicit def hooksExtUseStateSnapshot1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
       new Primary(api)
 
     implicit def hooksExtUseStateSnapshot2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): Secondary[Ctx, CtxFn, Step] =

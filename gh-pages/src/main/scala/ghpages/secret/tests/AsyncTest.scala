@@ -28,7 +28,7 @@ object AsyncTest {
   }
 
   def testCmp2[A: Equal](body: AsyncCallback[A], expect1: A, prep2: () => Unit, expect2: A) = {
-    var complete  = null: Try[A] => Callback
+    var complete  = null: (Try[A] => Callback)
     val subjectCB = body.attemptTry.flatMap(complete(_).asAsyncCallback).toCallback
 
     def run(expect: A): AsyncCallback[Status.Result] =
@@ -50,7 +50,7 @@ object AsyncTest {
     Ajax("GET", s"https://reqres.in/api/users/$userId")
       .setRequestContentTypeJsonUtf8
       .send
-      .validateStatusIsSuccessful(Callback.throwException)
+      .validateStatusIsSuccessful(Callback.throwException(_))
       .asAsyncCallback
 
   private val get0 = getUser(0)

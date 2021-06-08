@@ -11,6 +11,7 @@
 *.bak
 *.log
 *.pid
+*.semanticdb
 *.tmp
 ~*
 metals.sbt

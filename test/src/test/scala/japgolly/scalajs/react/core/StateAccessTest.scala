@@ -1,19 +1,20 @@
 package japgolly.scalajs.react.core
 
+import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
 import utest.{test => _, _}
 
 object StateAccessTest extends TestSuite {
 
   override def tests = Tests {
-    import test.InferenceUtil._
+    import test.InferenceHelpers._
 
     "generic" - {
-      "xmap" - test[StateAccessPure[S]](_.xmapState[T](???)(???)).expect_<[StateAccessPure[T]]
+      "xmap" - assertType[StateAccessPure[S]].map(_.xmapState[T](???)(???)).is_<[StateAccessPure[T]]
     }
     "backendScope" - {
-      "is"   - test[ScalaComponent.BackendScope[P, S]].usableAs[StateAccessPure[S]]
-      "xmap" - test[ScalaComponent.BackendScope[P, S]](_.xmapState[T](???)(???)).expect_<[StateAccessPure[T]]
+      "is"   - assertType[ScalaComponent.BackendScope[P, S]].isImplicitly[StateAccessPure[S]]
+      "xmap" - assertType[ScalaComponent.BackendScope[P, S]].map(_.xmapState[T](???)(???)).is_<[StateAccessPure[T]]
     }
   }
 }

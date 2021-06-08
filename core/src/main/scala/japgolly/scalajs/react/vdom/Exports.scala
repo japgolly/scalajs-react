@@ -1,22 +1,10 @@
 package japgolly.scalajs.react.vdom
 
-object ExportsStatic {
-
-  final class VdomExtString(private val s: String) extends AnyVal {
-
-    // May eventually make use of this
-    private[vdom] def reactTerminalTag[N <: HtmlTopNode]: HtmlTagOf[N] =
-      new HtmlTagOf[N](s)
-  }
-}
-
 object Exports extends Exports
+
 abstract class Exports {
 
-  private[vdom] implicit final def VdomExtString(a: String): ExportsStatic.VdomExtString =
-    new ExportsStatic.VdomExtString(a)
-
-  final val EmptyVdom: VdomNode            = japgolly.scalajs.react.vdom.VdomNode.empty
+  final val EmptyVdom: VdomNode             = japgolly.scalajs.react.vdom.VdomNode.empty
 
   @inline
   final def  HtmlTag(name: String): HtmlTag = HtmlTagOf(name)

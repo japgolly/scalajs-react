@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.ScalaComponent.Lifecycle
 import japgolly.scalajs.react.StateAccessor._
+import japgolly.scalajs.react.component.builder.Lifecycle
 import japgolly.scalajs.react.internal.{Effect, identityFn}
 
 /**
@@ -40,7 +40,7 @@ object StateAccessor extends StateAccessorImplicits {
 trait StateAccessorImplicits2 {
   protected def castW[I, F[_], S](w: Write[_, F, _]) = w.asInstanceOf[Write[I, F, S]]
   protected def castR[I, F[_], S](w: Read[_, F, _]) = w.asInstanceOf[Read[I, F, S]]
-  protected def castRW[I, R[_], W[_], S](w: ReadWrite[_, R, W, _]) = w.asInstanceOf[ReadWrite[I, R, W, S]]
+  protected def castRW[I, R[_], W[_], S, X](w: ReadWrite[Nothing, R, W, X]) = w.asInstanceOf[ReadWrite[I, R, W, S]]
 
   implicit def stateAccess[F[_], S]: ReadWrite[StateAccess[F, S], F, F, S] = {
     type I = StateAccess[F, S]

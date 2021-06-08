@@ -61,10 +61,10 @@ object Effect {
       else
         ev(id(F))
 
-    implicit lazy val endoId       = Trans.id[Effect.Id]
-    implicit lazy val endoCallback = Trans.id[CallbackTo]
-    implicit lazy val idToCallback = Trans[Effect.Id, CallbackTo]
-    implicit lazy val callbackToId = Trans[CallbackTo, Effect.Id]
+    implicit lazy val endoId      : Id[Effect.Id]                = Trans.id[Effect.Id]
+    implicit lazy val endoCallback: Id[CallbackTo]               = Trans.id[CallbackTo]
+    implicit lazy val idToCallback: Trans[Effect.Id, CallbackTo] = Trans[Effect.Id, CallbackTo]
+    implicit lazy val callbackToId: Trans[CallbackTo, Effect.Id] = Trans[CallbackTo, Effect.Id]
   }
 }
 

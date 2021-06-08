@@ -4,13 +4,14 @@ import japgolly.scalajs.react.extra.router.RouterConfig.Logger
 import japgolly.scalajs.react.vdom.VdomElement
 import japgolly.scalajs.react.{Callback, CallbackTo}
 import org.scalajs.dom
-import scala.annotation.elidable
+import scala.scalajs.LinkingInfo.developmentMode
 import scala.util.{Failure, Success, Try}
 
-case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
-                                              renderFn    : (RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement,
-                                              postRenderFn: (Option[Page], Page, Props) => Callback,
-                                              logger      : Logger) {
+case class RouterWithPropsConfig[Page, Props](
+    rules       : RoutingRules[Page, Props],
+    renderFn    : (RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement,
+    postRenderFn: (Option[Page], Page, Props) => Callback,
+    logger      : Logger) {
 
   def logWith(l: Logger): RouterWithPropsConfig[Page, Props] =
     copy(logger = l)
@@ -102,14 +103,16 @@ case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
     * If you want direct, programmatic access to the errors themselves, use [[detectErrors()]] instead.
     *
     * Note: Requires that `Page#equals()` be sensible.
-    * Note: If `elidable.ASSERTION` is elided, this always returns `this`.
+    * Note: If in production-mode (`fullOptJS`), this always returns `this`.
     *
     * @return In the event that errors are detected, a new [[RouterConfig]] that displays them; else this unmodified.
     */
   def verify(page1: Page, pages: Page*): RouterWithPropsConfig[Page, Props] =
-    Option(_verify(page1, pages: _*)) getOrElse this
+    if (developmentMode)
+      _verify(page1, pages: _*)
+    else
+      this
 
-  @elidable(elidable.ASSERTION)
   private def _verify(page1: Page, pages: Page*): RouterWithPropsConfig[Page, Props] = {
     val errors = detectErrors(page1 +: pages: _*).runNow()
     if (errors.isEmpty)
@@ -124,7 +127,7 @@ case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
       val el: VdomElement =
         <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
 
-      val newRules = RoutingRules[Page](
+      val newRules = RoutingRules[Page, Props](
         parseMulti     = _ => static[Option[RouterConfig.Parsed[Page]]](Some(Right(page1))) :: Nil,
         path           = _ => Path.root,
         actionMulti    = (_, _) => Nil,
@@ -139,14 +142,16 @@ case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
   /** Check specified pages for possible route config errors, and returns any detected.
     *
     * Note: Requires that `Page#equals()` be sensible.
-    * Note: If `elidable.ASSERTION` is elided, this always returns an empty collection.
+    * Note: If in production-mode (`fullOptJS`), this always returns an empty collection.
     *
     * @return Error messages (or an empty collection if no errors are detected).
     */
-  def detectErrors(pages: Page*): CallbackTo[Vector[String]] =
-    Option(_detectErrors(pages: _*)) getOrElse CallbackTo.pure(Vector.empty)
+  def detectErrors(pages: Page*): CallbackTo[Seq[String]] =
+    if (developmentMode)
+      _detectErrors(pages: _*)
+    else
+      CallbackTo.pure(Nil)
 
-  @elidable(elidable.ASSERTION)
   private def _detectErrors(pages: Page*): CallbackTo[Vector[String]] = CallbackTo {
 
     var errors = Vector.empty[String]
@@ -196,32 +201,4 @@ case class RouterWithPropsConfig[Page, Props](rules       : RoutingRules[Page],
 
     errors
   }
-}
-
-
-object RouterConfig {
-  /** Either a redirect or a value representing the page to render. */
-  type Parsed[Page] = Either[Redirect[Page], Page]
-
-  type Logger = (=> String) => Callback
-
-  def consoleLogger: Logger =
-    s => Callback.log("[Router] " + s)
-
-  val nopLogger: Logger =
-    Function const Callback.empty
-
-  def defaultLogger: Logger =
-    nopLogger
-
-  def defaultRenderFn[Page, C]: (RouterCtl[Page], ResolutionWithProps[Page, C]) => C => VdomElement =
-    (_, r) => r.renderP
-
-  def defaultPostRenderFn[Page, C]: (Option[Page], Page, C) => Callback = {
-    val cb = Callback(dom.window.scrollTo(0, 0))
-    (_, _, _) => cb
-  }
-
-  def withDefaults[Page, C](rules: RoutingRules[Page]): RouterWithPropsConfig[Page, C] =
-    RouterWithPropsConfig(rules, defaultRenderFn, defaultPostRenderFn, defaultLogger)
 }

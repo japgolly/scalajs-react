@@ -78,7 +78,7 @@ trait TestUtil
   }
 
   def assertTypeMismatch(e: CompileError)(implicit l: Line): Unit =
-    assertContains(e.msg, "type mismatch")
+    assertContainsAny(e.msg, "Required:", "type mismatch")
 
   implicit class JsArrayTestExt[A](private val a: js.Array[A]) {
     def sole()(implicit l: Line): A =

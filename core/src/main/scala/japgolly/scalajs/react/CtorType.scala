@@ -25,8 +25,8 @@ sealed abstract class CtorType[-P, +U] {
 
   // This should really be on Children but I don't want to deal with types -> terms right now
   def liftChildren(r: raw.PropsChildren): ChildrenArgs = {
-    import japgolly.scalajs.react.vdom.Implicits._
-    (PropsChildren(r): vdom.VdomNode) :: Nil
+    import japgolly.scalajs.react.vdom.Implicits.vdomNodeFromPropsChildren
+    vdomNodeFromPropsChildren(PropsChildren(r)) :: Nil
   }
 
   def addMod(f: ModFn): This[P, U]
@@ -34,11 +34,17 @@ sealed abstract class CtorType[-P, +U] {
   final def withRawProp(name: String, value: js.Any): This[P, U] =
     addMod(_.asInstanceOf[js.Dynamic].updateDynamic(name)(value))
 
-  final def withKey(k: Key): This[P, U] =
-    withRawProp("key", k.asInstanceOf[js.Any])
-
-  final def withKey(k: Long): This[P, U] =
-    withKey(k.toString)
+  // TODO: https://github.com/lampepfl/dotty/issues/12265
+  // final def withKey(k: Key): This[P, U] =
+  //   withRawProp("key", k.asInstanceOf[js.Any])
+  // final def withKey(k: Long): This[P, U] =
+  //   withKey(k.toString)
+  import scala.scalajs.js.|
+  final def withKey(k: Key | Long): This[P, U] =
+    withRawProp("key", (k: Any) match {
+      case l: Long => l.toString
+      case _       => k.asInstanceOf[js.Any]
+    })
 }
 
 object CtorType {
@@ -47,10 +53,10 @@ object CtorType {
 
   type ModFn = js.Object => Unit
 
-  private type MaybeMod = js.UndefOr[Mod]
+  private[CtorType] type MaybeMod = js.UndefOr[Mod]
   @inline private def noMod: MaybeMod = js.undefined: js.UndefOr[Mod]
 
-  private final case class Mod(mod: ModFn) extends AnyVal {
+  private[CtorType] final case class Mod(mod: ModFn) extends AnyVal {
     def applyAndCast[P <: js.Object](o: js.Object): P = {
       mod(o)
       o.asInstanceOf[P]
@@ -63,7 +69,7 @@ object CtorType {
     mods.fold(Mod(f))(_ >> f)
 
   // How do I prove this? (without sealing and pattern matching)
-  @inline def hackBackToSelf[CT[-p, +u] <: CtorType[p, u], P2, U2](c: CT[_, _])(t: c.This[P2, U2]): CT[P2, U2] =
+  @inline def hackBackToSelf[CT[-p, +u] <: CtorType[p, u], P2, U2](c: CT[Nothing, Any])(t: c.This[P2, U2]): CT[P2, U2] =
     t.asInstanceOf[CT[P2, U2]]
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -73,7 +79,7 @@ object CtorType {
                                        private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
 
     override type This[-P, +U] = PropsAndChildren[P, U]
-    override type ChildrenType = Children.Varargs
+    override type ChildrenType = japgolly.scalajs.react.Children.Varargs
 
     override def applyGeneric(props: P)(children: ChildArg*): U =
       apply(props)(children: _*)
@@ -99,7 +105,7 @@ object CtorType {
                             private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
 
     override type This[-P, +U] = Props[P, U]
-    override type ChildrenType = Children.None
+    override type ChildrenType = japgolly.scalajs.react.Children.None
 
     override def applyGeneric(props: P)(children: ChildArg*): U =
       apply(props)
@@ -125,7 +131,7 @@ object CtorType {
                                private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
 
     override type This[-P, +U] = Children[P, U]
-    override type ChildrenType = Children.Varargs
+    override type ChildrenType = japgolly.scalajs.react.Children.Varargs
 
     override def applyGeneric(props: P)(children: ChildArg*): U =
       apply(children: _*)
@@ -146,7 +152,7 @@ object CtorType {
                               private[CtorType] val mods: MaybeMod) extends CtorType[P, U] {
 
     override type This[-P, +U] = Nullary[P, U]
-    override type ChildrenType = Children.None
+    override type ChildrenType = japgolly.scalajs.react.Children.None
 
     override def applyGeneric(props: P)(children: ChildArg*): U =
       apply()
@@ -242,14 +248,14 @@ object CtorType {
         override implicit val pf = p
       }
 
-    implicit def summonN[P <: js.Object](implicit s: Singleton[P]) =
+    implicit def summonN[P <: js.Object](implicit s: Singleton[P]): Summoner.Aux[P, ChildrenArg.None, Nullary] =
       Summoner[P, ChildrenArg.None, Nullary](rc =>
         new Nullary[P, raw.React.ComponentElement[P]](
           raw.React.createElement(rc, s.value),
           m => raw.React.createElement[P](rc, m.applyAndCast[P](s.mutableObj())),
           noMod))
 
-    implicit def summonC[P <: js.Object](implicit s: Singleton[P]) =
+    implicit def summonC[P <: js.Object](implicit s: Singleton[P]): Summoner.Aux[P, ChildrenArg.Varargs, Children] =
       Summoner[P, ChildrenArg.Varargs, Children](rc =>
         new Children[P, raw.React.ComponentElement[P]]((mm, c) => {
           val p = mm.fold(s.value)(_.applyAndCast[P](s.mutableObj()))
@@ -257,7 +263,7 @@ object CtorType {
         }, noMod))
 
     @nowarn("cat=unused")
-    implicit def summonPC[P <: js.Object](implicit w: Singleton.Not[P]) =
+    implicit def summonPC[P <: js.Object](implicit w: Singleton.Not[P]): Summoner.Aux[P, ChildrenArg.Varargs, PropsAndChildren] =
       Summoner[P, ChildrenArg.Varargs, PropsAndChildren](rc =>
         new PropsAndChildren[P, raw.React.ComponentElement[P]]((p, mm, c) => {
           val p2 = mm.fold(p)(_.applyAndCast[P](prepareForMutation(p)))
@@ -265,7 +271,7 @@ object CtorType {
         }, noMod))
 
     @nowarn("cat=unused")
-    implicit def summonP[P <: js.Object](implicit w: Singleton.Not[P]) =
+    implicit def summonP[P <: js.Object](implicit w: Singleton.Not[P]): Summoner.Aux[P, ChildrenArg.None, Props] =
       Summoner[P, ChildrenArg.None, Props](rc =>
         new Props[P, raw.React.ComponentElement[P]]((p, mm) => {
             val p2 = mm.fold(p)(_.applyAndCast[P](prepareForMutation(p)))

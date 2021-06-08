@@ -23,7 +23,7 @@ object CallbackKleisli {
     apply(a => f.map(_ apply a))
 
   def ask[A]: CallbackKleisli[A, A] =
-    apply(CallbackTo.pure)
+    apply(CallbackTo.pure(_))
 
   def choice[A, B, C](fst: CallbackKleisli[A, C], snd: CallbackKleisli[B, C]): CallbackKleisli[Either[A, B], C] =
     CallbackKleisli(_.fold(fst.run, snd.run))

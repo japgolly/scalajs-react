@@ -15,8 +15,6 @@ object GenHooks {
     val hookCtxsI       = List.newBuilder[String]
     val hookCtxsP       = List.newBuilder[String]
     val hookCtxsPC      = List.newBuilder[String]
-    val hookCtxFnsP     = List.newBuilder[String]
-    val hookCtxFnsPC    = List.newBuilder[String]
     val dslAtStepsI     = List.newBuilder[String]
     val dslAtStepsP     = List.newBuilder[String]
     val dslAtStepsPC    = List.newBuilder[String]
@@ -24,6 +22,20 @@ object GenHooks {
     val stepMultisP     = List.newBuilder[String]
     val stepMultisPC    = List.newBuilder[String]
     val useCallbackArgs = List.newBuilder[String]
+
+    def hookCtxFn(n: Int, p: String) = {
+      val Hns = (1 to n).map("H" + _).mkString(", ")
+      s"({ type F[A] = ($p, $Hns) => A})#F"
+    }
+
+    def hookCtxFnI(n: Int) = hookCtxFn(n, "I")
+    def hookCtxFnP(n: Int) = hookCtxFn(n, "P")
+    def hookCtxFnPC(n: Int) = hookCtxFn(n, "P, PropsChildren")
+
+    // val i12663_pre = s"({ type F[A] = $s[A]})#F" // TODO: https://github.com/lampepfl/dotty/issues/12663
+    val i12663_a = "({ type F[A] = "
+    val i12663_c = "})#F"
+    val i12663_bc = "[A]" + i12663_c
 
     for (n <- 1 to 22) {
       val As           = (1 to n).map('A' + _ - 1).map(_.toChar).mkString(", ")
@@ -64,8 +76,6 @@ object GenHooks {
              |  }
              |""".stripMargin.replace('!', '$')
 
-        hookCtxFnsP += s"  sealed trait P$n[P, $Hns] extends HookCtxFn { override type Fn[A] = (P, $Hns) => A }"
-
         if (n <= 20) {
           hookCtxCtorsPC += s"    def apply[P, $Hns](props: P, propsChildren: PropsChildren, $hookParams): PC$n[P, $Hns] =\n      new PC$n(props, propsChildren, $hookArgs)"
 
@@ -75,8 +85,6 @@ object GenHooks {
                |    def apply$n[A](f: (P, PropsChildren, $Hns) => A): A = f(props, propsChildren, $hookArgs)
                |  }
                |""".stripMargin.replace('!', '$')
-
-          hookCtxFnsPC += s"  sealed trait PC$n[P, $Hns] extends HookCtxFn { override type Fn[A] = (P, PropsChildren, $Hns) => A }"
         }
       }
 
@@ -85,16 +93,16 @@ object GenHooks {
 
         val preCtxArgs = (1 until n).map(i => s"ctx$s.hook$i").mkString(", ")
 
-        dslAtStepsI += s"  sealed trait AtStep$s[I, $preHns] { type Next[H$n] = Custom.Subsequent[I, HookCtx.I$n[I, $Hns], HookCtxFn.P$n[I, $Hns]#Fn] }"
+        dslAtStepsI += s"  sealed trait AtStep$s[I, $preHns] { type Next[H$n] = Custom.Subsequent[I, HookCtx.I$n[I, $Hns], ${hookCtxFnI(n)}] }"
         stepMultisI +=
           s"""  type AtStep$s[I, $preHns] = To[
              |    I,
              |    HookCtx.I$s[I, $preHns],
-             |    HookCtxFn.P$s[I, $preHns]#Fn,
+             |    ${hookCtxFnI(s)},
              |    Custom.Subsequent.AtStep$s[I, $preHns]#Next]
              |
              |  implicit def atStep$s[I, $preHns]: AtStep$s[I, $preHns] =
-             |    new Custom.SubsequentStep[I, HookCtx.I$s[I, $preHns], HookCtxFn.P$s[I, $preHns]#Fn] {
+             |    new Custom.SubsequentStep[I, HookCtx.I$s[I, $preHns], ${hookCtxFnI(s)}] {
              |      override type Next[H$n] = Custom.Subsequent.AtStep$s[I, $preHns]#Next[H$n]
              |      override def next[H$n] =
              |        (buildPrev, initNextHook) => {
@@ -108,22 +116,22 @@ object GenHooks {
              |                }
              |              }
              |            }
-             |          new Custom.Subsequent[I, HookCtx.I$n[I, $Hns], HookCtxFn.P$n[I, $Hns]#Fn](buildNext)
+             |          new Custom.Subsequent[I, HookCtx.I$n[I, $Hns], ${hookCtxFnI(n)}](buildNext)
              |        }
              |      override def squash[A] = f => _.apply$s(f)
              |    }
              |""".stripMargin
 
-        dslAtStepsP += s"  sealed trait AtStep$s[P, $preHns] { type Next[H$n] = ComponentP.Subsequent[P, HookCtx.P$n[P, $Hns], HookCtxFn.P$n[P, $Hns]#Fn] }"
+        dslAtStepsP += s"  sealed trait AtStep$s[P, $preHns] { type Next[H$n] = ComponentP.Subsequent[P, HookCtx.P$n[P, $Hns], ${hookCtxFnP(n)}] }"
         stepMultisP +=
           s"""  type AtStep$s[P, $preHns] = To[
              |    P,
              |    HookCtx.P$s[P, $preHns],
-             |    HookCtxFn.P$s[P, $preHns]#Fn,
+             |    ${hookCtxFnP(s)},
              |    ComponentP.Subsequent.AtStep$s[P, $preHns]#Next]
              |
              |  implicit def atStep$s[P, $preHns]: AtStep$s[P, $preHns] =
-             |    new ComponentP.SubsequentStep[P, HookCtx.P$s[P, $preHns], HookCtxFn.P$s[P, $preHns]#Fn] {
+             |    new ComponentP.SubsequentStep[P, HookCtx.P$s[P, $preHns], ${hookCtxFnP(s)}] {
              |      override type Next[H$n] = ComponentP.Subsequent.AtStep$s[P, $preHns]#Next[H$n]
              |      override def next[H$n] =
              |        (renderPrev, initNextHook) => {
@@ -133,23 +141,23 @@ object GenHooks {
              |              val ctx$n = HookCtx(ctx$s.props, $preCtxArgs, h$n)
              |              render(ctx$n)
              |            }
-             |          new ComponentP.Subsequent[P, HookCtx.P$n[P, $Hns], HookCtxFn.P$n[P, $Hns]#Fn](renderNext)
+             |          new ComponentP.Subsequent[P, HookCtx.P$n[P, $Hns], ${hookCtxFnP(n)}](renderNext)
              |        }
              |      override def squash[A] = f => _.apply$s(f)
              |    }
              |""".stripMargin
 
         if (n <= 20) {
-          dslAtStepsPC += s"  sealed trait AtStep$s[P, $preHns] { type Next[H$n] = ComponentPC.Subsequent[P, HookCtx.PC$n[P, $Hns], HookCtxFn.PC$n[P, $Hns]#Fn] }"
+          dslAtStepsPC += s"  sealed trait AtStep$s[P, $preHns] { type Next[H$n] = ComponentPC.Subsequent[P, HookCtx.PC$n[P, $Hns], ${hookCtxFnPC(n)}] }"
           stepMultisPC +=
             s"""  type AtStep$s[P, $preHns] = To[
                |    P,
                |    HookCtx.PC$s[P, $preHns],
-               |    HookCtxFn.PC$s[P, $preHns]#Fn,
+               |    ${hookCtxFnPC(s)},
                |    ComponentPC.Subsequent.AtStep$s[P, $preHns]#Next]
                |
                |  implicit def atStep$s[P, $preHns]: AtStep$s[P, $preHns] =
-               |    new ComponentPC.SubsequentStep[P, HookCtx.PC$s[P, $preHns], HookCtxFn.PC$s[P, $preHns]#Fn] {
+               |    new ComponentPC.SubsequentStep[P, HookCtx.PC$s[P, $preHns], ${hookCtxFnPC(s)}] {
                |      override type Next[H$n] = ComponentPC.Subsequent.AtStep$s[P, $preHns]#Next[H$n]
                |      override def next[H$n] =
                |        (renderPrev, initNextHook) => {
@@ -159,7 +167,7 @@ object GenHooks {
                |              val ctx$n = HookCtx.withChildren(ctx$s.props, ctx$s.propsChildren, $preCtxArgs, h$n)
                |              render(ctx$n)
                |            }
-               |          new ComponentPC.Subsequent[P, HookCtx.PC$n[P, $Hns], HookCtxFn.PC$n[P, $Hns]#Fn](renderNext)
+               |          new ComponentPC.Subsequent[P, HookCtx.PC$n[P, $Hns], ${hookCtxFnPC(n)}](renderNext)
                |        }
                |      override def squash[A] = f => _.apply$s(f)
                |    }
@@ -230,25 +238,10 @@ object GenHooks {
          |""".stripMargin
     )
 
-    save("HookCtxFn.scala")(
-      s"""$header
-         |
-         |import japgolly.scalajs.react.PropsChildren
-         |
-         |// Note: these are never instantiated. They're just here to serve as type lambdas in Scala 2.
-         |sealed trait HookCtxFn { type Fn[A] }
-         |
-         |object HookCtxFn {
-         |${hookCtxFnsP.result().mkString("\n")}
-         |
-         |${hookCtxFnsPC.result().mkString("\n")}
-         |}
-         |""".stripMargin
-    )
-
     save("StepBoilerplate.scala")(
       s"""$header
          |
+         |import japgolly.scalajs.react.PropsChildren
          |import japgolly.scalajs.react.hooks.CustomHook.{Builder => Custom}
          |import japgolly.scalajs.react.hooks.HookComponentBuilder._
          |

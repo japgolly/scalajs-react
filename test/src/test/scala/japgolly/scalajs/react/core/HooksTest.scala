@@ -21,10 +21,14 @@ object HooksTest extends TestSuite {
   private def assertText(e: Element, expect: String)(implicit l: Line): Unit =
     assertEq(getText(e), expect)
 
-  private def test[M, A](u: Unmounted[M])(f: Tester => A): A =
+  // TODO: https://github.com/lampepfl/dotty/issues/12663
+  // Should be private ↓
+  def test[M, A](u: Unmounted[M])(f: Tester => A): A =
     withRenderedIntoBody(u).withParent(root => f(new Tester(root)))
 
-  private class Tester(root: Element) {
+  // TODO: https://github.com/lampepfl/dotty/issues/12663
+  // Should be private
+  class Tester(root: Element) {
 
     def assertText(expect: String)(implicit l: Line): Unit =
       HooksTest.assertText(root, expect)
@@ -55,7 +59,9 @@ object HooksTest extends TestSuite {
   private val incBy1 = Reusable.byRef((_: Int) + 1)
   private val incBy5 = Reusable.byRef((_: Int) + 5)
 
-  private final class Counter {
+  // TODO: https://github.com/lampepfl/dotty/issues/12663
+  // Should be private or moved elsewhere ↓
+  final class Counter {
     var value = 0
     def inc(by: Int = 1): Int = {
       value += by
@@ -71,7 +77,9 @@ object HooksTest extends TestSuite {
     def addCB(as: A*): Callback = {val x = as.toList; Callback(add(x: _*))}
   }
 
-  private final case class PI(pi: Int) {
+  // TODO: https://github.com/lampepfl/dotty/issues/12663
+  // Should be private ↓
+  final case class PI(pi: Int) {
     def unary_- : PI = PI(-pi)
     def *(n: Int): PI = PI(pi * n)
     def +(n: Int): PI = PI(pi + n)
@@ -142,40 +150,41 @@ object HooksTest extends TestSuite {
   // ===================================================================================================================
 
   private def testCustomHook(): Unit = {
-    val counter = new Counter
+    // TODO: https://github.com/lampepfl/dotty/issues/12663
+    ScalaSpecificHooksTest.testCustomHook()
 
-    val hookS = CustomHook[Int].useStateBy(identity).buildReturning(_.hook1)
-    val hookE = CustomHook[Int].useEffectBy(counter.incCB(_)).build
+  //   val counter = new Counter
 
-    val comp = ScalaFnComponent.withHooks[PI]
-      .custom(hookE(10))
-      .custom(hookS(3))
-      .custom(hookS.contramap[PI](_.pi))
-      .customBy((p, s, _) => hookE(p.pi + s.value))
-      .customBy($ => hookS($.props.pi + $.hook1.value + 1))
-      .customBy($ => hookE($.props.pi + $.hook1.value + 1))
-      .render((_, s1, s2, s3) =>
-        <.div(
-          s"${s1.value}:${s2.value}:${s3.value}",
-          <.button(^.onClick --> s1.modState(_ + 1))
-        )
-      )
+  //   val hookS = CustomHook[Int].useStateBy(identity).buildReturning(_.hook1)
+  //   val hookE = CustomHook[Int].useEffectBy(counter.incCB(_)).build
 
-    test(comp(PI(5))) { t =>
-      t.assertText("3:5:9")
-      assertEq(counter.value, 10 + (5+3) + (5+3+1))
-      counter.value = 0
-      t.clickButton()
-      t.assertText("4:5:9")
-      assertEq(counter.value, 10 + (5+4) + (5+4+1))
-    }
+  //   val comp = ScalaFnComponent.withHooks[PI]
+  //     .custom(hookE(10))
+  //     .custom(hookS(3)) // <--------------------------------------- s1
+  //     .custom(hookS.contramap[PI](_.pi)) // <---------------------- s2
+  //     .customBy((p, s, _) => hookE(p.pi + s.value))
+  //     .customBy($ => hookS($.props.pi + $.hook1.value + 1)) // <--- s3
+  //     .customBy($ => hookE($.props.pi + $.hook1.value + 1))
+  //     .render((p, s1, s2, s3) =>
+  //       <.div(
+  //         s"${s1.value}:${s2.value}:${s3.value}",
+  //         <.button(^.onClick --> s1.modState(_ + 1))
+  //       )
+  //     )
+
+  //   test(comp(PI(5))) { t =>
+  //     t.assertText("3:5:9")
+  //     assertEq(counter.value, 10 + (5+3) + (5+3+1))
+  //     counter.value = 0
+  //     t.clickButton()
+  //     t.assertText("4:5:9")
+  //     assertEq(counter.value, 10 + (5+4) + (5+4+1))
+  //   }
   }
 
   private def testCustomHookComposition(): Unit = {
 
     locally {
-      import InferenceUtil.{test => t}
-
       type LL = CustomHook[Long, Long]
       type II = CustomHook[Int, Int]
       type IU = CustomHook[Int, Unit]
@@ -184,55 +193,55 @@ object HooksTest extends TestSuite {
       type TF = CustomHook[3, 4]
       type FT = CustomHook[4, 3]
 
-      t[(II, LL)](h => h._1 ++ h._2).expect[CustomHook[(Int, Long), (Int, Long)]]
-      t[(II, TF)](h => h._1 ++ h._2).expect[CustomHook[(Int, 3), (Int, 4)]]
-      t[(II, II)](h => h._1 ++ h._2).expect[CustomHook[Int, (Int, Int)]]
-      t[(II, IU)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
-      t[(II, UI)](h => h._1 ++ h._2).expect[CustomHook[Int, (Int, Int)]]
-      t[(II, UU)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
+      assertType[(II, LL)].map(h => h._1 ++ h._2).is[CustomHook[(Int, Long), (Int, Long)]]
+      assertType[(II, TF)].map(h => h._1 ++ h._2).is[CustomHook[(Int, 3), (Int, 4)]]
+      assertType[(II, II)].map(h => h._1 ++ h._2).is[CustomHook[Int, (Int, Int)]]
+      assertType[(II, IU)].map(h => h._1 ++ h._2).is[CustomHook[Int, Int]]
+      assertType[(II, UI)].map(h => h._1 ++ h._2).is[CustomHook[Int, (Int, Int)]]
+      assertType[(II, UU)].map(h => h._1 ++ h._2).is[CustomHook[Int, Int]]
 
-      t[(IU, LL)](h => h._1 ++ h._2).expect[CustomHook[(Int, Long), Long]]
-      t[(IU, TF)](h => h._1 ++ h._2).expect[CustomHook[(Int, 3), 4]]
-      t[(IU, II)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
-      t[(IU, IU)](h => h._1 ++ h._2).expect[CustomHook[Int, Unit]]
-      t[(IU, UI)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
-      t[(IU, UU)](h => h._1 ++ h._2).expect[CustomHook[Int, Unit]]
+      assertType[(IU, LL)].map(h => h._1 ++ h._2).is[CustomHook[(Int, Long), Long]]
+      assertType[(IU, TF)].map(h => h._1 ++ h._2).is[CustomHook[(Int, 3), 4]]
+      assertType[(IU, II)].map(h => h._1 ++ h._2).is[CustomHook[Int, Int]]
+      assertType[(IU, IU)].map(h => h._1 ++ h._2).is[CustomHook[Int, Unit]]
+      assertType[(IU, UI)].map(h => h._1 ++ h._2).is[CustomHook[Int, Int]]
+      assertType[(IU, UU)].map(h => h._1 ++ h._2).is[CustomHook[Int, Unit]]
 
-      t[(UI, LL)](h => h._1 ++ h._2).expect[CustomHook[Long, (Int, Long)]]
-      t[(UI, TF)](h => h._1 ++ h._2).expect[CustomHook[3, (Int, 4)]]
-      t[(UI, II)](h => h._1 ++ h._2).expect[CustomHook[Int, (Int, Int)]]
-      t[(UI, IU)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
-      t[(UI, UI)](h => h._1 ++ h._2).expect[CustomHook[Unit, (Int, Int)]]
-      t[(UI, UU)](h => h._1 ++ h._2).expect[CustomHook[Unit, Int]]
+      assertType[(UI, LL)].map(h => h._1 ++ h._2).is[CustomHook[Long, (Int, Long)]]
+      assertType[(UI, TF)].map(h => h._1 ++ h._2).is[CustomHook[3, (Int, 4)]]
+      assertType[(UI, II)].map(h => h._1 ++ h._2).is[CustomHook[Int, (Int, Int)]]
+      assertType[(UI, IU)].map(h => h._1 ++ h._2).is[CustomHook[Int, Int]]
+      assertType[(UI, UI)].map(h => h._1 ++ h._2).is[CustomHook[Unit, (Int, Int)]]
+      assertType[(UI, UU)].map(h => h._1 ++ h._2).is[CustomHook[Unit, Int]]
 
-      t[(UU, LL)](h => h._1 ++ h._2).expect[CustomHook[Long, Long]]
-      t[(UU, TF)](h => h._1 ++ h._2).expect[CustomHook[3, 4]]
-      t[(UU, II)](h => h._1 ++ h._2).expect[CustomHook[Int, Int]]
-      t[(UU, IU)](h => h._1 ++ h._2).expect[CustomHook[Int, Unit]]
-      t[(UU, UI)](h => h._1 ++ h._2).expect[CustomHook[Unit, Int]]
-      t[(UU, UU)](h => h._1 ++ h._2).expect[CustomHook[Unit, Unit]]
+      assertType[(UU, LL)].map(h => h._1 ++ h._2).is[CustomHook[Long, Long]]
+      assertType[(UU, TF)].map(h => h._1 ++ h._2).is[CustomHook[3, 4]]
+      assertType[(UU, II)].map(h => h._1 ++ h._2).is[CustomHook[Int, Int]]
+      assertType[(UU, IU)].map(h => h._1 ++ h._2).is[CustomHook[Int, Unit]]
+      assertType[(UU, UI)].map(h => h._1 ++ h._2).is[CustomHook[Unit, Int]]
+      assertType[(UU, UU)].map(h => h._1 ++ h._2).is[CustomHook[Unit, Unit]]
 
-      t[(LL, LL)](h => h._1 ++ h._2).expect[CustomHook[Long, (Long, Long)]]
-      t[(LL, II)](h => h._1 ++ h._2).expect[CustomHook[(Long, Int), (Long, Int)]]
-      t[(LL, IU)](h => h._1 ++ h._2).expect[CustomHook[(Long, Int), Long]]
-      t[(LL, UI)](h => h._1 ++ h._2).expect[CustomHook[Long, (Long, Int)]]
-      t[(LL, UU)](h => h._1 ++ h._2).expect[CustomHook[Long, Long]]
+      assertType[(LL, LL)].map(h => h._1 ++ h._2).is[CustomHook[Long, (Long, Long)]]
+      assertType[(LL, II)].map(h => h._1 ++ h._2).is[CustomHook[(Long, Int), (Long, Int)]]
+      assertType[(LL, IU)].map(h => h._1 ++ h._2).is[CustomHook[(Long, Int), Long]]
+      assertType[(LL, UI)].map(h => h._1 ++ h._2).is[CustomHook[Long, (Long, Int)]]
+      assertType[(LL, UU)].map(h => h._1 ++ h._2).is[CustomHook[Long, Long]]
 
-      t[(TF, FT)](h => h._1 ++ h._2).expect[CustomHook[(3, 4), (4, 3)]]
-      t[(TF, II)](h => h._1 ++ h._2).expect[CustomHook[(3, Int), (4, Int)]]
-      t[(TF, IU)](h => h._1 ++ h._2).expect[CustomHook[(3, Int), 4]]
-      t[(TF, LL)](h => h._1 ++ h._2).expect[CustomHook[(3, Long), (4, Long)]]
-      t[(TF, TF)](h => h._1 ++ h._2).expect[CustomHook[3, 4]]
-      t[(TF, UI)](h => h._1 ++ h._2).expect[CustomHook[3, (4, Int)]]
-      t[(TF, UU)](h => h._1 ++ h._2).expect[CustomHook[3, 4]]
+      assertType[(TF, FT)].map(h => h._1 ++ h._2).is[CustomHook[(3, 4), (4, 3)]]
+      assertType[(TF, II)].map(h => h._1 ++ h._2).is[CustomHook[(3, Int), (4, Int)]]
+      assertType[(TF, IU)].map(h => h._1 ++ h._2).is[CustomHook[(3, Int), 4]]
+      assertType[(TF, LL)].map(h => h._1 ++ h._2).is[CustomHook[(3, Long), (4, Long)]]
+      assertType[(TF, TF)].map(h => h._1 ++ h._2).is[CustomHook[3, 4]]
+      assertType[(TF, UI)].map(h => h._1 ++ h._2).is[CustomHook[3, (4, Int)]]
+      assertType[(TF, UU)].map(h => h._1 ++ h._2).is[CustomHook[3, 4]]
 
-      t[(FT, FT)](h => h._1 ++ h._2).expect[CustomHook[4, 3]]
-      t[(FT, II)](h => h._1 ++ h._2).expect[CustomHook[(4, Int), (3, Int)]]
-      t[(FT, IU)](h => h._1 ++ h._2).expect[CustomHook[(4, Int), 3]]
-      t[(FT, LL)](h => h._1 ++ h._2).expect[CustomHook[(4, Long), (3, Long)]]
-      t[(FT, TF)](h => h._1 ++ h._2).expect[CustomHook[(4, 3), (3, 4)]]
-      t[(FT, UI)](h => h._1 ++ h._2).expect[CustomHook[4, (3, Int)]]
-      t[(FT, UU)](h => h._1 ++ h._2).expect[CustomHook[4, 3]]
+      assertType[(FT, FT)].map(h => h._1 ++ h._2).is[CustomHook[4, 3]]
+      assertType[(FT, II)].map(h => h._1 ++ h._2).is[CustomHook[(4, Int), (3, Int)]]
+      assertType[(FT, IU)].map(h => h._1 ++ h._2).is[CustomHook[(4, Int), 3]]
+      assertType[(FT, LL)].map(h => h._1 ++ h._2).is[CustomHook[(4, Long), (3, Long)]]
+      assertType[(FT, TF)].map(h => h._1 ++ h._2).is[CustomHook[(4, 3), (3, 4)]]
+      assertType[(FT, UI)].map(h => h._1 ++ h._2).is[CustomHook[4, (3, Int)]]
+      assertType[(FT, UU)].map(h => h._1 ++ h._2).is[CustomHook[4, 3]]
     }
 
     val ints = new Recorder[Int]
@@ -527,7 +536,7 @@ object HooksTest extends TestSuite {
     }
   }
 
-  trait X_UseEffect_Primary[Ctx, Step <: HooksApi.Step] {
+  trait X_UseEffect_Primary[Ctx, Step <: HooksApi.AbstractStep] {
     def X_useEffect[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Self
     def X_useEffectBy[A](init: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Self
     def X_useEffectOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step): step.Self
@@ -542,11 +551,11 @@ object HooksTest extends TestSuite {
   }
 
   private object UseEffect extends UseEffectTests {
-    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) =
+    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) =
       new Primary(api)
     override protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) =
       new Secondary(api)
-    protected class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
+    protected class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
         override def X_useEffect[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
           api.useEffect(effect)
         override def X_useEffectBy[A](init: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
@@ -571,11 +580,11 @@ object HooksTest extends TestSuite {
   }
 
   private object UseLayoutEffect extends UseEffectTests {
-    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) =
+    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) =
       new Primary(api)
     override protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) =
       new Secondary(api)
-    protected class Primary[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
+    protected class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
         override def X_useEffect[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
           api.useLayoutEffect(effect)
         override def X_useEffectBy[A](init: Ctx => CallbackTo[A])(implicit a: UseEffectArg[A], step: Step) =
@@ -600,7 +609,7 @@ object HooksTest extends TestSuite {
   }
 
   private abstract class UseEffectTests {
-    protected implicit def hooksExt1[Ctx, Step <: HooksApi.Step](api: HooksApi.Primary[Ctx, Step]): X_UseEffect_Primary[Ctx, Step]
+    protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): X_UseEffect_Primary[Ctx, Step]
     protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): X_UseEffect_Secondary[Ctx, CtxFn, Step]
 
     def testConst(): Unit = {
@@ -1016,7 +1025,7 @@ object HooksTest extends TestSuite {
   }
 
   private def testUseStateWithReuse(): Unit = {
-    implicit val reusability = Reusability.by[PI, Int](_.pi >> 1)
+    implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
 
     val comp = ScalaFnComponent.withHooks[PI]
       .useStateWithReuse(PI(100))
@@ -1041,7 +1050,7 @@ object HooksTest extends TestSuite {
   }
 
   private def testUseStateWithReuseSetStateReusability(): Unit = {
-    implicit val reusability = Reusability[PI]((x, y) => (x.pi - y.pi).abs <= 1)
+    implicit val reusability: Reusability[PI] = Reusability[PI]((x, y) => (x.pi - y.pi).abs <= 1)
 
     val comp = ScalaFnComponent.withHooks[Unit]
       .useStateWithReuse(PI(4))
@@ -1077,7 +1086,7 @@ object HooksTest extends TestSuite {
   }
 
   private def testUseStateWithReuseModStateReusability(): Unit = {
-    implicit val reusability = Reusability.by[PI, Int](_.pi >> 1)
+    implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
     val comp = ScalaFnComponent.withHooks[Unit]
       .useStateWithReuse(PI(4))
       .render { (_, s) =>

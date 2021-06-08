@@ -10,6 +10,7 @@ import java.util.UUID
 import monocle.Prism
 import org.scalajs.dom
 import scala.annotation.nowarn
+import scala.scalajs.LinkingInfo.developmentMode
 import utest._
 
 object RouterP2Test extends TestSuite {
@@ -118,7 +119,7 @@ object RouterP2Test extends TestSuite {
         )
 
       val nestedModule =
-        Module.routes.prefixPath_/("module").pmap[MyPage2](NestedModule){ case NestedModule(m) => m }
+        Module.routes.prefixPath_/("module").pmap[MyPage2](NestedModule.apply){ case NestedModule(m) => m }
 
       val code1 = dynamicRouteCT("code1" / remainingPath.pmapL(code1Prism)) ~> dynRender(c => <.div(c.code))
       val code2 = dynamicRouteCT("code2" / remainingPath.pmapL(code2Prism)) ~> dynRenderP((c, ctx) => <.div(c.code, ctx.int))
@@ -147,7 +148,7 @@ object RouterP2Test extends TestSuite {
 
   // -------------------------------------------------------------------------------------------------------------------
 
-  implicit def str2path(s: String) = Path(s)
+  implicit def str2path(s: String): Path = Path(s)
 
   override val tests = Tests {
     import MyPage2._
@@ -204,10 +205,10 @@ object RouterP2Test extends TestSuite {
       assertEq(es, Vector.empty)
 
       es = config.detectErrors(SomethingElse).runNow()
-      if (TestEnv.fullCI)
-        assert(es.isEmpty) // elided
-      else
+      if (developmentMode)
         assert(es.nonEmpty)
+      else
+        assert(es.isEmpty)
     }
 
     "routesPerNestedPageType" - {

@@ -528,7 +528,7 @@ trait HtmlAttrs {
     * value of the type attribute is hidden, checkbox, radio, file, or a button
     * type (button, submit, reset, image).
     */
-  final object autoComplete extends VdomAttr.Generic("autoComplete") {
+  object autoComplete extends VdomAttr.Generic("autoComplete") {
     def additionalName      = this := "additional-name"
     def addressLevel1       = this := "address-level1"
     def addressLevel2       = this := "address-level2"

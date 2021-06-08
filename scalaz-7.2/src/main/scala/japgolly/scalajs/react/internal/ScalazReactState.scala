@@ -33,10 +33,17 @@ trait ScalazReactState extends ScalazReactState2 {
 //  implicit final def ScalazReactExt_StateAccessRIWC[I, S](i: I)(implicit sa: StateAccessor.ReadImpureWritePure[I, S]) =
 //    ScalazReactExt_StateAccessCB(i)(sa.withReadEffect)
 
-  implicit final def ScalazReactExt_ReactS[S, A](a: ReactS[S, A]) = new Ext_ReactS(a)
-  implicit final def ScalazReactExt_ReactST[M[_], S, A](a: ReactST[M, S, A]) = new Ext_ReactST(a)
-  implicit final def ScalazReactExt_StateT[M[_], S, A](a: StateT[M, S, A]) = new Ext_StateT(a)
-  implicit final def ScalazReactExt_FnToStateT[I, M[_], S, A](a: I => StateT[M, S, A]) = new Ext_FnToStateT(a)
+  implicit final def ScalazReactExt_ReactS[S, A](a: ReactS[S, A]): Ext_ReactS[S, A] =
+    new Ext_ReactS(a)
+
+  implicit final def ScalazReactExt_ReactST[M[_], S, A](a: ReactST[M, S, A]): Ext_ReactST[M, S, A] =
+    new Ext_ReactST(a)
+
+  implicit final def ScalazReactExt_StateT[M[_], S, A](a: StateT[M, S, A]): Ext_StateT[M, S, A] =
+    new Ext_StateT(a)
+
+  implicit final def ScalazReactExt_FnToStateT[I, M[_], S, A](a: I => StateT[M, S, A]): Ext_FnToStateT[I, M, S, A] =
+    new Ext_FnToStateT(a)
 }
 
 // =====================================================================================================================

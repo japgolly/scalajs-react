@@ -9,6 +9,7 @@ import scala.scalajs.js
 import scala.scalajs.js.|
 
 object Ref {
+  import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 
   def apply[A]: Simple[A] =
     fromJs(Raw.React.createRef[A | Null]())
@@ -144,12 +145,12 @@ object Ref {
       new ToComponent(ref, c)
 
     def inject[I, R, O, CT[-p, +u] <: CtorType[p, u], P, U](c: CT[P, U], ref: Full[I, R, O]): ToComponent[I, R, O, CT[P, U]] =
-      apply(ref, CtorType.hackBackToSelf(c)(c.withRawProp("ref", ref.rawSetFn)))
+      apply(ref, CtorType.hackBackToSelf[CT, P, U](c)(c.withRawProp("ref", ref.rawSetFn)))
   }
 
   // ===================================================================================================================
 
-  // /** @since 1.8.0 */
+  // /** @since 2.0.0 */
   // trait NonEmpty[I, R, O] { self =>
   //   val raw: Raw.React.RefHandle[R]
   //   def get: CallbackTo[O]
@@ -240,7 +241,7 @@ object Ref {
       CT[P, ScalaComponent.Unmounted[P, S, B]]]
 
   def toScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]]
-                      (c: ScalaComponent[P, S, B, CT])
+                      (c: ScalaComponent.Component[P, S, B, CT])
                       : WithScalaComponent[P, S, B, CT] =
     ToComponent.inject(c, toScalaComponent[P, S, B])
 
