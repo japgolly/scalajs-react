@@ -117,7 +117,4 @@ object ScalaJsReactConfig {
         replaceFirst(name, "^.+\\.", "")
     }
   }
-
-  // TODO: move into tests
-  private class ProofThatDefaultsAreComplete extends Defaults
 }

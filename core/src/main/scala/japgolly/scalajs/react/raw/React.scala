@@ -58,7 +58,6 @@ object React extends React {
     def componentWillUpdate      (nextProps: Props, nextState: State): Unit    = js.native
     def shouldComponentUpdate    (nextProps: Props, nextState: State): Boolean = js.native
 
-    // abstract def render(): React.Node // TODO Fails. Scala.JS bug?
     def render(): React.Node = js.native
 
     final def forceUpdate(callback: js.Function0[Unit] = js.native): Unit = js.native

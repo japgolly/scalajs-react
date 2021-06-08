@@ -36,4 +36,8 @@ sealed trait CompilationTest {
   // Misc
 
   PropsChildren(())
+
+  // Ensure that the ScalaJsReactConfig.Defaults trait contains a default value for every config method
+  class ScalaJsReactConfigDefaults extends ScalaJsReactConfig.Defaults
+
 }

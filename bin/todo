@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.." || exit 1
+# cd "$(dirname "$(readlink -e "$0")")" || exit 1
+# [ $# -ne 1 ] && echo "Usage: $0 <xxx>" && exit 1
+# tmp=/tmp/$(date +%Y%m%d-%H%M%S)-$$
+
+files="$(find . -type f -name '*.scala' | fgrep /src/ | sort)"
+
+case "${1:-}" in
+  m) files="$( echo "$files" | fgrep /main/scala )" ;;
+  t) files="$( echo "$files" | fgrep /test/scala )" ;;
+  *) ;;
+esac
+
+hack=234lkjhdfsg987ym354cfmih324cjfogh78m34g
+
+matches="$(
+  echo "$files" | xargs \
+  grep -Pn --color=always '(?<!"|def )(TODO\b.*)' \
+    | grep -Pv 'bm4 currently unavailable' \
+    | perl -pe 's/^(.+?)(TODO.*)$/\2 '$hack' \1\2/' \
+    | sort \
+    | perl -pe 's/^.*? '$hack' (.+)/\1/'
+)"
+
+echo "$matches"
+echo "Total: $(echo "$matches" | wc -l)"

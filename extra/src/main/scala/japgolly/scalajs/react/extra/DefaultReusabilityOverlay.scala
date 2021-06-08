@@ -204,16 +204,10 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     create >> update >> options.mountHighlighter($) >> setInterval(updatePosition, options.updatePositionEvery)
 
   override val onUnmount =
-    super.unmount >> Callback {
+    super.unmount.thenRun(
       overlay.foreach { o =>
         document.body.removeChild(o.outer)
         overlay = None
       }
-    }
-    // TODO: Should compile: super.unmount.thenRun(
-    //   overlay.foreach { o =>
-    //     document.body.removeChild(o.outer)
-    //     overlay = None
-    //   }
-    // )
+    )
 }
