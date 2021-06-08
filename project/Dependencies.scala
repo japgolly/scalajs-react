@@ -12,8 +12,8 @@ object Dependencies {
     val cats                  = "2.6.1"
     val catsEffect            = "2.5.1"
     val microlibs             = "2.6"
+    val monocle3              = "3.0.0-RC2"
     val monocleCats           = "2.1.0"
-    val monocle3              = "3.0.0-M6"
     val monocleScalaz         = "1.6.3"
     val scala2                = "2.13.6"
     val scala3                = "3.0.0"
@@ -46,8 +46,8 @@ object Dependencies {
     val microlibsCompileTime = Def.setting("com.github.japgolly.microlibs" %%% "compile-time"            % Ver.microlibs)
     val microlibsTestUtil    = Def.setting("com.github.japgolly.microlibs" %%% "test-util"               % Ver.microlibs)
     val microlibsTypes       = Def.setting("com.github.japgolly.microlibs" %%% "types"                   % Ver.microlibs)
+    val monocle3             = Def.setting("dev.optics"                    %%% "monocle-core"            % Ver.monocle3)
     val monocleCats          = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocleCats cross CrossVersion.for3Use2_13)
-    val monocle3             = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocle3)
     val monocleScalaz        = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocleScalaz cross CrossVersion.for3Use2_13)
     val nyayaGen             = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-gen"               % Ver.nyaya)
     val nyayaProp            = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-prop"              % Ver.nyaya)
