@@ -32,7 +32,7 @@ object SimEvent {
 
     def assignTarget(tgt: Dynamic): tgt.type = {
       tgt.value   = value
-      tgt.checked = checked
+      tgt.checked = checked.asInstanceOf[js.Any]
       tgt
     }
 

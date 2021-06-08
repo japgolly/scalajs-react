@@ -67,7 +67,7 @@ object TriStateCheckbox {
       ^.onKeyDown ==> handleKey)
   }
 
-  private def updateDom($: ScalaComponent.MountedImpure[_, _, _], nextProps: Props): Callback = {
+  private def updateDom[P, S, B]($: ScalaComponent.MountedImpure[P, S, B], nextProps: Props): Callback = {
     val s = nextProps.state
     Callback {
       $.getDOMNode.toElement.map(_.domCast[Input]).foreach { d =>
@@ -84,6 +84,8 @@ object TriStateCheckbox {
     Reusability.caseClassExcept("setNextState") // .setNextState is never accessed outside of a Callback
 
   val Component = ScalaComponent.builder[Props]("TriStateCheckbox")
+    .stateless
+    .noBackend
     .render(i => render(i.mountedPure, i.props))
     .componentDidMount(i => updateDom(i.mountedImpure, i.props))
     .componentDidUpdate(i => updateDom(i.mountedImpure, i.currentProps))

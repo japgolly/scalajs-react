@@ -7,6 +7,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.StateSnapshot
 import japgolly.scalajs.react.vdom.html_<^._
 
+// TODO: Remove [Name] from .initialState[Name](Name("John", "Wick")) after Scala 3 bugfix
 
 object StateSnapshotExample1 {
 
@@ -15,10 +16,14 @@ object StateSnapshotExample1 {
   val source = GhPagesMacros.exampleSource
 
   // EXAMPLE:START
-  import monocle.macros._
+  import monocle._
 
-  @Lenses
   case class Name(firstName: String, surname: String)
+
+  object Name {
+    val firstName = Lens[Name, String](_.firstName)(x => _.copy(firstName = x))
+    val surname   = Lens[Name, String](_.surname  )(x => _.copy(surname   = x))
+  }
 
   val NameChanger = ScalaComponent.builder[StateSnapshot[String]]
     .render_P { stateSnapshot =>
@@ -29,7 +34,7 @@ object StateSnapshotExample1 {
     .build
 
   val Main = ScalaComponent.builder[Unit]
-    .initialState(Name("John", "Wick"))
+    .initialState[Name](Name("John", "Wick"))
     .render { $ =>
       val name       = $.state
       val firstNameV = StateSnapshot.zoomL(Name.firstName).of($)

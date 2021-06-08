@@ -12,10 +12,17 @@ import japgolly.scalajs.react._
 trait CatsReactState extends CatsReactState2 {
   import CatsReactState._
 
-  implicit final def CatsReactExt_ReactS[S, A](a: ReactS[S, A]) = new Ext_ReactS(a)
-  implicit final def CatsReactExt_ReactST[M[_], S, A](a: ReactST[M, S, A]) = new Ext_ReactST(a)
-  implicit final def CatsReactExt_StateT[M[_], S, A](a: StateT[M, S, A]) = new Ext_StateT(a)
-  implicit final def CatsReactExt_FnToStateT[I, M[_], S, A](a: I => StateT[M, S, A]) = new Ext_FnToStateT(a)
+  implicit final def CatsReactExt_ReactS[S, A](a: ReactS[S, A]): Ext_ReactS[S, A] =
+    new Ext_ReactS(a)
+
+  implicit final def CatsReactExt_ReactST[M[_], S, A](a: ReactST[M, S, A]): Ext_ReactST[M, S, A] =
+    new Ext_ReactST(a)
+
+  implicit final def CatsReactExt_StateT[M[_], S, A](a: StateT[M, S, A]): Ext_StateT[M, S, A] =
+    new Ext_StateT(a)
+
+  implicit final def CatsReactExt_FnToStateT[I, M[_], S, A](a: I => StateT[M, S, A]): Ext_FnToStateT[I, M, S, A] =
+    new Ext_FnToStateT(a)
 }
 
 trait CatsReactState2 extends CatsReactState1 {
@@ -261,7 +268,7 @@ object CatsReactState {
   }
 
   final class Ext_ReactS[S, A](private val rs: ReactS[S, A]) extends AnyVal {
-    def liftCB: ReactST[CallbackTo, S, A] = rs.transformF(CallbackTo.pure)
+    def liftCB: ReactST[CallbackTo, S, A] = rs.transformF(CallbackTo.pure(_))
   }
 
   final class Ext_ReactST[M[_], S, A](private val rst: ReactST[M, S, A]) extends AnyVal {

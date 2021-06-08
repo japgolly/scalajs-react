@@ -1,6 +1,5 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.{raw => Raw}
 import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js.|
@@ -25,16 +24,16 @@ sealed trait ComponentDom {
 
 object ComponentDom {
 
-  def apply(i: Raw.ReactDOM.DomNode | Null | Unit): ComponentDom =
+  def apply(i: facade.ReactDOM.DomNode | Null | Unit): ComponentDom =
     (i: Any) match {
       case e: dom.Element => Element(e)
       case t: dom.Text    => Text(t)
       case null | ()      => Unmounted
     }
 
-  def findDOMNode(a: dom.Element | Raw.React.ComponentUntyped): ComponentDom = {
-    val b: Raw.ReactDOM.DomNode | Null =
-      try Raw.ReactDOM.findDOMNode(a)
+  def findDOMNode(a: dom.Element | facade.React.ComponentUntyped): ComponentDom = {
+    val b: facade.ReactDOM.DomNode | Null =
+      try facade.ReactDOM.findDOMNode(a)
       catch {case _: Throwable => null}
     apply(b)
   }
@@ -47,7 +46,7 @@ object ComponentDom {
     override def mounted = Some(this)
 
     def node: dom.Node
-    def raw: Raw.ReactDOM.DomNode
+    def raw: facade.ReactDOM.DomNode
 
     /** unsafe! may throw an exception */
     final def asElement(): dom.Element =

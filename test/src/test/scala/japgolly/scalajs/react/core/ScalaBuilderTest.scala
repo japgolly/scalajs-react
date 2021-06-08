@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.InferenceUtil._
+import japgolly.scalajs.react.test.InferenceHelpers._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import scala.annotation.nowarn
@@ -21,12 +21,34 @@ object ScalaBuilderTest extends TestSuite {
   // 5 = ScalaComponent.build
   // 6 = ScalaComponent.build#Builder
 
+  private object UpdateSnapshotTests {
+    def start = ScalaComponent.builder[P]("").render_P(???)
+    def int = (_: Any) => CallbackTo(2)
+
+    def type_U() = assertCompiles {
+      val aux = start.componentDidUpdate($ => Callback(assertTypeOf($.snapshot).is[Unit]))
+      aux.componentDidUpdate($ => Callback(assertTypeOf($.snapshot).is[Unit]))
+    }
+
+    def type_SU() = assertCompiles {
+      val aux = start
+        .getSnapshotBeforeUpdate(int)
+        .componentDidUpdate($ => Callback(assertTypeOf($.snapshot).is[Int]))
+      aux.componentDidUpdate($ => Callback(assertTypeOf($.snapshot).is[Int]))
+    }
+  }
+
+
   override def tests = Tests {
     "defaults" - {
       import ScalaComponent.builder
-      "autoSB" - testExpr(builder[P]("")                     .render_P(???).build).expect[ScalaComponent[P, Unit, Unit, CtorType.Props]]
-      "autoB"  - testExpr(builder[P]("").initialState[S](???).render_P(???).build).expect[ScalaComponent[P, S   , Unit, CtorType.Props]]
-      "autoS"  - testExpr(builder[P]("").backend[B](???)     .render_P(???).build).expect[ScalaComponent[P, Unit, B   , CtorType.Props]]
+      // TODO: https://github.com/lampepfl/dotty/issues/12247
+      // "autoSB" - assertTypeOf(builder[P]("")                     .render_P(???).build).is[ScalaComponent[P, Unit, Unit, CtorType.Props]]
+      // "autoB"  - assertTypeOf(builder[P]("").initialState[S](???).render_P(???).build).is[ScalaComponent[P, S   , Unit, CtorType.Props]]
+      // "autoS"  - assertTypeOf(builder[P]("").backend[B](???)     .render_P(???).build).is[ScalaComponent[P, Unit, B   , CtorType.Props]]
+      "autoSB" - {def x = builder[P]("")                     .render_P(???).build; assertTypeOf(x).is[ScalaComponent[P, Unit, Unit, CtorType.Props]]}
+      "autoB"  - {def x = builder[P]("").initialState[S](???).render_P(???).build; assertTypeOf(x).is[ScalaComponent[P, S   , Unit, CtorType.Props]]}
+      "autoS"  - {def x = builder[P]("").backend[B](???)     .render_P(???).build; assertTypeOf(x).is[ScalaComponent[P, Unit, B   , CtorType.Props]]}
     }
 
     "renderBackend" - {
@@ -63,8 +85,7 @@ object ScalaBuilderTest extends TestSuite {
 
 
     "updateSnapshot" - {
-      def start = ScalaComponent.builder[P]("").render_P(???)
-      def int = (_: Any) => CallbackTo(2)
+      import UpdateSnapshotTests._
 
       "badAccess" - {
         def test(c: CompileError) = {
@@ -78,27 +99,18 @@ object ScalaBuilderTest extends TestSuite {
       }
 
       "type" - { // FIXME see https://github.com/scala/bug/issues/11660
-        "U" - assertCompiles {
-          val aux = start.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
-          aux.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
-        }
-
-        "SU" - assertCompiles {
-          val aux = start
-            .getSnapshotBeforeUpdate(int)
-            .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
-          aux.componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
-        }
+        "U" - type_U()
+        "SU" - type_SU()
 
 //        "U" - assertCompiles(start
-//          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit]))
-//          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Unit])))
+//          .componentDidUpdate($ => Callback(assertTypeOf($.snapshot).is[Unit]))
+//          .componentDidUpdate($ => Callback(assertTypeOf($.snapshot).is[Unit])))
 //        //FIXME ScalaBuilderTest.scala:81:56: cyclic aliasing or subtyping involving type SnapshotValue
 //
 //        "SU" - assertCompiles(start
 //          .getSnapshotBeforeUpdate(int)
-//          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int]))
-//          .componentDidUpdate($ => Callback(testExpr($.snapshot).expect[Int])))
+//          .componentDidUpdate($ => Callback(assertTypeOf($.snapshot).is[Int]))
+//          .componentDidUpdate($ => Callback(assertTypeOf($.snapshot).is[Int])))
 //        //FIXME ScalaBuilderTest.scala:86:56: cyclic aliasing or subtyping involving type SnapshotValue
       }
     }

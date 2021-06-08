@@ -7,7 +7,7 @@ import scala.scalajs.js
 
 trait JsBaseComponentTemplate[RawComponent[_ <: js.Object] <: js.Any] {
 
-  protected def rawComponentDisplayName: RawComponent[_ <: js.Object] => String
+  protected def rawComponentDisplayName[A <: js.Object](r: RawComponent[A]): String
 
   // Difference between this and its Generic counterpart:
   // - P0 has an upper bound of js.Object.
@@ -16,7 +16,8 @@ trait JsBaseComponentTemplate[RawComponent[_ <: js.Object] <: js.Any] {
   sealed trait ComponentSimple[P, CT[-p, +u] <: CtorType[p, u], U] extends Generic.ComponentSimple[P, CT, U] {
     override final def displayName = rawComponentDisplayName(raw)
 
-    override type Raw <: RawComponent[_ <: js.Object]
+    type RawProps <: js.Object
+    override type Raw <: RawComponent[RawProps]
     override def mapRaw(f: Raw => Raw): ComponentSimple[P, CT, U]
     override def cmapCtorProps[P2](f: P2 => P): ComponentSimple[P2, CT, U]
     override def mapUnmounted[U2](f: U => U2): ComponentSimple[P, CT, U2]
@@ -28,6 +29,7 @@ trait JsBaseComponentTemplate[RawComponent[_ <: js.Object] <: js.Any] {
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
       extends ComponentSimple[P1, CT1, U1] with Generic.ComponentWithRoot[P1, CT1, U1, P0, CT0, U0] {
 
+    override final type RawProps = P0
     override final type Raw = RawComponent[P0]
     override final type Root = ComponentRoot[P0, CT0, U0]
 

@@ -1,8 +1,13 @@
-ThisBuild / scalacOptions += "-Yrangepos"
+ThisBuild / scalacOptions ++= {
+  if (scalaVersion.value startsWith "2")
+    "-Yrangepos" :: Nil
+  else
+    Nil
+}
 
 ThisBuild / semanticdbEnabled := true
 
-ThisBuild / semanticdbVersion := "4.4.11"
+ThisBuild / semanticdbVersion := "4.4.20"
 
 ThisBuild / scalafixScalaBinaryVersion := "2.13"
 

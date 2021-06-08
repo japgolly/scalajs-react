@@ -1,13 +1,19 @@
 package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, CallbackTo, ComponentDom, CtorType, Key, PropsChildren, StateAccess, raw => RAW, vdom}
+import japgolly.scalajs.react.{Callback, CallbackTo, ComponentDom, CtorType, Key, PropsChildren, StateAccess, facade, vdom}
 import scala.scalajs.js
+import scala.scalajs.js.|
 
 object Generic {
 
   @inline implicit def toComponentCtor[P, CT[-p, +u] <: CtorType[p, u], U](c: ComponentSimple[P, CT, U]): CT[P, U] =
     c.ctor
+  // TODO: Remove after https://github.com/lampepfl/dotty/issues/12216
+  @inline implicit def toComponentCtorC [P, U](c: ComponentSimple[P, CtorType.Children        , U]): CtorType.Children        [P, U] = c.ctor
+  @inline implicit def toComponentCtorN [P, U](c: ComponentSimple[P, CtorType.Nullary         , U]): CtorType.Nullary         [P, U] = c.ctor
+  @inline implicit def toComponentCtorP [P, U](c: ComponentSimple[P, CtorType.Props           , U]): CtorType.Props           [P, U] = c.ctor
+  @inline implicit def toComponentCtorPC[P, U](c: ComponentSimple[P, CtorType.PropsAndChildren, U]): CtorType.PropsAndChildren[P, U] = c.ctor
 
   trait ComponentRaw {
     type Raw <: js.Any
@@ -34,7 +40,7 @@ object Generic {
       * The props either need to be a subtype of js.Object, or a known singleton like Unit or Null.
       */
     final def toJsComponent(implicit c: JsFn.ToRawCtor[P, ctor.ChildrenType], r: JsFn.ToRawReactElement[U]): JsFn.Component[c.JS, c.cts.CT] =
-      JsFn.fromJsFn[c.JS, ctor.ChildrenType]((p: c.JS with RAW.PropsWithChildren) =>
+      JsFn.fromJsFn[c.JS, ctor.ChildrenType]((p: c.JS with facade.PropsWithChildren) =>
         r.run(ctor.applyGeneric(c(p))(ctor.liftChildren(p.children): _*))
       )(c.cts)
   }
@@ -56,7 +62,7 @@ object Generic {
   type Unmounted[P, M] = UnmountedSimple[P, M]
 
   trait UnmountedRaw {
-    type Raw <: RAW.React.Element
+    type Raw <: facade.React.Element
     val raw: Raw
     def displayName: String
 
@@ -80,10 +86,13 @@ object Generic {
     def props: Props
     def propsChildren: PropsChildren
 
-    val mountRaw: RAW.React.ComponentUntyped => M // TODO Do better
+    val mountRaw: facade.React.ComponentUntyped => M // TODO Do better
 
-    def renderIntoDOM(container: RAW.ReactDOM.Container, callback: Callback = Callback.empty): Mounted =
-      mountRaw(RAW.ReactDOM.render(raw, container, callback.toJsFn))
+    final def mountRawOrNull(c: facade.React.ComponentUntyped | Null): M =
+      if (c == null) null.asInstanceOf[M] else mountRaw(JsUtil.notNull(c))
+
+    def renderIntoDOM(container: facade.ReactDOM.Container, callback: Callback = Callback.empty): Mounted =
+      mountRaw(facade.ReactDOM.render(raw, container, callback.toJsFn))
   }
 
   trait UnmountedWithRoot[P1, M1, P0, M0] extends UnmountedSimple[P1, M1] {
@@ -103,7 +112,7 @@ object Generic {
   type MountedImpure[P, S] = MountedSimple[Effect.Id, P, S]
 
   trait MountedRaw {
-    type Raw <: RAW.React.ComponentUntyped // TODO Do better
+    type Raw <: facade.React.ComponentUntyped // TODO Do better
     val raw: Raw
     def displayName: String
   }

@@ -3,7 +3,7 @@ package japgolly.scalajs.react.core
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.test.TestUtil._
-import japgolly.scalajs.react.test.{InferenceUtil, ReactTestUtils}
+import japgolly.scalajs.react.test.{InferenceHelpers, ReactTestUtils}
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.annotation.nowarn
 import scala.scalajs.js
@@ -16,9 +16,9 @@ object RawComponentEs6PTest extends TestSuite {
   case class BasicProps(name: String)
 
   @nowarn("cat=unused")
-  class RawComp(ctorProps: Box[BasicProps]) extends raw.React.Component[Box[BasicProps], Box[Unit]] {
+  class RawComp(ctorProps: Box[BasicProps]) extends facade.React.Component[Box[BasicProps], Box[Unit]] {
     override def render() =
-      raw.React.createElement("div", null, "Hello ", this.props.unbox.name)
+      facade.React.createElement("div", null, "Hello ", this.props.unbox.name)
   }
   val RawCompCtor = js.constructorOf[RawComp]
   RawCompCtor.displayName = "HelloRaw6"
@@ -39,10 +39,10 @@ object RawComponentEs6PTest extends TestSuite {
     }
 
     "types" - {
-      import InferenceUtil._
+      import InferenceHelpers._
       import ScalaComponent._
-      "cu" - test[Component[P, S, B, CtorType.Nullary]](_.ctor()).expect[Unmounted[P, S, B]]
-      "um" - test[Unmounted[P, S, B]](_.renderIntoDOM(null)).expect[MountedImpure[P, S, B]]
+      "cu" - assertType[Component[P, S, B, CtorType.Nullary]].map(_.ctor()).is[Unmounted[P, S, B]]
+      "um" - assertType[Unmounted[P, S, B]].map(_.renderIntoDOM(null)).is[MountedImpure[P, S, B]]
     }
 
     "basic" - {
@@ -95,7 +95,7 @@ object RawComponentEs6PTest extends TestSuite {
           this.b - x.b,
           this.c - x.c)
       }
-      implicit def equalProps = UnivEq.force[Props]
+      implicit def equalProps: UnivEq[Props] = UnivEq.force
 
       var mountCountA = 0
       var mountCountB = 0
@@ -137,7 +137,7 @@ object RawComponentEs6PTest extends TestSuite {
       val Comp = ScalaComponent.builder[Props]("")
         .stateless
         .backend(_ => new Backend)
-        .render_P(p => raw.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
+        .render_P(p => facade.React.createElement("div", null, s"${p.a} ${p.b} ${p.c}"))
         .shouldComponentUpdatePure(_.cmpProps(_.a != _.a)) // update if .a differs
         .shouldComponentUpdatePure(_.cmpProps(_.b != _.b)) // update if .b differs
         .componentDidMount(_ => Callback(mountCountA += 1))
@@ -179,18 +179,18 @@ object RawComponentEs6PTest extends TestSuite {
 
 object RawComponentEs6STest extends TestSuite {
 
-  case class State(num1: Int, s2: State2)
+  case class State1(num1: Int, s2: State2)
   case class State2(num2: Int, num3: Int)
 
-  implicit val equalState: UnivEq[State] = UnivEq.force
+  implicit val equalState1: UnivEq[State1] = UnivEq.force
   implicit val equalState2: UnivEq[State2] = UnivEq.force
 
   @nowarn("cat=unused")
-  class RawComp(ctorProps: Box[Unit]) extends raw.React.Component[Box[Unit], Box[State]] {
-    this.state = Box(State(123, State2(400, 7)))
+  class RawComp(ctorProps: Box[Unit]) extends facade.React.Component[Box[Unit], Box[State1]] {
+    this.state = Box(State1(123, State2(400, 7)))
     override def render() = {
       val s = this.state.unbox
-      raw.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3)
+      facade.React.createElement("div", null, "State = ", s.num1, " + ", s.s2.num2, " + ", s.s2.num3)
     }
     def inc(): Unit =
       modState((s: State, _: Props) => Box(s.unbox.copy(s.unbox.num1 + 1)): State | Null)
@@ -199,7 +199,7 @@ object RawComponentEs6STest extends TestSuite {
   RawCompCtor.displayName = "State, no Props"
 
   val Component =
-    JsComponent[Box[Unit], Children.None, Box[State]](RawCompCtor)
+    JsComponent[Box[Unit], Children.None, Box[State1]](RawCompCtor)
         .xmapProps(_.unbox)(Box(_))
         .xmapState(_.unbox)(Box(_))
         .withRawType[RawComp]
@@ -219,19 +219,19 @@ object RawComponentEs6STest extends TestSuite {
         // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.count, 0)
         assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(123, State2(400, 7)))
+        assertEq(mounted.state, State1(123, State2(400, 7)))
 
-        mounted.setState(State(666, State2(500, 7)))
+        mounted.setState(State1(666, State2(500, 7)))
         assertOuterHTML(n, "<div>State = 666 + 500 + 7</div>")
         // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(666, State2(500, 7)))
+        assertEq(mounted.state, State1(666, State2(500, 7)))
 
         mounted.raw.inc()
         assertOuterHTML(n, "<div>State = 667 + 500 + 7</div>")
         // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(667, State2(500, 7)))
+        assertEq(mounted.state, State1(667, State2(500, 7)))
 
         val zoomed = mounted
           .zoomState(_.s2)(n => _.copy(s2 = n))
@@ -241,7 +241,7 @@ object RawComponentEs6STest extends TestSuite {
         assertOuterHTML(n, "<div>State = 667 + 501 + 7</div>")
         // assertEq(mounted.isMounted, yesItsMounted)
         assertEq(mounted.propsChildren.isEmpty, true)
-        assertEq(mounted.state, State(667, State2(501, 7)))
+        assertEq(mounted.state, State1(667, State2(501, 7)))
       }
     }
 

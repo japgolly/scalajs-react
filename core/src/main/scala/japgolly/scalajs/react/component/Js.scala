@@ -2,11 +2,11 @@ package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, Children, ComponentDom, CtorType, PropsChildren, raw => RAW}
+import japgolly.scalajs.react.{Callback, Children, ComponentDom, CtorType, PropsChildren, facade}
 import scala.scalajs.js
 import scala.scalajs.js.|
 
-object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
+object Js extends JsBaseComponentTemplate[facade.React.ComponentClassP] {
 
   def apply[P <: js.Object, C <: Children, S <: js.Object]
            (raw: Any)
@@ -16,13 +16,13 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
   }
 
   def force[P <: js.Object, C <: Children, S <: js.Object](raw: Any)(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] = {
-    val rc = raw.asInstanceOf[RAW.React.ComponentClass[P, S]]
+    val rc = raw.asInstanceOf[facade.React.ComponentClass[P, S]]
     component[P, C, S](rc)(s)
   }
 
   // ===================================================================================================================
 
-  type RawMounted[P <: js.Object, S <: js.Object] = RAW.React.Component[P, S]
+  type RawMounted[P <: js.Object, S <: js.Object] = facade.React.Component[P, S]
 
   type Component[P <: js.Object, S <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentWithRawType[P, S, RawMounted[P, S], CT]
   type Unmounted[P <: js.Object, S <: js.Object]                               = UnmountedWithRawType[P, S, RawMounted[P, S]]
@@ -36,11 +36,11 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
   type UnmountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted[P, S]]                               = UnmountedRoot[P, MountedWithRawType[P, S, R]]
   type   MountedWithRawType[P <: js.Object, S <: js.Object, R <: RawMounted[P, S]]                               = MountedRoot[Effect.Id, P, S, R]
 
-  private def readDisplayName(a: RAW.HasDisplayName): String =
+  private def readDisplayName(a: facade.HasDisplayName): String =
     a.displayName.getOrElse("")
 
-  override protected val rawComponentDisplayName: RAW.React.ComponentClassUntyped => String =
-    readDisplayName
+  override protected def rawComponentDisplayName[A <: js.Object](r: facade.React.ComponentClassP[A]) =
+    readDisplayName(r)
 
   // ===================================================================================================================
 
@@ -48,25 +48,25 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
-    override type Raw <: RAW.React.ComponentElement[_ <: js.Object]
-    override final type Ref = RAW.React.Ref
+    override type Raw <: facade.React.ComponentElement[_ <: js.Object]
+    override final type Ref = facade.React.Ref
     override final def displayName = readDisplayName(raw.`type`)
   }
 
   sealed trait UnmountedWithRoot[P1, M1, P0 <: js.Object, M0] extends UnmountedSimple[P1, M1] with Generic.UnmountedWithRoot[P1, M1, P0, M0] {
     override final type Root = UnmountedRoot[P0, M0]
-    override final type Raw = RAW.React.ComponentElement[P0]
+    override final type Raw = facade.React.ComponentElement[P0]
     override def mapUnmountedProps[P2](f: P1 => P2): UnmountedWithRoot[P2, M1, P0, M0]
     override def mapMounted[M2](f: M1 => M2): UnmountedWithRoot[P1, M2, P0, M0]
   }
 
   type UnmountedRoot[P <: js.Object, M] = UnmountedWithRoot[P, M, P, M]
 
-  def unmountedRoot[P <: js.Object, S <: js.Object, M](r: RAW.React.ComponentElement[P], m: RAW.React.Component[P, S] => M): UnmountedRoot[P, M] =
+  def unmountedRoot[P <: js.Object, S <: js.Object, M](r: facade.React.ComponentElement[P], m: facade.React.Component[P, S] => M): UnmountedRoot[P, M] =
     new UnmountedRoot[P, M] {
       override def root                              = this
       override val raw                               = r
-      override val mountRaw                          = m.asInstanceOf[RAW.React.ComponentUntyped => M] // TODO Do better
+      override val mountRaw                          = m.asInstanceOf[facade.React.ComponentUntyped => M] // TODO Do better
       override def key                               = jsNullToOption(raw.key)
       override def ref                               = jsNullToOption(raw.ref)
       override def props                             = raw.props
@@ -179,11 +179,11 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
 
   // ===================================================================================================================
 
-  def component[P <: js.Object, C <: Children, S <: js.Object](rc: RAW.React.ComponentClass[P, S])(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
+  def component[P <: js.Object, C <: Children, S <: js.Object](rc: facade.React.ComponentClass[P, S])(implicit s: CtorType.Summoner[P, C]): Component[P, S, s.CT] =
     componentRoot[P, s.CT, Unmounted[P, S]](rc, s.pf.rmap(s.summon(rc))(unmounted))(s.pf)
 
-  def unmounted[P <: js.Object, S <: js.Object](r: RAW.React.ComponentElement[P]): Unmounted[P, S] =
-    unmountedRoot(r, mounted)
+  def unmounted[P <: js.Object, S <: js.Object](r: facade.React.ComponentElement[P]): Unmounted[P, S] =
+    unmountedRoot(r, mounted[P, S])
 
   def mounted[P <: js.Object, S <: js.Object](r: RawMounted[P, S]): Mounted[P, S] =
     mountedRoot(r)
@@ -247,7 +247,11 @@ object Js extends JsBaseComponentTemplate[RAW.React.ComponentClassP] {
     import japgolly.scalajs.react.Ref
 
     def withRef(ref: Ref.Handle[R]): ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0] =
-      self.mapCtorType(ct => CtorType.hackBackToSelf(ct)(ct.withRawProp("ref", ref.raw)))(self.ctorPF)
+      self.mapCtorType(ct =>
+        CtorType.hackBackToSelf[CT1,P1,UnmountedMapped[F,P1,S1,R,P0,S0]](ct)(
+          ct.withRawProp("ref", ref.raw)
+        )
+      )(self.ctorPF)
 
     @deprecated("Use .withOptionalRef", "1.7.0")
     def withRef(r: Option[Ref.Handle[R]]): ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0] =

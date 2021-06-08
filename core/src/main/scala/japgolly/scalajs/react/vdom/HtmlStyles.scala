@@ -2514,7 +2514,7 @@ trait HtmlStyles {
     *   * . - a period signifies an empty grid cell
     *   * none - no grid areas are defined
     */
-  final object gridTemplateAreas extends Style[String]("gridTemplateAreas") {
+  object gridTemplateAreas extends Style[String]("gridTemplateAreas") {
     def apply(rows: String*) = this := rows.mkString("'", "' '", "'")
   }
 

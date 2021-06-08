@@ -19,8 +19,8 @@ trait TestUtil
   implicit def equalKey: UnivEq[Key] = UnivEq.force
 
   // TODO erm... not really. Only allow in raw testing
-  implicit val equalRawRef: Equal[japgolly.scalajs.react.raw.React.Ref] = Equal.equalRef
-  implicit def equalRawRefHandle[A]: Equal[japgolly.scalajs.react.raw.React.RefHandle[A]] = Equal.equalRef
+  implicit val equalRawRef: Equal[japgolly.scalajs.react.facade.React.Ref] = Equal.equalRef
+  implicit def equalRawRefHandle[A]: Equal[japgolly.scalajs.react.facade.React.RefHandle[A]] = Equal.equalRef
   implicit def equalRefSimple[A]: Equal[Ref.Simple[A]] = Equal.equalRef
 
   implicit class AnyTestExt[A](a: A) {
@@ -67,7 +67,7 @@ trait TestUtil
   def assertRender(e: japgolly.scalajs.react.vdom.VdomElement, expected: String)(implicit l: Line): Unit =
     assertRender(e.rawElement, expected)
 
-  def assertRender(e: japgolly.scalajs.react.raw.React.Element, expected: String)(implicit l: Line): Unit = {
+  def assertRender(e: japgolly.scalajs.react.facade.React.Element, expected: String)(implicit l: Line): Unit = {
     val rendered: String = ReactDOMServer.raw.renderToStaticMarkup(e)
     assertEq(rendered, expected)
   }
@@ -78,7 +78,7 @@ trait TestUtil
   }
 
   def assertTypeMismatch(e: CompileError)(implicit l: Line): Unit =
-    assertContains(e.msg, "type mismatch")
+    assertContainsAny(e.msg, "Required:", "type mismatch")
 
   implicit class JsArrayTestExt[A](private val a: js.Array[A]) {
     def sole()(implicit l: Line): A =

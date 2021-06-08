@@ -79,17 +79,20 @@ abstract class RouterCtl[Route] {
 }
 
 object RouterCtl {
-  private lazy val reuse: Reusability[RouterCtl[Any]] =
-    Reusability[RouterCtl[Any]] {
-      case (a, b) if a eq b                       => true // First because most common case and fastest
-      case (Contramap(ac, af), Contramap(bc, bf)) => (af eq bf) && reuse.test(ac, bc)
-      case _                                      => false
-    }
+  private lazy val reuse: Reusability[RouterCtl[Any]] = {
+    def test[A, B](x: RouterCtl[A], y: RouterCtl[B]): Boolean =
+      (x eq y) || // Most common case and fastest
+      ((x, y) match {
+        case (Contramap(ac, af), Contramap(bc, bf)) => (af eq bf) && test(ac, bc)
+        case _                                      => false
+      })
+    Reusability[RouterCtl[Any]](test)
+  }
 
   implicit def reusability[A]: Reusability[RouterCtl[A]] =
     reuse.asInstanceOf[Reusability[RouterCtl[A]]]
 
-  case class Contramap[A, B](u: RouterCtl[A], f: B => A) extends RouterCtl[B] {
+  final case class Contramap[A, B](u: RouterCtl[A], f: B => A) extends RouterCtl[B] {
     override def baseUrl                   = u.baseUrl
     override def byPath                    = u.byPath
     override def refresh                   = u.refresh
@@ -97,7 +100,7 @@ object RouterCtl {
     override def set(b: B, v: SetRouteVia) = u.set(f(b), v)
   }
 
-  case class ModCB[A](u: RouterCtl[A], f: (A, Callback) => Callback) extends RouterCtl[A] {
+  final case class ModCB[A](u: RouterCtl[A], f: (A, Callback) => Callback) extends RouterCtl[A] {
     override def baseUrl                   = u.baseUrl
     override def byPath                    = u.byPath
     override def refresh                   = u.refresh

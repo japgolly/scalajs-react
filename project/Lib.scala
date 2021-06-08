@@ -1,14 +1,12 @@
 import sbt._
-import sbt.Keys._
+import Keys._
 import com.jsuereth.sbtpgp.PgpKeys._
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import xerial.sbt.Sonatype.autoImport._
-//import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
-//import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
+import Dependencies._
 
 object Lib {
-  import Dependencies.Dep
 
   type PE = Project => Project
 
@@ -36,11 +34,18 @@ object Lib {
 
   def sourceMapsToGithub(ghProject: String): PE =
     p => p.settings(
-      scalacOptions ++= (if (isSnapshot.value) Seq.empty else Seq({
-        val a = p.base.toURI.toString.replaceFirst("[^/]+/?$", "")
-        val g = s"https://raw.githubusercontent.com/japgolly/$ghProject"
-        s"-P:scalajs:mapSourceURI:$a->$g/v${version.value}/"
-      }))
+      scalacOptions ++= {
+        val isDotty = scalaVersion.value startsWith "3"
+        val ver     = version.value
+        if (isSnapshot.value)
+          Nil
+        else {
+          val a = p.base.toURI.toString.replaceFirst("[^/]+/?$", "")
+          val g = s"https://raw.githubusercontent.com/japgolly/$ghProject"
+          val flag = if (isDotty) "-scalajs-mapSourceURI" else "-P:scalajs:mapSourceURI"
+          s"$flag:$a->$g/v$ver/" :: Nil
+        }
+      }
     )
 
   def preventPublication: PE =
@@ -51,7 +56,7 @@ object Lib {
       .settings(
         jsEnv                := new JSDOMNodeJSEnv,
         Test / scalacOptions += "-language:reflectiveCalls",
-        libraryDependencies  += Dep.MTest.value % Test,
+        libraryDependencies  += Dep.utest.value % Test,
         testFrameworks       += new TestFramework("utest.runner.Framework"))
 
   def extModuleName(shortName: String): PE =
@@ -59,10 +64,10 @@ object Lib {
 
   def definesMacros: Project => Project =
     _.settings(
-      scalacOptions += "-language:experimental.macros",
-      libraryDependencies ++= Seq(
-        Dep.ScalaReflect.value,
-        Dep.ScalaCompiler.value % Provided))
+      scalacOptions       ++= (if (scalaVersion.value startsWith "3") Nil else Seq("-language:experimental.macros")),
+      libraryDependencies ++= (if (scalaVersion.value startsWith "3") Nil else Seq(Dep.scalaReflect.value, Dep.scalaCompiler.value % Provided)),
+      libraryDependencies  += Dep.microlibsCompileTime.value,
+    )
 
   def hasNoTests: Project => Project =
     _.settings(
@@ -87,6 +92,11 @@ object Lib {
         // useYarn := yarnOnPath,
         version in webpack := "2.6.1")
   */
+
+  def disableScalaDoc3: PE =
+    _.settings(
+      Compile / doc / sources := { if (scalaVersion.value startsWith "3") Seq.empty else (Compile / doc / sources).value },
+    )
 
   val disable = settingKey[Boolean]("Disable project?")
 

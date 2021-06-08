@@ -9,7 +9,8 @@ object ExampleComponents {
 
   case class Props(current: Example, router: RouterCtl[Example], examples: Vector[Example])
 
-  implicit val propsReuse = Reusability.derive[Props]
+  implicit val propsReuse: Reusability[Props] =
+    Reusability.derive[Props]
 
   val menu = ScalaComponent.builder[Props]
     .render_P { p =>

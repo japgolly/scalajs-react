@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.{raw => Raw}
+import japgolly.scalajs.react.facade
 import scala.collection.compat._
 import scala.scalajs.js
 
@@ -8,9 +8,9 @@ import scala.scalajs.js
   * Elements must have keys.
   * VdomArray itself cannot be assigned a key.
   */
-final class VdomArray(val rawArray: js.Array[Raw.React.Node]) extends VdomNode {
+final class VdomArray(val rawArray: js.Array[facade.React.Node]) extends VdomNode {
 
-  override def rawNode = rawArray.asInstanceOf[Raw.React.Node]
+  override def rawNode = rawArray.asInstanceOf[facade.React.Node]
 
   def +=(n: VdomNode): this.type = {
     rawArray push n.rawNode

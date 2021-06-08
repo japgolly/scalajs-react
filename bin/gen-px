@@ -4,27 +4,57 @@
 val comma = ", "
 def T(i: Int) = (64+i).toChar.toString
 
-var ra = Seq.empty[String]
+locally {
+  var ra = Seq.empty[String]
+  for (i <- (0 to 22)) {
+    def A(j: Int) = ('A'+j).toChar.toString
+    def a(j: Int) = ('a'+j).toChar.toString
+    val As = (0 until i) map A
+    val as = (0 until i) map a
+    val Ac = As mkString ","
+    val ac = as mkString ","
+    val AZ = (if (i == 0) "" else Ac+",") + "Z"
 
-for (i <- (2 to 22)) {
-  // def m (f: Int => String): List[String] = (1 to a).toList.map(f)
-  // def mc(f: Int => String): String = m(f).mkString(comma)
-  // def mt(f: Int => String): String = m(f).mkString("(",comma,")")
+    val ScalaFn = s"($Ac)=>Z"
+    // val ScalaFn = s"scala.runtime.AbstractFunction$i[$AZ]"
+    val JsFn = s"js.Function$i[$AZ]"
 
-  def A(j: Int) = ('A'+j).toChar.toString
-  def a(j: Int) = ('a'+j).toChar.toString
-  val As = (0 until i) map A
-  val as = (0 until i) map a
-  val Ac = As mkString ","
-  val ac = as mkString ","
-
-  def args = (0 until i).map(j => s"p${('a'+j).toChar}:Px[${('A'+j).toChar}]") mkString ", "
-  def exts = as.map(a => s"$a<-p$a") mkString ";"
-
-  ra :+= s"""
-           |  def apply$i[$Ac,Z]($args)(z:($Ac)=>Z): Px[Z] =
-           |    for {$exts} yield z($ac)
-         """.stripMargin
+    ra :+= s"""
+             |    implicit def scalaFn$i[$AZ]: Extract[$ScalaFn] =
+             |      Extract[$ScalaFn](px => ($ac) => px.value()($ac))
+             |
+             |    implicit def jsFn$i[$AZ]: Extract[$JsFn] =
+             |      Extract[$JsFn](px => ($ac) => px.value()($ac))
+           """.stripMargin
+  }
+  println("object Extract {")
+  println(ra.mkString("").replaceAll("\\s+$", ""))
+  println("  }")
+  println()
 }
-print(ra mkString "")
-println()
+
+locally {
+  var ra = Seq.empty[String]
+  for (i <- (2 to 22)) {
+    // def m (f: Int => String): List[String] = (1 to a).toList.map(f)
+    // def mc(f: Int => String): String = m(f).mkString(comma)
+    // def mt(f: Int => String): String = m(f).mkString("(",comma,")")
+
+    def A(j: Int) = ('A'+j).toChar.toString
+    def a(j: Int) = ('a'+j).toChar.toString
+    val As = (0 until i) map A
+    val as = (0 until i) map a
+    val Ac = As mkString ","
+    val ac = as mkString ","
+
+    def args = (0 until i).map(j => s"p${('a'+j).toChar}:Px[${('A'+j).toChar}]") mkString ", "
+    def exts = as.map(a => s"$a<-p$a") mkString ";"
+
+    ra :+= s"""
+             |  def apply$i[$Ac,Z]($args)(z:($Ac)=>Z): Px[Z] =
+             |    for {$exts} yield z($ac)
+           """.stripMargin
+  }
+  print(ra mkString "")
+  println()
+}

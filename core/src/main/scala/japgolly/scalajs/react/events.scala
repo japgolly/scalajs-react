@@ -4,20 +4,20 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 
 trait ReactEventTypes {
-  final type            ReactEventFrom[+N <: dom.Node] = raw.            SyntheticEvent[N]
-  final type   ReactAnimationEventFrom[+N <: dom.Node] = raw.   SyntheticAnimationEvent[N]
-  final type   ReactClipboardEventFrom[+N <: dom.Node] = raw.   SyntheticClipboardEvent[N]
-  final type ReactCompositionEventFrom[+N <: dom.Node] = raw. SyntheticCompositionEvent[N]
-  final type        ReactDragEventFrom[+N <: dom.Node] = raw.        SyntheticDragEvent[N]
-  final type       ReactFocusEventFrom[+N <: dom.Node] = raw.       SyntheticFocusEvent[N]
-  final type        ReactFormEventFrom[+N <: dom.Node] = raw.        SyntheticFormEvent[N]
-  final type    ReactKeyboardEventFrom[+N <: dom.Node] = raw.    SyntheticKeyboardEvent[N]
-  final type       ReactMouseEventFrom[+N <: dom.Node] = raw.       SyntheticMouseEvent[N]
-  final type     ReactPointerEventFrom[+N <: dom.Node] = raw.     SyntheticPointerEvent[N]
-  final type       ReactTouchEventFrom[+N <: dom.Node] = raw.       SyntheticTouchEvent[N]
-  final type  ReactTransitionEventFrom[+N <: dom.Node] = raw.  SyntheticTransitionEvent[N]
-  final type          ReactUIEventFrom[+N <: dom.Node] = raw.          SyntheticUIEvent[N]
-  final type       ReactWheelEventFrom[+N <: dom.Node] = raw.       SyntheticWheelEvent[N]
+  final type            ReactEventFrom[+N <: dom.Node] = facade.            SyntheticEvent[N]
+  final type   ReactAnimationEventFrom[+N <: dom.Node] = facade.   SyntheticAnimationEvent[N]
+  final type   ReactClipboardEventFrom[+N <: dom.Node] = facade.   SyntheticClipboardEvent[N]
+  final type ReactCompositionEventFrom[+N <: dom.Node] = facade. SyntheticCompositionEvent[N]
+  final type        ReactDragEventFrom[+N <: dom.Node] = facade.        SyntheticDragEvent[N]
+  final type       ReactFocusEventFrom[+N <: dom.Node] = facade.       SyntheticFocusEvent[N]
+  final type        ReactFormEventFrom[+N <: dom.Node] = facade.        SyntheticFormEvent[N]
+  final type    ReactKeyboardEventFrom[+N <: dom.Node] = facade.    SyntheticKeyboardEvent[N]
+  final type       ReactMouseEventFrom[+N <: dom.Node] = facade.       SyntheticMouseEvent[N]
+  final type     ReactPointerEventFrom[+N <: dom.Node] = facade.     SyntheticPointerEvent[N]
+  final type       ReactTouchEventFrom[+N <: dom.Node] = facade.       SyntheticTouchEvent[N]
+  final type  ReactTransitionEventFrom[+N <: dom.Node] = facade.  SyntheticTransitionEvent[N]
+  final type          ReactUIEventFrom[+N <: dom.Node] = facade.          SyntheticUIEvent[N]
+  final type       ReactWheelEventFrom[+N <: dom.Node] = facade.       SyntheticWheelEvent[N]
 
   final type            ReactEvent =            ReactEventFrom[dom.Node]
   final type   ReactAnimationEvent =   ReactAnimationEventFrom[dom.Node]
@@ -79,9 +79,9 @@ trait ReactEventTypes {
   final type          ReactUIEventFromTextArea =          ReactUIEventFrom[html.TextArea]
   final type       ReactWheelEventFromTextArea =       ReactWheelEventFrom[html.TextArea]
 
-  implicit def toReactExt_DomEvent                         (e: dom.Event                ): ReactExt_DomEvent              = new ReactExt_DomEvent(e)
-  implicit def toReactExt_ReactEvent[E <: ReactEvent]      (e: E                        ): ReactExt_ReactEvent[E]         = new ReactExt_ReactEvent(e)
-  implicit def toReactExt_ReactKeyboardEvent[N <: dom.Node](e: ReactKeyboardEventFrom[N]): ReactExt_ReactKeyboardEvent[N] = new ReactExt_ReactKeyboardEvent(e)
+  @inline final implicit def toReactExt_DomEvent                         (e: dom.Event                ): ReactExt_DomEvent              = new ReactExt_DomEvent(e)
+  @inline final implicit def toReactExt_ReactEvent[E <: ReactEvent]      (e: E                        ): ReactExt_ReactEvent[E]         = new ReactExt_ReactEvent(e)
+  @inline final implicit def toReactExt_ReactKeyboardEvent[N <: dom.Node](e: ReactKeyboardEventFrom[N]): ReactExt_ReactKeyboardEvent[N] = new ReactExt_ReactKeyboardEvent(e)
 }
 
 final class ReactExt_DomEvent(private val e: dom.Event) extends AnyVal {
@@ -122,7 +122,7 @@ final class ReactExt_ReactEvent[E <: ReactEvent](private val e: E) extends AnyVa
   }
 }
 
-final class ReactExt_ReactKeyboardEvent[N <: dom.Node](private val e: raw.SyntheticKeyboardEvent[N]) extends AnyVal {
+final class ReactExt_ReactKeyboardEvent[N <: dom.Node](private val e: facade.SyntheticKeyboardEvent[N]) extends AnyVal {
 
   /**
    * Checks the state of all pressed modifier keys.

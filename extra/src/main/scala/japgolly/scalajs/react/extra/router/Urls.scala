@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.extra.router
 
-import japgolly.scalajs.react.extra.internal.assertWarn
+import japgolly.scalajs.react.internal.Util.devAssertWarn
 import org.scalajs.dom
 
 abstract class PathLike[Self <: PathLike[Self]] {
@@ -25,7 +25,9 @@ abstract class PathLike[Self <: PathLike[Self]] {
   * Examples: `BaseUrl("http://www.blah.com/hello")`,  `BaseUrl.fromWindowOrigin / "hello"`.
   */
 final case class BaseUrl(value: String) extends PathLike[BaseUrl] {
-  assertWarn(value contains "://", s"$this doesn't seem to be a valid URL. It's missing '://'. Consider using BaseUrl.fromWindowOrigin.")
+  devAssertWarn(
+    value contains "://",
+    s"$this doesn't seem to be a valid URL. It's missing '://'. Consider using BaseUrl.fromWindowOrigin.")
 
   override protected def make(s: String) = BaseUrl(s)
   override protected def str(s: BaseUrl) = s.value
@@ -83,7 +85,10 @@ object Path {
 
 /** An absolute URL. */
 final case class AbsUrl(value: String) extends PathLike[AbsUrl] {
-  assertWarn(value contains "://", s"$this doesn't seem to be a valid URL. It's missing '://'. Consider using AbsUrl.fromWindow.")
+  devAssertWarn(
+    value contains "://",
+    s"$this doesn't seem to be a valid URL. It's missing '://'. Consider using AbsUrl.fromWindow.")
+
   override protected def make(s: String) = AbsUrl(s)
   override protected def str(s: AbsUrl) = s.value
 }

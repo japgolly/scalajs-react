@@ -21,9 +21,10 @@ object CodeSnippets {
   val scala: String => VdomTag =
     apply("scala")
 
-  def installSyntaxHighlighting[P, C <: Children, S, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, UpdateSnapshot.Some[U#Value]] = _
-    .componentDidMount (_.getDOMNode.toElement.fold(Callback.empty)(applySyntaxHighlighting))
-    .componentDidUpdate(_.getDOMNode.toElement.fold(Callback.empty)(applySyntaxHighlighting))
+  def installSyntaxHighlighting[P, C <: Children, S, B, U <: UpdateSnapshot] =
+    (_: ScalaComponent.Builder[P, C, S, B, U])
+      .componentDidMount (_.getDOMNode.toElement.fold(Callback.empty)(applySyntaxHighlighting))
+      .componentDidUpdate(_.getDOMNode.toElement.fold(Callback.empty)(applySyntaxHighlighting))
 
   private def applySyntaxHighlighting(root: Element) = Callback {
     val nodeList = root.querySelectorAll("pre code").toArray

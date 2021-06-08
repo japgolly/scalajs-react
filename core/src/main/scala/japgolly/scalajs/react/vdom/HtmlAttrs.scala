@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.raw.JsNumber
+import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.vdom.PackageBase._
 import scala.scalajs.js
 import scala.scalajs.js.|
@@ -528,7 +528,7 @@ trait HtmlAttrs {
     * value of the type attribute is hidden, checkbox, radio, file, or a button
     * type (button, submit, reset, image).
     */
-  final object autoComplete extends VdomAttr.Generic("autoComplete") {
+  object autoComplete extends VdomAttr.Generic("autoComplete") {
     def additionalName      = this := "additional-name"
     def addressLevel1       = this := "address-level1"
     def addressLevel2       = this := "address-level2"
@@ -692,8 +692,6 @@ trait HtmlAttrs {
 
   final def defer = VdomAttr[Boolean]("defer")
 
-  final def disablePictureInPicture = VdomAttr[Boolean]("disablePictureInPicture")
-
   final def dir = VdomAttr("dir")
 
   /**
@@ -706,21 +704,22 @@ trait HtmlAttrs {
     */
   final def disabled = VdomAttr[Boolean]("disabled")
 
+  final def disablePictureInPicture = VdomAttr[Boolean]("disablePictureInPicture")
+
+  final def disableRemotePlayback = VdomAttr[Boolean]("disableRemotePlayback")
+
   final def download = VdomAttr("download")
 
   final def draggable = VdomAttr[Boolean]("draggable")
 
   final def encType = VdomAttr("encType")
 
-  /**
-    * Describes elements which belongs to this one. Used on labels and output
-    * elements.
-    */
+  final def enterKeyHint = VdomAttr[String]("enterKeyHint")
+
+  /** Describes elements which belongs to this one. Used on labels and output elements. */
   final def `for` = VdomAttr("htmlFor")
 
-  /**
-    * Allows association of an input to a non-ancestoral form.
-    */
+  /** Allows association of an input to a non-ancestoral form. */
   final def formId = VdomAttr("form")
 
   final def formAction = VdomAttr("formAction")

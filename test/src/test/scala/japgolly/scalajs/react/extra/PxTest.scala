@@ -1,17 +1,10 @@
 package japgolly.scalajs.react.extra
 
+import japgolly.scalajs.react.test.TestUtil._
 import scala.annotation.nowarn
 import utest._
 
 object PxTest extends TestSuite {
-
-  def assertEq[A](actual: A, expect: A): Unit =
-    if (actual != expect)
-      throw new java.lang.AssertionError(s"Expect [$actual] to be [$expect].")
-
-  def assertEq[A](name: String, actual: A, expect: A): Unit =
-    if (actual != expect)
-      throw new java.lang.AssertionError(s"[$name]: Expect [$actual] to be [$expect].")
 
   case class TraceFn[A, B](rawFn: A => B) {
     var calls: Vector[(A, B)] = Vector.empty
@@ -142,7 +135,8 @@ object PxTest extends TestSuite {
     "extract" - {
       "bad" - {
         @nowarn("cat=unused") val px: Px[Int] = Px(3).withReuse.manualUpdate
-        assert(compileError("px.extract").msg contains "with functions, not Int")
+        compileError("px.extract")
+        ()
       }
       "fn0" - {
         var i = () => 30

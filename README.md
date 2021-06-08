@@ -18,6 +18,7 @@ Includes a router, testing utils, performance utils, more.
 
 - [Usage & Getting Started](doc/USAGE.md)
   - [VDOM](doc/VDOM.md)
+  - [Hooks](doc/HOOKS.md)
   - [Refs](doc/REFS.md)
   - [IDE support](doc/IDE.md)
   - [The `Callback` class](doc/CALLBACK.md)
@@ -26,6 +27,7 @@ Includes a router, testing utils, performance utils, more.
   - [Types](doc/TYPES.md)
   - [Interoperability](doc/INTEROP.md)
   - [Functional programming](doc/FP.md)
+  - [Global Config](doc/CONFIG.md)
 - Scala-only Utilities
   - [Router](doc/ROUTER.md)
   - [Performance Management](doc/PERFORMANCE.md)
@@ -67,9 +69,9 @@ Includes a router, testing utils, performance utils, more.
   * [scastie](https://github.com/scalacenter/scastie) - An interactive playground for Scala [https://scastie.scala-lang.org](https://scastie.scala-lang.org)
 
 ##### Requirements:
-* React ≥ 16
-* Scala ≥ 2.12
-* Scala.JS ≥ 1.5.0
+* React ≥ 17
+* Scala ≥ 2.13
+* Scala.JS ≥ 1.5
 
 ##### Support:
 If you like what I do

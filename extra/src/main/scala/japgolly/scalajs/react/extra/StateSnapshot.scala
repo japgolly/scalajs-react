@@ -116,6 +116,24 @@ object StateSnapshot {
     def apply[S](value: S): FromValue[S] =
       new FromValue(value)
 
+    /** @since 2.0.0 */
+    def hook[S](initialValue: => S)(implicit rs: Reusability[S]): CustomHook[Unit, StateSnapshot[S]] =
+      CustomHook[Unit]
+        .useState(initialValue)
+        .useRef(List.empty[Callback])
+        .useEffectBy { (_, _, delayedCallbacks) =>
+          val cbs = delayedCallbacks.value
+          Callback.when(cbs.nonEmpty)(Callback.runAll(cbs: _*) >> delayedCallbacks.set(Nil))
+        }
+        .buildReturning { (_, state, delayedCallbacks) =>
+          val setFn: SetFn[S] = (os, cb) =>
+            os match {
+              case Some(s) => Callback.unless(cb.isEmpty_?)(delayedCallbacks.mod(cb :: _)) >> state.setState(s)
+              case None    => cb
+            }
+          new StateSnapshot[S](state.value, state.originalSetState.withValue(setFn), rs)
+        }
+
     /** This is meant to be called once and reused so that the setState callback stays the same. */
     def prepare[S](f: SetFn[S]): FromSetStateFn[S] =
       new FromSetStateFn(reusableSetFn(f))
@@ -200,6 +218,10 @@ object StateSnapshot {
   def apply[S](value: S): FromValue[S] =
     new FromValue(value)
 
+  /** @since 2.0.0 */
+  def hook[S](initialValue: => S): CustomHook[Unit, StateSnapshot[S]] =
+    withReuse.hook(initialValue)(Reusability.never)
+
   def of[I, S](i: I)(implicit t: StateAccessor.ReadImpureWritePure[I, S]): StateSnapshot[S] =
     apply(t.state(i)).setStateVia(i)
 
@@ -262,4 +284,40 @@ object StateSnapshot {
 
   implicit def reusability[S]: Reusability[StateSnapshot[S]] =
     reusabilityInstance.asInstanceOf[Reusability[StateSnapshot[S]]]
+
+  // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
+
+  object HooksApiExt {
+    sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) {
+      final def useStateSnapshot[S](initialState: => S)(implicit step: Step): step.Next[StateSnapshot[S]] =
+        useStateSnapshotBy(_ => initialState)
+
+      final def useStateSnapshotBy[S](initialState: Ctx => S)(implicit step: Step): step.Next[StateSnapshot[S]] =
+        api.customBy(ctx => StateSnapshot.hook(initialState(ctx)))
+
+      final def useStateSnapshotWithReuse[S](initialState: => S)(implicit r: Reusability[S], step: Step): step.Next[StateSnapshot[S]] =
+        useStateSnapshotWithReuseBy(_ => initialState)
+
+      final def useStateSnapshotWithReuseBy[S](initialState: Ctx => S)(implicit r: Reusability[S], step: Step): step.Next[StateSnapshot[S]] =
+        api.customBy(ctx => StateSnapshot.withReuse.hook(initialState(ctx)))
+    }
+
+    final class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends Primary[Ctx, Step](api) {
+      def useStateSnapshotBy[S](initialState: CtxFn[S])(implicit step: Step): step.Next[StateSnapshot[S]] =
+        useStateSnapshotBy(step.squash(initialState)(_))
+
+      def useStateSnapshotWithReuseBy[S](initialState: CtxFn[S])(implicit r: Reusability[S], step: Step): step.Next[StateSnapshot[S]] =
+        useStateSnapshotWithReuseBy(step.squash(initialState)(_))
+    }
+  }
+
+  trait HooksApiExt {
+    import HooksApiExt._
+
+    implicit def hooksExtUseStateSnapshot1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
+      new Primary(api)
+
+    implicit def hooksExtUseStateSnapshot2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): Secondary[Ctx, CtxFn, Step] =
+      new Secondary(api)
+  }
 }

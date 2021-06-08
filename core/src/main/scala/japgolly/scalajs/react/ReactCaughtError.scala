@@ -10,7 +10,7 @@ import scala.scalajs.js.JavaScriptException
   *                 the argument `"OMG"`.
   * @since 1.6.0
   */
-final case class ReactCaughtError(rawError: js.Any, rawInfo: raw.React.ErrorInfo) {
+final case class ReactCaughtError(rawError: js.Any, rawInfo: facade.React.ErrorInfo) {
 
   override def toString: String =
     s"ReactCaughtError($rawErrorString)"

@@ -12,14 +12,11 @@ object StackSafety {
   "nestedFlatMapsInNonTailrecLoop" - StackSafety.nestedFlatMapsInNonTailrecLoop[F]
    */
 
-  final case class Eval[F[_]](run: F[_] => Any) {
-    def contraTrans[G[_]](f: G[_] => F[_]): Eval[G] =
-      Eval[G](g => run(f(g)))
-  }
+  final case class Eval[F[_]](run: F[Unit] => Unit)
 
   object Eval {
-    implicit val evalCallback      = Eval[CallbackTo](_.runNow())
-    implicit val evalAsyncCallback = evalCallback.contraTrans[AsyncCallback](_.toCallback)
+    implicit val evalCallback: Eval[CallbackTo] = Eval(_.runNow())
+    implicit val evalAsyncCallback: Eval[AsyncCallback] = Eval(_.toCallback.runNow())
   }
 
   private def n = 50000
@@ -32,7 +29,7 @@ object StackSafety {
         case head :: tail => sum(tail)(head.flatMap(h => acc.map(_ + h)))
       }
     val f = sum(List.fill(n)(F.pure(1)))(F.pure(0))
-    eval.run(f)
+    eval.run(F.map(f)(_ => ()))
     ()
   }
 
@@ -43,7 +40,7 @@ object StackSafety {
         case head :: tail => head.flatMap(h => sum(tail)(acc.map(_ + h)))
       }
     val f = sum(List.fill(n)(F.pure(1)))(F.pure(0))
-    eval.run(f)
+    eval.run(F.map(f)(_ => ()))
     ()
   }
 

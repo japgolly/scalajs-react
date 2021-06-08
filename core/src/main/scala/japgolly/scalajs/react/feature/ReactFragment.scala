@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.feature
 
 import japgolly.scalajs.react.vdom._
-import japgolly.scalajs.react.{Key, raw => Raw}
+import japgolly.scalajs.react.{Key, facade}
 import scala.scalajs.js
 
 object ReactFragment {
@@ -22,11 +22,11 @@ object ReactFragment {
     * - The result can be assigned a key.
     */
   def withKey(key: Key)(ns: VdomNode*): VdomElement = {
-    val jsKey: Raw.React.Key = key
+    val jsKey: facade.React.Key = key
     val props = js.Dynamic.literal("key" -> jsKey.asInstanceOf[js.Any])
     create(props, ns: _*)
   }
 
   private def create(props: js.Object, ns: VdomNode*): VdomElement =
-    VdomElement(Raw.React.createElement(Raw.React.Fragment, props, ns.map(_.rawNode): _*))
+    VdomElement(facade.React.createElement(facade.React.Fragment, props, ns.map(_.rawNode): _*))
 }

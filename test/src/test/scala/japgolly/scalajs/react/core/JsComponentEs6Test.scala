@@ -9,8 +9,8 @@ import scala.scalajs.js
 import utest._
 
 abstract class JsComponentTest extends TestSuite {
-  final val H1: raw.React.Element =
-    raw.React.createElement("h1", null, "Huge")
+  final val H1: facade.React.Element =
+    facade.React.createElement("h1", null, "Huge")
 }
 
 object JsComponentEs6PTest extends JsComponentTest {

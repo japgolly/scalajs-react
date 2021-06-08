@@ -59,7 +59,7 @@ object StateSnapshotExample2 {
   import japgolly.scalajs.react.vdom.html_<^._
   import japgolly.scalajs.react.MonocleReact._
   import japgolly.scalajs.react.extra._
-  import monocle.macros.Lenses
+  import monocle._
 
   val IntEditor = ScalaComponent.builder[StateSnapshot[Int]]
     .render_P { stateSnapshot =>
@@ -87,8 +87,12 @@ object StateSnapshotExample2 {
 
   // -----------------------------------------------------------------------------------------------------------------
 
-  @Lenses
   final case class Data(int: Int, str: String)
+
+  object Data {
+    val int = Lens[Data, Int   ](_.int)(x => _.copy(int = x))
+    val str = Lens[Data, String](_.str)(x => _.copy(str = x))
+  }
 
   implicit val reusabilityData: Reusability[Data] =
     Reusability.derive

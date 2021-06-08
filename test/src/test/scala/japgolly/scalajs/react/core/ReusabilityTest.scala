@@ -8,7 +8,7 @@ import java.time._
 import nyaya.gen._
 import nyaya.prop._
 import nyaya.test.PropTest._
-import scala.annotation.nowarn
+import sourcecode.Line
 import utest._
 
 object ReusabilityTest extends TestSuite {
@@ -17,8 +17,8 @@ object ReusabilityTest extends TestSuite {
     case class Picture(id: Long, url: String, title: String)
     case class Props(name: String, age: Option[Int], pic: Picture)
 
-    implicit val picReuse   = Reusability.by((_: Picture).id)
-    implicit val propsReuse = Reusability.derive[Props]
+    implicit val picReuse  : Reusability[Picture] = Reusability.by((_: Picture).id)
+    implicit val propsReuse: Reusability[Props]   = Reusability.derive[Props]
 
     var renderCount = 0
 
@@ -45,26 +45,30 @@ object ReusabilityTest extends TestSuite {
       .renderBackend[Backend]
       .build
 
-    class Backend($: BackendScope[_, M]) {
+    class Backend($: BackendScope[M, M]) {
       val updateUser = Reusable.fn((id: Int, data: String) =>
         $.modState(_.updated(id, data)))
       def render(s: M) = {
+        // println()
+        // println("outer s = " + s)
+        // println(s"truth = ${$.props.runNow} | ${$.state.runNow}")
         outerRenderCount += 1
         <.div(
           s.map { case (id, name) =>
+            // println(s"- id: $id, name: $name")
             innerComponent.withKey(id)(InnerProps(name, updateUser(id)))
           }.toVdomArray)
       }
     }
 
     case class InnerProps(name: String, update: String ~=> Callback)
-    implicit val propsReuse = Reusability.derive[InnerProps]
+    implicit val propsReuse: Reusability[InnerProps] = Reusability.derive[InnerProps]
 
     val innerComponent = ScalaComponent.builder[InnerProps]("PersonEditor")
-      .renderP { (_, p) =>
+      .render_P { p =>
+        // println("inner p = " + p)
         innerRenderCount += 1
-        <.input(
-          ^.`type` := "text",
+        <.input.text(
           ^.value := p.name,
           ^.onChange ==> ((e: ReactEventFromInput) => p.update(e.target.value)))
       }
@@ -101,24 +105,6 @@ object ReusabilityTest extends TestSuite {
   case class CCT1[A](i: A)
   case class CCT2[A](i: Int, n: A)
 
-  sealed trait X
-  object X {
-    case object X1 extends X
-    final case class X2() extends X
-    sealed abstract class X3 extends X
-    final case class X3a(i: Int) extends X3
-    case object X3b extends X3
-  }
-
-  sealed abstract class Y
-  object Y {
-    case object Y1 extends Y
-    final case class Y2() extends Y
-    sealed trait Y3 extends Y
-    final case class Y3a(i: Int) extends Y3
-    case object Y3b extends Y3
-  }
-
   private final case class P[A](aye: A)
   private object P {
     implicit def reusability[A: Reusability]: Reusability[P[A]] = Reusability.derive
@@ -128,7 +114,7 @@ object ReusabilityTest extends TestSuite {
     val a = Vector(3,1,2,3,2,1)
     (for (l <- 0 to a.length) yield a.combinations(l).toSet).reduce(_ ++ _)
   }
-  def testCollection[F[_]](f: Vector[Int] => F[Int])(implicit r: Reusability[F[Int]]): Unit = {
+  def testCollection[F[_]](f: Vector[Int] => F[Int])(implicit r: Reusability[F[Int]], l: Line): Unit = {
     val d = collectionData.map(f)
     for {a <- d; b <- d}
       assertEq(r.test(a, b), a == b)
@@ -137,37 +123,37 @@ object ReusabilityTest extends TestSuite {
   override def tests = Tests {
 
     "macros" - {
-      def test[A](a: A, b: A, expect: Boolean)(implicit r: Reusability[A]) =
-        assert(r.test(a, b) == expect)
+      def test[A](a: A, b: A, expect: Boolean)(implicit r: Reusability[A], l: Line) =
+        assertEq(r.test(a, b), expect)
 
       "caseClass" - {
         "cc0" - {
-          implicit val r = Reusability.derive[CC0]
+          implicit val r: Reusability[CC0] = Reusability.derive[CC0]
           test(CC0(), CC0(), true)
         }
         "cc1" - {
-          implicit val r = Reusability.derive[CC1]
+          implicit val r: Reusability[CC1] = Reusability.derive[CC1]
           test(CC1(2), CC1(2), true)
           test(CC1(2), CC1(3), false)
         }
         "cc2" - {
-          implicit val r = Reusability.derive[CC2]
+          implicit val r: Reusability[CC2] = Reusability.derive[CC2]
           test(CC2(3,"a"), CC2(3,"a"), true)
           test(CC2(3,"a"), CC2(3,"b"), false)
           test(CC2(3,"a"), CC2(4,"a"), false)
         }
 
         "cct0" - {
-          implicit val r = Reusability.derive[CCT0[Int]]
+          implicit val r: Reusability[CCT0[Int]] = Reusability.derive[CCT0[Int]]
           test(CCT0[Int](), CCT0[Int](), true)
         }
         "cct1" - {
-          implicit val r = Reusability.derive[CCT1[Int]]
+          implicit val r: Reusability[CCT1[Int]] = Reusability.derive[CCT1[Int]]
           test(CCT1(2), CCT1(2), true)
           test(CCT1(2), CCT1(3), false)
         }
         "cct2" - {
-          implicit val r = Reusability.derive[CCT2[String]]
+          implicit val r: Reusability[CCT2[String]] = Reusability.derive[CCT2[String]]
           test(CCT2(3,"a"), CCT2(3,"a"), true)
           test(CCT2(3,"a"), CCT2(3,"b"), false)
           test(CCT2(3,"a"), CCT2(4,"a"), false)
@@ -180,27 +166,27 @@ object ReusabilityTest extends TestSuite {
 
       "caseClassExcept" - {
         "1/1" - {
-          implicit val r = Reusability.caseClassExcept[CC1]("i")
+          implicit val r: Reusability[CC1] = Reusability.caseClassExcept[CC1]("i")
           test(CC1(2), CC1(2), true)
           test(CC1(2), CC1(3), true)
         }
 
         "1st of 2" - {
-          implicit val r = Reusability.caseClassExcept[CC2]("i")
+          implicit val r: Reusability[CC2] = Reusability.caseClassExcept[CC2]("i")
           test(CC2(3,"a"), CC2(3,"a"), true)
           test(CC2(3,"a"), CC2(3,"b"), false)
           test(CC2(3,"a"), CC2(4,"a"), true)
         }
 
         "2nd of 2" - {
-          implicit val r = Reusability.caseClassExcept[CC2]("n")
+          implicit val r: Reusability[CC2] = Reusability.caseClassExcept[CC2]("n")
           test(CC2(3,"a"), CC2(3,"a"), true)
           test(CC2(3,"a"), CC2(3,"b"), true)
           test(CC2(3,"a"), CC2(4,"a"), false)
         }
 
          "2/4" - {
-           implicit val r = Reusability.caseClassExcept[CC4]("a", "c")
+           implicit val r: Reusability[CC4] = Reusability.caseClassExcept[CC4]("a", "c")
            test(CC4(1, 2, 3, 4), CC4(1, 2, 3, 4), true)
            test(CC4(1, 2, 3, 4), CC4(0, 2, 3, 4), true)
            test(CC4(1, 2, 3, 4), CC4(1, 0, 3, 4), false)
@@ -210,81 +196,12 @@ object ReusabilityTest extends TestSuite {
 
         "notFound" - {
           val e = compileError(""" Reusability.caseClassExcept[CC1]("x") """)
-          assert(e.msg contains "Not found")
+          assertContainsAny(e.msg, "Not found", "doesn't exist")
         }
 
         "dups" - {
           val e = compileError(""" Reusability.caseClassExcept[CC1]("i", "i") """)
-          assert(e.msg contains "Duplicate")
-        }
-      }
-
-      "sealedTrait" - {
-        import X._
-        def testAll()(implicit r: Reusability[X]): Unit = {
-          test[X](X1    , X1    , true)
-          test[X](X2()  , X1    , false)
-          test[X](X1    , X2()  , false)
-          test[X](X2()  , X2()  , true)
-          test[X](X3a(1), X3a(1), true)
-          test[X](X3a(1), X3a(2), false)
-          test[X](X3a(2), X3a(1), false)
-          test[X](X3a(2), X3b   , false)
-          test[X](X3b   , X3b   , true)
-        }
-        "all" - {
-          implicit val r = Reusability.derive[X]
-          testAll()
-        }
-        "allDebug" - {
-          implicit val r = Reusability.deriveDebug[X](true, false)
-          testAll()
-        }
-        "reuseMid" - {
-          implicit val r = {
-            @nowarn("cat=unused") implicit val x3 = Reusability.always[X3]
-            Reusability.derive[X]
-          }
-          test[X](X1    , X1    , true)
-          test[X](X2()  , X1    , false)
-          test[X](X1    , X2()  , false)
-          test[X](X2()  , X2()  , true)
-          test[X](X3a(1), X3a(1), true)
-          test[X](X3a(1), X3a(2), true) // magic
-          test[X](X3a(2), X3a(1), true) // magic
-          test[X](X3a(2), X3b   , true) // magic
-          test[X](X3b   , X3b   , true)
-        }
-      }
-
-      "sealedClass" - {
-        import Y._
-        "all" - {
-          implicit val r = Reusability.derive[Y]
-          test[Y](Y1    , Y1    , true)
-          test[Y](Y2()  , Y1    , false)
-          test[Y](Y1    , Y2()  , false)
-          test[Y](Y2()  , Y2()  , true)
-          test[Y](Y3a(1), Y3a(1), true)
-          test[Y](Y3a(1), Y3a(2), false)
-          test[Y](Y3a(2), Y3a(1), false)
-          test[Y](Y3a(2), Y3b   , false)
-          test[Y](Y3b   , Y3b   , true)
-        }
-        "reuseMid" - {
-          implicit val r = {
-            @nowarn("cat=unused") implicit val y3 = Reusability.always[Y3]
-            Reusability.derive[Y]
-          }
-          test[Y](Y1    , Y1    , true)
-          test[Y](Y2()  , Y1    , false)
-          test[Y](Y1    , Y2()  , false)
-          test[Y](Y2()  , Y2()  , true)
-          test[Y](Y3a(1), Y3a(1), true)
-          test[Y](Y3a(1), Y3a(2), true) // magic
-          test[Y](Y3a(2), Y3a(1), true) // magic
-          test[Y](Y3a(2), Y3b   , true) // magic
-          test[Y](Y3b   , Y3b   , true)
+          assertContains(e.msg, "Duplicate")
         }
       }
 
@@ -319,34 +236,35 @@ object ReusabilityTest extends TestSuite {
     }
 
     "logNonReusable" - {
-      val logSink = new {
+      class LogSink {
         var messages = List.empty[String]
         def log(s: String): Unit = messages = messages :+ s
       }
+      val logSink = new LogSink
 
       "nonReusable" - {
         Reusability.never.logNonReusable(log = logSink.log).test(0, 0)
-        assert(logSink.messages == List("Non-reusability:\n- 0\n- 0"))
+        assertEq(logSink.messages, List("Non-reusability:\n- 0\n- 0"))
       }
 
       "reusable" - {
         Reusability.always.logNonReusable(log = logSink.log).test(0, 0)
-        assert(logSink.messages == List.empty)
+        assertEq(logSink.messages, List.empty)
       }
 
       "formatting" - {
         Reusability.never.logNonReusable(log = logSink.log, fmt = (_, x, y) => s"$x, $y").test(0, 0)
-        assert(logSink.messages == List("0, 0"))
+        assertEq(logSink.messages, List("0, 0"))
       }
 
       "title" - {
         Reusability.never.logNonReusable(log = logSink.log, title = "Sidebar:").test(0, 0)
-        assert(logSink.messages == List("Sidebar:\n- 0\n- 0"))
+        assertEq(logSink.messages, List("Sidebar:\n- 0\n- 0"))
       }
 
       "show" - {
         Reusability.never[Int].logNonReusable(log = logSink.log, show = v => s"Value is $v").test(0, 0)
-        assert(logSink.messages == List("Non-reusability:\n- Value is 0\n- Value is 0"))
+        assertEq(logSink.messages, List("Non-reusability:\n- Value is 0\n- Value is 0"))
       }
     }
 
@@ -362,7 +280,7 @@ object ReusabilityTest extends TestSuite {
         def test(expectDelta: Int, s: Props): Unit = {
           val a = renderCount
           c.setState(s)
-          assert(renderCount == a + expectDelta)
+          assertEq(renderCount, a + expectDelta)
         }
         val (update,ignore) = (1,0)
 
@@ -383,11 +301,17 @@ object ReusabilityTest extends TestSuite {
         val data1: M = Map(1 -> "One", 2 -> "Two", 3 -> "Three")
         val data2: M = Map(1 -> "One", 2 -> "Two", 3 -> "33333")
         val c = ReactTestUtils renderIntoDocument outerComponent(data1)
-        assert(outerRenderCount == 1, innerRenderCount == 3)
+        assertEq((outerRenderCount, innerRenderCount), (1, 3))
+        // println()
+        // println(">>> c.forceUpdate")
         c.forceUpdate
-        assert(outerRenderCount == 2, innerRenderCount == 3)
+        assertEq((outerRenderCount, innerRenderCount), (2, 3))
+        // println()
+        // println("c.state = " + c.state)
+        // println(">>> c.setState")
         c.setState(data2)
-        assert(outerRenderCount == 3, innerRenderCount == 4)
+        // println("c.state = " + c.state)
+        assertEq((outerRenderCount, innerRenderCount), (3, 4))
       }
     }
 
@@ -497,7 +421,7 @@ object ReusabilityTest extends TestSuite {
 
     "finiteDurationWithTolerance" - {
       import scala.concurrent.duration._
-      implicit val r = Reusability.finiteDuration(1.second)
+      implicit val r: Reusability[FiniteDuration] = Reusability.finiteDuration(1.second)
       assert(8.seconds ~=~ 8.seconds)
       assert(9.seconds ~=~ 8.seconds)
       assert(8.seconds ~=~ 9.seconds)

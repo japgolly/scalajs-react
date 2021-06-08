@@ -3,8 +3,9 @@ package japgolly.scalajs.react.component
 import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
 import japgolly.scalajs.react.internal.Profunctor.Ops._
 import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{raw => Raw, _}
+import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, Ref, facade}
 import scala.scalajs.js
+import scala.scalajs.js.|
 
 object JsForwardRef {
 
@@ -20,11 +21,11 @@ object JsForwardRef {
   }
 
   def force[P <: js.Object, C <: Children, R](raw: js.Any)(implicit s: CtorType.Summoner[P, C]): Component[P, R, s.CT] = {
-    val rc = raw.asInstanceOf[Raw.React.ForwardRefComponent[P, R]]
+    val rc = raw.asInstanceOf[facade.React.ForwardRefComponent[P, R]]
     componentRoot[P, R, s.CT, Unmounted[P, R]](rc, s.pf.rmap(s.summon(rc))(u => unmountedRoot(u)))(s.pf)
   }
 
-  @inline def fromRaw[P <: js.Object, C <: Children, R](r: Raw.React.ForwardRefComponent[P, R])
+  @inline def fromRaw[P <: js.Object, C <: Children, R](r: facade.React.ForwardRefComponent[P, R])
                                                        (implicit s: CtorType.Summoner[P, C]): Component[P, R, s.CT] =
     force[P, C, R](r)(s)
 
@@ -33,7 +34,7 @@ object JsForwardRef {
   // Aligned to https://github.com/facebook/react/pull/13615/files
   private def staticDisplayName = "ForwardRef"
 
-  private def rawComponentDisplayName: Raw.React.ForwardRefComponent[_ <: js.Object, _] => String =
+  private def rawComponentDisplayName: facade.React.ForwardRefComponent[_ <: js.Object, _] => String =
     _.displayName.toOption match {
       case Some(n) => s"ForwardRef($n)"
       case None    => staticDisplayName
@@ -42,7 +43,7 @@ object JsForwardRef {
   sealed trait ComponentSimple[P, R, CT[-p, +u] <: CtorType[p, u], U] extends Generic.ComponentSimple[P, CT, U] {
     override final def displayName = rawComponentDisplayName(raw)
 
-    override type Raw <: Raw.React.ForwardRefComponent[_ <: js.Object, R]
+    override type Raw <: facade.React.ForwardRefComponent[_ <: js.Object, R]
     override def mapRaw(f: Raw => Raw): ComponentSimple[P, R, CT, U]
     override def cmapCtorProps[P2](f: P2 => P): ComponentSimple[P2, R, CT, U]
     override def mapUnmounted[U2](f: U => U2): ComponentSimple[P, R, CT, U2]
@@ -57,7 +58,7 @@ object JsForwardRef {
       P0 <: js.Object, CT0[-p, +u] <: CtorType[p, u], U0]
       extends ComponentSimple[P1, R, CT1, U1] with Generic.ComponentWithRoot[P1, CT1, U1, P0, CT0, U0] {
 
-    override final type Raw = Raw.React.ForwardRefComponent[P0, R]
+    override final type Raw = facade.React.ForwardRefComponent[P0, R]
     override final type Root = ComponentRoot[P0, R, CT0, U0]
 
     override def mapRaw(f: Raw => Raw): ComponentWithRoot[P1, R, CT1, U1, P0, CT0, U0]
@@ -72,7 +73,7 @@ object JsForwardRef {
   final type ComponentRoot[P <: js.Object, R, CT[-p, +u] <: CtorType[p, u], U] =
     ComponentWithRoot[P, R, CT, U, P, CT, U]
 
-  final def componentRoot[P <: js.Object, R, CT[-p, +u] <: CtorType[p, u], U](rc: Raw.React.ForwardRefComponent[P, R], c: CT[P, U])
+  final def componentRoot[P <: js.Object, R, CT[-p, +u] <: CtorType[p, u], U](rc: facade.React.ForwardRefComponent[P, R], c: CT[P, U])
                                                                              (implicit pf: Profunctor[CT]): ComponentRoot[P, R, CT, U] =
     new ComponentRoot[P, R, CT, U] {
       override def root = this
@@ -96,7 +97,7 @@ object JsForwardRef {
     }
 
   private def setRef[CT[-p, +u] <: CtorType[p, u], P, U](c: CT[P, U], ref: Ref.Handle[_]): CT[P, U] =
-    CtorType.hackBackToSelf(c)(c.withRawProp("ref", ref.raw))
+    CtorType.hackBackToSelf[CT, P, U](c)(c.withRawProp("ref", ref.raw))
 
   protected final def mappedC[R,
       P2, CT2[-p, +u] <: CtorType[p, u], U2,
@@ -126,19 +127,18 @@ object JsForwardRef {
         }
     }
 
-
   // ===================================================================================================================
 
   sealed trait UnmountedSimple[P, R, M] extends Generic.UnmountedSimple[P, M] {
-    override type Raw <: Raw.React.ComponentElement[_ <: js.Object]
+    override type Raw <: facade.React.ComponentElement[_ <: js.Object]
     override final type Ref = Ref.Simple[R]
     override final def displayName = staticDisplayName
 
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, R, M]
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, R, M2]
 
-    override final def renderIntoDOM(container: Raw.ReactDOM.Container, callback: Callback = Callback.empty): Mounted = {
-      val result = Raw.ReactDOM.render(raw, container, callback.toJsFn)
+    override final def renderIntoDOM(container: facade.ReactDOM.Container, callback: Callback = Callback.empty): this.Mounted = {
+      val result = facade.ReactDOM.render(raw, container, callback.toJsFn)
 
       // Protect against future React change.
       assert(result eq null, s"Expected rendered $displayName to return null; not $result")
@@ -149,7 +149,7 @@ object JsForwardRef {
 
   sealed trait UnmountedWithRoot[P1, R, M1, P0 <: js.Object]
     extends UnmountedSimple[P1, R, M1] with Generic.UnmountedWithRoot[P1, M1, P0, Mounted] {
-    override final type Raw = Raw.React.ComponentElement[P0]
+    override final type Raw = facade.React.ComponentElement[P0]
     override final type Root = UnmountedRoot[P0, R]
     override def mapUnmountedProps[P2](f: P1 => P2): UnmountedWithRoot[P2, R, M1, P0]
     override def mapMounted[M2](f: M1 => M2): UnmountedWithRoot[P1, R, M2, P0]
@@ -159,16 +159,16 @@ object JsForwardRef {
 
   private val constUnit: Any => Unit = _ => ()
 
-  def unmountedRoot[P <: js.Object, R](r: Raw.React.ComponentElement[P]): UnmountedRoot[P, R] =
+  def unmountedRoot[P <: js.Object, R](r: facade.React.ComponentElement[P]): UnmountedRoot[P, R] =
     new UnmountedRoot[P, R] {
       override def mapUnmountedProps[P2](f: P => P2) = mappedU(this)(f, identityFn)
-      override def mapMounted[M2](f: Mounted => M2) = mappedU(this)(identityFn, f)
+      override def mapMounted[M2](f: this.Mounted => M2) = mappedU(this)(identityFn, f)
 
       override def root          = this
       override val raw           = r
       override val mountRaw      = constUnit
       override def key           = jsNullToOption(raw.key)
-      override def ref           = jsNullToOption(raw.ref).map(r => Ref.fromJs(r.asInstanceOf[Raw.React.RefHandle[R]]))
+      override def ref           = jsNullToOption(raw.ref).map(r => Ref.fromJs(r.asInstanceOf[facade.React.RefHandle[R | Null]]))
       override def props         = raw.props.asInstanceOf[P]
       override def propsChildren = PropsChildren.fromRawProps(raw.props)
     }
