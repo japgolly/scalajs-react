@@ -3,7 +3,6 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.internal.{Trampoline, identityFn}
 import org.scalajs.dom.{console, window}
 import scala.annotation.implicitNotFound
-import scala.collection.compat._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.`3.0`
 import scala.scalajs.js

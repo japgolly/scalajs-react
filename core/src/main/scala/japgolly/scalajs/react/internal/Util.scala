@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.internal
 
 import org.scalajs.dom
-import scala.collection.compat._
 import scala.collection.mutable.Builder
+import scala.collection.Factory
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.util.{Failure, Success, Try}
 

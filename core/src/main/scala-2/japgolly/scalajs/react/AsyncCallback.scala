@@ -3,7 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.internal.Util.catchAll
 import japgolly.scalajs.react.internal.{RateLimit, SyncPromise, Timer, identityFn}
 import java.time.Duration
-import scala.collection.compat._
+import scala.collection.BuildFrom
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js

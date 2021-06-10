@@ -7,7 +7,7 @@ import java.time.{Duration, Instant}
 import org.scalajs.dom.raw.Window
 import org.scalajs.dom.window
 import scala.annotation.tailrec
-import scala.collection.compat._
+import scala.collection.BuildFrom
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js

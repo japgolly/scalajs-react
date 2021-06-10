@@ -125,10 +125,9 @@ object ScalajsReact {
     .settings(
       name := "core",
       libraryDependencies ++= Seq(
-        Dep.microlibsTypes .value,
-        Dep.scalaCollCompat.value,
-        Dep.scalaJsDom     .value,
-        Dep.sourcecode     .value,
+        Dep.microlibsTypes.value,
+        Dep.scalaJsDom    .value,
+        Dep.sourcecode    .value,
       ),
       genHooks := GenHooks(sourceDirectory.value / "main" / "scala"),
     )
@@ -240,10 +239,7 @@ object ScalajsReact {
 
   lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
     .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
-    .settings(
-      libraryDependencies ++= Seq(
-        Dep.sourcecode.value,
-        Dep.scalaCollCompat.value))
+    .settings(libraryDependencies += Dep.sourcecode.value)
 
   lazy val ghpages = Project("gh-pages", file("gh-pages"))
     .dependsOn(core, extra, monocleScalaz, ghpagesMacros)

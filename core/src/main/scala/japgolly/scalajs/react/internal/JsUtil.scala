@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.internal
 
 import java.time.Duration
-import scala.collection.compat._
 import scala.scalajs.js
 import scala.scalajs.js.|
 

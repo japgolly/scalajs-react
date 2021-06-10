@@ -1,6 +1,5 @@
 package japgolly.scalajs.react.vdom
 
-import scala.collection.compat._
 import scala.scalajs.LinkingInfo.developmentMode
 
 /**

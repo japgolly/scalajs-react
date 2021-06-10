@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.identityFn
-import scala.collection.compat._
+import scala.collection.BuildFrom
 import scala.scalajs.js
 import scala.util.Try
 

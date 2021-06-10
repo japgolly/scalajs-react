@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.facade
-import scala.collection.compat._
 import scala.scalajs.js
 
 /** This is mutable so don't let it escape a local pure function.
