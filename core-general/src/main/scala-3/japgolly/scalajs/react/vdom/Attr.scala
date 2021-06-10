@@ -1,10 +1,11 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.internal.OptionLike
+import japgolly.scalajs.react.util.OptionLike
 import japgolly.scalajs.react.vdom.Attr.ValueType
 import japgolly.scalajs.react.{Callback, CallbackTo, facade}
 import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound, nowarn}
+import scala.language.`3.0`
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import scala.scalajs.js.|
@@ -27,39 +28,43 @@ abstract class Attr[-U](final val attrName: String) {
     O.fold(oa, TagMod.empty)(:=(_))
 }
 
+// TODO: [3] Make erased class
 @implicitNotFound("You are passing a CallbackTo[${A}] to a DOM event handler which is most likely a mistake."
   + "\n  If the result is irrelevant, add `.void`."
   + "\n  If the result is necessary, please raise an issue and use `vdom.DomCallbackResult.force` in the meantime.")
 sealed trait DomCallbackResult[A]
 object DomCallbackResult {
-  def force[A] = null.asInstanceOf[DomCallbackResult[A]]
-  @inline implicit def unit           : DomCallbackResult[Unit               ] = force[Unit]
-  @inline implicit def boolean        : DomCallbackResult[Boolean            ] = force[Boolean]
-  @inline implicit def undefOrBoolean : DomCallbackResult[js.UndefOr[Boolean]] = force[js.UndefOr[Boolean]]
+  inline def force[A]: DomCallbackResult[A] = null
+  inline given unit           : DomCallbackResult[Unit               ] = null
+  inline given boolean        : DomCallbackResult[Boolean            ] = null
+  inline given undefOrBoolean : DomCallbackResult[js.UndefOr[Boolean]] = null
 }
 
 sealed trait InnerHtmlAttr
 
 object Attr {
 
-  def apply[A](name: String): Attr[A] =
+  inline def apply[A](inline name: String): Attr[A] =
     new Generic[A](name)
 
-  def devOnly[A](name: => String): Attr[A] =
+  inline def devOnly[A](inline name: String): Attr[A] =
     if (developmentMode)
-      new Generic(name)
+      apply(name)
     else
       Dud
 
-  def elidable[A](name: => String): Attr[A] = {
-    @elidable(scala.annotation.elidable.FINEST)
-    def attempt: Attr[A] = new Generic(name)
-    val x = attempt
-    if (x eq null)
-      Dud
-    else
-      x
-  }
+  // TODO: Scala 3 doesn't support elision yet
+  inline def elidable[A](name: String): Attr[A] =
+    new Generic(name)
+  // def elidable[A](name: => String): Attr[A] = {
+  //   @elidable(scala.annotation.elidable.FINEST)
+  //   def attempt: Attr[A] = new Generic(name)
+  //   val x = attempt
+  //   if (x eq null)
+  //     Dud
+  //   else
+  //     x
+  // }
 
   class Generic[-U](attrName: String) extends Attr[U](attrName) {
     override def :=[A](a: A)(implicit t: ValueType[A, U]): TagMod =
@@ -74,10 +79,13 @@ object Attr {
     override def :=[A](a: A)(implicit t: ValueType[A, js.Function1[E[Nothing], Unit]]): TagMod =
       TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Unit]]), a))
 
-    def -->[A: DomCallbackResult](callback: => CallbackTo[A]): TagMod =
+    inline def -->[A](callback: => CallbackTo[A])(using inline ev: DomCallbackResult[A]): TagMod =
       ==>(_ => callback)
 
-    def ==>[A: DomCallbackResult](eventHandler: Event => CallbackTo[A]): TagMod =
+    inline def ==>[A](eventHandler: Event => CallbackTo[A])(using inline ev: DomCallbackResult[A]): TagMod =
+      unsafe_==>[A](eventHandler)
+
+    private[react] def unsafe_==>[A](eventHandler: Event => CallbackTo[A]): TagMod =
       :=(((e: Event) => eventHandler(e).runNow()): js.Function1[E[Nothing], Unit])(ValueType.direct)
 
     def -->?[O[_]](callback: => O[Callback])(implicit o: OptionLike[O]): TagMod =
@@ -89,23 +97,23 @@ object Attr {
 
   object Event {
 
-    def apply[E[+x <: dom.Node] <: facade.SyntheticEvent[x]](name: String): Event[E] =
+    inline def apply[E[+x <: dom.Node] <: facade.SyntheticEvent[x]](name: String): Event[E] =
       new Event(name)
 
-    @inline def animation  (name: String) = apply[facade.SyntheticAnimationEvent  ](name)
-    @inline def base       (name: String) = apply[facade.SyntheticEvent           ](name)
-    @inline def clipboard  (name: String) = apply[facade.SyntheticClipboardEvent  ](name)
-    @inline def composition(name: String) = apply[facade.SyntheticCompositionEvent](name)
-    @inline def drag       (name: String) = apply[facade.SyntheticDragEvent       ](name)
-    @inline def focus      (name: String) = apply[facade.SyntheticFocusEvent      ](name)
-    @inline def form       (name: String) = apply[facade.SyntheticFormEvent       ](name)
-    @inline def keyboard   (name: String) = apply[facade.SyntheticKeyboardEvent   ](name)
-    @inline def mouse      (name: String) = apply[facade.SyntheticMouseEvent      ](name)
-    @inline def pointer    (name: String) = apply[facade.SyntheticPointerEvent    ](name)
-    @inline def touch      (name: String) = apply[facade.SyntheticTouchEvent      ](name)
-    @inline def transition (name: String) = apply[facade.SyntheticTransitionEvent ](name)
-    @inline def ui         (name: String) = apply[facade.SyntheticUIEvent         ](name)
-    @inline def wheel      (name: String) = apply[facade.SyntheticWheelEvent      ](name)
+    inline def animation  (name: String) = apply[facade.SyntheticAnimationEvent  ](name)
+    inline def base       (name: String) = apply[facade.SyntheticEvent           ](name)
+    inline def clipboard  (name: String) = apply[facade.SyntheticClipboardEvent  ](name)
+    inline def composition(name: String) = apply[facade.SyntheticCompositionEvent](name)
+    inline def drag       (name: String) = apply[facade.SyntheticDragEvent       ](name)
+    inline def focus      (name: String) = apply[facade.SyntheticFocusEvent      ](name)
+    inline def form       (name: String) = apply[facade.SyntheticFormEvent       ](name)
+    inline def keyboard   (name: String) = apply[facade.SyntheticKeyboardEvent   ](name)
+    inline def mouse      (name: String) = apply[facade.SyntheticMouseEvent      ](name)
+    inline def pointer    (name: String) = apply[facade.SyntheticPointerEvent    ](name)
+    inline def touch      (name: String) = apply[facade.SyntheticTouchEvent      ](name)
+    inline def transition (name: String) = apply[facade.SyntheticTransitionEvent ](name)
+    inline def ui         (name: String) = apply[facade.SyntheticUIEvent         ](name)
+    inline def wheel      (name: String) = apply[facade.SyntheticWheelEvent      ](name)
   }
 
   private[vdom] object Dud extends Attr[Any]("") {
@@ -163,7 +171,7 @@ object Attr {
 
     type Fn[-A] = (js.Any => Unit, A) => Unit
 
-    def apply[A, U](fn: Fn[A]): ValueType[A, U] =
+    inline def apply[A, U](fn: Fn[A]): ValueType[A, U] =
       new ValueType(fn)
 
     val direct: ValueType[js.Any, Nothing] =

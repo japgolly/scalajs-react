@@ -1,7 +1,8 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.internal.Effect
 import japgolly.scalajs.react.util.JsUtil.jsNullToOption
-import japgolly.scalajs.react.internal.{Effect, identityFn}
+import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.TopNode
 import scala.reflect.ClassTag
 import scala.scalajs.js

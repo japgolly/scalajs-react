@@ -20,11 +20,11 @@ trait ReactDOM extends js.Object {
 
   final def render(element  : React.Node,
                    container: Container,
-                   callback : js.Function0[Unit] = js.native): React.ComponentUntyped = js.native
+                   callback : js.Function0[Any] = js.native): React.ComponentUntyped = js.native
 
   final def hydrate(element  : React.Node,
                     container: Container,
-                    callback : js.Function0[Unit] = js.native): React.ComponentUntyped = js.native
+                    callback : js.Function0[Any] = js.native): React.ComponentUntyped = js.native
 
   final def unmountComponentAtNode(container: dom.Node): Boolean = js.native
 

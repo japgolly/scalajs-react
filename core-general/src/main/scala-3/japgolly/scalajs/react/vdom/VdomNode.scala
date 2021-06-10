@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.facade
+import japgolly.scalajs.react.internal.SafeEffect
 import scala.util.NotGiven
 
 trait VdomNode extends TagMod {
@@ -8,6 +9,12 @@ trait VdomNode extends TagMod {
 
   override def applyTo(b: VdomBuilder): Unit =
     b.appendChild(rawNode)
+
+  @inline final def renderIntoDOM(container: facade.ReactDOM.Container): facade.React.ComponentUntyped =
+    facade.ReactDOM.render(rawNode, container)
+
+  @inline final def renderIntoDOM[F[_]](container: facade.ReactDOM.Container, callback: => F[Any])(implicit F: SafeEffect.Sync[F]): facade.React.ComponentUntyped =
+    facade.ReactDOM.render(rawNode, container, F.syncJsFn0(callback))
 }
 
 object VdomNode {

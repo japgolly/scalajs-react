@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.feature.ReactFragment
-import japgolly.scalajs.react.internal._
+import japgolly.scalajs.react.util._
 import japgolly.scalajs.react.{PropsChildren, facade}
 import scala.scalajs.js
 

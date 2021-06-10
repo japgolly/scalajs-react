@@ -1,16 +1,13 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
-import japgolly.scalajs.react.{Callback, facade}
+import japgolly.scalajs.react.facade
 
 trait VdomElement extends VdomNode {
 
   override def rawNode = rawElement
 
   def rawElement: facade.React.Element
-
-  @inline final def renderIntoDOM(container: facade.ReactDOM.Container, callback: Callback = Callback.empty): facade.React.ComponentUntyped =
-    facade.ReactDOM.render(rawElement, container, callback.toJsFn)
 }
 
 object VdomElement {

@@ -8,14 +8,14 @@ import scala.scalajs.js
 /** Mutable target for immutable VDOM constituents to compose.
   */
 trait VdomBuilder {
-  val addAttr        : (String, js.Any)                     => Unit
-  val addClassName   : js.Any                               => Unit
-  val addEventHandler: (String, js.Function1[js.Any, Unit]) => Unit
-  val addStyle       : (String, js.Any)                     => Unit
-  val addStylesObject: js.Object                            => Unit
-  val appendChild    : RawChild                             => Unit
-  val setKey         : js.Any                               => Unit
-  def addRefFn[A]    : RawRefFn[A]                          => Unit
+  val addAttr        : (String, js.Any)                    => Unit
+  val addClassName   : js.Any                              => Unit
+  val addEventHandler: (String, js.Function1[js.Any, Any]) => Unit
+  val addStyle       : (String, js.Any)                    => Unit
+  val addStylesObject: js.Object                           => Unit
+  val appendChild    : RawChild                            => Unit
+  val setKey         : js.Any                              => Unit
+  def addRefFn[A]    : RawRefFn[A]                         => Unit
 
   final def addStyles(j: js.Any): Unit = {
     // Hack because Attr.ValueType.Fn takes a js.Any => Unit.
@@ -88,7 +88,7 @@ object VdomBuilder {
       n => nonEmptyClassName = nonEmptyClassName.fold[js.Any](n)(_.toString + " " + n)
 
     override val addEventHandler =
-      (k, g) => modObjectKeyValue[js.Function1[js.Any, Unit]](
+      (k, g) => modObjectKeyValue[js.Function1[js.Any, Any]](
         props,
         k,
         c => if (c.isEmpty) g else {val f = c.get; e => {f(e); g(e)}})
