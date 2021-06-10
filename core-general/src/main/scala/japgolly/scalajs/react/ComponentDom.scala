@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.util.DomUtil._
 import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js.|

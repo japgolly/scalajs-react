@@ -1,8 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.facade
-import japgolly.scalajs.react.internal.SafeEffect
-import japgolly.scalajs.react.util.OptionLike
+import japgolly.scalajs.react.util.{OptionLike, SafeEffect}
 import japgolly.scalajs.react.vdom.Attr.ValueType
 import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound, nowarn}

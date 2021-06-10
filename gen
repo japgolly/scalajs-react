@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")" || exit 1
+[ $# -ne 1 ] && echo "Usage: $0 <file>" && exit 1
+
+if [[ ! "$1" =~ ^core/.* ]]; then
+  echo "$1 doesn't start with core/" >&2
+  exit 2
+fi
+
+file="$(basename "$1")"
+path="$(dirname "${1:5}")"
+
+mkdir -p core-general/"$path"
+git mv -v "$1" core-general/"$path"/.

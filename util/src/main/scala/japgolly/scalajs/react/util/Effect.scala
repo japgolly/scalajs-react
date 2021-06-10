@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.internal
+package japgolly.scalajs.react.util
 
 trait Effect[F[_]] {
   def point     [A]   (a: => A)              : F[A]

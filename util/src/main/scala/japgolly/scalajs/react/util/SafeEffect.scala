@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.internal
+package japgolly.scalajs.react.util
 
 import japgolly.scalajs.react.userdefined
 import japgolly.scalajs.react.util.OptionLike
@@ -24,16 +24,22 @@ object SafeEffect
       a => syncRun(f(a))
   }
 
-  implicit object JsFunction extends Sync[js.Function0] {
-    // override val syncEmpty: js.Function0[Unit] =
-    //   () => ()
+  object Sync {
 
-    override def syncRun[A](f: => js.Function0[A]): A =
-      f()
+    type RawCallback = js.Function0[Any]
 
-    override def syncOption_[O[_], A](f: => O[js.Function0[A]])(implicit O: OptionLike[O]): js.Function0[Unit] =
-      () => O.foreach(f)(_())
+    val empty: js.Function0[Unit] =
+      () => ()
+
+    implicit object jsFunction extends Sync[js.Function0] {
+      override def syncRun[A](f: => js.Function0[A]): A =
+        f()
+
+      override def syncOption_[O[_], A](f: => O[js.Function0[A]])(implicit O: OptionLike[O]): js.Function0[Unit] =
+        () => O.foreach(f)(_())
+    }
   }
+
 }
 
 trait SafeEffectCallback

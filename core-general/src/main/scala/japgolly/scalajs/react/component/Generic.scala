@@ -1,7 +1,9 @@
 package japgolly.scalajs.react.component
 
-import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, CallbackTo, ComponentDom, CtorType, Key, PropsChildren, StateAccess, facade, vdom}
+import japgolly.scalajs.react.internal.Profunctor
+import japgolly.scalajs.react.util.{Effect, JsUtil}
+import japgolly.scalajs.react.util.SafeEffect.Sync
+import japgolly.scalajs.react.{ComponentDom, CtorType, Key, PropsChildren, StateAccess, facade, vdom}
 import scala.scalajs.js
 import scala.scalajs.js.|
 
@@ -91,8 +93,11 @@ object Generic {
     final def mountRawOrNull(c: facade.React.ComponentUntyped | Null): M =
       if (c == null) null.asInstanceOf[M] else mountRaw(JsUtil.notNull(c))
 
-    def renderIntoDOM(container: facade.ReactDOM.Container, callback: Callback = Callback.empty): Mounted =
-      mountRaw(facade.ReactDOM.render(raw, container, callback.toJsFn))
+    def renderIntoDOM(container: facade.ReactDOM.Container): Mounted =
+      mountRaw(facade.ReactDOM.render(raw, container))
+
+    def renderIntoDOM[F[_]](container: facade.ReactDOM.Container, callback: => F[Any])(implicit F: Sync[F]): Mounted =
+      mountRaw(facade.ReactDOM.render(raw, container, F.syncJsFn0(callback)))
   }
 
   trait UnmountedWithRoot[P1, M1, P0, M0] extends UnmountedSimple[P1, M1] {
@@ -108,7 +113,7 @@ object Generic {
   // ===================================================================================================================
 
   type Mounted[F[_], P, S] = MountedSimple[F, P, S]
-  type MountedPure  [P, S] = MountedSimple[CallbackTo, P, S]
+  // TODO: FX type MountedPure  [P, S] = MountedSimple[CallbackTo, P, S]
   type MountedImpure[P, S] = MountedSimple[Effect.Id, P, S]
 
   trait MountedRaw {
@@ -129,8 +134,8 @@ object Generic {
     def props: F[Props]
     def propsChildren: F[PropsChildren]
 
-    def forceUpdate(callback: Callback): F[Unit]
-    final def forceUpdate: F[Unit] = forceUpdate(Callback.empty)
+    def forceUpdate[G[_], A](callback: G[A])(implicit G: Sync[G]): F[Unit]
+    final def forceUpdate: F[Unit] = forceUpdate(Sync.empty)
   }
 
   trait MountedWithRoot[F[_], P1, S1, P0, S0] extends MountedSimple[F, P1, S1] {

@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.facade
-import japgolly.scalajs.react.internal.{SafeEffect, ScalaJsReactConfigMacros}
+import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
+import japgolly.scalajs.react.util.SafeEffect
 
 trait VdomNode extends TagMod {
   def rawNode: facade.React.Node
