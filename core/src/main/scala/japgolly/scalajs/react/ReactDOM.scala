@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.NotAllowed
+import japgolly.scalajs.react.util.NotAllowed
 import japgolly.scalajs.react.vdom.VdomNode
 import org.scalajs.dom
 import scala.scalajs.js.|
