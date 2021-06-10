@@ -11,7 +11,7 @@ object SafeEffect
 
   trait Sync[F[_]] {
 
-    val syncEmpty: F[Unit]
+    // val syncEmpty: F[Unit]
 
     def syncRun[A](f: => F[A]): A
 
@@ -25,8 +25,8 @@ object SafeEffect
   }
 
   implicit object JsFunction extends Sync[js.Function0] {
-    override val syncEmpty: js.Function0[Unit] =
-      () => ()
+    // override val syncEmpty: js.Function0[Unit] =
+    //   () => ()
 
     override def syncRun[A](f: => js.Function0[A]): A =
       f()
