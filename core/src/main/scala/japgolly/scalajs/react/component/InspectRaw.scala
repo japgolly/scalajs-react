@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.component
 
-import japgolly.scalajs.react.internal.JsUtil
-import japgolly.scalajs.react.internal.Util._
+import japgolly.scalajs.react.util.JsUtil
+import japgolly.scalajs.react.util.Util._
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 

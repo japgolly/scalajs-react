@@ -3,7 +3,7 @@ package japgolly.scalajs.react.test
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.{React => RawReact, ReactDOM => RawReactDOM}
 import japgolly.scalajs.react.hooks.Hooks
-import japgolly.scalajs.react.internal.JsUtil
+import japgolly.scalajs.react.util.JsUtil
 import org.scalajs.dom
 import org.scalajs.dom.html.Element
 import org.scalajs.dom.{console, document}

@@ -57,6 +57,7 @@ object Lib {
         jsEnv                := new JSDOMNodeJSEnv,
         Test / scalacOptions += "-language:reflectiveCalls",
         libraryDependencies  += Dep.utest.value % Test,
+        libraryDependencies  += Dep.microlibsTestUtil.value % Test,
         testFrameworks       += new TestFramework("utest.runner.Framework"))
 
   def extModuleName(shortName: String): PE =

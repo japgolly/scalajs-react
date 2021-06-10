@@ -94,6 +94,9 @@ object ScalajsReact {
     .configure(commonSettings, preventPublication, hasNoTests)
     .aggregate(
       facade,
+      util,
+      callback,
+      coreGeneral,
       core,
       extra,
       test,
@@ -114,28 +117,36 @@ object ScalajsReact {
 
   lazy val facade = project
     .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
-    .settings(
-      name := "facade",
-      libraryDependencies += Dep.scalaJsDom.value,
-    )
+    .settings(libraryDependencies += Dep.scalaJsDom.value)
 
-  lazy val core = project
+  lazy val util = project
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .settings(libraryDependencies += Dep.scalaJsDom.value)
+
+  lazy val callback = project
+    .configure(commonSettings, publicationSettings, utestSettings)
+    .dependsOn(util)
+
+  lazy val coreGeneral = project
+    .in(file("core-general"))
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
-    .dependsOn(facade)
+    .dependsOn(facade, util)
     .settings(
-      name := "core",
+      name := "core-general",
       libraryDependencies ++= Seq(
         Dep.microlibsTypes.value,
-        Dep.scalaJsDom    .value,
         Dep.sourcecode    .value,
       ),
       genHooks := GenHooks(sourceDirectory.value / "main" / "scala"),
     )
 
+  lazy val core = project
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
+    .dependsOn(coreGeneral, callback)
+
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .dependsOn(core)
-    .settings(name := "extra")
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test))
@@ -144,13 +155,11 @@ object ScalajsReact {
     .dependsOn(monocleScalaz % "test->compile")
     .dependsOn(cats % "test->compile")
     .settings(
-      name := "test",
       Test / scalacOptions --= Seq(
         "-deprecation",
         "-Xlint:adapted-args"
       ),
       libraryDependencies ++= Seq(
-        Dep.microlibsTestUtil .value % Test,
         Dep.nyayaProp         .value % Test,
         Dep.nyayaGen          .value % Test,
         Dep.nyayaTest         .value % Test,

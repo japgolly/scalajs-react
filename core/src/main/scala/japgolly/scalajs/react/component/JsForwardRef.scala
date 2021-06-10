@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.component
 
-import japgolly.scalajs.react.internal.JsUtil.jsNullToOption
+import japgolly.scalajs.react.util.JsUtil.jsNullToOption
 import japgolly.scalajs.react.internal.Profunctor.Ops._
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, Ref, facade}

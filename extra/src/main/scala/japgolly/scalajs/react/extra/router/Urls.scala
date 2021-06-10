@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.extra.router
 
-import japgolly.scalajs.react.internal.Util.devAssertWarn
+import japgolly.scalajs.react.util.Util.devAssertWarn
 import org.scalajs.dom
 
 abstract class PathLike[Self <: PathLike[Self]] {

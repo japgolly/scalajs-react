@@ -1,6 +1,8 @@
 package japgolly.scalajs.react.feature
 
-import japgolly.scalajs.react.internal.JsUtil
+package japgolly.scalajs.react.feature
+
+import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.vdom.PackageBase._
 import japgolly.scalajs.react.{Callback, facade}
 import java.time.Duration

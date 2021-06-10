@@ -1,13 +1,7 @@
 package japgolly.scalajs.react
 
-import org.scalajs.dom
-import org.scalajs.dom.html
-
 trait ReactExtensions {
   import ReactExtensions._
-
-  @inline final implicit def ReactExt_DomNode(n: dom.raw.Node): ReactExt_DomNode =
-    new ReactExt_DomNode(n)
 
   @inline final implicit def ReactExt_OptionCallback(o: Option[Callback]): ReactExt_OptionCallback =
     new ReactExt_OptionCallback(o)
@@ -20,22 +14,6 @@ trait ReactExtensions {
 }
 
 object ReactExtensions {
-
-  /** Extensions to plain old DOM. */
-  @inline implicit final class ReactExt_DomNode(private val n: dom.raw.Node) extends AnyVal {
-
-    @inline def domCast[N <: dom.raw.Node]: N =
-      n.asInstanceOf[N]
-
-    @inline def domAsHtml: html.Element =
-      domCast
-
-    def domToHtml: Option[html.Element] =
-      n match {
-        case e: html.Element => Some(e)
-        case _               => None
-      }
-  }
 
   @inline implicit final class ReactExt_OptionCallback(private val o: Option[Callback]) extends AnyVal {
     /** Convenience for `.getOrElse(Callback.empty)` */

@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.facade
-import japgolly.scalajs.react.internal.JsUtil
+import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.vdom.VdomBuilder.{RawChild, RawRefFn}
 import scala.scalajs.js
 
