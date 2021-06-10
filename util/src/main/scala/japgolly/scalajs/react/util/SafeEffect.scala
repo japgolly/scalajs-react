@@ -9,37 +9,28 @@ object SafeEffect
        with SafeEffectCatsEffect
        with userdefined.SafeEffects {
 
-  trait Sync[F[_]] {
-
-    // val syncEmpty: F[Unit]
-
-    def syncRun[A](f: => F[A]): A
-
-    def syncOption_[O[_], A](f: => O[F[A]])(implicit O: OptionLike[O]): F[Unit]
-
-    final def syncJsFn0[A](f: => F[A]): js.Function0[A] =
-      () => syncRun(f)
-
-    final def syncJsFn1[A, Z](f: A => F[Z]): js.Function1[A, Z] =
-      a => syncRun(f(a))
-  }
+  trait Sync[F[_]] extends UnsafeEffect.Sync[F]
 
   object Sync {
-
     type RawCallback = js.Function0[Any]
 
     val empty: js.Function0[Unit] =
       () => ()
 
-    implicit object jsFunction extends Sync[js.Function0] {
-      override def syncRun[A](f: => js.Function0[A]): A =
-        f()
-
-      override def syncOption_[O[_], A](f: => O[js.Function0[A]])(implicit O: OptionLike[O]): js.Function0[Unit] =
-        () => O.foreach(f)(_())
+    implicit val jsFunction: Sync[js.Function0] = new Sync[js.Function0] {
+      type F[A] = js.Function0[A]
+      override def delay  [A]      (a: => A)                                    = () => a
+      override def pure   [A]      (a: A)                                       = () => a
+      override def map    [A, B]   (fa: F[A])(f: A => B)                        = () => f(fa())
+      override def flatMap[A, B]   (fa: F[A])(f: A => F[B])                     = () => f(fa())()
+      override def runSync[A]      (fa: => F[A])                                = fa()
+      override def option_[O[_], A](ofa: => O[F[A]])(implicit O: OptionLike[O]) = () => O.foreach(ofa)(_())
     }
   }
 
+  trait Async[F[_]] {
+    def async_(onCompletion: Sync.RawCallback => Sync.RawCallback): F[Unit]
+  }
 }
 
 trait SafeEffectCallback

@@ -13,14 +13,9 @@
 
 * Document modules
 
-* Merge Effect and SafeEffect
-  * Maybe rename
-    * {Effect => UnsafeEffect}
-    * {SafeEffect => Effect}
-    * UnsafeEffect >: Effect
-    * UnsafeEffect contains implicit Id
-
 * Remove temp scripts
+
+* Add WithAsyncEffect / WithEffectAsync to component.*
 
 ---------------------------------------------------------------------------------------------------------
 
@@ -44,5 +39,8 @@
     implicit lazy val endoCallback: Id[CallbackTo]               = Trans.id[CallbackTo]
     implicit lazy val idToCallback: Trans[Effect.Id, CallbackTo] = Trans[Effect.Id, CallbackTo]
     implicit lazy val callbackToId: Trans[CallbackTo, Effect.Id] = Trans[CallbackTo, Effect.Id]
+
+    final protected def async(f: RawCallback => F[Unit]): A[Unit] =
+      AsyncCallback.viaCallback(cb => F.toCallback(f(cb)))
 
 ```

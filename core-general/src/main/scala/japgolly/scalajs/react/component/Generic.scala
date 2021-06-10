@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal.Profunctor
-import japgolly.scalajs.react.util.{Effect, JsUtil}
+import japgolly.scalajs.react.util.JsUtil
+import japgolly.scalajs.react.util.UnsafeEffect.Id
 import japgolly.scalajs.react.util.SafeEffect.Sync
 import japgolly.scalajs.react.{ComponentDom, CtorType, Key, PropsChildren, StateAccess, facade, vdom}
 import scala.scalajs.js
@@ -97,7 +98,7 @@ object Generic {
       mountRaw(facade.ReactDOM.render(raw, container))
 
     def renderIntoDOM[F[_]](container: facade.ReactDOM.Container, callback: => F[Any])(implicit F: Sync[F]): Mounted =
-      mountRaw(facade.ReactDOM.render(raw, container, F.syncJsFn0(callback)))
+      mountRaw(facade.ReactDOM.render(raw, container, F.toJsFn0(callback)))
   }
 
   trait UnmountedWithRoot[P1, M1, P0, M0] extends UnmountedSimple[P1, M1] {
@@ -112,9 +113,9 @@ object Generic {
 
   // ===================================================================================================================
 
-  type Mounted[F[_], P, S] = MountedSimple[F, P, S]
-  // TODO: FX type MountedPure  [P, S] = MountedSimple[CallbackTo, P, S]
-  type MountedImpure[P, S] = MountedSimple[Effect.Id, P, S]
+  type Mounted[F[_], A[_], P, S] = MountedSimple[F, A, P, S]
+  // TODO: FX: type MountedPure  [P, S] = MountedSimple[CallbackTo, P, S]
+  // TODO: FX: type MountedImpure[P, S] = MountedSimple[Id, P, S]
 
   trait MountedRaw {
     type Raw <: facade.React.ComponentUntyped // TODO Do better
@@ -122,12 +123,12 @@ object Generic {
     def displayName: String
   }
 
-  trait MountedSimple[F[_], P, S] extends MountedRaw with StateAccess[F, S] with StateAccess.WriteWithProps[F, P, S] {
+  trait MountedSimple[F[_], A[_], P, S] extends MountedRaw with StateAccess[F, A, S] with StateAccess.WriteWithProps[F, A, P, S] {
     final type Props = P
 
-    override type WithEffect[F2[_]]   <: MountedSimple[F2, P, S]
-    override type WithMappedState[S2] <: MountedSimple[F, P, S2]
-             type WithMappedProps[P2] <: MountedSimple[F, P2, S]
+    override type WithEffect[F2[_]]   <: MountedSimple[F2, A, P, S]
+    override type WithMappedState[S2] <: MountedSimple[F, A, P, S2]
+             type WithMappedProps[P2] <: MountedSimple[F, A, P2, S]
     def mapProps[P2](f: P => P2): WithMappedProps[P2]
 
     def getDOMNode: F[ComponentDom]
@@ -138,15 +139,15 @@ object Generic {
     final def forceUpdate: F[Unit] = forceUpdate(Sync.empty)
   }
 
-  trait MountedWithRoot[F[_], P1, S1, P0, S0] extends MountedSimple[F, P1, S1] {
-    type Root <: MountedRoot[F, P0, S0]
+  trait MountedWithRoot[F[_], A[_], P1, S1, P0, S0] extends MountedSimple[F, A, P1, S1] {
+    type Root <: MountedRoot[F, A, P0, S0]
     def root: Root
 
-    override type WithEffect[F2[_]]   <: MountedWithRoot[F2, P1, S1, P0, S0]
-    override type WithMappedState[S2] <: MountedWithRoot[F, P1, S2, P0, S0]
-    override type WithMappedProps[P2] <: MountedWithRoot[F, P2, S1, P0, S0]
+    override type WithEffect[F2[_]]   <: MountedWithRoot[F2, A, P1, S1, P0, S0]
+    override type WithMappedState[S2] <: MountedWithRoot[F, A, P1, S2, P0, S0]
+    override type WithMappedProps[P2] <: MountedWithRoot[F, A, P2, S1, P0, S0]
   }
 
-  type MountedRoot[F[_], P, S] = MountedWithRoot[F, P, S, P, S]
+  type MountedRoot[F[_], A[_], P, S] = MountedWithRoot[F, A, P, S, P, S]
 }
 

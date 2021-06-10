@@ -65,16 +65,16 @@ object Attr {
       TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Any]]), a))
 
     def -->[F[_], A](callback: => F[A])(implicit F: SafeEffect.Sync[F]): TagMod =
-      :=(F.syncJsFn0(callback))(ValueType.direct)
+      :=(F.toJsFn0(callback))(ValueType.direct)
 
     def ==>[F[_], A](eventHandler: Event => F[A])(implicit F: SafeEffect.Sync[F]): TagMod =
-      :=(F.syncJsFn1(eventHandler))(ValueType.direct)
+      :=(F.toJsFn1(eventHandler))(ValueType.direct)
 
     def -->?[O[_], F[_], A](callback: => O[F[A]])(implicit F: SafeEffect.Sync[F], O: OptionLike[O]): TagMod =
-      this --> F.syncOption_(callback)(O)
+      this --> F.option_(callback)(O)
 
     def ==>?[O[_], F[_], A](eventHandler: Event => O[F[A]])(implicit F: SafeEffect.Sync[F], O: OptionLike[O]): TagMod =
-      ==>(e => F.syncOption_(eventHandler(e))(O))
+      ==>(e => F.option_(eventHandler(e))(O))
   }
 
   object Event {

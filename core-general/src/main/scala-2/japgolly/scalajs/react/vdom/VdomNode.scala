@@ -14,7 +14,7 @@ trait VdomNode extends TagMod {
     facade.ReactDOM.render(rawNode, container)
 
   @inline final def renderIntoDOM[F[_]](container: facade.ReactDOM.Container, callback: => F[Any])(implicit F: SafeEffect.Sync[F]): facade.React.ComponentUntyped =
-    facade.ReactDOM.render(rawNode, container, F.syncJsFn0(callback))
+    facade.ReactDOM.render(rawNode, container, F.toJsFn0(callback))
 }
 
 object VdomNode {
