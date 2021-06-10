@@ -83,15 +83,12 @@ object CallbackKleisli {
   *
   * @since 1.2.0
   */
-final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
+final case class CallbackKleisli[A, +B](run: A => CallbackTo[B]) extends AnyVal {
 
   @inline def underlyingRepr = run
 
   @inline def apply(a: A): CallbackTo[B] =
     run(a)
-
-  def widen[C >: B]: CallbackKleisli[A, C] =
-    CallbackKleisli[A, C](run(_))
 
   def narrow[C <: A]: CallbackKleisli[C, B] =
     CallbackKleisli(run)
@@ -223,7 +220,7 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
   def asCallback: CallbackTo[A => B] =
     CallbackTo.liftTraverse(run).id
 
-  def >=>[C](next: CallbackKleisli[B, C]): CallbackKleisli[A, C] =
+  def >=>[BB >: B, C](next: CallbackKleisli[BB, C]): CallbackKleisli[A, C] =
     CallbackKleisli(run(_).flatMap(next.run))
 
   @inline def <=<[C](prev: CallbackKleisli[C, A]): CallbackKleisli[C, B] =
@@ -232,7 +229,7 @@ final case class CallbackKleisli[A, B](run: A => CallbackTo[B]) extends AnyVal {
   @inline def compose[C](prev: CallbackKleisli[C, A]): CallbackKleisli[C, B] =
     prev >=> this
 
-  @inline def andThen[C](next: CallbackKleisli[B, C]): CallbackKleisli[A, C] =
+  @inline def andThen[BB >: B, C](next: CallbackKleisli[BB, C]): CallbackKleisli[A, C] =
     this >=> next
 
   def strongL[R]: CallbackKleisli[(A, R), (B, R)] =
