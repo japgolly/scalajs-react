@@ -132,7 +132,7 @@ object Js extends JsBaseComponentTemplate[facade.React.ComponentClassP] {
   type MountedRoot[F[_], A[_], P <: js.Object, S <: js.Object, R <: RawMounted[P, S]] = MountedWithRoot[F, A, P, S, R, P, S]
 
   def mountedRoot[P <: js.Object, S <: js.Object, R <: RawMounted[P, S]](r: R): MountedRoot[Id, DefaultA, P, S, R] =
-    new Template.MountedWithRoot[Id, DefaultA, P, S]()(UnsafeEffect.Sync.endoId, DefaultEffects.asyncEndo)
+    new Template.MountedWithRoot[Id, DefaultA, P, S]()(UnsafeEffect.Sync.idEndo, DefaultEffects.asyncEndo)
         with MountedRoot[Id, DefaultA, P, S, R] {
 
       override implicit def F    = UnsafeEffect.Sync.id

@@ -40,7 +40,7 @@ object UnsafeEffect extends userdefined.UnsafeEffects {
       override def option_[O[_], A](oa: => O[A])(implicit O: OptionLike[O]) = O.foreach(oa)(_ => ())
     }
 
-    implicit lazy val endoId: Trans.Id[Id] =
+    implicit lazy val idEndo: Trans.Id[Id] =
       Trans.id[Id]
   }
 }
