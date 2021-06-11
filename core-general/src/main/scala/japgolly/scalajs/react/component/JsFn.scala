@@ -128,7 +128,6 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
       // Protect against future React change.
       if (developmentMode)
         assert(result eq null, "Expected rendered functional component to return null; not " + result)
-
       mountRaw(result)
     }
   }

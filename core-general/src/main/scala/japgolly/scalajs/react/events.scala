@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.util.DefaultEffects._
 import org.scalajs.dom
 import org.scalajs.dom.html
 
@@ -89,12 +90,14 @@ final class ReactExt_DomEvent(private val e: dom.Event) extends AnyVal {
    * Stops the default action of an element from happening.
    * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
    */
-  def preventDefaultCB = Callback(e.preventDefault())
+  def preventDefaultCB: Sync[Unit] =
+    sync.delay(e.preventDefault())
 
   /**
    * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
    */
-  def stopPropagationCB = Callback(e.stopPropagation())
+  def stopPropagationCB: Sync[Unit] =
+    sync.delay(e.stopPropagation())
 }
 
 final class ReactExt_ReactEvent[E <: ReactEvent](private val e: E) extends AnyVal {
@@ -102,12 +105,14 @@ final class ReactExt_ReactEvent[E <: ReactEvent](private val e: E) extends AnyVa
    * Stops the default action of an element from happening.
    * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
    */
-  def preventDefaultCB = Callback(e.preventDefault())
+  def preventDefaultCB: Sync[Unit] =
+    sync.delay(e.preventDefault())
 
   /**
    * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
    */
-  def stopPropagationCB = Callback(e.stopPropagation())
+  def stopPropagationCB: Sync[Unit] =
+    sync.delay(e.stopPropagation())
 
   /**
    * If you want to access the event properties in an asynchronous way (eg. in a `modState(…)` function),

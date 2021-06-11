@@ -121,21 +121,11 @@ object CallbackTo {
   inline def future[A](f: Future[CallbackTo[A]])(implicit ec: ExecutionContext): CallbackTo[Future[A]] =
     CallbackTo(f.map(_.runNow()))
 
-  def newJsPromise[A]: CallbackTo[(js.Promise[A], Try[A] => Callback)] = CallbackTo {
-    var complete: Try[A] => Callback = null
-    val p = new js.Promise[A]((respond: js.Function1[A | Thenable[A], _], reject: js.Function1[Any, _]) => {
-      def fail(t: Throwable) =
-        reject(t match {
-          case js.JavaScriptException(e) => e
-          case e                         => e
-        })
-      complete = {
-        case Success(a) => Callback(respond(a))
-        case Failure(e) => Callback(fail(e))
-      }
-    })
-    (p, complete)
-  }
+  def newJsPromise[A]: CallbackTo[(js.Promise[A], Try[A] => Callback)] =
+    CallbackTo {
+      val (p, f) = JsUtil.newPromise[A]()
+      (p, t => Callback(f(t)))
+    }
 
   lazy val now: CallbackTo[Instant] =
     apply(Instant.now())

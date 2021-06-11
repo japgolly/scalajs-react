@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.util.Effect.Async
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
 import scala.scalajs.js
@@ -74,15 +75,22 @@ object React {
     *
     * @since 1.4.0 / React 16.6.0
     */
-  def Suspense[A](fallback: VdomNode, asyncBody: AsyncCallback[A])(implicit ev: A => VdomElement): VdomElement = {
-    val lazyBody = asyncBody.map { a =>
-      type P         = Box[Unit]
-      val comp       = ScalaFnComponent[Unit](_ => ev(a))
-      val lazyValue  = comp.raw.asInstanceOf[facade.React.LazyResultValue[P]]
-      val lazyResult = js.Dynamic.literal(default = lazyValue.asInstanceOf[js.Any]).asInstanceOf[facade.React.LazyResult[P]]
-      lazyResult
-    }
-    val lazyFn = () => lazyBody.unsafeToJsPromise()
+  def Suspense[F[_], A](fallback: VdomNode, asyncBody: => F[A])(implicit ev: A => VdomElement, F: Async[F]): VdomElement = {
+    type P          = Box[Unit]
+    type LazyResult = facade.React.LazyResult[P]
+
+    val lazyFn: () => js.Promise[LazyResult] =
+      () => {
+        val post: js.Function1[A, LazyResult] = { a =>
+          val comp       = ScalaFnComponent[Unit](_ => ev(a))
+          val lazyValue  = comp.raw.asInstanceOf[facade.React.LazyResultValue[P]]
+          val lazyResult = js.Dynamic.literal(default = lazyValue.asInstanceOf[js.Any]).asInstanceOf[facade.React.LazyResult[P]]
+          lazyResult
+        }
+        val p1 = F.toJsPromise(asyncBody)
+        p1().`then`[LazyResult](post)
+      }
+
     val lazyC  = facade.React.`lazy`(lazyFn)
     val lazyE  = facade.React.createElement(lazyC, Box.Unit)
 

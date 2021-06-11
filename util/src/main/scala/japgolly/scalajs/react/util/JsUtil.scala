@@ -3,6 +3,7 @@ package japgolly.scalajs.react.util
 import java.time.Duration
 import scala.scalajs.js
 import scala.scalajs.js.|
+import scala.util.{Failure, Success, Try}
 
 object JsUtil {
 
@@ -99,4 +100,21 @@ object JsUtil {
 
   def durationFromDOMHighResTimeStamp(ms: Double): Duration =
     Duration.ofNanos((ms * 1000000).toLong)
+
+  def newPromise[A](): (js.Promise[A], Try[A] => js.Function0[Unit]) = {
+    var complete: Try[A] => js.Function0[Unit] = null
+    val p = new js.Promise[A]((respond: js.Function1[A | js.Thenable[A], _], reject: js.Function1[Any, _]) => {
+      def fail(t: Throwable) =
+        reject(t match {
+          case js.JavaScriptException(e) => e
+          case e                         => e
+        })
+      complete = {
+        case Success(a) => () => respond(a)
+        case Failure(e) => () => fail(e)
+      }
+    })
+    (p, complete)
+  }
+
 }

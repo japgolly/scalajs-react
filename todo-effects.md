@@ -17,6 +17,8 @@
 
 * Add WithAsyncEffect / WithEffectAsync to component.*
 
+* Test React.Suspense
+
 ---------------------------------------------------------------------------------------------------------
 
 ```scala

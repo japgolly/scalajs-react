@@ -93,7 +93,7 @@ object ReactForwardRef { outer =>
 
   // ===================================================================================================================
 
-  @inline def toJsComponent[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: Js.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]](@nowarn("cat=unused") c: Js.ComponentMapped[F, P1, S1, CT1, R, P0, S0, CT0]): ToJsComponent[P0, S0, R] =
+  @inline def toJsComponent[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: Js.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]](@nowarn("cat=unused") c: Js.ComponentMapped[F, A, P1, S1, CT1, R, P0, S0, CT0]): ToJsComponent[P0, S0, R] =
     toJsComponent[P0, S0, R]
 
   def toJsComponent[P <: js.Object, S <: js.Object, R <: Js.RawMounted[P, S]]: ToJsComponent[P, S, R] =

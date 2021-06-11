@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.NotAllowed
 import japgolly.scalajs.react.vdom.VdomNode
 import org.scalajs.dom
@@ -14,19 +15,30 @@ object ReactDOM {
     ComponentDom.findDOMNode(componentOrElement).mounted
 
   def hydrate(element  : VdomNode,
-              container: facade.ReactDOM.Container,
-              callback : Callback = Callback.empty): facade.React.ComponentUntyped =
-    facade.ReactDOM.hydrate(element.rawNode, container, callback.toJsFn)
+              container: facade.ReactDOM.Container): facade.React.ComponentUntyped =
+    facade.ReactDOM.hydrate(element.rawNode, container)
 
-  /** Hydrate the container if is has children, else render into that container.
-    */
+  def hydrate[F[_], A](element  : VdomNode,
+                       container: facade.ReactDOM.Container,
+                       callback : => F[A])(implicit F: Sync[F]): facade.React.ComponentUntyped =
+    facade.ReactDOM.hydrate(element.rawNode, container, F.toJsFn0(callback))
+
+  /** Hydrate the container if is has children, else render into that container. */
   def hydrateOrRender(element  : VdomNode,
-                      container: dom.Element,
-                      callback : Callback = Callback.empty): facade.React.ComponentUntyped =
+                      container: dom.Element): facade.React.ComponentUntyped =
+    if (container.hasChildNodes())
+      hydrate(element, container)
+    else
+      element.renderIntoDOM(container)
+
+  /** Hydrate the container if is has children, else render into that container. */
+  def hydrateOrRender[F[_], A](element  : VdomNode,
+                               container: dom.Element,
+                               callback : => F[A])(implicit F: Sync[F]): facade.React.ComponentUntyped =
     if (container.hasChildNodes())
       hydrate(element, container, callback)
     else
-      facade.ReactDOM.render(element.rawNode, container, callback.toJsFn)
+      element.renderIntoDOM(container, callback)
 
   def unmountComponentAtNode(container: dom.Node): Boolean =
     raw.unmountComponentAtNode(container)
@@ -46,7 +58,7 @@ object ReactDOM {
   @deprecated("Import vdom and use ReactPortal()", "")
   def createPortal(child: NotAllowed, container: Any) = child.result
 
-  def flushSync[A](a: CallbackTo[A]): CallbackTo[A] =
-    CallbackTo(facade.ReactDOM.flushSync(a.toJsFn))
+  def flushSync[F[_], A](fa: F[A])(implicit F: Sync[F]): F[A] =
+    F.delay(facade.ReactDOM.flushSync(F.toJsFn0(fa)))
 
 }

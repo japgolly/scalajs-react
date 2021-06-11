@@ -1,8 +1,9 @@
 package japgolly.scalajs.react.feature
 
+import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.vdom.PackageBase._
-import japgolly.scalajs.react.{Callback, facade}
+import japgolly.scalajs.react.facade
 import java.time.Duration
 import scala.scalajs.js
 
@@ -23,7 +24,7 @@ object Profiler {
     * @param children Use `React.Fragment` to group multiple children.
     * @since React 16.9.0 / scalajs-react 1.7.0
     */
-  def apply(id: String, onRender: OnRenderData => Callback)(children: VdomNode): VdomElement = {
+  def apply[F[_], A](id: String, onRender: OnRenderData => F[A])(children: VdomNode)(implicit F: Sync[F]): VdomElement = {
     val onRenderRaw: facade.Profiler.OnRender =
       (
         id,
@@ -43,7 +44,7 @@ object Profiler {
           commitTime       = commitTime,
           rawInteractions  = interactions,
         )
-        onRender(data).runNow()
+        F.runSync(onRender(data))
       }
 
     val props = js.Dynamic.literal(

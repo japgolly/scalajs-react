@@ -2,8 +2,10 @@ package japgolly.scalajs.react.util
 
 import japgolly.scalajs.react.userdefined
 import japgolly.scalajs.react.util.OptionLike
+import japgolly.scalajs.react.util.JsUtil
 import scala.scalajs.js
 import scala.util.Try
+import scala.util.Success
 
 object Effect
     extends EffectCallback
@@ -84,6 +86,8 @@ object Effect
 
     def runAsync[A](fa: => F[A]): Async.Untyped[A]
 
+    def toJsPromise[A](fa: => F[A]): () => js.Promise[A]
+
     final def transAsync[G[_], A](ga: => G[A])(implicit g: Async[G]): F[A] =
       if (this eq g)
         ga.asInstanceOf[F[A]]
@@ -98,6 +102,12 @@ object Effect
       new Async[Untyped] {
         override def async   [A](f: Untyped[A]) = f
         override def runAsync[A](f: => Untyped[A]) = f
+        override def toJsPromise[A](fa: => Untyped[A]): () => js.Promise[A] =
+          () => {
+            val (p, f) = JsUtil.newPromise[A]()
+            fa(f)
+            p
+          }
       }
   }
 }
