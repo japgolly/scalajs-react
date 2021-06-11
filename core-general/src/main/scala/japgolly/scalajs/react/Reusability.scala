@@ -1,6 +1,9 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.internal.{Box, OptionLike}
+import japgolly.scalajs.react.internal.Box
+import japgolly.scalajs.react.util.OptionLike
+import japgolly.scalajs.react.util.{DefaultEffects => D}
+import japgolly.scalajs.react.util.Effect.Sync
 import java.time._
 import java.util.{Date, UUID}
 import org.scalajs.dom.console
@@ -97,18 +100,6 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
   /** Compare by reference. Reuse if both values are the same instance. */
   def byRef[A <: AnyRef]: Reusability[A] =
     new Reusability((a, b) => a eq b)
-
-  def callbackByRef[A]: Reusability[CallbackTo[A]] =
-    by((_: CallbackTo[A]).underlyingRepr)(byRef)
-
-  def callbackOptionByRef[A]: Reusability[CallbackOption[A]] =
-    by((_: CallbackOption[A]).underlyingRepr)(byRef)
-
-  def callbackKleisliByRef[A, B]: Reusability[CallbackKleisli[A, B]] =
-    by((_: CallbackKleisli[A, B]).underlyingRepr)(byRef)
-
-  def asyncCallbackByRef[A]: Reusability[AsyncCallback[A]] =
-    by((_: AsyncCallback[A]).underlyingRepr)(byRef)
 
   /** Compare using universal equality (Scala's == operator). */
   def by_==[A]: Reusability[A] =
@@ -293,12 +284,6 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
   implicit lazy val setTimeoutHandle: Reusability[SetTimeoutHandle] =
     by_==
 
-  implicit lazy val callbackSetIntervalResult: Reusability[Callback.SetIntervalResult] =
-    byRef || by(_.handle)
-
-  implicit lazy val callbackSetTimeoutResult: Reusability[Callback.SetTimeoutResult] =
-    byRef || by(_.handle)
-
   // java.time._
 
   implicit def clock: Reusability[Clock] =
@@ -437,16 +422,17 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
 
   // ===================================================================================================================
 
-  def shouldComponentUpdateAnd[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => Callback): ScalaComponent.Config[P, C, S, B, U, U] =
+  def shouldComponentUpdateAnd[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot, F[_], X](f: ShouldComponentUpdateResult[P, S, B] => F[X])(implicit F: Sync[F]): ScalaComponent.Config[P, C, S, B, U, U] =
     _.shouldComponentUpdate { i =>
       val r = ShouldComponentUpdateResult(i)
-      f(r).map(_ => r.update)
+      val c = F.map(f(r))(_ => r.update)
+      D.sync.transSync(c)
     }
 
   def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](name: String): ScalaComponent.Config[P, C, S, B, U, U] =
     shouldComponentUpdateAnd(_ log name)
 
-  final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[P, S, B]) {
+  final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[D.Sync, D.Async, P, S, B]) {
     def mounted       = self.mountedImpure
     def backend       = self.backend
     def propsChildren = self.propsChildren
@@ -460,12 +446,15 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     val updateState: Boolean = currentState ~/~ nextState
     val update     : Boolean = updateProps || updateState
 
-    def log(name: String): Callback =
-      Callback.log(
-        s"""
-           |s"$name.shouldComponentUpdate = $update
-           |  Props: $updateProps. [$currentProps] ⇒ [$nextProps]
-           |  State: $updateState. [$currentState] ⇒ [$nextState]
-         """.stripMargin)
+    def log(name: String): D.Sync[Unit] =
+      D.sync.delay(
+        console.log(
+          s"""
+             |s"$name.shouldComponentUpdate = $update
+             |  Props: $updateProps. [$currentProps] ⇒ [$nextProps]
+             |  State: $updateState. [$currentState] ⇒ [$nextState]
+           """.stripMargin
+        )
+      )
   }
 }

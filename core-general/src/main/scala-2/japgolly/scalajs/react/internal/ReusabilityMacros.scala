@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.internal
 
 import japgolly.microlibs.compiletime.MacroUtils
+import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.Reusability
 import scala.reflect.macros.blackbox.Context
 

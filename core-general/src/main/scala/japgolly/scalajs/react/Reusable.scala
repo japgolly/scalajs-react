@@ -1,5 +1,7 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.util.{DefaultEffects => D}
+import japgolly.scalajs.react.util.Effect.Sync
 import scala.reflect.ClassTag
 
 /**
@@ -149,21 +151,6 @@ object Reusable {
 
   // ===================================================================================================================
 
-  lazy val emptyCallback: Reusable[Callback] =
-    callbackByRef(Callback.empty)
-
-  def callbackByRef[A](c: CallbackTo[A]): Reusable[CallbackTo[A]] =
-    byRefIso(c)(_.underlyingRepr)
-
-  def callbackOptionByRef[A](c: CallbackOption[A]): Reusable[CallbackOption[A]] =
-    byRefIso(c)(_.underlyingRepr)
-
-  def callbackKleisliByRef[A, B](c: CallbackKleisli[A, B]): Reusable[CallbackKleisli[A, B]] =
-    byRefIso(c)(_.underlyingRepr)
-
-  def asyncCallbackByRef[A](c: AsyncCallback[A]): Reusable[AsyncCallback[A]] =
-    byRefIso(c)(_.underlyingRepr)
-
   /** Convenience methods that help you create `I => Reusable[O]` functions.
     *
     * The reason this is more convenient than the underlying methods is that this makes it easier to create and share a
@@ -236,38 +223,43 @@ object Reusable {
     def apply[A: Reusability, B: Reusability, C: Reusability, D: Reusability, E: Reusability, Y, Z](f: (A, B, C, D, E, Y) => Z): A ~=> (B ~=> (C ~=> (D ~=> (E ~=> (Y ~=> Z))))) =
       Reusable.implicitly(new Fn6(f))
 
-    def state[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]) = new StateAccessWriteOps(i)(t)
-    final class StateAccessWriteOps[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]) {
+    def state[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]): StateAccessWriteOps[I, D.Sync, D.Async, S] =
+      new StateAccessWriteOps(i)(t, D.sync)
 
-      def setStateFn: Reusable[SetStateFnPure[S]] =
+    final class StateAccessWriteOps[I, F[_], A[_], S](i: I)(implicit t: StateAccessor.Write[I, F, A, S], F: Sync[F]) {
+
+      // TODO: FX: def withEffect[G[_]](implicit G: Sync[G]): StateAccessWriteOps[I, G, A, S] =
+      //   new StateAccessWriteOps(i)(t.withEffect(G))
+
+      def setStateFn: Reusable[SetStateFn[F, A, S]] =
         Reusable.byRef(t(i).toSetStateFn)
 
-      def modStateFn: Reusable[ModStateFnPure[S]] =
+      def modStateFn: Reusable[ModStateFn[F, A, S]] =
         Reusable.byRef(t(i).toModStateFn)
 
-      def mod: (S => S) ~=> Callback =
+      def mod: (S => S) ~=> F[Unit] =
         Reusable.fn(t(i).modState(_))
 
-      def modOption: (S => Option[S]) ~=> Callback =
+      def modOption: (S => Option[S]) ~=> F[Unit] =
         Reusable.fn(t(i).modStateOption(_))
 
-      def set: S ~=> Callback =
+      def set: S ~=> F[Unit] =
         Reusable.fn(t(i).setState(_))
 
-      def setOption: Option[S] ~=> Callback =
+      def setOption: Option[S] ~=> F[Unit] =
         Reusable.fn(t(i).setStateOption(_))
 
-      def modCB: Reusable[((S => S), Callback) => Callback] =
-        Reusable.byRef(t(i).modState)
+      def modCB: Reusable[((S => S), F[Unit]) => F[Unit]] =
+        Reusable.byRef(t(i).modState(_, _))
 
-      def modOptionCB: Reusable[((S => Option[S]), Callback) => Callback] =
-        Reusable.byRef(t(i).modStateOption)
+      def modOptionCB: Reusable[((S => Option[S]), F[Unit]) => F[Unit]] =
+        Reusable.byRef(t(i).modStateOption(_, _))
 
-      def setCB: Reusable[(S, Callback) => Callback] =
-        Reusable.byRef(t(i).setState)
+      def setCB: Reusable[(S, F[Unit]) => F[Unit]] =
+        Reusable.byRef(t(i).setState(_, _))
 
-      def setOptionCB: Reusable[(Option[S], Callback) => Callback] =
-        Reusable.byRef(t(i).setStateOption)
+      def setOptionCB: Reusable[(Option[S], F[Unit]) => F[Unit]] =
+        Reusable.byRef(t(i).setStateOption(_, _))
     }
   }
 

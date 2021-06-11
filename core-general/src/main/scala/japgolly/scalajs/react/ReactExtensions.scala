@@ -3,8 +3,9 @@ package japgolly.scalajs.react
 trait ReactExtensions {
   import ReactExtensions._
 
-  @inline final implicit def ReactExt_OptionCallback(o: Option[Callback]): ReactExt_OptionCallback =
-    new ReactExt_OptionCallback(o)
+  // TODO: FX:
+  // @inline final implicit def ReactExt_OptionCallback(o: Option[Callback]): ReactExt_OptionCallback =
+  //   new ReactExt_OptionCallback(o)
 
   @inline final implicit def ReactExt_ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: ScalaComponent.Component[P, S, B, CT]): ReactExt_ScalaComponent[P, S, B, CT] =
     new ReactExt_ScalaComponent(c)
@@ -15,11 +16,12 @@ trait ReactExtensions {
 
 object ReactExtensions {
 
-  @inline implicit final class ReactExt_OptionCallback(private val o: Option[Callback]) extends AnyVal {
-    /** Convenience for `.getOrElse(Callback.empty)` */
-    @inline def getOrEmpty: Callback =
-       o.getOrElse(Callback.empty)
-  }
+  // TODO: FX:
+  // @inline implicit final class ReactExt_OptionCallback(private val o: Option[Callback]) extends AnyVal {
+  //   /** Convenience for `.getOrElse(Callback.empty)` */
+  //   @inline def getOrEmpty: Callback =
+  //      o.getOrElse(Callback.empty)
+  // }
 
   // I am NOT happy about this here... but it will do for now.
 

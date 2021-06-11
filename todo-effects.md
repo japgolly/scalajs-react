@@ -37,4 +37,41 @@
     final protected def async(f: Untyped => F[Unit]): A[Unit] =
       AsyncCallback.viaCallback(cb => F.toCallback(f(cb)))
 
+// Reusability
+  def callbackByRef[A]: Reusability[CallbackTo[A]] =
+    by((_: CallbackTo[A]).underlyingRepr)(byRef)
+
+  def callbackOptionByRef[A]: Reusability[CallbackOption[A]] =
+    by((_: CallbackOption[A]).underlyingRepr)(byRef)
+
+  def callbackKleisliByRef[A, B]: Reusability[CallbackKleisli[A, B]] =
+    by((_: CallbackKleisli[A, B]).underlyingRepr)(byRef)
+
+  def asyncCallbackByRef[A]: Reusability[AsyncCallback[A]] =
+    by((_: AsyncCallback[A]).underlyingRepr)(byRef)
+
+  lazy val emptyCallback: Reusable[Callback] =
+    callbackByRef(Callback.empty)
+
+  implicit lazy val callbackSetIntervalResult: Reusability[Callback.SetIntervalResult] =
+    byRef || by(_.handle)
+
+  implicit lazy val callbackSetTimeoutResult: Reusability[Callback.SetTimeoutResult] =
+    byRef || by(_.handle)
+
+
+// Reusable
+  def callbackByRef[A](c: CallbackTo[A]): Reusable[CallbackTo[A]] =
+    byRefIso(c)(_.underlyingRepr)
+
+  def callbackOptionByRef[A](c: CallbackOption[A]): Reusable[CallbackOption[A]] =
+    byRefIso(c)(_.underlyingRepr)
+
+  def callbackKleisliByRef[A, B](c: CallbackKleisli[A, B]): Reusable[CallbackKleisli[A, B]] =
+    byRefIso(c)(_.underlyingRepr)
+
+  def asyncCallbackByRef[A](c: AsyncCallback[A]): Reusable[AsyncCallback[A]] =
+    byRefIso(c)(_.underlyingRepr)
+
+
 ```

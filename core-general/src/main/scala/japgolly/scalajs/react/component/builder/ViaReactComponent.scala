@@ -262,7 +262,7 @@ object ViaReactComponent {
         Js.mounted[Box[P], Box[S]](_this).addFacade[Vars[P, S, B]]
 
       _this.mountedImpure = Scala.mountedRoot(jMounted)
-      _this.mountedPure = _this.mountedImpure.withEffect //(Effect.Sync.untyped)
+      _this.mountedPure = _this.mountedImpure.withEffect
       _this.backend = backendFn(_this.mountedPure)
 
       _this.asInstanceOf[js.Dynamic].state = initStateFn(props)

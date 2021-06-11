@@ -1,6 +1,7 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
+import japgolly.scalajs.react.util.Util.identityFn
 import scala.scalajs.LinkingInfo.developmentMode
 
 object ScalaJsReactConfig {
@@ -19,7 +20,7 @@ object ScalaJsReactConfig {
     /** Don't configure shouldComponentUpdate */
     def ignore: ReusabilityOverride = new ReusabilityOverride {
       override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
-        internal.identityFn
+        identityFn
     }
   }
 
