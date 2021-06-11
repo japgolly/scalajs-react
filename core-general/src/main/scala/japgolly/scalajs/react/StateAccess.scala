@@ -2,10 +2,9 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.Lens
 import japgolly.scalajs.react.util.UnsafeEffect
+import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.util.UnsafeEffect.Id
-import japgolly.scalajs.react.util.UnsafeEffect.Sync.Trans
 import japgolly.scalajs.react.util.SafeEffect
-import japgolly.scalajs.react.util.SafeEffect.Sync.RawCallback
 
 /**
   * Base class for something that has read/write state access (under the same effect type).
@@ -26,10 +25,12 @@ trait StateAccess[F[_], A[_], S] extends StateAccess.Write[F, A, S] {
   def zoomState[S2](get: S => S2)(set: S2 => S => S): WithMappedState[S2]
 
   type WithEffect[F2[_]] <: StateAccess[F2, A, S]
-  def withEffect[F2[_]](implicit t: Trans[F, F2]): WithEffect[F2]
-  // TODO: FX final def withEffectsPure(implicit t: Trans[F, CallbackTo]): WithEffect[CallbackTo] = withEffect
-  final def withEffectsImpure(implicit t: Trans[F, Id]): WithEffect[Id] = withEffect
-  // TODO: FX: Add withAsyncEffect too
+  def withEffect[F2[_]](implicit t: UnsafeEffect.Sync.Trans[F, F2]): WithEffect[F2]
+  final def withEffectsPure(implicit t: UnsafeEffect.Sync.Trans[F, DefaultEffects.Sync]): WithEffect[DefaultEffects.Sync] = withEffect
+  final def withEffectsImpure(implicit t: UnsafeEffect.Sync.Trans[F, Id]): WithEffect[Id] = withEffect
+
+  type WithAsyncEffect[A2[_]] <: StateAccess[F, A2, S]
+  def withAsyncEffect[A2[_]](implicit t: SafeEffect.Async.Trans[A, A2]): WithAsyncEffect[A2]
 }
 
 object StateAccess {
@@ -38,7 +39,7 @@ object StateAccess {
     protected implicit def F: UnsafeEffect.Sync[F]
     protected implicit def A: SafeEffect.Async[A]
 
-    final protected def async(f: RawCallback => F[Unit]): A[Unit] =
+    final protected def async(f: SafeEffect.Sync.Untyped[Any] => F[Unit]): A[Unit] =
       A.async_(r => F.toJsFn0(f(r)))
   }
 
@@ -48,14 +49,14 @@ object StateAccess {
       setState(newState, SafeEffect.Sync.empty)
 
     /** @param callback Executed after state is changed. */
-    def setState[G[_], A](newState: S, callback: => G[A])(implicit G: SafeEffect.Sync[G]): F[Unit] =
+    def setState[G[_], B](newState: S, callback: => G[B])(implicit G: SafeEffect.Sync[G]): F[Unit] =
       setStateOption(Some(newState), callback)
 
     final def setStateOption(newState: Option[S]): F[Unit] =
       setStateOption(newState, SafeEffect.Sync.empty)
 
     /** @param callback Executed regardless of whether state is changed. */
-    def setStateOption[G[_], A](newState: Option[S], callback: => G[A])(implicit G: SafeEffect.Sync[G]): F[Unit]
+    def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: SafeEffect.Sync[G]): F[Unit]
 
     def toSetStateFn: SetStateFn[F, A, S] =
       SetStateFn(setStateOption(_, _))
@@ -73,14 +74,14 @@ object StateAccess {
       modState(mod, SafeEffect.Sync.empty)
 
     /** @param callback Executed after state is changed. */
-    def modState[G[_], A](mod: S => S, callback: => G[A])(implicit G: SafeEffect.Sync[G]): F[Unit] =
+    def modState[G[_], B](mod: S => S, callback: => G[B])(implicit G: SafeEffect.Sync[G]): F[Unit] =
       modStateOption(mod.andThen(Some(_)), callback)
 
     final def modStateOption(mod: S => Option[S]): F[Unit] =
       modStateOption(mod, SafeEffect.Sync.empty)
 
     /** @param callback Executed regardless of whether state is changed. */
-    def modStateOption[G[_], A](mod: S => Option[S], callback: => G[A])(implicit G: SafeEffect.Sync[G]): F[Unit]
+    def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: SafeEffect.Sync[G]): F[Unit]
 
     def toModStateFn: ModStateFn[F, A, S] =
       ModStateFn(modStateOption(_, _))
@@ -98,14 +99,14 @@ object StateAccess {
       modState(mod, SafeEffect.Sync.empty)
 
     /** @param callback Executed after state is changed. */
-    def modState[G[_], A](mod: (S, P) => S, callback: => G[A])(implicit G: SafeEffect.Sync[G]): F[Unit] =
+    def modState[G[_], B](mod: (S, P) => S, callback: => G[B])(implicit G: SafeEffect.Sync[G]): F[Unit] =
       modStateOption((s, p) => Some(mod(s, p)), callback)
 
     final def modStateOption(mod: (S, P) => Option[S]): F[Unit] =
       modStateOption(mod, SafeEffect.Sync.empty)
 
     /** @param callback Executed regardless of whether state is changed. */
-    def modStateOption[G[_], A](mod: (S, P) => Option[S], callback: => G[A])(implicit G: SafeEffect.Sync[G]): F[Unit]
+    def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: SafeEffect.Sync[G]): F[Unit]
 
     def toModStateWithPropsFn: ModStateWithPropsFn[F, A, P, S] =
       ModStateWithPropsFn(modStateOption(_, _))
@@ -127,11 +128,12 @@ object StateAccess {
 
   /** For testing. */
   def apply[F[_], A[_], S](stateFn: => F[S])
-                          (setItFn: (Option[S], RawCallback) => F[Unit],
-                           modItFn: ((S => Option[S]), RawCallback) => F[Unit])
+                          (setItFn: (Option[S], SafeEffect.Sync.Untyped[Any]) => F[Unit],
+                           modItFn: ((S => Option[S]), SafeEffect.Sync.Untyped[Any]) => F[Unit])
                           (implicit FF: UnsafeEffect.Sync[F], AA: SafeEffect.Async[A]): StateAccess[F, A, S] =
     new StateAccess[F, A, S] {
       override type WithEffect[F2[_]] = StateAccess[F2, A, S]
+      override type WithAsyncEffect[A2[_]] = StateAccess[F, A2, S]
       override type WithMappedState[S2] = StateAccess[F, A, S2]
 
       override protected implicit def F = FF
@@ -139,10 +141,10 @@ object StateAccess {
 
       override def state = stateFn
 
-      override def setStateOption[G[_], A](newState: Option[State], callback: => G[A])(implicit G: SafeEffect.Sync[G]) =
+      override def setStateOption[G[_], B](newState: Option[State], callback: => G[B])(implicit G: SafeEffect.Sync[G]) =
         setItFn(newState, G.toJsFn0(callback))
 
-      override def modStateOption[G[_], A](mod: State => Option[State], callback: => G[A])(implicit G: SafeEffect.Sync[G]) =
+      override def modStateOption[G[_], B](mod: State => Option[State], callback: => G[B])(implicit G: SafeEffect.Sync[G]) =
         modItFn(mod, G.toJsFn0(callback))
 
       override def xmapState[S2](f: S => S2)(g: S2 => S) =
@@ -161,17 +163,21 @@ object StateAccess {
           FF, AA)
       }
 
-      override def withEffect[F2[_]](implicit t: Trans[F, F2]) =
+      override def withEffect[F2[_]](implicit t: UnsafeEffect.Sync.Trans[F, F2]) =
         apply(
           t(stateFn))(
           (s, c) => t(setItFn(s, c)),
           (f, c) => t(modItFn(f, c)))(
           t.to, A)
+
+      override def withAsyncEffect[A2[_]](implicit t: SafeEffect.Async.Trans[A, A2]) =
+        apply(stateFn)(setItFn, modItFn)(F, t.to)
     }
 
   def const[F[_], A[_], S](stateFn: => F[S])(implicit FF: UnsafeEffect.Sync[F], AA: SafeEffect.Async[A]): StateAccess[F, A, S] =
     new StateAccess[F, A, S] {
       override type WithEffect[F2[_]] = StateAccess[F2, A, S]
+      override type WithAsyncEffect[A2[_]] = StateAccess[F, A2, S]
       override type WithMappedState[S2] = StateAccess[F, A, S2]
 
       override protected implicit def F = FF
@@ -179,10 +185,10 @@ object StateAccess {
 
       override def state = stateFn
 
-      override def setStateOption[G[_], A](newState: Option[State], callback: => G[A])(implicit G: SafeEffect.Sync[G]) =
+      override def setStateOption[G[_], B](newState: Option[State], callback: => G[B])(implicit G: SafeEffect.Sync[G]) =
         F.delay(G.runSync(callback))
 
-      override def modStateOption[G[_], A](mod: State => Option[State], callback: => G[A])(implicit G: SafeEffect.Sync[G]) =
+      override def modStateOption[G[_], B](mod: State => Option[State], callback: => G[B])(implicit G: SafeEffect.Sync[G]) =
         F.delay(G.runSync(callback))
 
       override def xmapState[S2](f: S => S2)(g: S2 => S) =
@@ -191,7 +197,10 @@ object StateAccess {
       override def zoomState[S2](get: S => S2)(set: S2 => S => S) =
         const(F.map(stateFn)(get))(FF, AA)
 
-      override def withEffect[F2[_]](implicit t: Trans[F, F2]) =
+      override def withEffect[F2[_]](implicit t: UnsafeEffect.Sync.Trans[F, F2]) =
         const(t(stateFn))(t.to, A)
-    }
+
+      override def withAsyncEffect[A2[_]](implicit t: SafeEffect.Async.Trans[A, A2]) =
+        const(stateFn)(F, t.to)
+   }
 }

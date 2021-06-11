@@ -40,7 +40,7 @@
     implicit lazy val idToCallback: Trans[Effect.Id, CallbackTo] = Trans[Effect.Id, CallbackTo]
     implicit lazy val callbackToId: Trans[CallbackTo, Effect.Id] = Trans[CallbackTo, Effect.Id]
 
-    final protected def async(f: RawCallback => F[Unit]): A[Unit] =
+    final protected def async(f: Untyped => F[Unit]): A[Unit] =
       AsyncCallback.viaCallback(cb => F.toCallback(f(cb)))
 
 ```

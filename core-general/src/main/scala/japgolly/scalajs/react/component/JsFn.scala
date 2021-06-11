@@ -1,10 +1,13 @@
 package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.util.JsUtil.jsNullToOption
-import japgolly.scalajs.react.internal._
-import japgolly.scalajs.react.{Callback, Children, CtorType, PropsChildren, facade, vdom}
+import japgolly.scalajs.react.util.Util.identityFn
+import japgolly.scalajs.react.util.SafeEffect.Sync
+import japgolly.scalajs.react.internal.{Box, Singleton}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, facade, vdom}
 import scala.annotation.implicitNotFound
 import scala.scalajs.js
+import scala.scalajs.LinkingInfo.developmentMode
 
 object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComponent] {
 
@@ -115,11 +118,16 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
-    override final def renderIntoDOM(container: facade.ReactDOM.Container, callback: Callback = Callback.empty): this.Mounted = {
-      val result = facade.ReactDOM.render(raw, container, callback.toJsFn)
+    override final def renderIntoDOM(container: facade.ReactDOM.Container): this.Mounted =
+      postRender(facade.ReactDOM.render(raw, container))
 
+    override final def renderIntoDOM[F[_], A](container: facade.ReactDOM.Container, callback: => F[A])(implicit F: Sync[F]): this.Mounted =
+      postRender(facade.ReactDOM.render(raw, container, F.toJsFn0(callback)))
+
+    private def postRender(result: facade.React.ComponentUntyped): this.Mounted = {
       // Protect against future React change.
-      assert(result eq null, "Expected rendered functional component to return null; not " + result)
+      if (developmentMode)
+        assert(result eq null, "Expected rendered functional component to return null; not " + result)
 
       mountRaw(result)
     }

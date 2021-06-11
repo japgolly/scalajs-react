@@ -60,17 +60,17 @@ object React extends React {
 
     def render(): React.Node = js.native
 
-    final def forceUpdate(callback: js.Function0[Unit] = js.native): Unit = js.native
+    final def forceUpdate(callback: js.Function0[Any] = js.native): Unit = js.native
 
-    final def setState(partialState: State | Null, callback: js.Function0[Unit] = js.native): Unit = js.native
+    final def setState(partialState: State | Null, callback: js.Function0[Any] = js.native): Unit = js.native
 
     @JSName("setState")
-    final def modState(updateFn: js.Function2[State, Props, State | Null], callback: js.Function0[Unit] = js.native): Unit = js.native
+    final def modState(updateFn: js.Function2[State, Props, State | Null], callback: js.Function0[Any] = js.native): Unit = js.native
 
-//    final def setState[SS >: S <: js.Object](partialState: SS, callback: js.Function0[Unit] = js.native): Unit = js.native
+//    final def setState[SS >: S <: js.Object](partialState: SS, callback: js.Function0[Any] = js.native): Unit = js.native
 //
 //    @JSName("setState")
-//    final def modState[SS >: S <: js.Object](updateFn: js.Function2[S, P, SS], callback: js.Function0[Unit] = js.native): Unit = js.native
+//    final def modState[SS >: S <: js.Object](updateFn: js.Function2[S, P, SS], callback: js.Function0[Any] = js.native): Unit = js.native
   }
 
   /** `Class[React.Component[P, S]]` */
