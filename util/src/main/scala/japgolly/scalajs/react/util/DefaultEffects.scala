@@ -3,22 +3,20 @@ package japgolly.scalajs.react.util
 trait DefaultEffects {
 
   type Async[A]
-  implicit def async: SafeEffect.Async[Async]
-  implicit def asyncEndo: SafeEffect.Async.Trans[Async, Async]
+  implicit def async: Effect.Async[Async]
 
   type Sync[A]
-  implicit def sync: SafeEffect.Sync[Sync]
+  implicit def sync: Effect.Sync[Sync]
   val syncEmpty: Sync[Unit]
 
 }
 
 object DefaultEffects extends DefaultEffects {
-  override type Async[A]          = SafeEffect.Async.Untyped[A]
-  override implicit def async     = SafeEffect.Async.untyped
-  override implicit val asyncEndo = SafeEffect.Async.Trans.id[Async]
+  override type Async[A]      = Effect.Async.Untyped[A]
+  override implicit val async = Effect.Async.untyped
 
-  override type Sync[A]           = SafeEffect.Sync.Untyped[A]
-  override implicit def sync      = SafeEffect.Sync.untyped
-  override val syncEmpty          = SafeEffect.Sync.empty
+  override type Sync[A]       = Effect.Sync.Untyped[A]
+  override implicit val sync  = Effect.Sync.untyped
+  override val syncEmpty      = Effect.Sync.empty
 
 }

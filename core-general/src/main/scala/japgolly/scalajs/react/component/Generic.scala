@@ -3,8 +3,7 @@ package japgolly.scalajs.react.component
 import japgolly.scalajs.react.internal.Profunctor
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA, Sync => DefaultS}
 import japgolly.scalajs.react.util.JsUtil
-import japgolly.scalajs.react.util.UnsafeEffect.Id
-import japgolly.scalajs.react.util.SafeEffect.Sync
+import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.{ComponentDom, CtorType, Key, PropsChildren, StateAccess, facade, vdom}
 import scala.scalajs.js
 import scala.scalajs.js.|

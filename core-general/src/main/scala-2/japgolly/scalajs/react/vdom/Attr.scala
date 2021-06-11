@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.facade
-import japgolly.scalajs.react.util.{OptionLike, SafeEffect}
+import japgolly.scalajs.react.util.Effect._
+import japgolly.scalajs.react.util.OptionLike
 import japgolly.scalajs.react.vdom.Attr.ValueType
 import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound, nowarn}
@@ -64,16 +65,16 @@ object Attr {
     override def :=[A](a: A)(implicit t: ValueType[A, EventHandler[E]]): TagMod =
       TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Any]]), a))
 
-    def -->[F[_], A](callback: => F[A])(implicit F: SafeEffect.Sync[F]): TagMod =
+    def -->[F[_], A](callback: => F[A])(implicit F: Sync[F]): TagMod =
       :=(F.toJsFn0(callback))(ValueType.direct)
 
-    def ==>[F[_], A](eventHandler: Event => F[A])(implicit F: SafeEffect.Sync[F]): TagMod =
+    def ==>[F[_], A](eventHandler: Event => F[A])(implicit F: Sync[F]): TagMod =
       :=(F.toJsFn1(eventHandler))(ValueType.direct)
 
-    def -->?[O[_], F[_], A](callback: => O[F[A]])(implicit F: SafeEffect.Sync[F], O: OptionLike[O]): TagMod =
+    def -->?[O[_], F[_], A](callback: => O[F[A]])(implicit F: Sync[F], O: OptionLike[O]): TagMod =
       this --> F.option_(callback)(O)
 
-    def ==>?[O[_], F[_], A](eventHandler: Event => O[F[A]])(implicit F: SafeEffect.Sync[F], O: OptionLike[O]): TagMod =
+    def ==>?[O[_], F[_], A](eventHandler: Event => O[F[A]])(implicit F: Sync[F], O: OptionLike[O]): TagMod =
       ==>(e => F.option_(eventHandler(e))(O))
   }
 

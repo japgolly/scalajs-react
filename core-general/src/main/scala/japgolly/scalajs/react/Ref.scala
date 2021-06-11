@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.util.DefaultEffects._
-import japgolly.scalajs.react.util.UnsafeEffect.Id
+import japgolly.scalajs.react.util.Effect.Id
 import japgolly.scalajs.react.util.JsUtil.jsNullToOption
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.TopNode

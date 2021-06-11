@@ -4,9 +4,7 @@ import japgolly.scalajs.react.util.JsUtil.jsNullToOption
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
-import japgolly.scalajs.react.util.SafeEffect
-import japgolly.scalajs.react.util.UnsafeEffect
-import japgolly.scalajs.react.util.UnsafeEffect.Id
+import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.internal.Lens
 import japgolly.scalajs.react.{Children, ComponentDom, CtorType, PropsChildren, facade}
 import scala.scalajs.js
@@ -132,10 +130,10 @@ object Js extends JsBaseComponentTemplate[facade.React.ComponentClassP] {
   type MountedRoot[F[_], A[_], P <: js.Object, S <: js.Object, R <: RawMounted[P, S]] = MountedWithRoot[F, A, P, S, R, P, S]
 
   def mountedRoot[P <: js.Object, S <: js.Object, R <: RawMounted[P, S]](r: R): MountedRoot[Id, DefaultA, P, S, R] =
-    new Template.MountedWithRoot[Id, DefaultA, P, S]()(UnsafeEffect.Sync.idEndo, DefaultEffects.asyncEndo)
+    new Template.MountedWithRoot[Id, DefaultA, P, S]()(UnsafeSync.id, DefaultEffects.async)
         with MountedRoot[Id, DefaultA, P, S, R] {
 
-      override implicit def F    = UnsafeEffect.Sync.id
+      override implicit def F    = UnsafeSync.id
       override implicit def A    = DefaultEffects.async
       override def root          = this
       override val raw           = r
@@ -144,48 +142,48 @@ object Js extends JsBaseComponentTemplate[facade.React.ComponentClassP] {
       override def state         = raw.state
       override def getDOMNode    = ComponentDom.findDOMNode(raw)
 
-      override def setState[G[_], B](state: S, callback: => G[B])(implicit G: SafeEffect.Sync[G]): Unit =
+      override def setState[G[_], B](state: S, callback: => G[B])(implicit G: Sync[G]): Unit =
         raw.setState(state, G.toJsFn0(callback))
 
-      override def modState[G[_], B](mod: S => S, callback: => G[B])(implicit G: SafeEffect.Sync[G]): Unit = {
+      override def modState[G[_], B](mod: S => S, callback: => G[B])(implicit G: Sync[G]): Unit = {
         val jsFn1 = mod: js.Function1[S, S]
         val jsFn2 = jsFn1.asInstanceOf[js.Function2[S, P, S | Null]]
         raw.modState(jsFn2, G.toJsFn0(callback))
       }
 
-      override def modState[G[_], B](mod: (S, P) => S, callback: => G[B])(implicit G: SafeEffect.Sync[G]): Unit = {
+      override def modState[G[_], B](mod: (S, P) => S, callback: => G[B])(implicit G: Sync[G]): Unit = {
         val jsFn1 = mod: js.Function2[S, P, S]
         val jsFn2 = jsFn1.asInstanceOf[js.Function2[S, P, S | Null]]
         raw.modState(jsFn2, G.toJsFn0(callback))
       }
 
-      override def setStateOption[G[_], B](state: Option[S], callback: => G[B])(implicit G: SafeEffect.Sync[G]): Unit =
+      override def setStateOption[G[_], B](state: Option[S], callback: => G[B])(implicit G: Sync[G]): Unit =
         setState(state getOrElse null.asInstanceOf[S], callback)
 
-      override def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: SafeEffect.Sync[G]): Unit =
+      override def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Sync[G]): Unit =
         modState(mod(_) getOrElse null.asInstanceOf[S], callback)
 
-      override def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: SafeEffect.Sync[G]): Unit =
+      override def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: Sync[G]): Unit =
         modState(mod(_, _) getOrElse null.asInstanceOf[S], callback)
 
-      override def forceUpdate[G[_], B](callback: => G[B])(implicit G: SafeEffect.Sync[G]): Unit =
+      override def forceUpdate[G[_], B](callback: => G[B])(implicit G: Sync[G]): Unit =
         raw.forceUpdate(G.toJsFn0(callback))
 
       override type Mapped[F1[_], A1[_], P1, S1] = MountedWithRoot[F1, A1, P1, S1, R, P, S]
-      override def mapped[F[_], A[_], P1, S1](mp: P => P1, ls: Lens[S, S1])(implicit F: UnsafeEffect.Sync.Trans[Id, F], A: SafeEffect.Async.Trans[DefaultA, A]) =
+      override def mapped[F[_], A[_], P1, S1](mp: P => P1, ls: Lens[S, S1])(implicit F: UnsafeSync[F], A: Async[A]) =
         mappedM(this)(mp, ls)
     }
 
   private def mappedM[F[_], A[_], P2, S2, P1, S1, R <: RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object]
       (from: MountedWithRoot[Id, DefaultA, P1, S1, R, P0, S0])
       (mp: P1 => P2, ls: Lens[S1, S2])
-      (implicit ft: UnsafeEffect.Sync.Trans[Id, F], at: SafeEffect.Async.Trans[DefaultA, A])
+      (implicit ft: UnsafeSync[F], at: Async[A])
       : MountedWithRoot[F, A, P2, S2, R, P0, S0] =
     new Template.MountedMapped[F, A, P2, S2, P1, S1, P0, S0](from)(mp, ls) with MountedWithRoot[F, A, P2, S2, R, P0, S0] {
-      override def root = from.root.withEffect[F].withAsyncEffect[A]
+      override def root = from.root.withEffect(ft).withAsyncEffect(at)
       override val raw = from.raw
       override type Mapped[F3[_], A3[_], P3, S3] = MountedWithRoot[F3, A3, P3, S3, R, P0, S0]
-      override def mapped[F3[_], A3[_], P3, S3](mp: P1 => P3, ls: Lens[S1, S3])(implicit ft: UnsafeEffect.Sync.Trans[Id, F3], at: SafeEffect.Async.Trans[DefaultA, A3]) =
+      override def mapped[F3[_], A3[_], P3, S3](mp: P1 => P3, ls: Lens[S1, S3])(implicit ft: UnsafeSync[F3], at: Async[A3]) =
         mappedM(from)(mp, ls)(ft, at)
     }
 
