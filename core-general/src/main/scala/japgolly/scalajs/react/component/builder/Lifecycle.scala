@@ -1,31 +1,35 @@
 package japgolly.scalajs.react.component.builder
 
-import japgolly.scalajs.react.component.Scala.{MountedImpure, MountedPure, RawMounted}
+import japgolly.scalajs.react.component.Scala
+import japgolly.scalajs.react.component.Scala.RawMounted
 import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.facade.React
-import japgolly.scalajs.react.internal.{Effect, Lens, NotAllowed, Semigroup}
-import japgolly.scalajs.react.{Callback, CallbackTo, ComponentDom, PropsChildren, ReactCaughtError, StateAccess}
+import japgolly.scalajs.react.util._
+import japgolly.scalajs.react.util.Effect._
+import japgolly.scalajs.react.internal.Lens
+import japgolly.scalajs.react.{ComponentDom, PropsChildren, ReactCaughtError, StateAccess}
 import scala.scalajs.js
+import scala.scalajs.LinkingInfo.developmentMode
 
-final case class Lifecycle[P, S, B, SS](
-      componentDidCatch        : Option[ComponentDidCatchFn        [P, S, B]],
-      componentDidMount        : Option[ComponentDidMountFn        [P, S, B]],
-      componentDidUpdate       : Option[ComponentDidUpdateFn       [P, S, B, SS]],
-      componentWillMount       : Option[ComponentWillMountFn       [P, S, B]],
-      componentWillReceiveProps: Option[ComponentWillReceivePropsFn[P, S, B]],
-      componentWillUnmount     : Option[ComponentWillUnmountFn     [P, S, B]],
-      componentWillUpdate      : Option[ComponentWillUpdateFn      [P, S, B]],
-      getDerivedStateFromProps : Option[GetDerivedStateFromPropsFn [P, S]],
-      getSnapshotBeforeUpdate  : Option[GetSnapshotBeforeUpdateFn  [P, S, B, SS]],
-      shouldComponentUpdate    : Option[ShouldComponentUpdateFn    [P, S, B]]) {
+final case class Lifecycle[F[_], A[_], P, S, B, SS](
+      componentDidCatch        : Option[ComponentDidCatchFn        [F, A, P, S, B]],
+      componentDidMount        : Option[ComponentDidMountFn        [F, A, P, S, B]],
+      componentDidUpdate       : Option[ComponentDidUpdateFn       [F, A, P, S, B, SS]],
+      componentWillMount       : Option[ComponentWillMountFn       [F, A, P, S, B]],
+      componentWillReceiveProps: Option[ComponentWillReceivePropsFn[F, A, P, S, B]],
+      componentWillUnmount     : Option[ComponentWillUnmountFn     [F, A, P, S, B]],
+      componentWillUpdate      : Option[ComponentWillUpdateFn      [F, A, P, S, B]],
+      getDerivedStateFromProps : Option[GetDerivedStateFromPropsFn [   P, S]],
+      getSnapshotBeforeUpdate  : Option[GetSnapshotBeforeUpdateFn  [F, A, P, S, B, SS]],
+      shouldComponentUpdate    : Option[ShouldComponentUpdateFn    [F, A, P, S, B]]) {
 
-  type This = Lifecycle[P, S, B, SS]
+  type This = Lifecycle[F, A, P, S, B, SS]
 
-  def append[I, O](lens: Lens[Lifecycle[P, S, B, SS], Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
+  def append[I, O](lens: Lens[Lifecycle[F, A, P, S, B, SS], Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
     lens.mod(o => Some(o.fold(g)(f => i => s.append(f(i), g(i)))))(this)
 
-  def resetSnapshot[SS2](componentDidUpdate     : Option[ComponentDidUpdateFn     [P, S, B, SS2]],
-                         getSnapshotBeforeUpdate: Option[GetSnapshotBeforeUpdateFn[P, S, B, SS2]]): Lifecycle[P, S, B, SS2] =
+  def resetSnapshot[SS2](componentDidUpdate     : Option[ComponentDidUpdateFn     [F, A, P, S, B, SS2]],
+                         getSnapshotBeforeUpdate: Option[GetSnapshotBeforeUpdateFn[F, A, P, S, B, SS2]]): Lifecycle[F, A, P, S, B, SS2] =
     Lifecycle(
       componentDidCatch         = componentDidCatch        ,
       componentDidMount         = componentDidMount        ,
@@ -42,70 +46,76 @@ final case class Lifecycle[P, S, B, SS](
 object Lifecycle {
   type NoSnapshot = Unit
 
-  def empty[P, S, B]: Lifecycle[P, S, B, NoSnapshot] =
+  def empty[F[_], A[_], P, S, B]: Lifecycle[F, A, P, S, B, NoSnapshot] =
     new Lifecycle(None, None, None, None, None, None, None, None, None, None)
 
-  sealed trait Base[P, S, B] extends Any {
+  sealed abstract class Base[F[_], A[_], P, S, B](final val raw: RawMounted[P, S, B])(implicit f: Sync[F], a: Async[A]) {
 
-    protected implicit def F: Effect[CallbackTo] = Effect.callbackInstance
+    protected final implicit def F = f
+    protected final implicit def A = a
 
-    def raw: RawMounted[P, S, B]
-
-    final def backend      : B                      = raw.backend
-    final def mountedImpure: MountedImpure[P, S, B] = raw.mountedImpure
-    final def mountedPure  : MountedPure[P, S, B]   = raw.mountedPure
+    final def backend      : B                            = raw.backend
+    final def mountedImpure: Scala.MountedImpure[P, S, B] = raw.mountedImpure
+    final def mountedPure  : Scala.Mounted[F, A, P, S, B] = raw.mountedPure.withEffect(F).withAsyncEffect(A)
   }
 
-  sealed trait StateW[P, S, B] extends Any with Base[P, S, B] with StateAccess.WriteWithProps[CallbackTo, P, S] {
+  sealed trait StateW[F[_], A[_], P, S, B] extends StateAccess.WriteWithProps[F, A, P, S] { self: Base[F, A, P, S, B] =>
+
     /** @param callback Executed after state is changed. */
-    final override def setState(newState: S, callback: Callback): Callback =
+    final override def setState[G[_], B](newState: S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
       mountedPure.setState(newState, callback)
 
     /** @param callback Executed after state is changed. */
-    final override def modState(mod: S => S, callback: Callback): Callback =
+    final override def modState[G[_], B](mod: S => S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
       mountedPure.modState(mod, callback)
 
     /** @param callback Executed after state is changed. */
-    final override def modState(mod: (S, P) => S, callback: Callback): Callback =
+    final override def modState[G[_], B](mod: (S, P) => S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
       mountedPure.modState(mod, callback)
 
     /** @param callback Executed regardless of whether state is changed. */
-    final override def setStateOption(newState: Option[S], callback: Callback): Callback =
+    final override def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit] =
       mountedPure.setStateOption(newState, callback)
 
     /** @param callback Executed regardless of whether state is changed. */
-    final override def modStateOption(mod: S => Option[S], callback: Callback): Callback =
+    final override def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit] =
       mountedPure.modStateOption(mod, callback)
 
     /** @param callback Executed regardless of whether state is changed. */
-    final override def modStateOption(mod: (S, P) => Option[S], callback: Callback): Callback =
+    final override def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit] =
       mountedPure.modStateOption(mod, callback)
   }
 
-  sealed trait StateRW[P, S, B] extends Any with StateW[P, S, B] {
+  sealed trait StateRW[F[_], A[_], P, S, B] extends StateW[F, A, P, S, B] { self: Base[F, A, P, S, B] =>
     final def state: S = mountedImpure.state
   }
 
-  sealed trait ForceUpdate[P, S, B] extends Any with Base[P, S, B] {
-    final def forceUpdate: Callback = forceUpdate(Callback.empty)
-    final def forceUpdate(cb: Callback): Callback = mountedPure.forceUpdate(cb)
+  sealed trait ForceUpdate[F[_], A[_], P, S, B] { self: Base[F, A, P, S, B] =>
+    final def forceUpdate: F[Unit] =
+      forceUpdate(Sync.empty)
+
+    final def forceUpdate[G[_], B](callback: => G[B])(implicit G: Sync[G]): F[Unit] =
+      mountedPure.forceUpdate(callback)
   }
 
-  private def wrapTostring(toString: String) = toString
-    .replaceAll("undefined → undefined", "undefined")
-    .replace("props" +
-      ": undefined, ", "")
-    .replace("state: undefined)", ")")
-    .replace(", )", ")")
+  private def wrapTostring(toString: String) =
+    if (developmentMode)
+      toString
+        .replaceAll("undefined → undefined", "undefined")
+        .replace("props: undefined, ", "")
+        .replace("state: undefined)", ")")
+        .replace(", )", ")")
+    else
+      toString
 
   // ===================================================================================================================
 
-  def componentDidCatch[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentDidCatch)(n => _.copy(componentDidCatch = n))
+  def componentDidCatch[F[_], A[_], P, S, B, SS] = Lens((_: Lifecycle[F, A, P, S, B, SS]).componentDidCatch)(n => _.copy(componentDidCatch = n))
 
-  type ComponentDidCatchFn[P, S, B] = ComponentDidCatch[P, S, B] => Callback
+  type ComponentDidCatchFn[F[_], A[_], P, S, B] = ComponentDidCatch[F, A, P, S, B] => F[Unit]
 
-  final class ComponentDidCatch[P, S, B](val raw: RawMounted[P, S, B], rawError: js.Any, rawInfo: React.ErrorInfo)
-      extends StateRW[P, S, B] with ForceUpdate[P, S, B] {
+  final class ComponentDidCatch[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B], rawError: js.Any, rawInfo: React.ErrorInfo)
+      extends Base[F, A, P, S, B](raw) with StateRW[F, A, P, S, B] with ForceUpdate[F, A, P, S, B] {
 
     val error = ReactCaughtError(rawError, rawInfo)
 
@@ -118,12 +128,12 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentDidMount[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentDidMount)(n => _.copy(componentDidMount = n))
+  def componentDidMount[F[_], A[_], P, S, B, SS] = Lens((_: Lifecycle[F, A, P, S, B, SS]).componentDidMount)(n => _.copy(componentDidMount = n))
 
-  type ComponentDidMountFn[P, S, B] = ComponentDidMount[P, S, B] => Callback
+  type ComponentDidMountFn[F[_], A[_], P, S, B] = ComponentDidMount[F, A, P, S, B] => F[Unit]
 
-  final class ComponentDidMount[P, S, B](val raw: RawMounted[P, S, B])
-      extends AnyVal with StateRW[P, S, B] with ForceUpdate[P, S, B] {
+  final class ComponentDidMount[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
+      extends Base[F, A, P, S, B](raw) with StateRW[F, A, P, S, B] with ForceUpdate[F, A, P, S, B] {
 
     override def toString = wrapTostring(s"ComponentDidMount(props: $props, state: $state)")
 
@@ -134,13 +144,12 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentDidUpdate[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentDidUpdate)(n => _.copy(componentDidUpdate = n))
+  def componentDidUpdate[F[_], A[_], P, S, B, SS] = Lens((_: Lifecycle[F, A, P, S, B, SS]).componentDidUpdate)(n => _.copy(componentDidUpdate = n))
 
-  type ComponentDidUpdateFn[P, S, B, SS] = ComponentDidUpdate[P, S, B, SS] => Callback
+  type ComponentDidUpdateFn[F[_], A[_], P, S, B, SS] = ComponentDidUpdate[F, A, P, S, B, SS] => F[Unit]
 
-  final class ComponentDidUpdate[P, S, B, SS](val raw: RawMounted[P, S, B],
-                                              val prevProps: P, val prevState: S, val snapshot: SS)
-      extends StateW[P, S, B] with ForceUpdate[P, S, B] {
+  final class ComponentDidUpdate[F[_]: Sync, A[_]: Async, P, S, B, SS](raw: RawMounted[P, S, B], val prevProps: P, val prevState: S, val snapshot: SS)
+      extends Base[F, A, P, S, B](raw) with StateW[F, A, P, S, B] with ForceUpdate[F, A, P, S, B] {
 
     override def toString = wrapTostring(s"ComponentDidUpdate(props: $prevProps → $currentProps, state: $prevState → $currentState)")
 
@@ -152,12 +161,12 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentWillMount[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentWillMount)(n => _.copy(componentWillMount = n))
+  def componentWillMount[F[_], A[_], P, S, B, SS] = Lens((_: Lifecycle[F, A, P, S, B, SS]).componentWillMount)(n => _.copy(componentWillMount = n))
 
-  type ComponentWillMountFn[P, S, B] = ComponentWillMount[P, S, B] => Callback
+  type ComponentWillMountFn[F[_], A[_], P, S, B] = ComponentWillMount[F, A, P, S, B] => F[Unit]
 
-  final class ComponentWillMount[P, S, B](val raw: RawMounted[P, S, B])
-      extends AnyVal with StateRW[P, S, B] {
+  final class ComponentWillMount[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
+      extends Base[F, A, P, S, B](raw) with StateRW[F, A, P, S, B] {
 
     override def toString = wrapTostring(s"ComponentWillMount(props: $props, state: $state)")
 
@@ -173,12 +182,12 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentWillUnmount[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentWillUnmount)(n => _.copy(componentWillUnmount = n))
+  def componentWillUnmount[F[_], A[_], P, S, B, SS] = Lens((_: Lifecycle[F, A, P, S, B, SS]).componentWillUnmount)(n => _.copy(componentWillUnmount = n))
 
-  type ComponentWillUnmountFn[P, S, B] = ComponentWillUnmount[P, S, B] => Callback
+  type ComponentWillUnmountFn[F[_], A[_], P, S, B] = ComponentWillUnmount[F, A, P, S, B] => F[Unit]
 
-  final class ComponentWillUnmount[P, S, B](val raw: RawMounted[P, S, B])
-      extends AnyVal with Base[P, S, B] {
+  final class ComponentWillUnmount[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
+      extends Base[F, A, P, S, B](raw) {
 
     override def toString = wrapTostring(s"ComponentWillUnmount(props: $props, state: $state)")
 
@@ -199,12 +208,12 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentWillReceiveProps[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentWillReceiveProps)(n => _.copy(componentWillReceiveProps = n))
+  def componentWillReceiveProps[F[_], A[_], P, S, B, SS] = Lens((_: Lifecycle[F, A, P, S, B, SS]).componentWillReceiveProps)(n => _.copy(componentWillReceiveProps = n))
 
-  type ComponentWillReceivePropsFn[P, S, B] = ComponentWillReceiveProps[P, S, B] => Callback
+  type ComponentWillReceivePropsFn[F[_], A[_], P, S, B] = ComponentWillReceiveProps[F, A, P, S, B] => F[Unit]
 
-  final class ComponentWillReceiveProps[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P)
-      extends StateRW[P, S, B] with ForceUpdate[P, S, B] {
+  final class ComponentWillReceiveProps[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B], val nextProps: P)
+      extends Base[F, A, P, S, B](raw) with StateRW[F, A, P, S, B] with ForceUpdate[F, A, P, S, B] {
 
     override def toString = wrapTostring(s"ComponentWillReceiveProps(props: $currentProps → $nextProps, state: $state)")
 
@@ -215,12 +224,12 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def componentWillUpdate[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).componentWillUpdate)(n => _.copy(componentWillUpdate = n))
+  def componentWillUpdate[F[_], A[_], P, S, B, SS] = Lens((_: Lifecycle[F, A, P, S, B, SS]).componentWillUpdate)(n => _.copy(componentWillUpdate = n))
 
-  type ComponentWillUpdateFn[P, S, B] = ComponentWillUpdate[P, S, B] => Callback
+  type ComponentWillUpdateFn[F[_], A[_], P, S, B] = ComponentWillUpdate[F, A, P, S, B] => F[Unit]
 
-  final class ComponentWillUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
-      extends Base[P, S, B] {
+  final class ComponentWillUpdate[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
+      extends Base[F, A, P, S, B](raw) {
 
     override def toString = wrapTostring(s"ComponentWillUpdate(props: $currentProps → $nextProps, state: $currentState → $nextState)")
 
@@ -241,18 +250,18 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def getDerivedStateFromProps[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).getDerivedStateFromProps)(n => _.copy(getDerivedStateFromProps = n))
+  def getDerivedStateFromProps[F[_], A[_], P, S, B, SS] = Lens((_: Lifecycle[F, A, P, S, B, SS]).getDerivedStateFromProps)(n => _.copy(getDerivedStateFromProps = n))
 
   type GetDerivedStateFromPropsFn[P, S] = (P, S) => Option[S]
 
   // ===================================================================================================================
 
-  def getSnapshotBeforeUpdate[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).getSnapshotBeforeUpdate)(n => _.copy(getSnapshotBeforeUpdate = n))
+  def getSnapshotBeforeUpdate[F[_], A[_], P, S, B, SS] = Lens((_: Lifecycle[F, A, P, S, B, SS]).getSnapshotBeforeUpdate)(n => _.copy(getSnapshotBeforeUpdate = n))
 
-  type GetSnapshotBeforeUpdateFn[P, S, B, SS] = GetSnapshotBeforeUpdate[P, S, B] => CallbackTo[SS]
+  type GetSnapshotBeforeUpdateFn[F[_], A[_], P, S, B, SS] = GetSnapshotBeforeUpdate[F, A, P, S, B] => F[SS]
 
-  final class GetSnapshotBeforeUpdate[P, S, B](val raw: RawMounted[P, S, B], val prevProps: P, val prevState: S)
-      extends Base[P, S, B] {
+  final class GetSnapshotBeforeUpdate[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B], val prevProps: P, val prevState: S)
+      extends Base[F, A, P, S, B](raw) {
 
     override def toString = wrapTostring(s"GetSnapshotBeforeUpdate(props: $prevProps → $currentProps, state: $prevState → $currentState)")
 
@@ -276,12 +285,12 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  def shouldComponentUpdate[P, S, B, SS] = Lens((_: Lifecycle[P, S, B, SS]).shouldComponentUpdate)(n => _.copy(shouldComponentUpdate = n))
+  def shouldComponentUpdate[F[_], A[_], P, S, B, SS] = Lens((_: Lifecycle[F, A, P, S, B, SS]).shouldComponentUpdate)(n => _.copy(shouldComponentUpdate = n))
 
-  type ShouldComponentUpdateFn[P, S, B] = ShouldComponentUpdate[P, S, B] => CallbackTo[Boolean]
+  type ShouldComponentUpdateFn[F[_], A[_], P, S, B] = ShouldComponentUpdate[F, A, P, S, B] => F[Boolean]
 
-  final class ShouldComponentUpdate[P, S, B](val raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
-      extends Base[P, S, B] {
+  final class ShouldComponentUpdate[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
+      extends Base[F, A, P, S, B](raw) {
 
     override def toString = wrapTostring(s"ShouldComponentUpdate(props: $currentProps → $nextProps, state: $currentState → $nextState)")
 
@@ -305,8 +314,8 @@ object Lifecycle {
 
   // ===================================================================================================================
 
-  final class RenderScope[P, S, B](val raw: RawMounted[P, S, B])
-      extends AnyVal with StateRW[P, S, B] with ForceUpdate[P, S, B] {
+  final class RenderScope[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
+      extends Base[F, A, P, S, B](raw) with StateRW[F, A, P, S, B] with ForceUpdate[F, A, P, S, B] {
 
     override def toString = wrapTostring(s"Render(props: $props, state: $state)")
 

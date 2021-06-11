@@ -21,12 +21,6 @@
 
 ```scala
 
-  implicit val callback: Semigroup[Callback] =
-    Semigroup(_ >> _)
-
-  val eitherCB: Semigroup[CallbackTo[Boolean]] =
-    Semigroup(_ || _)
-
 
   implicit val callbackInstance: Effect[CallbackTo] = new Effect[CallbackTo] {
     override def point     [A]   (a: => A)                                 = CallbackTo(a)
