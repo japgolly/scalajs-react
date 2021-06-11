@@ -44,7 +44,16 @@ object Effect
 
   // ===================================================================================================================
 
-  trait Sync[F[_]] extends UnsafeSync[F]
+  trait Sync[F[_]] extends UnsafeSync[F] {
+
+    val empty: F[Unit]
+
+    implicit val semigroupSyncUnit: Semigroup[F[Unit]] =
+      Semigroup((f, g) => flatMap(f)(_ => g))
+
+    val semigroupSyncOr: Semigroup[F[Boolean]] =
+      Semigroup((f, g) => delay(runSync(f) || runSync(g)))
+  }
 
   object Sync {
     type Untyped[A] = js.Function0[A]
@@ -54,6 +63,7 @@ object Effect
 
     implicit val untyped: Sync[Untyped] = new Sync[Untyped] {
       type F[A] = Untyped[A]
+      override val empty                                                        = Sync.empty
       override def delay  [A]      (a: => A)                                    = () => a
       override def pure   [A]      (a: A)                                       = () => a
       override def map    [A, B]   (fa: F[A])(f: A => B)                        = () => f(fa())

@@ -45,7 +45,7 @@ object Ref {
     final def foreachCB(f: A => Sync[Unit]): Sync[Unit] =
       sync.flatMap(get) {
         case Some(a) => f(a)
-        case None    => syncEmpty
+        case None    => sync.empty
       }
 
     /** Get the reference immediately.

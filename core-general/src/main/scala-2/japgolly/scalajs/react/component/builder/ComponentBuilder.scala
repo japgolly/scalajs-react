@@ -3,15 +3,18 @@ package japgolly.scalajs.react.component.builder
 import japgolly.scalajs.react.component.Scala.{BackendScope, Vars}
 import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.component.{Js, Scala}
-import japgolly.scalajs.react.internal.{Box, Lens, Semigroup}
+import japgolly.scalajs.react.internal.{Box, Lens}
+import japgolly.scalajs.react.util.Semigroup
+import japgolly.scalajs.react.util.DefaultEffects._
+import japgolly.scalajs.react.util.DefaultEffects.sync.semigroupSyncUnit
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, UpdateSnapshot, facade}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, UpdateSnapshot, facade}
 import scala.annotation.nowarn
 
 object ComponentBuilder {
 
   type NewBackendFn[P, S, B] = BackendScope[P, S] => B
-  type RenderFn    [P, S, B] = RenderScope[P, S, B] => VdomNode
+  type RenderFn    [P, S, B] = RenderScope[Sync, Async, P, S, B] => VdomNode
 
   type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
     Step4[P, C, S, B, US] => Step4[P, C, S, B, US2]
@@ -99,11 +102,11 @@ object ComponentBuilder {
     def initialStateFromProps[S](f: P => S): Step2[P, S] =
       new Step2(name, InitState.InitialState(p => Box(f(p.unbox))))
 
-    def initialStateCallback[S](cb: CallbackTo[S]): Step2[P, S] =
-      initialState(cb.runNow())
+    def initialStateCallback[S](cb: Sync[S]): Step2[P, S] =
+      initialState(sync.runSync(cb))
 
-    def initialStateCallbackFromProps[S](f: P => CallbackTo[S]): Step2[P, S] =
-      initialStateFromProps(f(_).runNow())
+    def initialStateCallbackFromProps[S](f: P => Sync[S]): Step2[P, S] =
+      initialStateFromProps(p => sync.runSync(f(p)))
 
     def stateless: Step2[P, Unit] =
       new Step2(name, InitState.stateless)
@@ -170,10 +173,10 @@ object ComponentBuilder {
     */
   final class Step3[P, S, B](name: String, initState: InitState[P, S], backendFn: NewBackendFn[P, S, B]) {
 
-    type $ = RenderScope[P, S, B]
+    type $ = RenderScope[Sync, Async, P, S, B]
 
     def renderWith[C <: Children](r: RenderFn[P, S, B]): Step4[P, C, S, B, UpdateSnapshot.None] = {
-      var lc = Lifecycle.empty[P, S, B]
+      var lc = Lifecycle.empty[Sync, Async, P, S, B]
       initState match {
         case InitState.DerivedFromProps        (f) => lc = lc.copy(getDerivedStateFromProps = Some((p, _) => Some(f(p))))
         case InitState.DerivedFromPropsAndState(f) => lc = lc.copy(getDerivedStateFromProps = Some((p, s) => Some(f(p, Some(s)))))
@@ -267,13 +270,13 @@ object ComponentBuilder {
       private[builder] val initState: InitState[P, S],
       private[builder] val backendFn: NewBackendFn[P, S, B],
       private[builder] val renderFn : RenderFn[P, S, B],
-      private[builder] val lifecycle: Lifecycle[P, S, B, US#Value]) {
+      private[builder] val lifecycle: Lifecycle[Sync, Async, P, S, B, US#Value]) {
 
     type This = Step4[P, C, S, B, US]
 
     type SnapshotValue = US#Value
 
-    private type Lifecycle_ = Lifecycle[P, S, B, SnapshotValue]
+    private type Lifecycle_ = Lifecycle[Sync, Async, P, S, B, SnapshotValue]
 
     private def copy(name     : String                = this.name,
                      initState: InitState [P, S]      = this.initState,
@@ -282,7 +285,7 @@ object ComponentBuilder {
                      lifecycle: Lifecycle_): This =
       new Step4(name, initState, backendFn, renderFn, lifecycle)
 
-    private def setLC[US2 <: UpdateSnapshot](lc: Lifecycle[P, S, B, US2#Value]): Step4[P, C, S, B, US2] =
+    private def setLC[US2 <: UpdateSnapshot](lc: Lifecycle[Sync, Async, P, S, B, US2#Value]): Step4[P, C, S, B, US2] =
       new Step4(name, initState, backendFn, renderFn, lc)
 
     private def lcAppend[I, O](lens: Lens[Lifecycle_, Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
@@ -304,7 +307,7 @@ object ComponentBuilder {
       *
       * Note: "CHILD COMPONENT TREE". Components cannot catch errors in themselves, only their children.
       */
-    def componentDidCatch(f: ComponentDidCatchFn[P, S, B]): This =
+    def componentDidCatch(f: ComponentDidCatchFn[Sync, Async, P, S, B]): This =
       lcAppend(Lifecycle.componentDidCatch)(f)
 
     /**
@@ -315,7 +318,7 @@ object ComponentBuilder {
      * If you want to integrate with other JavaScript frameworks, set timers using `setTimeout` or `setInterval`, or send
      * AJAX requests, perform those operations in this method.
      */
-    def componentDidMount(f: ComponentDidMountFn[P, S, B]): This =
+    def componentDidMount(f: ComponentDidMountFn[Sync, Async, P, S, B]): This =
       lcAppend(Lifecycle.componentDidMount)(f)
 
     /**
@@ -324,7 +327,7 @@ object ComponentBuilder {
      *
      * Use this as an opportunity to operate on the DOM when the component has been updated.
      */
-    def componentDidUpdate(f: ComponentDidUpdateFn[P, S, B, SnapshotValue]): Step4[P, C, S, B, UpdateSnapshot.Some[SnapshotValue]] =
+    def componentDidUpdate(f: ComponentDidUpdateFn[Sync, Async, P, S, B, SnapshotValue]): Step4[P, C, S, B, UpdateSnapshot.Some[SnapshotValue]] =
       setLC[UpdateSnapshot.Some[SnapshotValue]](lcAppend(Lifecycle.componentDidUpdate)(f).lifecycle)
 
     /**
@@ -335,7 +338,7 @@ object ComponentBuilder {
     @deprecated(
       "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillMount(f: ComponentWillMountFn[P, S, B]): This =
+    def componentWillMount(f: ComponentWillMountFn[Sync, Async, P, S, B]): This =
       lcAppend(Lifecycle.componentWillMount)(f)
 
     /**
@@ -352,7 +355,7 @@ object ComponentBuilder {
     @deprecated(
       "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillReceiveProps(f: ComponentWillReceivePropsFn[P, S, B]): This =
+    def componentWillReceiveProps(f: ComponentWillReceivePropsFn[Sync, Async, P, S, B]): This =
       lcAppend(Lifecycle.componentWillReceiveProps)(f)
 
     /**
@@ -361,7 +364,7 @@ object ComponentBuilder {
      * Perform any necessary cleanup in this method, such as invalidating timers or cleaning up any DOM elements that were
      * created in `componentDidMount`.
      */
-    def componentWillUnmount(f: ComponentWillUnmountFn[P, S, B]): This =
+    def componentWillUnmount(f: ComponentWillUnmountFn[Sync, Async, P, S, B]): This =
       lcAppend(Lifecycle.componentWillUnmount)(f)
 
     /**
@@ -376,7 +379,7 @@ object ComponentBuilder {
     @deprecated(
       "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillUpdate(f: ComponentWillUpdateFn[P, S, B]): This =
+    def componentWillUpdate(f: ComponentWillUpdateFn[Sync, Async, P, S, B]): This =
       lcAppend(Lifecycle.componentWillUpdate)(f)
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
@@ -499,7 +502,7 @@ object ComponentBuilder {
       * special way.
       */
     @nowarn("cat=unused")
-    def getSnapshotBeforeUpdate[A](f: GetSnapshotBeforeUpdateFn[P, S, B, A])
+    def getSnapshotBeforeUpdate[A](f: GetSnapshotBeforeUpdateFn[Sync, Async, P, S, B, A])
                                   (implicit ev: UpdateSnapshot.SafetyProof[US]): Step4[P, C, S, B, UpdateSnapshot.Some[A]] =
       setLC[UpdateSnapshot.Some[A]](lifecycle.resetSnapshot(None, Some(f)))
 
@@ -510,9 +513,9 @@ object ComponentBuilder {
       * This use case is not common, but it may occur in UIs like a chat thread that need to handle scroll position in a
       * special way.
       */
-    def getSnapshotBeforeUpdatePure[A](f: GetSnapshotBeforeUpdate[P, S, B] => A)
+    def getSnapshotBeforeUpdatePure[A](f: GetSnapshotBeforeUpdate[Sync, Async, P, S, B] => A)
                                       (implicit ev: UpdateSnapshot.SafetyProof[US]): Step4[P, C, S, B, UpdateSnapshot.Some[A]] =
-      getSnapshotBeforeUpdate($ => CallbackTo(f($)))(ev)
+      getSnapshotBeforeUpdate($ => sync.delay(f($)))(ev)
 
     /**
      * Invoked before rendering when new props or state are being received. This method is not called for the initial
@@ -532,8 +535,8 @@ object ComponentBuilder {
      * If performance is a bottleneck, especially with dozens or hundreds of components, use `shouldComponentUpdate` to
      * speed up your app.
      */
-    def shouldComponentUpdate(f: ShouldComponentUpdateFn[P, S, B]): This =
-      lcAppend(Lifecycle.shouldComponentUpdate)(f)(Semigroup.eitherCB)
+    def shouldComponentUpdate(f: ShouldComponentUpdateFn[Sync, Async, P, S, B]): This =
+      lcAppend(Lifecycle.shouldComponentUpdate)(f)(sync.semigroupSyncOr)
 
     /**
      * Invoked before rendering when new props or state are being received. This method is not called for the initial
@@ -553,30 +556,30 @@ object ComponentBuilder {
      * If performance is a bottleneck, especially with dozens or hundreds of components, use `shouldComponentUpdate` to
      * speed up your app.
      */
-    def shouldComponentUpdatePure(f: ShouldComponentUpdate[P, S, B] => Boolean): This =
-      shouldComponentUpdate($ => CallbackTo(f($)))
+    def shouldComponentUpdatePure(f: ShouldComponentUpdate[Sync, Async, P, S, B] => Boolean): This =
+      shouldComponentUpdate($ => sync.delay(f($)))
 
-    def componentDidCatchConst        (cb: Callback           ): This = componentDidCatch         (_ => cb)
-    def componentDidMountConst        (cb: Callback           ): This = componentDidMount         (_ => cb)
-    def componentDidUpdateConst       (cb: Callback           )       = componentDidUpdate        (_ => cb)
-    def componentWillUnmountConst     (cb: Callback           ): This = componentWillUnmount      (_ => cb)
-    def shouldComponentUpdateConst    (cb: CallbackTo[Boolean]): This = shouldComponentUpdate     (_ => cb)
-    def shouldComponentUpdateConst    (b : Boolean            ): This = shouldComponentUpdateConst(CallbackTo pure b)
+    def componentDidCatchConst        (cb: Sync[Unit]   ): This = componentDidCatch         (_ => cb)
+    def componentDidMountConst        (cb: Sync[Unit]   ): This = componentDidMount         (_ => cb)
+    def componentDidUpdateConst       (cb: Sync[Unit]   )       = componentDidUpdate        (_ => cb)
+    def componentWillUnmountConst     (cb: Sync[Unit]   ): This = componentWillUnmount      (_ => cb)
+    def shouldComponentUpdateConst    (cb: Sync[Boolean]): This = shouldComponentUpdate     (_ => cb)
+    def shouldComponentUpdateConst    (b : Boolean      ): This = shouldComponentUpdateConst(sync pure b)
 
     @deprecated(
       "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillMountConst(cb: Callback): This = componentWillMount(_ => cb)
+    def componentWillMountConst(cb: Sync[Unit]): This = componentWillMount(_ => cb)
 
     @deprecated(
       "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillReceivePropsConst(cb: Callback): This = componentWillReceiveProps(_ => cb)
+    def componentWillReceivePropsConst(cb: Sync[Unit]): This = componentWillReceiveProps(_ => cb)
 
     @deprecated(
       "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillUpdateConst(cb: Callback): This = componentWillUpdate(_ => cb)
+    def componentWillUpdateConst(cb: Sync[Unit]): This = componentWillUpdate(_ => cb)
 
     /** This is the end of the road for this component builder.
       *
