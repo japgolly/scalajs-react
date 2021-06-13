@@ -1,11 +1,9 @@
 package japgolly.scalajs.react.util
 
 import japgolly.scalajs.react.userdefined
-import japgolly.scalajs.react.util.OptionLike
-import japgolly.scalajs.react.util.JsUtil
+import japgolly.scalajs.react.util.{JsUtil, OptionLike}
 import scala.scalajs.js
 import scala.util.Try
-import scala.util.Success
 
 object Effect
     extends EffectCallback
@@ -49,6 +47,7 @@ object Effect
   trait Sync[F[_]] extends UnsafeSync[F] {
 
     val empty: F[Unit]
+    def fromJsFn0[A](f: js.Function0[A]): F[A]
 
     implicit val semigroupSyncUnit: Semigroup[F[Unit]] =
       Semigroup((f, g) => flatMap(f)(_ => g))
@@ -65,13 +64,14 @@ object Effect
 
     implicit val untyped: Sync[Untyped] = new Sync[Untyped] {
       type F[A] = Untyped[A]
-      override val empty                                                        = Sync.empty
-      override def delay  [A]      (a: => A)                                    = () => a
-      override def pure   [A]      (a: A)                                       = () => a
-      override def map    [A, B]   (fa: F[A])(f: A => B)                        = () => f(fa())
-      override def flatMap[A, B]   (fa: F[A])(f: A => F[B])                     = () => f(fa())()
-      override def runSync[A]      (fa: => F[A])                                = fa()
-      override def option_[O[_], A](ofa: => O[F[A]])(implicit O: OptionLike[O]) = () => O.foreach(ofa)(_())
+      override val empty                                                          = Sync.empty
+      override def delay    [A]      (a: => A)                                    = () => a
+      override def pure     [A]      (a: A)                                       = () => a
+      override def map      [A, B]   (fa: F[A])(f: A => B)                        = () => f(fa())
+      override def flatMap  [A, B]   (fa: F[A])(f: A => F[B])                     = () => f(fa())()
+      override def runSync  [A]      (fa: => F[A])                                = fa()
+      override def option_  [O[_], A](ofa: => O[F[A]])(implicit O: OptionLike[O]) = () => O.foreach(ofa)(_())
+      override def fromJsFn0[A]      (f: js.Function0[A])                         = f
     }
   }
 

@@ -4,12 +4,12 @@ import japgolly.scalajs.react.component.Scala
 import japgolly.scalajs.react.component.Scala.RawMounted
 import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.facade.React
-import japgolly.scalajs.react.util._
-import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.internal.Lens
+import japgolly.scalajs.react.util.Effect._
+import japgolly.scalajs.react.util._
 import japgolly.scalajs.react.{ComponentDom, PropsChildren, ReactCaughtError, StateAccess}
-import scala.scalajs.js
 import scala.scalajs.LinkingInfo.developmentMode
+import scala.scalajs.js
 
 final case class Lifecycle[F[_], A[_], P, S, B, SS](
       componentDidCatch        : Option[ComponentDidCatchFn        [F, A, P, S, B]],

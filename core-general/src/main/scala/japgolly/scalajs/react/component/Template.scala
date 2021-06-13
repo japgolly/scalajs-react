@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal.{Iso, Lens}
-import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import japgolly.scalajs.react.util.Effect._
+import japgolly.scalajs.react.util.Util.identityFn
 
 object Template {
 

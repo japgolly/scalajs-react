@@ -1,14 +1,14 @@
 package japgolly.scalajs.react.component
 
+import japgolly.scalajs.react.internal.Profunctor
+import japgolly.scalajs.react.internal.Profunctor.Ops._
 import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.JsUtil.jsNullToOption
 import japgolly.scalajs.react.util.Util.identityFn
-import japgolly.scalajs.react.internal.Profunctor
-import japgolly.scalajs.react.internal.Profunctor.Ops._
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Ref, facade}
+import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import scala.scalajs.js.|
-import scala.scalajs.LinkingInfo.developmentMode
 
 object JsForwardRef {
 

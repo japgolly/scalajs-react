@@ -2,9 +2,11 @@ package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 import japgolly.scalajs.react.feature.Context
-import japgolly.scalajs.react.internal.{Box, NotAllowed, OptionLike}
+import japgolly.scalajs.react.internal.Box
+import japgolly.scalajs.react.util.Effect._
+import japgolly.scalajs.react.util.{DefaultEffects => D, NotAllowed, OptionLike}
 import japgolly.scalajs.react.vdom.TopNode
-import japgolly.scalajs.react.{Callback, CallbackTo, CtorType, Ref, Reusability, Reusable, facade}
+import japgolly.scalajs.react.{CtorType, Ref, Reusability, Reusable, facade}
 import scala.annotation.implicitNotFound
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -27,10 +29,10 @@ object Hooks {
         override def fromJs = g
       }
 
-    implicit def c: UseCallbackArg[Callback] =
-      apply[Callback, js.Function0[Unit]](
-        _.toJsFn)(
-        f => Reusable.byRef(f).withValue(Callback.fromJsFn(f)))
+    implicit def callback[F[_]](implicit F: Sync[F]): UseCallbackArg[F[Unit]] =
+      apply[F[Unit], js.Function0[Unit]](
+        F.toJsFn0(_))(
+        f => Reusable.byRef(f).withValue(F.fromJsFn0(f)))
   }
 
   object UseCallback {
@@ -64,51 +66,51 @@ object Hooks {
   // ===================================================================================================================
 
   @implicitNotFound(
-    "You're attempting to provide a CallbackTo[${A}] to the useEffect family of hooks."
-    + "\n  - To specify a basic effect, provide a Callback (protip: try adding .void to your callback)."
-    + "\n  - To specify an effect and a clean-up effect, provide a CallbackTo[Callback] where the Callback you return is the clean-up effect."
+    "You're attempting to provide a ${A} to the useEffect family of hooks."
+    + "\n  - To specify a basic effect, provide a Callback / F[Unit]."
+    + "\n  - To specify an effect and a clean-up effect, provide a CallbackTo[Callback] / F[F[Unit]] where the inner callback is the clean-up effect."
     + "\nSee https://reactjs.org/docs/hooks-reference.html#useeffect")
-  final case class UseEffectArg[A](toJs: CallbackTo[A] => facade.React.UseEffectArg)
+  final case class UseEffectArg[A](toJs: A => facade.React.UseEffectArg) extends AnyVal
 
   object UseEffectArg {
-    implicit val unit: UseEffectArg[Unit] =
-      apply(_.toJsFn)
+    implicit def unit[F[_]](implicit F: Sync[F]): UseEffectArg[F[Unit]] =
+      apply(F.toJsFn0(_))
 
-    def byCallback[A](f: A => js.UndefOr[js.Function0[Any]]): UseEffectArg[A] =
-      apply(_.map(f).toJsFn)
+    def map[F[_], A](f: A => js.UndefOr[js.Function0[Any]])(implicit F: Sync[F]): UseEffectArg[F[A]] =
+      apply(fa => F.toJsFn0(F.map(fa)(f)))
 
-    implicit val callback: UseEffectArg[Callback] =
-      byCallback(_.toJsFn)
+    implicit def cleanup[F[_], A](implicit F: Sync[F]): UseEffectArg[F[F[A]]] =
+      map(F.toJsFn0(_))
 
-    implicit def optionalCallback[O[_]](implicit O: OptionLike[O]): UseEffectArg[O[Callback]] =
-      byCallback(O.unsafeToJs(_).map(_.toJsFn))
+    implicit def optionalCallback[F[_], O[_], A](implicit F: Sync[F], O: OptionLike[O]): UseEffectArg[F[O[F[A]]]] =
+      map(O.unsafeToJs(_).map(F.toJsFn0(_)))
   }
 
   object UseEffect {
-    def unsafeCreate[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
+    def unsafeCreate[A](effect: A)(implicit a: UseEffectArg[A]): Unit =
       facade.React.useEffect(a.toJs(effect))
 
-    def unsafeCreateOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
+    def unsafeCreateOnMount[A](effect: A)(implicit a: UseEffectArg[A]): Unit =
       facade.React.useEffect(a.toJs(effect), new js.Array[Any])
 
-    def unsafeCreateLayout[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
+    def unsafeCreateLayout[A](effect: A)(implicit a: UseEffectArg[A]): Unit =
       facade.React.useLayoutEffect(a.toJs(effect))
 
-    def unsafeCreateLayoutOnMount[A](effect: CallbackTo[A])(implicit a: UseEffectArg[A]): Unit =
+    def unsafeCreateLayoutOnMount[A](effect: A)(implicit a: UseEffectArg[A]): Unit =
       facade.React.useLayoutEffect(a.toJs(effect), new js.Array[Any])
   }
 
   object ReusableEffect {
 
-    def useEffect[A, D](e: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
+    def useEffect[A, D](effect: => A, deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
       CustomHook.reusableDeps[D]
         .apply(() => deps)
-        .map(rev => facade.React.useEffect(a.toJs(e), js.Array[Any](rev)))
+        .map(rev => facade.React.useEffect(a.toJs(effect), js.Array[Any](rev)))
 
-    def useLayoutEffect[A, D](e: CallbackTo[A], deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
+    def useLayoutEffect[A, D](effect: => A, deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
       CustomHook.reusableDeps[D]
         .apply(() => deps)
-        .map(rev => facade.React.useLayoutEffect(a.toJs(e), js.Array[Any](rev)))
+        .map(rev => facade.React.useLayoutEffect(a.toJs(effect), js.Array[Any](rev)))
   }
 
   // ===================================================================================================================
@@ -139,8 +141,8 @@ object Hooks {
     @inline def value: S =
       raw._1
 
-    def dispatch(a: A): Reusable[Callback] =
-      originalDispatch.withValue(Callback(raw._2(a)))
+    def dispatch(a: A): Reusable[D.Sync[Unit]] =
+      originalDispatch.withValue(D.sync.delay(raw._2(a)))
 
     /** WARNING: This does not affect the dispatch callback reusability. */
     def map[T](f: S => T): UseReducer[T, A] =
@@ -170,12 +172,12 @@ object Hooks {
       raw.current = a
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
-    def set(a: A): Callback =
-      Callback{ value = a }
+    def set(a: A): D.Sync[Unit] =
+      D.sync.delay { value = a }
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
-    def mod(f: A => A): Callback =
-      Callback{ value = f(value) }
+    def mod(f: A => A): D.Sync[Unit] =
+      D.sync.delay { value = f(value) }
   }
 
   object UseRef {
@@ -204,9 +206,9 @@ object Hooks {
     def unsafeCreateToJsComponentWithMountedFacade[P <: js.Object, S <: js.Object, F <: js.Object](): Ref.ToJsComponent[P, S, JsComponent.RawMounted[P, S] with F] =
       unsafeCreateSimple[JsComponent.RawMounted[P, S] with F]().map(JsComponent.mounted[P, S](_).addFacade[F])
 
-    def unsafeCreateToJsComponent[F[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
-        (a: Ref.WithJsComponentArg[F, P1, S1, CT1, R, P0, S0])
-        : Ref.WithJsComponent[F, P1, S1, CT1, R, P0, S0] =
+    def unsafeCreateToJsComponent[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
+        (a: Ref.WithJsComponentArg[F, A, P1, S1, CT1, R, P0, S0])
+        : Ref.WithJsComponent[F, A, P1, S1, CT1, R, P0, S0] =
       a.wrap(unsafeCreateToJsComponentWithMountedFacade[P0, S0, R]())
   }
 
@@ -242,8 +244,8 @@ object Hooks {
     @inline def value: S =
       raw._1
 
-    def setState: Reusable[S => Callback] =
-      originalSetState.withValue(s => Callback(raw._2(s)))
+    def setState: Reusable[S => D.Sync[Unit]] =
+      originalSetState.withValue(s => D.sync.delay(raw._2(s)))
 
     /** WARNING: This ignores reusability of the provided function.
       * It will only work correctly if you always provide the exact same function.
@@ -252,16 +254,16 @@ object Hooks {
       *
       * @param f WARNING: This must be a consistent/stable function.
       */
-    def modState: Reusable[(S => S) => Callback] =
-      originalSetState.withValue(f => Callback(modStateRaw(f)))
+    def modState: Reusable[(S => S) => D.Sync[Unit]] =
+      originalSetState.withValue(f => D.sync.delay(modStateRaw(f)))
 
     object withReusableInputs {
-      def setState: Reusable[Reusable[S] => Reusable[Callback]] = {
+      def setState: Reusable[Reusable[S] => Reusable[D.Sync[Unit]]] = {
         val setR = self.setState
         Reusable.implicitly((setR, internalReuseSafety)).withValue(_.ap(setR))
       }
 
-      def modState: Reusable[Reusable[S => S] => Reusable[Callback]] = {
+      def modState: Reusable[Reusable[S => S] => Reusable[D.Sync[Unit]]] = {
         val modR = self.modState
         Reusable.implicitly((modR, internalReuseSafety)).withValue(_.ap(modR))
       }
@@ -335,7 +337,7 @@ object Hooks {
     @inline def value: S =
       withoutReuse.value
 
-    def setState: Reusable[S => Reusable[Callback]] =
+    def setState: Reusable[S => Reusable[D.Sync[Unit]]] =
       withReusableInputs.setState.map(set => s => set(reusability.reusable(s)))
 
     /** WARNING: This ignores reusability of the provided function.
@@ -345,7 +347,7 @@ object Hooks {
       *
       * @param f WARNING: This must be a consistent/stable function.
       */
-    def modState(f: S => S): Reusable[Callback] =
+    def modState(f: S => S): Reusable[D.Sync[Unit]] =
       withReusableInputs.modState(internalReuseSafety.withValue(f))
 
     @inline def withReusableInputs =
@@ -367,16 +369,16 @@ object Hooks {
     var value: A =
       initialValue
 
-    def get: CallbackTo[A] =
-      CallbackTo(value)
+    def get: D.Sync[A] =
+      D.sync.pure(value)
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
-    def set(a: A): Callback =
-      Callback{ value = a }
+    def set(a: A): D.Sync[Unit] =
+      D.sync.delay { value = a }
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
-    def mod(f: A => A): Callback =
-      Callback{ value = f(value) }
+    def mod(f: A => A): D.Sync[Unit] =
+      D.sync.delay { value = f(value) }
   }
 
 }

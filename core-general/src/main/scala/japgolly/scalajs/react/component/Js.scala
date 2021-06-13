@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.component
 
-import japgolly.scalajs.react.util.JsUtil.jsNullToOption
-import japgolly.scalajs.react.util.Util.identityFn
+import japgolly.scalajs.react.internal.Lens
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import japgolly.scalajs.react.util.Effect._
-import japgolly.scalajs.react.internal.Lens
+import japgolly.scalajs.react.util.JsUtil.jsNullToOption
+import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.{Children, ComponentDom, CtorType, PropsChildren, facade}
 import scala.scalajs.js
 import scala.scalajs.js.|

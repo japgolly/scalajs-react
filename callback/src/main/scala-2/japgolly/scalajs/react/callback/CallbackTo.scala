@@ -12,8 +12,8 @@ import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.timers.RawTimers
-import scala.scalajs.js.{Function0 => JFn0, Function1 => JFn1, Thenable, UndefOr, undefined, |}
-import scala.util.{Failure, Success, Try}
+import scala.scalajs.js.{Function0 => JFn0, Function1 => JFn1, UndefOr, undefined}
+import scala.util.Try
 
 object CallbackTo {
   @inline def apply[A](f: => A): CallbackTo[A] =

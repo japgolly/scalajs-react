@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
 import japgolly.scalajs.react.facade
+import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
 
 trait VdomElement extends VdomNode {
 

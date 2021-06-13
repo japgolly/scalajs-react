@@ -1,13 +1,13 @@
 package japgolly.scalajs.react.component
 
+import japgolly.scalajs.react.internal.{Box, Singleton}
+import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.JsUtil.jsNullToOption
 import japgolly.scalajs.react.util.Util.identityFn
-import japgolly.scalajs.react.util.Effect.Sync
-import japgolly.scalajs.react.internal.{Box, Singleton}
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, facade, vdom}
 import scala.annotation.implicitNotFound
-import scala.scalajs.js
 import scala.scalajs.LinkingInfo.developmentMode
+import scala.scalajs.js
 
 object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComponent] {
 

@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.callback
 
 import japgolly.scalajs.react.callback.CallbackTo.MapGuard
+import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.util.Util.{catchAll, identityFn}
 import java.time.{Duration, Instant}
 import org.scalajs.dom.raw.Window
@@ -9,11 +10,10 @@ import scala.annotation.tailrec
 import scala.collection.BuildFrom
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.`3.0`
 import scala.scalajs.js
 import scala.scalajs.js.timers.RawTimers
-import scala.scalajs.js.{Function0 => JFn0, Function1 => JFn1, Thenable, UndefOr, undefined, |}
-import scala.util.{Failure, Success, Try}
+import scala.scalajs.js.{Function0 => JFn0, Function1 => JFn1, UndefOr, undefined}
+import scala.util.Try
 
 object CallbackTo {
 

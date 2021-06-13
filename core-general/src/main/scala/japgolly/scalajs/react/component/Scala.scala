@@ -1,10 +1,10 @@
 package japgolly.scalajs.react.component
 
+import japgolly.scalajs.react.CtorType
 import japgolly.scalajs.react.internal.{Box, Lens}
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA, Sync => DefaultS}
 import japgolly.scalajs.react.util.Effect._
-import japgolly.scalajs.react.CtorType
 import scala.scalajs.js
 
 object Scala {

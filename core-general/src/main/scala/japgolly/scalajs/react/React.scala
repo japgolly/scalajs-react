@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.util.Effect.Async
 import japgolly.scalajs.react.internal.Box
+import japgolly.scalajs.react.util.Effect.Async
 import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
 import scala.scalajs.js
 

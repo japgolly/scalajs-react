@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.microlibs.types.NaturalComposition
-import japgolly.scalajs.react.{Callback, PropsChildren, Reusability, Reusable}
+import japgolly.scalajs.react.util.DefaultEffects
+import japgolly.scalajs.react.{PropsChildren, Reusability, Reusable}
 
 final class CustomHook[I, O] private[CustomHook] (val unsafeInit: I => O) extends AnyVal {
 
@@ -182,7 +183,8 @@ object CustomHook {
           }
         if (updateNeeded) {
           val newRev = rev + 1
-          depsState.setState((newRev, Some(next))).runNow()
+          val f = depsState.setState((newRev, Some(next)))
+          DefaultEffects.sync.runSync(f)
           newRev
         } else
           rev
@@ -191,7 +193,7 @@ object CustomHook {
   def reusableByDeps[A, D](create: Int => A)(implicit r: Reusability[D]): CustomHook[() => D, Reusable[A]] =
     reusableDeps[D].map(rev => Reusable.implicitly(rev).withValue(create(rev)))
 
-  lazy val useForceUpdate: CustomHook[Unit, Reusable[Callback]] = {
+  lazy val useForceUpdate: CustomHook[Unit, Reusable[DefaultEffects.Sync[Unit]]] = {
     val inc: Int => Int = _ + 1
     CustomHook[Unit]
       .useState(0)

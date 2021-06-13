@@ -1,9 +1,8 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.Box
-import japgolly.scalajs.react.util.OptionLike
-import japgolly.scalajs.react.util.{DefaultEffects => D}
 import japgolly.scalajs.react.util.Effect.Sync
+import japgolly.scalajs.react.util.{DefaultEffects => D, OptionLike}
 import java.time._
 import java.util.{Date, UUID}
 import org.scalajs.dom.console

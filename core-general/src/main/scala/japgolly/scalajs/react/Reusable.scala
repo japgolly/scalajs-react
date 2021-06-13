@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.util.{DefaultEffects => D}
 import japgolly.scalajs.react.util.Effect.Sync
+import japgolly.scalajs.react.util.{DefaultEffects => D}
 import scala.reflect.ClassTag
 
 /**

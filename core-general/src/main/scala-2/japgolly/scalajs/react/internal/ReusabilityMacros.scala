@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.internal
 
 import japgolly.microlibs.compiletime.MacroUtils
-import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.Reusability
+import japgolly.scalajs.react.util.Util.identityFn
 import scala.reflect.macros.blackbox.Context
 
 class ReusabilityMacros(val c: Context) extends MacroUtils {

@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.Effect.Sync.Untyped
+import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.Util.identityFn
 
 final class SetStateFn[F[_], A[_], S](underlyingFn: (Option[S], Untyped[Any]) => F[Unit])

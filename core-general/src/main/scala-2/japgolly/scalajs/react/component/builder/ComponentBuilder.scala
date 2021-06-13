@@ -4,9 +4,9 @@ import japgolly.scalajs.react.component.Scala.{BackendScope, Vars}
 import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.component.{Js, Scala}
 import japgolly.scalajs.react.internal.{Box, Lens}
-import japgolly.scalajs.react.util.Semigroup
 import japgolly.scalajs.react.util.DefaultEffects._
 import japgolly.scalajs.react.util.DefaultEffects.sync.semigroupSyncUnit
+import japgolly.scalajs.react.util.Semigroup
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, UpdateSnapshot, facade}
 import scala.annotation.nowarn
