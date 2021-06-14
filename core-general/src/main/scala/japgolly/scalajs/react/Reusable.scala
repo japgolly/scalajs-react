@@ -224,7 +224,7 @@ object Reusable {
       Reusable.implicitly(new Fn6(f))
 
     def state[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]): StateAccessWriteOps[I, D.Sync, D.Async, S] =
-      new StateAccessWriteOps(i)(t, D.sync)
+      new StateAccessWriteOps(i)(t, D.Sync)
 
     final class StateAccessWriteOps[I, F[_], A[_], S](i: I)(implicit t: StateAccessor.Write[I, F, A, S], F: Sync[F]) {
 

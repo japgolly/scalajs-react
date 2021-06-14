@@ -425,7 +425,7 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     _.shouldComponentUpdate { i =>
       val r = ShouldComponentUpdateResult(i)
       val c = F.map(f(r))(_ => r.update)
-      D.sync.transSync(c)
+      D.Sync.transSync(c)
     }
 
   def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](name: String): ScalaComponent.Config[P, C, S, B, U, U] =
@@ -446,7 +446,7 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     val update     : Boolean = updateProps || updateState
 
     def log(name: String): D.Sync[Unit] =
-      D.sync.delay(
+      D.Sync.delay(
         console.log(
           s"""
              |s"$name.shouldComponentUpdate = $update

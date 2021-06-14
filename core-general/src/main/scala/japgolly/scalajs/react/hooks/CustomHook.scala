@@ -184,7 +184,7 @@ object CustomHook {
         if (updateNeeded) {
           val newRev = rev + 1
           val f = depsState.setState((newRev, Some(next)))
-          DefaultEffects.sync.runSync(f)
+          DefaultEffects.Sync.runSync(f)
           newRev
         } else
           rev

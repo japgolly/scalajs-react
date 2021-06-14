@@ -56,7 +56,7 @@ package object react extends ReactEventTypes with ReactExtensions {
     _.stopPropagationCB
 
   lazy val preventDefaultAndStopPropagation: ReactEvent => Sync[Unit] =
-    e => sync.delay {
+    e => Sync.delay {
       e.preventDefault()
       e.stopPropagation()
     }

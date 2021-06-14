@@ -40,12 +40,12 @@ object Ref {
     def widen[B >: A]: Get[B]
 
     final def foreach(f: A => Unit): Sync[Unit] =
-      foreachCB(a => sync.delay(f(a)))
+      foreachCB(a => Sync.delay(f(a)))
 
     final def foreachCB(f: A => Sync[Unit]): Sync[Unit] =
-      sync.flatMap(get) {
+      Sync.flatMap(get) {
         case Some(a) => f(a)
-        case None    => sync.empty
+        case None    => Sync.empty
       }
 
     /** Get the reference immediately.
@@ -58,7 +58,7 @@ object Ref {
       * 2. It throws an exception when the ref is empty (partiality)
       */
     final def unsafeGet(): A =
-      sync.runSync(get).getOrElse(sys error "Reference is empty")
+      Sync.runSync(get).getOrElse(sys error "Reference is empty")
   }
 
   trait Set[A] {
@@ -96,7 +96,7 @@ object Ref {
       override val raw = _raw
 
       override def set(newValue: Option[I]): Sync[Unit] =
-        sync.delay {
+        Sync.delay {
           raw.current = newValue match {
             case Some(i) => l(i)
             case None    => null
@@ -104,7 +104,7 @@ object Ref {
         }
 
       override val get: Sync[Option[O]] =
-        sync.delay(jsNullToOption(raw.current).flatMap(r))
+        Sync.delay(jsNullToOption(raw.current).flatMap(r))
 
       override def contramap[X](f: X => I): Full[X, A, O] =
         Full(raw, l compose f, r)

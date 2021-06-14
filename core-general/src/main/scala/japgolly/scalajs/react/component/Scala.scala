@@ -2,7 +2,6 @@ package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.CtorType
 import japgolly.scalajs.react.internal.{Box, Lens}
-import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA, Sync => DefaultS}
 import japgolly.scalajs.react.util.Effect._
 import scala.scalajs.js
@@ -71,11 +70,11 @@ object Scala {
   type MountedRoot[F[_], A[_], P, S, B] = MountedWithRoot[F, A, P, S, B, P, S]
 
   def mountedRoot[P, S, B](x: JsMounted[P, S, B]): MountedRoot[Id, DefaultA, P, S, B] =
-    new Template.MountedWithRoot[Id, DefaultA, P, S]()(UnsafeSync.id, DefaultEffects.async)
+    new Template.MountedWithRoot[Id, DefaultA, P, S]()(UnsafeSync.id, DefaultA)
         with MountedRoot[Id, DefaultA, P, S, B] {
 
       override implicit def F    = UnsafeSync.id
-      override implicit def A    = DefaultEffects.async
+      override implicit def A    = DefaultA
       override def root          = this
       override val js            = x
       override val raw           = x.raw

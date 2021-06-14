@@ -91,13 +91,13 @@ final class ReactExt_DomEvent(private val e: dom.Event) extends AnyVal {
    * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
    */
   def preventDefaultCB: Sync[Unit] =
-    sync.delay(e.preventDefault())
+    Sync.delay(e.preventDefault())
 
   /**
    * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
    */
   def stopPropagationCB: Sync[Unit] =
-    sync.delay(e.stopPropagation())
+    Sync.delay(e.stopPropagation())
 }
 
 final class ReactExt_ReactEvent[E <: ReactEvent](private val e: E) extends AnyVal {
@@ -106,13 +106,13 @@ final class ReactExt_ReactEvent[E <: ReactEvent](private val e: E) extends AnyVa
    * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
    */
   def preventDefaultCB: Sync[Unit] =
-    sync.delay(e.preventDefault())
+    Sync.delay(e.preventDefault())
 
   /**
    * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
    */
   def stopPropagationCB: Sync[Unit] =
-    sync.delay(e.stopPropagation())
+    Sync.delay(e.stopPropagation())
 
   /**
    * If you want to access the event properties in an asynchronous way (eg. in a `modState(…)` function),

@@ -142,7 +142,7 @@ object Hooks {
       raw._1
 
     def dispatch(a: A): Reusable[D.Sync[Unit]] =
-      originalDispatch.withValue(D.sync.delay(raw._2(a)))
+      originalDispatch.withValue(D.Sync.delay(raw._2(a)))
 
     /** WARNING: This does not affect the dispatch callback reusability. */
     def map[T](f: S => T): UseReducer[T, A] =
@@ -173,11 +173,11 @@ object Hooks {
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
     def set(a: A): D.Sync[Unit] =
-      D.sync.delay { value = a }
+      D.Sync.delay { value = a }
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
     def mod(f: A => A): D.Sync[Unit] =
-      D.sync.delay { value = f(value) }
+      D.Sync.delay { value = f(value) }
   }
 
   object UseRef {
@@ -245,7 +245,7 @@ object Hooks {
       raw._1
 
     def setState: Reusable[S => D.Sync[Unit]] =
-      originalSetState.withValue(s => D.sync.delay(raw._2(s)))
+      originalSetState.withValue(s => D.Sync.delay(raw._2(s)))
 
     /** WARNING: This ignores reusability of the provided function.
       * It will only work correctly if you always provide the exact same function.
@@ -255,7 +255,7 @@ object Hooks {
       * @param f WARNING: This must be a consistent/stable function.
       */
     def modState: Reusable[(S => S) => D.Sync[Unit]] =
-      originalSetState.withValue(f => D.sync.delay(modStateRaw(f)))
+      originalSetState.withValue(f => D.Sync.delay(modStateRaw(f)))
 
     object withReusableInputs {
       def setState: Reusable[Reusable[S] => Reusable[D.Sync[Unit]]] = {
@@ -370,15 +370,15 @@ object Hooks {
       initialValue
 
     def get: D.Sync[A] =
-      D.sync.pure(value)
+      D.Sync.pure(value)
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
     def set(a: A): D.Sync[Unit] =
-      D.sync.delay { value = a }
+      D.Sync.delay { value = a }
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
     def mod(f: A => A): D.Sync[Unit] =
-      D.sync.delay { value = f(value) }
+      D.Sync.delay { value = f(value) }
   }
 
 }

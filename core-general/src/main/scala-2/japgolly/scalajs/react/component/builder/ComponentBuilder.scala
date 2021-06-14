@@ -5,7 +5,6 @@ import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.component.{Js, Scala}
 import japgolly.scalajs.react.internal.{Box, Lens}
 import japgolly.scalajs.react.util.DefaultEffects._
-import japgolly.scalajs.react.util.DefaultEffects.sync.semigroupSyncUnit
 import japgolly.scalajs.react.util.Semigroup
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, UpdateSnapshot, facade}
@@ -33,6 +32,10 @@ object ComponentBuilder {
     b.noBackend
 
   // ===================================================================================================================
+
+  @inline private implicit def semigroupSyncUnit: Semigroup[Sync[Unit]] =
+    Sync.semigroupSyncUnit
+
 
   /** You're on step 1/4 on the way to building a component.
     *
@@ -103,10 +106,10 @@ object ComponentBuilder {
       new Step2(name, InitState.InitialState(p => Box(f(p.unbox))))
 
     def initialStateCallback[S](cb: Sync[S]): Step2[P, S] =
-      initialState(sync.runSync(cb))
+      initialState(Sync.runSync(cb))
 
     def initialStateCallbackFromProps[S](f: P => Sync[S]): Step2[P, S] =
-      initialStateFromProps(p => sync.runSync(f(p)))
+      initialStateFromProps(p => Sync.runSync(f(p)))
 
     def stateless: Step2[P, Unit] =
       new Step2(name, InitState.stateless)
@@ -515,7 +518,7 @@ object ComponentBuilder {
       */
     def getSnapshotBeforeUpdatePure[A](f: GetSnapshotBeforeUpdate[Sync, Async, P, S, B] => A)
                                       (implicit ev: UpdateSnapshot.SafetyProof[US]): Step4[P, C, S, B, UpdateSnapshot.Some[A]] =
-      getSnapshotBeforeUpdate($ => sync.delay(f($)))(ev)
+      getSnapshotBeforeUpdate($ => Sync.delay(f($)))(ev)
 
     /**
      * Invoked before rendering when new props or state are being received. This method is not called for the initial
@@ -536,7 +539,7 @@ object ComponentBuilder {
      * speed up your app.
      */
     def shouldComponentUpdate(f: ShouldComponentUpdateFn[Sync, Async, P, S, B]): This =
-      lcAppend(Lifecycle.shouldComponentUpdate)(f)(sync.semigroupSyncOr)
+      lcAppend(Lifecycle.shouldComponentUpdate)(f)(Sync.semigroupSyncOr)
 
     /**
      * Invoked before rendering when new props or state are being received. This method is not called for the initial
@@ -557,14 +560,14 @@ object ComponentBuilder {
      * speed up your app.
      */
     def shouldComponentUpdatePure(f: ShouldComponentUpdate[Sync, Async, P, S, B] => Boolean): This =
-      shouldComponentUpdate($ => sync.delay(f($)))
+      shouldComponentUpdate($ => Sync.delay(f($)))
 
     def componentDidCatchConst        (cb: Sync[Unit]   ): This = componentDidCatch         (_ => cb)
     def componentDidMountConst        (cb: Sync[Unit]   ): This = componentDidMount         (_ => cb)
     def componentDidUpdateConst       (cb: Sync[Unit]   )       = componentDidUpdate        (_ => cb)
     def componentWillUnmountConst     (cb: Sync[Unit]   ): This = componentWillUnmount      (_ => cb)
     def shouldComponentUpdateConst    (cb: Sync[Boolean]): This = shouldComponentUpdate     (_ => cb)
-    def shouldComponentUpdateConst    (b : Boolean      ): This = shouldComponentUpdateConst(sync pure b)
+    def shouldComponentUpdateConst    (b : Boolean      ): This = shouldComponentUpdateConst(Sync.pure(b))
 
     @deprecated(
       "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",

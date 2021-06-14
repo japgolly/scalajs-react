@@ -70,7 +70,7 @@ trait StateAccessorImplicits1 extends StateAccessorImplicits2 {
   private def newScalaLifecycleStateRWCB[S]: ReadWritePure[Lifecycle.StateRW[Sync, Async, _, S, _], S] = {
     type I = Lifecycle.StateRW[Sync, Async, _, S, _]
     new Read[I, Sync, S] with Write[I, Sync, Async, S] {
-      override val state = (i: I) => sync.pure(i.state)
+      override val state = (i: I) => Sync.pure(i.state)
       override val write = identityFn[I]
     }
   }

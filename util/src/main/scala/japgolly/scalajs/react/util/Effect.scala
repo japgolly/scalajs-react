@@ -79,14 +79,12 @@ object Effect
 
   trait Async[F[_]] {
     def async[A](f: Async.Untyped[A]): F[A]
+    def runAsync[A](fa: => F[A]): Async.Untyped[A]
+    def toJsPromise[A](fa: => F[A]): () => js.Promise[A]
 
     // TODO: FX: Confirm this works. If it does then why does AsyncCallback.viaCallback use a promise?
     final def async_(onCompletion: Sync.Untyped[Unit] => Sync.Untyped[Unit]): F[Unit] =
       async[Unit](f => onCompletion(f(Try(()))))
-
-    def runAsync[A](fa: => F[A]): Async.Untyped[A]
-
-    def toJsPromise[A](fa: => F[A]): () => js.Promise[A]
 
     final def transAsync[G[_], A](ga: => G[A])(implicit g: Async[G]): F[A] =
       if (this eq g)

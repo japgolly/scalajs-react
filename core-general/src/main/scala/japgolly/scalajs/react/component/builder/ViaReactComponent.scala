@@ -279,24 +279,24 @@ object ViaReactComponent {
 
     for (f <- builder.lifecycle.componentDidCatch)
       protoProps.add2("componentDidCatch",
-        (_this: This, e: js.Any, i: facade.React.ErrorInfo) => sync.runSync(f(new ComponentDidCatch(_this, e, i))))
+        (_this: This, e: js.Any, i: facade.React.ErrorInfo) => Sync.runSync(f(new ComponentDidCatch(_this, e, i))))
 
     for (f <- builder.lifecycle.componentDidMount)
       protoProps.add0("componentDidMount",
-        _this => sync.runSync(f(new ComponentDidMount(_this))))
+        _this => Sync.runSync(f(new ComponentDidMount(_this))))
 
     for (f <- builder.lifecycle.componentDidUpdate)
       protoProps.add3("componentDidUpdate",
         (_this: This, p: Box[P], s: Box[S], ss: builder.SnapshotValue) =>
-          sync.runSync(f(new ComponentDidUpdate(_this, p.unbox, s.unbox, ss))))
+          Sync.runSync(f(new ComponentDidUpdate(_this, p.unbox, s.unbox, ss))))
 
     for (f <- builder.lifecycle.componentWillMount)
       protoProps.add0("componentWillMount",
-        _this => sync.runSync(f(new ComponentWillMount(_this))))
+        _this => Sync.runSync(f(new ComponentWillMount(_this))))
 
     for (f <- builder.lifecycle.componentWillReceiveProps)
       protoProps.add1("componentWillReceiveProps",
-        (_this: This, p: Box[P]) => sync.runSync(f(new ComponentWillReceiveProps(_this, p.unbox))))
+        (_this: This, p: Box[P]) => Sync.runSync(f(new ComponentWillReceiveProps(_this, p.unbox))))
 
     // I don't know that this teardown is necessary. It should be fine without...
     // Let's try it. If things go wrong this is the code we'll need ↓
@@ -316,11 +316,11 @@ object ViaReactComponent {
     //     }
     //   })
     for (f <- builder.lifecycle.componentWillUnmount)
-      protoProps.add0("componentWillUnmount", _this => sync.runSync(f(new ComponentWillUnmount(_this))))
+      protoProps.add0("componentWillUnmount", _this => Sync.runSync(f(new ComponentWillUnmount(_this))))
 
     for (f <- builder.lifecycle.componentWillUpdate)
       protoProps.add2("componentWillUpdate",
-        (_this: This, p: Box[P], s: Box[S]) => sync.runSync(f(new ComponentWillUpdate(_this, p.unbox, s.unbox))))
+        (_this: This, p: Box[P], s: Box[S]) => Sync.runSync(f(new ComponentWillUpdate(_this, p.unbox, s.unbox))))
 
     for (f <- builder.lifecycle.getDerivedStateFromProps)
       staticProps.add2("getDerivedStateFromProps",
@@ -329,11 +329,11 @@ object ViaReactComponent {
     for (f <- builder.lifecycle.getSnapshotBeforeUpdate)
       protoProps.add2("getSnapshotBeforeUpdate",
         (_this: This, p: Box[P], s: Box[S]) =>
-          sync.runSync(f(new GetSnapshotBeforeUpdate(_this, p.unbox, s.unbox))))
+          Sync.runSync(f(new GetSnapshotBeforeUpdate(_this, p.unbox, s.unbox))))
 
     for (f <- builder.lifecycle.shouldComponentUpdate)
       protoProps.add2("shouldComponentUpdate",
-        (_this: This, p: Box[P], s: Box[S]) => sync.runSync(f(new ShouldComponentUpdate(_this, p.unbox, s.unbox))))
+        (_this: This, p: Box[P], s: Box[S]) => Sync.runSync(f(new ShouldComponentUpdate(_this, p.unbox, s.unbox))))
 
     for (n <- Option(builder.name))
       staticProps.add("displayName", n)
