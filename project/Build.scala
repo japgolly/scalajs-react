@@ -142,7 +142,8 @@ object ScalajsReact {
 
   lazy val core = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
-    .dependsOn(coreGeneral, callback)
+    .dependsOn(callback) // High priority
+    .dependsOn(coreGeneral) // Low priority
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)

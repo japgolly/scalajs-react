@@ -32,4 +32,17 @@ trait EffectCallback {
     @inline override def fromJsFn0[A](f: js.Function0[A]) =
       CallbackTo.fromJsFn(f)
   }
+
+  // ===================================================================================================================
+
+  implicit object asyncCallback extends Async[AsyncCallback] {
+    override def async[A](fa: Async.Untyped[A]): AsyncCallback[A] =
+      AsyncCallback[A](f => CallbackTo(fa(f(_).toJsFn)))
+
+    override def runAsync[A](fa: => AsyncCallback[A]): Async.Untyped[A] =
+      f => fa.completeWith(t => CallbackTo(f(t))).toJsFn
+
+    override def toJsPromise[A](fa: => AsyncCallback[A]): () => js.Promise[A] =
+      () => fa.unsafeToJsPromise()
+  }
 }
