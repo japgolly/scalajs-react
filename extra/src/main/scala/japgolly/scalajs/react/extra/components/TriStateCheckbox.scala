@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra.components
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.internal.EffectUtil
 import japgolly.scalajs.react.util.DefaultEffects.Sync
 import japgolly.scalajs.react.util.DomUtil._
 import japgolly.scalajs.react.vdom.html_<^._
@@ -50,7 +51,7 @@ object TriStateCheckbox {
   }
 
   private def render($: ScalaComponent.MountedPure[Props, Unit, Unit], p: Props) = {
-    val setNext = Sync.flatMap($.props)(p => p.setNextState.unless_(p.disabled)) // Only access .setNextState inside the Sync[Unit] for Reusability
+    val setNext = Sync.flatMap($.props)(p => if (p.disabled) Sync.empty else p.setNextState) // Only access .setNextState inside Sync for Reusability
     <.input.checkbox(
       ^.disabled := p.disabled,
       TagMod.unless(p.disabled)(eventHandlers(setNext)))
@@ -60,10 +61,11 @@ object TriStateCheckbox {
    * Clicking or pressing space = change.
    */
   def eventHandlers(onChange: Sync[Unit]): TagMod = {
-    def handleKey(e: ReactKeyboardEventFromHtml): Sync[Unit] =
-      CallbackOption.keyCodeSwitch(e) {
-        case KeyCode.Space => onChange
-      }.asEventDefault(e)
+    def handleKey(e: ReactKeyboardEventFromHtml): Sync[Unit] = {
+      EffectUtil.asEventDefault_(e)(
+        EffectUtil.keyCodeSwitch(e) { case KeyCode.Space => onChange }
+      )
+    }
     TagMod(
       ^.onClick   --> onChange,
       ^.onKeyDown ==> handleKey)

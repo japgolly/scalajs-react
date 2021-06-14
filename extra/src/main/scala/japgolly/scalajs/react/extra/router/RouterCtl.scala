@@ -25,7 +25,7 @@ abstract class RouterCtl[Route] {
     pathFor(route).abs(baseUrl)
 
   final def setEH(route: Route): ReactEvent => Sync[Unit] =
-    e => Sync.chain(EffectUtil.asEventDefault(set(route), e), Sync.empty)
+    e => EffectUtil.asEventDefault_(e)(set(route))
 
   final def setOnClick(route: Route): TagMod =
     ^.onClick ==> setEH(route)

@@ -5,6 +5,7 @@ import japgolly.scalajs.react.component.{Generic => GenericComponent}
 import japgolly.scalajs.react.hooks.{Api => HooksApi, CustomHook}
 import japgolly.scalajs.react.internal.{Iso, Lens}
 import japgolly.scalajs.react.util.DefaultEffects._
+import japgolly.scalajs.react.util.Effect
 import japgolly.scalajs.react.util.NotAllowed
 import scala.reflect.ClassTag
 
@@ -12,16 +13,17 @@ final class StateSnapshot[S](val value: S,
                              val underlyingSetFn: Reusable[StateSnapshot.SetFn[S]],
                              private[StateSnapshot] val reusability: Reusability[S]) extends StateAccess.Write[Sync, Async, S] {
 
+  override protected implicit def A = Async
   override protected implicit def F = Sync
 
   override def toString = s"StateSnapshot($value)"
 
   /** @param callback Executed regardless of whether state is changed. */
-  override def setStateOption(newState: Option[S], callback: Sync[Unit]): Sync[Unit] =
-    underlyingSetFn(newState, callback)
+  override def setStateOption[G[_]: Effect.Sync, B](newState: Option[S], callback: => G[B]): Sync[Unit] =
+    underlyingSetFn(newState, Sync.map(Sync.transSync(callback))(_ => ()))
 
   /** @param callback Executed regardless of whether state is changed. */
-  override def modStateOption(mod: S => Option[S], callback: Sync[Unit]): Sync[Unit] =
+  override def modStateOption[G[_]: Effect.Sync, B](mod: S => Option[S], callback: => G[B]): Sync[Unit] =
     setStateOption(mod(value), callback)
 
   /** THIS WILL VOID REUSABILITY.
@@ -51,7 +53,7 @@ final class StateSnapshot[S](val value: S,
   /** @return `None` if `value: S` isn't `value: T` as well. */
   def narrowOption[T <: S: ClassTag]: Option[StateSnapshot[T]] =
     value match {
-      case b: T => Some(StateSnapshot(b)(setStateOption(_, _)))
+      case b: T => Some(StateSnapshot(b)(setStateOption(_, _)(F)))
       case _    => None
     }
 
@@ -67,7 +69,7 @@ final class StateSnapshot[S](val value: S,
           case Some(s: S) => Some(s)
           case _          => None
         }
-      setStateOption(oa, cb)
+      setStateOption(oa, cb)(F)
     }
 
   /** THIS WILL VOID REUSABILITY.

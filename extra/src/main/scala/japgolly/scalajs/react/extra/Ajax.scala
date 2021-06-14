@@ -30,10 +30,10 @@ object Ajax {
   // Step 1
 
   def apply(method: String, url: String): Step1 =
-    new Step1(CallbackKleisli.lift(_.open(method, url, true)))
+    new Step1(xhr => Sync.delay(xhr.open(method, url, true)))
 
   def apply(method: String, url: String, user: String, password: String): Step1 =
-    new Step1(CallbackKleisli.lift(_.open(method, url, true, user, password)))
+    new Step1(xhr => Sync.delay(xhr.open(method, url, true, user, password)))
 
   def get(url: String): Step1 =
     apply("GET", url)
@@ -41,11 +41,11 @@ object Ajax {
   def post(url: String): Step1 =
     apply("POST", url)
 
-  private type Ajax[A] = CallbackKleisli[XMLHttpRequest, A]
+  private type Ajax[A] = XMLHttpRequest => Sync[A]
 
   final class Step1(init: Ajax[Unit]) {
     def and(f: XMLHttpRequest => Unit): Step1 =
-      new Step1(init >> CallbackKleisli.lift(f))
+      new Step1(xhr => Sync.chain(init(xhr), Sync.delay(f(xhr))))
 
     def setRequestHeader(header: String, value: String): Step1 =
       and(_.setRequestHeader(header, value))
@@ -61,66 +61,72 @@ object Ajax {
 
     def send: Step2 =
       new Step2(
-        init >> CallbackKleisli.lift(_.send()),
+        xhr => Sync.chain(init(xhr), Sync.delay(xhr.send())),
         None, None, None, None)
 
     def send(requestBody: js.Any): Step2 =
       new Step2(
-        init >> CallbackKleisli.lift(_.send(requestBody)),
+        xhr => Sync.chain(init(xhr), Sync.delay(xhr.send(requestBody))),
         None, None, None, None)
   }
 
   // ===================================================================================================================
   // Step 2
 
-  final class Step2(begin: Ajax[Unit],
-                    onreadystatechange: Option[Ajax[Unit]],
-                    ontimeout: Option[Ajax[Unit]],
-                    onprogress: Option[CallbackKleisli[(XMLHttpRequest, ProgressEvent), Unit]],
-                    onuploadprogress: Option[CallbackKleisli[(XMLHttpRequest, ProgressEvent), Unit]]) {
+  private type OnProgress = (XMLHttpRequest, ProgressEvent) => Sync[Unit]
 
-    private def copy(begin: Ajax[Unit] = begin,
+  final class Step2(begin             : Ajax[Unit],
+                    onreadystatechange: Option[Ajax[Unit]],
+                    ontimeout         : Option[Ajax[Unit]],
+                    onprogress        : Option[OnProgress],
+                    onuploadprogress  : Option[OnProgress]) {
+
+    private def copy(begin             : Ajax[Unit]         = begin,
                      onreadystatechange: Option[Ajax[Unit]] = onreadystatechange,
-                     ontimeout: Option[Ajax[Unit]] = ontimeout,
-                     onprogress: Option[CallbackKleisli[(XMLHttpRequest, ProgressEvent), Unit]] = onprogress,
-                     onuploadprogress: Option[CallbackKleisli[(XMLHttpRequest, ProgressEvent), Unit]] = onuploadprogress): Step2 =
+                     ontimeout         : Option[Ajax[Unit]] = ontimeout,
+                     onprogress        : Option[OnProgress] = onprogress,
+                     onuploadprogress  : Option[OnProgress] = onuploadprogress): Step2 =
       new Step2(
-        begin = begin,
+        begin              = begin,
         onreadystatechange = onreadystatechange,
-        ontimeout = ontimeout,
-        onprogress = onprogress,
-        onuploadprogress = onuploadprogress)
+        ontimeout          = ontimeout,
+        onprogress         = onprogress,
+        onuploadprogress   = onuploadprogress)
+
+    private def optionalBefore[A, B, C](before: Option[A => Sync[B]], last: A => Sync[C]): A => Sync[C] =
+      before.fold(last)(b => (a: A) => Sync.chain(b(a), last(a)))
+
+    private def optionalBefore[A1, A2, B, C](before: Option[(A1, A2) => Sync[B]], last: (A1, A2) => Sync[C]): (A1, A2) => Sync[C] =
+      before.fold(last)(b => (a1: A1, a2: A2) => Sync.chain(b(a1, a2), last(a1, a2)))
 
     def withTimeout(millis: Double, f: XMLHttpRequest => Sync[Unit]): Step2 =
       copy(
-        begin = begin << CallbackKleisli.lift(_.timeout = millis),
-        ontimeout = Some(CallbackKleisli(f) <<? ontimeout))
+        begin     = xhr => Sync.chain(Sync.delay(xhr.timeout = millis), begin(xhr)),
+        ontimeout = Some(optionalBefore(ontimeout, f)),
+      )
 
     // TODO Prevent before withTimeout
     def onTimeout(f: XMLHttpRequest => Sync[Unit]): Step2 =
-      copy(ontimeout = Some(CallbackKleisli(f) <<? ontimeout))
+      copy(ontimeout = Some(optionalBefore(ontimeout, f)))
 
-    def onDownloadProgress(f: (XMLHttpRequest, ProgressEvent) => Sync[Unit]): Step2 =
-      copy(onprogress = Some(CallbackKleisli(f.tupled) <<? onprogress))
+    def onDownloadProgress(f: OnProgress): Step2 =
+      copy(onprogress = Some(optionalBefore(onprogress, f)))
 
-    def onUploadProgress(f: (XMLHttpRequest, ProgressEvent) => Sync[Unit]): Step2 =
-      copy(onuploadprogress = Some(CallbackKleisli(f.tupled) <<? onuploadprogress))
+    def onUploadProgress(f: OnProgress): Step2 =
+      copy(onuploadprogress = Some(optionalBefore(onuploadprogress, f)))
 
-    private def _onReadyStateChange(f: Ajax[Unit]): Step2 =
-      copy(onreadystatechange = Some(f <<? onreadystatechange))
+    private def onReadyStateChange(f: Ajax[Unit]): Step2 =
+      copy(onreadystatechange = Some(optionalBefore(onreadystatechange, f)))
 
-    def onReadyStateChange(f: XMLHttpRequest => Sync[Unit]): Step2 =
-      _onReadyStateChange(CallbackKleisli(f))
-
-    private def onCompleteKleisli(f: XMLHttpRequest => Sync[Unit]): Ajax[Unit] =
-      CallbackKleisli(f).when_(_.readyState == XMLHttpRequest.DONE)
+    private def onCompleteKleisli(f: Ajax[Unit]): Ajax[Unit] =
+      xhr => Sync.when_(xhr.readyState == XMLHttpRequest.DONE)(f(xhr))
 
     def onComplete(f: XMLHttpRequest => Sync[Unit]): Step2 =
-      _onReadyStateChange(onCompleteKleisli(f))
+      onReadyStateChange(onCompleteKleisli(f))
 
     def validateResponse(isValid: XMLHttpRequest => Boolean): (AjaxException => Sync[Unit]) => Step2 =
       onFailure => onComplete(xhr =>
-        Sync[Unit].unless(isValid(xhr))(onFailure(AjaxException(xhr))))
+        Sync.unless_(isValid(xhr))(onFailure(AjaxException(xhr))))
 
     def validateStatus(isValidStatus: Int => Boolean): (AjaxException => Sync[Unit]) => Step2 =
       validateResponse(xhr => isValidStatus(xhr.status))
@@ -132,54 +138,67 @@ object Ajax {
       validateStatus(isStatusSuccessful)
 
     private def registerU(k: Ajax[Unit])(set: (XMLHttpRequest, js.Function1[Any, Unit]) => Unit): Ajax[Unit] =
-      CallbackKleisli.lift(xhr => set(xhr, Sync[Unit].suspend(k(xhr)).toJsFn1))
+      xhr => Sync.delay(set(xhr, _ => Sync.runSync(Sync.suspend(k(xhr)))))
 
     private def register_(cb: Option[Ajax[Unit]])(set: (XMLHttpRequest, js.Function1[Any, Unit]) => Unit): Ajax[Unit] =
       cb match {
         case Some(k) => registerU(k)(set)
-        case None    => CallbackKleisli.unit
+        case None    => _ => Sync.empty
       }
 
-    private def registerE[E](cb: Option[CallbackKleisli[(XMLHttpRequest, E), Unit]])
+    private def registerE[E](cb: Option[(XMLHttpRequest, E) => Sync[Unit]])
                     (set: (XMLHttpRequest, js.Function1[E, Unit]) => Unit): Ajax[Unit] =
       cb match {
-        case Some(k) => CallbackKleisli.lift(xhr => set(xhr, k.contramap[E]((xhr, _)).toJsFn))
-        case None    => CallbackKleisli.unit
+        case Some(k) => xhr => Sync.delay(set(xhr, e => Sync.runSync(k(xhr, e))))
+        case None    => _ => Sync.empty
       }
 
-    private def registerSecondaryCallbacks: Ajax[Unit] = (
-      register_(ontimeout)(_.ontimeout = _) >>
-      registerE(onprogress)(_.onprogress = _) >>
-      registerE(onuploadprogress)(_.upload.onprogress = _))
+    private def registerSecondaryCallbacks: Ajax[Unit] =
+      xhr =>
+        Sync.chain(
+          register_(ontimeout)(_.ontimeout = _)(xhr),
+          registerE(onprogress)(_.onprogress = _)(xhr),
+          registerE(onuploadprogress)(_.upload.onprogress = _)(xhr),
+        )
 
     def asCallback: Sync[Unit] =
-      newXHR >>= (
-        register_(onreadystatechange)(_.onreadystatechange = _) >>
-        registerSecondaryCallbacks >>
-        begin).run
+      Sync.flatMap(newXHR)(xhr =>
+        Sync.chain(
+          register_(onreadystatechange)(_.onreadystatechange = _)(xhr),
+          registerSecondaryCallbacks(xhr),
+          begin(xhr),
+        )
+      )
 
     def asAsyncCallback: Async[XMLHttpRequest] =
-      Async.first { cc =>
+      Async.first[XMLHttpRequest] { cc =>
 
         val fail: Throwable => Sync[Unit] =
           t => cc(Failure(t))
 
         val onreadystatechange: Ajax[Unit] =
-          (onCompleteKleisli(xhr => cc(Success(xhr))) <<? this.onreadystatechange)
-            .mapCB(_.handleError(fail))
+          xhr =>
+            Sync.handleError(
+              Sync.chain(
+                this.onreadystatechange.fold(Sync.empty)(_(xhr)),
+                Sync.fromJsFn0(cc(Success(xhr))),
+              )
+            )(fail)
 
         val onerror: Ajax[Unit] =
-          CallbackKleisli(xhr => fail(AjaxException(xhr)))
+          xhr => fail(AjaxException(xhr))
 
         val start: Ajax[Unit] =
-          registerU(onreadystatechange)(_.onreadystatechange = _) >>
-          registerU(onerror)(_.onerror = _) >>
-          registerSecondaryCallbacks >>
-          begin
+          xhr => Sync.chain(
+            registerU(onreadystatechange)(_.onreadystatechange = _)(xhr),
+            registerU(onerror)(_.onerror = _)(xhr),
+            registerSecondaryCallbacks(xhr),
+            begin(xhr),
+          )
 
-        (newXHR >>= start.run).handleError(fail)
+        Sync.handleError(Sync.flatMap(newXHR)(start))(fail)
       }
   }
 
-  private val newXHR = Sync(new XMLHttpRequest())
+  private val newXHR = Sync.delay(new XMLHttpRequest())
 }

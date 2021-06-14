@@ -13,6 +13,11 @@
 
 * Document modules
 
+* Deprecate or remove CallbackKleisli
+
+* Add fire-and-forget effect execution
+* Remove default impls in Effect typeclasses
+
 * Remove temp scripts
 
 * Add WithAsyncEffect / WithEffectAsync to component.*

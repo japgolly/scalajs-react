@@ -75,6 +75,9 @@ trait EffectCallback {
     override def runAsync[A](fa: => AsyncCallback[A]): Async.Untyped[A] =
       f => fa.completeWith(t => CallbackTo(f(t))).toJsFn
 
+    override def first[A](f: Async.Untyped[A]) =
+      AsyncCallback.first[A](g => Callback.fromJsFn(f(g.andThen(_.toJsFn))))
+
     override def toJsPromise[A](fa: => AsyncCallback[A]): () => js.Promise[A] =
       () => fa.unsafeToJsPromise()
   }

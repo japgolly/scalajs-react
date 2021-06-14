@@ -98,6 +98,21 @@ object Effect
 
     val semigroupSyncOr: Semigroup[F[Boolean]] =
       Semigroup((f, g) => delay(runSync(f) || runSync(g)))
+
+    def when_[A](cond: Boolean)(fa: => F[A]): F[Unit] =
+      if (cond) map(fa)(_ => ()) else empty
+
+    @inline final def unless_[A](cond: Boolean)(fa: => F[A]): F[Unit] =
+      when_(!cond)(fa)
+
+    def handleError[A, AA >: A](fa: F[A])(f: Throwable => F[AA]): F[AA] =
+      delay[AA](
+        try
+          runSync(fa)
+        catch {
+          case t: Throwable => runSync(f(t))
+        }
+      )
   }
 
   object Sync {
@@ -126,6 +141,17 @@ object Effect
     def async[A](f: Async.Untyped[A]): F[A]
     def runAsync[A](fa: => F[A]): Async.Untyped[A]
     def toJsPromise[A](fa: => F[A]): () => js.Promise[A]
+
+    def first[A](f: Async.Untyped[A]): F[A] =
+      async(g => () => {
+        var first = true
+        f(ea => () => {
+          if (first) {
+            first = false
+            g(ea).apply()
+          }
+        }).apply()
+      })
 
     // TODO: FX: Confirm this works. If it does then why does AsyncCallback.viaCallback use a promise?
     final def async_(onCompletion: Sync.Untyped[Unit] => Sync.Untyped[Unit]): F[Unit] =
