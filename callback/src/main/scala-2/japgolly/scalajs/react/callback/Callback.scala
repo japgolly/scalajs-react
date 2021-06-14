@@ -90,8 +90,8 @@ object Callback {
    *
    * @param cond The condition required to be `true` for the callback to execute.
    */
-  def when(cond: Boolean)(c: => Callback): Callback =
-    if (cond) c else Callback.empty
+  def when[A](cond: Boolean)(c: => CallbackTo[A]): Callback =
+    if (cond) c.void else Callback.empty
 
   /**
    * Convenience for applying a condition to a callback, and returning `Callback.empty` when the condition is already
@@ -101,23 +101,23 @@ object Callback {
    *
    * @param cond The condition required to be `false` for the callback to execute.
    */
-  def unless(cond: Boolean)(c: => Callback): Callback =
+  def unless[A](cond: Boolean)(c: => CallbackTo[A]): Callback =
     when(!cond)(c)
 
-  def traverse[T[X] <: Iterable[X], A](ta: => T[A])(f: A => Callback): Callback =
+  def traverse[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => CallbackTo[B]): Callback =
     Callback(
       ta.iterator.foreach(a =>
         f(a).runNow()))
 
-  def sequence[T[X] <: Iterable[X]](tca: => T[Callback]): Callback =
+  def sequence[T[X] <: Iterable[X], A](tca: => T[CallbackTo[A]]): Callback =
     traverse(tca)(identityFn)
 
-  def traverseOption[A](oa: => Option[A])(f: A => Callback): Callback =
+  def traverseOption[A, B](oa: => Option[A])(f: A => CallbackTo[B]): Callback =
     Callback(
       oa.foreach(a =>
         f(a).runNow()))
 
-  def sequenceOption[A](oca: => Option[Callback]): Callback =
+  def sequenceOption[A](oca: => Option[CallbackTo[A]]): Callback =
     traverseOption(oca)(identityFn)
 
   /** Run all given callbacks.

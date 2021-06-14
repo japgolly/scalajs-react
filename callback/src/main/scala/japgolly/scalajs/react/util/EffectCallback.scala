@@ -11,6 +11,12 @@ trait EffectCallback {
     override val empty =
       Callback.empty
 
+    override implicit val semigroupSyncUnit: Semigroup[Callback] =
+      Semigroup(_ >> _)
+
+    override val semigroupSyncOr: Semigroup[CallbackTo[Boolean]] =
+      Semigroup(_ || _)
+
     @inline override def isEmpty(f: Callback) =
       f.isEmpty_?
 
@@ -64,6 +70,15 @@ trait EffectCallback {
 
     @inline override def sequenceList[A](fas: List[CallbackTo[A]]) =
       CallbackTo.sequence(fas)
+
+    @inline override def handleError[A, AA >: A](fa: CallbackTo[A])(f: Throwable => CallbackTo[AA]) =
+      fa.handleError(f)
+
+    @inline override def sequence_[A](fas: Iterable[CallbackTo[A]]) =
+      Callback.sequence(fas)
+
+    @inline override def when_[A](cond: Boolean)(fa: => CallbackTo[A]) =
+      Callback.when(cond)(fa)
   }
 
   // ===================================================================================================================
