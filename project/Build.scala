@@ -95,10 +95,12 @@ object ScalajsReact {
     .aggregate(
       facade,
       util,
+      utilDummyDefaults,
       callback,
       coreGeneral,
       core,
       extra,
+      /*
       test,
       // testModule,
       scalaz72,
@@ -109,6 +111,7 @@ object ScalajsReact {
       monocle3,
       ghpagesMacros,
       ghpages,
+      */
     )
 
   // ==============================================================================================
@@ -123,6 +126,11 @@ object ScalajsReact {
     .configure(commonSettings, publicationSettings, hasNoTests)
     .settings(libraryDependencies += Dep.scalaJsDom.value)
 
+  lazy val utilDummyDefaults = project
+    .in(file("util-dummy-defaults"))
+    .configure(commonSettings, preventPublication, hasNoTests)
+    .dependsOn(util)
+
   lazy val callback = project
     .configure(commonSettings, publicationSettings, utestSettings)
     .dependsOn(util)
@@ -131,6 +139,7 @@ object ScalajsReact {
     .in(file("core-general"))
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .dependsOn(facade, util)
+    .dependsOn(utilDummyDefaults % Provided)
     .settings(
       name := "core-general",
       libraryDependencies ++= Seq(
@@ -148,6 +157,7 @@ object ScalajsReact {
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .dependsOn(coreGeneral)
+    .dependsOn(utilDummyDefaults % Provided)
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test))

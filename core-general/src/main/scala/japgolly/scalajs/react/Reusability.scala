@@ -1,8 +1,8 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.Box
-import japgolly.scalajs.react.util.Effect.Sync
-import japgolly.scalajs.react.util.{DefaultEffects => D, OptionLike}
+import japgolly.scalajs.react.util.{Effect, OptionLike}
+import japgolly.scalajs.react.util.DefaultEffects._
 import java.time._
 import java.util.{Date, UUID}
 import org.scalajs.dom.console
@@ -421,17 +421,17 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
 
   // ===================================================================================================================
 
-  def shouldComponentUpdateAnd[F[_], P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => F[Unit])(implicit F: Sync[F]): ScalaComponent.Config[P, C, S, B, U, U] =
+  def shouldComponentUpdateAnd[F[_], P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => F[Unit])(implicit F: Effect.Sync[F]): ScalaComponent.Config[P, C, S, B, U, U] =
     _.shouldComponentUpdate { i =>
       val r = ShouldComponentUpdateResult(i)
-      val c = F.map(f(r))(_ => r.update)
-      D.Sync.transSync(c)
+      val g = Sync.transSync(f(r))
+      Sync.map(g)(_ => r.update)
     }
 
   def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](name: String): ScalaComponent.Config[P, C, S, B, U, U] =
     shouldComponentUpdateAnd(_ log name)
 
-  final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[D.Sync, D.Async, P, S, B]) {
+  final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[Sync, Async, P, S, B]) {
     def mounted       = self.mountedImpure
     def backend       = self.backend
     def propsChildren = self.propsChildren
@@ -445,8 +445,8 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     val updateState: Boolean = currentState ~/~ nextState
     val update     : Boolean = updateProps || updateState
 
-    def log(name: String): D.Sync[Unit] =
-      D.Sync.delay(
+    def log(name: String): Sync[Unit] =
+      Sync.delay(
         console.log(
           s"""
              |s"$name.shouldComponentUpdate = $update

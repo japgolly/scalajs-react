@@ -7,7 +7,7 @@ object DefaultEffects extends DefaultEffectsApi {
   override type Async[A] = AsyncCallback[A]
   override type Sync [A] = CallbackTo[A]
 
-  @inline override implicit def Async = Effect.asyncCallback
-  @inline override implicit def Sync  = Effect.callback
+  @inline override implicit val Async: Effect.asyncCallback.type = Effect.asyncCallback
+  @inline override implicit val Sync: Effect.callback.type = Effect.callback
 
 }

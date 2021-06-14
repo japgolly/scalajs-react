@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.Lens
-import japgolly.scalajs.react.util.DefaultEffects
+import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultSync}
 import japgolly.scalajs.react.util.Effect._
 
 /**
@@ -24,14 +24,16 @@ trait StateAccess[F[_], A[_], S] extends StateAccess.Write[F, A, S] {
 
   type WithEffect[F2[_]] <: StateAccess[F2, A, S]
   def withEffect[F2[_]](implicit t: UnsafeSync[F2]): WithEffect[F2]
-  final def withEffectsPure(implicit t: UnsafeSync[DefaultEffects.Sync]): WithEffect[DefaultEffects.Sync] = withEffect
-  final def withEffectsImpure(implicit t: UnsafeSync[Id]): WithEffect[Id] = withEffect
+  final def withEffectsPure: WithEffect[DefaultSync] = withEffect
+  final def withEffectsImpure: WithEffect[Id] = withEffect
 
   type WithAsyncEffect[A2[_]] <: StateAccess[F, A2, S]
   def withAsyncEffect[A2[_]](implicit t: Async[A2]): WithAsyncEffect[A2]
 }
 
 object StateAccess {
+
+  @inline private def empty = DefaultSync.empty
 
   trait Base[F[_], A[_]] extends Any {
     protected implicit def F: UnsafeSync[F]
@@ -44,14 +46,14 @@ object StateAccess {
   trait SetState[F[_], A[_], S] extends Any with Base[F, A] {
 
     final def setState(newState: S): F[Unit] =
-      setState(newState, Sync.empty)
+      setState(newState, empty)
 
     /** @param callback Executed after state is changed. */
     def setState[G[_], B](newState: S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
       setStateOption(Some(newState), callback)
 
     final def setStateOption(newState: Option[S]): F[Unit] =
-      setStateOption(newState, Sync.empty)
+      setStateOption(newState, empty)
 
     /** @param callback Executed regardless of whether state is changed. */
     def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit]
@@ -69,14 +71,14 @@ object StateAccess {
   trait ModState[F[_], A[_], S] extends Any with Base[F, A] {
 
     final def modState(mod: S => S): F[Unit] =
-      modState(mod, Sync.empty)
+      modState(mod, empty)
 
     /** @param callback Executed after state is changed. */
     def modState[G[_], B](mod: S => S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
       modStateOption(mod.andThen(Some(_)), callback)
 
     final def modStateOption(mod: S => Option[S]): F[Unit] =
-      modStateOption(mod, Sync.empty)
+      modStateOption(mod, empty)
 
     /** @param callback Executed regardless of whether state is changed. */
     def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit]
@@ -94,14 +96,14 @@ object StateAccess {
   trait ModStateWithProps[F[_], A[_], P, S] extends Any with Base[F, A] {
 
     final def modState(mod: (S, P) => S): F[Unit] =
-      modState(mod, Sync.empty)
+      modState(mod, empty)
 
     /** @param callback Executed after state is changed. */
     def modState[G[_], B](mod: (S, P) => S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
       modStateOption((s, p) => Some(mod(s, p)), callback)
 
     final def modStateOption(mod: (S, P) => Option[S]): F[Unit] =
-      modStateOption(mod, Sync.empty)
+      modStateOption(mod, empty)
 
     /** @param callback Executed regardless of whether state is changed. */
     def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit]

@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.util
 
 import japgolly.scalajs.react.userdefined
-import japgolly.scalajs.react.util.{JsUtil, OptionLike}
+import japgolly.scalajs.react.util.OptionLike
 import japgolly.scalajs.react.util.Util.identityFn
 import scala.scalajs.js
 import scala.util.Try
@@ -120,19 +120,6 @@ object Effect
 
     val empty: Untyped[Unit] =
       () => ()
-
-    implicit val untyped: Sync[Untyped] = new Sync[Untyped] {
-      type F[A] = Untyped[A]
-      override val empty                                                          = Sync.empty
-      override def isEmpty           (f: F[Unit])                                 = f eq Sync.empty
-      override def delay    [A]      (a: => A)                                    = () => a
-      override def pure     [A]      (a: A)                                       = () => a
-      override def map      [A, B]   (fa: F[A])(f: A => B)                        = () => f(fa())
-      override def flatMap  [A, B]   (fa: F[A])(f: A => F[B])                     = () => f(fa())()
-      override def runSync  [A]      (fa: => F[A])                                = fa()
-      override def option_  [O[_], A](ofa: => O[F[A]])(implicit O: OptionLike[O]) = () => O.foreach(ofa)(_())
-      override def fromJsFn0[A]      (f: js.Function0[A])                         = f
-    }
   }
 
   // ===================================================================================================================
@@ -166,18 +153,6 @@ object Effect
 
   object Async {
     type Untyped[A] = (Try[A] => Sync.Untyped[Unit]) => Sync.Untyped[Unit]
-
-    implicit lazy val untyped: Async[Untyped] =
-      new Async[Untyped] {
-        override def async   [A](f: Untyped[A]) = f
-        override def runAsync[A](f: => Untyped[A]) = f
-        override def toJsPromise[A](fa: => Untyped[A]): () => js.Promise[A] =
-          () => {
-            val (p, f) = JsUtil.newPromise[A]()
-            fa(f)
-            p
-          }
-      }
   }
 }
 

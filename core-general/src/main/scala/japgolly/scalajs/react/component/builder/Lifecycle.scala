@@ -92,7 +92,7 @@ object Lifecycle {
 
   sealed trait ForceUpdate[F[_], A[_], P, S, B] { self: Base[F, A, P, S, B] =>
     final def forceUpdate: F[Unit] =
-      forceUpdate(Sync.empty)
+      forceUpdate(DefaultEffects.Sync.empty)(DefaultEffects.Sync)
 
     final def forceUpdate[G[_], B](callback: => G[B])(implicit G: Sync[G]): F[Unit] =
       mountedPure.forceUpdate(callback)

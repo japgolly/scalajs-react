@@ -137,7 +137,7 @@ object Generic {
     def propsChildren: F[PropsChildren]
 
     def forceUpdate[G[_], B](callback: => G[B])(implicit G: Sync[G]): F[Unit]
-    final def forceUpdate: F[Unit] = forceUpdate(Sync.empty)
+    final def forceUpdate: F[Unit] = forceUpdate(DefaultS.empty)
   }
 
   trait MountedWithRoot[F[_], A[_], P1, S1, P0, S0] extends MountedSimple[F, A, P1, S1] {
