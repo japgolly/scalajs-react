@@ -147,7 +147,7 @@ object ScalajsReact {
 
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
-    .dependsOn(core)
+    .dependsOn(coreGeneral)
 
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test))

@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra.router
 
-import japgolly.scalajs.react.CallbackTo
 import japgolly.scalajs.react.extra.router.RouterConfig.Parsed
+import japgolly.scalajs.react.util.DefaultEffects.Sync
 
 /** A complete set of routing rules that allow the router to handle every all routes without further input.
   *
@@ -12,17 +12,17 @@ final case class RoutingRules[Page, Props](parseMulti    : Path => List[StaticOr
                                            path          : Page => Path,
                                            actionMulti   : (Path, Page) => List[StaticOrDynamic[Option[Action[Page, Props]]]],
                                            fallbackAction: (Path, Page) => Action[Page, Props],
-                                           whenNotFound  : Path => CallbackTo[Parsed[Page]]) {
+                                           whenNotFound  : Path => Sync[Parsed[Page]]) {
   import RoutingRules.SharedLogic._
 
-  def parse(path: Path): CallbackTo[Parsed[Page]] =
-    selectParsed(path, parseMulti).flatMap {
-      case Some(a) => CallbackTo.pure(a)
+  def parse(path: Path): Sync[Parsed[Page]] =
+    Sync.flatMap(selectParsed(path, parseMulti)) {
+      case Some(a) => Sync.pure(a)
       case None    => whenNotFound(path)
     }
 
-  def action(path: Path, page: Page): CallbackTo[Action[Page, Props]] =
-    selectAction(path, page, actionMulti).map(_.getOrElse(fallbackAction(path, page)))
+  def action(path: Path, page: Page): Sync[Action[Page, Props]] =
+    Sync.map(selectAction(path, page, actionMulti))(_.getOrElse(fallbackAction(path, page)))
 }
 
 object RoutingRules {
@@ -33,7 +33,7 @@ object RoutingRules {
   private[router] object SharedLogic {
 
     def selectParsed[Page](path : Path,
-                           parse: Path => List[StaticOrDynamic[Option[Parsed[Page]]]]): CallbackTo[Option[Parsed[Page]]] =
+                           parse: Path => List[StaticOrDynamic[Option[Parsed[Page]]]]): Sync[Option[Parsed[Page]]] =
       unambiguousRule(parse(path))(
         as => s"Multiple (${as.size}) (unconditional) routes specified for path ${path.value}",
         as => s"Multiple (${as.size}) conditional routes active for path ${path.value}")
@@ -41,29 +41,29 @@ object RoutingRules {
     def selectAction[Page, Props](path  : Path,
                            page  : Page,
                            action: (Path, Page) => List[StaticOrDynamic[Option[Action[Page, Props]]]],
-                     ): CallbackTo[Option[Action[Page, Props]]] =
+                     ): Sync[Option[Action[Page, Props]]] =
       unambiguousRule(action(path, page))(
         as => s"Multiple (${as.size}) (unconditional) actions specified for $page at path ${path.value}",
         as => s"Multiple (${as.size}) conditional actions active for $page at path ${path.value}")
 
     private def unambiguousRule[A](xs       : List[StaticOrDynamic[Option[A]]])
                                   (staticErr: List[A] => String,
-                                   dynErr   : List[A] => String): CallbackTo[Option[A]] = {
+                                   dynErr   : List[A] => String): Sync[Option[A]] = {
       val (statics, dynamics) = StaticOrDynamic.partition(xs)
 
-      for {
-        dynamicOptions <- CallbackTo.sequence(dynamics)
-        dynamicOption  <- unambiguousOption(dynamicOptions)(dynErr)
-        staticOption   <- unambiguousOption(statics)(staticErr)
-      } yield dynamicOption.orElse(staticOption)
+      Sync.flatMap(Sync.sequenceList(dynamics)              )(dynamicOptions =>
+      Sync.flatMap(unambiguousOption(dynamicOptions)(dynErr))(dynamicOption =>
+      Sync.map   (unambiguousOption(statics)(staticErr)     )(staticOption =>
+        dynamicOption.orElse(staticOption)
+      )))
     }
 
-    private def unambiguousOption[A](input: List[Option[A]])(errMsg: List[A] => String): CallbackTo[Option[A]] = {
+    private def unambiguousOption[A](input: List[Option[A]])(errMsg: List[A] => String): Sync[Option[A]] = {
       val as = input.collect { case Some(a) => a }
       as match {
-        case Nil      => CallbackTo.pure(None)
-        case a :: Nil => CallbackTo.pure(Some(a))
-        case as       => CallbackTo.throwException(new Exception(errMsg(as)))
+        case Nil      => Sync.pure(None)
+        case a :: Nil => Sync.pure(Some(a))
+        case as       => Sync.delay(throw new Exception(errMsg(as)))
       }
     }
   }
@@ -71,7 +71,7 @@ object RoutingRules {
   def fromRule[Page, Props](rule          : RoutingRule[Page, Props],
                             fallbackPath  : Page => Path,
                             fallbackAction: (Path, Page) => Action[Page, Props],
-                            whenNotFound  : Path => CallbackTo[Parsed[Page]]): RoutingRules[Page, Props] = {
+                            whenNotFound  : Path => Sync[Parsed[Page]]): RoutingRules[Page, Props] = {
 
     def prepareParseFn(rule: RoutingRule[Page, Props]): Path => List[StaticOrDynamic[Option[Parsed[Page]]]] =
       rule match {
@@ -135,13 +135,14 @@ object RoutingRules {
           val underlying = prepareActionFn(r.underlying)
           (path, page) =>
             dynamic[Option[Action[Page, Props]]] {
-              SharedLogic.selectAction(path, page, underlying).flatMap {
+              Sync.flatMap(SharedLogic.selectAction(path, page, underlying)) {
                 case ok@Some(_) =>
-                  r.condition(page).map {
+                  Sync.map(r.condition(page)) {
                     case true  => ok
                     case false => r.otherwise(page)
                   }
-                case None => CallbackTo.pure(None)
+                case None =>
+                  Sync.pure(None)
               }
             } :: Nil
       }
@@ -168,7 +169,7 @@ object RoutingRules {
       path           = fromPage(_)._1,
       actionMulti    = (_, p) => static(Option(fromPage(p)._2)) :: Nil,
       fallbackAction = (_, _) => RedirectToPath(Path.root, SetRouteVia.HistoryPush), // won't happen
-      whenNotFound   = notFound.andThen(CallbackTo.pure(_)))
+      whenNotFound   = notFound.andThen(Sync.pure(_)))
 
   /** Create routing rules all at once, with compiler proof that all `Page`s will have a `Path` and `Action`
     * associated.
@@ -176,13 +177,13 @@ object RoutingRules {
     * The trade-off here is that care will need to be taken to ensure that path-parsing aligns with paths
     * generated for pages. It is recommended that you call [[RouterConfig.verify]] as a sanity-check.
     */
-  def bulkDynamic[Page, Props](toPage  : Path => CallbackTo[Option[Parsed[Page]]],
-                               fromPage: Page => (Path, CallbackTo[Action[Page, Props]]),
+  def bulkDynamic[Page, Props](toPage  : Path => Sync[Option[Parsed[Page]]],
+                               fromPage: Page => (Path, Sync[Action[Page, Props]]),
                                notFound: Path => Parsed[Page]): RoutingRules[Page, Props] =
     apply[Page, Props](
       parseMulti     = p => dynamic(toPage(p)) :: Nil,
       path           = fromPage(_)._1,
-      actionMulti    = (_, p) => dynamic(fromPage(p)._2.map(Option(_))) :: Nil,
+      actionMulti    = (_, p) => dynamic(Sync.map(fromPage(p)._2)(Option(_))) :: Nil,
       fallbackAction = (_, _) => RedirectToPath(Path.root, SetRouteVia.HistoryPush), // won't happen
-      whenNotFound   = notFound.andThen(CallbackTo.pure(_)))
+      whenNotFound   = notFound.andThen(Sync.pure(_)))
 }

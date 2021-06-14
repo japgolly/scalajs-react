@@ -105,12 +105,12 @@ object Callback {
   inline def unless(inline cond: Boolean)(inline c: Callback): Callback =
     when(!cond)(c)
 
-  def traverse[T[X] <: IterableOnce[X], A](ta: => T[A])(f: A => Callback): Callback =
+  def traverse[T[X] <: Iterable[X], A](ta: => T[A])(f: A => Callback): Callback =
     Callback(
       ta.iterator.foreach(a =>
         f(a).runNow()))
 
-  inline def sequence[T[X] <: IterableOnce[X]](inline tca: T[Callback]): Callback =
+  inline def sequence[T[X] <: Iterable[X]](inline tca: T[Callback]): Callback =
     traverse(tca)(identityFn)
 
   def traverseOption[A](oa: => Option[A])(f: A => Callback): Callback =

@@ -2,6 +2,8 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.ReusabilityOverlay.Comp
+import japgolly.scalajs.react.util.DefaultEffects.Sync
+import japgolly.scalajs.react.util.DomUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html.Element
 import org.scalajs.dom.raw.{CSSStyleDeclaration, Node}
@@ -31,8 +33,8 @@ object DefaultReusabilityOverlay {
                      reasonsToShowOnClick: Int,
                      updatePositionEvery : FiniteDuration,
                      dynamicStyle        : (Int, Int, Nodes) => Unit,
-                     mountHighlighter    : Comp => Callback,
-                     updateHighlighter   : Comp => Callback)
+                     mountHighlighter    : Comp => Sync[Unit],
+                     updateHighlighter   : Comp => Sync[Unit])
 
   private[DefaultReusabilityOverlay] implicit def autoLiftHtml(n: Node): Element = n.domAsHtml
 
@@ -79,8 +81,8 @@ object DefaultReusabilityOverlay {
 
   def highlighter(before: CSSStyleDeclaration => Unit,
                   frame1: CSSStyleDeclaration => Unit,
-                  frame2: CSSStyleDeclaration => Unit): Comp => Callback =
-    $ => Callback {
+                  frame2: CSSStyleDeclaration => Unit): Comp => Sync[Unit] =
+    $ => Sync.delay {
       $.getDOMNode.mounted.map(_.node).foreach { n =>
         before(n.style)
         window.requestAnimationFrame{(_: Double) =>
@@ -125,7 +127,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
   protected def badCount = bad.size
   protected var overlay: Option[Nodes] = None
 
-  val onClick = Callback {
+  val onClick = Sync.delay {
     if (bad.nonEmpty) {
       var i = options.reasonsToShowOnClick min badCount
       console.info(s"Last $i reasons to update:")
@@ -139,17 +141,17 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
       console info "%d/%d (%.0f%%) updates prevented.".format(good, sum, good.toDouble / sum * 100)
   }
 
-  val create = Callback {
+  val create = Sync.delay {
 
     // Create
     val tmp = document.createElement("div").domAsHtml
     document.body.appendChild(tmp)
-    options.template.template.renderIntoDOM(tmp, Callback {
+    options.template.template.renderIntoDOM(tmp, Sync.delay {
       val outer = tmp.firstChild
       document.body.replaceChild(outer, tmp)
 
       // Customise
-      outer.addEventListener("click", onClick.toJsFn1)
+      outer.addEventListener("click", Sync.toJsFn1((_: Any) => onClick))
 
       // Store
       val good = options.template good outer
@@ -158,8 +160,8 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
     })
   }
 
-  def withNodes(f: Nodes => Unit): Callback =
-    Callback(overlay foreach f)
+  def withNodes(f: Nodes => Unit): Sync[Unit] =
+    Sync.delay(overlay foreach f)
 
   val updatePosition = withNodes { n =>
     $.getDOMNode.mounted.map(_.node).foreach { d =>
@@ -189,25 +191,31 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
   }
 
   val update =
-    updateContent >> updatePosition
+    Sync.chain(updateContent, updatePosition)
 
   val highlightUpdate =
     options.updateHighlighter($)
 
   override val logGood =
-    Callback(good += 1) >> update
+    Sync.chain(Sync.delay(good += 1), update)
 
   override def logBad(reason: String) =
-    Callback(bad :+= reason) >> update >> highlightUpdate
+    Sync.chain(Sync.delay(bad :+= reason), update, highlightUpdate)
 
   override val onMount =
-    create >> update >> options.mountHighlighter($) >> setInterval(updatePosition, options.updatePositionEvery)
+    Sync.chain(
+      create,
+      update,
+      options.mountHighlighter($),
+      setInterval(updatePosition, options.updatePositionEvery))
 
-  override val onUnmount =
-    super.unmount.thenRun(
+  override val onUnmount = {
+    val f = Sync.delay {
       overlay.foreach { o =>
         document.body.removeChild(o.outer)
         overlay = None
       }
-    )
+    }
+    Sync.chain(super.unmount, f)
+  }
 }

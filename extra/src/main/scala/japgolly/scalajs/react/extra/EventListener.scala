@@ -1,6 +1,8 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.util.DefaultEffects.{Sync => Default}
+import japgolly.scalajs.react.util.Effect.Sync
 import org.scalajs.dom.Event
 import org.scalajs.dom.raw.EventTarget
 import scala.scalajs.js
@@ -26,29 +28,31 @@ object EventListener {
      *                   Events which are bubbling upward through the tree will not trigger a listener designated to use
      *                   capture.
      */
-    def install[P, C <: Children, S, B <: OnUnmount, U <: UpdateSnapshot]
+    def install[F[_], P, C <: Children, S, B <: OnUnmount, U <: UpdateSnapshot]
         (eventType : String,
-         listener  : ScalaComponent.MountedPure[P, S, B] => E => Callback,
+         listener  : ScalaComponent.MountedPure[P, S, B] => E => F[Unit],
          target    : ScalaComponent.MountedImpure[P, S, B] => EventTarget = defaultTarget[P, S, B],
-         useCapture: Boolean = false) =
-      OnUnmount.install[P, C, S, B, U] andThen (_.componentDidMount { $ =>
+         useCapture: Boolean = false)
+        (implicit F: Sync[F]) =
+      OnUnmount.install[P, C, S, B, U].andThen(_.componentDidMount { $ =>
         val et = target($.mountedImpure)
         val fe = listener($.mountedPure)
-        val f: js.Function1[E, Unit] = (e: E) => fe(e).runNow()
-        val add = Callback(et.addEventListener(eventType, f, useCapture))
-        val del = Callback(et.removeEventListener(eventType, f, useCapture))
-        add >> $.backend.onUnmount(del)
+        val f: js.Function1[E, Unit] = F.toJsFn1(fe)
+        val add = Default.delay(et.addEventListener(eventType, f, useCapture))
+        val del = F.delay(et.removeEventListener(eventType, f, useCapture))
+        Default.chain(add, $.backend.onUnmount(del))
       })
 
   } //end class
 
   /** See [[OfEventType.install()]]. */
-  def install[P, C <: Children, S, B <: OnUnmount, U <: UpdateSnapshot]
+  def install[F[_], P, C <: Children, S, B <: OnUnmount, U <: UpdateSnapshot]
       (eventType : String,
-       listener  : ScalaComponent.MountedPure[P, S, B] => Callback,
+       listener  : ScalaComponent.MountedPure[P, S, B] => F[Unit],
        target    : ScalaComponent.MountedImpure[P, S, B] => EventTarget = defaultTarget[P, S, B],
-       useCapture: Boolean = false) =
-    EventListener[Event].install[P, C, S, B, U](
+       useCapture: Boolean = false)
+      (implicit F: Sync[F]) =
+    EventListener[Event].install[F, P, C, S, B, U](
       eventType,
       $ => { val cb = listener($); _ => cb },
       target, useCapture)

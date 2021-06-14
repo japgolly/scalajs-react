@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react._
+import japgolly.scalajs.react.util.DefaultEffects.Sync
+import japgolly.scalajs.react.{CtorType, ScalaComponent}
 
 package object router {
 
@@ -22,10 +23,10 @@ package object router {
     def | (g: A => B)        : A => B         = a => f(a) getOrElse g(a)
   }
 
-  private[router] implicit class CallbackToOptionFnExt[A, B](private val f: A => CallbackTo[Option[B]]) extends AnyVal {
-    def ||(g: A => CallbackTo[Option[B]]): A => CallbackTo[Option[B]] =
-      a => f(a).flatMap {
-        case s@ Some(_) => CallbackTo.pure(s)
+  private[router] implicit class CallbackToOptionFnExt[A, B](private val f: A => Sync[Option[B]]) extends AnyVal {
+    def ||(g: A => Sync[Option[B]]): A => Sync[Option[B]] =
+      a => Sync.flatMap(f(a)) {
+        case s@ Some(_) => Sync.pure(s)
         case None       => g(a)
       }
   }
@@ -35,10 +36,10 @@ package object router {
     def | (g: (A, B) => C)        : (A, B) => C         = (a, b) => f(a, b) getOrElse g(a, b)
   }
 
-  private[router] implicit class CallbackToOptionFn2Ext[A, B, C](private val f: (A, B) => CallbackTo[Option[C]]) extends AnyVal {
-    def ||(g: (A, B) => CallbackTo[Option[C]]): (A, B) => CallbackTo[Option[C]] =
-      (a, b) => f(a, b).flatMap {
-        case s@ Some(_) => CallbackTo.pure(s)
+  private[router] implicit class CallbackToOptionFn2Ext[A, B, C](private val f: (A, B) => Sync[Option[C]]) extends AnyVal {
+    def ||(g: (A, B) => Sync[Option[C]]): (A, B) => Sync[Option[C]] =
+      (a, b) => Sync.flatMap(f(a, b)) {
+        case s@ Some(_) => Sync.pure(s)
         case None       => g(a, b)
       }
   }

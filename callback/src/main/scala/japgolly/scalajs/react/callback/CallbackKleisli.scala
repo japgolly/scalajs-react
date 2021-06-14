@@ -51,17 +51,17 @@ object CallbackKleisli {
       trans(_.id)
 
     /** Anything traversable by the Scala stdlib definition */
-    def std[T[X] <: IterableOnce[X]](implicit cbf: BuildFrom[T[B], C, T[C]]): CallbackKleisli[A, T[B] => T[C]] =
+    def std[T[X] <: Iterable[X]](implicit cbf: BuildFrom[T[B], C, T[C]]): CallbackKleisli[A, T[B] => T[C]] =
       trans(_.std[T])
 
     def option: CallbackKleisli[A, Option[B] => Option[C]] =
       trans(_.option)
   }
 
-  def traverse[T[X] <: IterableOnce[X], A, B, C](tb: => T[B])(f: B => CallbackKleisli[A, C])(implicit cbf: BuildFrom[T[B], C, T[C]]): CallbackKleisli[A, T[C]] =
+  def traverse[T[X] <: Iterable[X], A, B, C](tb: => T[B])(f: B => CallbackKleisli[A, C])(implicit cbf: BuildFrom[T[B], C, T[C]]): CallbackKleisli[A, T[C]] =
     liftTraverse(f).std[T](cbf).map(_(tb))
 
-  def sequence[T[X] <: IterableOnce[X], A, B](tcb: => T[CallbackKleisli[A, B]])(implicit cbf: BuildFrom[T[CallbackKleisli[A, B]], B, T[B]]): CallbackKleisli[A, T[B]] =
+  def sequence[T[X] <: Iterable[X], A, B](tcb: => T[CallbackKleisli[A, B]])(implicit cbf: BuildFrom[T[CallbackKleisli[A, B]], B, T[B]]): CallbackKleisli[A, T[B]] =
     traverse(tcb)(identityFn)(cbf)
 
   def traverseOption[A, B, C](oa: => Option[B])(f: B => CallbackKleisli[A, C]): CallbackKleisli[A, Option[C]] =

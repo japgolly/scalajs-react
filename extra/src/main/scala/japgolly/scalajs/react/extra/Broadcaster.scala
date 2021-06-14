@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.{Callback, CallbackTo}
+import japgolly.scalajs.react.util.DefaultEffects.Sync
 
 /**
  * Implementation of `Listener`.
@@ -8,21 +8,21 @@ import japgolly.scalajs.react.{Callback, CallbackTo}
  */
 trait Broadcaster[A] extends Listenable[A] {
 
-  /** (A => Callback, Unit) instead of (A => Callback) because unregister is tied to a specific registration, rather
+  /** (A => Sync[Unit], Unit) instead of (A => Sync[Unit]) because unregister is tied to a specific registration, rather
     * than the listener fn itself. This allows users to register the same listener multiple times and each
     * registration is guaranteed to only correspond to the single registration.
     */
-  private var _listeners = List.empty[(A => Callback, Unit)]
+  private var _listeners = List.empty[(A => Sync[Unit], Unit)]
 
-  protected final def listenerIterator: Iterator[A => Callback] =
+  protected final def listenerIterator: Iterator[A => Sync[Unit]] =
     _listeners.iterator.map(_._1)
 
-  override def register(listener: A => Callback) = CallbackTo {
+  override def register(listener: A => Sync[Unit]) = Sync.delay {
     val record = (listener, ())
     _listeners ::= record
-    Callback({_listeners = _listeners.filter(_ ne record)})
+    Sync.delay { _listeners = _listeners.filter(_ ne record) }
   }
 
-  protected def broadcast(a: A): Callback =
-    Callback.traverse(_listeners)(_._1(a))
+  protected def broadcast(a: A): Sync[Unit] =
+    Sync.traverse_(_listeners)(_._1(a))
 }

@@ -421,7 +421,7 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
 
   // ===================================================================================================================
 
-  def shouldComponentUpdateAnd[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot, F[_], X](f: ShouldComponentUpdateResult[P, S, B] => F[X])(implicit F: Sync[F]): ScalaComponent.Config[P, C, S, B, U, U] =
+  def shouldComponentUpdateAnd[F[_], P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => F[Unit])(implicit F: Sync[F]): ScalaComponent.Config[P, C, S, B, U, U] =
     _.shouldComponentUpdate { i =>
       val r = ShouldComponentUpdateResult(i)
       val c = F.map(f(r))(_ => r.update)

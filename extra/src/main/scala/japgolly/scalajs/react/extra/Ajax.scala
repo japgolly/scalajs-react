@@ -1,12 +1,12 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.{AsyncCallback, Callback, CallbackKleisli, CallbackTo}
+import japgolly.scalajs.react.util.DefaultEffects._
 import org.scalajs.dom.ext.AjaxException
 import org.scalajs.dom.{ProgressEvent, XMLHttpRequest}
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
-/** Purely-functional AJAX that runs a [[Callback]], and accepts XHR-callbacks as [[Callback]] instances.
+/** Purely-functional AJAX.
   *
   * For a demo, see
   *   - https://japgolly.github.io/scalajs-react/#examples/ajax-1
@@ -91,48 +91,48 @@ object Ajax {
         onprogress = onprogress,
         onuploadprogress = onuploadprogress)
 
-    def withTimeout(millis: Double, f: XMLHttpRequest => Callback): Step2 =
+    def withTimeout(millis: Double, f: XMLHttpRequest => Sync[Unit]): Step2 =
       copy(
         begin = begin << CallbackKleisli.lift(_.timeout = millis),
         ontimeout = Some(CallbackKleisli(f) <<? ontimeout))
 
     // TODO Prevent before withTimeout
-    def onTimeout(f: XMLHttpRequest => Callback): Step2 =
+    def onTimeout(f: XMLHttpRequest => Sync[Unit]): Step2 =
       copy(ontimeout = Some(CallbackKleisli(f) <<? ontimeout))
 
-    def onDownloadProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 =
+    def onDownloadProgress(f: (XMLHttpRequest, ProgressEvent) => Sync[Unit]): Step2 =
       copy(onprogress = Some(CallbackKleisli(f.tupled) <<? onprogress))
 
-    def onUploadProgress(f: (XMLHttpRequest, ProgressEvent) => Callback): Step2 =
+    def onUploadProgress(f: (XMLHttpRequest, ProgressEvent) => Sync[Unit]): Step2 =
       copy(onuploadprogress = Some(CallbackKleisli(f.tupled) <<? onuploadprogress))
 
     private def _onReadyStateChange(f: Ajax[Unit]): Step2 =
       copy(onreadystatechange = Some(f <<? onreadystatechange))
 
-    def onReadyStateChange(f: XMLHttpRequest => Callback): Step2 =
+    def onReadyStateChange(f: XMLHttpRequest => Sync[Unit]): Step2 =
       _onReadyStateChange(CallbackKleisli(f))
 
-    private def onCompleteKleisli(f: XMLHttpRequest => Callback): Ajax[Unit] =
+    private def onCompleteKleisli(f: XMLHttpRequest => Sync[Unit]): Ajax[Unit] =
       CallbackKleisli(f).when_(_.readyState == XMLHttpRequest.DONE)
 
-    def onComplete(f: XMLHttpRequest => Callback): Step2 =
+    def onComplete(f: XMLHttpRequest => Sync[Unit]): Step2 =
       _onReadyStateChange(onCompleteKleisli(f))
 
-    def validateResponse(isValid: XMLHttpRequest => Boolean): (AjaxException => Callback) => Step2 =
+    def validateResponse(isValid: XMLHttpRequest => Boolean): (AjaxException => Sync[Unit]) => Step2 =
       onFailure => onComplete(xhr =>
-        Callback.unless(isValid(xhr))(onFailure(AjaxException(xhr))))
+        Sync[Unit].unless(isValid(xhr))(onFailure(AjaxException(xhr))))
 
-    def validateStatus(isValidStatus: Int => Boolean): (AjaxException => Callback) => Step2 =
+    def validateStatus(isValidStatus: Int => Boolean): (AjaxException => Sync[Unit]) => Step2 =
       validateResponse(xhr => isValidStatus(xhr.status))
 
-    def validateStatusIs(expectedStatus: Int): (AjaxException => Callback) => Step2 =
+    def validateStatusIs(expectedStatus: Int): (AjaxException => Sync[Unit]) => Step2 =
       validateStatus(_ == expectedStatus)
 
-    def validateStatusIsSuccessful: (AjaxException => Callback) => Step2 =
+    def validateStatusIsSuccessful: (AjaxException => Sync[Unit]) => Step2 =
       validateStatus(isStatusSuccessful)
 
     private def registerU(k: Ajax[Unit])(set: (XMLHttpRequest, js.Function1[Any, Unit]) => Unit): Ajax[Unit] =
-      CallbackKleisli.lift(xhr => set(xhr, Callback.suspend(k(xhr)).toJsFn1))
+      CallbackKleisli.lift(xhr => set(xhr, Sync[Unit].suspend(k(xhr)).toJsFn1))
 
     private def register_(cb: Option[Ajax[Unit]])(set: (XMLHttpRequest, js.Function1[Any, Unit]) => Unit): Ajax[Unit] =
       cb match {
@@ -152,16 +152,16 @@ object Ajax {
       registerE(onprogress)(_.onprogress = _) >>
       registerE(onuploadprogress)(_.upload.onprogress = _))
 
-    def asCallback: Callback =
+    def asCallback: Sync[Unit] =
       newXHR >>= (
         register_(onreadystatechange)(_.onreadystatechange = _) >>
         registerSecondaryCallbacks >>
         begin).run
 
-    def asAsyncCallback: AsyncCallback[XMLHttpRequest] =
-      AsyncCallback.first { cc =>
+    def asAsyncCallback: Async[XMLHttpRequest] =
+      Async.first { cc =>
 
-        val fail: Throwable => Callback =
+        val fail: Throwable => Sync[Unit] =
           t => cc(Failure(t))
 
         val onreadystatechange: Ajax[Unit] =
@@ -181,5 +181,5 @@ object Ajax {
       }
   }
 
-  private val newXHR = CallbackTo(new XMLHttpRequest())
+  private val newXHR = Sync(new XMLHttpRequest())
 }

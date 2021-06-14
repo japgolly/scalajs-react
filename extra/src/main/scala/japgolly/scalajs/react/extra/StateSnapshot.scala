@@ -1,24 +1,27 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.internal.{Effect, Iso, Lens, NotAllowed}
+import japgolly.scalajs.react.{Reusable, Reusability, StateAccess, StateAccessor}
+import japgolly.scalajs.react.component.{Generic => GenericComponent}
+import japgolly.scalajs.react.hooks.{Api => HooksApi, CustomHook}
+import japgolly.scalajs.react.internal.{Iso, Lens}
+import japgolly.scalajs.react.util.DefaultEffects._
+import japgolly.scalajs.react.util.NotAllowed
 import scala.reflect.ClassTag
 
 final class StateSnapshot[S](val value: S,
                              val underlyingSetFn: Reusable[StateSnapshot.SetFn[S]],
-                             private[StateSnapshot] val reusability: Reusability[S]) extends StateAccess.Write[CallbackTo, S] {
+                             private[StateSnapshot] val reusability: Reusability[S]) extends StateAccess.Write[Sync, Async, S] {
 
-  override protected implicit def F: Effect[CallbackTo] =
-    Effect.callbackInstance
+  override protected implicit def F = Sync
 
   override def toString = s"StateSnapshot($value)"
 
   /** @param callback Executed regardless of whether state is changed. */
-  override def setStateOption(newState: Option[S], callback: Callback): Callback =
+  override def setStateOption(newState: Option[S], callback: Sync[Unit]): Sync[Unit] =
     underlyingSetFn(newState, callback)
 
   /** @param callback Executed regardless of whether state is changed. */
-  override def modStateOption(mod: S => Option[S], callback: Callback): Callback =
+  override def modStateOption(mod: S => Option[S], callback: Sync[Unit]): Sync[Unit] =
     setStateOption(mod(value), callback)
 
   /** THIS WILL VOID REUSABILITY.
@@ -77,11 +80,11 @@ final class StateSnapshot[S](val value: S,
 
 object StateSnapshot {
 
-  type SetFn[-S] = (Option[S], Callback) => Callback
-  type ModFn[S] = (S => Option[S], Callback) => Callback
+  type SetFn[-S] = (Option[S], Sync[Unit]) => Sync[Unit]
+  type ModFn[S] = (S => Option[S], Sync[Unit]) => Sync[Unit]
 
-  type TupledSetFn[-S] = ((Option[S], Callback)) => Callback
-  type TupledModFn[S] = ((S => Option[S], Callback)) => Callback
+  type TupledSetFn[-S] = ((Option[S], Sync[Unit])) => Sync[Unit]
+  type TupledModFn[S] = ((S => Option[S], Sync[Unit])) => Sync[Unit]
 
   private def reusableSetFn[S](f: SetFn[S]): Reusable[SetFn[S]] =
     Reusable.byRef(f)
@@ -120,16 +123,24 @@ object StateSnapshot {
     def hook[S](initialValue: => S)(implicit rs: Reusability[S]): CustomHook[Unit, StateSnapshot[S]] =
       CustomHook[Unit]
         .useState(initialValue)
-        .useRef(List.empty[Callback])
+        .useRef(List.empty[Sync[Unit]])
         .useEffectBy { (_, _, delayedCallbacks) =>
           val cbs = delayedCallbacks.value
-          Callback.when(cbs.nonEmpty)(Callback.runAll(cbs: _*) >> delayedCallbacks.set(Nil))
+          if (cbs.isEmpty)
+            Sync.empty
+          else
+            Sync.chain(Sync.runAll(cbs: _*), delayedCallbacks.set(Nil))
         }
         .buildReturning { (_, state, delayedCallbacks) =>
           val setFn: SetFn[S] = (os, cb) =>
             os match {
-              case Some(s) => Callback.unless(cb.isEmpty_?)(delayedCallbacks.mod(cb :: _)) >> state.setState(s)
-              case None    => cb
+              case Some(s) =>
+                if (Sync.isEmpty(cb))
+                  Sync.empty
+                else
+                  Sync.chain(delayedCallbacks.mod(cb :: _), state.setState(s))
+              case None =>
+                cb
             }
           new StateSnapshot[S](state.value, state.originalSetState.withValue(setFn), rs)
         }
@@ -144,13 +155,13 @@ object StateSnapshot {
 
     /** This is meant to be called once and reused so that the setState callback stays the same. */
     def prepareVia[I, S](i: I)(implicit t: StateAccessor.WritePure[I, S]): FromSetStateFn[S] =
-      prepare(t(i).setStateOption)
+      prepare(t(i).setStateOption(_, _))
 
-    def prepareViaProps[P, I, S]($: GenericComponent.MountedPure[P, _])(f: P => I)(implicit t: I => StateAccess.SetState[CallbackTo, S]): FromSetStateFn[S] =
-      prepareViaCallback($.props.map(f))
+    def prepareViaProps[P, I, S]($: GenericComponent.MountedPure[P, _])(f: P => I)(implicit t: I => StateAccess.SetState[Sync, Async, S]): FromSetStateFn[S] =
+      prepareViaCallback(Sync.map($.props)(f))
 
-    def prepareViaCallback[I, S](cb: CallbackTo[I])(implicit t: I => StateAccess.SetState[CallbackTo, S]): FromSetStateFn[S] =
-      prepare((os, k) => cb.flatMap(t(_).setStateOption(os, k)))
+    def prepareViaCallback[I, S](cb: Sync[I])(implicit t: I => StateAccess.SetState[Sync, Async, S]): FromSetStateFn[S] =
+      prepare((os, k) => Sync.flatMap(cb)(t(_).setStateOption(os, k)))
 
     def xmap[S, T](get: S => T)(set: T => S): FromLens[S, T] =
       new FromLens(Iso(get)(set).toLens)
@@ -159,7 +170,7 @@ object StateSnapshot {
       new FromLens(Lens(get)(set))
 
     final class FromLens[S, T](private val l: Lens[S, T]) extends AnyVal {
-      // There's no point having (value: S)(mod: (S => S) ~=> Callback) because the callback will be composed with the
+      // There's no point having (value: S)(mod: (S => S) ~=> Sync[Unit]) because the callback will be composed with the
       // lens which avoids reusability.
       // def apply(value: S) = new FromLensValue(l, l get value)
 
@@ -173,13 +184,13 @@ object StateSnapshot {
 
       /** This is meant to be called once and reused so that the setState callback stays the same. */
       def prepareVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): FromLensSetStateFn[S, T] =
-        prepare(t(i).modStateOption)
+        prepare(t(i).modStateOption(_, _))
 
-      def prepareViaProps[P, I]($: GenericComponent.MountedPure[P, _])(f: P => I)(implicit t: I => StateAccess.ModState[CallbackTo, S]): FromLensSetStateFn[S, T] =
-        prepareViaCallback($.props.map(f))
+      def prepareViaProps[P, I]($: GenericComponent.MountedPure[P, _])(f: P => I)(implicit t: I => StateAccess.ModState[Sync, Async, S]): FromLensSetStateFn[S, T] =
+        prepareViaCallback(Sync.map($.props)(f))
 
-      def prepareViaCallback[I](cb: CallbackTo[I])(implicit t: I => StateAccess.ModState[CallbackTo, S]): FromLensSetStateFn[S, T] =
-        prepare((f, k) => cb.flatMap(t(_).modStateOption(f, k)))
+      def prepareViaCallback[I](cb: Sync[I])(implicit t: I => StateAccess.ModState[Sync, Async, S]): FromLensSetStateFn[S, T] =
+        prepare((f, k) => Sync.flatMap(cb)(t(_).modStateOption(f, k)))
 
       def xmap[U](get: T => U)(set: U => T): FromLens[S, U] =
         new FromLens(l --> Iso(get)(set))
@@ -253,7 +264,7 @@ object StateSnapshot {
         apply(untuple(set))
 
       def setStateVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): StateSnapshot[S] =
-        apply(t(i).setStateOption)
+        apply(t(i).setStateOption(_, _))
 
       def readOnly: StateSnapshot[S] =
         apply(setFnReadOnly)
@@ -267,7 +278,7 @@ object StateSnapshot {
         apply(untuple(modify))
 
       def setStateVia[I](i: I)(implicit t: StateAccessor.WritePure[I, S]): StateSnapshot[T] =
-        apply(t(i).modStateOption)
+        apply(t(i).modStateOption(_, _))
     }
   }
 

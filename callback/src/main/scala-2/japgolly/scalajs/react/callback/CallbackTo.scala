@@ -76,7 +76,7 @@ object CallbackTo {
       CallbackTo(f(_).runNow())
 
     /** Anything traversable by the Scala stdlib definition */
-    def std[T[X] <: IterableOnce[X]](implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackTo[T[A] => T[B]] =
+    def std[T[X] <: Iterable[X]](implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackTo[T[A] => T[B]] =
       CallbackTo { ta =>
         val r = cbf.newBuilder(ta)
         ta.iterator.foreach(a => r += f(a).runNow())
@@ -90,13 +90,13 @@ object CallbackTo {
   /** Traverse stdlib T over CallbackTo.
     * Distribute CallbackTo over stdlib T.
     */
-  def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => CallbackTo[B])(implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
+  def traverse[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => CallbackTo[B])(implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackTo[T[B]] =
     liftTraverse(f).std[T](cbf).map(_(ta))
 
   /** Sequence stdlib T over CallbackTo.
     * Co-sequence CallbackTo over stdlib T.
     */
-  def sequence[T[X] <: IterableOnce[X], A](tca: => T[CallbackTo[A]])(implicit cbf: BuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
+  def sequence[T[X] <: Iterable[X], A](tca: => T[CallbackTo[A]])(implicit cbf: BuildFrom[T[CallbackTo[A]], A, T[A]]): CallbackTo[T[A]] =
     traverse(tca)(identityFn)(cbf)
 
   /** Traverse Option over CallbackTo.

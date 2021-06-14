@@ -17,8 +17,16 @@
 
 * Add WithAsyncEffect / WithEffectAsync to component.*
 
-* Add WithEffect / WithAsyncEffect
+* Add WithEffect/WithAsyncEffect or support more than just the default effect type
+  * DefaultReusabilityOverlay
   * Hooks.scala
+  * Router
+  * RouterCtl
+  * RouterWithPropsConfig.scala
+  * RoutingRule
+  * RoutingRules
+  * StateSnapshot (*Pure)
+  * TriStateCheckbox
 
 * Test React.Suspense
 

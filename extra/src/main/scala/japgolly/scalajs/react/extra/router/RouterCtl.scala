@@ -1,6 +1,8 @@
 package japgolly.scalajs.react.extra.router
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.internal.EffectUtil
+import japgolly.scalajs.react.util.DefaultEffects.Sync
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html
 
@@ -12,43 +14,41 @@ import org.scalajs.dom.html
 abstract class RouterCtl[Route] {
   def baseUrl: BaseUrl
   def byPath: RouterCtl[Path]
-  def refresh: Callback
+  def refresh: Sync[Unit]
   def pathFor(route: Route): Path
-  def set(route: Route, via: SetRouteVia): Callback
+  def set(route: Route, via: SetRouteVia): Sync[Unit]
 
-  final def set(route: Route): Callback =
+  final def set(route: Route): Sync[Unit] =
     set(route, SetRouteVia.HistoryPush)
 
   final def urlFor(route: Route): AbsUrl =
     pathFor(route).abs(baseUrl)
 
-  final def setEH(route: Route): ReactEvent => Callback =
-    e => set(route).asEventDefault(e).void
+  final def setEH(route: Route): ReactEvent => Sync[Unit] =
+    e => Sync.chain(EffectUtil.asEventDefault(set(route), e), Sync.empty)
 
   final def setOnClick(route: Route): TagMod =
     ^.onClick ==> setEH(route)
 
-  final def onLinkClick(route: Route): ReactMouseEvent => CallbackOption[Unit] =
-    e =>
-      CallbackOption.unless(ReactMouseEvent targetsNewTab_? e) >>
-        setEH(route)(e)
+  final def onLinkClick(route: Route): ReactMouseEvent => Option[Sync[Unit]] =
+    e => Option.unless(ReactMouseEvent targetsNewTab_? e)(setEH(route)(e))
 
   final def setOnLinkClick(route: Route): TagMod =
-    ^.onClick ==> onLinkClick(route).andThen(_.toCallback)
+    ^.onClick ==> onLinkClick(route).andThen(_.getOrElse(Sync.empty))
 
   final def link(route: Route): VdomTagOf[html.Anchor] =
     <.a(^.href := urlFor(route).value, setOnLinkClick(route))
 
   @deprecated("Use .onSetRun(callback).setOnClick(route)", "forever")
-  final def setOnClick(route: Route, callback: Callback): TagMod =
+  final def setOnClick(route: Route, callback: Sync[Unit]): TagMod =
     onSetRun(callback).setOnClick(route)
 
   @deprecated("Use .onSetRun(callback).setOnLinkClick(route)", "forever")
-  final def setOnLinkClick(route: Route, callback: Callback): TagMod =
+  final def setOnLinkClick(route: Route, callback: Sync[Unit]): TagMod =
     onSetRun(callback).setOnLinkClick(route)
 
   @deprecated("Use .onSetRun(callback).link(route)", "forever")
-  final def link(route: Route, callback: Callback): VdomTagOf[html.Anchor] =
+  final def link(route: Route, callback: Sync[Unit]): VdomTagOf[html.Anchor] =
     onSetRun(callback).link(route)
 
   final def contramap[B](f: B => Route): RouterCtl[B] =
@@ -59,7 +59,7 @@ abstract class RouterCtl[Route] {
    *
    * For example, this can be used to set a component's state immediately before setting a new route.
    */
-  final def onSet(f: (Route, Callback) => Callback): RouterCtl[Route] =
+  final def onSet(f: (Route, Sync[Unit]) => Sync[Unit]): RouterCtl[Route] =
     new RouterCtl.ModCB(this, f)
 
   /**
@@ -67,12 +67,12 @@ abstract class RouterCtl[Route] {
    *
    * For example, this can be used to set a component's state immediately before setting a new route.
    */
-  final def onSet(f: Callback => Callback): RouterCtl[Route] =
+  final def onSet(f: Sync[Unit] => Sync[Unit]): RouterCtl[Route] =
     onSet((_, cb) => f(cb))
 
   /** Return a new version of this that executes the specified callback after setting new routes. */
-  final def onSetRun(f: Callback): RouterCtl[Route] =
-    onSet(_ >> f)
+  final def onSetRun(f: Sync[Unit]): RouterCtl[Route] =
+    onSet(Sync.chain(_, f))
 
   final def narrow[B <: Route]: RouterCtl[B] =
     contramap(b => b)
@@ -100,7 +100,7 @@ object RouterCtl {
     override def set(b: B, v: SetRouteVia) = u.set(f(b), v)
   }
 
-  final case class ModCB[A](u: RouterCtl[A], f: (A, Callback) => Callback) extends RouterCtl[A] {
+  final case class ModCB[A](u: RouterCtl[A], f: (A, Sync[Unit]) => Sync[Unit]) extends RouterCtl[A] {
     override def baseUrl                   = u.baseUrl
     override def byPath                    = u.byPath
     override def refresh                   = u.refresh

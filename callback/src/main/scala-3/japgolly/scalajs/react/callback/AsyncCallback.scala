@@ -104,7 +104,7 @@ object AsyncCallback {
   /** Traverse stdlib T over AsyncCallback.
     * Distribute AsyncCallback over stdlib T.
     */
-  def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(using cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
+  def traverse[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(using cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
     AsyncCallback.suspend {
       val _ta = ta
       val as = _ta.iterator.to(Vector)
@@ -125,7 +125,7 @@ object AsyncCallback {
   /** Sequence stdlib T over AsyncCallback.
     * Co-sequence AsyncCallback over stdlib T.
     */
-  def sequence[T[X] <: IterableOnce[X], A](tca: => T[AsyncCallback[A]])(using cbf: BuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
+  def sequence[T[X] <: Iterable[X], A](tca: => T[AsyncCallback[A]])(using cbf: BuildFrom[T[AsyncCallback[A]], A, T[A]]): AsyncCallback[T[A]] =
     traverse(tca)(identityFn)
 
   /** Traverse Option over AsyncCallback.
@@ -144,7 +144,7 @@ object AsyncCallback {
     traverseOption(oca)(identityFn)
 
   /** Same as [[traverse()]] except avoids combining return values. */
-  def traverse_[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => AsyncCallback[B]): AsyncCallback[Unit] =
+  def traverse_[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => AsyncCallback[B]): AsyncCallback[Unit] =
     AsyncCallback.suspend {
       val as = new js.Array[A]
       for (a <- ta.iterator)
@@ -176,7 +176,7 @@ object AsyncCallback {
     }
 
   /** Same as [[sequence()]] except avoids combining return values. */
-  def sequence_[T[X] <: IterableOnce[X], A](tca: => T[AsyncCallback[A]]): AsyncCallback[Unit] =
+  def sequence_[T[X] <: Iterable[X], A](tca: => T[AsyncCallback[A]]): AsyncCallback[Unit] =
     traverse_(tca)(identityFn)
 
   /** Same as [[traverseOption()]] except avoids combining return values. */

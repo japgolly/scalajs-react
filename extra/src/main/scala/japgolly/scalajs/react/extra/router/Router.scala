@@ -2,7 +2,8 @@ package japgolly.scalajs.react.extra.router
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
-import japgolly.scalajs.react.internal.identityFn
+import japgolly.scalajs.react.util.DefaultEffects.Sync
+import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.VdomElement
 import org.scalajs.dom
 import scala.scalajs.js
@@ -44,7 +45,7 @@ object RouterWithProps {
       .render                 ($ => lgc.render($.state, $.props))
       .componentDidMount      ($ => cfg.postRenderFn(None, $.state.page, $.props))
       .componentDidUpdate     (i => cfg.postRenderFn(Some(i.prevState.page), i.currentState.page, i.currentProps))
-      .configure              (Listenable.listenToUnit(_ => lgc, $ => lgc.syncToWindowUrl.flatMap($.setState(_))))
+      .configure              (Listenable.listenToUnit(_ => lgc, $ => Sync.flatMap(lgc.syncToWindowUrl)($.setState(_))))
       .configure              (EventListener.install("popstate", _ => lgc.ctl.refresh, _ => dom.window))
       .configureWhen(isIE11())(EventListener.install("hashchange", _ => lgc.ctl.refresh, _ => dom.window))
 
@@ -84,29 +85,30 @@ final class RouterLogic[Page, Props](val baseUrl: BaseUrl, cfg: RouterWithPropsC
 
   @inline protected def log(msg: => String) = Log(() => msg)
 
-  val syncToWindowUrl: CallbackTo[Resolution] =
-   for {
-     url <- CallbackTo(AbsUrl.fromWindow)
-     _   <- logger(s"Syncing to $url.")
-     cmd <- syncToUrl(url)
-     res <- interpret(cmd)
-     _   <- logger(s"Resolved to page ${res.page}.")
-     _   <- logger("")
-   } yield res
+  val syncToWindowUrl: Sync[Resolution] =
+    Sync.flatMap(Sync.delay(AbsUrl.fromWindow)           )(url =>
+    Sync.flatMap(logger(s"Syncing to $url.")             )(_   =>
+    Sync.flatMap(syncToUrl(url)                          )(cmd =>
+    Sync.flatMap(interpret(cmd)                          )(res =>
+    Sync.flatMap(logger(s"Resolved to page ${res.page}."))(_   =>
+    Sync.map    (logger("")                              )(_   =>
+      res
+    ))))))
 
 //  val syncToWindowUrlS: ReactST[IO, Resolution, Unit] =
 //    ReactS.setM(syncToWindowUrl) //addCallbackS onSync
 
-  def syncToUrl(url: AbsUrl): CallbackTo[RouteCmd[Resolution]] =
+  def syncToUrl(url: AbsUrl): Sync[RouteCmd[Resolution]] =
     parseUrl(url) match {
       case Some(path) => syncToPath(path)
       case None       => wrongBase(url)
     }
 
-  def wrongBase(wrongUrl: AbsUrl): CallbackTo[RouteCmd[Resolution]] = {
+  def wrongBase(wrongUrl: AbsUrl): Sync[RouteCmd[Resolution]] = {
     val root = Path.root
-    redirectToPath(root, SetRouteVia.HistoryPush).map(
-      log(s"Wrong base: $wrongUrl is outside of ${root.abs}.") >> _)
+    Sync.map(redirectToPath(root, SetRouteVia.HistoryPush))(x =>
+      log(s"Wrong base: $wrongUrl is outside of ${root.abs}.") >> x
+    )
   }
 
   def parseUrl(url: AbsUrl): Option[Path] =
@@ -115,74 +117,76 @@ final class RouterLogic[Page, Props](val baseUrl: BaseUrl, cfg: RouterWithPropsC
     else
       None
 
-  def syncToPath(path: Path): CallbackTo[RouteCmd[Resolution]] =
-    for {
-      parsed <- cfg.rules.parse(path)
-      cmd    <- parsed match {
-                  case Right(page) => resolveActionForPage(path, page)
-                  case Left(r)     => redirect(r)
-                }
-    } yield log(s"Parsed $path to $parsed.") >> cmd
-
-  def resolveActionForPage(path: Path, page: Page): CallbackTo[RouteCmd[Resolution]] =
-    for {
-      action <- cfg.rules.action(path, page)
-      cmd    <- resolveAction(page, action)
-    } yield log(s"Action for page $page at $path is $action.") >> cmd
-
-  def resolveAction(page: Page, action: Action): CallbackTo[RouteCmd[Resolution]] =
-    for {
-      a <- resolveAction(action)
-    } yield cmdOrPure(a.map(r => ResolutionWithProps(page, r(ctl))))
-
-  def resolveAction(a: Action): CallbackTo[Either[RouteCmd[Resolution], Renderer]] =
-    a match {
-      case r: Renderer => CallbackTo.pure(Right(r))
-      case r: Redirect => redirect(r).map(Left(_))
+  def syncToPath(path: Path): Sync[RouteCmd[Resolution]] =
+    Sync.flatMap(cfg.rules.parse(path)) { parsed =>
+      Sync.map(
+        parsed match {
+          case Right(page) => resolveActionForPage(path, page)
+          case Left(r)     => redirect(r)
+        }
+      )(cmd =>
+        log(s"Parsed $path to $parsed.") >> cmd
+      )
     }
 
-  def redirect(r: Redirect): CallbackTo[RouteCmd[Resolution]] =
+  def resolveActionForPage(path: Path, page: Page): Sync[RouteCmd[Resolution]] =
+    Sync.flatMap(cfg.rules.action(path, page))(action =>
+    Sync.map    (resolveAction(page, action) )(cmd =>
+      log(s"Action for page $page at $path is $action.") >> cmd
+    ))
+
+  def resolveAction(page: Page, action: Action): Sync[RouteCmd[Resolution]] =
+    Sync.map(resolveAction(action))(a =>
+      cmdOrPure(a.map(r => ResolutionWithProps(page, r(ctl))))
+    )
+
+  def resolveAction(a: Action): Sync[Either[RouteCmd[Resolution], Renderer]] =
+    a match {
+      case r: Renderer => Sync.pure(Right(r))
+      case r: Redirect => Sync.map(redirect(r))(Left(_))
+    }
+
+  def redirect(r: Redirect): Sync[RouteCmd[Resolution]] =
     r match {
       case RedirectToPage(page, m) => redirectToPath(cfg.rules.path(page), m)
       case RedirectToPath(path, m) => redirectToPath(path, m)
     }
 
-  def redirectToPath(path: Path, via: SetRouteVia): CallbackTo[RouteCmd[Resolution]] =
-    for {
-      syncCmd <- syncToUrl(path.abs)
-    } yield
+  def redirectToPath(path: Path, via: SetRouteVia): Sync[RouteCmd[Resolution]] =
+    Sync.map(syncToUrl(path.abs))(syncCmd =>
       log(s"Redirecting to ${path.abs} via $via.") >>
         RouteCmd.setRoute(path.abs, via) >> syncCmd
+    )
 
   private def cmdOrPure[A](e: Either[RouteCmd[A], A]): RouteCmd[A] =
     e.fold(identityFn, Return(_))
 
-  def interpret[A](r: RouteCmd[A]): CallbackTo[A] = {
+  def interpret[A](r: RouteCmd[A]): Sync[A] = {
     @inline def hs = js.Dynamic.literal()
     @inline def ht = ""
     @inline def h = window.history
     r match {
 
       case PushState(url) =>
-        CallbackTo(h.pushState(hs, ht, url.value)) << logger(s"PushState: [${url.value}]")
+        Sync.chain(logger(s"PushState: [${url.value}]"), Sync.delay(h.pushState(hs, ht, url.value)))
 
       case ReplaceState(url) =>
-        CallbackTo(h.replaceState(hs, ht, url.value)) << logger(s"ReplaceState: [${url.value}]")
+        Sync.chain(logger(s"ReplaceState: [${url.value}]"), Sync.delay(h.replaceState(hs, ht, url.value)))
 
       case SetWindowLocation(url) =>
-        CallbackTo(window.location.href = url.value) << logger(s"SetWindowLocation: [${url.value}]")
+        Sync.chain(logger(s"SetWindowLocation: [${url.value}]"), Sync.delay(window.location.href = url.value))
 
       case BroadcastSync =>
-        broadcast(()) << logger("Broadcasting sync request.")
+        Sync.chain(logger("Broadcasting sync request."), broadcast(()))
 
       case Return(a) =>
-        CallbackTo.pure(a)
+        Sync.pure(a)
 
       case Log(msg) =>
         logger(msg())
 
       case Sequence(a, b) =>
-        a.foldLeft[CallbackTo[_]](Callback.empty)(_ >> interpret(_)) >> interpret(b)
+        Sync.chain(a.foldLeft[Sync[_]](Sync.empty)((x, y) => Sync.chain(x, interpret(y))), interpret(b))
     }
   }
 

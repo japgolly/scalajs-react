@@ -1,6 +1,8 @@
 package japgolly.scalajs.react.extra.components
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.util.DefaultEffects.Sync
+import japgolly.scalajs.react.util.DomUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.ext.KeyCode
 import org.scalajs.dom.html.Input
@@ -42,13 +44,13 @@ object TriStateCheckbox {
   case object Indeterminate extends State
 
   final case class Props(state       : State,
-                         setNextState: Callback,
+                         setNextState: Sync[Unit],
                          disabled    : Boolean = false) {
     @inline def render: VdomElement = Component(this)
   }
 
   private def render($: ScalaComponent.MountedPure[Props, Unit, Unit], p: Props) = {
-    val setNext = $.props.flatMap(p => p.setNextState.unless_(p.disabled)) // Only access .setNextState inside the Callback for Reusability
+    val setNext = Sync.flatMap($.props)(p => p.setNextState.unless_(p.disabled)) // Only access .setNextState inside the Sync[Unit] for Reusability
     <.input.checkbox(
       ^.disabled := p.disabled,
       TagMod.unless(p.disabled)(eventHandlers(setNext)))
@@ -57,8 +59,8 @@ object TriStateCheckbox {
   /**
    * Clicking or pressing space = change.
    */
-  def eventHandlers(onChange: Callback): TagMod = {
-    def handleKey(e: ReactKeyboardEventFromHtml): Callback =
+  def eventHandlers(onChange: Sync[Unit]): TagMod = {
+    def handleKey(e: ReactKeyboardEventFromHtml): Sync[Unit] =
       CallbackOption.keyCodeSwitch(e) {
         case KeyCode.Space => onChange
       }.asEventDefault(e)
@@ -67,9 +69,9 @@ object TriStateCheckbox {
       ^.onKeyDown ==> handleKey)
   }
 
-  private def updateDom[P, S, B]($: ScalaComponent.MountedImpure[P, S, B], nextProps: Props): Callback = {
+  private def updateDom[P, S, B]($: ScalaComponent.MountedImpure[P, S, B], nextProps: Props): Sync[Unit] = {
     val s = nextProps.state
-    Callback {
+    Sync.delay {
       $.getDOMNode.toElement.map(_.domCast[Input]).foreach { d =>
         d.checked       = s == Checked
         d.indeterminate = s == Indeterminate
@@ -81,7 +83,7 @@ object TriStateCheckbox {
     Reusability.by_==
 
   implicit val reusabilityProps: Reusability[Props] =
-    Reusability.caseClassExcept("setNextState") // .setNextState is never accessed outside of a Callback
+    Reusability.caseClassExcept("setNextState") // .setNextState is never accessed outside of a Sync[Unit]
 
   val Component = ScalaComponent.builder[Props]("TriStateCheckbox")
     .stateless

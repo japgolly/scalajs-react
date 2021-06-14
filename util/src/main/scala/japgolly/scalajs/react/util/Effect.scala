@@ -2,6 +2,7 @@ package japgolly.scalajs.react.util
 
 import japgolly.scalajs.react.userdefined
 import japgolly.scalajs.react.util.{JsUtil, OptionLike}
+import japgolly.scalajs.react.util.Util.identityFn
 import scala.scalajs.js
 import scala.util.Try
 
@@ -18,11 +19,20 @@ object Effect
     def runSync[A]      (fa: => F[A])                               : A
     def option_[O[_], A](ofa: => O[F[A]])(implicit O: OptionLike[O]): F[Unit]
 
-    final def toJsFn0[A](f: => F[A]): js.Function0[A] =
+    def toJsFn0[A](f: => F[A]): js.Function0[A] =
       () => runSync(f)
 
-    final def toJsFn1[A, Z](f: A => F[Z]): js.Function1[A, Z] =
+    def toJsFn1[A, Z](f: A => F[Z]): js.Function1[A, Z] =
       a => runSync(f(a))
+
+    def suspend[A](fa: => F[A]): F[A] =
+      flatMap(delay(fa))(identityFn)
+
+    /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+      * current callback completes, be it in error or success.
+      */
+    def finallyRun[A, B](fa: => F[A], runFinally: => F[B]): F[A] =
+      delay { try runSync(fa) finally runSync(runFinally) }
 
     final def transSync[G[_], A](ga: => G[A])(implicit g: UnsafeSync[G]): F[A] =
       if (this eq g)
@@ -47,7 +57,41 @@ object Effect
   trait Sync[F[_]] extends UnsafeSync[F] {
 
     val empty: F[Unit]
+    def isEmpty(f: F[Unit]): Boolean
     def fromJsFn0[A](f: js.Function0[A]): F[A]
+
+    def reset[A](fa: F[A]): F[Unit] =
+      delay(
+        try
+          runSync(fa): Unit
+        catch {
+          case t: Throwable =>
+            t.printStackTrace()
+        }
+      )
+
+    def runAll(callbacks: F[_]*): F[Unit] =
+      callbacks.foldLeft(empty)((x, y) => chain(x, reset(y)))
+
+    def traverse_[A, B](as: Iterable[A])(f: A => F[B]): F[Unit] =
+      delay {
+        for (a <- as)
+          runSync(f(a))
+      }
+
+    def sequence_[A](fas: Iterable[F[A]]): F[Unit] =
+      traverse_(fas)(identityFn)
+
+    def traverseList[A, B](as: List[A])(f: A => F[B]): F[List[B]] =
+      delay {
+        val l = List.newBuilder[B]
+        for (a <- as)
+          l += runSync(f(a))
+        l.result()
+      }
+
+    def sequenceList[A](fas: List[F[A]]): F[List[A]] =
+      traverseList(fas)(identityFn)
 
     implicit val semigroupSyncUnit: Semigroup[F[Unit]] =
       Semigroup((f, g) => flatMap(f)(_ => g))
@@ -65,6 +109,7 @@ object Effect
     implicit val untyped: Sync[Untyped] = new Sync[Untyped] {
       type F[A] = Untyped[A]
       override val empty                                                          = Sync.empty
+      override def isEmpty           (f: F[Unit])                                 = f eq Sync.empty
       override def delay    [A]      (a: => A)                                    = () => a
       override def pure     [A]      (a: A)                                       = () => a
       override def map      [A, B]   (fa: F[A])(f: A => B)                        = () => f(fa())

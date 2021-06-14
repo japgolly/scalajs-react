@@ -94,7 +94,7 @@ object CallbackOption {
       go(a)
     }
 
-  def traverse[T[X] <: IterableOnce[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
+  def traverse[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
                                              (using cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
     option {
       val _ta = ta
@@ -112,7 +112,7 @@ object CallbackOption {
       go
     }
 
-  def sequence[T[X] <: IterableOnce[X], A](tca: => T[CallbackOption[A]])
+  def sequence[T[X] <: Iterable[X], A](tca: => T[CallbackOption[A]])
                                           (using cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
     traverse(tca)(identityFn)
 

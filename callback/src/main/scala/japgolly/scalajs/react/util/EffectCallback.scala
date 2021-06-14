@@ -11,6 +11,15 @@ trait EffectCallback {
     override val empty =
       Callback.empty
 
+    @inline override def isEmpty(f: Callback) =
+      f.isEmpty_?
+
+    @inline override def reset[A](fa: CallbackTo[A]): Callback =
+      fa.reset
+
+    @inline override def runAll(callbacks: CallbackTo[_]*): Callback =
+      Callback.runAll(callbacks: _*)
+
     @inline override def delay[A](a: => A) =
       CallbackTo(a)
 
@@ -23,14 +32,38 @@ trait EffectCallback {
     @inline override def flatMap[A, B](fa: CallbackTo[A])(f: A => CallbackTo[B]) =
       fa.flatMap(f)
 
+    @inline override def chain[A, B](fa: CallbackTo[A], fb: CallbackTo[B]) =
+      fa >> fb
+
     @inline override def runSync[A](f: => CallbackTo[A]) =
       f.runNow()
+
+    @inline override def finallyRun[A, B](fa: => CallbackTo[A], fb: => CallbackTo[B]) =
+      fa.finallyRun(fb)
+
+    @inline override def toJsFn0[A](f: => CallbackTo[A]): js.Function0[A] =
+      f.toJsFn
+
+    override def toJsFn1[A, Z](f: A => CallbackTo[Z]): js.Function1[A, Z] =
+      a => f(a).runNow()
+
+    @inline override def suspend[A](fa: => CallbackTo[A]): CallbackTo[A] =
+      CallbackTo.suspend(fa)
 
     override def option_[O[_], A](f: => O[CallbackTo[A]])(implicit O: OptionLike[O]) =
       Callback(O.foreach(f)(_.runNow()))
 
     @inline override def fromJsFn0[A](f: js.Function0[A]) =
       CallbackTo.fromJsFn(f)
+
+    @inline override def traverse_[A, B](as: Iterable[A])(f: A => CallbackTo[B]) =
+      Callback.traverse(as)(f(_).void)
+
+    @inline override def traverseList[A, B](as: List[A])(f: A => CallbackTo[B]) =
+      CallbackTo.traverse(as)(f)
+
+    @inline override def sequenceList[A](fas: List[CallbackTo[A]]) =
+      CallbackTo.sequence(fas)
   }
 
   // ===================================================================================================================

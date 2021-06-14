@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.util.DefaultEffects.Sync
 import japgolly.scalajs.react.internal.Box
 import scala.scalajs.js
 
@@ -33,7 +34,7 @@ object ReusabilityOverlay {
       }(_.unbox)
     }
 
-    Reusability.shouldComponentUpdateAnd[P, C, S, B, U] { r =>
+    Reusability.shouldComponentUpdateAnd[Sync, P, C, S, B, U] { r =>
       val overlay = get(r.mounted.js.raw)
       if (r.update) {
         def fmt(update: Boolean, name: String, va: Any, vb: Any) =
@@ -66,8 +67,8 @@ object ReusabilityOverlay {
 }
 
 trait ReusabilityOverlay {
-  def onMount  : Callback
-  def onUnmount: Callback
-  val logGood  : Callback
-  def logBad(reason: String): Callback
+  def onMount  : Sync[Unit]
+  def onUnmount: Sync[Unit]
+  val logGood  : Sync[Unit]
+  def logBad(reason: String): Sync[Unit]
 }

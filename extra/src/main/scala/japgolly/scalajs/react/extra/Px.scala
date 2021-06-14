@@ -1,6 +1,8 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.util.DefaultEffects.Sync
+import japgolly.scalajs.react.util.Effect
 import japgolly.scalajs.react.extra.internal.LazyVar
 import scala.scalajs.js
 
@@ -34,8 +36,8 @@ sealed abstract class Px[A] {
       None
   }
 
-  final def toCallback: CallbackTo[A] =
-    CallbackTo(value())
+  final def toCallback: Sync[A] =
+    Sync.delay(value())
 
   def map[B](f: A => B): Px.Derivative[B] =
     new Px.Map(this, f)
@@ -235,8 +237,10 @@ object Px {
   def apply[A](f: => A): FromThunk[A] =
     new FromThunk(() => f)
 
-  def callback[A](cb: CallbackTo[A]): FromThunk[A] =
-    new FromThunk(cb.toScalaFn)
+  def callback[F[_], A](cb: F[A])(implicit F: Effect.Sync[F]): FromThunk[A] = {
+    val f = F.toJsFn0(cb)
+    new FromThunk(() => f())
+  }
 
   def props[P](s: GenericComponent.MountedPure[P, _]): FromThunk[P] =
     callback(s.props)
@@ -489,13 +493,13 @@ object Px {
 
   trait ManualCollection {
     def add[A](px: Px.ThunkM[A]): px.type
-    val refreshCB: Callback
+    val refreshCB: Sync[Unit]
 
     final def addAll(pxs: Px.ThunkM[_]*): Unit =
       pxs.foreach(add(_))
 
     final def refresh(): Unit =
-      refreshCB.runNow()
+      Sync.runSync(refreshCB)
   }
 
   object ManualCollection {
@@ -509,8 +513,8 @@ object Px {
           px
         }
 
-        override val refreshCB: Callback =
-          Callback(Px.refresh(pxs: _*))
+        override val refreshCB: Sync[Unit] =
+          Sync.delay(Px.refresh(pxs: _*))
       }
   }
 
