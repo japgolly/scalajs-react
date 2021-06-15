@@ -1,8 +1,10 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.internal.CoreGeneral._
+
 package object test {
 
-  type ReactOrDomNode = japgolly.scalajs.react.test.raw.ReactOrDomNode
+  type ReactOrDomNode = japgolly.scalajs.react.test.facade.ReactOrDomNode
 
   implicit def reactOrDomNodeFromMounted(m: GenericComponent.MountedRaw): ReactOrDomNode =
     ReactDOM.findDOMNode(m.raw).get.raw

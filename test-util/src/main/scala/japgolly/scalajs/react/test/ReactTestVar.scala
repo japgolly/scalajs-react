@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.util.DefaultEffects._
 import japgolly.scalajs.react.extra._
 
 /**
@@ -24,7 +25,7 @@ class ReactTestVar[A](val initialValue: A) {
 
   private var _value: A = _
   private var _history: Vector[A] = _
-  private var _onUpdate: Vector[Callback] = _
+  private var _onUpdate: Vector[Sync[Unit]] = _
   reset()
 
   def reset(): Unit = {
@@ -45,7 +46,7 @@ class ReactTestVar[A](val initialValue: A) {
     _value = a
     _history :+= a
     for (cb <- _onUpdate)
-      cb.attempt.runNow().left.toOption.foreach(_.printStackTrace())
+      Sync.runSync(Sync.reset(cb))
   }
 
   def modValue(f: A => A): Unit =
@@ -58,7 +59,7 @@ class ReactTestVar[A](val initialValue: A) {
     _value
 
   def onUpdate(callback: => Unit): Unit =
-    _onUpdate :+= Callback(callback)
+    _onUpdate :+= Sync.delay(callback)
 
   /**
    * Log of state values since initialised or last reset.
@@ -70,11 +71,16 @@ class ReactTestVar[A](val initialValue: A) {
   def history(): Vector[A] =
     _history
 
-  val setStateOptionCBFn: Reusable[(Option[A], Callback) => Callback] =
-    Reusable.byRef((oa, cb) => cb <<? oa.map(a => Callback(setValue(a))))
+  val setStateOptionCBFn: Reusable[(Option[A], Sync[Unit]) => Sync[Unit]] =
+    Reusable.byRef((oa, cb) =>
+      oa match {
+        case Some(a) => Sync.chain(Sync.delay(setValue(a)), cb)
+        case None    => cb
+      }
+    )
 
-  val setStateFn: A ~=> Callback =
-    setStateOptionCBFn.map(f => (a: A) => f(Some(a), Callback.empty))
+  val setStateFn: Reusable[A => Sync[Unit]] =
+    setStateOptionCBFn.map(f => (a: A) => f(Some(a), Sync.empty))
 
   def stateSnapshot(): StateSnapshot[A] =
     StateSnapshot(value())(setStateOptionCBFn)
@@ -82,10 +88,10 @@ class ReactTestVar[A](val initialValue: A) {
   def stateSnapshotWithReuse()(implicit r: Reusability[A]): StateSnapshot[A] =
     StateSnapshot.withReuse(value())(setStateOptionCBFn)
 
-  lazy val stateAccess: StateAccessPure[A] =
-    StateAccess(CallbackTo(value()))(
+  lazy val stateAccess: StateAccess[Sync, Async, A] =
+    StateAccess(Sync.delay(value()))(
       setStateOptionCBFn,
-      (fo, cb) => Callback(modValueOption(fo)) >> cb)
+      (fo, cb) => Sync.chain(Sync.delay(modValueOption(fo)), cb))
 }
 
 object ReactTestVar {

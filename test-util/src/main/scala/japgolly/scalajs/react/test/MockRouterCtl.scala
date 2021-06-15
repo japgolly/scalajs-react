@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.test
 
-import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router._
 import japgolly.scalajs.react.test.MockRouterCtl._
+import japgolly.scalajs.react.util.DefaultEffects.Sync
 import scala.scalajs.js.URIUtils
 
 /**
@@ -24,8 +24,8 @@ class MockRouterCtl[P](override val baseUrl: BaseUrl, pageToPath: P => Path) ext
   override def pathFor(p: P)             = pageToPath(p)
   override def set(p: P, v: SetRouteVia) = logEvent(SetUrlToPage(p, pathFor(p), v))
 
-  private def logEvent(e: => Event[P]): Callback =
-    Callback(_events :+= e)
+  private def logEvent(e: => Event[P]): Sync[Unit] =
+    Sync.delay(_events :+= e)
 
   protected var _events = Vector.empty[Event[P]]
 

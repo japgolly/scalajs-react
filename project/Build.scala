@@ -84,6 +84,9 @@ object ScalajsReact {
         dependencyOverrides          ++= globalDependencyOverrides.value,
       )
 
+  def shimDummyDefaults: PE =
+    _.dependsOn(utilDummyDefaults % Provided)
+
   // ==============================================================================================
 
   lazy val root = Project("root", file("."))
@@ -145,7 +148,7 @@ object ScalajsReact {
     .in(file("core-general"))
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .dependsOn(facadeMain, util)
-    .dependsOn(utilDummyDefaults % Provided)
+    .configure(shimDummyDefaults)
     .settings(
       name := "core-general",
       libraryDependencies ++= Seq(
@@ -163,12 +166,13 @@ object ScalajsReact {
   lazy val extra = project
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .dependsOn(coreGeneral)
-    .dependsOn(utilDummyDefaults % Provided)
+    .configure(shimDummyDefaults)
 
   lazy val testUtil = project
     .in(file("test-util"))
     .configure(commonSettings, publicationSettings, hasNoTests)
     .dependsOn(coreGeneral, extra, facadeTest)
+    .configure(shimDummyDefaults)
     .settings(name := "test")
 
   lazy val tests = project

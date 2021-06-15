@@ -3,6 +3,8 @@ package japgolly.scalajs.react.test
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.{React => RawReact, ReactDOM => RawReactDOM}
 import japgolly.scalajs.react.hooks.Hooks
+import japgolly.scalajs.react.internal.CoreGeneral._
+import japgolly.scalajs.react.util.DefaultEffects._
 import japgolly.scalajs.react.util.JsUtil
 import org.scalajs.dom
 import org.scalajs.dom.html.Element
@@ -13,7 +15,7 @@ import scala.scalajs.js.|
 
 object ReactTestUtils {
 
-  @inline def raw = japgolly.scalajs.react.test.raw.ReactTestUtils
+  @inline def raw = japgolly.scalajs.react.test.facade.ReactTestUtils
 
   type Unmounted[M] = GenericComponent.Unmounted[_, M]
   type Mounted      = GenericComponent.MountedRaw
@@ -46,8 +48,8 @@ object ReactTestUtils {
     */
   def act[A](body: => A): A = {
     var a = Option.empty[A]
-    val cb = Callback{ a = Some(body) }
-    raw.act(cb.toJsFn)
+    val cb = Sync.delay{ a = Some(body) }
+    raw.act(Sync.toJsFn(cb))
     a.getOrElse(throw new RuntimeException("React's TestUtils.act didn't seem to complete."))
   }
 
@@ -64,11 +66,14 @@ object ReactTestUtils {
     *
     * This helps make your tests run closer to what real users would experience when using your application.
     */
-  def actAsync[A](body: AsyncCallback[A]): AsyncCallback[A] =
-    for {
-      ref <- AsyncCallback.delay(new Hooks.Var(Option.empty[A]))
-      _   <- AsyncCallback.fromJsPromise(raw.actAsync(body.flatMapSync(a => ref.set(Some(a))).asCallbackToJsPromise.toJsFn))
-    } yield ref.value.getOrElse(throw new RuntimeException("React's TestUtils.act didn't seem to complete."))
+  def actAsync[A](body: Async[A]): Async[A] = {
+    Async.flatMap(Async.delay(new Hooks.Var(Option.empty[A]))) { ref =>
+      def setAsync(a: A): Async[Unit] = Async.delay(Sync.runSync(ref.set(Some(a))))
+      val body2 = Async.flatMap(body)(setAsync)
+      val body3 = Async.fromJsPromise(raw.actAsync(Async.toJsPromise(body2)))
+      Async.map(body3)(_ => ref.value.getOrElse(throw new RuntimeException("React's TestUtils.act didn't seem to complete.")))
+    }
+  }
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
   def renderIntoDocument[M](unmounted: Unmounted[M]): M = {
@@ -176,6 +181,18 @@ object ReactTestUtils {
       ReactDOM.unmountComponentAtNode(container)
     }
 
+  private def _withNewElementAsync[A](create: => Element,
+                                      use   : Element => Async[A],
+                                      remove: Element => Unit): Async[A] =
+    Async.flatMap(Async.delay(create))(e =>
+      Async.finallyRun(use(e), Async.delay(act(remove(e)))))
+
+  private def _withRenderedAsync[M, A](u: Unmounted[M], parent: Element, f: (M, Element) => Async[A]): Async[A] =
+    Async.flatMap(Async.delay(act(RawReactDOM.render(u.raw, parent)))) { c =>
+      val m = u.mountRawOrNull(c)
+      Async.finallyRun(f(m, parent), Async.delay(act(unmountRawComponent(c))))
+    }
+
   // ===================================================================================================================
   // Render into body
 
@@ -240,24 +257,25 @@ object ReactTestUtils {
       attemptFuture(f(m)).andThen { case _ => act(unmountRawComponent(c)) }
     }
 
-  def withNewBodyElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
-    AsyncCallback.delay(newBodyElement())
-      .flatMap(e => use(e).finallyRun(AsyncCallback.delay(act(removeNewBodyElement(e)))))
+  def withNewBodyElementAsync[A](use: Element => Async[A]): Async[A] =
+    _withNewElementAsync(newBodyElement(), use, removeNewBodyElement)
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
-    * and asynchronously waits for the AsyncCallback to complete before unmounting.
+    * and asynchronously waits for the Async to complete before unmounting.
     */
-  def withRenderedIntoBodyAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[AsyncCallback, M, Element] =
-    new WithRenderedDslF[AsyncCallback, M, Element] {
-      override def apply[A](f: (M, Element) => AsyncCallback[A]): AsyncCallback[A] =
-        withNewBodyElementAsyncCallback(parent =>
-          for {
-            c <- AsyncCallback.delay(act(RawReactDOM.render(u.raw, parent)))
-            m <- AsyncCallback.pure(u.mountRawOrNull(c))
-            a <- f(m, parent).finallyRun(AsyncCallback.delay(act(unmountRawComponent(c))))
-          } yield a
-        )
+  def withRenderedIntoBodyAsync[M](u: Unmounted[M]): WithRenderedDslF[Async, M, Element] =
+    new WithRenderedDslF[Async, M, Element] {
+      override def apply[A](f: (M, Element) => Async[A]): Async[A] =
+        withNewBodyElementAsync(_withRenderedAsync(u, _, f))
     }
+
+  @deprecated("Use .withNewBodyElementAsync", "2.0.0")
+  def withNewBodyElementAsyncCallback[A](use: Element => Async[A]): Async[A] =
+    withNewBodyElementAsync(use)
+
+  @deprecated("Use .withRenderedIntoBodyAsync", "2.0.0")
+  def withRenderedIntoBodyAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[Async, M, Element] =
+    withRenderedIntoBodyAsync(u)
 
   // ===================================================================================================================
   // Render into document
@@ -313,24 +331,25 @@ object ReactTestUtils {
     attemptFuture(f(m)).andThen { case _ => act(unmountRawComponent(c)) }
   }
 
-  def withNewDocumentElementAsyncCallback[A](use: Element => AsyncCallback[A]): AsyncCallback[A] =
-    AsyncCallback.delay(newDocumentElement())
-      .flatMap(e => use(e).finallyRun(AsyncCallback.delay(act(removeNewDocumentElement(e)))))
+  def withNewDocumentElementAsync[A](use: Element => Async[A]): Async[A] =
+    _withNewElementAsync(newDocumentElement(), use, removeNewDocumentElement)
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
-    * and asynchronously waits for the AsyncCallback to complete before unmounting.
+    * and asynchronously waits for the Async to complete before unmounting.
     */
-  def withRenderedIntoDocumentAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[AsyncCallback, M, Element] =
-    new WithRenderedDslF[AsyncCallback, M, Element] {
-      override def apply[A](f: (M, Element) => AsyncCallback[A]): AsyncCallback[A] =
-        withNewDocumentElementAsyncCallback(parent =>
-          for {
-            c <- AsyncCallback.delay(act(RawReactDOM.render(u.raw, parent)))
-            m <- AsyncCallback.pure(u.mountRawOrNull(c))
-            a <- f(m, parent).finallyRun(AsyncCallback.delay(act(unmountRawComponent(c))))
-          } yield a
-        )
+  def withRenderedIntoDocumentAsync[M](u: Unmounted[M]): WithRenderedDslF[Async, M, Element] =
+    new WithRenderedDslF[Async, M, Element] {
+      override def apply[A](f: (M, Element) => Async[A]): Async[A] =
+        withNewDocumentElementAsync(_withRenderedAsync(u, _, f))
   }
+
+  @deprecated("Use .withNewDocumentElementAsync", "2.0.0")
+  def withNewDocumentElementAsyncCallback[A](use: Element => Async[A]): Async[A] =
+    withNewDocumentElementAsync(use)
+
+  @deprecated("Use .withRenderedIntoDocumentAsync", "2.0.0")
+  def withRenderedIntoDocumentAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[Async, M, Element] =
+    withRenderedIntoDocumentAsync(u)
 
   // ===================================================================================================================
   // Render into body/document
@@ -357,13 +376,17 @@ object ReactTestUtils {
 
   /** Renders a component then unmounts and cleans up after use.
     *
-    * @param intoBody Whether to use [[renderIntoBodyAsyncCallback()]] or [[renderIntoDocumentAsyncCallback()]].
+    * @param intoBody Whether to use [[renderIntoBodyAsync()]] or [[renderIntoDocumentAsync()]].
     */
-  def withRenderedAsyncCallback[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDslF[AsyncCallback, M, Element] =
+  def withRenderedAsync[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDslF[Async, M, Element] =
     if (intoBody)
-      withRenderedIntoBodyAsyncCallback(u)
+      withRenderedIntoBodyAsync(u)
     else
-      withRenderedIntoDocumentAsyncCallback(u)
+      withRenderedIntoDocumentAsync(u)
+
+  @deprecated("Use .withRenderedAsync", "2.0.0")
+  def withRenderedAsyncCallback[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDslF[Async, M, Element] =
+    withRenderedAsync(u, intoBody)
 
   // ===================================================================================================================
 

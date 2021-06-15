@@ -24,6 +24,8 @@
   * RoutingRules
   * StateSnapshot (*Pure)
   * TriStateCheckbox
+and then in testUtil:
+  * TestBroadcaster
 
 * Test React.Suspense
 

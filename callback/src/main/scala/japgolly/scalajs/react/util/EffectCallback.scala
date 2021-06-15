@@ -44,7 +44,7 @@ trait EffectCallback {
     @inline override def runSync[A](f: => CallbackTo[A]) =
       f.runNow()
 
-    @inline override def finallyRun[A, B](fa: => CallbackTo[A], fb: => CallbackTo[B]) =
+    @inline override def finallyRun[A, B](fa: CallbackTo[A], fb: CallbackTo[B]) =
       fa.finallyRun(fb)
 
     @inline override def toJsFn[A](f: => CallbackTo[A]): js.Function0[A] =
@@ -90,6 +90,9 @@ trait EffectCallback {
     @inline override def flatMap[A, B](fa: AsyncCallback[A])(f: A => AsyncCallback[B]) =
       fa.flatMap(f)
 
+    @inline override def finallyRun[A, B](fa: AsyncCallback[A], fb: AsyncCallback[B]) =
+      fa.finallyRun(fb)
+
     override def async[A](fa: Async.Untyped[A]): AsyncCallback[A] =
       AsyncCallback[A](f => CallbackTo(fa(f(_).toJsFn)))
 
@@ -101,6 +104,9 @@ trait EffectCallback {
 
     override def toJsPromise[A](fa: => AsyncCallback[A]): () => js.Promise[A] =
       () => fa.unsafeToJsPromise()
+
+    @inline override def fromJsPromise[A](pa: => js.Thenable[A]) =
+      AsyncCallback.fromJsPromise(pa)
 
     @inline override def dispatch[A](fa: AsyncCallback[A]): Unit =
       fa.runNow()

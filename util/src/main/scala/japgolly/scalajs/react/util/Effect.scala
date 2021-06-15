@@ -35,11 +35,6 @@ object Effect
     def suspend[A](fa: => F[A]) : F[A]
     def toJsFn [A](fa: => F[A]) : js.Function0[A]
 
-    /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
-      * current callback completes, be it in error or success.
-      */
-    def finallyRun[A, B](fa: => F[A], runFinally: => F[B]): F[A]
-
     final def transSync[G[_], A](ga: => G[A])(implicit g: UnsafeSync[G]): F[A] =
       if (this eq g)
         ga.asInstanceOf[F[A]]
@@ -55,12 +50,6 @@ object Effect
 
       override def suspend[A](fa: => F[A]): F[A] =
         flatMap(delay(fa))(identityFn)
-
-      /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
-        * current callback completes, be it in error or success.
-        */
-      override def finallyRun[A, B](fa: => F[A], runFinally: => F[B]): F[A] =
-        delay { try runSync(fa) finally runSync(runFinally) }
     }
 
     implicit lazy val id: UnsafeSync[Id] = new WithDefaults[Id] {
@@ -91,6 +80,11 @@ object Effect
     def traverseList[A, B]      (as: List[A])(f: A => F[B])      : F[List[B]]
     def when_       [A]         (cond: Boolean)(fa: => F[A])     : F[Unit]
 
+    /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+      * current callback completes, be it in error or success.
+      */
+    def finallyRun[A, B](fa: F[A], runFinally: F[B]): F[A]
+
     @inline final def unless_[A](cond: Boolean)(fa: => F[A]): F[Unit] =
       when_(!cond)(fa)
   }
@@ -105,6 +99,12 @@ object Effect
     }
 
     trait WithDefaults[F[_]] extends WithDefaultDispatch[F] with UnsafeSync.WithDefaults[F] {
+
+      /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+        * current callback completes, be it in error or success.
+        */
+      override def finallyRun[A, B](fa: F[A], runFinally: F[B]): F[A] =
+        delay { try runSync(fa) finally runSync(runFinally) }
 
       override def reset[A](fa: F[A]): F[Unit] =
         delay(
@@ -162,10 +162,16 @@ object Effect
   // ===================================================================================================================
 
   trait Async[F[_]] extends Dispatch[F] {
-    def async      [A](f: Async.Untyped[A]): F[A]
-    def first      [A](f: Async.Untyped[A]): F[A]
-    def runAsync   [A](fa: => F[A])        : Async.Untyped[A]
-    def toJsPromise[A](fa: => F[A])        : () => js.Promise[A]
+    def async        [A](f: Async.Untyped[A])  : F[A]
+    def first        [A](f: Async.Untyped[A])  : F[A]
+    def runAsync     [A](fa: => F[A])          : Async.Untyped[A]
+    def toJsPromise  [A](fa: => F[A])          : () => js.Promise[A]
+    def fromJsPromise[A](pa: => js.Thenable[A]): F[A]
+
+    /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+      * current callback completes, be it in error or success.
+      */
+    def finallyRun[A, B](fa: F[A], runFinally: F[B]): F[A]
 
     // TODO: FX: Confirm this works. If it does then why does AsyncCallback.viaCallback use a promise?
     final def async_(onCompletion: Sync.Untyped[Unit] => Sync.Untyped[Unit]): F[Unit] =

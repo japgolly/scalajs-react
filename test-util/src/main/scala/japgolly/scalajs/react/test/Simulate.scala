@@ -6,7 +6,7 @@ import scala.scalajs.js
 object Simulate {
   import ReactEventType._
 
-  def raw = japgolly.scalajs.react.test.raw.ReactTestUtils.Simulate
+  def raw = japgolly.scalajs.react.test.facade.ReactTestUtils.Simulate
 
   private def mod(e: js.Object, eventType: ReactEventType): js.Object =
     js.Object.assign(
