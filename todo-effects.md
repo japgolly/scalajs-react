@@ -28,3 +28,6 @@
 * Test React.Suspense
 
 * Re-enable cats/monocle/scalaz tests
+
+* Maybe just revise all module names
+* Add a facade module for ReactTestUtils

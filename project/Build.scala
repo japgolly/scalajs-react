@@ -100,7 +100,8 @@ object ScalajsReact {
       coreGeneral,
       core,
       extra,
-      test,
+      testUtil,
+      tests,
       /*
       // testModule,
       scalaz72,
@@ -159,9 +160,15 @@ object ScalajsReact {
     .dependsOn(coreGeneral)
     .dependsOn(utilDummyDefaults % Provided)
 
-  lazy val test = project
+  lazy val testUtil = project
+    .in(file("test-util"))
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .dependsOn(coreGeneral, extra)
+    .settings(name := "test")
+
+  lazy val tests = project
     .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test))
-    .dependsOn(core, extra)
+    .dependsOn(core, testUtil)
     // .dependsOn(scalaz72 % "test->compile")
     // .dependsOn(monocleScalaz % "test->compile")
     // .dependsOn(cats % "test->compile")
@@ -196,14 +203,12 @@ object ScalajsReact {
         "react-addons-css-transition-group" -> "16.7.0"))
   */
 
-
   lazy val scalaz72 = project
     .in(file("scalaz-7.2"))
     .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
     .dependsOn(core, extra)
     .settings(
       libraryDependencies += Dep.scalazEffect72.value)
-
 
   lazy val monocleScalaz = project
     .in(file("monocle-scalaz"))
@@ -217,7 +222,6 @@ object ScalajsReact {
     .dependsOn(core, extra)
     .settings(
       libraryDependencies += Dep.cats.value)
-
 
   lazy val monocleCats = project
     .in(file("monocle-cats"))
