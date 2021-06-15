@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.extra
 
+import japgolly.scalajs.react.internal.CoreGeneral._
 import japgolly.scalajs.react.util.DefaultEffects.Sync
 import japgolly.scalajs.react.{CtorType, ScalaComponent}
 

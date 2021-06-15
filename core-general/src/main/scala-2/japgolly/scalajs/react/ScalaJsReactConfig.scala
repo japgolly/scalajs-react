@@ -13,8 +13,10 @@ object ScalaJsReactConfig {
   object ReusabilityOverride {
 
     val default: ReusabilityOverride = new ReusabilityOverride {
-      override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
-        _.shouldComponentUpdatePure(i => (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
+      override def apply[P, C <: Children, S, B, U <: UpdateSnapshot](implicit P: Reusability[P], S: Reusability[S]) =
+        _.shouldComponentUpdatePure(i =>
+          P.updateNeeded(i.currentProps, i.nextProps) ||
+          S.updateNeeded(i.currentState, i.nextState))
     }
 
     /** Don't configure shouldComponentUpdate */

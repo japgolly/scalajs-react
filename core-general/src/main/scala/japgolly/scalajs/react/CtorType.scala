@@ -1,6 +1,7 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.CtorType._
+import japgolly.scalajs.react.internal.FacadeExports.Key
 import japgolly.scalajs.react.internal._
 import scala.annotation.nowarn
 import scala.scalajs.js

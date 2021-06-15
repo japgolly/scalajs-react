@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.feature
 
+import japgolly.scalajs.react.facade
+import japgolly.scalajs.react.internal.FacadeExports.Key
 import japgolly.scalajs.react.vdom._
-import japgolly.scalajs.react.{Key, facade}
 import scala.scalajs.js
 
 object ReactFragment {

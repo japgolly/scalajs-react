@@ -128,8 +128,8 @@ object StateAccess {
 
   /** For testing. */
   def apply[F[_], A[_], S](stateFn: => F[S])
-                          (setItFn: (Option[S], Sync.Untyped[Any]) => F[Unit],
-                           modItFn: ((S => Option[S]), Sync.Untyped[Any]) => F[Unit])
+                          (setItFn: (Option[S], F[Unit]) => F[Unit],
+                           modItFn: ((S => Option[S]), F[Unit]) => F[Unit])
                           (implicit FF: UnsafeSync[F], AA: Async[A]): StateAccess[F, A, S] =
     new StateAccess[F, A, S] {
       override type WithEffect[F2[_]] = StateAccess[F2, A, S]
@@ -142,17 +142,17 @@ object StateAccess {
       override def state = stateFn
 
       override def setStateOption[G[_], B](newState: Option[State], callback: => G[B])(implicit G: Dispatch[G]) =
-        setItFn(newState, G.dispatchFn(callback))
+        setItFn(newState, F.delay(G.dispatch(callback)))
 
       override def modStateOption[G[_], B](mod: State => Option[State], callback: => G[B])(implicit G: Dispatch[G]) =
-        modItFn(mod, G.dispatchFn(callback))
+        modItFn(mod, F.delay(G.dispatch(callback)))
 
       override def xmapState[S2](f: S => S2)(g: S2 => S) =
         apply(
           F.map(stateFn)(f))(
           (s, c) => setItFn(s map g, c),
           (m, c) => modItFn(s => m(f(s)) map g, c))(
-          FF, AA)
+          F, A)
 
       override def zoomState[S2](get: S => S2)(set: S2 => S => S) = {
         val l = Lens(get)(set)
@@ -160,14 +160,14 @@ object StateAccess {
           F.map(stateFn)(get))(
           (s, c) => modItFn(l setO s, c),
           (m, c) => modItFn(l modO m, c))(
-          FF, AA)
+          F, A)
       }
 
       override def withEffect[F2[_]](implicit t: UnsafeSync[F2]) =
         apply(
-          t.transSync(stateFn)(FF))(
-          (s, c) => t.transSync(setItFn(s, c))(FF),
-          (f, c) => t.transSync(modItFn(f, c))(FF))(
+          t.transSync(stateFn)(F))(
+          (s, c) => t.transSync(setItFn(s, F.transSync(c)))(F),
+          (f, c) => t.transSync(modItFn(f, F.transSync(c)))(F))(
           t, A)
 
       override def withAsyncEffect[A2[_]](implicit t: Async[A2]) =
@@ -192,13 +192,13 @@ object StateAccess {
         F.delay(G.dispatch(callback))
 
       override def xmapState[S2](f: S => S2)(g: S2 => S) =
-        const(F.map(stateFn)(f))(FF, AA)
+        const(F.map(stateFn)(f))(F, AA)
 
       override def zoomState[S2](get: S => S2)(set: S2 => S => S) =
-        const(F.map(stateFn)(get))(FF, AA)
+        const(F.map(stateFn)(get))(F, AA)
 
       override def withEffect[F2[_]](implicit t: UnsafeSync[F2]) =
-        const(t.transSync(stateFn)(FF))(t, A)
+        const(t.transSync(stateFn)(F))(t, A)
 
       override def withAsyncEffect[A2[_]](implicit t: Async[A2]) =
         const(stateFn)(F, t)

@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.StateAccessor._
 import japgolly.scalajs.react.component.builder.Lifecycle
+import japgolly.scalajs.react.internal.CoreGeneral._
 import japgolly.scalajs.react.util.DefaultEffects._
 import japgolly.scalajs.react.util.Effect.Id
 import japgolly.scalajs.react.util.Util.identityFn

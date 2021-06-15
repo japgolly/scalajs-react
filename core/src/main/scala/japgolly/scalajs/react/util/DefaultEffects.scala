@@ -2,12 +2,12 @@ package japgolly.scalajs.react.util
 
 import japgolly.scalajs.react.callback._
 
-object DefaultEffects extends DefaultEffectsApi {
+sealed trait DefaultEffectsLowPri extends DefaultEffectsApiLowPri {
+  override final type Async[A] = AsyncCallback[A]
+  @inline override final implicit val Async: Effect.asyncCallback.type = Effect.asyncCallback
+}
 
-  override type Async[A] = AsyncCallback[A]
+object DefaultEffects extends DefaultEffectsLowPri with DefaultEffectsApi {
   override type Sync [A] = CallbackTo[A]
-
-  @inline override implicit val Async: Effect.asyncCallback.type = Effect.asyncCallback
   @inline override implicit val Sync: Effect.callback.type = Effect.callback
-
 }

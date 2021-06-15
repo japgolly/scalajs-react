@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra.router
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.internal.CoreGeneral._
 import japgolly.scalajs.react.internal.EffectUtil
 import japgolly.scalajs.react.util.DefaultEffects.Sync
 import japgolly.scalajs.react.vdom.html_<^._

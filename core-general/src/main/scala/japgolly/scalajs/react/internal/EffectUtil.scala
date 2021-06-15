@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.internal
 
+import japgolly.scalajs.react.internal.CoreGeneral._
 import japgolly.scalajs.react.util.Effect.Sync
-import japgolly.scalajs.react.{ReactEvent, ReactKeyboardEvent}
 
 object EffectUtil {
 

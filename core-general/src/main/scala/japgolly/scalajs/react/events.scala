@@ -100,7 +100,7 @@ final class ReactExt_DomEvent(private val e: dom.Event) extends AnyVal {
     Sync.delay(e.stopPropagation())
 }
 
-final class ReactExt_ReactEvent[E <: ReactEvent](private val e: E) extends AnyVal {
+final class ReactExt_ReactEvent[E <: facade.SyntheticEvent[dom.Node]](private val e: E) extends AnyVal {
   /**
    * Stops the default action of an element from happening.
    * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
@@ -150,7 +150,7 @@ object ReactMouseEvent {
   /**
    * Would this mouse event (if applied to a link), open it in a new tab?
    */
-  def targetsNewTab_?(e: ReactMouseEvent): Boolean = {
+  def targetsNewTab_?(e: facade.SyntheticMouseEvent[dom.Node]): Boolean = {
     e.metaKey || e.ctrlKey || // Ctrl-click opens new tab
     e.button == 1             // Middle-click opens new tab
   }

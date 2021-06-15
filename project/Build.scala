@@ -100,8 +100,8 @@ object ScalajsReact {
       coreGeneral,
       core,
       extra,
-      /*
       test,
+      /*
       // testModule,
       scalaz72,
       cats,
@@ -162,9 +162,9 @@ object ScalajsReact {
   lazy val test = project
     .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test))
     .dependsOn(core, extra)
-    .dependsOn(scalaz72 % "test->compile")
-    .dependsOn(monocleScalaz % "test->compile")
-    .dependsOn(cats % "test->compile")
+    // .dependsOn(scalaz72 % "test->compile")
+    // .dependsOn(monocleScalaz % "test->compile")
+    // .dependsOn(cats % "test->compile")
     .settings(
       Test / scalacOptions --= Seq(
         "-deprecation",

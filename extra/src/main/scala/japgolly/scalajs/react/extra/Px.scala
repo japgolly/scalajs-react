@@ -2,6 +2,7 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.internal.LazyVar
+import japgolly.scalajs.react.internal.CoreGeneral._
 import japgolly.scalajs.react.util.DefaultEffects.Sync
 import japgolly.scalajs.react.util.Effect
 import scala.scalajs.js
