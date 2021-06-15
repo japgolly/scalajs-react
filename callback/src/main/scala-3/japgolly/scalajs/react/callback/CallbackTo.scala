@@ -249,12 +249,6 @@ object CallbackTo {
       self.toCBO.flatMap(CallbackOption.require(_))
   }
 
-  // Required because of variance
-  extension [A](self: CallbackTo[A]) {
-    def toKleisli[B]: CallbackKleisli[B, A] =
-      CallbackKleisli.const(self)
-  }
-
   extension [A](self: CallbackTo[Option[A]]) {
     inline def asCBO: CallbackOption[A] =
       new CallbackOption(self.toScalaFn)
@@ -264,10 +258,6 @@ object CallbackTo {
     /** Function distribution. See `CallbackTo.liftTraverse(f).id` for the dual. */
     def distFn: A => CallbackTo[B] =
       a => self.map(_(a))
-
-    def asKleisli: CallbackKleisli[A, B] =
-      CallbackKleisli(distFn)
-
   }
 
   extension [A, B](self: CallbackTo[(A, B)]) {

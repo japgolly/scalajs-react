@@ -67,10 +67,6 @@ A good example is the [Ajax 2 demo](https://japgolly.github.io/scalajs-react/#ex
 
 Check out the online [`CallbackOption` example](https://japgolly.github.io/scalajs-react/#examples/callback-option).
 
-### CallbackKleisli
-
-`CallbackKleisli` exists and is equivalent to a `Kleisli[CallbackTo, A B]` aka `A => CallbackTo[B]`.
-
 
 `StateSnapshot[S]`
 ==================

@@ -12,9 +12,6 @@ trait Exports {
   final type CallbackTo[+A] = C.CallbackTo[A]
   final val  CallbackTo     = C.CallbackTo
 
-  final type CallbackKleisli[A, +B] = C.CallbackKleisli[A, B]
-  final val  CallbackKleisli        = C.CallbackKleisli
-
   final type CallbackOption[+A] = C.CallbackOption[A]
   final val  CallbackOption     = C.CallbackOption
 }

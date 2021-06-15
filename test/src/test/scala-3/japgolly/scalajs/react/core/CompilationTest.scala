@@ -32,13 +32,6 @@ sealed trait CompilationTest {
   }
 
   // ===================================================================================================================
-  sealed trait TestCallbackKleisli {
-    def x: CallbackKleisli[Int, String]
-
-    x.when(_ > 3)
-  }
-
-  // ===================================================================================================================
   sealed trait TestComponentBuilder {
     val step1 = ScalaComponent.builder[Int]("")
 

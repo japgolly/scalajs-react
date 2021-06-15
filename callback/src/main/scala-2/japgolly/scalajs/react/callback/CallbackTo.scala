@@ -221,14 +221,6 @@ object CallbackTo {
 
   @inline implicit def MapGuard[A]: MapGuard[A] =
     null.asInstanceOf[MapGuard[A]]
-
-  implicit def VarianceOps[A](c: CallbackTo[A]): VarianceOps[A] =
-    new VarianceOps(c.trampoline)
-
-  final class VarianceOps[A](private val trampoline: Trampoline[A]) extends AnyVal {
-    def toKleisli[B]: CallbackKleisli[B, A] =
-      CallbackKleisli.const(new CallbackTo(trampoline))
-  }
 }
 
 // =====================================================================================================================
@@ -639,9 +631,6 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     val bc = ev(this)
     b => bc.map(_(b))
   }
-
-  def asKleisli[B, C](implicit ev: CallbackTo[A] <:< CallbackTo[B => C]): CallbackKleisli[B, C] =
-    CallbackKleisli(distFn)
 
   // /** Wraps this so that:
   //   *

@@ -13,8 +13,6 @@
 
 * Document modules
 
-* Deprecate or remove CallbackKleisli
-
 * Remove temp scripts
 
 * Add WithAsyncEffect / WithEffectAsync to component.*
@@ -59,9 +57,6 @@
   def callbackOptionByRef[A]: Reusability[CallbackOption[A]] =
     by((_: CallbackOption[A]).underlyingRepr)(byRef)
 
-  def callbackKleisliByRef[A, B]: Reusability[CallbackKleisli[A, B]] =
-    by((_: CallbackKleisli[A, B]).underlyingRepr)(byRef)
-
   def asyncCallbackByRef[A]: Reusability[AsyncCallback[A]] =
     by((_: AsyncCallback[A]).underlyingRepr)(byRef)
 
@@ -80,9 +75,6 @@
     byRefIso(c)(_.underlyingRepr)
 
   def callbackOptionByRef[A](c: CallbackOption[A]): Reusable[CallbackOption[A]] =
-    byRefIso(c)(_.underlyingRepr)
-
-  def callbackKleisliByRef[A, B](c: CallbackKleisli[A, B]): Reusable[CallbackKleisli[A, B]] =
     byRefIso(c)(_.underlyingRepr)
 
   def asyncCallbackByRef[A](c: AsyncCallback[A]): Reusable[AsyncCallback[A]] =

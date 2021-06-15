@@ -7,11 +7,6 @@ import japgolly.scalajs.react.extra._
 
 object CatsReactExt {
 
-  final class CallbackKleisliOps[A, B](private val k: A => CallbackTo[B]) extends AnyVal {
-    def toCatsKleisli: Kleisli[CallbackTo, A, B] =
-      Kleisli(k)
-  }
-
   final class MA[M[_], A](private val ma: M[A]) extends AnyVal {
     def toCallback(implicit t: M ~> CallbackTo): CallbackTo[A] = t(ma)
   }
@@ -52,9 +47,6 @@ trait CatsReactExt {
 
   implicit final def CatsReactExt_Listenable(a: Listenable.type): ListenableOps =
     new ListenableOps(a)
-
-  implicit final def CatsReactExt_CallbackKleisli[A, B](k: CallbackKleisli[A, B]): CallbackKleisliOps[A, B] =
-    new CallbackKleisliOps(k.run)
 
   implicit final def CatsReactExt_MA[M[_], A](a: M[A]): MA[M, A] =
     new MA(a)

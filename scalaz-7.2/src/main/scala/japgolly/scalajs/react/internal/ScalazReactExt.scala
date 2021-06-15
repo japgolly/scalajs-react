@@ -19,11 +19,6 @@ object ScalazReactExt {
       self.map(_.unsafePerformIO())
   }
 
-  final class CallbackKleisliOps[A, B](private val k: A => CallbackTo[B]) extends AnyVal {
-    def toScalazKleisli: Kleisli[CallbackTo, A, B] =
-      Kleisli(k)
-  }
-
   final class MA[M[_], A](private val m: M[A]) extends AnyVal {
     def toCallback(implicit t: M ~> CallbackTo): CallbackTo[A] =
       t(m)
@@ -68,9 +63,6 @@ trait ScalazReactExt {
 
   implicit final def ScalazReactExt_CallbackTo[A](a: CallbackTo[A]): CallbackToOps[A] =
     new CallbackToOps(a.underlyingRepr)
-
-  implicit final def ScalazReactExt_CallbackKleisli[A, B](k: CallbackKleisli[A, B]): CallbackKleisliOps[A, B] =
-    new CallbackKleisliOps(k.run)
 
   implicit final def ScalazReactExt_MA[M[_], A](a: M[A]): MA[M, A] =
     new MA(a)
