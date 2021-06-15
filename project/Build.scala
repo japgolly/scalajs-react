@@ -190,7 +190,7 @@ object ScalajsReact {
         Dep.nyayaProp      .value % Test,
         Dep.nyayaGen       .value % Test,
         Dep.nyayaTest      .value % Test,
-        Dep.monocleScalaz  .value % Test, // TODO: Remove
+        // Dep.monocleScalaz  .value % Test, // TODO: Remove
         Dep.scalaJsJavaTime.value % Test),
       jsDependencies ++= Seq(
         Dep.sizzleJs(Test).value,
