@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra.router
 
-import japgolly.scalajs.react.util.DefaultEffects.Sync
 import japgolly.scalajs.react.extra.router.RouterConfig.Parsed
+import japgolly.scalajs.react.util.DefaultEffects.Sync
 import scala.reflect.ClassTag
 
 /** A single routing rule. Intended to be composed with other [[RoutingRule]]s.

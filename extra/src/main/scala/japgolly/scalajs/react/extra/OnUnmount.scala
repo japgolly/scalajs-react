@@ -2,7 +2,7 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.util.DefaultEffects._
-import japgolly.scalajs.react.util.Effect
+import japgolly.scalajs.react.util.Effect.Dispatch
 
 /**
  * Accrues procedures to be run automatically when its component unmounts.
@@ -15,8 +15,8 @@ trait OnUnmount {
   final def unmount: Sync[Unit] =
     Sync.chain(Sync.sequence_(unmountProcs), Sync.delay{ unmountProcs = Nil })
 
-  final def onUnmount[F[_]](f: F[Unit])(implicit F: Effect.Sync[F]): Sync[Unit] =
-    Sync.delay(unmountProcs ::= Sync.transSync(f))
+  final def onUnmount[F[_]](f: F[Unit])(implicit F: Dispatch[F]): Sync[Unit] =
+    Sync.delay(unmountProcs ::= Sync.fromJsFn0(F.dispatchFn(f)))
 }
 
 object OnUnmount {

@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.util
 
 import japgolly.scalajs.react.userdefined
-import japgolly.scalajs.react.util.OptionLike
 import japgolly.scalajs.react.util.Util.identityFn
 import scala.scalajs.js
 import scala.util.Try
@@ -13,15 +12,28 @@ object Effect
 
   // ===================================================================================================================
 
+  trait Dispatch[F[_]] extends Monad[F] {
+    /** Fire and forget, could be sync or async */
+    def dispatch[A](fa: F[A]): Unit
+    def dispatchFn[A](fa: => F[A]): js.Function0[Unit]
+  }
+
+  object Dispatch {
+    trait WithDefaults[F[_]] extends Dispatch[F] {
+      override def dispatchFn[A](fa: => F[A]): js.Function0[Unit] =
+        () => dispatch(fa)
+    }
+  }
+
+  // ===================================================================================================================
+
   type Id[A] = A
 
   trait UnsafeSync[F[_]] extends Monad[F] {
 
-    def option_[O[_], A](o: => O[F[A]])(implicit O: OptionLike[O]): F[Unit]
-    def runSync[A]      (fa: => F[A])                             : A
-    def suspend[A]      (fa: => F[A])                             : F[A]
-    def toJsFn0[A]      (f: => F[A])                              : js.Function0[A]
-    def toJsFn1[A, Z]   (f: A => F[Z])                            : js.Function1[A, Z]
+    def runSync[A](fa: => F[A]) : A
+    def suspend[A](fa: => F[A]) : F[A]
+    def toJsFn [A](fa: => F[A]) : js.Function0[A]
 
     /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
       * current callback completes, be it in error or success.
@@ -38,11 +50,8 @@ object Effect
   object UnsafeSync {
 
     trait WithDefaults[F[_]] extends UnsafeSync[F] {
-      override def toJsFn0[A](f: => F[A]): js.Function0[A] =
+      override def toJsFn[A](f: => F[A]): js.Function0[A] =
         () => runSync(f)
-
-      override def toJsFn1[A, Z](f: A => F[Z]): js.Function1[A, Z] =
-        a => runSync(f(a))
 
       override def suspend[A](fa: => F[A]): F[A] =
         flatMap(delay(fa))(identityFn)
@@ -55,18 +64,17 @@ object Effect
     }
 
     implicit lazy val id: UnsafeSync[Id] = new WithDefaults[Id] {
-      override def delay  [A]      (a: => A)                                = a
-      override def pure   [A]      (a: A)                                   = a
-      override def map    [A, B]   (a: A)(f: A => B)                        = f(a)
-      override def flatMap[A, B]   (a: A)(f: A => B)                        = f(a)
-      override def runSync[A]      (a: => A)                                = a
-      override def option_[O[_], A](oa: => O[A])(implicit O: OptionLike[O]) = O.foreach(oa)(_ => ())
+      override def delay  [A]   (a: => A)         = a
+      override def pure   [A]   (a: A)            = a
+      override def map    [A, B](a: A)(f: A => B) = f(a)
+      override def flatMap[A, B](a: A)(f: A => B) = f(a)
+      override def runSync[A]   (a: => A)         = a
     }
   }
 
   // ===================================================================================================================
 
-  trait Sync[F[_]] extends UnsafeSync[F] {
+  trait Sync[F[_]] extends UnsafeSync[F] with Dispatch[F] {
 
     val empty: F[Unit]
     val semigroupSyncOr: Semigroup[F[Boolean]]
@@ -74,7 +82,7 @@ object Effect
 
     def fromJsFn0   [A]         (f: js.Function0[A])             : F[A]
     def handleError [A, AA >: A](fa: F[A])(f: Throwable => F[AA]): F[AA]
-    def isEmpty                 (f: F[Unit])                     : Boolean
+    def isEmpty     [A]         (f: F[A])                        : Boolean
     def reset       [A]         (fa: F[A])                       : F[Unit]
     def runAll                  (callbacks: F[_]*)               : F[Unit]
     def sequence_   [A]         (fas: Iterable[F[A]])            : F[Unit]
@@ -90,7 +98,14 @@ object Effect
   object Sync {
     type Untyped[A] = js.Function0[A]
 
-    trait WithDefaults[F[_]] extends Sync[F] with UnsafeSync.WithDefaults[F] {
+    trait WithDefaultDispatch[F[_]] extends Sync[F] with Dispatch.WithDefaults[F] {
+      override def dispatch[A](fa: F[A]): Unit =
+        if (!isEmpty(fa))
+          runSync(fa)
+    }
+
+    trait WithDefaults[F[_]] extends WithDefaultDispatch[F] with UnsafeSync.WithDefaults[F] {
+
       override def reset[A](fa: F[A]): F[Unit] =
         delay(
           try
@@ -146,7 +161,7 @@ object Effect
 
   // ===================================================================================================================
 
-  trait Async[F[_]] {
+  trait Async[F[_]] extends Dispatch[F] {
     def async      [A](f: Async.Untyped[A]): F[A]
     def first      [A](f: Async.Untyped[A]): F[A]
     def runAsync   [A](fa: => F[A])        : Async.Untyped[A]
@@ -166,7 +181,7 @@ object Effect
   object Async {
     type Untyped[A] = (Try[A] => Sync.Untyped[Unit]) => Sync.Untyped[Unit]
 
-    trait WithDefaults[F[_]] extends Async[F] {
+    trait WithDefaults[F[_]] extends Async[F] with Dispatch.WithDefaults[F] {
       override def first[A](f: Async.Untyped[A]): F[A] =
         async(g => () => {
           var first = true
@@ -177,8 +192,12 @@ object Effect
             }
           }).apply()
         })
+
+      override def dispatch[A](fa: F[A]): Unit =
+        toJsPromise(fa).apply(): Unit
     }
   }
+
 }
 
 // =====================================================================================================================

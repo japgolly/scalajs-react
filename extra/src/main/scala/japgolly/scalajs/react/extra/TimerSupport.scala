@@ -28,7 +28,7 @@ trait TimerSupport extends OnUnmount {
     val first = F.delay {
       var handle: UndefOr[SetTimeoutHandle] = undefined
       val proc = F.chain(F.delay { handle = undefined }, f)
-      handle = RawTimers.setTimeout(F.toJsFn0(proc), timeoutInMilliseconds)
+      handle = RawTimers.setTimeout(F.toJsFn(proc), timeoutInMilliseconds)
       F.delay(handle.foreach(RawTimers.clearTimeout))
     }
     F.flatMap(first)(x => F.transSync(onUnmount(x))(DefaultEffects.Sync))
@@ -50,8 +50,8 @@ trait TimerSupport extends OnUnmount {
 
   final def setIntervalMs[F[_]](f: F[Unit], periodInMilliseconds: Double)(implicit F: Sync[F]): F[Unit] = {
     val first = F.delay {
-      val i = RawTimers.setInterval(F.toJsFn0(f), periodInMilliseconds)
-      F.delay(RawTimers clearInterval i)
+      val i = RawTimers.setInterval(F.toJsFn(f), periodInMilliseconds)
+      F.delay(RawTimers.clearInterval(i))
     }
     F.flatMap(first)(x => F.transSync(onUnmount(x))(DefaultEffects.Sync))
   }

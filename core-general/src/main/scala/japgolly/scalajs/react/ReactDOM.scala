@@ -1,6 +1,6 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.util.Effect.Sync
+import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.NotAllowed
 import japgolly.scalajs.react.vdom.VdomNode
 import org.scalajs.dom
@@ -20,8 +20,8 @@ object ReactDOM {
 
   def hydrate[F[_], A](element  : VdomNode,
                        container: facade.ReactDOM.Container,
-                       callback : => F[A])(implicit F: Sync[F]): facade.React.ComponentUntyped =
-    facade.ReactDOM.hydrate(element.rawNode, container, F.toJsFn0(callback))
+                       callback : => F[A])(implicit F: Dispatch[F]): facade.React.ComponentUntyped =
+    facade.ReactDOM.hydrate(element.rawNode, container, F.dispatchFn(callback))
 
   /** Hydrate the container if is has children, else render into that container. */
   def hydrateOrRender(element  : VdomNode,
@@ -34,7 +34,7 @@ object ReactDOM {
   /** Hydrate the container if is has children, else render into that container. */
   def hydrateOrRender[F[_], A](element  : VdomNode,
                                container: dom.Element,
-                               callback : => F[A])(implicit F: Sync[F]): facade.React.ComponentUntyped =
+                               callback : => F[A])(implicit F: Dispatch[F]): facade.React.ComponentUntyped =
     if (container.hasChildNodes())
       hydrate(element, container, callback)
     else
@@ -59,6 +59,6 @@ object ReactDOM {
   def createPortal(child: NotAllowed, container: Any) = child.result
 
   def flushSync[F[_], A](fa: F[A])(implicit F: Sync[F]): F[A] =
-    F.delay(facade.ReactDOM.flushSync(F.toJsFn0(fa)))
+    F.delay(facade.ReactDOM.flushSync(F.toJsFn(fa)))
 
 }

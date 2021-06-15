@@ -57,25 +57,25 @@ object Template {
     override def props         = ft.transSync[Id, P2](mp(from.props))
     override def state         = ft.transSync[Id, S2](ls.get(from.state))
 
-    override def forceUpdate[G[_], B](callback: => G[B])(implicit G: Sync[G]) =
+    override def forceUpdate[G[_], B](callback: => G[B])(implicit G: Dispatch[G]) =
       ft.transSync(from.forceUpdate(callback))
 
-    override def setState[G[_], B](s: State, callback: => G[B])(implicit G: Sync[G]) =
+    override def setState[G[_], B](s: State, callback: => G[B])(implicit G: Dispatch[G]) =
       ft.transSync(from.modState(ls set s, callback))
 
-    override def modState[G[_], B](f: State => State, callback: => G[B])(implicit G: Sync[G]) =
+    override def modState[G[_], B](f: State => State, callback: => G[B])(implicit G: Dispatch[G]) =
       ft.transSync(from.modState(ls mod f, callback))
 
-    override def modState[G[_], B](f: (State, Props) => State, callback: => G[B])(implicit G: Sync[G]) =
+    override def modState[G[_], B](f: (State, Props) => State, callback: => G[B])(implicit G: Dispatch[G]) =
       ft.transSync(from.modState((s1, p1) => ls.set(f(ls.get(s1), mp(p1)))(s1), callback))
 
-    override def setStateOption[G[_], B](o: Option[State], callback: => G[B])(implicit G: Sync[G]) =
+    override def setStateOption[G[_], B](o: Option[State], callback: => G[B])(implicit G: Dispatch[G]) =
       o.fold(ft.transSync(from.setStateOption(None, callback)))(setState(_, callback))
 
-    override def modStateOption[G[_], B](f: State => Option[State], callback: => G[B])(implicit G: Sync[G]) =
+    override def modStateOption[G[_], B](f: State => Option[State], callback: => G[B])(implicit G: Dispatch[G]) =
       ft.transSync(from.modStateOption(ls modO f, callback))
 
-    override def modStateOption[G[_], B](f: (State, Props) => Option[State], callback: => G[B])(implicit G: Sync[G]) =
+    override def modStateOption[G[_], B](f: (State, Props) => Option[State], callback: => G[B])(implicit G: Dispatch[G]) =
       ft.transSync(from.modStateOption((s1, p1) => f(ls.get(s1), mp(p1)).map(ls.set(_)(s1)), callback))
 
     override def mapProps[P3](f: P2 => P3) =

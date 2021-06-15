@@ -11,8 +11,8 @@ final class SetStateFn[F[_], A[_], S](underlyingFn: (Option[S], Untyped[Any]) =>
   override protected implicit def A = AA
 
   /** @param callback Executed regardless of whether state is changed. */
-  override def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit] =
-    underlyingFn(newState, G.toJsFn0(callback))
+  override def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
+    underlyingFn(newState, G.dispatchFn(callback))
 
   override def toSetStateFn: SetStateFn[F, A, S] =
     this
@@ -38,8 +38,8 @@ final class ModStateFn[F[_], A[_], S](underlyingFn: (S => Option[S], Untyped[Any
   override protected implicit def A = AA
 
   /** @param callback Executed regardless of whether state is changed. */
-  override def modStateOption[G[_], B](f: S => Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit] =
-    underlyingFn(f, G.toJsFn0(callback))
+  override def modStateOption[G[_], B](f: S => Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
+    underlyingFn(f, G.dispatchFn(callback))
 
   override def toModStateFn: ModStateFn[F, A, S] =
     this
@@ -62,14 +62,14 @@ object ModStateFn {
 // =====================================================================================================================
 
 final class ModStateWithPropsFn[F[_], A[_], P, S](underlyingFn: ((S, P) => Option[S], Untyped[Any]) => F[Unit])
-                                           (implicit FF: UnsafeSync[F], AA: Async[A]) extends StateAccess.ModStateWithProps[F, A, P, S] {
+                                                 (implicit FF: UnsafeSync[F], AA: Async[A]) extends StateAccess.ModStateWithProps[F, A, P, S] {
 
   override protected implicit def F = FF
   override protected implicit def A = AA
 
   /** @param callback Executed regardless of whether state is changed. */
-  override def modStateOption[G[_], B](f: (S, P) => Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit] =
-    underlyingFn(f, G.toJsFn0(callback))
+  override def modStateOption[G[_], B](f: (S, P) => Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
+    underlyingFn(f, G.dispatchFn(callback))
 
   override def toModStateWithPropsFn: ModStateWithPropsFn[F, A, P, S] =
     this

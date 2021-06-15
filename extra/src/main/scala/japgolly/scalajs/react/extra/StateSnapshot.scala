@@ -1,12 +1,12 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.{Reusable, Reusability, StateAccess, StateAccessor}
 import japgolly.scalajs.react.component.{Generic => GenericComponent}
 import japgolly.scalajs.react.hooks.{Api => HooksApi, CustomHook}
 import japgolly.scalajs.react.internal.{Iso, Lens}
 import japgolly.scalajs.react.util.DefaultEffects._
-import japgolly.scalajs.react.util.Effect
+import japgolly.scalajs.react.util.Effect.Dispatch
 import japgolly.scalajs.react.util.NotAllowed
+import japgolly.scalajs.react.{Reusability, Reusable, StateAccess, StateAccessor}
 import scala.reflect.ClassTag
 
 final class StateSnapshot[S](val value: S,
@@ -19,11 +19,11 @@ final class StateSnapshot[S](val value: S,
   override def toString = s"StateSnapshot($value)"
 
   /** @param callback Executed regardless of whether state is changed. */
-  override def setStateOption[G[_]: Effect.Sync, B](newState: Option[S], callback: => G[B]): Sync[Unit] =
-    underlyingSetFn(newState, Sync.map(Sync.transSync(callback))(_ => ()))
+  override def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Dispatch[G]): Sync[Unit] =
+    underlyingSetFn(newState, G.dispatchFn(callback))
 
   /** @param callback Executed regardless of whether state is changed. */
-  override def modStateOption[G[_]: Effect.Sync, B](mod: S => Option[S], callback: => G[B]): Sync[Unit] =
+  override def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Dispatch[G]): Sync[Unit] =
     setStateOption(mod(value), callback)
 
   /** THIS WILL VOID REUSABILITY.

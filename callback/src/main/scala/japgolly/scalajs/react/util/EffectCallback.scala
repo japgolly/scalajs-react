@@ -6,7 +6,7 @@ import scala.scalajs.js
 trait EffectCallback {
   import Effect._
 
-  implicit object callback extends Sync[CallbackTo] {
+  implicit object callback extends Sync.WithDefaultDispatch[CallbackTo] {
 
     override val empty =
       Callback.empty
@@ -17,7 +17,7 @@ trait EffectCallback {
     override val semigroupSyncOr: Semigroup[CallbackTo[Boolean]] =
       Semigroup(_ || _)
 
-    @inline override def isEmpty(f: Callback) =
+    @inline override def isEmpty[A](f: CallbackTo[A]) =
       f.isEmpty_?
 
     @inline override def reset[A](fa: CallbackTo[A]): Callback =
@@ -47,17 +47,11 @@ trait EffectCallback {
     @inline override def finallyRun[A, B](fa: => CallbackTo[A], fb: => CallbackTo[B]) =
       fa.finallyRun(fb)
 
-    @inline override def toJsFn0[A](f: => CallbackTo[A]): js.Function0[A] =
+    @inline override def toJsFn[A](f: => CallbackTo[A]): js.Function0[A] =
       f.toJsFn
-
-    override def toJsFn1[A, Z](f: A => CallbackTo[Z]): js.Function1[A, Z] =
-      a => f(a).runNow()
 
     @inline override def suspend[A](fa: => CallbackTo[A]): CallbackTo[A] =
       CallbackTo.suspend(fa)
-
-    override def option_[O[_], A](f: => O[CallbackTo[A]])(implicit O: OptionLike[O]) =
-      Callback(O.foreach(f)(_.runNow()))
 
     @inline override def fromJsFn0[A](f: js.Function0[A]) =
       CallbackTo.fromJsFn(f)
@@ -83,7 +77,19 @@ trait EffectCallback {
 
   // ===================================================================================================================
 
-  implicit object asyncCallback extends Async[AsyncCallback] {
+  implicit object asyncCallback extends Async[AsyncCallback] with Dispatch.WithDefaults[AsyncCallback] {
+    @inline override def delay[A](a: => A) =
+      AsyncCallback.delay(a)
+
+    @inline override def pure[A](a: A) =
+      AsyncCallback.pure(a)
+
+    @inline override def map[A, B](fa: AsyncCallback[A])(f: A => B) =
+      fa.map(f)
+
+    @inline override def flatMap[A, B](fa: AsyncCallback[A])(f: A => AsyncCallback[B]) =
+      fa.flatMap(f)
+
     override def async[A](fa: Async.Untyped[A]): AsyncCallback[A] =
       AsyncCallback[A](f => CallbackTo(fa(f(_).toJsFn)))
 
@@ -95,5 +101,8 @@ trait EffectCallback {
 
     override def toJsPromise[A](fa: => AsyncCallback[A]): () => js.Promise[A] =
       () => fa.unsafeToJsPromise()
+
+    @inline override def dispatch[A](fa: AsyncCallback[A]): Unit =
+      fa.runNow()
   }
 }

@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra.internal.LazyVar
 import japgolly.scalajs.react.util.DefaultEffects.Sync
 import japgolly.scalajs.react.util.Effect
-import japgolly.scalajs.react.extra.internal.LazyVar
 import scala.scalajs.js
 
 /**
@@ -238,7 +238,7 @@ object Px {
     new FromThunk(() => f)
 
   def callback[F[_], A](cb: F[A])(implicit F: Effect.Sync[F]): FromThunk[A] = {
-    val f = F.toJsFn0(cb)
+    val f = F.toJsFn(cb)
     new FromThunk(() => f())
   }
 

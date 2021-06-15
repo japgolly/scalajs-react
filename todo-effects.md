@@ -15,8 +15,6 @@
 
 * Deprecate or remove CallbackKleisli
 
-* Add fire-and-forget effect execution
-
 * Remove temp scripts
 
 * Add WithAsyncEffect / WithEffectAsync to component.*

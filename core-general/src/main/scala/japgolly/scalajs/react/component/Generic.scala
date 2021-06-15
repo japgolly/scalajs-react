@@ -97,8 +97,8 @@ object Generic {
     def renderIntoDOM(container: facade.ReactDOM.Container): Mounted =
       mountRaw(facade.ReactDOM.render(raw, container))
 
-    def renderIntoDOM[F[_], A](container: facade.ReactDOM.Container, callback: => F[A])(implicit F: Sync[F]): Mounted =
-      mountRaw(facade.ReactDOM.render(raw, container, F.toJsFn0(callback)))
+    def renderIntoDOM[F[_], A](container: facade.ReactDOM.Container, callback: => F[A])(implicit F: Dispatch[F]): Mounted =
+      mountRaw(facade.ReactDOM.render(raw, container, F.dispatchFn(callback)))
   }
 
   trait UnmountedWithRoot[P1, M1, P0, M0] extends UnmountedSimple[P1, M1] {
@@ -136,7 +136,7 @@ object Generic {
     def props: F[Props]
     def propsChildren: F[PropsChildren]
 
-    def forceUpdate[G[_], B](callback: => G[B])(implicit G: Sync[G]): F[Unit]
+    def forceUpdate[G[_], B](callback: => G[B])(implicit G: Dispatch[G]): F[Unit]
     final def forceUpdate: F[Unit] = forceUpdate(DefaultS.empty)
   }
 

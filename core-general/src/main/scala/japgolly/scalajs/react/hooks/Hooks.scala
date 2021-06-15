@@ -29,10 +29,10 @@ object Hooks {
         override def fromJs = g
       }
 
-    implicit def callback[F[_]](implicit F: Sync[F]): UseCallbackArg[F[Unit]] =
+    implicit def callback[F[_]](implicit F: Dispatch[F]): UseCallbackArg[F[Unit]] =
       apply[F[Unit], js.Function0[Unit]](
-        F.toJsFn0(_))(
-        f => Reusable.byRef(f).withValue(F.fromJsFn0(f)))
+        F.dispatchFn(_))(
+        f => Reusable.byRef(f).withValue(F.delay(f())))
   }
 
   object UseCallback {
@@ -73,17 +73,17 @@ object Hooks {
   final case class UseEffectArg[A](toJs: A => facade.React.UseEffectArg) extends AnyVal
 
   object UseEffectArg {
-    implicit def unit[F[_]](implicit F: Sync[F]): UseEffectArg[F[Unit]] =
-      apply(F.toJsFn0(_))
+    implicit def unit[F[_]](implicit F: Dispatch[F]): UseEffectArg[F[Unit]] =
+      apply(F.dispatchFn(_))
 
-    def map[F[_], A](f: A => js.UndefOr[js.Function0[Any]])(implicit F: Sync[F]): UseEffectArg[F[A]] =
-      apply(fa => F.toJsFn0(F.map(fa)(f)))
+    def map[F[_], A](f: A => js.UndefOr[js.Function0[Any]])(implicit F: Dispatch[F]): UseEffectArg[F[A]] =
+      apply(fa => F.dispatchFn(F.map(fa)(f)))
 
-    implicit def cleanup[F[_], A](implicit F: Sync[F]): UseEffectArg[F[F[A]]] =
-      map(F.toJsFn0(_))
+    implicit def cleanup[F[_], A](implicit F: Dispatch[F]): UseEffectArg[F[F[A]]] =
+      map(F.dispatchFn(_))
 
-    implicit def optionalCallback[F[_], O[_], A](implicit F: Sync[F], O: OptionLike[O]): UseEffectArg[F[O[F[A]]]] =
-      map(O.unsafeToJs(_).map(F.toJsFn0(_)))
+    implicit def optionalCallback[F[_], O[_], A](implicit F: Dispatch[F], O: OptionLike[O]): UseEffectArg[F[O[F[A]]]] =
+      map(O.unsafeToJs(_).map(F.dispatchFn(_)))
   }
 
   object UseEffect {
@@ -370,7 +370,7 @@ object Hooks {
       initialValue
 
     def get: D.Sync[A] =
-      D.Sync.pure(value)
+      D.Sync.delay(value)
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
     def set(a: A): D.Sync[Unit] =

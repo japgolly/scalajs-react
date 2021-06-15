@@ -2,7 +2,7 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.util.DefaultEffects.{Sync => Default}
-import japgolly.scalajs.react.util.Effect.Sync
+import japgolly.scalajs.react.util.Effect.Dispatch
 import org.scalajs.dom.Event
 import org.scalajs.dom.raw.EventTarget
 import scala.scalajs.js
@@ -33,11 +33,11 @@ object EventListener {
          listener  : ScalaComponent.MountedPure[P, S, B] => E => F[Unit],
          target    : ScalaComponent.MountedImpure[P, S, B] => EventTarget = defaultTarget[P, S, B],
          useCapture: Boolean = false)
-        (implicit F: Sync[F]) =
+        (implicit F: Dispatch[F]) =
       OnUnmount.install[P, C, S, B, U].andThen(_.componentDidMount { $ =>
         val et = target($.mountedImpure)
         val fe = listener($.mountedPure)
-        val f: js.Function1[E, Unit] = F.toJsFn1(fe)
+        val f: js.Function1[E, Unit] = e => F.dispatch(fe(e))
         val add = Default.delay(et.addEventListener(eventType, f, useCapture))
         val del = F.delay(et.removeEventListener(eventType, f, useCapture))
         Default.chain(add, $.backend.onUnmount(del))
@@ -51,7 +51,7 @@ object EventListener {
        listener  : ScalaComponent.MountedPure[P, S, B] => F[Unit],
        target    : ScalaComponent.MountedImpure[P, S, B] => EventTarget = defaultTarget[P, S, B],
        useCapture: Boolean = false)
-      (implicit F: Sync[F]) =
+      (implicit F: Dispatch[F]) =
     EventListener[Event].install[F, P, C, S, B, U](
       eventType,
       $ => { val cb = listener($); _ => cb },

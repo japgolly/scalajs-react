@@ -65,17 +65,19 @@ object Attr {
     override def :=[A](a: A)(implicit t: ValueType[A, EventHandler[E]]): TagMod =
       TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Any]]), a))
 
-    def -->[F[_], A](callback: => F[A])(implicit F: Sync[F]): TagMod =
-      :=(F.toJsFn0(callback))(ValueType.direct)
+    def -->[F[_], A](callback: => F[A])(implicit F: Dispatch[F]): TagMod =
+      :=(F.dispatchFn(callback))(ValueType.direct)
 
-    def ==>[F[_], A](eventHandler: Event => F[A])(implicit F: Sync[F]): TagMod =
-      :=(F.toJsFn1(eventHandler))(ValueType.direct)
+    def ==>[F[_], A](eventHandler: Event => F[A])(implicit F: Dispatch[F]): TagMod = {
+      val f: js.Function1[Event, Any] = e => F.dispatch(eventHandler(e))
+      :=(f)(ValueType.direct)
+    }
 
-    def -->?[O[_], F[_], A](callback: => O[F[A]])(implicit F: Sync[F], O: OptionLike[O]): TagMod =
-      this --> F.option_(callback)(O)
+    def -->?[O[_], F[_], A](callback: => O[F[A]])(implicit F: Dispatch[F], O: OptionLike[O]): TagMod =
+      this --> F.delay(O.foreach(callback)(F.dispatch))
 
-    def ==>?[O[_], F[_], A](eventHandler: Event => O[F[A]])(implicit F: Sync[F], O: OptionLike[O]): TagMod =
-      ==>(e => F.option_(eventHandler(e))(O))
+    def ==>?[O[_], F[_], A](eventHandler: Event => O[F[A]])(implicit F: Dispatch[F], O: OptionLike[O]): TagMod =
+      ==>(e => F.delay(O.foreach(eventHandler(e))(F.dispatch)))
   }
 
   object Event {

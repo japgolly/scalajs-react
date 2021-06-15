@@ -2,7 +2,7 @@ package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.facade
 import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
-import japgolly.scalajs.react.util.Effect.Sync
+import japgolly.scalajs.react.util.Effect.Dispatch
 
 trait VdomNode extends TagMod {
   def rawNode: facade.React.Node
@@ -13,8 +13,8 @@ trait VdomNode extends TagMod {
   @inline final def renderIntoDOM(container: facade.ReactDOM.Container): facade.React.ComponentUntyped =
     facade.ReactDOM.render(rawNode, container)
 
-  @inline final def renderIntoDOM[F[_], A](container: facade.ReactDOM.Container, callback: => F[A])(implicit F: Sync[F]): facade.React.ComponentUntyped =
-    facade.ReactDOM.render(rawNode, container, F.toJsFn0(callback))
+  @inline final def renderIntoDOM[F[_], A](container: facade.ReactDOM.Container, callback: => F[A])(implicit F: Dispatch[F]): facade.React.ComponentUntyped =
+    facade.ReactDOM.render(rawNode, container, F.dispatchFn(callback))
 }
 
 object VdomNode {

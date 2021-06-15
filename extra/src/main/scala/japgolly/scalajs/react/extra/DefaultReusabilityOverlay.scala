@@ -151,7 +151,7 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
       document.body.replaceChild(outer, tmp)
 
       // Customise
-      outer.addEventListener("click", Sync.toJsFn1((_: Any) => onClick))
+      outer.addEventListener("click", (_: Any) => Sync.runSync(onClick))
 
       // Store
       val good = options.template good outer

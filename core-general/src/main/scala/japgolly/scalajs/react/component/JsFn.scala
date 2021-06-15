@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal.{Box, Singleton}
-import japgolly.scalajs.react.util.Effect.Sync
+import japgolly.scalajs.react.util.Effect.Dispatch
 import japgolly.scalajs.react.util.JsUtil.jsNullToOption
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, facade, vdom}
@@ -121,8 +121,8 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
     override final def renderIntoDOM(container: facade.ReactDOM.Container): this.Mounted =
       postRender(facade.ReactDOM.render(raw, container))
 
-    override final def renderIntoDOM[F[_], A](container: facade.ReactDOM.Container, callback: => F[A])(implicit F: Sync[F]): this.Mounted =
-      postRender(facade.ReactDOM.render(raw, container, F.toJsFn0(callback)))
+    override final def renderIntoDOM[F[_], A](container: facade.ReactDOM.Container, callback: => F[A])(implicit F: Dispatch[F]): this.Mounted =
+      postRender(facade.ReactDOM.render(raw, container, F.dispatchFn(callback)))
 
     private def postRender(result: facade.React.ComponentUntyped): this.Mounted = {
       // Protect against future React change.

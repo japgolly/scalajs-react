@@ -51,9 +51,9 @@ object GenHooks {
       val ctxToStr     = (1 to n).map(i => s",\\n  hook$i = !hook$i").mkString
 
       useCallbackArgs +=
-        s"""  implicit def c$n[$As, Z[_]](implicit Z: Sync[Z]): UseCallbackArg[($As) => Z[Unit]] =
+        s"""  implicit def c$n[$As, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[($As) => Z[Unit]] =
            |    UseCallbackArg[($As) => Z[Unit], js.Function$n[$As, Unit]](
-           |      z => ($as) => Z.runSync(z($as)))(
+           |      z => ($as) => Z.dispatch(z($as)))(
            |      z => Reusable.byRef(z).withValue(($as) => Z.delay(z($as))))
            |""".stripMargin
 

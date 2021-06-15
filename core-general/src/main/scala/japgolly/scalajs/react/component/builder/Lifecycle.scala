@@ -62,27 +62,27 @@ object Lifecycle {
   sealed trait StateW[F[_], A[_], P, S, B] extends StateAccess.WriteWithProps[F, A, P, S] { self: Base[F, A, P, S, B] =>
 
     /** @param callback Executed after state is changed. */
-    final override def setState[G[_], B](newState: S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
+    final override def setState[G[_], B](newState: S, callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
       mountedPure.setState(newState, callback)
 
     /** @param callback Executed after state is changed. */
-    final override def modState[G[_], B](mod: S => S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
+    final override def modState[G[_], B](mod: S => S, callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
       mountedPure.modState(mod, callback)
 
     /** @param callback Executed after state is changed. */
-    final override def modState[G[_], B](mod: (S, P) => S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
+    final override def modState[G[_], B](mod: (S, P) => S, callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
       mountedPure.modState(mod, callback)
 
     /** @param callback Executed regardless of whether state is changed. */
-    final override def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit] =
+    final override def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
       mountedPure.setStateOption(newState, callback)
 
     /** @param callback Executed regardless of whether state is changed. */
-    final override def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit] =
+    final override def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
       mountedPure.modStateOption(mod, callback)
 
     /** @param callback Executed regardless of whether state is changed. */
-    final override def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit] =
+    final override def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
       mountedPure.modStateOption(mod, callback)
   }
 
@@ -94,7 +94,7 @@ object Lifecycle {
     final def forceUpdate: F[Unit] =
       forceUpdate(DefaultEffects.Sync.empty)(DefaultEffects.Sync)
 
-    final def forceUpdate[G[_], B](callback: => G[B])(implicit G: Sync[G]): F[Unit] =
+    final def forceUpdate[G[_], B](callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
       mountedPure.forceUpdate(callback)
   }
 

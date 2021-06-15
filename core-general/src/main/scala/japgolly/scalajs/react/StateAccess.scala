@@ -40,7 +40,7 @@ object StateAccess {
     protected implicit def A: Async[A]
 
     final protected def async(f: Sync.Untyped[Any] => F[Unit]): A[Unit] =
-      A.async_(r => F.toJsFn0(f(r)))
+      A.async_(r => F.toJsFn(f(r)))
   }
 
   trait SetState[F[_], A[_], S] extends Any with Base[F, A] {
@@ -49,14 +49,14 @@ object StateAccess {
       setState(newState, empty)
 
     /** @param callback Executed after state is changed. */
-    def setState[G[_], B](newState: S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
+    def setState[G[_], B](newState: S, callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
       setStateOption(Some(newState), callback)
 
     final def setStateOption(newState: Option[S]): F[Unit] =
       setStateOption(newState, empty)
 
     /** @param callback Executed regardless of whether state is changed. */
-    def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit]
+    def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit]
 
     def toSetStateFn: SetStateFn[F, A, S] =
       SetStateFn(setStateOption(_, _))
@@ -74,14 +74,14 @@ object StateAccess {
       modState(mod, empty)
 
     /** @param callback Executed after state is changed. */
-    def modState[G[_], B](mod: S => S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
+    def modState[G[_], B](mod: S => S, callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
       modStateOption(mod.andThen(Some(_)), callback)
 
     final def modStateOption(mod: S => Option[S]): F[Unit] =
       modStateOption(mod, empty)
 
     /** @param callback Executed regardless of whether state is changed. */
-    def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit]
+    def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit]
 
     def toModStateFn: ModStateFn[F, A, S] =
       ModStateFn(modStateOption(_, _))
@@ -99,14 +99,14 @@ object StateAccess {
       modState(mod, empty)
 
     /** @param callback Executed after state is changed. */
-    def modState[G[_], B](mod: (S, P) => S, callback: => G[B])(implicit G: Sync[G]): F[Unit] =
+    def modState[G[_], B](mod: (S, P) => S, callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
       modStateOption((s, p) => Some(mod(s, p)), callback)
 
     final def modStateOption(mod: (S, P) => Option[S]): F[Unit] =
       modStateOption(mod, empty)
 
     /** @param callback Executed regardless of whether state is changed. */
-    def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: Sync[G]): F[Unit]
+    def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit]
 
     def toModStateWithPropsFn: ModStateWithPropsFn[F, A, P, S] =
       ModStateWithPropsFn(modStateOption(_, _))
@@ -141,11 +141,11 @@ object StateAccess {
 
       override def state = stateFn
 
-      override def setStateOption[G[_], B](newState: Option[State], callback: => G[B])(implicit G: Sync[G]) =
-        setItFn(newState, G.toJsFn0(callback))
+      override def setStateOption[G[_], B](newState: Option[State], callback: => G[B])(implicit G: Dispatch[G]) =
+        setItFn(newState, G.dispatchFn(callback))
 
-      override def modStateOption[G[_], B](mod: State => Option[State], callback: => G[B])(implicit G: Sync[G]) =
-        modItFn(mod, G.toJsFn0(callback))
+      override def modStateOption[G[_], B](mod: State => Option[State], callback: => G[B])(implicit G: Dispatch[G]) =
+        modItFn(mod, G.dispatchFn(callback))
 
       override def xmapState[S2](f: S => S2)(g: S2 => S) =
         apply(
@@ -185,11 +185,11 @@ object StateAccess {
 
       override def state = stateFn
 
-      override def setStateOption[G[_], B](newState: Option[State], callback: => G[B])(implicit G: Sync[G]) =
-        F.delay(G.runSync(callback))
+      override def setStateOption[G[_], B](newState: Option[State], callback: => G[B])(implicit G: Dispatch[G]) =
+        F.delay(G.dispatch(callback))
 
-      override def modStateOption[G[_], B](mod: State => Option[State], callback: => G[B])(implicit G: Sync[G]) =
-        F.delay(G.runSync(callback))
+      override def modStateOption[G[_], B](mod: State => Option[State], callback: => G[B])(implicit G: Dispatch[G]) =
+        F.delay(G.dispatch(callback))
 
       override def xmapState[S2](f: S => S2)(g: S2 => S) =
         const(F.map(stateFn)(f))(FF, AA)

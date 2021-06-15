@@ -1,8 +1,8 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.Box
-import japgolly.scalajs.react.util.{Effect, OptionLike}
 import japgolly.scalajs.react.util.DefaultEffects._
+import japgolly.scalajs.react.util.{Effect, OptionLike}
 import java.time._
 import java.util.{Date, UUID}
 import org.scalajs.dom.console
