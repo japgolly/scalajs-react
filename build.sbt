@@ -5,7 +5,8 @@ ThisBuild / shellPrompt  := ((s: State) => Project.extract(s).currentRef.project
 sonatypeProfileName      :=  "com.github.japgolly"
 
 val root              = ScalajsReact.root
-val facade            = ScalajsReact.facade
+val facadeMain        = ScalajsReact.facadeMain
+val facadeTest        = ScalajsReact.facadeTest
 val util              = ScalajsReact.util
 val utilDummyDefaults = ScalajsReact.utilDummyDefaults
 val callback          = ScalajsReact.callback

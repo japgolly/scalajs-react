@@ -93,7 +93,8 @@ object ScalajsReact {
     )
     .configure(commonSettings, preventPublication, hasNoTests)
     .aggregate(
-      facade,
+      facadeMain,
+      facadeTest,
       util,
       utilDummyDefaults,
       callback,
@@ -119,9 +120,13 @@ object ScalajsReact {
 
   lazy val genHooks = TaskKey[Unit]("genHooks")
 
-  lazy val facade = project
+  lazy val facadeMain = project
     .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
     .settings(libraryDependencies += Dep.scalaJsDom.value)
+
+  lazy val facadeTest = project
+    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
+    .dependsOn(facadeMain)
 
   lazy val util = project
     .configure(commonSettings, publicationSettings, hasNoTests)
@@ -139,7 +144,7 @@ object ScalajsReact {
   lazy val coreGeneral = project
     .in(file("core-general"))
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
-    .dependsOn(facade, util)
+    .dependsOn(facadeMain, util)
     .dependsOn(utilDummyDefaults % Provided)
     .settings(
       name := "core-general",
@@ -163,11 +168,11 @@ object ScalajsReact {
   lazy val testUtil = project
     .in(file("test-util"))
     .configure(commonSettings, publicationSettings, hasNoTests)
-    .dependsOn(coreGeneral, extra)
+    .dependsOn(coreGeneral, extra, facadeTest)
     .settings(name := "test")
 
   lazy val tests = project
-    .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test))
+    .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
     .dependsOn(core, testUtil)
     // .dependsOn(scalaz72 % "test->compile")
     // .dependsOn(monocleScalaz % "test->compile")
@@ -178,11 +183,11 @@ object ScalajsReact {
         "-Xlint:adapted-args"
       ),
       libraryDependencies ++= Seq(
-        Dep.nyayaProp         .value % Test,
-        Dep.nyayaGen          .value % Test,
-        Dep.nyayaTest         .value % Test,
-        Dep.monocleScalaz     .value % Test,
-        Dep.scalaJsJavaTime   .value % Test),
+        Dep.nyayaProp      .value % Test,
+        Dep.nyayaGen       .value % Test,
+        Dep.nyayaTest      .value % Test,
+        Dep.monocleScalaz  .value % Test, // TODO: Remove
+        Dep.scalaJsJavaTime.value % Test),
       jsDependencies ++= Seq(
         Dep.sizzleJs(Test).value,
         (ProvidedJS / "component-es6.js" dependsOn Dep.reactDom.dev) % Test,
