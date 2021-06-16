@@ -38,25 +38,14 @@ and then in testUtil:
 ./toggle tests/src/test/scala-2/japgolly/scalajs/react/core/ScalaSpecificHooksTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ContextTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/HooksTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/JsComponentEs6Test.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/JsFnComponentTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/JsLikeComponentTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/RawComponentEs6Test.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ReactDOMServerTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/RefTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/ReusabilityTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ReusableFnTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/ReusableTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ScalaBuilderTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ScalaComponentTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ScalaFnComponentTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/StateAccessorTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/StateAccessTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/vdom/DevOnlyTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/vdom/PrefixedTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/vdom/ReactAttrTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/vdom/UnprefixedTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/vdom/VdomTest.scala.off
 
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/BroadcasterTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/EventListenerTest.scala.off
@@ -70,11 +59,9 @@ and then in testUtil:
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/SimHistory.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/StateSnapshotTest.scala.off
 
-./toggle tests/src/test/scala/japgolly/scalajs/react/test/InferenceHelpers.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/test/JsEnvUtils.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/test/ReactTestVarTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/test/TestTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/test/TestUtil.scala.off
 
 ./toggle tests/src/test/scala/japgolly/scalajs/react/MiscTest.scala.off
 

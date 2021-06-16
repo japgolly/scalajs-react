@@ -146,9 +146,9 @@ object VdomTest extends TestSuite {
             .build
 
         ReactTestUtils.withRenderedIntoBody(c()) { _ =>
-          assert(ref.get.asCallback.runNow().isDefined)
+          assert(ref.get.runNow().isDefined)
         }
-        assert(ref.get.asCallback.runNow().isEmpty)
+        assert(ref.get.runNow().isEmpty)
       }
     }
 

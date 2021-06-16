@@ -29,7 +29,7 @@ object InferenceHelpers {
 
   def st_s(s: S, t: T): S = ???
 
-  type Render = ScalaComponent.Lifecycle.RenderScope[P, S, B]
+  type Render = ScalaComponent.Lifecycle.RenderScope[CallbackTo, AsyncCallback, P, S, B]
   type Backend = BackendScope[P, S]
   type JsMounted = JsComponent.Mounted[JP, JS]
   type ScalaMountedId = ScalaComponent.MountedImpure[P, S, B]

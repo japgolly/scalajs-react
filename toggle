@@ -4,7 +4,7 @@ set -euo pipefail
 [ $# -ne 1 ] && echo "Usage: $0 <file>" && exit 1
 
 if [[ "$1" =~ \.off$ ]]; then
-  mv -v "$1" "${1:0:-4}"
+  git mv -v "$1" "${1:0:-4}"
 else
-  mv -v "$1" "$1.off"
+  git mv -v "$1" "$1.off"
 fi

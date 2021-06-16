@@ -5,12 +5,14 @@ import japgolly.scalajs.react.util.Util.identityFn
 import scala.scalajs.js
 import scala.util.Try
 
-object Effect
-    extends EffectCallback
-       with EffectCatsEffect
-       with userdefined.Effects {
+// These can be overridden downstream to make implicits globally available without imports.
+// It needs to be an abstract class instead of a trait, else the Scala.js linker fails.
+abstract class EffectCallback extends userdefined.Effects
+abstract class EffectCatsEffect extends EffectCallback
 
-  // ===================================================================================================================
+object Effect extends EffectCatsEffect {
+
+// =====================================================================================================================
 
   trait Dispatch[F[_]] extends Monad[F] {
     /** Fire and forget, could be sync or async */
@@ -205,8 +207,3 @@ object Effect
   }
 
 }
-
-// =====================================================================================================================
-
-trait EffectCallback
-trait EffectCatsEffect

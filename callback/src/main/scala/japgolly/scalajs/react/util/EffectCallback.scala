@@ -1,9 +1,10 @@
 package japgolly.scalajs.react.util
 
 import japgolly.scalajs.react.callback._
+import japgolly.scalajs.react.userdefined
 import scala.scalajs.js
 
-trait EffectCallback {
+abstract class EffectCallback extends userdefined.Effects {
   import Effect._
 
   implicit object callback extends Sync.WithDefaultDispatch[CallbackTo] {
