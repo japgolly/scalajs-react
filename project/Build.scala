@@ -143,6 +143,7 @@ object ScalajsReact {
   lazy val callback = project
     .configure(commonSettings, publicationSettings, utestSettings)
     .dependsOn(util)
+    .settings(libraryDependencies += Dep.cats.value % Test)
 
   lazy val coreGeneral = project
     .in(file("core-general"))

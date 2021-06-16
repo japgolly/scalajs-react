@@ -1,8 +1,7 @@
-package japgolly.scalajs.react.core
+package japgolly.scalajs.react.callback
 
 import cats.Monad
 import cats.syntax.all._
-import japgolly.scalajs.react.{AsyncCallback, CallbackTo}
 
 object StackSafety {
 

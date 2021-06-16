@@ -1,6 +1,5 @@
-package japgolly.scalajs.react.test
+package japgolly.scalajs.react.callback
 
-import japgolly.scalajs.react.internal.Timer
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedSet
 import scala.util.Try

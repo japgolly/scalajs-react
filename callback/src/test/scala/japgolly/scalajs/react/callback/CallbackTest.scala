@@ -1,8 +1,7 @@
-package japgolly.scalajs.react.core
+package japgolly.scalajs.react.callback
 
-import japgolly.scalajs.react.test.TestTimer
-import japgolly.scalajs.react.test.TestUtil._
-import japgolly.scalajs.react.{Callback, CallbackTo}
+import cats.Monad
+import japgolly.microlibs.testutil.TestUtil._
 import utest._
 
 object CallbackTest extends TestSuite {
@@ -59,8 +58,12 @@ object CallbackTest extends TestSuite {
     */
 
     "stackSafety" - {
-      import japgolly.scalajs.react.CatsReact._
       type F[A] = CallbackTo[A]
+      implicit object monad extends Monad[F] {
+        override def pure[A](a: A) = CallbackTo.pure(a)
+        override def flatMap[A, B](fa: F[A])(f: A => F[B]) = fa.flatMap(f)
+        override def tailRecM[A, B](a: A)(f: A => F[Either[A,B]]) = CallbackTo.tailrec(a)(f)
+      }
       "nestedFlatMapsInTailrecLoop"    - StackSafety.nestedFlatMapsInTailrecLoop[F]
       "nestedFlatMapsInNonTailrecLoop" - StackSafety.nestedFlatMapsInNonTailrecLoop[F]
     }
