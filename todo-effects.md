@@ -33,6 +33,31 @@ and then in testUtil:
 
 * Revise all module names (and be consistent with local module dir & sbt names)
 
+==============================================================================================================
+
+## Problem
+Can't have a provided-scope, overridable DefaultEffects module.
+It works until linking in certain circumstances.
+
+Example, `def f: Sync[Unit]` becomes `def f: Any(Ref?)` in abstract (`coreGeneral`),
+but then `def f: Trampoline` in specific (`tests`) and fails to link.
+
+```
+[error] Referring to non-existent method japgolly.scalajs.react.Ref$Full.get()japgolly.scalajs.react.callback.Trampoline
+```
+
+## Rejected Solution: wrapper
+Provide a constant (non-AnyVal) wrapper that has the same erasure.
+The problem is that will prevent instances of `Callback`/`IO` being returned in general.
+Instead it would be `Blah[Callback]` or `Blah[IO]` which would be very annoying.
+
+## Terrible Solution: two separate copies
+Absolutely terrible but a potential last resort. It would completely prevent abstraction.
+
+## Potential Solution: parameterise and never return Sync directly
+Tried and it works!
+
+==============================================================================================================
 
 ./toggle tests/src/test/scala-2/japgolly/scalajs/react/core/ReusabilityTest2.scala.off
 ./toggle tests/src/test/scala-2/japgolly/scalajs/react/core/ScalaSpecificHooksTest.scala.off
