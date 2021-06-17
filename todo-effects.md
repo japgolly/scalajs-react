@@ -21,10 +21,12 @@
   * RouterWithPropsConfig.scala
   * RoutingRule
   * RoutingRules
-  * StateSnapshot (*Pure)
+  * StateAccess (*Pure)
+  * StateSnapshotF
   * TriStateCheckbox
 and then in testUtil:
   * TestBroadcaster
+  * ReactTestVarF
 
 * Test React.Suspense
 
@@ -81,10 +83,6 @@ Tried and it works!
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/RouterTestHelp.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/SimHistory.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/StateSnapshotTest.scala.off
-
-./toggle tests/src/test/scala/japgolly/scalajs/react/test/JsEnvUtils.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/test/ReactTestVarTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/test/TestTest.scala.off
 
 ./toggle tests/src/test/scala/japgolly/scalajs/react/MiscTest.scala.off
 

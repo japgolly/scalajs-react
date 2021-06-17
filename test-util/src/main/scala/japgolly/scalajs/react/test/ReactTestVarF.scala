@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.util.DefaultEffects._
+import japgolly.scalajs.react.util.DefaultEffects.Async
+import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.extra._
 
 /**
@@ -18,14 +19,14 @@ import japgolly.scalajs.react.extra._
   * @tparam A The variable type.
   * @since 0.11.0
   */
-class ReactTestVar[A](val initialValue: A) {
+class ReactTestVarF[F[_], A](val initialValue: A)(implicit val sync: Sync[F]) {
 
   override def toString =
     s"ReactTestVar(initialValue = $initialValue, value = ${value()})"
 
   private var _value: A = _
   private var _history: Vector[A] = _
-  private var _onUpdate: Vector[Sync[Unit]] = _
+  private var _onUpdate: Vector[F[Unit]] = _
   reset()
 
   def reset(): Unit = {
@@ -46,7 +47,7 @@ class ReactTestVar[A](val initialValue: A) {
     _value = a
     _history :+= a
     for (cb <- _onUpdate)
-      Sync.runSync(Sync.reset(cb))
+      sync.runSync(sync.reset(cb))
   }
 
   def modValue(f: A => A): Unit =
@@ -59,7 +60,7 @@ class ReactTestVar[A](val initialValue: A) {
     _value
 
   def onUpdate(callback: => Unit): Unit =
-    _onUpdate :+= Sync.delay(callback)
+    _onUpdate :+= sync.delay(callback)
 
   /**
    * Log of state values since initialised or last reset.
@@ -71,30 +72,31 @@ class ReactTestVar[A](val initialValue: A) {
   def history(): Vector[A] =
     _history
 
-  val setStateOptionCBFn: Reusable[(Option[A], Sync[Unit]) => Sync[Unit]] =
+  val setStateOptionCBFn: Reusable[(Option[A], F[Unit]) => F[Unit]] =
     Reusable.byRef((oa, cb) =>
       oa match {
-        case Some(a) => Sync.chain(Sync.delay(setValue(a)), cb)
+        case Some(a) => sync.chain(sync.delay(setValue(a)), cb)
         case None    => cb
       }
     )
 
-  val setStateFn: Reusable[A => Sync[Unit]] =
-    setStateOptionCBFn.map(f => (a: A) => f(Some(a), Sync.empty))
+  val setStateFn: Reusable[A => F[Unit]] =
+    setStateOptionCBFn.map(f => (a: A) => f(Some(a), sync.empty))
 
   def stateSnapshot(): StateSnapshot[A] =
-    StateSnapshot(value())(setStateOptionCBFn)
+    StateSnapshot(value())(StateSnapshot.SetFn(setStateOptionCBFn))
 
   def stateSnapshotWithReuse()(implicit r: Reusability[A]): StateSnapshot[A] =
-    StateSnapshot.withReuse(value())(setStateOptionCBFn)
+    StateSnapshot.withReuse(value())(setStateOptionCBFn.map(StateSnapshot.SetFn(_)))
 
-  lazy val stateAccess: StateAccess[Sync, Async, A] =
-    StateAccess(Sync.delay(value()))(
-      setStateOptionCBFn,
-      (fo, cb) => Sync.chain(Sync.delay(modValueOption(fo)), cb))
+  lazy val stateAccess: StateAccess[F, Async, A] =
+    StateAccess[F, Async, A](
+      stateFn = sync.delay(value()))(
+      setItFn = setStateOptionCBFn,
+      modItFn = (fo, cb) => sync.chain(sync.delay(modValueOption(fo)), cb))
 }
 
-object ReactTestVar {
-  def apply[A](a: A): ReactTestVar[A] =
-    new ReactTestVar(a)
+object ReactTestVarF {
+  def apply[F[_]: Sync, A](a: A): ReactTestVarF[F, A] =
+    new ReactTestVarF(a)
 }

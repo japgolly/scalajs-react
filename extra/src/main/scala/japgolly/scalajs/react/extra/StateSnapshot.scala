@@ -1,92 +1,32 @@
-package japgolly.scalajs.react.extra
+package japgolly.scalajs.react.extra.internal
 
 import japgolly.scalajs.react.component.{Generic => GenericComponent}
 import japgolly.scalajs.react.hooks.{Api => HooksApi, CustomHook}
+import japgolly.scalajs.react.extra.StateSnapshotF
+import japgolly.scalajs.react.extra.StateSnapshotF.StateSnapshot
 import japgolly.scalajs.react.internal.{Iso, Lens}
 import japgolly.scalajs.react.util.DefaultEffects._
-import japgolly.scalajs.react.util.Effect.Dispatch
-import japgolly.scalajs.react.util.NotAllowed
+import japgolly.scalajs.react.util.Effect
 import japgolly.scalajs.react.{Reusability, Reusable, StateAccess, StateAccessor}
-import scala.reflect.ClassTag
-
-final class StateSnapshot[S](val value: S,
-                             val underlyingSetFn: Reusable[StateSnapshot.SetFn[S]],
-                             private[StateSnapshot] val reusability: Reusability[S]) extends StateAccess.Write[Sync, Async, S] {
-
-  override protected implicit def A = Async
-  override protected implicit def F = Sync
-
-  override def toString = s"StateSnapshot($value)"
-
-  /** @param callback Executed regardless of whether state is changed. */
-  override def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Dispatch[G]): Sync[Unit] =
-    underlyingSetFn(newState, G.dispatchFn(callback))
-
-  /** @param callback Executed regardless of whether state is changed. */
-  override def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Dispatch[G]): Sync[Unit] =
-    setStateOption(mod(value), callback)
-
-  /** THIS WILL VOID REUSABILITY.
-    *
-    * The resulting `StateSnapshot[T]` will not be reusable.
-    */
-  def xmapState[T](f: S => T)(g: T => S): StateSnapshot[T] =
-    StateSnapshot(f(value))((ot, cb) => underlyingSetFn.value(ot map g, cb))
-
-  /** THIS WILL VOID REUSABILITY.
-    *
-    * The resulting `StateSnapshot[T]` will not be reusable.
-    */
-  def zoomState[T](f: S => T)(g: T => S => S): StateSnapshot[T] =
-    xmapState(f)(g(_)(value))
-
-  /** THIS WILL VOID REUSABILITY.
-    *
-    * The resulting `StateSnapshot[T]` will not be reusable.
-    */
-  def zoomStateOption[T](f: S => Option[T])(g: T => S => S): Option[StateSnapshot[T]] =
-    f(value).map(t => StateSnapshot(t)((ot, cb) => underlyingSetFn.value(ot.map(g(_)(value)), cb)))
-
-  def withReuse: StateSnapshot.InstanceMethodsWithReuse[S] =
-    new StateSnapshot.InstanceMethodsWithReuse(this)
-
-  /** @return `None` if `value: S` isn't `value: T` as well. */
-  def narrowOption[T <: S: ClassTag]: Option[StateSnapshot[T]] =
-    value match {
-      case b: T => Some(StateSnapshot(b)(setStateOption(_, _)(F)))
-      case _    => None
-    }
-
-  /** Unsafe because writes may be dropped.
-    *
-    * Eg. if you widen a `StateSnapshot[Banana]` into `StateSnapshot[Food]`, calling `setState(banana2)` will work
-    * but `setState(pasta)` will be silently ignored.
-    */
-  def unsafeWiden[T >: S](implicit ct: ClassTag[S]): StateSnapshot[T] =
-    StateSnapshot[T](value) { (ob, cb) =>
-      val oa: Option[S] =
-        ob match {
-          case Some(s: S) => Some(s)
-          case _          => None
-        }
-      setStateOption(oa, cb)(F)
-    }
-
-  /** THIS WILL VOID REUSABILITY.
-    *
-    * The resulting `StateSnapshot[S]` will not be reusable.
-    */
-  def withValue(s: S): StateSnapshot[S] =
-    StateSnapshot(s)(underlyingSetFn)
-}
 
 object StateSnapshot {
+  type SetFn      [-S] = StateSnapshotF.SetFn      [Sync, S]
+  type ModFn      [ S] = StateSnapshotF.ModFn      [Sync, S]
+  type TupledSetFn[-S] = StateSnapshotF.TupledSetFn[Sync, S]
+  type TupledModFn[ S] = StateSnapshotF.TupledModFn[Sync, S]
 
-  type SetFn[-S] = (Option[S], Sync[Unit]) => Sync[Unit]
-  type ModFn[S] = (S => Option[S], Sync[Unit]) => Sync[Unit]
+  private def effectFn[F[_], A](f: (A, F[Unit]) => F[Unit])(implicit F: Effect.Sync[F]): (A, Sync[Unit]) => Sync[Unit] =
+    Sync.withAltEffect(F, f)((a, c) => Sync.transSync(f(a, F.transSync(c))))
 
-  type TupledSetFn[-S] = ((Option[S], Sync[Unit])) => Sync[Unit]
-  type TupledModFn[S] = ((S => Option[S], Sync[Unit])) => Sync[Unit]
+  private def effectFnT[F[_], A](f: ((A, F[Unit])) => F[Unit])(implicit F: Effect.Sync[F]): ((A, Sync[Unit])) => Sync[Unit] =
+    effectFn[F, A](untuple(f)).tupled
+
+  def SetFn      [F[_], S](f: StateSnapshotF.SetFn      [F, S])(implicit F: Effect.Sync[F]): SetFn      [S] = effectFn(f)
+  def ModFn      [F[_], S](f: StateSnapshotF.ModFn      [F, S])(implicit F: Effect.Sync[F]): ModFn      [S] = effectFn(f)
+  def TupledSetFn[F[_], S](f: StateSnapshotF.TupledSetFn[F, S])(implicit F: Effect.Sync[F]): TupledSetFn[S] = effectFnT(f)
+  def TupledModFn[F[_], S](f: StateSnapshotF.TupledModFn[F, S])(implicit F: Effect.Sync[F]): TupledModFn[S] = effectFnT(f)
+
+  // ===================================================================================================================
 
   private def reusableSetFn[S](f: SetFn[S]): Reusable[SetFn[S]] =
     Reusable.byRef(f)
@@ -96,21 +36,6 @@ object StateSnapshot {
 
   private lazy val setFnReadOnly: Reusable[SetFn[Any]] =
     reusableSetFn[Any]((_, cb) => cb)
-
-  final class InstanceMethodsWithReuse[S](self: StateSnapshot[S]) { // not AnyVal, nominal for Monocle ext
-
-    def withValue(s: S)(implicit r: Reusability[S]): StateSnapshot[S] =
-      StateSnapshot.withReuse(s)(self.underlyingSetFn)
-
-    @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
-    def xmapState(no: NotAllowed) = no.result
-
-    @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
-    def zoomState(no: NotAllowed) = no.result
-
-    @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
-    def zoomStateOption(no: NotAllowed) = no.result
-  }
 
   // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
   // Construction DSL
@@ -283,20 +208,6 @@ object StateSnapshot {
         apply(t(i).modStateOption(_, _))
     }
   }
-
-  // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
-
-  private[this] val reusabilityInstance: Reusability[StateSnapshot[Any]] = {
-    val f = implicitly[Reusability[Reusable[SetFn[Any]]]] // Safe to reuse
-    Reusability((x, y) =>
-      (x eq y) ||
-        (f.test(x.underlyingSetFn, y.underlyingSetFn)
-          && x.reusability.test(x.value, y.value)
-          && y.reusability.test(x.value, y.value)))
-  }
-
-  implicit def reusability[S]: Reusability[StateSnapshot[S]] =
-    reusabilityInstance.asInstanceOf[Reusability[StateSnapshot[S]]]
 
   // ███████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 
