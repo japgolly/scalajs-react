@@ -173,14 +173,12 @@ object Effect extends EffectCatsEffect {
     def toJsPromise  [A](fa: => F[A])          : () => js.Promise[A]
     def fromJsPromise[A](pa: => js.Thenable[A]): F[A]
 
+    def async_(onCompletion: Sync.Untyped[Unit] => Sync.Untyped[Unit]): F[Unit]
+
     /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
       * current callback completes, be it in error or success.
       */
     def finallyRun[A, B](fa: F[A], runFinally: F[B]): F[A]
-
-    // TODO: FX: Confirm this works. If it does then why does AsyncCallback.viaCallback use a promise?
-    final def async_(onCompletion: Sync.Untyped[Unit] => Sync.Untyped[Unit]): F[Unit] =
-      async[Unit](f => onCompletion(f(Try(()))))
 
     final def transAsync[G[_], A](ga: => G[A])(implicit g: Async[G]): F[A] =
       if (this eq g)

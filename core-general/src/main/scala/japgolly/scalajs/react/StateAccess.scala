@@ -39,8 +39,8 @@ object StateAccess {
     protected implicit def F: UnsafeSync[F]
     protected implicit def A: Async[A]
 
-    final protected def async(f: Sync.Untyped[Any] => F[Unit]): A[Unit] =
-      A.async_(r => F.toJsFn(f(r)))
+    final protected def async(f: DefaultSync[Unit] => F[Unit]): A[Unit] =
+      A.async_(r => F.toJsFn(f(DefaultSync.fromJsFn0(r))))
   }
 
   trait SetState[F[_], A[_], S] extends Any with Base[F, A] {
@@ -59,7 +59,7 @@ object StateAccess {
     def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit]
 
     def toSetStateFn: SetStateFn[F, A, S] =
-      SetStateFn(setStateOption(_, _))
+      SetStateFn((o, f) => setStateOption(o, DefaultSync.fromJsFn0(f)))
 
     final def setStateAsync(newState: S): A[Unit] =
       async(setState(newState, _))
@@ -84,7 +84,7 @@ object StateAccess {
     def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit]
 
     def toModStateFn: ModStateFn[F, A, S] =
-      ModStateFn(modStateOption(_, _))
+      ModStateFn((o, f) => modStateOption(o, DefaultSync.fromJsFn0(f)))
 
     final def modStateAsync(mod: S => S): A[Unit] =
       async(modState(mod, _))
@@ -109,7 +109,7 @@ object StateAccess {
     def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit]
 
     def toModStateWithPropsFn: ModStateWithPropsFn[F, A, P, S] =
-      ModStateWithPropsFn(modStateOption(_, _))
+      ModStateWithPropsFn((o, f) => modStateOption(o, DefaultSync.fromJsFn0(f)))
 
     final def modStateAsync(mod: (S, P) => S): A[Unit] =
       async(modState(mod, _))

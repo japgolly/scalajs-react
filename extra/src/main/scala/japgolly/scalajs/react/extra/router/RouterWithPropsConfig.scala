@@ -148,7 +148,7 @@ case class RouterWithPropsConfig[Page, Props](
     */
   def detectErrors(pages: Page*): Sync[Seq[String]] =
     if (developmentMode)
-      _detectErrors(pages: _*)
+      Sync.map(_detectErrors(pages: _*))(v => v)
     else
       Sync.pure(Nil)
 

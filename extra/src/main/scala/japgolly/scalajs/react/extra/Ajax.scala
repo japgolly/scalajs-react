@@ -174,7 +174,7 @@ object Ajax {
       Async.first[XMLHttpRequest] { cc =>
 
         val fail: Throwable => Sync[Unit] =
-          t => cc(Failure(t))
+          t => Sync.fromJsFn0(cc(Failure(t)))
 
         val onreadystatechange: Ajax[Unit] =
           xhr =>
@@ -196,7 +196,7 @@ object Ajax {
             begin(xhr),
           )
 
-        Sync.handleError(Sync.flatMap(newXHR)(start))(fail)
+        Sync.toJsFn(Sync.handleError(Sync.flatMap(newXHR)(start))(fail))
       }
   }
 

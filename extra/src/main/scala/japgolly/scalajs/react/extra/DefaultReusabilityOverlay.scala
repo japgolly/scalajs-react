@@ -158,6 +158,8 @@ class DefaultReusabilityOverlay($: Comp, options: DefaultReusabilityOverlay.Opti
       val bad  = options.template bad outer
       overlay  = Some(Nodes(outer, good, bad))
     })
+
+    ()
   }
 
   def withNodes(f: Nodes => Unit): Sync[Unit] =

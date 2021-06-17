@@ -97,6 +97,9 @@ abstract class EffectCallback extends userdefined.Effects {
     override def async[A](fa: Async.Untyped[A]): AsyncCallback[A] =
       AsyncCallback[A](f => CallbackTo(fa(f(_).toJsFn)))
 
+    override def async_(onCompletion: Sync.Untyped[Unit] => Sync.Untyped[Unit]): AsyncCallback[Unit] =
+      AsyncCallback.viaCallback(f => Callback.fromJsFn(onCompletion(f.toJsFn)))
+
     override def runAsync[A](fa: => AsyncCallback[A]): Async.Untyped[A] =
       f => fa.completeWith(t => CallbackTo(f(t))).toJsFn
 
