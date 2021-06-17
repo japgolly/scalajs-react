@@ -31,7 +31,7 @@ object RefTest extends TestSuite {
 
   private def assertRefUsage[R](renderFn: Ref.Simple[R] => VdomNode, refHtml: R => String)
                                (expectedRefHtml: String, expectedHtml: String => String) =
-    assertRefUsageR(Ref[R])(renderFn, r => refHtml(r.get.asCallback.runNow().getOrElse(sys error "Ref = None")))(
+    assertRefUsageR(Ref[R])(renderFn, r => refHtml(r.get.runNow().getOrElse(sys error "Ref = None")))(
       expectedRefHtml, expectedHtml)
 
   def testHtmlTag(): Unit = {
@@ -247,7 +247,7 @@ object RefTest extends TestSuite {
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = C().renderIntoDOM(mountNode)
           assertRendered(mounted.getDOMNode.asMounted().asHtml(), "<div>noice<h1>Scala123</h1></div>")
-          assertEq(mounted.backend.ref.get.asCallback.runNow().map(_.backend.gimmeHtmlNow()), Some("<h1>Scala123</h1>"))
+          assertEq(mounted.backend.ref.get.runNow().map(_.backend.gimmeHtmlNow()), Some("<h1>Scala123</h1>"))
         }
       }
 
@@ -260,7 +260,7 @@ object RefTest extends TestSuite {
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = C().renderIntoDOM(mountNode)
           assertRendered(mounted.getDOMNode.asMounted().asHtml(), "<div>noice<h1>Scala123</h1></div>")
-          assertEq(mounted.backend.ref.get.asCallback.runNow().map(_.backend.gimmeHtmlNow()), Some("<h1>Scala123</h1>"))
+          assertEq(mounted.backend.ref.get.runNow().map(_.backend.gimmeHtmlNow()), Some("<h1>Scala123</h1>"))
         }
       }
 
@@ -273,7 +273,7 @@ object RefTest extends TestSuite {
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = C().renderIntoDOM(mountNode)
           assertRendered(mounted.getDOMNode.asMounted().asHtml(), "<div>noice<h1>Scala123</h1></div>")
-          assertEq(mounted.backend.ref.get.asCallback.runNow(), Some("<h1>Scala123</h1>"))
+          assertEq(mounted.backend.ref.get.runNow(), Some("<h1>Scala123</h1>"))
         }
       }
 
@@ -308,7 +308,7 @@ object RefTest extends TestSuite {
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = C().renderIntoDOM(mountNode)
           assertRendered(mounted.getDOMNode.asMounted().asHtml(), "<div>noice<div>State = 123 + 500</div></div>")
-          val r = mounted.backend.ref.get.asCallback.runNow().get
+          val r = mounted.backend.ref.get.runNow().get
           assertEq(r.getDOMNode.toHtml.map(_.outerHTML), Some("<div>State = 123 + 500</div>"))
           assertEq(r.state.num2, 500)
         }
@@ -331,7 +331,7 @@ object RefTest extends TestSuite {
   override def tests = Tests {
 
     "empty" - {
-      assertEq[Option[Unit]](Ref[Unit].get.asCallback.runNow(), None)
+      assertEq[Option[Unit]](Ref[Unit].get.runNow(), None)
     }
     "htmlTag" - testHtmlTag()
     "svgTag"  - testSvgTag()

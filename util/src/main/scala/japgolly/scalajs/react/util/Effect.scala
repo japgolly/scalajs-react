@@ -37,6 +37,9 @@ object Effect extends EffectCatsEffect {
     def suspend[A](fa: => F[A]) : F[A]
     def toJsFn [A](fa: => F[A]) : js.Function0[A]
 
+    final def withAltEffect[G[_], A](g: Sync[G], self: Any)(a: => A): A =
+      if (this eq g) self.asInstanceOf[A] else a
+
     final def transSync[G[_], A](ga: => G[A])(implicit g: UnsafeSync[G]): F[A] =
       if (this eq g)
         ga.asInstanceOf[F[A]]

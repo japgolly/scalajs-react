@@ -127,6 +127,7 @@ object Attr {
   object UntypedRef extends Attr[facade.React.RefFn[TopNode]]("ref") {
     override def :=[A](a: A)(implicit t: ValueType[A, facade.React.RefFn[TopNode]]) =
       t(attrName, a)
+
     def apply(f: (TopNode | Null) => Unit): TagMod = {
       val jsFn: facade.React.RefFn[TopNode] = f
       :=(jsFn)(ValueType.direct)

@@ -12,9 +12,8 @@
 
 * Remove temp scripts
 
-* Add WithAsyncEffect / WithEffectAsync to component.*
-
 * Add WithEffect/WithAsyncEffect or support more than just the default effect type
+  * component.*
   * DefaultReusabilityOverlay
   * Hooks.scala
   * Router
@@ -64,7 +63,6 @@ Tried and it works!
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ContextTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/HooksTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ReactDOMServerTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/RefTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ReusableFnTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ScalaBuilderTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ScalaComponentTest.scala.off

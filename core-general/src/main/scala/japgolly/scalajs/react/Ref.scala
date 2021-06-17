@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.util.DefaultEffects._
-import japgolly.scalajs.react.util.Effect.Id
+import japgolly.scalajs.react.util.DefaultEffects
+import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.JsUtil.jsNullToOption
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.TopNode
@@ -21,31 +21,39 @@ object Ref {
   def forwardedFromJs[A](f: facade.React.ForwardedRef[A]): Option[Simple[A]] =
     jsNullToOption(f).map(fromJs)
 
-  type Simple[A] = Full[A, A, A]
+  type Full   [I, A, O] = FullF[DefaultEffects.Sync, I, A, O]
+  type Get    [A]       = GetF[DefaultEffects.Sync, A]
+  type Handle [A]       = HandleF[DefaultEffects.Sync, A]
+  type Set    [A]       = SetF[DefaultEffects.Sync, A]
+  type Simple [A]       = SimpleF[DefaultEffects.Sync, A]
+  type SimpleF[F[_], A] = FullF[F, A, A, A]
 
-  trait Handle[A] {
+  trait HandleF[F[_], A] {
     val raw: facade.React.RefHandle[A | Null]
     final def root: Simple[A] = fromJs(raw)
   }
 
-  trait Get[A] { self =>
-    def get: Sync[Option[A]]
+  trait GetF[F[_], A] { self =>
+    protected[Ref] def F: Sync[F]
+    def withEffect[G[_]](implicit G: Sync[G]): GetF[G, A]
 
-    def map[B](f: A => B): Get[B]
+    def get: F[Option[A]]
 
-    def mapOption[B](f: A => Option[B]): Get[B]
+    def map[B](f: A => B): GetF[F, B]
 
-    def narrowOption[B <: A](implicit ct: ClassTag[B]): Get[B]
+    def mapOption[B](f: A => Option[B]): GetF[F, B]
 
-    def widen[B >: A]: Get[B]
+    def narrowOption[B <: A](implicit ct: ClassTag[B]): GetF[F, B]
 
-    final def foreach(f: A => Unit): Sync[Unit] =
-      foreachCB(a => Sync.delay(f(a)))
+    def widen[B >: A]: GetF[F, B]
 
-    final def foreachCB(f: A => Sync[Unit]): Sync[Unit] =
-      Sync.flatMap(get) {
+    final def foreach(f: A => Unit): F[Unit] =
+      foreachCB(a => F.delay(f(a)))
+
+    final def foreachCB(f: A => F[Unit]): F[Unit] =
+      F.flatMap(get) {
         case Some(a) => f(a)
-        case None    => Sync.empty
+        case None    => F.empty
       }
 
     /** Get the reference immediately.
@@ -58,99 +66,111 @@ object Ref {
       * 2. It throws an exception when the ref is empty (partiality)
       */
     final def unsafeGet(): A =
-      Sync.runSync(get).getOrElse(sys error "Reference is empty")
+      F.runSync(get).getOrElse(sys error "Reference is empty")
   }
 
-  trait Set[A] {
-    def set(newValue: Option[A]): Sync[Unit]
+  trait SetF[F[_], A] {
+    protected[Ref] def F: Sync[F]
+    def withEffect[G[_]](implicit G: Sync[G]): SetF[G, A]
+
+    def set(newValue: Option[A]): F[Unit]
 
     final lazy val rawSetFn: facade.React.RefFn[A] =
-      (n: A | Null) => set(jsNullToOption(n))
+      (n: A | Null) => F.runSync(set(jsNullToOption(n)))
 
-    def contramap[B](f: B => A): Set[B]
+    def contramap[B](f: B => A): SetF[F, B]
 
-    def narrow[B <: A]: Set[B]
+    def narrow[B <: A]: SetF[F, B]
   }
 
-  trait Fn[I, O] extends Set[I] with Get[O] {
-    override def contramap[X](f: X => I): Fn[X, O]
-    override def narrow[X <: I]: Fn[X, O]
-    override def map[X](f: O => X): Fn[I, X]
-    override def widen[X >: O]: Fn[I, X]
-  }
+  trait FullF[F[_], I, A, O] extends HandleF[F, A] with SetF[F, I] with GetF[F, O] { self =>
+    override def withEffect[G[_]](implicit G: Sync[G]): FullF[G, I, A, O]
+    override def contramap[X](f: X => I): FullF[F, X, A, O]
+    override def narrow[X <: I]: FullF[F, X, A, O]
+    override def map[X](f: O => X): FullF[F, I, A, X]
+    override def widen[X >: O]: FullF[F, I, A, X]
+    override def mapOption[B](f: O => Option[B]): FullF[F, I, A, B]
 
-  trait Full[I, A, O] extends Handle[A] with Fn[I, O] {
-    override def contramap[X](f: X => I): Full[X, A, O]
-    override def narrow[X <: I]: Full[X, A, O]
-    override def map[X](f: O => X): Full[I, A, X]
-    override def widen[X >: O]: Full[I, A, X]
-    override def mapOption[B](f: O => Option[B]): Full[I, A, B]
-
-    final override def narrowOption[B <: O](implicit ct: ClassTag[B]): Full[I, A, B] =
+    final override def narrowOption[B <: O](implicit ct: ClassTag[B]): FullF[F, I, A, B] =
       mapOption(ct.unapply)
   }
 
-  def Full[I, A, O](_raw: facade.React.RefHandle[A | Null], l: I => A, r: A => Option[O]): Full[I, A, O] =
-    new Full[I, A, O] {
+  def Full[I, A, O](raw: facade.React.RefHandle[A | Null], l: I => A, r: A => Option[O]): Full[I, A, O] =
+    FullF(raw, l, r)(DefaultEffects.Sync)
+
+  def FullF[F[_], I, A, O](_raw: facade.React.RefHandle[A | Null], l: I => A, r: A => Option[O])(implicit FF: Sync[F]): FullF[F, I, A, O] =
+    new FullF[F, I, A, O] {
+
+      override protected[Ref] def F = FF
+
+      override def withEffect[G[_]](implicit G: Sync[G]) =
+        F.withAltEffect(G, this)(FullF(raw, l, r)(G))
 
       override val raw = _raw
 
-      override def set(newValue: Option[I]): Sync[Unit] =
-        Sync.delay {
+      override def set(newValue: Option[I]) =
+        F.delay {
           raw.current = newValue match {
             case Some(i) => l(i)
             case None    => null
           }
         }
 
-      override val get: Sync[Option[O]] =
-        Sync.delay(jsNullToOption(raw.current).flatMap(r))
+      override val get =
+        F.delay(jsNullToOption(raw.current).flatMap(r))
 
-      override def contramap[X](f: X => I): Full[X, A, O] =
-        Full(raw, l compose f, r)
+      override def contramap[X](f: X => I): FullF[F, X, A, O] =
+        FullF(raw, l compose f, r)
 
-      override def narrow[X <: I]: Full[X, A, O] =
-        Full[X, A, O](raw, l, r)
+      override def narrow[X <: I]: FullF[F, X, A, O] =
+        FullF(raw, l, r)
 
-      override def map[X](f: O => X): Full[I, A, X] =
-        Full(raw, l, r.andThen(_.map(f)))
+      override def map[X](f: O => X): FullF[F, I, A, X] =
+        FullF(raw, l, r.andThen(_.map(f)))
 
-      override def widen[X >: O]: Full[I, A, X] =
-        Full[I, A, X](raw, l, r)
+      override def widen[X >: O]: FullF[F, I, A, X] =
+        FullF(raw, l, r)
 
-      override def mapOption[B](f: O => Option[B]): Full[I, A, B] =
-        Full(raw, l, r.andThen(_.flatMap(f)))
+      override def mapOption[B](f: O => Option[B]): FullF[F, I, A, B] =
+        FullF(raw, l, r.andThen(_.flatMap(f)))
     }
 
   // ===================================================================================================================
 
-  final class ToComponent[I, R, O, C](ref: Full[I, R, O], val component: C) extends Full[I, R, O] {
+  type ToComponent[I, R, O, C] = ToComponentF[DefaultEffects.Sync, I, R, O, C]
+
+  final class ToComponentF[F[_], I, R, O, C](ref: FullF[F, I, R, O], val component: C) extends FullF[F, I, R, O] {
+    override protected[Ref] def F = ref.F
+
+    override def withEffect[G[_]](implicit G: Sync[G]) =
+      F.withAltEffect(G, this)(new ToComponentF(ref.withEffect[G], component))
+
     override val raw = ref.raw
     override val get = ref.get
     override def set(o: Option[I]) = ref.set(o)
 
-    override def contramap[A](f: A => I): ToComponent[A, R, O, C] =
+    override def contramap[A](f: A => I): ToComponentF[F, A, R, O, C] =
       ToComponent(ref.contramap(f), component)
 
-    override def map[A](f: O => A): ToComponent[I, R, A, C] =
+    override def map[A](f: O => A): ToComponentF[F, I, R, A, C] =
       ToComponent(ref.map(f), component)
 
-    override def mapOption[B](f: O => Option[B]): Full[I, R, B] =
+    override def mapOption[B](f: O => Option[B]): FullF[F, I, R, B] =
       ToComponent(ref.mapOption(f), component)
 
-    override def widen[A >: O]: ToComponent[I, R, A, C] =
+    override def widen[A >: O]: ToComponentF[F, I, R, A, C] =
       map[A](o => o)
 
-    override def narrow[A <: I]: ToComponent[A, R, O, C] =
+    override def narrow[A <: I]: ToComponentF[F, A, R, O, C] =
       contramap[A](a => a)
   }
 
   object ToComponent {
 
-    def apply[I, R, O, C](ref: Full[I, R, O], c: C): ToComponent[I, R, O, C] =
-      new ToComponent(ref, c)
+    def apply[F[_], I, R, O, C](ref: FullF[F, I, R, O], c: C): ToComponentF[F, I, R, O, C] =
+      new ToComponentF(ref, c)
 
-    def inject[I, R, O, CT[-p, +u] <: CtorType[p, u], P, U](c: CT[P, U], ref: Full[I, R, O]): ToComponent[I, R, O, CT[P, U]] =
+    def inject[F[_], I, R, O, CT[-p, +u] <: CtorType[p, u], P, U](c: CT[P, U], ref: FullF[F, I, R, O]): ToComponentF[F, I, R, O, CT[P, U]] =
       apply(ref, CtorType.hackBackToSelf[CT, P, U](c)(c.withRawProp("ref", ref.rawSetFn)))
   }
 
@@ -194,8 +214,11 @@ object Ref {
 
   // ===================================================================================================================
 
+  type ToJsComponentF[F[_], P <: js.Object, S <: js.Object, R <: JsComponent.RawMounted[P, S]] =
+    FullF[F, R, R, JsComponent.MountedWithRawType[P, S, R]]
+
   type ToJsComponent[P <: js.Object, S <: js.Object, R <: JsComponent.RawMounted[P, S]] =
-    Ref.Full[R, R, JsComponent.MountedWithRawType[P, S, R]]
+    ToJsComponentF[DefaultEffects.Sync, P, S, R]
 
   def toJsComponent[P <: js.Object, S <: js.Object]: ToJsComponent[P, S, JsComponent.RawMounted[P, S]] =
     apply[JsComponent.RawMounted[P, S]].map(JsComponent.mounted[P, S](_))
@@ -203,9 +226,12 @@ object Ref {
   def toJsComponentWithMountedFacade[P <: js.Object, S <: js.Object, F <: js.Object]: ToJsComponent[P, S, JsComponent.RawMounted[P, S] with F] =
     apply[JsComponent.RawMounted[P, S] with F].map(JsComponent.mounted[P, S](_).addFacade[F])
 
+  type WithJsComponentF[FR[_], FJ[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object] =
+    ToComponentF[FR, R, R, JsComponent.MountedWithRawType[P0, S0, R],
+      CT1[P1, JsComponent.UnmountedMapped[FJ, A, P1, S1, R, P0, S0]]]
+
   type WithJsComponent[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object] =
-    Ref.ToComponent[R, R, JsComponent.MountedWithRawType[P0, S0, R],
-      CT1[P1, JsComponent.UnmountedMapped[F, A, P1, S1, R, P0, S0]]]
+    WithJsComponentF[DefaultEffects.Sync, F, A, P1, S1, CT1, R, P0, S0]
 
   def toJsComponent[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
       (a: WithJsComponentArg[F, A, P1, S1, CT1, R, P0, S0])
@@ -214,7 +240,9 @@ object Ref {
 
   // Ridiculous that this is needed but Scala needs explicit help when F=Effect.Id
   final class WithJsComponentArg[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object]
-      (val wrap: ToJsComponent[P0, S0, JsComponent.RawMounted[P0, S0] with R] => WithJsComponent[F, A, P1, S1, CT1, R, P0, S0]) extends AnyVal
+      (val wrap: ToJsComponent[P0, S0, JsComponent.RawMounted[P0, S0] with R] =>
+                 WithJsComponent[F, A, P1, S1, CT1, R, P0, S0]
+      ) extends AnyVal
 
   object WithJsComponentArg {
     implicit def direct[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
@@ -222,29 +250,37 @@ object Ref {
         : WithJsComponentArg[F, A, P1, S1, CT1, R, P0, S0] =
       new WithJsComponentArg[F, A, P1, S1, CT1, R, P0, S0](ToComponent.inject(c, _))
 
-    implicit def effectId[P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
-        (c: JsComponent.ComponentMapped[Id, Async, P1, S1, CT1, R, P0, S0, CT0])
-        : WithJsComponentArg[Id, Async, P1, S1, CT1, R, P0, S0] =
-      new WithJsComponentArg[Id, Async, P1, S1, CT1, R, P0, S0](ToComponent.inject(c, _))
+    implicit def effectId[A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
+        (c: JsComponent.ComponentMapped[Id, A, P1, S1, CT1, R, P0, S0, CT0])
+        : WithJsComponentArg[Id, A, P1, S1, CT1, R, P0, S0] =
+      new WithJsComponentArg[Id, A, P1, S1, CT1, R, P0, S0](ToComponent.inject(c, _))
   }
 
   // ===================================================================================================================
 
-  type ToScalaComponent[P, S, B] =
-    Ref.Full[
+  type ToScalaComponentF[F[_], P, S, B] =
+    FullF[
+      F,
       ScalaComponent.RawMounted[P, S, B],
       ScalaComponent.RawMounted[P, S, B],
       ScalaComponent.MountedImpure[P, S, B]]
 
+  type ToScalaComponent[P, S, B] =
+    ToScalaComponentF[DefaultEffects.Sync, P, S, B]
+
   def toScalaComponent[P, S, B]: ToScalaComponent[P, S, B] =
     apply[ScalaComponent.RawMounted[P, S, B]].map(_.mountedImpure)
 
-  type WithScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
-    Ref.ToComponent[
+  type WithScalaComponentF[F[_], P, S, B, CT[-p, +u] <: CtorType[p, u]] =
+    ToComponentF[
+      F,
       ScalaComponent.RawMounted[P, S, B],
       ScalaComponent.RawMounted[P, S, B],
       ScalaComponent.MountedImpure[P, S, B],
       CT[P, ScalaComponent.Unmounted[P, S, B]]]
+
+  type WithScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] =
+    WithScalaComponentF[DefaultEffects.Sync, P, S, B, CT]
 
   def toScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]]
                       (c: ScalaComponent.Component[P, S, B, CT])
