@@ -16,11 +16,11 @@ final class StateSnapshotF[F[_], S](val value: S,
   override def toString = s"StateSnapshot($value)"
 
   /** @param callback Executed regardless of whether state is changed. */
-  override def setStateOption[G[_], B](newState: Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
+  override def setStateOption[G[_]](newState: Option[S], callback: => G[Unit])(implicit G: Dispatch[G]): F[Unit] =
     underlyingSetFn(newState, F.fromJsFn0(G.dispatchFn(callback)))
 
   /** @param callback Executed regardless of whether state is changed. */
-  override def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Dispatch[G]): F[Unit] =
+  override def modStateOption[G[_]](mod: S => Option[S], callback: => G[Unit])(implicit G: Dispatch[G]): F[Unit] =
     setStateOption(mod(value), callback)
 
   private def copyWithoutReuse[T](value: T)(set: StateSnapshotF.SetFn[F, T]): StateSnapshotF[F, T] =

@@ -141,31 +141,31 @@ object Js extends JsBaseComponentTemplate[facade.React.ComponentClassP] {
       override def state         = raw.state
       override def getDOMNode    = ComponentDom.findDOMNode(raw)
 
-      override def setState[G[_], B](state: S, callback: => G[B])(implicit G: Dispatch[G]): Unit =
+      override def setState[G[_]](state: S, callback: => G[Unit])(implicit G: Dispatch[G]): Unit =
         raw.setState(state, G.dispatchFn(callback))
 
-      override def modState[G[_], B](mod: S => S, callback: => G[B])(implicit G: Dispatch[G]): Unit = {
+      override def modState[G[_]](mod: S => S, callback: => G[Unit])(implicit G: Dispatch[G]): Unit = {
         val jsFn1 = mod: js.Function1[S, S]
         val jsFn2 = jsFn1.asInstanceOf[js.Function2[S, P, S | Null]]
         raw.modState(jsFn2, G.dispatchFn(callback))
       }
 
-      override def modState[G[_], B](mod: (S, P) => S, callback: => G[B])(implicit G: Dispatch[G]): Unit = {
+      override def modState[G[_]](mod: (S, P) => S, callback: => G[Unit])(implicit G: Dispatch[G]): Unit = {
         val jsFn1 = mod: js.Function2[S, P, S]
         val jsFn2 = jsFn1.asInstanceOf[js.Function2[S, P, S | Null]]
         raw.modState(jsFn2, G.dispatchFn(callback))
       }
 
-      override def setStateOption[G[_], B](state: Option[S], callback: => G[B])(implicit G: Dispatch[G]): Unit =
+      override def setStateOption[G[_]](state: Option[S], callback: => G[Unit])(implicit G: Dispatch[G]): Unit =
         setState(state getOrElse null.asInstanceOf[S], callback)
 
-      override def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Dispatch[G]): Unit =
+      override def modStateOption[G[_]](mod: S => Option[S], callback: => G[Unit])(implicit G: Dispatch[G]): Unit =
         modState(mod(_) getOrElse null.asInstanceOf[S], callback)
 
-      override def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: Dispatch[G]): Unit =
+      override def modStateOption[G[_]](mod: (S, P) => Option[S], callback: => G[Unit])(implicit G: Dispatch[G]): Unit =
         modState(mod(_, _) getOrElse null.asInstanceOf[S], callback)
 
-      override def forceUpdate[G[_], B](callback: => G[B])(implicit G: Dispatch[G]): Unit =
+      override def forceUpdate[G[_]](callback: => G[Unit])(implicit G: Dispatch[G]): Unit =
         raw.forceUpdate(G.dispatchFn(callback))
 
       override type Mapped[F1[_], A1[_], P1, S1] = MountedWithRoot[F1, A1, P1, S1, R, P, S]

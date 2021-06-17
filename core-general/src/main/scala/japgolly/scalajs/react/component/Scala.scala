@@ -83,25 +83,25 @@ object Scala {
       override def state         = x.state.unbox
       override def getDOMNode    = x.getDOMNode
 
-      override def setState[G[_], B](newState: S, callback: => G[B])(implicit G: Dispatch[G]) =
+      override def setState[G[_]](newState: S, callback: => G[Unit])(implicit G: Dispatch[G]) =
         x.setState(Box(newState), callback)
 
-      override def modState[G[_], B](mod: S => S, callback: => G[B])(implicit G: Dispatch[G]) =
+      override def modState[G[_]](mod: S => S, callback: => G[Unit])(implicit G: Dispatch[G]) =
         x.modState(s => Box(mod(s.unbox)), callback)
 
-      override def modState[G[_], B](mod: (S, P) => S, callback: => G[B])(implicit G: Dispatch[G]) =
+      override def modState[G[_]](mod: (S, P) => S, callback: => G[Unit])(implicit G: Dispatch[G]) =
         x.modState((s, p) => Box(mod(s.unbox, p.unbox)), callback)
 
-      override def setStateOption[G[_], B](o: Option[S], callback: => G[B])(implicit G: Dispatch[G]) =
+      override def setStateOption[G[_]](o: Option[S], callback: => G[Unit])(implicit G: Dispatch[G]) =
         x.setStateOption(o.map(Box.apply), callback)
 
-      override def modStateOption[G[_], B](mod: S => Option[S], callback: => G[B])(implicit G: Dispatch[G]) =
+      override def modStateOption[G[_]](mod: S => Option[S], callback: => G[Unit])(implicit G: Dispatch[G]) =
         x.modStateOption(s => mod(s.unbox).map(Box.apply), callback)
 
-      override def modStateOption[G[_], B](mod: (S, P) => Option[S], callback: => G[B])(implicit G: Dispatch[G]) =
+      override def modStateOption[G[_]](mod: (S, P) => Option[S], callback: => G[Unit])(implicit G: Dispatch[G]) =
         x.modStateOption((s, p) => mod(s.unbox, p.unbox).map(Box.apply), callback)
 
-      override def forceUpdate[G[_], B](callback: => G[B])(implicit G: Dispatch[G]) =
+      override def forceUpdate[G[_]](callback: => G[Unit])(implicit G: Dispatch[G]) =
         x.forceUpdate(callback)
 
       override type Mapped[F1[_], A1[_], P1, S1] = MountedWithRoot[F1, A1, P1, S1, B, P, S]

@@ -58,45 +58,43 @@ object Attr {
 
   // ===================================================================================================================
 
-  final case class EventCallback[A](prepare: (=> A) => js.Function0[Any]) extends AnyVal {
-    def runOption[O[_]](callback: O[A])(implicit O: OptionLike[O]): Any =
+  final case class EventCallback[A](prepare: (=> A) => js.Function0[Unit]) extends AnyVal {
+    def runOption[O[_]](callback: O[A])(implicit O: OptionLike[O]): Unit =
       O.foreach(callback)(prepare(_)())
   }
 
   trait EventCallback0 {
-    implicit def sync[F[_], A](implicit F: Dispatch[F]): EventCallback[F[A]] =
+    implicit def sync[F[_]](implicit F: Dispatch[F]): EventCallback[F[Unit]] =
       new EventCallback(fa => F.dispatchFn(fa))
 
-    implicit def reusableSync[F[_], A](implicit F: Dispatch[F]): EventCallback[Reusable[F[A]]] =
+    implicit def reusableSync[F[_]](implicit F: Dispatch[F]): EventCallback[Reusable[F[Unit]]] =
       new EventCallback(fa => F.dispatchFn(fa))
   }
 
   object EventCallback extends EventCallback0 {
     import DefaultEffects.{Sync => D}
 
-    val _defaultSync = sync[D, Any](D)
-    @inline implicit def defaultSync[A]: EventCallback[D[A]] =
-      _defaultSync.asInstanceOf[EventCallback[D[A]]]
+    implicit val defaultSync: EventCallback[D[Unit]] =
+      sync(D)
 
-    val _reusableDefaultSync = reusableSync[D, Any](D)
-    @inline implicit def reusableDefaultSync[A]: EventCallback[Reusable[D[A]]] =
-      _reusableDefaultSync.asInstanceOf[EventCallback[Reusable[D[A]]]]
+    implicit lazy val reusableDefaultSync: EventCallback[Reusable[D[Unit]]] =
+      reusableSync(D)
   }
 
   type EventHandler[E[+x <: dom.Node] <: facade.SyntheticEvent[x]] =
-    js.Function0[Any] | js.Function1[E[Nothing], Any]
+    js.Function0[Unit] | js.Function1[E[Nothing], Unit]
 
   final class Event[E[+x <: dom.Node] <: facade.SyntheticEvent[x]](name: String) extends Attr[EventHandler[E]](name) {
     type Event = E[Nothing]
 
     override def :=[A](a: A)(implicit t: ValueType[A, EventHandler[E]]): TagMod =
-      TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Any]]), a))
+      TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Unit]]), a))
 
     def -->[A](callback: => A)(implicit F: EventCallback[A]): TagMod =
       :=(F.prepare(callback))(ValueType.direct)
 
     def ==>[A](eventHandler: Event => A)(implicit F: EventCallback[A]): TagMod = {
-      val f: js.Function1[Event, Any] = e => F.prepare(eventHandler(e))()
+      val f: js.Function1[Event, Unit] = e => F.prepare(eventHandler(e))()
       :=(f)(ValueType.direct)
     }
 

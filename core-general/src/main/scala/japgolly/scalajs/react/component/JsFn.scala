@@ -121,8 +121,8 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
     override final def renderIntoDOM(container: facade.ReactDOM.Container): this.Mounted =
       postRender(facade.ReactDOM.render(raw, container))
 
-    override final def renderIntoDOM[F[_], A](container: facade.ReactDOM.Container, callback: => F[A])(implicit F: Dispatch[F]): this.Mounted =
-      postRender(facade.ReactDOM.render(raw, container, F.dispatchFn(callback)))
+    override final def renderIntoDOM[G[_]](container: facade.ReactDOM.Container, callback: => G[Unit])(implicit G: Dispatch[G]): this.Mounted =
+      postRender(facade.ReactDOM.render(raw, container, G.dispatchFn(callback)))
 
     private def postRender(result: facade.React.ComponentUntyped): this.Mounted = {
       // Protect against future React change.

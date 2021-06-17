@@ -18,10 +18,10 @@ object ReactDOM {
               container: facade.ReactDOM.Container): facade.React.ComponentUntyped =
     facade.ReactDOM.hydrate(element.rawNode, container)
 
-  def hydrate[F[_], A](element  : VdomNode,
-                       container: facade.ReactDOM.Container,
-                       callback : => F[A])(implicit F: Dispatch[F]): facade.React.ComponentUntyped =
-    facade.ReactDOM.hydrate(element.rawNode, container, F.dispatchFn(callback))
+  def hydrate[G[_]](element  : VdomNode,
+                    container: facade.ReactDOM.Container,
+                    callback : => G[Unit])(implicit G: Dispatch[G]): facade.React.ComponentUntyped =
+    facade.ReactDOM.hydrate(element.rawNode, container, G.dispatchFn(callback))
 
   /** Hydrate the container if is has children, else render into that container. */
   def hydrateOrRender(element  : VdomNode,
@@ -32,9 +32,9 @@ object ReactDOM {
       element.renderIntoDOM(container)
 
   /** Hydrate the container if is has children, else render into that container. */
-  def hydrateOrRender[F[_], A](element  : VdomNode,
-                               container: dom.Element,
-                               callback : => F[A])(implicit F: Dispatch[F]): facade.React.ComponentUntyped =
+  def hydrateOrRender[G[_]](element  : VdomNode,
+                            container: dom.Element,
+                            callback : => G[Unit])(implicit G: Dispatch[G]): facade.React.ComponentUntyped =
     if (container.hasChildNodes())
       hydrate(element, container, callback)
     else
