@@ -60,13 +60,7 @@ Tried and it works!
 
 ==============================================================================================================
 
-./toggle tests/src/test/scala-2/japgolly/scalajs/react/core/ReusabilityTest2.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/ContextTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/ReactDOMServerTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/ReusableFnTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/ScalaBuilderTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ScalaComponentTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/ScalaFnComponentTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/vdom/PrefixedTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/vdom/UnprefixedTest.scala.off
 
