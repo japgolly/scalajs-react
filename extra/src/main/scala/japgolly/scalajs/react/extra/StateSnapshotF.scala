@@ -1,8 +1,7 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.util.Effect.{Dispatch, Sync}
-import japgolly.scalajs.react.util.NotAllowed
+import japgolly.scalajs.react.util.{DefaultEffects, NotAllowed}
 import japgolly.scalajs.react.{Reusability, Reusable, StateAccess}
 import scala.reflect.ClassTag
 

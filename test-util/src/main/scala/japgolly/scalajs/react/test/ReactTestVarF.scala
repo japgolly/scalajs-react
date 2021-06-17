@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.util.DefaultEffects.Async
 import japgolly.scalajs.react.util.Effect.Sync
-import japgolly.scalajs.react.extra._
 
 /**
   * Houses a variable and provides React-like access to it.

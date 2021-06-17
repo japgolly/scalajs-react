@@ -66,7 +66,7 @@ object Hooks {
   // ===================================================================================================================
 
   @implicitNotFound(
-    "You're attempting to provide a ${A} to the useEffect family of hooks."
+    "\nYou're attempting to provide a ${A} to the useEffect family of hooks."
     + "\n  - To specify a basic effect, provide a Callback / F[Unit]."
     + "\n  - To specify an effect and a clean-up effect, provide a CallbackTo[Callback] / F[F[Unit]] where the inner callback is the clean-up effect."
     + "\nSee https://reactjs.org/docs/hooks-reference.html#useeffect")
@@ -76,14 +76,14 @@ object Hooks {
     implicit def unit[F[_]](implicit F: Dispatch[F]): UseEffectArg[F[Unit]] =
       apply(F.dispatchFn(_))
 
-    def map[F[_], A](f: A => js.UndefOr[js.Function0[Any]])(implicit F: Dispatch[F]): UseEffectArg[F[A]] =
-      apply(fa => F.dispatchFn(F.map(fa)(f)))
+    def maybeCleanup[F[_], A](f: A => js.UndefOr[js.Function0[Any]])(implicit F: Sync[F]): UseEffectArg[F[A]] =
+      apply(fa => F.toJsFn(F.map(fa)(f)))
 
-    implicit def cleanup[F[_], A](implicit F: Dispatch[F]): UseEffectArg[F[F[A]]] =
-      map(F.dispatchFn(_))
+    implicit def cleanup[F[_], G[_], A](implicit F: Sync[F], G: Dispatch[G]): UseEffectArg[F[G[A]]] =
+      maybeCleanup(G.dispatchFn(_))
 
-    implicit def optionalCallback[F[_], O[_], A](implicit F: Dispatch[F], O: OptionLike[O]): UseEffectArg[F[O[F[A]]]] =
-      map(O.unsafeToJs(_).map(F.dispatchFn(_)))
+    implicit def optionalCallback[F[_], G[_], O[_], A](implicit F: Sync[F], G: Dispatch[G], O: OptionLike[O]): UseEffectArg[F[O[G[A]]]] =
+      maybeCleanup(O.unsafeToJs(_).map(G.dispatchFn(_)))
   }
 
   object UseEffect {
@@ -163,7 +163,7 @@ object Hooks {
 
   // ===================================================================================================================
 
-  final case class UseRef[A](raw: facade.React.RefHandle[A]) {
+  final case class UseRefF[F[_], A](raw: facade.React.RefHandle[A])(implicit F: Sync[F]) {
     @inline def value: A =
       raw.current
 
@@ -172,17 +172,19 @@ object Hooks {
       raw.current = a
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
-    def set(a: A): D.Sync[Unit] =
-      D.Sync.delay { value = a }
+    def set(a: A): F[Unit] =
+      F.delay { value = a }
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
-    def mod(f: A => A): D.Sync[Unit] =
-      D.Sync.delay { value = f(value) }
+    def mod(f: A => A): F[Unit] =
+      F.delay { value = f(value) }
   }
+
+  type UseRef[A] = UseRefF[D.Sync, A]
 
   object UseRef {
     def unsafeCreate[A](initialValue: A): UseRef[A] =
-      UseRef(facade.React.useRef(initialValue))
+      new UseRefF(facade.React.useRef(initialValue))(D.Sync)
 
     def unsafeCreateSimple[A](): Ref.Simple[A] =
       Ref.fromJs(facade.React.useRef[A | Null](null))
@@ -360,7 +362,12 @@ object Hooks {
 
   // ===================================================================================================================
 
-  final class Var[A](initialValue: A) {
+  type Var[A] = VarF[D.Sync, A]
+
+  @inline def Var[A](initialValue: A): Var[A] =
+    new VarF(initialValue)(D.Sync)
+
+  final class VarF[F[_], A](initialValue: A)(implicit F: Sync[F]) {
     override def toString =
       s"Hooks.Var($value)"
       // Note: this is not just simply `value` because if a user were to rely on it (and base tests on it), it would
@@ -369,16 +376,16 @@ object Hooks {
     var value: A =
       initialValue
 
-    def get: D.Sync[A] =
-      D.Sync.delay(value)
+    def get: F[A] =
+      F.delay(value)
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
-    def set(a: A): D.Sync[Unit] =
-      D.Sync.delay { value = a }
+    def set(a: A): F[Unit] =
+      F.delay { value = a }
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
-    def mod(f: A => A): D.Sync[Unit] =
-      D.Sync.delay { value = f(value) }
+    def mod(f: A => A): F[Unit] =
+      F.delay { value = f(value) }
   }
 
 }

@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.extra.internal
 
 import japgolly.scalajs.react.component.{Generic => GenericComponent}
-import japgolly.scalajs.react.hooks.{Api => HooksApi, CustomHook}
 import japgolly.scalajs.react.extra.StateSnapshotF
 import japgolly.scalajs.react.extra.StateSnapshotF.StateSnapshot
+import japgolly.scalajs.react.hooks.{Api => HooksApi, CustomHook}
 import japgolly.scalajs.react.internal.{Iso, Lens}
 import japgolly.scalajs.react.util.DefaultEffects._
 import japgolly.scalajs.react.util.Effect
@@ -62,10 +62,11 @@ object StateSnapshot {
           val setFn: SetFn[S] = (os, cb) =>
             os match {
               case Some(s) =>
+                val updateState = state.setState(s)
                 if (Sync.isEmpty(cb))
-                  Sync.empty
+                  updateState
                 else
-                  Sync.chain(delayedCallbacks.mod(cb :: _), state.setState(s))
+                  Sync.chain(delayedCallbacks.mod(cb :: _), updateState)
               case None =>
                 cb
             }

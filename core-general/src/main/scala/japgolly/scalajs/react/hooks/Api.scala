@@ -87,7 +87,7 @@ object Api {
 
     /** Create a new local `var` on each render. */
     final def localVarBy[A](f: Ctx => A)(implicit step: Step): step.Next[Var[A]] =
-      next(ctx => new Var(f(ctx)))
+      next(ctx => Var(f(ctx)))
 
     /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
       * It's up to you to ensure you don't vioalte React's hook rules.

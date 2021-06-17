@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.facade
 import japgolly.scalajs.react.util.Effect._
-import japgolly.scalajs.react.util.OptionLike
+import japgolly.scalajs.react.util.{DefaultEffects, OptionLike}
 import japgolly.scalajs.react.vdom.Attr.ValueType
+import japgolly.scalajs.react.{Reusable, facade}
 import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound, nowarn}
 import scala.scalajs.LinkingInfo.developmentMode
@@ -56,6 +56,33 @@ object Attr {
       t(attrName, a)
   }
 
+  // ===================================================================================================================
+
+  final case class EventCallback[A](prepare: (=> A) => js.Function0[Any]) extends AnyVal {
+    def runOption[O[_]](callback: O[A])(implicit O: OptionLike[O]): Any =
+      O.foreach(callback)(prepare(_)())
+  }
+
+  trait EventCallback0 {
+    implicit def sync[F[_], A](implicit F: Dispatch[F]): EventCallback[F[A]] =
+      new EventCallback(fa => F.dispatchFn(fa))
+
+    implicit def reusableSync[F[_], A](implicit F: Dispatch[F]): EventCallback[Reusable[F[A]]] =
+      new EventCallback(fa => F.dispatchFn(fa))
+  }
+
+  object EventCallback extends EventCallback0 {
+    import DefaultEffects.{Sync => D}
+
+    val _defaultSync = sync[D, Any](D)
+    @inline implicit def defaultSync[A]: EventCallback[D[A]] =
+      _defaultSync.asInstanceOf[EventCallback[D[A]]]
+
+    val _reusableDefaultSync = reusableSync[D, Any](D)
+    @inline implicit def reusableDefaultSync[A]: EventCallback[Reusable[D[A]]] =
+      _reusableDefaultSync.asInstanceOf[EventCallback[Reusable[D[A]]]]
+  }
+
   type EventHandler[E[+x <: dom.Node] <: facade.SyntheticEvent[x]] =
     js.Function0[Any] | js.Function1[E[Nothing], Any]
 
@@ -65,19 +92,19 @@ object Attr {
     override def :=[A](a: A)(implicit t: ValueType[A, EventHandler[E]]): TagMod =
       TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Any]]), a))
 
-    def -->[F[_], A](callback: => F[A])(implicit F: Dispatch[F]): TagMod =
-      :=(F.dispatchFn(callback))(ValueType.direct)
+    def -->[A](callback: => A)(implicit F: EventCallback[A]): TagMod =
+      :=(F.prepare(callback))(ValueType.direct)
 
-    def ==>[F[_], A](eventHandler: Event => F[A])(implicit F: Dispatch[F]): TagMod = {
-      val f: js.Function1[Event, Any] = e => F.dispatch(eventHandler(e))
+    def ==>[A](eventHandler: Event => A)(implicit F: EventCallback[A]): TagMod = {
+      val f: js.Function1[Event, Any] = e => F.prepare(eventHandler(e))()
       :=(f)(ValueType.direct)
     }
 
-    def -->?[O[_], F[_], A](callback: => O[F[A]])(implicit F: Dispatch[F], O: OptionLike[O]): TagMod =
-      this --> F.delay(O.foreach(callback)(F.dispatch))
+    def -->?[O[_], A](callback: => O[A])(implicit F: EventCallback[A], O: OptionLike[O]): TagMod =
+      this --> DefaultEffects.Sync.delay(F.runOption(callback))
 
-    def ==>?[O[_], F[_], A](eventHandler: Event => O[F[A]])(implicit F: Dispatch[F], O: OptionLike[O]): TagMod =
-      ==>(e => F.delay(O.foreach(eventHandler(e))(F.dispatch)))
+    def ==>?[O[_], A](eventHandler: Event => O[A])(implicit F: EventCallback[A], O: OptionLike[O]): TagMod =
+      ==>(e => DefaultEffects.Sync.delay(F.runOption(eventHandler(e))))
   }
 
   object Event {
@@ -100,6 +127,8 @@ object Attr {
     @inline def ui         (name: String) = apply[facade.SyntheticUIEvent         ](name)
     @inline def wheel      (name: String) = apply[facade.SyntheticWheelEvent      ](name)
   }
+
+  // ===================================================================================================================
 
   private[vdom] object Dud extends Attr[Any]("") {
     override def :=[A](a: A)(implicit t: ValueType[A, Any]) = TagMod.empty

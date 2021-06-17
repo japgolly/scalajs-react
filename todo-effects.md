@@ -61,9 +61,7 @@ Tried and it works!
 ==============================================================================================================
 
 ./toggle tests/src/test/scala-2/japgolly/scalajs/react/core/ReusabilityTest2.scala.off
-./toggle tests/src/test/scala-2/japgolly/scalajs/react/core/ScalaSpecificHooksTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ContextTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/core/HooksTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ReactDOMServerTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ReusableFnTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/core/ScalaBuilderTest.scala.off
