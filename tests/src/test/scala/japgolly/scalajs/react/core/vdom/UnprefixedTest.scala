@@ -186,26 +186,6 @@ object UnprefixedTest extends TestSuite {
         "text_some"    - test(div(some("yoo"      ).whenDefined), """<div>yoo</div>""")
         "text_none"    - test(div(none("yoo"      ).whenDefined), """<div></div>""")
       }
-      "maybe" - {
-        import ScalazReact._
-        import scalaz.Maybe
-        def some[A](a: A): Maybe[A] = Maybe.Just(a)
-        @nowarn("cat=unused") def none[A](a: A): Maybe[A] = Maybe.empty
-        "attr_some"    - test(div(cls   :=? some("hi")         ), """<div class="hi"></div>""")
-        "attr_none"    - test(div(cls   :=? none("h1")         ), """<div></div>""")
-        "style_some"   - test(div(color :=? some("red")        ), """<div style="color:red"></div>""")
-        "style_none"   - test(div(color :=? none("red")        ), """<div></div>""")
-        "tagMod_some"  - test(div(some(tagMod     ).whenDefined), """<div class="ho"></div>""")
-        "tagMod_none"  - test(div(none(tagMod     ).whenDefined), """<div></div>""")
-        "tag_some"     - test(div(some(vdomTag    ).whenDefined), """<div><span></span></div>""")
-        "tag_none"     - test(div(none(vdomTag    ).whenDefined), """<div></div>""")
-        "element_some" - test(div(some(vdomElement).whenDefined), """<div><p></p></div>""")
-        "element_none" - test(div(none(vdomElement).whenDefined), """<div></div>""")
-        "comp_some"    - test(div(some(H1("yoo")  ).whenDefined), """<div><h1>yoo</h1></div>""")
-        "comp_none"    - test(div(none(H1("yoo")  ).whenDefined), """<div></div>""")
-        "text_some"    - test(div(some("yoo"      ).whenDefined), """<div>yoo</div>""")
-        "text_none"    - test(div(none("yoo"      ).whenDefined), """<div></div>""")
-      }
       "when" - {
         "tags" - test(
           span(span("1").when(true), span("2").when(false)),
