@@ -8,10 +8,6 @@ jobs:
       scala: 2.13.6
       jdk: openjdk11
 
-    # - name: 'Scala 3.0.0 / Java 11'
-    #   scala: 3.0.0
-    #   jdk: openjdk11
-
 install:
   - . $HOME/.nvm/nvm.sh
   - nvm install 14
