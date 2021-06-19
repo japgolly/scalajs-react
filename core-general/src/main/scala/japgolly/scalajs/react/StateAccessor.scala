@@ -52,14 +52,14 @@ trait StateAccessorImplicits2 {
     }
   }
 
-  private def newScalaLifecycleStateW[S]: WritePure[Lifecycle.StateW[Sync, Async, _, S, _], S] = {
-    type I = Lifecycle.StateW[Sync, Async, _, S, _]
+  private def newScalaLifecycleStateW[S]: WritePure[Lifecycle.StateW[_, S, _], S] = {
+    type I = Lifecycle.StateW[_, S, _]
     new Write[I, Sync, Async, S] {
       override val write = identityFn[I]
     }
   }
   private[this] lazy val scalaLifecycleStateWInstance = newScalaLifecycleStateW[Any]
-  implicit def scalaLifecycleStateW[S]: WritePure[Lifecycle.StateW[Sync, Async, _, S, _], S] = castW(scalaLifecycleStateWInstance)
+  implicit def scalaLifecycleStateW[S]: WritePure[Lifecycle.StateW[_, S, _], S] = castW(scalaLifecycleStateWInstance)
 }
 
 trait StateAccessorImplicits1 extends StateAccessorImplicits2 {
@@ -68,15 +68,15 @@ trait StateAccessorImplicits1 extends StateAccessorImplicits2 {
   implicit def stateAccessImpure[S]: ReadWriteImpure[StateAccessImpure[S], S] = castRW(stateAccessImpureInstance)
 
   // Coercion: Lifecycle ReadImpureWritePure → ReadPureWritePure
-  private def newScalaLifecycleStateRWCB[S]: ReadWritePure[Lifecycle.StateRW[Sync, Async, _, S, _], S] = {
-    type I = Lifecycle.StateRW[Sync, Async, _, S, _]
+  private def newScalaLifecycleStateRWCB[S]: ReadWritePure[Lifecycle.StateRW[_, S, _], S] = {
+    type I = Lifecycle.StateRW[_, S, _]
     new Read[I, Sync, S] with Write[I, Sync, Async, S] {
       override val state = (i: I) => Sync.pure(i.state)
       override val write = identityFn[I]
     }
   }
   private[this] lazy val scalaLifecycleStateRWCBInstance = newScalaLifecycleStateRWCB[Any]
-  implicit def scalaLifecycleStateRWCB[S]: ReadWritePure[Lifecycle.StateRW[Sync, Async, _, S, _], S] = castRW(scalaLifecycleStateRWCBInstance)
+  implicit def scalaLifecycleStateRWCB[S]: ReadWritePure[Lifecycle.StateRW[_, S, _], S] = castRW(scalaLifecycleStateRWCBInstance)
 }
 
 trait StateAccessorImplicits extends StateAccessorImplicits1 {
@@ -84,13 +84,13 @@ trait StateAccessorImplicits extends StateAccessorImplicits1 {
   private[this] lazy val stateAccessPureInstance = stateAccess[Sync, Async, Any]
   implicit def stateAccessPure[S]: ReadWritePure[StateAccessPure[S], S] = castRW(stateAccessPureInstance)
 
-  private def newScalaLifecycleStateRW[S]: ReadImpureWritePure[Lifecycle.StateRW[Sync, Async, _, S, _], S] = {
-    type I = Lifecycle.StateRW[Sync, Async, _, S, _]
+  private def newScalaLifecycleStateRW[S]: ReadImpureWritePure[Lifecycle.StateRW[_, S, _], S] = {
+    type I = Lifecycle.StateRW[_, S, _]
     new Read[I, Id, S] with Write[I, Sync, Async, S] {
       override val state = (_: I).state
       override val write = identityFn[I]
     }
   }
   private[this] lazy val scalaLifecycleStateRWInstance = newScalaLifecycleStateRW[Any]
-  implicit def scalaLifecycleStateRW[S]: ReadImpureWritePure[Lifecycle.StateRW[Sync, Async, _, S, _], S] = castRW(scalaLifecycleStateRWInstance)
+  implicit def scalaLifecycleStateRW[S]: ReadImpureWritePure[Lifecycle.StateRW[_, S, _], S] = castRW(scalaLifecycleStateRWInstance)
 }

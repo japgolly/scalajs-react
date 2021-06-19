@@ -45,6 +45,24 @@ object Effect extends EffectCatsEffect {
         ga.asInstanceOf[F[A]]
       else
         delay(g.runSync(ga))
+
+    final def transSyncFn1[G[_], A, B](f: A => G[B])(implicit g: UnsafeSync[G]): A => F[B] =
+      if (this eq g)
+        f.asInstanceOf[A => F[B]]
+      else
+        a => delay(g.runSync(f(a)))
+
+    final def transDispatch[G[_]](f: => G[Unit])(implicit g: Dispatch[G]): F[Unit] =
+      if (this eq g)
+        f.asInstanceOf[F[Unit]]
+      else
+        delay(g.dispatch(f))
+
+    final def transDispatchFn1[G[_], A](f: A => G[Unit])(implicit g: Dispatch[G]): A => F[Unit] =
+      if (this eq g)
+        f.asInstanceOf[A => F[Unit]]
+      else
+        a => delay(g.dispatch(f(a)))
   }
 
   object UnsafeSync {

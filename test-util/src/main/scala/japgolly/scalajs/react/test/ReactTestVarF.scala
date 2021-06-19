@@ -92,7 +92,7 @@ class ReactTestVarF[F[_], A](val initialValue: A)(implicit val sync: Sync[F]) {
   lazy val stateAccess: StateAccess[F, Async, A] =
     StateAccess[F, Async, A](
       stateFn = sync.delay(value()))(
-      setItFn = setStateOptionCBFn,
+      setItFn = setStateOptionCBFn(_, _),
       modItFn = (fo, cb) => sync.chain(sync.delay(modValueOption(fo)), cb))
 }
 

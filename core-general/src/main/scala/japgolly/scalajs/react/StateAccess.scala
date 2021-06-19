@@ -128,8 +128,8 @@ object StateAccess {
 
   /** For testing. */
   def apply[F[_], A[_], S](stateFn: => F[S])
-                          (setItFn: (Option[S], F[Unit]) => F[Unit],
-                           modItFn: ((S => Option[S]), F[Unit]) => F[Unit])
+                          (setItFn: (Option[S], => F[Unit]) => F[Unit],
+                           modItFn: ((S => Option[S]), => F[Unit]) => F[Unit])
                           (implicit FF: UnsafeSync[F], AA: Async[A]): StateAccess[F, A, S] =
     new StateAccess[F, A, S] {
       override type WithEffect[F2[_]] = StateAccess[F2, A, S]
@@ -142,10 +142,10 @@ object StateAccess {
       override def state = stateFn
 
       override def setStateOption[G[_]](newState: Option[State], callback: => G[Unit])(implicit G: Dispatch[G]) =
-        setItFn(newState, F.delay(G.dispatch(callback)))
+        setItFn(newState, F.transDispatch(callback))
 
       override def modStateOption[G[_]](mod: State => Option[State], callback: => G[Unit])(implicit G: Dispatch[G]) =
-        modItFn(mod, F.delay(G.dispatch(callback)))
+        modItFn(mod, F.transDispatch(callback))
 
       override def xmapState[S2](f: S => S2)(g: S2 => S) =
         apply(
@@ -186,10 +186,10 @@ object StateAccess {
       override def state = stateFn
 
       override def setStateOption[G[_]](newState: Option[State], callback: => G[Unit])(implicit G: Dispatch[G]) =
-        F.delay(G.dispatch(callback))
+        F.transDispatch(callback)
 
       override def modStateOption[G[_]](mod: State => Option[State], callback: => G[Unit])(implicit G: Dispatch[G]) =
-        F.delay(G.dispatch(callback))
+        F.transDispatch(callback)
 
       override def xmapState[S2](f: S => S2)(g: S2 => S) =
         const(F.map(stateFn)(f))(F, AA)

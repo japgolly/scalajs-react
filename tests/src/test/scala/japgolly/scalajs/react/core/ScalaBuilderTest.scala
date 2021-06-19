@@ -95,7 +95,7 @@ object ScalaBuilderTest extends TestSuite {
           c.msg
         }
         "SS" - test(compileError("start.getSnapshotBeforeUpdate(int).getSnapshotBeforeUpdate(int)"))
-        "US" - test(compileError("start.componentDidUpdate(???).getSnapshotBeforeUpdate(int)"))
+        "US" - test(compileError("start.componentDidUpdateConst(Callback.empty).getSnapshotBeforeUpdate(int)"))
       }
 
       "type" - { // FIXME see https://github.com/scala/bug/issues/11660

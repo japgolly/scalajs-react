@@ -2,8 +2,8 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.internal.CoreGeneral._
-import japgolly.scalajs.react.util.DefaultEffects._
-import japgolly.scalajs.react.util.{Effect, OptionLike}
+import japgolly.scalajs.react.util.Effect.Dispatch
+import japgolly.scalajs.react.util.{DefaultEffects, OptionLike}
 import java.time._
 import java.util.{Date, UUID}
 import org.scalajs.dom.console
@@ -422,17 +422,19 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
 
   // ===================================================================================================================
 
-  def shouldComponentUpdateAnd[F[_], P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => F[Unit])(implicit F: Effect.Sync[F]): ScalaComponent.Config[P, C, S, B, U, U] =
+  import DefaultEffects.{Sync => DS}
+
+  def shouldComponentUpdateAnd[G[_], P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => G[Unit])(implicit G: Dispatch[G]): ScalaComponent.Config[P, C, S, B, U, U] =
     _.shouldComponentUpdate { i =>
       val r = ShouldComponentUpdateResult(i)
-      val g = Sync.transSync(f(r))
-      Sync.map(g)(_ => r.update)
+      val g = DS.transDispatch(f(r))
+      DS.map(g)(_ => r.update)
     }
 
   def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](name: String): ScalaComponent.Config[P, C, S, B, U, U] =
-    shouldComponentUpdateAnd(_ log name)
+    shouldComponentUpdateAnd(_.log(name))
 
-  final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[Sync, Async, P, S, B]) {
+  final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[P, S, B]) {
     def mounted       = self.mountedImpure
     def backend       = self.backend
     def propsChildren = self.propsChildren
@@ -446,8 +448,8 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     val updateState: Boolean = currentState ~/~ nextState
     val update     : Boolean = updateProps || updateState
 
-    def log(name: String): Sync[Unit] =
-      Sync.delay(
+    def log(name: String): DS[Unit] =
+      DS.delay(
         console.log(
           s"""
              |s"$name.shouldComponentUpdate = $update
