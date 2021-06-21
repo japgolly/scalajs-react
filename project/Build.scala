@@ -66,7 +66,7 @@ object ScalajsReact {
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
       .settings(
-        scalaVersion                  := Ver.scala3,
+        scalaVersion                  := Ver.scala2,
         crossScalaVersions            := Seq(Ver.scala2, Ver.scala3),
         scalacOptions                ++= scalacCommonFlags,
         scalacOptions                ++= byScalaVersion {
@@ -220,6 +220,7 @@ object ScalajsReact {
         Dep.cats                .value,
         Dep.catsEffect          .value,
         Dep.catsEffectLaws      .value % Test,
+        Dep.catsEffectTestkit   .value % Test,
         Dep.catsTestkit         .value % Test,
         Dep.catsTestkitScalaTest.value % Test,
         Dep.scalaTest           .value % Test,
