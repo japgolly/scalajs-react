@@ -66,7 +66,7 @@ object ScalajsReact {
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
       .settings(
-        scalaVersion                  := Ver.scala2,
+        scalaVersion                  := Ver.scala3,
         crossScalaVersions            := Seq(Ver.scala2, Ver.scala3),
         scalacOptions                ++= scalacCommonFlags,
         scalacOptions                ++= byScalaVersion {
