@@ -32,6 +32,9 @@ object AsyncCallback {
         it.map(u => new AsyncCallback(u.get).toCallback.reset).reduce(_ << _)
       }
     }
+
+    def cancelably(c: => Callback): Callback =
+      Callback.suspend(c.unless_(cancelled))
   }
 
   def cancel: AsyncCallback[Unit] =
@@ -625,11 +628,11 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
 
   def flatMap[B](f: A => AsyncCallback[B]): AsyncCallback[B] =
     new AsyncCallback(s => g =>
-      Callback.suspend {
+      s.cancelably {
         underlyingRepr(s) {
           case Success(a) =>
             catchAll(f(a)) match {
-              case Success(next) => Callback.suspend(next.underlyingRepr(s)(g))
+              case Success(next) => s.cancelably(next.underlyingRepr(s)(g))
               case Failure(e)    => g(Failure(e))
             }
           case Failure(e) => g(Failure(e))
@@ -674,7 +677,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
     zipWith(that)((_, _))
 
   def zipWith[B, C](that: AsyncCallback[B])(f: (A, B) => C): AsyncCallback[C] =
-    new AsyncCallback(s => cc => CallbackTo {
+    new AsyncCallback(s => cc => s.cancelably(CallbackTo {
       var ra: Option[Try[A]] = None
       var rb: Option[Try[B]] = None
       var r: Option[Try[C]] = None
@@ -695,7 +698,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
 
       this.underlyingRepr(s)(e => Callback {ra = Some(e)} >> respond) >>
       that.underlyingRepr(s)(e => Callback {rb = Some(e)} >> respond)
-    }.flatten)
+    }.flatten))
 
   /** Start both this and the given callback at once and when both have completed successfully,
     * discard the value produced by this.
