@@ -4,6 +4,7 @@ import cats.effect._
 import cats.effect.kernel.CancelScope
 import cats.effect.unsafe.IORuntime
 import cats.~>
+import japgolly.scalajs.react.internal.Effect
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.util.Either
@@ -12,6 +13,16 @@ object ScalaJsReactCatsEffect {
 
   // ===================================================================================================================
   // Sync, concrete
+
+  implicit lazy val effectSyncIO: Effect[SyncIO] =
+    new Effect[SyncIO] {
+      override def point     [A]   (a: => A)                         = SyncIO(a)
+      override def pure      [A]   (a: A)                            = SyncIO.pure(a)
+      override def map       [A, B](a: SyncIO[A])(f: A => B)         = a map f
+      override def flatMap   [A, B](a: SyncIO[A])(f: A => SyncIO[B]) = a flatMap f
+      override def extract   [A]   (a: => SyncIO[A])                 = () => a.unsafeRunSync()
+      override def toCallback[A]   (a: => SyncIO[A])                 = syncIOToCallback(a)
+    }
 
   implicit lazy val syncIOToCallback: (SyncIO ~> CallbackTo) =
     new (SyncIO ~> CallbackTo) {
