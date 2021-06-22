@@ -35,7 +35,7 @@ object AsyncCallback {
     }
 
     def cancelably(c: => Callback): Callback =
-      Callback.suspend(c.unless_(cancelled))
+      Callback.suspend(Callback.unless(cancelled)(c))
   }
 
   def cancel: AsyncCallback[Unit] =
