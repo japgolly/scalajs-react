@@ -21,13 +21,10 @@ trait CatsReactInstances {
       CallbackTo.tailrec(a)(f)
 
     override def raiseError[A](e: Throwable): CallbackTo[A] =
-      CallbackTo(throw e)
+      CallbackTo.throwException(e)
 
     override def handleErrorWith[A](fa: CallbackTo[A])(f: Throwable => CallbackTo[A]): CallbackTo[A] =
-      fa.attempt.flatMap {
-        case Right(a) => CallbackTo pure a
-        case Left(t)  => f(t)
-      }
+      fa.handleError(f)
   }
 
   implicit final lazy val reactAsyncCallbackCatsInstance: MonadError[AsyncCallback, Throwable] = new MonadError[AsyncCallback, Throwable] {
@@ -57,10 +54,7 @@ trait CatsReactInstances {
       AsyncCallback.throwException(e)
 
     override def handleErrorWith[A](fa: AsyncCallback[A])(f: Throwable => AsyncCallback[A]): AsyncCallback[A] =
-      fa.attempt.flatMap {
-        case Right(a) => AsyncCallback pure a
-        case Left(t)  => f(t)
-      }
+      fa.handleError(f)
     }
 
   implicit final lazy val reactCallbackOptionCatsInstance: Monad[CallbackOption] = new Monad[CallbackOption] {

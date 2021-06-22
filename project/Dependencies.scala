@@ -10,7 +10,7 @@ object Dependencies {
 
     // Externally observable
     val cats                  = "2.6.1"
-    val catsEffect            = "2.5.1"
+    val catsEffect            = "3.1.1"
     val microlibs             = "2.6"
     val monocle3              = "3.0.0-RC2"
     val monocleCats           = "2.1.0"
@@ -39,6 +39,7 @@ object Dependencies {
     val cats                 = Def.setting("org.typelevel"                 %%% "cats-core"               % Ver.cats)
     val catsEffect           = Def.setting("org.typelevel"                 %%% "cats-effect"             % Ver.catsEffect)
     val catsEffectLaws       = Def.setting("org.typelevel"                 %%% "cats-effect-laws"        % Ver.catsEffect)
+    val catsEffectTestkit    = Def.setting("org.typelevel"                 %%% "cats-effect-testkit"     % Ver.catsEffect)
     val catsTestkit          = Def.setting("org.typelevel"                 %%% "cats-testkit"            % Ver.cats)
     val catsTestkitScalaTest = Def.setting("org.typelevel"                 %%% "cats-testkit-scalatest"  % Ver.catsTestkitScalaTest)
     val disciplineScalaTest  = Def.setting("org.typelevel"                 %%% "discipline-scalatest"    % Ver.disciplineScalaTest)

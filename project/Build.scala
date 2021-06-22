@@ -254,6 +254,7 @@ object ScalajsReact {
         Dep.cats                .value,
         Dep.catsEffect          .value,
         Dep.catsEffectLaws      .value % Test,
+        Dep.catsEffectTestkit   .value % Test,
         Dep.catsTestkit         .value % Test,
         Dep.catsTestkitScalaTest.value % Test,
         Dep.scalaTest           .value % Test,
