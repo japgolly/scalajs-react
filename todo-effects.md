@@ -37,6 +37,8 @@ and then in testUtil:
 * Add tests with callbacks accepting non-CallbackTo types
 * Rename Step4 => LastStep
 
+* Show `modules.gv.svg` in doc and changelog
+
 * At the very end, compare the total diff of the tests - it should be as minimal as possible and if there
   are any mandatory changes, confirm them and add to changelog & migration guide (shouldn't be)
 
@@ -78,6 +80,48 @@ Tried and it works!
 ./toggle tests/src/test/scala/japgolly/scalajs/react/CatsTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/MonocleTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/ScalazTest.scala.off
+
+==============================================================================================================
+
+TODO:
+* scalaz72
+* monocleScalaz
+* monocleCats
+* monocle3
+
+==============================================================================================================
+
+### Now
+
+* State monad - ReactState
+* Instances
+  * MonadError[CallbackTo, Throwable]
+  * MonadError[AsyncCallback, Throwable]
+  * Monad[CallbackOption]
+  * Id ~> CallbackTo
+  * CallbackTo ~> CallbackTo
+  * Reusability[A Ior B]
+  * Profunctor[Ref.Fn]
+  * Profunctor[Ref.Full[*, X, *]]
+* ReactExt
+  * M[_].toCallback(M ~> CallbackTo)
+  * Reusability
+  * Listenable.listenWithStateMonadF
+
+### Future
+* cats + core
+  * Reusability ext + instances
+  * Profunctor[Ref.Fn]
+  * Profunctor[Ref.Full[*, X, *]]
+* cats + callback
+  * MonadError[CallbackTo, Throwable]
+  * MonadError[AsyncCallback, Throwable]
+  * Monad[CallbackOption]
+  * def trans (F ~> G)
+* cats-effect + core
+  * Effect[CE]
+* cats-effect + callback
+  * CE instances for Callback classes
 
 ==============================================================================================================
 
