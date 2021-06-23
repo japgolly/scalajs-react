@@ -18,7 +18,6 @@ object ReactCats {
       Reusability.byRef[A] || byEq[A]
   }
 
-
   implicit def reactCatsReusabilityIor[A: Reusability, B: Reusability]: Reusability[A Ior B] =
     Reusability {
       case (Ior.Both(a, b), Ior.Both(c, d)) => (a ~=~ c) && (b ~=~ d)

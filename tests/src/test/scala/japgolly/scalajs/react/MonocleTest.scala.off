@@ -44,7 +44,6 @@ object MonocleTest extends TestSuite {
         "StateAccessImpure" - assertType[StateAccessImpure[S]].map(_ zoomStateL lensST ).is_<[StateAccessImpure[T]]
         "JsMounted"         - assertType[JsMounted           ].map(_ zoomStateL lensJST).is_<[StateAccessImpure[T]]
         "ScalaMountedId"    - assertType[ScalaMountedId      ].map(_ zoomStateL lensST ).is_<[StateAccessImpure[T]]
-        "ReactS"            - assertType[ReactST[M, S, A]    ].map(_ zoomL      lensTS ).is  [ReactST[M, T, A]]
       }
 
       "poly" - {

@@ -1,7 +1,8 @@
-package japgolly.scalajs.react.internal
+package japgolly.scalajs.react.internal.monocle
 
-import japgolly.scalajs.react.Callback
-import japgolly.scalajs.react.extra.StateSnapshot
+import japgolly.scalajs.react.extra.{StateSnapshot, StateSnapshotF}
+import japgolly.scalajs.react.util.DefaultEffects.Sync
+import japgolly.scalajs.react.util.NotAllowed
 import scala.annotation.nowarn
 
 trait MonocleExtStateSnapshot {
@@ -16,7 +17,7 @@ trait MonocleExtStateSnapshot {
   final implicit def MonocleReactExt_StateSnapshot[A](x: StateSnapshot[A]): Instance[A] =
     new Instance(x)
 
-  final implicit def MonocleReactExt_StateSnapshotWR[A](x: StateSnapshot.InstanceMethodsWithReuse[A]): InstanceWithReuse[A] =
+  final implicit def MonocleReactExt_StateSnapshotWR[F[_], A](x: StateSnapshotF.InstanceMethodsWithReuse[F, A]): InstanceWithReuse[F, A] =
     new InstanceWithReuse(x)
 }
 
@@ -33,10 +34,10 @@ object MonocleExtStateSnapshot {
   }
 
   final class Instance[A](private val self: StateSnapshot[A]) extends AnyVal {
-    def setStateL[B](l: monocle.Lens[A, B]): B => Callback =
+    def setStateL[B](l: monocle.Lens[A, B]): B => Sync[Unit] =
       b => self.setState(l.set(b)(self.value))
 
-    def modStateL[B](l: monocle.Lens[A, B])(f: B => B): Callback =
+    def modStateL[B](l: monocle.Lens[A, B])(f: B => B): Sync[Unit] =
       self.setState(l.modify(f)(self.value))
 
     /** THIS WILL VOID REUSABILITY.
@@ -61,7 +62,7 @@ object MonocleExtStateSnapshot {
       self.zoomStateOption(o.getOption)(o.set)
   }
 
-  final class InstanceWithReuse[A](private val self: StateSnapshot.InstanceMethodsWithReuse[A]) extends AnyVal {
+  final class InstanceWithReuse[F[_], A](private val self: StateSnapshotF.InstanceMethodsWithReuse[F, A]) extends AnyVal {
 
     @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
     def xmapStateL(no: NotAllowed) = no.result

@@ -107,6 +107,8 @@ object ScalaJsReact {
       coreExtCatsEffect,
       coreGeneric,
       extra,
+      extraExtMonocle2,
+      extraExtMonocle3,
       facadeMain,
       facadeTest,
       tests,
@@ -153,10 +155,16 @@ object ScalaJsReact {
     .dependsOn(callback) // High priority
     .dependsOn(coreGeneric) // Low priority
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
+    .settings(
+      moduleName := "core",
+    )
 
   lazy val coreDefCatsEffect = project
     .dependsOn(coreExtCatsEffect)
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
+    .settings(
+      moduleName := "core-cats-effect",
+    )
 
   lazy val coreExtCats = project
     .dependsOn(coreGeneric)
@@ -194,15 +202,38 @@ object ScalaJsReact {
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
     .configure(shimDummyDefaults)
 
+  lazy val extraExtMonocle2 = project
+    .dependsOn(extra, coreExtCats)
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .configure(shimDummyDefaults)
+    .settings(
+      moduleName := "extra-ext-monocle2",
+      libraryDependencies += Dep.monocle2.value,
+    )
+
+  lazy val extraExtMonocle3 = project
+    .dependsOn(extra, coreExtCats)
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .configure(shimDummyDefaults)
+    .settings(
+      moduleName := "extra-ext-monocle3",
+      libraryDependencies += Dep.monocle3.value,
+    )
+
   lazy val facadeMain = project
     .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
     .settings(
+      moduleName := "facade",
       libraryDependencies += Dep.scalaJsDom.value,
     )
 
   lazy val facadeTest = project
     .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
     .dependsOn(facadeMain)
+    .settings(
+      moduleName := "facade-test",
+    )
+
 /*
   lazy val ghpages = project
     .dependsOn(coreDefCallback, extra, monocleScalaz, ghpagesMacros)
@@ -262,6 +293,7 @@ object ScalaJsReact {
     .dependsOn(util)
     .configure(commonSettings, publicationSettings, hasNoTests)
     .settings(
+      moduleName := "util-cats-effect",
       libraryDependencies += Dep.catsEffect.value,
     )
 
@@ -280,25 +312,6 @@ object ScalaJsReact {
         "react-dom"                         -> Ver.reactJs,
         "react-addons-perf"                 -> "15.5.0-rc.2",
         "react-addons-css-transition-group" -> "16.7.0"))
-
-  lazy val monocleCats = project
-    .in(file("monocle-cats"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle-cats"), hasNoTests)
-    .dependsOn(core, extra, cats)
-    .settings(
-      disable := scalaVersion.value.startsWith("3"),
-      libraryDependencies += Dep.monocleCats.value,
-    )
-    .configure(conditionallyDisable) // keep this last
-
-  lazy val monocle3 = project
-    .in(file("monocle3"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle3"), hasNoTests)
-    .dependsOn(core, extra, cats)
-    .settings(
-      disable := scalaVersion.value.startsWith("2.12"),
-      libraryDependencies += Dep.monocle3.value,
-    )
-    .configure(conditionallyDisable) // keep this last
 */
+
 }

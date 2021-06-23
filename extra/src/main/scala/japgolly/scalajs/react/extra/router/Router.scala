@@ -95,9 +95,6 @@ final class RouterLogic[Page, Props](val baseUrl: BaseUrl, cfg: RouterWithPropsC
       res
     ))))))
 
-//  val syncToWindowUrlS: ReactST[IO, Resolution, Unit] =
-//    ReactS.setM(syncToWindowUrl) //addCallbackS onSync
-
   def syncToUrl(url: AbsUrl): Sync[RouteCmd[Resolution]] =
     parseUrl(url) match {
       case Some(path) => syncToPath(path)

@@ -42,6 +42,7 @@ and then in testUtil:
 * Show `modules.gv.svg` in doc and changelog
   * clarify new imports
   * migration
+  * update getting-started/usage instructions
 
 * At the very end, compare the total diff of the tests - it should be as minimal as possible and if there
   are any mandatory changes, confirm them and add to changelog & migration guide (shouldn't be)
@@ -55,6 +56,8 @@ and then in testUtil:
 * Test coreDef* from downstream-tests
 
 * Fix ScalaDoc links
+
+* publishLocal, confirm the export set, confirm the module names
 
 ==============================================================================================================
 
@@ -83,9 +86,8 @@ Tried and it works!
 ==============================================================================================================
 
 TODO:
+
 * ghpages
-* monocle2
-* monocleCats
 
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/DslTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/Router2Test.scala.off
@@ -95,10 +97,7 @@ TODO:
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/SimHistory.scala.off
 
 ./toggle tests/src/test/scala/japgolly/scalajs/react/MiscTest.scala.off
-
-./toggle tests/src/test/scala/japgolly/scalajs/react/CatsTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/MonocleTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/ScalazTest.scala.off
 
 ==============================================================================================================
 
