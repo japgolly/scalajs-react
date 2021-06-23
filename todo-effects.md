@@ -8,8 +8,6 @@
 
 * userdefined.(Unsafe)Effect?
 
-* Document modules
-
 * Remove temp scripts
 
 * Add WithEffect/WithAsyncEffect or support more than just the default effect type
@@ -37,10 +35,23 @@ and then in testUtil:
 * Add tests with callbacks accepting non-CallbackTo types
 * Rename Step4 => LastStep
 
+* Export Effects as ReactEffect?
+
+* Include a default IORuntime in coreDefCE?
+
 * Show `modules.gv.svg` in doc and changelog
+  * clarify new imports
+  * migration
 
 * At the very end, compare the total diff of the tests - it should be as minimal as possible and if there
   are any mandatory changes, confirm them and add to changelog & migration guide (shouldn't be)
+
+* removal of state-monad extensions
+  * update changelog
+  * update FP.md
+  * remove ghpages example
+
+* Add effect trans methods/extensions  (eg. `.to[IO]` and `.to[CallbackTo]`)?
 
 ==============================================================================================================
 
@@ -84,44 +95,11 @@ Tried and it works!
 ==============================================================================================================
 
 TODO:
+* gh-pages*
 * scalaz72
 * monocleScalaz
 * monocleCats
 * monocle3
-
-==============================================================================================================
-
-### Now
-
-* State monad - ReactState
-* Instances
-  * MonadError[CallbackTo, Throwable]
-  * MonadError[AsyncCallback, Throwable]
-  * Monad[CallbackOption]
-  * Id ~> CallbackTo
-  * CallbackTo ~> CallbackTo
-  * Reusability[A Ior B]
-  * Profunctor[Ref.Fn]
-  * Profunctor[Ref.Full[*, X, *]]
-* ReactExt
-  * M[_].toCallback(M ~> CallbackTo)
-  * Reusability
-  * Listenable.listenWithStateMonadF
-
-### Future
-* cats + core
-  * Reusability ext + instances
-  * Profunctor[Ref.Fn]
-  * Profunctor[Ref.Full[*, X, *]]
-* cats + callback
-  * MonadError[CallbackTo, Throwable]
-  * MonadError[AsyncCallback, Throwable]
-  * Monad[CallbackOption]
-  * def trans (F ~> G)
-* cats-effect + core
-  * Effect[CE]
-* cats-effect + callback
-  * CE instances for Callback classes
 
 ==============================================================================================================
 

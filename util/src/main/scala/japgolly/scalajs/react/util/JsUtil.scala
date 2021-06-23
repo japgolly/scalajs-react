@@ -117,4 +117,25 @@ object JsUtil {
     (p, complete)
   }
 
+  def runPromiseAsync[A](pa: => js.Thenable[A])(complete: Try[A] => js.Function0[Unit]): Unit = {
+    def next(ta: Try[A]): js.Thenable[Unit] = {
+      val (p, pc) = newPromise[Unit]()
+      pc(Try(complete(ta)()))()
+      p
+    }
+    type R = Unit | js.Thenable[Unit]
+    val ok: A   => R = a => next(Success(a))
+    val ko: Any => R = e => next(Failure(e match {
+      case t: Throwable => t
+      case _            => js.JavaScriptException(e)
+    }))
+    pa.`then`[Unit](ok, ko: js.Function1[Any, R])
+  }
+
+  def asyncToPromise[A](async: (Try[A] => js.Function0[Unit]) => js.Function0[Unit]): () => js.Promise[A] =
+    () => {
+      val (p, pc) = newPromise[A]()
+      async(pc)()
+      p
+    }
 }

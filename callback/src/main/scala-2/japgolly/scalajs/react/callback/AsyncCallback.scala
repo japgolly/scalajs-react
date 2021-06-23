@@ -1,12 +1,13 @@
 package japgolly.scalajs.react.callback
 
+import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.util.Util.{catchAll, identityFn}
 import java.time.Duration
 import scala.collection.BuildFrom
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
-import scala.scalajs.js.{Thenable, timers, |}
+import scala.scalajs.js.timers
 import scala.util.{Failure, Success, Try}
 
 object AsyncCallback {
@@ -242,14 +243,7 @@ object AsyncCallback {
 
   def fromJsPromise[A](pa: => js.Thenable[A]): AsyncCallback[A] =
     AsyncCallback(f => Callback {
-      def complete(e: Try[A]): Thenable[Unit] = f(e).asAsyncCallback.asCallbackToJsPromise.runNow()
-      type R = Unit | Thenable[Unit]
-      val ok: A   => R = a => complete(Success(a))
-      val ko: Any => R = e => complete(Failure(e match {
-        case t: Throwable => t
-        case _            => js.JavaScriptException(e)
-      }))
-      pa.`then`[Unit](ok, ko: js.Function1[Any, R])
+      JsUtil.runPromiseAsync(pa)(f(_).toJsFn)
     })
 
   def fromCallbackToJsPromise[A](c: CallbackTo[js.Promise[A]]): AsyncCallback[A] =

@@ -123,6 +123,9 @@ object Effect extends EffectCatsEffect {
 
     trait WithDefaults[F[_]] extends WithDefaultDispatch[F] with UnsafeSync.WithDefaults[F] {
 
+      override def fromJsFn0[A](f: js.Function0[A]) =
+        delay(f())
+
       /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
         * current callback completes, be it in error or success.
         */
@@ -165,8 +168,10 @@ object Effect extends EffectCatsEffect {
       implicit val semigroupSyncUnit: Semigroup[F[Unit]] =
         Semigroup((f, g) => flatMap(f)(_ => g))
 
-      val semigroupSyncOr: Semigroup[F[Boolean]] =
-        Semigroup((f, g) => delay(runSync(f) || runSync(g)))
+      val semigroupSyncOr: Semigroup[F[Boolean]] = {
+        val True = pure(true)
+        Semigroup((x, y) => flatMap(x)(b => if (b) True else y))
+      }
 
       override def when_[A](cond: Boolean)(fa: => F[A]): F[Unit] =
         if (cond) map(fa)(_ => ()) else empty
@@ -222,6 +227,13 @@ object Effect extends EffectCatsEffect {
 
       override def dispatch[A](fa: F[A]): Unit =
         toJsPromise(fa).apply(): Unit
+
+      override def toJsPromise[A](fa: => F[A]): () => js.Promise[A] =
+        JsUtil.asyncToPromise(runAsync(fa))
+
+      override def fromJsPromise[A](pa: => js.Thenable[A]): F[A] =
+        async(f => () => JsUtil.runPromiseAsync(pa)(f))
+
     }
   }
 

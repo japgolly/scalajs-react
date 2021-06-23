@@ -134,10 +134,18 @@ object ScalaJsReact {
 
   lazy val callbackExtCatsEffect = project
     .dependsOn(callbackExtCats)
-    .configure(commonSettings, publicationSettings, utestSettings)
+    .configure(commonSettings, publicationSettings)
     .settings(
       moduleName := "callback-ext-cats-effect",
-      libraryDependencies += Dep.catsEffect.value,
+      libraryDependencies ++= Seq(
+        Dep.catsEffect          .value,
+        Dep.catsEffectLaws      .value % Test,
+        Dep.catsEffectTestkit   .value % Test,
+        Dep.catsTestkit         .value % Test,
+        Dep.catsTestkitScalaTest.value % Test,
+        Dep.disciplineScalaTest .value % Test,
+        Dep.scalaTest           .value % Test,
+      ),
     )
 
   lazy val coreDefCallback = project
@@ -152,6 +160,7 @@ object ScalaJsReact {
   lazy val coreExtCats = project
     .dependsOn(coreGeneric)
     .configure(commonSettings, publicationSettings, hasNoTests)
+    .configure(shimDummyDefaults)
     .settings(
       moduleName := "core-ext-cats",
       libraryDependencies += Dep.cats.value,
@@ -160,6 +169,7 @@ object ScalaJsReact {
   lazy val coreExtCatsEffect = project
     .dependsOn(coreExtCats)
     .configure(commonSettings, publicationSettings, hasNoTests)
+    .configure(shimDummyDefaults)
     .settings(
       moduleName := "core-ext-cats-effect",
       libraryDependencies += Dep.catsEffect.value,
@@ -252,21 +262,6 @@ object ScalaJsReact {
     .configure(commonSettings, preventPublication, hasNoTests)
 
 /*
-  lazy val catsEffect = project
-    .in(file("cats-effect"))
-    .configure(commonSettings, publicationSettings, extModuleName("cats-effect"))
-    .dependsOn(core, cats)
-    .settings(
-      libraryDependencies ++= Seq(
-        Dep.cats                .value,
-        Dep.catsEffect          .value,
-        Dep.catsEffectLaws      .value % Test,
-        Dep.catsEffectTestkit   .value % Test,
-        Dep.catsTestkit         .value % Test,
-        Dep.catsTestkitScalaTest.value % Test,
-        Dep.scalaTest           .value % Test,
-        Dep.disciplineScalaTest .value % Test))
-
   lazy val testModule = project.in(file("test-module"))
     .configure(commonSettings, useScalaJsBundler, preventPublication, utestSettings)
     .dependsOn(core, extra, test)

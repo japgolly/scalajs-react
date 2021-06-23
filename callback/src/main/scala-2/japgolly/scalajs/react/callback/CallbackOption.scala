@@ -320,6 +320,9 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
   @inline def ||[B](b: CallbackOption[B]): CallbackOption[Unit] =
     void | b.void
 
+  def handleError[AA >: A](f: Throwable => CallbackOption[AA]): CallbackOption[AA] =
+    asCallback.handleError(f(_).asCallback).asCBO
+
   // /** Wraps this so that:
   //   *
   //   * 1) It only executes if `e.defaultPrevented` is `false`.
