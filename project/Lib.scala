@@ -60,9 +60,6 @@ object Lib {
         libraryDependencies  += Dep.microlibsTestUtil.value % Test,
         testFrameworks       += new TestFramework("utest.runner.Framework"))
 
-  def extModuleName(shortName: String): PE =
-    _.settings(name := s"ext-$shortName")
-
   def definesMacros: Project => Project =
     _.settings(
       scalacOptions       ++= (if (scalaVersion.value startsWith "3") Nil else Seq("-language:experimental.macros")),

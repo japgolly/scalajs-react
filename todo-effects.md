@@ -48,7 +48,7 @@ and then in testUtil:
 Can't have a provided-scope, overridable DefaultEffects module.
 It works until linking in certain circumstances.
 
-Example, `def f: Sync[Unit]` becomes `def f: Any(Ref?)` in abstract (`coreGeneral`),
+Example, `def f: Sync[Unit]` becomes `def f: Any(Ref?)` in abstract (`coreGeneric`),
 but then `def f: Trampoline` in specific (`tests`) and fails to link.
 
 ```

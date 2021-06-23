@@ -8,7 +8,7 @@ import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import sbtrelease.ReleasePlugin.autoImport._
 import scalafix.sbt.ScalafixPlugin
 
-object ScalajsReact {
+object ScalaJsReact {
   import Dependencies._
   import Lib._
 
@@ -87,6 +87,8 @@ object ScalajsReact {
   def shimDummyDefaults: PE =
     _.dependsOn(utilDummyDefaults % Provided)
 
+  lazy val genHooks = TaskKey[Unit]("genHooks")
+
   // ==============================================================================================
 
   lazy val root = Project("root", file("."))
@@ -96,155 +98,160 @@ object ScalajsReact {
     )
     .configure(commonSettings, preventPublication, hasNoTests)
     .aggregate(
+      callback,
+      callbackExtCats,
+      callbackExtCatsEffect,
+      coreDefCallback,
+      coreDefCatsEffect,
+      coreExtCats,
+      coreExtCatsEffect,
+      coreGeneric,
+      extra,
       facadeMain,
       facadeTest,
+      tests,
+      testUtil,
       util,
       utilDummyDefaults,
-      callback,
-      coreGeneral,
-      core,
-      extra,
-      testUtil,
-      tests,
-      /*
-      // testModule,
-      scalaz72,
-      cats,
-      catsEffect,
-      monocleScalaz,
-      monocleCats,
-      monocle3,
-      ghpagesMacros,
-      ghpages,
-      */
     )
 
   // ==============================================================================================
 
-  lazy val genHooks = TaskKey[Unit]("genHooks")
-
-  lazy val facadeMain = project
-    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
-    .settings(libraryDependencies += Dep.scalaJsDom.value)
-
-  lazy val facadeTest = project
-    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
-    .dependsOn(facadeMain)
-
-  lazy val util = project
-    .configure(commonSettings, publicationSettings, hasNoTests)
-    .settings(libraryDependencies += Dep.scalaJsDom.value)
-
-  lazy val utilDummyDefaults = project
-    .in(file("util-dummy-defaults"))
-    .configure(commonSettings, preventPublication, hasNoTests)
-    .dependsOn(util)
-
   lazy val callback = project
-    .configure(commonSettings, publicationSettings, utestSettings)
     .dependsOn(util)
-    .settings(libraryDependencies += Dep.cats.value % Test)
+    .configure(commonSettings, publicationSettings, utestSettings)
+    .settings(
+      libraryDependencies += Dep.cats.value % Test,
+    )
 
-  lazy val coreGeneral = project
-    .in(file("core-general"))
+  lazy val callbackExtCats = project
+    .dependsOn(callback)
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .settings(
+      moduleName := "callback-ext-cats",
+      libraryDependencies += Dep.cats.value,
+    )
+
+  lazy val callbackExtCatsEffect = project
+    .dependsOn(callbackExtCats)
+    .configure(commonSettings, publicationSettings, utestSettings)
+    .settings(
+      moduleName := "callback-ext-cats-effect",
+      libraryDependencies += Dep.catsEffect.value,
+    )
+
+  lazy val coreDefCallback = project
+    .dependsOn(callback) // High priority
+    .dependsOn(coreGeneric) // Low priority
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
+
+  lazy val coreDefCatsEffect = project
+    .dependsOn(coreExtCatsEffect)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
+
+  lazy val coreExtCats = project
+    .dependsOn(coreGeneric)
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .settings(
+      moduleName := "core-ext-cats",
+      libraryDependencies += Dep.cats.value,
+    )
+
+  lazy val coreExtCatsEffect = project
+    .dependsOn(coreExtCats)
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .settings(
+      moduleName := "core-ext-cats-effect",
+      libraryDependencies += Dep.catsEffect.value,
+    )
+
+  lazy val coreGeneric = project
     .dependsOn(facadeMain, util)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .configure(shimDummyDefaults)
     .settings(
-      name := "core-general",
+      moduleName := "core-generic",
       libraryDependencies ++= Seq(
         Dep.microlibsTypes.value,
-        Dep.sourcecode    .value,
+        Dep.sourcecode.value,
       ),
       genHooks := GenHooks(sourceDirectory.value / "main" / "scala"),
     )
 
-  lazy val core = project
-    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
-    .dependsOn(callback) // High priority
-    .dependsOn(coreGeneral) // Low priority
-
   lazy val extra = project
+    .dependsOn(coreGeneric)
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
-    .dependsOn(coreGeneral)
     .configure(shimDummyDefaults)
 
-  lazy val testUtil = project
-    .in(file("test-util"))
-    .configure(commonSettings, publicationSettings, hasNoTests)
-    .dependsOn(coreGeneral, extra, facadeTest)
-    .configure(shimDummyDefaults)
-    .settings(name := "test")
+  lazy val facadeMain = project
+    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
+    .settings(
+      libraryDependencies += Dep.scalaJsDom.value,
+    )
 
+  lazy val facadeTest = project
+    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
+    .dependsOn(facadeMain)
+/*
+  lazy val ghpages = project
+    .dependsOn(coreDefCallback, extra, monocleScalaz, ghpagesMacros)
+    .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
+    .settings(
+      libraryDependencies += Dep.monocleScalaz.value,
+      scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+      scalaJSUseMainModuleInitializer := true,
+      Compile / mainClass := Some("ghpages.GhPages"),
+      Compile / fullOptJS / artifactPath := file("ghpages/res/ghpages.js"),
+    )
+
+  lazy val ghpagesMacros = project
+    .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
+    .settings(
+      libraryDependencies += Dep.sourcecode.value,
+    )
+*/
   lazy val tests = project
     .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
-    .dependsOn(core, testUtil)
-    // .dependsOn(scalaz72 % "test->compile")
-    // .dependsOn(monocleScalaz % "test->compile")
-    // .dependsOn(cats % "test->compile")
+    .dependsOn(coreDefCallback, testUtil)
     .settings(
       Test / scalacOptions --= Seq(
         "-deprecation",
         "-Xlint:adapted-args"
       ),
       libraryDependencies ++= Seq(
-        Dep.nyayaProp      .value % Test,
-        Dep.nyayaGen       .value % Test,
-        Dep.nyayaTest      .value % Test,
-        // Dep.monocleScalaz  .value % Test, // TODO: Remove
-        Dep.scalaJsJavaTime.value % Test),
+        Dep.nyayaProp.value % Test,
+        Dep.nyayaGen.value % Test,
+        Dep.nyayaTest.value % Test,
+        Dep.scalaJsJavaTime.value % Test,
+      ),
       jsDependencies ++= Seq(
         Dep.sizzleJs(Test).value,
         (ProvidedJS / "component-es6.js" dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "component-fn.js"  dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
-        (ProvidedJS / "polyfill.js"      dependsOn Dep.reactDom.dev) % Test))
-
-  /*
-  lazy val testModule = project.in(file("test-module"))
-    .configure(commonSettings, useScalaJsBundler, preventPublication, utestSettings)
-    .dependsOn(core, extra, test)
-    .settings(
-      name := "test-module",
-      npmDependencies in Test ++= Seq(
-        "react"                             -> Ver.reactJs,
-        "react-dom"                         -> Ver.reactJs,
-        "react-addons-perf"                 -> "15.5.0-rc.2",
-        "react-addons-css-transition-group" -> "16.7.0"))
-  */
-
-  lazy val scalaz72 = project
-    .in(file("scalaz-7.2"))
-    .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
-    .dependsOn(core, extra)
-    .settings(
-      libraryDependencies += Dep.scalazEffect72.value)
-
-  lazy val monocleScalaz = project
-    .in(file("monocle-scalaz"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle-scalaz"), hasNoTests)
-    .dependsOn(core, extra, scalaz72)
-    .settings(
-      libraryDependencies += Dep.monocleScalaz.value)
-
-  lazy val cats = project
-    .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
-    .dependsOn(core, extra)
-    .settings(
-      libraryDependencies += Dep.cats.value)
-
-  lazy val monocleCats = project
-    .in(file("monocle-cats"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle-cats"), hasNoTests)
-    .dependsOn(core, extra, cats)
-    .settings(
-      disable := scalaVersion.value.startsWith("3"),
-      // Share the internal source code files with this module
-      Compile / unmanagedSourceDirectories += (monocleScalaz / Compile / sourceDirectory).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
-      libraryDependencies += Dep.monocleCats.value,
+        (ProvidedJS / "polyfill.js"      dependsOn Dep.reactDom.dev) % Test,
+      ),
     )
-    .configure(conditionallyDisable) // keep this last
 
+  lazy val testUtil = project
+    .dependsOn(coreGeneric, extra, facadeTest)
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .configure(shimDummyDefaults)
+    .settings(
+      moduleName := "test",
+    )
+
+  lazy val util = project
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .settings(
+      libraryDependencies += Dep.scalaJsDom.value,
+    )
+
+  lazy val utilDummyDefaults = project
+    .dependsOn(util)
+    .configure(commonSettings, preventPublication, hasNoTests)
+
+/*
   lazy val catsEffect = project
     .in(file("cats-effect"))
     .configure(commonSettings, publicationSettings, extModuleName("cats-effect"))
@@ -260,6 +267,43 @@ object ScalajsReact {
         Dep.scalaTest           .value % Test,
         Dep.disciplineScalaTest .value % Test))
 
+  lazy val testModule = project.in(file("test-module"))
+    .configure(commonSettings, useScalaJsBundler, preventPublication, utestSettings)
+    .dependsOn(core, extra, test)
+    .settings(
+      name := "test-module",
+      npmDependencies in Test ++= Seq(
+        "react"                             -> Ver.reactJs,
+        "react-dom"                         -> Ver.reactJs,
+        "react-addons-perf"                 -> "15.5.0-rc.2",
+        "react-addons-css-transition-group" -> "16.7.0"))
+
+  lazy val scalaz72 = project
+    .in(file("scalaz-7.2"))
+    .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
+    .dependsOn(core, extra)
+    .settings(
+      libraryDependencies += Dep.scalazEffect72.value)
+
+  lazy val monocleScalaz = project
+    .in(file("monocle-scalaz"))
+    .configure(commonSettings, publicationSettings, extModuleName("monocle-scalaz"), hasNoTests)
+    .dependsOn(core, extra, scalaz72)
+    .settings(
+      libraryDependencies += Dep.monocleScalaz.value)
+
+  lazy val monocleCats = project
+    .in(file("monocle-cats"))
+    .configure(commonSettings, publicationSettings, extModuleName("monocle-cats"), hasNoTests)
+    .dependsOn(core, extra, cats)
+    .settings(
+      disable := scalaVersion.value.startsWith("3"),
+      // Share the internal source code files with this module
+      Compile / unmanagedSourceDirectories += (monocleScalaz / Compile / sourceDirectory).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
+      libraryDependencies += Dep.monocleCats.value,
+    )
+    .configure(conditionallyDisable) // keep this last
+
   lazy val monocle3 = project
     .in(file("monocle3"))
     .configure(commonSettings, publicationSettings, extModuleName("monocle3"), hasNoTests)
@@ -269,20 +313,5 @@ object ScalajsReact {
       libraryDependencies += Dep.monocle3.value,
     )
     .configure(conditionallyDisable) // keep this last
-
-  // ===================================================================================================================
-
-  lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
-    .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
-    .settings(libraryDependencies += Dep.sourcecode.value)
-
-  lazy val ghpages = Project("gh-pages", file("gh-pages"))
-    .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
-    .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
-    .settings(
-      libraryDependencies += Dep.monocleScalaz.value,
-      scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      scalaJSUseMainModuleInitializer := true,
-      Compile / mainClass := Some("ghpages.GhPages"),
-      Compile / fullOptJS / artifactPath := file("gh-pages/res/ghpages.js"))
+*/
 }
