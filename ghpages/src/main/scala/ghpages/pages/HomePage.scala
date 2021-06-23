@@ -33,11 +33,11 @@ object HomePage {
 
         p(
           "Provides (opt-in) support for pure functional programming, using ",
-          <.a(^.href := "https://github.com/typelevel/cats", "Cats"),
+          <.a(^.href := "https://typelevel.org/cats", "Cats"),
           ", ",
-          <.a(^.href := "https://github.com/scalaz/scalaz", "Scalaz"),
+          <.a(^.href := "https://typelevel.org/cats-effect", "Cats Effect"),
           " and ",
-          <.a(^.href := "https://github.com/julien-truffaut/Monocle", "Monocle"),
+          <.a(^.href := "https://www.optics.dev/Monocle", "Monocle"),
           "."),
 
         p(

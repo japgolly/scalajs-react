@@ -54,6 +54,8 @@ and then in testUtil:
 
 * Test coreDef* from downstream-tests
 
+* Fix ScalaDoc links
+
 ==============================================================================================================
 
 ## Problem
@@ -80,6 +82,11 @@ Tried and it works!
 
 ==============================================================================================================
 
+TODO:
+* ghpages
+* monocle2
+* monocleCats
+
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/DslTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/Router2Test.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/RouterP2Test.scala.off
@@ -92,15 +99,6 @@ Tried and it works!
 ./toggle tests/src/test/scala/japgolly/scalajs/react/CatsTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/MonocleTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/ScalazTest.scala.off
-
-==============================================================================================================
-
-TODO:
-* gh-pages*
-* scalaz72
-* monocleScalaz
-* monocleCats
-* monocle3
 
 ==============================================================================================================
 

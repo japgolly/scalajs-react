@@ -272,7 +272,7 @@ object CallbackTo {
  * A function to be executed later, usually by scalajs-react in response to some kind of event.
  *
  * The purpose of this class is to lift effects into the type system, and use the compiler to ensure safety around
- * callbacks (without depending on an external library like Scalaz).
+ * callbacks (without depending on an external library like Cats).
  *
  * `() => Unit` is replaced by `Callback`.
  * Similarly, `ReactEvent => Unit` is replaced  by `ReactEvent => Callback`.

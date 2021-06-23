@@ -2,8 +2,8 @@ package japgolly.scalajs.react.internal
 
 /*
 In a perfect world we'd use just Monocle publicly but unfortunately
-- Monocle depends on Scalaz. Very unfair to push that and the JS size increase onto library users.
-- Don't want to introduce dep-hell wrt Monocle or Scalaz.
+- Monocle depends on Cats. Very unfair to push that and the JS size increase onto library users.
+- Don't want to introduce dep-hell wrt Monocle or Cats.
  */
 
 final class Iso[A, B](val get: A => B, val set: B => A) {

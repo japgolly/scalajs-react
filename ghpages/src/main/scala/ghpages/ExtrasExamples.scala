@@ -1,6 +1,5 @@
 package ghpages
 
-import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.vdom.all._

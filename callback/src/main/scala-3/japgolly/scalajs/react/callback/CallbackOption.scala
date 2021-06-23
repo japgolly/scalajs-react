@@ -188,7 +188,7 @@ object CallbackOption {
  * This is meant to be lightweight, and be immediately useful without the typical pain of imports, implicit conversions
  * and extension methods then normally accompany monad transforms in Scala.
  *
- * For a more generic (i.e. beyond Option) or comprehensive monad transformer use Scalaz or similar.
+ * For a more generic (i.e. beyond Option) or comprehensive monad transformer use Cats or similar.
  */
 final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends AnyVal {
   import CallbackOption.someUnit

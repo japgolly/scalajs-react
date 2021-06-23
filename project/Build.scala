@@ -281,28 +281,12 @@ object ScalaJsReact {
         "react-addons-perf"                 -> "15.5.0-rc.2",
         "react-addons-css-transition-group" -> "16.7.0"))
 
-  lazy val scalaz72 = project
-    .in(file("scalaz-7.2"))
-    .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
-    .dependsOn(core, extra)
-    .settings(
-      libraryDependencies += Dep.scalazEffect72.value)
-
-  lazy val monocleScalaz = project
-    .in(file("monocle-scalaz"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle-scalaz"), hasNoTests)
-    .dependsOn(core, extra, scalaz72)
-    .settings(
-      libraryDependencies += Dep.monocleScalaz.value)
-
   lazy val monocleCats = project
     .in(file("monocle-cats"))
     .configure(commonSettings, publicationSettings, extModuleName("monocle-cats"), hasNoTests)
     .dependsOn(core, extra, cats)
     .settings(
       disable := scalaVersion.value.startsWith("3"),
-      // Share the internal source code files with this module
-      Compile / unmanagedSourceDirectories += (monocleScalaz / Compile / sourceDirectory).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
       libraryDependencies += Dep.monocleCats.value,
     )
     .configure(conditionallyDisable) // keep this last

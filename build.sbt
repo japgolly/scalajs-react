@@ -25,8 +25,6 @@ val utilDummyDefaults     = ScalaJsReact.utilDummyDefaults
 
 // val ghpages               = ScalaJsReact.ghpages
 // val ghpagesMacros         = ScalaJsReact.ghpagesMacros
-// val scalaz72          = ScalaJsReact.scalaz72
-// val monocleScalaz     = ScalaJsReact.monocleScalaz
 // val monocleCats       = ScalaJsReact.monocleCats
 // val monocle3          = ScalaJsReact.monocle3
 //val testModule      = ScalaJsReact.testModule // Too damn buggy

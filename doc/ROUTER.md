@@ -202,7 +202,6 @@ and is automatically converted to a finalised `Route` when used.
 
 * Combinators on `RouteB[Option[A]]`
   * `.withDefault(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `==` to compare `A`s to the given default.
-  * `.withDefaultE(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `scalaz.Equal` to compare `A`s to the given default.
   * `.parseDefault(A)` - Specify a default value when parsing. (Path generation ignores this default.) Returns a `RouteB[A]`.
 
 * Combinators on `RouteB[Unit]`

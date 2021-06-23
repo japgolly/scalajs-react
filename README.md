@@ -7,9 +7,9 @@ scalajs-react
 Lifts Facebook's [React](https://facebook.github.io/react/) library into [Scala.js](http://www.scala-js.org/) and endeavours to make it as type-safe and Scala-friendly as possible.
 
 Provides (opt-in) support for pure functional programming, with additional modules for
-[Scalaz](https://github.com/scalaz/scalaz),
-[Cats](https://github.com/typelevel/cats),
-and [Monocle](https://github.com/julien-truffaut/Monocle) (scalaz or cats based monocle).
+[Cats](https://typelevel.org/cats),
+[Cats Effect](https://typelevel.org/cats-effect),
+and [Monocle](https://www.optics.dev/Monocle).
 
 Comes with utility modules [`extra`](extra/) and [`test`](test/), helpful for React in Scala(.js), rather than React in JS.
 Includes a router, testing utils, performance utils, more.
