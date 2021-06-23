@@ -112,6 +112,7 @@ object ScalaJsReact {
       tests,
       testUtil,
       util,
+      utilCatsEffect,
       utilDummyDefaults,
     )
 
@@ -133,7 +134,7 @@ object ScalaJsReact {
     )
 
   lazy val callbackExtCatsEffect = project
-    .dependsOn(callbackExtCats)
+    .dependsOn(callbackExtCats, utilCatsEffect)
     .configure(commonSettings, publicationSettings)
     .settings(
       moduleName := "callback-ext-cats-effect",
@@ -167,7 +168,7 @@ object ScalaJsReact {
     )
 
   lazy val coreExtCatsEffect = project
-    .dependsOn(coreExtCats)
+    .dependsOn(coreExtCats, utilCatsEffect)
     .configure(commonSettings, publicationSettings, hasNoTests)
     .configure(shimDummyDefaults)
     .settings(
@@ -255,6 +256,13 @@ object ScalaJsReact {
     .configure(commonSettings, publicationSettings, hasNoTests)
     .settings(
       libraryDependencies += Dep.scalaJsDom.value,
+    )
+
+  lazy val utilCatsEffect = project
+    .dependsOn(util)
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .settings(
+      libraryDependencies += Dep.catsEffect.value,
     )
 
   lazy val utilDummyDefaults = project

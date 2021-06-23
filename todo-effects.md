@@ -53,6 +53,8 @@ and then in testUtil:
 
 * Add effect trans methods/extensions  (eg. `.to[IO]` and `.to[CallbackTo]`)?
 
+* Test coreDef* from downstream-tests
+
 ==============================================================================================================
 
 ## Problem

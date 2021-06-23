@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.util
 
-import cats.effect.{IO, SyncIO}
 import cats.effect.unsafe.IORuntime
+import cats.effect.{IO, SyncIO}
+import japgolly.scalajs.react.ReactCatsEffect
 import scala.util.Try
 
 abstract class EffectCatsEffect extends EffectCallback {
@@ -33,10 +34,10 @@ abstract class EffectCatsEffect extends EffectCallback {
 
   // ===================================================================================================================
 
-  implicit lazy val io: Async[IO] =
-    new AsyncIO()(IORuntime.global)
+  implicit lazy val io: AsyncIO =
+    new AsyncIO(ReactCatsEffect.runtimeFn)
 
-  class AsyncIO(implicit runtime: IORuntime) extends Async.WithDefaults[IO] {
+  class AsyncIO(runtime: () => IORuntime) extends Async.WithDefaults[IO] {
 
     @inline override def delay[A](a: => A) =
       IO.delay(a)
@@ -69,10 +70,10 @@ abstract class EffectCatsEffect extends EffectCallback {
       } yield ()
 
     override def runAsync[A](fa: => IO[A]): Async.Untyped[A] =
-      f => () => fa.unsafeRunAsync(ea => f(ea.toTry)())
+      f => () => fa.unsafeRunAsync(ea => f(ea.toTry)())(runtime())
 
     override def dispatch[A](fa: IO[A]): Unit =
-      fa.unsafeRunAndForget()
+      fa.unsafeRunAndForget()(runtime())
   }
 
   private lazy val tryUnit: Try[Unit] =

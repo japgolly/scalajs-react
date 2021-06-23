@@ -4,6 +4,7 @@ import cats.effect._
 import cats.effect.kernel.CancelScope
 import cats.effect.unsafe.IORuntime
 import cats.~>
+import japgolly.scalajs.react.ReactCatsEffect
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.util.Either
@@ -83,7 +84,7 @@ object CallbackCatsEffect {
     new AsyncCallbackToIO(_.async.toCallback.runNow())
 
   implicit lazy val ioToAsyncCallback: IOToAsyncCallback =
-    new IOToAsyncCallback(IORuntime.global)
+    new IOToAsyncCallback(ReactCatsEffect.runtimeFn)
 
   implicit lazy val asyncAsyncCallback: AsyncAsyncCallback =
     new AsyncAsyncCallback(asyncCallbackToIO, ioToAsyncCallback)
@@ -102,13 +103,13 @@ object CallbackCatsEffect {
       })
   }
 
-  class IOToAsyncCallback(r: IORuntime) extends (IO ~> AsyncCallback) { self =>
+  class IOToAsyncCallback(runtime: () => IORuntime) extends (IO ~> AsyncCallback) { self =>
     override def apply[A](f: IO[A]): AsyncCallback[A] =
       AsyncCallback[A] { k =>
         Callback {
           f.unsafeRunAsync { t =>
             k(t.toTry).runNow()
-          }(r)
+          }(runtime())
         }
       }
 

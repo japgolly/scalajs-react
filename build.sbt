@@ -19,6 +19,7 @@ val root                  = ScalaJsReact.root
 val tests                 = ScalaJsReact.tests
 val testUtil              = ScalaJsReact.testUtil
 val util                  = ScalaJsReact.util
+val utilCatsEffect        = ScalaJsReact.utilCatsEffect
 val utilDummyDefaults     = ScalaJsReact.utilDummyDefaults
 
 
