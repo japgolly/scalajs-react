@@ -56,23 +56,4 @@ object ExtrasExamples {
       .configure(TimerSupport.install)
       .build
   }
-
-  // ===================================================================================================================
-
-  /**
-   * This is an example of using Listenable to receive external events that affect a component's state.
-   */
-  object ListenableExample {
-
-    class Backend extends OnUnmount                     // Required it can unregister listener on unmount.
-
-    def recv(i: Int) = ReactS.mod[Int](_ + i)           // External event handler.
-                                                        // When an int is received, add to component state.
-    val C = ScalaComponent.builder[Listenable[Int]]
-      .initialState(0)
-      .backend(_ => new Backend)
-      .render_S(s => div("Total: ", s))
-      .configure(Listenable.listenWithStateMonad(identity, recv))   // Listen to events when mounted.
-      .build
-  }
 }

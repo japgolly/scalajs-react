@@ -49,7 +49,6 @@ and then in testUtil:
 * removal of state-monad extensions
   * update changelog
   * update FP.md
-  * remove ghpages example
 
 * Add effect trans methods/extensions  (eg. `.to[IO]` and `.to[CallbackTo]`)?
 

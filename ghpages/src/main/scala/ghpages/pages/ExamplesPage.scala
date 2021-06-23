@@ -46,7 +46,6 @@ object ExamplesJs extends ExampleCollection {
 
 
 object ExamplesScala extends ExampleCollection {
-  case object StateMonad     extends Example("State monads",       "state-monad",       StateMonadExample      .content)
   case object Touch          extends Example("Touch events",       "touch-events",      TouchExample           .content)
   case object StateSnapshot1 extends Example("StateSnapshot (1)",  "state-snapshot-1",  StateSnapshotExample1  .content)
   case object StateSnapshot2 extends Example("StateSnapshot (2)",  "state-snapshot-2",  StateSnapshotExample2  .content)
