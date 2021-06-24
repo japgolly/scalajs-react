@@ -1,8 +1,7 @@
 package japgolly.scalajs.react
 
 import japgolly.microlibs.testutil.TestUtil._
-import japgolly.scalajs.react.MonocleReact._
-import japgolly.scalajs.react.ScalazReact._
+import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.extra._
 import monocle._
 import scala.annotation.nowarn
@@ -33,7 +32,6 @@ object MonocleTest extends TestSuite {
 
     "inference" - {
       def lensST: monocle.Lens[S, T] = null
-      def lensTS: monocle.Lens[T, S] = null
       def lensJST: monocle.Lens[JS, T] = null
 
       "zoom" - {

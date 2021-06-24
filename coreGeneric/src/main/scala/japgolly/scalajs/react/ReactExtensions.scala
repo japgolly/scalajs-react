@@ -1,11 +1,12 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.util.Effect.Sync
+
 trait ReactExtensions {
   import ReactExtensions._
 
-  // TODO: FX:
-  // @inline final implicit def ReactExt_OptionCallback(o: Option[Callback]): ReactExt_OptionCallback =
-  //   new ReactExt_OptionCallback(o)
+  @inline final implicit def ReactExt_OptionSync[F[_]](o: Option[F[Unit]]): ReactExt_OptionSyncUnit[F] =
+    new ReactExt_OptionSyncUnit(o)
 
   @inline final implicit def ReactExt_ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: ScalaComponent.Component[P, S, B, CT]): ReactExt_ScalaComponent[P, S, B, CT] =
     new ReactExt_ScalaComponent(c)
@@ -16,12 +17,11 @@ trait ReactExtensions {
 
 object ReactExtensions {
 
-  // TODO: FX:
-  // @inline implicit final class ReactExt_OptionCallback(private val o: Option[Callback]) extends AnyVal {
-  //   /** Convenience for `.getOrElse(Callback.empty)` */
-  //   @inline def getOrEmpty: Callback =
-  //      o.getOrElse(Callback.empty)
-  // }
+  @inline implicit final class ReactExt_OptionSyncUnit[F[_]](private val o: Option[F[Unit]]) extends AnyVal {
+    /** Convenience for `.getOrElse(Callback.empty)` */
+    @inline def getOrEmpty(implicit F: Sync[F]): F[Unit] =
+       o.getOrElse(F.empty)
+  }
 
   // I am NOT happy about this here... but it will do for now.
 

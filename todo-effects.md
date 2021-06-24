@@ -59,6 +59,8 @@ and then in testUtil:
 
 * publishLocal, confirm the export set, confirm the module names
 
+* resolve todos
+
 ==============================================================================================================
 
 ## Problem
@@ -88,9 +90,6 @@ Tried and it works!
 TODO:
 
 * ghpages
-
-./toggle tests/src/test/scala/japgolly/scalajs/react/MiscTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/MonocleTest.scala.off
 
 ==============================================================================================================
 

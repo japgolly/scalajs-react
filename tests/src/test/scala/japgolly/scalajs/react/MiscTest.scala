@@ -1,9 +1,10 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.MonocleReact._
-import japgolly.scalajs.react.util.JsUtil
+import japgolly.scalajs.react.ReactMonocle._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test._
+import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.vdom.html_<^._
 import java.time.Duration
 import monocle._
