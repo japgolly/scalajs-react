@@ -12,7 +12,7 @@ object EventListenerTest extends TestSuite {
 
   val C = ScalaComponent.builder[Unit]("")
     .initialState(0)
-    .backend(_ => new OnUnmount.Backend)
+    .backend(_ => OnUnmount())
     .renderS((_, state) => <.div(s"Hit $state times"))
     .configure(EventListener.install("hello", _.modState(_ + 1)))
     .build

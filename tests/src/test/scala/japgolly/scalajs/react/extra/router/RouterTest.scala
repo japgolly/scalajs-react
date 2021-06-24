@@ -1,6 +1,5 @@
 package japgolly.scalajs.react.extra.router
 
-import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test._

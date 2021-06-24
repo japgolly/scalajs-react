@@ -24,6 +24,11 @@ trait OnUnmountF[F[_]] { self =>
 object OnUnmountF {
   def install[F[_]: Dispatch, P, C <: Children, S, B <: OnUnmountF[F], U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] =
     _.componentWillUnmount(_.backend.unmount)
+
+  def apply[F[_]]()(implicit F: Sync[F]): OnUnmountF[F] =
+    new OnUnmountF[F] {
+      override protected def onUnmountEffect = F
+    }
 }
 
 // =====================================================================================================================
@@ -42,5 +47,9 @@ object OnUnmount {
     _.componentWillUnmount(_.backend.unmount)(DefaultEffects.Sync)
 
   /** Convenience class for the frequent case that a component needs a backend with `OnUnmount` and nothing else. */
+  @deprecated("Change `new OnUnmount.Backend` to `OnUnmount()`", "2.0.0")
   final class Backend extends OnUnmount
+
+  def apply(): OnUnmount =
+    new OnUnmount {}
 }

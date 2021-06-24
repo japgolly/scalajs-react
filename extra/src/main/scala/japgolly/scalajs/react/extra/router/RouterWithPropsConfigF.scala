@@ -1,34 +1,37 @@
 package japgolly.scalajs.react.extra.router
 
 import japgolly.scalajs.react.extra.router.RouterConfig.Logger
-import japgolly.scalajs.react.util.DefaultEffects.Sync
+import japgolly.scalajs.react.util.Effect.{Dispatch, Sync}
 import japgolly.scalajs.react.vdom.VdomElement
 import org.scalajs.dom
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.util.{Failure, Success, Try}
 
-case class RouterWithPropsConfig[Page, Props](
-    rules       : RoutingRules[Page, Props],
-    renderFn    : (RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement,
-    postRenderFn: (Option[Page], Page, Props) => Sync[Unit],
-    logger      : Logger) {
+case class RouterWithPropsConfigF[F[_], Page, Props](
+      rules       : RoutingRulesF[F, Page, Props],
+      renderFn    : (RouterCtlF[F, Page], ResolutionWithProps[Page, Props]) => Props => VdomElement,
+      postRenderFn: (Option[Page], Page, Props) => F[Unit],
+      logger      : Logger,
+     )(implicit val effect: Sync[F]) { self =>
 
-  def logWith(l: Logger): RouterWithPropsConfig[Page, Props] =
+  @inline private def F = effect
+
+  def logWith(l: Logger): RouterWithPropsConfigF[F, Page, Props] =
     copy(logger = l)
 
-  def logToConsole: RouterWithPropsConfig[Page, Props] =
+  def logToConsole: RouterWithPropsConfigF[F, Page, Props] =
     logWith(RouterConfig.consoleLogger)
 
   /**
    * Specify how to render a page once it's resolved. This function will be applied to all renderable pages.
    */
-  def renderWithP(f: (RouterCtl[Page], ResolutionWithProps[Page, Props]) => Props => VdomElement): RouterWithPropsConfig[Page, Props] =
+  def renderWithP(f: (RouterCtlF[F, Page], ResolutionWithProps[Page, Props]) => Props => VdomElement): RouterWithPropsConfigF[F, Page, Props] =
     copy(renderFn = f)
 
   /**
    * Specify how to render a page once it's resolved. This function will be applied to all renderable pages.
    */
-  def renderWith(f: (RouterCtl[Page], ResolutionWithProps[Page, Props]) => VdomElement): RouterWithPropsConfig[Page, Props] =
+  def renderWith(f: (RouterCtlF[F, Page], ResolutionWithProps[Page, Props]) => VdomElement): RouterWithPropsConfigF[F, Page, Props] =
     copy(renderFn = (ctl, ctx) => _ => f(ctl, ctx))
 
   /**
@@ -36,15 +39,15 @@ case class RouterWithPropsConfig[Page, Props](
    *
    * @param f Given the previous page, the current page that just rendered and props, return a callback.
    */
-  def setPostRenderP(f: (Option[Page], Page, Props) => Sync[Unit]): RouterWithPropsConfig[Page, Props] =
-    copy(postRenderFn = f)
+  def setPostRenderP[G[_]](f: (Option[Page], Page, Props) => G[Unit])(implicit G: Dispatch[G]): RouterWithPropsConfigF[F, Page, Props] =
+    copy(postRenderFn = F.transDispatchFn3(f))
 
   /**
    * Specify (entirely) what to do after the router renders.
    *
    * @param f Given the previous page and the current page that just rendered, return a callback.
    */
-  def setPostRender(f: (Option[Page], Page) => Sync[Unit]): RouterWithPropsConfig[Page, Props] =
+  def setPostRender[G[_]](f: (Option[Page], Page) => G[Unit])(implicit G: Dispatch[G]): RouterWithPropsConfigF[F, Page, Props] =
     setPostRenderP((previous, current, _) => f(previous, current))
 
   /**
@@ -52,15 +55,17 @@ case class RouterWithPropsConfig[Page, Props](
    *
    * @param f Given the previous page, the current page that just rendered and props, return a callback.
    */
-  def onPostRenderP(f: (Option[Page], Page, Props) => Sync[Unit]): RouterWithPropsConfig[Page, Props] =
-    setPostRenderP((a, b, c) => Sync.chain(this.postRenderFn(a, b, c), f(a, b, c)))
+  def onPostRenderP[G[_]](f: (Option[Page], Page, Props) => G[Unit])(implicit G: Dispatch[G]): RouterWithPropsConfigF[F, Page, Props] = {
+    val f2 = F.transDispatchFn3(f)
+    setPostRenderP((a, b, c) => F.chain(this.postRenderFn(a, b, c), f2(a, b, c)))
+  }
 
   /**
    * Add an procedure to be performed after the router renders.
    *
    * @param f Given the previous page and the current page that just rendered, return a callback.
    */
-  def onPostRender(f: (Option[Page], Page) => Sync[Unit]): RouterWithPropsConfig[Page, Props] =
+  def onPostRender[G[_]](f: (Option[Page], Page) => G[Unit])(implicit G: Dispatch[G]): RouterWithPropsConfigF[F, Page, Props] =
     onPostRenderP((previous, current, _) => f(previous, current))
 
   /**
@@ -68,7 +73,7 @@ case class RouterWithPropsConfig[Page, Props](
    *
    * @param f Given the current page that just rendered and props, return a new title.
    */
-  def setTitleP(f: (Page, Props) => String): RouterWithPropsConfig[Page, Props] =
+  def setTitleP(f: (Page, Props) => String): RouterWithPropsConfigF[F, Page, Props] =
     setTitleOptionP((p, c) => Some(f(p, c)))
 
   /**
@@ -76,7 +81,7 @@ case class RouterWithPropsConfig[Page, Props](
    *
    * @param f Given the current page that just rendered, return a new title.
    */
-  def setTitle(f: Page => String): RouterWithPropsConfig[Page, Props] =
+  def setTitle(f: Page => String): RouterWithPropsConfigF[F, Page, Props] =
     setTitleOption(p => Some(f(p)))
 
   /**
@@ -84,16 +89,16 @@ case class RouterWithPropsConfig[Page, Props](
    *
    * @param f Given the current page that just rendered and props, return potential new title.
    */
-  def setTitleOptionP(f: (Page, Props) => Option[String]): RouterWithPropsConfig[Page, Props] =
+  def setTitleOptionP(f: (Page, Props) => Option[String]): RouterWithPropsConfigF[F, Page, Props] =
     onPostRenderP((_, page, c) =>
-      f(page, c).fold(Sync.empty)(title => Sync.delay(dom.document.title = title)))
+      f(page, c).fold(F.empty)(title => F.delay(dom.document.title = title)))
 
   /**
    * Change the document title after the router renders.
    *
    * @param f Given the current page that just rendered, return potential new title.
    */
-  def setTitleOption(f: Page => Option[String]): RouterWithPropsConfig[Page, Props] =
+  def setTitleOption(f: Page => Option[String]): RouterWithPropsConfigF[F, Page, Props] =
     setTitleOptionP((page, _) => f(page))
 
   /** Asserts that the page arguments provided, don't encounter any route config errors.
@@ -107,14 +112,14 @@ case class RouterWithPropsConfig[Page, Props](
     *
     * @return In the event that errors are detected, a new [[RouterConfig]] that displays them; else this unmodified.
     */
-  def verify(page1: Page, pages: Page*): RouterWithPropsConfig[Page, Props] =
+  def verify(page1: Page, pages: Page*): RouterWithPropsConfigF[F, Page, Props] =
     if (developmentMode)
       _verify(page1, pages: _*)
     else
       this
 
-  private def _verify(page1: Page, pages: Page*): RouterWithPropsConfig[Page, Props] = {
-    val errors = Sync.runSync(detectErrors(page1 +: pages: _*))
+  private def _verify(page1: Page, pages: Page*): RouterWithPropsConfigF[F, Page, Props] = {
+    val errors = F.runSync(detectErrors(page1 +: pages: _*))
     if (errors.isEmpty)
       this
     else {
@@ -127,12 +132,12 @@ case class RouterWithPropsConfig[Page, Props](
       val el: VdomElement =
         <.pre(^.color := "#900", ^.margin := "auto", ^.display := "block", msg)
 
-      val newRules = RoutingRules[Page, Props](
+      val newRules = RoutingRulesF[F, Page, Props](
         parseMulti     = _ => static[Option[RouterConfig.Parsed[Page]]](Some(Right(page1))) :: Nil,
         path           = _ => Path.root,
         actionMulti    = (_, _) => Nil,
-        fallbackAction = (_, _) => Renderer(_ => (_: Props) => el),
-        whenNotFound   = _ => Sync.pure(Right(page1)),
+        fallbackAction = (_, _) => RendererF[F, Page, Props](_ => (_: Props) => el),
+        whenNotFound   = _ => F.pure(Right(page1)),
       )
 
       RouterConfig.withDefaults(newRules)
@@ -146,13 +151,13 @@ case class RouterWithPropsConfig[Page, Props](
     *
     * @return Error messages (or an empty collection if no errors are detected).
     */
-  def detectErrors(pages: Page*): Sync[Seq[String]] =
+  def detectErrors(pages: Page*): F[Seq[String]] =
     if (developmentMode)
-      Sync.map(_detectErrors(pages: _*))(v => v)
+      F.map(_detectErrors(pages: _*))(v => v)
     else
-      Sync.pure(Nil)
+      F.pure(Nil)
 
-  private def _detectErrors(pages: Page*): Sync[Vector[String]] = Sync.delay {
+  private def _detectErrors(pages: Page*): F[Vector[String]] = F.delay {
 
     var errors = Vector.empty[String]
 
@@ -168,7 +173,7 @@ case class RouterWithPropsConfig[Page, Props](
         case Success(path) =>
 
           // path -> page
-          Try(Sync.runSync(rules.parse(path))) match {
+          Try(F.runSync(rules.parse(path))) match {
             case Success(Right(q)) =>
               if (q != page) errors :+= s"Parsing its path /${path.value} leads to a different page: $q"
 
@@ -187,7 +192,7 @@ case class RouterWithPropsConfig[Page, Props](
           }
 
           // page -> action
-          Try(Sync.runSync(rules.action(path, page))) match {
+          Try(F.runSync(rules.action(path, page))) match {
             case Success(_) => ()
 
             case Failure(f: RoutingRules.Exception) =>

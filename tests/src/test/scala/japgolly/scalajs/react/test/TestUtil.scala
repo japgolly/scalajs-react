@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra.router
 import scala.annotation.nowarn
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -16,7 +17,10 @@ trait TestUtil
      with scalaz.std.OptionInstances
      with scalaz.std.VectorInstances {
 
-  implicit def equalKey: UnivEq[Key] = UnivEq.force
+  implicit final def equalKey          : UnivEq[Key]            = UnivEq.force
+  implicit final def routerEqualBaseUrl: UnivEq[router.BaseUrl] = UnivEq.force
+  implicit final def routerEqualPath   : UnivEq[router.Path]    = UnivEq.force
+  implicit final def routerEqualAbsUrl : UnivEq[router.AbsUrl]  = UnivEq.force
 
   // TODO erm... not really. Only allow in raw testing
   implicit val equalRawRef: Equal[japgolly.scalajs.react.facade.React.Ref] = Equal.equalRef

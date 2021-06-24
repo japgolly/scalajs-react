@@ -14,7 +14,7 @@ object BroadcasterTest extends TestSuite {
 
   val C = ScalaComponent.builder[B]("")
     .initialState(Vector.empty[Int])
-    .backend(_ => new OnUnmount.Backend)
+    .backend(_ => OnUnmount())
     .renderS((_, state) => <.div("Got: " + state.mkString("{",",","}")))
     .configure(Listenable.listen(b => b, $ => (i: Int) => $.modState(_ :+ i)))
     .build

@@ -63,6 +63,12 @@ object Effect extends EffectCatsEffect {
         f.asInstanceOf[A => F[Unit]]
       else
         a => delay(g.dispatch(f(a)))
+
+    final def transDispatchFn3[G[_], A, B, C](f: (A, B, C) => G[Unit])(implicit g: Dispatch[G]): (A, B, C) => F[Unit] =
+      if (this eq g)
+        f.asInstanceOf[(A, B, C) => F[Unit]]
+      else
+        (a, b, c) => delay(g.dispatch(f(a, b, c)))
   }
 
   object UnsafeSync {
@@ -92,16 +98,16 @@ object Effect extends EffectCatsEffect {
     val semigroupSyncOr: Semigroup[F[Boolean]]
     implicit val semigroupSyncUnit: Semigroup[F[Unit]]
 
-    def fromJsFn0   [A]         (f: js.Function0[A])             : F[A]
-    def handleError [A, AA >: A](fa: F[A])(f: Throwable => F[AA]): F[AA]
-    def isEmpty     [A]         (f: F[A])                        : Boolean
-    def reset       [A]         (fa: F[A])                       : F[Unit]
-    def runAll                  (callbacks: F[_]*)               : F[Unit]
-    def sequence_   [A]         (fas: Iterable[F[A]])            : F[Unit]
-    def sequenceList[A]         (fas: List[F[A]])                : F[List[A]]
-    def traverse_   [A, B]      (as: Iterable[A])(f: A => F[B])  : F[Unit]
-    def traverseList[A, B]      (as: List[A])(f: A => F[B])      : F[List[B]]
-    def when_       [A]         (cond: Boolean)(fa: => F[A])     : F[Unit]
+    def fromJsFn0   [A]         (f: js.Function0[A])              : F[A]
+    def handleError [A, AA >: A](fa: F[A])(f: Throwable => F[AA]) : F[AA]
+    def isEmpty     [A]         (f: F[A])                         : Boolean
+    def reset       [A]         (fa: F[A])                        : F[Unit]
+    def runAll                  (callbacks: F[_]*)                : F[Unit]
+    def sequence_   [A]         (fas: => Iterable[F[A]])          : F[Unit]
+    def sequenceList[A]         (fas: => List[F[A]])              : F[List[A]]
+    def traverse_   [A, B]      (as: => Iterable[A])(f: A => F[B]): F[Unit]
+    def traverseList[A, B]      (as: => List[A])(f: A => F[B])    : F[List[B]]
+    def when_       [A]         (cond: Boolean)(fa: => F[A])      : F[Unit]
 
     /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
       * current callback completes, be it in error or success.
@@ -145,16 +151,16 @@ object Effect extends EffectCatsEffect {
       override def runAll(callbacks: F[_]*): F[Unit] =
         callbacks.foldLeft(empty)((x, y) => chain(x, reset(y)))
 
-      override def traverse_[A, B](as: Iterable[A])(f: A => F[B]): F[Unit] =
+      override def traverse_[A, B](as: => Iterable[A])(f: A => F[B]): F[Unit] =
         delay {
           for (a <- as)
             runSync(f(a))
         }
 
-      override def sequence_[A](fas: Iterable[F[A]]): F[Unit] =
+      override def sequence_[A](fas: => Iterable[F[A]]): F[Unit] =
         traverse_(fas)(identityFn)
 
-      override def traverseList[A, B](as: List[A])(f: A => F[B]): F[List[B]] =
+      override def traverseList[A, B](as: => List[A])(f: A => F[B]): F[List[B]] =
         delay {
           val l = List.newBuilder[B]
           for (a <- as)
@@ -162,7 +168,7 @@ object Effect extends EffectCatsEffect {
           l.result()
         }
 
-      override def sequenceList[A](fas: List[F[A]]): F[List[A]] =
+      override def sequenceList[A](fas: => List[F[A]]): F[List[A]] =
         traverseList(fas)(identityFn)
 
       implicit val semigroupSyncUnit: Semigroup[F[Unit]] =

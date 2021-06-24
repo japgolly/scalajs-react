@@ -57,19 +57,19 @@ abstract class EffectCallback extends userdefined.Effects {
     @inline override def fromJsFn0[A](f: js.Function0[A]) =
       CallbackTo.fromJsFn(f)
 
-    @inline override def traverse_[A, B](as: Iterable[A])(f: A => CallbackTo[B]) =
+    @inline override def traverse_[A, B](as: => Iterable[A])(f: A => CallbackTo[B]) =
       Callback.traverse(as)(f(_).void)
 
-    @inline override def traverseList[A, B](as: List[A])(f: A => CallbackTo[B]) =
+    @inline override def traverseList[A, B](as: => List[A])(f: A => CallbackTo[B]) =
       CallbackTo.traverse(as)(f)
 
-    @inline override def sequenceList[A](fas: List[CallbackTo[A]]) =
+    @inline override def sequenceList[A](fas: => List[CallbackTo[A]]) =
       CallbackTo.sequence(fas)
 
     @inline override def handleError[A, AA >: A](fa: CallbackTo[A])(f: Throwable => CallbackTo[AA]) =
       fa.handleError(f)
 
-    @inline override def sequence_[A](fas: Iterable[CallbackTo[A]]) =
+    @inline override def sequence_[A](fas: => Iterable[CallbackTo[A]]) =
       Callback.sequence(fas)
 
     @inline override def when_[A](cond: Boolean)(fa: => CallbackTo[A]) =

@@ -253,8 +253,9 @@ object ScalaJsReact {
     )
 */
   lazy val tests = project
-    .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
     .dependsOn(coreDefCallback, testUtil)
+    .dependsOn(extraExtMonocle3 % "test->compile")
+    .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
     .settings(
       Test / scalacOptions --= Seq(
         "-deprecation",

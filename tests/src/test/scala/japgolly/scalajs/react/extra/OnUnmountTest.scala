@@ -13,7 +13,7 @@ object OnUnmountTest extends TestSuite {
   val inc_i = Callback(i += 1)
 
   val C = ScalaComponent.builder[Unit]("")
-    .backend(_ => new OnUnmount.Backend)
+    .backend(_ => OnUnmount())
     .renderStatic(<.div)
     .configure(OnUnmount.install)
     .componentDidMount(_.backend onUnmount dec_i)

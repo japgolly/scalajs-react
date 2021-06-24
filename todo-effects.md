@@ -89,13 +89,6 @@ TODO:
 
 * ghpages
 
-./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/DslTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/Router2Test.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/RouterP2Test.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/RouterTest.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/RouterTestHelp.scala.off
-./toggle tests/src/test/scala/japgolly/scalajs/react/extra/router/SimHistory.scala.off
-
 ./toggle tests/src/test/scala/japgolly/scalajs/react/MiscTest.scala.off
 ./toggle tests/src/test/scala/japgolly/scalajs/react/MonocleTest.scala.off
 
