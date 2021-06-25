@@ -8,7 +8,7 @@ import japgolly.scalajs.react.{ReactExtensions, Ref, Reusability}
 object ReactCats {
   import ReactExtensions._
 
-  @inline implicit final class ReactCatsExtReusabilityObj(private val ε: Reusability.type) extends AnyVal {
+  object ReactCatsExtReusabilityObj {
 
     /** Compare using cat's Eq */
     def byEq[A](implicit eq: Eq[A]): Reusability[A] =
