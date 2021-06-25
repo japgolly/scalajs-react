@@ -14,9 +14,9 @@ and then in testUtil:
   * TestBroadcaster
   * ReactTestVarF
 
-* Export Effects as ReactEffect?
 * Add effect trans methods/extensions  (eg. `.to[IO]` and `.to[CallbackTo]`)?
 * resolve todos
+* Audit all use of DefaultEffects in coreGeneral
 
 * Test coreDef* from downstream-tests
 * Add tests with callbacks accepting non-CallbackTo types

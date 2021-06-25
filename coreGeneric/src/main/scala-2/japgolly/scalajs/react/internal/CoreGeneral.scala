@@ -1,8 +1,7 @@
 package japgolly.scalajs.react.internal
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.util.DefaultEffects._
-import japgolly.scalajs.react.util.DomUtil
+import japgolly.scalajs.react.util.{DomUtil, Effect}
 import japgolly.scalajs.react.util.Effect.Id
 import scala.scalajs.js
 
@@ -13,6 +12,8 @@ trait CoreGeneral
        with ReactExtensions
        with DomUtil
        with FacadeExports {
+
+  import japgolly.scalajs.react.util.DefaultEffects._
 
   final type StateAccessPure[S] = StateAccess[Sync, Async, S]
   final type StateAccessImpure[S] = StateAccess[Id, Async, S]
@@ -53,16 +54,21 @@ trait CoreGeneral
   final val Hooks             = hooks.Hooks
   final val HooksApi          = hooks.Api
 
+  final val ReactEffect = Effect
+
   final type ~=>[-A, +B] = Reusable[A => B]
+}
 
-  final lazy val preventDefault: ReactEvent => Sync[Unit] =
-    _.preventDefaultCB
+abstract class CoreGeneralF[F[_]](implicit F: Effect.Sync[F]) extends CoreGeneral {
 
-  final lazy val stopPropagation: ReactEvent => Sync[Unit] =
-    _.stopPropagationCB
+  final lazy val preventDefault: ReactEvent => F[Unit] =
+    e => F.delay { e.preventDefault() }
 
-  final lazy val preventDefaultAndStopPropagation: ReactEvent => Sync[Unit] =
-    e => Sync.delay {
+  final lazy val stopPropagation: ReactEvent => F[Unit] =
+    e => F.delay { e.stopPropagation() }
+
+  final lazy val preventDefaultAndStopPropagation: ReactEvent => F[Unit] =
+    e => F.delay {
       e.preventDefault()
       e.stopPropagation()
     }
