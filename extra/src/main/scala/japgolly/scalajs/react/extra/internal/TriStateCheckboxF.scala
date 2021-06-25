@@ -72,11 +72,14 @@ class TriStateCheckboxF[F[_]](implicit F: Sync[F]) {
    * Clicking or pressing space = change.
    */
   def eventHandlers(onChange: F[Unit]): TagMod = {
-    def handleKey(e: ReactKeyboardEventFromHtml): F[Unit] = {
-      EffectUtil.asEventDefault_(e)(
-        EffectUtil.keyCodeSwitch(e) { case KeyCode.Space => onChange }
-      )
-    }
+    def handleKey(e: ReactKeyboardEventFromHtml): F[Unit] =
+      F.delay {
+        EffectUtil.unsafeAsEventDefault_(e)(
+          EffectUtil.unsafeKeyCodeSwitch(e) {
+            case KeyCode.Space => F.runSync(onChange)
+          }
+        )
+      }
     TagMod(
       ^.onClick   --> onChange,
       ^.onKeyDown ==> handleKey)

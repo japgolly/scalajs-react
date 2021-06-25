@@ -1,5 +1,3 @@
-* Generalise ReactCallbackExtensions with EffectUtil
-
 * userdefined.(Unsafe)Effect?
 
 * Remove temp scripts

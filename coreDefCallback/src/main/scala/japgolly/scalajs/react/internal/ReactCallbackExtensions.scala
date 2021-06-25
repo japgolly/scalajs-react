@@ -47,11 +47,10 @@ object ReactCallbackExtensions {
                              metaKey : Boolean = false,
                              shiftKey: Boolean = false)
                             (switch  : PartialFunction[A, CallbackTo[B]]): CallbackOption[B] =
-      for {
-        _  <- require(e.pressedModifierKeys(altKey, ctrlKey, metaKey, shiftKey))
-        cb <- matchPF(a)(switch)
-        b  <- cb.toCBO
-      } yield b
+      option {
+        EffectUtil.unsafeKeyEventSwitch(e, a, altKey = altKey, ctrlKey = ctrlKey, metaKey = metaKey, shiftKey = shiftKey)(switch)
+          .map(_.runNow())
+      }
   }
 
   final class CallbackOptionExt[A](private val _self: CallbackOption.UnderlyingRepr[A]) extends AnyVal {
@@ -65,7 +64,6 @@ object ReactCallbackExtensions {
       */
     def asEventDefault(e: ReactEvent): CallbackOption[A] =
       (self <* e.preventDefaultCB.toCBO).unless(e.defaultPrevented)
-
   }
 
   final class CallbackToExt[A](private val _self: Trampoline[A]) extends AnyVal {
