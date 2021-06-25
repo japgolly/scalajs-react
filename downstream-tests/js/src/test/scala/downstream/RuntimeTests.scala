@@ -30,10 +30,9 @@ object RuntimeTests extends TestSuite {
   }
 
   override def tests = Tests {
+    Globals.clear()
 
     "reusabilityOverride" - {
-      Globals.clear()
-
       val expectedReusabilityLog = if (configClass.isEmpty) 0 else 2
       val reusabilityAllowed     = !(developmentMode && reusabilityDev.contains("disable"))
 

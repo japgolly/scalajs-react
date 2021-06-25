@@ -18,8 +18,6 @@ and then in testUtil:
 * resolve todos
 * Audit all use of DefaultEffects in coreGeneral
 
-* Test coreDef* from downstream-tests
-
 * Show `modules.gv.svg` in doc and changelog
   * clarify new imports
   * migration

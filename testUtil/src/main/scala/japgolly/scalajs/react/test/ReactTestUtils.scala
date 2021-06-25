@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.|
 
-object ReactTestUtils {
+object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
 
   @inline def raw = japgolly.scalajs.react.test.facade.ReactTestUtils
 

@@ -1,11 +1,13 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.util.DomUtil._
+import japgolly.scalajs.react.util.Util.{catchAll, identityFn}
 import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js.|
 
 sealed trait ComponentDom {
+  import ComponentDom._
 
   def mounted: Option[ComponentDom.Mounted]
 
@@ -21,6 +23,14 @@ sealed trait ComponentDom {
 
   final def toNode: Option[dom.Node] =
     mounted.map(_.node)
+
+  /** For testing purposes. */
+  final def show(sanitiseHtml: String => String = identityFn): String =
+    mounted match {
+      case Some(Element(e)) => sanitiseHtml(e.outerHTML)
+      case Some(Text(t))    => (catchAll(t.wholeText) orElse catchAll(t.textContent) orElse catchAll(t.innerText)).get
+      case None             => ""
+    }
 }
 
 object ComponentDom {

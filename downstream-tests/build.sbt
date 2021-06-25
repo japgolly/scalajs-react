@@ -68,15 +68,17 @@ lazy val cleanTestAll = taskKey[Unit]("cleanTestAll")
 
 lazy val root = Project("root", file("."))
   .configure(commonSettings)
-  .aggregate(macros, js, jvm)
+  .aggregate(macros, jvm, js, jsCE)
   .settings(
     cleanTestAll := Def.sequential(
-      macros / clean,
-      jvm / clean,
-      js / clean,
-      (Test / compile),
-      (jvm / Test / test),
-      (js / Test / test),
+      macros        / clean,
+      jvm           / clean,
+      js            / clean,
+      jsCE          / clean,
+               Test / compile,
+      jvm    / Test / test,
+      js     / Test / test,
+      jsCE   / Test / test,
     ).value,
   )
 
@@ -91,6 +93,25 @@ lazy val macros = project
 val useFullOptJS = System.getProperty("downstream_tests.fullOptJS") != null
 val jsStage      = if (useFullOptJS) FullOptStage else FastOptStage
 val jsOptKey     = if (useFullOptJS) fullOptJS else fastOptJS
+
+lazy val jvm = project
+  .in(file("jvm"))
+  .configure(commonSettings, utestSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      Dep.microlibsTestUtil.value % Test,
+    ),
+    Test / fork := true,
+    Test / javaOptions ++=
+      sys.props.iterator
+        .filter(_._1.matches("(downstream_tests|japgolly).*"))
+        .map(x => s"-D${x._1}=${x._2}")
+        .toSeq,
+    Test / javaOptions += {
+      val jsFile = (js / Compile / jsOptKey).value
+      s"-Djs_file=${jsFile.data.absolutePath}"
+    },
+  )
 
 lazy val js = project
   .in(file("js"))
@@ -117,21 +138,23 @@ lazy val js = project
     },
   )
 
-lazy val jvm = project
-  .in(file("jvm"))
-  .configure(commonSettings, utestSettings)
+lazy val jsCE = project
+  .in(file("js-ce"))
+  .enablePlugins(ScalaJSPlugin)
+  .dependsOn(macros)
+  .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
   .settings(
-    libraryDependencies ++= Seq(
-      Dep.microlibsTestUtil.value % Test,
-    ),
-    Test / fork := true,
-    Test / javaOptions ++=
-      sys.props.iterator
-        .filter(_._1.matches("(downstream_tests|japgolly).*"))
-        .map(x => s"-D${x._1}=${x._2}")
-        .toSeq,
-    Test / javaOptions += {
-      val jsFile = (js / Compile / jsOptKey).value
-      s"-Djs_file=${jsFile.data.absolutePath}"
+    scalaJSStage := jsStage,
+    libraryDependencies ++= {
+      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      Seq(
+        "com.github.japgolly.scalajs-react" %%% "core-cats-effect" % ver,
+        "com.github.japgolly.scalajs-react" %%% "extra" % ver,
+        "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        Dep.microlibsCompileTime.value % Test,
+        Dep.microlibsTestUtil.value % Test,
+        Dep.scalaJsJavaTime.value % Test,
+      )
     },
+    jsDependencies += (ProvidedJS / "polyfill.js") % Test,
   )

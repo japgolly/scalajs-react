@@ -3,7 +3,8 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.internal.CoreGeneral._
 import japgolly.scalajs.react.util.DefaultEffects.Sync
 
-package object test {
+package object test
+    extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
 
   type ReactOrDomNode = japgolly.scalajs.react.test.facade.ReactOrDomNode
 
@@ -20,8 +21,4 @@ package object test {
   implicit def reactOrDomNodeFromVRE(m: vdom.VdomElement): ReactOrDomNode =
     m.rawElement
 
-  implicit final class ReactTestExt_MountedId(private val c: GenericComponent.MountedImpure[_, _]) extends AnyVal {
-    def outerHtmlScrubbed(): String =
-      c.getDOMNode.asMounted().fold(_.textContent, e => ReactTestUtils.removeReactInternals(e.outerHTML))
-  }
 }

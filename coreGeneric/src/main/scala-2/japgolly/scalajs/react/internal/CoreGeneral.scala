@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.internal
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.util.{DomUtil, Effect}
 import japgolly.scalajs.react.util.Effect.Id
+import japgolly.scalajs.react.util.{DomUtil, Effect}
 import scala.scalajs.js
 
 object CoreGeneral extends CoreGeneral
