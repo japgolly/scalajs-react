@@ -132,7 +132,7 @@ object ScalaComponentPTest extends TestSuite {
         .shouldComponentUpdatePure(_.cmpProps(_.b != _.b)) // update if .b differs
         .componentDidMount(_ => Callback(mountCountA += 1))
         .componentDidMount(_.backend.incMountCount)
-        .componentWillMount(_ => Callback { mountCountBeforeMountA += mountCountA; willMountCountA += 1 })
+        .componentWillMount(_ => AsyncCallback.delay { mountCountBeforeMountA += mountCountA; willMountCountA += 1 })
         .componentWillMount(_.backend.willMount)
         .componentWillUpdate(x => x.backend.willUpdate(x.currentProps, x.nextProps))
         .componentDidUpdate(x => x.backend.didUpdate(x.prevProps, x.currentProps))
@@ -285,14 +285,14 @@ object ScalaComponentPTest extends TestSuite {
 
       final class Backend($: BackendScope[Unit, Int]) {
 
-        val onClick =
+        val onClick: AsyncCallback[Unit] =
           for {
             _ <- $.modStateAsync(_ + 1)
             s <- $.state.asAsyncCallback
           } yield results :+= s
 
         def render(s: Int): VdomNode =
-          <.div(s, ^.onClick --> onClick.toCallback)
+          <.div(s, ^.onClick --> onClick)
       }
 
       val Component = ScalaComponent.builder[Unit]("")

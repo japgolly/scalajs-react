@@ -80,9 +80,7 @@ object ScalaBuilderTest extends TestSuite {
           compileError("SpecifyChildrenWithoutUsing.x.renderBackendWithChildren").msg,
           "Use renderBackend instead")
       }
-
     }
-
 
     "updateSnapshot" - {
       import UpdateSnapshotTests._

@@ -70,7 +70,7 @@ object ReusabilityTest extends TestSuite {
         innerRenderCount += 1
         <.input.text(
           ^.value := p.name,
-          ^.onChange ==> ((e: ReactEventFromInput) => p.update(e.target.value)))
+          ^.onChange ==> ((e: ReactEventFromInput) => p.update(e.target.value).asAsyncCallback))
       }
       .configure(Reusability.shouldComponentUpdate)
       .build

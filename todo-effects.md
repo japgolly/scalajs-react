@@ -19,7 +19,6 @@ and then in testUtil:
 * Audit all use of DefaultEffects in coreGeneral
 
 * Test coreDef* from downstream-tests
-* Add tests with callbacks accepting non-CallbackTo types
 
 * Show `modules.gv.svg` in doc and changelog
   * clarify new imports
