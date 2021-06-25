@@ -16,7 +16,7 @@ trait ComponentP_SubsequentDsl { self: ComponentP.Subsequent.type =>
   sealed trait AtStep1[P, H1] { type Next[H2] = ComponentP.Subsequent[P, HookCtx.P2[P, H1, H2], ({ type F[A] = (P, H1, H2) => A})#F] }
   sealed trait AtStep2[P, H1, H2] { type Next[H3] = ComponentP.Subsequent[P, HookCtx.P3[P, H1, H2, H3], ({ type F[A] = (P, H1, H2, H3) => A})#F] }
   sealed trait AtStep3[P, H1, H2, H3] { type Next[H4] = ComponentP.Subsequent[P, HookCtx.P4[P, H1, H2, H3, H4], ({ type F[A] = (P, H1, H2, H3, H4) => A})#F] }
-  sealed trait AtStep4[P, H1, H2, H3, H4] { type Next[H5] = ComponentP.Subsequent[P, HookCtx.P5[P, H1, H2, H3, H4, H5], ({ type F[A] = (P, H1, H2, H3, H4, H5) => A})#F] }
+  sealed trait AtLastStep[P, H1, H2, H3, H4] { type Next[H5] = ComponentP.Subsequent[P, HookCtx.P5[P, H1, H2, H3, H4, H5], ({ type F[A] = (P, H1, H2, H3, H4, H5) => A})#F] }
   sealed trait AtStep5[P, H1, H2, H3, H4, H5] { type Next[H6] = ComponentP.Subsequent[P, HookCtx.P6[P, H1, H2, H3, H4, H5, H6], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6) => A})#F] }
   sealed trait AtStep6[P, H1, H2, H3, H4, H5, H6] { type Next[H7] = ComponentP.Subsequent[P, HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7) => A})#F] }
   sealed trait AtStep7[P, H1, H2, H3, H4, H5, H6, H7] { type Next[H8] = ComponentP.Subsequent[P, HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8) => A})#F] }
@@ -103,15 +103,15 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
       override def squash[A] = f => _.apply3(f)
     }
 
-  type AtStep4[P, H1, H2, H3, H4] = To[
+  type AtLastStep[P, H1, H2, H3, H4] = To[
     P,
     HookCtx.P4[P, H1, H2, H3, H4],
     ({ type F[A] = (P, H1, H2, H3, H4) => A})#F,
-    ComponentP.Subsequent.AtStep4[P, H1, H2, H3, H4]#Next]
+    ComponentP.Subsequent.AtLastStep[P, H1, H2, H3, H4]#Next]
 
-  implicit def atStep4[P, H1, H2, H3, H4]: AtStep4[P, H1, H2, H3, H4] =
+  implicit def atLastStep[P, H1, H2, H3, H4]: AtLastStep[P, H1, H2, H3, H4] =
     new ComponentP.SubsequentStep[P, HookCtx.P4[P, H1, H2, H3, H4], ({ type F[A] = (P, H1, H2, H3, H4) => A})#F] {
-      override type Next[H5] = ComponentP.Subsequent.AtStep4[P, H1, H2, H3, H4]#Next[H5]
+      override type Next[H5] = ComponentP.Subsequent.AtLastStep[P, H1, H2, H3, H4]#Next[H5]
       override def next[H5] =
         (renderPrev, initNextHook) => {
           val renderNext: ComponentP.RenderFn[P, HookCtx.P5[P, H1, H2, H3, H4, H5]] =
@@ -485,7 +485,7 @@ trait ComponentPC_SubsequentDsl { self: ComponentPC.Subsequent.type =>
   sealed trait AtStep1[P, H1] { type Next[H2] = ComponentPC.Subsequent[P, HookCtx.PC2[P, H1, H2], ({ type F[A] = (P, PropsChildren, H1, H2) => A})#F] }
   sealed trait AtStep2[P, H1, H2] { type Next[H3] = ComponentPC.Subsequent[P, HookCtx.PC3[P, H1, H2, H3], ({ type F[A] = (P, PropsChildren, H1, H2, H3) => A})#F] }
   sealed trait AtStep3[P, H1, H2, H3] { type Next[H4] = ComponentPC.Subsequent[P, HookCtx.PC4[P, H1, H2, H3, H4], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4) => A})#F] }
-  sealed trait AtStep4[P, H1, H2, H3, H4] { type Next[H5] = ComponentPC.Subsequent[P, HookCtx.PC5[P, H1, H2, H3, H4, H5], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5) => A})#F] }
+  sealed trait AtLastStep[P, H1, H2, H3, H4] { type Next[H5] = ComponentPC.Subsequent[P, HookCtx.PC5[P, H1, H2, H3, H4, H5], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5) => A})#F] }
   sealed trait AtStep5[P, H1, H2, H3, H4, H5] { type Next[H6] = ComponentPC.Subsequent[P, HookCtx.PC6[P, H1, H2, H3, H4, H5, H6], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6) => A})#F] }
   sealed trait AtStep6[P, H1, H2, H3, H4, H5, H6] { type Next[H7] = ComponentPC.Subsequent[P, HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7) => A})#F] }
   sealed trait AtStep7[P, H1, H2, H3, H4, H5, H6, H7] { type Next[H8] = ComponentPC.Subsequent[P, HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8) => A})#F] }
@@ -571,15 +571,15 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
       override def squash[A] = f => _.apply3(f)
     }
 
-  type AtStep4[P, H1, H2, H3, H4] = To[
+  type AtLastStep[P, H1, H2, H3, H4] = To[
     P,
     HookCtx.PC4[P, H1, H2, H3, H4],
     ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4) => A})#F,
-    ComponentPC.Subsequent.AtStep4[P, H1, H2, H3, H4]#Next]
+    ComponentPC.Subsequent.AtLastStep[P, H1, H2, H3, H4]#Next]
 
-  implicit def atStep4[P, H1, H2, H3, H4]: AtStep4[P, H1, H2, H3, H4] =
+  implicit def atLastStep[P, H1, H2, H3, H4]: AtLastStep[P, H1, H2, H3, H4] =
     new ComponentPC.SubsequentStep[P, HookCtx.PC4[P, H1, H2, H3, H4], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4) => A})#F] {
-      override type Next[H5] = ComponentPC.Subsequent.AtStep4[P, H1, H2, H3, H4]#Next[H5]
+      override type Next[H5] = ComponentPC.Subsequent.AtLastStep[P, H1, H2, H3, H4]#Next[H5]
       override def next[H5] =
         (renderPrev, initNextHook) => {
           val renderNext: ComponentPC.RenderFn[P, HookCtx.PC5[P, H1, H2, H3, H4, H5]] =
@@ -931,7 +931,7 @@ trait Custom_SubsequentDsl { self: Custom.Subsequent.type =>
   sealed trait AtStep1[I, H1] { type Next[H2] = Custom.Subsequent[I, HookCtx.I2[I, H1, H2], ({ type F[A] = (I, H1, H2) => A})#F] }
   sealed trait AtStep2[I, H1, H2] { type Next[H3] = Custom.Subsequent[I, HookCtx.I3[I, H1, H2, H3], ({ type F[A] = (I, H1, H2, H3) => A})#F] }
   sealed trait AtStep3[I, H1, H2, H3] { type Next[H4] = Custom.Subsequent[I, HookCtx.I4[I, H1, H2, H3, H4], ({ type F[A] = (I, H1, H2, H3, H4) => A})#F] }
-  sealed trait AtStep4[I, H1, H2, H3, H4] { type Next[H5] = Custom.Subsequent[I, HookCtx.I5[I, H1, H2, H3, H4, H5], ({ type F[A] = (I, H1, H2, H3, H4, H5) => A})#F] }
+  sealed trait AtLastStep[I, H1, H2, H3, H4] { type Next[H5] = Custom.Subsequent[I, HookCtx.I5[I, H1, H2, H3, H4, H5], ({ type F[A] = (I, H1, H2, H3, H4, H5) => A})#F] }
   sealed trait AtStep5[I, H1, H2, H3, H4, H5] { type Next[H6] = Custom.Subsequent[I, HookCtx.I6[I, H1, H2, H3, H4, H5, H6], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6) => A})#F] }
   sealed trait AtStep6[I, H1, H2, H3, H4, H5, H6] { type Next[H7] = Custom.Subsequent[I, HookCtx.I7[I, H1, H2, H3, H4, H5, H6, H7], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7) => A})#F] }
   sealed trait AtStep7[I, H1, H2, H3, H4, H5, H6, H7] { type Next[H8] = Custom.Subsequent[I, HookCtx.I8[I, H1, H2, H3, H4, H5, H6, H7, H8], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8) => A})#F] }
@@ -1030,15 +1030,15 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
       override def squash[A] = f => _.apply3(f)
     }
 
-  type AtStep4[I, H1, H2, H3, H4] = To[
+  type AtLastStep[I, H1, H2, H3, H4] = To[
     I,
     HookCtx.I4[I, H1, H2, H3, H4],
     ({ type F[A] = (I, H1, H2, H3, H4) => A})#F,
-    Custom.Subsequent.AtStep4[I, H1, H2, H3, H4]#Next]
+    Custom.Subsequent.AtLastStep[I, H1, H2, H3, H4]#Next]
 
-  implicit def atStep4[I, H1, H2, H3, H4]: AtStep4[I, H1, H2, H3, H4] =
+  implicit def atLastStep[I, H1, H2, H3, H4]: AtLastStep[I, H1, H2, H3, H4] =
     new Custom.SubsequentStep[I, HookCtx.I4[I, H1, H2, H3, H4], ({ type F[A] = (I, H1, H2, H3, H4) => A})#F] {
-      override type Next[H5] = Custom.Subsequent.AtStep4[I, H1, H2, H3, H4]#Next[H5]
+      override type Next[H5] = Custom.Subsequent.AtLastStep[I, H1, H2, H3, H4]#Next[H5]
       override def next[H5] =
         (buildPrev, initNextHook) => {
           val buildNext: Custom.BuildFn[I, HookCtx.I5[I, H1, H2, H3, H4, H5]] =

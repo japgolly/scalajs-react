@@ -20,7 +20,7 @@ object EntryPoint {
   /** Partially builds a component that always displays the same content, never needs to be redrawn, never needs vdom diffing.
     * The builder is returned and can be customised futher before finally being built.
     */
-  inline def static(inline displayName: String)(content: VdomNode): Step4[Unit, Children.None, Unit, Unit, UpdateSnapshot.None] =
+  inline def static(inline displayName: String)(content: VdomNode): LastStep[Unit, Children.None, Unit, Unit, UpdateSnapshot.None] =
     apply[Unit](displayName)
       .noBackend
       .renderStatic(content)
@@ -29,7 +29,7 @@ object EntryPoint {
   /** Partially builds a component that always displays the same content, never needs to be redrawn, never needs vdom diffing.
     * The builder is returned and can be customised futher before finally being built.
     */
-  inline def static(content: VdomNode): Step4[Unit, Children.None, Unit, Unit, UpdateSnapshot.None] =
+  inline def static(content: VdomNode): LastStep[Unit, Children.None, Unit, Unit, UpdateSnapshot.None] =
     static(autoNameFull)(content)
 }
 

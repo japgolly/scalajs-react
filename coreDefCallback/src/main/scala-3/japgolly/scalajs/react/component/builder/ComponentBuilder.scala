@@ -15,7 +15,7 @@ object ComponentBuilder {
   export ComponentBuilderMacros.{RenderFn, NewBackendFn}
 
   type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
-    Step4[P, C, S, B, US] => Step4[P, C, S, B, US2]
+    LastStep[P, C, S, B, US] => LastStep[P, C, S, B, US2]
 
   // ===================================================================================================================
 
@@ -140,7 +140,7 @@ object ComponentBuilder {
      *   .renderBackend
      * }}}
      */
-    inline def renderBackend[B]: Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    inline def renderBackend[B]: LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       backend(ComponentBuilderMacros.newBackendFn[P, S, B]).renderBackend
 
     /**
@@ -151,7 +151,7 @@ object ComponentBuilder {
      *   .renderBackendWithChildren
      * }}}
      */
-    inline def renderBackendWithChildren[B]: Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    inline def renderBackendWithChildren[B]: LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
       backend(ComponentBuilderMacros.newBackendFn[P, S, B]).renderBackendWithChildren
   }
 
@@ -170,7 +170,7 @@ object ComponentBuilder {
     * everything it needs automatically.
     */
   final class Step3[P, S, B](name: String, initState: InitState[P, S], backendFn: NewBackendFn[P, S, B]) {
-    type Next[C <: Children, US <: UpdateSnapshot] = Step4[P, C, S, B, US]
+    type Next[C <: Children, US <: UpdateSnapshot] = LastStep[P, C, S, B, US]
 
     type $ = RenderScope[P, S, B]
 
@@ -181,7 +181,7 @@ object ComponentBuilder {
         case InitState.DerivedFromPropsAndState(f) => lc = lc.copy(getDerivedStateFromProps = Some((p, s) => Some(f(p, Some(s)))))
         case _                                     => ()
       }
-      new Step4[P, C, S, B, UpdateSnapshot.None](name, initState, backendFn, r, lc)
+      new LastStep[P, C, S, B, UpdateSnapshot.None](name, initState, backendFn, r, lc)
     }
 
     // No args
@@ -264,14 +264,14 @@ object ComponentBuilder {
     *
     * When you're done, simply call `.build` to create and return your `ScalaComponent`.
     */
-  final class Step4[P, C <: Children, S, B, US <: UpdateSnapshot](
+  final class LastStep[P, C <: Children, S, B, US <: UpdateSnapshot](
       val name: String,
       private[builder] val initState: InitState[P, S],
       private[builder] val backendFn: NewBackendFn[P, S, B],
       private[builder] val renderFn : RenderFn[P, S, B],
       private[builder] val lifecycle: Lifecycle[P, S, B, UpdateSnapshot.Value[US]]) {
 
-    type This = Step4[P, C, S, B, US]
+    type This = LastStep[P, C, S, B, US]
 
     type SnapshotValue = UpdateSnapshot.Value[US]
 
@@ -282,21 +282,21 @@ object ComponentBuilder {
                      backendFn: NewBackendFn[P, S, B] = this.backendFn,
                      renderFn : RenderFn    [P, S, B] = this.renderFn,
                      lifecycle: Lifecycle_): This =
-      new Step4(name, initState, backendFn, renderFn, lifecycle)
+      new LastStep(name, initState, backendFn, renderFn, lifecycle)
 
-    private def setLC[US2 <: UpdateSnapshot](lc: Lifecycle[P, S, B, UpdateSnapshot.Value[US2]]): Step4[P, C, S, B, US2] =
-      new Step4(name, initState, backendFn, renderFn, lc)
+    private def setLC[US2 <: UpdateSnapshot](lc: Lifecycle[P, S, B, UpdateSnapshot.Value[US2]]): LastStep[P, C, S, B, US2] =
+      new LastStep(name, initState, backendFn, renderFn, lc)
 
     private def lcAppend[I, O](lens: Lens[Lifecycle_, Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
       copy(lifecycle = lifecycle.append(lens)(g)(s))
 
-    inline def configure[US2 <: UpdateSnapshot](f: Config[P, C, S, B, US, US2]): Step4[P, C, S, B, US2] =
+    inline def configure[US2 <: UpdateSnapshot](f: Config[P, C, S, B, US, US2]): LastStep[P, C, S, B, US2] =
       f(this)
 
-    inline def configureWhen(inline cond: Boolean)(inline f: Config[P, C, S, B, US, US]): Step4[P, C, S, B, US] =
+    inline def configureWhen(inline cond: Boolean)(inline f: Config[P, C, S, B, US, US]): LastStep[P, C, S, B, US] =
       if (cond) configure(f) else this
 
-    inline def configureUnless(inline cond: Boolean)(inline f: Config[P, C, S, B, US, US]): Step4[P, C, S, B, US] =
+    inline def configureUnless(inline cond: Boolean)(inline f: Config[P, C, S, B, US, US]): LastStep[P, C, S, B, US] =
       if (cond) this else configure(f)
 
     /**
@@ -326,7 +326,7 @@ object ComponentBuilder {
      *
      * Use this as an opportunity to operate on the DOM when the component has been updated.
      */
-    def componentDidUpdate(f: ComponentDidUpdateFn[P, S, B, SnapshotValue]): Step4[P, C, S, B, UpdateSnapshot.Some[SnapshotValue]] =
+    def componentDidUpdate(f: ComponentDidUpdateFn[P, S, B, SnapshotValue]): LastStep[P, C, S, B, UpdateSnapshot.Some[SnapshotValue]] =
       setLC[UpdateSnapshot.Some[SnapshotValue]](lcAppend(Lifecycle.componentDidUpdate)(f).lifecycle)
 
     /**
@@ -502,7 +502,7 @@ object ComponentBuilder {
       */
     @nowarn("cat=unused")
     def getSnapshotBeforeUpdate[A](f: GetSnapshotBeforeUpdateFn[P, S, B, A])
-                                  (implicit ev: UpdateSnapshot.SafetyProof[US]): Step4[P, C, S, B, UpdateSnapshot.Some[A]] =
+                                  (implicit ev: UpdateSnapshot.SafetyProof[US]): LastStep[P, C, S, B, UpdateSnapshot.Some[A]] =
       setLC[UpdateSnapshot.Some[A]](lifecycle.resetSnapshot(None, Some(f)))
 
     /** getSnapshotBeforeUpdate() is invoked right before the most recently rendered output is committed to e.g. the
@@ -513,7 +513,7 @@ object ComponentBuilder {
       * special way.
       */
     def getSnapshotBeforeUpdatePure[A](f: GetSnapshotBeforeUpdate[P, S, B] => A)
-                                      (implicit ev: UpdateSnapshot.SafetyProof[US]): Step4[P, C, S, B, UpdateSnapshot.Some[A]] =
+                                      (implicit ev: UpdateSnapshot.SafetyProof[US]): LastStep[P, C, S, B, UpdateSnapshot.Some[A]] =
       getSnapshotBeforeUpdate($ => CallbackTo(f($)))(ev)
 
     /**

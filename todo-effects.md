@@ -25,7 +25,6 @@ and then in testUtil:
 * Revise all module names (and be consistent with local module dir & sbt names)
 
 * Add tests with callbacks accepting non-CallbackTo types
-* Rename Step4 => LastStep
 
 * Export Effects as ReactEffect?
 

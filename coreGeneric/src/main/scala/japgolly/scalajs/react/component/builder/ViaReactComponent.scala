@@ -237,7 +237,7 @@ object ViaReactComponent {
   // ===================================================================================================================
 
   def apply[P, C <: Children, S, B, US <: UpdateSnapshot]
-      (builder: ComponentBuilder.Step4[P, C, S, B, US]): facade.React.ComponentClass[Box[P], Box[S]] = {
+      (builder: ComponentBuilder.LastStep[P, C, S, B, US]): facade.React.ComponentClass[Box[P], Box[S]] = {
 
     val backendFn = builder.backendFn
     val renderFn = builder.renderFn

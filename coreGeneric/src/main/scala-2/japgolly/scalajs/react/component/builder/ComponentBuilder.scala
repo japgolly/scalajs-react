@@ -17,7 +17,7 @@ object ComponentBuilder {
   type RenderFn    [P, S, B] = RenderScope[P, S, B] => VdomNode
 
   type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
-    Step4[P, C, S, B, US] => Step4[P, C, S, B, US2]
+    LastStep[P, C, S, B, US] => LastStep[P, C, S, B, US2]
 
   def static(transformedName: String, vdom: VdomNode) =
     new Step1[Unit](transformedName)
@@ -141,7 +141,7 @@ object ComponentBuilder {
       *   .renderBackend
       * }}}
       */
-    def renderBackend[B]: Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def renderBackend[B]: LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       macro ComponentBuilderMacros.backendAndRender[P, S, B]
 
     /** Shortcut for:
@@ -151,7 +151,7 @@ object ComponentBuilder {
       *   .renderBackendWithChildren
       * }}}
       */
-    def renderBackendWithChildren[B]: Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    def renderBackendWithChildren[B]: LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
       macro ComponentBuilderMacros.backendAndRenderWithChildren[P, S, B]
   }
 
@@ -173,85 +173,85 @@ object ComponentBuilder {
 
     type $ = RenderScope[P, S, B]
 
-    def renderWith[C <: Children](r: RenderFn[P, S, B]): Step4[P, C, S, B, UpdateSnapshot.None] = {
+    def renderWith[C <: Children](r: RenderFn[P, S, B]): LastStep[P, C, S, B, UpdateSnapshot.None] = {
       var lc = Lifecycle.empty[P, S, B]
       initState match {
         case InitState.DerivedFromProps        (f) => lc = lc.copy(getDerivedStateFromProps = Some((p, _) => Some(f(p))))
         case InitState.DerivedFromPropsAndState(f) => lc = lc.copy(getDerivedStateFromProps = Some((p, s) => Some(f(p, Some(s)))))
         case _                                     => ()
       }
-      new Step4[P, C, S, B, UpdateSnapshot.None](name, initState, backendFn, r, lc)
+      new LastStep[P, C, S, B, UpdateSnapshot.None](name, initState, backendFn, r, lc)
     }
 
     // No args
 
-    def renderStatic(r: VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def renderStatic(r: VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       renderWith(_ => r)
 
-    def render_(r: => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def render_(r: => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       renderWith(_ => r)
 
     // No children
 
-    def render(r: RenderFn[P, S, B]): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def render(r: RenderFn[P, S, B]): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       renderWith(r)
 
-    def renderPS(r: ($, P, S) => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def renderPS(r: ($, P, S) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
        renderWith($ => r($, $.props, $.state))
 
-     def renderP(r: ($, P) => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+     def renderP(r: ($, P) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
        renderWith($ => r($, $.props))
 
-     def renderS(r: ($, S) => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+     def renderS(r: ($, S) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
        renderWith($ => r($, $.state))
 
-     def render_PS(r: (P, S) => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+     def render_PS(r: (P, S) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
        renderWith($ => r($.props, $.state))
 
-     def render_P(r: P => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+     def render_P(r: P => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
        renderWith($ => r($.props))
 
-     def render_S(r: S => VdomNode): Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+     def render_S(r: S => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
        renderWith($ => r($.state))
 
     // Has children
 
-     def renderPCS(r: ($, P, PropsChildren, S) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+     def renderPCS(r: ($, P, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
        renderWith($ => r($, $.props, $.propsChildren, $.state))
 
-     def renderPC(r: ($, P, PropsChildren) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+     def renderPC(r: ($, P, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
        renderWith($ => r($, $.props, $.propsChildren))
 
-     def renderCS(r: ($, PropsChildren, S) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+     def renderCS(r: ($, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
        renderWith($ => r($, $.propsChildren, $.state))
 
-     def renderC(r: ($, PropsChildren) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+     def renderC(r: ($, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
        renderWith($ => r($, $.propsChildren))
 
-     def render_PCS(r: (P, PropsChildren, S) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+     def render_PCS(r: (P, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
        renderWith($ => r($.props, $.propsChildren, $.state))
 
-     def render_PC(r: (P, PropsChildren) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+     def render_PC(r: (P, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
        renderWith($ => r($.props, $.propsChildren))
 
-     def render_CS(r: (PropsChildren, S) => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+     def render_CS(r: (PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
        renderWith($ => r($.propsChildren, $.state))
 
-     def render_C(r: PropsChildren => VdomNode): Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+     def render_C(r: PropsChildren => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
        renderWith($ => r($.propsChildren))
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props and state
      * where needed.
      */
-    def renderBackend: Step4[P, Children.None, S, B, UpdateSnapshot.None] =
+    def renderBackend: LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       macro ComponentBuilderMacros.renderBackend[P, S, B]
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props, state, and
      * propsChildren where needed.
      */
-    def renderBackendWithChildren: Step4[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+    def renderBackendWithChildren: LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
       macro ComponentBuilderMacros.renderBackendWithChildren[P, S, B]
   }
 
@@ -263,14 +263,14 @@ object ComponentBuilder {
     *
     * When you're done, simply call `.build` to create and return your `ScalaComponent`.
     */
-  final class Step4[P, C <: Children, S, B, US <: UpdateSnapshot](
+  final class LastStep[P, C <: Children, S, B, US <: UpdateSnapshot](
       val name: String,
       private[builder] val initState: InitState[P, S],
       private[builder] val backendFn: NewBackendFn[P, S, B],
       private[builder] val renderFn : RenderFn[P, S, B],
       private[builder] val lifecycle: Lifecycle[P, S, B, US#Value]) {
 
-    type This = Step4[P, C, S, B, US]
+    type This = LastStep[P, C, S, B, US]
 
     type SnapshotValue = US#Value
 
@@ -281,10 +281,10 @@ object ComponentBuilder {
                      backendFn: NewBackendFn[P, S, B] = this.backendFn,
                      renderFn : RenderFn    [P, S, B] = this.renderFn,
                      lifecycle: Lifecycle_): This =
-      new Step4(name, initState, backendFn, renderFn, lifecycle)
+      new LastStep(name, initState, backendFn, renderFn, lifecycle)
 
-    private def setLC[US2 <: UpdateSnapshot](lc: Lifecycle[P, S, B, US2#Value]): Step4[P, C, S, B, US2] =
-      new Step4(name, initState, backendFn, renderFn, lc)
+    private def setLC[US2 <: UpdateSnapshot](lc: Lifecycle[P, S, B, US2#Value]): LastStep[P, C, S, B, US2] =
+      new LastStep(name, initState, backendFn, renderFn, lc)
 
     private def lcAppend[I, O](lens: Lens[Lifecycle_, Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
       copy(lifecycle = lifecycle.append(lens)(g)(s))
@@ -292,13 +292,13 @@ object ComponentBuilder {
     private def lcAppendDispatch[G[_], I](lens: Lens[Lifecycle_, Option[I => DS[Unit]]])(g: I => G[Unit])(implicit G: Dispatch[G]): This =
       copy(lifecycle = lifecycle.append(lens)(DS.transDispatchFn1(g))(DS.semigroupSyncUnit))
 
-    @inline def configure[US2 <: UpdateSnapshot](f: Config[P, C, S, B, US, US2]): Step4[P, C, S, B, US2] =
+    @inline def configure[US2 <: UpdateSnapshot](f: Config[P, C, S, B, US, US2]): LastStep[P, C, S, B, US2] =
       f(this)
 
-    @inline def configureWhen(cond: Boolean)(f: => Config[P, C, S, B, US, US]): Step4[P, C, S, B, US] =
+    @inline def configureWhen(cond: Boolean)(f: => Config[P, C, S, B, US, US]): LastStep[P, C, S, B, US] =
       if (cond) configure(f) else this
 
-    @inline def configureUnless(cond: Boolean)(f: => Config[P, C, S, B, US, US]): Step4[P, C, S, B, US] =
+    @inline def configureUnless(cond: Boolean)(f: => Config[P, C, S, B, US, US]): LastStep[P, C, S, B, US] =
       if (cond) this else configure(f)
 
     /** Error boundaries are React components that catch errors anywhere in their child component tree, log those errors,
@@ -325,7 +325,7 @@ object ComponentBuilder {
       *
       * Use this as an opportunity to operate on the DOM when the component has been updated.
       */
-    def componentDidUpdate[G[_]](f: ComponentDidUpdate[P, S, B, SnapshotValue] => G[Unit])(implicit G: Dispatch[G]): Step4[P, C, S, B, UpdateSnapshot.Some[SnapshotValue]] =
+    def componentDidUpdate[G[_]](f: ComponentDidUpdate[P, S, B, SnapshotValue] => G[Unit])(implicit G: Dispatch[G]): LastStep[P, C, S, B, UpdateSnapshot.Some[SnapshotValue]] =
       setLC[UpdateSnapshot.Some[SnapshotValue]](lcAppendDispatch(LifecycleF.componentDidUpdate)(f).lifecycle)
 
     /**
@@ -501,7 +501,7 @@ object ComponentBuilder {
       */
     @nowarn("cat=unused")
     def getSnapshotBeforeUpdate[G[_], SS](f: GetSnapshotBeforeUpdate[P, S, B] => G[SS])
-                                         (implicit ev: UpdateSnapshot.SafetyProof[US], G: Sync[G]): Step4[P, C, S, B, UpdateSnapshot.Some[SS]] =
+                                         (implicit ev: UpdateSnapshot.SafetyProof[US], G: Sync[G]): LastStep[P, C, S, B, UpdateSnapshot.Some[SS]] =
       setLC[UpdateSnapshot.Some[SS]](lifecycle.resetSnapshot(None, Some(DS.transSyncFn1(f))))
 
     /** getSnapshotBeforeUpdate() is invoked right before the most recently rendered output is committed to e.g. the
@@ -512,7 +512,7 @@ object ComponentBuilder {
       * special way.
       */
     def getSnapshotBeforeUpdatePure[A](f: GetSnapshotBeforeUpdate[P, S, B] => A)
-                                      (implicit ev: UpdateSnapshot.SafetyProof[US]): Step4[P, C, S, B, UpdateSnapshot.Some[A]] =
+                                      (implicit ev: UpdateSnapshot.SafetyProof[US]): LastStep[P, C, S, B, UpdateSnapshot.Some[A]] =
       getSnapshotBeforeUpdate($ => DS.delay(f($)))(ev, DS)
 
     /** Invoked before rendering when new props or state are being received. This method is not called for the initial
