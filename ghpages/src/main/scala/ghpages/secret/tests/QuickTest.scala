@@ -1,7 +1,9 @@
 package ghpages.secret.tests
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.vdom.html_<^._
+import org.scalajs.dom.console
 import scala.collection.immutable.TreeMap
 
 object QuickTest {
@@ -47,7 +49,6 @@ object QuickTest {
       m
   }
 
-
   final case class Props(testSuite: TestSuite, reps: Int = 10)
 
   final case class State(tests: TreeMap[String, Test]) {
@@ -65,6 +66,8 @@ object QuickTest {
 
     def startTests: Callback = {
 
+      JsUtil.setStackTraceLimit(200)
+
       def completeTest(name: String, r: Status.Result, reps: Int): Callback =
         $.modState(
           _.mod(name, _.copy(status = r)),
@@ -80,11 +83,16 @@ object QuickTest {
       def startTest(t: Test, reps: Int): Callback =
         t.body
           .attempt
+          .timeoutMs(2000)
           .map {
-            case Right(r) => r
-            case Left(e) => Status.Fail(e.getMessage)
+            case Some(Right(r)) => r
+            case None           => Status.Fail("Timed out")
+            case Some(Left(e))  =>
+              console.error(s"Test failure: ${t.name}\n", e)
+              Status.Fail(e.getMessage)
           }
           .flatMap(completeTest(t.name, _, reps).asAsyncCallback)
+          .delayMs(1)
           .toCallback
           .flatMap(_ => $.modState(_.mod(t.name, _.started(t))))
 

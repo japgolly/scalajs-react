@@ -11,6 +11,9 @@ import scala.collection.BuildFrom
 // TODO Document CallbackOption
 
 object CallbackOption {
+
+  type UnderlyingRepr[+A] = () => Option[A]
+
   private[CallbackOption] val someUnit: Option[Unit] = Some(())
 
   @deprecated("Use callback.asCBO", "2.0.0")
@@ -94,7 +97,7 @@ object CallbackOption {
     }
 
   def traverse[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
-                                             (implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
+                                         (implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[T[B]] =
     option {
       val _ta = ta
       val it = _ta.iterator
@@ -112,7 +115,7 @@ object CallbackOption {
     }
 
   def sequence[T[X] <: Iterable[X], A](tca: => T[CallbackOption[A]])
-                                          (implicit cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
+                                      (implicit cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
     traverse(tca)(identityFn)
 
   /**
@@ -133,34 +136,12 @@ object CallbackOption {
   implicit def fromCallback(c: Callback): CallbackOption[Unit] =
     c.toCBO
 
-  // def keyCodeSwitch[A](e       : ReactKeyboardEvent,
-  //                      altKey  : Boolean = false,
-  //                      ctrlKey : Boolean = false,
-  //                      metaKey : Boolean = false,
-  //                      shiftKey: Boolean = false)
-  //                     (switch  : PartialFunction[Int, CallbackTo[A]]): CallbackOption[A] =
-  //   keyEventSwitch(e, e.keyCode, altKey, ctrlKey, metaKey, shiftKey)(switch)
-
-  // def keyEventSwitch[A, B](e       : ReactKeyboardEvent,
-  //                          a       : A,
-  //                          altKey  : Boolean = false,
-  //                          ctrlKey : Boolean = false,
-  //                          metaKey : Boolean = false,
-  //                          shiftKey: Boolean = false)
-  //                         (switch  : PartialFunction[A, CallbackTo[B]]): CallbackOption[B] =
-  //   for {
-  //     _  <- require(e.pressedModifierKeys(altKey, ctrlKey, metaKey, shiftKey))
-  //     cb <- matchPF(a)(switch)
-  //     b  <- cb.toCBO
-  //   } yield b
-
   /** Returns the currently focused HTML element (if there is one). */
   lazy val activeHtmlElement: CallbackOption[html.Element] =
     option(
       Option(document.activeElement)
         .flatMap(_.domToHtml)
         .filterNot(_ eq document.body))
-
 }
 
 // =====================================================================================================================
@@ -176,12 +157,9 @@ object CallbackOption {
  *
  * For a more generic (i.e. beyond Option) or comprehensive monad transformer use Cats or similar.
  */
-final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends AnyVal {
+final class CallbackOption[+A](val underlyingRepr: CallbackOption.UnderlyingRepr[A]) extends AnyVal { self =>
+  import self.{underlyingRepr => cbfn}
   import CallbackOption.someUnit
-
-  /** The underlying representation of this value-class */
-  @inline def underlyingRepr: () => Option[A] =
-    cbfn
 
   def getOrElse[AA >: A](default: => AA): CallbackTo[AA] =
     asCallback.map(_ getOrElse default)
@@ -306,7 +284,7 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
     when(!cond)
 
   def orElse[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =
-    new CallbackOption(() => cbfn().orElse(tryNext.cbfn()))
+    new CallbackOption(() => cbfn().orElse(tryNext.underlyingRepr()))
 
   /**
    * Alias for `orElse`.
@@ -322,12 +300,4 @@ final class CallbackOption[+A](private[react] val cbfn: () => Option[A]) extends
 
   def handleError[AA >: A](f: Throwable => CallbackOption[AA]): CallbackOption[AA] =
     asCallback.handleError(f(_).asCallback).asCBO
-
-  // /** Wraps this so that:
-  //   *
-  //   * 1) It only executes if `e.defaultPrevented` is `false`.
-  //   * 2) It sets `e.preventDefault` on successful completion.
-  //   */
-  // def asEventDefault(e: ReactEvent): CallbackOption[A] =
-  //   (this <* e.preventDefaultCB.toCBO).unless(e.defaultPrevented)
 }

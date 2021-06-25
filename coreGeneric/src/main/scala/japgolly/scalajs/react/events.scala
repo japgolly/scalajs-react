@@ -1,10 +1,12 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.util.DefaultEffects._
+import japgolly.scalajs.react.util.Effect.Sync
+import japgolly.scalajs.react.util.{DefaultEffects => D}
 import org.scalajs.dom
 import org.scalajs.dom.html
 
 trait ReactEventTypes {
+
   final type            ReactEventFrom[+N <: dom.Node] = facade.            SyntheticEvent[N]
   final type   ReactAnimationEventFrom[+N <: dom.Node] = facade.   SyntheticAnimationEvent[N]
   final type   ReactClipboardEventFrom[+N <: dom.Node] = facade.   SyntheticClipboardEvent[N]
@@ -80,39 +82,44 @@ trait ReactEventTypes {
   final type          ReactUIEventFromTextArea =          ReactUIEventFrom[html.TextArea]
   final type       ReactWheelEventFromTextArea =       ReactWheelEventFrom[html.TextArea]
 
-  @inline final implicit def toReactExt_DomEvent                         (e: dom.Event                ): ReactExt_DomEvent              = new ReactExt_DomEvent(e)
-  @inline final implicit def toReactExt_ReactEvent[E <: ReactEvent]      (e: E                        ): ReactExt_ReactEvent[E]         = new ReactExt_ReactEvent(e)
-  @inline final implicit def toReactExt_ReactKeyboardEvent[N <: dom.Node](e: ReactKeyboardEventFrom[N]): ReactExt_ReactKeyboardEvent[N] = new ReactExt_ReactKeyboardEvent(e)
+  @inline final implicit def toReactExt_DomEvent(e: dom.Event): ReactExt_DomEvent[D.Sync] =
+    new ReactExt_DomEvent(e)(D.Sync)
+
+  @inline final implicit def toReactExt_ReactEvent[E <: ReactEvent](e: E): ReactExt_ReactEvent[D.Sync, E] =
+    new ReactExt_ReactEvent(e)(D.Sync)
+
+  @inline final implicit def toReactExt_ReactKeyboardEvent[N <: dom.Node](e: ReactKeyboardEventFrom[N]): ReactExt_ReactKeyboardEvent[N] =
+    new ReactExt_ReactKeyboardEvent(e)
 }
 
-final class ReactExt_DomEvent(private val e: dom.Event) extends AnyVal {
+final class ReactExt_DomEvent[F[_]](private val e: dom.Event)(implicit F: Sync[F]) {
   /**
    * Stops the default action of an element from happening.
    * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
    */
-  def preventDefaultCB: Sync[Unit] =
-    Sync.delay(e.preventDefault())
+  def preventDefaultCB: F[Unit] =
+    F.delay(e.preventDefault())
 
   /**
    * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
    */
-  def stopPropagationCB: Sync[Unit] =
-    Sync.delay(e.stopPropagation())
+  def stopPropagationCB: F[Unit] =
+    F.delay(e.stopPropagation())
 }
 
-final class ReactExt_ReactEvent[E <: facade.SyntheticEvent[dom.Node]](private val e: E) extends AnyVal {
+final class ReactExt_ReactEvent[F[_], E <: facade.SyntheticEvent[dom.Node]](private val e: E)(implicit F: Sync[F]) {
   /**
    * Stops the default action of an element from happening.
    * For example: Prevent a submit button from submitting a form Prevent a link from following the URL
    */
-  def preventDefaultCB: Sync[Unit] =
-    Sync.delay(e.preventDefault())
+  def preventDefaultCB: F[Unit] =
+    F.delay(e.preventDefault())
 
   /**
    * Stops the bubbling of an event to parent elements, preventing any parent event handlers from being executed.
    */
-  def stopPropagationCB: Sync[Unit] =
-    Sync.delay(e.stopPropagation())
+  def stopPropagationCB: F[Unit] =
+    F.delay(e.stopPropagation())
 
   /**
    * If you want to access the event properties in an asynchronous way (eg. in a `modState(…)` function),

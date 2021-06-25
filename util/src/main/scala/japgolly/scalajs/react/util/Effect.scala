@@ -107,14 +107,14 @@ object Effect extends EffectCatsEffect {
     def sequenceList[A]         (fas: => List[F[A]])              : F[List[A]]
     def traverse_   [A, B]      (as: => Iterable[A])(f: A => F[B]): F[Unit]
     def traverseList[A, B]      (as: => List[A])(f: A => F[B])    : F[List[B]]
-    def when_       [A]         (cond: Boolean)(fa: => F[A])      : F[Unit]
+    def when_       [A]         (cond: => Boolean)(fa: => F[A])   : F[Unit]
 
     /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
       * current callback completes, be it in error or success.
       */
     def finallyRun[A, B](fa: F[A], runFinally: F[B]): F[A]
 
-    @inline final def unless_[A](cond: Boolean)(fa: => F[A]): F[Unit] =
+    @inline final def unless_[A](cond: => Boolean)(fa: => F[A]): F[Unit] =
       when_(!cond)(fa)
   }
 
@@ -179,8 +179,11 @@ object Effect extends EffectCatsEffect {
         Semigroup((x, y) => flatMap(x)(b => if (b) True else y))
       }
 
-      override def when_[A](cond: Boolean)(fa: => F[A]): F[Unit] =
-        if (cond) map(fa)(_ => ()) else empty
+      override def when_[A](cond: => Boolean)(fa: => F[A]): F[Unit] =
+        delay {
+          if (cond)
+            runSync(fa)
+        }
 
       override def handleError[A, AA >: A](fa: F[A])(f: Throwable => F[AA]): F[AA] =
         delay[AA](

@@ -111,6 +111,8 @@ object ScalaJsReact {
       extraExtMonocle3,
       facadeMain,
       facadeTest,
+      ghpages,
+      ghpagesMacros,
       tests,
       testUtil,
       util,
@@ -234,16 +236,14 @@ object ScalaJsReact {
       moduleName := "facade-test",
     )
 
-/*
   lazy val ghpages = project
-    .dependsOn(coreDefCallback, extra, monocleScalaz, ghpagesMacros)
+    .dependsOn(coreDefCallback, extra, extraExtMonocle3, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
-      libraryDependencies += Dep.monocleScalaz.value,
-      scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       scalaJSUseMainModuleInitializer := true,
       Compile / mainClass := Some("ghpages.GhPages"),
       Compile / fullOptJS / artifactPath := file("ghpages/res/ghpages.js"),
+      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     )
 
   lazy val ghpagesMacros = project
@@ -251,7 +251,7 @@ object ScalaJsReact {
     .settings(
       libraryDependencies += Dep.sourcecode.value,
     )
-*/
+
   lazy val tests = project
     .dependsOn(coreDefCallback, testUtil)
     .dependsOn(extraExtMonocle3 % "test->compile")

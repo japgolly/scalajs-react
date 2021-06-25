@@ -72,8 +72,8 @@ abstract class EffectCallback extends userdefined.Effects {
     @inline override def sequence_[A](fas: => Iterable[CallbackTo[A]]) =
       Callback.sequence(fas)
 
-    @inline override def when_[A](cond: Boolean)(fa: => CallbackTo[A]) =
-      Callback.when(cond)(fa)
+    @inline override def when_[A](cond: => Boolean)(fa: => CallbackTo[A]) =
+      fa.when_(cond)
   }
 
   // ===================================================================================================================

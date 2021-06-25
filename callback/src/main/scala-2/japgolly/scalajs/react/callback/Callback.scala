@@ -19,8 +19,12 @@ object Callback {
   object ResultGuard {
     final class Proof[A] private[Callback]()
     object Proof {
-      implicit def preventCallback1[A]: Proof[CallbackTo[A]] = ???
-      implicit def preventCallback2[A]: Proof[CallbackTo[A]] = ???
+      implicit def preventCallback_1[A]: Proof[CallbackTo[A]] = ???
+      implicit def preventCallback_2[A]: Proof[CallbackTo[A]] = ???
+      implicit def preventJsFn0_1[A]: Proof[js.Function0[A]] = ???
+      implicit def preventJsFn0_2[A]: Proof[js.Function0[A]] = ???
+      implicit def preventScalaFn0_1[A]: Proof[() => A] = ???
+      implicit def preventScalaFn0_2[A]: Proof[() => A] = ???
       @inline implicit def allowAnythingElse[A]: Proof[A] = null
     }
     @inline implicit def apply[A: Proof]: ResultGuard[A] = null

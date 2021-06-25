@@ -123,7 +123,7 @@ object CallbackTo {
   def newJsPromise[A]: CallbackTo[(js.Promise[A], Try[A] => Callback)] =
     CallbackTo {
       val (p, f) = JsUtil.newPromise[A]()
-      (p, t => Callback(f(t)))
+      (p, t => Callback.fromJsFn(f(t)))
     }
 
   lazy val now: CallbackTo[Instant] =
@@ -631,14 +631,6 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     val bc = ev(this)
     b => bc.map(_(b))
   }
-
-  // /** Wraps this so that:
-  //   *
-  //   * 1) It only executes if `e.defaultPrevented` is `false`.
-  //   * 2) It sets `e.preventDefault` on successful completion.
-  //   */
-  // def asEventDefault(e: ReactEvent): CallbackTo[Option[A]] =
-  //   (this <* e.preventDefaultCB).unless(e.defaultPrevented)
 
   /** Schedule for repeated execution every `interval`. */
   def setInterval(interval: Duration): CallbackTo[Callback.SetIntervalResult] =

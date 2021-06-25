@@ -1,9 +1,10 @@
-package japgolly.scalajs.react.extra.components
+package japgolly.scalajs.react.extra.internal
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.CoreGeneral._
 import japgolly.scalajs.react.internal.EffectUtil
-import japgolly.scalajs.react.util.DefaultEffects.Sync
+import japgolly.scalajs.react.util.DefaultEffects
+import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.ext.KeyCode
 import org.scalajs.dom.html.Input
@@ -13,7 +14,7 @@ import org.scalajs.dom.html.Input
  *
  * @since 0.11.0
  */
-object TriStateCheckbox {
+object TriStateCheckboxF {
 
   sealed abstract class State extends Product with Serializable {
     final def nextDeterminate: Determinate =
@@ -43,15 +44,25 @@ object TriStateCheckbox {
   case object Checked       extends Determinate
   case object Unchecked     extends Determinate
   case object Indeterminate extends State
+}
 
-  final case class Props(state       : State,
-                         setNextState: Sync[Unit],
-                         disabled    : Boolean = false) {
+class TriStateCheckboxF[F[_]](implicit F: Sync[F]) {
+
+  final type State        = TriStateCheckboxF.State
+  final type Determinate  = TriStateCheckboxF.Determinate
+  final val Checked       = TriStateCheckboxF.Checked
+  final val Unchecked     = TriStateCheckboxF.Unchecked
+  final val Indeterminate = TriStateCheckboxF.Indeterminate
+
+  case class Props(state       : State,
+                   setNextState: F[Unit],
+                   disabled    : Boolean = false) {
     @inline def render: VdomElement = Component(this)
   }
 
   private def render($: ScalaComponent.MountedPure[Props, Unit, Unit], p: Props) = {
-    val setNext = Sync.flatMap($.props)(p => if (p.disabled) Sync.empty else p.setNextState) // Only access .setNextState inside Sync for Reusability
+    val props = F.transSync($.props)(DefaultEffects.Sync)
+    val setNext = F.flatMap(props)(p => if (p.disabled) F.empty else p.setNextState) // Only access .setNextState inside Sync for Reusability
     <.input.checkbox(
       ^.disabled := p.disabled,
       TagMod.unless(p.disabled)(eventHandlers(setNext)))
@@ -60,8 +71,8 @@ object TriStateCheckbox {
   /**
    * Clicking or pressing space = change.
    */
-  def eventHandlers(onChange: Sync[Unit]): TagMod = {
-    def handleKey(e: ReactKeyboardEventFromHtml): Sync[Unit] = {
+  def eventHandlers(onChange: F[Unit]): TagMod = {
+    def handleKey(e: ReactKeyboardEventFromHtml): F[Unit] = {
       EffectUtil.asEventDefault_(e)(
         EffectUtil.keyCodeSwitch(e) { case KeyCode.Space => onChange }
       )
@@ -71,9 +82,9 @@ object TriStateCheckbox {
       ^.onKeyDown ==> handleKey)
   }
 
-  private def updateDom[P, S, B]($: ScalaComponent.MountedImpure[P, S, B], nextProps: Props): Sync[Unit] = {
+  private def updateDom[P, S, B]($: ScalaComponent.MountedImpure[P, S, B], nextProps: Props): F[Unit] = {
     val s = nextProps.state
-    Sync.delay {
+    F.delay {
       $.getDOMNode.toElement.map(_.domCast[Input]).foreach { d =>
         d.checked       = s == Checked
         d.indeterminate = s == Indeterminate

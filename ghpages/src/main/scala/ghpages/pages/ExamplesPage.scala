@@ -64,7 +64,6 @@ object ExamplesScala extends ExampleCollection {
     StateSnapshot1,
     StateSnapshot2,
     Reuse,
-    StateMonad,
     Touch,
     WebSockets,
     Checkbox3,

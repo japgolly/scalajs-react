@@ -7,6 +7,10 @@ import scala.util.{Failure, Success, Try}
 
 object JsUtil {
 
+  // TODO: Add to microlibs and maybe ReactTestUtils
+  @inline def setStackTraceLimit(n: Int): Unit =
+    js.constructorOf[js.Error].stackTraceLimit = n
+
   object JsSymbol {
     def unapply(a: Any): Option[js.Symbol] =
       js.typeOf(a.asInstanceOf[js.Any]) match {

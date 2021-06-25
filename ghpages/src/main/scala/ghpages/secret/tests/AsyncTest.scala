@@ -1,33 +1,32 @@
 package ghpages.secret.tests
 
+import cats.instances.either._
+import cats.instances.list._
+import cats.instances.option._
+import cats.instances.string._
+import cats.instances.tuple._
+import cats.instances.vector._
+import cats.kernel.Eq
+import cats.syntax.eq._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.Ajax
 import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.XMLHttpRequest
+import org.scalajs.dom.{XMLHttpRequest, console}
 import scala.util.{Random, Success, Try}
-import scalaz.Equal
-import scalaz.std.anyVal._
-import scalaz.std.either._
-import scalaz.std.list._
-import scalaz.std.option._
-import scalaz.std.string._
-import scalaz.std.tuple._
-import scalaz.std.vector._
-import scalaz.syntax.equal._
 
 object AsyncTest {
   import AsyncCallback.delay
   import QuickTest.{Status, TestSuite, TestSuiteBuilder}
 
-  def cmpFn[A: Equal](expect: A): A => Status.Result =
+  def cmpFn[A: Eq](expect: A): A => Status.Result =
     a => if (a === expect) Status.Pass else Status.Fail(s"Actual: $a. Expect: $expect.")
 
-  def testCmp[A: Equal](x: (AsyncCallback[A], A)) = {
+  def testCmp[A: Eq](x: (AsyncCallback[A], A)) = {
     val (body, expect) = x
     body.map(cmpFn(expect))
   }
 
-  def testCmp2[A: Equal](body: AsyncCallback[A], expect1: A, prep2: () => Unit, expect2: A) = {
+  def testCmp2[A: Eq](body: AsyncCallback[A], expect1: A, prep2: () => Unit, expect2: A) = {
     var complete  = null: (Try[A] => Callback)
     val subjectCB = body.attemptTry.flatMap(complete(_).asAsyncCallback).toCallback
 
@@ -59,11 +58,18 @@ object AsyncTest {
 
   private def xhrToText(xhr: XMLHttpRequest): String = {
     val idRegex = "(\"id\":\\d+)".r
-    val id = idRegex.findFirstIn(xhr.responseText).get.replace("\"", "")
-    s"[${xhr.status}] $id"
+    idRegex.findFirstIn(xhr.responseText) match {
+      case Some(m) =>
+        val id = m.replace("\"", "")
+        s"[${xhr.status}] $id"
+      case None =>
+        console.info("Ajax response: ", xhr)
+        throw new RuntimeException(s"Unable to parse ajax response: [${xhr.responseText}]")
+    }
   }
 
-  private implicit val equalThrowable: Equal[Throwable] = Equal.equalRef
+  private implicit val equalThrowable: Eq[Throwable] =
+    _ eq _
 
   val TestSuite: TestSuite =
     TestSuiteBuilder()

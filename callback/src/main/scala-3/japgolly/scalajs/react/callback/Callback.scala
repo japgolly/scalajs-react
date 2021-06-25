@@ -23,7 +23,11 @@ object Callback {
   object ResultGuard {
     final class Proof[A] private[Callback]()
     object Proof {
-      inline given legal[A](using inline ev: NotGiven[A <:< CallbackTo[?]]): Proof[A] = null
+      inline given legal[A](using
+          inline ev1: NotGiven[A <:< CallbackTo[?]],
+          inline ev2: NotGiven[js.Function0[A]],
+          inline ev3: NotGiven[() => A],
+        ): Proof[A] = null
     }
     inline given apply[A](using inline ev: Proof[A]): ResultGuard[A] = null
   }

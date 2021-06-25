@@ -1,10 +1,4 @@
-* Move into core as extensions:
-  * CallbackOption
-    * keyCodeSwitch
-    * keyEventSwitch
-    * asEventDefault
-  * CallbackTo
-    * asEventDefault
+* Generalise ReactCallbackExtensions with EffectUtil
 
 * userdefined.(Unsafe)Effect?
 
@@ -84,12 +78,6 @@ Absolutely terrible but a potential last resort. It would completely prevent abs
 
 ## Potential Solution: parameterise and never return Sync directly
 Tried and it works!
-
-==============================================================================================================
-
-TODO:
-
-* ghpages
 
 ==============================================================================================================
 

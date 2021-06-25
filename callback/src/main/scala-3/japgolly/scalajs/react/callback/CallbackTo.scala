@@ -664,14 +664,6 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
   def toCBO: CallbackOption[A] =
     map[Option[A]](Some(_)).asCBO
 
-  // /** Wraps this so that:
-  //   *
-  //   * 1) It only executes if `e.defaultPrevented` is `false`.
-  //   * 2) It sets `e.preventDefault` on successful completion.
-  //   */
-  // def asEventDefault(e: ReactEvent): CallbackTo[Option[A]] =
-  //   (this <* e.preventDefaultCB).unless(e.defaultPrevented)
-
   /** Schedule for repeated execution every `interval`. */
   def setInterval(interval: Duration): CallbackTo[Callback.SetIntervalResult] =
     setIntervalMs(interval.toMillis.toDouble)
