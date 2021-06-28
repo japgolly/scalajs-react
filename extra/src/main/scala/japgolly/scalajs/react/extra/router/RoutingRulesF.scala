@@ -11,8 +11,8 @@ import japgolly.scalajs.react.util.Effect.Sync
 final case class RoutingRulesF[F[_], Page, Props](
     parseMulti    : Path => List[StaticOrDynamic[Option[Parsed[Page]]]],
     path          : Page => Path,
-    actionMulti   : (Path, Page) => List[StaticOrDynamic[Option[Action[Page, Props]]]],
-    fallbackAction: (Path, Page) => Action[Page, Props],
+    actionMulti   : (Path, Page) => List[StaticOrDynamic[Option[ActionF[F, Page, Props]]]],
+    fallbackAction: (Path, Page) => ActionF[F, Page, Props],
     whenNotFound  : Path => F[Parsed[Page]])
    (implicit F: Sync[F]) {
 
@@ -24,7 +24,7 @@ final case class RoutingRulesF[F[_], Page, Props](
       case None    => whenNotFound(path)
     }
 
-  def action(path: Path, page: Page): F[Action[Page, Props]] =
+  def action(path: Path, page: Page): F[ActionF[F, Page, Props]] =
     F.map(selectAction(path, page, actionMulti))(_.getOrElse(fallbackAction(path, page)))
 }
 
@@ -46,8 +46,8 @@ object RoutingRulesF {
 
     def selectAction[F[_], Page, Props](path  : Path,
                                         page  : Page,
-                                        action: (Path, Page) => List[StaticOrDynamic[Option[Action[Page, Props]]]],
-                                       )(implicit F: Sync[F]): F[Option[Action[Page, Props]]] =
+                                        action: (Path, Page) => List[StaticOrDynamic[Option[ActionF[F, Page, Props]]]],
+                                       )(implicit F: Sync[F]): F[Option[ActionF[F, Page, Props]]] =
       unambiguousRule(action(path, page))(
         as => s"Multiple (${as.size}) (unconditional) actions specified for $page at path ${path.value}",
         as => s"Multiple (${as.size}) conditional actions active for $page at path ${path.value}")
@@ -60,7 +60,7 @@ object RoutingRulesF {
 
       F.flatMap(F.sequenceList(dynamics)                 )(dynamicOptions =>
       F.flatMap(unambiguousOption(dynamicOptions)(dynErr))(dynamicOption =>
-      F.map    (unambiguousOption(statics)(staticErr)     )(staticOption =>
+      F.map    (unambiguousOption(statics)(staticErr)    )(staticOption =>
         dynamicOption.orElse(staticOption)
       )))
     }
@@ -78,9 +78,12 @@ object RoutingRulesF {
 
   def fromRule[F[_], Page, Props](rule          : RoutingRule[Page, Props],
                                   fallbackPath  : Page => Path,
-                                  fallbackAction: (Path, Page) => Action[Page, Props],
+                                  fallbackAction: (Path, Page) => ActionF[F, Page, Props],
                                   whenNotFound  : Path => F[Parsed[Page]])
                                  (implicit F: Sync[F]): RoutingRulesF[F, Page, Props] = {
+
+    implicit def optionTransAction(o: Option[Action[Page, Props]]): Option[ActionF[F, Page, Props]] =
+      o.map(_.withEffect[F])
 
     def prepareParseFn(rule: RoutingRule[Page, Props]): Path => List[StaticOrDynamic[Option[Parsed[Page]]]] =
       rule match {
@@ -113,10 +116,12 @@ object RoutingRulesF {
         case r: RoutingRule.Or          [Page, Props] => preparePathFn(r.lhs) || preparePathFn(r.rhs)
       }
 
-    def prepareActionFn(rule: RoutingRule[Page, Props]): (Path, Page) => List[StaticOrDynamic[Option[Action[Page, Props]]]] =
+    def prepareActionFn(rule: RoutingRule[Page, Props]): (Path, Page) => List[StaticOrDynamic[Option[ActionF[F, Page, Props]]]] =
       rule match {
         case r: RoutingRule.Atom[Page, Props] =>
-          (path, page) => static(r.action(path, page)) :: Nil
+          (path, page) =>
+            val action = optionTransAction(r.action(path, page))
+            static(action) :: Nil
 
         case r: RoutingRule.Or[Page, Props] =>
           val x = prepareActionFn(r.lhs)
@@ -132,7 +137,7 @@ object RoutingRulesF {
                 if (expectedPath == actualPath)
                   action(actualPath, page)
                 else
-                  static[Option[Action[Page, Props]]](Some(RedirectToPath(expectedPath, r.redirectVia))) :: Nil
+                  static[Option[ActionF[F, Page, Props]]](Some(RedirectToPath(expectedPath, r.redirectVia))) :: Nil
               case None =>
                 Nil
             }
@@ -143,7 +148,7 @@ object RoutingRulesF {
         case r: RoutingRule.ConditionalP[Page, Props] =>
           val underlying = prepareActionFn(r.underlying)
           (path, page) =>
-            dynamic[F, Option[Action[Page, Props]]] {
+            dynamic[F, Option[ActionF[F, Page, Props]]] {
               val step1 = SharedLogic.selectAction[F, Page, Props](path, page, underlying)
               F.flatMap(step1) {
                 case ok@Some(_) =>
@@ -172,7 +177,7 @@ object RoutingRulesF {
     * generated for pages. It is recommended that you call [[RouterConfig.verify]] as a sanity-check.
     */
   def bulk[F[_], Page, Props](toPage  : Path => Option[Parsed[Page]],
-                              fromPage: Page => (Path, Action[Page, Props]),
+                              fromPage: Page => (Path, ActionF[F, Page, Props]),
                               notFound: Path => Parsed[Page])
                              (implicit F: Sync[F]): RoutingRulesF[F, Page, Props] =
     apply[F, Page, Props](
@@ -189,7 +194,7 @@ object RoutingRulesF {
     * generated for pages. It is recommended that you call [[RouterConfig.verify]] as a sanity-check.
     */
   def bulkDynamic[F[_], Page, Props](toPage  : Path => F[Option[Parsed[Page]]],
-                                     fromPage: Page => (Path, F[Action[Page, Props]]),
+                                     fromPage: Page => (Path, F[ActionF[F, Page, Props]]),
                                      notFound: Path => Parsed[Page])
                                     (implicit F: Sync[F]): RoutingRulesF[F, Page, Props] =
     apply[F, Page, Props](

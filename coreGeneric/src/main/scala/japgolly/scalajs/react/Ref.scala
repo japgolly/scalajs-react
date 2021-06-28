@@ -104,7 +104,8 @@ object Ref {
       override protected[Ref] def F = FF
 
       override def withEffect[G[_]](implicit G: Sync[G]) =
-        F.withAltEffect(G, this)(FullF(raw, l, r)(G))
+        G.subst[F, ({type L[E[_]] = FullF[E, I, A, O]})#L](this)(
+          FullF(raw, l, r)(G))
 
       override val raw = _raw
 
@@ -143,7 +144,9 @@ object Ref {
     override protected[Ref] def F = ref.F
 
     override def withEffect[G[_]](implicit G: Sync[G]) =
-      F.withAltEffect(G, this)(new ToComponentF(ref.withEffect[G], component))
+      G.subst[F, ({type L[E[_]] = ToComponentF[E, I, R, O, C]})#L](this)(
+        new ToComponentF(ref.withEffect[G], component)
+      )(F)
 
     override val raw = ref.raw
     override val get = ref.get

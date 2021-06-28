@@ -2,6 +2,7 @@ package japgolly.scalajs.react
 
 import japgolly.microlibs.compiletime.*
 import japgolly.scalajs.react.internal.CompileTimeConfig
+import japgolly.scalajs.react.util.Util.identityFn
 
 trait ScalaJsReactConfig {
   def automaticComponentName(name: String): String
@@ -18,14 +19,16 @@ object ScalaJsReactConfig {
   object ReusabilityOverride {
 
     val default: ReusabilityOverride = new ReusabilityOverride {
-      override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
-        _.shouldComponentUpdatePure(i => (i.currentProps ~/~ i.nextProps) || (i.currentState ~/~ i.nextState))
+      override def apply[P, C <: Children, S, B, U <: UpdateSnapshot](implicit P: Reusability[P], S: Reusability[S]) =
+        _.shouldComponentUpdatePure(i =>
+          P.updateNeeded(i.currentProps, i.nextProps) ||
+          S.updateNeeded(i.currentState, i.nextState))
     }
 
     /** Don't configure shouldComponentUpdate */
     def ignore: ReusabilityOverride = new ReusabilityOverride {
       override def apply[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot] =
-        internal.identityFn
+        identityFn
     }
   }
 

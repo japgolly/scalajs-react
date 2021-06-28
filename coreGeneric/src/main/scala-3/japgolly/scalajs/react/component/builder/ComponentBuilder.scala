@@ -3,9 +3,12 @@ package japgolly.scalajs.react.component.builder
 import japgolly.scalajs.react.component.Scala.{BackendScope, Vars}
 import japgolly.scalajs.react.component.builder.Lifecycle._
 import japgolly.scalajs.react.component.{Js, Scala}
-import japgolly.scalajs.react.internal.{Box, Lens, Semigroup}
+import japgolly.scalajs.react.internal.{Box, Lens}
+import japgolly.scalajs.react.util.DefaultEffects.{Sync => DS}
+import japgolly.scalajs.react.util.Effect._
+import japgolly.scalajs.react.util.Semigroup
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Callback, CallbackTo, Children, CtorType, PropsChildren, UpdateSnapshot, facade}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, UpdateSnapshot, facade}
 import scala.annotation.nowarn
 import scala.language.`3.0`
 
@@ -37,7 +40,6 @@ object ComponentBuilder {
     * If your component is to be stateless, you can skip this step or explicitly use `.stateless`.
     */
   final class Step1[P](private val name: String) extends AnyVal {
-    type Next[S] = Step2[P, S]
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
       * subsequent updates.
@@ -90,22 +92,22 @@ object ComponentBuilder {
       * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
       * not as a result of a local setState.
       */
-    def getDerivedStateFromPropsAndState[S](f: (P, Option[S]) => S): Next[S] =
+    def getDerivedStateFromPropsAndState[S](f: (P, Option[S]) => S): Step2[P, S] =
       new Step2(name, InitState.DerivedFromPropsAndState(f))
 
-    def initialState[S](s: => S): Next[S] =
+    def initialState[S](s: => S): Step2[P, S] =
       new Step2(name, InitState.InitialState(_ => Box(s)))
 
-    def initialStateFromProps[S](f: P => S): Next[S] =
+    def initialStateFromProps[S](f: P => S): Step2[P, S] =
       new Step2(name, InitState.InitialState(p => Box(f(p.unbox))))
 
-    def initialStateCallback[S](cb: CallbackTo[S]): Next[S] =
-      initialState(cb.runNow())
+    def initialStateCallback[G[_], S](cb: G[S])(implicit G: Sync[G]): Step2[P, S] =
+      initialState(G.runSync(cb))
 
-    def initialStateCallbackFromProps[S](f: P => CallbackTo[S]): Next[S] =
-      initialStateFromProps(f(_).runNow())
+    def initialStateCallbackFromProps[G[_], S](f: P => G[S])(implicit G: Sync[G]): Step2[P, S] =
+      initialStateFromProps(p => G.runSync(f(p)))
 
-    def stateless: Next[Unit] =
+    def stateless: Step2[P, Unit] =
       new Step2(name, InitState.stateless)
   }
 
@@ -124,12 +126,11 @@ object ComponentBuilder {
     * special privileges.
     */
   final class Step2[P, S](name: String, initState: InitState[P, S]) {
-    type Next[B] = Step3[P, S, B]
 
-    def backend[B](f: NewBackendFn[P, S, B]): Next[B] =
+    def backend[B](f: NewBackendFn[P, S, B]): Step3[P, S, B] =
       new Step3(name, initState, f)
 
-    def noBackend: Next[Unit] =
+    def noBackend: Step3[P, S, Unit] =
       backend(_ => ())
 
     /**
@@ -170,11 +171,10 @@ object ComponentBuilder {
     * everything it needs automatically.
     */
   final class Step3[P, S, B](name: String, initState: InitState[P, S], backendFn: NewBackendFn[P, S, B]) {
-    type Next[C <: Children, US <: UpdateSnapshot] = LastStep[P, C, S, B, US]
 
     type $ = RenderScope[P, S, B]
 
-    def renderWith[C <: Children](r: RenderFn[P, S, B]): Next[C, UpdateSnapshot.None] = {
+    def renderWith[C <: Children](r: RenderFn[P, S, B]): LastStep[P, C, S, B, UpdateSnapshot.None] = {
       var lc = Lifecycle.empty[P, S, B]
       initState match {
         case InitState.DerivedFromProps        (f) => lc = lc.copy(getDerivedStateFromProps = Some((p, _) => Some(f(p))))
@@ -186,73 +186,73 @@ object ComponentBuilder {
 
     // No args
 
-    def renderStatic(r: VdomNode): Next[Children.None, UpdateSnapshot.None] =
+    def renderStatic(r: VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       renderWith(_ => r)
 
-    def render_(r: => VdomNode): Next[Children.None, UpdateSnapshot.None] =
+    def render_(r: => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       renderWith(_ => r)
 
     // No children
 
-    def render(r: RenderFn[P, S, B]): Next[Children.None, UpdateSnapshot.None] =
+    def render(r: RenderFn[P, S, B]): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       renderWith(r)
 
-    def renderPS(r: ($, P, S) => VdomNode): Next[Children.None, UpdateSnapshot.None] =
+    def renderPS(r: ($, P, S) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
        renderWith($ => r($, $.props, $.state))
 
-    def renderP(r: ($, P) => VdomNode): Next[Children.None, UpdateSnapshot.None] =
-      renderWith($ => r($, $.props))
+     def renderP(r: ($, P) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($, $.props))
 
-    def renderS(r: ($, S) => VdomNode): Next[Children.None, UpdateSnapshot.None] =
-      renderWith($ => r($, $.state))
+     def renderS(r: ($, S) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($, $.state))
 
-    def render_PS(r: (P, S) => VdomNode): Next[Children.None, UpdateSnapshot.None] =
-      renderWith($ => r($.props, $.state))
+     def render_PS(r: (P, S) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($.props, $.state))
 
-    def render_P(r: P => VdomNode): Next[Children.None, UpdateSnapshot.None] =
-      renderWith($ => r($.props))
+     def render_P(r: P => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($.props))
 
-    def render_S(r: S => VdomNode): Next[Children.None, UpdateSnapshot.None] =
-      renderWith($ => r($.state))
+     def render_S(r: S => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($.state))
 
     // Has children
 
-    def renderPCS(r: ($, P, PropsChildren, S) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
-      renderWith($ => r($, $.props, $.propsChildren, $.state))
+     def renderPCS(r: ($, P, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($, $.props, $.propsChildren, $.state))
 
-    def renderPC(r: ($, P, PropsChildren) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
-      renderWith($ => r($, $.props, $.propsChildren))
+     def renderPC(r: ($, P, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($, $.props, $.propsChildren))
 
-    def renderCS(r: ($, PropsChildren, S) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
-      renderWith($ => r($, $.propsChildren, $.state))
+     def renderCS(r: ($, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($, $.propsChildren, $.state))
 
-    def renderC(r: ($, PropsChildren) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
-      renderWith($ => r($, $.propsChildren))
+     def renderC(r: ($, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($, $.propsChildren))
 
-    def render_PCS(r: (P, PropsChildren, S) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
-      renderWith($ => r($.props, $.propsChildren, $.state))
+     def render_PCS(r: (P, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($.props, $.propsChildren, $.state))
 
-    def render_PC(r: (P, PropsChildren) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
-      renderWith($ => r($.props, $.propsChildren))
+     def render_PC(r: (P, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($.props, $.propsChildren))
 
-    def render_CS(r: (PropsChildren, S) => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
-      renderWith($ => r($.propsChildren, $.state))
+     def render_CS(r: (PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($.propsChildren, $.state))
 
-    def render_C(r: PropsChildren => VdomNode): Next[Children.Varargs, UpdateSnapshot.None] =
-      renderWith($ => r($.propsChildren))
+     def render_C(r: PropsChildren => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+       renderWith($ => r($.propsChildren))
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props and state
      * where needed.
      */
-    inline def renderBackend: Next[Children.None, UpdateSnapshot.None] =
+    inline def renderBackend: LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       renderWith(ComponentBuilderMacros.renderBackendFn)
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props, state, and
      * propsChildren where needed.
      */
-    inline def renderBackendWithChildren: Next[Children.Varargs, UpdateSnapshot.None] =
+    inline def renderBackendWithChildren: LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
       renderWith(ComponentBuilderMacros.renderBackendWithChildrenFn)
   }
 
@@ -290,6 +290,9 @@ object ComponentBuilder {
     private def lcAppend[I, O](lens: Lens[Lifecycle_, Option[I => O]])(g: I => O)(implicit s: Semigroup[O]): This =
       copy(lifecycle = lifecycle.append(lens)(g)(s))
 
+    private def lcAppendDispatch[G[_], I](lens: Lens[Lifecycle_, Option[I => DS[Unit]]])(g: I => G[Unit])(implicit G: Dispatch[G]): This =
+      copy(lifecycle = lifecycle.append(lens)(DS.transDispatchFn1(g))(DS.semigroupSyncUnit))
+
     inline def configure[US2 <: UpdateSnapshot](f: Config[P, C, S, B, US, US2]): LastStep[P, C, S, B, US2] =
       f(this)
 
@@ -299,35 +302,32 @@ object ComponentBuilder {
     inline def configureUnless(inline cond: Boolean)(inline f: Config[P, C, S, B, US, US]): LastStep[P, C, S, B, US] =
       if (cond) this else configure(f)
 
-    /**
-      * Error boundaries are React components that catch errors anywhere in their child component tree, log those errors,
+    /** Error boundaries are React components that catch errors anywhere in their child component tree, log those errors,
       * and display a fallback UI instead of the component tree that crashed. Error boundaries catch errors during
       * rendering, in lifecycle methods, and in constructors of the whole tree below them.
       *
       * Note: "CHILD COMPONENT TREE". Components cannot catch errors in themselves, only their children.
       */
-    def componentDidCatch(f: ComponentDidCatchFn[P, S, B]): This =
-      lcAppend(Lifecycle.componentDidCatch)(f)
+    def componentDidCatch[G[_]](f: ComponentDidCatch[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
+      lcAppendDispatch(LifecycleF.componentDidCatch)(f)
 
-    /**
-     * Invoked once, only on the client (not on the server), immediately after the initial rendering occurs. At this point
-     * in the lifecycle, the component has a DOM representation which you can access via `ReactDOM.findDOMNode(this)`.
-     * The `componentDidMount()` method of child components is invoked before that of parent components.
-     *
-     * If you want to integrate with other JavaScript frameworks, set timers using `setTimeout` or `setInterval`, or send
-     * AJAX requests, perform those operations in this method.
-     */
-    def componentDidMount(f: ComponentDidMountFn[P, S, B]): This =
-      lcAppend(Lifecycle.componentDidMount)(f)
+    /** Invoked once, only on the client (not on the server), immediately after the initial rendering occurs. At this point
+      * in the lifecycle, the component has a DOM representation which you can access via `ReactDOM.findDOMNode(this)`.
+      * The `componentDidMount()` method of child components is invoked before that of parent components.
+      *
+      * If you want to integrate with other JavaScript frameworks, set timers using `setTimeout` or `setInterval`, or send
+      * AJAX requests, perform those operations in this method.
+      */
+    def componentDidMount[G[_]](f: ComponentDidMount[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
+      lcAppendDispatch(LifecycleF.componentDidMount)(f)
 
-    /**
-     * Invoked immediately after the component's updates are flushed to the DOM. This method is not called for the initial
-     * render.
-     *
-     * Use this as an opportunity to operate on the DOM when the component has been updated.
-     */
-    def componentDidUpdate(f: ComponentDidUpdateFn[P, S, B, SnapshotValue]): LastStep[P, C, S, B, UpdateSnapshot.Some[SnapshotValue]] =
-      setLC[UpdateSnapshot.Some[SnapshotValue]](lcAppend(Lifecycle.componentDidUpdate)(f).lifecycle)
+    /** Invoked immediately after the component's updates are flushed to the DOM. This method is not called for the initial
+      * render.
+      *
+      * Use this as an opportunity to operate on the DOM when the component has been updated.
+      */
+    def componentDidUpdate[G[_]](f: ComponentDidUpdate[P, S, B, SnapshotValue] => G[Unit])(implicit G: Dispatch[G]): LastStep[P, C, S, B, UpdateSnapshot.Some[SnapshotValue]] =
+      setLC[UpdateSnapshot.Some[SnapshotValue]](lcAppendDispatch(LifecycleF.componentDidUpdate)(f).lifecycle)
 
     /**
      * Invoked once, both on the client and server, immediately before the initial rendering occurs.
@@ -337,8 +337,8 @@ object ComponentBuilder {
     @deprecated(
       "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillMount(f: ComponentWillMountFn[P, S, B]): This =
-      lcAppend(Lifecycle.componentWillMount)(f)
+    def componentWillMount[G[_]](f: ComponentWillMount[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
+      lcAppendDispatch(LifecycleF.componentWillMount)(f)
 
     /**
      * Invoked when a component is receiving new props. This method is not called for the initial render.
@@ -354,8 +354,8 @@ object ComponentBuilder {
     @deprecated(
       "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillReceiveProps(f: ComponentWillReceivePropsFn[P, S, B]): This =
-      lcAppend(Lifecycle.componentWillReceiveProps)(f)
+    def componentWillReceiveProps[G[_]](f: ComponentWillReceiveProps[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
+      lcAppendDispatch(LifecycleF.componentWillReceiveProps)(f)
 
     /**
      * Invoked immediately before a component is unmounted from the DOM.
@@ -363,8 +363,8 @@ object ComponentBuilder {
      * Perform any necessary cleanup in this method, such as invalidating timers or cleaning up any DOM elements that were
      * created in `componentDidMount`.
      */
-    def componentWillUnmount(f: ComponentWillUnmountFn[P, S, B]): This =
-      lcAppend(Lifecycle.componentWillUnmount)(f)
+    def componentWillUnmount[G[_]](f: ComponentWillUnmount[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
+      lcAppendDispatch(LifecycleF.componentWillUnmount)(f)
 
     /**
      * Invoked immediately before rendering when new props or state are being received. This method is not called for the
@@ -378,8 +378,8 @@ object ComponentBuilder {
     @deprecated(
       "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillUpdate(f: ComponentWillUpdateFn[P, S, B]): This =
-      lcAppend(Lifecycle.componentWillUpdate)(f)
+    def componentWillUpdate[G[_]](f: ComponentWillUpdate[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
+      lcAppendDispatch(LifecycleF.componentWillUpdate)(f)
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
       * subsequent updates.
@@ -455,7 +455,7 @@ object ComponentBuilder {
       */
     def getDerivedStateFromPropsOption(f: (P, S) => Option[S]): This = {
       val update: Lifecycle_ => Lifecycle_ =
-        Lifecycle.getDerivedStateFromProps.mod {
+        LifecycleF.getDerivedStateFromProps.mod {
           case None => Some(f)
           case Some(prev) =>
             Some { (p, s1) =>
@@ -501,9 +501,9 @@ object ComponentBuilder {
       * special way.
       */
     @nowarn("cat=unused")
-    def getSnapshotBeforeUpdate[A](f: GetSnapshotBeforeUpdateFn[P, S, B, A])
-                                  (implicit ev: UpdateSnapshot.SafetyProof[US]): LastStep[P, C, S, B, UpdateSnapshot.Some[A]] =
-      setLC[UpdateSnapshot.Some[A]](lifecycle.resetSnapshot(None, Some(f)))
+    def getSnapshotBeforeUpdate[G[_], SS](f: GetSnapshotBeforeUpdate[P, S, B] => G[SS])
+                                         (implicit ev: UpdateSnapshot.SafetyProof[US], G: Sync[G]): LastStep[P, C, S, B, UpdateSnapshot.Some[SS]] =
+      setLC[UpdateSnapshot.Some[SS]](lifecycle.resetSnapshot(None, Some(DS.transSyncFn1(f))))
 
     /** getSnapshotBeforeUpdate() is invoked right before the most recently rendered output is committed to e.g. the
       * DOM. It enables your component to capture some information from the DOM (e.g. scroll position) before it is
@@ -514,28 +514,27 @@ object ComponentBuilder {
       */
     def getSnapshotBeforeUpdatePure[A](f: GetSnapshotBeforeUpdate[P, S, B] => A)
                                       (implicit ev: UpdateSnapshot.SafetyProof[US]): LastStep[P, C, S, B, UpdateSnapshot.Some[A]] =
-      getSnapshotBeforeUpdate($ => CallbackTo(f($)))(ev)
+      getSnapshotBeforeUpdate($ => DS.delay(f($)))(ev, DS)
 
-    /**
-     * Invoked before rendering when new props or state are being received. This method is not called for the initial
-     * render or when `forceUpdate` is used.
-     *
-     * Use this as an opportunity to `return false` when you're certain that the transition to the new props and state
-     * will not require a component update.
-     *
-     * If `shouldComponentUpdate` returns false, then `render()` will be completely skipped until the next state change.
-     * In addition, `componentWillUpdate` and `componentDidUpdate` will not be called.
-     *
-     * By default, `shouldComponentUpdate` always returns `true` to prevent subtle bugs when `state` is mutated in place,
-     * but if you are careful to always treat `state` as immutable and to read only from `props` and `state` in `render()`
-     * then you can override `shouldComponentUpdate` with an implementation that compares the old props and state to their
-     * replacements.
-     *
-     * If performance is a bottleneck, especially with dozens or hundreds of components, use `shouldComponentUpdate` to
-     * speed up your app.
-     */
-    def shouldComponentUpdate(f: ShouldComponentUpdateFn[P, S, B]): This =
-      lcAppend(Lifecycle.shouldComponentUpdate)(f)(Semigroup.eitherCB)
+    /** Invoked before rendering when new props or state are being received. This method is not called for the initial
+      * render or when `forceUpdate` is used.
+      *
+      * Use this as an opportunity to `return false` when you're certain that the transition to the new props and state
+      * will not require a component update.
+      *
+      * If `shouldComponentUpdate` returns false, then `render()` will be completely skipped until the next state change.
+      * In addition, `componentWillUpdate` and `componentDidUpdate` will not be called.
+      *
+      * By default, `shouldComponentUpdate` always returns `true` to prevent subtle bugs when `state` is mutated in place,
+      * but if you are careful to always treat `state` as immutable and to read only from `props` and `state` in `render()`
+      * then you can override `shouldComponentUpdate` with an implementation that compares the old props and state to their
+      * replacements.
+      *
+      * If performance is a bottleneck, especially with dozens or hundreds of components, use `shouldComponentUpdate` to
+      * speed up your app.
+      */
+    def shouldComponentUpdate[G[_]](f: ShouldComponentUpdate[P, S, B] => G[Boolean])(implicit G: Sync[G]): This =
+      lcAppend(LifecycleF.shouldComponentUpdate)(DS.transSyncFn1(f))(DS.semigroupSyncOr)
 
     /**
      * Invoked before rendering when new props or state are being received. This method is not called for the initial
@@ -556,29 +555,29 @@ object ComponentBuilder {
      * speed up your app.
      */
     def shouldComponentUpdatePure(f: ShouldComponentUpdate[P, S, B] => Boolean): This =
-      shouldComponentUpdate($ => CallbackTo(f($)))
+      shouldComponentUpdate($ => DS.delay(f($)))
 
-    def componentDidCatchConst        (cb: Callback           ): This = componentDidCatch         (_ => cb)
-    def componentDidMountConst        (cb: Callback           ): This = componentDidMount         (_ => cb)
-    def componentDidUpdateConst       (cb: Callback           )       = componentDidUpdate        (_ => cb)
-    def componentWillUnmountConst     (cb: Callback           ): This = componentWillUnmount      (_ => cb)
-    def shouldComponentUpdateConst    (cb: CallbackTo[Boolean]): This = shouldComponentUpdate     (_ => cb)
-    def shouldComponentUpdateConst    (b : Boolean            ): This = shouldComponentUpdateConst(CallbackTo pure b)
+    def componentDidCatchConst    [G[_]](f: G[Unit]   )(implicit G: Dispatch[G]): This = {val x = DS.transDispatch(f); componentDidCatch    (_ => x)}
+    def componentDidMountConst    [G[_]](f: G[Unit]   )(implicit G: Dispatch[G]): This = {val x = DS.transDispatch(f); componentDidMount    (_ => x)}
+    def componentDidUpdateConst   [G[_]](f: G[Unit]   )(implicit G: Dispatch[G])       = {val x = DS.transDispatch(f); componentDidUpdate   (_ => x)}
+    def componentWillUnmountConst [G[_]](f: G[Unit]   )(implicit G: Dispatch[G]): This = {val x = DS.transDispatch(f); componentWillUnmount (_ => x)}
+    def shouldComponentUpdateConst[G[_]](f: G[Boolean])(implicit G: Sync    [G]): This = {val x = DS.transSync    (f); shouldComponentUpdate(_ => x)}
+    def shouldComponentUpdateConst      (b : Boolean  )                         : This = shouldComponentUpdateConst(DS.pure(b))
 
     @deprecated(
       "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillMountConst(cb: Callback): This = componentWillMount(_ => cb)
+    def componentWillMountConst[G[_]](cb: G[Unit])(implicit G: Dispatch[G]): This = componentWillMount(_ => cb)
 
     @deprecated(
       "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillReceivePropsConst(cb: Callback): This = componentWillReceiveProps(_ => cb)
+    def componentWillReceivePropsConst[G[_]](cb: G[Unit])(implicit G: Dispatch[G]): This = componentWillReceiveProps(_ => cb)
 
     @deprecated(
       "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
       "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillUpdateConst(cb: Callback): This = componentWillUpdate(_ => cb)
+    def componentWillUpdateConst[G[_]](cb: G[Unit])(implicit G: Dispatch[G]): This = componentWillUpdate(_ => cb)
 
     /** This is the end of the road for this component builder.
       *

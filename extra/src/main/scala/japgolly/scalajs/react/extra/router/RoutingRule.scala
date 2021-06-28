@@ -96,7 +96,7 @@ sealed trait RoutingRule[Page, Props] {
     *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
     *                  route-not-found fallback behaviour.
     */
-  final def addConditionWithOptionalFallback[G[_]](condition: Page => G[Boolean], fallback: Page => Option[Action[Page, Props]])(implicit G: Sync[G]): RoutingRule[Page, Props] =
+  final def addConditionWithOptionalFallbackBy[G[_]](condition: Page => G[Boolean], fallback: Page => Option[Action[Page, Props]])(implicit G: Sync[G]): RoutingRule[Page, Props] =
     RoutingRule.ConditionalP(p => G.toJsFn(condition(p)), this, fallback)
 
   /** Prevent this rule from functioning unless some condition holds.
@@ -119,8 +119,8 @@ sealed trait RoutingRule[Page, Props] {
     *                  If response is `None` it will be as if this rule doesn't exist and will likely end in the
     *                  route-not-found fallback behaviour.
     */
-  final def addConditionWithOptionalFallback[G[_]](condition: Page => G[Boolean], fallback: Option[Action[Page, Props]])(implicit G: Sync[G]): RoutingRule[Page, Props] =
-    addConditionWithOptionalFallback(condition, (_: Page) => fallback)
+  final def addConditionWithOptionalFallbackBy[G[_]](condition: Page => G[Boolean], fallback: Option[Action[Page, Props]])(implicit G: Sync[G]): RoutingRule[Page, Props] =
+    addConditionWithOptionalFallbackBy(condition, (_: Page) => fallback)
 
   /** Prevent this rule from functioning unless some condition holds.
     * When the condition doesn't hold, a fallback action is performed.
@@ -138,8 +138,8 @@ sealed trait RoutingRule[Page, Props] {
     * @param condition Function that takes the requested page and returns true if the page should be rendered.
     * @param fallback  Response when rule matches but condition doesn't hold.
     */
-  final def addConditionWithFallback[G[_]](condition: Page => G[Boolean], fallback: Action[Page, Props])(implicit G: Sync[G]): RoutingRule[Page, Props] =
-    addConditionWithOptionalFallback(condition, (_: Page) => Some(fallback))
+  final def addConditionWithFallbackBy[G[_]](condition: Page => G[Boolean], fallback: Action[Page, Props])(implicit G: Sync[G]): RoutingRule[Page, Props] =
+    addConditionWithOptionalFallbackBy(condition, (_: Page) => Some(fallback))
 
   /** Prevent this rule from functioning unless some condition holds.
     *
@@ -153,8 +153,8 @@ sealed trait RoutingRule[Page, Props] {
     *
     * @param condition Function that takes the requested page and returns true if the page should be rendered.
     */
-  final def addCondition[G[_]](condition: Page => G[Boolean])(implicit G: Sync[G]): RoutingRule[Page, Props] =
-    addConditionWithOptionalFallback(condition, (_: Page) => None)
+  final def addConditionBy[G[_]](condition: Page => G[Boolean])(implicit G: Sync[G]): RoutingRule[Page, Props] =
+    addConditionWithOptionalFallbackBy(condition, (_: Page) => None)
 
   /** Specify behaviour when a `Page` doesn't have an associated `Path` or `Action`. */
   final def fallback(fallbackPath  : Page => Path,
@@ -293,7 +293,7 @@ object RoutingRule {
   /** Exhaustive routing rules. For all `Page`s there are `Path`s and `Action`s. */
   final case class WithFallbackF[F[_], Page, Props](rule          : RoutingRule[Page, Props],
                                                     fallbackPath  : Page => Path,
-                                                    fallbackAction: (Path, Page) => Action[Page, Props],
+                                                    fallbackAction: (Path, Page) => ActionF[F, Page, Props],
                                                    )(implicit F: Sync[F]) {
 
     /** Specify a catch-all response to unmatched/invalid routes. */

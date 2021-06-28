@@ -21,6 +21,10 @@ abstract class RouterCtlF[F[_], Route] {
   def pathFor(route: Route): Path
   def set(route: Route, via: SetRouteVia): F[Unit]
 
+  def withEffect[G[_]](implicit G: Sync[G]): RouterCtlF[G, Route] =
+    G.subst[F, ({type L[E[_]] = RouterCtlF[E, Route]})#L](this)(
+      new RouterCtlF.AltEffect(this))
+
   final def set(route: Route): F[Unit] =
     set(route, SetRouteVia.HistoryPush)
 
@@ -82,7 +86,6 @@ abstract class RouterCtlF[F[_], Route] {
 }
 
 object RouterCtlF {
-  // private lazy val reuse: Reusability[RouterCtlF[F, Any]] = {
 
   private def reuseF[F[_]]: Reusability[RouterCtlF[F, Any]] = {
     def test[A, B](x: RouterCtlF[F, A], y: RouterCtlF[F, B]): Boolean =
@@ -115,5 +118,22 @@ object RouterCtlF {
     override def refresh                   = u.refresh
     override def pathFor(a: A)             = u pathFor a
     override def set(a: A, v: SetRouteVia) = f(a, u.set(a, v))
+  }
+
+  final case class AltEffect[F[_], G[_], A](u: RouterCtlF[F, A])(implicit G: Sync[G]) extends RouterCtlF[G, A] {
+    import u.{F => FF}
+    override protected implicit def F      = G
+    override def baseUrl                   = u.baseUrl
+    override def byPath                    = u.byPath.withEffect(G)
+    override def refresh                   = G.transSync(u.refresh)
+    override def pathFor(a: A)             = u pathFor a
+    override def set(a: A, v: SetRouteVia) = G.transSync(u.set(a, v))
+
+    override def withEffect[H[_]](implicit H: Sync[H]): RouterCtlF[H, A] =
+      H.subst[G, ({type L[E[_]] = RouterCtlF[E, A]})#L](this)(
+        H.subst[F, ({type L[E[_]] = RouterCtlF[E, A]})#L](u)(
+          new RouterCtlF.AltEffect(u)(H)
+        )
+      )(G)
   }
 }

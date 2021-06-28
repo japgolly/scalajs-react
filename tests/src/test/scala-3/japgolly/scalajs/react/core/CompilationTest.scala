@@ -20,7 +20,6 @@ sealed trait CompilationTest {
     def i: CallbackTo[Int]
 
     i.handleError(_ => CallbackTo(1))
-    c.toKleisli[Int]
     i.when(bool)
     i.unless(bool)
     Callback.when(bool)(c)
@@ -55,7 +54,6 @@ sealed trait CompilationTest {
 
   // Ensure that the ScalaJsReactConfig.Defaults trait contains a default value for every config method
   class ScalaJsReactConfigDefaults extends ScalaJsReactConfig.Defaults
-
 }
 
 object CompilationTest {

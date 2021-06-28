@@ -23,7 +23,7 @@ object ScalaJsReact {
     "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
   )
 
-  def scalac213Flags = Seq(
+  def scalac2Flags = Seq(
     "-opt:l:inline",
     "-opt-inline-from:japgolly.scalajs.react.**",
     "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings
@@ -66,12 +66,12 @@ object ScalaJsReact {
   def commonSettings: PE =
     _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
       .settings(
-        scalaVersion                  := Ver.scala2,
+        scalaVersion                  := Ver.scala3,
         crossScalaVersions            := Seq(Ver.scala2, Ver.scala3),
         scalacOptions                ++= scalacCommonFlags,
         scalacOptions                ++= byScalaVersion {
-                                           case (2, 13) => scalac213Flags
-                                           case (3, _ ) => scalac3Flags
+                                           case (2, _) => scalac2Flags
+                                           case (3, _) => scalac3Flags
                                          }.value,
         //scalacOptions               += "-Xlog-implicits",
         incOptions                    := incOptions.value.withLogRecompileOnMacro(false),

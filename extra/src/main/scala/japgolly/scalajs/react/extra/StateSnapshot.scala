@@ -16,7 +16,8 @@ object StateSnapshot {
   type TupledModFn[ S] = StateSnapshotF.TupledModFn[Sync, S]
 
   private def effectFn[F[_], A](f: (A, F[Unit]) => F[Unit])(implicit F: Effect.Sync[F]): (A, Sync[Unit]) => Sync[Unit] =
-    Sync.withAltEffect(F, f)((a, c) => Sync.transSync(f(a, F.transSync(c))))
+    Sync.subst[F, ({ type L[E[_]] = (A, E[Unit]) => E[Unit]})#L](f)(
+      (a, c) => Sync.transSync(f(a, F.transSync(c))))
 
   private def effectFnT[F[_], A](f: ((A, F[Unit])) => F[Unit])(implicit F: Effect.Sync[F]): ((A, Sync[Unit])) => Sync[Unit] =
     effectFn[F, A](untuple(f)).tupled

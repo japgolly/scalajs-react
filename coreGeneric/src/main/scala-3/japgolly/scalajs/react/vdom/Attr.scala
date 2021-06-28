@@ -1,8 +1,9 @@
 package japgolly.scalajs.react.vdom
 
-import japgolly.scalajs.react.util.OptionLike
+import japgolly.scalajs.react.util.Effect._
+import japgolly.scalajs.react.util.{DefaultEffects, OptionLike}
 import japgolly.scalajs.react.vdom.Attr.ValueType
-import japgolly.scalajs.react.{Callback, CallbackTo, facade}
+import japgolly.scalajs.react.{Reusable, facade}
 import org.scalajs.dom
 import scala.annotation.{elidable, implicitNotFound, nowarn}
 import scala.language.`3.0`
@@ -71,28 +72,53 @@ object Attr {
       t(attrName, a)
   }
 
-  final class Event[E[+x <: dom.Node] <: facade.SyntheticEvent[x]](name: String)
-      extends Attr[js.Function1[E[Nothing], Unit]](name) {
+  // ===================================================================================================================
 
+  final case class EventCallback[A](prepare: (=> A) => js.Function0[Unit]) extends AnyVal {
+    def runOption[O[_]](callback: O[A])(implicit O: OptionLike[O]): Unit =
+      O.foreach(callback)(prepare(_)())
+  }
+
+  trait EventCallback0 {
+    implicit def sync[F[_]](implicit F: Dispatch[F]): EventCallback[F[Unit]] =
+      new EventCallback(fa => F.dispatchFn(fa))
+
+    implicit def reusableSync[F[_]](implicit F: Dispatch[F]): EventCallback[Reusable[F[Unit]]] =
+      new EventCallback(fa => F.dispatchFn(fa))
+  }
+
+  object EventCallback extends EventCallback0 {
+    import DefaultEffects.{Sync => D}
+
+    implicit val defaultSync: EventCallback[D[Unit]] =
+      sync(D)
+
+    implicit lazy val reusableDefaultSync: EventCallback[Reusable[D[Unit]]] =
+      reusableSync(D)
+  }
+
+  type EventHandler[E[+x <: dom.Node] <: facade.SyntheticEvent[x]] =
+    js.Function0[Unit] | js.Function1[E[Nothing], Unit]
+
+  final class Event[E[+x <: dom.Node] <: facade.SyntheticEvent[x]](name: String) extends Attr[EventHandler[E]](name) {
     type Event = E[Nothing]
 
-    override def :=[A](a: A)(implicit t: ValueType[A, js.Function1[E[Nothing], Unit]]): TagMod =
+    override def :=[A](a: A)(implicit t: ValueType[A, EventHandler[E]]): TagMod =
       TagMod.fn(b => t.fn(f => b.addEventHandler(name, f.asInstanceOf[js.Function1[js.Any, Unit]]), a))
 
-    inline def -->[A](callback: => CallbackTo[A])(using inline ev: DomCallbackResult[A]): TagMod =
-      ==>(_ => callback)
+    def -->[A](callback: => A)(implicit F: EventCallback[A]): TagMod =
+      :=(F.prepare(callback))(ValueType.direct)
 
-    inline def ==>[A](eventHandler: Event => CallbackTo[A])(using inline ev: DomCallbackResult[A]): TagMod =
-      unsafe_==>[A](eventHandler)
+    def ==>[A](eventHandler: Event => A)(implicit F: EventCallback[A]): TagMod = {
+      val f: js.Function1[Event, Unit] = e => F.prepare(eventHandler(e))()
+      :=(f)(ValueType.direct)
+    }
 
-    private[react] def unsafe_==>[A](eventHandler: Event => CallbackTo[A]): TagMod =
-      :=(((e: Event) => eventHandler(e).runNow()): js.Function1[E[Nothing], Unit])(ValueType.direct)
+    def -->?[O[_], A](callback: => O[A])(implicit F: EventCallback[A], O: OptionLike[O]): TagMod =
+      this --> DefaultEffects.Sync.delay(F.runOption(callback))
 
-    def -->?[O[_]](callback: => O[Callback])(implicit o: OptionLike[O]): TagMod =
-      this --> Callback(o.foreach(callback)(_.runNow()))
-
-    def ==>?[O[_]](eventHandler: Event => O[Callback])(implicit o: OptionLike[O]): TagMod =
-      ==>(e => Callback(o.foreach(eventHandler(e))(_.runNow())))
+    def ==>?[O[_], A](eventHandler: Event => O[A])(implicit F: EventCallback[A], O: OptionLike[O]): TagMod =
+      ==>(e => DefaultEffects.Sync.delay(F.runOption(eventHandler(e))))
   }
 
   object Event {
@@ -115,6 +141,8 @@ object Attr {
     inline def ui         (name: String) = apply[facade.SyntheticUIEvent         ](name)
     inline def wheel      (name: String) = apply[facade.SyntheticWheelEvent      ](name)
   }
+
+  // ===================================================================================================================
 
   private[vdom] object Dud extends Attr[Any]("") {
     override def :=[A](a: A)(implicit t: ValueType[A, Any]) = TagMod.empty

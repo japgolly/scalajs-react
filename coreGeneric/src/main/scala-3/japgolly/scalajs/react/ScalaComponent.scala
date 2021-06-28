@@ -36,7 +36,3 @@ object ScalaComponent {
   type Builder[P, C <: Children, S, B, US <: UpdateSnapshot] =
     japgolly.scalajs.react.component.builder.ComponentBuilder.LastStep[P, C, S, B, US]
 }
-
-type ScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]] = Scala.Component[P, S, B, CT]
-
-type BackendScope[P, S] = Scala.BackendScope[P, S]

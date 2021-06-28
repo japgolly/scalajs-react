@@ -33,7 +33,7 @@ object Callback {
   }
 
   inline def apply[A](inline f: A)(using inline ev: ResultGuard[A]): Callback =
-    CallbackTo { f; () }
+    CallbackTo(f: Unit)
 
   inline def lift(f: () => Unit): Callback =
     CallbackTo.lift(f)
@@ -122,7 +122,7 @@ object Callback {
       oa.foreach(a =>
         f(a).runNow()))
 
-  inline def sequenceOption[A](inline oca: Option[Callback[A]]): Callback =
+  inline def sequenceOption[A](inline oca: Option[CallbackTo[A]]): Callback =
     traverseOption(oca)(identityFn)
 
   /** Run all given callbacks.

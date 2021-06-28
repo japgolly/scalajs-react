@@ -1,6 +1,6 @@
 package japgolly.scalajs.react.extra
 
-import japgolly.scalajs.react.util.Effect.{Dispatch, Sync}
+import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.{DefaultEffects, NotAllowed}
 import japgolly.scalajs.react.{Reusability, Reusable, StateAccess}
 import scala.reflect.ClassTag
@@ -10,8 +10,8 @@ final class StateSnapshotF[F[_], S](val value: S,
                                     private[extra] val reusability: Reusability[S])
                                    (implicit FF: Sync[F]) extends StateAccess.Write[F, DefaultEffects.Async, S] {
 
-  override protected implicit def A = DefaultEffects.Async
-  override protected implicit def F = FF
+  override protected implicit def A: Async[DefaultEffects.Async] = DefaultEffects.Async
+  override protected implicit def F: Sync[F] = FF
 
   override def toString = s"StateSnapshot($value)"
 

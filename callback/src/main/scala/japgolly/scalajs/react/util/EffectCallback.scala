@@ -24,7 +24,7 @@ abstract class EffectCallback extends userdefined.Effects {
     @inline override def reset[A](fa: CallbackTo[A]): Callback =
       fa.reset
 
-    @inline override def runAll(callbacks: CallbackTo[_]*): Callback =
+    @inline override def runAll[A](callbacks: CallbackTo[A]*): Callback =
       Callback.runAll(callbacks: _*)
 
     @inline override def delay[A](a: => A) =
@@ -95,13 +95,13 @@ abstract class EffectCallback extends userdefined.Effects {
       fa.finallyRun(fb)
 
     override def async[A](fa: Async.Untyped[A]): AsyncCallback[A] =
-      AsyncCallback[A](f => CallbackTo(fa(f(_).toJsFn)))
+      AsyncCallback[A](f => CallbackTo.fromJsFn(fa(f(_).toJsFn)))
 
     override def async_(onCompletion: Sync.Untyped[Unit] => Sync.Untyped[Unit]): AsyncCallback[Unit] =
       AsyncCallback.viaCallback(f => Callback.fromJsFn(onCompletion(f.toJsFn)))
 
     override def runAsync[A](fa: => AsyncCallback[A]): Async.Untyped[A] =
-      f => fa.completeWith(t => CallbackTo(f(t))).toJsFn
+      f => fa.completeWith(t => CallbackTo.fromJsFn(f(t))).toJsFn
 
     override def first[A](f: Async.Untyped[A]) =
       AsyncCallback.first[A](g => Callback.fromJsFn(f(g.andThen(_.toJsFn))))

@@ -10,6 +10,7 @@ import scala.annotation.tailrec
 import scala.collection.BuildFrom
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.`3.0`
 import scala.scalajs.js
 import scala.scalajs.js.timers.RawTimers
 import scala.scalajs.js.{Function0 => JFn0, Function1 => JFn1, UndefOr, undefined}
@@ -124,7 +125,7 @@ object CallbackTo {
   def newJsPromise[A]: CallbackTo[(js.Promise[A], Try[A] => Callback)] =
     CallbackTo {
       val (p, f) = JsUtil.newPromise[A]()
-      (p, t => Callback(f(t)))
+      (p, t => Callback.fromJsFn(f(t)))
     }
 
   lazy val now: CallbackTo[Instant] =
@@ -464,10 +465,7 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
     * @param cond The condition required to be `true` for this callback to execute.
     */
   inline def when_(inline cond: Boolean): Callback =
-    CallbackTo {
-      if (cond) runNow()
-      ()
-    }
+    CallbackTo(if (cond) runNow())
 
   /** Conditional execution of this callback.
     * Discards the result.

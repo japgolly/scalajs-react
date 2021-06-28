@@ -37,8 +37,8 @@ object Effect extends EffectCatsEffect {
     def suspend[A](fa: => F[A]) : F[A]
     def toJsFn [A](fa: => F[A]) : js.Function0[A]
 
-    final def withAltEffect[G[_], A](g: Sync[G], self: Any)(a: => A): A =
-      if (this eq g) self.asInstanceOf[A] else a
+    final def subst[G[_], X[_[_]]](xg: X[G])(xf: => X[F])(implicit g: Sync[G]): X[F] =
+      if (this eq g) xg.asInstanceOf[X[F]] else xf
 
     final def transSync[G[_], A](ga: => G[A])(implicit g: UnsafeSync[G]): F[A] =
       if (this eq g)
@@ -102,7 +102,7 @@ object Effect extends EffectCatsEffect {
     def handleError [A, AA >: A](fa: F[A])(f: Throwable => F[AA]) : F[AA]
     def isEmpty     [A]         (f: F[A])                         : Boolean
     def reset       [A]         (fa: F[A])                        : F[Unit]
-    def runAll                  (callbacks: F[_]*)                : F[Unit]
+    def runAll      [A]         (callbacks: F[A]*)                : F[Unit]
     def sequence_   [A]         (fas: => Iterable[F[A]])          : F[Unit]
     def sequenceList[A]         (fas: => List[F[A]])              : F[List[A]]
     def traverse_   [A, B]      (as: => Iterable[A])(f: A => F[B]): F[Unit]
@@ -148,7 +148,7 @@ object Effect extends EffectCatsEffect {
           }
         )
 
-      override def runAll(callbacks: F[_]*): F[Unit] =
+      override def runAll[A](callbacks: F[A]*): F[Unit] =
         callbacks.foldLeft(empty)((x, y) => chain(x, reset(y)))
 
       override def traverse_[A, B](as: => Iterable[A])(f: A => F[B]): F[Unit] =

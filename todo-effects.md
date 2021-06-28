@@ -1,3 +1,6 @@
+* Add a ScalaFix rule to cover coreGeneric, extra, testUtil
+  ensure DefaultEffect.X will never break linking
+
 * Add WithEffect/WithAsyncEffect or support more than just the default effect type
   * component.*
   * DefaultReusabilityOverlay

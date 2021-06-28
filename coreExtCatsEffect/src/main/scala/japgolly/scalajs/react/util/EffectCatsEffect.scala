@@ -34,8 +34,7 @@ abstract class EffectCatsEffect extends EffectCallback {
 
   // ===================================================================================================================
 
-  implicit lazy val io: AsyncIO =
-    new AsyncIO(ReactCatsEffect.runtimeFn)
+  implicit object io extends AsyncIO(ReactCatsEffect.runtimeFn)
 
   class AsyncIO(runtime: () => IORuntime) extends Async.WithDefaults[IO] {
 

@@ -112,7 +112,7 @@ object Router2Test extends TestSuite {
       val privatePage4 = (emptyRule
         | staticRoute("private-4", PrivatePage4) ~> render(<.h1("Private #4"))
         )
-        .addConditionWithFallback(_ => isUserLoggedInCB, redirectToPage(AccessDenied)(SetRouteVia.HistoryReplace))
+        .addConditionWithFallbackBy(_ => isUserLoggedInCB, redirectToPage(AccessDenied)(SetRouteVia.HistoryReplace))
 
       val ePages = (emptyRule
         | staticRoute("e/1", E(E1)) ~> render(renderE(E(E1)))
@@ -354,10 +354,10 @@ object Router2Test extends TestSuite {
         "ca" - test(_.addConditionWithFallback(CallbackTo(true), RedirectToPath[Int](null, null)))
         "co" - test(_.addConditionWithOptionalFallback(CallbackTo(true), None))
         "cf" - test(_.addConditionWithOptionalFallback(CallbackTo(true), _ => None))
-        "f"  - test(_.addCondition(i => CallbackTo(i == 0)))
-        "fa" - test(_.addConditionWithFallback(i => CallbackTo(i == 0), RedirectToPath[Int](null, null)))
-        "fo" - test(_.addConditionWithOptionalFallback(i => CallbackTo(i == 0), None))
-        "ff" - test(_.addConditionWithOptionalFallback(i => CallbackTo(i == 0), _ => None))
+        "f"  - test(_.addConditionBy(i => CallbackTo(i == 0)))
+        "fa" - test(_.addConditionWithFallbackBy(i => CallbackTo(i == 0), RedirectToPath[Int](null, null)))
+        "fo" - test(_.addConditionWithOptionalFallbackBy(i => CallbackTo(i == 0), None))
+        "ff" - test(_.addConditionWithOptionalFallbackBy(i => CallbackTo(i == 0), _ => None))
       }
     }
 

@@ -78,7 +78,7 @@ object RouterWithProps {
 final class RouterLogicF[F[_], Page, Props](val baseUrl: BaseUrl, cfg: RouterWithPropsConfigF[F, Page, Props]) extends BroadcasterF[F, Unit] {
   import cfg.{effect => F}
 
-  type Action     = router.Action[Page, Props]
+  type Action     = router.ActionF[F, Page, Props]
   type Renderer   = router.RendererF[F, Page, Props]
   type Redirect   = router.Redirect[Page]
   type Resolution = router.ResolutionWithProps[Page, Props]
@@ -149,8 +149,8 @@ final class RouterLogicF[F[_], Page, Props](val baseUrl: BaseUrl, cfg: RouterWit
 
   def resolveAction(a: Action): F[Either[RouteCmd[Resolution], Renderer]] =
     a match {
-      case r: Renderer => F.pure(Right(r))
-      case r: Redirect => F.map(redirect(r))(Left(_))
+      case r@ RendererF(_) => F.pure(Right(r.withEffect[F]))
+      case r: Redirect     => F.map(redirect(r))(Left(_))
     }
 
   def redirect(r: Redirect): F[RouteCmd[Resolution]] =
@@ -193,7 +193,7 @@ final class RouterLogicF[F[_], Page, Props](val baseUrl: BaseUrl, cfg: RouterWit
         logger(msg())
 
       case Sequence(a, b) =>
-        F.chain(a.foldLeft[F[_]](F.empty)((x, y) => F.chain(x, interpret(y))), interpret(b))
+        F.chain(a.foldLeft[F[Unit]](F.empty)((x, y) => F.chain(x, F.map(interpret(y))(_ => ()))), interpret(b))
     }
   }
 

@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.extra.router
 
 import japgolly.scalajs.react.extra.internal.RouterMacros
+import japgolly.scalajs.react.util.DefaultEffects.Sync
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.VdomElement
 import java.util.UUID

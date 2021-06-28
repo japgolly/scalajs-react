@@ -51,8 +51,8 @@ object LifecycleF {
 
   sealed abstract class Base[F[_], A[_], P, S, B](final val raw: RawMounted[P, S, B])(implicit f: Sync[F], a: Async[A]) {
 
-    protected final implicit def F = f
-    protected final implicit def A = a
+    protected final implicit def F: Sync[F] = f
+    protected final implicit def A: Async[A] = a
 
     final def backend      : B                            = raw.backend
     final def mountedImpure: Scala.MountedImpure[P, S, B] = raw.mountedImpure

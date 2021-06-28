@@ -8,9 +8,10 @@ import japgolly.scalajs.react.{CtorType, ScalaComponent}
 
 package object router {
 
+  type Action     [Page, -Props] = ActionF[Sync, Page, Props]
+  type Renderer   [Page, -Props] = RendererF[Sync, Page, Props]
   type RouterCtl  [A]            = RouterCtlF[Sync, A]
   type RouterLogic[Page, Props]  = RouterLogicF[Sync, Page, Props]
-  type Renderer   [Page, -Props] = RendererF[Sync, Page, Props]
 
   type RouterWithPropsF [F[_], P, Props] = ScalaComponent              [Props, ResolutionWithProps[P, Props], OnUnmountF[F], CtorType.Props]
   type RouterWithPropsFU[F[_], P, Props] = ScalaComponent.Unmounted    [Props, ResolutionWithProps[P, Props], OnUnmountF[F]]
@@ -128,5 +129,5 @@ package object router {
       postRenderFn: (Option[Page], Page, Props) => Sync[Unit],
       logger      : Logger,
      ): RouterWithPropsConfig[Page, Props] =
-   RouterWithPropsConfig(rules, renderFn, postRenderFn, logger)
+   RouterWithPropsConfigF(rules, renderFn, postRenderFn, logger)
 }

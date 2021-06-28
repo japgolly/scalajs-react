@@ -147,7 +147,7 @@ object CallbackOption {
 
     @targetName("ext_toCallback")
     inline def toCallback: Callback =
-      Callback(self.cbfn())
+      Callback(self.underlyingRepr())
 
     def unary_! : CallbackOption[Unit] =
       self.asCallback.map {

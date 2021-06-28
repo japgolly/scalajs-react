@@ -305,7 +305,7 @@ object AsyncCallback {
     if (as.isEmpty)
       unit
     else
-      sequence_(as.iterator)
+      sequence_(as)
 
   // ===================================================================================================================
 
