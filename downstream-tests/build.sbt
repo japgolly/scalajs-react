@@ -66,20 +66,34 @@ def commonSettings: Project => Project = _
 
 lazy val cleanTestAll = taskKey[Unit]("cleanTestAll")
 
+val enableJSCE = System.getProperty("downstream_tests.enableJSCE") != null
+
 lazy val root = Project("root", file("."))
   .configure(commonSettings)
   .aggregate(macros, jvm, js, jsCE)
   .settings(
-    cleanTestAll := Def.sequential(
-      macros        / clean,
-      jvm           / clean,
-      js            / clean,
-      jsCE          / clean,
-               Test / compile,
-      jvm    / Test / test,
-      js     / Test / test,
-      jsCE   / Test / test,
-    ).value,
+    cleanTestAll := (
+      if (enableJSCE) // How to do this in a better way?
+        Def.sequential(
+          macros        / clean,
+          jvm           / clean,
+          js            / clean,
+          jsCE          / clean,
+                   Test / compile,
+          jvm    / Test / test,
+          js     / Test / test,
+          jsCE   / Test / test,
+        ).value
+      else
+        Def.sequential(
+          macros        / clean,
+          jvm           / clean,
+          js            / clean,
+                   Test / compile,
+          jvm    / Test / test,
+          js     / Test / test,
+        ).value
+    ),
   )
 
 lazy val macros = project
@@ -124,6 +138,7 @@ lazy val js = project
       val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
       Seq(
         "com.github.japgolly.scalajs-react" %%% "core" % ver,
+        "com.github.japgolly.scalajs-react" %%% "core-ext-cats-effect" % ver,
         "com.github.japgolly.scalajs-react" %%% "extra" % ver,
         "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
         Dep.microlibsCompileTime.value % Test,
@@ -131,6 +146,7 @@ lazy val js = project
         Dep.scalaJsJavaTime.value % Test,
       )
     },
+    jsDependencies += (ProvidedJS / "polyfill.js") % Test,
     scalaJSLinkerConfig ~= { _
       .withSemantics(_
         .withRuntimeClassNameMapper(Semantics.RuntimeClassNameMapper.discardAll())
