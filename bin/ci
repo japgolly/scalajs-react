@@ -21,7 +21,7 @@ if [ -z "${TRAVIS_SCALA_VERSION:-}" ]; then
       exit 0
       ;;
     2|3)
-      TRAVIS_SCALA_VERSION="$(egrep "scala: *$1\\." .travis.yml | head -1 | sed 's/.*: *//')"
+      TRAVIS_SCALA_VERSION="$(bin/get_scala_version $1)"
       echo "Scala version: $TRAVIS_SCALA_VERSION"
       ;;
     *)
