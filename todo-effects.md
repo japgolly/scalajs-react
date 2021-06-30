@@ -9,9 +9,6 @@
 
 * Fix ScalaDoc links
 
-* At the very end, compare the total diff of the tests - it should be as minimal as possible and if there
-  are any mandatory changes, confirm them and add to changelog & migration guide (shouldn't be)
-
 ========================================================================================================================
 
 ```s
