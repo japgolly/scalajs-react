@@ -18,6 +18,17 @@ final case class RoutingRulesF[F[_], Page, Props](
 
   import RoutingRulesF.SharedLogic._
 
+  def withEffect[G[_]](implicit G: Sync[G]): RoutingRulesF[G, Page, Props] =
+    G.subst[F, ({type L[E[_]] = RoutingRulesF[E, Page, Props]})#L](this)(
+      RoutingRulesF[G, Page, Props](
+        parseMulti     = parseMulti,
+        path           = path,
+        actionMulti    = actionMulti(_, _).map(_.map(_.map(_.withEffect[G]))),
+        fallbackAction = fallbackAction(_, _).withEffect[G],
+        whenNotFound   = G.transSyncFn1(whenNotFound),
+      )
+    )
+
   def parse(path: Path): F[Parsed[Page]] =
     F.flatMap(selectParsed(path, parseMulti)) {
       case Some(a) => F.pure(a)

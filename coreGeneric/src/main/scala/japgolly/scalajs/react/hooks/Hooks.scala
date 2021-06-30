@@ -164,6 +164,11 @@ object Hooks {
   // ===================================================================================================================
 
   final case class UseRefF[F[_], A](raw: facade.React.RefHandle[A])(implicit F: Sync[F]) {
+
+    def withEffect[G[_]](implicit G: Sync[G]): UseRefF[G, A] =
+      G.subst[F, ({type L[E[_]] = UseRefF[E, A]})#L](this)(
+        new UseRefF(raw))
+
     @inline def value: A =
       raw.current
 
@@ -218,13 +223,11 @@ object Hooks {
 
   private lazy val internalReuseSafety = Reusable.byRef(new AnyRef)
 
+  type UseState[S] = UseStateF[D.Sync, S]
+
   object UseState {
-    def apply[S, O](r: facade.React.UseState[S], oss: Reusable[facade.React.UseStateSetter[O]]): UseState[S] =
-      new UseState[S] {
-        override val raw = r
-        override type OriginalState = O
-        override val originalSetState = oss
-      }
+    @inline def apply[S, O](r: facade.React.UseState[S], oss: Reusable[facade.React.UseStateSetter[O]]): UseState[S] =
+      UseStateF(r, oss)(D.Sync)
 
     def unsafeCreate[S](initialState: => S): UseState[S] = {
       // Boxing is required because React's useState uses reflection to distinguish between {set,mod}State.
@@ -236,18 +239,30 @@ object Hooks {
     }
   }
 
-  trait UseState[S] { self =>
+  def UseStateF[F[_], S, O](r: facade.React.UseState[S], oss: Reusable[facade.React.UseStateSetter[O]])(implicit f: Sync[F]): UseStateF[F, S] =
+    new UseStateF[F, S] {
+      override protected[hooks] implicit def F = f
+      override val raw = r
+      override type OriginalState = O
+      override val originalSetState = oss
+    }
 
+  trait UseStateF[F[_], S] { self =>
+    protected[hooks] implicit def F: Sync[F]
     val raw: facade.React.UseState[S]
-
     type OriginalState
     val originalSetState: Reusable[facade.React.UseStateSetter[OriginalState]]
+
+    final def withEffect[G[_]](implicit G: Sync[G]): UseStateF[G, S] =
+      G.subst[F, ({type L[E[_]] = UseStateF[E, S]})#L](this)(
+        UseStateF(raw, originalSetState)
+      )
 
     @inline def value: S =
       raw._1
 
-    def setState: Reusable[S => D.Sync[Unit]] =
-      originalSetState.withValue(s => D.Sync.delay(raw._2(s)))
+    def setState: Reusable[S => F[Unit]] =
+      originalSetState.withValue(s => F.delay(raw._2(s)))
 
     /** WARNING: This ignores reusability of the provided function.
       * It will only work correctly if you always provide the exact same function.
@@ -256,16 +271,16 @@ object Hooks {
       *
       * @param f WARNING: This must be a consistent/stable function.
       */
-    def modState: Reusable[(S => S) => D.Sync[Unit]] =
-      originalSetState.withValue(f => D.Sync.delay(modStateRaw(f)))
+    def modState: Reusable[(S => S) => F[Unit]] =
+      originalSetState.withValue(f => F.delay(modStateRaw(f)))
 
     object withReusableInputs {
-      def setState: Reusable[Reusable[S] => Reusable[D.Sync[Unit]]] = {
+      def setState: Reusable[Reusable[S] => Reusable[F[Unit]]] = {
         val setR = self.setState
         Reusable.implicitly((setR, internalReuseSafety)).withValue(_.ap(setR))
       }
 
-      def modState: Reusable[Reusable[S => S] => Reusable[D.Sync[Unit]]] = {
+      def modState: Reusable[Reusable[S => S] => Reusable[F[Unit]]] = {
         val modR = self.modState
         Reusable.implicitly((modR, internalReuseSafety)).withValue(_.ap(modR))
       }
@@ -330,16 +345,23 @@ object Hooks {
     def unsafeCreate[S](initialState: => S)(implicit r: Reusability[S], ct: ClassTag[S]): UseStateWithReuse[S] = {
       val rr = Reusable.reusabilityInstance(r)
       val us = UseState.unsafeCreate(initialState).withReusability
-      apply(us, rr)
+      UseStateWithReuseF(us, rr)
     }
   }
 
-  final case class UseStateWithReuse[S: ClassTag](withoutReuse: UseState[S], reusability: Reusable[Reusability[S]]) {
+  type UseStateWithReuse[S] = UseStateWithReuseF[D.Sync, S]
+
+  final case class UseStateWithReuseF[F[_], S: ClassTag](withoutReuse: UseStateF[F, S], reusability: Reusable[Reusability[S]]) {
+
+    def withEffect[G[_]](implicit G: Sync[G]): UseStateWithReuseF[G, S] =
+      G.subst[F, ({type L[E[_]] = UseStateWithReuseF[E, S]})#L](this)(
+        UseStateWithReuseF(withoutReuse.withEffect[G], reusability)
+      )(withoutReuse.F)
 
     @inline def value: S =
       withoutReuse.value
 
-    def setState: Reusable[S => Reusable[D.Sync[Unit]]] =
+    def setState: Reusable[S => Reusable[F[Unit]]] =
       withReusableInputs.setState.map(set => s => set(reusability.reusable(s)))
 
     /** WARNING: This ignores reusability of the provided function.
@@ -349,7 +371,7 @@ object Hooks {
       *
       * @param f WARNING: This must be a consistent/stable function.
       */
-    def modState(f: S => S): Reusable[D.Sync[Unit]] =
+    def modState(f: S => S): Reusable[F[Unit]] =
       withReusableInputs.modState(internalReuseSafety.withValue(f))
 
     @inline def withReusableInputs =

@@ -4,6 +4,13 @@ import japgolly.scalajs.react.util.Effect.Sync
 import scala.scalajs.js
 
 private[router] final case class StaticOrDynamic[A](value: Either[js.Function0[A], A]) {
+
+  def map[B](f: A => B): StaticOrDynamic[B] =
+    StaticOrDynamic(value match {
+      case Left (g) => Left(() => f(g()))
+      case Right(a) => Right(f(a))
+    })
+
   def merge: js.Function0[A] =
     value match {
       case Right(a) => () => a

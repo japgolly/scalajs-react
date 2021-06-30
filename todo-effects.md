@@ -1,21 +1,4 @@
-* Add WithEffect/WithAsyncEffect or support more than just the default effect type
-  * component.*
-  * DefaultReusabilityOverlay
-  * Hooks.scala
-  * Router
-  * RouterCtl
-  * RouterWithPropsConfig.scala
-  * RoutingRule
-  * RoutingRules
-  * StateAccess (*Pure)
-  * StateSnapshotF
-  * TriStateCheckbox
-and then in testUtil:
-  * TestBroadcaster
-  * ReactTestVarF
-
 * Add effect trans methods/extensions  (eg. `.to[IO]` and `.to[CallbackTo]`)?
-* resolve todos
 
 * Show `modules.gv.svg` in doc and changelog
   * clarify new imports

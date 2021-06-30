@@ -229,9 +229,6 @@ object Reusable {
 
     final class StateAccessWriteOps[I, F[_], A[_], S](i: I)(implicit t: StateAccessor.Write[I, F, A, S], F: Sync[F]) {
 
-      // TODO: FX: def withEffect[G[_]](implicit G: Sync[G]): StateAccessWriteOps[I, G, A, S] =
-      //   new StateAccessWriteOps(i)(t.withEffect(G))
-
       def setStateFn: Reusable[SetStateFn[F, A, S]] =
         Reusable.byRef(t(i).toSetStateFn)
 

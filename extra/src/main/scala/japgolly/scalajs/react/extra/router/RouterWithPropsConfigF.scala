@@ -16,6 +16,16 @@ case class RouterWithPropsConfigF[F[_], Page, Props](
 
   @inline private def F = effect
 
+  def withEffect[G[_]](implicit G: Sync[G]): RouterWithPropsConfigF[G, Page, Props] =
+    G.subst[F, ({type L[E[_]] = RouterWithPropsConfigF[E, Page, Props]})#L](this)(
+      RouterWithPropsConfigF(
+        rules        = rules.withEffect[G],
+        renderFn     = (rc, res) => renderFn(rc.withEffect[F], res),
+        postRenderFn = G.transDispatchFn3(postRenderFn),
+        logger       = logger,
+      )
+    )
+
   def logWith(l: Logger): RouterWithPropsConfigF[F, Page, Props] =
     copy(logger = l)
 

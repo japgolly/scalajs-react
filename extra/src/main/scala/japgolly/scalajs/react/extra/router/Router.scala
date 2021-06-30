@@ -3,6 +3,7 @@ package japgolly.scalajs.react.extra.router
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.util.DefaultEffects
+import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.VdomElement
 import org.scalajs.dom
@@ -94,6 +95,11 @@ final class RouterLogicF[F[_], Page, Props](val baseUrl: BaseUrl, cfg: RouterWit
 
   private def logger(s: => String): F[Unit] =
     F.fromJsFn0(cfg.logger(s))
+
+  def withEffect[G[_]](implicit G: Sync[G]): RouterLogicF[G, Page, Props] =
+    G.subst[F, ({type L[E[_]] = RouterLogicF[E, Page, Props]})#L](this)(
+      new RouterLogicF(baseUrl, cfg.withEffect[G])
+    )
 
   val syncToWindowUrl: F[Resolution] =
     F.flatMap(F.delay(AbsUrl.fromWindow)              )(url =>
