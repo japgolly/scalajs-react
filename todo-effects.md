@@ -1,5 +1,3 @@
-* Add effect trans methods/extensions  (eg. `.to[IO]` and `.to[CallbackTo]`)?
-
 * Show `modules.gv.svg` in doc and changelog
   * clarify new imports
   * migration

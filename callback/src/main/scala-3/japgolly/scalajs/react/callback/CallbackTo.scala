@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.callback
 
 import japgolly.scalajs.react.callback.CallbackTo.MapGuard
+import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.util.Util.{catchAll, identityFn}
 import java.time.{Duration, Instant}
@@ -264,6 +265,11 @@ object CallbackTo {
   extension [A, B](self: CallbackTo[(A, B)]) {
     inline def flatMap2[C](f: (A, B) => CallbackTo[C]): CallbackTo[C] =
       self.flatMap(f.tupled)
+  }
+
+  extension [A](self: CallbackTo[A]) {
+    def to[F[_]](implicit F: Sync[F]): F[A] =
+      F.delay(self.runNow())
   }
 }
 

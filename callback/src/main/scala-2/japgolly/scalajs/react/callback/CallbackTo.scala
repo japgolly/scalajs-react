@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.callback
 
 import japgolly.scalajs.react.callback.CallbackTo.MapGuard
+import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.util.Util.{catchAll, identityFn}
 import java.time.{Duration, Instant}
@@ -221,6 +222,14 @@ object CallbackTo {
 
   @inline implicit def MapGuard[A]: MapGuard[A] =
     null.asInstanceOf[MapGuard[A]]
+
+  @inline implicit def InvariantOps[A](c: CallbackTo[A]): InvariantOps[A] =
+    new InvariantOps[A](c.trampoline)
+
+  final class InvariantOps[A](private val trampoline: Trampoline[A]) extends AnyVal {
+    def to[F[_]](implicit F: Sync[F]): F[A] =
+      F.delay(trampoline.run)
+  }
 }
 
 // =====================================================================================================================

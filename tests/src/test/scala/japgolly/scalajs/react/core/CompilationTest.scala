@@ -30,6 +30,7 @@ sealed trait CompilationTest {
     // Callback(Callback.empty)
     CallbackTo(false) && CallbackTo(true)
     !CallbackTo(false)
+    i.to[CallbackTo]
   }
 
   // ===================================================================================================================
