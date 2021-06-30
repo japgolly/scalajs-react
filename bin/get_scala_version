@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+
+tmp="$(fgrep " scala$1 " project/Dependencies.scala)"
+r='[^"]*"([^"]*)"[^"]*'
+if [[ "$tmp" =~ $r ]]; then
+  echo "${BASH_REMATCH[1]}"
+else
+  echo "Unable to determine Scala $1 version" >&2
+  exit 3
+fi
