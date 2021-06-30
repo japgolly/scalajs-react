@@ -1,6 +1,3 @@
-* Add a ScalaFix rule to cover coreGeneric, extra, testUtil
-  ensure DefaultEffect.X will never break linking
-
 * Add WithEffect/WithAsyncEffect or support more than just the default effect type
   * component.*
   * DefaultReusabilityOverlay
@@ -19,7 +16,6 @@ and then in testUtil:
 
 * Add effect trans methods/extensions  (eg. `.to[IO]` and `.to[CallbackTo]`)?
 * resolve todos
-* Audit all use of DefaultEffects in coreGeneral
 
 * Show `modules.gv.svg` in doc and changelog
   * clarify new imports

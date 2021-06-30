@@ -20,6 +20,7 @@ val facadeTest            = ScalaJsReact.facadeTest
 val ghpages               = ScalaJsReact.ghpages
 val ghpagesMacros         = ScalaJsReact.ghpagesMacros
 val root                  = ScalaJsReact.root
+val scalafixRules         = ScalaJsReact.scalafixRules
 val tests                 = ScalaJsReact.tests
 val testUtil              = ScalaJsReact.testUtil
 val util                  = ScalaJsReact.util

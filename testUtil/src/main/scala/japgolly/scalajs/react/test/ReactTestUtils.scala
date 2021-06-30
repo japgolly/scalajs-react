@@ -4,7 +4,8 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.{React => RawReact, ReactDOM => RawReactDOM}
 import japgolly.scalajs.react.hooks.Hooks
 import japgolly.scalajs.react.internal.CoreGeneral._
-import japgolly.scalajs.react.util.DefaultEffects._
+import japgolly.scalajs.react.util.DefaultEffects.{Async => DA, Sync => DS}
+import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.JsUtil
 import org.scalajs.dom
 import org.scalajs.dom.html.Element
@@ -48,8 +49,7 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
     */
   def act[A](body: => A): A = {
     var a = Option.empty[A]
-    val cb = Sync.delay{ a = Some(body) }
-    raw.act(Sync.toJsFn(cb))
+    raw.act(() => { a = Some(body) })
     a.getOrElse(throw new RuntimeException("React's TestUtils.act didn't seem to complete."))
   }
 
@@ -66,12 +66,12 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
     *
     * This helps make your tests run closer to what real users would experience when using your application.
     */
-  def actAsync[A](body: Async[A]): Async[A] = {
-    Async.flatMap(Async.delay(new Hooks.Var(Option.empty[A]))) { ref =>
-      def setAsync(a: A): Async[Unit] = Async.delay(Sync.runSync(ref.set(Some(a))))
-      val body2 = Async.flatMap(body)(setAsync)
-      val body3 = Async.fromJsPromise(raw.actAsync(Async.toJsPromise(body2)))
-      Async.map(body3)(_ => ref.value.getOrElse(throw new RuntimeException("React's TestUtils.act didn't seem to complete.")))
+  def actAsync[F[_], A](body: F[A])(implicit F: Async[F]): F[A] = {
+    F.flatMap(F.delay(new Hooks.Var(Option.empty[A]))) { ref =>
+      def setAsync(a: A): F[Unit] = F.delay(DS.runSync(ref.set(Some(a))))
+      val body2 = F.flatMap(body)(setAsync)
+      val body3 = F.fromJsPromise(raw.actAsync(F.toJsPromise(body2)))
+      F.map(body3)(_ => ref.value.getOrElse(throw new RuntimeException("React's TestUtils.act didn't seem to complete.")))
     }
   }
 
@@ -181,16 +181,18 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
       ReactDOM.unmountComponentAtNode(container)
     }
 
-  private def _withNewElementAsync[A](create: => Element,
-                                      use   : Element => Async[A],
-                                      remove: Element => Unit): Async[A] =
-    Async.flatMap(Async.delay(create))(e =>
-      Async.finallyRun(use(e), Async.delay(act(remove(e)))))
+  private def _withNewElementAsync[F[_], A](create: => Element,
+                                            use   : Element => F[A],
+                                            remove: Element => Unit,
+                                           )(implicit F: Async[F]): F[A] =
+    F.flatMap(F.delay(create))(e =>
+      F.finallyRun(use(e), F.delay(act(remove(e)))))
 
-  private def _withRenderedAsync[M, A](u: Unmounted[M], parent: Element, f: (M, Element) => Async[A]): Async[A] =
-    Async.flatMap(Async.delay(act(RawReactDOM.render(u.raw, parent)))) { c =>
+  private def _withRenderedAsync[F[_], M, A](u: Unmounted[M], parent: Element, f: (M, Element) => F[A])
+                                            (implicit F: Async[F]): F[A] =
+    F.flatMap(F.delay(act(RawReactDOM.render(u.raw, parent)))) { c =>
       val m = u.mountRawOrNull(c)
-      Async.finallyRun(f(m, parent), Async.delay(act(unmountRawComponent(c))))
+      F.finallyRun(f(m, parent), F.delay(act(unmountRawComponent(c))))
     }
 
   // ===================================================================================================================
@@ -257,24 +259,24 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
       attemptFuture(f(m)).andThen { case _ => act(unmountRawComponent(c)) }
     }
 
-  def withNewBodyElementAsync[A](use: Element => Async[A]): Async[A] =
+  def withNewBodyElementAsync[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
     _withNewElementAsync(newBodyElement(), use, removeNewBodyElement)
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * and asynchronously waits for the Async to complete before unmounting.
     */
-  def withRenderedIntoBodyAsync[M](u: Unmounted[M]): WithRenderedDslF[Async, M, Element] =
-    new WithRenderedDslF[Async, M, Element] {
-      override def apply[A](f: (M, Element) => Async[A]): Async[A] =
+  def withRenderedIntoBodyAsync[M](u: Unmounted[M]): WithRenderedDslF[DA, M, Element] =
+    new WithRenderedDslF[DA, M, Element] {
+      override def apply[A](f: (M, Element) => DA[A]) =
         withNewBodyElementAsync(_withRenderedAsync(u, _, f))
     }
 
   @deprecated("Use .withNewBodyElementAsync", "2.0.0")
-  def withNewBodyElementAsyncCallback[A](use: Element => Async[A]): Async[A] =
+  def withNewBodyElementAsyncCallback[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
     withNewBodyElementAsync(use)
 
   @deprecated("Use .withRenderedIntoBodyAsync", "2.0.0")
-  def withRenderedIntoBodyAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[Async, M, Element] =
+  def withRenderedIntoBodyAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[DA, M, Element] =
     withRenderedIntoBodyAsync(u)
 
   // ===================================================================================================================
@@ -331,24 +333,24 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
     attemptFuture(f(m)).andThen { case _ => act(unmountRawComponent(c)) }
   }
 
-  def withNewDocumentElementAsync[A](use: Element => Async[A]): Async[A] =
+  def withNewDocumentElementAsync[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
     _withNewElementAsync(newDocumentElement(), use, removeNewDocumentElement)
 
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * and asynchronously waits for the Async to complete before unmounting.
     */
-  def withRenderedIntoDocumentAsync[M](u: Unmounted[M]): WithRenderedDslF[Async, M, Element] =
-    new WithRenderedDslF[Async, M, Element] {
-      override def apply[A](f: (M, Element) => Async[A]): Async[A] =
+  def withRenderedIntoDocumentAsync[M](u: Unmounted[M]): WithRenderedDslF[DA, M, Element] =
+    new WithRenderedDslF[DA, M, Element] {
+      override def apply[A](f: (M, Element) => DA[A]) =
         withNewDocumentElementAsync(_withRenderedAsync(u, _, f))
   }
 
   @deprecated("Use .withNewDocumentElementAsync", "2.0.0")
-  def withNewDocumentElementAsyncCallback[A](use: Element => Async[A]): Async[A] =
+  def withNewDocumentElementAsyncCallback[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
     withNewDocumentElementAsync(use)
 
   @deprecated("Use .withRenderedIntoDocumentAsync", "2.0.0")
-  def withRenderedIntoDocumentAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[Async, M, Element] =
+  def withRenderedIntoDocumentAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[DA, M, Element] =
     withRenderedIntoDocumentAsync(u)
 
   // ===================================================================================================================
@@ -378,14 +380,14 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
     *
     * @param intoBody Whether to use [[renderIntoBodyAsync()]] or [[renderIntoDocumentAsync()]].
     */
-  def withRenderedAsync[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDslF[Async, M, Element] =
+  def withRenderedAsync[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDslF[DA, M, Element] =
     if (intoBody)
       withRenderedIntoBodyAsync(u)
     else
       withRenderedIntoDocumentAsync(u)
 
   @deprecated("Use .withRenderedAsync", "2.0.0")
-  def withRenderedAsyncCallback[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDslF[Async, M, Element] =
+  def withRenderedAsyncCallback[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDslF[DA, M, Element] =
     withRenderedAsync(u, intoBody)
 
   // ===================================================================================================================

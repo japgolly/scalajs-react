@@ -2,7 +2,7 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.internal.CoreGeneral._
-import japgolly.scalajs.react.util.Effect.Dispatch
+import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.{DefaultEffects, OptionLike}
 import java.time._
 import java.util.{Date, UUID}
@@ -422,17 +422,17 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
 
   // ===================================================================================================================
 
-  import DefaultEffects.{Sync => DS}
-
-  def shouldComponentUpdateAnd[G[_], P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => G[Unit])(implicit G: Dispatch[G]): ScalaComponent.Config[P, C, S, B, U, U] =
+  def shouldComponentUpdateAnd[G[_], P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](f: ShouldComponentUpdateResult[P, S, B] => G[Unit])(implicit G: Sync[G]): ScalaComponent.Config[P, C, S, B, U, U] =
     _.shouldComponentUpdate { i =>
       val r = ShouldComponentUpdateResult(i)
-      val g = DS.transDispatch(f(r))
-      DS.map(g)(_ => r.update)
+      val g = f(r)
+      G.map(g)(_ => r.update)
     }
 
-  def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](name: String): ScalaComponent.Config[P, C, S, B, U, U] =
+  def shouldComponentUpdateAndLog[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot](name: String): ScalaComponent.Config[P, C, S, B, U, U] = {
+    import DefaultEffects.Sync
     shouldComponentUpdateAnd(_.log(name))
+  }
 
   final case class ShouldComponentUpdateResult[P: Reusability, S: Reusability, B](self: ScalaComponent.Lifecycle.ShouldComponentUpdate[P, S, B]) {
     def mounted       = self.mountedImpure
@@ -448,8 +448,8 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     val updateState: Boolean = currentState ~/~ nextState
     val update     : Boolean = updateProps || updateState
 
-    def log(name: String): DS[Unit] =
-      DS.delay(
+    def log[F[_]](name: String)(implicit F: Sync[F]): F[Unit] =
+      F.delay(
         console.log(
           s"""
              |s"$name.shouldComponentUpdate = $update

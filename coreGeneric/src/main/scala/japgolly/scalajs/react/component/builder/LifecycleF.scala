@@ -49,9 +49,8 @@ object LifecycleF {
   def empty[F[_], A[_], P, S, B]: LifecycleF[F, A, P, S, B, NoSnapshot] =
     new LifecycleF(None, None, None, None, None, None, None, None, None, None)
 
-  sealed abstract class Base[F[_], A[_], P, S, B](final val raw: RawMounted[P, S, B])(implicit f: Sync[F], a: Async[A]) {
-
-    protected final implicit def F: Sync[F] = f
+  sealed abstract class Base[F[_], A[_], P, S, B](final val raw: RawMounted[P, S, B])(implicit f: UnsafeSync[F], a: Async[A]) {
+    protected final implicit def F: UnsafeSync[F] = f
     protected final implicit def A: Async[A] = a
 
     final def backend      : B                            = raw.backend
@@ -114,12 +113,17 @@ object LifecycleF {
 
   type ComponentDidCatchFn[F[_], A[_], P, S, B] = ComponentDidCatch[F, A, P, S, B] => F[Unit]
 
-  final class ComponentDidCatch[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B], rawError: js.Any, rawInfo: React.ErrorInfo)
+  final class ComponentDidCatch[F[_]: UnsafeSync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B], rawError: js.Any, rawInfo: React.ErrorInfo)
       extends Base[F, A, P, S, B](raw) with StateRW[F, A, P, S, B] with ForceUpdate[F, A, P, S, B] {
 
-    val error = ReactCaughtError(rawError, rawInfo)
+    override type WithEffect     [G[_]] = ComponentDidCatch[G, A, P, S, B]
+    override type WithAsyncEffect[G[_]] = ComponentDidCatch[F, G, P, S, B]
+    override def withEffect     [G[_]](implicit G: UnsafeSync[G]): WithEffect[G] = new ComponentDidCatch(raw, rawError, rawInfo)
+    override def withAsyncEffect[G[_]](implicit G: Async[G]): WithAsyncEffect[G] = new ComponentDidCatch(raw, rawError, rawInfo)
 
     override def toString = wrapTostring(s"ComponentDidCatch(${error.rawErrorString})")
+
+    val error = ReactCaughtError(rawError, rawInfo)
 
     def props        : P                    = mountedImpure.props
     def propsChildren: PropsChildren        = mountedImpure.propsChildren
@@ -132,8 +136,13 @@ object LifecycleF {
 
   type ComponentDidMountFn[F[_], A[_], P, S, B] = ComponentDidMount[F, A, P, S, B] => F[Unit]
 
-  final class ComponentDidMount[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
+  final class ComponentDidMount[F[_]: UnsafeSync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
       extends Base[F, A, P, S, B](raw) with StateRW[F, A, P, S, B] with ForceUpdate[F, A, P, S, B] {
+
+    override type WithEffect     [G[_]] = ComponentDidMount[G, A, P, S, B]
+    override type WithAsyncEffect[G[_]] = ComponentDidMount[F, G, P, S, B]
+    override def withEffect     [G[_]](implicit G: UnsafeSync[G]): WithEffect[G] = new ComponentDidMount(raw)
+    override def withAsyncEffect[G[_]](implicit G: Async[G]): WithAsyncEffect[G] = new ComponentDidMount(raw)
 
     override def toString = wrapTostring(s"ComponentDidMount(props: $props, state: $state)")
 
@@ -148,8 +157,13 @@ object LifecycleF {
 
   type ComponentDidUpdateFn[F[_], A[_], P, S, B, SS] = ComponentDidUpdate[F, A, P, S, B, SS] => F[Unit]
 
-  final class ComponentDidUpdate[F[_]: Sync, A[_]: Async, P, S, B, SS](raw: RawMounted[P, S, B], val prevProps: P, val prevState: S, val snapshot: SS)
+  final class ComponentDidUpdate[F[_]: UnsafeSync, A[_]: Async, P, S, B, SS](raw: RawMounted[P, S, B], val prevProps: P, val prevState: S, val snapshot: SS)
       extends Base[F, A, P, S, B](raw) with StateW[F, A, P, S, B] with ForceUpdate[F, A, P, S, B] {
+
+    override type WithEffect     [G[_]] = ComponentDidUpdate[G, A, P, S, B, SS]
+    override type WithAsyncEffect[G[_]] = ComponentDidUpdate[F, G, P, S, B, SS]
+    override def withEffect     [G[_]](implicit G: UnsafeSync[G]): WithEffect[G] = new ComponentDidUpdate(raw, prevProps, prevState, snapshot)
+    override def withAsyncEffect[G[_]](implicit G: Async[G]): WithAsyncEffect[G] = new ComponentDidUpdate(raw, prevProps, prevState, snapshot)
 
     override def toString = wrapTostring(s"ComponentDidUpdate(props: $prevProps → $currentProps, state: $prevState → $currentState)")
 
@@ -165,8 +179,13 @@ object LifecycleF {
 
   type ComponentWillMountFn[F[_], A[_], P, S, B] = ComponentWillMount[F, A, P, S, B] => F[Unit]
 
-  final class ComponentWillMount[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
+  final class ComponentWillMount[F[_]: UnsafeSync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
       extends Base[F, A, P, S, B](raw) with StateRW[F, A, P, S, B] {
+
+    override type WithEffect     [G[_]] = ComponentWillMount[G, A, P, S, B]
+    override type WithAsyncEffect[G[_]] = ComponentWillMount[F, G, P, S, B]
+    override def withEffect     [G[_]](implicit G: UnsafeSync[G]): WithEffect[G] = new ComponentWillMount(raw)
+    override def withAsyncEffect[G[_]](implicit G: Async[G]): WithAsyncEffect[G] = new ComponentWillMount(raw)
 
     override def toString = wrapTostring(s"ComponentWillMount(props: $props, state: $state)")
 
@@ -186,7 +205,7 @@ object LifecycleF {
 
   type ComponentWillUnmountFn[F[_], A[_], P, S, B] = ComponentWillUnmount[F, A, P, S, B] => F[Unit]
 
-  final class ComponentWillUnmount[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
+  final class ComponentWillUnmount[F[_]: UnsafeSync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
       extends Base[F, A, P, S, B](raw) {
 
     override def toString = wrapTostring(s"ComponentWillUnmount(props: $props, state: $state)")
@@ -212,8 +231,13 @@ object LifecycleF {
 
   type ComponentWillReceivePropsFn[F[_], A[_], P, S, B] = ComponentWillReceiveProps[F, A, P, S, B] => F[Unit]
 
-  final class ComponentWillReceiveProps[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B], val nextProps: P)
+  final class ComponentWillReceiveProps[F[_]: UnsafeSync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B], val nextProps: P)
       extends Base[F, A, P, S, B](raw) with StateRW[F, A, P, S, B] with ForceUpdate[F, A, P, S, B] {
+
+    override type WithEffect     [G[_]] = ComponentWillReceiveProps[G, A, P, S, B]
+    override type WithAsyncEffect[G[_]] = ComponentWillReceiveProps[F, G, P, S, B]
+    override def withEffect     [G[_]](implicit G: UnsafeSync[G]): WithEffect[G] = new ComponentWillReceiveProps(raw, nextProps)
+    override def withAsyncEffect[G[_]](implicit G: Async[G]): WithAsyncEffect[G] = new ComponentWillReceiveProps(raw, nextProps)
 
     override def toString = wrapTostring(s"ComponentWillReceiveProps(props: $currentProps → $nextProps, state: $state)")
 
@@ -228,7 +252,7 @@ object LifecycleF {
 
   type ComponentWillUpdateFn[F[_], A[_], P, S, B] = ComponentWillUpdate[F, A, P, S, B] => F[Unit]
 
-  final class ComponentWillUpdate[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
+  final class ComponentWillUpdate[F[_]: UnsafeSync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B], val nextProps: P, val nextState: S)
       extends Base[F, A, P, S, B](raw) {
 
     override def toString = wrapTostring(s"ComponentWillUpdate(props: $currentProps → $nextProps, state: $currentState → $nextState)")
@@ -314,8 +338,13 @@ object LifecycleF {
 
   // ===================================================================================================================
 
-  final class RenderScope[F[_]: Sync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
+  final class RenderScope[F[_]: UnsafeSync, A[_]: Async, P, S, B](raw: RawMounted[P, S, B])
       extends Base[F, A, P, S, B](raw) with StateRW[F, A, P, S, B] with ForceUpdate[F, A, P, S, B] {
+
+    override type WithEffect     [G[_]] = RenderScope[G, A, P, S, B]
+    override type WithAsyncEffect[G[_]] = RenderScope[F, G, P, S, B]
+    override def withEffect     [G[_]](implicit G: UnsafeSync[G]): WithEffect[G] = new RenderScope(raw)
+    override def withAsyncEffect[G[_]](implicit G: Async[G]): WithAsyncEffect[G] = new RenderScope(raw)
 
     override def toString = wrapTostring(s"Render(props: $props, state: $state)")
 

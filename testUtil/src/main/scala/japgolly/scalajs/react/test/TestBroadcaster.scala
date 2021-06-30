@@ -1,24 +1,31 @@
 package japgolly.scalajs.react.test
 
-import japgolly.scalajs.react.extra.{Broadcaster, Px}
-import japgolly.scalajs.react.util.DefaultEffects.Sync
+import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.util.DefaultEffects
 
-class TestBroadcaster[I, A](initialValue: A, f: I => A) extends Broadcaster[I] {
+abstract class TestBroadcasterF[F[_], I, A](initialValue: A, f: I => A) extends BroadcasterF[F, I] { self =>
+  import self.{listenableEffect => F}
 
   private var latest = initialValue
 
-  override def broadcast(i: I): Sync[Unit] =
-    Sync.chain(Sync.delay { latest = f(i) }, super.broadcast(i))
+  override def broadcast(i: I): F[Unit] =
+    F.chain(F.delay { latest = f(i) }, super.broadcast(i))
 
   def getLatestValue(): A =
     latest
 
-  val latestValue: Sync[A] =
-    Sync.delay(latest)
+  val latestValue: F[A] =
+    F.delay(latest)
 
   val px: Px[A] =
     Px(latest).withoutReuse.autoRefresh
 }
+
+// =====================================================================================================================
+
+class TestBroadcaster[I, A](initialValue: A, f: I => A)
+  extends TestBroadcasterF[DefaultEffects.Sync, I, A](initialValue, f)
+     with Broadcaster[I]
 
 object TestBroadcaster {
 

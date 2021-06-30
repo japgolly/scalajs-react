@@ -153,4 +153,3 @@ object Generic {
 
   type MountedRoot[F[_], A[_], P, S] = MountedWithRoot[F, A, P, S, P, S]
 }
-

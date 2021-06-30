@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.internal.monocle
 
 import japgolly.scalajs.react.extra.{StateSnapshot, StateSnapshotF}
-import japgolly.scalajs.react.util.DefaultEffects.Sync
 import japgolly.scalajs.react.util.NotAllowed
 import scala.annotation.nowarn
 
@@ -15,10 +14,10 @@ trait MonocleExtStateSnapshot {
   @inline final implicit def MonocleReactExt_StateSnapshotWR(x: StateSnapshot.withReuse.type): ObjectWithReuse.type =
     ObjectWithReuse
 
-  @inline final implicit def MonocleReactExt_StateSnapshot[A](x: StateSnapshot[A]): Instance[A] =
+  @inline final implicit def MonocleReactExt_StateSnapshot[F[_], A[_], S](x: StateSnapshotF[F, A, S]): Instance[F, A, S] =
     new Instance(x)
 
-  @inline final implicit def MonocleReactExt_StateSnapshotWR[F[_], A](x: StateSnapshotF.InstanceMethodsWithReuse[F, A]): InstanceWithReuse[F, A] =
+  @inline final implicit def MonocleReactExt_StateSnapshotWR[F[_], A[_], S](x: StateSnapshotF.InstanceMethodsWithReuse[F, A, S]): InstanceWithReuse[F, A, S] =
     new InstanceWithReuse(x)
 }
 
@@ -34,36 +33,36 @@ object MonocleExtStateSnapshot {
       StateSnapshot.withReuse.zoom(lens.get)(lens.replace)
   }
 
-  final class Instance[A](private val self: StateSnapshot[A]) extends AnyVal {
-    def setStateL[B](l: monocle.Lens[A, B]): B => Sync[Unit] =
+  final class Instance[F[_], A[_], S](private val self: StateSnapshotF[F, A, S]) extends AnyVal {
+    def setStateL[T](l: monocle.Lens[S, T]): T => F[Unit] =
       b => self.setState(l.replace(b)(self.value))
 
-    def modStateL[B](l: monocle.Lens[A, B])(f: B => B): Sync[Unit] =
+    def modStateL[T](l: monocle.Lens[S, T])(f: T => T): F[Unit] =
       self.setState(l.modify(f)(self.value))
 
     /** THIS WILL VOID REUSABILITY.
       *
       * The resulting `StateSnapshot[T]` will not be reusable.
       */
-    def xmapStateL[B](iso: monocle.Iso[A, B]): StateSnapshot[B] =
+    def xmapStateL[T](iso: monocle.Iso[S, T]): StateSnapshotF[F, A, T] =
       self.xmapState(iso.get)(iso.reverseGet)
 
     /** THIS WILL VOID REUSABILITY.
       *
       * The resulting `StateSnapshot[T]` will not be reusable.
       */
-    def zoomStateL[B](lens: monocle.Lens[A, B]): StateSnapshot[B] =
+    def zoomStateL[T](lens: monocle.Lens[S, T]): StateSnapshotF[F, A, T] =
       self.zoomState(lens.get)(lens.replace)
 
     /** THIS WILL VOID REUSABILITY.
       *
       * The resulting `StateSnapshot[T]` will not be reusable.
       */
-    def zoomStateO[B](o: monocle.Optional[A, B]): Option[StateSnapshot[B]] =
+    def zoomStateO[T](o: monocle.Optional[S, T]): Option[StateSnapshotF[F, A, T]] =
       self.zoomStateOption(o.getOption)(o.replace)
   }
 
-  final class InstanceWithReuse[F[_], A](private val self: StateSnapshotF.InstanceMethodsWithReuse[F, A]) extends AnyVal {
+  final class InstanceWithReuse[F[_], A[_], S](private val self: StateSnapshotF.InstanceMethodsWithReuse[F, A, S]) extends AnyVal {
 
     @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
     def xmapStateL(no: NotAllowed) = no.result

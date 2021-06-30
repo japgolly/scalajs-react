@@ -31,13 +31,13 @@ object Effect extends EffectCatsEffect {
 
   type Id[A] = A
 
-  trait UnsafeSync[F[_]] extends Monad[F] {
+  trait UnsafeSync[F[_]] extends Dispatch[F] {
 
     def runSync[A](fa: => F[A]) : A
     def suspend[A](fa: => F[A]) : F[A]
     def toJsFn [A](fa: => F[A]) : js.Function0[A]
 
-    final def subst[G[_], X[_[_]]](xg: X[G])(xf: => X[F])(implicit g: Sync[G]): X[F] =
+    final def subst[G[_], X[_[_]]](xg: X[G])(xf: => X[F])(implicit g: UnsafeSync[G]): X[F] =
       if (this eq g) xg.asInstanceOf[X[F]] else xf
 
     final def transSync[G[_], A](ga: => G[A])(implicit g: UnsafeSync[G]): F[A] =
@@ -51,6 +51,12 @@ object Effect extends EffectCatsEffect {
         f.asInstanceOf[A => F[B]]
       else
         a => delay(g.runSync(f(a)))
+
+    final def transSyncFn2[G[_], A, B, C](f: (A, B) => G[C])(implicit g: UnsafeSync[G]): (A, B) => F[C] =
+      if (this eq g)
+        f.asInstanceOf[(A, B) => F[C]]
+      else
+        (a, b) => delay(g.runSync(f(a, b)))
 
     final def transDispatch[G[_]](f: => G[Unit])(implicit g: Dispatch[G]): F[Unit] =
       if (this eq g)
@@ -73,7 +79,7 @@ object Effect extends EffectCatsEffect {
 
   object UnsafeSync {
 
-    trait WithDefaults[F[_]] extends UnsafeSync[F] {
+    trait WithDefaults[F[_]] extends UnsafeSync[F] with Dispatch.WithDefaults[F] {
       override def toJsFn[A](f: => F[A]): js.Function0[A] =
         () => runSync(f)
 
@@ -82,17 +88,18 @@ object Effect extends EffectCatsEffect {
     }
 
     implicit lazy val id: UnsafeSync[Id] = new WithDefaults[Id] {
-      override def delay  [A]   (a: => A)         = a
-      override def pure   [A]   (a: A)            = a
-      override def map    [A, B](a: A)(f: A => B) = f(a)
-      override def flatMap[A, B](a: A)(f: A => B) = f(a)
-      override def runSync[A]   (a: => A)         = a
+      override def dispatch[A]   (a: A)            = ()
+      override def delay   [A]   (a: => A)         = a
+      override def pure    [A]   (a: A)            = a
+      override def map     [A, B](a: A)(f: A => B) = f(a)
+      override def flatMap [A, B](a: A)(f: A => B) = f(a)
+      override def runSync [A]   (a: => A)         = a
     }
   }
 
   // ===================================================================================================================
 
-  trait Sync[F[_]] extends UnsafeSync[F] with Dispatch[F] {
+  trait Sync[F[_]] extends UnsafeSync[F] {
 
     val empty: F[Unit]
     val semigroupSyncOr: Semigroup[F[Boolean]]
@@ -211,6 +218,9 @@ object Effect extends EffectCatsEffect {
       * current callback completes, be it in error or success.
       */
     def finallyRun[A, B](fa: F[A], runFinally: F[B]): F[A]
+
+    final def subst[G[_], X[_[_]]](xg: X[G])(xf: => X[F])(implicit g: Async[G]): X[F] =
+      if (this eq g) xg.asInstanceOf[X[F]] else xf
 
     final def transAsync[G[_], A](ga: => G[A])(implicit g: Async[G]): F[A] =
       if (this eq g)

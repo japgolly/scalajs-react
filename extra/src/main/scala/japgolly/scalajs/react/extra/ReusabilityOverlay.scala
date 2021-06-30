@@ -2,7 +2,8 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.Box
-import japgolly.scalajs.react.util.DefaultEffects.Sync
+import japgolly.scalajs.react.util.Effect.Sync
+import japgolly.scalajs.react.util.DefaultEffects
 import scala.scalajs.js
 
 /**
@@ -18,23 +19,25 @@ object ReusabilityOverlay {
   @inline def overrideGloballyInDev(): Unit =
     DefaultReusabilityOverlay.overrideGloballyInDev()
 
-  def install[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] =
+  def install[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] = {
+    import DefaultEffects.Sync
     install(DefaultReusabilityOverlay.defaults)
+  }
 
-  def install[P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]
-      (newOverlay: ScalaComponent.MountedImpure[P, S, B] => ReusabilityOverlay): ScalaComponent.Config[P, C, S, B, U, U] = {
+  def install[F[_]: Sync, P: Reusability, C <: Children, S: Reusability, B, U <: UpdateSnapshot]
+      (newOverlay: ScalaComponent.MountedImpure[P, S, B] => ReusabilityOverlay[F]): ScalaComponent.Config[P, C, S, B, U, U] = {
 
     // Store the overlay stats on each instance
-    def get(raw: ScalaComponent.RawMounted[P, S, B]): ReusabilityOverlay = {
+    def get(raw: ScalaComponent.RawMounted[P, S, B]): ReusabilityOverlay[F] = {
       def $ = raw.asInstanceOf[js.Dynamic]
-      $.selectDynamic(key).asInstanceOf[js.UndefOr[Box[ReusabilityOverlay]]].fold {
+      $.selectDynamic(key).asInstanceOf[js.UndefOr[Box[ReusabilityOverlay[F]]]].fold {
         val o = newOverlay(ScalaComponent.mountRaw(raw))
         $.updateDynamic(key)(Box(o))
         o
       }(_.unbox)
     }
 
-    Reusability.shouldComponentUpdateAnd[Sync, P, C, S, B, U] { r =>
+    Reusability.shouldComponentUpdateAnd[F, P, C, S, B, U] { r =>
       val overlay = get(r.mounted.js.raw)
       if (r.update) {
         def fmt(update: Boolean, name: String, va: Any, vb: Any) =
@@ -66,9 +69,9 @@ object ReusabilityOverlay {
   }
 }
 
-trait ReusabilityOverlay {
-  def onMount  : Sync[Unit]
-  def onUnmount: Sync[Unit]
-  val logGood  : Sync[Unit]
-  def logBad(reason: String): Sync[Unit]
+trait ReusabilityOverlay[F[_]] {
+  def onMount  : F[Unit]
+  def onUnmount: F[Unit]
+  val logGood  : F[Unit]
+  def logBad(reason: String): F[Unit]
 }
