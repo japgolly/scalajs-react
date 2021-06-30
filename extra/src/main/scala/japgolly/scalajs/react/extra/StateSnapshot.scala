@@ -5,7 +5,7 @@ import japgolly.scalajs.react.extra.StateSnapshotF
 import japgolly.scalajs.react.extra.StateSnapshotF.StateSnapshot
 import japgolly.scalajs.react.hooks.{Api => HooksApi, CustomHook}
 import japgolly.scalajs.react.internal.{Iso, Lens}
-import japgolly.scalajs.react.util.DefaultEffects.{Sync => DS, Async => DA}
+import japgolly.scalajs.react.util.DefaultEffects.{Async => DA, Sync => DS}
 import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.{Reusability, Reusable, StateAccess, StateAccessor}
 

@@ -2,8 +2,8 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.Box
-import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.DefaultEffects
+import japgolly.scalajs.react.util.Effect.Sync
 import scala.scalajs.js
 
 /**
