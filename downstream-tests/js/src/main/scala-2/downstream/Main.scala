@@ -10,14 +10,7 @@ object Main {
 
   @JSExport
   def init() = {
-
     DownstreamMacros.mainInit
-
-    // Init components (for RuntimeTests)
-    // Reference components (for JsOutputTest)
-    List[Any](
-      Carrot,
-      Pumpkin,
-    )
+    Exports.components
   }
 }

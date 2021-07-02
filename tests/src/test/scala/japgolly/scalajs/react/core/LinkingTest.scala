@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.core
 
+import cats.effect.SyncIO
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import scala.scalajs.js.annotation._
@@ -22,8 +23,15 @@ object LinkingTest {
         .configure(ReusabilityOverlay.install)
     }
 
+    test(util.Effect.callback)
+    test(util.Effect.io)
+
     test {
-      Px.constByNeed(123).toCallback
+      val x = Px.constByNeed(123).toCallback
+      x: CallbackTo[Int]
+
+      val y = Px.constByNeed(123).toCallback[SyncIO]
+      y: SyncIO[Int]
     }
 
     test {
