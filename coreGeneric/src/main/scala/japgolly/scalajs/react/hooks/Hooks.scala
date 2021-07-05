@@ -76,14 +76,14 @@ object Hooks {
     implicit def unit[F[_]](implicit F: Dispatch[F]): UseEffectArg[F[Unit]] =
       apply(F.dispatchFn(_))
 
-    def maybeCleanup[F[_], A](f: A => js.UndefOr[js.Function0[Any]])(implicit F: Sync[F]): UseEffectArg[F[A]] =
+    def maybeCleanupF[F[_], A](f: A => js.UndefOr[js.Function0[Any]])(implicit F: Sync[F]): UseEffectArg[F[A]] =
       apply(fa => F.toJsFn(F.map(fa)(f)))
 
     implicit def cleanup[F[_], G[_], A](implicit F: Sync[F], G: Dispatch[G]): UseEffectArg[F[G[A]]] =
-      maybeCleanup(G.dispatchFn(_))
+      maybeCleanupF(G.dispatchFn(_))
 
     implicit def optionalCallback[F[_], G[_], O[_], A](implicit F: Sync[F], G: Dispatch[G], O: OptionLike[O]): UseEffectArg[F[O[G[A]]]] =
-      maybeCleanup(O.unsafeToJs(_).map(G.dispatchFn(_)))
+      maybeCleanupF(O.unsafeToJs(_).map(G.dispatchFn(_)))
   }
 
   object UseEffect {

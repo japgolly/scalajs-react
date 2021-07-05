@@ -5,7 +5,12 @@ import cats.effect.{IO, SyncIO}
 import japgolly.scalajs.react.ReactCatsEffect
 import scala.util.Try
 
-abstract class EffectCatsEffect extends EffectCallback {
+abstract class EffectFallbacks2 extends EffectFallbacks3 {
+  implicit def syncIO: Effect.Sync [SyncIO] = EffectCatsEffect.syncIO
+  implicit def io    : Effect.Async[IO    ] = EffectCatsEffect.io
+}
+
+object EffectCatsEffect {
   import Effect._
 
   implicit object syncIO extends Sync.WithDefaults[SyncIO] {

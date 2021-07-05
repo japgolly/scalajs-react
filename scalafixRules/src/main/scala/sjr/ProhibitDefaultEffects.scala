@@ -2,6 +2,7 @@ package sjr
 
 import scala.meta._
 import scalafix.v1._
+import Util._
 
 class ProhibitDefaultEffects extends SemanticRule("ProhibitDefaultEffects") {
   import ProhibitDefaultEffects._
@@ -22,7 +23,7 @@ class ProhibitDefaultEffects extends SemanticRule("ProhibitDefaultEffects") {
     o.fold(Patch.empty)(check(_))
 
   private def check(t: Type)(implicit doc: SemanticDocument): Patch =
-    if (t.symbol.value startsWith "japgolly/scalajs/react/util/DefaultEffects")
+    if (isDefaultEffect(t.symbol))
       Patch.lint(DefaultEffectDetected(t.pos))
     else
       Patch.empty

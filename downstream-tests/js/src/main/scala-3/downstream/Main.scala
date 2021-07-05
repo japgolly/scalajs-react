@@ -12,16 +12,9 @@ object Main {
 
   @JSExport
   def init() = {
-
     disableReusability()
     enableReusabilityOverlay()
-
-    // Init components (for RuntimeTests)
-    // Reference components (for JsOutputTest)
-    List[Any](
-      Carrot,
-      Pumpkin,
-    )
+    Exports.components
   }
 
   private inline def disableReusability(): Unit =

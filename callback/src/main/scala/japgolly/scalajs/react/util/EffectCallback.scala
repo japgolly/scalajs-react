@@ -1,13 +1,17 @@
 package japgolly.scalajs.react.util
 
 import japgolly.scalajs.react.callback._
-import japgolly.scalajs.react.userdefined
 import scala.scalajs.js
 
-abstract class EffectCallback extends userdefined.Effects {
+abstract class EffectFallbacks1 extends EffectFallbacks2 {
+  implicit def callback     : Effect.Sync [CallbackTo   ] = EffectCallback.callback
+  implicit def asyncCallback: Effect.Async[AsyncCallback] = EffectCallback.asyncCallback
+}
+
+object EffectCallback {
   import Effect._
 
-  implicit object callback extends Sync.WithDefaultDispatch[CallbackTo] {
+  object callback extends Sync.WithDefaultDispatch[CallbackTo] {
 
     override val empty =
       Callback.empty
@@ -78,7 +82,7 @@ abstract class EffectCallback extends userdefined.Effects {
 
   // ===================================================================================================================
 
-  implicit object asyncCallback extends Async[AsyncCallback] with Dispatch.WithDefaults[AsyncCallback] {
+  object asyncCallback extends Async[AsyncCallback] with Dispatch.WithDefaults[AsyncCallback] {
     @inline override def delay[A](a: => A) =
       AsyncCallback.delay(a)
 
