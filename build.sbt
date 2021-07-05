@@ -26,5 +26,6 @@ val testUtil              = ScalaJsReact.testUtil
 val util                  = ScalaJsReact.util
 val utilCatsEffect        = ScalaJsReact.utilCatsEffect
 val utilDummyDefaults     = ScalaJsReact.utilDummyDefaults
+val utilFallbacks         = ScalaJsReact.utilFallbacks
 
 //val testModule      = ScalaJsReact.testModule // Too damn buggy

@@ -39,6 +39,7 @@ object ScalaJsReact {
       util,
       utilCatsEffect,
       utilDummyDefaults,
+      utilFallbacks,
     )
 
   def commonSettings: PE =
@@ -69,7 +70,7 @@ object ScalaJsReact {
     .configure(conditionallyDisable) // keep this last
 
   lazy val callback = project
-    .dependsOn(util)
+    .dependsOn(util, utilFallbacks % Provided)
     .configure(commonSettings, publicationSettings, utestSettings, prohibitDefaultEffects)
     .settings(
       libraryDependencies += Dep.cats.value % Test,
@@ -101,14 +102,16 @@ object ScalaJsReact {
 
   lazy val coreDefCallback = project
     .dependsOn(callback) // High priority
-    .dependsOn(coreGeneric) // Low priority
+    .dependsOn(coreGeneric) // Med priority
+    .dependsOn(utilFallbacks) // Low priority
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .settings(
       moduleName := "core",
     )
 
   lazy val coreDefCatsEffect = project
-    .dependsOn(coreExtCatsEffect)
+    .dependsOn(coreExtCatsEffect) // High priority
+    .dependsOn(utilFallbacks) // Low priority
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .settings(
       moduleName := "core-cats-effect",
@@ -123,7 +126,7 @@ object ScalaJsReact {
     )
 
   lazy val coreExtCatsEffect = project
-    .dependsOn(coreExtCats, utilCatsEffect)
+    .dependsOn(coreExtCats, utilCatsEffect, utilFallbacks % Provided)
     .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
     .settings(
       moduleName := "core-ext-cats-effect",
@@ -193,7 +196,8 @@ object ScalaJsReact {
     )
 
   lazy val tests = project
-    .dependsOn(coreDefCallback, testUtil, coreExtCatsEffect, extraExtMonocle3)
+    .dependsOn(testUtil, coreExtCatsEffect, extraExtMonocle3)
+    .dependsOn(coreDefCallback) // Low priority
     .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
     .settings(
       Test / scalacOptions --= Seq(
@@ -223,6 +227,7 @@ object ScalaJsReact {
     )
 
   lazy val util = project
+    .dependsOn(utilFallbacks % Provided)
     .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3, prohibitDefaultEffects)
     .settings(
       libraryDependencies += Dep.scalaJsDom.value,
@@ -237,8 +242,14 @@ object ScalaJsReact {
     )
 
   lazy val utilDummyDefaults = project
-    .dependsOn(util)
+    .dependsOn(util, utilFallbacks)
     .configure(commonSettings, preventPublication, hasNoTests)
+
+  lazy val utilFallbacks = project
+    .configure(commonSettings, publicationSettings, hasNoTests, prohibitDefaultEffects)
+    .settings(
+      moduleName := "util-fallbacks",
+    )
 
 /*
   lazy val testModule = project.in(file("test-module"))

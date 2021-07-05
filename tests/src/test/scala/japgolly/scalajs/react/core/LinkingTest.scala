@@ -28,10 +28,10 @@ object LinkingTest {
 
     test {
       val x = Px.constByNeed(123).toCallback
-      x: CallbackTo[Int]
+      test(x: CallbackTo[Int])
 
       val y = Px.constByNeed(123).toCallback[SyncIO]
-      y: SyncIO[Int]
+      test(y: SyncIO[Int])
     }
 
     test {
