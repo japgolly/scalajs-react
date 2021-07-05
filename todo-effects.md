@@ -2,6 +2,7 @@
   * clarify new imports
   * migration
   * update getting-started/usage instructions
+  * extension modules must come before coreDef*
 
 * removal of state-monad extensions
   * update changelog
