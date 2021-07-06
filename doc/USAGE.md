@@ -21,8 +21,12 @@ Setup
 
 2. Add *scalajs-react* to SBT:
 
+   There are a number of different modules available.
+   On this page we'll just use the `core` module but refer to the [Modules doc](./MODULES.md) to
+   see other module options.
+
   ```scala
-  // core = essentials only. No bells or whistles.
+  // "core" = essentials only. No bells or whistles.
   libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.7.7"
   ```
 

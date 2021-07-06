@@ -17,6 +17,7 @@ Includes a router, testing utils, performance utils, more.
 ##### Contents
 
 - [Usage & Getting Started](doc/USAGE.md)
+  - [Modules](doc/MODULES.md)
   - [VDOM](doc/VDOM.md)
   - [Hooks](doc/HOOKS.md)
   - [Refs](doc/REFS.md)
