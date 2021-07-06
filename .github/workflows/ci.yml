@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  ci:
+    name: Scala v${{ matrix.scala }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        scala: [2, 3]
+    steps:
+
+      - name: Git checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Java and Scala
+        uses: olafurpg/setup-scala@v12
+        with:
+          java-version: adopt@1.8
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Setup Scala.JS
+        uses: japgolly/setup-scalajs@v1
+
+      - name: Cache sbt
+        uses: coursier/cache-action@v6.1
+
+      - name: Build and test
+        shell: bash
+        run: bin/ci ${{ matrix.scala }}

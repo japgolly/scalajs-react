@@ -90,17 +90,7 @@ done
 [ $all_good -eq 1 ] || exit 2
 
 # Get Scala versions
-function get_scala_version {
-  local tmp="$(fgrep " scala$1 " project/Dependencies.scala)"
-  local r='[^"]*"([^"]*)"[^"]*'
-  if [[ "$tmp" =~ $r ]]; then
-    echo "${BASH_REMATCH[1]}"
-  else
-    echo "Unable to determine Scala $1 version" >&2
-    exit 3
-  fi
-}
-scalaVer2="$(get_scala_version 2)"
+scalaVer2="$(../bin/get_scala_version 2)"
 
 # Declare test runner
 function run {
