@@ -129,6 +129,43 @@ object Example {
 }
 ```
 
+### Diff between both methods
+
+```diff
+ import japgolly.scalajs.react._
+ import japgolly.scalajs.react.vdom.html_<^._
+ import org.scalajs.dom.document
+
+ object Example {
+   val Component = ScalaFnComponent.withHooks[Unit]
+
+     .useState(0)
+
+-    .useEffectBy((_, count) => Callback {
+-      document.title = s"You clicked ${count.value} times"
++    .useEffectBy($ => Callback {
++      document.title = s"You clicked ${$.hook1.value} times"
+     })
+
+     .useState("banana")
+
+-    .render((_, count, fruit) =>
++    .render($ =>
+       <.div(
+-        <.p(s"You clicked ${count.value} times"),
++        <.p(s"You clicked ${$.hook1.value} times"),
+         <.button(
+-          ^.onClick --> count.modState(_ + 1),
++          ^.onClick --> $.hook1.modState(_ + 1),
+           "Click me"
+         ),
+-        <.p(s"Your favourite fruit is a ${fruit.value}!")
++        <.p(s"Your favourite fruit is a ${$.hook2.value}!")
+       )
+     )
+ }
+```
+
 # React hooks in scalajs-react
 
 | JavaScript | scalajs-react |
