@@ -84,51 +84,16 @@ state in an FP-manner is to read https://japgolly.github.io/scalajs-react/#examp
 which demonstrates the recommended way of handling state in scalajs-react.
 
 
-Cats and/or Scalaz
-==================
+Cats & Cats Effects
+===================
 
-```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-cats"     % "1.7.7"
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "ext-scalaz72" % "1.7.7"
-```
-
-There are modules available that integrate Cats and/or Scalaz into scalajs-react,
-and scalajs-react into Cats and/or Scalaz.
-
-This mostly consists of:
-* FP typeclasses instances for scalajs-react types
-* Isomorphisms between scalajs-react types and Cats/Scalaz equivalents
-* State monadic component state manipulation
-
-React's `setState` methods are asynchronous meaning that `setState(s) >> getState` often won't return `s`.
-This is typically not a problem because the are `modState` functions which you can use to specify an
-`S => S` but an alternative approach exists which is to use a state monad.
-To that end there exists `ReactS`, which is conceptually `WriterT[M, List[Callback], StateT[M, S, A]]`. `ReactS` monads are applied via `runState`. Vanilla `StateT` monads (ie. without callbacks) can be lifted into `ReactS` via `.liftR`. Callbacks take the form of `IO[Unit]` and are hooked into HTML via `~~>`, e.g. `button(onclick ~~> T.runState(blah), "Click Me!")`.
-
-Also included are `runStateF` methods which use a `ChangeFilter` typeclass to compare before and after states at the end of a state monad application, and optionally opt-out of a call to `setState` on a component.
-
-There's only one example at the moment:
-[State monad example](https://japgolly.github.io/scalajs-react/#examples/state-monad).
-
-Personally, I thought I'd be coding in this style everywhere when I first started out but after years
-of experience (and library improvement) I find that never *really* need to reach for state monad
-transformers; `modState` and simple functional composition always suffices *and* makes the code
-much clearer to other team members. But go nuts if you want to :)
+See [Modules doc](./MODULES.md).
 
 
 Monocle
 =======
 
-```scala
-libraryDependencies ++= Seq(
-    "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % "1.7.7",
-    "com.github.julien-truffaut"        %%% "monocle-core"     % "2.0.4",
-    "com.github.julien-truffaut"        %%% "monocle-macro"    % "2.0.4"
-)
-
-// If you're on Scala 2.12
-addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
-```
+See [Modules doc](./MODULES.md).
 
 There's one example online that demonstrates Monocle usage:
 [`ExternalVar` example](https://japgolly.github.io/scalajs-react/#examples/external-var).
@@ -138,20 +103,3 @@ where components are nearly all stateless and *actually* modular and reusable.
 Have the components ask for as little as possible, use `StateSnapshots` instead of actual React state
 and use optics to glue all the layers together.
 On very large codebases especially, this approach scales very, very well.
-
-
-### Monocle-scalaz
-
-There's also the Scalaz version of Monocle.
-It's the same as `ext-monocle-cats` module but uses the older Scalaz variant of Monocle.
-
-```scala
-libraryDependencies ++= Seq(
-    "com.github.japgolly.scalajs-react" %%% "ext-monocle-scalaz" % "1.7.7",
-    "com.github.julien-truffaut"        %%% "monocle-core"       % "1.6.3",
-    "com.github.julien-truffaut"        %%% "monocle-macro"      % "1.6.3"
-)
-
-// If you're on Scala 2.12
-addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
-```
