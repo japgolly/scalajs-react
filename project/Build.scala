@@ -114,7 +114,7 @@ object ScalaJsReact {
     .dependsOn(utilFallbacks) // Low priority
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .settings(
-      moduleName := "core-cats-effect",
+      moduleName := "core-bundle-cats-effect",
     )
 
   lazy val coreExtCats = project

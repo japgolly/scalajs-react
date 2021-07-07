@@ -49,13 +49,13 @@ val ScalaJsReactVer = "2.0.0"
 libraryDependencies ++= Seq(
 
   // Optionally include scalajs-react Callback classes
-  // (Note: these need to come before "core-cats-effect")
+  // (Note: these need to come before "core-bundle-cats-effect")
   "com.github.japgolly.scalajs-react" %%% "callback"                 % ScalaJsReactVer,
   "com.github.japgolly.scalajs-react" %%% "callback-ext-cats"        % ScalaJsReactVer,
   "com.github.japgolly.scalajs-react" %%% "callback-ext-cats-effect" % ScalaJsReactVer,
 
   // Mandatory
-  "com.github.japgolly.scalajs-react" %%% "core-cats-effect"         % ScalaJsReactVer,
+  "com.github.japgolly.scalajs-react" %%% "core-bundle-cats-effect"  % ScalaJsReactVer,
 
   // Optional utils exclusive to scalajs-react
   "com.github.japgolly.scalajs-react" %%% "extra"                    % ScalaJsReactVer,
@@ -89,7 +89,7 @@ import japgolly.scalajs.react.test._
 | `callback-ext-cats`        | `cats.MonadError` instances for classes in the `callback` module |
 | `callback-ext-cats-effect` | For classes in the `callback` module: <ul><li>`cats.effect.{Sync,Async}` instances</li><li>Conversions from/to `cats.effect.{SyncIO,IO}`</li></ul>  |
 | `core`                     | Core scalajs-react functionality with `{Callback,AsyncCallback}` as the default effects |
-| `core-cats-effect`         | Core scalajs-react functionality with `cats.effect.{SyncIO,IO}` as the default effects<br>*(Note: `callback` module not included. Add as a separate dependency if required.)* |
+| `core-bundle-cats-effect`  | Core scalajs-react functionality with `cats.effect.{SyncIO,IO}` as the default effects<br>*(Note: `callback` module not included. Add as a separate dependency if required.)* |
 | `core-ext-cats`            | Extensions to the `core` module for Cats |
 | `core-ext-cats-effect`     | Extensions to the `core` module for Cats Effect |
 | `extra`                    | Optional utils exclusive to scalajs-react. ([details](./EXTRA.md)) |

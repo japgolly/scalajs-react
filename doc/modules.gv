@@ -21,7 +21,7 @@ digraph G {
 
     node[fillcolor=orange]
     catsEffect [label="core-ext-cats-effect"]
-    coreCE [style="bold,filled" penwidth=7 label=" \n core-cats-effect \n "]
+    coreCE [style="bold,filled" penwidth=7 label=" \n core-bundle-cats-effect \n "]
 
     node[style="rounded,wedged" fillcolor="skyblue:orange"]
     catsC [label="callback-ext-cats"]
