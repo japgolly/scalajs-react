@@ -4,7 +4,7 @@ import japgolly.scalajs.react.component.ScalaFn
 import japgolly.scalajs.react.component.ScalaFn.Component
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusability}
 
 object HookComponentBuilder {
 
@@ -16,7 +16,7 @@ object HookComponentBuilder {
 
   object ComponentP {
 
-    final class First[P](init: P => Unit) extends Api.Primary[P, FirstStep[P]] {
+    final class First[P](init: P => Unit) extends Api.PrimaryWithRender[P, Children.None, P, FirstStep[P]] {
 
       override protected def self(f: P => Any)(implicit step: Step): step.Self =
         step.self(init, f)
@@ -27,13 +27,17 @@ object HookComponentBuilder {
       def withPropsChildren: ComponentPC.First[P] =
         new ComponentPC.First(ctx => init(ctx.props))
 
-      def render(f: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+      override def render(f: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
         ScalaFn(f)
+
+      override def renderWithReuseBy[A](reusableInputs: P => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[A]): Component[P, s.CT] =
+        customBy(p => CustomHook.shouldComponentUpdate(f).apply(() => reusableInputs(p)))
+          .render((_: HookCtx.P1[P, VdomNode]).hook1)
     }
 
     type RenderFn[-P, +Ctx] = (Ctx => VdomNode) => P => VdomNode
 
-    final class Subsequent[P, Ctx, CtxFn[_]](renderFn: RenderFn[P, Ctx]) extends Api.Secondary[Ctx, CtxFn, SubsequentStep[P, Ctx, CtxFn]] {
+    final class Subsequent[P, Ctx, CtxFn[_]](renderFn: RenderFn[P, Ctx]) extends Api.SecondaryWithRender[P, Children.None, Ctx, CtxFn, SubsequentStep[P, Ctx, CtxFn]] {
 
       override protected def self(f: Ctx => Any)(implicit step: Step): step.Self =
         step.self(renderFn, f)
@@ -41,11 +45,15 @@ object HookComponentBuilder {
       override protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H] =
         step.next[H](renderFn, f)
 
-      def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+      override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
         ScalaFn(renderFn(f))
 
-      def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
-        render(step.squash(f)(_))
+      override def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[A]): Component[P, s.CT] = {
+        val hook = CustomHook.shouldComponentUpdate(f)
+        ScalaFn(renderFn { ctx =>
+          hook.unsafeInit(() => reusableInputs(ctx))
+        })
+      }
     }
 
     object Subsequent extends ComponentP_SubsequentDsl
@@ -99,24 +107,29 @@ object HookComponentBuilder {
 
   object ComponentPC {
 
-    final class First[P](init: HookCtx.PC0[P] => Unit) extends Api.Primary[HookCtx.PC0[P], FirstStep[P]] {
+    final class First[P](init: HookCtx.PC0[P] => Unit) extends Api.PrimaryWithRender[P, Children.Varargs, HookCtx.PC0[P], FirstStep[P]] {
+      type Ctx = HookCtx.PC0[P]
 
-      override protected def self(f: HookCtx.PC0[P] => Any)(implicit step: Step): step.Self =
+      override protected def self(f: Ctx => Any)(implicit step: Step): step.Self =
         step.self(init, f)
 
-      override protected def next[H](f: HookCtx.PC0[P] => H)(implicit step: Step): step.Next[H] =
+      override protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H] =
         step.next(init, f)
 
-      def render(f: HookCtx.PC0[P] => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+      override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
         ScalaFn.withChildren((p: P, pc: PropsChildren) => f(HookCtx.withChildren(p, pc)))
 
       def render(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
         ScalaFn.withChildren(f)
+
+      override def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
+        customBy(ctx => CustomHook.shouldComponentUpdate(f).apply(() => reusableInputs(ctx)))
+          .render((_: HookCtx.PC1[P, VdomNode]).hook1)
     }
 
     type RenderFn[-P, +Ctx] = (Ctx => VdomNode) => (P, PropsChildren) => VdomNode
 
-    final class Subsequent[P, Ctx, CtxFn[_]](renderFn: RenderFn[P, Ctx]) extends Api.Secondary[Ctx, CtxFn, SubsequentStep[P, Ctx, CtxFn]] {
+    final class Subsequent[P, Ctx, CtxFn[_]](renderFn: RenderFn[P, Ctx]) extends Api.SecondaryWithRender[P, Children.Varargs, Ctx, CtxFn, SubsequentStep[P, Ctx, CtxFn]] {
 
       override protected def self(f: Ctx => Any)(implicit step: Step): step.Self =
         step.self(renderFn, f)
@@ -124,11 +137,15 @@ object HookComponentBuilder {
       override protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H] =
         step.next[H](renderFn, f)
 
-      def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+      override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
         ScalaFn.withChildren(renderFn(f))
 
-      def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
-        render(step.squash(f)(_))
+      override def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] = {
+        val hook = CustomHook.shouldComponentUpdate(f)
+        ScalaFn.withChildren(renderFn { ctx =>
+          hook.unsafeInit(() => reusableInputs(ctx))
+        })
+      }
     }
 
     object Subsequent extends ComponentPC_SubsequentDsl

@@ -117,7 +117,7 @@ object Hooks {
 
   object UseMemo {
     def apply[A, D](create: => A, deps: => D)(implicit r: Reusability[D]): CustomHook[Unit, Reusable[A]] =
-      CustomHook.reusableByDeps[A, D](rev => facade.React.useMemo(() => create, js.Array[Any](rev)))
+      CustomHook.reusableByDeps[A, D] { case (_, rev) => facade.React.useMemo(() => create, js.Array[Any](rev: Int)) }
         .apply(() => deps)
   }
 
@@ -133,6 +133,11 @@ object Hooks {
     private def _unsafeCreate[S, A](originalResult: facade.React.UseReducer[S, A]): UseReducer[S, A] = {
       val originalDispatch = Reusable.byRef(originalResult._2)
       UseReducer(originalResult, originalDispatch)
+    }
+
+    implicit def reusability[S, A](implicit S: Reusability[S]): Reusability[UseReducer[S, A]] = {
+      val r = implicitly[Reusability[Reusable[facade.React.UseReducerDispatch[_]]]]
+      Reusability((x, y) => S.test(x.value, y.value) && r.test(x.originalDispatch, y.originalDispatch))
     }
   }
 
@@ -239,13 +244,18 @@ object Hooks {
     }
   }
 
-  def UseStateF[F[_], S, O](r: facade.React.UseState[S], oss: Reusable[facade.React.UseStateSetter[O]])(implicit f: Sync[F]): UseStateF[F, S] =
-    new UseStateF[F, S] {
-      override protected[hooks] implicit def F = f
-      override val raw = r
-      override type OriginalState = O
-      override val originalSetState = oss
-    }
+  object UseStateF {
+    def apply[F[_], S, O](r: facade.React.UseState[S], oss: Reusable[facade.React.UseStateSetter[O]])(implicit f: Sync[F]): UseStateF[F, S] =
+      new UseStateF[F, S] {
+        override protected[hooks] implicit def F = f
+        override val raw = r
+        override type OriginalState = O
+        override val originalSetState = oss
+      }
+
+    implicit def reusability[F[_], S: Reusability]: Reusability[UseStateF[F, S]] =
+      Reusability.by(_.value)
+  }
 
   trait UseStateF[F[_], S] { self =>
     protected[hooks] implicit def F: Sync[F]
@@ -350,6 +360,11 @@ object Hooks {
   }
 
   type UseStateWithReuse[S] = UseStateWithReuseF[D.Sync, S]
+
+  implicit def reusabilityUseStateWithReuseF[F[_], S]: Reusability[UseStateWithReuseF[F, S]] = {
+    val r = implicitly[Reusability[Reusable[Reusability[S]]]]
+    Reusability((x, y) => r.test(x.reusability, y.reusability) && x.reusability.value.test(x.value, y.value))
+  }
 
   final case class UseStateWithReuseF[F[_], S: ClassTag](withoutReuse: UseStateF[F, S], reusability: Reusable[Reusability[S]]) {
 

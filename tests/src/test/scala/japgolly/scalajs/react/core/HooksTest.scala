@@ -754,8 +754,8 @@ object HooksTest extends TestSuite {
 
     test(comp()) { t =>
       t.assertText("1:1")
-      t.clickButton(); t.assertText("2:1")
-      t.clickButton(); t.assertText("3:1")
+      t.clickButton(); t.assertText("2:2")
+      t.clickButton(); t.assertText("3:3")
     }
   }
 
@@ -1192,6 +1192,38 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private def testRenderWithReuse(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
+    var renders = 0
+    var extState = 5
+    val comp = ScalaFnComponent.withHooks[PI]
+      .useState(20)
+      .useCallback(Callback(extState += 1))
+      .useForceUpdate
+      .renderWithReuse { (p, s, incES, fu) =>
+        renders += 1
+        <.div(
+          s"P=$p, S=${s.value}, ES=$extState, R=$renders",
+          <.button(^.onClick --> s.modState(_ + 1)),
+          <.button(^.onClick --> (incES >> fu)),
+        )
+      }
+
+    val wrapper = ScalaComponent.builder[PI].render_P(comp(_)).build
+
+    withRenderedIntoBody(wrapper(PI(3))) { (m, root) =>
+      val t = new Tester(root)
+      t.assertText("P=PI(3), S=20, ES=5, R=1")
+      replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(3), S=20, ES=5, R=1")
+      t.clickButton(1); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      replaceProps(wrapper, m)(PI(3)); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      replaceProps(wrapper, m)(PI(4)); t.assertText("P=PI(4), S=21, ES=5, R=3")
+      t.clickButton(2); t.assertText("P=PI(4), S=21, ES=6, R=4")
+      replaceProps(wrapper, m)(PI(5)); t.assertText("P=PI(4), S=21, ES=6, R=4")
+    }
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
@@ -1256,5 +1288,6 @@ object HooksTest extends TestSuite {
     }
     "useStateSnapshot" - testUseStateSnapshot()
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
+    "renderWithReuse" - testRenderWithReuse()
   }
 }

@@ -4,6 +4,7 @@
 * [Quickstart](HOOKS.md#quickstart)
 * [React hooks in scalajs-react](HOOKS.md#react-hooks-in-scalajs-react)
 * [New hooks provided by scalajs-react](HOOKS.md#new-hooks-provided-by-scalajs-react)
+* [`shouldComponentUpdate`](HOOKS.md#shouldcomponentupdate)
 * [Hook chaining / dependencies / results](HOOKS.md#hook-chaining--dependencies--results)
 * [Hooks and PropsChildren](HOOKS.md#hooks-and-propschildren)
 * [Custom hooks](HOOKS.md#custom-hooks)
@@ -201,6 +202,15 @@ object Example {
 | `.useStateSnapshot(initialState)` <br> *(Requires import japgolly.scalajs.react.extra._)* | Same as `.useState` except you get a `StateSnapshot` (which accepts callbacks on set updates). |
 | `.useStateSnapshotWithReuse(initialState)` <br> *(Requires import japgolly.scalajs.react.extra._)* | Same as `.useState` except you get a `StateSnapshot` (which accepts callbacks on set updates) with state `Reusability`. |
 | `.useStateWithReuse(initialState)` | Conceptually `useState` + `shouldComponentUpdate`. Same as `useState` except that updates are dropped according to `Reusability`. |
+
+# `shouldComponentUpdate`
+
+Instead of calling `render`, you can call one of the following to get `shouldComponentUpdate`
+behaviour just like classes have.
+
+* `renderWithReuse(f: Ctx => VdomNode)(implicit r: Reusability[Ctx])`
+* `renderWithReuseBy[A: Reusability](reusableInputs: Ctx => A)(f: A => VdomNode)`
+* `renderReusable(f: Ctx => Reusable[VdomNode])`
 
 # Hook chaining / dependencies / results
 

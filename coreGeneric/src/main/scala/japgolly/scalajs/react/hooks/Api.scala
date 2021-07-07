@@ -1,11 +1,14 @@
 package japgolly.scalajs.react.hooks
 
+import japgolly.scalajs.react.component.ScalaFn.Component
 import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks._
+import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.util.DefaultEffects
-import japgolly.scalajs.react.vdom.TopNode
-import japgolly.scalajs.react.{CtorType, Ref, Reusability, Reusable}
+import japgolly.scalajs.react.util.Util.identityFn
+import japgolly.scalajs.react.vdom.{TopNode, VdomNode}
+import japgolly.scalajs.react.{Children, CtorType, Ref, Reusability, Reusable}
 import scala.reflect.ClassTag
 import scala.scalajs.js
 
@@ -671,5 +674,33 @@ object Api {
       */
     final def useStateWithReuseBy[S: ClassTag: Reusability](initialState: CtxFn[S])(implicit step: Step): step.Next[UseStateWithReuse[S]] =
       useStateWithReuseBy(step.squash(initialState)(_))
+  }
+
+  // ===================================================================================================================
+
+  trait PrimaryWithRender[P, C <: Children, Ctx, _Step <: AbstractStep] extends Primary[Ctx, _Step] {
+    def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C]): Component[P, s.CT]
+
+    final def renderReusable[A](f: Ctx => Reusable[A])(implicit s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
+      renderWithReuseBy(f(_).map(v))(_.value)
+
+    final def renderWithReuse(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT] =
+      renderWithReuseBy(identityFn[Ctx])(f)
+
+    def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT]
+  }
+
+  trait SecondaryWithRender[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] {
+    final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+      render(step.squash(f)(_))
+
+    final def renderReusable[A](f: CtxFn[Reusable[A]])(implicit step: Step, s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
+      renderReusable(step.squash(f)(_))
+
+    final def renderWithReuse(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT] =
+      renderWithReuse(step.squash(f)(_))
+
+    final def renderWithReuseBy[A](reusableInputs: CtxFn[A])(f: A => VdomNode)(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT] =
+      renderWithReuseBy(step.squash(reusableInputs)(_))(f)
   }
 }
