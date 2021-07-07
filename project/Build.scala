@@ -21,8 +21,8 @@ object ScalaJsReact {
       callback,
       callbackExtCats,
       callbackExtCatsEffect,
-      coreDefCallback,
-      coreDefCatsEffect,
+      coreBundleCallback,
+      coreBundleCatsEffect,
       coreExtCats,
       coreExtCatsEffect,
       coreGeneric,
@@ -100,7 +100,7 @@ object ScalaJsReact {
       ),
     )
 
-  lazy val coreDefCallback = project
+  lazy val coreBundleCallback = project
     .dependsOn(callback) // High priority
     .dependsOn(coreGeneric) // Med priority
     .dependsOn(utilFallbacks) // Low priority
@@ -109,7 +109,7 @@ object ScalaJsReact {
       moduleName := "core",
     )
 
-  lazy val coreDefCatsEffect = project
+  lazy val coreBundleCatsEffect = project
     .dependsOn(coreExtCatsEffect) // High priority
     .dependsOn(utilFallbacks) // Low priority
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
@@ -180,7 +180,7 @@ object ScalaJsReact {
     )
 
   lazy val ghpages = project
-    .dependsOn(coreDefCallback, extra, extraExtMonocle3, ghpagesMacros)
+    .dependsOn(coreBundleCallback, extra, extraExtMonocle3, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
       scalaJSUseMainModuleInitializer := true,
@@ -197,7 +197,7 @@ object ScalaJsReact {
 
   lazy val tests = project
     .dependsOn(testUtil, coreExtCatsEffect, extraExtMonocle3)
-    .dependsOn(coreDefCallback) // Low priority
+    .dependsOn(coreBundleCallback) // Low priority
     .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
     .settings(
       Test / scalacOptions --= Seq(
