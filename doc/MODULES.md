@@ -1,6 +1,9 @@
 # Guide
 
-Sbt:
+These are the directions for using scalajs-react in its default way,
+with the opt-in optional features shown for you to accept or remove.
+
+Add to sbt:
 
 ```scala
 val ScalaJsReactVer = "2.0.0"
@@ -39,9 +42,23 @@ import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.test._
 ```
 
-# Guide with `cats.effect.{SyncIO,IO}` as default effect types
+If you include the `core-ext-cats_effect` module you'll be able to provide `cats.effect.{SyncIO,IO}` instances
+directly to scalajs-react in places like component lifecycle callbacks, event handlers, etc.
+No additional imports required.
 
-Sbt:
+
+# Guide with Cats Effect as default effect types
+
+These are the instructions to use scalajs-react with `cats.effect.{SyncIO,IO}` as the default effects,
+meaning that in all cases where the return type would normally be a `CallbackTo` or an `AsyncCallback`
+you'll now get a `SyncIO` and `IO` respectively.
+
+By default, the `Callback` classes won't even be on the classpath.
+If you include the `callback` module you'll get them back on the classpath and you'll be able to provide them
+directly to scalajs-react in places like component lifecycle callbacks, event handlers, etc.
+No additional imports required.
+
+Add to sbt:
 
 ```scala
 val ScalaJsReactVer = "2.0.0"
@@ -72,7 +89,7 @@ libraryDependencies ++= Seq(
 Imports:
 
 ```scala
-import japgolly.scalajs.react._ // includes ReactCats._
+import japgolly.scalajs.react._ // automatically includes ReactCats._
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.ReactMonocle._
 
