@@ -8,17 +8,17 @@ import scala.util.{Failure, Success, Try}
 
 object Util {
   @inline implicit class SJRIExt_String(private val s: String) extends AnyVal {
-    def indent(i: String): String =
+    def indentLines(i: String): String =
       if (i.isEmpty)
         s
       else
         i + s.replace("\n", "\n" + i)
 
-    def indent(spaces: Int): String =
+    def indentLines(spaces: Int): String =
       if (spaces <= 0)
         s
       else
-        indent(" " * spaces)
+        indentLines(" " * spaces)
   }
 
   def catchAll[A](a: => A): Try[A] =

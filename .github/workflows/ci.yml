@@ -6,11 +6,15 @@ on:
 
 jobs:
   ci:
-    name: Scala v${{ matrix.scala }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        scala: [2, 3]
+        include:
+          - java: 14
+            scala: 2
+          - java: 8
+            scala: 3
+    name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }}
     steps:
 
       - name: Git checkout
@@ -19,7 +23,7 @@ jobs:
       - name: Setup Java and Scala
         uses: olafurpg/setup-scala@v12
         with:
-          java-version: adopt@1.8
+          java-version: adopt@1.${{ matrix.java }}
 
       - name: Setup Node
         uses: actions/setup-node@v2
