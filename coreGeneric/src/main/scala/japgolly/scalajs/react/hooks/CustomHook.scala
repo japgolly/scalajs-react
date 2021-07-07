@@ -185,7 +185,7 @@ object CustomHook {
             val nextRev     = o.fold(1)(_._2 + 1)
             val nextState   = (next, nextRev)
             val updateState = depsState.setState(Some(nextState))
-            DefaultEffects.Sync.runSync(updateState) // TODO: Confirm this links
+            DefaultEffects.Sync.runSync(updateState)
             nextState
         }
       }
