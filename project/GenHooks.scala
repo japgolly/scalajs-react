@@ -43,6 +43,8 @@ object GenHooks {
       val _s           = (1 to n).map(_ => '_').mkString(", ")
       val preHns       = (1 until n).map("H" + _).mkString(", ")
       val Hns          = (1 to n).map("H" + _).mkString(", ")
+      val RHns         = (1 to n).map(n => s"H$n: Reusability[H$n]").mkString(", ")
+      val RHnTests     = (1 to n).map(n => s"H$n.test(x.hook$n, y.hook$n)").mkString(" && ")
       val coHns        = (1 to n).map("+H" + _).mkString(", ")
       val hookParams   = (1 to n).map(i => s"hook$i: H$i").mkString(", ")
       val hookArgs     = (1 to n).map(i => s"hook$i").mkString(", ")
@@ -67,6 +69,9 @@ object GenHooks {
              |    override def toString = s"HookCtx.withInput(\\n  input = !input$ctxToStr)"
              |    def apply$n[A](f: (I, $Hns) => A): A = f(input, $hookArgs)
              |  }
+             |
+             |  implicit def reusabilityI$n[I, $Hns](implicit I: Reusability[I], $RHns): Reusability[I$n[I, $Hns]] =
+             |    Reusability((x, y) => I.test(x.input, y.input) && $RHnTests)
              |""".stripMargin.replace('!', '$')
 
         hookCtxsP +=
@@ -74,6 +79,9 @@ object GenHooks {
              |    override def toString = s"HookCtx(\\n  props = !props$ctxToStr)"
              |    def apply$n[A](f: (P, $Hns) => A): A = f(props, $hookArgs)
              |  }
+             |
+             |  implicit def reusabilityP$n[P, $Hns](implicit P: Reusability[P], $RHns): Reusability[P$n[P, $Hns]] =
+             |    Reusability((x, y) => P.test(x.props, y.props) && $RHnTests)
              |""".stripMargin.replace('!', '$')
 
         if (n <= 20) {
@@ -84,6 +92,9 @@ object GenHooks {
                |    override def toString = s"HookCtx.withChildren(\\n  props = !props,\\n  propsChildren = !propsChildren$ctxToStr)"
                |    def apply$n[A](f: (P, PropsChildren, $Hns) => A): A = f(props, propsChildren, $hookArgs)
                |  }
+               |
+               |  implicit def reusabilityPC$n[P, $Hns](implicit P: Reusability[P], PC: Reusability[PropsChildren], $RHns): Reusability[PC$n[P, $Hns]] =
+               |    Reusability((x, y) => P.test(x.props, y.props) && PC.test(x.propsChildren, y.propsChildren) && $RHnTests)
                |""".stripMargin.replace('!', '$')
         }
       }
@@ -198,13 +209,16 @@ object GenHooks {
     save("HookCtx.scala")(
       s"""$header
          |
-         |import japgolly.scalajs.react.PropsChildren
+         |import japgolly.scalajs.react.{PropsChildren, Reusability}
          |
          |object HookCtx {
          |
          |${hookCtxCtorsP.result().mkString("\n\n")}
          |
          |  abstract class P0[+P](final val props: P)
+         |
+         |  implicit def reusabilityP0[P](implicit P: Reusability[P]): Reusability[P0[P]] =
+         |    Reusability.by(_.props)
          |
          |${hookCtxsP.result().mkString("\n")}
          |  // ===================================================================================================================
@@ -219,6 +233,9 @@ object GenHooks {
          |
          |  class PC0[+P](props: P, final val propsChildren: PropsChildren) extends P0(props)
          |
+         |  implicit def reusabilityPC0[P](implicit P: Reusability[P], PC: Reusability[PropsChildren]): Reusability[PC0[P]] =
+         |    Reusability((x, y) => P.test(x.props, y.props) && PC.test(x.propsChildren, y.propsChildren))
+         |
          |${hookCtxsPC.result().mkString("\n")}
          |
          |  // ===================================================================================================================
@@ -232,6 +249,9 @@ object GenHooks {
          |  }
          |
          |  class I0[+I](final val input: I)
+         |
+         |  implicit def reusabilityI0[I](implicit I: Reusability[I]): Reusability[I0[I]] =
+         |    Reusability.by(_.input)
          |
          |${hookCtxsI.result().mkString("\n")}
          |}

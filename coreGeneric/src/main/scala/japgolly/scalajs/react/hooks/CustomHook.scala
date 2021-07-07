@@ -202,7 +202,10 @@ object CustomHook {
     val inc: Int => Int = _ + 1
     CustomHook[Unit]
       .useState(0)
-      .buildReturning(_.hook1.modState.map(_(inc)))
+      .buildReturning($ => {
+        val s = $.hook1
+        Reusable.implicitly(s.value).withLazyValue(s.modState.map(_(inc)).value)
+      })
   }
 
 }

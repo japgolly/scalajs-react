@@ -681,8 +681,8 @@ object Api {
   trait PrimaryWithRender[P, C <: Children, Ctx, _Step <: AbstractStep] extends Primary[Ctx, _Step] {
     def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C]): Component[P, s.CT]
 
-    final def renderReusable(f: Ctx => Reusable[VdomNode])(implicit s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-      renderWithReuseBy(f)(_.value)
+    final def renderReusable[A](f: Ctx => Reusable[A])(implicit s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
+      renderWithReuseBy(f(_).map(v))(_.value)
 
     final def renderWithReuse(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT] =
       renderWithReuseBy(identityFn[Ctx])(f)
@@ -694,7 +694,7 @@ object Api {
     final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
       render(step.squash(f)(_))
 
-    final def renderReusable(f: CtxFn[Reusable[VdomNode]])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+    final def renderReusable[A](f: CtxFn[Reusable[A]])(implicit step: Step, s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
       renderReusable(step.squash(f)(_))
 
     final def renderWithReuse(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT] =
