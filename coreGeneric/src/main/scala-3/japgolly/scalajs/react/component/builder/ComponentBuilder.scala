@@ -200,46 +200,46 @@ object ComponentBuilder {
     def renderPS(r: ($, P, S) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
        renderWith($ => r($, $.props, $.state))
 
-     def renderP(r: ($, P) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($, $.props))
+    def renderP(r: ($, P) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($, $.props))
 
-     def renderS(r: ($, S) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($, $.state))
+    def renderS(r: ($, S) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($, $.state))
 
-     def render_PS(r: (P, S) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($.props, $.state))
+    def render_PS(r: (P, S) => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($.props, $.state))
 
-     def render_P(r: P => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($.props))
+    def render_P(r: P => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($.props))
 
-     def render_S(r: S => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($.state))
+    def render_S(r: S => VdomNode): LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($.state))
 
     // Has children
 
-     def renderPCS(r: ($, P, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($, $.props, $.propsChildren, $.state))
+    def renderPCS(r: ($, P, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($, $.props, $.propsChildren, $.state))
 
-     def renderPC(r: ($, P, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($, $.props, $.propsChildren))
+    def renderPC(r: ($, P, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($, $.props, $.propsChildren))
 
-     def renderCS(r: ($, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($, $.propsChildren, $.state))
+    def renderCS(r: ($, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($, $.propsChildren, $.state))
 
-     def renderC(r: ($, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($, $.propsChildren))
+    def renderC(r: ($, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($, $.propsChildren))
 
-     def render_PCS(r: (P, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($.props, $.propsChildren, $.state))
+    def render_PCS(r: (P, PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($.props, $.propsChildren, $.state))
 
-     def render_PC(r: (P, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($.props, $.propsChildren))
+    def render_PC(r: (P, PropsChildren) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($.props, $.propsChildren))
 
-     def render_CS(r: (PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($.propsChildren, $.state))
+    def render_CS(r: (PropsChildren, S) => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($.propsChildren, $.state))
 
-     def render_C(r: PropsChildren => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-       renderWith($ => r($.propsChildren))
+    def render_C(r: PropsChildren => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
+      renderWith($ => r($.propsChildren))
 
     /**
      * Use a method named `render` in the backend, automatically populating its arguments with props and state

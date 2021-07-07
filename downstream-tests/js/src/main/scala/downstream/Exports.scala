@@ -12,8 +12,9 @@ object Exports {
   // Init components (for RuntimeTests)
   // Reference components (for JsOutputTest)
   def components = List[Any](
-    Carrot,
-    Pumpkin,
+    Carrot.Component,
+    Pumpkin.Component,
+    Routed.Component,
   )
 
   @JSExport

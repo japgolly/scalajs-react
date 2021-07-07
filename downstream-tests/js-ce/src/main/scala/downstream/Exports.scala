@@ -9,6 +9,7 @@ object Exports {
 
   @JSExport
   def exp = List[Any](
+    Routed.Component,
     pxToCallback,
   )
 
