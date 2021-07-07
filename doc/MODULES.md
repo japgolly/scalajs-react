@@ -83,6 +83,8 @@ import japgolly.scalajs.react.test._
 
 # Reference
 
+These are all the modules meant for end-user selection.
+
 | Name                       | Description |
 |----------------------------|-------------|
 | `callback`                 | Lightweight but powerful effects classes:<br> `AsyncCallback`, `Callback(To)`, `CallbackOption` |
@@ -99,4 +101,9 @@ import japgolly.scalajs.react.test._
 | `facade-test`              | Scala.JS facades for `ReactTestUtils` |
 | `test`                     | Utilities for testing React components |
 
-![module diagram](https://rawgit.com/japgolly/scalajs-react/master/doc/modules.gv.svg)
+![main modules](https://rawgit.com/japgolly/scalajs-react/master/doc/modules-main.gv.svg)
+
+There are also other modules that are for internal/technical purposes and are transitive (indirect) dependencies.
+This is the full module diagram:
+
+![all modules](https://rawgit.com/japgolly/scalajs-react/master/doc/modules.gv.svg)
