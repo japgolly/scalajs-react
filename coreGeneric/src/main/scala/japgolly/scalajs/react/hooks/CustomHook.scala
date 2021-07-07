@@ -1,7 +1,9 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.microlibs.types.NaturalComposition
+import japgolly.scalajs.react.internal.ShouldComponentUpdateComponent
 import japgolly.scalajs.react.util.DefaultEffects
+import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{PropsChildren, Reusability, Reusable}
 
 final class CustomHook[I, O] private[CustomHook] (val unsafeInit: I => O) extends AnyVal {
@@ -167,31 +169,34 @@ object CustomHook {
 
   // ===================================================================================================================
 
-  def reusableDeps[D](implicit r: Reusability[D]): CustomHook[() => D, Int] =
+  def reusableDeps[D](implicit r: Reusability[D]): CustomHook[() => D, (D, Int)] =
     CustomHook[() => D]
-      .useState((0, Option.empty[D]))
+      .useState(Option.empty[(D, Int)])
       .buildReturning { (getDeps, depsState) =>
-        val rev = depsState.value._1
-        lazy val next = getDeps()
-        val updateNeeded =
-          depsState.value._2 match {
-            case Some(cur) =>
-              // println(s"$cur => $next? update=${r.updateNeeded(cur, next)}}")
-              r.updateNeeded(cur, next)
-            case None =>
-              true
-          }
-        if (updateNeeded) {
-          val newRev = rev + 1
-          val f = depsState.setState((newRev, Some(next)))
-          DefaultEffects.Sync.runSync(f)
-          newRev
-        } else
-          rev
+        val next = getDeps()
+        depsState.value match {
+
+          // Previous result can be reused
+          case Some(prevState @ (prev, _)) if r.test(prev, next) =>
+            prevState
+
+          // Not reusable
+          case o =>
+            val nextRev     = o.fold(1)(_._2 + 1)
+            val nextState   = (next, nextRev)
+            val updateState = depsState.setState(Some(nextState))
+            DefaultEffects.Sync.runSync(updateState) // TODO: Confirm this links
+            nextState
+        }
       }
 
-  def reusableByDeps[A, D](create: Int => A)(implicit r: Reusability[D]): CustomHook[() => D, Reusable[A]] =
-    reusableDeps[D].map(rev => Reusable.implicitly(rev).withValue(create(rev)))
+  def reusableByDeps[A, D](create: (D, Int) => A)(implicit r: Reusability[D]): CustomHook[() => D, Reusable[A]] =
+    reusableDeps[D].map { case (d, rev) => Reusable.implicitly(rev).withValue(create(d, rev)) }
+
+  def shouldComponentUpdate[D](render: D => VdomNode)(implicit r: Reusability[D]): CustomHook[() => D, VdomNode] =
+    reusableDeps[D].map { case (d, rev) =>
+      ShouldComponentUpdateComponent(rev, () => render(d))
+    }
 
   lazy val useForceUpdate: CustomHook[Unit, Reusable[DefaultEffects.Sync[Unit]]] = {
     val inc: Int => Int = _ + 1
@@ -199,4 +204,5 @@ object CustomHook {
       .useState(0)
       .buildReturning(_.hook1.modState.map(_(inc)))
   }
+
 }

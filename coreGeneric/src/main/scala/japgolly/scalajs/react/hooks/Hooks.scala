@@ -117,7 +117,7 @@ object Hooks {
 
   object UseMemo {
     def apply[A, D](create: => A, deps: => D)(implicit r: Reusability[D]): CustomHook[Unit, Reusable[A]] =
-      CustomHook.reusableByDeps[A, D](rev => facade.React.useMemo(() => create, js.Array[Any](rev)))
+      CustomHook.reusableByDeps[A, D] { case (_, rev) => facade.React.useMemo(() => create, js.Array[Any](rev: Int)) }
         .apply(() => deps)
   }
 
