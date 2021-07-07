@@ -77,7 +77,7 @@ object InspectRaw {
        |${where.value}:${line.value}
        |
        |You called $thisMethod() with an invalid argument:
-       |${JsUtil.inspectValue(input).indent(2)}
+       |${JsUtil.inspectValue(input).indentLines(2)}
        |
        |${solution.trim}
        |
