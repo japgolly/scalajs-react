@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.internal
 
 import japgolly.scalajs.react.Reusability
-import japgolly.scalajs.react.component.builder.EntryPoint
+import japgolly.scalajs.react.component.builder.ComponentBuilder.Step1
 import japgolly.scalajs.react.vdom.VdomNode
 
 object ShouldComponentUpdateComponent {
@@ -12,7 +12,7 @@ object ShouldComponentUpdateComponent {
     Reusability.by(_._1)
 
   val Component =
-    EntryPoint[Props]("")
+    new Step1[Props]("")
       .render_P(_._2())
       .configure(Reusability.shouldComponentUpdate)
       .build
