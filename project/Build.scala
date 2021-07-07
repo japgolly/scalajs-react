@@ -88,7 +88,7 @@ object ScalaJsReact {
     .dependsOn(callbackExtCats, utilCatsEffect)
     .configure(commonSettings, publicationSettings, prohibitDefaultEffects)
     .settings(
-      moduleName := "callback-ext-cats-effect",
+      moduleName := "callback-ext-cats_effect",
       libraryDependencies ++= Seq(
         Dep.catsEffect          .value,
         Dep.catsEffectLaws      .value % Test,
@@ -114,7 +114,7 @@ object ScalaJsReact {
     .dependsOn(utilFallbacks) // Low priority
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .settings(
-      moduleName := "core-bundle-cats-effect",
+      moduleName := "core-bundle-cats_effect",
     )
 
   lazy val coreExtCats = project
@@ -129,7 +129,7 @@ object ScalaJsReact {
     .dependsOn(coreExtCats, utilCatsEffect, utilFallbacks % Provided)
     .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
     .settings(
-      moduleName := "core-ext-cats-effect",
+      moduleName := "core-ext-cats_effect",
       libraryDependencies += Dep.catsEffect.value,
     )
 
@@ -237,7 +237,7 @@ object ScalaJsReact {
     .dependsOn(util)
     .configure(commonSettings, publicationSettings, hasNoTests, prohibitDefaultEffects)
     .settings(
-      moduleName := "util-cats-effect",
+      moduleName := "util-cats_effect",
       libraryDependencies += Dep.catsEffect.value,
     )
 

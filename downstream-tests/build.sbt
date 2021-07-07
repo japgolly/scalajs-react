@@ -138,7 +138,7 @@ lazy val js = project
       val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
       Seq(
         "com.github.japgolly.scalajs-react" %%% "core" % ver,
-        "com.github.japgolly.scalajs-react" %%% "core-ext-cats-effect" % ver,
+        "com.github.japgolly.scalajs-react" %%% "core-ext-cats_effect" % ver,
         "com.github.japgolly.scalajs-react" %%% "extra" % ver,
         "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
         Dep.microlibsCompileTime.value % Test,
@@ -164,7 +164,7 @@ lazy val jsCE = project
     libraryDependencies ++= {
       val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
       Seq(
-        "com.github.japgolly.scalajs-react" %%% "core-bundle-cats-effect" % ver,
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cats_effect" % ver,
         "com.github.japgolly.scalajs-react" %%% "extra" % ver,
         "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
         Dep.microlibsCompileTime.value % Test,
