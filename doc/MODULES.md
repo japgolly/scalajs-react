@@ -101,9 +101,9 @@ These are all the modules meant for end-user selection.
 | `facade-test`              | Scala.JS facades for `ReactTestUtils` |
 | `test`                     | Utilities for testing React components |
 
-![main modules](https://rawgit.com/japgolly/scalajs-react/master/doc/modules-main.gv.svg)
+![main modules](https://rawgit.com/japgolly/scalajs-react/master/doc/modules-main.gv.7563cdfa19f268785faed6501fe5ff66.svg)
 
 There are also other modules that are for internal/technical purposes and are transitive (indirect) dependencies.
 This is the full module diagram:
 
-![all modules](https://rawgit.com/japgolly/scalajs-react/master/doc/modules.gv.svg)
+![all modules](https://rawgit.com/japgolly/scalajs-react/master/doc/modules.gv.0629700f42933998a3f995fc28018bb3.svg)
