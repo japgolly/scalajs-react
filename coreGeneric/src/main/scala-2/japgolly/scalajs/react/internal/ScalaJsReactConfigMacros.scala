@@ -107,6 +107,19 @@ class ScalaJsReactConfigMacros(val c: Context) extends MacroUtils {
   def componentStaticManual(displayName: c.Tree)(content: c.Tree): c.Tree =
     q"_root_.japgolly.scalajs.react.component.builder.EntryPoint.static($displayName)($content).build"
 
+  def shouldComponentUpdateComponent: c.Tree =
+    q"""
+      import _root_.japgolly.scalajs.react.internal.{ShouldComponentUpdateComponent => X}
+      X.init(_root_.japgolly.scalajs.react.ScalaJsReactConfig.Instance.modifyComponentName("ShouldComponentUpdate"))
+      X.unsafeComponent()
+    """
+
+  def shouldComponentUpdateComponentApply(rev: c.Tree, vdom: c.Tree): c.Tree =
+    q"""
+      import _root_.japgolly.scalajs.react.internal.{ShouldComponentUpdateComponent => X}
+      X.Component(($rev, $vdom)): VdomNode
+    """
+
   def vdomNodeStatic(vdom: c.Tree): c.Tree =
     q"""_root_.japgolly.scalajs.react.ScalaComponent.static("")($vdom).ctor()"""
 
