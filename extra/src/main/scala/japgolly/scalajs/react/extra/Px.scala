@@ -2,6 +2,9 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.internal.LazyVar
+import japgolly.scalajs.react.internal.CoreGeneral._
+import japgolly.scalajs.react.util.DefaultEffects.{Sync => DS}
+import japgolly.scalajs.react.util.Effect.Sync
 import scala.scalajs.js
 
 /**
@@ -34,8 +37,8 @@ sealed abstract class Px[A] {
       None
   }
 
-  final def toCallback: CallbackTo[A] =
-    CallbackTo(value())
+  final def toCallback[F[_]](implicit F: Sync[F]): F[A] =
+    F.delay(value())
 
   def map[B](f: A => B): Px.Derivative[B] =
     new Px.Map(this, f)
@@ -235,13 +238,15 @@ object Px {
   def apply[A](f: => A): FromThunk[A] =
     new FromThunk(() => f)
 
-  def callback[A](cb: CallbackTo[A]): FromThunk[A] =
-    new FromThunk(cb.toScalaFn)
+  def callback[G[_], A](cb: => G[A])(implicit G: Sync[G]): FromThunk[A] = {
+    val f = G.toJsFn(cb)
+    new FromThunk(() => f())
+  }
 
-  def props[P](s: GenericComponent.MountedPure[P, _]): FromThunk[P] =
+  def props[G[_]: Sync, A[_], P, S](s: GenericComponent.MountedSimple[G, A, P, S]): FromThunk[P] =
     callback(s.props)
 
-  def state[I, S](i: I)(implicit sa: StateAccessor.ReadPure[I, S]): FromThunk[S] =
+  def state[I, G[_]: Sync, S](i: I)(implicit sa: StateAccessor.Read[I, G, S]): FromThunk[S] =
     callback(sa.state(i))
 
   final class FromThunk[A](private val thunk: () => A) extends AnyVal {
@@ -487,20 +492,24 @@ object Px {
 
   // ===================================================================================================================
 
-  trait ManualCollection {
+  type ManualCollection = ManualCollectionF[DS]
+
+  trait ManualCollectionF[F[_]] {
+    protected def F: Sync[F]
     def add[A](px: Px.ThunkM[A]): px.type
-    val refreshCB: Callback
+    val refreshCB: F[Unit]
 
     final def addAll(pxs: Px.ThunkM[_]*): Unit =
       pxs.foreach(add(_))
 
     final def refresh(): Unit =
-      refreshCB.runNow()
+      F.runSync(refreshCB)
   }
 
   object ManualCollection {
     def apply(initial: Px.ThunkM[_]*): ManualCollection =
       new ManualCollection {
+        override protected def F = DS
 
         var pxs = initial.toList
 
@@ -509,8 +518,8 @@ object Px {
           px
         }
 
-        override val refreshCB: Callback =
-          Callback(Px.refresh(pxs: _*))
+        override val refreshCB =
+          DS.delay(Px.refresh(pxs: _*))
       }
   }
 

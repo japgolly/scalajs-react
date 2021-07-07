@@ -1,10 +1,14 @@
 package downstream
 
+import cats.effect.IO
 import japgolly.microlibs.compiletime.CompileTimeInfo
 import japgolly.microlibs.testutil.TestUtil._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils._
-import scala.scalajs.LinkingInfo.developmentMode
+import japgolly.scalajs.react.util.JsUtil
 import scala.scalajs.js
+import scala.scalajs.LinkingInfo.developmentMode
+import scala.util.Try
 import utest._
 
 object RuntimeTests extends TestSuite {
@@ -30,10 +34,9 @@ object RuntimeTests extends TestSuite {
   }
 
   override def tests = Tests {
+    Globals.clear()
 
     "reusabilityOverride" - {
-      Globals.clear()
-
       val expectedReusabilityLog = if (configClass.isEmpty) 0 else 2
       val reusabilityAllowed     = !(developmentMode && reusabilityDev.contains("disable"))
 
@@ -55,19 +58,29 @@ object RuntimeTests extends TestSuite {
 
       assertEq(Globals.reusabilityLog.length, expectedReusabilityLog)
 
-      withRenderedIntoDocument(Carrot.Component("1")) { m =>
-        replaceProps(Carrot.Component, m)("1")
-        replaceProps(Carrot.Component, m)("2")
+      val (promise, completePromise) = JsUtil.newPromise[Unit]()
+      val io = IO(completePromise(Try(()))())
+
+      withRenderedIntoDocument(Carrot.Props("1", io).render) { m =>
+        replaceProps(Carrot.Component, m)(Carrot.Props("1"))
+        replaceProps(Carrot.Component, m)(Carrot.Props("2"))
       }
       withRenderedIntoDocument(Pumpkin.Component("1")) { m =>
         replaceProps(Pumpkin.Component, m)("1")
         replaceProps(Pumpkin.Component, m)("2")
       }
 
+      assertEq(Globals.carrotMountsA, 1)
+      assertEq(Globals.carrotMountsB, 1)
       assertEq(Globals.carrotRenders, expectedCarrots)
       assertEq(Globals.pumpkinRenders, expectedPumpkins)
 
-      s"carrots: ${Globals.carrotRenders}/3, pumpkins: ${Globals.pumpkinRenders}/3, reusabilityLog: ${Globals.reusabilityLog.length}"
+      AsyncCallback
+        .fromJsPromise(promise)
+        .map(_ => s"carrots: ${Globals.carrotRenders}/3, pumpkins: ${Globals.pumpkinRenders}/3, reusabilityLog: ${Globals.reusabilityLog.length}")
+        .timeoutMs(3000)
+        .map(_.get)
+        .unsafeToFuture()
     }
   }
 }

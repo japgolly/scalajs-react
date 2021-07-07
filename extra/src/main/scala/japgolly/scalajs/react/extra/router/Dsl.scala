@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.extra.router
 
 import japgolly.scalajs.react.extra.internal.RouterMacros
-import japgolly.scalajs.react.internal.identityFn
+import japgolly.scalajs.react.util.DefaultEffects.Sync
+import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.VdomElement
 import java.util.UUID
 import java.util.regex.{Matcher, Pattern}
@@ -332,28 +333,28 @@ final class RouterConfigDsl[Page, Props] {
   implicit def _auto_someAction[A <: Action](a: A): Option[A] = Some(a)
 
   def render[A](a: => A)(implicit ev: A => VdomElement): Renderer =
-    Renderer(_ => _ => ev(a))
+    RendererF(_ => _ => ev(a))
 
   def renderR[A](g: RouterCtl[Page] => A)(implicit ev: A => VdomElement): Renderer =
-    Renderer(r => _ => ev(g(r)))
+    RendererF(r => _ => ev(g(r)))
 
   def renderP[A](g: Props => A)(implicit ev: A => VdomElement): Renderer =
-    Renderer(_ => props => ev(g(props)))
+    RendererF(_ => props => ev(g(props)))
 
   def renderRP[A](g: (RouterCtl[Page], Props) => A)(implicit ev: A => VdomElement): Renderer =
-    Renderer(r => props => ev(g(r, props)))
+    RendererF(r => props => ev(g(r, props)))
 
   def dynRender[P <: Page, A](g: P => A)(implicit ev: A => VdomElement): P => Renderer =
-    p => Renderer(_ => _ => ev(g(p)))
+    p => RendererF(_ => _ => ev(g(p)))
 
   def dynRenderR[P <: Page, A](g: (P, RouterCtl[Page]) => A)(implicit ev: A => VdomElement): P => Renderer =
-    p => Renderer(r => _ => ev(g(p, r)))
+    p => RendererF(r => _ => ev(g(p, r)))
 
   def dynRenderP[P <: Page, A](g: (P, Props) => A)(implicit ev: A => VdomElement): P => Renderer =
-    p => Renderer(_ => props => ev(g(p, props)))
+    p => RendererF(_ => props => ev(g(p, props)))
 
   def dynRenderRP[P <: Page, A](g: (P, RouterCtl[Page], Props) => A)(implicit ev: A => VdomElement): P => Renderer =
-    p => Renderer(r => props => ev(g(p, r, props)))
+    p => RendererF(r => props => ev(g(p, r, props)))
 
   def redirectToPage(page: Page)(implicit via: SetRouteVia): RedirectToPage[Page] =
     RedirectToPage[Page](page, via)

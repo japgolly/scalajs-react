@@ -7,7 +7,7 @@ ThisBuild / scalacOptions ++= {
 
 ThisBuild / semanticdbEnabled := true
 
-ThisBuild / semanticdbVersion := "4.4.20"
+ThisBuild / semanticdbVersion := "4.4.21"
 
 ThisBuild / scalafixScalaBinaryVersion := "2.13"
 

@@ -202,7 +202,6 @@ and is automatically converted to a finalised `Route` when used.
 
 * Combinators on `RouteB[Option[A]]`
   * `.withDefault(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `==` to compare `A`s to the given default.
-  * `.withDefaultE(A)` - Specify a default value. Returns a `RouteB[A]`. Uses `scalaz.Equal` to compare `A`s to the given default.
   * `.parseDefault(A)` - Specify a default value when parsing. (Path generation ignores this default.) Returns a `RouteB[A]`.
 
 * Combinators on `RouteB[Unit]`
@@ -266,7 +265,7 @@ Syntax:
 | `dynamicRouteCT` | `[P <: Page](Route[P])` | A dynamic route using a page subtype: `P`.<br>The `CT` suffix here denotes that this method uses a compiler-provded `ClassTag` to identify the page subtype `P`. This is equivalent to `{case p: P => p}`.<br>Note that if this is used, the entire space of `P` is associated with a route - do not add another route over `P`. |
 | `dynamicRedirect` | `[A](Route[A])` | A dynamic path not associated with a page. Any `A` extracted by the route may then be used to determine the redirect target. |
 
-Example: This creates a route in the format of `item/<id>`.
+Example: This creates a route in the format of `item/:id`.
 
 ```scala
 case class ItemPage(id: Int) extends MyPage
@@ -283,7 +282,7 @@ dynamicRouteCT("item" / int.caseClass[ItemPage])
 
 To create a `RouterConfig` the syntax is `(<rule1> | ... | <ruleN>).notFound(<action>)`.
 
-**Rule composition** is acheived via `|`.
+**Rule composition** is achieved via `|`.
 If two rules overlap (eg. can respond to the same URL), the left-hand side of `|` has precedence and wins.
 
 **The `.notFound()` method** declares how unmatched routes will be handled.
@@ -314,7 +313,7 @@ If you'd like to see what's happening, you can call `.logToConsole` on your conf
 ### A spot of unsafeness
 
 A tradeoff in safety has been made to purchase many new features in the redesigned v2 Router.
-Namely, it's possible to accidently forget a route for a page type.
+Namely, it's possible to accidentally forget a route for a page type.
 
 Consider this example:
 

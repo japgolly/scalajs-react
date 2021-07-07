@@ -1,0 +1,44 @@
+digraph G {
+  edge[dir=back]
+
+  node[style=filled] {
+    utilFallbacks [label="util-fallbacks"]
+    facadeTest [label="facade-test"]
+    coreGeneric [label="core-generic"]
+
+    node[fillcolor=darkolivegreen2]
+    extra
+    testUtil [label="test"]
+
+    node[fillcolor=skyblue]
+    callback
+    core [style="bold,filled" penwidth=7 label=" \n core \n "]
+
+    node[fillcolor=yellow2]
+    cats [label="core-ext-cats"]
+    monocle2 [label="extra-ext-monocle2"]
+    monocle3 [label="extra-ext-monocle3"]
+
+    node[fillcolor=orange]
+    catsEffect [label="core-ext-cats-effect"]
+    coreCE [style="bold,filled" penwidth=7 label=" \n core-cats-effect \n "]
+
+    node[style="rounded,wedged" fillcolor="skyblue:orange"]
+    catsC [label="callback-ext-cats"]
+    catsEffectC [label="callback-ext-cats-effect"]
+  }
+
+  utilFallbacks -> util [style=dashed color="#999999"]
+  util -> coreGeneric,callback
+  facade -> facadeTest
+  callback -> core
+  facade -> coreGeneric -> core,extra
+  extra,facadeTest -> testUtil
+
+  coreGeneric -> cats -> catsEffect
+  callback -> catsC
+  catsC -> catsEffectC
+  cats,extra -> monocle2,monocle3
+  catsEffect -> coreCE
+  utilFallbacks -> core,coreCE
+}

@@ -12,13 +12,11 @@ object Dependencies {
     val cats                  = "2.6.1"
     val catsEffect            = "3.1.1"
     val microlibs             = "2.6"
+    val monocle2              = "2.1.0"
     val monocle3              = "3.0.0-RC2"
-    val monocleCats           = "2.1.0"
-    val monocleScalaz         = "1.6.3"
     val scala2                = "2.13.6"
     val scala3                = "3.0.0"
     val scalaJsDom            = "1.1.0"
-    val scalaz72              = "7.2.32"
     val sourcecode            = "0.2.7"
 
     // Internal
@@ -46,9 +44,8 @@ object Dependencies {
     val microlibsCompileTime = Def.setting("com.github.japgolly.microlibs" %%% "compile-time"            % Ver.microlibs)
     val microlibsTestUtil    = Def.setting("com.github.japgolly.microlibs" %%% "test-util"               % Ver.microlibs)
     val microlibsTypes       = Def.setting("com.github.japgolly.microlibs" %%% "types"                   % Ver.microlibs)
+    val monocle2             = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocle2 cross CrossVersion.for3Use2_13)
     val monocle3             = Def.setting("dev.optics"                    %%% "monocle-core"            % Ver.monocle3)
-    val monocleCats          = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocleCats cross CrossVersion.for3Use2_13)
-    val monocleScalaz        = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"            % Ver.monocleScalaz cross CrossVersion.for3Use2_13)
     val nyayaGen             = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-gen"               % Ver.nyaya)
     val nyayaProp            = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-prop"              % Ver.nyaya)
     val nyayaTest            = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-test"              % Ver.nyaya)
@@ -57,7 +54,6 @@ object Dependencies {
     val scalaJsJavaTime      = Def.setting("org.scala-js"                  %%% "scalajs-java-time"       % Ver.scalaJsJavaTime cross CrossVersion.for3Use2_13)
     val scalaReflect         = Def.setting("org.scala-lang"                  % "scala-reflect"           % scalaVersion.value)
     val scalaTest            = Def.setting("org.scalatest"                 %%% "scalatest"               % Ver.scalaTest)
-    val scalazEffect72       = Def.setting("org.scalaz"                    %%% "scalaz-effect"           % Ver.scalaz72 cross CrossVersion.for3Use2_13)
     val sourcecode           = Def.setting("com.lihaoyi"                   %%% "sourcecode"              % Ver.sourcecode)
     val univEq               = Def.setting("com.github.japgolly.univeq"    %%% "univeq"                  % Ver.univEq)
     val univEqScalaz         = Def.setting("com.github.japgolly.univeq"    %%% "univeq-scalaz"           % Ver.univEq)

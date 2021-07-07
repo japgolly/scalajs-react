@@ -1,90 +1,15 @@
 import sbt._
 import sbt.Keys._
-import com.jsuereth.sbtpgp.PgpKeys
-import com.jsuereth.sbtpgp.PgpKeys._
+import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
-import sbtrelease.ReleasePlugin.autoImport._
+import scalafix.sbt.BuildInfo.{scalafixVersion => ScalafixVer}
 import scalafix.sbt.ScalafixPlugin
+import scalafix.sbt.ScalafixPlugin.autoImport._
 
-object ScalajsReact {
+object ScalaJsReact {
   import Dependencies._
   import Lib._
-
-  def scalacCommonFlags: Seq[String] = Seq(
-    "-deprecation",
-    "-feature",
-    "-language:postfixOps",
-    "-language:implicitConversions",
-    "-language:higherKinds",
-    "-language:existentials",
-    "-unchecked",                                    // Enable additional warnings where generated code depends on assumptions.
-    "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
-  )
-
-  def scalac213Flags = Seq(
-    "-opt:l:inline",
-    "-opt-inline-from:japgolly.scalajs.react.**",
-    "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings
-    "-Wconf:msg=Reference.to.uninitialized.value:e", // Make uninitialised value calls errors instead of warnings
-    "-Wunused:explicits",                            // Warn if an explicit parameter is unused.
-    "-Wunused:implicits",                            // Warn if an implicit parameter is unused.
-    "-Wunused:imports",                              // Warn if an import selector is not referenced.
-    "-Wunused:locals",                               // Warn if a local definition is unused.
-    "-Wunused:nowarn",                               // Warn if a @nowarn annotation does not suppress any warnings.
-    "-Wunused:patvars",                              // Warn if a variable bound in a pattern is unused.
-    "-Wunused:privates",                             // Warn if a private member is unused.
-    "-Xlint:adapted-args",                           // An argument list was modified to match the receiver.
-    "-Xlint:constant",                               // Evaluation of a constant arithmetic expression resulted in an error.
-    "-Xlint:delayedinit-select",                     // Selecting member of DelayedInit.
-    "-Xlint:deprecation",                            // Enable -deprecation and also check @deprecated annotations.
-    "-Xlint:eta-zero",                               // Usage `f` of parameterless `def f()` resulted in eta-expansion, not empty application `f()`.
-    "-Xlint:implicit-not-found",                     // Check @implicitNotFound and @implicitAmbiguous messages.
-    "-Xlint:inaccessible",                           // Warn about inaccessible types in method signatures.
-    "-Xlint:infer-any",                              // A type argument was inferred as Any.
-    "-Xlint:missing-interpolator",                   // A string literal appears to be missing an interpolator id.
-    "-Xlint:nonlocal-return",                        // A return statement used an exception for flow control.
-    "-Xlint:nullary-unit",                           // `def f: Unit` looks like an accessor; add parens to look side-effecting.
-    "-Xlint:option-implicit",                        // Option.apply used an implicit view.
-    "-Xlint:poly-implicit-overload",                 // Parameterized overloaded implicit methods are not visible as view bounds.
-    "-Xlint:private-shadow",                         // A private field (or class parameter) shadows a superclass field.
-    "-Xlint:stars-align",                            // In a pattern, a sequence wildcard `_*` should match all of a repeated parameter.
-    "-Xlint:valpattern",                             // Enable pattern checks in val definitions.
-    "-Xmixin-force-forwarders:false",                // Only generate mixin forwarders required for program correctness.
-    "-Yjar-compression-level", "9",                  // compression level to use when writing jar files
-    "-Ymacro-annotations",                           // Enable support for macro annotations, formerly in macro paradise.
-    "-Ypatmat-exhaust-depth", "off",
-  )
-
-  def scalac3Flags = Seq(
-    "-source:3.0-migration",
-    "-Ykind-projector",
-    // "-Xprint:all",
-  )
-
-  def commonSettings: PE =
-    _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
-      .settings(
-        scalaVersion                  := Ver.scala3,
-        crossScalaVersions            := Seq(Ver.scala2, Ver.scala3),
-        scalacOptions                ++= scalacCommonFlags,
-        scalacOptions                ++= byScalaVersion {
-                                           case (2, 13) => scalac213Flags
-                                           case (3, _ ) => scalac3Flags
-                                         }.value,
-        //scalacOptions               += "-Xlog-implicits",
-        incOptions                    := incOptions.value.withLogRecompileOnMacro(false),
-        updateOptions                 := updateOptions.value.withCachedResolution(true),
-        releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-        releaseTagComment             := s"v${(ThisBuild / version).value}",
-        releaseVcsSign                := true,
-        libraryDependencies          ++= Seq(Dep.betterMonadicFor, Dep.kindProjector).filter(_ => scalaVersion.value startsWith "2"),
-        disable                       := false,
-        dependencyOverrides          ++= globalDependencyOverrides.value,
-      )
-
-  // ==============================================================================================
 
   lazy val root = Project("root", file("."))
     .settings(
@@ -93,77 +18,240 @@ object ScalajsReact {
     )
     .configure(commonSettings, preventPublication, hasNoTests)
     .aggregate(
-      facade,
-      core,
+      callback,
+      callbackExtCats,
+      callbackExtCatsEffect,
+      coreDefCallback,
+      coreDefCatsEffect,
+      coreExtCats,
+      coreExtCatsEffect,
+      coreGeneric,
       extra,
-      test,
-      // testModule,
-      scalaz72,
-      cats,
-      catsEffect,
-      monocleScalaz,
-      monocleCats,
-      monocle3,
-      ghpagesMacros,
+      extraExtMonocle2,
+      extraExtMonocle3,
+      facadeMain,
+      facadeTest,
       ghpages,
+      ghpagesMacros,
+      scalafixRules,
+      tests,
+      testUtil,
+      util,
+      utilCatsEffect,
+      utilDummyDefaults,
+      utilFallbacks,
     )
 
-  // ==============================================================================================
+  def commonSettings: PE =
+    _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
+      .dependsOn(scalafixRules % ScalafixConfig)
+      .configure(commonSettingsWithoutPlugins)
+
+  def shimDummyDefaults: PE =
+    _.dependsOn(utilDummyDefaults % Provided)
+
+  def prohibitDefaultEffects: PE =
+    _.settings(scalafixOnCompile := scalaVersion.value.startsWith("2")) // for ProhibitDefaultEffects
+
+  def effectGenericModule: PE =
+    _.configure(shimDummyDefaults, prohibitDefaultEffects)
 
   lazy val genHooks = TaskKey[Unit]("genHooks")
 
-  lazy val facade = project
-    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
+  // ==============================================================================================
+
+  lazy val scalafixRules = project
+    .disablePlugins(ScalafixPlugin)
+    .configure(commonSettingsWithoutPlugins)
     .settings(
-      name := "facade",
-      libraryDependencies += Dep.scalaJsDom.value,
+      libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % ScalafixVer,
+      disable := scalaVersion.value.startsWith("3"),
+    )
+    .configure(conditionallyDisable) // keep this last
+
+  lazy val callback = project
+    .dependsOn(util, utilFallbacks % Provided)
+    .configure(commonSettings, publicationSettings, utestSettings, prohibitDefaultEffects)
+    .settings(
+      libraryDependencies += Dep.cats.value % Test,
     )
 
-  lazy val core = project
-    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
-    .dependsOn(facade)
+  lazy val callbackExtCats = project
+    .dependsOn(callback)
+    .configure(commonSettings, publicationSettings, hasNoTests, prohibitDefaultEffects)
     .settings(
-      name := "core",
+      moduleName := "callback-ext-cats",
+      libraryDependencies += Dep.cats.value,
+    )
+
+  lazy val callbackExtCatsEffect = project
+    .dependsOn(callbackExtCats, utilCatsEffect)
+    .configure(commonSettings, publicationSettings, prohibitDefaultEffects)
+    .settings(
+      moduleName := "callback-ext-cats-effect",
+      libraryDependencies ++= Seq(
+        Dep.catsEffect          .value,
+        Dep.catsEffectLaws      .value % Test,
+        Dep.catsEffectTestkit   .value % Test,
+        Dep.catsTestkit         .value % Test,
+        Dep.catsTestkitScalaTest.value % Test,
+        Dep.disciplineScalaTest .value % Test,
+        Dep.scalaTest           .value % Test,
+      ),
+    )
+
+  lazy val coreDefCallback = project
+    .dependsOn(callback) // High priority
+    .dependsOn(coreGeneric) // Med priority
+    .dependsOn(utilFallbacks) // Low priority
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
+    .settings(
+      moduleName := "core",
+    )
+
+  lazy val coreDefCatsEffect = project
+    .dependsOn(coreExtCatsEffect) // High priority
+    .dependsOn(utilFallbacks) // Low priority
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
+    .settings(
+      moduleName := "core-cats-effect",
+    )
+
+  lazy val coreExtCats = project
+    .dependsOn(coreGeneric)
+    .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
+    .settings(
+      moduleName := "core-ext-cats",
+      libraryDependencies += Dep.cats.value,
+    )
+
+  lazy val coreExtCatsEffect = project
+    .dependsOn(coreExtCats, utilCatsEffect, utilFallbacks % Provided)
+    .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
+    .settings(
+      moduleName := "core-ext-cats-effect",
+      libraryDependencies += Dep.catsEffect.value,
+    )
+
+  lazy val coreGeneric = project
+    .dependsOn(facadeMain, util)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3, effectGenericModule)
+    .settings(
+      moduleName := "core-generic",
       libraryDependencies ++= Seq(
         Dep.microlibsTypes.value,
-        Dep.scalaJsDom    .value,
-        Dep.sourcecode    .value,
+        Dep.sourcecode.value,
       ),
       genHooks := GenHooks(sourceDirectory.value / "main" / "scala"),
     )
 
   lazy val extra = project
-    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests)
-    .dependsOn(core)
-    .settings(name := "extra")
+    .dependsOn(coreGeneric)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, effectGenericModule)
 
-  lazy val test = project
-    .configure(commonSettings, publicationSettings, utestSettings, addReactJsDependencies(Test))
-    .dependsOn(core, extra)
-    .dependsOn(scalaz72 % "test->compile")
-    .dependsOn(monocleScalaz % "test->compile")
-    .dependsOn(cats % "test->compile")
+  lazy val extraExtMonocle2 = project
+    .dependsOn(extra, coreExtCats)
+    .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
     .settings(
-      name := "test",
+      moduleName := "extra-ext-monocle2",
+      libraryDependencies += Dep.monocle2.value,
+    )
+
+  lazy val extraExtMonocle3 = project
+    .dependsOn(extra, coreExtCats)
+    .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
+    .settings(
+      moduleName := "extra-ext-monocle3",
+      libraryDependencies += Dep.monocle3.value,
+    )
+
+  lazy val facadeMain = project
+    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
+    .settings(
+      moduleName := "facade",
+      libraryDependencies += Dep.scalaJsDom.value,
+    )
+
+  lazy val facadeTest = project
+    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
+    .dependsOn(facadeMain)
+    .settings(
+      moduleName := "facade-test",
+    )
+
+  lazy val ghpages = project
+    .dependsOn(coreDefCallback, extra, extraExtMonocle3, ghpagesMacros)
+    .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
+    .settings(
+      scalaJSUseMainModuleInitializer := true,
+      Compile / mainClass := Some("ghpages.GhPages"),
+      Compile / fullOptJS / artifactPath := file("ghpages/res/ghpages.js"),
+      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+    )
+
+  lazy val ghpagesMacros = project
+    .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
+    .settings(
+      libraryDependencies += Dep.sourcecode.value,
+    )
+
+  lazy val tests = project
+    .dependsOn(testUtil, coreExtCatsEffect, extraExtMonocle3)
+    .dependsOn(coreDefCallback) // Low priority
+    .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
+    .settings(
       Test / scalacOptions --= Seq(
         "-deprecation",
         "-Xlint:adapted-args"
       ),
       libraryDependencies ++= Seq(
-        Dep.microlibsTestUtil .value % Test,
-        Dep.nyayaProp         .value % Test,
-        Dep.nyayaGen          .value % Test,
-        Dep.nyayaTest         .value % Test,
-        Dep.monocleScalaz     .value % Test,
-        Dep.scalaJsJavaTime   .value % Test),
+        Dep.nyayaProp.value % Test,
+        Dep.nyayaGen.value % Test,
+        Dep.nyayaTest.value % Test,
+        Dep.scalaJsJavaTime.value % Test,
+      ),
       jsDependencies ++= Seq(
         Dep.sizzleJs(Test).value,
         (ProvidedJS / "component-es6.js" dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "component-fn.js"  dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
-        (ProvidedJS / "polyfill.js"      dependsOn Dep.reactDom.dev) % Test))
+        (ProvidedJS / "polyfill.js"      dependsOn Dep.reactDom.dev) % Test,
+      ),
+    )
 
-  /*
+  lazy val testUtil = project
+    .dependsOn(coreGeneric, extra, facadeTest)
+    .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
+    .settings(
+      moduleName := "test",
+    )
+
+  lazy val util = project
+    .dependsOn(utilFallbacks % Provided)
+    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3, prohibitDefaultEffects)
+    .settings(
+      libraryDependencies += Dep.scalaJsDom.value,
+    )
+
+  lazy val utilCatsEffect = project
+    .dependsOn(util)
+    .configure(commonSettings, publicationSettings, hasNoTests, prohibitDefaultEffects)
+    .settings(
+      moduleName := "util-cats-effect",
+      libraryDependencies += Dep.catsEffect.value,
+    )
+
+  lazy val utilDummyDefaults = project
+    .dependsOn(util, utilFallbacks)
+    .configure(commonSettings, preventPublication, hasNoTests)
+
+  lazy val utilFallbacks = project
+    .configure(commonSettings, publicationSettings, hasNoTests, prohibitDefaultEffects)
+    .settings(
+      moduleName := "util-fallbacks",
+    )
+
+/*
   lazy val testModule = project.in(file("test-module"))
     .configure(commonSettings, useScalaJsBundler, preventPublication, utestSettings)
     .dependsOn(core, extra, test)
@@ -174,81 +262,6 @@ object ScalajsReact {
         "react-dom"                         -> Ver.reactJs,
         "react-addons-perf"                 -> "15.5.0-rc.2",
         "react-addons-css-transition-group" -> "16.7.0"))
-  */
+*/
 
-
-  lazy val scalaz72 = project
-    .in(file("scalaz-7.2"))
-    .configure(commonSettings, publicationSettings, extModuleName("scalaz72"), hasNoTests)
-    .dependsOn(core, extra)
-    .settings(
-      libraryDependencies += Dep.scalazEffect72.value)
-
-
-  lazy val monocleScalaz = project
-    .in(file("monocle-scalaz"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle-scalaz"), hasNoTests)
-    .dependsOn(core, extra, scalaz72)
-    .settings(
-      libraryDependencies += Dep.monocleScalaz.value)
-
-  lazy val cats = project
-    .configure(commonSettings, publicationSettings, extModuleName("cats"), hasNoTests)
-    .dependsOn(core, extra)
-    .settings(
-      libraryDependencies += Dep.cats.value)
-
-
-  lazy val monocleCats = project
-    .in(file("monocle-cats"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle-cats"), hasNoTests)
-    .dependsOn(core, extra, cats)
-    .settings(
-      disable := scalaVersion.value.startsWith("3"),
-      // Share the internal source code files with this module
-      Compile / unmanagedSourceDirectories += (monocleScalaz / Compile / sourceDirectory).value / "scala" / "japgolly" / "scalajs" / "react" / "internal",
-      libraryDependencies += Dep.monocleCats.value,
-    )
-    .configure(conditionallyDisable) // keep this last
-
-  lazy val catsEffect = project
-    .in(file("cats-effect"))
-    .configure(commonSettings, publicationSettings, extModuleName("cats-effect"))
-    .dependsOn(core, cats)
-    .settings(
-      libraryDependencies ++= Seq(
-        Dep.cats                .value,
-        Dep.catsEffect          .value,
-        Dep.catsEffectLaws      .value % Test,
-        Dep.catsEffectTestkit   .value % Test,
-        Dep.catsTestkit         .value % Test,
-        Dep.catsTestkitScalaTest.value % Test,
-        Dep.scalaTest           .value % Test,
-        Dep.disciplineScalaTest .value % Test))
-
-  lazy val monocle3 = project
-    .in(file("monocle3"))
-    .configure(commonSettings, publicationSettings, extModuleName("monocle3"), hasNoTests)
-    .dependsOn(core, extra, cats)
-    .settings(
-      disable := scalaVersion.value.startsWith("2.12"),
-      libraryDependencies += Dep.monocle3.value,
-    )
-    .configure(conditionallyDisable) // keep this last
-
-  // ===================================================================================================================
-
-  lazy val ghpagesMacros = Project("gh-pages-macros", file("gh-pages-macros"))
-    .configure(commonSettings, preventPublication, hasNoTests, definesMacros)
-    .settings(libraryDependencies += Dep.sourcecode.value)
-
-  lazy val ghpages = Project("gh-pages", file("gh-pages"))
-    .dependsOn(core, extra, monocleScalaz, ghpagesMacros)
-    .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
-    .settings(
-      libraryDependencies += Dep.monocleScalaz.value,
-      scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      scalaJSUseMainModuleInitializer := true,
-      Compile / mainClass := Some("ghpages.GhPages"),
-      Compile / fullOptJS / artifactPath := file("gh-pages/res/ghpages.js"))
 }

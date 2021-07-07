@@ -51,7 +51,7 @@ An implicit instance of `Reusability[A]` means that
 reusability can be calculated for the entire type of `A`, all of its values.
 
 Imagine a class with 8 fields - typical equality like `==` would compare all 8 fields (and if
-you're not using `scalaz.Equal` you've no way of knowing whether all those 8 fields have correct
+you're not using `cats.kernel.Eq` you've no way of knowing whether all those 8 fields have correct
 `equals` methods defined).
 When deciding whether a component needs updating, full equality comparison can be overkill (and slow) -
 in many cases it is sufficient to check only the ID field, the update-date, or the revision number.
@@ -62,8 +62,8 @@ When building your component, pass in `Reusability.shouldComponentUpdate` to `.c
 
 It will not compile until it knows how to compare the reusability of your props and state.
 Out-of-the-box, it knows how to compare Scala primitives, `String`s, `Option`, `Either`, Scala tuples, `js.UndefOr`,
-Scala and JS `Date`s, `UUID`s, `Set`s, `List`s, `Vector`s,
-and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it how. Use one of the following methods:
+Scala and JS `Date`s, `UUID`s, `Set`s, `List`s, `Vector`s.
+For all other types, you'll need to teach it how. Use one of the following methods:
 
 * `Reusability((A, B) => Boolean)` to hand-write custom logic.
 * `Reusability.by_==` uses universal equality (ie. `a1 == a2`).
@@ -79,9 +79,9 @@ and Scalaz classes `\/` and `\&/`. For all other types, you'll need to teach it 
 * `Reusability.{double,float}` exist and require a tolerance to be specified.
 * `Reusability.{always,never,const(bool)}` for a hard-coded reusability decision.
 
-If you're using the Scalaz module, you also gain:
-* `Reusability.byEqual` uses a Scalaz `Equal` typeclass.
-* `Reusability.byRefOrEqual` uses reference equality and if different, tries using a Scalaz `Equal` typeclass.
+If you're using the Cats module, you also gain:
+* `Reusability.byEq` uses a Cats `Equal` typeclass.
+* `Reusability.byRefOrEq` uses reference equality and if different, tries using a Cats `Eq` typeclass.
 
 If you're using the cats module you also have similar methods, but with the suffix `byEq` and using the equivalent
 `Eq` typeclass.

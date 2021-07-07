@@ -51,10 +51,10 @@ object GenHooks {
       val ctxToStr     = (1 to n).map(i => s",\\n  hook$i = !hook$i").mkString
 
       useCallbackArgs +=
-        s"""  implicit def c$n[$As]: UseCallbackArg[($As) => Callback] =
-           |    UseCallbackArg[($As) => Callback, js.Function$n[$As, Unit]](
-           |      f => f(${_s}).runNow())(
-           |      z => Reusable.byRef(z).withValue(($as) => Callback(z($as))))
+        s"""  implicit def c$n[$As, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[($As) => Z[Unit]] =
+           |    UseCallbackArg[($As) => Z[Unit], js.Function$n[$As, Unit]](
+           |      z => ($as) => Z.dispatch(z($as)))(
+           |      z => Reusable.byRef(z).withValue(($as) => Z.delay(z($as))))
            |""".stripMargin
 
       if (n <= 21) {
@@ -281,8 +281,9 @@ object GenHooks {
     save("UseCallbackBoilerplate.scala")(
       s"""$header
          |
+         |import japgolly.scalajs.react.Reusable
          |import japgolly.scalajs.react.hooks.Hooks.UseCallbackArg
-         |import japgolly.scalajs.react.{Callback, Reusable}
+         |import japgolly.scalajs.react.util.Effect._
          |import scala.scalajs.js
          |
          |trait UseCallbackArgInstances {

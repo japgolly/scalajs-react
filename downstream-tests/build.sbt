@@ -66,18 +66,34 @@ def commonSettings: Project => Project = _
 
 lazy val cleanTestAll = taskKey[Unit]("cleanTestAll")
 
+val enableJSCE = System.getProperty("downstream_tests.enableJSCE") != null
+
 lazy val root = Project("root", file("."))
   .configure(commonSettings)
-  .aggregate(macros, js, jvm)
+  .aggregate(macros, jvm, js, jsCE)
   .settings(
-    cleanTestAll := Def.sequential(
-      macros / clean,
-      jvm / clean,
-      js / clean,
-      (Test / compile),
-      (jvm / Test / test),
-      (js / Test / test),
-    ).value,
+    cleanTestAll := (
+      if (enableJSCE) // How to do this in a better way?
+        Def.sequential(
+          macros        / clean,
+          jvm           / clean,
+          js            / clean,
+          jsCE          / clean,
+                   Test / compile,
+          jvm    / Test / test,
+          js     / Test / test,
+          jsCE   / Test / test,
+        ).value
+      else
+        Def.sequential(
+          macros        / clean,
+          jvm           / clean,
+          js            / clean,
+                   Test / compile,
+          jvm    / Test / test,
+          js     / Test / test,
+        ).value
+    ),
   )
 
 lazy val macros = project
@@ -91,31 +107,6 @@ lazy val macros = project
 val useFullOptJS = System.getProperty("downstream_tests.fullOptJS") != null
 val jsStage      = if (useFullOptJS) FullOptStage else FastOptStage
 val jsOptKey     = if (useFullOptJS) fullOptJS else fastOptJS
-
-lazy val js = project
-  .in(file("js"))
-  .enablePlugins(ScalaJSPlugin)
-  .dependsOn(macros)
-  .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
-  .settings(
-    scalaJSStage := jsStage,
-    libraryDependencies ++= {
-      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
-      Seq(
-        "com.github.japgolly.scalajs-react" %%% "core" % ver,
-        "com.github.japgolly.scalajs-react" %%% "extra" % ver,
-        "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
-        Dep.microlibsCompileTime.value % Test,
-        Dep.microlibsTestUtil.value % Test,
-        Dep.scalaJsJavaTime.value % Test,
-      )
-    },
-    scalaJSLinkerConfig ~= { _
-      .withSemantics(_
-        .withRuntimeClassNameMapper(Semantics.RuntimeClassNameMapper.discardAll())
-      )
-    },
-  )
 
 lazy val jvm = project
   .in(file("jvm"))
@@ -134,4 +125,52 @@ lazy val jvm = project
       val jsFile = (js / Compile / jsOptKey).value
       s"-Djs_file=${jsFile.data.absolutePath}"
     },
+  )
+
+lazy val js = project
+  .in(file("js"))
+  .enablePlugins(ScalaJSPlugin)
+  .dependsOn(macros)
+  .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
+  .settings(
+    scalaJSStage := jsStage,
+    libraryDependencies ++= {
+      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      Seq(
+        "com.github.japgolly.scalajs-react" %%% "core" % ver,
+        "com.github.japgolly.scalajs-react" %%% "core-ext-cats-effect" % ver,
+        "com.github.japgolly.scalajs-react" %%% "extra" % ver,
+        "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        Dep.microlibsCompileTime.value % Test,
+        Dep.microlibsTestUtil.value % Test,
+        Dep.scalaJsJavaTime.value % Test,
+      )
+    },
+    jsDependencies += (ProvidedJS / "polyfill.js") % Test,
+    scalaJSLinkerConfig ~= { _
+      .withSemantics(_
+        .withRuntimeClassNameMapper(Semantics.RuntimeClassNameMapper.discardAll())
+      )
+    },
+  )
+
+lazy val jsCE = project
+  .in(file("js-ce"))
+  .enablePlugins(ScalaJSPlugin)
+  .dependsOn(macros)
+  .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
+  .settings(
+    scalaJSStage := jsStage,
+    libraryDependencies ++= {
+      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      Seq(
+        "com.github.japgolly.scalajs-react" %%% "core-cats-effect" % ver,
+        "com.github.japgolly.scalajs-react" %%% "extra" % ver,
+        "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        Dep.microlibsCompileTime.value % Test,
+        Dep.microlibsTestUtil.value % Test,
+        Dep.scalaJsJavaTime.value % Test,
+      )
+    },
+    jsDependencies += (ProvidedJS / "polyfill.js") % Test,
   )

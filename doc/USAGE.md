@@ -21,8 +21,12 @@ Setup
 
 2. Add *scalajs-react* to SBT:
 
+   There are a number of different modules available.
+   On this page we'll just use the `core` module but refer to the [Modules doc](./MODULES.md) to
+   see other module options.
+
   ```scala
-  // core = essentials only. No bells or whistles.
+  // "core" = essentials only. No bells or whistles.
   libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.7.7"
   ```
 
@@ -378,7 +382,6 @@ Gotchas
 
   1. Use `modState`.
   2. Refactor your logic so that you only call `setState` once.
-  3. Use Scalaz state monads as demonstrated in the online [state monad example](https://japgolly.github.io/scalajs-react/#examples/state-monad).
 
 * Since `setState` and `modState` return callbacks, if you need to call them from outside of a component (e.g. by accessing the backend of a mounted component), call `.runNow()` to trigger the change; else the callback will never run.
   See the [Callbacks](#callbacks) section for more detail.
