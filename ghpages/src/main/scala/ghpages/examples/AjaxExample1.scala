@@ -121,7 +121,7 @@ object AjaxExample1 {
 
     // Sample Requests
     val GetOK  = Request("GET", "https://reqres.in/api/users/2", "")
-    val PostOK = Request("POST", "https://reqres.in/api/login","""{ "email": "peter@klaven", "password": "cityslicka" }""")
+    val PostOK = Request("POST", "https://reqres.in/api/login","""{ "email": "eve.holt@reqres.in", "password": "cityslicka" }""")
     val PostKO = Request("POST", "https://reqres.in/api/login","""{ "email": "peter@klaven" }""")
   }
 
