@@ -162,6 +162,17 @@ object ReusabilityTest extends TestSuite {
           implicitly[Reusability[P[Int]]]
           ()
         }
+        "derivesByRef" - {
+          class X
+          implicit val x: Reusability[X] = Reusability.never
+          val _ = x
+          case class Y(x: X)
+          implicit val y: Reusability[Y] = Reusability.derive[Y]
+          val y1 = Y(new X)
+          val y2 = Y(new X)
+          test(y1, y2, false)
+          test(y1, y1, true)
+        }
       }
 
       "caseClassExcept" - {
