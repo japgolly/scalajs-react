@@ -13,7 +13,7 @@ object Dependencies {
     val catsEffect            = "3.1.1"
     val microlibs             = "2.6"
     val monocle2              = "2.1.0"
-    val monocle3              = "3.0.0-RC2"
+    val monocle3              = "3.0.0"
     val scala2                = "2.13.6"
     val scala3                = "3.0.0"
     val scalaJsDom            = "1.1.0"
