@@ -234,6 +234,25 @@ object DslTest extends TestSuite {
         testOk(q)("?a=&b=", Map("a" -> "", "b" -> ""), "?a&b")
         testOk(q)("?%50", Map("P" -> ""), "?P")
       }
+
+      "queryToMultimap" - {
+        val q = queryToMultimap
+        testM(q)(
+          "" -> Map.empty,
+          "?a" -> Map("a" -> Seq("")),
+          "?a=123" -> Map("a" -> Seq("123")),
+          "?a&b" -> Map("a" -> Seq(""), "b" -> Seq("")),
+          "?a=123&b=456" -> Map("a" -> Seq("123"), "b" -> Seq("456")),
+          "?a=%26&b+b=4+5+6" -> Map("a" -> Seq("&"), "b b" -> Seq("4 5 6")),
+          "?%28a%29=%21%27" -> Map("(a)" -> Seq("!'")),
+        )()
+        testOk(q)("?", Map.empty, "")
+        testOk(q)("?a=", Map("a" -> Seq("")), "?a")
+        testOk(q)("?a=%20", Map("a" -> Seq(" ")), "?a=+")
+        testOk(q)("?a=&b=", Map("a" -> Seq(""), "b" -> Seq("")), "?a&b")
+        testOk(q)("?%50", Map("P" -> Seq("")), "?P")
+        testOk(q)("?a=1&b&a=&a=2", Map("a" -> Seq("1", "", "2"), "b" -> Seq("")), "?a=1&a&a=2&b")
+      }
     }
 
     "rules" - {
