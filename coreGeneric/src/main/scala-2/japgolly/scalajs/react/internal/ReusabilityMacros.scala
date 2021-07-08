@@ -129,7 +129,7 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
 
     def result[A: WeakTypeTag](finalResult: Prepared[A]): c.Expr[Reusability[A]] = {
       init1 ++= lazies.result()
-      val impl =
+      val impl0: Tree =
         init1.wrap {
           init2.wrap {
             type R = c.Expr[Reusability[_]]
@@ -137,6 +137,14 @@ class ReusabilityMacros(val c: Context) extends MacroUtils {
             q"..$allPreps; ${finalResult.varName}"
           }
         }
+
+      val A = weakTypeOf[A]
+
+      val impl: Tree =
+        if (A.dealias <:< weakTypeOf[AnyRef])
+          q"Reusability.byRef[$A] || $impl0"
+        else
+          impl0
 
       if (logCode)
         printCode(ReusabilityA(weakTypeTag[A].tpe), impl)

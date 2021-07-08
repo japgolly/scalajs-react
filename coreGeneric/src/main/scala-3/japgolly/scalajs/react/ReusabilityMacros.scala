@@ -23,6 +23,7 @@ trait ReusabilityMacros {
     derive(
       logNonReuse   = false, // TODO: https://github.com/lampepfl/dotty/issues/11835
       logCode       = false, // TODO: https://github.com/lampepfl/dotty/issues/11835
+      compareRefs   = true, // TODO: https://github.com/lampepfl/dotty/issues/11835
       excludeFields = "", // TODO: https://github.com/lampepfl/dotty/issues/11835
     )
 
@@ -38,12 +39,14 @@ trait ReusabilityMacros {
     */
   transparent inline def derive[A](inline logNonReuse  : Boolean = false,
                                    inline logCode      : Boolean = false,
+                                   inline compareRefs  : Boolean = true,
                                    inline excludeFields: String  = "",
                                   ): Reusability[A] =
     ${
       ReusabilityMacros.derive[A](
         _logNonReuse   = 'logNonReuse,
         _logCode       = 'logCode,
+        _compareRefs   = 'compareRefs,
         _excludeFields = 'excludeFields,
         _except1       = null,
         _exceptN       = null,
@@ -53,8 +56,9 @@ trait ReusabilityMacros {
   /** Same as [[derive]] but with all debugging options enabled. */
   transparent inline def deriveDebug[A]: Reusability[A] =
     derive(
-      logNonReuse = true,
-      logCode = true,
+      logNonReuse   = true,
+      logCode       = true,
+      compareRefs   = true, // TODO: https://github.com/lampepfl/dotty/issues/11835
       excludeFields = "", // TODO: https://github.com/lampepfl/dotty/issues/11835
     )
 
@@ -66,8 +70,9 @@ trait ReusabilityMacros {
   transparent inline def deriveDebug[A](inline logNonReuse: Boolean,
                                         inline logCode    : Boolean): Reusability[A] =
     derive(
-      logNonReuse = logNonReuse,
-      logCode     = logCode,
+      logNonReuse   = logNonReuse,
+      logCode       = logCode,
+      compareRefs   = true, // TODO: https://github.com/lampepfl/dotty/issues/11835
       excludeFields = "", // TODO: https://github.com/lampepfl/dotty/issues/11835
     )
 
@@ -87,6 +92,7 @@ trait ReusabilityMacros {
       ReusabilityMacros.derive[A](
         _logNonReuse   = 'false,
         _logCode       = 'false,
+        _compareRefs   = 'true,
         _excludeFields = null,
         _except1       = 'field1,
         _exceptN       = 'fieldN,
@@ -99,6 +105,7 @@ trait ReusabilityMacros {
       ReusabilityMacros.derive[A](
         _logNonReuse   = 'true,
         _logCode       = 'true,
+        _compareRefs   = 'true,
         _excludeFields = null,
         _except1       = 'field1,
         _exceptN       = 'fieldN,
@@ -117,6 +124,7 @@ trait ReusabilityMacros {
       ReusabilityMacros.derive[A](
         _logNonReuse   = 'logNonReuse,
         _logCode       = 'logCode,
+        _compareRefs   = 'true,
         _excludeFields = null,
         _except1       = 'field1,
         _exceptN       = 'fieldN,
@@ -131,13 +139,16 @@ object ReusabilityMacros {
 
   def derive[A](_logNonReuse  : Expr[Boolean],
                 _logCode      : Expr[Boolean],
+                _compareRefs  : Expr[Boolean],
                 _excludeFields: Null | Expr[String],
                 _except1      : Null | Expr[String],
                 _exceptN      : Null | Expr[Seq[String]],
                )(using Quotes, Type[A]): Expr[Reusability[A]] = {
+    import quotes.reflect.*
 
     val logNonReuse = _logNonReuse.valueOrError
     val logCode     = _logCode    .valueOrError
+    val compareRefs = _compareRefs.valueOrError
 
     val fieldExclusions = {
       var l: List[String] =
@@ -151,13 +162,18 @@ object ReusabilityMacros {
       FieldExclusions.fromList(l)
     }
 
-    val result =
+    val result: Expr[Reusability[A]] =
       Preparations(logCode = logCode) { preparations =>
         deriveInner[A](
           preparations    = preparations,
           fieldExclusions = fieldExclusions,
           logNonReuse     = logNonReuse,
         )
+      } { result =>
+        if compareRefs && (TypeRepr.of[A] <:< TypeRepr.of[AnyRef]) then
+          '{ Reusability.byRef[A & AnyRef].asInstanceOf[Reusability[A]] || $result }
+        else
+          result
       }
 
     fieldExclusions.failUnused[A]()
@@ -268,15 +284,17 @@ object ReusabilityMacros {
     def stabliseInstance[A: Type](e: Expr[Reusability[A]]): Expr[Reusability[A]] =
       init2.valDef(e).ref
 
-    def result[A: Type](finalResult: Prepared[A]): Expr[Reusability[A]] = {
+    def result[A: Type](finalResult: Prepared[A], mod: Expr[Reusability[A]] => Expr[Reusability[A]]): Expr[Reusability[A]] = {
       init1 ++= lazies.result()
-      val result: Expr[Reusability[A]] =
+      val result0: Expr[Reusability[A]] =
         init1.wrapExpr {
           init2.wrapExpr {
             val allPreps = preps.valuesIterator.flatMap(_.complete.map(_())).toList
             Expr.block(allPreps, finalResult.varRef)
           }
         }
+      val result: Expr[Reusability[A]] =
+        mod(result0)
       if (logCode)
         println(s"\nDerived ${result.showType}:\n${result.show.replace(".apply(","(").replace("scala.", "")}\n")
       result
@@ -284,10 +302,13 @@ object ReusabilityMacros {
   }
 
   private object Preparations {
-    def apply[A: Type](logCode: Boolean)(f: Preparations => Prepared[A])(using Quotes): Expr[Reusability[A]] = {
+    def apply[A: Type](logCode: Boolean)
+                      (f: Preparations => Prepared[A])
+                      (mod: Expr[Reusability[A]] => Expr[Reusability[A]])
+                      (using Quotes): Expr[Reusability[A]] = {
       val preparations = new Preparations(logCode)
       val prepared     = f(preparations)
-      preparations.result(prepared)
+      preparations.result(prepared, mod)
     }
   }
 
