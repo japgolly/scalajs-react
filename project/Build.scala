@@ -62,7 +62,7 @@ object ScalaJsReact {
 
   lazy val scalafixRules = project
     .disablePlugins(ScalafixPlugin)
-    .configure(commonSettingsWithoutPlugins)
+    .configure(commonSettingsWithoutPlugins, preventPublication)
     .settings(
       libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % ScalafixVer,
       disable := scalaVersion.value.startsWith("3"),
