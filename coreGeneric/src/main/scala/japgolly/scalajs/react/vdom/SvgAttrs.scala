@@ -250,7 +250,7 @@ trait SvgAttrs {
     *
     * Value   auto | sRGB | <name> | <IRI> | inherit
     */
-  final def colorProfile = VdomAttr("colorProfile")
+  final def colorProfileAttr = VdomAttr("colorProfile")
 
   /**
     * The color-rendering attribute provides a hint to the SVG user agent about how to
