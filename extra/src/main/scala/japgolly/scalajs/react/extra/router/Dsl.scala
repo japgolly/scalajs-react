@@ -432,13 +432,13 @@ final class RouterConfigDsl[Page, Props] {
       if (m.matches) f(m) else None
     }
 
-  /** Captures the query portion of the URL to a param map.
+  /** Captures the query portion of the URL.
     *
     * Note that this is not a strict capture, URLs without a query string will still be accepted,
     * and the parameter map will simply by empty.
     */
-  lazy val queryToMap: RouteB[Map[String, String]] = {
-    type A = Map[String, String]
+  lazy val queryToSeq: RouteB[Seq[(String, String)]] = {
+    type A = Seq[(String, String)]
 
     val queryRegex = """(\?[^#]*)?"""
 
@@ -462,42 +462,74 @@ final class RouterConfigDsl[Page, Props] {
         }
       )
 
-
     val parse: (Int => String) => Option[A] =
       _(0) match {
-        case null => Some(Map.empty)
-        case q =>
+        case null => Some(Seq.empty)
+        case q => Some(
           q
             .tail
             .split("&")
             .iterator
             .filter(_.nonEmpty)
             .map {
-              case kvRegex(k, null) => Some(decode(k) -> "")
-              case kvRegex(k, v)    => Some(decode(k) -> decode(v))
+              case kvRegex(k, null) => decode(k) -> ""
+              case kvRegex(k, v)    => decode(k) -> decode(v)
               case x =>
                 console.warn(s"Unable to parse query string pair: $x")
-                None
+                null
             }
-            .foldLeft(Option(Map.empty: A)) {
-              case (Some(m), Some(kv)) => Some(m + kv)
-              case _                   => None
-            }
+            .filter(_ != null)
+            .toSeq
+        )
       }
 
     val build: A => String =
-      m =>
-        if (m.isEmpty)
+      a =>
+        if (a.isEmpty)
           ""
         else
-          m.iterator
+          a.iterator
             .map {
               case (k, "") => encode(k)
               case (k, v)  => s"${encode(k)}=${encode(v)}"
             }
             .mkString("?", "&", "")
 
-    new RouteB[Map[String, String]](queryRegex, 1, parse, build)
+    new RouteB[A](queryRegex, 1, parse, build)
+  }
+
+  /** Captures the query portion of the URL to a param map.
+    *
+    * Note that this is not a strict capture, URLs without a query string will still be accepted,
+    * and the parameter map will simply by empty.
+    */
+  lazy val queryToMap: RouteB[Map[String, String]] =
+    queryToSeq.xmap(_.toMap)(_.toSeq)
+
+  /** Captures the query portion of the URL to a param multimap.
+    *
+    * Note that this is not a strict capture, URLs without a query string will still be accepted,
+    * and the parameter map will simply by empty.
+    */
+  lazy val queryToMultimap: RouteB[Map[String, Seq[String]]] = {
+    type S = Seq[(String, String)]
+    type M = Map[String, Seq[String]]
+
+    val to: S => M =
+      _.foldLeft[M](Map.empty) {
+        case (m, (k, v)) =>
+          val newVs: Seq[String] =
+            m.get(k) match {
+              case None     => v :: Nil
+              case Some(vs) => vs :+ v
+            }
+          m.updated(k, newVs)
+      }
+
+    val from: M => S =
+      _.iterator.flatMap(x => x._2.iterator.map((x._1, _))).toSeq
+
+    queryToSeq.xmap(to)(from)
   }
 
   // -------------------------------------------------------------------------------------------------------------------
