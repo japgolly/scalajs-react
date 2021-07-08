@@ -98,8 +98,8 @@ object AjaxExample1 {
                 ^.background := "#f2f2f2",
                 ^.padding := "1em",
                 ^.border := "solid 1px #666",
-                ^.whiteSpace.`pre-wrap`,
-                ^.verticalAlign.`text-top`,
+                ^.whiteSpace.preWrap,
+                ^.verticalAlign.textTop,
                 <.div(title, ^.fontWeight.bold, ^.textDecoration.underline, ^.marginBottom := "1.2em", ^.color := "#222"),
                 kvs.toTagMod { case (k, v) =>
                   <.div(^.paddingBottom := "1.2em",

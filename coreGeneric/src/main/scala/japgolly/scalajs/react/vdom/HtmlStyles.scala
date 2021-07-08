@@ -241,14 +241,14 @@ trait HtmlStyles {
      * The background extends to the outside edge of the border (but underneath
      * the border in z-ordering).
      */
-    final def `border-box` = this := "border-box"
+    final def borderBox = this := "border-box"
     /**
      * No background is drawn below the border (background extends to the
      * outside edge of the padding).
      */
-    final def `padding-box` = this := "border-box"
+    final def paddingBox = this := "border-box"
     /** The background is painted within (clipped to) the content box. */
-    final def `content-box` = this := "content-box"
+    final def contentBox = this := "content-box"
   }
 
   /**
@@ -264,14 +264,14 @@ trait HtmlStyles {
      * The background extends to the outside edge of the border (but underneath
      * the border in z-ordering).
      */
-    final def `border-box` = this := "border-box"
+    final def borderBox = this := "border-box"
     /**
      * No background is drawn below the border (background extends to the
      * outside edge of the padding).
      */
-    final def `padding-box` = this := "padding-box"
+    final def paddingBox = this := "padding-box"
     /** The background is painted within (clipped to) the content box. */
-    final def `content-box` = this := "content-box"
+    final def contentBox = this := "content-box"
   }
   /**
    * The background-size CSS property specifies the size of the background
@@ -506,13 +506,13 @@ trait HtmlStyles {
      * height properties are measured including only the content, but not the
      * border, margin, or padding.
      */
-    final def `content-box` = this := "content-box"
+    final def contentBox = this := "content-box"
     /**
      * The width and height properties include the padding and border, but not
      * the margin. This is the box model used by Internet Explorer when the
      * document is in Quirks mode.
      */
-    final def `border-box` = this := "border-box"
+    final def borderBox = this := "border-box"
   }
 
   /**
@@ -567,7 +567,7 @@ trait HtmlStyles {
     /** No cursor is rendered. */
     def none = this := "none"
     /** A context menu is available under the cursor. */
-    def `context-menu` = this := "context-menu"
+    def contextMenu = this := "context-menu"
     /** Indicating help is available. */
     def help = this := "help"
     /** E.g. used when hovering over links, typically a hand. */
@@ -586,7 +586,7 @@ trait HtmlStyles {
     /** Indicating text can be selected, typically an I-beam. */
     def text = this := "text"
     /** Indicating that vertical text can be selected, typically a sideways I-beam */
-    def `vertical-text` = this := "vertical-text"
+    def verticalText = this := "vertical-text"
     /** Indicating an alias or shortcut is to be created. */
     def alias = this := "alias"
     /** Indicating that something can be copied */
@@ -594,47 +594,47 @@ trait HtmlStyles {
     /** The hoevered object may be moved. */
     def move = this := "move"
     /** Cursor showing that a drop is not allowed at the current location. */
-    def `no-drop` = this := "no-drop"
+    def noDrop = this := "no-drop"
     /** Cursor showing that something cannot be done. */
-    def `not-allowed` = this := "not-allowed"
+    def notAllowed = this := "not-allowed"
     /** Cursor showing that something can be scrolled in any direction (panned). */
-    def `all-scroll` = this := "all-scroll"
+    def allScroll = this := "all-scroll"
     /**
      * The item/column can be resized horizontally. Often rendered as arrows
      * pointing left and right with a vertical separating.
      */
-    def `col-resize` = this := "col-resize"
+    def colResize = this := "col-resize"
     /**
      * The item/row can be resized vertically. Often rendered as arrows pointing
      * up and down with a horizontal bar separating them.
      */
-    def `row-resize` = this := "row-resize"
+    def rowResize = this := "row-resize"
     /** The top edge is to be moved. */
-    def `n-resize` = this := "n-resize"
+    def nResize = this := "n-resize"
     /** The right edge is to be moved. */
-    def `e-resize` = this := "e-resize"
+    def eResize = this := "e-resize"
     /** The bottom edge is to be moved. */
-    def `s-resize` = this := "s-resize"
+    def sResize = this := "s-resize"
     /** The left edge is to be moved. */
-    def `w-resize` = this := "w-resize"
+    def wResize = this := "w-resize"
     /** The top-right corner is to be moved. */
-    def `ne-resize` = this := "ne-resize"
+    def neResize = this := "ne-resize"
     /** The top-left corner is to be moved. */
-    def `nw-resize` = this := "nw-resize"
+    def nwResize = this := "nw-resize"
     /** The bottom-right corner is to be moved. */
-    def `se-resize` = this := "se-resize"
+    def seResize = this := "se-resize"
     /** The bottom-left corner is to be moved. */
-    def `sw-resize` = this := "sw-resize"
+    def swResize = this := "sw-resize"
 
-    def `ew-resize` = this := "ew-resize"
-    def `ns-resize` = this := "ns-resize"
-    def `nesw-resize` = this := "nesw-resize"
-    def `nwse-resize` = this := "nwse-resize"
+    def ewResize = this := "ew-resize"
+    def nsResize = this := "ns-resize"
+    def neswResize = this := "nesw-resize"
+    def nwseResize = this := "nwse-resize"
 
     /** Indicates that something can be zoomed (magnified) in. */
-    def `zoom-in` = this := "zoom-in"
+    def zoomIn = this := "zoom-in"
     /** Indicates that something can be zoomed (magnified) out. */
-    def `zoom-out` = this := "zoom-out"
+    def zoomOut = this := "zoom-out"
     /** Indicates that something can be grabbed (dragged to be moved). */
     def grab = this := "grab"
     /** Indicates that something can be grabbed (dragged to be moved). */
@@ -722,36 +722,36 @@ trait HtmlStyles {
      * The element generates a block box for the content and a separate
      * list-item inline box.
      */
-    final def `list-item` = this := "list-item"
+    final def listItem = this := "list-item"
     /**
      * The element generates a block element box that will be flowed with
      * surrounding content as if it were a single inline box.
      */
-    final def `inline-block` = this := "inline-block"
+    final def inlineBlock = this := "inline-block"
     /**
      * The inline-table value does not have a direct mapping in HTML. It behaves
      * like a table HTML element, but as an inline box, rather than a
      * block-level box. Inside the table box is a block-level context
      */
-    final def `inline-table` = this := "inline-table"
+    final def inlineTable = this := "inline-table"
     /** Behaves like the table HTML element. It defines a block-level box. */
     final def table = this := "table"
     /** Behaves like the caption HTML element. */
-    final def `table-caption` = this := "table-caption"
+    final def tableCaption = this := "table-caption"
     /** Behaves like the td HTML element */
-    final def `table-cell` = this := "table-cell"
+    final def tableCell = this := "table-cell"
     /** These elements behave like the corresponding col HTML elements. */
-    final def `table-column` = this := "table-column"
+    final def tableColumn = this := "table-column"
     /** These elements behave like the corresponding colgroup HTML elements. */
-    final def `table-column-group` = this := "table-column-group"
+    final def tableColumnGroup = this := "table-column-group"
     /** These elements behave like the corresponding tfoot HTML elements */
-    final def `table-footer-group` = this := "table-footer-group"
+    final def tableFooterGroup = this := "table-footer-group"
     /** These elements behave like the corresponding thead HTML elements */
-    final def `table-header-group` = this := "table-header-group"
+    final def tableHeaderGroup = this := "table-header-group"
     /** Behaves like the tr HTML element */
-    final def `table-row` = this := "table-row"
+    final def tableRow = this := "table-row"
     /** These elements behave like the corresponding tbody HTML elements */
-    final def `table-row-group` = this := "table-row-group"
+    final def tableRowGroup = this := "table-row-group"
     /**
      * The element behaves like a block element and lays out its content according
      * to the flexbox model.
@@ -761,7 +761,7 @@ trait HtmlStyles {
      * The element behaves like an inline element and lays out its content
      * according to the flexbox model.
      */
-    final def `inline-flex` = this := "inline-flex"
+    final def inlineFlex = this := "inline-flex"
     /** Behaves like a grid layout container */
     final def grid = this := "grid"
   }
@@ -888,7 +888,7 @@ trait HtmlStyles {
      * Indicates that normally unbreakable words may be broken at arbitrary
      * points if there are no otherwise acceptable break points in the line.
      */
-    final def `break-word` = this := "break-word"
+    final def breakWord = this := "break-word"
   }
 
   object overflowWrap extends Style[String]("overflowWrap") {
@@ -951,12 +951,12 @@ trait HtmlStyles {
      */
     final def `super` = this := "super"
     /** Aligns the top of the element with the top of the parent element's font. */
-    final def `text-top` = this := "text-top"
+    final def textTop = this := "text-top"
     /**
      * Aligns the bottom of the element with the bottom of the parent element's
      * font.
      */
-    final def `text-bottom` = this := "text-bottom"
+    final def textBottom = this := "text-bottom"
     /**
      * Aligns the middle of the element with the middle of lowercase letters in
      * the parent.
@@ -1112,23 +1112,23 @@ trait HtmlStyles {
     /** Decimal numbers begining with 1 */
     final def decimal = this := "decimal"
     /** Han decimal numbers */
-    final def `cjk-decimal` = this := "cjk-decimal"
+    final def cjkDecimal = this := "cjk-decimal"
     /** Decimal numbers padded by initial zeros */
-    final def `decimal-leading-zero` = this := "decimal-leading-zero"
+    final def decimalLeadingZero = this := "decimal-leading-zero"
     /** Lowercase roman numerals */
-    final def `lower-roman` = this := "lower-roman"
+    final def lowerRoman = this := "lower-roman"
     /** Uppercase roman numerals */
-    final def `upper-roman` = this := "upper-roman"
+    final def upperRoman = this := "upper-roman"
     /** Lowercase classical greek */
-    final def `lower-greek` = this := "lower-greek"
+    final def lowerGreek = this := "lower-greek"
     /** Lowercase ASCII letters */
-    final def `lower-alpha` = this := "lower-alpha"
+    final def lowerAlpha = this := "lower-alpha"
     /** Lowercase ASCII letters */
-    final def `lower-latin` = this := "lower-latin"
+    final def lowerLatin = this := "lower-latin"
     /** Uppercase ASCII letters */
-    final def `upper-alpha` = this := "upper-alpha"
+    final def upperAlpha = this := "upper-alpha"
     /** Uppercase ASCII letters */
-    final def `upper-latin` = this := "upper-latin"
+    final def upperLatin = this := "upper-latin"
     /** Traditional Armenian numbering */
     final def armenian = this := "armenian"
     /** Traditional Georgian numbering */
@@ -1142,7 +1142,7 @@ trait HtmlStyles {
      *
      * Iroha is the old japanese ordering of syllabs
      */
-    final def `hiragana-iroha` = this := "hiragana-iroha"
+    final def hiraganaIroha = this := "hiragana-iroha"
     /** Japanese Katakana */
     final def katakana = this := "katakana"
     /**
@@ -1150,7 +1150,7 @@ trait HtmlStyles {
      *
      * Iroha is the old japanese ordering of syllabs
      */
-    final def `katakana-iroha` = this := "katakana-iroha"
+    final def katakanaIroha = this := "katakana-iroha"
   }
 
 
@@ -1262,13 +1262,13 @@ trait HtmlStyles {
    * of em and ex Length units.
    */
   object fontSize extends Style[String]("fontSize") {
-    final def `xx-small` = this := "xx-small"
-    final def `x-small` = this := "x-small"
+    final def xxSmall = this := "xx-small"
+    final def xSmall = this := "x-small"
     final def small = this := "small"
     final def medium = this := "medium"
     final def large = this := "large"
-    final def `x-large` = this := "x-large"
-    final def `xx-large` = this := "xx-large"
+    final def xLarge = this := "x-large"
+    final def xxLarge = this := "xx-large"
     /**
      * Larger than the parent element's font size, by roughly the ratio used to
      * separate the absolute size keywords above.
@@ -1577,7 +1577,7 @@ trait HtmlStyles {
     /** Each line of text has a line above it. */
     final def overline = this := "overline"
     /** Each line of text has a line through the middle. */
-    final def `line-through` = this := "line-through"
+    final def lineThrough = this := "line-through"
   }
 
   /**
@@ -1642,8 +1642,8 @@ trait HtmlStyles {
      * of under.
      */
     final def right = this := "right"
-    final def `under left` = this := "under left"
-    final def `under right` = this := "under right"
+    final def underLeft = this := "under left"
+    final def underRight = this := "under right"
   }
   /**
    * The text-transform CSS property specifies how to capitalize an element's
@@ -1721,12 +1721,12 @@ trait HtmlStyles {
      * Sequences of whitespace are preserved. Lines are broken at newline
      * characters, at br, and as necessary to fill line boxes.
      */
-    final def `pre-wrap` = this := "pre-wrap"
+    final def preWrap = this := "pre-wrap"
     /**
      * Sequences of whitespace are collapsed. Lines are broken at newline
      * characters, at br, and as necessary to fill line boxes.
      */
-    final def `pre-line` = this := "pre-line"
+    final def preLine = this := "pre-line"
   }
   /**
    * The word-spacing CSS property specifies spacing behavior between tags and
@@ -2355,7 +2355,7 @@ trait HtmlStyles {
      * Indicates that the children of the element should be positioned in the
      * 3D-space.
      */
-    final def `preserve-3d` = this := "preserve-3d"
+    final def preserve3d = this := "preserve-3d"
     /**
      * Indicates that the children of the element are lying in the plane of the
      * element itself.
@@ -2391,7 +2391,7 @@ trait HtmlStyles {
      * is strictly in sequence according to the direction property; the implicit
      * part of the bidirectional algorithm is ignored.
      */
-    final def `bidi-override` = this := "bidi-override"
+    final def bidiOverride = this := "bidi-override"
   }
 
   /**
@@ -2405,12 +2405,12 @@ trait HtmlStyles {
      * Word breaks may be inserted between any character for non-CJK
      * (Chinese/Japanese/Korean) text.
      */
-    final def `break-all` = this := "break-all"
+    final def breakAll = this := "break-all"
     /**
      * Don't allow word breaks for CJK text.  Non-CJK text behavior is same
      * as normal.
      */
-    final def `keep-all` = this := "keep-all"
+    final def keepAll = this := "keep-all"
   }
 
   /**

@@ -57,7 +57,7 @@ trait SvgTags {
   /**
     * The element allows describing the color profile used for the image.
     */
-  final def `color-profile` = SvgTagOf[S.Element]("color-profile")
+  final def colorProfile = SvgTagOf[S.Element]("color-profile")
 
   /**
     * The cursor element can be used to define a platform-independent custom
@@ -273,19 +273,19 @@ trait SvgTags {
     * The font-face element corresponds to the CSS @font-face declaration. It
     * defines a font's outer properties.
     */
-  final def `font-face` = SvgTagOf[S.Element]("font-face")
+  final def fontFace = SvgTagOf[S.Element]("font-face")
 
   /**
     * The font-face-format element describes the type of font referenced by its
     * parent font-face-uri.
     */
-  final def `font-face-format` = SvgTagOf[S.Element]("font-face-format")
+  final def fontFaceFormat = SvgTagOf[S.Element]("font-face-format")
 
   /**
     * The font-face-name element points to a locally installed copy of this font,
     * identified by its name.
     */
-  final def `font-face-name` = SvgTagOf[S.Element]("font-face-name")
+  final def fontFaceName = SvgTagOf[S.Element]("font-face-name")
 
   /**
     * The font-face-src element corresponds to the src property in CSS @font-face
@@ -293,12 +293,12 @@ trait SvgTags {
     * locally installed copies of this font, and font-face-uri, utilizing
     * remotely defined fonts.
     */
-  final def `font-face-src` = SvgTagOf[S.Element]("font-face-src")
+  final def fontFaceSrc = SvgTagOf[S.Element]("font-face-src")
 
   /**
     * The font-face-uri element points to a remote definition of the current font.
     */
-  final def `font-face-uri` = SvgTagOf[S.Element]("font-face-uri")
+  final def fontFaceUri = SvgTagOf[S.Element]("font-face-uri")
 
   /**
     * The foreignObject element allows for inclusion of a foreign XML namespace
@@ -378,7 +378,7 @@ trait SvgTags {
     * The missing-glyph's content is rendered, if for a given character the font
     * doesn't define an appropriate glyph.
     */
-  final def `missing-glyph` = SvgTagOf[S.Element]("missing-glyph")
+  final def missingGlyph = SvgTagOf[S.Element]("missing-glyph")
 
   /**
     * the mpath sub-element for the animatemotion element provides the ability
