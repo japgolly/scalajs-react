@@ -1,3 +1,12 @@
+# Modules
+
+And by modules, I mean Maven artifacts.
+
+- [Guide](#guide)
+- [Guide with Cats Effect as default effect types](#guide-with-cats-effect-as-default-effect-types)
+- [Reference](#reference)
+
+
 # Guide
 
 These are the directions for using scalajs-react in its default way,
@@ -6,7 +15,7 @@ with the opt-in optional features shown for you to accept or remove.
 Add to sbt:
 
 ```scala
-val ScalaJsReactVer = "2.0.0"
+val ScalaJsReactVer = "2.0.0-RC1"
 
 libraryDependencies ++= Seq(
 
@@ -61,7 +70,7 @@ No additional imports required.
 Add to sbt:
 
 ```scala
-val ScalaJsReactVer = "2.0.0"
+val ScalaJsReactVer = "2.0.0-RC1"
 
 libraryDependencies ++= Seq(
 

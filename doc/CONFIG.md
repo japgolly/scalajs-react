@@ -51,7 +51,7 @@ or explicitly specified when you create the component.
 ### Usage:
 
 ```
-japgolly.scalajs.react.component.names.all=allow|blank
+sbt -Djapgolly.scalajs.react.component.names.all=allow|blank
 ```
 
 | Setting | Outcome |
@@ -67,7 +67,7 @@ Determines how implicitly name components that haven't been created with the exp
 ### Usage:
 
 ```
-japgolly.scalajs.react.component.names.implicit=full|short|blank
+sbt -Djapgolly.scalajs.react.component.names.implicit=full|short|blank
 ```
 
 | Setting | Outcome |
@@ -113,7 +113,7 @@ Instructs scalajs-react to use a custom instance of `ScalaJsReactConfig` that yo
 Configure as follows where `fqcn` is the fully-qualified classname of your config `object`.
 
 ```
-japgolly.scalajs.react.config.class=<fqcn>
+sbt -Djapgolly.scalajs.react.config.class=<fqcn>
 ```
 
 And then create your object in one of the following ways:
@@ -144,7 +144,7 @@ object Example2 extends ScalaJsReactConfig {
 ### Example:
 
 ```
-japgolly.scalajs.react.config.class=com.example.CustomConfig
+sbt -Djapgolly.scalajs.react.config.class=com.example.CustomConfig
 ```
 
 ```scala
@@ -182,7 +182,7 @@ object Main {
   @JSExportTopLevel("main")
   def main() = {
 
-    // Apply runtime settings immediately
+    // Apply runtime settings before any components are referenced
     Reusability.disableGloballyInDev()
 
     // Start app
@@ -234,7 +234,7 @@ object Main {
   @JSExportTopLevel("main")
   def main() = {
 
-    // Apply runtime settings immediately
+    // Apply runtime settings before any components are referenced
     ScalaJsReactConfig.Defaults.overrideReusabilityInDev(logComponents)
 
     // Start app

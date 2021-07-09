@@ -1,17 +1,17 @@
 # React Hooks with scalajs-react
 
-* [Design](HOOKS.md#design)
-* [Quickstart](HOOKS.md#quickstart)
-* [React hooks in scalajs-react](HOOKS.md#react-hooks-in-scalajs-react)
-* [New hooks provided by scalajs-react](HOOKS.md#new-hooks-provided-by-scalajs-react)
-* [`shouldComponentUpdate`](HOOKS.md#shouldcomponentupdate)
-* [Hook chaining / dependencies / results](HOOKS.md#hook-chaining--dependencies--results)
-* [Hooks and PropsChildren](HOOKS.md#hooks-and-propschildren)
-* [Custom hooks](HOOKS.md#custom-hooks)
-* [Custom hook composition](HOOKS.md#custom-hook-composition)
-* [Using third-party JavaScript hooks](HOOKS.md#using-third-party-javascript-hooks)
-* [API extensions](HOOKS.md#api-extensions)
-* [Escape hatches](HOOKS.md#escape-hatches)
+* [Design](#design)
+* [Quickstart](#quickstart)
+* [React hooks in scalajs-react](#react-hooks-in-scalajs-react)
+* [New hooks provided by scalajs-react](#new-hooks-provided-by-scalajs-react)
+* [`shouldComponentUpdate`](#shouldcomponentupdate)
+* [Hooks with dependencies](#hooks-with-dependencies)
+* [Hooks and PropsChildren](#hooks-and-propschildren)
+* [Custom hooks](#custom-hooks)
+* [Custom hook composition](#custom-hook-composition)
+* [Using third-party JavaScript hooks](#using-third-party-javascript-hooks)
+* [API extensions](#api-extensions)
+* [Escape hatches](#escape-hatches)
 
 
 # Design
@@ -80,13 +80,13 @@ object Example {
 
     .useState(0)
 
-    .useEffectBy((_, count) => Callback {
+    .useEffectBy((props, count) => Callback {
       document.title = s"You clicked ${count.value} times"
     })
 
     .useState("banana")
 
-    .render((_, count, fruit) =>
+    .render((props, count, fruit) =>
       <.div(
         <.p(s"You clicked ${count.value} times"),
         <.button(
@@ -142,7 +142,7 @@ object Example {
 
      .useState(0)
 
--    .useEffectBy((_, count) => Callback {
+-    .useEffectBy((props, count) => Callback {
 -      document.title = s"You clicked ${count.value} times"
 +    .useEffectBy($ => Callback {
 +      document.title = s"You clicked ${$.hook1.value} times"
@@ -150,7 +150,7 @@ object Example {
 
      .useState("banana")
 
--    .render((_, count, fruit) =>
+-    .render((props, count, fruit) =>
 +    .render($ =>
        <.div(
 -        <.p(s"You clicked ${count.value} times"),
@@ -184,11 +184,16 @@ object Example {
 | `useLayoutEffect(e, [deps])` | `.useLayoutEffectWithDeps(e, (deps))` |
 | `useMemo(() => a, [deps])` | `.useMemo(a, (deps))` |
 | `useReducer(f, s)` | `.useReducer(f, s)` |
-| `useReducer(f, a, i)` | `.useReducer(f, i(a))` |
+| `useReducer(f, a, i)` | `.useReducer(f, i(a))`<br>*(Note: `i(a)` is actually `(=> i(a))` and isn't evaluated immediately)* |
 | `useRef()` | `.useRefToAnyVdom` <br> `.useRefToVdom[DomType]` <br> `.useRefToScalaComponent(component)` <br> `.useRefToScalaComponent[P, S, B]` <br> `.useRefToJsComponent(component)` <br> `.useRefToJsComponent[P, S]` <br> `.useRefToJsComponentWithMountedFacade[P, S, F]` |
 | `useRef(initialValue)` | `.useRef(initialValue)` |
 | `useState(initialState)` <br> `useState(() => initialState)` | `.useState(initialState)` |
 | Custom hook <br> `useBlah(i)` | `.custom(useBlah(i))`
+
+Note: The reason that `[deps]` on the JS side becomes `(deps)` on the Scala side,
+is that in JS you'd use an array but in Scala you'd use a tuple.
+So `[dep1, dep2]` becomes `(dep1, dep2)`; and `[dep1]` becomes just `dep1` which is the same as
+`(dep1)`.
 
 
 # New hooks provided by scalajs-react
@@ -212,7 +217,7 @@ behaviour just like classes have.
 * `renderWithReuseBy[A: Reusability](reusableInputs: Ctx => A)(f: A => VdomNode)`
 * `renderReusable(f: Ctx => Reusable[VdomNode])`
 
-# Hook chaining / dependencies / results
+# Hooks with dependencies
 
 Sometimes hooks are initialised using props and/or the output of other hooks,
 (which scalajs-react refers to as "context").
@@ -619,27 +624,29 @@ Example:
 package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.facade.{React => ReactJsFacade}
+import japgolly.scalajs.react.facade.{React => ReactJs}
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.document
 
 object Example {
   val Component = ScalaFnComponent.withHooks[Unit]
     .unchecked {
-      val count = ReactJsFacade.useState[Int](0)
-      ReactJsFacade.useEffect(() => {
+      val count = ReactJs.useState[Int](0)
+      ReactJs.useEffect(() => {
         document.title = s"You clicked ${count._1} times"
       })
       count
     }
-    .render((_, count) =>
+    .render { (_, countHook) =>
+      val count    = countHook._1
+      val setCount = countHook._2
       <.div(
-        <.p(s"You clicked ${count._1} times"),
+        <.p(s"You clicked $count times"),
         <.button(
-          ^.onClick --> Callback(count._2(count._1 + 1)),
+          ^.onClick --> Callback(setCount(count + 1)),
           "Click me"
         ),
       )
-    )
+    }
 }
 ```
