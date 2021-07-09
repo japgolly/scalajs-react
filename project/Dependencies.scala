@@ -15,7 +15,7 @@ object Dependencies {
     val monocle2              = "2.1.0"
     val monocle3              = "3.0.0"
     val scala2                = "2.13.6"
-    val scala3                = "3.0.0"
+    val scala3                = "3.0.1"
     val scalaJsDom            = "1.1.0"
     val sourcecode            = "0.2.7"
 
