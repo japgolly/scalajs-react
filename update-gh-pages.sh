@@ -1,18 +1,21 @@
 #!/bin/bash
-cd "$(dirname "$0")" || exit 1
 
-ii=gh-pages/index.html
+set -euo pipefail
+cd "$(dirname "$0")"
+
+ii=ghpages/html/prod.html
 io=index.html
-js=gh-pages/res/ghpages.js
+js=ghpages/res/ghpages.js
 
 rm -f $io $js
 
-cat $ii | perl -pe '
-    s!"res/!"gh-pages/res/!g;
+perl -pe '
+    s!"res/!"ghpages/res/!g;
     s!"target/.+?\.js"!"'"$js"'"!g;
-    ' > $io \
-  && sbt gh-pages/fullOptJS \
-  && git add $js $io \
-  && git st \
-  && echo "git commit -m 'Refresh gh-pages'" && echo
+  ' > $io < $ii
 
+sbt ghpages/fullOptJS
+git add $js $io
+git st
+echo "git commit -m 'Refresh ghpages'"
+echo
