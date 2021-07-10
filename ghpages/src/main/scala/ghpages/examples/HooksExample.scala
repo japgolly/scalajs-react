@@ -2,7 +2,9 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SideBySide
+import scala.annotation.nowarn
 
+@nowarn("cat=unused")
 object HooksExample {
 
   val jsSource =
@@ -44,12 +46,12 @@ object HooksExample {
       .useState(0)
 
       // Similar to componentDidMount and componentDidUpdate:
-      .useEffectBy((_, count) => Callback {
+      .useEffectBy((props, count) => Callback {
         // Update the document title using the browser API
         document.title = s"You clicked ${count.value} times"
       })
 
-      .render((_, count) =>
+      .render((props, count) =>
         <.div(
           <.p(s"You clicked ${count.value} times"),
           <.button(
