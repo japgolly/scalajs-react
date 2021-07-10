@@ -16,6 +16,10 @@ perl -pe '
   ' > $io < $ii
 
 sbt ghpages/fullOptJS
+
+url=https://raw.githubusercontent.com/japgolly/scalajs-react/$(git rev-parse HEAD)/
+perl -pi -e 's|\Qfile://'"$(pwd)"'/\E|'"$url"'|g' $js.map
+
 git add $files
 git st
 echo "git commit -m 'Refresh ghpages' -- $files"
