@@ -186,7 +186,7 @@ object ScalaJsReact {
       scalaJSUseMainModuleInitializer := true,
       Compile / mainClass := Some("ghpages.GhPages"),
       Compile / fullOptJS / artifactPath := file("ghpages/res/ghpages.js"),
-      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(true) },
     )
 
   lazy val ghpagesMacros = project
