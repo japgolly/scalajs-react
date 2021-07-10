@@ -66,8 +66,9 @@ object Lib {
     // "-Xprint:all",
   )
 
-  def commonSettingsWithoutPlugins: PE =
-    _.settings(
+  def commonSettingsWithoutPlugins: PE = _
+    .configure(sourceMapsToGithub(ghProject))
+    .settings(
       scalaVersion                  := Ver.scala2,
       crossScalaVersions            := Seq(Ver.scala2, Ver.scala3),
       scalacOptions                ++= scalacCommonFlags,
@@ -90,21 +91,21 @@ object Lib {
     Def.setting(CrossVersion.partialVersion(scalaVersion.value).flatMap(f.lift).getOrElse(Nil))
 
   def publicationSettings: PE =
-    _.configure(sourceMapsToGithub(ghProject))
-      .settings(
-        publishTo := sonatypePublishToBundle.value,
-        pomExtra :=
-          <scm>
-            <connection>scm:git:github.com/japgolly/{ghProject}</connection>
-            <developerConnection>scm:git:git@github.com:japgolly/{ghProject}.git</developerConnection>
-            <url>github.com:japgolly/{ghProject}.git</url>
-          </scm>
-          <developers>
-            <developer>
-              <id>japgolly</id>
-              <name>David Barri</name>
-            </developer>
-          </developers>)
+    _.settings(
+      publishTo := sonatypePublishToBundle.value,
+      pomExtra :=
+        <scm>
+          <connection>scm:git:github.com/japgolly/{ghProject}</connection>
+          <developerConnection>scm:git:git@github.com:japgolly/{ghProject}.git</developerConnection>
+          <url>github.com:japgolly/{ghProject}.git</url>
+        </scm>
+        <developers>
+          <developer>
+            <id>japgolly</id>
+            <name>David Barri</name>
+          </developer>
+        </developers>
+    )
 
   def sourceMapsToGithub(ghProject: String): PE =
     p => p.settings(
