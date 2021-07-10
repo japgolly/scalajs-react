@@ -1,0 +1,22 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/../doc"
+
+for f in *.gv; do
+  echo "> $f"
+
+  # Regenerate SVG
+  rm -vf "$f".*svg
+  tmp=/tmp/"$f.svg"
+  dot -Tsvg -o"$tmp" "$f"
+  echo "generated $tmp"
+  chk=$(md5sum "$tmp" | awk '{print $1}')
+  svg="$f.$chk.svg"
+  mv -v "$tmp" "$svg"
+
+  perl -pi -e "s!(?<=/doc/)$f\.[a-z0-9.]*svg!$svg!g" *.md
+
+  echo
+done
+
+echo "Done"

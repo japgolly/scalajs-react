@@ -1,14 +1,16 @@
-ThisBuild / scalacOptions += "-Yrangepos"
+ThisBuild / scalacOptions ++= {
+  if (scalaVersion.value startsWith "2")
+    "-Yrangepos" :: Nil
+  else
+    Nil
+}
 
 ThisBuild / semanticdbEnabled := true
 
-ThisBuild / semanticdbVersion := "4.3.20"
+ThisBuild / semanticdbVersion := "4.4.23"
 
 ThisBuild / scalafixScalaBinaryVersion := "2.13"
 
 ThisBuild / scalafixDependencies ++= Seq(
-  "com.github.liancheng" %% "organize-imports" % "0.4.0"
+  "com.github.liancheng" %% "organize-imports" % "0.5.0"
 )
-
-//ThisBuild / scalacOptions += "-P:semanticdb:synthetics:on",
-//ThisBuild / scalafixDependencies += "org.scala-lang" %% "scala-rewrites" % "0.1.0-SNAPSHOT"

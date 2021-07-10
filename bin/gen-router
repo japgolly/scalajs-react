@@ -23,6 +23,6 @@ for (i <- 3 to 22) {
 
   def p(a: String) = (1 until i).map(a + "._" + _).mkString(",")
 
-  ra :+= s"implicit def T$i[$Ac] = Composition[(${prev.Ac}), ${A(i-1)}, ($Ac)](r => (${p("r")}), _._$i, (l,r) => (${p("l")},r))"
+  ra :+= s"implicit def T$i[$Ac]: Composition.Aux[(${prev.Ac}), ${A(i-1)}, ($Ac)] = Composition(r => (${p("r")}), _._$i, (l,r) => (${p("l")},r))"
 }
 println(ra mkString "\n")

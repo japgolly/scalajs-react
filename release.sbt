@@ -1,6 +1,6 @@
 import ReleaseTransformations._
 
-sonatypeSessionName := s"${name.value} v${version.value} (SJS $scalaJSVersion)"
+sonatypeSessionName := s"${name.value} v${version.value}"
 
 releaseCrossBuild := true
 

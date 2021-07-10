@@ -6,6 +6,8 @@ See [Refs and the DOM](https://facebook.github.io/react/docs/refs-and-the-dom.ht
 This document describes how to do the same within scalajs-react.
 
 - [Refs to VDOM tags](#refs-to-vdom-tags)
+  - [Typed](#type-safe)
+  - [Untyped](#untyped)
 - [Refs to Scala components](#refs-to-scala-components)
 - [Refs to JS components](#refs-to-js-components)
 - [Refs to functional components](#refs-to-functional-components)
@@ -13,6 +15,26 @@ This document describes how to do the same within scalajs-react.
 
 
 ## Refs to VDOM tags
+
+There are two different types of refs to VDOM.
+The names evolved incrementally and are now a bit misleading.
+The types are named "typed" and "untyped".
+What are the differences?
+
+1. "Typed" refs can only be used with vdom of the same type:
+  if you try to associate a typed ref to an `<input>` with a `<select>` you'll get a compilation error.
+
+  "Untyped" refs on the other hand can be associated with any vdom type:
+  if you try to associate an untyped ref to an `<input>` with a `<select>` you won't experience any compilation
+  or runtime errors, but the association will be silently ignored.
+  If the provided vdom is the ref type (or a subtype), then the ref will work as expected.
+
+2. Decoupling of control. With "typed" refs, you create the ref and apply it in the same class.
+   With "untyped" refs, you can pass the ref around and have a completely different part of the code wire it
+   up to vdom.
+
+
+### Typed
 
 1. Create a `Ref` in which to store the DOM reference.
   Its type should be whatever the DOM's type.
@@ -47,6 +69,29 @@ object CallbackOptionExample {
 ```
 
 Here is another example: [Refs online demo](https://japgolly.github.io/scalajs-react/#examples/refs).
+
+### Untyped
+
+There are two ways to use an untyped ref.
+
+The first is to just pass in a `Dom => Unit` function:
+
+```scala
+var refOrNull: html.Input = null
+
+def render =
+  <.input(^.untypedRef(refOrNull = _))
+```
+
+The second is to create a `Ref` object and wire it up like a normal vdom attribute:
+
+```scala
+val ref = Ref.toVdom[html.Input]
+
+def render =
+  <.input(^.untypedRef := ref)
+```
+
 
 ## Refs to Scala components
 

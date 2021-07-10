@@ -7,9 +7,9 @@ scalajs-react
 Lifts Facebook's [React](https://facebook.github.io/react/) library into [Scala.js](http://www.scala-js.org/) and endeavours to make it as type-safe and Scala-friendly as possible.
 
 Provides (opt-in) support for pure functional programming, with additional modules for
-[Scalaz](https://github.com/scalaz/scalaz),
-[Cats](https://github.com/typelevel/cats),
-and [Monocle](https://github.com/julien-truffaut/Monocle) (scalaz or cats based monocle).
+[Cats](https://typelevel.org/cats),
+[Cats Effect](https://typelevel.org/cats-effect),
+and [Monocle](https://www.optics.dev/Monocle).
 
 Comes with utility modules [`extra`](extra/) and [`test`](test/), helpful for React in Scala(.js), rather than React in JS.
 Includes a router, testing utils, performance utils, more.
@@ -17,7 +17,9 @@ Includes a router, testing utils, performance utils, more.
 ##### Contents
 
 - [Usage & Getting Started](doc/USAGE.md)
+  - [Modules](doc/MODULES.md)
   - [VDOM](doc/VDOM.md)
+  - [Hooks](doc/HOOKS.md)
   - [Refs](doc/REFS.md)
   - [IDE support](doc/IDE.md)
   - [The `Callback` class](doc/CALLBACK.md)
@@ -26,23 +28,26 @@ Includes a router, testing utils, performance utils, more.
   - [Types](doc/TYPES.md)
   - [Interoperability](doc/INTEROP.md)
   - [Functional programming](doc/FP.md)
+  - [Global Config](doc/CONFIG.md)
 - Scala-only Utilities
   - [Router](doc/ROUTER.md)
   - [Performance Management](doc/PERFORMANCE.md)
   - [Other](doc/EXTRA.md)
 - [Testing](doc/TESTING.md)
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/)
-- ScalaDoc: [core](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/core_sjs0.6_2.12/1.7.4) | [extra](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/extra_sjs0.6_2.12/1.7.4) | [scalaz72](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-scalaz72_sjs0.6_2.12/1.7.4) | [monocle](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle_sjs0.6_2.12/1.7.4) | [monocle-cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-monocle-cats_sjs0.6_2.12/1.7.4) | [cats](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/ext-cats_sjs0.6_2.12/1.7.4) | [test](https://www.javadoc.io/doc/com.github.japgolly.scalajs-react/test_sjs0.6_2.12/1.7.4)
-- [Changelogs](doc/changelog) — [**v1.7.4** (Latest)](doc/changelog/1.7.4.md)
+- [Changelogs](doc/changelog) — [**v2.0.0-RC1** (Latest)](doc/changelog/2.0.0.md)
 
 
 ##### External Resources
 
-* Templates & Tutorials
+* Tutorials / Blogs
+  * [Scala, React, and SSR](https://blog.shipreq.com/post/scala_react_and_ssr_part_1)
+  * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
+
+* Templates
   * [chandu0101 / scalajs-react-template](https://github.com/chandu0101/scalajs-react-template)
   * [ochrons / scalajs-spa-tutorial](https://github.com/ochrons/scalajs-spa-tutorial)
   * [TodoMVC example](http://todomvc.com/examples/scalajs-react)
-  * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
   * [Scala.js, React and ScalaCSS Boilerplate](https://github.com/shashkovdanil/scalajs-react-boilerplate)
   * ['Intro to React' tutorial transposed into scala.js](https://github.com/MrCurtis/ScalaJSReactTutorial)
 
@@ -64,9 +69,9 @@ Includes a router, testing utils, performance utils, more.
   * [scastie](https://github.com/scalacenter/scastie) - An interactive playground for Scala [https://scastie.scala-lang.org](https://scastie.scala-lang.org)
 
 ##### Requirements:
-* React ≥ 16
-* Scala ≥ 2.12
-* Scala.JS ≥ 0.6.31
+* React ≥ 17
+* Scala ≥ 2.13
+* Scala.JS ≥ 1.6
 
 ##### Support:
 If you like what I do

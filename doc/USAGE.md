@@ -21,9 +21,13 @@ Setup
 
 2. Add *scalajs-react* to SBT:
 
+   There are a number of different modules available.
+   On this page we'll just use the `core` module but refer to the [Modules doc](./MODULES.md) to
+   see other module options.
+
   ```scala
-  // core = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.7.4"
+  // "core" = essentials only. No bells or whistles.
+  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "2.0.0-RC1"
   ```
 
 3. Add React to your build.
@@ -38,11 +42,11 @@ Setup
 
       enablePlugins(ScalaJSBundlerPlugin)
 
-      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "1.7.4"
+      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "2.0.0-RC1"
 
       npmDependencies in Compile ++= Seq(
-        "react" -> "16.13.1",
-        "react-dom" -> "16.13.1")
+        "react" -> "17.0.2",
+        "react-dom" -> "17.0.2")
     ```
 
     If you're using old-school `jsDependencies`, add something akin to:
@@ -51,29 +55,23 @@ Setup
     // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
     jsDependencies ++= Seq(
 
-      "org.webjars.npm" % "react" % "16.13.1"
+      "org.webjars.npm" % "react" % "17.0.2"
         /        "umd/react.development.js"
         minified "umd/react.production.min.js"
         commonJSName "React",
 
-      "org.webjars.npm" % "react-dom" % "16.13.1"
+      "org.webjars.npm" % "react-dom" % "17.0.2"
         /         "umd/react-dom.development.js"
         minified  "umd/react-dom.production.min.js"
         dependsOn "umd/react.development.js"
         commonJSName "ReactDOM",
 
-      "org.webjars.npm" % "react-dom" % "16.13.1"
+      "org.webjars.npm" % "react-dom" % "17.0.2"
         /         "umd/react-dom-server.browser.development.js"
         minified  "umd/react-dom-server.browser.production.min.js"
         dependsOn "umd/react-dom.development.js"
         commonJSName "ReactDOMServer"),
     ```
-
-If you see the error related to `js-tokens` (such as `org.webjars.npm#js-tokens;[3.0.0,4),[4.0.0,5): not found`), then add the following line to `build.sbt`:
-
-```
-dependencyOverrides += "org.webjars.npm" % "js-tokens" % "3.0.2"
-```
 
 [See here](IDE.md) for tips on configuring your IDE.
 
@@ -384,7 +382,6 @@ Gotchas
 
   1. Use `modState`.
   2. Refactor your logic so that you only call `setState` once.
-  3. Use Scalaz state monads as demonstrated in the online [state monad example](https://japgolly.github.io/scalajs-react/#examples/state-monad).
 
 * Since `setState` and `modState` return callbacks, if you need to call them from outside of a component (e.g. by accessing the backend of a mounted component), call `.runNow()` to trigger the change; else the callback will never run.
   See the [Callbacks](#callbacks) section for more detail.
