@@ -3,6 +3,7 @@ digraph G {
 
   node[style=filled] {
     utilCE [label="util-cats_effect"]
+    utilDD [label="util-dummy-defaults"]
     utilFallbacks [label="util-fallbacks"]
     coreGeneric [label="core-generic"]
 
@@ -31,6 +32,9 @@ digraph G {
     catsC [label="callback-ext-cats"]
     catsEffectC [label="callback-ext-cats_effect"]
   }
+
+  util,utilFallbacks -> utilDD
+  // utilDD -> cats,catsEffect,coreGeneric,extra,monocle2,monocle3,test [style=dashed color="red"]
 
   utilFallbacks -> util [style=dashed color="#999999"]
   util -> utilCE -> catsEffectC,catsEffect

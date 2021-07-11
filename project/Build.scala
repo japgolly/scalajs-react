@@ -243,7 +243,10 @@ object ScalaJsReact {
 
   lazy val utilDummyDefaults = project
     .dependsOn(util, utilFallbacks)
-    .configure(commonSettings, preventPublication, hasNoTests)
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .settings(
+      moduleName := "util-dummy-defaults",
+    )
 
   lazy val utilFallbacks = project
     .configure(commonSettings, publicationSettings, hasNoTests, prohibitDefaultEffects)

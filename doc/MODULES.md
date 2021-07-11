@@ -132,4 +132,4 @@ These are all the modules meant for end-user selection.
 There are also other modules that are for internal/technical purposes and are transitive (indirect) dependencies.
 This is the full module diagram:
 
-![all modules](https://rawgit.com/japgolly/scalajs-react/master/doc/modules.gv.0629700f42933998a3f995fc28018bb3.svg)
+![all modules](https://rawgit.com/japgolly/scalajs-react/master/doc/modules.gv.a0ebcfef45a364a9635afc388db9d3e9.svg)
