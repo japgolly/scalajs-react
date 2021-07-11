@@ -2,6 +2,7 @@ digraph G {
   edge[dir=back]
 
   node[style=filled] {
+    scalafix
     utilCE [label="util-cats_effect"]
     utilDD [label="util-dummy-defaults"]
     utilFallbacks [label="util-fallbacks"]

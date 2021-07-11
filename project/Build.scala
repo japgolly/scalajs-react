@@ -60,15 +60,6 @@ object ScalaJsReact {
 
   // ==============================================================================================
 
-  lazy val scalafixRules = project
-    .disablePlugins(ScalafixPlugin)
-    .configure(commonSettingsWithoutPlugins, preventPublication)
-    .settings(
-      libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % ScalafixVer,
-      disable := scalaVersion.value.startsWith("3"),
-    )
-    .configure(conditionallyDisable) // keep this last
-
   lazy val callback = project
     .dependsOn(util, utilFallbacks % Provided)
     .configure(commonSettings, publicationSettings, utestSettings, prohibitDefaultEffects)
@@ -194,6 +185,16 @@ object ScalaJsReact {
     .settings(
       libraryDependencies += Dep.sourcecode.value,
     )
+
+  lazy val scalafixRules = project
+    .disablePlugins(ScalafixPlugin)
+    .configure(commonSettingsWithoutPlugins, publicationSettings)
+    .settings(
+      moduleName := "scalafix",
+      libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % ScalafixVer,
+      disable := scalaVersion.value.startsWith("3"),
+    )
+    .configure(conditionallyDisable) // keep this last
 
   lazy val tests = project
     .dependsOn(testUtil, coreExtCatsEffect, extraExtMonocle3)
