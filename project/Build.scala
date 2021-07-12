@@ -192,6 +192,7 @@ object ScalaJsReact {
     .settings(
       moduleName := "scalafix",
       libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % ScalafixVer,
+      scalacOptions ~= { _.filterNot(_.contains("mapSourceURI")) },
       disable := scalaVersion.value.startsWith("3"),
     )
     .configure(conditionallyDisable) // keep this last
