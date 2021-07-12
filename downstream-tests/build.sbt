@@ -174,3 +174,17 @@ lazy val jsCE = project
     },
     jsDependencies += (ProvidedJS / "polyfill.js") % Test,
   )
+
+lazy val generic = project
+  .enablePlugins(ScalaJSPlugin)
+  .configure(commonSettings)
+  .settings(
+    scalaJSStage := jsStage,
+    libraryDependencies ++= {
+      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      Seq(
+        "com.github.japgolly.scalajs-react" %%% "core-generic" % ver,
+        "com.github.japgolly.scalajs-react" %%% "util-dummy-defaults" % ver % Provided,
+      )
+    },
+  )
