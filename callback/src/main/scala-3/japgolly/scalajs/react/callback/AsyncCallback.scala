@@ -50,7 +50,6 @@ object AsyncCallback {
   private[AsyncCallback] val defaultCompleteWith: Try[Any] => Callback =
     _ => Callback.empty
 
-  // TODO: Revise AsyncCallback.{apply,delay} ?
   def apply[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(_ => f)
 
