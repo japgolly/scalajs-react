@@ -190,7 +190,7 @@ object CustomHook {
         }
       }
 
-  def reusableByDeps[A, D](create: (D, Int) => A)(implicit r: Reusability[D]): CustomHook[() => D, Reusable[A]] =
+  def reusableByDeps[D, A](create: (D, Int) => A)(implicit r: Reusability[D]): CustomHook[() => D, Reusable[A]] =
     reusableDeps[D].map { case (d, rev) => Reusable.implicitly(rev).withValue(create(d, rev)) }
 
   def shouldComponentUpdate[D](render: D => VdomNode)(implicit r: Reusability[D]): CustomHook[() => D, VdomNode] =
