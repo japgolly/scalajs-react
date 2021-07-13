@@ -25,10 +25,11 @@ Includes a router, testing utils, performance utils, more.
   - [The `Callback` class](doc/CALLBACK.md)
   - [React Context](doc/CONTEXT.md)
 - Delving deeper
+  - [Global Config](doc/CONFIG.md)
   - [Types](doc/TYPES.md)
   - [Interoperability](doc/INTEROP.md)
+  - [Creating an Effect-Agnostic Library](doc/FX_AGNOSTICISM.md)
   - [Functional programming](doc/FP.md)
-  - [Global Config](doc/CONFIG.md)
 - Scala-only Utilities
   - [Router](doc/ROUTER.md)
   - [Performance Management](doc/PERFORMANCE.md)
