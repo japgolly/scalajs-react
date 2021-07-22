@@ -24,7 +24,7 @@ object Dependencies {
     val catsTestkitScalaTest  = "2.1.5"
     val disciplineScalaTest   = "2.1.5"
     val kindProjector         = "0.13.0"
-    val nyaya                 = "0.10.0"
+    val nyaya                 = "0.11.0"
     val reactJs               = "17.0.2"
     val scalaJsJavaTime       = "1.0.0"
     val scalaTest             = "3.2.9"
