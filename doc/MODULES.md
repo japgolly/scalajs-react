@@ -15,7 +15,7 @@ with the opt-in optional features shown for you to accept or remove.
 Add to sbt:
 
 ```scala
-val ScalaJsReactVer = "2.0.0-RC1"
+val ScalaJsReactVer = "2.0.0-RC2"
 
 libraryDependencies ++= Seq(
 
@@ -70,7 +70,7 @@ No additional imports required.
 Add to sbt:
 
 ```scala
-val ScalaJsReactVer = "2.0.0-RC1"
+val ScalaJsReactVer = "2.0.0-RC2"
 
 libraryDependencies ++= Seq(
 
