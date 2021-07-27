@@ -34,7 +34,7 @@ jobs:
         uses: japgolly/setup-scalajs@v1
 
       - name: Cache sbt
-        uses: coursier/cache-action@v6.1
+        uses: coursier/cache-action@v6
 
       - name: Build and test
         shell: bash
