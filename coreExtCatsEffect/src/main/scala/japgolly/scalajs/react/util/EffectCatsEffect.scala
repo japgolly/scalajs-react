@@ -39,7 +39,7 @@ object EffectCatsEffect {
 
   // ===================================================================================================================
 
-  implicit lazy val io = new AsyncIO(ReactCatsEffect.runtimeFn)
+  implicit lazy val io: AsyncIO = new AsyncIO(ReactCatsEffect.runtimeFn)
 
   class AsyncIO(runtime: () => IORuntime) extends Async.WithDefaults[IO] {
 
