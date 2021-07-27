@@ -23,6 +23,7 @@ object ScalaJsReact {
       callbackExtCatsEffect,
       coreBundleCallback,
       coreBundleCatsEffect,
+      coreBundleCBIO,
       coreExtCats,
       coreExtCatsEffect,
       coreGeneric,
@@ -106,6 +107,15 @@ object ScalaJsReact {
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .settings(
       moduleName := "core-bundle-cats_effect",
+    )
+
+  lazy val coreBundleCBIO = project
+    .dependsOn(callback) // High priority
+    .dependsOn(coreExtCatsEffect) // High priority
+    .dependsOn(utilFallbacks) // Low priority
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
+    .settings(
+      moduleName := "core-bundle-cb_io",
     )
 
   lazy val coreExtCats = project

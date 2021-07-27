@@ -9,6 +9,7 @@ val callbackExtCats       = ScalaJsReact.callbackExtCats
 val callbackExtCatsEffect = ScalaJsReact.callbackExtCatsEffect
 val coreBundleCallback    = ScalaJsReact.coreBundleCallback
 val coreBundleCatsEffect  = ScalaJsReact.coreBundleCatsEffect
+val coreBundleCBIO        = ScalaJsReact.coreBundleCBIO
 val coreExtCats           = ScalaJsReact.coreExtCats
 val coreExtCatsEffect     = ScalaJsReact.coreExtCatsEffect
 val coreGeneric           = ScalaJsReact.coreGeneric
