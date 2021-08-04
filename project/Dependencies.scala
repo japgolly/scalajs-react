@@ -11,7 +11,7 @@ object Dependencies {
     // Externally observable
     val cats                  = "2.6.1"
     val catsEffect            = "3.1.1"
-    val microlibs             = "2.6"
+    val microlibs             = "3.0"
     val monocle2              = "2.1.0"
     val monocle3              = "3.0.0"
     val scala2                = "2.13.6"
@@ -29,7 +29,7 @@ object Dependencies {
     val scalaJsJavaTime       = "1.0.0"
     val scalaTest             = "3.2.9"
     val sizzleJs              = "2.3.0"
-    val univEq                = "1.4.0"
+    val univEq                = "1.5.0"
     val utest                 = "0.7.10"
   }
 
@@ -56,7 +56,7 @@ object Dependencies {
     val scalaTest            = Def.setting("org.scalatest"                 %%% "scalatest"               % Ver.scalaTest)
     val sourcecode           = Def.setting("com.lihaoyi"                   %%% "sourcecode"              % Ver.sourcecode)
     val univEq               = Def.setting("com.github.japgolly.univeq"    %%% "univeq"                  % Ver.univEq)
-    val univEqScalaz         = Def.setting("com.github.japgolly.univeq"    %%% "univeq-scalaz"           % Ver.univEq)
+    val univEqCats           = Def.setting("com.github.japgolly.univeq"    %%% "univeq-cats"             % Ver.univEq)
     val utest                = Def.setting("com.lihaoyi"                   %%% "utest"                   % Ver.utest)
 
     // Compiler plugins
@@ -79,7 +79,7 @@ object Dependencies {
 
   def globalDependencyOverrides = Def.setting(Seq(
     Dep.univEq.value,
-    Dep.univEqScalaz.value,
+    Dep.univEqCats.value,
   ))
 
   def addReactJsDependencies(scope: Configuration): Project => Project =

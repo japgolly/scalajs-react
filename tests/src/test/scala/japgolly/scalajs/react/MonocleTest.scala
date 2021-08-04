@@ -1,11 +1,11 @@
 package japgolly.scalajs.react
 
+import cats.{Monad, ~>}
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.extra._
 import monocle._
 import scala.annotation.nowarn
-import scalaz.{Monad, ~>}
 import utest._
 
 object MonocleTest extends TestSuite {

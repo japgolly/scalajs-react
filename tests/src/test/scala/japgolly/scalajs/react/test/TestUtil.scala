@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.test
 
+import cats.Eq
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router
 import scala.annotation.nowarn
 import scala.reflect.ClassTag
 import scala.scalajs.js
-import scalaz.{Equal, Maybe}
 import sourcecode.Line
 import utest.CompileError
 
@@ -13,9 +13,9 @@ object TestUtil extends TestUtil
 
 trait TestUtil
   extends japgolly.microlibs.testutil.TestUtil
-     with scalaz.std.ListInstances
-     with scalaz.std.OptionInstances
-     with scalaz.std.VectorInstances {
+     with cats.instances.ListInstances
+     with cats.instances.OptionInstances
+     with cats.instances.VectorInstances {
 
   implicit final def equalKey          : UnivEq[Key]            = UnivEq.force
   implicit final def routerEqualBaseUrl: UnivEq[router.BaseUrl] = UnivEq.force
@@ -23,9 +23,9 @@ trait TestUtil
   implicit final def routerEqualAbsUrl : UnivEq[router.AbsUrl]  = UnivEq.force
 
   // TODO erm... not really. Only allow in raw testing
-  implicit val equalRawRef: Equal[japgolly.scalajs.react.facade.React.Ref] = Equal.equalRef
-  implicit def equalRawRefHandle[A]: Equal[japgolly.scalajs.react.facade.React.RefHandle[A]] = Equal.equalRef
-  implicit def equalRefSimple[A]: Equal[Ref.Simple[A]] = Equal.equalRef
+  implicit val equalRawRef: Eq[japgolly.scalajs.react.facade.React.Ref] = _ eq _
+  implicit def equalRawRefHandle[A]: Eq[japgolly.scalajs.react.facade.React.RefHandle[A]] = _ eq _
+  implicit def equalRefSimple[A]: Eq[Ref.Simple[A]] = _ eq _
 
   implicit class AnyTestExt[A](a: A) {
 
@@ -34,9 +34,6 @@ trait TestUtil
 
     def jsdef: js.UndefOr[A] = a
     def undef: js.UndefOr[A] = js.undefined
-
-    def just    : Maybe[A] = Maybe.just(a)
-    def maybeNot: Maybe[A] = Maybe.empty
 
     def matchesBy[B <: A : ClassTag](f: B => Boolean) = a match {
       case b: B => f(b)

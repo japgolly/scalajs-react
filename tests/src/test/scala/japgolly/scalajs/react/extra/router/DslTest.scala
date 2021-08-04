@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.extra.router
 
+import cats.Eq
 import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
@@ -7,7 +8,6 @@ import japgolly.scalajs.react.vdom.html_<^._
 import java.util.UUID
 import monocle._
 import scala.util.Try
-import scalaz.Equal
 import utest.{test => _, _}
 
 object DslTest extends TestSuite {
@@ -73,23 +73,23 @@ object DslTest extends TestSuite {
       import StaticDsl.Route
       import noPageDsl._
 
-      def test[A: Equal](r: Route[A])(toPath: A => String, good: A*)(bad: String*): Unit =
+      def test[A: Eq](r: Route[A])(toPath: A => String, good: A*)(bad: String*): Unit =
         testM(r)(good.map(a => (toPath(a), a)): _*)(bad: _*)
 
-      def testOk[A: Equal](r: Route[A])(path: String, a: A, rebuild: String = null): Unit = {
+      def testOk[A: Eq](r: Route[A])(path: String, a: A, rebuild: String = null): Unit = {
         val p = Path(path)
         assertEq(s"Parse good $p with $r", r parse p, Some(a))
         assertEq(s"Path for ($a) with $r", r pathFor a, Option(rebuild).fold(p)(Path(_)))
       }
 
-      def testM[A: Equal](r: Route[A])(good: (String, A)*)(bad: String*): Unit = {
+      def testM[A: Eq](r: Route[A])(good: (String, A)*)(bad: String*): Unit = {
         for (p <- bad)
           assertEq(s"Parse bad Path($p) with $r", r parse Path(p), None)
         for ((s, a) <- good)
           testOk(r)(s, a)
       }
 
-      def testS[A: Equal](r: Route[A])(good: A*)(bad: String*): Unit =
+      def testS[A: Eq](r: Route[A])(good: A*)(bad: String*): Unit =
         test(r)(_.toString, good: _*)(bad: _*)
 
       def testU(r: Route[Unit])(good: String)(bad: String*): Unit =
