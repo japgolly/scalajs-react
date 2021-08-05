@@ -50,6 +50,12 @@ object Effect extends EffectFallbacks {
       else
         (a, b) => delay(g.runSync(f(a, b)))
 
+    final def transSyncFn2C[G[_], A, B, C](f: (A, G[B]) => G[C])(implicit g: UnsafeSync[G]): (A, F[B]) => F[C] =
+      if (this eq g)
+        f.asInstanceOf[(A, F[B]) => F[C]]
+      else
+        (a, gb) => delay(g.runSync(f(a, g.transSync(gb)(this))))
+
     final def transDispatch[G[_]](f: => G[Unit])(implicit g: Dispatch[G]): F[Unit] =
       if (this eq g)
         f.asInstanceOf[F[Unit]]
