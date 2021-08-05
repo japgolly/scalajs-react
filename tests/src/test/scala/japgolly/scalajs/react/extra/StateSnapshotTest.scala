@@ -52,12 +52,28 @@ object StateSnapshotTest extends TestSuite {
     }
 
     "withReuse" - {
-      val log = Reusable.byRef[SetFn[Int]]((os, cb) => cb <<? os.map(Callback.log(_)))
-      val warn = Reusable.byRef[SetFn[Int]]((os, cb) => cb <<? os.map(Callback.warn(_)))
-      def make = StateSnapshot.withReuse(1)(log)
-      "equal" - assertReusable(make, make)
-      "diffGet" - assertNotReusable(make, StateSnapshot.withReuse(2)(log))
-      "diffSet" - assertNotReusable(make, StateSnapshot.withReuse(1)(warn))
+      "SS_SetFn" - {
+        val log = Reusable.byRef[SetFn[Int]]((os, cb) => cb <<? os.map(Callback.log(_)))
+        val warn = Reusable.byRef[SetFn[Int]]((os, cb) => cb <<? os.map(Callback.warn(_)))
+        def make = StateSnapshot.withReuse(1)(log)
+        "equal" - assertReusable(make, make)
+        "diffGet" - assertNotReusable(make, StateSnapshot.withReuse(2)(log))
+        "diffSet" - assertNotReusable(make, StateSnapshot.withReuse(1)(warn))
+      }
+
+      "SetStateFn" - {
+        val log = Reusable.byRef[SetStateFnPure[Int]](SetStateFn((os, cb) => cb <<? os.map(Callback.log(_))))
+        val warn = Reusable.byRef[SetStateFnPure[Int]](SetStateFn((os, cb) => cb <<? os.map(Callback.warn(_))))
+        def make = StateSnapshot.withReuse(1)(log)
+        "equal" - assertReusable(make, make)
+        "diffGet" - assertNotReusable(make, StateSnapshot.withReuse(2)(log))
+        "diffSet" - assertNotReusable(make, StateSnapshot.withReuse(1)(warn))
+      }
+
+      "ModStateFn" - {
+        val _ = (f: ModStateFnPure[Int]) => f: StateSnapshot.ModFn[Int]
+        ()
+      }
 
       "inference" - {
         import japgolly.scalajs.react.test.InferenceHelpers._

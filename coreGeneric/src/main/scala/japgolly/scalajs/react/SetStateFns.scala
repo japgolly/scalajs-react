@@ -2,9 +2,11 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.Util.identityFn
+import scala.runtime.AbstractFunction2
 
 final class SetStateFn[F[_], A[_], S](underlyingFn: (Option[S], F[Unit]) => F[Unit])
-                                     (implicit FF: UnsafeSync[F], AA: Async[A]) extends StateAccess.SetState[F, A, S] {
+                                     (implicit FF: UnsafeSync[F], AA: Async[A])
+    extends AbstractFunction2[Option[S], F[Unit], F[Unit]] with StateAccess.SetState[F, A, S] {
 
   override type WithEffect     [G[_]] = SetStateFn[G, A, S]
   override type WithAsyncEffect[G[_]] = SetStateFn[F, G, S]
@@ -17,6 +19,9 @@ final class SetStateFn[F[_], A[_], S](underlyingFn: (Option[S], F[Unit]) => F[Un
 
   override def withAsyncEffect[G[_]](implicit G: Async[G]) =
     G.subst[A, WithAsyncEffect](this)(new SetStateFn(underlyingFn)(F, G))(A)
+
+  override def apply(newState: Option[S], callback: F[Unit]): F[Unit] =
+    underlyingFn(newState, callback)
 
   /** @param callback Executed regardless of whether state is changed. */
   override def setStateOption[G[_]](newState: Option[S], callback: => G[Unit])(implicit G: Dispatch[G]): F[Unit] =
@@ -40,7 +45,8 @@ object SetStateFn {
 // =====================================================================================================================
 
 final class ModStateFn[F[_], A[_], S](underlyingFn: (S => Option[S], F[Unit]) => F[Unit])
-                                     (implicit FF: UnsafeSync[F], AA: Async[A]) extends StateAccess.ModState[F, A, S] {
+                                     (implicit FF: UnsafeSync[F], AA: Async[A])
+    extends AbstractFunction2[S => Option[S], F[Unit], F[Unit]] with StateAccess.ModState[F, A, S] {
 
   override type WithEffect     [G[_]] = ModStateFn[G, A, S]
   override type WithAsyncEffect[G[_]] = ModStateFn[F, G, S]
@@ -53,6 +59,9 @@ final class ModStateFn[F[_], A[_], S](underlyingFn: (S => Option[S], F[Unit]) =>
 
   override def withAsyncEffect[G[_]](implicit G: Async[G]) =
     G.subst[A, WithAsyncEffect](this)(new ModStateFn(underlyingFn)(F, G))(A)
+
+  override def apply(f: S => Option[S], callback: F[Unit]): F[Unit] =
+    underlyingFn(f, callback)
 
   /** @param callback Executed regardless of whether state is changed. */
   override def modStateOption[G[_]](f: S => Option[S], callback: => G[Unit])(implicit G: Dispatch[G]): F[Unit] =
@@ -79,7 +88,8 @@ object ModStateFn {
 // =====================================================================================================================
 
 final class ModStateWithPropsFn[F[_], A[_], P, S](underlyingFn: ((S, P) => Option[S], F[Unit]) => F[Unit])
-                                                 (implicit FF: UnsafeSync[F], AA: Async[A]) extends StateAccess.ModStateWithProps[F, A, P, S] {
+                                                 (implicit FF: UnsafeSync[F], AA: Async[A])
+    extends AbstractFunction2[(S, P) => Option[S], F[Unit], F[Unit]] with StateAccess.ModStateWithProps[F, A, P, S] {
 
   override type WithEffect     [G[_]] = ModStateWithPropsFn[G, A, P, S]
   override type WithAsyncEffect[G[_]] = ModStateWithPropsFn[F, G, P, S]
@@ -92,6 +102,9 @@ final class ModStateWithPropsFn[F[_], A[_], P, S](underlyingFn: ((S, P) => Optio
 
   override def withAsyncEffect[G[_]](implicit G: Async[G]) =
     G.subst[A, WithAsyncEffect](this)(new ModStateWithPropsFn(underlyingFn)(F, G))(A)
+
+  override def apply(f: (S, P) => Option[S], callback: F[Unit]): F[Unit] =
+    underlyingFn(f, callback)
 
   /** @param callback Executed regardless of whether state is changed. */
   override def modStateOption[G[_]](f: (S, P) => Option[S], callback: => G[Unit])(implicit G: Dispatch[G]): F[Unit] =
