@@ -77,5 +77,5 @@ trait TimerSupport extends TimerSupportF[DefaultEffects.Sync] with OnUnmount
 
 object TimerSupport {
   @inline def install[P, C <: Children, S, B <: TimerSupport, U <: UpdateSnapshot]: ScalaComponent.Config[P, C, S, B, U, U] =
-    TimerSupport.install
+    TimerSupportF.install(DefaultEffects.Sync)
 }
