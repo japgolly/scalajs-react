@@ -29,7 +29,7 @@ object Dependencies {
     val scalaJsJavaTime       = "1.0.0"
     val scalaTest             = "3.2.9"
     val sizzleJs              = "2.3.0"
-    val univEq                = "1.5.0"
+    val univEq                = "1.6.0"
     val utest                 = "0.7.10"
   }
 
