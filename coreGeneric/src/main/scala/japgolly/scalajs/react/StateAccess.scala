@@ -64,7 +64,7 @@ object StateAccess {
     def setStateOption[G[_]](newState: Option[S], callback: => G[Unit])(implicit G: Dispatch[G]): F[Unit]
 
     def toSetStateFn: SetStateFn[F, A, S] =
-      SetStateFn((o, f) => setStateOption(o, DS.fromJsFn0(f)))
+      SetStateFn((o, f) => setStateOption(o, f))
 
     final def setStateAsync(newState: S): A[Unit] =
       async(setState(newState, _))
@@ -92,7 +92,7 @@ object StateAccess {
     def modStateOption[G[_]](mod: S => Option[S], callback: => G[Unit])(implicit G: Dispatch[G]): F[Unit]
 
     def toModStateFn: ModStateFn[F, A, S] =
-      ModStateFn((o, f) => modStateOption(o, DS.fromJsFn0(f)))
+      ModStateFn((o, f) => modStateOption(o, f))
 
     final def modStateAsync(mod: S => S): A[Unit] =
       async(modState(mod, _))
@@ -120,7 +120,7 @@ object StateAccess {
     def modStateOption[G[_]](mod: (S, P) => Option[S], callback: => G[Unit])(implicit G: Dispatch[G]): F[Unit]
 
     def toModStateWithPropsFn: ModStateWithPropsFn[F, A, P, S] =
-      ModStateWithPropsFn((o, f) => modStateOption(o, DS.fromJsFn0(f)))
+      ModStateWithPropsFn((o, f) => modStateOption(o, f))
 
     final def modStateAsync(mod: (S, P) => S): A[Unit] =
       async(modState(mod, _))

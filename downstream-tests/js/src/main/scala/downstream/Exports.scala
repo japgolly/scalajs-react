@@ -20,9 +20,13 @@ object Exports {
   @JSExport
   def exp = List[Any](
     BaseUrl("http://some.url"),
+    modStateFnPure,
     pxToCallback,
     Px.constByNeed(123).toCallback[SyncIO],
   )
+
+  private def modStateFnPure: ModStateFnPure[Int] =
+    ModStateFn((mod, cb) => Callback.log(mod(1).isDefined) >> cb)
 
   private def pxToCallback: CallbackTo[Int] = {
     val x = Px.constByNeed(123).toCallback
