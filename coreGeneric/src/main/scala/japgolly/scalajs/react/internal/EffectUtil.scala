@@ -14,6 +14,15 @@ object EffectUtil {
   def asEventDefault_[F[_], A](e: ReactEvent)(fa: => F[A])(implicit F: Sync[F]): F[Unit] =
     F.delay(unsafeAsEventDefault_(e)(F.runSync(fa)))
 
+  def unsafeAsEventDefaultOption_[A](e: ReactEvent)(o: => Option[A]): Unit =
+    if (!e.defaultPrevented) {
+      if (o.isDefined)
+        e.preventDefault()
+    }
+
+  def asEventDefaultOption_[F[_], A](e: ReactEvent)(fa: => F[Option[A]])(implicit F: Sync[F]): F[Unit] =
+    F.delay(unsafeAsEventDefaultOption_(e)(F.runSync(fa)))
+
   def unsafeKeyCodeSwitch[A](e       : ReactKeyboardEvent,
                              altKey  : Boolean = false,
                              ctrlKey : Boolean = false,
