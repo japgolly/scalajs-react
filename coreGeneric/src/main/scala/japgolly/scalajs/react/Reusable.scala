@@ -3,6 +3,7 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.internal.CoreGeneral._
 import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.{DefaultEffects => D}
+import japgolly.scalajs.react.vdom.TagMod
 import scala.reflect.ClassTag
 
 /**
@@ -149,6 +150,9 @@ object Reusable {
 
   def reusabilityInstance[A](r: Reusability[A]): Reusable[Reusability[A]] =
     byRef(r.test).map(new Reusability(_))
+
+  lazy val emptyVdom: Reusable[TagMod] =
+    Reusable.byRef(TagMod.empty)
 
   // ===================================================================================================================
 

@@ -56,7 +56,9 @@ class TriStateCheckboxF[F[_]](implicit F: Sync[F]) {
 
   case class Props(state       : State,
                    setNextState: F[Unit],
-                   disabled    : Boolean = false) {
+                   disabled    : Boolean = false,
+                   tagMod      : Reusable[TagMod] = Reusable.emptyVdom,
+                  ) {
     @inline def render: VdomElement = Component(this)
   }
 
@@ -64,6 +66,7 @@ class TriStateCheckboxF[F[_]](implicit F: Sync[F]) {
     val props = F.transSync($.props)(DefaultEffects.Sync)
     val setNext = F.flatMap(props)(p => if (p.disabled) F.empty else p.setNextState) // Only access .setNextState inside Sync for Reusability
     <.input.checkbox(
+      p.tagMod,
       ^.disabled := p.disabled,
       TagMod.unless(p.disabled)(eventHandlers(setNext)))
   }
