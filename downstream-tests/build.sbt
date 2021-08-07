@@ -146,7 +146,6 @@ lazy val js = project
         Dep.scalaJsJavaTime.value % Test,
       )
     },
-    jsDependencies += (ProvidedJS / "polyfill.js") % Test,
     scalaJSLinkerConfig ~= { _
       .withSemantics(_
         .withRuntimeClassNameMapper(Semantics.RuntimeClassNameMapper.discardAll())
@@ -172,7 +171,6 @@ lazy val jsCE = project
         Dep.scalaJsJavaTime.value % Test,
       )
     },
-    jsDependencies += (ProvidedJS / "polyfill.js") % Test,
   )
 
 lazy val generic = project
