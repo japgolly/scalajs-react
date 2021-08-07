@@ -74,7 +74,7 @@ class TriStateCheckboxF[F[_]](implicit F: Sync[F]) {
   def eventHandlers(onChange: F[Unit]): TagMod = {
     def handleKey(e: ReactKeyboardEventFromHtml): F[Unit] =
       F.delay {
-        EffectUtil.unsafeAsEventDefault_(e)(
+        EffectUtil.unsafeAsEventDefaultOption_(e)(
           EffectUtil.unsafeKeyCodeSwitch(e) {
             case KeyCode.Space => F.runSync(onChange)
           }
