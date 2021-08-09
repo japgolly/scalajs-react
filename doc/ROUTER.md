@@ -6,7 +6,7 @@ Included is a router (in the orbit of Single-Page Applications) that is written 
 The package is `japgolly.scalajs.react.extra.router`.
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "2.0.0-RC2"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "2.0.0-RC3"
 ```
 
 ## Contents
