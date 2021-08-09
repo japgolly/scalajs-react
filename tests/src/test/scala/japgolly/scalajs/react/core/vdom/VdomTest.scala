@@ -153,5 +153,13 @@ object VdomTest extends TestSuite {
       }
     }
 
+    "callbackOption" - {
+      "value" - assertCompiles(^.onKeyDown --> CallbackOption.pass)
+      "fn" - {
+        def keys(e: ReactKeyboardEventFromHtml): CallbackOption[Unit] = ???
+        assertCompiles(^.onKeyDown ==> keys)
+      }
+    }
+
   }
 }

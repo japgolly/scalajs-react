@@ -4,8 +4,9 @@ import japgolly.scalajs.react.callback._
 import scala.scalajs.js
 
 abstract class EffectFallbacks1 extends EffectFallbacks2 {
-  implicit def callback     : Effect.Sync [CallbackTo   ] = EffectCallback.callback
-  implicit def asyncCallback: Effect.Async[AsyncCallback] = EffectCallback.asyncCallback
+  implicit def callback      : Effect.Sync    [CallbackTo    ] = EffectCallback.callback
+  implicit def callbackOption: Effect.Dispatch[CallbackOption] = EffectCallback.callbackOption
+  implicit def asyncCallback : Effect.Async   [AsyncCallback ] = EffectCallback.asyncCallback
 }
 
 object EffectCallback {
@@ -78,6 +79,29 @@ object EffectCallback {
 
     @inline override def when_[A](cond: => Boolean)(fa: => CallbackTo[A]) =
       fa.when_(cond)
+  }
+
+  // ===================================================================================================================
+
+  object callbackOption extends Dispatch[CallbackOption] {
+
+    override def delay[A](a: => A): CallbackOption[A] =
+      CallbackOption.delay(a)
+
+    override def pure[A](a: A): CallbackOption[A] =
+      CallbackOption.pure(a)
+
+    override def map[A, B](fa: CallbackOption[A])(f: A => B): CallbackOption[B] =
+      fa map f
+
+    override def flatMap[A, B](fa: CallbackOption[A])(f: A => CallbackOption[B]): CallbackOption[B] =
+      fa flatMap f
+
+    override def dispatch[A](fa: CallbackOption[A]): Unit =
+      fa.asCallback.void
+
+    override def dispatchFn[A](fa: => CallbackOption[A]): js.Function0[Unit] =
+      () => {fa.underlyingRepr(); ()}
   }
 
   // ===================================================================================================================
