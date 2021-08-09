@@ -1096,6 +1096,13 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
   inline def fork_ : Callback =
     delayMs(1).toCallback
 
+  /** Runs this async computation in the background.
+    *
+    * Unlike [[fork_]] this returns an `AsyncCallback[Unit]` instead of a `Callback`.
+    */
+  def dispatch: AsyncCallback[Unit] =
+    delayMs(1).void
+
   /** Record the duration of this callback's execution. */
   def withDuration[B](f: (A, FiniteDuration) => AsyncCallback[B]): AsyncCallback[B] = {
     val nowMS: AsyncCallback[Long] = CallbackTo.currentTimeMillis.asAsyncCallback

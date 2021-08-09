@@ -695,6 +695,10 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
     }
   }
 
+  /** Runs this computation in the background. */
+  def dispatch: Callback =
+    asAsyncCallback.fork_
+
   def withFilter(f: A => Boolean): CallbackTo[A] =
     map[A](a => if (f(a)) a else
       // This is what scala.Future does
