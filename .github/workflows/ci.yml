@@ -10,9 +10,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - java: 14
-            scala: 2
           - java: 8
+            scala: 3
+          - java: 11
+            scala: 3
+          - java: 14
+            scala: 3
+          - java: 16
             scala: 3
     name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }}
     steps:
